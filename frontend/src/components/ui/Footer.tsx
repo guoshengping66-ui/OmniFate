@@ -28,8 +28,7 @@ export function Footer() {
             {/* Brand column */}
             <div className="md:col-span-2">
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-10 h-10 rounded-full bg-gold-shine flex items-center justify-center
-                                shadow-[0_0_20px_rgba(201,168,76,0.3)]">
+ <div className="w-10 h-10 rounded-full bg-gold-shine flex items-center justify-center shadow-[0_0_20px_rgba(201,168,76,0.3)]">
                   <Sparkles size={18} className="text-ink" />
                 </div>
                 <span className="font-serif font-bold text-gold text-lg">{t("app.name")}</span>
@@ -47,10 +46,7 @@ export function Footer() {
                 ].map(s => (
                   <div
                     key={s.label}
-                    className="w-9 h-9 rounded-full bg-white/5 border border-white/10
-                               flex items-center justify-center text-white/30
-                               hover:text-gold hover:border-gold/30 hover:bg-gold/5
-                               transition-all duration-300 cursor-pointer"
+ className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/30 hover:text-gold hover:border-gold/30 hover:bg-gold/5 transition-all duration-300 cursor-pointer"
                     title={s.label}
                   >
                     {s.icon}
@@ -116,14 +112,11 @@ export function Footer() {
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     placeholder="your@email.com"
-                    className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2
-                               text-xs text-white placeholder-white/20
-                               focus:border-gold/40 focus:outline-none transition-colors"
+ className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-white/20 focus:border-gold/40 focus:outline-none transition-colors"
                   />
                   <button
                     type="submit"
-                    className="px-3 py-2 bg-gold/15 border border-gold/30 rounded-lg
-                               text-gold text-xs hover:bg-gold/25 transition-colors"
+ className="px-3 py-2 bg-gold/15 border border-gold/30 rounded-lg text-gold text-xs hover:bg-gold/25 transition-colors"
                   >
                     <Send size={12} />
                   </button>

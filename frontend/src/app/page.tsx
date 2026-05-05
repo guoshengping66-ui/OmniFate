@@ -160,8 +160,7 @@ export default function HomePage() {
                 <MagneticButton>
                   <a
                     href="#agents"
-                    className="inline-flex items-center gap-2 px-8 py-4 rounded-full border border-white/20
-                               text-white/60 hover:border-gold/30 hover:text-gold transition-all text-lg backdrop-blur-sm"
+ className="inline-flex items-center gap-2 px-8 py-4 rounded-full border border-white/20 text-white/60 hover:border-gold/30 hover:text-gold transition-all text-lg backdrop-blur-sm"
                   >
                     {t("hero.cta2")}
                   </a>
@@ -226,8 +225,7 @@ export default function HomePage() {
                   scale={1.03}
                 >
                   <div
-                    className="h-full bg-white/[0.03] backdrop-blur-sm border border-white/10 rounded-2xl p-6 md:p-7
-                               group cursor-default transition-all duration-500"
+ className="h-full bg-white/[0.03] backdrop-blur-sm border border-white/10 rounded-2xl p-6 md:p-7 group cursor-default transition-all duration-500"
                     style={{
                       borderLeft: `2px solid ${agent.accent}44`,
                       boxShadow: i === 0
@@ -237,8 +235,7 @@ export default function HomePage() {
                   >
                     {/* Element badge */}
                     <div
-                      className="inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-1 rounded-full
-                                 border border-white/10 text-white/40 mb-4"
+ className="inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-1 rounded-full border border-white/10 text-white/40 mb-4"
                     >
                       <span
                         className="w-1.5 h-1.5 rounded-full element-pulse"
@@ -289,8 +286,7 @@ export default function HomePage() {
             ].map((s, i) => (
               <ScrollReveal key={s.n} delay={i * 0.1} direction="up">
                 <div className="text-center group">
-                  <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center
-                                  mx-auto mb-4 text-2xl group-hover:border-gold/30 group-hover:bg-gold/5 transition-all duration-300">
+ <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-4 text-2xl group-hover:border-gold/30 group-hover:bg-gold/5 transition-all duration-300">
                     {s.icon}
                   </div>
                   <div className="text-sm text-gold/40 font-bold mb-2">{s.n}</div>
@@ -465,8 +461,7 @@ export default function HomePage() {
               <ScrollReveal key={p.name} delay={i * 0.12} direction="up">
                 <TiltCard glare={true} scale={1.02}>
                   <div
-                    className="relative overflow-hidden rounded-2xl border border-white/10 p-6 h-full
-                               group cursor-pointer transition-all duration-500"
+ className="relative overflow-hidden rounded-2xl border border-white/10 p-6 h-full group cursor-pointer transition-all duration-500"
                     style={{
                       background: `linear-gradient(135deg, ${p.gradient}, transparent)`,
                       boxShadow: `0 0 60px ${p.glow}`,
@@ -481,14 +476,12 @@ export default function HomePage() {
                     />
 
                     {/* Tag */}
-                    <div className="relative z-10 inline-block text-[10px] font-bold px-2 py-1 rounded-full
-                                    bg-white/10 text-white/60 mb-4 border border-white/10">
+ <div className="relative z-10 inline-block text-[10px] font-bold px-2 py-1 rounded-full bg-white/10 text-white/60 mb-4 border border-white/10">
                       {p.tag}
                     </div>
 
                     {/* Product image placeholder */}
-                    <div className="relative z-10 w-24 h-24 mx-auto mb-5 rounded-2xl border border-white/10
-                                    flex items-center justify-center text-4xl bg-white/[0.03]">
+ <div className="relative z-10 w-24 h-24 mx-auto mb-5 rounded-2xl border border-white/10 flex items-center justify-center text-4xl bg-white/[0.03]">
                       💎
                     </div>
 

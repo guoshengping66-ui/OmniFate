@@ -38,8 +38,7 @@ export function FreeReportBanner({ weakestLabel, onCtaClick }: FreeReportBannerP
         {/* CTA */}
         <button
           onClick={onCtaClick}
-          className="flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full border border-gold/40 text-gold/80 text-sm
-                     hover:bg-gold/10 hover:text-gold hover:border-gold/60 transition-all duration-300 group/btn"
+ className="flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full border border-gold/40 text-gold/80 text-sm hover:bg-gold/10 hover:text-gold hover:border-gold/60 transition-all duration-300 group/btn"
         >
           <span className="hidden sm:inline">查看改运好物</span>
           <span className="sm:hidden">去看看</span>

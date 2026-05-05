@@ -75,8 +75,7 @@ export function ProductCard({ product }: { product: Product }) {
       )}
 
       {/* Image */}
-      <div className="w-20 h-20 flex-shrink-0 rounded-xl bg-gold/10 border border-gold/20
-                      flex items-center justify-center text-3xl overflow-hidden relative">
+ <div className="w-20 h-20 flex-shrink-0 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center text-3xl overflow-hidden relative">
         {product.image_url ? (
           <img src={product.image_url} alt={product.name} className="w-full h-full object-cover rounded-xl" />
         ) : "🔮"}

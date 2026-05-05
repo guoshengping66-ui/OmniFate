@@ -102,8 +102,7 @@ export default function ReadingsPage() {
                 >
                   <div className="flex items-start gap-4">
                     {/* Icon */}
-                    <div className="w-12 h-12 rounded-xl bg-gold/10 border border-gold/20 flex-shrink-0
-                                    flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+ <div className="w-12 h-12 rounded-xl bg-gold/10 border border-gold/20 flex-shrink-0 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
                       🔮
                     </div>
 

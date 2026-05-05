@@ -492,9 +492,7 @@ export default function ReadingPage() {
               <div className="flex flex-wrap justify-center gap-2">
                 {data.computed_tags.slice(0, 10).map((tag, i) => (
                   <span key={tag}
-                    className="text-xs px-3 py-1.5 bg-white/[0.04] border border-white/[0.08] rounded-full
-                               text-white/50 hover:text-gold hover:border-gold/30 hover:bg-gold/5
-                               transition-all duration-300 cursor-default"
+                    className="text-xs px-3 py-1.5 bg-white/[0.04] border border-white/[0.08] rounded-full text-white/50 hover:text-gold hover:border-gold/30 hover:bg-gold/5 transition-all duration-300 cursor-default"
                     style={{ transitionDelay: `${i * 30}ms` }}
                   >
                     {tag}

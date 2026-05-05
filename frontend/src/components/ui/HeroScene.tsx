@@ -35,8 +35,7 @@ export function HeroScene() {
       className="absolute inset-0 flex items-center justify-center pointer-events-none"
     >
       {/* Layer 1: Outer glow ring */}
-      <div className="absolute w-[420px] h-[420px] md:w-[520px] md:h-[520px] rounded-full
-                      bg-gradient-to-r from-gold/5 via-transparent to-gold/5 animate-pulse-slow" />
+ <div className="absolute w-[420px] h-[420px] md:w-[520px] md:h-[520px] rounded-full bg-gradient-to-r from-gold/5 via-transparent to-gold/5 animate-pulse-slow" />
 
       {/* Layer 2: Rotating astrolabe */}
       <motion.svg

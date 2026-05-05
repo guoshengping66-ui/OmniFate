@@ -22,8 +22,7 @@ export function AccordionItem({ question, answer, defaultOpen = false }: Accordi
     >
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-5 text-left
-                   hover:bg-white/[0.02] transition-colors duration-200"
+ className="w-full flex items-center justify-between p-5 text-left hover:bg-white/[0.02] transition-colors duration-200"
       >
         <span className={`font-serif font-medium pr-4 transition-colors duration-200
           ${isOpen ? "text-gold" : "text-white/80"}`}>

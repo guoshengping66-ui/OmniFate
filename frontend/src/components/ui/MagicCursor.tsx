@@ -17,7 +17,7 @@ export function MagicCursor() {
   const particlesRef = useRef<Particle[]>([])
   const mouseRef = useRef({ x: 0, y: 0 })
   const lastMouseRef = useRef({ x: 0, y: 0 })
-  const rafRef = useRef<number>()
+  const rafRef = useRef<number>(undefined)
 
   useEffect(() => {
     const canvas = canvasRef.current

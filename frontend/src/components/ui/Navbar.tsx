@@ -43,8 +43,7 @@ export function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-full bg-gold-shine flex items-center justify-center
-                            shadow-[0_0_20px_rgba(201,168,76,0.5)] group-hover:scale-110 transition-transform">
+ <div className="w-9 h-9 rounded-full bg-gold-shine flex items-center justify-center shadow-[0_0_20px_rgba(201,168,76,0.5)] group-hover:scale-110 transition-transform">
               <Sparkles size={18} className="text-ink" />
             </div>
             <span className="font-serif font-bold text-lg text-gold">{t("app.name")}</span>

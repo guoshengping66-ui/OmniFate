@@ -182,8 +182,7 @@ export function EnergyIDCard({ sessionId, dimensionScores, generatedAt }: Energy
               </div>
               <button
                 onClick={handleShare}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 border border-white/10
-                           text-white/40 hover:text-gold hover:border-gold/30 transition-all text-[10px]"
+ className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-white/40 hover:text-gold hover:border-gold/30 transition-all text-[10px]"
               >
                 <Share2 size={10} />
                 分享

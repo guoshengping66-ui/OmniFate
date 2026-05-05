@@ -151,8 +151,7 @@ export function ChatBox({ sessionId, availableAgents = [] }: Props) {
         <div className="px-4 pb-2 flex gap-2 flex-wrap">
           {quickQuestions.map(q => (
             <button key={q} onClick={() => { setInput(q); }}
-              className="text-xs px-3 py-1 rounded-full border border-white/15 text-white/50
-                         hover:border-gold/40 hover:text-gold transition-all">
+ className="text-xs px-3 py-1 rounded-full border border-white/15 text-white/50 hover:border-gold/40 hover:text-gold transition-all">
               {q}
             </button>
           ))}
@@ -170,9 +169,7 @@ export function ChatBox({ sessionId, availableAgents = [] }: Props) {
           className="flex-1 input-field text-sm py-2.5 resize-none min-h-[42px] max-h-[120px]"
         />
         <button onClick={send} disabled={loading || !input.trim()}
-          className="w-10 h-10 rounded-xl bg-gold/20 border border-gold/30 text-gold
-                     hover:bg-gold/30 disabled:opacity-40 disabled:cursor-not-allowed
-                     flex items-center justify-center transition-all flex-shrink-0 self-end">
+ className="w-10 h-10 rounded-xl bg-gold/20 border border-gold/30 text-gold hover:bg-gold/30 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center transition-all flex-shrink-0 self-end">
           <Send size={16} />
         </button>
       </div>

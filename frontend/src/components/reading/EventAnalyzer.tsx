@@ -134,9 +134,7 @@ export default function EventAnalyzer({ sessionId }: Props) {
         <div className="flex flex-wrap gap-2 mb-4">
           {QUICK_EVENTS.map(qe => (
             <button key={qe.label} onClick={() => handleQuickEvent(qe.desc)}
-              className="text-xs px-3 py-1.5 bg-white/5 border border-white/10 rounded-full
-                         text-white/50 hover:text-gold hover:border-gold/30 hover:bg-gold/5
-                         transition-all whitespace-nowrap">
+ className="text-xs px-3 py-1.5 bg-white/5 border border-white/10 rounded-full text-white/50 hover:text-gold hover:border-gold/30 hover:bg-gold/5 transition-all whitespace-nowrap">
               {qe.label}
             </button>
           ))}
@@ -147,9 +145,7 @@ export default function EventAnalyzer({ sessionId }: Props) {
           value={description}
           onChange={e => setDescription(e.target.value)}
           placeholder="描述一下发生了什么…&#10;例如：今天和领导因为项目方向产生了分歧，对方坚持采用保守方案，而我认为应该尝试新方法。"
-          className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm
-                     text-white/80 placeholder-white/20 resize-none h-28
-                     focus:outline-none focus:border-gold/40 focus:bg-white/[0.07]"
+ className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-white/80 placeholder-white/20 resize-none h-28 focus:outline-none focus:border-gold/40 focus:bg-white/[0.07]"
         />
 
         <div className="grid sm:grid-cols-2 gap-4 mt-4">
@@ -160,8 +156,7 @@ export default function EventAnalyzer({ sessionId }: Props) {
             </label>
             <input type="datetime-local" value={eventDate}
               onChange={e => setEventDate(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5
-                         text-sm text-white/70 focus:outline-none focus:border-gold/40"
+ className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white/70 focus:outline-none focus:border-gold/40"
             />
           </div>
 

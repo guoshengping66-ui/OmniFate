@@ -316,9 +316,7 @@ export default function NewReadingPage() {
                   {([["female","女"],["male","男"],["other","其他"]] as [string,string][]).map(([v,l]) => (
                     <label key={v} className="flex-1 cursor-pointer">
                       <input type="radio" value={v} {...register("gender")} className="sr-only peer" />
-                      <div className="text-center py-2.5 rounded-xl border border-white/20 text-white/60
-                                      peer-checked:border-gold peer-checked:text-gold peer-checked:bg-gold/10
-                                      hover:border-white/40 transition-all text-sm">{l}</div>
+ <div className="text-center py-2.5 rounded-xl border border-white/20 text-white/60 peer-checked:border-gold peer-checked:text-gold peer-checked:bg-gold/10 hover:border-white/40 transition-all text-sm">{l}</div>
                     </label>
                   ))}
                 </div>
@@ -439,8 +437,7 @@ export default function NewReadingPage() {
                   />
                 ) : (
                   <div onClick={() => faceRef.current?.click()}
-                    className="border-2 border-dashed border-white/20 hover:border-gold/40 rounded-2xl
-                               p-6 md:p-8 text-center cursor-pointer transition-all group">
+ className="border-2 border-dashed border-white/20 hover:border-gold/40 rounded-2xl p-6 md:p-8 text-center cursor-pointer transition-all group">
                     {facePreview ? (
                       <div className="relative inline-block">
                         <img src={facePreview} alt="preview"
@@ -508,8 +505,7 @@ export default function NewReadingPage() {
                   />
                 ) : (
                   <div onClick={() => palmRef.current?.click()}
-                    className="border-2 border-dashed border-white/20 hover:border-gold/40 rounded-2xl
-                               p-6 md:p-8 text-center cursor-pointer transition-all group">
+ className="border-2 border-dashed border-white/20 hover:border-gold/40 rounded-2xl p-6 md:p-8 text-center cursor-pointer transition-all group">
                     {palmPreview ? (
                       <div className="relative inline-block">
                         <img src={palmPreview} alt="palm preview"
@@ -655,8 +651,7 @@ export default function NewReadingPage() {
           <div className="flex justify-between mt-8">
             {step > 0 ? (
               <button type="button" onClick={() => setStep(s => s - 1)}
-                className="flex items-center gap-2 px-6 py-2.5 rounded-full border border-white/20
-                           text-white/60 hover:border-white/40 transition-all">
+ className="flex items-center gap-2 px-6 py-2.5 rounded-full border border-white/20 text-white/60 hover:border-white/40 transition-all">
                 <ChevronLeft size={16} /> 上一步
               </button>
             ) : <div />}

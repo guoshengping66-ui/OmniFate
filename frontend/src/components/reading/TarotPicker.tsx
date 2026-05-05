@@ -34,8 +34,7 @@ export function TarotPicker({ onSelect }: Props) {
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-medium text-white/70">塔罗抽牌（三张牌阵）</h3>
         <button type="button" onClick={drawRandom}
-          className="text-xs px-4 py-1.5 rounded-full border border-gold/40 text-gold
-                     hover:bg-gold/10 transition-all">
+ className="text-xs px-4 py-1.5 rounded-full border border-gold/40 text-gold hover:bg-gold/10 transition-all">
           {drawing ? "洗牌中…" : cards.length ? "重新抽牌" : "随机抽牌"}
         </button>
       </div>

@@ -44,8 +44,7 @@ export function ReadingSkeleton({ phase }: Props) {
           {AGENTS.map((agent, i) => (
             <div
               key={agent.name}
-              className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-5
-                         animate-pulse-slow"
+ className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-5 animate-pulse-slow"
               style={{
                 borderLeftColor: agent.color.replace("border-l-", ""),
                 borderLeftWidth: "3px",

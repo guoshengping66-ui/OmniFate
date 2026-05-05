@@ -137,8 +137,7 @@ export function ShareSheet({ sessionId }: Props) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/20
-                   text-white/60 hover:border-gold/40 hover:text-gold transition-all text-sm"
+ className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/20 text-white/60 hover:border-gold/40 hover:text-gold transition-all text-sm"
       >
         <Share2 size={14} />
         分享报告
@@ -160,8 +159,7 @@ export function ShareSheet({ sessionId }: Props) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="fixed bottom-0 left-0 right-0 z-50 bg-ink border-t border-gold/20
-                         rounded-t-3xl p-6 pb-10 max-w-lg mx-auto"
+ className="fixed bottom-0 left-0 right-0 z-50 bg-ink border-t border-gold/20 rounded-t-3xl p-6 pb-10 max-w-lg mx-auto"
             >
               <div className="flex items-center justify-between mb-6">
                 <h3 className="font-serif text-lg text-gold">分享命盘报告</h3>
@@ -172,10 +170,8 @@ export function ShareSheet({ sessionId }: Props) {
 
               <div className="grid grid-cols-4 gap-4 mb-6">
                 <button onClick={handleCopy}
-                  className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 hover:bg-gold/10
-                             border border-white/10 hover:border-gold/30 transition-all group">
-                  <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center
-                                  group-hover:bg-gold/20 transition-colors">
+ className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 hover:bg-gold/10 border border-white/10 hover:border-gold/30 transition-all group">
+ <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
                     {copied ? <Check size={18} className="text-green-400" /> : <Copy size={18} className="text-white/60" />}
                   </div>
                   <span className="text-[10px] text-white/40">{copied ? "已复制" : "复制链接"}</span>
@@ -183,10 +179,8 @@ export function ShareSheet({ sessionId }: Props) {
 
                 {typeof navigator !== "undefined" && !!navigator.share && (
                   <button onClick={handleShare}
-                    className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 hover:bg-gold/10
-                               border border-white/10 hover:border-gold/30 transition-all group">
-                    <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center
-                                    group-hover:bg-gold/20 transition-colors">
+ className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 hover:bg-gold/10 border border-white/10 hover:border-gold/30 transition-all group">
+ <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
                       <Share2 size={18} className="text-white/60" />
                     </div>
                     <span className="text-[10px] text-white/40">更多分享</span>
@@ -194,17 +188,14 @@ export function ShareSheet({ sessionId }: Props) {
                 )}
 
                 <button onClick={handleDownloadPoster}
-                  className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 hover:bg-gold/10
-                             border border-white/10 hover:border-gold/30 transition-all group">
-                  <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center
-                                  group-hover:bg-gold/20 transition-colors">
+ className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 hover:bg-gold/10 border border-white/10 hover:border-gold/30 transition-all group">
+ <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
                     <Download size={18} className="text-white/60" />
                   </div>
                   <span className="text-[10px] text-white/40">下载卡片</span>
                 </button>
 
-                <div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5
-                               border border-white/10 transition-all group opacity-60 cursor-not-allowed">
+ <div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 border border-white/10 transition-all group opacity-60 cursor-not-allowed">
                   <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
                     <span className="text-sm">💚</span>
                   </div>
