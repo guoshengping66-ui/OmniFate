@@ -42,7 +42,9 @@ export function PaymentMethodSelector({ selected, onSelect, className = "" }: Pa
       .catch(() => {
         // Fallback if API not available
         setMethods([
-          { id: "card", name: "信用卡/借记卡", name_en: "Card", icon: "credit-card", category: "global", enabled: true },
+          { id: "alipay", name: "支付宝", name_en: "Alipay", icon: "alipay", category: "china", enabled: true },
+          { id: "wechat_pay", name: "微信支付", name_en: "WeChat Pay", icon: "wechat", category: "china", enabled: true },
+          { id: "paypal", name: "PayPal", name_en: "PayPal", icon: "paypal", category: "global", enabled: true },
         ])
       })
       .finally(() => setLoading(false))

@@ -31,18 +31,28 @@ class Settings(BaseSettings):
     JWT_SECRET_KEY: str = "alpha-mirror-jwt-secret-dev-key-2025"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
-    STRIPE_SECRET_KEY: str = ""
-    STRIPE_WEBHOOK_SECRET: str = ""
-    STRIPE_PRICE_ID_PREMIUM: str = ""
-
-    # Alipay (via Stripe)
-    ALIPAY_ENABLED: bool = False
-
-    # WeChat Pay (via Stripe)
+    # ── 微信支付 ──
     WECHAT_PAY_ENABLED: bool = False
+    WECHAT_APPID: str = ""
+    WECHAT_MCH_ID: str = ""
+    WECHAT_API_KEY: str = ""
+    WECHAT_NOTIFY_URL: str = "https://yourdomain.com/api/payments/wechat/notify"
 
-    # PayPal (via Stripe)
+    # ── 支付宝 ──
+    ALIPAY_ENABLED: bool = False
+    ALIPAY_APP_ID: str = ""
+    ALIPAY_PRIVATE_KEY: str = ""
+    ALIPAY_PUBLIC_KEY: str = ""
+    ALIPAY_NOTIFY_URL: str = "https://yourdomain.com/api/payments/alipay/notify"
+    ALIPAY_RETURN_URL: str = "https://yourdomain.com/payment/success"
+
+    # ── PayPal ──
     PAYPAL_ENABLED: bool = False
+    PAYPAL_CLIENT_ID: str = ""
+    PAYPAL_SECRET: str = ""
+    PAYPAL_MODE: str = "sandbox"  # sandbox 或 live
+    PAYPAL_RETURN_URL: str = "https://yourdomain.com/payment/success"
+    PAYPAL_CANCEL_URL: str = "https://yourdomain.com/payment/cancel"
 
     S3_BUCKET: str = ""
     S3_REGION: str = "us-east-1"
