@@ -1,4 +1,6 @@
 """POST /register  POST /login  GET /me  POST /refresh  POST /forgot-password  POST /reset-password"""
+from __future__ import annotations
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, EmailStr
 from sqlalchemy import select
