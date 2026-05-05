@@ -379,6 +379,30 @@ export default {
   "auth.loginNow": "Login Now",
   "auth.registerNow": "Sign Up Now",
 
+  // ─── Forgot Password ───
+  "auth.forgotPasswordDesc": "Enter your registered email and we'll send a password reset link",
+  "auth.fillEmail": "Please enter your email address",
+  "auth.sendResetLink": "Send Reset Link",
+  "auth.sending": "Sending...",
+  "auth.resetSent": "Reset Link Sent",
+  "auth.resetSentDesc": "Please check your email for the reset link and follow the instructions",
+  "auth.resetNow": "Reset Now",
+  "auth.backToLogin": "Back to Login",
+
+  // ─── Reset Password ───
+  "auth.resetPassword": "Reset Password",
+  "auth.resetPasswordDesc": "Set your new password",
+  "auth.newPassword": "New Password",
+  "auth.confirmPasswordPlaceholder": "Enter new password again",
+  "auth.resetting": "Resetting...",
+  "auth.resetSuccess": "Password Reset Successful",
+  "auth.resetSuccessDesc": "Your password has been reset. Please log in with your new password.",
+  "auth.goToLogin": "Go to Login",
+  "auth.invalidToken": "Invalid reset link",
+  "auth.requestNewLink": "Request a new reset link",
+  "auth.passwordMismatch": "Passwords do not match",
+  "auth.resetFail": "Password reset failed, please try again later",
+
   // ─── Payment ───
   "payment.selectMethod": "Select Payment Method",
   "payment.confirmPay": "Confirm Payment",
@@ -553,6 +577,19 @@ export default {
   "account.fortunePlan": "Personalized fortune plan",
   "account.multiProfile": "Multi-profile management",
   "account.couponBalance2": "Coupon Balance",
+  "account.settings": "Settings",
+  "account.editProfile": "Edit Profile",
+  "account.emailLabel": "Email",
+  "account.saveProfile": "Save Profile",
+  "account.profileSaved": "Profile updated successfully",
+  "account.profileSaveFail": "Update failed, please try again later",
+  "account.changePassword": "Change Password",
+  "account.currentPassword": "Current Password",
+  "account.currentPasswordPlaceholder": "Enter current password",
+  "account.newPasswordPlaceholder": "At least 6 characters",
+  "account.fillPasswords": "Please fill in all password fields",
+  "account.passwordChanged": "Password changed successfully",
+  "account.passwordChangeFail": "Password change failed, please check your current password",
 
   // ─── Five Elements ───
   "wuxing.metal": "Metal (Jin)",

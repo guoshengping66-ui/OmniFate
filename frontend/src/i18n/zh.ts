@@ -373,6 +373,30 @@ export default {
   "auth.loginNow": "立即登录",
   "auth.registerNow": "立即注册",
 
+  // ─── 找回密码 ───
+  "auth.forgotPasswordDesc": "输入你的注册邮箱，我们将发送密码重置链接",
+  "auth.fillEmail": "请输入邮箱地址",
+  "auth.sendResetLink": "发送重置链接",
+  "auth.sending": "发送中…",
+  "auth.resetSent": "重置链接已发送",
+  "auth.resetSentDesc": "请查收邮箱中的重置链接，按提示重置密码",
+  "auth.resetNow": "立即重置",
+  "auth.backToLogin": "返回登录",
+
+  // ─── 重置密码 ───
+  "auth.resetPassword": "重置密码",
+  "auth.resetPasswordDesc": "设置你的新密码",
+  "auth.newPassword": "新密码",
+  "auth.confirmPasswordPlaceholder": "再次输入新密码",
+  "auth.resetting": "重置中…",
+  "auth.resetSuccess": "密码重置成功",
+  "auth.resetSuccessDesc": "你的密码已重置，请使用新密码登录",
+  "auth.goToLogin": "前往登录",
+  "auth.invalidToken": "无效的重置链接",
+  "auth.requestNewLink": "重新申请重置链接",
+  "auth.passwordMismatch": "两次输入的密码不一致",
+  "auth.resetFail": "密码重置失败，请稍后重试",
+
   // ─── 支付 ───
   "payment.selectMethod": "选择支付方式",
   "payment.confirmPay": "确认支付",
@@ -547,6 +571,19 @@ export default {
   "account.fortunePlan": "专属改运方案",
   "account.multiProfile": "多人档案管理",
   "account.couponBalance2": "代金券余额",
+  "account.settings": "设置",
+  "account.editProfile": "编辑个人资料",
+  "account.emailLabel": "邮箱",
+  "account.saveProfile": "保存资料",
+  "account.profileSaved": "资料更新成功",
+  "account.profileSaveFail": "更新失败，请稍后重试",
+  "account.changePassword": "修改密码",
+  "account.currentPassword": "当前密码",
+  "account.currentPasswordPlaceholder": "请输入当前密码",
+  "account.newPasswordPlaceholder": "至少 6 个字符",
+  "account.fillPasswords": "请填写所有密码字段",
+  "account.passwordChanged": "密码修改成功",
+  "account.passwordChangeFail": "密码修改失败，请检查当前密码",
 
   // ─── 五行 ───
   "wuxing.metal": "金",

@@ -1,6 +1,7 @@
-"""api/routers/users.py — User profile, favorites, orders"""
+"""api/routers/users.py — User profile, favorites, orders, settings"""
 import json
 from pathlib import Path
+from pydantic import BaseModel
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.database.session import AsyncSessionLocal
 from backend.database.models import User, Order, OrderItem, UserFavorite, Product
 from backend.auth.dependencies import require_user
+from backend.auth.jwt import verify_password, hash_password
 
 router = APIRouter()
 
@@ -136,3 +138,56 @@ async def list_orders(user: User = Depends(require_user)):
             return items
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Failed to list orders: {str(exc)}")
+
+
+# ── Profile Settings ──────────────────────────────────────────────────────
+
+class UpdateProfileRequest(BaseModel):
+    display_name: str | None = None
+
+
+class ChangePasswordRequest(BaseModel):
+    old_password: str
+    new_password: str
+
+
+@router.put("/profile")
+async def update_profile(
+    req: UpdateProfileRequest,
+    user: User = Depends(require_user),
+):
+    """修改用户昵称"""
+    async with AsyncSessionLocal() as db:
+        db_user = await db.get(User, user.id)
+        if not db_user:
+            raise HTTPException(status_code=404, detail="用户不存在")
+        if req.display_name is not None:
+            db_user.display_name = req.display_name.strip() or None
+        await db.commit()
+        await db.refresh(db_user)
+        return {
+            "id": str(db_user.id),
+            "email": db_user.email,
+            "display_name": db_user.display_name,
+        }
+
+
+@router.put("/password")
+async def change_password(
+    req: ChangePasswordRequest,
+    user: User = Depends(require_user),
+):
+    """修改密码（需验证旧密码）"""
+    async with AsyncSessionLocal() as db:
+        db_user = await db.get(User, user.id)
+        if not db_user:
+            raise HTTPException(status_code=404, detail="用户不存在")
+        if not db_user.hashed_password:
+            raise HTTPException(status_code=400, detail="该账户使用第三方登录，无法修改密码")
+        if not verify_password(req.old_password, db_user.hashed_password):
+            raise HTTPException(status_code=400, detail="旧密码不正确")
+        if len(req.new_password) < 6:
+            raise HTTPException(status_code=400, detail="新密码至少需要 6 个字符")
+        db_user.hashed_password = hash_password(req.new_password)
+        await db.commit()
+        return {"message": "密码修改成功"}

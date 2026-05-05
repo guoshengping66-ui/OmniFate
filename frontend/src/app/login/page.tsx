@@ -91,12 +91,17 @@ export default function LoginPage() {
             {loading ? <><Loader2 size={18} className="animate-spin" /> {t("auth.loggingIn")}</> : t("auth.login")}
           </button>
 
-          <p className="text-center text-white/40 text-sm">
-            {t("auth.noAccount")}{" "}
-            <Link href="/register" className="text-gold hover:underline">
-              {t("auth.registerNow")}
+          <div className="flex items-center justify-between text-sm">
+            <Link href="/forgot-password" className="text-gold/60 hover:text-gold">
+              {t("auth.forgotPassword")}
             </Link>
-          </p>
+            <p className="text-white/40">
+              {t("auth.noAccount")}{" "}
+              <Link href="/register" className="text-gold hover:underline">
+                {t("auth.registerNow")}
+              </Link>
+            </p>
+          </div>
         </form>
       </div>
     </div>

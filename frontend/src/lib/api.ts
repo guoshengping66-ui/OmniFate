@@ -251,6 +251,30 @@ export async function refreshToken(refreshToken: string): Promise<{ access_token
   return res.data
 }
 
+// ── Password Reset ──────────────────────────────────────────────────────────
+
+export async function forgotPassword(email: string): Promise<{ message: string; dev_token?: string }> {
+  const res = await api.post("/api/auth/forgot-password", { email })
+  return res.data
+}
+
+export async function resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
+  const res = await api.post("/api/auth/reset-password", { token, new_password: newPassword })
+  return res.data
+}
+
+// ── Profile Settings ────────────────────────────────────────────────────────
+
+export async function updateProfile(displayName: string): Promise<{ id: string; email: string; display_name: string | null }> {
+  const res = await api.put("/api/users/profile", { display_name: displayName })
+  return res.data
+}
+
+export async function changePassword(oldPassword: string, newPassword: string): Promise<{ message: string }> {
+  const res = await api.put("/api/users/password", { old_password: oldPassword, new_password: newPassword })
+  return res.data
+}
+
 // ── Payment / Order / Subscription ──────────────────────────────────────────
 
 export interface SubscribeResult {

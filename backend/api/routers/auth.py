@@ -1,4 +1,5 @@
-"""POST /register  POST /login  GET /me  POST /refresh"""
+"""POST /register  POST /login  GET /me  POST /refresh  POST /forgot-password  POST /reset-password"""
+import uuid as _uuid
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, EmailStr
 from sqlalchemy import select
@@ -11,6 +12,7 @@ from backend.auth.jwt import (
     hash_password, verify_password,
 )
 from backend.auth.dependencies import get_current_user, require_user
+from backend.config import get_settings
 
 router = APIRouter()
 
@@ -35,6 +37,15 @@ class AuthResponse(BaseModel):
 
 class RefreshRequest(BaseModel):
     refresh_token: str
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
 
 
 class UserResponse(BaseModel):
@@ -129,3 +140,63 @@ async def refresh_token(req: RefreshRequest):
     access = create_access_token(user_id)
     refresh = create_refresh_token(user_id)
     return {"access_token": access, "refresh_token": refresh, "token_type": "bearer"}
+
+
+# ─── Password Reset ───────────────────────────────────────────────────────
+
+# In-memory store for reset tokens (Mock mode — no real email sending)
+_reset_tokens: dict[str, dict] = {}
+
+
+@router.post("/forgot-password")
+async def forgot_password(req: ForgotPasswordRequest, db: AsyncSession = Depends(get_db)):
+    """发送密码重置邮件（Mock模式下生成token并返回）"""
+    result = await db.execute(select(User).where(User.email == req.email))
+    user = result.scalar_one_or_none()
+
+    # Always return success to prevent email enumeration
+    if not user:
+        return {"message": "如果该邮箱已注册，重置链接已发送", "dev_token": None}
+
+    # Generate reset token (valid for 30 minutes)
+    from datetime import datetime, timedelta, timezone
+    import secrets
+    token = secrets.token_urlsafe(32)
+    _reset_tokens[token] = {
+        "user_id": str(user.id),
+        "expires_at": datetime.now(timezone.utc) + timedelta(minutes=30),
+    }
+
+    # In production, send email here. For dev, return the token.
+    settings = get_settings()
+    dev_token = token if settings.DEBUG else None
+
+    return {"message": "如果该邮箱已注册，重置链接已发送", "dev_token": dev_token}
+
+
+@router.post("/reset-password")
+async def reset_password(req: ResetPasswordRequest, db: AsyncSession = Depends(get_db)):
+    """用重置 token 设置新密码"""
+    from datetime import datetime, timezone
+
+    token_data = _reset_tokens.get(req.token)
+    if not token_data:
+        raise HTTPException(status_code=400, detail="无效或已过期的重置链接")
+
+    if datetime.now(timezone.utc) > token_data["expires_at"]:
+        del _reset_tokens[req.token]
+        raise HTTPException(status_code=400, detail="重置链接已过期，请重新申请")
+
+    user_id = token_data["user_id"]
+    result = await db.execute(select(User).where(User.id == _uuid.UUID(user_id)))
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="用户不存在")
+
+    user.hashed_password = hash_password(req.new_password)
+    await db.commit()
+
+    # Invalidate the token
+    del _reset_tokens[req.token]
+
+    return {"message": "密码重置成功，请用新密码登录"}

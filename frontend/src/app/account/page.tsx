@@ -10,8 +10,9 @@ import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { listMyReadings, listMyOrders, getFavorites, type ReadingListItem, type OrderListItem, type Product } from "@/lib/api"
+import SettingsTab from "./SettingsTab"
 
-type Tab = "overview" | "readings" | "orders" | "favorites" | "subscription"
+type Tab = "overview" | "readings" | "orders" | "favorites" | "subscription" | "settings"
 
 export default function AccountPage() {
   const router = useRouter()
@@ -38,6 +39,7 @@ export default function AccountPage() {
     { id: "orders", icon: <Package size={16} />, label: t("account.myOrders"), count: orders.length },
     { id: "favorites", icon: <Heart size={16} />, label: t("account.myFavorites"), count: favorites.length },
     { id: "subscription", icon: <Crown size={16} />, label: t("account.subscription") },
+    { id: "settings", icon: <Settings size={16} />, label: t("account.settings") },
   ]
 
   useEffect(() => {
@@ -367,6 +369,9 @@ export default function AccountPage() {
                 )}
               </div>
             )}
+
+            {/* Settings */}
+            {tab === "settings" && <SettingsTab user={user} refreshUser={refreshUser} t={t} />}
           </div>
         </div>
       </div>
