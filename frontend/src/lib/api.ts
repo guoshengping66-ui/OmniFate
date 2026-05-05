@@ -1,12 +1,14 @@
 import axios from "axios"
 
-// Use relative URL — Next.js rewrites proxy /api/* to backend (see next.config.js)
-// This avoids CORS issues and works regardless of backend port
-export const api = axios.create({ timeout: 90_000 })
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8002"
+
+// Main API client — points directly to backend
+export const api = axios.create({
+  baseURL: BACKEND_URL,
+  timeout: 90_000,
+})
 
 // Direct backend connection for long-running / large-response endpoints
-// Next.js proxy has issues with large response bodies and long timeouts
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8002"
 export const apiDirect = axios.create({
   baseURL: BACKEND_URL,
   timeout: 300_000,
