@@ -82,3 +82,18 @@ final_payload.json
 prompt_output.txt
 face_report.txt
 palm_report.txt
+
+# Debug / test scripts
+clean_hash_tags.py
+test_face_palm.py
+scripts/
+
+# Binary / data files
+de421.bsp
+*.bsp
+
+# Windows scripts
+*.bat
+
+# Frontend build info
+frontend/tsconfig.tsbuildinfo
