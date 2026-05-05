@@ -1,0 +1,48 @@
+{
+  "tiers": {
+    "free": {
+      "name": "免费体验",
+      "price_cny": 0,
+      "max_readings": 1,
+      "master_detail_visible": false,
+      "shop_coupon_on_upgrade": 0
+    },
+    "full_report": {
+      "name": "全维报告",
+      "price_cny": 69,
+      "first_price_cny": 29.9,
+      "unlocks": ["master_detail", "follow_up_10"],
+      "shop_coupon_on_purchase": 60,
+      "trial_days": 3,
+      "one_time": true
+    },
+    "premium_monthly": {
+      "name": "Fate OS 月度",
+      "price_cny": 49,
+      "interval": "month",
+      "unlocks": ["master_detail", "follow_up_unlimited", "almanac", "member_discount"],
+      "free_event_retro_per_month": 2,
+      "member_discount": 0.88
+    },
+    "premium_yearly": {
+      "name": "Fate OS 年度",
+      "price_cny": 298,
+      "original_price_cny": 588,
+      "interval": "year",
+      "unlocks": ["master_detail", "follow_up_unlimited", "almanac", "member_discount", "annual_review", "crystal_custom"],
+      "free_event_retro_per_month": 5,
+      "member_discount": 0.88
+    },
+    "event_retro": {
+      "name": "事件复盘",
+      "price_cny": 19.9,
+      "per_use": true,
+      "unlocks": ["event_analysis", "causal_chain", "energy_prescription"]
+    }
+  },
+  "shop": {
+    "coupon_on_report_purchase": 60,
+    "member_discount": 0.88,
+    "trial_days_after_report": 3
+  }
+}

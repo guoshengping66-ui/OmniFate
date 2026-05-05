@@ -1,0 +1,1385 @@
+[
+  {
+    "id": "mj00",
+    "name": "愚人",
+    "suit": "major",
+    "number": 0,
+    "keywords": [
+      "开始",
+      "冒险",
+      "天真",
+      "自由",
+      "无限可能"
+    ],
+    "meaning_upright": "新旅程的起点，凭直觉前行，不计后果的冒险精神，天真纯真的信任宇宙。",
+    "meaning_reversed": "鲁莽行事、不负责任、冒险过度、未考虑后果就跳入未知。",
+    "element": "风",
+    "astro": "天王星",
+    "en_name": "The Fool",
+    "aliases": [
+      "愚人",
+      "愚者",
+      "The Fool"
+    ]
+  },
+  {
+    "id": "mj01",
+    "name": "魔术师",
+    "suit": "major",
+    "number": 1,
+    "keywords": [
+      "创造",
+      "技能",
+      "意志力",
+      "资源整合",
+      "自信心"
+    ],
+    "meaning_upright": "拥有实现目标所需的一切资源，技能与创意结合，显化愿望的最佳时机。",
+    "meaning_reversed": "才能被浪费、操控他人、缺乏计划、滥用天赋、骗子。",
+    "element": "风",
+    "astro": "水星",
+    "en_name": "The Magician",
+    "aliases": [
+      "魔术师",
+      "The Magician"
+    ]
+  },
+  {
+    "id": "mj02",
+    "name": "女祭司",
+    "suit": "major",
+    "number": 2,
+    "keywords": [
+      "直觉",
+      "神秘",
+      "内在智慧",
+      "潜意识",
+      "沉默"
+    ],
+    "meaning_upright": "倾听内在声音，直觉胜过逻辑，静待时机，神秘的智慧正在显现。",
+    "meaning_reversed": "压抑直觉、表面化、不愿倾听内心、秘密被揭露、与内在失联。",
+    "element": "水",
+    "astro": "月亮",
+    "en_name": "The High Priestess",
+    "aliases": [
+      "女祭司",
+      "The High Priestess"
+    ]
+  },
+  {
+    "id": "mj03",
+    "name": "女皇",
+    "suit": "major",
+    "number": 3,
+    "keywords": [
+      "丰饶",
+      "母性",
+      "自然",
+      "美感",
+      "丰收"
+    ],
+    "meaning_upright": "大地的丰收、物质丰盛、母爱与滋养、创造力爆发、享受生活之美。",
+    "meaning_reversed": "创造力受阻、过度依赖他人、缺乏安全感、对物质的执着、忽视自我。",
+    "element": "土",
+    "astro": "金星",
+    "en_name": "The Empress",
+    "aliases": [
+      "女皇",
+      "The Empress"
+    ]
+  },
+  {
+    "id": "mj04",
+    "name": "皇帝",
+    "suit": "major",
+    "number": 4,
+    "keywords": [
+      "权威",
+      "稳定",
+      "结构",
+      "父性",
+      "领导力"
+    ],
+    "meaning_upright": "建立秩序与结构、理性决策、权威人士出现、事业稳定发展。",
+    "meaning_reversed": "专制独裁、过度控制、缺乏同理心、滥用权力、结构崩溃。",
+    "element": "火",
+    "astro": "白羊座",
+    "en_name": "The Emperor",
+    "aliases": [
+      "皇帝",
+      "The Emperor"
+    ]
+  },
+  {
+    "id": "mj05",
+    "name": "教皇",
+    "suit": "major",
+    "number": 5,
+    "keywords": [
+      "传统",
+      "信仰",
+      "教育",
+      "辅导",
+      "精神导师"
+    ],
+    "meaning_upright": "传统价值观的遵循、寻求精神导师、教育学习进修、仪式感的重要性。",
+    "meaning_reversed": "教条主义、过度依赖权威、打破传统、不愿意被束缚、质疑信仰。",
+    "element": "土",
+    "astro": "金牛座",
+    "en_name": "The Hierophant",
+    "aliases": [
+      "教皇",
+      "The Hierophant"
+    ]
+  },
+  {
+    "id": "mj06",
+    "name": "恋人",
+    "suit": "major",
+    "number": 6,
+    "keywords": [
+      "爱情",
+      "选择",
+      "和谐",
+      "关系",
+      "价值观"
+    ],
+    "meaning_upright": "深刻的爱情连接、面临重要选择、价值观的统合、灵魂伴侣的相遇。",
+    "meaning_reversed": "关系失衡、错误决定、价值观冲突、分离、不和谐、逃避承诺。",
+    "element": "风",
+    "astro": "双子座",
+    "en_name": "The Lovers",
+    "aliases": [
+      "恋人",
+      "The Lovers"
+    ]
+  },
+  {
+    "id": "mj07",
+    "name": "战车",
+    "suit": "major",
+    "number": 7,
+    "keywords": [
+      "胜利",
+      "意志力",
+      "决心",
+      "征服",
+      "控制"
+    ],
+    "meaning_upright": "凭借坚定意志征服困难、自我控制力极强、方向明确、勇往直前的胜利。",
+    "meaning_reversed": "缺乏方向感、失控、意志力薄弱、侵略性过强、受阻或延迟。",
+    "element": "水",
+    "astro": "巨蟹座",
+    "en_name": "The Chariot",
+    "aliases": [
+      "战车",
+      "The Chariot"
+    ]
+  },
+  {
+    "id": "mj08",
+    "name": "力量",
+    "suit": "major",
+    "number": 8,
+    "keywords": [
+      "勇气",
+      "内在力量",
+      "耐心",
+      "温和控制",
+      "毅力"
+    ],
+    "meaning_upright": "以柔克刚的智慧，内在勇气战胜外在恐惧，用爱与耐心化解困难。",
+    "meaning_reversed": "信心不足、自我怀疑、软弱、情绪失控、力量被滥用。",
+    "element": "火",
+    "astro": "狮子座",
+    "en_name": "Strength",
+    "aliases": [
+      "力量",
+      "Strength"
+    ]
+  },
+  {
+    "id": "mj09",
+    "name": "隐士",
+    "suit": "major",
+    "number": 9,
+    "keywords": [
+      "内省",
+      "孤独",
+      "智慧",
+      "寻找真理",
+      "导师"
+    ],
+    "meaning_upright": "需要独处反思的时间、向内探索真理、智者指引、在沉默中获得启示。",
+    "meaning_reversed": "孤独过度、与社会脱节、拒绝帮助、迷失方向、变得孤僻。",
+    "element": "土",
+    "astro": "处女座",
+    "en_name": "The Hermit",
+    "aliases": [
+      "隐士",
+      "隐者",
+      "The Hermit"
+    ]
+  },
+  {
+    "id": "mj10",
+    "name": "命运之轮",
+    "suit": "major",
+    "number": 10,
+    "keywords": [
+      "转变",
+      "循环",
+      "命运",
+      "因果",
+      "运势流转"
+    ],
+    "meaning_upright": "命运转折点来临好坏交替循环，好运即将到来，人生进入新阶段。",
+    "meaning_reversed": "厄运临头、无法掌控的变化、停滞不前、抗拒改变、运势低迷。",
+    "element": "风",
+    "astro": "木星",
+    "en_name": "Wheel of Fortune",
+    "aliases": [
+      "命运之轮",
+      "Wheel of Fortune"
+    ]
+  },
+  {
+    "id": "mj11",
+    "name": "正义",
+    "suit": "major",
+    "number": 11,
+    "keywords": [
+      "公平",
+      "真相",
+      "法律",
+      "因果报应",
+      "平衡"
+    ],
+    "meaning_upright": "公平公正的裁决、真相大白、法律事务有利、因果关系显现、获得应得的。",
+    "meaning_reversed": "不公正的对待、谎言与欺骗、逃避责任、法律纠纷不利、不平衡。",
+    "element": "风",
+    "astro": "天秤座",
+    "en_name": "Justice",
+    "aliases": [
+      "正义",
+      "Justice"
+    ]
+  },
+  {
+    "id": "mj12",
+    "name": "倒吊人",
+    "suit": "major",
+    "number": 12,
+    "keywords": [
+      "牺牲",
+      "换位思考",
+      "暂停",
+      "新的视角",
+      "臣服"
+    ],
+    "meaning_upright": "自愿牺牲换取更高智慧、以不同角度看世界、暂停等待必要。",
+    "meaning_reversed": "无谓的牺牲、拖延太久、抗拒放下、不愿改变视角、 martyr complex。",
+    "element": "水",
+    "astro": "海王星",
+    "en_name": "The Hanged Man",
+    "aliases": [
+      "倒吊人",
+      "The Hanged Man"
+    ]
+  },
+  {
+    "id": "mj13",
+    "name": "死神",
+    "suit": "major",
+    "number": 13,
+    "keywords": [
+      "结束",
+      "转变",
+      "重生",
+      "放下",
+      "新生"
+    ],
+    "meaning_upright": "旧阶段的必然结束新生命破茧而出，不破不立，彻底的转化与新生。",
+    "meaning_reversed": "抗拒改变、停滞不前、害怕结束、维持已死的状态、无法重生。",
+    "element": "水",
+    "astro": "天蝎座",
+    "en_name": "Death",
+    "aliases": [
+      "死神",
+      "Death"
+    ]
+  },
+  {
+    "id": "mj14",
+    "name": "节制",
+    "suit": "major",
+    "number": 14,
+    "keywords": [
+      "平衡",
+      "适中",
+      "耐心",
+      "调和",
+      "自控"
+    ],
+    "meaning_upright": "恰到好处的平衡，融合对立面找到中点，耐心等待最佳时机。",
+    "meaning_reversed": "失衡极端、急躁冒进、浪费资源、缺乏协调力、健康失衡。",
+    "element": "火",
+    "astro": "射手座",
+    "en_name": "Temperance",
+    "aliases": [
+      "节制",
+      "Temperance"
+    ]
+  },
+  {
+    "id": "mj15",
+    "name": "恶魔",
+    "suit": "major",
+    "number": 15,
+    "keywords": [
+      "束缚",
+      "物质主义",
+      "欲望",
+      "上瘾",
+      "执着"
+    ],
+    "meaning_upright": "被物质欲望束缚、陷入不健康关系、对权力的执着、意识到被困才能解脱。",
+    "meaning_reversed": "挣脱束缚、戒除恶习、开始觉醒、重新掌握自由、黑暗后见光明。",
+    "element": "土",
+    "astro": "魔羯座",
+    "en_name": "The Devil",
+    "aliases": [
+      "恶魔",
+      "The Devil"
+    ]
+  },
+  {
+    "id": "mj16",
+    "name": "高塔",
+    "suit": "major",
+    "number": 16,
+    "keywords": [
+      "剧变",
+      "崩塌",
+      "觉醒",
+      "解放",
+      "重建"
+    ],
+    "meaning_upright": "突如其来的变故摧毁旧结构，虚假的安全感崩塌，暴烈但必要的觉醒。",
+    "meaning_reversed": "避免灾难、延迟崩塌、抗拒必要的改变、危机被暂时压制。",
+    "element": "火",
+    "astro": "火星",
+    "en_name": "The Tower",
+    "aliases": [
+      "高塔",
+      "塔",
+      "The Tower"
+    ]
+  },
+  {
+    "id": "mj17",
+    "name": "星星",
+    "suit": "major",
+    "number": 17,
+    "keywords": [
+      "希望",
+      "灵感",
+      "宁静",
+      "治愈",
+      "指引"
+    ],
+    "meaning_upright": "暴风雨后的平静与治愈，充满希望的新方向，灵感与启示，与宇宙连接。",
+    "meaning_reversed": "失去希望、灵感枯竭、绝望感、不信任宇宙、自我怀疑、迷失方向。",
+    "element": "风",
+    "astro": "水瓶座",
+    "en_name": "The Star",
+    "aliases": [
+      "星星",
+      "The Star"
+    ]
+  },
+  {
+    "id": "mj18",
+    "name": "月亮",
+    "suit": "major",
+    "number": 18,
+    "keywords": [
+      "恐惧",
+      "幻觉",
+      "潜意识",
+      "不确定",
+      "迷雾"
+    ],
+    "meaning_upright": "看不清真相的迷雾期、潜意识中的恐惧浮现、需要面对内在的阴影。",
+    "meaning_reversed": "看清真相、克服恐惧、解除幻觉、从迷惑中走出、直觉恢复。",
+    "element": "水",
+    "astro": "双鱼座",
+    "en_name": "The Moon",
+    "aliases": [
+      "月亮",
+      "The Moon"
+    ]
+  },
+  {
+    "id": "mj19",
+    "name": "太阳",
+    "suit": "major",
+    "number": 19,
+    "keywords": [
+      "成功",
+      "喜悦",
+      "活力",
+      "胜利",
+      "成就"
+    ],
+    "meaning_upright": "无比的光辉与喜悦，成功达成目标，充满生命力与热情，万事顺遂。",
+    "meaning_reversed": "成功延迟、热情消退、快乐被遮挡、暂时的不顺、小挫折。",
+    "element": "火",
+    "astro": "太阳",
+    "en_name": "The Sun",
+    "aliases": [
+      "太阳",
+      "The Sun"
+    ]
+  },
+  {
+    "id": "mj20",
+    "name": "审判",
+    "suit": "major",
+    "number": 20,
+    "keywords": [
+      "觉醒",
+      "复活",
+      "因果",
+      "召唤",
+      "真相"
+    ],
+    "meaning_upright": "获得深刻的觉醒与召唤，过去的努力得到回报，重新评估人生方向。",
+    "meaning_reversed": "拒绝召唤、自我怀疑、恐惧审判、无法放下过去、内心矛盾。",
+    "element": "火",
+    "astro": "冥王星",
+    "en_name": "Judgement",
+    "aliases": [
+      "审判",
+      "Judgement"
+    ]
+  },
+  {
+    "id": "mj21",
+    "name": "世界",
+    "suit": "major",
+    "number": 21,
+    "keywords": [
+      "完成",
+      "圆满",
+      "成就",
+      "旅行",
+      "整合"
+    ],
+    "meaning_upright": "一个周期的圆满结束，目标的完美达成，全方位成长，灵魂的完整。",
+    "meaning_reversed": "未完成的任务、延迟的成就、缺乏闭合、短暂的满足、需要继续努力。",
+    "element": "土",
+    "astro": "土星",
+    "en_name": "The World",
+    "aliases": [
+      "世界",
+      "The World"
+    ]
+  },
+  {
+    "id": "wa01",
+    "name": "权杖王牌",
+    "suit": "wands",
+    "number": 1,
+    "keywords": [
+      "开始",
+      "灵感",
+      "创意",
+      "冒险",
+      "热情"
+    ],
+    "meaning_upright": "新事业或创意的火花，行动派，充满激情与动力的新开始。",
+    "meaning_reversed": "延迟的开始、创意受阻、缺乏动力、计划流产、不成熟的行动。",
+    "element": "火"
+  },
+  {
+    "id": "wa02",
+    "name": "权杖二",
+    "suit": "wands",
+    "number": 2,
+    "keywords": [
+      "规划",
+      "决策",
+      "未来",
+      "胆识",
+      "等待"
+    ],
+    "meaning_upright": "站在十字路口规划未来，胆识与远见并存，为下一阶段做准备。",
+    "meaning_reversed": "害怕改变、缺乏规划、犹豫不决、坐失良机、过于保守。",
+    "element": "火"
+  },
+  {
+    "id": "wa03",
+    "name": "权杖三",
+    "suit": "wands",
+    "number": 3,
+    "keywords": [
+      "远见",
+      "扩张",
+      "合作",
+      "探索",
+      "进步"
+    ],
+    "meaning_upright": "业务或项目向外扩展，跨国合作，放眼全球视野，稳步推进。",
+    "meaning_reversed": "阻碍延迟、合作破裂、目光短浅、旅行受阻、计划失控。",
+    "element": "火"
+  },
+  {
+    "id": "wa04",
+    "name": "权杖四",
+    "suit": "wands",
+    "number": 4,
+    "keywords": [
+      "庆祝",
+      "稳定",
+      "丰收",
+      "归家",
+      "和谐"
+    ],
+    "meaning_upright": "阶段性成功的庆祝，家庭和谐，工作稳定，丰收与感恩的喜悦。",
+    "meaning_reversed": "庆祝被取消、不稳定的基础、缺乏归属感、过度放松。",
+    "element": "火"
+  },
+  {
+    "id": "wa05",
+    "name": "权杖五",
+    "suit": "wands",
+    "number": 5,
+    "keywords": [
+      "冲突",
+      "竞争",
+      "紧张",
+      "分歧",
+      "挑战"
+    ],
+    "meaning_upright": "激烈的竞争与争吵，观点不同引发的冲突，为了目标而战。",
+    "meaning_reversed": "避免冲突、解决分歧、放下争执、寻求妥协、内耗。",
+    "element": "火"
+  },
+  {
+    "id": "wa06",
+    "name": "权杖六",
+    "suit": "wands",
+    "number": 6,
+    "keywords": [
+      "胜利",
+      "认可",
+      "赞誉",
+      "好消息",
+      "领导"
+    ],
+    "meaning_upright": "获得公众认可与赞誉，胜利归来，自信的领导力，好消息到来。",
+    "meaning_reversed": "失败、骄傲自满、缺乏认可、期待落空、延迟的成功。",
+    "element": "火"
+  },
+  {
+    "id": "wa07",
+    "name": "权杖七",
+    "suit": "wands",
+    "number": 7,
+    "keywords": [
+      "防守",
+      "挑战",
+      "毅力",
+      "对抗",
+      "坚持"
+    ],
+    "meaning_upright": "面对挑战坚守阵地，以少胜多的勇气，捍卫自己的立场与信念。",
+    "meaning_reversed": "感到不堪重负、放弃努力、防守失败、被压垮、让步。",
+    "element": "火"
+  },
+  {
+    "id": "wa08",
+    "name": "权杖八",
+    "suit": "wands",
+    "number": 8,
+    "keywords": [
+      "速度",
+      "行动",
+      "进展",
+      "直达",
+      "消息"
+    ],
+    "meaning_upright": "飞速进展势不可挡，事情迅速推进，好消息即将抵达，行动力爆棚。",
+    "meaning_reversed": "延误、进展缓慢、沟通不畅、计划受阻、失速。",
+    "element": "火"
+  },
+  {
+    "id": "wa09",
+    "name": "权杖九",
+    "suit": "wands",
+    "number": 9,
+    "keywords": [
+      "坚韧",
+      "防御",
+      "警觉",
+      "等待",
+      "边界"
+    ],
+    "meaning_upright": "最后一刻的坚持，虽然疲惫但仍在守卫，设好边界，等待最后结果。",
+    "meaning_reversed": "精疲力竭、放弃防守、偏执多疑、不愿再坚持、健康受损。",
+    "element": "火"
+  },
+  {
+    "id": "wa10",
+    "name": "权杖十",
+    "suit": "wands",
+    "number": 10,
+    "keywords": [
+      "负担",
+      "压力",
+      "责任",
+      "压力沉重",
+      "成就"
+    ],
+    "meaning_upright": "背负过多责任与压力，为了目标付出巨大努力，需要学会委派。",
+    "meaning_reversed": "卸下重担、过度劳累导致崩溃、学会说「不」、放手。",
+    "element": "火"
+  },
+  {
+    "id": "wa11",
+    "name": "权杖侍从",
+    "suit": "wands",
+    "number": 11,
+    "keywords": [
+      "探索",
+      "热情",
+      "信心",
+      "新人",
+      "消息"
+    ],
+    "meaning_upright": "新的热情与好奇心，探索未知领域，学习新技能，充满活力。",
+    "meaning_reversed": "缺乏方向、三分钟热度、不成熟、拖延、信心不足。",
+    "element": "火"
+  },
+  {
+    "id": "wa12",
+    "name": "权杖骑士",
+    "suit": "wands",
+    "number": 12,
+    "keywords": [
+      "冒险",
+      "冲刺",
+      "热情",
+      "旅行",
+      "冲动"
+    ],
+    "meaning_upright": "全速冲向目标，充满冒险精神与热情，旅行或搬迁的可能。",
+    "meaning_reversed": "冲动导致的错误、计划流产、鲁莽行事、急躁、缺乏耐心。",
+    "element": "火"
+  },
+  {
+    "id": "wa13",
+    "name": "权杖王后",
+    "suit": "wands",
+    "number": 13,
+    "keywords": [
+      "勇气",
+      "自信",
+      "魅力",
+      "温暖",
+      "决心"
+    ],
+    "meaning_upright": "充满阳光与魅力的女性，自信果断，热情温暖，积极行动。",
+    "meaning_reversed": "嫉妒心、自私、缺乏安全感、情绪化、不自信。",
+    "element": "火"
+  },
+  {
+    "id": "wa14",
+    "name": "权杖国王",
+    "suit": "wands",
+    "number": 14,
+    "keywords": [
+      "领导",
+      "远见",
+      "创业",
+      "权威",
+      "成功"
+    ],
+    "meaning_upright": "有远见的领导者，创业精神强，事业有成，充满正能量。",
+    "meaning_reversed": "专制、傲慢、要求过高、蛮横、失去人心。",
+    "element": "火"
+  },
+  {
+    "id": "cu01",
+    "name": "圣杯王牌",
+    "suit": "cups",
+    "number": 1,
+    "keywords": [
+      "爱情",
+      "喜悦",
+      "丰沛",
+      "新感情",
+      "直觉"
+    ],
+    "meaning_upright": "爱情的萌芽，情感的丰沛，新的感情机遇，充满喜悦与爱的开始。",
+    "meaning_reversed": "情感空虚、爱情受阻、压抑情绪、创意枯竭。",
+    "element": "水"
+  },
+  {
+    "id": "cu02",
+    "name": "圣杯二",
+    "suit": "cups",
+    "number": 2,
+    "keywords": [
+      "连接",
+      "友谊",
+      "平等",
+      "合作",
+      "相互吸引"
+    ],
+    "meaning_upright": "平等的爱情或友谊，深刻的相互吸引，和谐的合作关系。",
+    "meaning_reversed": "关系失衡、沟通不畅、分手、疏远、合作破裂。",
+    "element": "水"
+  },
+  {
+    "id": "cu03",
+    "name": "圣杯三",
+    "suit": "cups",
+    "number": 3,
+    "keywords": [
+      "庆祝",
+      "友谊",
+      "社区",
+      "喜悦",
+      "丰收"
+    ],
+    "meaning_upright": "姐妹情深、庆祝与欢聚、团体和谐、丰收的喜悦。",
+    "meaning_reversed": "过度放纵、被排挤、友谊变淡、流言蜚语、庆祝取消。",
+    "element": "水"
+  },
+  {
+    "id": "cu04",
+    "name": "圣杯四",
+    "suit": "cups",
+    "number": 4,
+    "keywords": [
+      "冷漠",
+      "沉思",
+      "不满",
+      "冥想",
+      "新机会"
+    ],
+    "meaning_upright": "对现状不满需要沉思，错过眼前机会，情感上的冷淡与抽离。",
+    "meaning_reversed": "重新觉醒、抓住新机会、走出冷漠、开始行动。",
+    "element": "水"
+  },
+  {
+    "id": "cu05",
+    "name": "圣杯五",
+    "suit": "cups",
+    "number": 5,
+    "keywords": [
+      "失落",
+      "悲伤",
+      "遗憾",
+      "失望",
+      "反思"
+    ],
+    "meaning_upright": "沉浸在失去的痛苦中，忽视仍在手中的幸福，需要走出悲伤。",
+    "meaning_reversed": "接受现实、走出悲伤、重新接纳、释怀过去、找到新的希望。",
+    "element": "水"
+  },
+  {
+    "id": "cu06",
+    "name": "圣杯六",
+    "suit": "cups",
+    "number": 6,
+    "keywords": [
+      "回忆",
+      "怀旧",
+      "礼物",
+      "童真",
+      "温暖"
+    ],
+    "meaning_upright": "美好的回忆与怀旧，收到礼物或帮助，温暖的旧日情感。",
+    "meaning_reversed": "活在过去、停滞不前、过度依赖、无法成长、执着于旧情。",
+    "element": "水"
+  },
+  {
+    "id": "cu07",
+    "name": "圣杯七",
+    "suit": "cups",
+    "number": 7,
+    "keywords": [
+      "幻想",
+      "选择",
+      "幻觉",
+      "白日梦",
+      "多种可能"
+    ],
+    "meaning_upright": "面对众多选择需要辨别真伪，容易陷入幻想与白日梦，需要脚踏实地。",
+    "meaning_reversed": "聚焦目标、破除幻觉、做出选择、回归现实、明确方向。",
+    "element": "水"
+  },
+  {
+    "id": "cu08",
+    "name": "圣杯八",
+    "suit": "cups",
+    "number": 8,
+    "keywords": [
+      "离开",
+      "寻找",
+      "放弃",
+      "追求更高",
+      "不满足"
+    ],
+    "meaning_upright": "放弃现状追求更高的精神满足，离开舒适区去寻找真正的意义。",
+    "meaning_reversed": "害怕离开、固步自封、迷失方向、半途而废、缺乏决心。",
+    "element": "水"
+  },
+  {
+    "id": "cu09",
+    "name": "圣杯九",
+    "suit": "cups",
+    "number": 9,
+    "keywords": [
+      "满足",
+      "梦想成真",
+      "享受",
+      "独立",
+      "幸福"
+    ],
+    "meaning_upright": "梦想成真的时刻，发自内心的满足与喜悦，独立自主的幸福。",
+    "meaning_reversed": "表面光鲜内在空虚、过度追求物质、不满足、缺乏真正的幸福。",
+    "element": "水"
+  },
+  {
+    "id": "cu10",
+    "name": "圣杯十",
+    "suit": "cups",
+    "number": 10,
+    "keywords": [
+      "幸福家庭",
+      "圆满",
+      "和谐",
+      "真爱",
+      "永恒"
+    ],
+    "meaning_upright": "幸福的家庭生活，情感的圆满，灵魂伴侣，永恒的爱与和谐。",
+    "meaning_reversed": "家庭纷争、关系破裂、不和谐、梦想破灭、缺乏支持。",
+    "element": "水"
+  },
+  {
+    "id": "cu11",
+    "name": "圣杯侍从",
+    "suit": "cups",
+    "number": 11,
+    "keywords": [
+      "直觉",
+      "敏感",
+      "新感情",
+      "梦想",
+      "创意"
+    ],
+    "meaning_upright": "直觉敏锐，情感细腻，新的感情消息或提议，创意的萌芽。",
+    "meaning_reversed": "情感不成熟、过于敏感、逃避现实、创意受阻、幼稚。",
+    "element": "水"
+  },
+  {
+    "id": "cu12",
+    "name": "圣杯骑士",
+    "suit": "cups",
+    "number": 12,
+    "keywords": [
+      "追求",
+      "浪漫",
+      "邀请",
+      "幻想",
+      "魅力"
+    ],
+    "meaning_upright": "浪漫的追求者到来，优雅迷人的邀请，跟随内心的召唤。",
+    "meaning_reversed": "逃避现实、情感欺骗、追求不切实际、嫉妒与失望。",
+    "element": "水"
+  },
+  {
+    "id": "cu13",
+    "name": "圣杯王后",
+    "suit": "cups",
+    "number": 13,
+    "keywords": [
+      "直觉",
+      "关怀",
+      "温柔",
+      "疗愈",
+      "爱"
+    ],
+    "meaning_upright": "充满母性关爱的温柔力量，直觉敏锐，善解人意，用爱疗愈他人。",
+    "meaning_reversed": "过度敏感、情绪化、依赖他人、自我怀疑、不安全感。",
+    "element": "水"
+  },
+  {
+    "id": "cu14",
+    "name": "圣杯国王",
+    "suit": "cups",
+    "number": 14,
+    "keywords": [
+      "情商",
+      "成熟",
+      "慈悲",
+      "稳重",
+      "情感控制"
+    ],
+    "meaning_upright": "情感成熟稳重，富有同情心与智慧，善于处理人际关系。",
+    "meaning_reversed": "情感压抑、情绪失控、虚伪、双面人、冷漠无情。",
+    "element": "水"
+  },
+  {
+    "id": "sw01",
+    "name": "宝剑王牌",
+    "suit": "swords",
+    "number": 1,
+    "keywords": [
+      "真理",
+      "突破",
+      "清晰",
+      "理智",
+      "决断"
+    ],
+    "meaning_upright": "清晰的思维与真相的突破，理智战胜情感，关键性的决断。",
+    "meaning_reversed": "混乱思维、错误判断、无法看清真相、沟通障碍、信息错误。",
+    "element": "风"
+  },
+  {
+    "id": "sw02",
+    "name": "宝剑二",
+    "suit": "swords",
+    "number": 2,
+    "keywords": [
+      "选择",
+      "僵局",
+      "回避",
+      "平衡",
+      "纠结"
+    ],
+    "meaning_upright": "面临两难选择需要平衡，拒绝面对真相，陷入僵局。",
+    "meaning_reversed": "信息不足无法决定，打破僵局，直面问题，释放压力。",
+    "element": "风"
+  },
+  {
+    "id": "sw03",
+    "name": "宝剑三",
+    "suit": "swords",
+    "number": 3,
+    "keywords": [
+      "心碎",
+      "悲伤",
+      "痛苦",
+      "分离",
+      "失落"
+    ],
+    "meaning_upright": "心痛与悲伤难以承受，被真相刺伤，需要时间疗愈伤口。",
+    "meaning_reversed": "从伤痛中恢复、释放悲伤、逐渐愈合、接受现实。",
+    "element": "风"
+  },
+  {
+    "id": "sw04",
+    "name": "宝剑四",
+    "suit": "swords",
+    "number": 4,
+    "keywords": [
+      "休息",
+      "恢复",
+      "冥想",
+      "休养",
+      "充电"
+    ],
+    "meaning_upright": "需要暂停休息恢复精力，冥想与内省的时间，为下一阶段充电。",
+    "meaning_reversed": "无法休息、过度劳累、恢复期被打断、焦虑失眠。",
+    "element": "风"
+  },
+  {
+    "id": "sw05",
+    "name": "宝剑五",
+    "suit": "swords",
+    "number": 5,
+    "keywords": [
+      "冲突",
+      "输赢",
+      "屈辱",
+      "自我",
+      "争吵"
+    ],
+    "meaning_upright": "争吵后胜负已分但代价惨重，赢了面子输了人心，不值得的胜利。",
+    "meaning_reversed": "和解的可能、放下自尊、避免冲突、寻求共赢。",
+    "element": "风"
+  },
+  {
+    "id": "sw06",
+    "name": "宝剑六",
+    "suit": "swords",
+    "number": 6,
+    "keywords": [
+      "过渡",
+      "疗愈",
+      "放下",
+      "前行",
+      "平静"
+    ],
+    "meaning_upright": "从动荡中逐渐恢复，带着伤痛继续前行，过渡到更平静的水域。",
+    "meaning_reversed": "无法走出过去、过渡受阻、疗愈被中断、拒绝放下。",
+    "element": "风"
+  },
+  {
+    "id": "sw07",
+    "name": "宝剑七",
+    "suit": "swords",
+    "number": 7,
+    "keywords": [
+      "策略",
+      "欺骗",
+      "智取",
+      "偷窃",
+      "躲藏"
+    ],
+    "meaning_upright": "需要巧计智取而非硬碰硬，警惕周围的人事物，策略性撤退。",
+    "meaning_reversed": "计谋被识破、说了不该说的话、行动被发现、诚实为上。",
+    "element": "风"
+  },
+  {
+    "id": "sw08",
+    "name": "宝剑八",
+    "suit": "swords",
+    "number": 8,
+    "keywords": [
+      "束缚",
+      "困境",
+      "自限",
+      "受害者",
+      "无助"
+    ],
+    "meaning_upright": "被自己的思维限制住，感觉被困其实有出路，需要换角度思考。",
+    "meaning_reversed": "自我解放、打破思维牢笼、重获自由、找到出路。",
+    "element": "风"
+  },
+  {
+    "id": "sw09",
+    "name": "宝剑九",
+    "suit": "swords",
+    "number": 9,
+    "keywords": [
+      "焦虑",
+      "噩梦",
+      "失眠",
+      "恐惧",
+      "绝望"
+    ],
+    "meaning_upright": "深夜的焦虑与恐惧，被噩梦困扰，过度担忧未发生的事情。",
+    "meaning_reversed": "克服恐惧、寻求帮助、焦虑减轻、真相没有想象中可怕。",
+    "element": "风"
+  },
+  {
+    "id": "sw10",
+    "name": "宝剑十",
+    "suit": "swords",
+    "number": 10,
+    "keywords": [
+      "结束",
+      "低谷",
+      "痛苦",
+      "崩溃",
+      "重生"
+    ],
+    "meaning_upright": "最糟糕的时刻已经到来，彻底崩溃后即将迎来新生，结束也是开始。",
+    "meaning_reversed": "黎明前的黑暗、触底反弹、奇迹出现、否极泰来。",
+    "element": "风"
+  },
+  {
+    "id": "sw11",
+    "name": "宝剑侍从",
+    "suit": "swords",
+    "number": 11,
+    "keywords": [
+      "沟通",
+      "警觉",
+      "学习",
+      "消息",
+      "灵活"
+    ],
+    "meaning_upright": "新的想法与沟通方式，保持警觉与好奇，消息灵通，快速学习。",
+    "meaning_reversed": "口无遮拦、沟通失误、八卦、谎言、准备不足。",
+    "element": "风"
+  },
+  {
+    "id": "sw12",
+    "name": "宝剑骑士",
+    "suit": "swords",
+    "number": 12,
+    "keywords": [
+      "迅速",
+      "直言",
+      "冲动",
+      "决心",
+      "行动"
+    ],
+    "meaning_upright": "快速果断的行动，直指核心的沟通方式，为理想而战的决心。",
+    "meaning_reversed": "鲁莽冲动的决定、言语伤人、燥进、计划不周、冲突升级。",
+    "element": "风"
+  },
+  {
+    "id": "sw13",
+    "name": "宝剑王后",
+    "suit": "swords",
+    "number": 13,
+    "keywords": [
+      "独立",
+      "清晰",
+      "客观",
+      "理性",
+      "洞察"
+    ],
+    "meaning_upright": "独立思考的女性，看透事物本质，理性客观，言语精准。",
+    "meaning_reversed": "冷酷无情、尖酸刻薄、过分苛刻、孤独、拒人千里。",
+    "element": "风"
+  },
+  {
+    "id": "sw14",
+    "name": "宝剑国王",
+    "suit": "swords",
+    "number": 14,
+    "keywords": [
+      "权威",
+      "分析",
+      "真相",
+      "专业",
+      "智谋"
+    ],
+    "meaning_upright": "理智至上的权威人物，专业分析与判断力强，追求真理与公正。",
+    "meaning_reversed": "滥用智力权威、冷酷无情、过于批判、操纵信息。",
+    "element": "风"
+  },
+  {
+    "id": "pe01",
+    "name": "星币王牌",
+    "suit": "pentacles",
+    "number": 1,
+    "keywords": [
+      "财富",
+      "新开始",
+      "机遇",
+      "物质",
+      "投资"
+    ],
+    "meaning_upright": "新的财务机遇，财富的种子，投资良机，务实的开始。",
+    "meaning_reversed": "错失良机、财务计划失败、缺乏资源、投资失误。",
+    "element": "土"
+  },
+  {
+    "id": "pe02",
+    "name": "星币二",
+    "suit": "pentacles",
+    "number": 2,
+    "keywords": [
+      "平衡",
+      "适应",
+      "多任务",
+      "灵活",
+      "理财"
+    ],
+    "meaning_upright": "多方兼顾平衡收支，灵活适应变化，理财需要平衡。",
+    "meaning_reversed": "财务失衡、过度开支、手忙脚乱、不堪重负、失去平衡。",
+    "element": "土"
+  },
+  {
+    "id": "pe03",
+    "name": "星币三",
+    "suit": "pentacles",
+    "number": 3,
+    "keywords": [
+      "团队",
+      "合作",
+      "技能",
+      "学习",
+      "品质"
+    ],
+    "meaning_upright": "团队协作创造价值，学习专业技能，注重品质与细节。",
+    "meaning_reversed": "缺乏团队精神、技能不足、品质下降、合作不畅、懒散。",
+    "element": "土"
+  },
+  {
+    "id": "pe04",
+    "name": "星币四",
+    "suit": "pentacles",
+    "number": 4,
+    "keywords": [
+      "保存",
+      "守财",
+      "安全感",
+      "囤积",
+      "控制"
+    ],
+    "meaning_upright": "紧紧守住自己的财富，需要财务安全感，节俭保守。",
+    "meaning_reversed": "财务损失、过度吝啬、守不住财、大手大脚、对失去的恐惧。",
+    "element": "土"
+  },
+  {
+    "id": "pe05",
+    "name": "星币五",
+    "suit": "pentacles",
+    "number": 5,
+    "keywords": [
+      "贫困",
+      "困难",
+      "孤独",
+      "失落",
+      "健康问题"
+    ],
+    "meaning_upright": "财务困难或物质匮乏期，感到被排斥在外，健康出现警示。",
+    "meaning_reversed": "走出困境、恢复、找到帮助、改善财务、康复。",
+    "element": "土"
+  },
+  {
+    "id": "pe06",
+    "name": "星币六",
+    "suit": "pentacles",
+    "number": 6,
+    "keywords": [
+      "给予",
+      "接受",
+      "慷慨",
+      "慈善",
+      "分享"
+    ],
+    "meaning_upright": "慷慨的给予与接受，乐于分享财富，帮助他人也接受帮助。",
+    "meaning_reversed": "自私、乞讨心态、债务问题、不公平分配、施与受失衡。",
+    "element": "土"
+  },
+  {
+    "id": "pe07",
+    "name": "星币七",
+    "suit": "pentacles",
+    "number": 7,
+    "keywords": [
+      "投资",
+      "等待",
+      "评估",
+      "收获",
+      "耐心"
+    ],
+    "meaning_upright": "投资的种子正在生长需要耐心等待，评估目前的进展与回报。",
+    "meaning_reversed": "投资回报不佳、辛勤没有收获、缺乏耐心、半途而废。",
+    "element": "土"
+  },
+  {
+    "id": "pe08",
+    "name": "星币八",
+    "suit": "pentacles",
+    "number": 8,
+    "keywords": [
+      "勤奋",
+      "技能",
+      "专注",
+      "精进",
+      "工作"
+    ],
+    "meaning_upright": "专注于打磨专业技能，勤奋工作精益求精，学徒期与积累。",
+    "meaning_reversed": "工作倦怠、技能过时、缺乏动力、马虎草率、完美主义。",
+    "element": "土"
+  },
+  {
+    "id": "pe09",
+    "name": "星币九",
+    "suit": "pentacles",
+    "number": 9,
+    "keywords": [
+      "富足",
+      "独立",
+      "享受",
+      "成果",
+      "自足"
+    ],
+    "meaning_upright": "独立自主的富足生活，享受努力的成果，物质与精神的丰盛。",
+    "meaning_reversed": "奢侈浪费、孤立、财务依赖、失去独立、表面的富足。",
+    "element": "土"
+  },
+  {
+    "id": "pe10",
+    "name": "星币十",
+    "suit": "pentacles",
+    "number": 10,
+    "keywords": [
+      "传承",
+      "家族",
+      "财富",
+      "遗产",
+      "长久"
+    ],
+    "meaning_upright": "家族财富与传承，长久的物质保障，家族企业的兴旺。",
+    "meaning_reversed": "家族纷争、财务损失、家道中落、遗产纠纷。",
+    "element": "土"
+  },
+  {
+    "id": "pe11",
+    "name": "星币侍从",
+    "suit": "pentacles",
+    "number": 11,
+    "keywords": [
+      "学习",
+      "务实",
+      "新技能",
+      "勤奋",
+      "理财"
+    ],
+    "meaning_upright": "脚踏实地的学习理财与实用技能，务实勤奋的新手。",
+    "meaning_reversed": "拖延、不务实、缺乏进步、懒散、浪费机会。",
+    "element": "土"
+  },
+  {
+    "id": "pe12",
+    "name": "星币骑士",
+    "suit": "pentacles",
+    "number": 12,
+    "keywords": [
+      "稳健",
+      "负责",
+      "务实",
+      "勤奋",
+      "保守"
+    ],
+    "meaning_upright": "稳健务实的工作态度，负责任地完成任务，慢而稳的前进。",
+    "meaning_reversed": "停滞不前、懒散、缺乏目标、不负责任、浮躁。",
+    "element": "土"
+  },
+  {
+    "id": "pe13",
+    "name": "星币王后",
+    "suit": "pentacles",
+    "number": 13,
+    "keywords": [
+      "务实",
+      "丰饶",
+      "母性",
+      "理财",
+      "舒适"
+    ],
+    "meaning_upright": "务实能干的女性，理财有道，享受舒适生活，善用资源。",
+    "meaning_reversed": "财务依赖、缺乏安全感、过度物质、吝啬、不自信。",
+    "element": "土"
+  },
+  {
+    "id": "pe14",
+    "name": "星币国王",
+    "suit": "pentacles",
+    "number": 14,
+    "keywords": [
+      "成功",
+      "富足",
+      "商业",
+      "领袖",
+      "智慧"
+    ],
+    "meaning_upright": "事业成功的商界领袖，财富管理的智慧，稳健可靠的领导。",
+    "meaning_reversed": "过度物质、贪婪、腐败、管理失败、财务危机。",
+    "element": "土"
+  }
+]

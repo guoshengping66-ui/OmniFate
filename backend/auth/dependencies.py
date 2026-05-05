@@ -1,0 +1,46 @@
+"""
+FastAPI dependency for extracting the current user from JWT bearer token.
+"""
+import uuid as _uuid
+
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from backend.auth.jwt import verify_token
+from backend.database import get_db
+from backend.database.models import User
+
+bearer_scheme = HTTPBearer(auto_error=False)
+
+
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+    db: AsyncSession = Depends(get_db),
+) -> User | None:
+    """
+    Extract and validate the current user from JWT.
+    Returns the User ORM object, or None if no valid token is present.
+    Use `require_user` below for endpoints that MUST have auth.
+    """
+    if credentials is None:
+        return None
+    user_id = verify_token(credentials.credentials)
+    if user_id is None:
+        return None
+    result = await db.execute(select(User).where(User.id == _uuid.UUID(user_id)))
+    return result.scalar_one_or_none()
+
+
+async def require_user(
+    user: User | None = Depends(get_current_user),
+) -> User:
+    """Like get_current_user but raises 401 if not authenticated."""
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="请先登录",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return user
