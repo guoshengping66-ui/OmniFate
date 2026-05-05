@@ -75,9 +75,7 @@ async def get_payment_methods():
 
 async def _unlock_reading(reading_id: str, db: AsyncSession) -> dict:
     """Shared unlock logic: mark reading paid, issue coupon, activate trial."""
-    rid = uuid.UUID(reading_id)
-
-    reading_result = await db.execute(select(Reading).where(Reading.id == rid))
+    reading_result = await db.execute(select(Reading).where(Reading.id == reading_id))
     reading = reading_result.scalar_one_or_none()
     if not reading:
         raise HTTPException(status_code=404, detail="报告不存在")
@@ -554,11 +552,7 @@ async def pay_event(
     current_user: Optional[User] = Depends(get_current_user),
 ):
     """支付事件复盘：订阅用户免费额度 → 超量 ¥19.9/次"""
-    try:
-        eid = uuid.UUID(req.event_id)
-    except (ValueError, AttributeError):
-        raise HTTPException(status_code=400, detail="无效的事件 ID 格式")
-    event_result = await db.execute(select(EventLog).where(EventLog.id == eid))
+    event_result = await db.execute(select(EventLog).where(EventLog.id == req.event_id))
     event = event_result.scalar_one_or_none()
     if not event:
         raise HTTPException(status_code=404, detail="事件不存在")
@@ -642,10 +636,7 @@ async def create_order(
     await db.flush()
 
     for item in req.items:
-        try:
-            pid = uuid.UUID(item.product_id) if item.product_id else None
-        except (ValueError, AttributeError):
-            pid = None
+        pid = item.product_id if item.product_id else None
         oi = OrderItem(
             order_id=order.id,
             product_id=pid,

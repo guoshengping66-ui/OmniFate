@@ -1,7 +1,6 @@
 """
 FastAPI dependency for extracting the current user from JWT bearer token.
 """
-import uuid as _uuid
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -29,7 +28,7 @@ async def get_current_user(
     user_id = verify_token(credentials.credentials)
     if user_id is None:
         return None
-    result = await db.execute(select(User).where(User.id == _uuid.UUID(user_id)))
+    result = await db.execute(select(User).where(User.id == user_id))
     return result.scalar_one_or_none()
 
 

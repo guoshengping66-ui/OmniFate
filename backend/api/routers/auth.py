@@ -1,5 +1,4 @@
 """POST /register  POST /login  GET /me  POST /refresh  POST /forgot-password  POST /reset-password"""
-import uuid as _uuid
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, EmailStr
 from sqlalchemy import select
@@ -188,7 +187,7 @@ async def reset_password(req: ResetPasswordRequest, db: AsyncSession = Depends(g
         raise HTTPException(status_code=400, detail="重置链接已过期，请重新申请")
 
     user_id = token_data["user_id"]
-    result = await db.execute(select(User).where(User.id == _uuid.UUID(user_id)))
+    result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalar_one_or_none()
     if not user:
         raise HTTPException(status_code=404, detail="用户不存在")

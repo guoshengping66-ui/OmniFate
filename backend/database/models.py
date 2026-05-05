@@ -13,7 +13,6 @@ from sqlalchemy import (
     BigInteger, Boolean, DateTime, Enum, Float, ForeignKey,
     Integer, JSON, String, Text, UniqueConstraint, func,
 )
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -67,7 +66,7 @@ class ProductCategory(str, enum.Enum):
 class User(Base):
     __tablename__ = "users"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
     hashed_password: Mapped[Optional[str]] = mapped_column(String(255))
     display_name: Mapped[Optional[str]] = mapped_column(String(100))
@@ -105,8 +104,8 @@ class BirthProfile(Base):
     """用户出生信息档案（可保存多个：本人/家人/朋友）"""
     __tablename__ = "birth_profiles"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id: Mapped[uuid.UUID] = mapped_column(
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id: Mapped[str] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
     nickname: Mapped[str] = mapped_column(String(80), default="本命")
@@ -139,11 +138,11 @@ class Reading(Base):
     """一次完整的全维度命理分析报告"""
     __tablename__ = "readings"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id: Mapped[Optional[str]] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), nullable=True, index=True
     )
-    birth_profile_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+    birth_profile_id: Mapped[Optional[str]] = mapped_column(
         ForeignKey("birth_profiles.id", ondelete="SET NULL"), nullable=True
     )
     status: Mapped[ReadingStatus] = mapped_column(Enum(ReadingStatus), default=ReadingStatus.pending)
@@ -184,7 +183,7 @@ class Product(Base):
     """改运商品/服务目录"""
     __tablename__ = "products"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     sku: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     description: Mapped[Optional[str]] = mapped_column(Text)
@@ -220,8 +219,8 @@ class Product(Base):
 class Order(Base):
     __tablename__ = "orders"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id: Mapped[Optional[str]] = mapped_column(
         ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True
     )
     order_no: Mapped[str] = mapped_column(String(64), unique=True, nullable=False, index=True)
@@ -253,12 +252,12 @@ class Order(Base):
 class OrderItem(Base):
     __tablename__ = "order_items"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    order_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("orders.id", ondelete="CASCADE"), nullable=False)
-    product_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    order_id: Mapped[str] = mapped_column(ForeignKey("orders.id", ondelete="CASCADE"), nullable=False)
+    product_id: Mapped[Optional[str]] = mapped_column(
         ForeignKey("products.id", ondelete="SET NULL"), nullable=True
     )
-    reading_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+    reading_id: Mapped[Optional[str]] = mapped_column(
         ForeignKey("readings.id", ondelete="SET NULL"), nullable=True
     )
 
@@ -279,8 +278,8 @@ class EventLog(Base):
     """用户事件复盘记录"""
     __tablename__ = "event_logs"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id: Mapped[Optional[str]] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), nullable=True, index=True
     )
     session_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
@@ -313,11 +312,11 @@ class UserFavorite(Base):
     """用户收藏的商品"""
     __tablename__ = "user_favorites"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id: Mapped[uuid.UUID] = mapped_column(
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id: Mapped[str] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    product_id: Mapped[uuid.UUID] = mapped_column(
+    product_id: Mapped[str] = mapped_column(
         ForeignKey("products.id", ondelete="CASCADE"), nullable=False, index=True
     )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
@@ -331,11 +330,11 @@ class ProductReview(Base):
     """商品评价"""
     __tablename__ = "product_reviews"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    product_id: Mapped[uuid.UUID] = mapped_column(
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    product_id: Mapped[str] = mapped_column(
         ForeignKey("products.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    user_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+    user_id: Mapped[Optional[str]] = mapped_column(
         ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True
     )
     user_name: Mapped[str] = mapped_column(String(100), nullable=False)

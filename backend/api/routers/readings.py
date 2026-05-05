@@ -216,7 +216,7 @@ async def create_analysis(
     try:
         async with AsyncSessionLocal() as db:
             reading = Reading(
-                id=uuid.UUID(state.session_id),
+                id=state.session_id,
                 user_id=current_user.id if current_user else None,
                 status=ReadingStatus.completed,
                 master_summary=state.master_summary,
@@ -268,7 +268,7 @@ async def get_session(session_id: str):
     try:
         async with AsyncSessionLocal() as db:
             result = await db.execute(
-                select(Reading).where(Reading.id == uuid.UUID(session_id))
+                select(Reading).where(Reading.id == session_id)
             )
             reading = result.scalar_one_or_none()
             if reading:
@@ -910,10 +910,7 @@ async def list_events(session_id: str = Query(...)):
 @router.get("/events/{event_id}", response_model=EventDetailResponse)
 async def get_event_detail(event_id: str):
     """Get full event analysis detail."""
-    try:
-        event_uuid = uuid.UUID(event_id)
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid event ID format.")
+    event_uuid = event_id
 
     try:
         async with AsyncSessionLocal() as db:
