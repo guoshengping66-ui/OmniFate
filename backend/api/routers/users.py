@@ -1,5 +1,5 @@
 """api/routers/users.py — User profile, favorites, orders, settings"""
-from __future__ import annotations
+from typing import Optional
 
 import json
 from pathlib import Path
@@ -145,7 +145,7 @@ async def list_orders(user: User = Depends(require_user)):
 # ── Profile Settings ──────────────────────────────────────────────────────
 
 class UpdateProfileRequest(BaseModel):
-    display_name: str | None = None
+    display_name: Optional[str] = None
 
 
 class ChangePasswordRequest(BaseModel):

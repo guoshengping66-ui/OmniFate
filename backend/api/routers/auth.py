@@ -1,5 +1,5 @@
 """POST /register  POST /login  GET /me  POST /refresh  POST /forgot-password  POST /reset-password"""
-from __future__ import annotations
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, EmailStr
@@ -21,7 +21,7 @@ router = APIRouter()
 class RegisterRequest(BaseModel):
     email: EmailStr
     password: str
-    display_name: str | None = None
+    display_name: Optional[str] = None
 
 
 class LoginRequest(BaseModel):
@@ -52,11 +52,11 @@ class ResetPasswordRequest(BaseModel):
 class UserResponse(BaseModel):
     id: str
     email: str
-    display_name: str | None
+    display_name: Optional[str]
     is_premium: bool
-    premium_expires_at: str | None
+    premium_expires_at: Optional[str]
     shop_coupon_balance: float
-    subscription_tier: str | None
+    subscription_tier: Optional[str]
 
 
 @router.post("/register")

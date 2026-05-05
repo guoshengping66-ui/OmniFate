@@ -1,7 +1,8 @@
 """
 FastAPI dependency for extracting the current user from JWT bearer token.
 """
-from __future__ import annotations
+
+from typing import Optional
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -16,9 +17,9 @@ bearer_scheme = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
-    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme),
     db: AsyncSession = Depends(get_db),
-) -> User | None:
+) -> Optional[User]:
     """
     Extract and validate the current user from JWT.
     Returns the User ORM object, or None if no valid token is present.
@@ -34,7 +35,7 @@ async def get_current_user(
 
 
 async def require_user(
-    user: User | None = Depends(get_current_user),
+    user: Optional[User] = Depends(get_current_user),
 ) -> User:
     """Like get_current_user but raises 401 if not authenticated."""
     if user is None:
