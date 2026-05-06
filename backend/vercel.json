@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "maxDuration": 300,
+  "installCommand": "pip install -r requirements-vercel.txt",
   "builds": [
     {
       "src": "api/index.py",
