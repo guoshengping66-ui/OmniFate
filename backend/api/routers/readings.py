@@ -213,7 +213,9 @@ async def create_analysis(
     _session_created[state.session_id] = _time.time()
 
     # Start analysis in background (works on self-hosted server)
+    print(f"[POST] Creating background task for {state.session_id}")
     asyncio.create_task(_run_analysis_bg(state, user_id))
+    print(f"[POST] Background task created for {state.session_id}")
 
     return _state_to_response(state)
 
@@ -237,6 +239,7 @@ async def _persist_session(session_id: str, user_id: Optional[str] = None):
 
 async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
     """Background task: run the full pipeline then persist results to DB."""
+    print(f"[BG] Starting analysis for {state.session_id}")
     # Update status to processing
     try:
         async with AsyncSessionLocal() as db:
