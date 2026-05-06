@@ -28,6 +28,12 @@ settings = get_settings()
 router = APIRouter()
 
 
+@router.get("/ping")
+async def readings_ping():
+    """Quick health check — confirms readings router is loaded."""
+    return {"status": "ok", "router": "readings"}
+
+
 def _cleanup_sessions():
     """Evict sessions older than _SESSION_MAX_AGE to prevent memory leak."""
     global _last_session_cleanup
