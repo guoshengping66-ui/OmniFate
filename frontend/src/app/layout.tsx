@@ -8,6 +8,7 @@ import { MagicCursor } from "@/components/ui/MagicCursor"
 import { NebulaBackground } from "@/components/ui/NebulaBackground"
 import { AppProviders } from "@/components/ui/AppProviders"
 import { RouteProgress } from "@/components/ui/RouteProgress"
+import { Analytics } from "@vercel/analytics/next"
 
 export const metadata: Metadata = {
   title: "命盘智镜 · 全维度命理分析平台",
@@ -34,6 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             }}
           />
         </AppProviders>
+        <Analytics />
       </body>
     </html>
   )
