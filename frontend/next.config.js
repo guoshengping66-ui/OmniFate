@@ -2,7 +2,9 @@
 
 // Production backend URL — .env files are gitignored and not deployed to Vercel,
 // so we hardcode the default here. Local dev overrides via .env.local.
-const PROD_BACKEND = "https://api.khanfate.com"
+// NOTE: Server has no SSL, so use HTTP. Vercel's rewrite proxies server-side
+// (no mixed-content issue since it's server-to-server).
+const PROD_BACKEND = "http://api.khanfate.com"
 const BACKEND_URL = process.env.BACKEND_URL || PROD_BACKEND
 
 const nextConfig = {
@@ -16,11 +18,8 @@ const nextConfig = {
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "**" },
-      { protocol: "http",  hostname: "localhost" },
+      { protocol: "http",  hostname: "**" },
     ],
-  },
-  env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || PROD_BACKEND,
   },
   async rewrites() {
     return [{

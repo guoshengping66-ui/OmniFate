@@ -1,6 +1,10 @@
 import axios from "axios"
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8002"
+// In production on Vercel, use relative path "/api" so requests go through
+// Vercel's rewrite proxy (defined in next.config.mjs) to the backend.
+// In local dev, point directly to the backend server.
+const isProd = typeof window !== "undefined" && window.location.hostname !== "localhost"
+const BACKEND_URL = isProd ? "" : (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8002")
 
 // Main API client — points directly to backend
 export const api = axios.create({
