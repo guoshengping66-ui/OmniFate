@@ -436,6 +436,9 @@ class AstrologyCalculator:
     def _ensure_ephemeris(self):
         if self._ephemeris is not None:
             return
+        import os
+        skyfield_dir = os.environ.get("SKYFIELD_DATA") or os.path.expanduser("~/.skyfield")
+        os.makedirs(skyfield_dir, exist_ok=True)
         from skyfield.api import load
         self._ts = load.timescale()
         # Use DE421 (small, covers 1900-2050)

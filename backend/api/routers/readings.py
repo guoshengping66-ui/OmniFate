@@ -4,6 +4,7 @@ HTTP endpoints for analysis pipeline, chat loop, event replay, and daily almanac
 """
 from __future__ import annotations
 import uuid
+import asyncio
 from datetime import datetime, date, timezone
 from typing import Optional
 import json
@@ -17,24 +18,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.agents.state import (
     SystemState, BirthInfo, FaceFeatures, PalmFeatures, ChatMessage,
 )
-from backend.agents.graph import run_full_analysis, run_chat
-from backend.agents.replay_prompt import replay_agent_prompt
-from backend.agents.master import _llm, _use_mock
-from backend.services.vision.face_v2t import FaceV2T
-from backend.services.vision.palm_v2t import PalmV2T
-from backend.services.product_matcher import ProductMatcher
 from backend.database.session import AsyncSessionLocal, engine
 from backend.database.models import Reading, ReadingStatus, PaymentStatus, EventLog, User
 from backend.auth.dependencies import get_current_user, require_user
-from backend.calculators.astrology_calculator import AstrologyCalculator
-from backend.calculators.bazi_calculator import BaziCalculator
 from backend.config import get_settings
 
 settings = get_settings()
 
 router = APIRouter()
-face_v2t = FaceV2T()
-palm_v2t = PalmV2T()
 
 
 def _cleanup_sessions():
@@ -170,8 +161,8 @@ async def create_analysis(
     current_user: Optional[User] = Depends(get_current_user),
 ):
     """
-    Run the full 1+5 multi-agent pipeline:
-    parallel(astrology+tarot+bazi+face+palm) -> master synthesis
+    POST starts analysis in background, returns immediately with session_id.
+    Frontend polls GET /session/{id} until status == "done".
     """
     bi = BirthInfo(
         year=payload.birth_year, month=payload.birth_month,
@@ -198,26 +189,36 @@ async def create_analysis(
         tarot_raw={"spread": "Three-Card Spread", "cards": payload.tarot_cards},
     )
 
+    # Store session immediately so frontend can poll it
+    _cleanup_sessions()
+    _sessions[state.session_id] = state
+    import time as _time
+    _session_created[state.session_id] = _time.time()
+
+    # Launch analysis as background task — POST returns <1s
+    user_id = current_user.id if current_user else None
+    asyncio.create_task(_run_analysis_bg(state, user_id))
+
+    return _state_to_response(state)
+
+
+async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
+    """Background task: run the full pipeline then persist results."""
     try:
+        # Lazy imports to avoid cold-start cost on every request
+        from backend.agents.graph import run_full_analysis
         state = await run_full_analysis(state)
     except Exception as e:
         state.errors.append(str(e))
         state.phase = "done"
+        print(f"[BG] Analysis failed for {state.session_id}: {e}")
 
-    # Cleanup expired sessions to prevent memory leak
-    _cleanup_sessions()
-
-    # Persist session for chat loop
-    import time as _time
-    _sessions[state.session_id] = state
-    _session_created[state.session_id] = _time.time()
-
-    # Persist Reading to database (for unlock/payment flow)
+    # Persist Reading to database
     try:
         async with AsyncSessionLocal() as db:
             reading = Reading(
                 id=state.session_id,
-                user_id=current_user.id if current_user else None,
+                user_id=user_id,
                 status=ReadingStatus.completed,
                 master_summary=state.master_summary,
                 master_detail=state.master_detail,
@@ -229,10 +230,9 @@ async def create_analysis(
             )
             db.add(reading)
             await db.commit()
+            print(f"[BG] Persisted reading {state.session_id} to DB")
     except Exception as e:
         print(f"[WARN] Failed to persist reading to DB: {e}")
-
-    return _state_to_response(state)
 
 
 @router.post("/chat", response_model=ChatResponse)
@@ -241,6 +241,8 @@ async def chat_followup(payload: ChatRequest):
     Task C: Dynamic routing follow-up chat.
     Routes user question to the correct expert agent and returns a focused answer.
     """
+    from backend.agents.graph import run_chat
+
     state = _sessions.get(payload.session_id)
     if not state:
         raise HTTPException(status_code=404, detail="Session not found. Run /readings/ first.")
@@ -328,6 +330,9 @@ async def upload_face_image(session_id: str, file: UploadFile = File(...)):
     -> structured physiognomy text -> update session state.
     Uses the new FaceV2T engine for richer analysis.
     """
+    from backend.services.vision.face_v2t import FaceV2T
+    face_v2t = FaceV2T()
+
     content = await file.read()
     if len(content) > MAX_UPLOAD_SIZE:
         raise HTTPException(status_code=413, detail="文件大小超过限制（最大 10MB）")
@@ -386,6 +391,9 @@ async def analyze_face_image(file: UploadFile = File(...)):
     Upload a face image -> returns structured physiognomy text without creating a session.
     Frontend can call this during Step 2 to auto-analyze before submitting the full form.
     """
+    from backend.services.vision.face_v2t import FaceV2T
+    face_v2t = FaceV2T()
+
     content = await file.read()
     if len(content) > MAX_UPLOAD_SIZE:
         raise HTTPException(status_code=413, detail="文件大小超过限制（最大 10MB）")
@@ -464,6 +472,9 @@ async def upload_palm_image(session_id: str, file: UploadFile = File(...)):
     Upload a palm image -> V2T via MediaPipe Hands + OpenCV line detection
     -> structured palmistry text -> update session state.
     """
+    from backend.services.vision.palm_v2t import PalmV2T
+    palm_v2t = PalmV2T()
+
     content = await file.read()
     if len(content) > MAX_UPLOAD_SIZE:
         raise HTTPException(status_code=413, detail="文件大小超过限制（最大 10MB）")
@@ -533,6 +544,9 @@ async def analyze_palm_image(file: UploadFile = File(...)):
     Upload a palm image -> returns structured palmistry text without creating a session.
     Frontend can call this during Step 2 to auto-analyze before submitting the full form.
     """
+    from backend.services.vision.palm_v2t import PalmV2T
+    palm_v2t = PalmV2T()
+
     content = await file.read()
     if len(content) > MAX_UPLOAD_SIZE:
         raise HTTPException(status_code=413, detail="文件大小超过限制（最大 10MB）")
@@ -645,6 +659,8 @@ def _get_birth_info_for_session(session_id: str) -> Optional[dict]:
 
 async def _call_replay_llm(system_prompt: str) -> tuple[str, list[str], list[str]]:
     """Call the LLM for event replay analysis. Returns (analysis_text, remedy_keywords, boost_elements)."""
+    from backend.agents.master import _llm, _use_mock
+
     if _use_mock():
         return (
             "【因果溯源】\n"
@@ -727,6 +743,7 @@ async def analyze_event(payload: AnalyzeEventRequest):
     event_dt = payload.event_datetime
 
     # 2a. Compute transit astrology
+    from backend.calculators.astrology_calculator import AstrologyCalculator
     astro_calc = AstrologyCalculator()
     try:
         natal_chart = astro_calc.calculate(
@@ -745,6 +762,7 @@ async def analyze_event(payload: AnalyzeEventRequest):
         transit_astro = {"transit_planets": {}, "transit_natal_aspects": []}
 
     # 2b. Compute transit bazi pillars
+    from backend.calculators.bazi_calculator import BaziCalculator
     try:
         transit_bazi = BaziCalculator.calculate_transit_pillars(
             year=event_dt.year,
@@ -755,6 +773,7 @@ async def analyze_event(payload: AnalyzeEventRequest):
         transit_bazi = None
 
     # 3. Build replay prompt and call LLM
+    from backend.agents.replay_prompt import replay_agent_prompt
     bazi_weak = list(state.bazi_output.weakness_tags) if state.bazi_output else []
     bazi_strong = list(state.bazi_output.strength_tags) if state.bazi_output else []
     astro_weak = list(state.astrology_output.weakness_tags) if state.astrology_output else []
@@ -798,6 +817,7 @@ async def analyze_event(payload: AnalyzeEventRequest):
         sections[k] = sections[k].strip()
 
     # 4. Match products from remedy keywords
+    from backend.services.product_matcher import ProductMatcher
     matcher = ProductMatcher()
     matched_products = matcher.match_with_reasons(
         weakness_tags=remedy_keywords,
@@ -921,6 +941,7 @@ async def get_event_detail(event_id: str):
                 raise HTTPException(status_code=404, detail="Event not found.")
 
             # Load products from product IDs
+            from backend.services.product_matcher import ProductMatcher
             matcher = ProductMatcher()
             matched = []
             if evt.remedy_keywords:
@@ -974,6 +995,7 @@ async def get_daily_almanac(session_id: str = Query(...)):
     today = date.today()
 
     # 1. Compute natal chart
+    from backend.calculators.astrology_calculator import AstrologyCalculator
     astro_calc = AstrologyCalculator()
     try:
         natal_chart = astro_calc.calculate(
@@ -995,6 +1017,7 @@ async def get_daily_almanac(session_id: str = Query(...)):
         pass
 
     # 3. Compute today's bazi pillars
+    from backend.calculators.bazi_calculator import BaziCalculator
     today_bazi = None
     try:
         today_bazi = BaziCalculator.calculate_transit_pillars(today.year, today.month, today.day)
@@ -1017,6 +1040,7 @@ async def get_daily_almanac(session_id: str = Query(...)):
     )
 
     # 6. Match products for 'hu' (护)
+    from backend.services.product_matcher import ProductMatcher
     matcher = ProductMatcher()
     all_weakness = list(state.computed_tags or [])
     matched = matcher.match_with_reasons(
@@ -1061,6 +1085,7 @@ async def _generate_almanac(
     """
     Generate yi/ji/hu recommendations using LLM when available, fallback to rule-based.
     """
+    from backend.agents.master import _llm, _use_mock
     if _use_mock():
         return _rule_based_almanac(state, today, transit_bazi, transit_astro, energy_score)
 

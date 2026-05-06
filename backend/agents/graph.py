@@ -40,10 +40,14 @@ async def node_init(state: SystemState) -> SystemState:
     if not state.astrology_raw and state.birth_info:
         bi = state.birth_info
         try:
-            astro_dict = _calculate_astrology(bi)
+            import asyncio as _aio
+            astro_dict = await _aio.wait_for(
+                _aio.get_event_loop().run_in_executor(None, _calculate_astrology, bi),
+                timeout=30,
+            )
             state.astrology_raw = astro_dict
         except Exception as e:
-            # Fallback to stub if real calculation fails
+            # Fallback to stub if real calculation fails or times out
             state.astrology_raw = _stub_astrology(bi)
             state.errors.append(f"astrology_real_fallback: {e}")
 

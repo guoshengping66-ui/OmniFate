@@ -22,6 +22,19 @@ async def lifespan(app: FastAPI):
             await conn.run_sync(Base.metadata.create_all)
     except Exception as e:
         print(f"[WARN] 数据库初始化失败: {e}")
+
+    # Pre-download Skyfield ephemeris to /tmp so analysis doesn't block on first request
+    import os
+    skyfield_dir = "/tmp/skyfield" if os.path.exists("/tmp") else os.path.expanduser("~/.skyfield")
+    os.environ["SKYFIELD_DATA"] = skyfield_dir
+    os.makedirs(skyfield_dir, exist_ok=True)
+    try:
+        from skyfield.api import load as sky_load
+        sky_load("de421.bsp")
+        print(f"[OK] Skyfield ephemeris ready at {skyfield_dir}")
+    except Exception as e:
+        print(f"[WARN] Skyfield ephemeris preload failed: {e}")
+
     yield
 
 
