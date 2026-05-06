@@ -935,7 +935,7 @@ async def get_event_detail(event_id: str):
 
             # Load products from product IDs
             from backend.services.product_matcher import ProductMatcher
-    matcher = ProductMatcher()
+            matcher = ProductMatcher()
             matched = []
             if evt.remedy_keywords:
                 matched = matcher.match_with_reasons(
