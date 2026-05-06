@@ -27,8 +27,8 @@ class Settings(BaseSettings):
 
     OPENAI_API_KEY: str = ""
     OPENAI_BASE_URL: str = "https://api.deepseek.com"
-    OPENAI_MODEL: str = "deepseek-v4"          # 免费模型 — workers + 免费用户 master
-    PREMIUM_MODEL: str = "deepseek-v4-pro"     # 付费模型 — 付费用户 master 深度解析
+    OPENAI_MODEL: str = "deepseek-v4-flash"     # 免费模型 — workers + 免费用户 master
+    PREMIUM_MODEL: str = "deepseek-v4-pro"      # 付费模型 — 付费用户 master 深度解析
     AGENT_TEMPERATURE: float = 0.3
     AGENT_MAX_TOKENS: int = 4096
     WORKER_MAX_TOKENS: int = 1536   # 比 master 少一半——worker 只需提供分析素材
