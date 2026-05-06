@@ -2,6 +2,7 @@
 agents/state.py — SystemState shared across the 1+5 pipeline
 """
 from __future__ import annotations
+import uuid
 from typing import Optional, Literal
 from pydantic import BaseModel, Field
 from datetime import datetime
@@ -153,7 +154,7 @@ class ConflictRecord(BaseModel):
 
 
 class SystemState(BaseModel):
-    session_id: str = ""
+    session_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     birth_info: Optional[BirthInfo] = None
     face_features: Optional[FaceFeatures] = None
     palm_features: Optional[PalmFeatures] = None
