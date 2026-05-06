@@ -200,11 +200,10 @@ async def create_analysis(
 
     # Persist session to DATABASE (with timeout to avoid blocking)
     try:
-        async with asyncio.wait_for(
+        await asyncio.wait_for(
             _persist_session(state.session_id, user_id),
             timeout=5,
-        ):
-            pass
+        )
     except (asyncio.TimeoutError, Exception) as e:
         print(f"[WARN] Failed to create reading in DB: {e}")
 
