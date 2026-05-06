@@ -14,27 +14,18 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
+# Light imports only — heavy modules (langgraph, langchain, skyfield) loaded lazily
 from backend.agents.state import (
     SystemState, BirthInfo, FaceFeatures, PalmFeatures, ChatMessage,
 )
-from backend.agents.graph import run_full_analysis, run_chat
-from backend.agents.replay_prompt import replay_agent_prompt
-from backend.agents.master import _llm, _use_mock
-from backend.services.vision.face_v2t import FaceV2T
-from backend.services.vision.palm_v2t import PalmV2T
-from backend.services.product_matcher import ProductMatcher
 from backend.database.session import AsyncSessionLocal, engine
 from backend.database.models import Reading, ReadingStatus, PaymentStatus, EventLog, User
 from backend.auth.dependencies import get_current_user, require_user
-from backend.calculators.astrology_calculator import AstrologyCalculator
-from backend.calculators.bazi_calculator import BaziCalculator
 from backend.config import get_settings
 
 settings = get_settings()
 
 router = APIRouter()
-face_v2t = FaceV2T()
-palm_v2t = PalmV2T()
 
 
 def _cleanup_sessions():
@@ -213,6 +204,7 @@ async def create_analysis(
 
 async def _run_analysis_bg(state: SystemState, current_user):
     """Background task: run full analysis, persist results."""
+    from backend.agents.graph import run_full_analysis
     try:
         state = await run_full_analysis(state)
     except Exception as e:
@@ -250,6 +242,7 @@ async def chat_followup(payload: ChatRequest):
     if not state:
         raise HTTPException(status_code=404, detail="Session not found. Run /readings/ first.")
 
+    from backend.agents.graph import run_chat
     answer, agent_id, updated_state = await run_chat(payload.question, state)
     _sessions[payload.session_id] = updated_state
 
@@ -336,6 +329,8 @@ async def upload_face_image(session_id: str, file: UploadFile = File(...)):
     content = await file.read()
     if len(content) > MAX_UPLOAD_SIZE:
         raise HTTPException(status_code=413, detail="文件大小超过限制（最大 10MB）")
+    from backend.services.vision.face_v2t import FaceV2T
+    face_v2t = FaceV2T()
     result = face_v2t.analyze_bytes(content)
     if not result:
         raise HTTPException(status_code=422,
@@ -394,6 +389,8 @@ async def analyze_face_image(file: UploadFile = File(...)):
     content = await file.read()
     if len(content) > MAX_UPLOAD_SIZE:
         raise HTTPException(status_code=413, detail="文件大小超过限制（最大 10MB）")
+    from backend.services.vision.face_v2t import FaceV2T
+    face_v2t = FaceV2T()
     result = face_v2t.analyze_bytes(content)
     if not result:
         raise HTTPException(status_code=422,
@@ -472,6 +469,8 @@ async def upload_palm_image(session_id: str, file: UploadFile = File(...)):
     content = await file.read()
     if len(content) > MAX_UPLOAD_SIZE:
         raise HTTPException(status_code=413, detail="文件大小超过限制（最大 10MB）")
+    from backend.services.vision.palm_v2t import PalmV2T
+    palm_v2t = PalmV2T()
     result = palm_v2t.analyze_bytes(content)
     if not result:
         raise HTTPException(status_code=422,
@@ -541,6 +540,8 @@ async def analyze_palm_image(file: UploadFile = File(...)):
     content = await file.read()
     if len(content) > MAX_UPLOAD_SIZE:
         raise HTTPException(status_code=413, detail="文件大小超过限制（最大 10MB）")
+    from backend.services.vision.palm_v2t import PalmV2T
+    palm_v2t = PalmV2T()
     result = palm_v2t.analyze_bytes(content)
     if not result:
         raise HTTPException(status_code=422,
@@ -650,6 +651,7 @@ def _get_birth_info_for_session(session_id: str) -> Optional[dict]:
 
 async def _call_replay_llm(system_prompt: str, model: str | None = None) -> tuple[str, list[str], list[str]]:
     """Call the LLM for event replay analysis. Returns (analysis_text, remedy_keywords, boost_elements)."""
+    from backend.agents.master import _llm, _use_mock
     if _use_mock():
         return (
             "【因果溯源】\n"
@@ -732,6 +734,7 @@ async def analyze_event(payload: AnalyzeEventRequest):
     event_dt = payload.event_datetime
 
     # 2a. Compute transit astrology
+    from backend.calculators.astrology_calculator import AstrologyCalculator
     astro_calc = AstrologyCalculator()
     try:
         natal_chart = astro_calc.calculate(
@@ -751,6 +754,7 @@ async def analyze_event(payload: AnalyzeEventRequest):
 
     # 2b. Compute transit bazi pillars
     try:
+        from backend.calculators.bazi_calculator import BaziCalculator
         transit_bazi = BaziCalculator.calculate_transit_pillars(
             year=event_dt.year,
             month=event_dt.month,
@@ -764,6 +768,7 @@ async def analyze_event(payload: AnalyzeEventRequest):
     bazi_strong = list(state.bazi_output.strength_tags) if state.bazi_output else []
     astro_weak = list(state.astrology_output.weakness_tags) if state.astrology_output else []
 
+    from backend.agents.replay_prompt import replay_agent_prompt
     system_prompt = replay_agent_prompt(
         master_summary=state.master_summary,
         computed_tags=state.computed_tags,
@@ -805,6 +810,7 @@ async def analyze_event(payload: AnalyzeEventRequest):
         sections[k] = sections[k].strip()
 
     # 4. Match products from remedy keywords
+    from backend.services.product_matcher import ProductMatcher
     matcher = ProductMatcher()
     matched_products = matcher.match_with_reasons(
         weakness_tags=remedy_keywords,
@@ -928,7 +934,8 @@ async def get_event_detail(event_id: str):
                 raise HTTPException(status_code=404, detail="Event not found.")
 
             # Load products from product IDs
-            matcher = ProductMatcher()
+            from backend.services.product_matcher import ProductMatcher
+    matcher = ProductMatcher()
             matched = []
             if evt.remedy_keywords:
                 matched = matcher.match_with_reasons(
@@ -981,6 +988,7 @@ async def get_daily_almanac(session_id: str = Query(...)):
     today = date.today()
 
     # 1. Compute natal chart
+    from backend.calculators.astrology_calculator import AstrologyCalculator
     astro_calc = AstrologyCalculator()
     try:
         natal_chart = astro_calc.calculate(
@@ -1024,6 +1032,7 @@ async def get_daily_almanac(session_id: str = Query(...)):
     )
 
     # 6. Match products for 'hu' (护)
+    from backend.services.product_matcher import ProductMatcher
     matcher = ProductMatcher()
     all_weakness = list(state.computed_tags or [])
     matched = matcher.match_with_reasons(
@@ -1068,6 +1077,7 @@ async def _generate_almanac(
     """
     Generate yi/ji/hu recommendations using LLM when available, fallback to rule-based.
     """
+    from backend.agents.master import _llm, _use_mock
     if _use_mock():
         return _rule_based_almanac(state, today, transit_bazi, transit_astro, energy_score)
 
