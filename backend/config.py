@@ -15,18 +15,23 @@ class Settings(BaseSettings):
     APP_NAME: str = "命盘智镜"
     DEBUG: bool = False
     SECRET_KEY: str = "change-me-in-production"
-    ALLOWED_ORIGINS: list[str] = ["http://localhost:3000", "http://localhost:3001"]
+    ALLOWED_ORIGINS: list[str] = [
+        "http://localhost:3000", "http://localhost:3001",
+        "https://khanfate.com", "https://www.khanfate.com",
+        "https://destiny-platform.vercel.app",
+    ]
 
     DATABASE_URL: str = "sqlite+aiosqlite:///./destiny_dev.db"
     CHROMA_HOST: str = "localhost"
     CHROMA_PORT: int = 8001
 
     OPENAI_API_KEY: str = ""
-    OPENAI_BASE_URL: str = ""
-    OPENAI_MODEL: str = "gpt-4o"
+    OPENAI_BASE_URL: str = "https://api.deepseek.com"
+    OPENAI_MODEL: str = "deepseek-v4-flash"     # 免费模型 — workers + 免费用户 master
+    PREMIUM_MODEL: str = "deepseek-v4-pro"      # 付费模型 — 付费用户 master 深度解析
     AGENT_TEMPERATURE: float = 0.3
     AGENT_MAX_TOKENS: int = 4096
-    WORKER_MAX_TOKENS: int = 2048   # 比 master 少一半——worker 只需提供分析素材
+    WORKER_MAX_TOKENS: int = 1536   # 比 master 少一半——worker 只需提供分析素材
 
     JWT_SECRET_KEY: str = "alpha-mirror-jwt-secret-dev-key-2025"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30

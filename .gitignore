@@ -97,3 +97,5 @@ de421.bsp
 
 # Frontend build info
 frontend/tsconfig.tsbuildinfo
+
+.vercel

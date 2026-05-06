@@ -24,7 +24,7 @@ const PALM_SCAN_TEXT = "🔍 掌纹特征扫描中…"
 
 const schema = z.object({
   gender: z.enum(["male", "female", "other"]),
-  birth_year:   z.coerce.number().min(1920).max(2010),
+  birth_year:   z.coerce.number().min(1920).max(2025),
   birth_month:  z.coerce.number().min(1).max(12),
   birth_day:    z.coerce.number().min(1).max(31),
   birth_hour:   z.coerce.number().min(0).max(23),
@@ -214,7 +214,10 @@ export default function NewReadingPage() {
       toast.success("推命完成！正在跳转报告…")
       router.push(`/reading/${result.session_id}`)
     } catch (err: any) {
-      toast.error(err?.response?.data?.detail ?? "提交失败，请检查网络")
+      const msg = err?.code === "ECONNABORTED" || err?.message?.includes("timeout")
+        ? "分析超时，请稍后重试"
+        : err?.response?.data?.detail ?? "提交失败，请检查网络"
+      toast.error(msg)
       setLoading(false)
     }
   }

@@ -103,6 +103,23 @@
 ::-webkit-scrollbar-thumb { background: #C9A84C44; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #C9A84C88; }
 
+/* Select dropdown styling for dark theme */
+select.input-field {
+  color-scheme: dark;
+}
+select.input-field option {
+  background-color: #1A0F2E;
+  color: white;
+  padding: 8px 12px;
+}
+select.input-field option:hover {
+  background-color: #2D1B4E;
+}
+select.input-field option:checked {
+  background-color: #C9A84C;
+  color: #1A0F2E;
+}
+
 /* Particle stars */
 .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; z-index: 0; }
 .star { position: absolute; border-radius: 50%; background: white; animation: twinkle var(--dur, 3s) ease-in-out infinite; }
