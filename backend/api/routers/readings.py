@@ -56,6 +56,9 @@ _session_created: dict[str, float] = {}  # session_id -> creation timestamp
 _SESSION_MAX_AGE = 3600 * 2  # 2 hours
 _last_session_cleanup: float = 0.0
 
+# Prevent background tasks from being garbage-collected
+_bg_tasks: set = set()
+
 
 # ─── Request / Response Schemas ───────────────────────────────────────────
 
@@ -213,7 +216,10 @@ async def create_analysis(
     _session_created[state.session_id] = _time.time()
 
     # Start analysis in background (works on self-hosted server)
-    asyncio.create_task(_run_analysis_bg(state, user_id))
+    # Keep strong reference to prevent GC before task completes
+    task = asyncio.create_task(_run_analysis_bg(state, user_id))
+    _bg_tasks.add(task)
+    task.add_done_callback(_bg_tasks.discard)
 
     return _state_to_response(state)
 
@@ -237,6 +243,7 @@ async def _persist_session(session_id: str, user_id: Optional[str] = None):
 
 async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
     """Background task: run the full pipeline then persist results to DB."""
+    print(f"[BG] Starting analysis for {state.session_id}")
     # Update status to processing
     try:
         async with AsyncSessionLocal() as db:
@@ -252,7 +259,9 @@ async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
     try:
         # Lazy imports to avoid cold-start cost
         from backend.agents.graph import run_full_analysis
+        print(f"[BG] Running full analysis pipeline for {state.session_id}")
         state = await run_full_analysis(state)
+        print(f"[BG] Analysis completed for {state.session_id}, phase={state.phase}")
     except Exception as e:
         state.errors.append(str(e))
         state.phase = "done"
