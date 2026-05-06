@@ -164,7 +164,6 @@ def _state_to_response(state: SystemState) -> AnalysisResponse:
 @router.post("", response_model=AnalysisResponse)
 async def create_analysis(
     payload: AnalysisRequest,
-    background_tasks: BackgroundTasks,
     current_user: Optional[User] = Depends(get_current_user),
 ):
     """
@@ -214,7 +213,7 @@ async def create_analysis(
     _session_created[state.session_id] = _time.time()
 
     # Start analysis in background (works on self-hosted server)
-    background_tasks.add_task(_run_analysis_bg, state, user_id)
+    asyncio.create_task(_run_analysis_bg(state, user_id))
 
     return _state_to_response(state)
 
