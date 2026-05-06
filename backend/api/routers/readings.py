@@ -164,10 +164,11 @@ def _state_to_response(state: SystemState) -> AnalysisResponse:
 @router.post("", response_model=AnalysisResponse)
 async def create_analysis(
     payload: AnalysisRequest,
+    background_tasks: BackgroundTasks,
     current_user: Optional[User] = Depends(get_current_user),
 ):
     """
-    POST starts analysis in background, returns immediately with session_id.
+    POST creates session in DB, launches analysis via BackgroundTasks, returns immediately.
     Frontend polls GET /session/{id} until status == "done".
     """
     bi = BirthInfo(
@@ -195,23 +196,51 @@ async def create_analysis(
         tarot_raw={"spread": "Three-Card Spread", "cards": payload.tarot_cards},
     )
 
-    # Store session immediately so frontend can poll it
+    user_id = current_user.id if current_user else None
+
+    # Persist session to DATABASE first (survives across Vercel instances)
+    try:
+        async with AsyncSessionLocal() as db:
+            reading = Reading(
+                id=state.session_id,
+                user_id=user_id,
+                status=ReadingStatus.pending,
+                master_summary="",
+                is_detail_unlocked=False,
+            )
+            db.add(reading)
+            await db.commit()
+    except Exception as e:
+        print(f"[WARN] Failed to create reading in DB: {e}")
+
+    # Also keep in-memory for same-instance fast access
     _cleanup_sessions()
     _sessions[state.session_id] = state
     import time as _time
     _session_created[state.session_id] = _time.time()
 
-    # Launch analysis as background task — POST returns <1s
-    user_id = current_user.id if current_user else None
-    asyncio.create_task(_run_analysis_bg(state, user_id))
+    # Launch analysis via BackgroundTasks (Mangum-compatible, runs within function lifetime)
+    background_tasks.add_task(_run_analysis_bg, state, user_id)
 
     return _state_to_response(state)
 
 
 async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
-    """Background task: run the full pipeline then persist results."""
+    """Background task: run the full pipeline then persist results to DB."""
+    # Update status to processing
     try:
-        # Lazy imports to avoid cold-start cost on every request
+        async with AsyncSessionLocal() as db:
+            stmt = select(Reading).where(Reading.id == state.session_id)
+            result = await db.execute(stmt)
+            reading = result.scalar_one_or_none()
+            if reading:
+                reading.status = ReadingStatus.processing
+                await db.commit()
+    except Exception:
+        pass
+
+    try:
+        # Lazy imports to avoid cold-start cost
         from backend.agents.graph import run_full_analysis
         state = await run_full_analysis(state)
     except Exception as e:
@@ -219,24 +248,26 @@ async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
         state.phase = "done"
         print(f"[BG] Analysis failed for {state.session_id}: {e}")
 
-    # Persist Reading to database
+    # Update in-memory cache
+    _sessions[state.session_id] = state
+
+    # Persist final results to database
     try:
         async with AsyncSessionLocal() as db:
-            reading = Reading(
-                id=state.session_id,
-                user_id=user_id,
-                status=ReadingStatus.completed,
-                master_summary=state.master_summary,
-                master_detail=state.master_detail,
-                astrology_report=state.astrology_output.report,
-                tarot_report=state.tarot_output.report,
-                bazi_report=state.bazi_output.report,
-                face_analysis_text=state.face_output.report if state.face_output.report != "No facial image provided. Face analysis skipped." else None,
-                is_detail_unlocked=False,
-            )
-            db.add(reading)
-            await db.commit()
-            print(f"[BG] Persisted reading {state.session_id} to DB")
+            stmt = select(Reading).where(Reading.id == state.session_id)
+            result = await db.execute(stmt)
+            reading = result.scalar_one_or_none()
+            if reading:
+                reading.status = ReadingStatus.completed
+                reading.master_summary = state.master_summary
+                reading.master_detail = getattr(state, "master_detail", "")
+                reading.astrology_report = state.astrology_output.report if state.astrology_output else ""
+                reading.tarot_report = state.tarot_output.report if state.tarot_output else ""
+                reading.bazi_report = state.bazi_output.report if state.bazi_output else ""
+                reading.face_analysis_text = state.face_output.report if state.face_output and state.face_output.report != "No facial image provided. Face analysis skipped." else None
+                reading.completed_at = datetime.now(timezone.utc)
+                await db.commit()
+                print(f"[BG] Persisted reading {state.session_id} to DB")
     except Exception as e:
         print(f"[WARN] Failed to persist reading to DB: {e}")
 
@@ -266,27 +297,95 @@ async def chat_followup(payload: ChatRequest):
 
 @router.get("/session/{session_id}", response_model=AnalysisResponse)
 async def get_session(session_id: str):
-    """Retrieve a cached session by ID, merging DB unlock status."""
+    """
+    Retrieve session by ID. Checks in-memory first, then DATABASE.
+    Returns current status so frontend can poll until "done".
+    """
+    # Fast path: in-memory cache (same Vercel instance)
     state = _sessions.get(session_id)
-    if not state:
-        raise HTTPException(status_code=404, detail="Session expired or not found.")
-    resp = _state_to_response(state)
+    if state:
+        resp = _state_to_response(state)
+        # Merge DB fields: is_detail_unlocked, master_detail
+        try:
+            async with AsyncSessionLocal() as db:
+                result = await db.execute(
+                    select(Reading).where(Reading.id == session_id)
+                )
+                reading = result.scalar_one_or_none()
+                if reading:
+                    resp.is_detail_unlocked = reading.is_detail_unlocked
+                    if reading.master_detail:
+                        resp.master_detail = reading.master_detail
+        except Exception:
+            pass
+        return resp
 
-    # Merge DB fields: is_detail_unlocked, master_detail
+    # Slow path: read from DATABASE (different Vercel instance or process restarted)
     try:
         async with AsyncSessionLocal() as db:
             result = await db.execute(
                 select(Reading).where(Reading.id == session_id)
             )
             reading = result.scalar_one_or_none()
-            if reading:
-                resp.is_detail_unlocked = reading.is_detail_unlocked
-                if reading.master_detail:
-                    resp.master_detail = reading.master_detail
-    except Exception:
-        pass  # DB not available — keep defaults
+            if not reading:
+                raise HTTPException(status_code=404, detail="Session not found.")
 
-    return resp
+            # If still pending/processing, return status so frontend keeps polling
+            if reading.status in (ReadingStatus.pending, ReadingStatus.processing):
+                return AnalysisResponse(
+                    session_id=session_id,
+                    status=reading.status.value,
+                    master_summary="",
+                    astrology=_empty_worker("astrology"),
+                    tarot=_empty_worker("tarot"),
+                    bazi=_empty_worker("bazi"),
+                    qimen=_empty_worker("qimen"),
+                    ziwei=_empty_worker("ziwei"),
+                    face=_empty_worker("face"),
+                    palm=_empty_worker("palm"),
+                    recommended_product_ids=[],
+                    computed_tags=[],
+                    dimension_scores={},
+                    errors=[],
+                )
+
+            # Completed or failed — reconstruct from DB
+            return AnalysisResponse(
+                session_id=session_id,
+                status=reading.status.value,
+                master_summary=reading.master_summary or "",
+                master_detail=reading.master_detail or "",
+                is_detail_unlocked=reading.is_detail_unlocked,
+                astrology=_worker_from_report("astrology", reading.astrology_report),
+                tarot=_worker_from_report("tarot", reading.tarot_report),
+                bazi=_worker_from_report("bazi", reading.bazi_report),
+                qimen=_empty_worker("qimen"),
+                ziwei=_empty_worker("ziwei"),
+                face=_worker_from_report("face", reading.face_analysis_text),
+                palm=_empty_worker("palm"),
+                recommended_product_ids=reading.recommended_product_ids or [],
+                computed_tags=reading.computed_tags or [],
+                dimension_scores={},
+                errors=[reading.error_message] if reading.error_message else [],
+            )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=404, detail="Session not found.")
+
+
+def _empty_worker(agent_id: str) -> WorkerReportOut:
+    return WorkerReportOut(agent_id=agent_id, report="", tags=[], error=None, duration_ms=None)
+
+
+def _worker_from_report(agent_id: str, report: Optional[str]) -> WorkerReportOut:
+    return WorkerReportOut(
+        agent_id=agent_id,
+        report=report or "",
+        tags=[],
+        error=None,
+        duration_ms=None,
+    )
 
 
 @router.get("/my", response_model=list[ReadingListItem])

@@ -10,36 +10,21 @@ import json
 import re
 from typing import Optional
 
-from langchain_openai import ChatOpenAI
-from langchain_core.messages import SystemMessage, HumanMessage
-
 from backend.config import get_settings
 from backend.agents.state import SystemState, WorkerOutput
-from backend.agents.prompts import (
-    astrology_prompt, tarot_prompt, bazi_prompt,
-    face_prompt, palm_prompt, qimen_prompt, ziwei_prompt,
-)
-from backend.agents.tools import draw_tarot
-from backend.calculators.bazi_calculator import (
-    BaziCalculator, get_current_year_ganzhi,
-)
-from backend.calculators.qimen_calculator import QimenCalculator, calculate_qimen
-from backend.calculators.ziwei_calculator import ZiweiCalculator, calculate_ziwei
 
 settings = get_settings()
-_bazi_calc = BaziCalculator()
-_qimen_calc = QimenCalculator()
-_ziwei_calc = ZiweiCalculator()
 
 
 # ─── LLM factory ──────────────────────────────────────────────────────────
 
-def _llm(temperature: float = 0.35) -> ChatOpenAI:
+def _llm(temperature: float = 0.35):
+    from langchain_openai import ChatOpenAI
     kwargs = dict(
         model=settings.OPENAI_MODEL,
         api_key=settings.OPENAI_API_KEY,
         temperature=temperature,
-        max_tokens=settings.WORKER_MAX_TOKENS,   # 2048 — 素材级输出，master 负责长篇报告
+        max_tokens=settings.WORKER_MAX_TOKENS,
     )
     if settings.OPENAI_BASE_URL:
         kwargs["base_url"] = settings.OPENAI_BASE_URL
@@ -47,7 +32,8 @@ def _llm(temperature: float = 0.35) -> ChatOpenAI:
 
 
 async def _call(system: str, user: str) -> str:
-    """Single async LLM call (no retry — workers are parallel, one slow worker won't block others)."""
+    """Single async LLM call."""
+    from langchain_core.messages import SystemMessage, HumanMessage
     llm = _llm()
     msgs = [SystemMessage(content=system), HumanMessage(content=user)]
     resp = await llm.ainvoke(msgs)
@@ -81,6 +67,7 @@ def _use_mock() -> bool:
 # ─── ASTROLOGY WORKER ─────────────────────────────────────────────────────
 
 async def run_astrology(state: SystemState) -> WorkerOutput:
+    from backend.agents.prompts import astrology_prompt
     t0 = time.time()
     agent_id = "astrology"
     try:
@@ -284,6 +271,8 @@ async def run_astrology(state: SystemState) -> WorkerOutput:
 # ─── TAROT WORKER ────────────────────────────────────────────────────────
 
 async def run_tarot(state: SystemState) -> WorkerOutput:
+    from backend.agents.prompts import tarot_prompt
+    from backend.agents.tools import draw_tarot
     t0 = time.time()
     agent_id = "tarot"
     try:
@@ -321,6 +310,8 @@ async def run_tarot(state: SystemState) -> WorkerOutput:
 # ─── BAZI WORKER ─────────────────────────────────────────────────────────
 
 async def run_bazi(state: SystemState) -> WorkerOutput:
+    from backend.agents.prompts import bazi_prompt
+    from backend.calculators.bazi_calculator import BaziCalculator, get_current_year_ganzhi
     t0 = time.time()
     agent_id = "bazi"
     try:
@@ -329,6 +320,7 @@ async def run_bazi(state: SystemState) -> WorkerOutput:
             return WorkerOutput(agent_id=agent_id, error="birth_info missing")
 
         # Compute BaZi (CPU-bound, run in executor to avoid blocking event loop)
+        _bazi_calc = BaziCalculator()
         loop = asyncio.get_event_loop()
         bazi_result = await loop.run_in_executor(
             None,
@@ -420,6 +412,8 @@ async def run_bazi(state: SystemState) -> WorkerOutput:
 # ─── QIMEN WORKER ────────────────────────────────────────────────────────
 
 async def run_qimen(state: SystemState) -> WorkerOutput:
+    from backend.agents.prompts import qimen_prompt
+    from backend.calculators.qimen_calculator import QimenCalculator
     t0 = time.time()
     agent_id = "qimen"
     try:
@@ -428,6 +422,7 @@ async def run_qimen(state: SystemState) -> WorkerOutput:
             return WorkerOutput(agent_id=agent_id, error="birth_info missing")
 
         # Compute Qimen (CPU-bound, run in executor)
+        _qimen_calc = QimenCalculator()
         loop = asyncio.get_event_loop()
         qimen_result = await loop.run_in_executor(
             None,
@@ -477,6 +472,8 @@ async def run_qimen(state: SystemState) -> WorkerOutput:
 # ─── ZIWEI WORKER ─────────────────────────────────────────────────────────
 
 async def run_ziwei(state: SystemState) -> WorkerOutput:
+    from backend.agents.prompts import ziwei_prompt
+    from backend.calculators.ziwei_calculator import ZiweiCalculator
     t0 = time.time()
     agent_id = "ziwei"
     try:
@@ -485,6 +482,7 @@ async def run_ziwei(state: SystemState) -> WorkerOutput:
             return WorkerOutput(agent_id=agent_id, error="birth_info missing")
 
         # Compute Ziwei (CPU-bound, run in executor)
+        _ziwei_calc = ZiweiCalculator()
         loop = asyncio.get_event_loop()
         ziwei_result = await loop.run_in_executor(
             None,
@@ -533,6 +531,7 @@ async def run_ziwei(state: SystemState) -> WorkerOutput:
 # ─── FACE WORKER ─────────────────────────────────────────────────────────
 
 async def run_face(state: SystemState) -> WorkerOutput:
+    from backend.agents.prompts import face_prompt
     t0 = time.time()
     agent_id = "face"
     try:
@@ -581,6 +580,7 @@ async def run_face(state: SystemState) -> WorkerOutput:
 # ─── PALM WORKER ─────────────────────────────────────────────────────────
 
 async def run_palm(state: SystemState) -> WorkerOutput:
+    from backend.agents.prompts import palm_prompt
     t0 = time.time()
     agent_id = "palm"
     try:
