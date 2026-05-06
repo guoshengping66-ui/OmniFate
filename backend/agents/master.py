@@ -60,9 +60,9 @@ _SENTIMENT_KW = {
 
 # ─── LLM helpers ──────────────────────────────────────────────────────────
 
-def _llm(temperature: float = 0.3) -> ChatOpenAI:
+def _llm(temperature: float = 0.3, model: str | None = None) -> ChatOpenAI:
     kwargs = dict(
-        model=settings.OPENAI_MODEL,
+        model=model or settings.OPENAI_MODEL,
         api_key=settings.OPENAI_API_KEY,
         temperature=temperature,
         max_tokens=settings.AGENT_MAX_TOKENS,
@@ -76,10 +76,10 @@ def _use_mock() -> bool:
     return not settings.OPENAI_API_KEY
 
 
-async def _call(system: str, user: str) -> str:
+async def _call(system: str, user: str, model: str | None = None) -> str:
     if _use_mock():
         return f"[MOCK] {user[:80]}\n\nSet OPENAI_API_KEY to enable real AI responses."
-    llm = _llm()
+    llm = _llm(model=model)
     msgs = [SystemMessage(content=system), HumanMessage(content=user)]
     resp = await llm.ainvoke(msgs)
     return resp.content
@@ -669,7 +669,7 @@ async def answer_with_expert(question: str, agent_id: str, state: SystemState) -
         "用你的领域知识和以下分析报告作为上下文，简洁权威地回答用户追问（200-400字，中文）。\n\n"
         f"== 你的分析报告 ==\n{expert_report[:1500]}"
     )
-    return await _call(system, question)
+    return await _call(system, question, model=settings.PREMIUM_MODEL if state.is_premium else None)
 
 
 # ─── Main: run_master ─────────────────────────────────────────────────────
@@ -747,7 +747,9 @@ async def run_master(state: SystemState) -> SystemState:
     )
 
     summary_task = _call(summary_system, "请生成简洁的免费命盘报告。")
-    detail_task = _call(detail_system, "请生成深度付费命盘报告，务必详细回答用户问题。")
+    # 付费用户使用 deepseek-v4-pro 深度解析，免费用户使用基础模型
+    detail_model = settings.PREMIUM_MODEL if state.is_premium else None
+    detail_task = _call(detail_system, "请生成深度付费命盘报告，务必详细回答用户问题。", model=detail_model)
     state.master_summary, state.master_detail = await _asyncio.gather(
         summary_task, detail_task,
     )

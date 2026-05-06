@@ -643,7 +643,7 @@ def _get_birth_info_for_session(session_id: str) -> Optional[dict]:
     }
 
 
-async def _call_replay_llm(system_prompt: str) -> tuple[str, list[str], list[str]]:
+async def _call_replay_llm(system_prompt: str, model: str | None = None) -> tuple[str, list[str], list[str]]:
     """Call the LLM for event replay analysis. Returns (analysis_text, remedy_keywords, boost_elements)."""
     if _use_mock():
         return (
@@ -658,7 +658,7 @@ async def _call_replay_llm(system_prompt: str) -> tuple[str, list[str], list[str
             ["fire"],
         )
 
-    llm = _llm(temperature=0.4)
+    llm = _llm(temperature=0.4, model=model)
     from langchain_core.messages import SystemMessage, HumanMessage
 
     resp = await llm.ainvoke([
@@ -772,7 +772,9 @@ async def analyze_event(payload: AnalyzeEventRequest):
         transit_astrology=transit_astro,
     )
 
-    analysis_text, remedy_keywords, boost_elements = await _call_replay_llm(system_prompt)
+    analysis_text, remedy_keywords, boost_elements = await _call_replay_llm(
+        system_prompt, model=settings.PREMIUM_MODEL if state.is_premium else None,
+    )
 
     # Parse 3 sections from the analysis text (flexible header matching)
     sections = {"causal_analysis": "", "current_advice": "", "future_prevention": ""}
