@@ -120,7 +120,7 @@ export async function runAnalysis(data: AnalysisRequest): Promise<AnalysisRespon
   const deadline = Date.now() + 5 * 60 * 1000
   while (Date.now() < deadline) {
     await new Promise(r => setTimeout(r, 3000))
-    const poll = await api.get<AnalysisResponse>(`/api/readings/session/${sessionId}`, { timeout: 15_000 })
+    const poll = await api.get<AnalysisResponse>(`/api/readings/session/${sessionId}`, { timeout: 60_000 })
     if (poll.data.status === "done" || poll.data.status === "chat") {
       return poll.data
     }

@@ -168,8 +168,8 @@ async def create_analysis(
     current_user: Optional[User] = Depends(get_current_user),
 ):
     """
-    POST creates session and returns immediately.
-    Analysis runs lazily on the first GET /session/{id} poll (Vercel-safe).
+    POST creates session and kicks off background analysis.
+    Frontend polls GET /session/{id} until status == "done".
     """
     bi = BirthInfo(
         year=payload.birth_year, month=payload.birth_month,
@@ -198,7 +198,7 @@ async def create_analysis(
 
     user_id = current_user.id if current_user else None
 
-    # Persist session to DATABASE (with timeout to avoid blocking on Vercel)
+    # Persist session to DATABASE (with timeout to avoid blocking)
     try:
         async with asyncio.wait_for(
             _persist_session(state.session_id, user_id),
@@ -213,6 +213,9 @@ async def create_analysis(
     _sessions[state.session_id] = state
     import time as _time
     _session_created[state.session_id] = _time.time()
+
+    # Start analysis in background (works on self-hosted server)
+    background_tasks.add_task(_run_analysis_bg, state, user_id)
 
     return _state_to_response(state)
 
@@ -340,16 +343,11 @@ async def _run_analysis_inline(state: SystemState) -> SystemState:
 async def get_session(session_id: str):
     """
     Retrieve session by ID. Checks in-memory first, then DATABASE.
-    If session is in 'init' status, triggers analysis lazily (Vercel-safe).
+    Analysis runs in background via POST; this endpoint just returns current state.
     """
-    # Fast path: in-memory cache (same Vercel instance)
+    # Fast path: in-memory cache
     state = _sessions.get(session_id)
     if state:
-        # If still in init, run analysis now (lazy trigger)
-        if state.phase == "init":
-            state = await _run_analysis_inline(state)
-            _sessions[session_id] = state
-
         resp = _state_to_response(state)
         # Merge DB fields: is_detail_unlocked, master_detail
         try:
