@@ -18,7 +18,7 @@ bearer_scheme = HTTPBearer(auto_error=False)
 
 async def get_current_user(
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme),
-    db: AsyncSession = Depends(get_db),
+    db: Optional[AsyncSession] = Depends(get_db),
 ) -> Optional[User]:
     """
     Extract and validate the current user from JWT.
@@ -26,6 +26,8 @@ async def get_current_user(
     Use `require_user` below for endpoints that MUST have auth.
     """
     if credentials is None:
+        return None
+    if db is None:
         return None
     user_id = verify_token(credentials.credentials)
     if user_id is None:
