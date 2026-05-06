@@ -198,19 +198,14 @@ async def create_analysis(
 
     user_id = current_user.id if current_user else None
 
-    # Persist session to DATABASE first (survives across Vercel instances)
+    # Persist session to DATABASE (with timeout to avoid blocking on Vercel)
     try:
-        async with AsyncSessionLocal() as db:
-            reading = Reading(
-                id=state.session_id,
-                user_id=user_id,
-                status=ReadingStatus.pending,
-                master_summary="",
-                is_detail_unlocked=False,
-            )
-            db.add(reading)
-            await db.commit()
-    except Exception as e:
+        async with asyncio.wait_for(
+            _persist_session(state.session_id, user_id),
+            timeout=5,
+        ):
+            pass
+    except (asyncio.TimeoutError, Exception) as e:
         print(f"[WARN] Failed to create reading in DB: {e}")
 
     # Also keep in-memory for same-instance fast access
@@ -223,6 +218,23 @@ async def create_analysis(
     background_tasks.add_task(_run_analysis_bg, state, user_id)
 
     return _state_to_response(state)
+
+
+async def _persist_session(session_id: str, user_id: Optional[str] = None):
+    """Persist a reading session to the database."""
+    from backend.database.session import _db_available
+    if _db_available is False:
+        return
+    async with AsyncSessionLocal() as db:
+        reading = Reading(
+            id=session_id,
+            user_id=user_id,
+            status=ReadingStatus.pending,
+            master_summary="",
+            is_detail_unlocked=False,
+        )
+        db.add(reading)
+        await db.commit()
 
 
 async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):

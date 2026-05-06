@@ -7,10 +7,9 @@ from typing import Optional
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.auth.jwt import verify_token
-from backend.database import get_db
+from backend.database.session import AsyncSessionLocal, _db_available
 from backend.database.models import User
 
 bearer_scheme = HTTPBearer(auto_error=False)
@@ -18,7 +17,6 @@ bearer_scheme = HTTPBearer(auto_error=False)
 
 async def get_current_user(
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme),
-    db: Optional[AsyncSession] = Depends(get_db),
 ) -> Optional[User]:
     """
     Extract and validate the current user from JWT.
@@ -27,13 +25,17 @@ async def get_current_user(
     """
     if credentials is None:
         return None
-    if db is None:
+    if _db_available is False:
         return None
     user_id = verify_token(credentials.credentials)
     if user_id is None:
         return None
-    result = await db.execute(select(User).where(User.id == user_id))
-    return result.scalar_one_or_none()
+    try:
+        async with AsyncSessionLocal() as db:
+            result = await db.execute(select(User).where(User.id == user_id))
+            return result.scalar_one_or_none()
+    except Exception:
+        return None
 
 
 async def require_user(
