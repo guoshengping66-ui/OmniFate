@@ -170,8 +170,8 @@ async def create_analysis(
     current_user: Optional[User] = Depends(get_current_user),
 ):
     """
-    Run the full 1+5 multi-agent pipeline:
-    parallel(astrology+tarot+bazi+face+palm) -> master synthesis
+    Start the full 1+5 multi-agent pipeline asynchronously.
+    Returns immediately with session_id; frontend polls GET /session/{id}.
     """
     bi = BirthInfo(
         year=payload.birth_year, month=payload.birth_month,
@@ -198,21 +198,28 @@ async def create_analysis(
         tarot_raw={"spread": "Three-Card Spread", "cards": payload.tarot_cards},
     )
 
+    # Store session immediately so frontend can poll
+    import time as _time
+    _cleanup_sessions()
+    _sessions[state.session_id] = state
+    _session_created[state.session_id] = _time.time()
+
+    # Launch analysis in background — don't await, return immediately
+    import asyncio as _asyncio
+    _asyncio.create_task(_run_analysis_bg(state, current_user))
+
+    return _state_to_response(state)
+
+
+async def _run_analysis_bg(state: SystemState, current_user):
+    """Background task: run full analysis, persist results."""
     try:
         state = await run_full_analysis(state)
     except Exception as e:
         state.errors.append(str(e))
         state.phase = "done"
 
-    # Cleanup expired sessions to prevent memory leak
-    _cleanup_sessions()
-
-    # Persist session for chat loop
-    import time as _time
-    _sessions[state.session_id] = state
-    _session_created[state.session_id] = _time.time()
-
-    # Persist Reading to database (for unlock/payment flow)
+    # Persist Reading to database
     try:
         async with AsyncSessionLocal() as db:
             reading = Reading(
@@ -231,8 +238,6 @@ async def create_analysis(
             await db.commit()
     except Exception as e:
         print(f"[WARN] Failed to persist reading to DB: {e}")
-
-    return _state_to_response(state)
 
 
 @router.post("/chat", response_model=ChatResponse)

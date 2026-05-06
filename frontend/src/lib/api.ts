@@ -112,10 +112,23 @@ export interface MatchRequest {
 // ── API functions ──────────────────────────────────────────────────────────
 
 export async function runAnalysis(data: AnalysisRequest): Promise<AnalysisResponse> {
-  // Use direct backend connection (bypass Next.js proxy) for long-running LLM analysis
-  // Next.js proxy times out or fails on large response bodies (55KB+)
-  const res = await apiDirect.post<AnalysisResponse>("/api/readings", data, { timeout: 180_000 })
-  return res.data
+  // Step 1: POST starts analysis in background, returns immediately with session_id
+  const initRes = await apiDirect.post<AnalysisResponse>("/api/readings", data, { timeout: 30_000 })
+  const sessionId = initRes.data.session_id
+
+  // Step 2: Poll until analysis completes (max 5 minutes)
+  const deadline = Date.now() + 5 * 60 * 1000
+  while (Date.now() < deadline) {
+    await new Promise(r => setTimeout(r, 3000))
+    const poll = await api.get<AnalysisResponse>(`/api/readings/session/${sessionId}`, { timeout: 15_000 })
+    if (poll.data.status === "done" || poll.data.status === "chat") {
+      return poll.data
+    }
+    if (poll.data.errors && poll.data.errors.length > 0 && poll.data.master_summary) {
+      return poll.data
+    }
+  }
+  throw new Error("分析超时，请稍后在「我的命盘」中查看结果")
 }
 
 export async function getSession(sessionId: string): Promise<AnalysisResponse> {
