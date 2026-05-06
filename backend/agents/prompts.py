@@ -5926,6 +5926,16 @@ def ziwei_prompt(
         "    大限宫位有吉星(左辅/右弼/天魁/天钺)：该十年有贵人助力。\n"
     )
 
+    # ── Format input data into strings ──
+    ming_stars = ", ".join(ming_gong_main_stars) if ming_gong_main_stars else "无主星"
+    palaces_str = "\n".join(
+        f"  {name}: {', '.join(stars) if isinstance(stars, list) else stars}"
+        for name, stars in twelve_palaces.items()
+    ) if twelve_palaces else "无数据"
+    sihua_str = "\n".join(
+        f"  {star}: {action}" for star, action in si_hua.items()
+    ) if si_hua else "无四化"
+
     # ── Input data formatting ──
     TAG_FORMAT = """
 weakness_tags: 3-6个，以#开头

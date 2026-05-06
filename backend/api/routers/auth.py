@@ -61,6 +61,8 @@ class UserResponse(BaseModel):
 
 @router.post("/register")
 async def register(req: RegisterRequest, db: AsyncSession = Depends(get_db)):
+    if db is None:
+        raise HTTPException(status_code=503, detail="数据库暂不可用，请稍后再试")
     existing = await db.execute(select(User).where(User.email == req.email))
     if existing.scalar_one_or_none():
         raise HTTPException(status_code=409, detail="该邮箱已注册")
@@ -94,6 +96,8 @@ async def register(req: RegisterRequest, db: AsyncSession = Depends(get_db)):
 
 @router.post("/login")
 async def login(req: LoginRequest, db: AsyncSession = Depends(get_db)):
+    if db is None:
+        raise HTTPException(status_code=503, detail="数据库暂不可用，请稍后再试")
     result = await db.execute(select(User).where(User.email == req.email))
     user = result.scalar_one_or_none()
     if not user or not user.hashed_password:
@@ -152,6 +156,8 @@ _reset_tokens: dict[str, dict] = {}
 @router.post("/forgot-password")
 async def forgot_password(req: ForgotPasswordRequest, db: AsyncSession = Depends(get_db)):
     """发送密码重置邮件（Mock模式下生成token并返回）"""
+    if db is None:
+        raise HTTPException(status_code=503, detail="数据库暂不可用，请稍后再试")
     result = await db.execute(select(User).where(User.email == req.email))
     user = result.scalar_one_or_none()
 
@@ -178,6 +184,8 @@ async def forgot_password(req: ForgotPasswordRequest, db: AsyncSession = Depends
 @router.post("/reset-password")
 async def reset_password(req: ResetPasswordRequest, db: AsyncSession = Depends(get_db)):
     """用重置 token 设置新密码"""
+    if db is None:
+        raise HTTPException(status_code=503, detail="数据库暂不可用，请稍后再试")
     from datetime import datetime, timezone
 
     token_data = _reset_tokens.get(req.token)
