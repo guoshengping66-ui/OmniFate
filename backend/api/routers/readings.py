@@ -64,7 +64,7 @@ _last_session_cleanup: float = 0.0
 
 class AnalysisRequest(BaseModel):
     gender: str = Field("female", pattern="^(male|female|other)$")
-    birth_year: int = Field(..., ge=1920, le=2010)
+    birth_year: int = Field(..., ge=1920, le=2025)
     birth_month: int = Field(..., ge=1, le=12)
     birth_day: int = Field(..., ge=1, le=31)
     birth_hour: int = Field(..., ge=0, le=23)

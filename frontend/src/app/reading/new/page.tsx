@@ -24,7 +24,7 @@ const PALM_SCAN_TEXT = "🔍 掌纹特征扫描中…"
 
 const schema = z.object({
   gender: z.enum(["male", "female", "other"]),
-  birth_year:   z.coerce.number().min(1920).max(2010),
+  birth_year:   z.coerce.number().min(1920).max(2025),
   birth_month:  z.coerce.number().min(1).max(12),
   birth_day:    z.coerce.number().min(1).max(31),
   birth_hour:   z.coerce.number().min(0).max(23),
