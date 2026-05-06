@@ -214,7 +214,10 @@ export default function NewReadingPage() {
       toast.success("推命完成！正在跳转报告…")
       router.push(`/reading/${result.session_id}`)
     } catch (err: any) {
-      toast.error(err?.response?.data?.detail ?? "提交失败，请检查网络")
+      const msg = err?.code === "ECONNABORTED" || err?.message?.includes("timeout")
+        ? "分析超时，请稍后重试"
+        : err?.response?.data?.detail ?? "提交失败，请检查网络"
+      toast.error(msg)
       setLoading(false)
     }
   }

@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     OPENAI_MODEL: str = "gpt-4o"
     AGENT_TEMPERATURE: float = 0.3
     AGENT_MAX_TOKENS: int = 4096
-    WORKER_MAX_TOKENS: int = 2048   # 比 master 少一半——worker 只需提供分析素材
+    WORKER_MAX_TOKENS: int = 1536   # 比 master 少一半——worker 只需提供分析素材
 
     JWT_SECRET_KEY: str = "alpha-mirror-jwt-secret-dev-key-2025"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30

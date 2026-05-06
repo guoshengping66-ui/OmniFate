@@ -11,7 +11,7 @@ export const api = axios.create({
 // Direct backend connection for long-running / large-response endpoints
 export const apiDirect = axios.create({
   baseURL: BACKEND_URL,
-  timeout: 300_000,
+  timeout: 180_000,
 })
 
 // ── Types aligned with new 1+5 agent backend ──────────────────────────────
@@ -114,7 +114,7 @@ export interface MatchRequest {
 export async function runAnalysis(data: AnalysisRequest): Promise<AnalysisResponse> {
   // Use direct backend connection (bypass Next.js proxy) for long-running LLM analysis
   // Next.js proxy times out or fails on large response bodies (55KB+)
-  const res = await apiDirect.post<AnalysisResponse>("/api/readings", data, { timeout: 300_000 })
+  const res = await apiDirect.post<AnalysisResponse>("/api/readings", data, { timeout: 180_000 })
   return res.data
 }
 
