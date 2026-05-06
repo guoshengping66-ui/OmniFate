@@ -168,8 +168,8 @@ async def create_analysis(
     current_user: Optional[User] = Depends(get_current_user),
 ):
     """
-    POST creates session in DB, launches analysis via BackgroundTasks, returns immediately.
-    Frontend polls GET /session/{id} until status == "done".
+    POST creates session, runs analysis inline, returns full results.
+    BackgroundTasks don't work on Vercel Lambda (env destroyed after response).
     """
     bi = BirthInfo(
         year=payload.birth_year, month=payload.birth_month,
@@ -214,8 +214,36 @@ async def create_analysis(
     import time as _time
     _session_created[state.session_id] = _time.time()
 
-    # Launch analysis via BackgroundTasks (Mangum-compatible, runs within function lifetime)
-    background_tasks.add_task(_run_analysis_bg, state, user_id)
+    # Run analysis inline (BackgroundTasks don't work on Vercel Lambda)
+    try:
+        from backend.agents.graph import run_full_analysis
+        state = await run_full_analysis(state)
+    except Exception as e:
+        state.errors.append(str(e))
+        state.phase = "done"
+        print(f"[SYNC] Analysis failed for {state.session_id}: {e}")
+
+    # Update in-memory cache
+    _sessions[state.session_id] = state
+
+    # Persist final results to database
+    try:
+        async with AsyncSessionLocal() as db:
+            stmt = select(Reading).where(Reading.id == state.session_id)
+            result = await db.execute(stmt)
+            reading = result.scalar_one_or_none()
+            if reading:
+                reading.status = ReadingStatus.completed
+                reading.master_summary = state.master_summary
+                reading.master_detail = getattr(state, "master_detail", "")
+                reading.astrology_report = state.astrology_output.report if state.astrology_output else ""
+                reading.tarot_report = state.tarot_output.report if state.tarot_output else ""
+                reading.bazi_report = state.bazi_output.report if state.bazi_output else ""
+                reading.face_analysis_text = state.face_output.report if state.face_output and state.face_output.report != "No facial image provided. Face analysis skipped." else None
+                reading.completed_at = datetime.now(timezone.utc)
+                await db.commit()
+    except Exception as e:
+        print(f"[WARN] Failed to persist reading to DB: {e}")
 
     return _state_to_response(state)
 
