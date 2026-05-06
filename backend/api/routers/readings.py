@@ -168,8 +168,8 @@ async def create_analysis(
     current_user: Optional[User] = Depends(get_current_user),
 ):
     """
-    POST creates session, runs analysis inline, returns full results.
-    BackgroundTasks don't work on Vercel Lambda (env destroyed after response).
+    POST creates session and returns immediately.
+    Analysis runs lazily on the first GET /session/{id} poll (Vercel-safe).
     """
     bi = BirthInfo(
         year=payload.birth_year, month=payload.birth_month,
@@ -208,42 +208,11 @@ async def create_analysis(
     except (asyncio.TimeoutError, Exception) as e:
         print(f"[WARN] Failed to create reading in DB: {e}")
 
-    # Also keep in-memory for same-instance fast access
+    # Keep in-memory for same-instance fast access
     _cleanup_sessions()
     _sessions[state.session_id] = state
     import time as _time
     _session_created[state.session_id] = _time.time()
-
-    # Run analysis inline (BackgroundTasks don't work on Vercel Lambda)
-    try:
-        from backend.agents.graph import run_full_analysis
-        state = await run_full_analysis(state)
-    except Exception as e:
-        state.errors.append(str(e))
-        state.phase = "done"
-        print(f"[SYNC] Analysis failed for {state.session_id}: {e}")
-
-    # Update in-memory cache
-    _sessions[state.session_id] = state
-
-    # Persist final results to database
-    try:
-        async with AsyncSessionLocal() as db:
-            stmt = select(Reading).where(Reading.id == state.session_id)
-            result = await db.execute(stmt)
-            reading = result.scalar_one_or_none()
-            if reading:
-                reading.status = ReadingStatus.completed
-                reading.master_summary = state.master_summary
-                reading.master_detail = getattr(state, "master_detail", "")
-                reading.astrology_report = state.astrology_output.report if state.astrology_output else ""
-                reading.tarot_report = state.tarot_output.report if state.tarot_output else ""
-                reading.bazi_report = state.bazi_output.report if state.bazi_output else ""
-                reading.face_analysis_text = state.face_output.report if state.face_output and state.face_output.report != "No facial image provided. Face analysis skipped." else None
-                reading.completed_at = datetime.now(timezone.utc)
-                await db.commit()
-    except Exception as e:
-        print(f"[WARN] Failed to persist reading to DB: {e}")
 
     return _state_to_response(state)
 
@@ -335,15 +304,52 @@ async def chat_followup(payload: ChatRequest):
     )
 
 
+async def _run_analysis_inline(state: SystemState) -> SystemState:
+    """Run the full analysis pipeline inline (called lazily on GET poll)."""
+    try:
+        from backend.agents.graph import run_full_analysis
+        state = await run_full_analysis(state)
+    except Exception as e:
+        state.errors.append(str(e))
+        state.phase = "done"
+        print(f"[LAZY] Analysis failed for {state.session_id}: {e}")
+
+    # Persist final results to database
+    try:
+        async with AsyncSessionLocal() as db:
+            stmt = select(Reading).where(Reading.id == state.session_id)
+            result = await db.execute(stmt)
+            reading = result.scalar_one_or_none()
+            if reading:
+                reading.status = ReadingStatus.completed
+                reading.master_summary = state.master_summary
+                reading.master_detail = getattr(state, "master_detail", "")
+                reading.astrology_report = state.astrology_output.report if state.astrology_output else ""
+                reading.tarot_report = state.tarot_output.report if state.tarot_output else ""
+                reading.bazi_report = state.bazi_output.report if state.bazi_output else ""
+                reading.face_analysis_text = state.face_output.report if state.face_output and state.face_output.report != "No facial image provided. Face analysis skipped." else None
+                reading.completed_at = datetime.now(timezone.utc)
+                await db.commit()
+    except Exception as e:
+        print(f"[WARN] Failed to persist reading to DB: {e}")
+
+    return state
+
+
 @router.get("/session/{session_id}", response_model=AnalysisResponse)
 async def get_session(session_id: str):
     """
     Retrieve session by ID. Checks in-memory first, then DATABASE.
-    Returns current status so frontend can poll until "done".
+    If session is in 'init' status, triggers analysis lazily (Vercel-safe).
     """
     # Fast path: in-memory cache (same Vercel instance)
     state = _sessions.get(session_id)
     if state:
+        # If still in init, run analysis now (lazy trigger)
+        if state.phase == "init":
+            state = await _run_analysis_inline(state)
+            _sessions[session_id] = state
+
         resp = _state_to_response(state)
         # Merge DB fields: is_detail_unlocked, master_detail
         try:
