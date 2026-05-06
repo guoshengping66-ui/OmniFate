@@ -15,7 +15,11 @@ class Settings(BaseSettings):
     APP_NAME: str = "命盘智镜"
     DEBUG: bool = False
     SECRET_KEY: str = "change-me-in-production"
-    ALLOWED_ORIGINS: list[str] = ["http://localhost:3000", "http://localhost:3001"]
+    ALLOWED_ORIGINS: list[str] = [
+        "http://localhost:3000", "http://localhost:3001",
+        "https://khanfate.com", "https://www.khanfate.com",
+        "https://destiny-platform.vercel.app",
+    ]
 
     DATABASE_URL: str = "sqlite+aiosqlite:///./destiny_dev.db"
     CHROMA_HOST: str = "localhost"
