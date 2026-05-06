@@ -192,7 +192,8 @@ async def run_full_analysis(state: SystemState) -> SystemState:
     result = await destiny_graph.ainvoke(state)
     # LangGraph >=1.0 returns dict; convert back to SystemState
     if isinstance(result, dict):
-        return SystemState.model_validate(result)
+        result = SystemState.model_validate(result)
+    result.phase = "done"
     return result
 
 
