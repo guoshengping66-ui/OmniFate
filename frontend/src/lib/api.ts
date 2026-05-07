@@ -253,11 +253,13 @@ export async function registerUser(
   email: string,
   password: string,
   displayName?: string,
+  privacyAccepted?: boolean,
 ): Promise<AuthResponse> {
   const res = await api.post<AuthResponse>("/api/auth/register", {
     email,
     password,
     display_name: displayName,
+    privacy_accepted: privacyAccepted ?? true,
   })
   return res.data
 }

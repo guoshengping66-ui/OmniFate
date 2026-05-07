@@ -16,6 +16,7 @@ export default function RegisterPage() {
   const [displayName, setDisplayName] = useState("")
   const [showPw, setShowPw] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [privacyAccepted, setPrivacyAccepted] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -27,9 +28,13 @@ export default function RegisterPage() {
       toast.error(t("auth.passwordMin6"))
       return
     }
+    if (!privacyAccepted) {
+      toast.error("请先阅读并同意隐私政策和服务条款")
+      return
+    }
     setLoading(true)
     try {
-      await registerUser(email, password, displayName || undefined)
+      await registerUser(email, password, displayName || undefined, privacyAccepted)
       toast.success(t("auth.registerSuccess"))
       router.replace("/")
     } catch (err: any) {
@@ -95,9 +100,24 @@ export default function RegisterPage() {
             </div>
           </div>
 
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={privacyAccepted}
+              onChange={e => setPrivacyAccepted(e.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded border-white/20 bg-white/5 text-gold focus:ring-gold/40"
+            />
+            <span className="text-white/50 text-xs leading-relaxed">
+              我已阅读并同意{" "}
+              <a href="/privacy" target="_blank" className="text-gold hover:underline">《隐私政策》</a>
+              {" "}和{" "}
+              <a href="/terms" target="_blank" className="text-gold hover:underline">《服务条款》</a>
+            </span>
+          </label>
+
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !privacyAccepted}
             className="btn-gold w-full flex items-center justify-center gap-2 py-3"
           >
             {loading ? <><Loader2 size={18} className="animate-spin" /> {t("auth.registering")}</> : t("auth.register")}

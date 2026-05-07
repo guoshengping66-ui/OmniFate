@@ -1,7 +1,9 @@
 """POST /register  POST /login  GET /me  POST /refresh  POST /forgot-password  POST /reset-password"""
 from typing import Optional
+import time
+from collections import defaultdict
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, EmailStr
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,11 +19,28 @@ from backend.config import get_settings
 
 router = APIRouter()
 
+# ── Login brute-force protection ──────────────────────────────────────────
+_login_attempts: dict[str, list[float]] = defaultdict(list)
+_LOGIN_WINDOW = 60  # seconds
+_LOGIN_MAX = 5      # max attempts per window
+
+
+def _check_login_rate_limit(key: str) -> bool:
+    """Return True if request should be blocked."""
+    now = time.time()
+    window_start = now - _LOGIN_WINDOW
+    _login_attempts[key] = [t for t in _login_attempts[key] if t > window_start]
+    if len(_login_attempts[key]) >= _LOGIN_MAX:
+        return True
+    _login_attempts[key].append(now)
+    return False
+
 
 class RegisterRequest(BaseModel):
     email: EmailStr
     password: str
     display_name: Optional[str] = None
+    privacy_accepted: bool = False
 
 
 class LoginRequest(BaseModel):
@@ -63,6 +82,8 @@ class UserResponse(BaseModel):
 async def register(req: RegisterRequest, db: AsyncSession = Depends(get_db)):
     if db is None:
         raise HTTPException(status_code=503, detail="数据库暂不可用，请稍后再试")
+    if not req.privacy_accepted:
+        raise HTTPException(status_code=400, detail="请先阅读并同意隐私政策和服务条款")
     existing = await db.execute(select(User).where(User.email == req.email))
     if existing.scalar_one_or_none():
         raise HTTPException(status_code=409, detail="该邮箱已注册")
@@ -95,9 +116,13 @@ async def register(req: RegisterRequest, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/login")
-async def login(req: LoginRequest, db: AsyncSession = Depends(get_db)):
+async def login(req: LoginRequest, request: Request, db: AsyncSession = Depends(get_db)):
     if db is None:
         raise HTTPException(status_code=503, detail="数据库暂不可用，请稍后再试")
+    # Rate limit: per IP + per email
+    client_ip = request.client.host if request.client else "unknown"
+    if _check_login_rate_limit(client_ip) or _check_login_rate_limit(f"email:{req.email}"):
+        raise HTTPException(status_code=429, detail="登录尝试过多，请稍后再试")
     result = await db.execute(select(User).where(User.email == req.email))
     user = result.scalar_one_or_none()
     if not user or not user.hashed_password:
