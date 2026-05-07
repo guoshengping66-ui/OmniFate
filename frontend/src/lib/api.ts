@@ -254,12 +254,35 @@ export async function registerUser(
   password: string,
   displayName?: string,
   privacyAccepted?: boolean,
-): Promise<AuthResponse> {
-  const res = await api.post<AuthResponse>("/api/auth/register", {
+): Promise<{ message: string; email: string }> {
+  const res = await api.post<{ message: string; email: string }>("/api/auth/register", {
     email,
     password,
     display_name: displayName,
     privacy_accepted: privacyAccepted ?? true,
+  })
+  return res.data
+}
+
+export async function sendVerificationCode(email: string): Promise<{ message: string }> {
+  const res = await api.post<{ message: string }>("/api/auth/send-code", { email })
+  return res.data
+}
+
+export async function verifyEmail(email: string, code: string): Promise<AuthResponse> {
+  const res = await api.post<AuthResponse>("/api/auth/verify-email", { email, code })
+  return res.data
+}
+
+export async function resetPasswordWithCode(
+  email: string,
+  code: string,
+  newPassword: string,
+): Promise<{ message: string }> {
+  const res = await api.post<{ message: string }>("/api/auth/reset-password", {
+    email,
+    code,
+    new_password: newPassword,
   })
   return res.data
 }
@@ -276,13 +299,8 @@ export async function refreshToken(refreshToken: string): Promise<{ access_token
 
 // ── Password Reset ──────────────────────────────────────────────────────────
 
-export async function forgotPassword(email: string): Promise<{ message: string; dev_token?: string }> {
-  const res = await api.post("/api/auth/forgot-password", { email })
-  return res.data
-}
-
-export async function resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
-  const res = await api.post("/api/auth/reset-password", { token, new_password: newPassword })
+export async function forgotPassword(email: string): Promise<{ message: string }> {
+  const res = await api.post<{ message: string }>("/api/auth/forgot-password", { email })
   return res.data
 }
 

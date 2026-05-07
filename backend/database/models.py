@@ -73,6 +73,9 @@ class User(Base):
     avatar_url: Mapped[Optional[str]] = mapped_column(String(500))
     phone: Mapped[Optional[str]] = mapped_column(String(30))
     is_premium: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
+    verification_code: Mapped[Optional[str]] = mapped_column(String(10))
+    verification_expires_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     premium_expires_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     subscription_tier: Mapped[Optional[str]] = mapped_column(String(30), default=None)  # "free"|"premium_monthly"|"premium_yearly"
     shop_coupon_balance: Mapped[float] = mapped_column(Float, default=0.0)

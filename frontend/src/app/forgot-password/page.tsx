@@ -1,19 +1,31 @@
 "use client"
 import { useState } from "react"
 import Link from "next/link"
-import { Sparkles, Loader2, Mail, CheckCircle } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { Mail, Loader2, Eye, EyeOff, CheckCircle, KeyRound } from "lucide-react"
 import toast from "react-hot-toast"
-import { forgotPassword } from "@/lib/api"
+import { forgotPassword, resetPasswordWithCode } from "@/lib/api"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 export default function ForgotPasswordPage() {
   const { t } = useLanguage()
+  const router = useRouter()
+
+  // Step 1: Enter email
+  const [step, setStep] = useState<"email" | "reset">("email")
   const [email, setEmail] = useState("")
   const [loading, setLoading] = useState(false)
-  const [sent, setSent] = useState(false)
-  const [devToken, setDevToken] = useState<string | null>(null)
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Step 2: Enter code + new password
+  const [code, setCode] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [showPw, setShowPw] = useState(false)
+  const [resetLoading, setResetLoading] = useState(false)
+  const [resendCooldown, setResendCooldown] = useState(0)
+  const [done, setDone] = useState(false)
+
+  const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email) {
       toast.error(t("auth.fillEmail"))
@@ -21,11 +33,10 @@ export default function ForgotPasswordPage() {
     }
     setLoading(true)
     try {
-      const res = await forgotPassword(email)
-      setSent(true)
-      if (res.dev_token) {
-        setDevToken(res.dev_token)
-      }
+      await forgotPassword(email)
+      toast.success("验证码已发送到您的邮箱")
+      setStep("reset")
+      startResendCooldown()
     } catch (err: any) {
       const detail = err?.response?.data?.detail ?? t("auth.resetFail")
       toast.error(detail)
@@ -34,37 +45,171 @@ export default function ForgotPasswordPage() {
     }
   }
 
-  if (sent) {
+  const handleReset = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!code || code.length !== 6) {
+      toast.error("请输入6位验证码")
+      return
+    }
+    if (!password || password.length < 6) {
+      toast.error(t("auth.passwordMin6"))
+      return
+    }
+    if (password !== confirmPassword) {
+      toast.error(t("auth.passwordMismatch"))
+      return
+    }
+    setResetLoading(true)
+    try {
+      await resetPasswordWithCode(email, code, password)
+      setDone(true)
+      toast.success(t("auth.resetSuccess"))
+    } catch (err: any) {
+      const detail = err?.response?.data?.detail ?? t("auth.resetFail")
+      toast.error(detail)
+    } finally {
+      setResetLoading(false)
+    }
+  }
+
+  const handleResendCode = async () => {
+    if (resendCooldown > 0) return
+    try {
+      await forgotPassword(email)
+      toast.success("验证码已重新发送")
+      startResendCooldown()
+    } catch (err: any) {
+      toast.error(err?.response?.data?.detail ?? "发送失败")
+    }
+  }
+
+  const startResendCooldown = () => {
+    setResendCooldown(60)
+    const timer = setInterval(() => {
+      setResendCooldown(prev => {
+        if (prev <= 1) {
+          clearInterval(timer)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+  }
+
+  // Done: success screen
+  if (done) {
     return (
       <div className="min-h-screen pt-24 pb-16 px-4 flex items-center justify-center">
-        <div className="w-full max-w-md">
-          <div className="text-center mb-8">
-            <CheckCircle className="text-green-400 mx-auto mb-3" size={48} />
-            <h1 className="text-2xl font-serif font-bold text-gold">{t("auth.resetSent")}</h1>
-            <p className="text-white/40 text-sm mt-2">{t("auth.resetSentDesc")}</p>
-          </div>
-
-          {devToken && (
-            <div className="card-glass p-6 mb-4">
-              <p className="text-yellow-400 text-xs mb-2">🔑 开发模式 Token（生产环境会通过邮件发送）：</p>
-              <code className="block bg-white/5 rounded-lg p-3 text-xs text-white/70 break-all">{devToken}</code>
-              <Link
-                href={`/reset-password?token=${devToken}`}
-                className="btn-gold w-full mt-4 flex items-center justify-center gap-2 py-3 text-sm"
-              >
-                {t("auth.resetNow")}
-              </Link>
-            </div>
-          )}
-
-          <p className="text-center text-white/30 text-sm">
-            <Link href="/login" className="text-gold hover:underline">{t("auth.backToLogin")}</Link>
-          </p>
+        <div className="w-full max-w-md text-center">
+          <CheckCircle className="text-green-400 mx-auto mb-4" size={48} />
+          <h1 className="text-2xl font-serif font-bold text-gold mb-2">{t("auth.resetSuccess")}</h1>
+          <p className="text-white/40 text-sm mb-6">{t("auth.resetSuccessDesc")}</p>
+          <button
+            onClick={() => router.push("/login")}
+            className="btn-gold px-8 py-3"
+          >
+            {t("auth.goToLogin")}
+          </button>
         </div>
       </div>
     )
   }
 
+  // Step 2: Enter code + new password
+  if (step === "reset") {
+    return (
+      <div className="min-h-screen pt-24 pb-16 px-4 flex items-center justify-center">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <KeyRound className="text-gold mx-auto mb-3" size={28} />
+            <h1 className="text-2xl font-serif font-bold text-gold">重置密码</h1>
+            <p className="text-white/40 text-sm mt-1">
+              验证码已发送至 <span className="text-white/60">{email}</span>
+            </p>
+          </div>
+
+          <form onSubmit={handleReset} className="card-glass p-6 md:p-8 space-y-5">
+            <div>
+              <label className="label">6位验证码</label>
+              <input
+                type="text"
+                value={code}
+                onChange={e => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                placeholder="000000"
+                className="input-field text-center text-2xl tracking-[0.5em] font-mono"
+                maxLength={6}
+                autoComplete="one-time-code"
+              />
+            </div>
+
+            <div>
+              <label className="label">{t("auth.newPassword")}</label>
+              <div className="relative">
+                <input
+                  type={showPw ? "text" : "password"}
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder={t("auth.passwordPlaceholder2")}
+                  className="input-field pr-10"
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPw(!showPw)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60"
+                >
+                  {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="label">{t("auth.confirmPassword")}</label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={e => setConfirmPassword(e.target.value)}
+                placeholder={t("auth.confirmPasswordPlaceholder")}
+                className="input-field"
+                autoComplete="new-password"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={resetLoading || code.length !== 6}
+              className="btn-gold w-full flex items-center justify-center gap-2 py-3"
+            >
+              {resetLoading ? (
+                <><Loader2 size={18} className="animate-spin" /> 重置中...</>
+              ) : (
+                <><CheckCircle size={18} /> 重置密码</>
+              )}
+            </button>
+
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={handleResendCode}
+                disabled={resendCooldown > 0}
+                className="text-gold/60 hover:text-gold text-sm transition-colors disabled:opacity-40"
+              >
+                {resendCooldown > 0 ? `${resendCooldown}s 后可重新发送` : "重新发送验证码"}
+              </button>
+            </div>
+
+            <p className="text-center text-white/40 text-sm">
+              <button type="button" onClick={() => setStep("email")} className="text-gold hover:underline">
+                ← 更换邮箱
+              </button>
+            </p>
+          </form>
+        </div>
+      </div>
+    )
+  }
+
+  // Step 1: Enter email
   return (
     <div className="min-h-screen pt-24 pb-16 px-4 flex items-center justify-center">
       <div className="w-full max-w-md">
@@ -74,7 +219,7 @@ export default function ForgotPasswordPage() {
           <p className="text-white/40 text-sm mt-1">{t("auth.forgotPasswordDesc")}</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="card-glass p-6 md:p-8 space-y-5">
+        <form onSubmit={handleSendCode} className="card-glass p-6 md:p-8 space-y-5">
           <div>
             <label className="label">{t("auth.email")}</label>
             <input
@@ -92,7 +237,7 @@ export default function ForgotPasswordPage() {
             disabled={loading}
             className="btn-gold w-full flex items-center justify-center gap-2 py-3"
           >
-            {loading ? <><Loader2 size={18} className="animate-spin" /> {t("auth.sending")}</> : t("auth.sendResetLink")}
+            {loading ? <><Loader2 size={18} className="animate-spin" /> {t("auth.sending")}</> : "发送验证码"}
           </button>
 
           <p className="text-center text-white/40 text-sm">
