@@ -6,6 +6,8 @@ Configure via environment variables or .env:
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.utils import formataddr
+from email.header import Header
 from backend.config import get_settings
 
 settings = get_settings()
@@ -93,8 +95,8 @@ def _send_email(to_email: str, subject: str, html_body: str) -> bool:
     config = _get_smtp_config()
     try:
         msg = MIMEMultipart("alternative")
-        msg["Subject"] = subject
-        msg["From"] = f"{config['from_name']} <{config['from_email']}>"
+        msg["Subject"] = Header(subject, "utf-8").encode()
+        msg["From"] = formataddr((str(Header(config['from_name'], 'utf-8')), config['from_email']))
         msg["To"] = to_email
         msg.attach(MIMEText(html_body, "html", "utf-8"))
 
