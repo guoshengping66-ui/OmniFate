@@ -28,10 +28,9 @@ async def _check_db_available() -> bool:
     if _db_available is not None:
         return _db_available
     try:
-        async with asyncio.wait_for(
+        await asyncio.wait_for(
             _do_db_check(), timeout=5
-        ):
-            pass
+        )
     except (asyncio.TimeoutError, Exception):
         _db_available = False
         print("[DB] Database not available, running in stateless mode")
