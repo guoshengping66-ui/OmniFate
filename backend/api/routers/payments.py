@@ -10,18 +10,22 @@ from datetime import datetime, timedelta
 from typing import Optional
 from xml.etree import ElementTree as ET
 
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+
 from fastapi import APIRouter, Depends, HTTPException, Request, Query
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.database.session import get_db
-from backend.database.models import (
+from database.session import get_db
+from database.models import (
     Reading, User, Order, OrderItem, EventLog,
     PaymentStatus, OrderStatus,
 )
-from backend.auth.dependencies import get_current_user, require_user
-from backend.config import get_settings
+from auth.dependencies import get_current_user, require_user
+from config import get_settings
 
 router = APIRouter()
 settings = get_settings()

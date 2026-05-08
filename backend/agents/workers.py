@@ -13,18 +13,18 @@ from typing import Optional
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage
 
-from backend.config import get_settings
-from backend.agents.state import SystemState, WorkerOutput
-from backend.agents.prompts import (
+from config import get_settings
+from agents.state import SystemState, WorkerOutput
+from agents.prompts import (
     astrology_prompt, tarot_prompt, bazi_prompt,
     face_prompt, palm_prompt, qimen_prompt, ziwei_prompt,
 )
-from backend.agents.tools import draw_tarot
-from backend.calculators.bazi_calculator import (
+from agents.tools import draw_tarot
+from calculators.bazi_calculator import (
     BaziCalculator, get_current_year_ganzhi,
 )
-from backend.calculators.qimen_calculator import QimenCalculator, calculate_qimen
-from backend.calculators.ziwei_calculator import ZiweiCalculator, calculate_ziwei
+from calculators.qimen_calculator import QimenCalculator, calculate_qimen
+from calculators.ziwei_calculator import ZiweiCalculator, calculate_ziwei
 
 settings = get_settings()
 _bazi_calc = BaziCalculator()

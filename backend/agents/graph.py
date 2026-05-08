@@ -19,11 +19,11 @@ from typing import Any
 
 from langgraph.graph import StateGraph, END
 
-from backend.agents.state import SystemState, BirthInfo
-from backend.agents.workers import run_all_workers
-from backend.agents.master import run_master, handle_followup
-from backend.calculators.bazi_calculator import get_current_year_ganzhi
-from backend.calculators.astrology_calculator import AstrologyCalculator
+from agents.state import SystemState, BirthInfo
+from agents.workers import run_all_workers
+from agents.master import run_master, handle_followup
+from calculators.bazi_calculator import get_current_year_ganzhi
+from calculators.astrology_calculator import AstrologyCalculator
 
 # Singleton calculator instance
 _astro_calc = AstrologyCalculator(house_system="Equal")

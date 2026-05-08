@@ -44,6 +44,7 @@ class PaymentStatus(str, enum.Enum):
 
 class OrderStatus(str, enum.Enum):
     pending = "pending"
+    processing = "processing"
     paid = "paid"
     shipped = "shipped"
     delivered = "delivered"

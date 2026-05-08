@@ -1,7 +1,7 @@
 ﻿"""database/session.py — 兼容 SQLite 开发模式 & PostgreSQL 生产模式"""
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import StaticPool
-from backend.config import get_settings
+from config import get_settings
 
 settings = get_settings()
 _is_sqlite = settings.DATABASE_URL.startswith("sqlite")
