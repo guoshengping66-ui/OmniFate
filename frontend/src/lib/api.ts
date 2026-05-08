@@ -1,12 +1,7 @@
 import axios from "axios"
 
-// Production: connect directly to backend over HTTP (no SSL on server).
-// Local dev: use localhost. Override via NEXT_PUBLIC_API_URL env var.
-const isBrowser = typeof window !== "undefined"
-const isLocalhost = isBrowser && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
-const BACKEND_URL = isLocalhost
-  ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8002")
-  : "https://api.khanfate.com"
+// Always use NEXT_PUBLIC_API_URL env var, fallback to localhost for dev
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8002"
 
 // Main API client — points directly to backend
 export const api = axios.create({
