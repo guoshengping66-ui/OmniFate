@@ -372,6 +372,9 @@ export default {
   "auth.passwordMin6": "密码至少需要 6 个字符",
   "auth.loginNow": "立即登录",
   "auth.registerNow": "立即注册",
+  "auth.loginWithGoogle": "使用 Google 账号登录",
+  "auth.loginWithApple": "使用 Apple 账号登录",
+  "auth.or": "或",
 
   // ─── 找回密码 ───
   "auth.forgotPasswordDesc": "输入你的注册邮箱，我们将发送密码重置链接",
