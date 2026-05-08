@@ -59,17 +59,18 @@ class Settings(BaseSettings):
     PAYPAL_RETURN_URL: str = "https://yourdomain.com/payment/success"
     PAYPAL_CANCEL_URL: str = "https://yourdomain.com/payment/cancel"
 
-    # ── OAuth (Google & Apple) ──
-    GOOGLE_CLIENT_ID: str = ""
-    APPLE_CLIENT_ID: str = ""           # Apple Services ID
-    APPLE_TEAM_ID: str = ""
-
     S3_BUCKET: str = ""
     S3_REGION: str = "us-east-1"
     AWS_ACCESS_KEY_ID: str = ""
     AWS_SECRET_ACCESS_KEY: str = ""
     GEOCODING_API_KEY: str = ""
     FRONTEND_URL: str = "http://localhost:3000"
+
+    # ── 个人收款码 ──
+    ALIPAY_PERSONAL_QR_URL: str = ""
+    WECHAT_PERSONAL_QR_URL: str = ""
+    PAYPAL_PERSONAL_QR_URL: str = ""
+    PAYPAL_PERSONAL_EMAIL: str = ""
 
 
 @lru_cache

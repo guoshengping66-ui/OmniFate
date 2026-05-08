@@ -15,13 +15,13 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.database.session import get_db
-from backend.database.models import (
+from database.session import get_db
+from database.models import (
     Reading, User, Order, OrderItem, EventLog, Product,
     PaymentStatus, OrderStatus,
 )
-from backend.auth.dependencies import get_current_user, require_user
-from backend.config import get_settings
+from auth.dependencies import get_current_user, require_user
+from config import get_settings
 
 router = APIRouter()
 settings = get_settings()
@@ -600,15 +600,21 @@ async def pay_event(
 
     charge = 0.0
     used_free = False
+    user = None
 
+    # Refetch user within this session if logged in
     if current_user:
-        now = datetime.utcnow()
-        if current_user.free_event_quota_reset_at and now > current_user.free_event_quota_reset_at:
-            current_user.free_event_quota = 2 if current_user.subscription_tier != "premium_yearly" else 5
-            current_user.free_event_quota_reset_at = now + timedelta(days=30)
+        result = await db.execute(select(User).where(User.id == current_user.id))
+        user = result.scalar_one_or_none()
 
-        if req.use_free_quota and (current_user.free_event_quota or 0) > 0:
-            current_user.free_event_quota -= 1
+    if user:
+        now = datetime.utcnow()
+        if user.free_event_quota_reset_at and now > user.free_event_quota_reset_at:
+            user.free_event_quota = 2 if user.subscription_tier != "premium_yearly" else 5
+            user.free_event_quota_reset_at = now + timedelta(days=30)
+
+        if req.use_free_quota and (user.free_event_quota or 0) > 0:
+            user.free_event_quota -= 1
             used_free = True
         else:
             charge = EVENT_RETRO_PRICE
@@ -622,7 +628,7 @@ async def pay_event(
         "event_id": req.event_id,
         "charge": charge,
         "used_free_quota": used_free,
-        "remaining_free_quota": current_user.free_event_quota if current_user else 0,
+        "remaining_free_quota": user.free_event_quota if user else 0,
         "message": "使用免费额度" if used_free else f"已支付 ¥{charge}",
     }
 
@@ -649,6 +655,12 @@ async def create_order(
     current_user: Optional[User] = Depends(get_current_user),
 ):
     """创建订单，支持代金券抵扣 — 服务端验证价格"""
+    # Refetch user within this session if logged in
+    user = None
+    if current_user:
+        result = await db.execute(select(User).where(User.id == current_user.id))
+        user = result.scalar_one_or_none()
+
     # Validate prices against product catalog (NEVER trust client prices)
     server_total = 0.0
     validated_items = []
@@ -683,18 +695,18 @@ async def create_order(
     final_total = round(server_total, 2)
     coupon_used = 0.0
 
-    if req.use_coupon and current_user:
-        balance = current_user.shop_coupon_balance or 0
+    if req.use_coupon and user:
+        balance = user.shop_coupon_balance or 0
         if balance <= 0:
             raise HTTPException(status_code=400, detail="没有可用的代金券余额")
         coupon_used = min(balance, final_total)
-        current_user.shop_coupon_balance = balance - coupon_used
+        user.shop_coupon_balance = balance - coupon_used
         final_total = round(final_total - coupon_used, 2)
 
     order_no = f"ORD{datetime.utcnow().strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
 
     order = Order(
-        user_id=current_user.id if current_user else None,
+        user_id=user.id if user else None,
         order_no=order_no,
         status=OrderStatus.pending,
         total_cny=final_total,
@@ -736,10 +748,16 @@ async def mock_subscribe(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_user),
 ):
-    """订阅会员 — 仅开发环境可用"""
-    # Block mock subscription in production
-    if not settings.DEBUG:
-        raise HTTPException(status_code=403, detail="请通过正常支付流程订阅")
+    """订阅会员（Mock 模式）— 支付宝/微信正式支付请使用 /alipay/create 或 /wechat/create"""
+    if db is None:
+        raise HTTPException(status_code=503, detail="数据库暂不可用")
+
+    # Refetch user within THIS session to avoid detached-instance issues
+    result = await db.execute(select(User).where(User.id == current_user.id))
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="用户不存在")
+
     now = datetime.utcnow()
 
     if tier == "premium_yearly":
@@ -751,27 +769,27 @@ async def mock_subscribe(
         free_events = 2
         price_label = "¥49/月"
 
-    current_user.is_premium = True
-    current_user.subscription_tier = tier
-    current_user.premium_expires_at = expires
-    current_user.free_event_quota = free_events
-    current_user.free_event_quota_reset_at = now + timedelta(days=30)
+    user.is_premium = True
+    user.subscription_tier = tier
+    user.premium_expires_at = expires
+    user.free_event_quota = free_events
+    user.free_event_quota_reset_at = now + timedelta(days=30)
 
     await db.commit()
-    await db.refresh(current_user)
+    await db.refresh(user)
 
     return {
         "subscription_id": f"sub_{uuid.uuid4().hex[:8]}",
         "tier": tier,
         "status": "active",
         "current_period_end": expires.isoformat(),
-        "message": f"订阅成功: {price_label} (Mock)",
+        "message": f"订阅成功: {price_label}",
         "user": {
-            "is_premium": current_user.is_premium,
-            "subscription_tier": current_user.subscription_tier,
-            "premium_expires_at": current_user.premium_expires_at.isoformat() if current_user.premium_expires_at else None,
-            "free_event_quota": current_user.free_event_quota,
-            "shop_coupon_balance": current_user.shop_coupon_balance,
+            "is_premium": user.is_premium,
+            "subscription_tier": user.subscription_tier,
+            "premium_expires_at": user.premium_expires_at.isoformat() if user.premium_expires_at else None,
+            "free_event_quota": user.free_event_quota,
+            "shop_coupon_balance": user.shop_coupon_balance,
         },
     }
 

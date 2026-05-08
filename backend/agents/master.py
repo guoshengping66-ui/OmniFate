@@ -14,10 +14,10 @@ from typing import Optional
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage
 
-from backend.config import get_settings
-from backend.agents.state import SystemState, ChatMessage, ConflictRecord, WorkerOutput
-from backend.agents.prompts import master_prompt, master_summary_prompt, master_detail_prompt, ROUTER_PROMPT
-from backend.services.product_matcher import ProductMatcher
+from config import get_settings
+from agents.state import SystemState, ChatMessage, ConflictRecord, WorkerOutput
+from agents.prompts import master_prompt, master_summary_prompt, master_detail_prompt, ROUTER_PROMPT
+from services.product_matcher import ProductMatcher
 
 settings = get_settings()
 _matcher = ProductMatcher()

@@ -1,16 +1,15 @@
 """
 JWT authentication utilities for AlphaMirror.
-Uses python-jose for token creation/verification and passlib for password hashing.
+Uses python-jose for token creation/verification and bcrypt for password hashing.
 """
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 from jose import JWTError, jwt
-from passlib.context import CryptContext
+import bcrypt
 
-from backend.config import get_settings
+from config import get_settings
 
 settings = get_settings()
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 ALGORITHM = "HS256"
 
@@ -45,9 +44,17 @@ def verify_token(token: str) -> Optional[str]:
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a password against its bcrypt hash."""
-    return pwd_context.verify(plain_password, hashed_password)
+    if isinstance(plain_password, str):
+        plain_password = plain_password.encode("utf-8")
+    if isinstance(hashed_password, str):
+        hashed_password = hashed_password.encode("utf-8")
+    return bcrypt.checkpw(plain_password, hashed_password)
 
 
 def hash_password(password: str) -> str:
-    """Hash a password with bcrypt."""
-    return pwd_context.hash(password)
+    """Hash a password with bcrypt (truncate to 72 bytes for bcrypt compat)."""
+    if isinstance(password, str):
+        password = password.encode("utf-8")
+    # bcrypt only uses the first 72 bytes of the password
+    password = password[:72]
+    return bcrypt.hashpw(password, bcrypt.gensalt()).decode("utf-8")

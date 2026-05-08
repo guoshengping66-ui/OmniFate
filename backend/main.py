@@ -1,4 +1,9 @@
 ﻿"""backend/main.py — FastAPI 应用入口"""
+import sys
+import os
+import traceback
+sys.path.insert(0, os.path.dirname(__file__))
+
 import time
 from collections import defaultdict
 from fastapi import FastAPI, Request
@@ -6,8 +11,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 
-from backend.config import get_settings
-from backend.api.routers import readings, users, products, payments, auth, blog
+from config import get_settings
+from api.routers import readings, users, products, payments, auth, blog, personal_payments
 
 settings = get_settings()
 
@@ -16,8 +21,8 @@ settings = get_settings()
 async def lifespan(app: FastAPI):
     # 启动时自动建表（开发/生产均可）
     try:
-        from backend.database.session import engine
-        from backend.database.models import Base
+        from database.session import engine
+        from database.models import Base
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
     except Exception as e:
@@ -53,6 +58,17 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    """Log all unhandled exceptions to help debug Vercel 500 errors."""
+    tb = traceback.format_exception(type(exc), exc, exc.__traceback__)
+    print(f"[ERROR] {request.method} {request.url.path}: {''.join(tb)}")
+    return JSONResponse(
+        status_code=500,
+        content={"detail": str(exc)[:200]},
+    )
 
 # ── Simple in-memory rate limiter ───────────────────────────────────────────
 _rate_store: dict[str, list[float]] = defaultdict(list)
@@ -94,6 +110,7 @@ app.include_router(readings.router, prefix="/api/readings", tags=["Readings"])
 app.include_router(products.router, prefix="/api/products", tags=["Products"])
 app.include_router(payments.router, prefix="/api/payments", tags=["Payments"])
 app.include_router(blog.router,     prefix="/api/blog",     tags=["Blog"])
+app.include_router(personal_payments.router, prefix="/api/personal-payments", tags=["Personal Payments"])
 
 
 @app.get("/health")

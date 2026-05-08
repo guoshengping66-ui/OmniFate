@@ -4,14 +4,18 @@ from typing import Optional
 import json
 from pathlib import Path
 from pydantic import BaseModel
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.database.session import AsyncSessionLocal
-from backend.database.models import User, Order, OrderItem, UserFavorite, Product
-from backend.auth.dependencies import require_user
-from backend.auth.jwt import verify_password, hash_password
+from database.session import AsyncSessionLocal
+from database.models import User, Order, OrderItem, UserFavorite, Product
+from auth.dependencies import require_user
+from auth.jwt import verify_password, hash_password
 
 router = APIRouter()
 
