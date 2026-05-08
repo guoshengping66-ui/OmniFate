@@ -189,12 +189,19 @@ async def create_analysis(
     if payload.palm_raw_text:
         palm_feat = PalmFeatures(raw_text=payload.palm_raw_text)
 
+    # Determine premium status from server-side user record, NOT from client
+    is_premium = False
+    if current_user and current_user.is_premium:
+        # Check if premium is still valid
+        if current_user.premium_expires_at and current_user.premium_expires_at > datetime.utcnow():
+            is_premium = True
+
     state = SystemState(
         birth_info=bi,
         face_features=face_feat,
         palm_features=palm_feat,
         user_question=payload.user_question,
-        is_premium=payload.is_premium,
+        is_premium=is_premium,
         tarot_raw={"spread": "Three-Card Spread", "cards": payload.tarot_cards},
     )
 
@@ -347,14 +354,20 @@ async def _run_analysis_inline(state: SystemState) -> SystemState:
 
 
 @router.get("/session/{session_id}", response_model=AnalysisResponse)
-async def get_session(session_id: str):
+async def get_session(
+    session_id: str,
+    current_user: Optional[User] = Depends(get_current_user),
+):
     """
     Retrieve session by ID. Checks in-memory first, then DATABASE.
-    Analysis runs in background via POST; this endpoint just returns current state.
+    Auth required — users can only access their own sessions.
     """
     # Fast path: in-memory cache
     state = _sessions.get(session_id)
     if state:
+        # Verify ownership if user is logged in
+        if current_user and state.user_id and state.user_id != str(current_user.id):
+            raise HTTPException(status_code=403, detail="无权访问此报告")
         resp = _state_to_response(state)
         # Merge DB fields: is_detail_unlocked, master_detail
         try:
@@ -371,7 +384,7 @@ async def get_session(session_id: str):
             pass
         return resp
 
-    # Slow path: read from DATABASE (different Vercel instance or process restarted)
+    # Slow path: read from DATABASE
     try:
         async with AsyncSessionLocal() as db:
             result = await db.execute(
@@ -379,7 +392,11 @@ async def get_session(session_id: str):
             )
             reading = result.scalar_one_or_none()
             if not reading:
-                raise HTTPException(status_code=404, detail="Session not found.")
+                raise HTTPException(status_code=404, detail="报告不存在")
+
+            # Verify ownership
+            if current_user and reading.user_id and reading.user_id != str(current_user.id):
+                raise HTTPException(status_code=403, detail="无权访问此报告")
 
             # If still pending/processing, return status so frontend keeps polling
             if reading.status in (ReadingStatus.pending, ReadingStatus.processing):
@@ -473,7 +490,7 @@ async def list_my_readings(user: User = Depends(require_user)):
                 ))
             return items
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Failed to list readings: {str(exc)}")
+        raise HTTPException(status_code=500, detail="获取报告列表失败，请稍后重试")
 
 
 MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10MB
@@ -877,7 +894,10 @@ def _compute_energy_score(
 
 
 @router.post("/analyze-event", response_model=AnalyzeEventResponse)
-async def analyze_event(payload: AnalyzeEventRequest):
+async def analyze_event(
+    payload: AnalyzeEventRequest,
+    current_user: User = Depends(require_user),
+):
     """
     Analyze a user event against their birth chart + transit data.
 
@@ -1053,7 +1073,10 @@ async def analyze_event(payload: AnalyzeEventRequest):
 
 
 @router.get("/events", response_model=list[EventListItem])
-async def list_events(session_id: str = Query(...)):
+async def list_events(
+    session_id: str = Query(...),
+    current_user: User = Depends(require_user),
+):
     """List all events for a session, newest first."""
     try:
         async with AsyncSessionLocal() as db:
@@ -1077,14 +1100,17 @@ async def list_events(session_id: str = Query(...)):
                 for e in events
             ]
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Failed to list events: {str(exc)}")
+        raise HTTPException(status_code=500, detail="获取事件列表失败，请稍后重试")
 
 
 # ─── Event Detail Endpoint ────────────────────────────────────────────────────
 
 
 @router.get("/events/{event_id}", response_model=EventDetailResponse)
-async def get_event_detail(event_id: str):
+async def get_event_detail(
+    event_id: str,
+    current_user: User = Depends(require_user),
+):
     """Get full event analysis detail."""
     event_uuid = event_id
 
@@ -1128,7 +1154,7 @@ async def get_event_detail(event_id: str):
     except HTTPException:
         raise
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Failed to get event: {str(exc)}")
+        raise HTTPException(status_code=500, detail="获取事件详情失败，请稍后重试")
 
 
 # ─── Daily Almanac Endpoint ────────────────────────────────────────────────────

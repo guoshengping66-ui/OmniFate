@@ -31,7 +31,10 @@ def send_verification_email(to_email: str, code: str) -> bool:
     config = _get_smtp_config()
     if not config["host"] or not config["user"]:
         print("[EMAIL] SMTP not configured, skipping email send")
-        print(f"[EMAIL] Verification code for {to_email}: {code}")
+        # Only log code in debug mode, never in production
+        import os
+        if os.getenv("DEBUG", "false").lower() == "true":
+            print(f"[EMAIL] Verification code for {to_email}: {code}")
         return False
 
     subject = "命盘智镜 - 邮箱验证码"
@@ -63,7 +66,9 @@ def send_password_reset_email(to_email: str, code: str) -> bool:
     config = _get_smtp_config()
     if not config["host"] or not config["user"]:
         print("[EMAIL] SMTP not configured, skipping email send")
-        print(f"[EMAIL] Password reset code for {to_email}: {code}")
+        import os
+        if os.getenv("DEBUG", "false").lower() == "true":
+            print(f"[EMAIL] Password reset code for {to_email}: {code}")
         return False
 
     subject = "命盘智镜 - 密码重置验证码"

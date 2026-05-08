@@ -33,7 +33,7 @@ class Settings(BaseSettings):
     AGENT_MAX_TOKENS: int = 4096
     WORKER_MAX_TOKENS: int = 1536   # 比 master 少一半——worker 只需提供分析素材
 
-    JWT_SECRET_KEY: str = "alpha-mirror-jwt-secret-dev-key-2025"
+    JWT_SECRET_KEY: str = "change-me-to-a-random-32-char-string"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
     # ── 微信支付 ──
