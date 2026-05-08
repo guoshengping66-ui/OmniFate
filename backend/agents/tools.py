@@ -13,7 +13,7 @@ async def compute_bazi(year: int, month: int, day: int, hour: int,
                        minute: int = 0,
                        longitude: Optional[float] = None) -> dict:
     """Async wrapper: runs BaziCalculator in thread pool (CPU-bound)."""
-    from backend.calculators.bazi_calculator import BaziCalculator
+    from calculators.bazi_calculator import BaziCalculator
     calc = BaziCalculator()
     loop = asyncio.get_event_loop()
     result = await loop.run_in_executor(
@@ -171,7 +171,7 @@ def _swisseph_chart(year: int, month: int, day: int,
 
 def _current_transits(year: int, month: int, natal: dict) -> str:
     """Generate a brief transit description for the current period."""
-    from backend.calculators.bazi_calculator import get_current_year_ganzhi
+    from calculators.bazi_calculator import get_current_year_ganzhi
     ygz = get_current_year_ganzhi()
     sun = natal.get("Sun", {}).get("sign_zh", "")
     saturn = natal.get("Saturn", {}).get("sign_zh", "")

@@ -18,6 +18,6 @@ elif not os.path.isdir(_backend_dir):
     sys.modules["backend"] = _pkg
 
 from mangum import Mangum
-from backend.main import app
+from main import app
 
 handler = Mangum(app, lifespan="off")

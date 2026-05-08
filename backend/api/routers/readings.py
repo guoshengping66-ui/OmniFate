@@ -15,13 +15,25 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.agents.state import (
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+
+from agents.state import (
     SystemState, BirthInfo, FaceFeatures, PalmFeatures, ChatMessage,
 )
-from backend.database.session import AsyncSessionLocal, engine
-from backend.database.models import Reading, ReadingStatus, PaymentStatus, EventLog, User
-from backend.auth.dependencies import get_current_user, require_user
-from backend.config import get_settings
+from agents.graph import run_full_analysis, run_chat
+from agents.replay_prompt import replay_agent_prompt
+from agents.master import _llm, _use_mock
+from services.vision.face_v2t import FaceV2T
+from services.vision.palm_v2t import PalmV2T
+from services.product_matcher import ProductMatcher
+from database.session import AsyncSessionLocal, engine
+from database.models import Reading, ReadingStatus, PaymentStatus, EventLog, User
+from auth.dependencies import get_current_user, require_user
+from calculators.astrology_calculator import AstrologyCalculator
+from calculators.bazi_calculator import BaziCalculator
+from config import get_settings
 
 settings = get_settings()
 
@@ -994,7 +1006,7 @@ async def analyze_event(payload: AnalyzeEventRequest):
     # 5. Save EventLog to database
     # Ensure event_logs table exists (safe to call multiple times)
     try:
-        from backend.database.models import Base
+        from database.models import Base
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
     except Exception:

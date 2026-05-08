@@ -5,14 +5,18 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 from pydantic import BaseModel, Field
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+
 from fastapi import APIRouter, Query, HTTPException, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.services.product_matcher import ProductMatcher
-from backend.database.session import AsyncSessionLocal
-from backend.database.models import User, Product, ProductReview
-from backend.auth.dependencies import require_user
+from services.product_matcher import ProductMatcher
+from database.session import AsyncSessionLocal
+from database.models import User, Product, ProductReview
+from auth.dependencies import require_user
 
 router = APIRouter()
 _matcher = ProductMatcher()

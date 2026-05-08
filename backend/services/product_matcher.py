@@ -210,7 +210,7 @@ class ProductMatcher:
         """Internal: generate recommendation via OpenAI-compatible LLM."""
         from langchain_openai import ChatOpenAI
         from langchain_core.messages import SystemMessage, HumanMessage
-        from backend.config import get_settings
+        from config import get_settings
 
         settings = get_settings()
         if not settings.OPENAI_API_KEY:

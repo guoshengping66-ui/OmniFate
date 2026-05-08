@@ -66,6 +66,12 @@ class Settings(BaseSettings):
     GEOCODING_API_KEY: str = ""
     FRONTEND_URL: str = "http://localhost:3000"
 
+    # ── 个人收款码 ──
+    ALIPAY_PERSONAL_QR_URL: str = ""
+    WECHAT_PERSONAL_QR_URL: str = ""
+    PAYPAL_PERSONAL_QR_URL: str = ""
+    PAYPAL_PERSONAL_EMAIL: str = ""
+
 
 @lru_cache
 def get_settings() -> Settings:

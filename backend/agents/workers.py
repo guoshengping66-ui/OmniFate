@@ -10,8 +10,21 @@ import json
 import re
 from typing import Optional
 
-from backend.config import get_settings
-from backend.agents.state import SystemState, WorkerOutput
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import SystemMessage, HumanMessage
+
+from config import get_settings
+from agents.state import SystemState, WorkerOutput
+from agents.prompts import (
+    astrology_prompt, tarot_prompt, bazi_prompt,
+    face_prompt, palm_prompt, qimen_prompt, ziwei_prompt,
+)
+from agents.tools import draw_tarot
+from calculators.bazi_calculator import (
+    BaziCalculator, get_current_year_ganzhi,
+)
+from calculators.qimen_calculator import QimenCalculator, calculate_qimen
+from calculators.ziwei_calculator import ZiweiCalculator, calculate_ziwei
 
 settings = get_settings()
 

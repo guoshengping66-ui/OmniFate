@@ -7,18 +7,23 @@ import secrets
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from pydantic import BaseModel, EmailStr
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.database import get_db
-from backend.database.models import User
-from backend.auth.jwt import (
+from database import get_db
+from database.models import User
+from auth.jwt import (
     create_access_token, create_refresh_token, verify_token,
     hash_password, verify_password,
 )
-from backend.auth.dependencies import get_current_user, require_user
+from auth.dependencies import get_current_user, require_user
+from config import get_settings
 
 router = APIRouter()
 

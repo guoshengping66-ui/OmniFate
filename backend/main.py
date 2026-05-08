@@ -1,4 +1,8 @@
 ﻿"""backend/main.py — FastAPI 应用入口"""
+import sys
+import os
+sys.path.insert(0, os.path.dirname(__file__))
+
 import time
 from collections import defaultdict
 from fastapi import FastAPI, Request
@@ -6,8 +10,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 
-from backend.config import get_settings
-from backend.api.routers import readings, users, products, payments, auth, blog
+from config import get_settings
+from api.routers import readings, users, products, payments, auth, blog, personal_payments
 
 settings = get_settings()
 
@@ -16,8 +20,8 @@ settings = get_settings()
 async def lifespan(app: FastAPI):
     # 启动时自动建表（开发/生产均可）
     try:
-        from backend.database.session import engine
-        from backend.database.models import Base
+        from database.session import engine
+        from database.models import Base
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
     except Exception as e:
@@ -94,6 +98,7 @@ app.include_router(readings.router, prefix="/api/readings", tags=["Readings"])
 app.include_router(products.router, prefix="/api/products", tags=["Products"])
 app.include_router(payments.router, prefix="/api/payments", tags=["Payments"])
 app.include_router(blog.router,     prefix="/api/blog",     tags=["Blog"])
+app.include_router(personal_payments.router, prefix="/api/personal-payments", tags=["Personal Payments"])
 
 
 @app.get("/health")

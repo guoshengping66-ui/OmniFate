@@ -3,7 +3,7 @@ import asyncio
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import StaticPool
-from backend.config import get_settings
+from config import get_settings
 
 settings = get_settings()
 _is_sqlite = settings.DATABASE_URL.startswith("sqlite")
