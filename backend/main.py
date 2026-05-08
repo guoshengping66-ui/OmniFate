@@ -1,6 +1,7 @@
 ﻿"""backend/main.py — FastAPI 应用入口"""
 import sys
 import os
+import traceback
 sys.path.insert(0, os.path.dirname(__file__))
 
 import time
@@ -57,6 +58,17 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    """Log all unhandled exceptions to help debug Vercel 500 errors."""
+    tb = traceback.format_exception(type(exc), exc, exc.__traceback__)
+    print(f"[ERROR] {request.method} {request.url.path}: {''.join(tb)}")
+    return JSONResponse(
+        status_code=500,
+        content={"detail": str(exc)[:200]},
+    )
 
 # ── Simple in-memory rate limiter ───────────────────────────────────────────
 _rate_store: dict[str, list[float]] = defaultdict(list)
