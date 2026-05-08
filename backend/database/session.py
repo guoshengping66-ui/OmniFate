@@ -3,7 +3,7 @@ import asyncio
 import os
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.pool import StaticPool
+from sqlalchemy.pool import StaticPool, NullPool
 from config import get_settings
 
 settings = get_settings()
@@ -12,17 +12,18 @@ _database_url = settings.DATABASE_URL
 # On Vercel (serverless), use /tmp for SQLite since the working directory is read-only
 _is_vercel = os.environ.get("VERCEL") == "1"
 if _is_vercel and _database_url.startswith("sqlite"):
-    _database_url = "sqlite+aiosqlite:///tmp/destiny.db"
+    _database_url = "sqlite+aiosqlite:////tmp/destiny.db"
 
 _is_sqlite = _database_url.startswith("sqlite")
 
 _kw: dict = {"echo": settings.DEBUG}
 if _is_sqlite:
-    _kw["connect_args"] = {"check_same_thread": False, "timeout": 5}
-    _kw["poolclass"]    = StaticPool
+    _kw["connect_args"] = {"check_same_thread": False, "timeout": 10}
+    # Use NullPool on Vercel to avoid StaticPool connection reuse issues
+    _kw["poolclass"] = NullPool if _is_vercel else StaticPool
 else:
     _kw["pool_pre_ping"] = True
-    _kw["pool_timeout"] = 5
+    _kw["pool_timeout"] = 10
 
 engine = create_async_engine(_database_url, **_kw)
 AsyncSessionLocal = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
@@ -32,17 +33,17 @@ _tables_created = False  # ensure tables are created once per cold start
 
 
 async def _check_db_available() -> bool:
-    """Quick check if database is reachable (5s timeout)."""
+    """Quick check if database is reachable (10s timeout)."""
     global _db_available
     if _db_available is not None:
         return _db_available
     try:
         await asyncio.wait_for(
-            _do_db_check(), timeout=5
+            _do_db_check(), timeout=10
         )
-    except (asyncio.TimeoutError, Exception):
+    except Exception as ex:
         _db_available = False
-        print("[DB] Database not available, running in stateless mode")
+        print(f"[DB] Database not available: {ex}, running in stateless mode")
     return _db_available
 
 
