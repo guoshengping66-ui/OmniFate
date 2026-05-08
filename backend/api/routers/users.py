@@ -143,7 +143,7 @@ async def list_orders(user: User = Depends(require_user)):
                 })
             return items
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Failed to list orders: {str(exc)}")
+        raise HTTPException(status_code=500, detail="获取订单列表失败，请稍后重试")
 
 
 # ── Profile Settings ──────────────────────────────────────────────────────

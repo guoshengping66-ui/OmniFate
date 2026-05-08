@@ -10,22 +10,18 @@ from datetime import datetime, timedelta
 from typing import Optional
 from xml.etree import ElementTree as ET
 
-import sys
-import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
-
 from fastapi import APIRouter, Depends, HTTPException, Request, Query
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.session import get_db
-from database.models import (
-    Reading, User, Order, OrderItem, EventLog,
+from backend.database.session import get_db
+from backend.database.models import (
+    Reading, User, Order, OrderItem, EventLog, Product,
     PaymentStatus, OrderStatus,
 )
-from auth.dependencies import get_current_user, require_user
-from config import get_settings
+from backend.auth.dependencies import get_current_user, require_user
+from backend.config import get_settings
 
 router = APIRouter()
 settings = get_settings()
@@ -33,6 +29,21 @@ settings = get_settings()
 SHOP_COUPON_AMOUNT = 60
 TRIAL_DAYS = 3
 EVENT_RETRO_PRICE = 19.9
+
+# ── Server-side price list (clients CANNOT override these) ───────────────────
+# Prices in CNY for Alipay/WeChat, USD for PayPal
+PREMIUM_MONTHLY_CNY = 49.0
+PREMIUM_YEARLY_CNY = 298.0
+PREMIUM_MONTHLY_USD = 6.99
+PREMIUM_YEARLY_USD = 39.99
+UNLOCK_PRICE_CNY = 69.0
+
+# Price map for order validation
+PRODUCT_PRICES = {
+    "premium_monthly": {"cny": PREMIUM_MONTHLY_CNY, "usd": PREMIUM_MONTHLY_USD},
+    "premium_yearly": {"cny": PREMIUM_YEARLY_CNY, "usd": PREMIUM_YEARLY_USD},
+    "unlock_report": {"cny": UNLOCK_PRICE_CNY},
+}
 
 
 # ─── Payment Methods ──────────────────────────────────────────────────────────
@@ -190,18 +201,23 @@ class WeChatPay:
 
 @router.post("/wechat/create")
 async def create_wechat_order(
-    amount: float = Query(..., description="金额（元）"),
+    item_type: str = Query("unlock_report", description="商品类型"),
     description: str = Query("命盘智镜", description="商品描述"),
     reading_id: str = Query(None, description="报告 ID"),
     db: AsyncSession = Depends(get_db),
 ):
-    """创建微信支付订单"""
+    """创建微信支付订单 — 金额由服务端决定，客户端不可篡改"""
     if not settings.WECHAT_PAY_ENABLED:
         raise HTTPException(status_code=400, detail="微信支付未启用")
 
+    # Server-side price lookup — NEVER trust client input
+    price_info = PRODUCT_PRICES.get(item_type)
+    if not price_info or "cny" not in price_info:
+        raise HTTPException(status_code=400, detail="无效的商品类型")
+    amount = price_info["cny"]
+
     order_no = f"WX{datetime.utcnow().strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
 
-    # 创建订单记录
     order = Order(
         order_no=order_no,
         status=OrderStatus.pending,
@@ -241,16 +257,18 @@ async def wechat_notify(request: Request, db: AsyncSession = Depends(get_db)):
 
     # 解锁报告
     order_no = data.get("out_trade_no", "")
-    reading_id = None  # 从订单中获取
 
-    # 查找订单
+    # 查找订单并验证金额
     order_result = await db.execute(select(Order).where(Order.order_no == order_no))
     order = order_result.scalar_one_or_none()
     if order:
+        # Verify paid amount matches expected amount
+        paid_fee = int(data.get("total_fee", 0))
+        expected_fee = int(order.total_cny * 100)
+        if paid_fee != expected_fee:
+            return "<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[金额不匹配]]></return_msg></xml>"
         order.status = OrderStatus.paid
         order.paid_at = datetime.utcnow()
-        # 通过订单关联的 reading 解锁
-        # 这里需要根据实际业务逻辑获取 reading_id
 
     await db.commit()
     return "<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>"
@@ -327,18 +345,22 @@ class AlipayPay:
 
 @router.post("/alipay/create")
 async def create_alipay_order(
-    amount: float = Query(..., description="金额（元）"),
+    item_type: str = Query("unlock_report", description="商品类型"),
     subject: str = Query("命盘智镜", description="商品名称"),
     reading_id: str = Query(None, description="报告 ID"),
     db: AsyncSession = Depends(get_db),
 ):
-    """创建支付宝订单"""
+    """创建支付宝订单 — 金额由服务端决定"""
     if not settings.ALIPAY_ENABLED:
         raise HTTPException(status_code=400, detail="支付宝未启用")
 
+    price_info = PRODUCT_PRICES.get(item_type)
+    if not price_info or "cny" not in price_info:
+        raise HTTPException(status_code=400, detail="无效的商品类型")
+    amount = price_info["cny"]
+
     order_no = f"ALI{datetime.utcnow().strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
 
-    # 创建订单记录
     order = Order(
         order_no=order_no,
         status=OrderStatus.pending,
@@ -369,13 +391,16 @@ async def alipay_notify(request: Request, db: AsyncSession = Depends(get_db)):
     if data.get("trade_status") not in ("TRADE_SUCCESS", "TRADE_FINISHED"):
         return "fail"
 
-    # 验证签名（简化版，生产环境需要完整验证）
     order_no = data.get("out_trade_no", "")
 
-    # 查找订单并解锁
+    # 查找订单并验证金额
     order_result = await db.execute(select(Order).where(Order.order_no == order_no))
     order = order_result.scalar_one_or_none()
     if order:
+        # Verify paid amount matches expected amount
+        paid_amount = float(data.get("total_amount", 0))
+        if abs(paid_amount - order.total_cny) > 0.01:
+            return "fail"
         order.status = OrderStatus.paid
         order.paid_at = datetime.utcnow()
 
@@ -460,22 +485,27 @@ class PayPalPay:
 
 @router.post("/paypal/create")
 async def create_paypal_order(
-    amount: float = Query(..., description="金额（美元）"),
+    item_type: str = Query("unlock_report", description="商品类型"),
     description: str = Query("Destiny Mirror", description="商品描述"),
     reading_id: str = Query(None, description="报告 ID"),
     db: AsyncSession = Depends(get_db),
 ):
-    """创建 PayPal 订单"""
+    """创建 PayPal 订单 — 金额由服务端决定"""
     if not settings.PAYPAL_ENABLED:
         raise HTTPException(status_code=400, detail="PayPal 未启用")
 
+    price_info = PRODUCT_PRICES.get(item_type)
+    if not price_info or "usd" not in price_info:
+        raise HTTPException(status_code=400, detail="无效的商品类型")
+    amount_usd = price_info["usd"]
+    amount_cny = price_info["cny"]
+
     order_no = f"PP{datetime.utcnow().strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
 
-    # 创建订单记录
     order = Order(
         order_no=order_no,
         status=OrderStatus.pending,
-        total_cny=amount * 7.2,  # 粗略汇率
+        total_cny=amount_cny,
         payment_method="paypal",
         payment_ref=order_no,
     )
@@ -483,13 +513,13 @@ async def create_paypal_order(
     await db.commit()
 
     paypal = PayPalPay()
-    result = await paypal.create_order(order_no, amount, description)
+    result = await paypal.create_order(order_no, amount_usd, description)
 
     return {
         "order_no": order_no,
         "paypal_order_id": result["order_id"],
         "approve_url": result["approve_url"],
-        "total_amount": amount,
+        "total_amount": amount_usd,
         "currency": "USD",
         "message": "请在新窗口完成 PayPal 支付",
     }
@@ -499,8 +529,9 @@ async def create_paypal_order(
 async def capture_paypal_order(
     paypal_order_id: str = Query(..., description="PayPal 订单 ID"),
     db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_user),
 ):
-    """捕获 PayPal 支付（用户支付完成后调用）"""
+    """捕获 PayPal 支付（用户支付完成后调用）— 需要登录"""
     paypal = PayPalPay()
     access_token = paypal._get_access_token()
 
@@ -515,19 +546,22 @@ async def capture_paypal_order(
 
     result = response.json()
     if result.get("status") == "COMPLETED":
-        # 更新订单状态
         order_no = result.get("purchase_units", [{}])[0].get("reference_id", "")
         if order_no:
             order_result = await db.execute(select(Order).where(Order.order_no == order_no))
             order = order_result.scalar_one_or_none()
             if order:
+                # Verify captured amount matches expected
+                captured_amount = float(result.get("purchase_units", [{}])[0].get("amount", {}).get("value", 0))
+                if abs(captured_amount * 7.2 - order.total_cny) > 1.0:
+                    raise HTTPException(status_code=400, detail="支付金额不匹配")
                 order.status = OrderStatus.paid
                 order.paid_at = datetime.utcnow()
                 await db.commit()
 
         return {"status": "completed", "message": "支付成功"}
     else:
-        raise HTTPException(status_code=400, detail=f"PayPal 捕获失败: {result.get('message', '未知错误')}")
+        raise HTTPException(status_code=400, detail="PayPal 捕获失败")
 
 
 # ─── Report Unlock ───────────────────────────────────────────────────────────
@@ -566,21 +600,15 @@ async def pay_event(
 
     charge = 0.0
     used_free = False
-    user = None
 
-    # Refetch user within this session if logged in
     if current_user:
-        result = await db.execute(select(User).where(User.id == current_user.id))
-        user = result.scalar_one_or_none()
-
-    if user:
         now = datetime.utcnow()
-        if user.free_event_quota_reset_at and now > user.free_event_quota_reset_at:
-            user.free_event_quota = 2 if user.subscription_tier != "premium_yearly" else 5
-            user.free_event_quota_reset_at = now + timedelta(days=30)
+        if current_user.free_event_quota_reset_at and now > current_user.free_event_quota_reset_at:
+            current_user.free_event_quota = 2 if current_user.subscription_tier != "premium_yearly" else 5
+            current_user.free_event_quota_reset_at = now + timedelta(days=30)
 
-        if req.use_free_quota and (user.free_event_quota or 0) > 0:
-            user.free_event_quota -= 1
+        if req.use_free_quota and (current_user.free_event_quota or 0) > 0:
+            current_user.free_event_quota -= 1
             used_free = True
         else:
             charge = EVENT_RETRO_PRICE
@@ -594,7 +622,7 @@ async def pay_event(
         "event_id": req.event_id,
         "charge": charge,
         "used_free_quota": used_free,
-        "remaining_free_quota": user.free_event_quota if user else 0,
+        "remaining_free_quota": current_user.free_event_quota if current_user else 0,
         "message": "使用免费额度" if used_free else f"已支付 ¥{charge}",
     }
 
@@ -620,28 +648,53 @@ async def create_order(
     db: AsyncSession = Depends(get_db),
     current_user: Optional[User] = Depends(get_current_user),
 ):
-    """创建订单，支持代金券抵扣"""
-    final_total = req.total_cny
+    """创建订单，支持代金券抵扣 — 服务端验证价格"""
+    # Validate prices against product catalog (NEVER trust client prices)
+    server_total = 0.0
+    validated_items = []
+    for item in req.items:
+        if item.product_id:
+            prod_result = await db.execute(select(Product).where(Product.id == item.product_id))
+            prod = prod_result.scalar_one_or_none()
+            if not prod:
+                raise HTTPException(status_code=400, detail=f"商品不存在: {item.product_id}")
+            # Use server-side price, ignore client price
+            server_price = prod.price_cny
+            server_total += server_price * item.quantity
+            validated_items.append({
+                "product_id": item.product_id,
+                "product_name": prod.name,
+                "quantity": item.quantity,
+                "unit_price_cny": server_price,
+            })
+        else:
+            # Non-catalog items (e.g., subscriptions) — use client price but cap at reasonable limit
+            if item.unit_price_cny > 9999 or item.unit_price_cny < 0:
+                raise HTTPException(status_code=400, detail="无效的价格")
+            server_total += item.unit_price_cny * item.quantity
+            validated_items.append({
+                "product_id": None,
+                "product_name": item.product_name,
+                "quantity": item.quantity,
+                "unit_price_cny": item.unit_price_cny,
+            })
+
+    # Use server-calculated total, not client total
+    final_total = round(server_total, 2)
     coupon_used = 0.0
-    user = None
 
-    # Refetch user within this session if logged in
-    if current_user:
-        result = await db.execute(select(User).where(User.id == current_user.id))
-        user = result.scalar_one_or_none()
-
-    if req.use_coupon and user:
-        balance = user.shop_coupon_balance or 0
+    if req.use_coupon and current_user:
+        balance = current_user.shop_coupon_balance or 0
         if balance <= 0:
             raise HTTPException(status_code=400, detail="没有可用的代金券余额")
         coupon_used = min(balance, final_total)
-        user.shop_coupon_balance = balance - coupon_used
+        current_user.shop_coupon_balance = balance - coupon_used
         final_total = round(final_total - coupon_used, 2)
 
     order_no = f"ORD{datetime.utcnow().strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
 
     order = Order(
-        user_id=user.id if user else None,
+        user_id=current_user.id if current_user else None,
         order_no=order_no,
         status=OrderStatus.pending,
         total_cny=final_total,
@@ -651,15 +704,15 @@ async def create_order(
     db.add(order)
     await db.flush()
 
-    for item in req.items:
-        pid = item.product_id if item.product_id else None
+    for item in validated_items:
+        pid = item["product_id"]
         oi = OrderItem(
             order_id=order.id,
             product_id=pid,
-            product_name=item.product_name,
-            quantity=item.quantity,
-            unit_price_cny=item.unit_price_cny,
-            subtotal_cny=round(item.unit_price_cny * item.quantity, 2),
+            product_name=item["product_name"],
+            quantity=item["quantity"],
+            unit_price_cny=item["unit_price_cny"],
+            subtotal_cny=round(item["unit_price_cny"] * item["quantity"], 2),
         )
         db.add(oi)
 
@@ -668,7 +721,7 @@ async def create_order(
         "order_id": str(order.id),
         "order_no": order_no,
         "status": "pending",
-        "original_total": req.total_cny,
+        "original_total": server_total,
         "coupon_used": coupon_used,
         "final_total": final_total,
         "message": "订单已创建，请选择支付方式完成支付",
@@ -683,16 +736,10 @@ async def mock_subscribe(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_user),
 ):
-    """订阅会员（Mock 模式）"""
-    if db is None:
-        raise HTTPException(status_code=503, detail="数据库暂不可用")
-
-    # Refetch user within THIS session to avoid detached-instance issues
-    result = await db.execute(select(User).where(User.id == current_user.id))
-    user = result.scalar_one_or_none()
-    if not user:
-        raise HTTPException(status_code=404, detail="用户不存在")
-
+    """订阅会员 — 仅开发环境可用"""
+    # Block mock subscription in production
+    if not settings.DEBUG:
+        raise HTTPException(status_code=403, detail="请通过正常支付流程订阅")
     now = datetime.utcnow()
 
     if tier == "premium_yearly":
@@ -704,14 +751,14 @@ async def mock_subscribe(
         free_events = 2
         price_label = "¥49/月"
 
-    user.is_premium = True
-    user.subscription_tier = tier
-    user.premium_expires_at = expires
-    user.free_event_quota = free_events
-    user.free_event_quota_reset_at = now + timedelta(days=30)
+    current_user.is_premium = True
+    current_user.subscription_tier = tier
+    current_user.premium_expires_at = expires
+    current_user.free_event_quota = free_events
+    current_user.free_event_quota_reset_at = now + timedelta(days=30)
 
     await db.commit()
-    await db.refresh(user)
+    await db.refresh(current_user)
 
     return {
         "subscription_id": f"sub_{uuid.uuid4().hex[:8]}",
@@ -720,11 +767,11 @@ async def mock_subscribe(
         "current_period_end": expires.isoformat(),
         "message": f"订阅成功: {price_label} (Mock)",
         "user": {
-            "is_premium": user.is_premium,
-            "subscription_tier": user.subscription_tier,
-            "premium_expires_at": user.premium_expires_at.isoformat() if user.premium_expires_at else None,
-            "free_event_quota": user.free_event_quota,
-            "shop_coupon_balance": user.shop_coupon_balance,
+            "is_premium": current_user.is_premium,
+            "subscription_tier": current_user.subscription_tier,
+            "premium_expires_at": current_user.premium_expires_at.isoformat() if current_user.premium_expires_at else None,
+            "free_event_quota": current_user.free_event_quota,
+            "shop_coupon_balance": current_user.shop_coupon_balance,
         },
     }
 
@@ -735,21 +782,8 @@ async def mock_cancel_subscription(
     current_user: User = Depends(require_user),
 ):
     """取消订阅"""
-    if db is None:
-        raise HTTPException(status_code=503, detail="数据库暂不可用")
-
-    # Refetch within this session
-    result = await db.execute(select(User).where(User.id == current_user.id))
-    user = result.scalar_one_or_none()
-    if not user:
-        raise HTTPException(status_code=404, detail="用户不存在")
-
-    user.is_premium = False
-    user.subscription_tier = None
-    await db.commit()
-
     return {
         "status": "cancelled",
-        "premium_expires_at": user.premium_expires_at.isoformat() if user.premium_expires_at else None,
+        "premium_expires_at": current_user.premium_expires_at.isoformat() if current_user.premium_expires_at else None,
         "message": "订阅已取消，当前周期结束后恢复免费",
     }

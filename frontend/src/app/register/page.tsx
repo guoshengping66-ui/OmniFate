@@ -64,9 +64,9 @@ export default function RegisterPage() {
     setVerifyLoading(true)
     try {
       const res = await verifyEmail(email, verifyCode)
-      // Store tokens and log in
-      localStorage.setItem("access_token", res.access_token)
-      localStorage.setItem("refresh_token", res.refresh_token)
+      // Store tokens and log in (must match AuthContext keys)
+      localStorage.setItem("alpha_mirror_token", res.access_token)
+      localStorage.setItem("alpha_mirror_refresh", res.refresh_token)
       toast.success("邮箱验证成功！")
       router.replace("/")
     } catch (err: any) {

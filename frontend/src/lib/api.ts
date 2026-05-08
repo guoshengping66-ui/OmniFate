@@ -311,6 +311,11 @@ export async function changePassword(oldPassword: string, newPassword: string): 
   return res.data
 }
 
+export async function deleteAccount(password: string): Promise<{ message: string }> {
+  const res = await api.delete("/api/auth/delete-account", { data: { password } })
+  return res.data
+}
+
 // ── Payment / Order / Subscription ──────────────────────────────────────────
 
 export interface SubscribeResult {
