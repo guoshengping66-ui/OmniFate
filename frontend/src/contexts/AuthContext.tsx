@@ -1,6 +1,6 @@
 "use client"
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react"
-import { api, apiDirect } from "@/lib/api"
+import { api, apiDirect, oauthGoogle, oauthApple } from "@/lib/api"
 
 export interface AuthUser {
   id: string
@@ -18,6 +18,7 @@ interface AuthState {
   loading: boolean
   login: (email: string, password: string) => Promise<void>
   register: (email: string, password: string, displayName?: string) => Promise<void>
+  loginWithOAuth: (provider: "google" | "apple", idToken: string) => Promise<void>
   logout: () => void
   refreshUser: () => Promise<void>
 }
@@ -27,6 +28,7 @@ const AuthContext = createContext<AuthState>({
   loading: true,
   login: async () => {},
   register: async () => {},
+  loginWithOAuth: async () => {},
   logout: () => {},
   refreshUser: async () => {},
 })
@@ -106,6 +108,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(data.user)
   }, [])
 
+  const loginWithOAuth = useCallback(async (provider: "google" | "apple", idToken: string) => {
+    const fn = provider === "google" ? oauthGoogle : oauthApple
+    const data = await fn(idToken)
+    localStorage.setItem(TOKEN_KEY, data.access_token)
+    localStorage.setItem(REFRESH_KEY, data.refresh_token)
+    setUser(data.user)
+  }, [])
+
   const logout = useCallback(() => {
     localStorage.removeItem(TOKEN_KEY)
     localStorage.removeItem(REFRESH_KEY)
@@ -122,7 +132,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, refreshUser }}>
+    <AuthContext.Provider value={{ user, loading, login, register, loginWithOAuth, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   )

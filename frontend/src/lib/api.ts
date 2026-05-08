@@ -292,6 +292,18 @@ export async function refreshToken(refreshToken: string): Promise<{ access_token
   return res.data
 }
 
+// ── OAuth (Google & Apple) ─────────────────────────────────────────────────
+
+export async function oauthGoogle(idToken: string): Promise<AuthResponse> {
+  const res = await api.post<AuthResponse>("/api/auth/oauth/google", { id_token: idToken })
+  return res.data
+}
+
+export async function oauthApple(identityToken: string): Promise<AuthResponse> {
+  const res = await api.post<AuthResponse>("/api/auth/oauth/apple", { id_token: identityToken })
+  return res.data
+}
+
 // ── Password Reset ──────────────────────────────────────────────────────────
 
 export async function forgotPassword(email: string): Promise<{ message: string }> {

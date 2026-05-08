@@ -378,6 +378,9 @@ export default {
   "auth.passwordMin6": "Password must be at least 6 characters",
   "auth.loginNow": "Login Now",
   "auth.registerNow": "Sign Up Now",
+  "auth.loginWithGoogle": "Continue with Google",
+  "auth.loginWithApple": "Continue with Apple",
+  "auth.or": "or",
 
   // ─── Forgot Password ───
   "auth.forgotPasswordDesc": "Enter your registered email and we'll send a password reset link",
