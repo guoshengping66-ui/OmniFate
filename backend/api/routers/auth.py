@@ -135,7 +135,7 @@ async def register(req: RegisterRequest, request: Request, db: AsyncSession = De
     await db.commit()
 
     # Send verification email
-    from backend.utils.email import send_verification_email
+    from utils.email import send_verification_email
     send_verification_email(req.email, code)
 
     return {"message": "注册成功，请查收邮箱验证码完成验证", "email": req.email}
@@ -166,7 +166,7 @@ async def send_code(req: SendCodeRequest, request: Request, db: AsyncSession = D
     user.verification_expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
     await db.commit()
 
-    from backend.utils.email import send_verification_email
+    from utils.email import send_verification_email
     send_verification_email(req.email, code)
 
     return {"message": "验证码已发送"}
@@ -281,7 +281,7 @@ async def forgot_password(req: SendCodeRequest, request: Request, db: AsyncSessi
     user.verification_expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
     await db.commit()
 
-    from backend.utils.email import send_password_reset_email
+    from utils.email import send_password_reset_email
     send_password_reset_email(req.email, code)
 
     return {"message": "验证码已发送到您的邮箱"}

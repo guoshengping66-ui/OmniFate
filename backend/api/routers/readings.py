@@ -238,7 +238,7 @@ async def create_analysis(
 
 async def _persist_session(session_id: str, user_id: Optional[str] = None):
     """Persist a reading session to the database."""
-    from backend.database.session import _db_available
+    from database.session import _db_available
     if _db_available is False:
         return
     async with AsyncSessionLocal() as db:
@@ -270,7 +270,7 @@ async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
 
     try:
         # Lazy imports to avoid cold-start cost
-        from backend.agents.graph import run_full_analysis
+        from agents.graph import run_full_analysis
         print(f"[BG] Running full analysis pipeline for {state.session_id}")
         state = await run_full_analysis(state)
         print(f"[BG] Analysis completed for {state.session_id}, phase={state.phase}")
@@ -309,7 +309,7 @@ async def chat_followup(payload: ChatRequest):
     Task C: Dynamic routing follow-up chat.
     Routes user question to the correct expert agent and returns a focused answer.
     """
-    from backend.agents.graph import run_chat
+    from agents.graph import run_chat
 
     state = _sessions.get(payload.session_id)
     if not state:
@@ -329,7 +329,7 @@ async def chat_followup(payload: ChatRequest):
 async def _run_analysis_inline(state: SystemState) -> SystemState:
     """Run the full analysis pipeline inline (called lazily on GET poll)."""
     try:
-        from backend.agents.graph import run_full_analysis
+        from agents.graph import run_full_analysis
         state = await run_full_analysis(state)
     except Exception as e:
         state.errors.append(str(e))
@@ -498,7 +498,7 @@ async def upload_face_image(session_id: str, file: UploadFile = File(...)):
     -> structured physiognomy text -> update session state.
     Uses the new FaceV2T engine for richer analysis.
     """
-    from backend.services.vision.face_v2t import FaceV2T
+    from services.vision.face_v2t import FaceV2T
     face_v2t = FaceV2T()
 
     content = await file.read()
@@ -559,7 +559,7 @@ async def analyze_face_image(file: UploadFile = File(...)):
     Upload a face image -> returns structured physiognomy text without creating a session.
     Frontend can call this during Step 2 to auto-analyze before submitting the full form.
     """
-    from backend.services.vision.face_v2t import FaceV2T
+    from services.vision.face_v2t import FaceV2T
     face_v2t = FaceV2T()
 
     content = await file.read()
@@ -640,7 +640,7 @@ async def upload_palm_image(session_id: str, file: UploadFile = File(...)):
     Upload a palm image -> V2T via MediaPipe Hands + OpenCV line detection
     -> structured palmistry text -> update session state.
     """
-    from backend.services.vision.palm_v2t import PalmV2T
+    from services.vision.palm_v2t import PalmV2T
     palm_v2t = PalmV2T()
 
     content = await file.read()
@@ -712,7 +712,7 @@ async def analyze_palm_image(file: UploadFile = File(...)):
     Upload a palm image -> returns structured palmistry text without creating a session.
     Frontend can call this during Step 2 to auto-analyze before submitting the full form.
     """
-    from backend.services.vision.palm_v2t import PalmV2T
+    from services.vision.palm_v2t import PalmV2T
     palm_v2t = PalmV2T()
 
     content = await file.read()
@@ -827,7 +827,7 @@ def _get_birth_info_for_session(session_id: str) -> Optional[dict]:
 
 async def _call_replay_llm(system_prompt: str) -> tuple[str, list[str], list[str]]:
     """Call the LLM for event replay analysis. Returns (analysis_text, remedy_keywords, boost_elements)."""
-    from backend.agents.master import _llm, _use_mock
+    from agents.master import _llm, _use_mock
 
     if _use_mock():
         return (
@@ -911,7 +911,7 @@ async def analyze_event(payload: AnalyzeEventRequest):
     event_dt = payload.event_datetime
 
     # 2a. Compute transit astrology
-    from backend.calculators.astrology_calculator import AstrologyCalculator
+    from calculators.astrology_calculator import AstrologyCalculator
     astro_calc = AstrologyCalculator()
     try:
         natal_chart = astro_calc.calculate(
@@ -930,7 +930,7 @@ async def analyze_event(payload: AnalyzeEventRequest):
         transit_astro = {"transit_planets": {}, "transit_natal_aspects": []}
 
     # 2b. Compute transit bazi pillars
-    from backend.calculators.bazi_calculator import BaziCalculator
+    from calculators.bazi_calculator import BaziCalculator
     try:
         transit_bazi = BaziCalculator.calculate_transit_pillars(
             year=event_dt.year,
@@ -941,7 +941,7 @@ async def analyze_event(payload: AnalyzeEventRequest):
         transit_bazi = None
 
     # 3. Build replay prompt and call LLM
-    from backend.agents.replay_prompt import replay_agent_prompt
+    from agents.replay_prompt import replay_agent_prompt
     bazi_weak = list(state.bazi_output.weakness_tags) if state.bazi_output else []
     bazi_strong = list(state.bazi_output.strength_tags) if state.bazi_output else []
     astro_weak = list(state.astrology_output.weakness_tags) if state.astrology_output else []
@@ -985,7 +985,7 @@ async def analyze_event(payload: AnalyzeEventRequest):
         sections[k] = sections[k].strip()
 
     # 4. Match products from remedy keywords
-    from backend.services.product_matcher import ProductMatcher
+    from services.product_matcher import ProductMatcher
     matcher = ProductMatcher()
     matched_products = matcher.match_with_reasons(
         weakness_tags=remedy_keywords,
@@ -1109,7 +1109,7 @@ async def get_event_detail(event_id: str):
                 raise HTTPException(status_code=404, detail="Event not found.")
 
             # Load products from product IDs
-            from backend.services.product_matcher import ProductMatcher
+            from services.product_matcher import ProductMatcher
             matcher = ProductMatcher()
             matched = []
             if evt.remedy_keywords:
@@ -1163,7 +1163,7 @@ async def get_daily_almanac(session_id: str = Query(...)):
     today = date.today()
 
     # 1. Compute natal chart
-    from backend.calculators.astrology_calculator import AstrologyCalculator
+    from calculators.astrology_calculator import AstrologyCalculator
     astro_calc = AstrologyCalculator()
     try:
         natal_chart = astro_calc.calculate(
@@ -1185,7 +1185,7 @@ async def get_daily_almanac(session_id: str = Query(...)):
         pass
 
     # 3. Compute today's bazi pillars
-    from backend.calculators.bazi_calculator import BaziCalculator
+    from calculators.bazi_calculator import BaziCalculator
     today_bazi = None
     try:
         today_bazi = BaziCalculator.calculate_transit_pillars(today.year, today.month, today.day)
@@ -1208,7 +1208,7 @@ async def get_daily_almanac(session_id: str = Query(...)):
     )
 
     # 6. Match products for 'hu' (护)
-    from backend.services.product_matcher import ProductMatcher
+    from services.product_matcher import ProductMatcher
     matcher = ProductMatcher()
     all_weakness = list(state.computed_tags or [])
     matched = matcher.match_with_reasons(
@@ -1253,7 +1253,7 @@ async def _generate_almanac(
     """
     Generate yi/ji/hu recommendations using LLM when available, fallback to rule-based.
     """
-    from backend.agents.master import _llm, _use_mock
+    from agents.master import _llm, _use_mock
     if _use_mock():
         return _rule_based_almanac(state, today, transit_bazi, transit_astro, energy_score)
 

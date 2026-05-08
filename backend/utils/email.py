@@ -8,7 +8,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.utils import formataddr
 from email.header import Header
-from backend.config import get_settings
+from config import get_settings
 
 settings = get_settings()
 

@@ -80,7 +80,7 @@ def _use_mock() -> bool:
 # ─── ASTROLOGY WORKER ─────────────────────────────────────────────────────
 
 async def run_astrology(state: SystemState) -> WorkerOutput:
-    from backend.agents.prompts import astrology_prompt
+    from agents.prompts import astrology_prompt
     t0 = time.time()
     agent_id = "astrology"
     try:
@@ -284,8 +284,8 @@ async def run_astrology(state: SystemState) -> WorkerOutput:
 # ─── TAROT WORKER ────────────────────────────────────────────────────────
 
 async def run_tarot(state: SystemState) -> WorkerOutput:
-    from backend.agents.prompts import tarot_prompt
-    from backend.agents.tools import draw_tarot
+    from agents.prompts import tarot_prompt
+    from agents.tools import draw_tarot
     t0 = time.time()
     agent_id = "tarot"
     try:
@@ -323,8 +323,8 @@ async def run_tarot(state: SystemState) -> WorkerOutput:
 # ─── BAZI WORKER ─────────────────────────────────────────────────────────
 
 async def run_bazi(state: SystemState) -> WorkerOutput:
-    from backend.agents.prompts import bazi_prompt
-    from backend.calculators.bazi_calculator import BaziCalculator, get_current_year_ganzhi
+    from agents.prompts import bazi_prompt
+    from calculators.bazi_calculator import BaziCalculator, get_current_year_ganzhi
     t0 = time.time()
     agent_id = "bazi"
     try:
@@ -425,8 +425,8 @@ async def run_bazi(state: SystemState) -> WorkerOutput:
 # ─── QIMEN WORKER ────────────────────────────────────────────────────────
 
 async def run_qimen(state: SystemState) -> WorkerOutput:
-    from backend.agents.prompts import qimen_prompt
-    from backend.calculators.qimen_calculator import QimenCalculator
+    from agents.prompts import qimen_prompt
+    from calculators.qimen_calculator import QimenCalculator
     t0 = time.time()
     agent_id = "qimen"
     try:
@@ -485,8 +485,8 @@ async def run_qimen(state: SystemState) -> WorkerOutput:
 # ─── ZIWEI WORKER ─────────────────────────────────────────────────────────
 
 async def run_ziwei(state: SystemState) -> WorkerOutput:
-    from backend.agents.prompts import ziwei_prompt
-    from backend.calculators.ziwei_calculator import ZiweiCalculator
+    from agents.prompts import ziwei_prompt
+    from calculators.ziwei_calculator import ZiweiCalculator
     t0 = time.time()
     agent_id = "ziwei"
     try:
@@ -544,7 +544,7 @@ async def run_ziwei(state: SystemState) -> WorkerOutput:
 # ─── FACE WORKER ─────────────────────────────────────────────────────────
 
 async def run_face(state: SystemState) -> WorkerOutput:
-    from backend.agents.prompts import face_prompt
+    from agents.prompts import face_prompt
     t0 = time.time()
     agent_id = "face"
     try:
@@ -593,7 +593,7 @@ async def run_face(state: SystemState) -> WorkerOutput:
 # ─── PALM WORKER ─────────────────────────────────────────────────────────
 
 async def run_palm(state: SystemState) -> WorkerOutput:
-    from backend.agents.prompts import palm_prompt
+    from agents.prompts import palm_prompt
     t0 = time.time()
     agent_id = "palm"
     try:
