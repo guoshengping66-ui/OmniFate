@@ -20,6 +20,7 @@ engine = create_async_engine(settings.DATABASE_URL, **_kw)
 AsyncSessionLocal = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 _db_available = None  # cached availability check
+_tables_created = False  # ensure tables are created once per cold start
 
 
 async def _check_db_available() -> bool:
@@ -44,10 +45,26 @@ async def _do_db_check():
     _db_available = True
 
 
+async def _ensure_tables():
+    """Create all tables if they don't exist (safe for SQLite on Vercel)."""
+    global _tables_created
+    if _tables_created:
+        return
+    try:
+        from database.models import Base
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        _tables_created = True
+        print("[DB] Tables ensured")
+    except Exception as e:
+        print(f"[DB] Failed to ensure tables: {e}")
+
+
 async def get_db():
     if not await _check_db_available():
         yield None
         return
+    await _ensure_tables()
     async with AsyncSessionLocal() as session:
         try:
             yield session
