@@ -129,11 +129,16 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="border-t border-white/[0.06]">
           <div className="max-w-7xl mx-auto px-6 py-5 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-white/25 text-xs">{t("footer.copyright")}</p>
+            <p className="text-white/25 text-xs">
+              {t("footer.copyright")}
+              <span className="mx-2">|</span>
+              <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" className="hover:text-gold/60 transition-colors">[粤ICP备XXXXXXXX号]</a>
+            </p>
             <div className="flex gap-6 text-white/25 text-xs">
               <a href="/privacy" className="hover:text-gold/60 transition-colors">隐私政策</a>
               <a href="/terms" className="hover:text-gold/60 transition-colors">服务条款</a>
               <a href="/refund" className="hover:text-gold/60 transition-colors">退款政策</a>
+              <a href="/disclaimer" className="hover:text-gold/60 transition-colors">免责声明</a>
             </div>
           </div>
         </div>

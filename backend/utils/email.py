@@ -53,7 +53,10 @@ def send_verification_email(to_email: str, code: str) -> bool:
         <p style="font-size:13px;color:#888;">如果这不是您的操作，请忽略此邮件。</p>
       </div>
       <div style="text-align:center;padding:15px;font-size:11px;color:#aaa;">
-        命盘智镜 · 全维度命理分析平台
+        命盘智镜 · 全维度命理分析平台<br/>
+        运营者：[公司名称] | 如非本人操作请忽略此邮件<br/>
+        <a href="https://www.khanfate.com/privacy" style="color:#aaa;">隐私政策</a> ·
+        <a href="https://www.khanfate.com/terms" style="color:#aaa;">服务条款</a>
       </div>
     </div>
     """
@@ -87,7 +90,10 @@ def send_password_reset_email(to_email: str, code: str) -> bool:
         <p style="font-size:13px;color:#888;">如果这不是您的操作，请立即修改密码并联系客服。</p>
       </div>
       <div style="text-align:center;padding:15px;font-size:11px;color:#aaa;">
-        命盘智镜 · 全维度命理分析平台
+        命盘智镜 · 全维度命理分析平台<br/>
+        运营者：[公司名称] | 如非本人操作请立即联系客服<br/>
+        <a href="https://www.khanfate.com/privacy" style="color:#aaa;">隐私政策</a> ·
+        <a href="https://www.khanfate.com/terms" style="color:#aaa;">服务条款</a>
       </div>
     </div>
     """

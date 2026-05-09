@@ -20,7 +20,7 @@ const values = [
   {
     icon: Shield,
     title: "隐私安全",
-    desc: "面部照片仅用于特征提取，不留存原始图像。数据加密传输，GDPR 合规标准。",
+    desc: "面部照片仅用于特征提取，不留存原始图像。数据加密传输，严格保护用户隐私。",
   },
 ]
 
@@ -35,6 +35,7 @@ const timeline = [
   { year: "2024 Q4", event: "八字计算器 & 星盘引擎完成" },
   { year: "2025 Q1", event: "多 Agent 框架上线，面相/手相 CV 模型集成" },
   { year: "2025 Q2", event: "公测发布，改运商城 & 付费系统上线" },
+  { year: "2026 Q1", event: "隐私合规升级，法律页面完善" },
 ]
 
 export default function AboutPage() {

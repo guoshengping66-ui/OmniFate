@@ -143,7 +143,7 @@ export default {
   "report.tenGods": "Ten Gods",
   "report.annual": "Annual Fortune",
   "report.aiCert": "AI Certified Analysis",
-  "report.confidence": "5-Dimension Cross-Validation · 98.7% Confidence",
+  "report.confidence": "5-Dimension Cross-Validation · For Reference Only",
   "report.wealth": "Wealth",
   "report.relationship": "Love",
   "report.career": "Career",
@@ -176,7 +176,7 @@ export default {
   "footer.desc": "Fusing 3,000 years of Eastern metaphysics with modern AI,\nproviding unique life readings for every visitor.",
   "footer.nav": "Navigation",
   "footer.systems": "Divination Systems",
-  "footer.copyright": "© 2025 Destiny Mirror · For reference only, not professional advice",
+  "footer.copyright": "© 2025-2026 Destiny Mirror · For reference only, not professional advice",
 
   // ─── Knowledge Base ───
   "blog.title": "Destiny Knowledge Base",
@@ -710,7 +710,7 @@ export default {
   "faq.q1": "What is Destiny Mirror?",
   "faq.a1": "Destiny Mirror is a comprehensive destiny analysis platform that combines Bazi (Four Pillars), Western Astrology, Tarot, AI Face Reading, and Palmistry. We use advanced AI technology to merge ancient wisdom with modern science, providing you with accurate and complete destiny analysis reports.",
   "faq.q2": "How accurate are the analysis reports?",
-  "faq.a2": "Our AI system is trained on extensive destiny data and performs cross-validation across five dimensions, achieving 98.7% accuracy. However, destiny analysis is for reference only and cannot replace professional advice. Our goal is to help you better understand yourself and make wiser life choices.",
+  "faq.a2": "Our AI system is trained on extensive destiny data and performs cross-validation across five dimensions to provide comprehensive analysis. However, destiny analysis is for reference and entertainment only — it does not constitute professional advice and cannot replace the judgment of experienced practitioners. Our goal is to help you better understand yourself as a tool for self-exploration.",
   "faq.q3": "Is my private data safe?",
   "faq.a3": "Absolutely safe. All data is encrypted with SSL. Face and palm photos are not stored in original form after processing — only analysis results are retained. Your personal information is strictly protected and will never be used for any other purpose.",
   "faq.q4": "What's the difference between free and paid versions?",

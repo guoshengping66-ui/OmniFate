@@ -126,6 +126,14 @@ export default function PricingPage() {
             </div>
           </div>
         )}
+
+        <p className="text-center text-white/25 text-[11px] mt-8">
+          订阅即表示您同意我们的{" "}
+          <a href="/terms" className="text-gold/50 hover:text-gold underline">服务条款</a>
+          {" "}和{" "}
+          <a href="/refund" className="text-gold/50 hover:text-gold underline">退款政策</a>
+          。订阅可随时取消，详见退款政策。
+        </p>
       </div>
     </div>
   )

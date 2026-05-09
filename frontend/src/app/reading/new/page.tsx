@@ -276,6 +276,14 @@ export default function NewReadingPage() {
 
       <div className="max-w-2xl mx-auto">
 
+        {/* Disclaimer banner */}
+        <div className="mb-6 p-3 rounded-xl border border-amber-500/20 bg-amber-500/5 text-center">
+          <p className="text-amber-200/70 text-xs leading-relaxed">
+            命理分析仅供参考和娱乐，不构成专业建议。请理性看待分析结果。
+            <a href="/disclaimer" className="text-gold/60 hover:text-gold ml-1 underline">查看详情</a>
+          </p>
+        </div>
+
         {/* Header */}
         <div className="text-center mb-10">
           <Sparkles className="text-gold mx-auto mb-3" size={32} />

@@ -2,6 +2,7 @@
 Auth endpoints: register (with email verification), login, forgot/reset password, account deletion.
 """
 import hmac
+import re
 from typing import Optional
 import time
 import secrets
@@ -48,6 +49,48 @@ def _check_rate_limit(key: str, max_per_window: int = 5) -> bool:
     return False
 
 
+# ── Account lockout ────────────────────────────────────────────────────────
+# Tracks failed login attempts per email. After MAX_FAILED attempts,
+# account is locked for LOCKOUT_DURATION seconds.
+_lockout_store: dict[str, dict] = {}  # email -> {"count": int, "locked_until": float}
+FAILED_LOGIN_MAX = 5          # max failed attempts before lockout
+LOCKOUT_DURATION = 900        # 15 minutes lockout
+
+
+def _check_lockout(email: str) -> None:
+    """Raise 429 if account is locked due to too many failed attempts."""
+    info = _lockout_store.get(email)
+    if not info:
+        return
+    now = time.time()
+    if info.get("locked_until") and now < info["locked_until"]:
+        remaining = int(info["locked_until"] - now)
+        raise HTTPException(
+            status_code=429,
+            detail=f"登录尝试次数过多，请 {remaining} 秒后再试",
+        )
+    # Lockout expired, reset
+    if info.get("locked_until") and now >= info["locked_until"]:
+        _lockout_store.pop(email, None)
+
+
+def _record_failed_login(email: str) -> None:
+    """Record a failed login attempt. Lock account if threshold exceeded."""
+    now = time.time()
+    if email not in _lockout_store:
+        _lockout_store[email] = {"count": 0, "locked_until": None}
+    info = _lockout_store[email]
+    info["count"] += 1
+    if info["count"] >= FAILED_LOGIN_MAX:
+        info["locked_until"] = now + LOCKOUT_DURATION
+        info["count"] = 0
+
+
+def _clear_failed_login(email: str) -> None:
+    """Clear failed login tracking on successful login."""
+    _lockout_store.pop(email, None)
+
+
 def _generate_code() -> str:
     """Generate a 6-digit verification code."""
     return f"{secrets.randbelow(1000000):06d}"
@@ -58,12 +101,26 @@ def _timing_safe_compare(a: str, b: str) -> bool:
     return hmac.compare_digest(a.encode(), b.encode())
 
 
+# ── Password strength validation ───────────────────────────────────────────
+
 def _validate_password_strength(password: str) -> None:
-    """Validate password meets minimum strength requirements."""
-    if len(password) < 6:
-        raise HTTPException(status_code=400, detail="密码至少需要6个字符")
+    """Validate password meets minimum security requirements."""
+    errors = []
+    if len(password) < 8:
+        errors.append("至少 8 个字符")
     if len(password) > 128:
-        raise HTTPException(status_code=400, detail="密码不能超过128个字符")
+        errors.append("不能超过 128 个字符")
+    if not re.search(r"[a-z]", password):
+        errors.append("至少包含一个小写字母")
+    if not re.search(r"[A-Z]", password):
+        errors.append("至少包含一个大写字母")
+    if not re.search(r"[0-9]", password):
+        errors.append("至少包含一个数字")
+    if errors:
+        raise HTTPException(
+            status_code=400,
+            detail="密码强度不足：" + "、".join(errors),
+        )
 
 
 # ── Schemas ────────────────────────────────────────────────────────────────
@@ -76,9 +133,8 @@ class RegisterRequest(BaseModel):
 
     @field_validator("password")
     @classmethod
-    def validate_password(cls, v):
-        if len(v) < 6:
-            raise ValueError("密码至少需要6个字符")
+    def check_password(cls, v: str) -> str:
+        _validate_password_strength(v)
         return v
 
 
@@ -114,15 +170,13 @@ class ResetPasswordRequest(BaseModel):
 
     @field_validator("new_password")
     @classmethod
-    def validate_new_password(cls, v):
-        if len(v) < 6:
-            raise ValueError("密码至少需要6个字符")
+    def check_new_password(cls, v: str) -> str:
+        _validate_password_strength(v)
         return v
 
 
 class DeleteAccountRequest(BaseModel):
     password: str
-
 
 def _user_dict(user: User) -> dict:
     return {
@@ -258,16 +312,24 @@ async def login(req: LoginRequest, request: Request, db: AsyncSession = Depends(
     if _check_rate_limit(f"login:{client_ip}") or _check_rate_limit(f"login:{req.email}"):
         raise HTTPException(status_code=429, detail="登录尝试过多，请稍后再试")
 
+    # Check account lockout
+    _check_lockout(req.email)
+
     result = await db.execute(select(User).where(User.email == req.email))
     user = result.scalar_one_or_none()
     if not user or not user.hashed_password:
+        _record_failed_login(req.email)
         raise HTTPException(status_code=401, detail="邮箱或密码错误")
     if not verify_password(req.password, user.hashed_password):
+        _record_failed_login(req.email)
         raise HTTPException(status_code=401, detail="邮箱或密码错误")
 
     # Check email verification — block unverified users from logging in
     if not user.is_verified:
         raise HTTPException(status_code=403, detail="请先验证邮箱后再登录，验证码已发送至您的邮箱")
+
+    # Login successful — clear failed attempts
+    _clear_failed_login(req.email)
 
     access = create_access_token(str(user.id))
     refresh = create_refresh_token(str(user.id))

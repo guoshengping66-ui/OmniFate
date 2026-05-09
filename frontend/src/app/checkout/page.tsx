@@ -18,6 +18,7 @@ export default function CheckoutPage() {
   const [done, setDone] = useState(false)
   const [useCoupon, setUseCoupon] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState("card")
+  const [termsAccepted, setTermsAccepted] = useState(false)
 
   const couponBalance = user?.shop_coupon_balance ?? 0
   const couponDiscount = useCoupon ? Math.min(couponBalance, totalWithDiscount) : 0
@@ -184,11 +185,27 @@ export default function CheckoutPage() {
           />
         </div>
 
+        {/* Terms acceptance */}
+        <label className="flex items-start gap-3 cursor-pointer mb-4">
+          <input
+            type="checkbox"
+            checked={termsAccepted}
+            onChange={e => setTermsAccepted(e.target.checked)}
+            className="mt-0.5 h-4 w-4 rounded border-white/20 bg-white/5 text-gold focus:ring-gold/40"
+          />
+          <span className="text-white/50 text-xs leading-relaxed">
+            我已阅读并同意{" "}
+            <a href="/terms" target="_blank" className="text-gold hover:underline">《服务条款》</a>
+            {" "}和{" "}
+            <a href="/refund" target="_blank" className="text-gold hover:underline">《退款政策》</a>
+          </span>
+        </label>
+
         {/* Mock payment */}
         <button
           onClick={handleCheckout}
-          disabled={loading}
-          className="btn-gold w-full py-3 flex items-center justify-center gap-2"
+          disabled={loading || !termsAccepted}
+          className="btn-gold w-full py-3 flex items-center justify-center gap-2 disabled:opacity-40"
         >
           {loading
             ? <><Loader2 size={18} className="animate-spin" /> {t("checkout.processing")}</>

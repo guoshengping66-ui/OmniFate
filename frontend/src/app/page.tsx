@@ -545,6 +545,7 @@ export default function HomePage() {
             <div className="text-center mb-16">
               <span className="text-gold/60 text-sm tracking-[0.2em] uppercase">{t("reviews.badge")}</span>
               <h2 className="section-title mt-3">{t("reviews.title")}</h2>
+            <p className="text-white/30 text-xs mt-2">* 以下为模拟评价，仅供参考</p>
             </div>
           </ScrollReveal>
 
