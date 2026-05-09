@@ -114,7 +114,7 @@ export function PaymentModal({
         </button>
 
         <p className="text-white/20 text-[11px] text-center mt-4">
-          当前为开发环境 Mock 支付，不会产生真实扣款
+          支持支付宝、微信、PayPal 等支付方式
         </p>
       </div>
     </div>
