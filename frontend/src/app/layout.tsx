@@ -13,6 +13,9 @@ export const metadata: Metadata = {
   title: "命盘智镜 · 全维度命理分析平台",
   description: "融合周易八字、西方星盘、塔罗占卜与AI面相，为你揭示命运密码，推荐精准改运方案。",
   keywords: ["八字", "星盘", "塔罗", "面相", "命理", "改运"],
+  icons: {
+    icon: "/favicon.svg",
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

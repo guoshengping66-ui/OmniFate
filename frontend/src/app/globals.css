@@ -1,4 +1,5 @@
-﻿@import url("https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&family=Inter:wght@300;400;500;600&display=swap");
+﻿/* Chinese mirror of Google Fonts for users in mainland China */
+@import url("https://fonts.font.im/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&family=Inter:wght@300;400;500;600&display=swap");
 
 @tailwind base;
 @tailwind components;
