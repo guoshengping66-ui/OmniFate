@@ -214,22 +214,31 @@ export default function NewReadingPage() {
       toast.success("推命完成！正在跳转报告…")
       router.push(`/reading/${result.session_id}`)
     } catch (err: any) {
+      console.error("[Reading submit] Full error:", err)
       let msg: string
       const status = err?.response?.status
       if (err?.code === "ECONNABORTED" || err?.message?.includes("timeout")) {
-        msg = "分析超时，请稍后重试"
+        msg = "分析超时，服务器响应过慢，请稍后重试"
+      } else if (status === 422) {
+        const details = err?.response?.data?.detail
+        msg = Array.isArray(details)
+          ? details.map((d: any) => d.msg).join("; ")
+          : "输入数据有误，请检查填写信息"
       } else if (status === 400) {
-        msg = err?.response?.data?.detail ?? "服务器无法处理请求，请重试"
+        msg = "服务器无法解析请求，请重试"
       } else if (status === 502 || status === 503) {
         msg = "服务器暂时不可用，请稍后重试"
-      } else if (Array.isArray(err?.response?.data?.detail)) {
-        msg = err.response.data.detail.map((d: any) => d.msg).join("; ")
+      } else if (status === 429) {
+        msg = "请求过于频繁，请稍后再试"
       } else if (!err?.response) {
-        msg = "网络连接失败，请检查网络后重试"
+        // Network error - show more specific info
+        const code = err?.code || "UNKNOWN"
+        const detail = err?.message || "未知错误"
+        msg = `网络连接失败 (${code}: ${detail})，请检查网络后重试`
       } else {
-        msg = err?.response?.data?.detail ?? "提交失败，请重试"
+        msg = err?.response?.data?.detail ?? `提交失败 (HTTP ${status})，请重试`
       }
-      toast.error(msg, { duration: 5000 })
+      toast.error(msg, { duration: 6000 })
       setLoading(false)
     }
   }

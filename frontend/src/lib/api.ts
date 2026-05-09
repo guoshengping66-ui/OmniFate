@@ -119,23 +119,31 @@ export interface MatchRequest {
 
 export async function runAnalysis(data: AnalysisRequest): Promise<AnalysisResponse> {
   // Step 1: POST starts analysis in background, returns immediately with session_id
-  // Retry up to 3 times on transient 400/502/503 errors (nginx parsing failures)
+  // Retry up to 3 times on any transient error (network, 400, 502, 503)
   let lastError: any = null
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
+      console.log(`[runAnalysis] Attempt ${attempt}/3, POST /api/readings`)
       const initRes = await apiDirect.post<AnalysisResponse>("/api/readings", data, { timeout: 30_000 })
+      console.log(`[runAnalysis] Success, session_id=${initRes.data.session_id}`)
       var sessionId = initRes.data.session_id
       break
     } catch (err: any) {
       lastError = err
       const status = err?.response?.status
-      if (status === 400 || status === 502 || status === 503) {
-        if (attempt < 3) {
-          await new Promise(r => setTimeout(r, 1500 * attempt))
-          continue
-        }
+      console.error(`[runAnalysis] Attempt ${attempt} failed:`, {
+        status, code: err?.code, message: err?.message,
+        responseDetail: err?.response?.data?.detail,
+        url: err?.config?.url, baseURL: err?.config?.baseURL,
+      })
+      // Retry on network errors, timeouts, and server errors
+      if (attempt < 3) {
+        const delay = 2000 * attempt
+        console.log(`[runAnalysis] Retrying in ${delay}ms...`)
+        await new Promise(r => setTimeout(r, delay))
+        continue
       }
-      throw err // non-retryable error
+      throw err
     }
   }
   if (typeof sessionId === "undefined") throw lastError
