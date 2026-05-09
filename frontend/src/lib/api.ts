@@ -1,5 +1,20 @@
 import axios from "axios"
 
+// ── Unicode Escape Helper ──────────────────────────────────────────────────
+// Some proxies (Clash/V2Ray) and old nginx versions mangle UTF-8 bytes in
+// POST request bodies, turning valid JSON into garbage that nginx rejects
+// with a 400 *before* FastAPI's CORS middleware runs — resulting in a
+// misleading "CORS" error in the browser.  By converting all non-ASCII
+// characters to \uXXXX escapes the body becomes pure ASCII and passes
+// through any proxy untouched.  The server-side JSON decoder understands
+// \uXXXX natively so no changes are needed on the backend.
+function escapeUnicode(str: string): string {
+  // Preserve already-escaped sequences, convert raw non-ASCII chars
+  return str.replace(/[-￿]/g, (ch) =>
+    "\\u" + ch.charCodeAt(0).toString(16).padStart(4, "0")
+  )
+}
+
 // Production: connect directly to backend over HTTP (no SSL on server).
 // Local dev: use localhost. Override via NEXT_PUBLIC_API_URL env var.
 const isBrowser = typeof window !== "undefined"
@@ -19,36 +34,6 @@ export const apiDirect = axios.create({
   baseURL: BACKEND_URL,
   timeout: 180_000,
 })
-
-// Debug interceptors (temporary — helps diagnose CORS / body issues)
-if (isBrowser) {
-  const reqLogger = (config: any) => {
-    console.log(`[API] ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`, {
-      headers: config.headers,
-      dataSize: config.data ? JSON.stringify(config.data).length : 0,
-    })
-    return config
-  }
-  const resLogger = (res: any) => {
-    console.log(`[API] Response ${res.status}`, res.config?.url)
-    return res
-  }
-  const errLogger = (err: any) => {
-    console.error(`[API] Error ${err.config?.url}:`, {
-      status: err.response?.status,
-      statusText: err.response?.statusText,
-      headers: err.response?.headers,
-      data: err.response?.data,
-      code: err.code,
-      message: err.message,
-    })
-    return Promise.reject(err)
-  }
-  api.interceptors.request.use(reqLogger)
-  api.interceptors.response.use(resLogger, errLogger)
-  apiDirect.interceptors.request.use(reqLogger)
-  apiDirect.interceptors.response.use(resLogger, errLogger)
-}
 
 // ── Types aligned with new 1+5 agent backend ──────────────────────────────
 
@@ -145,32 +130,35 @@ export interface MatchRequest {
   include_explain?: boolean
 }
 
+// ── Safe JSON serializer ──────────────────────────────────────────────────
+// Stringify + Unicode-escape non-ASCII so Chinese text survives proxies.
+// Pass the result directly as `data` in axios requests.
+function safeJson(data: unknown): string {
+  return escapeUnicode(JSON.stringify(data))
+}
+
 // ── API functions ──────────────────────────────────────────────────────────
 
 export async function runAnalysis(data: AnalysisRequest): Promise<AnalysisResponse> {
   // Step 1: POST starts analysis in background, returns immediately with session_id
   // Retry up to 3 times on any transient error (network, 400, 502, 503)
+  // NOTE: We JSON.stringify the payload manually so the Unicode escape
+  //       interceptor can process it (converting Chinese chars to \uXXXX
+  //       before they hit any proxy that might re-encode UTF-8).
   let lastError: any = null
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
-      console.log(`[runAnalysis] Attempt ${attempt}/3, POST /api/readings`)
-      const initRes = await apiDirect.post<AnalysisResponse>("/api/readings", data, { timeout: 30_000 })
-      console.log(`[runAnalysis] Success, session_id=${initRes.data.session_id}`)
+      const body = safeJson(data)
+      const initRes = await apiDirect.post<AnalysisResponse>("/api/readings", body, {
+        timeout: 30_000,
+        headers: { "Content-Type": "application/json" },
+      })
       var sessionId = initRes.data.session_id
       break
     } catch (err: any) {
       lastError = err
-      const status = err?.response?.status
-      console.error(`[runAnalysis] Attempt ${attempt} failed:`, {
-        status, code: err?.code, message: err?.message,
-        responseDetail: err?.response?.data?.detail,
-        url: err?.config?.url, baseURL: err?.config?.baseURL,
-      })
-      // Retry on network errors, timeouts, and server errors
       if (attempt < 3) {
-        const delay = 2000 * attempt
-        console.log(`[runAnalysis] Retrying in ${delay}ms...`)
-        await new Promise(r => setTimeout(r, delay))
+        await new Promise(r => setTimeout(r, 2000 * attempt))
         continue
       }
       throw err
@@ -199,7 +187,9 @@ export async function getSession(sessionId: string): Promise<AnalysisResponse> {
 }
 
 export async function sendChat(data: ChatRequest): Promise<ChatResponse> {
-  const res = await api.post<ChatResponse>("/api/readings/chat", data)
+  const res = await api.post<ChatResponse>("/api/readings/chat", safeJson(data), {
+    headers: { "Content-Type": "application/json" },
+  })
   return res.data
 }
 
@@ -259,7 +249,10 @@ export async function listProducts(category?: string, lang?: string): Promise<Pr
 
 export async function matchProducts(data: MatchRequest, lang?: string): Promise<Product[]> {
   const params: Record<string, string> = lang ? { lang } : {}
-  const res = await api.post<Product[]>("/api/products/match", data, { params })
+  const res = await api.post<Product[]>("/api/products/match", safeJson(data), {
+    params,
+    headers: { "Content-Type": "application/json" },
+  })
   return res.data
 }
 
@@ -311,11 +304,13 @@ export async function registerUser(
   displayName?: string,
   privacyAccepted?: boolean,
 ): Promise<{ message: string; email: string }> {
-  const res = await api.post<{ message: string; email: string }>("/api/auth/register", {
+  const res = await api.post<{ message: string; email: string }>("/api/auth/register", safeJson({
     email,
     password,
     display_name: displayName,
     privacy_accepted: privacyAccepted ?? true,
+  }), {
+    headers: { "Content-Type": "application/json" },
   })
   return res.data
 }
@@ -363,17 +358,24 @@ export async function forgotPassword(email: string): Promise<{ message: string }
 // ── Profile Settings ────────────────────────────────────────────────────────
 
 export async function updateProfile(displayName: string): Promise<{ id: string; email: string; display_name: string | null }> {
-  const res = await api.put("/api/users/profile", { display_name: displayName })
+  const res = await api.put("/api/users/profile", safeJson({ display_name: displayName }), {
+    headers: { "Content-Type": "application/json" },
+  })
   return res.data
 }
 
 export async function changePassword(oldPassword: string, newPassword: string): Promise<{ message: string }> {
-  const res = await api.put("/api/users/password", { old_password: oldPassword, new_password: newPassword })
+  const res = await api.put("/api/users/password", safeJson({ old_password: oldPassword, new_password: newPassword }), {
+    headers: { "Content-Type": "application/json" },
+  })
   return res.data
 }
 
 export async function deleteAccount(password: string): Promise<{ message: string }> {
-  const res = await api.delete("/api/auth/delete-account", { data: { password } })
+  const res = await api.delete("/api/auth/delete-account", {
+    data: safeJson({ password }),
+    headers: { "Content-Type": "application/json" },
+  })
   return res.data
 }
 
@@ -413,7 +415,9 @@ export interface CreateOrderResult {
 }
 
 export async function createOrder(data: CreateOrderRequest): Promise<CreateOrderResult> {
-  const res = await api.post<CreateOrderResult>("/api/payments/create-order", data)
+  const res = await api.post<CreateOrderResult>("/api/payments/create-order", safeJson(data), {
+    headers: { "Content-Type": "application/json" },
+  })
   return res.data
 }
 
@@ -529,7 +533,10 @@ export interface DailyAlmanacResponse {
 }
 
 export async function analyzeEvent(data: AnalyzeEventRequest): Promise<AnalyzeEventResponse> {
-  const res = await api.post<AnalyzeEventResponse>("/api/readings/analyze-event", data, { timeout: 180_000 })
+  const res = await api.post<AnalyzeEventResponse>("/api/readings/analyze-event", safeJson(data), {
+    timeout: 180_000,
+    headers: { "Content-Type": "application/json" },
+  })
   return res.data
 }
 
@@ -595,7 +602,9 @@ export async function createProductReview(
   productId: string,
   data: { rating: number; content: string; tags?: string[] }
 ): Promise<ProductReview> {
-  const res = await api.post<ProductReview>(`/api/products/${productId}/reviews`, data)
+  const res = await api.post<ProductReview>(`/api/products/${productId}/reviews`, safeJson(data), {
+    headers: { "Content-Type": "application/json" },
+  })
   return res.data
 }
 
