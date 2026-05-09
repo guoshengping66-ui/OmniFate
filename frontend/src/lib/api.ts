@@ -44,25 +44,27 @@ export const apiDirect = axios.create({
 // In production, rewrite paths like /api/auth/me → proxy handles /api/auth/me
 // The proxy route strips /api/proxy prefix and forwards /api/auth/me to backend.
 //
-// IMPORTANT: We Base64-encode POST/PUT/PATCH/DELETE bodies so that
-// Clash/V2Ray/MITM proxies cannot corrupt UTF-8 bytes in the request body.
-// Base64 uses only A-Z, a-z, 0-9, +, /, = which survive any proxy.
-// The proxy route detects the ?_b64=1 query flag and decodes before forwarding.
+// WHY URL-encoded body in query param?
+// Clash/V2Ray MITM proxies corrupt POST request bodies (even Base64-encoded
+// ASCII). URL query parameters survive proxy manipulation because they are
+// part of the URL path, not the request body. The JSON is URL-encoded and
+// sent as ?_data=<encoded>; the proxy route decodes it and forwards as a
+// normal JSON POST body to the backend.
 if (isProduction) {
   const productionInterceptor = (config: any) => {
     const method = (config.method || "").toLowerCase()
     if (["post", "patch", "put"].includes(method) && typeof config.data === "string") {
-      // Base64-encode the JSON body for proxy safety
-      config.data = btoa(unescape(encodeURIComponent(config.data)))
-      config.headers = config.headers || {}
-      config.headers["Content-Type"] = "text/plain"
-      // Mark URL so proxy knows to decode
+      // URL-encode the JSON body and move it to query param
+      const encoded = encodeURIComponent(config.data)
       const sep = config.url.includes("?") ? "&" : "?"
-      config.url = config.url + sep + "_b64=1"
+      config.url = config.url + sep + "_data=" + encoded
+      config.data = ""
+      config.headers = config.headers || {}
+      config.headers["Content-Type"] = "application/json"
     } else if (["post", "patch", "put", "delete"].includes(method) &&
         typeof config.data === "string" &&
         !config.headers?.["Content-Type"]) {
-      // Non-Base64 string bodies still need Content-Type
+      // Non-JSON string bodies still need Content-Type
       config.headers = config.headers || {}
       config.headers["Content-Type"] = "application/json"
     }
