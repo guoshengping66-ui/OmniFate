@@ -12,6 +12,7 @@
  */
 
 const BACKEND = "https://api.khanfate.com"
+const TIMEOUT_MS = 60_000 // 60 seconds — generous for analysis POST
 
 export async function GET(request: Request, { params }: { params: Promise<{ path: string[] }> }) {
   return proxy(request, params)
@@ -38,55 +39,65 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
   const url = new URL(request.url)
   const targetUrl = `${BACKEND}${targetPath}${url.search}`
 
-  // Forward headers (exclude host and origin which are proxy-specific)
+  // Forward headers — exclude hop-by-hop and proxy-specific headers.
+  // Do NOT forward Content-Length (fetch will compute it from the body).
   const headers = new Headers()
   request.headers.forEach((value, key) => {
     const lower = key.toLowerCase()
-    if (lower !== "host" && lower !== "origin" && lower !== "referer") {
-      headers.set(key, value)
+    if (
+      lower === "host" ||
+      lower === "origin" ||
+      lower === "referer" ||
+      lower === "content-length" ||
+      lower === "connection"
+    ) {
+      return
     }
+    headers.set(key, value)
   })
-  // Set the correct host for the backend
-  headers.set("Host", new URL(BACKEND).host)
 
-  // Forward the body for methods that have one
-  let body: BodyInit | undefined
+  // Read body as text for correct UTF-8 handling (avoids ArrayBuffer
+  // encoding issues with Chinese characters that cause backend 400/500).
+  let body: string | undefined
   if (request.method !== "GET" && request.method !== "HEAD") {
-    body = await request.arrayBuffer()
+    body = await request.text()
   }
+
+  // AbortController with timeout to prevent hanging
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS)
 
   try {
     const resp = await fetch(targetUrl, {
       method: request.method,
       headers,
       body,
+      signal: controller.signal,
     })
 
-    // Build response headers
+    // Build response headers (skip hop-by-hop)
     const respHeaders = new Headers()
     resp.headers.forEach((value, key) => {
       const lower = key.toLowerCase()
-      // Skip hop-by-hop headers
       if (lower !== "transfer-encoding" && lower !== "connection") {
         respHeaders.set(key, value)
       }
     })
 
-    // Stream the response body
-    const responseBody = resp.body
-
-    return new Response(responseBody, {
+    return new Response(resp.body, {
       status: resp.status,
       statusText: resp.statusText,
       headers: respHeaders,
     })
   } catch (err: any) {
+    const msg = err?.name === "AbortError"
+      ? "Backend timeout — analysis is running, please check back in a moment"
+      : `Proxy error: ${err.message}`
     return new Response(
-      JSON.stringify({ detail: `Proxy error: ${err.message}` }),
-      {
-        status: 502,
-        headers: { "Content-Type": "application/json" },
-      }
+      JSON.stringify({ detail: msg }),
+      { status: 502, headers: { "Content-Type": "application/json" } },
     )
+  } finally {
+    clearTimeout(timer)
   }
 }
