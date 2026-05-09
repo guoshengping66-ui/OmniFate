@@ -20,6 +20,36 @@ export const apiDirect = axios.create({
   timeout: 180_000,
 })
 
+// Debug interceptors (temporary — helps diagnose CORS / body issues)
+if (isBrowser) {
+  const reqLogger = (config: any) => {
+    console.log(`[API] ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`, {
+      headers: config.headers,
+      dataSize: config.data ? JSON.stringify(config.data).length : 0,
+    })
+    return config
+  }
+  const resLogger = (res: any) => {
+    console.log(`[API] Response ${res.status}`, res.config?.url)
+    return res
+  }
+  const errLogger = (err: any) => {
+    console.error(`[API] Error ${err.config?.url}:`, {
+      status: err.response?.status,
+      statusText: err.response?.statusText,
+      headers: err.response?.headers,
+      data: err.response?.data,
+      code: err.code,
+      message: err.message,
+    })
+    return Promise.reject(err)
+  }
+  api.interceptors.request.use(reqLogger)
+  api.interceptors.response.use(resLogger, errLogger)
+  apiDirect.interceptors.request.use(reqLogger)
+  apiDirect.interceptors.response.use(resLogger, errLogger)
+}
+
 // ── Types aligned with new 1+5 agent backend ──────────────────────────────
 
 export type Gender = "male" | "female" | "other"
