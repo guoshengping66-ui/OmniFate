@@ -119,8 +119,26 @@ export interface MatchRequest {
 
 export async function runAnalysis(data: AnalysisRequest): Promise<AnalysisResponse> {
   // Step 1: POST starts analysis in background, returns immediately with session_id
-  const initRes = await apiDirect.post<AnalysisResponse>("/api/readings", data, { timeout: 30_000 })
-  const sessionId = initRes.data.session_id
+  // Retry up to 3 times on transient 400/502/503 errors (nginx parsing failures)
+  let lastError: any = null
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const initRes = await apiDirect.post<AnalysisResponse>("/api/readings", data, { timeout: 30_000 })
+      var sessionId = initRes.data.session_id
+      break
+    } catch (err: any) {
+      lastError = err
+      const status = err?.response?.status
+      if (status === 400 || status === 502 || status === 503) {
+        if (attempt < 3) {
+          await new Promise(r => setTimeout(r, 1500 * attempt))
+          continue
+        }
+      }
+      throw err // non-retryable error
+    }
+  }
+  if (typeof sessionId === "undefined") throw lastError
 
   // Step 2: Poll until analysis completes (max 5 minutes)
   const deadline = Date.now() + 5 * 60 * 1000

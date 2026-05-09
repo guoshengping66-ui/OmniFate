@@ -215,14 +215,21 @@ export default function NewReadingPage() {
       router.push(`/reading/${result.session_id}`)
     } catch (err: any) {
       let msg: string
+      const status = err?.response?.status
       if (err?.code === "ECONNABORTED" || err?.message?.includes("timeout")) {
         msg = "分析超时，请稍后重试"
+      } else if (status === 400) {
+        msg = err?.response?.data?.detail ?? "服务器无法处理请求，请重试"
+      } else if (status === 502 || status === 503) {
+        msg = "服务器暂时不可用，请稍后重试"
       } else if (Array.isArray(err?.response?.data?.detail)) {
         msg = err.response.data.detail.map((d: any) => d.msg).join("; ")
+      } else if (!err?.response) {
+        msg = "网络连接失败，请检查网络后重试"
       } else {
-        msg = err?.response?.data?.detail ?? "提交失败，请检查网络"
+        msg = err?.response?.data?.detail ?? "提交失败，请重试"
       }
-      toast.error(msg)
+      toast.error(msg, { duration: 5000 })
       setLoading(false)
     }
   }
