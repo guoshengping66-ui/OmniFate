@@ -43,19 +43,33 @@ export const apiDirect = axios.create({
 // ── Production proxy interceptor ───────────────────────────────────────────
 // In production, rewrite paths like /api/auth/me → proxy handles /api/auth/me
 // The proxy route strips /api/proxy prefix and forwards /api/auth/me to backend.
-// Ensure Content-Type is set for JSON string bodies (safeJson output).
+//
+// IMPORTANT: We Base64-encode POST/PUT/PATCH/DELETE bodies so that
+// Clash/V2Ray/MITM proxies cannot corrupt UTF-8 bytes in the request body.
+// Base64 uses only A-Z, a-z, 0-9, +, /, = which survive any proxy.
+// The proxy route detects the ?_b64=1 query flag and decodes before forwarding.
 if (isProduction) {
-  const ensureJsonContentType = (config: any) => {
-    if (["post", "patch", "put", "delete"].includes(config.method) &&
+  const productionInterceptor = (config: any) => {
+    const method = (config.method || "").toLowerCase()
+    if (["post", "patch", "put"].includes(method) && typeof config.data === "string") {
+      // Base64-encode the JSON body for proxy safety
+      config.data = btoa(unescape(encodeURIComponent(config.data)))
+      config.headers = config.headers || {}
+      config.headers["Content-Type"] = "text/plain"
+      // Mark URL so proxy knows to decode
+      const sep = config.url.includes("?") ? "&" : "?"
+      config.url = config.url + sep + "_b64=1"
+    } else if (["post", "patch", "put", "delete"].includes(method) &&
         typeof config.data === "string" &&
         !config.headers?.["Content-Type"]) {
+      // Non-Base64 string bodies still need Content-Type
       config.headers = config.headers || {}
       config.headers["Content-Type"] = "application/json"
     }
     return config
   }
-  api.interceptors.request.use(ensureJsonContentType)
-  apiDirect.interceptors.request.use(ensureJsonContentType)
+  api.interceptors.request.use(productionInterceptor)
+  apiDirect.interceptors.request.use(productionInterceptor)
 }
 
 // ── Types aligned with new 1+5 agent backend ──────────────────────────────

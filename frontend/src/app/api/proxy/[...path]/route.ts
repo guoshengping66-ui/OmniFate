@@ -37,7 +37,17 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
   const { path } = await params
   const targetPath = "/" + path.join("/")
   const url = new URL(request.url)
-  const targetUrl = `${BACKEND}${targetPath}${url.search}`
+
+  // ── Base64 body decoding ────────────────────────────────────────────────
+  // The client Base64-encodes POST/PUT/PATCH bodies and adds ?_b64=1
+  // to survive Clash/V2Ray/MITM proxies that corrupt UTF-8 bytes.
+  // We detect this flag, decode the body, and remove the flag from the
+  // forwarded URL so the backend never sees it.
+  const isBase64 = url.searchParams.get("_b64") === "1"
+  url.searchParams.delete("_b64")
+  const cleanSearch = url.search // search after removing _b64
+
+  const targetUrl = `${BACKEND}${targetPath}${cleanSearch}`
 
   // Forward headers — exclude hop-by-hop and proxy-specific headers.
   // Do NOT forward Content-Length (fetch will compute it from the body).
@@ -56,11 +66,17 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
     headers.set(key, value)
   })
 
-  // Read body as text for correct UTF-8 handling (avoids ArrayBuffer
-  // encoding issues with Chinese characters that cause backend 400/500).
+  // Read body — decode Base64 if flagged by client interceptor
   let body: string | undefined
   if (request.method !== "GET" && request.method !== "HEAD") {
-    body = await request.text()
+    const raw = await request.text()
+    if (isBase64 && raw) {
+      // Decode Base64 → UTF-8 string, restore Content-Type to application/json
+      body = decodeURIComponent(escape(atob(raw)))
+      headers.set("Content-Type", "application/json")
+    } else {
+      body = raw
+    }
   }
 
   // AbortController with timeout to prevent hanging
