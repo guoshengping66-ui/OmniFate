@@ -41,32 +41,36 @@ export const apiDirect = axios.create({
 })
 
 // ── Production proxy interceptor ───────────────────────────────────────────
-// In production, rewrite paths like /api/auth/me → proxy handles /api/auth/me
-// The proxy route strips /api/proxy prefix and forwards /api/auth/me to backend.
+// In production, route all API calls through Next.js server-side proxy
+// (/api/proxy/*) to avoid nginx CORS issues.
 //
-// WHY URL-encoded body in query param?
-// Clash/V2Ray MITM proxies corrupt POST request bodies (even Base64-encoded
-// ASCII). URL query parameters survive proxy manipulation because they are
-// part of the URL path, not the request body. The JSON is URL-encoded and
-// sent as ?_data=<encoded>; the proxy route decodes it and forwards as a
-// normal JSON POST body to the backend.
+// DUAL-ENCODING STRATEGY: Clash/V2Ray MITM proxies corrupt POST request
+// bodies. To survive this, we send data in BOTH places:
+//   1. The request body (original JSON) — primary path
+//   2. ?_data=<URL-encoded JSON> in the URL — fallback if body is corrupted
+// The proxy route tries the URL param first, falls back to the body.
 if (isProduction) {
   const productionInterceptor = (config: any) => {
     const method = (config.method || "").toLowerCase()
-    if (["post", "patch", "put"].includes(method) && typeof config.data === "string") {
-      // URL-encode the JSON body and move it to query param
-      const encoded = encodeURIComponent(config.data)
+    if (["post", "patch", "put"].includes(method)) {
+      // Ensure data is a string for URL encoding
+      let jsonStr: string
+      if (typeof config.data === "string") {
+        jsonStr = config.data
+      } else if (config.data !== undefined && config.data !== null) {
+        jsonStr = JSON.stringify(config.data)
+      } else {
+        return config
+      }
+      // Add URL-encoded data as fallback (proxy tries this first)
       const sep = config.url.includes("?") ? "&" : "?"
-      config.url = config.url + sep + "_data=" + encoded
-      config.data = ""
+      config.url = config.url + sep + "_data=" + encodeURIComponent(jsonStr)
+      // Keep the body as-is for the primary path
+      config.data = jsonStr
       config.headers = config.headers || {}
-      config.headers["Content-Type"] = "application/json"
-    } else if (["post", "patch", "put", "delete"].includes(method) &&
-        typeof config.data === "string" &&
-        !config.headers?.["Content-Type"]) {
-      // Non-JSON string bodies still need Content-Type
-      config.headers = config.headers || {}
-      config.headers["Content-Type"] = "application/json"
+      if (!config.headers["Content-Type"] && !config.headers["content-type"]) {
+        config.headers["Content-Type"] = "application/json"
+      }
     }
     return config
   }

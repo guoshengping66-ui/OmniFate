@@ -9,6 +9,12 @@
  * SOLUTION: By proxying through Next.js Server-side, the browser sees
  * same-origin requests (no CORS needed), and the server-to-server
  * connection (Vercel → api.khanfate.com) is不受 CORS restrictions.
+ *
+ * PROXY CORRUPTION: Some client-side proxies (Clash/V2Ray) performing
+ * HTTPS MITM intercept and corrupt POST request bodies. To survive this,
+ * the client sends data in BOTH the body AND a ?_data= URL parameter.
+ * The proxy route tries URL param first (with error handling), then
+ * falls back to the body. If both fail, it returns a clear error.
  */
 
 const BACKEND = "https://api.khanfate.com"
@@ -38,19 +44,23 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
   const targetPath = "/" + path.join("/")
   const url = new URL(request.url)
 
-  // ── URL-encoded body extraction ──────────────────────────────────────────
-  // Clash/V2Ray MITM proxies corrupt POST request bodies (even Base64).
-  // The client URL-encodes the JSON body into ?_data=<encoded> so that the
-  // data travels in the URL (which survives proxy manipulation) instead of
-  // the request body. We extract it here and forward as a normal JSON body.
-  const dataParam = url.searchParams.get("_data")
-  url.searchParams.delete("_data")
-  const cleanSearch = url.search
+  // ── Dual data extraction: URL param + body fallback ──────────────────────
+  // The client sends data in BOTH places to survive proxy corruption.
+  // Try URL param first (more resilient), fall back to body.
+  let dataParam: string | null = null
+  try {
+    dataParam = url.searchParams.get("_data")
+    if (dataParam) {
+      url.searchParams.delete("_data")
+    }
+  } catch {
+    // URL parsing failed — continue without dataParam
+  }
 
+  const cleanSearch = url.search
   const targetUrl = `${BACKEND}${targetPath}${cleanSearch}`
 
   // Forward headers — exclude hop-by-hop and proxy-specific headers.
-  // Do NOT forward Content-Length (fetch will compute it from the body).
   const headers = new Headers()
   request.headers.forEach((value, key) => {
     const lower = key.toLowerCase()
@@ -66,15 +76,29 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
     headers.set(key, value)
   })
 
-  // Read body — extract from _data query param if present, else pass through
+  // Read body — try URL param first, fall back to body
   let body: string | undefined
   if (request.method !== "GET" && request.method !== "HEAD") {
     if (dataParam) {
-      // Data was URL-encoded into query param by client to survive proxy corruption
-      body = decodeURIComponent(dataParam)
-      headers.set("Content-Type", "application/json")
-    } else {
-      body = await request.text()
+      // Data from URL param — decode and use as JSON body
+      try {
+        body = decodeURIComponent(dataParam)
+        headers.set("Content-Type", "application/json")
+      } catch {
+        // URL param decoding failed — fall through to body
+        dataParam = null
+      }
+    }
+    if (!dataParam) {
+      // Fall back to reading the request body directly
+      const raw = await request.text()
+      if (raw) {
+        body = raw
+        // Ensure Content-Type is set for the backend
+        if (!headers.get("content-type")) {
+          headers.set("Content-Type", "application/json")
+        }
+      }
     }
   }
 
