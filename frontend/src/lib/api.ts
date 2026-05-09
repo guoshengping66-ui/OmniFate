@@ -15,25 +15,48 @@ function escapeUnicode(str: string): string {
   )
 }
 
-// Production: connect directly to backend over HTTP (no SSL on server).
-// Local dev: use localhost. Override via NEXT_PUBLIC_API_URL env var.
+// ── API routing ────────────────────────────────────────────────────────────
+// In production, route all API calls through Next.js server-side proxy
+// (/api/proxy/*) to avoid nginx CORS issues.  The proxy forwards requests
+// to api.khanfate.com server-side where CORS doesn't apply.
+// In local dev, connect directly to the backend.
 const isBrowser = typeof window !== "undefined"
 const isLocalhost = isBrowser && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+const isProduction = isBrowser && !isLocalhost
+
 const BACKEND_URL = isLocalhost
   ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8002")
   : "https://api.khanfate.com"
 
-// Main API client — points directly to backend
+// Main API client — points directly to backend (local) or via proxy (production)
 export const api = axios.create({
-  baseURL: BACKEND_URL,
+  baseURL: isProduction ? "/api/proxy" : BACKEND_URL,
   timeout: 90_000,
 })
 
 // Direct backend connection for long-running / large-response endpoints
 export const apiDirect = axios.create({
-  baseURL: BACKEND_URL,
+  baseURL: isProduction ? "/api/proxy" : BACKEND_URL,
   timeout: 180_000,
 })
+
+// ── Production proxy interceptor ───────────────────────────────────────────
+// In production, rewrite paths like /api/auth/me → proxy handles /api/auth/me
+// The proxy route strips /api/proxy prefix and forwards /api/auth/me to backend.
+// Ensure Content-Type is set for JSON string bodies (safeJson output).
+if (isProduction) {
+  const ensureJsonContentType = (config: any) => {
+    if (["post", "patch", "put", "delete"].includes(config.method) &&
+        typeof config.data === "string" &&
+        !config.headers?.["Content-Type"]) {
+      config.headers = config.headers || {}
+      config.headers["Content-Type"] = "application/json"
+    }
+    return config
+  }
+  api.interceptors.request.use(ensureJsonContentType)
+  apiDirect.interceptors.request.use(ensureJsonContentType)
+}
 
 // ── Types aligned with new 1+5 agent backend ──────────────────────────────
 
