@@ -20,7 +20,7 @@ const securityHeaders = [
       "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
       "style-src 'self' 'unsafe-inline' https://fonts.font.im https://fonts.gstatic.com",
       "img-src 'self' data: blob: https:",
-      "font-src 'self' data: https://fonts.font.im https://fonts.gstatic.com",
+      "font-src 'self' data: https://fonts.font.im https://fonts.gstatic.com https://fonts.gstatic.font.im",
       "connect-src 'self' https://api.khanfate.com https://api.deepseek.com http://localhost:* http://127.0.0.1:*",
       "frame-ancestors 'self'",
     ].join("; "),

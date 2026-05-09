@@ -12,7 +12,7 @@
  */
 
 const BACKEND = "https://api.khanfate.com"
-const TIMEOUT_MS = 60_000 // 60 seconds — generous for analysis POST
+const TIMEOUT_MS = 60_000
 
 export async function GET(request: Request, { params }: { params: Promise<{ path: string[] }> }) {
   return proxy(request, params)
