@@ -172,7 +172,7 @@ async def get_qr_code(method: str):
         raise HTTPException(status_code=400, detail="不支持的支付方式")
 
     if not qr_url:
-        raise HTTPException(status_code=500, detail=f"{name}收款码未配置")
+        raise HTTPException(status_code=400, detail=f"{name}收款码未配置，请在环境变量中设置")
 
     return {
         "method": method,

@@ -200,8 +200,6 @@ export default function CheckoutPage() {
             <a href="/refund" target="_blank" className="text-gold hover:underline">《退款政策》</a>
           </span>
         </label>
-
-        {/* Mock payment */}
         <button
           onClick={handleCheckout}
           disabled={loading || !termsAccepted}
@@ -209,7 +207,7 @@ export default function CheckoutPage() {
         >
           {loading
             ? <><Loader2 size={18} className="animate-spin" /> {t("checkout.processing")}</>
-            : <><ShoppingBag size={16} /> {t("checkout.pay")} ¥{finalTotal.toFixed(2)} (Mock)</>}
+            : <><ShoppingBag size={16} /> {t("checkout.pay")} ¥{finalTotal.toFixed(2)}</>}
         </button>
 
         <p className="text-white/20 text-[11px] text-center mt-4">

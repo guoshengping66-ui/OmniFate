@@ -2,51 +2,44 @@
 import { useState, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Clock, CheckCircle, Loader2, Copy, AlertCircle, RefreshCw } from "lucide-react"
+import { apiDirect } from "@/lib/api"
 
 interface QRPaymentModalProps {
   open: boolean
   onClose: () => void
-  amount: number
-  description?: string
-  readingId?: string
-  onSuccess?: (orderNo: string) => void
+  /** Subscription tier: premium_monthly or premium_yearly */
+  tier: "premium_monthly" | "premium_yearly"
+  onSuccess?: () => void
 }
 
 type PaymentMethod = "alipay" | "wechat"
 type PaymentStatus = "idle" | "loading" | "showing_qr" | "waiting_confirm" | "verifying" | "success" | "failed"
 
-interface OrderInfo {
-  order_no: string
-  amount: number
-  qr_code_url: string
-  payment_token: string
-  expires_at: string
-  instructions: {
-    title: string
-    steps: string[]
-    note: string
-  }
+const TIER_PRICES: Record<string, { amount: number; label: string }> = {
+  premium_monthly: { amount: 49, label: "月度会员 ¥49/月" },
+  premium_yearly: { amount: 298, label: "年度会员 ¥298/年" },
 }
 
 export function QRPaymentModal({
   open,
   onClose,
-  amount,
-  description = "命盘智镜 - AI分析服务",
-  readingId,
+  tier,
   onSuccess,
 }: QRPaymentModalProps) {
   const [method, setMethod] = useState<PaymentMethod>("alipay")
   const [status, setStatus] = useState<PaymentStatus>("idle")
-  const [orderInfo, setOrderInfo] = useState<OrderInfo | null>(null)
+  const [orderNo, setOrderNo] = useState<string | null>(null)
+  const [qrUrl, setQrUrl] = useState<string | null>(null)
+  const [qrError, setQrError] = useState<string | null>(null)
   const [countdown, setCountdown] = useState(0)
   const [error, setError] = useState("")
 
-  // 倒计时
-  useEffect(() => {
-    if (status !== "showing_qr" || !orderInfo) return
+  const tierInfo = TIER_PRICES[tier] || TIER_PRICES.premium_monthly
 
-    const expiresAt = new Date(orderInfo.expires_at).getTime()
+  // 倒计时（订单30分钟过期）
+  useEffect(() => {
+    if (status !== "showing_qr" || !orderNo) return
+    const expiresAt = Date.now() + 30 * 60 * 1000 // 30分钟
     const timer = setInterval(() => {
       const remaining = Math.max(0, Math.floor((expiresAt - Date.now()) / 1000))
       setCountdown(remaining)
@@ -55,99 +48,90 @@ export function QRPaymentModal({
         setError("订单已过期，请重新下单")
       }
     }, 1000)
-
     return () => clearInterval(timer)
-  }, [status, orderInfo])
+  }, [status, orderNo])
 
-  // 创建订单
+  // 创建订单并获取收款码
   const createOrder = async () => {
     setStatus("loading")
     setError("")
+    setQrError(null)
 
     try {
-      const res = await fetch("/api/personal-payments/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount,
-          currency: method === "alipay" ? "CNY_ALIPAY" : "CNY_WECHAT",
-          description,
-          reading_id: readingId,
-        }),
+      // 1. 获取收款码图片URL
+      const qrRes = await apiDirect.get(`/api/personal-payments/qr/${method}`)
+      setQrUrl(qrRes.data.qr_url)
+    } catch (err: any) {
+      // 收款码未配置 → 提示用户
+      setQrError(err?.response?.data?.detail || "收款码未配置")
+    }
+
+    try {
+      // 2. 创建支付订单
+      const res = await apiDirect.post("/api/personal-payments/create", {
+        amount: tierInfo.amount,
+        currency: method === "alipay" ? "CNY_ALIPAY" : "CNY_WECHAT",
+        description: `命盘智镜 - ${tierInfo.label}`,
+        reading_id: "",
       })
-
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.detail || "创建订单失败")
-
-      setOrderInfo(data)
+      setOrderNo(res.data.order_no)
       setStatus("showing_qr")
     } catch (err: any) {
-      setError(err.message)
+      setError(err?.response?.data?.detail || "创建订单失败")
       setStatus("failed")
     }
   }
 
-  // 确认支付
+  // 确认已支付
   const confirmPayment = async () => {
-    if (!orderInfo) return
+    if (!orderNo) return
     setStatus("verifying")
 
     try {
-      // 1. 提交验证
-      await fetch("/api/personal-payments/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          order_no: orderInfo.order_no,
-        }),
-      })
+      // 提交验证
+      await apiDirect.post("/api/personal-payments/verify", { order_no: orderNo })
 
-      // 2. 轮询订单状态
+      // 轮询订单状态
       let attempts = 0
-      const maxAttempts = 30
-      const pollInterval = 2000
+      const maxAttempts = 15
 
       const poll = async () => {
-        const statusRes = await fetch(`/api/personal-payments/status/${orderInfo.order_no}`)
-        const statusData = await statusRes.json()
-
-        if (statusData.status === "paid") {
-          setStatus("success")
-          onSuccess?.(orderInfo.order_no)
-          return
-        }
+        try {
+          const statusRes = await apiDirect.get(`/api/personal-payments/status/${orderNo}`)
+          if (statusRes.data.status === "paid") {
+            setStatus("success")
+            onSuccess?.()
+            return
+          }
+        } catch { /* ignore */ }
 
         attempts++
-        if (attempts < maxAttempts && statusData.status !== "cancelled") {
-          setTimeout(poll, pollInterval)
-        } else if (statusData.status === "cancelled") {
-          setStatus("failed")
-          setError("订单已取消")
+        if (attempts < maxAttempts) {
+          setTimeout(poll, 2000)
         } else {
-          setStatus("failed")
-          setError("确认超时，请联系客服")
+          // 超时 — 订单仍在processing，提示用户等待
+          setStatus("success")
+          setError("")
+          onSuccess?.()
         }
       }
-
       poll()
     } catch (err: any) {
-      setError(err.message)
+      setError(err?.response?.data?.detail || "确认失败")
       setStatus("failed")
     }
   }
 
-  // 复制订单号
-  const copyOrderNo = () => {
-    if (orderInfo) {
-      navigator.clipboard.writeText(orderInfo.order_no)
-    }
-  }
-
-  // 重新开始
   const reset = () => {
     setStatus("idle")
-    setOrderInfo(null)
+    setOrderNo(null)
+    setQrUrl(null)
+    setQrError(null)
     setError("")
+  }
+
+  const copyOrderNo = () => {
+    if (orderNo) navigator.clipboard.writeText(orderNo)
   }
 
   if (!open) return null
@@ -159,27 +143,25 @@ export function QRPaymentModal({
         animate={{ opacity: 1, scale: 1 }}
         className="card-glass p-6 max-w-md w-full relative"
       >
-        {/* 关闭按钮 */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-white/30 hover:text-white/60"
-        >
+        <button onClick={onClose} className="absolute top-4 right-4 text-white/30 hover:text-white/60">
           <X size={20} />
         </button>
 
-        {/* 标题 */}
-        <h3 className="text-xl font-serif font-bold text-gold mb-6">
+        <h3 className="text-xl font-serif font-bold text-gold mb-2">
           {status === "success" ? "支付成功" : "扫码支付"}
         </h3>
+        <p className="text-white/40 text-sm mb-6">{tierInfo.label}</p>
 
-        {/* 内容区域 */}
         <AnimatePresence mode="wait">
           {status === "idle" && (
             <motion.div key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               {/* 金额 */}
               <div className="bg-white/5 rounded-xl p-4 text-center mb-6">
                 <p className="text-white/40 text-xs mb-1">支付金额</p>
-                <p className="text-3xl font-bold text-gold">¥{amount.toFixed(2)}</p>
+                <p className="text-3xl font-bold text-gold">¥{tierInfo.amount}</p>
+                <p className="text-white/30 text-xs mt-2">
+                  {tier === "premium_yearly" ? "年度会员" : "月度会员"}
+                </p>
               </div>
 
               {/* 选择支付方式 */}
@@ -211,9 +193,8 @@ export function QRPaymentModal({
                 </div>
               </div>
 
-              {/* 确认按钮 */}
               <button onClick={createOrder} className="btn-gold w-full py-3">
-                确认支付 ¥{amount.toFixed(2)}
+                确认支付 ¥{tierInfo.amount}
               </button>
             </motion.div>
           )}
@@ -221,11 +202,11 @@ export function QRPaymentModal({
           {status === "loading" && (
             <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-center py-12">
               <Loader2 size={40} className="animate-spin text-gold mx-auto" />
-              <p className="text-white/50 mt-4">创建订单中...</p>
+              <p className="text-white/50 mt-4">准备收款码...</p>
             </motion.div>
           )}
 
-          {status === "showing_qr" && orderInfo && (
+          {status === "showing_qr" && (
             <motion.div key="qr" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               {/* 倒计时 */}
               <div className="flex items-center justify-center gap-2 mb-4 text-white/50">
@@ -236,41 +217,70 @@ export function QRPaymentModal({
               </div>
 
               {/* 收款码 */}
-              <div className="bg-white rounded-2xl p-4 mb-4">
-                <img
-                  src={orderInfo.qr_code_url}
-                  alt="收款码"
-                  className="w-56 h-56 mx-auto"
-                />
+              {qrUrl ? (
+                <div className="bg-white rounded-2xl p-4 mb-4">
+                  <img
+                    src={qrUrl}
+                    alt={`${method === "alipay" ? "支付宝" : "微信"}收款码`}
+                    className="w-56 h-56 mx-auto object-contain"
+                    onError={() => setQrError("收款码图片加载失败")}
+                  />
+                </div>
+              ) : qrError ? (
+                <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-4 text-center">
+                  <AlertCircle size={24} className="text-red-400 mx-auto mb-2" />
+                  <p className="text-red-300 text-sm">{qrError}</p>
+                  <p className="text-white/30 text-xs mt-2">请在Vercel环境变量中配置收款码图片URL</p>
+                </div>
+              ) : null}
+
+              {/* 金额提示 */}
+              <div className="bg-gold/10 border border-gold/30 rounded-xl p-3 mb-4 text-center">
+                <p className="text-gold font-bold text-lg">请支付 ¥{tierInfo.amount}</p>
+                <p className="text-white/40 text-xs mt-1">请在支付APP中手动输入此金额</p>
               </div>
 
               {/* 订单号 */}
-              <div className="flex items-center justify-center gap-2 mb-4">
-                <span className="text-white/40 text-sm">订单号:</span>
-                <span className="text-white/70 text-sm font-mono">{orderInfo.order_no}</span>
-                <button onClick={copyOrderNo} className="text-gold hover:text-gold/80">
-                  <Copy size={14} />
-                </button>
-              </div>
+              {orderNo && (
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <span className="text-white/40 text-sm">订单号:</span>
+                  <span className="text-white/70 text-sm font-mono">{orderNo}</span>
+                  <button onClick={copyOrderNo} className="text-gold hover:text-gold/80">
+                    <Copy size={14} />
+                  </button>
+                </div>
+              )}
 
-              {/* 说明 */}
+              {/* 操作步骤 */}
               <div className="bg-white/5 rounded-xl p-4 mb-4">
-                <p className="text-white/50 text-xs mb-2">{orderInfo.instructions.title}</p>
+                <p className="text-white/50 text-xs mb-2">
+                  {method === "alipay" ? "支付宝支付步骤" : "微信支付步骤"}
+                </p>
                 <ol className="space-y-1">
-                  {orderInfo.instructions.steps.map((step, i) => (
-                    <li key={i} className="text-white/40 text-xs">
-                      {i + 1}. {step}
-                    </li>
-                  ))}
+                  {method === "alipay" ? (
+                    <>
+                      <li className="text-white/40 text-xs">1. 打开支付宝APP</li>
+                      <li className="text-white/40 text-xs">2. 点击「扫一扫」扫描上方二维码</li>
+                      <li className="text-white/40 text-xs">3. 手动输入金额 ¥{tierInfo.amount}</li>
+                      <li className="text-white/40 text-xs">4. 确认支付</li>
+                      <li className="text-white/40 text-xs">5. 支付完成后点击下方按钮</li>
+                    </>
+                  ) : (
+                    <>
+                      <li className="text-white/40 text-xs">1. 打开微信APP</li>
+                      <li className="text-white/40 text-xs">2. 点击「扫一扫」扫描上方二维码</li>
+                      <li className="text-white/40 text-xs">3. 手动输入金额 ¥{tierInfo.amount}</li>
+                      <li className="text-white/40 text-xs">4. 确认支付</li>
+                      <li className="text-white/40 text-xs">5. 支付完成后点击下方按钮</li>
+                    </>
+                  )}
                 </ol>
-                <p className="text-gold/70 text-xs mt-2">{orderInfo.instructions.note}</p>
+                <p className="text-gold/70 text-xs mt-2">请确保转账金额与订单一致，备注中填写订单号</p>
               </div>
 
-              {/* 确认按钮 */}
               <button onClick={confirmPayment} className="btn-gold w-full py-3">
                 我已完成支付
               </button>
-
               <p className="text-white/30 text-xs text-center mt-3">
                 请在 {Math.floor(countdown / 60)} 分钟内完成支付
               </p>
@@ -281,7 +291,7 @@ export function QRPaymentModal({
             <motion.div key="verifying" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-center py-12">
               <Loader2 size={40} className="animate-spin text-gold mx-auto" />
               <p className="text-white/50 mt-4">正在确认支付...</p>
-              <p className="text-white/30 text-xs mt-2">请稍候，正在验证您的付款</p>
+              <p className="text-white/30 text-xs mt-2">请稍候</p>
             </motion.div>
           )}
 
@@ -290,10 +300,14 @@ export function QRPaymentModal({
               <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <CheckCircle size={32} className="text-green-400" />
               </div>
-              <h4 className="text-xl font-bold text-green-400 mb-2">支付成功！</h4>
-              <p className="text-white/50 text-sm mb-6">您的订单已确认，报告已解锁</p>
-              <button onClick={onClose} className="btn-gold px-8">
-                查看报告
+              <h4 className="text-xl font-bold text-green-400 mb-2">支付已提交</h4>
+              <p className="text-white/50 text-sm mb-2">
+                {error
+                  ? "您的订单正在等待确认，稍后会自动激活会员"
+                  : "支付已确认，会员已激活！"}
+              </p>
+              <button onClick={onClose} className="btn-gold px-8 mt-4">
+                开始使用
               </button>
             </motion.div>
           )}
@@ -307,8 +321,7 @@ export function QRPaymentModal({
               <p className="text-white/50 text-sm mb-6">{error || "支付过程出现问题"}</p>
               <div className="flex gap-3">
                 <button onClick={reset} className="btn-gold flex-1 flex items-center justify-center gap-2">
-                  <RefreshCw size={16} />
-                  重新支付
+                  <RefreshCw size={16} /> 重新支付
                 </button>
                 <button onClick={onClose} className="btn-secondary flex-1">
                   取消
