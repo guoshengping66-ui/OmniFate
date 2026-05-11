@@ -98,6 +98,9 @@ class User(Base):
     orders: Mapped[list["Order"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
+    addresses: Mapped[list["UserAddress"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
 
     __table_args__ = (UniqueConstraint("oauth_provider", "oauth_subject", name="uq_oauth"),)
 
@@ -326,6 +329,31 @@ class UserFavorite(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     __table_args__ = (UniqueConstraint("user_id", "product_id", name="uq_user_favorite_product"),)
+
+
+# ─── UserAddress ─────────────────────────────────────────────────────────────
+
+class UserAddress(Base):
+    """用户收货地址"""
+    __tablename__ = "user_addresses"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id: Mapped[str] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    recipient_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    phone: Mapped[str] = mapped_column(String(30), nullable=False)
+    country: Mapped[str] = mapped_column(String(50), nullable=False, default="中国")
+    province: Mapped[Optional[str]] = mapped_column(String(100))
+    city: Mapped[Optional[str]] = mapped_column(String(100))
+    district: Mapped[Optional[str]] = mapped_column(String(100))
+    address_line1: Mapped[str] = mapped_column(String(300), nullable=False)
+    address_line2: Mapped[Optional[str]] = mapped_column(String(300))
+    postal_code: Mapped[Optional[str]] = mapped_column(String(20))
+    is_default: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    user: Mapped["User"] = relationship(back_populates="addresses")
 
 
 # ─── ProductReview ───────────────────────────────────────────────────────────

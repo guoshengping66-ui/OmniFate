@@ -17,7 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.session import get_db
 from database.models import (
-    Reading, User, Order, OrderItem, EventLog, Product,
+    Reading, User, Order, OrderItem, EventLog, Product, UserAddress,
     PaymentStatus, OrderStatus,
 )
 from auth.dependencies import get_current_user, require_user
@@ -267,8 +267,9 @@ async def wechat_notify(request: Request, db: AsyncSession = Depends(get_db)):
         expected_fee = int(order.total_cny * 100)
         if paid_fee != expected_fee:
             return "<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[金额不匹配]]></return_msg></xml>"
-        order.status = OrderStatus.paid
+        order.status = OrderStatus.shipped
         order.paid_at = datetime.utcnow()
+        order.shipped_at = datetime.utcnow()
 
     await db.commit()
     return "<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>"
@@ -401,8 +402,9 @@ async def alipay_notify(request: Request, db: AsyncSession = Depends(get_db)):
         paid_amount = float(data.get("total_amount", 0))
         if abs(paid_amount - order.total_cny) > 0.01:
             return "fail"
-        order.status = OrderStatus.paid
+        order.status = OrderStatus.shipped
         order.paid_at = datetime.utcnow()
+        order.shipped_at = datetime.utcnow()
 
     await db.commit()
     return "success"
@@ -555,8 +557,9 @@ async def capture_paypal_order(
                 captured_amount = float(result.get("purchase_units", [{}])[0].get("amount", {}).get("value", 0))
                 if abs(captured_amount * 7.2 - order.total_cny) > 1.0:
                     raise HTTPException(status_code=400, detail="支付金额不匹配")
-                order.status = OrderStatus.paid
+                order.status = OrderStatus.shipped
                 order.paid_at = datetime.utcnow()
+                order.shipped_at = datetime.utcnow()
                 await db.commit()
 
         return {"status": "completed", "message": "支付成功"}
@@ -646,6 +649,11 @@ class CreateOrderRequest(BaseModel):
     items: list[OrderItemIn]
     total_cny: float
     use_coupon: bool = False
+    address_id: Optional[str] = None
+    recipient_name: Optional[str] = None
+    recipient_phone: Optional[str] = None
+    shipping_address: Optional[dict] = None
+    notes: Optional[str] = None
 
 
 @router.post("/create-order")
@@ -705,6 +713,32 @@ async def create_order(
 
     order_no = f"ORD{datetime.utcnow().strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
 
+    # Resolve address info
+    recipient_name = req.recipient_name
+    recipient_phone = req.recipient_phone
+    shipping_address = req.shipping_address
+
+    if req.address_id and current_user:
+        addr_result = await db.execute(
+            select(UserAddress).where(
+                UserAddress.id == req.address_id,
+                UserAddress.user_id == current_user.id,
+            )
+        )
+        addr = addr_result.scalar_one_or_none()
+        if addr:
+            recipient_name = addr.recipient_name
+            recipient_phone = addr.phone
+            shipping_address = {
+                "country": addr.country,
+                "province": addr.province,
+                "city": addr.city,
+                "district": addr.district,
+                "address_line1": addr.address_line1,
+                "address_line2": addr.address_line2,
+                "postal_code": addr.postal_code,
+            }
+
     order = Order(
         user_id=user.id if user else None,
         order_no=order_no,
@@ -712,6 +746,10 @@ async def create_order(
         total_cny=final_total,
         payment_method="pending",
         payment_ref=order_no,
+        recipient_name=recipient_name,
+        recipient_phone=recipient_phone,
+        shipping_address=shipping_address,
+        notes=req.notes,
     )
     db.add(order)
     await db.flush()
@@ -738,6 +776,58 @@ async def create_order(
         "final_total": final_total,
         "message": "订单已创建，请选择支付方式完成支付",
     }
+
+
+# ─── Tracking ──────────────────────────────────────────────────────────────
+
+@router.get("/tracking/{order_id}")
+async def get_tracking(
+    order_id: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user),
+):
+    """查询物流信息"""
+
+    stmt = select(Order).where(Order.id == order_id)
+    if current_user:
+        stmt = stmt.where(Order.user_id == current_user.id)
+    result = await db.execute(stmt)
+    order = result.scalar_one_or_none()
+    if not order:
+        raise HTTPException(status_code=404, detail="订单不存在")
+
+    tracking_info = {
+        "order_no": order.order_no,
+        "status": order.status.value if order.status else "pending",
+        "tracking_number": order.tracking_number,
+        "shipping_carrier": order.shipping_carrier,
+        "shipped_at": order.shipped_at.isoformat() if order.shipped_at else None,
+        "trajectory": [],
+    }
+
+    # Try Kuaidi100 API if tracking info exists
+    if order.tracking_number and order.shipping_carrier:
+        try:
+            kuaidi_url = "https://api.kuaidi100.com/query"
+            resp = requests.get(kuaidi_url, params={
+                "com": order.shipping_carrier,
+                "nu": order.tracking_number,
+                "key": "",  # 需要配置快递100 API key
+            }, timeout=5)
+            if resp.status_code == 200:
+                data = resp.json()
+                if data.get("status") == "200":
+                    tracking_info["trajectory"] = [
+                        {
+                            "time": item.get("ftime", ""),
+                            "description": item.get("context", ""),
+                        }
+                        for item in data.get("data", [])
+                    ]
+        except Exception:
+            pass  # 降级：不展示物流轨迹
+
+    return tracking_info
 
 
 # ─── Subscription ────────────────────────────────────────────────────────────
