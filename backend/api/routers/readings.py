@@ -205,7 +205,7 @@ async def create_analysis(
     is_premium = False
     if current_user and current_user.is_premium:
         # Check if premium is still valid
-        if current_user.premium_expires_at and current_user.premium_expires_at > datetime.utcnow():
+        if current_user.premium_expires_at and current_user.premium_expires_at > datetime.now(timezone.utc):
             is_premium = True
 
     state = SystemState(

@@ -6,7 +6,7 @@ from __future__ import annotations
 import uuid
 import time
 import hashlib
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
@@ -52,7 +52,7 @@ class PaymentVerify(BaseModel):
 
 def _generate_order_no(prefix: str = "P") -> str:
     """生成唯一订单号"""
-    timestamp = datetime.utcnow().strftime("%Y%m%d%H%M%S")
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
     random_part = uuid.uuid4().hex[:8].upper()
     return f"{prefix}{timestamp}{random_part}"
 
@@ -235,7 +235,7 @@ async def confirm_payment(
 
     # 2. 更新订单状态
     order.status = OrderStatus.paid
-    order.paid_at = datetime.utcnow()
+    order.paid_at = datetime.now(timezone.utc)
 
     # 3. 解锁报告（如果有）
     try:

@@ -6,7 +6,7 @@ import time
 import json
 import base64
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 from xml.etree import ElementTree as ET
 
@@ -120,9 +120,9 @@ async def _unlock_reading(reading_id: str, db: AsyncSession) -> dict:
             if not user.is_premium:
                 user.is_premium = True
                 user.subscription_tier = "trial"
-                user.premium_expires_at = datetime.utcnow() + timedelta(days=TRIAL_DAYS)
+                user.premium_expires_at = datetime.now(timezone.utc) + timedelta(days=TRIAL_DAYS)
                 user.free_event_quota = 2
-                user.free_event_quota_reset_at = datetime.utcnow() + timedelta(days=TRIAL_DAYS)
+                user.free_event_quota_reset_at = datetime.now(timezone.utc) + timedelta(days=TRIAL_DAYS)
                 trial_activated = True
 
     await db.commit()
@@ -216,7 +216,7 @@ async def create_wechat_order(
         raise HTTPException(status_code=400, detail="无效的商品类型")
     amount = price_info["cny"]
 
-    order_no = f"WX{datetime.utcnow().strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
+    order_no = f"WX{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
 
     order = Order(
         order_no=order_no,
@@ -268,8 +268,8 @@ async def wechat_notify(request: Request, db: AsyncSession = Depends(get_db)):
         if paid_fee != expected_fee:
             return "<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[金额不匹配]]></return_msg></xml>"
         order.status = OrderStatus.shipped
-        order.paid_at = datetime.utcnow()
-        order.shipped_at = datetime.utcnow()
+        order.paid_at = datetime.now(timezone.utc)
+        order.shipped_at = datetime.now(timezone.utc)
 
     await db.commit()
     return "<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>"
@@ -360,7 +360,7 @@ async def create_alipay_order(
         raise HTTPException(status_code=400, detail="无效的商品类型")
     amount = price_info["cny"]
 
-    order_no = f"ALI{datetime.utcnow().strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
+    order_no = f"ALI{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
 
     order = Order(
         order_no=order_no,
@@ -403,8 +403,8 @@ async def alipay_notify(request: Request, db: AsyncSession = Depends(get_db)):
         if abs(paid_amount - order.total_cny) > 0.01:
             return "fail"
         order.status = OrderStatus.shipped
-        order.paid_at = datetime.utcnow()
-        order.shipped_at = datetime.utcnow()
+        order.paid_at = datetime.now(timezone.utc)
+        order.shipped_at = datetime.now(timezone.utc)
 
     await db.commit()
     return "success"
@@ -502,7 +502,7 @@ async def create_paypal_order(
     amount_usd = price_info["usd"]
     amount_cny = price_info["cny"]
 
-    order_no = f"PP{datetime.utcnow().strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
+    order_no = f"PP{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
 
     order = Order(
         order_no=order_no,
@@ -558,8 +558,8 @@ async def capture_paypal_order(
                 if abs(captured_amount * 7.2 - order.total_cny) > 1.0:
                     raise HTTPException(status_code=400, detail="支付金额不匹配")
                 order.status = OrderStatus.shipped
-                order.paid_at = datetime.utcnow()
-                order.shipped_at = datetime.utcnow()
+                order.paid_at = datetime.now(timezone.utc)
+                order.shipped_at = datetime.now(timezone.utc)
                 await db.commit()
 
         return {"status": "completed", "message": "支付成功"}
@@ -611,7 +611,7 @@ async def pay_event(
         user = result.scalar_one_or_none()
 
     if user:
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         if user.free_event_quota_reset_at and now > user.free_event_quota_reset_at:
             user.free_event_quota = 2 if user.subscription_tier != "premium_yearly" else 5
             user.free_event_quota_reset_at = now + timedelta(days=30)
@@ -711,7 +711,7 @@ async def create_order(
         user.shop_coupon_balance = balance - coupon_used
         final_total = round(final_total - coupon_used, 2)
 
-    order_no = f"ORD{datetime.utcnow().strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
+    order_no = f"ORD{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
 
     # Resolve address info
     recipient_name = req.recipient_name
@@ -848,7 +848,7 @@ async def mock_subscribe(
     if not user:
         raise HTTPException(status_code=404, detail="用户不存在")
 
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
 
     if tier == "premium_yearly":
         expires = now + timedelta(days=365)
