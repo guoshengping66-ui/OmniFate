@@ -119,18 +119,13 @@ export default function ProductDetailPage() {
           <div className="flex flex-col">
             <h1 className="text-2xl font-serif font-bold text-gold mb-2">{product.name}</h1>
 
-            {/* Rating & sales */}
-            <div className="flex items-center gap-4 mb-4">
-              {product.rating && (
-                <div className="flex items-center gap-1">
-                  <Star size={14} className="text-gold fill-gold" />
-                  <span className="text-gold text-sm">{product.rating}</span>
-                </div>
-              )}
-              {product.sales_count && (
-                <span className="text-white/30 text-xs">{t("shop.detail.sales").replace("{count}", String(product.sales_count))}</span>
-              )}
-            </div>
+            {/* Rating */}
+            {product.rating && (
+              <div className="flex items-center gap-1 mb-4">
+                <Star size={14} className="text-gold fill-gold" />
+                <span className="text-gold text-sm">{product.rating}</span>
+              </div>
+            )}
 
             {/* Price */}
             <div className="flex items-baseline gap-2 mb-6">
