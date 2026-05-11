@@ -7,6 +7,7 @@ import {
   Sparkles, Tag, Package, Shield, ChevronRight,
   BookOpen, AlertTriangle, Zap, ClipboardList,
 } from "lucide-react"
+import Image from "next/image"
 import toast from "react-hot-toast"
 import { getProduct, listMyReadings, type Product, type ReadingListItem } from "@/lib/api"
 import { useCart } from "@/contexts/CartContext"
@@ -99,8 +100,8 @@ export default function ProductDetailPage() {
           {/* Left: Product image */}
           <div className="card-glass p-8 flex flex-col items-center justify-center">
             {product.image_url ? (
-              <img src={product.image_url} alt={product.name}
-                className="w-64 h-64 object-cover rounded-2xl" />
+              <Image src={product.image_url} alt={product.name}
+                width={256} height={256} className="w-64 h-64 object-cover rounded-2xl" unoptimized />
             ) : (
               <div className="w-64 h-64 rounded-2xl bg-gold/5 border border-gold/20 flex items-center justify-center text-8xl">
                 🔮

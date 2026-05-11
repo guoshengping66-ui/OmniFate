@@ -8,6 +8,7 @@ import { MagicCursor } from "@/components/ui/MagicCursor"
 import { NebulaBackground } from "@/components/ui/NebulaBackground"
 import { AppProviders } from "@/components/ui/AppProviders"
 import { RouteProgress } from "@/components/ui/RouteProgress"
+import { ServiceWorkerRegistration } from "@/components/ui/ServiceWorkerRegistration"
 
 export const metadata: Metadata = {
   title: "命盘智镜 · 全维度命理分析平台",
@@ -16,6 +17,13 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.svg",
   },
+  manifest: "/manifest.json",
+  themeColor: "#C9A84C",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "命盘智镜",
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -23,6 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="zh-CN">
       <body>
         <AppProviders>
+          <ServiceWorkerRegistration />
           <RouteProgress />
           <NebulaBackground />
           <StarField />

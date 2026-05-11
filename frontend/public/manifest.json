@@ -1,0 +1,21 @@
+{
+  "name": "命盘智镜 - AI命理分析平台",
+  "short_name": "命盘智镜",
+  "description": "融合周易八字、西方星盘、塔罗占卜与AI面相，为你揭示命运密码",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0512",
+  "theme_color": "#C9A84C",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["lifestyle", "entertainment"],
+  "lang": "zh-CN",
+  "dir": "ltr"
+}

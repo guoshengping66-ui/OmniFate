@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Sparkles, ShoppingCart, Check, Zap } from "lucide-react"
+import Image from "next/image"
 import type { Product } from "@/lib/api"
 import { useCart } from "@/contexts/CartContext"
 import { useLanguage } from "@/contexts/LanguageContext"
@@ -115,7 +116,7 @@ export function AIRecommendHero({ products }: { products: Product[] }) {
                     }}
                   >
                     {product.image_url ? (
-                      <img src={product.image_url} alt={product.name} className="w-full h-full object-cover rounded-xl" />
+                      <Image src={product.image_url} alt={product.name} width={64} height={64} className="w-full h-full object-cover rounded-xl" unoptimized />
                     ) : "🔮"}
                   </div>
                   <div className="flex-1 min-w-0">
