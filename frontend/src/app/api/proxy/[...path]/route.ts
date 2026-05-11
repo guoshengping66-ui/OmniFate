@@ -114,11 +114,17 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
       signal: controller.signal,
     })
 
-    // Build response headers (skip hop-by-hop)
+    // Build response headers — strip headers that Vercel runtime
+    // already handles (decompression, chunked transfer, etc.)
     const respHeaders = new Headers()
+    const skipHeaders = new Set([
+      "transfer-encoding",
+      "connection",
+      "content-encoding",   // Vercel auto-decompresses; forwarding gzip header breaks browser
+      "content-length",     // Length changes after decompression
+    ])
     resp.headers.forEach((value, key) => {
-      const lower = key.toLowerCase()
-      if (lower !== "transfer-encoding" && lower !== "connection") {
+      if (!skipHeaders.has(key.toLowerCase())) {
         respHeaders.set(key, value)
       }
     })
