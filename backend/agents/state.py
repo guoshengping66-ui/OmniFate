@@ -155,6 +155,7 @@ class ConflictRecord(BaseModel):
 
 class SystemState(BaseModel):
     session_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: Optional[str] = None
     birth_info: Optional[BirthInfo] = None
     face_features: Optional[FaceFeatures] = None
     palm_features: Optional[PalmFeatures] = None

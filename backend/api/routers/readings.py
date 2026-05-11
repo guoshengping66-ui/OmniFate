@@ -208,7 +208,10 @@ async def create_analysis(
         if current_user.premium_expires_at and current_user.premium_expires_at > datetime.now(timezone.utc):
             is_premium = True
 
+    user_id = str(current_user.id) if current_user else None
+
     state = SystemState(
+        user_id=user_id,
         birth_info=bi,
         face_features=face_feat,
         palm_features=palm_feat,
@@ -216,8 +219,6 @@ async def create_analysis(
         is_premium=is_premium,
         tarot_raw={"spread": "Three-Card Spread", "cards": payload.tarot_cards},
     )
-
-    user_id = current_user.id if current_user else None
 
     # Persist session to DATABASE (with timeout to avoid blocking)
     try:
