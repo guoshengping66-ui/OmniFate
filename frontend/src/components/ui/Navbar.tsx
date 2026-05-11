@@ -20,6 +20,8 @@ export function Navbar() {
   const links = [
     { href: "/", label: t("nav.home") },
     { href: "/reading/new", label: t("nav.reading") },
+    { href: "/almanac", label: t("nav.almanac") },
+    { href: "/events", label: t("nav.events") },
     { href: "/pricing", label: t("nav.pricing") },
     { href: "/shop", label: t("nav.shop") },
     { href: "/blog", label: t("nav.blog") },

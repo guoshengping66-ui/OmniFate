@@ -5,6 +5,7 @@ import { TierComparison } from "@/components/monetization/TierComparison"
 import { useAuth } from "@/contexts/AuthContext"
 import { subscribe } from "@/lib/api"
 import { QRPaymentModal } from "@/components/payment/QRPaymentModal"
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import toast from "react-hot-toast"
 
 export default function PricingPage() {
@@ -50,6 +51,8 @@ export default function PricingPage() {
   return (
     <div className="min-h-screen pt-24 pb-16 px-4">
       <div className="max-w-6xl mx-auto">
+        <Breadcrumbs items={[{ label: "会员方案" }]} />
+
         <TierComparison onSelect={handleSelect} />
 
         {/* 个人收款码支付弹窗 */}
