@@ -5,7 +5,7 @@ from __future__ import annotations
 import uuid
 from typing import Optional, Literal
 from pydantic import BaseModel, Field
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class BirthInfo(BaseModel):
@@ -142,7 +142,7 @@ class ChatMessage(BaseModel):
     role: Literal["user", "assistant", "system"]
     content: str
     agent_id: Optional[str] = None
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class ConflictRecord(BaseModel):
