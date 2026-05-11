@@ -62,6 +62,8 @@ export default {
   "nav.blog": "知识库",
   "nav.myReports": "我的报告",
   "nav.account": "个人中心",
+  "nav.almanac": "每日黄历",
+  "nav.events": "事件复盘",
   "common.loading": "加载中...",
   "common.submit": "提交",
   "common.cancel": "取消",

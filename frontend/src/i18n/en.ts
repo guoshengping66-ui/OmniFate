@@ -62,6 +62,8 @@ export default {
   "nav.blog": "Knowledge Base",
   "nav.myReports": "My Reports",
   "nav.account": "Account",
+  "nav.almanac": "Daily Almanac",
+  "nav.events": "Event Analysis",
   "common.loading": "Loading...",
   "common.submit": "Submit",
   "common.cancel": "Cancel",

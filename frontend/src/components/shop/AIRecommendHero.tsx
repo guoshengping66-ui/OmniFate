@@ -5,6 +5,7 @@ import { Sparkles, ShoppingCart, Check, Zap } from "lucide-react"
 import type { Product } from "@/lib/api"
 import { useCart } from "@/contexts/CartContext"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { ProductImage } from "@/components/shop/ProductImage"
 import toast from "react-hot-toast"
 
 const RANK_COLORS = ["#C9A84C", "#A78BFA", "#60A5FA"]
@@ -107,17 +108,13 @@ export function AIRecommendHero({ products }: { products: Product[] }) {
 
                 {/* Product info */}
                 <div className="flex items-start gap-3 mb-4">
-                  <div
-                    className="w-16 h-16 flex-shrink-0 rounded-xl flex items-center justify-center text-2xl"
-                    style={{
-                      background: `linear-gradient(135deg, ${RANK_COLORS[i]}10, transparent)`,
-                      border: `1px solid ${RANK_COLORS[i]}20`,
-                    }}
-                  >
-                    {product.image_url ? (
-                      <img src={product.image_url} alt={product.name} className="w-full h-full object-cover rounded-xl" />
-                    ) : "🔮"}
-                  </div>
+                  <ProductImage
+                    src={product.image_url}
+                    alt={product.name}
+                    category={product.category}
+                    size="sm"
+                    className="flex-shrink-0"
+                  />
                   <div className="flex-1 min-w-0">
                     <h3 className="font-serif font-bold text-white text-base mb-1 truncate">{product.name}</h3>
                     <p className="text-gold font-bold text-lg">¥{product.price_cny.toFixed(0)}</p>

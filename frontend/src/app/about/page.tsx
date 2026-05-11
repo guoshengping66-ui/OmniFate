@@ -1,5 +1,18 @@
+import type { Metadata } from "next"
 import { Sparkles, Globe, Bot, Gift, Shield, BookOpen } from "lucide-react"
 import Link from "next/link"
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
+
+export const metadata: Metadata = {
+  title: "关于命盘智镜 - 东西方玄学融合的 AI 命理平台",
+  description: "了解命盘智镜的使命、团队和五层架构体系。融合周易八字、西方星盘、塔罗占卜与AI面相，为你揭示命运密码。",
+  keywords: ["关于命盘智镜", "AI命理", "多智能体", "东西方玄学"],
+  openGraph: {
+    title: "关于命盘智镜",
+    description: "融合周易八字、西方星盘、塔罗占卜与AI面相的全维度命理分析平台",
+    type: "website",
+  },
+}
 
 const values = [
   {
@@ -42,6 +55,8 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen pt-24 pb-20 px-4">
       <div className="max-w-4xl mx-auto">
+        <Breadcrumbs items={[{ label: "关于我们" }]} />
+
         {/* Hero */}
         <div className="text-center mb-16">
           <Sparkles size={36} className="text-gold mx-auto mb-4" />

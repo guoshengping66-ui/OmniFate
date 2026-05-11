@@ -4,6 +4,7 @@ import Link from "next/link"
 import { BookOpen, Clock, Loader2, ChevronRight } from "lucide-react"
 import { ARTICLES, CATEGORIES } from "@/data/articles"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 
 export default function BlogPage() {
   const { locale, t } = useLanguage()
@@ -23,6 +24,8 @@ export default function BlogPage() {
   return (
     <div className="min-h-screen pt-24 pb-20 px-4">
       <div className="max-w-5xl mx-auto">
+        <Breadcrumbs items={[{ label: t("nav.blog") }]} />
+
         {/* Header */}
         <div className="text-center mb-10">
           <BookOpen size={36} className="text-gold mx-auto mb-3" />

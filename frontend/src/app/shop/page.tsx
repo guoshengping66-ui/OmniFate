@@ -6,6 +6,7 @@ import { listProducts, matchProducts, Product } from "@/lib/api"
 import { ProductCard } from "@/components/reading/ProductCard"
 import { AIRecommendHero } from "@/components/shop/AIRecommendHero"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 
 function ShopContent() {
   const searchParams = useSearchParams()
@@ -84,6 +85,8 @@ function ShopContent() {
   return (
     <div className="min-h-screen pt-24 pb-20 px-4">
       <div className="max-w-6xl mx-auto">
+        <Breadcrumbs items={[{ label: t("nav.shop") }]} />
+
         {/* Disclaimer banner */}
         <div className="mb-6 p-3 rounded-xl border border-amber-500/20 bg-amber-500/5 text-center">
           <p className="text-amber-200/70 text-xs leading-relaxed">

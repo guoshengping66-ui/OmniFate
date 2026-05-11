@@ -7,7 +7,7 @@ import { z } from "zod"
 import toast from "react-hot-toast"
 import {
   Upload, Camera, Hand, ChevronRight, ChevronLeft,
-  Loader2, Sparkles, Star, CheckCircle, AlertCircle,
+  Loader2, Sparkles, Star, CheckCircle, AlertCircle, Trash2,
 } from "lucide-react"
 import { runAnalysis, AnalysisRequest, analyzeFaceImage, analyzePalmImage } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
@@ -21,6 +21,42 @@ import { HotQuestions } from "@/components/reading/HotQuestions"
 import { FortuneGuide } from "@/components/reading/FortuneGuide"
 
 const PALM_SCAN_TEXT = "🔍 掌纹特征扫描中…"
+
+const STORAGE_KEY = "destiny_reading_progress"
+
+interface SavedProgress {
+  step: number
+  formValues: Record<string, unknown>
+  tarotCards: { position: string; card: string; reversed: boolean }[]
+  palmData: Record<string, string>
+  savedAt: string
+}
+
+function loadSavedProgress(): SavedProgress | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return null
+    const data = JSON.parse(raw) as SavedProgress
+    // Expire after 24 hours
+    if (Date.now() - new Date(data.savedAt).getTime() > 24 * 60 * 60 * 1000) {
+      localStorage.removeItem(STORAGE_KEY)
+      return null
+    }
+    return data
+  } catch {
+    return null
+  }
+}
+
+function saveProgress(data: SavedProgress) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+  } catch {}
+}
+
+function clearSavedProgress() {
+  localStorage.removeItem(STORAGE_KEY)
+}
 
 const schema = z.object({
   gender: z.enum(["male", "female", "other"]),
@@ -91,6 +127,56 @@ export default function NewReadingPage() {
 
   const watchedQuestion = watch("user_question")
   const watchedHour = watch("birth_hour")
+
+  // ── Restore saved progress ──────────────────────────────────
+  useEffect(() => {
+    const saved = loadSavedProgress()
+    if (saved) {
+      setStep(saved.step)
+      setTarotCards(saved.tarotCards || [])
+      setPalmData(saved.palmData || {})
+      // Restore form values
+      if (saved.formValues) {
+        Object.entries(saved.formValues).forEach(([key, value]) => {
+          if (value !== undefined && value !== null) {
+            setValue(key as keyof FormValues, value)
+          }
+        })
+      }
+      toast.success("已恢复上次填写进度", { duration: 3000 })
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Auto-save progress ──────────────────────────────────────
+  useEffect(() => {
+    if (step === 0 && !watch("birth_year")) return // Don't save empty initial state
+    const timeout = setTimeout(() => {
+      saveProgress({
+        step,
+        formValues: watch(),
+        tarotCards,
+        palmData,
+        savedAt: new Date().toISOString(),
+      })
+    }, 500)
+    return () => clearTimeout(timeout)
+  }, [step, tarotCards, palmData, watch])
+
+  const handleClearProgress = () => {
+    clearSavedProgress()
+    setStep(0)
+    setTarotCards([])
+    setPalmData({})
+    setValue("gender", "female")
+    setValue("birth_year", 0)
+    setValue("birth_month", 0)
+    setValue("birth_day", 0)
+    setValue("birth_hour", 0)
+    setValue("birth_minute", 0)
+    setValue("birth_city", "")
+    setValue("user_question", "请给我一份全维度命理分析")
+    toast.success("已清除所有进度")
+  }
 
   // ── Exit guard ─────────────────────────────────────────────
   useEffect(() => {
@@ -211,6 +297,7 @@ export default function NewReadingPage() {
       }
 
       const result = await runAnalysis(payload)
+      clearSavedProgress()
       toast.success("推命完成！正在跳转报告…")
       router.push(`/reading/${result.session_id}`)
     } catch (err: any) {
@@ -326,6 +413,19 @@ export default function NewReadingPage() {
             </div>
           ))}
         </div>
+
+        {/* Clear progress button */}
+        {step > 0 && (
+          <div className="flex justify-center mb-6">
+            <button
+              type="button"
+              onClick={handleClearProgress}
+              className="flex items-center gap-1.5 text-xs text-white/30 hover:text-red-400 transition-colors"
+            >
+              <Trash2 size={12} /> 清除进度重新开始
+            </button>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit(onSubmit)}>
           {/* All steps rendered simultaneously — hidden ones stay in DOM so

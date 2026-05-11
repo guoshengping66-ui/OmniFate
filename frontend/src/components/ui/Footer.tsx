@@ -64,6 +64,8 @@ export function Footer() {
                 {[
                   [t("nav.home"), "/"],
                   [t("nav.reading"), "/reading/new"],
+                  [t("nav.almanac"), "/almanac"],
+                  [t("nav.events"), "/events"],
                   [t("nav.pricing"), "/pricing"],
                   [t("nav.shop"), "/shop"],
                   [t("nav.blog"), "/blog"],
@@ -135,6 +137,8 @@ export function Footer() {
               <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" className="hover:text-gold/60 transition-colors">[粤ICP备XXXXXXXX号]</a>
             </p>
             <div className="flex gap-6 text-white/25 text-xs">
+              <a href="/faq" className="hover:text-gold/60 transition-colors">常见问题</a>
+              <a href="/contact" className="hover:text-gold/60 transition-colors">联系我们</a>
               <a href="/privacy" className="hover:text-gold/60 transition-colors">隐私政策</a>
               <a href="/terms" className="hover:text-gold/60 transition-colors">服务条款</a>
               <a href="/refund" className="hover:text-gold/60 transition-colors">退款政策</a>
