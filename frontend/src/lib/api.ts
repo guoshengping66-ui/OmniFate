@@ -90,6 +90,7 @@ export interface Product {
   price_cny: number
   price_usd?: number
   image_url?: string
+  detail_images?: string[]
   keyword_tags?: string[]
   wuxing_tags?: string[]
   astro_tags?: string[]
@@ -100,6 +101,11 @@ export interface Product {
   material?: string
   rating?: number
   sales_count?: number
+  /** 详细内容 */
+  usage?: string
+  precautions?: string
+  efficacy?: string
+  specifications?: Record<string, string>
   /** Present when returned from match endpoints */
   match_score?: number
   match_reasons?: string[]
@@ -340,6 +346,8 @@ export interface CreateOrderRequest {
   items: { product_id: string; product_name: string; quantity: number; unit_price_cny: number }[]
   total_cny: number
   use_coupon?: boolean
+  address_id?: string
+  notes?: string
 }
 
 export interface CreateOrderResult {
@@ -563,6 +571,138 @@ export interface OrderListItem {
 
 export async function listMyOrders(): Promise<OrderListItem[]> {
   const res = await api.get<OrderListItem[]>("/api/users/orders")
+  return res.data
+}
+
+// ── Addresses ─────────────────────────────────────────────────────────────
+
+export interface Address {
+  id: string
+  recipient_name: string
+  phone: string
+  country: string
+  province: string | null
+  city: string | null
+  district: string | null
+  address_line1: string
+  address_line2: string | null
+  postal_code: string | null
+  is_default: boolean
+  created_at: string
+}
+
+export interface AddressFormData {
+  recipient_name: string
+  phone: string
+  country: string
+  province?: string | null
+  city?: string | null
+  district?: string | null
+  address_line1: string
+  address_line2?: string | null
+  postal_code?: string | null
+  is_default?: boolean
+}
+
+export async function getAddresses(): Promise<Address[]> {
+  const res = await api.get<Address[]>("/api/users/addresses")
+  return res.data
+}
+
+export async function createAddress(data: AddressFormData): Promise<Address> {
+  const res = await api.post<Address>("/api/users/addresses", data)
+  return res.data
+}
+
+export async function updateAddress(id: string, data: AddressFormData): Promise<Address> {
+  const res = await api.put<Address>(`/api/users/addresses/${id}`, data)
+  return res.data
+}
+
+export async function deleteAddress(id: string): Promise<void> {
+  await api.delete(`/api/users/addresses/${id}`)
+}
+
+export async function setDefaultAddress(id: string): Promise<void> {
+  await api.put(`/api/users/addresses/${id}/default`)
+}
+
+// ── Order Detail ──────────────────────────────────────────────────────────
+
+export interface OrderItemDetail {
+  id: string
+  product_name: string
+  quantity: number
+  unit_price_cny: number
+  subtotal_cny: number
+  recommendation_reason: string | null
+}
+
+export interface OrderDetail {
+  id: string
+  order_no: string
+  status: string
+  total_cny: number
+  total_usd: number | null
+  payment_method: string | null
+  recipient_name: string | null
+  recipient_phone: string | null
+  shipping_address: {
+    country?: string
+    province?: string
+    city?: string
+    district?: string
+    address_line1?: string
+    address_line2?: string
+    postal_code?: string
+  } | null
+  tracking_number: string | null
+  shipping_carrier: string | null
+  notes: string | null
+  items: OrderItemDetail[]
+  created_at: string
+  paid_at: string | null
+  shipped_at: string | null
+}
+
+export async function getOrderDetail(orderId: string): Promise<OrderDetail> {
+  const res = await api.get<OrderDetail>(`/api/users/orders/${orderId}`)
+  return res.data
+}
+
+export async function cancelOrder(orderId: string): Promise<{ status: string; message: string }> {
+  const res = await api.post(`/api/users/orders/${orderId}/cancel`)
+  return res.data
+}
+
+export async function confirmReceive(orderId: string): Promise<{ status: string; message: string }> {
+  const res = await api.post(`/api/users/orders/${orderId}/confirm-receive`)
+  return res.data
+}
+
+export async function requestRefund(orderId: string): Promise<{ status: string; message: string }> {
+  const res = await api.post(`/api/users/orders/${orderId}/request-refund`)
+  return res.data
+}
+
+// ── Tracking ──────────────────────────────────────────────────────────────
+
+export interface TrackingTrajectory {
+  time: string
+  description: string
+}
+
+export interface TrackingInfo {
+  order_no: string
+  status: string
+  tracking_number: string | null
+  shipping_carrier: string | null
+  shipped_at: string | null
+  trajectory: TrackingTrajectory[]
+}
+
+export async function getTrackingInfo(orderId: string): Promise<TrackingInfo> {
+  const res = await api.get<TrackingInfo>(`/api/payments/tracking/${orderId}`)
   return res.data
 }
 

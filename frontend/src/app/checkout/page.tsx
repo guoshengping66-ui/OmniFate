@@ -1,13 +1,14 @@
 "use client"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { ShoppingBag, CheckCircle, Loader2, ArrowLeft, Ticket, Crown, CreditCard } from "lucide-react"
+import { ShoppingBag, CheckCircle, Loader2, ArrowLeft, Ticket, Crown, CreditCard, MapPin } from "lucide-react"
 import toast from "react-hot-toast"
 import { useCart } from "@/contexts/CartContext"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { createOrder } from "@/lib/api"
+import { createOrder, type Address } from "@/lib/api"
 import { PaymentMethodSelector } from "@/components/monetization/PaymentMethodSelector"
+import { AddressForm } from "@/components/shop/AddressForm"
 
 export default function CheckoutPage() {
   const router = useRouter()
@@ -18,6 +19,7 @@ export default function CheckoutPage() {
   const [done, setDone] = useState(false)
   const [useCoupon, setUseCoupon] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState("card")
+  const [selectedAddress, setSelectedAddress] = useState<Address | null>(null)
 
   const couponBalance = user?.shop_coupon_balance ?? 0
   const couponDiscount = useCoupon ? Math.min(couponBalance, totalWithDiscount) : 0
@@ -27,6 +29,10 @@ export default function CheckoutPage() {
     if (!user) {
       toast.error(t("checkout.loginFirst"))
       router.push("/login")
+      return
+    }
+    if (!selectedAddress) {
+      toast.error(t("checkout.selectAddress"))
       return
     }
     setLoading(true)
@@ -40,6 +46,7 @@ export default function CheckoutPage() {
         })),
         total_cny: totalWithDiscount,
         use_coupon: useCoupon,
+        address_id: selectedAddress.id,
       })
       toast.success(
         result.coupon_used > 0
@@ -170,6 +177,18 @@ export default function CheckoutPage() {
             <span className="text-white/80 font-medium">{t("checkout.total")}</span>
             <span className="text-gold text-xl font-bold">¥{finalTotal.toFixed(2)}</span>
           </div>
+        </div>
+
+        {/* Shipping Address */}
+        <div className="card-glass p-6 mb-4">
+          <div className="flex items-center gap-2 mb-4">
+            <MapPin size={16} className="text-gold" />
+            <span className="text-white/70 text-sm font-medium">{t("checkout.shippingAddress")}</span>
+          </div>
+          <AddressForm
+            onSelect={setSelectedAddress}
+            selectedId={selectedAddress?.id}
+          />
         </div>
 
         {/* Payment Method Selector */}

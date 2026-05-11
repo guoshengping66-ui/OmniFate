@@ -5,6 +5,7 @@ import Link from "next/link"
 import {
   Loader2, ArrowLeft, ShoppingCart, Check, Star, Heart,
   Sparkles, Tag, Package, Shield, ChevronRight,
+  BookOpen, AlertTriangle, Zap, ClipboardList,
 } from "lucide-react"
 import toast from "react-hot-toast"
 import { getProduct, listMyReadings, type Product, type ReadingListItem } from "@/lib/api"
@@ -13,6 +14,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { ProductReviews } from "@/components/shop/ProductReviews"
 import { FavoriteButton } from "@/components/shop/FavoriteButton"
+import { useState as useStateLocal } from "react"
 
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -189,6 +191,13 @@ export default function ProductDetailPage() {
           </div>
         </div>
 
+        {/* ── Detailed Content Tabs ── */}
+        {(product.efficacy || product.usage || product.precautions || product.specifications) && (
+          <div className="mt-12">
+            <ProductDetailTabs product={product} t={t as unknown as (key: string) => string} />
+          </div>
+        )}
+
         {/* Related Readings */}
         {relatedReadings.length > 0 && (
           <div className="mt-12">
@@ -214,6 +223,96 @@ export default function ProductDetailPage() {
         <div className="mt-12">
           <ProductReviews productId={product.id} />
         </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Product Detail Tabs ──────────────────────────────────────────────────
+
+type DetailTab = "efficacy" | "usage" | "precautions" | "specs"
+
+function ProductDetailTabs({ product, t }: { product: Product; t: (key: string) => string }) {
+  const [activeTab, setActiveTab] = useStateLocal<DetailTab>("efficacy")
+
+  const tabs: { key: DetailTab; icon: React.ReactNode; label: string; show: boolean }[] = [
+    { key: "efficacy", icon: <Zap size={14} />, label: t("shop.detail.tab.efficacy"), show: !!product.efficacy },
+    { key: "usage", icon: <BookOpen size={14} />, label: t("shop.detail.tab.usage"), show: !!product.usage },
+    { key: "precautions", icon: <AlertTriangle size={14} />, label: t("shop.detail.tab.precautions"), show: !!product.precautions },
+    { key: "specs", icon: <ClipboardList size={14} />, label: t("shop.detail.tab.specs"), show: !!product.specifications },
+  ]
+
+  const visibleTabs = tabs.filter(tab => tab.show)
+  if (visibleTabs.length === 0) return null
+
+  return (
+    <div className="card-glass p-6">
+      {/* Tab headers */}
+      <div className="flex gap-1 overflow-x-auto scrollbar-none mb-5 border-b border-white/10 pb-3">
+        {visibleTabs.map(tab => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
+              activeTab === tab.key
+                ? "bg-gold/15 text-gold border border-gold/30"
+                : "text-white/40 hover:text-white/60"
+            }`}
+          >
+            {tab.icon}
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Tab content */}
+      <div className="min-h-[120px]">
+        {activeTab === "efficacy" && product.efficacy && (
+          <div>
+            <h3 className="text-white/80 text-sm font-medium mb-3 flex items-center gap-2">
+              <Zap size={14} className="text-gold" />
+              {t("shop.detail.tab.efficacy")}
+            </h3>
+            <p className="text-white/60 text-sm leading-relaxed whitespace-pre-line">{product.efficacy}</p>
+          </div>
+        )}
+
+        {activeTab === "usage" && product.usage && (
+          <div>
+            <h3 className="text-white/80 text-sm font-medium mb-3 flex items-center gap-2">
+              <BookOpen size={14} className="text-gold" />
+              {t("shop.detail.tab.usage")}
+            </h3>
+            <p className="text-white/60 text-sm leading-relaxed whitespace-pre-line">{product.usage}</p>
+          </div>
+        )}
+
+        {activeTab === "precautions" && product.precautions && (
+          <div>
+            <h3 className="text-white/80 text-sm font-medium mb-3 flex items-center gap-2">
+              <AlertTriangle size={14} className="text-gold" />
+              {t("shop.detail.tab.precautions")}
+            </h3>
+            <p className="text-white/60 text-sm leading-relaxed whitespace-pre-line">{product.precautions}</p>
+          </div>
+        )}
+
+        {activeTab === "specs" && product.specifications && (
+          <div>
+            <h3 className="text-white/80 text-sm font-medium mb-3 flex items-center gap-2">
+              <ClipboardList size={14} className="text-gold" />
+              {t("shop.detail.tab.specs")}
+            </h3>
+            <div className="space-y-2">
+              {Object.entries(product.specifications).map(([key, value]) => (
+                <div key={key} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
+                  <span className="text-white/40 text-xs">{key}</span>
+                  <span className="text-white/70 text-xs">{value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

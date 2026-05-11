@@ -272,25 +272,7 @@ export default function AccountPage() {
                     <Link href="/shop" className="text-gold text-xs mt-2 hover:underline">{t("account.browseShop")}</Link>
                   </div>
                 ) : (
-                  <div className="space-y-3">
-                    {orders.map(o => {
-                      const status = ORDER_STATUS_LABELS[o.status] || { label: o.status, color: "text-white/40" }
-                      return (
-                        <div key={o.id} className="card-glass p-4">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-white/50 text-xs font-mono">{o.order_no}</span>
-                            <span className={`text-xs font-medium ${status.color}`}>{status.label}</span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-white/40 text-xs">
-                              {o.item_count} {t("account.itemsUnit")} · {new Date(o.created_at).toLocaleDateString("zh-CN")}
-                            </span>
-                            <span className="text-gold font-bold">¥{o.total_cny}</span>
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
+                  <OrderList orders={orders} statusLabels={ORDER_STATUS_LABELS} t={t as unknown as (key: string) => string} />
                 )}
               </div>
             )}
@@ -371,10 +353,87 @@ export default function AccountPage() {
             )}
 
             {/* Settings */}
-            {tab === "settings" && <SettingsTab user={user} refreshUser={refreshUser} t={t} />}
+            {tab === "settings" && <SettingsTab user={user} refreshUser={refreshUser} t={t as unknown as (key: string) => string} />}
           </div>
         </div>
       </div>
+    </div>
+  )
+}
+
+// ── Order List with Filtering ────────────────────────────────────────────
+
+import { useState as useStateLocal } from "react"
+
+function OrderList({ orders, statusLabels, t }: {
+  orders: OrderListItem[]
+  statusLabels: Record<string, { label: string; color: string }>
+  t: (key: string) => string
+}) {
+  const [filter, setFilter] = useStateLocal<string>("all")
+
+  const FILTERS = [
+    { key: "all", label: t("order.filter.all") },
+    { key: "pending", label: t("order.filter.pending") },
+    { key: "paid", label: t("order.filter.paid") },
+    { key: "shipped", label: t("order.filter.shipped") },
+    { key: "delivered", label: t("order.filter.delivered") },
+  ]
+
+  const filtered = filter === "all" ? orders : orders.filter(o => o.status === filter)
+
+  return (
+    <div>
+      {/* Filter tabs */}
+      <div className="flex gap-1.5 overflow-x-auto scrollbar-none mb-4">
+        {FILTERS.map(f => (
+          <button
+            key={f.key}
+            onClick={() => setFilter(f.key)}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
+              filter === f.key
+                ? "bg-gold/15 text-gold border border-gold/30"
+                : "bg-white/[0.04] text-white/40 border border-white/[0.08] hover:text-white/60"
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Order list */}
+      {filtered.length === 0 ? (
+        <div className="card-glass p-8 text-center">
+          <p className="text-white/30 text-sm">{t("account.noOrders")}</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {filtered.map(o => {
+            const status = statusLabels[o.status] || { label: o.status, color: "text-white/40" }
+            return (
+              <Link
+                key={o.id}
+                href={`/account/orders/${o.id}`}
+                className="block card-glass p-4 hover:border-gold/30 transition-all group"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-white/50 text-xs font-mono">{o.order_no}</span>
+                  <span className={`text-xs font-medium ${status.color}`}>{status.label}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-white/40 text-xs">
+                    {o.item_count} {t("account.itemsUnit")} · {new Date(o.created_at).toLocaleDateString("zh-CN")}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gold font-bold">¥{o.total_cny}</span>
+                    <ChevronRight size={14} className="text-white/20 group-hover:text-gold transition-colors" />
+                  </div>
+                </div>
+              </Link>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }

@@ -9,7 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.database.session import AsyncSessionLocal
-from backend.database.models import User, Order, OrderItem, UserFavorite, Product
+from backend.database.models import User, Order, OrderItem, UserFavorite, UserAddress, Product, OrderStatus
 from backend.auth.dependencies import require_user
 from backend.auth.jwt import verify_password, hash_password
 
@@ -193,3 +193,232 @@ async def change_password(
         db_user.hashed_password = hash_password(req.new_password)
         await db.commit()
         return {"message": "密码修改成功"}
+
+
+# ── Addresses ──────────────────────────────────────────────────────────────
+
+class AddressRequest(BaseModel):
+    recipient_name: str
+    phone: str
+    country: str = "中国"
+    province: Optional[str] = None
+    city: Optional[str] = None
+    district: Optional[str] = None
+    address_line1: str
+    address_line2: Optional[str] = None
+    postal_code: Optional[str] = None
+    is_default: bool = False
+
+
+def _address_to_dict(a: UserAddress) -> dict:
+    return {
+        "id": str(a.id),
+        "recipient_name": a.recipient_name,
+        "phone": a.phone,
+        "country": a.country,
+        "province": a.province,
+        "city": a.city,
+        "district": a.district,
+        "address_line1": a.address_line1,
+        "address_line2": a.address_line2,
+        "postal_code": a.postal_code,
+        "is_default": a.is_default,
+        "created_at": a.created_at.isoformat() if a.created_at else "",
+    }
+
+
+@router.get("/addresses")
+async def list_addresses(user: User = Depends(require_user)):
+    async with AsyncSessionLocal() as db:
+        stmt = (
+            select(UserAddress)
+            .where(UserAddress.user_id == user.id)
+            .order_by(UserAddress.is_default.desc(), UserAddress.created_at.desc())
+        )
+        result = await db.execute(stmt)
+        return [_address_to_dict(a) for a in result.scalars().all()]
+
+
+@router.post("/addresses")
+async def create_address(req: AddressRequest, user: User = Depends(require_user)):
+    async with AsyncSessionLocal() as db:
+        if req.is_default:
+            await db.execute(
+                UserAddress.__table__.update()
+                .where(UserAddress.user_id == user.id)
+                .values(is_default=False)
+            )
+        addr = UserAddress(
+            user_id=user.id,
+            recipient_name=req.recipient_name,
+            phone=req.phone,
+            country=req.country,
+            province=req.province,
+            city=req.city,
+            district=req.district,
+            address_line1=req.address_line1,
+            address_line2=req.address_line2,
+            postal_code=req.postal_code,
+            is_default=req.is_default,
+        )
+        db.add(addr)
+        await db.commit()
+        await db.refresh(addr)
+        return _address_to_dict(addr)
+
+
+@router.put("/addresses/{address_id}")
+async def update_address(address_id: str, req: AddressRequest, user: User = Depends(require_user)):
+    async with AsyncSessionLocal() as db:
+        result = await db.execute(
+            select(UserAddress).where(UserAddress.id == address_id, UserAddress.user_id == user.id)
+        )
+        addr = result.scalar_one_or_none()
+        if not addr:
+            raise HTTPException(status_code=404, detail="地址不存在")
+        if req.is_default and not addr.is_default:
+            await db.execute(
+                UserAddress.__table__.update()
+                .where(UserAddress.user_id == user.id)
+                .values(is_default=False)
+            )
+        for field in ("recipient_name", "phone", "country", "province", "city", "district",
+                       "address_line1", "address_line2", "postal_code", "is_default"):
+            setattr(addr, field, getattr(req, field))
+        await db.commit()
+        await db.refresh(addr)
+        return _address_to_dict(addr)
+
+
+@router.delete("/addresses/{address_id}")
+async def delete_address(address_id: str, user: User = Depends(require_user)):
+    async with AsyncSessionLocal() as db:
+        result = await db.execute(
+            select(UserAddress).where(UserAddress.id == address_id, UserAddress.user_id == user.id)
+        )
+        addr = result.scalar_one_or_none()
+        if not addr:
+            raise HTTPException(status_code=404, detail="地址不存在")
+        await db.delete(addr)
+        await db.commit()
+        return {"status": "deleted"}
+
+
+@router.put("/addresses/{address_id}/default")
+async def set_default_address(address_id: str, user: User = Depends(require_user)):
+    async with AsyncSessionLocal() as db:
+        result = await db.execute(
+            select(UserAddress).where(UserAddress.id == address_id, UserAddress.user_id == user.id)
+        )
+        addr = result.scalar_one_or_none()
+        if not addr:
+            raise HTTPException(status_code=404, detail="地址不存在")
+        await db.execute(
+            UserAddress.__table__.update()
+            .where(UserAddress.user_id == user.id)
+            .values(is_default=False)
+        )
+        addr.is_default = True
+        await db.commit()
+        return {"status": "ok"}
+
+
+# ── Order Detail & Actions ─────────────────────────────────────────────────
+
+@router.get("/orders/{order_id}")
+async def get_order_detail(order_id: str, user: User = Depends(require_user)):
+    async with AsyncSessionLocal() as db:
+        result = await db.execute(
+            select(Order).where(Order.id == order_id, Order.user_id == user.id)
+        )
+        order = result.scalar_one_or_none()
+        if not order:
+            raise HTTPException(status_code=404, detail="订单不存在")
+
+        item_stmt = select(OrderItem).where(OrderItem.order_id == order.id)
+        item_result = await db.execute(item_stmt)
+        items = [
+            {
+                "id": str(i.id),
+                "product_name": i.product_name,
+                "quantity": i.quantity,
+                "unit_price_cny": i.unit_price_cny,
+                "subtotal_cny": i.subtotal_cny,
+                "recommendation_reason": i.recommendation_reason,
+            }
+            for i in item_result.scalars().all()
+        ]
+
+        # Load address info
+        address_info = None
+        if order.shipping_address:
+            addr_data = order.shipping_address
+            if isinstance(addr_data, dict):
+                address_info = addr_data
+
+        return {
+            "id": str(order.id),
+            "order_no": order.order_no,
+            "status": order.status.value if order.status else "pending",
+            "total_cny": order.total_cny,
+            "total_usd": order.total_usd,
+            "payment_method": order.payment_method,
+            "recipient_name": order.recipient_name,
+            "recipient_phone": order.recipient_phone,
+            "shipping_address": address_info,
+            "tracking_number": order.tracking_number,
+            "shipping_carrier": order.shipping_carrier,
+            "notes": order.notes,
+            "items": items,
+            "created_at": order.created_at.isoformat() if order.created_at else "",
+            "paid_at": order.paid_at.isoformat() if order.paid_at else None,
+            "shipped_at": order.shipped_at.isoformat() if order.shipped_at else None,
+        }
+
+
+@router.post("/orders/{order_id}/cancel")
+async def cancel_order(order_id: str, user: User = Depends(require_user)):
+    async with AsyncSessionLocal() as db:
+        result = await db.execute(
+            select(Order).where(Order.id == order_id, Order.user_id == user.id)
+        )
+        order = result.scalar_one_or_none()
+        if not order:
+            raise HTTPException(status_code=404, detail="订单不存在")
+        if order.status not in (OrderStatus.pending,):
+            raise HTTPException(status_code=400, detail="当前订单状态不允许取消")
+        order.status = OrderStatus.cancelled
+        await db.commit()
+        return {"status": "cancelled", "message": "订单已取消"}
+
+
+@router.post("/orders/{order_id}/confirm-receive")
+async def confirm_receive(order_id: str, user: User = Depends(require_user)):
+    async with AsyncSessionLocal() as db:
+        result = await db.execute(
+            select(Order).where(Order.id == order_id, Order.user_id == user.id)
+        )
+        order = result.scalar_one_or_none()
+        if not order:
+            raise HTTPException(status_code=404, detail="订单不存在")
+        if order.status != OrderStatus.shipped:
+            raise HTTPException(status_code=400, detail="只有已发货的订单才能确认收货")
+        order.status = OrderStatus.delivered
+        await db.commit()
+        return {"status": "delivered", "message": "已确认收货"}
+
+
+@router.post("/orders/{order_id}/request-refund")
+async def request_refund(order_id: str, user: User = Depends(require_user)):
+    async with AsyncSessionLocal() as db:
+        result = await db.execute(
+            select(Order).where(Order.id == order_id, Order.user_id == user.id)
+        )
+        order = result.scalar_one_or_none()
+        if not order:
+            raise HTTPException(status_code=404, detail="订单不存在")
+        if order.status not in (OrderStatus.paid, OrderStatus.shipped):
+            raise HTTPException(status_code=400, detail="当前订单状态不允许申请退款")
+        order.status = OrderStatus.refunded
+        await db.commit()
+        return {"status": "refunded", "message": "退款申请已提交"}
