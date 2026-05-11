@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/account", "/checkout", "/readings", "/api/"],
       },
     ],
-    sitemap: "https://destinymirror.com/sitemap.xml",
+    sitemap: "https://khanfate.com/sitemap.xml",
   }
 }
