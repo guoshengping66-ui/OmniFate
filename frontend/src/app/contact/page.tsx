@@ -129,12 +129,12 @@ export default function ContactPage() {
                     onChange={e => setSubject(e.target.value)}
                     className="input-field"
                   >
-                    <option value="">请选择主题</option>
-                    <option value="general">一般咨询</option>
-                    <option value="technical">技术问题</option>
-                    <option value="billing">支付与退款</option>
-                    <option value="feedback">功能建议</option>
-                    <option value="other">其他</option>
+                    <option value="" className="bg-[#0f0f1a] text-white">请选择主题</option>
+                    <option value="general" className="bg-[#0f0f1a] text-white">一般咨询</option>
+                    <option value="technical" className="bg-[#0f0f1a] text-white">技术问题</option>
+                    <option value="billing" className="bg-[#0f0f1a] text-white">支付与退款</option>
+                    <option value="feedback" className="bg-[#0f0f1a] text-white">功能建议</option>
+                    <option value="other" className="bg-[#0f0f1a] text-white">其他</option>
                   </select>
                 </div>
 

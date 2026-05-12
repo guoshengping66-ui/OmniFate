@@ -129,13 +129,13 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
               onChange={e => handleProvinceChange(e.target.value)}
               className="input-field text-sm"
             >
-              <option value="">选择省份</option>
+              <option value="" className="bg-[#0f0f1a] text-white">选择省份</option>
               {CHINA_REGIONS.map(p => (
-                <option key={p.name} value={p.name}>
+                <option key={p.name} value={p.name} className="bg-[#0f0f1a] text-white">
                   {p.name}
                 </option>
               ))}
-              <option value={OTHER_COUNTRY}>其他国家/地区</option>
+              <option value={OTHER_COUNTRY} className="bg-[#0f0f1a] text-white">其他国家/地区</option>
             </select>
 
             {/* City */}
@@ -145,9 +145,9 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
               disabled={!currentProvince}
               className="input-field text-sm disabled:opacity-30"
             >
-              <option value="">选择城市</option>
+              <option value="" className="bg-[#0f0f1a] text-white">选择城市</option>
               {currentProvince?.children.map(c => (
-                <option key={c.name} value={c.name}>
+                <option key={c.name} value={c.name} className="bg-[#0f0f1a] text-white">
                   {c.name}
                 </option>
               ))}
@@ -160,9 +160,9 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
               disabled={!currentCity}
               className="input-field text-sm disabled:opacity-30"
             >
-              <option value="">选择区县</option>
+              <option value="" className="bg-[#0f0f1a] text-white">选择区县</option>
               {currentCity?.children.map(d => (
-                <option key={d.name} value={d.name}>
+                <option key={d.name} value={d.name} className="bg-[#0f0f1a] text-white">
                   {d.name}
                 </option>
               ))}

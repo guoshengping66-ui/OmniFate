@@ -251,17 +251,17 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
               onChange={e => setCountry(e.target.value)}
               className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white/80 focus:border-gold/30 focus:outline-none"
             >
-              <option value="中国">中国</option>
-              <option value="US">United States</option>
-              <option value="CA">Canada</option>
-              <option value="GB">United Kingdom</option>
-              <option value="AU">Australia</option>
-              <option value="JP">Japan</option>
-              <option value="KR">South Korea</option>
-              <option value="SG">Singapore</option>
-              <option value="MY">Malaysia</option>
-              <option value="TH">Thailand</option>
-              <option value="OTHER">其他</option>
+              <option value="中国" className="bg-[#0f0f1a] text-white">中国</option>
+              <option value="US" className="bg-[#0f0f1a] text-white">United States</option>
+              <option value="CA" className="bg-[#0f0f1a] text-white">Canada</option>
+              <option value="GB" className="bg-[#0f0f1a] text-white">United Kingdom</option>
+              <option value="AU" className="bg-[#0f0f1a] text-white">Australia</option>
+              <option value="JP" className="bg-[#0f0f1a] text-white">Japan</option>
+              <option value="KR" className="bg-[#0f0f1a] text-white">South Korea</option>
+              <option value="SG" className="bg-[#0f0f1a] text-white">Singapore</option>
+              <option value="MY" className="bg-[#0f0f1a] text-white">Malaysia</option>
+              <option value="TH" className="bg-[#0f0f1a] text-white">Thailand</option>
+              <option value="OTHER" className="bg-[#0f0f1a] text-white">其他</option>
             </select>
           </div>
 
@@ -275,8 +275,8 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
                   onChange={e => setProvince(e.target.value)}
                   className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-2 py-2 text-xs text-white/80 focus:border-gold/30 focus:outline-none"
                 >
-                  <option value="">{t("address.select")}</option>
-                  {provinces.map(p => <option key={p} value={p}>{p}</option>)}
+                  <option value="" className="bg-[#0f0f1a] text-white">{t("address.select")}</option>
+                  {provinces.map(p => <option key={p} value={p} className="bg-[#0f0f1a] text-white">{p}</option>)}
                 </select>
               </div>
               <div>
@@ -287,8 +287,8 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
                   disabled={!province}
                   className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-2 py-2 text-xs text-white/80 focus:border-gold/30 focus:outline-none disabled:opacity-30"
                 >
-                  <option value="">{t("address.select")}</option>
-                  {cities.map(c => <option key={c} value={c}>{c}</option>)}
+                  <option value="" className="bg-[#0f0f1a] text-white">{t("address.select")}</option>
+                  {cities.map(c => <option key={c} value={c} className="bg-[#0f0f1a] text-white">{c}</option>)}
                 </select>
               </div>
               <div>
@@ -299,8 +299,8 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
                   disabled={!city}
                   className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-2 py-2 text-xs text-white/80 focus:border-gold/30 focus:outline-none disabled:opacity-30"
                 >
-                  <option value="">{t("address.select")}</option>
-                  {districts.map(d => <option key={d.name} value={d.name}>{d.name}</option>)}
+                  <option value="" className="bg-[#0f0f1a] text-white">{t("address.select")}</option>
+                  {districts.map(d => <option key={d.name} value={d.name} className="bg-[#0f0f1a] text-white">{d.name}</option>)}
                 </select>
               </div>
             </div>

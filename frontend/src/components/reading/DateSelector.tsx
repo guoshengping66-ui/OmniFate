@@ -45,9 +45,9 @@ export function DateSelector({ year, month, day, onYearChange, onMonthChange, on
           onChange={e => handleYearChange(Number(e.target.value))}
           className="input-field text-sm"
         >
-          <option value="">年</option>
+          <option value="" className="bg-[#0f0f1a] text-white">年</option>
           {years.map(y => (
-            <option key={y} value={y}>{y}年</option>
+            <option key={y} value={y} className="bg-[#0f0f1a] text-white">{y}年</option>
           ))}
         </select>
 
@@ -56,9 +56,9 @@ export function DateSelector({ year, month, day, onYearChange, onMonthChange, on
           onChange={e => handleMonthChange(Number(e.target.value))}
           className="input-field text-sm"
         >
-          <option value="">月</option>
+          <option value="" className="bg-[#0f0f1a] text-white">月</option>
           {months.map(m => (
-            <option key={m} value={m}>{m}月</option>
+            <option key={m} value={m} className="bg-[#0f0f1a] text-white">{m}月</option>
           ))}
         </select>
 
@@ -67,9 +67,9 @@ export function DateSelector({ year, month, day, onYearChange, onMonthChange, on
           onChange={e => onDayChange(Number(e.target.value))}
           className="input-field text-sm"
         >
-          <option value="">日</option>
+          <option value="" className="bg-[#0f0f1a] text-white">日</option>
           {days.map(d => (
-            <option key={d} value={d}>{d}日</option>
+            <option key={d} value={d} className="bg-[#0f0f1a] text-white">{d}日</option>
           ))}
         </select>
       </div>
