@@ -1,31 +1,19 @@
-const CACHE_NAME = "destiny-mirror-v1";
-const STATIC_ASSETS = [
-  "/",
-  "/about",
-  "/shop",
-  "/blog",
-  "/pricing",
-  "/reading/new",
-  "/seo/bazi",
-  "/seo/astrology",
-  "/seo/tarot",
-  "/seo/face-reading",
-];
+const CACHE_VERSION = "v2";
+const CACHE_NAME = `destiny-mirror-${CACHE_VERSION}`;
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
-  );
+  // Don't pre-cache pages — let network-first handle it.
+  // Just activate immediately.
   self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
+  // Delete ALL old caches on new SW version
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    )
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 self.addEventListener("fetch", (event) => {
@@ -36,17 +24,17 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // NETWORK-FIRST: Always try fresh content first, fall back to cache.
+  // This ensures after a deployment, users always get the new code.
   event.respondWith(
-    caches.match(request).then((cached) => {
-      const fetched = fetch(request).then((response) => {
+    fetch(request)
+      .then((response) => {
         if (response && response.status === 200) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
         }
         return response;
-      }).catch(() => cached);
-
-      return cached || fetched;
-    })
+      })
+      .catch(() => caches.match(request))
   );
 });
