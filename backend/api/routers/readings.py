@@ -469,6 +469,89 @@ def _worker_from_report(agent_id: str, report: Optional[str]) -> WorkerReportOut
     )
 
 
+# ─── SSE Streaming Endpoint ──────────────────────────────────────────────
+
+@router.get("/session/{session_id}/stream")
+async def stream_session(session_id: str):
+    """
+    SSE endpoint: push progress events as analysis completes.
+    Events: phase, worker_done, subtask_done, complete, error.
+    """
+    async def event_generator():
+        state = _sessions.get(session_id)
+        if not state:
+            yield f"data: {json.dumps({'type': 'error', 'message': 'Session not found'})}\n\n"
+            return
+
+        last_phase = ""
+        streamed_workers: set[str] = set()
+        streamed_subtasks: set[str] = set()
+        last_pct = -1
+        last_agent_status: dict[str, str] = {}
+
+        while state.phase != "done":
+            # Phase changes
+            if state.phase != last_phase:
+                yield f"data: {json.dumps({'type': 'phase', 'phase': state.phase})}\n\n"
+                last_phase = state.phase
+
+            # Progress events
+            if state.progress_pct > last_pct:
+                yield f"data: {json.dumps({'type': 'progress', 'pct': state.progress_pct, 'message': state.progress_message})}\n\n"
+                last_pct = state.progress_pct
+
+            # Agent status changes
+            if state.agent_status != last_agent_status:
+                yield f"data: {json.dumps({'type': 'agent_status', 'status': dict(state.agent_status)})}\n\n"
+                last_agent_status = dict(state.agent_status)
+
+            # Worker completions
+            for agent_id in ["astrology", "tarot", "bazi", "qimen", "ziwei", "face", "palm"]:
+                if agent_id in streamed_workers:
+                    continue
+                wo = getattr(state, f"{agent_id}_output", None)
+                if wo and wo.report and wo.duration_ms:
+                    yield f"data: {json.dumps({'type': 'worker_done', 'agent_id': agent_id, 'duration_ms': round(wo.duration_ms)})}\n\n"
+                    streamed_workers.add(agent_id)
+
+            # Sub-task completions
+            for st_name, st_field in [
+                ("core", "master_subtask_core"),
+                ("dimensions", "master_subtask_dimensions"),
+                ("actions", "master_subtask_actions"),
+            ]:
+                if st_name in streamed_subtasks:
+                    continue
+                val = getattr(state, st_field, "")
+                if val:
+                    yield f"data: {json.dumps({'type': 'subtask_done', 'subtask': st_name, 'length': len(val)})}\n\n"
+                    streamed_subtasks.add(st_name)
+
+            await asyncio.sleep(0.5)
+
+        # Flush any remaining subtask events that completed at the same time as phase="done"
+        for st_name, st_field in [
+            ("core", "master_subtask_core"),
+            ("dimensions", "master_subtask_dimensions"),
+            ("actions", "master_subtask_actions"),
+        ]:
+            if st_name not in streamed_subtasks:
+                val = getattr(state, st_field, "")
+                if val:
+                    yield f"data: {json.dumps({'type': 'subtask_done', 'subtask': st_name, 'length': len(val)})}\n\n"
+                    streamed_subtasks.add(st_name)
+
+        # Final complete event
+        yield f"data: {json.dumps({'type': 'progress', 'pct': 100, 'message': '分析完成'})}\n\n"
+        yield f"data: {json.dumps({'type': 'complete', 'master_summary': state.master_summary[:500], 'master_detail': state.master_detail})}\n\n"
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
+
+
 @router.get("/my", response_model=list[ReadingListItem])
 async def list_my_readings(user: User = Depends(require_user)):
     """List all readings belonging to the current user, newest first."""
@@ -522,7 +605,10 @@ async def upload_face_image(session_id: str, file: UploadFile = File(...)):
     content = await file.read()
     if len(content) > MAX_UPLOAD_SIZE:
         raise HTTPException(status_code=413, detail="文件大小超过限制（最大 10MB）")
-    result = face_v2t.analyze_bytes(content)
+    try:
+        result = face_v2t.analyze_bytes(content)
+    except RuntimeError as e:
+        raise HTTPException(status_code=500, detail=f"视觉分析模块未安装: {e}")
     if not result:
         raise HTTPException(status_code=422,
                             detail="无法检测到面部。请上传清晰正面照。")
@@ -583,7 +669,10 @@ async def analyze_face_image(file: UploadFile = File(...)):
     content = await file.read()
     if len(content) > MAX_UPLOAD_SIZE:
         raise HTTPException(status_code=413, detail="文件大小超过限制（最大 10MB）")
-    result = face_v2t.analyze_bytes(content)
+    try:
+        result = face_v2t.analyze_bytes(content)
+    except RuntimeError as e:
+        raise HTTPException(status_code=500, detail=f"视觉分析模块未安装: {e}")
     if not result:
         raise HTTPException(status_code=422,
                             detail="无法检测到面部。请上传清晰正面照。")
@@ -664,7 +753,10 @@ async def upload_palm_image(session_id: str, file: UploadFile = File(...)):
     content = await file.read()
     if len(content) > MAX_UPLOAD_SIZE:
         raise HTTPException(status_code=413, detail="文件大小超过限制（最大 10MB）")
-    result = palm_v2t.analyze_bytes(content)
+    try:
+        result = palm_v2t.analyze_bytes(content)
+    except RuntimeError as e:
+        raise HTTPException(status_code=500, detail=f"视觉分析模块未安装: {e}")
     if not result:
         raise HTTPException(status_code=422,
                             detail="无法检测到手掌。请上传清晰手掌照片。")
@@ -736,7 +828,10 @@ async def analyze_palm_image(file: UploadFile = File(...)):
     content = await file.read()
     if len(content) > MAX_UPLOAD_SIZE:
         raise HTTPException(status_code=413, detail="文件大小超过限制（最大 10MB）")
-    result = palm_v2t.analyze_bytes(content)
+    try:
+        result = palm_v2t.analyze_bytes(content)
+    except RuntimeError as e:
+        raise HTTPException(status_code=500, detail=f"视觉分析模块未安装: {e}")
     if not result:
         raise HTTPException(status_code=422,
                             detail="无法检测到手掌。请上传清晰手掌照片。")
@@ -1170,6 +1265,11 @@ async def get_event_detail(
         raise HTTPException(status_code=500, detail="获取事件详情失败，请稍后重试")
 
 
+# ─── Daily Almanac Cache ─────────────────────────────────────────────────────
+_almanac_cache: dict[str, dict] = {}  # key = f"{session_id}:{date}" -> cached response dict
+_ALMANAC_CACHE_TTL = 3600 * 12  # 12 hours
+
+
 # ─── Daily Almanac Endpoint ────────────────────────────────────────────────────
 
 
@@ -1185,6 +1285,14 @@ async def get_daily_almanac(session_id: str = Query(...)):
         raise HTTPException(status_code=404, detail="Session not found. Run /readings/ first.")
     if not state.birth_info:
         raise HTTPException(status_code=400, detail="Session missing birth info.")
+
+    # Check cache — same user + same day = instant response
+    from fastapi.responses import JSONResponse
+    cache_key = f"{session_id}:{date.today()}"
+    import time as _time
+    cached = _almanac_cache.get(cache_key)
+    if cached and (_time.time() - cached.get("_ts", 0)) < _ALMANAC_CACHE_TTL:
+        return JSONResponse(content={k: v for k, v in cached.items() if k != "_ts"})
 
     bi = state.birth_info
     today = date.today()
@@ -1234,7 +1342,7 @@ async def get_daily_almanac(session_id: str = Query(...)):
         energy_score=energy_score,
     )
 
-    # 6. Match products for 'hu' (护)
+    # 6. Match products for 'hu' (护) — use template explanations (fast, no LLM)
     from services.product_matcher import ProductMatcher
     matcher = ProductMatcher()
     all_weakness = list(state.computed_tags or [])
@@ -1244,12 +1352,11 @@ async def get_daily_almanac(session_id: str = Query(...)):
         top_k=3,
     )
     for p in matched:
-        explanation = matcher.explain_why(
+        p["recommendation_text"] = matcher.explain_why_template(
             product=p,
-            master_summary=state.master_summary,
             weakness_tags=all_weakness,
+            boost_elements=almanac_data.get("boost_elements", []),
         )
-        p["recommendation_text"] = explanation
 
     hu_items = [
         {
@@ -1259,7 +1366,7 @@ async def get_daily_almanac(session_id: str = Query(...)):
         for p in matched
     ]
 
-    return DailyAlmanacResponse(
+    result = DailyAlmanacResponse(
         date=today.isoformat(),
         energy_score=energy_score,
         yi=almanac_data.get("yi", []),
@@ -1268,6 +1375,16 @@ async def get_daily_almanac(session_id: str = Query(...)):
         daily_quote=almanac_data.get("daily_quote", "顺势而为，方得始终。"),
         wuxing_analysis=almanac_data.get("wuxing_analysis", ""),
     )
+
+    # Cache the result for 12 hours
+    _almanac_cache[cache_key] = {**result.model_dump(), "_ts": _time.time()}
+    # Evict old entries
+    if len(_almanac_cache) > 500:
+        oldest_keys = sorted(_almanac_cache, key=lambda k: _almanac_cache[k].get("_ts", 0))[:200]
+        for k in oldest_keys:
+            _almanac_cache.pop(k, None)
+
+    return result
 
 
 async def _generate_almanac(
@@ -1333,9 +1450,17 @@ async def _generate_almanac(
     )
 
     from langchain_core.messages import SystemMessage, HumanMessage
-    llm = _llm(temperature=0.7)
+    # Use fast model with low max_tokens for speed
+    from langchain_openai import ChatOpenAI
+    _fast_llm = ChatOpenAI(
+        model=settings.MASTER_FAST_MODEL,
+        api_key=settings.OPENAI_API_KEY,
+        base_url=settings.OPENAI_BASE_URL or None,
+        temperature=0.7,
+        max_tokens=256,
+    )
     try:
-        resp = await llm.ainvoke([
+        resp = await _fast_llm.ainvoke([
             SystemMessage(content=system),
             HumanMessage(content="请根据以上信息生成今日黄历JSON。"),
         ])

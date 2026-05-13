@@ -132,7 +132,11 @@ class PalmV2T:
             if img is None:
                 return None
             return self._analyze(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), img, img.shape)
-        except Exception:
+        except ImportError:
+            raise RuntimeError("opencv or mediapipe not installed — pip install opencv-python-headless mediapipe")
+        except Exception as exc:
+            import logging
+            logging.getLogger(__name__).warning("palm_v2t.analyze_bytes failed: %s", exc)
             return None
 
     def analyze_path(self, path: str) -> Optional[PalmV2TResult]:
