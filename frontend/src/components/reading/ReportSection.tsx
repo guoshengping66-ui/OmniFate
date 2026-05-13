@@ -2,11 +2,32 @@
 import { useState } from "react"
 import { ChevronDown, ChevronUp } from "lucide-react"
 
-/** Strip markdown asterisks from LLM-generated text */
+/** Strip Markdown formatting and garbled symbols from LLM-generated text */
 function stripMarkdown(text: string): string {
   return text
+    // Bold / italic markers
     .replace(/\*\*(.+?)\*\*/g, "$1")
     .replace(/\*(.+?)\*/g, "$1")
+    // Headings (###, ##, #)
+    .replace(/^#{1,6}\s+/gm, "")
+    // Horizontal rules (---, ***, ___)
+    .replace(/^\s*[-*_]{3,}\s*$/gm, "")
+    // Blockquotes
+    .replace(/^>\s*/gm, "")
+    // Inline code backticks
+    .replace(/`([^`]+)`/g, "$1")
+    // Links [text](url) → text
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    // Images ![alt](url)
+    .replace(/!\[[^\]]*\]\([^)]+\)/g, "")
+    // Stray hash symbols (#--) patterns
+    .replace(/#-+/g, "")
+    .replace(/^#+\s*$/gm, "")
+    // List markers that look garbled
+    .replace(/^\s*[-*+]\s+(?=[#-])/gm, "")
+    // Clean up excessive blank lines (3+ → 2)
+    .replace(/\n{3,}/g, "\n\n")
+    .trim()
 }
 
 interface Props {

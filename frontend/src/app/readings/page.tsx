@@ -11,6 +11,23 @@ import { listMyReadings, ReadingListItem } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 
+function stripMarkdown(text: string): string {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/\*(.+?)\*\*/g, "$1")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/^\s*[-*_]{3,}\s*$/gm, "")
+    .replace(/^>\s*/gm, "")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/!\[[^\]]*\]\([^)]+\)/g, "")
+    .replace(/#-+/g, "")
+    .replace(/^#+\s*$/gm, "")
+    .replace(/^\s*[-*+]\s+(?=[#-])/gm, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim()
+}
+
 export default function ReadingsPage() {
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
@@ -125,7 +142,7 @@ export default function ReadingsPage() {
 
                       {r.master_summary && (
                         <p className="text-white/40 text-xs leading-relaxed line-clamp-2 mb-2">
-                          {r.master_summary}
+                          {stripMarkdown(r.master_summary)}
                         </p>
                       )}
 

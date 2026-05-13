@@ -8,7 +8,8 @@ import {
   ChevronDown, Eye, Clock, Compass, ScrollText,
 } from "lucide-react"
 import toast from "react-hot-toast"
-import { getSession, matchProducts, unlockReport, AnalysisResponse, Product, AGENT_LABELS } from "@/lib/api"
+import { getSession, matchProducts, unlockReport, streamSession, AnalysisResponse, Product, AGENT_LABELS, SSEEvent, AgentStatusValue } from "@/lib/api"
+import AnalysisProgress from "@/components/reading/AnalysisProgress"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { ReportSection } from "@/components/reading/ReportSection"
@@ -31,6 +32,17 @@ function stripMarkdown(text: string): string {
   return text
     .replace(/\*\*(.+?)\*\*/g, "$1")
     .replace(/\*(.+?)\*\*/g, "$1")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/^\s*[-*_]{3,}\s*$/gm, "")
+    .replace(/^>\s*/gm, "")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/!\[[^\]]*\]\([^)]+\)/g, "")
+    .replace(/#-+/g, "")
+    .replace(/^#+\s*$/gm, "")
+    .replace(/^\s*[-*+]\s+(?=[#-])/gm, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim()
 }
 
 const DIM_LABELS: Record<string, string> = {
@@ -108,19 +120,70 @@ export default function ReadingPage() {
   const [unlockLoading, setUnlockLoading] = useState(false)
   const [isUnlocked, setIsUnlocked] = useState(false)
 
+  // SSE streaming progress
+  const [ssePhase, setSsePhase] = useState<string>("")
+  const [completedWorkers, setCompletedWorkers] = useState<Set<string>>(new Set())
+  const [completedSubtasks, setCompletedSubtasks] = useState<Set<string>>(new Set())
+  const [progressPct, setProgressPct] = useState(0)
+  const [progressMessage, setProgressMessage] = useState("")
+  const [agentStatus, setAgentStatus] = useState<Record<string, AgentStatusValue>>({})
+  const sseStartTime = useRef(Date.now())
+
   // Scroll-driven progressive reveal
   const [heroVisible, setHeroVisible] = useState(false)
   const heroRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!id) return
-    getSession(id)
-      .then(d => {
-        setData(d)
-        setIsUnlocked(d.is_detail_unlocked)
-        setLoading(false)
+    let cancelled = false
+
+    getSession(id).then(d => {
+      if (cancelled) return
+      setData(d)
+      setIsUnlocked(d.is_detail_unlocked)
+      setLoading(false)
+
+      // If already done, no need for SSE
+      if (d.status === "done" || d.status === "chat") return
+
+      // Connect to SSE stream for progressive updates
+      streamSession(id, (event: SSEEvent) => {
+        if (cancelled) return
+        if (event.type === "phase" && event.phase) {
+          setSsePhase(event.phase)
+        }
+        if (event.type === "progress" && event.pct !== undefined) {
+          setProgressPct(event.pct)
+          if (event.message) setProgressMessage(event.message)
+        }
+        if (event.type === "agent_status" && event.status) {
+          setAgentStatus(event.status)
+        }
+        if (event.type === "worker_done" && event.agent_id) {
+          setCompletedWorkers(prev => new Set(prev).add(event.agent_id!))
+        }
+        if (event.type === "subtask_done" && event.subtask) {
+          setCompletedSubtasks(prev => new Set(prev).add(event.subtask!))
+        }
+        if (event.type === "complete") {
+          setData(prev => prev ? {
+            ...prev,
+            master_summary: event.master_summary || prev.master_summary,
+            master_detail: event.master_detail || prev.master_detail,
+            status: "done",
+          } : prev)
+        }
+      }).catch(() => {
+        // SSE failed — data already loaded via getSession, polling handled by runAnalysis
       })
-      .catch(() => { toast.error("无法加载报告"); setLoading(false) })
+    }).catch(() => {
+      if (!cancelled) {
+        toast.error("无法加载报告")
+        setLoading(false)
+      }
+    })
+
+    return () => { cancelled = true }
   }, [id])
 
   // Trigger hero animation
@@ -153,6 +216,22 @@ export default function ReadingPage() {
 
   if (loading) return <ReadingSkeleton phase="loading" />
   if (!data) return <ReadingSkeleton phase="error" />
+
+  // Show AnalysisProgress when analysis is still running via SSE
+  if (data.status !== "done" && data.status !== "chat") {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <AnalysisProgress
+          progressPct={progressPct}
+          progressMessage={progressMessage}
+          agentStatus={agentStatus}
+          phase={ssePhase || data.status}
+          masterSummary={data.master_summary}
+          startTime={sseStartTime.current}
+        />
+      </div>
+    )
+  }
 
   const workerMap: Record<string, typeof data.bazi> = {
     astrology: data.astrology,
@@ -476,7 +555,19 @@ export default function ReadingPage() {
                 </span>
               </div>
               <div className="text-white/75 text-sm leading-relaxed whitespace-pre-line">
-                {stripMarkdown(data.master_summary || "Master Agent 分析中…")}
+                {data.master_summary
+                  ? stripMarkdown(data.master_summary)
+                  : ssePhase
+                    ? (
+                      <span className="flex items-center gap-2 text-white/40">
+                        <Loader2 size={14} className="animate-spin" />
+                        {ssePhase === "parallel" && `专家分析中… (${completedWorkers.size}/7 完成)`}
+                        {ssePhase === "master" && `综合 synthesis 中… (${completedSubtasks.size}/3 子任务)`}
+                        {!["parallel", "master"].includes(ssePhase) && "分析准备中…"}
+                      </span>
+                    )
+                    : "Master Agent 分析中…"
+                }
               </div>
             </div>
 
