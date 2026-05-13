@@ -4,6 +4,7 @@
 // so we hardcode the default here. Local dev overrides via .env.local.
 const PROD_BACKEND = "https://api.khanfate.com"
 const BACKEND_URL = process.env.BACKEND_URL || PROD_BACKEND
+const isProd = process.env.NODE_ENV === "production"
 
 const securityHeaders = [
   { key: "X-DNS-Prefetch-Control", value: "on" },
@@ -17,11 +18,14 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      // 'unsafe-inline' is REQUIRED for Next.js React Server Components (RSC).
+      // RSC pushes hydration data via inline <script> tags — without 'unsafe-inline'
+      // the browser blocks all inline scripts, causing a blank page on every device.
+      `script-src 'self' 'unsafe-inline'${isProd ? "" : " 'unsafe-eval'"}`,
       "style-src 'self' 'unsafe-inline' https://fonts.font.im https://fonts.gstatic.com",
       "img-src 'self' data: blob: https:",
       "font-src 'self' data: https://fonts.font.im https://fonts.gstatic.com https://fonts.gstatic.font.im",
-      "connect-src 'self' https://api.khanfate.com https://api.deepseek.com http://localhost:* http://127.0.0.1:*",
+      `connect-src 'self' https://api.khanfate.com https://api.deepseek.com${isProd ? "" : " http://localhost:* http://127.0.0.1:*"}`,
       "frame-ancestors 'self'",
     ].join("; "),
   },
