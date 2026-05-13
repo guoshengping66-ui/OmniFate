@@ -84,12 +84,15 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
   })
 
   // Read body — handle multipart (binary) vs JSON differently
-  let body: string | ArrayBuffer | undefined
+  let body: string | ArrayBuffer | Buffer | undefined
   if (request.method !== "GET" && request.method !== "HEAD") {
     if (isMultipart) {
       // ⚠️ CRITICAL: Use arrayBuffer() for multipart to preserve binary file data.
       // text() corrupts binary by interpreting bytes as UTF-8.
-      body = await request.arrayBuffer()
+      // Convert to Buffer — Vercel's fetch handles Buffer better than raw ArrayBuffer
+      // for multipart forwarding, preserving the binary boundary and file bytes.
+      const ab = await request.arrayBuffer()
+      body = Buffer.from(ab)
     } else if (dataParam) {
       // Data from URL param — decode and use as JSON body
       try {
