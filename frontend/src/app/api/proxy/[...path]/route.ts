@@ -44,17 +44,24 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
   const targetPath = "/" + path.join("/")
   const url = new URL(request.url)
 
+  // ── Detect multipart (file upload) requests ──────────────────────────────
+  const contentType = request.headers.get("content-type") || ""
+  const isMultipart = contentType.includes("multipart/form-data")
+
   // ── Dual data extraction: URL param + body fallback ──────────────────────
   // The client sends data in BOTH places to survive proxy corruption.
   // Try URL param first (more resilient), fall back to body.
+  // NOTE: Skip dual-encoding for multipart (file uploads) — it must pass through intact.
   let dataParam: string | null = null
-  try {
-    dataParam = url.searchParams.get("_data")
-    if (dataParam) {
-      url.searchParams.delete("_data")
+  if (!isMultipart) {
+    try {
+      dataParam = url.searchParams.get("_data")
+      if (dataParam) {
+        url.searchParams.delete("_data")
+      }
+    } catch {
+      // URL parsing failed — continue without dataParam
     }
-  } catch {
-    // URL parsing failed — continue without dataParam
   }
 
   const cleanSearch = url.search
@@ -76,10 +83,14 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
     headers.set(key, value)
   })
 
-  // Read body — try URL param first, fall back to body
-  let body: string | undefined
+  // Read body — handle multipart (binary) vs JSON differently
+  let body: string | ArrayBuffer | undefined
   if (request.method !== "GET" && request.method !== "HEAD") {
-    if (dataParam) {
+    if (isMultipart) {
+      // ⚠️ CRITICAL: Use arrayBuffer() for multipart to preserve binary file data.
+      // text() corrupts binary by interpreting bytes as UTF-8.
+      body = await request.arrayBuffer()
+    } else if (dataParam) {
       // Data from URL param — decode and use as JSON body
       try {
         body = decodeURIComponent(dataParam)
@@ -87,9 +98,10 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
       } catch {
         // URL param decoding failed — fall through to body
         dataParam = null
+        body = undefined
       }
     }
-    if (!dataParam) {
+    if (!dataParam && body === undefined) {
       // Fall back to reading the request body directly
       const raw = await request.text()
       if (raw) {

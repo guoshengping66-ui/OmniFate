@@ -53,6 +53,19 @@ if (isProduction) {
   const productionInterceptor = (config: any) => {
     const method = (config.method || "").toLowerCase()
     if (["post", "patch", "put"].includes(method)) {
+      // ⚠️ CRITICAL: Skip dual-encoding for FormData (file uploads).
+      // FormData must be sent as-is with its native multipart boundary.
+      // Converting to JSON destroys binary file data.
+      if (config.data instanceof FormData) {
+        // Remove Content-Type header so axios/browser auto-sets it
+        // with the correct multipart/form-data boundary
+        if (config.headers) {
+          delete config.headers["Content-Type"]
+          delete config.headers["content-type"]
+        }
+        return config
+      }
+
       // Ensure data is a string for URL encoding
       let jsonStr: string
       if (typeof config.data === "string") {
@@ -233,6 +246,112 @@ export async function runAnalysis(data: AnalysisRequest): Promise<AnalysisRespon
 export async function getSession(sessionId: string): Promise<AnalysisResponse> {
   const res = await api.get<AnalysisResponse>(`/api/readings/session/${sessionId}`)
   return res.data
+}
+
+// ── SSE Streaming ──────────────────────────────────────────────────────────
+
+export type AgentStatusValue = "pending" | "running" | "done" | "error" | "skipped"
+
+export interface SSEEvent {
+  type: "phase" | "worker_done" | "subtask_done" | "complete" | "error" | "progress" | "agent_status"
+  phase?: string
+  agent_id?: string
+  duration_ms?: number
+  subtask?: string
+  length?: number
+  master_summary?: string
+  master_detail?: string
+  message?: string
+  pct?: number
+  status?: Record<string, AgentStatusValue>
+}
+
+/**
+ * Connect to the SSE stream for a session.
+ * Calls `onEvent` for each progress event. Resolves when analysis is complete.
+ * Falls back to polling if SSE is unavailable (e.g. Vercel proxy).
+ */
+export function streamSession(
+  sessionId: string,
+  onEvent: (event: SSEEvent) => void,
+): Promise<AnalysisResponse> {
+  return new Promise((resolve, reject) => {
+    const baseUrl = isProduction ? "/api/proxy" : BACKEND_URL
+    const url = `${baseUrl}/api/readings/session/${sessionId}/stream`
+
+    const es = new EventSource(url)
+    let completed = false
+
+    es.onmessage = (e) => {
+      try {
+        const data: SSEEvent = JSON.parse(e.data)
+        onEvent(data)
+        if (data.type === "complete") {
+          completed = true
+          es.close()
+          resolve({
+            session_id: sessionId,
+            status: "done",
+            master_summary: data.master_summary || "",
+            master_detail: data.master_detail || "",
+            is_detail_unlocked: false,
+            astrology: { agent_id: "astrology", report: "", tags: [] },
+            tarot: { agent_id: "tarot", report: "", tags: [] },
+            bazi: { agent_id: "bazi", report: "", tags: [] },
+            qimen: { agent_id: "qimen", report: "", tags: [] },
+            ziwei: { agent_id: "ziwei", report: "", tags: [] },
+            face: { agent_id: "face", report: "", tags: [] },
+            palm: { agent_id: "palm", report: "", tags: [] },
+            recommended_product_ids: [],
+            computed_tags: [],
+            dimension_scores: {},
+            errors: [],
+          })
+        }
+        if (data.type === "error") {
+          es.close()
+          reject(new Error(data.message || "Stream error"))
+        }
+      } catch { /* ignore parse errors */ }
+    }
+
+    es.onerror = () => {
+      es.close()
+      if (!completed) {
+        // SSE failed — caller should fall back to polling
+        reject(new Error("SSE unavailable"))
+      }
+    }
+  })
+}
+
+/**
+ * Run analysis with SSE streaming. Falls back to polling if SSE fails.
+ */
+export async function runAnalysisStream(
+  data: AnalysisRequest,
+  onEvent: (event: SSEEvent) => void,
+): Promise<AnalysisResponse> {
+  // Step 1: POST to start analysis
+  let sessionId: string
+  try {
+    const body = safeJson(data)
+    const initRes = await apiDirect.post<AnalysisResponse>("/api/readings", body, {
+      timeout: 30_000,
+      headers: { "Content-Type": "application/json" },
+    })
+    sessionId = initRes.data.session_id
+  } catch (err) {
+    throw err
+  }
+
+  // Step 2: Try SSE streaming
+  try {
+    return await streamSession(sessionId, onEvent)
+  } catch {
+    // Step 3: Fallback to polling
+    return runAnalysis(data)
+  }
 }
 
 export async function sendChat(data: ChatRequest): Promise<ChatResponse> {
