@@ -472,15 +472,24 @@ def _worker_from_report(agent_id: str, report: Optional[str]) -> WorkerReportOut
 # ─── SSE Streaming Endpoint ──────────────────────────────────────────────
 
 @router.get("/session/{session_id}/stream")
-async def stream_session(session_id: str):
+async def stream_session(
+    session_id: str,
+    current_user: Optional[User] = Depends(get_current_user),
+):
     """
     SSE endpoint: push progress events as analysis completes.
     Events: phase, worker_done, subtask_done, complete, error.
+    Auth required — users can only access their own sessions.
     """
     async def event_generator():
         state = _sessions.get(session_id)
         if not state:
             yield f"data: {json.dumps({'type': 'error', 'message': 'Session not found'})}\n\n"
+            return
+
+        # Verify ownership if user is logged in
+        if current_user and state.user_id and state.user_id != str(current_user.id):
+            yield f"data: {json.dumps({'type': 'error', 'message': '无权访问此报告'})}\n\n"
             return
 
         last_phase = ""
@@ -593,12 +602,20 @@ MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10MB
 
 
 @router.post("/upload-face/{session_id}")
-async def upload_face_image(session_id: str, file: UploadFile = File(...)):
+async def upload_face_image(
+    session_id: str,
+    file: UploadFile = File(...),
+    current_user: Optional[User] = Depends(get_current_user),
+):
     """
     Upload a face image -> V2T via MediaPipe FaceMesh 468 landmarks
     -> structured physiognomy text -> update session state.
     Uses the new FaceV2T engine for richer analysis.
     """
+    # Verify session ownership
+    state = _sessions.get(session_id)
+    if state and current_user and state.user_id and state.user_id != str(current_user.id):
+        raise HTTPException(status_code=403, detail="无权访问此报告")
     from services.vision.face_v2t import FaceV2T
     face_v2t = FaceV2T()
 
@@ -721,10 +738,15 @@ async def upload_palm_description(
     nail_halfmoon: str = "",
     palm_flexibility: str = "",
     raw_text: str = "",
+    current_user: Optional[User] = Depends(get_current_user),
 ):
     """
     Accept palm feature descriptions (text-based fallback).
     """
+    # Verify session ownership
+    state = _sessions.get(session_id)
+    if state and current_user and state.user_id and state.user_id != str(current_user.id):
+        raise HTTPException(status_code=403, detail="无权访问此报告")
     pf = PalmFeatures(
         hand_shape=hand_shape,
         life_line=life_line, head_line=head_line, heart_line=heart_line,
@@ -742,11 +764,19 @@ async def upload_palm_description(
 
 
 @router.post("/upload-palm-image/{session_id}")
-async def upload_palm_image(session_id: str, file: UploadFile = File(...)):
+async def upload_palm_image(
+    session_id: str,
+    file: UploadFile = File(...),
+    current_user: Optional[User] = Depends(get_current_user),
+):
     """
     Upload a palm image -> V2T via MediaPipe Hands + OpenCV line detection
     -> structured palmistry text -> update session state.
     """
+    # Verify session ownership
+    state = _sessions.get(session_id)
+    if state and current_user and state.user_id and state.user_id != str(current_user.id):
+        raise HTTPException(status_code=403, detail="无权访问此报告")
     from services.vision.palm_v2t import PalmV2T
     palm_v2t = PalmV2T()
 

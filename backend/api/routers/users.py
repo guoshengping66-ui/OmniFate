@@ -192,8 +192,8 @@ async def change_password(
             raise HTTPException(status_code=400, detail="该账户使用第三方登录，无法修改密码")
         if not verify_password(req.old_password, db_user.hashed_password):
             raise HTTPException(status_code=400, detail="旧密码不正确")
-        if len(req.new_password) < 6:
-            raise HTTPException(status_code=400, detail="新密码至少需要 6 个字符")
+        from api.routers.auth import _validate_password_strength
+        _validate_password_strength(req.new_password)
         db_user.hashed_password = hash_password(req.new_password)
         await db.commit()
         return {"message": "密码修改成功"}

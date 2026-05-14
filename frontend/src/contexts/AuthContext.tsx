@@ -100,10 +100,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       password,
       display_name: displayName,
     })
-    const data = res.data
-    localStorage.setItem(TOKEN_KEY, data.access_token)
-    localStorage.setItem(REFRESH_KEY, data.refresh_token)
-    setUser(data.user)
+    // Register endpoint returns { message, email } — no tokens yet.
+    // User must verify email first, then the verify-email endpoint returns tokens.
+    // So we just return the message; the register page handles the flow.
+    return res.data
   }, [])
 
   const logout = useCallback(() => {

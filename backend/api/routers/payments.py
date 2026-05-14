@@ -249,10 +249,12 @@ async def wechat_notify(request: Request, db: AsyncSession = Depends(get_db)):
     if data.get("return_code") != "SUCCESS":
         return "<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[FAIL]]></return_msg></xml>"
 
-    # 验证签名
+    # 验证签名 (timing-safe comparison to prevent timing attacks)
     wechat = WeChatPay()
     sign = data.pop("sign", "")
-    if wechat._generate_sign(data) != sign:
+    expected_sign = wechat._generate_sign(data)
+    import hmac
+    if not hmac.compare_digest(expected_sign.encode(), sign.encode()):
         return "<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[签名验证失败]]></return_msg></xml>"
 
     # 解锁报告

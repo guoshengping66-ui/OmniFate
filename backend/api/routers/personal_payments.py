@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from database.session import get_db
 from database.models import Order, OrderStatus, Reading, PaymentStatus, User
-from auth.dependencies import get_current_user
+from auth.dependencies import get_current_user, require_user
 from config import get_settings
 
 router = APIRouter()
@@ -213,9 +213,10 @@ async def verify_payment(
 async def confirm_payment(
     order_no: str = Query(...),
     db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_user),
 ):
     """
-    确认支付完成（管理员/系统调用）
+    确认支付完成（需登录）
 
     确认收款后解锁内容
     """

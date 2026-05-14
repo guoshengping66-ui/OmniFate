@@ -65,9 +65,10 @@ async def global_exception_handler(request: Request, exc: Exception):
     """Log all unhandled exceptions to help debug Vercel 500 errors."""
     tb = traceback.format_exception(type(exc), exc, exc.__traceback__)
     print(f"[ERROR] {request.method} {request.url.path}: {''.join(tb)}")
+    # Never expose internal error details to clients — use a generic message
     return JSONResponse(
         status_code=500,
-        content={"detail": str(exc)[:200]},
+        content={"detail": "服务器内部错误，请稍后重试"},
     )
 
 # ── Simple in-memory rate limiter ───────────────────────────────────────────
