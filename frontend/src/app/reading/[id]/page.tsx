@@ -30,6 +30,9 @@ const WORKER_ORDER = ["bazi", "qimen", "ziwei", "astrology", "tarot", "face", "p
 
 function stripMarkdown(text: string): string {
   return text
+    // Remove JSON code blocks that may have leaked into report text
+    .replace(/```json\s*[\s\S]*?```/g, "")
+    .replace(/```\w*\s*[\s\S]*?```/g, "")
     .replace(/\*\*(.+?)\*\*/g, "$1")
     .replace(/\*(.+?)\*\*/g, "$1")
     .replace(/^#{1,6}\s+/gm, "")
@@ -423,6 +426,7 @@ export default function ReadingPage() {
                 >
                   <EnergyIDCard
                     sessionId={id}
+                    userId={user?.id}
                     dimensionScores={data.dimension_scores}
                   />
                 </div>
@@ -700,12 +704,22 @@ export default function ReadingPage() {
               </div>
             ) : workerMap[k].report ? (
               <div className="space-y-4">
-                <ReportSection
-                  icon={AGENT_LABELS[k].icon}
+                <PaywallGate
+                  isUnlocked={isUnlocked}
                   title={`${AGENT_LABELS[k].label}完整分析`}
-                  color={AGENT_LABELS[k].color}
-                  content={workerMap[k].report}
-                />
+                  description="解锁完整报告后查看每个命理体系的详细分析"
+                  priceDisplay="¥69"
+                  onUnlock={() => setShowPayment(true)}
+                  loading={unlockLoading}
+                  previewLines={3}
+                >
+                  <ReportSection
+                    icon={AGENT_LABELS[k].icon}
+                    title={`${AGENT_LABELS[k].label}完整分析`}
+                    color={AGENT_LABELS[k].color}
+                    content={workerMap[k].report}
+                  />
+                </PaywallGate>
                 {workerMap[k].tags.length > 0 && (
                   <div className="card-glass p-5">
                     <p className="text-white/30 text-xs mb-3">分析标签</p>

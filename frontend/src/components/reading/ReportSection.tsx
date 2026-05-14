@@ -5,6 +5,9 @@ import { ChevronDown, ChevronUp } from "lucide-react"
 /** Strip Markdown formatting and garbled symbols from LLM-generated text */
 function stripMarkdown(text: string): string {
   return text
+    // Remove JSON code blocks that may have leaked into report text
+    .replace(/```json\s*[\s\S]*?```/g, "")
+    .replace(/```\w*\s*[\s\S]*?```/g, "")
     // Bold / italic markers
     .replace(/\*\*(.+?)\*\*/g, "$1")
     .replace(/\*(.+?)\*/g, "$1")

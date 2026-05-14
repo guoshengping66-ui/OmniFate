@@ -594,20 +594,11 @@ export default function NewReadingPage() {
                 )}
                 <input ref={faceRef} type="file" accept="image/*" className="sr-only" onChange={handleFacePick} />
 
-                {/* Face feature summary after successful scan */}
+                {/* Face scan success indicator — results only shown in final report */}
                 {faceFeatures && !isFaceScanning && (
-                  <div className="mt-4 bg-white/5 rounded-xl p-4 border border-white/10">
-                    <p className="text-gold text-xs font-medium mb-2 flex items-center gap-1.5">
-                      <CheckCircle size={12} /> 面相识别结果概要
-                    </p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {FACE_KEY_FEATURES.filter(f => faceFeatures[f.key]).map(f => (
-                        <span key={f.key}
-                          className="text-[11px] px-2 py-0.5 bg-white/10 rounded-full text-white/60">
-                          {f.label}: {faceFeatures[f.key]}
-                        </span>
-                      ))}
-                    </div>
+                  <div className="mt-4 flex items-center gap-2 text-green-400/80 text-xs">
+                    <CheckCircle size={14} />
+                    <span>AI 面相识别完成，分析结果将在报告中呈现</span>
                   </div>
                 )}
               </div>
@@ -662,20 +653,11 @@ export default function NewReadingPage() {
                 )}
                 <input ref={palmRef} type="file" accept="image/*" className="sr-only" onChange={handlePalmPick} />
 
-                {/* Palm feature summary after successful scan */}
+                {/* Palm scan success indicator — results only shown in final report */}
                 {palmFeatures && !isPalmScanning && (
-                  <div className="mt-4 bg-white/5 rounded-xl p-4 border border-white/10">
-                    <p className="text-gold text-xs font-medium mb-2 flex items-center gap-1.5">
-                      <CheckCircle size={12} /> 手相识别结果概要
-                    </p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {PALM_KEY_FEATURES.filter(f => palmFeatures[f.key]).map(f => (
-                        <span key={f.key}
-                          className="text-[11px] px-2 py-0.5 bg-white/10 rounded-full text-white/60">
-                          {f.label}: {palmFeatures[f.key]}
-                        </span>
-                      ))}
-                    </div>
+                  <div className="mt-4 flex items-center gap-2 text-green-400/80 text-xs">
+                    <CheckCircle size={14} />
+                    <span>AI 掌纹识别完成，分析结果将在报告中呈现</span>
                   </div>
                 )}
               </div>

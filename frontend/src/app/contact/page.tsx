@@ -45,7 +45,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="text-white/80 font-medium text-sm">电子邮件</h3>
-                    <p className="text-gold/70 text-sm">support@destinymirror.com</p>
+                    <p className="text-gold/70 text-sm">support@khanfate.com</p>
                   </div>
                 </div>
                 <p className="text-white/30 text-xs">我们会在 24 小时内回复</p>

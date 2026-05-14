@@ -6,6 +6,7 @@ import toast from "react-hot-toast"
 
 interface EnergyIDCardProps {
   sessionId: string
+  userId?: string | null
   dimensionScores?: Record<string, number>
   generatedAt?: string
 }
@@ -19,12 +20,13 @@ const DIM_EMOJI: Record<string, string> = {
   wealth: "💰", career: "💼", relationship: "💕", health: "🏥", spiritual: "🧘",
 }
 
-function generateCardId(sessionId: string): string {
-  // Generate a deterministic but visually unique ID from session ID
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+function generateCardId(sessionId: string, userId?: string | null): string {
+  // Use userId when available (consistent across all user's reports),
+  // fall back to sessionId hash for anonymous users
+  const source = userId || sessionId
   let hash = 0
-  for (let i = 0; i < sessionId.length; i++) {
-    hash = ((hash << 5) - hash + sessionId.charCodeAt(i)) | 0
+  for (let i = 0; i < source.length; i++) {
+    hash = ((hash << 5) - hash + source.charCodeAt(i)) | 0
   }
   const abs = Math.abs(hash)
   const part1 = String(abs % 10000).padStart(4, "0")
@@ -32,8 +34,8 @@ function generateCardId(sessionId: string): string {
   return `DM-2026-${part1}-${part2}`
 }
 
-export function EnergyIDCard({ sessionId, dimensionScores, generatedAt }: EnergyIDCardProps) {
-  const cardId = generateCardId(sessionId)
+export function EnergyIDCard({ sessionId, userId, dimensionScores, generatedAt }: EnergyIDCardProps) {
+  const cardId = generateCardId(sessionId, userId)
   const cardRef = useRef<HTMLDivElement>(null)
   const [copied, setCopied] = useState(false)
   const [visible, setVisible] = useState(false)

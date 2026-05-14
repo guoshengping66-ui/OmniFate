@@ -28,11 +28,13 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str = ""
     OPENAI_BASE_URL: str = "https://api.deepseek.com"
     OPENAI_MODEL: str = "deepseek-v4-flash"     # 免费模型 — workers + 免费用户 master
-    MASTER_FAST_MODEL: str = "deepseek-v4-flash" # 黄历等快速生成使用的基础模型
+<<<<<<< Updated upstream
+    MASTER_FAST_MODEL: str = "deepseek-v4-flash"  # Master子任务快速模型
     PREMIUM_MODEL: str = "deepseek-v4-pro"      # 付费模型 — 付费用户 master 深度解析
     AGENT_TEMPERATURE: float = 0.3
     AGENT_MAX_TOKENS: int = 4096
     WORKER_MAX_TOKENS: int = 1536   # 比 master 少一半——worker 只需提供分析素材
+    ZIWEI_MODEL: str = ""            # 空=使用默认OPENAI_MODEL；可单独指定更快模型
 
     JWT_SECRET_KEY: str = "change-me-in-production-use-openssl-rand-hex-32"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
@@ -78,10 +80,13 @@ class Settings(BaseSettings):
 def get_settings() -> Settings:
     s = Settings()
     # ── Startup security warnings ──────────────────────────────────────
+    import sys, io
+    if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
     if s.SECRET_KEY == "change-me-in-production":
         print("[SECURITY] ⚠️  SECRET_KEY 使用了默认值！请在 .env 中设置强随机密钥。")
     if s.JWT_SECRET_KEY == "change-me-in-production-use-openssl-rand-hex-32":
         print("[SECURITY] ⚠️  JWT_SECRET_KEY 使用了默认值！请在 .env 中设置强随机密钥。")
     if s.DEBUG:
-        print("[SECURITY] ⚠️  DEBUG 模式已开启，请勿在生产环境使用。")
+        print("[SECURITY] WARNING: DEBUG mode is ON — do not use in production.")
     return s

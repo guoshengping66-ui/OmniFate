@@ -31,10 +31,34 @@ settings = get_settings()
 
 # ─── LLM factory ──────────────────────────────────────────────────────────
 
-def _llm(temperature: float = 0.35):
+_JSON_OUTPUT_INSTRUCTION = (
+    "\n\n== CRITICAL: OUTPUT FORMAT ==\n"
+    "你必须以严格的JSON格式输出分析结果，不要输出任何其他文本。\n"
+    "```json\n"
+    '{\n'
+    '  "summary": "200字核心结论，概括命格特质和关键发现",\n'
+    '  "dimensions": {\n'
+    '    "wealth": "80-120字财运分析",\n'
+    '    "relationship": "80-120字感情分析",\n'
+    '    "career": "80-120字事业分析",\n'
+    '    "health": "80-120字健康分析",\n'
+    '    "spiritual": "80-120字精神/灵性分析"\n'
+    '  },\n'
+    '  "key_findings": ["发现1(含置信度)", "发现2", "发现3"],\n'
+    '  "weakness_tags": ["#缺火", "#官杀混杂"],\n'
+    '  "strength_tags": ["#领导力强"],\n'
+    '  "boost_elements": ["fire", "water"],\n'
+    '  "conflict_warnings": ["矛盾信号1"]\n'
+    '}\n'
+    "```\n"
+    "规则：summary必填；dimensions中无数据的维度填空字符串""；key_findings 3-5条。\n"
+)
+
+
+def _llm(temperature: float = 0.35, model: str | None = None):
     from langchain_openai import ChatOpenAI
     kwargs = dict(
-        model=settings.OPENAI_MODEL,
+        model=model or settings.OPENAI_MODEL,
         api_key=settings.OPENAI_API_KEY,
         temperature=temperature,
         max_tokens=settings.WORKER_MAX_TOKENS,
@@ -44,13 +68,54 @@ def _llm(temperature: float = 0.35):
     return ChatOpenAI(**kwargs)
 
 
-async def _call(system: str, user: str) -> str:
-    """Single async LLM call."""
+async def _call(system: str, user: str, append_json_format: bool = True, model: str | None = None) -> str:
+    """Single async LLM call. append_json_format adds JSON output instruction."""
     from langchain_core.messages import SystemMessage, HumanMessage
-    llm = _llm()
-    msgs = [SystemMessage(content=system), HumanMessage(content=user)]
+    llm = _llm(model=model)
+    sys_content = system + (_JSON_OUTPUT_INSTRUCTION if append_json_format else "")
+    msgs = [SystemMessage(content=sys_content), HumanMessage(content=user)]
     resp = await llm.ainvoke(msgs)
     return resp.content
+
+
+def _parse_worker_report(text: str) -> dict:
+    """Parse worker JSON output. Returns structured dict with fallback to free text."""
+    _DEFAULTS = {
+        "summary": "",
+        "dimensions": {},
+        "key_findings": [],
+        "weakness_tags": [],
+        "strength_tags": [],
+        "boost_elements": [],
+        "conflict_warnings": [],
+    }
+
+    def _fill(data: dict) -> dict:
+        for k, v in _DEFAULTS.items():
+            data.setdefault(k, v)
+        return data
+
+    # 1. Greedy extraction from ```json block (handles nested JSON objects)
+    m = re.search(r"```json\s*(\{.*\})\s*```", text, re.DOTALL)
+    if m:
+        try:
+            return _fill(json.loads(m.group(1)))
+        except json.JSONDecodeError:
+            pass
+
+    # 2. Try parsing entire text as JSON
+    try:
+        return _fill(json.loads(text))
+    except (json.JSONDecodeError, TypeError):
+        pass
+
+    # 3. Fallback: strip any JSON blocks from free text, use as summary
+    clean = re.sub(r"```json\s*\{.*?\}\s*```", "", text, flags=re.DOTALL)
+    clean = re.sub(r"```\w*\s*", "", clean).strip()
+    return {
+        **_DEFAULTS,
+        "summary": clean[:500] if clean else text[:500],
+    }
 
 
 def _extract_json_tags(text: str) -> dict:
@@ -75,6 +140,29 @@ def _mock(agent_id: str, context: str) -> str:
 
 def _use_mock() -> bool:
     return not settings.OPENAI_API_KEY
+
+
+def _build_compact_report(data: dict) -> str:
+    """Convert structured JSON worker output to compact text for Master consumption."""
+    parts = []
+    summary = data.get("summary", "")
+    if summary:
+        parts.append(summary)
+
+    dims = data.get("dimensions", {})
+    dim_parts = []
+    for dim in ["wealth", "relationship", "career", "health", "spiritual"]:
+        text = dims.get(dim, "")
+        if text:
+            dim_parts.append(f"【{dim}】{text}")
+    if dim_parts:
+        parts.append("\n".join(dim_parts))
+
+    findings = data.get("key_findings", [])
+    if findings:
+        parts.append("【关键发现】\n" + "\n".join(f"  - {f}" for f in findings))
+
+    return "\n".join(parts)
 
 
 # ─── ASTROLOGY WORKER ─────────────────────────────────────────────────────
@@ -242,12 +330,12 @@ async def run_astrology(state: SystemState) -> WorkerOutput:
             saturn_aspects=raw.get("saturn_aspects", ""),
             transits=raw.get("transits_this_year", ""),
             current_year=current_year,
-            # New structured data
+            # Structured data — skip ranking_text when total_dignity is present (superset)
             dignities_text=dignities_text,
-            ranking_text=ranking_text,
+            ranking_text="" if total_dignity_text else ranking_text,
             aspect_patterns_text=aspect_patterns_text,
             element_text=element_text,
-            modality_text=modality_text,
+            modality_text="",  # Minor data, skip to save tokens
             hemisphere_text=hemisphere_text,
             fixed_stars_text=fixed_stars_text,
             # P0 new params
@@ -266,14 +354,14 @@ async def run_astrology(state: SystemState) -> WorkerOutput:
         user_msg = "Please deliver a complete Western astrology analysis based on the chart data above."
 
         report = _mock(agent_id, chart_summary) if _use_mock() else await _call(system, user_msg)
-        tags = _extract_json_tags(report)
+        data = _parse_worker_report(report)
         return WorkerOutput(
             agent_id=agent_id,
-            report=report,
-            tags=tags.get("weakness_tags", []),
-            strength_tags=tags.get("strength_tags", []),
-            boost_elements=tags.get("boost_elements", []),
-            conflict_warnings=tags.get("conflict_warnings", []),
+            report=_build_compact_report(data),
+            tags=data.get("weakness_tags", []),
+            strength_tags=data.get("strength_tags", []),
+            boost_elements=data.get("boost_elements", []),
+            conflict_warnings=data.get("conflict_warnings", []),
             duration_ms=(time.time() - t0) * 1000,
         )
     except Exception as e:
@@ -305,14 +393,14 @@ async def run_tarot(state: SystemState) -> WorkerOutput:
         user_msg = "Please deliver a complete Tarot reading based on the cards drawn above."
 
         report = _mock(agent_id, str(cards)) if _use_mock() else await _call(system, user_msg)
-        tags = _extract_json_tags(report)
+        data = _parse_worker_report(report)
         return WorkerOutput(
             agent_id=agent_id,
-            report=report,
-            tags=tags.get("weakness_tags", []),
-            strength_tags=tags.get("strength_tags", []),
-            boost_elements=tags.get("boost_elements", []),
-            conflict_warnings=tags.get("conflict_warnings", []),
+            report=_build_compact_report(data),
+            tags=data.get("weakness_tags", []),
+            strength_tags=data.get("strength_tags", []),
+            boost_elements=data.get("boost_elements", []),
+            conflict_warnings=data.get("conflict_warnings", []),
             duration_ms=(time.time() - t0) * 1000,
         )
     except Exception as e:
@@ -407,14 +495,14 @@ async def run_bazi(state: SystemState) -> WorkerOutput:
         user_msg = "Please deliver a complete BaZi analysis based on the Four Pillars data above."
 
         report = _mock(agent_id, str(pillars)) if _use_mock() else await _call(system, user_msg)
-        tags = _extract_json_tags(report)
+        data = _parse_worker_report(report)
         return WorkerOutput(
             agent_id=agent_id,
-            report=report,
-            tags=tags.get("weakness_tags", []),
-            strength_tags=tags.get("strength_tags", []),
-            boost_elements=tags.get("boost_elements", []),
-            conflict_warnings=tags.get("conflict_warnings", []),
+            report=_build_compact_report(data),
+            tags=data.get("weakness_tags", []),
+            strength_tags=data.get("strength_tags", []),
+            boost_elements=data.get("boost_elements", []),
+            conflict_warnings=data.get("conflict_warnings", []),
             duration_ms=(time.time() - t0) * 1000,
         )
     except Exception as e:
@@ -467,14 +555,14 @@ async def run_qimen(state: SystemState) -> WorkerOutput:
         user_msg = "Please deliver a complete Qimen Dunjia analysis based on the time plate data above."
 
         report = _mock(agent_id, str(raw)) if _use_mock() else await _call(system, user_msg)
-        tags = _extract_json_tags(report)
+        data = _parse_worker_report(report)
         return WorkerOutput(
             agent_id=agent_id,
-            report=report,
-            tags=tags.get("weakness_tags", []),
-            strength_tags=tags.get("strength_tags", []),
-            boost_elements=tags.get("boost_elements", []),
-            conflict_warnings=tags.get("conflict_warnings", []),
+            report=_build_compact_report(data),
+            tags=data.get("weakness_tags", []),
+            strength_tags=data.get("strength_tags", []),
+            boost_elements=data.get("boost_elements", []),
+            conflict_warnings=data.get("conflict_warnings", []),
             duration_ms=(time.time() - t0) * 1000,
         )
     except Exception as e:
@@ -525,15 +613,16 @@ async def run_ziwei(state: SystemState) -> WorkerOutput:
         )
         user_msg = "Please deliver a complete Ziwei Doushu analysis based on the natal chart data above."
 
-        report = _mock(agent_id, str(raw)) if _use_mock() else await _call(system, user_msg)
-        tags = _extract_json_tags(report)
+        ziwei_model = settings.ZIWEI_MODEL or None
+        report = _mock(agent_id, str(raw)) if _use_mock() else await _call(system, user_msg, model=ziwei_model)
+        data = _parse_worker_report(report)
         return WorkerOutput(
             agent_id=agent_id,
-            report=report,
-            tags=tags.get("weakness_tags", []),
-            strength_tags=tags.get("strength_tags", []),
-            boost_elements=tags.get("boost_elements", []),
-            conflict_warnings=tags.get("conflict_warnings", []),
+            report=_build_compact_report(data),
+            tags=data.get("weakness_tags", []),
+            strength_tags=data.get("strength_tags", []),
+            boost_elements=data.get("boost_elements", []),
+            conflict_warnings=data.get("conflict_warnings", []),
             duration_ms=(time.time() - t0) * 1000,
         )
     except Exception as e:
@@ -575,14 +664,14 @@ async def run_face(state: SystemState) -> WorkerOutput:
         user_msg = "Please deliver a complete face reading based on the facial feature data above."
 
         report = _mock(agent_id, face_text) if _use_mock() else await _call(system, user_msg)
-        tags = _extract_json_tags(report)
+        data = _parse_worker_report(report)
         return WorkerOutput(
             agent_id=agent_id,
-            report=report,
-            tags=tags.get("weakness_tags", []),
-            strength_tags=tags.get("strength_tags", []),
-            boost_elements=tags.get("boost_elements", []),
-            conflict_warnings=tags.get("conflict_warnings", []),
+            report=_build_compact_report(data),
+            tags=data.get("weakness_tags", []),
+            strength_tags=data.get("strength_tags", []),
+            boost_elements=data.get("boost_elements", []),
+            conflict_warnings=data.get("conflict_warnings", []),
             duration_ms=(time.time() - t0) * 1000,
         )
     except Exception as e:
@@ -619,14 +708,14 @@ async def run_palm(state: SystemState) -> WorkerOutput:
         user_msg = "Please deliver a complete palm reading based on the hand line data above."
 
         report = _mock(agent_id, palm_text) if _use_mock() else await _call(system, user_msg)
-        tags = _extract_json_tags(report)
+        data = _parse_worker_report(report)
         return WorkerOutput(
             agent_id=agent_id,
-            report=report,
-            tags=tags.get("weakness_tags", []),
-            strength_tags=tags.get("strength_tags", []),
-            boost_elements=tags.get("boost_elements", []),
-            conflict_warnings=tags.get("conflict_warnings", []),
+            report=_build_compact_report(data),
+            tags=data.get("weakness_tags", []),
+            strength_tags=data.get("strength_tags", []),
+            boost_elements=data.get("boost_elements", []),
+            conflict_warnings=data.get("conflict_warnings", []),
             duration_ms=(time.time() - t0) * 1000,
         )
     except Exception as e:
@@ -636,24 +725,34 @@ async def run_palm(state: SystemState) -> WorkerOutput:
 
 # ─── PARALLEL DISPATCHER ──────────────────────────────────────────────────
 
-async def run_all_workers(state: SystemState) -> SystemState:
+_WORKER_IDS = ["astrology", "tarot", "bazi", "qimen", "ziwei", "face", "palm"]
+_WORKER_RUNNERS = [run_astrology, run_tarot, run_bazi, run_qimen, run_ziwei, run_face, run_palm]
+_WORKER_TIMEOUTS = [120, 120, 120, 120, 120, 10, 10]
+
+
+async def run_all_workers(state: SystemState) -> dict[str, asyncio.Event]:
     """
-    Launch all 5 workers in parallel via asyncio.gather().
+    Launch all 7 workers in parallel. Returns completion events for each worker.
     Results are written back into the shared state.
     """
     state.phase = "parallel"
 
-    results = await asyncio.gather(
-        run_astrology(state),
-        run_tarot(state),
-        run_bazi(state),
-        run_qimen(state),
-        run_ziwei(state),
-        run_face(state),
-        run_palm(state),
-        return_exceptions=False,
-    )
+    events = {aid: asyncio.Event() for aid in _WORKER_IDS}
 
+    async def _wrap(runner, agent_id: str, timeout: int):
+        try:
+            result = await asyncio.wait_for(runner(state), timeout=timeout)
+        except Exception as e:
+            result = WorkerOutput(agent_id=agent_id, error=str(e))
+        events[agent_id].set()
+        return result
+
+    results = await asyncio.gather(*[
+        _wrap(runner, aid, timeout)
+        for runner, aid, timeout in zip(_WORKER_RUNNERS, _WORKER_IDS, _WORKER_TIMEOUTS)
+    ])
+
+    # Assign results to state
     state.astrology_output = results[0]
     state.tarot_output     = results[1]
     state.bazi_output      = results[2]
@@ -670,4 +769,4 @@ async def run_all_workers(state: SystemState) -> SystemState:
             state.errors.append(f"{r.agent_id}: {r.error}")
     state.computed_tags = list(set(all_tags))
 
-    return state
+    return events

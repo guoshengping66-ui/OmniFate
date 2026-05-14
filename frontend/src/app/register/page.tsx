@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Sparkles, Loader2, Eye, EyeOff, Mail, CheckCircle } from "lucide-react"
@@ -26,6 +26,14 @@ export default function RegisterPage() {
   const [verifyCode, setVerifyCode] = useState("")
   const [verifyLoading, setVerifyLoading] = useState(false)
   const [resendCooldown, setResendCooldown] = useState(0)
+  const cooldownRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  // Cleanup interval on unmount
+  useEffect(() => {
+    return () => {
+      if (cooldownRef.current) clearInterval(cooldownRef.current)
+    }
+  }, [])
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -33,8 +41,12 @@ export default function RegisterPage() {
       toast.error(t("auth.fillEmailPassword"))
       return
     }
-    if (password.length < 6) {
-      toast.error(t("auth.passwordMin6"))
+    if (password.length < 8) {
+      toast.error("密码至少需要8个字符，包含大小写字母和数字")
+      return
+    }
+    if (!/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
+      toast.error("密码必须包含大小写字母和数字")
       return
     }
     if (!privacyAccepted) {
@@ -89,11 +101,13 @@ export default function RegisterPage() {
   }
 
   const startResendCooldown = () => {
+    if (cooldownRef.current) clearInterval(cooldownRef.current)
     setResendCooldown(60)
-    const timer = setInterval(() => {
+    cooldownRef.current = setInterval(() => {
       setResendCooldown(prev => {
         if (prev <= 1) {
-          clearInterval(timer)
+          clearInterval(cooldownRef.current!)
+          cooldownRef.current = null
           return 0
         }
         return prev - 1

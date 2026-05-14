@@ -1,27 +1,24 @@
 """
 agents/graph.py
-LangGraph pipeline: init -> parallel_workers -> master -> [chat_loop]
+Custom orchestrator with speculative master execution.
 
-Graph topology:
-  START
-    |
-  [node_init]          -- validate & pre-populate state
-    |
-  [node_parallel]      -- run 5 workers concurrently (asyncio.gather)
-    |
-  [node_master]        -- Task A synthesis + Task B product recommendation
-    |
-  END  (chat handled separately via handle_followup())
+Pipeline:
+  init → workers(130s) ──┐
+           └── core子任务(启动于~55s, Bazi+Tarot完成时) ──┐
+                                dims/actions(启动于~130s) ──┤→ done(~165s)
 """
 from __future__ import annotations
+import asyncio
 import uuid
 from typing import Any
 
-from langgraph.graph import StateGraph, END
-
 from agents.state import SystemState, BirthInfo
-from agents.workers import run_all_workers
-from agents.master import run_master, handle_followup
+from agents.workers import _WORKER_IDS
+from agents.master import (
+    run_master_preprocessing,
+    run_subtask_core, run_subtask_dims, run_subtask_actions,
+    handle_followup,
+)
 from calculators.bazi_calculator import get_current_year_ganzhi
 from calculators.astrology_calculator import AstrologyCalculator
 
@@ -152,49 +149,136 @@ def _stub_astrology(bi: BirthInfo) -> dict:
     }
 
 
-async def node_parallel(state: SystemState) -> SystemState:
-    """Run all 5 workers in parallel."""
-    return await run_all_workers(state)
-
-
-async def node_master(state: SystemState) -> SystemState:
-    """Master agent: synthesis report + product recommendations."""
-    return await run_master(state)
-
-
-# ─── Build graph ─────────────────────────────────────────────────────────
-
-def build_graph() -> Any:
-    builder = StateGraph(SystemState)
-
-    builder.add_node("init",     node_init)
-    builder.add_node("parallel", node_parallel)
-    builder.add_node("master",   node_master)
-
-    builder.set_entry_point("init")
-    builder.add_edge("init",     "parallel")
-    builder.add_edge("parallel", "master")
-    builder.add_edge("master",   END)
-
-    return builder.compile()
-
-
-destiny_graph = build_graph()
-
-
 # ─── Public API ──────────────────────────────────────────────────────────
 
 async def run_full_analysis(state: SystemState) -> SystemState:
     """
-    Entry point: run the complete pipeline.
-    Returns the final SystemState with all reports populated.
+    Custom orchestrator with speculative master execution.
+
+    Timeline:
+      0s   : init (astrology calc)
+      5s   : workers start (7 parallel)
+      ~55s : Bazi+Tarot complete → preprocessing + master_core starts
+      ~95s : master_core done
+      ~130s: all workers done → master_dims + master_actions start
+      ~165s: all done → assemble final report
+
+    User-perceived latency via SSE: ~95s (when master_core first appears)
     """
-    result = await destiny_graph.ainvoke(state)
-    # LangGraph >=1.0 returns dict; convert back to SystemState
-    if isinstance(result, dict):
-        result = SystemState.model_validate(result)
-    result.phase = "done"
-    return result
+    from agents.workers import (
+        run_astrology, run_tarot, run_bazi, run_qimen,
+        run_ziwei, run_face, run_palm, _WORKER_TIMEOUTS,
+    )
+
+    # ── Phase 1: Init ──
+    state.phase = "init"
+    state = await node_init(state)
+
+    state.phase = "parallel"
+    state.progress_pct = 5
+    state.progress_message = "正在调取命理数据…"
+    for aid in _WORKER_IDS:
+        state.agent_status[aid] = "running"
+
+    # ── Launch all workers as background tasks ──
+    worker_events = {aid: asyncio.Event() for aid in _WORKER_IDS}
+    worker_outputs: dict[str, Any] = {}
+    _completed_workers = 0
+
+    _runners = [run_astrology, run_tarot, run_bazi, run_qimen, run_ziwei, run_face, run_palm]
+
+    async def _run_one(runner, agent_id: str, timeout: int):
+        nonlocal _completed_workers
+        try:
+            result = await asyncio.wait_for(runner(state), timeout=timeout)
+        except Exception as e:
+            from agents.state import WorkerOutput
+            result = WorkerOutput(agent_id=agent_id, error=str(e))
+        worker_outputs[agent_id] = result
+        worker_events[agent_id].set()
+        # Update progress
+        _completed_workers += 1
+        state.agent_status[agent_id] = "error" if result.error else "done"
+        state.progress_pct = 5 + int(60 * _completed_workers / len(_WORKER_IDS))
+        state.progress_message = f"已完成 {_completed_workers}/{len(_WORKER_IDS)} 项分析…"
+        return result
+
+    worker_tasks = [
+        asyncio.create_task(_run_one(r, aid, t))
+        for r, aid, t in zip(_runners, _WORKER_IDS, _WORKER_TIMEOUTS)
+    ]
+
+    # ── Speculative Master: start core when Bazi+Tarot complete ──
+    async def _speculative_core():
+        """Wait for Bazi+Tarot, then run preprocessing + core sub-task."""
+        try:
+            await asyncio.wait_for(
+                asyncio.gather(
+                    worker_events["bazi"].wait(),
+                    worker_events["tarot"].wait(),
+                ),
+                timeout=120,
+            )
+        except asyncio.TimeoutError:
+            pass  # proceed with whatever is available
+
+        state.phase = "master"
+        state.progress_pct = 70
+        state.progress_message = "正在进行跨维度交叉验证…"
+        prep = run_master_preprocessing(state)
+        result = await run_subtask_core(state, prep)
+        state.progress_pct = 75
+        state.progress_message = "核心综合完成，生成维度分析…"
+        return result
+
+    core_task = asyncio.create_task(_speculative_core())
+
+    # ── Wait for ALL workers to finish ──
+    await asyncio.gather(*worker_tasks)
+
+    # Assign worker results to state
+    state.astrology_output = worker_outputs.get("astrology", state.astrology_output)
+    state.tarot_output     = worker_outputs.get("tarot", state.tarot_output)
+    state.bazi_output      = worker_outputs.get("bazi", state.bazi_output)
+    state.qimen_output     = worker_outputs.get("qimen", state.qimen_output)
+    state.ziwei_output     = worker_outputs.get("ziwei", state.ziwei_output)
+    state.face_output      = worker_outputs.get("face", state.face_output)
+    state.palm_output      = worker_outputs.get("palm", state.palm_output)
+
+    # Merge tags
+    all_tags: list[str] = []
+    for r in worker_outputs.values():
+        all_tags.extend(r.tags)
+        if r.error:
+            state.errors.append(f"{r.agent_id}: {r.error}")
+    state.computed_tags = list(set(all_tags))
+
+    # ── Wait for speculative core to finish (may already be done) ──
+    core_result = await core_task
+
+    # ── Run remaining sub-tasks (dims + actions) with full worker data ──
+    state.phase = "master"
+    state.progress_pct = 80
+
+    # Free users: skip dims + actions sub-tasks (saves 2 LLM calls)
+    if state.is_premium:
+        state.progress_message = "AI 正在生成五维诊断与行动建议…"
+        prep = run_master_preprocessing(state)  # re-run with complete data
+        dims_result, actions_result = await asyncio.gather(
+            run_subtask_dims(state, prep),
+            run_subtask_actions(state, prep),
+        )
+        state.master_summary = core_result[:500]
+        state.master_detail = f"{core_result}\n\n{dims_result}\n\n{actions_result}"
+    else:
+        state.progress_message = "核心综合完成，收尾中…"
+        state.master_summary = core_result[:500]
+        state.master_detail = ""  # Behind paywall anyway
+
+    state.progress_pct = 100
+    state.progress_message = "分析完成"
+    state.phase = "done"
+    return state
 
 
 async def run_chat(question: str, state: SystemState) -> tuple[str, str, SystemState]:

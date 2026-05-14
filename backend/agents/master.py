@@ -8,7 +8,7 @@ Upgraded with:
 - 5-dimension scoring system
 """
 from __future__ import annotations
-import re, json
+import asyncio, re, json
 from typing import Optional
 
 from langchain_openai import ChatOpenAI
@@ -17,6 +17,7 @@ from langchain_core.messages import SystemMessage, HumanMessage
 from config import get_settings
 from agents.state import SystemState, ChatMessage, ConflictRecord, WorkerOutput
 from agents.prompts import master_prompt, master_summary_prompt, master_detail_prompt, ROUTER_PROMPT
+from agents.prompts import master_subtask_core_prompt, master_subtask_dimensions_prompt, master_subtask_actions_prompt
 from services.product_matcher import ProductMatcher
 
 settings = get_settings()
@@ -674,85 +675,118 @@ async def answer_with_expert(question: str, agent_id: str, state: SystemState) -
 
 # ─── Main: run_master ─────────────────────────────────────────────────────
 
-async def run_master(state: SystemState) -> SystemState:
-    """
-    Layer 4 synthesis:
-    1. Detect cross-domain resonance (new)
-    2. Detect cross-domain conflicts (enhanced)
-    3. Compute dimension scores (new)
-    4. Build product recommendations with reasons (enhanced)
-    5. Call Master LLM with all context -> final report
-    """
-    state.phase = "master"
+def _build_worker_summaries(state: SystemState, sum_lengths: dict[str, int] | None = None) -> dict[str, str]:
+    """Build trimmed worker summaries from state. Used by both preprocessing and sub-tasks."""
+    default_len = 300 if not state.is_premium else 500
+    lengths = sum_lengths or {}
+    summaries = {}
+    for agent_id in ["astrology", "tarot", "bazi", "qimen", "ziwei", "face", "palm"]:
+        report = getattr(state, f"{agent_id}_output").report or ""
+        length = lengths.get(agent_id, default_len)
+        summaries[agent_id] = report[:length]
+    return summaries
 
-    # Step 1: resonance
+
+def run_master_preprocessing(state: SystemState) -> dict:
+    """
+    Deterministic analysis (no LLM, <1s).
+    Returns a dict with all computed data for sub-tasks.
+    """
     resonance_text = _detect_resonance(state)
-
-    # Step 2: conflicts
     state.conflicts = _detect_conflicts(state)
     conflicts_text = _conflicts_to_text(state.conflicts)
-
-    # Step 3: merge all tags with consensus refinement
     _refine_tags(state)
-
-    # Step 4: dimension scores (uses tags from step 3)
     state.dimension_scores = _compute_dimension_scores(state)
-
-    # Step 4b: confidence scoring + dynamic summary lengths
     confidence_text, sum_lengths = _compute_confidence(state)
 
-    # Step 5: products (uses computed_tags from step 3 + scores from step 4)
     matched_products, products_preview, products_with_reasons = _build_product_preview(state)
     state.recommended_product_ids = [p["id"] for p in matched_products]
     state.recommended_products = matched_products
 
-    # Step 6: build summaries with dynamic lengths based on confidence
-    default_len = 500
-    worker_summaries = {}
-    for agent_id in ["astrology", "tarot", "bazi", "qimen", "ziwei", "face", "palm"]:
-        report = getattr(state, f"{agent_id}_output").report or ""
-        length = sum_lengths.get(agent_id, default_len)
-        worker_summaries[agent_id] = report[:length]
-
-    # Step 7: chat context
-    chat_ctx = ""
-    if state.chat_history:
-        lines = [f"{m.role.upper()}: {m.content[:150]}" for m in state.chat_history[-6:]]
-        chat_ctx = "\n".join(lines)
-
-    # Step 8: build harmonization plan text (uses scores from step 4)
+    worker_summaries = _build_worker_summaries(state, sum_lengths)
     harm_text = _build_harmonization_hint(products_with_reasons, state)
 
-    # ── Generate summary + detail IN PARALLEL (independent, ~10s saved) ─
-    import asyncio as _asyncio
+    return {
+        "resonance_text": resonance_text,
+        "conflicts_text": conflicts_text,
+        "confidence_text": confidence_text,
+        "worker_summaries": worker_summaries,
+        "products_with_reasons": products_with_reasons,
+        "harm_text": harm_text,
+    }
 
-    summary_system = master_summary_prompt(
-        worker_summaries=worker_summaries,
-        user_question=state.user_question,
-        resonance_text=resonance_text,
-        conflicts_text=conflicts_text,
-        dimension_scores=state.dimension_scores,
-        confidence_text=confidence_text,
-    )
-    detail_system = master_detail_prompt(
-        worker_summaries=worker_summaries,
-        user_question=state.user_question,
-        products_with_reasons=products_with_reasons,
-        conflicts_text=conflicts_text,
-        chat_context=chat_ctx,
-        resonance_text=resonance_text,
-        harm_hint=harm_text,
-        dimension_scores=state.dimension_scores,
-        confidence_text=confidence_text,
-    )
 
-    summary_task = _call(summary_system, "请生成简洁的免费命盘报告。")
-    # 付费用户使用 deepseek-v4-pro 深度解析，免费用户使用基础模型
-    detail_model = settings.PREMIUM_MODEL if state.is_premium else None
-    detail_task = _call(detail_system, "请生成深度付费命盘报告，务必详细回答用户问题。", model=detail_model)
-    state.master_summary, state.master_detail = await _asyncio.gather(
-        summary_task, detail_task,
+async def run_subtask_core(state: SystemState, prep: dict) -> str:
+    """Run core synthesis sub-task (Sub-task A). Returns result text."""
+    llm_model = settings.PREMIUM_MODEL if state.is_premium else settings.MASTER_FAST_MODEL
+    system = master_subtask_core_prompt(
+        worker_summaries=prep["worker_summaries"],
+        user_question=state.user_question,
+        resonance_text=prep["resonance_text"],
+        conflicts_text=prep["conflicts_text"],
+        dimension_scores=state.dimension_scores,
+        confidence_text=prep["confidence_text"],
     )
+    result = await _call(system, "请生成核心综合报告。", model=llm_model)
+    state.master_subtask_core = result
+    return result
+
+
+async def run_subtask_dims(state: SystemState, prep: dict) -> str:
+    """Run dimension analysis sub-task (Sub-task B). Returns result text."""
+    llm_model = settings.PREMIUM_MODEL if state.is_premium else settings.MASTER_FAST_MODEL
+    system = master_subtask_dimensions_prompt(
+        worker_summaries=prep["worker_summaries"],
+        user_question=state.user_question,
+        dimension_scores=state.dimension_scores,
+        confidence_text=prep["confidence_text"],
+    )
+    result = await _call(system, "请生成五维诊断报告。", model=llm_model)
+    state.master_subtask_dimensions = result
+    return result
+
+
+async def run_subtask_actions(state: SystemState, prep: dict) -> str:
+    """Run action plan sub-task (Sub-task C). Returns result text."""
+    llm_model = settings.PREMIUM_MODEL if state.is_premium else settings.MASTER_FAST_MODEL
+    system = master_subtask_actions_prompt(
+        worker_summaries=prep["worker_summaries"],
+        user_question=state.user_question,
+        products_with_reasons=prep["products_with_reasons"],
+        harm_hint=prep["harm_text"],
+        dimension_scores=state.dimension_scores,
+    )
+    result = await _call(system, "请生成行动建议报告。", model=llm_model)
+    state.master_subtask_actions = result
+    return result
+
+
+async def run_master(state: SystemState) -> SystemState:
+    """
+    Full master pipeline: preprocessing + sub-tasks.
+    Free users: only core synthesis (1 LLM call).
+    Premium users: 3 parallel sub-tasks for full detail.
+    """
+    state.phase = "master"
+    prep = run_master_preprocessing(state)
+
+    if state.is_premium:
+        # Full pipeline: 3 parallel sub-tasks
+        core_task = run_subtask_core(state, prep)
+        dims_task = run_subtask_dims(state, prep)
+        actions_task = run_subtask_actions(state, prep)
+
+        core_result, dims_result, actions_result = await asyncio.gather(
+            core_task, dims_task, actions_task,
+        )
+
+        state.master_summary = core_result[:500]
+        state.master_detail = f"{core_result}\n\n{dims_result}\n\n{actions_result}"
+    else:
+        # Free user: only core synthesis (saves 2 LLM calls + ~8000 tokens)
+        core_result = await run_subtask_core(state, prep)
+        state.master_summary = core_result[:500]
+        state.master_detail = ""  # Behind paywall anyway
 
     state.phase = "chat"
     return state
@@ -845,6 +879,14 @@ def _compute_confidence(state: SystemState) -> tuple[str, dict[str, int]]:
                 idx = levels.index(current) if current in levels else 2
                 new_idx = min(4, idx + boost)
                 confidence_levels[agent_id] = levels[new_idx]
+
+    # Free users: compressed confidence text to save tokens
+    if not state.is_premium:
+        brief = " | ".join(
+            f"{workers_info[aid][0]}:{confidence_levels.get(aid, '中')}"
+            for aid in workers_info
+        )
+        return f"置信度概览: {brief}", lengths
 
     return "\n".join(lines), lengths
 

@@ -200,6 +200,37 @@ class ProductMatcher:
         except Exception:
             return _fallback()
 
+    def explain_why_template(
+        self,
+        product: dict,
+        weakness_tags: Optional[list[str]] = None,
+        boost_elements: Optional[list[str]] = None,
+    ) -> str:
+        """
+        Generate template-based recommendation text WITHOUT LLM.
+        Fast fallback for almanac/product-list contexts where speed matters.
+        """
+        weakness_tags = weakness_tags or []
+        boost_elements = boost_elements or []
+        p_name = product.get("name", "")
+        p_funcs = product.get("function_tags", [])
+        p_elems = product.get("elements", [])
+        boosts = "、".join(self.WUXING_EN_ZH.get(e, e) for e in boost_elements) or "能量"
+
+        if weakness_tags and p_funcs:
+            main_weak = weakness_tags[0].lstrip("#")
+            return (
+                f"针对您命盘中「{main_weak}」的问题，{p_name}蕴含"
+                f"{'、'.join(p_elems)}性能量，"
+                f"能{'、'.join(p_funcs[:2])}，帮助您平衡五行、改善运势。"
+            )
+        if p_elems:
+            return (
+                f"这款{p_name}富含{'、'.join(p_elems)}性能量，"
+                f"适合需要补充{boosts}的您，助您调和气场、提升运势。"
+            )
+        return f"这款{p_name}根据您的命盘精准匹配，能有效改善当前运势状态。"
+
     def _llm_explain(
         self,
         product: dict,

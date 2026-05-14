@@ -130,6 +130,7 @@ class WorkerOutput(BaseModel):
     tags: list[str] = Field(default_factory=list)
     error: Optional[str] = None
     duration_ms: Optional[float] = None
+    streamed: bool = False  # SSE streaming flag — set True after pushed to client
 
     def model_post_init(self, __context) -> None:
         if self.weakness_tags and not self.tags:
@@ -197,9 +198,19 @@ class SystemState(BaseModel):
     })
     harmonization_plan: str = ""
 
+    # Master sub-task results (for parallel synthesis)
+    master_subtask_core: str = ""       # Sub-task A: 核心综合
+    master_subtask_dimensions: str = ""  # Sub-task B: 五维诊断
+    master_subtask_actions: str = ""     # Sub-task C: 行动建议
+
     chat_history: list[ChatMessage] = Field(default_factory=list)
     current_route: Optional[str] = None
     loop_count: int = 0
+
+    # Progress tracking for SSE streaming
+    progress_pct: int = 0              # 0-100
+    progress_message: str = ""         # Human-readable current phase
+    agent_status: dict[str, str] = Field(default_factory=dict)  # agent_id -> "pending"|"running"|"done"|"error"|"skipped"
 
     errors: list[str] = Field(default_factory=list)
     phase: Literal["init", "parallel", "master", "chat", "done"] = "init"
