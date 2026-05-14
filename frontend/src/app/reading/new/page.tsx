@@ -9,7 +9,7 @@ import {
   Upload, Camera, Hand, ChevronRight, ChevronLeft,
   Loader2, Sparkles, Star, CheckCircle, AlertCircle, Trash2,
 } from "lucide-react"
-import { runAnalysis, AnalysisRequest, analyzeFaceImage, analyzePalmImage } from "@/lib/api"
+import { runAnalysisStream, AnalysisRequest, analyzeFaceImage, analyzePalmImage } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
 import { motion } from "framer-motion"
 import { TarotPicker } from "@/components/reading/TarotPicker"
@@ -296,9 +296,9 @@ export default function NewReadingPage() {
         face_raw_text: finalFaceText,
       }
 
-      const result = await runAnalysis(payload)
+      const result = await runAnalysisStream(payload, () => {})
       clearSavedProgress()
-      toast.success("推命完成！正在跳转报告…")
+      toast.success("推命已启动！正在跳转报告…")
       router.push(`/reading/${result.session_id}`)
     } catch (err: any) {
       console.error("[Reading submit] Full error:", err)
