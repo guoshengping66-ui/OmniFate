@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useMemo, Suspense, lazy } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { AGENT_LABELS, type SSEEvent } from "@/lib/api"
+import { AGENT_LABELS } from "@/lib/api"
 
 // Lazy-load EnergyOrb to avoid adding Three.js to the main bundle
 const EnergyOrb = lazy(() => import("./EnergyOrb"))

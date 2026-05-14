@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useMemo, Suspense } from "react"
+import { useRef, useMemo, Suspense, useEffect } from "react"
 import { Canvas, useFrame } from "@react-three/fiber"
 import { Points, PointMaterial } from "@react-three/drei"
 import * as THREE from "three"
@@ -47,7 +47,7 @@ function CoreOrb({ progressPct, phase }: { progressPct: number; phase: string })
     if (progressPct < 20) return 0  // icosahedron
     if (progressPct < 60) return 1
     return 2
-  }, [progressPct > 20, progressPct > 60])
+  }, [progressPct])
 
   useFrame((_, delta) => {
     if (meshRef.current) {
@@ -109,6 +109,8 @@ function ParticleField({
   completedCount: number
 }) {
   const pointsRef = useRef<THREE.Points>(null)
+  const agentStatusRef = useRef(agentStatus)
+  useEffect(() => { agentStatusRef.current = agentStatus }, [agentStatus])
 
   // Generate particle positions
   const { positions, colors } = useMemo(() => {
@@ -146,7 +148,7 @@ function ParticleField({
     const count = arr.length / 3
 
     // Color particles based on which agents are done
-    const doneAgents = Object.entries(agentStatus)
+    const doneAgents = Object.entries(agentStatusRef.current)
       .filter(([, s]) => s === "done")
       .map(([id]) => id)
 
