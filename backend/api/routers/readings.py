@@ -1303,116 +1303,131 @@ _ALMANAC_CACHE_TTL = 3600 * 12  # 12 hours
 # ─── Daily Almanac Endpoint ────────────────────────────────────────────────────
 
 
-@router.get("/daily-almanac", response_model=DailyAlmanacResponse)
+@router.get("/daily-almanac")
 async def get_daily_almanac(session_id: str = Query(...)):
     """
     Get personalized daily almanac (yi/ji/hu) based on user's birth chart vs today's transits.
-
-    Real-time computation, no storage.
     """
-    state = _sessions.get(session_id)
-    if not state:
-        raise HTTPException(status_code=404, detail="Session not found. Run /readings/ first.")
-    if not state.birth_info:
-        raise HTTPException(status_code=400, detail="Session missing birth info.")
-
-    # Check cache — same user + same day = instant response
-    from fastapi.responses import JSONResponse
-    cache_key = f"{session_id}:{date.today()}"
-    import time as _time
-    cached = _almanac_cache.get(cache_key)
-    if cached and (_time.time() - cached.get("_ts", 0)) < _ALMANAC_CACHE_TTL:
-        return JSONResponse(content={k: v for k, v in cached.items() if k != "_ts"})
-
-    bi = state.birth_info
-    today = date.today()
-
-    # 1. Compute natal chart
-    natal_planets = {}
-    transit = {"transit_planets": {}, "transit_natal_aspects": []}
     try:
-        from calculators.astrology_calculator import AstrologyCalculator
-        astro_calc = AstrologyCalculator()
-        natal_chart = astro_calc.calculate(
-            year=bi.year, month=bi.month, day=bi.day,
-            hour=bi.hour, minute=bi.minute,
-            latitude=bi.latitude or 0.0,
-            longitude=bi.longitude or 0.0,
+        state = _sessions.get(session_id)
+        if not state:
+            raise HTTPException(status_code=404, detail="Session not found. Run /readings/ first.")
+        if not state.birth_info:
+            raise HTTPException(status_code=400, detail="Session missing birth info.")
+
+        # Check cache — same user + same day = instant response
+        from fastapi.responses import JSONResponse
+        cache_key = f"{session_id}:{date.today()}"
+        import time as _time
+        cached = _almanac_cache.get(cache_key)
+        if cached and (_time.time() - cached.get("_ts", 0)) < _ALMANAC_CACHE_TTL:
+            return JSONResponse(content={k: v for k, v in cached.items() if k != "_ts"})
+
+        bi = state.birth_info
+        today = date.today()
+
+        # 1. Compute natal chart
+        natal_planets = {}
+        transit = {"transit_planets": {}, "transit_natal_aspects": []}
+        try:
+            from calculators.astrology_calculator import AstrologyCalculator
+            astro_calc = AstrologyCalculator()
+            natal_chart = astro_calc.calculate(
+                year=bi.year, month=bi.month, day=bi.day,
+                hour=bi.hour, minute=bi.minute,
+                latitude=bi.latitude or 0.0,
+                longitude=bi.longitude or 0.0,
+            )
+            natal_planets = natal_chart.planets
+
+            # 2. Compute today's transits
+            today_dt = datetime(today.year, today.month, today.day, 12, 0, tzinfo=timezone.utc)
+            transit = astro_calc.calculate_transit_for_date(today_dt, natal_planets)
+        except Exception:
+            pass
+
+        # 3. Compute today's bazi pillars
+        from calculators.bazi_calculator import BaziCalculator
+        today_bazi = None
+        try:
+            today_bazi = BaziCalculator.calculate_transit_pillars(today.year, today.month, today.day)
+        except Exception:
+            pass
+
+        # 4. Compute energy score
+        energy_score = _compute_energy_score(
+            state.dimension_scores,
+            state.bazi_raw.get("wuxing_scores") if state.bazi_raw else None,
         )
-        natal_planets = natal_chart.planets
 
-        # 2. Compute today's transits
-        today_dt = datetime(today.year, today.month, today.day, 12, 0, tzinfo=timezone.utc)
-        transit = astro_calc.calculate_transit_for_date(today_dt, natal_planets)
-    except Exception:
-        pass
+        # 5. Generate yi/ji/hu via LLM or rule-based
+        almanac_data = await _generate_almanac(
+            state=state,
+            today=today,
+            transit_bazi=today_bazi,
+            transit_astro=transit,
+            energy_score=energy_score,
+        )
 
-    # 3. Compute today's bazi pillars
-    from calculators.bazi_calculator import BaziCalculator
-    today_bazi = None
-    try:
-        today_bazi = BaziCalculator.calculate_transit_pillars(today.year, today.month, today.day)
-    except Exception:
-        pass
-
-    # 4. Compute energy score
-    energy_score = _compute_energy_score(
-        state.dimension_scores,
-        state.bazi_raw.get("wuxing_scores") if state.bazi_raw else None,
-    )
-
-    # 5. Generate yi/ji/hu via LLM or rule-based
-    almanac_data = await _generate_almanac(
-        state=state,
-        today=today,
-        transit_bazi=today_bazi,
-        transit_astro=transit,
-        energy_score=energy_score,
-    )
-
-    # 6. Match products for 'hu' (护) — use template explanations (fast, no LLM)
-    from services.product_matcher import ProductMatcher
-    matcher = ProductMatcher()
-    all_weakness = list(state.computed_tags or [])
-    matched = matcher.match_with_reasons(
-        weakness_tags=all_weakness,
-        boost_elements=almanac_data.get("boost_elements", []),
-        top_k=3,
-    )
-    for p in matched:
-        p["recommendation_text"] = matcher.explain_why_template(
-            product=p,
+        # 6. Match products for 'hu' (护) — use template explanations (fast, no LLM)
+        from services.product_matcher import ProductMatcher
+        matcher = ProductMatcher()
+        all_weakness = list(state.computed_tags or [])
+        matched = matcher.match_with_reasons(
             weakness_tags=all_weakness,
             boost_elements=almanac_data.get("boost_elements", []),
+            top_k=3,
         )
+        for p in matched:
+            p["recommendation_text"] = matcher.explain_why_template(
+                product=p,
+                weakness_tags=all_weakness,
+                boost_elements=almanac_data.get("boost_elements", []),
+            )
 
-    hu_items = [
-        {
-            "product": p,
-            "reason": p.get("match_reasons", [""])[0] if p.get("match_reasons") else "今日能量匹配",
+        hu_items = [
+            {
+                "product": p,
+                "reason": p.get("match_reasons", [""])[0] if p.get("match_reasons") else "今日能量匹配",
+            }
+            for p in matched
+        ]
+
+        result = {
+            "date": today.isoformat(),
+            "energy_score": energy_score,
+            "yi": almanac_data.get("yi", []),
+            "ji": almanac_data.get("ji", []),
+            "hu": hu_items,
+            "daily_quote": almanac_data.get("daily_quote", "顺势而为，方得始终。"),
+            "wuxing_analysis": almanac_data.get("wuxing_analysis", ""),
         }
-        for p in matched
-    ]
 
-    result = DailyAlmanacResponse(
-        date=today.isoformat(),
-        energy_score=energy_score,
-        yi=almanac_data.get("yi", []),
-        ji=almanac_data.get("ji", []),
-        hu=hu_items,
-        daily_quote=almanac_data.get("daily_quote", "顺势而为，方得始终。"),
-        wuxing_analysis=almanac_data.get("wuxing_analysis", ""),
-    )
+        # Cache the result for 12 hours
+        _almanac_cache[cache_key] = {**result, "_ts": _time.time()}
+        # Evict old entries
+        if len(_almanac_cache) > 500:
+            oldest_keys = sorted(_almanac_cache, key=lambda k: _almanac_cache[k].get("_ts", 0))[:200]
+            for k in oldest_keys:
+                _almanac_cache.pop(k, None)
 
-    # Cache the result for 12 hours
-    _almanac_cache[cache_key] = {**result.model_dump(), "_ts": _time.time()}
-    # Evict old entries
-    if len(_almanac_cache) > 500:
-        oldest_keys = sorted(_almanac_cache, key=lambda k: _almanac_cache[k].get("_ts", 0))[:200]
-        for k in oldest_keys:
-            _almanac_cache.pop(k, None)
-
-    return result
+        return result
+    except HTTPException:
+        raise
+    except Exception as exc:
+        import traceback
+        print(f"[ALMANAC ERROR] {traceback.format_exc()}")
+        # Return a safe fallback instead of 500
+        today = date.today()
+        return {
+            "date": today.isoformat(),
+            "energy_score": 50,
+            "yi": ["宜静心", "宜规划"],
+            "ji": ["忌冲动"],
+            "hu": [],
+            "daily_quote": "顺势而为，方得始终。",
+            "wuxing_analysis": "",
+        }
 
 
 async def _generate_almanac(
