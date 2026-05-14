@@ -1328,9 +1328,11 @@ async def get_daily_almanac(session_id: str = Query(...)):
     today = date.today()
 
     # 1. Compute natal chart
-    from calculators.astrology_calculator import AstrologyCalculator
-    astro_calc = AstrologyCalculator()
+    natal_planets = {}
+    transit = {"transit_planets": {}, "transit_natal_aspects": []}
     try:
+        from calculators.astrology_calculator import AstrologyCalculator
+        astro_calc = AstrologyCalculator()
         natal_chart = astro_calc.calculate(
             year=bi.year, month=bi.month, day=bi.day,
             hour=bi.hour, minute=bi.minute,
@@ -1338,12 +1340,8 @@ async def get_daily_almanac(session_id: str = Query(...)):
             longitude=bi.longitude or 0.0,
         )
         natal_planets = natal_chart.planets
-    except Exception:
-        natal_planets = {}
 
-    # 2. Compute today's transits
-    transit = {"transit_planets": {}, "transit_natal_aspects": []}
-    try:
+        # 2. Compute today's transits
         today_dt = datetime(today.year, today.month, today.day, 12, 0, tzinfo=timezone.utc)
         transit = astro_calc.calculate_transit_for_date(today_dt, natal_planets)
     except Exception:
