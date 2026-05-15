@@ -11,6 +11,7 @@ import {
 } from "lucide-react"
 import { runAnalysisStream, AnalysisRequest, analyzeFaceImage, analyzePalmImage } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
+import { useLanguage } from "@/contexts/LanguageContext"
 import { motion } from "framer-motion"
 import { TarotPicker } from "@/components/reading/TarotPicker"
 import { FaceScanAnimation } from "@/components/reading/FaceScanAnimation"
@@ -86,6 +87,7 @@ const PALM_FIELDS = [
 export default function NewReadingPage() {
   const router = useRouter()
   const { user } = useAuth()
+  const { locale } = useLanguage()
   const [step, setStep]           = useState(0)
   const [loading, setLoading]     = useState(false)
   // Face state
@@ -291,6 +293,7 @@ export default function NewReadingPage() {
         latitude: lat,
         longitude: lng,
         is_premium: false,
+        language: locale === "en" ? "en" : "zh",
         tarot_cards: tarotCards,
         palm_raw_text: finalPalmText,
         face_raw_text: finalFaceText,

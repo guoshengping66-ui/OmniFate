@@ -86,6 +86,7 @@ class AnalysisRequest(BaseModel):
     longitude: Optional[float] = None
     user_question: str = "Please give me a complete multi-dimensional destiny analysis."
     is_premium: bool = False
+    language: str = Field("zh", pattern="^(zh|en)$")  # "zh" or "en"
     tarot_cards: list[dict] = Field(default_factory=list)
     palm_raw_text: str = ""
     face_raw_text: str = ""
@@ -217,6 +218,7 @@ async def create_analysis(
         palm_features=palm_feat,
         user_question=payload.user_question,
         is_premium=is_premium,
+        language=payload.language,
         tarot_raw={"spread": "Three-Card Spread", "cards": payload.tarot_cards},
     )
 

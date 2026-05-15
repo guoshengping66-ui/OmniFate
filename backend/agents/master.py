@@ -77,11 +77,17 @@ def _use_mock() -> bool:
     return not settings.OPENAI_API_KEY
 
 
-async def _call(system: str, user: str, model: str | None = None) -> str:
+async def _call(system: str, user: str, model: str | None = None, language: str = "zh") -> str:
     if _use_mock():
         return f"[MOCK] {user[:80]}\n\nSet OPENAI_API_KEY to enable real AI responses."
     llm = _llm(model=model)
-    msgs = [SystemMessage(content=system), HumanMessage(content=user)]
+    # Add language instruction to master prompts
+    lang_hint = (
+        "\n\nIMPORTANT: Output the ENTIRE analysis in English. "
+        "ALL text values, descriptions, and explanations MUST be in English."
+        if language == "en" else ""
+    )
+    msgs = [SystemMessage(content=system + lang_hint), HumanMessage(content=user)]
     resp = await llm.ainvoke(msgs)
     return resp.content
 
@@ -670,7 +676,7 @@ async def answer_with_expert(question: str, agent_id: str, state: SystemState) -
         "用你的领域知识和以下分析报告作为上下文，简洁权威地回答用户追问（200-400字，中文）。\n\n"
         f"== 你的分析报告 ==\n{expert_report[:1500]}"
     )
-    return await _call(system, question, model=settings.PREMIUM_MODEL if state.is_premium else None)
+    return await _call(system, question, model=settings.PREMIUM_MODEL if state.is_premium else None, language=state.language)
 
 
 # ─── Main: run_master ─────────────────────────────────────────────────────
@@ -727,7 +733,7 @@ async def run_subtask_core(state: SystemState, prep: dict) -> str:
         dimension_scores=state.dimension_scores,
         confidence_text=prep["confidence_text"],
     )
-    result = await _call(system, "请生成核心综合报告。", model=llm_model)
+    result = await _call(system, "请生成核心综合报告。", model=llm_model, language=state.language)
     state.master_subtask_core = result
     return result
 
@@ -741,7 +747,7 @@ async def run_subtask_dims(state: SystemState, prep: dict) -> str:
         dimension_scores=state.dimension_scores,
         confidence_text=prep["confidence_text"],
     )
-    result = await _call(system, "请生成五维诊断报告。", model=llm_model)
+    result = await _call(system, "请生成五维诊断报告。", model=llm_model, language=state.language)
     state.master_subtask_dimensions = result
     return result
 
@@ -756,7 +762,7 @@ async def run_subtask_actions(state: SystemState, prep: dict) -> str:
         harm_hint=prep["harm_text"],
         dimension_scores=state.dimension_scores,
     )
-    result = await _call(system, "请生成行动建议报告。", model=llm_model)
+    result = await _call(system, "请生成行动建议报告。", model=llm_model, language=state.language)
     state.master_subtask_actions = result
     return result
 

@@ -162,6 +162,7 @@ class SystemState(BaseModel):
     palm_features: Optional[PalmFeatures] = None
     user_question: str = "请给我一份全维度命理分析报告"
     is_premium: bool = False
+    language: str = "zh"  # "zh" or "en" — controls LLM output language
 
     bazi_raw: dict = Field(default_factory=dict)
     astrology_raw: dict = Field(default_factory=dict)

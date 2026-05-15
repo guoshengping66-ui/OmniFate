@@ -12,6 +12,18 @@ TAG_FORMAT = (
     "conflict_warnings: signals contradicting other domains, else []\n"
 )
 
+
+def _lang_instruction(language: str = "zh") -> str:
+    """Return language output instruction for prompt system messages."""
+    if language == "en":
+        return (
+            "Output the entire analysis in English. "
+            "ALL text values, descriptions, and explanations MUST be in English. "
+            "Keep Chinese terms in parentheses only when they are proper nouns "
+            "from Chinese metaphysics (e.g. BaZi, Wu Xing, Ten Gods).\n"
+        )
+    return "全中文输出。\n"
+
 # ─── Worker JSON Output Format (replaces free-text report) ──────────────
 
 WORKER_JSON_FORMAT = (
@@ -434,7 +446,8 @@ def astrology_prompt(sun_sign: str, moon_sign: str, ascendant: str,
                      planet_returns_text: str = "",
                      transit_planets_text: str = "",
                      transit_aspects_text: str = "",
-                     user_question: str = "") -> str:
+                     user_question: str = "",
+                     language: str = "zh") -> str:
     s = f"\nSaturn: {saturn_aspects}" if saturn_aspects else ""
     t = f"\nTransits:\n{transits}" if transits else ""
     yr_hint = ""
@@ -1238,7 +1251,7 @@ Stellium(星群): 三颗以上行星聚集在同一星座/宫位。
         "你是融合古典占星（希腊占星/中世纪占星）与现代心理占星（荣格/进化占星）的"
         "顶尖星盘分析师。从业20年，精通Ptolemaic尊严体系、相位心理学和恒星占星。\n"
         "分析风格：严谨、深刻、带有宿命感的同时具备人文关怀。\n"
-        "全中文输出。\n"
+        f"{_lang_instruction(language)}"
         "STRICT SCOPE: 仅限西方占星学，不得涉及八字/塔罗/面相/手相/数字学。\n\n"
         "分析推理链：\n"
         "  第一步：定三轴 则 太阳/月亮/上升的星座和宫位，确定核心人格\n"
@@ -1357,7 +1370,8 @@ Stellium(星群): 三颗以上行星聚集在同一星座/宫位。
     )
 
 
-def tarot_prompt(user_question: str, spread_name: str, cards: list) -> str:
+def tarot_prompt(user_question: str, spread_name: str, cards: list,
+                  language: str = "zh") -> str:
     # ── 增强卡牌显示（含元数据） ────────────────────────────────────────
     _SUIT_CN = {"major": "大阿卡纳", "wands": "权杖牌组", "cups": "圣杯牌组",
                 "swords": "宝剑牌组", "pentacles": "星币牌组"}
@@ -2324,7 +2338,7 @@ Ten (10) — 循环/转变。一个周期的结束，新周期的预备
 
     return (
         "你是认证塔罗疗愈师，通晓荣格深度心理学与卡巴拉生命之树体系。\n"
-        "解牌温暖而精准，让求问者感受到深层共鸣。全中文输出。\n"
+        "解牌温暖而精准，让求问者感受到深层共鸣。" + _lang_instruction(language)
         "STRICT SCOPE: 仅限塔罗牌，不得涉及八字/星盘/面相/手相。\n\n"
         "分析推理链：\n"
         "  第一步：扫描整体能量 则 元素分布/大阿卡纳比例/逆位比例\n"
@@ -2586,7 +2600,8 @@ def _compute_face_bone_comprehensive(face_text: str) -> str:
 
 
 
-def face_prompt(face_text: str, gender: str, bazi_supplement: str = "") -> str:
+def face_prompt(face_text: str, gender: str, bazi_supplement: str = "",
+                language: str = "zh") -> str:
     bazi_sec = f"\n八字参考(仅佐证):\n{bazi_supplement}" if bazi_supplement else ""
 
     # ── Precomputation ──
@@ -3464,7 +3479,7 @@ def face_prompt(face_text: str, gender: str, bazi_supplement: str = "") -> str:
 
     return (
         f"{struct_block}"
-        f"\n\n你是麻衣相法 / 神相全编嫡传相师，精通风鉴精髓。断语有据，引五岳四渎、十二宫位体系。全中文输出。\n"
+        f"\n\n你是麻衣相法 / 神相全编嫡传相师，精通风鉴精髓。断语有据，引五岳四渎、十二宫位体系。{_lang_instruction(language)}"
         f"STRICT SCOPE: 仅限面相学，不得涉及手相/八字/星盘/塔罗。\n\n"
         f"性别:{gender}\n{face_text}{bazi_sec}\n\n"
         f"{_face_knowledge}\n"
@@ -3547,13 +3562,13 @@ def face_prompt(face_text: str, gender: str, bazi_supplement: str = "") -> str:
     )
 
 def palm_prompt(palm_text: str, gender: str, bazi_supplement: str = "",
-                 hand_side: str = "") -> str:
+                 hand_side: str = "", language: str = "zh") -> str:
     bazi_sec = f"\n八字参考(仅佐证):\n{bazi_supplement}" if bazi_supplement else ""
     hand_label = hand_side or "未指定"
     lines = [
         "你融合中国柳庄相法、水镜神相、西洋Cheiro手相学、印度手相(Hasta Samudrika)四大体系，",
         "精通手诊、五行手型、掌丘学、指纹学，从业20年。",
-        "断语精准，分线断事，每条结论标注所引体系。全中文输出。",
+        "断语精准，分线断事，每条结论标注所引体系。" + _lang_instruction(language).strip(),
         "STRICT SCOPE: 仅限手相学，不得涉及面相/八字/星盘/塔罗/数字学。",
         f"性别:{gender}\n{palm_text}{bazi_sec}",
         "",
@@ -4535,6 +4550,7 @@ def qimen_prompt(
     god_sequence: list[str],
     gender: str = "female",
     birth_datetime: str = "",
+    language: str = "zh",
 ) -> str:
     """Generate the system prompt for the Qimen Dunjia agent."""
 
@@ -5226,7 +5242,7 @@ tags: 2-4个，综合标签，概括命主奇门格局的核心特征
         "   - 针对命主当前最关心的问题给出定向建议\n"
         "   - 提供3-5条可执行的奇门开运方法\n"
         "   - 提醒需要特别注意的风险和化解方式\n\n"
-        "9. 文字风格：专业而不晦涩，用中文输出，约1500-2500字。\n"
+        "9. 文字风格：专业而不晦涩，" + ("output in English", "用中文输出")[language == "zh"] + "，约1500-2500字。\n"
         "   将奇门千年兵家智慧转化为现代人的生活决策指南\n"
         "   结合命主的具体时盘数据，给出个性化、可操作的建议\n"
         "   精炼表达：避免重复论述同一观点，每个章节聚焦核心要点\n"
@@ -5247,6 +5263,7 @@ def ziwei_prompt(
     ming_gong_main_stars: list,
     gender: str = "female",
     birth_datetime: str = "",
+    language: str = "zh",
 ) -> str:
     """Generate the system prompt for the Ziwei Doushu agent."""
 
@@ -5869,7 +5886,8 @@ conflict_warnings: 1-3个
 
     return (
         "你是世界顶级的紫微斗数命理师。精通《紫微斗数全书》《十八飞星策天紫微斗数》，"
-        "擅长从星曜分布和宫位组合解读命主一生的富贵贫贱、人事变迁。\n\n"
+        "擅长从星曜分布和宫位组合解读命主一生的富贵贫贱、人事变迁。\n"
+        f"{_lang_instruction(language)}\n"
         "你的任务：基于用户出生时间排出的紫微斗数命盘，给出专业精准的紫微斗数分析报告。\n\n"
         "分析推理链：\n"
         "  第一步：定命宫 则 看命宫主星的庙旺利陷，确定核心人格\n"
@@ -5983,6 +6001,7 @@ def bazi_prompt(
     shi_er_chang_sheng: str = "",
     nayin_year: str = "",
     da_yun_str: str = "",
+    language: str = "zh",
 ) -> str:
     """八字分析专用 System Prompt"""
     # ── 核心知识体系 ──
@@ -6641,7 +6660,8 @@ conflict_warnings: 1-3个矛盾信号
 
     return (
         "你是世界顶级的周易八字命理师。精通《滴天髓》《三命通会》《渊海子平》《子平真诠》，"
-        "擅长从八字四柱提取命主一生的富贵贫贱、吉凶祸福。\n\n"
+        "擅长从八字四柱提取命主一生的富贵贫贱、吉凶祸福。\n"
+        f"{_lang_instruction(language)}\n"
         "你的任务：基于用户出生时间排出的八字四柱，给出专业、精准、深入的八字分析报告。\n\n"
         "分析推理链：\n"
         "  第一步：定格局 则 看月令透干，确定命格类型\n"

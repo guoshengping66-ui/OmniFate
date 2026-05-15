@@ -107,6 +107,7 @@ export interface AnalysisRequest {
   longitude?: number
   user_question: string
   is_premium: boolean
+  language?: "zh" | "en"
   tarot_cards: { position: string; card: string; reversed: boolean }[]
   palm_raw_text: string
   face_raw_text: string

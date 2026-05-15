@@ -54,6 +54,35 @@ _JSON_OUTPUT_INSTRUCTION = (
     "规则：summary必填；dimensions中无数据的维度填空字符串""；key_findings 3-5条。\n"
 )
 
+_JSON_OUTPUT_INSTRUCTION_EN = (
+    "\n\n== CRITICAL: OUTPUT FORMAT ==\n"
+    "You MUST output the analysis in strict JSON format. Do NOT output any other text.\n"
+    "```json\n"
+    '{\n'
+    '  "summary": "200-word core conclusion summarizing chart traits and key findings",\n'
+    '  "dimensions": {\n'
+    '    "wealth": "80-120 word wealth analysis",\n'
+    '    "relationship": "80-120 word love/relationship analysis",\n'
+    '    "career": "80-120 word career analysis",\n'
+    '    "health": "80-120 word health analysis",\n'
+    '    "spiritual": "80-120 word spiritual analysis"\n'
+    '  },\n'
+    '  "key_findings": ["finding 1 (with confidence)", "finding 2", "finding 3"],\n'
+    '  "weakness_tags": ["#weakness1", "#weakness2"],\n'
+    '  "strength_tags": ["#strength1"],\n'
+    '  "boost_elements": ["fire", "water"],\n'
+    '  "conflict_warnings": ["conflict signal 1"]\n'
+    '}\n'
+    "```\n"
+    "Rules: summary is required; leave empty string for dimensions without data; 3-5 key_findings.\n"
+    "IMPORTANT: ALL text values in the JSON MUST be in English.\n"
+)
+
+
+def _get_json_instruction(language: str = "zh") -> str:
+    """Return the appropriate JSON output instruction based on language."""
+    return _JSON_OUTPUT_INSTRUCTION_EN if language == "en" else _JSON_OUTPUT_INSTRUCTION
+
 
 def _llm(temperature: float = 0.35, model: str | None = None):
     from langchain_openai import ChatOpenAI
@@ -68,11 +97,11 @@ def _llm(temperature: float = 0.35, model: str | None = None):
     return ChatOpenAI(**kwargs)
 
 
-async def _call(system: str, user: str, append_json_format: bool = True, model: str | None = None) -> str:
+async def _call(system: str, user: str, append_json_format: bool = True, model: str | None = None, language: str = "zh") -> str:
     """Single async LLM call. append_json_format adds JSON output instruction."""
     from langchain_core.messages import SystemMessage, HumanMessage
     llm = _llm(model=model)
-    sys_content = system + (_JSON_OUTPUT_INSTRUCTION if append_json_format else "")
+    sys_content = system + (_get_json_instruction(language) if append_json_format else "")
     msgs = [SystemMessage(content=sys_content), HumanMessage(content=user)]
     resp = await llm.ainvoke(msgs)
     return resp.content
@@ -119,7 +148,7 @@ def _parse_worker_report(text: str) -> dict:
 
 
 def _extract_json_tags(text: str) -> dict:
-    m = re.search(r"```json\s*(\{.*?\})\s*```", text, re.DOTALL)
+    m = re.search(r"```json\s*(\{.*\})\s*```", text, re.DOTALL)
     if m:
         try:
             return json.loads(m.group(1))
@@ -350,10 +379,11 @@ async def run_astrology(state: SystemState) -> WorkerOutput:
             planet_returns_text=planet_returns_text,
             transit_planets_text=transit_planets_text,
             transit_aspects_text=transit_aspects_text,
+            language=state.language,
         )
         user_msg = "Please deliver a complete Western astrology analysis based on the chart data above."
 
-        report = _mock(agent_id, chart_summary) if _use_mock() else await _call(system, user_msg)
+        report = _mock(agent_id, chart_summary) if _use_mock() else await _call(system, user_msg, language=state.language)
         data = _parse_worker_report(report)
         return WorkerOutput(
             agent_id=agent_id,
@@ -389,10 +419,11 @@ async def run_tarot(state: SystemState) -> WorkerOutput:
             user_question=state.user_question,
             spread_name=raw.get("spread", "Three-Card Spread"),
             cards=cards,
+            language=state.language,
         )
         user_msg = "Please deliver a complete Tarot reading based on the cards drawn above."
 
-        report = _mock(agent_id, str(cards)) if _use_mock() else await _call(system, user_msg)
+        report = _mock(agent_id, str(cards)) if _use_mock() else await _call(system, user_msg, language=state.language)
         data = _parse_worker_report(report)
         return WorkerOutput(
             agent_id=agent_id,
@@ -491,10 +522,11 @@ async def run_bazi(state: SystemState) -> WorkerOutput:
             shi_er_chang_sheng=raw.get("shi_er_chang_sheng", ""),
             nayin_year=raw.get("nayin_year", ""),
             da_yun_str=da_yun_str,
+            language=state.language,
         )
         user_msg = "Please deliver a complete BaZi analysis based on the Four Pillars data above."
 
-        report = _mock(agent_id, str(pillars)) if _use_mock() else await _call(system, user_msg)
+        report = _mock(agent_id, str(pillars)) if _use_mock() else await _call(system, user_msg, language=state.language)
         data = _parse_worker_report(report)
         return WorkerOutput(
             agent_id=agent_id,
@@ -551,10 +583,11 @@ async def run_qimen(state: SystemState) -> WorkerOutput:
             god_sequence=raw.get("god_sequence", []),
             gender=bi.gender,
             birth_datetime=birth_str,
+            language=state.language,
         )
         user_msg = "Please deliver a complete Qimen Dunjia analysis based on the time plate data above."
 
-        report = _mock(agent_id, str(raw)) if _use_mock() else await _call(system, user_msg)
+        report = _mock(agent_id, str(raw)) if _use_mock() else await _call(system, user_msg, language=state.language)
         data = _parse_worker_report(report)
         return WorkerOutput(
             agent_id=agent_id,
@@ -610,11 +643,12 @@ async def run_ziwei(state: SystemState) -> WorkerOutput:
             ming_gong_main_stars=raw.get("ming_gong_main_stars", []),
             gender=bi.gender,
             birth_datetime=birth_str,
+            language=state.language,
         )
         user_msg = "Please deliver a complete Ziwei Doushu analysis based on the natal chart data above."
 
         ziwei_model = settings.ZIWEI_MODEL or None
-        report = _mock(agent_id, str(raw)) if _use_mock() else await _call(system, user_msg, model=ziwei_model)
+        report = _mock(agent_id, str(raw)) if _use_mock() else await _call(system, user_msg, model=ziwei_model, language=state.language)
         data = _parse_worker_report(report)
         return WorkerOutput(
             agent_id=agent_id,
@@ -660,10 +694,10 @@ async def run_face(state: SystemState) -> WorkerOutput:
                 f"Pattern: {raw.get('pattern','')}"
             )
 
-        system = face_prompt(face_text, gender, bazi_sup)
+        system = face_prompt(face_text, gender, bazi_sup, language=state.language)
         user_msg = "Please deliver a complete face reading based on the facial feature data above."
 
-        report = _mock(agent_id, face_text) if _use_mock() else await _call(system, user_msg)
+        report = _mock(agent_id, face_text) if _use_mock() else await _call(system, user_msg, language=state.language)
         data = _parse_worker_report(report)
         return WorkerOutput(
             agent_id=agent_id,
@@ -704,10 +738,10 @@ async def run_palm(state: SystemState) -> WorkerOutput:
             raw = state.bazi_raw
             bazi_sup = f"Day Master: {raw.get('day_master','')} | Missing: {raw.get('missing_elements',[])}"
 
-        system = palm_prompt(palm_text, gender, bazi_sup, pf.hand_side)
+        system = palm_prompt(palm_text, gender, bazi_sup, pf.hand_side, language=state.language)
         user_msg = "Please deliver a complete palm reading based on the hand line data above."
 
-        report = _mock(agent_id, palm_text) if _use_mock() else await _call(system, user_msg)
+        report = _mock(agent_id, palm_text) if _use_mock() else await _call(system, user_msg, language=state.language)
         data = _parse_worker_report(report)
         return WorkerOutput(
             agent_id=agent_id,
