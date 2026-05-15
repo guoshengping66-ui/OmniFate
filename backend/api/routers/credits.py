@@ -1,9 +1,10 @@
 """星尘积分系统 API — 支持预扣/确认/回滚原子操作 + 阈值监控"""
+import hmac
 import logging
 from datetime import datetime, timezone, date
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Header
 from pydantic import BaseModel
 from sqlalchemy import select, func, and_
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from database.session import get_db
 from database.models import User, CreditTransaction
 from auth.dependencies import get_current_user, require_user
+from config import get_settings
 
 logger = logging.getLogger("credits")
 
@@ -339,9 +341,6 @@ async def monthly_grant(
 
 
 # ── 管理审计接口 ────────────────────────────────────────────────────────────────
-from fastapi import Header
-from config import get_settings
-
 _settings = get_settings()
 
 
@@ -361,7 +360,6 @@ async def admin_audit(
         raise HTTPException(status_code=500, detail="CRON_SECRET not configured")
     if not authorization:
         raise HTTPException(status_code=401, detail="Missing authorization")
-    import hmac
     token = authorization.replace("Bearer ", "").strip()
     if not hmac.compare_digest(token, _settings.CRON_SECRET):
         raise HTTPException(status_code=403, detail="Invalid secret")
