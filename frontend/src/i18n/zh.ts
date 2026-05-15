@@ -63,6 +63,7 @@ export default {
   "nav.myReports": "我的报告",
   "nav.account": "个人中心",
   "nav.almanac": "每日黄历",
+  "nav.divination": "星际抽签",
   "nav.events": "事件复盘",
   "common.loading": "加载中...",
   "common.submit": "提交",

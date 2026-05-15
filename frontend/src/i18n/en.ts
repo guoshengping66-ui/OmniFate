@@ -63,6 +63,7 @@ export default {
   "nav.myReports": "My Reports",
   "nav.account": "Account",
   "nav.almanac": "Daily Almanac",
+  "nav.divination": "Star Divination",
   "nav.events": "Event Analysis",
   "common.loading": "Loading...",
   "common.submit": "Submit",
