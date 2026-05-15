@@ -1,7 +1,9 @@
 "use client"
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { useAuth } from "@/contexts/AuthContext"
+import { FounderBadge } from "@/components/ui/FounderBadge"
 
 const NAMES_ZH = [
   "北京的小美", "上海的阿杰", "广州的莉莉",
@@ -21,15 +23,24 @@ const NAMES_EN = [
   "Chenxi from Xiamen", "Bowen from Hefei", "Shihan from Kunming",
 ]
 
+// Founder names — will show FounderBadge
+const FOUNDER_NAMES_ZH = ["创始人·天行", "创始人·星尘", "创始人·若水"]
+const FOUNDER_NAMES_EN = ["Founder·Tianxing", "Founder·Stardust", "Founder·Ruoshui"]
+
 function randomItem<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)]
 }
 
 function generateMessage(isEn: boolean) {
-  const names = isEn ? NAMES_EN : NAMES_ZH
+  const isFounder = Math.random() < 0.12 // 12% chance to show founder activity
+  const names = isFounder
+    ? (isEn ? FOUNDER_NAMES_EN : FOUNDER_NAMES_ZH)
+    : (isEn ? NAMES_EN : NAMES_ZH)
+
   return {
     id: Math.random().toString(36).slice(2, 9),
     name: randomItem(names),
+    isFounder,
     activityKey: [
       "live.activity1", "live.activity2", "live.activity3", "live.activity4", "live.activity5",
       "live.activity6", "live.activity7", "live.activity8", "live.activity9", "live.activity10",
@@ -56,6 +67,7 @@ function AnimatedCounter({ target }: { target: number }) {
 
 export function LiveBar() {
   const { t, locale } = useLanguage()
+  const { user } = useAuth()
   const isEn = locale === "en"
   const [messages, setMessages] = useState(() => [
     generateMessage(isEn),
@@ -63,27 +75,45 @@ export function LiveBar() {
     generateMessage(isEn),
   ])
   const [visible, setVisible] = useState(false)
+  const [isPaused, setIsPaused] = useState(false)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  // Improved scroll logic: pause when user scrolls past hero
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY
+      const heroHeight = window.innerHeight * 0.8
+      // Pause live feed when scrolled past 80% of hero
+      setIsPaused(scrollY > heroHeight)
+    }
+
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
+
+  // Message generation with pause support
+  const generateNewMessages = useCallback(() => {
+    if (isPaused) return
+    setMessages(prev => {
+      const next = [...prev]
+      const replaceIdx = Math.floor(Math.random() * 3)
+      next[replaceIdx] = generateMessage(isEn)
+      return next
+    })
+  }, [isPaused, isEn])
 
   useEffect(() => {
     const showTimer = setTimeout(() => setVisible(true), 3000)
-
-    const interval = setInterval(() => {
-      setMessages(prev => {
-        const next = [...prev]
-        const replaceIdx = Math.floor(Math.random() * 3)
-        next[replaceIdx] = generateMessage(isEn)
-        return next
-      })
-    }, 3500)
-
     const hideTimer = setTimeout(() => setVisible(false), 180000)
+
+    intervalRef.current = setInterval(generateNewMessages, 3500)
 
     return () => {
       clearTimeout(showTimer)
       clearTimeout(hideTimer)
-      clearInterval(interval)
+      if (intervalRef.current) clearInterval(intervalRef.current)
     }
-  }, [isEn])
+  }, [generateNewMessages])
 
   return (
     <AnimatePresence>
@@ -125,9 +155,13 @@ export function LiveBar() {
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
                       </span>
                       <span className="text-white/50 text-xs whitespace-nowrap">
-                        <span className="text-gold font-medium">{msg.name}</span>
+                        <span className={`font-medium ${msg.isFounder ? "text-violet-300" : "text-gold"}`}>
+                          {msg.name}
+                        </span>
                         {" "}{t(msg.activityKey as any)}
                       </span>
+                      {/* Founder badge inline */}
+                      {msg.isFounder && <FounderBadge size="sm" />}
                     </motion.div>
                   ))}
                 </AnimatePresence>

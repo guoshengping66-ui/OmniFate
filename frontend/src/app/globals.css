@@ -243,3 +243,25 @@ select.input-field option:checked {
   100% { opacity: 1; transform: scale(1); filter: blur(0); }
 }
 
+/* Hero CTA pulse ring expansion */
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 0.5; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+.pulse-ring {
+  position: relative;
+}
+.pulse-ring::before,
+.pulse-ring::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 9999px;
+  border: 2px solid var(--gold);
+  animation: pulse-ring 2s ease-out infinite;
+  pointer-events: none;
+}
+.pulse-ring::after {
+  animation-delay: 1s;
+}
+
