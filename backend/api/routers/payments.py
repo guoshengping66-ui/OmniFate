@@ -914,13 +914,16 @@ async def get_founder_status(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_user),
 ):
-    """获取创始席位状态 — 基于真实用户数据"""
+    """获取创始席位状态 — 基于真实用户数据（仅统计已激活的席位）"""
 
-    # Count real founder seats
+    # Count real founder seats — must have seat_no AND activated_at
+    # This excludes test/fake founder status that was set without going through activate
     domestic_result = await db.execute(
         select(func.count()).select_from(User).where(
             User.is_founder == True,
             User.founder_region == "domestic",
+            User.founder_seat_no.isnot(None),
+            User.founder_activated_at.isnot(None),
         )
     )
     domestic_sold = domestic_result.scalar() or 0
@@ -929,6 +932,8 @@ async def get_founder_status(
         select(func.count()).select_from(User).where(
             User.is_founder == True,
             User.founder_region == "overseas",
+            User.founder_seat_no.isnot(None),
+            User.founder_activated_at.isnot(None),
         )
     )
     overseas_sold = overseas_result.scalar() or 0
@@ -958,7 +963,11 @@ async def list_founder_seats(
     """获取所有已占用的创始席位编号（用于展示席位墙）"""
     result = await db.execute(
         select(User.founder_seat_no, User.founder_region, User.display_name, User.created_at)
-        .where(User.is_founder == True, User.founder_seat_no.isnot(None))
+        .where(
+            User.is_founder == True,
+            User.founder_seat_no.isnot(None),
+            User.founder_activated_at.isnot(None),
+        )
         .order_by(User.founder_seat_no)
     )
     seats = []

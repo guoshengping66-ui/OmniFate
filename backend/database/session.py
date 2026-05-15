@@ -94,6 +94,20 @@ async def _migrate_readings_columns():
     except Exception as e:
         print(f"[DB] Migration warning: {e}")
 
+    # Clean up test founder data: reset is_founder for users without seat_no
+    # (real activate always sets founder_seat_no + founder_activated_at)
+    try:
+        async with AsyncSessionLocal() as db:
+            result = await db.execute(text(
+                "UPDATE users SET is_founder = 0 WHERE is_founder = 1 "
+                "AND (founder_seat_no IS NULL OR founder_activated_at IS NULL)"
+            ))
+            if result.rowcount > 0:
+                print(f"[DB] Cleaned up {result.rowcount} test founder records")
+            await db.commit()
+    except Exception:
+        pass  # Table might not exist yet or no rows to update
+
 
 async def get_db():
     if not await _check_db_available():
