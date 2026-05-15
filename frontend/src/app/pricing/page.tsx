@@ -31,9 +31,6 @@ export default function PricingPage() {
       case "event_retro":
         router.push("/events")
         break
-      case "founder_lifetime":
-        router.push("/pricing/founder")
-        break
     }
   }
 

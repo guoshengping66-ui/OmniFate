@@ -12,7 +12,7 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import { listMyReadings, listMyOrders, getFavorites, type ReadingListItem, type OrderListItem, type Product } from "@/lib/api"
 import SettingsTab from "./SettingsTab"
 
-type Tab = "overview" | "readings" | "orders" | "favorites" | "subscription" | "referral" | "settings"
+type Tab = "overview" | "readings" | "orders" | "favorites" | "subscription" | "settings"
 
 export default function AccountPage() {
   const router = useRouter()
@@ -39,7 +39,6 @@ export default function AccountPage() {
     { id: "orders", icon: <Package size={16} />, label: t("account.myOrders"), count: orders.length },
     { id: "favorites", icon: <Heart size={16} />, label: t("account.myFavorites"), count: favorites.length },
     { id: "subscription", icon: <Crown size={16} />, label: t("account.subscription") },
-    { id: "referral", icon: <Users size={16} />, label: "邀请好友" },
     { id: "settings", icon: <Settings size={16} />, label: t("account.settings") },
   ]
 
@@ -105,7 +104,7 @@ export default function AccountPage() {
               { label: t("account.stat.reports"), value: readings.length, icon: "🔮" },
               { label: t("account.stat.orders"), value: orders.length, icon: "📦" },
               { label: t("account.stat.favorites"), value: favorites.length, icon: "❤️" },
-              { label: "星尘", value: user.stardust_balance ?? 100, icon: "✨" },
+              { label: t("account.stat.coupons"), value: `¥${user.shop_coupon_balance}`, icon: "🎫" },
             ].map(s => (
               <div key={s.label} className="bg-white/[0.03] rounded-xl p-3 text-center">
                 <span className="text-lg">{s.icon}</span>
@@ -350,28 +349,6 @@ export default function AccountPage() {
                     <p className="text-white/20 text-xs mt-1">{t("coupon可用于")}</p>
                   </div>
                 )}
-              </div>
-            )}
-
-            {/* Referral */}
-            {tab === "referral" && (
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="font-serif text-lg text-gold">邀请好友</h2>
-                  <Link href="/referral" className="text-gold text-xs hover:underline">查看详情 →</Link>
-                </div>
-                <div className="card-glass p-6">
-                  <p className="text-white/50 text-sm mb-4">
-                    邀请好友加入命盘智镜，双方均可获得奖励！
-                  </p>
-                  <div className="space-y-2 text-sm text-white/50 mb-6">
-                    <p className="flex items-center gap-2"><span className="text-gold">✓</span> 被邀请人首次付费 → 你获得 3天会员</p>
-                    <p className="flex items-center gap-2"><span className="text-gold">✓</span> 被邀请人订阅会员 → 你获得 10%精准度提升</p>
-                  </div>
-                  <Link href="/referral" className="btn-gold inline-flex items-center gap-2 text-sm">
-                    立即邀请
-                  </Link>
-                </div>
               </div>
             )}
 

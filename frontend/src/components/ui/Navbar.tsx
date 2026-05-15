@@ -25,7 +25,6 @@ export function Navbar() {
     { href: "/pricing", label: t("nav.pricing") },
     { href: "/shop", label: t("nav.shop") },
     { href: "/blog", label: t("nav.blog") },
-    { href: "/referral", label: "星盟" },
     { href: "/about", label: t("nav.about") },
   ]
 

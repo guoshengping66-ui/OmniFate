@@ -63,8 +63,7 @@ function TierCard({ tier, onSelect }: { tier: PricingTier; onSelect?: (id: strin
 
 export function TierComparison({ onSelect }: { onSelect?: (tierId: string) => void }) {
   // Show: free, full_report, premium_monthly, premium_yearly (event retro is separate page)
-  const displayTiers = TIERS.filter(t => t.id !== "event_retro" && t.id !== "founder_lifetime")
-  const founderTier = TIERS.find(t => t.id === "founder_lifetime")
+  const displayTiers = TIERS.filter(t => t.id !== "event_retro")
 
   return (
     <div>
@@ -81,35 +80,6 @@ export function TierComparison({ onSelect }: { onSelect?: (tierId: string) => vo
           <TierCard key={tier.id} tier={tier} onSelect={onSelect} />
         ))}
       </div>
-
-      {/* Founder tier highlight */}
-      {founderTier && (
-        <div className="mt-6">
-          <div className="relative card-glass p-6 border-gold/40 bg-gradient-to-r from-gold/5 to-transparent">
-            {founderTier.badge && (
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gold text-ink text-xs font-bold px-4 py-1 rounded-full whitespace-nowrap">
-                {founderTier.badge}
-              </div>
-            )}
-            <div className="flex flex-col sm:flex-row items-center gap-6">
-              <div className="flex-1 text-center sm:text-left">
-                <h3 className="text-xl font-serif font-bold text-gold">{founderTier.name}</h3>
-                <p className="text-white/50 text-sm mt-1">{founderTier.subtitle}</p>
-                <p className="text-white/30 text-xs mt-2">{founderTier.billingLabel}</p>
-              </div>
-              <div className="text-center">
-                <span className="text-3xl font-bold text-white">{founderTier.priceDisplay}</span>
-              </div>
-              <button
-                onClick={() => onSelect?.("founder_lifetime")}
-                className="btn-gold whitespace-nowrap"
-              >
-                {founderTier.cta}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Event retro callout */}
       <div className="mt-8 card-glass p-5 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
