@@ -10,6 +10,7 @@ import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { PricingCard } from "@/components/pricing/PricingCard"
 import { TIERS, type Region } from "@/lib/tiers"
 import { useRegion } from "@/hooks/useRegion"
+import { ServiceTerms } from "@/components/ui/ServiceTerms"
 import toast from "react-hot-toast"
 
 export default function PricingPage() {
@@ -18,6 +19,7 @@ export default function PricingPage() {
   const { region, switchRegion, isLoaded } = useRegion()
   const [selectedTier, setSelectedTier] = useState<string | null>(null)
   const [founderSoldPercent, setFounderSoldPercent] = useState(67)
+  const [showTerms, setShowTerms] = useState(false)
 
   // Fetch founder seat status
   useEffect(() => {
@@ -228,11 +230,15 @@ export default function PricingPage() {
 
         <p className="text-center text-white/25 text-[11px] mt-8">
           订阅即表示您同意我们的{" "}
-          <a href="/terms" className="text-gold/50 hover:text-gold underline">服务条款</a>
+          <button onClick={() => setShowTerms(true)} className="text-gold/50 hover:text-gold underline">
+            服务条款
+          </button>
           {" "}和{" "}
           <a href="/refund" className="text-gold/50 hover:text-gold underline">退款政策</a>
           。订阅可随时取消，详见退款政策。
         </p>
+
+        <ServiceTerms open={showTerms} onClose={() => setShowTerms(false)} />
       </div>
     </div>
   )

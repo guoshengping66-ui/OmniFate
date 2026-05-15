@@ -7,6 +7,7 @@ import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { registerUser, sendVerificationCode, verifyEmail } from "@/lib/api"
+import { ServiceTerms } from "@/components/ui/ServiceTerms"
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -34,6 +35,9 @@ export default function RegisterPage() {
       if (cooldownRef.current) clearInterval(cooldownRef.current)
     }
   }, [])
+
+  // ServiceTerms modal
+  const [showTerms, setShowTerms] = useState(false)
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -242,7 +246,9 @@ export default function RegisterPage() {
               我已阅读并同意{" "}
               <a href="/privacy" target="_blank" className="text-gold hover:underline">《隐私政策》</a>
               {" "}和{" "}
-              <a href="/terms" target="_blank" className="text-gold hover:underline">《服务条款》</a>
+              <button type="button" onClick={() => setShowTerms(true)} className="text-gold hover:underline">
+                《服务条款》
+              </button>
             </span>
           </label>
 
@@ -261,6 +267,8 @@ export default function RegisterPage() {
             </Link>
           </p>
         </form>
+
+        <ServiceTerms open={showTerms} onClose={() => setShowTerms(false)} />
       </div>
     </div>
   )
