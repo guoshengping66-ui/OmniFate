@@ -38,9 +38,9 @@ export default function FounderPage() {
     api.get("/api/payments/founder/status")
       .then(r => setStatus(r.data))
       .catch(() => setStatus({
-        total_seats: 100,
+        total_seats: 200,
         sold_seats: 0,
-        remaining_seats: 100,
+        remaining_seats: 200,
         is_founder: user.is_founder || false,
         seat_no: user.founder_seat_no || null,
       }))
@@ -103,7 +103,7 @@ export default function FounderPage() {
             <span className="text-white/80 ml-2">终身会员</span>
           </h1>
           <p className="text-white/50 max-w-md mx-auto">
-            限量 100 席，锁定永久全功能访问权限，与命盘智镜共同成长
+            限量 200 席（国内 100 + 海外 100），锁定永久全功能访问权限，与命盘智镜共同成长
           </p>
         </div>
 

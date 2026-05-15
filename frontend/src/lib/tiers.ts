@@ -202,4 +202,4 @@ export const TRIAL_DAYS = 3
 export const MEMBER_DISCOUNT = 0.88
 export const FOUNDER_PRICE = 1288
 export const FOUNDER_PRICE_USD = 399
-export const FOUNDER_MAX_SEATS = 100
+export const FOUNDER_MAX_SEATS = 200
