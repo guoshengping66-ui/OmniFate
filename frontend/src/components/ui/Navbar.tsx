@@ -21,6 +21,7 @@ export function Navbar() {
     { href: "/", label: t("nav.home") },
     { href: "/reading/new", label: t("nav.reading") },
     { href: "/almanac", label: t("nav.almanac") },
+    { href: "/divination", label: t("nav.divination") },
     { href: "/events", label: t("nav.events") },
     { href: "/pricing", label: t("nav.pricing") },
     { href: "/shop", label: t("nav.shop") },
@@ -115,6 +116,13 @@ export function Navbar() {
                       className="px-3 py-2 text-sm text-white/60 hover:text-gold hover:bg-white/5 rounded-lg transition-colors"
                     >
                       {t("nav.reading")}
+                    </Link>
+                    <Link
+                      href="/divination"
+                      onClick={() => setMenuOpen(false)}
+                      className="px-3 py-2 text-sm text-white/60 hover:text-gold hover:bg-white/5 rounded-lg transition-colors"
+                    >
+                      {t("nav.divination")}
                     </Link>
                     <Link
                       href="/readings"
