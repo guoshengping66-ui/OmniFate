@@ -5,6 +5,7 @@ import { Crown, Zap, ArrowRight, Sparkles, HelpCircle, ShieldCheck, Clock, Messa
 import { motion } from "framer-motion"
 import Link from "next/link"
 import { useAuth } from "@/contexts/AuthContext"
+import { useLanguage } from "@/contexts/LanguageContext"
 import { subscribe } from "@/lib/api"
 import { QRPaymentModal } from "@/components/payment/QRPaymentModal"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
@@ -15,41 +16,10 @@ import { useRegion } from "@/hooks/useRegion"
 import { ServiceTerms } from "@/components/ui/ServiceTerms"
 import toast from "react-hot-toast"
 
-// ── Stardust Legend 2x2 Grid ─────────────────────────────────────────────────
-const STARDUST_COSTS = [
-  { icon: Sparkles, label: "解锁报告", cost: "100", color: "text-gold", bg: "bg-gold/8 border-gold/15" },
-  { icon: Clock,     label: "事件复盘", cost: "30",  color: "text-amber-400", bg: "bg-amber-500/8 border-amber-500/15" },
-  { icon: MessageCircle, label: "AI 追问", cost: "10",  color: "text-blue-400", bg: "bg-blue-500/8 border-blue-500/15" },
-  { icon: ShieldCheck,  label: "能量雷达", cost: "5",   color: "text-emerald-400", bg: "bg-emerald-500/8 border-emerald-500/15" },
-]
-
-// ── FAQ Data ────────────────────────────────────────────────────────────────
-const FAQ_ITEMS = [
-  {
-    q: "星尘 (Stardust) 是什么？有有效期吗？",
-    a: "星尘是命盘智镜的虚拟能量货币，用于解锁各类命理服务。购买的星尘永不过期，但会员每月自动注入的星尘在会员到期后不再续发（已获得的不会收回）。",
-  },
-  {
-    q: "订阅可以随时取消吗？退款政策是怎样的？",
-    a: "月度订阅可随时取消，取消后当月权益继续有效至到期。年度订阅在订阅后 7 天内可申请全额退款（需未使用超过 1 次报告）。创始席位为一次性终身购买，不支持退款。",
-  },
-  {
-    q: "创始席位的限量是什么意思？",
-    a: "全球限量 100 个创始席位，先到先得。席位售罄后将不再开放购买，现有创始会员享有永久权益，包括每月 500 星尘注入、产品路线图投票权和专属黑金 UI。",
-  },
-  {
-    q: "全维全景报告和免费报告有什么区别？",
-    a: "免费报告仅提供基础命盘概览（含部分预览限制）。全维全景报告解锁完整的八字四柱、星盘落宫、十神体系、流年规划等深度分析，并附赠 10 次追问和 3 天会员试用。",
-  },
-  {
-    q: "星尘消耗 8.8 折是什么意思？",
-    a: "年度会员在使用星尘时享受 88 折优惠。例如解锁一份报告原价消耗 100 星尘，年度会员仅需 88 星尘。这一优惠自动生效，无需手动操作。",
-  },
-]
-
 export default function PricingPage() {
   const router = useRouter()
   const { user, refreshUser } = useAuth()
+  const { locale, t } = useLanguage()
   const { region, switchRegion, isLoaded } = useRegion()
   const [selectedTier, setSelectedTier] = useState<string | null>(null)
   const [founderSoldPercent, setFounderSoldPercent] = useState(67)
@@ -77,7 +47,7 @@ export default function PricingPage() {
       case "premium_monthly":
       case "premium_yearly":
         if (!user) {
-          toast.error("请先登录后再订阅")
+          toast.error(t("pricing.loginRequired"))
           router.push("/login")
           return
         }
@@ -88,7 +58,7 @@ export default function PricingPage() {
         break
       case "founder_lifetime":
         if (!user) {
-          toast.error("请先登录后再购买")
+          toast.error(t("pricing.purchaseRequired"))
           router.push("/login")
           return
         }
@@ -97,43 +67,61 @@ export default function PricingPage() {
     }
   }
 
-  // QRPaymentModal 已通过后端 /confirm 激活会员，这里只刷新用户状态
   const handlePaymentSuccess = async () => {
     try {
       await refreshUser()
-      toast.success("会员已激活！")
+      toast.success(t("pricing.membershipActivated"))
     } catch {
-      toast.success("支付成功，请刷新页面查看会员状态")
+      toast.success(t("pricing.paymentSuccess"))
     }
     setSelectedTier(null)
   }
 
-  // ── Filter tiers for 3-column grid (Single, Monthly, Yearly) ──
-  const singleTier = TIERS.find(t => t.id === "full_report")!
-  const monthlyTier = TIERS.find(t => t.id === "premium_monthly")!
-  const yearlyTier = TIERS.find(t => t.id === "premium_yearly")!
-  const founderTier = TIERS.find(t => t.id === "founder_lifetime")!
+  // Filter tiers for 3-column grid
+  const singleTier = TIERS.find(tier => tier.id === "full_report")!
+  const monthlyTier = TIERS.find(tier => tier.id === "premium_monthly")!
+  const yearlyTier = TIERS.find(tier => tier.id === "premium_yearly")!
+  const founderTier = TIERS.find(tier => tier.id === "founder_lifetime")!
+
+  // Stardust costs data
+  const STARDUST_COSTS = [
+    { icon: Sparkles, label: t("pricing.unlockReport"), cost: "100", color: "text-gold", bg: "bg-gold/8 border-gold/15" },
+    { icon: Clock,     label: t("pricing.eventReview"), cost: "30",  color: "text-amber-400", bg: "bg-amber-500/8 border-amber-500/15" },
+    { icon: MessageCircle, label: t("pricing.aiQuestion"), cost: "10",  color: "text-blue-400", bg: "bg-blue-500/8 border-blue-500/15" },
+    { icon: ShieldCheck,  label: t("pricing.energyRadar"), cost: "5",   color: "text-emerald-400", bg: "bg-emerald-500/8 border-emerald-500/15" },
+  ]
+
+  // FAQ data
+  const FAQ_ITEMS = [
+    { q: t("pricing.faq1Q"), a: t("pricing.faq1A") },
+    { q: t("pricing.faq2Q"), a: t("pricing.faq2A") },
+    { q: t("pricing.faq3Q"), a: t("pricing.faq3A") },
+    { q: t("pricing.faq4Q"), a: t("pricing.faq4A") },
+    { q: t("pricing.faq5Q"), a: t("pricing.faq5A") },
+  ]
 
   if (!isLoaded) return null
+
+  const eventPrice = region === "domestic" ? "¥19.9" : "$4.99"
+  const eventUnit = region === "domestic" ? "/次" : "/time"
 
   return (
     <div className="min-h-screen pt-24 pb-16 px-4">
       <div className="max-w-6xl mx-auto">
-        <Breadcrumbs items={[{ label: "会员方案" }]} />
+        <Breadcrumbs items={[{ label: t("nav.pricing") }]} />
 
-        {/* ══════════ Header ══════════ */}
+        {/* Header */}
         <div className="text-center mb-10">
           <Crown className="text-gold mx-auto mb-3" size={32} />
-          <h2 className="section-title text-2xl md:text-3xl">选择适合你的命理方案</h2>
+          <h2 className="section-title text-2xl md:text-3xl">{t("pricing.title")}</h2>
           <p className="text-white/35 text-sm mt-2">
-            星尘是窥探天机的能量储备，会员每月可自动获得能量注入
+            {t("pricing.subtitle")}
           </p>
         </div>
 
-        {/* ══════════ Region Toggle ══════════ */}
+        {/* Region Toggle */}
         <div className="flex items-center justify-center mb-10">
           <div className="relative flex items-center bg-white/5 border border-white/10 rounded-full p-1">
-            {/* Sliding indicator */}
             <motion.div
               className="absolute top-1 bottom-1 rounded-full bg-gold/15 border border-gold/25"
               layout
@@ -148,46 +136,46 @@ export default function PricingPage() {
               className={`relative z-10 px-6 py-2 rounded-full text-sm font-medium transition-colors duration-200
                 ${region === "domestic" ? "text-gold" : "text-white/40 hover:text-white/60"}`}
             >
-              国内 (CNY)
+              {t("pricing.regionDomestic")}
             </button>
             <button
               onClick={() => switchRegion("overseas")}
               className={`relative z-10 px-6 py-2 rounded-full text-sm font-medium transition-colors duration-200
                 ${region === "overseas" ? "text-gold" : "text-white/40 hover:text-white/60"}`}
             >
-              海外 (USD)
+              {t("pricing.regionOverseas")}
             </button>
           </div>
         </div>
 
-        {/* ══════════ Main Pricing Grid (3-Column) ══════════ */}
+        {/* Main Pricing Grid */}
         <div className="grid lg:grid-cols-3 gap-5 items-stretch mb-12">
-          {/* Left: Single Report */}
           <PricingCard
             tier={singleTier}
             region={region}
             isNewUser={true}
             onSelect={handleSelect}
+            locale={locale}
           />
 
-          {/* Center: Yearly (Recommended) — taller card */}
           <div className="lg:-mt-3 lg:mb-[-12px]">
             <PricingCard
               tier={yearlyTier}
               region={region}
               onSelect={handleSelect}
+              locale={locale}
             />
           </div>
 
-          {/* Right: Monthly */}
           <PricingCard
             tier={monthlyTier}
             region={region}
             onSelect={handleSelect}
+            locale={locale}
           />
         </div>
 
-        {/* ══════════ Founder Section (Full-Width Premium) ══════════ */}
+        {/* Founder Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -206,10 +194,11 @@ export default function PricingPage() {
             founderSoldPercent={founderSoldPercent}
             isFounderCard={true}
             onSelect={handleSelect}
+            locale={locale}
           />
         </motion.div>
 
-        {/* ══════════ Event Retro Callout ══════════ */}
+        {/* Event Retro Callout */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -221,21 +210,21 @@ export default function PricingPage() {
             <Zap size={20} className="text-gold" />
           </div>
           <div className="flex-1">
-            <p className="text-white/80 font-medium">事件复盘 · 按次计费</p>
+            <p className="text-white/80 font-medium">{t("pricing.eventCallout")}</p>
             <p className="text-white/35 text-sm">
-              {region === "domestic" ? "¥19.9/次" : "$4.99/次"} — 针对特定事件的流时溯源诊断，含 AI 因果链分析和能量处方
+              {eventPrice}{eventUnit} — {t("pricing.eventDesc").replace("{price}", eventPrice)}
             </p>
           </div>
           <button
             onClick={() => handleSelect("event_retro")}
             className="btn-gold-outline text-sm whitespace-nowrap flex items-center gap-2"
           >
-            了解事件复盘
+            {t("pricing.learnMore")}
             <ArrowRight size={14} />
           </button>
         </motion.div>
 
-        {/* ══════════ Stardust Legend (2x2 Grid) ══════════ */}
+        {/* Stardust Legend */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -243,8 +232,8 @@ export default function PricingPage() {
           className="mb-14"
         >
           <div className="text-center mb-6">
-            <h3 className="text-lg font-serif font-bold text-white/80">星尘消耗指南</h3>
-            <p className="text-white/30 text-xs mt-1">每项服务对应不同的能量消耗</p>
+            <h3 className="text-lg font-serif font-bold text-white/80">{t("pricing.stardustCost")}</h3>
+            <p className="text-white/30 text-xs mt-1">{t("pricing.stardustSubtitle")}</p>
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -273,7 +262,7 @@ export default function PricingPage() {
           </div>
         </motion.div>
 
-        {/* ══════════ FAQ Section ══════════ */}
+        {/* FAQ Section */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -282,7 +271,7 @@ export default function PricingPage() {
         >
           <div className="flex items-center justify-center gap-3 mb-6">
             <HelpCircle size={18} className="text-gold/40" />
-            <h3 className="text-lg font-serif font-bold text-white/80">常见问题</h3>
+            <h3 className="text-lg font-serif font-bold text-white/80">{t("pricing.faq")}</h3>
           </div>
 
           <div className="space-y-3">
@@ -297,7 +286,7 @@ export default function PricingPage() {
           </div>
         </motion.div>
 
-        {/* ══════════ Founder Community Preview ══════════ */}
+        {/* Founder Community Preview */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -310,7 +299,7 @@ export default function PricingPage() {
               <span className="text-gold/60 text-xs tracking-wider uppercase">Founder Community</span>
             </div>
             <p className="text-white/40 text-sm mb-4">
-              创始社群专属通道，与志同道合的星使共同探索命运的奥秘
+              {t("pricing.founderDesc")}
             </p>
             <div className="flex items-center justify-center -space-x-2 mb-3">
               {[0, 1, 2, 3, 4].map(i => (
@@ -328,21 +317,21 @@ export default function PricingPage() {
               href="/pricing/founder"
               className="inline-flex items-center gap-2 text-gold/60 text-xs hover:text-gold transition-colors"
             >
-              了解创始席位
+              {t("pricing.learnFounder")}
               <ArrowRight size={12} />
             </Link>
           </div>
         </motion.div>
 
-        {/* ══════════ Footer Legal ══════════ */}
+        {/* Footer Legal */}
         <p className="text-center text-white/20 text-[11px]">
-          订阅即表示您同意我们的{" "}
+          {t("pricing.legalText")}{" "}
           <button onClick={() => setShowTerms(true)} className="text-gold/40 hover:text-gold underline">
-            服务条款
+            {t("pricing.termsOfService")}
           </button>
-          {" "}和{" "}
-          <a href="/refund" className="text-gold/40 hover:text-gold underline">退款政策</a>
-          。订阅可随时取消，详见退款政策。
+          {" "}{t("pricing.and")}{" "}
+          <a href="/refund" className="text-gold/40 hover:text-gold underline">{t("pricing.refundPolicy")}</a>
+          。{t("pricing.legalNote")}
         </p>
 
         <ServiceTerms open={showTerms} onClose={() => setShowTerms(false)} />

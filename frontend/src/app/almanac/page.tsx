@@ -6,6 +6,7 @@ import toast from "react-hot-toast"
 import { AlmanacCard } from "@/components/almanac/AlmanacCard"
 import { EnergyWaveWarning } from "@/components/almanac/EnergyWaveWarning"
 import { useAuth } from "@/contexts/AuthContext"
+import { useLanguage } from "@/contexts/LanguageContext"
 import { api } from "@/lib/api"
 
 interface AlmanacData {
@@ -28,6 +29,7 @@ interface AlmanacData {
 export default function AlmanacPage() {
   const router = useRouter()
   const { user } = useAuth()
+  const { t } = useLanguage()
   const [data, setData] = useState<AlmanacData | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -39,7 +41,7 @@ export default function AlmanacPage() {
 
     api.get("/api/readings/almanac")
       .then(res => setData(res.data))
-      .catch(() => toast.error("无法加载黄历数据"))
+      .catch(() => toast.error(t("almanac.loadError")))
       .finally(() => setLoading(false))
   }, [user])
 
@@ -51,12 +53,12 @@ export default function AlmanacPage() {
           <div className="w-16 h-16 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center mx-auto mb-4">
             <Crown size={28} className="text-gold" />
           </div>
-          <h2 className="font-serif text-xl text-gold mb-2">会员专属功能</h2>
+          <h2 className="font-serif text-xl text-gold mb-2">{t("almanac.premiumTitle")}</h2>
           <p className="text-white/50 text-sm mb-6">
-            每日黄历是 Fate OS 会员专属功能。订阅后获取每日能量指数、宜忌指南和个性化护身建议。
+            {t("almanac.premiumDesc")}
           </p>
           <button onClick={() => router.push("/pricing")} className="btn-gold">
-            查看会员方案
+            {t("almanac.viewPlans")}
           </button>
         </div>
       </div>
@@ -71,7 +73,7 @@ export default function AlmanacPage() {
 
   if (!data) return (
     <div className="min-h-screen pt-24 pb-16 px-4 flex items-center justify-center">
-      <p className="text-white/40">暂无黄历数据</p>
+      <p className="text-white/40">{t("almanac.noData")}</p>
     </div>
   )
 
@@ -81,9 +83,9 @@ export default function AlmanacPage() {
         {/* Header */}
         <div className="text-center mb-8">
           <Sparkles className="text-gold mx-auto mb-3" size={28} />
-          <h1 className="text-2xl font-serif font-bold text-gold">每日黄历</h1>
+          <h1 className="text-2xl font-serif font-bold text-gold">{t("almanac.title")}</h1>
           <p className="text-white/40 text-sm mt-1">
-            基于你的命盘 · 每日能量指数 · 宜忌护指南
+            {t("almanac.personalTitle")}
           </p>
         </div>
 

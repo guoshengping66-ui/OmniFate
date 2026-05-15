@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Sparkles, Share2, RotateCcw, Zap, Gift, Hand } from "lucide-react"
 import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"
+import { useLanguage } from "@/contexts/LanguageContext"
 import { api } from "@/lib/api"
 import Link from "next/link"
 
@@ -14,7 +15,7 @@ interface DivinationResult {
   wisdom_quote: string
   author: string
   theme: string
-  ai_insight: string        // Phase 2: AI 行动指引
+  ai_insight: string        // AI action guidance
   is_free: boolean
   stardust_cost: number
   balance_after: number
@@ -40,7 +41,7 @@ const FORTUNE_EMOJI: Record<string, string> = {
   "大凶": "⛈",
 }
 
-// Phase 2: 主题能量图腾
+// Theme energy totem
 const THEME_TOTEM: Record<string, { icon: string; color: string; bg: string }> = {
   "事业": { icon: "⚔", color: "text-amber-400",  bg: "from-amber-500/10 to-orange-500/5" },
   "感情": { icon: "♥", color: "text-pink-400",   bg: "from-pink-500/10 to-rose-500/5" },
@@ -51,7 +52,7 @@ const THEME_TOTEM: Record<string, { icon: string; color: string; bg: string }> =
   "出行": { icon: "✈", color: "text-sky-400",     bg: "from-sky-500/10 to-cyan-500/5" },
 }
 
-// Phase 2: 运势星级显示
+// Fortune stars display
 function FortuneStars({ level }: { level: number }) {
   return (
     <div className="flex items-center justify-center gap-1 mt-2">
@@ -70,7 +71,7 @@ function FortuneStars({ level }: { level: number }) {
   )
 }
 
-// Phase 2: 震动反馈
+// Haptic feedback
 function triggerHaptic(pattern: "light" | "medium" | "heavy" | "success" | "error") {
   if (typeof navigator === "undefined" || !navigator.vibrate) return
   const patterns: Record<string, number[]> = {
@@ -83,17 +84,15 @@ function triggerHaptic(pattern: "light" | "medium" | "heavy" | "success" | "erro
   navigator.vibrate(patterns[pattern] || [10])
 }
 
-// Phase 2: 星轴旋转（7主题星盘）
+// Star axis rotation (7-theme star chart)
 function StarAxis({ spinning, theme }: { spinning: boolean; theme?: string }) {
   const totem = theme ? THEME_TOTEM[theme] : null
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {/* 三层星轴环 */}
       <div className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
         w-48 h-48 border border-gold/15 rounded-full
         ${spinning ? "animate-[spin_2.5s_linear_infinite]" : ""}`}
       >
-        {/* 12 星位标记 */}
         {Array.from({ length: 12 }).map((_, i) => {
           const angle = (i / 12) * 360
           return (
@@ -120,7 +119,6 @@ function StarAxis({ spinning, theme }: { spinning: boolean; theme?: string }) {
         w-16 h-16 border border-gold/35 rounded-full
         ${spinning ? "animate-[spin_1.2s_linear_infinite]" : ""}`}
       >
-        {/* 中心图腾标记 */}
         {totem && spinning && (
           <div className="absolute inset-0 flex items-center justify-center">
             <span className={`text-lg ${totem.color} animate-pulse`}>{totem.icon}</span>
@@ -128,7 +126,6 @@ function StarAxis({ spinning, theme }: { spinning: boolean; theme?: string }) {
         )}
       </div>
 
-      {/* 7 颗主题星点（对应 7 主题） */}
       {spinning && Object.entries(THEME_TOTEM).map(([name, info], i) => {
         const angle = (i / 7) * Math.PI * 2 - Math.PI / 2
         const r = 70 + (i % 2) * 18
@@ -153,7 +150,7 @@ function StarAxis({ spinning, theme }: { spinning: boolean; theme?: string }) {
   )
 }
 
-// Phase 2: 运势徽章动效（金粒子 + 迷雾）
+// Fortune badge with gold particles + mist
 function FortuneBadge({ fortune, level }: { fortune: string; level: number }) {
   const isHighFortune = level >= 5
   return (
@@ -163,7 +160,6 @@ function FortuneBadge({ fortune, level }: { fortune: string; level: number }) {
       animate={{ opacity: 1, scale: 1, rotateZ: 0 }}
       transition={{ type: "spring", damping: 12, stiffness: 150 }}
     >
-      {/* 金粒子效果（大吉/中吉） */}
       {isHighFortune && (
         <div className="absolute inset-0 pointer-events-none overflow-visible">
           {Array.from({ length: 8 }).map((_, i) => (
@@ -188,7 +184,6 @@ function FortuneBadge({ fortune, level }: { fortune: string; level: number }) {
         </div>
       )}
 
-      {/* 雾气效果（凶/大凶） */}
       {level <= 2 && (
         <div className="absolute -inset-4 pointer-events-none">
           <div className="absolute inset-0 bg-gradient-radial from-white/5 to-transparent rounded-full animate-pulse" />
@@ -211,13 +206,13 @@ function FortuneBadge({ fortune, level }: { fortune: string; level: number }) {
 
 export function CelestialOracle() {
   const { user } = useAuth()
+  const { t, locale } = useLanguage()
   const [phase, setPhase] = useState<"idle" | "spinning" | "result">("idle")
   const [result, setResult] = useState<DivinationResult | null>(null)
   const [todayFree, setTodayFree] = useState(true)
   const [shareReward, setShareReward] = useState(0)
   const cardRef = useRef<HTMLDivElement>(null)
 
-  // Check if today's free divination is used
   useEffect(() => {
     if (!user) return
     api.get("/api/divination/today-status")
@@ -225,7 +220,6 @@ export function CelestialOracle() {
       .catch(() => {})
   }, [user])
 
-  // Device shake detection
   useEffect(() => {
     let lastShake = 0
     const threshold = 15
@@ -250,7 +244,7 @@ export function CelestialOracle() {
   const handleDivine = useCallback(async () => {
     if (phase === "spinning") return
     if (!user) {
-      toast.error("请先登录后再抽签")
+      toast.error(t("divination.loginFirst"))
       return
     }
 
@@ -261,14 +255,12 @@ export function CelestialOracle() {
       const res = await api.post("/api/divination/draw", {
         use_free: todayFree,
       })
-      // Simulate spinning delay for ritual feel
       await new Promise(resolve => setTimeout(resolve, 2500))
       setResult(res.data)
       setPhase("result")
       setTodayFree(false)
       setShareReward(0)
 
-      // Phase 2: 成功震动反馈
       const level = res.data.fortune_level
       if (level >= 5) {
         triggerHaptic("success")
@@ -278,10 +270,10 @@ export function CelestialOracle() {
         triggerHaptic("light")
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.detail || "抽签失败")
+      toast.error(err.response?.data?.detail || t("divination.drawFailed"))
       setPhase("idle")
     }
-  }, [phase, todayFree, user])
+  }, [phase, todayFree, user, t])
 
   const handleShare = async () => {
     if (!result) return
@@ -295,19 +287,18 @@ export function CelestialOracle() {
 
       if (reward > 0) {
         setShareReward(reward)
-        // 更新余额显示
         setResult(prev => prev ? { ...prev, balance_after: res.data.balance_after } : prev)
-        toast.success(`分享成功，获得 ${reward} 颗星尘奖励 ✨`)
+        toast.success(t("divination.shareSuccess").replace("{count}", String(reward)) + " ✨")
       }
 
       if (navigator.share) {
-        await navigator.share({ title: "星际抽签", url: shareUrl })
+        await navigator.share({ title: t("divination.shareTitle"), url: shareUrl })
       } else {
         await navigator.clipboard.writeText(shareUrl)
-        toast.success(reward > 0 ? `链接已复制，+${reward} 星尘` : "分享链接已复制")
+        toast.success(reward > 0 ? `${t("divination.linkCopied")}，+${reward} Stardust` : t("divination.linkCopied"))
       }
     } catch {
-      toast.error("分享失败")
+      toast.error(t("divination.shareFailed"))
     }
   }
 
@@ -329,9 +320,9 @@ export function CelestialOracle() {
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gold/10 mb-3">
             <Sparkles size={24} className="text-gold" />
           </div>
-          <h3 className="font-serif text-xl font-bold text-gold">星际抽签</h3>
+          <h3 className="font-serif text-xl font-bold text-gold">{t("divination.title")}</h3>
           <p className="text-white/40 text-sm mt-1">
-            {todayFree ? "今日首次免费 · 感应星辰指引" : "消耗 1 颗星尘 · 与星象深度感应"}
+            {todayFree ? t("divination.todayFirstFree") : t("divination.payStardust")}
           </p>
         </div>
 
@@ -349,7 +340,6 @@ export function CelestialOracle() {
                 onClick={handleDivine}
                 className="relative group"
               >
-                {/* Phase 2: 呼吸光环 */}
                 <div className="absolute -inset-2 rounded-full bg-gold/10 animate-pulse pointer-events-none" />
                 <div className="w-32 h-32 mx-auto rounded-full bg-gradient-to-br from-gold/20 to-gold/5
                               border-2 border-gold/30 flex items-center justify-center
@@ -357,13 +347,13 @@ export function CelestialOracle() {
                               transition-all duration-300 active:scale-95">
                   <div className="text-center">
                     <Sparkles size={28} className="text-gold mx-auto mb-1" />
-                    <span className="text-gold text-xs font-medium">点击摇签</span>
+                    <span className="text-gold text-xs font-medium">{t("divination.clickToDraw")}</span>
                   </div>
                 </div>
               </button>
               <p className="text-white/30 text-xs mt-4">
                 <Hand size={10} className="inline mr-1" />
-                手机摇一摇或点击上方开始抽签
+                {t("divination.shakeHint")}
               </p>
             </motion.div>
           )}
@@ -378,7 +368,6 @@ export function CelestialOracle() {
               className="text-center py-8"
             >
               <div className="relative w-24 h-24 mx-auto">
-                {/* Phase 2: 7 层星盘旋转 */}
                 <div className="absolute inset-0 rounded-full border-2 border-gold/40
                               animate-[spin_2s_linear_infinite]" />
                 <div className="absolute inset-2 rounded-full border border-gold/30
@@ -390,11 +379,12 @@ export function CelestialOracle() {
                 </div>
               </div>
               <p className="text-gold/60 text-sm mt-4 animate-pulse">
-                星体排列中 · 星象校准...
+                {t("divination.aligning")}
               </p>
-              {/* Phase 2: 主题图腾提示 */}
               {result?.theme && (
-                <p className="text-white/20 text-xs mt-1">正在感应「{result.theme}」星宫能量</p>
+                <p className="text-white/20 text-xs mt-1">
+                  {t("divination.sensingEnergy").replace("{theme}", result.theme)}
+                </p>
               )}
             </motion.div>
           )}
@@ -408,10 +398,8 @@ export function CelestialOracle() {
               exit={{ opacity: 0 }}
               transition={{ type: "spring", damping: 15 }}
             >
-              {/* Phase 2: 运势徽章（含金粒子/迷雾动效） */}
               <FortuneBadge fortune={result.fortune} level={result.fortune_level} />
 
-              {/* Phase 2: 主题能量图腾 */}
               {themeTotem && (
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
@@ -421,7 +409,7 @@ export function CelestialOracle() {
                     bg-gradient-to-r ${themeTotem.bg} border border-white/10`}
                 >
                   <span className={`text-lg ${themeTotem.color}`}>{themeTotem.icon}</span>
-                  <span className="text-white/60 text-xs">今日星宫：</span>
+                  <span className="text-white/60 text-xs">{t("divination.todayPalace")}</span>
                   <span className={`text-xs font-medium ${themeTotem.color}`}>{result.theme}</span>
                 </motion.div>
               )}
@@ -434,14 +422,14 @@ export function CelestialOracle() {
                 className="bg-white/5 rounded-xl p-5 mb-4 border border-white/10"
               >
                 <p className="text-white/80 text-sm leading-relaxed italic">
-                  "{result.wisdom_quote}"
+                  &ldquo;{result.wisdom_quote}&rdquo;
                 </p>
                 <p className="text-gold/60 text-xs mt-3 text-right">
                   —— {result.author}
                 </p>
               </motion.div>
 
-              {/* Phase 2: AI 深度解析 */}
+              {/* AI insight */}
               {result.ai_insight && (
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
@@ -452,7 +440,7 @@ export function CelestialOracle() {
                   <div className="flex items-start gap-2">
                     <Sparkles size={14} className="text-gold/60 mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-gold/50 text-[10px] uppercase tracking-wider mb-1.5">AI 行动指引</p>
+                      <p className="text-gold/50 text-[10px] uppercase tracking-wider mb-1.5">{t("divination.aiGuide")}</p>
                       <p className="text-white/70 text-xs leading-relaxed">{result.ai_insight}</p>
                     </div>
                   </div>
@@ -463,11 +451,11 @@ export function CelestialOracle() {
               {!result.is_free && (
                 <div className="flex items-center justify-center gap-2 text-xs text-white/30 mb-3">
                   <Zap size={12} className="text-gold/50" />
-                  <span>消耗 {result.stardust_cost} 星尘 · 余额 {result.balance_after}</span>
+                  <span>{t("divination.costInfo").replace("{cost}", String(result.stardust_cost)).replace("{balance}", String(result.balance_after))}</span>
                 </div>
               )}
 
-              {/* Phase 2: 分享奖励提示 */}
+              {/* Share reward */}
               {shareReward > 0 && (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.8 }}
@@ -476,12 +464,12 @@ export function CelestialOracle() {
                 >
                   <span className="text-gold text-xs">
                     <Gift size={12} className="inline mr-1" />
-                    分享奖励 +{shareReward} 星尘
+                    {t("divination.shareReward").replace("{count}", String(shareReward))}
                   </span>
                 </motion.div>
               )}
 
-              {/* Phase 4: 优化后的余额不足引导 */}
+              {/* Low balance guidance */}
               {result.balance_after < 5 && !result.is_free && (
                 <motion.div
                   initial={{ opacity: 0 }}
@@ -490,10 +478,10 @@ export function CelestialOracle() {
                   className="bg-gradient-to-r from-gold/5 to-gold/10 border border-gold/20 rounded-xl p-4 mb-4"
                 >
                   <p className="text-gold/80 text-xs font-medium mb-2">
-                    今日灵感已达上限，星轨需要能量补给
+                    {t("divination.limitReached")}
                   </p>
                   <p className="text-white/30 text-[11px] mb-3 leading-relaxed">
-                    注入 1 颗星尘以稳定星轨，或邀请星使补给能量
+                    {t("divination.refillHint")}
                   </p>
                   <div className="flex gap-2">
                     <Link
@@ -501,14 +489,14 @@ export function CelestialOracle() {
                       className="flex-1 text-center py-2 rounded-lg bg-gold/15 border border-gold/25 text-gold text-xs
                                hover:bg-gold/25 transition-all"
                     >
-                      充值星尘
+                      {t("divination.rechargeStardust")}
                     </Link>
                     <Link
                       href="/referral"
                       className="flex-1 text-center py-2 rounded-lg bg-white/5 border border-white/10 text-white/50 text-xs
                                hover:bg-white/10 hover:text-gold transition-all"
                     >
-                      邀请星使
+                      {t("divination.inviteFriends")}
                     </Link>
                   </div>
                 </motion.div>
@@ -523,7 +511,7 @@ export function CelestialOracle() {
                            hover:bg-white/10 hover:text-gold transition-all"
                 >
                   <Share2 size={14} />
-                  {todayFree ? "分享签文" : "分享 +5星尘"}
+                  {todayFree ? t("divination.shareFortune") : t("divination.sharePlus5")}
                 </button>
                 <button
                   onClick={handleReset}
@@ -532,7 +520,7 @@ export function CelestialOracle() {
                            hover:bg-gold/10 transition-all"
                 >
                   <RotateCcw size={14} />
-                  再来一签
+                  {t("divination.drawAgain2")}
                 </button>
               </div>
             </motion.div>
