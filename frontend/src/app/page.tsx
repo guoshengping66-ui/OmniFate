@@ -19,8 +19,8 @@ import { motion, useInView } from "framer-motion"
 import { useRef } from "react"
 
 // ── Stats Section: framer-motion 数字滚动增长 ─────────────────────────────────
-function StatCard({ end, suffix, label, delay, duration }: {
-  end: number; suffix?: string; label: string; delay: number; duration?: number
+function StatCard({ end, suffix, prefix, label, delay, duration }: {
+  end: number; suffix?: string; prefix?: string; label: string; delay: number; duration?: number
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const isInView = useInView(ref, { once: true, margin: "-80px" })
@@ -34,7 +34,7 @@ function StatCard({ end, suffix, label, delay, duration }: {
       className="text-center"
     >
       <div className="text-2xl md:text-3xl font-bold bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">
-        <CountUpNumber end={end} duration={duration || 2.5} suffix={suffix} />
+        <CountUpNumber end={end} duration={duration || 2.5} suffix={suffix} prefix={prefix} />
       </div>
       <div className="text-[11px] md:text-xs text-white/40 mt-1.5 tracking-wider font-medium">{label}</div>
       {/* Gold accent line */}
