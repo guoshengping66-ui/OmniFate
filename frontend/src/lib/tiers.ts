@@ -1,6 +1,6 @@
-/** 4-tier pricing system — single source of truth for all monetization */
+/** 5-tier pricing system — single source of truth for all monetization */
 
-export type TierId = "free" | "full_report" | "premium_monthly" | "premium_yearly" | "event_retro"
+export type TierId = "free" | "full_report" | "premium_monthly" | "premium_yearly" | "event_retro" | "founder_lifetime"
 
 export interface PricingTier {
   id: TierId
@@ -113,6 +113,26 @@ export const TIERS: PricingTier[] = [
     highlight: false,
     billingLabel: "按次计费",
   },
+  {
+    id: "founder_lifetime",
+    name: "创始席位",
+    subtitle: "永久会员 · 限量 999 席",
+    priceCny: 999,
+    priceDisplay: "¥999",
+    features: [
+      "永久全功能访问",
+      "无限星尘额度",
+      "产品路线图投票权",
+      "专属黑金 UI 主题",
+      "新功能优先体验",
+      "专属客服通道",
+      "每年 1 次水晶定制服务",
+    ],
+    cta: "锁定席位",
+    highlight: true,
+    badge: "限量 999 席",
+    billingLabel: "一次性终身",
+  },
 ]
 
 /** Quick lookup helpers */
@@ -125,6 +145,7 @@ export const FIRST_REPORT_PRICE = 29.9
 export const EVENT_RETRO_PRICE = 19.9
 export const PREMIUM_MONTHLY = 49
 export const PREMIUM_YEARLY = 298
+export const FOUNDER_LIFETIME = 999
 export const SHOP_COUPON_AMOUNT = 60
 export const TRIAL_DAYS = 3
 export const MEMBER_DISCOUNT = 0.88

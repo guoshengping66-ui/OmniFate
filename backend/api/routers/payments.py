@@ -897,3 +897,115 @@ async def mock_cancel_subscription(
         "premium_expires_at": current_user.premium_expires_at.isoformat() if current_user.premium_expires_at else None,
         "message": "订阅已取消，当前周期结束后恢复免费",
     }
+
+
+# ─── Founder Lifetime Membership ──────────────────────────────────────────────
+
+FOUNDER_TOTAL_SEATS = 999
+FOUNDER_PRICE_CNY = 999.0
+
+
+@router.get("/founder/status")
+async def get_founder_status(
+    db: AsyncSession = Depends(get_db),
+):
+    """查询创始席位状态"""
+    from sqlalchemy import func as sqlfunc
+
+    count_result = await db.execute(
+        select(sqlfunc.count(User.id)).where(User.is_founder == True)
+    )
+    total_sold = count_result.scalar() or 0
+    remaining = FOUNDER_TOTAL_SEATS - total_sold
+
+    return {
+        "total_sold": total_sold,
+        "remaining": remaining,
+        "is_sold_out": remaining <= 0,
+        "total_seats": FOUNDER_TOTAL_SEATS,
+    }
+
+
+@router.post("/founder/activate")
+async def activate_founder(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_user),
+):
+    """激活创始席位（Mock 模式）"""
+    from sqlalchemy import func as sqlfunc
+
+    result = await db.execute(select(User).where(User.id == current_user.id))
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="用户不存在")
+
+    # 检查是否已经是创始会员
+    if user.is_founder:
+        raise HTTPException(status_code=400, detail="你已经是创始会员")
+
+    # 检查库存
+    count_result = await db.execute(
+        select(sqlfunc.count(User.id)).where(User.is_founder == True)
+    )
+    total_sold = count_result.scalar() or 0
+    if total_sold >= FOUNDER_TOTAL_SEATS:
+        raise HTTPException(status_code=400, detail="创始席位已售罄")
+
+    # 分配席位号
+    seat_no = total_sold + 1
+
+    # 激活
+    user.is_founder = True
+    user.is_premium = True
+    user.subscription_tier = "founder_lifetime"
+    user.founder_seat_no = seat_no
+    user.founder_activated_at = datetime.now(timezone.utc)
+    user.premium_expires_at = None  # 永不过期
+    user.stardust_balance = 999999  # 无限星尘
+
+    await db.commit()
+    await db.refresh(user)
+
+    return {
+        "success": True,
+        "seat_no": seat_no,
+        "message": f"恭喜你成为命盘智镜创始会员 #{seat_no}",
+        "user": {
+            "is_founder": user.is_founder,
+            "founder_seat_no": user.founder_seat_no,
+            "is_premium": user.is_premium,
+            "subscription_tier": user.subscription_tier,
+        },
+    }
+
+
+@router.post("/founder/vote")
+async def founder_vote(
+    feature_id: str = Query(..., description="功能 ID"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_user),
+):
+    """创始会员投票"""
+    from database.models import FounderVote
+
+    if not current_user.is_founder:
+        raise HTTPException(status_code=403, detail="仅创始会员可投票")
+
+    # 检查是否已投票
+    existing = await db.execute(
+        select(FounderVote).where(
+            FounderVote.user_id == current_user.id,
+            FounderVote.feature_id == feature_id,
+        )
+    )
+    if existing.scalar_one_or_none():
+        raise HTTPException(status_code=400, detail="你已对此功能投过票")
+
+    vote = FounderVote(
+        user_id=current_user.id,
+        feature_id=feature_id,
+    )
+    db.add(vote)
+    await db.commit()
+
+    return {"success": True, "message": "投票成功"}
