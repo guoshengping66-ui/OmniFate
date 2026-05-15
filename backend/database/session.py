@@ -65,9 +65,8 @@ async def _ensure_tables():
             await conn.run_sync(Base.metadata.create_all)
         _tables_created = True
         print("[DB] Tables ensured")
-        # Auto-migrate: add missing columns to readings table
-        if _is_sqlite:
-            await _migrate_readings_columns()
+        # Auto-migrate: add missing columns to users & readings tables
+        await _migrate_readings_columns()
     except Exception as e:
         print(f"[DB] Failed to ensure tables: {e}")
 
