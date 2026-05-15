@@ -1,5 +1,6 @@
 "use client"
-import { Check, Sparkles, Zap, Crown } from "lucide-react"
+import { Check, Sparkles, Zap, Crown, Lock } from "lucide-react"
+import { motion } from "framer-motion"
 import { type PricingTier, type Region } from "@/lib/tiers"
 
 interface PricingCardProps {
@@ -7,175 +8,216 @@ interface PricingCardProps {
   region: Region
   founderSoldPercent?: number
   isNewUser?: boolean
+  isFounderCard?: boolean
   onSelect?: (id: string) => void
 }
 
-export function PricingCard({ tier, region, founderSoldPercent = 67, isNewUser = false, onSelect }: PricingCardProps) {
+export function PricingCard({
+  tier,
+  region,
+  founderSoldPercent = 67,
+  isNewUser = false,
+  isFounderCard = false,
+  onSelect,
+}: PricingCardProps) {
   const isDomestic = region === "domestic"
   const priceDisplay = isDomestic ? tier.priceDisplay : tier.priceDisplayUsd
   const originalPrice = isDomestic ? tier.originalPriceCny : tier.originalPriceUsd
-  const founderLimit = isDomestic ? 100 : 100
-
-  const isFounder = tier.id === "founder_lifetime"
   const isYearly = tier.id === "premium_yearly"
   const isFree = tier.id === "free"
   const isReport = tier.id === "full_report"
+  const founderLimit = 100
 
-  // Founder uses special dark gold theme
-  if (isFounder) {
+  // ── Founder card (full-width horizontal layout) ──
+  if (isFounderCard) {
+    const remaining = founderLimit - Math.ceil((founderSoldPercent / 100) * founderLimit)
     return (
-      <div className="relative flex flex-col h-full rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(201,168,76,0.2)]">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-40px" }}
+        className="relative overflow-hidden rounded-2xl"
+      >
         {/* Dark gold gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#1a1510] via-[#0d0b08] to-[#1a1510] border border-gold/30 rounded-2xl" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#1a1510] via-[#0d0b08] to-[#1a1510]" />
+        <div className="absolute inset-0 border border-gold/25 rounded-2xl pointer-events-none" />
 
         {/* Gold shimmer top border */}
         <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-gold to-transparent" />
 
-        <div className="relative p-6 flex flex-col h-full">
-          {/* Badge */}
-          <div className="flex items-center justify-center mb-4">
-            <span className="inline-flex items-center gap-1.5 bg-gold/20 text-gold text-xs font-bold px-4 py-1.5 rounded-full border border-gold/30">
-              <Crown size={12} />
-              {tier.badge} · {isDomestic ? "国内" : "海外"}
-            </span>
-          </div>
+        {/* Gold shimmer side accents */}
+        <div className="absolute top-0 bottom-0 left-0 w-[1px] bg-gradient-to-b from-gold/40 via-transparent to-gold/40" />
+        <div className="absolute top-0 bottom-0 right-0 w-[1px] bg-gradient-to-b from-gold/40 via-transparent to-gold/40" />
 
-          {/* Header */}
-          <div className="text-center mb-5">
-            <h3 className="text-2xl font-serif font-bold text-gold mb-1">{tier.name}</h3>
-            <p className="text-gold/50 text-sm">{tier.subtitle}</p>
-          </div>
+        <div className="relative flex flex-col lg:flex-row items-center gap-8 p-8 lg:p-10">
+          {/* Left: Info */}
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-gold/15 flex items-center justify-center">
+                <Crown size={18} className="text-gold" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-xl font-serif font-bold text-gold">创始席位</h3>
+                  <span className="relative inline-flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-gold" />
+                  </span>
+                </div>
+                <p className="text-gold/50 text-sm">{isDomestic ? "永久会员 · 限量 100 席" : "Lifetime · Limited 100 Seats"}</p>
+              </div>
+            </div>
 
-          {/* Stardust emphasis */}
-          <div className="flex items-center justify-center gap-2 mb-4 py-3 px-4 rounded-xl bg-gold/10 border border-gold/20">
-            <Zap size={18} className="text-gold" />
-            <div className="text-center">
+            {/* Stardust emphasis */}
+            <div className="flex items-center gap-3 mb-4 py-3 px-4 rounded-xl bg-gold/8 border border-gold/15 w-fit">
+              <Zap size={16} className="text-gold" />
               <span className="text-gold/70 text-sm">每月注入</span>
-              <span className="text-2xl font-bold text-gold mx-1">500</span>
+              <span className="text-lg font-bold text-gold">500</span>
               <span className="text-gold/70 text-sm">星尘</span>
             </div>
+
+            {/* Price */}
+            <div className="flex items-baseline gap-3 mb-4">
+              <span className="text-3xl font-bold text-gold">{isDomestic ? "¥1,288" : "$399"}</span>
+              <span className="text-gold/40 text-sm">一次性终身</span>
+            </div>
+
+            {/* Features */}
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {tier.features.map((f, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm text-gold/65">
+                  <Check size={14} className="text-gold/50 mt-0.5 flex-shrink-0" />
+                  <span>{f}</span>
+                </li>
+              ))}
+            </ul>
           </div>
 
-          {/* Price */}
-          <div className="text-center mb-6">
-            <div className="flex items-baseline justify-center gap-1">
-              <span className="text-4xl font-bold text-gold">{priceDisplay}</span>
+          {/* Right: CTA + Progress */}
+          <div className="flex flex-col items-center gap-5 lg:w-64 flex-shrink-0">
+            {/* Seat progress */}
+            <div className="w-full">
+              <div className="flex justify-between text-xs text-gold/50 mb-2">
+                <span>{isDomestic ? "席位进度" : "Seat Progress"}</span>
+                <span className="text-gold font-semibold">{founderSoldPercent}%</span>
+              </div>
+              <div className="w-full h-2.5 bg-gold/8 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  whileInView={{ width: `${founderSoldPercent}%` }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+                  className="h-full bg-gradient-to-r from-gold/50 to-gold rounded-full"
+                />
+              </div>
+              <p className="text-gold/40 text-[11px] mt-1.5 text-center">
+                仅剩 <span className="text-gold font-semibold">{remaining}</span> 席
+              </p>
             </div>
-            {tier.billingLabel && (
-              <p className="text-gold/40 text-xs mt-1">{tier.billingLabel}</p>
-            )}
-          </div>
 
-          {/* Seat progress */}
-          <div className="mb-6">
-            <div className="flex justify-between text-xs text-gold/50 mb-2">
-              <span>席位进度</span>
-              <span>{founderSoldPercent}% 已售</span>
-            </div>
-            <div className="w-full h-2 bg-gold/10 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-gold/60 to-gold rounded-full transition-all duration-500"
-                style={{ width: `${founderSoldPercent}%` }}
-              />
-            </div>
-            <p className="text-gold/60 text-xs mt-2 text-center">
-              仅剩 {founderLimit - Math.ceil(founderSoldPercent * founderLimit / 100)} 席
+            {/* CTA */}
+            <button
+              onClick={() => onSelect?.(tier.id)}
+              className="w-full py-3.5 rounded-full font-bold text-base transition-all duration-300
+                         bg-gradient-to-r from-gold to-[#E8CB7A] text-[#1A0F2E]
+                         hover:shadow-[0_0_30px_rgba(201,168,76,0.5)] hover:scale-[1.02]
+                         active:scale-[0.98] flex items-center justify-center gap-2"
+            >
+              <Lock size={16} />
+              {tier.cta}
+            </button>
+
+            <p className="text-gold/30 text-[10px] text-center leading-relaxed">
+              {isDomestic ? "支付后锁定终身席位" : "Lifetime seat after payment"}
             </p>
           </div>
-
-          {/* Features */}
-          <ul className="flex-1 space-y-3 mb-6">
-            {tier.features.map((f, i) => (
-              <li key={i} className="flex items-start gap-2.5 text-sm text-gold/70">
-                <Check size={14} className="text-gold mt-0.5 flex-shrink-0" />
-                <span>{f}</span>
-              </li>
-            ))}
-          </ul>
-
-          {/* CTA */}
-          <button
-            onClick={() => onSelect?.(tier.id)}
-            className="mt-auto w-full py-3.5 rounded-full font-bold text-lg transition-all duration-300
-                       bg-gradient-to-r from-gold to-[#E8CB7A] text-[#1A0F2E]
-                       hover:shadow-[0_0_30px_rgba(201,168,76,0.5)] hover:scale-[1.02]
-                       active:scale-[0.98]"
-          >
-            {tier.cta}
-          </button>
         </div>
-      </div>
+      </motion.div>
     )
   }
 
-  // Standard card layout
+  // ── Standard card layout ──
   return (
-    <div className={`relative flex flex-col h-full rounded-2xl transition-all duration-300 hover:-translate-y-2
-      ${isYearly
-        ? "border-2 border-transparent bg-gradient-to-b from-[#1a1510] to-ink shadow-[0_0_30px_rgba(201,168,76,0.15)]"
-        : "bg-white/5 border border-white/10 hover:border-gold/30 hover:shadow-[0_0_20px_rgba(201,168,76,0.1)]"
-      }`}
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      whileHover={{ y: -8, scale: 1.03 }}
+      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+      className={`relative flex flex-col h-full rounded-2xl transition-all duration-300 overflow-visible
+        ${isYearly
+          ? "border-2 border-transparent bg-gradient-to-b from-[#1a1510] to-ink shadow-[0_0_40px_rgba(201,168,76,0.15)]"
+          : isReport
+            ? "bg-gradient-to-b from-white/[0.06] to-white/[0.02] border border-gold/20 hover:shadow-[0_0_20px_rgba(201,168,76,0.12)]"
+            : "bg-white/[0.04] border border-white/10 hover:border-gold/25 hover:shadow-[0_0_16px_rgba(201,168,76,0.08)]"
+        }`}
     >
-      {/* Yearly gradient border effect */}
+      {/* Yearly shimmer border effect */}
       {isYearly && (
-        <div className="absolute inset-0 rounded-2xl p-[2px] bg-gradient-to-b from-gold/40 via-gold/20 to-transparent pointer-events-none">
-          <div className="w-full h-full rounded-2xl bg-gradient-to-b from-[#1a1510] to-ink" />
-        </div>
+        <div className="absolute -inset-[2px] rounded-2xl bg-gradient-to-r from-gold/50 via-gold/20 to-gold/50 pointer-events-none animate-shimmer opacity-80" />
+      )}
+
+      {/* Yearly glow backdrop */}
+      {isYearly && (
+        <div className="absolute -inset-4 bg-gold/5 blur-2xl rounded-full pointer-events-none" />
       )}
 
       <div className="relative p-6 flex flex-col h-full">
         {/* Badge */}
         {tier.badge && (
           <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-            <span className={`inline-flex items-center gap-1 text-xs font-bold px-4 py-1.5 rounded-full whitespace-nowrap
+            <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-4 py-1.5 rounded-full whitespace-nowrap shadow-lg
               ${isYearly
-                ? "bg-gold text-ink"
+                ? "bg-gradient-to-r from-gold to-[#E8CB7A] text-ink"
                 : isReport && isNewUser
                   ? "bg-gradient-to-r from-gold to-[#E8CB7A] text-ink"
-                  : "bg-white/10 text-white/70 border border-white/20"
+                  : isReport
+                    ? "bg-gold/20 text-gold border border-gold/30"
+                    : "bg-white/10 text-white/70 border border-white/20"
               }`}
             >
-              {isYearly && <Sparkles size={12} />}
+              {isYearly && <Sparkles size={11} />}
               {tier.badge}
             </span>
           </div>
         )}
 
         {/* Header */}
-        <div className="text-center mb-5 pt-2">
+        <div className="text-center mb-4 pt-2">
           <h3 className={`text-xl font-serif font-bold ${isYearly ? "text-gold" : "text-white"}`}>
             {tier.name}
           </h3>
-          <p className="text-white/40 text-sm mt-1">{tier.subtitle}</p>
+          <p className="text-white/35 text-xs mt-1">{tier.subtitle}</p>
         </div>
 
-        {/* Stardust highlight — cost */}
-        {tier.stardust && (
-          <div className="flex items-center justify-center gap-2 mb-4 py-3 px-4 rounded-xl bg-gold/5 border border-gold/10">
-            <Zap size={18} className="text-gold" />
+        {/* Stardust grant for subscriptions */}
+        {tier.stardustGrant && (
+          <div className={`flex items-center justify-center gap-2 mb-4 py-3 px-4 rounded-xl border
+            ${isYearly ? "bg-gold/8 border-gold/20" : "bg-gold/5 border-gold/10"}`}>
+            <Sparkles size={16} className="text-gold" />
             <div className="text-center">
-              <span className="text-2xl font-bold text-gold">{tier.stardust}</span>
-              <span className="text-gold/70 text-sm ml-1">星尘</span>
+              <span className="text-gold/60 text-xs">每月注入</span>
+              <span className="text-xl font-bold text-gold mx-1">{tier.stardustGrant}</span>
+              <span className="text-gold/60 text-xs">星尘</span>
             </div>
           </div>
         )}
 
-        {/* Stardust grant for subscriptions */}
-        {tier.stardustGrant && (
+        {/* Stardust cost for single purchases */}
+        {tier.stardust && !tier.stardustGrant && (
           <div className="flex items-center justify-center gap-2 mb-4 py-3 px-4 rounded-xl bg-gold/5 border border-gold/10">
-            <Sparkles size={18} className="text-gold" />
+            <Zap size={16} className="text-gold" />
             <div className="text-center">
-              <span className="text-gold/70 text-sm">每月注入</span>
-              <span className="text-2xl font-bold text-gold mx-1">{tier.stardustGrant}</span>
-              <span className="text-gold/70 text-sm">星尘</span>
+              <span className="text-xl font-bold text-gold">{tier.stardust}</span>
+              <span className="text-gold/60 text-xs ml-1">星尘</span>
             </div>
           </div>
         )}
 
         {/* Stardust discount badge for yearly */}
-        {tier.stardustDiscount && tier.stardustDiscount < 1 && (
+        {tier.stardustDiscount !== undefined && tier.stardustDiscount < 1 && tier.stardustDiscount > 0 && (
           <div className="text-center mb-3">
-            <span className="inline-flex items-center gap-1 text-xs text-gold bg-gold/10 px-2 py-1 rounded-full">
+            <span className="inline-flex items-center gap-1 text-[11px] text-gold bg-gold/10 px-2.5 py-1 rounded-full border border-gold/15">
               <Zap size={10} />
               星尘消耗 {Math.round(tier.stardustDiscount * 100)} 折
             </span>
@@ -183,30 +225,45 @@ export function PricingCard({ tier, region, founderSoldPercent = 67, isNewUser =
         )}
 
         {/* Price */}
-        <div className="text-center mb-6">
-          <div className="flex items-baseline justify-center gap-1">
+        <div className="text-center mb-5">
+          <div className="flex items-baseline justify-center gap-1.5">
             <span className={`text-3xl font-bold ${isYearly ? "text-gold" : "text-white"}`}>
               {priceDisplay}
             </span>
           </div>
           {originalPrice && (
-            <span className="text-white/25 text-sm line-through">
-              {isDomestic ? `¥${originalPrice}` : `$${originalPrice}`}
-            </span>
+            <div className="mt-0.5">
+              <span className="text-white/20 text-xs line-through">
+                {isDomestic ? `¥${originalPrice}` : `$${originalPrice}`}
+              </span>
+            </div>
           )}
           {tier.billingLabel && (
-            <p className="text-white/30 text-xs mt-1">{tier.billingLabel}</p>
+            <p className="text-white/25 text-[11px] mt-1">{tier.billingLabel}</p>
           )}
         </div>
 
         {/* Features */}
         <ul className="flex-1 space-y-2.5 mb-6">
-          {tier.features.map((f, i) => (
-            <li key={i} className="flex items-start gap-2.5 text-sm text-white/60">
-              <Check size={14} className={`mt-0.5 flex-shrink-0 ${isYearly ? "text-gold" : "text-white/40"}`} />
-              <span>{f}</span>
-            </li>
-          ))}
+          {tier.features.map((f, i) => {
+            const isExclusive = isYearly && (f.includes("专属") || f.includes("定制") || f.includes("优先"))
+            return (
+              <li key={i} className="flex items-start gap-2.5 text-sm">
+                <Check
+                  size={14}
+                  className={`mt-0.5 flex-shrink-0 ${isYearly ? "text-gold/70" : isReport ? "text-gold/50" : "text-white/30"}`}
+                />
+                <span className={`${isYearly ? "text-white/70" : isReport ? "text-white/55" : "text-white/50"}`}>
+                  {f}
+                  {isExclusive && (
+                    <span className="ml-1.5 inline-flex items-center gap-0.5 text-[9px] font-bold text-gold bg-gold/15 px-1.5 py-0.5 rounded-full align-middle">
+                      独占
+                    </span>
+                  )}
+                </span>
+              </li>
+            )
+          })}
         </ul>
 
         {/* CTA */}
@@ -214,15 +271,18 @@ export function PricingCard({ tier, region, founderSoldPercent = 67, isNewUser =
           onClick={() => onSelect?.(tier.id)}
           className={`mt-auto w-full py-3 rounded-full font-semibold text-sm transition-all duration-300
             ${isYearly
-              ? "bg-gold text-ink hover:shadow-[0_0_20px_rgba(201,168,76,0.5)]"
-              : isFree
-                ? "border border-gold/40 text-gold hover:bg-gold/10"
-                : "border border-white/20 text-white/60 hover:border-gold/40 hover:text-gold"
-            }`}
+              ? "bg-gold text-ink hover:shadow-[0_0_24px_rgba(201,168,76,0.5)] hover:scale-[1.02]"
+              : isReport
+                ? "bg-gradient-to-r from-gold to-[#E8CB7A] text-ink hover:shadow-[0_0_20px_rgba(201,168,76,0.4)]"
+                : isFree
+                  ? "border border-gold/30 text-gold hover:bg-gold/8"
+                  : "border border-white/15 text-white/55 hover:border-gold/30 hover:text-gold"
+            }
+            active:scale-[0.97]`}
         >
           {tier.cta}
         </button>
       </div>
-    </div>
+    </motion.div>
   )
 }
