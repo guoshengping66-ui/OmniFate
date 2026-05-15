@@ -94,6 +94,10 @@ async def _migrate_readings_columns():
         ("recommended_product_ids", "JSON"),
         ("face_analysis_text", "TEXT"),
     ]
+    # ── Divination records: AI insight column ──
+    divination_columns = [
+        ("ai_insight", "TEXT"),
+    ]
 
     try:
         async with AsyncSessionLocal() as db:
@@ -108,6 +112,13 @@ async def _migrate_readings_columns():
                 try:
                     await db.execute(text(
                         f"ALTER TABLE readings ADD COLUMN IF NOT EXISTS {col_name} {col_type}"
+                    ))
+                except Exception:
+                    pass
+            for col_name, col_type in divination_columns:
+                try:
+                    await db.execute(text(
+                        f"ALTER TABLE divination_records ADD COLUMN IF NOT EXISTS {col_name} {col_type}"
                     ))
                 except Exception:
                     pass
@@ -136,6 +147,14 @@ async def _migrate_readings_columns():
                             f"ALTER TABLE readings ADD COLUMN {col_name} {col_type}"
                         ))
                         print(f"[DB] Added column readings.{col_name}")
+                    except Exception:
+                        pass
+                for col_name, col_type in divination_columns:
+                    try:
+                        await db.execute(text(
+                            f"ALTER TABLE divination_records ADD COLUMN {col_name} {col_type}"
+                        ))
+                        print(f"[DB] Added column divination_records.{col_name}")
                     except Exception:
                         pass
                 await db.commit()
