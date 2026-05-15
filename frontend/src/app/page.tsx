@@ -99,7 +99,6 @@ function StatsSection() {
     </motion.div>
   )
 }
->>>>>>> claude/unruffled-meitner-b9e32c
 
 export default function HomePage() {
   const { t, locale } = useLanguage()
