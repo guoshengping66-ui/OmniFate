@@ -174,10 +174,44 @@ export default function PricingPage() {
             <div>
               <h3 className="text-white font-medium mb-2">什么是星尘 (Stardust)?</h3>
               <p className="text-white/40 text-sm leading-relaxed">
-                星尘是窥探天机的能量储备。每次推命报告消耗 100 星尘，事件复盘消耗 50 星尘。
-                订阅会员每月自动获得能量注入：月度会员 100 星尘/月，年度会员 1200 星尘/年。
-                创始席位享受无限星尘额度，永无能量枯竭之忧。
+                星尘是窥探天机的能量储备。推命报告消耗 100 星尘，事件复盘消耗 30 星尘，AI 追问消耗 10 星尘。
+                订阅会员每月自动获得能量注入：月度 100 星尘，年度 150 星尘（享 8.8 折消耗），创始席位 500 星尘。
               </p>
+              <div className="flex flex-wrap gap-2 mt-3">
+                {[
+                  { label: "全维报告", cost: "100" },
+                  { label: "事件复盘", cost: "30" },
+                  { label: "AI 追问", cost: "10" },
+                  { label: "能量雷达", cost: "5" },
+                ].map(item => (
+                  <span key={item.label} className="inline-flex items-center gap-1 text-xs text-gold/60 bg-gold/5 px-2 py-1 rounded-full">
+                    <Zap size={10} />
+                    {item.label} {item.cost}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Founder seat dual-region info */}
+        <div className="mt-6 grid sm:grid-cols-2 gap-4">
+          <div className="card-glass p-4 border-gold/20">
+            <div className="flex items-center gap-3">
+              <Crown size={18} className="text-gold" />
+              <div>
+                <p className="text-white/80 text-sm font-medium">国内创始席位</p>
+                <p className="text-gold text-xs">¥1,288 · 限量 100 席 · 每月 500 星尘</p>
+              </div>
+            </div>
+          </div>
+          <div className="card-glass p-4 border-gold/20">
+            <div className="flex items-center gap-3">
+              <Crown size={18} className="text-gold" />
+              <div>
+                <p className="text-white/80 text-sm font-medium">海外创始席位</p>
+                <p className="text-gold text-xs">$399 · 限量 100 席 · 每月 500 星尘</p>
+              </div>
             </div>
           </div>
         </div>

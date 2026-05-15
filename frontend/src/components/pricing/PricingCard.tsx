@@ -1,19 +1,20 @@
 "use client"
 import { Check, Sparkles, Zap, Crown } from "lucide-react"
-import { type PricingTier, type Region, PRICING_DATA } from "@/lib/tiers"
+import { type PricingTier, type Region } from "@/lib/tiers"
 
 interface PricingCardProps {
   tier: PricingTier
   region: Region
   founderSoldPercent?: number
+  isNewUser?: boolean
   onSelect?: (id: string) => void
 }
 
-export function PricingCard({ tier, region, founderSoldPercent = 67, onSelect }: PricingCardProps) {
+export function PricingCard({ tier, region, founderSoldPercent = 67, isNewUser = false, onSelect }: PricingCardProps) {
   const isDomestic = region === "domestic"
-  const price = isDomestic ? tier.priceCny : tier.priceUsd
   const priceDisplay = isDomestic ? tier.priceDisplay : tier.priceDisplayUsd
   const originalPrice = isDomestic ? tier.originalPriceCny : tier.originalPriceUsd
+  const founderLimit = isDomestic ? 100 : 100
 
   const isFounder = tier.id === "founder_lifetime"
   const isYearly = tier.id === "premium_yearly"
@@ -35,7 +36,7 @@ export function PricingCard({ tier, region, founderSoldPercent = 67, onSelect }:
           <div className="flex items-center justify-center mb-4">
             <span className="inline-flex items-center gap-1.5 bg-gold/20 text-gold text-xs font-bold px-4 py-1.5 rounded-full border border-gold/30">
               <Crown size={12} />
-              {tier.badge}
+              {tier.badge} · {isDomestic ? "国内" : "海外"}
             </span>
           </div>
 
@@ -45,16 +46,21 @@ export function PricingCard({ tier, region, founderSoldPercent = 67, onSelect }:
             <p className="text-gold/50 text-sm">{tier.subtitle}</p>
           </div>
 
+          {/* Stardust emphasis */}
+          <div className="flex items-center justify-center gap-2 mb-4 py-3 px-4 rounded-xl bg-gold/10 border border-gold/20">
+            <Zap size={18} className="text-gold" />
+            <div className="text-center">
+              <span className="text-gold/70 text-sm">每月注入</span>
+              <span className="text-2xl font-bold text-gold mx-1">500</span>
+              <span className="text-gold/70 text-sm">星尘</span>
+            </div>
+          </div>
+
           {/* Price */}
           <div className="text-center mb-6">
             <div className="flex items-baseline justify-center gap-1">
               <span className="text-4xl font-bold text-gold">{priceDisplay}</span>
             </div>
-            {originalPrice && (
-              <span className="text-gold/30 text-sm line-through">
-                {isDomestic ? `¥${originalPrice}` : `$${originalPrice}`}
-              </span>
-            )}
             {tier.billingLabel && (
               <p className="text-gold/40 text-xs mt-1">{tier.billingLabel}</p>
             )}
@@ -64,7 +70,7 @@ export function PricingCard({ tier, region, founderSoldPercent = 67, onSelect }:
           <div className="mb-6">
             <div className="flex justify-between text-xs text-gold/50 mb-2">
               <span>席位进度</span>
-              <span>已售 {founderSoldPercent}%</span>
+              <span>{founderSoldPercent}% 已售</span>
             </div>
             <div className="w-full h-2 bg-gold/10 rounded-full overflow-hidden">
               <div
@@ -73,7 +79,7 @@ export function PricingCard({ tier, region, founderSoldPercent = 67, onSelect }:
               />
             </div>
             <p className="text-gold/60 text-xs mt-2 text-center">
-              仅剩 {100 - Math.ceil(founderSoldPercent * 100 / 100)} 席
+              仅剩 {founderLimit - Math.ceil(founderSoldPercent * founderLimit / 100)} 席
             </p>
           </div>
 
@@ -124,9 +130,9 @@ export function PricingCard({ tier, region, founderSoldPercent = 67, onSelect }:
             <span className={`inline-flex items-center gap-1 text-xs font-bold px-4 py-1.5 rounded-full whitespace-nowrap
               ${isYearly
                 ? "bg-gold text-ink"
-                : isReport
-                  ? "bg-white/10 text-white border border-white/20"
-                  : "bg-white/10 text-white/70"
+                : isReport && isNewUser
+                  ? "bg-gradient-to-r from-gold to-[#E8CB7A] text-ink"
+                  : "bg-white/10 text-white/70 border border-white/20"
               }`}
             >
               {isYearly && <Sparkles size={12} />}
@@ -143,7 +149,7 @@ export function PricingCard({ tier, region, founderSoldPercent = 67, onSelect }:
           <p className="text-white/40 text-sm mt-1">{tier.subtitle}</p>
         </div>
 
-        {/* Stardust highlight */}
+        {/* Stardust highlight — cost */}
         {tier.stardust && (
           <div className="flex items-center justify-center gap-2 mb-4 py-3 px-4 rounded-xl bg-gold/5 border border-gold/10">
             <Zap size={18} className="text-gold" />
@@ -159,10 +165,20 @@ export function PricingCard({ tier, region, founderSoldPercent = 67, onSelect }:
           <div className="flex items-center justify-center gap-2 mb-4 py-3 px-4 rounded-xl bg-gold/5 border border-gold/10">
             <Sparkles size={18} className="text-gold" />
             <div className="text-center">
-              <span className="text-gold/70 text-sm">每月赠送</span>
+              <span className="text-gold/70 text-sm">每月注入</span>
               <span className="text-2xl font-bold text-gold mx-1">{tier.stardustGrant}</span>
               <span className="text-gold/70 text-sm">星尘</span>
             </div>
+          </div>
+        )}
+
+        {/* Stardust discount badge for yearly */}
+        {tier.stardustDiscount && tier.stardustDiscount < 1 && (
+          <div className="text-center mb-3">
+            <span className="inline-flex items-center gap-1 text-xs text-gold bg-gold/10 px-2 py-1 rounded-full">
+              <Zap size={10} />
+              星尘消耗 {Math.round(tier.stardustDiscount * 100)} 折
+            </span>
           </div>
         )}
 

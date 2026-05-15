@@ -1,6 +1,7 @@
 /** Dual-track pricing system — domestic (CNY) & overseas (USD) */
 
 export type TierId = "free" | "full_report" | "premium_monthly" | "premium_yearly" | "event_retro" | "founder_lifetime"
+export type Region = "domestic" | "overseas"
 
 export interface PricingTier {
   id: TierId
@@ -9,9 +10,10 @@ export interface PricingTier {
   priceCny: number
   priceUsd: number
   stardust?: number              // stardust cost for single purchases
-  stardustGrant?: number         // stardust granted for subscriptions
-  priceDisplay: string           // "¥69" | "¥49/月" etc.
-  priceDisplayUsd: string        // "$24.99" | "$14.99/mo" etc.
+  stardustGrant?: number         // stardust granted monthly
+  stardustDiscount?: number      // 0.88 = 8.8折 (yearly)
+  priceDisplay: string
+  priceDisplayUsd: string
   originalPriceCny?: number
   originalPriceUsd?: number
   features: string[]
@@ -21,21 +23,20 @@ export interface PricingTier {
   billingLabel?: string
 }
 
-/** Region-specific pricing data */
 export const PRICING_DATA = {
   domestic: {
     currency: "¥",
     single_report: { price: 88, stardust: 100, label: "全维全景报告" },
     monthly: { price: 59, stardust_grant: 100, label: "Fate OS 月度订阅" },
-    yearly: { price: 365, stardust_grant: 1200, label: "Fate OS 年度订阅", tag: "每天仅需 1 元" },
-    founder: { price: 1288, label: "创始席位", limit: 100 },
+    yearly: { price: 365, stardust_grant: 150, label: "Fate OS 年度订阅", tag: "每天仅需 1 元" },
+    founder: { price: 1288, stardust_grant: 500, label: "创始席位", limit: 100 },
   },
   overseas: {
     currency: "$",
     single_report: { price: 24.99, stardust: 100, label: "Full-Dimension Report" },
     monthly: { price: 14.99, stardust_grant: 100, label: "Fate OS Monthly" },
-    yearly: { price: 99.00, stardust_grant: 1200, label: "Fate OS Yearly", tag: "Best Value" },
-    founder: { price: 399.00, label: "Founder Circle", limit: 100 },
+    yearly: { price: 99.00, stardust_grant: 150, label: "Fate OS Yearly", tag: "Best Value" },
+    founder: { price: 399.00, stardust_grant: 500, label: "Founder Circle", limit: 100 },
   },
 } as const
 
@@ -61,14 +62,14 @@ export const TIERS: PricingTier[] = [
   },
   {
     id: "full_report",
-    name: "全维报告",
-    subtitle: "解锁完整命盘深度分析",
+    name: "全维全景报告",
+    subtitle: "单次解锁完整命盘深度分析",
     priceCny: 88,
     priceUsd: 24.99,
     stardust: 100,
     priceDisplay: "¥88",
     priceDisplayUsd: "$24.99",
-    originalPriceCny: 128,
+    originalPriceCny: 118,
     originalPriceUsd: 34.99,
     features: [
       "解锁完整命盘深度报告",
@@ -81,7 +82,7 @@ export const TIERS: PricingTier[] = [
     ],
     cta: "立即解锁",
     highlight: false,
-    badge: "首单 100 星尘",
+    badge: "首单立减 ¥30",
     billingLabel: "一次性付费",
   },
   {
@@ -99,7 +100,7 @@ export const TIERS: PricingTier[] = [
       "每日黄历完整访问",
       "追问无限次数",
       "商城会员价 88 折",
-      "每月赠送 100 星尘",
+      "每月注入 100 星尘",
       "专属能量预警推送",
       "优先客服通道",
     ],
@@ -113,7 +114,8 @@ export const TIERS: PricingTier[] = [
     subtitle: "最划算的年度守护",
     priceCny: 365,
     priceUsd: 99.00,
-    stardustGrant: 1200,
+    stardustGrant: 150,
+    stardustDiscount: 0.88,
     priceDisplay: "¥365/年",
     priceDisplayUsd: "$99/yr",
     originalPriceCny: 708,
@@ -122,7 +124,8 @@ export const TIERS: PricingTier[] = [
       "月度会员全部权益",
       "相当于 ¥1/天",
       "事件复盘 5次/月免费",
-      "每年赠送 1200 星尘",
+      "每月注入 150 星尘",
+      "星尘消耗享 8.8 折",
       "年度命盘回顾报告",
       "专属水晶定制服务 1次/年",
       "生日特别推命仪式",
@@ -130,7 +133,7 @@ export const TIERS: PricingTier[] = [
     ],
     cta: "订阅年度",
     highlight: true,
-    badge: "推荐 · 省 48%",
+    badge: "推荐 · 每天仅需 1 元",
     billingLabel: "每年自动续费，随时取消",
   },
   {
@@ -139,7 +142,7 @@ export const TIERS: PricingTier[] = [
     subtitle: "单次事件溯源诊断",
     priceCny: 19.9,
     priceUsd: 4.99,
-    stardust: 50,
+    stardust: 30,
     priceDisplay: "¥19.9/次",
     priceDisplayUsd: "$4.99/time",
     features: [
@@ -157,28 +160,30 @@ export const TIERS: PricingTier[] = [
   {
     id: "founder_lifetime",
     name: "创始席位",
-    subtitle: "永久会员 · 限量 100 席",
+    subtitle: "永久会员 · 限量席位",
     priceCny: 1288,
     priceUsd: 399,
+    stardustGrant: 500,
+    stardustDiscount: 0,
     priceDisplay: "¥1,288",
     priceDisplayUsd: "$399",
     features: [
       "永久全功能访问",
       "无限星尘额度",
+      "每月注入 500 星尘",
       "产品路线图投票权",
-      "专属黑色+金色 UI",
+      "专属黑金 UI 主题",
       "新功能优先体验",
       "专属客服通道",
       "每年 1 次水晶定制服务",
     ],
     cta: "锁定席位",
     highlight: false,
-    badge: "限量 100 席",
+    badge: "限量席位",
     billingLabel: "一次性终身",
   },
 ]
 
-/** Quick lookup helpers */
 export const TIER_MAP: Record<string, PricingTier> = Object.fromEntries(
   TIERS.map(t => [t.id, t])
 )
