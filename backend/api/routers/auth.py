@@ -183,22 +183,28 @@ class DeleteAccountRequest(BaseModel):
     password: str
 
 def _user_dict(user: User) -> dict:
+    # ── Admin 自动升级：匹配 ADMIN_EMAILS 的用户自动获得创始会员权限 ──
+    from config import get_settings
+    _settings = get_settings()
+    admin_emails = [e.strip().lower() for e in _settings.ADMIN_EMAILS.split(",") if e.strip()]
+    is_admin = user.email.lower() in admin_emails
+
     return {
         "id": str(user.id),
         "email": user.email,
         "display_name": user.display_name,
-        "is_premium": user.is_premium,
-        "premium_expires_at": user.premium_expires_at.isoformat() if user.premium_expires_at else None,
+        "is_premium": True if is_admin else user.is_premium,
+        "premium_expires_at": None if is_admin else (user.premium_expires_at.isoformat() if user.premium_expires_at else None),
         "shop_coupon_balance": user.shop_coupon_balance,
-        "subscription_tier": user.subscription_tier,
-        "free_event_quota": user.free_event_quota,
+        "subscription_tier": "founder_lifetime" if is_admin else user.subscription_tier,
+        "free_event_quota": 999 if is_admin else user.free_event_quota,
         # Stardust
         "stardust_balance": user.stardust_balance,
         "stardust_lifetime_earned": user.stardust_lifetime_earned,
         # Founder
-        "is_founder": user.is_founder,
-        "founder_seat_no": user.founder_seat_no,
-        "founder_region": user.founder_region,
+        "is_founder": True if is_admin else user.is_founder,
+        "founder_seat_no": 0 if is_admin and not user.founder_seat_no else user.founder_seat_no,
+        "founder_region": "domestic" if is_admin and not user.founder_region else user.founder_region,
         # Referral
         "referral_code": user.referral_code,
     }

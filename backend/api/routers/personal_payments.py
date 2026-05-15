@@ -6,10 +6,11 @@ from __future__ import annotations
 import uuid
 import time
 import hashlib
+import hmac
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Header
 from pydantic import BaseModel
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -373,3 +374,57 @@ def _get_payment_instructions(method: str) -> dict:
             ],
             "note": "国际支付可能需要验证"
         }
+
+
+# ─── Admin 管理接口 ───────────────────────────────────────────────────────────
+
+class AdminUpgradeRequest(BaseModel):
+    """管理端：升级用户会员"""
+    email: str
+    tier: str = "founder_lifetime"  # founder_lifetime | premium_yearly | premium_monthly
+
+
+@router.post("/admin/upgrade")
+async def admin_upgrade_user(
+    req: AdminUpgradeRequest,
+    db: AsyncSession = Depends(get_db),
+    authorization: Optional[str] = Header(None),
+):
+    """
+    管理接口：手动升级用户会员（CRON_SECRET 鉴权）
+    """
+    # 鉴权
+    if not settings.CRON_SECRET:
+        raise HTTPException(status_code=500, detail="CRON_SECRET not configured")
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Missing authorization")
+    token = authorization.replace("Bearer ", "")
+    if not hmac.compare_digest(token, settings.CRON_SECRET):
+        raise HTTPException(status_code=403, detail="Invalid token")
+
+    # 查找用户
+    result = await db.execute(select(User).where(User.email == req.email))
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="用户不存在")
+
+    # 升级
+    order_no = f"ADMIN-{uuid.uuid4().hex[:8].upper()}"
+
+    if req.tier == "founder_lifetime" and not user.is_founder:
+        await _activate_founder_seat(user, order_no, db)
+    elif req.tier in ("premium_monthly", "premium_yearly"):
+        await _activate_subscription(user, req.tier, db)
+    else:
+        raise HTTPException(status_code=400, detail=f"不支持的 tier: {req.tier}")
+
+    await db.commit()
+
+    return {
+        "success": True,
+        "email": user.email,
+        "tier": req.tier,
+        "is_premium": user.is_premium,
+        "is_founder": user.is_founder,
+        "stardust_balance": user.stardust_balance,
+    }

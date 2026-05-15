@@ -77,6 +77,9 @@ class Settings(BaseSettings):
     PAYPAL_PERSONAL_QR_URL: str = ""
     PAYPAL_PERSONAL_EMAIL: str = ""
 
+    # ── Admin 管理员邮箱（自动获得创始会员权限，逗号分隔）──
+    ADMIN_EMAILS: str = ""
+
 
 @lru_cache
 def get_settings() -> Settings:
