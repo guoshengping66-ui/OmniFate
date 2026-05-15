@@ -97,14 +97,13 @@ export default function PricingPage() {
     }
   }
 
+  // QRPaymentModal 已通过后端 /confirm 激活会员，这里只刷新用户状态
   const handlePaymentSuccess = async () => {
-    if (!selectedTier) return
     try {
-      const subResult = await subscribe(selectedTier)
-      toast.success(subResult.message)
       await refreshUser()
+      toast.success("会员已激活！")
     } catch {
-      toast.success("支付已提交，会员将在确认后激活")
+      toast.success("支付成功，请刷新页面查看会员状态")
     }
     setSelectedTier(null)
   }

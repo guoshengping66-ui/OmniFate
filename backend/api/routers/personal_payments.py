@@ -218,12 +218,13 @@ async def verify_payment(
 async def confirm_payment(
     order_no: str = Query(...),
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_user),
+    current_user: Optional[User] = Depends(get_current_user),
 ):
     """
-    确认支付完成（需登录）
+    确认支付完成（登录可选）
 
-    确认收款后解锁内容
+    确认收款后激活订阅/解锁报告。
+    使用 get_current_user（可选），因为轮询期间 token 可能过期。
     """
     # 1. 获取订单
     order = await _get_pending_order(db, order_no)
@@ -291,7 +292,7 @@ async def confirm_payment(
             if sub_user:
                 if activated_tier == "founder_lifetime" and not sub_user.is_founder:
                     await _activate_founder_seat(sub_user, order.order_no, db)
-                elif activated_tier in ("premium_monthly", "premium_yearly") and not sub_user.is_premium:
+                elif activated_tier in ("premium_monthly", "premium_yearly"):
                     await _activate_subscription(sub_user, activated_tier, db)
     except Exception:
         pass  # 订阅激活失败不影响支付确认

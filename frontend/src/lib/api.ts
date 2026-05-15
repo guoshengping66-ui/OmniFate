@@ -471,12 +471,14 @@ export async function registerUser(
   password: string,
   displayName?: string,
   privacyAccepted?: boolean,
+  referralCode?: string,
 ): Promise<{ message: string; email: string }> {
   const res = await api.post<{ message: string; email: string }>("/api/auth/register", safeJson({
     email,
     password,
     display_name: displayName,
     privacy_accepted: privacyAccepted ?? true,
+    referral_code: referralCode || undefined,
   }), {
     headers: { "Content-Type": "application/json" },
   })

@@ -32,10 +32,10 @@ EVENT_RETRO_PRICE = 19.9
 
 # ── Server-side price list (clients CANNOT override these) ───────────────────
 # Prices in CNY for Alipay/WeChat, USD for PayPal
-PREMIUM_MONTHLY_CNY = 49.0
-PREMIUM_YEARLY_CNY = 298.0
-PREMIUM_MONTHLY_USD = 6.99
-PREMIUM_YEARLY_USD = 39.99
+PREMIUM_MONTHLY_CNY = 59.0
+PREMIUM_YEARLY_CNY = 365.0
+PREMIUM_MONTHLY_USD = 14.99
+PREMIUM_YEARLY_USD = 99.00
 UNLOCK_PRICE_CNY = 69.0
 
 # Price map for order validation

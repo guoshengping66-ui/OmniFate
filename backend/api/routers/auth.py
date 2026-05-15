@@ -133,6 +133,7 @@ class RegisterRequest(BaseModel):
     password: str
     display_name: Optional[str] = None
     privacy_accepted: bool = False
+    referral_code: Optional[str] = None
 
     @field_validator("password")
     @classmethod
@@ -237,7 +238,68 @@ async def register(req: RegisterRequest, request: Request, db: AsyncSession = De
         verification_expires_at=datetime.now(timezone.utc) + timedelta(minutes=15),
     )
     db.add(user)
+    await db.flush()  # Get user.id before applying referral
+
+    # ── Apply referral code if provided ──
+    referred_by_user = None
+    if req.referral_code:
+        ref_result = await db.execute(
+            select(User).where(User.referral_code == req.referral_code.upper())
+        )
+        referred_by_user = ref_result.scalar_one_or_none()
+        if referred_by_user and referred_by_user.id != user.id:
+            user.referred_by = referred_by_user.id
+
     await db.commit()
+
+    # ── Grant referral rewards (after commit so user.id is stable) ──
+    if referred_by_user and user.referred_by:
+        try:
+            from database.models import ReferralReward, CreditTransaction
+            REFERRAL_REWARD = 20
+
+            # Reward the new user
+            user.stardust_balance += REFERRAL_REWARD
+            user.stardust_lifetime_earned += REFERRAL_REWARD
+            tx_new = CreditTransaction(
+                user_id=user.id,
+                amount=REFERRAL_REWARD,
+                balance_after=user.stardust_balance,
+                reason="referral",
+                reference_id=str(referred_by_user.id),
+                status="confirmed",
+            )
+            db.add(tx_new)
+
+            # Reward the referrer
+            ref_result2 = await db.execute(
+                select(User).where(User.id == referred_by_user.id).with_for_update()
+            )
+            referrer = ref_result2.scalar_one_or_none()
+            if referrer:
+                referrer.stardust_balance += REFERRAL_REWARD
+                referrer.stardust_lifetime_earned += REFERRAL_REWARD
+                tx_ref = CreditTransaction(
+                    user_id=referrer.id,
+                    amount=REFERRAL_REWARD,
+                    balance_after=referrer.stardust_balance,
+                    reason="referral",
+                    reference_id=str(user.id),
+                    status="confirmed",
+                )
+                db.add(tx_ref)
+
+                # Record referral reward
+                reward = ReferralReward(
+                    referrer_id=referrer.id,
+                    referred_user_id=user.id,
+                    reward_amount=REFERRAL_REWARD,
+                )
+                db.add(reward)
+
+            await db.commit()
+        except Exception:
+            pass  # Referral reward failure doesn't block registration
 
     # Send verification email
     from utils.email import send_verification_email

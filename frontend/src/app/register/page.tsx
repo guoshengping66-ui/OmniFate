@@ -14,6 +14,15 @@ export default function RegisterPage() {
   const { login: authLogin } = useAuth()
   const { t } = useLanguage()
 
+  // Read referral code from URL ?ref=XXXX
+  const [referralCode, setReferralCode] = useState("")
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const ref = params.get("ref")
+    if (ref) setReferralCode(ref.toUpperCase())
+  }, [])
+
   // Step 1: Registration form
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -59,7 +68,7 @@ export default function RegisterPage() {
     }
     setLoading(true)
     try {
-      await registerUser(email, password, displayName || undefined, privacyAccepted)
+      await registerUser(email, password, displayName || undefined, privacyAccepted, referralCode || undefined)
       toast.success("注册成功，请查收邮箱验证码")
       setStep("verify")
       startResendCooldown()
@@ -233,6 +242,21 @@ export default function RegisterPage() {
                 {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
+          </div>
+
+          {/* Referral code (optional) */}
+          <div>
+            <label className="label">
+              邀请码 <span className="text-white/20 text-xs">（选填，双方各得 20 星尘）</span>
+            </label>
+            <input
+              type="text"
+              value={referralCode}
+              onChange={e => setReferralCode(e.target.value.toUpperCase())}
+              placeholder="输入邀请码（如有）"
+              maxLength={8}
+              className="input-field font-mono tracking-widest text-center"
+            />
           </div>
 
           <label className="flex items-start gap-3 cursor-pointer">
