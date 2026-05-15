@@ -104,8 +104,25 @@ export function Navbar() {
             </button>
           </nav>
 
-          {/* Right section */}
-          <div className="flex items-center gap-3">
+          {/* Mobile hamburger — visible below md */}
+          <div className="flex items-center gap-3 md:hidden">
+            {/* Cart icon mobile */}
+            <button onClick={() => setCartOpen(true)} className="relative text-white/60">
+              <ShoppingBag size={20} />
+              {itemCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-gold text-ink text-[10px] font-bold rounded-full flex items-center justify-center">
+                  {itemCount > 9 ? "9+" : itemCount}
+                </span>
+              )}
+            </button>
+            <LanguageSwitch />
+            <button onClick={() => setOpen(!open)} className="text-white/70">
+              {open ? <X size={22} /> : <Menu size={22} />}
+            </button>
+          </div>
+
+          {/* Right section — hidden on mobile, visible on md+ */}
+          <div className="hidden md:flex items-center gap-3">
             {/* Cart icon */}
             <button
               onClick={() => setCartOpen(true)}
@@ -220,9 +237,9 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Mobile & Medium hamburger dropdown */}
+        {/* Mobile & Medium hamburger dropdown — visible below lg */}
         {open && (
-          <div className="md:hidden lg:hidden bg-ink/95 border-t border-white/10 px-4 py-4 flex flex-col gap-4">
+          <div className="lg:hidden bg-ink/95 border-t border-white/10 px-4 py-4 flex flex-col gap-4">
             {extraLinks.map(l => (
               <Link key={l.href} href={l.href} onClick={() => setOpen(false)}
                 className="text-white/80 hover:text-gold py-2">
