@@ -130,6 +130,13 @@ export function Navbar() {
                     >
                       {t("nav.account")}
                     </Link>
+                    <Link
+                      href="/referral"
+                      onClick={() => setMenuOpen(false)}
+                      className="px-3 py-2 text-sm text-white/60 hover:text-gold hover:bg-white/5 rounded-lg transition-colors"
+                    >
+                      星盟邀请
+                    </Link>
                     <button
                       onClick={() => { setCartOpen(true); setMenuOpen(false) }}
                       className="px-3 py-2 text-sm text-white/60 hover:text-gold hover:bg-white/5 rounded-lg transition-colors text-left"

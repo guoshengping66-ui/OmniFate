@@ -11,6 +11,15 @@ export interface AuthUser {
   shop_coupon_balance: number
   subscription_tier: string | null
   free_event_quota?: number
+  // Stardust
+  stardust_balance?: number
+  stardust_lifetime_earned?: number
+  // Founder
+  is_founder?: boolean
+  founder_seat_no?: number
+  founder_region?: string
+  // Referral
+  referral_code?: string
 }
 
 interface AuthState {

@@ -69,6 +69,9 @@ class Settings(BaseSettings):
     GEOCODING_API_KEY: str = ""
     FRONTEND_URL: str = "http://localhost:3000"
 
+    # ── Cron / 定时任务 ──
+    CRON_SECRET: str = ""
+
     # ── 个人收款码 ──
     ALIPAY_PERSONAL_QR_URL: str = ""
     WECHAT_PERSONAL_QR_URL: str = ""
