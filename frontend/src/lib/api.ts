@@ -987,3 +987,63 @@ export async function getBlogArticle(id: string): Promise<BlogArticle> {
   const res = await api.get<BlogArticle>(`/api/blog/${id}`)
   return res.data
 }
+
+// ── Stardust (星尘) API ─────────────────────────────────────────────────────
+
+export interface StardustBalance {
+  balance: number
+  lifetime_earned: number
+}
+
+export interface StardustTransaction {
+  id: string
+  amount: number
+  balance_after: number
+  reason: string
+  reference_id: string | null
+  status: string
+  created_at: string | null
+}
+
+export async function getStardustBalance(): Promise<StardustBalance> {
+  const res = await api.get<StardustBalance>("/api/credits/balance")
+  return res.data
+}
+
+export async function getStardustHistory(limit = 50): Promise<{ items: StardustTransaction[] }> {
+  const res = await api.get<{ items: StardustTransaction[] }>("/api/credits/history", { params: { limit } })
+  return res.data
+}
+
+export async function deductStardust(
+  action: string,
+  referenceId?: string,
+): Promise<{ transaction_id: string; deducted: number; balance_after: number }> {
+  const res = await api.post("/api/credits/deduct", safeJson({
+    action,
+    reference_id: referenceId,
+  }), {
+    headers: { "Content-Type": "application/json" },
+  })
+  return res.data
+}
+
+export async function confirmStardustDeduction(transactionId: string): Promise<{ status: string }> {
+  const res = await api.post("/api/credits/confirm", null, {
+    params: { transaction_id: transactionId },
+  })
+  return res.data
+}
+
+export async function refundStardust(
+  transactionId: string,
+  reason?: string,
+): Promise<{ status: string; balance_after: number }> {
+  const res = await api.post("/api/credits/refund", safeJson({
+    transaction_id: transactionId,
+    reason,
+  }), {
+    headers: { "Content-Type": "application/json" },
+  })
+  return res.data
+}

@@ -23,6 +23,11 @@ from database.models import Order, OrderStatus, Reading, PaymentStatus, User
 from auth.dependencies import get_current_user, require_user
 from config import get_settings
 
+# Import activation functions from payments router
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+from api.routers.payments import _activate_subscription, _activate_founder_seat
+
 router = APIRouter()
 settings = get_settings()
 
@@ -252,12 +257,44 @@ async def confirm_payment(
                     reading.payment_status = PaymentStatus.paid
                     # 发放优惠券
                     if reading.user_id:
-                        user_result = await db.execute(select(User).where(User.id == reading.user_id))
+                        user_result = await db.execute(
+                            select(User).where(User.id == reading.user_id).with_for_update()
+                        )
                         user = user_result.scalar_one_or_none()
-                        if user and (user.shop_coupon_balance or 0) == 0:
-                            user.shop_coupon_balance = 60
+                        if user:
+                            if (user.shop_coupon_balance or 0) == 0:
+                                user.shop_coupon_balance = 60
+                            # 解锁报告奖励星尘
+                            from api.routers.payments import GRANT_ON_REPORT_UNLOCK
+                            user.stardust_balance += GRANT_ON_REPORT_UNLOCK
+                            user.stardust_lifetime_earned += GRANT_ON_REPORT_UNLOCK
     except Exception:
         pass  # 单个解锁失败不影响整体
+
+    # 4. 激活订阅会员（从订单描述中检测 tier）
+    try:
+        notes = order.notes or ""
+        description = order.notes or ""
+        activated_tier = None
+        if "premium_yearly" in description:
+            activated_tier = "premium_yearly"
+        elif "premium_monthly" in description:
+            activated_tier = "premium_monthly"
+        elif "founder_lifetime" in description:
+            activated_tier = "founder_lifetime"
+
+        if activated_tier and order.user_id:
+            user_result = await db.execute(
+                select(User).where(User.id == order.user_id).with_for_update()
+            )
+            sub_user = user_result.scalar_one_or_none()
+            if sub_user:
+                if activated_tier == "founder_lifetime" and not sub_user.is_founder:
+                    await _activate_founder_seat(sub_user, order.order_no, db)
+                elif activated_tier in ("premium_monthly", "premium_yearly") and not sub_user.is_premium:
+                    await _activate_subscription(sub_user, activated_tier, db)
+    except Exception:
+        pass  # 订阅激活失败不影响支付确认
 
     await db.commit()
 

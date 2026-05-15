@@ -18,7 +18,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from database.session import get_db
 from database.models import (
     Reading, User, Order, OrderItem, EventLog, Product, UserAddress,
-    FounderVote, PaymentStatus, OrderStatus,
+    FounderVote, CreditTransaction, PaymentStatus, OrderStatus,
 )
 from auth.dependencies import get_current_user, require_user
 from config import get_settings
@@ -43,10 +43,125 @@ PRODUCT_PRICES = {
     "premium_monthly": {"cny": PREMIUM_MONTHLY_CNY, "usd": PREMIUM_MONTHLY_USD},
     "premium_yearly": {"cny": PREMIUM_YEARLY_CNY, "usd": PREMIUM_YEARLY_USD},
     "unlock_report": {"cny": UNLOCK_PRICE_CNY},
+    "founder_lifetime": {"cny": 1288, "usd": 399},
+}
+
+# ── Stardust constants ──────────────────────────────────────────────────────
+GRANT_ON_REPORT_UNLOCK = 100   # 解锁报告奖励星尘
+GRANT_ON_REGISTER = 50          # 注册奖励星尘
+SUBSCRIPTION_GRANTS = {
+    "premium_monthly": 100,
+    "premium_yearly": 150,
+    "founder_lifetime": 500,
 }
 
 
 # ─── Payment Methods ──────────────────────────────────────────────────────────
+
+
+async def _activate_subscription(user: User, tier: str, db: AsyncSession) -> dict:
+    """
+    激活订阅会员 — 单一事实来源（Single Source of Truth）。
+    由 QR 支付确认、正式支付回调、mock 订阅 共同调用。
+    """
+    if tier not in ("premium_monthly", "premium_yearly"):
+        return {}
+
+    now = datetime.now(timezone.utc)
+    grant_amount = SUBSCRIPTION_GRANTS.get(tier, 0)
+
+    if tier == "premium_yearly":
+        expires = now + timedelta(days=365)
+        free_events = 5
+    else:
+        expires = now + timedelta(days=30)
+        free_events = 2
+
+    user.is_premium = True
+    user.subscription_tier = tier
+    user.premium_expires_at = expires
+    user.free_event_quota = free_events
+    user.free_event_quota_reset_at = now + timedelta(days=30)
+
+    # 注入首月星尘
+    user.stardust_balance += grant_amount
+    user.stardust_lifetime_earned += grant_amount
+
+    tx = CreditTransaction(
+        user_id=user.id,
+        amount=grant_amount,
+        balance_after=user.stardust_balance,
+        reason="subscription_grant",
+        reference_id=None,
+        status="confirmed",
+    )
+    db.add(tx)
+
+    return {
+        "grant_amount": grant_amount,
+        "expires": expires.isoformat(),
+        "free_events": free_events,
+    }
+
+
+async def _activate_founder_seat(user: User, order_no: str, db: AsyncSession) -> dict:
+    """
+    激活创始席位 — 由 QR 支付确认和正式支付回调调用。
+    """
+    now = datetime.now(timezone.utc)
+
+    # Count current founders to determine next seat number
+    domestic_count_result = await db.execute(
+        select(func.count()).select_from(User).where(
+            User.is_founder == True,
+            User.founder_region == "domestic",
+        )
+    )
+    domestic_count = domestic_count_result.scalar() or 0
+
+    if domestic_count < FOUNDER_TOTAL_DOMESTIC:
+        region = "domestic"
+        seat_no = domestic_count + 1
+    else:
+        overseas_count_result = await db.execute(
+            select(func.count()).select_from(User).where(
+                User.is_founder == True,
+                User.founder_region == "overseas",
+            )
+        )
+        overseas_count = overseas_count_result.scalar() or 0
+        if overseas_count >= FOUNDER_TOTAL_OVERSEAS:
+            raise HTTPException(status_code=400, detail="创始席位已售罄")
+        region = "overseas"
+        seat_no = FOUNDER_TOTAL_DOMESTIC + overseas_count + 1
+
+    grant_amount = SUBSCRIPTION_GRANTS["founder_lifetime"]
+
+    user.is_founder = True
+    user.founder_seat_no = seat_no
+    user.founder_region = region
+    user.founder_activated_at = now
+    user.subscription_tier = "founder_lifetime"
+    user.is_premium = True
+    user.premium_expires_at = None  # Lifetime
+    user.stardust_balance += grant_amount
+    user.stardust_lifetime_earned += grant_amount
+
+    tx = CreditTransaction(
+        user_id=user.id,
+        amount=grant_amount,
+        balance_after=user.stardust_balance,
+        reason="founder_grant",
+        reference_id=order_no,
+        status="confirmed",
+    )
+    db.add(tx)
+
+    return {
+        "seat_no": seat_no,
+        "region": region,
+        "grant_amount": grant_amount,
+    }
 
 @router.get("/payment-methods")
 async def get_payment_methods():
@@ -109,9 +224,12 @@ async def _unlock_reading(reading_id: str, db: AsyncSession) -> dict:
 
     coupon_issued = 0
     trial_activated = False
+    stardust_granted = 0
 
     if reading.user_id:
-        user_result = await db.execute(select(User).where(User.id == reading.user_id))
+        user_result = await db.execute(
+            select(User).where(User.id == reading.user_id).with_for_update()
+        )
         user = user_result.scalar_one_or_none()
         if user:
             if (user.shop_coupon_balance or 0) == 0:
@@ -124,6 +242,19 @@ async def _unlock_reading(reading_id: str, db: AsyncSession) -> dict:
                 user.free_event_quota = 2
                 user.free_event_quota_reset_at = datetime.now(timezone.utc) + timedelta(days=TRIAL_DAYS)
                 trial_activated = True
+            # 解锁报告奖励星尘
+            user.stardust_balance += GRANT_ON_REPORT_UNLOCK
+            user.stardust_lifetime_earned += GRANT_ON_REPORT_UNLOCK
+            stardust_granted = GRANT_ON_REPORT_UNLOCK
+            tx = CreditTransaction(
+                user_id=user.id,
+                amount=GRANT_ON_REPORT_UNLOCK,
+                balance_after=user.stardust_balance,
+                reason="report_unlock_grant",
+                reference_id=reading_id,
+                status="confirmed",
+            )
+            db.add(tx)
 
     await db.commit()
     return {
@@ -132,6 +263,7 @@ async def _unlock_reading(reading_id: str, db: AsyncSession) -> dict:
         "message": "报告已解锁",
         "shop_coupon_issued": coupon_issued,
         "trial_activated": trial_activated,
+        "stardust_granted": stardust_granted,
     }
 
 
@@ -835,46 +967,35 @@ async def get_tracking(
 # ─── Subscription ────────────────────────────────────────────────────────────
 
 @router.post("/subscribe")
-async def mock_subscribe(
+async def subscribe_tier(
     tier: str = Query("premium_monthly", pattern="^(premium_monthly|premium_yearly)$"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_user),
 ):
-    """订阅会员（Mock 模式）— 支付宝/微信正式支付请使用 /alipay/create 或 /wechat/create"""
+    """订阅会员（Mock / 开发模式）— 正式支付请使用 /personal-payments/create"""
     if db is None:
         raise HTTPException(status_code=503, detail="数据库暂不可用")
 
     # Refetch user within THIS session to avoid detached-instance issues
-    result = await db.execute(select(User).where(User.id == current_user.id))
+    result = await db.execute(
+        select(User).where(User.id == current_user.id).with_for_update()
+    )
     user = result.scalar_one_or_none()
     if not user:
         raise HTTPException(status_code=404, detail="用户不存在")
 
-    now = datetime.now(timezone.utc)
-
-    if tier == "premium_yearly":
-        expires = now + timedelta(days=365)
-        free_events = 5
-        price_label = "¥298/年"
-    else:
-        expires = now + timedelta(days=30)
-        free_events = 2
-        price_label = "¥49/月"
-
-    user.is_premium = True
-    user.subscription_tier = tier
-    user.premium_expires_at = expires
-    user.free_event_quota = free_events
-    user.free_event_quota_reset_at = now + timedelta(days=30)
-
+    grant_info = await _activate_subscription(user, tier, db)
     await db.commit()
     await db.refresh(user)
+
+    price_label = "¥298/年" if tier == "premium_yearly" else "¥49/月"
 
     return {
         "subscription_id": f"sub_{uuid.uuid4().hex[:8]}",
         "tier": tier,
         "status": "active",
-        "current_period_end": expires.isoformat(),
+        "current_period_end": grant_info["expires"],
+        "stardust_granted": grant_info["grant_amount"],
         "message": f"订阅成功: {price_label}",
         "user": {
             "is_premium": user.is_premium,
@@ -882,6 +1003,7 @@ async def mock_subscribe(
             "premium_expires_at": user.premium_expires_at.isoformat() if user.premium_expires_at else None,
             "free_event_quota": user.free_event_quota,
             "shop_coupon_balance": user.shop_coupon_balance,
+            "stardust_balance": user.stardust_balance,
         },
     }
 
@@ -907,6 +1029,40 @@ FOUNDER_TOTAL_OVERSEAS = 100
 
 class FounderVoteRequest(BaseModel):
     feature_id: str
+
+
+@router.post("/founder/purchase")
+async def create_founder_purchase(
+    method: str = Query("personal", description="支付方式: personal|alipay|wechat"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_user),
+):
+    """创建创始席位购买订单 — 支付后调用 /founder/activate 激活"""
+    if current_user.is_founder:
+        raise HTTPException(status_code=400, detail="您已拥有创始席位")
+
+    price_info = PRODUCT_PRICES["founder_lifetime"]
+    amount = price_info["cny"]
+
+    order_no = f"FO{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
+
+    order = Order(
+        user_id=current_user.id,
+        order_no=order_no,
+        status=OrderStatus.pending,
+        total_cny=amount,
+        payment_method=f"founder_{method}",
+        payment_ref=order_no,
+    )
+    db.add(order)
+    await db.commit()
+
+    return {
+        "order_no": order_no,
+        "amount": amount,
+        "currency": "CNY",
+        "message": "创始席位购买订单已创建",
+    }
 
 
 @router.get("/founder/status")
@@ -983,56 +1139,49 @@ async def list_founder_seats(
 
 @router.post("/founder/activate")
 async def activate_founder_seat(
+    order_no: str = Query(None, description="已支付的订单号（可选，mock 模式下省略）"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_user),
 ):
-    """激活创始席位"""
+    """
+    激活创始席位。
+    - 如果提供了 order_no，验证订单已支付后激活
+    - 如果省略 order_no（mock 模式），直接激活（开发环境）
+    """
     if current_user.is_founder:
         raise HTTPException(status_code=400, detail="您已拥有创始席位")
 
-    # Count current founders to determine next seat number
-    domestic_count_result = await db.execute(
-        select(func.count()).select_from(User).where(
-            User.is_founder == True,
-            User.founder_region == "domestic",
-        )
-    )
-    domestic_count = domestic_count_result.scalar() or 0
-
-    # Determine region (simplified: first 100 are domestic, rest overseas)
-    if domestic_count < FOUNDER_TOTAL_DOMESTIC:
-        region = "domestic"
-        seat_no = domestic_count + 1
-    else:
-        overseas_count_result = await db.execute(
-            select(func.count()).select_from(User).where(
-                User.is_founder == True,
-                User.founder_region == "overseas",
+    # 如果提供了 order_no，验证支付
+    if order_no:
+        order_result = await db.execute(
+            select(Order).where(
+                Order.order_no == order_no,
+                Order.user_id == current_user.id,
             )
         )
-        overseas_count = overseas_count_result.scalar() or 0
-        if overseas_count >= FOUNDER_TOTAL_OVERSEAS:
-            raise HTTPException(status_code=400, detail="创始席位已售罄")
-        region = "overseas"
-        seat_no = FOUNDER_TOTAL_DOMESTIC + overseas_count + 1
+        order = order_result.scalar_one_or_none()
+        if not order:
+            raise HTTPException(status_code=404, detail="订单不存在")
+        if order.status != OrderStatus.paid:
+            raise HTTPException(status_code=400, detail="订单尚未支付")
 
-    # Activate
-    current_user.is_founder = True
-    current_user.founder_seat_no = seat_no
-    current_user.founder_region = region
-    current_user.founder_activated_at = datetime.now(timezone.utc)
-    current_user.subscription_tier = "founder_lifetime"
-    current_user.is_premium = True
-    current_user.premium_expires_at = None  # Lifetime
-    current_user.stardust_balance += 500  # Initial grant
-    current_user.stardust_lifetime_earned += 500
+    # Refetch user with lock
+    result = await db.execute(
+        select(User).where(User.id == current_user.id).with_for_update()
+    )
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="用户不存在")
+
+    info = await _activate_founder_seat(user, order_no or "mock", db)
     await db.commit()
 
     return {
         "status": "activated",
-        "seat_no": seat_no,
-        "region": region,
-        "message": f"恭喜！您已锁定创始席位 #{seat_no}",
+        "seat_no": info["seat_no"],
+        "region": info["region"],
+        "stardust_granted": info["grant_amount"],
+        "message": f"恭喜！您已锁定创始席位 #{info['seat_no']}",
     }
 
 

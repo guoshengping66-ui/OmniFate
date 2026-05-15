@@ -67,11 +67,11 @@ export function QRPaymentModal({
     }
 
     try {
-      // 2. 创建支付订单
+      // 2. 创建支付订单 — description 中包含 tier 标识供 confirm_payment 识别
       const res = await apiDirect.post("/api/personal-payments/create", {
         amount: tierInfo.amount,
         currency: method === "alipay" ? "CNY_ALIPAY" : "CNY_WECHAT",
-        description: `命盘智镜 - ${tierInfo.label}`,
+        description: `命盘智镜 - ${tierInfo.label} - ${tier}`,
         reading_id: "",
       })
       setOrderNo(res.data.order_no)

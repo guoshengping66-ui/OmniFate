@@ -15,7 +15,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import get_db
-from database.models import User
+from database.models import User, CreditTransaction
 from auth.jwt import (
     create_access_token, create_refresh_token, verify_token,
     hash_password, verify_password,
@@ -23,6 +23,9 @@ from auth.jwt import (
 from auth.dependencies import get_current_user, require_user
 
 router = APIRouter()
+
+# ── Registration bonus ────────────────────────────────────────────────────
+REGISTER_BONUS_STARDUST = 50  # 注册验证通过奖励星尘
 
 # ── Rate limiting ──────────────────────────────────────────────────────────
 _rate_store: dict[str, list[float]] = defaultdict(list)
@@ -188,6 +191,15 @@ def _user_dict(user: User) -> dict:
         "shop_coupon_balance": user.shop_coupon_balance,
         "subscription_tier": user.subscription_tier,
         "free_event_quota": user.free_event_quota,
+        # Stardust
+        "stardust_balance": user.stardust_balance,
+        "stardust_lifetime_earned": user.stardust_lifetime_earned,
+        # Founder
+        "is_founder": user.is_founder,
+        "founder_seat_no": user.founder_seat_no,
+        "founder_region": user.founder_region,
+        # Referral
+        "referral_code": user.referral_code,
     }
 
 
@@ -289,6 +301,20 @@ async def verify_email(req: VerifyCodeRequest, db: AsyncSession = Depends(get_db
     user.is_verified = True
     user.verification_code = None
     user.verification_expires_at = None
+
+    # 注册验证通过奖励星尘
+    user.stardust_balance += REGISTER_BONUS_STARDUST
+    user.stardust_lifetime_earned += REGISTER_BONUS_STARDUST
+    tx = CreditTransaction(
+        user_id=user.id,
+        amount=REGISTER_BONUS_STARDUST,
+        balance_after=user.stardust_balance,
+        reason="register_bonus",
+        reference_id=None,
+        status="confirmed",
+    )
+    db.add(tx)
+
     await db.commit()
 
     # Return tokens so user can log in immediately
