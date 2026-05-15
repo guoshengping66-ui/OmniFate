@@ -336,3 +336,77 @@ async def monthly_grant(
         "amount": grant_amount,
         "balance_after": user.stardust_balance,
     }
+
+
+# ── 管理审计接口 ────────────────────────────────────────────────────────────────
+from fastapi import Header
+from config import get_settings
+
+_settings = get_settings()
+
+
+@router.get("/admin/audit")
+async def admin_audit(
+    authorization: str = Header(None),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    管理侧审计聚合（CRON_SECRET 鉴权）：
+    - 全站总星尘存量
+    - 今日消耗总量
+    - 异常消耗用户（今日消耗 > 200）
+    """
+    # 鉴权：复用 CRON_SECRET
+    if not _settings.CRON_SECRET:
+        raise HTTPException(status_code=500, detail="CRON_SECRET not configured")
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Missing authorization")
+    import hmac
+    token = authorization.replace("Bearer ", "").strip()
+    if not hmac.compare_digest(token, _settings.CRON_SECRET):
+        raise HTTPException(status_code=403, detail="Invalid secret")
+
+    # 全站总星尘存量
+    total_balance_result = await db.execute(
+        select(func.coalesce(func.sum(User.stardust_balance), 0))
+    )
+    total_balance = total_balance_result.scalar() or 0
+
+    # 今日消耗总量
+    today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+    today_consumption_result = await db.execute(
+        select(func.coalesce(func.sum(func.abs(CreditTransaction.amount)), 0)).where(
+            and_(
+                CreditTransaction.amount < 0,
+                CreditTransaction.created_at >= today_start,
+            )
+        )
+    )
+    today_consumption = today_consumption_result.scalar() or 0
+
+    # 异常消耗用户（今日消耗 > 200）
+    anomaly_result = await db.execute(
+        select(
+            CreditTransaction.user_id,
+            func.sum(func.abs(CreditTransaction.amount)).label("daily_total"),
+        )
+        .where(
+            and_(
+                CreditTransaction.amount < 0,
+                CreditTransaction.created_at >= today_start,
+            )
+        )
+        .group_by(CreditTransaction.user_id)
+        .having(func.sum(func.abs(CreditTransaction.amount)) > 200)
+    )
+    anomaly_users = [
+        {"user_id": row.user_id, "daily_consumed": row.daily_total}
+        for row in anomaly_result.all()
+    ]
+
+    return {
+        "total_stardust_balance": total_balance,
+        "today_consumption": today_consumption,
+        "anomaly_users": anomaly_users,
+        "anomaly_count": len(anomaly_users),
+    }

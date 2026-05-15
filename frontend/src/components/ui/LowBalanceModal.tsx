@@ -1,6 +1,6 @@
 "use client"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, Zap, ArrowRight } from "lucide-react"
+import { X, Zap, ArrowRight, Crown } from "lucide-react"
 import Link from "next/link"
 
 interface LowBalanceModalProps {
@@ -8,6 +8,7 @@ interface LowBalanceModalProps {
   onClose: () => void
   required?: number
   current?: number
+  isFounder?: boolean
 }
 
 const LOW_BALANCE_MESSAGES = [
@@ -16,8 +17,15 @@ const LOW_BALANCE_MESSAGES = [
   "宇宙能量尚未充盈，请先注入星尘",
 ]
 
-export function LowBalanceModal({ open, onClose, required = 0, current = 0 }: LowBalanceModalProps) {
-  const message = LOW_BALANCE_MESSAGES[Math.floor(Math.random() * LOW_BALANCE_MESSAGES.length)]
+const FOUNDER_MESSAGES = [
+  "创始能量暂缓中，请稍后获取补充",
+  "星尘能量正在宇宙深处凝聚，敬请稍候",
+  "创始人之力暂歇，能量即将重聚",
+]
+
+export function LowBalanceModal({ open, onClose, required = 0, current = 0, isFounder = false }: LowBalanceModalProps) {
+  const messages = isFounder ? FOUNDER_MESSAGES : LOW_BALANCE_MESSAGES
+  const message = messages[Math.floor(Math.random() * messages.length)]
 
   return (
     <AnimatePresence>
@@ -50,15 +58,22 @@ export function LowBalanceModal({ open, onClose, required = 0, current = 0 }: Lo
 
             {/* Icon */}
             <div className="flex justify-center mb-4">
-              <div className="w-16 h-16 rounded-full bg-gold/10 border border-gold/20
-                            flex items-center justify-center">
-                <Zap size={28} className="text-gold/50" />
+              <div className={`w-16 h-16 rounded-full border flex items-center justify-center
+                ${isFounder
+                  ? "bg-gold/15 border-gold/30"
+                  : "bg-gold/10 border-gold/20"
+                }`}>
+                {isFounder ? (
+                  <Crown size={28} className="text-gold" />
+                ) : (
+                  <Zap size={28} className="text-gold/50" />
+                )}
               </div>
             </div>
 
             {/* Title */}
             <h3 className="text-center font-serif text-lg text-gold mb-2">
-              能量不足
+              {isFounder ? "能量暂缓" : "能量不足"}
             </h3>
 
             {/* Message */}
@@ -73,19 +88,27 @@ export function LowBalanceModal({ open, onClose, required = 0, current = 0 }: Lo
 
             {/* Actions */}
             <div className="space-y-3">
-              <Link
-                href="/pricing"
-                onClick={onClose}
-                className="w-full btn-gold flex items-center justify-center gap-2 text-sm"
-              >
-                向星空索取更多能量
-                <ArrowRight size={14} />
-              </Link>
+              {isFounder ? (
+                <div className="text-center py-3">
+                  <p className="text-gold/60 text-xs">
+                    创始会员星尘将于下月自动注入
+                  </p>
+                </div>
+              ) : (
+                <Link
+                  href="/pricing"
+                  onClick={onClose}
+                  className="w-full btn-gold flex items-center justify-center gap-2 text-sm"
+                >
+                  向星空索取更多能量
+                  <ArrowRight size={14} />
+                </Link>
+              )}
               <button
                 onClick={onClose}
                 className="w-full py-2.5 text-white/40 text-sm hover:text-white/60 transition-colors"
               >
-                稍后再说
+                {isFounder ? "稍后重试" : "稍后再说"}
               </button>
             </div>
           </motion.div>
