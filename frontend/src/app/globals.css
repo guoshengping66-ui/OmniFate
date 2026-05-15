@@ -195,3 +195,51 @@ select.input-field option:checked {
   100% { background-position: -200% 0; }
 }
 
+/* Member glow animation (gold pulse for premium users) */
+@keyframes member-glow {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.05); }
+}
+
+/* Nebula pulse for founder members */
+@keyframes nebula-pulse {
+  0%, 100% { opacity: 0.15; transform: scale(1) rotate(0deg); }
+  50% { opacity: 0.35; transform: scale(1.08) rotate(5deg); }
+}
+
+/* Star particle floating effect */
+@keyframes star-particle {
+  0%, 100% { opacity: 0; transform: translateY(0) scale(0.5); }
+  50% { opacity: 1; transform: translateY(-4px) scale(1); }
+}
+
+/* Nebula unlock converge particles */
+@keyframes nebula-particle-0 {
+  0% { transform: translate(calc(cos(var(--angle)) * 200px), calc(sin(var(--angle)) * 200px)); opacity: 0; }
+  60% { opacity: 1; }
+  100% { transform: translate(0, 0); opacity: 0; }
+}
+@keyframes nebula-particle-1 {
+  0% { transform: translate(calc(cos(var(--angle)) * 150px), calc(sin(var(--angle)) * 150px)); opacity: 0; }
+  70% { opacity: 0.8; }
+  100% { transform: translate(0, 0); opacity: 0; }
+}
+@keyframes nebula-particle-2 {
+  0% { transform: translate(calc(cos(var(--angle)) * 180px), calc(sin(var(--angle)) * 180px)); opacity: 0; }
+  50% { opacity: 0.6; }
+  100% { transform: translate(0, 0); opacity: 0; }
+}
+
+/* Nebula flash on unlock */
+@keyframes nebula-flash {
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Nebula reveal for content fade-in */
+@keyframes nebula-reveal {
+  0% { opacity: 0; transform: scale(0.95); filter: blur(8px); }
+  100% { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+
