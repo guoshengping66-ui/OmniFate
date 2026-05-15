@@ -5,6 +5,7 @@ import { Sparkles, Share2, RotateCcw, Zap } from "lucide-react"
 import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"
 import { api } from "@/lib/api"
+import Link from "next/link"
 
 interface DivinationResult {
   id: string
@@ -271,6 +272,21 @@ export function CelestialOracle() {
                 <div className="flex items-center justify-center gap-2 text-xs text-white/30 mb-4">
                   <Zap size={12} className="text-gold/50" />
                   <span>消耗 {result.stardust_cost} 星尘 · 余额 {result.balance_after}</span>
+                </div>
+              )}
+
+              {/* Low balance prompt */}
+              {!result.is_free && result.balance_after < 10 && (
+                <div className="bg-gold/5 border border-gold/20 rounded-xl p-3 mb-4 text-center">
+                  <p className="text-gold/70 text-xs">
+                    星尘能量即将耗尽，邀请好友可获取 20 颗星尘
+                  </p>
+                  <Link
+                    href="/referral"
+                    className="text-gold text-xs font-medium mt-1 inline-block hover:underline"
+                  >
+                    前往邀请 →
+                  </Link>
                 </div>
               )}
 

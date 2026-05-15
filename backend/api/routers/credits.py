@@ -1,15 +1,18 @@
-"""星尘积分系统 API — 支持预扣/确认/回滚原子操作"""
-from datetime import datetime, timezone
+"""星尘积分系统 API — 支持预扣/确认/回滚原子操作 + 阈值监控"""
+import logging
+from datetime import datetime, timezone, date
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from sqlalchemy import select, func
+from sqlalchemy import select, func, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.session import get_db
 from database.models import User, CreditTransaction
 from auth.dependencies import get_current_user, require_user
+
+logger = logging.getLogger("credits")
 
 router = APIRouter()
 
@@ -162,6 +165,24 @@ async def deduct_stardust(
     )
     db.add(tx)
     await db.commit()
+
+    # ── 异常消费阈值监控 ──────────────────────────────────────────────────────
+    if not current_user.is_founder:
+        today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+        daily_result = await db.execute(
+            select(func.coalesce(func.sum(func.abs(CreditTransaction.amount)), 0)).where(
+                and_(
+                    CreditTransaction.user_id == current_user.id,
+                    CreditTransaction.amount < 0,
+                    CreditTransaction.created_at >= today_start,
+                )
+            )
+        )
+        daily_consumed = daily_result.scalar() or 0
+        if daily_consumed > 200:
+            logger.warning(
+                f"[THRESHOLD] 用户 {current_user.id} 今日消耗 {daily_consumed} 星尘，超过阈值 200"
+            )
 
     return {
         "transaction_id": tx.id,
