@@ -195,6 +195,10 @@ async def run_full_analysis(state: SystemState) -> SystemState:
             from agents.state import WorkerOutput
             result = WorkerOutput(agent_id=agent_id, error=str(e))
         worker_outputs[agent_id] = result
+        # Immediately assign to state so speculative master sees the data
+        attr = f"{agent_id}_output"
+        if hasattr(state, attr):
+            setattr(state, attr, result)
         worker_events[agent_id].set()
         # Update progress
         _completed_workers += 1
