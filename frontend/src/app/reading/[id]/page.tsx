@@ -150,7 +150,9 @@ export default function ReadingPage() {
       if (d.status === "done" || d.status === "chat") return
 
       // Connect to SSE stream for progressive updates
+      let sseConnected = false
       streamSession(id, (event: SSEEvent) => {
+        sseConnected = true
         if (cancelled) return
         if (event.type === "phase" && event.phase) {
           setSsePhase(event.phase)
@@ -177,7 +179,25 @@ export default function ReadingPage() {
           } : prev)
         }
       }).catch(() => {
-        // SSE failed — data already loaded via getSession, polling handled by runAnalysis
+        // SSE failed — fall back to polling
+      }).then(() => {
+        // If SSE didn't connect or failed, start polling as fallback
+        if (!sseConnected && !cancelled) {
+          const pollInterval = setInterval(async () => {
+            if (cancelled) { clearInterval(pollInterval); return }
+            try {
+              const fresh = await getSession(id)
+              if (fresh.status === "done" || fresh.status === "chat") {
+                setData(fresh)
+                setIsUnlocked(fresh.is_detail_unlocked)
+                clearInterval(pollInterval)
+              } else {
+                // Update partial data
+                setData(prev => prev ? { ...prev, ...fresh } : fresh)
+              }
+            } catch { /* ignore */ }
+          }, 3000)
+        }
       })
     }).catch(() => {
       if (!cancelled) {

@@ -303,7 +303,13 @@ async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
                 reading.astrology_report = state.astrology_output.report if state.astrology_output else ""
                 reading.tarot_report = state.tarot_output.report if state.tarot_output else ""
                 reading.bazi_report = state.bazi_output.report if state.bazi_output else ""
+                reading.qimen_report = state.qimen_output.report if state.qimen_output else ""
+                reading.ziwei_report = state.ziwei_output.report if state.ziwei_output else ""
+                reading.palm_report = state.palm_output.report if state.palm_output and state.palm_output.report != "No palm data provided. Palm analysis skipped." else None
                 reading.face_analysis_text = state.face_output.report if state.face_output and state.face_output.report != "No facial image provided. Face analysis skipped." else None
+                reading.dimension_scores = dict(state.dimension_scores) if state.dimension_scores else None
+                reading.computed_tags = list(state.computed_tags) if state.computed_tags else None
+                reading.recommended_product_ids = list(state.recommended_product_ids) if state.recommended_product_ids else None
                 reading.completed_at = datetime.now(timezone.utc)
                 await db.commit()
                 print(f"[BG] Persisted reading {state.session_id} to DB")
@@ -357,7 +363,13 @@ async def _run_analysis_inline(state: SystemState) -> SystemState:
                 reading.astrology_report = state.astrology_output.report if state.astrology_output else ""
                 reading.tarot_report = state.tarot_output.report if state.tarot_output else ""
                 reading.bazi_report = state.bazi_output.report if state.bazi_output else ""
+                reading.qimen_report = state.qimen_output.report if state.qimen_output else ""
+                reading.ziwei_report = state.ziwei_output.report if state.ziwei_output else ""
+                reading.palm_report = state.palm_output.report if state.palm_output and state.palm_output.report != "No palm data provided. Palm analysis skipped." else None
                 reading.face_analysis_text = state.face_output.report if state.face_output and state.face_output.report != "No facial image provided. Face analysis skipped." else None
+                reading.dimension_scores = dict(state.dimension_scores) if state.dimension_scores else None
+                reading.computed_tags = list(state.computed_tags) if state.computed_tags else None
+                reading.recommended_product_ids = list(state.recommended_product_ids) if state.recommended_product_ids else None
                 reading.completed_at = datetime.now(timezone.utc)
                 await db.commit()
     except Exception as e:
@@ -440,13 +452,13 @@ async def get_session(
                 astrology=_worker_from_report("astrology", reading.astrology_report),
                 tarot=_worker_from_report("tarot", reading.tarot_report),
                 bazi=_worker_from_report("bazi", reading.bazi_report),
-                qimen=_empty_worker("qimen"),
-                ziwei=_empty_worker("ziwei"),
+                qimen=_worker_from_report("qimen", reading.qimen_report),
+                ziwei=_worker_from_report("ziwei", reading.ziwei_report),
                 face=_worker_from_report("face", reading.face_analysis_text),
-                palm=_empty_worker("palm"),
+                palm=_worker_from_report("palm", reading.palm_report),
                 recommended_product_ids=reading.recommended_product_ids or [],
                 computed_tags=reading.computed_tags or [],
-                dimension_scores={},
+                dimension_scores=reading.dimension_scores or {},
                 errors=[reading.error_message] if reading.error_message else [],
             )
     except HTTPException:
@@ -1293,6 +1305,184 @@ async def get_event_detail(
         raise
     except Exception as exc:
         raise HTTPException(status_code=500, detail="获取事件详情失败，请稍后重试")
+
+
+# ─── Daily Fortune (Personalized) ───────────────────────────────────────────
+
+class DailyFortuneResponse(BaseModel):
+    date: str
+    greeting: str
+    overall_score: int
+    wealth_fortune: int
+    career_fortune: int
+    love_fortune: int
+    health_fortune: int
+    lucky_color: str
+    lucky_number: int
+    advice: str
+    warning: str
+    personalized: bool = False  # 是否基于用户命盘数据个性化
+
+
+@router.get("/daily-fortune")
+async def get_daily_fortune(
+    birth_year: Optional[int] = Query(None, ge=1920, le=2026),
+    birth_month: Optional[int] = Query(None, ge=1, le=12),
+    birth_day: Optional[int] = Query(None, ge=1, le=31),
+    birth_hour: Optional[int] = Query(None, ge=0, le=23),
+):
+    """
+    今日运势 — 基于用户出生信息个性化。
+    无出生信息时返回基于日期的通用运势。
+    """
+    from calculators.bazi_calculator import TIANGAN, DIZHI, TIANGAN_WUXING, DIZHI_WUXING, BaziCalculator
+
+    today = date.today()
+    seed = today.year * 10000 + today.month * 100 + today.day
+
+    def _hash(n: int) -> float:
+        import math
+        x = math.sin(seed * 9301 + n * 49297) * 49297
+        return x - math.floor(x)
+
+    def _score(base: float, variance: float, n: int) -> int:
+        return max(1, min(10, round(base + (_hash(n) - 0.5) * variance)))
+
+    # 通用运势（无用户数据时）
+    overall = _score(6, 4, 0)
+    wealth = _score(5, 5, 1)
+    career = _score(6, 4, 2)
+    love = _score(5, 5, 3)
+    health = _score(6, 3, 4)
+    personalized = False
+
+    if birth_year and birth_month and birth_day and birth_hour is not None:
+        personalized = True
+        try:
+            calc = BaziCalculator(birth_year, birth_month, birth_day, birth_hour, 0)
+            result = calc.calculate()
+            dm_element = result.day_master_element  # 用户日主五行
+
+            # 今日天干地支
+            today_lunar = Solar.fromYmd(today.year, today.month, today.day).getLunar()
+            today_tg = today_lunar.getDayGan()
+            today_dz = today_lunar.getDayZhi()
+            today_element = TIANGAN_WUXING.get(today_tg, "土")
+
+            # 五行生克关系
+            SHENG = {"木": "火", "火": "土", "土": "金", "金": "水", "水": "木"}  # 我生
+            KE = {"木": "土", "土": "水", "水": "火", "火": "金", "金": "木"}  # 我克
+            SHENG_ME = {v: k for k, v in SHENG.items()}  # 生我
+            KE_ME = {v: k for k, v in KE.items()}  # 克我
+
+            # 今日五行对用户日主的影响
+            if today_element == dm_element:
+                # 比肩 — 同类，平稳
+                mod = 0
+            elif SHENG.get(dm_element) == today_element:
+                # 我生 — 泄气，略低
+                mod = -1
+            elif KE.get(dm_element) == today_element:
+                # 我克 — 得财，财运好
+                mod = 1
+            elif SHENG_ME.get(dm_element) == today_element:
+                # 生我 — 有助力，整体好
+                mod = 1
+            elif KE_ME.get(dm_element) == today_element:
+                # 克我 — 压力，需注意
+                mod = -1
+            else:
+                mod = 0
+
+            # 应用五行调制
+            overall = max(1, min(10, overall + mod))
+            wealth = max(1, min(10, wealth + (1 if KE.get(dm_element) == today_element else mod)))
+            career = max(1, min(10, career + (1 if SHENG_ME.get(dm_element) == today_element else mod)))
+            love = max(1, min(10, love + (0 if mod > 0 else -1 if mod < 0 else 0)))
+            health = max(1, min(10, health + (1 if today_element == dm_element else 0)))
+
+            # 地支影响 — 三合/六合加分
+            dz_element = DIZHI_WUXING.get(today_dz, "土")
+            if dz_element == dm_element:
+                overall = min(10, overall + 1)
+                health = min(10, health + 1)
+
+        except Exception:
+            pass  # 降级为通用运势
+
+    # 幸运色 — 基于日主五行
+    WUXING_COLORS = {
+        "木": [("翠绿", "#52B788"), ("青色", "#2ECC71")],
+        "火": [("红色", "#E63946"), ("橙色", "#F97316")],
+        "土": [("金色", "#C9A84C"), ("黄色", "#EAB308")],
+        "金": [("白色", "#E8E8E8"), ("银色", "#94A3B8")],
+        "水": [("蓝色", "#2980B9"), ("黑色", "#333333")],
+    }
+    if personalized:
+        try:
+            calc = BaziCalculator(birth_year, birth_month, birth_day, birth_hour, 0)
+            dm = calc.calculate().day_master_element
+            colors = WUXING_COLORS.get(dm, [("金色", "#C9A84C")])
+            lucky_color_name, lucky_color_hex = colors[int(_hash(100) * len(colors))]
+        except Exception:
+            lucky_color_name, lucky_color_hex = "金色", "#C9A84C"
+    else:
+        all_colors = [
+            ("金色", "#C9A84C"), ("红色", "#E63946"), ("蓝色", "#2980B9"),
+            ("绿色", "#52B788"), ("紫色", "#9B59B6"), ("白色", "#E8E8E8"),
+            ("黑色", "#333333"), ("粉色", "#F472B6"), ("橙色", "#F97316"),
+        ]
+        idx = int(_hash(100) * len(all_colors))
+        lucky_color_name, lucky_color_hex = all_colors[idx]
+
+    lucky_number = int(_hash(200) * 9) + 1
+
+    # 运势建议
+    ADVICES = [
+        "今日适合制定长期规划，把灵感转化为行动步骤。",
+        "主动社交能带来意外惊喜，不妨联系一位老朋友。",
+        "学习新技能的好时机，专注力处于高峰期。",
+        "整理财务状况，检查近期支出是否有优化空间。",
+        "适度运动能显著提升今日效率和心情。",
+        "创意工作者今日灵感旺盛，适合突破性创作。",
+        "与家人共度时光能带来深层的情感满足。",
+        "处理积压的邮件和消息，保持沟通畅通。",
+        "尝试一种新的饮食或烹饪方式，给味蕾换个心情。",
+        "适合安静独处，深度思考能带来重要洞见。",
+    ]
+    WARNINGS = [
+        "避免在情绪激动时做重要决定，给自己10分钟冷静期。",
+        "交通出行注意安全，预留充足时间避免匆忙。",
+        "不宜借贷或担保，今日财运需要保守策略。",
+        "小心言辞，无心之语可能被误解，沟通前多想想。",
+        "避免熬夜，今日身体需要充分休息来恢复能量。",
+        "网络购物容易冲动消费，把商品加入购物车明天再决定。",
+        "不宜签署重要合同，细节容易被忽略。",
+        "远离是非之地，今日容易卷入不必要的纷争。",
+        "饮食注意清淡，肠胃较为敏感。",
+        "减少屏幕使用时间，让眼睛和大脑得到休息。",
+    ]
+
+    advice = ADVICES[int(_hash(300) * len(ADVICES))]
+    warning = WARNINGS[int(_hash(400) * len(WARNINGS))]
+
+    weekdays = ["一", "二", "三", "四", "五", "六", "日"]
+    weekday = weekdays[today.weekday()]
+
+    return DailyFortuneResponse(
+        date=f"{today.month}月{today.day}日 星期{weekday}",
+        greeting=f"{today.month}月{today.day}日运势",
+        overall_score=overall,
+        wealth_fortune=wealth,
+        career_fortune=career,
+        love_fortune=love,
+        health_fortune=health,
+        lucky_color=lucky_color_name,
+        lucky_number=lucky_number,
+        advice=advice,
+        warning=warning,
+        personalized=personalized,
+    )
 
 
 # ─── Daily Almanac Cache ─────────────────────────────────────────────────────

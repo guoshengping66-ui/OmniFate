@@ -13,9 +13,11 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import { DailyFortune } from "@/components/reading/DailyFortune"
 import { CountUpNumber } from "@/components/ui/CountUpNumber"
 import { AccordionItem } from "@/components/ui/AccordionItem"
+import { useAuth } from "@/contexts/AuthContext"
 
 export default function HomePage() {
   const { t, locale } = useLanguage()
+  const { user } = useAuth()
 
   const AGENTS = [
     {
@@ -533,7 +535,7 @@ export default function HomePage() {
             </div>
           </ScrollReveal>
           <ScrollReveal delay={0.2}>
-            <DailyFortune />
+            <DailyFortune user={user} />
           </ScrollReveal>
         </div>
       </section>

@@ -12,13 +12,13 @@ from xml.etree import ElementTree as ET
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Query
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.session import get_db
 from database.models import (
     Reading, User, Order, OrderItem, EventLog, Product, UserAddress,
-    PaymentStatus, OrderStatus,
+    FounderVote, PaymentStatus, OrderStatus,
 )
 from auth.dependencies import get_current_user, require_user
 from config import get_settings
@@ -897,3 +897,161 @@ async def mock_cancel_subscription(
         "premium_expires_at": current_user.premium_expires_at.isoformat() if current_user.premium_expires_at else None,
         "message": "订阅已取消，当前周期结束后恢复免费",
     }
+
+
+# ─── Founder Seats ──────────────────────────────────────────────────────────
+
+FOUNDER_TOTAL_DOMESTIC = 100
+FOUNDER_TOTAL_OVERSEAS = 100
+
+
+class FounderVoteRequest(BaseModel):
+    feature_id: str
+
+
+@router.get("/founder/status")
+async def get_founder_status(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_user),
+):
+    """获取创始席位状态 — 基于真实用户数据"""
+
+    # Count real founder seats
+    domestic_result = await db.execute(
+        select(func.count()).select_from(User).where(
+            User.is_founder == True,
+            User.founder_region == "domestic",
+        )
+    )
+    domestic_sold = domestic_result.scalar() or 0
+
+    overseas_result = await db.execute(
+        select(func.count()).select_from(User).where(
+            User.is_founder == True,
+            User.founder_region == "overseas",
+        )
+    )
+    overseas_sold = overseas_result.scalar() or 0
+
+    total_seats = FOUNDER_TOTAL_DOMESTIC + FOUNDER_TOTAL_OVERSEAS
+    sold_seats = domestic_sold + overseas_sold
+    remaining_seats = total_seats - sold_seats
+
+    return {
+        "total_seats": total_seats,
+        "sold_seats": sold_seats,
+        "remaining_seats": remaining_seats,
+        "domestic_total": FOUNDER_TOTAL_DOMESTIC,
+        "domestic_sold": domestic_sold,
+        "overseas_total": FOUNDER_TOTAL_OVERSEAS,
+        "overseas_sold": overseas_sold,
+        "is_founder": current_user.is_founder,
+        "seat_no": current_user.founder_seat_no,
+        "seat_region": current_user.founder_region,
+    }
+
+
+@router.get("/founder/seats")
+async def list_founder_seats(
+    db: AsyncSession = Depends(get_db),
+):
+    """获取所有已占用的创始席位编号（用于展示席位墙）"""
+    result = await db.execute(
+        select(User.founder_seat_no, User.founder_region, User.display_name, User.created_at)
+        .where(User.is_founder == True, User.founder_seat_no.isnot(None))
+        .order_by(User.founder_seat_no)
+    )
+    seats = []
+    for row in result.all():
+        seats.append({
+            "seat_no": row[0],
+            "region": row[1],
+            "name": row[2] or "匿名",
+            "activated_at": row[3].isoformat() if row[3] else None,
+        })
+    return {"seats": seats}
+
+
+@router.post("/founder/activate")
+async def activate_founder_seat(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_user),
+):
+    """激活创始席位"""
+    if current_user.is_founder:
+        raise HTTPException(status_code=400, detail="您已拥有创始席位")
+
+    # Count current founders to determine next seat number
+    domestic_count_result = await db.execute(
+        select(func.count()).select_from(User).where(
+            User.is_founder == True,
+            User.founder_region == "domestic",
+        )
+    )
+    domestic_count = domestic_count_result.scalar() or 0
+
+    # Determine region (simplified: first 100 are domestic, rest overseas)
+    if domestic_count < FOUNDER_TOTAL_DOMESTIC:
+        region = "domestic"
+        seat_no = domestic_count + 1
+    else:
+        overseas_count_result = await db.execute(
+            select(func.count()).select_from(User).where(
+                User.is_founder == True,
+                User.founder_region == "overseas",
+            )
+        )
+        overseas_count = overseas_count_result.scalar() or 0
+        if overseas_count >= FOUNDER_TOTAL_OVERSEAS:
+            raise HTTPException(status_code=400, detail="创始席位已售罄")
+        region = "overseas"
+        seat_no = FOUNDER_TOTAL_DOMESTIC + overseas_count + 1
+
+    # Activate
+    current_user.is_founder = True
+    current_user.founder_seat_no = seat_no
+    current_user.founder_region = region
+    current_user.founder_activated_at = datetime.now(timezone.utc)
+    current_user.subscription_tier = "founder_lifetime"
+    current_user.is_premium = True
+    current_user.premium_expires_at = None  # Lifetime
+    current_user.stardust_balance += 500  # Initial grant
+    current_user.stardust_lifetime_earned += 500
+    await db.commit()
+
+    return {
+        "status": "activated",
+        "seat_no": seat_no,
+        "region": region,
+        "message": f"恭喜！您已锁定创始席位 #{seat_no}",
+    }
+
+
+@router.post("/founder/vote")
+async def vote_feature(
+    req: FounderVoteRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_user),
+):
+    """创始席位产品路线图投票"""
+    if not current_user.is_founder:
+        raise HTTPException(status_code=403, detail="仅创始会员可投票")
+
+    # Check if already voted
+    existing = await db.execute(
+        select(FounderVote).where(
+            FounderVote.user_id == current_user.id,
+            FounderVote.feature_id == req.feature_id,
+        )
+    )
+    if existing.scalar_one_or_none():
+        raise HTTPException(status_code=400, detail="您已为该功能投过票")
+
+    vote = FounderVote(
+        user_id=current_user.id,
+        feature_id=req.feature_id,
+    )
+    db.add(vote)
+    await db.commit()
+
+    return {"status": "voted", "feature_id": req.feature_id}

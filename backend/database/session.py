@@ -65,8 +65,34 @@ async def _ensure_tables():
             await conn.run_sync(Base.metadata.create_all)
         _tables_created = True
         print("[DB] Tables ensured")
+        # Auto-migrate: add missing columns to readings table
+        if _is_sqlite:
+            await _migrate_readings_columns()
     except Exception as e:
         print(f"[DB] Failed to ensure tables: {e}")
+
+
+async def _migrate_readings_columns():
+    """Add missing columns to readings table for SQLite (no-op if column exists)."""
+    new_columns = [
+        ("qimen_report", "TEXT"),
+        ("ziwei_report", "TEXT"),
+        ("palm_report", "TEXT"),
+        ("dimension_scores", "JSON"),
+    ]
+    try:
+        async with AsyncSessionLocal() as db:
+            for col_name, col_type in new_columns:
+                try:
+                    await db.execute(text(
+                        f"ALTER TABLE readings ADD COLUMN {col_name} {col_type}"
+                    ))
+                    print(f"[DB] Added column readings.{col_name}")
+                except Exception:
+                    pass  # Column already exists
+            await db.commit()
+    except Exception as e:
+        print(f"[DB] Migration warning: {e}")
 
 
 async def get_db():

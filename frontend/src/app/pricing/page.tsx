@@ -18,7 +18,8 @@ export default function PricingPage() {
   const { user, refreshUser } = useAuth()
   const { region, switchRegion, isLoaded } = useRegion()
   const [selectedTier, setSelectedTier] = useState<string | null>(null)
-  const [founderSoldPercent, setFounderSoldPercent] = useState(67)
+  const [founderSoldPercent, setFounderSoldPercent] = useState(0)
+  const [founderRemaining, setFounderRemaining] = useState<number | undefined>(undefined)
   const [showTerms, setShowTerms] = useState(false)
 
   // Fetch founder seat status
@@ -27,8 +28,9 @@ export default function PricingPage() {
     import("@/lib/api").then(({ api }) => {
       api.get("/api/payments/founder/status")
         .then(r => {
-          const { sold_seats, total_seats } = r.data
-          setFounderSoldPercent(Math.round((sold_seats / total_seats) * 100))
+          const { sold_seats, total_seats, remaining_seats } = r.data
+          setFounderSoldPercent(total_seats > 0 ? Math.round((sold_seats / total_seats) * 100) : 0)
+          setFounderRemaining(remaining_seats)
         })
         .catch(() => {})
     })
@@ -139,6 +141,7 @@ export default function PricingPage() {
               tier={tier}
               region={region}
               founderSoldPercent={tier.id === "founder_lifetime" ? founderSoldPercent : undefined}
+              founderRemaining={tier.id === "founder_lifetime" ? founderRemaining : undefined}
               onSelect={handleSelect}
             />
           ))}

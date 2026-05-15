@@ -1,8 +1,9 @@
 "use client"
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Sparkles, TrendingUp, TrendingDown, Minus, Heart, Briefcase, Wallet, Activity, AlertTriangle, Palette, Hash, ArrowRight } from "lucide-react"
+import { Sparkles, TrendingUp, TrendingDown, Minus, Heart, Briefcase, Wallet, Activity, AlertTriangle, Palette, Hash, ArrowRight, User } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { api } from "@/lib/api"
 
 interface FortuneData {
   overall: number
@@ -11,11 +12,27 @@ interface FortuneData {
   love: number
   health: number
   lucky_color_idx: number
+  lucky_color_name?: string
   lucky_number: number
   advice_idx: number
   warning_idx: number
+  personalized?: boolean
 }
 
+interface PersonalizedFortune {
+  overall_score: number
+  wealth_fortune: number
+  career_fortune: number
+  love_fortune: number
+  health_fortune: number
+  lucky_color: string
+  lucky_number: number
+  advice: string
+  warning: string
+  personalized: boolean
+}
+
+// Client-side pseudo-random fortune (for non-logged-in users)
 function generateFortune(): FortuneData {
   const today = new Date()
   const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate()
@@ -47,6 +64,15 @@ const COLOR_KEYS = [
 
 const COLOR_HEX = ["#C9A84C", "#E63946", "#2980B9", "#52B788", "#9B59B6", "#E8E8E8", "#333333", "#F472B6", "#F97316"]
 
+// Backend personalized color mapping
+const COLOR_NAME_HEX: Record<string, string> = {
+  "金色": "#C9A84C", "红色": "#E63946", "蓝色": "#2980B9",
+  "绿色": "#52B788", "翠绿": "#52B788", "青色": "#2ECC71",
+  "紫色": "#9B59B6", "白色": "#E8E8E8", "黑色": "#333333",
+  "粉色": "#F472B6", "橙色": "#F97316", "黄色": "#EAB308",
+  "银色": "#94A3B8",
+}
+
 const ADVICE_KEYS = [
   "fortune.advice.1", "fortune.advice.2", "fortune.advice.3",
   "fortune.advice.4", "fortune.advice.5", "fortune.advice.6",
@@ -60,6 +86,61 @@ const WARNING_KEYS = [
   "fortune.warning.7", "fortune.warning.8", "fortune.warning.9",
   "fortune.warning.10",
 ] as const
+
+// Localized advice/warning arrays for non-personalized mode
+const ADVICE_LOCAL: Record<string, string[]> = {
+  zh: [
+    "今日适合制定长期规划，把灵感转化为行动步骤。",
+    "主动社交能带来意外惊喜，不妨联系一位老朋友。",
+    "学习新技能的好时机，专注力处于高峰期。",
+    "整理财务状况，检查近期支出是否有优化空间。",
+    "适度运动能显著提升今日效率和心情。",
+    "创意工作者今日灵感旺盛，适合突破性创作。",
+    "与家人共度时光能带来深层的情感满足。",
+    "处理积压的邮件和消息，保持沟通畅通。",
+    "尝试一种新的饮食或烹饪方式，给味蕾换个心情。",
+    "适合安静独处，深度思考能带来重要洞见。",
+  ],
+  en: [
+    "Good day for long-term planning — turn ideas into action steps.",
+    "Proactive networking brings surprises — reach out to an old friend.",
+    "Peak focus today — ideal for learning a new skill.",
+    "Review your finances and look for optimization opportunities.",
+    "Moderate exercise boosts productivity and mood significantly.",
+    "Creatives have strong inspiration today — perfect for breakthrough work.",
+    "Quality time with family brings deep emotional fulfillment.",
+    "Clear your inbox and messages — keep communication flowing.",
+    "Try a new recipe or cuisine to refresh your senses.",
+    "Solitude suits you — deep thinking yields important insights.",
+  ],
+}
+
+const WARNING_LOCAL: Record<string, string[]> = {
+  zh: [
+    "避免在情绪激动时做重要决定，给自己10分钟冷静期。",
+    "交通出行注意安全，预留充足时间避免匆忙。",
+    "不宜借贷或担保，今日财运需要保守策略。",
+    "小心言辞，无心之语可能被误解，沟通前多想想。",
+    "避免熬夜，今日身体需要充分休息来恢复能量。",
+    "网络购物容易冲动消费，把商品加入购物车明天再决定。",
+    "不宜签署重要合同，细节容易被忽略。",
+    "远离是非之地，今日容易卷入不必要的纷争。",
+    "饮食注意清淡，肠胃较为敏感。",
+    "减少屏幕使用时间，让眼睛和大脑得到休息。",
+  ],
+  en: [
+    "Avoid important decisions when emotional — give yourself 10 minutes to cool down.",
+    "Travel safely — leave extra time to avoid rushing.",
+    "Lending or guaranteeing loans is inadvisable today — be conservative.",
+    "Watch your words — unintended remarks may be misunderstood.",
+    "Avoid staying up late — your body needs proper rest today.",
+    "Impulse buying risk is high — add to cart and decide tomorrow.",
+    "Signing important contracts is not recommended — details may be overlooked.",
+    "Stay away from drama — you may get pulled into unnecessary conflicts.",
+    "Eat light — your digestion is sensitive today.",
+    "Reduce screen time to give your eyes and brain a break.",
+  ],
+}
 
 function getScoreColor(score: number): string {
   if (score >= 8) return "text-green-400"
@@ -152,11 +233,60 @@ function DimBar({
   )
 }
 
-export function DailyFortune() {
+interface DailyFortuneProps {
+  user?: {
+    id?: string
+    birth_profiles?: {
+      birth_year: number
+      birth_month: number
+      birth_day: number
+      birth_hour: number
+    }[]
+  } | null
+}
+
+export function DailyFortune({ user }: DailyFortuneProps) {
   const { locale, t } = useLanguage()
   const [fortune, setFortune] = useState<FortuneData | null>(null)
+  const [personalizedText, setPersonalizedText] = useState<PersonalizedFortune | null>(null)
 
-  useEffect(() => { setFortune(generateFortune()) }, [])
+  useEffect(() => {
+    // Try to get personalized fortune from backend
+    const birthProfile = user?.birth_profiles?.[0]
+    if (birthProfile) {
+      const params = new URLSearchParams({
+        birth_year: String(birthProfile.birth_year),
+        birth_month: String(birthProfile.birth_month),
+        birth_day: String(birthProfile.birth_day),
+        birth_hour: String(birthProfile.birth_hour),
+      })
+      api.get<PersonalizedFortune & { overall_score: number }>(`/api/readings/daily-fortune?${params}`)
+        .then(res => {
+          const data = res.data
+          if (data && data.personalized) {
+            setPersonalizedText(data)
+            setFortune({
+              overall: data.overall_score,
+              wealth: data.wealth_fortune,
+              career: data.career_fortune,
+              love: data.love_fortune,
+              health: data.health_fortune,
+              lucky_color_idx: 0,
+              lucky_color_name: data.lucky_color,
+              lucky_number: data.lucky_number,
+              advice_idx: -1,
+              warning_idx: -1,
+              personalized: true,
+            })
+          } else {
+            setFortune(generateFortune())
+          }
+        })
+        .catch(() => setFortune(generateFortune()))
+    } else {
+      setFortune(generateFortune())
+    }
+  }, [user])
 
   if (!fortune) return null
 
@@ -175,6 +305,30 @@ export function DailyFortune() {
     { icon: <Activity size={14} />, key: "fortune.health" as const, score: fortune.health, color: "#2980B9" },
   ]
 
+  // Get lucky color display info
+  let colorHex: string
+  let colorName: string
+  if (fortune.personalized && fortune.lucky_color_name) {
+    colorHex = COLOR_NAME_HEX[fortune.lucky_color_name] || "#C9A84C"
+    colorName = fortune.lucky_color_name
+  } else {
+    colorHex = COLOR_HEX[fortune.lucky_color_idx]
+    colorName = t(COLOR_KEYS[fortune.lucky_color_idx])
+  }
+
+  // Get advice/warning text
+  let adviceText: string
+  let warningText: string
+  if (fortune.personalized && personalizedText) {
+    adviceText = personalizedText.advice
+    warningText = personalizedText.warning
+  } else {
+    const advices = ADVICE_LOCAL[locale] || ADVICE_LOCAL.zh
+    const warnings = WARNING_LOCAL[locale] || WARNING_LOCAL.zh
+    adviceText = advices[fortune.advice_idx] || advices[0]
+    warningText = warnings[fortune.warning_idx] || warnings[0]
+  }
+
   return (
     <div className="card-glass-elevated overflow-hidden">
       {/* ─── Top Section: Gauge + Dimension Bars ─── */}
@@ -188,6 +342,12 @@ export function DailyFortune() {
                 {t("fortune.todayLevel")}: {t(getScoreLabelKey(fortune.overall))}
               </span>
               <p className="text-white/25 text-xs mt-1">{dateStr}</p>
+              {fortune.personalized && (
+                <p className="text-gold/50 text-[10px] mt-1 flex items-center justify-center gap-1">
+                  <User size={10} />
+                  基于您的命盘数据
+                </p>
+              )}
             </div>
           </div>
 
@@ -220,10 +380,10 @@ export function DailyFortune() {
             <div className="flex items-center gap-2">
               <span
                 className="w-5 h-5 rounded-full border border-white/20 flex-shrink-0"
-                style={{ background: COLOR_HEX[fortune.lucky_color_idx] }}
+                style={{ background: colorHex }}
               />
               <span className="text-gold font-medium text-sm">
-                {t(COLOR_KEYS[fortune.lucky_color_idx])}
+                {colorName}
               </span>
             </div>
           </div>
@@ -248,7 +408,7 @@ export function DailyFortune() {
           </div>
           <div>
             <p className="text-gold/80 text-xs font-medium mb-0.5">{t("fortune.advice")}</p>
-            <p className="text-white/50 text-sm leading-relaxed">{t(ADVICE_KEYS[fortune.advice_idx])}</p>
+            <p className="text-white/50 text-sm leading-relaxed">{adviceText}</p>
           </div>
         </div>
 
@@ -259,7 +419,7 @@ export function DailyFortune() {
           </div>
           <div>
             <p className="text-red-400/70 text-xs font-medium mb-0.5">{t("fortune.warning")}</p>
-            <p className="text-white/50 text-sm leading-relaxed">{t(WARNING_KEYS[fortune.warning_idx])}</p>
+            <p className="text-white/50 text-sm leading-relaxed">{warningText}</p>
           </div>
         </div>
       </div>

@@ -1,7 +1,7 @@
 "use client"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Loader2, Crown, Check, Users, ArrowLeft } from "lucide-react"
+import { Loader2, Crown, Check, Users, ArrowLeft, MapPin, Star } from "lucide-react"
 import Link from "next/link"
 import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"
@@ -13,14 +13,27 @@ interface FounderStatus {
   total_seats: number
   sold_seats: number
   remaining_seats: number
+  domestic_total: number
+  domestic_sold: number
+  overseas_total: number
+  overseas_sold: number
   is_founder: boolean
   seat_no: number | null
+  seat_region: string | null
+}
+
+interface SeatInfo {
+  seat_no: number
+  region: string
+  name: string
+  activated_at: string | null
 }
 
 export default function FounderPage() {
   const router = useRouter()
   const { user, loading: authLoading, refreshUser } = useAuth()
   const [status, setStatus] = useState<FounderStatus | null>(null)
+  const [seats, setSeats] = useState<SeatInfo[]>([])
   const [loading, setLoading] = useState(true)
   const [activating, setActivating] = useState(false)
   const [selectedFeature, setSelectedFeature] = useState<string | null>(null)
@@ -35,26 +48,46 @@ export default function FounderPage() {
       return
     }
 
-    api.get("/api/payments/founder/status")
-      .then(r => setStatus(r.data))
-      .catch(() => setStatus({
-        total_seats: 200,
-        sold_seats: 0,
-        remaining_seats: 200,
-        is_founder: user.is_founder || false,
-        seat_no: user.founder_seat_no || null,
-      }))
+    // Fetch real founder status and seat list
+    Promise.all([
+      api.get("/api/payments/founder/status").then(r => r.data).catch(() => null),
+      api.get("/api/payments/founder/seats").then(r => r.data?.seats || []).catch(() => []),
+    ])
+      .then(([statusData, seatData]) => {
+        if (statusData) {
+          setStatus(statusData)
+        } else {
+          setStatus({
+            total_seats: 200,
+            sold_seats: 0,
+            remaining_seats: 200,
+            domestic_total: 100,
+            domestic_sold: 0,
+            overseas_total: 100,
+            overseas_sold: 0,
+            is_founder: user.is_founder || false,
+            seat_no: user.founder_seat_no || null,
+            seat_region: null,
+          })
+        }
+        setSeats(seatData)
+      })
       .finally(() => setLoading(false))
   }, [user, authLoading, router])
 
   const handleActivate = async () => {
     setActivating(true)
     try {
-      await api.post("/api/payments/founder/activate")
-      toast.success("恭喜！您已成功锁定创始席位")
+      const result = await api.post("/api/payments/founder/activate")
+      toast.success(result.data.message || "恭喜！您已成功锁定创始席位")
       await refreshUser()
-      const newStatus = await api.get("/api/payments/founder/status").then(r => r.data)
+      // Re-fetch status and seats
+      const [newStatus, newSeats] = await Promise.all([
+        api.get("/api/payments/founder/status").then(r => r.data),
+        api.get("/api/payments/founder/seats").then(r => r.data?.seats || []),
+      ])
       setStatus(newStatus)
+      setSeats(newSeats)
     } catch (err: any) {
       toast.error(err.response?.data?.detail || "激活失败，请稍后重试")
     } finally {
@@ -107,14 +140,21 @@ export default function FounderPage() {
           </p>
         </div>
 
-        {/* Founder status */}
+        {/* Founder status — shows user's own seat */}
         {isFounder && seatNo && (
           <div className="card-glass p-6 mb-8 border-gold/30">
             <div className="flex items-center justify-center gap-4">
               <Crown size={24} className="text-gold" />
               <div>
                 <p className="text-gold font-serif text-lg">您已是创始会员</p>
-                <p className="text-white/50 text-sm">席位编号: #{seatNo}</p>
+                <p className="text-white/50 text-sm">
+                  席位编号: <span className="text-gold font-mono font-bold">#{String(seatNo).padStart(3, "0")}</span>
+                  {status?.seat_region && (
+                    <span className="ml-2 text-white/30">
+                      ({status.seat_region === "domestic" ? "国内" : "海外"})
+                    </span>
+                  )}
+                </p>
               </div>
             </div>
           </div>
@@ -142,6 +182,7 @@ export default function FounderPage() {
               <p className="text-white/40 text-sm">一次性终身</p>
               {status && (
                 <div className="mt-4">
+                  {/* Total progress */}
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <Users size={16} className="text-white/50" />
                     <span className="text-white/50 text-sm">
@@ -154,7 +195,20 @@ export default function FounderPage() {
                       style={{ width: `${(status.sold_seats / status.total_seats) * 100}%` }}
                     />
                   </div>
-                  <p className="text-gold text-sm mt-2">
+
+                  {/* Regional breakdown */}
+                  <div className="flex justify-between mt-3 text-[11px]">
+                    <span className="text-white/30">
+                      <MapPin size={10} className="inline mr-0.5" />
+                      国内 {status.domestic_sold}/{status.domestic_total}
+                    </span>
+                    <span className="text-white/30">
+                      <MapPin size={10} className="inline mr-0.5" />
+                      海外 {status.overseas_sold}/{status.overseas_total}
+                    </span>
+                  </div>
+
+                  <p className="text-gold text-sm mt-2 font-semibold">
                     仅剩 {status.remaining_seats} 席
                   </p>
                 </div>
@@ -180,6 +234,111 @@ export default function FounderPage() {
             )}
           </div>
         </div>
+
+        {/* ─── Seat Wall — All occupied seats with numbers ─── */}
+        {seats.length > 0 && (
+          <div className="card-glass p-6 mt-8">
+            <h2 className="font-serif text-xl text-gold mb-2">席位墙</h2>
+            <p className="text-white/40 text-sm mb-6">
+              每一个席位都是独一无二的编号，象征着与命盘智镜共同成长的承诺
+            </p>
+
+            {/* Domestic seats */}
+            <div className="mb-6">
+              <div className="flex items-center gap-2 mb-3">
+                <MapPin size={14} className="text-gold/60" />
+                <span className="text-white/50 text-xs tracking-wider uppercase">国内席位</span>
+                <div className="flex-1 h-px bg-white/10" />
+              </div>
+              <div className="grid grid-cols-5 sm:grid-cols-10 gap-2">
+                {Array.from({ length: 100 }, (_, i) => i + 1).map(no => {
+                  const seat = seats.find(s => s.seat_no === no)
+                  const isOccupied = !!seat
+                  const isUserSeat = seatNo === no
+                  return (
+                    <div
+                      key={no}
+                      className={`
+                        relative flex items-center justify-center rounded-lg py-2 text-xs font-mono
+                        transition-all duration-200
+                        ${isUserSeat
+                          ? "bg-gold/20 border-2 border-gold text-gold font-bold shadow-[0_0_12px_rgba(201,168,76,0.3)]"
+                          : isOccupied
+                            ? "bg-white/5 border border-white/10 text-white/40"
+                            : "bg-transparent border border-white/[0.03] text-white/10"
+                        }
+                      `}
+                      title={seat ? `${seat.name} · #${String(seat.seat_no).padStart(3, "0")}` : `#${String(no).padStart(3, "0")} — 空席`}
+                    >
+                      <span className="font-mono">{String(no).padStart(3, "0")}</span>
+                      {isOccupied && (
+                        <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-gold/60" />
+                      )}
+                      {isUserSeat && (
+                        <Star size={8} className="absolute -top-1 -left-1 text-gold fill-gold" />
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Overseas seats */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <MapPin size={14} className="text-gold/60" />
+                <span className="text-white/50 text-xs tracking-wider uppercase">海外席位</span>
+                <div className="flex-1 h-px bg-white/10" />
+              </div>
+              <div className="grid grid-cols-5 sm:grid-cols-10 gap-2">
+                {Array.from({ length: 100 }, (_, i) => i + 101).map(no => {
+                  const seat = seats.find(s => s.seat_no === no)
+                  const isOccupied = !!seat
+                  const isUserSeat = seatNo === no
+                  return (
+                    <div
+                      key={no}
+                      className={`
+                        relative flex items-center justify-center rounded-lg py-2 text-xs font-mono
+                        transition-all duration-200
+                        ${isUserSeat
+                          ? "bg-gold/20 border-2 border-gold text-gold font-bold shadow-[0_0_12px_rgba(201,168,76,0.3)]"
+                          : isOccupied
+                            ? "bg-white/5 border border-white/10 text-white/40"
+                            : "bg-transparent border border-white/[0.03] text-white/10"
+                        }
+                      `}
+                      title={seat ? `${seat.name} · #${String(seat.seat_no).padStart(3, "0")}` : `#${String(no).padStart(3, "0")} — 空席`}
+                    >
+                      <span className="font-mono">{String(no).padStart(3, "0")}</span>
+                      {isOccupied && (
+                        <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-gold/60" />
+                      )}
+                      {isUserSeat && (
+                        <Star size={8} className="absolute -top-1 -left-1 text-gold fill-gold" />
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Legend */}
+            <div className="flex items-center justify-center gap-6 mt-4 text-[10px] text-white/30">
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-gold/60" /> 已占
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-white/10 border border-white/20" /> 空席
+              </span>
+              {isFounder && (
+                <span className="flex items-center gap-1">
+                  <Star size={8} className="text-gold fill-gold" /> 您的席位
+                </span>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Founder voting (only for founders) */}
         {isFounder && (

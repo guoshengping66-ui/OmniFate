@@ -6,11 +6,12 @@ interface PricingCardProps {
   tier: PricingTier
   region: Region
   founderSoldPercent?: number
+  founderRemaining?: number
   isNewUser?: boolean
   onSelect?: (id: string) => void
 }
 
-export function PricingCard({ tier, region, founderSoldPercent = 67, isNewUser = false, onSelect }: PricingCardProps) {
+export function PricingCard({ tier, region, founderSoldPercent = 0, founderRemaining, isNewUser = false, onSelect }: PricingCardProps) {
   const isDomestic = region === "domestic"
   const priceDisplay = isDomestic ? tier.priceDisplay : tier.priceDisplayUsd
   const originalPrice = isDomestic ? tier.originalPriceCny : tier.originalPriceUsd
@@ -70,7 +71,7 @@ export function PricingCard({ tier, region, founderSoldPercent = 67, isNewUser =
           <div className="mb-6">
             <div className="flex justify-between text-xs text-gold/50 mb-2">
               <span>席位进度</span>
-              <span>{founderSoldPercent}% 已售</span>
+              <span>{founderSoldPercent > 0 ? `${founderSoldPercent}% 已售` : "加载中…"}</span>
             </div>
             <div className="w-full h-2 bg-gold/10 rounded-full overflow-hidden">
               <div
@@ -79,7 +80,7 @@ export function PricingCard({ tier, region, founderSoldPercent = 67, isNewUser =
               />
             </div>
             <p className="text-gold/60 text-xs mt-2 text-center">
-              仅剩 {founderLimit - Math.ceil(founderSoldPercent * founderLimit / 100)} 席
+              仅剩 {founderRemaining ?? founderLimit} 席
             </p>
           </div>
 
