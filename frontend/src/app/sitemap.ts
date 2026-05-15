@@ -19,6 +19,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/seo/face-reading`, lastModified: now, changeFrequency: "monthly" as const, priority: 0.9 },
     { url: `${BASE_URL}/events`, lastModified: now, changeFrequency: "monthly" as const, priority: 0.7 },
     { url: `${BASE_URL}/events/radar`, lastModified: now, changeFrequency: "daily" as const, priority: 0.8 },
+    { url: `${BASE_URL}/divination`, lastModified: now, changeFrequency: "daily" as const, priority: 0.9 },
     { url: `${BASE_URL}/trading`, lastModified: now, changeFrequency: "weekly" as const, priority: 0.7 },
     { url: `${BASE_URL}/referral`, lastModified: now, changeFrequency: "monthly" as const, priority: 0.7 },
     { url: `${BASE_URL}/almanac`, lastModified: now, changeFrequency: "daily" as const, priority: 0.7 },
