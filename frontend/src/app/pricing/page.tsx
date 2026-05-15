@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Crown, Zap, ArrowRight, Sparkles, HelpCircle, ShieldCheck, Clock, MessageCircle } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion"
 import Link from "next/link"
 import { useAuth } from "@/contexts/AuthContext"
 import { subscribe } from "@/lib/api"
@@ -322,7 +322,7 @@ export default function PricingPage() {
                 />
               ))}
               <div className="w-7 h-7 rounded-full border-2 border-ink bg-white/10 flex items-center justify-center text-[9px] text-white/40 font-bold z-0">
-                +{Math.max(0, Math.ceil(founderSoldPercent * 100 / 100) - 5)}
+                +{Math.max(0, Math.ceil(founderSoldPercent) - 5)}
               </div>
             </div>
             <Link
