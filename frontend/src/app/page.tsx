@@ -82,6 +82,7 @@ function StatsSection() {
             key={s.label}
             end={s.end}
             suffix={s.suffix}
+            prefix={s.prefix}
             label={s.label}
             delay={i * 0.15}
             duration={2 + i * 0.3}
