@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from "react"
 import { motion, useMotionValue, useTransform, useSpring } from "framer-motion"
 import { Share2, Copy, Check, ShieldCheck, Fingerprint } from "lucide-react"
 import toast from "react-hot-toast"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 interface EnergyIDCardProps {
   sessionId: string
@@ -20,6 +21,12 @@ const DIM_EMOJI: Record<string, string> = {
   wealth: "💰", career: "💼", relationship: "💕", health: "🏥", spiritual: "🧘",
 }
 
+const DIM_I18N: Record<string, string> = {
+  wealth: "reading.dim.wealth", career: "reading.dim.career",
+  relationship: "reading.dim.relationship", health: "reading.dim.health",
+  spiritual: "reading.dim.spiritual",
+}
+
 function generateCardId(sessionId: string, userId?: string | null): string {
   // Use userId when available (consistent across all user's reports),
   // fall back to sessionId hash for anonymous users
@@ -35,6 +42,7 @@ function generateCardId(sessionId: string, userId?: string | null): string {
 }
 
 export function EnergyIDCard({ sessionId, userId, dimensionScores, generatedAt }: EnergyIDCardProps) {
+  const { t } = useLanguage()
   const cardId = generateCardId(sessionId, userId)
   const cardRef = useRef<HTMLDivElement>(null)
   const [copied, setCopied] = useState(false)
@@ -74,14 +82,14 @@ export function EnergyIDCard({ sessionId, userId, dimensionScores, generatedAt }
   }
 
   const handleShare = async () => {
-    const text = `🔮 我在命盘智镜获得了专属能量数字 ID\n\n✨ 编号：${cardId}\n⚡ 五维命理 AI 认证\n\n来获取你的专属命盘 →`
+    const text = `🔮 ${t("energyId.shareText")}\n\n✨ ${cardId}\n⚡ AI Certified\n\n→`
     if (navigator.share) {
       try {
-        await navigator.share({ title: "命盘智镜 · 能量数字 ID", text })
+        await navigator.share({ title: t("energyId.shareTitle"), text })
       } catch { /* user cancelled */ }
     } else {
       await navigator.clipboard.writeText(text)
-      toast.success("分享文案已复制到剪贴板")
+      toast.success(t("energyId.copied"))
     }
   }
 
@@ -121,7 +129,7 @@ export function EnergyIDCard({ sessionId, userId, dimensionScores, generatedAt }
       {/* Label */}
       <div className="flex items-center gap-2 mb-4">
         <Fingerprint size={16} className="text-gold/60" />
-        <span className="text-gold/60 text-xs tracking-[0.15em] uppercase font-medium">能量数字 ID 卡</span>
+        <span className="text-gold/60 text-xs tracking-[0.15em] uppercase font-medium">{t("energyId.label")}</span>
         <div className="flex-1 h-px bg-gradient-to-r from-gold/20 to-transparent" />
       </div>
 
@@ -178,16 +186,16 @@ export function EnergyIDCard({ sessionId, userId, dimensionScores, generatedAt }
                   <span className="text-gold text-xs font-serif font-bold">命</span>
                 </div>
                 <div>
-                  <p className="text-gold text-xs font-semibold tracking-wide">命盘智镜</p>
+                  <p className="text-gold text-xs font-semibold tracking-wide">{t("energyId.brand")}</p>
                   <p className="text-white/20 text-[9px]">DESTINY MIRROR</p>
                 </div>
               </div>
               <button
                 onClick={handleShare}
- className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-white/40 hover:text-gold hover:border-gold/30 transition-all text-[10px]"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-white/40 hover:text-gold hover:border-gold/30 transition-all text-[10px]"
               >
                 <Share2 size={10} />
-                分享
+                {t("energyId.shareBtn")}
               </button>
             </div>
 
@@ -259,7 +267,7 @@ export function EnergyIDCard({ sessionId, userId, dimensionScores, generatedAt }
                         key={key}
                         className="text-[9px] px-1.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-white/40"
                       >
-                        {DIM_LABELS[key]} {val.toFixed(1)}
+                        {t(DIM_I18N[key] || `reading.dim.${key}`)} {val.toFixed(1)}
                       </span>
                     ))}
                   </div>
@@ -271,7 +279,7 @@ export function EnergyIDCard({ sessionId, userId, dimensionScores, generatedAt }
             <div className="flex items-center justify-between pt-4 border-t border-white/[0.06]">
               <div className="flex items-center gap-2">
                 <ShieldCheck size={12} className="text-green-400/50" />
-                <span className="text-white/25 text-[9px]">AI 五维合参认证</span>
+                <span className="text-white/25 text-[9px]">{t("energyId.certLabel")}</span>
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-white/15 text-[9px]">{formatDate(generatedAt)}</span>

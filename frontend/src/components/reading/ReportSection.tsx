@@ -1,6 +1,7 @@
 ﻿"use client"
 import { useState } from "react"
 import { ChevronDown, ChevronUp } from "lucide-react"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 /** Strip Markdown formatting and garbled symbols from LLM-generated text */
 function stripMarkdown(text: string): string {
@@ -41,6 +42,7 @@ interface Props {
 }
 
 export function ReportSection({ icon, title, color, content }: Props) {
+  const { t } = useLanguage()
   const [expanded, setExpanded] = useState(false)
   const cleanContent = stripMarkdown(content)
   const preview = cleanContent.slice(0, 400)
@@ -58,7 +60,7 @@ export function ReportSection({ icon, title, color, content }: Props) {
       {hasMore && (
         <button onClick={() => setExpanded(!expanded)}
           className="mt-4 flex items-center gap-1 text-gold/70 hover:text-gold text-sm transition-colors">
-          {expanded ? <><ChevronUp size={16} /> 收起</> : <><ChevronDown size={16} /> 查看完整分析</>}
+          {expanded ? <><ChevronUp size={16} /> {t("report.collapse")}</> : <><ChevronDown size={16} /> {t("report.expand")}</>}
         </button>
       )}
     </div>

@@ -9,6 +9,12 @@ import {
 } from "lucide-react"
 import toast from "react-hot-toast"
 import { getSession, matchProducts, unlockReport, streamSession, AnalysisResponse, Product, AGENT_LABELS, SSEEvent, AgentStatusValue } from "@/lib/api"
+
+const AGENT_I18N: Record<string, string> = {
+  astrology: "agent.astrology", tarot: "agent.tarot", bazi: "agent.bazi",
+  qimen: "agent.qimen", ziwei: "agent.ziwei", face: "agent.face",
+  palm: "agent.palm", master: "agent.master",
+}
 import AnalysisProgress from "@/components/reading/AnalysisProgress"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
@@ -65,6 +71,29 @@ const DIM_DESCRIPTIONS: Record<string, string> = {
   spiritual: "灵性觉醒度",
 }
 
+const I18N_DIM_KEYS: Record<string, { label: string; desc: string }> = {
+  wealth: { label: "reading.dim.wealth", desc: "reading.dimDesc.wealth" },
+  career: { label: "reading.dim.career", desc: "reading.dimDesc.career" },
+  relationship: { label: "reading.dim.relationship", desc: "reading.dimDesc.relationship" },
+  health: { label: "reading.dim.health", desc: "reading.dimDesc.health" },
+  spiritual: { label: "reading.dim.spiritual", desc: "reading.dimDesc.spiritual" },
+}
+
+const I18N_NAV_ITEMS = [
+  { id: "master",    icon: "🌟", labelKey: "reading.nav.overview",     descKey: "reading.nav.overviewDesc" },
+  { id: "bazi",      icon: "☯",  labelKey: "reading.nav.bazi",        descKey: "reading.nav.baziDesc" },
+  { id: "qimen",     icon: "🎯", labelKey: "reading.nav.qimen",       descKey: "reading.nav.qimenDesc" },
+  { id: "ziwei",     icon: "⭐", labelKey: "reading.nav.ziwei",       descKey: "reading.nav.ziweiDesc" },
+  { id: "astrology", icon: "✦",  labelKey: "reading.nav.astrology",   descKey: "reading.nav.astrologyDesc" },
+  { id: "tarot",     icon: "🃏", labelKey: "reading.nav.tarot",       descKey: "reading.nav.tarotDesc" },
+  { id: "face",      icon: "👁",  labelKey: "reading.nav.face",        descKey: "reading.nav.faceDesc" },
+  { id: "palm",      icon: "🤚", labelKey: "reading.nav.palm",        descKey: "reading.nav.palmDesc" },
+  { id: "event",     icon: "🔍", labelKey: "reading.nav.event",       descKey: "reading.nav.eventDesc" },
+  { id: "almanac",   icon: "📅", labelKey: "reading.nav.almanac",     descKey: "reading.nav.almanacDesc" },
+  { id: "shop",      icon: "🎁", labelKey: "reading.nav.shop",        descKey: "reading.nav.shopDesc" },
+  { id: "chat",      icon: "💬", labelKey: "reading.nav.chat",        descKey: "reading.nav.chatDesc" },
+]
+
 function getWeakestDimension(scores: Record<string, number>): string {
   return Object.entries(scores).sort((a, b) => a[1] - b[1])[0]?.[0] ?? "wealth"
 }
@@ -81,37 +110,27 @@ function getStrongestLabel(scores: Record<string, number>): string {
   return DIM_LABELS[getStrongestDimension(scores)] ?? "事业"
 }
 
-/** Get a time-of-day greeting */
-function getGreeting(): string {
-  const h = new Date().getHours()
-  if (h < 6) return "夜深人静"
-  if (h < 9) return "晨曦初照"
-  if (h < 12) return "上午好"
-  if (h < 14) return "午安"
-  if (h < 18) return "下午好"
-  if (h < 21) return "傍晚好"
-  return "夜色安宁"
+function getI18nDimLabel(key: string, t: (k: string) => string): string {
+  const i18n = I18N_DIM_KEYS[key]
+  return i18n ? t(i18n.label) : DIM_LABELS[key] ?? key
 }
 
-const NAV_ITEMS = [
-  { id: "master",    icon: "🌟", label: "总览",     desc: "全维度命盘" },
-  { id: "bazi",      icon: "☯",  label: "八字",     desc: "周易命理" },
-  { id: "qimen",     icon: "🎯", label: "奇门",     desc: "遁甲时空" },
-  { id: "ziwei",     icon: "⭐", label: "紫微",     desc: "斗数星君" },
-  { id: "astrology", icon: "✦",  label: "星盘",     desc: "西方占星" },
-  { id: "tarot",     icon: "🃏", label: "塔罗",     desc: "灵性疗愈" },
-  { id: "face",      icon: "👁",  label: "面相",     desc: "AI 观相" },
-  { id: "palm",      icon: "🤚", label: "手相",     desc: "掌中乾坤" },
-  { id: "event",     icon: "🔍", label: "复盘",     desc: "事件溯源" },
-  { id: "almanac",   icon: "📅", label: "黄历",     desc: "今日宜忌" },
-  { id: "shop",      icon: "🎁", label: "改运",     desc: "专属好物" },
-  { id: "chat",      icon: "💬", label: "追问",     desc: "AI 解惑" },
-]
+/** Get a time-of-day greeting */
+function getGreeting(t: (key: string) => string): string {
+  const h = new Date().getHours()
+  if (h < 6) return t("reading.greeting.lateNight")
+  if (h < 9) return t("reading.greeting.earlyMorning")
+  if (h < 12) return t("reading.greeting.morning")
+  if (h < 14) return t("reading.greeting.afternoon")
+  if (h < 18) return t("reading.greeting.evening")
+  if (h < 21) return t("reading.greeting.night")
+  return t("reading.greeting.night")
+}
 
 export default function ReadingPage() {
   const { id } = useParams<{ id: string }>()
   const { user, refreshUser } = useAuth()
-  const { locale } = useLanguage()
+  const { locale, t } = useLanguage()
   const [data, setData]         = useState<AnalysisResponse | null>(null)
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading]   = useState(true)
@@ -267,9 +286,9 @@ export default function ReadingPage() {
   }
 
   const strongestDim = data.dimension_scores ? getStrongestDimension(data.dimension_scores) : "career"
-  const strongestLabel = data.dimension_scores ? getStrongestLabel(data.dimension_scores) : "事业"
+  const strongestLabel = data.dimension_scores ? getI18nDimLabel(getStrongestDimension(data.dimension_scores), t) : t("reading.dim.career")
   const weakestDim = data.dimension_scores ? getWeakestDimension(data.dimension_scores) : "wealth"
-  const weakestLabel = data.dimension_scores ? getWeakestLabel(data.dimension_scores) : "财富"
+  const weakestLabel = data.dimension_scores ? getI18nDimLabel(getWeakestDimension(data.dimension_scores), t) : t("reading.dim.wealth")
 
   return (
     <div className="min-h-screen pb-24">
@@ -327,6 +346,11 @@ export default function ReadingPage() {
                 五维命理分析报告 · AI 精算
               </span>
             </div>
+            <div className="inline-flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full px-3 py-1">
+              <span className="text-white/30 text-[10px]">
+                本内容由AI生成，仅供参考，不构成专业建议
+              </span>
+            </div>
             <ShareSheet sessionId={id} />
           </div>
 
@@ -360,7 +384,7 @@ export default function ReadingPage() {
                   opacity: heroVisible ? 1 : 0,
                 }}
               >
-                {getGreeting()} · 你的专属命盘已就绪
+                {getGreeting(t)} · {t("reading.greeting.ready")}
               </p>
 
               {/* Main headline */}
@@ -377,7 +401,7 @@ export default function ReadingPage() {
                   transform: heroVisible ? "translateY(0)" : "translateY(8px)",
                 }}
               >
-                命盘智镜 · 全维度解读
+                {t("reading.title")}
               </h1>
 
               {/* Subtitle */}
@@ -388,9 +412,7 @@ export default function ReadingPage() {
                   opacity: heroVisible ? 1 : 0,
                 }}
               >
-                八字命理 · 紫微斗数 · 奇门遁甲 · 西方星盘 · 塔罗疗愈 · AI面相 · 手相解读
-                <br className="hidden sm:block" />
-                七大命理系统融会贯通，AI 深度解析你的命运密码
+                {t("reading.subtitle")}
               </p>
 
               {/* ── Dimension Score Mini-Cards ── */}
@@ -407,6 +429,7 @@ export default function ReadingPage() {
                     const score = data.dimension_scores![key] ?? 5
                     const isStrongest = key === strongestDim
                     const isWeakest = key === weakestDim
+                    const i18nKey = I18N_DIM_KEYS[key]
                     return (
                       <div
                         key={key}
@@ -425,7 +448,7 @@ export default function ReadingPage() {
                         >
                           {score.toFixed(1)}
                         </p>
-                        <p className="text-[10px] md:text-xs text-white/30 mt-0.5">{label}</p>
+                        <p className="text-[10px] md:text-xs text-white/30 mt-0.5">{i18nKey ? t(i18nKey.label) : label}</p>
                         {isWeakest && (
                           <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-rose-400 animate-pulse" />
                         )}
@@ -463,11 +486,11 @@ export default function ReadingPage() {
                 <Sparkles size={18} className="text-gold flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="text-white/70 text-sm leading-relaxed">
-                    你的<span className="text-gold font-semibold">{strongestLabel}</span>能量最为充盈，
-                    <span className="text-rose-400/80 font-semibold">{weakestLabel}</span>领域蕴含成长空间。
+                    {t("reading.strongest")}：<span className="text-gold font-semibold">{strongestLabel}</span>，
+                    {t("reading.weakest")}：<span className="text-rose-400/80 font-semibold">{weakestLabel}</span>。
                     {isUnlocked
-                      ? "深度报告已解锁，向下滑动探索你的完整命运图景。"
-                      : "解锁完整报告，获取专属于你的年度命盘规划与改运策略。"}
+                      ? t("reading.insight.unlocked")
+                      : t("reading.insight.locked")}
                   </p>
                 </div>
               </div>
@@ -487,10 +510,10 @@ export default function ReadingPage() {
                     className="btn-gold flex items-center gap-2 text-sm md:text-base"
                   >
                     <Crown size={16} />
-                    解锁完整报告 · ¥69
+                    {t("reading.cta.unlockBtn")}
                   </button>
                   <span className="text-white/20 text-xs">
-                    解锁赠送 ¥60 代金券 + 3 天会员
+                    {t("reading.cta.perks")}
                   </span>
                 </div>
               )}
@@ -510,7 +533,7 @@ export default function ReadingPage() {
                     <div key={k} className="flex items-center gap-1.5">
                       <span className="text-sm">{meta.icon}</span>
                       <span className={`text-[11px] ${w.error ? "text-red-400/60" : "text-green-400/40"}`}>
-                        {meta.label}
+                        {t(AGENT_I18N[k] || `agent.${k}`)}
                       </span>
                       {w.duration_ms && (
                         <span className="text-[10px] text-white/15 font-mono">
@@ -532,7 +555,7 @@ export default function ReadingPage() {
       <div className="max-w-5xl mx-auto px-4 mb-8 sticky top-16 z-30">
         <div className="bg-[#1a1430]/80 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-1.5 shadow-2xl shadow-black/40">
           <div className="flex gap-1 overflow-x-auto scrollbar-none">
-            {NAV_ITEMS.map(item => (
+            {I18N_NAV_ITEMS.map(item => (
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
@@ -545,9 +568,9 @@ export default function ReadingPage() {
                 <span className="text-base transition-transform group-hover:scale-110 duration-200">
                   {item.icon}
                 </span>
-                <span className="hidden sm:inline">{item.label}</span>
+                <span className="hidden sm:inline">{t(item.labelKey)}</span>
                 {activeTab === item.id && (
-                  <span className="hidden md:inline text-[10px] text-gold/50 ml-0.5">{item.desc}</span>
+                  <span className="hidden md:inline text-[10px] text-gold/50 ml-0.5">{t(item.descKey)}</span>
                 )}
               </button>
             ))}
@@ -571,11 +594,11 @@ export default function ReadingPage() {
                   <Sparkles size={20} className="text-gold" />
                 </div>
                 <div>
-                  <h2 className="font-serif text-lg md:text-xl font-bold text-gold">全维度命盘总览</h2>
-                  <p className="text-white/20 text-xs">AI 综合分析你的命运蓝本</p>
+                  <h2 className="font-serif text-lg md:text-xl font-bold text-gold">{t("reading.master.title")}</h2>
+                  <p className="text-white/20 text-xs">{t("reading.master.subtitle")}</p>
                 </div>
                 <span className="ml-auto text-[10px] px-2 py-0.5 bg-green-500/10 border border-green-500/20 rounded-full text-green-400">
-                  免费
+                  {t("reading.master.free")}
                 </span>
               </div>
               <div className="text-white/75 text-sm leading-relaxed whitespace-pre-line">
@@ -585,20 +608,29 @@ export default function ReadingPage() {
                     ? (
                       <span className="flex items-center gap-2 text-white/40">
                         <Loader2 size={14} className="animate-spin" />
-                        {ssePhase === "parallel" && `专家分析中… (${completedWorkers.size}/7 完成)`}
-                        {ssePhase === "master" && `综合 synthesis 中… (${completedSubtasks.size}/3 子任务)`}
-                        {!["parallel", "master"].includes(ssePhase) && "分析准备中…"}
+                        {ssePhase === "parallel" && `${t("reading.progress.analyzing")} (${completedWorkers.size}/7)`}
+                        {ssePhase === "master" && `${t("reading.progress.synthesizing")} (${completedSubtasks.size}/3)`}
+                        {!["parallel", "master"].includes(ssePhase) && t("reading.progress.preparing")}
                       </span>
                     )
-                    : "Master Agent 分析中…"
+                    : t("reading.progress.masterAgent")
                 }
               </div>
+              {/* AI-generated content disclaimer — required by 《生成式人工智能服务管理暂行办法》 */}
+              {data.master_summary && (
+                <p className="mt-4 pt-3 border-t border-white/[0.06] text-white/25 text-[11px] leading-relaxed">
+                  {t("reading.master.disclaimer")}
+                </p>
+              )}
             </div>
 
             {/* ── Radar Chart ── */}
             {data.dimension_scores && (
               <div className="flex justify-center">
-                <DestinyRadar scores={data.dimension_scores} />
+                <DestinyRadar
+                  scores={data.dimension_scores}
+                  labels={["wealth", "relationship", "career", "health", "spiritual"].map(k => t(I18N_DIM_KEYS[k]?.label || `reading.dim.${k}`))}
+                />
               </div>
             )}
 
@@ -627,8 +659,8 @@ export default function ReadingPage() {
             {/* Paid: Master Detail */}
             <PaywallGate
               isUnlocked={isUnlocked}
-              title="年度命盘深度规划"
-              description="解锁后获取针对你问题的详细分析、12个月运势详解、五行补救方案及专属商品推荐"
+              title={t("reading.master.detailTitle")}
+              description={t("reading.insight.locked")}
               priceDisplay="¥69"
               onUnlock={() => setShowPayment(true)}
               loading={unlockLoading}
@@ -640,15 +672,15 @@ export default function ReadingPage() {
                     <Crown size={20} className="text-gold" />
                   </div>
                   <div>
-                    <h2 className="font-serif text-lg md:text-xl font-bold text-gold">深度命盘分析 · 专属解答</h2>
-                    <p className="text-white/20 text-xs">基于你的出生时辰精准推算</p>
+                    <h2 className="font-serif text-lg md:text-xl font-bold text-gold">{t("reading.master.detailTitle")}</h2>
+                    <p className="text-white/20 text-xs">{t("reading.master.detailSubtitle")}</p>
                   </div>
                   <span className="ml-auto text-[10px] px-2 py-0.5 bg-gold/10 border border-gold/20 rounded-full text-gold/70">
-                    已解锁
+                    {t("reading.master.unlocked")}
                   </span>
                 </div>
                 <div className="text-white/80 text-sm leading-relaxed whitespace-pre-line">
-                  {stripMarkdown(data.master_detail || "深度报告加载中…")}
+                  {stripMarkdown(data.master_detail || t("reading.master.loading"))}
                 </div>
               </div>
             </PaywallGate>
@@ -659,8 +691,8 @@ export default function ReadingPage() {
                 <div className="flex items-center gap-2">
                   <span className="text-xl">⚕</span>
                   <div>
-                    <h3 className="font-serif text-lg font-bold text-gold">专属处方单</h3>
-                    <p className="text-white/25 text-[11px]">基于你的命盘弱点精准匹配</p>
+                    <h3 className="font-serif text-lg font-bold text-gold">{t("reading.master.prescription")}</h3>
+                    <p className="text-white/25 text-[11px]">{t("reading.master.prescriptionDesc")}</p>
                   </div>
                 </div>
                 {data.recommended_products.slice(0, 2).map((p, i) => (
@@ -677,7 +709,7 @@ export default function ReadingPage() {
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <Compass size={16} className="text-white/30" />
-                <h3 className="text-sm font-medium text-white/40">各命理系统摘要</h3>
+                <h3 className="text-sm font-medium text-white/40">{t("reading.summary")}</h3>
               </div>
               <div className="grid sm:grid-cols-2 gap-3">
                 {WORKER_ORDER.map(k => {
@@ -692,7 +724,7 @@ export default function ReadingPage() {
                     >
                       <div className="flex items-center gap-2 mb-2">
                         <span className="text-xl">{meta.icon}</span>
-                        <span className={`font-medium text-sm ${meta.color}`}>{meta.label}分析</span>
+                        <span className={`font-medium text-sm ${meta.color}`}>{t(AGENT_I18N[k] || `agent.${k}`)}</span>
                         {w.tags.length > 0 && (
                           <Tags size={11} className="text-white/20 ml-auto" />
                         )}
@@ -701,7 +733,7 @@ export default function ReadingPage() {
                         {stripMarkdown(w.report.slice(0, 100))}…
                       </p>
                       <p className="text-gold/40 text-[11px] mt-2 group-hover:text-gold/80 transition-colors">
-                        点击查看完整分析 →
+                        {t("reading.clickToView")} →
                       </p>
                     </button>
                   )
@@ -719,15 +751,15 @@ export default function ReadingPage() {
                 <div className="w-16 h-16 rounded-full bg-red-500/10 border border-red-400/20 flex items-center justify-center mx-auto mb-4">
                   <AlertCircle size={28} className="text-red-400" />
                 </div>
-                <p className="text-white/50 text-sm">{AGENT_LABELS[k].label}分析遇到错误</p>
+                <p className="text-white/50 text-sm">{t(AGENT_I18N[k] || `agent.${k}`)} {t("reading.error.analysis")}</p>
                 <p className="text-white/25 text-xs mt-2 font-mono">{workerMap[k].error}</p>
               </div>
             ) : workerMap[k].report ? (
               <div className="space-y-4">
                 <PaywallGate
                   isUnlocked={isUnlocked}
-                  title={`${AGENT_LABELS[k].label}完整分析`}
-                  description="解锁完整报告后查看每个命理体系的详细分析"
+                  title={`${t(AGENT_I18N[k] || `agent.${k}`)} ${t("reading.worker.unlockTitle")}`}
+                  description={t("reading.worker.unlockDesc")}
                   priceDisplay="¥69"
                   onUnlock={() => setShowPayment(true)}
                   loading={unlockLoading}
@@ -735,14 +767,14 @@ export default function ReadingPage() {
                 >
                   <ReportSection
                     icon={AGENT_LABELS[k].icon}
-                    title={`${AGENT_LABELS[k].label}完整分析`}
+                    title={`${t(AGENT_I18N[k] || `agent.${k}`)} ${t("reading.worker.unlockTitle")}`}
                     color={AGENT_LABELS[k].color}
                     content={workerMap[k].report}
                   />
                 </PaywallGate>
                 {workerMap[k].tags.length > 0 && (
                   <div className="card-glass p-5">
-                    <p className="text-white/30 text-xs mb-3">分析标签</p>
+                    <p className="text-white/30 text-xs mb-3">{t("reading.tags.title")}</p>
                     <div className="flex flex-wrap gap-2">
                       {workerMap[k].tags.map(t => (
                         <span key={t} className="text-xs px-2.5 py-1 bg-white/[0.06] rounded-full text-white/50">
