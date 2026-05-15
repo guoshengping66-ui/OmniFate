@@ -464,5 +464,6 @@ class DivinationRecord(Base):
     theme: Mapped[Optional[str]] = mapped_column(String(50))         # 事业|感情|财运|健康
     is_free: Mapped[bool] = mapped_column(Boolean, default=True)
     stardust_cost: Mapped[int] = mapped_column(Integer, default=0)
+    ai_insight: Mapped[Optional[str]] = mapped_column(Text)            # AI 深度解析（50字行动指引）
     shared: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
