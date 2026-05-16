@@ -49,14 +49,6 @@ const cardGlass = {
   boxShadow: "0 8rpx 32rpx rgba(0,0,0,0.3), 0 0 80rpx rgba(201,168,76,0.04)",
 }
 
-// ── Web 级 card-glass-elevated 样式 ──
-const cardElevated = {
-  backgroundColor: "rgba(255,255,255,0.07)",
-  border: "1rpx solid rgba(255,255,255,0.15)",
-  borderRadius: "24rpx",
-  boxShadow: "0 0 0 1rpx rgba(255,255,255,0.05), 0 8rpx 32rpx rgba(0,0,0,0.3), 0 0 80rpx rgba(201,168,76,0.06)",
-}
-
 // ── Web 级 btn-gold 样式 ──
 const btnGold = {
   background: "linear-gradient(135deg, #C9A84C 0%, #E8CB7A 40%, #C9A84C 80%)",
@@ -77,7 +69,7 @@ export default function QuizPage() {
 
   const total = questions.length
   const q: AM16Question | undefined = questions[current]
-  const progress = Math.round((current / total) * 100)
+  const progress = Math.round(((current + 1) / total) * 100)
 
   const handleAnswer = useCallback((choice: number) => {
     if (selected !== null || animating) return

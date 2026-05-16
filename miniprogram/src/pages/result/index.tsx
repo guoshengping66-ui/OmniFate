@@ -9,7 +9,6 @@ import {
   calculateRadarScores,
   type AM16Personality,
 } from "../../constants/am16"
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { DIMENSION_ORDER, DIMENSIONS_MAP, getPoleLabel } from "../../constants/dimensions"
 
 // ── Web 级设计系统 ──
