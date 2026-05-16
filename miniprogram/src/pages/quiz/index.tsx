@@ -190,20 +190,44 @@ export default function QuizPage() {
     return (
       <View className="min-h-screen flex flex-col items-center justify-center px-6" style={S.bg}>
         <StarBackground />
-        {/* 浮动粒子 */}
-        {[0,1,2,3,4].map(i => (
+        {/* 浮动粒子 — 增加到 8 个 */}
+        {[0,1,2,3,4,5,6,7].map(i => (
           <View key={i} className="absolute pointer-events-none" style={{
-            top: `${25 + i * 10}%`,
-            left: `${10 + (i % 3) * 30}%`,
-            width: `${3 + (i % 3) * 2}rpx`,
-            height: `${3 + (i % 3) * 2}rpx`,
+            top: `${15 + i * 9}%`,
+            left: `${8 + (i % 4) * 24}%`,
+            width: `${2 + (i % 3) * 2}rpx`,
+            height: `${2 + (i % 3) * 2}rpx`,
             borderRadius: "50%",
-            backgroundColor: `rgba(212,175,55,${0.2 + (i % 3) * 0.1})`,
-            animation: `float ${2.5 + i * 0.5}s ease-in-out infinite ${i * 0.3}s`,
+            backgroundColor: `rgba(212,175,55,${0.15 + (i % 4) * 0.08})`,
+            animation: `float ${2 + i * 0.4}s ease-in-out infinite ${i * 0.25}s`,
           }} />
         ))}
 
         <View className="relative w-80 h-80 flex items-center justify-center mb-8">
+          {/* 雷达脉冲环 — 扩散消失 */}
+          {[0, 1, 2].map(i => (
+            <View key={`pulse-${i}`} className="absolute rounded-full pointer-events-none" style={{
+              top: "50%", left: "50%", width: "200rpx", height: "200rpx",
+              marginTop: "-100rpx", marginLeft: "-100rpx",
+              border: "1.5rpx solid rgba(212,175,55,0.25)",
+              animation: `radarPulse 2.4s ease-out infinite ${i * 0.8}s`,
+            }} />
+          ))}
+          {/* 旋转光线 — 4 条对角线 */}
+          <View className="absolute pointer-events-none" style={{
+            top: 0, left: 0, right: 0, bottom: 0,
+            animation: "rotateGlow 12s linear infinite",
+          }}>
+            {[0, 45, 90, 135].map(angle => (
+              <View key={`ray-${angle}`} className="absolute" style={{
+                top: "50%", left: "50%",
+                width: "2rpx", height: "100%",
+                marginLeft: "-1rpx", marginTop: "-50%",
+                background: "linear-gradient(to bottom, transparent 0%, rgba(212,175,55,0.06) 40%, rgba(212,175,55,0.12) 50%, rgba(212,175,55,0.06) 60%, transparent 100%)",
+                transform: `rotate(${angle}deg)`,
+              }} />
+            ))}
+          </View>
           {/* 两层轨道环 — 金色外发光 */}
           <View className="absolute rounded-full" style={{
             top: 0, left: 0, right: 0, bottom: 0,
@@ -233,7 +257,13 @@ export default function QuizPage() {
             boxShadow: "0 0 12rpx rgba(201,168,76,0.5), 0 0 24rpx rgba(201,168,76,0.2)",
             animation: "orbit 3s linear infinite reverse",
           }} />
-          {/* 中心符号 — 强发光 */}
+          {/* 中心符号 — 呼吸光晕 + 强发光 */}
+          <View className="absolute rounded-full pointer-events-none" style={{
+            top: "50%", left: "50%", width: "160rpx", height: "160rpx",
+            marginTop: "-80rpx", marginLeft: "-80rpx",
+            background: "radial-gradient(circle, rgba(201,168,76,0.2) 0%, rgba(201,168,76,0.05) 50%, transparent 70%)",
+            animation: "breathe 2.5s ease-in-out infinite",
+          }} />
           <View className="w-20 h-20 rounded-full flex items-center justify-center" style={{
             backgroundColor: "rgba(201,168,76,0.12)",
             boxShadow: "0 0 40rpx rgba(201,168,76,0.15), inset 0 0 20rpx rgba(201,168,76,0.1)",
