@@ -241,7 +241,7 @@ export const PERSONALITIES: Record<string, AM16Personality> = {
   // ═══ FXIP ═══
   FXIP: {
     code: "FXIP",
-    title: "高维冥想隐世咸鱼",
+    title: "断网修仙派高维咸鱼",
     emoji: "🧘",
     quote: "无善无恶心之体",
     quoteExplain: "没有善恶，没有行动，没有社交，只有躺",
@@ -255,7 +255,7 @@ export const PERSONALITIES: Record<string, AM16Personality> = {
   // ═══ FXIE ═══
   FXIE: {
     code: "FXIE",
-    title: "躺平界的灵感型社交达人",
+    title: "靠直觉蹦迪的玄学交际花",
     emoji: "💫",
     quote: "良知即是独知时",
     quoteExplain: "我的直觉告诉我，躺着也能把社交搞好",
@@ -269,7 +269,7 @@ export const PERSONALITIES: Record<string, AM16Personality> = {
   // ═══ FSGP ═══
   FSGP: {
     code: "FSGP",
-    title: "数据型佛系躺平家",
+    title: "看盘等死的数字居士",
     emoji: "📈",
     quote: "去人欲，存天理",
     quoteExplain: "用 Excel 分析完了，结论是：躺着最好",
@@ -283,7 +283,7 @@ export const PERSONALITIES: Record<string, AM16Personality> = {
   // ═══ FSGE ═══
   FSGE: {
     code: "FSGE",
-    title: "格物派人肉客服",
+    title: "赛博功德箱固定传声筒",
     emoji: "📱",
     quote: "致良知于事事物物",
     quoteExplain: "用科学方法论来服务每一个人，但自己不想动",
@@ -311,7 +311,7 @@ export const PERSONALITIES: Record<string, AM16Personality> = {
   // ═══ FSIE ═══
   FSIE: {
     code: "FSIE",
-    title: "孤独的科学改命极客",
+    title: "孤独的量子纠缠改命极客",
     emoji: "🧑‍🔬",
     quote: "知是行之始，行是知之成",
     quoteExplain: "我的改命方案经过了同行评审",
@@ -325,7 +325,7 @@ export const PERSONALITIES: Record<string, AM16Personality> = {
   // ═══ DXGP ═══
   DXGP: {
     code: "DXGP",
-    title: "嘴炮逆天实际躺平侠",
+    title: "网络逆天口嗨/肉身躺平侠",
     emoji: "🎭",
     quote: "知是行之始，行是知之成",
     quoteExplain: "我知道了，但我不做，这叫「知而不行即为不知」",
@@ -353,7 +353,7 @@ export const PERSONALITIES: Record<string, AM16Personality> = {
   // ═══ DXIP ═══
   DXIP: {
     code: "DXIP",
-    title: "孤独的直觉反骨战士",
+    title: "反骨入命的直觉独狼",
     emoji: "⚔️",
     quote: "立志而圣则圣矣，立志而贤则贤矣",
     quoteExplain: "我要逆天，但我要一个人静静逆",
@@ -381,7 +381,7 @@ export const PERSONALITIES: Record<string, AM16Personality> = {
   // ═══ DSIE ═══
   DSIE: {
     code: "DSIE",
-    title: "格物派逆天执行狂魔",
+    title: "逆天改命硬核特种兵",
     emoji: "⚡",
     quote: "知行并进，不可分作两事",
     quoteExplain: "数据分析完的下一秒，我已经在改命的路上了",
@@ -395,7 +395,7 @@ export const PERSONALITIES: Record<string, AM16Personality> = {
   // ═══ DSGP ═══
   DSGP: {
     code: "DSGP",
-    title: "数据型反骨拖延症",
+    title: "满脑子反骨的数据拖延症",
     emoji: "📋",
     quote: "静处体悟，事上磨练",
     quoteExplain: "我已经分析完了所有可能性，现在我在等一个更好的时机",
@@ -423,7 +423,7 @@ export const PERSONALITIES: Record<string, AM16Personality> = {
   // ═══ DSIP ═══
   DSIP: {
     code: "DSIP",
-    title: "冷酷格物修仙独狼",
+    title: "莫得感情的格物修仙独狼",
     emoji: "🐺",
     quote: "此心不动，随机而动",
     quoteExplain: "数据说动我才动，你谁啊别催我",
