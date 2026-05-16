@@ -22,7 +22,7 @@ function haptic(type: "light" | "medium" | "success") {
 
 // ── 内联样式常量 ──
 const S = {
-  bg: { backgroundColor: "#0A0A0A" },
+  bg: { backgroundColor: "#1A0F2E" },
   gold: { color: "#D4AF37" },
   goldBg: { backgroundColor: "#D4AF37" },
   white30: { color: "rgba(255,255,255,0.3)" },

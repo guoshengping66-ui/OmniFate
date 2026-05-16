@@ -112,7 +112,7 @@ export default function ResultPage() {
 
   if (!personality) {
     return (
-      <View className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#0A0A0A" }}>
+      <View className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#1A0F2E" }}>
         <Text className="text-sm" style={{ color: "rgba(255,255,255,0.3)" }}>加载中…</Text>
       </View>
     )
@@ -142,7 +142,7 @@ export default function ResultPage() {
   }
 
   return (
-    <View className="min-h-screen pb-32" style={{ backgroundColor: "#0A0A0A" }}>
+    <View className="min-h-screen pb-32" style={{ backgroundColor: "#1A0F2E" }}>
       {/* ═══ 主卡片 — Web 级 card-glass-elevated ═══ */}
       <View className="mx-4 mt-4 relative overflow-hidden" style={{
         ...cardElevated,
@@ -360,7 +360,7 @@ export default function ResultPage() {
                   backgroundSize: "200% 100%",
                   animation: "shimmer 3s ease-in-out infinite",
                 }} />
-                <Text className="relative text-sm font-bold" style={{ color: "#0A0A0A", textShadow: "0 1rpx 2rpx rgba(0,0,0,0.15)" }}>
+                <Text className="relative text-sm font-bold" style={{ color: "#1A0F2E", textShadow: "0 1rpx 2rpx rgba(0,0,0,0.15)" }}>
                   🔮 开启命运解读 · 100 ✨
                 </Text>
               </View>
@@ -480,8 +480,8 @@ function drawSharePoster(canvasNode: any, code: string, p: Personality) {
 
   // 背景
   const grad = ctx.createLinearGradient(0, 0, 0, H)
-  grad.addColorStop(0, "#0A0A0A"); grad.addColorStop(0.3, "#0D0D0D")
-  grad.addColorStop(0.7, "#111111"); grad.addColorStop(1, "#0A0A0A")
+  grad.addColorStop(0, "#1A0F2E"); grad.addColorStop(0.3, "#1E1240")
+  grad.addColorStop(0.7, "#221545"); grad.addColorStop(1, "#1A0F2E")
   ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H)
 
   // 星空粒子
