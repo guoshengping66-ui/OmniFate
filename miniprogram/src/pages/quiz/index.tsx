@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo } from "react"
 import { View, Text } from "@tarojs/components"
 import Taro from "@tarojs/taro"
 import { QUESTIONS, type Question } from "../../constants/am16"
+import { StarField } from "../../components/StarField"
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr]
@@ -104,6 +105,7 @@ export default function QuizPage() {
   if (analyzing) {
     return (
       <View className="min-h-screen flex flex-col items-center justify-center px-6" style={S.bg}>
+        <StarField />
         {/* 浮动粒子 */}
         {[0,1,2,3,4].map(i => (
           <View key={i} className="absolute pointer-events-none" style={{
@@ -179,6 +181,7 @@ export default function QuizPage() {
   // ── 答题界面 ──
   return (
     <View className="min-h-screen px-5 pt-14 pb-8" style={S.bg}>
+      <StarField />
       <View className="max-w-lg mx-auto">
         {/* 进度条 */}
         <View className="mb-6">

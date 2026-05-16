@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react"
 import { View, Text, Canvas, Button } from "@tarojs/components"
 import Taro, { useDidShow } from "@tarojs/taro"
+import { StarField } from "../../components/StarField"
 import {
   PERSONALITIES,
   DIMENSIONS,
@@ -113,6 +114,7 @@ export default function ResultPage() {
   if (!personality) {
     return (
       <View className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#1A0F2E" }}>
+        <StarField />
         <Text className="text-sm" style={{ color: "rgba(255,255,255,0.3)" }}>加载中…</Text>
       </View>
     )
@@ -143,6 +145,7 @@ export default function ResultPage() {
 
   return (
     <View className="min-h-screen pb-32" style={{ backgroundColor: "#1A0F2E" }}>
+      <StarField />
       {/* ═══ 主卡片 — Web 级 card-glass-elevated ═══ */}
       <View className="mx-4 mt-4 relative overflow-hidden" style={{
         ...cardElevated,

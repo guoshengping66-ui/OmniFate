@@ -35,3 +35,13 @@ page {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(100%); }
 }
+@keyframes twinkle {
+  0%, 100% { opacity: 0.1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.4); }
+}
+@keyframes drift {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(8rpx, -6rpx); }
+  50% { transform: translate(-4rpx, -10rpx); }
+  75% { transform: translate(6rpx, -4rpx); }
+}
