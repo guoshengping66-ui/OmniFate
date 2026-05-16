@@ -23,21 +23,21 @@ export function EnergyWaveWarning({
   const barColor = currentEnergy >= 70 ? "bg-green-500" : currentEnergy >= 40 ? "bg-gold" : "bg-red-500"
 
   const trendText =
-    trend === "rising" ? t("energyWave.trendRising") :
-    trend === "falling" ? t("energyWave.trendFalling") :
-    t("energyWave.trendStable")
+    trend === "rising" ? t("almanac.rising") :
+    trend === "falling" ? t("almanac.falling") :
+    t("almanac.stable")
 
   return (
     <div className="card-glass p-5 space-y-4">
       <div className="flex items-center gap-2">
         <AlertTriangle size={18} className="text-gold" />
-        <h3 className="font-serif text-gold font-bold">{t("energyWave.title")}</h3>
+        <h3 className="font-serif text-gold font-bold">{t("almanac.energyWave")}</h3>
       </div>
 
       {/* Energy bar */}
       <div>
         <div className="flex items-center justify-between mb-1">
-          <span className="text-xs text-white/40">{t("energyWave.currentLevel")}</span>
+          <span className="text-xs text-white/40">{t("almanac.currentEnergy")}</span>
           <span className="text-xs text-white/60">{currentEnergy}%</span>
         </div>
         <div className="h-2 bg-white/5 rounded-full overflow-hidden">
@@ -52,7 +52,7 @@ export function EnergyWaveWarning({
       <div className="flex items-center gap-2">
         <TrendIcon size={16} className={trendColor} />
         <span className="text-sm text-white/60">
-          {t("energyWave.trend")}{" "}
+          {t("almanac.trend")}{" "}
           <span className={trendColor}>{trendText}</span>
         </span>
       </div>
@@ -68,13 +68,13 @@ export function EnergyWaveWarning({
       <div className="grid grid-cols-2 gap-3 text-xs">
         {nextPeak && (
           <div className="bg-green-500/5 border border-green-500/20 rounded-lg p-2">
-            <span className="text-green-400/60">{t("energyWave.nextPeak")}</span>
+            <span className="text-green-400/60">{t("almanac.nextPeak")}</span>
             <p className="text-white/60 mt-0.5">{nextPeak}</p>
           </div>
         )}
         {nextTrough && (
           <div className="bg-red-500/5 border border-red-500/20 rounded-lg p-2">
-            <span className="text-red-400/60">{t("energyWave.lowEnergyDay")}</span>
+            <span className="text-red-400/60">{t("almanac.nextTrough")}</span>
             <p className="text-white/60 mt-0.5">{nextTrough}</p>
           </div>
         )}

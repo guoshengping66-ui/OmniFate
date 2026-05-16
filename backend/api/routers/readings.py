@@ -955,6 +955,8 @@ class EventDetailResponse(BaseModel):
 
 class DailyAlmanacResponse(BaseModel):
     date: str
+    lunar_date: str = ""
+    bazi_day_pillar: str = ""
     energy_score: int
     yi: list[str]
     ji: list[str]
@@ -1588,11 +1590,22 @@ async def get_daily_almanac(session_id: str = Query(...)):
     except Exception:
         pass
 
-    # 3. Compute today's bazi pillars
+    # 3. Compute today's bazi pillars + lunar date
     from calculators.bazi_calculator import BaziCalculator
     today_bazi = None
+    lunar_date_str = ""
+    bazi_day_pillar_str = ""
     try:
         today_bazi = BaziCalculator.calculate_transit_pillars(today.year, today.month, today.day)
+        if today_bazi:
+            dp = today_bazi.get("day_pillar", {})
+            bazi_day_pillar_str = dp.get("ganzhi", "")
+    except Exception:
+        pass
+    try:
+        from lunar_python import Solar
+        today_lunar = Solar.fromYmd(today.year, today.month, today.day).getLunar()
+        lunar_date_str = today_lunar.toFullString()
     except Exception:
         pass
 
@@ -1637,6 +1650,8 @@ async def get_daily_almanac(session_id: str = Query(...)):
 
     result = DailyAlmanacResponse(
         date=today.isoformat(),
+        lunar_date=lunar_date_str,
+        bazi_day_pillar=bazi_day_pillar_str,
         energy_score=energy_score,
         yi=almanac_data.get("yi", []),
         ji=almanac_data.get("ji", []),
