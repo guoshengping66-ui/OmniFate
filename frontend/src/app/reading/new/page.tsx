@@ -1,5 +1,5 @@
 "use client"
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -20,8 +20,6 @@ import { LocationSelector } from "@/components/reading/LocationSelector"
 import { DateSelector } from "@/components/reading/DateSelector"
 import { HotQuestions } from "@/components/reading/HotQuestions"
 import { FortuneGuide } from "@/components/reading/FortuneGuide"
-
-const PALM_SCAN_TEXT = "🔍 掌纹特征扫描中…"
 
 const STORAGE_KEY = "destiny_reading_progress"
 
@@ -59,35 +57,40 @@ function clearSavedProgress() {
   localStorage.removeItem(STORAGE_KEY)
 }
 
-const schema = z.object({
-  gender: z.enum(["male", "female", "other"]),
-  birth_year:   z.coerce.number().min(1920).max(2026),
-  birth_month:  z.coerce.number().min(1).max(12),
-  birth_day:    z.coerce.number().min(1).max(31),
-  birth_hour:   z.coerce.number().min(0).max(23),
-  birth_minute: z.coerce.number().min(0).max(59).default(0),
-  birth_city:   z.string().min(1, "请填写出生城市"),
-  latitude:     z.coerce.number().min(-90).max(90).optional().or(z.literal("")),
-  longitude:    z.coerce.number().min(-180).max(180).optional().or(z.literal("")),
-  user_question: z.string().min(2, "请至少输入2个字").max(200),
-})
-type FormValues = z.infer<typeof schema>
-
-const STEPS = ["出生信息", "塔罗 & 提问", "面相 & 手相", "确认推命"]
-
-const PALM_FIELDS = [
-  { key: "life_line",       label: "生命线", placeholder: "例如：较长弧形，无断裂" },
-  { key: "head_line",       label: "智慧线", placeholder: "例如：笔直延伸至手掌中部" },
-  { key: "heart_line",      label: "感情线", placeholder: "例如：弯曲上扬，起点在食指下方" },
-  { key: "fate_line",       label: "命运线", placeholder: "例如：清晰从掌底延伸至中指" },
-  { key: "sun_line",        label: "太阳线", placeholder: "例如：浅而短，在无名指下方" },
-  { key: "marriage_lines",  label: "婚姻线", placeholder: "例如：两条，一条较深" },
-]
-
 export default function NewReadingPage() {
   const router = useRouter()
   const { user } = useAuth()
-  const { locale } = useLanguage()
+  const { locale, t } = useLanguage()
+  const isEn = locale === "en"
+
+  // ── Validation schema (uses t() for messages) ──
+  const schema = useMemo(() => z.object({
+    gender: z.enum(["male", "female", "other"]),
+    birth_year:   z.coerce.number().min(1920).max(2026),
+    birth_month:  z.coerce.number().min(1).max(12),
+    birth_day:    z.coerce.number().min(1).max(31),
+    birth_hour:   z.coerce.number().min(0).max(23),
+    birth_minute: z.coerce.number().min(0).max(59).default(0),
+    birth_city:   z.string().min(1, t("new.cityRequired")),
+    latitude:     z.coerce.number().min(-90).max(90).optional().or(z.literal("")),
+    longitude:    z.coerce.number().min(-180).max(180).optional().or(z.literal("")),
+    user_question: z.string().min(2, t("new.questionMinChars")).max(200),
+  }), [t])
+  type FormValues = z.infer<typeof schema>
+
+  // ── Step labels ──
+  const STEPS = [t("new.step1"), t("new.step2"), t("new.step3"), t("new.step4")]
+
+  // ── Palm field labels ──
+  const PALM_FIELDS = useMemo(() => [
+    { key: "life_line",       label: t("new.palm.lifeLine"),       placeholder: t("new.palm.placeholder.lifeLine") },
+    { key: "head_line",       label: t("new.palm.headLine"),       placeholder: t("new.palm.placeholder.headLine") },
+    { key: "heart_line",      label: t("new.palm.heartLine"),      placeholder: t("new.palm.placeholder.heartLine") },
+    { key: "fate_line",       label: t("new.palm.fateLine"),       placeholder: t("new.palm.placeholder.fateLine") },
+    { key: "sun_line",        label: t("new.palm.sunLine"),        placeholder: t("new.palm.placeholder.sunLine") },
+    { key: "marriage_lines",  label: t("new.palm.marriageLine"),   placeholder: t("new.palm.placeholder.marriageLine") },
+  ], [t])
+
   const [step, setStep]           = useState(0)
   const [loading, setLoading]     = useState(false)
   // Face state
@@ -124,7 +127,7 @@ export default function NewReadingPage() {
 
   const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { birth_minute: 0, gender: "female", user_question: "请给我一份全维度命理分析" },
+    defaultValues: { birth_minute: 0, gender: "female", user_question: t("new.defaultQuestion") },
   })
 
   const watchedQuestion = watch("user_question")
@@ -145,7 +148,7 @@ export default function NewReadingPage() {
           }
         })
       }
-      toast.success("已恢复上次填写进度", { duration: 3000 })
+      toast.success(t("new.restoredMsg"), { duration: 3000 })
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -176,8 +179,8 @@ export default function NewReadingPage() {
     setValue("birth_hour", 0)
     setValue("birth_minute", 0)
     setValue("birth_city", "")
-    setValue("user_question", "请给我一份全维度命理分析")
-    toast.success("已清除所有进度")
+    setValue("user_question", t("new.defaultQuestion"))
+    toast.success(t("new.clearedMsg"))
   }
 
   // ── Exit guard ─────────────────────────────────────────────
@@ -195,16 +198,16 @@ export default function NewReadingPage() {
   useEffect(() => {
     if (facePreview && !faceScanDone) {
       setShowFaceGuide(true)
-      const t = setTimeout(() => setShowFaceGuide(false), 3000)
-      return () => clearTimeout(t)
+      const timeout = setTimeout(() => setShowFaceGuide(false), 3000)
+      return () => clearTimeout(timeout)
     }
   }, [facePreview, faceScanDone])
 
   useEffect(() => {
     if (palmPreview && !palmScanDone) {
       setShowPalmGuide(true)
-      const t = setTimeout(() => setShowPalmGuide(false), 3000)
-      return () => clearTimeout(t)
+      const timeout = setTimeout(() => setShowPalmGuide(false), 3000)
+      return () => clearTimeout(timeout)
     }
   }, [palmPreview, palmScanDone])
 
@@ -229,11 +232,11 @@ export default function NewReadingPage() {
         .then(res => {
           setFaceText(res.face_text)
           setFaceFeatures(res.features)
-          toast.success("面相识别完成")
+          toast.success(t("new.faceDoneToast"))
         })
         .catch(() => {
           setFaceV2TError(true)
-          toast.error("面相识别失败，可稍后重试")
+          toast.error(t("new.faceErrorToast"))
         })
     }
   }
@@ -259,11 +262,11 @@ export default function NewReadingPage() {
         .then(res => {
           setPalmText(res.palm_text)
           setPalmFeatures(res.features)
-          toast.success("掌纹识别完成")
+          toast.success(t("new.palmDoneToast"))
         })
         .catch(() => {
           setPalmV2TError(true)
-          toast.error("掌纹识别失败，可填写下方手相字段作为补充")
+          toast.error(t("new.palmErrorToast"))
         })
     }
   }
@@ -282,7 +285,7 @@ export default function NewReadingPage() {
         .join("; ")
 
       const finalPalmText = palmText
-        ? palmText + (manualPalmText ? "\n手动补充:\n" + manualPalmText : "")
+        ? palmText + (manualPalmText ? `\n${t("new.manualSupplement")}:\n` + manualPalmText : "")
         : manualPalmText
 
       const lat = typeof values.latitude === "number" ? values.latitude : undefined
@@ -301,32 +304,31 @@ export default function NewReadingPage() {
 
       const result = await runAnalysisStream(payload, () => {})
       clearSavedProgress()
-      toast.success("推命已启动！正在跳转报告…")
+      toast.success(t("new.readingStarted"))
       router.push(`/reading/${result.session_id}`)
     } catch (err: any) {
       console.error("[Reading submit] Full error:", err)
       let msg: string
       const status = err?.response?.status
       if (err?.code === "ECONNABORTED" || err?.message?.includes("timeout")) {
-        msg = "分析超时，服务器响应过慢，请稍后重试"
+        msg = t("new.timeoutError")
       } else if (status === 422) {
         const details = err?.response?.data?.detail
         msg = Array.isArray(details)
           ? details.map((d: any) => d.msg).join("; ")
-          : "输入数据有误，请检查填写信息"
+          : t("new.inputError")
       } else if (status === 400) {
-        msg = "服务器无法解析请求，请重试"
+        msg = t("new.parseError")
       } else if (status === 502 || status === 503) {
-        msg = "服务器暂时不可用，请稍后重试"
+        msg = t("new.serverBusy")
       } else if (status === 429) {
-        msg = "请求过于频繁，请稍后再试"
+        msg = t("new.rateLimitError")
       } else if (!err?.response) {
-        // Network error - show more specific info
         const code = err?.code || "UNKNOWN"
-        const detail = err?.message || "未知错误"
-        msg = `网络连接失败 (${code}: ${detail})，请检查网络后重试`
+        const detail = err?.message || t("new.unknownError")
+        msg = t("new.networkErrorMsg").replace("{code}", code).replace("{detail}", detail)
       } else {
-        msg = err?.response?.data?.detail ?? `提交失败 (HTTP ${status})，请重试`
+        msg = err?.response?.data?.detail ?? t("new.submitErrorMsg").replace("{status}", String(status))
       }
       toast.error(msg, { duration: 6000 })
       setLoading(false)
@@ -334,25 +336,25 @@ export default function NewReadingPage() {
   }
 
   // Key face features for summary display
-  const FACE_KEY_FEATURES: { key: string; label: string }[] = [
-    { key: "face_shape", label: "脸型" },
-    { key: "three_zones_ratio", label: "三庭" },
-    { key: "zhun_tou", label: "准头" },
-    { key: "shan_gen", label: "山根" },
-    { key: "di_ge", label: "地阁" },
-    { key: "e_tou", label: "额头" },
-    { key: "liang_quan", label: "两颧" },
-    { key: "yan_shen", label: "眼神" },
-  ]
+  const FACE_KEY_FEATURES: { key: string; label: string }[] = useMemo(() => [
+    { key: "face_shape", label: t("new.face.faceShape") },
+    { key: "three_zones_ratio", label: t("new.face.threeZones") },
+    { key: "zhun_tou", label: t("new.face.noseTip") },
+    { key: "shan_gen", label: t("new.face.noseBridge") },
+    { key: "di_ge", label: t("new.face.jawline") },
+    { key: "e_tou", label: t("new.face.forehead") },
+    { key: "liang_quan", label: t("new.face.cheekbones") },
+    { key: "yan_shen", label: t("new.face.eyes") },
+  ], [t])
 
   // Key palm features for summary display
-  const PALM_KEY_FEATURES: { key: string; label: string }[] = [
-    { key: "hand_shape", label: "手型" },
-    { key: "life_line", label: "生命线" },
-    { key: "head_line", label: "智慧线" },
-    { key: "heart_line", label: "感情线" },
-    { key: "fate_line", label: "命运线" },
-  ]
+  const PALM_KEY_FEATURES: { key: string; label: string }[] = useMemo(() => [
+    { key: "hand_shape", label: t("new.handShape") },
+    { key: "life_line", label: t("new.palm.lifeLine") },
+    { key: "head_line", label: t("new.palm.headLine") },
+    { key: "heart_line", label: t("new.palm.heartLine") },
+    { key: "fate_line", label: t("new.palm.fateLine") },
+  ], [t])
 
   return (
     <div className="min-h-screen pt-24 pb-16 px-4">
@@ -369,16 +371,16 @@ export default function NewReadingPage() {
         {/* Disclaimer banner */}
         <div className="mb-6 p-3 rounded-xl border border-amber-500/20 bg-amber-500/5 text-center">
           <p className="text-amber-200/70 text-xs leading-relaxed">
-            命理分析仅供参考和娱乐，不构成专业建议。请理性看待分析结果。
-            <a href="/disclaimer" className="text-gold/60 hover:text-gold ml-1 underline">查看详情</a>
+            {t("new.disclaimer")}
+            <a href="/disclaimer" className="text-gold/60 hover:text-gold ml-1 underline">{t("new.viewDetails")}</a>
           </p>
         </div>
 
         {/* Header */}
         <div className="text-center mb-10">
           <Sparkles className="text-gold mx-auto mb-3" size={32} />
-          <h1 className="text-3xl font-serif font-bold text-gold mb-2">开始推命</h1>
-          <p className="text-white/50 text-sm">八字 · 星盘 · 塔罗 · 面相 · 手相 · 五维联合分析</p>
+          <h1 className="text-3xl font-serif font-bold text-gold mb-2">{t("new.startTitle")}</h1>
+          <p className="text-white/50 text-sm">{t("new.startSubtitle")}</p>
         </div>
 
         {/* Step indicators */}
@@ -425,7 +427,7 @@ export default function NewReadingPage() {
               onClick={handleClearProgress}
               className="flex items-center gap-1.5 text-xs text-white/30 hover:text-red-400 transition-colors"
             >
-              <Trash2 size={12} /> 清除进度重新开始
+              <Trash2 size={12} /> {t("new.clearProgress")}
             </button>
           </div>
         )}
@@ -434,7 +436,7 @@ export default function NewReadingPage() {
           {/* All steps rendered simultaneously — hidden ones stay in DOM so
               react-hook-form register() references survive step transitions */}
           <div className="relative">
-            {/* ── Step 0: 出生信息 ─────────────────────────── */}
+            {/* ── Step 0: Birth Info ─────────────────────────── */}
             <div className={step !== 0 ? 'hidden' : ''}>
               <FortuneGuide step={0} />
               <motion.div
@@ -443,12 +445,12 @@ export default function NewReadingPage() {
                 transition={{ duration: 0.25, ease: "easeOut" }}
               >
                 <div className="card-glass p-6 md:p-8 space-y-6">
-                  <h2 className="font-serif text-xl text-gold">出生信息</h2>
+                  <h2 className="font-serif text-xl text-gold">{t("new.birthInfoTitle")}</h2>
 
               <div>
-                <label className="label">性别</label>
+                <label className="label">{t("new.genderLabel")}</label>
                 <div className="flex gap-3">
-                  {([["female","女"],["male","男"],["other","其他"]] as [string,string][]).map(([v,l]) => (
+                  {([["female", t("new.genderFemale")], ["male", t("new.genderMale")], ["other", t("new.genderOther")]] as [string,string][]).map(([v,l]) => (
                     <label key={v} className="flex-1 cursor-pointer">
                       <input type="radio" value={v} {...register("gender")} className="sr-only peer" />
  <div className="text-center py-2.5 rounded-xl border border-white/20 text-white/60 peer-checked:border-gold peer-checked:text-gold peer-checked:bg-gold/10 hover:border-white/40 transition-all text-sm">{l}</div>
@@ -475,25 +477,25 @@ export default function NewReadingPage() {
               <LocationSelector
                 value={watch("birth_city") || ""}
                 onChange={(v) => setValue("birth_city", v)}
-                placeholder="请输入国家或城市名称"
+                placeholder={t("new.cityPlaceholder")}
               />
               {errors.birth_city && <p className="text-red-400 text-xs mt-1">{errors.birth_city.message}</p>}
 
               {/* Advanced: coordinates */}
               <details className="group">
                 <summary className="text-xs text-white/30 cursor-pointer hover:text-white/50 transition-colors select-none">
-                  高级设置：经纬度（可选）
+                  {t("new.advancedSettings")}
                 </summary>
                 <div className="grid grid-cols-2 gap-3 mt-3">
                   <div>
-                    <label className="label text-xs">经度</label>
+                    <label className="label text-xs">{t("new.longitude")}</label>
                     <input {...register("longitude")} type="number" step="any" placeholder="116.4" className="input-field text-sm" />
-                    <p className="text-white/20 text-[10px] mt-1">东经为正，西经为负</p>
+                    <p className="text-white/20 text-[10px] mt-1">{t("new.lngHint")}</p>
                   </div>
                   <div>
-                    <label className="label text-xs">纬度</label>
+                    <label className="label text-xs">{t("new.latitude")}</label>
                     <input {...register("latitude")} type="number" step="any" placeholder="39.9" className="input-field text-sm" />
-                    <p className="text-white/20 text-[10px] mt-1">北纬为正，南纬为负</p>
+                    <p className="text-white/20 text-[10px] mt-1">{t("new.latHint")}</p>
                   </div>
                 </div>
               </details>
@@ -501,7 +503,7 @@ export default function NewReadingPage() {
               </motion.div>
             </div>
 
-          {/* ── Step 1: 塔罗 & 提问 ─────────────────────── */}
+          {/* ── Step 1: Tarot & Question ─────────────────────── */}
           <div className={step !== 1 ? 'hidden' : ''}>
             <FortuneGuide step={1} />
             <motion.div
@@ -511,7 +513,7 @@ export default function NewReadingPage() {
             >
               <FortuneGuide step={1} />
               <div className="card-glass p-6 md:p-8 space-y-6">
-                <h2 className="font-serif text-xl text-gold">塔罗提问</h2>
+                <h2 className="font-serif text-xl text-gold">{t("new.taroTitle")}</h2>
 
               {/* Hot question templates */}
               <HotQuestions
@@ -520,16 +522,16 @@ export default function NewReadingPage() {
               />
 
               <div>
-                <label className="label">输入你的问题</label>
+                <label className="label">{t("new.questionLabel")}</label>
                 <textarea {...register("user_question")} rows={3}
-                  placeholder="例如：我的事业方向如何？近期感情运势？是否适合创业？"
+                  placeholder={t("new.questionPlaceholder")}
                   className="input-field resize-none" />
                 {errors.user_question && <p className="text-red-400 text-xs mt-1">{errors.user_question.message}</p>}
               </div>
 
               {/* Divider */}
               <div className="star-divider">
-                <span className="text-gold/40 text-xs tracking-widest">塔罗牌阵</span>
+                <span className="text-gold/40 text-xs tracking-widest">{t("new.tarotSpread")}</span>
               </div>
 
               <TarotPicker onSelect={setTarotCards} />
@@ -537,7 +539,7 @@ export default function NewReadingPage() {
               </motion.div>
             </div>
 
-          {/* ── Step 2: 面相 & 手相 ──────────────────────── */}
+          {/* ── Step 2: Face & Palm ──────────────────────────── */}
           <div className={step !== 2 ? 'hidden' : ''}>
             <FortuneGuide step={2} />
             <motion.div
@@ -551,16 +553,16 @@ export default function NewReadingPage() {
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <Camera size={18} className="text-gold" />
-                  <h2 className="font-serif text-xl text-gold">上传面部照片</h2>
-                  <span className="text-white/30 text-sm font-sans">（推荐）</span>
+                  <h2 className="font-serif text-xl text-gold">{t("new.faceScanTitle")}</h2>
+                  <span className="text-white/30 text-sm font-sans">{t("new.faceRecommended")}</span>
                 </div>
-                <p className="text-white/40 text-xs mb-4">AI 将通过 MediaPipe 468 点特征识别，自动分析准头、山根、地阁等宫位</p>
+                <p className="text-white/40 text-xs mb-4">{t("new.faceDesc")}</p>
 
                 {/* Pre-scan guide overlay */}
                 {showFaceGuide && facePreview && !isFaceScanning && !faceScanDone && (
                   <div className="bg-gold/10 border border-gold/30 rounded-xl p-3 mb-4 text-sm text-gold/80 flex items-center gap-2 animate-pulse-slow">
                     <AlertCircle size={14} />
-                    正在准备面相识别，请确保面部正对镜头、光线充足…
+                    {t("new.faceGuide")}
                   </div>
                 )}
 
@@ -583,14 +585,14 @@ export default function NewReadingPage() {
                           </div>
                         )}
                         {faceV2TError && (
-                          <p className="text-amber-400 text-xs mt-2">识别失败，点击重试</p>
+                          <p className="text-amber-400 text-xs mt-2">{t("new.faceScanFail")}</p>
                         )}
                       </div>
                     ) : (
                       <div>
                         <Camera size={36} className="mx-auto text-white/20 group-hover:text-gold/50 mb-2 transition-colors" />
-                        <p className="text-white/40 text-sm">点击上传正面照</p>
-                        <p className="text-white/20 text-xs mt-1">上传后自动进行 AI 面相识别</p>
+                        <p className="text-white/40 text-sm">{t("new.faceClickUpload")}</p>
+                        <p className="text-white/20 text-xs mt-1">{t("new.faceAutoScan")}</p>
                       </div>
                     )}
                   </div>
@@ -601,7 +603,7 @@ export default function NewReadingPage() {
                 {faceFeatures && !isFaceScanning && (
                   <div className="mt-4 flex items-center gap-2 text-green-400/80 text-xs">
                     <CheckCircle size={14} />
-                    <span>AI 面相识别完成，分析结果将在报告中呈现</span>
+                    <span>{t("new.faceScanComplete")}</span>
                   </div>
                 )}
               </div>
@@ -610,16 +612,16 @@ export default function NewReadingPage() {
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <Hand size={18} className="text-gold" />
-                  <h2 className="font-serif text-xl text-gold">上传手部照片</h2>
-                  <span className="text-white/30 text-sm font-sans">（推荐）</span>
+                  <h2 className="font-serif text-xl text-gold">{t("new.palmScanTitle")}</h2>
+                  <span className="text-white/30 text-sm font-sans">{t("new.faceRecommended")}</span>
                 </div>
-                <p className="text-white/40 text-xs mb-4">AI 将分析手型分类、三大主线及特殊纹路</p>
+                <p className="text-white/40 text-xs mb-4">{t("new.palmDesc")}</p>
 
                 {/* Pre-scan guide overlay */}
                 {showPalmGuide && palmPreview && !isPalmScanning && !palmScanDone && (
                   <div className="bg-gold/10 border border-gold/30 rounded-xl p-3 mb-4 text-sm text-gold/80 flex items-center gap-2 animate-pulse-slow">
                     <AlertCircle size={14} />
-                    正在准备掌纹识别，请确保手掌平放、纹路清晰…
+                    {t("new.palmGuide")}
                   </div>
                 )}
 
@@ -642,14 +644,14 @@ export default function NewReadingPage() {
                           </div>
                         )}
                         {palmV2TError && (
-                          <p className="text-amber-400 text-xs mt-2">识别失败，点击重试或填写下方文本字段</p>
+                          <p className="text-amber-400 text-xs mt-2">{t("new.palmScanFail")}</p>
                         )}
                       </div>
                     ) : (
                       <div>
                         <Hand size={36} className="mx-auto text-white/20 group-hover:text-gold/50 mb-2 transition-colors" />
-                        <p className="text-white/40 text-sm">点击上传手掌照片</p>
-                        <p className="text-white/20 text-xs mt-1">上传后自动进行 AI 掌纹识别</p>
+                        <p className="text-white/40 text-sm">{t("new.palmClickUpload")}</p>
+                        <p className="text-white/20 text-xs mt-1">{t("new.palmAutoScan")}</p>
                       </div>
                     )}
                   </div>
@@ -660,7 +662,7 @@ export default function NewReadingPage() {
                 {palmFeatures && !isPalmScanning && (
                   <div className="mt-4 flex items-center gap-2 text-green-400/80 text-xs">
                     <CheckCircle size={14} />
-                    <span>AI 掌纹识别完成，分析结果将在报告中呈现</span>
+                    <span>{t("new.palmScanComplete")}</span>
                   </div>
                 )}
               </div>
@@ -668,7 +670,7 @@ export default function NewReadingPage() {
               {/* ── Manual palm text fallback ────────────── */}
               <div className="border-t border-white/10 pt-6">
                 <h3 className="text-white/50 text-sm mb-3">
-                  手相文本补充 <span className="text-white/20 text-xs">（若拍照识别失败，可手动填写你观察到的特征）</span>
+                  {t("new.palmManualTitle")} <span className="text-white/20 text-xs">{t("new.palmManualHint")}</span>
                 </h3>
                 <div className="grid sm:grid-cols-2 gap-3">
                   {PALM_FIELDS.map(({ key, label, placeholder }) => (
@@ -686,7 +688,7 @@ export default function NewReadingPage() {
               </motion.div>
             </div>
 
-          {/* ── Step 3: 确认 ─────────────────────────────── */}
+          {/* ── Step 3: Confirm ─────────────────────────────── */}
           <div className={step !== 3 ? 'hidden' : ''}>
             <motion.div
               initial={{ opacity: 0, scale: 0.97 }}
@@ -695,19 +697,19 @@ export default function NewReadingPage() {
             >
               <div className="card-glass p-6 md:p-8 text-center space-y-6">
               <div className="text-6xl animate-float">🔮</div>
-              <h2 className="font-serif text-2xl text-gold">五维推命即将开始</h2>
+              <h2 className="font-serif text-2xl text-gold">{t("new.confirmTitle")}</h2>
               <p className="text-white/50 text-sm leading-relaxed">
-                五大 AI 命师将同步并行分析，<br />
-                预计 <span className="text-gold font-semibold">15-40 秒</span> 生成你的专属报告。
+                {t("new.confirmDesc1")}<br />
+                {t("new.confirmDesc2")} <span className="text-gold font-semibold">{t("new.confirmDesc3")}</span> {t("new.confirmDesc4")}
               </p>
               <div className="card-glass p-4 text-left space-y-2">
                 {[
-                  ["☯", "周易八字 — 四柱格局 · 五行得分 · 流年研判"],
-                  ["✦", "西方星盘 — 行星落宫 · 相位角度 · 灵魂使命"],
-                  ["🃏", "塔罗疗愈 — 牌阵解读 · 当下能量 · 行动指引"],
-                  ["👁", `AI 面相 — ${faceText ? "V2T 自动识别已就绪" : "未提供面部照片"}`],
-                  ["🤚", `手相解读 — ${palmText ? "V2T 自动识别已就绪" : Object.values(palmData).some(v => v) ? "手动填写已就绪" : "未提供手相数据"}`],
-                  ["🌟", "Master 汇总 — 跨维度融合 · 改运商品精准匹配"],
+                  ["☯", t("new.baziFull")],
+                  ["✦", t("new.astrologyFull")],
+                  ["🃏", t("new.tarotFull")],
+                  ["👁", `${t("new.faceSystem")} — ${faceText ? t("new.faceV2TReady") : t("new.faceNoPhotoProvided")}`],
+                  ["🤚", `${t("new.palmSystem")} — ${palmText ? t("new.palmV2TReady") : Object.values(palmData).some(v => v) ? t("new.palmManualReady") : t("new.palmNoData")}`],
+                  ["🌟", t("new.masterFull")],
                 ].map(([icon, text]) => (
                   <div key={text} className="flex items-center gap-2 text-sm text-white/70">
                     <span className="flex-shrink-0">{icon}</span> {text}
@@ -717,48 +719,48 @@ export default function NewReadingPage() {
 
               {/* ── Tier Selection ───────────────────────── */}
               <div className="border-t border-white/10 pt-5">
-                <p className="text-white/50 text-xs mb-4">选择报告深度</p>
+                <p className="text-white/50 text-xs mb-4">{t("new.selectDepth")}</p>
                 <div className="grid grid-cols-2 gap-3">
                   {/* Free tier */}
                   <div className="bg-white/5 border border-white/20 rounded-xl p-4 text-left hover:border-white/40 transition-all">
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-xl">🔍</span>
-                      <span className="text-white/80 font-medium text-sm">免费体验</span>
+                      <span className="text-white/80 font-medium text-sm">{t("new.freeTier")}</span>
                     </div>
                     <p className="text-white/40 text-xs leading-relaxed mb-3">
-                      命盘总览摘要 + 各维度预览
+                      {t("new.freeTierDesc")}
                     </p>
                     <button type="submit" disabled={loading}
                       className="w-full py-2 rounded-full border border-gold/30 text-gold text-sm hover:bg-gold/10 transition-all">
                       {loading
-                        ? <span className="flex items-center justify-center gap-1"><Loader2 size={14} className="animate-spin" /> 推命中…</span>
-                        : "免费开始"}
+                        ? <span className="flex items-center justify-center gap-1"><Loader2 size={14} className="animate-spin" /> {t("new.starting")}</span>
+                        : t("new.startFree")}
                     </button>
                   </div>
 
                   {/* Paid tier */}
                   <div className="relative bg-gold/5 border border-gold/40 rounded-xl p-4 text-left ring-1 ring-gold/20">
                     <div className="absolute -top-2.5 right-3 bg-gold text-ink text-[10px] font-bold px-2 py-0.5 rounded-full">
-                      首单 ¥29.9
+                      {t("new.firstOrderPrice")}
                     </div>
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-xl">👑</span>
-                      <span className="text-gold font-medium text-sm">全维报告</span>
-                      <span className="text-gold/60 text-xs ml-auto">¥69</span>
+                      <span className="text-gold font-medium text-sm">{t("new.fullReport")}</span>
+                      <span className="text-gold/60 text-xs ml-auto">{t("new.fullReportPrice")}</span>
                     </div>
                     <p className="text-white/50 text-xs leading-relaxed mb-3">
-                      完整年度规划 + AI 商品匹配 + ¥60 代金券
+                      {t("new.fullReportDesc")}
                     </p>
                     <button type="submit" disabled={loading}
                       className="w-full py-2 btn-gold text-sm">
                       {loading
-                        ? <span className="flex items-center justify-center gap-1"><Loader2 size={14} className="animate-spin" /> 推命中…</span>
-                        : "解锁完整报告"}
+                        ? <span className="flex items-center justify-center gap-1"><Loader2 size={14} className="animate-spin" /> {t("new.starting")}</span>
+                        : t("new.unlockFull")}
                     </button>
                   </div>
                 </div>
                 <p className="text-white/25 text-[10px] mt-3">
-                  无论选择哪种，均可先查看命盘总览摘要；完整报告可稍后在报告页解锁
+                  {t("new.bothNote")}
                 </p>
               </div>
             </div> {/* end card-glass */}
@@ -769,14 +771,14 @@ export default function NewReadingPage() {
             {step > 0 ? (
               <button type="button" onClick={() => setStep(s => s - 1)}
  className="flex items-center gap-2 px-6 py-2.5 rounded-full border border-white/20 text-white/60 hover:border-white/40 transition-all">
-                <ChevronLeft size={16} /> 上一步
+                <ChevronLeft size={16} /> {t("new.prevStep")}
               </button>
             ) : <div />}
 
             {step < STEPS.length - 1 && (
               <button type="button" onClick={() => setStep(s => s + 1)}
                 className="btn-gold flex items-center gap-2">
-                下一步 <ChevronRight size={16} />
+                {t("new.nextStep")} <ChevronRight size={16} />
               </button>
             )}
           </div>
