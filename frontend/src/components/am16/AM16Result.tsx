@@ -693,11 +693,13 @@ function SquareRadar({
 
   const dataPath = dataPoints.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ") + " Z"
 
-  const padding = 40
-  const vb = `-${padding} -${padding} ${size + padding * 2} ${size + padding * 2}`
+  const padding = 50
+  const svgW = size + padding * 2
+  const svgH = size + padding * 2
+  const vb = `-${padding} -${padding} ${svgW} ${svgH}`
 
   return (
-    <svg width={size + padding * 2} height={size + padding * 2} viewBox={vb} className="will-change-transform">
+    <svg width={svgW} height={svgH} viewBox={vb} className="will-change-transform">
       {/* 呼吸光晕 — 静态版本，避免移动端持续重绘 */}
       <defs>
         <radialGradient id="radarGlow">
@@ -741,9 +743,8 @@ function SquareRadar({
           className="am16-radar-dot" />
       ))}
 
-      {/* 标签 + 轴标百分比 */}
+      {/* 标签 + 轴标百分比 — 按方向差异化偏移 */}
       {corners.map((c, i) => {
-        const labelOffset = 28
         const dx = c.x - cx
         const dy = c.y - cy
         const len = Math.sqrt(dx * dx + dy * dy)
@@ -751,11 +752,14 @@ function SquareRadar({
         const ny = dy / len
         const val = dataPoints[i].val
         const dominantName = val > 50 ? t(`am16.${dimNamesB[i]}`) : t(`am16.${dimNamesA[i]}`)
+        // 左右标签减小偏移防止水平裁切，上下标签保持较大偏移
+        const isHorizontal = i === 1 || i === 3
+        const offset = isHorizontal ? 20 : 32
         return (
           <g key={i}>
             <text
-              x={c.x + nx * labelOffset}
-              y={c.y + ny * labelOffset - 7}
+              x={c.x + nx * offset}
+              y={c.y + ny * offset - 7}
               textAnchor="middle"
               dominantBaseline="middle"
               fill="rgba(255,255,255,0.6)"
@@ -765,8 +769,8 @@ function SquareRadar({
               {t(`am16.${radarLabels[i]}`)}
             </text>
             <text
-              x={c.x + nx * labelOffset}
-              y={c.y + ny * labelOffset + 8}
+              x={c.x + nx * offset}
+              y={c.y + ny * offset + 8}
               textAnchor="middle"
               dominantBaseline="middle"
               fill="rgba(201,168,76,0.7)"
