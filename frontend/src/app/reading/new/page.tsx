@@ -501,7 +501,6 @@ export default function NewReadingPage() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
             >
-              <FortuneGuide step={1} />
               <div className="card-glass p-6 md:p-8 space-y-6">
                 <h2 className="font-serif text-xl text-gold">{t("new.taroTitle")}</h2>
 
@@ -537,7 +536,6 @@ export default function NewReadingPage() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
             >
-              <FortuneGuide step={2} />
               <div className="card-glass p-6 md:p-8 space-y-8">
                 {/* ── Face Photo ───────────────────────────── */}
               <div>
