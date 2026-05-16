@@ -74,10 +74,10 @@ export function EnergyIDCard({ sessionId, userId, dimensionScores, generatedAt }
     try {
       await navigator.clipboard.writeText(cardId)
       setCopied(true)
-      toast.success("编号已复制")
+      toast.success(t("reading.idCopied"))
       setTimeout(() => setCopied(false), 2000)
     } catch {
-      toast.error("复制失败")
+      toast.error(t("reading.copyFailed"))
     }
   }
 
@@ -288,7 +288,7 @@ export function EnergyIDCard({ sessionId, userId, dimensionScores, generatedAt }
                   className="flex items-center gap-1 text-white/30 hover:text-gold transition-colors"
                 >
                   {copied ? <Check size={10} className="text-green-400" /> : <Copy size={10} />}
-                  <span className="text-[9px]">{copied ? "已复制" : "复制编号"}</span>
+                  <span className="text-[9px]">{copied ? t("reading.copied") : t("reading.copyId")}</span>
                 </button>
               </div>
             </div>
