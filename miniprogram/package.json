@@ -9,7 +9,7 @@
     "css": "sass"
   },
   "scripts": {
-    "build:weapp": "taro build --type weapp",
+    "build:weapp": "taro build --type weapp && node scripts/fix-wxss.js",
     "dev:weapp": "taro build --type weapp --watch",
     "build:h5": "taro build --type h5",
     "dev:h5": "taro build --type h5 --watch"
@@ -24,8 +24,8 @@
     "@tarojs/components": "3.6.31",
     "@tarojs/helper": "3.6.31",
     "@tarojs/plugin-framework-react": "3.6.31",
-    "@tarojs/plugin-platform-weapp": "3.6.31",
     "@tarojs/plugin-platform-h5": "3.6.31",
+    "@tarojs/plugin-platform-weapp": "3.6.31",
     "@tarojs/react": "3.6.31",
     "@tarojs/runtime": "3.6.31",
     "@tarojs/shared": "3.6.31",
@@ -34,13 +34,17 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@types/react": "^18.2.0",
-    "typescript": "^5.1.0",
-    "tailwindcss": "^3.3.0",
-    "autoprefixer": "^10.4.0",
-    "postcss": "^8.4.0",
-    "sass": "^1.60.0",
+    "@babel/preset-typescript": "^7.28.5",
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.6.2",
     "@tarojs/webpack5-runner": "3.6.31",
+    "@types/react": "^18.2.0",
+    "autoprefixer": "^10.4.0",
+    "babel-preset-taro": "^3.6.31",
+    "postcss": "^8.4.0",
+    "react-refresh": "^0.18.0",
+    "sass": "^1.60.0",
+    "tailwindcss": "^3.3.0",
+    "typescript": "^5.1.0",
     "webpack": "5.88.0"
   }
 }

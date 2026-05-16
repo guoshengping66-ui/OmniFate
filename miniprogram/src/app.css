@@ -7,3 +7,11 @@ page {
   color: #ffffff;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
+
+/* ── WXSS 兼容的 @keyframes ── */
+@keyframes spin {
+  to { transform: rotate(1turn); }
+}
+@keyframes pulse {
+  50% { opacity: 0.5; }
+}
