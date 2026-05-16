@@ -128,40 +128,34 @@ export default function QuizPage() {
           </Text>
         </View>
 
-        {/* 四维预览卡片 — 两行两列，固定宽度百分比 */}
-        <View className="mb-8" style={{ animation: "fadeInUp 0.6s ease-out 0.2s both" }}>
-          {/* 第一行 */}
-          <View style={{ display: "flex", flexDirection: "row", marginBottom: "16rpx" }}>
-            {dimPreviews.slice(0, 2).map((d, i) => (
-              <View key={d.code} className="rounded-2xl p-5 text-center" style={{
-                width: "47%",
-                marginRight: i === 0 ? "6%" : 0,
-                backgroundColor: "rgba(255,255,255,0.05)",
-                border: "1rpx solid rgba(255,255,255,0.1)",
-                boxShadow: "0 4rpx 20rpx rgba(0,0,0,0.3), inset 0 1rpx 0 rgba(255,255,255,0.06)",
-                animation: `fadeInUp 0.4s ease-out ${0.3 + i * 0.1}s both`,
-              }}>
-                <Text className="text-2xl block mb-2">{d.icon}</Text>
-                <Text className="text-xs block" style={{ color: "rgba(255,255,255,0.7)" }}>{d.label}</Text>
+        {/* 四维预览卡片 — 两行两列，绝对定位 */}
+        <View style={{ position: "relative", width: "680rpx", height: "320rpx", marginBottom: "48rpx", animation: "fadeInUp 0.6s ease-out 0.2s both" }}>
+          {dimPreviews.map((d, i) => {
+            const row = Math.floor(i / 2)
+            const col = i % 2
+            const cardStyle = {
+              position: "absolute" as const,
+              left: col === 0 ? "0rpx" : "352rpx",
+              top: row === 0 ? "0rpx" : "168rpx",
+              width: "328rpx",
+              height: "152rpx",
+              backgroundColor: "rgba(255,255,255,0.05)",
+              border: "1rpx solid rgba(255,255,255,0.1)",
+              borderRadius: "24rpx",
+              boxShadow: "0 4rpx 20rpx rgba(0,0,0,0.3), inset 0 1rpx 0 rgba(255,255,255,0.06)",
+              display: "flex" as const,
+              flexDirection: "column" as const,
+              alignItems: "center" as const,
+              justifyContent: "center" as const,
+              animation: `fadeInUp 0.4s ease-out ${0.3 + i * 0.1}s both`,
+            }
+            return (
+              <View key={d.code} style={cardStyle}>
+                <Text style={{ fontSize: "48rpx", marginBottom: "8rpx" }}>{d.icon}</Text>
+                <Text style={{ fontSize: "24rpx", color: "rgba(255,255,255,0.7)" }}>{d.label}</Text>
               </View>
-            ))}
-          </View>
-          {/* 第二行 */}
-          <View style={{ display: "flex", flexDirection: "row" }}>
-            {dimPreviews.slice(2, 4).map((d, i) => (
-              <View key={d.code} className="rounded-2xl p-5 text-center" style={{
-                width: "47%",
-                marginRight: i === 0 ? "6%" : 0,
-                backgroundColor: "rgba(255,255,255,0.05)",
-                border: "1rpx solid rgba(255,255,255,0.1)",
-                boxShadow: "0 4rpx 20rpx rgba(0,0,0,0.3), inset 0 1rpx 0 rgba(255,255,255,0.06)",
-                animation: `fadeInUp 0.4s ease-out ${0.5 + i * 0.1}s both`,
-              }}>
-                <Text className="text-2xl block mb-2">{d.icon}</Text>
-                <Text className="text-xs block" style={{ color: "rgba(255,255,255,0.7)" }}>{d.label}</Text>
-              </View>
-            ))}
-          </View>
+            )
+          })}
         </View>
 
         {/* 开始按钮 */}
