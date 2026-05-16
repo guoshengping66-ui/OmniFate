@@ -261,7 +261,7 @@ async def register(req: RegisterRequest, request: Request, db: AsyncSession = De
     # ── Grant referral rewards (after commit so user.id is stable) ──
     if referred_by_user and user.referred_by:
         try:
-            from database.models import ReferralReward, CreditTransaction
+            from database.models import ReferralReward
             REFERRAL_REWARD = 20
 
             # Reward the new user
