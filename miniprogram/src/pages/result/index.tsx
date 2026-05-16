@@ -238,18 +238,21 @@ export default function ResultPage() {
             {/* 顶部装饰线 */}
             <View className="absolute top-0 left-8 right-8" style={{ height: "1rpx", background: `linear-gradient(to right, transparent, rgba(${goldRgb},0.2), transparent)` }} />
             <Text className="tracking-wider uppercase block text-center mb-4" style={{
-              color: "rgba(255,255,255,0.65)", fontSize: "20rpx", letterSpacing: "3rpx",
+              color: "rgba(255,255,255,0.65)", fontSize: "24rpx", letterSpacing: "3rpx",
             }}>四维能量坐标</Text>
             <Canvas type="2d" id="radarCanvas" style={{ width: "280px", height: "280px", margin: "0 auto" }} />
-            <View className="grid grid-cols-4 gap-2 mt-4 text-center">
+            <View className="grid grid-cols-4 gap-3 mt-4 text-center">
               {DIMENSIONS.map(d => {
                 const val = radarScores[d.code] ?? 50
                 const label = getDimLabel(d.code, val)
                 return (
-                  <View key={d.code} className="rounded-xl py-2" style={{ backgroundColor: "rgba(255,255,255,0.03)" }}>
-                    <Text className="font-medium block" style={{ color: "rgba(255,255,255,0.55)", fontSize: "20rpx" }}>{d.code}</Text>
-                    <Text className="block mt-1" style={{ color: `rgba(${goldRgb},0.8)`, fontSize: "18rpx" }}>
-                      {label} {val}%
+                  <View key={d.code} className="rounded-xl py-3 px-1" style={{ backgroundColor: "rgba(255,255,255,0.03)" }}>
+                    <Text className="font-medium block" style={{ color: "rgba(255,255,255,0.6)", fontSize: "22rpx" }}>{d.code}</Text>
+                    <Text className="block mt-1.5 leading-tight" style={{ color: `rgba(${goldRgb},0.85)`, fontSize: "22rpx" }}>
+                      {label}
+                    </Text>
+                    <Text className="block mt-0.5" style={{ color: `rgba(${goldRgb},0.6)`, fontSize: "20rpx" }}>
+                      {val}%
                     </Text>
                   </View>
                 )
@@ -449,7 +452,8 @@ function drawRadar(canvasNode: any, scores: Record<string, number>, size: number
   ctx.scale(dpr, dpr)
   const cx = size / 2, cy = size / 2, r = size * 0.34
   const dims = ["FD", "XS", "GI", "PE"]
-  const dimLabels = ["放荡", "贤淑", "高冷", "破防"]
+  // 使用实际维度名称
+  const dimLabels = DIMENSIONS.map(d => `${d.code}`)
   const corners = [{ x: cx, y: cy - r }, { x: cx + r, y: cy }, { x: cx, y: cy + r }, { x: cx - r, y: cy }]
 
   // 外圈装饰 — 弱发光
@@ -476,10 +480,15 @@ function drawRadar(canvasNode: any, scores: Record<string, number>, size: number
     // 轴端小圆点
     ctx.beginPath(); ctx.arc(c.x, c.y, 2, 0, Math.PI * 2)
     ctx.fillStyle = `rgba(${goldRgb},0.3)`; ctx.fill()
-    // 轴标签
-    ctx.fillStyle = `rgba(${goldRgb},0.55)`; ctx.font = "11px sans-serif"; ctx.textAlign = "center"
-    const lx = cx + (c.x - cx) * 1.18, ly = cy + (c.y - cy) * 1.18 + 4
-    ctx.fillText(dimLabels[i], lx, ly)
+    // 轴标签 — 使用维度代码 + 名称
+    const dim = DIMENSIONS[i]
+    const dimName = getDimLabel(dim.code, scores[dim.code] ?? 50)
+    ctx.fillStyle = `rgba(${goldRgb},0.65)`; ctx.font = "bold 12px sans-serif"; ctx.textAlign = "center"
+    const lx = cx + (c.x - cx) * 1.22, ly = cy + (c.y - cy) * 1.22
+    ctx.fillText(dim.code, lx, ly - 3)
+    ctx.font = "10px sans-serif"
+    ctx.fillStyle = `rgba(${goldRgb},0.45)`
+    ctx.fillText(dimName, lx, ly + 10)
   })
 
   // 数据区域 — 渐变填充 + 发光描边
