@@ -73,8 +73,7 @@ def send_password_reset_email(to_email: str, code: str) -> bool:
     config = _get_smtp_config()
     if not config["host"] or not config["user"]:
         print("[EMAIL] SMTP not configured, skipping email send")
-        import os
-        if os.getenv("DEBUG", "false").lower() == "true":
+        if settings.DEBUG:
             print(f"[EMAIL] Password reset code for {to_email}: {code}")
         return False
 
