@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { CHINA_REGIONS } from "@/data/china-regions"
 import { INTERNATIONAL_LOCATIONS } from "@/data/international-locations"
-import { ChevronDown, Search, Globe } from "lucide-react"
+import { ChevronDown, Search } from "lucide-react"
 
 const OTHER_COUNTRY = "__other__"
 const INTL_CUSTOM = "__custom__"
@@ -22,6 +22,7 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
 
   // ── International mode state ──
   const [selectedCountry, setSelectedCountry] = useState("")
+  const [selectedState, setSelectedState] = useState("")
   const [selectedIntlCity, setSelectedIntlCity] = useState("")
   const [isInternational, setIsInternational] = useState(false)
 
@@ -32,6 +33,17 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
   const [countrySearch, setCountrySearch] = useState("")
   const [showCountryDropdown, setShowCountryDropdown] = useState(false)
   const countrySearchRef = useRef<HTMLInputElement>(null)
+
+  const currentCountry = INTERNATIONAL_LOCATIONS.find(c => c.name === selectedCountry)
+  const hasStates = !!(currentCountry?.states && currentCountry.states.length > 0)
+  const currentState = hasStates
+    ? currentCountry!.states!.find(s => s.name === selectedState)
+    : null
+
+  // Cities list: from state if hasStates, else from country.cities
+  const intlCities = hasStates
+    ? currentState?.cities || []
+    : currentCountry?.cities || []
 
   // ── Determine mode from value ──
   useEffect(() => {
@@ -58,19 +70,58 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
     }
 
     // Check if it's an international location
-    // Format: "Country/City" or just "Country"
-    if (parts.length >= 2) {
+    // Formats:
+    //   "Country/State/City" (with states)
+    //   "Country/City" (without states, or stateless country)
+    //   "Country" (just country)
+    //   Free text
+    if (parts.length >= 1) {
       const country = INTERNATIONAL_LOCATIONS.find(c => c.name === parts[0])
       if (country) {
         setIsInternational(true)
         setSelectedCountry(parts[0])
-        const city = country.cities.find(c => c.name === parts[1])
-        if (city) {
-          setSelectedIntlCity(parts[1])
-        } else {
-          // Custom city not in list
-          setSelectedIntlCity(INTL_CUSTOM)
-          setOtherInput(parts[1])
+
+        if (country.states && country.states.length > 0 && parts.length >= 3) {
+          // Three-level: Country/State/City
+          setSelectedState(parts[1])
+          const state = country.states.find(s => s.name === parts[1])
+          if (state) {
+            const city = state.cities.find(c => c.name === parts[2])
+            if (city) {
+              setSelectedIntlCity(parts[2])
+            } else {
+              setSelectedIntlCity(INTL_CUSTOM)
+              setOtherInput(parts[2])
+            }
+          }
+        } else if (parts.length >= 2) {
+          // Two-level: Country/City
+          if (country.states && country.states.length > 0) {
+            // Value is old format (Country/City) without state, try to find in any state
+            let found = false
+            for (const state of country.states) {
+              const city = state.cities.find(c => c.name === parts[1])
+              if (city) {
+                setSelectedState(state.name)
+                setSelectedIntlCity(parts[1])
+                found = true
+                break
+              }
+            }
+            if (!found) {
+              setSelectedState("")
+              setSelectedIntlCity(INTL_CUSTOM)
+              setOtherInput(parts[1])
+            }
+          } else {
+            const city = country.cities?.find(c => c.name === parts[1])
+            if (city) {
+              setSelectedIntlCity(parts[1])
+            } else {
+              setSelectedIntlCity(INTL_CUSTOM)
+              setOtherInput(parts[1])
+            }
+          }
         }
         return
       }
@@ -79,13 +130,13 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
     // Free text (no match found)
     setIsInternational(true)
     setSelectedCountry("")
+    setSelectedState("")
     setSelectedIntlCity(INTL_CUSTOM)
     setOtherInput(value)
   }, [value])
 
   const currentProvince = CHINA_REGIONS.find(p => p.name === selectedProvince)
   const currentCity = currentProvince?.children.find(c => c.name === selectedCity)
-  const currentCountry = INTERNATIONAL_LOCATIONS.find(c => c.name === selectedCountry)
 
   // ── Filter countries by search ──
   const filteredCountries = INTERNATIONAL_LOCATIONS.filter(c =>
@@ -106,13 +157,32 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
     }
   }
 
-  const emitIntlValue = (country: string, city: string) => {
-    if (country && city && city !== INTL_CUSTOM) {
-      onChange(`${country}/${city}`)
-    } else if (country) {
-      onChange(country)
+  const emitIntlValue = (country: string, state: string, city: string, customCity?: string) => {
+    const countryObj = INTERNATIONAL_LOCATIONS.find(c => c.name === country)
+    const hasStateLevel = countryObj?.states && countryObj.states.length > 0
+
+    if (hasStateLevel) {
+      // Three-level: Country/State/City
+      if (state && city && city !== INTL_CUSTOM) {
+        onChange(`${country}/${state}/${city}`)
+      } else if (state && customCity) {
+        onChange(`${country}/${state}/${customCity}`)
+      } else if (country) {
+        onChange(country)
+      } else {
+        onChange("")
+      }
     } else {
-      onChange("")
+      // Two-level: Country/City
+      if (city && city !== INTL_CUSTOM) {
+        onChange(`${country}/${city}`)
+      } else if (customCity) {
+        onChange(`${country}/${customCity}`)
+      } else if (country) {
+        onChange(country)
+      } else {
+        onChange("")
+      }
     }
   }
 
@@ -124,6 +194,7 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
       setSelectedCity("")
       setSelectedDistrict("")
       setSelectedCountry("")
+      setSelectedState("")
       setSelectedIntlCity("")
       setOtherInput("")
       onChange("")
@@ -150,32 +221,36 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
   // ── International handlers ──
   const handleCountrySelect = (countryName: string) => {
     setSelectedCountry(countryName)
+    setSelectedState("")
     setSelectedIntlCity("")
     setCountrySearch("")
     setShowCountryDropdown(false)
-    emitIntlValue(countryName, "")
+    emitIntlValue(countryName, "", "")
+  }
+
+  const handleStateChange = (val: string) => {
+    setSelectedState(val)
+    setSelectedIntlCity("")
+    emitIntlValue(selectedCountry, val, "")
   }
 
   const handleIntlCityChange = (val: string) => {
     if (val === INTL_CUSTOM) {
       setSelectedIntlCity(val)
       setOtherInput("")
-      // Don't emit yet, wait for user to type
       return
     }
     setSelectedIntlCity(val)
     setOtherInput("")
-    emitIntlValue(selectedCountry, val)
+    emitIntlValue(selectedCountry, selectedState, val)
   }
 
   const handleCustomCityInput = (val: string) => {
     setOtherInput(val)
-    if (selectedCountry && val) {
-      onChange(`${selectedCountry}/${val}`)
-    } else if (val) {
-      onChange(val)
+    if (val) {
+      emitIntlValue(selectedCountry, selectedState, "", val)
     } else {
-      onChange("")
+      onChange(selectedCountry || "")
     }
   }
 
@@ -186,17 +261,28 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
     setSelectedCity("")
     setSelectedDistrict("")
     setSelectedCountry("")
+    setSelectedState("")
     setSelectedIntlCity("")
     setOtherInput("")
     onChange("")
   }
 
-  // ── Clear search on dropdown close ──
+  // ── Country dropdown blur ──
   const handleCountryDropdownBlur = () => {
     setTimeout(() => {
       setShowCountryDropdown(false)
       setCountrySearch("")
     }, 200)
+  }
+
+  // ── Preview value for display ──
+  const displayPreview = () => {
+    if (!value) return null
+    return (
+      <div className="text-xs text-white/40 mt-1">
+        <span className="text-gold/60">{value}</span>
+      </div>
+    )
   }
 
   return (
@@ -256,18 +342,15 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
             </select>
           </div>
 
-          {selectedProvince && value && (
-            <div className="text-xs text-white/40">
-              <span className="text-gold/60">{value}</span>
-            </div>
-          )}
+          {displayPreview()}
         </div>
       )}
 
       {/* ── International Mode ── */}
       {isInternational && (
         <div className="space-y-2">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {/* Row 1: Country + State/City */}
+          <div className={`grid grid-cols-1 sm:grid-cols-${hasStates ? 3 : 2} gap-2`}>
             {/* Country Selector with search */}
             <div className="relative">
               <div
@@ -279,10 +362,10 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
                 }}
                 className="input-field text-sm cursor-pointer flex items-center justify-between"
               >
-                <span className={currentCountry ? "text-white" : "text-white/40"}>
-                  {currentCountry ? `${currentCountry.nameZh} ${currentCountry.name}` : "选择国家/地区"}
+                <span className={currentCountry ? "text-white truncate" : "text-white/40"}>
+                  {currentCountry ? `${currentCountry.nameZh}` : "选择国家/地区"}
                 </span>
-                <ChevronDown className={`w-4 h-4 text-white/40 transition-transform ${showCountryDropdown ? "rotate-180" : ""}`} />
+                <ChevronDown className={`w-4 h-4 text-white/40 transition-transform flex-shrink-0 ${showCountryDropdown ? "rotate-180" : ""}`} />
               </div>
 
               {showCountryDropdown && (
@@ -304,7 +387,6 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
 
                   {/* Country list */}
                   <div className="overflow-y-auto max-h-56 p-1">
-                    {/* Region groups */}
                     {countrySearch ? (
                       // Flat filtered list
                       filteredCountries.map(c => (
@@ -381,27 +463,42 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
               )}
             </div>
 
-            {/* City Selector */}
-            <div>
+            {/* State/Province selector (only for countries with states) */}
+            {hasStates && (
               <select
-                value={selectedIntlCity}
-                onChange={e => handleIntlCityChange(e.target.value)}
+                value={selectedState}
+                onChange={e => handleStateChange(e.target.value)}
                 disabled={!selectedCountry}
                 className="input-field text-sm disabled:opacity-30"
               >
-                <option value="" className="bg-[#0f0f1a] text-white">选择城市</option>
-                {currentCountry?.cities.map(c => (
-                  <option key={c.name} value={c.name} className="bg-[#0f0f1a] text-white">
-                    {c.nameZh} {c.name}
+                <option value="" className="bg-[#0f0f1a] text-white">选择州/省</option>
+                {currentCountry!.states!.map(s => (
+                  <option key={s.name} value={s.name} className="bg-[#0f0f1a] text-white">
+                    {s.nameZh} {s.name}
                   </option>
                 ))}
-                {selectedCountry && (
-                  <option value={INTL_CUSTOM} className="bg-[#0f0f1a] text-white/50">
-                    手动输入其他城市...
-                  </option>
-                )}
               </select>
-            </div>
+            )}
+
+            {/* City Selector */}
+            <select
+              value={selectedIntlCity}
+              onChange={e => handleIntlCityChange(e.target.value)}
+              disabled={hasStates ? !selectedState : !selectedCountry}
+              className="input-field text-sm disabled:opacity-30"
+            >
+              <option value="" className="bg-[#0f0f1a] text-white">选择城市</option>
+              {intlCities.map(c => (
+                <option key={c.name} value={c.name} className="bg-[#0f0f1a] text-white">
+                  {c.nameZh} {c.name}
+                </option>
+              ))}
+              {(hasStates ? selectedState : selectedCountry) && (
+                <option value={INTL_CUSTOM} className="bg-[#0f0f1a] text-white/50">
+                  手动输入其他城市...
+                </option>
+              )}
+            </select>
           </div>
 
           {/* Custom city input */}
@@ -426,12 +523,7 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
             ← 选择中国地区
           </button>
 
-          {/* Preview */}
-          {value && (
-            <div className="text-xs text-white/40">
-              <span className="text-gold/60">{value}</span>
-            </div>
-          )}
+          {displayPreview()}
         </div>
       )}
     </div>
