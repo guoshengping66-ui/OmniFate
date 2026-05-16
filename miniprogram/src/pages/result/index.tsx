@@ -212,17 +212,18 @@ export default function ResultPage() {
 
       {showDetail && (
         <View className="px-4">
-          {/* ═══ 心学金句 ═══ */}
-          <View className="relative py-8 text-center mt-2" style={{ animation: "fadeInUp 0.5s ease-out 0.1s both" }}>
+          {/* ═══ 心学金句 — 匹配 Web 通栏无卡片 ═══ */}
+          <View className="relative py-6 px-2 text-center" style={{ animation: "fadeInUp 0.5s ease-out 0.1s both" }}>
+            {/* 装饰性大引号 — 匹配 Web 120px */}
             <Text className="absolute top-0 left-1/2 font-serif leading-none select-none pointer-events-none" style={{
-              color: `rgba(${goldRgb},0.06)`, fontSize: "200rpx", transform: "translateX(-50%)",
+              color: `rgba(${goldRgb},0.06)`, fontSize: "240rpx", transform: "translateX(-50%)",
             }}>&ldquo;</Text>
-            <Text className="relative text-xl font-serif italic leading-relaxed block px-6" style={{
-              color: gold, textShadow: `0 0 20rpx rgba(${goldRgb},0.25), 0 0 40rpx rgba(${goldRgb},0.1)`,
+            <Text className="relative text-xl font-serif italic leading-relaxed block mb-2" style={{
+              color: gold,
             }}>
               &ldquo;{personality.quote}&rdquo;
             </Text>
-            <Text className="relative text-sm mt-3 block" style={{ color: "rgba(255,255,255,0.45)" }}>
+            <Text className="relative text-sm block" style={{ color: "rgba(255,255,255,0.4)" }}>
               —— {personality.quoteExplain}
             </Text>
           </View>
@@ -258,45 +259,34 @@ export default function ResultPage() {
 
           <GoldSeparator />
 
-          {/* ═══ 精神状态诊断 ═══ */}
-          <View className="p-5 relative overflow-hidden mb-4" style={{
-            ...cardGlass,
-            animation: "fadeInUp 0.5s ease-out 0.2s both",
-          }}>
-            {/* 左侧金色竖线 — 增强版 */}
-            <View className="absolute left-0 top-3 bottom-3" style={{
-              width: "4rpx", borderRadius: "2rpx",
-              background: `linear-gradient(to bottom, rgba(${goldRgb},0.6), rgba(${goldRgb},0.15), transparent)`,
-              boxShadow: `0 0 8rpx rgba(${goldRgb},0.15)`,
-            }} />
-            <Text className="tracking-wider uppercase block mb-3 pl-3" style={{
-              color: "rgba(255,255,255,0.65)", fontSize: "20rpx",
-            }}>
-              <Text style={{ color: gold, marginRight: "8rpx", textShadow: `0 0 8rpx rgba(${goldRgb},0.3)` }}>◆</Text>精神状态诊断
-            </Text>
-            <Text className="text-sm leading-relaxed pl-3" style={{ color: "rgba(255,255,255,0.72)" }}>
-              <HighlightText text={personality.diagnosis} />
-            </Text>
-          </View>
+          {/* ═══ 精神状态诊断 + 改运指南 — 并排双栏（匹配 Web 布局） ═══ */}
+          <View className="grid grid-cols-2 gap-3" style={{ animation: "fadeInUp 0.5s ease-out 0.2s both" }}>
+            {/* 精神状态诊断 */}
+            <View className="p-4 relative overflow-hidden" style={cardGlass}>
+              <Text className="tracking-wider uppercase block mb-3" style={{
+                color: "rgba(255,255,255,0.6)", fontSize: "20rpx",
+              }}>
+                🧠 精神状态诊断
+              </Text>
+              <Text className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.7)" }}>
+                <HighlightText text={personality.diagnosis} />
+              </Text>
+            </View>
 
-          {/* ═══ 改运指南 ═══ */}
-          <View className="p-5 relative overflow-hidden" style={{
-            ...cardGlass,
-            animation: "fadeInUp 0.5s ease-out 0.25s both",
-          }}>
-            <View className="absolute left-0 top-3 bottom-3" style={{
-              width: "4rpx", borderRadius: "2rpx",
-              background: `linear-gradient(to bottom, rgba(${goldRgb},0.6), rgba(${goldRgb},0.15), transparent)`,
-              boxShadow: `0 0 8rpx rgba(${goldRgb},0.15)`,
-            }} />
-            <Text className="tracking-wider uppercase block mb-3 pl-3" style={{
-              color: "rgba(255,255,255,0.65)", fontSize: "20rpx",
+            {/* 改运指南 */}
+            <View className="p-4 relative overflow-hidden" style={{
+              ...cardGlass,
+              animation: "fadeInUp 0.5s ease-out 0.25s both",
             }}>
-              <Text style={{ color: gold, marginRight: "8rpx", textShadow: `0 0 8rpx rgba(${goldRgb},0.3)` }}>◆</Text>改运指南
-            </Text>
-            <Text className="text-sm leading-relaxed pl-3" style={{ color: "rgba(255,255,255,0.72)" }}>
-              <HighlightText text={personality.advice} />
-            </Text>
+              <Text className="tracking-wider uppercase block mb-3" style={{
+                color: "rgba(255,255,255,0.6)", fontSize: "20rpx",
+              }}>
+                🧭 改运指南
+              </Text>
+              <Text className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.7)" }}>
+                <HighlightText text={personality.advice} />
+              </Text>
+            </View>
           </View>
 
           <GoldSeparator />
@@ -350,45 +340,49 @@ export default function ResultPage() {
 
           <GoldSeparator />
 
-          {/* ═══ AI 深度解读 CTA — Web 级 btn-gold ═══ */}
+          {/* ═══ AI 深度解读 CTA — 匹配 Web 流光边框 ═══ */}
           <View className="relative rounded-2xl overflow-hidden mb-5" style={{
-            ...cardElevated,
             animation: "fadeInUp 0.5s ease-out 0.35s both",
           }}>
-            {/* 脉冲发光外框 — 双层 */}
+            {/* 流光边框动画 — 匹配 Web shimmer border */}
             <View className="absolute rounded-2xl pointer-events-none" style={{
-              top: -1, left: -1, right: -1, bottom: -1,
-              border: `2rpx solid rgba(${goldRgb},0.25)`,
-              boxShadow: `0 0 30rpx rgba(${goldRgb},0.1), inset 0 0 30rpx rgba(${goldRgb},0.04)`,
-              animation: "glowPulse 3s ease-in-out infinite",
+              top: 0, left: 0, right: 0, bottom: 0,
+              padding: "1rpx",
+              background: `linear-gradient(to right, rgba(${goldRgb},0), rgba(${goldRgb},0.4), rgba(${goldRgb},0))`,
+              backgroundSize: "200% 100%",
+              animation: "shimmer 3s ease-in-out infinite",
             }} />
-            <View className="relative p-5" style={{ margin: "2rpx" }}>
+            <View className="relative rounded-2xl p-5" style={{
+              ...cardElevated,
+              margin: "1rpx",
+            }}>
               <View className="text-center mb-4">
-                <Text className="text-xs block mb-2" style={{
-                  color: `rgba(${goldRgb},0.85)`,
-                  textShadow: `0 0 12rpx rgba(${goldRgb},0.4)`,
-                }}>💡 星轨预警</Text>
-                <Text className="text-sm leading-relaxed block mb-2" style={{ color: "rgba(255,255,255,0.65)" }}>
+                <View className="flex items-center justify-center gap-2 mb-2">
+                  <Text className="text-xs" style={{ color: `rgba(${goldRgb},0.75)` }}>🔮</Text>
+                  <Text className="text-xs" style={{ color: `rgba(${goldRgb},0.75)`, textShadow: `0 0 8rpx rgba(${goldRgb},0.3)` }}>星轨预警</Text>
+                </View>
+                <Text className="text-sm leading-relaxed block mb-3" style={{ color: "rgba(255,255,255,0.6)" }}>
                   诊断显示你当前的人格气场在 2026 流年中正遭遇微弱的能量对冲。
                 </Text>
                 <Text className="text-xs block" style={{ color: "rgba(255,255,255,0.4)" }}>
                   消耗 100 星尘，解锁五大 AI 导师定制的流年改运全维大报告
                 </Text>
               </View>
-              {/* Web 级 btn-gold — 增强版 */}
+              {/* Web 级 btn-gold */}
               <View
-                className="w-full py-3.5 rounded-full text-center relative overflow-hidden"
+                className="w-full py-3 rounded-full text-center relative overflow-hidden"
                 style={{
-                  background: `linear-gradient(135deg, #B8963E 0%, #C9A84C 25%, #E8CB7A 50%, #C9A84C 75%, #B8963E 100%)`,
-                  boxShadow: `0 4rpx 24rpx rgba(${goldRgb},0.4), 0 0 60rpx rgba(${goldRgb},0.15), inset 0 1rpx 0 rgba(255,255,255,0.15)`,
+                  background: `linear-gradient(135deg, #C9A84C 0%, #E8CB7A 40%, #C9A84C 80%)`,
+                  backgroundSize: "200% 100%",
+                  boxShadow: `0 4rpx 20rpx rgba(${goldRgb},0.35), 0 0 40rpx rgba(${goldRgb},0.12)`,
                 }}
                 onClick={() => Taro.showToast({ title: "跳转中…", icon: "loading" })}
               >
-                {/* 光泽扫过 — 加速版 */}
+                {/* 光泽扫过 */}
                 <View className="absolute inset-0 pointer-events-none" style={{
-                  background: `linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.35) 42%, rgba(255,255,255,0.35) 58%, transparent 65%)`,
+                  background: `linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.3) 45%, rgba(255,255,255,0.3) 55%, transparent 60%)`,
                   backgroundSize: "200% 100%",
-                  animation: "shimmer 2.5s ease-in-out infinite",
+                  animation: "shimmer 3s ease-in-out infinite",
                 }} />
                 <Text className="relative text-sm font-bold" style={{ color: "#1A0F2E", textShadow: "0 1rpx 2rpx rgba(0,0,0,0.15)" }}>
                   🔮 开启命运解读 · 100 ✨
@@ -397,35 +391,30 @@ export default function ResultPage() {
             </View>
           </View>
 
-          {/* ═══ 操作按钮 ═══ */}
-          <View className="grid grid-cols-2 gap-3 mb-5" style={{ animation: "fadeInUp 0.5s ease-out 0.4s both" }}>
-            {/* 保存海报 — btn-gold-outline 增强 */}
+          {/* ═══ 操作按钮 — 匹配 Web 风格 ═══ */}
+          <View className="flex gap-3 mb-5" style={{ animation: "fadeInUp 0.5s ease-out 0.4s both" }}>
+            {/* 保存海报 — Web 黑金渐变实体按钮 */}
             <View
-              className="py-3 rounded-full text-center relative overflow-hidden"
+              className="flex-1 py-3 rounded-xl text-center relative overflow-hidden"
               style={{
-                border: `1rpx solid rgba(${goldRgb},0.5)`,
-                boxShadow: `0 0 20rpx rgba(${goldRgb},0.08), inset 0 0 16rpx rgba(${goldRgb},0.03)`,
+                background: `linear-gradient(to right, rgba(${goldRgb},0.2), rgba(${goldRgb},0.1), rgba(${goldRgb},0.2))`,
+                border: `1rpx solid rgba(${goldRgb},0.4)`,
               }}
               onClick={handleSavePoster}
             >
-              <View className="absolute inset-0 pointer-events-none" style={{
-                background: `linear-gradient(90deg, transparent, rgba(${goldRgb},0.1), transparent)`,
-                animation: "shimmer 3s ease-in-out infinite 0.5s",
-              }} />
-              <Text className="relative text-sm font-medium" style={{ color: gold, textShadow: `0 0 8rpx rgba(${goldRgb},0.2)` }}>✨ 保存海报</Text>
+              <Text className="text-sm font-medium" style={{ color: gold }}>✨ 保存海报</Text>
             </View>
-            {/* 分享结果 — 增强 */}
+            {/* 分享结果 — Web btn-gold-outline */}
             <Button
               openType="share"
-              className="py-3 rounded-full text-center leading-none relative overflow-hidden"
+              className="flex-1 py-3 rounded-xl text-center leading-none relative overflow-hidden"
               style={{
                 margin: 0, padding: "12px 0", lineHeight: "normal",
-                backgroundColor: "rgba(255,255,255,0.05)",
-                border: "1rpx solid rgba(255,255,255,0.12)",
-                boxShadow: "0 4rpx 20rpx rgba(0,0,0,0.2)",
+                backgroundColor: "transparent",
+                border: `1rpx solid rgba(${goldRgb},0.4)`,
               }}
             >
-              <Text className="text-sm font-medium" style={{ color: "rgba(255,255,255,0.75)" }}>📤 分享结果</Text>
+              <Text className="text-sm font-medium" style={{ color: gold }}>📤 分享结果</Text>
             </Button>
           </View>
 

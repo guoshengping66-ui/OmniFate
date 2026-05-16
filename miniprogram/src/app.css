@@ -3,9 +3,10 @@
 @tailwind utilities;
 
 page {
-  background-color: #1A0F2E;
+  background: radial-gradient(ellipse at 50% 0%, #2D1B4E 0%, #1A0F2E 60%, #0D0715 100%);
   color: #ffffff;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  min-height: 100vh;
 }
 
 /* ── WXSS 兼容的 @keyframes ── */
