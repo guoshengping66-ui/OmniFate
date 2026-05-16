@@ -9,6 +9,11 @@ import {
   calculateRadarScores,
   type AM16Personality,
 } from "../../constants/am16"
+import {
+  DIMENSIONS_MAP,
+  DIMENSION_ORDER,
+  getPoleLabel,
+} from "../../constants/dimensions"
 
 // ── Web 级设计系统 ──
 const cardGlass = {
@@ -51,12 +56,6 @@ function HighlightText({ text }: { text: string }) {
   )
 }
 
-function getDimLabel(code: string, val: number): string {
-  const dim = DIMENSIONS.find(d => d.code === code)
-  if (!dim) return code
-  return val > 50 ? dim.nameB : dim.nameA
-}
-
 export default function ResultPage() {
   const [archetype, setArchetype] = useState("")
   const [personality, setPersonality] = useState<AM16Personality | null>(null)
@@ -80,32 +79,41 @@ export default function ResultPage() {
     } catch { Taro.navigateTo({ url: "/pages/quiz/index" }) }
   })
 
+  // 轮询查询 Canvas 原生节点并绘制（解决 Taro Canvas ref 不返回原生节点 + 条件渲染时序问题）
   useEffect(() => {
-    if (!showDetail || radarScores.FD === undefined) return
-    const timer = setTimeout(() => {
-      const query = Taro.createSelectorQuery()
-      query.select("#radarCanvas").fields({ node: true, size: true }, (res) => {
-        if (res && res.node) {
-          radarNodeRef.current = res.node
-          drawRadar(res.node, radarScores, 280)
-        }
-      }).exec()
-    }, 300)
-    return () => clearTimeout(timer)
+    if (!showDetail) return
+    const timers: any[] = []
+    ;[300, 600, 1000, 1500, 2500].forEach(delay => {
+      timers.push(setTimeout(() => {
+        if (radarNodeRef.current) return
+        const query = Taro.createSelectorQuery()
+        query.select("#radarCanvas").fields({ node: true, size: true }, (res) => {
+          if (res && res.node && !radarNodeRef.current) {
+            radarNodeRef.current = res.node
+            try { drawRadar(res.node, radarScores, 280) } catch (e) { console.error("[radar]", e) }
+          }
+        }).exec()
+      }, delay))
+    })
+    return () => timers.forEach(clearTimeout)
   }, [showDetail, radarScores])
 
   useEffect(() => {
     if (!showDetail || !archetype || !personality) return
-    const timer = setTimeout(() => {
-      const query = Taro.createSelectorQuery().in(pageRef.current)
-      query.select("#shareCanvas").fields({ node: true, size: true }, (res) => {
-        if (res && res.node) {
-          posterNodeRef.current = res.node
-          drawSharePoster(res.node, archetype, personality)
-        }
-      }).exec()
-    }, 500)
-    return () => clearTimeout(timer)
+    const timers: any[] = []
+    ;[500, 1200, 2500].forEach(delay => {
+      timers.push(setTimeout(() => {
+        if (posterNodeRef.current) return
+        const query = Taro.createSelectorQuery()
+        query.select("#shareCanvas").fields({ node: true, size: true }, (res) => {
+          if (res && res.node && !posterNodeRef.current) {
+            posterNodeRef.current = res.node
+            try { drawSharePoster(res.node, archetype, personality) } catch (e) { console.error("[share]", e) }
+          }
+        }).exec()
+      }, delay))
+    })
+    return () => timers.forEach(clearTimeout)
   }, [showDetail, archetype, personality])
 
   useEffect(() => {
@@ -242,17 +250,19 @@ export default function ResultPage() {
               color: "rgba(255,255,255,0.65)", fontSize: "24rpx", letterSpacing: "3rpx",
             }}>四维能量坐标</Text>
             <Canvas type="2d" id="radarCanvas" style={{ width: "280px", height: "280px", margin: "0 auto" }} />
-            <View className="grid grid-cols-4 gap-3 mt-4 text-center">
-              {DIMENSIONS.map(d => {
-                const val = radarScores[d.code] ?? 50
-                const label = getDimLabel(d.code, val)
+            <View className="grid grid-cols-4 gap-2 mt-4 text-center">
+              {DIMENSION_ORDER.map(code => {
+                const dimCfg = DIMENSIONS_MAP[code]
+                const val = radarScores[code] ?? 50
+                const { tag } = getPoleLabel(code, val)
                 return (
-                  <View key={d.code} className="rounded-xl py-3 px-1" style={{ backgroundColor: "rgba(255,255,255,0.03)" }}>
-                    <Text className="font-medium block" style={{ color: "rgba(255,255,255,0.6)", fontSize: "22rpx" }}>{d.code}</Text>
-                    <Text className="block mt-1.5 leading-tight" style={{ color: `rgba(${goldRgb},0.85)`, fontSize: "22rpx" }}>
-                      {label}
+                  <View key={code} className="rounded-xl py-2 px-1" style={{ backgroundColor: "rgba(255,255,255,0.03)" }}>
+                    <Text className="block" style={{ fontSize: "20rpx" }}>{dimCfg.icon}</Text>
+                    <Text className="font-medium block mt-1" style={{ color: "rgba(255,255,255,0.55)", fontSize: "18rpx" }}>{dimCfg.axisNameCn}</Text>
+                    <Text className="block mt-1 leading-tight" style={{ color: `rgba(${goldRgb},0.85)`, fontSize: "18rpx" }}>
+                      {tag}
                     </Text>
-                    <Text className="block mt-0.5" style={{ color: `rgba(${goldRgb},0.6)`, fontSize: "20rpx" }}>
+                    <Text className="block mt-0.5" style={{ color: `rgba(${goldRgb},0.6)`, fontSize: "18rpx" }}>
                       {val}%
                     </Text>
                   </View>
@@ -452,9 +462,7 @@ function drawRadar(canvasNode: any, scores: Record<string, number>, size: number
   canvasNode.width = size * dpr; canvasNode.height = size * dpr
   ctx.scale(dpr, dpr)
   const cx = size / 2, cy = size / 2, r = size * 0.34
-  const dims = ["FD", "XS", "GI", "PE"]
-  // 使用实际维度名称
-  const dimLabels = DIMENSIONS.map(d => `${d.code}`)
+  const dims = DIMENSION_ORDER
   const corners = [{ x: cx, y: cy - r }, { x: cx + r, y: cy }, { x: cx, y: cy + r }, { x: cx - r, y: cy }]
 
   // 外圈装饰 — 弱发光
@@ -474,22 +482,26 @@ function drawRadar(canvasNode: any, scores: Record<string, number>, size: number
     ctx.closePath(); ctx.stroke()
   }
 
-  // 轴线 + 轴端发光点
+  // 轴线 + 轴端发光点 + 双层标签
   corners.forEach((c, i) => {
     ctx.strokeStyle = `rgba(${goldRgb},0.08)`; ctx.lineWidth = 0.5
     ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(c.x, c.y); ctx.stroke()
     // 轴端小圆点
     ctx.beginPath(); ctx.arc(c.x, c.y, 2, 0, Math.PI * 2)
     ctx.fillStyle = `rgba(${goldRgb},0.3)`; ctx.fill()
-    // 轴标签 — 使用维度代码 + 名称
-    const dim = DIMENSIONS[i]
-    const dimName = getDimLabel(dim.code, scores[dim.code] ?? 50)
-    ctx.fillStyle = `rgba(${goldRgb},0.65)`; ctx.font = "bold 12px sans-serif"; ctx.textAlign = "center"
-    const lx = cx + (c.x - cx) * 1.22, ly = cy + (c.y - cy) * 1.22
-    ctx.fillText(dim.code, lx, ly - 3)
-    ctx.font = "10px sans-serif"
-    ctx.fillStyle = `rgba(${goldRgb},0.45)`
-    ctx.fillText(dimName, lx, ly + 10)
+    // 双层标签 — icon + 轴标名 + 大白话标签
+    const code = dims[i]
+    const dimCfg = DIMENSIONS_MAP[code]
+    const val = scores[code] ?? 50
+    const { tag } = getPoleLabel(code, val)
+    const lx = cx + (c.x - cx) * 1.25, ly = cy + (c.y - cy) * 1.25
+    ctx.textAlign = "center"
+    // 第一行：icon + 轴标名
+    ctx.fillStyle = `rgba(${goldRgb},0.7)`; ctx.font = "bold 11px sans-serif"
+    ctx.fillText(dimCfg.icon + " " + dimCfg.axisNameCn, lx, ly - 4)
+    // 第二行：大白话标签
+    ctx.fillStyle = `rgba(${goldRgb},0.45)`; ctx.font = "9px sans-serif"
+    ctx.fillText(tag, lx, ly + 10)
   })
 
   // 数据区域 — 渐变填充 + 发光描边
