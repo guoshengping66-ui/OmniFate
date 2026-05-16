@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react"
+import { useState, useCallback, useMemo, useEffect } from "react"
 import { View, Text } from "@tarojs/components"
 import Taro from "@tarojs/taro"
 import { AM16_QUESTIONS, type AM16Question } from "../../constants/am16"
@@ -40,6 +40,28 @@ export default function QuizPage() {
   const [animating, setAnimating] = useState(false)
   const [selected, setSelected] = useState<number | null>(null)
   const [analyzing, setAnalyzing] = useState(false)
+  const [stepIndex, setStepIndex] = useState(0)
+  const [analyzingProgress, setAnalyzingProgress] = useState(0)
+
+  const ANALYZE_STEPS = [
+    { text: "正在解析你的天命编码…", progress: 10 },
+    { text: "校准星盘坐标中…", progress: 35 },
+    { text: "计算四维能级分布…", progress: 70 },
+    { text: "匹配人格模型…", progress: 100 },
+  ]
+
+  // 分析阶段进度动画
+  useEffect(() => {
+    if (!analyzing) return
+    const timers: any[] = []
+    ANALYZE_STEPS.forEach((step, i) => {
+      timers.push(setTimeout(() => {
+        setStepIndex(i)
+        setAnalyzingProgress(step.progress)
+      }, i * 550))
+    })
+    return () => timers.forEach(clearTimeout)
+  }, [analyzing])
 
   const total = questions.length
   const q: AM16Question | undefined = questions[current]
@@ -197,13 +219,21 @@ export default function QuizPage() {
             boxShadow: "0 0 18rpx rgba(212,175,55,0.08)",
             animation: "orbit 3s linear infinite reverse",
           }} />
-          {/* 轨道光点 */}
+          {/* 轨道光点 — 外圈 */}
           <View className="absolute pointer-events-none" style={{
             top: "0", left: "50%", width: "10rpx", height: "10rpx",
             marginLeft: "-5rpx", marginTop: "-5rpx", borderRadius: "50%",
             backgroundColor: "#C9A84C",
             boxShadow: "0 0 16rpx rgba(201,168,76,0.7), 0 0 32rpx rgba(201,168,76,0.3)",
             animation: "orbit 4s linear infinite",
+          }} />
+          {/* 轨道光点 — 内圈 */}
+          <View className="absolute pointer-events-none" style={{
+            top: "40rpx", left: "50%", width: "8rpx", height: "8rpx",
+            marginLeft: "-4rpx", marginTop: "-4rpx", borderRadius: "50%",
+            backgroundColor: "rgba(201,168,76,0.7)",
+            boxShadow: "0 0 12rpx rgba(201,168,76,0.5), 0 0 24rpx rgba(201,168,76,0.2)",
+            animation: "orbit 3s linear infinite reverse",
           }} />
           {/* 中心符号 — 强发光 */}
           <View className="w-20 h-20 rounded-full flex items-center justify-center" style={{
@@ -218,23 +248,44 @@ export default function QuizPage() {
           </View>
         </View>
 
-        {/* 进度条 */}
+        {/* 进度条 — 从 0 增长到 100 */}
         <View className="relative w-full max-w-sm h-2 rounded-full overflow-hidden mb-6" style={{ backgroundColor: "rgba(255,255,255,0.06)" }}>
           <View className="h-full rounded-full" style={{
-            width: "100%",
+            width: `${analyzingProgress}%`,
+            transition: "width 0.5s cubic-bezier(0.4,0,0.2,1)",
             background: "linear-gradient(to right, rgba(201,168,76,0.5), #C9A84C)",
             boxShadow: "0 0 12rpx rgba(201,168,76,0.5)",
           }} />
+          {/* 发光端点 */}
+          <View className="absolute top-1/2 pointer-events-none" style={{
+            left: `${analyzingProgress}%`, width: "14rpx", height: "14rpx",
+            marginTop: "-7rpx", marginLeft: "-7rpx", borderRadius: "50%",
+            backgroundColor: "#C9A84C",
+            boxShadow: "0 0 14rpx rgba(201,168,76,0.7), 0 0 28rpx rgba(201,168,76,0.3)",
+            transition: "left 0.5s cubic-bezier(0.4,0,0.2,1)",
+          }} />
         </View>
 
-        <Text className="text-lg font-serif" style={{
-          color: "#C9A84C",
-          textShadow: "0 0 20rpx rgba(201,168,76,0.4)",
-          animation: "glowPulse 2s ease-in-out infinite",
-        }}>
-          正在解析你的天命编码…
+        {/* 分阶段文字 — 带切换动画 */}
+        <View style={{ height: "80rpx", position: "relative", width: "100%", maxWidth: "640rpx" }}>
+          {ANALYZE_STEPS.map((step, i) => (
+            <View key={i} className="absolute inset-0 flex flex-col items-center justify-center" style={{
+              opacity: i === stepIndex ? 1 : 0,
+              transform: i === stepIndex ? "translateY(0)" : "translateY(8rpx)",
+              transition: "all 0.35s ease-out",
+            }}>
+              <Text className="text-lg font-serif text-center" style={{
+                color: "#C9A84C",
+                textShadow: "0 0 20rpx rgba(201,168,76,0.4)",
+              }}>
+                {step.text}
+              </Text>
+            </View>
+          ))}
+        </View>
+        <Text className="text-xs mt-2" style={S.white30}>
+          第 {stepIndex + 1}/{ANALYZE_STEPS.length} 步
         </Text>
-        <Text className="text-xs mt-2" style={S.white30}>✦ 校准星盘坐标中</Text>
       </View>
     )
   }
