@@ -56,7 +56,41 @@ export default function AlmanacPage() {
         })
       })
       .then(res => {
-        if (res) setData(res.data)
+        if (res && res.data) {
+          // Adapt backend format: yi/ji are string[], hu has {product, reason}
+          // AlmanacCard expects AlmanacItem[] = { label, value, score }[]
+          const raw = res.data
+          const adaptYiJi = (items: unknown[]): { label: string; value: string; score: number }[] =>
+            Array.isArray(items)
+              ? items.map(item =>
+                  typeof item === "string"
+                    ? { label: item, value: "", score: 80 }
+                    : { label: String((item as Record<string, unknown>).label ?? item), value: String((item as Record<string, unknown>).value ?? ""), score: Number((item as Record<string, unknown>).score) || 80 }
+                )
+              : []
+          const adaptHu = (items: unknown[]): { label: string; value: string; score: number }[] =>
+            Array.isArray(items)
+              ? items.map(item => {
+                  if (typeof item === "object" && item !== null) {
+                    const obj = item as Record<string, unknown>
+                    const reason = String(obj.reason ?? "")
+                    const product = obj.product as Record<string, unknown> | undefined
+                    const name = String(product?.name ?? "")
+                    return { label: reason || name, value: name, score: 80 }
+                  }
+                  return { label: String(item), value: "", score: 80 }
+                })
+              : []
+          setData({
+            ...raw,
+            day_score: raw.energy_score ?? raw.day_score ?? 0,
+            lunar_date: raw.lunar_date ?? "",
+            bazi_day_pillar: raw.bazi_day_pillar ?? "",
+            yi: adaptYiJi(raw.yi),
+            ji: adaptYiJi(raw.ji),
+            hu: adaptHu(raw.hu),
+          })
+        }
       })
       .catch(() => toast.error(t("almanac.loadError")))
       .finally(() => setLoading(false))
