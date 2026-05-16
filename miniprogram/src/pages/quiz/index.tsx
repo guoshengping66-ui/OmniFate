@@ -5,6 +5,7 @@ import { AM16_QUESTIONS, type AM16Question } from "../../constants/am16"
 import { DIMENSION_ORDER, DIMENSIONS_MAP } from "../../constants/dimensions"
 import StarBackground from "../../components/StarBackground"
 import { cardGlass, btnGold, gold, goldRgb } from "../../styles/theme"
+import "./index.scss"
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr]
@@ -105,18 +106,17 @@ export default function QuizPage() {
       <View className="min-h-screen flex flex-col items-center justify-center px-6" style={S.bg}>
         <StarBackground />
 
-        <View className="relative mb-6 text-center" style={{ animation: "fadeInUp 0.6s ease-out both" }}>
+        <View className="relative mb-6 text-center anim-fade-in-up">
           {/* Logo 光晕 — 增大范围 */}
-          <View className="absolute rounded-full pointer-events-none" style={{
+          <View className="absolute rounded-full pointer-events-none anim-glow-slow" style={{
             top: "-60rpx", left: "50%", marginLeft: "-120rpx",
             width: "240rpx", height: "240rpx",
             background: "radial-gradient(circle, rgba(201,168,76,0.12) 0%, transparent 70%)",
-            animation: "glowPulse 3s ease-in-out infinite",
           }} />
           <Text className="relative text-7xl block mb-2">🪞</Text>
         </View>
 
-        <View className="text-center mb-6" style={{ animation: "fadeInUp 0.6s ease-out 0.1s both" }}>
+        <View className="text-center mb-6 anim-fade-in-up-1">
           <Text className="font-serif font-bold block mb-2" style={{ color: gold, fontSize: "40rpx" }}>
             AM16 天命能级测验
           </Text>
@@ -129,7 +129,7 @@ export default function QuizPage() {
         </View>
 
         {/* 四维预览卡片 — 两行两列，绝对定位 */}
-        <View style={{ position: "relative", width: "680rpx", height: "320rpx", marginBottom: "48rpx", animation: "fadeInUp 0.6s ease-out 0.2s both" }}>
+        <View className="anim-fade-in-up-2" style={{ position: "relative", width: "680rpx", height: "320rpx", marginBottom: "48rpx" }}>
           {dimPreviews.map((d, i) => {
             const row = Math.floor(i / 2)
             const col = i % 2
@@ -147,10 +147,9 @@ export default function QuizPage() {
               flexDirection: "column" as const,
               alignItems: "center" as const,
               justifyContent: "center" as const,
-              animation: `fadeInUp 0.4s ease-out ${0.3 + i * 0.1}s both`,
             }
             return (
-              <View key={d.code} style={cardStyle}>
+              <View key={d.code} className={`anim-fade-in-up-fast-${3 + i}`} style={cardStyle}>
                 <Text style={{ fontSize: "48rpx", marginBottom: "8rpx" }}>{d.icon}</Text>
                 <Text style={{ fontSize: "24rpx", color: "rgba(255,255,255,0.7)" }}>{d.label}</Text>
               </View>
@@ -160,18 +159,14 @@ export default function QuizPage() {
 
         {/* 开始按钮 */}
         <View
-          className="w-full max-w-sm py-3.5 rounded-full text-center relative overflow-hidden"
-          style={{
-            ...btnGold,
-            animation: "fadeInUp 0.6s ease-out 0.5s both",
-          }}
+          className="w-full max-w-sm py-3.5 rounded-full text-center relative overflow-hidden anim-fade-in-up-5"
+          style={btnGold}
           onClick={handleStart}
         >
           {/* 光泽扫过 */}
-          <View className="absolute inset-0 pointer-events-none" style={{
+          <View className="absolute inset-0 pointer-events-none anim-shimmer" style={{
             background: "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.3) 45%, rgba(255,255,255,0.3) 55%, transparent 60%)",
             backgroundSize: "200% 100%",
-            animation: "shimmer 3s ease-in-out infinite",
           }} />
           <Text className="relative font-bold" style={{ color: "#1A0F2E", fontSize: "30rpx" }}>
             ✦ 开始测试
@@ -192,31 +187,28 @@ export default function QuizPage() {
         <StarBackground />
         {/* 浮动粒子 — 增加到 8 个 */}
         {[0,1,2,3,4,5,6,7].map(i => (
-          <View key={i} className="absolute pointer-events-none" style={{
+          <View key={i} className={`absolute pointer-events-none anim-float-${i}`} style={{
             top: `${15 + i * 9}%`,
             left: `${8 + (i % 4) * 24}%`,
             width: `${2 + (i % 3) * 2}rpx`,
             height: `${2 + (i % 3) * 2}rpx`,
             borderRadius: "50%",
             backgroundColor: `rgba(212,175,55,${0.15 + (i % 4) * 0.08})`,
-            animation: `float ${2 + i * 0.4}s ease-in-out infinite ${i * 0.25}s`,
           }} />
         ))}
 
         <View className="relative w-80 h-80 flex items-center justify-center mb-8">
           {/* 雷达脉冲环 — 扩散消失 */}
           {[0, 1, 2].map(i => (
-            <View key={`pulse-${i}`} className="absolute rounded-full pointer-events-none" style={{
+            <View key={`pulse-${i}`} className={`absolute rounded-full pointer-events-none anim-radar-${i}`} style={{
               top: "50%", left: "50%", width: "200rpx", height: "200rpx",
               marginTop: "-100rpx", marginLeft: "-100rpx",
               border: "1.5rpx solid rgba(212,175,55,0.25)",
-              animation: `radarPulse 2.4s ease-out infinite ${i * 0.8}s`,
             }} />
           ))}
           {/* 旋转光线 — 4 条对角线 */}
-          <View className="absolute pointer-events-none" style={{
+          <View className="absolute pointer-events-none anim-rotate-glow" style={{
             top: 0, left: 0, right: 0, bottom: 0,
-            animation: "rotateGlow 12s linear infinite",
           }}>
             {[0, 45, 90, 135].map(angle => (
               <View key={`ray-${angle}`} className="absolute" style={{
@@ -229,49 +221,43 @@ export default function QuizPage() {
             ))}
           </View>
           {/* 两层轨道环 — 金色外发光 */}
-          <View className="absolute rounded-full" style={{
+          <View className="absolute rounded-full anim-orbit-outer" style={{
             top: 0, left: 0, right: 0, bottom: 0,
             border: "2rpx solid rgba(212,175,55,0.2)",
             boxShadow: "0 0 24rpx rgba(212,175,55,0.1), inset 0 0 24rpx rgba(212,175,55,0.05)",
-            animation: "orbit 4s linear infinite",
           }} />
-          <View className="absolute rounded-full" style={{
+          <View className="absolute rounded-full anim-orbit-inner" style={{
             top: "40rpx", left: "40rpx", right: "40rpx", bottom: "40rpx",
             border: "1.5rpx solid rgba(212,175,55,0.15)",
             boxShadow: "0 0 18rpx rgba(212,175,55,0.08)",
-            animation: "orbit 3s linear infinite reverse",
           }} />
           {/* 轨道光点 — 外圈 */}
-          <View className="absolute pointer-events-none" style={{
+          <View className="absolute pointer-events-none anim-orbit-outer" style={{
             top: "0", left: "50%", width: "10rpx", height: "10rpx",
             marginLeft: "-5rpx", marginTop: "-5rpx", borderRadius: "50%",
             backgroundColor: "#C9A84C",
             boxShadow: "0 0 16rpx rgba(201,168,76,0.7), 0 0 32rpx rgba(201,168,76,0.3)",
-            animation: "orbit 4s linear infinite",
           }} />
           {/* 轨道光点 — 内圈 */}
-          <View className="absolute pointer-events-none" style={{
+          <View className="absolute pointer-events-none anim-orbit-inner" style={{
             top: "40rpx", left: "50%", width: "8rpx", height: "8rpx",
             marginLeft: "-4rpx", marginTop: "-4rpx", borderRadius: "50%",
             backgroundColor: "rgba(201,168,76,0.7)",
             boxShadow: "0 0 12rpx rgba(201,168,76,0.5), 0 0 24rpx rgba(201,168,76,0.2)",
-            animation: "orbit 3s linear infinite reverse",
           }} />
           {/* 中心符号 — 呼吸光晕 + 强发光 */}
-          <View className="absolute rounded-full pointer-events-none" style={{
+          <View className="absolute rounded-full pointer-events-none anim-breathe" style={{
             top: "50%", left: "50%", width: "160rpx", height: "160rpx",
             marginTop: "-80rpx", marginLeft: "-80rpx",
             background: "radial-gradient(circle, rgba(201,168,76,0.2) 0%, rgba(201,168,76,0.05) 50%, transparent 70%)",
-            animation: "breathe 2.5s ease-in-out infinite",
           }} />
           <View className="w-20 h-20 rounded-full flex items-center justify-center" style={{
             backgroundColor: "rgba(201,168,76,0.12)",
             boxShadow: "0 0 40rpx rgba(201,168,76,0.15), inset 0 0 20rpx rgba(201,168,76,0.1)",
           }}>
-            <Text className="text-3xl" style={{
+            <Text className="text-3xl anim-glow" style={{
               color: "#C9A84C",
               textShadow: "0 0 20rpx rgba(201,168,76,0.7), 0 0 40rpx rgba(201,168,76,0.4)",
-              animation: "glowPulse 2s ease-in-out infinite",
             }}>✦</Text>
           </View>
         </View>
@@ -350,7 +336,7 @@ export default function QuizPage() {
           <View style={{ opacity: animating ? 0 : 1, transition: "opacity 0.2s" }}>
             {/* Emoji */}
             <View className="text-center mb-6">
-              <Text className="text-5xl" style={{ animation: "fadeInUp 0.3s ease-out" }}>{q.emoji}</Text>
+              <Text className="text-5xl anim-fade-in-short">{q.emoji}</Text>
             </View>
             {/* 题目 */}
             <View className="text-center mb-8">
@@ -368,7 +354,7 @@ export default function QuizPage() {
                   <View
                     key={`${q.id}-${i}`}
                     onClick={() => handleAnswer(i)}
-                    className="rounded-2xl p-4 mb-3.5"
+                    className={`rounded-2xl p-4 mb-3.5 anim-fade-in-up-fast-${i}`}
                     style={{
                       ...(isSelected ? {
                         backgroundColor: "rgba(201,168,76,0.1)",
@@ -381,7 +367,6 @@ export default function QuizPage() {
                         boxShadow: "0 4rpx 16rpx rgba(0,0,0,0.15)",
                         transform: "scale(1)",
                       }),
-                      animation: `fadeInUp 0.4s ease-out ${i * 0.1}s both`,
                       transition: "all 0.25s cubic-bezier(0.4,0,0.2,1)",
                     }}
                   >

@@ -1,0 +1,80 @@
+/* ═══════════════════════════════════════════════════════════════
+   Result 页面动画 — 页面级 wxss 确保 @keyframes 可被解析
+   ═══════════════════════════════════════════════════════════════ */
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20rpx); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUpBounce {
+  from { opacity: 0; transform: translateY(30rpx); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); opacity: 0.3; }
+  50% { transform: translateY(-12rpx); opacity: 0.7; }
+}
+
+/* ── 主卡片弹入 ── */
+.anim-bounce-in {
+  animation: fadeInUpBounce 0.6s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+/* ── 分段 fadeInUp 0.5s（0.05s 间隔）── */
+.anim-up-0 { animation: fadeInUp 0.5s ease-out both; }
+.anim-up-1 { animation: fadeInUp 0.5s ease-out 0.05s both; }
+.anim-up-2 { animation: fadeInUp 0.5s ease-out 0.1s both; }
+.anim-up-3 { animation: fadeInUp 0.5s ease-out 0.15s both; }
+.anim-up-4 { animation: fadeInUp 0.5s ease-out 0.2s both; }
+.anim-up-5 { animation: fadeInUp 0.5s ease-out 0.25s both; }
+.anim-up-6 { animation: fadeInUp 0.5s ease-out 0.3s both; }
+.anim-up-7 { animation: fadeInUp 0.5s ease-out 0.35s both; }
+.anim-up-8 { animation: fadeInUp 0.5s ease-out 0.4s both; }
+.anim-up-9 { animation: fadeInUp 0.5s ease-out 0.45s both; }
+
+/* ── 维度卡片交错入场 0.4s ── */
+.anim-dim-0 { animation: fadeInUp 0.4s ease-out 0.20s both; }
+.anim-dim-1 { animation: fadeInUp 0.4s ease-out 0.28s both; }
+.anim-dim-2 { animation: fadeInUp 0.4s ease-out 0.36s both; }
+.anim-dim-3 { animation: fadeInUp 0.4s ease-out 0.44s both; }
+
+/* ── 社交匹配项 ── */
+.anim-social {
+  animation: fadeInUp 0.3s ease-out 0.4s both;
+}
+
+/* ── 其他动画 ── */
+.anim-glow-slow {
+  animation: glowPulse 3s ease-in-out infinite;
+}
+
+.anim-glow-0 { animation: glowPulse 2.0s ease-in-out infinite 0s; }
+.anim-glow-1 { animation: glowPulse 2.5s ease-in-out infinite 0.3s; }
+.anim-glow-2 { animation: glowPulse 3.0s ease-in-out infinite 0.6s; }
+
+.anim-float-0 { animation: float 2.0s ease-in-out infinite 0s; }
+.anim-float-1 { animation: float 2.3s ease-in-out infinite 0.2s; }
+.anim-float-2 { animation: float 2.6s ease-in-out infinite 0.4s; }
+.anim-float-3 { animation: float 2.9s ease-in-out infinite 0.6s; }
+.anim-float-4 { animation: float 3.2s ease-in-out infinite 0.8s; }
+.anim-float-5 { animation: float 3.5s ease-in-out infinite 1.0s; }
+
+.anim-shimmer {
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+.anim-shimmer-fast {
+  animation: shimmer 2.5s ease-in-out infinite;
+}

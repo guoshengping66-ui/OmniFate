@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react"
 import { View, Text, Canvas, Button } from "@tarojs/components"
 import Taro from "@tarojs/taro"
+import "./index.scss"
 import {
   PERSONALITIES,
   DIMENSIONS,
@@ -172,22 +173,18 @@ export default function ResultPage() {
     <View ref={pageRef} className="min-h-screen pb-32" style={{ backgroundColor: "#1A0F2E" }}>
       <StarBackground />
       {/* ═══ 主卡片 — Web 级 card-glass-elevated ═══ */}
-      <View className="mx-3 mt-3 relative overflow-hidden" style={{
-        ...cardElevated,
-        animation: "fadeInUp 0.6s cubic-bezier(0.34,1.56,0.64,1) both",
-      }}>
+      <View className="mx-3 mt-3 relative overflow-hidden anim-bounce-in" style={cardElevated}>
         {/* 人格专属 bgGlow — 匹配 Web */}
         <View className="absolute inset-0 pointer-events-none" style={getGlowStyle(archetype)} />
         {/* 金色粒子 */}
         {[0,1,2,3,4,5].map(i => (
-          <View key={i} className="absolute pointer-events-none" style={{
+          <View key={i} className={`absolute pointer-events-none anim-float-${i}`} style={{
             left: `${15 + i * 10}%`,
             top: `${30 + (i % 3) * 20}%`,
             width: `${2 + (i % 3)}rpx`,
             height: `${2 + (i % 3)}rpx`,
             borderRadius: "50%",
             backgroundColor: `rgba(${goldRgb},${0.3 + (i % 4) * 0.1})`,
-            animation: `float ${2 + i * 0.3}s ease-in-out infinite ${i * 0.2}s`,
           }} />
         ))}
 
@@ -197,10 +194,9 @@ export default function ResultPage() {
           </Text>
           {/* 超大编码 — 多层发光 */}
           <View className="relative inline-block">
-            <View className="absolute rounded-full pointer-events-none" style={{
+            <View className="absolute rounded-full pointer-events-none anim-glow-slow" style={{
               top: "-100rpx", right: "-100rpx", bottom: "-100rpx", left: "-100rpx",
               background: `radial-gradient(circle, rgba(${goldRgb},0.12) 0%, rgba(${goldRgb},0.04) 40%, transparent 70%)`,
-              animation: "glowPulse 3s ease-in-out infinite",
             }} />
             <Text className="relative text-7xl font-bold tracking-wider block" style={{
               color: gold,
@@ -215,7 +211,7 @@ export default function ResultPage() {
           {/* 装饰性小星 */}
           <View className="flex items-center justify-center gap-2 mt-4">
             {[0,1,2].map(i => (
-              <View key={i} style={{ width: "6rpx", height: "6rpx", borderRadius: "50%", backgroundColor: `rgba(${goldRgb},${0.3 + i * 0.15})`, animation: `glowPulse ${2 + i * 0.5}s ease-in-out infinite ${i * 0.3}s` }} />
+              <View key={i} className={`anim-glow-${i}`} style={{ width: "6rpx", height: "6rpx", borderRadius: "50%", backgroundColor: `rgba(${goldRgb},${0.3 + i * 0.15})` }} />
             ))}
           </View>
         </View>
@@ -229,7 +225,7 @@ export default function ResultPage() {
         {/* 心学金句 */}
         {showDetail && (
           <>
-            <View className="relative py-6 px-2 text-center" style={{ animation: "fadeInUp 0.5s ease-out 0.1s both" }}>
+            <View className="relative py-6 px-2 text-center anim-up-2">
               <Text className="absolute top-0 left-1/2 font-serif leading-none select-none pointer-events-none" style={{
                 color: `rgba(${goldRgb},0.06)`, fontSize: "240rpx", transform: "translateX(-50%)",
               }}>&ldquo;</Text>
@@ -280,7 +276,7 @@ export default function ResultPage() {
           <GoldSeparator />
 
           {/* ═══ 能级细节解析 — 四维度深度解读 ═══ */}
-          <View className="mb-2" style={{ animation: "fadeInUp 0.5s ease-out 0.15s both" }}>
+          <View className="mb-2 anim-up-3">
             <View className="flex items-center gap-2 mb-4 px-1">
               <View style={{ width: "4rpx", height: "28rpx", borderRadius: "2rpx", backgroundColor: gold }} />
               <Text className="text-sm font-medium" style={{ color: "rgba(255,255,255,0.75)" }}>
@@ -293,10 +289,7 @@ export default function ResultPage() {
                 const val = radarScores[code] ?? 50
                 const { pole } = getPoleLabel(code, val)
                 return (
-                  <View key={code} className="rounded-2xl p-4 relative overflow-hidden" style={{
-                    ...cardGlass,
-                    animation: `fadeInUp 0.4s ease-out ${0.2 + DIMENSION_ORDER.indexOf(code) * 0.08}s both`,
-                  }}>
+                  <View key={code} className={`rounded-2xl p-4 relative overflow-hidden anim-dim-${DIMENSION_ORDER.indexOf(code)}`} style={cardGlass}>
                     {/* 左侧金色竖线 */}
                     <View className="absolute top-3 bottom-3" style={{ left: 0, width: "3rpx", background: `linear-gradient(to bottom, rgba(${goldRgb},0.5), rgba(${goldRgb},0.1))` }} />
                     <View className="pl-3">
@@ -341,7 +334,7 @@ export default function ResultPage() {
           <GoldSeparator />
 
           {/* ═══ 精神状态诊断 + 改运指南 — 并排双栏（匹配 Web 布局） ═══ */}
-          <View className="flex gap-3" style={{ animation: "fadeInUp 0.5s ease-out 0.2s both" }}>
+          <View className="flex gap-3 anim-up-4">
             {/* 精神状态诊断 */}
             <View className="flex-1 p-4 relative overflow-hidden" style={cardGlass}>
               <Text className="tracking-wider uppercase block mb-3" style={{
@@ -355,10 +348,7 @@ export default function ResultPage() {
             </View>
 
             {/* 改运指南 */}
-            <View className="flex-1 p-4 relative overflow-hidden" style={{
-              ...cardGlass,
-              animation: "fadeInUp 0.5s ease-out 0.25s both",
-            }}>
+            <View className="flex-1 p-4 relative overflow-hidden anim-up-5" style={cardGlass}>
               <Text className="tracking-wider uppercase block mb-3" style={{
                 color: "rgba(255,255,255,0.6)", fontSize: "20rpx",
               }}>
@@ -373,7 +363,7 @@ export default function ResultPage() {
           <GoldSeparator />
 
           {/* ═══ 社交匹配 — Web 级 hover 发光卡片 ═══ */}
-          <View className="flex gap-2.5" style={{ animation: "fadeInUp 0.5s ease-out 0.3s both" }}>
+          <View className="flex gap-2.5 anim-up-6">
             {/* 天作之合 */}
             <View className="flex-1 rounded-2xl p-4 relative" style={{
               backgroundColor: "rgba(16,185,129,0.04)",
@@ -389,7 +379,7 @@ export default function ResultPage() {
                 <Text className="font-medium" style={{ color: "rgba(16,185,129,0.9)", fontSize: "22rpx" }}>天作之合</Text>
               </View>
               {compatNames.map((p) => p && (
-                <View key={p.code} className="flex items-center gap-2 mb-2 rounded-xl px-2 py-1.5" style={{ animation: "fadeInUp 0.3s ease-out 0.4s both", backgroundColor: "rgba(16,185,129,0.04)" }}>
+                <View key={p.code} className="flex items-center gap-2 mb-2 rounded-xl px-2 py-1.5 anim-social" style={{ backgroundColor: "rgba(16,185,129,0.04)" }}>
                   <Text className="text-sm">{p.emoji}</Text>
                   <Text className="leading-tight" style={{ color: "rgba(255,255,255,0.8)", fontSize: "22rpx" }}>{p.title}</Text>
                 </View>
@@ -411,7 +401,7 @@ export default function ResultPage() {
                 <Text className="font-medium" style={{ color: "rgba(239,68,68,0.9)", fontSize: "22rpx" }}>离远点保命</Text>
               </View>
               {clashNames.map((p) => p && (
-                <View key={p.code} className="flex items-center gap-2 mb-2 rounded-xl px-2 py-1.5" style={{ animation: "fadeInUp 0.3s ease-out 0.4s both", backgroundColor: "rgba(239,68,68,0.04)" }}>
+                <View key={p.code} className="flex items-center gap-2 mb-2 rounded-xl px-2 py-1.5 anim-social" style={{ backgroundColor: "rgba(239,68,68,0.04)" }}>
                   <Text className="text-sm">{p.emoji}</Text>
                   <Text className="leading-tight" style={{ color: "rgba(255,255,255,0.8)", fontSize: "22rpx" }}>{p.title}</Text>
                 </View>
@@ -422,16 +412,13 @@ export default function ResultPage() {
           <GoldSeparator />
 
           {/* ═══ AI 深度解读 CTA — 匹配 Web 流光边框 ═══ */}
-          <View className="relative rounded-2xl overflow-hidden mb-5" style={{
-            animation: "fadeInUp 0.5s ease-out 0.35s both",
-          }}>
+          <View className="relative rounded-2xl overflow-hidden mb-5 anim-up-7">
             {/* 流光边框动画 — 匹配 Web shimmer border */}
-            <View className="absolute rounded-2xl pointer-events-none" style={{
+            <View className="absolute rounded-2xl pointer-events-none anim-shimmer" style={{
               top: 0, left: 0, right: 0, bottom: 0,
               padding: "1rpx",
               background: `linear-gradient(to right, rgba(${goldRgb},0), rgba(${goldRgb},0.4), rgba(${goldRgb},0))`,
               backgroundSize: "200% 100%",
-              animation: "shimmer 3s ease-in-out infinite",
             }} />
             <View className="relative rounded-2xl p-5" style={{
               ...cardElevated,
@@ -460,10 +447,9 @@ export default function ResultPage() {
                 onClick={() => Taro.showToast({ title: "跳转中…", icon: "loading" })}
               >
                 {/* 光泽扫过 */}
-                <View className="absolute inset-0 pointer-events-none" style={{
+                <View className="absolute inset-0 pointer-events-none anim-shimmer-fast" style={{
                   background: `linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.3) 45%, rgba(255,255,255,0.3) 55%, transparent 60%)`,
                   backgroundSize: "200% 100%",
-                  animation: "shimmer 2.5s ease-in-out infinite",
                 }} />
                 <Text className="relative font-bold" style={{ color: "#1A0F2E", fontSize: "30rpx", textShadow: "0 1rpx 2rpx rgba(0,0,0,0.15)" }}>
                   🔮 开启命运解读 · 100 ✨
@@ -473,7 +459,7 @@ export default function ResultPage() {
           </View>
 
           {/* ═══ 操作按钮 — 匹配 Web 风格 ═══ */}
-          <View className="flex gap-3 mb-5" style={{ animation: "fadeInUp 0.5s ease-out 0.4s both" }}>
+          <View className="flex gap-3 mb-5 anim-up-8">
             {/* 保存海报 — Web 黑金渐变实体按钮 */}
             <View
               className="flex-1 py-3 rounded-xl text-center relative overflow-hidden"
