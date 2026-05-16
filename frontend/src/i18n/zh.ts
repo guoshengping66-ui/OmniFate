@@ -1396,6 +1396,7 @@ export default {
   "am16.analyzingSub": "连接宇宙量子场 · 校准四维坐标",
   "am16.yourCode": "✦ AM16 天命编码 ✦",
   "am16.fourDimCoords": "四维能量坐标",
+  "am16.levelDetail": "能级细节解析",
   "am16.xinxueQuote": "心学金句",
   "am16.diagnosis": "精神状态诊断",
   "am16.advice": "改运指南",

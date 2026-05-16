@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { PERSONALITIES, DIMENSIONS } from "@/lib/am16/constants"
 import { calculateAM16 } from "@/lib/am16/calculator"
+import { DIMENSION_ORDER, DIMENSIONS_MAP, getPoleLabel } from "@/lib/am16/dimensions"
 import Link from "next/link"
 
 // ── 高亮发疯文案：将 **关键词** 包裹为金色高亮 ──
@@ -47,7 +48,7 @@ interface Props {
 
 export function AM16ResultCard({ answers, onRestart }: Props) {
   const { user } = useAuth()
-  const { t: rawT } = useLanguage()
+  const { t: rawT, locale } = useLanguage()
   const t = rawT as unknown as (key: string) => string
   const [shareOpen, setShareOpen] = useState(false)
   const [downloading, setDownloading] = useState(false)
@@ -322,6 +323,60 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
         <div className="flex justify-center">
           <SquareRadar scores={radarScores} size={240} t={t} />
         </div>
+      </motion.div>
+
+      {/* ═══ 能级细节解析 — 四维度深度解读 ═══ */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.55 }}
+        className="space-y-3"
+      >
+        <div className="flex items-center gap-2 px-1">
+          <div className="w-1 h-6 rounded-full bg-gold" />
+          <h3 className="text-white/75 text-sm font-medium">{t("am16.levelDetail")}</h3>
+        </div>
+        {DIMENSION_ORDER.map(code => {
+          const dim = DIMENSIONS_MAP[code]
+          const val = radarScores[code] ?? 50
+          const { pole } = getPoleLabel(code, val)
+          const lang = locale === "zh" ? "zh" : "en"
+          const axisName = lang === "zh" ? dim.axisNameCn : dim.axisNameEn
+          const tag = lang === "zh" ? pole.tagCn : pole.tagEn
+          const poleName = lang === "zh" ? pole.nameCn : pole.nameEn
+          const desc = lang === "zh" ? pole.descCn : pole.descEn
+          return (
+            <motion.div
+              key={code}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 + DIMENSION_ORDER.indexOf(code) * 0.08 }}
+              className="card-glass p-4 relative overflow-hidden"
+            >
+              {/* 左侧金色竖线 */}
+              <div className="absolute top-3 bottom-0 left-0 w-[3px] bg-gradient-to-b from-gold/50 to-gold/10" />
+              <div className="pl-3">
+                {/* 标题行 */}
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">{dim.icon}</span>
+                    <span className="text-sm font-medium text-white/80">{axisName}</span>
+                  </div>
+                  <span className="text-sm font-bold text-gold">{val}%</span>
+                </div>
+                {/* 倾向标签 */}
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-gold/12 text-gold border border-gold/25">
+                    {tag}
+                  </span>
+                  <span className="text-xs text-white/35">{poleName}</span>
+                </div>
+                {/* 描述 */}
+                <p className="text-xs text-white/55 leading-relaxed">{desc}</p>
+              </div>
+            </motion.div>
+          )
+        })}
       </motion.div>
 
       {/* ═══ 心学金句 — 通栏无卡片 ═══ */}

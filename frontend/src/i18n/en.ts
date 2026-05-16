@@ -1402,6 +1402,7 @@ export default {
   "am16.analyzingSub": "Connecting quantum field · Calibrating 4D coordinates",
   "am16.yourCode": "✦ AM16 Destiny Code ✦",
   "am16.fourDimCoords": "Four-Dimension Energy Map",
+  "am16.levelDetail": "Level Detail Analysis",
   "am16.xinxueQuote": "Xinxue Wisdom Quote",
   "am16.diagnosis": "Mental State Diagnosis",
   "am16.advice": "Fortune Guide",
