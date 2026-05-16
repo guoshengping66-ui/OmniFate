@@ -1246,6 +1246,38 @@ export default {
   "new.tarot.present": "Present",
   "new.tarot.future": "Future",
 
+  // ─── DateSelector ───
+  "new.birthDate": "Birth Date",
+  "new.year": "Year",
+  "new.month": "Month",
+  "new.day": "Day",
+  "new.yearSuffix": "",
+  "new.monthSuffix": "",
+  "new.daySuffix": "",
+
+  // ─── ShichenSelector ───
+  "new.birthTime": "Birth Time",
+  "new.selectTime": "Select time period",
+
+  // ─── LocationSelector ───
+  "new.birthCity": "Birth City",
+  "new.selectRegion": "Select region",
+  "new.selectProvince": "Select province",
+  "new.selectCity": "Select city",
+  "new.selectDistrict": "Select district",
+  "new.otherCountry": "🌍 Other country/region",
+  "new.searchCountry": "Search country...",
+  "new.groupAsia": "Asia",
+  "new.groupNorthAmerica": "North America",
+  "new.groupEurope": "Europe",
+  "new.groupOceania": "Oceania",
+  "new.groupMiddleEast": "Middle East",
+  "new.groupOther": "South America / Africa / Other",
+  "new.selectState": "Select state/province",
+  "new.customCity": "Enter other city...",
+  "new.backToChina": "← Select China region",
+  "new.customCityPlaceholder": "Enter city name (e.g. San Jose)",
+
   // ─── Pricing Page Misc ───
   "pricing.subtitle": "Stardust is your energy reserve for cosmic insight — members receive automatic energy infusions monthly",
   "about.heroDesc": "Where millennia of metaphysical wisdom meets cutting-edge AI,\nproviding a unique life reading for every individual.",

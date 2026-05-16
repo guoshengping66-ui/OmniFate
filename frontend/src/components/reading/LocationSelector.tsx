@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { CHINA_REGIONS } from "@/data/china-regions"
 import { INTERNATIONAL_LOCATIONS } from "@/data/international-locations"
 import { ChevronDown, Search } from "lucide-react"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 const OTHER_COUNTRY = "__other__"
 const INTL_CUSTOM = "__custom__"
@@ -15,6 +16,8 @@ interface Props {
 }
 
 export function LocationSelector({ value, onChange, placeholder }: Props) {
+  const { t } = useLanguage()
+
   // ── China mode state ──
   const [selectedProvince, setSelectedProvince] = useState("")
   const [selectedCity, setSelectedCity] = useState("")
@@ -70,11 +73,6 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
     }
 
     // Check if it's an international location
-    // Formats:
-    //   "Country/State/City" (with states)
-    //   "Country/City" (without states, or stateless country)
-    //   "Country" (just country)
-    //   Free text
     if (parts.length >= 1) {
       const country = INTERNATIONAL_LOCATIONS.find(c => c.name === parts[0])
       if (country) {
@@ -82,7 +80,6 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
         setSelectedCountry(parts[0])
 
         if (country.states && country.states.length > 0 && parts.length >= 3) {
-          // Three-level: Country/State/City
           setSelectedState(parts[1])
           const state = country.states.find(s => s.name === parts[1])
           if (state) {
@@ -95,9 +92,7 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
             }
           }
         } else if (parts.length >= 2) {
-          // Two-level: Country/City
           if (country.states && country.states.length > 0) {
-            // Value is old format (Country/City) without state, try to find in any state
             let found = false
             for (const state of country.states) {
               const city = state.cities.find(c => c.name === parts[1])
@@ -162,7 +157,6 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
     const hasStateLevel = countryObj?.states && countryObj.states.length > 0
 
     if (hasStateLevel) {
-      // Three-level: Country/State/City
       if (state && city && city !== INTL_CUSTOM) {
         onChange(`${country}/${state}/${city}`)
       } else if (state && customCity) {
@@ -173,7 +167,6 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
         onChange("")
       }
     } else {
-      // Two-level: Country/City
       if (city && city !== INTL_CUSTOM) {
         onChange(`${country}/${city}`)
       } else if (customCity) {
@@ -288,8 +281,8 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
   return (
     <div>
       <label className="label">
-        出生城市
-        <span className="text-white/30 text-xs ml-2">选择地区</span>
+        {t("new.birthCity")}
+        <span className="text-white/30 text-xs ml-2">{t("new.selectRegion")}</span>
       </label>
 
       {/* ── China Mode ── */}
@@ -302,13 +295,13 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
               onChange={e => handleProvinceChange(e.target.value)}
               className="input-field text-sm"
             >
-              <option value="" className="bg-[#0f0f1a] text-white">选择省份</option>
+              <option value="" className="bg-[#0f0f1a] text-white">{t("new.selectProvince")}</option>
               {CHINA_REGIONS.map(p => (
                 <option key={p.name} value={p.name} className="bg-[#0f0f1a] text-white">
                   {p.name}
                 </option>
               ))}
-              <option value={OTHER_COUNTRY} className="bg-[#0f0f1a] text-white">🌍 其他国家/地区</option>
+              <option value={OTHER_COUNTRY} className="bg-[#0f0f1a] text-white">{t("new.otherCountry")}</option>
             </select>
 
             {/* City */}
@@ -318,7 +311,7 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
               disabled={!currentProvince}
               className="input-field text-sm disabled:opacity-30"
             >
-              <option value="" className="bg-[#0f0f1a] text-white">选择城市</option>
+              <option value="" className="bg-[#0f0f1a] text-white">{t("new.selectCity")}</option>
               {currentProvince?.children.map(c => (
                 <option key={c.name} value={c.name} className="bg-[#0f0f1a] text-white">
                   {c.name}
@@ -333,7 +326,7 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
               disabled={!currentCity}
               className="input-field text-sm disabled:opacity-30"
             >
-              <option value="" className="bg-[#0f0f1a] text-white">选择区县</option>
+              <option value="" className="bg-[#0f0f1a] text-white">{t("new.selectDistrict")}</option>
               {currentCity?.children.map(d => (
                 <option key={d.name} value={d.name} className="bg-[#0f0f1a] text-white">
                   {d.name}
@@ -363,7 +356,7 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
                 className="input-field text-sm cursor-pointer flex items-center justify-between"
               >
                 <span className={currentCountry ? "text-white truncate" : "text-white/40"}>
-                  {currentCountry ? `${currentCountry.nameZh}` : "选择国家/地区"}
+                  {currentCountry ? `${currentCountry.nameZh}` : t("new.selectRegion")}
                 </span>
                 <ChevronDown className={`w-4 h-4 text-white/40 transition-transform flex-shrink-0 ${showCountryDropdown ? "rotate-180" : ""}`} />
               </div>
@@ -379,7 +372,7 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
                         type="text"
                         value={countrySearch}
                         onChange={e => setCountrySearch(e.target.value)}
-                        placeholder="搜索国家..."
+                        placeholder={t("new.searchCountry")}
                         className="bg-transparent text-sm text-white outline-none w-full placeholder:text-white/30"
                       />
                     </div>
@@ -388,7 +381,6 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
                   {/* Country list */}
                   <div className="overflow-y-auto max-h-56 p-1">
                     {countrySearch ? (
-                      // Flat filtered list
                       filteredCountries.map(c => (
                         <button
                           key={c.name}
@@ -404,10 +396,9 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
                         </button>
                       ))
                     ) : (
-                      // Grouped by region
                       <>
                         <CountryGroup
-                          label="亚洲"
+                          label={t("new.groupAsia")}
                           countries={INTERNATIONAL_LOCATIONS.filter(c =>
                             ["Japan", "South Korea", "Singapore", "Thailand", "Malaysia",
                              "Indonesia", "Philippines", "Vietnam", "India"].includes(c.name)
@@ -416,7 +407,7 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
                           onSelect={handleCountrySelect}
                         />
                         <CountryGroup
-                          label="北美"
+                          label={t("new.groupNorthAmerica")}
                           countries={INTERNATIONAL_LOCATIONS.filter(c =>
                             ["United States", "Canada", "Mexico"].includes(c.name)
                           )}
@@ -424,7 +415,7 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
                           onSelect={handleCountrySelect}
                         />
                         <CountryGroup
-                          label="欧洲"
+                          label={t("new.groupEurope")}
                           countries={INTERNATIONAL_LOCATIONS.filter(c =>
                             ["United Kingdom", "France", "Germany", "Netherlands",
                              "Spain", "Italy", "Switzerland"].includes(c.name)
@@ -433,7 +424,7 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
                           onSelect={handleCountrySelect}
                         />
                         <CountryGroup
-                          label="大洋洲"
+                          label={t("new.groupOceania")}
                           countries={INTERNATIONAL_LOCATIONS.filter(c =>
                             ["Australia", "New Zealand"].includes(c.name)
                           )}
@@ -441,7 +432,7 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
                           onSelect={handleCountrySelect}
                         />
                         <CountryGroup
-                          label="中东"
+                          label={t("new.groupMiddleEast")}
                           countries={INTERNATIONAL_LOCATIONS.filter(c =>
                             ["United Arab Emirates", "Saudi Arabia", "Israel"].includes(c.name)
                           )}
@@ -449,7 +440,7 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
                           onSelect={handleCountrySelect}
                         />
                         <CountryGroup
-                          label="南美 / 非洲 / 其他"
+                          label={t("new.groupOther")}
                           countries={INTERNATIONAL_LOCATIONS.filter(c =>
                             ["Brazil", "Argentina", "South Africa", "Egypt", "Russia", "Turkey"].includes(c.name)
                           )}
@@ -471,7 +462,7 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
                 disabled={!selectedCountry}
                 className="input-field text-sm disabled:opacity-30"
               >
-                <option value="" className="bg-[#0f0f1a] text-white">选择州/省</option>
+                <option value="" className="bg-[#0f0f1a] text-white">{t("new.selectState")}</option>
                 {currentCountry!.states!.map(s => (
                   <option key={s.name} value={s.name} className="bg-[#0f0f1a] text-white">
                     {s.nameZh} {s.name}
@@ -487,7 +478,7 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
               disabled={hasStates ? !selectedState : !selectedCountry}
               className="input-field text-sm disabled:opacity-30"
             >
-              <option value="" className="bg-[#0f0f1a] text-white">选择城市</option>
+              <option value="" className="bg-[#0f0f1a] text-white">{t("new.selectCity")}</option>
               {intlCities.map(c => (
                 <option key={c.name} value={c.name} className="bg-[#0f0f1a] text-white">
                   {c.nameZh} {c.name}
@@ -495,7 +486,7 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
               ))}
               {(hasStates ? selectedState : selectedCountry) && (
                 <option value={INTL_CUSTOM} className="bg-[#0f0f1a] text-white/50">
-                  手动输入其他城市...
+                  {t("new.customCity")}
                 </option>
               )}
             </select>
@@ -508,7 +499,7 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
                 type="text"
                 value={otherInput}
                 onChange={e => handleCustomCityInput(e.target.value)}
-                placeholder={placeholder || "请输入城市名称（如 San Jose）"}
+                placeholder={placeholder || t("new.customCityPlaceholder")}
                 className="input-field text-sm"
               />
             </div>
@@ -520,7 +511,7 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
             onClick={handleBackToChina}
             className="text-xs text-white/40 hover:text-gold/70 transition-colors flex items-center gap-1"
           >
-            ← 选择中国地区
+            {t("new.backToChina")}
           </button>
 
           {displayPreview()}

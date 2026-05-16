@@ -1250,4 +1250,36 @@ export default {
   "new.tarot.past": "过去",
   "new.tarot.present": "现状",
   "new.tarot.future": "未来",
+
+  // ─── 日期选择器 ───
+  "new.birthDate": "出生日期",
+  "new.year": "年",
+  "new.month": "月",
+  "new.day": "日",
+  "new.yearSuffix": "年",
+  "new.monthSuffix": "月",
+  "new.daySuffix": "日",
+
+  // ─── 时辰选择器 ───
+  "new.birthTime": "出生时辰",
+  "new.selectTime": "选择对应的时辰",
+
+  // ─── 地区选择器 ───
+  "new.birthCity": "出生城市",
+  "new.selectRegion": "选择地区",
+  "new.selectProvince": "选择省份",
+  "new.selectCity": "选择城市",
+  "new.selectDistrict": "选择区县",
+  "new.otherCountry": "🌍 其他国家/地区",
+  "new.searchCountry": "搜索国家...",
+  "new.groupAsia": "亚洲",
+  "new.groupNorthAmerica": "北美",
+  "new.groupEurope": "欧洲",
+  "new.groupOceania": "大洋洲",
+  "new.groupMiddleEast": "中东",
+  "new.groupOther": "南美 / 非洲 / 其他",
+  "new.selectState": "选择州/省",
+  "new.customCity": "手动输入其他城市...",
+  "new.backToChina": "← 选择中国地区",
+  "new.customCityPlaceholder": "请输入城市名称（如 San Jose）",
 } as const
