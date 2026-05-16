@@ -223,7 +223,7 @@ const JAPAN: IntlCountry = {
       ],
     },
     {
-      name: "Hyogo", nameZh: "�的库县",
+      name: "Hyogo", nameZh: "兵库县",
       cities: [
         { name: "Kobe", nameZh: "神户" },
       ],

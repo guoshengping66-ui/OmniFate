@@ -350,7 +350,7 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
       {isInternational && (
         <div className="space-y-2">
           {/* Row 1: Country + State/City */}
-          <div className={`grid grid-cols-1 sm:grid-cols-${hasStates ? 3 : 2} gap-2`}>
+          <div className={`grid grid-cols-1 ${hasStates ? "sm:grid-cols-3" : "sm:grid-cols-2"} gap-2`}>
             {/* Country Selector with search */}
             <div className="relative">
               <div
