@@ -313,8 +313,9 @@ async def register(req: RegisterRequest, request: Request, db: AsyncSession = De
 
     # If SMTP is not configured, auto-verify user (dev convenience)
     if not email_sent and not is_smtp_configured():
-        import os
-        if os.getenv("DEBUG", "false").lower() == "true":
+        from config import get_settings as _gs
+        _s = _gs()
+        if _s.DEBUG:
             print(f"[AUTH] SMTP not configured, auto-verifying user {req.email}")
         user.is_verified = True
         user.verification_code = None

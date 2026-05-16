@@ -1,6 +1,6 @@
 """
 email.py — Email sending utility using SMTP.
-Configure via environment variables or .env:
+Configure via .env file:
   SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM
 """
 import smtplib
@@ -14,15 +14,14 @@ settings = get_settings()
 
 
 def _get_smtp_config() -> dict:
-    """Get SMTP config from environment or defaults."""
-    import os
+    """Get SMTP config from pydantic settings (reads .env file)."""
     return {
-        "host": os.getenv("SMTP_HOST", ""),
-        "port": int(os.getenv("SMTP_PORT", "465")),
-        "user": os.getenv("SMTP_USER", ""),
-        "password": os.getenv("SMTP_PASS", ""),
-        "from_email": os.getenv("SMTP_FROM", ""),
-        "from_name": os.getenv("SMTP_FROM_NAME", "命盘智镜"),
+        "host": settings.SMTP_HOST,
+        "port": settings.SMTP_PORT,
+        "user": settings.SMTP_USER,
+        "password": settings.SMTP_PASS,
+        "from_email": settings.SMTP_FROM,
+        "from_name": settings.SMTP_FROM_NAME,
     }
 
 
@@ -38,8 +37,7 @@ def send_verification_email(to_email: str, code: str) -> bool:
     if not config["host"] or not config["user"]:
         print("[EMAIL] SMTP not configured, skipping email send")
         # Only log code in debug mode, never in production
-        import os
-        if os.getenv("DEBUG", "false").lower() == "true":
+        if settings.DEBUG:
             print(f"[EMAIL] Verification code for {to_email}: {code}")
         return False
 

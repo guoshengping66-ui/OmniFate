@@ -68,6 +68,14 @@ class Settings(BaseSettings):
     GEOCODING_API_KEY: str = ""
     FRONTEND_URL: str = "http://localhost:3000"
 
+    # ── SMTP 邮件配置 ──
+    SMTP_HOST: str = ""
+    SMTP_PORT: int = 465
+    SMTP_USER: str = ""
+    SMTP_PASS: str = ""
+    SMTP_FROM: str = ""
+    SMTP_FROM_NAME: str = "命盘智镜"
+
     # ── Cron / 定时任务 ──
     CRON_SECRET: str = ""
 
