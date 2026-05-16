@@ -9,6 +9,18 @@ import { PERSONALITIES, DIMENSIONS } from "@/lib/am16/constants"
 import { calculateAM16 } from "@/lib/am16/calculator"
 import Link from "next/link"
 
+// ── 解析人格内容的 i18n 翻译 ──
+function resolvePersonality(p: typeof PERSONALITIES[string], t: (key: string) => string) {
+  return {
+    ...p,
+    title: t(`am16.${p.code}.title`),
+    quote: t(`am16.${p.code}.quote`),
+    quoteExplain: t(`am16.${p.code}.quoteExplain`),
+    diagnosis: t(`am16.${p.code}.diagnosis`),
+    advice: t(`am16.${p.code}.advice`),
+  }
+}
+
 interface Props {
   answers: number[]
   onRestart: () => void
@@ -22,10 +34,11 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
   const [copied, setCopied] = useState(false)
   const [copiedReferral, setCopiedReferral] = useState(false)
   const result = calculateAM16(answers)
-  const { personality, radarScores, code } = result
+  const { personality: rawPersonality, radarScores, code } = result
+  const personality = resolvePersonality(rawPersonality, t as (key: string) => string)
 
-  const compatNames = personality.compatible.map(c => PERSONALITIES[c]?.emoji + " " + c).join(" · ")
-  const clashNames = personality.clash.map(c => PERSONALITIES[c]?.emoji + " " + c).join(" · ")
+  const compatNames = rawPersonality.compatible.map(c => PERSONALITIES[c]?.emoji + " " + c).join(" · ")
+  const clashNames = rawPersonality.clash.map(c => PERSONALITIES[c]?.emoji + " " + c).join(" · ")
 
   // ── 分享面板操作 ──
   const handleCopyLink = async () => {
@@ -66,98 +79,128 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
     }
   }
 
-  // ── Canvas 海报生成 ──
+  // ── Canvas 海报生成（Web Worker 异步化）──
   const handleDownload = () => {
     setDownloading(true)
+
+    const inviteCode = user?.referral_code || "DESTINY"
+    const workerData = {
+      code,
+      emoji: personality.emoji,
+      title: personality.title,
+      quote: personality.quote,
+      quoteExplain: personality.quoteExplain,
+      diagnosis: personality.diagnosis,
+      advice: personality.advice,
+      inviteCode,
+      poster: {
+        title: t("am16.poster.title"),
+        diagnosis: t("am16.poster.diagnosis"),
+        guide: t("am16.poster.guide"),
+        scan: t("am16.poster.scan"),
+        stardust: t("am16.poster.stardust"),
+        brand: t("am16.poster.brand"),
+      },
+    }
+
     try {
-      const canvas = document.createElement("canvas")
-      canvas.width = 750
-      canvas.height = 1334
-      const ctx = canvas.getContext("2d")
-      if (!ctx) return
-
-      const grad = ctx.createLinearGradient(0, 0, 750, 1334)
-      grad.addColorStop(0, "#1a1030")
-      grad.addColorStop(0.5, "#2D1B4E")
-      grad.addColorStop(1, "#140f24")
-      ctx.fillStyle = grad
-      ctx.fillRect(0, 0, 750, 1334)
-
-      ctx.fillStyle = "rgba(201,168,76,0.08)"
-      ctx.beginPath()
-      ctx.arc(375, 350, 280, 0, Math.PI * 2)
-      ctx.fill()
-
-      ctx.fillStyle = "#C9A84C"
-      ctx.font = "bold 32px sans-serif"
-      ctx.textAlign = "center"
-      ctx.fillText("✦ AM16 Destiny Code ✦", 375, 100)
-
-      ctx.font = "bold 120px sans-serif"
-      ctx.shadowColor = "rgba(201,168,76,0.6)"
-      ctx.shadowBlur = 30
-      ctx.fillText(code, 375, 280)
-      ctx.shadowBlur = 0
-
-      ctx.font = "bold 36px sans-serif"
-      ctx.fillStyle = "rgba(255,255,255,0.9)"
-      ctx.fillText(personality.title, 375, 360)
-
-      ctx.font = "80px serif"
-      ctx.fillText(personality.emoji, 375, 470)
-
-      ctx.fillStyle = "rgba(201,168,76,0.8)"
-      ctx.font = "italic 28px serif"
-      ctx.fillText(`"${personality.quote}"`, 375, 560)
-
-      ctx.fillStyle = "rgba(255,255,255,0.5)"
-      ctx.font = "22px sans-serif"
-      ctx.fillText(personality.quoteExplain, 375, 600)
-
-      ctx.strokeStyle = "rgba(201,168,76,0.2)"
-      ctx.lineWidth = 1
-      ctx.beginPath()
-      ctx.moveTo(150, 640)
-      ctx.lineTo(600, 640)
-      ctx.stroke()
-
-      ctx.fillStyle = "rgba(255,255,255,0.7)"
-      ctx.font = "bold 24px sans-serif"
-      ctx.fillText("🧠 Mental State Diagnosis", 375, 700)
-
-      ctx.font = "20px sans-serif"
-      ctx.fillStyle = "rgba(255,255,255,0.5)"
-      wrapText(ctx, personality.diagnosis, 375, 740, 580, 28)
-
-      ctx.fillStyle = "rgba(255,255,255,0.7)"
-      ctx.font = "bold 24px sans-serif"
-      ctx.fillText("🧭 Fortune Guide", 375, 920)
-
-      ctx.font = "20px sans-serif"
-      ctx.fillStyle = "rgba(255,255,255,0.5)"
-      wrapText(ctx, personality.advice, 375, 960, 580, 28)
-
-      ctx.fillStyle = "#C9A84C"
-      ctx.font = "bold 28px sans-serif"
-      ctx.fillText("🔮 Scan to try your destiny", 375, 1130)
-
-      ctx.fillStyle = "rgba(255,255,255,0.3)"
-      ctx.font = "18px sans-serif"
-      const inviteCode = user?.referral_code || "DESTINY"
-      ctx.fillText(`20 free stardust · Code: ${inviteCode}`, 375, 1180)
-
-      ctx.font = "16px sans-serif"
-      ctx.fillStyle = "rgba(255,255,255,0.2)"
-      ctx.fillText("AlphaMirror · AI-Powered Destiny", 375, 1300)
-
-      const link = document.createElement("a")
-      link.download = `AM16-${code}-${Date.now()}.png`
-      link.href = canvas.toDataURL("image/png")
-      link.click()
-      toast.success(t("am16.saveImage"))
+      const worker = new Worker("/workers/am16-poster.js")
+      worker.onmessage = (e: MessageEvent) => {
+        const { url, error } = e.data
+        if (error || !url) {
+          toast.error("Save failed")
+          setDownloading(false)
+          worker.terminate()
+          return
+        }
+        const link = document.createElement("a")
+        link.download = `AM16-${code}-${Date.now()}.png`
+        link.href = url
+        link.click()
+        URL.revokeObjectURL(url)
+        toast.success(t("am16.saveImage"))
+        setDownloading(false)
+        worker.terminate()
+      }
+      worker.onerror = () => {
+        toast.error("Save failed")
+        setDownloading(false)
+        worker.terminate()
+      }
+      worker.postMessage(workerData)
     } catch {
-      toast.error("Save failed")
-    } finally {
+      // Fallback: synchronous canvas generation
+      try {
+        const canvas = document.createElement("canvas")
+        canvas.width = 750
+        canvas.height = 1334
+        const ctx = canvas.getContext("2d")
+        if (!ctx) return
+        const grad = ctx.createLinearGradient(0, 0, 750, 1334)
+        grad.addColorStop(0, "#1a1030")
+        grad.addColorStop(0.5, "#2D1B4E")
+        grad.addColorStop(1, "#140f24")
+        ctx.fillStyle = grad
+        ctx.fillRect(0, 0, 750, 1334)
+        ctx.fillStyle = "rgba(201,168,76,0.08)"
+        ctx.beginPath()
+        ctx.arc(375, 350, 280, 0, Math.PI * 2)
+        ctx.fill()
+        ctx.textAlign = "center"
+        ctx.fillStyle = "#C9A84C"
+        ctx.font = "bold 32px sans-serif"
+        ctx.fillText(t("am16.poster.title"), 375, 100)
+        ctx.font = "bold 120px sans-serif"
+        ctx.shadowColor = "rgba(201,168,76,0.6)"
+        ctx.shadowBlur = 30
+        ctx.fillText(code, 375, 280)
+        ctx.shadowBlur = 0
+        ctx.font = "bold 36px sans-serif"
+        ctx.fillStyle = "rgba(255,255,255,0.9)"
+        ctx.fillText(personality.title, 375, 360)
+        ctx.font = "80px serif"
+        ctx.fillText(personality.emoji, 375, 470)
+        ctx.fillStyle = "rgba(201,168,76,0.8)"
+        ctx.font = "italic 28px serif"
+        ctx.fillText(`"${personality.quote}"`, 375, 560)
+        ctx.fillStyle = "rgba(255,255,255,0.5)"
+        ctx.font = "22px sans-serif"
+        ctx.fillText(personality.quoteExplain, 375, 600)
+        ctx.strokeStyle = "rgba(201,168,76,0.2)"
+        ctx.lineWidth = 1
+        ctx.beginPath()
+        ctx.moveTo(150, 640)
+        ctx.lineTo(600, 640)
+        ctx.stroke()
+        ctx.fillStyle = "rgba(255,255,255,0.7)"
+        ctx.font = "bold 24px sans-serif"
+        ctx.fillText(t("am16.poster.diagnosis"), 375, 700)
+        ctx.font = "20px sans-serif"
+        ctx.fillStyle = "rgba(255,255,255,0.5)"
+        wrapText(ctx, personality.diagnosis, 375, 740, 580, 28)
+        ctx.fillStyle = "rgba(255,255,255,0.7)"
+        ctx.font = "bold 24px sans-serif"
+        ctx.fillText(t("am16.poster.guide"), 375, 920)
+        ctx.font = "20px sans-serif"
+        ctx.fillStyle = "rgba(255,255,255,0.5)"
+        wrapText(ctx, personality.advice, 375, 960, 580, 28)
+        ctx.fillStyle = "#C9A84C"
+        ctx.font = "bold 28px sans-serif"
+        ctx.fillText(t("am16.poster.scan"), 375, 1130)
+        ctx.fillStyle = "rgba(255,255,255,0.3)"
+        ctx.font = "18px sans-serif"
+        ctx.fillText(`${t("am16.poster.stardust")}${inviteCode}`, 375, 1180)
+        ctx.font = "16px sans-serif"
+        ctx.fillStyle = "rgba(255,255,255,0.2)"
+        ctx.fillText(t("am16.poster.brand"), 375, 1300)
+        const link = document.createElement("a")
+        link.download = `AM16-${code}-${Date.now()}.png`
+        link.href = canvas.toDataURL("image/png")
+        link.click()
+        toast.success(t("am16.saveImage"))
+      } catch {
+        toast.error("Save failed")
+      }
       setDownloading(false)
     }
   }
@@ -170,6 +213,8 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, type: "spring" }}
         className="card-glass-elevated p-6 text-center relative overflow-hidden"
+        role="article"
+        aria-label={`${code} — ${personality.title}`}
       >
         <div className={`absolute inset-0 bg-gradient-to-b ${personality.bgGlow} pointer-events-none`} />
 
@@ -235,7 +280,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
           {t("am16.fourDimCoords")}
         </h3>
         <div className="flex justify-center">
-          <SquareRadar scores={radarScores} size={220} t={t} />
+          <SquareRadar scores={radarScores} size={220} t={t as (key: string) => string} />
         </div>
         <div className="grid grid-cols-4 gap-2 mt-4 text-center">
           {DIMENSIONS.map(d => (
@@ -422,6 +467,8 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
               exit={{ opacity: 0, y: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               className="fixed bottom-0 left-0 right-0 z-50 bg-ink border-t border-gold/20 rounded-t-3xl p-6 pb-10 max-w-lg mx-auto"
+              role="dialog"
+              aria-label={t("am16.shareTitle")}
             >
               <div className="flex items-center justify-between mb-6">
                 <h3 className="font-serif text-lg text-gold">{t("am16.shareTitle")}</h3>

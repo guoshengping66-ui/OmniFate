@@ -1,20 +1,40 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { AM16Quiz } from "@/components/am16/AM16Quiz"
 import { AM16ResultCard } from "@/components/am16/AM16Result"
 import { useLanguage } from "@/contexts/LanguageContext"
 
+const STORAGE_KEY = "am16_last_result"
+
 export default function AM16Page() {
   const { t } = useLanguage()
   const [answers, setAnswers] = useState<number[] | null>(null)
 
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY)
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        if (Array.isArray(parsed) && parsed.length === 12) {
+          setAnswers(parsed)
+        }
+      }
+    } catch {}
+  }, [])
+
   const handleComplete = (result: number[]) => {
     setAnswers(result)
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(result))
+    } catch {}
   }
 
   const handleRestart = () => {
     setAnswers(null)
+    try {
+      localStorage.removeItem(STORAGE_KEY)
+    } catch {}
   }
 
   return (

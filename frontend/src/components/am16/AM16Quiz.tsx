@@ -57,7 +57,8 @@ interface Props {
 }
 
 export function AM16Quiz({ onComplete }: Props) {
-  const { t } = useLanguage()
+  const { t: rawT } = useLanguage()
+  const t = rawT as unknown as (key: string) => string
   const [started, setStarted] = useState(false)
   const [currentQ, setCurrentQ] = useState(0)
   const [answers, setAnswers] = useState<number[]>([])
@@ -214,7 +215,7 @@ export function AM16Quiz({ onComplete }: Props) {
             {Math.round(progress)}%
           </span>
         </div>
-        <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+        <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden" role="progressbar" aria-valuenow={Math.round(progress)} aria-valuemin={0} aria-valuemax={100} aria-label={t("am16.progress")}>
           <motion.div
             className="h-full bg-gradient-to-r from-gold/40 to-gold rounded-full"
             animate={{ width: `${((currentQ) / total) * 100}%` }}
@@ -244,14 +245,15 @@ export function AM16Quiz({ onComplete }: Props) {
                 {question.emoji}
               </motion.div>
               <h2 className="text-lg md:text-xl font-serif text-white/90 leading-relaxed">
-                {question.scenario}
+                {t(`am16.q${question.id}`)}
               </h2>
               <p className="text-white/30 text-xs mt-2">{t("am16.yourFirstReaction")}</p>
             </div>
 
             {/* 选项 */}
-            <div className="space-y-3">
+            <div className="space-y-3" role="radiogroup" aria-label={t("am16.yourFirstReaction")}>
               {[question.optionA, question.optionB].map((opt, i) => {
+                const optText = t(`am16.q${question.id}${i === 0 ? "a" : "b"}`)
                 const isSelected = selectedOption === i
                 return (
                   <motion.button
@@ -260,6 +262,9 @@ export function AM16Quiz({ onComplete }: Props) {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     disabled={selectedOption !== null}
+                    role="radio"
+                    aria-checked={isSelected}
+                    aria-label={optText}
                     className={`w-full text-left p-4 rounded-xl border transition-all duration-200 ${
                       isSelected
                         ? "border-gold/60 bg-gold/10 shadow-[0_0_24px_rgba(201,168,76,0.2)]"
@@ -286,7 +291,7 @@ export function AM16Quiz({ onComplete }: Props) {
                       <span className={`text-sm leading-relaxed ${
                         isSelected ? "text-white/90" : "text-white/60"
                       }`}>
-                        {opt.text}
+                        {optText}
                       </span>
                     </div>
                   </motion.button>
