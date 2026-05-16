@@ -41,20 +41,27 @@ export function calculateAM16(answers: number[]): AM16Result {
   // 1. 初始化分数
   const raw: DimensionScores = { F: 0, D: 0, X: 0, S: 0, G: 0, I: 0, P: 0, E: 0 }
 
-  // 2. 累加每题的分数
+  // 2. 根据选项 type 和题目 dimension 累加分数
+  //    type A → dimension 第一个字母 (F/X/G/P) +1
+  //    type B → dimension 第二个字母 (D/S/I/E) +1
+  //    type C → 两侧各 +0.5
   answers.forEach((choice, i) => {
     const q = AM16_QUESTIONS[i]
     if (!q) return
     const option = q.options[choice]
     if (!option) return
 
-    const dim = option.dimension as keyof DimensionScores
-    raw[dim] += option.points
+    const letterA = q.dimension[0] as keyof DimensionScores  // F/X/G/P
+    const letterB = q.dimension[1] as keyof DimensionScores  // D/S/I/E
 
-    // 中间选项：同时给 altDimension 加 0.5 分
-    if (option.altDimension) {
-      const altDim = option.altDimension as keyof DimensionScores
-      raw[altDim] += option.points
+    if (option.type === "A") {
+      raw[letterA] += 1
+    } else if (option.type === "B") {
+      raw[letterB] += 1
+    } else {
+      // type C: 中间态，两侧各加 0.5
+      raw[letterA] += 0.5
+      raw[letterB] += 0.5
     }
   })
 

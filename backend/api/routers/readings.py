@@ -94,6 +94,7 @@ class AnalysisRequest(BaseModel):
 
 class ReadingListItem(BaseModel):
     id: str
+    session_id: str = ""  # Alias for id — used by almanac and other consumers
     status: str
     master_summary: str = ""
     computed_tags: list[str] = Field(default_factory=list)
@@ -599,6 +600,7 @@ async def list_my_readings(user: User = Depends(require_user)):
                     dimension_scores = dict(state.dimension_scores or {})
                 items.append(ReadingListItem(
                     id=str(r.id),
+                    session_id=str(r.id),
                     status=r.status.value if r.status else "completed",
                     master_summary=(r.master_summary or "")[:200],
                     computed_tags=computed_tags,

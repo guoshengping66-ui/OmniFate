@@ -275,3 +275,25 @@ select.input-field option:checked {
   animation: shimmer 3s ease-in-out infinite;
 }
 
+/* ── AM16 雷达图数据点光晕 — 用 box-shadow 代替 SVG filter ── */
+.am16-radar-dot {
+  filter: none;
+  box-shadow: 0 0 4px rgba(201, 168, 76, 0.4);
+}
+
+/* ── 移动端动画优化 ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── 移动端性能优化：减少重绘区域 ── */
+@supports (-webkit-touch-callout: none) {
+  .am16-radar-dot {
+    box-shadow: 0 0 3px rgba(201, 168, 76, 0.3);
+  }
+}
+

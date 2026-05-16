@@ -97,15 +97,15 @@ export function Footer() {
             {/* Newsletter */}
             <div>
               <h4 className="text-gold/80 font-medium mb-4 text-sm uppercase tracking-wider">
-                订阅运势
+                {t("footer.newsletter")}
               </h4>
               <p className="text-white/30 text-xs mb-3 leading-relaxed">
-                每周推送五行运势与开运指南
+                {t("footer.newsletterDesc")}
               </p>
               {subscribed ? (
                 <div className="flex items-center gap-2 text-gold text-sm py-2">
                   <Sparkles size={14} />
-                  订阅成功
+                  {t("footer.subscribed")}
                 </div>
               ) : (
                 <form onSubmit={handleSubscribe} className="flex gap-2">
@@ -137,12 +137,12 @@ export function Footer() {
               <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" className="hover:text-gold/60 transition-colors">[粤ICP备XXXXXXXX号]</a>
             </p>
             <div className="flex gap-6 text-white/25 text-xs">
-              <a href="/faq" className="hover:text-gold/60 transition-colors">常见问题</a>
-              <a href="/contact" className="hover:text-gold/60 transition-colors">联系我们</a>
-              <a href="/privacy" className="hover:text-gold/60 transition-colors">隐私政策</a>
-              <a href="/terms" className="hover:text-gold/60 transition-colors">服务条款</a>
-              <a href="/refund" className="hover:text-gold/60 transition-colors">退款政策</a>
-              <a href="/disclaimer" className="hover:text-gold/60 transition-colors">免责声明</a>
+              <a href="/faq" className="hover:text-gold/60 transition-colors">{t("footer.faq")}</a>
+              <a href="/contact" className="hover:text-gold/60 transition-colors">{t("footer.contactUs")}</a>
+              <a href="/privacy" className="hover:text-gold/60 transition-colors">{t("footer.privacy")}</a>
+              <a href="/terms" className="hover:text-gold/60 transition-colors">{t("footer.terms")}</a>
+              <a href="/refund" className="hover:text-gold/60 transition-colors">{t("footer.refund")}</a>
+              <a href="/disclaimer" className="hover:text-gold/60 transition-colors">{t("footer.disclaimer")}</a>
             </div>
           </div>
         </div>

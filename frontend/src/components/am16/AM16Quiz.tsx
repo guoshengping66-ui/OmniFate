@@ -26,34 +26,32 @@ function triggerHaptic(pattern: "light" | "medium" | "success") {
   navigator.vibrate(patterns[pattern] || [10])
 }
 
-// ── 旋转星轨动画（参照 CelestialOracle StarAxis）──
+// ── 旋转星轨动画 — 精简版，减少移动端 GPU 开销 ──
 function AnalysisOrbit() {
   return (
-    <div className="relative w-40 h-40 mx-auto">
+    <div className="relative w-40 h-40 mx-auto will-change-transform">
       {/* 外环 */}
-      <div className="absolute inset-0 rounded-full border-2 border-gold/30 animate-[spin_3s_linear_infinite]" />
-      {/* 中环 */}
-      <div className="absolute inset-4 rounded-full border border-gold/25 animate-[spin_2.2s_linear_infinite_reverse]" />
+      <div className="absolute inset-0 rounded-full border-2 border-gold/30 animate-[spin_4s_linear_infinite]" />
       {/* 内环 */}
-      <div className="absolute inset-8 rounded-full border border-gold/20 animate-[spin_1.5s_linear_infinite]" />
+      <div className="absolute inset-6 rounded-full border border-gold/25 animate-[spin_3s_linear_infinite_reverse]" />
       {/* 核心 */}
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="w-10 h-10 rounded-full bg-gold/15 flex items-center justify-center">
           <Sparkles size={20} className="text-gold animate-pulse" />
         </div>
       </div>
-      {/* 轨道粒子 */}
-      {[0, 1, 2, 3, 4, 5].map(i => {
-        const angle = (i / 6) * Math.PI * 2
-        const r = 60 + (i % 2) * 10
+      {/* 轨道粒子 — 减少到 4 个 */}
+      {[0, 1, 2, 3].map(i => {
+        const angle = (i / 4) * Math.PI * 2
+        const r = 65
         return (
           <div
             key={i}
-            className="absolute w-1.5 h-1.5 rounded-full bg-gold/60"
+            className="absolute w-1.5 h-1.5 rounded-full bg-gold/50"
             style={{
               left: `calc(50% + ${Math.cos(angle) * r}px - 3px)`,
               top: `calc(50% + ${Math.sin(angle) * r}px - 3px)`,
-              animation: `star-particle ${1.2 + (i % 3) * 0.3}s ease-in-out infinite ${i * 0.2}s`,
+              animation: `star-particle ${1.5 + (i % 2) * 0.3}s ease-in-out infinite ${i * 0.3}s`,
             }}
           />
         )
@@ -67,8 +65,9 @@ interface Props {
 }
 
 export function AM16Quiz({ onComplete }: Props) {
-  const { t: rawT } = useLanguage()
+  const { t: rawT, language } = useLanguage()
   const t = rawT as unknown as (key: string) => string
+  const lang = language === "zh" ? "zh" : "en"
   const [started, setStarted] = useState(false)
   const [currentQ, setCurrentQ] = useState(0)
   const [answers, setAnswers] = useState<number[]>([])
@@ -257,12 +256,12 @@ export function AM16Quiz({ onComplete }: Props) {
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", damping: 10 }}
-                className="text-5xl mb-4"
+                className="text-4xl sm:text-5xl mb-4"
               >
                 {question.emoji}
               </motion.div>
               <h2 className="text-lg md:text-xl font-serif text-white/90 leading-relaxed">
-                {t(`am16.q${question.id}`)}
+                {lang === "zh" ? question.titleCn : question.titleEn}
               </h2>
               <p className="text-white/30 text-xs mt-2">{t("am16.yourFirstReaction")}</p>
             </div>
@@ -270,9 +269,7 @@ export function AM16Quiz({ onComplete }: Props) {
             {/* 选项 */}
             <div className="space-y-3" role="radiogroup" aria-label={t("am16.yourFirstReaction")}>
               {question.options.map((opt, i) => {
-                // 翻译键：第一选项 = qa, 第二选项 = qb, 第三选项 = qc
-                const suffix = i === 0 ? "a" : i === 1 ? "b" : "mc"
-                const optText = t(`am16.q${question.id}${suffix}`)
+                const optText = lang === "zh" ? opt.textCn : opt.textEn
                 const isSelected = selectedOption === i
                 return (
                   <motion.button
@@ -284,14 +281,14 @@ export function AM16Quiz({ onComplete }: Props) {
                     role="radio"
                     aria-checked={isSelected}
                     aria-label={optText}
-                    className={`w-full text-left p-4 rounded-xl border transition-all duration-200 ${
+                    className={`w-full text-left p-4 min-h-[52px] rounded-xl border transition-all duration-200 ${
                       isSelected
                         ? "border-gold/60 bg-gold/10 shadow-[0_0_24px_rgba(201,168,76,0.2)]"
                         : "border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]"
                     }`}
                   >
                     <div className="flex items-start gap-3">
-                      <span className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold mt-0.5 transition-all duration-200 ${
+                      <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold mt-0.5 transition-all duration-200 ${
                         isSelected
                           ? "bg-gold text-ink shadow-[0_0_12px_rgba(201,168,76,0.4)]"
                           : "bg-white/10 text-white/50"

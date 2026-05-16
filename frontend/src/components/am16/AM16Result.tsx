@@ -76,7 +76,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
       toast.success(t("am16.copied"))
       setTimeout(() => setCopied(false), 2000)
     } catch {
-      toast.error("Copy failed")
+      toast.error(t("am16.copyFailed"))
     }
   }
 
@@ -102,7 +102,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
       toast.success(t("am16.shareSuccess"))
       setTimeout(() => setCopiedReferral(false), 2000)
     } catch {
-      toast.error("Copy failed")
+      toast.error(t("am16.copyFailed"))
     }
   }
 
@@ -135,22 +135,28 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
       worker.onmessage = (e: MessageEvent) => {
         const { url, error } = e.data
         if (error || !url) {
-          toast.error("Save failed")
+          toast.error(t("am16.saveFailed"))
           setDownloading(false)
           worker.terminate()
           return
         }
-        const link = document.createElement("a")
-        link.download = `AM16-${code}-${Date.now()}.png`
-        link.href = url
-        link.click()
-        URL.revokeObjectURL(url)
+        // iOS Safari: link.click() doesn't trigger download, use window.open as fallback
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+        if (isIOS) {
+          window.open(url, "_blank")
+        } else {
+          const link = document.createElement("a")
+          link.download = `AM16-${code}-${Date.now()}.png`
+          link.href = url
+          link.click()
+          URL.revokeObjectURL(url)
+        }
         toast.success(t("am16.saveImage"))
         setDownloading(false)
         worker.terminate()
       }
       worker.onerror = () => {
-        toast.error("Save failed")
+        toast.error(t("am16.saveFailed"))
         setDownloading(false)
         worker.terminate()
       }
@@ -220,13 +226,19 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
         ctx.font = "16px sans-serif"
         ctx.fillStyle = "rgba(255,255,255,0.2)"
         ctx.fillText(t("am16.poster.brand"), 375, 1300)
-        const link = document.createElement("a")
-        link.download = `AM16-${code}-${Date.now()}.png`
-        link.href = canvas.toDataURL("image/png")
-        link.click()
+        const dataUrl = canvas.toDataURL("image/png")
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+        if (isIOS) {
+          window.open(dataUrl, "_blank")
+        } else {
+          const link = document.createElement("a")
+          link.download = `AM16-${code}-${Date.now()}.png`
+          link.href = dataUrl
+          link.click()
+        }
         toast.success(t("am16.saveImage"))
       } catch {
-        toast.error("Save failed")
+        toast.error(t("am16.saveFailed"))
       }
       setDownloading(false)
     }
@@ -255,23 +267,24 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
             transition={{ delay: 0.2, type: "spring", damping: 8 }}
             className="relative inline-block"
           >
-            {/* 粒子效果 */}
+            {/* 粒子效果 — 减少数量避免移动端卡顿 */}
             <div className="absolute inset-0 pointer-events-none overflow-visible">
-              {Array.from({ length: 8 }).map((_, i) => (
+              {[0, 1, 2, 3].map((_, i) => (
                 <motion.div
                   key={i}
                   className="absolute w-1 h-1 rounded-full bg-gold"
                   initial={{ opacity: 0, y: 0, x: 0 }}
                   animate={{
-                    opacity: [0, 1, 0],
-                    y: [-10, -30 - Math.random() * 15],
-                    x: [(i - 4) * 6, (i - 4) * 10 + (Math.random() - 0.5) * 15],
+                    opacity: [0, 0.8, 0],
+                    y: [-8, -25],
+                    x: [(i - 1.5) * 8, (i - 1.5) * 12],
                   }}
                   transition={{
-                    duration: 1.5,
-                    delay: 0.5 + i * 0.1,
+                    duration: 2,
+                    delay: 0.5 + i * 0.15,
                     repeat: Infinity,
-                    repeatDelay: 2.5,
+                    repeatDelay: 3,
+                    ease: "easeOut",
                   }}
                   style={{ left: "50%", top: "80%" }}
                 />
@@ -525,7 +538,8 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="fixed bottom-0 left-0 right-0 z-50 bg-ink border-t border-gold/20 rounded-t-3xl p-6 pb-10 max-w-lg mx-auto"
+              className="fixed bottom-0 left-0 right-0 z-50 bg-ink border-t border-gold/20 rounded-t-3xl p-6 max-w-lg mx-auto"
+              style={{ paddingBottom: "max(2.5rem, env(safe-area-inset-bottom, 2.5rem))" }}
               role="dialog"
               aria-label={t("am16.shareTitle")}
             >
@@ -680,17 +694,15 @@ function SquareRadar({
   const dataPath = dataPoints.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ") + " Z"
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      {/* 呼吸光晕 */}
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="will-change-transform">
+      {/* 呼吸光晕 — 静态版本，避免移动端持续重绘 */}
       <defs>
         <radialGradient id="radarGlow">
-          <stop offset="0%" stopColor="rgba(201,168,76,0.15)" />
+          <stop offset="0%" stopColor="rgba(201,168,76,0.12)" />
           <stop offset="100%" stopColor="rgba(201,168,76,0)" />
         </radialGradient>
       </defs>
-      <circle cx={cx} cy={cy} r={radius * 0.8} fill="url(#radarGlow)">
-        <animate attributeName="opacity" values="0.3;0.7;0.3" dur="3s" repeatCount="indefinite" />
-      </circle>
+      <circle cx={cx} cy={cy} r={radius * 0.8} fill="url(#radarGlow)" opacity="0.5" />
 
       {/* 网格线 */}
       {[0.33, 0.66, 1].map((scale, i) => (
@@ -717,15 +729,13 @@ function SquareRadar({
         fill="rgba(201,168,76,0.15)"
         stroke="#C9A84C"
         strokeWidth="1.5"
-        style={{
-          transition: "d 1s cubic-bezier(0.34, 1.56, 0.64, 1), fill 0.8s ease",
-        }}
+        style={{ transition: "opacity 0.6s ease" }}
       />
 
-      {/* 数据点 */}
+      {/* 数据点 — 使用 CSS 代替 SVG filter 避免 GPU 开销 */}
       {expanded && dataPoints.map((p, i) => (
         <circle key={i} cx={p.x} cy={p.y} r="3.5" fill="#C9A84C"
-          style={{ filter: "drop-shadow(0 0 4px rgba(201,168,76,0.5))" }} />
+          className="am16-radar-dot" />
       ))}
 
       {/* 标签 + 轴标百分比 */}

@@ -134,7 +134,7 @@ export default function NewReadingPage() {
       if (saved.formValues) {
         Object.entries(saved.formValues).forEach(([key, value]) => {
           if (value !== undefined && value !== null) {
-            setValue(key as keyof FormValues, value)
+            setValue(key as keyof FormValues, value as any)
           }
         })
       }

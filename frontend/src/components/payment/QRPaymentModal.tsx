@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Clock, CheckCircle, Loader2, Copy, AlertCircle, RefreshCw } from "lucide-react"
 import { apiDirect } from "@/lib/api"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 interface QRPaymentModalProps {
   open: boolean
@@ -25,13 +26,13 @@ type PaymentStatus =
   | "failed"
 
 /** Prices from tiers.ts — client side display only, backend validates */
-const TIER_PRICES: Record<string, { amount: number; label: string }> = {
-  premium_monthly: { amount: 59, label: "月度会员 ¥59/月" },
-  premium_yearly: { amount: 365, label: "年度会员 ¥365/年" },
+const TIER_PRICES: Record<string, { amount: number; labelKey: string }> = {
+  premium_monthly: { amount: 59, labelKey: "payment.monthlyPlan" },
+  premium_yearly: { amount: 365, labelKey: "payment.yearlyPlan" },
 }
 
-const POLL_INTERVAL = 3000   // 每3秒轮询一次
-const MAX_POLL_ATTEMPTS = 20 // 最多轮询20次 = 1分钟
+const POLL_INTERVAL = 3000
+const MAX_POLL_ATTEMPTS = 20
 
 export function QRPaymentModal({
   open,
@@ -39,6 +40,8 @@ export function QRPaymentModal({
   tier,
   onSuccess,
 }: QRPaymentModalProps) {
+  const { t: rawT } = useLanguage()
+  const t = rawT as unknown as (key: string, vars?: Record<string, string | number>) => string
   const [method, setMethod] = useState<PaymentMethod>("alipay")
   const [status, setStatus] = useState<PaymentStatus>("idle")
   const [orderNo, setOrderNo] = useState<string | null>(null)
@@ -51,6 +54,7 @@ export function QRPaymentModal({
   const pollActiveRef = useRef(false)
 
   const tierInfo = TIER_PRICES[tier] || TIER_PRICES.premium_monthly
+  const tierLabel = t(tierInfo.labelKey)
 
   // 倒计时（订单30分钟过期）
   useEffect(() => {
@@ -61,7 +65,7 @@ export function QRPaymentModal({
       setCountdown(remaining)
       if (remaining === 0) {
         setStatus("failed")
-        setError("订单已过期，请重新下单")
+        setError(t("payment.orderExpired"))
       }
     }, 1000)
     return () => clearInterval(timer)
@@ -77,20 +81,20 @@ export function QRPaymentModal({
       const qrRes = await apiDirect.get(`/api/personal-payments/qr/${method}`)
       setQrUrl(qrRes.data.qr_url)
     } catch (err: any) {
-      setQrError(err?.response?.data?.detail || "收款码未配置")
+      setQrError(err?.response?.data?.detail || t("payment.qrNotConfigured"))
     }
 
     try {
       const res = await apiDirect.post("/api/personal-payments/create", {
         amount: tierInfo.amount,
         currency: method === "alipay" ? "CNY_ALIPAY" : "CNY_WECHAT",
-        description: `命盘智镜 - ${tierInfo.label} - ${tier}`,
+        description: `Destiny Mirror - ${tierLabel} - ${tier}`,
         reading_id: "",
       })
       setOrderNo(res.data.order_no)
       setStatus("showing_qr")
     } catch (err: any) {
-      setError(err?.response?.data?.detail || "创建订单失败")
+      setError(err?.response?.data?.detail || t("payment.createOrderFailed"))
       setStatus("failed")
     }
   }
@@ -121,7 +125,7 @@ export function QRPaymentModal({
       onSuccess?.()  // 通知父组件刷新用户信息
     } catch (err: any) {
       setStatus("waiting")
-      setError(err?.response?.data?.detail || "会员激活遇到问题，请稍后刷新页面重试")
+      setError(err?.response?.data?.detail || t("payment.activationIssue"))
     }
   }
 
@@ -148,14 +152,14 @@ export function QRPaymentModal({
         await activateSubscription()
       } else if (orderStatus === "cancelled") {
         setStatus("failed")
-        setError("订单已取消")
+        setError(t("payment.orderCancelled"))
       } else {
         // 仍然是 processing/pending — 启动轮询
         startPollForStatus()
       }
     } catch {
       setStatus("waiting")
-      setError("网络错误，请稍后重试")
+      setError(t("payment.networkError"))
     }
   }, [orderNo])
 
@@ -180,7 +184,7 @@ export function QRPaymentModal({
         }
         if (orderStatus === "cancelled") {
           setStatus("failed")
-          setError("订单已取消")
+          setError(t("payment.orderCancelled"))
           return
         }
       } catch { /* ignore network errors */ }
@@ -228,24 +232,24 @@ export function QRPaymentModal({
         </button>
 
         <h3 className="text-xl font-serif font-bold text-gold mb-2">
-          {status === "success" ? "支付成功" : status === "waiting" ? "等待确认" : "扫码支付"}
+          {status === "success" ? t("payment.success") : status === "waiting" ? t("payment.waitingConfirm") : t("payment.scanToPay")}
         </h3>
-        <p className="text-white/40 text-sm mb-6">{tierInfo.label}</p>
+        <p className="text-white/40 text-sm mb-6">{tierLabel}</p>
 
         <AnimatePresence mode="wait">
           {/* ═══ 选择金额 + 支付方式 ═══ */}
           {status === "idle" && (
             <motion.div key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <div className="bg-white/5 rounded-xl p-4 text-center mb-6">
-                <p className="text-white/40 text-xs mb-1">支付金额</p>
+                <p className="text-white/40 text-xs mb-1">{t("payment.amount")}</p>
                 <p className="text-3xl font-bold text-gold">¥{tierInfo.amount}</p>
                 <p className="text-white/30 text-xs mt-2">
-                  {tier === "premium_yearly" ? "年度会员" : "月度会员"}
+                  {tier === "premium_yearly" ? t("payment.yearly") : t("payment.monthly")}
                 </p>
               </div>
 
               <div className="mb-6">
-                <p className="text-white/50 text-xs mb-3">选择支付方式</p>
+                <p className="text-white/50 text-xs mb-3">{t("payment.selectMethod")}</p>
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={() => setMethod("alipay")}
@@ -255,7 +259,7 @@ export function QRPaymentModal({
                         : "bg-white/[0.03] border-white/10 hover:border-white/20"
                     }`}
                   >
-                    <div className="text-blue-400 font-medium">支付宝</div>
+                    <div className="text-blue-400 font-medium">Alipay</div>
                     <div className="text-white/40 text-xs mt-1">Alipay</div>
                   </button>
                   <button
@@ -266,14 +270,14 @@ export function QRPaymentModal({
                         : "bg-white/[0.03] border-white/10 hover:border-white/20"
                     }`}
                   >
-                    <div className="text-green-400 font-medium">微信支付</div>
+                    <div className="text-green-400 font-medium">WeChat Pay</div>
                     <div className="text-white/40 text-xs mt-1">WeChat Pay</div>
                   </button>
                 </div>
               </div>
 
               <button onClick={createOrder} className="btn-gold w-full py-3">
-                确认支付 ¥{tierInfo.amount}
+                {t("payment.confirmPay")} ¥{tierInfo.amount}
               </button>
             </motion.div>
           )}
@@ -282,7 +286,7 @@ export function QRPaymentModal({
           {status === "loading" && (
             <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-center py-12">
               <Loader2 size={40} className="animate-spin text-gold mx-auto" />
-              <p className="text-white/50 mt-4">准备收款码...</p>
+              <p className="text-white/50 mt-4">{t("payment.preparingQR")}</p>
             </motion.div>
           )}
 
@@ -300,9 +304,9 @@ export function QRPaymentModal({
                 <div className="bg-white rounded-2xl p-4 mb-4">
                   <img
                     src={qrUrl}
-                    alt={`${method === "alipay" ? "支付宝" : "微信"}收款码`}
+                    alt={method === "alipay" ? t("payment.alipayQR") : t("payment.wechatQR")}
                     className="w-56 h-56 mx-auto object-contain"
-                    onError={() => setQrError("收款码图片加载失败")}
+                    onError={() => setQrError(t("payment.qrLoadFailed"))}
                   />
                 </div>
               ) : qrError ? (
@@ -313,13 +317,13 @@ export function QRPaymentModal({
               ) : null}
 
               <div className="bg-gold/10 border border-gold/30 rounded-xl p-3 mb-4 text-center">
-                <p className="text-gold font-bold text-lg">请支付 ¥{tierInfo.amount}</p>
-                <p className="text-white/40 text-xs mt-1">请在支付APP中手动输入此金额</p>
+                <p className="text-gold font-bold text-lg">{t("payment.pleasePay")} ¥{tierInfo.amount}</p>
+                <p className="text-white/40 text-xs mt-1">{t("payment.enterAmountManually")}</p>
               </div>
 
               {orderNo && (
                 <div className="flex items-center justify-center gap-2 mb-4">
-                  <span className="text-white/40 text-sm">订单号:</span>
+                  <span className="text-white/40 text-sm">{t("payment.orderNo")}</span>
                   <span className="text-white/70 text-sm font-mono">{orderNo}</span>
                   <button onClick={copyOrderNo} className="text-gold hover:text-gold/80">
                     <Copy size={14} />
@@ -329,23 +333,23 @@ export function QRPaymentModal({
 
               <div className="bg-white/5 rounded-xl p-4 mb-4">
                 <p className="text-white/50 text-xs mb-2">
-                  {method === "alipay" ? "支付宝支付步骤" : "微信支付步骤"}
+                  {method === "alipay" ? t("payment.alipaySteps") : t("payment.wechatSteps")}
                 </p>
                 <ol className="space-y-1">
-                  <li className="text-white/40 text-xs">1. 打开{method === "alipay" ? "支付宝" : "微信"}APP</li>
-                  <li className="text-white/40 text-xs">2. 点击「扫一扫」扫描上方二维码</li>
-                  <li className="text-white/40 text-xs">3. 手动输入金额 ¥{tierInfo.amount}</li>
-                  <li className="text-white/40 text-xs">4. 确认支付</li>
-                  <li className="text-white/40 text-xs">5. 支付完成后点击下方按钮</li>
+                  <li className="text-white/40 text-xs">{method === "alipay" ? t("payment.step1Alipay") : t("payment.step1Wechat")}</li>
+                  <li className="text-white/40 text-xs">{t("payment.step2")}</li>
+                  <li className="text-white/40 text-xs">{t("payment.step3")} ¥{tierInfo.amount}</li>
+                  <li className="text-white/40 text-xs">{t("payment.step4")}</li>
+                  <li className="text-white/40 text-xs">{t("payment.step5")}</li>
                 </ol>
-                <p className="text-gold/70 text-xs mt-2">请确保转账金额与订单一致，备注中填写订单号</p>
+                <p className="text-gold/70 text-xs mt-2">{t("payment.ensureAmount")}</p>
               </div>
 
               <button onClick={handleConfirmPaid} className="btn-gold w-full py-3">
-                我已完成支付
+                {t("payment.iHavePaid")}
               </button>
               <p className="text-white/30 text-xs text-center mt-3">
-                请在 {Math.floor(countdown / 60)} 分钟内完成支付
+                {t("payment.completeWithin").replace("{minutes}", String(Math.floor(countdown / 60)))}
               </p>
             </motion.div>
           )}
@@ -354,8 +358,8 @@ export function QRPaymentModal({
           {status === "verifying" && (
             <motion.div key="verifying" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-center py-12">
               <Loader2 size={40} className="animate-spin text-gold mx-auto" />
-              <p className="text-white/50 mt-4">正在确认支付...</p>
-              <p className="text-white/30 text-xs mt-2">请稍候</p>
+              <p className="text-white/50 mt-4">{t("payment.confirming")}</p>
+              <p className="text-white/30 text-xs mt-2">{t("payment.pleaseWait")}</p>
             </motion.div>
           )}
 
@@ -363,7 +367,7 @@ export function QRPaymentModal({
           {status === "activating" && (
             <motion.div key="activating" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-center py-12">
               <Loader2 size={40} className="animate-spin text-gold mx-auto" />
-              <p className="text-white/50 mt-4">支付已确认，正在激活会员...</p>
+              <p className="text-white/50 mt-4">{t("payment.activating")}</p>
             </motion.div>
           )}
 
@@ -373,10 +377,10 @@ export function QRPaymentModal({
               <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <CheckCircle size={32} className="text-green-400" />
               </div>
-              <h4 className="text-xl font-bold text-green-400 mb-2">支付成功！</h4>
-              <p className="text-white/50 text-sm mb-6">会员已激活，开始探索你的命运吧</p>
+              <h4 className="text-xl font-bold text-green-400 mb-2">{t("payment.successTitle")}</h4>
+              <p className="text-white/50 text-sm mb-6">{t("payment.successDesc")}</p>
               <button onClick={onClose} className="btn-gold px-8">
-                开始使用
+                {t("payment.startUsing")}
               </button>
             </motion.div>
           )}
@@ -387,12 +391,12 @@ export function QRPaymentModal({
               <div className="w-16 h-16 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Clock size={32} className="text-amber-400" />
               </div>
-              <h4 className="text-xl font-bold text-amber-400 mb-2">等待确认中</h4>
+              <h4 className="text-xl font-bold text-amber-400 mb-2">{t("payment.waitingTitle")}</h4>
               <p className="text-white/50 text-sm mb-2">
-                您的支付已提交，正在等待收款确认
+                {t("payment.waitingDesc1")}
               </p>
               <p className="text-white/30 text-xs mb-6">
-                确认后会员将自动激活，请稍后刷新页面查看
+                {t("payment.waitingDesc2")}
               </p>
               {error && (
                 <p className="text-amber-300/60 text-xs mb-4">{error}</p>
@@ -402,10 +406,10 @@ export function QRPaymentModal({
                   onClick={handleRefreshStatus}
                   className="btn-gold flex-1 flex items-center justify-center gap-2"
                 >
-                  <RefreshCw size={16} /> 刷新状态
+                  <RefreshCw size={16} /> {t("payment.refreshStatus")}
                 </button>
                 <button onClick={onClose} className="btn-secondary flex-1">
-                  稍后查看
+                  {t("payment.checkLater")}
                 </button>
               </div>
             </motion.div>
@@ -417,14 +421,14 @@ export function QRPaymentModal({
               <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <AlertCircle size={32} className="text-red-400" />
               </div>
-              <h4 className="text-xl font-bold text-red-400 mb-2">支付失败</h4>
-              <p className="text-white/50 text-sm mb-6">{error || "支付过程出现问题"}</p>
+              <h4 className="text-xl font-bold text-red-400 mb-2">{t("payment.failedTitle")}</h4>
+              <p className="text-white/50 text-sm mb-6">{error || t("payment.failedDesc")}</p>
               <div className="flex gap-3">
                 <button onClick={reset} className="btn-gold flex-1 flex items-center justify-center gap-2">
-                  <RefreshCw size={16} /> 重新支付
+                  <RefreshCw size={16} /> {t("payment.retryPay")}
                 </button>
                 <button onClick={onClose} className="btn-secondary flex-1">
-                  取消
+                  {t("payment.cancel")}
                 </button>
               </div>
             </motion.div>

@@ -45,148 +45,173 @@ export const DIMENSIONS: DimensionDef[] = [
   },
 ]
 
-// ── 12 道情景题库（每维度 3 题）──
+// ── 12 道情景题库（每维度 3 题，中英双语）──
 
 export interface AM16Option {
-  text: string
-  dimension: string   // "F" | "D" | "X" | "S" | "G" | "I" | "P" | "E"
-  points: number
-  altDimension?: string  // 中间选项：同时给另一极加分
+  textCn: string
+  textEn: string
+  type: "A" | "B" | "C"   // A = F/X/G/P 极, B = D/S/I/E 极, C = 中间态
 }
 
 export interface AM16Question {
   id: number
-  scenario: string
+  dimension: "FD" | "XS" | "GI" | "PE"
+  titleCn: string
+  titleEn: string
   emoji: string
   options: AM16Option[]  // 至少 2 个选项
 }
 
 export const AM16_QUESTIONS: AM16Question[] = [
-  // ── FD 维度（3题）──
+  // ── FD 维度 ──
   {
     id: 1,
-    scenario: "早上出门一脚踩进水坑",
-    emoji: "💦",
+    dimension: "FD",
+    emoji: "💧",
+    titleCn: "早上出门一脚踩进深水坑，你的第一反应是？",
+    titleEn: "You step right into a deep puddle first thing in the morning. Immediate reaction?",
     options: [
-      { text: "药丸！今天绝对冲煞！立刻打开 AlphaMirror 看看是哪个星盘相位在整我", dimension: "F", points: 1 },
-      { text: "纯属意外。迅速格物致知，掏出纸巾擦干，并给市政热线打个电话建议修路", dimension: "D", points: 1 },
-      { text: "嗯，踩到了。擦干继续走，回头提醒自己看路", dimension: "F", points: 0.5, altDimension: "D" },
+      { textCn: "水逆！今天绝对冲煞，磁场不对。", textEn: "Retrograde! Massive energy clash today, my aura is off.", type: "A" },
+      { textCn: "晦气！纯粹是这破路没修好，想投诉。", textEn: "Trash road! Purely an engineering failure, I want to complain.", type: "B" },
+      { textCn: "自认倒霉，擦干继续走，啥也没想。", textEn: "Bad luck. Wipe it off and keep walking without overthinking.", type: "C" },
     ],
   },
   {
     id: 2,
-    scenario: "算命 App 说你本月不宜出门",
+    dimension: "FD",
     emoji: "📱",
+    titleCn: "算命说你本月不宜出门，你会怎么做？",
+    titleEn: 'A fortune app says you shouldn\'t leave the house this month. You:',
     options: [
-      { text: "好的好的，在家躺着，外卖就是我的天命", dimension: "F", points: 1 },
-      { text: "我偏要出门，而且要去三个地方，主打一个不信邪", dimension: "D", points: 1 },
-      { text: "参考一下，重要的事照常办，鸡毛蒜皮的就算了", dimension: "F", points: 0.5, altDimension: "D" },
+      { textCn: "听劝，在家躺着，外卖就是我的天命。", textEn: "Fair enough. Staying inside, delivery is my true destiny.", type: "A" },
+      { textCn: "偏要出门，我命由我不由 App。", textEn: "Going out anyway. I control my own matrix, not some app.", type: "B" },
+      { textCn: "瞅一眼就行，大局照常，小事稍微避避。", textEn: "Take it as a reference. Proceed as planned, avoid minor risks.", type: "C" },
     ],
   },
   {
     id: 3,
-    scenario: "本命年到了，红内裤销量暴涨",
+    dimension: "FD",
     emoji: "🩲",
+    titleCn: "本命年/水逆到了，大家都买红内裤防灾，你的态度是？",
+    titleEn: "Mercury retrograde is here, and lucky red underwear sales spike. Your move?",
     options: [
-      { text: "已经买了一打红色装备从头到脚武装自己，求个心安", dimension: "F", points: 1 },
-      { text: "本命年？不就是 12 的倍数吗？数学而已，别搞得神神叨叨", dimension: "D", points: 1 },
-      { text: "买了一条红内裤，信则有不信则无，图个乐", dimension: "F", points: 0.5, altDimension: "D" },
+      { textCn: "赶紧安排一打，主打一个玄学防身。", textEn: "Buying a dozen ASAP. Spiritual armor is mandatory.", type: "A" },
+      { textCn: "毫无波动，这纯属商家的营销智商税。", textEn: "Zero impact. Just another marketing trap for the naive.", type: "B" },
+      { textCn: "随大流买一条，信则有不信则无，图个乐。", textEn: "Buy one just for the memes and a little peace of mind.", type: "C" },
     ],
   },
 
-  // ── XS 维度（3题）──
+  // ── XS 维度 ──
   {
     id: 4,
-    scenario: "你的好朋友最近运势不好",
+    dimension: "XS",
     emoji: "🫂",
+    titleCn: "好朋友最近运势极其低迷，你打算怎么帮他？",
+    titleEn: "Your best friend's luck has been absolute trash lately. How do you help?",
     options: [
-      { text: "把八字发我！我有强烈的直觉感应，量子层面我已经看到了问题", dimension: "X", points: 1 },
-      { text: "先拉个 Excel 表对比流年大运，看看具体哪个五行出了问题", dimension: "S", points: 1 },
-      { text: "先聊聊发生了什么，结合感觉和经验给点建议", dimension: "X", points: 0.5, altDimension: "S" },
+      { textCn: "凭强烈直觉和量子感应帮他抓内核问题。", textEn: "Use pure intuition and quantum vibes to spot their core issue.", type: "A" },
+      { textCn: "帮他理性拉表、一条条分析现实原因。", textEn: "Analyze concrete data flow and map out their realistic bottlenecks.", type: "B" },
+      { textCn: "陪他喝一杯，结合情绪和现实给点折中建议。", textEn: "Grab a drink, offer a balanced perspective based on experience.", type: "C" },
     ],
   },
   {
     id: 5,
-    scenario: "第一次见面的人想让你帮忙看盘",
+    dimension: "XS",
     emoji: "👀",
+    titleCn: "第一次见面的人，突然想让你帮他看盘/看面相：",
+    titleEn: "Someone you just met asks you to read their chart on the spot. You:",
     options: [
-      { text: "盯着对方的脸三秒，我已经感应到了——你前世是条锦鲤", dimension: "X", points: 1 },
-      { text: "请先报上准确的出生年月日时分，没数据我不开工", dimension: "S", points: 1 },
-      { text: "简单看看面相聊几句，不必太较真", dimension: "X", points: 0.5, altDimension: "S" },
+      { textCn: "扫一眼他的气场和眼神，直接盲推盲测。", textEn: "Scan their aura and eyes, give an instant intuitive reading.", type: "A" },
+      { textCn: "“别急，先报一下准确的出生年月日时。”", textEn: '"Hold on, give me your exact birth metrics first."', type: "B" },
+      { textCn: "随便客套瞎聊两句，看破不说破。", textEn: "Keep it casual as a standard, polite social icebreaker.", type: "C" },
     ],
   },
   {
     id: 6,
-    scenario: "有人质疑玄学不科学",
+    dimension: "XS",
     emoji: "🤔",
+    titleCn: "有人公开质疑玄学完全是骗人的，你通常怎么反驳？",
+    titleEn: "Someone claims metaphysics is absolute nonsense. How do you counter?",
     options: [
-      { text: "科学的尽头是玄学，薛定谔的猫都没意见你急什么", dimension: "X", points: 1 },
-      { text: "那我们来做个双盲实验，用数据证明命理的统计学显著性", dimension: "S", points: 1 },
-      { text: "各有各的道理，信的人自然会懂", dimension: "X", points: 0.5, altDimension: "S" },
+      { textCn: "觉得对方维度太低，量子纠缠懒得解释。", textEn: "They are in a lower dimension. Too lazy to explain quantum rules.", type: "A" },
+      { textCn: "试图用统计学、大数据逻辑去和对方辩证。", textEn: "Argue using statistical probability and analytical data models.", type: "B" },
+      { textCn: "笑一笑，信者自信，不与傻瓜论长短。", textEn: "Just smile. To each their own world, no need to argue.", type: "C" },
     ],
   },
 
-  // ── GI 维度（3题）──
+  // ── GI 维度 ──
   {
     id: 7,
-    scenario: "听说闺蜜/兄弟找了个新对象",
+    dimension: "GI",
     emoji: "💕",
+    titleCn: "听说好朋友找了个新对象，你的第一反应是？",
+    titleEn: "You find out your close friend just started dating someone. Initial reaction?",
     options: [
-      { text: "把八字发我！我连夜用五维算法帮你们合一下，不合赶紧分！", dimension: "G", points: 1 },
-      { text: "哦，挺好。（内心：管我屁事，别影响我今晚打坐冥想吸纳天地灵气）", dimension: "I", points: 1 },
-      { text: "恭喜恭喜，有空一起吃个饭认识一下", dimension: "G", points: 0.5, altDimension: "I" },
+      { textCn: "极度兴奋，恨不得立马帮他们合个盘。", textEn: "So hyped! Instantly want to run a compatibility check.", type: "A" },
+      { textCn: "知道了，内心毫无波澜甚至觉得吵。", textEn: "Acknowledged. None of my business, protecting my quiet space.", type: "B" },
+      { textCn: "挺替他高兴的，顺其自然送上祝福。", textEn: "Happy for them. Send a standard, genuine congratulation.", type: "C" },
     ],
   },
   {
     id: 8,
-    scenario: "家族群里有人发了一条养生谣言",
+    dimension: "GI",
     emoji: "👨‍👩‍👧",
+    titleCn: "家族群里长辈又发了一条伪科学养生谣言，你会？",
+    titleEn: "A relative drops a blatant piece of fake health news in the family chat. You:",
     options: [
-      { text: "立刻转发 300 字辟谣长文 + 紫微斗数论证 + 风水化解方案", dimension: "G", points: 1 },
-      { text: "已读不回，专注闭关修炼，今日不宜与凡人交流", dimension: "I", points: 1 },
-      { text: "私下发条消息提醒一下，群里就不撕了", dimension: "G", points: 0.5, altDimension: "I" },
+      { textCn: "忍不住长篇大论、引经据典去死磕科普。", textEn: "Must interject. Drop hard facts and essays to correct them.", type: "A" },
+      { textCn: "已读不回，多说一句都浪费我的磁场。", textEn: "Left on read. Interacting wastes my cognitive energy field.", type: "B" },
+      { textCn: "发个糊弄学表情包，维持表面和谐。", textEn: "Drop a generic meme to keep the superficial peace.", type: "C" },
     ],
   },
   {
     id: 9,
-    scenario: "你的社交能量用完了",
+    dimension: "GI",
     emoji: "🔋",
+    titleCn: "周末到了，你的社交能量（Battery）彻底耗尽，此时：",
+    titleEn: "It's the weekend but your social battery is completely dead. However:",
     options: [
-      { text: "再撑一下！还有三个朋友等着我帮他们看流年呢，渡人即渡己", dimension: "G", points: 1 },
-      { text: "手机关机，拉上窗帘，今天只跟天花板上的灰尘交流", dimension: "I", points: 1 },
-      { text: "推掉大部分应酬，只留一两个最亲近的", dimension: "G", points: 0.5, altDimension: "I" },
+      { textCn: "只要朋友有难/需要看盘，我强行开机。", textEn: "If a friend needs guidance, I can force-restart my brain.", type: "A" },
+      { textCn: "彻底断网失联，莫挨老子，闭门修仙。", textEn: "Total ghost mode. Do not disrupt my sacred isolation.", type: "B" },
+      { textCn: "拒绝无效聚会，只和一两个极熟的人待着。", textEn: "Cancel loud events, hang out with 1 or 2 inner-circle folks.", type: "C" },
     ],
   },
 
-  // ── PE 维度（3题）──
+  // ── PE 维度 ──
   {
     id: 10,
-    scenario: "突然产生了一个超级天才的创业想法",
+    dimension: "PE",
     emoji: "💡",
+    titleCn: "深夜你突然产生了一个绝对能赚钱的创业点子，你会？",
+    titleEn: "At 2 AM, you suddenly hit upon a brilliant business idea. You:",
     options: [
-      { text: "潜龙勿用。先在脑子里演练三遍，然后翻个身继续睡觉，等大运来了再说", dimension: "P", points: 1 },
-      { text: "知行合一！现在是凌晨两点，我马上爬起来把 PPT 写完，明天就去拉投资", dimension: "E", points: 1 },
-      { text: "先记在备忘录里，有空了再想想可行性", dimension: "P", points: 0.5, altDimension: "E" },
+      { textCn: "潜龙勿用，先记着，等大运来了再说。", textEn: "Hidden Dragon. Note it down, wait for my major luck cycle.", type: "A" },
+      { textCn: "瞬间亢奋，马上爬起来查资料、写方案。", textEn: "Adrenaline rush! Jump out of bed to build the prototype now.", type: "B" },
+      { textCn: "发个备忘录，翻个身继续睡，明天随缘。", textEn: "Save it to Notes, roll over, and see how I feel tomorrow.", type: "C" },
     ],
   },
   {
     id: 11,
-    scenario: "你的流年运势显示下半年有大机遇",
+    dimension: "PE",
     emoji: "📈",
+    titleCn: "推演显示你下半年会迎来一个巨大的翻盘机遇：",
+    titleEn: "Your annual chart shows a massive window of opportunity in H2:",
     options: [
-      { text: "好，我先冥想半年感受一下宇宙的能量频率，时机到了自然会动", dimension: "P", points: 1 },
-      { text: "等不了！我现在就开始布局，先注册三个商标再说", dimension: "E", points: 1 },
-      { text: "留意着，有机会就抓住，没机会也不强求", dimension: "P", points: 0.5, altDimension: "E" },
+      { textCn: "保持静守，等宇宙的风吹过来再动。", textEn: "Stay calm and still. Act only when the cosmic wind blows.", type: "A" },
+      { textCn: "等不了一点！我现在就要提前主动布局。", textEn: "Can't wait! Initiating aggressive offensive setup today.", type: "B" },
+      { textCn: "留意着，机会来了就狠狠抓住，没来拉倒。", textEn: "Keep an eye out, strike if it manifests, chill if it doesn't.", type: "C" },
     ],
   },
   {
     id: 12,
-    scenario: "塔罗牌告诉你：改变即将发生",
+    dimension: "PE",
     emoji: "🃏",
+    titleCn: "占卜告诉你：“你人生的剧烈改变即将发生”，你的选择是？",
+    titleEn: 'A reading states: "A massive life shift is coming." You choose to:',
     options: [
-      { text: "好的，我做好准备了……准备继续等待下一个征兆", dimension: "P", points: 1 },
-      { text: "改变？我自己就是改变！现在就去把简历改了、发型换了、房间重新布局", dimension: "E", points: 1 },
-      { text: "该来的总会来，我先把手头的事做好", dimension: "P", points: 0.5, altDimension: "E" },
+      { textCn: "保持静止，默默观察命运抛给我的征兆。", textEn: "Stay put. Quietly observe the next ripple in the matrix.", type: "A" },
+      { textCn: "主动求变！自己先去换个发型/重新布局房间。", textEn: "Take charge! Changing my haircut and room layout immediately.", type: "B" },
+      { textCn: "知道了，该干嘛干嘛，不影响手头的工作。", textEn: "Acknowledged. Keep my head down and continue my daily grind.", type: "C" },
     ],
   },
 ]

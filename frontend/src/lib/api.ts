@@ -209,6 +209,7 @@ export async function runAnalysis(data: AnalysisRequest): Promise<AnalysisRespon
   //       interceptor can process it (converting Chinese chars to \uXXXX
   //       before they hit any proxy that might re-encode UTF-8).
   let lastError: any = null
+  let sessionId: string | undefined
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
       const body = safeJson(data)
@@ -216,7 +217,7 @@ export async function runAnalysis(data: AnalysisRequest): Promise<AnalysisRespon
         timeout: 30_000,
         headers: { "Content-Type": "application/json" },
       })
-      var sessionId = initRes.data.session_id
+      sessionId = initRes.data.session_id
       break
     } catch (err: any) {
       lastError = err
@@ -732,6 +733,7 @@ export async function getDailyAlmanac(sessionId: string): Promise<DailyAlmanacRe
 
 export interface ReadingListItem {
   id: string
+  session_id: string
   status: string
   master_summary: string
   computed_tags: string[]

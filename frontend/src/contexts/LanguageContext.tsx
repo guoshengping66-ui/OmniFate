@@ -5,13 +5,13 @@ import { type Locale, type TranslationKey, getTranslation, t as translate } from
 interface LanguageState {
   locale: Locale
   setLocale: (locale: Locale) => void
-  t: (key: TranslationKey) => string
+  t: (key: string) => string
 }
 
 const LanguageContext = createContext<LanguageState>({
   locale: "zh",
   setLocale: () => {},
-  t: (key: TranslationKey) => key,
+  t: (key: string) => key,
 })
 
 const LANG_KEY = "destiny_mirror_lang"
@@ -43,7 +43,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     document.documentElement.lang = newLocale === "zh" ? "zh-CN" : "en"
   }, [])
 
-  const t = useCallback((key: TranslationKey): string => {
+  const t = useCallback((key: string): string => {
     return translations[key] || key
   }, [translations])
 

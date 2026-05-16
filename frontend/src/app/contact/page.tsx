@@ -156,6 +156,9 @@ export default function ContactPage() {
                 >
                   <Send size={16} /> 发送消息
                 </button>
+                <p className="text-white/20 text-[10px] text-center">
+                  提交后请留意邮箱回复，或直接发送邮件至 support@khanfate.com
+                </p>
               </form>
             )}
           </ScrollReveal>
