@@ -84,18 +84,30 @@ export default function QuizPage() {
   if (analyzing) {
     return (
       <View className="min-h-screen flex flex-col items-center justify-center px-6" style={S.bg}>
+        {/* 浮动粒子 */}
+        <View className="absolute pointer-events-none" style={{ top: "30%", left: "15%", width: "6rpx", height: "6rpx", borderRadius: "50%", backgroundColor: "rgba(212,175,55,0.4)", animation: "float 3s ease-in-out infinite" }} />
+        <View className="absolute pointer-events-none" style={{ top: "45%", right: "20%", width: "4rpx", height: "4rpx", borderRadius: "50%", backgroundColor: "rgba(212,175,55,0.3)", animation: "float 4s ease-in-out infinite 0.5s" }} />
+        <View className="absolute pointer-events-none" style={{ top: "60%", left: "25%", width: "5rpx", height: "5rpx", borderRadius: "50%", backgroundColor: "rgba(212,175,55,0.35)", animation: "float 3.5s ease-in-out infinite 1s" }} />
+
         <View className="relative w-80 h-80 flex items-center justify-center mb-8">
-          <View className="absolute inset-0 rounded-full border-2" style={{ ...S.goldBorder30, animation: "spin 3s linear infinite" }} />
-          <View className="absolute inset-8 rounded-full border" style={{ ...S.goldBorder25, animation: "spin 2.2s linear infinite reverse" }} />
-          <View className="absolute inset-16 rounded-full border" style={{ ...S.goldBorder20, animation: "spin 1.5s linear infinite" }} />
-          <View className="w-16 h-16 rounded-full flex items-center justify-center" style={S.goldBg15}>
-            <Text className="text-2xl" style={{ ...S.gold, animation: "pulse 2s ease-in-out infinite" }}>✦</Text>
+          {/* 三层轨道环 — 渐变金 + 外发光 */}
+          <View className="absolute inset-0 rounded-full" style={{ border: "2rpx solid rgba(212,175,55,0.15)", animation: "orbit 4s linear infinite", boxShadow: "0 0 20rpx rgba(212,175,55,0.08)" }} />
+          <View className="absolute inset-8 rounded-full" style={{ border: "1.5rpx solid rgba(212,175,55,0.12)", animation: "orbit 3s linear infinite reverse", boxShadow: "0 0 16rpx rgba(212,175,55,0.06)" }} />
+          <View className="absolute inset-16 rounded-full" style={{ border: "1rpx solid rgba(212,175,55,0.1)", animation: "orbit 2s linear infinite", boxShadow: "0 0 12rpx rgba(212,175,55,0.05)" }} />
+          {/* 轨道上的光点 */}
+          <View className="absolute pointer-events-none" style={{ top: "0", left: "50%", width: "8rpx", height: "8rpx", marginLeft: "-4rpx", marginTop: "-4rpx", borderRadius: "50%", backgroundColor: "#D4AF37", boxShadow: "0 0 12rpx rgba(212,175,55,0.6)", animation: "orbit 4s linear infinite" }} />
+          {/* 中心符号 — 发光 */}
+          <View className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(212,175,55,0.12)", boxShadow: "0 0 30rpx rgba(212,175,55,0.15)" }}>
+            <Text className="text-2xl" style={{ color: "#D4AF37", textShadow: "0 0 20rpx rgba(212,175,55,0.6), 0 0 40rpx rgba(212,175,55,0.3)", animation: "glowPulse 2s ease-in-out infinite" }}>✦</Text>
           </View>
         </View>
-        <View className="w-full max-w-sm h-1 rounded-full overflow-hidden mb-6" style={S.whiteBg5}>
-          <View className="h-full rounded-full" style={S.gradBar("100%")} />
+
+        {/* 进度条 — 发光 */}
+        <View className="relative w-full max-w-sm h-1 rounded-full overflow-hidden mb-6" style={S.whiteBg5}>
+          <View className="h-full rounded-full" style={{ ...S.gradBar("100%"), boxShadow: "0 0 8rpx rgba(212,175,55,0.4)" }} />
         </View>
-        <Text className="text-lg font-serif" style={{ ...S.gold, animation: "pulse 2s ease-in-out infinite" }}>
+
+        <Text className="text-lg font-serif" style={{ color: "#D4AF37", textShadow: "0 0 16rpx rgba(212,175,55,0.3)", animation: "glowPulse 2s ease-in-out infinite" }}>
           正在解析你的天命编码…
         </Text>
         <Text className="text-xs mt-2" style={S.white30}>✦ 校准星盘坐标中</Text>
@@ -107,21 +119,26 @@ export default function QuizPage() {
   return (
     <View className="min-h-screen px-5 pt-16 pb-8" style={S.bg}>
       <View className="max-w-lg mx-auto">
+        {/* 进度条 */}
         <View className="mb-6">
           <View className="flex items-center justify-between mb-2">
             <Text className="text-xs" style={S.white30}>{current + 1}/{total}</Text>
             <Text className="text-xs" style={S.gold50}>{progress}%</Text>
           </View>
-          <View className="w-full h-1 rounded-full overflow-hidden" style={S.whiteBg5}>
-            <View className="h-full rounded-full" style={S.gradBarQuiz(`${progress}%`)} />
+          <View className="relative w-full h-1 rounded-full overflow-hidden" style={S.whiteBg5}>
+            <View className="h-full rounded-full" style={{ ...S.gradBarQuiz(`${progress}%`), boxShadow: "0 0 8rpx rgba(212,175,55,0.3)" }} />
+            {/* 发光端点 */}
+            <View className="absolute top-1/2 pointer-events-none" style={{ left: `${progress}%`, width: "12rpx", height: "12rpx", marginTop: "-6rpx", marginLeft: "-6rpx", borderRadius: "50%", backgroundColor: "#D4AF37", boxShadow: "0 0 12rpx rgba(212,175,55,0.6), 0 0 24rpx rgba(212,175,55,0.3)" }} />
           </View>
         </View>
 
         {q && (
-          <View style={{ opacity: animating ? 0 : 1 }}>
+          <View style={{ opacity: animating ? 0 : 1, transition: "opacity 0.2s" }}>
+            {/* Emoji — 带微弹效果 */}
             <View className="text-center mb-5">
-              <Text className="text-5xl">{q.emoji}</Text>
+              <Text className="text-5xl" style={{ animation: "fadeInUp 0.3s ease-out" }}>{q.emoji}</Text>
             </View>
+            {/* 题目 */}
             <View className="text-center mb-6">
               <Text className="text-base font-serif leading-relaxed" style={S.white90}>
                 {q.scenario}
@@ -129,25 +146,29 @@ export default function QuizPage() {
               <Text className="mt-2 block" style={{ ...S.white30, fontSize: "22rpx" }}>你的第一反应是？</Text>
             </View>
 
+            {/* 选项 — 依次入场 */}
             <View>
               {q.options.map((opt, i) => {
                 const isSelected = selected === i
                 const labels = ["A", "B", "C"]
                 return (
                   <View
-                    key={i}
+                    key={`${q.id}-${i}`}
                     onClick={() => handleAnswer(i)}
                     className="rounded-xl border p-4 mb-3"
-                    style={isSelected
-                      ? { ...S.goldBorder60, ...S.goldBg10 }
-                      : { ...S.whiteBorder10, ...S.whiteBg4 }
-                    }
+                    style={{
+                      ...(isSelected
+                        ? { ...S.goldBorder60, ...S.goldBg10, boxShadow: "0 0 20rpx rgba(212,175,55,0.2), inset 0 0 20rpx rgba(212,175,55,0.05)", transform: "scale(1.02)" }
+                        : { ...S.whiteBorder10, ...S.whiteBg4, boxShadow: "none", transform: "scale(1)" }),
+                      animation: `fadeInUp 0.4s ease-out ${i * 0.1}s both`,
+                      transition: "all 0.2s ease-out",
+                    }}
                   >
                     <View className="flex items-center gap-3">
                       <View
                         className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold"
                         style={isSelected
-                          ? { ...S.goldBg, color: "#0A0A0A" }
+                          ? { ...S.goldBg, color: "#0A0A0A", boxShadow: "0 0 12rpx rgba(212,175,55,0.4)" }
                           : { ...S.whiteBg10, ...S.white50 }
                         }
                       >
