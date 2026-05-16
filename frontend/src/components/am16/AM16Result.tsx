@@ -1,13 +1,32 @@
 "use client"
 import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Share2, Download, Check, Copy, X, Sparkles, Heart, Skull, RefreshCw, Users, Gift } from "lucide-react"
+import { Share2, Download, Check, Copy, X, Sparkles, Heart, Skull, RefreshCw, Users, Gift, Wand2 } from "lucide-react"
 import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { PERSONALITIES, DIMENSIONS } from "@/lib/am16/constants"
 import { calculateAM16 } from "@/lib/am16/calculator"
 import Link from "next/link"
+
+// ── 高亮发疯文案：将 **关键词** 包裹为金色高亮 ──
+function HighlightCrazy({ text }: { text: string }) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g)
+  return (
+    <>
+      {parts.map((part, i) => {
+        if (part.startsWith("**") && part.endsWith("**")) {
+          return (
+            <span key={i} className="text-amber-400 font-semibold">
+              {part.slice(2, -2)}
+            </span>
+          )
+        }
+        return <span key={i}>{part}</span>
+      })}
+    </>
+  )
+}
 
 // ── 解析人格内容的 i18n 翻译 ──
 function resolvePersonality(p: typeof PERSONALITIES[string], t: (key: string) => string) {
@@ -40,20 +59,19 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
 
   const compatNames = rawPersonality.compatible.map(c => {
     const p = PERSONALITIES[c]
-    return p ? `${p.emoji} ${t(`am16.${c}.title`)}` : c
-  }).join(" · ")
+    return p ? { emoji: p.emoji, title: t(`am16.${c}.title`), code: c } : null
+  }).filter(Boolean)
   const clashNames = rawPersonality.clash.map(c => {
     const p = PERSONALITIES[c]
-    return p ? `${p.emoji} ${t(`am16.${c}.title`)}` : c
-  }).join(" · ")
+    return p ? { emoji: p.emoji, title: t(`am16.${c}.title`), code: c } : null
+  }).filter(Boolean)
 
   // ── 分享面板操作 ──
   const shareUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/am16?code=${code}`
 
   const handleCopyLink = async () => {
-    const url = shareUrl
     try {
-      await navigator.clipboard.writeText(url)
+      await navigator.clipboard.writeText(shareUrl)
       setCopied(true)
       toast.success(t("am16.copied"))
       setTimeout(() => setCopied(false), 2000)
@@ -289,146 +307,168 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
           {t("am16.fourDimCoords")}
         </h3>
         <div className="flex justify-center">
-          <SquareRadar scores={radarScores} size={220} t={t} />
-        </div>
-        <div className="grid grid-cols-4 gap-2 mt-4 text-center">
-          {DIMENSIONS.map(d => (
-            <div key={d.code}>
-              <div className={`text-xs font-medium ${d.letterA in radarScores ? "text-white/60" : "text-white/40"}`}>
-                {d.code}
-              </div>
-              <div className="text-[10px] text-white/30 mt-0.5">
-                {radarScores[d.code] > 50
-                  ? t(`am16.dim.${d.code}.nameB`)
-                  : t(`am16.dim.${d.code}.nameA`)}
-              </div>
-            </div>
-          ))}
+          <SquareRadar scores={radarScores} size={240} t={t} />
         </div>
       </motion.div>
 
-      {/* ═══ 王阳明金句 ═══ */}
+      {/* ═══ 心学金句 — 通栏无卡片 ═══ */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
-        className="card-glow p-5 relative overflow-hidden"
+        className="relative py-6 px-2 text-center"
       >
-        <div className="absolute top-3 right-3 text-gold/10 text-5xl font-serif select-none">"</div>
-        <h3 className="text-gold/60 text-xs font-medium uppercase tracking-wider mb-3 flex items-center gap-1.5">
-          <Sparkles size={12} /> {t("am16.xinxueQuote")}
-        </h3>
-        <p className="text-gold text-lg font-serif italic mb-1">"{personality.quote}"</p>
-        <p className="text-white/50 text-sm">—— {personality.quoteExplain}</p>
+        {/* 装饰性大引号 — 背景层 */}
+        <span className="absolute top-0 left-1/2 -translate-x-1/2 text-gold/[0.06] text-[120px] font-serif leading-none select-none pointer-events-none">
+          &ldquo;
+        </span>
+        <p className="relative text-gold text-xl md:text-2xl font-serif italic leading-relaxed mb-2">
+          &ldquo;{personality.quote}&rdquo;
+        </p>
+        <p className="relative text-white/40 text-sm">
+          —— {personality.quoteExplain}
+        </p>
       </motion.div>
 
-      {/* ═══ 精神状态诊断 ═══ */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.7 }}
-        className="card-glass p-5"
-      >
-        <h3 className="text-white/60 text-xs font-medium uppercase tracking-wider mb-3 flex items-center gap-1.5">
-          🧠 {t("am16.diagnosis")}
-        </h3>
-        <p className="text-white/70 text-sm leading-relaxed">{personality.diagnosis}</p>
-      </motion.div>
+      {/* ═══ 精神状态诊断 + 改运指南 并排 ═══ */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+          className="card-glass p-5"
+        >
+          <h3 className="text-white/60 text-xs font-medium uppercase tracking-wider mb-3 flex items-center gap-1.5">
+            🧠 {t("am16.diagnosis")}
+          </h3>
+          <p className="text-white/70 text-sm leading-relaxed">
+            <HighlightCrazy text={personality.diagnosis} />
+          </p>
+        </motion.div>
 
-      {/* ═══ 改运指南 ═══ */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.8 }}
-        className="card-glass p-5"
-      >
-        <h3 className="text-white/60 text-xs font-medium uppercase tracking-wider mb-3 flex items-center gap-1.5">
-          🧭 {t("am16.advice")}
-        </h3>
-        <p className="text-white/70 text-sm leading-relaxed">{personality.advice}</p>
-      </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+          className="card-glass p-5"
+        >
+          <h3 className="text-white/60 text-xs font-medium uppercase tracking-wider mb-3 flex items-center gap-1.5">
+            🧭 {t("am16.advice")}
+          </h3>
+          <p className="text-white/70 text-sm leading-relaxed">
+            <HighlightCrazy text={personality.advice} />
+          </p>
+        </motion.div>
+      </div>
 
-      {/* ═══ 匹配雷达 ═══ */}
+      {/* ═══ 匹配雷达 — Match / Avoid 双栏 ═══ */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.9 }}
-        className="card-glass p-5"
+        className="grid grid-cols-2 gap-3"
       >
-        <h3 className="text-white/60 text-xs font-medium uppercase tracking-wider mb-4 text-center">
-          ─── {t("am16.compatibleWith")} ───
-        </h3>
-        <div className="space-y-3">
-          <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-full bg-pink-500/10 flex items-center justify-center flex-shrink-0">
-              <Heart size={14} className="text-pink-400" />
+        {/* Match 卡片 */}
+        <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.03] p-4 hover:shadow-[0_0_20px_rgba(52,211,153,0.08)] transition-all duration-300">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-7 h-7 rounded-full bg-emerald-500/10 flex items-center justify-center">
+              <Heart size={13} className="text-emerald-400" />
             </div>
-            <div>
-              <p className="text-white/60 text-xs mb-0.5">{t("am16.compatibleWith")}</p>
-              <p className="text-white/80 text-sm font-medium">{compatNames || t("am16.noData")}</p>
-            </div>
+            <span className="text-emerald-400/80 text-xs font-medium">{t("am16.compatibleWith")}</span>
           </div>
-          <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center flex-shrink-0">
-              <Skull size={14} className="text-red-400" />
+          <div className="space-y-2">
+            {compatNames.map((item) => item && (
+              <div key={item.code} className="flex items-center gap-2">
+                <span className="text-sm">{item.emoji}</span>
+                <span className="text-white/70 text-xs leading-tight">{item.title}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Avoid 卡片 */}
+        <div className="rounded-xl border border-red-500/20 bg-red-500/[0.03] p-4 hover:shadow-[0_0_20px_rgba(248,113,113,0.08)] transition-all duration-300">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-7 h-7 rounded-full bg-red-500/10 flex items-center justify-center">
+              <Skull size={13} className="text-red-400" />
             </div>
-            <div>
-              <p className="text-white/60 text-xs mb-0.5">{t("am16.clashWith")}</p>
-              <p className="text-white/80 text-sm font-medium">{clashNames || t("am16.noData")}</p>
-            </div>
+            <span className="text-red-400/80 text-xs font-medium">{t("am16.clashWith")}</span>
+          </div>
+          <div className="space-y-2">
+            {clashNames.map((item) => item && (
+              <div key={item.code} className="flex items-center gap-2">
+                <span className="text-sm">{item.emoji}</span>
+                <span className="text-white/70 text-xs leading-tight">{item.title}</span>
+              </div>
+            ))}
           </div>
         </div>
       </motion.div>
 
-      {/* ═══ CTA 变现 ═══ */}
+      {/* ═══ AI 深度解读 CTA — 流光 + 脉冲 ═══ */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.0 }}
-        className="card-glass-elevated p-6 border-gold/20 relative overflow-hidden"
+        className="relative rounded-2xl overflow-hidden"
       >
-        {/* 脉冲光环 */}
-        <div className="absolute -inset-1 rounded-2xl bg-gold/5 animate-pulse pointer-events-none" />
-
-        <div className="relative text-center mb-4">
-          <div className="inline-flex items-center gap-2 text-gold/60 text-xs mb-2">
-            <Sparkles size={12} />
-            <span>{t("am16.ctaTitle")}</span>
-          </div>
-          <p className="text-white/60 text-sm leading-relaxed mb-3">
-            {t("am16.ctaDesc")}
-          </p>
-          <p className="text-white/40 text-xs">
-            {t("am16.ctaFull").replace("{cost}", t("am16.ctaCost"))}
-          </p>
+        {/* 流光边框动画 */}
+        <div className="absolute inset-0 rounded-2xl p-[1px]">
+          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-gold/0 via-gold/40 to-gold/0 animate-[shimmer_3s_ease-in-out_infinite]" />
         </div>
-        <Link href="/reading/new" className="block relative">
-          <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            className="w-full btn-gold text-sm flex items-center justify-center gap-2 relative z-10"
-          >
-            🔮 {t("am16.ctaAction")}
-            <span className="text-xs opacity-70">· 100 ✨</span>
-          </motion.button>
-        </Link>
+
+        <div className="relative card-glass-elevated p-6 m-[1px] rounded-2xl">
+          <div className="text-center mb-4">
+            <div className="inline-flex items-center gap-2 text-gold/70 text-xs mb-2">
+              <Wand2 size={14} />
+              <span>{t("am16.ctaTitle")}</span>
+            </div>
+            <p className="text-white/60 text-sm leading-relaxed mb-3">
+              {t("am16.ctaDesc")}
+            </p>
+            <p className="text-white/40 text-xs">
+              {t("am16.ctaFull").replace("{cost}", t("am16.ctaCost"))}
+            </p>
+          </div>
+
+          <Link href="/reading/new" className="block relative group">
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              className="w-full btn-gold text-sm flex items-center justify-center gap-2 relative z-10"
+            >
+              🔮 {t("am16.ctaAction")}
+              <span className="text-xs opacity-70">· 100 ✨</span>
+            </motion.button>
+            {/* 按钮呼吸光环 */}
+            <div className="absolute -inset-1 rounded-xl bg-gold/10 animate-[pulse_2s_ease-in-out_infinite] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />
+          </Link>
+        </div>
       </motion.div>
 
-      {/* ═══ 操作按钮 ═══ */}
+      {/* ═══ 操作按钮 — 保存长图提权 ═══ */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.1 }}
         className="flex gap-3"
       >
+        {/* 保存长图 — 黑金渐变实体按钮 */}
         <button
           onClick={handleDownload}
           disabled={downloading}
-          className="flex-1 btn-gold-outline text-sm flex items-center justify-center gap-2 disabled:opacity-50"
+          className="flex-1 relative group text-sm flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all duration-300
+            bg-gradient-to-r from-gold/20 via-gold/10 to-gold/20 border border-gold/40 text-gold
+            hover:from-gold/30 hover:via-gold/15 hover:to-gold/30 hover:border-gold/60 hover:shadow-[0_0_20px_rgba(201,168,76,0.15)]
+            disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Download size={14} />
           {downloading ? t("am16.saving") : t("am16.saveImage")}
+          {/* ✨ 动效提示 */}
+          <span className="absolute -top-1 -right-1 text-[10px] animate-[sparkle_2s_ease-in-out_infinite]">✨</span>
         </button>
+
+        {/* 分享按钮 */}
         <button
           onClick={() => setShareOpen(true)}
           className="flex-1 btn-gold-outline text-sm flex items-center justify-center gap-2"
@@ -595,24 +635,24 @@ function wrapText(
   }
 }
 
-// ── 正方形四维雷达图（带呼吸光晕）──
+// ── 正方形四维雷达图（能量场展开动画 + 轴标百分比）──
 function SquareRadar({
   scores,
-  size = 220,
+  size = 240,
   t,
 }: {
   scores: Record<string, number>
   size?: number
   t: (key: string) => string
 }) {
-  const [animated, setAnimated] = useState(false)
+  const [expanded, setExpanded] = useState(false)
   const cx = size / 2
   const cy = size / 2
   const radius = size * 0.38
 
   useEffect(() => {
-    const t = setTimeout(() => setAnimated(true), 200)
-    return () => clearTimeout(t)
+    const timer = setTimeout(() => setExpanded(true), 300)
+    return () => clearTimeout(timer)
   }, [])
 
   const corners = [
@@ -624,13 +664,16 @@ function SquareRadar({
 
   const dims = ["FD", "XS", "GI", "PE"]
   const radarLabels = ["radarDefiance", "radarXinxue", "radarGiver", "radarPatience"] as const
+  const dimNamesA = ["dim.FD.nameA", "dim.XS.nameA", "dim.GI.nameA", "dim.PE.nameA"] as const
+  const dimNamesB = ["dim.FD.nameB", "dim.XS.nameB", "dim.GI.nameB", "dim.PE.nameB"] as const
 
   const dataPoints = corners.map((c, i) => {
     const val = (scores[dims[i]] ?? 50) / 100
-    const ratio = 0.2 + val * 0.8
+    const ratio = expanded ? 0.2 + val * 0.8 : 0
     return {
       x: cx + (c.x - cx) * ratio,
       y: cy + (c.y - cy) * ratio,
+      val: Math.round((scores[dims[i]] ?? 50)),
     }
   })
 
@@ -639,19 +682,15 @@ function SquareRadar({
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
       {/* 呼吸光晕 */}
-      {animated && (
-        <defs>
-          <radialGradient id="radarGlow">
-            <stop offset="0%" stopColor="rgba(201,168,76,0.15)" />
-            <stop offset="100%" stopColor="rgba(201,168,76,0)" />
-          </radialGradient>
-        </defs>
-      )}
-      {animated && (
-        <circle cx={cx} cy={cy} r={radius * 0.8} fill="url(#radarGlow)">
-          <animate attributeName="opacity" values="0.3;0.7;0.3" dur="3s" repeatCount="indefinite" />
-        </circle>
-      )}
+      <defs>
+        <radialGradient id="radarGlow">
+          <stop offset="0%" stopColor="rgba(201,168,76,0.15)" />
+          <stop offset="100%" stopColor="rgba(201,168,76,0)" />
+        </radialGradient>
+      </defs>
+      <circle cx={cx} cy={cy} r={radius * 0.8} fill="url(#radarGlow)">
+        <animate attributeName="opacity" values="0.3;0.7;0.3" dur="3s" repeatCount="indefinite" />
+      </circle>
 
       {/* 网格线 */}
       {[0.33, 0.66, 1].map((scale, i) => (
@@ -672,40 +711,57 @@ function SquareRadar({
           stroke="rgba(201,168,76,0.08)" strokeWidth="0.5" />
       ))}
 
-      {/* 数据多边形 */}
+      {/* 数据多边形 — 能量场展开 */}
       <path
-        d={animated ? dataPath : `M ${cx} ${cy} L ${cx} ${cy} L ${cx} ${cy} L ${cx} ${cy} Z`}
+        d={dataPath}
         fill="rgba(201,168,76,0.15)"
         stroke="#C9A84C"
         strokeWidth="1.5"
-        style={{ transition: "all 0.8s ease-out" }}
+        style={{
+          transition: "d 1s cubic-bezier(0.34, 1.56, 0.64, 1), fill 0.8s ease",
+        }}
       />
 
       {/* 数据点 */}
-      {animated && dataPoints.map((p, i) => (
-        <circle key={i} cx={p.x} cy={p.y} r="3" fill="#C9A84C"
+      {expanded && dataPoints.map((p, i) => (
+        <circle key={i} cx={p.x} cy={p.y} r="3.5" fill="#C9A84C"
           style={{ filter: "drop-shadow(0 0 4px rgba(201,168,76,0.5))" }} />
       ))}
 
-      {/* 标签 */}
+      {/* 标签 + 轴标百分比 */}
       {corners.map((c, i) => {
-        const labelOffset = 18
+        const labelOffset = 22
         const dx = c.x - cx
         const dy = c.y - cy
         const len = Math.sqrt(dx * dx + dy * dy)
         const nx = dx / len
         const ny = dy / len
+        const val = dataPoints[i].val
+        const dominantName = val > 50 ? t(`am16.${dimNamesB[i]}`) : t(`am16.${dimNamesA[i]}`)
         return (
-          <text key={i}
-            x={c.x + nx * labelOffset}
-            y={c.y + ny * labelOffset}
-            textAnchor="middle"
-            dominantBaseline="middle"
-            fill="rgba(255,255,255,0.4)"
-            fontSize="10"
-          >
-            {t(`am16.${radarLabels[i]}`)}
-          </text>
+          <g key={i}>
+            <text
+              x={c.x + nx * labelOffset}
+              y={c.y + ny * labelOffset - 6}
+              textAnchor="middle"
+              dominantBaseline="middle"
+              fill="rgba(255,255,255,0.5)"
+              fontSize="10"
+              fontWeight="500"
+            >
+              {t(`am16.${radarLabels[i]}`)}
+            </text>
+            <text
+              x={c.x + nx * labelOffset}
+              y={c.y + ny * labelOffset + 7}
+              textAnchor="middle"
+              dominantBaseline="middle"
+              fill="rgba(201,168,76,0.6)"
+              fontSize="9"
+            >
+              {dominantName} {val}%
+            </text>
+          </g>
         )
       })}
     </svg>
