@@ -1219,6 +1219,33 @@ export default {
   "new.palmPlaceholderSunLine": "e.g., Faint and short, below ring finger",
   "new.palmPlaceholderMarriageLine": "e.g., Two lines, one deeper",
 
+  // ─── Hot Questions ───
+  "new.hotQuestionsLabel": "Quick picks (tap to auto-fill)",
+  "new.hotQ1": "Career direction & job change",
+  "new.hotQ2": "Romance & love fortune",
+  "new.hotQ3": "Wealth & investment advice",
+  "new.hotQ4": "Overall fortune for next 6 months",
+  "new.hotQ5": "Entrepreneurship timing & fields",
+  "new.hotQ6": "Family relationships & harmony",
+  "new.hotQ1Full": "What is my career direction? Is this year good for changing jobs?",
+  "new.hotQ2Full": "What will my romance and love fortune be in the next 3 months?",
+  "new.hotQ3Full": "Wealth analysis: what should I pay attention to in investing?",
+  "new.hotQ4Full": "Overall fortune and auspicious directions for the next 6 months",
+  "new.hotQ5Full": "Am I suited for entrepreneurship? When is the best time?",
+  "new.hotQ6Full": "Family relationships: my destiny with family and how to get along",
+  "new.hotQuestionsHint": "Or type your question in the box below",
+
+  // ─── Tarot Picker ───
+  "new.tarotDrawTitle": "Tarot Draw (3-Card Spread)",
+  "new.tarotShuffling": "Shuffling…",
+  "new.tarotRedraw": "Redraw",
+  "new.tarotRandomDraw": "Random Draw",
+  "new.tarotReversed": "Reversed",
+  "new.tarotHint": "Tap \"Random Draw\" to let AI read your tarot",
+  "new.tarot.past": "Past",
+  "new.tarot.present": "Present",
+  "new.tarot.future": "Future",
+
   // ─── Pricing Page Misc ───
   "pricing.subtitle": "Stardust is your energy reserve for cosmic insight — members receive automatic energy infusions monthly",
   "about.heroDesc": "Where millennia of metaphysical wisdom meets cutting-edge AI,\nproviding a unique life reading for every individual.",

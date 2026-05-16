@@ -1223,4 +1223,31 @@ export default {
   "new.palmPlaceholderFateLine": "例如：清晰从掌底延伸至中指",
   "new.palmPlaceholderSunLine": "例如：浅而短，在无名指下方",
   "new.palmPlaceholderMarriageLine": "例如：两条，一条较深",
+
+  // ─── 热门问题 ───
+  "new.hotQuestionsLabel": "热门问题快速选择（点击后自动填入）",
+  "new.hotQ1": "事业方向与跳槽时机",
+  "new.hotQ2": "近期桃花运与感情发展",
+  "new.hotQ3": "财运分析与投资建议",
+  "new.hotQ4": "未来半年整体运势",
+  "new.hotQ5": "创业时机与适合领域",
+  "new.hotQ6": "家庭关系与相处之道",
+  "new.hotQ1Full": "我的事业方向如何？今年适合换工作吗？",
+  "new.hotQ2Full": "近三个月的桃花运和感情发展如何？",
+  "new.hotQ3Full": "财运分析：投资理财需要注意什么？",
+  "new.hotQ4Full": "未来半年的整体运势和吉凶方位",
+  "new.hotQ5Full": "我适合创业吗？什么时机最佳？",
+  "new.hotQ6Full": "家庭关系：与家人的缘分和相处之道",
+  "new.hotQuestionsHint": "或在下方面向框中输入你关心的问题",
+
+  // ─── 塔罗抽牌 ───
+  "new.tarotDrawTitle": "塔罗抽牌（三张牌阵）",
+  "new.tarotShuffling": "洗牌中…",
+  "new.tarotRedraw": "重新抽牌",
+  "new.tarotRandomDraw": "随机抽牌",
+  "new.tarotReversed": "逆位",
+  "new.tarotHint": "点击「随机抽牌」让AI为你解读塔罗",
+  "new.tarot.past": "过去",
+  "new.tarot.present": "现状",
+  "new.tarot.future": "未来",
 } as const
