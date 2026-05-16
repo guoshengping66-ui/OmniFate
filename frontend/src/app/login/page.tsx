@@ -104,10 +104,10 @@ export default function LoginPage() {
           </div>
 
           <p className="text-center text-white/25 text-[10px] mt-2">
-            登录即表示您同意我们的{" "}
-            <a href="/privacy" className="text-gold/50 hover:text-gold underline">隐私政策</a>
-            {" "}和{" "}
-            <a href="/terms" className="text-gold/50 hover:text-gold underline">服务条款</a>
+            {t("auth.agreeTo")}{" "}
+            <a href="/privacy" className="text-gold/50 hover:text-gold underline">{t("auth.privacyPolicy")}</a>
+            {" "}{t("auth.and")}{" "}
+            <a href="/terms" className="text-gold/50 hover:text-gold underline">{t("auth.termsOfService")}</a>
           </p>
         </form>
       </div>

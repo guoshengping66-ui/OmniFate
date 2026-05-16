@@ -30,6 +30,7 @@ export default function RegisterPage() {
   const [showPw, setShowPw] = useState(false)
   const [loading, setLoading] = useState(false)
   const [privacyAccepted, setPrivacyAccepted] = useState(false)
+  const [ageConfirmed, setAgeConfirmed] = useState(false)
 
   // Step 2: Verification code
   const [step, setStep] = useState<"register" | "verify">("register")
@@ -55,21 +56,25 @@ export default function RegisterPage() {
       return
     }
     if (password.length < 8) {
-      toast.error("密码至少需要8个字符，包含大小写字母和数字")
+      toast.error(t("auth.pwdMin8"))
       return
     }
     if (!/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
-      toast.error("密码必须包含大小写字母和数字")
+      toast.error(t("auth.pwdRequirements"))
       return
     }
     if (!privacyAccepted) {
-      toast.error("请先阅读并同意隐私政策和服务条款")
+      toast.error(t("auth.acceptPrivacy"))
+      return
+    }
+    if (!ageConfirmed) {
+      toast.error(t("auth.confirmAge"))
       return
     }
     setLoading(true)
     try {
       await registerUser(email, password, displayName || undefined, privacyAccepted, referralCode || undefined)
-      toast.success("注册成功，请查收邮箱验证码")
+      toast.success(t("auth.registerSuccessMsg"))
       setStep("verify")
       startResendCooldown()
     } catch (err: any) {
@@ -92,10 +97,10 @@ export default function RegisterPage() {
       // Store tokens and log in (must match AuthContext keys)
       localStorage.setItem("alpha_mirror_token", res.access_token)
       localStorage.setItem("alpha_mirror_refresh", res.refresh_token)
-      toast.success("邮箱验证成功！")
+      toast.success(t("auth.loginSuccess"))
       router.replace("/")
     } catch (err: any) {
-      const detail = err?.response?.data?.detail ?? "验证失败"
+      const detail = err?.response?.data?.detail ?? t("auth.verifyFail")
       toast.error(detail)
     } finally {
       setVerifyLoading(false)
@@ -106,10 +111,10 @@ export default function RegisterPage() {
     if (resendCooldown > 0) return
     try {
       await sendVerificationCode(email)
-      toast.success("验证码已重新发送")
+      toast.success(t("auth.resendSuccess"))
       startResendCooldown()
     } catch (err: any) {
-      toast.error(err?.response?.data?.detail ?? "发送失败")
+      toast.error(err?.response?.data?.detail ?? t("auth.resendFail"))
     }
   }
 
@@ -135,15 +140,15 @@ export default function RegisterPage() {
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <Mail className="text-gold mx-auto mb-3" size={28} />
-            <h1 className="text-2xl font-serif font-bold text-gold">邮箱验证</h1>
+            <h1 className="text-2xl font-serif font-bold text-gold">{t("auth.verifyTitle")}</h1>
             <p className="text-white/40 text-sm mt-1">
-              验证码已发送至 <span className="text-white/60">{email}</span>
+              {t("auth.verifySentTo")} <span className="text-white/60">{email}</span>
             </p>
           </div>
 
           <form onSubmit={handleVerify} className="card-glass p-6 md:p-8 space-y-5">
             <div>
-              <label className="label">6位验证码</label>
+              <label className="label">{t("auth.verifyCodeLabel")}</label>
               <input
                 type="text"
                 value={verifyCode}
@@ -161,9 +166,9 @@ export default function RegisterPage() {
               className="btn-gold w-full flex items-center justify-center gap-2 py-3"
             >
               {verifyLoading ? (
-                <><Loader2 size={18} className="animate-spin" /> 验证中...</>
+                <><Loader2 size={18} className="animate-spin" /> {t("auth.verifying")}</>
               ) : (
-                <><CheckCircle size={18} /> 验证并登录</>
+                <><CheckCircle size={18} /> {t("auth.verifyAndLogin")}</>
               )}
             </button>
 
@@ -174,13 +179,13 @@ export default function RegisterPage() {
                 disabled={resendCooldown > 0}
                 className="text-gold/60 hover:text-gold text-sm transition-colors disabled:opacity-40"
               >
-                {resendCooldown > 0 ? `${resendCooldown}s 后可重新发送` : "重新发送验证码"}
+                {resendCooldown > 0 ? `${resendCooldown}${t("auth.resendIn")}` : t("auth.resendCode")}
               </button>
             </div>
 
             <p className="text-center text-white/40 text-sm">
               <button type="button" onClick={() => setStep("register")} className="text-gold hover:underline">
-                ← 返回注册
+                {t("auth.backToRegister")}
               </button>
             </p>
           </form>
@@ -247,17 +252,29 @@ export default function RegisterPage() {
           {/* Referral code (optional) */}
           <div>
             <label className="label">
-              邀请码 <span className="text-white/20 text-xs">（选填，双方各得 20 星尘）</span>
+              {t("auth.referralCode")} <span className="text-white/20 text-xs">{t("auth.referralHint")}</span>
             </label>
             <input
               type="text"
               value={referralCode}
               onChange={e => setReferralCode(e.target.value.toUpperCase())}
-              placeholder="输入邀请码（如有）"
+              placeholder={t("auth.referralPlaceholder")}
               maxLength={8}
               className="input-field font-mono tracking-widest text-center"
             />
           </div>
+
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={ageConfirmed}
+              onChange={e => setAgeConfirmed(e.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded border-white/20 bg-white/5 text-gold focus:ring-gold/40"
+            />
+            <span className="text-white/50 text-xs leading-relaxed">
+              {t("auth.ageConfirm")}
+            </span>
+          </label>
 
           <label className="flex items-start gap-3 cursor-pointer">
             <input
@@ -267,18 +284,18 @@ export default function RegisterPage() {
               className="mt-0.5 h-4 w-4 rounded border-white/20 bg-white/5 text-gold focus:ring-gold/40"
             />
             <span className="text-white/50 text-xs leading-relaxed">
-              我已阅读并同意{" "}
-              <a href="/privacy" target="_blank" className="text-gold hover:underline">《隐私政策》</a>
-              {" "}和{" "}
+              {t("auth.agreePolicy")}{" "}
+              <a href="/privacy" target="_blank" className="text-gold hover:underline">{t("auth.privacyPolicyLink")}</a>
+              {" "}{t("auth.and")}{" "}
               <button type="button" onClick={() => setShowTerms(true)} className="text-gold hover:underline">
-                《服务条款》
+                {t("auth.termsLink")}
               </button>
             </span>
           </label>
 
           <button
             type="submit"
-            disabled={loading || !privacyAccepted}
+            disabled={loading || !privacyAccepted || !ageConfirmed}
             className="btn-gold w-full flex items-center justify-center gap-2 py-3 disabled:opacity-40"
           >
             {loading ? <><Loader2 size={18} className="animate-spin" /> {t("auth.registering")}</> : t("auth.register")}

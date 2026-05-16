@@ -7,7 +7,7 @@ import { AlmanacCard } from "@/components/almanac/AlmanacCard"
 import { EnergyWaveWarning } from "@/components/almanac/EnergyWaveWarning"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { api } from "@/lib/api"
+import { api, listMyReadings } from "@/lib/api"
 
 interface AlmanacData {
   date: string
@@ -32,6 +32,7 @@ export default function AlmanacPage() {
   const { t } = useLanguage()
   const [data, setData] = useState<AlmanacData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [noSession, setNoSession] = useState(false)
 
   useEffect(() => {
     if (!user?.is_premium) {
@@ -39,8 +40,24 @@ export default function AlmanacPage() {
       return
     }
 
-    api.get("/api/readings/almanac")
-      .then(res => setData(res.data))
+    // First get the user's latest reading session to obtain session_id
+    listMyReadings()
+      .then(readings => {
+        if (!readings || readings.length === 0) {
+          setNoSession(true)
+          setLoading(false)
+          return
+        }
+        // Use the most recent reading's session_id
+        const sessionId = readings[0].session_id
+        return api.get("/api/readings/daily-almanac", {
+          params: { session_id: sessionId },
+          timeout: 30_000,
+        })
+      })
+      .then(res => {
+        if (res) setData(res.data)
+      })
       .catch(() => toast.error(t("almanac.loadError")))
       .finally(() => setLoading(false))
   }, [user])
@@ -68,6 +85,17 @@ export default function AlmanacPage() {
   if (loading) return (
     <div className="min-h-screen pt-24 pb-16 px-4 flex items-center justify-center">
       <Loader2 size={32} className="animate-spin text-gold" />
+    </div>
+  )
+
+  if (noSession) return (
+    <div className="min-h-screen pt-24 pb-16 px-4 flex items-center justify-center">
+      <div className="card-glass p-10 text-center max-w-md">
+        <p className="text-white/50 text-sm mb-4">{t("almanac.needReading")}</p>
+        <button onClick={() => router.push("/reading/new")} className="btn-gold">
+          {t("almanac.startReading")}
+        </button>
+      </div>
     </div>
   )
 
