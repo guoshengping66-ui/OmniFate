@@ -9,6 +9,7 @@ import {
   calculateRadarScores,
   type AM16Personality,
 } from "../../constants/am16"
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import {
   DIMENSIONS_MAP,
   DIMENSION_ORDER,
@@ -32,6 +33,32 @@ const cardElevated = {
 
 const gold = "#C9A84C"
 const goldRgb = "201,168,76"
+
+// ── 人格色彩 bgGlow 映射（匹配 Web personality.bgGlow）──
+const GLOW_COLORS: Record<string, [string, string]> = {
+  FXGP: ["rgba(59,130,246,0.15)", "rgba(99,102,241,0.05)"],
+  FXGE: ["rgba(168,85,247,0.15)", "rgba(139,92,246,0.05)"],
+  FXIP: ["rgba(100,116,139,0.15)", "rgba(156,163,175,0.05)"],
+  FXIE: ["rgba(236,72,153,0.15)", "rgba(244,63,94,0.05)"],
+  FSGP: ["rgba(20,184,166,0.15)", "rgba(16,185,129,0.05)"],
+  FSGE: ["rgba(132,204,22,0.15)", "rgba(34,197,94,0.05)"],
+  FSIP: ["rgba(6,182,212,0.15)", "rgba(14,165,233,0.05)"],
+  FSIE: ["rgba(139,92,246,0.15)", "rgba(168,85,247,0.05)"],
+  DXGP: ["rgba(20,184,166,0.15)", "rgba(16,185,129,0.05)"],
+  DXGE: ["rgba(245,158,11,0.15)", "rgba(234,179,8,0.05)"],
+  DXIP: ["rgba(239,68,68,0.15)", "rgba(244,63,94,0.05)"],
+  DXIE: ["rgba(249,115,22,0.15)", "rgba(239,68,68,0.05)"],
+  DSIE: ["rgba(234,179,8,0.15)", "rgba(245,158,11,0.05)"],
+  DSGP: ["rgba(16,185,129,0.15)", "rgba(34,197,94,0.05)"],
+  DSGE: ["rgba(217,119,6,0.15)", "rgba(245,158,11,0.05)"],
+  DSIP: ["rgba(99,102,241,0.15)", "rgba(59,130,246,0.05)"],
+}
+
+function getGlowStyle(code: string) {
+  const pair = GLOW_COLORS[code]
+  if (!pair) return {}
+  return { background: `linear-gradient(to bottom, ${pair[0]}, ${pair[1]}, transparent)` }
+}
 
 function GoldSeparator() {
   return (
@@ -108,7 +135,7 @@ export default function ResultPage() {
         query.select("#shareCanvas").fields({ node: true, size: true }, (res) => {
           if (res && res.node && !posterNodeRef.current) {
             posterNodeRef.current = res.node
-            try { drawSharePoster(res.node, archetype, personality) } catch (e) { console.error("[share]", e) }
+            try { drawSharePoster(res.node, archetype, personality, radarScores) } catch (e) { console.error("[share]", e) }
           }
         }).exec()
       }, delay))
@@ -143,7 +170,7 @@ export default function ResultPage() {
     if (!node) { Taro.showToast({ title: "海报生成中，请稍候", icon: "none" }); return }
     try {
       Taro.canvasToTempFilePath({
-        canvas: node, width: 750, height: 1334, destWidth: 1500, destHeight: 2668,
+        canvas: node, width: 750, height: 1480, destWidth: 1500, destHeight: 2960,
         success(res) {
           try {
             Taro.saveImageToPhotosAlbum({
@@ -172,10 +199,8 @@ export default function ResultPage() {
         ...cardElevated,
         animation: "fadeInUp 0.6s cubic-bezier(0.34,1.56,0.64,1) both",
       }}>
-        {/* 背景渐变光晕 */}
-        <View className="absolute inset-0 pointer-events-none" style={{
-          background: `linear-gradient(to bottom, rgba(${goldRgb},0.08), rgba(${goldRgb},0.02), transparent)`,
-        }} />
+        {/* 人格专属 bgGlow — 匹配 Web */}
+        <View className="absolute inset-0 pointer-events-none" style={getGlowStyle(archetype)} />
         {/* 金色粒子 */}
         {[0,1,2,3,4,5,6,7].map(i => (
           <View key={i} className="absolute pointer-events-none" style={{
@@ -441,7 +466,7 @@ export default function ResultPage() {
         </View>
       )}
 
-      <Canvas type="2d" id="shareCanvas" style={{ position: "fixed", left: "-9999px", top: "-9999px", width: "750px", height: "1334px" }} />
+      <Canvas type="2d" id="shareCanvas" style={{ position: "fixed", left: "-9999px", top: "-9999px", width: "750px", height: "1480px" }} />
     </View>
   )
 }
@@ -535,12 +560,12 @@ function drawRadar(canvasNode: any, scores: Record<string, number>, size: number
   })
 }
 
-function drawSharePoster(canvasNode: any, code: string, p: AM16Personality) {
+function drawSharePoster(canvasNode: any, code: string, p: AM16Personality, scores: Record<string, number>) {
   const ctx = canvasNode.getContext("2d")
   const dpr = getDPR()
-  canvasNode.width = 750 * dpr; canvasNode.height = 1334 * dpr
+  canvasNode.width = 750 * dpr; canvasNode.height = 1480 * dpr
   ctx.scale(dpr, dpr)
-  const W = 750, H = 1334
+  const W = 750, H = 1480
 
   // 背景
   const grad = ctx.createLinearGradient(0, 0, 0, H)
@@ -591,17 +616,33 @@ function drawSharePoster(canvasNode: any, code: string, p: AM16Personality) {
   lineGrad.addColorStop(1, `rgba(${goldRgb},0)`)
   ctx.strokeStyle = lineGrad; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(150, 630); ctx.lineTo(600, 630); ctx.stroke()
 
-  ctx.fillStyle = "rgba(255,255,255,0.65)"; ctx.font = "bold 20px sans-serif"; ctx.fillText("精神状态诊断", W / 2, 680)
-  ctx.font = "16px sans-serif"; ctx.fillStyle = "rgba(255,255,255,0.45)"; wrapText(ctx, p.diagnosis, W / 2, 720, 600, 24)
-  ctx.fillStyle = "rgba(255,255,255,0.65)"; ctx.font = "bold 20px sans-serif"; ctx.fillText("改运指南", W / 2, 920)
-  ctx.font = "16px sans-serif"; ctx.fillStyle = "rgba(255,255,255,0.45)"; wrapText(ctx, p.advice, W / 2, 960, 600, 24)
+  // 四维能量坐标 — 双层标签
+  ctx.fillStyle = "rgba(255,255,255,0.65)"; ctx.font = "bold 18px sans-serif"; ctx.fillText("四维能量坐标", W / 2, 670)
+  const dimY = 700
+  DIMENSION_ORDER.forEach((code, i) => {
+    const dimCfg = DIMENSIONS_MAP[code]
+    const val = scores[code] ?? 50
+    const { tag } = getPoleLabel(code, val)
+    const x = 112 + i * 155
+    ctx.font = "20px sans-serif"; ctx.fillStyle = "rgba(255,255,255,0.7)"; ctx.fillText(dimCfg.icon, x, dimY)
+    ctx.font = "bold 13px sans-serif"; ctx.fillStyle = `rgba(${goldRgb},0.7)`; ctx.fillText(dimCfg.axisNameCn, x, dimY + 22)
+    ctx.font = "12px sans-serif"; ctx.fillStyle = `rgba(${goldRgb},0.5)`; ctx.fillText(tag, x, dimY + 40)
+    ctx.font = "bold 16px sans-serif"; ctx.fillStyle = gold; ctx.fillText(val + "%", x, dimY + 60)
+  })
 
-  ctx.fillStyle = gold; ctx.font = "bold 22px sans-serif"; ctx.fillText("扫码测测你的天命格局", W / 2, 1140)
-  ctx.beginPath(); ctx.arc(W / 2, 1220, 40, 0, Math.PI * 2); ctx.fillStyle = `rgba(${goldRgb},0.1)`; ctx.fill()
+  // 渐变分割线 2
+  ctx.strokeStyle = lineGrad; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(150, 775); ctx.lineTo(600, 775); ctx.stroke()
+
+  ctx.fillStyle = "rgba(255,255,255,0.65)"; ctx.font = "bold 20px sans-serif"; ctx.fillText("精神状态诊断", W / 2, 820)
+  ctx.font = "16px sans-serif"; ctx.fillStyle = "rgba(255,255,255,0.45)"; wrapText(ctx, p.diagnosis, W / 2, 855, 600, 24)
+  ctx.fillStyle = "rgba(255,255,255,0.65)"; ctx.font = "bold 20px sans-serif"; ctx.fillText("改运指南", W / 2, 1020)
+  ctx.font = "16px sans-serif"; ctx.fillStyle = "rgba(255,255,255,0.45)"; wrapText(ctx, p.advice, W / 2, 1055, 600, 24)
+
+  ctx.fillStyle = gold; ctx.font = "bold 22px sans-serif"; ctx.fillText("扫码测测你的天命格局", W / 2, 1220)
+  ctx.beginPath(); ctx.arc(W / 2, 1300, 40, 0, Math.PI * 2); ctx.fillStyle = `rgba(${goldRgb},0.1)`; ctx.fill()
   ctx.strokeStyle = `rgba(${goldRgb},0.3)`; ctx.lineWidth = 1; ctx.stroke()
-  ctx.fillStyle = "rgba(255,255,255,0.3)"; ctx.font = "12px sans-serif"; ctx.fillText("小程序码", W / 2, 1225)
-  ctx.fillStyle = "rgba(255,255,255,0.25)"; ctx.fillText("新用户立赠 20 星尘能量 · 官网同步登录", W / 2, 1300)
-  ctx.fillText("AlphaMirror · 命盘智镜", W / 2, 1320)
+  ctx.fillStyle = "rgba(255,255,255,0.3)"; ctx.font = "12px sans-serif"; ctx.fillText("小程序码", W / 2, 1305)
+  ctx.fillStyle = "rgba(255,255,255,0.25)"; ctx.fillText("新用户立赠 20 星尘能量 · 官网同步登录", W / 2, 1400)
 }
 
 function wrapText(ctx: any, text: string, x: number, y: number, maxWidth: number, lineHeight: number) {
