@@ -693,8 +693,11 @@ function SquareRadar({
 
   const dataPath = dataPoints.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ") + " Z"
 
+  const padding = 40
+  const vb = `-${padding} -${padding} ${size + padding * 2} ${size + padding * 2}`
+
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="will-change-transform">
+    <svg width={size + padding * 2} height={size + padding * 2} viewBox={vb} className="will-change-transform">
       {/* 呼吸光晕 — 静态版本，避免移动端持续重绘 */}
       <defs>
         <radialGradient id="radarGlow">

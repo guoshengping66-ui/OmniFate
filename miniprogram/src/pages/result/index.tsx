@@ -64,6 +64,7 @@ export default function ResultPage() {
   const [showDetail, setShowDetail] = useState(false)
   const radarNodeRef = useRef<any>(null)
   const posterNodeRef = useRef<any>(null)
+  const pageRef = useRef<any>(null)
 
   useDidShow(() => {
     try {
@@ -82,21 +83,21 @@ export default function ResultPage() {
   useEffect(() => {
     if (radarScores.FD === undefined) return
     const timer = setTimeout(() => {
-      const query = Taro.createSelectorQuery()
+      const query = Taro.createSelectorQuery().in(pageRef.current)
       query.select("#radarCanvas").fields({ node: true, size: true }, (res) => {
         if (res && res.node) {
           radarNodeRef.current = res.node
           drawRadar(res.node, radarScores, 280)
         }
       }).exec()
-    }, 300)
+    }, 500)
     return () => clearTimeout(timer)
   }, [radarScores])
 
   useEffect(() => {
     if (!showDetail || !archetype || !personality) return
     const timer = setTimeout(() => {
-      const query = Taro.createSelectorQuery()
+      const query = Taro.createSelectorQuery().in(pageRef.current)
       query.select("#shareCanvas").fields({ node: true, size: true }, (res) => {
         if (res && res.node) {
           posterNodeRef.current = res.node
@@ -150,7 +151,7 @@ export default function ResultPage() {
   }
 
   return (
-    <View className="min-h-screen pb-32" style={{ backgroundColor: "#1A0F2E" }}>
+    <View ref={pageRef} className="min-h-screen pb-32" style={{ backgroundColor: "#1A0F2E" }}>
       {/* 星空背景 */}
       <View style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 0, pointerEvents: "none" as const }}>
         <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "radial-gradient(ellipse at 30% 20%, rgba(139,92,246,0.06) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(201,168,76,0.04) 0%, transparent 50%)", animation: "glowPulse 8s ease-in-out infinite" }} />
@@ -231,7 +232,7 @@ export default function ResultPage() {
           <GoldSeparator />
 
           {/* ═══ 四维雷达图 ═══ */}
-          <View className="p-5 relative overflow-hidden" style={{
+          <View className="p-5 relative" style={{
             ...cardGlass,
             animation: "fadeInUp 0.5s ease-out 0.15s both",
           }}>
