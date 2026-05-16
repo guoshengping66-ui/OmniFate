@@ -65,6 +65,7 @@ export default {
   "nav.almanac": "每日黄历",
   "nav.divination": "星际抽签",
   "nav.events": "事件复盘",
+  "nav.am16": "天命测验",
   "common.loading": "加载中...",
   "common.submit": "提交",
   "common.cancel": "取消",

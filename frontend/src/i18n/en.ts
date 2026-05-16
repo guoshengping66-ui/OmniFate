@@ -65,6 +65,7 @@ export default {
   "nav.almanac": "Daily Almanac",
   "nav.divination": "Star Divination",
   "nav.events": "Event Analysis",
+  "nav.am16": "Destiny Quiz",
   "common.loading": "Loading...",
   "common.submit": "Submit",
   "common.cancel": "Cancel",
