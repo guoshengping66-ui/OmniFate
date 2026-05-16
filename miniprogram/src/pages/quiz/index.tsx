@@ -128,12 +128,14 @@ export default function QuizPage() {
           </Text>
         </View>
 
-        {/* 四维预览卡片 — 两行两列，微信兼容 */}
-        <View className="w-full mb-8" style={{ animation: "fadeInUp 0.6s ease-out 0.2s both" }}>
+        {/* 四维预览卡片 — 两行两列，固定宽度百分比 */}
+        <View className="mb-8" style={{ animation: "fadeInUp 0.6s ease-out 0.2s both" }}>
           {/* 第一行 */}
-          <View className="flex" style={{ gap: "16rpx", marginBottom: "16rpx" }}>
+          <View style={{ display: "flex", flexDirection: "row", marginBottom: "16rpx" }}>
             {dimPreviews.slice(0, 2).map((d, i) => (
-              <View key={d.code} className="flex-1 rounded-2xl p-5 text-center" style={{
+              <View key={d.code} className="rounded-2xl p-5 text-center" style={{
+                width: "47%",
+                marginRight: i === 0 ? "6%" : 0,
                 backgroundColor: "rgba(255,255,255,0.05)",
                 border: "1rpx solid rgba(255,255,255,0.1)",
                 boxShadow: "0 4rpx 20rpx rgba(0,0,0,0.3), inset 0 1rpx 0 rgba(255,255,255,0.06)",
@@ -145,9 +147,11 @@ export default function QuizPage() {
             ))}
           </View>
           {/* 第二行 */}
-          <View className="flex" style={{ gap: "16rpx" }}>
+          <View style={{ display: "flex", flexDirection: "row" }}>
             {dimPreviews.slice(2, 4).map((d, i) => (
-              <View key={d.code} className="flex-1 rounded-2xl p-5 text-center" style={{
+              <View key={d.code} className="rounded-2xl p-5 text-center" style={{
+                width: "47%",
+                marginRight: i === 0 ? "6%" : 0,
                 backgroundColor: "rgba(255,255,255,0.05)",
                 border: "1rpx solid rgba(255,255,255,0.1)",
                 boxShadow: "0 4rpx 20rpx rgba(0,0,0,0.3), inset 0 1rpx 0 rgba(255,255,255,0.06)",
