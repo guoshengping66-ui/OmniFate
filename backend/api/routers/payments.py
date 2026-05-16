@@ -1013,11 +1013,31 @@ async def mock_cancel_subscription(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_user),
 ):
-    """取消订阅"""
+    """取消订阅 — 当前周期结束后生效，立即停止自动续费"""
+    # Refetch user within THIS session to avoid detached-instance issues
+    result = await db.execute(
+        select(User).where(User.id == current_user.id).with_for_update()
+    )
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="用户不存在")
+
+    if not user.is_premium or user.subscription_tier in ("trial", "founder_lifetime"):
+        raise HTTPException(status_code=400, detail="当前没有可取消的有效订阅")
+
+    expires_at = user.premium_expires_at
+    # Clear auto-renewal flag (set subscription to non-renewing)
+    # The user keeps access until expires_at, then reverts to free
+    user.subscription_tier = "cancelled" if user.subscription_tier != "founder_lifetime" else user.subscription_tier
+    # Note: We do NOT immediately revoke access — user keeps premium until expires_at
+
+    await db.commit()
+    await db.refresh(user)
+
     return {
         "status": "cancelled",
-        "premium_expires_at": current_user.premium_expires_at.isoformat() if current_user.premium_expires_at else None,
-        "message": "订阅已取消，当前周期结束后恢复免费",
+        "premium_expires_at": expires_at.isoformat() if expires_at else None,
+        "message": "订阅已取消，当前付费周期结束后将恢复免费",
     }
 
 
