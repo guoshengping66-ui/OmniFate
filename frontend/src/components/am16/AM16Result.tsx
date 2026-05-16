@@ -246,13 +246,13 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
   }
 
   return (
-    <div className="max-w-lg mx-auto space-y-6 md:space-y-8">
+    <div className="max-w-lg mx-auto space-y-8">
       {/* ═══ 主卡片 ═══ */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, type: "spring" }}
-        className="card-glass-elevated p-6 text-center relative overflow-hidden"
+        className="card-glass-elevated p-8 text-center relative overflow-hidden"
         role="article"
         aria-label={`${code} — ${personality.title}`}
       >
@@ -292,8 +292,8 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
               ))}
             </div>
 
-            <h1 className={`text-6xl md:text-7xl font-serif font-bold ${personality.color} tracking-wider`}
-              style={{ textShadow: "0 0 40px rgba(201,168,76,0.3)" }}
+            <h1 className={`text-7xl md:text-8xl font-serif font-bold ${personality.color} tracking-wider`}
+              style={{ textShadow: "0 0 40px rgba(201,168,76,0.3), 0 0 80px rgba(201,168,76,0.15)" }}
             >
               {code}
             </h1>
@@ -303,7 +303,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="text-white/80 text-lg font-serif mt-3"
+            className="text-white/85 text-xl font-serif mt-3 tracking-wide"
           >
             {personality.emoji} {personality.title}
           </motion.p>
@@ -315,11 +315,12 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        className="card-glass p-5"
+        className="card-glass p-6"
       >
-        <h3 className="text-white/60 text-sm font-medium uppercase tracking-wider mb-4 text-center">
-          {t("am16.fourDimCoords")}
-        </h3>
+        <div className="section-heading justify-center">
+          <div className="bar" />
+          <span className="text">{t("am16.fourDimCoords")}</span>
+        </div>
         <div className="flex justify-center">
           <SquareRadar scores={radarScores} size={240} t={t} />
         </div>
@@ -332,9 +333,9 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
         transition={{ delay: 0.55 }}
         className="space-y-3"
       >
-        <div className="flex items-center gap-2 px-1">
-          <div className="w-1 h-6 rounded-full bg-gold" />
-          <h3 className="text-white/75 text-sm font-medium">{t("am16.levelDetail")}</h3>
+        <div className="section-heading">
+          <div className="bar" />
+          <span className="text">{t("am16.levelDetail")}</span>
         </div>
         {DIMENSION_ORDER.map(code => {
           const dim = DIMENSIONS_MAP[code]
@@ -351,10 +352,8 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 + DIMENSION_ORDER.indexOf(code) * 0.08 }}
-              className="card-glass p-4 relative overflow-hidden"
+              className="dimension-card"
             >
-              {/* 左侧金色竖线 */}
-              <div className="absolute top-3 bottom-0 left-0 w-[3px] bg-gradient-to-b from-gold/50 to-gold/10" />
               <div className="pl-3">
                 {/* 标题行 */}
                 <div className="flex items-center justify-between mb-2">
@@ -366,18 +365,20 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
                 </div>
                 {/* 倾向标签 */}
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-gold/12 text-gold border border-gold/25">
+                  <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-gold/10 text-gold border border-gold/25">
                     {tag}
                   </span>
-                  <span className="text-xs text-white/35">{poleName}</span>
+                  <span className="text-xs text-white/40">{poleName}</span>
                 </div>
                 {/* 描述 */}
-                <p className="text-xs text-white/55 leading-relaxed">{desc}</p>
+                <p className="text-[13px] text-white/60 leading-relaxed">{desc}</p>
               </div>
             </motion.div>
           )
         })}
       </motion.div>
+
+      <div className="gold-divider" />
 
       {/* ═══ 心学金句 — 通栏无卡片 ═══ */}
       <motion.div
@@ -393,10 +394,12 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
         <p className="relative text-gold text-xl md:text-2xl font-serif italic leading-relaxed mb-2">
           &ldquo;{personality.quote}&rdquo;
         </p>
-        <p className="relative text-white/40 text-sm">
+        <p className="relative text-white/40 text-sm max-w-md mx-auto leading-relaxed">
           —— {personality.quoteExplain}
         </p>
       </motion.div>
+
+      <div className="gold-divider" />
 
       {/* ═══ 精神状态诊断 + 改运指南 并排 ═══ */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -404,12 +407,12 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
-          className="card-glass p-5"
+          className="card-glass p-6"
         >
-          <h3 className="text-white/60 text-xs font-medium uppercase tracking-wider mb-3 flex items-center gap-1.5">
+          <h3 className="text-white/65 text-xs font-medium uppercase tracking-wider mb-3 flex items-center gap-1.5">
             🧠 {t("am16.diagnosis")}
           </h3>
-          <p className="text-white/70 text-sm leading-relaxed">
+          <p className="text-white/70 text-[15px] leading-relaxed">
             <HighlightCrazy text={personality.diagnosis} />
           </p>
         </motion.div>
@@ -418,12 +421,12 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}
-          className="card-glass p-5"
+          className="card-glass p-6"
         >
-          <h3 className="text-white/60 text-xs font-medium uppercase tracking-wider mb-3 flex items-center gap-1.5">
+          <h3 className="text-white/65 text-xs font-medium uppercase tracking-wider mb-3 flex items-center gap-1.5">
             🧭 {t("am16.advice")}
           </h3>
-          <p className="text-white/70 text-sm leading-relaxed">
+          <p className="text-white/70 text-[15px] leading-relaxed">
             <HighlightCrazy text={personality.advice} />
           </p>
         </motion.div>
@@ -437,16 +440,16 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
         className="grid grid-cols-2 gap-3"
       >
         {/* Match 卡片 */}
-        <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.03] p-4 hover:shadow-[0_0_20px_rgba(52,211,153,0.08)] transition-all duration-300">
+        <div className="card-glass border-emerald-500/20 p-4 hover:border-emerald-500/30 transition-all duration-300">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-7 h-7 rounded-full bg-emerald-500/10 flex items-center justify-center">
               <Heart size={13} className="text-emerald-400" />
             </div>
             <span className="text-emerald-400/80 text-xs font-medium">{t("am16.compatibleWith")}</span>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             {compatNames.map((item) => item && (
-              <div key={item.code} className="flex items-center gap-2">
+              <div key={item.code} className="flex items-center gap-2 hover:bg-white/5 transition-colors rounded-lg px-2 py-1.5 -mx-2">
                 <span className="text-sm">{item.emoji}</span>
                 <span className="text-white/70 text-xs leading-tight">{item.title}</span>
               </div>
@@ -455,16 +458,16 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
         </div>
 
         {/* Avoid 卡片 */}
-        <div className="rounded-xl border border-red-500/20 bg-red-500/[0.03] p-4 hover:shadow-[0_0_20px_rgba(248,113,113,0.08)] transition-all duration-300">
+        <div className="card-glass border-red-500/20 p-4 hover:border-red-500/30 transition-all duration-300">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-7 h-7 rounded-full bg-red-500/10 flex items-center justify-center">
               <Skull size={13} className="text-red-400" />
             </div>
             <span className="text-red-400/80 text-xs font-medium">{t("am16.clashWith")}</span>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             {clashNames.map((item) => item && (
-              <div key={item.code} className="flex items-center gap-2">
+              <div key={item.code} className="flex items-center gap-2 hover:bg-white/5 transition-colors rounded-lg px-2 py-1.5 -mx-2">
                 <span className="text-sm">{item.emoji}</span>
                 <span className="text-white/70 text-xs leading-tight">{item.title}</span>
               </div>

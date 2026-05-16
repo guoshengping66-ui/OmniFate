@@ -79,7 +79,7 @@ export function AM16Quiz({ onComplete }: Props) {
   // 随机化题目顺序
   const questions = useMemo(() => shuffle(AM16_QUESTIONS), [])
   const total = questions.length
-  const progress = started ? ((currentQ) / total) * 100 : 0
+  const progress = started ? ((currentQ + 1) / total) * 100 : 0
   const question = questions[currentQ]
 
   const handleStart = useCallback(() => {
@@ -135,7 +135,7 @@ export function AM16Quiz({ onComplete }: Props) {
         </div>
 
         <div>
-          <h1 className="text-2xl md:text-3xl font-serif font-bold text-gold mb-2">
+          <h1 className="text-3xl md:text-4xl font-serif font-bold text-gold mb-2">
             {t("am16.title")}
           </h1>
           <p className="text-white/40 text-sm max-w-md mx-auto">
@@ -167,15 +167,17 @@ export function AM16Quiz({ onComplete }: Props) {
           ))}
         </div>
 
-        <motion.button
-          onClick={handleStart}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="btn-gold inline-flex items-center gap-2 text-sm"
-        >
-          <Sparkles size={16} />
-          {t("am16.start")}
-        </motion.button>
+        <div className="inline-block pulse-ring">
+          <motion.button
+            onClick={handleStart}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="btn-gold inline-flex items-center gap-2 text-sm"
+          >
+            <Sparkles size={16} />
+            {t("am16.start")}
+          </motion.button>
+        </div>
 
         <p className="text-white/20 text-[11px]">{t("am16.free")}</p>
       </motion.div>
@@ -231,11 +233,20 @@ export function AM16Quiz({ onComplete }: Props) {
             {Math.round(progress)}%
           </span>
         </div>
-        <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden" role="progressbar" aria-valuenow={Math.round(progress)} aria-valuemin={0} aria-valuemax={100} aria-label={t("am16.progress")}>
+        <div className="relative w-full h-1.5 bg-white/5 rounded-full overflow-hidden" role="progressbar" aria-valuenow={Math.round(progress)} aria-valuemin={0} aria-valuemax={100} aria-label={t("am16.progress")}>
           <motion.div
             className="h-full bg-gradient-to-r from-gold/40 to-gold rounded-full"
-            animate={{ width: `${((currentQ) / total) * 100}%` }}
+            animate={{ width: `${((currentQ + 1) / total) * 100}%` }}
             transition={{ duration: 0.4, ease: "easeOut" }}
+          />
+          {/* 发光端点 */}
+          <div
+            className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-gold pointer-events-none"
+            style={{
+              left: `${((currentQ + 1) / total) * 100}%`,
+              marginLeft: "-6px",
+              boxShadow: "0 0 10px rgba(201,168,76,0.6), 0 0 20px rgba(201,168,76,0.3)",
+            }}
           />
         </div>
       </div>
@@ -260,7 +271,7 @@ export function AM16Quiz({ onComplete }: Props) {
               >
                 {question.emoji}
               </motion.div>
-              <h2 className="text-lg md:text-xl font-serif text-white/90 leading-relaxed">
+              <h2 className="text-xl md:text-2xl font-serif text-white/90 leading-relaxed">
                 {lang === "zh" ? question.titleCn : question.titleEn}
               </h2>
               <p className="text-white/30 text-xs mt-2">{t("am16.yourFirstReaction")}</p>
