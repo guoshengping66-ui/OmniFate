@@ -269,8 +269,10 @@ export function AM16Quiz({ onComplete }: Props) {
 
             {/* 选项 */}
             <div className="space-y-3" role="radiogroup" aria-label={t("am16.yourFirstReaction")}>
-              {[question.optionA, question.optionB].map((opt, i) => {
-                const optText = t(`am16.q${question.id}${i === 0 ? "a" : "b"}`)
+              {question.options.map((opt, i) => {
+                // 翻译键：第一选项 = qa, 第二选项 = qb, 第三选项 = qc
+                const suffix = i === 0 ? "a" : i === 1 ? "b" : "mc"
+                const optText = t(`am16.q${question.id}${suffix}`)
                 const isSelected = selectedOption === i
                 return (
                   <motion.button

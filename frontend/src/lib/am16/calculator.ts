@@ -34,7 +34,7 @@ export interface AM16Result {
 
 /**
  * 从 12 个答案计算 AM16 人格
- * @param answers 每题的选择索引（0 = A, 1 = B）
+ * @param answers 每题的选择索引（0 = A, 1 = B, 2 = C）
  * @returns 完整的 AM16 结果
  */
 export function calculateAM16(answers: number[]): AM16Result {
@@ -45,9 +45,17 @@ export function calculateAM16(answers: number[]): AM16Result {
   answers.forEach((choice, i) => {
     const q = AM16_QUESTIONS[i]
     if (!q) return
-    const option = choice === 0 ? q.optionA : q.optionB
+    const option = q.options[choice]
+    if (!option) return
+
     const dim = option.dimension as keyof DimensionScores
     raw[dim] += option.points
+
+    // 中间选项：同时给 altDimension 加 0.5 分
+    if (option.altDimension) {
+      const altDim = option.altDimension as keyof DimensionScores
+      raw[altDim] += option.points
+    }
   })
 
   // 3. 每个维度取高分极 → 拼接编码
