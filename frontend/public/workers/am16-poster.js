@@ -1,21 +1,28 @@
 // AM16 Poster Canvas Web Worker
 // Receives text data, generates 750×1334 poster, returns blob URL
 
-function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+function wrapText(ctx, text, x, y, maxWidth, lineHeight, maxLines) {
   const chars = text.split("")
   let line = ""
   let currentY = y
+  let lineCount = 1
   for (const char of chars) {
     const testLine = line + char
     if (ctx.measureText(testLine).width > maxWidth && line.length > 0) {
+      if (maxLines && lineCount >= maxLines) {
+        ctx.fillText(line.slice(0, -1) + "…", x, currentY)
+        return currentY
+      }
       ctx.fillText(line, x, currentY)
       line = char
       currentY += lineHeight
+      lineCount++
     } else {
       line = testLine
     }
   }
   if (line) ctx.fillText(line, x, currentY)
+  return currentY
 }
 
 self.onmessage = function (e) {
@@ -96,20 +103,21 @@ self.onmessage = function (e) {
   ctx.font = "bold 24px sans-serif"
   ctx.fillText(poster.diagnosis, 375, 700)
 
-  // Diagnosis body
+  // Diagnosis body (max 6 lines)
   ctx.font = "20px sans-serif"
   ctx.fillStyle = "rgba(255,255,255,0.5)"
-  wrapText(ctx, diagnosis, 375, 740, 580, 28)
+  const diagEnd = wrapText(ctx, diagnosis, 375, 740, 580, 28, 6)
 
   // Guide header
   ctx.fillStyle = "rgba(255,255,255,0.7)"
   ctx.font = "bold 24px sans-serif"
-  ctx.fillText(poster.guide, 375, 920)
+  const guideY = Math.max(diagEnd + 40, 920)
+  ctx.fillText(poster.guide, 375, guideY)
 
-  // Guide body
+  // Guide body (max 5 lines)
   ctx.font = "20px sans-serif"
   ctx.fillStyle = "rgba(255,255,255,0.5)"
-  wrapText(ctx, advice, 375, 960, 580, 28)
+  wrapText(ctx, advice, 375, guideY + 40, 580, 28, 5)
 
   // CTA
   ctx.fillStyle = "#C9A84C"

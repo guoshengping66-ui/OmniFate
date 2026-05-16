@@ -1381,6 +1381,36 @@ export default {
   "am16.noData": "暂无数据",
   "am16.questionOf": "/ {total}",
 
+  // ─── AM16 维度名称/描述 ───
+  "am16.dim.FD.nameA": "顺天躺平", "am16.dim.FD.nameB": "物理逆天",
+  "am16.dim.FD.descA": "命里有时终须有，没有我就去睡觉", "am16.dim.FD.descB": "老天爷你针对我？那我必须跟你对线",
+  "am16.dim.XS.nameA": "心觉玄测", "am16.dim.XS.nameB": "硬核格物",
+  "am16.dim.XS.descA": "直觉无敌，量子纠缠", "am16.dim.XS.descB": "盘出准确天宫度数，拿 Excel 表格算命",
+  "am16.dim.GI.nameA": "红尘渡人", "am16.dim.GI.nameB": "闭门修仙",
+  "am16.dim.GI.descA": "热衷于给全网免费看盘的圣母", "am16.dim.GI.descB": "莫挨老子，你影响到我的磁场干净了",
+  "am16.dim.PE.nameA": "稳如老狗", "am16.dim.PE.nameB": "知行合一",
+  "am16.dim.PE.descA": "潜龙勿用，拖延症晚期", "am16.dim.PE.descB": "心中一动，凌晨三点爬起来改命",
+
+  // ─── AM16 CTA 完整文案 ───
+  "am16.ctaFull": "消耗 {cost}，获取你的流年改运通关报告！",
+  "am16.poster.defaultInvite": "DESTINY",
+
+  // ─── AM16 分析步骤 ───
+  "am16.step1": "解析第一维：顺天 vs 逆天",
+  "am16.step2": "解析第二维：心觉 vs 格物",
+  "am16.step3": "解析第三维：渡人 vs 修仙",
+  "am16.step4": "解析第四维：稳如 vs 执行",
+  "am16.stepDone": "四维校准完成",
+
+  // ─── AM16 其他功能 ───
+  "am16.viewAll": "查看全部 16 种人格",
+  "am16.backToTop": "回到顶部",
+  "am16.compatibleWith": "最佳匹配",
+  "am16.clashWith": "避雷指南",
+  "am16.sharedResult": "的天命编码",
+  "am16.takeQuiz": "我也要测",
+  "am16.dimSubtitle": "顺天 · 心觉 · 渡人 · 稳如",
+
   // ─── AM16 题目内容 ───
   "am16.q1": "早上出门一脚踩进水坑",
   "am16.q1a": "药丸！今天绝对冲煞！立刻打开 AlphaMirror 看看是哪个星盘相位在整我",
@@ -1418,16 +1448,6 @@ export default {
   "am16.q12": "塔罗牌告诉你：改变即将发生",
   "am16.q12a": "好的，我做好准备了……准备继续等待下一个征兆",
   "am16.q12b": "改变？我自己就是改变！现在就去把简历改了、发型换了、房间重新布局",
-
-  // ─── AM16 维度名称 ───
-  "am16.dim.FD.nameA": "顺天躺平", "am16.dim.FD.nameB": "物理逆天",
-  "am16.dim.FD.descA": "命里有时终须有，没有我就去睡觉", "am16.dim.FD.descB": "老天爷你针对我？那我必须跟你对线",
-  "am16.dim.XS.nameA": "心觉玄测", "am16.dim.XS.nameB": "硬核格物",
-  "am16.dim.XS.descA": "直觉无敌，量子纠缠", "am16.dim.XS.descB": "盘出准确天宫度数，拿 Excel 表格算命",
-  "am16.dim.GI.nameA": "红尘渡人", "am16.dim.GI.nameB": "闭门修仙",
-  "am16.dim.GI.descA": "热衷于给全网免费看盘的圣母", "am16.dim.GI.descB": "莫挨老子，你影响到我的磁场干净了",
-  "am16.dim.PE.nameA": "稳如老狗", "am16.dim.PE.nameB": "知行合一",
-  "am16.dim.PE.descA": "潜龙勿用，拖延症晚期", "am16.dim.PE.descB": "心中一动，凌晨三点爬起来改命",
 
   // ─── AM16 16种人格 ───
   "am16.FXGP.title": "心学派顶级躺平咸鱼",

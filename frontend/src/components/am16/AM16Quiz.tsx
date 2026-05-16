@@ -1,9 +1,19 @@
 "use client"
-import { useState, useCallback } from "react"
+import { useState, useCallback, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Sparkles } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { AM16_QUESTIONS } from "@/lib/am16/constants"
+import { AM16_QUESTIONS, type AM16Question } from "@/lib/am16/constants"
+
+// ── Fisher-Yates 洗牌 ──
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
 
 // ── 多级触觉反馈（参照 CelestialOracle）──
 function triggerHaptic(pattern: "light" | "medium" | "success") {
@@ -65,10 +75,13 @@ export function AM16Quiz({ onComplete }: Props) {
   const [analyzing, setAnalyzing] = useState(false)
   const [selectedOption, setSelectedOption] = useState<number | null>(null)
   const [calibrated, setCalibrated] = useState(false)
+  const [analysisStep, setAnalysisStep] = useState(0)
 
-  const total = AM16_QUESTIONS.length
+  // 随机化题目顺序
+  const questions = useMemo(() => shuffle(AM16_QUESTIONS), [])
+  const total = questions.length
   const progress = started ? ((currentQ) / total) * 100 : 0
-  const question = AM16_QUESTIONS[currentQ]
+  const question = questions[currentQ]
 
   const handleStart = useCallback(() => {
     triggerHaptic("medium")
@@ -89,7 +102,11 @@ export function AM16Quiz({ onComplete }: Props) {
         setCurrentQ(currentQ + 1)
       } else {
         setAnalyzing(true)
-        // 校准完成闪烁
+        // 分步解析动画
+        setTimeout(() => setAnalysisStep(0), 200)
+        setTimeout(() => setAnalysisStep(1), 600)
+        setTimeout(() => setAnalysisStep(2), 1000)
+        setTimeout(() => setAnalysisStep(3), 1400)
         setTimeout(() => setCalibrated(true), 1800)
         setTimeout(() => {
           triggerHaptic("success")
@@ -126,7 +143,7 @@ export function AM16Quiz({ onComplete }: Props) {
             {t("am16.subtitle")}
           </p>
           <p className="text-white/25 text-xs mt-2">
-            Flow · Defiance · Xinxue · Shiwu · Giver · Individual · Patience · Execution
+            {t("am16.dimSubtitle")}
           </p>
         </div>
 
@@ -195,7 +212,7 @@ export function AM16Quiz({ onComplete }: Props) {
             {calibrated ? t("am16.calibrating") : t("am16.analyzing")}
           </motion.p>
           <p className="text-white/30 text-xs mt-2">
-            {calibrated ? "✦" : `${t("am16.connectingField")} · ${t("am16.aligningCoords")}`}
+            {calibrated ? "✦" : t(`am16.step${analysisStep + 1}`)}
           </p>
         </div>
       </motion.div>

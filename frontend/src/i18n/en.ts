@@ -1387,6 +1387,36 @@ export default {
   "am16.noData": "No data yet",
   "am16.questionOf": "/ {total}",
 
+  // ─── AM16 Dimension Names/Descriptions ───
+  "am16.dim.FD.nameA": "Go with Flow", "am16.dim.FD.nameB": "Defy Fate",
+  "am16.dim.FD.descA": "What's meant to be will be — otherwise I'm going back to sleep", "am16.dim.FD.descB": "The universe is picking on me? Then I'm fighting back",
+  "am16.dim.XS.nameA": "Intuition Mystic", "am16.dim.XS.nameB": "Data Analyst",
+  "am16.dim.XS.descA": "Unstoppable intuition, quantum entanglement", "am16.dim.XS.descB": "Calculate exact astrological degrees, run Excel spreadsheets to divine fate",
+  "am16.dim.GI.nameA": "Worldly Healer", "am16.dim.GI.nameB": "Hermit Cultivator",
+  "am16.dim.GI.descA": "Enthusiastically reading charts for everyone online for free", "am16.dim.GI.descB": "Don't touch me — you're disturbing my aura's cleanliness",
+  "am16.dim.PE.nameA": "Patiently Lazy", "am16.dim.PE.nameB": "Instant Action",
+  "am16.dim.PE.descA": "The hidden dragon stays still, chronic procrastinator", "am16.dim.PE.descB": "A sudden impulse — up at 3 AM to rewrite destiny",
+
+  // ─── AM16 CTA Full Text ───
+  "am16.ctaFull": "Spend {cost} to unlock your Annual Fortune Report!",
+  "am16.poster.defaultInvite": "DESTINY",
+
+  // ─── AM16 Analysis Steps ───
+  "am16.step1": "Analyzing Dimension 1: Flow vs Defiance",
+  "am16.step2": "Analyzing Dimension 2: Intuition vs Analysis",
+  "am16.step3": "Analyzing Dimension 3: Healer vs Hermit",
+  "am16.step4": "Analyzing Dimension 4: Patience vs Action",
+  "am16.stepDone": "All 4 Dimensions Calibrated",
+
+  // ─── AM16 Other Features ───
+  "am16.viewAll": "View All 16 Personalities",
+  "am16.backToTop": "Back to Top",
+  "am16.compatibleWith": "Perfect Match",
+  "am16.clashWith": "Stay Away",
+  "am16.sharedResult": "'s Destiny Code",
+  "am16.takeQuiz": "Take the Quiz Too",
+  "am16.dimSubtitle": "Flow · Intuition · Healer · Patience",
+
   // ─── AM16 Question Content ───
   "am16.q1": "You step into a puddle on your way out this morning",
   "am16.q1a": "Disaster! This is definitely a cosmic clash! Let me check AlphaMirror right now to see which planetary aspect is doing this to me",
@@ -1424,16 +1454,6 @@ export default {
   "am16.q12": "Tarot tells you: change is coming",
   "am16.q12a": "Got it, I'm ready... ready to keep waiting for the next sign",
   "am16.q12b": "Change? I AM the change! Updating my resume, getting a new haircut, and rearranging my room right now",
-
-  // ─── AM16 Dimension Names ───
-  "am16.dim.FD.nameA": "Go with Flow", "am16.dim.FD.nameB": "Defy Fate",
-  "am16.dim.FD.descA": "What's meant to be will be — otherwise I'm going back to sleep", "am16.dim.FD.descB": "The universe is picking on me? Then I'm fighting back",
-  "am16.dim.XS.nameA": "Intuition Mystic", "am16.dim.XS.nameB": "Data Analyst",
-  "am16.dim.XS.descA": "Unstoppable intuition, quantum entanglement", "am16.dim.XS.descB": "Calculate exact astrological degrees, run Excel spreadsheets to divine fate",
-  "am16.dim.GI.nameA": "Worldly Healer", "am16.dim.GI.nameB": "Hermit Cultivator",
-  "am16.dim.GI.descA": "Enthusiastically reading charts for everyone online for free", "am16.dim.GI.descB": "Don't touch me — you're disturbing my aura's cleanliness",
-  "am16.dim.PE.nameA": "Patiently Lazy", "am16.dim.PE.nameB": "Instant Action",
-  "am16.dim.PE.descA": "The hidden dragon stays still, chronic procrastinator", "am16.dim.PE.descB": "A sudden impulse — up at 3 AM to rewrite destiny",
 
   // ─── AM16 16 Personalities ───
   "am16.FXGP.title": "The Supreme Lying-Flat Fish",

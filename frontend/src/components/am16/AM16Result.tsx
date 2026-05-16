@@ -28,21 +28,30 @@ interface Props {
 
 export function AM16ResultCard({ answers, onRestart }: Props) {
   const { user } = useAuth()
-  const { t } = useLanguage()
+  const { t: rawT } = useLanguage()
+  const t = rawT as unknown as (key: string) => string
   const [shareOpen, setShareOpen] = useState(false)
   const [downloading, setDownloading] = useState(false)
   const [copied, setCopied] = useState(false)
   const [copiedReferral, setCopiedReferral] = useState(false)
   const result = calculateAM16(answers)
   const { personality: rawPersonality, radarScores, code } = result
-  const personality = resolvePersonality(rawPersonality, t as (key: string) => string)
+  const personality = resolvePersonality(rawPersonality, t)
 
-  const compatNames = rawPersonality.compatible.map(c => PERSONALITIES[c]?.emoji + " " + c).join(" · ")
-  const clashNames = rawPersonality.clash.map(c => PERSONALITIES[c]?.emoji + " " + c).join(" · ")
+  const compatNames = rawPersonality.compatible.map(c => {
+    const p = PERSONALITIES[c]
+    return p ? `${p.emoji} ${t(`am16.${c}.title`)}` : c
+  }).join(" · ")
+  const clashNames = rawPersonality.clash.map(c => {
+    const p = PERSONALITIES[c]
+    return p ? `${p.emoji} ${t(`am16.${c}.title`)}` : c
+  }).join(" · ")
 
   // ── 分享面板操作 ──
+  const shareUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/am16?code=${code}`
+
   const handleCopyLink = async () => {
-    const url = `${typeof window !== "undefined" ? window.location.origin : ""}/am16`
+    const url = shareUrl
     try {
       await navigator.clipboard.writeText(url)
       setCopied(true)
@@ -58,7 +67,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
       navigator.share({
         title: t("am16.sharePreviewText"),
         text: `${personality.emoji} ${personality.title} — ${code}`,
-        url: `${typeof window !== "undefined" ? window.location.origin : ""}/am16`,
+        url: shareUrl,
       }).catch(() => {})
     }
   }
@@ -83,7 +92,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
   const handleDownload = () => {
     setDownloading(true)
 
-    const inviteCode = user?.referral_code || "DESTINY"
+    const inviteCode = user?.referral_code || t("am16.poster.defaultInvite")
     const workerData = {
       code,
       emoji: personality.emoji,
@@ -206,7 +215,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
   }
 
   return (
-    <div className="max-w-lg mx-auto space-y-6">
+    <div className="max-w-lg mx-auto space-y-6 md:space-y-8">
       {/* ═══ 主卡片 ═══ */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
@@ -280,7 +289,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
           {t("am16.fourDimCoords")}
         </h3>
         <div className="flex justify-center">
-          <SquareRadar scores={radarScores} size={220} t={t as (key: string) => string} />
+          <SquareRadar scores={radarScores} size={220} t={t} />
         </div>
         <div className="grid grid-cols-4 gap-2 mt-4 text-center">
           {DIMENSIONS.map(d => (
@@ -289,7 +298,9 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
                 {d.code}
               </div>
               <div className="text-[10px] text-white/30 mt-0.5">
-                {radarScores[d.code] > 50 ? d.nameB : d.nameA}
+                {radarScores[d.code] > 50
+                  ? t(`am16.dim.${d.code}.nameB`)
+                  : t(`am16.dim.${d.code}.nameA`)}
               </div>
             </div>
           ))}
@@ -345,7 +356,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
         className="card-glass p-5"
       >
         <h3 className="text-white/60 text-xs font-medium uppercase tracking-wider mb-4 text-center">
-          ─── {t("am16.match")} ───
+          ─── {t("am16.compatibleWith")} ───
         </h3>
         <div className="space-y-3">
           <div className="flex items-start gap-3">
@@ -353,7 +364,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
               <Heart size={14} className="text-pink-400" />
             </div>
             <div>
-              <p className="text-white/60 text-xs mb-0.5">{t("am16.match")}</p>
+              <p className="text-white/60 text-xs mb-0.5">{t("am16.compatibleWith")}</p>
               <p className="text-white/80 text-sm font-medium">{compatNames || t("am16.noData")}</p>
             </div>
           </div>
@@ -362,7 +373,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
               <Skull size={14} className="text-red-400" />
             </div>
             <div>
-              <p className="text-white/60 text-xs mb-0.5">{t("am16.clash")}</p>
+              <p className="text-white/60 text-xs mb-0.5">{t("am16.clashWith")}</p>
               <p className="text-white/80 text-sm font-medium">{clashNames || t("am16.noData")}</p>
             </div>
           </div>
@@ -388,7 +399,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
             {t("am16.ctaDesc")}
           </p>
           <p className="text-white/40 text-xs">
-            {t("am16.ctaAction")}，消耗 <span className="text-gold font-medium">{t("am16.ctaCost")}</span>，{t("am16.ctaReport")}！
+            {t("am16.ctaFull").replace("{cost}", t("am16.ctaCost"))}
           </p>
         </div>
         <Link href="/reading/new" className="block relative">
@@ -440,7 +451,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
       )}
 
       {/* 重新测试 */}
-      <div className="text-center pt-2">
+      <div className="text-center pt-2 space-y-3">
         <button
           onClick={onRestart}
           className="text-white/30 text-xs hover:text-gold/60 transition-colors inline-flex items-center gap-1"
@@ -448,6 +459,14 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
           <RefreshCw size={12} />
           {t("am16.restart")}
         </button>
+        <div>
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="text-white/20 text-[11px] hover:text-gold/40 transition-colors"
+          >
+            ↑ {t("am16.backToTop")}
+          </button>
+        </div>
       </div>
 
       {/* ═══ 分享底部面板 ═══ */}
@@ -477,7 +496,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
                 </button>
               </div>
 
-              <div className="grid grid-cols-4 gap-4 mb-6">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
                 <button onClick={handleCopyLink}
                   className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 hover:bg-gold/10 border border-white/10 hover:border-gold/30 transition-all group">
                   <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
