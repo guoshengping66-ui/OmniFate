@@ -1,5 +1,5 @@
-import { useState } from "react"
-import { View, Text, Canvas } from "@tarojs/components"
+import { useState, useRef, useCallback } from "react"
+import { View, Text, Canvas, Button } from "@tarojs/components"
 import Taro, { useDidShow } from "@tarojs/taro"
 import {
   PERSONALITIES,
@@ -40,6 +40,8 @@ export default function ResultPage() {
   const [personality, setPersonality] = useState<Personality | null>(null)
   const [radarScores, setRadarScores] = useState<Record<string, number>>({})
   const [showDetail, setShowDetail] = useState(false)
+  const radarNodeRef = useRef<any>(null)
+  const posterNodeRef = useRef<any>(null)
 
   useDidShow(() => {
     try {
@@ -60,6 +62,24 @@ export default function ResultPage() {
     }
   })
 
+  // ── 雷达图：节点就绪 + 数据就绪时绘制 ──
+  const onRadarCanvasReady = useCallback((node: any) => {
+    if (node) {
+      radarNodeRef.current = node
+      if (radarScores.FD !== undefined) {
+        drawRadar(node, radarScores, 280)
+      }
+    }
+  }, [radarScores])
+
+  // ── 海报：showDetail 后绘制 ──
+  const onPosterCanvasReady = useCallback((node: any) => {
+    if (node && showDetail && archetype && personality) {
+      posterNodeRef.current = node
+      drawSharePoster(node, archetype, personality)
+    }
+  }, [showDetail, archetype, personality])
+
   if (!personality) {
     return (
       <View className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
@@ -73,8 +93,17 @@ export default function ResultPage() {
 
   // ── 保存海报到相册 ──
   const handleSavePoster = () => {
+    const node = posterNodeRef.current
+    if (!node) {
+      Taro.showToast({ title: "海报生成中，请稍候", icon: "none" })
+      return
+    }
     Taro.canvasToTempFilePath({
-      canvasId: "shareCanvas",
+      canvas: node,
+      width: 750,
+      height: 1334,
+      destWidth: 750 * 2,
+      destHeight: 1334 * 2,
       success(res) {
         Taro.saveImageToPhotosAlbum({
           filePath: res.tempFilePath,
@@ -142,11 +171,18 @@ export default function ResultPage() {
               四维能量坐标
             </Text>
             <Canvas
-              canvasId="radarCanvas"
+              type="2d"
+              id="radarCanvas"
               style={{ width: "280px", height: "280px", margin: "0 auto" }}
               ref={(ref) => {
                 if (ref && radarScores.FD !== undefined) {
-                  drawRadar(ref, radarScores, 280)
+                  // Taro Canvas 2d ref 是组件实例，需要通过 query 获取 node
+                  const query = Taro.createSelectorQuery()
+                  query.select("#radarCanvas").fields({ node: true, size: true }, (res) => {
+                    if (res && res.node) {
+                      onRadarCanvasReady(res.node)
+                    }
+                  }).exec()
                 }
               }}
             />
@@ -272,15 +308,14 @@ export default function ResultPage() {
               <Text className="text-[#D4AF37] text-sm">✨ 保存海报</Text>
             </View>
 
-            {/* 分享 */}
-            <View
-              className="py-3 rounded-xl text-center border border-white/10 bg-white/[0.04] active:scale-[0.97]"
-              onClick={() => {
-                // 触发转发
-              }}
+            {/* 分享 — 使用 Button openType="share" 触发转发 */}
+            <Button
+              openType="share"
+              className="py-3 rounded-xl text-center border border-white/10 bg-white/[0.04] active:scale-[0.97] leading-none min-h-0"
+              style={{ margin: 0, padding: "12px 0", lineHeight: "normal" }}
             >
               <Text className="text-white/70 text-sm">📤 分享结果</Text>
-            </View>
+            </Button>
           </View>
 
           {/* 重新测试 */}
@@ -300,11 +335,17 @@ export default function ResultPage() {
 
       {/* ═══ 隐藏 Canvas — 海报生成 ═══ */}
       <Canvas
-        canvasId="shareCanvas"
+        type="2d"
+        id="shareCanvas"
         style={{ position: "fixed", left: "-9999px", top: "-9999px", width: "750px", height: "1334px" }}
         ref={(ref) => {
           if (ref && showDetail) {
-            drawSharePoster(ref, archetype, personality)
+            const query = Taro.createSelectorQuery()
+            query.select("#shareCanvas").fields({ node: true, size: true }, (res) => {
+              if (res && res.node) {
+                onPosterCanvasReady(res.node)
+              }
+            }).exec()
           }
         }}
       />
@@ -312,198 +353,196 @@ export default function ResultPage() {
   )
 }
 
+// ── 页面级分享回调 ──
+export function onShareAppMessage() {
+  return {
+    title: "测测你的天命格局 — AlphaMirror 命盘智镜",
+    path: "/pages/quiz/index",
+  }
+}
+
 // ═══════════════════════════════════════════════════════════════
 // Canvas 绘制：雷达图
 // ═══════════════════════════════════════════════════════════════
 
-function drawRadar(ref: any, scores: Record<string, number>, size: number) {
-  const query = Taro.createSelectorQuery().in(ref)
-  query.select("#radarCanvas").fields({ node: true, size: true }, (res) => {
-    if (!res || !res.node) return
-    const canvas = res.node
-    const ctx = canvas.getContext("2d")
-    const dpr = Taro.getSystemInfoSync().pixelRatio
-    canvas.width = size * dpr
-    canvas.height = size * dpr
-    ctx.scale(dpr, dpr)
+function drawRadar(canvasNode: any, scores: Record<string, number>, size: number) {
+  const ctx = canvasNode.getContext("2d")
+  const dpr = Taro.getSystemInfoSync().pixelRatio
+  canvasNode.width = size * dpr
+  canvasNode.height = size * dpr
+  ctx.scale(dpr, dpr)
 
-    const cx = size / 2
-    const cy = size / 2
-    const r = size * 0.36
-    const dims = ["FD", "XS", "GI", "PE"]
-    const corners = [
-      { x: cx, y: cy - r },
-      { x: cx + r, y: cy },
-      { x: cx, y: cy + r },
-      { x: cx - r, y: cy },
-    ]
+  const cx = size / 2
+  const cy = size / 2
+  const r = size * 0.36
+  const dims = ["FD", "XS", "GI", "PE"]
+  const corners = [
+    { x: cx, y: cy - r },
+    { x: cx + r, y: cy },
+    { x: cx, y: cy + r },
+    { x: cx - r, y: cy },
+  ]
 
-    // 网格
-    ctx.strokeStyle = "rgba(212,175,55,0.1)"
-    ctx.lineWidth = 0.5
-    for (const scale of [0.33, 0.66, 1]) {
-      ctx.beginPath()
-      corners.forEach((c, i) => {
-        const x = cx + (c.x - cx) * scale
-        const y = cy + (c.y - cy) * scale
-        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)
-      })
-      ctx.closePath()
-      ctx.stroke()
-    }
-
-    // 对角线
-    ctx.strokeStyle = "rgba(212,175,55,0.06)"
-    corners.forEach(c => {
-      ctx.beginPath()
-      ctx.moveTo(cx, cy)
-      ctx.lineTo(c.x, c.y)
-      ctx.stroke()
-    })
-
-    // 数据多边形
+  // 网格
+  ctx.strokeStyle = "rgba(212,175,55,0.1)"
+  ctx.lineWidth = 0.5
+  for (const scale of [0.33, 0.66, 1]) {
     ctx.beginPath()
     corners.forEach((c, i) => {
-      const val = (scores[dims[i]] ?? 50) / 100
-      const ratio = 0.2 + val * 0.8
-      const x = cx + (c.x - cx) * ratio
-      const y = cy + (c.y - cy) * ratio
+      const x = cx + (c.x - cx) * scale
+      const y = cy + (c.y - cy) * scale
       i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)
     })
     ctx.closePath()
-    ctx.fillStyle = "rgba(212,175,55,0.12)"
-    ctx.fill()
-    ctx.strokeStyle = "#D4AF37"
-    ctx.lineWidth = 1.5
     ctx.stroke()
+  }
 
-    // 数据点
-    corners.forEach((c, i) => {
-      const val = (scores[dims[i]] ?? 50) / 100
-      const ratio = 0.2 + val * 0.8
-      const x = cx + (c.x - cx) * ratio
-      const y = cy + (c.y - cy) * ratio
-      ctx.beginPath()
-      ctx.arc(x, y, 3.5, 0, Math.PI * 2)
-      ctx.fillStyle = "#D4AF37"
-      ctx.fill()
-    })
-  }).exec()
+  // 对角线
+  ctx.strokeStyle = "rgba(212,175,55,0.06)"
+  corners.forEach(c => {
+    ctx.beginPath()
+    ctx.moveTo(cx, cy)
+    ctx.lineTo(c.x, c.y)
+    ctx.stroke()
+  })
+
+  // 数据多边形
+  ctx.beginPath()
+  corners.forEach((c, i) => {
+    const val = (scores[dims[i]] ?? 50) / 100
+    const ratio = 0.2 + val * 0.8
+    const x = cx + (c.x - cx) * ratio
+    const y = cy + (c.y - cy) * ratio
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)
+  })
+  ctx.closePath()
+  ctx.fillStyle = "rgba(212,175,55,0.12)"
+  ctx.fill()
+  ctx.strokeStyle = "#D4AF37"
+  ctx.lineWidth = 1.5
+  ctx.stroke()
+
+  // 数据点
+  corners.forEach((c, i) => {
+    const val = (scores[dims[i]] ?? 50) / 100
+    const ratio = 0.2 + val * 0.8
+    const x = cx + (c.x - cx) * ratio
+    const y = cy + (c.y - cy) * ratio
+    ctx.beginPath()
+    ctx.arc(x, y, 3.5, 0, Math.PI * 2)
+    ctx.fillStyle = "#D4AF37"
+    ctx.fill()
+  })
 }
 
 // ═══════════════════════════════════════════════════════════════
 // Canvas 绘制：分享海报（750×1334）
 // ═══════════════════════════════════════════════════════════════
 
-function drawSharePoster(ref: any, code: string, p: Personality) {
-  const query = Taro.createSelectorQuery().in(ref)
-  query.select("#shareCanvas").fields({ node: true, size: true }, (res) => {
-    if (!res || !res.node) return
-    const canvas = res.node
-    const ctx = canvas.getContext("2d")
-    const dpr = Taro.getSystemInfoSync().pixelRatio
-    canvas.width = 750 * dpr
-    canvas.height = 1334 * dpr
-    ctx.scale(dpr, dpr)
-    const W = 750, H = 1334
+function drawSharePoster(canvasNode: any, code: string, p: Personality) {
+  const ctx = canvasNode.getContext("2d")
+  const dpr = Taro.getSystemInfoSync().pixelRatio
+  canvasNode.width = 750 * dpr
+  canvasNode.height = 1334 * dpr
+  ctx.scale(dpr, dpr)
+  const W = 750, H = 1334
 
-    // 背景渐变
-    const grad = ctx.createLinearGradient(0, 0, 0, H)
-    grad.addColorStop(0, "#0A0A0A")
-    grad.addColorStop(0.5, "#111111")
-    grad.addColorStop(1, "#0A0A0A")
-    ctx.fillStyle = grad
-    ctx.fillRect(0, 0, W, H)
+  // 背景渐变
+  const grad = ctx.createLinearGradient(0, 0, 0, H)
+  grad.addColorStop(0, "#0A0A0A")
+  grad.addColorStop(0.5, "#111111")
+  grad.addColorStop(1, "#0A0A0A")
+  ctx.fillStyle = grad
+  ctx.fillRect(0, 0, W, H)
 
-    // 星盘圆形装饰
-    ctx.strokeStyle = "rgba(212,175,55,0.06)"
-    ctx.lineWidth = 1
-    ctx.beginPath()
-    ctx.arc(W / 2, 350, 260, 0, Math.PI * 2)
-    ctx.stroke()
-    ctx.beginPath()
-    ctx.arc(W / 2, 350, 200, 0, Math.PI * 2)
-    ctx.stroke()
-    ctx.beginPath()
-    ctx.arc(W / 2, 350, 140, 0, Math.PI * 2)
-    ctx.stroke()
+  // 星盘圆形装饰
+  ctx.strokeStyle = "rgba(212,175,55,0.06)"
+  ctx.lineWidth = 1
+  ctx.beginPath()
+  ctx.arc(W / 2, 350, 260, 0, Math.PI * 2)
+  ctx.stroke()
+  ctx.beginPath()
+  ctx.arc(W / 2, 350, 200, 0, Math.PI * 2)
+  ctx.stroke()
+  ctx.beginPath()
+  ctx.arc(W / 2, 350, 140, 0, Math.PI * 2)
+  ctx.stroke()
 
-    // 品牌标题
-    ctx.textAlign = "center"
-    ctx.fillStyle = "rgba(212,175,55,0.5)"
-    ctx.font = "14px sans-serif"
-    ctx.fillText("AlphaMirror 命盘智镜", W / 2, 60)
+  // 品牌标题
+  ctx.textAlign = "center"
+  ctx.fillStyle = "rgba(212,175,55,0.5)"
+  ctx.font = "14px sans-serif"
+  ctx.fillText("AlphaMirror 命盘智镜", W / 2, 60)
 
-    // 巨型编码
-    ctx.fillStyle = "#D4AF37"
-    ctx.font = "bold 120px sans-serif"
-    ctx.shadowColor = "rgba(212,175,55,0.5)"
-    ctx.shadowBlur = 30
-    ctx.fillText(code, W / 2, 300)
-    ctx.shadowBlur = 0
+  // 巨型编码
+  ctx.fillStyle = "#D4AF37"
+  ctx.font = "bold 120px sans-serif"
+  ctx.shadowColor = "rgba(212,175,55,0.5)"
+  ctx.shadowBlur = 30
+  ctx.fillText(code, W / 2, 300)
+  ctx.shadowBlur = 0
 
-    // Emoji + 人格名
-    ctx.font = "60px serif"
-    ctx.fillText(p.emoji, W / 2, 420)
-    ctx.font = "bold 28px sans-serif"
-    ctx.fillStyle = "rgba(255,255,255,0.9)"
-    ctx.fillText(p.title, W / 2, 470)
+  // Emoji + 人格名
+  ctx.font = "60px serif"
+  ctx.fillText(p.emoji, W / 2, 420)
+  ctx.font = "bold 28px sans-serif"
+  ctx.fillStyle = "rgba(255,255,255,0.9)"
+  ctx.fillText(p.title, W / 2, 470)
 
-    // 心学金句
-    ctx.fillStyle = "rgba(212,175,55,0.7)"
-    ctx.font = "italic 24px serif"
-    ctx.fillText(`"${p.quote}"`, W / 2, 550)
-    ctx.fillStyle = "rgba(255,255,255,0.4)"
-    ctx.font = "18px sans-serif"
-    ctx.fillText(p.quoteExplain, W / 2, 585)
+  // 心学金句
+  ctx.fillStyle = "rgba(212,175,55,0.7)"
+  ctx.font = "italic 24px serif"
+  ctx.fillText(`"${p.quote}"`, W / 2, 550)
+  ctx.fillStyle = "rgba(255,255,255,0.4)"
+  ctx.font = "18px sans-serif"
+  ctx.fillText(p.quoteExplain, W / 2, 585)
 
-    // 分隔线
-    ctx.strokeStyle = "rgba(212,175,55,0.15)"
-    ctx.lineWidth = 1
-    ctx.beginPath()
-    ctx.moveTo(150, 630)
-    ctx.lineTo(600, 630)
-    ctx.stroke()
+  // 分隔线
+  ctx.strokeStyle = "rgba(212,175,55,0.15)"
+  ctx.lineWidth = 1
+  ctx.beginPath()
+  ctx.moveTo(150, 630)
+  ctx.lineTo(600, 630)
+  ctx.stroke()
 
-    // 诊断
-    ctx.fillStyle = "rgba(255,255,255,0.6)"
-    ctx.font = "bold 20px sans-serif"
-    ctx.fillText("精神状态诊断", W / 2, 680)
-    ctx.font = "16px sans-serif"
-    ctx.fillStyle = "rgba(255,255,255,0.45)"
-    wrapText(ctx, p.diagnosis, W / 2, 720, 600, 24)
+  // 诊断
+  ctx.fillStyle = "rgba(255,255,255,0.6)"
+  ctx.font = "bold 20px sans-serif"
+  ctx.fillText("精神状态诊断", W / 2, 680)
+  ctx.font = "16px sans-serif"
+  ctx.fillStyle = "rgba(255,255,255,0.45)"
+  wrapText(ctx, p.diagnosis, W / 2, 720, 600, 24)
 
-    // 改运指南
-    ctx.fillStyle = "rgba(255,255,255,0.6)"
-    ctx.font = "bold 20px sans-serif"
-    ctx.fillText("改运指南", W / 2, 920)
-    ctx.font = "16px sans-serif"
-    ctx.fillStyle = "rgba(255,255,255,0.45)"
-    wrapText(ctx, p.advice, W / 2, 960, 600, 24)
+  // 改运指南
+  ctx.fillStyle = "rgba(255,255,255,0.6)"
+  ctx.font = "bold 20px sans-serif"
+  ctx.fillText("改运指南", W / 2, 920)
+  ctx.font = "16px sans-serif"
+  ctx.fillStyle = "rgba(255,255,255,0.45)"
+  wrapText(ctx, p.advice, W / 2, 960, 600, 24)
 
-    // CTA
-    ctx.fillStyle = "#D4AF37"
-    ctx.font = "bold 22px sans-serif"
-    ctx.fillText("扫码测测你的天命格局", W / 2, 1140)
+  // CTA
+  ctx.fillStyle = "#D4AF37"
+  ctx.font = "bold 22px sans-serif"
+  ctx.fillText("扫码测测你的天命格局", W / 2, 1140)
 
-    // 小程序码占位
-    ctx.beginPath()
-    ctx.arc(W / 2, 1220, 40, 0, Math.PI * 2)
-    ctx.fillStyle = "rgba(212,175,55,0.1)"
-    ctx.fill()
-    ctx.strokeStyle = "rgba(212,175,55,0.3)"
-    ctx.lineWidth = 1
-    ctx.stroke()
-    ctx.fillStyle = "rgba(255,255,255,0.3)"
-    ctx.font = "12px sans-serif"
-    ctx.fillText("小程序码", W / 2, 1225)
+  // 小程序码占位
+  ctx.beginPath()
+  ctx.arc(W / 2, 1220, 40, 0, Math.PI * 2)
+  ctx.fillStyle = "rgba(212,175,55,0.1)"
+  ctx.fill()
+  ctx.strokeStyle = "rgba(212,175,55,0.3)"
+  ctx.lineWidth = 1
+  ctx.stroke()
+  ctx.fillStyle = "rgba(255,255,255,0.3)"
+  ctx.font = "12px sans-serif"
+  ctx.fillText("小程序码", W / 2, 1225)
 
-    // 底部文案
-    ctx.fillStyle = "rgba(255,255,255,0.25)"
-    ctx.font = "12px sans-serif"
-    ctx.fillText("新用户立赠 20 星尘能量 · 官网同步登录", W / 2, 1300)
-    ctx.fillText("AlphaMirror · 命盘智镜", W / 2, 1320)
-  }).exec()
+  // 底部文案
+  ctx.fillStyle = "rgba(255,255,255,0.25)"
+  ctx.font = "12px sans-serif"
+  ctx.fillText("新用户立赠 20 星尘能量 · 官网同步登录", W / 2, 1300)
+  ctx.fillText("AlphaMirror · 命盘智镜", W / 2, 1320)
 }
 
 function wrapText(
