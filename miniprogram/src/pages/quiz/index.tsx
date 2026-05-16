@@ -127,17 +127,20 @@ export default function QuizPage() {
 
         <View className="relative w-80 h-80 flex items-center justify-center mb-8">
           {/* 三层轨道环 — 金色外发光 */}
-          <View className="absolute inset-0 rounded-full" style={{
+          <View className="absolute rounded-full" style={{
+            top: 0, left: 0, right: 0, bottom: 0,
             border: "2rpx solid rgba(212,175,55,0.2)",
             boxShadow: "0 0 24rpx rgba(212,175,55,0.1), inset 0 0 24rpx rgba(212,175,55,0.05)",
             animation: "orbit 4s linear infinite",
           }} />
-          <View className="absolute inset-8 rounded-full" style={{
+          <View className="absolute rounded-full" style={{
+            top: "32rpx", left: "32rpx", right: "32rpx", bottom: "32rpx",
             border: "1.5rpx solid rgba(212,175,55,0.15)",
             boxShadow: "0 0 18rpx rgba(212,175,55,0.08)",
             animation: "orbit 3s linear infinite reverse",
           }} />
-          <View className="absolute inset-16 rounded-full" style={{
+          <View className="absolute rounded-full" style={{
+            top: "64rpx", left: "64rpx", right: "64rpx", bottom: "64rpx",
             border: "1rpx solid rgba(212,175,55,0.12)",
             boxShadow: "0 0 14rpx rgba(212,175,55,0.06)",
             animation: "orbit 2s linear infinite",

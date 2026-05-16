@@ -181,26 +181,32 @@ export default function ResultPage() {
         ))}
 
         <View className="relative py-10 text-center">
-          <Text className="text-xs tracking-widest uppercase block mb-3" style={{ color: `rgba(${goldRgb},0.5)` }}>
+          <Text className="text-xs tracking-widest uppercase block mb-3" style={{ color: `rgba(${goldRgb},0.55)`, letterSpacing: "4rpx" }}>
             Your Destiny Code
           </Text>
-          {/* 超大编码 — Web 级发光 */}
+          {/* 超大编码 — 多层发光 */}
           <View className="relative inline-block">
             <View className="absolute rounded-full pointer-events-none" style={{
-              top: "-80rpx", right: "-80rpx", bottom: "-80rpx", left: "-80rpx",
-              background: `radial-gradient(circle, rgba(${goldRgb},0.1) 0%, transparent 70%)`,
+              top: "-100rpx", right: "-100rpx", bottom: "-100rpx", left: "-100rpx",
+              background: `radial-gradient(circle, rgba(${goldRgb},0.12) 0%, rgba(${goldRgb},0.04) 40%, transparent 70%)`,
               animation: "glowPulse 3s ease-in-out infinite",
             }} />
             <Text className="relative text-7xl font-bold tracking-wider block" style={{
               color: gold,
-              textShadow: `0 0 20rpx rgba(${goldRgb},0.5), 0 0 40rpx rgba(${goldRgb},0.3), 0 0 80rpx rgba(${goldRgb},0.15), 0 2rpx 4rpx rgba(0,0,0,0.5)`,
+              textShadow: `0 0 20rpx rgba(${goldRgb},0.6), 0 0 40rpx rgba(${goldRgb},0.35), 0 0 80rpx rgba(${goldRgb},0.2), 0 0 120rpx rgba(${goldRgb},0.1), 0 2rpx 4rpx rgba(0,0,0,0.5)`,
             }}>
               {archetype}
             </Text>
           </View>
-          <Text className="relative text-lg font-serif mt-3 block" style={{ color: "rgba(255,255,255,0.85)" }}>
+          <Text className="relative text-lg font-serif mt-3 block" style={{ color: "rgba(255,255,255,0.88)" }}>
             {personality.emoji} {personality.title}
           </Text>
+          {/* 装饰性小星 */}
+          <View className="flex items-center justify-center gap-2 mt-4">
+            {[0,1,2].map(i => (
+              <View key={i} style={{ width: "4rpx", height: "4rpx", borderRadius: "50%", backgroundColor: `rgba(${goldRgb},${0.3 + i * 0.15})`, animation: `glowPulse ${2 + i * 0.5}s ease-in-out infinite ${i * 0.3}s` }} />
+            ))}
+          </View>
         </View>
       </View>
 
@@ -212,11 +218,11 @@ export default function ResultPage() {
               color: `rgba(${goldRgb},0.06)`, fontSize: "200rpx", transform: "translateX(-50%)",
             }}>&ldquo;</Text>
             <Text className="relative text-xl font-serif italic leading-relaxed block px-6" style={{
-              color: gold, textShadow: `0 0 16rpx rgba(${goldRgb},0.2)`,
+              color: gold, textShadow: `0 0 20rpx rgba(${goldRgb},0.25), 0 0 40rpx rgba(${goldRgb},0.1)`,
             }}>
               &ldquo;{personality.quote}&rdquo;
             </Text>
-            <Text className="relative text-sm mt-3 block" style={{ color: "rgba(255,255,255,0.4)" }}>
+            <Text className="relative text-sm mt-3 block" style={{ color: "rgba(255,255,255,0.45)" }}>
               —— {personality.quoteExplain}
             </Text>
           </View>
@@ -228,8 +234,10 @@ export default function ResultPage() {
             ...cardGlass,
             animation: "fadeInUp 0.5s ease-out 0.15s both",
           }}>
+            {/* 顶部装饰线 */}
+            <View className="absolute top-0 left-8 right-8" style={{ height: "1rpx", background: `linear-gradient(to right, transparent, rgba(${goldRgb},0.2), transparent)` }} />
             <Text className="tracking-wider uppercase block text-center mb-4" style={{
-              color: "rgba(255,255,255,0.6)", fontSize: "20rpx",
+              color: "rgba(255,255,255,0.65)", fontSize: "20rpx", letterSpacing: "3rpx",
             }}>四维能量坐标</Text>
             <Canvas type="2d" id="radarCanvas" style={{ width: "280px", height: "280px", margin: "0 auto" }} />
             <View className="grid grid-cols-4 gap-2 mt-4 text-center">
@@ -237,9 +245,9 @@ export default function ResultPage() {
                 const val = radarScores[d.code] ?? 50
                 const label = getDimLabel(d.code, val)
                 return (
-                  <View key={d.code}>
-                    <Text className="font-medium block" style={{ color: "rgba(255,255,255,0.5)", fontSize: "20rpx" }}>{d.code}</Text>
-                    <Text className="block mt-1" style={{ color: `rgba(${goldRgb},0.7)`, fontSize: "18rpx" }}>
+                  <View key={d.code} className="rounded-xl py-2" style={{ backgroundColor: "rgba(255,255,255,0.03)" }}>
+                    <Text className="font-medium block" style={{ color: "rgba(255,255,255,0.55)", fontSize: "20rpx" }}>{d.code}</Text>
+                    <Text className="block mt-1" style={{ color: `rgba(${goldRgb},0.8)`, fontSize: "18rpx" }}>
                       {label} {val}%
                     </Text>
                   </View>
@@ -255,17 +263,18 @@ export default function ResultPage() {
             ...cardGlass,
             animation: "fadeInUp 0.5s ease-out 0.2s both",
           }}>
-            {/* 左侧金色竖线 */}
-            <View className="absolute left-0 top-4 bottom-4" style={{
+            {/* 左侧金色竖线 — 增强版 */}
+            <View className="absolute left-0 top-3 bottom-3" style={{
               width: "4rpx", borderRadius: "2rpx",
-              background: `linear-gradient(to bottom, rgba(${goldRgb},0.5), rgba(${goldRgb},0.1))`,
+              background: `linear-gradient(to bottom, rgba(${goldRgb},0.6), rgba(${goldRgb},0.15), transparent)`,
+              boxShadow: `0 0 8rpx rgba(${goldRgb},0.15)`,
             }} />
             <Text className="tracking-wider uppercase block mb-3 pl-3" style={{
-              color: "rgba(255,255,255,0.6)", fontSize: "20rpx",
+              color: "rgba(255,255,255,0.65)", fontSize: "20rpx",
             }}>
-              <Text style={{ color: gold, marginRight: "8rpx" }}>◆</Text>精神状态诊断
+              <Text style={{ color: gold, marginRight: "8rpx", textShadow: `0 0 8rpx rgba(${goldRgb},0.3)` }}>◆</Text>精神状态诊断
             </Text>
-            <Text className="text-sm leading-relaxed pl-3" style={{ color: "rgba(255,255,255,0.7)" }}>
+            <Text className="text-sm leading-relaxed pl-3" style={{ color: "rgba(255,255,255,0.72)" }}>
               <HighlightText text={personality.diagnosis} />
             </Text>
           </View>
@@ -275,16 +284,17 @@ export default function ResultPage() {
             ...cardGlass,
             animation: "fadeInUp 0.5s ease-out 0.25s both",
           }}>
-            <View className="absolute left-0 top-4 bottom-4" style={{
+            <View className="absolute left-0 top-3 bottom-3" style={{
               width: "4rpx", borderRadius: "2rpx",
-              background: `linear-gradient(to bottom, rgba(${goldRgb},0.5), rgba(${goldRgb},0.1))`,
+              background: `linear-gradient(to bottom, rgba(${goldRgb},0.6), rgba(${goldRgb},0.15), transparent)`,
+              boxShadow: `0 0 8rpx rgba(${goldRgb},0.15)`,
             }} />
             <Text className="tracking-wider uppercase block mb-3 pl-3" style={{
-              color: "rgba(255,255,255,0.6)", fontSize: "20rpx",
+              color: "rgba(255,255,255,0.65)", fontSize: "20rpx",
             }}>
-              <Text style={{ color: gold, marginRight: "8rpx" }}>◆</Text>改运指南
+              <Text style={{ color: gold, marginRight: "8rpx", textShadow: `0 0 8rpx rgba(${goldRgb},0.3)` }}>◆</Text>改运指南
             </Text>
-            <Text className="text-sm leading-relaxed pl-3" style={{ color: "rgba(255,255,255,0.7)" }}>
+            <Text className="text-sm leading-relaxed pl-3" style={{ color: "rgba(255,255,255,0.72)" }}>
               <HighlightText text={personality.advice} />
             </Text>
           </View>
@@ -294,41 +304,45 @@ export default function ResultPage() {
           {/* ═══ 社交匹配 — Web 级 hover 发光卡片 ═══ */}
           <View className="grid grid-cols-2 gap-3" style={{ animation: "fadeInUp 0.5s ease-out 0.3s both" }}>
             {/* 天作之合 */}
-            <View className="rounded-2xl p-4" style={{
+            <View className="rounded-2xl p-4 relative overflow-hidden" style={{
               backgroundColor: "rgba(16,185,129,0.04)",
-              border: "1rpx solid rgba(16,185,129,0.2)",
-              boxShadow: "0 0 24rpx rgba(16,185,129,0.06), 0 4rpx 16rpx rgba(0,0,0,0.15)",
+              border: "1rpx solid rgba(16,185,129,0.25)",
+              boxShadow: "0 0 30rpx rgba(16,185,129,0.08), 0 4rpx 16rpx rgba(0,0,0,0.15)",
             }}>
+              {/* 顶部微光条 */}
+              <View className="absolute top-0 left-4 right-4" style={{ height: "1rpx", background: "linear-gradient(to right, transparent, rgba(16,185,129,0.4), transparent)" }} />
               <View className="flex items-center gap-2 mb-3">
-                <View className="w-7 h-7 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(16,185,129,0.12)" }}>
+                <View className="w-7 h-7 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(16,185,129,0.15)", boxShadow: "0 0 12rpx rgba(16,185,129,0.2)" }}>
                   <Text className="text-xs">💕</Text>
                 </View>
-                <Text className="font-medium" style={{ color: "rgba(16,185,129,0.85)", fontSize: "22rpx" }}>天作之合</Text>
+                <Text className="font-medium" style={{ color: "rgba(16,185,129,0.9)", fontSize: "22rpx" }}>天作之合</Text>
               </View>
               {compatNames.map((p) => p && (
-                <View key={p.code} className="flex items-center gap-2 mb-2" style={{ animation: "fadeInUp 0.3s ease-out 0.4s both" }}>
+                <View key={p.code} className="flex items-center gap-2 mb-2 rounded-xl px-2 py-1.5" style={{ animation: "fadeInUp 0.3s ease-out 0.4s both", backgroundColor: "rgba(16,185,129,0.04)" }}>
                   <Text className="text-sm">{p.emoji}</Text>
-                  <Text className="leading-tight" style={{ color: "rgba(255,255,255,0.75)", fontSize: "22rpx" }}>{p.title}</Text>
+                  <Text className="leading-tight" style={{ color: "rgba(255,255,255,0.8)", fontSize: "22rpx" }}>{p.title}</Text>
                 </View>
               ))}
             </View>
 
             {/* 离远点保命 */}
-            <View className="rounded-2xl p-4" style={{
+            <View className="rounded-2xl p-4 relative overflow-hidden" style={{
               backgroundColor: "rgba(239,68,68,0.04)",
-              border: "1rpx solid rgba(239,68,68,0.2)",
-              boxShadow: "0 0 24rpx rgba(239,68,68,0.06), 0 4rpx 16rpx rgba(0,0,0,0.15)",
+              border: "1rpx solid rgba(239,68,68,0.25)",
+              boxShadow: "0 0 30rpx rgba(239,68,68,0.08), 0 4rpx 16rpx rgba(0,0,0,0.15)",
             }}>
+              {/* 顶部微光条 */}
+              <View className="absolute top-0 left-4 right-4" style={{ height: "1rpx", background: "linear-gradient(to right, transparent, rgba(239,68,68,0.4), transparent)" }} />
               <View className="flex items-center gap-2 mb-3">
-                <View className="w-7 h-7 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(239,68,68,0.12)" }}>
+                <View className="w-7 h-7 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(239,68,68,0.15)", boxShadow: "0 0 12rpx rgba(239,68,68,0.2)" }}>
                   <Text className="text-xs">⚠️</Text>
                 </View>
-                <Text className="font-medium" style={{ color: "rgba(239,68,68,0.85)", fontSize: "22rpx" }}>离远点保命</Text>
+                <Text className="font-medium" style={{ color: "rgba(239,68,68,0.9)", fontSize: "22rpx" }}>离远点保命</Text>
               </View>
               {clashNames.map((p) => p && (
-                <View key={p.code} className="flex items-center gap-2 mb-2" style={{ animation: "fadeInUp 0.3s ease-out 0.4s both" }}>
+                <View key={p.code} className="flex items-center gap-2 mb-2 rounded-xl px-2 py-1.5" style={{ animation: "fadeInUp 0.3s ease-out 0.4s both", backgroundColor: "rgba(239,68,68,0.04)" }}>
                   <Text className="text-sm">{p.emoji}</Text>
-                  <Text className="leading-tight" style={{ color: "rgba(255,255,255,0.75)", fontSize: "22rpx" }}>{p.title}</Text>
+                  <Text className="leading-tight" style={{ color: "rgba(255,255,255,0.8)", fontSize: "22rpx" }}>{p.title}</Text>
                 </View>
               ))}
             </View>
@@ -341,39 +355,40 @@ export default function ResultPage() {
             ...cardElevated,
             animation: "fadeInUp 0.5s ease-out 0.35s both",
           }}>
-            {/* 脉冲发光外框 */}
-            <View className="absolute inset-0 rounded-2xl pointer-events-none" style={{
-              border: `1rpx solid rgba(${goldRgb},0.3)`,
-              boxShadow: `0 0 24rpx rgba(${goldRgb},0.08), inset 0 0 24rpx rgba(${goldRgb},0.03)`,
+            {/* 脉冲发光外框 — 双层 */}
+            <View className="absolute rounded-2xl pointer-events-none" style={{
+              top: -1, left: -1, right: -1, bottom: -1,
+              border: `2rpx solid rgba(${goldRgb},0.25)`,
+              boxShadow: `0 0 30rpx rgba(${goldRgb},0.1), inset 0 0 30rpx rgba(${goldRgb},0.04)`,
               animation: "glowPulse 3s ease-in-out infinite",
             }} />
             <View className="relative p-5" style={{ margin: "2rpx" }}>
               <View className="text-center mb-4">
                 <Text className="text-xs block mb-2" style={{
-                  color: `rgba(${goldRgb},0.75)`,
-                  textShadow: `0 0 8rpx rgba(${goldRgb},0.3)`,
+                  color: `rgba(${goldRgb},0.85)`,
+                  textShadow: `0 0 12rpx rgba(${goldRgb},0.4)`,
                 }}>💡 星轨预警</Text>
-                <Text className="text-sm leading-relaxed block mb-2" style={{ color: "rgba(255,255,255,0.6)" }}>
+                <Text className="text-sm leading-relaxed block mb-2" style={{ color: "rgba(255,255,255,0.65)" }}>
                   诊断显示你当前的人格气场在 2026 流年中正遭遇微弱的能量对冲。
                 </Text>
                 <Text className="text-xs block" style={{ color: "rgba(255,255,255,0.4)" }}>
                   消耗 100 星尘，解锁五大 AI 导师定制的流年改运全维大报告
                 </Text>
               </View>
-              {/* Web 级 btn-gold */}
+              {/* Web 级 btn-gold — 增强版 */}
               <View
                 className="w-full py-3.5 rounded-full text-center relative overflow-hidden"
                 style={{
-                  background: `linear-gradient(135deg, #C9A84C 0%, #E8CB7A 40%, #C9A84C 80%)`,
-                  boxShadow: `0 4rpx 20rpx rgba(${goldRgb},0.35), 0 0 40rpx rgba(${goldRgb},0.12)`,
+                  background: `linear-gradient(135deg, #B8963E 0%, #C9A84C 25%, #E8CB7A 50%, #C9A84C 75%, #B8963E 100%)`,
+                  boxShadow: `0 4rpx 24rpx rgba(${goldRgb},0.4), 0 0 60rpx rgba(${goldRgb},0.15), inset 0 1rpx 0 rgba(255,255,255,0.15)`,
                 }}
                 onClick={() => Taro.showToast({ title: "跳转中…", icon: "loading" })}
               >
-                {/* 光泽扫过 */}
+                {/* 光泽扫过 — 加速版 */}
                 <View className="absolute inset-0 pointer-events-none" style={{
-                  background: `linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.3) 45%, rgba(255,255,255,0.3) 55%, transparent 60%)`,
+                  background: `linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.35) 42%, rgba(255,255,255,0.35) 58%, transparent 65%)`,
                   backgroundSize: "200% 100%",
-                  animation: "shimmer 3s ease-in-out infinite",
+                  animation: "shimmer 2.5s ease-in-out infinite",
                 }} />
                 <Text className="relative text-sm font-bold" style={{ color: "#1A0F2E", textShadow: "0 1rpx 2rpx rgba(0,0,0,0.15)" }}>
                   🔮 开启命运解读 · 100 ✨
@@ -384,33 +399,33 @@ export default function ResultPage() {
 
           {/* ═══ 操作按钮 ═══ */}
           <View className="grid grid-cols-2 gap-3 mb-5" style={{ animation: "fadeInUp 0.5s ease-out 0.4s both" }}>
-            {/* 保存海报 — btn-gold-outline */}
+            {/* 保存海报 — btn-gold-outline 增强 */}
             <View
               className="py-3 rounded-full text-center relative overflow-hidden"
               style={{
-                border: `1rpx solid rgba(${goldRgb},0.45)`,
-                boxShadow: `0 0 16rpx rgba(${goldRgb},0.06)`,
+                border: `1rpx solid rgba(${goldRgb},0.5)`,
+                boxShadow: `0 0 20rpx rgba(${goldRgb},0.08), inset 0 0 16rpx rgba(${goldRgb},0.03)`,
               }}
               onClick={handleSavePoster}
             >
               <View className="absolute inset-0 pointer-events-none" style={{
-                background: `linear-gradient(90deg, transparent, rgba(${goldRgb},0.08), transparent)`,
-                animation: "shimmer 3.5s ease-in-out infinite 0.5s",
+                background: `linear-gradient(90deg, transparent, rgba(${goldRgb},0.1), transparent)`,
+                animation: "shimmer 3s ease-in-out infinite 0.5s",
               }} />
-              <Text className="relative text-sm font-medium" style={{ color: gold }}>✨ 保存海报</Text>
+              <Text className="relative text-sm font-medium" style={{ color: gold, textShadow: `0 0 8rpx rgba(${goldRgb},0.2)` }}>✨ 保存海报</Text>
             </View>
-            {/* 分享结果 */}
+            {/* 分享结果 — 增强 */}
             <Button
               openType="share"
               className="py-3 rounded-full text-center leading-none relative overflow-hidden"
               style={{
                 margin: 0, padding: "12px 0", lineHeight: "normal",
                 backgroundColor: "rgba(255,255,255,0.05)",
-                border: "1rpx solid rgba(255,255,255,0.1)",
-                boxShadow: "0 4rpx 16rpx rgba(0,0,0,0.15)",
+                border: "1rpx solid rgba(255,255,255,0.12)",
+                boxShadow: "0 4rpx 20rpx rgba(0,0,0,0.2)",
               }}
             >
-              <Text className="text-sm font-medium" style={{ color: "rgba(255,255,255,0.7)" }}>📤 分享结果</Text>
+              <Text className="text-sm font-medium" style={{ color: "rgba(255,255,255,0.75)" }}>📤 分享结果</Text>
             </Button>
           </View>
 
@@ -443,14 +458,20 @@ function drawRadar(canvasNode: any, scores: Record<string, number>, size: number
   const dpr = getDPR()
   canvasNode.width = size * dpr; canvasNode.height = size * dpr
   ctx.scale(dpr, dpr)
-  const cx = size / 2, cy = size / 2, r = size * 0.36
+  const cx = size / 2, cy = size / 2, r = size * 0.34
   const dims = ["FD", "XS", "GI", "PE"]
+  const dimLabels = ["放荡", "贤淑", "高冷", "破防"]
   const corners = [{ x: cx, y: cy - r }, { x: cx + r, y: cy }, { x: cx, y: cy + r }, { x: cx - r, y: cy }]
 
-  // 网格 — 中心亮→边缘暗
-  for (const scale of [0.33, 0.66, 1]) {
-    ctx.strokeStyle = `rgba(${goldRgb},${0.04 + (1 - scale) * 0.08})`
-    ctx.lineWidth = 0.5
+  // 外圈装饰 — 弱发光
+  ctx.strokeStyle = `rgba(${goldRgb},0.06)`; ctx.lineWidth = 0.5
+  ctx.beginPath(); ctx.arc(cx, cy, r + 20, 0, Math.PI * 2); ctx.stroke()
+
+  // 网格 — 4 层，中心亮→边缘暗
+  for (const scale of [0.25, 0.5, 0.75, 1]) {
+    const alpha = 0.03 + (1 - scale) * 0.07
+    ctx.strokeStyle = `rgba(${goldRgb},${alpha})`
+    ctx.lineWidth = scale === 1 ? 0.8 : 0.4
     ctx.beginPath()
     corners.forEach((c, i) => {
       const x = cx + (c.x - cx) * scale, y = cy + (c.y - cy) * scale
@@ -459,30 +480,47 @@ function drawRadar(canvasNode: any, scores: Record<string, number>, size: number
     ctx.closePath(); ctx.stroke()
   }
 
-  // 轴线
-  ctx.strokeStyle = `rgba(${goldRgb},0.06)`
-  corners.forEach(c => { ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(c.x, c.y); ctx.stroke() })
+  // 轴线 + 轴端发光点
+  corners.forEach((c, i) => {
+    ctx.strokeStyle = `rgba(${goldRgb},0.08)`; ctx.lineWidth = 0.5
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(c.x, c.y); ctx.stroke()
+    // 轴端小圆点
+    ctx.beginPath(); ctx.arc(c.x, c.y, 2, 0, Math.PI * 2)
+    ctx.fillStyle = `rgba(${goldRgb},0.3)`; ctx.fill()
+    // 轴标签
+    ctx.fillStyle = `rgba(${goldRgb},0.55)`; ctx.font = "11px sans-serif"; ctx.textAlign = "center"
+    const lx = cx + (c.x - cx) * 1.18, ly = cy + (c.y - cy) * 1.18 + 4
+    ctx.fillText(dimLabels[i], lx, ly)
+  })
 
-  // 数据区域
+  // 数据区域 — 渐变填充 + 发光描边
   ctx.beginPath()
   corners.forEach((c, i) => {
-    const val = (scores[dims[i]] ?? 50) / 100, ratio = 0.2 + val * 0.8
+    const val = (scores[dims[i]] ?? 50) / 100, ratio = 0.15 + val * 0.85
     const x = cx + (c.x - cx) * ratio, y = cy + (c.y - cy) * ratio
     i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)
   })
   ctx.closePath()
-  ctx.fillStyle = `rgba(${goldRgb},0.1)`; ctx.fill()
-  ctx.shadowColor = `rgba(${goldRgb},0.5)`; ctx.shadowBlur = 10
-  ctx.strokeStyle = gold; ctx.lineWidth = 2; ctx.stroke()
+  // 渐变填充
+  const fillGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r)
+  fillGrad.addColorStop(0, `rgba(${goldRgb},0.18)`)
+  fillGrad.addColorStop(1, `rgba(${goldRgb},0.04)`)
+  ctx.fillStyle = fillGrad; ctx.fill()
+  // 发光描边
+  ctx.shadowColor = `rgba(${goldRgb},0.6)`; ctx.shadowBlur = 14
+  ctx.strokeStyle = gold; ctx.lineWidth = 2.5; ctx.stroke()
   ctx.shadowBlur = 0
 
-  // 数据点
+  // 数据点 — 加大发光
   corners.forEach((c, i) => {
-    const val = (scores[dims[i]] ?? 50) / 100, ratio = 0.2 + val * 0.8
+    const val = (scores[dims[i]] ?? 50) / 100, ratio = 0.15 + val * 0.85
     const x = cx + (c.x - cx) * ratio, y = cy + (c.y - cy) * ratio
-    ctx.shadowColor = `rgba(${goldRgb},0.6)`; ctx.shadowBlur = 8
-    ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2); ctx.fillStyle = gold; ctx.fill()
+    // 外圈光晕
+    ctx.shadowColor = `rgba(${goldRgb},0.7)`; ctx.shadowBlur = 12
+    ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI * 2); ctx.fillStyle = gold; ctx.fill()
+    // 内圈白芯
     ctx.shadowBlur = 0
+    ctx.beginPath(); ctx.arc(x, y, 2.5, 0, Math.PI * 2); ctx.fillStyle = "rgba(255,255,255,0.8)"; ctx.fill()
   })
 }
 
