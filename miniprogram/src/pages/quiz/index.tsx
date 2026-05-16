@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from "react"
 import { View, Text } from "@tarojs/components"
 import Taro from "@tarojs/taro"
-import { QUESTIONS, type Question } from "../../constants/am16"
+import { AM16_QUESTIONS, type AM16Question } from "../../constants/am16"
 // StarField inlined to avoid webpack module resolution issue
 
 function shuffle<T>(arr: T[]): T[] {
@@ -66,23 +66,22 @@ const btnGold = {
 }
 
 export default function QuizPage() {
-  const questions = useMemo(() => shuffle(QUESTIONS), [])
+  const questions = useMemo(() => shuffle(AM16_QUESTIONS), [])
   const [current, setCurrent] = useState(0)
-  const [answers, setAnswers] = useState<Record<number, "A" | "B" | "C">>({})
+  const [answers, setAnswers] = useState<Record<number, number>>({})
   const [animating, setAnimating] = useState(false)
   const [selected, setSelected] = useState<number | null>(null)
   const [analyzing, setAnalyzing] = useState(false)
 
   const total = questions.length
-  const q: Question | undefined = questions[current]
+  const q: AM16Question | undefined = questions[current]
   const progress = Math.round((current / total) * 100)
 
   const handleAnswer = useCallback((choice: number) => {
     if (selected !== null || animating) return
     setSelected(choice)
     haptic("light")
-    const label = choice === 0 ? "A" : choice === 1 ? "B" : "C"
-    const newAnswers = { ...answers, [q!.id]: label as "A" | "B" | "C" }
+    const newAnswers = { ...answers, [q!.id]: choice }
     setAnswers(newAnswers)
     setAnimating(true)
     setTimeout(() => {
@@ -230,7 +229,7 @@ export default function QuizPage() {
             {/* 题目 */}
             <View className="text-center mb-6">
               <Text className="text-base font-serif leading-relaxed" style={S.white90}>
-                {q.scenario}
+                {q.titleCn}
               </Text>
               <Text className="mt-2 block" style={{ ...S.white30, fontSize: "22rpx" }}>你的第一反应是？</Text>
             </View>
@@ -275,7 +274,7 @@ export default function QuizPage() {
                         {isSelected ? "✓" : labels[i]}
                       </View>
                       <Text className="text-sm leading-relaxed" style={isSelected ? S.white90 : S.white60}>
-                        {opt.text}
+                        {opt.textCn}
                       </Text>
                     </View>
                   </View>

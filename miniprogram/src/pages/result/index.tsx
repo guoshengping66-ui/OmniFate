@@ -7,7 +7,7 @@ import {
   DIMENSIONS,
   calculateArchetype,
   calculateRadarScores,
-  type Personality,
+  type AM16Personality,
 } from "../../constants/am16"
 
 // ── Web 级设计系统 ──
@@ -59,7 +59,7 @@ function getDimLabel(code: string, val: number): string {
 
 export default function ResultPage() {
   const [archetype, setArchetype] = useState("")
-  const [personality, setPersonality] = useState<Personality | null>(null)
+  const [personality, setPersonality] = useState<AM16Personality | null>(null)
   const [radarScores, setRadarScores] = useState<Record<string, number>>({})
   const [showDetail, setShowDetail] = useState(false)
   const radarNodeRef = useRef<any>(null)
@@ -513,7 +513,7 @@ function drawRadar(canvasNode: any, scores: Record<string, number>, size: number
   })
 }
 
-function drawSharePoster(canvasNode: any, code: string, p: Personality) {
+function drawSharePoster(canvasNode: any, code: string, p: AM16Personality) {
   const ctx = canvasNode.getContext("2d")
   const dpr = getDPR()
   canvasNode.width = 750 * dpr; canvasNode.height = 1334 * dpr
