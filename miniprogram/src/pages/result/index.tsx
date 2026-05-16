@@ -322,7 +322,6 @@ export default function ResultPage() {
                 const dim = DIMENSIONS_MAP[code]
                 const val = radarScores[code] ?? 50
                 const { pole } = getPoleLabel(code, val)
-                const isPoleB = val > 50
                 return (
                   <View key={code} className="rounded-2xl p-4 relative overflow-hidden" style={{
                     ...cardGlass,
@@ -350,16 +349,16 @@ export default function ResultPage() {
                           border: `1rpx solid rgba(${goldRgb},0.25)`,
                         }}>
                           <Text className="text-xs font-medium" style={{ color: `rgba(${goldRgb},0.9)` }}>
-                            {isPoleB ? dim.poleB.tagCn : dim.poleA.tagCn}
+                            {pole.tagCn}
                           </Text>
                         </View>
                         <Text className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
-                          {isPoleB ? dim.poleB.nameCn : dim.poleA.nameCn}
+                          {pole.nameCn}
                         </Text>
                       </View>
                       {/* 描述 */}
                       <Text className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.55)" }}>
-                        {isPoleB ? dim.poleB.descCn : dim.poleA.descCn}
+                        {pole.descCn}
                       </Text>
                     </View>
                   </View>

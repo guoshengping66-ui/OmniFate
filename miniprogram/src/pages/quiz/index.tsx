@@ -135,7 +135,7 @@ export default function QuizPage() {
         </View>
 
         <View className="text-center mb-8" style={{ animation: "fadeInUp 0.6s ease-out 0.1s both" }}>
-          <Text className="text-2xl font-serif font-bold block mb-2" style={{ color: gold }}>
+          <Text className="text-2xl font-serif font-bold block mb-2" style={{ color: "#D4AF37" }}>
             AM16 天命能级测验
           </Text>
           <Text className="text-sm block" style={{ color: "rgba(255,255,255,0.4)" }}>
@@ -146,11 +146,12 @@ export default function QuizPage() {
           </Text>
         </View>
 
-        {/* 四维预览卡片 */}
-        <View className="grid grid-cols-2 gap-3 w-full max-w-sm mb-8" style={{ animation: "fadeInUp 0.6s ease-out 0.2s both" }}>
+        {/* 四维预览卡片 — flex-wrap 替代 grid（微信兼容） */}
+        <View className="w-full max-w-sm mb-8" style={{ display: "flex", flexWrap: "wrap", gap: "12rpx", animation: "fadeInUp 0.6s ease-out 0.2s both" }}>
           {dimPreviews.map((d, i) => (
             <View key={d.code} className="rounded-2xl p-3 text-center" style={{
               ...cardGlass,
+              width: "calc(50% - 6rpx)",
               animation: `fadeInUp 0.4s ease-out ${0.3 + i * 0.1}s both`,
             }}>
               <Text className="text-xl block mb-1">{d.icon}</Text>
