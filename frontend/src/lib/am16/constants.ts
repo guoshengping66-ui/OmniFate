@@ -271,8 +271,8 @@ export const PERSONALITIES: Record<string, AM16Personality> = {
     advice: "建议买一张够大的床，方便开展线上看盘业务。记得设置自动回复：正在冥想中，有事请烧纸。",
     color: "text-purple-400",
     bgGlow: "from-purple-500/15 to-violet-500/5",
-    compatible: ["DXIE", "SIGP"],
-    clash: ["DXGE", "SXIE"],
+    compatible: ["DXIE", "FSGP"],
+    clash: ["DXGE", "FSIE"],
   },
   // ═══ FXIP ═══
   FXIP: {
@@ -285,7 +285,7 @@ export const PERSONALITIES: Record<string, AM16Personality> = {
     advice: "建议偶尔给外卖小哥说声谢谢，这是最低能耗的红尘修炼。如果实在不想说话，至少点个头。",
     color: "text-slate-400",
     bgGlow: "from-slate-500/15 to-gray-500/5",
-    compatible: ["DXEP", "FSGP"],
+    compatible: ["DXGP", "FSGP"],
     clash: ["FXGE", "DXGE"],
   },
   // ═══ FXIE ═══
@@ -300,7 +300,7 @@ export const PERSONALITIES: Record<string, AM16Personality> = {
     color: "text-pink-400",
     bgGlow: "from-pink-500/15 to-rose-500/5",
     compatible: ["DXGE", "FSGP"],
-    clash: ["SXIE", "DXIP"],
+    clash: ["FSIE", "DXIP"],
   },
   // ═══ FSGP ═══
   FSGP: {
@@ -314,7 +314,7 @@ export const PERSONALITIES: Record<string, AM16Personality> = {
     color: "text-teal-400",
     bgGlow: "from-teal-500/15 to-emerald-500/5",
     compatible: ["DXIE", "DXGE"],
-    clash: ["DXEP", "FXIE"],
+    clash: ["DXGP", "FXIE"],
   },
   // ═══ FSGE ═══
   FSGE: {
@@ -384,7 +384,7 @@ export const PERSONALITIES: Record<string, AM16Personality> = {
     color: "text-amber-400",
     bgGlow: "from-amber-500/15 to-yellow-500/5",
     compatible: ["FXGP", "FSIP"],
-    clash: ["FXGE", "SXIE"],
+    clash: ["FXGE", "FSIE"],
   },
   // ═══ DXIP ═══
   DXIP: {
@@ -412,7 +412,7 @@ export const PERSONALITIES: Record<string, AM16Personality> = {
     color: "text-orange-400",
     bgGlow: "from-orange-500/15 to-red-500/5",
     compatible: ["FXGP", "FSIP"],
-    clash: ["FXGE", "SXIE"],
+    clash: ["FXGE", "FSIE"],
   },
   // ═══ DSIE ═══
   DSIE: {
@@ -426,7 +426,7 @@ export const PERSONALITIES: Record<string, AM16Personality> = {
     color: "text-yellow-400",
     bgGlow: "from-yellow-500/15 to-amber-500/5",
     compatible: ["FXGP", "FXIP"],
-    clash: ["FXGE", "SXIE"],
+    clash: ["FXGE", "FSIE"],
   },
   // ═══ DSGP ═══
   DSGP: {
@@ -454,7 +454,7 @@ export const PERSONALITIES: Record<string, AM16Personality> = {
     color: "text-gold",
     bgGlow: "from-gold/15 to-amber-500/5",
     compatible: ["FXGP", "FXIP"],
-    clash: ["FXGE", "SXIE"],
+    clash: ["FXGE", "FSIE"],
   },
   // ═══ DSIP ═══
   DSIP: {

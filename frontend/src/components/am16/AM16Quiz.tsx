@@ -1,7 +1,7 @@
 "use client"
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Sparkles, Zap, ChevronRight } from "lucide-react"
+import { Sparkles } from "lucide-react"
 import { AM16_QUESTIONS } from "@/lib/am16/constants"
 
 interface Props {

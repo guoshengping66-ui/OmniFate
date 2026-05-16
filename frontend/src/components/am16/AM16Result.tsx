@@ -1,11 +1,11 @@
 "use client"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
-import { Share2, Download, Copy, Check, Sparkles, Heart, Skull, RefreshCw } from "lucide-react"
+import { Share2, Download, Check, Sparkles, Heart, Skull, RefreshCw } from "lucide-react"
 import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"
 import { PERSONALITIES, DIMENSIONS } from "@/lib/am16/constants"
-import { calculateAM16, type AM16Result as AM16ResultType } from "@/lib/am16/calculator"
+import { calculateAM16 } from "@/lib/am16/calculator"
 import Link from "next/link"
 
 interface Props {
