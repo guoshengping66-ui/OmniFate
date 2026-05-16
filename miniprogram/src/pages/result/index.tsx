@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react"
+import { useState } from "react"
 import { View, Text, Canvas } from "@tarojs/components"
 import Taro, { useDidShow } from "@tarojs/taro"
 import {
