@@ -259,7 +259,7 @@ export default function ResultPage() {
               const poleName = val > 50 ? dim.nameB : dim.nameA
               const dimCfg = DIMENSIONS_MAP[dim.code]
               return (
-                <View key={dim.code} className="rounded-xl py-2 px-1" style={{ backgroundColor: "rgba(255,255,255,0.03)", width: "calc(50% - 4rpx)" }}>
+                <View key={dim.code} className="rounded-xl py-2 px-1" style={{ backgroundColor: "rgba(255,255,255,0.03)", flex: "1 0 46%" }}>
                   <Text className="block" style={{ fontSize: "20rpx" }}>{dimCfg?.icon ?? "✦"}</Text>
                   <Text className="font-medium block mt-1" style={{ color: "rgba(255,255,255,0.55)", fontSize: "18rpx" }}>{dimCfg?.axisNameCn ?? dim.code}</Text>
                   <Text className="block mt-1 leading-tight" style={{ color: `rgba(${goldRgb},0.85)`, fontSize: "18rpx" }}>

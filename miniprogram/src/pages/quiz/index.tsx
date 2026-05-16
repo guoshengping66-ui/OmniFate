@@ -83,18 +83,18 @@ export default function QuizPage() {
       <View className="min-h-screen flex flex-col items-center justify-center px-6" style={S.bg}>
         <StarBackground />
 
-        <View className="relative mb-10 text-center" style={{ animation: "fadeInUp 0.6s ease-out both" }}>
+        <View className="relative mb-6 text-center" style={{ animation: "fadeInUp 0.6s ease-out both" }}>
           {/* Logo 光晕 — 增大范围 */}
           <View className="absolute rounded-full pointer-events-none" style={{
-            top: "-80rpx", left: "50%", marginLeft: "-140rpx",
-            width: "280rpx", height: "280rpx",
+            top: "-60rpx", left: "50%", marginLeft: "-120rpx",
+            width: "240rpx", height: "240rpx",
             background: "radial-gradient(circle, rgba(201,168,76,0.12) 0%, transparent 70%)",
             animation: "glowPulse 3s ease-in-out infinite",
           }} />
-          <Text className="relative text-7xl block mb-4">🪞</Text>
+          <Text className="relative text-7xl block mb-2">🪞</Text>
         </View>
 
-        <View className="text-center mb-10" style={{ animation: "fadeInUp 0.6s ease-out 0.1s both" }}>
+        <View className="text-center mb-6" style={{ animation: "fadeInUp 0.6s ease-out 0.1s both" }}>
           <Text className="font-serif font-bold block mb-2" style={{ color: gold, fontSize: "40rpx" }}>
             AM16 天命能级测验
           </Text>
@@ -106,21 +106,39 @@ export default function QuizPage() {
           </Text>
         </View>
 
-        {/* 四维预览卡片 — flex-wrap（微信兼容） */}
-        <View className="w-full max-w-sm mb-10" style={{ display: "flex", flexWrap: "wrap", gap: "16rpx", animation: "fadeInUp 0.6s ease-out 0.2s both" }}>
-          {dimPreviews.map((d, i) => (
-            <View key={d.code} className="rounded-2xl p-4 text-center" style={{
-              ...cardGlass,
-              width: "calc(50% - 8rpx)",
-              animation: `fadeInUp 0.4s ease-out ${0.3 + i * 0.1}s both`,
-            }}>
-              <Text className="text-xl block mb-1">{d.icon}</Text>
-              <Text className="text-xs block" style={{ color: "rgba(255,255,255,0.6)" }}>{d.label}</Text>
-            </View>
-          ))}
+        {/* 四维预览卡片 — 两行两列，微信兼容 */}
+        <View className="w-full mb-8" style={{ animation: "fadeInUp 0.6s ease-out 0.2s both" }}>
+          {/* 第一行 */}
+          <View className="flex" style={{ gap: "16rpx", marginBottom: "16rpx" }}>
+            {dimPreviews.slice(0, 2).map((d, i) => (
+              <View key={d.code} className="flex-1 rounded-2xl p-5 text-center" style={{
+                backgroundColor: "rgba(255,255,255,0.05)",
+                border: "1rpx solid rgba(255,255,255,0.1)",
+                boxShadow: "0 4rpx 20rpx rgba(0,0,0,0.3), inset 0 1rpx 0 rgba(255,255,255,0.06)",
+                animation: `fadeInUp 0.4s ease-out ${0.3 + i * 0.1}s both`,
+              }}>
+                <Text className="text-2xl block mb-2">{d.icon}</Text>
+                <Text className="text-xs block" style={{ color: "rgba(255,255,255,0.7)" }}>{d.label}</Text>
+              </View>
+            ))}
+          </View>
+          {/* 第二行 */}
+          <View className="flex" style={{ gap: "16rpx" }}>
+            {dimPreviews.slice(2, 4).map((d, i) => (
+              <View key={d.code} className="flex-1 rounded-2xl p-5 text-center" style={{
+                backgroundColor: "rgba(255,255,255,0.05)",
+                border: "1rpx solid rgba(255,255,255,0.1)",
+                boxShadow: "0 4rpx 20rpx rgba(0,0,0,0.3), inset 0 1rpx 0 rgba(255,255,255,0.06)",
+                animation: `fadeInUp 0.4s ease-out ${0.5 + i * 0.1}s both`,
+              }}>
+                <Text className="text-2xl block mb-2">{d.icon}</Text>
+                <Text className="text-xs block" style={{ color: "rgba(255,255,255,0.7)" }}>{d.label}</Text>
+              </View>
+            ))}
+          </View>
         </View>
 
-        {/* 开始按钮 — 增大 */}
+        {/* 开始按钮 */}
         <View
           className="w-full max-w-sm py-3.5 rounded-full text-center relative overflow-hidden"
           style={{
@@ -140,7 +158,7 @@ export default function QuizPage() {
           </Text>
         </View>
 
-        <Text className="text-xs mt-4 text-center" style={{ color: "rgba(255,255,255,0.2)" }}>
+        <Text className="text-xs mt-3 text-center" style={{ color: "rgba(255,255,255,0.2)" }}>
           免费 · 无需注册 · 1 分钟出结果
         </Text>
       </View>
