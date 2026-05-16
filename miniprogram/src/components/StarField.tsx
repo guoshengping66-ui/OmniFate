@@ -26,9 +26,12 @@ const STARS = [
 
 export function StarField() {
   return (
-    <View className="fixed inset-0 pointer-events-none" style={{ zIndex: 0 }}>
+    <View className="pointer-events-none" style={{
+      position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 0,
+    }}>
       {/* 淡紫色 radial-gradient 光晕 — 缓慢脉动 */}
-      <View className="absolute inset-0" style={{
+      <View style={{
+        position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
         background: "radial-gradient(ellipse at 30% 20%, rgba(139,92,246,0.06) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(201,168,76,0.04) 0%, transparent 50%)",
         animation: "glowPulse 8s ease-in-out infinite",
       }} />
