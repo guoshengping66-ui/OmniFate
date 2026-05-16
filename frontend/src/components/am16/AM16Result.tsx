@@ -316,7 +316,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
         transition={{ delay: 0.5 }}
         className="card-glass p-5"
       >
-        <h3 className="text-white/60 text-xs font-medium uppercase tracking-wider mb-4 text-center">
+        <h3 className="text-white/60 text-sm font-medium uppercase tracking-wider mb-4 text-center">
           {t("am16.fourDimCoords")}
         </h3>
         <div className="flex justify-center">
@@ -740,7 +740,7 @@ function SquareRadar({
 
       {/* 标签 + 轴标百分比 */}
       {corners.map((c, i) => {
-        const labelOffset = 22
+        const labelOffset = 28
         const dx = c.x - cx
         const dy = c.y - cy
         const len = Math.sqrt(dx * dx + dy * dy)
@@ -752,22 +752,22 @@ function SquareRadar({
           <g key={i}>
             <text
               x={c.x + nx * labelOffset}
-              y={c.y + ny * labelOffset - 6}
+              y={c.y + ny * labelOffset - 7}
               textAnchor="middle"
               dominantBaseline="middle"
-              fill="rgba(255,255,255,0.5)"
-              fontSize="10"
-              fontWeight="500"
+              fill="rgba(255,255,255,0.6)"
+              fontSize="12"
+              fontWeight="600"
             >
               {t(`am16.${radarLabels[i]}`)}
             </text>
             <text
               x={c.x + nx * labelOffset}
-              y={c.y + ny * labelOffset + 7}
+              y={c.y + ny * labelOffset + 8}
               textAnchor="middle"
               dominantBaseline="middle"
-              fill="rgba(201,168,76,0.6)"
-              fontSize="9"
+              fill="rgba(201,168,76,0.7)"
+              fontSize="10"
             >
               {dominantName} {val}%
             </text>
