@@ -1505,8 +1505,53 @@ async def get_daily_almanac(session_id: str = Query(...)):
     Real-time computation, no storage.
     """
     state = _sessions.get(session_id)
+
+    # Reconstruct from database if session was lost (e.g. after server restart)
     if not state:
-        raise HTTPException(status_code=404, detail="Session not found. Run /readings/ first.")
+        try:
+            from database.models import Reading, BirthProfile
+            from agents.state import SystemState, BirthInfo
+            from sqlalchemy import select
+
+            async with AsyncSessionLocal() as db:
+                reading = (await db.execute(
+                    select(Reading).where(Reading.id == session_id)
+                )).scalar_one_or_none()
+                if not reading:
+                    raise HTTPException(status_code=404, detail="Session not found.")
+                if not reading.birth_profile_id:
+                    raise HTTPException(status_code=400, detail="Reading has no birth profile.")
+
+                bp = (await db.execute(
+                    select(BirthProfile).where(BirthProfile.id == reading.birth_profile_id)
+                )).scalar_one_or_none()
+                if not bp:
+                    raise HTTPException(status_code=400, detail="Birth profile not found.")
+
+                gender_str = bp.gender.value if hasattr(bp.gender, "value") else str(bp.gender)
+                bi = BirthInfo(
+                    year=bp.birth_year, month=bp.birth_month, day=bp.birth_day,
+                    hour=bp.birth_hour, minute=bp.birth_minute,
+                    city=bp.birth_city or "",
+                    latitude=bp.latitude, longitude=bp.longitude,
+                    gender=gender_str,
+                )
+                state = SystemState(
+                    session_id=session_id,
+                    birth_info=bi,
+                    dimension_scores=reading.dimension_scores or {},
+                    computed_tags=reading.computed_tags or [],
+                    master_summary=reading.master_summary or "",
+                    bazi_raw=reading.bazi_raw or {},
+                    astrology_raw=reading.astrology_raw or {},
+                )
+                # Cache for future requests
+                _sessions[session_id] = state
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to restore session: {e}")
+
     if not state.birth_info:
         raise HTTPException(status_code=400, detail="Session missing birth info.")
 
