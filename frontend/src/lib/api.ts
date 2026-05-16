@@ -473,8 +473,8 @@ export async function registerUser(
   displayName?: string,
   privacyAccepted?: boolean,
   referralCode?: string,
-): Promise<{ message: string; email: string }> {
-  const res = await api.post<{ message: string; email: string }>("/api/auth/register", safeJson({
+): Promise<{ message: string; email: string } | AuthResponse> {
+  const res = await api.post<{ message: string; email: string } | AuthResponse>("/api/auth/register", safeJson({
     email,
     password,
     display_name: displayName,

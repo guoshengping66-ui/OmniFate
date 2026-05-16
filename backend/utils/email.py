@@ -26,8 +26,14 @@ def _get_smtp_config() -> dict:
     }
 
 
+def is_smtp_configured() -> bool:
+    """Check if SMTP is properly configured with host and user."""
+    config = _get_smtp_config()
+    return bool(config["host"] and config["user"])
+
+
 def send_verification_email(to_email: str, code: str) -> bool:
-    """Send a 6-digit verification code email."""
+    """Send a 6-digit verification code email. Returns True if sent successfully."""
     config = _get_smtp_config()
     if not config["host"] or not config["user"]:
         print("[EMAIL] SMTP not configured, skipping email send")

@@ -503,6 +503,7 @@ export default {
   "auth.resendSuccess": "验证码已重新发送",
   "auth.resendFail": "发送失败",
   "auth.verifyFail": "验证失败",
+  "auth.enterVerifyCode": "请输入6位验证码",
   "auth.backToRegister": "← 返回注册",
   "auth.referralCode": "邀请码",
   "auth.referralHint": "（选填，双方各得 20 星尘）",

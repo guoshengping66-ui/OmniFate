@@ -509,6 +509,7 @@ export default {
   "auth.resendSuccess": "Verification code resent",
   "auth.resendFail": "Failed to send",
   "auth.verifyFail": "Verification failed",
+  "auth.enterVerifyCode": "Please enter the 6-digit verification code",
   "auth.backToRegister": "← Back to registration",
   "auth.referralCode": "Referral Code",
   "auth.referralHint": "(optional, both get 20 stardust)",

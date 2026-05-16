@@ -73,7 +73,16 @@ export default function RegisterPage() {
     }
     setLoading(true)
     try {
-      await registerUser(email, password, displayName || undefined, privacyAccepted, referralCode || undefined)
+      const res = await registerUser(email, password, displayName || undefined, privacyAccepted, referralCode || undefined)
+      // If response has access_token, SMTP is not configured and user was auto-verified
+      if ("access_token" in res && res.access_token) {
+        localStorage.setItem("alpha_mirror_token", res.access_token)
+        localStorage.setItem("alpha_mirror_refresh", res.refresh_token)
+        toast.success(t("auth.loginSuccess"))
+        router.replace("/")
+        return
+      }
+      // Otherwise, email verification is required
       toast.success(t("auth.registerSuccessMsg"))
       setStep("verify")
       startResendCooldown()
@@ -88,7 +97,7 @@ export default function RegisterPage() {
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!verifyCode || verifyCode.length !== 6) {
-      toast.error("请输入6位验证码")
+      toast.error(t("auth.enterVerifyCode"))
       return
     }
     setVerifyLoading(true)

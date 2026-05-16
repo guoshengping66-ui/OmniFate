@@ -308,8 +308,40 @@ async def register(req: RegisterRequest, request: Request, db: AsyncSession = De
             pass  # Referral reward failure doesn't block registration
 
     # Send verification email
-    from utils.email import send_verification_email
-    send_verification_email(req.email, code)
+    from utils.email import send_verification_email, is_smtp_configured
+    email_sent = send_verification_email(req.email, code)
+
+    # If SMTP is not configured, auto-verify user (dev convenience)
+    if not email_sent and not is_smtp_configured():
+        import os
+        if os.getenv("DEBUG", "false").lower() == "true":
+            print(f"[AUTH] SMTP not configured, auto-verifying user {req.email}")
+        user.is_verified = True
+        user.verification_code = None
+        user.verification_expires_at = None
+
+        # Grant registration bonus stardust
+        user.stardust_balance += REGISTER_BONUS_STARDUST
+        user.stardust_lifetime_earned += REGISTER_BONUS_STARDUST
+        tx = CreditTransaction(
+            user_id=user.id,
+            amount=REGISTER_BONUS_STARDUST,
+            balance_after=user.stardust_balance,
+            reason="register_bonus",
+            reference_id=None,
+            status="confirmed",
+        )
+        db.add(tx)
+        await db.commit()
+
+        # Return tokens directly so user can log in immediately
+        access = create_access_token(str(user.id))
+        refresh = create_refresh_token(str(user.id))
+        return AuthResponse(
+            access_token=access,
+            refresh_token=refresh,
+            user=_user_dict(user),
+        )
 
     return {"message": "注册成功，请查收邮箱验证码完成验证", "email": req.email}
 
