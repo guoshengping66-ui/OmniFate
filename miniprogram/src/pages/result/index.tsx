@@ -81,18 +81,18 @@ export default function ResultPage() {
   })
 
   useEffect(() => {
-    if (radarScores.FD === undefined) return
+    if (!showDetail || radarScores.FD === undefined) return
     const timer = setTimeout(() => {
-      const query = Taro.createSelectorQuery().in(pageRef.current)
+      const query = Taro.createSelectorQuery()
       query.select("#radarCanvas").fields({ node: true, size: true }, (res) => {
         if (res && res.node) {
           radarNodeRef.current = res.node
           drawRadar(res.node, radarScores, 280)
         }
       }).exec()
-    }, 500)
+    }, 300)
     return () => clearTimeout(timer)
-  }, [radarScores])
+  }, [showDetail, radarScores])
 
   useEffect(() => {
     if (!showDetail || !archetype || !personality) return
