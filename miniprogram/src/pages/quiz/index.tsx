@@ -3,7 +3,8 @@ import { View, Text } from "@tarojs/components"
 import Taro from "@tarojs/taro"
 import { AM16_QUESTIONS, type AM16Question } from "../../constants/am16"
 import { DIMENSION_ORDER, DIMENSIONS_MAP } from "../../constants/dimensions"
-// StarField inlined to avoid webpack module resolution issue
+import StarBackground from "../../components/StarBackground"
+import { cardGlass, btnGold, gold, goldRgb } from "../../styles/theme"
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr]
@@ -25,37 +26,10 @@ function haptic(type: "light" | "medium" | "success") {
 // ── 内联样式常量 ──
 const S = {
   bg: { backgroundColor: "#1A0F2E" },
-  gold: { color: "#D4AF37" },
-  goldBg: { backgroundColor: "#D4AF37" },
   white30: { color: "rgba(255,255,255,0.3)" },
   white50: { color: "rgba(255,255,255,0.5)" },
   white60: { color: "rgba(255,255,255,0.6)" },
   white90: { color: "rgba(255,255,255,0.9)" },
-  gold50: { color: "rgba(212,175,55,0.5)" },
-  goldBg10: { backgroundColor: "rgba(212,175,55,0.1)" },
-  goldBg15: { backgroundColor: "rgba(212,175,55,0.15)" },
-  goldBorder60: { borderColor: "rgba(212,175,55,0.6)" },
-  whiteBorder10: { borderColor: "rgba(255,255,255,0.1)" },
-  whiteBg4: { backgroundColor: "rgba(255,255,255,0.04)" },
-  whiteBg5: { backgroundColor: "rgba(255,255,255,0.05)" },
-  whiteBg10: { backgroundColor: "rgba(255,255,255,0.1)" },
-}
-
-// ── Web 级 card-glass 样式 ──
-const cardGlass = {
-  backgroundColor: "rgba(255,255,255,0.05)",
-  border: "1rpx solid rgba(255,255,255,0.1)",
-  borderRadius: "24rpx",
-  boxShadow: "0 8rpx 32rpx rgba(0,0,0,0.3), 0 0 80rpx rgba(201,168,76,0.04)",
-}
-
-// ── Web 级 btn-gold 样式 ──
-const btnGold = {
-  background: "linear-gradient(135deg, #C9A84C 0%, #E8CB7A 40%, #C9A84C 80%)",
-  color: "#0A0A0A",
-  borderRadius: "999rpx",
-  fontWeight: "700" as const,
-  boxShadow: "0 4rpx 16rpx rgba(201,168,76,0.3), 0 0 40rpx rgba(201,168,76,0.1)",
 }
 
 export default function QuizPage() {
@@ -107,27 +81,21 @@ export default function QuizPage() {
     })
     return (
       <View className="min-h-screen flex flex-col items-center justify-center px-6" style={S.bg}>
-        {/* 星空背景 */}
-        <View style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 0, pointerEvents: "none" as const }}>
-          <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "radial-gradient(ellipse at 30% 20%, rgba(139,92,246,0.06) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(201,168,76,0.04) 0%, transparent 50%)", animation: "glowPulse 8s ease-in-out infinite" }} />
-          {[{x:8,y:12,s:3,d:3,a:"twinkle"},{x:85,y:8,s:2,d:4,a:"twinkle"},{x:22,y:35,s:4,d:3.5,a:"drift"},{x:70,y:25,s:2,d:5,a:"twinkle"},{x:45,y:55,s:3,d:4.5,a:"drift"},{x:15,y:70,s:2,d:3,a:"twinkle"},{x:90,y:60,s:3,d:4,a:"drift"},{x:55,y:80,s:2,d:3.5,a:"twinkle"},{x:35,y:15,s:2,d:5,a:"twinkle"},{x:75,y:45,s:3,d:4,a:"drift"}].map((s,i) => (
-            <View key={i} style={{ position: "absolute", left: s.x+"%", top: s.y+"%", width: s.s+"rpx", height: s.s+"rpx", borderRadius: "50%", backgroundColor: i%3===0 ? "rgba(201,168,76,0.6)" : "rgba(255,255,255,0.5)", animation: s.a+" "+s.d+"s ease-in-out infinite" }} />
-          ))}
-        </View>
+        <StarBackground />
 
-        <View className="relative mb-8 text-center" style={{ animation: "fadeInUp 0.6s ease-out both" }}>
-          {/* Logo 光晕 */}
+        <View className="relative mb-10 text-center" style={{ animation: "fadeInUp 0.6s ease-out both" }}>
+          {/* Logo 光晕 — 增大范围 */}
           <View className="absolute rounded-full pointer-events-none" style={{
-            top: "-60rpx", left: "50%", marginLeft: "-100rpx",
-            width: "200rpx", height: "200rpx",
-            background: "radial-gradient(circle, rgba(201,168,76,0.1) 0%, transparent 70%)",
+            top: "-80rpx", left: "50%", marginLeft: "-140rpx",
+            width: "280rpx", height: "280rpx",
+            background: "radial-gradient(circle, rgba(201,168,76,0.12) 0%, transparent 70%)",
             animation: "glowPulse 3s ease-in-out infinite",
           }} />
           <Text className="relative text-7xl block mb-4">🪞</Text>
         </View>
 
-        <View className="text-center mb-8" style={{ animation: "fadeInUp 0.6s ease-out 0.1s both" }}>
-          <Text className="text-2xl font-serif font-bold block mb-2" style={{ color: "#D4AF37" }}>
+        <View className="text-center mb-10" style={{ animation: "fadeInUp 0.6s ease-out 0.1s both" }}>
+          <Text className="font-serif font-bold block mb-2" style={{ color: gold, fontSize: "40rpx" }}>
             AM16 天命能级测验
           </Text>
           <Text className="text-sm block" style={{ color: "rgba(255,255,255,0.4)" }}>
@@ -138,12 +106,12 @@ export default function QuizPage() {
           </Text>
         </View>
 
-        {/* 四维预览卡片 — flex-wrap 替代 grid（微信兼容） */}
-        <View className="w-full max-w-sm mb-8" style={{ display: "flex", flexWrap: "wrap", gap: "12rpx", animation: "fadeInUp 0.6s ease-out 0.2s both" }}>
+        {/* 四维预览卡片 — flex-wrap（微信兼容） */}
+        <View className="w-full max-w-sm mb-10" style={{ display: "flex", flexWrap: "wrap", gap: "16rpx", animation: "fadeInUp 0.6s ease-out 0.2s both" }}>
           {dimPreviews.map((d, i) => (
-            <View key={d.code} className="rounded-2xl p-3 text-center" style={{
+            <View key={d.code} className="rounded-2xl p-4 text-center" style={{
               ...cardGlass,
-              width: "calc(50% - 6rpx)",
+              width: "calc(50% - 8rpx)",
               animation: `fadeInUp 0.4s ease-out ${0.3 + i * 0.1}s both`,
             }}>
               <Text className="text-xl block mb-1">{d.icon}</Text>
@@ -152,9 +120,9 @@ export default function QuizPage() {
           ))}
         </View>
 
-        {/* 开始按钮 */}
+        {/* 开始按钮 — 增大 */}
         <View
-          className="w-full max-w-sm py-3 rounded-full text-center relative overflow-hidden"
+          className="w-full max-w-sm py-3.5 rounded-full text-center relative overflow-hidden"
           style={{
             ...btnGold,
             animation: "fadeInUp 0.6s ease-out 0.5s both",
@@ -167,7 +135,7 @@ export default function QuizPage() {
             backgroundSize: "200% 100%",
             animation: "shimmer 3s ease-in-out infinite",
           }} />
-          <Text className="relative text-sm font-bold" style={{ color: "#1A0F2E" }}>
+          <Text className="relative font-bold" style={{ color: "#1A0F2E", fontSize: "30rpx" }}>
             ✦ 开始测试
           </Text>
         </View>
@@ -183,13 +151,7 @@ export default function QuizPage() {
   if (analyzing) {
     return (
       <View className="min-h-screen flex flex-col items-center justify-center px-6" style={S.bg}>
-        {/* 星空背景 */}
-        <View style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 0, pointerEvents: "none" as const }}>
-          <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "radial-gradient(ellipse at 30% 20%, rgba(139,92,246,0.06) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(201,168,76,0.04) 0%, transparent 50%)", animation: "glowPulse 8s ease-in-out infinite" }} />
-          {[{x:8,y:12,s:3,d:3,a:"twinkle"},{x:85,y:8,s:2,d:4,a:"twinkle"},{x:22,y:35,s:4,d:3.5,a:"drift"},{x:70,y:25,s:2,d:5,a:"twinkle"},{x:45,y:55,s:3,d:4.5,a:"drift"},{x:15,y:70,s:2,d:3,a:"twinkle"},{x:90,y:60,s:3,d:4,a:"drift"},{x:55,y:80,s:2,d:3.5,a:"twinkle"},{x:35,y:15,s:2,d:5,a:"twinkle"},{x:75,y:45,s:3,d:4,a:"drift"}].map((s,i) => (
-            <View key={i} style={{ position: "absolute", left: s.x+"%", top: s.y+"%", width: s.s+"rpx", height: s.s+"rpx", borderRadius: "50%", backgroundColor: i%3===0 ? "rgba(201,168,76,0.6)" : "rgba(255,255,255,0.5)", animation: s.a+" "+s.d+"s ease-in-out infinite" }} />
-          ))}
-        </View>
+        <StarBackground />
         {/* 浮动粒子 */}
         {[0,1,2,3,4].map(i => (
           <View key={i} className="absolute pointer-events-none" style={{
@@ -204,7 +166,7 @@ export default function QuizPage() {
         ))}
 
         <View className="relative w-80 h-80 flex items-center justify-center mb-8">
-          {/* 三层轨道环 — 金色外发光 */}
+          {/* 两层轨道环 — 金色外发光 */}
           <View className="absolute rounded-full" style={{
             top: 0, left: 0, right: 0, bottom: 0,
             border: "2rpx solid rgba(212,175,55,0.2)",
@@ -212,16 +174,10 @@ export default function QuizPage() {
             animation: "orbit 4s linear infinite",
           }} />
           <View className="absolute rounded-full" style={{
-            top: "32rpx", left: "32rpx", right: "32rpx", bottom: "32rpx",
+            top: "40rpx", left: "40rpx", right: "40rpx", bottom: "40rpx",
             border: "1.5rpx solid rgba(212,175,55,0.15)",
             boxShadow: "0 0 18rpx rgba(212,175,55,0.08)",
             animation: "orbit 3s linear infinite reverse",
-          }} />
-          <View className="absolute rounded-full" style={{
-            top: "64rpx", left: "64rpx", right: "64rpx", bottom: "64rpx",
-            border: "1rpx solid rgba(212,175,55,0.12)",
-            boxShadow: "0 0 14rpx rgba(212,175,55,0.06)",
-            animation: "orbit 2s linear infinite",
           }} />
           {/* 轨道光点 */}
           <View className="absolute pointer-events-none" style={{
@@ -232,11 +188,11 @@ export default function QuizPage() {
             animation: "orbit 4s linear infinite",
           }} />
           {/* 中心符号 — 强发光 */}
-          <View className="w-16 h-16 rounded-full flex items-center justify-center" style={{
+          <View className="w-20 h-20 rounded-full flex items-center justify-center" style={{
             backgroundColor: "rgba(201,168,76,0.12)",
             boxShadow: "0 0 40rpx rgba(201,168,76,0.15), inset 0 0 20rpx rgba(201,168,76,0.1)",
           }}>
-            <Text className="text-2xl" style={{
+            <Text className="text-3xl" style={{
               color: "#C9A84C",
               textShadow: "0 0 20rpx rgba(201,168,76,0.7), 0 0 40rpx rgba(201,168,76,0.4)",
               animation: "glowPulse 2s ease-in-out infinite",
@@ -245,7 +201,7 @@ export default function QuizPage() {
         </View>
 
         {/* 进度条 */}
-        <View className="relative w-full max-w-sm h-1.5 rounded-full overflow-hidden mb-6" style={{ backgroundColor: "rgba(255,255,255,0.06)" }}>
+        <View className="relative w-full max-w-sm h-2 rounded-full overflow-hidden mb-6" style={{ backgroundColor: "rgba(255,255,255,0.06)" }}>
           <View className="h-full rounded-full" style={{
             width: "100%",
             background: "linear-gradient(to right, rgba(201,168,76,0.5), #C9A84C)",
@@ -268,13 +224,7 @@ export default function QuizPage() {
   // ── 答题界面 ──
   return (
     <View className="min-h-screen px-5 pt-14 pb-8" style={S.bg}>
-      {/* 星空背景 */}
-      <View style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 0, pointerEvents: "none" as const }}>
-        <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "radial-gradient(ellipse at 30% 20%, rgba(139,92,246,0.06) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(201,168,76,0.04) 0%, transparent 50%)", animation: "glowPulse 8s ease-in-out infinite" }} />
-        {[{x:8,y:12,s:3,d:3,a:"twinkle"},{x:85,y:8,s:2,d:4,a:"twinkle"},{x:22,y:35,s:4,d:3.5,a:"drift"},{x:70,y:25,s:2,d:5,a:"twinkle"},{x:45,y:55,s:3,d:4.5,a:"drift"},{x:15,y:70,s:2,d:3,a:"twinkle"},{x:90,y:60,s:3,d:4,a:"drift"},{x:55,y:80,s:2,d:3.5,a:"twinkle"},{x:35,y:15,s:2,d:5,a:"twinkle"},{x:75,y:45,s:3,d:4,a:"drift"}].map((s,i) => (
-          <View key={i} style={{ position: "absolute", left: s.x+"%", top: s.y+"%", width: s.s+"rpx", height: s.s+"rpx", borderRadius: "50%", backgroundColor: i%3===0 ? "rgba(201,168,76,0.6)" : "rgba(255,255,255,0.5)", animation: s.a+" "+s.d+"s ease-in-out infinite" }} />
-        ))}
-      </View>
+      <StarBackground />
       <View className="max-w-lg mx-auto">
         {/* 进度条 */}
         <View className="mb-6">
@@ -282,7 +232,7 @@ export default function QuizPage() {
             <Text className="text-xs" style={S.white30}>{current + 1}/{total}</Text>
             <Text className="text-xs font-medium" style={{ color: "rgba(201,168,76,0.6)" }}>{progress}%</Text>
           </View>
-          <View className="relative w-full h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "rgba(255,255,255,0.06)" }}>
+          <View className="relative w-full h-2 rounded-full overflow-hidden" style={{ backgroundColor: "rgba(255,255,255,0.06)" }}>
             <View className="h-full rounded-full" style={{
               width: `${progress}%`,
               transition: "width 0.4s ease-out",
@@ -302,15 +252,14 @@ export default function QuizPage() {
         {q && (
           <View style={{ opacity: animating ? 0 : 1, transition: "opacity 0.2s" }}>
             {/* Emoji */}
-            <View className="text-center mb-5">
+            <View className="text-center mb-6">
               <Text className="text-5xl" style={{ animation: "fadeInUp 0.3s ease-out" }}>{q.emoji}</Text>
             </View>
             {/* 题目 */}
-            <View className="text-center mb-6">
-              <Text className="text-base font-serif leading-relaxed" style={S.white90}>
+            <View className="text-center mb-8">
+              <Text className="font-serif leading-relaxed" style={{ color: "rgba(255,255,255,0.9)", fontSize: "32rpx" }}>
                 {q.titleCn}
               </Text>
-              <Text className="mt-2 block" style={{ ...S.white30, fontSize: "22rpx" }}>你的第一反应是？</Text>
             </View>
 
             {/* 选项 — Web 级 card-glass 风格 */}
@@ -322,7 +271,7 @@ export default function QuizPage() {
                   <View
                     key={`${q.id}-${i}`}
                     onClick={() => handleAnswer(i)}
-                    className="rounded-2xl p-4 mb-3"
+                    className="rounded-2xl p-4 mb-3.5"
                     style={{
                       ...(isSelected ? {
                         backgroundColor: "rgba(201,168,76,0.1)",
@@ -343,7 +292,7 @@ export default function QuizPage() {
                       <View
                         className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
                         style={isSelected ? {
-                          ...S.goldBg, color: "#0A0A0A",
+                          backgroundColor: gold, color: "#0A0A0A",
                           boxShadow: "0 0 16rpx rgba(201,168,76,0.5)",
                         } : {
                           backgroundColor: "rgba(255,255,255,0.08)",

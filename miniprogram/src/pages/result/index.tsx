@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react"
 import { View, Text, Canvas, Button } from "@tarojs/components"
 import Taro from "@tarojs/taro"
-// StarField inlined
 import {
   PERSONALITIES,
   DIMENSIONS,
@@ -10,24 +9,8 @@ import {
   type AM16Personality,
 } from "../../constants/am16"
 import { DIMENSION_ORDER, DIMENSIONS_MAP, getPoleLabel } from "../../constants/dimensions"
-
-// ── Web 级设计系统 ──
-const cardGlass = {
-  backgroundColor: "rgba(255,255,255,0.05)",
-  border: "1rpx solid rgba(255,255,255,0.1)",
-  borderRadius: "24rpx",
-  boxShadow: "0 8rpx 32rpx rgba(0,0,0,0.3), 0 0 80rpx rgba(201,168,76,0.04)",
-}
-
-const cardElevated = {
-  backgroundColor: "rgba(255,255,255,0.07)",
-  border: "1rpx solid rgba(255,255,255,0.15)",
-  borderRadius: "24rpx",
-  boxShadow: "0 0 0 1rpx rgba(255,255,255,0.05), 0 8rpx 32rpx rgba(0,0,0,0.3), 0 0 80rpx rgba(201,168,76,0.06)",
-}
-
-const gold = "#C9A84C"
-const goldRgb = "201,168,76"
+import StarBackground from "../../components/StarBackground"
+import { cardGlass, cardElevated, gold, goldRgb } from "../../styles/theme"
 
 // ── 人格色彩 bgGlow 映射（匹配 Web personality.bgGlow）──
 const GLOW_COLORS: Record<string, [string, string]> = {
@@ -57,7 +40,7 @@ function getGlowStyle(code: string) {
 
 function GoldSeparator() {
   return (
-    <View className="my-6" style={{
+    <View className="my-5" style={{
       height: "1rpx",
       background: `linear-gradient(to right, transparent, rgba(${goldRgb},0.3), transparent)`,
     }} />
@@ -118,7 +101,7 @@ export default function ResultPage() {
         if (res && res.node && !radarNodeRef.current) {
           radarNodeRef.current = res.node
           const scores = radarScoresRef.current
-          try { drawRadar(res.node, scores, 280) } catch (e) { console.error("[radar]", e) }
+          try { drawRadar(res.node, scores, 300) } catch (e) { console.error("[radar]", e) }
         }
       }).exec()
     }
@@ -156,13 +139,7 @@ export default function ResultPage() {
   if (!personality) {
     return (
       <View className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#1A0F2E" }}>
-        {/* 星空背景 */}
-        <View style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 0, pointerEvents: "none" as const }}>
-          <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "radial-gradient(ellipse at 30% 20%, rgba(139,92,246,0.06) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(201,168,76,0.04) 0%, transparent 50%)", animation: "glowPulse 8s ease-in-out infinite" }} />
-          {[{x:8,y:12,s:3,d:3,a:"twinkle"},{x:85,y:8,s:2,d:4,a:"twinkle"},{x:22,y:35,s:4,d:3.5,a:"drift"},{x:70,y:25,s:2,d:5,a:"twinkle"},{x:45,y:55,s:3,d:4.5,a:"drift"},{x:15,y:70,s:2,d:3,a:"twinkle"},{x:90,y:60,s:3,d:4,a:"drift"},{x:55,y:80,s:2,d:3.5,a:"twinkle"},{x:35,y:15,s:2,d:5,a:"twinkle"},{x:75,y:45,s:3,d:4,a:"drift"}].map((s,i) => (
-            <View key={i} style={{ position: "absolute", left: s.x+"%", top: s.y+"%", width: s.s+"rpx", height: s.s+"rpx", borderRadius: "50%", backgroundColor: i%3===0 ? "rgba(201,168,76,0.6)" : "rgba(255,255,255,0.5)", animation: s.a+" "+s.d+"s ease-in-out infinite" }} />
-          ))}
-        </View>
+        <StarBackground />
         <Text className="text-sm" style={{ color: "rgba(255,255,255,0.3)" }}>加载中…</Text>
       </View>
     )
@@ -193,22 +170,16 @@ export default function ResultPage() {
 
   return (
     <View ref={pageRef} className="min-h-screen pb-32" style={{ backgroundColor: "#1A0F2E" }}>
-      {/* 星空背景 */}
-      <View style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 0, pointerEvents: "none" as const }}>
-        <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "radial-gradient(ellipse at 30% 20%, rgba(139,92,246,0.06) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(201,168,76,0.04) 0%, transparent 50%)", animation: "glowPulse 8s ease-in-out infinite" }} />
-        {[{x:8,y:12,s:3,d:3,a:"twinkle"},{x:85,y:8,s:2,d:4,a:"twinkle"},{x:22,y:35,s:4,d:3.5,a:"drift"},{x:70,y:25,s:2,d:5,a:"twinkle"},{x:45,y:55,s:3,d:4.5,a:"drift"},{x:15,y:70,s:2,d:3,a:"twinkle"},{x:90,y:60,s:3,d:4,a:"drift"},{x:55,y:80,s:2,d:3.5,a:"twinkle"},{x:35,y:15,s:2,d:5,a:"twinkle"},{x:75,y:45,s:3,d:4,a:"drift"}].map((s,i) => (
-          <View key={i} style={{ position: "absolute", left: s.x+"%", top: s.y+"%", width: s.s+"rpx", height: s.s+"rpx", borderRadius: "50%", backgroundColor: i%3===0 ? "rgba(201,168,76,0.6)" : "rgba(255,255,255,0.5)", animation: s.a+" "+s.d+"s ease-in-out infinite" }} />
-        ))}
-      </View>
+      <StarBackground />
       {/* ═══ 主卡片 — Web 级 card-glass-elevated ═══ */}
-      <View className="mx-4 mt-4 relative overflow-hidden" style={{
+      <View className="mx-3 mt-3 relative overflow-hidden" style={{
         ...cardElevated,
         animation: "fadeInUp 0.6s cubic-bezier(0.34,1.56,0.64,1) both",
       }}>
         {/* 人格专属 bgGlow — 匹配 Web */}
         <View className="absolute inset-0 pointer-events-none" style={getGlowStyle(archetype)} />
         {/* 金色粒子 */}
-        {[0,1,2,3,4,5,6,7].map(i => (
+        {[0,1,2,3,4,5].map(i => (
           <View key={i} className="absolute pointer-events-none" style={{
             left: `${15 + i * 10}%`,
             top: `${30 + (i % 3) * 20}%`,
@@ -244,14 +215,14 @@ export default function ResultPage() {
           {/* 装饰性小星 */}
           <View className="flex items-center justify-center gap-2 mt-4">
             {[0,1,2].map(i => (
-              <View key={i} style={{ width: "4rpx", height: "4rpx", borderRadius: "50%", backgroundColor: `rgba(${goldRgb},${0.3 + i * 0.15})`, animation: `glowPulse ${2 + i * 0.5}s ease-in-out infinite ${i * 0.3}s` }} />
+              <View key={i} style={{ width: "6rpx", height: "6rpx", borderRadius: "50%", backgroundColor: `rgba(${goldRgb},${0.3 + i * 0.15})`, animation: `glowPulse ${2 + i * 0.5}s ease-in-out infinite ${i * 0.3}s` }} />
             ))}
           </View>
         </View>
       </View>
 
       {/* ═══ 雷达图 Canvas — 始终在 DOM 中，确保 selectorQuery 能命中 ═══ */}
-      <View className="px-4 mt-2" style={{
+      <View className="px-3 mt-3" style={{
         opacity: showDetail ? 1 : 0,
         transition: "opacity 0.3s ease",
       }}>
@@ -281,14 +252,14 @@ export default function ResultPage() {
           <Text className="tracking-wider uppercase block text-center mb-4" style={{
             color: "rgba(255,255,255,0.65)", fontSize: "24rpx", letterSpacing: "3rpx",
           }}>四维能量坐标</Text>
-          <Canvas type="2d" id="radarCanvas" canvas-id="radarCanvas" style={{ width: "280px", height: "280px", margin: "0 auto" }} />
-          <View className="grid grid-cols-4 gap-2 mt-4 text-center">
+          <Canvas type="2d" id="radarCanvas" canvas-id="radarCanvas" style={{ width: "300px", height: "300px", margin: "0 auto" }} />
+          <View className="flex flex-wrap gap-2 mt-4 text-center">
             {DIMENSIONS.map(dim => {
               const val = radarScores[dim.code] ?? 50
               const poleName = val > 50 ? dim.nameB : dim.nameA
               const dimCfg = DIMENSIONS_MAP[dim.code]
               return (
-                <View key={dim.code} className="rounded-xl py-2 px-1" style={{ backgroundColor: "rgba(255,255,255,0.03)" }}>
+                <View key={dim.code} className="rounded-xl py-2 px-1" style={{ backgroundColor: "rgba(255,255,255,0.03)", width: "calc(50% - 4rpx)" }}>
                   <Text className="block" style={{ fontSize: "20rpx" }}>{dimCfg?.icon ?? "✦"}</Text>
                   <Text className="font-medium block mt-1" style={{ color: "rgba(255,255,255,0.55)", fontSize: "18rpx" }}>{dimCfg?.axisNameCn ?? dim.code}</Text>
                   <Text className="block mt-1 leading-tight" style={{ color: `rgba(${goldRgb},0.85)`, fontSize: "18rpx" }}>
@@ -343,11 +314,12 @@ export default function ResultPage() {
                       </View>
                       {/* 倾向标签 */}
                       <View className="flex items-center gap-2 mb-2">
-                        <View className="px-2 py-0.5 rounded-full" style={{
+                        <View className="px-2.5 py-0.5 rounded-full" style={{
                           backgroundColor: `rgba(${goldRgb},0.12)`,
                           border: `1rpx solid rgba(${goldRgb},0.25)`,
+                          boxShadow: `0 0 8rpx rgba(${goldRgb},0.1)`,
                         }}>
-                          <Text className="text-xs font-medium" style={{ color: `rgba(${goldRgb},0.9)` }}>
+                          <Text className="text-xs font-medium" style={{ color: `rgba(${goldRgb},0.9)`, fontSize: "22rpx" }}>
                             {pole.tagCn}
                           </Text>
                         </View>
@@ -369,9 +341,9 @@ export default function ResultPage() {
           <GoldSeparator />
 
           {/* ═══ 精神状态诊断 + 改运指南 — 并排双栏（匹配 Web 布局） ═══ */}
-          <View className="grid grid-cols-2 gap-3" style={{ animation: "fadeInUp 0.5s ease-out 0.2s both" }}>
+          <View className="flex gap-3" style={{ animation: "fadeInUp 0.5s ease-out 0.2s both" }}>
             {/* 精神状态诊断 */}
-            <View className="p-4 relative overflow-hidden" style={cardGlass}>
+            <View className="flex-1 p-4 relative overflow-hidden" style={cardGlass}>
               <Text className="tracking-wider uppercase block mb-3" style={{
                 color: "rgba(255,255,255,0.6)", fontSize: "20rpx",
               }}>
@@ -383,7 +355,7 @@ export default function ResultPage() {
             </View>
 
             {/* 改运指南 */}
-            <View className="p-4 relative overflow-hidden" style={{
+            <View className="flex-1 p-4 relative overflow-hidden" style={{
               ...cardGlass,
               animation: "fadeInUp 0.5s ease-out 0.25s both",
             }}>
@@ -401,9 +373,9 @@ export default function ResultPage() {
           <GoldSeparator />
 
           {/* ═══ 社交匹配 — Web 级 hover 发光卡片 ═══ */}
-          <View className="grid grid-cols-2 gap-3" style={{ animation: "fadeInUp 0.5s ease-out 0.3s both" }}>
+          <View className="flex gap-2.5" style={{ animation: "fadeInUp 0.5s ease-out 0.3s both" }}>
             {/* 天作之合 */}
-            <View className="rounded-2xl p-4 relative overflow-hidden" style={{
+            <View className="flex-1 rounded-2xl p-4 relative" style={{
               backgroundColor: "rgba(16,185,129,0.04)",
               border: "1rpx solid rgba(16,185,129,0.25)",
               boxShadow: "0 0 30rpx rgba(16,185,129,0.08), 0 4rpx 16rpx rgba(0,0,0,0.15)",
@@ -425,7 +397,7 @@ export default function ResultPage() {
             </View>
 
             {/* 离远点保命 */}
-            <View className="rounded-2xl p-4 relative overflow-hidden" style={{
+            <View className="flex-1 rounded-2xl p-4 relative" style={{
               backgroundColor: "rgba(239,68,68,0.04)",
               border: "1rpx solid rgba(239,68,68,0.25)",
               boxShadow: "0 0 30rpx rgba(239,68,68,0.08), 0 4rpx 16rpx rgba(0,0,0,0.15)",
@@ -479,7 +451,7 @@ export default function ResultPage() {
               </View>
               {/* Web 级 btn-gold */}
               <View
-                className="w-full py-3 rounded-full text-center relative overflow-hidden"
+                className="w-full py-3.5 rounded-full text-center relative overflow-hidden"
                 style={{
                   background: `linear-gradient(135deg, #C9A84C 0%, #E8CB7A 40%, #C9A84C 80%)`,
                   backgroundSize: "200% 100%",
@@ -491,9 +463,9 @@ export default function ResultPage() {
                 <View className="absolute inset-0 pointer-events-none" style={{
                   background: `linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.3) 45%, rgba(255,255,255,0.3) 55%, transparent 60%)`,
                   backgroundSize: "200% 100%",
-                  animation: "shimmer 3s ease-in-out infinite",
+                  animation: "shimmer 2.5s ease-in-out infinite",
                 }} />
-                <Text className="relative text-sm font-bold" style={{ color: "#1A0F2E", textShadow: "0 1rpx 2rpx rgba(0,0,0,0.15)" }}>
+                <Text className="relative font-bold" style={{ color: "#1A0F2E", fontSize: "30rpx", textShadow: "0 1rpx 2rpx rgba(0,0,0,0.15)" }}>
                   🔮 开启命运解读 · 100 ✨
                 </Text>
               </View>
