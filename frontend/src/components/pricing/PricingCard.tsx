@@ -110,7 +110,7 @@ export function PricingCard({
 
             {/* Features */}
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              {tier.features.map((f, i) => (
+              {tierT.features.map((f, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm text-gold/65">
                   <Check size={14} className="text-gold/50 mt-0.5 flex-shrink-0" />
                   <span>{f}</span>
@@ -150,7 +150,7 @@ export function PricingCard({
                          active:scale-[0.98] flex items-center justify-center gap-2"
             >
               <Lock size={16} />
-              {tier.cta}
+              {tierT.cta}
             </button>
 
             <p className="text-gold/30 text-[10px] text-center leading-relaxed">
