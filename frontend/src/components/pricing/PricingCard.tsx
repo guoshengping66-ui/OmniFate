@@ -27,6 +27,26 @@ export function PricingCard({
   const locale = localeProp || ctxLocale
   const isEn = locale === "en"
   const isDomestic = region === "domestic"
+
+  // ── Resolve tier text via i18n ──
+  const resolveFeatures = (): string[] => {
+    const result: string[] = []
+    for (let i = 0; i < 10; i++) {
+      const key = `tier.${tier.id}.feat${i}`
+      const val = t(key)
+      if (val !== key) result.push(val)
+      else break
+    }
+    return result
+  }
+  const tierT = {
+    name: t(`tier.${tier.id}.name`),
+    subtitle: t(`tier.${tier.id}.subtitle`),
+    features: resolveFeatures(),
+    cta: t(`tier.${tier.id}.cta`),
+    badge: tier.badge ? t(`tier.${tier.id}.badge`) : undefined,
+    billingLabel: tier.billingLabel ? t(`tier.${tier.id}.billing`) : undefined,
+  }
   const priceDisplay = isDomestic ? tier.priceDisplay : tier.priceDisplayUsd
   const originalPrice = isDomestic ? tier.originalPriceCny : tier.originalPriceUsd
   const isYearly = tier.id === "premium_yearly"
@@ -183,7 +203,7 @@ export function PricingCard({
               }`}
             >
               {isYearly && <Sparkles size={11} />}
-              {tier.badge}
+              {tierT.badge}
             </span>
           </div>
         )}
@@ -191,9 +211,9 @@ export function PricingCard({
         {/* Header */}
         <div className="text-center mb-4 pt-2">
           <h3 className={`text-xl font-serif font-bold ${isYearly ? "text-gold" : "text-white"}`}>
-            {tier.name}
+            {tierT.name}
           </h3>
-          <p className="text-white/35 text-xs mt-1">{tier.subtitle}</p>
+          <p className="text-white/35 text-xs mt-1">{tierT.subtitle}</p>
         </div>
 
         {/* Stardust grant for subscriptions */}
@@ -244,14 +264,14 @@ export function PricingCard({
               </span>
             </div>
           )}
-          {tier.billingLabel && (
-            <p className="text-white/25 text-[11px] mt-1">{tier.billingLabel}</p>
+          {tierT.billingLabel && (
+            <p className="text-white/25 text-[11px] mt-1">{tierT.billingLabel}</p>
           )}
         </div>
 
         {/* Features */}
         <ul className="flex-1 space-y-2.5 mb-6">
-          {tier.features.map((f, i) => {
+          {tierT.features.map((f, i) => {
             const isExclusive = isYearly && (f.includes("专属") || f.includes("定制") || f.includes("优先") || f.includes("Exclusive") || f.includes("Custom"))
             return (
               <li key={i} className="flex items-start gap-2.5 text-sm">
@@ -286,7 +306,7 @@ export function PricingCard({
             }
             active:scale-[0.97]`}
         >
-          {tier.cta}
+          {tierT.cta}
         </button>
       </div>
     </motion.div>

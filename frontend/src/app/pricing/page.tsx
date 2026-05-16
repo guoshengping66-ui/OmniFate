@@ -331,7 +331,7 @@ export default function PricingPage() {
           </button>
           {" "}{t("pricing.and")}{" "}
           <a href="/refund" className="text-gold/40 hover:text-gold underline">{t("pricing.refundPolicy")}</a>
-          。{t("pricing.legalNote")}
+          {locale === "zh" ? "。" : ". "}{t("pricing.legalNote")}
         </p>
 
         <ServiceTerms open={showTerms} onClose={() => setShowTerms(false)} />
