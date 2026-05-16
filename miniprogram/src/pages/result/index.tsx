@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react"
+import { useState, useRef, useEffect } from "react"
 import { View, Text, Canvas, Button } from "@tarojs/components"
 import Taro, { useDidShow } from "@tarojs/taro"
 import {
@@ -78,12 +78,34 @@ export default function ResultPage() {
     } catch { Taro.navigateTo({ url: "/pages/quiz/index" }) }
   })
 
-  const onRadarCanvasReady = useCallback((node: any) => {
-    if (node) { radarNodeRef.current = node; if (radarScores.FD !== undefined) drawRadar(node, radarScores, 280) }
+  // 雷达图 Canvas 初始化
+  useEffect(() => {
+    if (radarScores.FD === undefined) return
+    const timer = setTimeout(() => {
+      const query = Taro.createSelectorQuery()
+      query.select("#radarCanvas").fields({ node: true, size: true }, (res) => {
+        if (res && res.node) {
+          radarNodeRef.current = res.node
+          drawRadar(res.node, radarScores, 280)
+        }
+      }).exec()
+    }, 300)
+    return () => clearTimeout(timer)
   }, [radarScores])
 
-  const onPosterCanvasReady = useCallback((node: any) => {
-    if (node && showDetail && archetype && personality) { posterNodeRef.current = node; drawSharePoster(node, archetype, personality) }
+  // 分享海报 Canvas 初始化
+  useEffect(() => {
+    if (!showDetail || !archetype || !personality) return
+    const timer = setTimeout(() => {
+      const query = Taro.createSelectorQuery()
+      query.select("#shareCanvas").fields({ node: true, size: true }, (res) => {
+        if (res && res.node) {
+          posterNodeRef.current = res.node
+          drawSharePoster(res.node, archetype, personality)
+        }
+      }).exec()
+    }, 500)
+    return () => clearTimeout(timer)
   }, [showDetail, archetype, personality])
 
   if (!personality) {
@@ -162,14 +184,6 @@ export default function ResultPage() {
               type="2d"
               id="radarCanvas"
               style={{ width: "280px", height: "280px", margin: "0 auto" }}
-              ref={(ref) => {
-                if (ref && radarScores.FD !== undefined) {
-                  const query = Taro.createSelectorQuery()
-                  query.select("#radarCanvas").fields({ node: true, size: true }, (res) => {
-                    if (res && res.node) onRadarCanvasReady(res.node)
-                  }).exec()
-                }
-              }}
             />
             <View className="grid grid-cols-4 gap-2 mt-4 text-center">
               {DIMENSIONS.map(d => {
@@ -301,14 +315,6 @@ export default function ResultPage() {
         type="2d"
         id="shareCanvas"
         style={{ position: "fixed", left: "-9999px", top: "-9999px", width: "750px", height: "1334px" }}
-        ref={(ref) => {
-          if (ref && showDetail) {
-            const query = Taro.createSelectorQuery()
-            query.select("#shareCanvas").fields({ node: true, size: true }, (res) => {
-              if (res && res.node) onPosterCanvasReady(res.node)
-            }).exec()
-          }
-        }}
       />
     </View>
   )
@@ -321,7 +327,10 @@ export function onShareAppMessage() {
 // ═══ Canvas 绘制 ═══
 
 function getDPR(): number {
-  try { return Taro.getSystemInfoSync().pixelRatio || 1 } catch (_) { return window?.devicePixelRatio || 1 }
+  try {
+    const info = Taro.getSystemInfoSync()
+    return info.pixelRatio || 1
+  } catch (_) { return 2 }
 }
 
 function drawRadar(canvasNode: any, scores: Record<string, number>, size: number) {
