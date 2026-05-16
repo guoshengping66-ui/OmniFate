@@ -2,7 +2,7 @@ import { useState, useCallback, useMemo } from "react"
 import { View, Text } from "@tarojs/components"
 import Taro from "@tarojs/taro"
 import { QUESTIONS, type Question } from "../../constants/am16"
-import { StarField } from "../../components/StarField"
+// StarField inlined to avoid webpack module resolution issue
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr]
@@ -105,7 +105,13 @@ export default function QuizPage() {
   if (analyzing) {
     return (
       <View className="min-h-screen flex flex-col items-center justify-center px-6" style={S.bg}>
-        <StarField />
+        {/* 星空背景 */}
+        <View style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 0, pointerEvents: "none" as const }}>
+          <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "radial-gradient(ellipse at 30% 20%, rgba(139,92,246,0.06) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(201,168,76,0.04) 0%, transparent 50%)", animation: "glowPulse 8s ease-in-out infinite" }} />
+          {[{x:8,y:12,s:3,d:3,a:"twinkle"},{x:85,y:8,s:2,d:4,a:"twinkle"},{x:22,y:35,s:4,d:3.5,a:"drift"},{x:70,y:25,s:2,d:5,a:"twinkle"},{x:45,y:55,s:3,d:4.5,a:"drift"},{x:15,y:70,s:2,d:3,a:"twinkle"},{x:90,y:60,s:3,d:4,a:"drift"},{x:55,y:80,s:2,d:3.5,a:"twinkle"},{x:35,y:15,s:2,d:5,a:"twinkle"},{x:75,y:45,s:3,d:4,a:"drift"}].map((s,i) => (
+            <View key={i} style={{ position: "absolute", left: s.x+"%", top: s.y+"%", width: s.s+"rpx", height: s.s+"rpx", borderRadius: "50%", backgroundColor: i%3===0 ? "rgba(201,168,76,0.6)" : "rgba(255,255,255,0.5)", animation: s.a+" "+s.d+"s ease-in-out infinite" }} />
+          ))}
+        </View>
         {/* 浮动粒子 */}
         {[0,1,2,3,4].map(i => (
           <View key={i} className="absolute pointer-events-none" style={{
@@ -181,7 +187,13 @@ export default function QuizPage() {
   // ── 答题界面 ──
   return (
     <View className="min-h-screen px-5 pt-14 pb-8" style={S.bg}>
-      <StarField />
+      {/* 星空背景 */}
+      <View style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 0, pointerEvents: "none" as const }}>
+        <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "radial-gradient(ellipse at 30% 20%, rgba(139,92,246,0.06) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(201,168,76,0.04) 0%, transparent 50%)", animation: "glowPulse 8s ease-in-out infinite" }} />
+        {[{x:8,y:12,s:3,d:3,a:"twinkle"},{x:85,y:8,s:2,d:4,a:"twinkle"},{x:22,y:35,s:4,d:3.5,a:"drift"},{x:70,y:25,s:2,d:5,a:"twinkle"},{x:45,y:55,s:3,d:4.5,a:"drift"},{x:15,y:70,s:2,d:3,a:"twinkle"},{x:90,y:60,s:3,d:4,a:"drift"},{x:55,y:80,s:2,d:3.5,a:"twinkle"},{x:35,y:15,s:2,d:5,a:"twinkle"},{x:75,y:45,s:3,d:4,a:"drift"}].map((s,i) => (
+          <View key={i} style={{ position: "absolute", left: s.x+"%", top: s.y+"%", width: s.s+"rpx", height: s.s+"rpx", borderRadius: "50%", backgroundColor: i%3===0 ? "rgba(201,168,76,0.6)" : "rgba(255,255,255,0.5)", animation: s.a+" "+s.d+"s ease-in-out infinite" }} />
+        ))}
+      </View>
       <View className="max-w-lg mx-auto">
         {/* 进度条 */}
         <View className="mb-6">

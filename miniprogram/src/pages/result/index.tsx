@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react"
 import { View, Text, Canvas, Button } from "@tarojs/components"
 import Taro, { useDidShow } from "@tarojs/taro"
-import { StarField } from "../../components/StarField"
+// StarField inlined
 import {
   PERSONALITIES,
   DIMENSIONS,
@@ -114,7 +114,13 @@ export default function ResultPage() {
   if (!personality) {
     return (
       <View className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#1A0F2E" }}>
-        <StarField />
+        {/* 星空背景 */}
+        <View style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 0, pointerEvents: "none" as const }}>
+          <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "radial-gradient(ellipse at 30% 20%, rgba(139,92,246,0.06) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(201,168,76,0.04) 0%, transparent 50%)", animation: "glowPulse 8s ease-in-out infinite" }} />
+          {[{x:8,y:12,s:3,d:3,a:"twinkle"},{x:85,y:8,s:2,d:4,a:"twinkle"},{x:22,y:35,s:4,d:3.5,a:"drift"},{x:70,y:25,s:2,d:5,a:"twinkle"},{x:45,y:55,s:3,d:4.5,a:"drift"},{x:15,y:70,s:2,d:3,a:"twinkle"},{x:90,y:60,s:3,d:4,a:"drift"},{x:55,y:80,s:2,d:3.5,a:"twinkle"},{x:35,y:15,s:2,d:5,a:"twinkle"},{x:75,y:45,s:3,d:4,a:"drift"}].map((s,i) => (
+            <View key={i} style={{ position: "absolute", left: s.x+"%", top: s.y+"%", width: s.s+"rpx", height: s.s+"rpx", borderRadius: "50%", backgroundColor: i%3===0 ? "rgba(201,168,76,0.6)" : "rgba(255,255,255,0.5)", animation: s.a+" "+s.d+"s ease-in-out infinite" }} />
+          ))}
+        </View>
         <Text className="text-sm" style={{ color: "rgba(255,255,255,0.3)" }}>加载中…</Text>
       </View>
     )
@@ -145,7 +151,13 @@ export default function ResultPage() {
 
   return (
     <View className="min-h-screen pb-32" style={{ backgroundColor: "#1A0F2E" }}>
-      <StarField />
+      {/* 星空背景 */}
+      <View style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 0, pointerEvents: "none" as const }}>
+        <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "radial-gradient(ellipse at 30% 20%, rgba(139,92,246,0.06) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(201,168,76,0.04) 0%, transparent 50%)", animation: "glowPulse 8s ease-in-out infinite" }} />
+        {[{x:8,y:12,s:3,d:3,a:"twinkle"},{x:85,y:8,s:2,d:4,a:"twinkle"},{x:22,y:35,s:4,d:3.5,a:"drift"},{x:70,y:25,s:2,d:5,a:"twinkle"},{x:45,y:55,s:3,d:4.5,a:"drift"},{x:15,y:70,s:2,d:3,a:"twinkle"},{x:90,y:60,s:3,d:4,a:"drift"},{x:55,y:80,s:2,d:3.5,a:"twinkle"},{x:35,y:15,s:2,d:5,a:"twinkle"},{x:75,y:45,s:3,d:4,a:"drift"}].map((s,i) => (
+          <View key={i} style={{ position: "absolute", left: s.x+"%", top: s.y+"%", width: s.s+"rpx", height: s.s+"rpx", borderRadius: "50%", backgroundColor: i%3===0 ? "rgba(201,168,76,0.6)" : "rgba(255,255,255,0.5)", animation: s.a+" "+s.d+"s ease-in-out infinite" }} />
+        ))}
+      </View>
       {/* ═══ 主卡片 — Web 级 card-glass-elevated ═══ */}
       <View className="mx-4 mt-4 relative overflow-hidden" style={{
         ...cardElevated,
