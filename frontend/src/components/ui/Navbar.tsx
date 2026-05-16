@@ -248,6 +248,13 @@ export function Navbar() {
         {/* Mobile & Medium hamburger dropdown — visible below lg */}
         {open && (
           <div className="lg:hidden bg-ink/95 border-t border-white/10 px-4 py-4 flex flex-col gap-4">
+            {coreLinks.map(l => (
+              <Link key={l.href} href={l.href} onClick={() => setOpen(false)}
+                className="text-white/80 hover:text-gold py-2">
+                {l.label}
+              </Link>
+            ))}
+            <div className="border-t border-white/10" />
             {extraLinks.map(l => (
               <Link key={l.href} href={l.href} onClick={() => setOpen(false)}
                 className="text-white/80 hover:text-gold py-2">
