@@ -65,9 +65,9 @@ interface Props {
 }
 
 export function AM16Quiz({ onComplete }: Props) {
-  const { t: rawT, language } = useLanguage()
+  const { t: rawT, locale } = useLanguage()
   const t = rawT as unknown as (key: string) => string
-  const lang = language === "zh" ? "zh" : "en"
+  const lang = locale === "zh" ? "zh" : "en"
   const [started, setStarted] = useState(false)
   const [currentQ, setCurrentQ] = useState(0)
   const [answers, setAnswers] = useState<number[]>([])

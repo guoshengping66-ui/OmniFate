@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo } from "react"
 import { View, Text } from "@tarojs/components"
 import Taro from "@tarojs/taro"
 import { AM16_QUESTIONS, type AM16Question } from "../../constants/am16"
+import { DIMENSION_ORDER, DIMENSIONS_MAP } from "../../constants/dimensions"
 // StarField inlined to avoid webpack module resolution issue
 
 function shuffle<T>(arr: T[]): T[] {
@@ -67,6 +68,7 @@ const btnGold = {
 
 export default function QuizPage() {
   const questions = useMemo(() => shuffle(AM16_QUESTIONS), [])
+  const [started, setStarted] = useState(false)
   const [current, setCurrent] = useState(0)
   const [answers, setAnswers] = useState<Record<number, number>>({})
   const [animating, setAnimating] = useState(false)
@@ -99,6 +101,90 @@ export default function QuizPage() {
       }
     }, 350)
   }, [selected, animating, answers, current, total, q])
+
+  const handleStart = useCallback(() => {
+    haptic("medium")
+    setStarted(true)
+  }, [])
+
+  // ── 开屏 ──
+  if (!started) {
+    const dimPreviews = DIMENSION_ORDER.map(code => {
+      const dim = DIMENSIONS_MAP[code]
+      return { icon: dim.icon, label: dim.axisNameCn, code }
+    })
+    return (
+      <View className="min-h-screen flex flex-col items-center justify-center px-6" style={S.bg}>
+        {/* 星空背景 */}
+        <View style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 0, pointerEvents: "none" as const }}>
+          <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "radial-gradient(ellipse at 30% 20%, rgba(139,92,246,0.06) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(201,168,76,0.04) 0%, transparent 50%)", animation: "glowPulse 8s ease-in-out infinite" }} />
+          {[{x:8,y:12,s:3,d:3,a:"twinkle"},{x:85,y:8,s:2,d:4,a:"twinkle"},{x:22,y:35,s:4,d:3.5,a:"drift"},{x:70,y:25,s:2,d:5,a:"twinkle"},{x:45,y:55,s:3,d:4.5,a:"drift"},{x:15,y:70,s:2,d:3,a:"twinkle"},{x:90,y:60,s:3,d:4,a:"drift"},{x:55,y:80,s:2,d:3.5,a:"twinkle"},{x:35,y:15,s:2,d:5,a:"twinkle"},{x:75,y:45,s:3,d:4,a:"drift"}].map((s,i) => (
+            <View key={i} style={{ position: "absolute", left: s.x+"%", top: s.y+"%", width: s.s+"rpx", height: s.s+"rpx", borderRadius: "50%", backgroundColor: i%3===0 ? "rgba(201,168,76,0.6)" : "rgba(255,255,255,0.5)", animation: s.a+" "+s.d+"s ease-in-out infinite" }} />
+          ))}
+        </View>
+
+        <View className="relative mb-8 text-center" style={{ animation: "fadeInUp 0.6s ease-out both" }}>
+          {/* Logo 光晕 */}
+          <View className="absolute rounded-full pointer-events-none" style={{
+            top: "-60rpx", left: "50%", marginLeft: "-100rpx",
+            width: "200rpx", height: "200rpx",
+            background: "radial-gradient(circle, rgba(201,168,76,0.1) 0%, transparent 70%)",
+            animation: "glowPulse 3s ease-in-out infinite",
+          }} />
+          <Text className="relative text-7xl block mb-4">🪞</Text>
+        </View>
+
+        <View className="text-center mb-8" style={{ animation: "fadeInUp 0.6s ease-out 0.1s both" }}>
+          <Text className="text-2xl font-serif font-bold block mb-2" style={{ color: gold }}>
+            AM16 天命能级测验
+          </Text>
+          <Text className="text-sm block" style={{ color: "rgba(255,255,255,0.4)" }}>
+            12 道沉浸式情景题，解锁你的精神状态密码
+          </Text>
+          <Text className="text-xs block mt-2" style={{ color: "rgba(255,255,255,0.25)" }}>
+            四维能级 × 16 型人格
+          </Text>
+        </View>
+
+        {/* 四维预览卡片 */}
+        <View className="grid grid-cols-2 gap-3 w-full max-w-sm mb-8" style={{ animation: "fadeInUp 0.6s ease-out 0.2s both" }}>
+          {dimPreviews.map((d, i) => (
+            <View key={d.code} className="rounded-2xl p-3 text-center" style={{
+              ...cardGlass,
+              animation: `fadeInUp 0.4s ease-out ${0.3 + i * 0.1}s both`,
+            }}>
+              <Text className="text-xl block mb-1">{d.icon}</Text>
+              <Text className="text-xs block" style={{ color: "rgba(255,255,255,0.6)" }}>{d.label}</Text>
+            </View>
+          ))}
+        </View>
+
+        {/* 开始按钮 */}
+        <View
+          className="w-full max-w-sm py-3 rounded-full text-center relative overflow-hidden"
+          style={{
+            ...btnGold,
+            animation: "fadeInUp 0.6s ease-out 0.5s both",
+          }}
+          onClick={handleStart}
+        >
+          {/* 光泽扫过 */}
+          <View className="absolute inset-0 pointer-events-none" style={{
+            background: "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.3) 45%, rgba(255,255,255,0.3) 55%, transparent 60%)",
+            backgroundSize: "200% 100%",
+            animation: "shimmer 3s ease-in-out infinite",
+          }} />
+          <Text className="relative text-sm font-bold" style={{ color: "#1A0F2E" }}>
+            ✦ 开始测试
+          </Text>
+        </View>
+
+        <Text className="text-xs mt-4 text-center" style={{ color: "rgba(255,255,255,0.2)" }}>
+          免费 · 无需注册 · 1 分钟出结果
+        </Text>
+      </View>
+    )
+  }
 
   // ── 分析中 ──
   if (analyzing) {
