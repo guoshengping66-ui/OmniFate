@@ -1,34 +1,83 @@
 "use client"
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Sparkles } from "lucide-react"
+import { useLanguage } from "@/contexts/LanguageContext"
 import { AM16_QUESTIONS } from "@/lib/am16/constants"
+
+// ── 多级触觉反馈（参照 CelestialOracle）──
+function triggerHaptic(pattern: "light" | "medium" | "success") {
+  if (typeof navigator === "undefined" || !navigator.vibrate) return
+  const patterns: Record<string, number[]> = {
+    light:   [10],
+    medium:  [20, 30, 20],
+    success: [10, 50, 10, 50, 30],
+  }
+  navigator.vibrate(patterns[pattern] || [10])
+}
+
+// ── 旋转星轨动画（参照 CelestialOracle StarAxis）──
+function AnalysisOrbit() {
+  return (
+    <div className="relative w-40 h-40 mx-auto">
+      {/* 外环 */}
+      <div className="absolute inset-0 rounded-full border-2 border-gold/30 animate-[spin_3s_linear_infinite]" />
+      {/* 中环 */}
+      <div className="absolute inset-4 rounded-full border border-gold/25 animate-[spin_2.2s_linear_infinite_reverse]" />
+      {/* 内环 */}
+      <div className="absolute inset-8 rounded-full border border-gold/20 animate-[spin_1.5s_linear_infinite]" />
+      {/* 核心 */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-full bg-gold/15 flex items-center justify-center">
+          <Sparkles size={20} className="text-gold animate-pulse" />
+        </div>
+      </div>
+      {/* 轨道粒子 */}
+      {[0, 1, 2, 3, 4, 5].map(i => {
+        const angle = (i / 6) * Math.PI * 2
+        const r = 60 + (i % 2) * 10
+        return (
+          <div
+            key={i}
+            className="absolute w-1.5 h-1.5 rounded-full bg-gold/60"
+            style={{
+              left: `calc(50% + ${Math.cos(angle) * r}px - 3px)`,
+              top: `calc(50% + ${Math.sin(angle) * r}px - 3px)`,
+              animation: `star-particle ${1.2 + (i % 3) * 0.3}s ease-in-out infinite ${i * 0.2}s`,
+            }}
+          />
+        )
+      })}
+    </div>
+  )
+}
 
 interface Props {
   onComplete: (answers: number[]) => void
 }
 
 export function AM16Quiz({ onComplete }: Props) {
+  const { t } = useLanguage()
   const [started, setStarted] = useState(false)
   const [currentQ, setCurrentQ] = useState(0)
   const [answers, setAnswers] = useState<number[]>([])
   const [analyzing, setAnalyzing] = useState(false)
   const [selectedOption, setSelectedOption] = useState<number | null>(null)
+  const [calibrated, setCalibrated] = useState(false)
 
   const total = AM16_QUESTIONS.length
   const progress = started ? ((currentQ) / total) * 100 : 0
   const question = AM16_QUESTIONS[currentQ]
 
-  const handleStart = () => setStarted(true)
+  const handleStart = useCallback(() => {
+    triggerHaptic("medium")
+    setStarted(true)
+  }, [])
 
-  const handleAnswer = (choice: number) => {
-    if (selectedOption !== null) return // 防止连点
+  const handleAnswer = useCallback((choice: number) => {
+    if (selectedOption !== null) return
     setSelectedOption(choice)
-
-    // Haptic feedback
-    if (typeof navigator !== "undefined" && navigator.vibrate) {
-      navigator.vibrate([15])
-    }
+    triggerHaptic("light")
 
     const newAnswers = [...answers, choice]
     setAnswers(newAnswers)
@@ -38,12 +87,16 @@ export function AM16Quiz({ onComplete }: Props) {
       if (currentQ + 1 < total) {
         setCurrentQ(currentQ + 1)
       } else {
-        // 答完所有题，进入分析
         setAnalyzing(true)
-        setTimeout(() => onComplete(newAnswers), 2200)
+        // 校准完成闪烁
+        setTimeout(() => setCalibrated(true), 1800)
+        setTimeout(() => {
+          triggerHaptic("success")
+          onComplete(newAnswers)
+        }, 2500)
       }
     }, 400)
-  }
+  }, [selectedOption, answers, currentQ, total, onComplete])
 
   // ── 开屏 ──
   if (!started) {
@@ -66,10 +119,10 @@ export function AM16Quiz({ onComplete }: Props) {
 
         <div>
           <h1 className="text-2xl md:text-3xl font-serif font-bold text-gold mb-2">
-            AM16 天命能级测验
+            {t("am16.title")}
           </h1>
           <p className="text-white/40 text-sm max-w-md mx-auto">
-            12 道沉浸式情景题，解锁你的精神状态密码
+            {t("am16.subtitle")}
           </p>
           <p className="text-white/25 text-xs mt-2">
             Flow · Defiance · Xinxue · Shiwu · Giver · Individual · Patience · Execution
@@ -79,10 +132,10 @@ export function AM16Quiz({ onComplete }: Props) {
         {/* 四维预览 */}
         <div className="grid grid-cols-2 gap-3 max-w-sm mx-auto">
           {[
-            { emoji: "☯", label: "顺天 vs 逆天", color: "text-blue-400" },
-            { emoji: "🔮", label: "心觉 vs 格物", color: "text-purple-400" },
-            { emoji: "🫂", label: "渡人 vs 修仙", color: "text-pink-400" },
-            { emoji: "⚡", label: "稳如 vs 执行", color: "text-amber-400" },
+            { emoji: "☯", label: t("am16.flowDefiance"), color: "text-blue-400" },
+            { emoji: "🔮", label: t("am16.xinxueShiwu"), color: "text-purple-400" },
+            { emoji: "🫂", label: t("am16.giverIndividual"), color: "text-pink-400" },
+            { emoji: "⚡", label: t("am16.patienceExecution"), color: "text-amber-400" },
           ].map((d, i) => (
             <motion.div
               key={d.label}
@@ -104,10 +157,10 @@ export function AM16Quiz({ onComplete }: Props) {
           className="btn-gold inline-flex items-center gap-2 text-sm"
         >
           <Sparkles size={16} />
-          开始测试
+          {t("am16.start")}
         </motion.button>
 
-        <p className="text-white/20 text-[11px]">免费 · 无需注册 · 1 分钟出结果</p>
+        <p className="text-white/20 text-[11px]">{t("am16.free")}</p>
       </motion.div>
     )
   }
@@ -118,8 +171,11 @@ export function AM16Quiz({ onComplete }: Props) {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="text-center py-20 space-y-6"
+        className="text-center py-16 space-y-6"
       >
+        {/* 旋转星轨 */}
+        <AnalysisOrbit />
+
         {/* 进度条 100% */}
         <div className="w-full max-w-md mx-auto h-1.5 bg-white/5 rounded-full overflow-hidden">
           <motion.div
@@ -129,34 +185,17 @@ export function AM16Quiz({ onComplete }: Props) {
           />
         </div>
 
-        <motion.div
-          animate={{ scale: [1, 1.2, 1], rotate: [0, 5, -5, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-          className="text-6xl"
-        >
-          🪞
-        </motion.div>
-
         <div>
           <motion.p
             animate={{ opacity: [0.5, 1, 0.5] }}
             transition={{ duration: 2, repeat: Infinity }}
             className="text-gold text-lg font-serif"
           >
-            正在解析你的天命编码...
+            {calibrated ? t("am16.calibrating") : t("am16.analyzing")}
           </motion.p>
-          <p className="text-white/30 text-xs mt-2">连接宇宙量子场 · 校准四维坐标</p>
-        </div>
-
-        <div className="flex justify-center gap-2">
-          {[0, 1, 2, 3].map(i => (
-            <motion.div
-              key={i}
-              animate={{ opacity: [0.2, 1, 0.2] }}
-              transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
-              className="w-2 h-2 rounded-full bg-gold"
-            />
-          ))}
+          <p className="text-white/30 text-xs mt-2">
+            {calibrated ? "✦" : `${t("am16.connectingField")} · ${t("am16.aligningCoords")}`}
+          </p>
         </div>
       </motion.div>
     )
@@ -169,7 +208,7 @@ export function AM16Quiz({ onComplete }: Props) {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
           <span className="text-white/30 text-xs">
-            {currentQ + 1} / {total}
+            {currentQ + 1} {t("am16.questionOf").replace("{total}", String(total))}
           </span>
           <span className="text-gold/50 text-xs">
             {Math.round(progress)}%
@@ -207,49 +246,52 @@ export function AM16Quiz({ onComplete }: Props) {
               <h2 className="text-lg md:text-xl font-serif text-white/90 leading-relaxed">
                 {question.scenario}
               </h2>
-              <p className="text-white/30 text-xs mt-2">你的第一反应是？</p>
+              <p className="text-white/30 text-xs mt-2">{t("am16.yourFirstReaction")}</p>
             </div>
 
             {/* 选项 */}
             <div className="space-y-3">
-              {[question.optionA, question.optionB].map((opt, i) => (
-                <motion.button
-                  key={i}
-                  onClick={() => handleAnswer(i)}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  disabled={selectedOption !== null}
-                  className={`w-full text-left p-4 rounded-xl border transition-all duration-200 ${
-                    selectedOption === i
-                      ? "border-gold/60 bg-gold/10 shadow-[0_0_20px_rgba(201,168,76,0.15)]"
-                      : "border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]"
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    <span className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold mt-0.5 ${
-                      selectedOption === i
-                        ? "bg-gold text-ink"
-                        : "bg-white/10 text-white/50"
-                    }`}>
-                      {selectedOption === i ? (
-                        <motion.span
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                        >
-                          ✓
-                        </motion.span>
-                      ) : (
-                        String.fromCharCode(65 + i) // A / B
-                      )}
-                    </span>
-                    <span className={`text-sm leading-relaxed ${
-                      selectedOption === i ? "text-white/90" : "text-white/60"
-                    }`}>
-                      {opt.text}
-                    </span>
-                  </div>
-                </motion.button>
-              ))}
+              {[question.optionA, question.optionB].map((opt, i) => {
+                const isSelected = selectedOption === i
+                return (
+                  <motion.button
+                    key={i}
+                    onClick={() => handleAnswer(i)}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    disabled={selectedOption !== null}
+                    className={`w-full text-left p-4 rounded-xl border transition-all duration-200 ${
+                      isSelected
+                        ? "border-gold/60 bg-gold/10 shadow-[0_0_24px_rgba(201,168,76,0.2)]"
+                        : "border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <span className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold mt-0.5 transition-all duration-200 ${
+                        isSelected
+                          ? "bg-gold text-ink shadow-[0_0_12px_rgba(201,168,76,0.4)]"
+                          : "bg-white/10 text-white/50"
+                      }`}>
+                        {isSelected ? (
+                          <motion.span
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                          >
+                            ✓
+                          </motion.span>
+                        ) : (
+                          String.fromCharCode(65 + i)
+                        )}
+                      </span>
+                      <span className={`text-sm leading-relaxed ${
+                        isSelected ? "text-white/90" : "text-white/60"
+                      }`}>
+                        {opt.text}
+                      </span>
+                    </div>
+                  </motion.button>
+                )
+              })}
             </div>
           </motion.div>
         )}

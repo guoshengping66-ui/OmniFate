@@ -1354,4 +1354,30 @@ export default {
   "am16.xinxueShiwu": "心觉 vs 格物",
   "am16.giverIndividual": "渡人 vs 修仙",
   "am16.patienceExecution": "稳如 vs 执行",
+
+  // ─── AM16 分享面板 ───
+  "am16.shareTitle": "分享天命编码",
+  "am16.copyLink": "复制链接",
+  "am16.moreShare": "更多分享",
+  "am16.wechat": "微信",
+  "am16.sharePreview": "分享内容预览",
+  "am16.sharePreviewText": "来看看我的天命编码",
+  "am16.inviteFriends": "邀请好友赚星尘",
+  "am16.inviteDesc": "每邀请一位好友注册，双方各得 20 星尘能量",
+  "am16.copyInviteLink": "复制邀请链接",
+
+  // ─── AM16 分析动画 ───
+  "am16.calibrating": "校准完成",
+  "am16.connectingField": "连接量子场",
+  "am16.aligningCoords": "校准四维坐标",
+
+  // ─── AM16 雷达图 ───
+  "am16.radarDefiance": "逆天 ↑",
+  "am16.radarXinxue": "格物 →",
+  "am16.radarGiver": "修仙 ↓",
+  "am16.radarPatience": "躺平 ←",
+
+  // ─── AM16 其他 ───
+  "am16.noData": "暂无数据",
+  "am16.questionOf": "/ {total}",
 } as const

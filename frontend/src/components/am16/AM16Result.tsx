@@ -1,9 +1,10 @@
 "use client"
 import { useEffect, useState } from "react"
-import { motion } from "framer-motion"
-import { Share2, Download, Check, Sparkles, Heart, Skull, RefreshCw } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
+import { Share2, Download, Check, Copy, X, Sparkles, Heart, Skull, RefreshCw, Users, Gift } from "lucide-react"
 import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"
+import { useLanguage } from "@/contexts/LanguageContext"
 import { PERSONALITIES, DIMENSIONS } from "@/lib/am16/constants"
 import { calculateAM16 } from "@/lib/am16/calculator"
 import Link from "next/link"
@@ -15,28 +16,53 @@ interface Props {
 
 export function AM16ResultCard({ answers, onRestart }: Props) {
   const { user } = useAuth()
-  const [copied, setCopied] = useState(false)
+  const { t } = useLanguage()
+  const [shareOpen, setShareOpen] = useState(false)
   const [downloading, setDownloading] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const [copiedReferral, setCopiedReferral] = useState(false)
   const result = calculateAM16(answers)
   const { personality, radarScores, code } = result
 
-  // 相容 / 冲突人格名称
   const compatNames = personality.compatible.map(c => PERSONALITIES[c]?.emoji + " " + c).join(" · ")
   const clashNames = personality.clash.map(c => PERSONALITIES[c]?.emoji + " " + c).join(" · ")
 
-  const handleCopyInvite = async () => {
+  // ── 分享面板操作 ──
+  const handleCopyLink = async () => {
+    const url = `${typeof window !== "undefined" ? window.location.origin : ""}/am16`
+    try {
+      await navigator.clipboard.writeText(url)
+      setCopied(true)
+      toast.success(t("am16.copied"))
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      toast.error("Copy failed")
+    }
+  }
+
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: t("am16.sharePreviewText"),
+        text: `${personality.emoji} ${personality.title} — ${code}`,
+        url: `${typeof window !== "undefined" ? window.location.origin : ""}/am16`,
+      }).catch(() => {})
+    }
+  }
+
+  const handleCopyReferral = async () => {
     if (!user) {
-      toast("登录后可获取专属邀请码")
+      toast(t("am16.loginRequired"))
       return
     }
     const inviteUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/register?ref=${user.referral_code || ""}`
     try {
       await navigator.clipboard.writeText(inviteUrl)
-      setCopied(true)
-      toast.success("邀请链接已复制！好友注册后双方各得 20 星尘")
-      setTimeout(() => setCopied(false), 2000)
+      setCopiedReferral(true)
+      toast.success(t("am16.shareSuccess"))
+      setTimeout(() => setCopiedReferral(false), 2000)
     } catch {
-      toast.error("复制失败")
+      toast.error("Copy failed")
     }
   }
 
@@ -50,7 +76,6 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
       const ctx = canvas.getContext("2d")
       if (!ctx) return
 
-      // 背景渐变
       const grad = ctx.createLinearGradient(0, 0, 750, 1334)
       grad.addColorStop(0, "#1a1030")
       grad.addColorStop(0.5, "#2D1B4E")
@@ -58,36 +83,29 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
       ctx.fillStyle = grad
       ctx.fillRect(0, 0, 750, 1334)
 
-      // 星盘底纹光晕
       ctx.fillStyle = "rgba(201,168,76,0.08)"
       ctx.beginPath()
       ctx.arc(375, 350, 280, 0, Math.PI * 2)
       ctx.fill()
 
-      // 顶部标题
       ctx.fillStyle = "#C9A84C"
       ctx.font = "bold 32px sans-serif"
       ctx.textAlign = "center"
-      ctx.fillText("✦ AM16 天命编码 ✦", 375, 100)
+      ctx.fillText("✦ AM16 Destiny Code ✦", 375, 100)
 
-      // 4字母编码（超大霓虹）
       ctx.font = "bold 120px sans-serif"
-      ctx.fillStyle = "#C9A84C"
       ctx.shadowColor = "rgba(201,168,76,0.6)"
       ctx.shadowBlur = 30
       ctx.fillText(code, 375, 280)
       ctx.shadowBlur = 0
 
-      // 称号
       ctx.font = "bold 36px sans-serif"
       ctx.fillStyle = "rgba(255,255,255,0.9)"
       ctx.fillText(personality.title, 375, 360)
 
-      // Emoji
       ctx.font = "80px serif"
       ctx.fillText(personality.emoji, 375, 470)
 
-      // 王阳明金句
       ctx.fillStyle = "rgba(201,168,76,0.8)"
       ctx.font = "italic 28px serif"
       ctx.fillText(`"${personality.quote}"`, 375, 560)
@@ -96,7 +114,6 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
       ctx.font = "22px sans-serif"
       ctx.fillText(personality.quoteExplain, 375, 600)
 
-      // 分隔线
       ctx.strokeStyle = "rgba(201,168,76,0.2)"
       ctx.lineWidth = 1
       ctx.beginPath()
@@ -104,49 +121,42 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
       ctx.lineTo(600, 640)
       ctx.stroke()
 
-      // 精神状态
       ctx.fillStyle = "rgba(255,255,255,0.7)"
       ctx.font = "bold 24px sans-serif"
-      ctx.fillText("🧠 精神状态诊断", 375, 700)
+      ctx.fillText("🧠 Mental State Diagnosis", 375, 700)
 
-      // 诊断文字（自动换行）
       ctx.font = "20px sans-serif"
       ctx.fillStyle = "rgba(255,255,255,0.5)"
       wrapText(ctx, personality.diagnosis, 375, 740, 580, 28)
 
-      // 改运建议
       ctx.fillStyle = "rgba(255,255,255,0.7)"
       ctx.font = "bold 24px sans-serif"
-      ctx.fillText("🧭 改运指南", 375, 920)
+      ctx.fillText("🧭 Fortune Guide", 375, 920)
 
       ctx.font = "20px sans-serif"
       ctx.fillStyle = "rgba(255,255,255,0.5)"
       wrapText(ctx, personality.advice, 375, 960, 580, 28)
 
-      // 底部 CTA
       ctx.fillStyle = "#C9A84C"
       ctx.font = "bold 28px sans-serif"
-      ctx.fillText("🔮 扫码测测你的天命", 375, 1130)
+      ctx.fillText("🔮 Scan to try your destiny", 375, 1130)
 
-      // 邀请码
       ctx.fillStyle = "rgba(255,255,255,0.3)"
       ctx.font = "18px sans-serif"
       const inviteCode = user?.referral_code || "DESTINY"
-      ctx.fillText(`新用户立赠 20 星尘能量 · 邀请码: ${inviteCode}`, 375, 1180)
+      ctx.fillText(`20 free stardust · Code: ${inviteCode}`, 375, 1180)
 
-      // 品牌
       ctx.font = "16px sans-serif"
       ctx.fillStyle = "rgba(255,255,255,0.2)"
-      ctx.fillText("命盘智镜 AlphaMirror · AI 赋能千年玄学", 375, 1300)
+      ctx.fillText("AlphaMirror · AI-Powered Destiny", 375, 1300)
 
-      // 下载
       const link = document.createElement("a")
       link.download = `AM16-${code}-${Date.now()}.png`
       link.href = canvas.toDataURL("image/png")
       link.click()
-      toast.success("海报已保存")
+      toast.success(t("am16.saveImage"))
     } catch {
-      toast.error("保存失败")
+      toast.error("Save failed")
     } finally {
       setDownloading(false)
     }
@@ -161,20 +171,41 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
         transition={{ duration: 0.5, type: "spring" }}
         className="card-glass-elevated p-6 text-center relative overflow-hidden"
       >
-        {/* 背景光晕 */}
         <div className={`absolute inset-0 bg-gradient-to-b ${personality.bgGlow} pointer-events-none`} />
 
-        {/* 标题 */}
         <div className="relative">
-          <p className="text-gold/50 text-xs tracking-widest uppercase mb-3">✦ AM16 天命编码 ✦</p>
+          <p className="text-gold/50 text-xs tracking-widest uppercase mb-3">{t("am16.yourCode")}</p>
 
-          {/* 超大编码 */}
+          {/* 超大编码 + 金色粒子 */}
           <motion.div
             initial={{ scale: 0, rotate: -10 }}
             animate={{ scale: 1, rotate: 0 }}
             transition={{ delay: 0.2, type: "spring", damping: 8 }}
             className="relative inline-block"
           >
+            {/* 粒子效果 */}
+            <div className="absolute inset-0 pointer-events-none overflow-visible">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <motion.div
+                  key={i}
+                  className="absolute w-1 h-1 rounded-full bg-gold"
+                  initial={{ opacity: 0, y: 0, x: 0 }}
+                  animate={{
+                    opacity: [0, 1, 0],
+                    y: [-10, -30 - Math.random() * 15],
+                    x: [(i - 4) * 6, (i - 4) * 10 + (Math.random() - 0.5) * 15],
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    delay: 0.5 + i * 0.1,
+                    repeat: Infinity,
+                    repeatDelay: 2.5,
+                  }}
+                  style={{ left: "50%", top: "80%" }}
+                />
+              ))}
+            </div>
+
             <h1 className={`text-6xl md:text-7xl font-serif font-bold ${personality.color} tracking-wider`}
               style={{ textShadow: "0 0 40px rgba(201,168,76,0.3)" }}
             >
@@ -182,7 +213,6 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
             </h1>
           </motion.div>
 
-          {/* 称号 */}
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -202,10 +232,10 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
         className="card-glass p-5"
       >
         <h3 className="text-white/60 text-xs font-medium uppercase tracking-wider mb-4 text-center">
-          四维能量坐标
+          {t("am16.fourDimCoords")}
         </h3>
         <div className="flex justify-center">
-          <SquareRadar scores={radarScores} size={220} />
+          <SquareRadar scores={radarScores} size={220} t={t} />
         </div>
         <div className="grid grid-cols-4 gap-2 mt-4 text-center">
           {DIMENSIONS.map(d => (
@@ -230,7 +260,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
       >
         <div className="absolute top-3 right-3 text-gold/10 text-5xl font-serif select-none">"</div>
         <h3 className="text-gold/60 text-xs font-medium uppercase tracking-wider mb-3 flex items-center gap-1.5">
-          <Sparkles size={12} /> 心学金句
+          <Sparkles size={12} /> {t("am16.xinxueQuote")}
         </h3>
         <p className="text-gold text-lg font-serif italic mb-1">"{personality.quote}"</p>
         <p className="text-white/50 text-sm">—— {personality.quoteExplain}</p>
@@ -244,7 +274,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
         className="card-glass p-5"
       >
         <h3 className="text-white/60 text-xs font-medium uppercase tracking-wider mb-3 flex items-center gap-1.5">
-          🧠 精神状态诊断
+          🧠 {t("am16.diagnosis")}
         </h3>
         <p className="text-white/70 text-sm leading-relaxed">{personality.diagnosis}</p>
       </motion.div>
@@ -257,7 +287,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
         className="card-glass p-5"
       >
         <h3 className="text-white/60 text-xs font-medium uppercase tracking-wider mb-3 flex items-center gap-1.5">
-          🧭 改运指南
+          🧭 {t("am16.advice")}
         </h3>
         <p className="text-white/70 text-sm leading-relaxed">{personality.advice}</p>
       </motion.div>
@@ -270,7 +300,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
         className="card-glass p-5"
       >
         <h3 className="text-white/60 text-xs font-medium uppercase tracking-wider mb-4 text-center">
-          ─── 匹配雷达 ───
+          ─── {t("am16.match")} ───
         </h3>
         <div className="space-y-3">
           <div className="flex items-start gap-3">
@@ -278,8 +308,8 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
               <Heart size={14} className="text-pink-400" />
             </div>
             <div>
-              <p className="text-white/60 text-xs mb-0.5">今日天作之合</p>
-              <p className="text-white/80 text-sm font-medium">{compatNames || "暂无数据"}</p>
+              <p className="text-white/60 text-xs mb-0.5">{t("am16.match")}</p>
+              <p className="text-white/80 text-sm font-medium">{compatNames || t("am16.noData")}</p>
             </div>
           </div>
           <div className="flex items-start gap-3">
@@ -287,8 +317,8 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
               <Skull size={14} className="text-red-400" />
             </div>
             <div>
-              <p className="text-white/60 text-xs mb-0.5">今日离远点保命</p>
-              <p className="text-white/80 text-sm font-medium">{clashNames || "暂无数据"}</p>
+              <p className="text-white/60 text-xs mb-0.5">{t("am16.clash")}</p>
+              <p className="text-white/80 text-sm font-medium">{clashNames || t("am16.noData")}</p>
             </div>
           </div>
         </div>
@@ -299,28 +329,30 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.0 }}
-        className="card-glass-elevated p-6 border-gold/20"
+        className="card-glass-elevated p-6 border-gold/20 relative overflow-hidden"
       >
-        <div className="text-center mb-4">
+        {/* 脉冲光环 */}
+        <div className="absolute -inset-1 rounded-2xl bg-gold/5 animate-pulse pointer-events-none" />
+
+        <div className="relative text-center mb-4">
           <div className="inline-flex items-center gap-2 text-gold/60 text-xs mb-2">
             <Sparkles size={12} />
-            <span>AI 深度解读</span>
+            <span>{t("am16.ctaTitle")}</span>
           </div>
           <p className="text-white/60 text-sm leading-relaxed mb-3">
-            诊断显示：你当前的人格气场在 2026 流年中正遭遇微弱的能量对冲。
+            {t("am16.ctaDesc")}
           </p>
           <p className="text-white/40 text-xs">
-            点击下方按钮，消耗 <span className="text-gold font-medium">100 星尘</span>，直接调取五大 AI 导师为你定制完整的
-            <span className="text-gold">【流年改运通关报告】</span>！
+            {t("am16.ctaAction")}，消耗 <span className="text-gold font-medium">{t("am16.ctaCost")}</span>，{t("am16.ctaReport")}！
           </p>
         </div>
-        <Link href="/reading/new" className="block">
+        <Link href="/reading/new" className="block relative">
           <motion.button
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
-            className="w-full btn-gold text-sm flex items-center justify-center gap-2"
+            className="w-full btn-gold text-sm flex items-center justify-center gap-2 relative z-10"
           >
-            🔮 开启命运解读
+            🔮 {t("am16.ctaAction")}
             <span className="text-xs opacity-70">· 100 ✨</span>
           </motion.button>
         </Link>
@@ -339,14 +371,14 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
           className="flex-1 btn-gold-outline text-sm flex items-center justify-center gap-2 disabled:opacity-50"
         >
           <Download size={14} />
-          {downloading ? "保存中..." : "保存长图"}
+          {downloading ? t("am16.saving") : t("am16.saveImage")}
         </button>
         <button
-          onClick={handleCopyInvite}
+          onClick={() => setShareOpen(true)}
           className="flex-1 btn-gold-outline text-sm flex items-center justify-center gap-2"
         >
-          {copied ? <Check size={14} /> : <Share2 size={14} />}
-          {copied ? "已复制" : "分享"}
+          <Share2 size={14} />
+          {t("am16.share")}
         </button>
       </motion.div>
 
@@ -354,10 +386,10 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
       {user && (
         <div className="text-center">
           <p className="text-white/25 text-[11px]">
-            你的专属邀请码: <span className="text-gold/50">{user.referral_code}</span>
+            {t("am16.inviteCode")}: <span className="text-gold/50">{user.referral_code}</span>
           </p>
           <p className="text-white/20 text-[10px] mt-1">
-            新用户立赠 20 星尘能量
+            {t("am16.inviteBonus")}
           </p>
         </div>
       )}
@@ -369,9 +401,101 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
           className="text-white/30 text-xs hover:text-gold/60 transition-colors inline-flex items-center gap-1"
         >
           <RefreshCw size={12} />
-          重新测试
+          {t("am16.restart")}
         </button>
       </div>
+
+      {/* ═══ 分享底部面板 ═══ */}
+      <AnimatePresence>
+        {shareOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShareOpen(false)}
+              className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, y: "100%" }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="fixed bottom-0 left-0 right-0 z-50 bg-ink border-t border-gold/20 rounded-t-3xl p-6 pb-10 max-w-lg mx-auto"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="font-serif text-lg text-gold">{t("am16.shareTitle")}</h3>
+                <button onClick={() => setShareOpen(false)} className="text-white/40 hover:text-white transition-colors">
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-4 gap-4 mb-6">
+                <button onClick={handleCopyLink}
+                  className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 hover:bg-gold/10 border border-white/10 hover:border-gold/30 transition-all group">
+                  <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
+                    {copied ? <Check size={18} className="text-green-400" /> : <Copy size={18} className="text-white/60" />}
+                  </div>
+                  <span className="text-[10px] text-white/40">{copied ? t("am16.copied") : t("am16.copyLink")}</span>
+                </button>
+
+                {typeof navigator !== "undefined" && !!navigator.share && (
+                  <button onClick={handleShare}
+                    className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 hover:bg-gold/10 border border-white/10 hover:border-gold/30 transition-all group">
+                    <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
+                      <Share2 size={18} className="text-white/60" />
+                    </div>
+                    <span className="text-[10px] text-white/40">{t("am16.moreShare")}</span>
+                  </button>
+                )}
+
+                <button onClick={handleDownload}
+                  className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 hover:bg-gold/10 border border-white/10 hover:border-gold/30 transition-all group">
+                  <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
+                    <Download size={18} className="text-white/60" />
+                  </div>
+                  <span className="text-[10px] text-white/40">{t("am16.saveImage")}</span>
+                </button>
+
+                <div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 border border-white/10 transition-all group opacity-60 cursor-not-allowed">
+                  <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                    <span className="text-sm">💚</span>
+                  </div>
+                  <span className="text-[10px] text-white/40">{t("am16.wechat")}</span>
+                </div>
+              </div>
+
+              {/* 邀请码卡片 */}
+              {user && (
+                <div className="bg-gradient-to-r from-gold/10 via-gold/5 to-transparent rounded-xl p-4 border border-gold/20 mb-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Gift size={16} className="text-gold" />
+                    <span className="text-gold text-sm font-medium">{t("am16.inviteFriends")}</span>
+                  </div>
+                  <p className="text-white/40 text-xs mb-3">{t("am16.inviteDesc")}</p>
+                  <button
+                    onClick={handleCopyReferral}
+                    className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-gold/10 border border-gold/30 text-gold text-xs hover:bg-gold/20 transition-all"
+                  >
+                    {copiedReferral ? <><Check size={12} /> {t("am16.copied")}</> : <><Users size={12} /> {t("am16.copyInviteLink")}</>}
+                  </button>
+                </div>
+              )}
+
+              {/* 分享预览 */}
+              <div className="bg-gradient-to-br from-gold/10 via-ink-light to-ink rounded-xl p-4 border border-gold/20">
+                <p className="text-white/40 text-xs mb-1">{t("am16.sharePreview")}</p>
+                <p className="text-gold text-sm font-medium">
+                  {personality.emoji} {code} — {personality.title}
+                </p>
+                <p className="text-white/30 text-xs mt-1">
+                  {t("am16.sharePreviewText")}
+                </p>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
@@ -405,13 +529,15 @@ function wrapText(
   }
 }
 
-// ── 正方形四维雷达图 ──
+// ── 正方形四维雷达图（带呼吸光晕）──
 function SquareRadar({
   scores,
   size = 220,
+  t,
 }: {
   scores: Record<string, number>
   size?: number
+  t: (key: string) => string
 }) {
   const [animated, setAnimated] = useState(false)
   const cx = size / 2
@@ -423,26 +549,22 @@ function SquareRadar({
     return () => clearTimeout(t)
   }, [])
 
-  // 四个角：上(FD) 右(XS) 下(GI) 左(PE)
   const corners = [
-    { x: cx, y: cy - radius },           // 上: FD
-    { x: cx + radius, y: cy },           // 右: XS
-    { x: cx, y: cy + radius },           // 下: GI
-    { x: cx - radius, y: cy },           // 左: PE
+    { x: cx, y: cy - radius },
+    { x: cx + radius, y: cy },
+    { x: cx, y: cy + radius },
+    { x: cx - radius, y: cy },
   ]
 
   const dims = ["FD", "XS", "GI", "PE"]
-  const labels = ["逆天 ↑", "格物 →", "修仙 ↓", "躺平 ←"]
+  const radarLabels = ["radarDefiance", "radarXinxue", "radarGiver", "radarPatience"] as const
 
-  // 数据点（根据分数偏移）
   const dataPoints = corners.map((c, i) => {
     const val = (scores[dims[i]] ?? 50) / 100
-    const ratio = 0.2 + val * 0.8 // 最小 20%
-    const midCx = cx
-    const midCy = cy
+    const ratio = 0.2 + val * 0.8
     return {
-      x: midCx + (c.x - midCx) * ratio,
-      y: midCy + (c.y - midCy) * ratio,
+      x: cx + (c.x - cx) * ratio,
+      y: cy + (c.y - cy) * ratio,
     }
   })
 
@@ -450,7 +572,22 @@ function SquareRadar({
 
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      {/* 网格线（3层正方形） */}
+      {/* 呼吸光晕 */}
+      {animated && (
+        <defs>
+          <radialGradient id="radarGlow">
+            <stop offset="0%" stopColor="rgba(201,168,76,0.15)" />
+            <stop offset="100%" stopColor="rgba(201,168,76,0)" />
+          </radialGradient>
+        </defs>
+      )}
+      {animated && (
+        <circle cx={cx} cy={cy} r={radius * 0.8} fill="url(#radarGlow)">
+          <animate attributeName="opacity" values="0.3;0.7;0.3" dur="3s" repeatCount="indefinite" />
+        </circle>
+      )}
+
+      {/* 网格线 */}
       {[0.33, 0.66, 1].map((scale, i) => (
         <polygon
           key={i}
@@ -501,7 +638,7 @@ function SquareRadar({
             fill="rgba(255,255,255,0.4)"
             fontSize="10"
           >
-            {labels[i]}
+            {t(`am16.${radarLabels[i]}`)}
           </text>
         )
       })}

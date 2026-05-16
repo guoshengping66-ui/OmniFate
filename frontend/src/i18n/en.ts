@@ -1360,4 +1360,30 @@ export default {
   "am16.xinxueShiwu": "Xinxue vs Shiwu",
   "am16.giverIndividual": "Giver vs Individual",
   "am16.patienceExecution": "Patience vs Execution",
+
+  // ─── AM16 Share Sheet ───
+  "am16.shareTitle": "Share Destiny Code",
+  "am16.copyLink": "Copy Link",
+  "am16.moreShare": "More",
+  "am16.wechat": "WeChat",
+  "am16.sharePreview": "Share Preview",
+  "am16.sharePreviewText": "Check out my destiny code",
+  "am16.inviteFriends": "Invite Friends for Stardust",
+  "am16.inviteDesc": "Both you and your friend earn 20 stardust per invite",
+  "am16.copyInviteLink": "Copy Invite Link",
+
+  // ─── AM16 Analysis Animation ───
+  "am16.calibrating": "Calibration Complete",
+  "am16.connectingField": "Connecting Quantum Field",
+  "am16.aligningCoords": "Aligning 4D Coordinates",
+
+  // ─── AM16 Radar Chart ───
+  "am16.radarDefiance": "Defy ↑",
+  "am16.radarXinxue": "Analyze →",
+  "am16.radarGiver": "Transcend ↓",
+  "am16.radarPatience": "Rest ←",
+
+  // ─── AM16 Misc ───
+  "am16.noData": "No data yet",
+  "am16.questionOf": "/ {total}",
 } as const
