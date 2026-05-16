@@ -119,6 +119,10 @@ export default function ResultPage() {
   const compatNames = personality.compatible.map(c => PERSONALITIES[c]).filter(Boolean)
   const clashNames = personality.clash.map(c => PERSONALITIES[c]).filter(Boolean)
 
+  useEffect(() => {
+    try { Taro.showShareMenu({ withShareTicket: true }) } catch (_) {}
+  }, [])
+
   const handleSavePoster = () => {
     const node = posterNodeRef.current
     if (!node) { Taro.showToast({ title: "海报生成中，请稍候", icon: "none" }); return }
@@ -138,8 +142,6 @@ export default function ResultPage() {
       })
     } catch (_) { Taro.showToast({ title: "当前环境不支持保存海报", icon: "none" }) }
   }
-
-  try { Taro.showShareMenu({ withShareTicket: true }) } catch (_) {}
 
   return (
     <View className="min-h-screen pb-32" style={S.bg}>
