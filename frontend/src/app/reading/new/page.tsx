@@ -81,16 +81,6 @@ export default function NewReadingPage() {
   // ── Step labels ──
   const STEPS = [t("new.step1"), t("new.step2"), t("new.step3"), t("new.step4")]
 
-  // ── Palm field labels ──
-  const PALM_FIELDS = useMemo(() => [
-    { key: "life_line",       label: t("new.palm.lifeLine"),       placeholder: t("new.palm.placeholder.lifeLine") },
-    { key: "head_line",       label: t("new.palm.headLine"),       placeholder: t("new.palm.placeholder.headLine") },
-    { key: "heart_line",      label: t("new.palm.heartLine"),      placeholder: t("new.palm.placeholder.heartLine") },
-    { key: "fate_line",       label: t("new.palm.fateLine"),       placeholder: t("new.palm.placeholder.fateLine") },
-    { key: "sun_line",        label: t("new.palm.sunLine"),        placeholder: t("new.palm.placeholder.sunLine") },
-    { key: "marriage_lines",  label: t("new.palm.marriageLine"),   placeholder: t("new.palm.placeholder.marriageLine") },
-  ], [t])
-
   const [step, setStep]           = useState(0)
   const [loading, setLoading]     = useState(false)
   // Face state
@@ -666,24 +656,6 @@ export default function NewReadingPage() {
                   </div>
                 )}
               </div>
-
-              {/* ── Manual palm text fallback ────────────── */}
-              <div className="border-t border-white/10 pt-6">
-                <h3 className="text-white/50 text-sm mb-3">
-                  {t("new.palmManualTitle")} <span className="text-white/20 text-xs">{t("new.palmManualHint")}</span>
-                </h3>
-                <div className="grid sm:grid-cols-2 gap-3">
-                  {PALM_FIELDS.map(({ key, label, placeholder }) => (
-                    <div key={key}>
-                      <label className="label">{label}</label>
-                      <input type="text" placeholder={placeholder}
-                        value={palmData[key] ?? ""}
-                        onChange={e => setPalmData(d => ({ ...d, [key]: e.target.value }))}
-                        className="input-field text-sm" />
-                    </div>
-                  ))}
-                </div>
-              </div> {/* end manual palm */}
             </div> {/* end card-glass */}
               </motion.div>
             </div>
