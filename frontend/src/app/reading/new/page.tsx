@@ -163,7 +163,9 @@ export default function NewReadingPage() {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Restore saved progress ──────────────────────────────────
+  // Skip when wizard has explicitly set a startStep (intent flow)
   useEffect(() => {
+    if (wizardStartStep > 0) return // Wizard controls the step — don't override from localStorage
     const saved = loadSavedProgress()
     if (saved) {
       setStep(saved.step)
