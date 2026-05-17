@@ -176,6 +176,13 @@ export function Navbar() {
                       )}
                     </div>
                     <Link
+                      href="/dashboard"
+                      onClick={() => setMenuOpen(false)}
+                      className="px-3 py-2 text-sm text-white/60 hover:text-gold hover:bg-white/5 rounded-lg transition-colors"
+                    >
+                      {t("nav.dashboard")}
+                    </Link>
+                    <Link
                       href="/reading/new"
                       onClick={() => setMenuOpen(false)}
                       className="px-3 py-2 text-sm text-white/60 hover:text-gold hover:bg-white/5 rounded-lg transition-colors"

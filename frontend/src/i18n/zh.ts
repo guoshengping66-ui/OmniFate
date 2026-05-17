@@ -3,6 +3,7 @@ export default {
   "app.name": "命盘智镜",
   "app.slogan": "洞见天机",
   "nav.home": "首页",
+  "nav.dashboard": "我的命盘",
   "nav.reading": "开始推命",
   "nav.pricing": "定价",
   "nav.shop": "改运商城",

@@ -3,6 +3,7 @@ export default {
   "app.name": "Destiny Mirror",
   "app.slogan": "Insight into Destiny",
   "nav.home": "Home",
+  "nav.dashboard": "My Chart",
   "nav.reading": "Start Reading",
   "nav.pricing": "Pricing",
   "nav.shop": "Fortune Shop",

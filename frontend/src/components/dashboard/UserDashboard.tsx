@@ -2,21 +2,22 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Sparkles, ArrowRight, Users, Loader2, Star, Calendar, MapPin, Clock } from "lucide-react"
+import {
+  Sparkles, ArrowRight, Users, Loader2, Star, Calendar, MapPin,
+  Target, Zap,
+} from "lucide-react"
 import { useUserStore } from "@/stores/useUserStore"
+import { useWizardStore, type Intent } from "@/stores/useWizardStore"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { listMyReadings, runAnalysis, type ReadingListItem } from "@/lib/api"
+import { listMyReadings, type ReadingListItem } from "@/lib/api"
 import { motion } from "framer-motion"
 import { TargetSelector } from "./TargetSelector"
 import { BirthProfileSetup } from "./BirthProfileSetup"
+import { EventAnalysisDrawer } from "./EventAnalysisDrawer"
 
 // Chinese zodiac animals
 const ZODIAC = ["鼠","牛","虎","兔","龙","蛇","马","羊","猴","鸡","狗","猪"]
-// Heavenly stems
-const TIANGAN = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]
-// Earthly branches
-const DIZHI = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"]
 
 function getZodiac(year: number): string {
   return ZODIAC[(year - 4) % 12]
@@ -27,7 +28,6 @@ function getShengxiao(year: number): string {
   return animals[(year - 4) % 12]
 }
 
-// Approximate western zodiac by month/day
 function getConstellation(month: number, day: number): string {
   const dates = [20,19,21,20,21,22,23,23,23,24,22,22]
   const signs = ["水瓶座","双鱼座","白羊座","金牛座","双子座","巨蟹座","狮子座","处女座","天秤座","天蝎座","射手座","摩羯座"]
@@ -40,9 +40,10 @@ export function UserDashboard() {
   const { user } = useAuth()
   const { t } = useLanguage()
   const { userProfile, activeTestTarget, fetchBirthProfiles, loading } = useUserStore()
+  const { setIntent, prefillFromProfile } = useWizardStore()
   const [recentReadings, setRecentReadings] = useState<ReadingListItem[]>([])
-  const [analyzing, setAnalyzing] = useState(false)
   const [loadingReadings, setLoadingReadings] = useState(true)
+  const [eventDrawerOpen, setEventDrawerOpen] = useState(false)
 
   useEffect(() => {
     fetchBirthProfiles()
@@ -52,35 +53,21 @@ export function UserDashboard() {
       .finally(() => setLoadingReadings(false))
   }, [])
 
-  const handleOneClickAnalysis = async () => {
+  const handleIntent = (intent: Intent) => {
     const profile = activeTestTarget || userProfile
-    if (!profile) {
+
+    if (!profile && intent !== "GENERAL_DAILY") {
+      // No profile → redirect to wizard which will show empty form
+      setIntent(intent)
       router.push("/reading/new")
       return
     }
-    setAnalyzing(true)
-    try {
-      const result = await runAnalysis({
-        gender: profile.gender,
-        birth_year: profile.birth_year,
-        birth_month: profile.birth_month,
-        birth_day: profile.birth_day,
-        birth_hour: profile.birth_hour,
-        birth_minute: profile.birth_minute,
-        birth_city: profile.birth_city || "",
-        latitude: profile.latitude ?? undefined,
-        longitude: profile.longitude ?? undefined,
-        user_question: "请给我一份全维度命理分析",
-        is_premium: false,
-        tarot_cards: [],
-        palm_raw_text: "",
-        face_raw_text: "",
-      })
-      router.push(`/reading/${result.session_id}`)
-    } catch {
-      // Fallback to manual flow
-      router.push("/reading/new")
+
+    setIntent(intent)
+    if (profile) {
+      prefillFromProfile(profile)
     }
+    router.push("/reading/new")
   }
 
   const constellation = userProfile ? getConstellation(userProfile.birth_month, userProfile.birth_day) : ""
@@ -101,7 +88,7 @@ export function UserDashboard() {
         <p className="text-white/40 text-sm">你的命理底座已就绪，随时可以开始探索</p>
       </motion.div>
 
-      {/* Profile card + Quick actions */}
+      {/* Profile card + Intent actions */}
       <div className="grid md:grid-cols-3 gap-6 mb-10">
         {/* Profile summary card */}
         <motion.div
@@ -158,36 +145,67 @@ export function UserDashboard() {
           )}
         </motion.div>
 
-        {/* Quick actions */}
+        {/* Intent selector — 3 个推演入口 */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="space-y-4"
+          className="space-y-3"
         >
+          {/* 完整推命 */}
           <button
-            onClick={handleOneClickAnalysis}
-            disabled={analyzing || loading}
-            className="w-full card-glass p-5 text-left group hover:border-gold/30 transition-all"
+            onClick={() => handleIntent("FULL_MULTIMODAL")}
+            disabled={loading}
+            className="w-full card-glass p-4 text-left group hover:border-gold/30 transition-all"
           >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center flex-shrink-0">
-                {analyzing ? (
-                  <Loader2 size={20} className="text-gold animate-spin" />
-                ) : (
-                  <Sparkles size={20} className="text-gold" />
-                )}
+                <Sparkles size={20} className="text-gold" />
               </div>
               <div>
-                <div className="text-white/80 text-sm font-medium">一键推命</div>
-                <div className="text-white/30 text-xs">使用底座信息分析</div>
+                <div className="text-white/80 text-sm font-medium">完整推命</div>
+                <div className="text-white/30 text-xs">塔罗 + 面相 + 手相</div>
               </div>
             </div>
           </button>
 
+          {/* 日常问事 */}
+          <button
+            onClick={() => handleIntent("GENERAL_DAILY")}
+            disabled={loading}
+            className="w-full card-glass p-4 text-left group hover:border-white/20 transition-all"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0">
+                <Zap size={20} className="text-white/50" />
+              </div>
+              <div>
+                <div className="text-white/80 text-sm font-medium">日常问事</div>
+                <div className="text-white/30 text-xs">一键提问 · 塔罗指引</div>
+              </div>
+            </div>
+          </button>
+
+          {/* 格物致知 — 事件分析 */}
+          <button
+            onClick={() => setEventDrawerOpen(true)}
+            className="w-full card-glass p-4 text-left group hover:border-white/20 transition-all"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0">
+                <Target size={20} className="text-white/50" />
+              </div>
+              <div>
+                <div className="text-white/80 text-sm font-medium">格物致知</div>
+                <div className="text-white/30 text-xs">特定事件 · AI 复盘</div>
+              </div>
+            </div>
+          </button>
+
+          {/* 帮朋友测 */}
           <Link
             href="/reading/new"
-            className="block card-glass p-5 text-left group hover:border-white/20 transition-all"
+            className="block card-glass p-4 text-left group hover:border-white/20 transition-all"
           >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0">
@@ -196,21 +214,6 @@ export function UserDashboard() {
               <div>
                 <div className="text-white/80 text-sm font-medium">帮朋友测</div>
                 <div className="text-white/30 text-xs">使用不同的出生信息</div>
-              </div>
-            </div>
-          </Link>
-
-          <Link
-            href="/reading/new"
-            className="block card-glass p-5 text-left group hover:border-white/20 transition-all"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0">
-                <Clock size={20} className="text-white/50" />
-              </div>
-              <div>
-                <div className="text-white/80 text-sm font-medium">完整推命</div>
-                <div className="text-white/30 text-xs">塔罗 + 面相 + 手相</div>
               </div>
             </div>
           </Link>
@@ -262,10 +265,13 @@ export function UserDashboard() {
         ) : (
           <div className="card-glass p-8 text-center">
             <p className="text-white/30 text-sm">还没有分析记录</p>
-            <p className="text-white/20 text-xs mt-1">点击"一键推命"开始你的第一次分析</p>
+            <p className="text-white/20 text-xs mt-1">选择上方推演方式开始你的第一次分析</p>
           </div>
         )}
       </motion.div>
+
+      {/* Event Analysis Drawer */}
+      <EventAnalysisDrawer open={eventDrawerOpen} onClose={() => setEventDrawerOpen(false)} />
     </div>
   )
 }

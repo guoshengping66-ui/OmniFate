@@ -137,7 +137,7 @@ export default function RegisterPage() {
       localStorage.setItem("alpha_mirror_token", res.access_token)
       localStorage.setItem("alpha_mirror_refresh", res.refresh_token)
       toast.success(t("auth.loginSuccess"))
-      router.replace("/")
+      router.replace("/dashboard")
     } catch (err: any) {
       const detail = err?.response?.data?.detail ?? t("auth.verifyFail")
       toast.error(detail)

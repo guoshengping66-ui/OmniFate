@@ -21,6 +21,7 @@ import { LocationSelector } from "@/components/reading/LocationSelector"
 import { DateSelector } from "@/components/reading/DateSelector"
 import { HotQuestions } from "@/components/reading/HotQuestions"
 import { FortuneGuide } from "@/components/reading/FortuneGuide"
+import { useWizardStore } from "@/stores/useWizardStore"
 
 const STORAGE_KEY = "destiny_reading_progress"
 
@@ -79,8 +80,7 @@ export default function NewReadingPage() {
   }), [t])
   type FormValues = z.infer<typeof schema>
 
-  // ── Step labels ──
-  const STEPS = [t("new.step1"), t("new.step2"), t("new.step3"), t("new.step4")]
+  // ── Step labels ── (defined above via useMemo based on intent)
 
   const [step, setStep]           = useState(0)
   const [loading, setLoading]     = useState(false)
@@ -113,6 +113,8 @@ export default function NewReadingPage() {
     return () => {
       if (facePreview) URL.revokeObjectURL(facePreview)
       if (palmPreview) URL.revokeObjectURL(palmPreview)
+      // Reset wizard store when leaving
+      resetWizard()
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -123,6 +125,41 @@ export default function NewReadingPage() {
 
   const watchedQuestion = watch("user_question")
   const watchedHour = watch("birth_hour")
+
+  // ── Wizard store: intent & prefill ──────────────────────────
+  const { currentIntent, formData: wizardData, startStep: wizardStartStep, reset: resetWizard } = useWizardStore()
+
+  // Dynamic steps based on intent
+  const STEPS = useMemo(() => {
+    if (currentIntent === "SPECIFIC_EVENT") {
+      return [t("new.step4")] // Only confirm
+    }
+    if (currentIntent === "GENERAL_DAILY") {
+      return [t("new.step2"), t("new.step4")] // Tarot + confirm
+    }
+    // FULL_MULTIMODAL or no intent — all 4 steps
+    return [t("new.step1"), t("new.step2"), t("new.step3"), t("new.step4")]
+  }, [currentIntent, t])
+
+  // Prefill form from wizard store on mount
+  useEffect(() => {
+    if (wizardData.birth_year > 0) {
+      setValue("gender", wizardData.gender)
+      setValue("birth_year", wizardData.birth_year)
+      setValue("birth_month", wizardData.birth_month)
+      setValue("birth_day", wizardData.birth_day)
+      setValue("birth_hour", wizardData.birth_hour)
+      setValue("birth_minute", wizardData.birth_minute)
+      setValue("birth_city", wizardData.birth_city)
+    }
+    if (wizardData.user_question) {
+      setValue("user_question", wizardData.user_question)
+    }
+    // Skip to appropriate step
+    if (wizardStartStep > 0) {
+      setStep(wizardStartStep)
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Restore saved progress ──────────────────────────────────
   useEffect(() => {
@@ -423,7 +460,7 @@ export default function NewReadingPage() {
           <div className="relative">
             {/* ── Step 0: Birth Info ─────────────────────────── */}
             <div className={step !== 0 ? 'hidden' : ''}>
-              <FortuneGuide step={0} />
+              <FortuneGuide step={0} intent={currentIntent} />
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -490,7 +527,7 @@ export default function NewReadingPage() {
 
           {/* ── Step 1: Tarot & Question ─────────────────────── */}
           <div className={step !== 1 ? 'hidden' : ''}>
-            <FortuneGuide step={1} />
+            <FortuneGuide step={1} intent={currentIntent} />
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -525,7 +562,7 @@ export default function NewReadingPage() {
 
           {/* ── Step 2: Face & Palm ──────────────────────────── */}
           <div className={step !== 2 ? 'hidden' : ''}>
-            <FortuneGuide step={2} />
+            <FortuneGuide step={2} intent={currentIntent} />
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -661,6 +698,7 @@ export default function NewReadingPage() {
 
           {/* ── Step 3: Confirm ─────────────────────────────── */}
           <div className={step !== 3 ? 'hidden' : ''}>
+            <FortuneGuide step={3} intent={currentIntent} />
             <motion.div
               initial={{ opacity: 0, scale: 0.97 }}
               animate={{ opacity: 1, scale: 1 }}

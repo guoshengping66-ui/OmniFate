@@ -1,5 +1,6 @@
 "use client"
 import { motion, AnimatePresence } from "framer-motion"
+import type { Intent } from "@/stores/useWizardStore"
 
 const TIPS: Record<number, { avatar: string; name: string; text: string }> = {
   0: {
@@ -24,17 +25,51 @@ const TIPS: Record<number, { avatar: string; name: string; text: string }> = {
   },
 }
 
-interface Props {
-  step: number
+// Intent-specific overrides
+const INTENT_TIPS: Record<Intent, Partial<Record<number, { avatar: string; name: string; text: string }>>> = {
+  FULL_MULTIMODAL: {
+    1: {
+      avatar: "🔮",
+      name: "塔罗灵",
+      text: "完整推命模式：塔罗、面相、手相将同步分析。请先选择塔罗牌并输入你的问题。",
+    },
+  },
+  GENERAL_DAILY: {
+    1: {
+      avatar: "⚡",
+      name: "日常灵",
+      text: "日常问事模式：输入你当下的疑惑，塔罗将为你指引方向。",
+    },
+    3: {
+      avatar: "🌟",
+      name: "命盘",
+      text: "日常问事将结合你的命理底座和塔罗牌，快速给出今日指引。",
+    },
+  },
+  SPECIFIC_EVENT: {
+    3: {
+      avatar: "🎯",
+      name: "格物子",
+      text: "事件复盘模式：AI 将结合你的命理底座，为你进行深度的心学命理分析。",
+    },
+  },
 }
 
-export function FortuneGuide({ step }: Props) {
-  const tip = TIPS[step]
+interface Props {
+  step: number
+  intent?: Intent | null
+}
+
+export function FortuneGuide({ step, intent }: Props) {
+  // Merge default tips with intent-specific overrides
+  const base = TIPS[step]
+  const override = intent ? INTENT_TIPS[intent]?.[step] : undefined
+  const tip = override ? { ...base, ...override } : base
 
   return (
     <AnimatePresence mode="wait">
       <motion.div
-        key={step}
+        key={`${step}-${intent}`}
         initial={{ opacity: 0, y: 10, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: -10, scale: 0.95 }}
