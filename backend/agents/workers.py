@@ -698,6 +698,9 @@ async def run_face(state: SystemState) -> WorkerOutput:
         user_msg = "Please deliver a complete face reading based on the facial feature data above."
 
         report = _mock(agent_id, face_text) if _use_mock() else await _call(system, user_msg, language=state.language)
+        # Retry once if LLM returned empty content
+        if not report.strip() and not _use_mock():
+            report = await _call(system, user_msg, language=state.language)
         data = _parse_worker_report(report)
         return WorkerOutput(
             agent_id=agent_id,
@@ -742,6 +745,9 @@ async def run_palm(state: SystemState) -> WorkerOutput:
         user_msg = "Please deliver a complete palm reading based on the hand line data above."
 
         report = _mock(agent_id, palm_text) if _use_mock() else await _call(system, user_msg, language=state.language)
+        # Retry once if LLM returned empty content
+        if not report.strip() and not _use_mock():
+            report = await _call(system, user_msg, language=state.language)
         data = _parse_worker_report(report)
         return WorkerOutput(
             agent_id=agent_id,
@@ -761,7 +767,7 @@ async def run_palm(state: SystemState) -> WorkerOutput:
 
 _WORKER_IDS = ["astrology", "tarot", "bazi", "qimen", "ziwei", "face", "palm"]
 _WORKER_RUNNERS = [run_astrology, run_tarot, run_bazi, run_qimen, run_ziwei, run_face, run_palm]
-_WORKER_TIMEOUTS = [120, 120, 120, 120, 120, 10, 10]
+_WORKER_TIMEOUTS = [120, 120, 120, 120, 120, 30, 30]
 
 
 async def run_all_workers(state: SystemState) -> dict[str, asyncio.Event]:
