@@ -112,17 +112,32 @@ class PalmV2T:
     PINKY_TIP = 20
 
     def __init__(self) -> None:
-        self._hands = None
+        self._hand_landmarker = None
 
     def _load(self) -> None:
-        if self._hands is not None:
+        if self._hand_landmarker is not None:
             return
-        import mediapipe as mp
-        self._hands = mp.solutions.hands.Hands(
-            static_image_mode=True,
-            max_num_hands=1,
-            min_detection_confidence=0.5,
+        import os
+        import mediapipe.tasks
+        vision = mediapipe.tasks.vision
+
+        # Find or download the hand landmarker model
+        model_path = os.path.join(os.path.dirname(__file__), "..", "..", "hand_landmarker.task")
+        model_path = os.path.normpath(model_path)
+        if not os.path.exists(model_path):
+            model_path = os.path.join(os.getcwd(), "hand_landmarker.task")
+        if not os.path.exists(model_path):
+            import urllib.request
+            url = "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task"
+            urllib.request.urlretrieve(url, model_path)
+
+        options = vision.HandLandmarkerOptions(
+            base_options=mediapipe.tasks.BaseOptions(model_asset_path=model_path),
+            num_hands=1,
+            min_hand_detection_confidence=0.5,
+            min_tracking_confidence=0.5,
         )
+        self._hand_landmarker = vision.HandLandmarker.create_from_options(options)
 
     def analyze_bytes(self, image_bytes: bytes) -> Optional[PalmV2TResult]:
         try:
@@ -132,8 +147,6 @@ class PalmV2T:
             if img is None:
                 return None
             return self._analyze(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), img, img.shape)
-        except ImportError:
-            raise RuntimeError("opencv or mediapipe not installed — pip install opencv-python-headless mediapipe")
         except Exception as exc:
             import logging
             logging.getLogger(__name__).warning("palm_v2t.analyze_bytes failed: %s", exc)
@@ -152,19 +165,21 @@ class PalmV2T:
     def _analyze(self, rgb: np.ndarray, bgr: np.ndarray,
                  shape: tuple) -> Optional[PalmV2TResult]:
         self._load()
-        res = self._hands.process(rgb)
-        if not res.multi_hand_landmarks:
+        import mediapipe as mp
+        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb)
+        result = self._hand_landmarker.detect(mp_image)
+        if not result.hand_landmarks:
             return None
 
         h, w = shape[:2]
-        lm = res.multi_hand_landmarks[0].landmark
+        lm = result.hand_landmarks[0]  # list of NormalizedLandmark
 
-        # ── Left/Right hand detection via MediaPipe multi_handedness ──────
+        # ── Left/Right hand detection via MediaPipe handedness ──────
         hand_side = ""
-        if res.multi_handedness:
-            label = res.multi_handedness[0].classification[0].label
+        if result.handedness:
+            label = result.handedness[0][0].category_name
             hand_side = "左手" if label == "Left" else "右手"
-            confidence = res.multi_handedness[0].classification[0].score
+            confidence = result.handedness[0][0].score
         else:
             confidence = 0.0
 

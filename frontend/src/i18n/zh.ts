@@ -1369,12 +1369,17 @@ export default {
 
   // ─── 推命新页面：面相系统详情 ───
   "new.faceV2TReady": "V2T 自动识别已就绪",
+  "new.faceV2TFailed": "识别失败，该分析将跳过",
   "new.faceNoPhotoProvided": "未提供面部照片",
 
   // ─── 推命新页面：手相系统详情 ───
   "new.palmV2TReady": "V2T 自动识别已就绪",
+  "new.palmV2TFailed": "识别失败，该分析将跳过",
   "new.palmManualReady": "手动填写已就绪",
   "new.palmNoData": "未提供手相数据",
+
+  // ─── 推命新页面：重试提示 ───
+  "new.clickToRetry": "点击照片区域重新上传",
 
   // ─── 推命新页面：确认步骤 ───
   "new.baziFull": "周易八字 — 四柱格局 · 五行得分 · 流年研判",

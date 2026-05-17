@@ -55,7 +55,7 @@ class FaceV2TResult:
 
 class FaceV2T:
     """
-    MediaPipe FaceMesh → physiognomy structured text.
+    MediaPipe FaceLandmarker (Tasks API) → physiognomy structured text.
     Landmark indices based on MediaPipe 468-point canonical face model.
     """
 
@@ -110,18 +110,34 @@ class FaceV2T:
     }
 
     def __init__(self) -> None:
-        self._face_mesh = None
+        self._face_landmarker = None
+        self._model_path = None
 
     def _load(self) -> None:
-        if self._face_mesh is not None:
+        if self._face_landmarker is not None:
             return
-        import mediapipe as mp
-        self._face_mesh = mp.solutions.face_mesh.FaceMesh(
-            static_image_mode=True,
-            max_num_faces=1,
-            refine_landmarks=True,
-            min_detection_confidence=0.5,
+        import os
+        import mediapipe.tasks
+        vision = mediapipe.tasks.vision
+
+        # Find or download the model
+        model_path = os.path.join(os.path.dirname(__file__), "..", "..", "face_landmarker.task")
+        model_path = os.path.normpath(model_path)
+        if not os.path.exists(model_path):
+            model_path = os.path.join(os.getcwd(), "face_landmarker.task")
+        if not os.path.exists(model_path):
+            # Download from Google Storage
+            import urllib.request
+            url = "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task"
+            urllib.request.urlretrieve(url, model_path)
+
+        options = vision.FaceLandmarkerOptions(
+            base_options=mediapipe.tasks.BaseOptions(model_asset_path=model_path),
+            num_faces=1,
+            min_face_detection_confidence=0.5,
+            min_tracking_confidence=0.5,
         )
+        self._face_landmarker = vision.FaceLandmarker.create_from_options(options)
 
     # ── Public API ──────────────────────────────────────────────────────
 
@@ -133,8 +149,6 @@ class FaceV2T:
             if img is None:
                 return None
             return self._analyze(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), img.shape)
-        except ImportError:
-            raise RuntimeError("opencv or mediapipe not installed — pip install opencv-python-headless mediapipe")
         except Exception as exc:
             import logging
             logging.getLogger(__name__).warning("face_v2t.analyze_bytes failed: %s", exc)
@@ -154,11 +168,13 @@ class FaceV2T:
 
     def _analyze(self, rgb: np.ndarray, shape: tuple) -> Optional[FaceV2TResult]:
         self._load()
-        res = self._face_mesh.process(rgb)
-        if not res.multi_face_landmarks:
+        import mediapipe as mp
+        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb)
+        result = self._face_landmarker.detect(mp_image)
+        if not result.face_landmarks:
             return None
         h, w = shape[:2]
-        lm = res.multi_face_landmarks[0].landmark
+        lm = result.face_landmarks[0]  # list of NormalizedLandmark
 
         def pt(idx: int) -> np.ndarray:
             p = lm[idx]

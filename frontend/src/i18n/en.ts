@@ -1364,12 +1364,17 @@ export default {
 
   // ─── Reading New: Face System Detail ───
   "new.faceV2TReady": "Auto-recognition ready",
+  "new.faceV2TFailed": "Recognition failed, analysis will be skipped",
   "new.faceNoPhotoProvided": "No face photo provided",
 
   // ─── Reading New: Palm System Detail ───
   "new.palmV2TReady": "Auto-recognition ready",
+  "new.palmV2TFailed": "Recognition failed, analysis will be skipped",
   "new.palmManualReady": "Manual entry ready",
   "new.palmNoData": "No palm data provided",
+
+  // ─── Reading New: Retry hint ───
+  "new.clickToRetry": "Click photo area to re-upload",
 
   // ─── Reading New: Confirm Step ───
   "new.baziFull": "BaZi — Pillar Structure · Five Elements Score · Annual Fortune",

@@ -264,19 +264,9 @@ export default function NewReadingPage() {
   const onSubmit = async (values: FormValues) => {
     setLoading(true)
     try {
-      const finalFaceText = faceText || Object.entries(palmData)
-        .filter(([, v]) => v)
-        .map(([k, v]) => `${k}: ${v}`)
-        .join("; ")
-
-      const manualPalmText = Object.entries(palmData)
-        .filter(([, v]) => v)
-        .map(([k, v]) => `${k}: ${v}`)
-        .join("; ")
+      const finalFaceText = faceText
 
       const finalPalmText = palmText
-        ? palmText + (manualPalmText ? `\n${t("new.manualSupplement")}:\n` + manualPalmText : "")
-        : manualPalmText
 
       const lat = typeof values.latitude === "number" ? values.latitude : undefined
       const lng = typeof values.longitude === "number" ? values.longitude : undefined
@@ -573,7 +563,10 @@ export default function NewReadingPage() {
                           </div>
                         )}
                         {faceV2TError && (
-                          <p className="text-amber-400 text-xs mt-2">{t("new.faceScanFail")}</p>
+                          <div className="mt-2 space-y-1">
+                            <p className="text-amber-400 text-xs">{t("new.faceScanFail")}</p>
+                            <p className="text-white/30 text-[10px]">{t("new.clickToRetry")}</p>
+                          </div>
                         )}
                       </div>
                     ) : (
@@ -632,7 +625,10 @@ export default function NewReadingPage() {
                           </div>
                         )}
                         {palmV2TError && (
-                          <p className="text-amber-400 text-xs mt-2">{t("new.palmScanFail")}</p>
+                          <div className="mt-2 space-y-1">
+                            <p className="text-amber-400 text-xs">{t("new.palmScanFail")}</p>
+                            <p className="text-white/30 text-[10px]">{t("new.clickToRetry")}</p>
+                          </div>
                         )}
                       </div>
                     ) : (
@@ -677,8 +673,8 @@ export default function NewReadingPage() {
                   ["☯", t("new.baziFull")],
                   ["✦", t("new.astrologyFull")],
                   ["🃏", t("new.tarotFull")],
-                  ["👁", `${t("new.faceSystem")} — ${faceText ? t("new.faceV2TReady") : t("new.faceNoPhotoProvided")}`],
-                  ["🤚", `${t("new.palmSystem")} — ${palmText ? t("new.palmV2TReady") : Object.values(palmData).some(v => v) ? t("new.palmManualReady") : t("new.palmNoData")}`],
+                  ["👁", `${t("new.faceSystem")} — ${faceText ? t("new.faceV2TReady") : facePreview ? t("new.faceV2TFailed") : t("new.faceNoPhotoProvided")}`],
+                  ["🤚", `${t("new.palmSystem")} — ${palmText ? t("new.palmV2TReady") : palmPreview ? t("new.palmV2TFailed") : t("new.palmNoData")}`],
                   ["🌟", t("new.masterFull")],
                 ].map(([icon, text]) => (
                   <div key={text} className="flex items-center gap-2 text-sm text-white/70">
