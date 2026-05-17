@@ -373,48 +373,109 @@ export default function AccountPage() {
             )}
 
             {/* Subscription */}
-            {tab === "subscription" && (
-              <div>
-                <h2 className="font-serif text-lg text-gold mb-4">{t("account.subManagement")}</h2>
-                <div className="card-glass p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <Crown size={24} className={user.is_premium ? "text-gold" : "text-white/20"} />
-                    <div>
-                      <p className="text-white/80 font-medium">
-                        {user.is_premium ? t("account.fateOSMember") : t("membership.free")}
-                      </p>
-                      <p className="text-white/30 text-xs">
-                        {user.is_premium
-                          ? `${t("account.expiresAt")}: ${user.premium_expires_at ? new Date(user.premium_expires_at).toLocaleDateString("zh-CN") : t("account.permanent")}`
-                          : t("account.upgradeDesc")}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="space-y-2 text-sm text-white/50 mb-6">
-                    <p className="flex items-center gap-2"><span className="text-gold">✓</span> {t("account.unlimited")}</p>
-                    <p className="flex items-center gap-2"><span className="text-gold">✓</span> {t("account.annualPlan")}</p>
-                    <p className="flex items-center gap-2"><span className="text-gold">✓</span> {t("account.memberDiscount2")}</p>
-                    <p className="flex items-center gap-2"><span className="text-gold">✓</span> {t("account.fortunePlan")}</p>
-                    <p className="flex items-center gap-2"><span className="text-gold">✓</span> {t("account.multiProfile")}</p>
-                  </div>
-                  <Link href="/pricing" className="btn-gold inline-flex items-center gap-2 text-sm">
-                    {user.is_premium ? t("account.manageSub") : t("account.upgrade")}
-                  </Link>
-                </div>
+            {tab === "subscription" && (() => {
+              const tier = user.subscription_tier
+              const isPremium = user.is_premium
+              const expiresAt = user.premium_expires_at ? new Date(user.premium_expires_at) : null
+              const now = new Date()
+              const daysLeft = expiresAt ? Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)) : null
+              const isExpired = daysLeft !== null && daysLeft <= 0
+              const isFounder = tier === "founder_lifetime"
 
-                {/* Coupon balance */}
-                {user.shop_coupon_balance > 0 && (
-                  <div className="card-glass p-5 mt-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Ticket size={16} className="text-gold" />
-                      <span className="text-white/60 text-sm">{t("account.couponBalance2")}</span>
+              const TIER_LABELS: Record<string, { label: string; color: string; bg: string }> = {
+                founder_lifetime: { label: t("membership.founder") || "创始人终身", color: "text-amber-400", bg: "bg-amber-400/10 border-amber-400/30" },
+                premium_yearly:   { label: t("membership.yearly"), color: "text-gold", bg: "bg-gold/10 border-gold/30" },
+                premium_monthly:  { label: t("membership.monthly"), color: "text-blue-400", bg: "bg-blue-400/10 border-blue-400/30" },
+                trial:            { label: t("membership.trial"), color: "text-purple-400", bg: "bg-purple-400/10 border-purple-400/30" },
+                free:             { label: t("membership.free"), color: "text-white/40", bg: "bg-white/5 border-white/10" },
+              }
+              const tierInfo = TIER_LABELS[tier || "free"] || TIER_LABELS.free
+
+              return (
+                <div>
+                  <h2 className="font-serif text-lg text-gold mb-4">{t("account.subManagement")}</h2>
+
+                  {/* Current plan card */}
+                  <div className="card-glass p-6 mb-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <Crown size={24} className={isPremium ? "text-gold" : "text-white/20"} />
+                        <div>
+                          <p className="text-white/80 font-medium">{t("account.fateOSMember")}</p>
+                        </div>
+                      </div>
+                      <span className={`text-xs font-medium px-3 py-1 rounded-full border ${tierInfo.bg} ${tierInfo.color}`}>
+                        {tierInfo.label}
+                      </span>
                     </div>
-                    <p className="text-gold text-2xl font-bold">¥{user.shop_coupon_balance}</p>
-                    <p className="text-white/20 text-xs mt-1">{t("coupon可用于")}</p>
+
+                    {/* Expiry info */}
+                    {isFounder ? (
+                      <div className="bg-amber-400/5 border border-amber-400/20 rounded-xl p-3 mb-4">
+                        <p className="text-amber-400 text-sm font-medium">{t("account.permanent")}</p>
+                        <p className="text-white/30 text-xs mt-1">创始人终身会员，永不过期</p>
+                      </div>
+                    ) : expiresAt ? (
+                      <div className={`rounded-xl p-3 mb-4 ${
+                        isExpired
+                          ? "bg-red-500/5 border border-red-500/20"
+                          : (daysLeft !== null && daysLeft <= 7)
+                            ? "bg-orange-500/5 border border-orange-500/20"
+                            : "bg-white/5 border border-white/10"
+                      }`}>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-white/60 text-xs">{t("account.expiresAt")}</p>
+                            <p className="text-white/80 text-sm mt-0.5">{expiresAt.toLocaleDateString("zh-CN")}</p>
+                          </div>
+                          <div className="text-right">
+                            {isExpired ? (
+                              <p className="text-red-400 text-sm font-medium">已过期</p>
+                            ) : (
+                              <>
+                                <p className={`text-2xl font-bold ${daysLeft !== null && daysLeft <= 7 ? "text-orange-400" : "text-gold"}`}>
+                                  {daysLeft}
+                                </p>
+                                <p className="text-white/40 text-[10px]">剩余天数</p>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="bg-white/5 border border-white/10 rounded-xl p-3 mb-4">
+                        <p className="text-white/40 text-sm">{t("account.upgradeDesc")}</p>
+                      </div>
+                    )}
+
+                    {/* Benefits */}
+                    <div className="space-y-2 text-sm text-white/50 mb-6">
+                      <p className="flex items-center gap-2"><span className="text-gold">✓</span> {t("account.unlimited")}</p>
+                      <p className="flex items-center gap-2"><span className="text-gold">✓</span> {t("account.annualPlan")}</p>
+                      <p className="flex items-center gap-2"><span className="text-gold">✓</span> {t("account.memberDiscount2")}</p>
+                      <p className="flex items-center gap-2"><span className="text-gold">✓</span> {t("account.fortunePlan")}</p>
+                      <p className="flex items-center gap-2"><span className="text-gold">✓</span> {t("account.multiProfile")}</p>
+                    </div>
+
+                    <Link href="/pricing" className="btn-gold inline-flex items-center gap-2 text-sm">
+                      {isPremium ? t("account.manageSub") : t("account.upgrade")}
+                    </Link>
                   </div>
-                )}
-              </div>
-            )}
+
+                  {/* Coupon balance */}
+                  {user.shop_coupon_balance > 0 && (
+                    <div className="card-glass p-5">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Ticket size={16} className="text-gold" />
+                        <span className="text-white/60 text-sm">{t("account.couponBalance2")}</span>
+                      </div>
+                      <p className="text-gold text-2xl font-bold">¥{user.shop_coupon_balance}</p>
+                      <p className="text-white/20 text-xs mt-1">{t("coupon可用于")}</p>
+                    </div>
+                  )}
+                </div>
+              )
+            })()}
 
             {/* Settings */}
             {tab === "settings" && <SettingsTab user={user} refreshUser={refreshUser} t={t as unknown as (key: string) => string} />}
