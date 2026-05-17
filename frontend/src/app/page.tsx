@@ -265,6 +265,62 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ══════════ DISCOVERY: What People Found ══════════ */}
+      <section className="py-20 px-4 relative overflow-hidden">
+        {/* Subtle gradient divider */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
+
+        <div className="max-w-5xl mx-auto">
+          <ScrollReveal>
+            <div className="text-center mb-12">
+              <span className="text-gold/60 text-sm tracking-[0.2em] uppercase">{t("discovery.badge")}</span>
+              <h2 className="section-title mt-3">{t("discovery.title")}</h2>
+              <p className="text-white/40 mt-4 max-w-lg mx-auto text-sm">
+                {t("discovery.desc")}
+              </p>
+            </div>
+          </ScrollReveal>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {[
+              { key: "sabotage", icon: "💔" },
+              { key: "money", icon: "🌊" },
+              { key: "disconnected", icon: "🌙" },
+              { key: "empathy", icon: "✨" },
+            ].map((item, i) => (
+              <ScrollReveal key={item.key} delay={i * 0.1} direction="up">
+                <div className="card-glass p-6 group hover:border-gold/30 transition-all duration-300 cursor-default">
+                  <div className="flex items-start gap-4">
+                    <span className="text-2xl mt-0.5">{item.icon}</span>
+                    <div>
+                      <h3 className="font-serif text-white/90 font-medium mb-1.5 group-hover:text-gold transition-colors">
+                        {t(`discovery.items.${item.key}.title`)}
+                      </h3>
+                      <p className="text-white/40 text-sm leading-relaxed">
+                        {t(`discovery.items.${item.key}.desc`)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </ScrollReveal>
+            ))}
+          </div>
+
+          <ScrollReveal delay={0.5}>
+            <div className="text-center mt-10">
+              <MagneticButton>
+                <Link
+                  href="/reading/new"
+                  className="btn-gold inline-flex items-center gap-2 px-8 py-3"
+                >
+                  {t("discovery.cta")}
+                </Link>
+              </MagneticButton>
+            </div>
+          </ScrollReveal>
+        </div>
+      </section>
+
       {/* ══════════ BENTO GRID: 5 Agents ══════════ */}
       <section id="agents" className="py-28 px-4 relative">
         <div className="max-w-6xl mx-auto">

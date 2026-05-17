@@ -83,18 +83,32 @@ export default {
   "common.retry": "Retry",
 
   // ─── Hero ───
-  "hero.badge": "Five Wisdom Paths · Always Available",
+  "hero.badge": "128,000+ seekers have found their pattern",
   "hero.badgePeople": "",
-  "hero.title1": "Your Life,",
-  "hero.title2": "Decoded",
-  "hero.desc": "Bazi · Astrology · Tarot · Face Reading · Palmistry\nFive ancient traditions come together to reveal your talents, your purpose, and the path to your fortune.",
-  "hero.cta1": "Start Your Reading",
-  "hero.cta2": "Explore the Five Paths",
+  "hero.title1": "Discover Your Hidden",
+  "hero.title2": "Destiny Pattern",
+  "hero.desc": "Bazi · Astrology · Tarot · Face Reading · Palmistry\nAI combines five ancient traditions to reveal the forces shaping your life.",
+  "hero.cta1": "Reveal My Destiny",
+  "hero.cta2": "See What Others Found",
   "hero.stat1": "Readings",
   "hero.stat2": "Satisfaction",
   "hero.stat3": "Dimensions",
   "hero.stat4": "Report Time",
   "hero.statPeople": "",
+
+  // ─── Discovery (What People Found) ───
+  "discovery.badge": "What People Discovered",
+  "discovery.title": "Real Questions, Real Answers",
+  "discovery.desc": "These aren't fortune-telling predictions — they're patterns in your chart that explain why your life unfolds the way it does.",
+  "discovery.items.sabotage.title": "Why I sabotage good relationships",
+  "discovery.items.sabotage.desc": "Your chart reveals a deep pattern around trust and vulnerability that has been running since childhood.",
+  "discovery.items.money.title": "Why money comes in waves",
+  "discovery.items.money.desc": "Your wealth palace shows a cyclical flow pattern — understanding it helps you ride the highs and prepare for the lows.",
+  "discovery.items.disconnected.title": "Why I feel disconnected from others",
+  "discovery.items.disconnected.desc": "Your Five Elements chart reveals a missing element that affects how you connect with people around you.",
+  "discovery.items.empathy.title": "Why I can sense people's emotions",
+  "discovery.items.empathy.desc": "Your chart shows strong Water and Yin energy — you were born with heightened intuitive sensitivity.",
+  "discovery.cta": "Discover Your Pattern →",
 
   // ─── Agents ───
   "agents.badge": "The Five Wisdom Council",

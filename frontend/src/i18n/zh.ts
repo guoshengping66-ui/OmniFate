@@ -83,7 +83,7 @@ export default {
   "common.retry": "重试",
 
   // ─── 主页 ───
-  "hero.badge": "AI 五维合参 · 在线",
+  "hero.badge": "128,000+ 人已找到自己的命运密码",
   "hero.badgePeople": "人",
   "hero.title1": "五维合参",
   "hero.title2": "洞见天机",
@@ -95,6 +95,20 @@ export default {
   "hero.stat3": "合参维度",
   "hero.stat4": "生成报告",
   "hero.statPeople": "人",
+
+  // ─── 发现（人们发现了什么）───
+  "discovery.badge": "他们都发现了什么",
+  "discovery.title": "真实的问题，真实的答案",
+  "discovery.desc": "这些不是算命预测——而是你命盘中解释你人生为何如此展开的规律。",
+  "discovery.items.sabotage.title": "为什么我总在破坏好的关系",
+  "discovery.items.sabotage.desc": "你的命盘揭示了一个从童年就开始运作的深层信任与脆弱模式。",
+  "discovery.items.money.title": "为什么财运总是起起落落",
+  "discovery.items.money.desc": "你的财帛宫显示一个周期性流动模式——理解它能帮你乘势而上。",
+  "discovery.items.disconnected.title": "为什么我总感觉与他人格格不入",
+  "discovery.items.disconnected.desc": "你的五行图中缺失的元素影响了你与周围人建立连接的方式。",
+  "discovery.items.empathy.title": "为什么我能感受到别人的情绪",
+  "discovery.items.empathy.desc": "你的命盘显示水和阴的能量很强——你天生就有超强的直觉敏感度。",
+  "discovery.cta": "发现你的命运模式 →",
 
   // ─── 五大维度 ───
   "agents.badge": "The 5+1 Expert Panel",
