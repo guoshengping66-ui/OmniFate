@@ -12,6 +12,7 @@ import {
 import { runAnalysisStream, AnalysisRequest, analyzeFaceImage, analyzePalmImage } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { addReadingToHistory } from "@/lib/readingHistory"
 import { motion } from "framer-motion"
 import { TarotPicker } from "@/components/reading/TarotPicker"
 import { FaceScanAnimation } from "@/components/reading/FaceScanAnimation"
@@ -283,6 +284,10 @@ export default function NewReadingPage() {
       }
 
       const result = await runAnalysisStream(payload, () => {})
+
+      // Save to reading history for anonymous users
+      addReadingToHistory(result.session_id, values.user_question || undefined)
+
       clearSavedProgress()
       toast.success(t("new.readingStarted"))
       router.push(`/reading/${result.session_id}`)

@@ -751,6 +751,8 @@ export default {
   "account.manageSub": "Manage Subscription",
   "account.upgrade": "Upgrade Membership",
   "account.noReports": "No reports yet",
+  "account.accountReadings": "Account Readings",
+  "account.localReadings": "Local History",
   "account.noOrders": "No orders yet",
   "account.noFavorites": "No favorites yet",
   "account.browseShop": "Browse Shop",

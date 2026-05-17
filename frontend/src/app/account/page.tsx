@@ -10,6 +10,7 @@ import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { listMyReadings, listMyOrders, getFavorites, type ReadingListItem, type OrderListItem, type Product } from "@/lib/api"
+import { getReadingHistory, type ReadingHistoryItem } from "@/lib/readingHistory"
 import SettingsTab from "./SettingsTab"
 
 type Tab = "overview" | "readings" | "orders" | "favorites" | "subscription" | "settings"
@@ -20,6 +21,7 @@ export default function AccountPage() {
   const { t } = useLanguage()
   const [tab, setTab] = useState<Tab>("overview")
   const [readings, setReadings] = useState<ReadingListItem[]>([])
+  const [anonymousReadings, setAnonymousReadings] = useState<ReadingHistoryItem[]>([])
   const [orders, setOrders] = useState<OrderListItem[]>([])
   const [favorites, setFavorites] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
@@ -33,9 +35,12 @@ export default function AccountPage() {
     refunded: { label: t("checkout.processing"), color: "text-orange-400" },
   }
 
+  // Combine logged-in and anonymous readings for total count
+  const totalReadings = readings.length + anonymousReadings.length
+
   const tabs: { id: Tab; icon: React.ReactNode; label: string; count?: number }[] = [
     { id: "overview", icon: <User size={16} />, label: t("account.overview") },
-    { id: "readings", icon: <ScrollText size={16} />, label: t("account.myReports"), count: readings.length },
+    { id: "readings", icon: <ScrollText size={16} />, label: t("account.myReports"), count: totalReadings },
     { id: "orders", icon: <Package size={16} />, label: t("account.myOrders"), count: orders.length },
     { id: "favorites", icon: <Heart size={16} />, label: t("account.myFavorites"), count: favorites.length },
     { id: "subscription", icon: <Crown size={16} />, label: t("account.subscription") },
@@ -44,10 +49,18 @@ export default function AccountPage() {
 
   useEffect(() => {
     if (authLoading) return
+
+    // Always load anonymous readings from localStorage
+    const anonReadings = getReadingHistory()
+    setAnonymousReadings(anonReadings)
+
     if (!user) {
-      router.push("/login")
+      // For anonymous users, just show localStorage readings
+      setLoading(false)
       return
     }
+
+    // For logged-in users, also load server-side readings
     Promise.all([
       listMyReadings().catch(() => []),
       listMyOrders().catch(() => []),
@@ -67,7 +80,12 @@ export default function AccountPage() {
     )
   }
 
-  if (!user) return null
+  // Allow anonymous users to view their reading history
+  // Only redirect if no anonymous readings exist
+  if (!user && anonymousReadings.length === 0) {
+    router.push("/login")
+    return null
+  }
 
   return (
     <div className="min-h-screen pt-24 pb-20 px-4">
@@ -234,28 +252,62 @@ export default function AccountPage() {
                   <h2 className="font-serif text-lg text-gold">{t("account.myReports")}</h2>
                   <Link href="/reading/new" className="btn-gold text-xs py-1.5 px-4">{t("account.newReading")}</Link>
                 </div>
-                {readings.length === 0 ? (
+
+                {/* Logged-in readings */}
+                {readings.length > 0 && (
+                  <div className="mb-6">
+                    <h3 className="text-white/50 text-xs mb-3 uppercase tracking-wider">{user ? t("account.accountReadings") : ""}</h3>
+                    <div className="space-y-3">
+                      {readings.map(r => (
+                        <Link key={r.id} href={`/reading/${r.id}`}
+                          className="block card-glass p-4 hover:border-gold/30 transition-all group">
+                          <div className="flex items-center gap-3">
+                            <span className="text-xl">🔮</span>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-white/70 text-sm">{t("readings.reportTitle")}</p>
+                              <p className="text-white/20 text-[10px] mt-0.5">
+                                {new Date(r.created_at).toLocaleString("zh-CN")}
+                              </p>
+                            </div>
+                            <ChevronRight size={14} className="text-white/20 group-hover:text-gold" />
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Anonymous readings from localStorage */}
+                {anonymousReadings.length > 0 && (
+                  <div>
+                    <h3 className="text-white/50 text-xs mb-3 uppercase tracking-wider">{t("account.localReadings")}</h3>
+                    <div className="space-y-3">
+                      {anonymousReadings.map(r => (
+                        <Link key={r.sessionId} href={`/reading/${r.sessionId}`}
+                          className="block card-glass p-4 hover:border-gold/30 transition-all group">
+                          <div className="flex items-center gap-3">
+                            <span className="text-xl">📋</span>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-white/70 text-sm truncate">
+                                {r.userQuestion || t("readings.reportTitle")}
+                              </p>
+                              <p className="text-white/20 text-[10px] mt-0.5">
+                                {new Date(r.createdAt).toLocaleString("zh-CN")}
+                              </p>
+                            </div>
+                            <ChevronRight size={14} className="text-white/20 group-hover:text-gold" />
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Empty state */}
+                {readings.length === 0 && anonymousReadings.length === 0 && (
                   <div className="card-glass p-12 text-center">
                     <ScrollText size={36} className="mx-auto mb-3 text-white/10" />
                     <p className="text-white/30 text-sm">{t("account.noReports")}</p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {readings.map(r => (
-                      <Link key={r.id} href={`/reading/${r.id}`}
-                        className="block card-glass p-4 hover:border-gold/30 transition-all group">
-                        <div className="flex items-center gap-3">
-                          <span className="text-xl">🔮</span>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-white/70 text-sm">{t("readings.reportTitle")}</p>
-                            <p className="text-white/20 text-[10px] mt-0.5">
-                              {new Date(r.created_at).toLocaleString("zh-CN")}
-                            </p>
-                          </div>
-                          <ChevronRight size={14} className="text-white/20 group-hover:text-gold" />
-                        </div>
-                      </Link>
-                    ))}
                   </div>
                 )}
               </div>
