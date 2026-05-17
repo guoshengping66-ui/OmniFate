@@ -753,6 +753,7 @@ export default {
   "account.noReports": "No reports yet",
   "account.accountReadings": "Account Readings",
   "account.localReadings": "Local History",
+  "account.clearHistory": "Clear",
   "account.noOrders": "No orders yet",
   "account.noFavorites": "No favorites yet",
   "account.browseShop": "Browse Shop",

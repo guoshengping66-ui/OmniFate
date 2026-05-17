@@ -747,6 +747,7 @@ export default {
   "account.noReports": "暂无报告",
   "account.accountReadings": "账户报告",
   "account.localReadings": "本地历史记录",
+  "account.clearHistory": "清除",
   "account.noOrders": "暂无订单",
   "account.noFavorites": "暂无收藏",
   "account.browseShop": "去商城逛逛",

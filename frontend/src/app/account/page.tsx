@@ -10,7 +10,7 @@ import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { listMyReadings, listMyOrders, getFavorites, type ReadingListItem, type OrderListItem, type Product } from "@/lib/api"
-import { getReadingHistory, type ReadingHistoryItem } from "@/lib/readingHistory"
+import { getReadingHistory, clearReadingHistory, type ReadingHistoryItem } from "@/lib/readingHistory"
 import SettingsTab from "./SettingsTab"
 
 type Tab = "overview" | "readings" | "orders" | "favorites" | "subscription" | "settings"
@@ -280,7 +280,19 @@ export default function AccountPage() {
                 {/* Anonymous readings from localStorage */}
                 {anonymousReadings.length > 0 && (
                   <div>
-                    <h3 className="text-white/50 text-xs mb-3 uppercase tracking-wider">{t("account.localReadings")}</h3>
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-white/50 text-xs uppercase tracking-wider">{t("account.localReadings")}</h3>
+                      <button
+                        onClick={() => {
+                          clearReadingHistory()
+                          setAnonymousReadings([])
+                          toast.success(t("account.clearHistory") || "已清除本地历史记录")
+                        }}
+                        className="text-white/20 text-[10px] hover:text-red-400 transition-colors"
+                      >
+                        {t("account.clearHistory") || "清除"}
+                      </button>
+                    </div>
                     <div className="space-y-3">
                       {anonymousReadings.map(r => (
                         <Link key={r.sessionId} href={`/reading/${r.sessionId}`}
