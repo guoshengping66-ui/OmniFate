@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { api } from "@/lib/api"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { TIER_MAP } from "@/lib/tiers"
+import { QRPaymentModal } from "@/components/payment/QRPaymentModal"
 
 interface FounderStatus {
   total_seats: number
@@ -36,6 +37,7 @@ export default function FounderPage() {
   const [seats, setSeats] = useState<SeatInfo[]>([])
   const [loading, setLoading] = useState(true)
   const [activating, setActivating] = useState(false)
+  const [showPayment, setShowPayment] = useState(false)
   const [selectedFeature, setSelectedFeature] = useState<string | null>(null)
   const [voting, setVoting] = useState(false)
 
@@ -75,24 +77,34 @@ export default function FounderPage() {
       .finally(() => setLoading(false))
   }, [user, authLoading, router])
 
+  const [founderOrderNo, setFounderOrderNo] = useState<string | null>(null)
+
   const handleActivate = async () => {
     setActivating(true)
     try {
-      const result = await api.post("/api/payments/founder/activate")
-      toast.success(result.data.message || "恭喜！您已成功锁定创始席位")
-      await refreshUser()
-      // Re-fetch status and seats
-      const [newStatus, newSeats] = await Promise.all([
-        api.get("/api/payments/founder/status").then(r => r.data),
-        api.get("/api/payments/founder/seats").then(r => r.data?.seats || []),
-      ])
-      setStatus(newStatus)
-      setSeats(newSeats)
+      // Step 1: Create founder purchase order
+      const orderRes = await api.post("/api/payments/founder/purchase?method=personal")
+      const orderNo = orderRes.data.order_no
+      setFounderOrderNo(orderNo)
+      setShowPayment(true)
     } catch (err: any) {
-      toast.error(err.response?.data?.detail || "激活失败，请稍后重试")
+      toast.error(err.response?.data?.detail || "创建订单失败，请稍后重试")
     } finally {
       setActivating(false)
     }
+  }
+
+  const handlePaymentSuccess = async () => {
+    setShowPayment(false)
+    setFounderOrderNo(null)
+    toast.success("恭喜！您已成功锁定创始席位")
+    await refreshUser()
+    const [newStatus, newSeats] = await Promise.all([
+      api.get("/api/payments/founder/status").then(r => r.data),
+      api.get("/api/payments/founder/seats").then(r => r.data?.seats || []),
+    ])
+    setStatus(newStatus)
+    setSeats(newSeats)
   }
 
   const handleVote = async (featureId: string) => {
@@ -178,7 +190,7 @@ export default function FounderPage() {
           {/* Purchase */}
           <div className="card-glass p-6 border-gold/20">
             <div className="text-center mb-6">
-              <p className="text-5xl font-bold text-gold mb-2">¥999</p>
+              <p className="text-5xl font-bold text-gold mb-2">¥1,288</p>
               <p className="text-white/40 text-sm">一次性终身</p>
               {status && (
                 <div className="mt-4">
@@ -378,6 +390,19 @@ export default function FounderPage() {
           </Link>
         </div>
       </div>
+
+      {/* Founder QR Payment Modal */}
+      {showPayment && founderOrderNo && (
+        <QRPaymentModal
+          open={showPayment}
+          onClose={() => setShowPayment(false)}
+          orderNo={founderOrderNo}
+          amount={1288}
+          label="创始席位 · 终身会员"
+          postAction="founder"
+          onSuccess={handlePaymentSuccess}
+        />
+      )}
     </div>
   )
 }

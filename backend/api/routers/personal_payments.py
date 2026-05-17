@@ -277,16 +277,24 @@ async def confirm_payment(
     except Exception:
         pass  # 单个解锁失败不影响整体
 
-    # 4. 激活订阅会员（从订单描述中检测 tier）
+    # 4. 激活订阅会员（从订单描述中检测 tier，同时验证金额匹配）
     try:
         notes = order.notes or ""
         description = order.notes or ""
         activated_tier = None
-        if "premium_yearly" in description:
+
+        # Server-side tier ↔ amount mapping (NEVER trust client description alone)
+        TIER_AMOUNTS = {
+            "premium_monthly": 59.0,
+            "premium_yearly": 365.0,
+            "founder_lifetime": 1288.0,
+        }
+
+        if "premium_yearly" in description and abs(order.total_cny - 365.0) < 0.01:
             activated_tier = "premium_yearly"
-        elif "premium_monthly" in description:
+        elif "premium_monthly" in description and abs(order.total_cny - 59.0) < 0.01:
             activated_tier = "premium_monthly"
-        elif "founder_lifetime" in description:
+        elif "founder_lifetime" in description and abs(order.total_cny - 1288.0) < 0.01:
             activated_tier = "founder_lifetime"
 
         if activated_tier and order.user_id:

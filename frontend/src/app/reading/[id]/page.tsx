@@ -885,6 +885,7 @@ export default function ReadingPage() {
           open={showPayment}
           onClose={() => setShowPayment(false)}
           readingId={id}
+          postAction="unlock"
           onSuccess={handlePaymentSuccess}
         />
       )}

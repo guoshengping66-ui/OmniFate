@@ -401,9 +401,8 @@ async def wechat_notify(request: Request, db: AsyncSession = Depends(get_db)):
         expected_fee = int(order.total_cny * 100)
         if paid_fee != expected_fee:
             return "<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[金额不匹配]]></return_msg></xml>"
-        order.status = OrderStatus.shipped
+        order.status = OrderStatus.paid
         order.paid_at = datetime.now(timezone.utc)
-        order.shipped_at = datetime.now(timezone.utc)
 
     await db.commit()
     return "<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>"
@@ -536,9 +535,8 @@ async def alipay_notify(request: Request, db: AsyncSession = Depends(get_db)):
         paid_amount = float(data.get("total_amount", 0))
         if abs(paid_amount - order.total_cny) > 0.01:
             return "fail"
-        order.status = OrderStatus.shipped
+        order.status = OrderStatus.paid
         order.paid_at = datetime.now(timezone.utc)
-        order.shipped_at = datetime.now(timezone.utc)
 
     await db.commit()
     return "success"
@@ -691,9 +689,8 @@ async def capture_paypal_order(
                 captured_amount = float(result.get("purchase_units", [{}])[0].get("amount", {}).get("value", 0))
                 if abs(captured_amount * 7.2 - order.total_cny) > 1.0:
                     raise HTTPException(status_code=400, detail="支付金额不匹配")
-                order.status = OrderStatus.shipped
+                order.status = OrderStatus.paid
                 order.paid_at = datetime.now(timezone.utc)
-                order.shipped_at = datetime.now(timezone.utc)
                 await db.commit()
 
         return {"status": "completed", "message": "支付成功"}

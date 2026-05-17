@@ -12,6 +12,14 @@ interface QRPaymentModalProps {
   tier?: "premium_monthly" | "premium_yearly"
   /** Reading ID for report unlock — mutually exclusive with tier */
   readingId?: string
+  /** Pre-created order number (skips order creation) — for founder flow */
+  orderNo?: string
+  /** Amount to display (used with orderNo) */
+  amount?: number
+  /** Label to display (used with orderNo) */
+  label?: string
+  /** Post-confirm action: "subscription" | "unlock" | "founder" */
+  postAction?: "subscription" | "unlock" | "founder"
   /** Called ONLY after backend confirms payment and activates subscription/unlock */
   onSuccess?: () => void
 }
@@ -41,13 +49,17 @@ export function QRPaymentModal({
   onClose,
   tier,
   readingId,
+  orderNo: preOrderNo,
+  amount: preAmount,
+  label: preLabel,
+  postAction,
   onSuccess,
 }: QRPaymentModalProps) {
   const { t: rawT } = useLanguage()
   const t = rawT as unknown as (key: string, vars?: Record<string, string | number>) => string
   const [method, setMethod] = useState<PaymentMethod>("alipay")
-  const [status, setStatus] = useState<PaymentStatus>("idle")
-  const [orderNo, setOrderNo] = useState<string | null>(null)
+  const [status, setStatus] = useState<PaymentStatus>(preOrderNo ? "showing_qr" : "idle")
+  const [orderNo, setOrderNo] = useState<string | null>(preOrderNo || null)
   const [qrUrl, setQrUrl] = useState<string | null>(null)
   const [qrError, setQrError] = useState<string | null>(null)
   const [countdown, setCountdown] = useState(0)
@@ -56,12 +68,15 @@ export function QRPaymentModal({
   const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pollActiveRef = useRef(false)
 
-  // Support both subscription and report unlock
+  // Support subscription, report unlock, and pre-created orders
   const isReportUnlock = !!readingId
-  const tierInfo = isReportUnlock
-    ? { amount: 69, labelKey: "payment.unlockReport" }
-    : (TIER_PRICES[tier || "premium_monthly"] || TIER_PRICES.premium_monthly)
-  const tierLabel = t(tierInfo.labelKey)
+  const isPreOrder = !!preOrderNo
+  const tierInfo = isPreOrder
+    ? { amount: preAmount || 0, labelKey: "" }
+    : isReportUnlock
+      ? { amount: 69, labelKey: "payment.unlockReport" }
+      : (TIER_PRICES[tier || "premium_monthly"] || TIER_PRICES.premium_monthly)
+  const tierLabel = isPreOrder ? (preLabel || "Founder Seat") : t(tierInfo.labelKey)
 
   // 倒计时（订单30分钟过期）
   useEffect(() => {
@@ -77,6 +92,15 @@ export function QRPaymentModal({
     }, 1000)
     return () => clearInterval(timer)
   }, [status, orderNo])
+
+  // Pre-created order: fetch QR code on mount
+  useEffect(() => {
+    if (preOrderNo && status === "showing_qr" && !qrUrl) {
+      apiDirect.get(`/api/personal-payments/qr/${method}`)
+        .then(r => setQrUrl(r.data.qr_url))
+        .catch(err => setQrError(err?.response?.data?.detail || t("payment.qrNotConfigured")))
+    }
+  }, [preOrderNo, status, method])
 
   // 创建订单并获取收款码
   const createOrder = async () => {
@@ -130,12 +154,20 @@ export function QRPaymentModal({
     try {
       await apiDirect.post(`/api/personal-payments/confirm?order_no=${orderNo}`)
 
-      // 如果是报告解锁，还需要调用 unlock 端点完成解锁
-      if (isReportUnlock && readingId) {
+      // Post-confirm actions based on order type
+      if (postAction === "founder" && orderNo) {
+        // Founder: activate founder seat
+        try {
+          const { api } = await import("@/lib/api")
+          await api.post(`/api/payments/founder/activate?order_no=${orderNo}`)
+        } catch { /* founder activation failure is non-fatal */ }
+      } else if (postAction === "unlock" && readingId) {
+        // Report unlock: call unlock endpoint
         try {
           await unlockReport(readingId)
-        } catch { /* unlock 失败不影响支付确认 */ }
+        } catch { /* unlock failure is non-fatal */ }
       }
+      // subscription: /confirm already handles activation
 
       // 激活成功
       setStatus("success")
