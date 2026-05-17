@@ -322,23 +322,23 @@ async def register(req: RegisterRequest, request: Request, db: AsyncSession = De
             pass  # Referral reward failure doesn't block registration
 
     # Send verification email
-    from utils.email import send_verification_email, is_smtp_configured
+    from utils.email import send_verification_email
     email_sent = send_verification_email(req.email, code)
 
     from config import get_settings as _gs
     _s = _gs()
 
-    # SMTP not configured: block registration in production, return code in DEBUG only
-    if not email_sent and not is_smtp_configured():
+    # Email failed to send: in DEBUG return code for testing, in production reject
+    if not email_sent:
         if _s.DEBUG:
             # Dev convenience: return code in response for testing
-            print(f"[AUTH] SMTP not configured, returning verification code in response for dev testing")
+            print(f"[AUTH] Email send failed, returning verification code in response for dev testing")
             return {
                 "message": "注册成功，请查收邮箱验证码完成验证",
                 "email": req.email,
                 "_dev_code": code,  # DEBUG only — never expose in production
             }
-        # Production without SMTP: reject registration
+        # Production: email service unavailable, reject registration
         # Clean up the unverified user we just created (re-attach after commit)
         user = await db.merge(user)
         await db.delete(user)
@@ -370,18 +370,18 @@ async def send_code(req: SendCodeRequest, request: Request, db: AsyncSession = D
     if not user or user.is_verified:
         return {"message": "如果该邮箱需要验证，验证码已发送"}
 
-    from utils.email import send_verification_email, is_smtp_configured
+    from utils.email import send_verification_email
     code = _generate_code()
 
     # Try sending email first before storing code in DB
     email_sent = send_verification_email(req.email, code)
 
-    if not email_sent and not is_smtp_configured():
+    if not email_sent:
         from config import get_settings as _gs3
         _s3 = _gs3()
         if _s3.DEBUG:
-            print(f"[AUTH] SMTP not configured, verification code for {req.email}: {code}")
-        # In production, email failed — return success to prevent email enumeration
+            print(f"[AUTH] Email send failed, verification code for {req.email}: {code}")
+        # Email failed — return success to prevent email enumeration
         return {"message": "验证码已发送"}
 
     # Email sent (or SMTP configured) — now store code in DB
@@ -543,17 +543,17 @@ async def forgot_password(req: SendCodeRequest, request: Request, db: AsyncSessi
     if not user:
         return {"message": "如果该邮箱已注册，验证码已发送"}
 
-    from utils.email import send_password_reset_email, is_smtp_configured
+    from utils.email import send_password_reset_email
     code = _generate_code()
 
     # Try sending email first before storing code in DB
     email_sent = send_password_reset_email(req.email, code)
 
-    if not email_sent and not is_smtp_configured():
+    if not email_sent:
         from config import get_settings as _gs2
         _s2 = _gs2()
         if _s2.DEBUG:
-            print(f"[AUTH] SMTP not configured, reset code for {req.email}: {code}")
+            print(f"[AUTH] Email send failed, reset code for {req.email}: {code}")
             return {"message": "验证码已发送到您的邮箱", "_dev_code": code}
         raise HTTPException(status_code=503, detail="邮件服务暂不可用，请稍后再试")
 
