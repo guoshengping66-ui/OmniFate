@@ -339,7 +339,8 @@ async def register(req: RegisterRequest, request: Request, db: AsyncSession = De
                 "_dev_code": code,  # DEBUG only — never expose in production
             }
         # Production without SMTP: reject registration
-        # Clean up the unverified user we just created
+        # Clean up the unverified user we just created (re-attach after commit)
+        user = await db.merge(user)
         await db.delete(user)
         await db.commit()
         raise HTTPException(
@@ -369,12 +370,10 @@ async def send_code(req: SendCodeRequest, request: Request, db: AsyncSession = D
     if not user or user.is_verified:
         return {"message": "如果该邮箱需要验证，验证码已发送"}
 
-    code = _generate_code()
-    user.verification_code = code
-    user.verification_expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
-    await db.commit()
-
     from utils.email import send_verification_email, is_smtp_configured
+    code = _generate_code()
+
+    # Try sending email first before storing code in DB
     email_sent = send_verification_email(req.email, code)
 
     if not email_sent and not is_smtp_configured():
@@ -382,8 +381,13 @@ async def send_code(req: SendCodeRequest, request: Request, db: AsyncSession = D
         _s3 = _gs3()
         if _s3.DEBUG:
             print(f"[AUTH] SMTP not configured, verification code for {req.email}: {code}")
-        # In production, the code was saved but email failed — still inform user
-        # (email enumeration prevention: always return success)
+        # In production, email failed — return success to prevent email enumeration
+        return {"message": "验证码已发送"}
+
+    # Email sent (or SMTP configured) — now store code in DB
+    user.verification_code = code
+    user.verification_expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
+    await db.commit()
 
     return {"message": "验证码已发送"}
 
@@ -539,12 +543,10 @@ async def forgot_password(req: SendCodeRequest, request: Request, db: AsyncSessi
     if not user:
         return {"message": "如果该邮箱已注册，验证码已发送"}
 
-    code = _generate_code()
-    user.verification_code = code
-    user.verification_expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
-    await db.commit()
-
     from utils.email import send_password_reset_email, is_smtp_configured
+    code = _generate_code()
+
+    # Try sending email first before storing code in DB
     email_sent = send_password_reset_email(req.email, code)
 
     if not email_sent and not is_smtp_configured():
@@ -554,6 +556,11 @@ async def forgot_password(req: SendCodeRequest, request: Request, db: AsyncSessi
             print(f"[AUTH] SMTP not configured, reset code for {req.email}: {code}")
             return {"message": "验证码已发送到您的邮箱", "_dev_code": code}
         raise HTTPException(status_code=503, detail="邮件服务暂不可用，请稍后再试")
+
+    # Email sent (or SMTP configured) — now store code in DB
+    user.verification_code = code
+    user.verification_expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
+    await db.commit()
 
     return {"message": "验证码已发送到您的邮箱"}
 
