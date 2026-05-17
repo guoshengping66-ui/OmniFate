@@ -2,15 +2,17 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Clock, CheckCircle, Loader2, Copy, AlertCircle, RefreshCw } from "lucide-react"
-import { apiDirect } from "@/lib/api"
+import { apiDirect, unlockReport } from "@/lib/api"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 interface QRPaymentModalProps {
   open: boolean
   onClose: () => void
-  /** Subscription tier: premium_monthly or premium_yearly */
-  tier: "premium_monthly" | "premium_yearly"
-  /** Called ONLY after backend confirms payment and activates subscription */
+  /** Subscription tier: premium_monthly or premium_yearly — OR use readingId for report unlock */
+  tier?: "premium_monthly" | "premium_yearly"
+  /** Reading ID for report unlock — mutually exclusive with tier */
+  readingId?: string
+  /** Called ONLY after backend confirms payment and activates subscription/unlock */
   onSuccess?: () => void
 }
 
@@ -38,6 +40,7 @@ export function QRPaymentModal({
   open,
   onClose,
   tier,
+  readingId,
   onSuccess,
 }: QRPaymentModalProps) {
   const { t: rawT } = useLanguage()
@@ -53,7 +56,11 @@ export function QRPaymentModal({
   const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pollActiveRef = useRef(false)
 
-  const tierInfo = TIER_PRICES[tier] || TIER_PRICES.premium_monthly
+  // Support both subscription and report unlock
+  const isReportUnlock = !!readingId
+  const tierInfo = isReportUnlock
+    ? { amount: 69, labelKey: "payment.unlockReport" }
+    : (TIER_PRICES[tier || "premium_monthly"] || TIER_PRICES.premium_monthly)
   const tierLabel = t(tierInfo.labelKey)
 
   // 倒计时（订单30分钟过期）
@@ -88,8 +95,10 @@ export function QRPaymentModal({
       const res = await apiDirect.post("/api/personal-payments/create", {
         amount: tierInfo.amount,
         currency: method === "alipay" ? "CNY_ALIPAY" : "CNY_WECHAT",
-        description: `Destiny Mirror - ${tierLabel} - ${tier}`,
-        reading_id: "",
+        description: isReportUnlock
+          ? `Destiny Mirror - Unlock Report - ${readingId}`
+          : `Destiny Mirror - ${tierLabel} - ${tier}`,
+        reading_id: readingId || "",
       })
       setOrderNo(res.data.order_no)
       setStatus("showing_qr")
@@ -114,12 +123,20 @@ export function QRPaymentModal({
     await activateSubscription()
   }
 
-  // ── 调用后端 /confirm 激活订阅 ──────────────────────────────────────────
+  // ── 调用后端 /confirm 激活订阅或解锁报告 ──────────────────────────────────────
   const activateSubscription = async () => {
     setStatus("activating")
 
     try {
       await apiDirect.post(`/api/personal-payments/confirm?order_no=${orderNo}`)
+
+      // 如果是报告解锁，还需要调用 unlock 端点完成解锁
+      if (isReportUnlock && readingId) {
+        try {
+          await unlockReport(readingId)
+        } catch { /* unlock 失败不影响支付确认 */ }
+      }
+
       // 激活成功
       setStatus("success")
       onSuccess?.()  // 通知父组件刷新用户信息

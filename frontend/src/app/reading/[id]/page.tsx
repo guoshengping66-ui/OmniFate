@@ -8,7 +8,7 @@ import {
   ChevronDown, Eye, Clock, Compass, ScrollText,
 } from "lucide-react"
 import toast from "react-hot-toast"
-import { getSession, matchProducts, unlockReport, streamSession, AnalysisResponse, Product, AGENT_LABELS, SSEEvent, AgentStatusValue } from "@/lib/api"
+import { getSession, matchProducts, streamSession, AnalysisResponse, Product, AGENT_LABELS, SSEEvent, AgentStatusValue } from "@/lib/api"
 
 const AGENT_I18N: Record<string, string> = {
   astrology: "agent.astrology", tarot: "agent.tarot", bazi: "agent.bazi",
@@ -27,7 +27,7 @@ import DailyAlmanac from "@/components/reading/DailyAlmanac"
 import { DestinyRadar } from "@/components/reading/DestinyRadar"
 import { ShareSheet } from "@/components/reading/ShareSheet"
 import { PaywallGate } from "@/components/monetization/PaywallGate"
-import { PaymentModal } from "@/components/monetization/PaymentModal"
+import { QRPaymentModal } from "@/components/payment/QRPaymentModal"
 import { PrescriptionCard } from "@/components/reading/PrescriptionCard"
 import { FreeReportBanner } from "@/components/reading/FreeReportBanner"
 import { EnergyIDCard } from "@/components/reading/EnergyIDCard"
@@ -139,7 +139,6 @@ export default function ReadingPage() {
   const [activeTab, setActiveTab] = useState<string>("master")
 
   const [showPayment, setShowPayment] = useState(false)
-  const [unlockLoading, setUnlockLoading] = useState(false)
   const [isUnlocked, setIsUnlocked] = useState(false)
 
   // SSE streaming progress
@@ -236,25 +235,16 @@ export default function ReadingPage() {
 
   const handleUnlock = useCallback(async (paymentMethod: string = "card") => {
     if (!id) return
-    setUnlockLoading(true)
-    try {
-      const result = await unlockReport(id)
-      setIsUnlocked(true)
-      setShowPayment(false)
-      if (result.shop_coupon_issued > 0) {
-        toast.success(`报告已解锁！¥${result.shop_coupon_issued} 代金券已发放`)
-      } else {
-        toast.success("报告已解锁！")
-      }
-      refreshUser()
-    } catch (err: any) {
-      const detail = err?.response?.data?.detail ?? "解锁失败，请稍后重试"
-      toast.error(detail)
-      throw err
-    } finally {
-      setUnlockLoading(false)
-    }
-  }, [id, refreshUser])
+    // 打开 QR 支付弹窗，由用户扫码支付后自动解锁
+    setShowPayment(true)
+  }, [id])
+
+  const handlePaymentSuccess = useCallback(async () => {
+    setIsUnlocked(true)
+    setShowPayment(false)
+    toast.success("报告已解锁！")
+    refreshUser()
+  }, [refreshUser])
 
   if (loading) return <ReadingSkeleton phase="loading" />
   if (!data) return <ReadingSkeleton phase="error" />
@@ -663,7 +653,7 @@ export default function ReadingPage() {
               description={t("reading.insight.locked")}
               priceDisplay="¥69"
               onUnlock={() => setShowPayment(true)}
-              loading={unlockLoading}
+              loading={false}
               previewLines={5}
             >
               <div className="card-glass p-6 md:p-8 border-gold/20 bg-gradient-to-br from-gold/[0.03] to-transparent">
@@ -762,7 +752,7 @@ export default function ReadingPage() {
                   description={t("reading.worker.unlockDesc")}
                   priceDisplay="¥69"
                   onUnlock={() => setShowPayment(true)}
-                  loading={unlockLoading}
+                  loading={false}
                   previewLines={3}
                 >
                   <ReportSection
@@ -889,21 +879,15 @@ export default function ReadingPage() {
         </FadeInSection>
       </div>
 
-      {/* ── Payment Modal ────────────────────────────────── */}
-      <PaymentModal
-        open={showPayment}
-        onClose={() => setShowPayment(false)}
-        onConfirm={handleUnlock}
-        title="解锁完整报告"
-        priceDisplay="¥69"
-        description="解锁后获取年度命盘深度规划、12 个月运势详解及个性化改运策略"
-        perks={[
-          "解锁完整年度命盘规划",
-          "赠送 ¥60 商城代金券（可购买任意改运商品）",
-          "自动激活 3 天 Fate OS 会员试用",
-          "解锁追问功能（10 次/报告）",
-        ]}
-      />
+      {/* ── QR Payment Modal (Report Unlock) ──────────────────── */}
+      {id && (
+        <QRPaymentModal
+          open={showPayment}
+          onClose={() => setShowPayment(false)}
+          readingId={id}
+          onSuccess={handlePaymentSuccess}
+        />
+      )}
 
       {/* ════════════════════════════════════════════════════════════
           KEYFRAMES (injected via style tag)

@@ -555,6 +555,7 @@ export default {
   "payment.success": "Payment Successful!",
   "payment.monthlyPlan": "Monthly Plan ¥59/mo",
   "payment.yearlyPlan": "Yearly Plan ¥365/yr",
+  "payment.unlockReport": "Unlock Report ¥69",
   "payment.orderExpired": "Order expired — try again",
   "payment.qrNotConfigured": "QR code not configured",
   "payment.createOrderFailed": "Failed to create order",

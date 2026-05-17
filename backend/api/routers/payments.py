@@ -704,12 +704,47 @@ async def capture_paypal_order(
 # ─── Report Unlock ───────────────────────────────────────────────────────────
 
 @router.post("/unlock/{reading_id}")
-async def mock_unlock(
+async def unlock_report(
     reading_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_user),
 ):
-    """Mock 支付解锁报告（开发环境）— 需要登录"""
+    """
+    解锁报告 — 验证用户已通过 /personal-payments/confirm 完成支付。
+    不再允许直接调用免费解锁。
+    """
+    # 1. 查找报告
+    reading_result = await db.execute(select(Reading).where(Reading.id == reading_id))
+    reading = reading_result.scalar_one_or_none()
+    if not reading:
+        raise HTTPException(status_code=404, detail="报告不存在")
+
+    # 2. 检查是否已解锁
+    if reading.is_detail_unlocked:
+        return {
+            "unlocked": True,
+            "reading_id": reading_id,
+            "message": "报告已解锁，无需重复支付",
+            "shop_coupon_issued": 0,
+            "trial_activated": False,
+        }
+
+    # 3. 验证是否存在已支付的订单（必须通过正规支付流程）
+    paid_order = await db.execute(
+        select(Order).where(
+            Order.notes.contains(f"reading_id:{reading_id}"),
+            Order.status == OrderStatus.paid,
+        )
+    )
+    paid_order = paid_order.scalar_one_or_none()
+
+    if not paid_order:
+        raise HTTPException(
+            status_code=402,
+            detail="请先完成支付再解锁报告",
+        )
+
+    # 4. 通过支付验证，解锁报告
     return await _unlock_reading(reading_id, db)
 
 
@@ -972,7 +1007,13 @@ async def subscribe_tier(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_user),
 ):
-    """订阅会员（Mock / 开发模式）— 正式支付请使用 /personal-payments/create"""
+    """订阅会员（仅开发环境）— 正式支付请使用 /personal-payments/create"""
+    # 生产环境禁止直接订阅（必须通过支付流程）
+    if not settings.DEBUG:
+        raise HTTPException(
+            status_code=403,
+            detail="请通过正规支付流程订阅",
+        )
     if db is None:
         raise HTTPException(status_code=503, detail="数据库暂不可用")
 
@@ -1159,20 +1200,19 @@ async def list_founder_seats(
 
 @router.post("/founder/activate")
 async def activate_founder_seat(
-    order_no: str = Query(None, description="已支付的订单号（可选，mock 模式下省略）"),
+    order_no: str = Query(..., description="已支付的订单号"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_user),
 ):
     """
-    激活创始席位。
-    - 如果提供了 order_no，验证订单已支付后激活
-    - 如果省略 order_no（mock 模式），直接激活（开发环境）
+    激活创始席位 — 必须提供已支付的订单号。
+    生产环境不再允许无订单激活。
     """
     if current_user.is_founder:
         raise HTTPException(status_code=400, detail="您已拥有创始席位")
 
-    # 如果提供了 order_no，验证支付
-    if order_no:
+    # 必须提供 order_no（生产环境）
+    if not settings.DEBUG:
         order_result = await db.execute(
             select(Order).where(
                 Order.order_no == order_no,

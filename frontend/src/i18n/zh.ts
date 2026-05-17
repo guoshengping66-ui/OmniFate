@@ -549,6 +549,7 @@ export default {
   "payment.success": "支付成功！",
   "payment.monthlyPlan": "月度会员 ¥59/月",
   "payment.yearlyPlan": "年度会员 ¥365/年",
+  "payment.unlockReport": "解锁报告 ¥69",
   "payment.orderExpired": "订单已过期，请重新下单",
   "payment.qrNotConfigured": "收款码未配置",
   "payment.createOrderFailed": "创建订单失败",

@@ -227,10 +227,10 @@ async def confirm_payment(
     确认收款后激活订阅/解锁报告。
     使用 get_current_user（可选），因为轮询期间 token 可能过期。
     """
-    # 1. 获取订单
+    # 1. 获取订单 — 必须是 pending 或 processing 状态
     order = await _get_pending_order(db, order_no)
     if not order:
-        # 尝试获取处理中的订单
+        # 尝试获取处理中的订单（用户已提交验证但尚未确认）
         result = await db.execute(
             select(Order).where(
                 Order.order_no == order_no,
@@ -239,7 +239,11 @@ async def confirm_payment(
         )
         order = result.scalar_one_or_none()
         if not order:
-            raise HTTPException(status_code=404, detail="订单不存在")
+            raise HTTPException(status_code=404, detail="订单不存在或已过期")
+
+    # 2. 验证订单金额合理性（防止恶意篡改）
+    if order.total_cny <= 0 or order.total_cny > 50000:
+        raise HTTPException(status_code=400, detail="订单金额异常")
 
     # 2. 更新订单状态
     order.status = OrderStatus.paid
