@@ -104,6 +104,15 @@ def _timing_safe_compare(a: str, b: str) -> bool:
     return hmac.compare_digest(a.encode(), b.encode())
 
 
+def _ensure_aware(dt: Optional[datetime]) -> Optional[datetime]:
+    """Ensure datetime is timezone-aware (UTC). SQLite returns naive datetimes."""
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt
+
+
 # ── Password strength validation ───────────────────────────────────────────
 
 def _validate_password_strength(password: str) -> None:
@@ -414,7 +423,7 @@ async def verify_email(req: VerifyCodeRequest, request: Request, db: AsyncSessio
         return {"message": "该邮箱已验证", "verified": True}
 
     # Check expiration first (before code comparison)
-    if user.verification_expires_at and datetime.now(timezone.utc) > user.verification_expires_at:
+    if user.verification_expires_at and datetime.now(timezone.utc) > _ensure_aware(user.verification_expires_at):
         raise HTTPException(status_code=400, detail="验证码已过期，请重新发送")
 
     if not user.verification_code or not _timing_safe_compare(user.verification_code, req.code):
@@ -586,7 +595,7 @@ async def reset_password(req: ResetPasswordRequest, request: Request, db: AsyncS
         raise HTTPException(status_code=404, detail="用户不存在")
 
     # Check expiration first (before code comparison)
-    if user.verification_expires_at and datetime.now(timezone.utc) > user.verification_expires_at:
+    if user.verification_expires_at and datetime.now(timezone.utc) > _ensure_aware(user.verification_expires_at):
         raise HTTPException(status_code=400, detail="验证码已过期，请重新发送")
 
     if not user.verification_code or not _timing_safe_compare(user.verification_code, req.code):
