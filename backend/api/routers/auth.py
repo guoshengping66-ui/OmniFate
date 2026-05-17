@@ -30,7 +30,7 @@ REGISTER_BONUS_STARDUST = 50  # 注册验证通过奖励星尘
 # ── Rate limiting ──────────────────────────────────────────────────────────
 _rate_store: dict[str, list[float]] = defaultdict(list)
 _RATE_WINDOW = 60  # seconds
-_RATE_MAX = 5      # max requests per window
+_RATE_MAX = 20     # max requests per window (allows multi-step flows + testing)
 
 
 def _get_client_ip(request: Request) -> str:
@@ -41,8 +41,10 @@ def _get_client_ip(request: Request) -> str:
     return request.client.host if request.client else "unknown"
 
 
-def _check_rate_limit(key: str, max_per_window: int = 5) -> bool:
-    """Return True if request should be blocked."""
+def _check_rate_limit(key: str, max_per_window: int = 0) -> bool:
+    """Return True if request should be blocked. Uses _RATE_MAX if max_per_window not specified."""
+    if max_per_window <= 0:
+        max_per_window = _RATE_MAX
     now = time.time()
     window_start = now - _RATE_WINDOW
     _rate_store[key] = [t for t in _rate_store[key] if t > window_start]
