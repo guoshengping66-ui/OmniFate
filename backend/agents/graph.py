@@ -149,6 +149,115 @@ def _stub_astrology(bi: BirthInfo) -> dict:
     }
 
 
+def _build_free_summary(core_result: str, state: SystemState) -> str:
+    """
+    Build a complete free version summary that:
+    1. Directly answers the user's specific question
+    2. Shows key findings from each dimension
+    3. Creates desire for the full deep analysis
+    4. Is complete (not cut off mid-sentence)
+    """
+    # Extract dimension scores for display
+    scores = state.dimension_scores or {}
+    score_display = ""
+    if scores:
+        dim_cn = {"wealth": "财运", "relationship": "感情", "career": "事业",
+                  "health": "健康", "spiritual": "精神"}
+        score_parts = []
+        for dim, val in scores.items():
+            cn = dim_cn.get(dim, dim)
+            # Color coding: <5 red, 5-7 yellow, >7 green
+            if val < 5:
+                indicator = "⚠️"
+            elif val > 7:
+                indicator = "✨"
+            else:
+                indicator = "📊"
+            score_parts.append(f"{indicator} {cn}: {val}/10")
+        score_display = " | ".join(score_parts)
+
+    # Build the teaser summary
+    lines = []
+
+    # 1. Direct answer to user's question (extracted from core_result)
+    lines.append("【命盘速览】")
+    lines.append(f"你的问题：{state.user_question}")
+    lines.append("")
+
+    # 2. Core insight from the analysis
+    # Find the first section that answers the question
+    if "【G·" in core_result:
+        # Extract the section that directly answers the user question
+        start = core_result.find("【G·")
+        end = core_result.find("【", start + 10) if core_result.find("【", start + 10) > 0 else len(core_result)
+        answer_section = core_result[start:end].strip()
+        if len(answer_section) > 400:
+            # Find a complete sentence boundary
+            for sep in ["。", "！", "\n\n"]:
+                pos = answer_section.rfind(sep, 0, 400)
+                if pos > 200:
+                    answer_section = answer_section[:pos + 1]
+                    break
+        lines.append(answer_section)
+    elif "【A·" in core_result:
+        # Extract命盘底色 section
+        start = core_result.find("【A·")
+        end = core_result.find("【", start + 10) if core_result.find("【", start + 10) > 0 else len(core_result)
+        answer_section = core_result[start:end].strip()
+        if len(answer_section) > 400:
+            for sep in ["。", "！", "\n\n"]:
+                pos = answer_section.rfind(sep, 0, 400)
+                if pos > 200:
+                    answer_section = answer_section[:pos + 1]
+                    break
+        lines.append(answer_section)
+    else:
+        # Fallback: use first 400 chars of core_result
+        teaser = core_result[:400]
+        for sep in ["。", "！", "\n\n"]:
+            pos = teaser.rfind(sep, 0, 400)
+            if pos > 200:
+                teaser = teaser[:pos + 1]
+                break
+        lines.append(teaser)
+
+    lines.append("")
+
+    # 3. Dimension scores overview
+    if score_display:
+        lines.append("【五维能量概览】")
+        lines.append(score_display)
+        lines.append("")
+
+    # 4. Key findings teaser
+    lines.append("【核心发现】")
+    # Extract key_findings or key points from the report
+    findings = []
+    for line in core_result.split("\n"):
+        line = line.strip()
+        if line.startswith(("•", "·", "-", "1.", "2.", "3.")):
+            if len(line) > 10 and len(findings) < 3:
+                findings.append(line)
+    if findings:
+        for f in findings:
+            lines.append(f)
+    else:
+        lines.append("• 你的命盘呈现独特的能量格局，多维度分析揭示了关键的人生密码")
+    lines.append("")
+
+    # 5. Upgrade prompt - create desire for full analysis
+    lines.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    lines.append("🔓 解锁完整深度解析，你将获得：")
+    lines.append("• 五维详细诊断（财富/感情/事业/健康/精神）")
+    lines.append("• 跨维度矛盾解释与置信度评估")
+    lines.append("• 未来12个月关键转折点预测")
+    lines.append("• 针对你问题的专项深度分析")
+    lines.append("• 专属能量调和方案与助运物推荐")
+    lines.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+
+    return "\n".join(lines)
+
+
 # ─── Public API ──────────────────────────────────────────────────────────
 
 async def run_full_analysis(state: SystemState) -> SystemState:
@@ -187,8 +296,18 @@ async def run_full_analysis(state: SystemState) -> SystemState:
 
     _runners = [run_astrology, run_tarot, run_bazi, run_qimen, run_ziwei, run_face, run_palm]
 
+    # Stagger face/palm worker start to avoid concurrent LLM API rate limits
+    _START_DELAYS = {
+        "face": 8,   # start face 8s after others
+        "palm": 15,  # start palm 15s after others
+    }
+
     async def _run_one(runner, agent_id: str, timeout: int):
         nonlocal _completed_workers
+        # Delay face/palm to avoid concurrent API calls
+        delay = _START_DELAYS.get(agent_id, 0)
+        if delay:
+            await asyncio.sleep(delay)
         try:
             result = await asyncio.wait_for(runner(state), timeout=timeout)
         except Exception as e:
@@ -276,7 +395,8 @@ async def run_full_analysis(state: SystemState) -> SystemState:
         state.master_detail = f"{core_result}\n\n{dims_result}\n\n{actions_result}"
     else:
         state.progress_message = "核心综合完成，收尾中…"
-        state.master_summary = core_result[:500]
+        # Free version: complete teaser that answers user question and creates upgrade desire
+        state.master_summary = _build_free_summary(core_result, state)
         state.master_detail = ""  # Behind paywall anyway
 
     state.progress_pct = 100

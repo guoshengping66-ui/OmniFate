@@ -23,6 +23,12 @@ class ProductMatcher:
         "fire":  "火", "earth": "土",
     }
 
+    # Reverse mapping for Chinese to English
+    WUXING_ZH_EN = {
+        "金": "metal", "木": "wood", "水": "water",
+        "火": "fire", "土": "earth",
+    }
+
     def __init__(self, products_path: Optional[str] = None):
         path = products_path or str(
             Path(__file__).parent.parent / "data" / "products.json"
@@ -106,8 +112,19 @@ class ProductMatcher:
                 reasons.append(f"命盘标签「{tag}」匹配商品标签")
 
         for element in boost_elements:
-            element_zh = self.WUXING_EN_ZH.get(element, element)
-            element_en = element if element in self.WUXING_EN_ZH else element
+            # Handle both English and Chinese element names
+            if element in self.WUXING_EN_ZH:
+                # English input: convert to Chinese
+                element_zh = self.WUXING_EN_ZH[element]
+                element_en = element
+            elif element in self.WUXING_ZH_EN:
+                # Chinese input: get English equivalent
+                element_zh = element
+                element_en = self.WUXING_ZH_EN[element]
+            else:
+                # Unknown element, try as-is
+                element_zh = element
+                element_en = element
             if element_en in p_wuxing or element_zh in p_keywords:
                 score += 2.0
                 if element_zh not in {r for r in reasons}:
@@ -141,8 +158,19 @@ class ProductMatcher:
                 score += 3.0
 
         for element in boost_elements:
-            element_zh = self.WUXING_EN_ZH.get(element, element)
-            element_en = element if element in self.WUXING_EN_ZH else element
+            # Handle both English and Chinese element names
+            if element in self.WUXING_EN_ZH:
+                # English input: convert to Chinese
+                element_zh = self.WUXING_EN_ZH[element]
+                element_en = element
+            elif element in self.WUXING_ZH_EN:
+                # Chinese input: get English equivalent
+                element_zh = element
+                element_en = self.WUXING_ZH_EN[element]
+            else:
+                # Unknown element, try as-is
+                element_zh = element
+                element_en = element
             if element_en in p_wuxing or element_zh in p_keywords:
                 score += 2.0
 
@@ -176,8 +204,14 @@ class ProductMatcher:
             p_name = product.get("name", "")
             p_funcs = product.get("function_tags", [])
             p_elems = product.get("elements", [])
+            # Handle both English and Chinese element names
+            def _to_chinese(elem: str) -> str:
+                if elem in self.WUXING_EN_ZH:
+                    return self.WUXING_EN_ZH[elem]
+                return elem  # Already Chinese or unknown
+
             boosts = "、".join(
-                self.WUXING_EN_ZH.get(e, e) for e in boost_elements
+                _to_chinese(e) for e in boost_elements
             ) or "能量"
 
             if weakness_tags:

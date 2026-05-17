@@ -8,7 +8,7 @@ TAG_FORMAT = (
     "\n== TAG RULES ==\n"
     "weakness_tags: 3-6 items, prefix #\n"
     "strength_tags: 2-4 items, prefix #\n"
-    "boost_elements: English element names\n"
+    "boost_elements: 五行元素中文名称（火、水、木、金、土）\n"
     "conflict_warnings: signals contradicting other domains, else []\n"
 )
 
@@ -5124,10 +5124,10 @@ strength_tags: 1-3个
     青龙返首等吉格 则 #奇门吉格
     三奇得助 则 #三奇贵人
     生门旺相 则 #财门大开
-boost_elements: 需补五行列表(英文)
-    坎宫(水)弱 则 water | 震巽(木)弱 则 wood
-    离宫(火)弱 则 fire  | 乾兑(金)弱 则 metal
-    坤艮(土)弱 则 earth
+boost_elements: 需补五行列表(中文)
+    坎宫(水)弱 则 水 | 震巽(木)弱 则 木
+    离宫(火)弱 则 火  | 乾兑(金)弱 则 金
+    坤艮(土)弱 则 土
 conflict_warnings: 1-3个
     吉格+凶门同现 则 吉中藏凶，需谨慎把握
     生门临死宫 则 生机会受阻，需耐心等待
@@ -5848,8 +5848,8 @@ strength_tags: 1-3个
     天府守财 则 #财库稳固
     四化吉化 则 #四化得宜
     命宫主星庙旺 则 #主星得力
-boost_elements: 需补五行列表(英文)
-    命宫五行局匹配 则 对应五行元素(fire/water/wood/metal/earth)
+boost_elements: 需补五行列表(中文)
+    命宫五行局匹配 则 对应五行元素(火/水/木/金/土)
 conflict_warnings: 1-3个
     命宫无主星+迁移宫强 则 自我定位依赖外部环境
     杀破狼格局+身命同宫 则 变动与安稳的人生抉择
@@ -6616,10 +6616,10 @@ strength_tags: 1-3个，命局优势
     用神得力 则 #用神得力
     贵人星旺 则 #贵人运强
     财官印俱全 则 #三奇入命
-boost_elements: 需补五行列表(英文)，如["fire","water"]
-    用神为火 则 fire   用神为木 则 wood
-    用神为金 则 metal  用神为水 则 water
-    用神为土 则 earth
+boost_elements: 需补五行列表(中文)，如["火","水"]
+    用神为火 则 火   用神为木 则 木
+    用神为金 则 金   用神为水 则 水
+    用神为土 则 土
 conflict_warnings: 1-3个矛盾信号
     身旺财弱 则 有能力但财富不匹配
     印旺官弱 则 有学识但事业不顺

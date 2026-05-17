@@ -34,6 +34,7 @@ settings = get_settings()
 _JSON_OUTPUT_INSTRUCTION = (
     "\n\n== CRITICAL: OUTPUT FORMAT ==\n"
     "你必须以严格的JSON格式输出分析结果，不要输出任何其他文本。\n"
+    "所有文字值必须使用纯中文，不要中英文混杂。\n"
     "```json\n"
     '{\n'
     '  "summary": "200字核心结论，概括命格特质和关键发现",\n'
@@ -47,16 +48,18 @@ _JSON_OUTPUT_INSTRUCTION = (
     '  "key_findings": ["发现1(含置信度)", "发现2", "发现3"],\n'
     '  "weakness_tags": ["#缺火", "#官杀混杂"],\n'
     '  "strength_tags": ["#领导力强"],\n'
-    '  "boost_elements": ["fire", "water"],\n'
+    '  "boost_elements": ["火", "水"],\n'
     '  "conflict_warnings": ["矛盾信号1"]\n'
     '}\n'
     "```\n"
     "规则：summary必填；dimensions中无数据的维度填空字符串""；key_findings 3-5条。\n"
+    "注意：boost_elements必须使用中文五行名称（火、水、木、金、土），不要使用英文。\n"
 )
 
 _JSON_OUTPUT_INSTRUCTION_EN = (
     "\n\n== CRITICAL: OUTPUT FORMAT ==\n"
     "You MUST output the analysis in strict JSON format. Do NOT output any other text.\n"
+    "ALL text values MUST be in English. Do NOT mix Chinese and English.\n"
     "```json\n"
     '{\n'
     '  "summary": "200-word core conclusion summarizing chart traits and key findings",\n'
@@ -75,7 +78,7 @@ _JSON_OUTPUT_INSTRUCTION_EN = (
     '}\n'
     "```\n"
     "Rules: summary is required; leave empty string for dimensions without data; 3-5 key_findings.\n"
-    "IMPORTANT: ALL text values in the JSON MUST be in English.\n"
+    "IMPORTANT: ALL text values in the JSON MUST be in English. Do NOT mix languages.\n"
 )
 
 
@@ -101,7 +104,24 @@ async def _call(system: str, user: str, append_json_format: bool = True, model: 
     """Single async LLM call. append_json_format adds JSON output instruction."""
     from langchain_core.messages import SystemMessage, HumanMessage
     llm = _llm(model=model)
-    sys_content = system + (_get_json_instruction(language) if append_json_format else "")
+
+    # Add explicit language instruction to prevent mixing
+    if language == "en":
+        lang_instruction = (
+            "\n\n== LANGUAGE REQUIREMENT ==\n"
+            "CRITICAL: Output the ENTIRE analysis in English. "
+            "ALL text values, descriptions, and explanations MUST be in English. "
+            "Do NOT mix Chinese and English. Keep technical terms (like element names) in English only."
+        )
+    else:
+        lang_instruction = (
+            "\n\n== 语言要求 ==\n"
+            "重要：整个分析必须使用纯中文输出。"
+            "所有文字值、描述和解释都必须使用中文。"
+            "不要中英文混杂。五行元素名称请使用中文（如：火、水、木、金、土）。"
+        )
+
+    sys_content = system + lang_instruction + (_get_json_instruction(language) if append_json_format else "")
     msgs = [SystemMessage(content=sys_content), HumanMessage(content=user)]
     resp = await llm.ainvoke(msgs)
     return resp.content
@@ -697,10 +717,19 @@ async def run_face(state: SystemState) -> WorkerOutput:
         system = face_prompt(face_text, gender, bazi_sup, language=state.language)
         user_msg = "Please deliver a complete face reading based on the facial feature data above."
 
-        report = _mock(agent_id, face_text) if _use_mock() else await _call(system, user_msg, language=state.language)
-        # Retry once if LLM returned empty content
-        if not report.strip() and not _use_mock():
-            report = await _call(system, user_msg, language=state.language)
+        if _use_mock():
+            report = _mock(agent_id, face_text)
+        else:
+            # Retry up to 3 times with delay to handle LLM empty responses / rate limits
+            report = ""
+            for attempt in range(3):
+                report = await _call(system, user_msg, language=state.language)
+                if report.strip():
+                    break
+                if attempt < 2:
+                    print(f"[FACE] empty response on attempt {attempt+1}, retrying in 3s...")
+                    await asyncio.sleep(3)
+
         data = _parse_worker_report(report)
         return WorkerOutput(
             agent_id=agent_id,
@@ -744,10 +773,19 @@ async def run_palm(state: SystemState) -> WorkerOutput:
         system = palm_prompt(palm_text, gender, bazi_sup, pf.hand_side, language=state.language)
         user_msg = "Please deliver a complete palm reading based on the hand line data above."
 
-        report = _mock(agent_id, palm_text) if _use_mock() else await _call(system, user_msg, language=state.language)
-        # Retry once if LLM returned empty content
-        if not report.strip() and not _use_mock():
-            report = await _call(system, user_msg, language=state.language)
+        if _use_mock():
+            report = _mock(agent_id, palm_text)
+        else:
+            # Retry up to 3 times with delay to handle LLM empty responses / rate limits
+            report = ""
+            for attempt in range(3):
+                report = await _call(system, user_msg, language=state.language)
+                if report.strip():
+                    break
+                if attempt < 2:
+                    print(f"[PALM] empty response on attempt {attempt+1}, retrying in 3s...")
+                    await asyncio.sleep(3)
+
         data = _parse_worker_report(report)
         return WorkerOutput(
             agent_id=agent_id,

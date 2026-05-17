@@ -81,12 +81,23 @@ async def _call(system: str, user: str, model: str | None = None, language: str 
     if _use_mock():
         return f"[MOCK] {user[:80]}\n\nSet OPENAI_API_KEY to enable real AI responses."
     llm = _llm(model=model)
-    # Add language instruction to master prompts
-    lang_hint = (
-        "\n\nIMPORTANT: Output the ENTIRE analysis in English. "
-        "ALL text values, descriptions, and explanations MUST be in English."
-        if language == "en" else ""
-    )
+
+    # Add explicit language instruction to prevent mixing
+    if language == "en":
+        lang_hint = (
+            "\n\n== LANGUAGE REQUIREMENT ==\n"
+            "CRITICAL: Output the ENTIRE analysis in English. "
+            "ALL text values, descriptions, and explanations MUST be in English. "
+            "Do NOT mix Chinese and English."
+        )
+    else:
+        lang_hint = (
+            "\n\n== 语言要求 ==\n"
+            "重要：整个分析报告必须使用纯中文输出。"
+            "所有文字值、描述和解释都必须使用中文。"
+            "不要中英文混杂。五行元素名称请使用中文（如：火、水、木、金、土）。"
+        )
+
     msgs = [SystemMessage(content=system + lang_hint), HumanMessage(content=user)]
     resp = await llm.ainvoke(msgs)
     return resp.content
@@ -258,13 +269,18 @@ def _compute_dimension_scores(state: SystemState) -> dict[str, float]:
             if any(kw in tag for kw in keywords):
                 scores[dim] = min(8.5, scores[dim] + 0.5)  # ceiling at 8.5
 
-    # boost_elements: map to dimension
+    # boost_elements: map to dimension (supports both English and Chinese element names)
     element_dim_map = {
         "fire":  "career",       # 火→事业动力
         "water": "wealth",       # 水→财富流动
         "wood":  "relationship", # 木→关系生长
         "metal": "spiritual",    # 金→灵性纯粹
         "earth": "health",       # 土→健康稳固
+        "火":  "career",
+        "水": "wealth",
+        "木":  "relationship",
+        "金": "spiritual",
+        "土": "health",
     }
     for elem in all_boost:
         dim = element_dim_map.get(elem)
@@ -326,10 +342,19 @@ def _cross_validate_palm(state: SystemState) -> list[ConflictRecord]:
         return records
 
     # Rule 1: Palm hand shape vs bazi element needs
-    bazi_boost = [e.lower() for e in state.bazi_output.boost_elements]
+    # Support both English and Chinese element names
+    bazi_boost = state.bazi_output.boost_elements
+    bazi_boost_lower = [e.lower() for e in bazi_boost]
+    bazi_boost_str = str(bazi_boost) + str(bazi_boost_lower)
+
+    def _has_element(elem_en: str, elem_cn: str) -> bool:
+        """Check if element exists in bazi_boost (supports both EN and CN)."""
+        return (elem_en in bazi_boost_lower or elem_en in bazi_boost_str or
+                elem_cn in bazi_boost_str)
+
     if bazi_boost:
         if "土" in palm_report and "土型" in palm_report:
-            if "earth" in bazi_boost or "土" in str(bazi_boost):
+            if _has_element("earth", "土"):
                 records.append(ConflictRecord(
                     domain_a="palm", domain_b="bazi",
                     description="手相土型手 + 八字需补土：双重确认土性能量需求，"
@@ -337,7 +362,7 @@ def _cross_validate_palm(state: SystemState) -> list[ConflictRecord]:
                     severity="low",
                 ))
         if "火" in palm_report and "火型" in palm_report:
-            if "fire" in bazi_boost or "火" in str(bazi_boost):
+            if _has_element("fire", "火"):
                 records.append(ConflictRecord(
                     domain_a="palm", domain_b="bazi",
                     description="手相火型手 + 八字需补火：火性能量手型与八字用神一致，"
@@ -345,7 +370,7 @@ def _cross_validate_palm(state: SystemState) -> list[ConflictRecord]:
                     severity="low",
                 ))
         if "水" in palm_report and "水型" in palm_report:
-            if "water" in bazi_boost or "水" in str(bazi_boost):
+            if _has_element("water", "水"):
                 records.append(ConflictRecord(
                     domain_a="palm", domain_b="bazi",
                     description="手相水型手 + 八字需补水：水性能量手型与八字用神一致，"
@@ -360,8 +385,8 @@ def _cross_validate_palm(state: SystemState) -> list[ConflictRecord]:
             ("金型", "fire", "火"),
             ("木型", "metal", "金"),
         ]
-        for hand_type_str, conflict_elem, conflict_cn in element_conflicts:
-            if hand_type_str in palm_report and conflict_elem in bazi_boost:
+        for hand_type_str, conflict_elem_en, conflict_cn in element_conflicts:
+            if hand_type_str in palm_report and _has_element(conflict_elem_en, conflict_cn):
                 records.append(ConflictRecord(
                     domain_a="palm", domain_b="bazi",
                     description=f"手相检测为{hand_type_str}手，但八字需补{conflict_cn}元素。"
