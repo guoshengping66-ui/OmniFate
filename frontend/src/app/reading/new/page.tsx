@@ -155,9 +155,10 @@ export default function NewReadingPage() {
     if (wizardData.user_question) {
       setValue("user_question", wizardData.user_question)
     }
-    // Skip to appropriate step
+    // Skip to appropriate step — clamp to valid range for the current STEPS array
     if (wizardStartStep > 0) {
-      setStep(wizardStartStep)
+      const maxStep = STEPS.length - 1
+      setStep(Math.min(wizardStartStep, maxStep))
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
