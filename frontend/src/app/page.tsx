@@ -1,4 +1,5 @@
 "use client"
+import { useEffect } from "react"
 import Link from "next/link"
 import { Sparkles, Star, ArrowRight, ShieldCheck, Zap, Eye, ShoppingBag, ScrollText } from "lucide-react"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
@@ -11,10 +12,12 @@ import { MagneticButton } from "@/components/ui/MagneticButton"
 import { TiltCard } from "@/components/ui/TiltCard"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useAuth } from "@/contexts/AuthContext"
+import { useUserStore } from "@/stores/useUserStore"
 import { DailyFortune } from "@/components/reading/DailyFortune"
 import { CountUpNumber } from "@/components/ui/CountUpNumber"
 import { AccordionItem } from "@/components/ui/AccordionItem"
 import { FloatingOracleIcon } from "@/components/ui/FloatingOracleIcon"
+import { UserDashboard } from "@/components/dashboard/UserDashboard"
 import { motion, useInView } from "framer-motion"
 import { useRef } from "react"
 
@@ -103,7 +106,25 @@ function StatsSection() {
 
 export default function HomePage() {
   const { t, locale } = useLanguage()
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
+  const { userProfile, loading: profileLoading, fetchBirthProfiles } = useUserStore()
+
+  // Fetch birth profile on mount when user is logged in
+  useEffect(() => {
+    if (user) fetchBirthProfiles()
+  }, [user])
+
+  // ── Auth gate: prevent flash of wrong layout ────────────────
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
+      </div>
+    )
+  }
+
+  const hasProfile = !!user && !!userProfile
+  const profileStillLoading = !!user && profileLoading && !userProfile
 
   const AGENTS = [
     {
@@ -191,6 +212,28 @@ export default function HomePage() {
 
 
 
+  // ── Returning users with profile → Dashboard ────────────────
+  if (hasProfile) {
+    return (
+      <div className="min-h-screen">
+        <LiveBar />
+        <section className="pt-24 pb-16 px-4">
+          <UserDashboard />
+        </section>
+      </div>
+    )
+  }
+
+  // ── Loading profile (logged in, no data yet) ────────────────
+  if (profileStillLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
+      </div>
+    )
+  }
+
+  // ── New / logged-out visitors → Marketing ────────────────────
   return (
     <div className="min-h-screen">
       <LiveBar />
