@@ -74,7 +74,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 # ── Simple in-memory rate limiter ───────────────────────────────────────────
 _rate_store: dict[str, list[float]] = defaultdict(list)
 RATE_LIMIT_WINDOW = 60  # seconds
-RATE_LIMIT_MAX = 30     # requests per window (global)
+RATE_LIMIT_MAX = 60     # requests per window (global)
 _last_cleanup: float = 0.0
 
 
