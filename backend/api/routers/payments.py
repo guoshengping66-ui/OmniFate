@@ -1022,7 +1022,7 @@ async def mock_cancel_subscription(
     if not user:
         raise HTTPException(status_code=404, detail="用户不存在")
 
-    if not user.is_premium or user.subscription_tier in ("trial", "founder_lifetime"):
+    if not user.is_premium or user.subscription_tier in ("trial", "founder_lifetime", "cancelled"):
         raise HTTPException(status_code=400, detail="当前没有可取消的有效订阅")
 
     expires_at = user.premium_expires_at
