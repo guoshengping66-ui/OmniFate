@@ -9,7 +9,7 @@ import {
 import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { listMyReadings, listMyOrders, getFavorites, type ReadingListItem, type OrderListItem, type Product } from "@/lib/api"
+import { listMyReadings, listMyOrders, getFavorites, deleteReading, type ReadingListItem, type OrderListItem, type Product } from "@/lib/api"
 import { getReadingHistory, clearReadingHistory, removeReadingFromHistory, type ReadingHistoryItem } from "@/lib/readingHistory"
 import SettingsTab from "./SettingsTab"
 
@@ -259,7 +259,7 @@ export default function AccountPage() {
                     <h3 className="text-white/50 text-xs mb-3 uppercase tracking-wider">{user ? t("account.accountReadings") : ""}</h3>
                     <div className="space-y-3">
                       {readings.map(r => (
-                        <Link key={r.id} href={`/reading/${r.id}`}
+                        <div key={r.id}
                           className="block card-glass p-4 hover:border-gold/30 transition-all group">
                           <div className="flex items-center gap-3">
                             <span className="text-xl">🔮</span>
@@ -269,9 +269,26 @@ export default function AccountPage() {
                                 {new Date(r.created_at).toLocaleString("zh-CN")}
                               </p>
                             </div>
-                            <ChevronRight size={14} className="text-white/20 group-hover:text-gold" />
+                            <button
+                              onClick={async (e) => {
+                                e.stopPropagation()
+                                try {
+                                  await deleteReading(r.id)
+                                  setReadings(prev => prev.filter(x => x.id !== r.id))
+                                  toast.success("已删除")
+                                } catch {
+                                  toast.error("删除失败")
+                                }
+                              }}
+                              className="w-6 h-6 rounded-full flex items-center justify-center text-white/15 hover:text-red-400 hover:bg-red-400/10 transition-all flex-shrink-0"
+                            >
+                              ✕
+                            </button>
+                            <Link href={`/reading/${r.id}`} className="flex-shrink-0">
+                              <ChevronRight size={14} className="text-white/20 group-hover:text-gold" />
+                            </Link>
                           </div>
-                        </Link>
+                        </div>
                       ))}
                     </div>
                   </div>

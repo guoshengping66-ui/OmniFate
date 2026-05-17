@@ -614,6 +614,31 @@ async def list_my_readings(user: User = Depends(require_user)):
         raise HTTPException(status_code=500, detail="获取报告列表失败，请稍后重试")
 
 
+@router.delete("/{session_id}")
+async def delete_reading(session_id: str, user: User = Depends(require_user)):
+    """Delete a reading belonging to the current user."""
+    try:
+        async with AsyncSessionLocal() as db:
+            stmt = select(Reading).where(
+                Reading.id == session_id,
+                Reading.user_id == user.id,
+            )
+            result = await db.execute(stmt)
+            reading = result.scalar_one_or_none()
+            if not reading:
+                raise HTTPException(status_code=404, detail="报告不存在")
+            await db.delete(reading)
+            await db.commit()
+            # Also clean up in-memory session
+            _sessions.pop(session_id, None)
+            _session_created.pop(session_id, None)
+            return {"ok": True}
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail="删除失败，请稍后重试")
+
+
 MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10MB
 
 

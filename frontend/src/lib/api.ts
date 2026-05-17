@@ -748,6 +748,10 @@ export async function listMyReadings(): Promise<ReadingListItem[]> {
   return res.data
 }
 
+export async function deleteReading(sessionId: string): Promise<void> {
+  await api.delete(`/api/readings/${sessionId}`)
+}
+
 // ── Product Detail (P1-2) ─────────────────────────────────────────────────
 
 export async function getProduct(productId: string, lang?: string): Promise<Product> {
