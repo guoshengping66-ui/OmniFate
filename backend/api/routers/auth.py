@@ -416,9 +416,9 @@ async def verify_email(req: VerifyCodeRequest, request: Request, db: AsyncSessio
     if db is None:
         raise HTTPException(status_code=503, detail="数据库暂不可用，请稍后再试")
 
-    # Rate limit verification attempts (stricter: 3 per minute per email/IP)
+    # Rate limit verification attempts (stricter: 10 per minute per email/IP)
     client_ip = _get_client_ip(request)
-    if _check_rate_limit(f"verify:{client_ip}", max_per_window=3) or _check_rate_limit(f"verify:{req.email}", max_per_window=3):
+    if _check_rate_limit(f"verify:{client_ip}", max_per_window=10) or _check_rate_limit(f"verify:{req.email}", max_per_window=10):
         raise HTTPException(status_code=429, detail="验证尝试过于频繁，请稍后再试")
 
     result = await db.execute(select(User).where(User.email == req.email))
@@ -427,7 +427,14 @@ async def verify_email(req: VerifyCodeRequest, request: Request, db: AsyncSessio
         raise HTTPException(status_code=404, detail="用户不存在")
 
     if user.is_verified:
-        return {"message": "该邮箱已验证", "verified": True}
+        # User already verified — return tokens so they can log in
+        access = create_access_token(str(user.id))
+        refresh = create_refresh_token(str(user.id))
+        return AuthResponse(
+            access_token=access,
+            refresh_token=refresh,
+            user=_user_dict(user),
+        )
 
     # Check expiration first (before code comparison)
     if user.verification_expires_at and datetime.now(timezone.utc) > _ensure_aware(user.verification_expires_at):
