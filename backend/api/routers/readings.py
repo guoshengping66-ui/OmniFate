@@ -248,14 +248,39 @@ async def create_analysis(
 
 
 async def _persist_session(session_id: str, user_id: Optional[str] = None):
-    """Persist a reading session to the database."""
+    """Persist a reading session to the database, auto-linking birth_profile_id."""
     from database.session import _db_available
+    from database.models import BirthProfile
     if _db_available is False:
         return
     async with AsyncSessionLocal() as db:
+        # Auto-link user's default birth profile
+        birth_profile_id = None
+        if user_id:
+            stmt = (
+                select(BirthProfile)
+                .where(BirthProfile.user_id == user_id, BirthProfile.nickname == "本命")
+                .limit(1)
+            )
+            result = await db.execute(stmt)
+            bp = result.scalar_one_or_none()
+            if not bp:
+                # Fallback: use first profile
+                stmt2 = (
+                    select(BirthProfile)
+                    .where(BirthProfile.user_id == user_id)
+                    .order_by(BirthProfile.created_at.asc())
+                    .limit(1)
+                )
+                result2 = await db.execute(stmt2)
+                bp = result2.scalar_one_or_none()
+            if bp:
+                birth_profile_id = bp.id
+
         reading = Reading(
             id=session_id,
             user_id=user_id,
+            birth_profile_id=birth_profile_id,
             status=ReadingStatus.pending,
             master_summary="",
             is_detail_unlocked=False,
@@ -990,6 +1015,11 @@ class DailyAlmanacResponse(BaseModel):
     wuxing_analysis: str = ""
 
 
+# ─── Daily Almanac Cache ─────────────────────────────────────────────────────
+_almanac_cache: dict[str, dict] = {}  # key = f"{session_id}:{date}" -> cached response dict
+_ALMANAC_CACHE_TTL = 3600 * 12  # 12 hours
+
+
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 
 
@@ -1569,7 +1599,7 @@ async def get_daily_almanac(session_id: str = Query(...)):
                 state = SystemState(
                     session_id=session_id,
                     birth_info=bi,
-                    dimension_scores=reading.dimension_scores or {},
+                    dimension_scores=getattr(reading, 'dimension_scores', None) or {},
                     computed_tags=reading.computed_tags or [],
                     master_summary=reading.master_summary or "",
                     bazi_raw=reading.bazi_raw or {},

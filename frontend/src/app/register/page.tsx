@@ -2,38 +2,43 @@
 import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Sparkles, Loader2, Eye, EyeOff, Mail, CheckCircle } from "lucide-react"
+import { Sparkles, Loader2, Eye, EyeOff, Mail, CheckCircle, ChevronLeft, ChevronRight } from "lucide-react"
 import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { registerUser, sendVerificationCode, verifyEmail } from "@/lib/api"
+import type { RegisterBirthData } from "@/lib/api"
 import { ServiceTerms } from "@/components/ui/ServiceTerms"
+import { DateSelector } from "@/components/reading/DateSelector"
+import { ShichenSelector } from "@/components/reading/ShichenSelector"
+import { LocationSelector } from "@/components/reading/LocationSelector"
+
+type Step = "account" | "birth" | "verify"
 
 export default function RegisterPage() {
   const router = useRouter()
-  const { login: authLogin } = useAuth()
   const { t } = useLanguage()
 
-  // Read referral code from URL ?ref=XXXX
-  const [referralCode, setReferralCode] = useState("")
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const ref = params.get("ref")
-    if (ref) setReferralCode(ref.toUpperCase())
-  }, [])
-
-  // Step 1: Registration form
+  // Step 1: Account
+  const [step, setStep] = useState<Step>("account")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [displayName, setDisplayName] = useState("")
   const [showPw, setShowPw] = useState(false)
   const [loading, setLoading] = useState(false)
   const [privacyAccepted, setPrivacyAccepted] = useState(false)
-  const [ageConfirmed, setAgeConfirmed] = useState(false)
+  const [showTerms, setShowTerms] = useState(false)
 
-  // Step 2: Verification code
-  const [step, setStep] = useState<"register" | "verify">("register")
+  // Step 2: Birth info
+  const [birthGender, setBirthGender] = useState<"female" | "male" | "other">("female")
+  const [birthYear, setBirthYear] = useState(0)
+  const [birthMonth, setBirthMonth] = useState(0)
+  const [birthDay, setBirthDay] = useState(0)
+  const [birthHour, setBirthHour] = useState(0)
+  const [birthMinute, setBirthMinute] = useState(0)
+  const [birthCity, setBirthCity] = useState("")
+
+  // Step 3: Verification code
   const [verifyCode, setVerifyCode] = useState("")
   const [verifyLoading, setVerifyLoading] = useState(false)
   const [resendCooldown, setResendCooldown] = useState(0)
@@ -46,10 +51,10 @@ export default function RegisterPage() {
     }
   }, [])
 
-  // ServiceTerms modal
-  const [showTerms, setShowTerms] = useState(false)
+  const hasBirthData = birthYear > 0 && birthMonth > 0 && birthDay > 0
 
-  const handleRegister = async (e: React.FormEvent) => {
+  // ── Step 1: Account → submit to backend ──────────────────────
+  const handleAccountSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email || !password) {
       toast.error(t("auth.fillEmailPassword"))
@@ -71,6 +76,37 @@ export default function RegisterPage() {
       toast.error(t("auth.confirmAge"))
       return
     }
+    setStep("birth")
+  }
+
+  // ── Step 2: Birth info → submit with birth data ──────────────
+  const handleBirthSubmit = async () => {
+    setLoading(true)
+    try {
+      const birthData: RegisterBirthData | undefined = hasBirthData ? {
+        nickname: "本命",
+        gender: birthGender,
+        birth_year: birthYear,
+        birth_month: birthMonth,
+        birth_day: birthDay,
+        birth_hour: birthHour,
+        birth_minute: birthMinute,
+        birth_city: birthCity,
+      } : undefined
+
+      await registerUser(email, password, displayName || undefined, privacyAccepted, birthData)
+      toast.success(hasBirthData ? "注册成功，出生信息已保存！请查收邮箱验证码" : "注册成功，请查收邮箱验证码")
+      setStep("verify")
+      startResendCooldown()
+    } catch (err: any) {
+      const detail = err?.response?.data?.detail ?? t("auth.registerFail")
+      toast.error(detail)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSkipBirth = async () => {
     setLoading(true)
     try {
       const res = await registerUser(email, password, displayName || undefined, privacyAccepted, referralCode || undefined)
@@ -86,6 +122,7 @@ export default function RegisterPage() {
     }
   }
 
+  // ── Step 3: Verify email ─────────────────────────────────────
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!verifyCode || verifyCode.length !== 6) {
@@ -95,7 +132,6 @@ export default function RegisterPage() {
     setVerifyLoading(true)
     try {
       const res = await verifyEmail(email, verifyCode)
-      // Store tokens and log in (must match AuthContext keys)
       localStorage.setItem("alpha_mirror_token", res.access_token)
       localStorage.setItem("alpha_mirror_refresh", res.refresh_token)
       toast.success(t("auth.loginSuccess"))
@@ -124,17 +160,13 @@ export default function RegisterPage() {
     setResendCooldown(60)
     cooldownRef.current = setInterval(() => {
       setResendCooldown(prev => {
-        if (prev <= 1) {
-          clearInterval(cooldownRef.current!)
-          cooldownRef.current = null
-          return 0
-        }
+        if (prev <= 1) { clearInterval(timer); return 0 }
         return prev - 1
       })
     }, 1000)
   }
 
-  // Step 2: Verification code input
+  // ── Step 3: Verification code input ──────────────────────────
   if (step === "verify") {
     return (
       <div className="min-h-screen pt-24 pb-16 px-4 flex items-center justify-center">
@@ -185,8 +217,8 @@ export default function RegisterPage() {
             </div>
 
             <p className="text-center text-white/40 text-sm">
-              <button type="button" onClick={() => setStep("register")} className="text-gold hover:underline">
-                {t("auth.backToRegister")}
+              <button type="button" onClick={() => setStep("birth")} className="text-gold hover:underline">
+                ← 返回
               </button>
             </p>
           </form>
@@ -195,7 +227,96 @@ export default function RegisterPage() {
     )
   }
 
-  // Step 1: Registration form
+  // ── Step 2: Birth info ───────────────────────────────────────
+  if (step === "birth") {
+    return (
+      <div className="min-h-screen pt-24 pb-16 px-4 flex items-center justify-center">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <span className="text-4xl mb-3 block">🔮</span>
+            <h1 className="text-2xl font-serif font-bold text-gold">完善命理底座</h1>
+            <p className="text-white/40 text-sm mt-1">
+              填写出生信息，解锁个性化推命分析
+            </p>
+          </div>
+
+          <div className="card-glass p-6 md:p-8 space-y-5">
+            {/* Gender */}
+            <div>
+              <label className="label">性别</label>
+              <div className="flex gap-3">
+                {([["female", "女"], ["male", "男"], ["other", "其他"]] as [string, string][]).map(([v, l]) => (
+                  <label key={v} className="flex-1 cursor-pointer">
+                    <input type="radio" value={v} checked={birthGender === v}
+                      onChange={() => setBirthGender(v as any)} className="sr-only peer" />
+                    <div className="text-center py-2.5 rounded-xl border border-white/20 text-white/60 peer-checked:border-gold peer-checked:text-gold peer-checked:bg-gold/10 hover:border-white/40 transition-all text-sm">{l}</div>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Date */}
+            <DateSelector
+              year={birthYear}
+              month={birthMonth}
+              day={birthDay}
+              onYearChange={setBirthYear}
+              onMonthChange={setBirthMonth}
+              onDayChange={setBirthDay}
+            />
+
+            {/* Time */}
+            <ShichenSelector
+              value={birthHour}
+              onChange={(h) => { setBirthHour(h); setBirthMinute(0) }}
+            />
+
+            {/* City */}
+            <LocationSelector
+              value={birthCity}
+              onChange={setBirthCity}
+              placeholder="请输入出生城市（可选）"
+            />
+
+            {/* Actions */}
+            <div className="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setStep("account")}
+                className="flex items-center gap-1 px-4 py-2.5 rounded-full border border-white/20 text-white/60 hover:border-white/40 transition-all text-sm"
+              >
+                <ChevronLeft size={14} /> 上一步
+              </button>
+
+              <button
+                type="button"
+                onClick={handleSkipBirth}
+                disabled={loading}
+                className="flex-1 py-2.5 rounded-full border border-white/20 text-white/40 hover:text-white/60 hover:border-white/40 transition-all text-sm"
+              >
+                {loading ? <Loader2 size={14} className="animate-spin mx-auto" /> : "跳过，稍后填写"}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleBirthSubmit}
+                disabled={loading || !hasBirthData}
+                className="btn-gold flex items-center gap-1 text-sm disabled:opacity-40"
+              >
+                {loading ? <Loader2 size={14} className="animate-spin" /> : <><CheckCircle size={14} /> 完成注册</>}
+              </button>
+            </div>
+
+            <p className="text-white/25 text-[10px] text-center">
+              出生信息将安全加密存储，仅用于命理分析
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // ── Step 1: Account info ─────────────────────────────────────
   return (
     <div className="min-h-screen pt-24 pb-16 px-4 flex items-center justify-center">
       <div className="w-full max-w-md">
@@ -205,7 +326,7 @@ export default function RegisterPage() {
           <p className="text-white/40 text-sm mt-1">{t("auth.registerSubtitle")}</p>
         </div>
 
-        <form onSubmit={handleRegister} className="card-glass p-6 md:p-8 space-y-5">
+        <form onSubmit={handleAccountSubmit} className="card-glass p-6 md:p-8 space-y-5">
           <div>
             <label className="label">{t("auth.email")}</label>
             <input
@@ -296,10 +417,10 @@ export default function RegisterPage() {
 
           <button
             type="submit"
-            disabled={loading || !privacyAccepted || !ageConfirmed}
+            disabled={!privacyAccepted}
             className="btn-gold w-full flex items-center justify-center gap-2 py-3 disabled:opacity-40"
           >
-            {loading ? <><Loader2 size={18} className="animate-spin" /> {t("auth.registering")}</> : t("auth.register")}
+            下一步 <ChevronRight size={16} />
           </button>
 
           <p className="text-center text-white/40 text-sm">

@@ -98,8 +98,8 @@ def get_settings() -> Settings:
         sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
     if s.SECRET_KEY == "change-me-in-production":
         print("[SECURITY] WARNING: SECRET_KEY uses default value! Set a strong key in .env.")
-    if s.JWT_SECRET_KEY == "change-me-in-production-use-openssl-rand-hex-32":
+    if s.JWT_SECRET_KEY == "alpha-mirror-jwt-secret-dev-key-2025":
         print("[SECURITY] WARNING: JWT_SECRET_KEY uses default value! Set a strong key in .env.")
     if s.DEBUG:
-        print("[SECURITY] WARNING: DEBUG mode is ON — do not use in production.")
+        print("[SECURITY] WARNING: DEBUG mode is ON -- do not use in production.")
     return s

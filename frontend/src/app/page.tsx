@@ -10,11 +10,13 @@ import { MagicCursor } from "@/components/ui/MagicCursor"
 import { MagneticButton } from "@/components/ui/MagneticButton"
 import { TiltCard } from "@/components/ui/TiltCard"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { useAuth } from "@/contexts/AuthContext"
 import { DailyFortune } from "@/components/reading/DailyFortune"
 import { CountUpNumber } from "@/components/ui/CountUpNumber"
 import { AccordionItem } from "@/components/ui/AccordionItem"
 import { useAuth } from "@/contexts/AuthContext"
 import { FloatingOracleIcon } from "@/components/ui/FloatingOracleIcon"
+import { UserDashboard } from "@/components/dashboard/UserDashboard"
 import { motion, useInView } from "framer-motion"
 import { useRef } from "react"
 
@@ -103,7 +105,7 @@ function StatsSection() {
 
 export default function HomePage() {
   const { t, locale } = useLanguage()
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
 
   const AGENTS = [
     {
@@ -188,6 +190,33 @@ export default function HomePage() {
         : "The tarot reading was genuinely healing — it helped me see my way through challenges.",
     },
   ]
+
+  // ── Logged-in user: show personalized dashboard ────────────────
+  if (!authLoading && user) {
+    return (
+      <div className="min-h-screen">
+        <LiveBar />
+        <section className="pt-28 pb-16 px-4">
+          <UserDashboard />
+        </section>
+        {/* Keep daily fortune for logged-in users */}
+        <section className="py-16 px-4 bg-white/[0.015] relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gold/[0.02] to-transparent pointer-events-none" />
+          <div className="max-w-5xl mx-auto relative">
+            <ScrollReveal>
+              <div className="text-center mb-10">
+                <span className="text-gold/60 text-sm tracking-[0.2em] uppercase">{t("fortune.badge")}</span>
+                <h2 className="section-title mt-3">{t("fortune.sectionTitle")}</h2>
+              </div>
+            </ScrollReveal>
+            <ScrollReveal delay={0.2}>
+              <DailyFortune />
+            </ScrollReveal>
+          </div>
+        </section>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen">
