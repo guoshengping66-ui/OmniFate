@@ -9,6 +9,7 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import { listMyReadings, runAnalysis, type ReadingListItem } from "@/lib/api"
 import { motion } from "framer-motion"
 import { TargetSelector } from "./TargetSelector"
+import { BirthProfileSetup } from "./BirthProfileSetup"
 
 // Chinese zodiac animals
 const ZODIAC = ["鼠","牛","虎","兔","龙","蛇","马","羊","猴","鸡","狗","猪"]
@@ -153,12 +154,7 @@ export function UserDashboard() {
               </div>
             </div>
           ) : (
-            <div className="text-center py-6">
-              <p className="text-white/30 text-sm mb-3">尚未设置出生档案</p>
-              <Link href="/register" className="btn-gold text-sm inline-flex items-center gap-1">
-                去完善 <ArrowRight size={14} />
-              </Link>
-            </div>
+            <BirthProfileSetup />
           )}
         </motion.div>
 
