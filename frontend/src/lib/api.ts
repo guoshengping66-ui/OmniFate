@@ -333,6 +333,7 @@ export interface AuthUser {
   premium_expires_at: string | null
   shop_coupon_balance: number
   subscription_tier: string | null
+  active_birth_profile_id?: string | null
 }
 
 export interface AuthResponse {
@@ -347,17 +348,32 @@ export async function loginUser(email: string, password: string): Promise<AuthRe
   return res.data
 }
 
+export interface RegisterBirthData {
+  nickname?: string
+  gender: string
+  birth_year: number
+  birth_month: number
+  birth_day: number
+  birth_hour: number
+  birth_minute?: number
+  birth_city?: string
+  latitude?: number | null
+  longitude?: number | null
+}
+
 export async function registerUser(
   email: string,
   password: string,
   displayName?: string,
   privacyAccepted?: boolean,
+  birthData?: RegisterBirthData,
 ): Promise<{ message: string; email: string }> {
   const res = await api.post<{ message: string; email: string }>("/api/auth/register", safeJson({
     email,
     password,
     display_name: displayName,
     privacy_accepted: privacyAccepted ?? true,
+    birth_data: birthData || undefined,
   }), {
     headers: { "Content-Type": "application/json" },
   })

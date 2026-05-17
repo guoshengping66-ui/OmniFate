@@ -185,6 +185,7 @@ class Reading(Base):
     master_detail: Mapped[Optional[str]] = mapped_column(Text)        # 付费年度规划
     recommended_product_ids: Mapped[Optional[list]] = mapped_column(JSON)
     computed_tags: Mapped[Optional[list]] = mapped_column(JSON)
+    dimension_scores: Mapped[Optional[dict]] = mapped_column(JSON)
 
     is_detail_unlocked: Mapped[bool] = mapped_column(Boolean, default=False)
     payment_status: Mapped[PaymentStatus] = mapped_column(Enum(PaymentStatus), default=PaymentStatus.unpaid)

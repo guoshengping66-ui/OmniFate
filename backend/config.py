@@ -81,9 +81,9 @@ def get_settings() -> Settings:
     s = Settings()
     # ── Startup security warnings ──────────────────────────────────────
     if s.SECRET_KEY == "change-me-in-production":
-        print("[SECURITY] ⚠️  SECRET_KEY 使用了默认值！请在 .env 中设置强随机密钥。")
+        print("[SECURITY] WARNING: SECRET_KEY uses default value! Set a strong key in .env.")
     if s.JWT_SECRET_KEY == "alpha-mirror-jwt-secret-dev-key-2025":
-        print("[SECURITY] ⚠️  JWT_SECRET_KEY 使用了默认值！请在 .env 中设置强随机密钥。")
+        print("[SECURITY] WARNING: JWT_SECRET_KEY uses default value! Set a strong key in .env.")
     if s.DEBUG:
-        print("[SECURITY] ⚠️  DEBUG 模式已开启，请勿在生产环境使用。")
+        print("[SECURITY] WARNING: DEBUG mode is ON -- do not use in production.")
     return s

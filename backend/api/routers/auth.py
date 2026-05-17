@@ -125,11 +125,26 @@ def _validate_password_strength(password: str) -> None:
 
 # ── Schemas ────────────────────────────────────────────────────────────────
 
+class BirthDataSchema(BaseModel):
+    """出生信息（注册时可选填写，自动保存为 BirthProfile）"""
+    nickname: str = "本命"
+    gender: str = "female"
+    birth_year: int
+    birth_month: int
+    birth_day: int
+    birth_hour: int
+    birth_minute: int = 0
+    birth_city: str = ""
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+
+
 class RegisterRequest(BaseModel):
     email: EmailStr
     password: str
     display_name: Optional[str] = None
     privacy_accepted: bool = False
+    birth_data: Optional[BirthDataSchema] = None
 
     @field_validator("password")
     @classmethod
@@ -225,6 +240,28 @@ async def register(req: RegisterRequest, request: Request, db: AsyncSession = De
         verification_expires_at=datetime.now(timezone.utc) + timedelta(minutes=15),
     )
     db.add(user)
+    await db.flush()  # get user.id before creating birth profile
+
+    # Auto-create BirthProfile if birth data provided
+    if req.birth_data:
+        from database.models import BirthProfile, Gender
+        bd = req.birth_data
+        gender_val = bd.gender if bd.gender in ("male", "female", "other") else "other"
+        bp = BirthProfile(
+            user_id=user.id,
+            nickname=bd.nickname or "本命",
+            gender=Gender(gender_val),
+            birth_year=bd.birth_year,
+            birth_month=bd.birth_month,
+            birth_day=bd.birth_day,
+            birth_hour=bd.birth_hour,
+            birth_minute=bd.birth_minute,
+            birth_city=bd.birth_city or "",
+            latitude=bd.latitude,
+            longitude=bd.longitude,
+        )
+        db.add(bp)
+
     await db.commit()
 
     # Send verification email

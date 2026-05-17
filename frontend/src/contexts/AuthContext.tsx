@@ -1,6 +1,6 @@
 "use client"
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react"
-import { api, apiDirect } from "@/lib/api"
+import { api, apiDirect, type RegisterBirthData } from "@/lib/api"
 
 export interface AuthUser {
   id: string
@@ -26,7 +26,7 @@ interface AuthState {
   user: AuthUser | null
   loading: boolean
   login: (email: string, password: string) => Promise<void>
-  register: (email: string, password: string, displayName?: string) => Promise<void>
+  register: (email: string, password: string, displayName?: string, birthData?: RegisterBirthData) => Promise<void>
   logout: () => void
   refreshUser: () => Promise<void>
 }
@@ -103,11 +103,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(data.user)
   }, [])
 
-  const register = useCallback(async (email: string, password: string, displayName?: string) => {
+  const register = useCallback(async (email: string, password: string, displayName?: string, birthData?: RegisterBirthData) => {
     const res = await api.post("/api/auth/register", {
       email,
       password,
       display_name: displayName,
+      birth_data: birthData || undefined,
     })
     const data = res.data
     localStorage.setItem(TOKEN_KEY, data.access_token)

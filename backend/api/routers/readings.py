@@ -244,14 +244,39 @@ async def create_analysis(
 
 
 async def _persist_session(session_id: str, user_id: Optional[str] = None):
-    """Persist a reading session to the database."""
+    """Persist a reading session to the database, auto-linking birth_profile_id."""
     from database.session import _db_available
+    from database.models import BirthProfile
     if _db_available is False:
         return
     async with AsyncSessionLocal() as db:
+        # Auto-link user's default birth profile
+        birth_profile_id = None
+        if user_id:
+            stmt = (
+                select(BirthProfile)
+                .where(BirthProfile.user_id == user_id, BirthProfile.nickname == "本命")
+                .limit(1)
+            )
+            result = await db.execute(stmt)
+            bp = result.scalar_one_or_none()
+            if not bp:
+                # Fallback: use first profile
+                stmt2 = (
+                    select(BirthProfile)
+                    .where(BirthProfile.user_id == user_id)
+                    .order_by(BirthProfile.created_at.asc())
+                    .limit(1)
+                )
+                result2 = await db.execute(stmt2)
+                bp = result2.scalar_one_or_none()
+            if bp:
+                birth_profile_id = bp.id
+
         reading = Reading(
             id=session_id,
             user_id=user_id,
+            birth_profile_id=birth_profile_id,
             status=ReadingStatus.pending,
             master_summary="",
             is_detail_unlocked=False,
@@ -821,6 +846,11 @@ class DailyAlmanacResponse(BaseModel):
     wuxing_analysis: str = ""
 
 
+# ─── Daily Almanac Cache ─────────────────────────────────────────────────────
+_almanac_cache: dict[str, dict] = {}  # key = f"{session_id}:{date}" -> cached response dict
+_ALMANAC_CACHE_TTL = 3600 * 12  # 12 hours
+
+
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 
 
@@ -1178,37 +1208,92 @@ async def get_daily_almanac(session_id: str = Query(...)):
     Get personalized daily almanac (yi/ji/hu) based on user's birth chart vs today's transits.
 
     Real-time computation, no storage.
+    Supports two modes:
+    1. With birth info: personalized almanac based on natal chart + transits
+    2. Without birth info: generic almanac based on today's date only
     """
     state = _sessions.get(session_id)
+
+    # Reconstruct from database if session was lost (e.g. after server restart)
     if not state:
-        raise HTTPException(status_code=404, detail="Session not found. Run /readings/ first.")
-    if not state.birth_info:
-        raise HTTPException(status_code=400, detail="Session missing birth info.")
+        try:
+            from database.models import Reading, BirthProfile
+            from agents.state import SystemState, BirthInfo
+            from sqlalchemy import select
+
+            async with AsyncSessionLocal() as db:
+                reading = (await db.execute(
+                    select(Reading).where(Reading.id == session_id)
+                )).scalar_one_or_none()
+                if not reading:
+                    raise HTTPException(status_code=404, detail="Session not found.")
+
+                # Try to get birth profile if available
+                bi = None
+                if reading.birth_profile_id:
+                    bp = (await db.execute(
+                        select(BirthProfile).where(BirthProfile.id == reading.birth_profile_id)
+                    )).scalar_one_or_none()
+                    if bp:
+                        gender_str = bp.gender.value if hasattr(bp.gender, "value") else str(bp.gender)
+                        bi = BirthInfo(
+                            year=bp.birth_year, month=bp.birth_month, day=bp.birth_day,
+                            hour=bp.birth_hour, minute=bp.birth_minute,
+                            city=bp.birth_city or "",
+                            latitude=bp.latitude, longitude=bp.longitude,
+                            gender=gender_str,
+                        )
+
+                state = SystemState(
+                    session_id=session_id,
+                    birth_info=bi,
+                    dimension_scores=getattr(reading, 'dimension_scores', None) or {},
+                    computed_tags=reading.computed_tags or [],
+                    master_summary=reading.master_summary or "",
+                    bazi_raw=reading.bazi_raw or {},
+                    astrology_raw=reading.astrology_raw or {},
+                )
+                # Cache for future requests
+                _sessions[session_id] = state
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to restore session: {e}")
+
+    # Check cache — same user + same day = instant response
+    from fastapi.responses import JSONResponse
+    cache_key = f"{session_id}:{date.today()}"
+    import time as _time
+    cached = _almanac_cache.get(cache_key)
+    if cached and (_time.time() - cached.get("_ts", 0)) < _ALMANAC_CACHE_TTL:
+        return JSONResponse(content={k: v for k, v in cached.items() if k != "_ts"})
 
     bi = state.birth_info
     today = date.today()
 
-    # 1. Compute natal chart
+    # 1. Compute natal chart (if birth info available)
+    natal_planets = {}
+    transit = {"transit_planets": {}, "transit_natal_aspects": []}
     from calculators.astrology_calculator import AstrologyCalculator
     astro_calc = AstrologyCalculator()
-    try:
-        natal_chart = astro_calc.calculate(
-            year=bi.year, month=bi.month, day=bi.day,
-            hour=bi.hour, minute=bi.minute,
-            latitude=bi.latitude or 0.0,
-            longitude=bi.longitude or 0.0,
-        )
-        natal_planets = natal_chart.planets
-    except Exception:
-        natal_planets = {}
+    if bi:
+        try:
+            natal_chart = astro_calc.calculate(
+                year=bi.year, month=bi.month, day=bi.day,
+                hour=bi.hour, minute=bi.minute,
+                latitude=bi.latitude or 0.0,
+                longitude=bi.longitude or 0.0,
+            )
+            natal_planets = natal_chart.planets
+        except Exception:
+            pass
 
-    # 2. Compute today's transits
-    transit = {"transit_planets": {}, "transit_natal_aspects": []}
-    try:
-        today_dt = datetime(today.year, today.month, today.day, 12, 0, tzinfo=timezone.utc)
-        transit = astro_calc.calculate_transit_for_date(today_dt, natal_planets)
-    except Exception:
-        pass
+        # 2. Compute today's transits
+        try:
+            today_dt = datetime(today.year, today.month, today.day, 12, 0, tzinfo=timezone.utc)
+            transit = astro_calc.calculate_transit_for_date(today_dt, natal_planets)
+        except Exception:
+            pass
 
     # 3. Compute today's bazi pillars
     from calculators.bazi_calculator import BaziCalculator
@@ -1258,7 +1343,7 @@ async def get_daily_almanac(session_id: str = Query(...)):
         for p in matched
     ]
 
-    return DailyAlmanacResponse(
+    result = DailyAlmanacResponse(
         date=today.isoformat(),
         energy_score=energy_score,
         yi=almanac_data.get("yi", []),
@@ -1267,6 +1352,16 @@ async def get_daily_almanac(session_id: str = Query(...)):
         daily_quote=almanac_data.get("daily_quote", "顺势而为，方得始终。"),
         wuxing_analysis=almanac_data.get("wuxing_analysis", ""),
     )
+
+    # Cache the result for 12 hours
+    _almanac_cache[cache_key] = {**result.model_dump(), "_ts": _time.time()}
+    # Evict old entries
+    if len(_almanac_cache) > 500:
+        oldest_keys = sorted(_almanac_cache, key=lambda k: _almanac_cache[k].get("_ts", 0))[:200]
+        for k in oldest_keys:
+            _almanac_cache.pop(k, None)
+
+    return result
 
 
 async def _generate_almanac(

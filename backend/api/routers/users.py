@@ -13,7 +13,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.session import AsyncSessionLocal
-from database.models import User, Order, OrderItem, UserFavorite, UserAddress, Product, OrderStatus
+from database.models import User, Order, OrderItem, UserFavorite, UserAddress, Product, OrderStatus, BirthProfile, Gender
 from auth.dependencies import require_user
 from auth.jwt import verify_password, hash_password
 
@@ -426,3 +426,166 @@ async def request_refund(order_id: str, user: User = Depends(require_user)):
         order.status = OrderStatus.refunded
         await db.commit()
         return {"status": "refunded", "message": "退款申请已提交"}
+
+
+# ── Birth Profiles (出生档案 CRUD) ─────────────────────────────────────────
+
+class BirthProfileRequest(BaseModel):
+    nickname: str = "本命"
+    gender: str = "female"
+    birth_year: int
+    birth_month: int
+    birth_day: int
+    birth_hour: int
+    birth_minute: int = 0
+    birth_city: str = ""
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+
+
+def _birth_profile_to_dict(bp: BirthProfile) -> dict:
+    return {
+        "id": str(bp.id),
+        "nickname": bp.nickname,
+        "gender": bp.gender.value if hasattr(bp.gender, "value") else str(bp.gender),
+        "birth_year": bp.birth_year,
+        "birth_month": bp.birth_month,
+        "birth_day": bp.birth_day,
+        "birth_hour": bp.birth_hour,
+        "birth_minute": bp.birth_minute,
+        "birth_city": bp.birth_city or "",
+        "latitude": bp.latitude,
+        "longitude": bp.longitude,
+        "created_at": bp.created_at.isoformat() if bp.created_at else "",
+    }
+
+
+@router.get("/birth-profiles")
+async def list_birth_profiles(user: User = Depends(require_user)):
+    """列出当前用户所有出生档案"""
+    async with AsyncSessionLocal() as db:
+        stmt = (
+            select(BirthProfile)
+            .where(BirthProfile.user_id == user.id)
+            .order_by(BirthProfile.created_at.asc())
+        )
+        result = await db.execute(stmt)
+        profiles = result.scalars().all()
+        return [_birth_profile_to_dict(p) for p in profiles]
+
+
+@router.get("/birth-profiles/active")
+async def get_active_birth_profile(user: User = Depends(require_user)):
+    """获取当前激活的出生档案（默认'本命'）"""
+    async with AsyncSessionLocal() as db:
+        stmt = (
+            select(BirthProfile)
+            .where(BirthProfile.user_id == user.id, BirthProfile.nickname == "本命")
+            .limit(1)
+        )
+        result = await db.execute(stmt)
+        bp = result.scalar_one_or_none()
+        if not bp:
+            # Fallback: return the first profile
+            stmt2 = (
+                select(BirthProfile)
+                .where(BirthProfile.user_id == user.id)
+                .order_by(BirthProfile.created_at.asc())
+                .limit(1)
+            )
+            result2 = await db.execute(stmt2)
+            bp = result2.scalar_one_or_none()
+        if not bp:
+            raise HTTPException(status_code=404, detail="尚未设置出生档案，请先完善个人信息")
+        return _birth_profile_to_dict(bp)
+
+
+@router.post("/birth-profiles")
+async def create_birth_profile(
+    req: BirthProfileRequest,
+    user: User = Depends(require_user),
+):
+    """创建新出生档案"""
+    async with AsyncSessionLocal() as db:
+        # Limit: max 10 profiles per user
+        count_stmt = select(BirthProfile).where(BirthProfile.user_id == user.id)
+        count_result = await db.execute(count_stmt)
+        existing = len(count_result.scalars().all())
+        if existing >= 10:
+            raise HTTPException(status_code=400, detail="最多保存 10 个出生档案")
+
+        gender_val = req.gender if req.gender in ("male", "female", "other") else "other"
+        bp = BirthProfile(
+            user_id=user.id,
+            nickname=req.nickname or "本命",
+            gender=Gender(gender_val),
+            birth_year=req.birth_year,
+            birth_month=req.birth_month,
+            birth_day=req.birth_day,
+            birth_hour=req.birth_hour,
+            birth_minute=req.birth_minute,
+            birth_city=req.birth_city or "",
+            latitude=req.latitude,
+            longitude=req.longitude,
+        )
+        db.add(bp)
+        await db.commit()
+        await db.refresh(bp)
+        return _birth_profile_to_dict(bp)
+
+
+@router.put("/birth-profiles/{profile_id}")
+async def update_birth_profile(
+    profile_id: str,
+    req: BirthProfileRequest,
+    user: User = Depends(require_user),
+):
+    """更新出生档案"""
+    async with AsyncSessionLocal() as db:
+        result = await db.execute(
+            select(BirthProfile).where(
+                BirthProfile.id == profile_id,
+                BirthProfile.user_id == user.id,
+            )
+        )
+        bp = result.scalar_one_or_none()
+        if not bp:
+            raise HTTPException(status_code=404, detail="出生档案不存在")
+
+        gender_val = req.gender if req.gender in ("male", "female", "other") else "other"
+        bp.nickname = req.nickname or bp.nickname
+        bp.gender = Gender(gender_val)
+        bp.birth_year = req.birth_year
+        bp.birth_month = req.birth_month
+        bp.birth_day = req.birth_day
+        bp.birth_hour = req.birth_hour
+        bp.birth_minute = req.birth_minute
+        bp.birth_city = req.birth_city or ""
+        bp.latitude = req.latitude
+        bp.longitude = req.longitude
+        await db.commit()
+        await db.refresh(bp)
+        return _birth_profile_to_dict(bp)
+
+
+@router.delete("/birth-profiles/{profile_id}")
+async def delete_birth_profile(
+    profile_id: str,
+    user: User = Depends(require_user),
+):
+    """删除出生档案"""
+    async with AsyncSessionLocal() as db:
+        result = await db.execute(
+            select(BirthProfile).where(
+                BirthProfile.id == profile_id,
+                BirthProfile.user_id == user.id,
+            )
+        )
+        bp = result.scalar_one_or_none()
+        if not bp:
+            raise HTTPException(status_code=404, detail="出生档案不存在")
+        if bp.nickname == "本命":
+            raise HTTPException(status_code=400, detail="不能删除本命档案")
+        await db.delete(bp)
+        await db.commit()
+        return {"status": "deleted", "message": "出生档案已删除"}
