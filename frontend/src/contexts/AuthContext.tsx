@@ -6,6 +6,7 @@ export interface AuthUser {
   id: string
   email: string
   display_name: string | null
+  is_verified: boolean
   is_premium: boolean
   premium_expires_at: string | null
   shop_coupon_balance: number

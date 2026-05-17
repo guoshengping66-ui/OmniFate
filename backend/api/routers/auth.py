@@ -216,6 +216,7 @@ def _user_dict(user: User) -> dict:
         "id": str(user.id),
         "email": user.email,
         "display_name": user.display_name,
+        "is_verified": user.is_verified,
         "is_premium": True if is_admin else user.is_premium,
         "premium_expires_at": None if is_admin else (user.premium_expires_at.isoformat() if user.premium_expires_at else None),
         "shop_coupon_balance": user.shop_coupon_balance,
@@ -388,6 +389,10 @@ async def send_code(req: SendCodeRequest, request: Request, db: AsyncSession = D
     if not email_sent:
         from config import get_settings as _gs3
         _s3 = _gs3()
+        # Always store code in DB so verify-email can check it
+        user.verification_code = code
+        user.verification_expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
+        await db.commit()
         if _s3.DEBUG:
             print(f"[AUTH] Email send failed, verification code for {req.email}: {code}")
         # Email failed — return success to prevent email enumeration
@@ -561,6 +566,10 @@ async def forgot_password(req: SendCodeRequest, request: Request, db: AsyncSessi
     if not email_sent:
         from config import get_settings as _gs2
         _s2 = _gs2()
+        # Always store code in DB so reset-password can verify it
+        user.verification_code = code
+        user.verification_expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
+        await db.commit()
         if _s2.DEBUG:
             print(f"[AUTH] Email send failed, reset code for {req.email}: {code}")
             return {"message": "验证码已发送到您的邮箱", "_dev_code": code}
