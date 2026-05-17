@@ -28,6 +28,8 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false)
   const [privacyAccepted, setPrivacyAccepted] = useState(false)
   const [showTerms, setShowTerms] = useState(false)
+  const [referralCode, setReferralCode] = useState("")
+  const [ageConfirmed, setAgeConfirmed] = useState(false)
 
   // Step 2: Birth info
   const [birthGender, setBirthGender] = useState<"female" | "male" | "other">("female")
