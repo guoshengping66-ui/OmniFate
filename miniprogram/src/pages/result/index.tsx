@@ -549,11 +549,11 @@ function drawRadar(canvasNode: any, scores: Record<string, number>, size: number
     const lx = cx + (c.x - cx) * 1.25, ly = cy + (c.y - cy) * 1.25
     ctx.textAlign = "center"
     // 第一行：icon + 轴标名
-    ctx.fillStyle = `rgba(${goldRgb},0.7)`; ctx.font = "bold 11px sans-serif"
+    ctx.fillStyle = `rgba(${goldRgb},0.7)`; ctx.font = "bold 12px sans-serif"
     const dimCfg = DIMENSIONS_MAP[dim.code]
     ctx.fillText((dimCfg?.icon ?? "✦") + " " + (dimCfg?.axisNameCn ?? dim.code), lx, ly - 4)
     // 第二行：倾向标签
-    ctx.fillStyle = `rgba(${goldRgb},0.45)`; ctx.font = "9px sans-serif"
+    ctx.fillStyle = `rgba(${goldRgb},0.45)`; ctx.font = "10px sans-serif"
     ctx.fillText(poleName, lx, ly + 10)
   })
 
@@ -581,7 +581,7 @@ function drawRadar(canvasNode: any, scores: Record<string, number>, size: number
     const x = cx + (c.x - cx) * ratio, y = cy + (c.y - cy) * ratio
     // 外圈光晕
     ctx.shadowColor = `rgba(${goldRgb},0.7)`; ctx.shadowBlur = 12
-    ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI * 2); ctx.fillStyle = gold; ctx.fill()
+    ctx.beginPath(); ctx.arc(x, y, 7, 0, Math.PI * 2); ctx.fillStyle = gold; ctx.fill()
     // 内圈白芯
     ctx.shadowBlur = 0
     ctx.beginPath(); ctx.arc(x, y, 2.5, 0, Math.PI * 2); ctx.fillStyle = "rgba(255,255,255,0.8)"; ctx.fill()

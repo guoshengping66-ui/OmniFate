@@ -4,7 +4,7 @@ import Taro from "@tarojs/taro"
 import { AM16_QUESTIONS, type AM16Question } from "../../constants/am16"
 import { DIMENSION_ORDER, DIMENSIONS_MAP } from "../../constants/dimensions"
 import StarBackground from "../../components/StarBackground"
-import { cardGlass, btnGold, gold, goldRgb } from "../../styles/theme"
+import { btnGold, gold, goldRgb } from "../../styles/theme"
 import "./index.scss"
 
 function shuffle<T>(arr: T[]): T[] {
