@@ -222,15 +222,13 @@ async def confirm_payment(
     current_user: Optional[User] = Depends(get_current_user),
 ):
     """
-    确认支付完成（登录可选）
-
-    确认收款后激活订阅/解锁报告。
-    使用 get_current_user（可选），因为轮询期间 token 可能过期。
+    用户确认已付款 — 仅标记为 processing，等待管理员核实后激活。
+    不再直接激活订阅/解锁报告。
     """
-    # 1. 获取订单 — 必须是 pending 或 processing 状态
+    # 1. 获取订单 — 必须是 pending 状态
     order = await _get_pending_order(db, order_no)
     if not order:
-        # 尝试获取处理中的订单（用户已提交验证但尚未确认）
+        # 如果已经是 processing，说明已提交过
         result = await db.execute(
             select(Order).where(
                 Order.order_no == order_no,
@@ -238,20 +236,81 @@ async def confirm_payment(
             )
         )
         order = result.scalar_one_or_none()
-        if not order:
-            raise HTTPException(status_code=404, detail="订单不存在或已过期")
+        if order:
+            return {
+                "success": True,
+                "order_no": order.order_no,
+                "status": "processing",
+                "message": "已提交，等待管理员确认",
+            }
+        raise HTTPException(status_code=404, detail="订单不存在或已过期")
 
-    # 2. 验证订单金额合理性（防止恶意篡改）
+    # 2. 验证订单金额合理性
     if order.total_cny <= 0 or order.total_cny > 50000:
         raise HTTPException(status_code=400, detail="订单金额异常")
 
-    # 2. 更新订单状态
+    # 3. 标记为 processing（等待管理员确认）
+    order.status = OrderStatus.processing
+    order.payment_ref = f"{order.order_no}_submitted"
+    await db.commit()
+
+    return {
+        "success": True,
+        "order_no": order.order_no,
+        "status": "processing",
+        "message": "已提交，等待管理员确认收款后激活",
+    }
+
+
+@router.post("/admin/confirm")
+async def admin_confirm_payment(
+    order_no: str = Query(...),
+    db: AsyncSession = Depends(get_db),
+    authorization: Optional[str] = Header(None),
+):
+    """
+    管理员确认收款 — 需要 CRON_SECRET 鉴权。
+    确认后激活订阅/解锁报告。
+    """
+    # 1. 鉴权
+    if not settings.CRON_SECRET:
+        raise HTTPException(status_code=500, detail="CRON_SECRET not configured")
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Missing authorization")
+    token = authorization.replace("Bearer ", "")
+    if not hmac.compare_digest(token, settings.CRON_SECRET):
+        raise HTTPException(status_code=403, detail="Invalid token")
+
+    # 2. 获取订单 — 必须是 processing 状态
+    result = await db.execute(
+        select(Order).where(
+            Order.order_no == order_no,
+            Order.status == OrderStatus.processing,
+        )
+    )
+    order = result.scalar_one_or_none()
+    if not order:
+        # 也接受 pending 状态（直接管理员确认）
+        result = await db.execute(
+            select(Order).where(
+                Order.order_no == order_no,
+                Order.status == OrderStatus.pending,
+            )
+        )
+        order = result.scalar_one_or_none()
+        if not order:
+            raise HTTPException(status_code=404, detail="订单不存在或已处理")
+
+    # 3. 验证订单金额合理性
+    if order.total_cny <= 0 or order.total_cny > 50000:
+        raise HTTPException(status_code=400, detail="订单金额异常")
+
+    # 4. 标记为已支付
     order.status = OrderStatus.paid
     order.paid_at = datetime.now(timezone.utc)
 
-    # 3. 解锁报告（如果有）
+    # 5. 解锁报告（如果有）
     try:
-        # 从notes字段提取reading_id
         notes = order.notes or ""
         if "reading_id:" in notes:
             reading_id = notes.split("reading_id:")[1].split("|")[0]
@@ -261,7 +320,6 @@ async def confirm_payment(
                 if reading:
                     reading.is_detail_unlocked = True
                     reading.payment_status = PaymentStatus.paid
-                    # 发放优惠券
                     if reading.user_id:
                         user_result = await db.execute(
                             select(User).where(User.id == reading.user_id).with_for_update()
@@ -270,25 +328,16 @@ async def confirm_payment(
                         if user:
                             if (user.shop_coupon_balance or 0) == 0:
                                 user.shop_coupon_balance = 60
-                            # 解锁报告奖励星尘
                             from api.routers.payments import GRANT_ON_REPORT_UNLOCK
                             user.stardust_balance += GRANT_ON_REPORT_UNLOCK
                             user.stardust_lifetime_earned += GRANT_ON_REPORT_UNLOCK
     except Exception:
-        pass  # 单个解锁失败不影响整体
+        pass
 
-    # 4. 激活订阅会员（从订单描述中检测 tier，同时验证金额匹配）
+    # 6. 激活订阅会员（验证金额匹配）
     try:
-        notes = order.notes or ""
         description = order.notes or ""
         activated_tier = None
-
-        # Server-side tier ↔ amount mapping (NEVER trust client description alone)
-        TIER_AMOUNTS = {
-            "premium_monthly": 59.0,
-            "premium_yearly": 365.0,
-            "founder_lifetime": 1288.0,
-        }
 
         if "premium_yearly" in description and abs(order.total_cny - 365.0) < 0.01:
             activated_tier = "premium_yearly"
@@ -308,7 +357,7 @@ async def confirm_payment(
                 elif activated_tier in ("premium_monthly", "premium_yearly"):
                     await _activate_subscription(sub_user, activated_tier, db)
     except Exception:
-        pass  # 订阅激活失败不影响支付确认
+        pass
 
     await db.commit()
 
@@ -316,7 +365,7 @@ async def confirm_payment(
         "success": True,
         "order_no": order.order_no,
         "status": "paid",
-        "message": "支付已确认",
+        "message": "管理员已确认收款，订阅/报告已激活",
     }
 
 

@@ -1530,6 +1530,9 @@ async def get_daily_almanac(session_id: str = Query(...)):
     Get personalized daily almanac (yi/ji/hu) based on user's birth chart vs today's transits.
 
     Real-time computation, no storage.
+    Supports two modes:
+    1. With birth info: personalized almanac based on natal chart + transits
+    2. Without birth info: generic almanac based on today's date only
     """
     state = _sessions.get(session_id)
 
@@ -1546,23 +1549,23 @@ async def get_daily_almanac(session_id: str = Query(...)):
                 )).scalar_one_or_none()
                 if not reading:
                     raise HTTPException(status_code=404, detail="Session not found.")
-                if not reading.birth_profile_id:
-                    raise HTTPException(status_code=400, detail="Reading has no birth profile.")
 
-                bp = (await db.execute(
-                    select(BirthProfile).where(BirthProfile.id == reading.birth_profile_id)
-                )).scalar_one_or_none()
-                if not bp:
-                    raise HTTPException(status_code=400, detail="Birth profile not found.")
+                # Try to get birth profile if available
+                bi = None
+                if reading.birth_profile_id:
+                    bp = (await db.execute(
+                        select(BirthProfile).where(BirthProfile.id == reading.birth_profile_id)
+                    )).scalar_one_or_none()
+                    if bp:
+                        gender_str = bp.gender.value if hasattr(bp.gender, "value") else str(bp.gender)
+                        bi = BirthInfo(
+                            year=bp.birth_year, month=bp.birth_month, day=bp.birth_day,
+                            hour=bp.birth_hour, minute=bp.birth_minute,
+                            city=bp.birth_city or "",
+                            latitude=bp.latitude, longitude=bp.longitude,
+                            gender=gender_str,
+                        )
 
-                gender_str = bp.gender.value if hasattr(bp.gender, "value") else str(bp.gender)
-                bi = BirthInfo(
-                    year=bp.birth_year, month=bp.birth_month, day=bp.birth_day,
-                    hour=bp.birth_hour, minute=bp.birth_minute,
-                    city=bp.birth_city or "",
-                    latitude=bp.latitude, longitude=bp.longitude,
-                    gender=gender_str,
-                )
                 state = SystemState(
                     session_id=session_id,
                     birth_info=bi,
@@ -1579,9 +1582,6 @@ async def get_daily_almanac(session_id: str = Query(...)):
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Failed to restore session: {e}")
 
-    if not state.birth_info:
-        raise HTTPException(status_code=400, detail="Session missing birth info.")
-
     # Check cache — same user + same day = instant response
     from fastapi.responses import JSONResponse
     cache_key = f"{session_id}:{date.today()}"
@@ -1593,27 +1593,29 @@ async def get_daily_almanac(session_id: str = Query(...)):
     bi = state.birth_info
     today = date.today()
 
-    # 1. Compute natal chart
+    # 1. Compute natal chart (if birth info available)
+    natal_planets = {}
+    transit = {"transit_planets": {}, "transit_natal_aspects": []}
     from calculators.astrology_calculator import AstrologyCalculator
     astro_calc = AstrologyCalculator()
-    try:
-        natal_chart = astro_calc.calculate(
-            year=bi.year, month=bi.month, day=bi.day,
-            hour=bi.hour, minute=bi.minute,
-            latitude=bi.latitude or 0.0,
-            longitude=bi.longitude or 0.0,
-        )
-        natal_planets = natal_chart.planets
-    except Exception:
-        natal_planets = {}
+    if bi:
+        try:
+            natal_chart = astro_calc.calculate(
+                year=bi.year, month=bi.month, day=bi.day,
+                hour=bi.hour, minute=bi.minute,
+                latitude=bi.latitude or 0.0,
+                longitude=bi.longitude or 0.0,
+            )
+            natal_planets = natal_chart.planets
+        except Exception:
+            pass
 
-    # 2. Compute today's transits
-    transit = {"transit_planets": {}, "transit_natal_aspects": []}
-    try:
-        today_dt = datetime(today.year, today.month, today.day, 12, 0, tzinfo=timezone.utc)
-        transit = astro_calc.calculate_transit_for_date(today_dt, natal_planets)
-    except Exception:
-        pass
+        # 2. Compute today's transits
+        try:
+            today_dt = datetime(today.year, today.month, today.day, 12, 0, tzinfo=timezone.utc)
+            transit = astro_calc.calculate_transit_for_date(today_dt, natal_planets)
+        except Exception:
+            pass
 
     # 3. Compute today's bazi pillars + lunar date
     from calculators.bazi_calculator import BaziCalculator

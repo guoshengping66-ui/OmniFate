@@ -97,9 +97,9 @@ def get_settings() -> Settings:
     if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
         sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
     if s.SECRET_KEY == "change-me-in-production":
-        print("[SECURITY] ⚠️  SECRET_KEY 使用了默认值！请在 .env 中设置强随机密钥。")
+        print("[SECURITY] WARNING: SECRET_KEY uses default value! Set a strong key in .env.")
     if s.JWT_SECRET_KEY == "change-me-in-production-use-openssl-rand-hex-32":
-        print("[SECURITY] ⚠️  JWT_SECRET_KEY 使用了默认值！请在 .env 中设置强随机密钥。")
+        print("[SECURITY] WARNING: JWT_SECRET_KEY uses default value! Set a strong key in .env.")
     if s.DEBUG:
         print("[SECURITY] WARNING: DEBUG mode is ON — do not use in production.")
     return s

@@ -854,16 +854,8 @@ async def create_order(
                 "unit_price_cny": server_price,
             })
         else:
-            # Non-catalog items (e.g., subscriptions) — use client price but cap at reasonable limit
-            if item.unit_price_cny > 9999 or item.unit_price_cny < 0:
-                raise HTTPException(status_code=400, detail="无效的价格")
-            server_total += item.unit_price_cny * item.quantity
-            validated_items.append({
-                "product_id": None,
-                "product_name": item.product_name,
-                "quantity": item.quantity,
-                "unit_price_cny": item.unit_price_cny,
-            })
+            # Non-catalog items rejected — subscriptions use /personal-payments, not shop
+            raise HTTPException(status_code=400, detail=f"商品不存在: {item.product_id or item.product_name}，请通过正确渠道购买")
 
     # Use server-calculated total, not client total
     final_total = round(server_total, 2)
@@ -1111,6 +1103,7 @@ async def create_founder_purchase(
         total_cny=amount,
         payment_method=f"founder_{method}",
         payment_ref=order_no,
+        notes=f"reading_id:|Destiny Mirror - founder_lifetime - founder_lifetime",
     )
     db.add(order)
     await db.commit()
@@ -1221,6 +1214,8 @@ async def activate_founder_seat(
             raise HTTPException(status_code=404, detail="订单不存在")
         if order.status != OrderStatus.paid:
             raise HTTPException(status_code=400, detail="订单尚未支付")
+        if order.total_cny < 1288:
+            raise HTTPException(status_code=400, detail="订单金额不足，创始席位需支付 ¥1288")
 
     # Refetch user with lock
     result = await db.execute(

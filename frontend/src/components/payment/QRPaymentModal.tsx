@@ -133,27 +133,26 @@ export function QRPaymentModal({
   }
 
   // ── 核心：用户点击"我已完成支付" ──────────────────────────────────────────
-  // 直接调用 /confirm 激活订阅，由管理员在收款APP中手动核实
+  // 标记为 processing → 开始轮询等待管理员确认
   const handleConfirmPaid = async () => {
     if (!orderNo) return
     setStatus("verifying")
 
     try {
-      // 1. 先标记为 processing（可选，失败不影响）
+      // 标记为 processing（等待管理员确认收款）
       await apiDirect.post("/api/personal-payments/verify", { order_no: orderNo })
     } catch { /* verify 失败不影响后续 */ }
 
-    // 2. 直接调 /confirm 激活订阅（不再轮询等待 "paid"）
-    await activateSubscription()
+    // 开始轮询等待管理员确认
+    setStatus("waiting")
+    startPollForStatus()
   }
 
-  // ── 调用后端 /confirm 激活订阅或解锁报告 ──────────────────────────────────────
+  // ── 激活订阅/解锁（仅在管理员确认付款后调用）──────────────────────────────────────
   const activateSubscription = async () => {
     setStatus("activating")
 
     try {
-      await apiDirect.post(`/api/personal-payments/confirm?order_no=${orderNo}`)
-
       // Post-confirm actions based on order type
       if (postAction === "founder" && orderNo) {
         // Founder: activate founder seat
@@ -167,7 +166,7 @@ export function QRPaymentModal({
           await unlockReport(readingId)
         } catch { /* unlock failure is non-fatal */ }
       }
-      // subscription: /confirm already handles activation
+      // subscription: admin /admin/confirm handles activation on backend
 
       // 激活成功
       setStatus("success")
