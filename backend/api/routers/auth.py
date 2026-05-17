@@ -360,7 +360,10 @@ async def register(req: RegisterRequest, request: Request, db: AsyncSession = De
             detail="邮件服务暂不可用，请稍后再试",
         )
 
-    return {"message": "注册成功，请查收邮箱验证码完成验证", "email": req.email}
+    resp = {"message": "注册成功，请查收邮箱验证码完成验证", "email": req.email}
+    if _s.DEBUG:
+        resp["_dev_code"] = code  # DEBUG only — convenience for testing
+    return resp
 
 
 # ── Send / Resend Verification Code ────────────────────────────────────────
@@ -589,7 +592,12 @@ async def forgot_password(req: SendCodeRequest, request: Request, db: AsyncSessi
     user.verification_expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
     await db.commit()
 
-    return {"message": "验证码已发送到您的邮箱"}
+    from config import get_settings as _gs4
+    _s4 = _gs4()
+    resp = {"message": "验证码已发送到您的邮箱"}
+    if _s4.DEBUG:
+        resp["_dev_code"] = code  # DEBUG only — convenience for testing
+    return resp
 
 
 # ── Reset Password (with verification code) ────────────────────────────────
