@@ -328,15 +328,24 @@ async def register(req: RegisterRequest, request: Request, db: AsyncSession = De
     from config import get_settings as _gs
     _s = _gs()
 
-    # DEBUG mode + SMTP not configured: return code in response for dev testing
-    # NEVER auto-verify — user must always submit the code via verify-email
-    if not email_sent and not is_smtp_configured() and _s.DEBUG:
-        print(f"[AUTH] SMTP not configured, returning verification code in response for dev testing")
-        return {
-            "message": "注册成功，请查收邮箱验证码完成验证",
-            "email": req.email,
-            "_dev_code": code,  # DEBUG only — never expose in production
-        }
+    # SMTP not configured: block registration in production, return code in DEBUG only
+    if not email_sent and not is_smtp_configured():
+        if _s.DEBUG:
+            # Dev convenience: return code in response for testing
+            print(f"[AUTH] SMTP not configured, returning verification code in response for dev testing")
+            return {
+                "message": "注册成功，请查收邮箱验证码完成验证",
+                "email": req.email,
+                "_dev_code": code,  # DEBUG only — never expose in production
+            }
+        # Production without SMTP: reject registration
+        # Clean up the unverified user we just created
+        await db.delete(user)
+        await db.commit()
+        raise HTTPException(
+            status_code=503,
+            detail="邮件服务暂不可用，请稍后再试",
+        )
 
     return {"message": "注册成功，请查收邮箱验证码完成验证", "email": req.email}
 
@@ -374,10 +383,15 @@ async def send_code(req: SendCodeRequest, request: Request, db: AsyncSession = D
 # ── Verify Email ───────────────────────────────────────────────────────────
 
 @router.post("/verify-email")
-async def verify_email(req: VerifyCodeRequest, db: AsyncSession = Depends(get_db)):
+async def verify_email(req: VerifyCodeRequest, request: Request, db: AsyncSession = Depends(get_db)):
     """Verify email with 6-digit code."""
     if db is None:
         raise HTTPException(status_code=503, detail="数据库暂不可用，请稍后再试")
+
+    # Rate limit verification attempts (stricter: 3 per minute per email/IP)
+    client_ip = _get_client_ip(request)
+    if _check_rate_limit(f"verify:{client_ip}", max_per_window=3) or _check_rate_limit(f"verify:{req.email}", max_per_window=3):
+        raise HTTPException(status_code=429, detail="验证尝试过于频繁，请稍后再试")
 
     result = await db.execute(select(User).where(User.email == req.email))
     user = result.scalar_one_or_none()
@@ -387,11 +401,12 @@ async def verify_email(req: VerifyCodeRequest, db: AsyncSession = Depends(get_db
     if user.is_verified:
         return {"message": "该邮箱已验证", "verified": True}
 
-    if not user.verification_code or not _timing_safe_compare(user.verification_code, req.code):
-        raise HTTPException(status_code=400, detail="验证码错误")
-
+    # Check expiration first (before code comparison)
     if user.verification_expires_at and datetime.now(timezone.utc) > user.verification_expires_at:
         raise HTTPException(status_code=400, detail="验证码已过期，请重新发送")
+
+    if not user.verification_code or not _timing_safe_compare(user.verification_code, req.code):
+        raise HTTPException(status_code=400, detail="验证码错误")
 
     user.is_verified = True
     user.verification_code = None
@@ -522,10 +537,15 @@ async def forgot_password(req: SendCodeRequest, request: Request, db: AsyncSessi
 # ── Reset Password (with verification code) ────────────────────────────────
 
 @router.post("/reset-password")
-async def reset_password(req: ResetPasswordRequest, db: AsyncSession = Depends(get_db)):
+async def reset_password(req: ResetPasswordRequest, request: Request, db: AsyncSession = Depends(get_db)):
     """Reset password with verification code."""
     if db is None:
         raise HTTPException(status_code=503, detail="数据库暂不可用，请稍后再试")
+
+    # Rate limit reset attempts
+    client_ip = _get_client_ip(request)
+    if _check_rate_limit(f"reset-verify:{client_ip}", max_per_window=3) or _check_rate_limit(f"reset-verify:{req.email}", max_per_window=3):
+        raise HTTPException(status_code=429, detail="重置尝试过于频繁，请稍后再试")
 
     _validate_password_strength(req.new_password)
 
@@ -534,11 +554,12 @@ async def reset_password(req: ResetPasswordRequest, db: AsyncSession = Depends(g
     if not user:
         raise HTTPException(status_code=404, detail="用户不存在")
 
-    if not user.verification_code or not _timing_safe_compare(user.verification_code, req.code):
-        raise HTTPException(status_code=400, detail="验证码错误")
-
+    # Check expiration first (before code comparison)
     if user.verification_expires_at and datetime.now(timezone.utc) > user.verification_expires_at:
         raise HTTPException(status_code=400, detail="验证码已过期，请重新发送")
+
+    if not user.verification_code or not _timing_safe_compare(user.verification_code, req.code):
+        raise HTTPException(status_code=400, detail="验证码错误")
 
     user.hashed_password = hash_password(req.new_password)
     user.verification_code = None
