@@ -374,8 +374,16 @@ async def send_code(req: SendCodeRequest, request: Request, db: AsyncSession = D
     user.verification_expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
     await db.commit()
 
-    from utils.email import send_verification_email
-    send_verification_email(req.email, code)
+    from utils.email import send_verification_email, is_smtp_configured
+    email_sent = send_verification_email(req.email, code)
+
+    if not email_sent and not is_smtp_configured():
+        from config import get_settings as _gs3
+        _s3 = _gs3()
+        if _s3.DEBUG:
+            print(f"[AUTH] SMTP not configured, verification code for {req.email}: {code}")
+        # In production, the code was saved but email failed — still inform user
+        # (email enumeration prevention: always return success)
 
     return {"message": "验证码已发送"}
 
@@ -487,10 +495,15 @@ async def get_me(user: User = Depends(require_user)):
 # ── Refresh Token ──────────────────────────────────────────────────────────
 
 @router.post("/refresh")
-async def refresh_token(req: RefreshRequest, db: AsyncSession = Depends(get_db)):
+async def refresh_token(req: RefreshRequest, request: Request, db: AsyncSession = Depends(get_db)):
     user_id = verify_token(req.refresh_token)
     if user_id is None:
         raise HTTPException(status_code=401, detail="无效的 refresh token")
+
+    # Rate limit refresh attempts
+    client_ip = _get_client_ip(request)
+    if _check_rate_limit(f"refresh:{client_ip}", max_per_window=10):
+        raise HTTPException(status_code=429, detail="请求过于频繁，请稍后再试")
 
     # Verify user still exists and is active
     if db:
@@ -498,6 +511,9 @@ async def refresh_token(req: RefreshRequest, db: AsyncSession = Depends(get_db))
         user = result.scalar_one_or_none()
         if not user:
             raise HTTPException(status_code=401, detail="用户不存在")
+        # Block unverified users from refreshing tokens
+        if not user.is_verified:
+            raise HTTPException(status_code=403, detail="请先验证邮箱后再使用")
 
     access = create_access_token(user_id)
     refresh = create_refresh_token(user_id)
@@ -528,8 +544,16 @@ async def forgot_password(req: SendCodeRequest, request: Request, db: AsyncSessi
     user.verification_expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
     await db.commit()
 
-    from utils.email import send_password_reset_email
-    send_password_reset_email(req.email, code)
+    from utils.email import send_password_reset_email, is_smtp_configured
+    email_sent = send_password_reset_email(req.email, code)
+
+    if not email_sent and not is_smtp_configured():
+        from config import get_settings as _gs2
+        _s2 = _gs2()
+        if _s2.DEBUG:
+            print(f"[AUTH] SMTP not configured, reset code for {req.email}: {code}")
+            return {"message": "验证码已发送到您的邮箱", "_dev_code": code}
+        raise HTTPException(status_code=503, detail="邮件服务暂不可用，请稍后再试")
 
     return {"message": "验证码已发送到您的邮箱"}
 

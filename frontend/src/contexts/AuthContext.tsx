@@ -103,11 +103,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(data.user)
   }, [])
 
-  const register = useCallback(async (email: string, password: string, displayName?: string) => {
+  const register = useCallback(async (email: string, password: string, displayName?: string, privacyAccepted: boolean = true) => {
     const res = await api.post("/api/auth/register", {
       email,
       password,
       display_name: displayName,
+      privacy_accepted: privacyAccepted,
     })
     // Register endpoint returns { message, email } — no tokens yet.
     // User must verify email first, then the verify-email endpoint returns tokens.

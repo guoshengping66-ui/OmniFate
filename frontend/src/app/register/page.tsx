@@ -74,15 +74,7 @@ export default function RegisterPage() {
     setLoading(true)
     try {
       const res = await registerUser(email, password, displayName || undefined, privacyAccepted, referralCode || undefined)
-      // If response has access_token, SMTP is not configured and user was auto-verified
-      if ("access_token" in res && res.access_token) {
-        localStorage.setItem("alpha_mirror_token", res.access_token)
-        localStorage.setItem("alpha_mirror_refresh", res.refresh_token)
-        toast.success(t("auth.loginSuccess"))
-        router.replace("/")
-        return
-      }
-      // Otherwise, email verification is required
+      // Email verification is always required — user must enter the 6-digit code
       toast.success(t("auth.registerSuccessMsg"))
       setStep("verify")
       startResendCooldown()
