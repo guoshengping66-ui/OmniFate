@@ -166,11 +166,25 @@ class VerifyCodeRequest(BaseModel):
     email: EmailStr
     code: str
 
+    @field_validator("code")
+    @classmethod
+    def check_code(cls, v: str) -> str:
+        if not re.fullmatch(r"\d{6}", v):
+            raise ValueError("验证码必须为 6 位数字")
+        return v
+
 
 class ResetPasswordRequest(BaseModel):
     email: EmailStr
     code: str
     new_password: str
+
+    @field_validator("code")
+    @classmethod
+    def check_code(cls, v: str) -> str:
+        if not re.fullmatch(r"\d{6}", v):
+            raise ValueError("验证码必须为 6 位数字")
+        return v
 
     @field_validator("new_password")
     @classmethod
@@ -311,38 +325,18 @@ async def register(req: RegisterRequest, request: Request, db: AsyncSession = De
     from utils.email import send_verification_email, is_smtp_configured
     email_sent = send_verification_email(req.email, code)
 
-    # If SMTP is not configured, auto-verify user (dev convenience)
-    if not email_sent and not is_smtp_configured():
-        from config import get_settings as _gs
-        _s = _gs()
-        if _s.DEBUG:
-            print(f"[AUTH] SMTP not configured, auto-verifying user {req.email}")
-        user.is_verified = True
-        user.verification_code = None
-        user.verification_expires_at = None
+    from config import get_settings as _gs
+    _s = _gs()
 
-        # Grant registration bonus stardust
-        user.stardust_balance += REGISTER_BONUS_STARDUST
-        user.stardust_lifetime_earned += REGISTER_BONUS_STARDUST
-        tx = CreditTransaction(
-            user_id=user.id,
-            amount=REGISTER_BONUS_STARDUST,
-            balance_after=user.stardust_balance,
-            reason="register_bonus",
-            reference_id=None,
-            status="confirmed",
-        )
-        db.add(tx)
-        await db.commit()
-
-        # Return tokens directly so user can log in immediately
-        access = create_access_token(str(user.id))
-        refresh = create_refresh_token(str(user.id))
-        return AuthResponse(
-            access_token=access,
-            refresh_token=refresh,
-            user=_user_dict(user),
-        )
+    # DEBUG mode + SMTP not configured: return code in response for dev testing
+    # NEVER auto-verify — user must always submit the code via verify-email
+    if not email_sent and not is_smtp_configured() and _s.DEBUG:
+        print(f"[AUTH] SMTP not configured, returning verification code in response for dev testing")
+        return {
+            "message": "注册成功，请查收邮箱验证码完成验证",
+            "email": req.email,
+            "_dev_code": code,  # DEBUG only — never expose in production
+        }
 
     return {"message": "注册成功，请查收邮箱验证码完成验证", "email": req.email}
 
