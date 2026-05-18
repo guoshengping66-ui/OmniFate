@@ -7152,6 +7152,20 @@ def master_subtask_dimensions_prompt(worker_summaries: dict, user_question: str,
         "你是命盘智镜首席命运策师。根据7位专家的分析，生成五维诊断报告。\n\n"
         f"{intent_hint}"
         "== 输出结构 ==\n"
+        "【E·五维诊断】财富/感情/事业/健康/精神各100-150字深度分析，\n"
+        "  结合至少2个专家交叉验证，每条标注：\n"
+        "  1. 置信度（极高/高/中/低/极低）\n"
+        "  2. 判断（吉/凶/平）\n"
+        "  3. 不确定性标注\n"
+        "  4. 行动指引\n\n"
+        "【F·年度转折点】标注未来12个月的关键月份窗口期\n\n"
+        "【H·命格发展轨迹】人生关键时间节点：大运切换、土星回归、流年触发\n\n"
+        f"== 五维评分 ==\n{scores_str}\n\n"
+        f"== 专家报告 ==\n{workers_str}\n\n"
+        f"== 用户问题 ==\n{user_question}\n\n"
+        f"{confidence_text}\n\n"
+        "请生成五维诊断报告。"
+    )
 
 
 def master_subtask_actions_prompt(worker_summaries: dict, user_question: str,
@@ -7202,6 +7216,24 @@ def master_subtask_actions_prompt(worker_summaries: dict, user_question: str,
         "你是命盘智镜首席命运策师。根据专家分析，生成行动建议报告。\n\n"
         f"{intent_hint}"
         "== 输出结构 ==\n"
+        "【G·针对用户问题的专项分析】200-300字，直接回答用户提问，\n"
+        "  引用相关专家的具体分析数据，给出可操作的行动建议\n\n"
+        "【I·综合能量处方】基于五维评分，给出能量调和建议：\n"
+        "  1. 最需要补充的1-2个维度\n"
+        "  2. 推荐补充的五行元素\n"
+        "  3. 具体的日常调和方法（3-5条）\n"
+        "  4. 需要注意的风险提示\n\n"
+        "【J·处方笺·为你精选的助运物】\n"
+        "  从推荐商品中挑选最匹配的1-2个，按处方格式输出：\n"
+        "  【商品名称】(¥价格) — 推荐理由[80-120字]\n"
+        "  结尾加上「— 专属处方」标记\n\n"
+        f"== 五维评分 ==\n{scores_str}\n\n"
+        f"== 专家报告 ==\n{workers_str}\n\n"
+        f"== 用户问题 ==\n{user_question}\n\n"
+        f"== 推荐商品 ==\n{products_sec}\n\n"
+        f"{harm_hint}\n\n"
+        "请生成行动建议报告。"
+    )
 
 
 ROUTER_PROMPT = (
