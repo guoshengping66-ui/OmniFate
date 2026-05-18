@@ -37,12 +37,13 @@ PREMIUM_YEARLY_CNY = 365.0
 PREMIUM_MONTHLY_USD = 14.99
 PREMIUM_YEARLY_USD = 99.00
 UNLOCK_PRICE_CNY = 69.0
+UNLOCK_PRICE_USD = 19.99
 
 # Price map for order validation
 PRODUCT_PRICES = {
     "premium_monthly": {"cny": PREMIUM_MONTHLY_CNY, "usd": PREMIUM_MONTHLY_USD},
     "premium_yearly": {"cny": PREMIUM_YEARLY_CNY, "usd": PREMIUM_YEARLY_USD},
-    "unlock_report": {"cny": UNLOCK_PRICE_CNY},
+    "unlock_report": {"cny": UNLOCK_PRICE_CNY, "usd": UNLOCK_PRICE_USD},
     "founder_lifetime": {"cny": 1288, "usd": 399},
 }
 

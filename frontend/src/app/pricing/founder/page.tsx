@@ -9,6 +9,7 @@ import { api } from "@/lib/api"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { TIER_MAP } from "@/lib/tiers"
 import { QRPaymentModal } from "@/components/payment/QRPaymentModal"
+import { useRegion } from "@/hooks/useRegion"
 
 interface FounderStatus {
   total_seats: number
@@ -33,6 +34,7 @@ interface SeatInfo {
 export default function FounderPage() {
   const router = useRouter()
   const { user, loading: authLoading, refreshUser } = useAuth()
+  const { region } = useRegion()
   const [status, setStatus] = useState<FounderStatus | null>(null)
   const [seats, setSeats] = useState<SeatInfo[]>([])
   const [loading, setLoading] = useState(true)
@@ -397,9 +399,10 @@ export default function FounderPage() {
           open={showPayment}
           onClose={() => setShowPayment(false)}
           orderNo={founderOrderNo}
-          amount={1288}
-          label="创始席位 · 终身会员"
+          amount={region === "overseas" ? 399 : 1288}
+          label={region === "overseas" ? "Founder Circle · Lifetime" : "创始席位 · 终身会员"}
           postAction="founder"
+          region={region}
           onSuccess={handlePaymentSuccess}
         />
       )}

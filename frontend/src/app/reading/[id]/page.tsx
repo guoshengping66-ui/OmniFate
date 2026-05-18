@@ -28,6 +28,7 @@ import { DestinyRadar } from "@/components/reading/DestinyRadar"
 import { ShareSheet } from "@/components/reading/ShareSheet"
 import { PaywallGate } from "@/components/monetization/PaywallGate"
 import { QRPaymentModal } from "@/components/payment/QRPaymentModal"
+import { useRegion } from "@/hooks/useRegion"
 import { PrescriptionCard } from "@/components/reading/PrescriptionCard"
 import { FreeReportBanner } from "@/components/reading/FreeReportBanner"
 import { EnergyIDCard } from "@/components/reading/EnergyIDCard"
@@ -131,6 +132,7 @@ export default function ReadingPage() {
   const { id } = useParams<{ id: string }>()
   const { user, refreshUser } = useAuth()
   const { locale, t } = useLanguage()
+  const { region } = useRegion()
   const [data, setData]         = useState<AnalysisResponse | null>(null)
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading]   = useState(true)
@@ -886,6 +888,7 @@ export default function ReadingPage() {
           onClose={() => setShowPayment(false)}
           readingId={id}
           postAction="unlock"
+          region={region}
           onSuccess={handlePaymentSuccess}
         />
       )}

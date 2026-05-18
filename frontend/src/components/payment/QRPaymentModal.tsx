@@ -1,8 +1,8 @@
 "use client"
 import { useState, useEffect, useRef, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, Clock, CheckCircle, Loader2, Copy, AlertCircle, RefreshCw } from "lucide-react"
-import { apiDirect, unlockReport } from "@/lib/api"
+import { X, Clock, CheckCircle, Loader2, Copy, AlertCircle, RefreshCw, ExternalLink } from "lucide-react"
+import { apiDirect, unlockReport, createCheckoutUrl } from "@/lib/api"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 interface QRPaymentModalProps {
@@ -22,9 +22,11 @@ interface QRPaymentModalProps {
   postAction?: "subscription" | "unlock" | "founder"
   /** Called ONLY after backend confirms payment and activates subscription/unlock */
   onSuccess?: () => void
+  /** User region — determines available payment methods */
+  region?: "domestic" | "overseas"
 }
 
-type PaymentMethod = "alipay" | "wechat"
+type PaymentMethod = "alipay" | "wechat" | "paypal"
 type PaymentStatus =
   | "idle"
   | "loading"
@@ -36,10 +38,12 @@ type PaymentStatus =
   | "failed"
 
 /** Prices from tiers.ts — client side display only, backend validates */
-const TIER_PRICES: Record<string, { amount: number; labelKey: string }> = {
-  premium_monthly: { amount: 59, labelKey: "payment.monthlyPlan" },
-  premium_yearly: { amount: 365, labelKey: "payment.yearlyPlan" },
+const TIER_PRICES: Record<string, { amountCny: number; amountUsd: number; labelKey: string }> = {
+  premium_monthly: { amountCny: 59, amountUsd: 14.99, labelKey: "payment.monthlyPlan" },
+  premium_yearly: { amountCny: 365, amountUsd: 99, labelKey: "payment.yearlyPlan" },
 }
+
+const UNLOCK_PRICES = { amountCny: 69, amountUsd: 19.99 }
 
 const POLL_INTERVAL = 3000
 const MAX_POLL_ATTEMPTS = 20
@@ -54,12 +58,15 @@ export function QRPaymentModal({
   label: preLabel,
   postAction,
   onSuccess,
+  region = "domestic",
 }: QRPaymentModalProps) {
   const { t: rawT } = useLanguage()
   const t = rawT as unknown as (key: string, vars?: Record<string, string | number>) => string
-  const [method, setMethod] = useState<PaymentMethod>("alipay")
+  const isOverseas = region === "overseas"
+  const [method, setMethod] = useState<PaymentMethod>(isOverseas ? "paypal" : "alipay")
   const [status, setStatus] = useState<PaymentStatus>(preOrderNo ? "showing_qr" : "idle")
   const [orderNo, setOrderNo] = useState<string | null>(preOrderNo || null)
+  const [paypalOrderId, setPaypalOrderId] = useState<string | null>(null)
   const [qrUrl, setQrUrl] = useState<string | null>(null)
   const [qrError, setQrError] = useState<string | null>(null)
   const [countdown, setCountdown] = useState(0)
@@ -72,10 +79,12 @@ export function QRPaymentModal({
   const isReportUnlock = !!readingId
   const isPreOrder = !!preOrderNo
   const tierInfo = isPreOrder
-    ? { amount: preAmount || 0, labelKey: "" }
+    ? { amount: preAmount || 0, amountUsd: preAmount || 0, labelKey: "" }
     : isReportUnlock
-      ? { amount: 69, labelKey: "payment.unlockReport" }
+      ? { amount: UNLOCK_PRICES.amountCny, amountUsd: UNLOCK_PRICES.amountUsd, labelKey: "payment.unlockReport" }
       : (TIER_PRICES[tier || "premium_monthly"] || TIER_PRICES.premium_monthly)
+  const displayAmount = isOverseas ? tierInfo.amountUsd : tierInfo.amount
+  const currencySymbol = isOverseas ? "$" : "¥"
   const tierLabel = isPreOrder ? (preLabel || "Founder Seat") : t(tierInfo.labelKey)
 
   // 倒计时（订单30分钟过期）
@@ -93,9 +102,9 @@ export function QRPaymentModal({
     return () => clearInterval(timer)
   }, [status, orderNo])
 
-  // Pre-created order: fetch QR code on mount
+  // Pre-created order: fetch QR code on mount (skip for PayPal)
   useEffect(() => {
-    if (preOrderNo && status === "showing_qr" && !qrUrl) {
+    if (preOrderNo && status === "showing_qr" && !qrUrl && method !== "paypal") {
       apiDirect.get(`/api/personal-payments/qr/${method}`)
         .then(r => setQrUrl(r.data.qr_url))
         .catch(err => setQrError(err?.response?.data?.detail || t("payment.qrNotConfigured")))
@@ -108,6 +117,28 @@ export function QRPaymentModal({
     setError("")
     setQrError(null)
 
+    // PayPal: 跳转到 PayPal 支付页面
+    if (method === "paypal") {
+      try {
+        const itemType = isReportUnlock ? "unlock_report" : (tier || "premium_monthly")
+        const result = await createCheckoutUrl(readingId || "", "paypal", itemType)
+        if (result.approve_url) {
+          setPaypalOrderId(result.approve_url)
+          window.open(result.approve_url, "_blank")
+          setStatus("waiting")
+          // 轮询等待 PayPal capture 完成（后端 webhook 会自动处理）
+          startPaypalPolling(itemType)
+        } else {
+          throw new Error("PayPal 未返回支付链接")
+        }
+      } catch (err: any) {
+        setError(err?.message || err?.response?.data?.detail || t("payment.createOrderFailed"))
+        setStatus("failed")
+      }
+      return
+    }
+
+    // 支付宝/微信: 创建本地订单 + 获取收款码
     try {
       const qrRes = await apiDirect.get(`/api/personal-payments/qr/${method}`)
       setQrUrl(qrRes.data.qr_url)
@@ -247,6 +278,40 @@ export function QRPaymentModal({
     pollTimerRef.current = setTimeout(poll, POLL_INTERVAL)
   }, [orderNo])
 
+  // ── PayPal 轮询：检查用户是否在新窗口完成支付 ──────────────────────────────
+  const startPaypalPolling = useCallback((_itemType: string) => {
+    cancelPolling()
+    pollActiveRef.current = true
+    let attempts = 0
+
+    const poll = async () => {
+      if (!pollActiveRef.current) return
+      attempts++
+      setPollAttempts(attempts)
+
+      try {
+        // 检查用户是否已完成 PayPal 支付（后端会自动 capture）
+        // 通过检查用户 premium 状态或直接轮询
+        const { api } = await import("@/lib/api")
+        const userRes = await api.get("/api/auth/me")
+        const user = userRes.data
+
+        if (user?.is_premium || user?.is_founder) {
+          await activateSubscription()
+          return
+        }
+      } catch { /* ignore network errors */ }
+
+      if (pollActiveRef.current && attempts < MAX_POLL_ATTEMPTS) {
+        pollTimerRef.current = setTimeout(poll, POLL_INTERVAL)
+      } else {
+        setStatus("waiting")
+      }
+    }
+
+    pollTimerRef.current = setTimeout(poll, POLL_INTERVAL)
+  }, [])
+
   // 卸载时清理轮询
   useEffect(() => {
     return () => cancelPolling()
@@ -256,6 +321,7 @@ export function QRPaymentModal({
     cancelPolling()
     setStatus("idle")
     setOrderNo(null)
+    setPaypalOrderId(null)
     setQrUrl(null)
     setQrError(null)
     setError("")
@@ -290,7 +356,7 @@ export function QRPaymentModal({
             <motion.div key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <div className="bg-white/5 rounded-xl p-4 text-center mb-6">
                 <p className="text-white/40 text-xs mb-1">{t("payment.amount")}</p>
-                <p className="text-3xl font-bold text-gold">¥{tierInfo.amount}</p>
+                <p className="text-3xl font-bold text-gold">{currencySymbol}{displayAmount}</p>
                 <p className="text-white/30 text-xs mt-2">
                   {tier === "premium_yearly" ? t("payment.yearly") : t("payment.monthly")}
                 </p>
@@ -298,34 +364,46 @@ export function QRPaymentModal({
 
               <div className="mb-6">
                 <p className="text-white/50 text-xs mb-3">{t("payment.selectMethod")}</p>
-                <div className="grid grid-cols-2 gap-3">
+                {isOverseas ? (
+                  // 海外：PayPal 全宽按钮
                   <button
-                    onClick={() => setMethod("alipay")}
-                    className={`p-4 rounded-xl border transition-all ${
-                      method === "alipay"
-                        ? "bg-blue-500/10 border-blue-500/40"
-                        : "bg-white/[0.03] border-white/10 hover:border-white/20"
-                    }`}
+                    onClick={() => setMethod("paypal")}
+                    className="w-full p-4 rounded-xl border bg-blue-600/10 border-blue-500/40"
                   >
-                    <div className="text-blue-400 font-medium">Alipay</div>
-                    <div className="text-white/40 text-xs mt-1">Alipay</div>
+                    <div className="text-blue-400 font-medium">PayPal</div>
+                    <div className="text-white/40 text-xs mt-1">Pay securely with PayPal</div>
                   </button>
-                  <button
-                    onClick={() => setMethod("wechat")}
-                    className={`p-4 rounded-xl border transition-all ${
-                      method === "wechat"
-                        ? "bg-green-500/10 border-green-500/40"
-                        : "bg-white/[0.03] border-white/10 hover:border-white/20"
-                    }`}
-                  >
-                    <div className="text-green-400 font-medium">WeChat Pay</div>
-                    <div className="text-white/40 text-xs mt-1">WeChat Pay</div>
-                  </button>
-                </div>
+                ) : (
+                  // 国内：支付宝 + 微信 2列
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      onClick={() => setMethod("alipay")}
+                      className={`p-4 rounded-xl border transition-all ${
+                        method === "alipay"
+                          ? "bg-blue-500/10 border-blue-500/40"
+                          : "bg-white/[0.03] border-white/10 hover:border-white/20"
+                      }`}
+                    >
+                      <div className="text-blue-400 font-medium">Alipay</div>
+                      <div className="text-white/40 text-xs mt-1">Alipay</div>
+                    </button>
+                    <button
+                      onClick={() => setMethod("wechat")}
+                      className={`p-4 rounded-xl border transition-all ${
+                        method === "wechat"
+                          ? "bg-green-500/10 border-green-500/40"
+                          : "bg-white/[0.03] border-white/10 hover:border-white/20"
+                      }`}
+                    >
+                      <div className="text-green-400 font-medium">WeChat Pay</div>
+                      <div className="text-white/40 text-xs mt-1">WeChat Pay</div>
+                    </button>
+                  </div>
+                )}
               </div>
 
               <button onClick={createOrder} className="btn-gold w-full py-3">
-                {t("payment.confirmPay")} ¥{tierInfo.amount}
+                {t("payment.confirmPay")} {currencySymbol}{displayAmount}
               </button>
             </motion.div>
           )}
@@ -334,7 +412,9 @@ export function QRPaymentModal({
           {status === "loading" && (
             <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-center py-12">
               <Loader2 size={40} className="animate-spin text-gold mx-auto" />
-              <p className="text-white/50 mt-4">{t("payment.preparingQR")}</p>
+              <p className="text-white/50 mt-4">
+                {method === "paypal" ? "Opening PayPal..." : t("payment.preparingQR")}
+              </p>
             </motion.div>
           )}
 
@@ -365,7 +445,7 @@ export function QRPaymentModal({
               ) : null}
 
               <div className="bg-gold/10 border border-gold/30 rounded-xl p-3 mb-4 text-center">
-                <p className="text-gold font-bold text-lg">{t("payment.pleasePay")} ¥{tierInfo.amount}</p>
+                <p className="text-gold font-bold text-lg">{t("payment.pleasePay")} {currencySymbol}{displayAmount}</p>
                 <p className="text-white/40 text-xs mt-1">{t("payment.enterAmountManually")}</p>
               </div>
 
@@ -386,7 +466,7 @@ export function QRPaymentModal({
                 <ol className="space-y-1">
                   <li className="text-white/40 text-xs">{method === "alipay" ? t("payment.step1Alipay") : t("payment.step1Wechat")}</li>
                   <li className="text-white/40 text-xs">{t("payment.step2")}</li>
-                  <li className="text-white/40 text-xs">{t("payment.step3")} ¥{tierInfo.amount}</li>
+                  <li className="text-white/40 text-xs">{t("payment.step3")} {currencySymbol}{displayAmount}</li>
                   <li className="text-white/40 text-xs">{t("payment.step4")}</li>
                   <li className="text-white/40 text-xs">{t("payment.step5")}</li>
                 </ol>
@@ -439,13 +519,36 @@ export function QRPaymentModal({
               <div className="w-16 h-16 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Clock size={32} className="text-amber-400" />
               </div>
-              <h4 className="text-xl font-bold text-amber-400 mb-2">{t("payment.waitingTitle")}</h4>
-              <p className="text-white/50 text-sm mb-2">
-                {t("payment.waitingDesc1")}
-              </p>
-              <p className="text-white/30 text-xs mb-6">
-                {t("payment.waitingDesc2")}
-              </p>
+              <h4 className="text-xl font-bold text-amber-400 mb-2">
+                {method === "paypal" ? "Waiting for PayPal Payment" : t("payment.waitingTitle")}
+              </h4>
+              {method === "paypal" ? (
+                <>
+                  <p className="text-white/50 text-sm mb-2">
+                    Please complete payment in the PayPal window
+                  </p>
+                  <p className="text-white/30 text-xs mb-4">
+                    Once payment is confirmed, your account will be activated automatically
+                  </p>
+                  {paypalOrderId && (
+                    <button
+                      onClick={() => window.open(paypalOrderId, "_blank")}
+                      className="btn-secondary flex items-center justify-center gap-2 mx-auto mb-4 px-6 py-2"
+                    >
+                      <ExternalLink size={14} /> Reopen PayPal
+                    </button>
+                  )}
+                </>
+              ) : (
+                <>
+                  <p className="text-white/50 text-sm mb-2">
+                    {t("payment.waitingDesc1")}
+                  </p>
+                  <p className="text-white/30 text-xs mb-6">
+                    {t("payment.waitingDesc2")}
+                  </p>
+                </>
+              )}
               {error && (
                 <p className="text-amber-300/60 text-xs mb-4">{error}</p>
               )}

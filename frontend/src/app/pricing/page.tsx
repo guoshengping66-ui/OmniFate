@@ -357,6 +357,7 @@ export default function PricingPage() {
           open={!!selectedTier}
           onClose={() => setSelectedTier(null)}
           tier={selectedTier as "premium_monthly" | "premium_yearly"}
+          region={region}
           onSuccess={handlePaymentSuccess}
         />
       )}
