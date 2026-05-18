@@ -1277,6 +1277,42 @@ export default {
   "tier.founder_lifetime.badge": "Limited Seats",
   "tier.founder_lifetime.billing": "One-time lifetime",
 
+  // ─── Dashboard: Profile Card ───
+  "dash.profile.title": "Destiny Profile",
+  "dash.profile.nickname": "Nickname",
+  "dash.profile.notSet": "Not set",
+  "dash.profile.zodiacYear": " sign",
+
+  // ─── Dashboard: Intent Buttons ───
+  "dash.intent.quick": "Quick Reading",
+  "dash.intent.quickDesc": "Quick card draw & query",
+  "dash.intent.full": "Full Reading",
+  "dash.intent.fullDesc": "Tarot + Face + Palm",
+  "dash.intent.event": "Event Analysis",
+  "dash.intent.eventDesc": "Specific event · AI review",
+  "dash.intent.friend": "Read for Friend",
+  "dash.intent.friendDesc": "Use different birth info",
+
+  // ─── Dashboard: Recent Readings ───
+  "dash.recent.title": "Recent Readings",
+  "dash.recent.viewAll": "View All →",
+  "dash.recent.analyzing": "Analyzing...",
+  "dash.recent.empty": "No readings yet",
+  "dash.recent.emptyDesc": "Choose a reading method above to start your first analysis",
+
+  // ─── Daily Dashboard: Fortune ───
+  "dash.fortune.great": "Excellent",
+  "dash.fortune.good": "Good",
+  "dash.fortune.fair": "Stable",
+  "dash.fortune.low": "Low",
+  "dash.fortune.poor": "Poor",
+  "dash.fortune.luckyColor": "Lucky Color",
+  "dash.fortune.luckyNumber": "Lucky Number",
+  "dash.fortune.almanacTitle": "Daily Almanac",
+  "dash.fortune.dayPillar": "Day Pillar",
+  "dash.fortune.yi": "Auspicious",
+  "dash.fortune.ji": "Inauspicious",
+
   // ─── Reading New Page ───
   "new.step1": "Birth Info",
   "new.step2": "Tarot & Question",
@@ -1698,4 +1734,70 @@ export default {
   // ─── AM16 Error messages ───
   "am16.copyFailed": "Copy failed",
   "am16.saveFailed": "Save failed",
+
+  // ─── Legal Pages ───
+  "legal.backHome": "← Back to Home",
+  "legal.lastUpdated": "Last updated: May 7, 2026",
+
+  // Privacy Policy
+  "legal.privacy.title": "Privacy Policy",
+  "legal.privacy.intro": "Destiny Mirror (\"we\") understands the importance of your personal information. We protect your data and privacy in accordance with applicable laws and regulations. Please read this privacy policy carefully before using our services.",
+  "legal.privacy.s1.title": "1. Information Collection",
+  "legal.privacy.s1.content": "We collect the following information to provide destiny analysis services:\n\n1. **Account Information**: Email address and display name provided during registration.\n2. **Birth Information**: Date of birth, time, birth city, and coordinates for chart generation.\n3. **Face/Palm Data**: Facial or palm photos you upload, used only for AI feature extraction. Original images are deleted immediately after analysis.\n4. **User Questions**: Questions you ask during analysis, used for personalized interpretations.\n5. **Payment Information**: Processed through third-party payment platforms (Alipay, WeChat Pay, PayPal). We do not store your bank card details.",
+  "legal.privacy.s2.title": "2. Information Use",
+  "legal.privacy.s2.content": "Your information is used only for:\n\n1. **Destiny Analysis**: Generating personalized chart reports via AI.\n2. **Service Improvement**: Anonymized data improves algorithm accuracy.\n3. **Product Recommendations**: Suggesting fortune-enhancing items based on your chart.\n4. **Customer Service**: Responding to your inquiries and feedback.",
+  "legal.privacy.s3.title": "3. Biometric Information (Sensitive Personal Data)",
+  "legal.privacy.s3.content": "Under Articles 28-32 of the Personal Information Protection Law, facial features and palm patterns are sensitive personal data. We handle this data according to these principles:\n\n1. **Separate Consent**: We request explicit authorization before you upload any facial or palm photos. You may decline without affecting other features.\n2. **Specific Purpose**: Biometric data is used only for AI face/palm feature extraction, not for identity verification.\n3. **Minimum Retention**: Original photos are deleted immediately after AI analysis. Only analysis text results are retained.\n4. **Security Measures**: Photos are transmitted via HTTPS; processing servers are isolated from the main database.\n5. **Withdrawal of Consent**: You may withdraw biometric processing consent at any time in account settings.",
+  "legal.privacy.s4.title": "4. Data Storage & Security",
+  "legal.privacy.s4.content": "1. **Storage Location**: Your data is stored on Alibaba Cloud servers in China, using PostgreSQL, with full HTTPS encryption.\n2. **Password Security**: Passwords are bcrypt-hashed with salt. We cannot view your original password.\n3. **Image Processing**: Face and palm photos are used temporarily during AI analysis and deleted immediately afterward.\n4. **Data Retention**: Account information and reports are retained until you delete your account.",
+  "legal.privacy.s5.title": "5. Third-Party Services",
+  "legal.privacy.s5.content": "For AI analysis, we send your birth information to:\n\n1. **DeepSeek API**: For AI destiny analysis (data processing agreement in place).\n2. **Skyfield Library**: For local natal chart calculation (no data export).\n3. **Payment Providers**: Alipay, WeChat Pay, PayPal (used only when you initiate payment).\n\nWe do not sell or share your personal information with any other third parties.",
+  "legal.privacy.s6.title": "6. Your Rights",
+  "legal.privacy.s6.content": "You have the following rights:\n\n1. **Access**: View your personal information and analysis history in \"My Account\".\n2. **Deletion**: Request deletion of your account and all data:\n   - Click \"Delete Account\" in \"My Account\" for immediate processing.\n   - Or email privacy@khanfate.com with your email and deletion request (processed within 7 business days).\n3. **Data Export**: Request your analysis report data by emailing privacy@khanfate.com.\n4. **Withdraw Consent**: Withdraw privacy policy consent at any time (does not affect prior processing).",
+  "legal.privacy.s7.title": "7. Cookie Usage",
+  "legal.privacy.s7.content": "We use essential cookies to maintain your login state and site functionality. We do not use third-party tracking cookies or use cookies for advertising.\n\nYou can manage cookies through browser settings, but disabling essential cookies may affect site functionality.",
+  "legal.privacy.s8.title": "8. Minor Protection",
+  "legal.privacy.s8.content": "We take minor privacy protection seriously. Users under 18 are not permitted to use this service. If we discover personal information from minors, we will immediately delete it.",
+  "legal.privacy.s9.title": "9. Policy Updates",
+  "legal.privacy.s9.content": "We may update this privacy policy from time to time. Updated policies will be posted on this page with an updated \"Last Updated\" date. Major changes will be notified via email or site announcement.",
+  "legal.privacy.s10.title": "10. Contact Us",
+  "legal.privacy.s10.content": "For questions about this privacy policy:\n\n- Email: privacy@khanfate.com\n- Website: https://www.khanfate.com/about",
+  "legal.privacy.s11.title": "11. Operator Information",
+  "legal.privacy.s11.content": "Operator: Destiny Mirror Operations Team\nEmail: privacy@khanfate.com\nWebsite: https://www.khanfate.com",
+
+  // Terms of Service
+  "legal.terms.title": "Terms of Service",
+  "legal.terms.intro": "Welcome to Destiny Mirror (\"the Platform\"). Please read and understand the following terms of service before using our services. Registering or using the Platform constitutes your agreement to comply with these terms.",
+  "legal.terms.s1.title": "1. Service Description",
+  "legal.terms.s1.content": "Destiny Mirror is an AI-powered multi-dimensional destiny analysis platform providing:\n\n1. BaZi, natal chart, Qi Men Dun Jia, and Zi Wei Dou Shu analysis based on birth information\n2. Tarot card readings\n3. AI face and palm analysis\n4. Comprehensive destiny reports with personalized recommendations\n5. Fortune-enhancing product recommendations and purchases\n6. Event retrospection and daily fortune\n\nThis service is for personal entertainment and reference only and does not constitute professional advice of any kind.",
+  "legal.terms.s2.title": "2. User Responsibilities",
+  "legal.terms.s2.content": "1. You must ensure registration information is accurate and keep your account password secure.\n2. Face/palm photos you upload must be your own or authorized by the subject.\n3. You must not use this service for any illegal or unauthorized activities.\n4. You must not maliciously attack or interfere with the service.\n5. You bear legal responsibility for your actions on the Platform.",
+  "legal.terms.s3.title": "3. Intellectual Property",
+  "legal.terms.s3.content": "1. All Platform content (text, icons, design, code) is the intellectual property of Destiny Mirror.\n2. AI-generated analysis reports are for personal use only; commercial use requires authorization.\n3. You retain copyright on uploaded photos; we use them only temporarily during analysis.",
+  "legal.terms.s4.title": "4. Paid Services",
+  "legal.terms.s4.content": "1. Premium reports and certain products require payment to unlock.\n2. Please confirm service content and pricing before paying.\n3. Virtual services (analysis reports) are non-refundable after delivery; see Refund Policy.\n4. Subscriptions can be canceled anytime; access continues until the current billing period ends.",
+  "legal.terms.s5.title": "5. Disclaimers",
+  "legal.terms.s5.content": "1. Destiny analysis is based on AI algorithms and traditional destiny knowledge, for personal entertainment and reference only. It does not constitute professional advice (including medical, legal, financial, investment, or counseling advice).\n2. Destiny studies belong to traditional cultural domains, not modern science. Analysis results are not scientifically verified. Users should view results rationally and not rely solely on them for major life decisions.\n3. Fortune-enhancing products are cultural creative items; efficacy descriptions are based on traditional destiny concepts, not scientific claims.\n4. We are not liable for service interruptions caused by force majeure (natural disasters, policy changes, third-party service disruptions).\n5. We are not liable for account security issues caused by your own actions.\n6. Users bear full responsibility for decisions made based on platform analysis results.\n7. See our Disclaimer page for detailed disclaimers.",
+  "legal.terms.s6.title": "6. Service Changes & Termination",
+  "legal.terms.s6.content": "1. We reserve the right to modify, suspend, or terminate any or all services at any time.\n2. If you violate these terms, we may suspend or terminate your account.\n3. After termination, we will handle your data per our Privacy Policy.",
+  "legal.terms.s7.title": "7. Terms Updates",
+  "legal.terms.s7.content": "We reserve the right to modify these terms at any time. Updated terms will be posted on this page with an updated \"Last Updated\" date. Continued use constitutes acceptance of modified terms.",
+  "legal.terms.s8.title": "8. Contact",
+  "legal.terms.s8.content": "For questions about these terms:\n\n- Email: support@khanfate.com\n- Website: https://www.khanfate.com/about",
+  "legal.terms.s9.title": "9. Operator Information",
+  "legal.terms.s9.content": "Operator: Destiny Mirror Operations Team\nEmail: support@khanfate.com\nWebsite: https://www.khanfate.com",
+
+  // Refund Policy
+  "legal.refund.title": "Refund Policy",
+  "legal.refund.intro": "Thank you for using Destiny Mirror. We are committed to providing high-quality destiny analysis services. The following refund policy applies to all paid services on this Platform.",
+  "legal.refund.s1.title": "1. Virtual Services (Analysis Reports)",
+  "legal.refund.s1.content": "1. AI destiny analysis reports are personalized virtual services and are generally non-refundable once generated.\n2. If a report fails to generate due to system errors, we will provide a full refund after verification.\n3. If you cancel within 10 minutes of payment and analysis has not started, you may request a refund.",
+  "legal.refund.s2.title": "2. Membership Subscriptions",
+  "legal.refund.s2.content": "1. Monthly Membership: Full refund within 24 hours of subscription; no refund after 24 hours.\n2. Yearly Membership: Full refund within 7 days; after 7 days, months used (at monthly price) are deducted and the difference is refunded.\n3. After cancellation, membership benefits end when the current billing period concludes.\n4. Refunds are processed within 3-5 business days via the original payment method.",
+  "legal.refund.s3.title": "3. Physical Products",
+  "legal.refund.s3.content": "1. Unopened physical products may be returned within 7 days of receipt; return shipping is at buyer's expense.\n2. Opened or used products cannot be returned (except for quality issues).\n3. Customized items (personalized talismans, engraved jewelry) cannot be returned.\n4. Return process: Contact support → Provide order number and reason → Approved → Ship back → Refund within 3-5 business days of receipt.",
+  "legal.refund.s4.title": "4. Coupons & Discounts",
+  "legal.refund.s4.content": "1. Coupons used for payment are not refunded.\n2. Coupons obtained through \"Chart Unlock\" promotions will be revoked upon refund.",
+  "legal.refund.s5.title": "5. How to Request a Refund",
+  "legal.refund.s5.content": "To request a refund, contact us:\n\n- Email: refund@khanfate.com\n- Subject format: [Refund Request] Order Number/Subscription Type\n- Please provide: Registration email, order number, refund reason\n\nWe will review and respond within 1-3 business days.",
 } as const

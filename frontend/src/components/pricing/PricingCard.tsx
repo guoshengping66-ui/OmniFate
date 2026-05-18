@@ -81,28 +81,28 @@ export function PricingCard({
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-xl font-serif font-bold text-gold">创始席位</h3>
+                  <h3 className="text-xl font-serif font-bold text-gold">{t("pricingCard.founderTitle")}</h3>
                   <span className="relative inline-flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold opacity-75" />
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-gold" />
                   </span>
                 </div>
-                <p className="text-gold/50 text-sm">{isDomestic ? "永久会员 · 限量 100 席" : "Lifetime · Limited 100 Seats"}</p>
+                <p className="text-gold/50 text-sm">{t("pricingCard.founderSubtitle")}</p>
               </div>
             </div>
 
             {/* Stardust emphasis */}
             <div className="flex items-center gap-3 mb-4 py-3 px-4 rounded-xl bg-gold/8 border border-gold/15 w-fit">
               <Zap size={16} className="text-gold" />
-              <span className="text-gold/70 text-sm">每月注入</span>
+              <span className="text-gold/70 text-sm">{t("pricingCard.monthlyInject")}</span>
               <span className="text-lg font-bold text-gold">500</span>
-              <span className="text-gold/70 text-sm">星尘</span>
+              <span className="text-gold/70 text-sm">{t("pricingCard.stardustUnit")}</span>
             </div>
 
             {/* Price */}
             <div className="flex items-baseline gap-3 mb-4">
               <span className="text-3xl font-bold text-gold">{isDomestic ? "¥1,288" : "$399"}</span>
-              <span className="text-gold/40 text-sm">一次性终身</span>
+              <span className="text-gold/40 text-sm">{t("pricingCard.onceLifetime")}</span>
             </div>
 
             {/* Features */}
@@ -121,7 +121,7 @@ export function PricingCard({
             {/* Seat progress */}
             <div className="w-full">
               <div className="flex justify-between text-xs text-gold/50 mb-2">
-                <span>{isDomestic ? "席位进度" : "Seat Progress"}</span>
+                <span>{t("pricingCard.seatProgress")}</span>
                 <span className="text-gold font-semibold">{founderSoldPercent}%</span>
               </div>
               <div className="w-full h-2.5 bg-gold/8 rounded-full overflow-hidden">
@@ -134,7 +134,7 @@ export function PricingCard({
                 />
               </div>
               <p className="text-gold/40 text-[11px] mt-1.5 text-center">
-                仅剩 <span className="text-gold font-semibold">{remaining}</span> 席
+                {t("pricingCard.seatsRemaining").replace("{count}", String(remaining))}
               </p>
             </div>
 
@@ -151,7 +151,7 @@ export function PricingCard({
             </button>
 
             <p className="text-gold/30 text-[10px] text-center leading-relaxed">
-              {isDomestic ? "支付后锁定终身席位" : "Lifetime seat after payment"}
+              {t("pricingCard.payToLock")}
             </p>
           </div>
         </div>
@@ -219,9 +219,9 @@ export function PricingCard({
             ${isYearly ? "bg-gold/8 border-gold/20" : "bg-gold/5 border-gold/10"}`}>
             <Sparkles size={16} className="text-gold" />
             <div className="text-center">
-              <span className="text-gold/60 text-xs">每月注入</span>
+              <span className="text-gold/60 text-xs">{t("pricingCard.monthlyInject")}</span>
               <span className="text-xl font-bold text-gold mx-1">{tier.stardustGrant}</span>
-              <span className="text-gold/60 text-xs">星尘</span>
+              <span className="text-gold/60 text-xs">{t("pricingCard.stardustUnit")}</span>
             </div>
           </div>
         )}
@@ -232,7 +232,7 @@ export function PricingCard({
             <Zap size={16} className="text-gold" />
             <div className="text-center">
               <span className="text-xl font-bold text-gold">{tier.stardust}</span>
-              <span className="text-gold/60 text-xs ml-1">星尘</span>
+              <span className="text-gold/60 text-xs ml-1">{t("pricingCard.stardustUnit")}</span>
             </div>
           </div>
         )}
@@ -269,7 +269,10 @@ export function PricingCard({
         {/* Features */}
         <ul className="flex-1 space-y-2.5 mb-6">
           {tier.features.map((f, i) => {
-            const isExclusive = isYearly && (f.includes("专属") || f.includes("定制") || f.includes("优先"))
+            const isExclusive = isYearly && (
+              f.includes("专属") || f.includes("定制") || f.includes("优先") ||
+              f.toLowerCase().includes("exclusive") || f.toLowerCase().includes("custom") || f.toLowerCase().includes("priority")
+            )
             return (
               <li key={i} className="flex items-start gap-2.5 text-sm">
                 <Check
@@ -280,7 +283,7 @@ export function PricingCard({
                   {f}
                   {isExclusive && (
                     <span className="ml-1.5 inline-flex items-center gap-0.5 text-[9px] font-bold text-gold bg-gold/15 px-1.5 py-0.5 rounded-full align-middle">
-                      独占
+                      {t("pricingCard.exclusive")}
                     </span>
                   )}
                 </span>

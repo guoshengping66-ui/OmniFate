@@ -1,6 +1,7 @@
 "use client"
 import { Star, Calendar, MapPin } from "lucide-react"
 import { useUserStore } from "@/stores/useUserStore"
+import { useLanguage } from "@/contexts/LanguageContext"
 import { TargetSelector } from "./TargetSelector"
 import { BirthProfileSetup } from "./BirthProfileSetup"
 
@@ -25,6 +26,7 @@ function getConstellation(month: number, day: number): string {
 
 export function ProfileCard() {
   const { userProfile } = useUserStore()
+  const { t } = useLanguage()
 
   const constellation = userProfile ? getConstellation(userProfile.birth_month, userProfile.birth_day) : ""
   const zodiac = userProfile ? getZodiac(userProfile.birth_year) : ""
@@ -34,7 +36,7 @@ export function ProfileCard() {
     <div className="card-glass p-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="font-serif text-lg text-gold flex items-center gap-2">
-          <Star size={18} /> 命理底座
+          <Star size={18} /> {t("dash.profile.title")}
         </h2>
         <TargetSelector />
       </div>
@@ -42,7 +44,7 @@ export function ProfileCard() {
       {userProfile ? (
         <div className="space-y-3">
           <div className="flex items-center gap-3 text-sm">
-            <span className="text-white/30 w-16">昵称</span>
+            <span className="text-white/30 w-16">{t("dash.profile.nickname")}</span>
             <span className="text-white/70">{userProfile.nickname}</span>
           </div>
           <div className="flex items-center gap-3 text-sm">
@@ -54,7 +56,7 @@ export function ProfileCard() {
           </div>
           <div className="flex items-center gap-3 text-sm">
             <MapPin size={14} className="text-white/30" />
-            <span className="text-white/70">{userProfile.birth_city || "未填写"}</span>
+            <span className="text-white/70">{userProfile.birth_city || t("dash.profile.notSet")}</span>
           </div>
           {/* Tags */}
           <div className="flex flex-wrap gap-2 pt-2">
@@ -65,7 +67,7 @@ export function ProfileCard() {
             )}
             {zodiac && (
               <span className="text-xs px-2.5 py-1 rounded-full bg-gold/10 text-gold border border-gold/20">
-                {zodiac}年
+                {zodiac}{t("dash.profile.zodiacYear")}
               </span>
             )}
             {shengxiao && (
