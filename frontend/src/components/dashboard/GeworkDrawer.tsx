@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect, useRef } from "react"
-import { X, Send, Loader2, Sparkles, ChevronDown, Calendar, Smile, Clock, RotateCcw } from "lucide-react"
+import { X, Send, Sparkles, ChevronDown, Calendar, Smile, Clock, RotateCcw } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useUserStore } from "@/stores/useUserStore"
 import { analyzeEvent } from "@/lib/api"

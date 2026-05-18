@@ -120,7 +120,7 @@ function DimBar({ icon, label, score, color }: { icon: React.ReactNode; label: s
 
 export function DailyDashboard() {
   const { user } = useAuth()
-  const { t, locale } = useLanguage()
+  const { locale } = useLanguage()
   const [fortune, setFortune] = useState<DailyFortuneResponse | null>(null)
   const [almanac, setAlmanac] = useState<AlmanacData | null>(null)
   const [loading, setLoading] = useState(true)
