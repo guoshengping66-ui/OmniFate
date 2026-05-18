@@ -63,9 +63,7 @@ export function Footer() {
               <ul className="space-y-2.5">
                 {[
                   [t("nav.home"), "/"],
-                  [t("nav.reading"), "/reading/new"],
                   [t("nav.almanac"), "/almanac"],
-                  [t("nav.events"), "/events"],
                   [t("nav.pricing"), "/pricing"],
                   [t("nav.shop"), "/shop"],
                   [t("nav.blog"), "/blog"],

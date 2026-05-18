@@ -29,7 +29,6 @@ export function Navbar() {
   // Core links — always visible
   const coreLinks = [
     { href: "/", label: t("nav.home") },
-    { href: "/reading/new", label: t("nav.reading") },
     { href: "/divination", label: t("nav.divination") },
     { href: "/am16", label: t("nav.am16") },
     { href: "/pricing", label: t("nav.pricing") },
@@ -180,13 +179,6 @@ export function Navbar() {
                       className="px-3 py-2 text-sm text-white/60 hover:text-gold hover:bg-white/5 rounded-lg transition-colors"
                     >
                       {t("nav.dashboard")}
-                    </Link>
-                    <Link
-                      href="/reading/new"
-                      onClick={() => setMenuOpen(false)}
-                      className="px-3 py-2 text-sm text-white/60 hover:text-gold hover:bg-white/5 rounded-lg transition-colors"
-                    >
-                      {t("nav.reading")}
                     </Link>
                     <Link
                       href="/divination"
