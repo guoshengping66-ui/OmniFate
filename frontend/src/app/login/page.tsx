@@ -28,11 +28,28 @@ export default function LoginPage() {
       toast.success(t("auth.loginSuccess"))
       router.replace("/")
     } catch (err: any) {
-      if (err.code === "ERR_NETWORK" || err.message?.includes("Network Error")) {
+      console.error("[Login] error:", err)
+      if (err.code === "ERR_NETWORK" || err.code === "ECONNABORTED" || err.message?.includes("Network Error")) {
         toast.error(t("auth.noNetwork"))
+      } else if (err?.response) {
+        const status = err.response.status
+        const detail = err.response.data?.detail
+        if (status === 403) {
+          // Unverified email — backend already sent verification code
+          toast.error(detail ?? t("auth.unverified"), { duration: 8000 })
+        } else if (status === 429) {
+          toast.error(detail ?? t("auth.rateLimited"))
+        } else if (status === 502 || status === 504) {
+          toast.error(t("auth.serverTimeout"))
+        } else if (status === 503) {
+          toast.error(detail ?? t("auth.serverUnavailable"))
+        } else if (status >= 500) {
+          toast.error(detail ?? t("auth.serverError"))
+        } else {
+          toast.error(detail ?? t("auth.loginFail"))
+        }
       } else {
-        const detail = err?.response?.data?.detail ?? t("auth.loginFail")
-        toast.error(detail)
+        toast.error(err?.message ? `${t("auth.noNetwork")} (${err.message})` : t("auth.loginFail"))
       }
     } finally {
       setLoading(false)

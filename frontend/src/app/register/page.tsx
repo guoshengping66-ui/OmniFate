@@ -101,8 +101,13 @@ export default function RegisterPage() {
       setStep("verify")
       startResendCooldown()
     } catch (err: any) {
-      const detail = err?.response?.data?.detail ?? t("auth.registerFail")
-      toast.error(detail)
+      console.error("[Register] birth submit error:", err)
+      if (err.code === "ERR_NETWORK" || err.code === "ECONNABORTED" || err.message?.includes("Network Error")) {
+        toast.error(t("auth.noNetwork"))
+      } else {
+        const detail = err?.response?.data?.detail ?? err?.message ?? t("auth.registerFail")
+        toast.error(detail)
+      }
     } finally {
       setLoading(false)
     }
@@ -117,8 +122,13 @@ export default function RegisterPage() {
       setStep("verify")
       startResendCooldown()
     } catch (err: any) {
-      const detail = err?.response?.data?.detail ?? t("auth.registerFail")
-      toast.error(detail)
+      console.error("[Register] skip birth error:", err)
+      if (err.code === "ERR_NETWORK" || err.code === "ECONNABORTED" || err.message?.includes("Network Error")) {
+        toast.error(t("auth.noNetwork"))
+      } else {
+        const detail = err?.response?.data?.detail ?? err?.message ?? t("auth.registerFail")
+        toast.error(detail)
+      }
     } finally {
       setLoading(false)
     }
@@ -139,8 +149,13 @@ export default function RegisterPage() {
       toast.success(t("auth.loginSuccess"))
       router.replace("/dashboard")
     } catch (err: any) {
-      const detail = err?.response?.data?.detail ?? t("auth.verifyFail")
-      toast.error(detail)
+      console.error("[Register] verify email error:", err)
+      if (err.code === "ERR_NETWORK" || err.code === "ECONNABORTED" || err.message?.includes("Network Error")) {
+        toast.error(t("auth.noNetwork"))
+      } else {
+        const detail = err?.response?.data?.detail ?? err?.message ?? t("auth.verifyFail")
+        toast.error(detail)
+      }
     } finally {
       setVerifyLoading(false)
     }

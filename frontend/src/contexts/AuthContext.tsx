@@ -105,8 +105,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     const handle401 = async (error: any) => {
-      const originalRequest = error.config
-      if (error.response?.status !== 401 || originalRequest._retry) {
+      // Safety: if error has no config (network/timeout), reject immediately
+      const originalRequest = error?.config
+      if (!originalRequest || error.response?.status !== 401 || originalRequest._retry) {
         return Promise.reject(error)
       }
 
