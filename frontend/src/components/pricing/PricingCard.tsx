@@ -22,6 +22,7 @@ export function PricingCard({
   isFounderCard = false,
   onSelect,
 }: PricingCardProps) {
+  const { t } = useLanguage()
   const isDomestic = region === "domestic"
 
   // ── Resolve tier text via i18n ──
