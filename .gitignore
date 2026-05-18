@@ -109,8 +109,3 @@ de421.bsp
 frontend/tsconfig.tsbuildinfo
 
 .vercel
-
-# Root vercel.json is for Python API (deployed on nginx, not Vercel).
-# Only frontend/vercel.json should be tracked for the Next.js deployment.
-vercel.json
-!frontend/vercel.json
