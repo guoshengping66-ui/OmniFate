@@ -22,6 +22,7 @@ export const CATEGORIES = [
   { key: "tarot", label_zh: "塔罗指南", label_en: "Tarot Guide" },
   { key: "face", label_zh: "面相手相", label_en: "Face & Palm" },
   { key: "lifestyle", label_zh: "改运生活", label_en: "Fortune Lifestyle" },
+  { key: "faq", label_zh: "常见问答", label_en: "FAQ" },
 ]
 
 export const ARTICLES: Article[] = [
@@ -1171,7 +1172,7 @@ The民间 pairing of "Dragon + Rooster" or "Tiger + Pig" is the most superficial
     title_en: "Unsure of Your Exact Birth Time? How Much Does It Really Matter?",
     summary_zh: "很多人只知道出生日期不知道具体时辰。八字差一个时辰就是完全不同的命盘。本文教你如何处理出生时间不确定的情况，以及如何通过面相等维度弥补。",
     summary_en: "Many people know their birth date but not the exact hour. In Bazi, one two-hour difference creates an entirely different chart. Learn how to handle uncertain birth times and how other dimensions like face reading can compensate.",
-    category: "wuxing",
+    category: "faq",
     tags_zh: ["八字", "入门", "出生时间", "FAQ"],
     tags_en: ["Bazi", "Beginner", "Birth Time", "FAQ"],
     read_time: 5,
@@ -1363,7 +1364,7 @@ These situations are acceptable:
     title_en: "AI Destiny Reading vs Traditional Masters: What's the Difference?",
     summary_zh: "AI 五维合参和找命理师算命有什么不同？AI 更快更客观，但传统命理师有经验加持。本文从准确性、深度、价格、隐私等维度对比两种方式。",
     summary_en: "How does AI 5-Dimension Analysis compare to visiting a traditional destiny master? AI is faster and more objective, while traditional masters bring years of experience. This article compares both approaches across accuracy, depth, price, and privacy.",
-    category: "wuxing",
+    category: "faq",
     tags_zh: ["AI", "命理", "FAQ", "对比"],
     tags_en: ["AI", "Destiny", "FAQ", "Comparison"],
     read_time: 5,
@@ -1676,7 +1677,7 @@ Mentally very compatible, but may need extra patience in practical daily life.
     title_en: "How to Read Your 5-Dimension Analysis: A Beginner's Guide",
     summary_zh: "拿到报告后不知道怎么看？五行得分是什么意思？十神格局怎么理解？本文手把手教你读懂 AI 五维合参报告的每个部分。",
     summary_en: "Got your report but not sure how to read it? What do Five Element scores mean? How to interpret Ten Gods patterns? This guide walks you through every section of your AI 5-Dimension Analysis report.",
-    category: "wuxing",
+    category: "faq",
     tags_zh: ["报告", "解读", "入门", "五维合参"],
     tags_en: ["Report", "Reading Guide", "Beginner", "5-Dimension"],
     read_time: 6,
