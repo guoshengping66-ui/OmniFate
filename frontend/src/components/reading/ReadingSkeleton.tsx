@@ -1,29 +1,32 @@
 "use client"
 import { Loader2 } from "lucide-react"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 interface Props {
   phase: "loading" | "error" | "timeout"
 }
 
-const AGENTS = [
-  { emoji: "☯", name: "周易八字", color: "border-l-[#2D6A4F]", glow: "rgba(45,106,79,0.15)", desc: "推算四柱八字…" },
-  { emoji: "✦", name: "西方星盘", color: "border-l-[#C1121F]", glow: "rgba(193,18,31,0.15)", desc: "解析行星相位…" },
-  { emoji: "🃏", name: "塔罗占卜", color: "border-l-[#C9A84C]", glow: "rgba(201,168,76,0.15)", desc: "抽取命运牌阵…" },
-  { emoji: "👁", name: "AI 面相", color: "border-l-[#E8D5B7]", glow: "rgba(232,213,183,0.15)", desc: "识别面部宫位…" },
-  { emoji: "🤚", name: "手相解读", color: "border-l-[#2980B9]", glow: "rgba(41,128,185,0.15)", desc: "分析掌纹走势…" },
+const AGENT_KEYS = [
+  { emoji: "☯", nameKey: "skeleton.agent.bazi", color: "border-l-[#2D6A4F]", glow: "rgba(45,106,79,0.15)" },
+  { emoji: "✦", nameKey: "skeleton.agent.astrology", color: "border-l-[#C1121F]", glow: "rgba(193,18,31,0.15)" },
+  { emoji: "🃏", nameKey: "skeleton.agent.tarot", color: "border-l-[#C9A84C]", glow: "rgba(201,168,76,0.15)" },
+  { emoji: "👁", nameKey: "skeleton.agent.face", color: "border-l-[#E8D5B7]", glow: "rgba(232,213,183,0.15)" },
+  { emoji: "🤚", nameKey: "skeleton.agent.palm", color: "border-l-[#2980B9]", glow: "rgba(41,128,185,0.15)" },
 ]
 
 export function ReadingSkeleton({ phase }: Props) {
+  const { t } = useLanguage()
+
   if (phase === "error") {
     return (
       <div className="min-h-screen pt-24 pb-16 px-4 flex flex-col items-center justify-center">
         <div className="text-6xl mb-6">😔</div>
-        <h2 className="font-serif text-2xl text-white/80 mb-2">报告加载失败</h2>
+        <h2 className="font-serif text-2xl text-white/80 mb-2">{t("skeleton.error.title")}</h2>
         <p className="text-white/40 text-sm mb-6">
-          可能是报告尚未生成完成，或会话已过期
+          {t("skeleton.error.desc")}
         </p>
         <a href="/reading/new" className="btn-gold inline-block">
-          重新推命
+          {t("skeleton.error.retry")}
         </a>
       </div>
     )
@@ -41,9 +44,9 @@ export function ReadingSkeleton({ phase }: Props) {
 
         {/* 5 agent cards */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-          {AGENTS.map((agent, i) => (
+          {AGENT_KEYS.map((agent, i) => (
             <div
-              key={agent.name}
+              key={agent.nameKey}
  className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-5 animate-pulse-slow"
               style={{
                 borderLeftColor: agent.color.replace("border-l-", ""),
@@ -80,7 +83,7 @@ export function ReadingSkeleton({ phase }: Props) {
         <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 text-center">
           <div className="flex items-center justify-center gap-2 text-gold/60 text-sm mb-2">
             <Loader2 size={14} className="animate-spin" />
-            <span>Master Agent 跨维度融合中…</span>
+            <span>{t("skeleton.loading.master")}</span>
           </div>
           <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
             <div

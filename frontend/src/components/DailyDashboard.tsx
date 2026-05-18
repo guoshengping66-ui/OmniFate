@@ -7,7 +7,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 // ── Fallback data for non-logged-in users ─────────────────────────
-function generateFallbackFortune(): DailyFortuneResponse {
+function generateFallbackFortune(t: (k: string) => string): DailyFortuneResponse {
   const today = new Date()
   const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate()
   const hash = (n: number) => {
@@ -20,7 +20,7 @@ function generateFallbackFortune(): DailyFortuneResponse {
   const colors = ["金色", "红色", "蓝色", "绿色", "紫色", "白色", "粉色", "橙色"]
   return {
     date: today.toISOString().slice(0, 10),
-    greeting: "今日运势概览",
+    greeting: t("dash.fallback.greeting"),
     overall_score: score(6, 4),
     wealth_fortune: score(5, 5),
     career_fortune: score(6, 4),
@@ -28,8 +28,8 @@ function generateFallbackFortune(): DailyFortuneResponse {
     health_fortune: score(6, 3),
     lucky_color: colors[Math.floor(hash(100) * colors.length)],
     lucky_number: Math.floor(hash(200) * 9) + 1,
-    advice: "今日适合制定规划，把灵感转化为行动。",
-    warning: "避免在情绪激动时做重要决定。",
+    advice: t("dash.fallback.advice"),
+    warning: t("dash.fallback.warning"),
   }
 }
 
@@ -132,9 +132,9 @@ export function DailyDashboard() {
         // Personal fortune
         let f: DailyFortuneResponse
         if (user) {
-          try { f = await getDailyFortune() } catch { f = generateFallbackFortune() }
+          try { f = await getDailyFortune() } catch { f = generateFallbackFortune(t) }
         } else {
-          f = generateFallbackFortune()
+          f = generateFallbackFortune(t)
         }
         setFortune(f)
 

@@ -1,6 +1,7 @@
 "use client"
 import Link from "next/link"
 import { ChevronRight, Home } from "lucide-react"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 interface BreadcrumbItem {
   label: string
@@ -12,11 +13,12 @@ interface BreadcrumbsProps {
 }
 
 export function Breadcrumbs({ items }: BreadcrumbsProps) {
+  const { t } = useLanguage()
   return (
     <nav className="flex items-center gap-1.5 text-xs text-white/30 mb-6 overflow-x-auto scrollbar-none">
       <Link href="/" className="flex items-center gap-1 hover:text-gold transition-colors whitespace-nowrap">
         <Home size={12} />
-        <span>首页</span>
+        <span>{t("breadcrumb.home")}</span>
       </Link>
       {items.map((item, i) => (
         <span key={i} className="flex items-center gap-1.5 whitespace-nowrap">

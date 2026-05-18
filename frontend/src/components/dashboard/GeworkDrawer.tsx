@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react"
 import { X, Send, Sparkles, ChevronDown, Calendar, Smile, Clock, RotateCcw } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useUserStore } from "@/stores/useUserStore"
+import { useLanguage } from "@/contexts/LanguageContext"
 import { analyzeEvent } from "@/lib/api"
 
 interface Props {
@@ -10,21 +11,21 @@ interface Props {
   onClose: () => void
 }
 
-const EMOTION_LABELS: Record<number, string> = {
-  1: "极度负面",
-  2: "比较负面",
-  3: "中性",
-  4: "比较正面",
-  5: "极度正面",
+const EMOTION_KEYS: Record<number, string> = {
+  1: "gework.emotion1",
+  2: "gework.emotion2",
+  3: "gework.emotion3",
+  4: "gework.emotion4",
+  5: "gework.emotion5",
 }
 
-const LOADING_TIPS = [
-  "正在合参时空盘口…",
-  "正在格物因果链条…",
-  "正在推演五行生克…",
-  "正在解析心学密码…",
-  "正在对齐天干地支…",
-  "正在感应气场共振…",
+const LOADING_KEYS = [
+  "gework.loading1",
+  "gework.loading2",
+  "gework.loading3",
+  "gework.loading4",
+  "gework.loading5",
+  "gework.loading6",
 ]
 
 function todayString() {
@@ -33,6 +34,7 @@ function todayString() {
 }
 
 export function GeworkDrawer({ open, onClose }: Props) {
+  const { t } = useLanguage()
   const [eventText, setEventText] = useState("")
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [eventDate, setEventDate] = useState(todayString)
@@ -48,6 +50,14 @@ export function GeworkDrawer({ open, onClose }: Props) {
   const { activeTestTarget, userProfile } = useUserStore()
   const resultRef = useRef<HTMLDivElement>(null)
 
+  const EMOTION_LABELS: Record<number, string> = {
+    1: t("dash.gework.emotion1"),
+    2: t("dash.gework.emotion2"),
+    3: t("dash.gework.emotion3"),
+    4: t("dash.gework.emotion4"),
+    5: t("dash.gework.emotion5"),
+  }
+
   // Reset date to today when drawer opens
   useEffect(() => {
     if (open) {
@@ -62,7 +72,7 @@ export function GeworkDrawer({ open, onClose }: Props) {
   useEffect(() => {
     if (phase !== "loading") return
     const timer = setInterval(() => {
-      setTipIndex(i => (i + 1) % LOADING_TIPS.length)
+      setTipIndex(i => (i + 1) % LOADING_KEYS.length)
     }, 3000)
     return () => clearInterval(timer)
   }, [phase])
@@ -78,9 +88,9 @@ export function GeworkDrawer({ open, onClose }: Props) {
     // Build enriched question
     const parts = [eventText.trim()]
     if (showAdvanced) {
-      if (eventDate) parts.push(`事件日期：${eventDate}`)
-      if (eventTime) parts.push(`事件时间：${eventTime}`)
-      if (emotionScore !== 3) parts.push(`当时情绪：${emotionScore}分（${EMOTION_LABELS[emotionScore]}）`)
+      if (eventDate) parts.push(`${t("gework.eventDate")}: ${eventDate}`)
+      if (eventTime) parts.push(`${t("gework.eventTime")}: ${eventTime}`)
+      if (emotionScore !== 3) parts.push(`${t("gework.emotion")}: ${emotionScore} (${EMOTION_LABELS[emotionScore]})`)
     }
     const enrichedQuestion = parts.join("\n")
 
@@ -94,17 +104,17 @@ export function GeworkDrawer({ open, onClose }: Props) {
 
       // Format result
       const sections = [
-        res.causal_analysis && `### 因果分析\n${res.causal_analysis}`,
-        res.current_advice && `### 当下建议\n${res.current_advice}`,
-        res.future_prevention && `### 未来预防\n${res.future_prevention}`,
-        res.remedy_keywords?.length && `### 化解关键词\n${res.remedy_keywords.join(" · ")}`,
+        res.causal_analysis && `### ${t("gework.section.cause")}\n${res.causal_analysis}`,
+        res.current_advice && `### ${t("gework.section.advice")}\n${res.current_advice}`,
+        res.future_prevention && `### ${t("gework.section.prevent")}\n${res.future_prevention}`,
+        res.remedy_keywords?.length && `### ${t("gework.section.keywords")}\n${res.remedy_keywords.join(" · ")}`,
       ].filter(Boolean)
 
       setResult(sections.join("\n\n"))
       setPhase("result")
     } catch (err: any) {
       console.error("[GeworkDrawer] analyze error:", err)
-      setError(err?.response?.data?.detail || err?.message || "分析失败，请稍后重试")
+      setError(err?.response?.data?.detail || err?.message || t("gework.failMsg"))
       setPhase("input")
     }
   }
@@ -165,8 +175,8 @@ export function GeworkDrawer({ open, onClose }: Props) {
                     <Sparkles size={20} className="text-gold" />
                   </div>
                   <div>
-                    <h2 className="font-serif text-xl text-gold">格物致知</h2>
-                    <p className="text-white/30 text-xs">特定事件 · AI 心学复盘</p>
+                    <h2 className="font-serif text-xl text-gold">{t("gework.title")}</h2>
+                    <p className="text-white/30 text-xs">{t("gework.subtitle")}</p>
                   </div>
                 </div>
                 <button
@@ -192,8 +202,7 @@ export function GeworkDrawer({ open, onClose }: Props) {
                       {/* Description */}
                       <div className="bg-white/[0.03] border border-white/10 rounded-xl p-4 mb-4">
                         <p className="text-white/50 text-sm leading-relaxed">
-                          写下你当下的困惑、或是近期准备发生的重大事件。
-                          AI 将结合你的命理底座，为你进行心学命理复盘分析。
+                          {t("gework.desc")}
                         </p>
                       </div>
 
@@ -208,7 +217,7 @@ export function GeworkDrawer({ open, onClose }: Props) {
                         onChange={(e) => setEventText(e.target.value)}
                         rows={6}
                         maxLength={500}
-                        placeholder={"例：\n· 我最近收到了两个工作 offer，一个在大城市但薪资更高，一个在老家但离家人近\n· 我准备和朋友合伙创业，但担心时机不对\n· 和另一半的感情遇到了瓶颈，不知道该不该继续"}
+                        placeholder={t("gework.placeholder")}
                         className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3 text-white/80 text-sm placeholder-white/20 focus:border-gold/40 focus:outline-none focus:ring-1 focus:ring-gold/20 resize-none transition-all flex-1 min-h-[120px]"
                       />
                       <p className="text-white/20 text-xs mt-2 text-right">{eventText.length}/500</p>
@@ -220,7 +229,7 @@ export function GeworkDrawer({ open, onClose }: Props) {
                         className="flex items-center gap-2 text-xs text-white/30 hover:text-white/50 transition-colors mt-3 select-none"
                       >
                         <ChevronDown size={14} className={`transition-transform duration-200 ${showAdvanced ? "rotate-180" : ""}`} />
-                        🛠️ 展开高级格物参数
+                        🛠️ {t("gework.expandAdvanced")}
                       </button>
 
                       <AnimatePresence>
@@ -236,7 +245,7 @@ export function GeworkDrawer({ open, onClose }: Props) {
                               {/* Event date */}
                               <div>
                                 <label className="flex items-center gap-1.5 text-xs text-white/40 mb-1.5">
-                                  <Calendar size={12} /> 事件发生日期
+                                  <Calendar size={12} /> {t("gework.eventDate")}
                                 </label>
                                 <input
                                   type="date"
@@ -244,13 +253,13 @@ export function GeworkDrawer({ open, onClose }: Props) {
                                   onChange={(e) => setEventDate(e.target.value)}
                                   className="w-full bg-white/[0.03] border border-white/10 rounded-lg px-3 py-2 text-white/70 text-sm focus:border-gold/40 focus:outline-none transition-all"
                                 />
-                                <p className="text-white/20 text-[10px] mt-1">默认今天，可回溯历史事件</p>
+                                <p className="text-white/20 text-[10px] mt-1">{t("gework.eventDateHint")}</p>
                               </div>
 
                               {/* Event time */}
                               <div>
                                 <label className="flex items-center gap-1.5 text-xs text-white/40 mb-1.5">
-                                  <Clock size={12} /> 事件发生时间
+                                  <Clock size={12} /> {t("gework.eventTime")}
                                 </label>
                                 <input
                                   type="time"
@@ -258,13 +267,13 @@ export function GeworkDrawer({ open, onClose }: Props) {
                                   onChange={(e) => setEventTime(e.target.value)}
                                   className="w-full bg-white/[0.03] border border-white/10 rounded-lg px-3 py-2 text-white/70 text-sm focus:border-gold/40 focus:outline-none transition-all"
                                 />
-                                <p className="text-white/20 text-[10px] mt-1">可选，精确到时辰更佳</p>
+                                <p className="text-white/20 text-[10px] mt-1">{t("gework.eventTimeHint")}</p>
                               </div>
 
                               {/* Emotion slider */}
                               <div>
                                 <label className="flex items-center gap-1.5 text-xs text-white/40 mb-1.5">
-                                  <Smile size={12} /> 当时情绪感受
+                                  <Smile size={12} /> {t("gework.emotion")}
                                 </label>
                                 <div className="flex items-center gap-3">
                                   <input
@@ -312,11 +321,11 @@ export function GeworkDrawer({ open, onClose }: Props) {
                           exit={{ opacity: 0, y: -10 }}
                           className="text-gold/70 text-sm text-center"
                         >
-                          {LOADING_TIPS[tipIndex]}
+                          {t(LOADING_KEYS[tipIndex])}
                         </motion.p>
                       </AnimatePresence>
 
-                      <p className="text-white/20 text-xs">预计 15-30 秒完成</p>
+                      <p className="text-white/20 text-xs">{t("gework.eta")}</p>
                     </motion.div>
                   )}
 
@@ -331,13 +340,13 @@ export function GeworkDrawer({ open, onClose }: Props) {
                     >
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="font-serif text-gold text-sm flex items-center gap-2">
-                          <Sparkles size={14} /> 格物分析结果
+                          <Sparkles size={14} /> {t("gework.resultTitle")}
                         </h3>
                         <button
                           onClick={handleReset}
                           className="flex items-center gap-1 text-xs text-white/30 hover:text-white/50 transition-colors"
                         >
-                          <RotateCcw size={12} /> 重新分析
+                          <RotateCcw size={12} /> {t("gework.retry")}
                         </button>
                       </div>
 
@@ -358,10 +367,10 @@ export function GeworkDrawer({ open, onClose }: Props) {
                     className="btn-gold w-full flex items-center justify-center gap-2 py-3 mt-4 disabled:opacity-40"
                   >
                     <Send size={16} />
-                    开始格物分析
+                    {t("gework.submitBtn")}
                   </button>
                   <p className="text-white/20 text-[10px] text-center mt-3">
-                    将跳过塔罗与面相，直接基于命理底座生成事件复盘报告
+                    {t("gework.submitHint")}
                   </p>
                 </>
               )}
@@ -373,13 +382,13 @@ export function GeworkDrawer({ open, onClose }: Props) {
                     onClick={handleReset}
                     className="flex-1 py-3 rounded-full border border-white/20 text-white/60 text-sm hover:border-white/40 transition-all"
                   >
-                    再次分析
+                    {t("gework.retryBtn")}
                   </button>
                   <button
                     onClick={handleClose}
                     className="flex-1 btn-gold py-3 text-sm"
                   >
-                    完成
+                    {t("gework.close")}
                   </button>
                 </div>
               )}

@@ -2,11 +2,13 @@
 import Link from "next/link"
 import { Sparkles } from "lucide-react"
 import { motion, useScroll, useTransform } from "framer-motion"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 export function FloatingCTA() {
   const { scrollY } = useScroll()
   const opacity = useTransform(scrollY, [300, 600], [0, 1])
   const y = useTransform(scrollY, [300, 600], [20, 0])
+  const { t } = useLanguage()
 
   return (
     <motion.div
@@ -19,7 +21,7 @@ export function FloatingCTA() {
           className="btn-gold flex items-center justify-center gap-2 w-full py-3 text-sm"
         >
           <Sparkles size={16} />
-          免费推命 · 五维分析
+          {t("floatingCta.text")}
         </Link>
       </div>
     </motion.div>

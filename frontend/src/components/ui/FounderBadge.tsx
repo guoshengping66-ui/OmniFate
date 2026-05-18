@@ -1,6 +1,7 @@
 "use client"
 import { motion } from "framer-motion"
 import { Crown } from "lucide-react"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 interface FounderBadgeProps {
   seatNo?: number
@@ -8,6 +9,7 @@ interface FounderBadgeProps {
 }
 
 export function FounderBadge({ seatNo, size = "sm" }: FounderBadgeProps) {
+  const { t } = useLanguage()
   const isSmall = size === "sm"
 
   return (
@@ -26,7 +28,7 @@ export function FounderBadge({ seatNo, size = "sm" }: FounderBadgeProps) {
       </span>
       <Crown size={isSmall ? 10 : 12} className="text-violet-300" />
       <span className="text-violet-200 font-medium">
-        创始会员{seatNo ? ` #${seatNo}` : ""}
+        {t("founderBadge.label")}{seatNo ? ` #${seatNo}` : ""}
       </span>
     </motion.div>
   )

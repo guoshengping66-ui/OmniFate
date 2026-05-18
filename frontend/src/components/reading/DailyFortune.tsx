@@ -345,7 +345,7 @@ export function DailyFortune({ user }: DailyFortuneProps) {
               {fortune.personalized && (
                 <p className="text-gold/50 text-[10px] mt-1 flex items-center justify-center gap-1">
                   <User size={10} />
-                  基于您的命盘数据
+                  {t("fortune.basedOnChart")}
                 </p>
               )}
             </div>

@@ -1,5 +1,6 @@
 "use client"
 import { useEffect, useState } from "react"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 interface Props {
   scores: Record<string, number>
@@ -7,13 +8,12 @@ interface Props {
   size?: number
 }
 
-const DEFAULT_LABELS = ["财运", "感情", "事业", "健康", "精神"]
-
 /**
  * Pure SVG pentagon radar chart — no external charting library needed.
  * Renders 5 concentric pentagons, gold grid lines, and a filled data area.
  */
-export function DestinyRadar({ scores, labels = DEFAULT_LABELS, size = 280 }: Props) {
+export function DestinyRadar({ scores, labels, size = 280 }: Props) {
+  const { t } = useLanguage()
   const [animate, setAnimate] = useState(false)
   const cx = size / 2
   const cy = size / 2
@@ -21,10 +21,20 @@ export function DestinyRadar({ scores, labels = DEFAULT_LABELS, size = 280 }: Pr
   const labelRadius = size * 0.45       // radius for labels
   const levels = 5                      // concentric pentagons
 
+  const DEFAULT_LABELS = [
+    t("destinyRadar.wealth"),
+    t("destinyRadar.relationship"),
+    t("destinyRadar.career"),
+    t("destinyRadar.health"),
+    t("destinyRadar.spiritual"),
+  ]
+
+  const displayLabels = labels || DEFAULT_LABELS
+
   // Trigger entrance animation on mount
   useEffect(() => {
-    const t = setTimeout(() => setAnimate(true), 100)
-    return () => clearTimeout(t)
+    const timer = setTimeout(() => setAnimate(true), 100)
+    return () => clearTimeout(timer)
   }, [])
 
   // Get the 5 dimension values in fixed order
@@ -59,7 +69,7 @@ export function DestinyRadar({ scores, labels = DEFAULT_LABELS, size = 280 }: Pr
 
   return (
     <div className="card-glass p-5 inline-flex flex-col items-center">
-      <h3 className="font-serif text-gold text-sm mb-2">五维能量分布</h3>
+      <h3 className="font-serif text-gold text-sm mb-2">{t("destinyRadar.title")}</h3>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         {/* Grid pentagons */}
         {Array.from({ length: levels }, (_, li) => {
@@ -138,7 +148,7 @@ export function DestinyRadar({ scores, labels = DEFAULT_LABELS, size = 280 }: Pr
                 fontSize={11}
                 fontFamily="sans-serif"
               >
-                {labels[i]}
+                {displayLabels[i]}
               </text>
               {/* Score number */}
               <text

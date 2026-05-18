@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Zap } from "lucide-react"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 interface EnergyInjectProps {
   show: boolean
@@ -10,6 +11,7 @@ interface EnergyInjectProps {
 }
 
 export function EnergyInject({ show, amount, onComplete }: EnergyInjectProps) {
+  const { t } = useLanguage()
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
@@ -75,7 +77,7 @@ export function EnergyInject({ show, amount, onComplete }: EnergyInjectProps) {
               transition={{ delay: 0.3 }}
               className="text-gold font-bold text-lg"
             >
-              {amount > 0 ? `+${amount}` : amount} 星尘
+              {amount > 0 ? `+${amount}` : amount} {t("energyInject.stardust")}
             </motion.span>
           </motion.div>
         </motion.div>

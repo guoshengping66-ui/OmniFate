@@ -20,13 +20,13 @@ export default function FAQPage() {
   return (
     <div className="min-h-screen pt-24 pb-20 px-4">
       <div className="max-w-3xl mx-auto">
-        <Breadcrumbs items={[{ label: "常见问题" }]} />
+        <Breadcrumbs items={[{ label: t("faq.breadcrumb") }]} />
 
         {/* Header */}
         <div className="text-center mb-12">
           <HelpCircle size={36} className="text-gold mx-auto mb-3" />
           <h1 className="text-4xl font-serif font-bold text-gold mb-2">{t("faq.title")}</h1>
-          <p className="text-white/50">如有其他疑问，欢迎联系我们</p>
+          <p className="text-white/50">{t("faq.contactDesc")}</p>
         </div>
 
         {/* FAQ List */}
@@ -41,15 +41,15 @@ export default function FAQPage() {
         {/* Contact CTA */}
         <ScrollReveal>
           <div className="card-glass p-8 text-center">
-            <h2 className="font-serif text-xl text-gold mb-3">还有疑问？</h2>
+            <h2 className="font-serif text-xl text-gold mb-3">{t("faq.moreQuestions")}</h2>
             <p className="text-white/40 text-sm mb-6">
-              我们的团队随时为你解答关于命理分析、会员服务等方面的问题。
+              {t("faq.contactTeamDesc")}
             </p>
             <Link
               href="/contact"
               className="btn-gold inline-flex items-center gap-2 px-8 py-3"
             >
-              联系我们
+              {t("faq.contactUs")}
             </Link>
           </div>
         </ScrollReveal>

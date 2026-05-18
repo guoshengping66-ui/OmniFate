@@ -3,12 +3,14 @@ import { useEffect, useRef } from "react"
 import toast from "react-hot-toast"
 import { Sparkles } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
+import { useLanguage } from "@/contexts/LanguageContext"
 import { api } from "@/lib/api"
 
 const STORAGE_KEY = "stardust_grant_shown"
 
 export function MonthlyGrantToast() {
   const { user } = useAuth()
+  const { t } = useLanguage()
   const shownRef = useRef(false)
 
   useEffect(() => {
@@ -38,9 +40,9 @@ export function MonthlyGrantToast() {
                     <Sparkles size={18} className="text-gold" />
                   </div>
                   <div>
-                    <p className="text-gold font-medium text-sm">星尘能量已注入</p>
+                    <p className="text-gold font-medium text-sm">{t("monthlyGrant.title")}</p>
                     <p className="text-white/40 text-xs mt-0.5">
-                      当前余额 {balance} 颗星尘
+                      {t("monthlyGrant.balance").replace("{balance}", String(balance))}
                     </p>
                   </div>
                 </div>

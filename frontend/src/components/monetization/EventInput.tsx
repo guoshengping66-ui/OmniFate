@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react"
 import { Calendar, Clock, Smile, Zap } from "lucide-react"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 interface EventInputProps {
   onSubmit: (data: EventFormData) => void
@@ -15,19 +16,20 @@ export interface EventFormData {
   emotionScore: number
 }
 
-const EMOTION_LABELS: Record<number, string> = {
-  1: "极度负面",
-  3: "比较负面",
-  5: "中性",
-  7: "比较正面",
-  9: "极度正面",
-}
-
 export function EventInput({ onSubmit, loading, freeQuota = 0 }: EventInputProps) {
+  const { t } = useLanguage()
   const [description, setDescription] = useState("")
   const [eventDate, setEventDate] = useState("")
   const [eventTime, setEventTime] = useState("12:00")
   const [emotionScore, setEmotionScore] = useState(5)
+
+  const EMOTION_LABELS: Record<number, string> = {
+    1: t("eventInput.emotion1"),
+    3: t("eventInput.emotion3"),
+    5: t("eventInput.emotion5"),
+    7: t("eventInput.emotion7"),
+    9: t("eventInput.emotion9"),
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -39,28 +41,28 @@ export function EventInput({ onSubmit, loading, freeQuota = 0 }: EventInputProps
     <form onSubmit={handleSubmit} className="card-glass p-6 md:p-8 space-y-6">
       <div className="flex items-center gap-2 mb-2">
         <Zap size={20} className="text-gold" />
-        <h2 className="font-serif text-xl text-gold">事件复盘</h2>
+        <h2 className="font-serif text-xl text-gold">{t("eventInput.title")}</h2>
         {freeQuota > 0 && (
           <span className="text-xs text-white/40 bg-white/5 px-2 py-0.5 rounded-full ml-auto">
-            本月剩余 {freeQuota} 次免费
+            {t("eventInput.freeRemaining").replace("{count}", String(freeQuota))}
           </span>
         )}
       </div>
 
       <p className="text-white/40 text-sm">
-        描述一件你想深入理解的事件，AI 将从流时星盘和八字角度分析因果链，并提供当下应对策略。
+        {t("eventInput.desc")}
         {freeQuota === 0 && (
-          <span className="text-gold/80 ml-1">¥19.9/次</span>
+          <span className="text-gold/80 ml-1">{t("eventInput.price")}</span>
         )}
       </p>
 
       {/* Event description */}
       <div>
-        <label className="label">事件描述</label>
+        <label className="label">{t("eventInput.eventDesc")}</label>
         <textarea
           value={description}
           onChange={e => setDescription(e.target.value)}
-          placeholder="描述发生了什么，越详细 AI 分析越精准…"
+          placeholder={t("eventInput.eventDescPlaceholder")}
           rows={4}
           className="input-field resize-none"
           required
@@ -71,7 +73,7 @@ export function EventInput({ onSubmit, loading, freeQuota = 0 }: EventInputProps
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
           <label className="label flex items-center gap-1">
-            <Calendar size={12} /> 事件日期
+            <Calendar size={12} /> {t("eventInput.eventDate")}
           </label>
           <input
             type="date"
@@ -83,7 +85,7 @@ export function EventInput({ onSubmit, loading, freeQuota = 0 }: EventInputProps
         </div>
         <div>
           <label className="label flex items-center gap-1">
-            <Clock size={12} /> 大致时间
+            <Clock size={12} /> {t("eventInput.approxTime")}
           </label>
           <input
             type="time"
@@ -97,7 +99,7 @@ export function EventInput({ onSubmit, loading, freeQuota = 0 }: EventInputProps
       {/* Emotion score */}
       <div>
         <label className="label flex items-center gap-1">
-          <Smile size={12} /> 当时的情绪感受
+          <Smile size={12} /> {t("eventInput.emotionLabel")}
         </label>
         <div className="flex items-center gap-3 mt-2">
           <input
@@ -110,7 +112,7 @@ export function EventInput({ onSubmit, loading, freeQuota = 0 }: EventInputProps
             className="flex-1 accent-gold"
           />
           <span className="text-sm text-white/60 min-w-[80px] text-right">
-            {emotionScore} · {EMOTION_LABELS[emotionScore] || "中性"}
+            {emotionScore} · {EMOTION_LABELS[emotionScore] || t("eventInput.emotion5")}
           </span>
         </div>
       </div>
@@ -122,9 +124,9 @@ export function EventInput({ onSubmit, loading, freeQuota = 0 }: EventInputProps
         className="btn-gold w-full flex items-center justify-center gap-2 py-3"
       >
         {loading ? (
-          <><span className="animate-spin inline-block">⏳</span> 分析中…</>
+          <><span className="animate-spin inline-block">⏳</span> {t("eventInput.analyzing")}</>
         ) : (
-          <><Zap size={16} /> {freeQuota > 0 ? "免费复盘" : "¥19.9 开始复盘"}</>
+          <><Zap size={16} /> {freeQuota > 0 ? t("eventInput.freeReview") : t("eventInput.startReview")}</>
         )}
       </button>
     </form>

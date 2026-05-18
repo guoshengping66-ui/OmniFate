@@ -1,6 +1,7 @@
 "use client"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Shield } from "lucide-react"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 interface ServiceTermsProps {
   open: boolean
@@ -8,6 +9,7 @@ interface ServiceTermsProps {
 }
 
 export function ServiceTerms({ open, onClose }: ServiceTermsProps) {
+  const { t } = useLanguage()
   return (
     <AnimatePresence>
       {open && (
@@ -31,7 +33,7 @@ export function ServiceTerms({ open, onClose }: ServiceTermsProps) {
             <div className="flex items-center justify-between p-5 border-b border-white/10">
               <div className="flex items-center gap-3">
                 <Shield size={20} className="text-gold" />
-                <h2 className="font-serif text-lg text-gold">服务条款与免责声明</h2>
+                <h2 className="font-serif text-lg text-gold">{t("serviceTerms.title")}</h2>
               </div>
               <button
                 onClick={onClose}
@@ -44,48 +46,33 @@ export function ServiceTerms({ open, onClose }: ServiceTermsProps) {
             {/* Content */}
             <div className="p-5 overflow-y-auto max-h-[60vh] space-y-4 text-white/60 text-sm leading-relaxed">
               <div>
-                <h3 className="text-white/80 font-medium mb-2">1. 服务性质</h3>
-                <p>
-                  命盘智镜（AlphaMirror）提供的所有命理推演、运势分析、能量诊断等功能，
-                  均基于算法辅助的心理建议与文化参考，仅供用户娱乐和自我反思使用。
-                </p>
+                <h3 className="text-white/80 font-medium mb-2">{t("serviceTerms.s1.title")}</h3>
+                <p>{t("serviceTerms.s1.desc")}</p>
               </div>
 
               <div>
-                <h3 className="text-white/80 font-medium mb-2">2. 免责声明</h3>
-                <p>
-                  本平台提供的内容不构成任何投资建议、法律建议、医疗建议或重大决策依据。
-                  用户因参考本平台内容而做出的任何决策，均由用户自行承担责任。
-                </p>
+                <h3 className="text-white/80 font-medium mb-2">{t("serviceTerms.s2.title")}</h3>
+                <p>{t("serviceTerms.s2.desc")}</p>
               </div>
 
               <div>
-                <h3 className="text-white/80 font-medium mb-2">3. 星尘道具说明</h3>
-                <p>
-                  星尘（Stardust）是本平台的虚拟道具，用于解锁各项功能。
-                  星尘不可提现、不可转让、不可兑换现金或实物。
-                  购买星尘即表示您理解并接受此虚拟道具的使用规则。
-                </p>
+                <h3 className="text-white/80 font-medium mb-2">{t("serviceTerms.s3.title")}</h3>
+                <p>{t("serviceTerms.s3.desc")}</p>
               </div>
 
               <div>
-                <h3 className="text-white/80 font-medium mb-2">4. 会员订阅</h3>
-                <p>
-                  会员订阅服务可随时取消，取消后将在当前计费周期结束后停止续费。
-                  已支付的费用根据退款政策处理。创始席位为一次性终身购买，不支持退款。
-                </p>
+                <h3 className="text-white/80 font-medium mb-2">{t("serviceTerms.s4.title")}</h3>
+                <p>{t("serviceTerms.s4.desc")}</p>
               </div>
 
               <div>
-                <h3 className="text-white/80 font-medium mb-2">5. 年龄限制</h3>
-                <p>
-                  本平台面向 18 周岁及以上用户。未满 18 周岁的用户请在监护人指导下使用。
-                </p>
+                <h3 className="text-white/80 font-medium mb-2">{t("serviceTerms.s5.title")}</h3>
+                <p>{t("serviceTerms.s5.desc")}</p>
               </div>
 
               <div className="pt-2 border-t border-white/10">
                 <p className="text-white/40 text-xs">
-                  如有任何疑问，请联系我们的支持团队。继续使用本平台即表示您已阅读并同意上述条款。
+                  {t("serviceTerms.footer.note")}
                 </p>
               </div>
             </div>
@@ -97,7 +84,7 @@ export function ServiceTerms({ open, onClose }: ServiceTermsProps) {
                 className="w-full py-2.5 bg-gold/10 border border-gold/20 rounded-xl text-gold text-sm
                          hover:bg-gold/20 transition-colors"
               >
-                我已阅读并理解
+                {t("serviceTerms.readAndUnderstand")}
               </button>
             </div>
           </motion.div>

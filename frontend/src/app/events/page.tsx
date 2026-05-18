@@ -82,8 +82,8 @@ export default function EventsPage() {
         {/* Disclaimer banner */}
         <div className="mb-6 p-3 rounded-xl border border-amber-500/20 bg-amber-500/5 text-center">
           <p className="text-amber-200/70 text-xs leading-relaxed">
-            事件复盘分析仅供参考和娱乐，不构成专业建议。请理性看待分析结果。
-            <a href="/disclaimer" className="text-gold/60 hover:text-gold ml-1 underline">查看详情</a>
+            {t("events.disclaimer")}
+            <a href="/disclaimer" className="text-gold/60 hover:text-gold ml-1 underline">{t("events.disclaimerDetail")}</a>
           </p>
         </div>
 

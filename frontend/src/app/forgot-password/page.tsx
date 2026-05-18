@@ -34,7 +34,7 @@ export default function ForgotPasswordPage() {
     setLoading(true)
     try {
       await forgotPassword(email)
-      toast.success("验证码已发送到您的邮箱")
+      toast.success(t("forgotPassword.verifyCodeSent"))
       setStep("reset")
       startResendCooldown()
     } catch (err: any) {
@@ -48,7 +48,7 @@ export default function ForgotPasswordPage() {
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!code || code.length !== 6) {
-      toast.error("请输入6位验证码")
+      toast.error(t("forgotPassword.enterCode"))
       return
     }
     if (!password || password.length < 6) {
@@ -76,10 +76,10 @@ export default function ForgotPasswordPage() {
     if (resendCooldown > 0) return
     try {
       await forgotPassword(email)
-      toast.success("验证码已重新发送")
+      toast.success(t("forgotPassword.resendSuccess"))
       startResendCooldown()
     } catch (err: any) {
-      toast.error(err?.response?.data?.detail ?? "发送失败")
+      toast.error(err?.response?.data?.detail ?? t("forgotPassword.resendFail"))
     }
   }
 
@@ -122,15 +122,15 @@ export default function ForgotPasswordPage() {
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <KeyRound className="text-gold mx-auto mb-3" size={28} />
-            <h1 className="text-2xl font-serif font-bold text-gold">重置密码</h1>
+            <h1 className="text-2xl font-serif font-bold text-gold">{t("auth.resetPassword")}</h1>
             <p className="text-white/40 text-sm mt-1">
-              验证码已发送至 <span className="text-white/60">{email}</span>
+              {t("forgotPassword.verifyCodeSent")} <span className="text-white/60">{email}</span>
             </p>
           </div>
 
           <form onSubmit={handleReset} className="card-glass p-6 md:p-8 space-y-5">
             <div>
-              <label className="label">6位验证码</label>
+              <label className="label">{t("forgotPassword.enterCode")}</label>
               <input
                 type="text"
                 value={code}
@@ -181,9 +181,9 @@ export default function ForgotPasswordPage() {
               className="btn-gold w-full flex items-center justify-center gap-2 py-3"
             >
               {resetLoading ? (
-                <><Loader2 size={18} className="animate-spin" /> 重置中...</>
+                <><Loader2 size={18} className="animate-spin" /> {t("forgotPassword.resetting")}</>
               ) : (
-                <><CheckCircle size={18} /> 重置密码</>
+                <><CheckCircle size={18} /> {t("forgotPassword.resetBtn")}</>
               )}
             </button>
 
@@ -194,13 +194,13 @@ export default function ForgotPasswordPage() {
                 disabled={resendCooldown > 0}
                 className="text-gold/60 hover:text-gold text-sm transition-colors disabled:opacity-40"
               >
-                {resendCooldown > 0 ? `${resendCooldown}s 后可重新发送` : "重新发送验证码"}
+                {resendCooldown > 0 ? `${resendCooldown}s ${t("forgotPassword.resendCooldown")}` : t("forgotPassword.resendCode")}
               </button>
             </div>
 
             <p className="text-center text-white/40 text-sm">
               <button type="button" onClick={() => setStep("email")} className="text-gold hover:underline">
-                ← 更换邮箱
+                {t("forgotPassword.changeEmail")}
               </button>
             </p>
           </form>
@@ -237,7 +237,7 @@ export default function ForgotPasswordPage() {
             disabled={loading}
             className="btn-gold w-full flex items-center justify-center gap-2 py-3"
           >
-            {loading ? <><Loader2 size={18} className="animate-spin" /> {t("auth.sending")}</> : "发送验证码"}
+            {loading ? <><Loader2 size={18} className="animate-spin" /> {t("auth.sending")}</> : t("forgotPassword.sendingCode")}
           </button>
 
           <p className="text-center text-white/40 text-sm">

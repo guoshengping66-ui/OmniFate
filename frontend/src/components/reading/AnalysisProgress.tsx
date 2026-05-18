@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useMemo, Suspense, lazy } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { AGENT_LABELS } from "@/lib/api"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 // Lazy-load EnergyOrb to avoid adding Three.js to the main bundle
 const EnergyOrb = lazy(() => import("./EnergyOrb"))
@@ -11,33 +12,22 @@ type AgentStatus = "pending" | "running" | "done" | "error" | "skipped"
 
 const AGENT_ORDER = ["bazi", "astrology", "tarot", "qimen", "ziwei", "face", "palm"] as const
 
-const PHASE_LABELS: Record<string, string> = {
-  init: "初始化命盘数据",
-  parallel: "多维度并行解析中",
-  master: "AI 综合交叉验证",
-  done: "分析完成",
+const PHASE_KEYS: Record<string, string> = {
+  init: "analysis.init",
+  parallel: "analysis.parallel",
+  master: "analysis.master",
+  done: "analysis.done",
 }
 
-// Per-agent running status messages
-const AGENT_RUNNING_MSG: Record<string, string> = {
-  bazi:      "正在排盘推演四柱八字…",
-  astrology: "正在计算行星轨道与宫位…",
-  tarot:     "正在解读塔罗牌阵能量…",
-  qimen:     "正在遁甲时空推演…",
-  ziwei:     "正在排布紫微星盘…",
-  face:      "正在分析面相特征…",
-  palm:      "正在解读掌纹纹路…",
-}
-
-// Per-agent done messages
-const AGENT_DONE_MSG: Record<string, string> = {
-  bazi:      "八字排盘完成",
-  astrology: "星盘计算完成",
-  tarot:     "塔罗解读完成",
-  qimen:     "奇门推演完成",
-  ziwei:     "紫微排盘完成",
-  face:      "面相分析完成",
-  palm:      "手相解读完成",
+// Per-agent running/done i18n key mappings
+const AGENT_I18N: Record<string, { running: string; done: string }> = {
+  bazi:      { running: "analysis.bazi.running", done: "analysis.bazi.done" },
+  astrology: { running: "analysis.astrology.running", done: "analysis.astrology.done" },
+  tarot:     { running: "analysis.tarot.running", done: "analysis.tarot.done" },
+  qimen:     { running: "analysis.qimen.running", done: "analysis.qimen.done" },
+  ziwei:     { running: "analysis.ziwei.running", done: "analysis.ziwei.done" },
+  face:      { running: "analysis.face.running", done: "analysis.face.done" },
+  palm:      { running: "analysis.palm.running", done: "analysis.palm.done" },
 }
 
 interface AnalysisProgressProps {
@@ -57,6 +47,7 @@ export default function AnalysisProgress({
   masterSummary,
   startTime,
 }: AnalysisProgressProps) {
+  const { t } = useLanguage()
   const [displayPct, setDisplayPct] = useState(0)
   const [previewText, setPreviewText] = useState("")
   const [showPreview, setShowPreview] = useState(false)
@@ -129,12 +120,12 @@ export default function AnalysisProgress({
 
   // Dynamic status message
   const statusMessage = useMemo(() => {
-    if (isStalled) return "AI 正在进行最后的高维数据整合…"
-    if (phase === "done") return "分析完成"
-    if (phase === "master") return "AI 正在进行跨维度交叉验证…"
-    if (runningAgent) return AGENT_RUNNING_MSG[runningAgent] || progressMessage
-    return progressMessage || "准备中…"
-  }, [isStalled, phase, runningAgent, progressMessage])
+    if (isStalled) return t("analysis.stalled")
+    if (phase === "done") return t("analysis.done")
+    if (phase === "master") return t("analysis.crossValidate")
+    if (runningAgent) return AGENT_I18N[runningAgent] ? t(AGENT_I18N[runningAgent].running) : progressMessage
+    return progressMessage || t("analysis.preparing")
+  }, [isStalled, phase, runningAgent, progressMessage, t])
 
   // Elapsed time
   const elapsed = useMemo(() => {
@@ -148,10 +139,10 @@ export default function AnalysisProgress({
       {/* Title */}
       <div className="text-center space-y-1">
         <h3 className="text-lg font-serif font-semibold text-gold tracking-wide">
-          命盘智镜 · 深度解析中
+          {t("analysis.title")}
         </h3>
         <p className="text-sm text-white/50">
-          {PHASE_LABELS[phase] || "处理中…"} · {completedCount}/{AGENT_ORDER.length} 已完成 · {elapsed}
+          {PHASE_KEYS[phase] ? t(PHASE_KEYS[phase]) : t("analysis.preparing")} · {completedCount}/{AGENT_ORDER.length} · {elapsed}
         </p>
       </div>
 
@@ -233,7 +224,7 @@ export default function AnalysisProgress({
               {/* Per-agent status text */}
               {(isRunning || status === "done") && (
                 <span className="text-[9px] text-white/40 text-center leading-tight mt-0.5">
-                  {isRunning ? AGENT_RUNNING_MSG[aid] : status === "done" ? AGENT_DONE_MSG[aid] : ""}
+                  {isRunning ? (AGENT_I18N[aid] ? t(AGENT_I18N[aid].running) : "") : status === "done" ? (AGENT_I18N[aid] ? t(AGENT_I18N[aid].done) : "") : ""}
                 </span>
               )}
             </motion.div>
@@ -296,7 +287,7 @@ export default function AnalysisProgress({
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
             >
-              {progressMessage || "准备中…"}
+              {progressMessage || t("analysis.preparing")}
             </motion.span>
           </AnimatePresence>
           <span className="font-mono text-gold/80">{Math.round(displayPct)}%</span>
@@ -314,7 +305,7 @@ export default function AnalysisProgress({
             transition={{ duration: 0.5 }}
             className="card-glass p-4 space-y-2"
           >
-            <p className="text-xs text-gold/60 font-medium">已生成分析预览</p>
+            <p className="text-xs text-gold/60 font-medium">{t("analysis.preview")}</p>
             <p className="text-sm text-white/70 leading-relaxed whitespace-pre-line typewriter-cursor">
               {previewText}
             </p>

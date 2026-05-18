@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react"
 import { X, Sparkles, Shield, CreditCard, CheckCircle, Loader2 } from "lucide-react"
+import { useLanguage } from "@/contexts/LanguageContext"
 import { PaymentMethodSelector } from "./PaymentMethodSelector"
 
 interface PaymentModalProps {
@@ -10,7 +11,6 @@ interface PaymentModalProps {
   title: string
   priceDisplay: string
   description: string
-  /** Extra info shown below price */
   perks?: string[]
 }
 
@@ -23,6 +23,7 @@ export function PaymentModal({
   description,
   perks = [],
 }: PaymentModalProps) {
+  const { t } = useLanguage()
   const [status, setStatus] = useState<"idle" | "processing" | "success">("idle")
   const [paymentMethod, setPaymentMethod] = useState("card")
 
@@ -45,10 +46,10 @@ export function PaymentModal({
           <div className="w-16 h-16 rounded-full bg-green-500/20 border border-green-500/40 flex items-center justify-center mx-auto mb-4">
             <CheckCircle size={32} className="text-green-400" />
           </div>
-          <h3 className="text-xl font-serif font-bold text-gold mb-2">支付成功！</h3>
-          <p className="text-white/60 text-sm mb-6">完整报告已解锁，¥60 代金券已发放到你的账户</p>
+          <h3 className="text-xl font-serif font-bold text-gold mb-2">{t("paymentModal.paid")}</h3>
+          <p className="text-white/60 text-sm mb-6">{t("paymentModal.paidDesc")}</p>
           <button onClick={onClose} className="btn-gold w-full">
-            查看完整报告
+            {t("paymentModal.viewReport")}
           </button>
         </div>
       </div>
@@ -58,7 +59,6 @@ export function PaymentModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       <div className="card-glass p-6 md:p-8 max-w-md w-full animate-in zoom-in-95 duration-300">
-        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <Shield size={20} className="text-gold" />
@@ -72,17 +72,15 @@ export function PaymentModal({
 
         <p className="text-white/60 text-sm mb-6">{description}</p>
 
-        {/* Price */}
         <div className="bg-white/5 rounded-xl p-5 mb-6 text-center">
-          <p className="text-white/40 text-xs mb-1">应付金额</p>
+          <p className="text-white/40 text-xs mb-1">{t("paymentModal.amount")}</p>
           <p className="text-3xl font-bold text-gold">{priceDisplay}</p>
         </div>
 
-        {/* Payment Method Selector */}
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-3">
             <CreditCard size={14} className="text-gold/60" />
-            <span className="text-white/50 text-xs font-medium">选择支付方式</span>
+            <span className="text-white/50 text-xs font-medium">{t("paymentModal.selectPayment")}</span>
           </div>
           <PaymentMethodSelector
             selected={paymentMethod}
@@ -90,7 +88,6 @@ export function PaymentModal({
           />
         </div>
 
-        {/* Perks */}
         {perks.length > 0 && (
           <div className="mb-6 space-y-2">
             {perks.map((p, i) => (
@@ -102,19 +99,18 @@ export function PaymentModal({
           </div>
         )}
 
-        {/* CTA */}
         <button
           onClick={handlePay}
           disabled={status === "processing"}
           className="btn-gold w-full flex items-center justify-center gap-2 py-3"
         >
           {status === "processing"
-            ? <><Loader2 size={18} className="animate-spin" /> 处理中…</>
-            : <>确认支付 {priceDisplay}</>}
+            ? <><Loader2 size={18} className="animate-spin" /> {t("paymentModal.processing")}</>
+            : <>{t("paymentModal.confirmPay")} {priceDisplay}</>}
         </button>
 
         <p className="text-white/20 text-[11px] text-center mt-4">
-          支持支付宝、微信、PayPal 等支付方式
+          {t("paymentModal.supportedMethods")}
         </p>
       </div>
     </div>

@@ -4,7 +4,9 @@ import { motion } from "framer-motion"
 import { Crown, Vote, Star, MapPin, Calendar, Users, ChevronRight } from "lucide-react"
 import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"
+import { useLanguage } from "@/contexts/LanguageContext"
 import { api } from "@/lib/api"
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 
 interface FounderInfo {
   seat_no: number
@@ -22,18 +24,19 @@ interface VoteItem {
   user_voted: "for" | "against" | null
 }
 
-const ROADMAP_ITEMS = [
-  { id: "v1", title: "AI 命盘深度对话", desc: "基于命盘数据的个性化 AI 对话" },
-  { id: "v2", title: "事件复盘引擎", desc: "输入人生事件自动匹配命盘走势" },
-  { id: "v3", title: "能量场可视化", desc: "3D 星盘 + 能量流动动画" },
-  { id: "v4", title: "社区星盟", desc: "命理爱好者交流平台" },
-]
-
 export default function FounderLoungePage() {
   const { user } = useAuth()
+  const { t } = useLanguage()
   const [founderInfo, setFounderInfo] = useState<FounderInfo | null>(null)
   const [votes, setVotes] = useState<VoteItem[]>([])
   const [loading, setLoading] = useState(true)
+
+  const ROADMAP_ITEMS = [
+    { id: "v1", titleKey: "founder.roadmap.v1.title", descKey: "founder.roadmap.v1.desc" },
+    { id: "v2", titleKey: "founder.roadmap.v2.title", descKey: "founder.roadmap.v2.desc" },
+    { id: "v3", titleKey: "founder.roadmap.v3.title", descKey: "founder.roadmap.v3.desc" },
+    { id: "v4", titleKey: "founder.roadmap.v4.title", descKey: "founder.roadmap.v4.desc" },
+  ]
 
   useEffect(() => {
     if (!user) return
@@ -46,19 +49,18 @@ export default function FounderLoungePage() {
   const handleVote = async (itemId: string, voteType: "for" | "against") => {
     try {
       await api.post("/api/founder/vote", { item_id: itemId, vote: voteType })
-      toast.success("投票成功")
-      // Refresh votes
+      toast.success(t("founder.lounge.voteSuccess"))
       const res = await api.get("/api/founder/votes")
       setVotes(res.data.items || [])
     } catch (err: any) {
-      toast.error(err.response?.data?.detail || "投票失败")
+      toast.error(err.response?.data?.detail || t("founder.lounge.voteFail"))
     }
   }
 
   if (!user) {
     return (
       <div className="min-h-screen bg-ink flex items-center justify-center">
-        <p className="text-white/40">请先登录</p>
+        <p className="text-white/40">{t("founder.loginRequired")}</p>
       </div>
     )
   }
@@ -76,9 +78,9 @@ export default function FounderLoungePage() {
       <div className="min-h-screen bg-ink flex items-center justify-center">
         <div className="text-center">
           <Crown size={48} className="text-gold/30 mx-auto mb-4" />
-          <p className="text-white/40 text-lg">创始席位专属空间</p>
+          <p className="text-white/40 text-lg">{t("founder.lounge.notFounder")}</p>
           <a href="/pricing/founder" className="text-gold text-sm mt-2 inline-block hover:underline">
-            了解创始席位 →
+            {t("founder.lounge.learnMore")}
           </a>
         </div>
       </div>
@@ -88,11 +90,13 @@ export default function FounderLoungePage() {
   return (
     <div className="min-h-screen bg-ink">
       <div className="max-w-3xl mx-auto px-4 py-12">
+        <Breadcrumbs items={[{ label: t("founder.lounge.breadcrumb") }]} />
+
         {/* Identity Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative mb-8 rounded-2xl overflow-hidden"
+          className="relative mb-8 rounded-2xl overflow-hidden mt-6"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-gold/20 via-[#1a1507] to-[#0d0b04] opacity-90" />
           <div className="absolute inset-0 border border-gold/20 rounded-2xl" />
@@ -109,7 +113,7 @@ export default function FounderLoungePage() {
                 <Crown size={24} className="text-ink" />
               </div>
               <div>
-                <h1 className="text-gold font-serif text-2xl font-bold">创始会员</h1>
+                <h1 className="text-gold font-serif text-2xl font-bold">{t("founder.lounge.title")}</h1>
                 <p className="text-gold/50 text-sm">Founder #{founderInfo.seat_no}</p>
               </div>
             </div>
@@ -118,35 +122,35 @@ export default function FounderLoungePage() {
               <div className="bg-white/5 rounded-xl p-4 border border-gold/10">
                 <div className="flex items-center gap-2 mb-1">
                   <MapPin size={14} className="text-gold/60" />
-                  <span className="text-white/40 text-xs">区域</span>
+                  <span className="text-white/40 text-xs">{t("founder.lounge.region")}</span>
                 </div>
                 <span className="text-gold font-medium text-sm">
-                  {founderInfo.region === "domestic" ? "国内" : "海外"}
+                  {founderInfo.region === "domestic" ? t("founder.lounge.domestic") : t("founder.lounge.overseas")}
                 </span>
               </div>
               <div className="bg-white/5 rounded-xl p-4 border border-gold/10">
                 <div className="flex items-center gap-2 mb-1">
                   <Star size={14} className="text-gold/60" />
-                  <span className="text-white/40 text-xs">星尘</span>
+                  <span className="text-white/40 text-xs">{t("founder.lounge.stardust")}</span>
                 </div>
-                <span className="text-gold font-medium text-sm">月享 500</span>
+                <span className="text-gold font-medium text-sm">{t("founder.lounge.monthly500")}</span>
               </div>
               <div className="bg-white/5 rounded-xl p-4 border border-gold/10">
                 <div className="flex items-center gap-2 mb-1">
                   <Calendar size={14} className="text-gold/60" />
-                  <span className="text-white/40 text-xs">激活日</span>
+                  <span className="text-white/40 text-xs">{t("founder.lounge.activated")}</span>
                 </div>
                 <span className="text-gold font-medium text-sm">
                   {founderInfo.activated_at
-                    ? new Date(founderInfo.activated_at).toLocaleDateString("zh-CN")
-                    : "未激活"}
+                    ? new Date(founderInfo.activated_at).toLocaleDateString()
+                    : t("founder.lounge.notActivated")}
                 </span>
               </div>
             </div>
 
             <div className="mt-5 flex items-center gap-2 text-gold/40 text-xs">
               <Users size={12} />
-              <span>解锁全平台功能 · 星尘无限消耗 · 专属客服通道</span>
+              <span>{t("founder.lounge.unlockAll")}</span>
             </div>
           </div>
         </motion.div>
@@ -159,10 +163,10 @@ export default function FounderLoungePage() {
         >
           <div className="flex items-center gap-2 mb-4">
             <Vote size={18} className="text-gold" />
-            <h2 className="text-gold font-serif text-lg font-bold">产品路线投票</h2>
+            <h2 className="text-gold font-serif text-lg font-bold">{t("founder.lounge.roadmapTitle")}</h2>
           </div>
           <p className="text-white/30 text-sm mb-5">
-            作为创始会员，你的投票将直接影响产品开发优先级
+            {t("founder.lounge.roadmapDesc")}
           </p>
 
           <div className="space-y-3">
@@ -178,8 +182,8 @@ export default function FounderLoungePage() {
                 >
                   <div className="flex items-start justify-between">
                     <div>
-                      <h3 className="text-white/90 font-medium text-sm">{item.title}</h3>
-                      <p className="text-white/40 text-xs mt-1">{item.desc}</p>
+                      <h3 className="text-white/90 font-medium text-sm">{t(item.titleKey)}</h3>
+                      <p className="text-white/40 text-xs mt-1">{t(item.descKey)}</p>
                     </div>
                     <div className="flex gap-2 ml-4 shrink-0">
                       <button
@@ -233,19 +237,19 @@ export default function FounderLoungePage() {
           transition={{ delay: 0.3 }}
           className="mt-8 bg-white/5 border border-gold/10 rounded-xl p-6"
         >
-          <h3 className="text-gold font-medium text-sm mb-3">创始会员权益</h3>
+          <h3 className="text-gold font-medium text-sm mb-3">{t("founder.lounge.perksTitle")}</h3>
           <div className="space-y-2">
             {[
-              "每月 500 星尘自动注入",
-              "全平台功能免费使用",
-              "产品路线投票权",
-              "专属客服通道",
-              "新功能优先体验",
-              "年度线下聚会邀请",
-            ].map((perk, i) => (
+              "founder.lounge.perk1",
+              "founder.lounge.perk2",
+              "founder.lounge.perk3",
+              "founder.lounge.perk4",
+              "founder.lounge.perk5",
+              "founder.lounge.perk6",
+            ].map((key, i) => (
               <div key={i} className="flex items-center gap-2 text-white/50 text-xs">
                 <div className="w-1 h-1 rounded-full bg-gold/60" />
-                {perk}
+                {t(key)}
               </div>
             ))}
           </div>
