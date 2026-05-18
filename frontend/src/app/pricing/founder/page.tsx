@@ -399,7 +399,7 @@ export default function FounderPage() {
           open={showPayment}
           onClose={() => setShowPayment(false)}
           orderNo={founderOrderNo}
-          amount={region === "overseas" ? 399 : 1288}
+          amount={1288}
           label={region === "overseas" ? "Founder Circle · Lifetime" : "创始席位 · 终身会员"}
           postAction="founder"
           region={region}

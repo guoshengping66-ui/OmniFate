@@ -1209,7 +1209,7 @@ async def create_founder_purchase(
         total_cny=amount,
         payment_method=f"founder_{method}",
         payment_ref=order_no,
-        notes=f"reading_id:|AlphaMirror - founder_lifetime - founder_lifetime",
+        notes=f"item_type:founder_lifetime|reading_id:",
     )
     db.add(order)
     await db.commit()
