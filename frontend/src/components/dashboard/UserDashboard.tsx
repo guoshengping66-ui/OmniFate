@@ -40,7 +40,7 @@ export function UserDashboard() {
   const { user } = useAuth()
   const { t } = useLanguage()
   const { userProfile, activeTestTarget, fetchBirthProfiles, loading } = useUserStore()
-  const { setIntent, prefillFromProfile } = useWizardStore()
+  const { setIntent, prefillFromProfile, reset: resetWizard } = useWizardStore()
   const [recentReadings, setRecentReadings] = useState<ReadingListItem[]>([])
   const [loadingReadings, setLoadingReadings] = useState(true)
   const [eventDrawerOpen, setEventDrawerOpen] = useState(false)
@@ -203,9 +203,9 @@ export function UserDashboard() {
           </button>
 
           {/* 帮朋友测 */}
-          <Link
-            href="/reading/new"
-            className="block card-glass p-4 text-left group hover:border-white/20 transition-all"
+          <button
+            onClick={() => { resetWizard(); router.push("/reading/new") }}
+            className="w-full card-glass p-4 text-left group hover:border-white/20 transition-all"
           >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0">
@@ -216,7 +216,7 @@ export function UserDashboard() {
                 <div className="text-white/30 text-xs">使用不同的出生信息</div>
               </div>
             </div>
-          </Link>
+          </button>
         </motion.div>
       </div>
 

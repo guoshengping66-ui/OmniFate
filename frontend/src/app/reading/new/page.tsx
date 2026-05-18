@@ -200,6 +200,7 @@ export default function NewReadingPage() {
 
   // ── Auto-save progress ──────────────────────────────────────
   useEffect(() => {
+    if (currentIntent === "SPECIFIC_EVENT") return // Event analysis is single-step, no need to save
     if (step === 0 && !watch("birth_year")) return // Don't save empty initial state
     const timeout = setTimeout(() => {
       saveProgress({
@@ -211,7 +212,7 @@ export default function NewReadingPage() {
       })
     }, 500)
     return () => clearTimeout(timeout)
-  }, [step, tarotCards, palmData, watch])
+  }, [step, tarotCards, palmData, watch, currentIntent])
 
   const handleClearProgress = () => {
     clearSavedProgress()
@@ -429,40 +430,44 @@ export default function NewReadingPage() {
           <p className="text-white/50 text-sm">{t("new.startSubtitle")}</p>
         </div>
 
-        {/* Step indicators */}
+        {/* Step indicators — rendered by DOM index for correct visual state */}
         <div className="flex items-center justify-between mb-10 px-1">
-          {STEPS.map((s, i) => (
-            <div key={s} className="flex flex-col items-center gap-1.5 flex-1">
-              <div className="flex items-center w-full">
-                <div className="flex-1 flex justify-end">
-                  {i > 0 && (
-                    <div className={`h-px flex-1 mr-2 transition-all duration-500
-                      ${i <= step ? "bg-gold/60" : "bg-white/10"}`} />
-                  )}
+          {ALL_STEP_LABELS.map((label, i) => {
+            const visible = STEPS.includes(label)
+            if (!visible) return null
+            return (
+              <div key={label} className="flex flex-col items-center gap-1.5 flex-1">
+                <div className="flex items-center w-full">
+                  <div className="flex-1 flex justify-end">
+                    {i > 0 && (
+                      <div className={`h-px flex-1 mr-2 transition-all duration-500
+                        ${i < step ? "bg-gold/60" : "bg-white/10"}`} />
+                    )}
+                  </div>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold
+                    transition-all duration-300 flex-shrink-0
+                    ${i < step
+                      ? "bg-gold text-ink shadow-[0_0_12px_rgba(201,168,76,0.5)]"
+                      : i === step
+                        ? "bg-gold text-ink shadow-[0_0_16px_rgba(201,168,76,0.6)] ring-2 ring-gold/30"
+                        : "bg-white/10 text-white/30"
+                    }`}>
+                    {i < step ? "✓" : i + 1}
+                  </div>
+                  <div className="flex-1 flex justify-start">
+                    {i < 3 && (
+                      <div className={`h-px flex-1 ml-2 transition-all duration-500
+                        ${i < step ? "bg-gold/60" : "bg-white/10"}`} />
+                    )}
+                  </div>
                 </div>
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold
-                  transition-all duration-300 flex-shrink-0
-                  ${i < step
-                    ? "bg-gold text-ink shadow-[0_0_12px_rgba(201,168,76,0.5)]"
-                    : i === step
-                      ? "bg-gold text-ink shadow-[0_0_16px_rgba(201,168,76,0.6)] ring-2 ring-gold/30"
-                      : "bg-white/10 text-white/30"
-                  }`}>
-                  {i < step ? "✓" : i + 1}
-                </div>
-                <div className="flex-1 flex justify-start">
-                  {i < STEPS.length - 1 && (
-                    <div className={`h-px flex-1 ml-2 transition-all duration-500
-                      ${i < step ? "bg-gold/60" : "bg-white/10"}`} />
-                  )}
-                </div>
+                <span className={`text-[10px] sm:text-xs transition-colors duration-200 whitespace-nowrap
+                  ${i <= step ? "text-gold/80" : "text-white/25"}`}>
+                  {label}
+                </span>
               </div>
-              <span className={`text-[10px] sm:text-xs transition-colors duration-200 whitespace-nowrap
-                ${i <= step ? "text-gold/80" : "text-white/25"}`}>
-                {s}
-              </span>
-            </div>
-          ))}
+            )
+          })}
         </div>
 
         {/* Clear progress button — show when past the first logical step */}

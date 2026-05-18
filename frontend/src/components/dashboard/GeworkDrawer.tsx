@@ -76,6 +76,7 @@ export function GeworkDrawer({ open, onClose }: Props) {
     onClose()
     setEventText("")
     setShowAdvanced(false)
+    setEmotionScore(3)
   }
 
   return (
@@ -133,6 +134,7 @@ export function GeworkDrawer({ open, onClose }: Props) {
                   value={eventText}
                   onChange={(e) => setEventText(e.target.value)}
                   rows={6}
+                  maxLength={500}
                   placeholder={"例：\n· 我最近收到了两个工作 offer，一个在大城市但薪资更高，一个在老家但离家人近\n· 我准备和朋友合伙创业，但担心时机不对\n· 和另一半的感情遇到了瓶颈，不知道该不该继续"}
                   className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3 text-white/80 text-sm placeholder-white/20 focus:border-gold/40 focus:outline-none focus:ring-1 focus:ring-gold/20 resize-none transition-all flex-1 min-h-[120px]"
                 />
