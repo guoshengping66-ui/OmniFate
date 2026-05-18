@@ -111,7 +111,7 @@ export default function RegisterPage() {
   const handleSkipBirth = async () => {
     setLoading(true)
     try {
-      const res = await registerUser(email, password, displayName || undefined, privacyAccepted, referralCode || undefined)
+      const res = await registerUser(email, password, displayName || undefined, privacyAccepted, undefined)
       // Email verification is always required — user must enter the 6-digit code
       toast.success(t("auth.registerSuccessMsg"))
       setStep("verify")

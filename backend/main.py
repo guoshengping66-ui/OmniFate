@@ -83,7 +83,9 @@ async def rate_limit_middleware(request: Request, call_next):
     global _last_cleanup
     # Only rate-limit API endpoints
     if request.url.path.startswith("/api/"):
-        client_ip = request.client.host if request.client else "unknown"
+        # Get real client IP behind proxy (X-Forwarded-For)
+        forwarded = request.headers.get("x-forwarded-for")
+        client_ip = forwarded.split(",")[0].strip() if forwarded else (request.client.host if request.client else "unknown")
         now = time.time()
         window_start = now - RATE_LIMIT_WINDOW
 

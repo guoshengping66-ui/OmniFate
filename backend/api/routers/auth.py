@@ -308,55 +308,6 @@ async def register(req: RegisterRequest, request: Request, db: AsyncSession = De
 
     await db.commit()
 
-    # ── Grant referral rewards (after commit so user.id is stable) ──
-    if referred_by_user and user.referred_by:
-        try:
-            from database.models import ReferralReward
-            REFERRAL_REWARD = 20
-
-            # Reward the new user
-            user.stardust_balance += REFERRAL_REWARD
-            user.stardust_lifetime_earned += REFERRAL_REWARD
-            tx_new = CreditTransaction(
-                user_id=user.id,
-                amount=REFERRAL_REWARD,
-                balance_after=user.stardust_balance,
-                reason="referral",
-                reference_id=str(referred_by_user.id),
-                status="confirmed",
-            )
-            db.add(tx_new)
-
-            # Reward the referrer
-            ref_result2 = await db.execute(
-                select(User).where(User.id == referred_by_user.id).with_for_update()
-            )
-            referrer = ref_result2.scalar_one_or_none()
-            if referrer:
-                referrer.stardust_balance += REFERRAL_REWARD
-                referrer.stardust_lifetime_earned += REFERRAL_REWARD
-                tx_ref = CreditTransaction(
-                    user_id=referrer.id,
-                    amount=REFERRAL_REWARD,
-                    balance_after=referrer.stardust_balance,
-                    reason="referral",
-                    reference_id=str(user.id),
-                    status="confirmed",
-                )
-                db.add(tx_ref)
-
-                # Record referral reward
-                reward = ReferralReward(
-                    referrer_id=referrer.id,
-                    referred_user_id=user.id,
-                    reward_amount=REFERRAL_REWARD,
-                )
-                db.add(reward)
-
-            await db.commit()
-        except Exception:
-            pass  # Referral reward failure doesn't block registration
-
     # Send verification email
     from utils.email import send_verification_email
     email_sent = send_verification_email(req.email, code)
@@ -524,6 +475,13 @@ async def login(req: LoginRequest, request: Request, db: AsyncSession = Depends(
 
     # Check email verification — block unverified users from logging in
     if not user.is_verified:
+        # Actually send a verification email so the user can verify and log in
+        from utils.email import send_verification_email
+        code = _generate_code()
+        user.verification_code = code
+        user.verification_expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
+        await db.commit()
+        send_verification_email(req.email, code)
         raise HTTPException(status_code=403, detail="请先验证邮箱后再登录，验证码已发送至您的邮箱")
 
     # Login successful — clear failed attempts
