@@ -25,6 +25,7 @@ from agents.state import (
 from agents.graph import run_full_analysis, run_chat
 from agents.replay_prompt import replay_agent_prompt
 from agents.master import _llm, _use_mock
+from lunar_python import Solar
 from services.vision.face_v2t import FaceV2T
 from services.vision.palm_v2t import PalmV2T
 from services.product_matcher import ProductMatcher
@@ -1771,7 +1772,6 @@ async def get_daily_almanac(session_id: str = Query(...)):
     except Exception:
         pass
     try:
-        from lunar_python import Solar
         today_lunar = Solar.fromYmd(today.year, today.month, today.day).getLunar()
         lunar_date_str = today_lunar.toFullString()
     except Exception:
