@@ -2003,13 +2003,3 @@ def _rule_based_almanac(
         "wuxing_analysis": wuxing_analysis,
         "daily_quote": "天行健，君子以自强不息。",
     }
-                yi.append("宜稳健积累")
-                ji.append("忌僵化")
-
-    return {
-        "yi": yi[:5],
-        "ji": ji[:4],
-        "boost_elements": ["fire"] if energy_score < 40 else [],
-        "wuxing_analysis": wuxing_analysis,
-        "daily_quote": "天行健，君子以自强不息。",
-    }
