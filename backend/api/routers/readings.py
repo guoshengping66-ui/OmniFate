@@ -1412,10 +1412,12 @@ async def get_daily_fortune(
     birth_month: Optional[int] = Query(None, ge=1, le=12),
     birth_day: Optional[int] = Query(None, ge=1, le=31),
     birth_hour: Optional[int] = Query(None, ge=0, le=23),
+    lang: str = Query("zh", pattern="^(zh|en)$"),
 ):
     """
-    今日运势 — 基于用户出生信息个性化。
-    无出生信息时返回基于日期的通用运势。
+    Daily fortune — personalized based on user birth chart.
+    Without birth info, returns date-based generic fortune.
+    Supports lang=zh|en for localized output.
     """
     from calculators.bazi_calculator import TIANGAN, DIZHI, TIANGAN_WUXING, DIZHI_WUXING, BaziCalculator
 
@@ -1519,8 +1521,8 @@ async def get_daily_fortune(
 
     lucky_number = int(_hash(200) * 9) + 1
 
-    # 运势建议
-    ADVICES = [
+    # 运势建议 — bilingual arrays
+    ADVICES_ZH = [
         "今日适合制定长期规划，把灵感转化为行动步骤。",
         "主动社交能带来意外惊喜，不妨联系一位老朋友。",
         "学习新技能的好时机，专注力处于高峰期。",
@@ -1532,7 +1534,19 @@ async def get_daily_fortune(
         "尝试一种新的饮食或烹饪方式，给味蕾换个心情。",
         "适合安静独处，深度思考能带来重要洞见。",
     ]
-    WARNINGS = [
+    ADVICES_EN = [
+        "A great day for long-term planning — turn your ideas into actionable steps.",
+        "Proactive socializing can bring unexpected surprises. Reach out to an old friend.",
+        "Ideal time to learn a new skill — your focus is at its peak.",
+        "Review your finances and check where recent spending can be optimized.",
+        "Moderate exercise will significantly boost your efficiency and mood today.",
+        "Creative minds are inspired today — perfect for breakthrough work.",
+        "Quality time with family brings deep emotional fulfillment.",
+        "Clear your inbox and messages to keep communication flowing smoothly.",
+        "Try a new cuisine or cooking method to refresh your senses.",
+        "A good day for quiet solitude — deep thinking can reveal important insights.",
+    ]
+    WARNINGS_ZH = [
         "避免在情绪激动时做重要决定，给自己10分钟冷静期。",
         "交通出行注意安全，预留充足时间避免匆忙。",
         "不宜借贷或担保，今日财运需要保守策略。",
@@ -1544,16 +1558,41 @@ async def get_daily_fortune(
         "饮食注意清淡，肠胃较为敏感。",
         "减少屏幕使用时间，让眼睛和大脑得到休息。",
     ]
+    WARNINGS_EN = [
+        "Avoid making important decisions when emotional — give yourself a 10-minute cool-down.",
+        "Be cautious when traveling today. Allow extra time to avoid rushing.",
+        "Avoid lending or guaranteeing loans — today calls for conservative financial strategies.",
+        "Watch your words — innocent remarks may be misunderstood. Think before you speak.",
+        "Avoid staying up late — your body needs adequate rest to recharge today.",
+        "Impulse buying is tempting online — add to cart and decide tomorrow instead.",
+        "Avoid signing important contracts — details may be easily overlooked.",
+        "Stay away from contentious situations — you may get drawn into unnecessary disputes.",
+        "Keep meals light and mild — your stomach may be sensitive today.",
+        "Reduce screen time to give your eyes and brain a well-deserved break.",
+    ]
 
-    advice = ADVICES[int(_hash(300) * len(ADVICES))]
-    warning = WARNINGS[int(_hash(400) * len(WARNINGS))]
+    if lang == "en":
+        advice = ADVICES_EN[int(_hash(300) * len(ADVICES_EN))]
+        warning = WARNINGS_EN[int(_hash(400) * len(WARNINGS_EN))]
+    else:
+        advice = ADVICES_ZH[int(_hash(300) * len(ADVICES_ZH))]
+        warning = WARNINGS_ZH[int(_hash(400) * len(WARNINGS_ZH))]
 
-    weekdays = ["一", "二", "三", "四", "五", "六", "日"]
-    weekday = weekdays[today.weekday()]
+    WEEKDAYS_ZH = ["一", "二", "三", "四", "五", "六", "日"]
+    WEEKDAYS_EN = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+
+    if lang == "en":
+        weekday_en = WEEKDAYS_EN[today.weekday()]
+        date_str = f"{weekday_en}, {today.strftime('%B')} {today.day}, {today.year}"
+        greeting = f"{today.strftime('%B')} {today.day} Fortune"
+    else:
+        weekday_zh = WEEKDAYS_ZH[today.weekday()]
+        date_str = f"{today.month}月{today.day}日 星期{weekday_zh}"
+        greeting = f"{today.month}月{today.day}日运势"
 
     return DailyFortuneResponse(
-        date=f"{today.month}月{today.day}日 星期{weekday}",
-        greeting=f"{today.month}月{today.day}日运势",
+        date=date_str,
+        greeting=greeting,
         overall_score=overall,
         wealth_fortune=wealth,
         career_fortune=career,
@@ -1576,14 +1615,15 @@ _ALMANAC_CACHE_TTL = 3600 * 12  # 12 hours
 
 
 @router.get("/daily-almanac", response_model=DailyAlmanacResponse)
-async def get_daily_almanac(session_id: str = Query(...)):
+async def get_daily_almanac(
+    session_id: str = Query(...),
+    lang: str = Query("zh", pattern="^(zh|en)$"),
+):
     """
     Get personalized daily almanac (yi/ji/hu) based on user's birth chart vs today's transits.
 
     Real-time computation, no storage.
-    Supports two modes:
-    1. With birth info: personalized almanac based on natal chart + transits
-    2. Without birth info: generic almanac based on today's date only
+    Supports lang=zh|en for localized output.
     """
     state = _sessions.get(session_id)
 
@@ -1700,6 +1740,7 @@ async def get_daily_almanac(session_id: str = Query(...)):
         transit_bazi=today_bazi,
         transit_astro=transit,
         energy_score=energy_score,
+        lang=lang,
     )
 
     # 6. Match products for 'hu' (护) — use template explanations (fast, no LLM)
@@ -1755,13 +1796,18 @@ async def _generate_almanac(
     transit_bazi: dict | None,
     transit_astro: dict | None,
     energy_score: int,
+    lang: str = "zh",
 ) -> dict:
     """
     Generate yi/ji/hu recommendations using LLM when available, fallback to rule-based.
+    lang: "zh" or "en" — controls output language.
     """
     from agents.master import _llm, _use_mock
     if _use_mock():
-        return _rule_based_almanac(state, today, transit_bazi, transit_astro, energy_score)
+        data = _rule_based_almanac(state, today, transit_bazi, transit_astro, energy_score)
+        if lang == "en":
+            data = _translate_almanac_to_en(data)
+        return data
 
     # Build a concise prompt for the LLM
     master_excerpt = state.master_summary[:300] if state.master_summary else ""
@@ -1808,7 +1854,14 @@ async def _generate_almanac(
         "- ji: 1-3条建议，根据今日能量冲突的领域\n"
         "- boost_elements: 需要补充的五行元素（英文）\n"
         "- wuxing_analysis: 一句话五行分析（30-60字）\n"
-        "- daily_quote: 一句古典风格每日寄语（10-30字），引用古诗或哲言"
+        "- daily_quote: 一句古典风格每日寄语（10-30字），引用古诗或哲言\n\n"
+        + (
+            "IMPORTANT: Output yi/ji items in ENGLISH. Use modern financial/behavioral language.\n"
+            "Example yi: 'Good for signing contracts', 'Ideal for networking'\n"
+            "Example ji: 'Avoid impulsive investments', 'Refrain from major commitments'\n"
+            "daily_quote: a short philosophical quote in English.\n"
+            if lang == "en" else ""
+        )
     )
 
     from langchain_core.messages import SystemMessage, HumanMessage
@@ -1831,17 +1884,145 @@ async def _generate_almanac(
         json_match = re.search(r"\{.*?\}", text, re.DOTALL)
         if json_match:
             data = json.loads(json_match.group())
-            return {
+            result = {
                 "yi": data.get("yi", ["宜静心"]),
                 "ji": data.get("ji", ["忌冲动"]),
                 "boost_elements": data.get("boost_elements", []),
                 "wuxing_analysis": data.get("wuxing_analysis", ""),
                 "daily_quote": data.get("daily_quote", "顺天应时，修身养性。"),
             }
+            if lang == "en":
+                result = _translate_almanac_to_en(result)
+            return result
     except Exception:
         pass
 
-    return _rule_based_almanac(state, today, transit_bazi, transit_astro, energy_score)
+    data = _rule_based_almanac(state, today, transit_bazi, transit_astro, energy_score)
+    if lang == "en":
+        data = _translate_almanac_to_en(data)
+    return data
+
+
+# ─── Yi/Ji Translation Maps (for backend lang=en) ───────────────────────────
+
+_YI_EN: dict[str, str] = {
+    "宜沟通": "Good for communication",
+    "宜签约": "Good for signing contracts",
+    "宜合作": "Good for collaboration",
+    "宜行动": "Good for taking action",
+    "宜决策": "Good for making decisions",
+    "宜复盘": "Good for reviewing and reflecting",
+    "宜整理": "Good for organizing and tidying",
+    "宜社交": "Good for socializing",
+    "宜外出": "Good for going out",
+    "宜休息": "Good for resting",
+    "宜冥想": "Good for meditation",
+    "宜静心": "Good for calming the mind",
+    "宜规划": "Good for planning",
+    "宜学习": "Good for studying",
+    "宜投资": "Good for investing",
+    "宜守成": "Good for maintaining stability",
+    "宜静养": "Good for quiet recuperation",
+    "宜反思": "Good for introspection",
+    "宜热情行动": "Good for enthusiastic action",
+    "宜冷静思考": "Good for calm reflection",
+    "宜决断": "Good for decisive action",
+    "宜稳健积累": "Good for steady accumulation",
+    "诸事皆宜": "All actions auspicious",
+    "安床": "Settling & grounding",
+    "祈福": "Energy realignment",
+    "嫁娶": "Union & celebration",
+    "开市": "Business launch",
+    "交易": "Trading & transactions",
+    "搬迁": "Relocation",
+    "修造": "Renovation & building",
+    "动土": "Initiating new projects",
+    "栽种": "Planting & cultivation",
+    "出行": "Travel & departure",
+    "会友": "Networking & socializing",
+    "求医": "Health & healing",
+    "开工": "Starting work",
+    "纳财": "Wealth collection",
+}
+
+_JI_EN: dict[str, str] = {
+    "忌争执": "Avoid arguments",
+    "忌投资": "Avoid investing",
+    "忌冲动": "Avoid impulsiveness",
+    "忌冒进": "Avoid being reckless",
+    "忌重大决定": "Avoid major decisions",
+    "忌急躁": "Avoid impatience",
+    "忌犹豫": "Avoid indecisiveness",
+    "忌固执": "Avoid stubbornness",
+    "忌过度扩张": "Avoid overexpansion",
+    "忌僵化": "Avoid rigidity",
+    "诸事不宜": "Caution: avoid major actions",
+    "动土": "Avoid disrupting established plans",
+    "开仓": "Avoid aggressive trading",
+    "诉讼": "Avoid legal disputes",
+    "远行": "Avoid long journeys",
+    "搬迁": "Avoid relocation",
+    "嫁娶": "Avoid major unions",
+    "开市": "Avoid new business launches",
+    "交易": "Avoid large transactions",
+    "签约": "Avoid signing contracts",
+    "修造": "Avoid construction",
+    "栽种": "Avoid planting",
+    "出行": "Avoid travel",
+    "祈福": "Avoid spiritual rituals",
+}
+
+_DAILY_QUOTES_EN = [
+    "Flow with the current, not against it.",
+    "Stillness reveals what motion conceals.",
+    "The wise adapt; the foolish resist.",
+    "What you seek is seeking you.",
+    "Patience is the companion of wisdom.",
+    "In stillness, clarity emerges.",
+    "Every ending is a new beginning in disguise.",
+    "The universe conspires in favor of the bold.",
+    "Today's effort is tomorrow's harvest.",
+    "Listen to the silence between the words.",
+]
+
+
+def _translate_almanac_to_en(data: dict) -> dict:
+    """Translate yi/ji items and quote from Chinese to English."""
+    import random
+    yi_items = []
+    for item in data.get("yi", []):
+        yi_items.append(_YI_EN.get(item, item))
+    ji_items = []
+    for item in data.get("ji", []):
+        ji_items.append(_JI_EN.get(item, item))
+
+    quote = data.get("daily_quote", "")
+    # If the quote is still Chinese, replace with an English one
+    if any(ord(c) > 0x4E00 for c in quote):
+        quote = random.choice(_DAILY_QUOTES_EN)
+
+    # Translate wuxing_analysis if still Chinese
+    wx = data.get("wuxing_analysis", "")
+    if any(ord(c) > 0x4E00 for c in wx):
+        # Simple pattern replacement for common wuxing analysis
+        wx_en_map = {
+            "金": "Metal", "木": "Wood", "水": "Water", "火": "Fire", "土": "Earth",
+            "过旺": "is dominant today", "不足": "is weak today",
+            "今日": "Today", "日支": "day branch",
+        }
+        for zh, en in wx_en_map.items():
+            wx = wx.replace(zh, en)
+        # If still mostly Chinese after simple replacements, provide a generic English version
+        if sum(1 for c in wx if ord(c) > 0x4E00) > len(wx) * 0.3:
+            wx = "Today's elemental balance influences your energy flow."
+
+    return {
+        "yi": yi_items,
+        "ji": ji_items,
+        "boost_elements": data.get("boost_elements", []),
+        "wuxing_analysis": wx,
+        "daily_quote": quote,
+    }
 
 
 def _rule_based_almanac(
