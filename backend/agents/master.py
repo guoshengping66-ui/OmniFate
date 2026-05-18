@@ -757,6 +757,7 @@ async def run_subtask_core(state: SystemState, prep: dict) -> str:
         conflicts_text=prep["conflicts_text"],
         dimension_scores=state.dimension_scores,
         confidence_text=prep["confidence_text"],
+        intent=state.intent,
     )
     result = await _call(system, "请生成核心综合报告。", model=llm_model, language=state.language)
     state.master_subtask_core = result
@@ -771,6 +772,7 @@ async def run_subtask_dims(state: SystemState, prep: dict) -> str:
         user_question=state.user_question,
         dimension_scores=state.dimension_scores,
         confidence_text=prep["confidence_text"],
+        intent=state.intent,
     )
     result = await _call(system, "请生成五维诊断报告。", model=llm_model, language=state.language)
     state.master_subtask_dimensions = result
@@ -786,6 +788,7 @@ async def run_subtask_actions(state: SystemState, prep: dict) -> str:
         products_with_reasons=prep["products_with_reasons"],
         harm_hint=prep["harm_text"],
         dimension_scores=state.dimension_scores,
+        intent=state.intent,
     )
     result = await _call(system, "请生成行动建议报告。", model=llm_model, language=state.language)
     state.master_subtask_actions = result

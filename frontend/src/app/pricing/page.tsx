@@ -175,6 +175,73 @@ export default function PricingPage() {
           />
         </div>
 
+        {/* ══════════ Channel Comparison (一键推命 vs 完整推命) ══════════ */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-40px" }}
+          className="mb-14"
+        >
+          <div className="text-center mb-8">
+            <h3 className="text-lg font-serif font-bold text-white/80">{t("pricing.channel.title")}</h3>
+            <p className="text-white/30 text-xs mt-1">{t("pricing.channel.subtitle")}</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-5">
+            {/* ⚡ 一键推命 */}
+            <div className="relative card-glass p-6 border-blue-500/20 hover:border-blue-400/30 transition-all duration-300">
+              <div className="absolute top-0 left-0 right-0 h-1 rounded-t-2xl bg-gradient-to-r from-blue-500/40 to-purple-500/40" />
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-2xl">⚡</span>
+                <div>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/25">
+                    {t("pricing.channel.quick.badge")}
+                  </span>
+                  <h4 className="text-white/90 font-serif font-bold text-lg mt-1">{t("pricing.channel.quick.name")}</h4>
+                </div>
+              </div>
+              <p className="text-blue-400/80 text-sm font-medium mb-3">{t("pricing.channel.quick.tagline")}</p>
+              <p className="text-white/40 text-xs mb-4 leading-relaxed">{t("pricing.channel.quick.audience")}</p>
+              <div className="bg-blue-500/5 border border-blue-500/15 rounded-xl p-3 mb-3">
+                <p className="text-white/50 text-[11px] leading-relaxed">{t("pricing.channel.quick.tech")}</p>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-blue-400/60 text-xs mt-0.5">▸</span>
+                <p className="text-white/35 text-[11px] leading-relaxed">{t("pricing.channel.quick.output")}</p>
+              </div>
+            </div>
+
+            {/* 🔱 完整推命 */}
+            <div className="relative card-glass p-6 border-gold/20 hover:border-gold/30 transition-all duration-300">
+              <div className="absolute top-0 left-0 right-0 h-1 rounded-t-2xl bg-gradient-to-r from-gold/40 to-amber-500/40" />
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-2xl">🔱</span>
+                <div>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-gold/15 text-gold border border-gold/25">
+                    {t("pricing.channel.full.badge")}
+                  </span>
+                  <h4 className="text-white/90 font-serif font-bold text-lg mt-1">{t("pricing.channel.full.name")}</h4>
+                </div>
+              </div>
+              <p className="text-gold/80 text-sm font-medium mb-3">{t("pricing.channel.full.tagline")}</p>
+              <p className="text-white/40 text-xs mb-4 leading-relaxed">{t("pricing.channel.full.audience")}</p>
+              <div className="bg-gold/5 border border-gold/15 rounded-xl p-3 mb-3">
+                <p className="text-white/50 text-[11px] leading-relaxed">{t("pricing.channel.full.tech")}</p>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-gold/60 text-xs mt-0.5">▸</span>
+                <p className="text-white/35 text-[11px] leading-relaxed">{t("pricing.channel.full.output")}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Shared price tag */}
+          <div className="text-center mt-5">
+            <span className="text-white/30 text-xs">{t("pricing.channel.price")}：</span>
+            <span className="text-gold text-sm font-medium">{t("pricing.channel.priceValue")}</span>
+          </div>
+        </motion.div>
+
         {/* ══════════ Founder Section (Full-Width Premium) ══════════ */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

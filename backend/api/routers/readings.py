@@ -91,6 +91,7 @@ class AnalysisRequest(BaseModel):
     tarot_cards: list[dict] = Field(default_factory=list)
     palm_raw_text: str = ""
     face_raw_text: str = ""
+    intent: Optional[str] = None  # GENERAL_DAILY | FULL_MULTIMODAL | SPECIFIC_EVENT
 
 
 class ReadingListItem(BaseModel):
@@ -136,6 +137,7 @@ class AnalysisResponse(BaseModel):
     computed_tags: list[str]
     dimension_scores: dict[str, float]
     errors: list[str]
+    intent: str = ""  # GENERAL_DAILY | FULL_MULTIMODAL | SPECIFIC_EVENT
 
 
 class ChatResponse(BaseModel):
@@ -174,6 +176,7 @@ def _state_to_response(state: SystemState) -> AnalysisResponse:
         computed_tags=state.computed_tags,
         dimension_scores=state.dimension_scores,
         errors=state.errors,
+        intent=getattr(state, "intent", ""),
     )
 
 
@@ -222,6 +225,7 @@ async def create_analysis(
         is_premium=is_premium,
         language=payload.language,
         tarot_raw={"spread": "Three-Card Spread", "cards": payload.tarot_cards},
+        intent=payload.intent or "",
     )
 
     # Persist session to DATABASE (with timeout to avoid blocking)

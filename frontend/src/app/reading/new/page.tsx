@@ -337,6 +337,7 @@ export default function NewReadingPage() {
         tarot_cards: tarotCards,
         palm_raw_text: finalPalmText,
         face_raw_text: finalFaceText,
+        intent: currentIntent || undefined,
       }
 
       const result = await runAnalysisStream(payload, () => {})

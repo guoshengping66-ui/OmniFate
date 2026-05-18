@@ -188,6 +188,7 @@ class SystemState(BaseModel):
     conflicts: list[ConflictRecord] = Field(default_factory=list)
     master_summary: str = ""
     master_detail: str = ""
+    intent: str = ""  # GENERAL_DAILY | FULL_MULTIMODAL | SPECIFIC_EVENT
     recommended_product_ids: list[str] = Field(default_factory=list)
     recommended_products: list[dict] = Field(default_factory=list)
     computed_tags: list[str] = Field(default_factory=list)

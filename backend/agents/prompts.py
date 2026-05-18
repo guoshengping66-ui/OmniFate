@@ -7053,7 +7053,8 @@ def master_detail_prompt(worker_summaries: dict, user_question: str,
 def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
                                 resonance_text: str = "", conflicts_text: str = "",
                                 dimension_scores: dict | None = None,
-                                confidence_text: str = "") -> str:
+                                confidence_text: str = "",
+                                intent: str = "") -> str:
     """Sub-task A: 核心综合 — 命盘底色 + 跨维度共鸣 + 核心矛盾 + 置信度表"""
     workers_str = "\n\n".join(
         f"[{k.upper()}]\n{v[:400]}" for k, v in worker_summaries.items() if v
@@ -7070,8 +7071,35 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
 - 八字"七杀攻身" 相当于 星盘火土刑克 相当于 塔罗宝剑牌组
 - 多体系一致=高置信度，2体系矛盾=低置信度以"可能性"输出
 """
+
+    # ── Intent-adaptive instructions ──
+    intent_hint = ""
+    if intent == "GENERAL_DAILY":
+        intent_hint = (
+            "\n== 推命通道：⚡量子快连（一键推命）==\n"
+            "用户选择了快捷通道，未提供精确出生时辰和面相/手相数据。\n"
+            "报告重心：\n"
+            "1. 聚焦【当下磁场】与【近期运势波动】，给出今日/本周的极简行为断语\n"
+            "2. 强调塔罗牌的潜意识解析和直觉引导\n"
+            "3. 不要提及面相、手相相关内容（用户未上传）\n"
+            "4. 如果出生信息不完整，在命盘底色中标注「基于粗略星盘推算」\n"
+            "5. 风格：简洁高效，像量子态坍缩一样直击核心\n\n"
+        )
+    elif intent == "FULL_MULTIMODAL":
+        intent_hint = (
+            "\n== 推命通道：🔱天命合参（完整推命）==\n"
+            "用户选择了全景通道，已上传面相/手相/精确出生信息。\n"
+            "报告重心：\n"
+            "1. 必须在命盘底色中融合手相骨骼特征与面相三庭五眼的AI分析结论\n"
+            "2. 出现「结合您上传的面相特征与八字财星互表」「手相生命线走势与流年对应」等融合表述\n"
+            "3. 在跨维度共鸣中，至少引用2个以上维度的交叉验证\n"
+            "4. 让用户感受到上传的照片和精确出生信息被AI 100%深度消化\n"
+            "5. 风格：深度、仪式感、全景式解读\n\n"
+        )
+
     return (
         "你是命盘智镜首席命运策师。根据7位专家的分析，生成核心综合报告。\n\n"
+        f"{intent_hint}"
         "== 输出结构 ==\n"
         "【A·命盘底色】150-250字，核心格局深度总结，结合至少3个专家体系交叉验证\n\n"
         "【B·跨维度共鸣】列出3个以上专家一致确认的议题，每个引用具体专家结论\n\n"
@@ -7093,7 +7121,8 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
 
 def master_subtask_dimensions_prompt(worker_summaries: dict, user_question: str,
                                       dimension_scores: dict | None = None,
-                                      confidence_text: str = "") -> str:
+                                      confidence_text: str = "",
+                                      intent: str = "") -> str:
     """Sub-task B: 五维诊断 — 财富/感情/事业/健康/精神 + 年度转折点 + 发展轨迹"""
     workers_str = "\n\n".join(
         f"[{k.upper()}]\n{v[:400]}" for k, v in worker_summaries.items() if v
@@ -7104,29 +7133,32 @@ def master_subtask_dimensions_prompt(worker_summaries: dict, user_question: str,
                    "health": "健康", "spiritual": "精神"}
         scores_str = " | ".join(f"{_DIM_CN.get(k, k)}:{v}" for k, v in dimension_scores.items())
 
+    intent_hint = ""
+    if intent == "GENERAL_DAILY":
+        intent_hint = (
+            "\n== 推命通道：⚡量子快连（一键推命）==\n"
+            "五维诊断侧重【近期趋势】而非长期命格，给出未来7-30天的能量波动预判。\n"
+            "年度转折点简化为未来3个月的关键日期即可。\n"
+            "不要引用面相或手相数据。\n\n"
+        )
+    elif intent == "FULL_MULTIMODAL":
+        intent_hint = (
+            "\n== 推命通道：🔱天命合参（完整推命）==\n"
+            "五维诊断必须融合手相/面相AI分析结论，出现「面相山根与事业宫对应」「手相智慧线与精神维度交叉」等表述。\n"
+            "年度转折点覆盖完整12个月，并标注大运切换、土星回归等关键节点。\n\n"
+        )
+
     return (
         "你是命盘智镜首席命运策师。根据7位专家的分析，生成五维诊断报告。\n\n"
+        f"{intent_hint}"
         "== 输出结构 ==\n"
-        "【E·五维诊断】财富/感情/事业/健康/精神各100-150字深度分析，\n"
-        "  结合至少2个专家交叉验证，每条标注：\n"
-        "  1. 置信度（极高/高/中/低/极低）\n"
-        "  2. 判断（吉/凶/平）\n"
-        "  3. 不确定性标注\n"
-        "  4. 行动指引\n\n"
-        "【F·年度转折点】标注未来12个月的关键月份窗口期\n\n"
-        "【H·命格发展轨迹】人生关键时间节点：大运切换、土星回归、流年触发\n\n"
-        f"== 五维评分 ==\n{scores_str}\n\n"
-        f"== 专家报告 ==\n{workers_str}\n\n"
-        f"== 用户问题 ==\n{user_question}\n\n"
-        f"{confidence_text}\n\n"
-        "请生成五维诊断报告。"
-    )
 
 
 def master_subtask_actions_prompt(worker_summaries: dict, user_question: str,
                                    products_with_reasons: list,
                                    harm_hint: str = "",
-                                   dimension_scores: dict | None = None) -> str:
+                                   dimension_scores: dict | None = None,
+                                   intent: str = "") -> str:
     """Sub-task C: 行动建议 — 用户问题专项分析 + 能量处方 + 商品推荐"""
     workers_str = "\n\n".join(
         f"[{k.upper()}]\n{v[:300]}" for k, v in worker_summaries.items() if v
@@ -7150,27 +7182,26 @@ def master_subtask_actions_prompt(worker_summaries: dict, user_question: str,
                 products_sec += f" | 推荐语：{rec[:200]}"
             products_sec += "\n"
 
+    intent_hint = ""
+    if intent == "GENERAL_DAILY":
+        intent_hint = (
+            "\n== 推命通道：⚡量子快连（一键推命）==\n"
+            "行动建议侧重【今日/本周可执行的极简动作】，给出3条以内最核心的行动指令。\n"
+            "能量处方简化为1-2条最急需的调和方法。\n"
+            "处方笺中的商品推荐以实用性和即时效果为主。\n\n"
+        )
+    elif intent == "FULL_MULTIMODAL":
+        intent_hint = (
+            "\n== 推命通道：🔱天命合参（完整推命）==\n"
+            "行动建议覆盖【年度行动路线图】，分阶段给出Q1-Q4的行动指引。\n"
+            "能量处方结合面相/手相特征给出个性化调和方案。\n"
+            "处方笺中的商品推荐引用面相/八字交叉验证结论。\n\n"
+        )
+
     return (
         "你是命盘智镜首席命运策师。根据专家分析，生成行动建议报告。\n\n"
+        f"{intent_hint}"
         "== 输出结构 ==\n"
-        "【G·针对用户问题的专项分析】200-300字，直接回答用户提问，\n"
-        "  引用相关专家的具体分析数据，给出可操作的行动建议\n\n"
-        "【I·综合能量处方】基于五维评分，给出能量调和建议：\n"
-        "  1. 最需要补充的1-2个维度\n"
-        "  2. 推荐补充的五行元素\n"
-        "  3. 具体的日常调和方法（3-5条）\n"
-        "  4. 需要注意的风险提示\n\n"
-        "【J·处方笺·为你精选的助运物】\n"
-        "  从推荐商品中挑选最匹配的1-2个，按处方格式输出：\n"
-        "  【商品名称】(¥价格) — 推荐理由[80-120字]\n"
-        "  结尾加上「— 专属处方」标记\n\n"
-        f"== 五维评分 ==\n{scores_str}\n\n"
-        f"== 专家报告 ==\n{workers_str}\n\n"
-        f"== 用户问题 ==\n{user_question}\n\n"
-        f"== 推荐商品 ==\n{products_sec}\n\n"
-        f"{harm_hint}\n\n"
-        "请生成行动建议报告。"
-    )
 
 
 ROUTER_PROMPT = (

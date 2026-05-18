@@ -1156,6 +1156,38 @@ export default {
   "pricing.paymentSuccess": "Payment successful — refresh to check your membership status",
   "pricing.breadcrumb": "Pricing Plan",
   "pricing.stardustGuide": "Stardust Guide",
+
+  // ── Channel Comparison ──
+  "pricing.channel.title": "Choose Your Reading Channel",
+  "pricing.channel.subtitle": "Same price, different depth of experience",
+  "pricing.channel.price": "Unlock Price",
+  "pricing.channel.priceValue": "¥69 / $19.99 or 100 Stardust",
+  "pricing.channel.quick.badge": "⚡ Quantum Quick",
+  "pricing.channel.quick.name": "Quick Reading",
+  "pricing.channel.quick.tagline": "Speed & Efficiency",
+  "pricing.channel.quick.audience": "Ideal for day traders, intraday reviews, high-frequency energy alignment",
+  "pricing.channel.quick.tech": "AI auto-retrieves your stored natal chart base, skips lengthy verification, and pulls today's quantum composite state in one second.",
+  "pricing.channel.quick.output": "High-density recent fortune curves, concise verdicts, tarot subconscious analysis",
+  "pricing.channel.full.badge": "🔱 Destiny Synthesis",
+  "pricing.channel.full.name": "Full Reading",
+  "pricing.channel.full.tagline": "Depth & Ritual",
+  "pricing.channel.full.audience": "Ideal for long-term planning, major cycle turns, full-dimensional investigation",
+  "pricing.channel.full.tech": "Full AI CV palm & face extraction + Four Pillars synthesis + tarot multi-dimensional weaving, distributed compute resonance.",
+  "pricing.channel.full.output": "Facial tri-palace analysis, skeletal-BaZi cross-reference, destiny panorama, annual turning points",
+
+  // ── Report Channel Badge ──
+  "reading.channel.quick": "⚡ Quick Channel · One-Tap Reading",
+  "reading.channel.full": "🔱 Full Channel · Complete Reading",
+  "reading.channel.event": "🔍 Event Retrospection",
+
+  // ── Paywall Unlock Panel ──
+  "paywall.stardustUnlock": "Spend 100 Stardust to unlock",
+  "paywall.stardustBalance": "Current balance",
+  "paywall.stardustInsufficient": "Insufficient Stardust",
+  "paywall.wechatAlipay": "WeChat / Alipay Quick Pay",
+  "paywall.wechatAlipayDesc": "Scan QR to pay, instant unlock",
+  "paywall.unlockCta": "Unlock Full Report Now",
+  "paywall.unlockPerks": "Unlock includes ¥60 shop coupon + 3-day membership trial",
   "pricing.reviewDisclaimer": "* Simulated reviews for reference only",
 
   // ─── Homepage ───

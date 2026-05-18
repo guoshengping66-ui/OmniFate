@@ -248,6 +248,27 @@ export default function ReadingPage() {
     refreshUser()
   }, [refreshUser])
 
+  const handleStardustUnlock = useCallback(async () => {
+    if (!id) return
+    try {
+      const { deductStardust } = await import("@/lib/api")
+      const result = await deductStardust("report_unlock", id)
+      if (result) {
+        // Confirm the deduction
+        const { api } = await import("@/lib/api")
+        await api.post(`/api/credits/confirm?transaction_id=${result.transaction_id}`)
+        // Unlock the report
+        const { unlockReport } = await import("@/lib/api")
+        await unlockReport(id)
+        setIsUnlocked(true)
+        toast.success("星尘解锁成功！")
+        refreshUser()
+      }
+    } catch (err: any) {
+      toast.error(err?.response?.data?.detail || "星尘解锁失败")
+    }
+  }, [id, refreshUser])
+
   if (loading) return <ReadingSkeleton phase="loading" />
   if (!data) return <ReadingSkeleton phase="error" />
 
@@ -338,6 +359,24 @@ export default function ReadingPage() {
                 五维命理分析报告 · AI 精算
               </span>
             </div>
+            {/* Intent channel badge */}
+            {data?.intent && (
+              <div className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-medium
+                ${data.intent === "FULL_MULTIMODAL"
+                  ? "bg-gold/10 border border-gold/25 text-gold/80"
+                  : data.intent === "GENERAL_DAILY"
+                    ? "bg-purple-500/10 border border-purple-500/25 text-purple-400"
+                    : "bg-blue-500/10 border border-blue-500/25 text-blue-400"
+                }`}
+              >
+                {data.intent === "FULL_MULTIMODAL"
+                  ? t("reading.channel.full")
+                  : data.intent === "GENERAL_DAILY"
+                    ? t("reading.channel.quick")
+                    : t("reading.channel.event")
+                }
+              </div>
+            )}
             <div className="inline-flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full px-3 py-1">
               <span className="text-white/30 text-[10px]">
                 本内容由AI生成，仅供参考，不构成专业建议
@@ -657,6 +696,8 @@ export default function ReadingPage() {
               onUnlock={() => setShowPayment(true)}
               loading={false}
               previewLines={5}
+              stardustBalance={user?.stardust_balance || 0}
+              onStardustUnlock={handleStardustUnlock}
             >
               <div className="card-glass p-6 md:p-8 border-gold/20 bg-gradient-to-br from-gold/[0.03] to-transparent">
                 <div className="flex items-center gap-2.5 mb-5">
@@ -756,6 +797,8 @@ export default function ReadingPage() {
                   onUnlock={() => setShowPayment(true)}
                   loading={false}
                   previewLines={3}
+                  stardustBalance={user?.stardust_balance || 0}
+                  onStardustUnlock={handleStardustUnlock}
                 >
                   <ReportSection
                     icon={AGENT_LABELS[k].icon}

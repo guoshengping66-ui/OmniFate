@@ -111,6 +111,7 @@ export interface AnalysisRequest {
   tarot_cards: { position: string; card: string; reversed: boolean }[]
   palm_raw_text: string
   face_raw_text: string
+  intent?: "GENERAL_DAILY" | "FULL_MULTIMODAL" | "SPECIFIC_EVENT"
 }
 
 export interface WorkerReport {
@@ -139,6 +140,7 @@ export interface AnalysisResponse {
   computed_tags: string[]
   dimension_scores: Record<string, number>
   errors: string[]
+  intent?: "GENERAL_DAILY" | "FULL_MULTIMODAL" | "SPECIFIC_EVENT"
 }
 
 export interface ChatRequest {

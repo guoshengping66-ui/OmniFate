@@ -1150,6 +1150,38 @@ export default {
   "pricing.paymentSuccess": "支付成功，请刷新页面查看会员状态",
   "pricing.breadcrumb": "会员方案",
   "pricing.stardustGuide": "星尘消耗指南",
+
+  // ── 推命通道对比 ──
+  "pricing.channel.title": "选择你的推命通道",
+  "pricing.channel.subtitle": "同样的价格，不同的深度体验",
+  "pricing.channel.price": "解锁价",
+  "pricing.channel.priceValue": "¥69 / $19.99 或 100 星尘",
+  "pricing.channel.quick.badge": "⚡ 量子快连",
+  "pricing.channel.quick.name": "一键推命",
+  "pricing.channel.quick.tagline": "时间与效率",
+  "pricing.channel.quick.audience": "适合短线交易员、日内复盘、高频能量对齐",
+  "pricing.channel.quick.tech": "AI 自动调取您历史已存储的星盘底座，直接跳过冗长校验，一秒拉取今日量子综合态详情。",
+  "pricing.channel.quick.output": "高密度近期运势波动曲线、极简断语、塔罗潜意识解析",
+  "pricing.channel.full.badge": "🔱 天命合参",
+  "pricing.channel.full.name": "完整推命",
+  "pricing.channel.full.tagline": "深度与仪式感",
+  "pricing.channel.full.audience": "适合长线布局、大运逆袭、全维度彻底格物",
+  "pricing.channel.full.tech": "全量启动 AI CV 手相面相提取 + 四柱干支合参 + 塔罗多维编织，进行分布式算力共振。",
+  "pricing.channel.full.output": "面相三庭五眼分析、八字骨骼互表、宿命全景解析、年度转折点规划",
+
+  // ── 报告通道标签 ──
+  "reading.channel.quick": "⚡ 快捷通道 · 一键推命",
+  "reading.channel.full": "🔱 全景通道 · 完整推命",
+  "reading.channel.event": "🔍 事件复盘",
+
+  // ── Paywall 解锁面板 ──
+  "paywall.stardustUnlock": "消耗 100 星尘积分解锁",
+  "paywall.stardustBalance": "当前余额",
+  "paywall.stardustInsufficient": "星尘不足",
+  "paywall.wechatAlipay": "微信 / 支付宝快捷支付",
+  "paywall.wechatAlipayDesc": "扫码即付，秒级解锁",
+  "paywall.unlockCta": "立即解锁完整报告",
+  "paywall.unlockPerks": "解锁后赠送 ¥60 商城代金券 + 3 天会员试用",
   "pricing.reviewDisclaimer": "* 以下为模拟评价，仅供参考",
 
   // ─── 首页 ───
