@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, Suspense } from "react"
+import { useEffect } from "react"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 import { Sparkles, Star, ArrowRight, ShieldCheck, Zap, Eye, ShoppingBag, ScrollText } from "lucide-react"

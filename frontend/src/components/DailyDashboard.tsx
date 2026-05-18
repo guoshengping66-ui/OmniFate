@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect, lazy, Suspense } from "react"
+import { useState, useEffect } from "react"
 import { Wallet, Briefcase, Heart, Activity, Palette, Hash, AlertTriangle, TrendingUp } from "lucide-react"
 import { getDailyFortune, listMyReadings, type DailyFortuneResponse } from "@/lib/api"
 import { api } from "@/lib/api"
@@ -302,6 +302,7 @@ export function DailyDashboard() {
             }
             setCached("almanac", data)
             setAlmanac(data)
+            setAlmanacLoading(false)
             return
           }
         }
