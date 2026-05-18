@@ -7,8 +7,6 @@ api/routers/billing.py — 全渠道动态定价与星尘充值引擎
 """
 from __future__ import annotations
 
-import hmac
-import hashlib
 import logging
 from datetime import datetime, timezone
 from typing import Optional
@@ -32,6 +30,40 @@ router = APIRouter()            # /api/billing/*
 webhook_router = APIRouter()    # /api/webhooks/*
 
 settings = get_settings()
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  Tron Address Helpers — Base58Check ↔ Hex 转换
+# ═══════════════════════════════════════════════════════════════════════════════
+
+_B58_ALPHABET = b"123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+
+
+def _b58decode(s: str) -> bytes:
+    """Minimal Base58 decode (Bitcoin/Tron alphabet)."""
+    n = 0
+    for c in s.encode("ascii"):
+        n = n * 58 + _B58_ALPHABET.index(c)
+    # Leading '1' chars map to 0x00 padding bytes
+    pad = len(s) - len(s.lstrip("1"))
+    if n == 0:
+        return b"\x00" * pad
+    result = n.to_bytes((n.bit_length() + 7) // 8, "big")
+    return b"\x00" * pad + result
+
+
+def _tron_base58_to_hex(addr: str) -> str:
+    """
+    Convert Tron Base58Check address (T-prefix) to hex string (42 chars, starts with 41).
+    Example: "Txxx..." → "41xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    """
+    decoded = _b58decode(addr)
+    # decoded = 25 bytes: 1 version (0x41) + 20 address + 4 checksum
+    return decoded[:21].hex()
+
+
+# Pre-compute USDT TRC20 contract in hex for direct comparison with TronGrid API responses
+USDT_TRC20_CONTRACT_HEX = _tron_base58_to_hex("TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -197,8 +229,6 @@ class VerifyTxRequest(BaseModel):
 
 # ── TRC20 校验 ────────────────────────────────────────────────────────────────
 
-USDT_TRC20_CONTRACT = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"  # 官方 USDT 合约地址
-
 async def _fetch_trc20_tx(tx_id: str) -> dict:
     """通过 TronGrid API 获取 TRC20 交易详情"""
     headers = {}
@@ -218,7 +248,8 @@ async def _fetch_trc20_tx(tx_id: str) -> dict:
 def _parse_trc20_usdt_transfer(tx_data: dict) -> Optional[dict]:
     """
     从 TRC20 交易中解析 USDT 转账信息。
-    返回 { to_address, amount_usdt } 或 None。
+    返回 { to_address_hex, amount_usdt } 或 None。
+    to_address_hex 为 21 字节 Tron hex 格式 (42 chars, starts with 41)。
     """
     # 1. 检查交易是否成功
     ret_list = tx_data.get("ret", [])
@@ -238,27 +269,31 @@ def _parse_trc20_usdt_transfer(tx_data: dict) -> Optional[dict]:
     param = contract_info.get("parameter", {}).get("value", {})
     contract_address = param.get("contract_address", "")
 
-    # 验证是 USDT 合约 (去掉 0x 前缀后对比)
-    if contract_address.replace("0x", "").upper() != USDT_TRC20_CONTRACT.upper():
+    # 验证是 USDT 合约 — 两边都用 hex 格式比较
+    # TronGrid API 返回的 contract_address 是 hex 格式 (如 "41a614...")
+    contract_hex = contract_address.replace("0x", "").lower()
+    if contract_hex != USDT_TRC20_CONTRACT_HEX.lower():
         return None
 
     # 3. 解析 contract data
     #    TRC20 transfer(address,uint256) 的 data 格式:
-    #    4 bytes method id + 32 bytes address + 32 bytes amount
+    #    4 bytes method id (a9059cbb) + 32 bytes address (padded) + 32 bytes amount
     data = param.get("data", "")
-    if not data or len(data) < 132:  # 0x + 8(method) + 64(addr) + 64(amount) = 138
+    # Without 0x prefix: 8(method) + 64(address) + 64(amount) = 136 hex chars
+    if not data or len(data) < 136:
         return None
 
-    # 去掉 0x 前缀和 method id (前 10 个字符: 0x + a9059cbb)
-    data_hex = data[10:] if data.startswith("0x") else data[2:]
+    # 去掉 0x 前缀和 method id
+    if data.startswith("0x"):
+        data_hex = data[2:]     # skip "0x"
+    else:
+        data_hex = data
+    data_hex = data_hex[8:]     # skip method id "a9059cbb" (8 hex chars)
 
-    # 提取 to_address (后 40 个 hex 字符)
-    to_address_hex = data_hex[24:64]  # 去掉前导零
-    # EVM address 是 20 bytes = 40 hex chars, 但存储时可能有前导零
-    to_address = "T" + bytes.fromhex(to_address_hex.lstrip("0").zfill(40)).hex()
-    # 简单方式: 直接用 hex 校验
-    to_address_hex_clean = data_hex[24:64].lstrip("0").lower()
-    expected_addr_hex = settings.USDT_TRC20_ADDRESS.lstrip("T").lstrip("0").lower()
+    # 提取 to_address: 32 bytes ABI-encoded, last 20 bytes are the actual address
+    # Prepend Tron version byte 0x41 to get full 21-byte hex address
+    to_addr_20bytes = data_hex[24:64]  # 40 hex chars = 20 bytes
+    to_address_hex = "41" + to_addr_20bytes  # 42 hex chars = 21 bytes (full Tron hex)
 
     # 提取 amount
     amount_hex = data_hex[64:128]
@@ -266,7 +301,7 @@ def _parse_trc20_usdt_transfer(tx_data: dict) -> Optional[dict]:
     amount_usdt = amount_raw / 1e6  # USDT 6 位精度
 
     return {
-        "to_address_hex": to_address_hex_clean,
+        "to_address_hex": to_address_hex.lower(),
         "amount_usdt": amount_usdt,
     }
 
@@ -274,7 +309,7 @@ def _parse_trc20_usdt_transfer(tx_data: dict) -> Optional[dict]:
 async def _verify_trc20_tx(tx_id: str) -> dict:
     """
     TRC20 USDT 交易全链路校验。
-    返回 { amount_usdt, to_address } 或抛出 HTTPException。
+    返回 { amount_usdt, network } 或抛出 HTTPException。
     """
     tx_data = await _fetch_trc20_tx(tx_id)
 
@@ -286,14 +321,16 @@ async def _verify_trc20_tx(tx_id: str) -> dict:
     if not parsed:
         raise HTTPException(status_code=400, detail="此交易不是有效的 USDT 转账")
 
-    # 校验收款地址
-    expected = settings.USDT_TRC20_ADDRESS.lower()
-    # Tron 地址格式: T + 33 chars hex, 需要规范化
-    actual = "T" + parsed["to_address_hex"]
-    if actual.lower() != expected.lower():
+    # 校验收款地址 — 两边都用 hex 格式比较
+    # parsed["to_address_hex"] 已经是 42 hex chars (41 + 20 bytes)
+    # 将配置的 Base58Check 地址转为 hex 进行比较
+    expected_hex = _tron_base58_to_hex(settings.USDT_TRC20_ADDRESS).lower()
+    actual_hex = parsed["to_address_hex"].lower()
+
+    if actual_hex != expected_hex:
         raise HTTPException(
             status_code=400,
-            detail=f"收款地址不匹配。实际转入: {actual[:10]}...{actual[-6:]}"
+            detail="收款地址不匹配，请确认转账目标地址正确"
         )
 
     if parsed["amount_usdt"] <= 0:
@@ -359,7 +396,6 @@ async def _verify_arbitrum_tx(tx_id: str) -> dict:
     # 解析转入金额
     best_log = None
     best_amount = 0
-    expected_addr_padded = settings.USDT_ARBITRUM_ADDRESS.lower().replace("0x", "").zfill(64)
 
     for log in usdt_logs:
         to_addr = "0x" + log["topics"][2][-40:]

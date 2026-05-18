@@ -439,7 +439,8 @@ async def get_session(
                 reading = result.scalar_one_or_none()
                 if reading:
                     resp.is_detail_unlocked = reading.is_detail_unlocked
-                    if reading.master_detail:
+                    # Only return master_detail to users who have unlocked
+                    if reading.is_detail_unlocked and reading.master_detail:
                         resp.master_detail = reading.master_detail
         except Exception:
             pass
@@ -479,11 +480,13 @@ async def get_session(
                 )
 
             # Completed or failed — reconstruct from DB
+            # Gate master_detail: only return to users who have unlocked
+            detail_text = reading.master_detail or "" if reading.is_detail_unlocked else ""
             return AnalysisResponse(
                 session_id=session_id,
                 status=reading.status.value,
                 master_summary=reading.master_summary or "",
-                master_detail=reading.master_detail or "",
+                master_detail=detail_text,
                 is_detail_unlocked=reading.is_detail_unlocked,
                 astrology=_worker_from_report("astrology", reading.astrology_report),
                 tarot=_worker_from_report("tarot", reading.tarot_report),
@@ -600,7 +603,17 @@ async def stream_session(
 
         # Final complete event
         yield f"data: {json.dumps({'type': 'progress', 'pct': 100, 'message': '分析完成'})}\n\n"
-        yield f"data: {json.dumps({'type': 'complete', 'master_summary': state.master_summary[:500], 'master_detail': state.master_detail})}\n\n"
+        # Gate master_detail: only send to users who have unlocked
+        detail_for_sse = ""
+        try:
+            async with AsyncSessionLocal() as _db:
+                _r = await _db.execute(select(Reading).where(Reading.id == session_id))
+                _reading = _r.scalar_one_or_none()
+                if _reading and _reading.is_detail_unlocked:
+                    detail_for_sse = state.master_detail
+        except Exception:
+            pass
+        yield f"data: {json.dumps({'type': 'complete', 'master_summary': state.master_summary[:500], 'master_detail': detail_for_sse})}\n\n"
 
     return StreamingResponse(
         event_generator(),
