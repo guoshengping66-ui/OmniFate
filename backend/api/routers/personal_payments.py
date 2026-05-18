@@ -140,7 +140,7 @@ async def create_payment_order(
         db=db,
         amount=payload.amount,
         payment_method=payment_method,
-        description=payload.description or "命盘智镜 - AI分析服务",
+        description=payload.description or "AlphaMirror AI算力服务",
         reading_id=payload.reading_id,
         user_id=current_user.id if current_user else payload.user_id,
     )

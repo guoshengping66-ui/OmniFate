@@ -19,7 +19,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.session import get_db
 from database.models import (
-    User, RedeemCode, CryptoOrder, CreditTransaction,
+    User, Order, RedeemCode, CryptoOrder, CreditTransaction, OrderStatus,
 )
 from auth.dependencies import get_current_user, require_user
 from config import get_settings
@@ -581,17 +581,19 @@ async def paypal_webhook(
     currency = resource.get("amount", {}).get("currency", "USD")
 
     # custom 字段包含 userId（创建 PayPal 订单时传入的 custom_id）
-    # 注意: PayPal v2 capture response 中 custom_id 可能在 purchase_units 中
     custom_id = ""
-    purchase_units = data.get("resource", {}).get("sale", {}).get("parent_payment", "")
-    # 尝试从多个位置获取 userId
-    custom_id = resource.get("custom", "") or data.get("resource", {}).get("custom_id", "")
+    # PayPal v2: custom_id 在 purchase_units 中
+    purchase_units_data = data.get("resource", {}).get("purchase_units", [])
+    if purchase_units_data:
+        custom_id = purchase_units_data[0].get("custom_id", "")
+    if not custom_id:
+        custom_id = resource.get("custom", "") or data.get("resource", {}).get("custom_id", "")
 
     if not custom_id or not sale_id:
         logger.warning(f"[PAYPAL-WEBHOOK] Missing custom_id or sale_id: custom={custom_id}, sale={sale_id}")
         return {"status": "missing_data", "sale_id": sale_id}
 
-    # 查找用户
+    # 查找用户（悲观锁）
     user_result = await db.execute(
         select(User).where(User.id == custom_id).with_for_update()
     )
@@ -617,6 +619,59 @@ async def paypal_webhook(
         status="confirmed",
     )
     db.add(tx)
+
+    # ── 查找关联订单，根据 item_type 激活对应权益 ──────────────────────────
+    # PayPal reference_id 对应我们的 order_no
+    order_no = purchase_units_data[0].get("reference_id", "") if purchase_units_data else ""
+    item_type = ""
+    if order_no:
+        order_result = await db.execute(
+            select(Order).where(Order.order_no == order_no)
+        )
+        order = order_result.scalar_one_or_none()
+        if order:
+            order.status = OrderStatus.paid
+            order.paid_at = datetime.now(timezone.utc)
+            # 从 notes 中解析 item_type (格式: "item_type:xxx|reading_id:xxx")
+            if order.notes and "item_type:" in order.notes:
+                item_type = order.notes.split("item_type:")[1].split("|")[0]
+
+    # 根据 item_type 激活对应权益
+    if item_type in ("premium_monthly", "premium_yearly"):
+        # 订阅激活
+        from datetime import timedelta
+        now = datetime.now(timezone.utc)
+        if item_type == "premium_yearly":
+            expires = now + timedelta(days=365)
+            free_events = 5
+        else:
+            expires = now + timedelta(days=30)
+            free_events = 2
+        user.is_premium = True
+        user.subscription_tier = item_type
+        user.premium_expires_at = expires
+        user.free_event_quota = free_events
+        user.free_event_quota_reset_at = now + timedelta(days=30)
+        logger.info(f"[PAYPAL-WEBHOOK] 激活订阅: 用户 {user.id}, {item_type}")
+    elif item_type == "unlock_report":
+        # 解锁报告 — 通过 order.notes 获取 reading_id
+        reading_id = ""
+        if order_no and order and order.notes and "reading_id:" in order.notes:
+            reading_id = order.notes.split("reading_id:")[-1]
+        if reading_id:
+            from sqlalchemy import update as sa_update
+            await db.execute(
+                sa_update(CreditTransaction.__table__).where(
+                    CreditTransaction.user_id == user.id,
+                    CreditTransaction.reason == "report_unlock_grant",
+                    CreditTransaction.reference_id == reading_id,
+                ).values(status="confirmed")
+            )
+        logger.info(f"[PAYPAL-WEBHOOK] 报告解锁: 用户 {user.id}, reading {reading_id}")
+    elif item_type == "founder_lifetime":
+        # 创始席位 — 需要调用激活逻辑
+        logger.info(f"[PAYPAL-WEBHOOK] 创始席位: 用户 {user.id} (需手动激活)")
+
     await db.commit()
 
     logger.info(

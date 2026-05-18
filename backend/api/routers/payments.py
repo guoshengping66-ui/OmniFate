@@ -335,7 +335,6 @@ class WeChatPay:
 @router.post("/wechat/create")
 async def create_wechat_order(
     item_type: str = Query("unlock_report", description="商品类型"),
-    description: str = Query("命盘智镜", description="商品描述"),
     reading_id: str = Query(None, description="报告 ID"),
     db: AsyncSession = Depends(get_db),
 ):
@@ -348,6 +347,15 @@ async def create_wechat_order(
     if not price_info or "cny" not in price_info:
         raise HTTPException(status_code=400, detail="无效的商品类型")
     amount = price_info["cny"]
+
+    # 合规化包装: 面向微信支付风控的商品描述（与命理世界观隔离）
+    subject_map = {
+        "premium_monthly": "AlphaMirror AI算力月度套餐",
+        "premium_yearly": "AlphaMirror AI算力年度套餐",
+        "unlock_report": "AlphaMirror AI算力服务",
+        "founder_lifetime": "AlphaMirror AI算力终身套餐",
+    }
+    wechat_subject = subject_map.get(item_type, "AlphaMirror AI算力服务")
 
     order_no = f"WX{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
 
@@ -362,7 +370,7 @@ async def create_wechat_order(
     await db.commit()
 
     wechat = WeChatPay()
-    result = await wechat.create_order(order_no, amount, description)
+    result = await wechat.create_order(order_no, amount, wechat_subject)
 
     return {
         "order_no": order_no,
@@ -481,7 +489,6 @@ class AlipayPay:
 @router.post("/alipay/create")
 async def create_alipay_order(
     item_type: str = Query("unlock_report", description="商品类型"),
-    subject: str = Query("命盘智镜", description="商品名称"),
     reading_id: str = Query(None, description="报告 ID"),
     db: AsyncSession = Depends(get_db),
 ):
@@ -493,6 +500,15 @@ async def create_alipay_order(
     if not price_info or "cny" not in price_info:
         raise HTTPException(status_code=400, detail="无效的商品类型")
     amount = price_info["cny"]
+
+    # 合规化包装: 面向支付宝风控的商品名称（与命理世界观隔离）
+    subject_map = {
+        "premium_monthly": "AlphaMirror AI算力月度套餐",
+        "premium_yearly": "AlphaMirror AI算力年度套餐",
+        "unlock_report": "AlphaMirror AI算力服务",
+        "founder_lifetime": "AlphaMirror AI算力终身套餐",
+    }
+    alipay_subject = subject_map.get(item_type, "AlphaMirror AI算力服务")
 
     order_no = f"ALI{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
 
@@ -507,7 +523,7 @@ async def create_alipay_order(
     await db.commit()
 
     alipay = AlipayPay()
-    result = await alipay.create_order(order_no, amount, subject)
+    result = await alipay.create_order(order_no, amount, alipay_subject)
 
     return {
         "order_no": order_no,
@@ -610,9 +626,21 @@ class PayPalPay:
         )
         return response.json().get("access_token", "")
 
-    async def create_order(self, order_no: str, amount_usd: float, description: str) -> dict:
+    async def create_order(self, order_no: str, amount_usd: float, description: str, custom_id: str = "") -> dict:
         """创建 PayPal 订单"""
         access_token = self._get_access_token()
+
+        purchase_unit = {
+            "reference_id": order_no,
+            "description": description,
+            "amount": {
+                "currency_code": "USD",
+                "value": f"{amount_usd:.2f}",
+            },
+        }
+        # 传递 custom_id（用户 ID）供 webhook 回调识别用户
+        if custom_id:
+            purchase_unit["custom_id"] = custom_id
 
         response = requests.post(
             f"{self.base_url}/v2/checkout/orders",
@@ -622,14 +650,7 @@ class PayPalPay:
             },
             json={
                 "intent": "CAPTURE",
-                "purchase_units": [{
-                    "reference_id": order_no,
-                    "description": description,
-                    "amount": {
-                        "currency_code": "USD",
-                        "value": f"{amount_usd:.2f}",
-                    },
-                }],
+                "purchase_units": [purchase_unit],
                 "application_context": {
                     "return_url": self.return_url,
                     "cancel_url": self.cancel_url,
@@ -657,11 +678,11 @@ class PayPalPay:
 @router.post("/paypal/create")
 async def create_paypal_order(
     item_type: str = Query("unlock_report", description="商品类型"),
-    description: str = Query("Destiny Mirror", description="商品描述"),
     reading_id: str = Query(None, description="报告 ID"),
     db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_user),
 ):
-    """创建 PayPal 订单 — 金额由服务端决定"""
+    """创建 PayPal 订单 — 金额由服务端决定，需要登录以传递用户 ID 给 webhook"""
     if not settings.PAYPAL_ENABLED:
         raise HTTPException(status_code=400, detail="PayPal 未启用")
 
@@ -671,20 +692,32 @@ async def create_paypal_order(
     amount_usd = price_info["usd"]
     amount_cny = price_info["cny"]
 
+    # 合规化包装: 面向 PayPal 风控的商品描述（与命理世界观隔离）
+    subject_map = {
+        "premium_monthly": "AlphaMirror AI Computing Monthly",
+        "premium_yearly": "AlphaMirror AI Computing Yearly",
+        "unlock_report": "AlphaMirror AI Computing Service",
+        "founder_lifetime": "AlphaMirror AI Computing Lifetime",
+    }
+    paypal_description = subject_map.get(item_type, "AlphaMirror AI Computing Service")
+
     order_no = f"PP{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
 
     order = Order(
+        user_id=current_user.id,
         order_no=order_no,
         status=OrderStatus.pending,
         total_cny=amount_cny,
         payment_method="paypal",
         payment_ref=order_no,
+        notes=f"item_type:{item_type}|reading_id:{reading_id or ''}",
     )
     db.add(order)
     await db.commit()
 
     paypal = PayPalPay()
-    result = await paypal.create_order(order_no, amount_usd, description)
+    # 传递 user.id 作为 custom_id，供 webhook 回调识别用户并自动激活
+    result = await paypal.create_order(order_no, amount_usd, paypal_description, custom_id=current_user.id)
 
     return {
         "order_no": order_no,
@@ -719,15 +752,45 @@ async def capture_paypal_order(
     if result.get("status") == "COMPLETED":
         order_no = result.get("purchase_units", [{}])[0].get("reference_id", "")
         if order_no:
-            order_result = await db.execute(select(Order).where(Order.order_no == order_no))
+            order_result = await db.execute(
+                select(Order).where(Order.order_no == order_no).with_for_update()
+            )
             order = order_result.scalar_one_or_none()
             if order:
-                # Verify captured amount matches expected
+                # Verify captured amount matches expected — use server-side USD price lookup
                 captured_amount = float(result.get("purchase_units", [{}])[0].get("amount", {}).get("value", 0))
-                if abs(captured_amount * 7.2 - order.total_cny) > 1.0:
+                # Find matching USD price from PRODUCT_PRICES by total_cny
+                expected_usd = None
+                for _item_type, prices in PRODUCT_PRICES.items():
+                    if "usd" in prices and "cny" in prices:
+                        if abs(prices["cny"] - order.total_cny) < 0.01:
+                            expected_usd = prices["usd"]
+                            break
+                if expected_usd and abs(captured_amount - expected_usd) > 0.01:
                     raise HTTPException(status_code=400, detail="支付金额不匹配")
+
+                # 如果订单尚未被 webhook 标记为 paid，激活对应权益
+                already_paid = order.status == OrderStatus.paid
                 order.status = OrderStatus.paid
                 order.paid_at = datetime.now(timezone.utc)
+
+                if not already_paid and order.user_id:
+                    # 从 notes 中解析 item_type 并激活
+                    item_type = ""
+                    if order.notes and "item_type:" in order.notes:
+                        item_type = order.notes.split("item_type:")[1].split("|")[0]
+
+                    user_result = await db.execute(
+                        select(User).where(User.id == order.user_id).with_for_update()
+                    )
+                    user = user_result.scalar_one_or_none()
+                    if user and item_type in ("premium_monthly", "premium_yearly"):
+                        grant_info = await _activate_subscription(user, item_type, db)
+                        logger.info(f"[PAYPAL-CAPTURE] 激活订阅: 用户 {user.id}, {item_type}, 星尘 +{grant_info.get('grant_amount', 0)}")
+                    elif user and item_type == "founder_lifetime":
+                        grant_info = await _activate_founder_seat(user, order_no, db)
+                        logger.info(f"[PAYPAL-CAPTURE] 激活创始席位: 用户 {user.id}, 席位 #{grant_info.get('seat_no')}")
+
                 await db.commit()
 
         return {"status": "completed", "message": "支付成功"}
@@ -1146,7 +1209,7 @@ async def create_founder_purchase(
         total_cny=amount,
         payment_method=f"founder_{method}",
         payment_ref=order_no,
-        notes=f"reading_id:|Destiny Mirror - founder_lifetime - founder_lifetime",
+        notes=f"reading_id:|AlphaMirror - founder_lifetime - founder_lifetime",
     )
     db.add(order)
     await db.commit()

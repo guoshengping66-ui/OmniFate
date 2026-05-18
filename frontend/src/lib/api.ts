@@ -635,20 +635,20 @@ export async function createCheckoutUrl(
   paymentMethod: string,
   itemType: string = "unlock_report",
 ): Promise<{ checkout_url?: string; pay_url?: string; approve_url?: string; code_url?: string; payment_method: string; message: string }> {
-  // 根据支付方式调用不同接口 — 金额由服务端决定
+  // 根据支付方式调用不同接口 — 金额和商品名由服务端决定，前端不传敏感信息
   if (paymentMethod === "alipay") {
     const res = await apiDirect.post(`/api/payments/alipay/create`, null, {
-      params: { item_type: itemType, subject: "命盘智镜", reading_id: readingId }
+      params: { item_type: itemType, reading_id: readingId }
     })
     return { pay_url: res.data.pay_url, payment_method: "alipay", message: res.data.message }
   } else if (paymentMethod === "wechat_pay") {
     const res = await apiDirect.post(`/api/payments/wechat/create`, null, {
-      params: { item_type: itemType, description: "命盘智镜", reading_id: readingId }
+      params: { item_type: itemType, reading_id: readingId }
     })
     return { code_url: res.data.code_url, payment_method: "wechat_pay", message: res.data.message }
   } else if (paymentMethod === "paypal") {
     const res = await apiDirect.post(`/api/payments/paypal/create`, null, {
-      params: { item_type: itemType, description: "Destiny Mirror", reading_id: readingId }
+      params: { item_type: itemType, reading_id: readingId }
     })
     return { approve_url: res.data.approve_url, payment_method: "paypal", message: res.data.message }
   } else {
