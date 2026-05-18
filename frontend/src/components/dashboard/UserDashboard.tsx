@@ -8,9 +8,11 @@ import { motion } from "framer-motion"
 import { ProfileCard } from "./ProfileCard"
 import { IntentButtons } from "./IntentButtons"
 import { GeworkDrawer } from "./GeworkDrawer"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 export function UserDashboard() {
   const { userProfile, fetchBirthProfiles } = useUserStore()
+  const { t, locale } = useLanguage()
   const [recentReadings, setRecentReadings] = useState<ReadingListItem[]>([])
   const [loadingReadings, setLoadingReadings] = useState(true)
   const [eventDrawerOpen, setEventDrawerOpen] = useState(false)
@@ -52,9 +54,9 @@ export function UserDashboard() {
         transition={{ delay: 0.3 }}
       >
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-serif text-lg text-white/70">最近分析</h2>
+          <h2 className="font-serif text-lg text-white/70">{t("dash.recent.title")}</h2>
           {recentReadings.length > 0 && (
-            <Link href="/readings" className="text-gold/60 hover:text-gold text-xs">查看全部 →</Link>
+            <Link href="/readings" className="text-gold/60 hover:text-gold text-xs">{t("dash.recent.viewAll")}</Link>
           )}
         </div>
 
@@ -72,9 +74,9 @@ export function UserDashboard() {
               >
                 <div className="flex items-center justify-between">
                   <div className="flex-1 min-w-0">
-                    <p className="text-white/70 text-sm truncate">{r.master_summary || "分析中..."}</p>
+                    <p className="text-white/70 text-sm truncate">{r.master_summary || t("dash.recent.analyzing")}</p>
                     <p className="text-white/30 text-xs mt-1">
-                      {new Date(r.created_at).toLocaleDateString("zh-CN")}
+                      {new Date(r.created_at).toLocaleDateString(locale === "zh" ? "zh-CN" : "en-US")}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 ml-4">
@@ -89,8 +91,8 @@ export function UserDashboard() {
           </div>
         ) : (
           <div className="card-glass p-8 text-center">
-            <p className="text-white/30 text-sm">还没有分析记录</p>
-            <p className="text-white/20 text-xs mt-1">选择上方推演方式开始你的第一次分析</p>
+            <p className="text-white/30 text-sm">{t("dash.recent.empty")}</p>
+            <p className="text-white/20 text-xs mt-1">{t("dash.recent.emptyDesc")}</p>
           </div>
         )}
       </motion.div>

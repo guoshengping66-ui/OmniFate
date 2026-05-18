@@ -161,26 +161,26 @@ export default function HomePage() {
 
   const products = [
     {
-      name: "紫水晶洞",
+      name: t("home.product1.name"),
       price: "¥388",
-      desc: "增强直觉力 · 开启顶轮",
-      tag: "灵性提升",
+      desc: t("home.product1.desc"),
+      tag: t("home.product1.tag"),
       gradient: "from-purple-900/40 to-purple-800/10",
       glow: "rgba(147,51,234,0.2)",
     },
     {
-      name: "黄水晶貔貅",
+      name: t("home.product2.name"),
       price: "¥268",
-      desc: "招财纳福 · 正财偏财",
-      tag: "财运开运",
+      desc: t("home.product2.desc"),
+      tag: t("home.product2.tag"),
       gradient: "from-amber-900/40 to-amber-800/10",
       glow: "rgba(245,158,11,0.2)",
     },
     {
-      name: "绿幽灵吊坠",
+      name: t("home.product3.name"),
       price: "¥328",
-      desc: "事业晋升 · 贵人运",
-      tag: "事业助运",
+      desc: t("home.product3.desc"),
+      tag: t("home.product3.tag"),
       gradient: "from-emerald-900/40 to-emerald-800/10",
       glow: "rgba(16,185,129,0.2)",
     },
@@ -227,8 +227,8 @@ export default function HomePage() {
         <section className="py-12 px-4 bg-white/[0.015]">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-8">
-              <span className="text-gold/60 text-sm tracking-[0.2em] uppercase">今日天盘</span>
-              <h2 className="font-serif text-2xl font-bold text-gold mt-2">今日运势与红尘黄历</h2>
+              <span className="text-gold/60 text-sm tracking-[0.2em] uppercase">{t("home.dailyBadge")}</span>
+              <h2 className="font-serif text-2xl font-bold text-gold mt-2">{t("home.dailyTitle")}</h2>
             </div>
             <DailyDashboard />
           </div>
@@ -239,11 +239,11 @@ export default function HomePage() {
           <div className="max-w-3xl mx-auto">
             <div className="card-glass p-8 text-center">
               <div className="text-3xl mb-4">🛍️</div>
-              <h3 className="font-serif text-lg text-gold mb-2">探索改运好物</h3>
-              <p className="text-white/40 text-sm mb-5">精选灵性水晶与开运饰品，助力运势提升</p>
+              <h3 className="font-serif text-lg text-gold mb-2">{t("home.shopCta")}</h3>
+              <p className="text-white/40 text-sm mb-5">{t("home.shopDesc")}</p>
               <div className="flex justify-center gap-4">
-                <Link href="/shop" className="btn-gold text-sm px-6 py-2">改运商城</Link>
-                <Link href="/blog" className="border border-white/20 text-white/60 hover:text-gold hover:border-gold/30 rounded-full text-sm px-6 py-2 transition-all">知识库</Link>
+                <Link href="/shop" className="btn-gold text-sm px-6 py-2">{t("home.shopButton")}</Link>
+                <Link href="/blog" className="border border-white/20 text-white/60 hover:text-gold hover:border-gold/30 rounded-full text-sm px-6 py-2 transition-all">{t("home.knowledgeButton")}</Link>
               </div>
             </div>
           </div>
@@ -599,7 +599,7 @@ export default function HomePage() {
                             fillOpacity="0.5"
                             fontSize="9"
                           >
-                            {["财运", "感情", "事业", "健康", "精神"][i]}
+                            {[t("home.radar.wealth"), t("home.radar.love"), t("home.radar.career"), t("home.radar.health"), t("home.radar.spirit")][i]}
                           </text>
                         )
                       })}
@@ -719,7 +719,7 @@ export default function HomePage() {
           <ScrollReveal>
             <div className="text-center mb-16">
               <span className="text-gold/60 text-sm tracking-[0.2em] uppercase">{t("fortune.badge")}</span>
-              <h2 className="section-title mt-3">今日运势与红尘黄历</h2>
+              <h2 className="section-title mt-3">{t("home.dailyTitle")}</h2>
               <p className="text-white/40 mt-4 max-w-lg mx-auto">
                 {t("fortune.sectionDesc")}
               </p>
@@ -738,7 +738,7 @@ export default function HomePage() {
             <div className="text-center mb-16">
               <span className="text-gold/60 text-sm tracking-[0.2em] uppercase">{t("reviews.badge")}</span>
               <h2 className="section-title mt-3">{t("reviews.title")}</h2>
-            <p className="text-white/30 text-xs mt-2">* 以下为模拟评价，仅供参考</p>
+            <p className="text-white/30 text-xs mt-2">{t("pricing.reviewDisclaimer")}</p>
             </div>
           </ScrollReveal>
 

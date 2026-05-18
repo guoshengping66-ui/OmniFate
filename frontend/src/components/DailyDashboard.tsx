@@ -80,11 +80,12 @@ const SHICHEN_LABELS = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", 
 // ── Sub-components ───────────────────────────────────────────────
 
 function GaugeRing({ score, size = 140 }: { score: number; size?: number }) {
+  const { t } = useLanguage()
   const radius = (size - 14) / 2
   const circumference = 2 * Math.PI * radius
   const progress = (score / 10) * circumference
   const color = score >= 8 ? "#4ade80" : score >= 6 ? "#C9A84C" : score >= 4 ? "#fb923c" : "#f87171"
-  const label = score >= 9 ? "极佳" : score >= 7 ? "很好" : score >= 5 ? "平稳" : score >= 3 ? "偏低" : "低迷"
+  const label = score >= 9 ? t("dash.fortune.great") : score >= 7 ? t("dash.fortune.good") : score >= 5 ? t("dash.fortune.fair") : score >= 3 ? t("dash.fortune.low") : t("dash.fortune.poor")
 
   return (
     <div className="relative" style={{ width: size, height: size }}>
@@ -128,7 +129,7 @@ function DimBar({ icon, label, score, color }: { icon: React.ReactNode; label: s
 
 export function DailyDashboard() {
   const { user } = useAuth()
-  const { locale } = useLanguage()
+  const { locale, t } = useLanguage()
   const [fortune, setFortune] = useState<DailyFortuneResponse | null>(null)
   const [almanac, setAlmanac] = useState<AlmanacData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -210,10 +211,10 @@ export function DailyDashboard() {
           <div className="flex items-center gap-8">
             <GaugeRing score={fortune.overall_score} />
             <div className="flex-1 space-y-2.5">
-              <DimBar icon={<Wallet size={14} />} label="财运" score={fortune.wealth_fortune} color="#C9A84C" />
-              <DimBar icon={<Briefcase size={14} />} label="事业" score={fortune.career_fortune} color="#2D6A4F" />
-              <DimBar icon={<Heart size={14} />} label="感情" score={fortune.love_fortune} color="#C1121F" />
-              <DimBar icon={<Activity size={14} />} label="健康" score={fortune.health_fortune} color="#2980B9" />
+              <DimBar icon={<Wallet size={14} />} label={t("report.wealth")} score={fortune.wealth_fortune} color="#C9A84C" />
+              <DimBar icon={<Briefcase size={14} />} label={t("report.career")} score={fortune.career_fortune} color="#2D6A4F" />
+              <DimBar icon={<Heart size={14} />} label={t("report.relationship")} score={fortune.love_fortune} color="#C1121F" />
+              <DimBar icon={<Activity size={14} />} label={t("report.health")} score={fortune.health_fortune} color="#2980B9" />
             </div>
           </div>
 
@@ -222,14 +223,14 @@ export function DailyDashboard() {
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm">
                 <Palette size={14} className="text-white/40" />
-                <span className="text-white/40">幸运色</span>
+                <span className="text-white/40">{t("dash.fortune.luckyColor")}</span>
                 <span className="text-white/70 font-medium" style={{ color: colorHex[fortune.lucky_color] || "#C9A84C" }}>
                   {fortune.lucky_color}
                 </span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <Hash size={14} className="text-white/40" />
-                <span className="text-white/40">幸运数</span>
+                <span className="text-white/40">{t("dash.fortune.luckyNumber")}</span>
                 <span className="text-white/70 font-medium">{fortune.lucky_number}</span>
               </div>
             </div>
@@ -302,17 +303,17 @@ export function DailyDashboard() {
         <div className="card-glass p-6 space-y-4">
           <div className="flex items-center gap-2 mb-1">
             <span className="text-lg">📅</span>
-            <h3 className="font-serif text-gold font-medium">红尘大盘</h3>
+            <h3 className="font-serif text-gold font-medium">{t("dash.fortune.almanacTitle")}</h3>
           </div>
 
           <div className="space-y-1.5">
             <p className="text-white/60 text-sm">{almanac.lunar_date}</p>
-            <p className="text-white/40 text-xs">日柱：{almanac.bazi_day_pillar}</p>
+            <p className="text-white/40 text-xs">{t("dash.fortune.dayPillar")}: {almanac.bazi_day_pillar}</p>
           </div>
 
           {/* 宜 */}
           <div className="bg-green-500/5 border border-green-500/20 rounded-xl p-3">
-            <p className="text-green-400 text-xs font-medium mb-2">✅ 宜</p>
+            <p className="text-green-400 text-xs font-medium mb-2">✅ {t("dash.fortune.yi")}</p>
             <div className="flex flex-wrap gap-1.5">
               {almanac.yi.map((item, i) => (
                 <span key={i} className="text-[11px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-400/80">
@@ -324,7 +325,7 @@ export function DailyDashboard() {
 
           {/* 忌 */}
           <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-3">
-            <p className="text-red-400 text-xs font-medium mb-2">❌ 忌</p>
+            <p className="text-red-400 text-xs font-medium mb-2">❌ {t("dash.fortune.ji")}</p>
             <div className="flex flex-wrap gap-1.5">
               {almanac.ji.map((item, i) => (
                 <span key={i} className="text-[11px] px-2 py-0.5 rounded-full bg-red-500/10 text-red-400/80">
