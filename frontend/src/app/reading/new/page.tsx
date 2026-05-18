@@ -65,7 +65,11 @@ export default function NewReadingPage() {
   const { locale, t } = useLanguage()
   const isEn = locale === "en"
 
+  // ── Wizard store: intent & prefill ──────────────────────────
+  const { currentIntent, formData: wizardData, startStep: wizardStartStep, reset: resetWizard } = useWizardStore()
+
   // ── Validation schema (uses t() for messages) ──
+  // birth_city is only required when birth info step is shown (FULL_MULTIMODAL / no intent)
   const schema = useMemo(() => z.object({
     gender: z.enum(["male", "female", "other"]),
     birth_year:   z.coerce.number().min(1920).max(2026),
@@ -73,11 +77,13 @@ export default function NewReadingPage() {
     birth_day:    z.coerce.number().min(1).max(31),
     birth_hour:   z.coerce.number().min(0).max(23),
     birth_minute: z.coerce.number().min(0).max(59).default(0),
-    birth_city:   z.string().min(1, t("new.cityRequired")),
+    birth_city:   currentIntent
+      ? z.string().optional().default("") // Intent flows skip birth step
+      : z.string().min(1, t("new.cityRequired")), // No intent = full flow, require city
     latitude:     z.coerce.number().min(-90).max(90).optional().or(z.literal("")),
     longitude:    z.coerce.number().min(-180).max(180).optional().or(z.literal("")),
     user_question: z.string().min(2, t("new.questionMinChars")).max(200),
-  }), [t])
+  }), [t, currentIntent])
   type FormValues = z.infer<typeof schema>
 
   // ── Step labels ── (defined above via useMemo based on intent)
@@ -125,9 +131,6 @@ export default function NewReadingPage() {
 
   const watchedQuestion = watch("user_question")
   const watchedHour = watch("birth_hour")
-
-  // ── Wizard store: intent & prefill ──────────────────────────
-  const { currentIntent, formData: wizardData, startStep: wizardStartStep, reset: resetWizard } = useWizardStore()
 
   // Dynamic steps based on intent
   const STEPS = useMemo(() => {
@@ -399,7 +402,13 @@ export default function NewReadingPage() {
       <div className="fixed top-16 left-0 right-0 z-30 h-1 bg-white/5">
         <div
           className="h-full bg-gradient-to-r from-gold/60 via-gold to-gold-light transition-all duration-500 ease-out shadow-[0_0_12px_rgba(201,168,76,0.4)]"
-          style={{ width: `${((step + 1) / STEPS.length) * 100}%` }}
+          style={{
+            width: `${(
+              // Find logical step index from DOM step
+              (STEPS.findIndex(s => ALL_STEP_LABELS.indexOf(s) === step) + 1)
+              / STEPS.length
+            ) * 100}%`
+          }}
         />
       </div>
 
@@ -456,8 +465,8 @@ export default function NewReadingPage() {
           ))}
         </div>
 
-        {/* Clear progress button */}
-        {step > 0 && (
+        {/* Clear progress button — show when past the first logical step */}
+        {toDomStep(0) < step && (
           <div className="flex justify-center mb-6">
             <button
               type="button"
@@ -792,15 +801,23 @@ export default function NewReadingPage() {
             </div>
           </div>
           <div className="flex justify-between mt-8">
-            {step > 0 ? (
-              <button type="button" onClick={() => setStep(s => s - 1)}
+            {toDomStep(0) < step ? (
+              <button type="button" onClick={() => {
+                // Go to previous logical step
+                const logical = STEPS.findIndex(s => ALL_STEP_LABELS.indexOf(s) === step) - 1
+                if (logical >= 0) setStep(toDomStep(logical))
+              }}
  className="flex items-center gap-2 px-6 py-2.5 rounded-full border border-white/20 text-white/60 hover:border-white/40 transition-all">
                 <ChevronLeft size={16} /> {t("new.prevStep")}
               </button>
             ) : <div />}
 
-            {step < STEPS.length - 1 && (
-              <button type="button" onClick={() => setStep(s => s + 1)}
+            {step < toDomStep(STEPS.length - 1) && (
+              <button type="button" onClick={() => {
+                // Go to next logical step
+                const logical = STEPS.findIndex(s => ALL_STEP_LABELS.indexOf(s) === step) + 1
+                if (logical < STEPS.length) setStep(toDomStep(logical))
+              }}
                 className="btn-gold flex items-center gap-2">
                 {t("new.nextStep")} <ChevronRight size={16} />
               </button>
