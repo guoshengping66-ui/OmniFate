@@ -1675,7 +1675,7 @@ async def get_daily_almanac(
 
     # Check cache — same user + same day = instant response
     from fastapi.responses import JSONResponse
-    cache_key = f"{session_id}:{date.today()}"
+    cache_key = f"{session_id}:{date.today()}:{lang}"
     import time as _time
     cached = _almanac_cache.get(cache_key)
     if cached and (_time.time() - cached.get("_ts", 0)) < _ALMANAC_CACHE_TTL:
