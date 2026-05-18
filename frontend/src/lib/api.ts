@@ -592,6 +592,7 @@ export interface CreateOrderRequest {
   total_cny: number
   use_coupon?: boolean
   address_id?: string
+  payment_method?: string
   notes?: string
 }
 

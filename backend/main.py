@@ -72,6 +72,8 @@ async def global_exception_handler(request: Request, exc: Exception):
     )
 
 # ── Simple in-memory rate limiter ───────────────────────────────────────────
+# NOTE: This works because the backend runs on a persistent server (api.khanfate.com).
+# If migrating to Vercel serverless, replace with Redis-based or Edge Middleware rate limiting.
 _rate_store: dict[str, list[float]] = defaultdict(list)
 RATE_LIMIT_WINDOW = 60  # seconds
 RATE_LIMIT_MAX = 60     # requests per window (global)

@@ -34,7 +34,7 @@ interface PaymentMethodSelectorProps {
 }
 
 export function PaymentMethodSelector({ selected, onSelect, className = "" }: PaymentMethodSelectorProps) {
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
   const [methods, setMethods] = useState<PaymentMethod[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -154,7 +154,7 @@ function PaymentMethodButton({
 
       {/* Name */}
       <span className={`text-sm font-medium ${selected ? "text-gold" : "text-white/70"}`}>
-        {method.name}
+        {locale === "en" ? method.name_en : method.name}
       </span>
 
       {/* Arrow */}

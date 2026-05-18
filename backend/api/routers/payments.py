@@ -5,7 +5,10 @@ import hashlib
 import time
 import json
 import base64
+import logging
 import requests
+
+logger = logging.getLogger(__name__)
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 from xml.etree import ElementTree as ET
@@ -36,8 +39,8 @@ PREMIUM_MONTHLY_CNY = 59.0
 PREMIUM_YEARLY_CNY = 365.0
 PREMIUM_MONTHLY_USD = 14.99
 PREMIUM_YEARLY_USD = 99.00
-UNLOCK_PRICE_CNY = 69.0
-UNLOCK_PRICE_USD = 19.99
+UNLOCK_PRICE_CNY = 88.0
+UNLOCK_PRICE_USD = 24.99
 
 # Price map for order validation
 PRODUCT_PRICES = {
@@ -405,6 +408,9 @@ async def wechat_notify(request: Request, db: AsyncSession = Depends(get_db)):
     order_result = await db.execute(select(Order).where(Order.order_no == order_no))
     order = order_result.scalar_one_or_none()
     if order:
+        # 幂等保护：如果订单已支付，直接返回成功（避免重复激活）
+        if order.status == OrderStatus.paid:
+            return "<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>"
         # Verify paid amount matches expected amount
         paid_fee = int(data.get("total_fee", 0))
         expected_fee = int(order.total_cny * 100)
@@ -584,6 +590,9 @@ async def alipay_notify(request: Request, db: AsyncSession = Depends(get_db)):
     order_result = await db.execute(select(Order).where(Order.order_no == order_no))
     order = order_result.scalar_one_or_none()
     if order:
+        # 幂等保护：如果订单已支付，直接返回成功（避免重复激活）
+        if order.status == OrderStatus.paid:
+            return "success"
         # Verify paid amount matches expected amount
         paid_amount = float(data.get("total_amount", 0))
         if abs(paid_amount - order.total_cny) > 0.01:
@@ -920,6 +929,7 @@ class CreateOrderRequest(BaseModel):
     total_cny: float
     use_coupon: bool = False
     address_id: Optional[str] = None
+    payment_method: Optional[str] = None
     recipient_name: Optional[str] = None
     recipient_phone: Optional[str] = None
     shipping_address: Optional[dict] = None
@@ -1008,7 +1018,7 @@ async def create_order(
         order_no=order_no,
         status=OrderStatus.pending,
         total_cny=final_total,
-        payment_method="pending",
+        payment_method=req.payment_method or "pending",
         payment_ref=order_no,
         recipient_name=recipient_name,
         recipient_phone=recipient_phone,

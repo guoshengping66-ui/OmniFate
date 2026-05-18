@@ -48,6 +48,7 @@ export default function CheckoutPage() {
         total_cny: totalWithDiscount,
         use_coupon: useCoupon,
         address_id: selectedAddress.id,
+        payment_method: paymentMethod,
       })
       toast.success(
         result.coupon_used > 0
@@ -84,7 +85,7 @@ export default function CheckoutPage() {
             <CheckCircle size={32} className="text-green-400" />
           </div>
           <h2 className="font-serif text-xl text-gold mb-2">{t("checkout.orderSuccessTitle")}</h2>
-          <p className="text-white/50 text-sm mb-6">
+          <p className="text-white/50 text-sm mb-4">
             {couponDiscount > 0
               ? t("checkout.couponApplied").replace("{amount}", String(couponDiscount))
               : t("checkout.thankYou")}
@@ -94,9 +95,31 @@ export default function CheckoutPage() {
               {t("coupon.remaining")}: ¥{Math.max(0, couponBalance - couponDiscount)}
             </p>
           )}
-          <button onClick={() => router.push("/shop")} className="btn-gold">
-            {t("checkout.continueShop")}
-          </button>
+          <div className="bg-white/5 border border-white/10 rounded-lg p-4 mb-6 text-left">
+            <p className="text-white/60 text-xs mb-2">{t("checkout.nextSteps")}:</p>
+            <ul className="text-white/40 text-xs space-y-1.5">
+              <li className="flex items-start gap-2">
+                <span className="text-gold mt-0.5">1.</span>
+                {t("checkout.step1")}
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-gold mt-0.5">2.</span>
+                {t("checkout.step2")}
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-gold mt-0.5">3.</span>
+                {t("checkout.step3")}
+              </li>
+            </ul>
+          </div>
+          <div className="flex gap-3">
+            <button onClick={() => router.push("/account/orders")} className="btn-gold flex-1 text-sm">
+              {t("checkout.viewOrders")}
+            </button>
+            <button onClick={() => router.push("/shop")} className="btn-gold flex-1 text-sm">
+              {t("checkout.continueShop")}
+            </button>
+          </div>
         </div>
       </div>
     )

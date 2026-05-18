@@ -492,6 +492,11 @@ export default {
   "checkout.empty": "Your cart is empty",
   "checkout.goShop": "Browse Shop",
   "checkout.continueShop": "Continue Shopping",
+  "checkout.nextSteps": "Next Steps",
+  "checkout.step1": "Scan the QR code in your order with Alipay/WeChat to complete payment",
+  "checkout.step2": "After payment, the admin will confirm and ship within 24 hours",
+  "checkout.step3": "You can check your order status in \"My Orders\"",
+  "checkout.viewOrders": "View Orders",
   "checkout.loginFirst": "Please login first",
   "checkout.successCoupon": "Order successful! ¥{amount} coupon deducted, paid ¥{paid}",
   "checkout.successMock": "Order successful!",
@@ -2111,6 +2116,9 @@ export default {
   "error.title": "Something went wrong",
   "error.clientError": "An error occurred during client rendering:",
   "error.retry": "Retry",
+  "error.checkoutError": "Failed to load checkout page. Please try again.",
+  "error.readingError": "Failed to load the reading wizard. Please try again.",
+  "error.pricingError": "Failed to load pricing page. Please try again.",
 
   // ─── FAQ (residual) ───
   "faq.breadcrumb": "FAQ",

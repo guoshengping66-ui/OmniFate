@@ -286,7 +286,7 @@ async def admin_confirm_payment(
     if not hmac.compare_digest(token, settings.CRON_SECRET):
         raise HTTPException(status_code=403, detail="Invalid token")
 
-    # 2. 获取订单 — 必须是 processing 状态
+    # 2. 获取订单 — 必须是 processing 状态（用户已确认付款）
     result = await db.execute(
         select(Order).where(
             Order.order_no == order_no,
@@ -295,16 +295,7 @@ async def admin_confirm_payment(
     )
     order = result.scalar_one_or_none()
     if not order:
-        # 也接受 pending 状态（直接管理员确认）
-        result = await db.execute(
-            select(Order).where(
-                Order.order_no == order_no,
-                Order.status == OrderStatus.pending,
-            )
-        )
-        order = result.scalar_one_or_none()
-        if not order:
-            raise HTTPException(status_code=404, detail="订单不存在或已处理")
+        raise HTTPException(status_code=404, detail="订单不存在或尚未提交确认")
 
     # 3. 验证订单金额合理性
     if order.total_cny <= 0 or order.total_cny > 50000:

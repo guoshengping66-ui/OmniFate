@@ -3,7 +3,7 @@
 import { useEffect } from "react"
 import { useLanguage } from "@/contexts/LanguageContext"
 
-export default function GlobalError({
+export default function PricingError({
   error,
   reset,
 }: {
@@ -12,7 +12,7 @@ export default function GlobalError({
 }) {
   const { t } = useLanguage()
   useEffect(() => {
-    console.error("[GlobalError]", error)
+    console.error("[PricingError]", error)
   }, [error])
 
   return (
@@ -20,22 +20,16 @@ export default function GlobalError({
       <div className="max-w-md w-full card-glass p-8 text-center">
         <div className="text-4xl mb-4">⚠️</div>
         <h2 className="font-serif text-xl text-gold mb-3">{t("error.title")}</h2>
-        <p className="text-white/50 text-sm mb-2">
-          {t("error.clientError")}
-        </p>
+        <p className="text-white/50 text-sm mb-2">{t("error.pricingError")}</p>
         {process.env.NODE_ENV === "development" && (
           <div className="bg-white/5 border border-white/10 rounded-lg p-4 mb-6 text-left overflow-auto max-h-48">
             <code className="text-red-400 text-xs whitespace-pre-wrap break-all">
               {error.message}
               {error.digest && `\n\nDigest: ${error.digest}`}
-              {error.stack && `\n\n${error.stack}`}
             </code>
           </div>
         )}
-        <button
-          onClick={reset}
-          className="btn-gold text-sm px-6 py-2"
-        >
+        <button onClick={reset} className="btn-gold text-sm px-6 py-2">
           {t("error.retry")}
         </button>
       </div>

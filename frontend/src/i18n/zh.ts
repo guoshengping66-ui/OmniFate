@@ -486,6 +486,11 @@ export default {
   "checkout.empty": "购物车是空的",
   "checkout.goShop": "去商城逛逛",
   "checkout.continueShop": "继续购物",
+  "checkout.nextSteps": "下一步",
+  "checkout.step1": "请通过支付宝/微信扫描订单中的二维码完成支付",
+  "checkout.step2": "支付完成后，管理员将在 24 小时内确认并发货",
+  "checkout.step3": "你可以在「我的订单」中查看订单状态",
+  "checkout.viewOrders": "查看订单",
   "checkout.loginFirst": "请先登录",
   "checkout.successCoupon": "下单成功！代金券抵扣 ¥{amount}，实付 ¥{paid}",
   "checkout.successMock": "下单成功！",
@@ -2105,6 +2110,9 @@ export default {
   "error.title": "出了点问题",
   "error.clientError": "客户端渲染时发生异常，以下是错误详情：",
   "error.retry": "重试",
+  "error.checkoutError": "结算页面加载出错，请重试",
+  "error.readingError": "推命向导加载出错，请重试",
+  "error.pricingError": "定价页面加载出错，请重试",
 
   // ─── FAQ（残留） ───
   "faq.breadcrumb": "常见问题",
