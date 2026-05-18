@@ -13,11 +13,11 @@ import { TiltCard } from "@/components/ui/TiltCard"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useAuth } from "@/contexts/AuthContext"
 import { useUserStore } from "@/stores/useUserStore"
-import { DailyFortune } from "@/components/reading/DailyFortune"
 import { CountUpNumber } from "@/components/ui/CountUpNumber"
 import { AccordionItem } from "@/components/ui/AccordionItem"
 import { FloatingOracleIcon } from "@/components/ui/FloatingOracleIcon"
 import { UserDashboard } from "@/components/dashboard/UserDashboard"
+import { DailyDashboard } from "@/components/DailyDashboard"
 import { motion, useInView } from "framer-motion"
 import { useRef } from "react"
 
@@ -212,13 +212,41 @@ export default function HomePage() {
 
 
 
-  // ── Returning users with profile → Dashboard ────────────────
+  // ── Returning users with profile → Dashboard vertical flow ──
   if (hasProfile) {
     return (
       <div className="min-h-screen">
         <LiveBar />
-        <section className="pt-24 pb-16 px-4">
+
+        {/* ── Hero Fold: 底座 + 意图按钮 ───────────────────── */}
+        <section className="pt-24 pb-10 px-4">
           <UserDashboard />
+        </section>
+
+        {/* ── Daily Focus Fold: 今日运势 + 黄历 ─────────────── */}
+        <section className="py-12 px-4 bg-white/[0.015]">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-8">
+              <span className="text-gold/60 text-sm tracking-[0.2em] uppercase">今日天盘</span>
+              <h2 className="font-serif text-2xl font-bold text-gold mt-2">今日运势与红尘黄历</h2>
+            </div>
+            <DailyDashboard />
+          </div>
+        </section>
+
+        {/* ── CTA Fold: 改运商城/知识库 ────────────────────── */}
+        <section className="py-16 px-4">
+          <div className="max-w-3xl mx-auto">
+            <div className="card-glass p-8 text-center">
+              <div className="text-3xl mb-4">🛍️</div>
+              <h3 className="font-serif text-lg text-gold mb-2">探索改运好物</h3>
+              <p className="text-white/40 text-sm mb-5">精选灵性水晶与开运饰品，助力运势提升</p>
+              <div className="flex justify-center gap-4">
+                <Link href="/shop" className="btn-gold text-sm px-6 py-2">改运商城</Link>
+                <Link href="/blog" className="border border-white/20 text-white/60 hover:text-gold hover:border-gold/30 rounded-full text-sm px-6 py-2 transition-all">知识库</Link>
+              </div>
+            </div>
+          </div>
         </section>
       </div>
     )
@@ -684,21 +712,21 @@ export default function HomePage() {
         </section>
       </ScrollReveal>
 
-      {/* ══════════ DAILY FORTUNE ══════════ */}
+      {/* ══════════ DAILY FORTUNE + ALMANAC ══════════ */}
       <section className="py-28 px-4 bg-white/[0.015] relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gold/[0.02] to-transparent pointer-events-none" />
         <div className="max-w-5xl mx-auto relative">
           <ScrollReveal>
             <div className="text-center mb-16">
               <span className="text-gold/60 text-sm tracking-[0.2em] uppercase">{t("fortune.badge")}</span>
-              <h2 className="section-title mt-3">{t("fortune.sectionTitle")}</h2>
+              <h2 className="section-title mt-3">今日运势与红尘黄历</h2>
               <p className="text-white/40 mt-4 max-w-lg mx-auto">
                 {t("fortune.sectionDesc")}
               </p>
             </div>
           </ScrollReveal>
           <ScrollReveal delay={0.2}>
-            <DailyFortune user={user} />
+            <DailyDashboard />
           </ScrollReveal>
         </div>
       </section>

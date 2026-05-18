@@ -36,7 +36,6 @@ export function Navbar() {
 
   // Extra links — visible on wide screens, collapsed on narrow
   const extraLinks = [
-    { href: "/almanac", label: t("nav.almanac") },
     { href: "/shop", label: t("nav.shop") },
     { href: "/blog", label: t("nav.blog") },
     { href: "/about", label: t("nav.about") },
