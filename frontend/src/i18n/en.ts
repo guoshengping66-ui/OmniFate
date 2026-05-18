@@ -717,4 +717,57 @@ export default {
   "faq.a4": "The free version offers basic destiny analysis. The paid version (¥69) unlocks the complete report including detailed annual destiny planning, personalized fortune enhancement plans, ¥60 shop coupons, and a 3-day membership trial. Members also enjoy 12% off in the shop and multiple free readings per month.",
   "faq.q5": "How do I get started?",
   "faq.a5": "Just three steps: 1) Enter your birth date and time information; 2) Optionally upload face and palm photos; 3) Click Start Reading — receive your personalized five-dimension destiny analysis report within 40 seconds. No registration required to try the free version.",
+
+  // ─── Face Scan Animation ───
+  "faceScan.scanning": "Scanning facial features...",
+  "faceScan.complete": "Feature recognition complete",
+  "faceScan.forehead": "Forehead",
+  "faceScan.noseTip": "Nose tip",
+  "faceScan.leftCheek": "L. cheek",
+  "faceScan.rightCheek": "R. cheek",
+  "faceScan.jaw": "Jaw",
+  "faceScan.leftEye": "L. eye",
+  "faceScan.rightEye": "R. eye",
+
+  // ─── Destiny Radar ───
+  "destinyRadar.title": "Five-Dimensional Energy Distribution",
+  "destinyRadar.wealth": "Wealth",
+  "destinyRadar.relationship": "Love",
+  "destinyRadar.career": "Career",
+  "destinyRadar.health": "Health",
+  "destinyRadar.spiritual": "Spiritual",
+
+  // ─── Nebula Unlock ───
+  "nebulaUnlock.status1": "Calibrating stellar data...",
+  "nebulaUnlock.status2": "Harmonizing five-element energy...",
+  "nebulaUnlock.status3": "Searching XinXue archives...",
+  "nebulaUnlock.status4": "Deducting celestial destiny chart...",
+  "nebulaUnlock.status5": "Sensing stellar resonance...",
+  "nebulaUnlock.status6": "Weaving destiny coordinates...",
+  "nebulaUnlock.status7": "Decoding cosmic cipher...",
+  "nebulaUnlock.status8": "Condensing stardust power...",
+
+  // ─── Floating Oracle Icon ───
+  "floatingOracle.label": "Stellar Draw",
+  "floatingOracle.freeToday": "Free Today",
+  "floatingOracle.freeHint": "First draw free daily, feel the stars guide you",
+
+  // ─── Event Input ───
+  "eventInput.title": "Event Review",
+  "eventInput.freeRemaining": "{count} free reviews remaining this month",
+  "eventInput.desc": "Describe an event you want to understand deeply. AI will analyze the causal chain from transit chart and BaZi perspectives, and provide current response strategies.",
+  "eventInput.price": "¥19.9/time",
+  "eventInput.eventDesc": "Event Description",
+  "eventInput.eventDescPlaceholder": "Describe what happened — the more detailed, the more precise the AI analysis...",
+  "eventInput.eventDate": "Event Date",
+  "eventInput.approxTime": "Approximate Time",
+  "eventInput.emotionLabel": "Emotional State at the Time",
+  "eventInput.emotion1": "Extremely Negative",
+  "eventInput.emotion3": "Rather Negative",
+  "eventInput.emotion5": "Neutral",
+  "eventInput.emotion7": "Rather Positive",
+  "eventInput.emotion9": "Extremely Positive",
+  "eventInput.analyzing": "Analyzing...",
+  "eventInput.freeReview": "Free Review",
+  "eventInput.startReview": "¥19.9 Start Review",
 } as const

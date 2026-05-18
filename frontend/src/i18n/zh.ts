@@ -711,4 +711,57 @@ export default {
   "faq.a4": "免费版可以体验基础的命理分析，付费版（¥69）可以解锁完整报告，包括详细的年度命盘规划、精准的改运方案、¥60商城代金券，以及3天会员试用。会员还可以享受商城88折优惠和每月多次免费推命。",
   "faq.q5": "如何开始使用？",
   "faq.a5": "只需三步：1）填写你的出生年月日时信息；2）可选上传面相和手相照片；3）点击开始推命，40秒内即可获得你的专属五维命理分析报告。无需注册即可体验免费版。",
+
+  // ─── 面相扫描动画 ───
+  "faceScan.scanning": "🔍 面部特征扫描中…",
+  "faceScan.complete": "✅ 特征识别完成",
+  "faceScan.forehead": "额头",
+  "faceScan.noseTip": "鼻头",
+  "faceScan.leftCheek": "左颧",
+  "faceScan.rightCheek": "右颧",
+  "faceScan.jaw": "地阁",
+  "faceScan.leftEye": "左眼",
+  "faceScan.rightEye": "右眼",
+
+  // ─── 命运雷达图 ───
+  "destinyRadar.title": "五维能量分布",
+  "destinyRadar.wealth": "财运",
+  "destinyRadar.relationship": "感情",
+  "destinyRadar.career": "事业",
+  "destinyRadar.health": "健康",
+  "destinyRadar.spiritual": "精神",
+
+  // ─── 星云解锁 ───
+  "nebulaUnlock.status1": "正在校准星历数据...",
+  "nebulaUnlock.status2": "正在调和五行能量...",
+  "nebulaUnlock.status3": "正在检索心学典籍...",
+  "nebulaUnlock.status4": "正在推演天机命盘...",
+  "nebulaUnlock.status5": "正在感应星辰共振...",
+  "nebulaUnlock.status6": "正在编织命运经纬...",
+  "nebulaUnlock.status7": "正在解密宇宙密码...",
+  "nebulaUnlock.status8": "正在凝聚星尘之力...",
+
+  // ─── 浮动神谕图标 ───
+  "floatingOracle.label": "星际抽签",
+  "floatingOracle.freeToday": "今日免费",
+  "floatingOracle.freeHint": "每日首次免费，感受星辰指引",
+
+  // ─── 事件输入 ───
+  "eventInput.title": "事件复盘",
+  "eventInput.freeRemaining": "本月剩余 {count} 次免费",
+  "eventInput.desc": "描述一件你想深入理解的事件，AI 将从流时星盘和八字角度分析因果链，并提供当下应对策略。",
+  "eventInput.price": "¥19.9/次",
+  "eventInput.eventDesc": "事件描述",
+  "eventInput.eventDescPlaceholder": "描述发生了什么，越详细 AI 分析越精准…",
+  "eventInput.eventDate": "事件日期",
+  "eventInput.approxTime": "大致时间",
+  "eventInput.emotionLabel": "当时的情绪感受",
+  "eventInput.emotion1": "极度负面",
+  "eventInput.emotion3": "比较负面",
+  "eventInput.emotion5": "中性",
+  "eventInput.emotion7": "比较正面",
+  "eventInput.emotion9": "极度正面",
+  "eventInput.analyzing": "分析中…",
+  "eventInput.freeReview": "免费复盘",
+  "eventInput.startReview": "¥19.9 开始复盘",
 } as const

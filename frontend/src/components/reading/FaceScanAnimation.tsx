@@ -1,5 +1,6 @@
 "use client"
 import { useEffect, useRef, useState } from "react"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 interface Props {
   imageUrl: string
@@ -21,6 +22,8 @@ export function FaceScanAnimation({ imageUrl, isScanning, onComplete }: Props) {
   const [phase, setPhase] = useState<"scanning" | "highlight" | "done">("scanning")
   const scanPos = useRef(0)
   const animFrame = useRef(0)
+  const { t: rawT } = useLanguage()
+  const t = rawT as unknown as (key: string) => string
 
   useEffect(() => {
     if (!isScanning || !canvasRef.current) return
@@ -73,7 +76,7 @@ export function FaceScanAnimation({ imageUrl, isScanning, onComplete }: Props) {
           ctx.fillStyle = "rgba(201, 168, 76, 0.8)"
           ctx.font = "14px sans-serif"
           ctx.textAlign = "center"
-          ctx.fillText("🔍 面部特征扫描中…", canvas.width / 2, 30)
+          ctx.fillText(t("faceScan.scanning"), canvas.width / 2, 30)
 
           animFrame.current = requestAnimationFrame(drawScan)
         } else if (elapsed < SCAN_DURATION + HIGHLIGHT_DURATION) {
@@ -90,13 +93,13 @@ export function FaceScanAnimation({ imageUrl, isScanning, onComplete }: Props) {
 
           // Highlight points (approximate facial feature positions)
           const features = [
-            { x: canvas.width * 0.5, y: canvas.height * 0.2, label: "额头" },
-            { x: canvas.width * 0.5, y: canvas.height * 0.55, label: "鼻头" },
-            { x: canvas.width * 0.3, y: canvas.height * 0.45, label: "左颧" },
-            { x: canvas.width * 0.7, y: canvas.height * 0.45, label: "右颧" },
-            { x: canvas.width * 0.5, y: canvas.height * 0.75, label: "地阁" },
-            { x: canvas.width * 0.35, y: canvas.height * 0.38, label: "左眼" },
-            { x: canvas.width * 0.65, y: canvas.height * 0.38, label: "右眼" },
+            { x: canvas.width * 0.5, y: canvas.height * 0.2, label: t("faceScan.forehead") },
+            { x: canvas.width * 0.5, y: canvas.height * 0.55, label: t("faceScan.noseTip") },
+            { x: canvas.width * 0.3, y: canvas.height * 0.45, label: t("faceScan.leftCheek") },
+            { x: canvas.width * 0.7, y: canvas.height * 0.45, label: t("faceScan.rightCheek") },
+            { x: canvas.width * 0.5, y: canvas.height * 0.75, label: t("faceScan.jaw") },
+            { x: canvas.width * 0.35, y: canvas.height * 0.38, label: t("faceScan.leftEye") },
+            { x: canvas.width * 0.65, y: canvas.height * 0.38, label: t("faceScan.rightEye") },
           ]
 
           features.forEach(f => {
@@ -117,7 +120,7 @@ export function FaceScanAnimation({ imageUrl, isScanning, onComplete }: Props) {
           ctx.fillStyle = "rgba(201, 168, 76, 0.8)"
           ctx.font = "14px sans-serif"
           ctx.textAlign = "center"
-          ctx.fillText("✅ 特征识别完成", canvas.width / 2, 30)
+          ctx.fillText(t("faceScan.complete"), canvas.width / 2, 30)
 
           animFrame.current = requestAnimationFrame(drawScan)
         } else {
@@ -138,7 +141,7 @@ export function FaceScanAnimation({ imageUrl, isScanning, onComplete }: Props) {
     }
 
     return () => cancelAnimationFrame(animFrame.current)
-  }, [isScanning, imageUrl, onComplete])
+  }, [isScanning, imageUrl, onComplete, t])
 
   if (!visible) return null
 
