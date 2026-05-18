@@ -138,7 +138,7 @@ export function DailyDashboard() {
         // Personal fortune
         let f: DailyFortuneResponse
         if (user) {
-          try { f = await getDailyFortune() } catch { f = generateFallbackFortune(t) }
+          try { f = await getDailyFortune(locale) } catch { f = generateFallbackFortune(t) }
         } else {
           f = generateFallbackFortune(t)
         }
@@ -150,7 +150,7 @@ export function DailyDashboard() {
             const readings = await listMyReadings()
             if (readings && readings.length > 0) {
               const res = await api.get("/api/readings/daily-almanac", {
-                params: { session_id: readings[0].session_id },
+                params: { session_id: readings[0].session_id, lang: locale },
                 timeout: 15_000,
               })
               if (res?.data) {
@@ -158,8 +158,8 @@ export function DailyDashboard() {
                 setAlmanac({
                   lunar_date: raw.lunar_date || generateFallbackAlmanac(t).lunar_date,
                   bazi_day_pillar: raw.bazi_day_pillar || generateFallbackAlmanac(t).bazi_day_pillar,
-                  yi: (raw.yi || []).slice(0, 3).map((i: any) => ({ label: i.label || i.name, value: i.value || i.desc || "" })),
-                  ji: (raw.ji || []).slice(0, 3).map((i: any) => ({ label: i.label || i.name, value: i.value || i.desc || "" })),
+                  yi: (raw.yi || []).slice(0, 3).map((i: any) => typeof i === "string" ? { label: i, value: "" } : { label: i.label || i.name || "", value: i.value || i.desc || "" }),
+                  ji: (raw.ji || []).slice(0, 3).map((i: any) => typeof i === "string" ? { label: i, value: "" } : { label: i.label || i.name || "", value: i.value || i.desc || "" }),
                 })
                 return // success, skip fallback
               }
@@ -172,7 +172,7 @@ export function DailyDashboard() {
       }
     }
     load()
-  }, [user])
+  }, [user, locale])
 
   if (loading || !fortune || !almanac) {
     return (

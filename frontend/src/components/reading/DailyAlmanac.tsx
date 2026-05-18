@@ -24,7 +24,7 @@ export default function DailyAlmanac({ sessionId }: Props) {
   const fetchAlmanac = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await getDailyAlmanac(sessionId)
+      const res = await getDailyAlmanac(sessionId, locale)
       setData(res)
       setLoaded(true)
     } catch (err: any) {
@@ -33,7 +33,7 @@ export default function DailyAlmanac({ sessionId }: Props) {
     } finally {
       setLoading(false)
     }
-  }, [sessionId, t])
+  }, [sessionId, locale, t])
 
   useEffect(() => { fetchAlmanac() }, [fetchAlmanac])
 
