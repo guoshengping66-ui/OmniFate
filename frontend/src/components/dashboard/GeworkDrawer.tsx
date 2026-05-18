@@ -1,9 +1,7 @@
 "use client"
 import { useState, useEffect, useRef } from "react"
-import { useRouter } from "next/navigation"
 import { X, Send, Loader2, Sparkles, ChevronDown, Calendar, Smile, Clock, RotateCcw } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
-import { useWizardStore } from "@/stores/useWizardStore"
 import { useUserStore } from "@/stores/useUserStore"
 import { analyzeEvent } from "@/lib/api"
 
@@ -47,9 +45,7 @@ export function GeworkDrawer({ open, onClose }: Props) {
   const [error, setError] = useState("")
   const [tipIndex, setTipIndex] = useState(0)
 
-  const { setIntent, prefillFromProfile, updateField } = useWizardStore()
   const { activeTestTarget, userProfile } = useUserStore()
-  const router = useRouter()
   const resultRef = useRef<HTMLDivElement>(null)
 
   // Reset date to today when drawer opens

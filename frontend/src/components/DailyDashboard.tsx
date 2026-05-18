@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect } from "react"
 import { Wallet, Briefcase, Heart, Activity, Palette, Hash, AlertTriangle, TrendingUp } from "lucide-react"
-import { getDailyFortune, type DailyFortuneResponse } from "@/lib/api"
+import { getDailyFortune, listMyReadings, type DailyFortuneResponse } from "@/lib/api"
 import { api } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
@@ -140,7 +140,7 @@ export function DailyDashboard() {
         // Public almanac — try API, fallback to generated
         if (user) {
           try {
-            const readings = await import("@/lib/api").then(m => m.listMyReadings())
+            const readings = await listMyReadings()
             if (readings && readings.length > 0) {
               const res = await api.get("/api/readings/daily-almanac", {
                 params: { session_id: readings[0].session_id },

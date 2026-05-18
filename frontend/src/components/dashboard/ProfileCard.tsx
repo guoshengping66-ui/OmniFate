@@ -24,7 +24,7 @@ function getConstellation(month: number, day: number): string {
 }
 
 export function ProfileCard() {
-  const { userProfile, loading } = useUserStore()
+  const { userProfile } = useUserStore()
 
   const constellation = userProfile ? getConstellation(userProfile.birth_month, userProfile.birth_day) : ""
   const zodiac = userProfile ? getZodiac(userProfile.birth_year) : ""
