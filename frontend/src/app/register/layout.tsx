@@ -1,8 +1,8 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "注册 - 命盘智镜",
-  description: "注册命盘智镜账户，开始你的 AI 命理分析之旅。",
+  title: "Register - Destiny Mirror",
+  description: "Create your Destiny Mirror account and start your AI destiny analysis journey.",
 }
 
 export default function RegisterLayout({ children }: { children: React.ReactNode }) {

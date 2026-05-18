@@ -1,14 +1,14 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "星盘分析 - AI占星解读 | 命盘智镜",
-  description: "输入出生信息，AI自动绘制星盘并分析行星落宫、相位角度、灵魂使命。专业占星分析，揭示你的星盘密码。",
-  keywords: ["星盘分析", "占星术", "natal chart", "星盘解读", "行星落宫", "相位分析", "AI占星", "在线星盘"],
+  title: "Astrology Chart - AI Natal Chart Reading | Destiny Mirror",
+  description: "Enter birth information for AI-powered astrology chart analysis. Planetary placements, aspect angles, and soul mission interpretation.",
+  keywords: ["astrology chart", "natal chart", "birth chart", "astrology reading", "planet placement", "AI astrology", "online chart"],
   openGraph: {
-    title: "星盘分析 - AI占星解读 | 命盘智镜",
-    description: "输入出生信息，AI自动绘制星盘并分析行星落宫、相位角度",
+    title: "Astrology Chart - AI Natal Chart Reading",
+    description: "AI-powered astrology chart with planetary and aspect analysis",
     type: "website",
-    locale: "zh_CN",
+    locale: "en_US",
   },
   alternates: {
     canonical: "https://destinymirror.com/seo/astrology",

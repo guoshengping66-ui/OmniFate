@@ -1,19 +1,19 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "AM16 天命能级测验 | AlphaMirror",
-  description: "免费的AM16天命能级测验，通过12道沉浸式情景题，从四个维度精准定位你的精神状态密码。",
+  title: "AM16 Destiny Level Test | AlphaMirror",
+  description: "Free AM16 Destiny Level Test — 12 immersive scenario questions to pinpoint your spiritual state across four dimensions.",
   openGraph: {
-    title: "AM16 天命能级测验 — 解锁你的精神状态密码",
-    description: "12道沉浸式情景题，从顺天逆天、心觉格物、渡人修仙、稳如执行四个维度，精准定位你的精神状态密码。",
+    title: "AM16 Destiny Level Test — Unlock Your Spiritual Code",
+    description: "12 immersive questions across four dimensions to pinpoint your spiritual state",
     url: "https://alphamirror.app/am16",
     siteName: "AlphaMirror",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "AM16 天命能级测验 | AlphaMirror",
-    description: "12道沉浸式情景题解锁你的精神状态密码",
+    title: "AM16 Destiny Level Test | AlphaMirror",
+    description: "12 immersive questions to unlock your spiritual code",
   },
   alternates: {
     canonical: "https://alphamirror.app/am16",

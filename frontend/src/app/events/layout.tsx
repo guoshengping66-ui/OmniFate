@@ -1,12 +1,12 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "事件复盘 - 命盘智镜",
-  description: "输入关键事件的时间和描述，AI 从命理角度分析事件成因、影响及后续走向。",
-  keywords: ["事件复盘", "命理分析", "运势分析", "关键事件"],
+  title: "Event Review - Destiny Mirror",
+  description: "Enter key events with time and description. AI analyzes causes, impacts, and future trends from a destiny perspective.",
+  keywords: ["event review", "destiny analysis", "fortune analysis", "key events"],
   openGraph: {
-    title: "事件复盘 - 命盘智镜",
-    description: "从命理角度分析关键事件的成因与走向",
+    title: "Event Review - Destiny Mirror",
+    description: "AI analysis of key events from a destiny perspective",
     type: "website",
   },
 }

@@ -86,7 +86,7 @@ export default function RegisterPage() {
     setLoading(true)
     try {
       const birthData: RegisterBirthData | undefined = hasBirthData ? {
-        nickname: "本命",
+        nickname: t("auth.birth.defaultNickname") || "Myself",
         gender: birthGender,
         birth_year: birthYear,
         birth_month: birthMonth,

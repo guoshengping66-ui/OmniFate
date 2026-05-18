@@ -524,10 +524,10 @@ export default function HomePage() {
                   {/* Sample content */}
                   <div className="space-y-3 mb-6">
                     {[
-                      { label: t("report.dayMaster"), value: "甲木 — 参天大树之命", color: "#2D6A4F" },
-                      { label: t("report.fiveElements"), value: "木旺缺金 · 喜火调和", color: "#C1121F" },
-                      { label: t("report.tenGods"), value: "正官格 · 贵人运强", color: "#C9A84C" },
-                      { label: t("report.annual"), value: "2026 驿马动 · 适合远行求财", color: "#2980B9" },
+                      { label: t("report.dayMaster"), value: locale === "zh" ? "甲木 — 参天大树之命" : "Yang Wood — Towering Tree", color: "#2D6A4F" },
+                      { label: t("report.fiveElements"), value: locale === "zh" ? "木旺缺金 · 喜火调和" : "Wood strong, Metal weak · Fire favorable", color: "#C1121F" },
+                      { label: t("report.tenGods"), value: locale === "zh" ? "正官格 · 贵人运强" : "Officer pattern · Strong mentor luck", color: "#C9A84C" },
+                      { label: t("report.annual"), value: locale === "zh" ? "2026 驿马动 · 适合远行求财" : "2026 Horse year · Good for distant ventures", color: "#2980B9" },
                     ].map((item) => (
                       <div key={item.label} className="flex items-center gap-3 bg-white/[0.03] rounded-xl p-3">
                         <span
