@@ -1867,7 +1867,9 @@ async def _generate_almanac(
             "Example yi: 'Good for signing contracts', 'Ideal for networking'\n"
             "Example ji: 'Avoid impulsive investments', 'Refrain from major commitments'\n"
             "daily_quote: a short philosophical quote in English.\n"
-            if lang == "en" else ""
+            if lang == "en" else
+            "重要：yi 和 ji 的内容必须全部使用中文！例如：宜沟通、宜签约、忌争执、忌投资。\n"
+            "daily_quote: 必须使用中文古风寄语。\n"
         )
     )
 
@@ -1900,6 +1902,14 @@ async def _generate_almanac(
             }
             if lang == "en":
                 result = _translate_almanac_to_en(result)
+            elif lang == "zh":
+                # Safety: if LLM returned English items when Chinese was requested, use rule-based fallback
+                _has_english = any(
+                    any(c.isascii() and c.isalpha() for c in item)
+                    for item in result.get("yi", []) + result.get("ji", [])
+                )
+                if _has_english:
+                    result = _rule_based_almanac(state, today, transit_bazi, transit_astro, energy_score)
             return result
     except Exception:
         pass
