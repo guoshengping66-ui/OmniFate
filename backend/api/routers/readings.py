@@ -1944,6 +1944,7 @@ _YI_EN: dict[str, str] = {
     "宜热情行动": "Good for enthusiastic action",
     "宜冷静思考": "Good for calm reflection",
     "宜决断": "Good for decisive action",
+    "宜学习成长": "Good for learning and growth",
     "宜稳健积累": "Good for steady accumulation",
     "诸事皆宜": "All actions auspicious",
     "安床": "Settling & grounding",
