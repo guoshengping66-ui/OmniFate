@@ -14,7 +14,7 @@ import { listMyReadings, type ReadingListItem } from "@/lib/api"
 import { motion } from "framer-motion"
 import { TargetSelector } from "./TargetSelector"
 import { BirthProfileSetup } from "./BirthProfileSetup"
-import { EventAnalysisDrawer } from "./EventAnalysisDrawer"
+import { GeworkDrawer } from "./GeworkDrawer"
 
 // Chinese zodiac animals
 const ZODIAC = ["鼠","牛","虎","兔","龙","蛇","马","羊","猴","鸡","狗","猪"]
@@ -270,8 +270,8 @@ export function UserDashboard() {
         )}
       </motion.div>
 
-      {/* Event Analysis Drawer */}
-      <EventAnalysisDrawer open={eventDrawerOpen} onClose={() => setEventDrawerOpen(false)} />
+      {/* 格物致知 Drawer */}
+      <GeworkDrawer open={eventDrawerOpen} onClose={() => setEventDrawerOpen(false)} />
     </div>
   )
 }

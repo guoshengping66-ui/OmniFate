@@ -32,7 +32,6 @@ export function Navbar() {
     { href: "/reading/new", label: t("nav.reading") },
     { href: "/divination", label: t("nav.divination") },
     { href: "/am16", label: t("nav.am16") },
-    { href: "/events", label: t("nav.events") },
     { href: "/pricing", label: t("nav.pricing") },
   ]
 
