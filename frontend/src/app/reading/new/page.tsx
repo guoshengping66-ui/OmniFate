@@ -141,6 +141,18 @@ export default function NewReadingPage() {
     return [t("new.step1"), t("new.step2"), t("new.step3"), t("new.step4")]
   }, [currentIntent, t])
 
+  // All possible step labels (for mapping logical index → DOM index)
+  const ALL_STEP_LABELS = useMemo(
+    () => [t("new.step1"), t("new.step2"), t("new.step3"), t("new.step4")],
+    [t]
+  )
+
+  /** Convert a logical step index (0..STEPS.length-1) to the DOM step index (0..3) */
+  const toDomStep = (logical: number) => {
+    const label = STEPS[logical]
+    return ALL_STEP_LABELS.indexOf(label)
+  }
+
   // Prefill form from wizard store on mount
   useEffect(() => {
     if (wizardData.birth_year > 0) {
@@ -200,7 +212,7 @@ export default function NewReadingPage() {
 
   const handleClearProgress = () => {
     clearSavedProgress()
-    setStep(0)
+    setStep(toDomStep(0)) // Reset to first step of current intent (e.g. tarot for GENERAL_DAILY)
     setTarotCards([])
     setPalmData({})
     setValue("gender", "female")
