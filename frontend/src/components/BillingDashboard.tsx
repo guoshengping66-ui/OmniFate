@@ -3,10 +3,13 @@ import { useState, useEffect, useCallback } from "react"
 import {
   Coins, Copy, Check, Loader2, Zap, Gift, Link as LinkIcon,
   ExternalLink, ShieldCheck, AlertCircle, Sparkles, ChevronRight,
+  Globe, MapPin,
 } from "lucide-react"
+import { motion } from "framer-motion"
 import toast from "react-hot-toast"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useAuth } from "@/contexts/AuthContext"
+import { useRegion } from "@/hooks/useRegion"
 import {
   getGeoConfig, redeemCode, verifyTx,
   type GeoConfig, type StardustPackage,
@@ -478,6 +481,7 @@ function GlobalPanel({
 export function BillingDashboard() {
   const { t } = useLanguage()
   const { user, refreshUser } = useAuth()
+  const { region, switchRegion, isLoaded: regionLoaded } = useRegion()
 
   const [config, setConfig] = useState<GeoConfig | null>(null)
   const [loading, setLoading] = useState(true)
@@ -495,32 +499,45 @@ export function BillingDashboard() {
     }
   }, [user])
 
-  useEffect(() => {
-    getGeoConfig()
-      .then(cfg => {
-        setConfig(cfg)
-        // Auto-select popular package
-        const popular = cfg.packages.find(p => p.popular)
-        if (popular) setSelectedPkg(popular)
+  // Fetch geo-config (with region override)
+  const fetchConfig = useCallback(async (regionOverride?: "CN" | "GLOBAL") => {
+    try {
+      const override = regionOverride || (region === "overseas" ? "GLOBAL" : "CN")
+      const cfg = await getGeoConfig(override)
+      setConfig(cfg)
+      // Auto-select popular package
+      const popular = cfg.packages.find(p => p.popular)
+      if (popular) setSelectedPkg(popular)
+    } catch {
+      // Fallback: assume domestic if geo-config fails
+      setConfig({
+        region: "CN",
+        currency: "CNY",
+        symbol: "￥",
+        packages: [
+          { id: "stardust_100", stardust: 100, price: 9.9, popular: false },
+          { id: "stardust_500", stardust: 500, price: 39.9, popular: true },
+          { id: "stardust_1000", stardust: 1000, price: 69.9, popular: false },
+        ],
+        channels: ["REDEEM", "AIFADIAN"],
       })
-      .catch(() => {
-        // Fallback: assume domestic if geo-config fails
-        setConfig({
-          region: "CN",
-          currency: "CNY",
-          symbol: "￥",
-          packages: [
-            { id: "stardust_100", stardust: 100, price: 9.9, popular: false },
-            { id: "stardust_500", stardust: 500, price: 39.9, popular: true },
-            { id: "stardust_1000", stardust: 1000, price: 69.9, popular: false },
-          ],
-          channels: ["REDEEM", "AIFADIAN"],
-        })
-      })
-      .finally(() => setLoading(false))
+    }
+  }, [region])
 
+  useEffect(() => {
+    if (!regionLoaded) return
+    fetchConfig().finally(() => setLoading(false))
     fetchBalance()
-  }, [fetchBalance])
+  }, [regionLoaded, fetchConfig, fetchBalance])
+
+  // Re-fetch config when region changes (from toggle)
+  const handleRegionSwitch = async (newRegion: "domestic" | "overseas") => {
+    switchRegion(newRegion)
+    setLoading(true)
+    const override = newRegion === "overseas" ? "GLOBAL" : "CN"
+    await fetchConfig(override)
+    setLoading(false)
+  }
 
   const handleRefreshBalance = () => {
     fetchBalance()
@@ -544,12 +561,43 @@ export function BillingDashboard() {
       {/* 余额卡片 */}
       <BalanceCard balance={balance} />
 
+      {/* ══════════ Region Toggle ══════════ */}
+      <div className="flex items-center justify-center">
+        <div className="relative flex items-center bg-white/5 border border-white/10 rounded-full p-1">
+          <motion.div
+            className="absolute top-1 bottom-1 rounded-full bg-gold/15 border border-gold/25"
+            layout
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+            style={{
+              left: region === "domestic" ? "4px" : "50%",
+              width: "calc(50% - 4px)",
+            }}
+          />
+          <button
+            onClick={() => handleRegionSwitch("domestic")}
+            className={`relative z-10 px-5 py-2 rounded-full text-sm font-medium transition-colors duration-200 flex items-center gap-1.5
+              ${region === "domestic" ? "text-gold" : "text-white/40 hover:text-white/60"}`}
+          >
+            <MapPin size={14} />
+            国内 (CNY)
+          </button>
+          <button
+            onClick={() => handleRegionSwitch("overseas")}
+            className={`relative z-10 px-5 py-2 rounded-full text-sm font-medium transition-colors duration-200 flex items-center gap-1.5
+              ${region === "overseas" ? "text-gold" : "text-white/40 hover:text-white/60"}`}
+          >
+            <Globe size={14} />
+            海外 (USD)
+          </button>
+        </div>
+      </div>
+
       {/* 套餐选择 */}
       <div>
         <div className="section-heading mb-4">
           <div className="bar" />
           <span className="text">
-            选择充值套餐 — {isCN ? "人民币定价" : "美元定价"}
+            选择充值套餐 — {isCN ? "人民币定价 CNY" : "美元定价 USD"}
           </span>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

@@ -90,30 +90,60 @@ PACKAGE_STARDUST_MAP = {pkg["id"]: pkg["stardust"] for pkg in GLOBAL_PACKAGES + 
 
 
 def _detect_country(request: Request) -> str:
-    """从请求头识别用户国家代码"""
+    """
+    三级降级识别用户国家代码:
+    1. Vercel/Cloudflare 边缘节点注入的请求头
+    2. Nginx 透传的 X-Forwarded-For → geoip-lite 本地解析
+    3. Accept-Language 兜底
+    """
+    # 第一判定链路: Vercel / Cloudflare 边缘节点
     country = (
         request.headers.get("x-vercel-ip-country")
         or request.headers.get("cf-ipcountry")
         or ""
     ).upper()
-    # 简单的 fallback: 检查 Accept-Language
+
+    # 第二判定链路: 真实 IP → geoip-lite 本地解析
+    if not country:
+        forwarded = request.headers.get("x-forwarded-for", "")
+        real_ip = forwarded.split(",")[0].strip() if forwarded else ""
+        if real_ip and real_ip not in ("127.0.0.1", "::1", ""):
+            try:
+                import geoip2.database as _geoip_db
+                import geoip2.errors as _geoip_errors
+                reader = _geoip_db.Reader("/usr/share/GeoIP/GeoLite2-Country.mmdb")
+                resp = reader.country(real_ip)
+                country = (resp.country.iso_code or "").upper()
+            except Exception:
+                pass  # geoip 库不可用，继续降级
+
+    # 第三判定链路: Accept-Language 兜底
     if not country:
         lang = request.headers.get("accept-language", "")
         if lang.startswith("zh"):
             country = "CN"
         else:
             country = "US"
+
     return country
 
 
 @router.get("/geo-config")
-async def geo_config(request: Request):
+async def geo_config(
+    request: Request,
+    region_override: str = Query(None, description="手动覆盖地区: CN | GLOBAL"),
+):
     """
     地理位置感知定价分流 — 根据 IP 返回对应区域的定价与支付通道。
+    支持 region_override 参数供前端手动切换使用。
     国内(CN): 人民币 + 爱发电/卡密
     海外: 美元 + PayPal/USDT
     """
-    country = _detect_country(request)
+    # 如果有手动覆盖，直接使用；否则自动检测
+    if region_override and region_override.upper() in ("CN", "GLOBAL"):
+        country = region_override.upper()
+    else:
+        country = _detect_country(request)
 
     if country == "CN":
         return {

@@ -1091,8 +1091,9 @@ export interface GeoConfig {
   wallet_addresses?: Record<string, string>
 }
 
-export async function getGeoConfig(): Promise<GeoConfig> {
-  const res = await api.get<GeoConfig>("/api/billing/geo-config")
+export async function getGeoConfig(regionOverride?: "CN" | "GLOBAL"): Promise<GeoConfig> {
+  const params = regionOverride ? { region_override: regionOverride } : {}
+  const res = await api.get<GeoConfig>("/api/billing/geo-config", { params })
   return res.data
 }
 
