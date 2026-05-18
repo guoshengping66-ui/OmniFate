@@ -17,6 +17,7 @@ export default {
   "membership.monthly": "Monthly Member",
   "membership.yearly": "Yearly Member",
   "membership.free": "Free User",
+  "membership.founder": "Founder Member",
 
   // ─── Coupons ───
   "coupon.balance": "Coupon Balance",
@@ -1281,6 +1282,7 @@ export default {
   "dash.profile.title": "Destiny Profile",
   "dash.profile.nickname": "Nickname",
   "dash.profile.notSet": "Not set",
+  "dash.profile.dateFormat": "{y}y {M}m {d}d {h}:{m}",
   "dash.profile.zodiacYear": " sign",
 
   // ─── Dashboard: Intent Buttons ───

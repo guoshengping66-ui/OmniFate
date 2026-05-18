@@ -12,7 +12,7 @@ import { useLanguage } from "@/contexts/LanguageContext"
 
 export function UserDashboard() {
   const { userProfile, fetchBirthProfiles } = useUserStore()
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
   const [recentReadings, setRecentReadings] = useState<ReadingListItem[]>([])
   const [loadingReadings, setLoadingReadings] = useState(true)
   const [eventDrawerOpen, setEventDrawerOpen] = useState(false)
@@ -76,7 +76,7 @@ export function UserDashboard() {
                   <div className="flex-1 min-w-0">
                     <p className="text-white/70 text-sm truncate">{r.master_summary || t("dash.recent.analyzing")}</p>
                     <p className="text-white/30 text-xs mt-1">
-                      {new Date(r.created_at).toLocaleDateString("zh-CN")}
+                      {new Date(r.created_at).toLocaleDateString(locale === "zh" ? "zh-CN" : "en-US")}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 ml-4">

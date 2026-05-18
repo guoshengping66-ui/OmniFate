@@ -17,6 +17,7 @@ export default {
   "membership.monthly": "月度会员",
   "membership.yearly": "年度会员",
   "membership.free": "免费用户",
+  "membership.founder": "创始人会员",
 
   // ─── 代金券 ───
   "coupon.balance": "代金券余额",
@@ -1275,6 +1276,7 @@ export default {
   "dash.profile.title": "命理底座",
   "dash.profile.nickname": "昵称",
   "dash.profile.notSet": "未填写",
+  "dash.profile.dateFormat": "{y}年{M}月{d}日{h}时{m}分",
   "dash.profile.zodiacYear": "年",
 
   // ─── 仪表盘：推演按钮 ───

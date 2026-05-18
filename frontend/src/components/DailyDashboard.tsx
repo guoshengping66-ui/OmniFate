@@ -235,7 +235,7 @@ export function DailyDashboard() {
 
           <div className="space-y-1.5">
             <p className="text-white/60 text-sm">{almanac.lunar_date}</p>
-            <p className="text-white/40 text-xs">{t("dash.fortune.dayPillar")}：{almanac.bazi_day_pillar}</p>
+            <p className="text-white/40 text-xs">{t("dash.fortune.dayPillar")}: {almanac.bazi_day_pillar}</p>
           </div>
 
           {/* 宜 */}

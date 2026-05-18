@@ -50,8 +50,13 @@ export function ProfileCard() {
           <div className="flex items-center gap-3 text-sm">
             <Calendar size={14} className="text-white/30" />
             <span className="text-white/70">
-              {userProfile.birth_year}年{userProfile.birth_month}月{userProfile.birth_day}日
-              {userProfile.birth_hour}时{userProfile.birth_minute}分
+              {t("dash.profile.dateFormat")
+                .replace("{y}", String(userProfile.birth_year))
+                .replace("{M}", String(userProfile.birth_month))
+                .replace("{d}", String(userProfile.birth_day))
+                .replace("{h}", String(userProfile.birth_hour))
+                .replace("{m}", String(userProfile.birth_minute))
+              }
             </span>
           </div>
           <div className="flex items-center gap-3 text-sm">
