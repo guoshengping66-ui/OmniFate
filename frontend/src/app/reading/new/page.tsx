@@ -722,6 +722,20 @@ export default function NewReadingPage() {
                   </div>
                 )}
               </div>
+
+              {/* Skip face/palm option */}
+              <div className="text-center pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const logical = STEPS.findIndex(s => ALL_STEP_LABELS.indexOf(s) === step) + 1
+                    if (logical < STEPS.length) setStep(toDomStep(logical))
+                  }}
+                  className="text-white/30 text-xs hover:text-white/50 transition-colors underline underline-offset-2"
+                >
+                  {t("new.skipFacePalm")}
+                </button>
+              </div>
             </div> {/* end card-glass */}
               </motion.div>
             </div>

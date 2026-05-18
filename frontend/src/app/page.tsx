@@ -178,6 +178,7 @@ export default function HomePage() {
       tag: t("home.product1.tag"),
       gradient: "from-purple-900/40 to-purple-800/10",
       glow: "rgba(147,51,234,0.2)",
+      icon: "🔮",
     },
     {
       name: t("home.product2.name"),
@@ -186,6 +187,7 @@ export default function HomePage() {
       tag: t("home.product2.tag"),
       gradient: "from-amber-900/40 to-amber-800/10",
       glow: "rgba(245,158,11,0.2)",
+      icon: "🧘",
     },
     {
       name: t("home.product3.name"),
@@ -194,6 +196,7 @@ export default function HomePage() {
       tag: t("home.product3.tag"),
       gradient: "from-emerald-900/40 to-emerald-800/10",
       glow: "rgba(16,185,129,0.2)",
+      icon: "🌿",
     },
   ]
 
@@ -663,39 +666,41 @@ export default function HomePage() {
           <div className="grid md:grid-cols-3 gap-6">
             {products.map((p, i) => (
               <ScrollReveal key={p.name} delay={i * 0.12} direction="up">
-                <TiltCard glare={true} scale={1.02}>
-                  <div
- className="relative overflow-hidden rounded-2xl border border-white/10 p-6 h-full group cursor-pointer transition-all duration-500"
-                    style={{
-                      background: `linear-gradient(135deg, ${p.gradient}, transparent)`,
-                      boxShadow: `0 0 60px ${p.glow}`,
-                    }}
-                  >
-                    {/* Glow on hover */}
+                <Link href="/shop">
+                  <TiltCard glare={true} scale={1.02}>
                     <div
-                      className="absolute -inset-20 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+ className="relative overflow-hidden rounded-2xl border border-white/10 p-6 h-full group cursor-pointer transition-all duration-500"
                       style={{
-                        background: `radial-gradient(circle at 50% 50%, ${p.glow}, transparent 60%)`,
+                        background: `linear-gradient(135deg, ${p.gradient}, transparent)`,
+                        boxShadow: `0 0 60px ${p.glow}`,
                       }}
-                    />
+                    >
+                      {/* Glow on hover */}
+                      <div
+                        className="absolute -inset-20 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+                        style={{
+                          background: `radial-gradient(circle at 50% 50%, ${p.glow}, transparent 60%)`,
+                        }}
+                      />
 
-                    {/* Tag */}
+                      {/* Tag */}
  <div className="relative z-10 inline-block text-[10px] font-bold px-2 py-1 rounded-full bg-white/10 text-white/60 mb-4 border border-white/10">
-                      {p.tag}
-                    </div>
+                        {p.tag}
+                      </div>
 
-                    {/* Product image placeholder */}
- <div className="relative z-10 w-24 h-24 mx-auto mb-5 rounded-2xl border border-white/10 flex items-center justify-center text-4xl bg-white/[0.03]">
-                      💎
-                    </div>
+                      {/* Product icon */}
+ <div className="relative z-10 w-24 h-24 mx-auto mb-5 rounded-2xl border border-white/10 flex items-center justify-center text-4xl bg-white/[0.03] group-hover:scale-110 transition-transform duration-500">
+                        {p.icon}
+                      </div>
 
-                    <div className="relative z-10 text-center">
-                      <h3 className="font-serif font-bold text-white text-lg mb-1">{p.name}</h3>
-                      <p className="text-white/30 text-xs mb-3">{p.desc}</p>
-                      <div className="text-gold font-bold text-xl">{p.price}</div>
+                      <div className="relative z-10 text-center">
+                        <h3 className="font-serif font-bold text-white text-lg mb-1">{p.name}</h3>
+                        <p className="text-white/30 text-xs mb-3">{p.desc}</p>
+                        <div className="text-gold font-bold text-xl">{p.price}</div>
+                      </div>
                     </div>
-                  </div>
-                </TiltCard>
+                  </TiltCard>
+                </Link>
               </ScrollReveal>
             ))}
           </div>

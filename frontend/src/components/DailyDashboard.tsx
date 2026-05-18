@@ -1,10 +1,11 @@
 "use client"
 import { useState, useEffect } from "react"
 import { Wallet, Briefcase, Heart, Activity, Palette, Hash, AlertTriangle, TrendingUp } from "lucide-react"
-import { getDailyFortune, listMyReadings, type DailyFortuneResponse } from "@/lib/api"
+import { getDailyFortune, listMyReadings, getPersonalizedDailyAlmanac, type DailyFortuneResponse } from "@/lib/api"
 import { api } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { useUserStore } from "@/stores/useUserStore"
 import { translateYiJi, translateGanZhi, translateLunarDate } from "@/lib/translations"
 import { getCached, setCached } from "@/lib/dailyCache"
 
@@ -253,6 +254,7 @@ function AlmanacSection({ almanac, locale, t }: {
 export function DailyDashboard() {
   const { user } = useAuth()
   const { locale, t } = useLanguage()
+  const { userProfile } = useUserStore()
   const [fortune, setFortune] = useState<DailyFortuneResponse | null>(() => getCached<DailyFortuneResponse>("fortune"))
   const [almanac, setAlmanac] = useState<AlmanacData | null>(() => getCached<AlmanacData>("almanac"))
   const [fortuneLoading, setFortuneLoading] = useState(!fortune)
@@ -285,7 +287,15 @@ export function DailyDashboard() {
         setAlmanacLoading(false)
         return
       }
+      // Helper to parse almanac API response
+      const parseAlmanac = (raw: any): AlmanacData => ({
+        lunar_date: raw.lunar_date || generateFallbackAlmanac(t).lunar_date,
+        bazi_day_pillar: raw.bazi_day_pillar || generateFallbackAlmanac(t).bazi_day_pillar,
+        yi: (raw.yi || []).slice(0, 3).map((i: any) => typeof i === "string" ? { label: i, value: "" } : { label: i.label || i.name || "", value: i.value || i.desc || "" }),
+        ji: (raw.ji || []).slice(0, 3).map((i: any) => typeof i === "string" ? { label: i, value: "" } : { label: i.label || i.name || "", value: i.value || i.desc || "" }),
+      })
       try {
+        // Try session-based endpoint first (if user has readings)
         const readings = await listMyReadings()
         if (readings && readings.length > 0) {
           const res = await api.get("/api/readings/daily-almanac", {
@@ -293,18 +303,33 @@ export function DailyDashboard() {
             timeout: 15_000,
           })
           if (res?.data) {
-            const raw = res.data
-            const data: AlmanacData = {
-              lunar_date: raw.lunar_date || generateFallbackAlmanac(t).lunar_date,
-              bazi_day_pillar: raw.bazi_day_pillar || generateFallbackAlmanac(t).bazi_day_pillar,
-              yi: (raw.yi || []).slice(0, 3).map((i: any) => typeof i === "string" ? { label: i, value: "" } : { label: i.label || i.name || "", value: i.value || i.desc || "" }),
-              ji: (raw.ji || []).slice(0, 3).map((i: any) => typeof i === "string" ? { label: i, value: "" } : { label: i.label || i.name || "", value: i.value || i.desc || "" }),
-            }
+            const data = parseAlmanac(res.data)
             setCached("almanac", data)
             setAlmanac(data)
             setAlmanacLoading(false)
             return
           }
+        }
+      } catch {}
+      // Fallback: try personalized endpoint (if user has birth profile)
+      try {
+        if (userProfile && userProfile.birth_year) {
+          const data = await getPersonalizedDailyAlmanac({
+            birth_year: userProfile.birth_year,
+            birth_month: userProfile.birth_month,
+            birth_day: userProfile.birth_day,
+            birth_hour: userProfile.birth_hour,
+            birth_minute: userProfile.birth_minute,
+            gender: userProfile.gender,
+            birth_city: userProfile.birth_city,
+            latitude: userProfile.latitude ?? undefined,
+            longitude: userProfile.longitude ?? undefined,
+          }, locale, true)
+          const parsed = parseAlmanac(data)
+          setCached("almanac", parsed)
+          setAlmanac(parsed)
+          setAlmanacLoading(false)
+          return
         }
       } catch {}
       const fallback = generateFallbackAlmanac(t)
@@ -313,7 +338,7 @@ export function DailyDashboard() {
       setAlmanacLoading(false)
     }
     loadAlmanac()
-  }, [user, locale])
+  }, [user, locale, userProfile])
 
   // ── Loading state: only block if BOTH are missing ──────────────
   if (fortuneLoading && !fortune) {

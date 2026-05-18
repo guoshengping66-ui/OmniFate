@@ -745,6 +745,26 @@ export async function getDailyAlmanac(sessionId: string, lang: string = "zh", fa
   return res.data
 }
 
+export interface PersonalizedAlmanacParams {
+  birth_year: number
+  birth_month: number
+  birth_day: number
+  birth_hour?: number
+  birth_minute?: number
+  gender?: string
+  birth_city?: string
+  latitude?: number
+  longitude?: number
+}
+
+export async function getPersonalizedDailyAlmanac(params: PersonalizedAlmanacParams, lang: string = "zh", fast: boolean = true): Promise<DailyAlmanacResponse> {
+  const res = await api.get<DailyAlmanacResponse>("/api/readings/daily-almanac/personalized", {
+    params: { ...params, lang, fast },
+    timeout: 15_000,
+  })
+  return res.data
+}
+
 // ── My Readings (P1-1) ────────────────────────────────────────────────────
 
 export interface ReadingListItem {

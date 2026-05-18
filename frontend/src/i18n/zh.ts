@@ -810,6 +810,9 @@ export default {
   "readings.dim.relationship": "感情",
   "readings.dim.health": "健康",
   "readings.dim.spiritual": "精神",
+  "readings.totalReadings": "总推命次数",
+  "readings.unlockedCount": "已解锁报告",
+  "readings.lastReading": "最近推命",
 
   // ─── 个人中心 ───
   "account.overview": "概览",
@@ -1246,6 +1249,22 @@ export default {
   "pricing.channel.full.audience": "适合长线布局、大运逆袭、全维度彻底格物",
   "pricing.channel.full.tech": "全量启动 AI CV 手相面相提取 + 四柱干支合参 + 塔罗多维编织，进行分布式算力共振。",
   "pricing.channel.full.output": "面相三庭五眼分析、八字骨骼互表、宿命全景解析、年度转折点规划",
+
+  // ── 功能对比表 ──
+  "pricing.compare.title": "功能对比",
+  "pricing.compare.subtitle": "选择最适合你的方案",
+  "pricing.compare.feature": "功能",
+  "pricing.compare.feat1": "推命报告次数",
+  "pricing.compare.feat2": "事件复盘",
+  "pricing.compare.feat3": "每日黄历",
+  "pricing.compare.feat4": "追问次数",
+  "pricing.compare.feat5": "商城折扣",
+  "pricing.compare.feat6": "月度星尘注入",
+  "pricing.compare.feat7": "年度命盘回顾",
+  "pricing.compare.feat8": "水晶定制服务",
+
+  // ── 推命向导 ──
+  "new.skipFacePalm": "跳过面部/手相，直接进入确认",
 
   // ── 报告通道标签 ──
   "reading.channel.quick": "⚡ 快捷通道 · 一键推命",

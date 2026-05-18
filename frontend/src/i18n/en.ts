@@ -816,6 +816,9 @@ export default {
   "readings.dim.relationship": "Love",
   "readings.dim.health": "Health",
   "readings.dim.spiritual": "Spiritual",
+  "readings.totalReadings": "Total Readings",
+  "readings.unlockedCount": "Unlocked Reports",
+  "readings.lastReading": "Last Reading",
 
   // ─── Account ───
   "account.overview": "Overview",
@@ -1252,6 +1255,22 @@ export default {
   "pricing.channel.full.audience": "Ideal for long-term planning, major cycle turns, full-dimensional investigation",
   "pricing.channel.full.tech": "Full AI CV palm & face extraction + Four Pillars synthesis + tarot multi-dimensional weaving, distributed compute resonance.",
   "pricing.channel.full.output": "Facial tri-palace analysis, skeletal-BaZi cross-reference, destiny panorama, annual turning points",
+
+  // ── Feature Comparison Table ──
+  "pricing.compare.title": "Feature Comparison",
+  "pricing.compare.subtitle": "Choose the plan that works best for you",
+  "pricing.compare.feature": "Feature",
+  "pricing.compare.feat1": "Reading reports",
+  "pricing.compare.feat2": "Event retrospection",
+  "pricing.compare.feat3": "Daily almanac",
+  "pricing.compare.feat4": "Follow-up questions",
+  "pricing.compare.feat5": "Shop discount",
+  "pricing.compare.feat6": "Monthly stardust grant",
+  "pricing.compare.feat7": "Annual destiny review",
+  "pricing.compare.feat8": "Crystal customization",
+
+  // ── Reading Wizard ──
+  "new.skipFacePalm": "Skip face/palm scan, go to confirmation",
 
   // ── Report Channel Badge ──
   "reading.channel.quick": "⚡ Quick Channel · One-Tap Reading",

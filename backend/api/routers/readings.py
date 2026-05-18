@@ -1794,6 +1794,110 @@ async def get_daily_almanac(
     return result
 
 
+@router.get("/daily-almanac/personalized", response_model=DailyAlmanacResponse)
+async def get_personalized_daily_almanac(
+    birth_year: int = Query(..., ge=1920, le=2030),
+    birth_month: int = Query(..., ge=1, le=12),
+    birth_day: int = Query(..., ge=1, le=31),
+    birth_hour: int = Query(0, ge=0, le=23),
+    birth_minute: int = Query(0, ge=0, le=59),
+    gender: str = Query("female"),
+    birth_city: str = Query(""),
+    latitude: float = Query(0.0),
+    longitude: float = Query(0.0),
+    lang: str = Query("zh", pattern="^(zh|en)$"),
+    fast: bool = Query(True),
+):
+    """
+    Get personalized daily almanac using birth info directly (no session_id needed).
+    Used by DailyDashboard for logged-in users with birth profiles but no readings.
+    """
+    from agents.state import SystemState, BirthInfo
+
+    bi = BirthInfo(
+        year=birth_year, month=birth_month, day=birth_day,
+        hour=birth_hour, minute=birth_minute,
+        city=birth_city, latitude=latitude, longitude=longitude,
+        gender=gender,
+    )
+
+    # Build a minimal SystemState
+    state = SystemState(
+        session_id=f"personalized:{birth_year}{birth_month}{birth_day}",
+        birth_info=bi,
+        dimension_scores={},
+        computed_tags=[],
+        master_summary="",
+        bazi_raw={},
+        astrology_raw={},
+    )
+
+    today = date.today()
+
+    # Compute natal chart
+    natal_planets = {}
+    transit = {"transit_planets": {}, "transit_natal_aspects": []}
+    from calculators.astrology_calculator import AstrologyCalculator
+    astro_calc = AstrologyCalculator()
+    try:
+        natal_chart = astro_calc.calculate(
+            year=bi.year, month=bi.month, day=bi.day,
+            hour=bi.hour, minute=bi.minute,
+            latitude=bi.latitude or 0.0,
+            longitude=bi.longitude or 0.0,
+        )
+        natal_planets = natal_chart.planets
+    except Exception:
+        pass
+
+    try:
+        today_dt = datetime(today.year, today.month, today.day, 12, 0, tzinfo=timezone.utc)
+        transit = astro_calc.calculate_transit_for_date(today_dt, natal_planets)
+    except Exception:
+        pass
+
+    # Compute bazi + lunar
+    from calculators.bazi_calculator import BaziCalculator
+    today_bazi = None
+    lunar_date_str = ""
+    bazi_day_pillar_str = ""
+    try:
+        today_bazi = BaziCalculator.calculate_transit_pillars(today.year, today.month, today.day)
+        if today_bazi:
+            dp = today_bazi.get("day_pillar", {})
+            bazi_day_pillar_str = dp.get("ganzhi", "")
+    except Exception:
+        pass
+    try:
+        from lunar_python import Solar
+        today_lunar = Solar.fromYmd(today.year, today.month, today.day).getLunar()
+        lunar_date_str = today_lunar.toFullString()
+    except Exception:
+        pass
+
+    # Energy score (empty for personalized — no reading data)
+    energy_score = 50
+
+    almanac_data = await _generate_almanac(
+        state=state, today=today, transit_bazi=today_bazi,
+        transit_astro=transit, energy_score=energy_score,
+        lang=lang, fast=fast,
+    )
+
+    result = DailyAlmanacResponse(
+        date=today.isoformat(),
+        lunar_date=lunar_date_str,
+        bazi_day_pillar=bazi_day_pillar_str,
+        energy_score=energy_score,
+        yi=almanac_data.get("yi", []),
+        ji=almanac_data.get("ji", []),
+        hu=[],
+        daily_quote=almanac_data.get("daily_quote", "顺势而为，方得始终。"),
+        wuxing_analysis=almanac_data.get("wuxing_analysis", ""),
+    )
+    return result
+
+
 async def _generate_almanac(
     state: SystemState,
     today: date,
