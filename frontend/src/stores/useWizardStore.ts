@@ -78,10 +78,13 @@ export const useWizardStore = create<WizardStore>((set, get) => ({
       formData: { ...s.formData, [key]: value },
     })),
 
-  reset: () =>
+  reset: () => {
+    // Also clear any saved wizard progress from localStorage
+    try { localStorage.removeItem("destiny_reading_progress") } catch {}
     set({
       currentIntent: null,
       formData: { ...DEFAULT_FORM },
       startStep: 0,
-    }),
+    })
+  },
 }))
