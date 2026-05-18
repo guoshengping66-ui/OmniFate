@@ -16,37 +16,6 @@ import { useRegion } from "@/hooks/useRegion"
 import { ServiceTerms } from "@/components/ui/ServiceTerms"
 import toast from "react-hot-toast"
 
-// ── Stardust Legend 2x2 Grid ─────────────────────────────────────────────────
-const STARDUST_COSTS = [
-  { icon: Sparkles, label: "解锁报告", cost: "100", color: "text-gold", bg: "bg-gold/8 border-gold/15" },
-  { icon: Clock,     label: "事件复盘", cost: "30",  color: "text-amber-400", bg: "bg-amber-500/8 border-amber-500/15" },
-  { icon: MessageCircle, label: "AI 追问", cost: "10",  color: "text-blue-400", bg: "bg-blue-500/8 border-blue-500/15" },
-  { icon: ShieldCheck,  label: "能量雷达", cost: "5",   color: "text-emerald-400", bg: "bg-emerald-500/8 border-emerald-500/15" },
-]
-
-// ── FAQ Data ────────────────────────────────────────────────────────────────
-const FAQ_ITEMS = [
-  {
-    q: "星尘 (Stardust) 是什么？有有效期吗？",
-    a: "星尘是命盘智镜的虚拟能量货币，用于解锁各类命理服务。购买的星尘永不过期，但会员每月自动注入的星尘在会员到期后不再续发（已获得的不会收回）。",
-  },
-  {
-    q: "订阅可以随时取消吗？退款政策是怎样的？",
-    a: "月度订阅可随时取消，取消后当月权益继续有效至到期。年度订阅在订阅后 7 天内可申请全额退款（需未使用超过 1 次报告）。创始席位为一次性终身购买，不支持退款。",
-  },
-  {
-    q: "创始席位的限量是什么意思？",
-    a: "全球限量 100 个创始席位，先到先得。席位售罄后将不再开放购买，现有创始会员享有永久权益，包括每月 500 星尘注入、产品路线图投票权和专属黑金 UI。",
-  },
-  {
-    q: "全维全景报告和免费报告有什么区别？",
-    a: "免费报告仅提供基础命盘概览（含部分预览限制）。全维全景报告解锁完整的八字四柱、星盘落宫、十神体系、流年规划等深度分析，并附赠 10 次追问和 3 天会员试用。",
-  },
-  {
-    q: "星尘消耗 8.8 折是什么意思？",
-    a: "年度会员在使用星尘时享受 88 折优惠。例如解锁一份报告原价消耗 100 星尘，年度会员仅需 88 星尘。这一优惠自动生效，无需手动操作。",
-  },
-]
 
 export default function PricingPage() {
   const router = useRouter()
@@ -56,6 +25,23 @@ export default function PricingPage() {
   const [selectedTier, setSelectedTier] = useState<string | null>(null)
   const [founderSoldPercent, setFounderSoldPercent] = useState(67)
   const [showTerms, setShowTerms] = useState(false)
+
+  // ── Stardust Legend 2x2 Grid (uses t()) ──
+  const STARDUST_COSTS = [
+    { icon: Sparkles, label: t("pricing.unlockReport"), cost: "100", color: "text-gold", bg: "bg-gold/8 border-gold/15" },
+    { icon: Clock,     label: t("pricing.eventReview"), cost: "30",  color: "text-amber-400", bg: "bg-amber-500/8 border-amber-500/15" },
+    { icon: MessageCircle, label: t("pricing.aiQuestion"), cost: "10",  color: "text-blue-400", bg: "bg-blue-500/8 border-blue-500/15" },
+    { icon: ShieldCheck,  label: t("pricing.energyRadar"), cost: "5",   color: "text-emerald-400", bg: "bg-emerald-500/8 border-emerald-500/15" },
+  ]
+
+  // ── FAQ Data (uses t()) ──
+  const FAQ_ITEMS = [
+    { q: t("pricing.faq1Q"), a: t("pricing.faq1A") },
+    { q: t("pricing.faq2Q"), a: t("pricing.faq2A") },
+    { q: t("pricing.faq3Q"), a: t("pricing.faq3A") },
+    { q: t("pricing.faq4Q"), a: t("pricing.faq4A") },
+    { q: t("pricing.faq5Q"), a: t("pricing.faq5A") },
+  ]
 
   // Fetch founder seat status
   useEffect(() => {
@@ -118,19 +104,18 @@ export default function PricingPage() {
   if (!isLoaded) return null
 
   const eventPrice = region === "domestic" ? "¥19.9" : "$4.99"
-  const eventUnit = region === "domestic" ? "/次" : "/time"
 
   return (
     <div className="min-h-screen pt-24 pb-16 px-4">
       <div className="max-w-6xl mx-auto">
-        <Breadcrumbs items={[{ label: "会员方案" }]} />
+        <Breadcrumbs items={[{ label: t("pricing.breadcrumb") }]} />
 
         {/* ══════════ Header ══════════ */}
         <div className="text-center mb-10">
           <Crown className="text-gold mx-auto mb-3" size={32} />
-          <h2 className="section-title text-2xl md:text-3xl">选择适合你的命理方案</h2>
+          <h2 className="section-title text-2xl md:text-3xl">{t("pricing.title")}</h2>
           <p className="text-white/35 text-sm mt-2">
-            星尘是窥探天机的能量储备，会员每月可自动获得能量注入
+            {t("pricing.subtitle")}
           </p>
         </div>
 
@@ -152,14 +137,14 @@ export default function PricingPage() {
               className={`relative z-10 px-6 py-2 rounded-full text-sm font-medium transition-colors duration-200
                 ${region === "domestic" ? "text-gold" : "text-white/40 hover:text-white/60"}`}
             >
-              国内 (CNY)
+              {t("pricing.regionDomestic")}
             </button>
             <button
               onClick={() => switchRegion("overseas")}
               className={`relative z-10 px-6 py-2 rounded-full text-sm font-medium transition-colors duration-200
                 ${region === "overseas" ? "text-gold" : "text-white/40 hover:text-white/60"}`}
             >
-              海外 (USD)
+              {t("pricing.regionOverseas")}
             </button>
           </div>
         </div>
@@ -225,16 +210,16 @@ export default function PricingPage() {
             <Zap size={20} className="text-gold" />
           </div>
           <div className="flex-1">
-            <p className="text-white/80 font-medium">事件复盘 · 按次计费</p>
+            <p className="text-white/80 font-medium">{t("pricing.eventCallout")}</p>
             <p className="text-white/35 text-sm">
-              {region === "domestic" ? "¥19.9/次" : "$4.99/次"} — 针对特定事件的流时溯源诊断，含 AI 因果链分析和能量处方
+              {t("pricing.eventDesc").replace("{price}", eventPrice)}
             </p>
           </div>
           <button
             onClick={() => handleSelect("event_retro")}
             className="btn-gold-outline text-sm whitespace-nowrap flex items-center gap-2"
           >
-            了解事件复盘
+            {t("pricing.learnMore")}
             <ArrowRight size={14} />
           </button>
         </motion.div>
@@ -247,8 +232,8 @@ export default function PricingPage() {
           className="mb-14"
         >
           <div className="text-center mb-6">
-            <h3 className="text-lg font-serif font-bold text-white/80">星尘消耗指南</h3>
-            <p className="text-white/30 text-xs mt-1">每项服务对应不同的能量消耗</p>
+            <h3 className="text-lg font-serif font-bold text-white/80">{t("pricing.stardustGuide")}</h3>
+            <p className="text-white/30 text-xs mt-1">{t("pricing.stardustSubtitle")}</p>
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -286,7 +271,7 @@ export default function PricingPage() {
         >
           <div className="flex items-center justify-center gap-3 mb-6">
             <HelpCircle size={18} className="text-gold/40" />
-            <h3 className="text-lg font-serif font-bold text-white/80">常见问题</h3>
+            <h3 className="text-lg font-serif font-bold text-white/80">{t("pricing.faq")}</h3>
           </div>
 
           <div className="space-y-3">
@@ -314,7 +299,7 @@ export default function PricingPage() {
               <span className="text-gold/60 text-xs tracking-wider uppercase">Founder Community</span>
             </div>
             <p className="text-white/40 text-sm mb-4">
-              创始社群专属通道，与志同道合的星使共同探索命运的奥秘
+              {t("pricing.founderDesc")}
             </p>
             <div className="flex items-center justify-center -space-x-2 mb-3">
               {[0, 1, 2, 3, 4].map(i => (
@@ -332,7 +317,7 @@ export default function PricingPage() {
               href="/pricing/founder"
               className="inline-flex items-center gap-2 text-gold/60 text-xs hover:text-gold transition-colors"
             >
-              了解创始席位
+              {t("pricing.learnFounder")}
               <ArrowRight size={12} />
             </Link>
           </div>
@@ -340,13 +325,13 @@ export default function PricingPage() {
 
         {/* ══════════ Footer Legal ══════════ */}
         <p className="text-center text-white/20 text-[11px]">
-          订阅即表示您同意我们的{" "}
+          {t("pricing.legalText")}{" "}
           <button onClick={() => setShowTerms(true)} className="text-gold/40 hover:text-gold underline">
-            服务条款
+            {t("pricing.termsOfService")}
           </button>
-          {" "}和{" "}
-          <a href="/refund" className="text-gold/40 hover:text-gold underline">退款政策</a>
-          。订阅可随时取消，详见退款政策。
+          {" "}{t("pricing.and")}{" "}
+          <a href="/refund" className="text-gold/40 hover:text-gold underline">{t("pricing.refundPolicy")}</a>
+          。{t("pricing.legalNote")}
         </p>
 
         <ServiceTerms open={showTerms} onClose={() => setShowTerms(false)} />
