@@ -5,7 +5,7 @@ import { getDailyFortune, listMyReadings, type DailyFortuneResponse } from "@/li
 import { api } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { translateYiJi } from "@/lib/translations"
+import { translateYiJi, translateGanZhi, translateLunarDate } from "@/lib/translations"
 
 // ── Fallback data for non-logged-in users ─────────────────────────
 function generateFallbackFortune(t: (k: string) => string): DailyFortuneResponse {
@@ -246,8 +246,8 @@ export function DailyDashboard() {
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-white/60 text-sm">{almanac.lunar_date}</p>
-            <p className="text-white/40 text-xs">{t("dash.fortune.dayPillar")}: {almanac.bazi_day_pillar}</p>
+            <p className="text-white/60 text-sm">{locale === "zh" ? almanac.lunar_date : translateLunarDate(almanac.lunar_date)}</p>
+            <p className="text-white/40 text-xs">{t("dash.fortune.dayPillar")}: {locale === "zh" ? almanac.bazi_day_pillar : translateGanZhi(almanac.bazi_day_pillar)}</p>
           </div>
 
           {/* 宜 */}
