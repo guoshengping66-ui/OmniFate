@@ -362,7 +362,7 @@ class UserAddress(Base):
     )
     recipient_name: Mapped[str] = mapped_column(String(100), nullable=False)
     phone: Mapped[str] = mapped_column(String(30), nullable=False)
-    country: Mapped[str] = mapped_column(String(50), nullable=False, default="中国")
+    country: Mapped[str] = mapped_column(String(50), nullable=False, default="CN")
     province: Mapped[Optional[str]] = mapped_column(String(100))
     city: Mapped[Optional[str]] = mapped_column(String(100))
     district: Mapped[Optional[str]] = mapped_column(String(100))

@@ -204,7 +204,7 @@ async def change_password(
 class AddressRequest(BaseModel):
     recipient_name: str
     phone: str
-    country: str = "中国"
+    country: str = "CN"
     province: Optional[str] = None
     city: Optional[str] = None
     district: Optional[str] = None

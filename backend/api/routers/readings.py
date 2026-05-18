@@ -1606,11 +1606,6 @@ async def get_daily_fortune(
     )
 
 
-# ─── Daily Almanac Cache ─────────────────────────────────────────────────────
-_almanac_cache: dict[str, dict] = {}  # key = f"{session_id}:{date}" -> cached response dict
-_ALMANAC_CACHE_TTL = 3600 * 12  # 12 hours
-
-
 # ─── Daily Almanac Endpoint ────────────────────────────────────────────────────
 
 
