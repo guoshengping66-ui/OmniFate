@@ -1,13 +1,9 @@
 "use client"
-import { useEffect } from "react"
+import { useEffect, Suspense } from "react"
+import dynamic from "next/dynamic"
 import Link from "next/link"
 import { Sparkles, Star, ArrowRight, ShieldCheck, Zap, Eye, ShoppingBag, ScrollText } from "lucide-react"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
-import { LiveBar } from "@/components/ui/LiveBar"
-import { FloatingCTA } from "@/components/ui/FloatingCTA"
-import { HeroScene } from "@/components/ui/HeroScene"
-import { FloatingRunes } from "@/components/ui/FloatingRunes"
-import { MagicCursor } from "@/components/ui/MagicCursor"
 import { MagneticButton } from "@/components/ui/MagneticButton"
 import { TiltCard } from "@/components/ui/TiltCard"
 import { useLanguage } from "@/contexts/LanguageContext"
@@ -15,11 +11,26 @@ import { useAuth } from "@/contexts/AuthContext"
 import { useUserStore } from "@/stores/useUserStore"
 import { CountUpNumber } from "@/components/ui/CountUpNumber"
 import { AccordionItem } from "@/components/ui/AccordionItem"
-import { FloatingOracleIcon } from "@/components/ui/FloatingOracleIcon"
-import { UserDashboard } from "@/components/dashboard/UserDashboard"
-import { DailyDashboard } from "@/components/DailyDashboard"
 import { motion, useInView } from "framer-motion"
 import { useRef } from "react"
+
+// ── Lazy-loaded heavy animated components (ssr: false) ───────────
+const LiveBar = dynamic(() => import("@/components/ui/LiveBar").then(m => m.LiveBar), { ssr: false })
+const FloatingCTA = dynamic(() => import("@/components/ui/FloatingCTA").then(m => m.FloatingCTA), { ssr: false })
+const HeroScene = dynamic(() => import("@/components/ui/HeroScene").then(m => m.HeroScene), { ssr: false })
+const FloatingRunes = dynamic(() => import("@/components/ui/FloatingRunes").then(m => m.FloatingRunes), { ssr: false })
+const MagicCursor = dynamic(() => import("@/components/ui/MagicCursor").then(m => m.MagicCursor), { ssr: false })
+const FloatingOracleIcon = dynamic(() => import("@/components/ui/FloatingOracleIcon").then(m => m.FloatingOracleIcon), { ssr: false })
+
+// ── Lazy-loaded below-the-fold sections ──────────────────────────
+const UserDashboard = dynamic(() => import("@/components/dashboard/UserDashboard").then(m => m.UserDashboard), {
+  ssr: false,
+  loading: () => <div className="card-glass p-8"><div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin" /></div>,
+})
+const DailyDashboard = dynamic(() => import("@/components/DailyDashboard").then(m => m.DailyDashboard), {
+  ssr: false,
+  loading: () => <div className="card-glass p-8"><div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin" /></div>,
+})
 
 // ── Stats Section: framer-motion 数字滚动增长 ─────────────────────────────────
 function StatCard({ end, suffix, prefix, label, delay, duration }: {
