@@ -218,6 +218,8 @@ export default {
   "blog.ctaQuestion": "Curious about your Five Element destiny chart?",
   "blog.ctaButton": "Start Free Reading",
   "blog.noArticles": "No articles yet — stay tuned",
+  "blog.share": "Share",
+  "blog.related": "Related Articles",
 
   // ─── LiveBar ───
   "live.people": "analyzing",

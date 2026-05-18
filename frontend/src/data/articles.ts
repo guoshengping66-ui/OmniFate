@@ -1915,4 +1915,596 @@ Mole reading as part of traditional culture has reference value, but shouldn't b
 → AI Face Reading: 468 feature points for precise analysis — not just moles
     `,
   },
+
+  // ────────────────────────────────────────────────────
+  // 21. 紫微斗数入门
+  // ────────────────────────────────────────────────────
+  {
+    id: "ziwei-intro",
+    title_zh: "紫微斗数入门：你的十二宫命运地图",
+    title_en: "Zi Wei Dou Shu: Your Twelve-Palace Destiny Map",
+    summary_zh: "紫微斗数是中国命理学的另一大体系，与八字并称「命理双璧」。它用十四颗主星分布在十二宫中，描绘你人生的全景地图。",
+    summary_en: "Zi Wei Dou Shu is another major Chinese destiny system, often called the 'twin star' alongside Bazi. It uses fourteen major stars distributed across twelve palaces to map your complete life blueprint.",
+    category: "bazi",
+    tags_zh: ["紫微斗数", "入门", "命盘"],
+    tags_en: ["Zi Wei Dou Shu", "Beginner", "Chart"],
+    read_time: 7,
+    cover_emoji: "⭐",
+    created_at: "2025-05-30",
+    content_zh: `
+## 什么是紫微斗数？
+
+紫微斗数起源于唐代，由道家发展完善，是中国传统命理学中精度最高的体系之一。它与八字的最大区别在于：八字用出生时间推算五行，而紫微斗数用出生时间排出「命盘」，将十四颗主星分布在十二个宫位中。
+
+## 命盘结构
+
+紫微命盘是一个方形盘，分为十二个宫位，每个宫位代表人生的一个领域：
+
+| 宫位 | 代表领域 | 通俗理解 |
+|------|---------|---------|
+| 命宫 | 自我、性格 | 你是谁 |
+| 兄弟宫 | 兄弟姐妹、同辈关系 | 你的朋友圈 |
+| 夫妻宫 | 婚姻、感情 | 你的另一半 |
+| 子女宫 | 子女、下属 | 你的传承 |
+| 财帛宫 | 财运、理财 | 你的钱包 |
+| 疾厄宫 | 健康、疾病 | 你的身体 |
+| 迁移宫 | 外出、社交 | 你的社交圈 |
+| 交友宫 | 朋友、贵人 | 你的助力 |
+| 官禄宫 | 事业、工作 | 你的职场 |
+| 田宅宫 | 不动产、家庭 | 你的根基 |
+| 福德宫 | 精神、享受 | 你的内心 |
+| 父母宫 | 父母、长辈 | 你的靠山 |
+
+## 十四颗主星
+
+紫微斗数的核心是十四颗主星，每颗星都有独特的能量：
+
+### 帝星组
+- **紫微星**：帝王之星，领导力强，自尊心高
+- **天府星**：财库之星，稳重务实，善于守财
+
+### 天象组
+- **太阳星**：光明之星，热情大方，博爱
+- **太阴星**：月亮之星，细腻敏感，内敛
+
+### 天同组
+- **天同星**：福星，温和善良，知足常乐
+- **天梁星**：荫星，正义感强，乐于助人
+
+### 天机组
+- **天机星**：智慧之星，思维敏捷，善变
+- **巨门星**：口才之星，能言善辩，是非多
+
+### 天府系
+- **武曲星**：财星，果断刚毅，适合经商
+- **天相星**：印星，正直稳重，适合辅佐
+- **七杀星**：将星，冲劲十足，敢闯敢拼
+- **破军星**：变动之星，开创力强，不安于现状
+
+### 天府对星
+- **贪狼星**：桃花之星，多才多艺，欲望强
+- **廉贞星**：次桃花，复杂多变，情绪起伏
+
+## 八字 vs 紫微斗数
+
+| 维度 | 八字 | 紫微斗数 |
+|------|------|---------|
+| 起源 | 宋代 | 唐代 |
+| 核心 | 五行生克 | 星曜组合 |
+| 精度 | 年月日时 | 年月日时+性别 |
+| 优势 | 简洁快速 | 细节丰富 |
+| 流年 | 看大运流年 | 看大限流年 |
+
+两者并不矛盾，而是互补。很多专业命理师会同时参考八字和紫微斗数。
+
+→ AI 推命工具融合八字与紫微逻辑，为你生成多维分析
+    `,
+    content_en: `
+## What Is Zi Wei Dou Shu?
+
+Zi Wei Dou Shu (Purple Star Astrology) originated in the Tang Dynasty and was refined by Taoist practitioners. It is one of the most precise systems in Chinese destiny analysis. Its key difference from Bazi: while Bazi uses birth time to calculate Five Elements, Zi Wei Dou Shu uses it to plot a "chart" distributing fourteen major stars across twelve palaces.
+
+## Chart Structure
+
+The Zi Wei chart is a square divided into twelve palaces, each representing a life domain:
+
+| Palace | Domain | Plain Meaning |
+|--------|--------|---------------|
+| Ming (Life) | Self, personality | Who you are |
+| Siblings | Siblings, peers | Your peer group |
+| Spouse | Marriage, romance | Your partner |
+| Children | Children, subordinates | Your legacy |
+| Wealth | Fortune, finances | Your wallet |
+| Health | Health, illness | Your body |
+| Travel | Travel, socializing | Your social circle |
+| Friends | Friends, benefactors | Your support |
+| Career | Career, work | Your professional life |
+| Property | Real estate, family | Your foundation |
+| Fortune | Spirit, enjoyment | Your inner self |
+| Parents | Parents, elders | Your backing |
+
+## The Fourteen Major Stars
+
+The core of Zi Wei Dou Shu is fourteen major stars, each with unique energy:
+
+### Imperial Stars
+- **Zi Wei (Emperor Star)**: Leadership, strong self-esteem
+- **Tian Fu (Treasury Star)**: Financial wisdom, stability, wealth preservation
+
+### Celestial Image Group
+- **Tai Yang (Sun Star)**: Radiance, generosity, broad-mindedness
+- **Tai Yin (Moon Star)**: Sensitivity, introspection, gentleness
+
+### Heavenly Unity Group
+- **Tian Tong (Harmony Star)**: Blessings, contentment, kindness
+- **Tian Liang (Shade Star)**: Justice, helpfulness, protective energy
+
+### Heavenly Mechanism Group
+- **Tian Ji (Wisdom Star)**: Quick thinking, adaptability
+- **Ju Men (Giant Gate)**: Eloquence, communication, controversy
+
+### Tian Fu System
+- **Wu Qu (Martial Arts Star)**: Financial acumen, decisiveness, business talent
+- **Tian Xiang (Seal Star)**: Integrity, stability, supportive roles
+- **Qi Sha (Seven Killings)**: Boldness, drive, pioneering spirit
+- **Po Jun (Army Breaker)**: Innovation, restlessness, transformation
+
+### Tian Fu Counterpart Stars
+- **Tan Lang (Greedy Wolf)**: Talent, versatility, desire
+- **Lian Zhen (Pure Integrity)**: Complexity, emotional depth
+
+## Bazi vs Zi Wei Dou Shu
+
+| Dimension | Bazi | Zi Wei Dou Shu |
+|-----------|------|----------------|
+| Origin | Song Dynasty | Tang Dynasty |
+| Core | Five Element cycles | Star combinations |
+| Precision | Year-Month-Day-Hour | + Gender |
+| Strength | Concise, quick | Rich in detail |
+| Annual Fortune | Da Yun flow year | Da Xian flow year |
+
+The two systems don't contradict — they complement each other. Many professional destiny masters reference both.
+
+→ Our AI tool integrates Bazi and Zi Wei logic for multi-dimensional analysis
+    `,
+  },
+
+  // ────────────────────────────────────────────────────
+  // 22. 手相智慧线与感情线
+  // ────────────────────────────────────────────────────
+  {
+    id: "palm-head-heart",
+    title_zh: "手相智慧线与感情线：读懂你的思维与情感",
+    title_en: "Head Line & Heart Line: Understanding Your Mind and Emotions",
+    summary_zh: "智慧线代表思维方式，感情线代表情感模式。一条清晰的智慧线意味着什么？感情线分叉好不好？本文详解手相中最重要的两条主线。",
+    summary_en: "The Head Line reveals your thinking style; the Heart Line shows your emotional patterns. What does a clear Head Line mean? Is a forked Heart Line good? This article details the two most important lines in palmistry.",
+    category: "face",
+    tags_zh: ["手相", "智慧线", "感情线"],
+    tags_en: ["Palmistry", "Head Line", "Heart Line"],
+    read_time: 6,
+    cover_emoji: "🤚",
+    created_at: "2025-06-01",
+    content_zh: `
+## 手相三大主线
+
+手相学中有三条最重要的主线：生命线、智慧线、感情线。上一篇我们讲了生命线，本文详解智慧线和感情线。
+
+## 智慧线（人纹）
+
+智慧线从拇指与食指之间出发，横贯手掌中部，代表一个人的思维方式、智力特点和判断力。
+
+### 智慧线的形态
+
+**长而清晰**
+思维缜密、逻辑性强，适合从事需要精密思考的工作（如科研、法律、编程）。
+
+**短而有力**
+行动力强、直觉敏锐，适合从事需要快速决策的工作（如创业、销售、管理）。
+
+**向下弯曲**
+想象力丰富、富有艺术天赋，适合从事创意类工作（如设计、写作、音乐）。
+
+**笔直横贯**
+务实理性、注重细节，适合从事精确性工作（如会计、工程、医学）。
+
+### 智慧线的特殊纹路
+
+- **链状纹**：思维容易分心，注意力需要训练
+- **岛纹**：某个时期可能有思维困惑或判断失误
+- **分叉**：多才多艺，但可能过于分散精力
+- **末端向上**：乐观积极，善于发现机会
+
+## 感情线（天纹）
+
+感情线从小指下方出发，横贯手掌上方，代表一个人的情感表达方式、恋爱模式和情绪管理能力。
+
+### 感情线的形态
+
+**长而上扬**
+感情丰富、热情主动，在恋爱中积极表达，善于经营关系。
+
+**平直而短**
+理性克制、慢热型，不轻易表露感情，但一旦认定就很专一。
+
+**深入食指下方**
+重感情、重承诺，在婚姻中忠诚度高，但也可能过于理想化。
+
+**末端分叉**
+感情经历丰富，可能有多段重要感情，但也代表情感细腻、善于理解他人。
+
+### 感情线的特殊纹路
+
+- **链状纹**：感情上容易纠结，需要学会放下
+- **岛纹**：感情中可能有隐瞒或不坦诚的时期
+- **断裂**：感情中可能有重大变化（不一定是坏事，也可能是蜕变）
+- **向上支线**：感情运势积极，容易获得幸福
+- **向下支线**：感情中需要注意沟通和信任
+
+## 三线配合分析
+
+单独看一条线只能了解一个方面。真正的手相分析需要三条线配合：
+
+- **生命线深 + 智慧线长 + 感情线上扬**：行动力强、思维缜密、感情丰富——全面型人才
+- **生命线浅 + 智慧线短 + 感情线平直**：需要加强锻炼、培养思维、主动表达感情
+- **智慧线分叉 + 感情线分叉**：多才多艺但需要专注，感情丰富但需要稳定
+
+→ 上传手相照片，AI 将为你分析三大主线的综合含义
+    `,
+    content_en: `
+## The Three Major Lines in Palmistry
+
+Palmistry has three most important lines: the Life Line, Head Line, and Heart Line. Our previous article covered the Life Line. This one details the Head Line and Heart Line.
+
+## The Head Line (Ren Wen / Human Pattern)
+
+The Head Line starts between the thumb and index finger, crossing the middle of the palm. It represents thinking style, intellectual traits, and judgment ability.
+
+### Head Line Shapes
+
+**Long and Clear**
+Meticulous thinking, strong logic — suited for precision work (research, law, programming).
+
+**Short and Strong**
+Strong action drive, sharp intuition — suited for quick-decision roles (entrepreneurship, sales, management).
+
+**Curves Downward**
+Rich imagination, artistic talent — suited for creative work (design, writing, music).
+
+**Straight Across**
+Practical, detail-oriented — suited for precise work (accounting, engineering, medicine).
+
+### Special Markings
+
+- **Chain pattern**: Mind tends to wander; attention needs training
+- **Island**: Period of mental confusion or misjudgment
+- **Fork**: Multi-talented but may spread too thin
+- **Upturned end**: Optimistic, good at spotting opportunities
+
+## The Heart Line (Tian Wen / Heaven Pattern)
+
+The Heart Line starts below the little finger, crossing the upper palm. It represents emotional expression, love patterns, and emotional management.
+
+### Heart Line Shapes
+
+**Long and Upturned**
+Rich emotions, passionate and proactive in love, skilled at maintaining relationships.
+
+**Straight and Short**
+Rational and reserved, slow to warm up, but once committed, very loyal.
+
+**Extends Under Index Finger**
+Values deep feelings and commitment, high marital loyalty, but may idealize relationships.
+
+**Forks at the End**
+Rich emotional experiences, may have multiple significant relationships, but also represents emotional sensitivity and empathy.
+
+### Special Markings
+
+- **Chain pattern**: Tendency to overthink emotions; needs to learn letting go
+- **Island**: Period of emotional dishonesty or hidden feelings
+- **Break**: Major emotional shift (not necessarily bad — can be transformation)
+- **Upward branches**: Positive love fortune, easy to find happiness
+- **Downward branches**: Pay attention to communication and trust in relationships
+
+## Three-Line Combined Analysis
+
+Analyzing one line alone only reveals one aspect. True palmistry analysis requires combining all three:
+
+- **Deep Life + Long Head + Upturned Heart**: Strong drive, sharp mind, rich emotions — a well-rounded person
+- **Shallow Life + Short Head + Flat Heart**: Needs exercise, mental development, and proactive emotional expression
+- **Forked Head + Forked Heart**: Multi-talented but needs focus; emotionally rich but needs stability
+
+→ Upload a palm photo for AI analysis of your three major lines
+    `,
+  },
+
+  // ────────────────────────────────────────────────────
+  // 23. 塔罗逆位解读
+  // ────────────────────────────────────────────────────
+  {
+    id: "tarot-reversed",
+    title_zh: "塔罗逆位解读：当牌倒过来时意味着什么？",
+    title_en: "Reversed Tarot Cards: What Does It Mean When a Card Is Upside Down?",
+    summary_zh: "抽到逆位牌是不是坏事？其实逆位只是能量的另一种表达方式。本文教你正确理解塔罗逆位牌，不再被「倒牌」吓到。",
+    summary_en: "Does a reversed card mean bad luck? Actually, reversals are just another expression of card energy. Learn to correctly interpret reversed tarot cards without fear.",
+    category: "tarot",
+    tags_zh: ["塔罗", "逆位", "解读"],
+    tags_en: ["Tarot", "Reversed", "Interpretation"],
+    read_time: 6,
+    cover_emoji: "🔄",
+    created_at: "2025-06-02",
+    content_zh: `
+## 逆位不等于坏事
+
+很多人抽到逆位牌就紧张，觉得是坏兆头。这是最大的误解。逆位只是牌面能量的另一种表达方式——它可能代表：
+
+1. **内在化的能量**：能量向内而非向外，需要自我反省
+2. **被阻碍的能量**：能量想表达但受到阻碍
+3. **过度或不足**：正位的能量太多或太少
+4. **需要成长的领域**：提醒你在某个方面需要提升
+
+## 逆位的三种解读方法
+
+### 方法一：减弱法（最常用）
+逆位 = 正位能量减弱。
+
+例：正位「力量」代表勇气和自信，逆位则代表勇气不足、缺乏自信。
+
+### 方法二：相反法
+逆位 = 正位的反面。
+
+例：正位「恋人」代表和谐的选择，逆位则代表选择困难、关系不和。
+
+### 方法三：内在法（进阶）
+逆位 = 正位能量向内发展，尚未外显。
+
+例：正位「太阳」代表外在的成功和快乐，逆位可能代表内心有快乐但尚未展现给外界。
+
+## 常见大阿尔卡纳逆位速查
+
+| 牌 | 正位含义 | 逆位含义 |
+|----|---------|---------|
+| 0 愚者 | 新的开始、冒险 | 冲动、犹豫不决 |
+| 1 魔术师 | 创造力、行动力 | 缺乏方向、欺骗 |
+| 2 女祭司 | 直觉、内在智慧 | 忽视直觉、表面化 |
+| 3 皇后 | 丰收、享受 | 过度依赖、缺乏安全感 |
+| 4 皇帝 | 权威、稳定 | 控制欲强、固执 |
+| 6 恋人 | 爱情、和谐 | 关系不和、选择困难 |
+| 7 战车 | 胜利、决心 | 失控、方向迷失 |
+| 10 命运之轮 | 转变、好运 | 坏运、抗拒改变 |
+| 13 死神 | 结束、新生 | 抗拒结束、停滞不前 |
+| 17 星星 | 希望、灵感 | 失望、缺乏信心 |
+| 19 太阳 | 成功、快乐 | 暂时的挫折、内在快乐 |
+
+## 如何正确看待逆位？
+
+1. **不要恐慌**：逆位不是惩罚，而是提醒
+2. **结合问题理解**：逆位的含义取决于你问的问题
+3. **注意正逆位比例**：如果大部分牌是逆位，可能说明当前能量场较混乱
+4. **行动建议**：逆位牌通常暗示「需要在某个方面做出调整」
+
+→ AI 塔罗占卜：自动解读正位与逆位，给你完整的能量地图
+    `,
+    content_en: `
+## Reversed ≠ Bad
+
+Many people panic when they draw a reversed card, thinking it's a bad omen. This is the biggest misconception. Reversed cards are simply another expression of card energy — they may represent:
+
+1. **Internalized energy**: Energy directed inward rather than outward, requiring self-reflection
+2. **Blocked energy**: Energy wanting to express but facing obstacles
+3. **Excess or deficiency**: Too much or too little of the upright energy
+4. **Growth area**: A reminder that you need development in a certain aspect
+
+## Three Methods for Reading Reversals
+
+### Method 1: Weakening (Most Common)
+Reversed = Upright energy is weakened.
+
+Example: Upright "Strength" represents courage and confidence; reversed represents lack of courage or low self-confidence.
+
+### Method 2: Opposition
+Reversed = Opposite of the upright meaning.
+
+Example: Upright "The Lovers" represents harmonious choice; reversed represents difficulty choosing or relationship discord.
+
+### Method 3: Internalization (Advanced)
+Reversed = Upright energy developing internally, not yet manifesting outwardly.
+
+Example: Upright "The Sun" represents external success and joy; reversed may mean inner happiness that hasn't been shared with the world yet.
+
+## Major Arcana Reversal Quick Reference
+
+| Card | Upright | Reversed |
+|------|---------|----------|
+| 0 The Fool | New beginnings, adventure | Impulsiveness, indecision |
+| 1 The Magician | Creativity, action | Lack of direction, deception |
+| 2 The High Priestess | Intuition, inner wisdom | Ignoring intuition, superficiality |
+| 3 The Empress | Abundance, enjoyment | Over-dependence, insecurity |
+| 4 The Emperor | Authority, stability | Controlling, stubbornness |
+| 6 The Lovers | Love, harmony | Relationship discord, indecision |
+| 7 The Chariot | Victory, determination | Loss of control, confusion |
+| 10 Wheel of Fortune | Change, good luck | Bad luck, resisting change |
+| 13 Death | Endings, rebirth | Resisting endings, stagnation |
+| 17 The Star | Hope, inspiration | Disappointment, loss of faith |
+| 19 The Sun | Success, joy | Temporary setbacks, inner joy |
+
+## How to Properly View Reversals?
+
+1. **Don't panic**: Reversals aren't punishment — they're reminders
+2. **Context matters**: Reversed meaning depends on your question
+3. **Check the ratio**: If most cards are reversed, the current energy may be chaotic
+4. **Action guidance**: Reversed cards usually suggest "an adjustment is needed in some area"
+
+→ AI Tarot Reading: automatically interprets upright and reversed cards for your complete energy map
+    `,
+  },
+
+  // ────────────────────────────────────────────────────
+  // 24. 平台使用指南
+  // ────────────────────────────────────────────────────
+  {
+    id: "platform-guide",
+    title_zh: "命盘智镜使用指南：从注册到获取报告",
+    title_en: "Destiny Mirror User Guide: From Registration to Your Report",
+    summary_zh: "第一次使用命盘智镜？本指南手把手教你如何注册、填写信息、上传面相手相、获取五维合参报告，以及如何使用星尘和代金券。",
+    summary_en: "First time using Destiny Mirror? This guide walks you through registration, filling in birth details, uploading face & palm photos, getting your 5-Dimension report, and using Stardust and coupons.",
+    category: "faq",
+    tags_zh: ["指南", "入门", "平台", "教程"],
+    tags_en: ["Guide", "Beginner", "Platform", "Tutorial"],
+    read_time: 5,
+    cover_emoji: "📱",
+    created_at: "2025-06-03",
+    content_zh: `
+## 第一步：注册账号
+
+1. 点击右上角「注册」按钮
+2. 输入邮箱和密码
+3. 验证邮箱后即可登录
+
+也可以使用微信快捷登录（小程序端）。
+
+## 第二步：填写出生信息
+
+进入「开始推命」页面，填写以下信息：
+
+- **出生年月日**：选择公历日期
+- **出生时辰**：尽量精确到时辰（如不确定可选「不确定」）
+- **性别**：男/女
+- **出生城市**：选择省市区
+
+> 提示：出生时间越精确，分析结果越准确。如果不确定时辰，AI 会用面相和手相来弥补。
+
+## 第三步：上传面相和手相（可选但推荐）
+
+这一步是五维合参的特色——通过上传照片，AI 可以分析你的面相和手相，与八字、星盘交叉验证。
+
+**面相照片要求：**
+- 正面免冠照
+- 光线充足，面部清晰
+- 不要戴墨镜或帽子
+
+**手相照片要求：**
+- 左右手掌各一张
+- 手指自然张开
+- 掌纹清晰可见
+
+## 第四步：获取五维合参报告
+
+提交后，AI 将在约 40 秒内生成你的专属报告。报告包含：
+
+1. **五行得分图**：金木水火土的分布比例
+2. **日主分析**：你的命格核心
+3. **喜用神**：你最需要的五行元素
+4. **十神格局**：你的天赋方向
+5. **五维交叉验证**：多个维度的一致性分析
+6. **改运建议**：颜色、方位、职业等具体建议
+
+## 星尘（Stardust）是什么？
+
+星尘是平台内的虚拟货币，用于：
+- 解锁详细报告内容
+- 追问 AI 命师
+- 使用事件复盘功能
+
+**获取星尘的方式：**
+- 注册赠送 100 星尘
+- 每日签到获取
+- 购买会员每月注入
+- 邀请好友获得奖励
+
+## 代金券（Coupon）是什么？
+
+代金券是商城购物的抵扣券：
+- 解锁报告时自动赠送 60 元代金券
+- 会员每月额外获得
+- 可在改运商城购买水晶、书籍等商品时使用
+
+## 会员等级
+
+| 等级 | 权益 |
+|------|------|
+| 免费用户 | 基础报告 + 每日签到 |
+| 月度会员 | 全维报告无限次 + 每月 100 星尘 |
+| 年度会员 | 月度全部权益 + 每月 150 星尘 + 8.8 折 |
+| 创始席位 | 永久全功能 + 每月 500 星尘 + 投票权 |
+
+→ 现在就注册，开始你的五维命运探索之旅
+    `,
+    content_en: `
+## Step 1: Create an Account
+
+1. Click the "Sign Up" button in the top right
+2. Enter your email and password
+3. Verify your email to log in
+
+WeChat Quick Login is also available on the miniprogram.
+
+## Step 2: Fill in Birth Details
+
+Go to the "Start Reading" page and fill in:
+
+- **Birth Date**: Select the Gregorian calendar date
+- **Birth Hour**: As precise as possible (select "Uncertain" if unsure)
+- **Gender**: Male / Female
+- **Birth City**: Select province, city, district
+
+> Tip: The more precise your birth time, the more accurate the analysis. If unsure, AI compensates with face and palm readings.
+
+## Step 3: Upload Face & Palm Photos (Optional but Recommended)
+
+This is the unique feature of 5-Dimension Analysis — uploading photos lets AI analyze your face and palm, cross-validating with Bazi and astrology.
+
+**Face photo requirements:**
+- Front-facing, no headwear
+- Well-lit, face clearly visible
+- No sunglasses or hats
+
+**Palm photo requirements:**
+- One photo each for left and right hand
+- Fingers naturally spread
+- Palm lines clearly visible
+
+## Step 4: Get Your 5-Dimension Report
+
+After submission, AI generates your personalized report in about 40 seconds. The report includes:
+
+1. **Five Element Score Chart**: Metal, Wood, Water, Fire, Earth distribution
+2. **Day Master Analysis**: Your chart's core identity
+3. **Favorable Element**: The element your chart most needs
+4. **Ten Gods Pattern**: Your natural talent direction
+5. **Five-Dimension Cross-Validation**: Consistency analysis across systems
+6. **Fortune Enhancement Guide**: Specific advice on colors, directions, careers
+
+## What Is Stardust?
+
+Stardust is the platform's virtual currency, used for:
+- Unlocking detailed report content
+- Follow-up questions to AI masters
+- Event Retrospective feature
+
+**Ways to earn Stardust:**
+- 100 free on registration
+- Daily check-ins
+- Monthly infusion with membership
+- Referral rewards
+
+## What Are Coupons?
+
+Coupons are marketplace discount vouchers:
+- 60 yuan coupon automatically granted when unlocking reports
+- Extra coupons for members each month
+- Usable in the Fortune Shop for crystals, books, etc.
+
+## Membership Tiers
+
+| Tier | Benefits |
+|------|----------|
+| Free User | Basic report + daily check-ins |
+| Monthly | Unlimited full reports + 100 Stardust/month |
+| Yearly | All monthly benefits + 150 Stardust/month + 12% off |
+| Founder Seat | Lifetime access + 500 Stardust/month + voting rights |
+
+→ Register now and start your 5-Dimension destiny exploration
+    `,
+  },
 ]

@@ -218,6 +218,8 @@ export default {
   "blog.ctaQuestion": "想了解自己的五行命盘？",
   "blog.ctaButton": "开始免费推命",
   "blog.noArticles": "暂无相关文章",
+  "blog.share": "分享",
+  "blog.related": "相关推荐",
 
   // ─── LiveBar ───
   "live.people": "人推演中",
