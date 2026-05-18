@@ -740,8 +740,8 @@ export async function getEventDetail(eventId: string): Promise<AnalyzeEventRespo
   return res.data
 }
 
-export async function getDailyAlmanac(sessionId: string, lang: string = "zh"): Promise<DailyAlmanacResponse> {
-  const res = await api.get<DailyAlmanacResponse>("/api/readings/daily-almanac", { params: { session_id: sessionId, lang }, timeout: 30_000 })
+export async function getDailyAlmanac(sessionId: string, lang: string = "zh", fast: boolean = true): Promise<DailyAlmanacResponse> {
+  const res = await api.get<DailyAlmanacResponse>("/api/readings/daily-almanac", { params: { session_id: sessionId, lang, fast }, timeout: 30_000 })
   return res.data
 }
 

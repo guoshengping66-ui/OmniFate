@@ -1618,12 +1618,15 @@ _ALMANAC_CACHE_TTL = 3600 * 12  # 12 hours
 async def get_daily_almanac(
     session_id: str = Query(...),
     lang: str = Query("zh", pattern="^(zh|en)$"),
+    fast: bool = Query(True, description="Skip LLM, use rule-based generation for speed"),
 ):
     """
     Get personalized daily almanac (yi/ji/hu) based on user's birth chart vs today's transits.
 
     Real-time computation, no storage.
     Supports lang=zh|en for localized output.
+    fast=True (default): rule-based generation, instant response.
+    fast=False: LLM-enhanced generation, slower but more personalized.
     """
     state = _sessions.get(session_id)
 
@@ -1733,7 +1736,7 @@ async def get_daily_almanac(
         state.bazi_raw.get("wuxing_scores") if state.bazi_raw else None,
     )
 
-    # 5. Generate yi/ji/hu via LLM or rule-based
+    # 5. Generate yi/ji/hu via rule-based (fast) or LLM (detailed)
     almanac_data = await _generate_almanac(
         state=state,
         today=today,
@@ -1741,6 +1744,7 @@ async def get_daily_almanac(
         transit_astro=transit,
         energy_score=energy_score,
         lang=lang,
+        fast=fast,
     )
 
     # 6. Match products for 'hu' (护) — use template explanations (fast, no LLM)
@@ -1797,13 +1801,16 @@ async def _generate_almanac(
     transit_astro: dict | None,
     energy_score: int,
     lang: str = "zh",
+    fast: bool = True,
 ) -> dict:
     """
     Generate yi/ji/hu recommendations using LLM when available, fallback to rule-based.
+    fast=True: use rule-based generation instantly (no LLM call).
+    fast=False: use LLM for more personalized output (slower).
     lang: "zh" or "en" — controls output language.
     """
     from agents.master import _llm, _use_mock
-    if _use_mock():
+    if _use_mock() or fast:
         data = _rule_based_almanac(state, today, transit_bazi, transit_astro, energy_score)
         if lang == "en":
             data = _translate_almanac_to_en(data)
