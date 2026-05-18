@@ -151,8 +151,14 @@ export function DailyDashboard() {
                 setAlmanac({
                   lunar_date: raw.lunar_date || generateFallbackAlmanac().lunar_date,
                   bazi_day_pillar: raw.bazi_day_pillar || generateFallbackAlmanac().bazi_day_pillar,
-                  yi: (raw.yi || []).slice(0, 3).map((i: any) => ({ label: i.label || i.name, value: i.value || i.desc || "" })),
-                  ji: (raw.ji || []).slice(0, 3).map((i: any) => ({ label: i.label || i.name, value: i.value || i.desc || "" })),
+                  yi: (raw.yi || []).slice(0, 3).map((i: any) => ({
+                    label: typeof i === "string" ? i : (i.label || i.name || String(i)),
+                    value: typeof i === "string" ? "" : (i.value || i.desc || ""),
+                  })),
+                  ji: (raw.ji || []).slice(0, 3).map((i: any) => ({
+                    label: typeof i === "string" ? i : (i.label || i.name || String(i)),
+                    value: typeof i === "string" ? "" : (i.value || i.desc || ""),
+                  })),
                 })
                 return // success, skip fallback
               }
