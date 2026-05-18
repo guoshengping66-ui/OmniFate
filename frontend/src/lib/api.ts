@@ -1070,3 +1070,57 @@ export async function refundStardust(
   })
   return res.data
 }
+
+// ── 充值系统 (Billing) ──────────────────────────────────────────────────────
+
+export interface StardustPackage {
+  id: string
+  stardust: number
+  price: number
+  popular: boolean
+}
+
+export interface GeoConfig {
+  region: "CN" | "GLOBAL"
+  currency: "CNY" | "USD"
+  symbol: string
+  packages: StardustPackage[]
+  channels: string[]
+  aifadian_url?: string
+  crypto_rate?: Record<string, number>
+  wallet_addresses?: Record<string, string>
+}
+
+export async function getGeoConfig(): Promise<GeoConfig> {
+  const res = await api.get<GeoConfig>("/api/billing/geo-config")
+  return res.data
+}
+
+export async function redeemCode(
+  code: string,
+): Promise<{ success: boolean; stardust_granted: number; balance_after: number; message: string }> {
+  const res = await api.post("/api/billing/redeem", safeJson({ code }), {
+    headers: { "Content-Type": "application/json" },
+  })
+  return res.data
+}
+
+export async function verifyTx(
+  txId: string,
+  network: string,
+): Promise<{
+  success: boolean
+  stardust_granted: number
+  amount_usdt: number
+  network: string
+  balance_after: number
+  message: string
+}> {
+  const res = await api.post("/api/billing/verify-tx", safeJson({
+    tx_id: txId,
+    network,
+  }), {
+    headers: { "Content-Type": "application/json" },
+  })
+  return res.data
+}

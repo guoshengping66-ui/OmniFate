@@ -467,3 +467,41 @@ class DivinationRecord(Base):
     ai_insight: Mapped[Optional[str]] = mapped_column(Text)            # AI 深度解析（50字行动指引）
     shared: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+# ─── RedeemCode ──────────────────────────────────────────────────────────────
+
+class RedeemCode(Base):
+    """卡密/兑换码系统 — 用于国内用户购买星尘"""
+    __tablename__ = "redeem_codes"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    code: Mapped[str] = mapped_column(String(32), unique=True, nullable=False, index=True)
+    stardust_amount: Mapped[int] = mapped_column(Integer, nullable=False)
+    description: Mapped[Optional[str]] = mapped_column(String(200))
+    is_used: Mapped[bool] = mapped_column(Boolean, default=False)
+    used_by_user_id: Mapped[Optional[str]] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    used_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created_by: Mapped[Optional[str]] = mapped_column(String(36))
+
+
+# ─── CryptoOrder ─────────────────────────────────────────────────────────────
+
+class CryptoOrder(Base):
+    """USDT 链上充值记录 — 用于海外用户购买星尘"""
+    __tablename__ = "crypto_orders"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    tx_id: Mapped[str] = mapped_column(String(128), unique=True, nullable=False, index=True)
+    user_id: Mapped[str] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    amount_usdt: Mapped[float] = mapped_column(Float, nullable=False)
+    network: Mapped[str] = mapped_column(String(20), nullable=False)  # "TRC20" | "ARBITRUM"
+    stardust_granted: Mapped[int] = mapped_column(Integer, default=0)
+    status: Mapped[str] = mapped_column(String(20), default="pending")  # pending|success|failed
+    verified_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

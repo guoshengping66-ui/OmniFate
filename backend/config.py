@@ -88,6 +88,14 @@ class Settings(BaseSettings):
     # ── Admin 管理员邮箱（自动获得创始会员权限，逗号分隔）──
     ADMIN_EMAILS: str = ""
 
+    # ── 充值系统（星尘 Stardust）──
+    AIFADIAN_URL: str = ""             # 爱发电赞助链接
+    USDT_TRC20_ADDRESS: str = ""       # TRC20 收款地址 (波场)
+    USDT_ARBITRUM_ADDRESS: str = ""    # Arbitrum 收款地址 (EVM)
+    USDT_GRANT_RATE: int = 70          # 1 USDT = 70 星尘
+    PAYPAL_GRANT_RATE: float = 70.0    # 1 USD = 70 星尘
+    TRONGRID_API_KEY: str = ""         # TronGrid API Key (可选, 提高限额)
+
 
 @lru_cache
 def get_settings() -> Settings:
