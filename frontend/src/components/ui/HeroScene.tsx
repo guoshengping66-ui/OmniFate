@@ -1,6 +1,8 @@
 "use client"
 import { useEffect, useRef } from "react"
 import { motion, useScroll, useTransform, useMotionValue } from "framer-motion"
+import { useLanguage } from "@/contexts/LanguageContext"
+import { BAGUA_TRANSLATION, WUXING_TRANSLATION } from "@/lib/translations"
 
 /**
  * Cyber-Metaphysics Hero Scene
@@ -9,6 +11,8 @@ import { motion, useScroll, useTransform, useMotionValue } from "framer-motion"
  */
 export function HeroScene() {
   const ref = useRef<HTMLDivElement>(null)
+  const { locale } = useLanguage()
+  const isEn = locale === "en"
   const { scrollY } = useScroll()
   const rotate = useTransform(scrollY, [0, 800], [0, 25])
   const scale = useTransform(scrollY, [0, 800], [1, 0.85])
@@ -78,6 +82,7 @@ export function HeroScene() {
         ].map(({ label, angle }) => {
           const rad = (angle * Math.PI) / 180
           const r = 155
+          const displayLabel = isEn ? BAGUA_TRANSLATION[label]?.pinyin || label : label
           return (
             <text
               key={label}
@@ -91,7 +96,7 @@ export function HeroScene() {
               fontFamily="serif"
               opacity="0.35"
             >
-              {label}
+              {displayLabel}
             </text>
           )
         })}
@@ -126,6 +131,7 @@ export function HeroScene() {
           ].map(({ label, angle, color }) => {
             const rad = (angle * Math.PI) / 180
             const r = 100
+            const displayLabel = isEn ? WUXING_TRANSLATION[label]?.pinyin || label : label
             return (
               <g key={label}>
                 <circle
@@ -145,7 +151,7 @@ export function HeroScene() {
                   fontWeight="bold"
                   opacity="0.5"
                 >
-                  {label}
+                  {displayLabel}
                 </text>
                 {/* Connection lines */}
                 <line
