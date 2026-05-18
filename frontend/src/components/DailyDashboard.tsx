@@ -5,6 +5,7 @@ import { getDailyFortune, listMyReadings, type DailyFortuneResponse } from "@/li
 import { api } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { translateYiJi } from "@/lib/translations"
 
 // ── Fallback data for non-logged-in users ─────────────────────────
 function generateFallbackFortune(t: (k: string) => string): DailyFortuneResponse {
@@ -72,16 +73,6 @@ const COLOR_NAME_EN: Record<string, string> = {
   "金色": "Gold", "红色": "Red", "蓝色": "Blue", "绿色": "Green",
   "紫色": "Purple", "白色": "White", "粉色": "Pink", "橙色": "Orange",
   "翠绿": "Emerald", "青色": "Cyan", "黑色": "Black", "黄色": "Yellow", "银色": "Silver",
-}
-
-const YI_JI_EN: Record<string, string> = {
-  "出行": "Travel", "祈福": "Prayer", "安床": "Bed Making", "嫁娶": "Marriage",
-  "开市": "Open Business", "交易": "Trade", "签约": "Contract", "搬迁": "Move",
-  "修造": "Renovation", "动土": "Break Ground", "栽种": "Planting", "纳采": "Proposal",
-  "会友": "Meet Friends", "求医": "Seek Medical", "学习": "Study", "开工": "Start Work",
-  "开仓": "Open Storage", "破土": "Break Ground", "安葬": "Burial", "诉讼": "Lawsuit",
-  "远行": "Long Journey", "诚心则灵": "Sincere prayer works", "安稳": "Stable",
-  "不利": "Inadvisable", "耗损": "Wasteful", "忌": "Avoid",
 }
 
 // ── Sub-components ───────────────────────────────────────────────
@@ -200,7 +191,7 @@ export function DailyDashboard() {
 
   // Translate API Chinese data to English when needed
   const translateColor = (color: string) => locale === "zh" ? color : (COLOR_NAME_EN[color] || color)
-  const translateYiJi = (label: string) => locale === "zh" ? label : (YI_JI_EN[label] || label)
+  const translateYiJiLocal = (label: string) => locale === "zh" ? label : translateYiJi(label)
 
   return (
     <div className="space-y-6">
@@ -265,7 +256,7 @@ export function DailyDashboard() {
             <div className="flex flex-wrap gap-1.5">
               {almanac.yi.map((item, i) => (
                 <span key={i} className="text-[11px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-400/80">
-                  {translateYiJi(item.label)}
+                  {translateYiJiLocal(item.label)}
                 </span>
               ))}
             </div>
@@ -277,7 +268,7 @@ export function DailyDashboard() {
             <div className="flex flex-wrap gap-1.5">
               {almanac.ji.map((item, i) => (
                 <span key={i} className="text-[11px] px-2 py-0.5 rounded-full bg-red-500/10 text-red-400/80">
-                  {translateYiJi(item.label)}
+                  {translateYiJiLocal(item.label)}
                 </span>
               ))}
             </div>
