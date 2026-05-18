@@ -17,7 +17,7 @@ function generateFallbackFortune(t: (k: string) => string): DailyFortuneResponse
   const score = (base: number, v: number) =>
     Math.round(Math.max(1, Math.min(10, base + (hash(v) - 0.5) * v)))
 
-  const colors = ["金色", "红色", "蓝色", "绿色", "紫色", "白色", "粉色", "橙色"]
+  const colors = t("dash.fallback.colors").split(",")
   return {
     date: today.toISOString().slice(0, 10),
     greeting: t("dash.fallback.greeting"),
@@ -40,33 +40,48 @@ interface AlmanacData {
   ji: { label: string; value: string }[]
 }
 
-function generateFallbackAlmanac(): AlmanacData {
+function generateFallbackAlmanac(t: (k: string) => string): AlmanacData {
   const now = new Date()
   const day = now.getDate()
   const month = now.getMonth() + 1
   // Simplified lunar date approximation
-  const lunarMonths = ["正月","二月","三月","四月","五月","六月","七月","八月","九月","十月","冬月","腊月"]
+  const lunarMonths = t("dash.fallback.lunarMonths").split(",")
   const lunarDay = day > 15 ? day - 15 : day
-  const dayNames = ["初一","初二","初三","初四","初五","初六","初七","初八","初九","初十",
-    "十一","十二","十三","十四","十五","十六","十七","十八","十九","二十",
-    "廿一","廿二","廿三","廿四","廿五","廿六","廿七","廿八","廿九","三十"]
-  const ganZhi = ["甲子","乙丑","丙寅","丁卯","戊辰","己巳","庚午","辛未","壬申","癸酉"]
+  const dayNames = t("dash.fallback.dayNames").split(",")
+  const ganZhi = t("dash.fallback.ganZhi").split(",")
   const gZ = ganZhi[now.getDay() % ganZhi.length]
 
   return {
     lunar_date: `${lunarMonths[(month - 1) % 12]}${dayNames[Math.min(lunarDay - 1, 29)]}`,
     bazi_day_pillar: gZ,
     yi: [
-      { label: "出行", value: "利远行" },
-      { label: "祈福", value: "诚心则灵" },
-      { label: "安床", value: "安稳" },
+      { label: t("dash.fallback.yi.travel"), value: t("dash.fallback.yi.travelDesc") },
+      { label: t("dash.fallback.yi.pray"), value: t("dash.fallback.yi.prayDesc") },
+      { label: t("dash.fallback.yi.bed"), value: t("dash.fallback.yi.bedDesc") },
     ],
     ji: [
-      { label: "动土", value: "不利" },
-      { label: "开仓", value: "耗损" },
-      { label: "破土", value: "忌" },
+      { label: t("dash.fallback.ji.dig"), value: t("dash.fallback.ji.digDesc") },
+      { label: t("dash.fallback.ji.warehouse"), value: t("dash.fallback.ji.warehouseDesc") },
+      { label: t("dash.fallback.ji.bury"), value: t("dash.fallback.ji.buryDesc") },
     ],
   }
+}
+
+// ── Translation maps for API Chinese data ────────────────────────
+const COLOR_NAME_EN: Record<string, string> = {
+  "金色": "Gold", "红色": "Red", "蓝色": "Blue", "绿色": "Green",
+  "紫色": "Purple", "白色": "White", "粉色": "Pink", "橙色": "Orange",
+  "翠绿": "Emerald", "青色": "Cyan", "黑色": "Black", "黄色": "Yellow", "银色": "Silver",
+}
+
+const YI_JI_EN: Record<string, string> = {
+  "出行": "Travel", "祈福": "Prayer", "安床": "Bed Making", "嫁娶": "Marriage",
+  "开市": "Open Business", "交易": "Trade", "签约": "Contract", "搬迁": "Move",
+  "修造": "Renovation", "动土": "Break Ground", "栽种": "Planting", "纳采": "Proposal",
+  "会友": "Meet Friends", "求医": "Seek Medical", "学习": "Study", "开工": "Start Work",
+  "开仓": "Open Storage", "破土": "Break Ground", "安葬": "Burial", "诉讼": "Lawsuit",
+  "远行": "Long Journey", "诚心则灵": "Sincere prayer works", "安稳": "Stable",
+  "不利": "Inadvisable", "耗损": "Wasteful", "忌": "Avoid",
 }
 
 // ── Sub-components ───────────────────────────────────────────────
@@ -150,8 +165,8 @@ export function DailyDashboard() {
               if (res?.data) {
                 const raw = res.data
                 setAlmanac({
-                  lunar_date: raw.lunar_date || generateFallbackAlmanac().lunar_date,
-                  bazi_day_pillar: raw.bazi_day_pillar || generateFallbackAlmanac().bazi_day_pillar,
+                  lunar_date: raw.lunar_date || generateFallbackAlmanac(t).lunar_date,
+                  bazi_day_pillar: raw.bazi_day_pillar || generateFallbackAlmanac(t).bazi_day_pillar,
                   yi: (raw.yi || []).slice(0, 3).map((i: any) => ({ label: i.label || i.name, value: i.value || i.desc || "" })),
                   ji: (raw.ji || []).slice(0, 3).map((i: any) => ({ label: i.label || i.name, value: i.value || i.desc || "" })),
                 })
@@ -160,7 +175,7 @@ export function DailyDashboard() {
             }
           } catch {}
         }
-        setAlmanac(generateFallbackAlmanac())
+        setAlmanac(generateFallbackAlmanac(t))
       } finally {
         setLoading(false)
       }
@@ -179,7 +194,13 @@ export function DailyDashboard() {
   const colorHex: Record<string, string> = {
     "金色": "#C9A84C", "红色": "#E63946", "蓝色": "#2980B9", "绿色": "#52B788",
     "紫色": "#9B59B6", "白色": "#E8E8E8", "粉色": "#F472B6", "橙色": "#F97316",
+    "Gold": "#C9A84C", "Red": "#E63946", "Blue": "#2980B9", "Green": "#52B788",
+    "Purple": "#9B59B6", "White": "#E8E8E8", "Pink": "#F472B6", "Orange": "#F97316",
   }
+
+  // Translate API Chinese data to English when needed
+  const translateColor = (color: string) => locale === "zh" ? color : (COLOR_NAME_EN[color] || color)
+  const translateYiJi = (label: string) => locale === "zh" ? label : (YI_JI_EN[label] || label)
 
   return (
     <div className="space-y-6">
@@ -204,7 +225,7 @@ export function DailyDashboard() {
                 <Palette size={14} className="text-white/40" />
                 <span className="text-white/40">{t("dash.fortune.luckyColor")}</span>
                 <span className="text-white/70 font-medium" style={{ color: colorHex[fortune.lucky_color] || "#C9A84C" }}>
-                  {fortune.lucky_color}
+                  {translateColor(fortune.lucky_color)}
                 </span>
               </div>
               <div className="flex items-center gap-2 text-sm">
@@ -244,7 +265,7 @@ export function DailyDashboard() {
             <div className="flex flex-wrap gap-1.5">
               {almanac.yi.map((item, i) => (
                 <span key={i} className="text-[11px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-400/80">
-                  {item.label}
+                  {translateYiJi(item.label)}
                 </span>
               ))}
             </div>
@@ -256,7 +277,7 @@ export function DailyDashboard() {
             <div className="flex flex-wrap gap-1.5">
               {almanac.ji.map((item, i) => (
                 <span key={i} className="text-[11px] px-2 py-0.5 rounded-full bg-red-500/10 text-red-400/80">
-                  {item.label}
+                  {translateYiJi(item.label)}
                 </span>
               ))}
             </div>
@@ -270,7 +291,7 @@ export function DailyDashboard() {
         <p className="text-white/50 text-sm leading-relaxed">
           {locale === "zh"
             ? `大盘今日${almanac.ji.length > 0 ? "虽忌" + almanac.ji[0].label : "运势平稳"}，但你的${fortune.career_fortune >= 7 ? "事业运逆势高达 " + fortune.career_fortune + "/10，事上磨练" : "整体运势" + fortune.overall_score + "/10，宜稳中求进"}。${fortune.advice}`
-            : `The day's almanac${almanac.ji.length > 0 ? " warns against " + almanac.ji[0].label : " is neutral"}, but your personal fortune scores ${fortune.overall_score}/10. ${fortune.advice}`
+            : `The day's almanac${almanac.ji.length > 0 ? " warns against " + translateYiJi(almanac.ji[0].label) : " is neutral"}, but your personal fortune scores ${fortune.overall_score}/10. ${fortune.advice}`
           }
         </p>
       </div>

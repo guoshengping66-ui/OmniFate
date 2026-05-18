@@ -71,6 +71,19 @@ const COLOR_NAME_HEX: Record<string, string> = {
   "紫色": "#9B59B6", "白色": "#E8E8E8", "黑色": "#333333",
   "粉色": "#F472B6", "橙色": "#F97316", "黄色": "#EAB308",
   "银色": "#94A3B8",
+  // English names also map for fallback
+  "Gold": "#C9A84C", "Red": "#E63946", "Blue": "#2980B9",
+  "Green": "#52B788", "Emerald": "#52B788", "Cyan": "#2ECC71",
+  "Purple": "#9B59B6", "White": "#E8E8E8", "Black": "#333333",
+  "Pink": "#F472B6", "Orange": "#F97316", "Yellow": "#EAB308",
+  "Silver": "#94A3B8",
+}
+
+// Translate Chinese color names to English
+const COLOR_NAME_EN: Record<string, string> = {
+  "金色": "Gold", "红色": "Red", "蓝色": "Blue", "绿色": "Green",
+  "翠绿": "Emerald", "青色": "Cyan", "紫色": "Purple", "白色": "White",
+  "黑色": "Black", "粉色": "Pink", "橙色": "Orange", "黄色": "Yellow", "银色": "Silver",
 }
 
 const ADVICE_KEYS = [
@@ -310,7 +323,7 @@ export function DailyFortune({ user }: DailyFortuneProps) {
   let colorName: string
   if (fortune.personalized && fortune.lucky_color_name) {
     colorHex = COLOR_NAME_HEX[fortune.lucky_color_name] || "#C9A84C"
-    colorName = fortune.lucky_color_name
+    colorName = locale === "zh" ? fortune.lucky_color_name : (COLOR_NAME_EN[fortune.lucky_color_name] || fortune.lucky_color_name)
   } else {
     colorHex = COLOR_HEX[fortune.lucky_color_idx]
     colorName = t(COLOR_KEYS[fortune.lucky_color_idx])
