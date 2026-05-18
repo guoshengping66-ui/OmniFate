@@ -1455,6 +1455,12 @@ async def get_daily_fortune(
     health = _score(6, 3, 4)
     personalized = False
 
+    # 五行生克关系（公共，hourly_energy/wuxing_today 也需要）
+    SHENG = {"木": "火", "火": "土", "土": "金", "金": "水", "水": "木"}  # 我生
+    KE = {"木": "土", "土": "水", "水": "火", "火": "金", "金": "木"}  # 我克
+    SHENG_ME = {v: k for k, v in SHENG.items()}  # 生我
+    KE_ME = {v: k for k, v in KE.items()}  # 克我
+
     if birth_year and birth_month and birth_day and birth_hour is not None:
         personalized = True
         try:
@@ -1467,12 +1473,6 @@ async def get_daily_fortune(
             today_tg = today_lunar.getDayGan()
             today_dz = today_lunar.getDayZhi()
             today_element = TIANGAN_WUXING.get(today_tg, "土")
-
-            # 五行生克关系
-            SHENG = {"木": "火", "火": "土", "土": "金", "金": "水", "水": "木"}  # 我生
-            KE = {"木": "土", "土": "水", "水": "火", "火": "金", "金": "木"}  # 我克
-            SHENG_ME = {v: k for k, v in SHENG.items()}  # 生我
-            KE_ME = {v: k for k, v in KE.items()}  # 克我
 
             # 今日五行对用户日主的影响
             if today_element == dm_element:
