@@ -5,6 +5,7 @@ import { motion } from "framer-motion"
 import { Loader2, Sparkles, Zap, Gift, Crown, Share2 } from "lucide-react"
 import Link from "next/link"
 import { api } from "@/lib/api"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 interface DivinationData {
   id: string
@@ -55,6 +56,7 @@ const THEME_TOTEM: Record<string, string> = {
 export default function DivinationSharePage() {
   const params = useParams()
   const id = params.id as string
+  const { t } = useLanguage()
   const [data, setData] = useState<DivinationData | null>(null)
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(false)
@@ -90,7 +92,7 @@ export default function DivinationSharePage() {
   if (!data) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-ink">
-        <p className="text-white/40">签文不存在</p>
+        <p className="text-white/40">{t("divination.share.notFound")}</p>
       </div>
     )
   }
@@ -99,9 +101,9 @@ export default function DivinationSharePage() {
   const totemIcon = THEME_TOTEM[data.theme] || "✧"
   const isHighFortune = data.fortune_level >= 5
 
-  // 格式化日期
+  // Format date
   const dateStr = data.created_at
-    ? new Date(data.created_at).toLocaleDateString("zh-CN", { month: "long", day: "numeric" })
+    ? new Date(data.created_at).toLocaleDateString(undefined, { month: "long", day: "numeric" })
     : ""
 
   return (
@@ -148,7 +150,7 @@ export default function DivinationSharePage() {
                               bg-gold/10 border border-gold/25">
                   <Crown size={12} className="text-gold" />
                   <span className="text-gold text-[11px] font-medium tracking-wide">
-                    AlphaMirror 第 {data.seat_no} 位创始会员专属能量卡
+                    {t("divination.share.founderSeat").replace("{seatNo}", String(data.seat_no))}
                   </span>
                 </div>
               </motion.div>
@@ -157,14 +159,14 @@ export default function DivinationSharePage() {
             {/* App branding */}
             <div className="flex items-center justify-center gap-2 mb-6">
               <Sparkles size={16} className="text-gold" />
-              <span className="font-serif text-gold text-sm">命盘智镜 · 星际抽签</span>
+              <span className="font-serif text-gold text-sm">{t("divination.share.appName")}</span>
             </div>
 
             {/* Phase 2: 主题图腾 + 日期 */}
             {data.theme && (
               <div className="flex items-center justify-center gap-2 mb-4 text-white/30 text-xs">
                 <span className="text-base">{totemIcon}</span>
-                <span>{data.theme}星宫</span>
+                <span>{data.theme}</span>
                 {dateStr && (
                   <>
                     <span className="text-gold/20">·</span>
@@ -223,7 +225,7 @@ export default function DivinationSharePage() {
                 transition={{ delay: 0.5 }}
                 className="bg-gold/5 rounded-xl p-4 mb-5 border border-gold/15 text-left"
               >
-                <p className="text-gold/50 text-[10px] uppercase tracking-wider mb-1.5">AI 行动指引</p>
+                <p className="text-gold/50 text-[10px] uppercase tracking-wider mb-1.5">{t("divination.share.aiAction")}</p>
                 <p className="text-white/60 text-xs leading-relaxed">{data.ai_insight}</p>
               </motion.div>
             )}
@@ -240,11 +242,11 @@ export default function DivinationSharePage() {
               {data.seat_no && !data.is_founder && (
                 <div className="inline-flex items-center gap-1.5 text-gold/60 text-xs mb-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-gold" />
-                  创始席位 #{data.seat_no}
+                  {t("divination.share.seatLabel").replace("{seatNo}", String(data.seat_no))}
                 </div>
               )}
               {data.user_name && (
-                <p className="text-white/30 text-xs">{data.user_name} 的签文</p>
+                <p className="text-white/30 text-xs">{t("divination.share.userReading").replace("{name}", data.user_name)}</p>
               )}
             </div>
 
@@ -257,15 +259,15 @@ export default function DivinationSharePage() {
             >
               <div className="flex items-center justify-center gap-1.5 mb-2">
                 <Gift size={14} className="text-gold" />
-                <p className="text-gold text-xs font-medium">分享得星尘</p>
+                <p className="text-gold text-xs font-medium">{t("divination.share.shareForStardust")}</p>
               </div>
               <p className="text-white/40 text-[11px] mb-3">
-                邀请好友注册，双方各得 <span className="text-gold font-medium">20 颗星尘</span>
+                {t("divination.share.inviteDesc")}
               </p>
 
               {data.referral_code && (
                 <div className="bg-white/5 rounded-lg p-3 border border-white/10">
-                  <p className="text-white/30 text-[10px] mb-1.5">我的邀请码</p>
+                  <p className="text-white/30 text-[10px] mb-1.5">{t("divination.share.myReferralCode")}</p>
                   <div className="flex items-center justify-center gap-2">
                     <span className="font-mono text-gold text-lg tracking-widest">{data.referral_code}</span>
                   </div>
@@ -283,12 +285,12 @@ export default function DivinationSharePage() {
               {copied ? (
                 <>
                   <span className="text-green-400">✓</span>
-                  已复制含邀请码链接
+                  {t("divination.share.copiedWithCode")}
                 </>
               ) : (
                 <>
                   <Share2 size={14} />
-                  复制分享链接（含邀请码）
+                  {t("divination.share.copyShareLink")}
                 </>
               )}
             </button>
@@ -301,7 +303,7 @@ export default function DivinationSharePage() {
                        hover:bg-white/10 hover:text-gold transition-all"
             >
               <Sparkles size={14} />
-              探索我的命盘
+              {t("divination.share.exploreMyChart")}
             </Link>
           </div>
         </motion.div>
@@ -309,4 +311,3 @@ export default function DivinationSharePage() {
     </div>
   )
 }
-

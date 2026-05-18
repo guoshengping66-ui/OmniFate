@@ -90,8 +90,8 @@ function ShopContent() {
         {/* Disclaimer banner */}
         <div className="mb-6 p-3 rounded-xl border border-amber-500/20 bg-amber-500/5 text-center">
           <p className="text-amber-200/70 text-xs leading-relaxed">
-            商城商品为文化创意产品，功效描述基于传统命理文化概念，并非科学验证的功效声明。
-            <a href="/disclaimer" className="text-gold/60 hover:text-gold ml-1 underline">查看详情</a>
+            {t("shop.disclaimer") || "Products are cultural creative items. Descriptions are based on traditional destiny culture, not scientifically verified."}
+            <a href="/disclaimer" className="text-gold/60 hover:text-gold ml-1 underline">{t("shop.disclaimerLink") || "View Details"}</a>
           </p>
         </div>
 

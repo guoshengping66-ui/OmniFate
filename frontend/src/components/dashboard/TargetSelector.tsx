@@ -2,10 +2,12 @@
 import { useState, useRef, useEffect } from "react"
 import { ChevronDown, User, Users, Plus, Check } from "lucide-react"
 import { useUserStore } from "@/stores/useUserStore"
+import { useLanguage } from "@/contexts/LanguageContext"
 import type { BirthProfile } from "@/lib/birth-profile-api"
 
 export function TargetSelector() {
   const { userProfile, activeTestTarget, birthProfiles, setActiveTestTarget, resetToSelf } = useUserStore()
+  const { t } = useLanguage()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -20,7 +22,7 @@ export function TargetSelector() {
   if (!userProfile) return null
 
   const isSelf = activeTestTarget?.id === userProfile.id
-  const targetLabel = activeTestTarget?.nickname || "本命"
+  const targetLabel = activeTestTarget?.nickname || t("target.self")
 
   return (
     <div ref={ref} className="relative">
@@ -41,7 +43,7 @@ export function TargetSelector() {
             className="w-full flex items-center gap-2 px-3 py-2.5 text-sm hover:bg-white/5 transition-colors"
           >
             <User size={14} className={isSelf ? "text-gold" : "text-white/30"} />
-            <span className={isSelf ? "text-gold" : "text-white/60"}>本命：{userProfile.nickname}</span>
+            <span className={isSelf ? "text-gold" : "text-white/60"}>{t("target.selfLabel")}{userProfile.nickname}</span>
             {isSelf && <Check size={12} className="text-gold ml-auto" />}
           </button>
 
@@ -67,7 +69,7 @@ export function TargetSelector() {
             className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-white/40 hover:bg-white/5 hover:text-white/60 transition-colors"
           >
             <Plus size={14} />
-            <span>添加朋友档案</span>
+            <span>{t("target.addFriend")}</span>
           </button>
         </div>
       )}

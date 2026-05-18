@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { CreditCard, Smartphone, Globe, Check, ChevronRight } from "lucide-react"
 import { getPaymentMethods, PaymentMethod } from "@/lib/api"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 // Custom SVG icons for payment methods
 const PaymentIcons: Record<string, React.FC<{ size?: number; className?: string }>> = {
@@ -33,6 +34,7 @@ interface PaymentMethodSelectorProps {
 }
 
 export function PaymentMethodSelector({ selected, onSelect, className = "" }: PaymentMethodSelectorProps) {
+  const { t } = useLanguage()
   const [methods, setMethods] = useState<PaymentMethod[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -69,7 +71,7 @@ export function PaymentMethodSelector({ selected, onSelect, className = "" }: Pa
         <div>
           <div className="flex items-center gap-2 mb-2.5">
             <Smartphone size={12} className="text-gold/50" />
-            <span className="text-white/30 text-[10px] tracking-wider uppercase">中国支付方式</span>
+            <span className="text-white/30 text-[10px] tracking-wider uppercase">{t("paymentMethod.chinaMethods")}</span>
           </div>
           <div className="grid grid-cols-2 gap-2">
             {chinaMethods.map((method) => (

@@ -3,9 +3,11 @@ import { useState } from "react"
 import { Mail, MessageCircle, Send, CheckCircle } from "lucide-react"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
+import { useLanguage } from "@/contexts/LanguageContext"
 import toast from "react-hot-toast"
 
 export default function ContactPage() {
+  const { t } = useLanguage()
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [subject, setSubject] = useState("")
@@ -15,23 +17,23 @@ export default function ContactPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!name.trim() || !email.trim() || !message.trim()) {
-      toast.error("请填写完整信息")
+      toast.error(t("contact.form.fillAll"))
       return
     }
     setSubmitted(true)
-    toast.success("消息已发送，我们会尽快回复！")
+    toast.success(t("contact.form.sentSuccess"))
   }
 
   return (
     <div className="min-h-screen pt-24 pb-20 px-4">
       <div className="max-w-3xl mx-auto">
-        <Breadcrumbs items={[{ label: "联系我们" }]} />
+        <Breadcrumbs items={[{ label: t("contact.title") }]} />
 
         {/* Header */}
         <div className="text-center mb-12">
           <Mail size={36} className="text-gold mx-auto mb-3" />
-          <h1 className="text-4xl font-serif font-bold text-gold mb-2">联系我们</h1>
-          <p className="text-white/50">有任何问题或建议，欢迎随时联系我们的团队</p>
+          <h1 className="text-4xl font-serif font-bold text-gold mb-2">{t("contact.title")}</h1>
+          <p className="text-white/50">{t("contact.subtitle")}</p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-8">
@@ -44,11 +46,11 @@ export default function ContactPage() {
                     <Mail size={18} className="text-gold" />
                   </div>
                   <div>
-                    <h3 className="text-white/80 font-medium text-sm">电子邮件</h3>
+                    <h3 className="text-white/80 font-medium text-sm">{t("contact.email")}</h3>
                     <p className="text-gold/70 text-sm">support@khanfate.com</p>
                   </div>
                 </div>
-                <p className="text-white/30 text-xs">我们会在 24 小时内回复</p>
+                <p className="text-white/30 text-xs">{t("contact.emailHint")}</p>
               </div>
 
               <div className="card-glow p-6">
@@ -57,20 +59,20 @@ export default function ContactPage() {
                     <MessageCircle size={18} className="text-gold" />
                   </div>
                   <div>
-                    <h3 className="text-white/80 font-medium text-sm">微信客服</h3>
+                    <h3 className="text-white/80 font-medium text-sm">{t("contact.wechat")}</h3>
                     <p className="text-gold/70 text-sm">DestinyMirror_CS</p>
                   </div>
                 </div>
-                <p className="text-white/30 text-xs">工作日 9:00 - 18:00</p>
+                <p className="text-white/30 text-xs">{t("contact.wechatHint")}</p>
               </div>
 
               <div className="card-glow p-6">
-                <h3 className="text-white/80 font-medium text-sm mb-2">常见问题</h3>
+                <h3 className="text-white/80 font-medium text-sm mb-2">{t("contact.faq.title")}</h3>
                 <p className="text-white/30 text-xs leading-relaxed">
-                  在联系客服之前，建议先查看我们的常见问题页面，可能已有您需要的答案。
+                  {t("contact.faq.desc")}
                 </p>
                 <a href="/faq" className="text-gold/60 text-xs hover:text-gold mt-2 inline-block">
-                  查看 FAQ →
+                  {t("contact.faq.link")}
                 </a>
               </div>
             </div>
@@ -83,35 +85,35 @@ export default function ContactPage() {
                 <div className="w-16 h-16 rounded-full bg-green-500/20 border border-green-500/40 flex items-center justify-center mx-auto mb-4">
                   <CheckCircle size={32} className="text-green-400" />
                 </div>
-                <h2 className="font-serif text-xl text-gold mb-2">消息已发送</h2>
+                <h2 className="font-serif text-xl text-gold mb-2">{t("contact.sent")}</h2>
                 <p className="text-white/50 text-sm mb-6">
-                  感谢你的反馈！我们的团队会尽快与你联系。
+                  {t("contact.sentDesc")}
                 </p>
                 <button
                   onClick={() => { setSubmitted(false); setName(""); setEmail(""); setSubject(""); setMessage("") }}
                   className="text-gold text-sm hover:underline"
                 >
-                  发送新消息
+                  {t("contact.sendNew")}
                 </button>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="card-glass p-6 space-y-4">
-                <h2 className="font-serif text-lg text-gold mb-2">发送消息</h2>
+                <h2 className="font-serif text-lg text-gold mb-2">{t("contact.form.title")}</h2>
 
                 <div>
-                  <label className="label">姓名</label>
+                  <label className="label">{t("contact.form.name")}</label>
                   <input
                     type="text"
                     value={name}
                     onChange={e => setName(e.target.value)}
-                    placeholder="你的名字"
+                    placeholder={t("contact.form.namePlaceholder")}
                     className="input-field"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="label">邮箱</label>
+                  <label className="label">{t("contact.form.email")}</label>
                   <input
                     type="email"
                     value={email}
@@ -123,28 +125,28 @@ export default function ContactPage() {
                 </div>
 
                 <div>
-                  <label className="label">主题</label>
+                  <label className="label">{t("contact.form.subject")}</label>
                   <select
                     value={subject}
                     onChange={e => setSubject(e.target.value)}
                     className="input-field"
                   >
-                    <option value="" className="bg-[#0f0f1a] text-white">请选择主题</option>
-                    <option value="general" className="bg-[#0f0f1a] text-white">一般咨询</option>
-                    <option value="technical" className="bg-[#0f0f1a] text-white">技术问题</option>
-                    <option value="billing" className="bg-[#0f0f1a] text-white">支付与退款</option>
-                    <option value="feedback" className="bg-[#0f0f1a] text-white">功能建议</option>
-                    <option value="other" className="bg-[#0f0f1a] text-white">其他</option>
+                    <option value="" className="bg-[#0f0f1a] text-white">{t("contact.form.subjectPlaceholder")}</option>
+                    <option value="general" className="bg-[#0f0f1a] text-white">{t("contact.form.subjectGeneral")}</option>
+                    <option value="technical" className="bg-[#0f0f1a] text-white">{t("contact.form.subjectTech")}</option>
+                    <option value="billing" className="bg-[#0f0f1a] text-white">{t("contact.form.subjectBilling")}</option>
+                    <option value="feedback" className="bg-[#0f0f1a] text-white">{t("contact.form.subjectFeedback")}</option>
+                    <option value="other" className="bg-[#0f0f1a] text-white">{t("contact.form.subjectOther")}</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="label">消息内容</label>
+                  <label className="label">{t("contact.form.message")}</label>
                   <textarea
                     value={message}
                     onChange={e => setMessage(e.target.value)}
                     rows={5}
-                    placeholder="请详细描述你的问题或建议..."
+                    placeholder={t("contact.form.messagePlaceholder")}
                     className="input-field resize-none"
                     required
                   />
@@ -154,10 +156,10 @@ export default function ContactPage() {
                   type="submit"
                   className="btn-gold w-full py-3 flex items-center justify-center gap-2"
                 >
-                  <Send size={16} /> 发送消息
+                  <Send size={16} /> {t("contact.form.send")}
                 </button>
                 <p className="text-white/20 text-[10px] text-center">
-                  提交后请留意邮箱回复，或直接发送邮件至 support@khanfate.com
+                  {t("contact.form.note")}
                 </p>
               </form>
             )}

@@ -277,9 +277,9 @@ export default function AccountPage() {
                                 try {
                                   await deleteReading(r.id)
                                   setReadings(prev => prev.filter(x => x.id !== r.id))
-                                  toast.success("已删除")
+                                  toast.success(t("common.deleted"))
                                 } catch {
-                                  toast.error("删除失败")
+                                  toast.error(t("common.deleteFailed"))
                                 }
                               }}
                               className="w-6 h-6 rounded-full flex items-center justify-center text-white/15 hover:text-red-400 hover:bg-red-400/10 transition-all flex-shrink-0"
@@ -331,7 +331,7 @@ export default function AccountPage() {
                                 e.stopPropagation()
                                 removeReadingFromHistory(r.sessionId)
                                 setAnonymousReadings(prev => prev.filter(x => x.sessionId !== r.sessionId))
-                                toast.success("已删除")
+                                toast.success(t("common.deleted"))
                               }}
                               className="w-6 h-6 rounded-full flex items-center justify-center text-white/15 hover:text-red-400 hover:bg-red-400/10 transition-all flex-shrink-0"
                             >
@@ -445,7 +445,7 @@ export default function AccountPage() {
                     {isFounder ? (
                       <div className="bg-amber-400/5 border border-amber-400/20 rounded-xl p-3 mb-4">
                         <p className="text-amber-400 text-sm font-medium">{t("account.permanent")}</p>
-                        <p className="text-white/30 text-xs mt-1">创始人终身会员，永不过期</p>
+                        <p className="text-white/30 text-xs mt-1">{t("account.founderLifetime")}</p>
                       </div>
                     ) : expiresAt ? (
                       <div className={`rounded-xl p-3 mb-4 ${
@@ -462,13 +462,13 @@ export default function AccountPage() {
                           </div>
                           <div className="text-right">
                             {isExpired ? (
-                              <p className="text-red-400 text-sm font-medium">已过期</p>
+                              <p className="text-red-400 text-sm font-medium">{t("account.expired")}</p>
                             ) : (
                               <>
                                 <p className={`text-2xl font-bold ${daysLeft !== null && daysLeft <= 7 ? "text-orange-400" : "text-gold"}`}>
                                   {daysLeft}
                                 </p>
-                                <p className="text-white/40 text-[10px]">剩余天数</p>
+                                <p className="text-white/40 text-[10px]">{t("account.daysLeft")}</p>
                               </>
                             )}
                           </div>
@@ -502,7 +502,7 @@ export default function AccountPage() {
                         <span className="text-white/60 text-sm">{t("account.couponBalance2")}</span>
                       </div>
                       <p className="text-gold text-2xl font-bold">¥{user.shop_coupon_balance}</p>
-                      <p className="text-white/20 text-xs mt-1">{t("coupon可用于")}</p>
+                      <p className="text-white/20 text-xs mt-1">{t("account.couponUseHint")}</p>
                     </div>
                   )}
                 </div>

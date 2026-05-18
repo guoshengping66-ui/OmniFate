@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 export default function GlobalError({
   error,
@@ -9,6 +10,8 @@ export default function GlobalError({
   error: Error & { digest?: string }
   reset: () => void
 }) {
+  const { t } = useLanguage()
+
   useEffect(() => {
     console.error("[GlobalError-ROOT]", error)
   }, [error])
@@ -33,9 +36,9 @@ export default function GlobalError({
             textAlign: "center",
           }}>
             <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>⚠️</div>
-            <h2 style={{ fontSize: "1.25rem", marginBottom: "0.75rem" }}>应用启动异常</h2>
+            <h2 style={{ fontSize: "1.25rem", marginBottom: "0.75rem" }}>{t("globalError.title")}</h2>
             <p style={{ opacity: 0.5, fontSize: "0.875rem", marginBottom: "1rem" }}>
-              根布局渲染失败，以下是错误详情：
+              {t("globalError.desc")}
             </p>
             <div style={{
               background: "rgba(255,255,255,0.05)",
@@ -71,7 +74,7 @@ export default function GlobalError({
                 fontSize: "0.875rem",
               }}
             >
-              重试
+              {t("globalError.retry")}
             </button>
           </div>
         </div>

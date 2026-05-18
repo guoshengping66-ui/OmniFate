@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 export default function GlobalError({
   error,
@@ -9,8 +10,8 @@ export default function GlobalError({
   error: Error & { digest?: string }
   reset: () => void
 }) {
+  const { t } = useLanguage()
   useEffect(() => {
-    // Log the actual error to console for debugging
     console.error("[GlobalError]", error)
   }, [error])
 
@@ -18,9 +19,9 @@ export default function GlobalError({
     <div className="min-h-screen flex items-center justify-center bg-ink px-4">
       <div className="max-w-md w-full card-glass p-8 text-center">
         <div className="text-4xl mb-4">⚠️</div>
-        <h2 className="font-serif text-xl text-gold mb-3">出了点问题</h2>
+        <h2 className="font-serif text-xl text-gold mb-3">{t("error.title")}</h2>
         <p className="text-white/50 text-sm mb-2">
-          客户端渲染时发生异常，以下是错误详情：
+          {t("error.clientError")}
         </p>
         <div className="bg-white/5 border border-white/10 rounded-lg p-4 mb-6 text-left overflow-auto max-h-48">
           <code className="text-red-400 text-xs whitespace-pre-wrap break-all">
@@ -33,7 +34,7 @@ export default function GlobalError({
           onClick={reset}
           className="btn-gold text-sm px-6 py-2"
         >
-          重试
+          {t("error.retry")}
         </button>
       </div>
     </div>

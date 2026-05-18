@@ -4,6 +4,7 @@ import { useEffect, Suspense } from "react"
 import { Loader2 } from "lucide-react"
 import { useWizardStore, type Intent } from "@/stores/useWizardStore"
 import { useUserStore } from "@/stores/useUserStore"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 // intent 映射: quick→GENERAL_DAILY, full→FULL_MULTIMODAL, friend→null(全步骤)
 const INTENT_MAP: Record<string, Intent> = {
@@ -15,6 +16,7 @@ function PredictRedirect() {
   const searchParams = useSearchParams()
   const intent = searchParams.get("intent")
   const router = useRouter()
+  const { t } = useLanguage()
   const { setIntent, prefillFromProfile, reset } = useWizardStore()
   const { userProfile } = useUserStore()
 
@@ -35,7 +37,7 @@ function PredictRedirect() {
     <div className="min-h-screen flex items-center justify-center">
       <div className="flex flex-col items-center gap-4">
         <Loader2 size={24} className="animate-spin text-gold" />
-        <p className="text-white/40 text-sm">正在准备推演…</p>
+        <p className="text-white/40 text-sm">{t("predict.preparing")}</p>
       </div>
     </div>
   )

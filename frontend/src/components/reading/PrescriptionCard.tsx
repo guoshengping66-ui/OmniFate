@@ -3,6 +3,7 @@ import { useState } from "react"
 import { ShoppingBag, CheckCircle, Sparkles } from "lucide-react"
 import type { Product } from "@/lib/api"
 import { useCart } from "@/contexts/CartContext"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 interface PrescriptionCardProps {
   product: Product
@@ -12,6 +13,7 @@ interface PrescriptionCardProps {
 
 export function PrescriptionCard({ product, variant = "primary" }: PrescriptionCardProps) {
   const { addItem } = useCart()
+  const { t } = useLanguage()
   const [claimed, setClaimed] = useState(false)
 
   const handleClaim = () => {
@@ -60,11 +62,11 @@ export function PrescriptionCard({ product, variant = "primary" }: PrescriptionC
         <div className="flex items-center gap-2 mb-4">
           <span className="text-xl">⚕</span>
           <h4 className="font-serif text-base md:text-lg font-bold text-gold tracking-wide">
-            处方笺 · 专属助运物
+            {t("prescription.title")}
           </h4>
           {isPrimary && (
             <span className="ml-auto text-[10px] px-2 py-0.5 bg-gold/15 border border-gold/25 rounded-full text-gold/70 animate-pulse">
-              主推
+              {t("prescription.primary")}
             </span>
           )}
         </div>
@@ -78,14 +80,14 @@ export function PrescriptionCard({ product, variant = "primary" }: PrescriptionC
 
           {/* Price as "剂量" */}
           <p className="text-xs text-white/40 mb-3">
-            方名 · 建议剂量：
+            {t("prescription.dosage")}
             <span className="text-gold/80 font-semibold ml-1">¥{product.price_cny}</span>
           </p>
 
           {/* Match reasons as "适应症" */}
           {product.match_reasons && product.match_reasons.length > 0 && (
             <div className="mb-3">
-              <p className="text-[11px] text-white/30 mb-1.5 uppercase tracking-wider">适应症</p>
+              <p className="text-[11px] text-white/30 mb-1.5 uppercase tracking-wider">{t("prescription.indication")}</p>
               <ul className="space-y-1">
                 {product.match_reasons.slice(0, 3).map((r, i) => (
                   <li key={i} className="flex items-start gap-1.5 text-xs text-white/55">
@@ -117,7 +119,7 @@ export function PrescriptionCard({ product, variant = "primary" }: PrescriptionC
           <div className="flex items-center gap-1.5 mt-3 mb-3">
             <Sparkles size={12} className="text-gold/60" />
             <span className="text-[11px] text-gold/50">
-              命盘匹配度 {product.match_score.toFixed(1)}
+              {t("prescription.matchScore")} {product.match_score.toFixed(1)}
             </span>
           </div>
         )}
@@ -137,19 +139,19 @@ export function PrescriptionCard({ product, variant = "primary" }: PrescriptionC
           {claimed ? (
             <>
               <CheckCircle size={15} />
-              已加入购物车
+              {t("prescription.claimed")}
             </>
           ) : (
             <>
               <ShoppingBag size={15} />
-              领取专属处方
+              {t("prescription.claimBtn")}
             </>
           )}
         </button>
 
         {/* ── Footer note ─────────────────────────── */}
         <p className="text-[10px] text-white/20 text-center mt-2">
-          — 专属处方 · 根据你的命盘弱点精准匹配 —
+          {t("prescription.footer")}
         </p>
       </div>
 

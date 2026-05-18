@@ -7,9 +7,11 @@ import { DateSelector } from "@/components/reading/DateSelector"
 import { ShichenSelector } from "@/components/reading/ShichenSelector"
 import { LocationSelector } from "@/components/reading/LocationSelector"
 import { motion } from "framer-motion"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 export function BirthProfileSetup() {
   const { createBirthProfile } = useUserStore()
+  const { t } = useLanguage()
   const [gender, setGender] = useState<"female" | "male" | "other">("female")
   const [year, setYear] = useState(0)
   const [month, setMonth] = useState(0)
@@ -26,7 +28,7 @@ export function BirthProfileSetup() {
     setLoading(true)
     try {
       await createBirthProfile({
-        nickname: "本命",
+        nickname: t("profile.selfName"),
         gender,
         birth_year: year,
         birth_month: month,
@@ -35,9 +37,9 @@ export function BirthProfileSetup() {
         birth_minute: minute,
         birth_city: city,
       })
-      toast.success("出生信息已保存！")
+      toast.success(t("profile.saved"))
     } catch {
-      toast.error("保存失败，请重试")
+      toast.error(t("profile.saveFailed"))
     } finally {
       setLoading(false)
     }
@@ -51,16 +53,16 @@ export function BirthProfileSetup() {
     >
       <div className="text-center mb-5">
         <Sparkles size={24} className="text-gold mx-auto mb-2" />
-        <h2 className="font-serif text-lg text-gold">完善命理底座</h2>
-        <p className="text-white/40 text-sm mt-1">填写出生信息，解锁个性化推命分析</p>
+        <h2 className="font-serif text-lg text-gold">{t("profile.setupTitle")}</h2>
+        <p className="text-white/40 text-sm mt-1">{t("profile.setupDesc")}</p>
       </div>
 
       <div className="space-y-4">
         {/* Gender */}
         <div>
-          <label className="label">性别</label>
+          <label className="label">{t("profile.gender")}</label>
           <div className="flex gap-3">
-            {([["female", "女"], ["male", "男"], ["other", "其他"]] as [string, string][]).map(([v, l]) => (
+            {([["female", t("profile.female")], ["male", t("profile.male")], ["other", t("profile.other")]] as [string, string][]).map(([v, l]) => (
               <label key={v} className="flex-1 cursor-pointer">
                 <input type="radio" value={v} checked={gender === v}
                   onChange={() => setGender(v as any)} className="sr-only peer" />
@@ -90,7 +92,7 @@ export function BirthProfileSetup() {
         <LocationSelector
           value={city}
           onChange={setCity}
-          placeholder="请输入出生城市（可选）"
+          placeholder={t("profile.cityPlaceholder")}
         />
 
         {/* Submit */}
@@ -100,14 +102,14 @@ export function BirthProfileSetup() {
           className="btn-gold w-full flex items-center justify-center gap-2 py-3 disabled:opacity-40"
         >
           {loading ? (
-            <><Loader2 size={16} className="animate-spin" /> 保存中...</>
+            <><Loader2 size={16} className="animate-spin" /> {t("profile.saving")}</>
           ) : (
-            <><CheckCircle size={16} /> 保存底座信息</>
+            <><CheckCircle size={16} /> {t("profile.save")}</>
           )}
         </button>
 
         <p className="text-white/25 text-[10px] text-center">
-          出生信息将安全加密存储，仅用于命理分析
+          {t("profile.privacy")}
         </p>
       </div>
     </motion.div>

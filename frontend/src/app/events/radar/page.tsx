@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation"
 import { Loader2, AlertTriangle, Zap, Calendar, ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/contexts/AuthContext"
+import { useLanguage } from "@/contexts/LanguageContext"
 import { api } from "@/lib/api"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 
@@ -13,7 +14,7 @@ interface RadarEvent {
   event_type: string
   title: string
   description: string
-  energy_level: number  // 1-5
+  energy_level: number
   trading_advice: string
   is_dangerous: boolean
 }
@@ -21,6 +22,7 @@ interface RadarEvent {
 export default function EventsRadarPage() {
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
+  const { t } = useLanguage()
   const [events, setEvents] = useState<RadarEvent[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedEvent, setSelectedEvent] = useState<RadarEvent | null>(null)
@@ -47,11 +49,11 @@ export default function EventsRadarPage() {
   }
 
   const getEnergyLabel = (level: number) => {
-    if (level <= 1) return "低能量"
-    if (level <= 2) return "平稳"
-    if (level <= 3) return "中等"
-    if (level <= 4) return "高能量"
-    return "极高"
+    if (level <= 1) return t("radar.lowEnergy")
+    if (level <= 2) return t("radar.stable")
+    if (level <= 3) return t("radar.moderate")
+    if (level <= 4) return t("radar.highEnergy")
+    return t("radar.extreme")
   }
 
   if (authLoading || loading) {
@@ -67,12 +69,12 @@ export default function EventsRadarPage() {
   return (
     <div className="min-h-screen pt-24 pb-16 px-4">
       <div className="max-w-4xl mx-auto">
-        <Breadcrumbs items={[{ label: "能量雷达" }]} />
+        <Breadcrumbs items={[{ label: t("radar.breadcrumb") }]} />
 
         <div className="text-center mb-10">
-          <h1 className="text-3xl font-serif font-bold text-gold mb-3">能量雷达</h1>
+          <h1 className="text-3xl font-serif font-bold text-gold mb-3">{t("radar.title")}</h1>
           <p className="text-white/50 max-w-md mx-auto">
-            未来 7 天星象能量波动，把握最佳交易时机
+            {t("radar.desc")}
           </p>
         </div>
 
@@ -81,23 +83,23 @@ export default function EventsRadarPage() {
           <div className="flex items-center justify-center gap-6 text-sm">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-blue-400" />
-              <span className="text-white/50">低能量</span>
+              <span className="text-white/50">{t("radar.lowEnergy")}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-green-400" />
-              <span className="text-white/50">平稳</span>
+              <span className="text-white/50">{t("radar.stable")}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-yellow-400" />
-              <span className="text-white/50">中等</span>
+              <span className="text-white/50">{t("radar.moderate")}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-orange-400" />
-              <span className="text-white/50">高能量</span>
+              <span className="text-white/50">{t("radar.highEnergy")}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-red-400" />
-              <span className="text-white/50">极高</span>
+              <span className="text-white/50">{t("radar.extreme")}</span>
             </div>
           </div>
         </div>
@@ -106,7 +108,7 @@ export default function EventsRadarPage() {
         {events.length === 0 ? (
           <div className="card-glass p-12 text-center">
             <Calendar size={48} className="text-white/20 mx-auto mb-4" />
-            <p className="text-white/40">暂无能量事件数据</p>
+            <p className="text-white/40">{t("radar.noData")}</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -132,7 +134,7 @@ export default function EventsRadarPage() {
                     <div>
                       <p className="text-white font-medium">{event.title}</p>
                       <p className="text-white/40 text-sm mt-1">
-                        {new Date(event.date).toLocaleDateString("zh-CN", {
+                        {new Date(event.date).toLocaleDateString(undefined, {
                           month: "long",
                           day: "numeric",
                           weekday: "short",
@@ -151,12 +153,11 @@ export default function EventsRadarPage() {
                   />
                 </div>
 
-                {/* Expanded details */}
                 {selectedEvent?.id === event.id && (
                   <div className="mt-4 pt-4 border-t border-white/10">
                     <p className="text-white/60 text-sm mb-3">{event.description}</p>
                     <div className="bg-white/5 rounded-lg p-3">
-                      <p className="text-gold text-sm font-medium mb-1">交易建议</p>
+                      <p className="text-gold text-sm font-medium mb-1">{t("radar.tradingAdvice")}</p>
                       <p className="text-white/50 text-sm">{event.trading_advice}</p>
                     </div>
                   </div>
@@ -170,10 +171,10 @@ export default function EventsRadarPage() {
         {!user.is_premium && (
           <div className="card-glass p-6 mt-8 text-center border-gold/20">
             <p className="text-white/60 mb-4">
-              升级会员，获取详细能量评分和个性化交易建议
+              {t("radar.upgradePrompt")}
             </p>
             <Link href="/pricing" className="btn-gold-outline inline-flex items-center gap-2">
-              查看会员权益
+              {t("radar.viewBenefits")}
               <ArrowRight size={14} />
             </Link>
           </div>

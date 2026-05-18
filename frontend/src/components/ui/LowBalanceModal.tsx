@@ -2,6 +2,7 @@
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Zap, ArrowRight, Crown } from "lucide-react"
 import Link from "next/link"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 interface LowBalanceModalProps {
   open: boolean
@@ -11,21 +12,22 @@ interface LowBalanceModalProps {
   isFounder?: boolean
 }
 
-const LOW_BALANCE_MESSAGES = [
-  "星辰能量暂不足以支撑此次推演",
-  "星尘储备不足，无法完成此次天机推演",
-  "宇宙能量尚未充盈，请先注入星尘",
+const LOW_BALANCE_KEYS = [
+  "lowBalance.msg1",
+  "lowBalance.msg2",
+  "lowBalance.msg3",
 ]
 
-const FOUNDER_MESSAGES = [
-  "创始能量暂缓中，请稍后获取补充",
-  "星尘能量正在宇宙深处凝聚，敬请稍候",
-  "创始人之力暂歇，能量即将重聚",
+const FOUNDER_BALANCE_KEYS = [
+  "lowBalance.founder1",
+  "lowBalance.founder2",
+  "lowBalance.founder3",
 ]
 
 export function LowBalanceModal({ open, onClose, required = 0, current = 0, isFounder = false }: LowBalanceModalProps) {
-  const messages = isFounder ? FOUNDER_MESSAGES : LOW_BALANCE_MESSAGES
-  const message = messages[Math.floor(Math.random() * messages.length)]
+  const { t } = useLanguage()
+  const keys = isFounder ? FOUNDER_BALANCE_KEYS : LOW_BALANCE_KEYS
+  const message = t(keys[Math.floor(Math.random() * keys.length)])
 
   return (
     <AnimatePresence>
@@ -73,7 +75,7 @@ export function LowBalanceModal({ open, onClose, required = 0, current = 0, isFo
 
             {/* Title */}
             <h3 className="text-center font-serif text-lg text-gold mb-2">
-              {isFounder ? "能量暂缓" : "能量不足"}
+              {isFounder ? t("lowBalance.titleFounder") : t("lowBalance.title")}
             </h3>
 
             {/* Message */}
@@ -81,7 +83,7 @@ export function LowBalanceModal({ open, onClose, required = 0, current = 0, isFo
               {message}
               {required > 0 && (
                 <span className="block mt-2 text-white/30 text-xs">
-                  需要 {required} 颗星尘 · 当前 {current} 颗
+                  {t("lowBalance.need").replace("{required}", String(required)).replace("{current}", String(current))}
                 </span>
               )}
             </p>
@@ -91,7 +93,7 @@ export function LowBalanceModal({ open, onClose, required = 0, current = 0, isFo
               {isFounder ? (
                 <div className="text-center py-3">
                   <p className="text-gold/60 text-xs">
-                    创始会员星尘将于下月自动注入
+                    {t("lowBalance.founderNote")}
                   </p>
                 </div>
               ) : (
@@ -100,7 +102,7 @@ export function LowBalanceModal({ open, onClose, required = 0, current = 0, isFo
                   onClick={onClose}
                   className="w-full btn-gold flex items-center justify-center gap-2 text-sm"
                 >
-                  向星空索取更多能量
+                  {t("lowBalance.getMore")}
                   <ArrowRight size={14} />
                 </Link>
               )}
@@ -108,7 +110,7 @@ export function LowBalanceModal({ open, onClose, required = 0, current = 0, isFo
                 onClick={onClose}
                 className="w-full py-2.5 text-white/40 text-sm hover:text-white/60 transition-colors"
               >
-                {isFounder ? "稍后重试" : "稍后再说"}
+                {isFounder ? t("lowBalance.retryLater") : t("lowBalance.later")}
               </button>
             </div>
           </motion.div>

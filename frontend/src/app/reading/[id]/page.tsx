@@ -221,7 +221,7 @@ export default function ReadingPage() {
       })
     }).catch(() => {
       if (!cancelled) {
-        toast.error("无法加载报告")
+        toast.error(t("reading.error.loadFailed"))
         setLoading(false)
       }
     })
@@ -244,7 +244,7 @@ export default function ReadingPage() {
   const handlePaymentSuccess = useCallback(async () => {
     setIsUnlocked(true)
     setShowPayment(false)
-    toast.success("报告已解锁！")
+    toast.success(t("reading.error.unlocked"))
     refreshUser()
   }, [refreshUser])
 
@@ -356,7 +356,7 @@ export default function ReadingPage() {
             <div className="inline-flex items-center gap-2 bg-gold/10 border border-gold/25 rounded-full px-4 py-1.5">
               <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
               <span className="text-gold/80 text-xs font-medium tracking-wide">
-                五维命理分析报告 · AI 精算
+                {t("reading.hero.badge")}
               </span>
             </div>
             {/* Intent channel badge */}
@@ -379,7 +379,7 @@ export default function ReadingPage() {
             )}
             <div className="inline-flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full px-3 py-1">
               <span className="text-white/30 text-[10px]">
-                本内容由AI生成，仅供参考，不构成专业建议
+                {t("reading.disclaimer")}
               </span>
             </div>
             <ShareSheet sessionId={id} />
@@ -823,7 +823,7 @@ export default function ReadingPage() {
             ) : (
               <div className="card-glass p-12 text-center">
                 <Eye size={32} className="text-white/10 mx-auto mb-3" />
-                <p className="text-white/25 text-sm">未提供该项数据，分析已跳过</p>
+                <p className="text-white/25 text-sm">{t("reading.error.noData")}</p>
               </div>
             )}
           </div>
@@ -836,9 +836,9 @@ export default function ReadingPage() {
               <div className="w-14 h-14 rounded-2xl bg-gold/10 border border-gold/25 flex items-center justify-center mb-4">
                 <ShoppingBag size={24} className="text-gold" />
               </div>
-              <h2 className="font-serif text-xl md:text-2xl font-bold text-gold mb-2">专属改运方案</h2>
+              <h2 className="font-serif text-xl md:text-2xl font-bold text-gold mb-2">{t("reading.shop.title")}</h2>
               <p className="text-white/35 text-sm max-w-md">
-                AI 深度分析你的命盘能量缺口，从数百件开运物中精准匹配
+                {t("reading.shop.desc")}
               </p>
             </div>
 
@@ -852,8 +852,8 @@ export default function ReadingPage() {
                     <Sparkles size={10} className="text-gold" />
                   </div>
                 </div>
-                <p className="text-white/50 text-sm mb-2">AI 将根据你的命盘分析结果</p>
-                <p className="text-white/25 text-xs mb-8">为你精准匹配最适合的改运商品</p>
+                <p className="text-white/50 text-sm mb-2">{t("reading.shop.aiWill")}</p>
+                <p className="text-white/25 text-xs mb-8">{t("reading.shop.matchForYou")}</p>
                 <button
                   onClick={async () => {
                     setShopLoading(true)
@@ -867,7 +867,7 @@ export default function ReadingPage() {
                       setProducts(result)
                       setShopFetched(true)
                     } catch {
-                      toast.error("商品匹配失败，请稍后重试")
+                      toast.error(t("reading.shop.matchFailed"))
                     } finally {
                       setShopLoading(false)
                     }
@@ -876,8 +876,8 @@ export default function ReadingPage() {
                   className="btn-gold flex items-center gap-2 mx-auto text-sm md:text-base"
                 >
                   {shopLoading
-                    ? <><Loader2 size={16} className="animate-spin" /> AI 匹配中…</>
-                    : <><Sparkles size={16} /> 根据我的命盘推荐改运商品</>}
+                    ? <><Loader2 size={16} className="animate-spin" /> {t("reading.shop.matching")}</>
+                    : <><Sparkles size={16} /> {t("reading.shop.recommendBtn")}</>}
                 </button>
               </div>
             ) : products.length > 0 ? (
@@ -887,8 +887,8 @@ export default function ReadingPage() {
             ) : (
               <div className="card-glass p-12 text-center">
                 <ShoppingBag size={36} className="text-white/10 mx-auto mb-4" />
-                <p className="text-white/30 text-sm">暂未匹配到合适的改运商品</p>
-                <p className="text-white/15 text-xs mt-1">请稍后再试</p>
+                <p className="text-white/30 text-sm">{t("reading.shop.noMatch")}</p>
+                <p className="text-white/15 text-xs mt-1">{t("reading.shop.tryLater")}</p>
               </div>
             )}
           </div>
@@ -911,8 +911,8 @@ export default function ReadingPage() {
               <div className="w-14 h-14 rounded-2xl bg-gold/10 border border-gold/25 flex items-center justify-center mb-4">
                 <MessageSquare size={24} className="text-gold" />
               </div>
-              <h2 className="font-serif text-xl font-bold text-gold mb-1">继续追问</h2>
-              <p className="text-white/30 text-xs">AI 自动路由到对应命理专家为你解答</p>
+              <h2 className="font-serif text-xl font-bold text-gold mb-1">{t("reading.chat.title")}</h2>
+              <p className="text-white/30 text-xs">{t("reading.chat.desc")}</p>
             </div>
             <ChatBox
               sessionId={id}

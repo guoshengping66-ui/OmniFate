@@ -12,9 +12,9 @@ import { ServiceWorkerRegistration } from "@/components/ui/ServiceWorkerRegistra
 import { MonthlyGrantToast } from "@/components/ui/MonthlyGrantToast"
 
 export const metadata: Metadata = {
-  title: "命盘智镜 · 全维度命理分析平台",
-  description: "融合周易八字、西方星盘、塔罗占卜与AI面相，为你揭示命运密码，推荐精准改运方案。",
-  keywords: ["八字", "星盘", "塔罗", "面相", "命理", "改运"],
+  title: "Destiny Mirror · Multi-Dimension Destiny Analysis",
+  description: "AI-powered destiny analysis combining Bazi, Western astrology, Tarot, face reading, and palmistry. Discover your life blueprint and personalized fortune guidance.",
+  keywords: ["bazi", "astrology", "tarot", "face reading", "destiny", "fortune"],
   icons: {
     icon: "/favicon.svg",
   },
@@ -23,13 +23,13 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "命盘智镜",
+    title: "Destiny Mirror",
   },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="zh-CN">
+    <html lang="en">
       <body>
         <AppProviders>
           <ServiceWorkerRegistration />

@@ -86,7 +86,7 @@ export default function RegisterPage() {
     setLoading(true)
     try {
       const birthData: RegisterBirthData | undefined = hasBirthData ? {
-        nickname: "本命",
+        nickname: t("auth.birth.defaultNickname") || "Myself",
         gender: birthGender,
         birth_year: birthYear,
         birth_month: birthMonth,
@@ -97,7 +97,7 @@ export default function RegisterPage() {
       } : undefined
 
       await registerUser(email, password, displayName || undefined, privacyAccepted, birthData)
-      toast.success(hasBirthData ? "注册成功，出生信息已保存！请查收邮箱验证码" : "注册成功，请查收邮箱验证码")
+      toast.success(hasBirthData ? t("auth.registerSuccessWithBirth") : t("auth.registerSuccessMsg"))
       setStep("verify")
       startResendCooldown()
     } catch (err: any) {
@@ -239,7 +239,7 @@ export default function RegisterPage() {
 
             <p className="text-center text-white/40 text-sm">
               <button type="button" onClick={() => setStep("birth")} className="text-gold hover:underline">
-                ← 返回
+                ← {t("auth.birth.prevStep")}
               </button>
             </p>
           </form>
@@ -255,18 +255,18 @@ export default function RegisterPage() {
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <span className="text-4xl mb-3 block">🔮</span>
-            <h1 className="text-2xl font-serif font-bold text-gold">完善命理底座</h1>
+            <h1 className="text-2xl font-serif font-bold text-gold">{t("auth.birth.title")}</h1>
             <p className="text-white/40 text-sm mt-1">
-              填写出生信息，解锁个性化推命分析
+              {t("auth.birth.subtitle")}
             </p>
           </div>
 
           <div className="card-glass p-6 md:p-8 space-y-5">
             {/* Gender */}
             <div>
-              <label className="label">性别</label>
+              <label className="label">{t("auth.birth.gender")}</label>
               <div className="flex gap-3">
-                {([["female", "女"], ["male", "男"], ["other", "其他"]] as [string, string][]).map(([v, l]) => (
+                {([["female", t("auth.birth.female")], ["male", t("auth.birth.male")], ["other", t("auth.birth.other")]] as [string, string][]).map(([v, l]) => (
                   <label key={v} className="flex-1 cursor-pointer">
                     <input type="radio" value={v} checked={birthGender === v}
                       onChange={() => setBirthGender(v as any)} className="sr-only peer" />
@@ -296,7 +296,7 @@ export default function RegisterPage() {
             <LocationSelector
               value={birthCity}
               onChange={setBirthCity}
-              placeholder="请输入出生城市（可选）"
+              placeholder={t("auth.birth.cityPlaceholder")}
             />
 
             {/* Actions */}
@@ -306,7 +306,7 @@ export default function RegisterPage() {
                 onClick={() => setStep("account")}
                 className="flex items-center gap-1 px-4 py-2.5 rounded-full border border-white/20 text-white/60 hover:border-white/40 transition-all text-sm"
               >
-                <ChevronLeft size={14} /> 上一步
+                <ChevronLeft size={14} /> {t("auth.birth.prevStep")}
               </button>
 
               <button
@@ -315,7 +315,7 @@ export default function RegisterPage() {
                 disabled={loading}
                 className="flex-1 py-2.5 rounded-full border border-white/20 text-white/40 hover:text-white/60 hover:border-white/40 transition-all text-sm"
               >
-                {loading ? <Loader2 size={14} className="animate-spin mx-auto" /> : "跳过，稍后填写"}
+                {loading ? <Loader2 size={14} className="animate-spin mx-auto" /> : t("auth.birth.skip")}
               </button>
 
               <button
@@ -324,12 +324,12 @@ export default function RegisterPage() {
                 disabled={loading || !hasBirthData}
                 className="btn-gold flex items-center gap-1 text-sm disabled:opacity-40"
               >
-                {loading ? <Loader2 size={14} className="animate-spin" /> : <><CheckCircle size={14} /> 完成注册</>}
+                {loading ? <Loader2 size={14} className="animate-spin" /> : <><CheckCircle size={14} /> {t("auth.birth.complete")}</>}
               </button>
             </div>
 
             <p className="text-white/25 text-[10px] text-center">
-              出生信息将安全加密存储，仅用于命理分析
+              {t("auth.birth.securityNote")}
             </p>
           </div>
         </div>
@@ -441,7 +441,7 @@ export default function RegisterPage() {
             disabled={!privacyAccepted}
             className="btn-gold w-full flex items-center justify-center gap-2 py-3 disabled:opacity-40"
           >
-            下一步 <ChevronRight size={16} />
+            {t("auth.birth.nextStep")} <ChevronRight size={16} />
           </button>
 
           <p className="text-center text-white/40 text-sm">

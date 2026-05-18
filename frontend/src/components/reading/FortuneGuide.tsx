@@ -1,57 +1,26 @@
 "use client"
 import { motion, AnimatePresence } from "framer-motion"
 import type { Intent } from "@/stores/useWizardStore"
+import { useLanguage } from "@/contexts/LanguageContext"
 
-const TIPS: Record<number, { avatar: string; name: string; text: string }> = {
-  0: {
-    avatar: "🧙",
-    name: "玄机子",
-    text: "出生时辰是命盘的根基，请尽量准确。若不确定时辰，可选择「子时」作为参考。",
-  },
-  1: {
-    avatar: "🔮",
-    name: "塔罗灵",
-    text: "提问越具体，塔罗给出的指引越清晰。不妨想想最近最困扰你的一件事。",
-  },
-  2: {
-    avatar: "👁",
-    name: "相真人",
-    text: "面相和手相传得越清晰，AI 分析越精准。建议在自然光下拍摄，不要使用美颜滤镜。",
-  },
-  3: {
-    avatar: "🌟",
-    name: "命盘",
-    text: "五大命师已准备就绪，点击确认后他们将同步为你推演！",
-  },
+const TIPS: Record<number, { avatar: string; nameKey: string; textKey: string }> = {
+  0: { avatar: "🧙", nameKey: "fortuneGuide.wizard", textKey: "fortuneGuide.step0" },
+  1: { avatar: "🔮", nameKey: "fortuneGuide.tarotSpirit", textKey: "fortuneGuide.step1" },
+  2: { avatar: "👁", nameKey: "fortuneGuide.faceMaster", textKey: "fortuneGuide.step2" },
+  3: { avatar: "🌟", nameKey: "fortuneGuide.chart", textKey: "fortuneGuide.step3" },
 }
 
 // Intent-specific overrides
-const INTENT_TIPS: Record<Intent, Partial<Record<number, { avatar: string; name: string; text: string }>>> = {
+const INTENT_TIPS: Record<Intent, Partial<Record<number, { avatar: string; nameKey: string; textKey: string }>>> = {
   FULL_MULTIMODAL: {
-    1: {
-      avatar: "🔮",
-      name: "塔罗灵",
-      text: "完整推命模式：塔罗、面相、手相将同步分析。请先选择塔罗牌并输入你的问题。",
-    },
+    1: { avatar: "🔮", nameKey: "fortuneGuide.tarotSpirit", textKey: "fortuneGuide.full.step1" },
   },
   GENERAL_DAILY: {
-    1: {
-      avatar: "⚡",
-      name: "日常灵",
-      text: "日常问事模式：输入你当下的疑惑，塔罗将为你指引方向。",
-    },
-    3: {
-      avatar: "🌟",
-      name: "命盘",
-      text: "日常问事将结合你的命理底座和塔罗牌，快速给出今日指引。",
-    },
+    1: { avatar: "⚡", nameKey: "fortuneGuide.dailySpirit", textKey: "fortuneGuide.daily.step1" },
+    3: { avatar: "🌟", nameKey: "fortuneGuide.chart", textKey: "fortuneGuide.daily.step3" },
   },
   SPECIFIC_EVENT: {
-    3: {
-      avatar: "🎯",
-      name: "格物子",
-      text: "事件复盘模式：AI 将结合你的命理底座，为你进行深度的心学命理分析。",
-    },
+    3: { avatar: "🎯", nameKey: "fortuneGuide.investigator", textKey: "fortuneGuide.event.step3" },
   },
 }
 
@@ -61,6 +30,7 @@ interface Props {
 }
 
 export function FortuneGuide({ step, intent }: Props) {
+  const { t } = useLanguage()
   // Merge default tips with intent-specific overrides
   const base = TIPS[step]
   const override = intent ? INTENT_TIPS[intent]?.[step] : undefined
@@ -79,10 +49,10 @@ export function FortuneGuide({ step, intent }: Props) {
         <div className="text-2xl flex-shrink-0">{tip.avatar}</div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-medium text-gold">{tip.name}</span>
-            <span className="text-[10px] text-white/20">· 指引</span>
+            <span className="text-xs font-medium text-gold">{t(tip.nameKey)}</span>
+            <span className="text-[10px] text-white/20">· {t("fortuneGuide.guideLabel")}</span>
           </div>
-          <p className="text-white/50 text-xs leading-relaxed">{tip.text}</p>
+          <p className="text-white/50 text-xs leading-relaxed">{t(tip.textKey)}</p>
         </div>
       </motion.div>
     </AnimatePresence>

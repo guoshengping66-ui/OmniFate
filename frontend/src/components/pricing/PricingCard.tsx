@@ -107,7 +107,7 @@ export function PricingCard({
 
             {/* Features */}
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              {tier.features.map((f, i) => (
+              {(tierT.features.length > 0 ? tierT.features : tier.features).map((f, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm text-gold/65">
                   <Check size={14} className="text-gold/50 mt-0.5 flex-shrink-0" />
                   <span>{f}</span>
@@ -147,7 +147,7 @@ export function PricingCard({
                          active:scale-[0.98] flex items-center justify-center gap-2"
             >
               <Lock size={16} />
-              {tier.cta}
+                  {tierT.cta || tier.cta}
             </button>
 
             <p className="text-gold/30 text-[10px] text-center leading-relaxed">
@@ -200,7 +200,7 @@ export function PricingCard({
               }`}
             >
               {isYearly && <Sparkles size={11} />}
-              {tier.badge}
+              {tierT.badge || tier.badge}
             </span>
           </div>
         )}
@@ -210,7 +210,7 @@ export function PricingCard({
           <h3 className={`text-xl font-serif font-bold ${isYearly ? "text-gold" : "text-white"}`}>
             {tierT.name}
           </h3>
-          <p className="text-white/35 text-xs mt-1">{tier.subtitle}</p>
+          <p className="text-white/35 text-xs mt-1">{tierT.subtitle || tier.subtitle}</p>
         </div>
 
         {/* Stardust grant for subscriptions */}
@@ -262,13 +262,13 @@ export function PricingCard({
             </div>
           )}
           {tier.billingLabel && (
-            <p className="text-white/25 text-[11px] mt-1">{tier.billingLabel}</p>
+            <p className="text-white/25 text-[11px] mt-1">{tierT.billingLabel || tier.billingLabel}</p>
           )}
         </div>
 
         {/* Features */}
         <ul className="flex-1 space-y-2.5 mb-6">
-          {tier.features.map((f, i) => {
+          {(tierT.features.length > 0 ? tierT.features : tier.features).map((f, i) => {
             const isExclusive = isYearly && (
               f.includes("专属") || f.includes("定制") || f.includes("优先") ||
               f.toLowerCase().includes("exclusive") || f.toLowerCase().includes("custom") || f.toLowerCase().includes("priority")

@@ -213,10 +213,10 @@ export default function CheckoutPage() {
             className="mt-0.5 h-4 w-4 rounded border-white/20 bg-white/5 text-gold focus:ring-gold/40"
           />
           <span className="text-white/50 text-xs leading-relaxed">
-            我已阅读并同意{" "}
-            <a href="/terms" target="_blank" className="text-gold hover:underline">《服务条款》</a>
-            {" "}和{" "}
-            <a href="/refund" target="_blank" className="text-gold hover:underline">《退款政策》</a>
+            {t("checkout.terms")}
+            <a href="/terms" target="_blank" className="text-gold hover:underline">{t("checkout.termsOfService")}</a>
+            {t("checkout.and")}
+            <a href="/refund" target="_blank" className="text-gold hover:underline">{t("checkout.refundPolicy")}</a>
           </span>
         </label>
         <button
