@@ -69,6 +69,14 @@ function generateFallbackAlmanac(): AlmanacData {
   }
 }
 
+// ── Constants ──────────────────────────────────────────────────
+
+const WUXING_EMOJI: Record<string, string> = {
+  "木": "🌿", "火": "🔥", "土": "⛰️", "金": "🪙", "水": "💧",
+}
+
+const SHICHEN_LABELS = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"]
+
 // ── Sub-components ───────────────────────────────────────────────
 
 function GaugeRing({ score, size = 140 }: { score: number; size?: number }) {
@@ -131,7 +139,12 @@ export function DailyDashboard() {
         // Personal fortune
         let f: DailyFortuneResponse
         if (user) {
-          try { f = await getDailyFortune() } catch { f = generateFallbackFortune() }
+          try {
+            f = await getDailyFortune()
+          } catch (err) {
+            console.warn("[DailyDashboard] Fortune API failed, using fallback:", err)
+            f = generateFallbackFortune()
+          }
         } else {
           f = generateFallbackFortune()
         }
@@ -163,7 +176,9 @@ export function DailyDashboard() {
                 return // success, skip fallback
               }
             }
-          } catch {}
+          } catch (err) {
+            console.warn("[DailyDashboard] Almanac API failed, using fallback:", err)
+          }
         }
         setAlmanac(generateFallbackAlmanac())
       } finally {
@@ -229,6 +244,58 @@ export function DailyDashboard() {
               </div>
             </div>
           </div>
+
+          {/* ── 今日时辰能量 ───────────────────────────── */}
+          {fortune.hourly_energy && fortune.hourly_energy.length > 0 && (
+            <div className="pt-3 border-t border-white/[0.06]">
+              <p className="text-white/40 text-xs mb-3">今日时辰能量</p>
+              <div className="grid grid-cols-6 sm:grid-cols-12 gap-1.5">
+                {fortune.hourly_energy.slice(0, 12).map((h, i) => {
+                  const barColor = h.score >= 8 ? "#4ade80" : h.score >= 6 ? "#C9A84C" : h.score >= 4 ? "#fb923c" : "#f87171"
+                  return (
+                    <div key={i} className="text-center">
+                      <div className="text-[10px] text-white/30 mb-1">{h.hour?.replace("时", "") || SHICHEN_LABELS[i]}</div>
+                      <div className="h-10 rounded-md bg-white/[0.04] relative overflow-hidden">
+                        <div
+                          className="absolute bottom-0 w-full rounded-md transition-all duration-700"
+                          style={{
+                            height: `${h.score * 10}%`,
+                            background: `linear-gradient(to top, ${barColor}44, ${barColor})`,
+                          }}
+                        />
+                      </div>
+                      <div className="text-[10px] text-white/40 mt-1 font-mono">{h.score}</div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* ── 今日五行 ───────────────────────────────── */}
+          {fortune.wuxing_today?.element && (
+            <div className="flex items-center gap-4 pt-3 border-t border-white/[0.06]">
+              <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center text-2xl flex-shrink-0">
+                {fortune.wuxing_today.emoji || WUXING_EMOJI[fortune.wuxing_today.element] || "✨"}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-white/60 text-sm">
+                  今日五行 · <span className="text-gold font-medium">{fortune.wuxing_today.element}</span>
+                </p>
+                <p className="text-white/40 text-xs mt-0.5 leading-relaxed">{fortune.wuxing_today.interaction}</p>
+              </div>
+            </div>
+          )}
+
+          {/* ── 今日总结 ───────────────────────────────── */}
+          {fortune.daily_summary && (
+            <div className="pt-3 border-t border-white/[0.06]">
+              <p className="text-white/50 text-sm leading-relaxed">
+                <span className="text-gold/60 mr-1">💡</span>
+                {fortune.daily_summary}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* ── Right: 红尘黄历 (1 col) ──────────────────── */}

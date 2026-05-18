@@ -979,6 +979,9 @@ export interface DailyFortuneResponse {
   lucky_number: number
   advice: string
   warning: string
+  hourly_energy?: { hour: string; score: number; label?: string }[]
+  wuxing_today?: { element: string; emoji: string; interaction: string }
+  daily_summary?: string
 }
 
 export async function getDailyFortune(): Promise<DailyFortuneResponse> {

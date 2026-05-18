@@ -1417,6 +1417,9 @@ class DailyFortuneResponse(BaseModel):
     advice: str
     warning: str
     personalized: bool = False  # 是否基于用户命盘数据个性化
+    hourly_energy: list = []    # 12时辰能量 [{hour: "子时", score: 8}, ...]
+    wuxing_today: dict = {}     # 今日五行 {element: "火", emoji: "🔥", interaction: "比肩助力"}
+    daily_summary: str = ""     # 一句话今日总结
 
 
 @router.get("/daily-fortune")
@@ -1564,6 +1567,77 @@ async def get_daily_fortune(
     weekdays = ["一", "二", "三", "四", "五", "六", "日"]
     weekday = weekdays[today.weekday()]
 
+    # ── 12时辰能量计算（纯算法，无 LLM）──────────────────────────────
+    SHICHEN = [
+        ("子时", 23, 1), ("丑时", 1, 3), ("寅时", 3, 5), ("卯时", 5, 7),
+        ("辰时", 7, 9), ("巳时", 9, 11), ("午时", 11, 13), ("未时", 13, 15),
+        ("申时", 15, 17), ("酉时", 17, 19), ("戌时", 19, 21), ("亥时", 21, 23),
+    ]
+    SHICHEN_WUXING = ["水", "土", "木", "木", "土", "火", "火", "土", "金", "金", "土", "水"]
+    hourly_energy = []
+    try:
+        today_lunar_calc = Solar.fromYmd(today.year, today.month, today.day).getLunar()
+        today_dz_str = today_lunar_calc.getDayZhi()
+        today_dz_element = DIZHI_WUXING.get(today_dz_str, "土")
+        for idx, (name, h_start, h_end) in enumerate(SHICHEN):
+            sc_element = SHICHEN_WUXING[idx]
+            # 基础能量：生我+2，同我+1，我生-1，我克+1，克我-1
+            base = 6
+            if sc_element == today_dz_element:
+                base = 7  # 比肩
+            elif SHENG.get(today_dz_element) == sc_element:
+                base = 5  # 我生（泄气）
+            elif KE.get(today_dz_element) == sc_element:
+                base = 8  # 我克（得财）
+            elif SHENG_ME.get(today_dz_element) == sc_element:
+                base = 8  # 生我（助力）
+            elif KE_ME.get(today_dz_element) == sc_element:
+                base = 4  # 克我（压力）
+            # 加入时辰本身的阴阳能量波动
+            hour_mod = [0, -1, 1, 2, 2, 1, 0, -1, -1, 0, 1, 0][idx]
+            score = max(1, min(10, base + hour_mod))
+            hourly_energy.append({"hour": name, "score": score})
+    except Exception:
+        pass
+
+    # ── 今日五行卡片 ──────────────────────────────────────────────────
+    WUXING_EMOJI = {"木": "🌳", "火": "🔥", "土": "⛰️", "金": "⚙️", "水": "💧"}
+    wuxing_today_data = {}
+    try:
+        today_lunar_wx = Solar.fromYmd(today.year, today.month, today.day).getLunar()
+        wx_element = DIZHI_WUXING.get(today_lunar_wx.getDayZhi(), "土")
+        interaction = "平稳"
+        if personalized and dm_element:
+            if wx_element == dm_element:
+                interaction = "比肩助力，精力充沛"
+            elif SHENG.get(dm_element) == wx_element:
+                interaction = "泄气之象，宜收敛专注"
+            elif KE.get(dm_element) == wx_element:
+                interaction = "我克为财，利于进账"
+            elif SHENG_ME.get(dm_element) == wx_element:
+                interaction = "有贵人相助，顺势而为"
+            elif KE_ME.get(dm_element) == wx_element:
+                interaction = "压力偏大，宜低调行事"
+        wuxing_today_data = {
+            "element": wx_element,
+            "emoji": WUXING_EMOJI.get(wx_element, "✨"),
+            "interaction": interaction,
+        }
+    except Exception:
+        pass
+
+    # ── 一句话今日总结 ────────────────────────────────────────────────
+    daily_summary = ""
+    if personalized:
+        if overall >= 8:
+            daily_summary = f"今日{wuxing_today_data.get('element', '')}气当旺，整体运势很棒，适合主动出击。"
+        elif overall >= 6:
+            daily_summary = f"今日运势平稳，{wuxing_today_data.get('interaction', '宜稳中求进')}。"
+        else:
+            daily_summary = f"今日{wuxing_today_data.get('interaction', '运势偏低')}，建议保守行事。"
+    else:
+        daily_summary = advice
+
     return DailyFortuneResponse(
         date=f"{today.month}月{today.day}日 星期{weekday}",
         greeting=f"{today.month}月{today.day}日运势",
@@ -1577,6 +1651,9 @@ async def get_daily_fortune(
         advice=advice,
         warning=warning,
         personalized=personalized,
+        hourly_energy=hourly_energy,
+        wuxing_today=wuxing_today_data,
+        daily_summary=daily_summary,
     )
 
 
@@ -1770,13 +1847,16 @@ async def _generate_almanac(
     energy_score: int,
 ) -> dict:
     """
-    Generate yi/ji/hu recommendations using LLM when available, fallback to rule-based.
+    Generate yi/ji/hu — 规则优先（毫秒级），LLM 仅作为可选增强。
     """
-    from agents.master import _llm, _use_mock
-    if _use_mock():
-        return _rule_based_almanac(state, today, transit_bazi, transit_astro, energy_score)
+    # 1. 立即返回规则版（快）
+    rule_result = _rule_based_almanac(state, today, transit_bazi, transit_astro, energy_score)
 
-    # Build a concise prompt for the LLM
+    # 2. 如果有 LLM，尝试异步增强（可选，不影响响应速度）
+    from agents.master import _use_mock
+    if _use_mock():
+        return rule_result
+
     master_excerpt = state.master_summary[:300] if state.master_summary else ""
     tags_str = "、".join(state.computed_tags) if state.computed_tags else "无"
 
@@ -1799,29 +1879,29 @@ async def _generate_almanac(
             astro_str = "今日天象: " + ", ".join(parts)
 
     system = (
-        "你是一位精通八字和占星的命理顾问，每天为用户生成个性化的黄历指南。\n"
-        "你的输出必须严格遵循JSON格式，不要包含其他文字。\n\n"
+        "你是一位亲切的命理顾问，用大白话给用户写每日黄历。\n"
+        "输出必须严格JSON格式，不要包含其他文字。\n\n"
         f"用户命盘摘要: {master_excerpt}\n"
         f"命盘标签: {tags_str}\n"
         f"能量评分: {energy_score}/100\n"
         f"{bazi_str}\n"
         f"{astro_str}\n\n"
-        "请根据用户命盘与今日天象的互动，生成以下JSON：\n"
+        "生成以下JSON：\n"
         "```json\n"
         "{\n"
-        '  "yi": ["宜沟通", "宜签约", ...],\n'
-        '  "ji": ["忌争执", "忌投资", ...],\n'
+        '  "yi": ["适合跟朋友聊天谈心", "可以学习新技能"],\n'
+        '  "ji": ["不要冲动花钱", "避免跟人争论"],\n'
         '  "boost_elements": ["fire", "water"],\n'
-        '  "wuxing_analysis": "今日金气过旺...",\n'
-        '  "daily_quote": "一句简短的古风每日寄语"\n'
+        '  "wuxing_analysis": "今日五行属火，适合积极行动",\n'
+        '  "daily_quote": "一句简单温暖的每日寄语"\n'
         "}\n"
         "```\n"
         "规则:\n"
-        "- yi: 2-4条建议，根据今日对用户最有利的能量方向\n"
-        "- ji: 1-3条建议，根据今日能量冲突的领域\n"
+        "- yi: 2-4条，每条8-15字，口语化表达，避免生僻术语\n"
+        "- ji: 1-3条，每条6-12字，口语化表达\n"
         "- boost_elements: 需要补充的五行元素（英文）\n"
-        "- wuxing_analysis: 一句话五行分析（30-60字）\n"
-        "- daily_quote: 一句古典风格每日寄语（10-30字），引用古诗或哲言"
+        "- wuxing_analysis: 一句话五行分析（20-40字），通俗易懂\n"
+        "- daily_quote: 一句温暖的每日寄语（10-20字）"
     )
 
     from langchain_core.messages import SystemMessage, HumanMessage
@@ -1864,54 +1944,65 @@ def _rule_based_almanac(
     transit_astro: dict | None,
     energy_score: int,
 ) -> dict:
-    """Rule-based fallback for daily almanac when LLM is unavailable."""
-    # Determine day of week for basic guidance
+    """Rule-based fallback for daily almanac — 通俗易懂版本"""
     weekday = today.weekday()  # 0=Monday
-    base_yi = ["宜静心", "宜规划", "宜学习"]
-    base_ji = ["忌冲动"]
 
-    if weekday < 2:
-        base_yi = ["宜行动", "宜决策"]
-    elif weekday < 4:
-        base_yi = ["宜沟通", "宜合作"]
-    elif weekday == 4:
-        base_yi = ["宜复盘", "宜整理"]
-    elif weekday == 5:
-        base_yi = ["宜社交", "宜外出"]
-    else:
-        base_yi = ["宜休息", "宜冥想"]
+    # 基于星期的通俗宜忌
+    weekday_yi = [
+        ["适合制定计划、开始新项目", "主动出击效率高"],
+        ["适合谈判、签合同", "有贵人运，多社交"],
+        ["适合团队合作、开会讨论", "跟同事朋友多互动"],
+        ["适合复盘总结、整理思路", "把没做完的事收尾"],
+        ["适合放松娱乐、外出走走", "周末前给自己充充电"],
+        ["适合社交聚会、逛街购物", "享受生活的好日子"],
+        ["适合休息充电、陪伴家人", "给自己放个假"],
+    ]
+    weekday_ji = [
+        ["别把计划拖太久", "少刷手机多行动"],
+        ["别冲动做决定", "说话前多想想"],
+        ["别单打独斗", "遇事多商量"],
+        ["别钻牛角尖", "换个角度想问题"],
+        ["别熬夜太晚", "明天还要早起"],
+        ["别乱花钱", "想买的东西明天再决定"],
+        ["别安排太多事", "留点时间给自己"],
+    ]
+    yi = list(weekday_yi[weekday])
+    ji = list(weekday_ji[weekday])
 
-    # Adjust by energy score
+    # 根据能量分数微调
     if energy_score >= 70:
-        yi = base_yi + ["宜签约", "宜投资"]
-        ji = base_ji
+        yi.append("今天状态很好，可以挑战高难度任务")
     elif energy_score >= 40:
-        yi = base_yi
-        ji = base_ji + ["忌冒进"]
+        yi.append("保持正常节奏就好")
     else:
-        yi = ["宜守成", "宜静养", "宜反思"]
-        ji = ["忌重大决定", "忌投资", "忌争执"]
+        yi = ["今天适合安静独处", "做些轻松的事放松一下", "早点休息养精蓄锐"]
+        ji = ["别给自己太大压力", "避免跟人起冲突", "重要的事改天再说"]
 
-    # Add bazi-based adjustments
+    # 五行相关的通俗建议
     wuxing_analysis = ""
     if transit_bazi:
         dp = transit_bazi.get("day_pillar", {})
         dz_wx = dp.get("dizhi_wuxing", "")
         if dz_wx:
-            wuxing_analysis = f"今日日支五行属{dz_wx}"
-            if dz_wx == "火":
-                yi.append("宜热情行动")
-                ji.append("忌急躁")
-            elif dz_wx == "水":
-                yi.append("宜冷静思考")
-                ji.append("忌犹豫")
-            elif dz_wx == "金":
-                yi.append("宜决断")
-                ji.append("忌固执")
-            elif dz_wx == "木":
-                yi.append("宜学习成长")
-                ji.append("忌过度扩张")
-            elif dz_wx == "土":
+            wuxing_analysis = f"今日五行属{dz_wx}"
+            WUXING_ADVICE = {
+                "火": ("今天精力旺盛，适合积极行动", "别太急躁，深呼吸冷静一下"),
+                "水": ("头脑清醒，适合思考和学习", "别犹豫不决，该做就做"),
+                "金": ("做事果断有魄力，适合做决定", "别太固执，听听别人意见"),
+                "木": ("适合学习成长、尝试新事物", "别贪多嚼不烂，专注一件事"),
+                "土": ("脚踏实地，适合处理日常事务", "别太死板，偶尔灵活变通"),
+            }
+            if dz_wx in WUXING_ADVICE:
+                yi.append(WUXING_ADVICE[dz_wx][0])
+                ji.append(WUXING_ADVICE[dz_wx][1])
+
+    return {
+        "yi": yi[:5],
+        "ji": ji[:4],
+        "boost_elements": ["fire"] if energy_score < 40 else [],
+        "wuxing_analysis": wuxing_analysis,
+        "daily_quote": "天行健，君子以自强不息。",
+    }
                 yi.append("宜稳健积累")
                 ji.append("忌僵化")
 
