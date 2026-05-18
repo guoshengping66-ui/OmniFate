@@ -85,7 +85,7 @@ export function ServiceTerms({ open, onClose }: ServiceTermsProps) {
 
               <div className="pt-2 border-t border-white/10">
                 <p className="text-white/40 text-xs">
-                  如有任何疑问，请联系 our 支持团队。继续使用本平台即表示您已阅读并同意上述条款。
+                  如有任何疑问，请联系我们的支持团队。继续使用本平台即表示您已阅读并同意上述条款。
                 </p>
               </div>
             </div>

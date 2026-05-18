@@ -346,16 +346,24 @@ async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
 
 
 @router.post("/chat", response_model=ChatResponse)
-async def chat_followup(payload: ChatRequest):
+async def chat_followup(
+    payload: ChatRequest,
+    current_user: User = Depends(require_user),
+):
     """
     Task C: Dynamic routing follow-up chat.
     Routes user question to the correct expert agent and returns a focused answer.
+    需要登录，防止未授权消耗 API 额度
     """
     from agents.graph import run_chat
 
     state = _sessions.get(payload.session_id)
     if not state:
         raise HTTPException(status_code=404, detail="Session not found. Run /readings/ first.")
+
+    # 验证 session 归属
+    if state.user_id and str(state.user_id) != str(current_user.id):
+        raise HTTPException(status_code=403, detail="无权访问此 session")
 
     answer, agent_id, updated_state = await run_chat(payload.question, state)
     _sessions[payload.session_id] = updated_state
@@ -1288,9 +1296,22 @@ async def list_events(
     session_id: str = Query(...),
     current_user: User = Depends(require_user),
 ):
-    """List all events for a session, newest first."""
+    """List all events for a session, newest first. 需要登录且验证 session 归属。"""
     try:
+        # 验证 session 归属
+        state = _sessions.get(session_id)
+        if state and state.user_id and str(state.user_id) != str(current_user.id):
+            raise HTTPException(status_code=403, detail="无权访问此 session")
+
         async with AsyncSessionLocal() as db:
+            # 验证数据库中的 session 归属
+            reading_result = await db.execute(
+                select(Reading).where(Reading.id == session_id)
+            )
+            reading = reading_result.scalar_one_or_none()
+            if reading and reading.user_id and str(reading.user_id) != str(current_user.id):
+                raise HTTPException(status_code=403, detail="无权访问此报告")
+
             stmt = (
                 select(EventLog)
                 .where(EventLog.session_id == session_id)

@@ -191,9 +191,10 @@ async def get_qr_code(method: str):
 async def verify_payment(
     payload: PaymentVerify,
     db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_user),
 ):
     """
-    验证支付（手动确认）
+    验证支付（手动确认）— 需要登录
 
     用户付款后提交订单号进行确认
     """
@@ -201,6 +202,10 @@ async def verify_payment(
     order = await _get_pending_order(db, payload.order_no)
     if not order:
         raise HTTPException(status_code=404, detail="订单不存在或已处理")
+
+    # 2. 验证订单归属（只能提交自己的订单）
+    if order.user_id and order.user_id != str(current_user.id):
+        raise HTTPException(status_code=403, detail="无权操作此订单")
 
     # 2. 标记为已验证（等待人工/系统确认）
     order.status = OrderStatus.processing

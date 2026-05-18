@@ -131,7 +131,7 @@ export function Footer() {
             <p className="text-white/25 text-xs">
               {t("footer.copyright")}
               <span className="mx-2">|</span>
-              <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" className="hover:text-gold/60 transition-colors">[粤ICP备XXXXXXXX号]</a>
+              <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" className="hover:text-gold/60 transition-colors">ICP备案中</a>
             </p>
             <div className="flex gap-6 text-white/25 text-xs">
               <a href="/faq" className="hover:text-gold/60 transition-colors">{t("footer.faq")}</a>

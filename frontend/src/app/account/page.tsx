@@ -90,7 +90,8 @@ export default function AccountPage() {
   return (
     <div className="min-h-screen pt-24 pb-20 px-4">
       <div className="max-w-5xl mx-auto">
-        {/* Profile header */}
+        {/* Profile header — only show if user is logged in */}
+        {user && (
         <div className="card-glass p-6 md:p-8 mb-8">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-gold/20 border-2 border-gold/40 flex items-center justify-center">
@@ -132,6 +133,7 @@ export default function AccountPage() {
             ))}
           </div>
         </div>
+        )}
 
         <div className="flex gap-6">
           {/* Sidebar tabs */}

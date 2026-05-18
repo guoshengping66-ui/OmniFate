@@ -162,7 +162,11 @@ export default function RegisterPage() {
     setResendCooldown(60)
     cooldownRef.current = setInterval(() => {
       setResendCooldown(prev => {
-        if (prev <= 1) { clearInterval(timer); return 0 }
+        if (prev <= 1) {
+          // Clear interval from outside callback to avoid stale closure
+          setTimeout(() => { if (cooldownRef.current) clearInterval(cooldownRef.current) }, 0)
+          return 0
+        }
         return prev - 1
       })
     }, 1000)

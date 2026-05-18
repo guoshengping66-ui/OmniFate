@@ -766,9 +766,9 @@ export default function ReadingPage() {
                   <div className="card-glass p-5">
                     <p className="text-white/30 text-xs mb-3">{t("reading.tags.title")}</p>
                     <div className="flex flex-wrap gap-2">
-                      {workerMap[k].tags.map(t => (
-                        <span key={t} className="text-xs px-2.5 py-1 bg-white/[0.06] rounded-full text-white/50">
-                          {t}
+                      {workerMap[k].tags.map(tag => (
+                        <span key={tag} className="text-xs px-2.5 py-1 bg-white/[0.06] rounded-full text-white/50">
+                          {tag}
                         </span>
                       ))}
                     </div>

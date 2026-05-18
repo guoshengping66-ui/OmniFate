@@ -70,7 +70,7 @@ const sections = [
   },
   {
     title: "九、运营者信息",
-    content: `运营者名称：[公司名称 / 个人名称]
+    content: `运营者名称：命盘智镜运营团队
 联系邮箱：support@khanfate.com
 网站地址：https://www.khanfate.com`,
   },

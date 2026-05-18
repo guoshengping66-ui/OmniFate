@@ -271,16 +271,34 @@ async def refund_deduct(
 async def grant_stardust(
     req: GrantRequest,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_user),
+    authorization: Optional[str] = Header(None),
 ):
-    """赠送星尘（系统调用：月度发放、注册奖励、邀请奖励等）"""
-    if req.amount <= 0:
-        raise HTTPException(status_code=400, detail="赠送数量必须大于 0")
+    """
+    赠送星尘 — 仅限管理员/系统调用（CRON_SECRET 鉴权）
+    不再允许普通用户自行调用
+    """
+    # 管理员鉴权
+    if not _settings.CRON_SECRET:
+        raise HTTPException(status_code=500, detail="CRON_SECRET not configured")
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Missing authorization")
+    token = authorization.replace("Bearer ", "").strip()
+    if not hmac.compare_digest(token, _settings.CRON_SECRET):
+        raise HTTPException(status_code=403, detail="Invalid secret")
+
+    if req.amount <= 0 or req.amount > 10000:
+        raise HTTPException(status_code=400, detail="赠送数量必须在 1-10000 之间")
+
+    # 需要指定 user_id（管理员为其他用户发放）
+    if not req.reference_id:
+        raise HTTPException(status_code=400, detail="管理员调用需在 reference_id 中指定目标用户 ID")
 
     result = await db.execute(
-        select(User).where(User.id == current_user.id).with_for_update()
+        select(User).where(User.id == req.reference_id).with_for_update()
     )
-    user = result.scalar_one()
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="目标用户不存在")
 
     user.stardust_balance += req.amount
     user.stardust_lifetime_earned += req.amount
@@ -306,19 +324,54 @@ async def grant_stardust(
 @router.post("/monthly-grant")
 async def monthly_grant(
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_user),
+    authorization: Optional[str] = Header(None),
+    user_id: Optional[str] = Query(None, description="目标用户 ID（管理员调用时指定）"),
 ):
-    """月度星尘发放（由 cron 或 webhook 触发）"""
-    tier = current_user.subscription_tier
-    if tier not in MONTHLY_GRANTS:
-        raise HTTPException(status_code=400, detail="无月度额度")
+    """
+    月度星尘发放 — 仅限管理员/cron 调用（CRON_SECRET 鉴权）
+    包含幂等性检查：同一用户同一月只发放一次
+    """
+    # 管理员鉴权
+    if not _settings.CRON_SECRET:
+        raise HTTPException(status_code=500, detail="CRON_SECRET not configured")
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Missing authorization")
+    token = authorization.replace("Bearer ", "").strip()
+    if not hmac.compare_digest(token, _settings.CRON_SECRET):
+        raise HTTPException(status_code=403, detail="Invalid secret")
 
-    grant_amount = MONTHLY_GRANTS[tier]
+    if not user_id:
+        raise HTTPException(status_code=400, detail="需指定 user_id")
 
     result = await db.execute(
-        select(User).where(User.id == current_user.id).with_for_update()
+        select(User).where(User.id == user_id).with_for_update()
     )
-    user = result.scalar_one()
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="用户不存在")
+
+    tier = user.subscription_tier
+    if tier not in MONTHLY_GRANTS:
+        raise HTTPException(status_code=400, detail="用户无月度额度")
+
+    # 幂等性检查：查询本月是否已发放
+    now = datetime.now(timezone.utc)
+    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    existing = await db.execute(
+        select(CreditTransaction).where(
+            CreditTransaction.user_id == user_id,
+            CreditTransaction.reason == "monthly_grant",
+            CreditTransaction.created_at >= month_start,
+        )
+    )
+    if existing.scalar_one_or_none():
+        return {
+            "status": "already_granted",
+            "message": "本月已发放，跳过",
+            "balance_after": user.stardust_balance,
+        }
+
+    grant_amount = MONTHLY_GRANTS[tier]
 
     user.stardust_balance += grant_amount
     user.stardust_lifetime_earned += grant_amount

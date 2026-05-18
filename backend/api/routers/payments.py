@@ -110,12 +110,12 @@ async def _activate_founder_seat(user: User, order_no: str, db: AsyncSession) ->
     """
     now = datetime.now(timezone.utc)
 
-    # Count current founders to determine next seat number
+    # Count current founders to determine next seat number (with lock to prevent race condition)
     domestic_count_result = await db.execute(
         select(func.count()).select_from(User).where(
             User.is_founder == True,
             User.founder_region == "domestic",
-        )
+        ).with_for_update()
     )
     domestic_count = domestic_count_result.scalar() or 0
 
@@ -127,7 +127,7 @@ async def _activate_founder_seat(user: User, order_no: str, db: AsyncSession) ->
             select(func.count()).select_from(User).where(
                 User.is_founder == True,
                 User.founder_region == "overseas",
-            )
+            ).with_for_update()
         )
         overseas_count = overseas_count_result.scalar() or 0
         if overseas_count >= FOUNDER_TOTAL_OVERSEAS:
@@ -516,11 +516,47 @@ async def create_alipay_order(
     }
 
 
+def _verify_alipay_signature(data: dict) -> bool:
+    """验证支付宝回调 RSA2 签名"""
+    try:
+        from cryptography.hazmat.primitives import hashes, serialization
+        from cryptography.hazmat.primitives.asymmetric import padding
+
+        sign = data.pop("sign", "")
+        if not sign or not settings.ALIPAY_PUBLIC_KEY:
+            return False
+
+        # 构造待验签字符串（按 key 排序）
+        sorted_params = sorted(data.items())
+        sign_content = "&".join([f"{k}={v}" for k, v in sorted_params if v and k != "sign"])
+
+        # 加载支付宝公钥
+        public_key = serialization.load_pem_public_key(
+            settings.ALIPAY_PUBLIC_KEY.encode(),
+        )
+
+        # 验证签名
+        signature = base64.b64decode(sign)
+        public_key.verify(
+            signature,
+            sign_content.encode(),
+            padding.PKCS1v15(),
+            hashes.SHA256(),
+        )
+        return True
+    except Exception:
+        return False
+
+
 @router.post("/alipay/notify")
 async def alipay_notify(request: Request, db: AsyncSession = Depends(get_db)):
-    """支付宝回调通知"""
+    """支付宝回调通知 — 必须验证 RSA2 签名"""
     form = await request.form()
     data = dict(form)
+
+    # 1. 验证 RSA2 签名（防伪造回调）
+    if not _verify_alipay_signature(data):
+        return "fail"
 
     if data.get("trade_status") not in ("TRADE_SUCCESS", "TRADE_FINISHED"):
         return "fail"
@@ -716,6 +752,10 @@ async def unlock_report(
     if not reading:
         raise HTTPException(status_code=404, detail="报告不存在")
 
+    # 1.5 验证报告归属（只能解锁自己的报告）
+    if reading.user_id and str(reading.user_id) != str(current_user.id):
+        raise HTTPException(status_code=403, detail="无权操作此报告")
+
     # 2. 检查是否已解锁
     if reading.is_detail_unlocked:
         return {
@@ -829,10 +869,12 @@ async def create_order(
     current_user: Optional[User] = Depends(get_current_user),
 ):
     """创建订单，支持代金券抵扣 — 服务端验证价格"""
-    # Refetch user within this session if logged in
+    # Refetch user within this session if logged in (with lock to prevent coupon race condition)
     user = None
     if current_user:
-        result = await db.execute(select(User).where(User.id == current_user.id))
+        result = await db.execute(
+            select(User).where(User.id == current_user.id).with_for_update()
+        )
         user = result.scalar_one_or_none()
 
     # Validate prices against product catalog (NEVER trust client prices)

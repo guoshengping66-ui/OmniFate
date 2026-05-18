@@ -99,7 +99,7 @@ export default function DisclaimerPage() {
           <div className="border-t border-white/10 pt-6">
             <h2 className="text-gold font-medium text-lg mb-3">运营主体信息</h2>
             <div className="text-white/55 text-sm leading-relaxed space-y-1">
-              <p>运营者名称：[公司名称 / 个人名称]</p>
+              <p>运营者名称：命盘智镜运营团队</p>
               <p>联系邮箱：legal@khanfate.com</p>
               <p>网站地址：https://www.khanfate.com</p>
             </div>
