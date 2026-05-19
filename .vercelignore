@@ -1,0 +1,14 @@
+backend/
+miniprogram/
+*.task
+*.py
+requirements.txt
+pyproject.toml
+Pipfile
+Pipfile.lock
+.python-version
+__pycache__/
+.env
+.env.*
+node_modules/
+.vercel/
