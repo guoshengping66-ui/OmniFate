@@ -1382,14 +1382,19 @@ export default {
   "dash.profile.zodiacYear": " sign",
 
   // ─── Dashboard: Intent Buttons ───
-  "dash.intent.quick": "Quick Reading",
-  "dash.intent.quickDesc": "Quick card draw & query",
-  "dash.intent.full": "Full Reading",
-  "dash.intent.fullDesc": "Tarot + Face + Palm",
-  "dash.intent.event": "Event Analysis",
-  "dash.intent.eventDesc": "Specific event · AI review",
-  "dash.intent.friend": "Read for Friend",
-  "dash.intent.friendDesc": "Use different birth info",
+  "dash.intent.quick": "Instant Insight",
+  "dash.intent.quickDesc": "Random decision anchor based on current timestamp",
+  "dash.intent.quickEn": "INSTANT INSIGHT",
+  "dash.intent.full": "Deep Resonance",
+  "dash.intent.fullDesc": "Multi-modal AI analysis integrating biometrics (face/palm) & natal astrology",
+  "dash.intent.fullEn": "DEEP RESONANCE",
+  "dash.intent.event": "Flow Analytics",
+  "dash.intent.eventDesc": "AI behavioral debriefing for high-stakes decisions and trading traps",
+  "dash.intent.eventEn": "FLOW ANALYTICS",
+  "dash.intent.friend": "Collective Vibe",
+  "dash.intent.friendDesc": "Inject heterogeneous profiles to analyze interpersonal resonance",
+  "dash.intent.friendEn": "COLLECTIVE VIBE",
+  "dash.intent.activate": "LAUNCH",
 
   // ─── Dashboard: Recent Readings ───
   "dash.recent.title": "Recent Readings",
