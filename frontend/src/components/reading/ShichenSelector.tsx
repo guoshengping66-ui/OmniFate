@@ -3,18 +3,18 @@
 import { useLanguage } from "@/contexts/LanguageContext"
 
 const SHICHEN = [
-  { branch: "子", range: "23:00-00:59", hour: 23 },
-  { branch: "丑", range: "01:00-02:59", hour: 1 },
-  { branch: "寅", range: "03:00-04:59", hour: 3 },
-  { branch: "卯", range: "05:00-06:59", hour: 5 },
-  { branch: "辰", range: "07:00-08:59", hour: 7 },
-  { branch: "巳", range: "09:00-10:59", hour: 9 },
-  { branch: "午", range: "11:00-12:59", hour: 11 },
-  { branch: "未", range: "13:00-14:59", hour: 13 },
-  { branch: "申", range: "15:00-16:59", hour: 15 },
-  { branch: "酉", range: "17:00-18:59", hour: 17 },
-  { branch: "戌", range: "19:00-20:59", hour: 19 },
-  { branch: "亥", range: "21:00-22:59", hour: 21 },
+  { branch: "子", branchEn: "Zi", range: "23:00-00:59", hour: 23 },
+  { branch: "丑", branchEn: "Chou", range: "01:00-02:59", hour: 1 },
+  { branch: "寅", branchEn: "Yin", range: "03:00-04:59", hour: 3 },
+  { branch: "卯", branchEn: "Mao", range: "05:00-06:59", hour: 5 },
+  { branch: "辰", branchEn: "Chen", range: "07:00-08:59", hour: 7 },
+  { branch: "巳", branchEn: "Si", range: "09:00-10:59", hour: 9 },
+  { branch: "午", branchEn: "Wu", range: "11:00-12:59", hour: 11 },
+  { branch: "未", branchEn: "Wei", range: "13:00-14:59", hour: 13 },
+  { branch: "申", branchEn: "Shen", range: "15:00-16:59", hour: 15 },
+  { branch: "酉", branchEn: "You", range: "17:00-18:59", hour: 17 },
+  { branch: "戌", branchEn: "Xu", range: "19:00-20:59", hour: 19 },
+  { branch: "亥", branchEn: "Hai", range: "21:00-22:59", hour: 21 },
 ]
 
 interface Props {
@@ -23,7 +23,7 @@ interface Props {
 }
 
 export function ShichenSelector({ value, onChange }: Props) {
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
 
   return (
     <div>
@@ -34,6 +34,7 @@ export function ShichenSelector({ value, onChange }: Props) {
       <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
         {SHICHEN.map(s => {
           const active = s.hour === value
+          const branchLabel = locale === "zh" ? s.branch : s.branchEn
           return (
             <button
               key={s.branch}
@@ -44,7 +45,7 @@ export function ShichenSelector({ value, onChange }: Props) {
                   ? "border-gold bg-gold/15 text-gold shadow-[0_0_12px_rgba(201,168,76,0.3)]"
                   : "border-white/20 text-white/50 hover:border-white/40 hover:text-white/70 hover:bg-white/5"}`}
             >
-              <div className="font-bold text-lg leading-tight">{s.branch}</div>
+              <div className="font-bold text-lg leading-tight">{branchLabel}</div>
               <div className="text-[10px] opacity-60 leading-tight mt-0.5">{s.range}</div>
             </button>
           )

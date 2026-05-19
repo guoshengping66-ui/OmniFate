@@ -22,8 +22,11 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
 
+  const CHINA_LABEL = locale === "zh" ? "中国" : "China"
+  const OTHER_LABEL = locale === "zh" ? "其他" : "Other"
+
   // Form state
-  const [country, setCountry] = useState("CN")
+  const [country, setCountry] = useState(CHINA_LABEL)
   const [province, setProvince] = useState("")
   const [city, setCity] = useState("")
   const [district, setDistrict] = useState("")
@@ -34,7 +37,7 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
   const [postalCode, setPostalCode] = useState("")
   const [isDefault, setIsDefault] = useState(false)
 
-  const isChina = country === "CN"
+  const isChina = country === CHINA_LABEL
 
   // Cascading selectors for China
   const provinces = CHINA_REGIONS.map(p => p.name)
@@ -66,7 +69,7 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
   }
 
   function resetForm() {
-    setCountry("CN"); setProvince(""); setCity(""); setDistrict("")
+    setCountry(CHINA_LABEL); setProvince(""); setCity(""); setDistrict("")
     setRecipientName(""); setPhone(""); setAddressLine1(""); setAddressLine2("")
     setPostalCode(""); setIsDefault(false); setEditingId(null)
   }
@@ -183,7 +186,7 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
                     )}
                   </div>
                   <p className="text-white/50 text-xs truncate">
-                    {addr.country === "CN"
+                    {(addr.country === "中国" || addr.country === "China")
                       ? `${addr.province} ${addr.city} ${addr.district} ${addr.address_line1}`
                       : `${addr.country} ${addr.address_line1}`
                     }
@@ -251,7 +254,7 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
               onChange={e => setCountry(e.target.value)}
               className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white/80 focus:border-gold/30 focus:outline-none"
             >
-              <option value="CN" className="bg-[#0f0f1a] text-white">{locale === "en" ? "China" : "中国"}</option>
+              <option value="中国" className="bg-[#0f0f1a] text-white">{CHINA_LABEL}</option>
               <option value="US" className="bg-[#0f0f1a] text-white">United States</option>
               <option value="CA" className="bg-[#0f0f1a] text-white">Canada</option>
               <option value="GB" className="bg-[#0f0f1a] text-white">United Kingdom</option>
@@ -261,7 +264,7 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
               <option value="SG" className="bg-[#0f0f1a] text-white">Singapore</option>
               <option value="MY" className="bg-[#0f0f1a] text-white">Malaysia</option>
               <option value="TH" className="bg-[#0f0f1a] text-white">Thailand</option>
-              <option value="OTHER" className="bg-[#0f0f1a] text-white">{locale === "en" ? "Other" : "其他"}</option>
+              <option value="OTHER" className="bg-[#0f0f1a] text-white">{OTHER_LABEL}</option>
             </select>
           </div>
 

@@ -2,17 +2,22 @@
 import { useState } from "react"
 import { useLanguage } from "@/contexts/LanguageContext"
 
-const MAJOR_ARCANA = [
+const MAJOR_ARCANA_ZH = [
   "愚者","魔术师","女祭司","皇后","皇帝","教皇","恋人",
   "战车","力量","隐者","命运之轮","正义","倒吊人","死神",
   "节制","恶魔","塔","星星","月亮","太阳","审判","世界",
+]
+const MAJOR_ARCANA_EN = [
+  "The Fool","The Magician","The High Priestess","The Empress","The Emperor","The Hierophant","The Lovers",
+  "The Chariot","Strength","The Hermit","Wheel of Fortune","Justice","The Hanged Man","Death",
+  "Temperance","The Devil","The Tower","The Star","The Moon","The Sun","Judgement","The World",
 ]
 
 interface Card { position: string; card: string; reversed: boolean }
 interface Props { onSelect: (cards: Card[]) => void }
 
 export function TarotPicker({ onSelect }: Props) {
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
   const [cards, setCards] = useState<Card[]>([])
   const [drawing, setDrawing] = useState(false)
 
@@ -21,9 +26,10 @@ export function TarotPicker({ onSelect }: Props) {
   const drawRandom = () => {
     setDrawing(true)
     setTimeout(() => {
+      const arcana = locale === "zh" ? MAJOR_ARCANA_ZH : MAJOR_ARCANA_EN
       const drawn = POSITIONS.map(pos => ({
         position: pos,
-        card: MAJOR_ARCANA[Math.floor(Math.random() * MAJOR_ARCANA.length)],
+        card: arcana[Math.floor(Math.random() * arcana.length)],
         reversed: Math.random() > 0.65,
       }))
       setCards(drawn)
