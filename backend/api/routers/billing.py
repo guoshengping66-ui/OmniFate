@@ -470,19 +470,22 @@ async def _verify_arbitrum_tx(tx_id: str) -> dict:
     if tx_timestamp_hex:
         try:
             tx_time = int(tx_timestamp_hex, 16)  # hex → int (seconds)
-            now = time.time()
-            if now - tx_time > TX_MAX_AGE_SECONDS:
-                raise HTTPException(
-                    status_code=400,
-                    detail="此交易时间过久，请重新发起一笔转账（48小时内有效）"
-                )
-            if tx_time > now + 300:  # 允许 5 分钟时钟偏差
-                raise HTTPException(
-                    status_code=400,
-                    detail="交易时间异常，请检查链上状态后重试"
-                )
-        except (ValueError, HTTPException):
-            raise  # re-raise HTTPException or let ValueError pass (no timestamp available)
+        except (ValueError, TypeError):
+            raise HTTPException(
+                status_code=400,
+                detail="交易时间戳格式异常，请确认 TxID 正确"
+            )
+        now = time.time()
+        if now - tx_time > TX_MAX_AGE_SECONDS:
+            raise HTTPException(
+                status_code=400,
+                detail="此交易时间过久，请重新发起一笔转账（48小时内有效）"
+            )
+        if tx_time > now + 300:  # 允许 5 分钟时钟偏差
+            raise HTTPException(
+                status_code=400,
+                detail="交易时间异常，请检查链上状态后重试"
+            )
 
     amount_usdt = best_amount / 1e6  # USDT 6 位精度
 
