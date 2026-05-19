@@ -104,7 +104,7 @@ export function UserDashboard() {
         </Link>
         <Link href="/divination" className="card-glass p-4 text-center hover:border-gold/30 transition-all group">
           <Sparkles size={20} className="text-purple-400 mx-auto mb-2 group-hover:scale-110 transition-transform" />
-          <p className="text-white/60 text-xs">{isEn ? "Daily Divination" : "每日占卜"}</p>
+          <p className="text-white/60 text-xs">{isEn ? "Daily Divination" : "每日指引"}</p>
         </Link>
         <Link href="/shop" className="card-glass p-4 text-center hover:border-gold/30 transition-all group">
           <ShoppingBag size={20} className="text-emerald-400 mx-auto mb-2 group-hover:scale-110 transition-transform" />

@@ -18,7 +18,7 @@
  */
 
 const BACKEND = "https://api.khanfate.com"
-const TIMEOUT_MS = 60_000
+const TIMEOUT_MS = 30_000  // 30s - Vercel Pro has 60s max, keep headroom
 
 export async function GET(request: Request, { params }: { params: Promise<{ path: string[] }> }) {
   return proxy(request, params)

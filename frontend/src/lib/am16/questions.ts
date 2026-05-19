@@ -58,7 +58,7 @@ export const QUESTIONS: Question[] = [
   },
   {
     id: 2,
-    scenario: "算命 App 说你本月不宜出门",
+    scenario: "命理 App 说你本月不宜出门",
     emoji: "📱",
     options: [
       {

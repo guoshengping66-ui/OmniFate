@@ -210,7 +210,7 @@ Use our AI destiny tool — enter your birth date and time, and the system will 
     content_zh: `
 ## 「缺什么补什么」为什么是错的？
 
-这是命理学中最广泛流传的误解。很多人在算命后听到「八字缺金」，就立刻去戴金项链、金戒指，以为这样就能弥补命盘的不足。但事实远没有这么简单。
+这是命理学中最广泛流传的误解。很多人在命理分析后听到「八字缺金」，就立刻去戴金项链、金戒指，以为这样就能弥补命盘的不足。但事实远没有这么简单。
 
 ## 喜用神才是关键
 
@@ -550,7 +550,7 @@ Two planets assist each other gently, offering mild support. It represents oppor
 
 每张牌都有正位和逆位两种解读。正位代表牌面能量的正面表达，逆位则代表阻碍或内在课题。抽牌时的直觉反应往往是最准确的指引。
 
-→ 试试 AI 塔罗占卜，获取你的专属牌阵解读
+→ 试试 AI 塔罗解析，获取你的专属牌阵解读
     `,
     content_en: `
 ## What Is the Major Arcana?
@@ -1275,10 +1275,10 @@ Our 5-Dimension system lets you:
     id: "tarot-repetition",
     title_zh: "塔罗牌可以反复测同一件事吗？",
     title_en: "Can You Ask Tarot the Same Question Repeatedly?",
-    summary_zh: "很多人抽到不满意的牌就想再抽一次。但塔罗牌真的能「重考」吗？反复占卜会带来什么影响？本文解答塔罗占卜中「重复提问」的核心原则。",
+    summary_zh: "很多人抽到不满意的牌就想再抽一次。但塔罗牌真的能「重考」吗？反复解读会带来什么影响？本文解答塔罗解析中「重复提问」的核心原则。",
     summary_en: "Many people want to re-draw when they get an unsatisfying card. But can tarot really be 'retaken'? What impact does repeated divination have? This article addresses the core principles of repeated questioning in tarot.",
     category: "tarot",
-    tags_zh: ["塔罗", "占卜", "FAQ", "入门"],
+    tags_zh: ["塔罗", "能量解读", "FAQ", "入门"],
     tags_en: ["Tarot", "Divination", "FAQ", "Beginner"],
     read_time: 4,
     cover_emoji: "🃏",
@@ -1293,30 +1293,30 @@ Our 5-Dimension system lets you:
 ## 为什么不应该反复测？
 
 ### 1. 能量被稀释
-每次占卜都在读取你当下的能量场。反复提问意味着你处于焦虑、不安的状态，这种心态会干扰牌面信息的准确性。
+每次解读都在读取你当下的能量场。反复提问意味着你处于焦虑、不安的状态，这种心态会干扰牌面信息的准确性。
 
 ### 2. 牌面会「矛盾」
-同一件事多次抽牌，牌面常常互相矛盾——这不是塔罗不准，而是因为每次占卜都在读取不同角度的能量信息，混在一起反而更混乱。
+同一件事多次抽牌，牌面常常互相矛盾——这不是塔罗不准，而是因为每次解读都在读取不同角度的能量信息，混在一起反而更混乱。
 
 ### 3. 你在寻找「想要的答案」
 当第一次结果不满意时再抽一次，你的潜意识已经在「寻找」某个特定答案，而非「接收」真实信息。这时抽到的牌往往反映的是你的执念，而非客观趋势。
 
-## 什么情况下可以重新占卜？
+## 什么情况下可以重新解读？
 
 以下情况是可以的：
 
 - **时间过了**：如果事情已经过去一段时间（通常建议至少一个月），情况发生了变化，可以重新问
 - **换了角度**：第一次问「他喜不喜欢我」，过了一段时间可以问「我应该如何处理这段关系」
-- **新的事件**：发生了新的重大变化，原来的占卜结果已经不适用
+- **新的事件**：发生了新的重大变化，原来的解读结果已经不适用
 
 ## 正确的做法
 
 1. **提问前想清楚**：想好一个明确的问题
-2. **一次占卜就够了**：相信第一次的结果
+2. **一次解读就够了**：相信第一次的结果
 3. **记录下来**：事后回顾，看看第一次的牌面是否应验
-4. **行动比占卜重要**：塔罗给你的是方向，不是答案
+4. **行动比解读重要**：塔罗给你的是方向，不是答案
 
-→ AI 塔罗占卜：专注地问一个问题，获取深层指引
+→ AI 塔罗解析：专注地问一个问题，获取深层指引
     `,
     content_en: `
 ## Core Principle: Ask Once Per Question
@@ -1362,7 +1362,7 @@ These situations are acceptable:
     id: "faq-ai-vs-traditional",
     title_zh: "AI 推命 vs 传统命理师：有什么区别？",
     title_en: "AI Destiny Reading vs Traditional Masters: What's the Difference?",
-    summary_zh: "AI 五维合参和找命理师算命有什么不同？AI 更快更客观，但传统命理师有经验加持。本文从准确性、深度、价格、隐私等维度对比两种方式。",
+    summary_zh: "AI 五维合参和找命理师进行命理分析有什么不同？AI 更快更客观，但传统命理师有经验加持。本文从准确性、深度、价格、隐私等维度对比两种方式。",
     summary_en: "How does AI 5-Dimension Analysis compare to visiting a traditional destiny master? AI is faster and more objective, while traditional masters bring years of experience. This article compares both approaches across accuracy, depth, price, and privacy.",
     category: "faq",
     tags_zh: ["AI", "命理", "FAQ", "对比"],
@@ -2283,7 +2283,7 @@ Analyzing one line alone only reveals one aspect. True palmistry analysis requir
 3. **注意正逆位比例**：如果大部分牌是逆位，可能说明当前能量场较混乱
 4. **行动建议**：逆位牌通常暗示「需要在某个方面做出调整」
 
-→ AI 塔罗占卜：自动解读正位与逆位，给你完整的能量地图
+→ AI 塔罗解析：自动解读正位与逆位，给你完整的能量地图
     `,
     content_en: `
 ## Reversed ≠ Bad

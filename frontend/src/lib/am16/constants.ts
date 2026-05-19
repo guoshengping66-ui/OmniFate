@@ -27,7 +27,7 @@ export const DIMENSIONS: DimensionDef[] = [
     letterA: "X", letterB: "S",
     nameA: "心觉玄测", nameB: "硬核格物",
     descA: "直觉无敌，量子纠缠",
-    descB: "盘出准确天宫度数，拿 Excel 表格算命",
+    descB: "盘出准确天宫度数，拿 Excel 表格分析命理",
   },
   {
     code: "GI",
@@ -80,7 +80,7 @@ export const AM16_QUESTIONS: AM16Question[] = [
     id: 2,
     dimension: "FD",
     emoji: "📱",
-    titleCn: "算命说你本月不宜出门，你会怎么做？",
+    titleCn: "命理分析说你本月不宜出门，你会怎么做？",
     titleEn: 'A fortune app says you shouldn\'t leave the house this month. You:',
     options: [
       { textCn: "听劝，在家躺着，外卖就是我的天命。", textEn: "Fair enough. Staying inside, delivery is my true destiny.", type: "A" },
@@ -206,7 +206,7 @@ export const AM16_QUESTIONS: AM16Question[] = [
     id: 12,
     dimension: "PE",
     emoji: "🃏",
-    titleCn: "占卜告诉你：“你人生的剧烈改变即将发生”，你的选择是？",
+    titleCn: “能量解读告诉你：”你人生的剧烈改变即将发生”，你的选择是？”,
     titleEn: 'A reading states: "A massive life shift is coming." You choose to:',
     options: [
       { textCn: "保持静止，默默观察命运抛给我的征兆。", textEn: "Stay put. Quietly observe the next ripple in the matrix.", type: "A" },
@@ -256,7 +256,7 @@ export const PERSONALITIES: Record<string, AM16Personality> = {
     emoji: "🦋",
     quote: "知行合一，方为真知",
     quoteExplain: "躺着也要社交，这就是知行合一的最高境界",
-    diagnosis: "能在床上用意念帮朋友算命的奇才。躺着回消息、躺着发朋友圈、躺着给人看八字。社交能量全靠平躺传导，人缘好到爆炸但实际出门次数为零。",
+    diagnosis: "能在床上用意念帮朋友分析命理的奇才。躺着回消息、躺着发朋友圈、躺着给人看八字。社交能量全靠平躺传导，人缘好到爆炸但实际出门次数为零。",
     advice: "建议买一张够大的床，方便开展线上看盘业务。记得设置自动回复：正在冥想中，有事请烧纸。",
     color: "text-purple-400",
     bgGlow: "from-purple-500/15 to-violet-500/5",
@@ -322,11 +322,11 @@ export const PERSONALITIES: Record<string, AM16Personality> = {
   // ═══ FSIP ═══
   FSIP: {
     code: "FSIP",
-    title: "Excel 表格算命隐士",
+    title: "Excel 表格命理隐士",
     emoji: "📊",
     quote: "人心之得其正者即道",
     quoteExplain: "别跟我谈玄学虚无，把数据拉出来看看",
-    diagnosis: "冷酷的无情格物机器。把八字流年过往事件做成复盘漏斗模型，极其理智，但极度社交恐惧。用 Python 写了个算命脚本，运行结果是自己孤独终老的概率为 73%。",
+    diagnosis: "冷酷的无情格物机器。把八字流年过往事件做成复盘漏斗模型，极其理智，但极度社交恐惧。用 Python 写了个命理分析脚本，运行结果是自己孤独终老的概率为 73%。",
     advice: "偶尔走出房间见见太阳，阳光里的正离子不要钱。Excel 里的数据是死的，外面的风景是活的。",
     color: "text-cyan-400",
     bgGlow: "from-cyan-500/15 to-sky-500/5",

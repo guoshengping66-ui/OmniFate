@@ -1,7 +1,7 @@
 {
   "name": "命盘智镜 - AI命理分析平台",
   "short_name": "命盘智镜",
-  "description": "融合周易八字、西方星盘、塔罗占卜与AI面相，为你揭示命运密码",
+  "description": "融合周易八字、西方星盘、塔罗解析与AI面相，为你揭示命运密码",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0512",

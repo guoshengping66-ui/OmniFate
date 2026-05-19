@@ -5,6 +5,7 @@ import json
 import traceback
 sys.path.insert(0, os.path.dirname(__file__))
 
+import ipaddress
 import time
 from collections import defaultdict
 from fastapi import FastAPI, Request
@@ -90,7 +91,26 @@ ENDPOINT_LIMITS = {
     "/api/auth/send-code": 2,     # 验证码
     "/api/payments": 20,          # 支付
     "/api/credits": 30,           # 星尘
+    "/api/billing/verify-tx": 5,  # USDT verification - prevent brute force
+    "/api/webhooks/paypal": 10,   # PayPal webhooks - prevent spam
 }
+
+
+def _get_client_ip(request: Request) -> str:
+    """Get client IP from trusted sources only."""
+    # When behind Nginx reverse proxy, Nginx sets X-Real-IP
+    # Only trust this if we're behind our known proxy
+    real_ip = request.headers.get("x-real-ip")
+    if real_ip:
+        # Validate it looks like an IP (basic sanity check)
+        try:
+            ipaddress.ip_address(real_ip.split(",")[0].strip())
+            return real_ip.split(",")[0].strip()
+        except ValueError:
+            pass
+
+    # Fallback to direct client connection
+    return request.client.host if request.client else "unknown"
 
 # Cyberpunk-style rate limit error message
 RATE_LIMIT_MESSAGE = json.dumps({
@@ -105,9 +125,7 @@ async def rate_limit_middleware(request: Request, call_next):
     global _last_cleanup
     # Only rate-limit API endpoints
     if request.url.path.startswith("/api/"):
-        # Get real client IP behind proxy (X-Forwarded-For)
-        forwarded = request.headers.get("x-forwarded-for")
-        client_ip = forwarded.split(",")[0].strip() if forwarded else (request.client.host if request.client else "unknown")
+        client_ip = _get_client_ip(request)
         now = time.time()
         window_start = now - RATE_LIMIT_WINDOW
 

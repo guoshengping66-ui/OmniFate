@@ -16,7 +16,7 @@ export default function TarotTestPage() {
 
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-serif font-bold text-gold">塔罗占卜</h1>
+            <h1 className="text-2xl font-serif font-bold text-gold">塔罗解析</h1>
             <p className="text-white/40 text-sm mt-1">选择牌阵，获取当下的能量指引</p>
           </div>
           <TargetSelector />

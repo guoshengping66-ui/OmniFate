@@ -2,6 +2,7 @@
 Auth endpoints: register (with email verification), login, forgot/reset password, account deletion.
 """
 import hmac
+import ipaddress
 import re
 from typing import Optional
 import time
@@ -34,10 +35,19 @@ _RATE_MAX = 20     # max requests per window (allows multi-step flows + testing)
 
 
 def _get_client_ip(request: Request) -> str:
-    """Get real client IP behind proxy (X-Forwarded-For)."""
-    forwarded = request.headers.get("x-forwarded-for")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
+    """Get client IP from trusted sources only."""
+    # When behind Nginx reverse proxy, Nginx sets X-Real-IP
+    # Only trust this if we're behind our known proxy
+    real_ip = request.headers.get("x-real-ip")
+    if real_ip:
+        # Validate it looks like an IP (basic sanity check)
+        try:
+            ipaddress.ip_address(real_ip.split(",")[0].strip())
+            return real_ip.split(",")[0].strip()
+        except ValueError:
+            pass
+
+    # Fallback to direct client connection
     return request.client.host if request.client else "unknown"
 
 

@@ -219,7 +219,7 @@ export default function HomePage() {
       name: locale === "zh" ? "王女士" : "Ms. Wang",
       job: locale === "zh" ? "教师" : "Teacher",
       text: locale === "zh"
-        ? "塔罗的疗愈感很强，不是吓人的算命，是真的帮我看清了困境和出路。"
+        ? "塔罗的疗愈感很强，不是吓人的命理预测，是真的帮我看清了困境和出路。"
         : "The tarot reading was genuinely healing — it helped me see my way through challenges.",
     },
   ]
