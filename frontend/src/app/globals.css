@@ -227,6 +227,37 @@ select.input-field option:checked {
   100% { background-position: -200% 0; }
 }
 
+/* Particle orbit around card */
+@keyframes particle-orbit {
+  0%   { transform: rotate(0deg)   translateX(var(--rx)) translateY(var(--ry)) rotate(0deg); opacity: var(--op); }
+  25%  { opacity: calc(var(--op) * 1.4); }
+  50%  { opacity: var(--op); }
+  75%  { opacity: calc(var(--op) * 0.6); }
+  100% { transform: rotate(360deg) translateX(var(--rx)) translateY(var(--ry)) rotate(-360deg); opacity: var(--op); }
+}
+
+/* Shimmer text sweep for card ID */
+@keyframes shimmer-text {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* Card flip */
+.card-flip-inner {
+  transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-flip-inner.flipped {
+  transform: rotateY(180deg);
+}
+.card-flip-front, .card-flip-back {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.card-flip-back {
+  transform: rotateY(180deg);
+}
+
 /* Member glow animation (gold pulse for premium users) */
 @keyframes member-glow {
   0%, 100% { opacity: 0.3; transform: scale(1); }

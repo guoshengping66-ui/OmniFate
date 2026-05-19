@@ -428,6 +428,8 @@ export default {
   "energyId.brand": "Destiny Mirror",
   "energyId.shareBtn": "Share",
   "energyId.certLabel": "Five-Path Certified",
+  "energyId.scanHint": "Scan to view report",
+  "energyId.flipBack": "Flip Back",
   "report.expand": "View Full Reading",
   "report.collapse": "Collapse",
 
