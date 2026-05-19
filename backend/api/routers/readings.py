@@ -176,6 +176,57 @@ def _state_to_response(state: SystemState) -> AnalysisResponse:
     )
 
 
+_WORKER_REPORT_KEYS = [
+    "astrology", "tarot", "bazi", "qimen", "ziwei", "face", "palm",
+]
+
+
+def _apply_content_lock(
+    resp: AnalysisResponse,
+    current_user: Optional[User],
+    reading: Optional[Reading] = None,
+) -> AnalysisResponse:
+    """
+    SECURITY: Strip or truncate paid content for users who haven't unlocked it.
+    - master_detail: set to "" if not unlocked
+    - worker reports: truncate to first 200 chars if not unlocked
+    """
+    is_unlocked = False
+
+    if reading:
+        # Case 1: Reading owner who has explicitly unlocked
+        if (
+            current_user
+            and reading.user_id
+            and str(reading.user_id) == str(current_user.id)
+            and reading.is_detail_unlocked
+        ):
+            is_unlocked = True
+        # Case 2: Active premium user (all readings unlocked)
+        elif (
+            current_user
+            and current_user.is_premium
+            and current_user.premium_expires_at
+            and current_user.premium_expires_at > datetime.now(timezone.utc)
+        ):
+            is_unlocked = True
+    else:
+        # No DB reading record — check in-memory state flags
+        if getattr(resp, "is_detail_unlocked", False):
+            is_unlocked = True
+
+    if not is_unlocked:
+        resp.master_detail = ""
+        resp.is_detail_unlocked = False
+        # Truncate worker report text so the full content is never exposed
+        for key in _WORKER_REPORT_KEYS:
+            wo = getattr(resp, key, None)
+            if wo and wo.report and len(wo.report) > 200:
+                wo.report = wo.report[:200] + "..."
+
+    return resp
+
+
 # ─── Endpoints ───────────────────────────────────────────────────────────
 
 @router.post("", response_model=AnalysisResponse)
@@ -431,19 +482,21 @@ async def get_session(
             raise HTTPException(status_code=403, detail="无权访问此报告")
         resp = _state_to_response(state)
         # Merge DB fields: is_detail_unlocked, master_detail
+        db_reading = None
         try:
             async with AsyncSessionLocal() as db:
                 result = await db.execute(
                     select(Reading).where(Reading.id == session_id)
                 )
-                reading = result.scalar_one_or_none()
-                if reading:
-                    resp.is_detail_unlocked = reading.is_detail_unlocked
-                    if reading.master_detail:
-                        resp.master_detail = reading.master_detail
+                db_reading = result.scalar_one_or_none()
+                if db_reading:
+                    resp.is_detail_unlocked = db_reading.is_detail_unlocked
+                    if db_reading.master_detail:
+                        resp.master_detail = db_reading.master_detail
         except Exception:
             pass
-        return resp
+        # SECURITY: Strip paid content for non-unlocked users
+        return _apply_content_lock(resp, current_user, db_reading)
 
     # Slow path: read from DATABASE
     try:
@@ -479,7 +532,7 @@ async def get_session(
                 )
 
             # Completed or failed — reconstruct from DB
-            return AnalysisResponse(
+            resp = AnalysisResponse(
                 session_id=session_id,
                 status=reading.status.value,
                 master_summary=reading.master_summary or "",
@@ -497,6 +550,8 @@ async def get_session(
                 dimension_scores=reading.dimension_scores or {},
                 errors=[reading.error_message] if reading.error_message else [],
             )
+            # SECURITY: Strip paid content for non-unlocked users
+            return _apply_content_lock(resp, current_user, reading)
     except HTTPException:
         raise
     except Exception as e:
@@ -598,9 +653,36 @@ async def stream_session(
                     yield f"data: {json.dumps({'type': 'subtask_done', 'subtask': st_name, 'length': len(val)})}\n\n"
                     streamed_subtasks.add(st_name)
 
-        # Final complete event
+        # Final complete event — SECURITY: only include master_detail if unlocked
+        _detail_for_sse = ""
+        if getattr(state, "master_detail", ""):
+            _is_unlocked_sse = False
+            try:
+                async with AsyncSessionLocal() as db:
+                    _r = (await db.execute(
+                        select(Reading).where(Reading.id == session_id)
+                    )).scalar_one_or_none()
+                    if _r:
+                        if (
+                            current_user
+                            and _r.user_id
+                            and str(_r.user_id) == str(current_user.id)
+                            and _r.is_detail_unlocked
+                        ):
+                            _is_unlocked_sse = True
+                        elif (
+                            current_user
+                            and current_user.is_premium
+                            and current_user.premium_expires_at
+                            and current_user.premium_expires_at > datetime.now(timezone.utc)
+                        ):
+                            _is_unlocked_sse = True
+            except Exception:
+                pass
+            if _is_unlocked_sse:
+                _detail_for_sse = state.master_detail
         yield f"data: {json.dumps({'type': 'progress', 'pct': 100, 'message': '分析完成'})}\n\n"
-        yield f"data: {json.dumps({'type': 'complete', 'master_summary': state.master_summary[:500], 'master_detail': state.master_detail})}\n\n"
+        yield f"data: {json.dumps({'type': 'complete', 'master_summary': state.master_summary[:500], 'master_detail': _detail_for_sse})}\n\n"
 
     return StreamingResponse(
         event_generator(),
