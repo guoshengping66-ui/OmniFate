@@ -428,6 +428,8 @@ export default {
   "energyId.brand": "命盘智镜",
   "energyId.shareBtn": "分享",
   "energyId.certLabel": "AI 五维合参认证",
+  "energyId.scanHint": "扫码查看报告",
+  "energyId.flipBack": "翻回正面",
   "report.expand": "查看完整分析",
   "report.collapse": "收起",
 
