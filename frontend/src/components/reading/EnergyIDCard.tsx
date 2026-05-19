@@ -1,6 +1,6 @@
 "use client"
-import { useEffect, useState, useRef, useMemo, useCallback } from "react"
-import { motion, useMotionValue, useTransform, useSpring, AnimatePresence } from "framer-motion"
+import { useEffect, useState, useMemo } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import { Share2, Copy, Check, ShieldCheck, Fingerprint, RotateCcw, QrCode } from "lucide-react"
 import toast from "react-hot-toast"
 import { useLanguage } from "@/contexts/LanguageContext"
@@ -12,234 +12,219 @@ interface EnergyIDCardProps {
   generatedAt?: string
 }
 
-const DIM_LABELS: Record<string, string> = {
-  wealth: "财富", career: "事业", relationship: "感情",
-  health: "健康", spiritual: "精神",
+// ── Archetype System ────────────────────────────────────────────────────────
+
+interface Archetype {
+  code: string
+  labelKey: string
+  tierKey: string
+  color: string
+  glow: string
 }
 
-const DIM_EMOJI: Record<string, string> = {
-  wealth: "💰", career: "💼", relationship: "💕", health: "🏥", spiritual: "🧘",
+const ARCHETYPES: Record<string, Archetype> = {
+  wealth:     { code: "VORTEX",   labelKey: "energyId.archetype.wealth",     tierKey: "energyId.tier.wealth",     color: "#C9A84C", glow: "rgba(201,168,76,0.4)" },
+  career:     { code: "APEX",     labelKey: "energyId.archetype.career",     tierKey: "energyId.tier.career",     color: "#3B82F6", glow: "rgba(59,130,246,0.4)" },
+  relationship:{ code: "ECHO",    labelKey: "energyId.archetype.relationship",tierKey: "energyId.tier.relationship",color: "#EC4899", glow: "rgba(236,72,153,0.4)" },
+  health:     { code: "NEXUS",    labelKey: "energyId.archetype.health",     tierKey: "energyId.tier.health",     color: "#10B981", glow: "rgba(16,185,129,0.4)" },
+  spiritual:  { code: "AETHER",   labelKey: "energyId.archetype.spiritual",  tierKey: "energyId.tier.spiritual",  color: "#A855F7", glow: "rgba(168,85,247,0.4)" },
 }
 
-const DIM_I18N: Record<string, string> = {
-  wealth: "reading.dim.wealth", career: "reading.dim.career",
-  relationship: "reading.dim.relationship", health: "reading.dim.health",
-  spiritual: "reading.dim.spiritual",
+function getArchetype(scores: Record<string, number>): Archetype {
+  const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1])
+  const topDim = sorted[0]?.[0] ?? "spiritual"
+  return ARCHETYPES[topDim] ?? ARCHETYPES.spiritual
 }
 
-function generateCardId(sessionId: string, userId?: string | null): string {
-  const source = userId || sessionId
+function getEnergyDensity(scores: Record<string, number>): string {
+  const vals = Object.values(scores)
+  const avg = vals.reduce((a, b) => a + b, 0) / vals.length
+  return avg.toFixed(1)
+}
+
+function getTier(scores: Record<string, number>): string {
+  const vals = Object.values(scores)
+  const avg = vals.reduce((a, b) => a + b, 0) / vals.length
+  if (avg >= 8.5) return "S+"
+  if (avg >= 7.5) return "S"
+  if (avg >= 6.5) return "A"
+  if (avg >= 5.5) return "B"
+  return "C"
+}
+
+function generateSignature(scores: Record<string, number>): string {
+  const arch = getArchetype(scores)
+  const density = getEnergyDensity(scores)
+  const tier = getTier(scores)
+  return `${arch.code}-${density} | ${tier}-CLASS`
+}
+
+// ── Prophecy Lines ──────────────────────────────────────────────────────────
+
+const PROPHECIES_ZH = [
+  "星辰低语：你的财富之路在于稳健积累，切忌急功近利。",
+  "命运指引：真正的力量藏在你的耐心之中，等待是最大的智慧。",
+  "宇宙回响：当你放下执念，意想不到的机遇将会出现。",
+  "天机暗示：今年是你蜕变的关键之年，勇敢迈出那一步。",
+  "五行共鸣：水生木，你的创造力将在秋天达到巅峰。",
+  "星盘启示：一次偶然的相遇将改变你的人生轨迹。",
+  "命理昭示：坚守本心，贵人自会在最需要时出现。",
+  "紫微高照：事业宫大旺，把握住每一次展示自己的机会。",
+]
+
+const PROPHECIES_EN = [
+  "The stars whisper: Your path to wealth lies in disciplined patience.",
+  "Destiny reveals: True power hides in your patience — waiting is the greatest wisdom.",
+  "The universe echoes: Release your grip, and unexpected doors will open.",
+  "Celestial hint: This is your year of metamorphosis — take the leap.",
+  "Five Elements resonate: Water feeds Wood — your creativity peaks in autumn.",
+  "Astrology foretells: A chance encounter will reshape your life's trajectory.",
+  "Fate declares: Stay true — your guardian will appear when needed most.",
+  "Purple Star shines: Career fortune is blazing — seize every moment.",
+]
+
+function getProphecy(sessionId: string, locale: string): string {
+  const pool = locale === "zh" ? PROPHECIES_ZH : PROPHECIES_EN
   let hash = 0
-  for (let i = 0; i < source.length; i++) {
-    hash = ((hash << 5) - hash + source.charCodeAt(i)) | 0
+  for (let i = 0; i < sessionId.length; i++) {
+    hash = ((hash << 5) - hash + sessionId.charCodeAt(i)) | 0
   }
-  const abs = Math.abs(hash)
-  const part1 = String(abs % 10000).padStart(4, "0")
-  const part2 = String((abs * 7) % 10000).padStart(4, "0")
-  return `DM-2026-${part1}-${part2}`
+  return pool[Math.abs(hash) % pool.length]
 }
 
-// ── QR Code Generator (lightweight, no deps) ────────────────────────────────
+// ── QR Code ─────────────────────────────────────────────────────────────────
 
 function generateQRMatrix(text: string, size: number = 25): boolean[][] {
-  // Simple QR-like pattern generator for visual purposes
-  // Real QR encoding would need a library; this creates a deterministic pattern
   const matrix: boolean[][] = Array.from({ length: size }, () => Array(size).fill(false))
-
-  // Finder patterns (top-left, top-right, bottom-left)
-  const drawFinder = (startX: number, startY: number) => {
-    for (let y = 0; y < 7; y++) {
-      for (let x = 0; x < 7; x++) {
-        const isOuter = x === 0 || x === 6 || y === 0 || y === 6
-        const isInner = x >= 2 && x <= 4 && y >= 2 && y <= 4
-        if (isOuter || isInner) {
-          matrix[startY + y][startX + x] = true
-        }
-      }
+  const drawFinder = (sx: number, sy: number) => {
+    for (let y = 0; y < 7; y++) for (let x = 0; x < 7; x++) {
+      const outer = x === 0 || x === 6 || y === 0 || y === 6
+      const inner = x >= 2 && x <= 4 && y >= 2 && y <= 4
+      if (outer || inner) matrix[sy + y][sx + x] = true
     }
   }
-
-  drawFinder(0, 0)
-  drawFinder(size - 7, 0)
-  drawFinder(0, size - 7)
-
-  // Timing patterns
-  for (let i = 8; i < size - 8; i++) {
-    matrix[6][i] = i % 2 === 0
-    matrix[i][6] = i % 2 === 0
+  drawFinder(0, 0); drawFinder(size - 7, 0); drawFinder(0, size - 7)
+  for (let i = 8; i < size - 8; i++) { matrix[6][i] = i % 2 === 0; matrix[i][6] = i % 2 === 0 }
+  let h = 0
+  for (let i = 0; i < text.length; i++) h = ((h << 5) - h + text.charCodeAt(i)) | 0
+  for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
+    if (matrix[y][x] || (x < 9 && y < 9) || (x >= size - 8 && y < 9) || (x < 9 && y >= size - 8)) continue
+    h = ((h << 5) - h + (y * size + x)) | 0
+    matrix[y][x] = (h >>> 0) % 3 === 0
   }
-
-  // Data area - hash-based deterministic pattern
-  let hash = 0
-  for (let i = 0; i < text.length; i++) {
-    hash = ((hash << 5) - hash + text.charCodeAt(i)) | 0
-  }
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      if (matrix[y][x]) continue
-      if (x < 9 && y < 9) continue
-      if (x >= size - 8 && y < 9) continue
-      if (x < 9 && y >= size - 8) continue
-      hash = ((hash << 5) - hash + (y * size + x)) | 0
-      matrix[y][x] = (hash >>> 0) % 3 === 0
-    }
-  }
-
   return matrix
 }
 
-function QRCodeSVG({ text, size = 120 }: { text: string; size?: number }) {
+function QRCodeSVG({ text, size = 100 }: { text: string; size?: number }) {
   const matrix = useMemo(() => generateQRMatrix(text), [text])
-  const cellSize = size / matrix.length
-
+  const cell = size / matrix.length
   return (
     <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size}>
-      <rect width={size} height={size} fill="white" rx="4" />
-      {matrix.map((row, y) =>
-        row.map((cell, x) =>
-          cell ? (
-            <rect
-              key={`${x}-${y}`}
-              x={x * cellSize}
-              y={y * cellSize}
-              width={cellSize}
-              height={cellSize}
-              fill="#1a1030"
-              rx={0.5}
-            />
-          ) : null
-        )
-      )}
-    </svg>
-  )
-}
-
-// ── Particle Ring ───────────────────────────────────────────────────────────
-
-function ParticleRing() {
-  const particles = useMemo(() =>
-    Array.from({ length: 10 }, (_, i) => ({
-      id: i,
-      rx: 45 + Math.random() * 15, // % from center
-      ry: 50 + Math.random() * 15,
-      size: 2 + Math.random() * 2.5,
-      opacity: 0.2 + Math.random() * 0.4,
-      duration: 8 + Math.random() * 7,
-      delay: Math.random() * -10,
-    })),
-    []
-  )
-
-  return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
-      {particles.map(p => (
-        <div
-          key={p.id}
-          className="absolute rounded-full"
-          style={{
-            width: p.size,
-            height: p.size,
-            left: "50%",
-            top: "50%",
-            marginLeft: -p.size / 2,
-            marginTop: -p.size / 2,
-            background: `radial-gradient(circle, rgba(201,168,76,0.9), rgba(201,168,76,0.3))`,
-            boxShadow: `0 0 ${p.size * 2}px rgba(201,168,76,0.4)`,
-            "--rx": `${p.rx}%`,
-            "--ry": `${p.ry}%`,
-            "--op": p.opacity,
-            animation: `particle-orbit ${p.duration}s linear ${p.delay}s infinite`,
-          } as React.CSSProperties}
-        />
+      <rect width={size} height={size} fill="white" rx="3" />
+      {matrix.map((row, y) => row.map((c, x) =>
+        c ? <rect key={`${x}-${y}`} x={x * cell} y={y * cell} width={cell} height={cell} fill="#1a1030" rx={0.3} /> : null
       ))}
-    </div>
+    </svg>
   )
 }
 
 // ── Animated Radar ──────────────────────────────────────────────────────────
 
-function AnimatedRadar({ scores, animate }: { scores: Record<string, number>; animate: boolean }) {
+function AnimatedRadar({ scores, animate, accentColor }: { scores: Record<string, number>; animate: boolean; accentColor: string }) {
   const dims = Object.keys(scores)
   const n = dims.length
 
   const finalPoints = useMemo(() =>
     dims.map((_, i) => {
       const a = (Math.PI * 2 * i) / n - Math.PI / 2
-      const r = 32 * ((scores[dims[i]] ?? 5) / 10)
+      const r = 30 * ((scores[dims[i]] ?? 5) / 10)
       return { x: 50 + r * Math.cos(a), y: 50 + r * Math.sin(a) }
-    }),
-    [scores, n, dims]
-  )
+    }), [scores, n, dims])
 
-  const gridPoints = [0.2, 0.4, 0.6, 0.8, 1].map((scale) =>
+  const gridPoints = [0.2, 0.4, 0.6, 0.8, 1].map(scale =>
     dims.map((_, i) => {
       const a = (Math.PI * 2 * i) / n - Math.PI / 2
-      const r = 32 * scale
+      const r = 30 * scale
       return `${50 + r * Math.cos(a)},${50 + r * Math.sin(a)}`
-    }).join(" ")
-  )
+    }).join(" "))
 
-  const toStr = (pts: { x: number; y: number }[]) =>
-    pts.map(p => `${p.x},${p.y}`).join(" ")
-
-  const centerPoints = dims.map(() => ({ x: 50, y: 50 }))
+  const toStr = (pts: { x: number; y: number }[]) => pts.map(p => `${p.x},${p.y}`).join(" ")
+  const center = dims.map(() => ({ x: 50, y: 50 }))
 
   return (
     <svg viewBox="0 0 100 100" className="w-full h-full">
+      <defs>
+        <radialGradient id="radarGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor={accentColor} stopOpacity="0.25" />
+          <stop offset="100%" stopColor={accentColor} stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      {/* Glow behind radar */}
+      <circle cx="50" cy="50" r="35" fill="url(#radarGlow)" />
       {/* Grid */}
       {gridPoints.map((pts, si) => (
-        <polygon
-          key={si}
-          points={pts}
-          fill="none"
-          stroke="#C9A84C"
-          strokeOpacity={0.05 + 0.04 * si}
-          strokeWidth={0.3}
-        />
+        <polygon key={si} points={pts} fill="none" stroke={accentColor} strokeOpacity={0.08 + 0.04 * si} strokeWidth={0.3} />
       ))}
-      {/* Animated data polygon */}
+      {/* Animated polygon */}
       <motion.polygon
-        initial={{ points: toStr(centerPoints) }}
-        animate={animate ? { points: toStr(finalPoints) } : { points: toStr(centerPoints) }}
-        transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
-        fill="rgba(201,168,76,0.12)"
-        stroke="#C9A84C"
-        strokeWidth={1}
-        strokeOpacity={0.6}
+        initial={{ points: toStr(center) }}
+        animate={animate ? { points: toStr(finalPoints) } : { points: toStr(center) }}
+        transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+        fill={`${accentColor}18`}
+        stroke={accentColor}
+        strokeWidth={1.2}
+        strokeOpacity={0.7}
+        filter="url(#glow)"
       />
+      {/* Breathing pulse */}
+      {animate && (
+        <motion.polygon
+          points={toStr(finalPoints)}
+          fill={`${accentColor}08`}
+          stroke={accentColor}
+          strokeWidth={0.5}
+          strokeOpacity={0.3}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: [0.3, 0.6, 0.3], scale: [0.95, 1.05, 0.95] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
+          style={{ transformOrigin: "50% 50%" }}
+        />
+      )}
       {/* Vertex dots */}
       {animate && finalPoints.map((p, i) => (
-        <motion.circle
-          key={i}
-          cx={p.x}
-          cy={p.y}
-          r={1.5}
-          fill="#C9A84C"
+        <motion.circle key={i} cx={p.x} cy={p.y} r={1.8} fill={accentColor}
           initial={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 0.7, scale: 1 }}
-          transition={{ duration: 0.4, delay: 0.8 + i * 0.1 }}
+          animate={{ opacity: 0.8, scale: 1 }}
+          transition={{ duration: 0.4, delay: 0.8 + i * 0.12 }}
         />
       ))}
-      {/* Dim emoji labels */}
-      {dims.map((key, i) => {
-        const a = (Math.PI * 2 * i) / n - Math.PI / 2
-        const r = 42
-        return (
-          <text
-            key={key}
-            x={50 + r * Math.cos(a)}
-            y={50 + r * Math.sin(a)}
-            textAnchor="middle"
-            dominantBaseline="central"
-            fill="white"
-            fillOpacity="0.25"
-            fontSize="5"
-          >
-            {DIM_EMOJI[key]}
-          </text>
-        )
-      })}
     </svg>
+  )
+}
+
+// ── Particle Ring ───────────────────────────────────────────────────────────
+
+function ParticleRing({ color }: { color: string }) {
+  const particles = useMemo(() =>
+    Array.from({ length: 8 }, (_, i) => ({
+      id: i, rx: 46 + Math.random() * 12, ry: 52 + Math.random() * 12,
+      size: 1.5 + Math.random() * 2, opacity: 0.2 + Math.random() * 0.35,
+      duration: 9 + Math.random() * 6, delay: Math.random() * -8,
+    })), [])
+
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
+      {particles.map(p => (
+        <div key={p.id} className="absolute rounded-full" style={{
+          width: p.size, height: p.size, left: "50%", top: "50%",
+          marginLeft: -p.size / 2, marginTop: -p.size / 2,
+          background: `radial-gradient(circle, ${color}, ${color}66)`,
+          boxShadow: `0 0 ${p.size * 3}px ${color}66`,
+          "--rx": `${p.rx}%`, "--ry": `${p.ry}%`, "--op": p.opacity,
+          animation: `particle-orbit ${p.duration}s linear ${p.delay}s infinite`,
+        } as React.CSSProperties} />
+      ))}
+    </div>
   )
 }
 
@@ -247,68 +232,32 @@ function AnimatedRadar({ scores, animate }: { scores: Record<string, number>; an
 
 export function EnergyIDCard({ sessionId, userId, dimensionScores, generatedAt }: EnergyIDCardProps) {
   const { t, locale } = useLanguage()
-  const cardId = generateCardId(sessionId, userId)
-  const shareUrl = typeof window !== "undefined"
-    ? `${window.location.origin}/reading/${sessionId}`
-    : ""
   const [copied, setCopied] = useState(false)
   const [visible, setVisible] = useState(false)
   const [flipped, setFlipped] = useState(false)
   const [shimmerActive, setShimmerActive] = useState(false)
 
-  // 3D tilt effect
-  const x = useMotionValue(0.5)
-  const y = useMotionValue(0.5)
-  const rotateX = useSpring(useTransform(y, [0, 1], [6, -6]), { stiffness: 200, damping: 30 })
-  const rotateY = useSpring(useTransform(x, [0, 1], [-6, 6]), { stiffness: 200, damping: 30 })
+  const scores = dimensionScores || { wealth: 5, career: 5, relationship: 5, health: 5, spiritual: 5 }
+  const archetype = getArchetype(scores)
+  const signature = generateSignature(scores)
+  const prophecy = getProphecy(sessionId, locale)
+  const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/reading/${sessionId}` : ""
 
+  useEffect(() => { const t = setTimeout(() => setVisible(true), 400); return () => clearTimeout(t) }, [])
   useEffect(() => {
-    const t = setTimeout(() => setVisible(true), 600)
-    return () => clearTimeout(t)
+    const iv = setInterval(() => { setShimmerActive(true); setTimeout(() => setShimmerActive(false), 1500) }, 4000)
+    return () => clearInterval(iv)
   }, [])
-
-  // Shimmer cycle
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setShimmerActive(true)
-      setTimeout(() => setShimmerActive(false), 1500)
-    }, 4000)
-    return () => clearInterval(interval)
-  }, [])
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (flipped) return
-    const rect = e.currentTarget.getBoundingClientRect()
-    x.set((e.clientX - rect.left) / rect.width)
-    y.set((e.clientY - rect.top) / rect.height)
-  }
-
-  const handleMouseLeave = () => {
-    x.set(0.5)
-    y.set(0.5)
-  }
 
   const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(cardId)
-      setCopied(true)
-      toast.success(t("reading.idCopied"))
-      setTimeout(() => setCopied(false), 2000)
-    } catch {
-      toast.error(t("reading.copyFailed"))
-    }
+    try { await navigator.clipboard.writeText(signature); setCopied(true); toast.success(t("reading.idCopied")); setTimeout(() => setCopied(false), 2000) }
+    catch { toast.error(t("reading.copyFailed")) }
   }
 
   const handleShare = async () => {
-    const text = `🔮 ${t("energyId.shareText")}\n\n✨ ${cardId}\n⚡ AI Certified\n\n${shareUrl}`
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: t("energyId.shareTitle"), text })
-      } catch { /* user cancelled */ }
-    } else {
-      await navigator.clipboard.writeText(text)
-      toast.success(t("energyId.copied"))
-    }
+    const text = `🔮 ${t("energyId.shareText")}\n\n✨ ${signature}\n⚡ ${t("energyId.certLabel")}\n\n${shareUrl}`
+    if (navigator.share) { try { await navigator.share({ title: t("energyId.shareTitle"), text }) } catch {} }
+    else { await navigator.clipboard.writeText(text); toast.success(t("energyId.copied")) }
   }
 
   const formatDate = (iso?: string) => {
@@ -316,227 +265,204 @@ export function EnergyIDCard({ sessionId, userId, dimensionScores, generatedAt }
     return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`
   }
 
-  const cardBackground = "linear-gradient(135deg, #1a1030 0%, #0f0a1e 40%, #1a1030 70%, #12091f 100%)"
+  const DIM_LABELS: Record<string, string> = { wealth: "💰", career: "💼", relationship: "💕", health: "🏥", spiritual: "🧘" }
+  const DIM_I18N: Record<string, string> = {
+    wealth: "reading.dim.wealth", career: "reading.dim.career",
+    relationship: "reading.dim.relationship", health: "reading.dim.health", spiritual: "reading.dim.spiritual",
+  }
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 24 }}
+      initial={{ opacity: 0, y: 30 }}
       animate={visible ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-      className="my-8"
+      transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+      className="my-10"
     >
-      {/* Label */}
-      <div className="flex items-center gap-2 mb-4">
+      {/* Section label */}
+      <div className="flex items-center gap-2 mb-5">
         <Fingerprint size={16} className="text-gold/60" />
         <span className="text-gold/60 text-xs tracking-[0.15em] uppercase font-medium">{t("energyId.label")}</span>
         <div className="flex-1 h-px bg-gradient-to-r from-gold/20 to-transparent" />
       </div>
 
-      {/* Card with perspective */}
-      <div
-        className="relative w-full max-w-md mx-auto"
-        style={{ perspective: 1200 }}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-      >
-        {/* Particle ring */}
-        <ParticleRing />
+      {/* Card wrapper with perspective */}
+      <div className="relative w-full max-w-md mx-auto" style={{ perspective: 1200 }}>
+        <ParticleRing color={archetype.color} />
 
         {/* Flip container */}
         <div className={`card-flip-inner ${flipped ? "flipped" : ""}`} style={{ cursor: "pointer" }}>
+
           {/* ══════ FRONT ══════ */}
           <div className="card-flip-front relative rounded-2xl overflow-hidden">
             {/* Holographic border */}
-            <div
-              className="absolute inset-0 rounded-2xl pointer-events-none z-10"
-              style={{
-                padding: "1.5px",
-                background: "conic-gradient(from var(--angle,0deg), rgba(201,168,76,0.5), rgba(168,85,247,0.4), rgba(59,130,246,0.4), rgba(16,185,129,0.3), rgba(201,168,76,0.5))",
-                mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-                maskComposite: "exclude",
-                WebkitMaskComposite: "xor",
-                animation: "glow-rotate 6s linear infinite",
-              }}
-            />
+            <div className="absolute inset-0 rounded-2xl pointer-events-none z-10" style={{
+              padding: "1.5px",
+              background: `conic-gradient(from var(--angle,0deg), ${archetype.color}88, #A855F766, #3B82F666, #10B98866, ${archetype.color}88)`,
+              mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+              maskComposite: "exclude", WebkitMaskComposite: "xor",
+              animation: "glow-rotate 6s linear infinite",
+            }} />
 
-            {/* Card content */}
-            <motion.div
-              style={{
-                rotateX: flipped ? 0 : rotateX,
-                rotateY: flipped ? 0 : rotateY,
-                transformPerspective: 800,
-                background: cardBackground,
-              }}
-              className="relative overflow-hidden rounded-2xl"
-            >
-              {/* Animated holographic sheen */}
-              <div
-                className="absolute inset-0 pointer-events-none opacity-[0.07]"
+            <div className="relative overflow-hidden rounded-2xl" style={{
+              background: "linear-gradient(145deg, #0d0820 0%, #110a24 30%, #0f0820 60%, #0a0618 100%)",
+              backdropFilter: "blur(20px)",
+            }}>
+              {/* Ambient glow */}
+              <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full blur-[100px] opacity-20 pointer-events-none"
+                style={{ background: `radial-gradient(circle, ${archetype.glow}, transparent)` }} />
+              <div className="absolute -bottom-16 -left-16 w-48 h-48 rounded-full blur-[80px] opacity-15 pointer-events-none"
+                style={{ background: `radial-gradient(circle, ${archetype.color}33, transparent)` }} />
+
+              {/* Holographic sheen */}
+              <div className="absolute inset-0 pointer-events-none opacity-[0.05]"
                 style={{
-                  background: "linear-gradient(105deg, transparent 30%, rgba(201,168,76,0.6) 45%, rgba(168,85,247,0.4) 50%, rgba(59,130,246,0.3) 55%, transparent 70%)",
-                  backgroundSize: "200% 100%",
-                  animation: "holographic-sheen 5s ease-in-out infinite",
-                }}
-              />
-
-              {/* Ambient glow spots */}
-              <div className="absolute top-0 right-0 w-40 h-40 rounded-full blur-[80px] opacity-20 pointer-events-none"
-                style={{ background: "radial-gradient(circle, rgba(201,168,76,0.4), transparent)" }} />
-              <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full blur-[60px] opacity-15 pointer-events-none"
-                style={{ background: "radial-gradient(circle, rgba(168,85,247,0.4), transparent)" }} />
+                  background: "linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.3) 48%, transparent 52%, transparent 70%)",
+                  backgroundSize: "200% 100%", animation: "holographic-sheen 5s ease-in-out infinite",
+                }} />
 
               <div className="relative p-6">
-                {/* Top row: logo + share */}
-                <div className="flex items-start justify-between mb-5">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-gold/15 border border-gold/30 flex items-center justify-center">
-                      <span className="text-gold text-xs font-serif font-bold">命</span>
-                    </div>
-                    <div>
-                      <p className="text-gold text-xs font-semibold tracking-wide">{t("energyId.brand")}</p>
-                      <p className="text-white/20 text-[9px]">DESTINY MIRROR</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleShare() }}
-                      className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-white/40 hover:text-gold hover:border-gold/30 transition-all text-[10px]"
+                {/* ── Header: Archetype ── */}
+                <div className="flex items-start justify-between mb-6">
+                  <div>
+                    <motion.p
+                      className="text-[10px] tracking-[0.2em] uppercase mb-1"
+                      style={{ color: `${archetype.color}99` }}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={visible ? { opacity: 1, x: 0 } : {}}
+                      transition={{ delay: 0.3, duration: 0.6 }}
                     >
-                      <Share2 size={10} />
-                      {t("energyId.shareBtn")}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Main content: radar + info */}
-                <div className="flex items-center gap-5 mb-5">
-                  {/* Animated radar */}
-                  <div className="w-24 h-24 flex-shrink-0">
-                    <AnimatedRadar scores={dimensionScores || {}} animate={visible} />
-                  </div>
-
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-white/25 text-[9px] tracking-widest mb-1">ENERGY DIGITAL ID</p>
-                    {/* Shimmer ID text */}
-                    <p
-                      className="text-lg font-serif font-bold tracking-wider mb-2"
+                      {t("energyId.coreArchetype")}
+                    </motion.p>
+                    <motion.h3
+                      className="text-xl font-bold tracking-[0.08em] uppercase"
                       style={{
-                        background: shimmerActive
-                          ? "linear-gradient(90deg, #C9A84C 0%, #F0D68A 25%, #fff 50%, #F0D68A 75%, #C9A84C 100%)"
-                          : "linear-gradient(135deg, #E8CB7A, #C9A84C, #F0D68A)",
-                        backgroundSize: shimmerActive ? "200% 100%" : "100% 100%",
-                        WebkitBackgroundClip: "text",
-                        WebkitTextFillColor: "transparent",
-                        backgroundClip: "text",
-                        animation: shimmerActive ? "shimmer-text 1.5s ease-in-out" : "none",
+                        color: archetype.color,
+                        textShadow: `0 0 20px ${archetype.glow}, 0 0 40px ${archetype.glow}`,
                       }}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={visible ? { opacity: 1, y: 0 } : {}}
+                      transition={{ delay: 0.5, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                     >
-                      {cardId}
-                    </p>
+                      {t(archetype.labelKey)}
+                    </motion.h3>
+                  </div>
+                  <button onClick={(e) => { e.stopPropagation(); handleShare() }}
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-white/40 hover:text-gold hover:border-gold/30 transition-all text-[10px]">
+                    <Share2 size={10} /> {t("energyId.shareBtn")}
+                  </button>
+                </div>
 
-                    {/* Score pills */}
-                    {dimensionScores && (
-                      <div className="flex flex-wrap gap-1">
-                        {Object.entries(dimensionScores).map(([key, val]) => (
-                          <span
-                            key={key}
-                            className="text-[9px] px-1.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-white/40"
-                          >
-                            {t(DIM_I18N[key] || `reading.dim.${key}`)} {val.toFixed(1)}
-                          </span>
-                        ))}
-                      </div>
-                    )}
+                {/* ── Radar ── */}
+                <div className="flex justify-center mb-5">
+                  <div className="w-40 h-40">
+                    <AnimatedRadar scores={scores} animate={visible} accentColor={archetype.color} />
                   </div>
                 </div>
 
-                {/* Bottom row */}
+                {/* ── Digital Signature ── */}
+                <div className="text-center mb-5">
+                  <p className="text-white/20 text-[8px] tracking-[0.25em] uppercase mb-2">{t("energyId.digitalSig")}</p>
+                  <p className="shimmer-id-text font-mono text-lg font-bold tracking-[0.12em]"
+                    style={{
+                      backgroundImage: shimmerActive
+                        ? `linear-gradient(90deg, ${archetype.color} 0%, #F0D68A 25%, #fff 50%, #F0D68A 75%, ${archetype.color} 100%)`
+                        : `linear-gradient(135deg, ${archetype.color}CC, ${archetype.color}, ${archetype.color}CC)`,
+                      backgroundSize: shimmerActive ? "200% 100%" : "100% 100%",
+                      animation: shimmerActive ? "shimmer-text 1.5s ease-in-out" : "none",
+                      textShadow: `0 0 30px ${archetype.glow}`,
+                    }}>
+                    {signature}
+                  </p>
+                </div>
+
+                {/* ── Metrics ── */}
+                <div className="flex flex-wrap justify-center gap-2 mb-5">
+                  {Object.entries(scores).map(([key, val]) => (
+                    <div key={key} className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border transition-all"
+                      style={{
+                        borderColor: `${archetype.color}22`,
+                        background: `linear-gradient(135deg, ${archetype.color}08, ${archetype.color}04)`,
+                        boxShadow: `0 0 8px ${archetype.color}10`,
+                      }}>
+                      <span className="text-xs">{DIM_LABELS[key]}</span>
+                      <span className="text-[10px] font-mono font-bold" style={{ color: archetype.color }}>
+                        {val.toFixed(1)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* ── Prophecy ── */}
+                <motion.div
+                  className="text-center mb-4 px-2"
+                  initial={{ opacity: 0 }}
+                  animate={visible ? { opacity: 1 } : {}}
+                  transition={{ delay: 1.2, duration: 1 }}
+                >
+                  <p className="text-white/30 text-[11px] leading-relaxed italic">
+                    &ldquo;{prophecy}&rdquo;
+                  </p>
+                </motion.div>
+
+                {/* ── Footer ── */}
                 <div className="flex items-center justify-between pt-4 border-t border-white/[0.06]">
                   <div className="flex items-center gap-2">
-                    <ShieldCheck size={12} className="text-green-400/50" />
-                    <span className="text-white/25 text-[9px]">{t("energyId.certLabel")}</span>
+                    <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: `${archetype.color}20` }}>
+                      <span className="text-[8px] font-bold" style={{ color: archetype.color }}>命</span>
+                    </div>
+                    <span className="text-white/20 text-[9px] tracking-wider">DESTINY MIRROR</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-white/15 text-[9px]">{formatDate(generatedAt)}</span>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleCopy() }}
-                      className="flex items-center gap-1 text-white/30 hover:text-gold transition-colors"
-                    >
+                    <div className="flex items-center gap-1">
+                      <ShieldCheck size={10} style={{ color: archetype.color }} className="opacity-50" />
+                      <span className="text-white/25 text-[9px]">{t("energyId.certLabel")}</span>
+                    </div>
+                    <button onClick={(e) => { e.stopPropagation(); handleCopy() }}
+                      className="flex items-center gap-1 text-white/30 hover:text-gold transition-colors">
                       {copied ? <Check size={10} className="text-green-400" /> : <Copy size={10} />}
                       <span className="text-[9px]">{copied ? t("reading.copied") : t("reading.copyId")}</span>
                     </button>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setFlipped(true) }}
-                      className="flex items-center gap-1 text-white/30 hover:text-gold transition-colors"
-                      title={t("energyId.scanHint")}
-                    >
+                    <button onClick={(e) => { e.stopPropagation(); setFlipped(true) }}
+                      className="flex items-center gap-1 text-white/30 hover:text-gold transition-colors" title={t("energyId.scanHint")}>
                       <QrCode size={10} />
                     </button>
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </div>
 
-          {/* ══════ BACK (QR Code) ══════ */}
+          {/* ══════ BACK (QR) ══════ */}
           <div className="card-flip-back absolute inset-0 rounded-2xl overflow-hidden">
-            {/* Holographic border */}
-            <div
-              className="absolute inset-0 rounded-2xl pointer-events-none z-10"
-              style={{
-                padding: "1.5px",
-                background: "conic-gradient(from var(--angle,0deg), rgba(201,168,76,0.5), rgba(168,85,247,0.4), rgba(59,130,246,0.4), rgba(16,185,129,0.3), rgba(201,168,76,0.5))",
-                mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-                maskComposite: "exclude",
-                WebkitMaskComposite: "xor",
-                animation: "glow-rotate 6s linear infinite",
-              }}
-            />
+            <div className="absolute inset-0 rounded-2xl pointer-events-none z-10" style={{
+              padding: "1.5px",
+              background: `conic-gradient(from var(--angle,0deg), ${archetype.color}88, #A855F766, #3B82F666, #10B98866, ${archetype.color}88)`,
+              mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+              maskComposite: "exclude", WebkitMaskComposite: "xor",
+              animation: "glow-rotate 6s linear infinite",
+            }} />
+            <div className="relative rounded-2xl overflow-hidden h-full" style={{
+              background: "linear-gradient(145deg, #0d0820, #110a24, #0a0618)",
+            }}>
+              <div className="absolute -top-16 -left-16 w-48 h-48 rounded-full blur-[80px] opacity-20 pointer-events-none"
+                style={{ background: `radial-gradient(circle, ${archetype.glow}, transparent)` }} />
 
-            <div className="relative rounded-2xl overflow-hidden h-full" style={{ background: cardBackground }}>
-              {/* Ambient glow */}
-              <div className="absolute top-0 left-0 w-40 h-40 rounded-full blur-[80px] opacity-20 pointer-events-none"
-                style={{ background: "radial-gradient(circle, rgba(168,85,247,0.4), transparent)" }} />
-              <div className="absolute bottom-0 right-0 w-32 h-32 rounded-full blur-[60px] opacity-15 pointer-events-none"
-                style={{ background: "radial-gradient(circle, rgba(201,168,76,0.4), transparent)" }} />
-
-              <div className="relative p-6 flex flex-col items-center justify-center h-full min-h-[320px]">
-                {/* Header */}
-                <div className="flex items-center gap-2 mb-6">
-                  <div className="w-8 h-8 rounded-lg bg-gold/15 border border-gold/30 flex items-center justify-center">
-                    <span className="text-gold text-xs font-serif font-bold">命</span>
-                  </div>
-                  <div>
-                    <p className="text-gold text-xs font-semibold tracking-wide">{t("energyId.brand")}</p>
-                    <p className="text-white/20 text-[9px]">DESTINY MIRROR</p>
-                  </div>
+              <div className="relative p-6 flex flex-col items-center justify-center h-full min-h-[340px]">
+                <p className="text-white/20 text-[9px] tracking-[0.2em] uppercase mb-4">{t("energyId.scanHint")}</p>
+                <div className="bg-white rounded-xl p-3 mb-4" style={{ boxShadow: `0 0 30px ${archetype.glow}` }}>
+                  <QRCodeSVG text={shareUrl || signature} size={130} />
                 </div>
-
-                {/* QR Code */}
-                <div className="bg-white rounded-xl p-3 mb-4 shadow-[0_0_30px_rgba(201,168,76,0.15)]">
-                  <QRCodeSVG text={shareUrl || cardId} size={140} />
-                </div>
-
-                {/* Info */}
-                <p className="text-white/40 text-xs mb-1">{t("energyId.scanHint")}</p>
-                <p className="text-gold/60 text-[10px] font-mono tracking-wider mb-4">{cardId}</p>
-
-                {/* Action buttons */}
+                <p className="font-mono text-xs tracking-wider mb-5" style={{ color: `${archetype.color}AA` }}>{signature}</p>
                 <div className="flex gap-3">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setFlipped(false) }}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-gold hover:border-gold/30 transition-all text-xs"
-                  >
-                    <RotateCcw size={12} />
-                    {t("energyId.flipBack")}
+                  <button onClick={(e) => { e.stopPropagation(); setFlipped(false) }}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-gold hover:border-gold/30 transition-all text-xs">
+                    <RotateCcw size={12} /> {t("energyId.flipBack")}
                   </button>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleShare() }}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-gold/10 border border-gold/30 text-gold hover:bg-gold/20 transition-all text-xs"
-                  >
-                    <Share2 size={12} />
-                    {t("energyId.shareBtn")}
+                  <button onClick={(e) => { e.stopPropagation(); handleShare() }}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-full border text-xs transition-all"
+                    style={{ background: `${archetype.color}15`, borderColor: `${archetype.color}40`, color: archetype.color }}>
+                    <Share2 size={12} /> {t("energyId.shareBtn")}
                   </button>
                 </div>
               </div>
