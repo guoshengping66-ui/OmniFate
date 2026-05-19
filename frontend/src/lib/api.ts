@@ -330,6 +330,20 @@ export function streamSession(
 }
 
 /**
+ * Create a reading session and return the session_id immediately.
+ * Used to redirect to the reading page right away, letting AnalysisProgress
+ * handle the SSE streaming on the reading page.
+ */
+export async function createReading(data: AnalysisRequest): Promise<{ session_id: string }> {
+  const body = safeJson(data)
+  const res = await apiDirect.post<AnalysisResponse>("/api/readings", body, {
+    timeout: 30_000,
+    headers: { "Content-Type": "application/json" },
+  })
+  return { session_id: res.data.session_id }
+}
+
+/**
  * Run analysis with SSE streaming. Falls back to polling if SSE fails.
  */
 export async function runAnalysisStream(

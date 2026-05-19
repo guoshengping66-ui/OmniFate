@@ -9,7 +9,7 @@ import {
   Upload, Camera, Hand, ChevronRight, ChevronLeft,
   Loader2, Sparkles, Star, CheckCircle, AlertCircle, Trash2,
 } from "lucide-react"
-import { runAnalysisStream, AnalysisRequest, analyzeFaceImage, analyzePalmImage } from "@/lib/api"
+import { createReading, AnalysisRequest, analyzeFaceImage, analyzePalmImage } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { addReadingToHistory } from "@/lib/readingHistory"
@@ -339,7 +339,7 @@ export default function NewReadingPage() {
         face_raw_text: finalFaceText,
       }
 
-      const result = await runAnalysisStream(payload, () => {})
+      const result = await createReading(payload)
 
       // Save to reading history for anonymous users
       addReadingToHistory(result.session_id, values.user_question || undefined)
