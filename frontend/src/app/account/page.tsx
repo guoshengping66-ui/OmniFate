@@ -116,22 +116,6 @@ export default function AccountPage() {
               <LogOut size={14} /> {t("account.logout")}
             </button>
           </div>
-
-          {/* Quick stats */}
-          <div className="grid grid-cols-4 gap-3 mt-6">
-            {[
-              { label: t("account.stat.reports"), value: readings.length, icon: "🔮" },
-              { label: t("account.stat.orders"), value: orders.length, icon: "📦" },
-              { label: t("account.stat.favorites"), value: favorites.length, icon: "❤️" },
-              { label: t("account.stat.coupons"), value: `¥${user.shop_coupon_balance}`, icon: "🎫" },
-            ].map(s => (
-              <div key={s.label} className="bg-white/[0.03] rounded-xl p-3 text-center">
-                <span className="text-lg">{s.icon}</span>
-                <p className="text-white/60 text-sm font-bold mt-1">{s.value}</p>
-                <p className="text-white/20 text-[10px]">{s.label}</p>
-              </div>
-            ))}
-          </div>
         </div>
         )}
 
