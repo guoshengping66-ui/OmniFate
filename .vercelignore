@@ -1,0 +1,11 @@
+backend/
+requirements.txt
+*.py
+docker-compose*.yml
+deploy.sh
+scripts/
+docs/
+miniprogram/
+omni-fate/
+de421.bsp
+start.ps1
