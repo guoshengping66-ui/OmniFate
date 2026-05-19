@@ -273,11 +273,6 @@ export function EnergyIDCard({ sessionId, dimensionScores, generatedAt, ..._rest
   }
 
   const DIM_LABELS: Record<string, string> = { wealth: "💰", career: "💼", relationship: "💕", health: "🏥", spiritual: "🧘" }
-  const DIM_I18N: Record<string, string> = {
-    wealth: "reading.dim.wealth", career: "reading.dim.career",
-    relationship: "reading.dim.relationship", health: "reading.dim.health", spiritual: "reading.dim.spiritual",
-  }
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -415,7 +410,7 @@ export function EnergyIDCard({ sessionId, dimensionScores, generatedAt, ..._rest
                 <div className="flex items-center justify-between pt-4 border-t border-white/[0.06]">
                   <div className="flex items-center gap-2">
                     <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: `${archetype.color}20` }}>
-                      <span className="text-[8px] font-bold" style={{ color: archetype.color }}>命</span>
+                      <span className="text-[8px] font-bold" style={{ color: archetype.color }}>{locale === "zh" ? "命" : "✦"}</span>
                     </div>
                     <span className="text-white/20 text-[9px] tracking-wider">DESTINY MIRROR</span>
                   </div>
