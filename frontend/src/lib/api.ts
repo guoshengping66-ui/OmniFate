@@ -245,8 +245,10 @@ export async function runAnalysis(data: AnalysisRequest): Promise<AnalysisRespon
   throw new Error("分析超时，请稍后在「我的命盘」中查看结果")
 }
 
-export async function getSession(sessionId: string): Promise<AnalysisResponse> {
-  const res = await api.get<AnalysisResponse>(`/api/readings/session/${sessionId}`)
+export async function getSession(sessionId: string, lang?: string): Promise<AnalysisResponse> {
+  const params: Record<string, string> = {}
+  if (lang) params.lang = lang
+  const res = await api.get<AnalysisResponse>(`/api/readings/session/${sessionId}`, { params })
   return res.data
 }
 

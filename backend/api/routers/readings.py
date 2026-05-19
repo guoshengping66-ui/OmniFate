@@ -226,7 +226,7 @@ async def create_analysis(
     # Persist session to DATABASE (with timeout to avoid blocking)
     try:
         await asyncio.wait_for(
-            _persist_session(state.session_id, user_id),
+            _persist_session(state.session_id, user_id, language=state.language),
             timeout=5,
         )
     except (asyncio.TimeoutError, Exception) as e:
@@ -247,7 +247,7 @@ async def create_analysis(
     return _state_to_response(state)
 
 
-async def _persist_session(session_id: str, user_id: Optional[str] = None):
+async def _persist_session(session_id: str, user_id: Optional[str] = None, language: str = "zh"):
     """Persist a reading session to the database, auto-linking birth_profile_id."""
     from database.session import _db_available
     from database.models import BirthProfile
@@ -284,6 +284,7 @@ async def _persist_session(session_id: str, user_id: Optional[str] = None):
             status=ReadingStatus.pending,
             master_summary="",
             is_detail_unlocked=False,
+            language=language,
         )
         db.add(reading)
         await db.commit()
@@ -418,10 +419,13 @@ async def _run_analysis_inline(state: SystemState) -> SystemState:
 async def get_session(
     session_id: str,
     current_user: Optional[User] = Depends(get_current_user),
+    lang: Optional[str] = Query(None, pattern="^(zh|en)$"),
 ):
     """
     Retrieve session by ID. Checks in-memory first, then DATABASE.
     Auth required — users can only access their own sessions.
+    Optional lang parameter: if provided and differs from stored language,
+    translates report content on-the-fly.
     """
     # Fast path: in-memory cache
     state = _sessions.get(session_id)
@@ -479,7 +483,7 @@ async def get_session(
                 )
 
             # Completed or failed — reconstruct from DB
-            return AnalysisResponse(
+            resp = AnalysisResponse(
                 session_id=session_id,
                 status=reading.status.value,
                 master_summary=reading.master_summary or "",
@@ -497,6 +501,35 @@ async def get_session(
                 dimension_scores=reading.dimension_scores or {},
                 errors=[reading.error_message] if reading.error_message else [],
             )
+
+            # On-the-fly translation if language mismatch
+            stored_lang = getattr(reading, 'language', None) or "zh"
+            if lang and lang != stored_lang:
+                target = "English" if lang == "en" else "Chinese"
+                # Translate master_summary and worker reports in parallel
+                import asyncio
+                translations = await asyncio.gather(
+                    _translate_text(resp.master_summary, target),
+                    _translate_text(resp.master_detail, target),
+                    _translate_text(resp.astrology.report, target),
+                    _translate_text(resp.tarot.report, target),
+                    _translate_text(resp.bazi.report, target),
+                    _translate_text(resp.qimen.report, target),
+                    _translate_text(resp.ziwei.report, target),
+                    _translate_text(resp.face.report, target),
+                    _translate_text(resp.palm.report, target),
+                )
+                resp.master_summary = translations[0]
+                resp.master_detail = translations[1]
+                resp.astrology = WorkerReportOut(agent_id="astrology", report=translations[2], tags=resp.astrology.tags, error=resp.astrology.error, duration_ms=resp.astrology.duration_ms)
+                resp.tarot = WorkerReportOut(agent_id="tarot", report=translations[3], tags=resp.tarot.tags, error=resp.tarot.error, duration_ms=resp.tarot.duration_ms)
+                resp.bazi = WorkerReportOut(agent_id="bazi", report=translations[4], tags=resp.bazi.tags, error=resp.bazi.error, duration_ms=resp.bazi.duration_ms)
+                resp.qimen = WorkerReportOut(agent_id="qimen", report=translations[5], tags=resp.qimen.tags, error=resp.qimen.error, duration_ms=resp.qimen.duration_ms)
+                resp.ziwei = WorkerReportOut(agent_id="ziwei", report=translations[6], tags=resp.ziwei.tags, error=resp.ziwei.error, duration_ms=resp.ziwei.duration_ms)
+                resp.face = WorkerReportOut(agent_id="face", report=translations[7], tags=resp.face.tags, error=resp.face.error, duration_ms=resp.face.duration_ms)
+                resp.palm = WorkerReportOut(agent_id="palm", report=translations[8], tags=resp.palm.tags, error=resp.palm.error, duration_ms=resp.palm.duration_ms)
+
+            return resp
     except HTTPException:
         raise
     except Exception as e:
@@ -515,6 +548,62 @@ def _worker_from_report(agent_id: str, report: Optional[str]) -> WorkerReportOut
         error=None,
         duration_ms=None,
     )
+
+
+# ─── On-the-fly Translation (for language mismatch) ────────────────────────
+
+_translate_cache: dict[str, str] = {}  # key = f"{text_hash}:{target_lang}" -> translated text
+
+async def _translate_text(text: str, target_lang: str) -> str:
+    """Translate a text block using a fast LLM. Caches results."""
+    if not text or len(text.strip()) < 10:
+        return text
+
+    # Check cache (use first 200 chars as key to avoid huge keys)
+    cache_key = f"{hash(text[:200])}:{target_lang}"
+    if cache_key in _translate_cache:
+        return _translate_cache[cache_key]
+
+    from agents.master import _use_mock
+    if _use_mock():
+        return text  # No translation in mock mode
+
+    try:
+        from langchain_openai import ChatOpenAI
+        from langchain_core.messages import SystemMessage, HumanMessage
+
+        _fast_llm = ChatOpenAI(
+            model=settings.MASTER_FAST_MODEL,
+            api_key=settings.OPENAI_API_KEY,
+            base_url=settings.OPENAI_BASE_URL or None,
+            temperature=0.3,
+            max_tokens=2000,
+        )
+
+        system = (
+            f"Translate the following Chinese metaphysics analysis report to {target_lang.upper()}. "
+            "Keep cultural terms like BaZi, Wu Xing, Ten Gods in parentheses. "
+            "Maintain the same structure, formatting, and sections. "
+            "Do NOT add any commentary — output ONLY the translated text."
+        )
+
+        resp = await _fast_llm.ainvoke([
+            SystemMessage(content=system),
+            HumanMessage(content=text),
+        ])
+        result = resp.content.strip()
+        if result:
+            _translate_cache[cache_key] = result
+            # Evict if too large
+            if len(_translate_cache) > 200:
+                oldest = list(_translate_cache.keys())[:50]
+                for k in oldest:
+                    _translate_cache.pop(k, None)
+            return result
+    except Exception as e:
+        print(f"[WARN] Translation failed: {e}")
+
+    return text  # Fallback to original
 
 
 # ─── SSE Streaming Endpoint ──────────────────────────────────────────────
