@@ -32,7 +32,6 @@ const securityHeaders = [
 ]
 
 const nextConfig = {
-  output: "standalone",
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -44,6 +43,20 @@ const nextConfig = {
       {
         source: "/(.*)",
         headers: securityHeaders,
+      },
+      {
+        // Cache static assets for 1 year — Next.js already hashes filenames
+        source: "/_next/static/(.*)",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+      {
+        // Cache public assets
+        source: "/(favicon\\.svg|manifest\\.json|robots\\.txt)",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=86400" },
+        ],
       },
     ]
   },
