@@ -118,7 +118,9 @@ function PaymentMethodButton({
   selected: boolean
   onClick: () => void
 }) {
+  const { locale } = useLanguage()
   const Icon = PaymentIcons[method.icon] || PaymentIcons["credit-card"]
+  const displayName = locale === "zh" ? method.name : (method.name_en || method.name)
 
   return (
     <motion.button
@@ -154,7 +156,7 @@ function PaymentMethodButton({
 
       {/* Name */}
       <span className={`text-sm font-medium ${selected ? "text-gold" : "text-white/70"}`}>
-        {method.name}
+        {displayName}
       </span>
 
       {/* Arrow */}

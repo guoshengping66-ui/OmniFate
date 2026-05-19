@@ -98,8 +98,9 @@ function getWeakestDimension(scores: Record<string, number>): string {
   return Object.entries(scores).sort((a, b) => a[1] - b[1])[0]?.[0] ?? "wealth"
 }
 
-function getWeakestLabel(scores: Record<string, number>): string {
-  return DIM_LABELS[getWeakestDimension(scores)] ?? "财富"
+function getWeakestLabel(scores: Record<string, number>, t: (key: string) => string): string {
+  const dim = getWeakestDimension(scores)
+  return I18N_DIM_KEYS[dim] ? t(I18N_DIM_KEYS[dim].label) : (DIM_LABELS[dim] ?? dim)
 }
 
 function getStrongestDimension(scores: Record<string, number>): string {
@@ -641,7 +642,7 @@ export default function ReadingPage() {
             {/* Zone 2: Free Report Banner */}
             {!isUnlocked && data.dimension_scores && (
               <FreeReportBanner
-                weakestLabel={getWeakestLabel(data.dimension_scores)}
+                weakestLabel={getWeakestLabel(data.dimension_scores, t)}
                 onCtaClick={() => setActiveTab("shop")}
               />
             )}

@@ -6,30 +6,35 @@ import { TargetSelector } from "./TargetSelector"
 import { BirthProfileSetup } from "./BirthProfileSetup"
 
 // Chinese zodiac animals
-const ZODIAC = ["鼠","牛","虎","兔","龙","蛇","马","羊","猴","鸡","狗","猪"]
+const ZODIAC_ZH = ["鼠","牛","虎","兔","龙","蛇","马","羊","猴","鸡","狗","猪"]
+const ZODIAC_EN = ["Rat","Ox","Tiger","Rabbit","Dragon","Snake","Horse","Goat","Monkey","Rooster","Dog","Pig"]
 const SHENGXIAO = ["🐀","🐂","🐅","🐇","🐉","🐍","🐴","🐑","🐒","🐔","🐕","🐖"]
 
-function getZodiac(year: number): string {
-  return ZODIAC[(year - 4) % 12]
+function getZodiac(year: number, locale: string): string {
+  const arr = locale === "zh" ? ZODIAC_ZH : ZODIAC_EN
+  return arr[(year - 4) % 12]
 }
 
 function getShengxiao(year: number): string {
   return SHENGXIAO[(year - 4) % 12]
 }
 
-function getConstellation(month: number, day: number): string {
+const CONSTELLATION_ZH = ["水瓶座","双鱼座","白羊座","金牛座","双子座","巨蟹座","狮子座","处女座","天秤座","天蝎座","射手座","摩羯座"]
+const CONSTELLATION_EN = ["Aquarius","Pisces","Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn"]
+
+function getConstellation(month: number, day: number, locale: string): string {
   const dates = [20,19,21,20,21,22,23,23,23,24,22,22]
-  const signs = ["水瓶座","双鱼座","白羊座","金牛座","双子座","巨蟹座","狮子座","处女座","天秤座","天蝎座","射手座","摩羯座"]
+  const signs = locale === "zh" ? CONSTELLATION_ZH : CONSTELLATION_EN
   const idx = (month - 1 + (day >= dates[month - 1] ? 1 : 0)) % 12
   return signs[idx]
 }
 
 export function ProfileCard() {
   const { userProfile } = useUserStore()
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
 
-  const constellation = userProfile ? getConstellation(userProfile.birth_month, userProfile.birth_day) : ""
-  const zodiac = userProfile ? getZodiac(userProfile.birth_year) : ""
+  const constellation = userProfile ? getConstellation(userProfile.birth_month, userProfile.birth_day, locale) : ""
+  const zodiac = userProfile ? getZodiac(userProfile.birth_year, locale) : ""
   const shengxiao = userProfile ? getShengxiao(userProfile.birth_year) : ""
 
   return (
