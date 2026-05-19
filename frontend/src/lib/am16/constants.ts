@@ -206,7 +206,7 @@ export const AM16_QUESTIONS: AM16Question[] = [
     id: 12,
     dimension: "PE",
     emoji: "🃏",
-    titleCn: “能量解读告诉你：”你人生的剧烈改变即将发生”，你的选择是？”,
+    titleCn: `能量解读告诉你：”你人生的剧烈改变即将发生”，你的选择是？`,
     titleEn: 'A reading states: "A massive life shift is coming." You choose to:',
     options: [
       { textCn: "保持静止，默默观察命运抛给我的征兆。", textEn: "Stay put. Quietly observe the next ripple in the matrix.", type: "A" },
