@@ -161,7 +161,7 @@ export default function ReadingPage() {
     if (!id) return
     let cancelled = false
 
-    getSession(id, locale).then(d => {
+    getSession(id).then(d => {
       if (cancelled) return
       setData(d)
       setIsUnlocked(d.is_detail_unlocked)
@@ -207,7 +207,7 @@ export default function ReadingPage() {
           const pollInterval = setInterval(async () => {
             if (cancelled) { clearInterval(pollInterval); return }
             try {
-              const fresh = await getSession(id, locale)
+              const fresh = await getSession(id)
               if (fresh.status === "done" || fresh.status === "chat") {
                 setData(fresh)
                 setIsUnlocked(fresh.is_detail_unlocked)

@@ -589,9 +589,25 @@ def _worker_from_report(agent_id: str, report: Optional[str]) -> WorkerReportOut
 # ─── On-the-fly Translation (for language mismatch) ────────────────────────
 
 _translate_cache: dict[str, str] = {}  # key = f"{text_hash}:{target_lang}" -> translated text
+_translate_llm = None  # Shared LLM instance (created lazily)
+_translate_semaphore = asyncio.Semaphore(3)  # Max 3 concurrent translations
+
+def _get_translate_llm():
+    """Get or create a shared translation LLM instance."""
+    global _translate_llm
+    if _translate_llm is None:
+        from langchain_openai import ChatOpenAI
+        _translate_llm = ChatOpenAI(
+            model=settings.MASTER_FAST_MODEL,
+            api_key=settings.OPENAI_API_KEY,
+            base_url=settings.OPENAI_BASE_URL or None,
+            temperature=0.3,
+            max_tokens=2000,
+        )
+    return _translate_llm
 
 async def _translate_text(text: str, target_lang: str) -> str:
-    """Translate a text block using a fast LLM. Caches results."""
+    """Translate a text block using a shared fast LLM. Caches results. Rate-limited."""
     if not text or len(text.strip()) < 10:
         return text
 
@@ -605,16 +621,9 @@ async def _translate_text(text: str, target_lang: str) -> str:
         return text  # No translation in mock mode
 
     try:
-        from langchain_openai import ChatOpenAI
         from langchain_core.messages import SystemMessage, HumanMessage
 
-        _fast_llm = ChatOpenAI(
-            model=settings.MASTER_FAST_MODEL,
-            api_key=settings.OPENAI_API_KEY,
-            base_url=settings.OPENAI_BASE_URL or None,
-            temperature=0.3,
-            max_tokens=2000,
-        )
+        _llm = _get_translate_llm()
 
         system = (
             f"Translate the following Chinese metaphysics analysis report to {target_lang.upper()}. "
@@ -623,10 +632,15 @@ async def _translate_text(text: str, target_lang: str) -> str:
             "Do NOT add any commentary — output ONLY the translated text."
         )
 
-        resp = await _fast_llm.ainvoke([
-            SystemMessage(content=system),
-            HumanMessage(content=text),
-        ])
+        # Rate-limit: max 3 concurrent LLM calls
+        async with _translate_semaphore:
+            resp = await asyncio.wait_for(
+                _llm.ainvoke([
+                    SystemMessage(content=system),
+                    HumanMessage(content=text),
+                ]),
+                timeout=15,  # 15s max per translation
+            )
         result = resp.content.strip()
         if result:
             _translate_cache[cache_key] = result
@@ -751,13 +765,16 @@ async def list_my_readings(user: User = Depends(require_user)):
             readings = result.scalars().all()
             items = []
             for r in readings:
-                # Try to load computed_tags from session cache
-                computed_tags = []
-                dimension_scores = {}
-                state = _sessions.get(str(r.id))
-                if state:
-                    computed_tags = list(state.computed_tags or [])
-                    dimension_scores = dict(state.dimension_scores or {})
+                # Read from DB columns (persisted), fall back to in-memory cache
+                computed_tags = list(r.computed_tags or [])
+                dimension_scores = dict(r.dimension_scores or {})
+                if not computed_tags or not dimension_scores:
+                    state = _sessions.get(str(r.id))
+                    if state:
+                        if not computed_tags:
+                            computed_tags = list(state.computed_tags or [])
+                        if not dimension_scores:
+                            dimension_scores = dict(state.dimension_scores or {})
                 items.append(ReadingListItem(
                     id=str(r.id),
                     session_id=str(r.id),
