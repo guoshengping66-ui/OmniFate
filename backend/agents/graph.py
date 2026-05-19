@@ -245,7 +245,52 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
         lines.append("• 你的命盘呈现独特的能量格局，多维度分析揭示了关键的人生密码")
     lines.append("")
 
-    # 5. Upgrade prompt - create desire for full analysis
+    # 5. 各维度速览 — show key findings from each worker
+    worker_labels = {
+        "bazi": "☯ 周易八字", "astrology": "✦ 西方星盘", "tarot": "🃏 塔罗疗愈",
+        "qimen": "🎯 奇门遁甲", "ziwei": "⭐ 紫微斗数",
+        "face": "👁 AI面相", "palm": "🤚 手相解读",
+    }
+    has_worker_previews = False
+    for agent_id, label in worker_labels.items():
+        wo = getattr(state, f"{agent_id}_output", None)
+        if not wo or not wo.report:
+            continue
+        # Extract first 2 key_findings or first meaningful lines
+        preview_lines = []
+        for line in wo.report.split("\n"):
+            line = line.strip()
+            if line.startswith(("【关键发现】",)):
+                continue
+            if line.startswith(("- ", "• ", "· ")):
+                text = line.lstrip("-•· ").strip()
+                if len(text) > 10 and len(preview_lines) < 2:
+                    preview_lines.append(f"  {label}：{text}")
+            elif line.startswith("【") and "】" in line:
+                # Dimension header — extract the dimension analysis (first sentence)
+                dim_text = line.split("】", 1)[-1].strip()
+                if dim_text and len(dim_text) > 10:
+                    # Truncate to first sentence
+                    for sep in ["。", "！", "；"]:
+                        pos = dim_text.find(sep)
+                        if 0 < pos < 80:
+                            dim_text = dim_text[:pos + 1]
+                            break
+                    if len(dim_text) > 80:
+                        dim_text = dim_text[:80] + "…"
+                    preview_lines.append(f"  {label}：{dim_text}")
+            if len(preview_lines) >= 2:
+                break
+        if preview_lines:
+            if not has_worker_previews:
+                lines.append("【各维度速览】")
+                has_worker_previews = True
+            for pl in preview_lines:
+                lines.append(pl)
+    if has_worker_previews:
+        lines.append("")
+
+    # 6. Upgrade prompt - create desire for full analysis
     lines.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     lines.append("🔓 解锁完整深度解析，你将获得：")
     lines.append("• 五维详细诊断（财富/感情/事业/健康/精神）")

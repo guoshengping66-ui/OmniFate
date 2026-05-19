@@ -101,7 +101,9 @@ _JSON_OUTPUT_INSTRUCTION_COMPACT = (
     '  "dimensions": {\n'
     '    "wealth": "60字财运分析",\n'
     '    "relationship": "60字感情分析",\n'
-    '    "career": "60字事业分析"\n'
+    '    "career": "60字事业分析",\n'
+    '    "health": "60字健康分析",\n'
+    '    "spiritual": "60字精神/灵性分析"\n'
     '  },\n'
     '  "key_findings": ["发现1(含置信度)", "发现2", "发现3"],\n'
     '  "weakness_tags": ["#缺火", "#官杀混杂"],\n'
@@ -110,7 +112,7 @@ _JSON_OUTPUT_INSTRUCTION_COMPACT = (
     '  "conflict_warnings": ["矛盾信号1"]\n'
     '}\n'
     "```\n"
-    "规则：summary必填；dimensions只输出wealth/relationship/career三个核心维度；"
+    "规则：summary必填；dimensions五个维度都要输出，每个60字左右；"
     "key_findings 3-5条；boost_elements必须使用中文五行名称。\n"
 )
 
@@ -124,7 +126,9 @@ _JSON_OUTPUT_INSTRUCTION_COMPACT_EN = (
     '  "dimensions": {\n'
     '    "wealth": "60-word wealth analysis",\n'
     '    "relationship": "60-word love/relationship analysis",\n'
-    '    "career": "60-word career analysis"\n'
+    '    "career": "60-word career analysis",\n'
+    '    "health": "60-word health analysis",\n'
+    '    "spiritual": "60-word spiritual/inner growth analysis"\n'
     '  },\n'
     '  "key_findings": ["finding 1 (with confidence)", "finding 2", "finding 3"],\n'
     '  "weakness_tags": ["#weakness1", "#weakness2"],\n'
@@ -133,7 +137,7 @@ _JSON_OUTPUT_INSTRUCTION_COMPACT_EN = (
     '  "conflict_warnings": ["conflict signal 1"]\n'
     '}\n'
     "```\n"
-    "Rules: summary required; dimensions only wealth/relationship/career; "
+    "Rules: summary required; all 5 dimensions must be included; "
     "3-5 key_findings; ALL text values in English.\n"
 )
 

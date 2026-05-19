@@ -204,8 +204,8 @@ def _apply_content_lock(resp: AnalysisResponse, current_user: Optional[User], re
         resp.is_detail_unlocked = False
         for key in _WORKER_REPORT_KEYS:
             wo = getattr(resp, key, None)
-            if wo and wo.report and len(wo.report) > 200:
-                wo.report = wo.report[:200] + "..."
+            if wo and wo.report and len(wo.report) > 600:
+                wo.report = wo.report[:600] + "\n\n🔒 解锁完整深度分析…"
     return resp
 
 
