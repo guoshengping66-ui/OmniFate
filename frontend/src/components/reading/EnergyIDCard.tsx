@@ -420,15 +420,12 @@ export function EnergyIDCard({ sessionId, userId, dimensionScores, generatedAt }
                     <p className="text-white/25 text-[9px] tracking-widest mb-1">ENERGY DIGITAL ID</p>
                     {/* Shimmer ID text */}
                     <p
-                      className="text-lg font-serif font-bold tracking-wider mb-2"
+                      className="shimmer-id-text text-lg font-serif font-bold tracking-wider mb-2"
                       style={{
-                        background: shimmerActive
+                        backgroundImage: shimmerActive
                           ? "linear-gradient(90deg, #C9A84C 0%, #F0D68A 25%, #fff 50%, #F0D68A 75%, #C9A84C 100%)"
                           : "linear-gradient(135deg, #E8CB7A, #C9A84C, #F0D68A)",
                         backgroundSize: shimmerActive ? "200% 100%" : "100% 100%",
-                        WebkitBackgroundClip: "text",
-                        WebkitTextFillColor: "transparent",
-                        backgroundClip: "text",
                         animation: shimmerActive ? "shimmer-text 1.5s ease-in-out" : "none",
                       }}
                     >

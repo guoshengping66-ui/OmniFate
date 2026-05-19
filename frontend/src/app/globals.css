@@ -241,6 +241,12 @@ select.input-field option:checked {
   0%   { background-position: -200% center; }
   100% { background-position: 200% center; }
 }
+.shimmer-id-text {
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
 
 /* Card flip */
 .card-flip-inner {
