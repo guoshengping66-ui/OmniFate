@@ -4,10 +4,10 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
   Loader2, ScrollText, Sparkles, Lock, Unlock, Clock,
-  ArrowRight, Plus, AlertCircle, Star,
+  ArrowRight, Plus, AlertCircle, Star, Trash2,
 } from "lucide-react"
 import toast from "react-hot-toast"
-import { listMyReadings, ReadingListItem } from "@/lib/api"
+import { listMyReadings, deleteReading, ReadingListItem } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 
@@ -45,6 +45,19 @@ export default function ReadingsPage() {
     if (!scores || Object.keys(scores).length === 0) return ""
     const sorted = Object.entries(scores).sort((a, b) => a[1] - b[1])
     return DIM_LABELS[sorted[0]?.[0]] ?? ""
+  }
+
+  const handleDelete = async (e: React.MouseEvent, sessionId: string) => {
+    e.preventDefault() // prevent navigation
+    e.stopPropagation()
+    if (!confirm(t("readings.confirmDelete"))) return
+    try {
+      await deleteReading(sessionId)
+      setReadings(prev => prev.filter(r => r.id !== sessionId))
+      toast.success(t("readings.deleted"))
+    } catch {
+      toast.error(t("readings.deleteFail"))
+    }
   }
 
   const formatDate = (iso: string): string => {
@@ -187,6 +200,14 @@ export default function ReadingsPage() {
                           {t("readings.weakest")}: {weakest}
                         </p>
                       )}
+                      <button
+                        onClick={(e) => handleDelete(e, r.id)}
+                        className="mt-2 flex items-center gap-1 text-[10px] text-white/20 hover:text-red-400 transition-colors"
+                        title={t("readings.delete")}
+                      >
+                        <Trash2 size={10} />
+                        {t("readings.delete")}
+                      </button>
                     </div>
                   </div>
                 </Link>

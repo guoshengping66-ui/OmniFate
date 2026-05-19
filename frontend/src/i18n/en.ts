@@ -830,6 +830,10 @@ export default {
   "readings.dim.relationship": "Love",
   "readings.dim.health": "Health",
   "readings.dim.spiritual": "Spiritual",
+  "readings.delete": "Delete",
+  "readings.confirmDelete": "Are you sure you want to delete this reading?",
+  "readings.deleted": "Deleted",
+  "readings.deleteFail": "Failed to delete, please try again",
 
   // ─── Account ───
   "account.overview": "Overview",

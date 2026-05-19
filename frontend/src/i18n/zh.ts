@@ -824,6 +824,10 @@ export default {
   "readings.dim.relationship": "感情",
   "readings.dim.health": "健康",
   "readings.dim.spiritual": "精神",
+  "readings.delete": "删除",
+  "readings.confirmDelete": "确定要删除这条推命记录吗？",
+  "readings.deleted": "已删除",
+  "readings.deleteFail": "删除失败，请稍后重试",
 
   // ─── 个人中心 ───
   "account.overview": "概览",
