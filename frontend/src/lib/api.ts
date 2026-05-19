@@ -1,9 +1,4 @@
 import axios from "axios"
-import {
-  safeParseAnalysis,
-  safeParseDailyFortune,
-  safeParseDimensionScores,
-} from "./schemas"
 
 // ── Unicode Escape Helper ──────────────────────────────────────────────────
 // Some proxies (Clash/V2Ray) and old nginx versions mangle UTF-8 bytes in
@@ -116,7 +111,6 @@ export interface AnalysisRequest {
   tarot_cards: { position: string; card: string; reversed: boolean }[]
   palm_raw_text: string
   face_raw_text: string
-  intent?: "GENERAL_DAILY" | "FULL_MULTIMODAL" | "SPECIFIC_EVENT"
 }
 
 export interface WorkerReport {
@@ -145,7 +139,6 @@ export interface AnalysisResponse {
   computed_tags: string[]
   dimension_scores: Record<string, number>
   errors: string[]
-  intent?: "GENERAL_DAILY" | "FULL_MULTIMODAL" | "SPECIFIC_EVENT"
 }
 
 export interface ChatRequest {
@@ -243,18 +236,20 @@ export async function runAnalysis(data: AnalysisRequest): Promise<AnalysisRespon
     await new Promise(r => setTimeout(r, 3000))
     const poll = await api.get<AnalysisResponse>(`/api/readings/session/${sessionId}`, { timeout: 60_000 })
     if (poll.data.status === "done" || poll.data.status === "chat") {
-      return safeParseAnalysis(poll.data)
+      return poll.data
     }
     if (poll.data.errors && poll.data.errors.length > 0 && poll.data.master_summary) {
-      return safeParseAnalysis(poll.data)
+      return poll.data
     }
   }
   throw new Error("分析超时，请稍后在「我的命盘」中查看结果")
 }
 
-export async function getSession(sessionId: string): Promise<AnalysisResponse> {
-  const res = await api.get<AnalysisResponse>(`/api/readings/session/${sessionId}`)
-  return safeParseAnalysis(res.data)
+export async function getSession(sessionId: string, lang?: string): Promise<AnalysisResponse> {
+  const params: Record<string, string> = {}
+  if (lang) params.lang = lang
+  const res = await api.get<AnalysisResponse>(`/api/readings/session/${sessionId}`, { params })
+  return res.data
 }
 
 // ── SSE Streaming ──────────────────────────────────────────────────────────
@@ -298,7 +293,7 @@ export function streamSession(
         if (data.type === "complete") {
           completed = true
           es.close()
-          resolve(safeParseAnalysis({
+          resolve({
             session_id: sessionId,
             status: "done",
             master_summary: data.master_summary || "",
@@ -315,7 +310,7 @@ export function streamSession(
             computed_tags: [],
             dimension_scores: {},
             errors: [],
-          }))
+          })
         }
         if (data.type === "error") {
           es.close()
@@ -597,7 +592,6 @@ export interface CreateOrderRequest {
   total_cny: number
   use_coupon?: boolean
   address_id?: string
-  payment_method?: string
   notes?: string
 }
 
@@ -643,20 +637,20 @@ export async function createCheckoutUrl(
   paymentMethod: string,
   itemType: string = "unlock_report",
 ): Promise<{ checkout_url?: string; pay_url?: string; approve_url?: string; code_url?: string; payment_method: string; message: string }> {
-  // 根据支付方式调用不同接口 — 金额和商品名由服务端决定，前端不传敏感信息
+  // 根据支付方式调用不同接口 — 金额由服务端决定
   if (paymentMethod === "alipay") {
     const res = await apiDirect.post(`/api/payments/alipay/create`, null, {
-      params: { item_type: itemType, reading_id: readingId }
+      params: { item_type: itemType, subject: "命盘智镜", reading_id: readingId }
     })
     return { pay_url: res.data.pay_url, payment_method: "alipay", message: res.data.message }
   } else if (paymentMethod === "wechat_pay") {
     const res = await apiDirect.post(`/api/payments/wechat/create`, null, {
-      params: { item_type: itemType, reading_id: readingId }
+      params: { item_type: itemType, description: "命盘智镜", reading_id: readingId }
     })
     return { code_url: res.data.code_url, payment_method: "wechat_pay", message: res.data.message }
   } else if (paymentMethod === "paypal") {
     const res = await apiDirect.post(`/api/payments/paypal/create`, null, {
-      params: { item_type: itemType, reading_id: readingId }
+      params: { item_type: itemType, description: "Destiny Mirror", reading_id: readingId }
     })
     return { approve_url: res.data.approve_url, payment_method: "paypal", message: res.data.message }
   } else {
@@ -746,28 +740,8 @@ export async function getEventDetail(eventId: string): Promise<AnalyzeEventRespo
   return res.data
 }
 
-export async function getDailyAlmanac(sessionId: string, lang: string = "zh", fast: boolean = true): Promise<DailyAlmanacResponse> {
-  const res = await api.get<DailyAlmanacResponse>("/api/readings/daily-almanac", { params: { session_id: sessionId, lang, fast }, timeout: 30_000 })
-  return res.data
-}
-
-export interface PersonalizedAlmanacParams {
-  birth_year: number
-  birth_month: number
-  birth_day: number
-  birth_hour?: number
-  birth_minute?: number
-  gender?: string
-  birth_city?: string
-  latitude?: number
-  longitude?: number
-}
-
-export async function getPersonalizedDailyAlmanac(params: PersonalizedAlmanacParams, lang: string = "zh", fast: boolean = true): Promise<DailyAlmanacResponse> {
-  const res = await api.get<DailyAlmanacResponse>("/api/readings/daily-almanac/personalized", {
-    params: { ...params, lang, fast },
-    timeout: 15_000,
-  })
+export async function getDailyAlmanac(sessionId: string, lang: string = "zh"): Promise<DailyAlmanacResponse> {
+  const res = await api.get<DailyAlmanacResponse>("/api/readings/daily-almanac", { params: { session_id: sessionId, lang }, timeout: 30_000 })
   return res.data
 }
 
@@ -787,11 +761,7 @@ export interface ReadingListItem {
 
 export async function listMyReadings(): Promise<ReadingListItem[]> {
   const res = await api.get<ReadingListItem[]>("/api/readings/my")
-  // Validate each item's dimension_scores to prevent crashes from malformed AI output
-  return res.data.map((item) => ({
-    ...item,
-    dimension_scores: safeParseDimensionScores(item.dimension_scores),
-  }))
+  return res.data
 }
 
 export async function deleteReading(sessionId: string): Promise<void> {
@@ -1011,27 +981,11 @@ export interface DailyFortuneResponse {
   lucky_number: number
   advice: string
   warning: string
-  hourly_energy?: { hour: string; score: number; label?: string }[]
-  wuxing_today?: { element: string; emoji: string; interaction: string }
-  daily_summary?: string
 }
 
 export async function getDailyFortune(lang: string = "zh"): Promise<DailyFortuneResponse> {
   const res = await api.get<DailyFortuneResponse>("/api/readings/daily-fortune", { params: { lang } })
-  return safeParseDailyFortune(res.data) as DailyFortuneResponse
-}
-
-export async function getPersonalizedFortune(
-  birthProfile: { birth_year: number; birth_month: number; birth_day: number; birth_hour: number }
-): Promise<DailyFortuneResponse> {
-  const params = new URLSearchParams({
-    birth_year: String(birthProfile.birth_year),
-    birth_month: String(birthProfile.birth_month),
-    birth_day: String(birthProfile.birth_day),
-    birth_hour: String(birthProfile.birth_hour),
-  })
-  const res = await api.get<DailyFortuneResponse>(`/api/readings/daily-fortune?${params}`)
-  return safeParseDailyFortune(res.data) as DailyFortuneResponse
+  return res.data
 }
 
 // ── Blog / Knowledge Base (P2-2) ──────────────────────────────────────────
@@ -1113,61 +1067,6 @@ export async function refundStardust(
   const res = await api.post("/api/credits/refund", safeJson({
     transaction_id: transactionId,
     reason,
-  }), {
-    headers: { "Content-Type": "application/json" },
-  })
-  return res.data
-}
-
-// ── 充值系统 (Billing) ──────────────────────────────────────────────────────
-
-export interface StardustPackage {
-  id: string
-  stardust: number
-  price: number
-  popular: boolean
-}
-
-export interface GeoConfig {
-  region: "CN" | "GLOBAL"
-  currency: "CNY" | "USD"
-  symbol: string
-  packages: StardustPackage[]
-  channels: string[]
-  aifadian_url?: string
-  crypto_rate?: Record<string, number>
-  wallet_addresses?: Record<string, string>
-}
-
-export async function getGeoConfig(regionOverride?: "CN" | "GLOBAL"): Promise<GeoConfig> {
-  const params = regionOverride ? { region_override: regionOverride } : {}
-  const res = await api.get<GeoConfig>("/api/billing/geo-config", { params })
-  return res.data
-}
-
-export async function redeemCode(
-  code: string,
-): Promise<{ success: boolean; stardust_granted: number; balance_after: number; message: string }> {
-  const res = await api.post("/api/billing/redeem", safeJson({ code }), {
-    headers: { "Content-Type": "application/json" },
-  })
-  return res.data
-}
-
-export async function verifyTx(
-  txId: string,
-  network: string,
-): Promise<{
-  success: boolean
-  stardust_granted: number
-  amount_usdt: number
-  network: string
-  balance_after: number
-  message: string
-}> {
-  const res = await api.post("/api/billing/verify-tx", safeJson({
-    tx_id: txId,
-    network,
   }), {
     headers: { "Content-Type": "application/json" },
   })

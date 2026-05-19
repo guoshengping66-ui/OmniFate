@@ -160,7 +160,7 @@ export default function ReadingPage() {
     if (!id) return
     let cancelled = false
 
-    getSession(id).then(d => {
+    getSession(id, locale).then(d => {
       if (cancelled) return
       setData(d)
       setIsUnlocked(d.is_detail_unlocked)
@@ -206,7 +206,7 @@ export default function ReadingPage() {
           const pollInterval = setInterval(async () => {
             if (cancelled) { clearInterval(pollInterval); return }
             try {
-              const fresh = await getSession(id)
+              const fresh = await getSession(id, locale)
               if (fresh.status === "done" || fresh.status === "chat") {
                 setData(fresh)
                 setIsUnlocked(fresh.is_detail_unlocked)
@@ -227,7 +227,7 @@ export default function ReadingPage() {
     })
 
     return () => { cancelled = true }
-  }, [id])
+  }, [id, locale])
 
   // Trigger hero animation
   useEffect(() => {

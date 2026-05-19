@@ -176,57 +176,6 @@ def _state_to_response(state: SystemState) -> AnalysisResponse:
     )
 
 
-_WORKER_REPORT_KEYS = [
-    "astrology", "tarot", "bazi", "qimen", "ziwei", "face", "palm",
-]
-
-
-def _apply_content_lock(
-    resp: AnalysisResponse,
-    current_user: Optional[User],
-    reading: Optional[Reading] = None,
-) -> AnalysisResponse:
-    """
-    SECURITY: Strip or truncate paid content for users who haven't unlocked it.
-    - master_detail: set to "" if not unlocked
-    - worker reports: truncate to first 200 chars if not unlocked
-    """
-    is_unlocked = False
-
-    if reading:
-        # Case 1: Reading owner who has explicitly unlocked
-        if (
-            current_user
-            and reading.user_id
-            and str(reading.user_id) == str(current_user.id)
-            and reading.is_detail_unlocked
-        ):
-            is_unlocked = True
-        # Case 2: Active premium user (all readings unlocked)
-        elif (
-            current_user
-            and current_user.is_premium
-            and current_user.premium_expires_at
-            and current_user.premium_expires_at > datetime.now(timezone.utc)
-        ):
-            is_unlocked = True
-    else:
-        # No DB reading record — check in-memory state flags
-        if getattr(resp, "is_detail_unlocked", False):
-            is_unlocked = True
-
-    if not is_unlocked:
-        resp.master_detail = ""
-        resp.is_detail_unlocked = False
-        # Truncate worker report text so the full content is never exposed
-        for key in _WORKER_REPORT_KEYS:
-            wo = getattr(resp, key, None)
-            if wo and wo.report and len(wo.report) > 200:
-                wo.report = wo.report[:200] + "..."
-
-    return resp
-
-
 # ─── Endpoints ───────────────────────────────────────────────────────────
 
 @router.post("", response_model=AnalysisResponse)
@@ -277,7 +226,7 @@ async def create_analysis(
     # Persist session to DATABASE (with timeout to avoid blocking)
     try:
         await asyncio.wait_for(
-            _persist_session(state.session_id, user_id),
+            _persist_session(state.session_id, user_id, language=state.language),
             timeout=5,
         )
     except (asyncio.TimeoutError, Exception) as e:
@@ -298,7 +247,7 @@ async def create_analysis(
     return _state_to_response(state)
 
 
-async def _persist_session(session_id: str, user_id: Optional[str] = None):
+async def _persist_session(session_id: str, user_id: Optional[str] = None, language: str = "zh"):
     """Persist a reading session to the database, auto-linking birth_profile_id."""
     from database.session import _db_available
     from database.models import BirthProfile
@@ -335,6 +284,7 @@ async def _persist_session(session_id: str, user_id: Optional[str] = None):
             status=ReadingStatus.pending,
             master_summary="",
             is_detail_unlocked=False,
+            language=language,
         )
         db.add(reading)
         await db.commit()
@@ -469,10 +419,13 @@ async def _run_analysis_inline(state: SystemState) -> SystemState:
 async def get_session(
     session_id: str,
     current_user: Optional[User] = Depends(get_current_user),
+    lang: Optional[str] = Query(None, pattern="^(zh|en)$"),
 ):
     """
     Retrieve session by ID. Checks in-memory first, then DATABASE.
     Auth required — users can only access their own sessions.
+    Optional lang parameter: if provided and differs from stored language,
+    translates report content on-the-fly.
     """
     # Fast path: in-memory cache
     state = _sessions.get(session_id)
@@ -482,21 +435,19 @@ async def get_session(
             raise HTTPException(status_code=403, detail="无权访问此报告")
         resp = _state_to_response(state)
         # Merge DB fields: is_detail_unlocked, master_detail
-        db_reading = None
         try:
             async with AsyncSessionLocal() as db:
                 result = await db.execute(
                     select(Reading).where(Reading.id == session_id)
                 )
-                db_reading = result.scalar_one_or_none()
-                if db_reading:
-                    resp.is_detail_unlocked = db_reading.is_detail_unlocked
-                    if db_reading.master_detail:
-                        resp.master_detail = db_reading.master_detail
+                reading = result.scalar_one_or_none()
+                if reading:
+                    resp.is_detail_unlocked = reading.is_detail_unlocked
+                    if reading.master_detail:
+                        resp.master_detail = reading.master_detail
         except Exception:
             pass
-        # SECURITY: Strip paid content for non-unlocked users
-        return _apply_content_lock(resp, current_user, db_reading)
+        return resp
 
     # Slow path: read from DATABASE
     try:
@@ -550,8 +501,35 @@ async def get_session(
                 dimension_scores=reading.dimension_scores or {},
                 errors=[reading.error_message] if reading.error_message else [],
             )
-            # SECURITY: Strip paid content for non-unlocked users
-            return _apply_content_lock(resp, current_user, reading)
+
+            # On-the-fly translation if language mismatch
+            stored_lang = getattr(reading, 'language', None) or "zh"
+            if lang and lang != stored_lang:
+                target = "English" if lang == "en" else "Chinese"
+                # Translate master_summary and worker reports in parallel
+                import asyncio
+                translations = await asyncio.gather(
+                    _translate_text(resp.master_summary, target),
+                    _translate_text(resp.master_detail, target),
+                    _translate_text(resp.astrology.report, target),
+                    _translate_text(resp.tarot.report, target),
+                    _translate_text(resp.bazi.report, target),
+                    _translate_text(resp.qimen.report, target),
+                    _translate_text(resp.ziwei.report, target),
+                    _translate_text(resp.face.report, target),
+                    _translate_text(resp.palm.report, target),
+                )
+                resp.master_summary = translations[0]
+                resp.master_detail = translations[1]
+                resp.astrology = WorkerReportOut(agent_id="astrology", report=translations[2], tags=resp.astrology.tags, error=resp.astrology.error, duration_ms=resp.astrology.duration_ms)
+                resp.tarot = WorkerReportOut(agent_id="tarot", report=translations[3], tags=resp.tarot.tags, error=resp.tarot.error, duration_ms=resp.tarot.duration_ms)
+                resp.bazi = WorkerReportOut(agent_id="bazi", report=translations[4], tags=resp.bazi.tags, error=resp.bazi.error, duration_ms=resp.bazi.duration_ms)
+                resp.qimen = WorkerReportOut(agent_id="qimen", report=translations[5], tags=resp.qimen.tags, error=resp.qimen.error, duration_ms=resp.qimen.duration_ms)
+                resp.ziwei = WorkerReportOut(agent_id="ziwei", report=translations[6], tags=resp.ziwei.tags, error=resp.ziwei.error, duration_ms=resp.ziwei.duration_ms)
+                resp.face = WorkerReportOut(agent_id="face", report=translations[7], tags=resp.face.tags, error=resp.face.error, duration_ms=resp.face.duration_ms)
+                resp.palm = WorkerReportOut(agent_id="palm", report=translations[8], tags=resp.palm.tags, error=resp.palm.error, duration_ms=resp.palm.duration_ms)
+
+            return resp
     except HTTPException:
         raise
     except Exception as e:
@@ -570,6 +548,62 @@ def _worker_from_report(agent_id: str, report: Optional[str]) -> WorkerReportOut
         error=None,
         duration_ms=None,
     )
+
+
+# ─── On-the-fly Translation (for language mismatch) ────────────────────────
+
+_translate_cache: dict[str, str] = {}  # key = f"{text_hash}:{target_lang}" -> translated text
+
+async def _translate_text(text: str, target_lang: str) -> str:
+    """Translate a text block using a fast LLM. Caches results."""
+    if not text or len(text.strip()) < 10:
+        return text
+
+    # Check cache (use first 200 chars as key to avoid huge keys)
+    cache_key = f"{hash(text[:200])}:{target_lang}"
+    if cache_key in _translate_cache:
+        return _translate_cache[cache_key]
+
+    from agents.master import _use_mock
+    if _use_mock():
+        return text  # No translation in mock mode
+
+    try:
+        from langchain_openai import ChatOpenAI
+        from langchain_core.messages import SystemMessage, HumanMessage
+
+        _fast_llm = ChatOpenAI(
+            model=settings.MASTER_FAST_MODEL,
+            api_key=settings.OPENAI_API_KEY,
+            base_url=settings.OPENAI_BASE_URL or None,
+            temperature=0.3,
+            max_tokens=2000,
+        )
+
+        system = (
+            f"Translate the following Chinese metaphysics analysis report to {target_lang.upper()}. "
+            "Keep cultural terms like BaZi, Wu Xing, Ten Gods in parentheses. "
+            "Maintain the same structure, formatting, and sections. "
+            "Do NOT add any commentary — output ONLY the translated text."
+        )
+
+        resp = await _fast_llm.ainvoke([
+            SystemMessage(content=system),
+            HumanMessage(content=text),
+        ])
+        result = resp.content.strip()
+        if result:
+            _translate_cache[cache_key] = result
+            # Evict if too large
+            if len(_translate_cache) > 200:
+                oldest = list(_translate_cache.keys())[:50]
+                for k in oldest:
+                    _translate_cache.pop(k, None)
+            return result
+    except Exception as e:
+        print(f"[WARN] Translation failed: {e}")
+
+    return text  # Fallback to original
 
 
 # ─── SSE Streaming Endpoint ──────────────────────────────────────────────
@@ -653,36 +687,9 @@ async def stream_session(
                     yield f"data: {json.dumps({'type': 'subtask_done', 'subtask': st_name, 'length': len(val)})}\n\n"
                     streamed_subtasks.add(st_name)
 
-        # Final complete event — SECURITY: only include master_detail if unlocked
-        _detail_for_sse = ""
-        if getattr(state, "master_detail", ""):
-            _is_unlocked_sse = False
-            try:
-                async with AsyncSessionLocal() as db:
-                    _r = (await db.execute(
-                        select(Reading).where(Reading.id == session_id)
-                    )).scalar_one_or_none()
-                    if _r:
-                        if (
-                            current_user
-                            and _r.user_id
-                            and str(_r.user_id) == str(current_user.id)
-                            and _r.is_detail_unlocked
-                        ):
-                            _is_unlocked_sse = True
-                        elif (
-                            current_user
-                            and current_user.is_premium
-                            and current_user.premium_expires_at
-                            and current_user.premium_expires_at > datetime.now(timezone.utc)
-                        ):
-                            _is_unlocked_sse = True
-            except Exception:
-                pass
-            if _is_unlocked_sse:
-                _detail_for_sse = state.master_detail
+        # Final complete event
         yield f"data: {json.dumps({'type': 'progress', 'pct': 100, 'message': '分析完成'})}\n\n"
-        yield f"data: {json.dumps({'type': 'complete', 'master_summary': state.master_summary[:500], 'master_detail': _detail_for_sse})}\n\n"
+        yield f"data: {json.dumps({'type': 'complete', 'master_summary': state.master_summary[:500], 'master_detail': state.master_detail})}\n\n"
 
     return StreamingResponse(
         event_generator(),
@@ -1688,6 +1695,11 @@ async def get_daily_fortune(
     )
 
 
+# ─── Daily Almanac Cache ─────────────────────────────────────────────────────
+_almanac_cache: dict[str, dict] = {}  # key = f"{session_id}:{date}" -> cached response dict
+_ALMANAC_CACHE_TTL = 3600 * 12  # 12 hours
+
+
 # ─── Daily Almanac Endpoint ────────────────────────────────────────────────────
 
 
@@ -1695,15 +1707,12 @@ async def get_daily_fortune(
 async def get_daily_almanac(
     session_id: str = Query(...),
     lang: str = Query("zh", pattern="^(zh|en)$"),
-    fast: bool = Query(True, description="Skip LLM, use rule-based generation for speed"),
 ):
     """
     Get personalized daily almanac (yi/ji/hu) based on user's birth chart vs today's transits.
 
     Real-time computation, no storage.
     Supports lang=zh|en for localized output.
-    fast=True (default): rule-based generation, instant response.
-    fast=False: LLM-enhanced generation, slower but more personalized.
     """
     state = _sessions.get(session_id)
 
@@ -1813,7 +1822,7 @@ async def get_daily_almanac(
         state.bazi_raw.get("wuxing_scores") if state.bazi_raw else None,
     )
 
-    # 5. Generate yi/ji/hu via rule-based (fast) or LLM (detailed)
+    # 5. Generate yi/ji/hu via LLM or rule-based
     almanac_data = await _generate_almanac(
         state=state,
         today=today,
@@ -1821,7 +1830,6 @@ async def get_daily_almanac(
         transit_astro=transit,
         energy_score=energy_score,
         lang=lang,
-        fast=fast,
     )
 
     # 6. Match products for 'hu' (护) — use template explanations (fast, no LLM)
@@ -1871,110 +1879,6 @@ async def get_daily_almanac(
     return result
 
 
-@router.get("/daily-almanac/personalized", response_model=DailyAlmanacResponse)
-async def get_personalized_daily_almanac(
-    birth_year: int = Query(..., ge=1920, le=2030),
-    birth_month: int = Query(..., ge=1, le=12),
-    birth_day: int = Query(..., ge=1, le=31),
-    birth_hour: int = Query(0, ge=0, le=23),
-    birth_minute: int = Query(0, ge=0, le=59),
-    gender: str = Query("female"),
-    birth_city: str = Query(""),
-    latitude: float = Query(0.0),
-    longitude: float = Query(0.0),
-    lang: str = Query("zh", pattern="^(zh|en)$"),
-    fast: bool = Query(True),
-):
-    """
-    Get personalized daily almanac using birth info directly (no session_id needed).
-    Used by DailyDashboard for logged-in users with birth profiles but no readings.
-    """
-    from agents.state import SystemState, BirthInfo
-
-    bi = BirthInfo(
-        year=birth_year, month=birth_month, day=birth_day,
-        hour=birth_hour, minute=birth_minute,
-        city=birth_city, latitude=latitude, longitude=longitude,
-        gender=gender,
-    )
-
-    # Build a minimal SystemState
-    state = SystemState(
-        session_id=f"personalized:{birth_year}{birth_month}{birth_day}",
-        birth_info=bi,
-        dimension_scores={},
-        computed_tags=[],
-        master_summary="",
-        bazi_raw={},
-        astrology_raw={},
-    )
-
-    today = date.today()
-
-    # Compute natal chart
-    natal_planets = {}
-    transit = {"transit_planets": {}, "transit_natal_aspects": []}
-    from calculators.astrology_calculator import AstrologyCalculator
-    astro_calc = AstrologyCalculator()
-    try:
-        natal_chart = astro_calc.calculate(
-            year=bi.year, month=bi.month, day=bi.day,
-            hour=bi.hour, minute=bi.minute,
-            latitude=bi.latitude or 0.0,
-            longitude=bi.longitude or 0.0,
-        )
-        natal_planets = natal_chart.planets
-    except Exception:
-        pass
-
-    try:
-        today_dt = datetime(today.year, today.month, today.day, 12, 0, tzinfo=timezone.utc)
-        transit = astro_calc.calculate_transit_for_date(today_dt, natal_planets)
-    except Exception:
-        pass
-
-    # Compute bazi + lunar
-    from calculators.bazi_calculator import BaziCalculator
-    today_bazi = None
-    lunar_date_str = ""
-    bazi_day_pillar_str = ""
-    try:
-        today_bazi = BaziCalculator.calculate_transit_pillars(today.year, today.month, today.day)
-        if today_bazi:
-            dp = today_bazi.get("day_pillar", {})
-            bazi_day_pillar_str = dp.get("ganzhi", "")
-    except Exception:
-        pass
-    try:
-        from lunar_python import Solar
-        today_lunar = Solar.fromYmd(today.year, today.month, today.day).getLunar()
-        lunar_date_str = today_lunar.toFullString()
-    except Exception:
-        pass
-
-    # Energy score (empty for personalized — no reading data)
-    energy_score = 50
-
-    almanac_data = await _generate_almanac(
-        state=state, today=today, transit_bazi=today_bazi,
-        transit_astro=transit, energy_score=energy_score,
-        lang=lang, fast=fast,
-    )
-
-    result = DailyAlmanacResponse(
-        date=today.isoformat(),
-        lunar_date=lunar_date_str,
-        bazi_day_pillar=bazi_day_pillar_str,
-        energy_score=energy_score,
-        yi=almanac_data.get("yi", []),
-        ji=almanac_data.get("ji", []),
-        hu=[],
-        daily_quote=almanac_data.get("daily_quote", "顺势而为，方得始终。"),
-        wuxing_analysis=almanac_data.get("wuxing_analysis", ""),
-    )
-    return result
-
-
 async def _generate_almanac(
     state: SystemState,
     today: date,
@@ -1982,16 +1886,13 @@ async def _generate_almanac(
     transit_astro: dict | None,
     energy_score: int,
     lang: str = "zh",
-    fast: bool = True,
 ) -> dict:
     """
     Generate yi/ji/hu recommendations using LLM when available, fallback to rule-based.
-    fast=True: use rule-based generation instantly (no LLM call).
-    fast=False: use LLM for more personalized output (slower).
     lang: "zh" or "en" — controls output language.
     """
     from agents.master import _llm, _use_mock
-    if _use_mock() or fast:
+    if _use_mock():
         data = _rule_based_almanac(state, today, transit_bazi, transit_astro, energy_score)
         if lang == "en":
             data = _translate_almanac_to_en(data)
@@ -2125,7 +2026,6 @@ _YI_EN: dict[str, str] = {
     "宜热情行动": "Good for enthusiastic action",
     "宜冷静思考": "Good for calm reflection",
     "宜决断": "Good for decisive action",
-    "宜学习成长": "Good for learning and growth",
     "宜稳健积累": "Good for steady accumulation",
     "诸事皆宜": "All actions auspicious",
     "安床": "Settling & grounding",
