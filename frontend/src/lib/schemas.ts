@@ -154,14 +154,24 @@ export type SafePersonalizedFortune = z.infer<typeof PersonalizedFortuneSchema>
  * 安全解析 AI 分析响应 — 失败时返回带默认值的完整对象，永不抛异常
  */
 export function safeParseAnalysis(data: unknown): SafeAnalysisResponse {
-  return AnalysisResponseSchema.parse(data)
+  try {
+    return AnalysisResponseSchema.parse(data)
+  } catch (e) {
+    console.warn("[Zod] safeParseAnalysis fallback:", e)
+    return AnalysisResponseSchema.parse({})
+  }
 }
 
 /**
  * 安全解析每日运势 — 失败时返回带默认值的完整对象
  */
 export function safeParseDailyFortune(data: unknown): SafeDailyFortune {
-  return DailyFortuneResponseSchema.parse(data)
+  try {
+    return DailyFortuneResponseSchema.parse(data)
+  } catch (e) {
+    console.warn("[Zod] safeParseDailyFortune fallback:", e)
+    return DailyFortuneResponseSchema.parse({})
+  }
 }
 
 /**
@@ -170,7 +180,12 @@ export function safeParseDailyFortune(data: unknown): SafeDailyFortune {
 export function safeParsePersonalizedFortune(
   data: unknown
 ): SafePersonalizedFortune {
-  return PersonalizedFortuneSchema.parse(data)
+  try {
+    return PersonalizedFortuneSchema.parse(data)
+  } catch (e) {
+    console.warn("[Zod] safeParsePersonalizedFortune fallback:", e)
+    return PersonalizedFortuneSchema.parse({})
+  }
 }
 
 /**
@@ -179,5 +194,10 @@ export function safeParsePersonalizedFortune(
 export function safeParseDimensionScores(
   data: unknown
 ): Record<string, number> {
-  return DimensionScoresSchema.parse(data)
+  try {
+    return DimensionScoresSchema.parse(data)
+  } catch (e) {
+    console.warn("[Zod] safeParseDimensionScores fallback:", e)
+    return DimensionScoresSchema.parse({})
+  }
 }

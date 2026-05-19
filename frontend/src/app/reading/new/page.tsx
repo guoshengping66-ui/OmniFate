@@ -340,7 +340,10 @@ export default function NewReadingPage() {
         intent: currentIntent || undefined,
       }
 
-      const result = await runAnalysisStream(payload, () => {})
+      const result = await runAnalysisStream(payload, (event) => {
+        // Progress events will be handled when user navigates to reading page
+        console.debug("[Analysis]", event.type)
+      })
 
       // Save to reading history for anonymous users
       addReadingToHistory(result.session_id, values.user_question || undefined)

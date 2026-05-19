@@ -3,9 +3,7 @@ import "./globals.css"
 import { Navbar } from "@/components/ui/Navbar"
 import { Footer } from "@/components/ui/Footer"
 import { Toaster } from "react-hot-toast"
-import { StarField } from "@/components/ui/StarField"
-import { MagicCursor } from "@/components/ui/MagicCursor"
-import { NebulaBackground } from "@/components/ui/NebulaBackground"
+import AnimatedBackground from "@/components/ui/AnimatedBackground"
 import { AppProviders } from "@/components/ui/AppProviders"
 import { RouteProgress } from "@/components/ui/RouteProgress"
 import { ServiceWorkerRegistration } from "@/components/ui/ServiceWorkerRegistration"
@@ -38,9 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ServiceWorkerRegistration />
           <MonthlyGrantToast />
           <RouteProgress />
-          <NebulaBackground />
-          <StarField />
-          <MagicCursor />
+          <AnimatedBackground />
           <Navbar />
           <main className="relative z-10">{children}</main>
           <Footer />
