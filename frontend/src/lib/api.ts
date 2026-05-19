@@ -273,18 +273,28 @@ export interface SSEEvent {
 /**
  * Connect to the SSE stream for a session.
  * Calls `onEvent` for each progress event. Resolves when analysis is complete.
- * Falls back to polling if SSE is unavailable (e.g. Vercel proxy).
+ *
+ * IMPORTANT: In production, SSE connections bypass the Next.js proxy
+ * (which has a 30s timeout that kills long-running SSE streams).
+ * Instead, we connect directly to the backend — the backend's CORS
+ * middleware already allows the frontend origin.
+ * Falls back to polling if SSE is unavailable.
  */
 export function streamSession(
   sessionId: string,
   onEvent: (event: SSEEvent) => void,
 ): Promise<AnalysisResponse> {
   return new Promise((resolve, reject) => {
-    const baseUrl = isProduction ? "/api/proxy" : BACKEND_URL
-    const url = `${baseUrl}/api/readings/session/${sessionId}/stream`
+    // In production, bypass the Next.js proxy for SSE (proxy has a 30s
+    // timeout that kills long-running event streams).
+    // Connect directly to the backend — CORS is configured to allow
+    // the frontend origin.
+    const sseBaseUrl = isProduction ? "https://api.khanfate.com" : BACKEND_URL
+    const url = `${sseBaseUrl}/api/readings/session/${sessionId}/stream`
 
     const es = new EventSource(url)
     let completed = false
+    let settled = false // prevent double resolve/reject
 
     es.onmessage = (e) => {
       try {
@@ -292,6 +302,7 @@ export function streamSession(
         onEvent(data)
         if (data.type === "complete") {
           completed = true
+          settled = true
           es.close()
           resolve({
             session_id: sessionId,
@@ -313,6 +324,7 @@ export function streamSession(
           })
         }
         if (data.type === "error") {
+          settled = true
           es.close()
           reject(new Error(data.message || "Stream error"))
         }
@@ -321,8 +333,8 @@ export function streamSession(
 
     es.onerror = () => {
       es.close()
-      if (!completed) {
-        // SSE failed — caller should fall back to polling
+      if (!settled) {
+        settled = true
         reject(new Error("SSE unavailable"))
       }
     }
