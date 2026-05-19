@@ -297,9 +297,10 @@ async def run_full_analysis(state: SystemState) -> SystemState:
     _runners = [run_astrology, run_tarot, run_bazi, run_qimen, run_ziwei, run_face, run_palm]
 
     # Stagger face/palm worker start to avoid concurrent LLM API rate limits
+    # Reduced delays: DeepSeek API typically allows 20 RPM, 7 workers is fine
     _START_DELAYS = {
-        "face": 8,   # start face 8s after others
-        "palm": 15,  # start palm 15s after others
+        "face": 3,   # start face 3s after others (was 8s)
+        "palm": 6,   # start palm 6s after others (was 15s)
     }
 
     async def _run_one(runner, agent_id: str, timeout: int):
@@ -331,15 +332,12 @@ async def run_full_analysis(state: SystemState) -> SystemState:
         for r, aid, t in zip(_runners, _WORKER_IDS, _WORKER_TIMEOUTS)
     ]
 
-    # ── Speculative Master: start core when Bazi+Tarot complete ──
+    # ── Speculative Master: start core when Bazi completes (fastest worker) ──
     async def _speculative_core():
-        """Wait for Bazi+Tarot, then run preprocessing + core sub-task."""
+        """Wait for Bazi (typically fastest ~20-30s), then run preprocessing + core sub-task."""
         try:
             await asyncio.wait_for(
-                asyncio.gather(
-                    worker_events["bazi"].wait(),
-                    worker_events["tarot"].wait(),
-                ),
+                worker_events["bazi"].wait(),
                 timeout=120,
             )
         except asyncio.TimeoutError:

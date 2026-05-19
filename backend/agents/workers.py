@@ -82,25 +82,84 @@ _JSON_OUTPUT_INSTRUCTION_EN = (
 )
 
 
-def _get_json_instruction(language: str = "zh") -> str:
-    """Return the appropriate JSON output instruction based on language."""
-    return _JSON_OUTPUT_INSTRUCTION_EN if language == "en" else _JSON_OUTPUT_INSTRUCTION
+def _get_json_instruction(language: str = "zh", is_premium: bool = False) -> str:
+    """Return the appropriate JSON output instruction based on language and premium status."""
+    if is_premium:
+        return _JSON_OUTPUT_INSTRUCTION_EN if language == "en" else _JSON_OUTPUT_INSTRUCTION
+    # Free users: compact format (summary + 3 core dimensions + tags)
+    return _JSON_OUTPUT_INSTRUCTION_COMPACT_EN if language == "en" else _JSON_OUTPUT_INSTRUCTION_COMPACT
+
+
+# Compact JSON format for free users: reduces output tokens by ~40%
+_JSON_OUTPUT_INSTRUCTION_COMPACT = (
+    "\n\n== CRITICAL: OUTPUT FORMAT ==\n"
+    "你必须以严格的JSON格式输出分析结果，不要输出任何其他文本。\n"
+    "所有文字值必须使用纯中文，不要中英文混杂。\n"
+    "```json\n"
+    '{\n'
+    '  "summary": "150字核心结论，概括命格特质和关键发现",\n'
+    '  "dimensions": {\n'
+    '    "wealth": "60字财运分析",\n'
+    '    "relationship": "60字感情分析",\n'
+    '    "career": "60字事业分析"\n'
+    '  },\n'
+    '  "key_findings": ["发现1(含置信度)", "发现2", "发现3"],\n'
+    '  "weakness_tags": ["#缺火", "#官杀混杂"],\n'
+    '  "strength_tags": ["#领导力强"],\n'
+    '  "boost_elements": ["火", "水"],\n'
+    '  "conflict_warnings": ["矛盾信号1"]\n'
+    '}\n'
+    "```\n"
+    "规则：summary必填；dimensions只输出wealth/relationship/career三个核心维度；"
+    "key_findings 3-5条；boost_elements必须使用中文五行名称。\n"
+)
+
+_JSON_OUTPUT_INSTRUCTION_COMPACT_EN = (
+    "\n\n== CRITICAL: OUTPUT FORMAT ==\n"
+    "You MUST output the analysis in strict JSON format. Do NOT output any other text.\n"
+    "ALL text values MUST be in English. Do NOT mix Chinese and English.\n"
+    "```json\n"
+    '{\n'
+    '  "summary": "150-word core conclusion summarizing chart traits and key findings",\n'
+    '  "dimensions": {\n'
+    '    "wealth": "60-word wealth analysis",\n'
+    '    "relationship": "60-word love/relationship analysis",\n'
+    '    "career": "60-word career analysis"\n'
+    '  },\n'
+    '  "key_findings": ["finding 1 (with confidence)", "finding 2", "finding 3"],\n'
+    '  "weakness_tags": ["#weakness1", "#weakness2"],\n'
+    '  "strength_tags": ["#strength1"],\n'
+    '  "boost_elements": ["fire", "water"],\n'
+    '  "conflict_warnings": ["conflict signal 1"]\n'
+    '}\n'
+    "```\n"
+    "Rules: summary required; dimensions only wealth/relationship/career; "
+    "3-5 key_findings; ALL text values in English.\n"
+)
+
+
+# ─── LLM Connection Pool (reuse across calls) ────────────────────────────
+_llm_cache: dict[str, ChatOpenAI] = {}
 
 
 def _llm(temperature: float = 0.35, model: str | None = None):
     from langchain_openai import ChatOpenAI
-    kwargs = dict(
-        model=model or settings.OPENAI_MODEL,
-        api_key=settings.OPENAI_API_KEY,
-        temperature=temperature,
-        max_tokens=settings.WORKER_MAX_TOKENS,
-    )
-    if settings.OPENAI_BASE_URL:
-        kwargs["base_url"] = settings.OPENAI_BASE_URL
-    return ChatOpenAI(**kwargs)
+    model_key = model or settings.OPENAI_MODEL
+    cache_key = f"{model_key}:{temperature}"
+    if cache_key not in _llm_cache:
+        kwargs = dict(
+            model=model_key,
+            api_key=settings.OPENAI_API_KEY,
+            temperature=temperature,
+            max_tokens=settings.WORKER_MAX_TOKENS,
+        )
+        if settings.OPENAI_BASE_URL:
+            kwargs["base_url"] = settings.OPENAI_BASE_URL
+        _llm_cache[cache_key] = ChatOpenAI(**kwargs)
+    return _llm_cache[cache_key]
 
 
-async def _call(system: str, user: str, append_json_format: bool = True, model: str | None = None, language: str = "zh") -> str:
+async def _call(system: str, user: str, append_json_format: bool = True, model: str | None = None, language: str = "zh", is_premium: bool = False) -> str:
     """Single async LLM call. append_json_format adds JSON output instruction."""
     from langchain_core.messages import SystemMessage, HumanMessage
     llm = _llm(model=model)
@@ -121,7 +180,7 @@ async def _call(system: str, user: str, append_json_format: bool = True, model: 
             "不要中英文混杂。五行元素名称请使用中文（如：火、水、木、金、土）。"
         )
 
-    sys_content = system + lang_instruction + (_get_json_instruction(language) if append_json_format else "")
+    sys_content = system + lang_instruction + (_get_json_instruction(language, is_premium) if append_json_format else "")
     msgs = [SystemMessage(content=sys_content), HumanMessage(content=user)]
     resp = await llm.ainvoke(msgs)
     return resp.content
@@ -167,6 +226,34 @@ def _parse_worker_report(text: str) -> dict:
     }
 
 
+def _validate_worker_output(data: dict, agent_id: str) -> bool:
+    """
+    Validate parsed worker output quality. Returns True if output meets minimum standards.
+    Used to trigger automatic retry for low-quality outputs.
+    """
+    summary = data.get("summary", "")
+    dims = data.get("dimensions", {})
+    tags = data.get("weakness_tags", []) + data.get("strength_tags", [])
+
+    # Check 1: summary must exist and be substantial
+    if len(summary) < 50:
+        print(f"[VALIDATE] {agent_id}: summary too short ({len(summary)} chars)")
+        return False
+
+    # Check 2: at least 2 dimensions must have content
+    filled_dims = sum(1 for v in dims.values() if v and len(str(v)) > 10)
+    if filled_dims < 2:
+        print(f"[VALIDATE] {agent_id}: only {filled_dims} dimensions filled")
+        return False
+
+    # Check 3: at least 2 tags
+    if len(tags) < 2:
+        print(f"[VALIDATE] {agent_id}: only {len(tags)} tags")
+        return False
+
+    return True
+
+
 def _extract_json_tags(text: str) -> dict:
     m = re.search(r"```json\s*(\{.*\})\s*```", text, re.DOTALL)
     if m:
@@ -189,6 +276,27 @@ def _mock(agent_id: str, context: str) -> str:
 
 def _use_mock() -> bool:
     return not settings.OPENAI_API_KEY
+
+
+async def _call_and_parse(system: str, user_msg: str, agent_id: str, state: SystemState, model: str | None = None) -> dict:
+    """
+    Call LLM, parse JSON output, validate quality, retry once if low quality.
+    Returns parsed data dict.
+    """
+    report = _mock(agent_id, user_msg[:80]) if _use_mock() else await _call(
+        system, user_msg, language=state.language, is_premium=state.is_premium, model=model,
+    )
+    data = _parse_worker_report(report)
+
+    # Validate quality — retry once if output is poor
+    if not _use_mock() and not _validate_worker_output(data, agent_id):
+        print(f"[RETRY] {agent_id}: low quality output, retrying once...")
+        report = await _call(
+            system, user_msg, language=state.language, is_premium=state.is_premium, model=model,
+        )
+        data = _parse_worker_report(report)
+
+    return data
 
 
 def _build_compact_report(data: dict) -> str:
@@ -403,8 +511,7 @@ async def run_astrology(state: SystemState) -> WorkerOutput:
         )
         user_msg = "Please deliver a complete Western astrology analysis based on the chart data above."
 
-        report = _mock(agent_id, chart_summary) if _use_mock() else await _call(system, user_msg, language=state.language)
-        data = _parse_worker_report(report)
+        data = await _call_and_parse(system, user_msg, agent_id, state)
         return WorkerOutput(
             agent_id=agent_id,
             report=_build_compact_report(data),
@@ -443,8 +550,7 @@ async def run_tarot(state: SystemState) -> WorkerOutput:
         )
         user_msg = "Please deliver a complete Tarot reading based on the cards drawn above."
 
-        report = _mock(agent_id, str(cards)) if _use_mock() else await _call(system, user_msg, language=state.language)
-        data = _parse_worker_report(report)
+        data = await _call_and_parse(system, user_msg, agent_id, state)
         return WorkerOutput(
             agent_id=agent_id,
             report=_build_compact_report(data),
@@ -546,8 +652,7 @@ async def run_bazi(state: SystemState) -> WorkerOutput:
         )
         user_msg = "Please deliver a complete BaZi analysis based on the Four Pillars data above."
 
-        report = _mock(agent_id, str(pillars)) if _use_mock() else await _call(system, user_msg, language=state.language)
-        data = _parse_worker_report(report)
+        data = await _call_and_parse(system, user_msg, agent_id, state)
         return WorkerOutput(
             agent_id=agent_id,
             report=_build_compact_report(data),
@@ -607,8 +712,7 @@ async def run_qimen(state: SystemState) -> WorkerOutput:
         )
         user_msg = "Please deliver a complete Qimen Dunjia analysis based on the time plate data above."
 
-        report = _mock(agent_id, str(raw)) if _use_mock() else await _call(system, user_msg, language=state.language)
-        data = _parse_worker_report(report)
+        data = await _call_and_parse(system, user_msg, agent_id, state)
         return WorkerOutput(
             agent_id=agent_id,
             report=_build_compact_report(data),
@@ -668,8 +772,7 @@ async def run_ziwei(state: SystemState) -> WorkerOutput:
         user_msg = "Please deliver a complete Ziwei Doushu analysis based on the natal chart data above."
 
         ziwei_model = settings.ZIWEI_MODEL or None
-        report = _mock(agent_id, str(raw)) if _use_mock() else await _call(system, user_msg, model=ziwei_model, language=state.language)
-        data = _parse_worker_report(report)
+        data = await _call_and_parse(system, user_msg, agent_id, state, model=ziwei_model)
         return WorkerOutput(
             agent_id=agent_id,
             report=_build_compact_report(data),
@@ -723,7 +826,7 @@ async def run_face(state: SystemState) -> WorkerOutput:
             # Retry up to 3 times with delay to handle LLM empty responses / rate limits
             report = ""
             for attempt in range(3):
-                report = await _call(system, user_msg, language=state.language)
+                report = await _call(system, user_msg, language=state.language, is_premium=state.is_premium)
                 if report.strip():
                     break
                 if attempt < 2:
@@ -731,6 +834,12 @@ async def run_face(state: SystemState) -> WorkerOutput:
                     await asyncio.sleep(3)
 
         data = _parse_worker_report(report)
+        # Validate and retry once more if quality is low
+        if not _use_mock() and not _validate_worker_output(data, agent_id):
+            print(f"[RETRY] {agent_id}: low quality output, retrying once...")
+            report = await _call(system, user_msg, language=state.language, is_premium=state.is_premium)
+            data = _parse_worker_report(report)
+
         return WorkerOutput(
             agent_id=agent_id,
             report=_build_compact_report(data),
@@ -779,7 +888,7 @@ async def run_palm(state: SystemState) -> WorkerOutput:
             # Retry up to 3 times with delay to handle LLM empty responses / rate limits
             report = ""
             for attempt in range(3):
-                report = await _call(system, user_msg, language=state.language)
+                report = await _call(system, user_msg, language=state.language, is_premium=state.is_premium)
                 if report.strip():
                     break
                 if attempt < 2:
@@ -787,6 +896,12 @@ async def run_palm(state: SystemState) -> WorkerOutput:
                     await asyncio.sleep(3)
 
         data = _parse_worker_report(report)
+        # Validate and retry once more if quality is low
+        if not _use_mock() and not _validate_worker_output(data, agent_id):
+            print(f"[RETRY] {agent_id}: low quality output, retrying once...")
+            report = await _call(system, user_msg, language=state.language, is_premium=state.is_premium)
+            data = _parse_worker_report(report)
+
         return WorkerOutput(
             agent_id=agent_id,
             report=_build_compact_report(data),

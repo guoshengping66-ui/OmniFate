@@ -1237,13 +1237,10 @@ Stellium(星群): 三颗以上行星聚集在同一星座/宫位。
     if "relationship" in _topics:
         _astro_optional += f"{SYNASTRY_BASICS}\n{MOON_PHASE_KNOWLEDGE}\n"
     if not _topics:
-        # 无特定主题时加载全部（兼容旧调用方式）
+        # 无特定主题时：只加载核心知识库（节省 ~2000 tokens），跳过专业细分
         _astro_optional = (
-            f"{TRANSIT_KNOWLEDGE}\n{RETURN_KNOWLEDGE}\n{PROGRESSION_KNOWLEDGE}\n"
-            f"{MEDICAL_ASTRO_KNOWLEDGE}\n{ASTRO_HEALTH_SYSTEM}\n"
-            f"{CAREER_ASTRO_KNOWLEDGE}\n{SYNASTRY_BASICS}\n"
-            f"{MOON_PHASE_KNOWLEDGE}\n{ASTEROID_KNOWLEDGE}\n"
-            f"{ARABIC_PARTS_KNOWLEDGE}\n{DECANS_KNOWLEDGE}\n{ASTRO_FIXED_STARS}\n"
+            f"{TRANSIT_KNOWLEDGE}\n{RETURN_KNOWLEDGE}\n"
+            f"{ASTEROID_KNOWLEDGE}\n"
         )
     _astro_knowledge = _astro_core + _astro_optional
 

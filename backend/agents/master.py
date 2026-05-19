@@ -61,16 +61,23 @@ _SENTIMENT_KW = {
 
 # ─── LLM helpers ──────────────────────────────────────────────────────────
 
+_llm_cache: dict[str, ChatOpenAI] = {}
+
+
 def _llm(temperature: float = 0.3, model: str | None = None) -> ChatOpenAI:
-    kwargs = dict(
-        model=model or settings.OPENAI_MODEL,
-        api_key=settings.OPENAI_API_KEY,
-        temperature=temperature,
-        max_tokens=settings.AGENT_MAX_TOKENS,
-    )
-    if settings.OPENAI_BASE_URL:
-        kwargs["base_url"] = settings.OPENAI_BASE_URL
-    return ChatOpenAI(**kwargs)
+    model_key = model or settings.OPENAI_MODEL
+    cache_key = f"{model_key}:{temperature}"
+    if cache_key not in _llm_cache:
+        kwargs = dict(
+            model=model_key,
+            api_key=settings.OPENAI_API_KEY,
+            temperature=temperature,
+            max_tokens=settings.AGENT_MAX_TOKENS,
+        )
+        if settings.OPENAI_BASE_URL:
+            kwargs["base_url"] = settings.OPENAI_BASE_URL
+        _llm_cache[cache_key] = ChatOpenAI(**kwargs)
+    return _llm_cache[cache_key]
 
 
 def _use_mock() -> bool:
@@ -707,14 +714,18 @@ async def answer_with_expert(question: str, agent_id: str, state: SystemState) -
 # ─── Main: run_master ─────────────────────────────────────────────────────
 
 def _build_worker_summaries(state: SystemState, sum_lengths: dict[str, int] | None = None) -> dict[str, str]:
-    """Build trimmed worker summaries from state. Used by both preprocessing and sub-tasks."""
-    default_len = 300 if not state.is_premium else 500
+    """Build trimmed worker summaries from state. Used by both preprocessing and sub-tasks.
+    Free users: 200字 (Master Core only needs key signals).
+    Premium users: 500字 (full detail for dims + actions sub-tasks).
+    """
+    default_len = 200 if not state.is_premium else 500
     lengths = sum_lengths or {}
     summaries = {}
     for agent_id in ["astrology", "tarot", "bazi", "qimen", "ziwei", "face", "palm"]:
         report = getattr(state, f"{agent_id}_output").report or ""
         length = lengths.get(agent_id, default_len)
-        summaries[agent_id] = report[:length]
+        # For short reports, use full text (no truncation)
+        summaries[agent_id] = report[:length] if len(report) > length else report
     return summaries
 
 
