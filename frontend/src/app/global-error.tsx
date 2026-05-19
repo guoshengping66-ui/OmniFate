@@ -1,7 +1,15 @@
 "use client"
 
-import { useEffect } from "react"
-import { useLanguage } from "@/contexts/LanguageContext"
+import { useEffect, useMemo } from "react"
+
+// NOTE: global-error.tsx runs OUTSIDE the React Provider tree,
+// so we cannot use useLanguage() or any context hooks here.
+// We detect language from the browser and use inline translations.
+
+const TRANSLATIONS: Record<string, { title: string; desc: string; retry: string }> = {
+  zh: { title: "出了点问题", desc: "发生了意外错误，请尝试刷新页面。", retry: "重试" },
+  en: { title: "Something went wrong", desc: "An unexpected error occurred. Please try refreshing the page.", retry: "Try Again" },
+}
 
 export default function GlobalError({
   error,
@@ -10,14 +18,22 @@ export default function GlobalError({
   error: Error & { digest?: string }
   reset: () => void
 }) {
-  const { t } = useLanguage()
-
   useEffect(() => {
     console.error("[GlobalError-ROOT]", error)
   }, [error])
 
+  const lang = useMemo(() => {
+    try {
+      const stored = localStorage.getItem("destiny-lang")
+      if (stored === "en" || stored === "zh") return stored
+    } catch {}
+    return navigator.language.startsWith("zh") ? "zh" : "en"
+  }, [])
+
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.zh
+
   return (
-    <html lang="zh-CN">
+    <html lang={lang === "en" ? "en" : "zh-CN"}>
       <body style={{ background: "#0d0a1a", color: "#E8CB7A", fontFamily: "serif" }}>
         <div style={{
           minHeight: "100vh",
@@ -36,9 +52,9 @@ export default function GlobalError({
             textAlign: "center",
           }}>
             <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>⚠️</div>
-            <h2 style={{ fontSize: "1.25rem", marginBottom: "0.75rem" }}>{t("globalError.title")}</h2>
+            <h2 style={{ fontSize: "1.25rem", marginBottom: "0.75rem" }}>{t.title}</h2>
             <p style={{ opacity: 0.5, fontSize: "0.875rem", marginBottom: "1rem" }}>
-              {t("globalError.desc")}
+              {t.desc}
             </p>
             <div style={{
               background: "rgba(255,255,255,0.05)",
@@ -58,7 +74,6 @@ export default function GlobalError({
               }}>
                 {error.message}
                 {error.digest && `\n\nDigest: ${error.digest}`}
-                {error.stack && `\n\n${error.stack}`}
               </code>
             </div>
             <button
@@ -74,7 +89,7 @@ export default function GlobalError({
                 fontSize: "0.875rem",
               }}
             >
-              {t("globalError.retry")}
+              {t.retry}
             </button>
           </div>
         </div>
