@@ -3,11 +3,11 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
-  Loader2, ScrollText, Lock, Unlock, Clock,
-  ArrowRight, Plus,
+  Loader2, ScrollText, Sparkles, Lock, Unlock, Clock,
+  ArrowRight, Plus, AlertCircle, Star, Trash2,
 } from "lucide-react"
 import toast from "react-hot-toast"
-import { listMyReadings, ReadingListItem } from "@/lib/api"
+import { listMyReadings, deleteReading, ReadingListItem } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 
@@ -45,6 +45,19 @@ export default function ReadingsPage() {
     if (!scores || Object.keys(scores).length === 0) return ""
     const sorted = Object.entries(scores).sort((a, b) => a[1] - b[1])
     return DIM_LABELS[sorted[0]?.[0]] ?? ""
+  }
+
+  const handleDelete = async (e: React.MouseEvent, sessionId: string) => {
+    e.preventDefault() // prevent navigation
+    e.stopPropagation()
+    if (!confirm(t("readings.confirmDelete"))) return
+    try {
+      await deleteReading(sessionId)
+      setReadings(prev => prev.filter(r => r.id !== sessionId))
+      toast.success(t("readings.deleted"))
+    } catch {
+      toast.error(t("readings.deleteFail"))
+    }
   }
 
   const formatDate = (iso: string): string => {
@@ -108,110 +121,98 @@ export default function ReadingsPage() {
             </Link>
           </div>
         ) : (
-          <div>
-            {/* Stats summary */}
-            <div className="grid grid-cols-3 gap-4 mb-8">
-              <div className="card-glass p-4 text-center">
-                <p className="text-2xl font-bold text-gold">{readings.length}</p>
-                <p className="text-white/30 text-[10px] mt-1">{t("readings.totalReadings")}</p>
-              </div>
-              <div className="card-glass p-4 text-center">
-                <p className="text-2xl font-bold text-green-400">{readings.filter(r => r.is_detail_unlocked).length}</p>
-                <p className="text-white/30 text-[10px] mt-1">{t("readings.unlockedCount")}</p>
-              </div>
-              <div className="card-glass p-4 text-center">
-                <p className="text-2xl font-bold text-blue-400">
-                  {readings.length > 0 ? formatDate(readings[0].created_at) : "—"}
-                </p>
-                <p className="text-white/30 text-[10px] mt-1">{t("readings.lastReading")}</p>
-              </div>
-            </div>
-
-            {/* Timeline */}
-            <div className="relative">
-              <div className="absolute left-6 top-0 bottom-0 w-px bg-gradient-to-b from-gold/30 via-gold/15 to-transparent" />
-
-              <div className="space-y-4">
-                {readings.map((r, idx) => {
-                  const weakest = getWeakest(r.dimension_scores)
-                  return (
-                    <div key={r.id} className="relative pl-14">
-                      <div className={`absolute left-4 top-5 w-4 h-4 rounded-full border-2 z-10
-                        ${idx === 0 ? "bg-gold border-gold shadow-[0_0_8px_rgba(201,168,76,0.5)]" : "bg-ink border-gold/30"}`} />
-
-                      <Link
-                        href={`/reading/${r.id}`}
-                        className="block card-glow p-5 hover:border-gold/30 transition-all duration-300 group"
-                      >
-                        <div className="flex items-start gap-4">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h3 className="font-medium text-white text-sm truncate">
-                                {t("readings.reportTitle")}
-                              </h3>
-                              {r.is_detail_unlocked ? (
-                                <span className="flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 bg-green-500/10 border border-green-500/20 rounded-full text-green-400">
-                                  <Unlock size={8} /> {t("readings.unlocked")}
-                                </span>
-                              ) : (
-                                <span className="flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 bg-white/5 border border-white/10 rounded-full text-white/30">
-                                  <Lock size={8} /> {t("readings.freeVersion")}
-                                </span>
-                              )}
-                            </div>
-
-                            {r.master_summary && (
-                              <p className="text-white/40 text-xs leading-relaxed line-clamp-2 mb-2">
-                                {stripMarkdown(r.master_summary)}
-                              </p>
-                            )}
-
-                            {r.computed_tags.length > 0 && (
-                              <div className="flex flex-wrap gap-1 mb-2">
-                                {r.computed_tags.slice(0, 4).map(tag => (
-                                  <span key={tag} className="text-[10px] px-1.5 py-0.5 bg-white/[0.04] rounded-full text-white/40">
-                                    {tag}
-                                  </span>
-                                ))}
-                                {r.computed_tags.length > 4 && (
-                                  <span className="text-[10px] text-white/20">+{r.computed_tags.length - 4}</span>
-                                )}
-                              </div>
-                            )}
-
-                            {Object.keys(r.dimension_scores).length > 0 && (
-                              <div className="flex items-center gap-3 text-[10px] text-white/30">
-                                {Object.entries(DIM_LABELS).map(([key, label]) => {
-                                  const score = r.dimension_scores[key]
-                                  if (score == null) return null
-                                  return (
-                                    <span key={key} className="flex items-center gap-0.5">
-                                      {label} {score.toFixed(1)}
-                                    </span>
-                                  )
-                                })}
-                              </div>
-                            )}
-                          </div>
-
-                          <div className="flex-shrink-0 text-right">
-                            <div className="flex items-center gap-1 text-white/30 text-[11px]">
-                              <Clock size={10} />
-                              {formatDate(r.created_at)}
-                            </div>
-                            {weakest && (
-                              <p className="text-white/20 text-[10px] mt-1">
-                                {t("readings.weakest")}: {weakest}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      </Link>
+          <div className="space-y-4">
+            {readings.map((r) => {
+              const weakest = getWeakest(r.dimension_scores)
+              return (
+                <Link
+                  key={r.id}
+                  href={`/reading/${r.id}`}
+                  className="block card-glow p-5 hover:border-gold/30 transition-all duration-300 group"
+                >
+                  <div className="flex items-start gap-4">
+                    {/* Icon */}
+ <div className="w-12 h-12 rounded-xl bg-gold/10 border border-gold/20 flex-shrink-0 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                      🔮
                     </div>
-                  )
-                })}
-              </div>
-            </div>
+
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-medium text-white text-sm truncate">
+                          {t("readings.reportTitle")}
+                        </h3>
+                        {r.is_detail_unlocked ? (
+                          <span className="flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 bg-green-500/10 border border-green-500/20 rounded-full text-green-400">
+                            <Unlock size={8} /> {t("readings.unlocked")}
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 bg-white/5 border border-white/10 rounded-full text-white/30">
+                            <Lock size={8} /> {t("readings.freeVersion")}
+                          </span>
+                        )}
+                      </div>
+
+                      {r.master_summary && (
+                        <p className="text-white/40 text-xs leading-relaxed line-clamp-2 mb-2">
+                          {stripMarkdown(r.master_summary)}
+                        </p>
+                      )}
+
+                      {/* Tags */}
+                      {r.computed_tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mb-2">
+                          {r.computed_tags.slice(0, 4).map(tag => (
+                            <span key={tag} className="text-[10px] px-1.5 py-0.5 bg-white/[0.04] rounded-full text-white/40">
+                              {tag}
+                            </span>
+                          ))}
+                          {r.computed_tags.length > 4 && (
+                            <span className="text-[10px] text-white/20">+{r.computed_tags.length - 4}</span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Dimension mini scores */}
+                      {Object.keys(r.dimension_scores).length > 0 && (
+                        <div className="flex items-center gap-3 text-[10px] text-white/30">
+                          {Object.entries(DIM_LABELS).map(([key, label]) => {
+                            const score = r.dimension_scores[key]
+                            if (score == null) return null
+                            return (
+                              <span key={key} className="flex items-center gap-0.5">
+                                {label} {score.toFixed(1)}
+                              </span>
+                            )
+                          })}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Meta */}
+                    <div className="flex-shrink-0 text-right">
+                      <div className="flex items-center gap-1 text-white/30 text-[11px]">
+                        <Clock size={10} />
+                        {formatDate(r.created_at)}
+                      </div>
+                      {weakest && (
+                        <p className="text-white/20 text-[10px] mt-1">
+                          {t("readings.weakest")}: {weakest}
+                        </p>
+                      )}
+                      <button
+                        onClick={(e) => handleDelete(e, r.id)}
+                        className="mt-2 flex items-center gap-1 text-[10px] text-white/20 hover:text-red-400 transition-colors"
+                        title={t("readings.delete")}
+                      >
+                        <Trash2 size={10} />
+                        {t("readings.delete")}
+                      </button>
+                    </div>
+                  </div>
+                </Link>
+              )
+            })}
           </div>
         )}
       </div>
