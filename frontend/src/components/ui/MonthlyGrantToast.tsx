@@ -28,10 +28,10 @@ export function MonthlyGrantToast() {
           shownRef.current = true
           localStorage.setItem(STORAGE_KEY, today)
           toast.custom(
-            (t) => (
+            (toastState) => (
               <div
                 className={`${
-                  t.visible ? "animate-enter" : "animate-leave"
+                  toastState.visible ? "animate-enter" : "animate-leave"
                 } max-w-sm w-full bg-gradient-to-r from-[#1a1507] to-[#0d0b04]
                 border border-gold/20 rounded-xl p-4 shadow-lg shadow-gold/10`}
               >
