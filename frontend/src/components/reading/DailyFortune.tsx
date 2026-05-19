@@ -3,7 +3,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Sparkles, TrendingUp, TrendingDown, Minus, Heart, Briefcase, Wallet, Activity, AlertTriangle, Palette, Hash, ArrowRight, User } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { api } from "@/lib/api"
+import { api, getPersonalizedFortune } from "@/lib/api"
 
 interface FortuneData {
   overall: number
@@ -267,15 +267,8 @@ export function DailyFortune({ user }: DailyFortuneProps) {
     // Try to get personalized fortune from backend
     const birthProfile = user?.birth_profiles?.[0]
     if (birthProfile) {
-      const params = new URLSearchParams({
-        birth_year: String(birthProfile.birth_year),
-        birth_month: String(birthProfile.birth_month),
-        birth_day: String(birthProfile.birth_day),
-        birth_hour: String(birthProfile.birth_hour),
-      })
-      api.get<PersonalizedFortune & { overall_score: number }>(`/api/readings/daily-fortune?${params}`)
-        .then(res => {
-          const data = res.data
+      getPersonalizedFortune(birthProfile)
+        .then(data => {
           if (data && data.personalized) {
             setPersonalizedText(data)
             setFortune({

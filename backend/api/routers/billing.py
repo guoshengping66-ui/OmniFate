@@ -8,6 +8,7 @@ api/routers/billing.py — 全渠道动态定价与星尘充值引擎
 from __future__ import annotations
 
 import logging
+import time
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -25,6 +26,11 @@ from auth.dependencies import get_current_user, require_user
 from config import get_settings
 
 logger = logging.getLogger("billing")
+
+# ── USDT 链上交易时间窗口校验 ───────────────────────────────────────────────
+# 用户提交的交易哈希，链上 timestamp 必须在此时间窗口内
+# 48 小时：给用户充足时间提交，同时防止重放旧交易
+TX_MAX_AGE_SECONDS = 48 * 3600  # 48 hours
 
 router = APIRouter()            # /api/billing/*
 webhook_router = APIRouter()    # /api/webhooks/*
@@ -363,6 +369,23 @@ async def _verify_trc20_tx(tx_id: str) -> dict:
             detail="收款地址不匹配，请确认转账目标地址正确"
         )
 
+    # 校验交易时间戳 — 防止重放旧交易
+    raw_data = tx_data.get("raw_data", {})
+    tx_timestamp_ms = raw_data.get("timestamp")
+    if tx_timestamp_ms:
+        tx_time = tx_timestamp_ms / 1000  # milliseconds → seconds
+        now = time.time()
+        if now - tx_time > TX_MAX_AGE_SECONDS:
+            raise HTTPException(
+                status_code=400,
+                detail="此交易时间过久，请重新发起一笔转账（48小时内有效）"
+            )
+        if tx_time > now + 300:  # 允许 5 分钟时钟偏差
+            raise HTTPException(
+                status_code=400,
+                detail="交易时间异常，请检查链上状态后重试"
+            )
+
     if parsed["amount_usdt"] <= 0:
         raise HTTPException(status_code=400, detail="转账金额为 0")
 
@@ -441,6 +464,25 @@ async def _verify_arbitrum_tx(tx_id: str) -> dict:
             status_code=400,
             detail="未找到转入目标地址的 USDT 转账记录"
         )
+
+    # 校验交易时间戳 — 防止重放旧交易
+    tx_timestamp_hex = tx_data.get("timestamp")
+    if tx_timestamp_hex:
+        try:
+            tx_time = int(tx_timestamp_hex, 16)  # hex → int (seconds)
+            now = time.time()
+            if now - tx_time > TX_MAX_AGE_SECONDS:
+                raise HTTPException(
+                    status_code=400,
+                    detail="此交易时间过久，请重新发起一笔转账（48小时内有效）"
+                )
+            if tx_time > now + 300:  # 允许 5 分钟时钟偏差
+                raise HTTPException(
+                    status_code=400,
+                    detail="交易时间异常，请检查链上状态后重试"
+                )
+        except (ValueError, HTTPException):
+            raise  # re-raise HTTPException or let ValueError pass (no timestamp available)
 
     amount_usdt = best_amount / 1e6  # USDT 6 位精度
 

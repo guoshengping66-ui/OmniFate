@@ -1,6 +1,7 @@
 ﻿"""backend/main.py — FastAPI 应用入口"""
 import sys
 import os
+import json
 import traceback
 sys.path.insert(0, os.path.dirname(__file__))
 
@@ -71,13 +72,32 @@ async def global_exception_handler(request: Request, exc: Exception):
         content={"detail": "服务器内部错误，请稍后重试"},
     )
 
-# ── Simple in-memory rate limiter ───────────────────────────────────────────
+# ── Enhanced rate limiter with endpoint-specific limits ──────────────────────
 # NOTE: This works because the backend runs on a persistent server (api.khanfate.com).
 # If migrating to Vercel serverless, replace with Redis-based or Edge Middleware rate limiting.
 _rate_store: dict[str, list[float]] = defaultdict(list)
 RATE_LIMIT_WINDOW = 60  # seconds
 RATE_LIMIT_MAX = 60     # requests per window (global)
 _last_cleanup: float = 0.0
+
+# Endpoint-specific rate limits (requests per minute)
+ENDPOINT_LIMITS = {
+    "/api/readings": 5,           # 排盘分析 - 最贵的 API，严格限制
+    "/api/readings/chat": 10,     # 推命问答
+    "/api/divination": 10,        # 推命
+    "/api/auth/login": 5,         # 登录
+    "/api/auth/register": 3,      # 注册
+    "/api/auth/send-code": 2,     # 验证码
+    "/api/payments": 20,          # 支付
+    "/api/credits": 30,           # 星尘
+}
+
+# Cyberpunk-style rate limit error message
+RATE_LIMIT_MESSAGE = json.dumps({
+    "detail": "System Core Overheated. Please align your temporal node or upgrade to Premium Access.",
+    "error_code": "RATE_LIMIT_EXCEEDED",
+    "retry_after_seconds": 60,
+})
 
 
 @app.middleware("http")
@@ -100,6 +120,21 @@ async def rate_limit_middleware(request: Request, call_next):
 
         # Clean old entries for this client
         _rate_store[client_ip] = [t for t in _rate_store[client_ip] if t > window_start]
+
+        # Check endpoint-specific limits first
+        path = request.url.path
+        limit = ENDPOINT_LIMITS.get(path)
+        if limit:
+            # Count requests to this specific endpoint
+            endpoint_key = f"{client_ip}:{path}"
+            endpoint_times = [t for t in _rate_store.get(endpoint_key, []) if t > window_start]
+            if len(endpoint_times) >= limit:
+                return JSONResponse(
+                    status_code=429,
+                    content=json.loads(RATE_LIMIT_MESSAGE),
+                    headers={"Retry-After": "60"},
+                )
+            _rate_store[endpoint_key] = endpoint_times + [now]
         if len(_rate_store[client_ip]) >= RATE_LIMIT_MAX:
             return JSONResponse(
                 status_code=429,

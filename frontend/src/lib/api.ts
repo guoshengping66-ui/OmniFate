@@ -1,4 +1,9 @@
 import axios from "axios"
+import {
+  safeParseAnalysis,
+  safeParseDailyFortune,
+  safeParseDimensionScores,
+} from "./schemas"
 
 // ── Unicode Escape Helper ──────────────────────────────────────────────────
 // Some proxies (Clash/V2Ray) and old nginx versions mangle UTF-8 bytes in
@@ -238,10 +243,10 @@ export async function runAnalysis(data: AnalysisRequest): Promise<AnalysisRespon
     await new Promise(r => setTimeout(r, 3000))
     const poll = await api.get<AnalysisResponse>(`/api/readings/session/${sessionId}`, { timeout: 60_000 })
     if (poll.data.status === "done" || poll.data.status === "chat") {
-      return poll.data
+      return safeParseAnalysis(poll.data)
     }
     if (poll.data.errors && poll.data.errors.length > 0 && poll.data.master_summary) {
-      return poll.data
+      return safeParseAnalysis(poll.data)
     }
   }
   throw new Error("分析超时，请稍后在「我的命盘」中查看结果")
@@ -249,7 +254,7 @@ export async function runAnalysis(data: AnalysisRequest): Promise<AnalysisRespon
 
 export async function getSession(sessionId: string): Promise<AnalysisResponse> {
   const res = await api.get<AnalysisResponse>(`/api/readings/session/${sessionId}`)
-  return res.data
+  return safeParseAnalysis(res.data)
 }
 
 // ── SSE Streaming ──────────────────────────────────────────────────────────
@@ -293,7 +298,7 @@ export function streamSession(
         if (data.type === "complete") {
           completed = true
           es.close()
-          resolve({
+          resolve(safeParseAnalysis({
             session_id: sessionId,
             status: "done",
             master_summary: data.master_summary || "",
@@ -310,7 +315,7 @@ export function streamSession(
             computed_tags: [],
             dimension_scores: {},
             errors: [],
-          })
+          }))
         }
         if (data.type === "error") {
           es.close()
@@ -782,7 +787,11 @@ export interface ReadingListItem {
 
 export async function listMyReadings(): Promise<ReadingListItem[]> {
   const res = await api.get<ReadingListItem[]>("/api/readings/my")
-  return res.data
+  // Validate each item's dimension_scores to prevent crashes from malformed AI output
+  return res.data.map((item) => ({
+    ...item,
+    dimension_scores: safeParseDimensionScores(item.dimension_scores),
+  }))
 }
 
 export async function deleteReading(sessionId: string): Promise<void> {
@@ -1009,7 +1018,20 @@ export interface DailyFortuneResponse {
 
 export async function getDailyFortune(lang: string = "zh"): Promise<DailyFortuneResponse> {
   const res = await api.get<DailyFortuneResponse>("/api/readings/daily-fortune", { params: { lang } })
-  return res.data
+  return safeParseDailyFortune(res.data) as DailyFortuneResponse
+}
+
+export async function getPersonalizedFortune(
+  birthProfile: { birth_year: number; birth_month: number; birth_day: number; birth_hour: number }
+): Promise<DailyFortuneResponse> {
+  const params = new URLSearchParams({
+    birth_year: String(birthProfile.birth_year),
+    birth_month: String(birthProfile.birth_month),
+    birth_day: String(birthProfile.birth_day),
+    birth_hour: String(birthProfile.birth_hour),
+  })
+  const res = await api.get<DailyFortuneResponse>(`/api/readings/daily-fortune?${params}`)
+  return safeParseDailyFortune(res.data) as DailyFortuneResponse
 }
 
 // ── Blog / Knowledge Base (P2-2) ──────────────────────────────────────────
