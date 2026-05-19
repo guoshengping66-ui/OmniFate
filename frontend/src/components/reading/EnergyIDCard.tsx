@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useState, useMemo } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion"
 import { Share2, Copy, Check, ShieldCheck, Fingerprint, RotateCcw, QrCode } from "lucide-react"
 import toast from "react-hot-toast"
 import { useLanguage } from "@/contexts/LanguageContext"
@@ -158,6 +158,13 @@ function AnimatedRadar({ scores, animate, accentColor }: { scores: Record<string
           <stop offset="0%" stopColor={accentColor} stopOpacity="0.25" />
           <stop offset="100%" stopColor={accentColor} stopOpacity="0" />
         </radialGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="2" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
       </defs>
       {/* Glow behind radar */}
       <circle cx="50" cy="50" r="35" fill="url(#radarGlow)" />
@@ -230,7 +237,7 @@ function ParticleRing({ color }: { color: string }) {
 
 // ── Main Component ──────────────────────────────────────────────────────────
 
-export function EnergyIDCard({ sessionId, userId, dimensionScores, generatedAt }: EnergyIDCardProps) {
+export function EnergyIDCard({ sessionId, dimensionScores, generatedAt, ..._rest }: EnergyIDCardProps) {
   const { t, locale } = useLanguage()
   const [copied, setCopied] = useState(false)
   const [visible, setVisible] = useState(false)
