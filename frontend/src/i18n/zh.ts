@@ -1376,14 +1376,19 @@ export default {
   "dash.profile.zodiacYear": "年",
 
   // ─── 仪表盘：推演按钮 ───
-  "dash.intent.quick": "一键推命",
-  "dash.intent.quickDesc": "快捷抽卡问事",
-  "dash.intent.full": "完整推命",
-  "dash.intent.fullDesc": "塔罗 + 面相 + 手相",
-  "dash.intent.event": "格物致知",
-  "dash.intent.eventDesc": "特定事件 · AI 复盘",
-  "dash.intent.friend": "帮朋友测",
-  "dash.intent.friendDesc": "使用不同的出生信息",
+  "dash.intent.quick": "瞬时洞察",
+  "dash.intent.quickDesc": "随机决策锚点",
+  "dash.intent.quickEn": "INSTANT INSIGHT",
+  "dash.intent.full": "深度共振",
+  "dash.intent.fullDesc": "多模态AI分析，融合生物特征（面相+手相）与本命星盘的全维命相模拟",
+  "dash.intent.fullEn": "DEEP RESONANCE",
+  "dash.intent.event": "心流格物",
+  "dash.intent.eventDesc": "AI行为复盘，针对高风险决策与交易陷阱的逻辑推演",
+  "dash.intent.eventEn": "FLOW ANALYTICS",
+  "dash.intent.friend": "能量交织",
+  "dash.intent.friendDesc": "注入不同身份信息，分析人际能量共振",
+  "dash.intent.friendEn": "COLLECTIVE VIBE",
+  "dash.intent.activate": "启动",
 
   // ─── 仪表盘：最近分析 ───
   "dash.recent.title": "最近分析",

@@ -344,3 +344,11 @@ select.input-field option:checked {
   animation: shimmer 3s ease-in-out infinite;
 }
 
+/* Cyber-mysticism scan line for hero card */
+@keyframes scan-line {
+  0% { top: -5%; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { top: 105%; opacity: 0; }
+}
+
