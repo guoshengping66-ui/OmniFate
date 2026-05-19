@@ -342,32 +342,38 @@ export function streamSession(
 }
 
 /**
- * Run analysis with SSE streaming. Falls back to polling if SSE fails.
+ * Start analysis and return the session_id immediately.
+ *
+ * IMPORTANT: This does NOT wait for the analysis to complete.
+ * The reading page ([id]/page.tsx) handles progress display via SSE + polling.
+ * Previously this function blocked on polling fallback (up to 3 minutes),
+ * which prevented the progress bar from ever showing.
+ *
+ * @returns session_id — caller should navigate to /reading/{session_id}
  */
 export async function runAnalysisStream(
   data: AnalysisRequest,
-  onEvent: (event: SSEEvent) => void,
-): Promise<AnalysisResponse> {
-  // Step 1: POST to start analysis
-  let sessionId: string
-  try {
-    const body = safeJson(data)
-    const initRes = await apiDirect.post<AnalysisResponse>("/api/readings", body, {
-      timeout: 30_000,
-      headers: { "Content-Type": "application/json" },
+  onEvent?: (event: SSEEvent) => void,
+): Promise<{ session_id: string }> {
+  // POST to start analysis in background, return session_id immediately
+  const body = safeJson(data)
+  const initRes = await apiDirect.post<AnalysisResponse>("/api/readings", body, {
+    timeout: 30_000,
+    headers: { "Content-Type": "application/json" },
+  })
+
+  const sessionId = initRes.data.session_id
+
+  // Try to establish SSE stream in background (don't block).
+  // The reading page will also establish its own SSE connection.
+  // This early connection is a warm-up that may deliver initial progress events.
+  if (onEvent) {
+    streamSession(sessionId, onEvent).catch(() => {
+      // SSE unavailable from this context — reading page will handle it
     })
-    sessionId = initRes.data.session_id
-  } catch (err) {
-    throw err
   }
 
-  // Step 2: Try SSE streaming
-  try {
-    return await streamSession(sessionId, onEvent)
-  } catch {
-    // Step 3: Fallback to polling
-    return runAnalysis(data)
-  }
+  return { session_id: sessionId }
 }
 
 export async function sendChat(data: ChatRequest): Promise<ChatResponse> {

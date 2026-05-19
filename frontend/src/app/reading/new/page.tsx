@@ -341,7 +341,7 @@ export default function NewReadingPage() {
       }
 
       const result = await runAnalysisStream(payload, (event) => {
-        // Progress events will be handled when user navigates to reading page
+        // Progress events — reading page handles the main display
         console.debug("[Analysis]", event.type)
       })
 
