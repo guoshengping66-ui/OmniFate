@@ -176,6 +176,39 @@ def _state_to_response(state: SystemState) -> AnalysisResponse:
     )
 
 
+# ─── Content Lock ─────────────────────────────────────────────────────────
+
+_WORKER_REPORT_KEYS = ["astrology", "tarot", "bazi", "qimen", "ziwei", "face", "palm"]
+
+
+def _apply_content_lock(resp: AnalysisResponse, current_user: Optional[User], reading: Optional[Reading] = None) -> AnalysisResponse:
+    """
+    Strip paid content (master_detail + long worker reports) for users who
+    haven't unlocked the reading.  Called before every GET response.
+    """
+    is_unlocked = False
+    if reading:
+        # Case 1: user owns this reading AND has unlocked it
+        if current_user and reading.user_id and str(reading.user_id) == str(current_user.id) and reading.is_detail_unlocked:
+            is_unlocked = True
+        # Case 2: user has an active premium subscription
+        elif current_user and current_user.is_premium and current_user.premium_expires_at and current_user.premium_expires_at > datetime.now(timezone.utc):
+            is_unlocked = True
+    else:
+        # In-memory session — trust the response flag
+        if getattr(resp, "is_detail_unlocked", False):
+            is_unlocked = True
+
+    if not is_unlocked:
+        resp.master_detail = ""
+        resp.is_detail_unlocked = False
+        for key in _WORKER_REPORT_KEYS:
+            wo = getattr(resp, key, None)
+            if wo and wo.report and len(wo.report) > 200:
+                wo.report = wo.report[:200] + "..."
+    return resp
+
+
 # ─── Endpoints ───────────────────────────────────────────────────────────
 
 @router.post("", response_model=AnalysisResponse)
@@ -447,7 +480,7 @@ async def get_session(
                         resp.master_detail = reading.master_detail
         except Exception:
             pass
-        return resp
+        return _apply_content_lock(resp, current_user, reading)
 
     # Slow path: read from DATABASE
     try:
@@ -501,6 +534,9 @@ async def get_session(
                 dimension_scores=reading.dimension_scores or {},
                 errors=[reading.error_message] if reading.error_message else [],
             )
+
+            # Apply content lock BEFORE translation (so we don't waste API calls translating locked content)
+            _apply_content_lock(resp, current_user, reading)
 
             # On-the-fly translation if language mismatch
             stored_lang = getattr(reading, 'language', None) or "zh"
@@ -687,9 +723,11 @@ async def stream_session(
                     yield f"data: {json.dumps({'type': 'subtask_done', 'subtask': st_name, 'length': len(val)})}\n\n"
                     streamed_subtasks.add(st_name)
 
-        # Final complete event
+        # Final complete event — apply content lock to SSE payload
+        tmp_resp = _state_to_response(state)
+        _apply_content_lock(tmp_resp, current_user)
         yield f"data: {json.dumps({'type': 'progress', 'pct': 100, 'message': '分析完成'})}\n\n"
-        yield f"data: {json.dumps({'type': 'complete', 'master_summary': state.master_summary[:500], 'master_detail': state.master_detail})}\n\n"
+        yield f"data: {json.dumps({'type': 'complete', 'master_summary': tmp_resp.master_summary[:500], 'master_detail': tmp_resp.master_detail})}\n\n"
 
     return StreamingResponse(
         event_generator(),
