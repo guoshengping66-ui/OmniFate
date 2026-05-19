@@ -1,0 +1,29 @@
+# ══════════════════════════════════════════════════════════════════════════════
+#  命盘智镜 — 生产环境覆盖层
+# ══════════════════════════════════════════════════════════════════════════════
+#  用法: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# ══════════════════════════════════════════════════════════════════════════════
+
+services:
+  backend:
+    command: uvicorn backend.main:app --host 0.0.0.0 --port 8002 --workers 2
+    restart: unless-stopped
+    volumes: []  # 生产环境不挂载源码
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-destiny}
+      CHROMA_HOST: chromadb
+      CHROMA_PORT: 8001
+      DEBUG: "false"
+
+  frontend:
+    command: npm run start
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      BACKEND_URL: http://backend:8002
+
+  chromadb:
+    restart: unless-stopped
+
+  postgres:
+    restart: unless-stopped
