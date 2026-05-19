@@ -60,6 +60,7 @@ class Settings(BaseSettings):
     PAYPAL_MODE: str = "sandbox"  # sandbox 或 live
     PAYPAL_RETURN_URL: str = "https://yourdomain.com/payment/success"
     PAYPAL_CANCEL_URL: str = "https://yourdomain.com/payment/cancel"
+    PAYPAL_WEBHOOK_ID: str = ""  # PayPal webhook ID for signature verification
 
     S3_BUCKET: str = ""
     S3_REGION: str = "us-east-1"

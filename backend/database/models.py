@@ -400,6 +400,9 @@ class ProductReview(Base):
 class CreditTransaction(Base):
     """星尘流水记录 — 支持预扣/确认/回滚原子操作"""
     __tablename__ = "credit_transactions"
+    __table_args__ = (
+        UniqueConstraint('reason', 'reference_id', name='uq_credit_reason_ref'),
+    )
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id: Mapped[str] = mapped_column(

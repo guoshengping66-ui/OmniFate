@@ -27,7 +27,7 @@ from config import get_settings
 # Import activation functions from payments router
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
-from api.routers.payments import _activate_subscription, _activate_founder_seat
+from api.routers.payments import _activate_subscription, _activate_founder_seat, PRODUCT_PRICES
 
 router = APIRouter()
 settings = get_settings()
@@ -128,6 +128,16 @@ async def create_payment_order(
         raise HTTPException(status_code=400, detail="金额必须大于0")
     if payload.amount > 50000:
         raise HTTPException(status_code=400, detail="单笔金额不能超过5万元")
+
+    # Price validation against known product prices
+    valid_amounts = {
+        "report_unlock": PRODUCT_PRICES.get("report_unlock", {}).get("cny", 10),
+        "premium_monthly": PRODUCT_PRICES.get("premium_monthly", {}).get("cny", 59),
+        "premium_yearly": PRODUCT_PRICES.get("premium_yearly", {}).get("cny", 365),
+    }
+    # Only reject clearly invalid amounts (personal payments are flexible in amount)
+    if payload.amount > 50000 or payload.amount <= 0:
+        raise HTTPException(status_code=400, detail="金额必须在0-50000之间")
 
     # 2. 验证支付方式
     method = payload.currency.upper()

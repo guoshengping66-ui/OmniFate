@@ -537,12 +537,17 @@ async def verify_crypto_tx(
 
     amount_usdt = verified["amount_usdt"]
 
-    # 3. 计算星尘发放量
+    # 3. Minimum amount check — prevent micro-transaction abuse
+    MIN_USDT_AMOUNT = 0.5  # Minimum 0.5 USDT to prevent micro-transaction abuse
+    if amount_usdt < MIN_USDT_AMOUNT:
+        raise HTTPException(status_code=400, detail=f"最低充值金额为 {MIN_USDT_AMOUNT} USDT")
+
+    # 4. 计算星尘发放量
     grant_amount = int(amount_usdt * settings.USDT_GRANT_RATE)
     if grant_amount <= 0:
         raise HTTPException(status_code=400, detail="转账金额过小，不足以兑换星尘")
 
-    # 4. 创建 CryptoOrder (防重入)
+    # 5. 创建 CryptoOrder (防重入)
     crypto_order = CryptoOrder(
         tx_id=tx_id,
         user_id=current_user.id,
@@ -554,7 +559,7 @@ async def verify_crypto_tx(
     )
     db.add(crypto_order)
 
-    # 5. 原子发放星尘
+    # 6. 原子发放星尘
     user_result = await db.execute(
         select(User).where(User.id == current_user.id).with_for_update()
     )
@@ -563,7 +568,7 @@ async def verify_crypto_tx(
     user.stardust_balance += grant_amount
     user.stardust_lifetime_earned += grant_amount
 
-    # 6. 创建星尘流水
+    # 7. 创建星尘流水
     tx_record = CreditTransaction(
         user_id=user.id,
         amount=grant_amount,
@@ -596,21 +601,44 @@ async def verify_crypto_tx(
 
 def _verify_paypal_webhook_signature(body: bytes, headers: dict) -> bool:
     """
-    验证 PayPal Webhook 签名。
-    生产环境应使用 PayPal SDK 的 verify webhook signature API。
-    简化版: 检查 transmission_id + 时间戳新鲜度。
+    Verify PayPal webhook signature using PayPal's verify API.
+    Returns True only if PayPal confirms the signature is valid.
     """
-    # PayPal v2 webhook 通过 PayPal-Transmission-Sig 头验证
-    # 完整验证需要调用 PayPal /v1/notifications/verify-webhook-signature
-    # 这里做基本校验: transmission_id 存在 + 请求时间不超过 5 分钟
     transmission_id = headers.get("paypal-transmission-id", "")
-    timestamp = headers.get("paypal-transmission-time", "")
+    transmission_time = headers.get("paypal-transmission-time", "")
+    cert_url = headers.get("paypal-cert-url", "")
+    actual_sig = headers.get("paypal-transmission-sig", "")
+    auth_algo = headers.get("paypal-auth-algo", "")
 
-    if not transmission_id or not timestamp:
+    if not all([transmission_id, transmission_time, cert_url, actual_sig, auth_algo]):
         return False
 
-    # 可选: 调用 PayPal 验证 API (更安全)
-    return True
+    if not settings.PAYPAL_WEBHOOK_ID:
+        logger.error("[SECURITY] PAYPAL_WEBHOOK_ID is not configured — cannot verify webhook signatures")
+        return False
+
+    # Call PayPal's verify endpoint
+    try:
+        payload = {
+            "transmission_id": transmission_id,
+            "transmission_time": transmission_time,
+            "cert_url": cert_url,
+            "actual_sig": actual_sig,
+            "auth_algo": auth_algo,
+            "webhook_id": settings.PAYPAL_WEBHOOK_ID,
+            "request_body": body.decode("utf-8"),
+        }
+        base_url = "https://api-m.sandbox.paypal.com" if settings.PAYPAL_MODE == "sandbox" else "https://api-m.paypal.com"
+        resp = httpx.post(
+            f"{base_url}/v1/notifications/verify-webhook-signature",
+            json=payload,
+            auth=(settings.PAYPAL_CLIENT_ID, settings.PAYPAL_SECRET),
+            timeout=10,
+        )
+        return resp.status_code == 200 and resp.json().get("verification_status") == "SUCCESS"
+    except Exception as e:
+        logger.error(f"[SECURITY] PayPal webhook verification error: {e}")
+        return False
 
 
 @webhook_router.post("/paypal")
@@ -631,11 +659,11 @@ async def paypal_webhook(
         # 非目标事件, 返回 200 (PayPal 要求对未知事件返回 200)
         return {"status": "ignored", "event_type": event_type}
 
-    # 基本签名验证
+    # Signature verification — always verify, both sandbox and live
     headers_dict = dict(request.headers)
-    if settings.PAYPAL_MODE == "live" and not _verify_paypal_webhook_signature(body, headers_dict):
-        logger.warning("[PAYPAL-WEBHOOK] Signature verification failed")
-        raise HTTPException(status_code=403, detail="Webhook signature invalid")
+    if not _verify_paypal_webhook_signature(body, headers_dict):
+        logger.warning("[SECURITY] PayPal webhook signature verification failed")
+        raise HTTPException(status_code=403, detail="Webhook signature verification failed")
 
     # 解析事件
     resource = data.get("resource", {})
