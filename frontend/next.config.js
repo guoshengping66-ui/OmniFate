@@ -45,6 +45,13 @@ const nextConfig = {
         headers: securityHeaders,
       },
       {
+        // HTML pages — short cache to ensure fresh deploys
+        source: "/((?!_next/static|_next/image|favicon|api).*)",
+        headers: [
+          { key: "Cache-Control", value: "public, s-maxage=60, stale-while-revalidate=300" },
+        ],
+      },
+      {
         // Cache static assets for 1 year — Next.js already hashes filenames
         source: "/_next/static/(.*)",
         headers: [
