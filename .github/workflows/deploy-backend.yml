@@ -72,7 +72,7 @@ jobs:
 
             # 5. 启动新的 uvicorn (后台运行)
             echo "🚀 启动新服务..."
-            cd /opt/OmniFate/backend
+            cd /opt/OmniFate
             nohup python3.9 -m uvicorn backend.main:app \
               --host 127.0.0.1 --port 8002 \
               --log-level info > /var/log/uvicorn.log 2>&1 &
@@ -106,7 +106,7 @@ jobs:
               # 重启旧版本
               pkill -f "uvicorn backend.main:app" || true
               sleep 2
-              cd /opt/OmniFate/backend
+              cd /opt/OmniFate
               nohup python3.9 -m uvicorn backend.main:app \
                 --host 127.0.0.1 --port 8002 \
                 --log-level info > /var/log/uvicorn.log 2>&1 &
