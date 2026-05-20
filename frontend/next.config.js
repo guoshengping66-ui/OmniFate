@@ -1,7 +1,7 @@
 /** @type {import("next").NextConfig} */
 
 // Production backend URL — .env files are gitignored and not deployed to Vercel,
-// v2
+// v3 — trigger Vercel redeploy with latest stuck detection fix
 // so we hardcode the default here. Local dev overrides via .env.local.
 const PROD_BACKEND = "https://api.khanfate.com"
 const BACKEND_URL = process.env.BACKEND_URL || PROD_BACKEND
