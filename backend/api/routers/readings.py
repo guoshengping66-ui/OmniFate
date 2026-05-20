@@ -5,6 +5,7 @@ HTTP endpoints for analysis pipeline, chat loop, event replay, and daily almanac
 from __future__ import annotations
 import uuid
 import asyncio
+import time
 from datetime import datetime, date, timezone
 from typing import Optional
 import json
@@ -710,12 +711,35 @@ async def stream_session(
         streamed_subtasks: set[str] = set()
         last_pct = -1
         last_agent_status: dict[str, str] = {}
+        phase_changed_at = time.time()
 
         while state.phase != "done":
             # Phase changes
             if state.phase != last_phase:
                 yield f"data: {json.dumps({'type': 'phase', 'phase': state.phase})}\n\n"
                 last_phase = state.phase
+                phase_changed_at = time.time()
+
+            # Stuck detection: if phase hasn't changed for 120s, mark as failed
+            if time.time() - phase_changed_at > 120:
+                print(f"[WARN] SSE stuck detection: session {session_id} stuck in phase={state.phase} for >120s")
+                state.phase = "done"
+                state.errors.append("Analysis timed out — stuck in phase for too long")
+                # Persist failure to DB
+                try:
+                    async with AsyncSessionLocal() as db:
+                        stmt = select(Reading).where(Reading.id == session_id)
+                        result = await db.execute(stmt)
+                        reading = result.scalar_one_or_none()
+                        if reading:
+                            reading.status = ReadingStatus.failed
+                            reading.error_message = "Analysis timed out — stuck in phase for too long"
+                            await db.commit()
+                except Exception:
+                    pass
+                _sessions[session_id] = state
+                yield f"data: {json.dumps({'type': 'error', 'message': 'Analysis timed out'})}\n\n"
+                return
 
             # Progress events
             if state.progress_pct > last_pct:
