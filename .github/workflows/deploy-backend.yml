@@ -26,8 +26,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        env:
-          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
         with:
           fetch-depth: 2  # 需要前一个 commit 用于回滚
 
@@ -81,12 +79,12 @@ jobs:
 
             # 6. 等待服务启动
             echo "⏳ 等待服务启动..."
-            sleep 5
+            sleep 8
 
-            # 7. 健康检查 (最多重试 3 次)
+            # 7. 健康检查 (最多重试 5 次，间隔 5 秒)
             echo "🔍 健康检查..."
             HEALTH_OK=false
-            for i in 1 2 3; do
+            for i in 1 2 3 4 5; do
               HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8002/health || echo "000")
               if [ "$HTTP_CODE" = "200" ]; then
                 HEALTH_OK=true
@@ -94,7 +92,7 @@ jobs:
                 break
               fi
               echo "⚠️ 第${i}次健康检查失败 (HTTP $HTTP_CODE)，等待重试..."
-              sleep 3
+              sleep 5
             done
 
             # 8. 健康检查失败 → 自动回滚
@@ -111,8 +109,8 @@ jobs:
                 --host 127.0.0.1 --port 8002 \
                 --log-level info > /var/log/uvicorn.log 2>&1 &
 
-              sleep 5
-              ROLLBACK_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8002/health)
+              sleep 8
+              ROLLBACK_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8002/health || echo "000")
               if [ "$ROLLBACK_CODE" = "200" ]; then
                 echo "✅ 回滚成功，旧版本运行正常"
               else
