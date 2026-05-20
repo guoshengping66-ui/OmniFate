@@ -278,7 +278,10 @@ export async function getSession(sessionId: string, lang?: string): Promise<Anal
   }
   const params: Record<string, string> = {}
   if (lang) params.lang = lang
-  const res = await api.get<AnalysisResponse>(`/api/readings/session/${sessionId}`, { params })
+  // In production, GET requests go directly to backend (bypass proxy for speed).
+  // CORS is configured on backend to allow khanfate.com origin.
+  const client = isProduction ? apiDirect : api
+  const res = await client.get<AnalysisResponse>(`/api/readings/session/${sessionId}`, { params })
   // Cache completed readings for instant revisit
   _setCachedReading(sessionId, res.data)
   return res.data

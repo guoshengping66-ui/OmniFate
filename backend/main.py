@@ -10,6 +10,7 @@ import time
 from collections import defaultdict
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 
@@ -60,6 +61,9 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["Authorization", "Content-Type", "Accept"],
 )
+
+# GZip compression — reduces response size ~3-5x (e.g. 5KB → 1-2KB)
+app.add_middleware(GZipMiddleware, minimum_size=500)
 
 
 @app.exception_handler(Exception)
