@@ -496,8 +496,34 @@ async def get_session(
             if current_user and reading.user_id and reading.user_id != str(current_user.id):
                 raise HTTPException(status_code=403, detail="无权访问此报告")
 
-            # If still pending/processing, return status so frontend keeps polling
+            # If still pending/processing, check for stuck sessions
             if reading.status in (ReadingStatus.pending, ReadingStatus.processing):
+                # Auto-recover stuck sessions: if >10 minutes old with no in-memory session,
+                # the background task likely crashed or server restarted.
+                session_age = datetime.now(timezone.utc) - reading.created_at.replace(tzinfo=timezone.utc)
+                if session_age.total_seconds() > 600:  # 10 minutes
+                    print(f"[WARN] Auto-recovering stuck session {session_id} (age={session_age}, status={reading.status})")
+                    reading.status = ReadingStatus.failed
+                    reading.error_message = "Analysis timed out — background task may have crashed"
+                    await db.commit()
+                    # Return as failed so frontend shows retry option
+                    return AnalysisResponse(
+                        session_id=session_id,
+                        status="failed",
+                        master_summary="",
+                        astrology=_empty_worker("astrology"),
+                        tarot=_empty_worker("tarot"),
+                        bazi=_empty_worker("bazi"),
+                        qimen=_empty_worker("qimen"),
+                        ziwei=_empty_worker("ziwei"),
+                        face=_empty_worker("face"),
+                        palm=_empty_worker("palm"),
+                        recommended_product_ids=[],
+                        computed_tags=[],
+                        dimension_scores={},
+                        errors=["Analysis timed out — please try again"],
+                    )
+
                 return AnalysisResponse(
                     session_id=session_id,
                     status=reading.status.value,

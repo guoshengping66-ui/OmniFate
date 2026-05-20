@@ -1,11 +1,11 @@
 "use client"
 import { useEffect, useState, useCallback, useRef } from "react"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import {
   Loader2, Sparkles, ShoppingBag, AlertCircle,
   CheckCircle, MessageSquare, Tags, Gift, Lock,
   Crown, ArrowRight, TrendingUp, Zap, Star, Shield,
-  ChevronDown, Eye, Clock, Compass, ScrollText,
+  ChevronDown, Eye, Clock, Compass, ScrollText, RefreshCw,
 } from "lucide-react"
 import toast from "react-hot-toast"
 import { getSession, matchProducts, streamSession, AnalysisResponse, Product, AGENT_LABELS, SSEEvent, AgentStatusValue } from "@/lib/api"
@@ -135,6 +135,7 @@ export default function ReadingPage() {
   const { user, refreshUser } = useAuth()
   const { locale, t } = useLanguage()
   const { region } = useRegion()
+  const router = useRouter()
   const [data, setData]         = useState<AnalysisResponse | null>(null)
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading]   = useState(true)
@@ -154,6 +155,10 @@ export default function ReadingPage() {
   const [agentStatus, setAgentStatus] = useState<Record<string, AgentStatusValue>>({})
   const sseStartTime = useRef(Date.now())
 
+  // Stuck detection — if analysis stays in init/processing for >90s with no progress, show retry
+  const [isStuck, setIsStuck] = useState(false)
+  const stuckTimerRef = useRef<NodeJS.Timeout | null>(null)
+
   // Scroll-driven progressive reveal
   const [heroVisible, setHeroVisible] = useState(false)
   const heroRef = useRef<HTMLDivElement>(null)
@@ -161,6 +166,14 @@ export default function ReadingPage() {
   useEffect(() => {
     if (!id) return
     let cancelled = false
+
+    // Start stuck timer: if status stays "init"/"processing" for 90s with no progress, show retry
+    const startStuckTimer = () => {
+      if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
+      stuckTimerRef.current = setTimeout(() => {
+        if (!cancelled) setIsStuck(true)
+      }, 90_000)
+    }
 
     getSession(id).then(d => {
       if (cancelled) return
@@ -170,6 +183,9 @@ export default function ReadingPage() {
 
       // If already done, no need for SSE
       if (d.status === "done" || d.status === "chat") return
+
+      // Analysis is pending — start stuck timer
+      startStuckTimer()
 
       // Connect to SSE stream for progressive updates
       let sseConnected = false
@@ -181,6 +197,8 @@ export default function ReadingPage() {
         }
         if (event.type === "progress" && event.pct !== undefined) {
           setProgressPct(event.pct)
+          // SSE is alive — reset stuck timer
+          if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
           if (event.message) setProgressMessage(event.message)
         }
         if (event.type === "agent_status" && event.status) {
@@ -228,7 +246,10 @@ export default function ReadingPage() {
       }
     })
 
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+      if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
+    }
   }, [id, locale])
 
   // Trigger hero animation
@@ -275,17 +296,68 @@ export default function ReadingPage() {
   if (!data) return <ReadingSkeleton phase="error" />
 
   // Show AnalysisProgress when analysis is still running via SSE
+  if (data.status === "failed") {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <div className="card-glass p-8 max-w-md text-center">
+          <AlertCircle size={48} className="mx-auto mb-4 text-red-400/80" />
+          <h2 className="text-lg font-serif font-bold text-white mb-2">
+            {t("analysis.stuckTitle") || "分析未能完成"}
+          </h2>
+          <p className="text-white/40 text-sm mb-6 leading-relaxed">
+            {t("analysis.stuckMessage") || "后台分析任务异常中断，请重新发起分析。"}
+          </p>
+          <button
+            onClick={() => router.push("/reading/new")}
+            className="btn-gold inline-flex items-center gap-2 text-sm"
+          >
+            <RefreshCw size={14} />
+            {t("analysis.stuckRetry") || "重新分析"}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   if (data.status !== "done" && data.status !== "chat") {
     return (
       <div className="min-h-screen flex items-center justify-center px-4">
-        <AnalysisProgress
-          progressPct={progressPct}
-          progressMessage={progressMessage}
-          agentStatus={agentStatus}
-          phase={ssePhase || data.status}
-          masterSummary={data.master_summary}
-          startTime={sseStartTime.current}
-        />
+        {isStuck ? (
+          /* Stuck state — analysis hung, show retry button */
+          <div className="card-glass p-8 max-w-md text-center">
+            <AlertCircle size={48} className="mx-auto mb-4 text-amber-400/80" />
+            <h2 className="text-lg font-serif font-bold text-white mb-2">
+              {t("analysis.stuckTitle") || "分析似乎遇到了问题"}
+            </h2>
+            <p className="text-white/40 text-sm mb-6 leading-relaxed">
+              {t("analysis.stuckMessage") || "后台分析任务可能意外中断了。您可以重新发起分析。"}
+            </p>
+            <div className="flex gap-3 justify-center">
+              <button
+                onClick={() => setIsStuck(false)}
+                className="btn-gold-outline flex items-center gap-2 text-sm"
+              >
+                {t("analysis.stuckContinue") || "继续等待"}
+              </button>
+              <button
+                onClick={() => router.push("/reading/new")}
+                className="btn-gold flex items-center gap-2 text-sm"
+              >
+                <RefreshCw size={14} />
+                {t("analysis.stuckRetry") || "重新分析"}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <AnalysisProgress
+            progressPct={progressPct}
+            progressMessage={progressMessage}
+            agentStatus={agentStatus}
+            phase={ssePhase || data.status}
+            masterSummary={data.master_summary}
+            startTime={sseStartTime.current}
+          />
+        )}
       </div>
     )
   }
