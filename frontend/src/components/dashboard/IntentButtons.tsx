@@ -225,7 +225,7 @@ export function IntentButtons({ onGework }: Props) {
               ? "bg-gradient-to-br from-cyan-400/30 to-blue-500/20 shadow-[0_0_20px_rgba(34,211,238,0.1)]"
               : "bg-gradient-to-br from-white/8 to-white/5"
           }`} />
-          <div className="relative m-px rounded-xl bg-[#0D0B18]/90 backdrop-blur-xl p-4 md:p-5 h-full">
+          <div className="relative m-px rounded-xl bg-[#0D0B18]/90 backdrop-blur-xl p-4 md:p-5 h-full flex flex-col">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 transition-all duration-500 ${
               hoveredCard === "quick" ? "bg-cyan-500/15" : "bg-white/5"
             }`}>
@@ -240,7 +240,15 @@ export function IntentButtons({ onGework }: Props) {
               {t("dash.intent.quick")}
             </h4>
             <p className="text-[10px] text-cyan-400/30 font-light tracking-wider mb-1.5">{t("dash.intent.quickEn")}</p>
-            <p className="text-white/30 text-[11px] leading-relaxed">{t("dash.intent.quickDesc")}</p>
+            <p className="text-white/30 text-[11px] leading-relaxed flex-1">{t("dash.intent.quickDesc")}</p>
+            <div className={`mt-3 flex items-center gap-1.5 text-[10px] font-mono tracking-wider transition-all duration-300 ${
+              hoveredCard === "quick" ? "text-cyan-400" : "text-cyan-400/30"
+            }`}>
+              <span>{t("dash.intent.activate")}</span>
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+                <path d="M7 4l6 6-6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
           </div>
         </button>
 
@@ -257,7 +265,7 @@ export function IntentButtons({ onGework }: Props) {
               ? "bg-gradient-to-br from-purple-400/30 to-violet-500/20 shadow-[0_0_20px_rgba(168,85,247,0.1)]"
               : "bg-gradient-to-br from-white/8 to-white/5"
           }`} />
-          <div className="relative m-px rounded-xl bg-[#0D0B18]/90 backdrop-blur-xl p-4 md:p-5 h-full">
+          <div className="relative m-px rounded-xl bg-[#0D0B18]/90 backdrop-blur-xl p-4 md:p-5 h-full flex flex-col">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 transition-all duration-500 ${
               hoveredCard === "event" ? "bg-purple-500/15" : "bg-white/5"
             }`}>
@@ -272,7 +280,15 @@ export function IntentButtons({ onGework }: Props) {
               {t("dash.intent.event")}
             </h4>
             <p className="text-[10px] text-purple-400/30 font-light tracking-wider mb-1.5">{t("dash.intent.eventEn")}</p>
-            <p className="text-white/30 text-[11px] leading-relaxed">{t("dash.intent.eventDesc")}</p>
+            <p className="text-white/30 text-[11px] leading-relaxed flex-1">{t("dash.intent.eventDesc")}</p>
+            <div className={`mt-3 flex items-center gap-1.5 text-[10px] font-mono tracking-wider transition-all duration-300 ${
+              hoveredCard === "event" ? "text-purple-400" : "text-purple-400/30"
+            }`}>
+              <span>{t("dash.intent.activate")}</span>
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+                <path d="M7 4l6 6-6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
           </div>
         </button>
 
@@ -289,7 +305,7 @@ export function IntentButtons({ onGework }: Props) {
               ? "bg-gradient-to-br from-amber-400/30 to-orange-500/20 shadow-[0_0_20px_rgba(251,191,36,0.1)]"
               : "bg-gradient-to-br from-white/8 to-white/5"
           }`} />
-          <div className="relative m-px rounded-xl bg-[#0D0B18]/90 backdrop-blur-xl p-4 md:p-5 h-full">
+          <div className="relative m-px rounded-xl bg-[#0D0B18]/90 backdrop-blur-xl p-4 md:p-5 h-full flex flex-col">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 transition-all duration-500 ${
               hoveredCard === "friend" ? "bg-amber-500/15" : "bg-white/5"
             }`}>
@@ -304,7 +320,15 @@ export function IntentButtons({ onGework }: Props) {
               {t("dash.intent.friend")}
             </h4>
             <p className="text-[10px] text-amber-400/30 font-light tracking-wider mb-1.5">{t("dash.intent.friendEn")}</p>
-            <p className="text-white/30 text-[11px] leading-relaxed">{t("dash.intent.friendDesc")}</p>
+            <p className="text-white/30 text-[11px] leading-relaxed flex-1">{t("dash.intent.friendDesc")}</p>
+            <div className={`mt-3 flex items-center gap-1.5 text-[10px] font-mono tracking-wider transition-all duration-300 ${
+              hoveredCard === "friend" ? "text-amber-400" : "text-amber-400/30"
+            }`}>
+              <span>{t("dash.intent.activate")}</span>
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+                <path d="M7 4l6 6-6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
           </div>
         </button>
       </div>

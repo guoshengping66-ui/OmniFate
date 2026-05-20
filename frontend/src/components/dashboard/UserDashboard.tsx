@@ -8,6 +8,7 @@ import { motion } from "framer-motion"
 import { ProfileCard } from "./ProfileCard"
 import { IntentButtons } from "./IntentButtons"
 import { GeworkDrawer } from "./GeworkDrawer"
+import { TagBadge } from "@/components/ui/TagBadge"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 export function UserDashboard() {
@@ -81,7 +82,7 @@ export function UserDashboard() {
                   </div>
                   <div className="flex items-center gap-2 ml-4">
                     {r.computed_tags.slice(0, 2).map(tag => (
-                      <span key={tag} className="text-[10px] px-1.5 py-0.5 rounded bg-white/5 text-white/40">{tag}</span>
+                      <TagBadge key={tag} tag={tag} />
                     ))}
                     <ArrowRight size={14} className="text-white/20" />
                   </div>

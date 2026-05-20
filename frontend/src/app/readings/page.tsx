@@ -10,6 +10,7 @@ import toast from "react-hot-toast"
 import { listMyReadings, deleteReading, ReadingListItem } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { TagBadge } from "@/components/ui/TagBadge"
 
 function stripMarkdown(text: string): string {
   return text
@@ -163,9 +164,7 @@ export default function ReadingsPage() {
                       {r.computed_tags.length > 0 && (
                         <div className="flex flex-wrap gap-1 mb-2">
                           {r.computed_tags.slice(0, 4).map(tag => (
-                            <span key={tag} className="text-[10px] px-1.5 py-0.5 bg-white/[0.04] rounded-full text-white/40">
-                              {tag}
-                            </span>
+                            <TagBadge key={tag} tag={tag} />
                           ))}
                           {r.computed_tags.length > 4 && (
                             <span className="text-[10px] text-white/20">+{r.computed_tags.length - 4}</span>

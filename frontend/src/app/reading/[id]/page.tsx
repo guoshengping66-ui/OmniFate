@@ -28,6 +28,7 @@ import { DestinyRadar } from "@/components/reading/DestinyRadar"
 import { ShareSheet } from "@/components/reading/ShareSheet"
 import { PaywallGate } from "@/components/monetization/PaywallGate"
 import { QRPaymentModal } from "@/components/payment/QRPaymentModal"
+import { TagBadge } from "@/components/ui/TagBadge"
 import { useRegion } from "@/hooks/useRegion"
 import { PrescriptionCard } from "@/components/reading/PrescriptionCard"
 import { FreeReportBanner } from "@/components/reading/FreeReportBanner"
@@ -670,11 +671,8 @@ export default function ReadingPage() {
             {data.computed_tags.length > 0 && (
               <div className="flex flex-wrap justify-center gap-2">
                 {data.computed_tags.slice(0, 10).map((tag, i) => (
-                  <span key={tag}
-                    className="text-xs px-3 py-1.5 bg-white/[0.04] border border-white/[0.08] rounded-full text-white/50 hover:text-gold hover:border-gold/30 hover:bg-gold/5 transition-all duration-300 cursor-default"
-                    style={{ transitionDelay: `${i * 30}ms` }}
-                  >
-                    {tag}
+                  <span key={tag} style={{ transitionDelay: `${i * 30}ms` }}>
+                    <TagBadge tag={tag} size="md" />
                   </span>
                 ))}
               </div>
