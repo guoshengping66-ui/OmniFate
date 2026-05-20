@@ -58,14 +58,18 @@ jobs:
       - name: Verify Frontend
         run: |
           echo "=== 验证前端部署 ==="
-          sleep 10
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://khanfate.com/")
-          if [ "$STATUS" = "200" ]; then
-            echo "✓ 前端部署成功 — https://khanfate.com (HTTP $STATUS)"
-          else
-            echo "✗ 前端验证失败 — HTTP $STATUS"
-            exit 1
-          fi
+          # Retry up to 5 times with 10s intervals (Vercel cold start can take time)
+          for i in 1 2 3 4 5; do
+            sleep 10
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://khanfate.com/" 2>/dev/null || echo "000")
+            echo "  Attempt $i: HTTP $STATUS"
+            if [ "$STATUS" = "200" ]; then
+              echo "✓ 前端部署成功 — https://khanfate.com (HTTP $STATUS)"
+              exit 0
+            fi
+          done
+          echo "✗ 前端验证失败 — 最终 HTTP $STATUS"
+          exit 1
 
   # ════════════════════════════════════════════════════════════════════════════
   #  后端部署 — Docker
@@ -81,8 +85,6 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            set -e
-
             echo "=========================================="
             echo "  命盘智镜 后端自动部署"
             echo "  Time: $(date)"
@@ -114,19 +116,16 @@ jobs:
 
             # 3. 重建并重启后端
             echo "[3/4] 重建后端 Docker 容器..."
-            if docker compose version &>/dev/null; then
-              docker compose down backend 2>/dev/null || true
-              docker compose build backend --no-cache
-              docker compose up -d backend
-            else
-              docker-compose down backend 2>/dev/null || true
-              docker-compose build backend --no-cache
-              docker-compose up -d backend
-            fi
+            # Stop existing containers (ignore errors if not running)
+            docker compose down backend 2>/dev/null || docker-compose down backend 2>/dev/null || true
+            # Build new image
+            docker compose build backend --no-cache 2>&1 || docker-compose build backend --no-cache 2>&1
+            # Start new container
+            docker compose up -d backend 2>&1 || docker-compose up -d backend 2>&1
 
             # 4. 等待启动并验证
             echo "[4/4] 等待后端启动..."
-            sleep 10
+            sleep 15
 
             HEALTH=$(curl -s http://localhost:8002/health 2>/dev/null || echo '{"status":"error"}')
             echo "  健康检查: $HEALTH"
