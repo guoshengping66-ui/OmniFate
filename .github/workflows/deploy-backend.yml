@@ -35,9 +35,8 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script_stop: true
           script: |
-            set -e
+            set -euo pipefail
 
             echo "═══════ 开始部署后端 ═══════"
             cd /opt/OmniFate
@@ -64,9 +63,9 @@ jobs:
               pip3 install -r requirements.txt -q
             fi
 
-            # 4. 杀掉旧的 uvicorn 进程
+            # 4. 杀掉旧的 uvicorn 进程 (pkill 返回非零是正常的)
             echo "🔄 停止旧服务..."
-            pkill -f "uvicorn backend.main:app" 2>/dev/null || true
+            pkill -f "uvicorn backend.main:app" || true
             sleep 2
 
             # 5. 启动新的 uvicorn (后台运行)
@@ -86,7 +85,7 @@ jobs:
             echo "🔍 健康检查..."
             HEALTH_OK=false
             for i in 1 2 3; do
-              HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8002/health 2>/dev/null || echo "000")
+              HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8002/health || echo "000")
               if [ "$HTTP_CODE" = "200" ]; then
                 HEALTH_OK=true
                 echo "✅ 健康检查通过 (第${i}次)"
@@ -103,7 +102,7 @@ jobs:
               git reset --hard "$CURRENT_COMMIT"
 
               # 重启旧版本
-              pkill -f "uvicorn backend.main:app" 2>/dev/null || true
+              pkill -f "uvicorn backend.main:app" || true
               sleep 2
               cd /opt/OmniFate/backend
               nohup python3.9 -m uvicorn backend.main:app \
