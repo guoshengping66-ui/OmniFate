@@ -1,0 +1,99 @@
+# ══════════════════════════════════════════════════════════════════════════════
+#  命盘智镜 — 后端自动部署 (GitHub Actions)
+# ══════════════════════════════════════════════════════════════════════════════
+#  触发条件: push 到 main 分支且修改了 backend/ 目录
+#  需要配置 GitHub Secrets:
+#    SERVER_HOST   — 服务器 IP 地址
+#    SERVER_USER   — SSH 用户名 (如 root)
+#    SSH_PRIVATE_KEY — SSH 私钥
+# ══════════════════════════════════════════════════════════════════════════════
+
+name: Deploy Backend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'docker-compose*.yml'
+      - 'scripts/deploy-backend.sh'
+
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Deploy to server via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            set -e
+
+            echo "=========================================="
+            echo "  命盘智镜 后端自动部署"
+            echo "  Time: $(date)"
+            echo "  Commit: ${{ github.sha }}"
+            echo "=========================================="
+
+            # 1. 定位项目目录
+            PROJECT_DIR=""
+            for dir in /root/destiny-platform /opt/destiny-platform /www/destiny-platform /home/*/destiny-platform ~/destiny-platform; do
+              if [ -d "$dir/backend" ] && [ -f "$dir/docker-compose.yml" ]; then
+                PROJECT_DIR="$dir"
+                break
+              fi
+            done
+
+            if [ -z "$PROJECT_DIR" ]; then
+              echo "[ERROR] 未找到项目目录"
+              exit 1
+            fi
+
+            echo "[1/4] 项目目录: $PROJECT_DIR"
+            cd "$PROJECT_DIR"
+
+            # 2. 拉取最新代码
+            echo "[2/4] 拉取最新代码..."
+            git fetch origin main
+            git reset --hard origin/main
+            echo "  当前版本: $(git log --oneline -1)"
+
+            # 3. 重建并重启后端
+            echo "[3/4] 重建后端 Docker 容器..."
+            if docker compose version &>/dev/null; then
+              docker compose down backend 2>/dev/null || true
+              docker compose build backend --no-cache
+              docker compose up -d backend
+            else
+              docker-compose down backend 2>/dev/null || true
+              docker-compose build backend --no-cache
+              docker-compose up -d backend
+            fi
+
+            # 4. 等待启动并验证
+            echo "[4/4] 等待后端启动..."
+            sleep 10
+
+            HEALTH=$(curl -s http://localhost:8002/health 2>/dev/null || echo '{"status":"error"}')
+            echo "  健康检查: $HEALTH"
+
+            if echo "$HEALTH" | grep -q '"ok"'; then
+              echo ""
+              echo "=========================================="
+              echo "  部署成功!"
+              echo "=========================================="
+            else
+              echo ""
+              echo "=========================================="
+              echo "  部署可能失败，请检查日志"
+              echo "  docker compose logs --tail=50 backend"
+              echo "=========================================="
+              exit 1
+            fi
