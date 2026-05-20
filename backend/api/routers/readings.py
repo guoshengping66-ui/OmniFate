@@ -69,8 +69,32 @@ _session_created: dict[str, float] = {}  # session_id -> creation timestamp
 _SESSION_MAX_AGE = 3600 * 2  # 2 hours
 _last_session_cleanup: float = 0.0
 
+# ── LRU cache for completed readings (avoids repeated DB queries) ──────────
+_reading_cache: dict[str, tuple[float, AnalysisResponse]] = {}
+_READING_CACHE_TTL = 600  # 10 minutes
+_READING_CACHE_MAX = 200  # max cached readings
+
 # Prevent background tasks from being garbage-collected
 _bg_tasks: set = set()
+
+
+def _get_reading_cache(session_id: str) -> Optional[AnalysisResponse]:
+    """Return cached AnalysisResponse if fresh, else None."""
+    import time
+    entry = _reading_cache.get(session_id)
+    if entry and (time.time() - entry[0]) < _READING_CACHE_TTL:
+        return entry[1]
+    return None
+
+
+def _set_reading_cache(session_id: str, resp: AnalysisResponse):
+    """Cache an AnalysisResponse, evicting oldest if over max."""
+    import time
+    if len(_reading_cache) >= _READING_CACHE_MAX:
+        # Evict oldest
+        oldest_key = min(_reading_cache, key=lambda k: _reading_cache[k][0])
+        del _reading_cache[oldest_key]
+    _reading_cache[session_id] = (time.time(), resp)
 
 
 # ─── Request / Response Schemas ───────────────────────────────────────────
@@ -461,6 +485,16 @@ async def get_session(
     Optional lang parameter: if provided and differs from stored language,
     translates report content on-the-fly.
     """
+    # Fastest path: completed reading cache (skip DB entirely)
+    cached = _get_reading_cache(session_id)
+    if cached:
+        # Verify ownership if user is logged in
+        if current_user and cached.is_detail_unlocked:
+            # Need to check actual ownership from DB for unlocked readings
+            pass  # fall through to DB path for ownership check
+        else:
+            return cached
+
     # Fast path: in-memory cache
     state = _sessions.get(session_id)
     if state:
@@ -468,20 +502,21 @@ async def get_session(
         if current_user and state.user_id and state.user_id != str(current_user.id):
             raise HTTPException(status_code=403, detail="无权访问此报告")
         resp = _state_to_response(state)
-        # Merge DB fields: is_detail_unlocked, master_detail
-        try:
-            async with AsyncSessionLocal() as db:
-                result = await db.execute(
-                    select(Reading).where(Reading.id == session_id)
-                )
-                reading = result.scalar_one_or_none()
-                if reading:
-                    resp.is_detail_unlocked = reading.is_detail_unlocked
-                    if reading.master_detail:
-                        resp.master_detail = reading.master_detail
-        except Exception:
-            pass
-        return _apply_content_lock(resp, current_user, reading)
+        # Merge DB fields: is_detail_unlocked, master_detail (skip if no user — defaults to false)
+        if current_user:
+            try:
+                async with AsyncSessionLocal() as db:
+                    result = await db.execute(
+                        select(Reading).where(Reading.id == session_id)
+                    )
+                    reading = result.scalar_one_or_none()
+                    if reading:
+                        resp.is_detail_unlocked = reading.is_detail_unlocked
+                        if reading.master_detail:
+                            resp.master_detail = reading.master_detail
+            except Exception:
+                pass
+        return _apply_content_lock(resp, current_user, None)
 
     # Slow path: read from DATABASE
     try:
@@ -596,6 +631,10 @@ async def get_session(
 
             # Apply content lock BEFORE translation (so we don't waste API calls translating locked content)
             _apply_content_lock(resp, current_user, reading)
+
+            # Cache completed readings for faster subsequent access
+            if reading.status == ReadingStatus.completed:
+                _set_reading_cache(session_id, resp)
 
             # On-the-fly translation if language mismatch
             stored_lang = getattr(reading, 'language', None) or "zh"

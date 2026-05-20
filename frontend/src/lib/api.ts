@@ -245,10 +245,42 @@ export async function runAnalysis(data: AnalysisRequest): Promise<AnalysisRespon
   throw new Error("分析超时，请稍后在「我的命盘」中查看结果")
 }
 
+// ── Reading cache (browser sessionStorage) ──────────────────────────────────
+// Cache completed readings to avoid re-fetching on revisit. TTL: 10 minutes.
+const READING_CACHE_TTL = 10 * 60 * 1000
+
+function _getCachedReading(sessionId: string): AnalysisResponse | null {
+  try {
+    const raw = sessionStorage.getItem(`reading:${sessionId}`)
+    if (!raw) return null
+    const { ts, data } = JSON.parse(raw)
+    if (Date.now() - ts > READING_CACHE_TTL) {
+      sessionStorage.removeItem(`reading:${sessionId}`)
+      return null
+    }
+    return data as AnalysisResponse
+  } catch { return null }
+}
+
+function _setCachedReading(sessionId: string, data: AnalysisResponse) {
+  try {
+    // Only cache completed readings
+    if (data.status !== "done" && data.status !== "chat") return
+    sessionStorage.setItem(`reading:${sessionId}`, JSON.stringify({ ts: Date.now(), data }))
+  } catch { /* quota exceeded — ignore */ }
+}
+
 export async function getSession(sessionId: string, lang?: string): Promise<AnalysisResponse> {
+  // Fast path: browser cache for completed readings (skip network entirely)
+  if (!lang) {
+    const cached = _getCachedReading(sessionId)
+    if (cached) return cached
+  }
   const params: Record<string, string> = {}
   if (lang) params.lang = lang
   const res = await api.get<AnalysisResponse>(`/api/readings/session/${sessionId}`, { params })
+  // Cache completed readings for instant revisit
+  _setCachedReading(sessionId, res.data)
   return res.data
 }
 
