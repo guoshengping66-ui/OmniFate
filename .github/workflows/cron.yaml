@@ -12,7 +12,7 @@ name: Scheduled Tasks
 on:
   schedule:
     # 每月 1 号 02:00 UTC+8 — 创始会员月度星尘发放
-    - cron: "0 18 0 * *"     # 18:00 UTC = 02:00+8
+    - cron: "0 18 1 * *"     # 18:00 UTC = 02:00+8, day 1 (not 0)
 
     # 每天 00:30 UTC+8 — 会员过期检查
     - cron: "30 16 * * *"    # 16:30 UTC = 00:30+8
@@ -24,14 +24,16 @@ on:
 
 jobs:
   monthly-stardust:
-    if: >-
-      github.event.schedule == '0 18 0 * *' ||
-      github.event_name == 'workflow_dispatch'
+    if: github.event.schedule == '0 18 1 * *' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - name: Monthly Stardust Grant
         run: |
           echo "🕐 $(date -u) — Running monthly stardust grant..."
+          if [ -z "${{ secrets.CRON_SECRET }}" ] || [ -z "${{ secrets.API_BASE }}" ]; then
+            echo "⚠️ Secrets CRON_SECRET or API_BASE not configured, skipping."
+            exit 0
+          fi
           RESP=$(curl -s -w "\n%{http_code}" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             "${{ secrets.API_BASE }}/api/cron/monthly-stardust")
@@ -45,14 +47,16 @@ jobs:
           fi
 
   expire-check:
-    if: >-
-      github.event.schedule == '30 16 * * *' ||
-      github.event_name == 'workflow_dispatch'
+    if: github.event.schedule == '30 16 * * *' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - name: Membership Expiry Check
         run: |
           echo "🕐 $(date -u) — Running expire check..."
+          if [ -z "${{ secrets.CRON_SECRET }}" ] || [ -z "${{ secrets.API_BASE }}" ]; then
+            echo "⚠️ Secrets CRON_SECRET or API_BASE not configured, skipping."
+            exit 0
+          fi
           RESP=$(curl -s -w "\n%{http_code}" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             "${{ secrets.API_BASE }}/api/cron/expire-check")
@@ -66,14 +70,16 @@ jobs:
           fi
 
   expiry-reminder:
-    if: >-
-      github.event.schedule == '0 02 * * 0' ||
-      github.event_name == 'workflow_dispatch'
+    if: github.event.schedule == '0 02 * * 0' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - name: Expiry Reminder
         run: |
           echo "🕐 $(date -u) — Running expiry reminder..."
+          if [ -z "${{ secrets.CRON_SECRET }}" ] || [ -z "${{ secrets.API_BASE }}" ]; then
+            echo "⚠️ Secrets CRON_SECRET or API_BASE not configured, skipping."
+            exit 0
+          fi
           RESP=$(curl -s -w "\n%{http_code}" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             "${{ secrets.API_BASE }}/api/cron/expiry-reminder")
