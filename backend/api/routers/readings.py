@@ -1896,7 +1896,7 @@ async def get_daily_almanac(
             day_names = ["","1st","2nd","3rd","4th","5th","6th","7th","8th","9th","10th",
                         "11th","12th","13th","14th","15th","16th","17th","18th","19th","20th",
                         "21st","22nd","23rd","24th","25th","26th","27th","28th","29th","30th","31st"]
-            weekday_map = {"一":"Mon","二":"Tue","三":"Wed","四":"Thu","五":"Fri","六":"Sat","日":"Sun"}
+            weekday_map = {1:"Mon",2:"Tue",3:"Wed",4:"Thu",5:"Fri",6:"Sat",0:"Sun"}
 
             def translate_gz(gz: str) -> str:
                 if len(gz) >= 2:
@@ -1918,7 +1918,7 @@ async def get_daily_almanac(
             time_animal = translate_animal(today_lunar.getTimeShengXiao())
 
             weekday_cn = today_lunar.getWeek()
-            weekday_en = weekday_map.get(str(weekday_cn), "")
+            weekday_en = weekday_map.get(weekday_cn, "")
 
             lunar_date_str = (
                 f"Lunar: {today_lunar.getYearInChinese()}"
