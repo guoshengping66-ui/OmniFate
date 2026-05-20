@@ -34,7 +34,7 @@ jobs:
             echo "⚠️ Secrets CRON_SECRET or API_BASE not configured, skipping."
             exit 0
           fi
-          RESP=$(curl -s -w "\n%{http_code}" \
+          RESP=$(curl -s -w "\n%{http_code}" -X POST \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             "${{ secrets.API_BASE }}/api/cron/monthly-stardust")
           HTTP_CODE=$(echo "$RESP" | tail -1)
@@ -57,7 +57,7 @@ jobs:
             echo "⚠️ Secrets CRON_SECRET or API_BASE not configured, skipping."
             exit 0
           fi
-          RESP=$(curl -s -w "\n%{http_code}" \
+          RESP=$(curl -s -w "\n%{http_code}" -X POST \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             "${{ secrets.API_BASE }}/api/cron/expire-check")
           HTTP_CODE=$(echo "$RESP" | tail -1)
@@ -80,7 +80,7 @@ jobs:
             echo "⚠️ Secrets CRON_SECRET or API_BASE not configured, skipping."
             exit 0
           fi
-          RESP=$(curl -s -w "\n%{http_code}" \
+          RESP=$(curl -s -w "\n%{http_code}" -X POST \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             "${{ secrets.API_BASE }}/api/cron/expiry-reminder")
           HTTP_CODE=$(echo "$RESP" | tail -1)
