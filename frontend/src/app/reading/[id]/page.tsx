@@ -155,9 +155,11 @@ export default function ReadingPage() {
   const [agentStatus, setAgentStatus] = useState<Record<string, AgentStatusValue>>({})
   const sseStartTime = useRef(Date.now())
 
-  // Stuck detection — if analysis stays in init/processing for >90s with no progress, show retry
+  // Stuck detection — if analysis stays in init/processing for >90s with no REAL progress, show retry
   const [isStuck, setIsStuck] = useState(false)
   const stuckTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const lastProgressPct = useRef(0)
+  const lastSsePhase = useRef("")
 
   // Scroll-driven progressive reveal
   const [heroVisible, setHeroVisible] = useState(false)
@@ -193,12 +195,26 @@ export default function ReadingPage() {
         sseConnected = true
         if (cancelled) return
         if (event.type === "phase" && event.phase) {
+          // Phase changed — reset stuck timer (real progress)
+          if (event.phase !== lastSsePhase.current) {
+            lastSsePhase.current = event.phase
+            if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
+            stuckTimerRef.current = setTimeout(() => {
+              if (!cancelled) setIsStuck(true)
+            }, 90_000)
+          }
           setSsePhase(event.phase)
         }
         if (event.type === "progress" && event.pct !== undefined) {
+          // Progress increased — reset stuck timer (real progress)
+          if (event.pct > lastProgressPct.current) {
+            lastProgressPct.current = event.pct
+            if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
+            stuckTimerRef.current = setTimeout(() => {
+              if (!cancelled) setIsStuck(true)
+            }, 90_000)
+          }
           setProgressPct(event.pct)
-          // SSE is alive — reset stuck timer
-          if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
           if (event.message) setProgressMessage(event.message)
         }
         if (event.type === "agent_status" && event.status) {
