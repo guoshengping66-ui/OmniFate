@@ -1,7 +1,7 @@
 "use client"
 import { useEffect } from "react"
 import dynamic from "next/dynamic"
-import Link from "next/link" // v2 — auto-deploy test
+import Link from "next/link"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useAuth } from "@/contexts/AuthContext"
 import { useUserStore } from "@/stores/useUserStore"

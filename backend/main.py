@@ -183,5 +183,5 @@ app.include_router(billing.webhook_router, prefix="/api/webhooks", tags=["Webhoo
 
 @app.get("/health")
 async def health():
-    """Health check endpoint — triggers backend auto-deploy test"""
+    """Health check endpoint"""
     return {"status": "ok", "app": settings.APP_NAME}
