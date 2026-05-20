@@ -1861,13 +1861,75 @@ async def get_daily_almanac(
         today_bazi = BaziCalculator.calculate_transit_pillars(today.year, today.month, today.day)
         if today_bazi:
             dp = today_bazi.get("day_pillar", {})
-            bazi_day_pillar_str = dp.get("ganzhi", "")
+            raw_gz = dp.get("ganzhi", "")
+            if lang == "en" and raw_gz and len(raw_gz) >= 2:
+                _g_map = {"甲":"Jia","乙":"Yi","丙":"Bing","丁":"Ding","戊":"Wu",
+                          "己":"Ji","庚":"Geng","辛":"Xin","壬":"Ren","癸":"Gui"}
+                _z_map = {"子":"Zi","丑":"Chou","寅":"Yin","卯":"Mao","辰":"Chen","巳":"Si",
+                          "午":"Wu","未":"Wei","申":"Shen","酉":"You","戌":"Xu","亥":"Hai"}
+                g_en = _g_map.get(raw_gz[0], raw_gz[0])
+                z_en = _z_map.get(raw_gz[1], raw_gz[1])
+                bazi_day_pillar_str = f"{g_en}-{z_en}"
+            else:
+                bazi_day_pillar_str = raw_gz
     except Exception:
         pass
     try:
         from lunar_python import Solar
         today_lunar = Solar.fromYmd(today.year, today.month, today.day).getLunar()
-        lunar_date_str = today_lunar.toFullString()
+
+        if lang == "en":
+            # Build English lunar date string
+            gan_zhi_map = {
+                "甲":"Jia","乙":"Yi","丙":"Bing","丁":"Ding","戊":"Wu",
+                "己":"Ji","庚":"Geng","辛":"Xin","壬":"Ren","癸":"Gui",
+            }
+            zhi_map = {
+                "子":"Zi","丑":"Chou","寅":"Yin","卯":"Mao","辰":"Chen","巳":"Si",
+                "午":"Wu","未":"Wei","申":"Shen","酉":"You","戌":"Xu","亥":"Hai",
+            }
+            animal_map = {
+                "鼠":"Rat","牛":"Ox","虎":"Tiger","兔":"Rabbit","龙":"Dragon","蛇":"Snake",
+                "马":"Horse","羊":"Goat","猴":"Monkey","鸡":"Rooster","狗":"Dog","猪":"Pig",
+            }
+            month_names = ["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+            day_names = ["","1st","2nd","3rd","4th","5th","6th","7th","8th","9th","10th",
+                        "11th","12th","13th","14th","15th","16th","17th","18th","19th","20th",
+                        "21st","22nd","23rd","24th","25th","26th","27th","28th","29th","30th","31st"]
+            weekday_map = {"一":"Mon","二":"Tue","三":"Wed","四":"Thu","五":"Fri","六":"Sat","日":"Sun"}
+
+            def translate_gz(gz: str) -> str:
+                if len(gz) >= 2:
+                    g = gan_zhi_map.get(gz[0], gz[0])
+                    z = zhi_map.get(gz[1], gz[1])
+                    return f"{g}-{z}"
+                return gz
+
+            def translate_animal(a: str) -> str:
+                return animal_map.get(a, a)
+
+            year_gz = translate_gz(today_lunar.getYearInGanZhi())
+            month_gz = translate_gz(today_lunar.getMonthInGanZhi())
+            day_gz = translate_gz(today_lunar.getDayInGanZhi())
+            time_gz = translate_gz(today_lunar.getTimeInGanZhi())
+            year_animal = translate_animal(today_lunar.getYearShengXiao())
+            month_animal = translate_animal(today_lunar.getMonthShengXiao())
+            day_animal = translate_animal(today_lunar.getDayShengXiao())
+            time_animal = translate_animal(today_lunar.getTimeShengXiao())
+
+            weekday_cn = today_lunar.getWeek()
+            weekday_en = weekday_map.get(str(weekday_cn), "")
+
+            lunar_date_str = (
+                f"Lunar: {today_lunar.getYearInChinese()}"
+                f" Year {year_gz}({year_animal})"
+                f" Month {month_gz}({month_animal})"
+                f" Day {day_gz}({day_animal})"
+                f" Hour {time_gz}({time_animal})"
+                f" | {weekday_en}"
+            )
+        else:
+            lunar_date_str = today_lunar.toFullString()
     except Exception:
         pass
 
