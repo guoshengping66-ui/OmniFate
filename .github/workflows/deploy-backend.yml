@@ -63,10 +63,19 @@ jobs:
               pip3 install -r requirements.txt -q
             fi
 
-            # 4. 杀掉旧的 uvicorn 进程 (pkill 返回非零是正常的)
+            # 4. 杀掉旧的 uvicorn 进程
             echo "🔄 停止旧服务..."
-            pkill -f "uvicorn backend.main:app" || true
-            sleep 2
+            # 用 kill 逐个杀，避免 pkill 信号传播导致脚本中断
+            PIDS=$(pgrep -f "uvicorn backend.main:app" || true)
+            if [ -n "$PIDS" ]; then
+              for PID in $PIDS; do
+                kill "$PID" 2>/dev/null || true
+              done
+              echo "已发送停止信号给进程: $PIDS"
+            else
+              echo "没有发现运行中的 uvicorn 进程"
+            fi
+            sleep 3
 
             # 5. 启动新的 uvicorn (后台运行)
             echo "🚀 启动新服务..."
@@ -102,8 +111,13 @@ jobs:
               git reset --hard "$CURRENT_COMMIT"
 
               # 重启旧版本
-              pkill -f "uvicorn backend.main:app" || true
-              sleep 2
+              PIDS=$(pgrep -f "uvicorn backend.main:app" || true)
+              if [ -n "$PIDS" ]; then
+                for PID in $PIDS; do
+                  kill "$PID" 2>/dev/null || true
+                done
+              fi
+              sleep 3
               cd /opt/OmniFate
               nohup python3.9 -m uvicorn backend.main:app \
                 --host 127.0.0.1 --port 8002 \
