@@ -169,12 +169,14 @@ export default function ReadingPage() {
     if (!id) return
     let cancelled = false
 
-    // Start stuck timer: if status stays "init"/"processing" for 90s with no progress, show retry
+    // Start stuck timer: if status stays "init"/"processing" for 180s with no progress, show retry.
+    // 180s because workers take ~65s + master phase ~30s = ~95s total; allow 2x headroom.
+    const STUCK_TIMEOUT = 180_000
     const startStuckTimer = () => {
       if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
       stuckTimerRef.current = setTimeout(() => {
         if (!cancelled) setIsStuck(true)
-      }, 90_000)
+      }, STUCK_TIMEOUT)
     }
 
     getSession(id).then(d => {
@@ -198,10 +200,7 @@ export default function ReadingPage() {
           // Phase changed — reset stuck timer (real progress)
           if (event.phase !== lastSsePhase.current) {
             lastSsePhase.current = event.phase
-            if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
-            stuckTimerRef.current = setTimeout(() => {
-              if (!cancelled) setIsStuck(true)
-            }, 90_000)
+            startStuckTimer()
           }
           setSsePhase(event.phase)
         }
@@ -209,22 +208,23 @@ export default function ReadingPage() {
           // Progress increased — reset stuck timer (real progress)
           if (event.pct > lastProgressPct.current) {
             lastProgressPct.current = event.pct
-            if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
-            stuckTimerRef.current = setTimeout(() => {
-              if (!cancelled) setIsStuck(true)
-            }, 90_000)
+            startStuckTimer()
           }
           setProgressPct(event.pct)
           if (event.message) setProgressMessage(event.message)
         }
         if (event.type === "agent_status" && event.status) {
           setAgentStatus(event.status)
+          // Agent status change means backend is alive — reset stuck timer
+          startStuckTimer()
         }
         if (event.type === "worker_done" && event.agent_id) {
           setCompletedWorkers(prev => new Set(prev).add(event.agent_id!))
+          startStuckTimer()  // Worker completed — analysis is progressing
         }
         if (event.type === "subtask_done" && event.subtask) {
           setCompletedSubtasks(prev => new Set(prev).add(event.subtask!))
+          startStuckTimer()  // Subtask completed — analysis is progressing
         }
         if (event.type === "complete") {
           setData(prev => prev ? {

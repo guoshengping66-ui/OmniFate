@@ -499,18 +499,50 @@ async def get_session(
 
             # If still pending/processing, check for stuck sessions
             if reading.status in (ReadingStatus.pending, ReadingStatus.processing):
-                # Auto-recover stuck sessions: if >10 minutes old with no in-memory session,
-                # the background task likely crashed or server restarted.
-                session_age = datetime.now(timezone.utc) - reading.created_at.replace(tzinfo=timezone.utc)
-                if session_age.total_seconds() > 600:  # 10 minutes
-                    print(f"[WARN] Auto-recovering stuck session {session_id} (age={session_age}, status={reading.status})")
-                    reading.status = ReadingStatus.failed
-                    reading.error_message = "Analysis timed out — background task may have crashed"
+                # Heuristic: if DB has worker reports or master_summary, the analysis
+                # actually completed but status wasn't updated (server crash/restart).
+                has_results = bool(
+                    reading.master_summary
+                    or reading.astrology_report
+                    or reading.bazi_report
+                    or reading.tarot_report
+                )
+                if has_results:
+                    print(f"[WARN] Session {session_id} has results but status={reading.status} — fixing to completed")
+                    reading.status = ReadingStatus.completed
                     await db.commit()
-                    # Return as failed so frontend shows retry option
+                    # Fall through to the "completed" path below
+
+                # Auto-recover truly stuck sessions: >10 minutes old with no results
+                elif not has_results:
+                    session_age = datetime.now(timezone.utc) - reading.created_at.replace(tzinfo=timezone.utc)
+                    if session_age.total_seconds() > 600:  # 10 minutes
+                        print(f"[WARN] Auto-recovering stuck session {session_id} (age={session_age}, status={reading.status})")
+                        reading.status = ReadingStatus.failed
+                        reading.error_message = "Analysis timed out — background task may have crashed"
+                        await db.commit()
+                        return AnalysisResponse(
+                            session_id=session_id,
+                            status="failed",
+                            master_summary="",
+                            astrology=_empty_worker("astrology"),
+                            tarot=_empty_worker("tarot"),
+                            bazi=_empty_worker("bazi"),
+                            qimen=_empty_worker("qimen"),
+                            ziwei=_empty_worker("ziwei"),
+                            face=_empty_worker("face"),
+                            palm=_empty_worker("palm"),
+                            recommended_product_ids=[],
+                            computed_tags=[],
+                            dimension_scores={},
+                            errors=["Analysis timed out — please try again"],
+                        )
+
+                # If still pending/processing and <10min old, return processing status
+                if reading.status in (ReadingStatus.pending, ReadingStatus.processing):
                     return AnalysisResponse(
                         session_id=session_id,
-                        status="failed",
+                        status=reading.status.value,
                         master_summary="",
                         astrology=_empty_worker("astrology"),
                         tarot=_empty_worker("tarot"),
@@ -522,7 +554,7 @@ async def get_session(
                         recommended_product_ids=[],
                         computed_tags=[],
                         dimension_scores={},
-                        errors=["Analysis timed out — please try again"],
+                        errors=[],
                     )
 
                 return AnalysisResponse(
@@ -751,12 +783,12 @@ async def stream_session(
                 yield f"data: {json.dumps({'type': 'agent_status', 'status': dict(state.agent_status)})}\n\n"
                 last_agent_status = dict(state.agent_status)
 
-            # Worker completions
+            # Worker completions — emit when output exists (even with empty report on error)
             for agent_id in ["astrology", "tarot", "bazi", "qimen", "ziwei", "face", "palm"]:
                 if agent_id in streamed_workers:
                     continue
                 wo = getattr(state, f"{agent_id}_output", None)
-                if wo and wo.report and wo.duration_ms:
+                if wo and wo.duration_ms is not None:
                     yield f"data: {json.dumps({'type': 'worker_done', 'agent_id': agent_id, 'duration_ms': round(wo.duration_ms)})}\n\n"
                     streamed_workers.add(agent_id)
 
