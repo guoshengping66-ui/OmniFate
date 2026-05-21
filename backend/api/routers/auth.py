@@ -531,7 +531,7 @@ async def logout(
             if payload.get("type") == "refresh":
                 jti = payload.get("jti")
                 if jti:
-                    blacklist_token(jti)
+                    await blacklist_token(jti)
         except Exception:
             pass  # Token invalid/expired — proceed with logout anyway
     return {"message": "已登出"}
@@ -539,12 +539,9 @@ async def logout(
 
 # ── Refresh Token ──────────────────────────────────────────────────────────
 
-
-# ── Refresh Token ──────────────────────────────────────────────────────────
-
 @router.post("/refresh")
 async def refresh_token(req: RefreshRequest, request: Request, db: AsyncSession = Depends(get_db)):
-    user_id = verify_token(req.refresh_token)
+    user_id = await verify_token(req.refresh_token)
     if user_id is None:
         raise HTTPException(status_code=401, detail="无效的 refresh token")
 

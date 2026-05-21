@@ -7,7 +7,6 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 import ipaddress
 import time
-from collections import defaultdict
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
@@ -78,12 +77,11 @@ async def global_exception_handler(request: Request, exc: Exception):
     )
 
 # ── Enhanced rate limiter with endpoint-specific limits ──────────────────────
-# NOTE: This works because the backend runs on a persistent server (api.khanfate.com).
-# If migrating to Vercel serverless, replace with Redis-based or Edge Middleware rate limiting.
-_rate_store: dict[str, list[float]] = defaultdict(list)
+# Uses Redis when REDIS_URL is configured, otherwise in-memory per-process.
+from services.rate_limiter import check_rate_limit
+
 RATE_LIMIT_WINDOW = 60  # seconds
 RATE_LIMIT_MAX = 60     # requests per window (global)
-_last_cleanup: float = 0.0
 
 # Endpoint-specific rate limits (requests per minute)
 ENDPOINT_LIMITS = {
@@ -126,43 +124,28 @@ RATE_LIMIT_MESSAGE = json.dumps({
 
 @app.middleware("http")
 async def rate_limit_middleware(request: Request, call_next):
-    global _last_cleanup
     # Only rate-limit API endpoints
     if request.url.path.startswith("/api/"):
         client_ip = _get_client_ip(request)
-        now = time.time()
-        window_start = now - RATE_LIMIT_WINDOW
-
-        # Periodically purge stale IPs to prevent memory leak
-        if now - _last_cleanup > RATE_LIMIT_WINDOW * 10:
-            stale_ips = [ip for ip, times in _rate_store.items() if not times or times[-1] <= window_start]
-            for ip in stale_ips:
-                del _rate_store[ip]
-            _last_cleanup = now
-
-        # Clean old entries for this client
-        _rate_store[client_ip] = [t for t in _rate_store[client_ip] if t > window_start]
-
-        # Check endpoint-specific limits first
         path = request.url.path
+
+        # Check endpoint-specific limits first (higher priority)
         limit = ENDPOINT_LIMITS.get(path)
         if limit:
-            # Count requests to this specific endpoint
-            endpoint_key = f"{client_ip}:{path}"
-            endpoint_times = [t for t in _rate_store.get(endpoint_key, []) if t > window_start]
-            if len(endpoint_times) >= limit:
+            if await check_rate_limit(f"ep:{client_ip}:{path}", limit, RATE_LIMIT_WINDOW):
                 return JSONResponse(
                     status_code=429,
                     content=json.loads(RATE_LIMIT_MESSAGE),
                     headers={"Retry-After": "60"},
                 )
-            _rate_store[endpoint_key] = endpoint_times + [now]
-        if len(_rate_store[client_ip]) >= RATE_LIMIT_MAX:
+
+        # Global rate limit
+        if await check_rate_limit(f"global:{client_ip}", RATE_LIMIT_MAX, RATE_LIMIT_WINDOW):
             return JSONResponse(
                 status_code=429,
                 content={"detail": "请求过于频繁，请稍后再试"},
             )
-        _rate_store[client_ip].append(now)
+
     return await call_next(request)
 
 

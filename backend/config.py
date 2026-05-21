@@ -97,6 +97,9 @@ class Settings(BaseSettings):
     PAYPAL_GRANT_RATE: float = 70.0    # 1 USD = 70 星尘
     TRONGRID_API_KEY: str = ""         # TronGrid API Key (可选, 提高限额)
 
+    # ── Redis (distributed state: rate limits, session store, token blacklist) ──
+    REDIS_URL: str = ""                # e.g. "redis://localhost:6379/0" — empty = in-memory fallback
+
 
 @lru_cache
 def get_settings() -> Settings:

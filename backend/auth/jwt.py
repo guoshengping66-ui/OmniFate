@@ -1,6 +1,8 @@
 """
 JWT authentication utilities for AlphaMirror.
 Uses python-jose for token creation/verification and bcrypt for password hashing.
+
+Token blacklist: Redis-backed when REDIS_URL is configured, otherwise in-memory.
 """
 import uuid
 from datetime import datetime, timedelta, timezone
@@ -14,26 +16,36 @@ settings = get_settings()
 
 ALGORITHM = "HS256"
 
-# ── Refresh Token Blacklist ───────────────────────────────────────────────────
-# In-memory blacklist for revoked refresh tokens.
-# Production: migrate to Redis for distributed support.
-_refresh_blacklist: set[str] = set()
+# ── Token blacklist (auto-selects Redis or in-memory) ────────────────────────
+
+_memory_blacklist: set[str] = set()
+_MEMORY_BLACKLIST_MAX = 10000
+
+_BLACKLIST_TTL_DAYS = 31  # refresh tokens expire in 30 days, blacklist for 31
 
 
-def is_token_blacklisted(jti: str) -> bool:
-    """Check if a token has been revoked."""
-    return jti in _refresh_blacklist
+async def is_token_blacklisted(jti: str) -> bool:
+    """Check if a token has been revoked. Uses Redis if available."""
+    from services.redis_client import _get_redis
+    r = await _get_redis()
+    if r:
+        return await r.exists(f"bl:token:{jti}") > 0
+    return jti in _memory_blacklist
 
 
-def blacklist_token(jti: str) -> None:
-    """Add a token to the blacklist (called on logout/password change)."""
-    _refresh_blacklist.add(jti)
-    # Prevent unbounded growth: keep only last 10k entries
-    if len(_refresh_blacklist) > 10000:
-        # In production with Redis, use TTL-based expiry instead
-        _blacklist_list = list(_refresh_blacklist)
-        _refresh_blacklist.clear()
-        _refresh_blacklist.update(_blacklist_list[-5000:])
+async def blacklist_token(jti: str) -> None:
+    """Add a token to the blacklist. Uses Redis with TTL if available."""
+    from services.redis_client import _get_redis
+    r = await _get_redis()
+    if r:
+        await r.setex(f"bl:token:{jti}", _BLACKLIST_TTL_DAYS * 86400, "1")
+        return
+    # In-memory fallback with bounded size
+    _memory_blacklist.add(jti)
+    if len(_memory_blacklist) > _MEMORY_BLACKLIST_MAX:
+        _lst = list(_memory_blacklist)
+        _memory_blacklist.clear()
+        _memory_blacklist.update(_lst[-_MEMORY_BLACKLIST_MAX // 2:])
 
 
 def create_access_token(user_id: str, expires_delta: Optional[timedelta] = None) -> str:
@@ -53,7 +65,7 @@ def create_refresh_token(user_id: str) -> str:
     return jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=ALGORITHM)
 
 
-def verify_token(token: str) -> Optional[str]:
+async def verify_token(token: str) -> Optional[str]:
     """Verify a JWT token and return the user_id (sub claim). Returns None if invalid."""
     try:
         payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[ALGORITHM])
@@ -62,7 +74,7 @@ def verify_token(token: str) -> Optional[str]:
             return None
         # Check blacklist for refresh tokens
         jti = payload.get("jti")
-        if jti and is_token_blacklisted(jti):
+        if jti and await is_token_blacklisted(jti):
             return None
         return user_id
     except JWTError:

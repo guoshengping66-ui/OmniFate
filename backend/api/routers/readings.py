@@ -40,34 +40,29 @@ settings = get_settings()
 
 router = APIRouter()
 
+# ── Session store: Redis-backed with in-memory fallback ───────────────────────
+from services.session_store import get_session, set_session, delete_session
+
+
+async def _get_session(session_id: str) -> Optional[SystemState]:
+    """Get an analysis session from Redis (or in-memory fallback)."""
+    return await get_session(session_id)
+
+
+async def _set_session(session_id: str, state: SystemState) -> None:
+    """Store an analysis session in Redis (or in-memory fallback)."""
+    await set_session(session_id, state)
+
+
+async def _delete_session(session_id: str) -> None:
+    """Delete an analysis session."""
+    await delete_session(session_id)
+
 
 @router.get("/ping")
 async def readings_ping():
     """Quick health check — confirms readings router is loaded."""
     return {"status": "ok", "router": "readings"}
-
-
-def _cleanup_sessions():
-    """Evict sessions older than _SESSION_MAX_AGE to prevent memory leak."""
-    global _last_session_cleanup
-    import time
-    now = time.time()
-    if now - _last_session_cleanup < 300:  # run at most every 5 min
-        return
-    _last_session_cleanup = now
-    expired = [
-        sid for sid, created in _session_created.items()
-        if (now - created) > _SESSION_MAX_AGE
-    ]
-    for sid in expired:
-        _sessions.pop(sid, None)
-        _session_created.pop(sid, None)
-
-# In-memory session store (replace with Redis in production)
-_sessions: dict[str, SystemState] = {}
-_session_created: dict[str, float] = {}  # session_id -> creation timestamp
-_SESSION_MAX_AGE = 3600 * 2  # 2 hours
-_last_session_cleanup: float = 0.0
 
 # ── LRU cache for completed readings (avoids repeated DB queries) ──────────
 _reading_cache: dict[str, tuple[float, AnalysisResponse, int]] = {}  # (time, response, size_bytes)
@@ -324,11 +319,8 @@ async def create_analysis(
     except (asyncio.TimeoutError, Exception) as e:
         print(f"[WARN] Failed to create reading in DB: {e}")
 
-    # Keep in-memory for same-instance fast access
-    _cleanup_sessions()
-    _sessions[state.session_id] = state
-    import time as _time
-    _session_created[state.session_id] = _time.time()
+    # Store in Redis (or in-memory fallback) for fast access
+    await _set_session(state.session_id, state)
 
     # Start analysis in background (works on self-hosted server)
     # Keep strong reference to prevent GC before task completes
@@ -418,8 +410,8 @@ async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
         state.phase = "done"
         print(f"[BG] Analysis failed for {state.session_id}: {e}")
 
-    # Update in-memory cache
-    _sessions[state.session_id] = state
+    # Update session store
+    await _set_session(state.session_id, state)
 
     # Persist final results to database
     try:
@@ -461,7 +453,7 @@ async def chat_followup(
     import re as _re
     from agents.graph import run_chat
 
-    state = _sessions.get(payload.session_id)
+    state = await _get_session(payload.session_id)
     if not state:
         raise HTTPException(status_code=404, detail="Session not found. Run /readings/ first.")
 
@@ -482,7 +474,7 @@ async def chat_followup(
             question = "请围绕命理主题提问。"
 
     answer, agent_id, updated_state = await run_chat(question, state)
-    _sessions[payload.session_id] = updated_state
+    await _set_session(payload.session_id, updated_state)
 
     return ChatResponse(
         answer=answer,
@@ -564,7 +556,7 @@ async def get_session(
         return _apply_content_lock(cached, current_user, None)
 
     # Fast path: in-memory cache
-    state = _sessions.get(session_id)
+    state = await _get_session(session_id)
     if state:
         # Verify ownership if user is logged in
         if current_user and state.user_id and state.user_id != str(current_user.id):
@@ -835,7 +827,7 @@ async def stream_session(
     Auth required — users can only access their own sessions.
     """
     async def event_generator():
-        state = _sessions.get(session_id)
+        state = await _get_session(session_id)
         if not state:
             yield f"data: {json.dumps({'type': 'error', 'message': 'Session not found'})}\n\n"
             return
@@ -876,7 +868,7 @@ async def stream_session(
                             await db.commit()
                 except Exception:
                     pass
-                _sessions[session_id] = state
+                await _set_session(session_id, state)
                 yield f"data: {json.dumps({'type': 'error', 'message': 'Analysis timed out'})}\n\n"
                 return
 
@@ -963,7 +955,7 @@ async def list_my_readings(user: User = Depends(require_user)):
                 computed_tags = list(r.computed_tags or [])
                 dimension_scores = dict(r.dimension_scores or {})
                 if not computed_tags or not dimension_scores:
-                    state = _sessions.get(str(r.id))
+                    state = await _get_session(str(r.id))
                     if state:
                         if not computed_tags:
                             computed_tags = list(state.computed_tags or [])
@@ -1000,9 +992,8 @@ async def delete_reading(session_id: str, user: User = Depends(require_user)):
                 raise HTTPException(status_code=404, detail="报告不存在")
             await db.delete(reading)
             await db.commit()
-            # Also clean up in-memory session
-            _sessions.pop(session_id, None)
-            _session_created.pop(session_id, None)
+            # Also clean up session store
+            await _delete_session(session_id)
             return {"ok": True}
     except HTTPException:
         raise
@@ -1061,7 +1052,7 @@ async def upload_face_image(
     Uses the new FaceV2T engine for richer analysis.
     """
     # Verify session ownership
-    state = _sessions.get(session_id)
+    state = await _get_session(session_id)
     if state and current_user and state.user_id and state.user_id != str(current_user.id):
         raise HTTPException(status_code=403, detail="无权访问此报告")
     from services.vision.face_v2t import FaceV2T
@@ -1080,8 +1071,9 @@ async def upload_face_image(
                             detail="无法检测到面部。请上传清晰正面照。")
     feat_text = result.to_prompt_text()
 
-    if session_id in _sessions:
-        _sessions[session_id].face_features = FaceFeatures(
+    state = await _get_session(session_id)
+    if state:
+        state.face_features = FaceFeatures(
             three_zones_ratio=result.three_zones_ratio,
             face_shape=result.face_shape,
             forehead=result.forehead,
@@ -1103,6 +1095,7 @@ async def upload_face_image(
             raw_metrics=result.raw_metrics,
             raw_text=feat_text,
         )
+        await _set_session(session_id, state)
 
     return {
         "session_id": session_id,
@@ -1194,7 +1187,7 @@ async def upload_palm_description(
     Accept palm feature descriptions (text-based fallback).
     """
     # Verify session ownership
-    state = _sessions.get(session_id)
+    state = await _get_session(session_id)
     if state and current_user and state.user_id and state.user_id != str(current_user.id):
         raise HTTPException(status_code=403, detail="无权访问此报告")
     pf = PalmFeatures(
@@ -1207,8 +1200,10 @@ async def upload_palm_description(
         nail_halfmoon=nail_halfmoon, palm_flexibility=palm_flexibility,
         raw_text=raw_text,
     )
-    if session_id in _sessions:
-        _sessions[session_id].palm_features = pf
+    state = await _get_session(session_id)
+    if state:
+        state.palm_features = pf
+        await _set_session(session_id, state)
 
     return {"session_id": session_id, "palm_features": pf.model_dump()}
 
@@ -1224,7 +1219,7 @@ async def upload_palm_image(
     -> structured palmistry text -> update session state.
     """
     # Verify session ownership
-    state = _sessions.get(session_id)
+    state = await _get_session(session_id)
     if state and current_user and state.user_id and state.user_id != str(current_user.id):
         raise HTTPException(status_code=403, detail="无权访问此报告")
     from services.vision.palm_v2t import PalmV2T
@@ -1243,8 +1238,9 @@ async def upload_palm_image(
                             detail="无法检测到手掌。请上传清晰手掌照片。")
     feat_text = result.to_prompt_text()
 
-    if session_id in _sessions:
-        _sessions[session_id].palm_features = PalmFeatures(
+    state = await _get_session(session_id)
+    if state:
+        state.palm_features = PalmFeatures(
             hand_shape=result.hand_shape,
             hand_side=result.hand_side,
             life_line=result.life_line,
@@ -1266,6 +1262,7 @@ async def upload_palm_image(
             raw_metrics=result.raw_metrics,
             raw_text=feat_text,
         )
+        await _set_session(session_id, state)
 
     return {
         "session_id": session_id,
@@ -1409,9 +1406,9 @@ _ALMANAC_CACHE_TTL = 3600 * 12  # 12 hours
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 
 
-def _get_birth_info_for_session(session_id: str) -> Optional[dict]:
+async def _get_birth_info_for_session(session_id: str) -> Optional[dict]:
     """Extract birth info from cached session state."""
-    state = _sessions.get(session_id)
+    state = await _get_session(session_id)
     if not state or not state.birth_info:
         return None
     bi = state.birth_info
@@ -1506,7 +1503,7 @@ async def analyze_event(
     5. Save EventLog to database
     """
     # 1. Load session
-    state = _sessions.get(payload.session_id)
+    state = await _get_session(payload.session_id)
     if not state:
         raise HTTPException(status_code=404, detail="Session not found. Run /readings/ first.")
     if not state.birth_info:
@@ -1677,7 +1674,7 @@ async def list_events(
     """List all events for a session, newest first. 需要登录且验证 session 归属。"""
     try:
         # 验证 session 归属
-        state = _sessions.get(session_id)
+        state = await _get_session(session_id)
         if state and state.user_id and str(state.user_id) != str(current_user.id):
             raise HTTPException(status_code=403, detail="无权访问此 session")
 
@@ -2007,7 +2004,7 @@ async def get_daily_almanac(
     Real-time computation, no storage.
     Supports lang=zh|en for localized output.
     """
-    state = _sessions.get(session_id)
+    state = await _get_session(session_id)
 
     # Reconstruct from database if session was lost (e.g. after server restart)
     if not state:
@@ -2049,7 +2046,7 @@ async def get_daily_almanac(
                     astrology_raw=reading.astrology_raw or {},
                 )
                 # Cache for future requests
-                _sessions[session_id] = state
+                await _set_session(session_id, state)
         except HTTPException:
             raise
         except Exception as e:
