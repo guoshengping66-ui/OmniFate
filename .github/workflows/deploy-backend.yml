@@ -62,15 +62,36 @@ jobs:
               pip3 install -r requirements.txt -q
             fi
 
-            # 4. 通过 systemd 重启服务
-            echo "🔄 重启服务..."
-            sudo systemctl restart omnifate-backend
+            # 4. 停止 systemd 服务，避免端口冲突
+            echo "🔄 停止 systemd 服务..."
+            systemctl stop omnifate-backend 2>/dev/null || true
+            sleep 2
 
-            # 5. 等待服务启动
+            # 5. 杀掉残留进程
+            PID=$(lsof -ti :8002 2>/dev/null || true)
+            if [ -n "$PID" ]; then
+              kill "$PID" 2>/dev/null || true
+              sleep 2
+            fi
+
+            # 6. 禁用 systemd 服务，用 nohup 管理
+            echo "🚫 禁用 systemd 服务..."
+            systemctl disable omnifate-backend 2>/dev/null || true
+
+            # 7. 启动新的 uvicorn (后台运行)
+            echo "🚀 启动新服务..."
+            cd /opt/OmniFate
+            nohup python3.9 -m uvicorn backend.main:app \
+              --host 127.0.0.1 --port 8002 \
+              --log-level info > /tmp/uvicorn.log 2>&1 &
+            NEW_PID=$!
+            echo "新进程 PID: $NEW_PID"
+
+            # 8. 等待服务启动
             echo "⏳ 等待服务启动..."
-            sleep 5
+            sleep 8
 
-            # 7. 健康检查 (最多重试 5 次，间隔 5 秒)
+            # 9. 健康检查 (最多重试 5 次，间隔 5 秒)
             echo "🔍 健康检查..."
             HEALTH_OK=false
             for i in 1 2 3 4 5; do
@@ -84,15 +105,25 @@ jobs:
               sleep 5
             done
 
-            # 8. 健康检查失败 → 自动回滚
+            # 10. 健康检查失败 → 自动回滚
             if [ "$HEALTH_OK" = "false" ]; then
               echo "❌ 健康检查失败！自动回滚到 $CURRENT_COMMIT ..."
               cd /opt/OmniFate
               git reset --hard "$CURRENT_COMMIT"
 
-              # 重启旧版本
-              sudo systemctl restart omnifate-backend
-              sleep 5
+              # 杀掉失败的进程
+              PID=$(lsof -ti :8002 2>/dev/null || true)
+              if [ -n "$PID" ]; then
+                kill "$PID" 2>/dev/null || true
+              fi
+              sleep 3
+
+              # 启动旧版本
+              nohup python3.9 -m uvicorn backend.main:app \
+                --host 127.0.0.1 --port 8002 \
+                --log-level info > /tmp/uvicorn.log 2>&1 &
+
+              sleep 8
               ROLLBACK_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8002/health || echo "000")
               if [ "$ROLLBACK_CODE" = "200" ]; then
                 echo "✅ 回滚成功，旧版本运行正常"
