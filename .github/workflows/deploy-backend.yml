@@ -64,10 +64,16 @@ jobs:
 
             # 4. 杀掉旧的 uvicorn 进程
             echo "🔄 停止旧服务..."
-            # 用端口号定位进程，避免 pgrep -f 匹配到 SSH 命令本身
+            # 多种方式定位进程，避免 pgrep -f 匹配到 SSH 命令本身
             PID=$(lsof -ti :8002 2>/dev/null || true)
             if [ -z "$PID" ]; then
               PID=$(fuser 8002/tcp 2>/dev/null | awk '{print $1}' || true)
+            fi
+            if [ -z "$PID" ]; then
+              PID=$(ss -tlnp 'sport = :8002' 2>/dev/null | grep -oP 'pid=\K[0-9]+' || true)
+            fi
+            if [ -z "$PID" ]; then
+              PID=$(ps aux | grep '[u]vicorn backend.main:app' | awk '{print $2}' || true)
             fi
             if [ -n "$PID" ]; then
               kill "$PID" 2>/dev/null || true
@@ -82,7 +88,7 @@ jobs:
             cd /opt/OmniFate
             nohup python3.9 -m uvicorn backend.main:app \
               --host 127.0.0.1 --port 8002 \
-              --log-level info > /var/log/uvicorn.log 2>&1 &
+              --log-level info > /tmp/uvicorn.log 2>&1 &
             NEW_PID=$!
             echo "新进程 PID: $NEW_PID"
 
@@ -115,6 +121,12 @@ jobs:
               if [ -z "$PID" ]; then
                 PID=$(fuser 8002/tcp 2>/dev/null | awk '{print $1}' || true)
               fi
+              if [ -z "$PID" ]; then
+                PID=$(ss -tlnp 'sport = :8002' 2>/dev/null | grep -oP 'pid=\K[0-9]+' || true)
+              fi
+              if [ -z "$PID" ]; then
+                PID=$(ps aux | grep '[u]vicorn backend.main:app' | awk '{print $2}' || true)
+              fi
               if [ -n "$PID" ]; then
                 kill "$PID" 2>/dev/null || true
               fi
@@ -122,7 +134,7 @@ jobs:
               cd /opt/OmniFate
               nohup python3.9 -m uvicorn backend.main:app \
                 --host 127.0.0.1 --port 8002 \
-                --log-level info > /var/log/uvicorn.log 2>&1 &
+                --log-level info > /tmp/uvicorn.log 2>&1 &
 
               sleep 8
               ROLLBACK_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8002/health || echo "000")
