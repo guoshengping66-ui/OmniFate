@@ -1,5 +1,5 @@
 "use client"
-import { Sparkles, Shield, Brain, Activity, Target, Lock, Eye, ArrowRight } from "lucide-react"
+import { Sparkles, Shield, Star, Compass, Layers, Lock, Eye, ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
@@ -10,21 +10,21 @@ export default function AboutPage() {
 
   const pillars = [
     {
-      icon: Activity,
+      icon: Sparkles,
       title: t("about.pillar1Title"),
       subtitle: t("about.pillar1Subtitle"),
       desc: t("about.pillar1Desc"),
       color: "#C9A84C",
     },
     {
-      icon: Brain,
+      icon: Star,
       title: t("about.pillar2Title"),
       subtitle: t("about.pillar2Subtitle"),
       desc: t("about.pillar2Desc"),
       color: "#52B788",
     },
     {
-      icon: Target,
+      icon: Compass,
       title: t("about.pillar3Title"),
       subtitle: t("about.pillar3Subtitle"),
       desc: t("about.pillar3Desc"),
@@ -35,14 +35,12 @@ export default function AboutPage() {
   const privacyItems = [
     {
       icon: Lock,
-      title: "Non-Custodial Architecture",
-      titleZh: "资产非托管安全架构",
+      title: "Zero Data Retention",
       desc: t("about.privacyP1"),
     },
     {
       icon: Eye,
-      title: "Complete Anonymization",
-      titleZh: "严苛的无痕隐私保障",
+      title: "End-to-End Encryption",
       desc: t("about.privacyP2"),
     },
   ]
