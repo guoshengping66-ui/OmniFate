@@ -912,6 +912,47 @@ export default {
   "account.deleteSuccess": "账户已注销",
   "account.deleteFail": "注销失败，请检查密码是否正确",
 
+  // ─── 语言设置 ───
+  "account.language": "语言设置",
+  "account.languageDesc": "选择界面显示语言",
+
+  // ─── 出生信息 ───
+  "account.birthInfo": "出生信息",
+  "account.birthInfoDesc": "用于命理分析的出生数据",
+  "account.gender": "性别",
+  "account.genderMale": "男",
+  "account.genderFemale": "女",
+  "account.birthYear": "出生年",
+  "account.birthMonth": "出生月",
+  "account.birthDay": "出生日",
+  "account.birthHour": "出生时辰",
+  "account.birthSaved": "出生信息已保存",
+  "account.birthSaveFail": "保存失败",
+  "account.noBirthInfo": "暂未设置出生信息",
+  "account.birthInfoHint": "请在推命时填写出生信息，或前往推命页面设置",
+
+  // ─── 通知偏好 ───
+  "account.notifications": "通知偏好",
+  "account.notificationsDesc": "管理通知和推送设置",
+  "account.notifyReportReady": "报告生成完成",
+  "account.notifyReportReadyDesc": "当推命分析报告生成完毕时通知",
+  "account.notifyWeeklyFortune": "每周运势推送",
+  "account.notifyWeeklyFortuneDesc": "每周一推送本周运势概览",
+  "account.notifyPromotions": "优惠活动通知",
+  "account.notifyPromotionsDesc": "接收会员优惠和限时活动通知",
+
+  // ─── 数据与隐私 ───
+  "account.dataPrivacy": "数据与隐私",
+  "account.dataPrivacyDesc": "管理您的个人数据",
+  "account.clearLocalHistory": "清除本地历史记录",
+  "account.clearLocalHistoryDesc": "清除浏览器中的本地推命记录",
+  "account.clearLocalHistoryDone": "本地历史已清除",
+  "account.exportData": "导出数据",
+  "account.exportDataDesc": "下载您的账户数据副本",
+  "account.exportDataHint": "功能开发中，敬请期待",
+  "account.dataRetention": "数据保留说明",
+  "account.dataRetentionDesc": "您的报告和账户数据安全存储在服务器上，仅您本人可访问。删除账户后所有数据将被永久清除。",
+
   // ─── 五行 ───
   "wuxing.metal": "金",
   "wuxing.wood": "木",

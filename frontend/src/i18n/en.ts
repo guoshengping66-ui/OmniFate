@@ -918,6 +918,47 @@ export default {
   "account.deleteSuccess": "Account deleted successfully",
   "account.deleteFail": "Deletion failed — check your password",
 
+  // ─── Language Settings ───
+  "account.language": "Language",
+  "account.languageDesc": "Choose your preferred display language",
+
+  // ─── Birth Info ───
+  "account.birthInfo": "Birth Information",
+  "account.birthInfoDesc": "Birth data used for destiny analysis",
+  "account.gender": "Gender",
+  "account.genderMale": "Male",
+  "account.genderFemale": "Female",
+  "account.birthYear": "Birth Year",
+  "account.birthMonth": "Birth Month",
+  "account.birthDay": "Birth Day",
+  "account.birthHour": "Birth Hour",
+  "account.birthSaved": "Birth info saved successfully",
+  "account.birthSaveFail": "Failed to save",
+  "account.noBirthInfo": "No birth information set",
+  "account.birthInfoHint": "Please enter your birth info when creating a reading, or visit the reading page to set it up",
+
+  // ─── Notification Preferences ───
+  "account.notifications": "Notifications",
+  "account.notificationsDesc": "Manage notification and push settings",
+  "account.notifyReportReady": "Report Ready",
+  "account.notifyReportReadyDesc": "Notify when your destiny reading report is generated",
+  "account.notifyWeeklyFortune": "Weekly Fortune",
+  "account.notifyWeeklyFortuneDesc": "Receive a weekly fortune overview every Monday",
+  "account.notifyPromotions": "Promotions",
+  "account.notifyPromotionsDesc": "Receive member discounts and limited-time offers",
+
+  // ─── Data & Privacy ───
+  "account.dataPrivacy": "Data & Privacy",
+  "account.dataPrivacyDesc": "Manage your personal data",
+  "account.clearLocalHistory": "Clear Local History",
+  "account.clearLocalHistoryDesc": "Remove local reading records stored in this browser",
+  "account.clearLocalHistoryDone": "Local history cleared",
+  "account.exportData": "Export Data",
+  "account.exportDataDesc": "Download a copy of your account data",
+  "account.exportDataHint": "Coming soon",
+  "account.dataRetention": "Data Retention",
+  "account.dataRetentionDesc": "Your reports and account data are securely stored on our servers and only accessible by you. Deleting your account permanently removes all data.",
+
   // ─── Five Elements ───
   "wuxing.metal": "Metal (Jin)",
   "wuxing.wood": "Wood (Mu)",
