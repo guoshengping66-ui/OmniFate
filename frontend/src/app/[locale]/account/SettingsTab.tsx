@@ -3,7 +3,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import {
   Loader2, Eye, EyeOff, AlertTriangle, X, Globe, Baby, Bell, Shield,
-  ChevronDown, Trash2, Download, Info,
+  Trash2, Download, Info,
 } from "lucide-react"
 import toast from "react-hot-toast"
 import { updateProfile, changePassword, deleteAccount, type AuthUser } from "@/lib/api"
@@ -170,10 +170,14 @@ export default function SettingsTab({ user, refreshUser, t }: { user: AuthUser; 
   }
 
   const handleSaveBirth = () => {
-    saveBirthData(birthForm)
-    setBirthData(birthForm)
-    setEditingBirth(false)
-    toast.success(t("account.birthSaved"))
+    try {
+      saveBirthData(birthForm)
+      setBirthData(birthForm)
+      setEditingBirth(false)
+      toast.success(t("account.birthSaved"))
+    } catch {
+      toast.error(t("account.birthSaveFail"))
+    }
   }
 
   const handleClearHistory = () => {
