@@ -2604,7 +2604,42 @@
     "termsOfService": "Terms of Service",
     "title": "Choose Your Destiny Plan",
     "unlockReport": "Unlock Report",
-    "yearly": "Yearly"
+    "yearly": "Yearly",
+    "channel": {
+      "title": "Analysis Channels",
+      "subtitle": "Choose the divination method that suits you",
+      "quick": {
+        "badge": "⚡ Quick",
+        "name": "Instant Insight",
+        "tagline": "Instant Decision Anchor",
+        "audience": "Perfect for quick daily decisions — receive a random destiny anchor",
+        "tech": "Based on your Bazi and astrology chart, AI randomly extracts a current destiny tip",
+        "output": "A precise current fortune tip and action advice"
+      },
+      "full": {
+        "badge": "🔮 Deep",
+        "name": "Deep Resonance",
+        "tagline": "Full-Dimension Destiny Simulation",
+        "audience": "For major life decisions — combines face reading + palmistry + astrology",
+        "tech": "Multi-modal AI fuses biometric data (face + palm) with natal chart for deep destiny analysis",
+        "output": "A comprehensive report covering Five Elements, astrology, face reading, and palmistry"
+      },
+      "price": "Cost",
+      "priceValue": "Stardust-based"
+    },
+    "compare": {
+      "title": "Feature Comparison",
+      "subtitle": "Detailed comparison of both channels",
+      "feature": "Feature",
+      "feat1": "Analysis Dimensions",
+      "feat2": "Biometric Data",
+      "feat3": "AI Depth",
+      "feat4": "Report Length",
+      "feat5": "Generation Time",
+      "feat6": "Use Case",
+      "feat7": "Daily Limit",
+      "feat8": "Stardust Cost"
+    }
   },
   "pricingCard": {
     "discount": "Stardust cost {discount}% off",

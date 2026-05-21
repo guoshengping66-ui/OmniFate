@@ -2604,7 +2604,42 @@
     "termsOfService": "服务条款",
     "title": "选择你的命盘套餐",
     "unlockReport": "解锁报告",
-    "yearly": "年度会员"
+    "yearly": "年度会员",
+    "channel": {
+      "title": "分析通道",
+      "subtitle": "选择适合你的命理分析方式",
+      "quick": {
+        "badge": "⚡ 快速",
+        "name": "瞬时洞察",
+        "tagline": "秒级决策锚点",
+        "audience": "适合日常快速决策，随机获取一个命理锚点",
+        "tech": "基于你的八字与星盘，AI随机抽取一个当下的命理提示",
+        "output": "一个精准的当运提示与行动建议"
+      },
+      "full": {
+        "badge": "🔮 深度",
+        "name": "深度共振",
+        "tagline": "全维度命理模拟",
+        "audience": "适合重大人生决策，融合面相+手相+星盘的全维分析",
+        "tech": "多模态AI融合生物特征（面相+手相）与本命星盘，进行深度命理推演",
+        "output": "一份包含五行、星象、面相、掌纹的全维度分析报告"
+      },
+      "price": "费用",
+      "priceValue": "按星尘计费"
+    },
+    "compare": {
+      "title": "功能对比",
+      "subtitle": "两种通道的详细对比",
+      "feature": "功能",
+      "feat1": "分析维度",
+      "feat2": "生物特征",
+      "feat3": "AI 深度",
+      "feat4": "报告长度",
+      "feat5": "生成时间",
+      "feat6": "适用场景",
+      "feat7": "每日限额",
+      "feat8": "星尘消耗"
+    }
   },
   "pricingCard": {
     "discount": "星尘消耗 {discount} 折",
