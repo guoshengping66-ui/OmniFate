@@ -76,7 +76,7 @@ export default function AboutPage() {
         {/* 5-Layer Architecture */}
         <div className="card-glass p-8 md:p-12 mb-12">
           <BookOpen size={24} className="text-gold mb-4" />
-          <h2 className="font-serif text-2xl text-gold mb-6">{t("about.architecture")}</h2>
+          <h2 className="font-serif text-2xl text-gold mb-6">{t("about.architecture._label")}</h2>
           <div className="space-y-5">
             {layers.map((item, i) => (
               <div key={item.title} className="flex gap-4">

@@ -282,6 +282,13 @@
       "emptyDesc": "选择上方推演方式开始你的第一次分析",
       "title": "最近分析",
       "viewAll": "查看全部 →"
+    },
+    "gework": {
+      "emotion1": "平静",
+      "emotion2": "焦虑",
+      "emotion3": "愤怒",
+      "emotion4": "喜悦",
+      "emotion5": "悲伤"
     }
   },
   "discovery": {
@@ -781,7 +788,7 @@
       "layer4Desc": "Master Agent 读取五份专家报告，寻找共识、处理冲突，以「主诊医生」身份进行逻辑闭环，生成终极报告。",
       "layer5": "商业变现层",
       "layer5Desc": "根据生成的「能量标签」自动匹配改运商品，在报告建议中自然植入改善方案，并支持长尾交互追问。",
-      "_label": "五层架构体系"
+      "_label": "运作原理"
     },
     "ctaButton": "开始免费推命",
     "ctaDesc": "免费的初步分析，发现你的生命密码",
@@ -1235,7 +1242,7 @@
       "superb": "超棒",
       "veryBad": "很差",
       "veryGood": "挺好",
-      "_label": "心情"
+      "_label": "情绪"
     },
     "quick": {
       "financeFluctuation": "财务波动",
@@ -1613,7 +1620,12 @@
     "unlockPerk2": "赠送 ¥60 商城代金券",
     "unlockPerk3": "自动激活 3 天会员试用",
     "unlockPrice": "¥69",
-    "weakest": "蕴含成长空间"
+    "weakest": "蕴含成长空间",
+    "channel": {
+      "full": "深度共振",
+      "quick": "瞬时洞察",
+      "event": "心流格物"
+    }
   },
   "readings": {
     "dim": {
@@ -2105,7 +2117,12 @@
     "termsOfService": "《服务条款》",
     "thankYou": "感谢你的购买",
     "title": "确认订单",
-    "total": "应付总额"
+    "total": "应付总额",
+    "nextSteps": "下一步",
+    "step1": "确认支付信息",
+    "step2": "完成支付",
+    "step3": "查看订单",
+    "viewOrders": "查看我的订单"
   },
   "common": {
     "back": "返回",
@@ -2217,7 +2234,10 @@
   "error": {
     "clientError": "客户端渲染时发生异常，以下是错误详情：",
     "retry": "重试",
-    "title": "出了点问题"
+    "title": "出了点问题",
+    "checkoutError": "支付页面出现错误，请稍后重试",
+    "pricingError": "价格页面出现错误，请稍后重试",
+    "readingError": "解读页面出现错误，请稍后重试"
   },
   "eventDetail": {
     "analyzing": "分析中…",

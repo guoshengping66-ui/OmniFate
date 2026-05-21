@@ -299,7 +299,7 @@ export default function EventAnalyzer({ sessionId }: Props) {
                   <p className="text-sm text-white/70 truncate">{evt.event_description}</p>
                   <p className="text-xs text-white/30 mt-0.5">
                     {new Date(evt.event_datetime).toLocaleDateString("zh-CN")}
-                    {evt.emotion_score && ` · ${t("event.emotion")} ${evt.emotion_score}/10`}
+                    {evt.emotion_score && ` · ${t("event.emotion._label")} ${evt.emotion_score}/10`}
                   </p>
                 </div>
                 <ChevronRight size={16} className="text-white/20 flex-shrink-0" />

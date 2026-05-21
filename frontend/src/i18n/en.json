@@ -282,6 +282,13 @@
       "emptyDesc": "Choose a reading method above to start your first analysis",
       "title": "Recent Readings",
       "viewAll": "View All →"
+    },
+    "gework": {
+      "emotion1": "Calm",
+      "emotion2": "Anxious",
+      "emotion3": "Angry",
+      "emotion4": "Joyful",
+      "emotion5": "Sad"
     }
   },
   "discovery": {
@@ -1235,7 +1242,7 @@
       "superb": "Superb",
       "veryBad": "Very Bad",
       "veryGood": "Very Good",
-      "_label": "Mood"
+      "_label": "Emotion"
     },
     "quick": {
       "financeFluctuation": "Finance Fluctuation",
@@ -1290,7 +1297,7 @@
       "8": "Good for clearing your to-do list",
       "9": "Creative inspiration is flowing — great for art and writing",
       "10": "Travel luck is strong — perfect for a day trip",
-      "_label": "Advice"
+      "_label": "Daily Advice"
     },
     "color": {
       "black": "Black",
@@ -1613,7 +1620,12 @@
     "unlockPerk2": "Plus a ¥60 shop coupon",
     "unlockPerk3": "Auto-activate 3-day membership trial",
     "unlockPrice": "¥69",
-    "weakest": "room to grow"
+    "weakest": "room to grow",
+    "channel": {
+      "full": "Deep Resonance",
+      "quick": "Instant Insight",
+      "event": "Flow Analytics"
+    }
   },
   "readings": {
     "dim": {
@@ -2105,7 +2117,12 @@
     "termsOfService": "Terms of Service",
     "thankYou": "Thanks for your purchase!",
     "title": "Confirm Order",
-    "total": "Total"
+    "total": "Total",
+    "nextSteps": "Next Steps",
+    "step1": "Confirm Payment",
+    "step2": "Complete Payment",
+    "step3": "View Orders",
+    "viewOrders": "View My Orders"
   },
   "common": {
     "back": "Back",
@@ -2217,7 +2234,10 @@
   "error": {
     "clientError": "An error occurred during client rendering:",
     "retry": "Retry",
-    "title": "Something went wrong"
+    "title": "Something went wrong",
+    "checkoutError": "Something went wrong with checkout. Please try again.",
+    "pricingError": "Something went wrong with pricing. Please try again.",
+    "readingError": "Something went wrong with the reading. Please try again."
   },
   "eventDetail": {
     "analyzing": "Analyzing...",

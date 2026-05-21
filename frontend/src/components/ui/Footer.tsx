@@ -88,7 +88,7 @@ export function Footer() {
                 {t("footer.systems")}
               </h4>
               <ul className="space-y-2.5">
-                {[t("agent.bazi"), t("agent.astrology"), t("agent.tarot"), t("agent.face")].map(s => (
+                {[t("agent.bazi._label"), t("agent.astrology._label"), t("agent.tarot._label"), t("agent.face._label")].map(s => (
                   <li key={s} className="text-white/40 text-sm">{s}</li>
                 ))}
               </ul>

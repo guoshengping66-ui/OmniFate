@@ -413,7 +413,7 @@ export function DailyFortune({ user }: DailyFortuneProps) {
             <Sparkles size={14} className="text-gold" />
           </div>
           <div>
-            <p className="text-gold/80 text-xs font-medium mb-0.5">{t("fortune.advice")}</p>
+            <p className="text-gold/80 text-xs font-medium mb-0.5">{t("fortune.advice._label")}</p>
             <p className="text-white/50 text-sm leading-relaxed">{adviceText}</p>
           </div>
         </div>
@@ -424,7 +424,7 @@ export function DailyFortune({ user }: DailyFortuneProps) {
             <AlertTriangle size={14} className="text-red-400" />
           </div>
           <div>
-            <p className="text-red-400/70 text-xs font-medium mb-0.5">{t("fortune.warning")}</p>
+            <p className="text-red-400/70 text-xs font-medium mb-0.5">{t("fortune.warning._label")}</p>
             <p className="text-white/50 text-sm leading-relaxed">{warningText}</p>
           </div>
         </div>

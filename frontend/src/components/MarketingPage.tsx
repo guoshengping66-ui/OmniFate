@@ -24,31 +24,31 @@ export default function MarketingPage() {
 
   const AGENTS = [
     {
-      icon: "☯", title: t("agent.bazi"), tag: t("agent.bazi.tag"),
+      icon: "☯", title: t("agent.bazi._label"), tag: t("agent.bazi.tag"),
       desc: t("agent.bazi.desc"),
       detail: t("agent.bazi.detail"),
       accent: "#2D6A4F", span: "md:col-span-1",
     },
     {
-      icon: "✦", title: t("agent.astrology"), tag: t("agent.astrology.tag"),
+      icon: "✦", title: t("agent.astrology._label"), tag: t("agent.astrology.tag"),
       desc: t("agent.astrology.desc"),
       detail: t("agent.astrology.detail"),
       accent: "#C1121F", span: "md:col-span-1",
     },
     {
-      icon: "🃏", title: t("agent.tarot"), tag: t("agent.tarot.tag"),
+      icon: "🃏", title: t("agent.tarot._label"), tag: t("agent.tarot.tag"),
       desc: t("agent.tarot.desc"),
       detail: t("agent.tarot.detail"),
       accent: "#C9A84C", span: "md:col-span-1",
     },
     {
-      icon: "👁", title: t("agent.face"), tag: t("agent.face.tag"),
+      icon: "👁", title: t("agent.face._label"), tag: t("agent.face.tag"),
       desc: t("agent.face.desc"),
       detail: t("agent.face.detail"),
       accent: "#E8D5B7", span: "md:col-span-1",
     },
     {
-      icon: "🤚", title: t("agent.palm"), tag: t("agent.palm.tag"),
+      icon: "🤚", title: t("agent.palm._label"), tag: t("agent.palm.tag"),
       desc: t("agent.palm.desc"),
       detail: t("agent.palm.detail"),
       accent: "#2980B9", span: "md:col-span-1",
@@ -319,10 +319,10 @@ export default function MarketingPage() {
 
           <div className="grid md:grid-cols-4 gap-6">
             {[
-              { n: "01", title: t("step1"), icon: "📋", desc: t("step1.desc") },
-              { n: "02", title: t("step2"), icon: "📸", desc: t("step2.desc") },
-              { n: "03", title: t("step3"), icon: "⚡", desc: t("step3.desc") },
-              { n: "04", title: t("step4"), icon: "📖", desc: t("step4.desc") },
+              { n: "01", title: t("step1._label"), icon: "📋", desc: t("step1.desc") },
+              { n: "02", title: t("step2._label"), icon: "📸", desc: t("step2.desc") },
+              { n: "03", title: t("step3._label"), icon: "⚡", desc: t("step3.desc") },
+              { n: "04", title: t("step4._label"), icon: "📖", desc: t("step4.desc") },
             ].map((s, i) => (
               <ScrollReveal key={s.n} delay={i * 0.1} direction="up">
                 <div className="text-center group">
@@ -545,9 +545,9 @@ export default function MarketingPage() {
         <section className="py-16 px-4">
           <div className="max-w-4xl mx-auto flex flex-wrap justify-center gap-8 md:gap-16">
             {[
-              [ShieldCheck, t("trust.security"), t("trust.security.desc")],
-              [Zap, t("trust.speed"), t("trust.speed.desc")],
-              [Eye, t("trust.privacy"), t("trust.privacy.desc")],
+              [ShieldCheck, t("trust.security._label"), t("trust.security.desc")],
+              [Zap, t("trust.speed._label"), t("trust.speed.desc")],
+              [Eye, t("trust.privacy._label"), t("trust.privacy.desc")],
             ].map(([Icon, title, desc]) => (
               <div key={String(title)} className="flex items-center gap-3 text-white/40">
                 <Icon size={20} className="text-gold/50" />
