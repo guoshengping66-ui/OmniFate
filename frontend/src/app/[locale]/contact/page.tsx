@@ -1,9 +1,10 @@
 "use client"
 import { useState } from "react"
-import { Mail, MessageCircle, Send, CheckCircle } from "lucide-react"
+import { Mail, MessageCircle, Send, CheckCircle, Loader2 } from "lucide-react"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { api } from "@/lib/api"
 import toast from "react-hot-toast"
 
 export default function ContactPage() {
@@ -13,15 +14,24 @@ export default function ContactPage() {
   const [subject, setSubject] = useState("")
   const [message, setMessage] = useState("")
   const [submitted, setSubmitted] = useState(false)
+  const [sending, setSending] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!name.trim() || !email.trim() || !message.trim()) {
       toast.error(t("contact.form.fillAll"))
       return
     }
-    setSubmitted(true)
-    toast.success(t("contact.form.sentSuccess"))
+    setSending(true)
+    try {
+      await api.post("/api/contact", { name, email, subject, message })
+      setSubmitted(true)
+      toast.success(t("contact.form.sentSuccess"))
+    } catch {
+      toast.error(t("contact.form.sendFailed"))
+    } finally {
+      setSending(false)
+    }
   }
 
   return (
@@ -154,9 +164,11 @@ export default function ContactPage() {
 
                 <button
                   type="submit"
-                  className="btn-gold w-full py-3 flex items-center justify-center gap-2"
+                  disabled={sending}
+                  className="btn-gold w-full py-3 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Send size={16} /> {t("contact.form.send")}
+                  {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                  {sending ? t("contact.form.sending") : t("contact.form.send")}
                 </button>
                 <p className="text-white/20 text-[10px] text-center">
                   {t("contact.form.note")}

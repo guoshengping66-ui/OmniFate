@@ -1934,6 +1934,8 @@ export default {
   "contact.form.note": "After submitting, check your email for a reply, or email us at support@khanfate.com",
   "contact.form.fillAll": "Please fill in all required fields",
   "contact.form.sentSuccess": "Message sent! We'll reply soon.",
+  "contact.form.sendFailed": "Failed to send. Please try again or email us at support@khanfate.com",
+  "contact.form.sending": "Sending...",
 
   // ─── Referral Page ───
   "referral.title": "Star Alliance Invitations",

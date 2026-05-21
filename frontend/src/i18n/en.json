@@ -1118,6 +1118,8 @@
       "note": "After submitting, check your email for a reply, or email us at support@khanfate.com",
       "send": "Send Message",
       "sentSuccess": "Message sent! We'll reply soon.",
+      "sendFailed": "Failed to send. Please try again or email us at support@khanfate.com",
+      "sending": "Sending...",
       "subject": "Subject",
       "subjectBilling": "Payment & Refunds",
       "subjectFeedback": "Feature Suggestion",

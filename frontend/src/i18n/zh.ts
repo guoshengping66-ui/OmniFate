@@ -1928,6 +1928,8 @@ export default {
   "contact.form.note": "提交后请留意邮箱回复，或直接发送邮件至 support@khanfate.com",
   "contact.form.fillAll": "请填写完整信息",
   "contact.form.sentSuccess": "消息已发送，我们会尽快回复！",
+  "contact.form.sendFailed": "发送失败，请稍后重试或直接发邮件至 support@khanfate.com",
+  "contact.form.sending": "发送中...",
 
   // ─── 邀请页面 ───
   "referral.title": "星盟邀请",
