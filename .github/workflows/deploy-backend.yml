@@ -2,11 +2,11 @@
 #  命盘智镜 — 后端自动部署 (GitHub Actions → 阿里云)
 # ══════════════════════════════════════════════════════════════════════════════
 #  触发: push 到 main 且 backend/ 有变更，或手动触发
-#  流程: SSH → systemctl restart (服务自动 git pull) → 健康检查
+#  流程: SSH → kill 进程 → systemd 自动重启 (deploy.sh 拉取最新代码) → 健康检查
 #
-#  服务器 systemd 服务配置 (ExecStartPre 自动拉取最新代码):
-#    ExecStartPre=/bin/bash -c 'cd /opt/OmniFate && git pull origin main'
-#    Restart=on-failure
+#  服务器配置:
+#    /opt/OmniFate/deploy.sh — 拉取代码 + 启动 uvicorn
+#    systemd Restart=always — 进程被杀后自动重启 deploy.sh
 # ══════════════════════════════════════════════════════════════════════════════
 
 name: Deploy Backend
@@ -43,13 +43,20 @@ jobs:
             CURRENT_COMMIT=$(git rev-parse HEAD)
             echo "当前 commit: $CURRENT_COMMIT"
 
-            # 2. 重启服务 (ExecStartPre 会自动 git pull)
-            echo "🔄 重启服务..."
-            systemctl restart omnifate-backend
+            # 2. 杀掉 uvicorn 进程 (systemd 会自动重启 deploy.sh → git pull → 新代码)
+            echo "🔄 杀掉旧进程，触发 systemd 自动重启..."
+            PID=$(lsof -ti :8002 2>/dev/null || true)
+            if [ -n "$PID" ]; then
+              kill "$PID" 2>/dev/null || true
+              echo "已停止进程: $PID"
+            else
+              echo "没有发现运行中的进程，尝试 fuser..."
+              fuser -k 8002/tcp 2>/dev/null || true
+            fi
 
-            # 3. 等待服务启动
-            echo "⏳ 等待服务启动..."
-            sleep 8
+            # 3. 等待 systemd 重启 (deploy.sh 会 git pull + 启动新进程)
+            echo "⏳ 等待服务重启..."
+            sleep 15
 
             # 4. 验证新 commit
             NEW_COMMIT=$(git rev-parse HEAD)
