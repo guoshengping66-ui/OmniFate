@@ -49,7 +49,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.APP_NAME,
     description="全维度命理分析平台 API",
-    version="1.1.0",
+    version="1.0.0",
     lifespan=lifespan,
     redirect_slashes=False,
 )
@@ -184,4 +184,4 @@ app.include_router(billing.webhook_router, prefix="/api/webhooks", tags=["Webhoo
 @app.get("/health")
 async def health():
     """Health check endpoint"""
-    return {"status": "ok", "app": settings.APP_NAME, "version": "1.1.0"}
+    return {"status": "ok", "app": settings.APP_NAME}
