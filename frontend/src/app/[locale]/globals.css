@@ -1,5 +1,15 @@
-﻿/* Chinese mirror of Google Fonts for users in mainland China */
-@import url("https://fonts.font.im/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&family=Inter:wght@300;400;500;600&display=swap");
+﻿/*
+ * Font loading strategy:
+ * - Inter: Latin subset (325KB) - loaded via CSS @import
+ * - Chinese fonts: Use system fonts first, web font as fallback
+ * - font-display: optional prevents FOUT (Flash of Unstyled Text)
+ *
+ * System font stack:
+ * - Windows: Microsoft YaHei, SimHei
+ * - macOS: PingFang SC, Songti SC
+ * - Linux: Noto Sans CJK SC, WenQuanYi Micro Hei
+ */
+@import url("https://fonts.font.im/css2?family=Inter:wght@300;400;500;600&display=optional");
 
 @tailwind base;
 @tailwind components;
