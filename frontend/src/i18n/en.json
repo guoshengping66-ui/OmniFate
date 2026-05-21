@@ -717,7 +717,8 @@
     "unlockFull": "Unlock Full Report",
     "viewDetails": "View Details",
     "year": "Year",
-    "yearSuffix": ""
+    "yearSuffix": "",
+    "skipFacePalm": "Skip face & palm scan"
   },
   "shop": {
     "detail": {
