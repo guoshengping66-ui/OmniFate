@@ -62,7 +62,7 @@ export function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           {/* Logo */}
           <Link href={localeHref("/")} className="flex items-center gap-2.5 group flex-shrink-0">
-            <img src="/logo.png" alt="命盘智镜" className="w-9 h-9 rounded-full object-cover shadow-[0_0_20px_rgba(201,168,76,0.3)] group-hover:scale-110 transition-transform" />
+            <img src="/logo.png" alt="命盘智镜" className="w-8 h-8 rounded-full object-cover ring-1 ring-gold/30 group-hover:ring-gold/60 transition-all" />
             <span className="font-serif font-bold text-lg text-gold">{t("app.name")}</span>
           </Link>
 
