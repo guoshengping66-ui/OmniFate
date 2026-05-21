@@ -64,7 +64,7 @@ jobs:
 
             # 4. 通过 systemd 重启服务
             echo "🔄 重启服务..."
-            systemctl restart omnifate-backend
+            sudo systemctl restart omnifate-backend
 
             # 5. 等待服务启动
             echo "⏳ 等待服务启动..."
@@ -91,7 +91,7 @@ jobs:
               git reset --hard "$CURRENT_COMMIT"
 
               # 重启旧版本
-              systemctl restart omnifate-backend
+              sudo systemctl restart omnifate-backend
               sleep 5
               ROLLBACK_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8002/health || echo "000")
               if [ "$ROLLBACK_CODE" = "200" ]; then
