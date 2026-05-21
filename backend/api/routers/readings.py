@@ -2274,7 +2274,7 @@ async def get_personalized_almanac(payload: PersonalizedAlmanacRequest):
     today = date.today()
     cache_key = f"personalized:{payload.birth_year}-{payload.birth_month}-{payload.birth_day}:{today}"
     cached = _almanac_cache.get(cache_key)
-    if cached and (_time.time() - cached.get("_ts", 0)) < _ALMANAC_CACHE_TTL:
+    if cached and (time.time() - cached.get("_ts", 0)) < _ALMANAC_CACHE_TTL:
         from fastapi.responses import JSONResponse as _JSONResp
         return _JSONResp(content={k: v for k, v in cached.items() if k != "_ts"})
 
@@ -2348,7 +2348,7 @@ async def get_personalized_almanac(payload: PersonalizedAlmanacRequest):
         wuxing_analysis=almanac_data.get("wuxing_analysis", ""),
     )
 
-    _almanac_cache[cache_key] = {**result.model_dump(), "_ts": _time.time()}
+    _almanac_cache[cache_key] = {**result.model_dump(), "_ts": time.time()}
     if len(_almanac_cache) > 500:
         oldest_keys = sorted(_almanac_cache, key=lambda k: _almanac_cache[k].get("_ts", 0))[:200]
         for k in oldest_keys:
