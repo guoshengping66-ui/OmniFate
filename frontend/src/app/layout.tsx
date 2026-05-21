@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description:
     "AI-powered destiny analysis combining Bazi, Western astrology, Tarot, face reading, and palmistry. Discover your life blueprint and personalized fortune guidance.",
   keywords: ["bazi", "astrology", "tarot", "face reading", "destiny", "fortune"],
-  icons: { icon: "/logo-dark.png" },
+  icons: { icon: "/logo.png" },
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
