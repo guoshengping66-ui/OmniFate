@@ -42,6 +42,12 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  // Optimize imports from large packages to reduce bundle size
+  optimizePackageImports: [
+    "lucide-react",
+    "framer-motion",
+    "react-hot-toast",
+  ],
   async headers() {
     return [
       {

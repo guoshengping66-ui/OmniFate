@@ -2,7 +2,6 @@
 
 import { useRef, useMemo, Suspense, useEffect } from "react"
 import { Canvas, useFrame } from "@react-three/fiber"
-import { Points, PointMaterial } from "@react-three/drei"
 import * as THREE from "three"
 
 type AgentStatusValue = "pending" | "running" | "done" | "error" | "skipped"
@@ -137,6 +136,14 @@ function ParticleField({
     return { positions: pos, colors: col }
   }, [])
 
+  // Create geometry with positions and colors
+  const geometry = useMemo(() => {
+    const geo = new THREE.BufferGeometry()
+    geo.setAttribute("position", new THREE.BufferAttribute(positions, 3))
+    geo.setAttribute("color", new THREE.BufferAttribute(colors, 3))
+    return geo
+  }, [positions, colors])
+
   // Update colors based on completed agents
   useFrame(() => {
     if (!pointsRef.current) return
@@ -179,8 +186,8 @@ function ParticleField({
   }, [progressPct])
 
   return (
-    <Points ref={pointsRef} positions={positions} colors={colors} stride={3} frustumCulled={false}>
-      <PointMaterial
+    <points ref={pointsRef} geometry={geometry}>
+      <pointsMaterial
         vertexColors
         size={particleSize}
         sizeAttenuation
@@ -188,7 +195,7 @@ function ParticleField({
         opacity={0.8}
         depthWrite={false}
       />
-    </Points>
+    </points>
   )
 }
 
