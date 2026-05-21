@@ -536,6 +536,7 @@ export default {
   "about.origin": "Our Origin & Mission",
   "about.originP1": "AlphaMirror was born at the intersection of quantitative finance, behavioral psychology, and frontier AI orchestration. In high-stakes trading, the ultimate adversary is never the market—it is the unmonitored human psyche.",
   "about.originP2": "Our mission is to provide global retail and institutional traders with a real-time behavioral mindfulness mirror. By synthesizing complex trading data into actionable cognitive insights, we empower traders to conquer emotional blindspots, achieve flawless discipline, and cultivate an unshakeable alignment between execution and intent.",
+  "about.originP3": "But our ambition extends far beyond individual performance optimization. We envision a future where behavioral intelligence becomes the new standard of professional trading — where every decision is informed, every emotion is acknowledged, and every trader has access to the institutional-grade psychological edge that was once reserved for the few.",
   "about.philosophy": "Core Philosophy",
   "about.philosophySubtitle": "Three Pillars of Behavioral Analytics",
   "about.pillar1Title": "Flow Audit",
