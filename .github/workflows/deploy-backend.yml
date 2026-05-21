@@ -2,12 +2,15 @@
 #  命盘智镜 — 后端自动部署 (GitHub Actions → 阿里云)
 # ══════════════════════════════════════════════════════════════════════════════
 #  触发: push 到 main 且 backend/ 有变更，或手动触发
-#  流程: SSH → git pull → 重启 uvicorn → 健康检查 → 失败自动回滚
+#  流程: SSH → git pull → sudo systemctl restart → 健康检查 → 失败自动回滚
 #
 #  需要在 GitHub repo Settings → Secrets 中配置:
 #    SERVER_HOST     — 阿里云服务器 IP
 #    SERVER_USER     — SSH 用户名 (root)
 #    SSH_PRIVATE_KEY — SSH 私钥
+#
+#  服务器需要配置免密 sudo:
+#    echo "root ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart omnifate-backend, /usr/bin/systemctl stop omnifate-backend, /usr/bin/systemctl start omnifate-backend" > /etc/sudoers.d/deploy && chmod 440 /etc/sudoers.d/deploy
 # ══════════════════════════════════════════════════════════════════════════════
 
 name: Deploy Backend
@@ -62,36 +65,15 @@ jobs:
               pip3 install -r requirements.txt -q
             fi
 
-            # 4. 停止 systemd 服务，避免端口冲突
-            echo "🔄 停止 systemd 服务..."
-            systemctl stop omnifate-backend 2>/dev/null || true
-            sleep 2
+            # 4. 通过 systemd 重启服务
+            echo "🔄 重启服务..."
+            sudo systemctl restart omnifate-backend
 
-            # 5. 杀掉残留进程
-            PID=$(lsof -ti :8002 2>/dev/null || true)
-            if [ -n "$PID" ]; then
-              kill "$PID" 2>/dev/null || true
-              sleep 2
-            fi
-
-            # 6. 禁用 systemd 服务，用 nohup 管理
-            echo "🚫 禁用 systemd 服务..."
-            systemctl disable omnifate-backend 2>/dev/null || true
-
-            # 7. 启动新的 uvicorn (后台运行)
-            echo "🚀 启动新服务..."
-            cd /opt/OmniFate
-            nohup python3.9 -m uvicorn backend.main:app \
-              --host 127.0.0.1 --port 8002 \
-              --log-level info > /tmp/uvicorn.log 2>&1 &
-            NEW_PID=$!
-            echo "新进程 PID: $NEW_PID"
-
-            # 8. 等待服务启动
+            # 5. 等待服务启动
             echo "⏳ 等待服务启动..."
-            sleep 8
+            sleep 5
 
-            # 9. 健康检查 (最多重试 5 次，间隔 5 秒)
+            # 6. 健康检查 (最多重试 5 次，间隔 5 秒)
             echo "🔍 健康检查..."
             HEALTH_OK=false
             for i in 1 2 3 4 5; do
@@ -105,25 +87,13 @@ jobs:
               sleep 5
             done
 
-            # 10. 健康检查失败 → 自动回滚
+            # 7. 健康检查失败 → 自动回滚
             if [ "$HEALTH_OK" = "false" ]; then
               echo "❌ 健康检查失败！自动回滚到 $CURRENT_COMMIT ..."
               cd /opt/OmniFate
               git reset --hard "$CURRENT_COMMIT"
-
-              # 杀掉失败的进程
-              PID=$(lsof -ti :8002 2>/dev/null || true)
-              if [ -n "$PID" ]; then
-                kill "$PID" 2>/dev/null || true
-              fi
-              sleep 3
-
-              # 启动旧版本
-              nohup python3.9 -m uvicorn backend.main:app \
-                --host 127.0.0.1 --port 8002 \
-                --log-level info > /tmp/uvicorn.log 2>&1 &
-
-              sleep 8
+              sudo systemctl restart omnifate-backend
+              sleep 5
               ROLLBACK_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8002/health || echo "000")
               if [ "$ROLLBACK_CODE" = "200" ]; then
                 echo "✅ 回滚成功，旧版本运行正常"
