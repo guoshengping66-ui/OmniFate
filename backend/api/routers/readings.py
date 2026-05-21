@@ -2231,6 +2231,132 @@ async def get_daily_almanac(
     return result
 
 
+# ─── Personalized Almanac (birth-profile based, no session required) ──────
+
+class PersonalizedAlmanacRequest(BaseModel):
+    birth_year: int
+    birth_month: int
+    birth_day: int
+    birth_hour: int = 12
+    birth_minute: int = 0
+    gender: str = "male"
+    birth_city: str = ""
+    latitude: float | None = None
+    longitude: float | None = None
+
+
+@router.post("/personalized-almanac", response_model=DailyAlmanacResponse)
+async def get_personalized_almanac(payload: PersonalizedAlmanacRequest):
+    """
+    Get personalized daily almanac from birth profile params directly.
+    Used by the dashboard when user has no reading sessions yet.
+    """
+    from agents.state import SystemState, BirthInfo
+
+    bi = BirthInfo(
+        year=payload.birth_year, month=payload.birth_month, day=payload.birth_day,
+        hour=payload.birth_hour, minute=payload.birth_minute,
+        city=payload.birth_city,
+        latitude=payload.latitude, longitude=payload.longitude,
+        gender=payload.gender,
+    )
+
+    state = SystemState(
+        session_id="personalized",
+        birth_info=bi,
+        dimension_scores={},
+        computed_tags=[],
+        master_summary="",
+        bazi_raw={},
+        astrology_raw={},
+    )
+
+    today = date.today()
+    cache_key = f"personalized:{payload.birth_year}-{payload.birth_month}-{payload.birth_day}:{today}"
+    cached = _almanac_cache.get(cache_key)
+    if cached and (_time.time() - cached.get("_ts", 0)) < _ALMANAC_CACHE_TTL:
+        from fastapi.responses import JSONResponse as _JSONResp
+        return _JSONResp(content={k: v for k, v in cached.items() if k != "_ts"})
+
+    # Compute natal chart
+    natal_planets = {}
+    transit = {"transit_planets": {}, "transit_natal_aspects": []}
+    from calculators.astrology_calculator import AstrologyCalculator
+    astro_calc = AstrologyCalculator()
+    try:
+        natal_chart = astro_calc.calculate(
+            year=bi.year, month=bi.month, day=bi.day,
+            hour=bi.hour, minute=bi.minute,
+            latitude=bi.latitude or 0.0, longitude=bi.longitude or 0.0,
+        )
+        natal_planets = natal_chart.planets
+    except Exception:
+        pass
+    try:
+        today_dt = datetime(today.year, today.month, today.day, 12, 0, tzinfo=timezone.utc)
+        transit = astro_calc.calculate_transit_for_date(today_dt, natal_planets)
+    except Exception:
+        pass
+
+    # Compute today's bazi + lunar
+    today_bazi = None
+    lunar_date_str = ""
+    bazi_day_pillar_str = ""
+    try:
+        today_bazi = BaziCalculator.calculate_transit_pillars(today.year, today.month, today.day)
+        if today_bazi:
+            dp = today_bazi.get("day_pillar", {})
+            bazi_day_pillar_str = dp.get("ganzhi", "")
+    except Exception:
+        pass
+    try:
+        from lunar_python import Solar
+        today_lunar = Solar.fromYmd(today.year, today.month, today.day).getLunar()
+        lunar_date_str = today_lunar.toFullString()
+    except Exception:
+        pass
+
+    energy_score = _compute_energy_score({}, None)
+
+    almanac_data = await _generate_almanac(
+        state=state, today=today,
+        transit_bazi=today_bazi, transit_astro=transit,
+        energy_score=energy_score,
+    )
+
+    from services.product_matcher import ProductMatcher
+    matcher = ProductMatcher()
+    matched = matcher.match_with_reasons(
+        weakness_tags=[], boost_elements=almanac_data.get("boost_elements", []), top_k=3,
+    )
+    for p in matched:
+        p["recommendation_text"] = matcher.explain_why_template(
+            product=p, weakness_tags=[], boost_elements=almanac_data.get("boost_elements", []),
+        )
+
+    hu_items = [{"product": p, "reason": p.get("match_reasons", [""])[0] if p.get("match_reasons") else "今日能量匹配"} for p in matched]
+
+    result = DailyAlmanacResponse(
+        date=today.isoformat(),
+        lunar_date=lunar_date_str,
+        bazi_day_pillar=bazi_day_pillar_str,
+        energy_score=energy_score,
+        yi=almanac_data.get("yi", []),
+        ji=almanac_data.get("ji", []),
+        hu=hu_items,
+        daily_quote=almanac_data.get("daily_quote", "顺势而为，方得始终。"),
+        wuxing_analysis=almanac_data.get("wuxing_analysis", ""),
+    )
+
+    _almanac_cache[cache_key] = {**result.model_dump(), "_ts": _time.time()}
+    if len(_almanac_cache) > 500:
+        oldest_keys = sorted(_almanac_cache, key=lambda k: _almanac_cache[k].get("_ts", 0))[:200]
+        for k in oldest_keys:
+            _almanac_cache.pop(k, None)
+
+    return result
+
+
 async def _generate_almanac(
     state: SystemState,
     today: date,

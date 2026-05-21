@@ -779,11 +779,14 @@ export interface EventListItem {
 
 export interface DailyAlmanacResponse {
   date: string
+  lunar_date: string
+  bazi_day_pillar: string
   energy_score: number
   yi: string[]
   ji: string[]
   hu: { product: Product; reason: string }[]
   daily_quote: string
+  wuxing_analysis: string
 }
 
 export async function analyzeEvent(data: AnalyzeEventRequest): Promise<AnalyzeEventResponse> {
@@ -807,6 +810,50 @@ export async function getEventDetail(eventId: string): Promise<AnalyzeEventRespo
 export async function getDailyAlmanac(sessionId: string, lang: string = "zh"): Promise<DailyAlmanacResponse> {
   const res = await api.get<DailyAlmanacResponse>("/api/readings/daily-almanac", { params: { session_id: sessionId, lang }, timeout: 30_000 })
   return res.data
+}
+
+export interface PersonalizedAlmanacParams {
+  birth_year: number
+  birth_month: number
+  birth_day: number
+  birth_hour: number
+  birth_minute?: number
+  gender?: string
+  birth_city?: string
+  latitude?: number
+  longitude?: number
+}
+
+export async function getPersonalizedDailyAlmanac(
+  params: PersonalizedAlmanacParams,
+  lang: string = "zh",
+  fast: boolean = true,
+): Promise<DailyAlmanacResponse> {
+  const res = await api.post<DailyAlmanacResponse>(
+    "/api/readings/personalized-almanac",
+    safeJson({ ...params, birth_minute: params.birth_minute ?? 0, gender: params.gender ?? "male" }),
+    { timeout: 30_000, headers: { "Content-Type": "application/json" } },
+  )
+  return res.data
+}
+
+export async function getPersonalizedFortune(
+  birthProfile: { birth_year: number; birth_month: number; birth_day: number; birth_hour: number },
+): Promise<DailyFortuneResponse | null> {
+  try {
+    const res = await api.get<DailyFortuneResponse>("/api/readings/daily-fortune", {
+      params: {
+        birth_year: birthProfile.birth_year,
+        birth_month: birthProfile.birth_month,
+        birth_day: birthProfile.birth_day,
+        birth_hour: birthProfile.birth_hour,
+      },
+      timeout: 15_000,
+    })
+    return res.data
+  } catch {
+    return null
+  }
 }
 
 // ── My Readings (P1-1) ────────────────────────────────────────────────────
