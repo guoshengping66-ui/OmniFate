@@ -10,7 +10,7 @@ import secrets
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Header
 from pydantic import BaseModel, EmailStr, field_validator
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,11 +19,13 @@ from database import get_db
 from database.models import User, CreditTransaction
 from auth.jwt import (
     create_access_token, create_refresh_token, verify_token,
-    hash_password, verify_password,
+    hash_password, verify_password, blacklist_token, ALGORITHM,
 )
 from auth.dependencies import get_current_user, require_user
+from config import get_settings
 
 router = APIRouter()
+settings = get_settings()
 
 # ── Registration bonus ────────────────────────────────────────────────────
 REGISTER_BONUS_STARDUST = 50  # 注册验证通过奖励星尘
@@ -325,15 +327,14 @@ async def register(req: RegisterRequest, request: Request, db: AsyncSession = De
     from config import get_settings as _gs
     _s = _gs()
 
-    # Email failed to send: in DEBUG return code for testing, in production reject
+    # Email failed to send: in DEBUG log code for testing, in production reject
     if not email_sent:
         if _s.DEBUG:
-            # Dev convenience: return code in response for testing
-            print(f"[AUTH] Email send failed, returning verification code in response for dev testing")
+            # Dev convenience: log code instead of exposing in response
+            print(f"[DEV] Registration verification code for {req.email}: {code}")
             return {
                 "message": "注册成功，请查收邮箱验证码完成验证",
                 "email": req.email,
-                "_dev_code": code,  # DEBUG only — never expose in production
             }
         # Production: email service unavailable, reject registration
         # Clean up the unverified user we just created (re-attach after commit)
@@ -347,7 +348,7 @@ async def register(req: RegisterRequest, request: Request, db: AsyncSession = De
 
     resp = {"message": "注册成功，请查收邮箱验证码完成验证", "email": req.email}
     if _s.DEBUG:
-        resp["_dev_code"] = code  # DEBUG only — convenience for testing
+        print(f"[DEV] Registration verification code for {req.email}: {code}")
     return resp
 
 
@@ -384,7 +385,7 @@ async def send_code(req: SendCodeRequest, request: Request, db: AsyncSession = D
         user.verification_expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
         await db.commit()
         if _s3.DEBUG:
-            print(f"[AUTH] Email send failed, verification code for {req.email}: {code}")
+            print(f"[DEV] Send-code verification code for {req.email}: {code}")
         # Email failed — return success to prevent email enumeration
         return {"message": "验证码已发送"}
 
@@ -514,6 +515,31 @@ async def get_me(user: User = Depends(require_user)):
     return _user_dict(user)
 
 
+# ── Logout ─────────────────────────────────────────────────────────────────
+
+@router.post("/logout")
+async def logout(
+    current_user: User = Depends(require_user),
+    authorization: Optional[str] = Header(None),
+):
+    """Logout — blacklist the current refresh token to prevent reuse."""
+    if authorization:
+        token = authorization.replace("Bearer ", "").strip()
+        try:
+            from jose import jwt as _jwt
+            payload = _jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[ALGORITHM])
+            if payload.get("type") == "refresh":
+                jti = payload.get("jti")
+                if jti:
+                    blacklist_token(jti)
+        except Exception:
+            pass  # Token invalid/expired — proceed with logout anyway
+    return {"message": "已登出"}
+
+
+# ── Refresh Token ──────────────────────────────────────────────────────────
+
+
 # ── Refresh Token ──────────────────────────────────────────────────────────
 
 @router.post("/refresh")
@@ -575,8 +601,8 @@ async def forgot_password(req: SendCodeRequest, request: Request, db: AsyncSessi
         user.verification_expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
         await db.commit()
         if _s2.DEBUG:
-            print(f"[AUTH] Email send failed, reset code for {req.email}: {code}")
-            return {"message": "验证码已发送到您的邮箱", "_dev_code": code}
+            print(f"[DEV] Password reset code for {req.email}: {code}")
+        return {"message": "验证码已发送到您的邮箱"}
         raise HTTPException(status_code=503, detail="邮件服务暂不可用，请稍后再试")
 
     # Email sent (or SMTP configured) — now store code in DB
@@ -588,7 +614,7 @@ async def forgot_password(req: SendCodeRequest, request: Request, db: AsyncSessi
     _s4 = _gs4()
     resp = {"message": "验证码已发送到您的邮箱"}
     if _s4.DEBUG:
-        resp["_dev_code"] = code  # DEBUG only — convenience for testing
+        print(f"[DEV] Forgot-password code for {req.email}: {code}")
     return resp
 
 

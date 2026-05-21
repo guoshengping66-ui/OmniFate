@@ -63,7 +63,7 @@ app.add_middleware(
 )
 
 # GZip compression — reduces response size ~3-5x (e.g. 5KB → 1-2KB)
-app.add_middleware(GZipMiddleware, minimum_size=500)
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 
 @app.exception_handler(Exception)

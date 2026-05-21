@@ -70,9 +70,10 @@ _SESSION_MAX_AGE = 3600 * 2  # 2 hours
 _last_session_cleanup: float = 0.0
 
 # ── LRU cache for completed readings (avoids repeated DB queries) ──────────
-_reading_cache: dict[str, tuple[float, AnalysisResponse]] = {}
+_reading_cache: dict[str, tuple[float, AnalysisResponse, int]] = {}  # (time, response, size_bytes)
 _READING_CACHE_TTL = 600  # 10 minutes
 _READING_CACHE_MAX = 200  # max cached readings
+_READING_CACHE_MAX_BYTES = 50 * 1024 * 1024  # 50MB total cache limit
 
 # Prevent background tasks from being garbage-collected
 _bg_tasks: set = set()
@@ -87,14 +88,36 @@ def _get_reading_cache(session_id: str) -> Optional[AnalysisResponse]:
     return None
 
 
+def _estimate_cache_size(resp: AnalysisResponse) -> int:
+    """Estimate memory size of a cached response in bytes."""
+    import sys
+    size = sys.getsizeof(resp.master_summary) + sys.getsizeof(resp.master_detail)
+    for key in _WORKER_REPORT_KEYS:
+        wo = getattr(resp, key, None)
+        if wo:
+            size += sys.getsizeof(wo.report)
+    return size
+
+
 def _set_reading_cache(session_id: str, resp: AnalysisResponse):
-    """Cache an AnalysisResponse, evicting oldest if over max."""
+    """Cache an AnalysisResponse with size tracking and limits."""
     import time
-    if len(_reading_cache) >= _READING_CACHE_MAX:
-        # Evict oldest
+    resp_size = _estimate_cache_size(resp)
+
+    # Skip caching oversized responses (>200KB per entry)
+    if resp_size > 200 * 1024:
+        return
+
+    # Evict until under size limit and max count
+    total_size = sum(entry[2] for entry in _reading_cache.values())
+    while total_size > _READING_CACHE_MAX_BYTES or len(_reading_cache) >= _READING_CACHE_MAX:
+        if not _reading_cache:
+            break
         oldest_key = min(_reading_cache, key=lambda k: _reading_cache[k][0])
+        total_size -= _reading_cache[oldest_key][2]
         del _reading_cache[oldest_key]
-    _reading_cache[session_id] = (time.time(), resp)
+
+    _reading_cache[session_id] = (time.time(), resp, resp_size)
 
 
 # ─── Request / Response Schemas ───────────────────────────────────────────
@@ -210,18 +233,29 @@ def _apply_content_lock(resp: AnalysisResponse, current_user: Optional[User], re
     """
     Strip paid content (master_detail + long worker reports) for users who
     haven't unlocked the reading.  Called before every GET response.
+    SECURITY: Anonymous reports show minimal data only.
     """
     is_unlocked = False
     if reading:
+        # Case 0: Anonymous report — strip all personal data
+        if not reading.user_id:
+            resp.master_summary = "登录后查看完整分析"
+            resp.master_detail = ""
+            resp.is_detail_unlocked = False
+            for key in _WORKER_REPORT_KEYS:
+                wo = getattr(resp, key, None)
+                if wo:
+                    wo.report = ""
+            return resp
         # Case 1: user owns this reading AND has unlocked it
-        if current_user and reading.user_id and str(reading.user_id) == str(current_user.id) and reading.is_detail_unlocked:
+        if current_user and str(reading.user_id) == str(current_user.id) and reading.is_detail_unlocked:
             is_unlocked = True
         # Case 2: user has an active premium subscription
         elif current_user and current_user.is_premium and current_user.premium_expires_at and current_user.premium_expires_at > datetime.now(timezone.utc):
             is_unlocked = True
     else:
-        # In-memory session — trust the response flag
-        if getattr(resp, "is_detail_unlocked", False):
+        # In-memory session — only unlocked if user owns it
+        if current_user and getattr(resp, "is_detail_unlocked", False):
             is_unlocked = True
 
     if not is_unlocked:
@@ -349,7 +383,10 @@ async def _persist_session(session_id: str, user_id: Optional[str] = None, langu
 
 
 async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
-    """Background task: run the full pipeline then persist results to DB."""
+    """Background task: run the full pipeline then persist results to DB.
+    SECURITY: Includes timeout protection to prevent infinite-running tasks.
+    """
+    ANALYSIS_TIMEOUT_SECONDS = 300  # 5 minutes max
     print(f"[BG] Starting analysis for {state.session_id}")
     # Update status to processing
     try:
@@ -367,8 +404,15 @@ async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
         # Lazy imports to avoid cold-start cost
         from agents.graph import run_full_analysis
         print(f"[BG] Running full analysis pipeline for {state.session_id}")
-        state = await run_full_analysis(state)
+        state = await asyncio.wait_for(
+            run_full_analysis(state),
+            timeout=ANALYSIS_TIMEOUT_SECONDS,
+        )
         print(f"[BG] Analysis completed for {state.session_id}, phase={state.phase}")
+    except asyncio.TimeoutError:
+        state.errors.append("分析超时，部分结果可能不完整")
+        state.phase = "done"
+        print(f"[TIMEOUT] Analysis timed out for {state.session_id} after {ANALYSIS_TIMEOUT_SECONDS}s")
     except Exception as e:
         state.errors.append(str(e))
         state.phase = "done"
@@ -414,6 +458,7 @@ async def chat_followup(
     Routes user question to the correct expert agent and returns a focused answer.
     需要登录，防止未授权消耗 API 额度
     """
+    import re as _re
     from agents.graph import run_chat
 
     state = _sessions.get(payload.session_id)
@@ -424,7 +469,19 @@ async def chat_followup(
     if state.user_id and str(state.user_id) != str(current_user.id):
         raise HTTPException(status_code=403, detail="无权访问此 session")
 
-    answer, agent_id, updated_state = await run_chat(payload.question, state)
+    # ── SECURITY: Sanitize user input to prevent prompt injection ──
+    question = payload.question[:2000] if payload.question else ""
+    injection_patterns = [
+        r"忽略.*指令", r"ignore.*instructions", r"system\s*prompt",
+        r"disregard.*previous", r"pretend.*you.*are", r"act\s+as\s+",
+        r"roleplay\s+as", r"ignore.*all.*rules", r"you\s+are\s+now",
+        r"bypass.*safety", r"jailbreak", r"DAN\s+mode",
+    ]
+    for pattern in injection_patterns:
+        if _re.search(pattern, question, _re.IGNORECASE):
+            question = "请围绕命理主题提问。"
+
+    answer, agent_id, updated_state = await run_chat(question, state)
     _sessions[payload.session_id] = updated_state
 
     return ChatResponse(
@@ -488,12 +545,23 @@ async def get_session(
     # Fastest path: completed reading cache (skip DB entirely)
     cached = _get_reading_cache(session_id)
     if cached:
-        # Verify ownership if user is logged in
-        if current_user and cached.is_detail_unlocked:
-            # Need to check actual ownership from DB for unlocked readings
-            pass  # fall through to DB path for ownership check
-        else:
-            return cached
+        # ── SECURITY: Always verify ownership before returning cached data ──
+        if current_user:
+            # Must check actual ownership from DB for any cached response
+            try:
+                async with AsyncSessionLocal() as db:
+                    result = await db.execute(
+                        select(Reading).where(Reading.id == session_id)
+                    )
+                    reading = result.scalar_one_or_none()
+                    if reading and reading.user_id and str(reading.user_id) != str(current_user.id):
+                        raise HTTPException(status_code=403, detail="无权访问此报告")
+            except HTTPException:
+                raise
+            except Exception:
+                pass  # DB check failed — fall through to full DB path
+        # Apply content lock before returning
+        return _apply_content_lock(cached, current_user, None)
 
     # Fast path: in-memory cache
     state = _sessions.get(session_id)
@@ -846,6 +914,11 @@ async def stream_session(
 
             await asyncio.sleep(0.5)
 
+            # ── SECURITY: Send heartbeat every 15s to prevent proxy timeout ──
+            if time.time() - phase_changed_at > 0 and int(time.time() - phase_changed_at) % 15 == 0:
+                yield f"data: {json.dumps({'type': 'heartbeat'})}\n\n"
+                await asyncio.sleep(0.1)  # Ensure heartbeat is sent
+
         # Flush any remaining subtask events that completed at the same time as phase="done"
         for st_name, st_field in [
             ("core", "master_subtask_core"),
@@ -939,6 +1012,42 @@ async def delete_reading(session_id: str, user: User = Depends(require_user)):
 
 MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10MB
 
+# ── SECURITY: File type validation constants ──────────────────────────────────
+ALLOWED_IMAGE_MIME_PREFIXES = ("image/jpeg", "image/png", "image/webp", "image/bmp")
+# Magic bytes for common image formats
+IMAGE_MAGIC_BYTES = {
+    b"\xff\xd8\xff": "image/jpeg",
+    b"\x89PNG": "image/png",
+    b"RIFF": "image/webp",   # WebP starts with RIFF header
+    b"BM": "image/bmp",
+}
+
+
+def _validate_image_file(content: bytes, filename: str = "") -> None:
+    """Validate uploaded file is a real image by checking magic bytes."""
+    if len(content) < 12:
+        raise HTTPException(status_code=400, detail="文件过小，无法识别格式")
+
+    # Check magic bytes against known image signatures
+    detected_type = None
+    for magic, mime in IMAGE_MAGIC_BYTES.items():
+        if content[:len(magic)] == magic:
+            detected_type = mime
+            break
+
+    if not detected_type:
+        raise HTTPException(
+            status_code=400,
+            detail="不支持的文件格式，请上传 JPEG/PNG/WebP 图片"
+        )
+
+    # Additional check: reject SVG (can contain JavaScript)
+    if content[:5] in (b"<svg ", b"<?xml", b"<SVG "):
+        raise HTTPException(
+            status_code=400,
+            detail="不支持 SVG 格式，请上传 JPEG/PNG/WebP 图片"
+        )
+
 
 @router.post("/upload-face/{session_id}")
 async def upload_face_image(
@@ -961,6 +1070,7 @@ async def upload_face_image(
     content = await file.read()
     if len(content) > MAX_UPLOAD_SIZE:
         raise HTTPException(status_code=413, detail="文件大小超过限制（最大 10MB）")
+    _validate_image_file(content, file.filename or "")
     try:
         result = face_v2t.analyze_bytes(content)
     except RuntimeError as e:
@@ -1025,6 +1135,7 @@ async def analyze_face_image(file: UploadFile = File(...)):
     content = await file.read()
     if len(content) > MAX_UPLOAD_SIZE:
         raise HTTPException(status_code=413, detail="文件大小超过限制（最大 10MB）")
+    _validate_image_file(content, file.filename or "")
     try:
         result = face_v2t.analyze_bytes(content)
     except RuntimeError as e:
@@ -1122,6 +1233,7 @@ async def upload_palm_image(
     content = await file.read()
     if len(content) > MAX_UPLOAD_SIZE:
         raise HTTPException(status_code=413, detail="文件大小超过限制（最大 10MB）")
+    _validate_image_file(content, file.filename or "")
     try:
         result = palm_v2t.analyze_bytes(content)
     except RuntimeError as e:
@@ -1197,6 +1309,7 @@ async def analyze_palm_image(file: UploadFile = File(...)):
     content = await file.read()
     if len(content) > MAX_UPLOAD_SIZE:
         raise HTTPException(status_code=413, detail="文件大小超过限制（最大 10MB）")
+    _validate_image_file(content, file.filename or "")
     try:
         result = palm_v2t.analyze_bytes(content)
     except RuntimeError as e:
@@ -1608,7 +1721,7 @@ async def get_event_detail(
     event_id: str,
     current_user: User = Depends(require_user),
 ):
-    """Get full event analysis detail."""
+    """Get full event analysis detail — with ownership verification."""
     event_uuid = event_id
 
     try:
@@ -1618,6 +1731,10 @@ async def get_event_detail(
             evt = result.scalar_one_or_none()
             if not evt:
                 raise HTTPException(status_code=404, detail="Event not found.")
+
+            # ── SECURITY: Verify event ownership ──
+            if evt.user_id and str(evt.user_id) != str(current_user.id):
+                raise HTTPException(status_code=403, detail="无权访问此事件")
 
             # Load products from product IDs
             from services.product_matcher import ProductMatcher

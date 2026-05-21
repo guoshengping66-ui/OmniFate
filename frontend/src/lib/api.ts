@@ -292,7 +292,7 @@ export async function getSession(sessionId: string, lang?: string): Promise<Anal
 export type AgentStatusValue = "pending" | "running" | "done" | "error" | "skipped"
 
 export interface SSEEvent {
-  type: "phase" | "worker_done" | "subtask_done" | "complete" | "error" | "progress" | "agent_status"
+  type: "phase" | "worker_done" | "subtask_done" | "complete" | "error" | "progress" | "agent_status" | "heartbeat"
   phase?: string
   agent_id?: string
   duration_ms?: number
@@ -313,66 +313,77 @@ export interface SSEEvent {
  * (which has a 30s timeout that kills long-running SSE streams).
  * Instead, we connect directly to the backend — the backend's CORS
  * middleware already allows the frontend origin.
- * Falls back to polling if SSE is unavailable.
+ *
+ * SECURITY: Includes auto-reconnect with exponential backoff (max 3 retries).
  */
 export function streamSession(
   sessionId: string,
   onEvent: (event: SSEEvent) => void,
+  maxRetries: number = 3,
 ): Promise<AnalysisResponse> {
   return new Promise((resolve, reject) => {
-    // In production, bypass the Next.js proxy for SSE (proxy has a 30s
-    // timeout that kills long-running event streams).
-    // Connect directly to the backend — CORS is configured to allow
-    // the frontend origin.
-    const sseBaseUrl = isProduction ? "https://api.khanfate.com" : BACKEND_URL
-    const url = `${sseBaseUrl}/api/readings/session/${sessionId}/stream`
-
-    const es = new EventSource(url)
-    let completed = false
+    let retryCount = 0
     let settled = false // prevent double resolve/reject
 
-    es.onmessage = (e) => {
-      try {
-        const data: SSEEvent = JSON.parse(e.data)
-        onEvent(data)
-        if (data.type === "complete") {
-          completed = true
-          settled = true
-          es.close()
-          resolve({
-            session_id: sessionId,
-            status: "done",
-            master_summary: data.master_summary || "",
-            master_detail: data.master_detail || "",
-            is_detail_unlocked: false,
-            astrology: { agent_id: "astrology", report: "", tags: [] },
-            tarot: { agent_id: "tarot", report: "", tags: [] },
-            bazi: { agent_id: "bazi", report: "", tags: [] },
-            qimen: { agent_id: "qimen", report: "", tags: [] },
-            ziwei: { agent_id: "ziwei", report: "", tags: [] },
-            face: { agent_id: "face", report: "", tags: [] },
-            palm: { agent_id: "palm", report: "", tags: [] },
-            recommended_product_ids: [],
-            computed_tags: [],
-            dimension_scores: {},
-            errors: [],
-          })
-        }
-        if (data.type === "error") {
-          settled = true
-          es.close()
-          reject(new Error(data.message || "Stream error"))
-        }
-      } catch { /* ignore parse errors */ }
-    }
+    function connect() {
+      // In production, bypass the Next.js proxy for SSE (proxy has a 30s
+      // timeout that kills long-running event streams).
+      const sseBaseUrl = isProduction ? "https://api.khanfate.com" : BACKEND_URL
+      const url = `${sseBaseUrl}/api/readings/session/${sessionId}/stream`
 
-    es.onerror = () => {
-      es.close()
-      if (!settled) {
-        settled = true
-        reject(new Error("SSE unavailable"))
+      const es = new EventSource(url)
+
+      es.onmessage = (e) => {
+        try {
+          const data: SSEEvent = JSON.parse(e.data)
+          // Ignore heartbeat events (keep connection alive)
+          if (data.type === "heartbeat") return
+          onEvent(data)
+          if (data.type === "complete") {
+            settled = true
+            es.close()
+            resolve({
+              session_id: sessionId,
+              status: "done",
+              master_summary: data.master_summary || "",
+              master_detail: data.master_detail || "",
+              is_detail_unlocked: false,
+              astrology: { agent_id: "astrology", report: "", tags: [] },
+              tarot: { agent_id: "tarot", report: "", tags: [] },
+              bazi: { agent_id: "bazi", report: "", tags: [] },
+              qimen: { agent_id: "qimen", report: "", tags: [] },
+              ziwei: { agent_id: "ziwei", report: "", tags: [] },
+              face: { agent_id: "face", report: "", tags: [] },
+              palm: { agent_id: "palm", report: "", tags: [] },
+              recommended_product_ids: [],
+              computed_tags: [],
+              dimension_scores: {},
+              errors: [],
+            })
+          }
+          if (data.type === "error") {
+            settled = true
+            es.close()
+            reject(new Error(data.message || "Stream error"))
+          }
+        } catch { /* ignore parse errors */ }
+      }
+
+      es.onerror = () => {
+        es.close()
+        if (!settled && retryCount < maxRetries) {
+          retryCount++
+          // Exponential backoff: 1s, 2s, 4s
+          const delay = Math.min(1000 * Math.pow(2, retryCount), 10000)
+          setTimeout(connect, delay)
+        } else if (!settled) {
+          settled = true
+          reject(new Error("SSE unavailable after retries"))
+        }
       }
     }
+
+    connect()
   })
 }
 

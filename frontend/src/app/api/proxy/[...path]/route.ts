@@ -42,6 +42,22 @@ export async function OPTIONS(request: Request, { params }: { params: Promise<{ 
 async function proxy(request: Request, params: Promise<{ path: string[] }>) {
   const { path } = await params
   const targetPath = "/" + path.join("/")
+
+  // ── SECURITY: Block sensitive admin/cron/webhook endpoints from proxy ──
+  const BLOCKED_PATHS = [
+    "/api/cron/",
+    "/api/webhooks/",          // Webhooks must hit backend directly
+    "/api/credits/grant",      // Admin-only
+    "/api/credits/monthly-grant",
+    "/api/credits/admin/",
+  ]
+  if (BLOCKED_PATHS.some(p => targetPath.startsWith(p))) {
+    return new Response(
+      JSON.stringify({ detail: "This endpoint is not accessible via proxy" }),
+      { status: 403, headers: { "Content-Type": "application/json" } },
+    )
+  }
+
   const url = new URL(request.url)
 
   // ── Detect multipart (file upload) requests ──────────────────────────────

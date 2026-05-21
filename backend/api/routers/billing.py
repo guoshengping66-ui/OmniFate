@@ -37,6 +37,20 @@ webhook_router = APIRouter()    # /api/webhooks/*
 
 settings = get_settings()
 
+# ── PayPal Webhook IP Whitelist ──────────────────────────────────────────────
+# PayPal publishes their IP ranges: https://developer.paypal.com/docs/api-basics/notifications/webhooks/notification-headers/
+# These are the known PayPal webhook source IPs (as of 2024).
+PAYPAL_IP_PREFIXES = [
+    "173.0.80.", "173.0.81.", "173.0.82.", "173.0.83.",
+    "173.0.84.", "173.0.85.", "173.0.86.", "173.0.87.",
+    "173.0.88.", "173.0.89.", "173.0.90.", "173.0.91.",
+    "173.0.92.", "173.0.93.", "173.0.94.", "173.0.95.",
+]
+
+# ── Redeem Code Rate Limiting ────────────────────────────────────────────────
+from collections import defaultdict
+_redeem_rate_store: dict[str, list[float]] = defaultdict(list)
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 #  Tron Address Helpers — Base58Check ↔ Hex 转换
@@ -137,19 +151,14 @@ def _detect_country(request: Request) -> str:
 @router.get("/geo-config")
 async def geo_config(
     request: Request,
-    region_override: str = Query(None, description="手动覆盖地区: CN | GLOBAL"),
 ):
     """
     地理位置感知定价分流 — 根据 IP 返回对应区域的定价与支付通道。
-    支持 region_override 参数供前端手动切换使用。
+    SECURITY: region_override removed to prevent geo-pricing bypass.
     国内(CN): 人民币 + 爱发电/卡密
     海外: 美元 + PayPal/USDT
     """
-    # 如果有手动覆盖，直接使用；否则自动检测
-    if region_override and region_override.upper() in ("CN", "GLOBAL"):
-        country = region_override.upper()
-    else:
-        country = _detect_country(request)
+    country = _detect_country(request)
 
     if country == "CN":
         return {
@@ -191,11 +200,22 @@ async def redeem_code(
     req: RedeemRequest,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_user),
+    request: Request = None,
 ):
     """
     卡密兑换 — 事务中原子操作：
     悲观锁锁定卡密 → 校验有效性 → 标记已用 → 增加星尘余额
     """
+    # ── SECURITY: Rate limit redeem attempts per user ──
+    import time as _time
+    now = _time.time()
+    window = 60  # 1 minute
+    rate_key = f"redeem:{current_user.id}"
+    _redeem_rate_store[rate_key] = [t for t in _redeem_rate_store[rate_key] if t > now - window]
+    if len(_redeem_rate_store[rate_key]) >= 5:
+        raise HTTPException(status_code=429, detail="兑换尝试过于频繁，请稍后再试")
+    _redeem_rate_store[rate_key].append(now)
+
     code_str = req.code.strip().upper()
     if not code_str or len(code_str) < 4:
         raise HTTPException(status_code=400, detail="请输入有效的兑换码")
@@ -518,9 +538,11 @@ async def verify_crypto_tx(
     if not tx_id or len(tx_id) < 10:
         raise HTTPException(status_code=400, detail="请输入有效的交易哈希")
 
-    # 1. 数据库去重
+    # 1. 数据库去重 — use pessimistic lock to prevent race conditions
     existing = await db.execute(
-        select(CryptoOrder).where(CryptoOrder.tx_id == tx_id)
+        select(CryptoOrder)
+        .where(CryptoOrder.tx_id == tx_id)
+        .with_for_update()  # Pessimistic lock prevents concurrent double-spend
     )
     if existing.scalar_one_or_none():
         raise HTTPException(status_code=400, detail="此交易已被处理，请勿重复提交")
@@ -650,6 +672,19 @@ async def paypal_webhook(
     PayPal Webhook 接收端 — 监听 PAYMENT.SALE.COMPLETED 事件。
     幂等性: 通过 sale_id 去重。
     """
+    # ── SECURITY: Verify source IP against PayPal's known ranges ──
+    client_ip = request.client.host if request.client else ""
+    ip_allowed = any(client_ip.startswith(prefix) for prefix in PAYPAL_IP_PREFIXES)
+    if not ip_allowed:
+        # Also check X-Forwarded-For (for proxy setups)
+        forwarded = request.headers.get("x-forwarded-for", "")
+        if forwarded:
+            first_ip = forwarded.split(",")[0].strip()
+            ip_allowed = any(first_ip.startswith(prefix) for prefix in PAYPAL_IP_PREFIXES)
+    if not ip_allowed:
+        logger.warning(f"[SECURITY] PayPal webhook from non-whitelisted IP: {client_ip}")
+        raise HTTPException(status_code=403, detail="Webhook source not allowed")
+
     body = await request.body()
     data = await request.json()
 

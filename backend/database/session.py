@@ -24,6 +24,9 @@ if _is_sqlite:
 else:
     _kw["pool_pre_ping"] = True
     _kw["pool_timeout"] = 10
+    _kw["pool_size"] = 20          # Persistent connections
+    _kw["max_overflow"] = 10       # Temporary overflow connections
+    _kw["pool_recycle"] = 3600     # Recycle connections after 1 hour
 
 engine = create_async_engine(_database_url, **_kw)
 AsyncSessionLocal = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
