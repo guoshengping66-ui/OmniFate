@@ -2241,8 +2241,8 @@ class PersonalizedAlmanacRequest(BaseModel):
     birth_minute: int = 0
     gender: str = "male"
     birth_city: str = ""
-    latitude: float | None = None
-    longitude: float | None = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
 
 
 @router.post("/personalized-almanac", response_model=DailyAlmanacResponse)
