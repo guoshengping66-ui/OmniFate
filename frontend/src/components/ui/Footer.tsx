@@ -5,7 +5,7 @@ import { Sparkles, Send, MessageCircle, Globe, BookOpen } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 export function Footer() {
-  const { t } = useLanguage()
+  const { t, localeHref } = useLanguage()
   const [email, setEmail] = useState("")
   const [subscribed, setSubscribed] = useState(false)
 
@@ -65,10 +65,10 @@ export function Footer() {
               </h4>
               <ul className="space-y-2.5">
                 {[
-                  [t("nav.home"), "/"],
-                  [t("nav.pricing"), "/pricing"],
-                  [t("nav.shop"), "/shop"],
-                  [t("nav.blog"), "/blog"],
+                  [t("nav.home"), localeHref("/")],
+                  [t("nav.pricing"), localeHref("/pricing")],
+                  [t("nav.shop"), localeHref("/shop")],
+                  [t("nav.blog"), localeHref("/blog")],
                 ].map(([l, h]) => (
                   <li key={h}>
                     <Link
@@ -137,12 +137,12 @@ export function Footer() {
               <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" className="hover:text-gold/60 transition-colors">{t("footer.icp")}</a>
             </p>
             <div className="flex gap-6 text-white/25 text-xs">
-              <a href="/faq" className="hover:text-gold/60 transition-colors">{t("footer.faq")}</a>
-              <a href="/contact" className="hover:text-gold/60 transition-colors">{t("footer.contactUs")}</a>
-              <a href="/privacy" className="hover:text-gold/60 transition-colors">{t("footer.privacy")}</a>
-              <a href="/terms" className="hover:text-gold/60 transition-colors">{t("footer.terms")}</a>
-              <a href="/refund" className="hover:text-gold/60 transition-colors">{t("footer.refund")}</a>
-              <a href="/disclaimer" className="hover:text-gold/60 transition-colors">{t("footer.disclaimer")}</a>
+              <a href={localeHref("/faq")} className="hover:text-gold/60 transition-colors">{t("footer.faq")}</a>
+              <a href={localeHref("/contact")} className="hover:text-gold/60 transition-colors">{t("footer.contactUs")}</a>
+              <a href={localeHref("/privacy")} className="hover:text-gold/60 transition-colors">{t("footer.privacy")}</a>
+              <a href={localeHref("/terms")} className="hover:text-gold/60 transition-colors">{t("footer.terms")}</a>
+              <a href={localeHref("/refund")} className="hover:text-gold/60 transition-colors">{t("footer.refund")}</a>
+              <a href={localeHref("/disclaimer")} className="hover:text-gold/60 transition-colors">{t("footer.disclaimer")}</a>
             </div>
           </div>
         </div>

@@ -1,8 +1,7 @@
 "use client"
 import { motion } from "framer-motion"
-import { Globe } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
-import type { Locale } from "@/i18n"
+import type { Locale } from "@/i18n/config"
 
 const LANGUAGES: { locale: Locale; label: string; flag: string }[] = [
   { locale: "zh", label: "中文", flag: "🇨🇳" },

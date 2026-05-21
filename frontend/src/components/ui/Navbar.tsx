@@ -17,7 +17,7 @@ export function Navbar() {
   const menuRef = useRef<HTMLDivElement>(null)
   const { user, loading, logout } = useAuth()
   const { itemCount } = useCart()
-  const { t } = useLanguage()
+  const { t, localeHref } = useLanguage()
 
   // Track scroll for compact header
   useEffect(() => {
@@ -28,17 +28,17 @@ export function Navbar() {
 
   // Core links — always visible
   const coreLinks = [
-    { href: "/", label: t("nav.home") },
-    { href: "/divination", label: t("nav.divination") },
-    { href: "/am16", label: t("nav.am16") },
-    { href: "/pricing", label: t("nav.pricing") },
+    { href: localeHref("/"), label: t("nav.home") },
+    { href: localeHref("/divination"), label: t("nav.divination") },
+    { href: localeHref("/am16"), label: t("nav.am16") },
+    { href: localeHref("/pricing"), label: t("nav.pricing") },
   ]
 
   // Extra links — visible on wide screens, collapsed on narrow
   const extraLinks = [
-    { href: "/shop", label: t("nav.shop") },
-    { href: "/blog", label: t("nav.blog") },
-    { href: "/about", label: t("nav.about") },
+    { href: localeHref("/shop"), label: t("nav.shop") },
+    { href: localeHref("/blog"), label: t("nav.blog") },
+    { href: localeHref("/about"), label: t("nav.about") },
   ]
 
   // Close dropdown on outside click
@@ -61,7 +61,7 @@ export function Navbar() {
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0">
+          <Link href={localeHref("/")} className="flex items-center gap-2.5 group flex-shrink-0">
             <div className="w-9 h-9 rounded-full bg-gold-shine flex items-center justify-center shadow-[0_0_20px_rgba(201,168,76,0.5)] group-hover:scale-110 transition-transform">
               <Sparkles size={18} className="text-ink" />
             </div>
@@ -173,42 +173,42 @@ export function Navbar() {
                       )}
                     </div>
                     <Link
-                      href="/dashboard"
+                      href={localeHref("/dashboard")}
                       onClick={() => setMenuOpen(false)}
                       className="px-3 py-2 text-sm text-white/60 hover:text-gold hover:bg-white/5 rounded-lg transition-colors"
                     >
                       {t("nav.dashboard")}
                     </Link>
                     <Link
-                      href="/divination"
+                      href={localeHref("/divination")}
                       onClick={() => setMenuOpen(false)}
                       className="px-3 py-2 text-sm text-white/60 hover:text-gold hover:bg-white/5 rounded-lg transition-colors"
                     >
                       {t("nav.divination")}
                     </Link>
                     <Link
-                      href="/am16"
+                      href={localeHref("/am16")}
                       onClick={() => setMenuOpen(false)}
                       className="px-3 py-2 text-sm text-white/60 hover:text-gold hover:bg-white/5 rounded-lg transition-colors"
                     >
                       {t("nav.am16")}
                     </Link>
                     <Link
-                      href="/readings"
+                      href={localeHref("/readings")}
                       onClick={() => setMenuOpen(false)}
                       className="px-3 py-2 text-sm text-white/60 hover:text-gold hover:bg-white/5 rounded-lg transition-colors"
                     >
                       {t("nav.myReports")}
                     </Link>
                     <Link
-                      href="/account"
+                      href={localeHref("/account")}
                       onClick={() => setMenuOpen(false)}
                       className="px-3 py-2 text-sm text-white/60 hover:text-gold hover:bg-white/5 rounded-lg transition-colors"
                     >
                       {t("nav.account")}
                     </Link>
                     <Link
-                      href="/referral"
+                      href={localeHref("/referral")}
                       onClick={() => setMenuOpen(false)}
                       className="px-3 py-2 text-sm text-white/60 hover:text-gold hover:bg-white/5 rounded-lg transition-colors"
                     >
@@ -231,10 +231,10 @@ export function Navbar() {
               </div>
             ) : (
               <div className="flex items-center gap-3">
-                <Link href="/login" className="text-sm text-white/60 hover:text-gold transition-colors">
+                <Link href={localeHref("/login")} className="text-sm text-white/60 hover:text-gold transition-colors">
                   {t("nav.login")}
                 </Link>
-                <Link href="/register" className="btn-gold text-sm py-2 px-6">
+                <Link href={localeHref("/register")} className="btn-gold text-sm py-2 px-6">
                   {t("nav.register")}
                 </Link>
               </div>

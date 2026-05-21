@@ -23,7 +23,7 @@ const DailyDashboard = dynamic(() => import("@/components/DailyDashboard").then(
 })
 
 export default function HomePage() {
-  const { t } = useLanguage()
+  const { t, localeHref } = useLanguage()
   const { user, loading: authLoading } = useAuth()
   const { userProfile, loading: profileLoading, fetchBirthProfiles } = useUserStore()
 
@@ -74,8 +74,8 @@ export default function HomePage() {
               <h3 className="font-serif text-lg text-gold mb-2">{t("home.shopCta")}</h3>
               <p className="text-white/40 text-sm mb-5">{t("home.shopDesc")}</p>
               <div className="flex justify-center gap-4">
-                <Link href="/shop" className="btn-gold text-sm px-6 py-2">{t("home.shopButton")}</Link>
-                <Link href="/blog" className="border border-white/20 text-white/60 hover:text-gold hover:border-gold/30 rounded-full text-sm px-6 py-2 transition-all">{t("home.knowledgeButton")}</Link>
+                <Link href={localeHref("/shop")} className="btn-gold text-sm px-6 py-2">{t("home.shopButton")}</Link>
+                <Link href={localeHref("/blog")} className="border border-white/20 text-white/60 hover:text-gold hover:border-gold/30 rounded-full text-sm px-6 py-2 transition-all">{t("home.knowledgeButton")}</Link>
               </div>
             </div>
           </div>

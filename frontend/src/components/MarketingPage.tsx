@@ -20,7 +20,7 @@ const DailyDashboard = dynamic(() => import("@/components/DailyDashboard").then(
 })
 
 export default function MarketingPage() {
-  const { t, locale } = useLanguage()
+  const { t, locale, localeHref } = useLanguage()
 
   const AGENTS = [
     {
@@ -157,7 +157,7 @@ export default function MarketingPage() {
               <div className="flex flex-col sm:flex-row gap-4 items-start">
                 <MagneticButton>
                   <Link
-                    href="/reading/new"
+                    href={localeHref("/reading/new")}
                     className="btn-gold pulse-ring text-base inline-flex items-center gap-2 px-10 py-4 text-lg group"
                   >
                     {t("hero.cta1")}
@@ -230,7 +230,7 @@ export default function MarketingPage() {
             <div className="text-center mt-10">
               <MagneticButton>
                 <Link
-                  href="/reading/new"
+                  href={localeHref("/reading/new")}
                   className="btn-gold inline-flex items-center gap-2 px-8 py-3"
                 >
                   {t("discovery.cta")}
@@ -499,7 +499,7 @@ export default function MarketingPage() {
           <div className="grid md:grid-cols-3 gap-6">
             {products.map((p, i) => (
               <ScrollReveal key={p.name} delay={i * 0.12} direction="up">
-                <Link href="/shop">
+                <Link href={localeHref("/shop")}>
                   <TiltCard glare={true} scale={1.02}>
                     <div
  className="relative overflow-hidden rounded-2xl border border-white/10 p-6 h-full group cursor-pointer transition-all duration-500"
@@ -675,7 +675,7 @@ export default function MarketingPage() {
                 </p>
                 <MagneticButton>
                   <Link
-                    href="/reading/new"
+                    href={localeHref("/reading/new")}
                     className="btn-gold inline-flex items-center gap-2 text-lg px-12 py-5 group"
                   >
                     {t("cta.button")}

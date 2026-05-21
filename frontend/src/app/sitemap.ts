@@ -1,35 +1,53 @@
 import type { MetadataRoute } from "next"
+import { locales } from "@/i18n/config"
 
 const BASE_URL = "https://khanfate.com"
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date()
 
-  const staticPages = [
-    { url: BASE_URL, lastModified: now, changeFrequency: "weekly" as const, priority: 1.0 },
-    { url: `${BASE_URL}/about`, lastModified: now, changeFrequency: "monthly" as const, priority: 0.8 },
-    { url: `${BASE_URL}/pricing`, lastModified: now, changeFrequency: "monthly" as const, priority: 0.8 },
-    { url: `${BASE_URL}/pricing/founder`, lastModified: now, changeFrequency: "monthly" as const, priority: 0.9 },
-    { url: `${BASE_URL}/shop`, lastModified: now, changeFrequency: "weekly" as const, priority: 0.9 },
-    { url: `${BASE_URL}/blog`, lastModified: now, changeFrequency: "weekly" as const, priority: 0.9 },
-    { url: `${BASE_URL}/reading/new`, lastModified: now, changeFrequency: "monthly" as const, priority: 0.9 },
-    { url: `${BASE_URL}/seo/bazi`, lastModified: now, changeFrequency: "monthly" as const, priority: 0.9 },
-    { url: `${BASE_URL}/seo/astrology`, lastModified: now, changeFrequency: "monthly" as const, priority: 0.9 },
-    { url: `${BASE_URL}/seo/tarot`, lastModified: now, changeFrequency: "monthly" as const, priority: 0.9 },
-    { url: `${BASE_URL}/seo/face-reading`, lastModified: now, changeFrequency: "monthly" as const, priority: 0.9 },
-    { url: `${BASE_URL}/events`, lastModified: now, changeFrequency: "monthly" as const, priority: 0.7 },
-    { url: `${BASE_URL}/events/radar`, lastModified: now, changeFrequency: "daily" as const, priority: 0.8 },
-    { url: `${BASE_URL}/divination`, lastModified: now, changeFrequency: "daily" as const, priority: 0.9 },
-    { url: `${BASE_URL}/trading`, lastModified: now, changeFrequency: "weekly" as const, priority: 0.7 },
-    { url: `${BASE_URL}/referral`, lastModified: now, changeFrequency: "monthly" as const, priority: 0.7 },
-    { url: `${BASE_URL}/almanac`, lastModified: now, changeFrequency: "daily" as const, priority: 0.7 },
-    { url: `${BASE_URL}/faq`, lastModified: now, changeFrequency: "monthly" as const, priority: 0.6 },
-    { url: `${BASE_URL}/contact`, lastModified: now, changeFrequency: "monthly" as const, priority: 0.5 },
-    { url: `${BASE_URL}/privacy`, lastModified: now, changeFrequency: "yearly" as const, priority: 0.3 },
-    { url: `${BASE_URL}/terms`, lastModified: now, changeFrequency: "yearly" as const, priority: 0.3 },
-    { url: `${BASE_URL}/refund`, lastModified: now, changeFrequency: "yearly" as const, priority: 0.3 },
-    { url: `${BASE_URL}/disclaimer`, lastModified: now, changeFrequency: "yearly" as const, priority: 0.3 },
+  const staticPaths = [
+    "/",
+    "/about",
+    "/pricing",
+    "/pricing/founder",
+    "/shop",
+    "/blog",
+    "/reading/new",
+    "/seo/bazi",
+    "/seo/astrology",
+    "/seo/tarot",
+    "/seo/face-reading",
+    "/events",
+    "/events/radar",
+    "/divination",
+    "/trading",
+    "/referral",
+    "/almanac",
+    "/faq",
+    "/contact",
+    "/privacy",
+    "/terms",
+    "/refund",
+    "/disclaimer",
   ]
 
-  return staticPages
+  // Generate sitemap entries for all locales
+  return staticPaths.flatMap((path) =>
+    locales.map((locale) => ({
+      url: `${BASE_URL}/${locale}${path === "/" ? "" : path}`,
+      lastModified: now,
+      changeFrequency: (path === "/" || path === "/shop" || path === "/blog"
+        ? "weekly"
+        : path.startsWith("/seo") || path === "/pricing"
+          ? "monthly"
+          : "yearly") as MetadataRoute.Sitemap[0]["changeFrequency"],
+      priority: path === "/" ? 1.0 : path.startsWith("/seo") ? 0.9 : 0.7,
+      alternates: {
+        languages: Object.fromEntries(
+          locales.map((l) => [l, `${BASE_URL}/${l}${path === "/" ? "" : path}`]),
+        ),
+      },
+    })),
+  )
 }

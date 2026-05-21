@@ -1,3 +1,7 @@
+const createNextIntlPlugin = require("next-intl/plugin")
+
+const withNextIntl = createNextIntlPlugin()
+
 /** @type {import("next").NextConfig} */
 
 // Production backend URL — .env files are gitignored and not deployed to Vercel,
@@ -77,5 +81,5 @@ const nextConfig = {
     ],
   },
 }
-module.exports = nextConfig
 
+module.exports = withNextIntl(nextConfig)
