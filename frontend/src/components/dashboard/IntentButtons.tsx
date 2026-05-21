@@ -180,10 +180,10 @@ export function IntentButtons({ onGework }: Props) {
               <h3 className="text-xl md:text-2xl font-bold text-gold mb-1 tracking-wider" style={{ textShadow: "0 0 20px rgba(201,168,76,0.4)" }}>
                 {t("dash.intent.full")}
               </h3>
-              <p className="text-xs md:text-sm text-gold/40 font-light tracking-wider">
+              <p className="text-xs md:text-sm text-gold/60 font-medium tracking-[0.15em] uppercase">
                 {t("dash.intent.fullEn")}
               </p>
-              <p className="text-white/40 text-xs mt-2 leading-relaxed max-w-md">
+              <p className="text-white/50 text-xs md:text-sm mt-2 leading-relaxed max-w-md">
                 {t("dash.intent.fullDesc")}
               </p>
             </div>
@@ -239,10 +239,10 @@ export function IntentButtons({ onGework }: Props) {
             }`} style={{ textShadow: hoveredCard === "quick" ? "0 0 15px rgba(34,211,238,0.3)" : "none" }}>
               {t("dash.intent.quick")}
             </h4>
-            <p className="text-[10px] text-cyan-400/30 font-light tracking-wider mb-1.5">{t("dash.intent.quickEn")}</p>
-            <p className="text-white/30 text-[11px] leading-relaxed flex-1">{t("dash.intent.quickDesc")}</p>
+            <p className="text-[10px] text-cyan-400/50 font-medium tracking-[0.15em] uppercase mb-1.5">{t("dash.intent.quickEn")}</p>
+            <p className="text-white/40 text-[11px] md:text-xs leading-relaxed flex-1">{t("dash.intent.quickDesc")}</p>
             <div className={`mt-3 flex items-center gap-1.5 text-[10px] font-mono tracking-wider transition-all duration-300 ${
-              hoveredCard === "quick" ? "text-cyan-400" : "text-cyan-400/30"
+              hoveredCard === "quick" ? "text-cyan-400" : "text-cyan-400/40"
             }`}>
               <span>{t("dash.intent.activate")}</span>
               <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
@@ -279,10 +279,10 @@ export function IntentButtons({ onGework }: Props) {
             }`} style={{ textShadow: hoveredCard === "event" ? "0 0 15px rgba(168,85,247,0.3)" : "none" }}>
               {t("dash.intent.event")}
             </h4>
-            <p className="text-[10px] text-purple-400/30 font-light tracking-wider mb-1.5">{t("dash.intent.eventEn")}</p>
-            <p className="text-white/30 text-[11px] leading-relaxed flex-1">{t("dash.intent.eventDesc")}</p>
+            <p className="text-[10px] text-purple-400/50 font-medium tracking-[0.15em] uppercase mb-1.5">{t("dash.intent.eventEn")}</p>
+            <p className="text-white/40 text-[11px] md:text-xs leading-relaxed flex-1">{t("dash.intent.eventDesc")}</p>
             <div className={`mt-3 flex items-center gap-1.5 text-[10px] font-mono tracking-wider transition-all duration-300 ${
-              hoveredCard === "event" ? "text-purple-400" : "text-purple-400/30"
+              hoveredCard === "event" ? "text-purple-400" : "text-purple-400/40"
             }`}>
               <span>{t("dash.intent.activate")}</span>
               <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
@@ -319,10 +319,10 @@ export function IntentButtons({ onGework }: Props) {
             }`} style={{ textShadow: hoveredCard === "friend" ? "0 0 15px rgba(251,191,36,0.3)" : "none" }}>
               {t("dash.intent.friend")}
             </h4>
-            <p className="text-[10px] text-amber-400/30 font-light tracking-wider mb-1.5">{t("dash.intent.friendEn")}</p>
-            <p className="text-white/30 text-[11px] leading-relaxed flex-1">{t("dash.intent.friendDesc")}</p>
+            <p className="text-[10px] text-amber-400/50 font-medium tracking-[0.15em] uppercase mb-1.5">{t("dash.intent.friendEn")}</p>
+            <p className="text-white/40 text-[11px] md:text-xs leading-relaxed flex-1">{t("dash.intent.friendDesc")}</p>
             <div className={`mt-3 flex items-center gap-1.5 text-[10px] font-mono tracking-wider transition-all duration-300 ${
-              hoveredCard === "friend" ? "text-amber-400" : "text-amber-400/30"
+              hoveredCard === "friend" ? "text-amber-400" : "text-amber-400/40"
             }`}>
               <span>{t("dash.intent.activate")}</span>
               <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
