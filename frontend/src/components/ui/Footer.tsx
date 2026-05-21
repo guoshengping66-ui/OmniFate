@@ -1,19 +1,30 @@
 "use client"
 import Link from "next/link"
 import { useState } from "react"
-import { Sparkles, Send, MessageCircle, Globe, BookOpen } from "lucide-react"
+import { Sparkles, Send, MessageCircle, Globe, BookOpen, Loader2 } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { api } from "@/lib/api"
+import toast from "react-hot-toast"
 
 export function Footer() {
   const { t, localeHref } = useLanguage()
   const [email, setEmail] = useState("")
   const [subscribed, setSubscribed] = useState(false)
+  const [loading, setLoading] = useState(false)
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (email.trim()) {
+    if (!email.trim()) return
+    setLoading(true)
+    try {
+      await api.post("/api/contact/newsletter", { email })
       setSubscribed(true)
       setEmail("")
+      toast.success(t("footer.subscribed"))
+    } catch {
+      toast.error("订阅失败，请稍后重试")
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -118,9 +129,10 @@ export function Footer() {
                   />
                   <button
                     type="submit"
- className="px-3 py-2 bg-gold/15 border border-gold/30 rounded-lg text-gold text-xs hover:bg-gold/25 transition-colors"
+                    disabled={loading}
+                    className="px-3 py-2 bg-gold/15 border border-gold/30 rounded-lg text-gold text-xs hover:bg-gold/25 transition-colors disabled:opacity-50"
                   >
-                    <Send size={12} />
+                    {loading ? <Loader2 size={12} className="animate-spin" /> : <Send size={12} />}
                   </button>
                 </form>
               )}
