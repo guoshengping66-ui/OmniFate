@@ -1,0 +1,141 @@
+/* ═══════════════════════════════════════════════════════════════
+   Quiz 页面动画 — 必须在页面级 wxss 中定义 @keyframes
+   微信小程序的 inline style animation 无法解析 app.wxss 中的 keyframes
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Keyframes ── */
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20rpx); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); opacity: 0.3; }
+  50% { transform: translateY(-12rpx); opacity: 0.7; }
+}
+
+@keyframes orbit {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes radarPulse {
+  0% { transform: scale(0.6); opacity: 0.5; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+@keyframes rotateGlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 0.3; }
+  50% { transform: scale(1.15); opacity: 0.6; }
+}
+
+/* ── Animation Classes ── */
+
+.anim-fade-in-up {
+  animation: fadeInUp 0.6s ease-out both;
+}
+
+.anim-fade-in-up-1 {
+  animation: fadeInUp 0.6s ease-out 0.1s both;
+}
+
+.anim-fade-in-up-2 {
+  animation: fadeInUp 0.6s ease-out 0.2s both;
+}
+
+.anim-fade-in-up-3 {
+  animation: fadeInUp 0.6s ease-out 0.3s both;
+}
+
+.anim-fade-in-up-4 {
+  animation: fadeInUp 0.6s ease-out 0.4s both;
+}
+
+.anim-fade-in-up-5 {
+  animation: fadeInUp 0.6s ease-out 0.5s both;
+}
+
+.anim-fade-in-up-fast {
+  animation: fadeInUp 0.4s ease-out both;
+}
+
+.anim-fade-in-up-fast-1 {
+  animation: fadeInUp 0.4s ease-out 0.1s both;
+}
+
+.anim-fade-in-up-fast-2 {
+  animation: fadeInUp 0.4s ease-out 0.2s both;
+}
+
+.anim-fade-in-up-fast-3 {
+  animation: fadeInUp 0.4s ease-out 0.3s both;
+}
+
+.anim-fade-in-up-fast-4 {
+  animation: fadeInUp 0.4s ease-out 0.4s both;
+}
+
+.anim-fade-in-up-fast-5 {
+  animation: fadeInUp 0.4s ease-out 0.5s both;
+}
+
+.anim-fade-in-short {
+  animation: fadeInUp 0.3s ease-out both;
+}
+
+.anim-glow-slow {
+  animation: glowPulse 3s ease-in-out infinite;
+}
+
+.anim-glow {
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+.anim-shimmer {
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+.anim-float-0 { animation: float 2.0s ease-in-out infinite 0s; }
+.anim-float-1 { animation: float 2.4s ease-in-out infinite 0.25s; }
+.anim-float-2 { animation: float 2.8s ease-in-out infinite 0.5s; }
+.anim-float-3 { animation: float 3.2s ease-in-out infinite 0.75s; }
+.anim-float-4 { animation: float 3.6s ease-in-out infinite 1.0s; }
+.anim-float-5 { animation: float 4.0s ease-in-out infinite 1.25s; }
+.anim-float-6 { animation: float 4.4s ease-in-out infinite 1.5s; }
+.anim-float-7 { animation: float 4.8s ease-in-out infinite 1.75s; }
+
+.anim-radar-0 { animation: radarPulse 2.4s ease-out infinite 0s; }
+.anim-radar-1 { animation: radarPulse 2.4s ease-out infinite 0.8s; }
+.anim-radar-2 { animation: radarPulse 2.4s ease-out infinite 1.6s; }
+
+.anim-rotate-glow {
+  animation: rotateGlow 12s linear infinite;
+}
+
+.anim-orbit-outer {
+  animation: orbit 4s linear infinite;
+}
+
+.anim-orbit-inner {
+  animation: orbit 3s linear infinite reverse;
+}
+
+.anim-breathe {
+  animation: breathe 2.5s ease-in-out infinite;
+}

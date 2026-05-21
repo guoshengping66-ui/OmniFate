@@ -1,14 +1,24 @@
-﻿version: "3.9"
+# ══════════════════════════════════════════════════════════════════════════════
+#  命盘智镜 — Docker Compose (开发环境)
+# ══════════════════════════════════════════════════════════════════════════════
+#  开发: docker compose up
+#  生产: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# ══════════════════════════════════════════════════════════════════════════════
 
 services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: destiny
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-destiny}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?请在 .env 中设置 POSTGRES_PASSWORD}
     ports: ["5432:5432"]
     volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   chromadb:
     image: chromadb/chroma:0.5.0
@@ -20,12 +30,15 @@ services:
     command: uvicorn backend.main:app --host 0.0.0.0 --port 8002 --reload
     ports: ["8002:8002"]
     environment:
-      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/destiny
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?请在 .env 中设置 POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-destiny}
       CHROMA_HOST: chromadb
       CHROMA_PORT: 8001
-      BACKEND_URL: http://backend:8002
     env_file: ./backend/.env
-    depends_on: [postgres, chromadb]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      chromadb:
+        condition: service_started
     volumes: ["./backend:/app/backend"]
 
   frontend:
@@ -33,7 +46,6 @@ services:
     command: npm run dev
     ports: ["3000:3000"]
     environment:
-      NEXT_PUBLIC_API_URL: http://backend:8002
       BACKEND_URL: http://backend:8002
     depends_on: [backend]
 

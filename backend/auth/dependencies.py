@@ -27,7 +27,7 @@ async def get_current_user(
         return None
     if _db_available is False:
         return None
-    user_id = verify_token(credentials.credentials)
+    user_id = await verify_token(credentials.credentials)
     if user_id is None:
         return None
     try:

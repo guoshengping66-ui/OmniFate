@@ -1,0 +1,93 @@
+# ══════════════════════════════════════════════════════════════════════════════
+#  命盘智镜 — 定时任务 (GitHub Actions)
+# ══════════════════════════════════════════════════════════════════════════════
+# 替代服务器 crontab，零运维、自带日志、自动重试。
+# 需要在 GitHub repo Settings → Secrets 中配置:
+#   CRON_SECRET  — 与后端 .env 中的 CRON_SECRET 一致
+#   API_BASE     — 后端地址, 如 https://api.khanfate.com
+# ══════════════════════════════════════════════════════════════════════════════
+
+name: Scheduled Tasks
+
+on:
+  schedule:
+    # 每月 1 号 02:00 UTC+8 — 创始会员月度星尘发放
+    - cron: "0 18 1 * *"     # 18:00 UTC = 02:00+8, day 1 (not 0)
+
+    # 每天 00:30 UTC+8 — 会员过期检查
+    - cron: "30 16 * * *"    # 16:30 UTC = 00:30+8
+
+    # 每周日 10:00 UTC+8 — 会员到期提醒
+    - cron: "0 02 * * 0"     # 02:00 UTC = 10:00+8
+
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  monthly-stardust:
+    if: github.event.schedule == '0 18 1 * *' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Monthly Stardust Grant
+        run: |
+          echo "🕐 $(date -u) — Running monthly stardust grant..."
+          if [ -z "${{ secrets.CRON_SECRET }}" ] || [ -z "${{ secrets.API_BASE }}" ]; then
+            echo "⚠️ Secrets CRON_SECRET or API_BASE not configured, skipping."
+            exit 0
+          fi
+          RESP=$(curl -sL -w "\n%{http_code}" -X POST \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.API_BASE }}/api/cron/monthly-stardust")
+          HTTP_CODE=$(echo "$RESP" | tail -1)
+          BODY=$(echo "$RESP" | head -n -1)
+          echo "Status: $HTTP_CODE"
+          echo "Response: $BODY"
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "❌ Failed with HTTP $HTTP_CODE"
+            exit 1
+          fi
+
+  expire-check:
+    if: github.event.schedule == '30 16 * * *' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Membership Expiry Check
+        run: |
+          echo "🕐 $(date -u) — Running expire check..."
+          if [ -z "${{ secrets.CRON_SECRET }}" ] || [ -z "${{ secrets.API_BASE }}" ]; then
+            echo "⚠️ Secrets CRON_SECRET or API_BASE not configured, skipping."
+            exit 0
+          fi
+          RESP=$(curl -sL -w "\n%{http_code}" -X POST \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.API_BASE }}/api/cron/expire-check")
+          HTTP_CODE=$(echo "$RESP" | tail -1)
+          BODY=$(echo "$RESP" | head -n -1)
+          echo "Status: $HTTP_CODE"
+          echo "Response: $BODY"
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "❌ Failed with HTTP $HTTP_CODE"
+            exit 1
+          fi
+
+  expiry-reminder:
+    if: github.event.schedule == '0 02 * * 0' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Expiry Reminder
+        run: |
+          echo "🕐 $(date -u) — Running expiry reminder..."
+          if [ -z "${{ secrets.CRON_SECRET }}" ] || [ -z "${{ secrets.API_BASE }}" ]; then
+            echo "⚠️ Secrets CRON_SECRET or API_BASE not configured, skipping."
+            exit 0
+          fi
+          RESP=$(curl -sL -w "\n%{http_code}" -X POST \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.API_BASE }}/api/cron/expiry-reminder")
+          HTTP_CODE=$(echo "$RESP" | tail -1)
+          BODY=$(echo "$RESP" | head -n -1)
+          echo "Status: $HTTP_CODE"
+          echo "Response: $BODY"
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "❌ Failed with HTTP $HTTP_CODE"
+            exit 1
+          fi

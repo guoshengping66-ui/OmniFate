@@ -22,6 +22,7 @@ export const CATEGORIES = [
   { key: "tarot", label_zh: "塔罗指南", label_en: "Tarot Guide" },
   { key: "face", label_zh: "面相手相", label_en: "Face & Palm" },
   { key: "lifestyle", label_zh: "改运生活", label_en: "Fortune Lifestyle" },
+  { key: "faq", label_zh: "常见问答", label_en: "FAQ" },
 ]
 
 export const ARTICLES: Article[] = [
@@ -209,7 +210,7 @@ Use our AI destiny tool — enter your birth date and time, and the system will 
     content_zh: `
 ## 「缺什么补什么」为什么是错的？
 
-这是命理学中最广泛流传的误解。很多人在算命后听到「八字缺金」，就立刻去戴金项链、金戒指，以为这样就能弥补命盘的不足。但事实远没有这么简单。
+这是命理学中最广泛流传的误解。很多人在命理分析后听到「八字缺金」，就立刻去戴金项链、金戒指，以为这样就能弥补命盘的不足。但事实远没有这么简单。
 
 ## 喜用神才是关键
 
@@ -549,7 +550,7 @@ Two planets assist each other gently, offering mild support. It represents oppor
 
 每张牌都有正位和逆位两种解读。正位代表牌面能量的正面表达，逆位则代表阻碍或内在课题。抽牌时的直觉反应往往是最准确的指引。
 
-→ 试试 AI 塔罗占卜，获取你的专属牌阵解读
+→ 试试 AI 塔罗解析，获取你的专属牌阵解读
     `,
     content_en: `
 ## What Is the Major Arcana?
@@ -1060,6 +1061,1450 @@ Interestingly, the four Western elements have subtle correspondences with the Ch
 - Metal has no direct counterpart in the Western system
 
 → Our AI 5-Dimension Analysis combines zodiac elements with Five Elements for more precise readings
+    `,
+  },
+
+  // ────────────────────────────────────────────────────
+  // 13. 八字合婚
+  // ────────────────────────────────────────────────────
+  {
+    id: "bazi-marriage",
+    title_zh: "八字合婚：五行配对与婚姻缘分",
+    title_en: "Bazi Marriage Compatibility: Five Element Pairing & Relationship Destiny",
+    summary_zh: "你和另一半的五行是相生还是相克？八字合婚不只是看属相，更要看日主配合、十神互补。本文教你用命理的视角理解婚恋关系。",
+    summary_en: "Are you and your partner in a generating or overcoming cycle? Bazi marriage compatibility goes beyond zodiac animals — it examines Day Master harmony and Ten God complementarity. Learn to understand relationships through destiny analysis.",
+    category: "bazi",
+    tags_zh: ["八字", "合婚", "感情", "婚姻"],
+    tags_en: ["Bazi", "Compatibility", "Relationship", "Marriage"],
+    read_time: 8,
+    cover_emoji: "💕",
+    created_at: "2025-05-20",
+    content_zh: `
+## 八字合婚的核心逻辑
+
+八字合婚不是简单地看「属相配不配」。真正有效的合婚分析需要从三个层面入手：
+
+### 第一层：日主五行关系
+
+日主代表你自己，配偶日柱的地支代表你的配偶宫。看两人的日主五行关系是相生还是相克：
+
+| 日主配对 | 关系 | 解读 |
+|---------|------|------|
+| 甲木 + 己土 | 甲己合化土 | 天干五合，缘分深厚 |
+| 丙火 + 辛金 | 丙辛合化水 | 相互吸引，感情浓烈 |
+| 戊土 + 癸水 | 戊癸合化火 | 心灵相通，默契十足 |
+| 同类五行 | 比肩/劫财 | 朋友式婚姻，平等互助 |
+| 相克五行 | 官杀/财星 | 有压力但能互相成就 |
+
+### 第二层：十神互补
+
+理想的婚配是十神互补——你缺的刚好是他多的：
+
+- **财旺配印旺**：一方事业心强，一方顾家有方
+- **食神配正官**：一方有才华创意，一方有责任感
+- **比肩配食神**：双方都独立自主，互相欣赏
+
+### 第三层：喜用神是否冲突
+
+最关键的一点：如果两人的喜用神是同一五行，则高度契合；如果喜用神相克，则容易产生矛盾。
+
+## 属相合婚只是入门
+
+民间常说「龙配鸡」「虎配猪」，这只是最表层的参考。属相只占八字的八分之一（年柱地支），忽略了最重要的日柱。两个人属相「不合」但日柱天合地合的比比皆是。
+
+## 实用建议
+
+1. **不要因为属相不合就放弃**：八字是八个字的整体配合，不是一两个字说了算
+2. **看相处感受**：命理是参考，真实相处的感觉更重要
+3. **AI 合婚分析**：输入双方出生信息，系统会从五行、十神、喜用神三个维度综合判断
+
+→ 输入双方出生信息，获取 AI 八字合婚分析
+    `,
+    content_en: `
+## The Core Logic of Bazi Marriage Compatibility
+
+Bazi marriage compatibility is not simply about checking zodiac animal signs. True compatibility analysis works on three levels:
+
+### Level 1: Day Master Five Element Relationship
+
+The Day Master represents you; your spouse's Day Pillar Earthly Branch represents your spouse palace. Examine whether both Day Masters are in a generating or overcoming relationship:
+
+| Day Master Pair | Relationship | Interpretation |
+|----------------|-------------|----------------|
+| Jia Wood + Ji Earth | Jia-Ji combine into Earth | Heavenly Stem combination — deep bond |
+| Bing Fire + Xin Metal | Bing-Xin combine into Water | Strong attraction, passionate connection |
+| Wu Earth + Gui Water | Wu-Gui combine into Fire | Soul-level connection, deep rapport |
+| Same element | Companion/Rob Wealth | Friendship-style marriage, equal partnership |
+| Overcoming elements | Officer/Wealth star | Pressure exists but mutual growth possible |
+
+### Level 2: Ten God Complementarity
+
+The ideal marriage pairing features complementary Ten Gods — what one lacks, the other provides:
+
+- **Strong Wealth + Strong Resource**: One is career-driven, the other is home-oriented
+- **Eating God + Direct Officer**: One is creative, the other is responsible
+- **Companion + Eating God**: Both are independent and mutually admiring
+
+### Level 3: Favorable Element Compatibility
+
+The most critical factor: if both partners share the same Favorable Element, they are highly compatible. If their Favorable Elements clash, conflicts are likely.
+
+## Zodiac Animal Compatibility Is Just the Surface
+
+The民间 pairing of "Dragon + Rooster" or "Tiger + Pig" is the most superficial reference. The zodiac animal represents only one-eighth of the chart (Year Pillar's Earthly Branch), ignoring the all-important Day Pillar. Many couples with "incompatible" zodiac animals have Day Pillars that perfectly harmonize.
+
+## Practical Advice
+
+1. **Don't give up over zodiac incompatibility** — the full chart consists of eight characters, not just one or two
+2. **Trust your feelings** — destiny analysis is a reference; real connection matters more
+3. **Try AI compatibility analysis** — input both birth details for a comprehensive multi-dimensional reading
+
+→ Enter both birth details for AI Bazi marriage compatibility analysis
+    `,
+  },
+
+  // ────────────────────────────────────────────────────
+  // 14. 出生时间不确定
+  // ────────────────────────────────────────────────────
+  {
+    id: "faq-birthtime",
+    title_zh: "出生时间不确定怎么办？影响有多大？",
+    title_en: "Unsure of Your Exact Birth Time? How Much Does It Really Matter?",
+    summary_zh: "很多人只知道出生日期不知道具体时辰。八字差一个时辰就是完全不同的命盘。本文教你如何处理出生时间不确定的情况，以及如何通过面相等维度弥补。",
+    summary_en: "Many people know their birth date but not the exact hour. In Bazi, one two-hour difference creates an entirely different chart. Learn how to handle uncertain birth times and how other dimensions like face reading can compensate.",
+    category: "faq",
+    tags_zh: ["八字", "入门", "出生时间", "FAQ"],
+    tags_en: ["Bazi", "Beginner", "Birth Time", "FAQ"],
+    read_time: 5,
+    cover_emoji: "🕐",
+    created_at: "2025-05-22",
+    content_zh: `
+## 出生时间为什么重要？
+
+八字由年、月、日、时四柱组成。每一柱由天干和地支两个字构成，共八个字。其中「时柱」（出生时辰）占了八字的四分之一。
+
+时辰是两个小时为一个单位：
+- 子时：23:00-01:00
+- 丑时：01:00-03:00
+- 寅时：03:00-05:00
+- 卯时：05:00-07:00
+- 辰时：07:00-09:00
+- 巳时：09:00-11:00
+- 午时：11:00-13:00
+- 未时：13:00-15:00
+- 申时：15:00-17:00
+- 酉时：17:00-19:00
+- 戌时：19:00-21:00
+- 亥时：21:00-23:00
+
+时柱的不同会影响时柱天干（时干）和时柱地支（时支），进而影响十神格局和整体五行分布。
+
+## 不确定出生时间怎么办？
+
+### 方法一：回忆关键线索
+- 出生证、户口本上可能有记录
+- 问父母或家中老人
+- 回忆出生时的天色（天亮了？还是天黑了？）
+- 母亲的分娩过程（顺产还是剖腹产？大致时间？）
+
+### 方法二：用面相和手相辅助
+AI 五维合参的优势在于：即使出生时间不精确，还可以通过面相和手相来补充。面相反映的是你当下的运势状态，不依赖出生时间。
+
+### 方法三：多时辰对比
+如果实在不确定，可以用两个不同时辰分别排盘，对比哪个更符合你的实际情况（性格、经历、外貌特征）。
+
+## AI 推命的灵活性
+
+我们的五维合参系统允许你：
+1. 用已知信息（日期 + 大致时辰）生成初步报告
+2. 上传面相和手相照片，AI 会结合视觉信息进行修正
+3. 五维数据交叉验证，即使某一维度信息不完整，其他维度也能补足
+
+→ 不确定出生时间？先试试 AI 推命，看看能给你什么洞察
+    `,
+    content_en: `
+## Why Does Birth Time Matter?
+
+Bazi consists of four pillars — Year, Month, Day, and Hour. Each pillar has a Heavenly Stem and Earthly Branch (two characters), totaling eight characters. The "Hour Pillar" accounts for one-quarter of the entire chart.
+
+Time is divided into two-hour units:
+- Zi Hour: 23:00-01:00
+- Chou Hour: 01:00-03:00
+- Yin Hour: 03:00-05:00
+- Mao Hour: 05:00-07:00
+- Chen Hour: 07:00-09:00
+- Si Hour: 09:00-11:00
+- Wu Hour: 11:00-13:00
+- Wei Hour: 13:00-15:00
+- Shen Hour: 15:00-17:00
+- You Hour: 17:00-19:00
+- Xu Hour: 19:00-21:00
+- Hai Hour: 21:00-23:00
+
+Different hour pillars affect the Hour Stem and Branch, which influence the Ten Gods pattern and overall Five Element distribution.
+
+## What to Do If You're Unsure?
+
+### Method 1: Recall Key Clues
+- Birth certificates or household registration may have records
+- Ask parents or elderly family members
+- Remember the sky conditions at birth (was it dawn? dark?)
+- Mother's delivery experience (natural or C-section? approximate time?)
+
+### Method 2: Use Face & Palm Reading as Backup
+The advantage of AI 5-Dimension Analysis: even if birth time is imprecise, face and palm readings can supplement. Face reading reflects your current fortune state, independent of birth time.
+
+### Method 3: Compare Multiple Charts
+If truly uncertain, generate charts with two different hour assumptions and compare which one better matches your actual experiences (personality, life events, physical features).
+
+## The Flexibility of AI Destiny Reading
+
+Our 5-Dimension system lets you:
+1. Generate a preliminary report with available information (date + approximate time)
+2. Upload face and palm photos — AI cross-references visual data to refine the analysis
+3. Five-dimension cross-validation: even with incomplete data in one dimension, others compensate
+
+→ Unsure of your birth time? Try our AI reading to see what insights it can offer
+    `,
+  },
+
+  // ────────────────────────────────────────────────────
+  // 15. 塔罗反复测
+  // ────────────────────────────────────────────────────
+  {
+    id: "tarot-repetition",
+    title_zh: "塔罗牌可以反复测同一件事吗？",
+    title_en: "Can You Ask Tarot the Same Question Repeatedly?",
+    summary_zh: "很多人抽到不满意的牌就想再抽一次。但塔罗牌真的能「重考」吗？反复解读会带来什么影响？本文解答塔罗解析中「重复提问」的核心原则。",
+    summary_en: "Many people want to re-draw when they get an unsatisfying card. But can tarot really be 'retaken'? What impact does repeated divination have? This article addresses the core principles of repeated questioning in tarot.",
+    category: "tarot",
+    tags_zh: ["塔罗", "能量解读", "FAQ", "入门"],
+    tags_en: ["Tarot", "Divination", "FAQ", "Beginner"],
+    read_time: 4,
+    cover_emoji: "🃏",
+    created_at: "2025-05-23",
+    content_zh: `
+## 核心原则：一个问题只问一次
+
+塔罗牌的核心原则是：**同一个问题，在同一段时间内，只应该问一次。**
+
+这就像考试——你不能因为成绩不满意就要求重考。塔罗牌反映的是「此时此刻」的能量状态，而你的提问心态会影响抽牌结果。
+
+## 为什么不应该反复测？
+
+### 1. 能量被稀释
+每次解读都在读取你当下的能量场。反复提问意味着你处于焦虑、不安的状态，这种心态会干扰牌面信息的准确性。
+
+### 2. 牌面会「矛盾」
+同一件事多次抽牌，牌面常常互相矛盾——这不是塔罗不准，而是因为每次解读都在读取不同角度的能量信息，混在一起反而更混乱。
+
+### 3. 你在寻找「想要的答案」
+当第一次结果不满意时再抽一次，你的潜意识已经在「寻找」某个特定答案，而非「接收」真实信息。这时抽到的牌往往反映的是你的执念，而非客观趋势。
+
+## 什么情况下可以重新解读？
+
+以下情况是可以的：
+
+- **时间过了**：如果事情已经过去一段时间（通常建议至少一个月），情况发生了变化，可以重新问
+- **换了角度**：第一次问「他喜不喜欢我」，过了一段时间可以问「我应该如何处理这段关系」
+- **新的事件**：发生了新的重大变化，原来的解读结果已经不适用
+
+## 正确的做法
+
+1. **提问前想清楚**：想好一个明确的问题
+2. **一次解读就够了**：相信第一次的结果
+3. **记录下来**：事后回顾，看看第一次的牌面是否应验
+4. **行动比解读重要**：塔罗给你的是方向，不是答案
+
+→ AI 塔罗解析：专注地问一个问题，获取深层指引
+    `,
+    content_en: `
+## Core Principle: Ask Once Per Question
+
+The core principle of tarot is: **The same question should only be asked once within the same timeframe.**
+
+It's like an exam — you can't demand a retake because you're unhappy with the score. Tarot reads the energy state of "this very moment," and your questioning mindset affects the card outcome.
+
+## Why Shouldn't You Repeat?
+
+### 1. Energy Gets Diluted
+Each reading taps into your current energy field. Repeated questioning means you're in an anxious, unsettled state — this mindset interferes with the accuracy of the cards.
+
+### 2. Cards Will "Contradict"
+Multiple draws on the same topic often produce contradictory cards — not because tarot is inaccurate, but because each reading captures different angles of energy. Mixing them together creates more confusion.
+
+### 3. You're Seeking a "Desired Answer"
+When you re-draw after an unsatisfying first result, your subconscious is already "searching" for a specific answer rather than "receiving" honest information. The cards you then draw often reflect your attachment rather than objective trends.
+
+## When Is It Okay to Re-Draw?
+
+These situations are acceptable:
+
+- **Time has passed**: If significant time has passed (at least one month is recommended) and circumstances have changed, you can ask again
+- **Different angle**: Instead of "Does he like me?", you could later ask "How should I handle this relationship?"
+- **New events**: Major new developments have occurred that make the original reading obsolete
+
+## The Right Approach
+
+1. **Think clearly before asking**: Formulate a specific question
+2. **One reading is enough**: Trust the first result
+3. **Record it**: Review later to see how the initial cards manifested
+4. **Action matters more than divination**: Tarot gives direction, not answers
+
+→ AI Tarot Reading: ask one focused question for deep guidance
+    `,
+  },
+
+  // ────────────────────────────────────────────────────
+  // 16. AI推命 vs 传统命理师
+  // ────────────────────────────────────────────────────
+  {
+    id: "faq-ai-vs-traditional",
+    title_zh: "AI 推命 vs 传统命理师：有什么区别？",
+    title_en: "AI Destiny Reading vs Traditional Masters: What's the Difference?",
+    summary_zh: "AI 五维合参和找命理师进行命理分析有什么不同？AI 更快更客观，但传统命理师有经验加持。本文从准确性、深度、价格、隐私等维度对比两种方式。",
+    summary_en: "How does AI 5-Dimension Analysis compare to visiting a traditional destiny master? AI is faster and more objective, while traditional masters bring years of experience. This article compares both approaches across accuracy, depth, price, and privacy.",
+    category: "faq",
+    tags_zh: ["AI", "命理", "FAQ", "对比"],
+    tags_en: ["AI", "Destiny", "FAQ", "Comparison"],
+    read_time: 5,
+    cover_emoji: "🤖",
+    created_at: "2025-05-24",
+    content_zh: `
+## 两种方式的核心区别
+
+| 维度 | AI 五维合参 | 传统命理师 |
+|------|-----------|-----------|
+| **速度** | 40秒出报告 | 需要预约，30-60分钟面谈 |
+| **维度** | 五维同时分析（八字+星盘+塔罗+面相+手相） | 通常只擅长一两个体系 |
+| **客观性** | 基于算法和数据，不受情绪影响 | 依赖个人经验和直觉 |
+| **价格** | 免费基础版，会员制高级版 | 通常 200-2000 元/次 |
+| **隐私** | 面部图片不存储，数据加密 | 面对面交流，隐私风险 |
+| **深度** | 结构化分析，逻辑清晰 | 可能有灵性层面的洞察 |
+| **反复使用** | 随时可重新分析 | 需要再次预约 |
+| **文化传承** | 融合现代技术 | 数千年传统传承 |
+
+## AI 的优势
+
+1. **五维交叉验证**：同时分析五个体系，减少单一维度的偏差
+2. **标准化输出**：每次分析的标准一致，不会因为命理师状态好坏而波动
+3. **即时可得**：不需要排队等待，随时随地可以分析
+4. **价格亲民**：远低于传统命理师的收费
+
+## 传统命理师的优势
+
+1. **经验判断**：几十年经验带来的直觉和洞察，有时能捕捉到AI忽略的细节
+2. **互动式解读**：可以实时追问，根据你的反馈深入解读
+3. **文化仪式感**：面对面的仪式感本身就是一种疗愈
+
+## 我们的建议
+
+**两种方式并不矛盾，可以互补使用：**
+
+- 用 AI 做初步诊断——快速了解五行分布、命格格局
+- 用 AI 的五维合参做全面体检——多角度交叉验证
+- 如果遇到重大人生决策，可以再找传统命理师做深度咨询
+
+AI 不是要取代传统命理，而是让更多人以更低的门槛接触命理智慧。
+
+→ 体验 AI 五维合参，40秒获取你的专属命盘分析
+    `,
+    content_en: `
+## Core Differences
+
+| Dimension | AI 5-Dimension Analysis | Traditional Master |
+|-----------|------------------------|-------------------|
+| **Speed** | 40-second report | Appointment needed, 30-60 min consultation |
+| **Scope** | 5 dimensions simultaneously (Bazi + Astrology + Tarot + Face + Palm) | Typically skilled in 1-2 systems only |
+| **Objectivity** | Algorithm-based, unaffected by emotions | Depends on individual experience and intuition |
+| **Price** | Free basic, membership for premium | Usually ¥200-2000 per session |
+| **Privacy** | Face images not stored, data encrypted | In-person interaction, privacy risks |
+| **Depth** | Structured analysis, logical clarity | May offer spiritual-level insights |
+| **Repeat use** | Re-analyze anytime | Requires re-booking |
+| **Cultural heritage** | Modern technology fusion | Thousands of years of tradition |
+
+## AI Advantages
+
+1. **Five-dimension cross-validation**: Analyzing five systems simultaneously reduces single-dimension bias
+2. **Standardized output**: Consistent analysis every time, regardless of the master's mood or state
+3. **Instant access**: No queuing required, available anytime, anywhere
+4. **Affordable**: Far less expensive than traditional masters
+
+## Traditional Master Advantages
+
+1. **Experienced judgment**: Intuition and insights from decades of practice that may catch details AI misses
+2. **Interactive reading**: Real-time follow-up questions, deepening the interpretation based on your feedback
+3. **Ceremonial significance**: The in-person ritual itself can be healing
+
+## Our Recommendation
+
+**These two approaches complement each other:**
+
+- Use AI for an initial diagnosis — quickly understand your Five Element distribution and chart pattern
+- Use AI's 5-Dimension Analysis for a comprehensive reading — cross-validated from multiple angles
+- For major life decisions, consult a traditional master for deeper guidance
+
+AI doesn't replace traditional destiny analysis — it makes destiny wisdom accessible to more people at a lower barrier.
+
+→ Experience AI 5-Dimension Analysis — get your personalized chart in 40 seconds
+    `,
+  },
+
+  // ────────────────────────────────────────────────────
+  // 17. 流年运势入门
+  // ────────────────────────────────────────────────────
+  {
+    id: "bazi-annual",
+    title_zh: "流年运势入门：怎么看今年运气好不好？",
+    title_en: "Annual Fortune Basics: How to Read Your Yearly Luck",
+    summary_zh: "八字命盘是固定的，但流年运势每年都在变。2025年乙巳蛇年，你该注意什么？本文教你理解流年天干地支如何影响你的运势。",
+    summary_en: "Your Bazi chart is fixed, but annual fortune cycles change every year. What should you watch for in 2025 (Yi Si Snake Year)? Learn how the yearly Stem-Branch combination influences your fortune.",
+    category: "bazi",
+    tags_zh: ["八字", "流年", "运势", "2025"],
+    tags_en: ["Bazi", "Annual Fortune", "Luck Cycle", "2025"],
+    read_time: 7,
+    cover_emoji: "📅",
+    created_at: "2025-05-25",
+    content_zh: `
+## 什么是流年？
+
+流年就是「流动的年份」。每个人的八字命盘是出生时就固定的，但每一年都有一个新的天干地支组合（比如2025年是乙巳年），这个组合会与你的命盘产生互动，形成那一年的运势。
+
+## 流年如何影响你？
+
+流年的天干地支会与你命盘中的元素发生生克关系：
+
+### 流年天干的作用
+- **克你命盘的元素**：带来压力和挑战，但也可能催生成长
+- **生你命盘的元素**：带来助力和机会
+- **与你命盘相同的元素**：增强你的力量，但也可能过旺
+
+### 流年地支的作用
+- **合**：与命盘地支相合，代表好的变化、合作、缘分
+- **冲**：与命盘地支相冲，代表变动、冲突、突破
+- **刑**：与命盘地支相刑，代表矛盾、纠纷、健康问题
+- **害**：与命盘地支相害，代表阻碍、小人、暗损
+
+## 2025年乙巳蛇年要点
+
+2025年天干为乙木，地支为巳火：
+- **乙木年**：木气当令，适合生长、发展、创新
+- **巳火年**：火气旺盛，热情高涨但也要防急躁
+- 与属猪（亥）的人相冲，与属猴（申）的人相合
+
+## 如何判断自己的流年好坏？
+
+关键看流年与你命盘的关系：
+
+1. **流年生助你的喜用神**：大吉，把握机会
+2. **流年克制你的喜用神**：不利，注意防范
+3. **流年与命盘形成三合/六合**：有贵人相助
+4. **流年与命盘形成六冲**：变动大，可能有搬家/换工作
+
+## 实用建议
+
+- 每年年初做一次流年分析，了解该年的重点和注意事项
+- 流年不利时不必恐慌，提前准备可以化解大部分风险
+- 流年好时要抓住机会，不要犹豫
+
+→ 输入出生信息，AI 将为你分析 2025 流年运势
+    `,
+    content_en: `
+## What Is Annual Fortune (Liu Nian)?
+
+"Liu Nian" means "flowing year." Your Bazi chart is fixed at birth, but each year brings a new Stem-Branch combination (2025 is the Yi Si / Wood Snake year). This combination interacts with your chart to form that year's fortune.
+
+## How Does Annual Fortune Affect You?
+
+The yearly Stem-Branch creates generating and overcoming relationships with your chart elements:
+
+### Yearly Heavenly Stem Effects
+- **Overcomes chart elements**: Brings pressure and challenges, but may catalyze growth
+- **Generates chart elements**: Brings support and opportunities
+- **Same as chart elements**: Amplifies your strength, but risks excess
+
+### Yearly Earthly Branch Effects
+- **Combine (He)**: Good changes, cooperation, new connections
+- **Clash (Chong)**: Major changes, conflict, breakthroughs
+- **Punishment (Xing)**: Contradictions, disputes, health issues
+- **Harm (Hai)**: Obstacles, hidden enemies, subtle losses
+
+## 2025 Yi Si Snake Year Highlights
+
+2025's Heavenly Stem is Yi Wood, Earthly Branch is Si Fire:
+- **Yi Wood year**: Wood energy leads — good for growth, development, innovation
+- **Si Fire year**: Fire energy is strong — enthusiasm runs high but watch for impulsiveness
+- Clashes with Pig (Hai) signs, combines with Monkey (Shen) signs
+
+## How to Judge Your Annual Fortune?
+
+The key is the relationship between the year and your chart:
+
+1. **Year supports your Favorable Element**: Very favorable — seize opportunities
+2. **Year weakens your Favorable Element**: Challenging — take precautions
+3. **Year forms San He / Liu He with chart**: Benefactors will help
+4. **Year forms Liu Chong with chart**: Big changes — possible relocation or job change
+
+## Practical Advice
+
+- Do an annual fortune analysis at the start of each year to understand priorities and precautions
+- Unfavorable years aren't cause for panic — advance preparation resolves most risks
+- Favorable years demand action — don't hesitate
+
+→ Enter your birth details for AI 2025 annual fortune analysis
+    `,
+  },
+
+  // ────────────────────────────────────────────────────
+  // 18. 星座配对指南
+  // ────────────────────────────────────────────────────
+  {
+    id: "astrology-compatibility",
+    title_zh: "十二星座配对指南：谁和谁最合拍？",
+    title_en: "Zodiac Compatibility Guide: Which Signs Are Most Compatible?",
+    summary_zh: "白羊配天秤是最佳拍档？天蝎和水瓶真的不合？星座配对不只是看太阳星座，上升星座和月亮星座的影响更大。本文从元素、模式、相位三个维度解析星座关系。",
+    summary_en: "Aries-Libra is the perfect pair? Scorpio and Aquarius really don't work? Zodiac compatibility goes beyond Sun signs — Rising and Moon signs matter even more. This article analyzes relationships through elements, modalities, and aspects.",
+    category: "astrology",
+    tags_zh: ["星座", "配对", "感情", "入门"],
+    tags_en: ["Zodiac", "Compatibility", "Relationship", "Beginner"],
+    read_time: 8,
+    cover_emoji: "💑",
+    created_at: "2025-05-26",
+    content_zh: `
+## 配对的三个层次
+
+### 第一层：太阳星座（最基础）
+
+太阳星座是最广为人知的配对方式，但也是最粗略的。它只考虑你出生时太阳所在的星座。
+
+传统配对参考：
+- **同元素最和谐**：火象配火象（白羊+狮子+射手）、土象配土象等
+- **对宫最吸引**：白羊-天秤、金牛-天蝎、双子-射手、巨蟹-摩羯、狮子-水瓶、处女-双鱼
+- **三合最舒适**：白羊+狮子+射手（火象三合）、金牛+处女+摩羯（土象三合）等
+
+### 第二层：上升星座（外在互动）
+
+上升星座代表你给世界的第一印象，也代表你「需要」什么样的伴侣。两个人上升星座的配合度，往往比太阳星座更能决定日常相处是否舒服。
+
+### 第三层：月亮星座（内心需求）
+
+月亮星座代表你内心深处的情感需求。两个人月亮星座的配合度，决定了「能不能交心」——这是长期关系中最重要的因素。
+
+## 元素配对详解
+
+### 火象 + 火象
+热情爆棚，恋爱轰轰烈烈，但也容易互相消耗。需要学会给彼此空间。
+
+### 火象 + 风象
+最佳拍档！风助火势，两人能互相激发灵感。沟通顺畅，充满活力。
+
+### 土象 + 土象
+稳定踏实，像两棵并肩生长的大树。但可能缺少浪漫和惊喜。
+
+### 土象 + 水象
+互补型配对。土给水安全感，水给土情感滋养。需要学会表达感受。
+
+### 水象 + 风象
+需要磨合。水的情绪化和风的理性可能产生冲突，但如果学会理解，会是深度成长的配对。
+
+### 风象 + 水象
+精神层面非常合拍，但在实际生活中可能需要更多耐心。
+
+## 比星座配对更重要的是
+
+1. **了解完整的星盘**：太阳只是其中一个因素
+2. **尊重个体差异**：同星座的人千差万别
+3. **沟通和包容**：没有任何配对是完美的，经营比选择更重要
+
+→ AI 星盘分析：超越太阳星座，看你的完整情感地图
+    `,
+    content_en: `
+## Three Levels of Compatibility
+
+### Level 1: Sun Sign (Most Basic)
+
+Sun sign compatibility is the most well-known but also the most superficial. It only considers where the Sun was at your birth.
+
+Traditional pairing references:
+- **Same element harmonizes best**: Fire + Fire (Aries+Leo+Sagittarius), Earth + Earth, etc.
+- **Opposite signs attract**: Aries-Libra, Taurus-Scorpio, Gemini-Sagittarius, Cancer-Capricorn, Leo-Aquarius, Virgo-Pisces
+- **Trine signs are comfortable**: Aries+Leo+Sagittarius (Fire trine), Taurus+Virgo+Capricorn (Earth trine), etc.
+
+### Level 2: Rising Sign (External Interaction)
+
+The Rising Sign represents your outward image and what kind of partner you "need." Compatibility between two Rising Signs often determines daily comfort better than Sun signs.
+
+### Level 3: Moon Sign (Inner Needs)
+
+The Moon Sign represents your deepest emotional needs. Moon sign compatibility determines whether you can truly "connect hearts" — the most important factor in long-term relationships.
+
+## Element Pairing Guide
+
+### Fire + Fire
+Explosive passion, dramatic romance, but容易 burn each other out. Need to learn to give each other space.
+
+### Fire + Air
+Best partners! Air fans the flame — you inspire each other effortlessly. Communication flows, energy stays high.
+
+### Earth + Earth
+Stable and grounded, like two trees growing side by side. But may lack romance and surprises.
+
+### Earth + Water
+Complementary pairing. Earth gives Water security; Water nourishes Earth emotionally. Need to learn to express feelings.
+
+### Water + Air
+Requires adjustment. Water's emotional nature and Air's rationality can clash, but if understood, this becomes a pairing of deep growth.
+
+### Air + Water
+Mentally very compatible, but may need extra patience in practical daily life.
+
+## What Matters More Than Sun Sign Compatibility
+
+1. **Understand the full chart**: The Sun is just one factor
+2. **Respect individual differences**: Two people of the same sign can be vastly different
+3. **Communication and acceptance**: No pairing is perfect — nurturing matters more than choosing
+
+→ AI Natal Chart Analysis: go beyond Sun signs to map your complete emotional landscape
+    `,
+  },
+
+  // ────────────────────────────────────────────────────
+  // 19. 五维合参报告解读
+  // ────────────────────────────────────────────────────
+  {
+    id: "faq-reading-guide",
+    title_zh: "五维合参报告怎么解读？新手必读指南",
+    title_en: "How to Read Your 5-Dimension Analysis: A Beginner's Guide",
+    summary_zh: "拿到报告后不知道怎么看？五行得分是什么意思？十神格局怎么理解？本文手把手教你读懂 AI 五维合参报告的每个部分。",
+    summary_en: "Got your report but not sure how to read it? What do Five Element scores mean? How to interpret Ten Gods patterns? This guide walks you through every section of your AI 5-Dimension Analysis report.",
+    category: "faq",
+    tags_zh: ["报告", "解读", "入门", "五维合参"],
+    tags_en: ["Report", "Reading Guide", "Beginner", "5-Dimension"],
+    read_time: 6,
+    cover_emoji: "📖",
+    created_at: "2025-05-27",
+    content_zh: `
+## 报告结构总览
+
+一份完整的五维合参报告包含以下部分：
+
+### 1. 基本信息
+- 出生时间对应的四柱八字
+- 西方星盘的上升星座和太阳星座
+- 日主天干（代表你自己的那个字）
+
+### 2. 五行得分图
+柱状图显示金、木、水、火、土的分布比例：
+- **得分最高的元素**：你命盘中最强的力量
+- **得分最低的元素**：你命盘中最弱的力量
+- **注意**：最弱的不一定要补——关键看「喜用神」
+
+### 3. 喜用神分析
+告诉你命盘最需要什么元素：
+- 喜用神是你运势的「导航方向」
+- 所有改运方法（颜色、方位、水晶、职业）都围绕喜用神
+
+### 4. 十神格局
+描述你的命格特征：
+- **正官旺**：适合体制内、管理层
+- **食神旺**：适合创意、艺术、自由职业
+- **偏财旺**：适合经商、投资
+- **正印旺**：适合学术、教育、研究
+
+### 5. 五维交叉验证
+AI 将八字、星盘、塔罗、面相、手相五个维度的结果进行交叉对比：
+- 如果多个维度指向同一个结论 → 置信度高
+- 如果维度之间有矛盾 → 报告会标注差异并给出解释
+
+## 如何使用报告？
+
+1. **先看五行和喜用神**：这是最基础的
+2. **看十神格局**：了解自己的天赋方向
+3. **看五维验证**：确认分析的可靠程度
+4. **关注建议部分**：具体的改运行动指南
+
+## 常见问题
+
+**Q：报告说的准吗？**
+AI 分析基于精确的天文学计算和传统命理逻辑，但命理只是参考。最好的验证方式是看报告描述是否符合你的实际情况。
+
+**Q：可以反复生成吗？**
+可以。同一天多次生成的结果是一致的。不同日期生成可能因为流年变化而有细微差异。
+
+**Q：报告会过时吗？**
+基础命格（八字、星盘）不会变，但运势分析（流年、月运）会随时间更新。
+
+→ 还没获取过报告？现在就试试 AI 五维合参
+    `,
+    content_en: `
+## Report Structure Overview
+
+A complete 5-Dimension Analysis report includes the following sections:
+
+### 1. Basic Information
+- Four Pillars Bazi derived from birth time
+- Rising Sign and Sun Sign from Western astrology
+- Day Master Heavenly Stem (the character representing you)
+
+### 2. Five Element Score Chart
+A bar chart showing the distribution of Metal, Wood, Water, Fire, and Earth:
+- **Highest scoring element**: The strongest force in your chart
+- **Lowest scoring element**: The weakest force in your chart
+- **Note**: Weakest doesn't always need supplementing — the key is the "Favorable Element"
+
+### 3. Favorable Element Analysis
+Tells you which element your chart most needs:
+- Your Favorable Element is the "navigation direction" for your fortune
+- All fortune-enhancing methods (colors, directions, crystals, careers) revolve around this
+
+### 4. Ten Gods Pattern
+Describes your chart personality:
+- **Strong Direct Officer**: Suited for government, management roles
+- **Strong Eating God**: Suited for creative arts, freelancing
+- **Strong Indirect Wealth**: Suited for business, investing
+- **Strong Direct Resource**: Suited for academia, education, research
+
+### 5. Five-Dimension Cross-Validation
+AI compares results across all five systems (Bazi, Astrology, Tarot, Face, Palm):
+- If multiple dimensions point to the same conclusion → high confidence
+- If dimensions conflict → the report flags differences and provides explanation
+
+## How to Use Your Report?
+
+1. **Start with Five Elements and Favorable Element**: This is the foundation
+2. **Review Ten Gods patterns**: Understand your natural talents
+3. **Check five-dimension validation**: Confirm the reliability of the analysis
+4. **Focus on the recommendations section**: Practical action guide for fortune enhancement
+
+## Frequently Asked Questions
+
+**Q: Is the report accurate?**
+AI analysis is based on precise astronomical calculations and traditional destiny logic, but destiny analysis is a reference. The best validation is whether the report matches your actual experiences.
+
+**Q: Can I regenerate it?**
+Yes. Multiple generations on the same day produce consistent results. Different dates may show subtle differences due to changing annual/monthly fortune cycles.
+
+**Q: Does the report expire?**
+Your basic chart (Bazi, Natal Chart) doesn't change, but fortune analysis (annual, monthly cycles) updates over time.
+
+→ Haven't received a report yet? Try AI 5-Dimension Analysis now
+    `,
+  },
+
+  // ────────────────────────────────────────────────────
+  // 20. 面相看痣
+  // ────────────────────────────────────────────────────
+  {
+    id: "face-moles",
+    title_zh: "面相看痣：脸上的痣代表什么？",
+    title_en: "Face Moles & Freckles: What Do They Mean in Face Reading?",
+    summary_zh: "脸上不同位置的痣有不同的含义。额头正中有痣代表什么？嘴角有痣好不好？本文系统梳理面部痣相学的基本知识，帮你读懂脸上的「命运密码」。",
+    summary_en: "Moles on different parts of the face carry different meanings. What does a mole between the eyebrows signify? Is a mole near the mouth auspicious? This article systematically covers facial mole reading basics to help you decode the 'destiny code' on your face.",
+    category: "face",
+    tags_zh: ["面相", "痣相", "入门"],
+    tags_en: ["Face Reading", "Moles", "Beginner"],
+    read_time: 5,
+    cover_emoji: "✨",
+    created_at: "2025-05-28",
+    content_zh: `
+## 痣相学基础
+
+痣相学是面相学的一个分支，通过痣的位置、大小、颜色来推断运势。但需要注意：痣相只是面相的一个辅助参考，不能单独下结论。
+
+## 面部主要痣位解读
+
+### 额头区域（早年运 15-30岁）
+
+- **印堂有痣（两眉之间）**：传统认为此处有痣的人感情路较曲折，但也代表有灵性天赋
+- **天庭正中有痣**：少年时期可能有波折，但中年后运势转好
+- **发际线内有痣**：性格内敛，适合幕后工作
+
+### 眉眼区域（中年运 31-50岁）
+
+- **眉中有痣**：「草里藏珠」，代表有隐藏的才华或意外之财
+- **眼角有痣**：桃花运旺，感情生活丰富
+- **眼尾有痣**：需要留意感情中的第三者问题
+- **眼袋有痣**：子女缘分较深
+
+### 鼻子区域（财运 40-55岁）
+
+- **鼻头有痣**：传统认为影响财运，但现代面相学认为只是提醒注意理财
+- **鼻梁有痣**：健康方面需要留意脊椎和呼吸系统
+- **鼻翼有痣**：漏财迹象，建议做好储蓄规划
+
+### 嘴巴区域（食禄运）
+
+- **嘴角有痣**：「美人痣」，口福好、善于表达
+- **嘴唇上有痣**：感情丰富，食禄运佳
+- **下巴有痣**：晚年运势好，有不动产运
+
+### 耳朵区域（智慧与寿命）
+
+- **耳垂有痣**：有福气、长寿
+- **耳背有痣**：性格独立，有自己的想法
+
+## 关于痣的几个常见误区
+
+### 误区一：痣越黑越不好
+实际上，痣的吉凶取决于位置和整体面相的配合，而非颜色深浅。光滑、圆润的黑痣反而可能是好痣。
+
+### 误区二：点了痣就能改运
+痣相只是面相的一个参考点，点掉一颗痣不会根本改变你的运势。真正的改运需要从五行调和、行为习惯等多方面入手。
+
+### 误区三：所有痣都要去掉
+医学上建议去除的是突然变大、边缘不规则、颜色不均匀的痣（可能是恶变信号）。其他痣可以保留。
+
+## 现代面相学的态度
+
+痣相学作为传统文化的一部分有其参考价值，但不宜过度迷信。面部特征是整体分析的一部分，需要结合五官、脸型、气色等综合判断。
+
+→ AI 面相分析：468个特征点精确解读，不只是看痣
+    `,
+    content_en: `
+## Fundamentals of Mole Reading
+
+Mole reading is a branch of face reading that interprets fortune through mole position, size, and color. However, note that mole reading is just one supplementary reference within face reading — conclusions shouldn't be drawn from moles alone.
+
+## Key Facial Mole Positions
+
+### Forehead Area (Early Fortune, Ages 15-30)
+
+- **Mole between the eyebrows (Yin Tang)**: Traditionally indicates a complex love life, but also spiritual talent
+- **Center of forehead**: Possible turbulence in youth, but fortune improves after middle age
+- **Within the hairline**: Reserved personality, suited for behind-the-scenes work
+
+### Eye & Eyebrow Area (Mid-Life Fortune, Ages 31-50)
+
+- **Mole within the eyebrow**: "Hidden pearl in grass" — represents concealed talent or unexpected wealth
+- **Corner of the eye**: Strong romantic luck, rich love life
+- **Outer eye corner**: Watch for third-party complications in relationships
+- **Under-eye mole**: Deep connection with children
+
+### Nose Area (Wealth Fortune, Ages 40-55)
+
+- **Mole on nose tip**: Traditionally considered to affect wealth luck; modern interpretation: a reminder to manage finances carefully
+- **Mole on nose bridge**: Pay attention to spinal and respiratory health
+- **Mole on nose wing**: Sign of wealth leakage — consider savings planning
+
+### Mouth Area (Sustenance Fortune)
+
+- **Mole near mouth corner**: "Beauty mole" — good food luck, eloquent speaker
+- **Mole on lips**: Rich emotions, good sustenance fortune
+- **Mole on chin**: Good later fortune, property luck
+
+### Ear Area (Wisdom & Longevity)
+
+- **Mole on earlobe**: Blessed, long-lived
+- **Mole behind ear**: Independent thinker with own ideas
+
+## Common Mole Reading Myths
+
+### Myth 1: Darker moles are worse
+Actually, a mole's fortune depends on position and overall facial harmony, not color depth. Smooth, round dark moles can actually be auspicious.
+
+### Myth 2: Removing moles changes your fortune
+Moles are just one reference point — removing one won't fundamentally alter your destiny. True fortune enhancement requires multi-dimensional approaches including Five Element harmony and behavioral habits.
+
+### Myth 3: All moles should be removed
+Medically, moles that suddenly enlarge, have irregular borders, or uneven coloring should be examined (potential malignancy signal). Other moles can be safely kept.
+
+## Modern Face Reading Perspective
+
+Mole reading as part of traditional culture has reference value, but shouldn't be taken too literally. Facial features are one part of a comprehensive analysis that must consider all features, face shape, and complexion together.
+
+→ AI Face Reading: 468 feature points for precise analysis — not just moles
+    `,
+  },
+
+  // ────────────────────────────────────────────────────
+  // 21. 紫微斗数入门
+  // ────────────────────────────────────────────────────
+  {
+    id: "ziwei-intro",
+    title_zh: "紫微斗数入门：你的十二宫命运地图",
+    title_en: "Zi Wei Dou Shu: Your Twelve-Palace Destiny Map",
+    summary_zh: "紫微斗数是中国命理学的另一大体系，与八字并称「命理双璧」。它用十四颗主星分布在十二宫中，描绘你人生的全景地图。",
+    summary_en: "Zi Wei Dou Shu is another major Chinese destiny system, often called the 'twin star' alongside Bazi. It uses fourteen major stars distributed across twelve palaces to map your complete life blueprint.",
+    category: "bazi",
+    tags_zh: ["紫微斗数", "入门", "命盘"],
+    tags_en: ["Zi Wei Dou Shu", "Beginner", "Chart"],
+    read_time: 7,
+    cover_emoji: "⭐",
+    created_at: "2025-05-30",
+    content_zh: `
+## 什么是紫微斗数？
+
+紫微斗数起源于唐代，由道家发展完善，是中国传统命理学中精度最高的体系之一。它与八字的最大区别在于：八字用出生时间推算五行，而紫微斗数用出生时间排出「命盘」，将十四颗主星分布在十二个宫位中。
+
+## 命盘结构
+
+紫微命盘是一个方形盘，分为十二个宫位，每个宫位代表人生的一个领域：
+
+| 宫位 | 代表领域 | 通俗理解 |
+|------|---------|---------|
+| 命宫 | 自我、性格 | 你是谁 |
+| 兄弟宫 | 兄弟姐妹、同辈关系 | 你的朋友圈 |
+| 夫妻宫 | 婚姻、感情 | 你的另一半 |
+| 子女宫 | 子女、下属 | 你的传承 |
+| 财帛宫 | 财运、理财 | 你的钱包 |
+| 疾厄宫 | 健康、疾病 | 你的身体 |
+| 迁移宫 | 外出、社交 | 你的社交圈 |
+| 交友宫 | 朋友、贵人 | 你的助力 |
+| 官禄宫 | 事业、工作 | 你的职场 |
+| 田宅宫 | 不动产、家庭 | 你的根基 |
+| 福德宫 | 精神、享受 | 你的内心 |
+| 父母宫 | 父母、长辈 | 你的靠山 |
+
+## 十四颗主星
+
+紫微斗数的核心是十四颗主星，每颗星都有独特的能量：
+
+### 帝星组
+- **紫微星**：帝王之星，领导力强，自尊心高
+- **天府星**：财库之星，稳重务实，善于守财
+
+### 天象组
+- **太阳星**：光明之星，热情大方，博爱
+- **太阴星**：月亮之星，细腻敏感，内敛
+
+### 天同组
+- **天同星**：福星，温和善良，知足常乐
+- **天梁星**：荫星，正义感强，乐于助人
+
+### 天机组
+- **天机星**：智慧之星，思维敏捷，善变
+- **巨门星**：口才之星，能言善辩，是非多
+
+### 天府系
+- **武曲星**：财星，果断刚毅，适合经商
+- **天相星**：印星，正直稳重，适合辅佐
+- **七杀星**：将星，冲劲十足，敢闯敢拼
+- **破军星**：变动之星，开创力强，不安于现状
+
+### 天府对星
+- **贪狼星**：桃花之星，多才多艺，欲望强
+- **廉贞星**：次桃花，复杂多变，情绪起伏
+
+## 八字 vs 紫微斗数
+
+| 维度 | 八字 | 紫微斗数 |
+|------|------|---------|
+| 起源 | 宋代 | 唐代 |
+| 核心 | 五行生克 | 星曜组合 |
+| 精度 | 年月日时 | 年月日时+性别 |
+| 优势 | 简洁快速 | 细节丰富 |
+| 流年 | 看大运流年 | 看大限流年 |
+
+两者并不矛盾，而是互补。很多专业命理师会同时参考八字和紫微斗数。
+
+→ AI 推命工具融合八字与紫微逻辑，为你生成多维分析
+    `,
+    content_en: `
+## What Is Zi Wei Dou Shu?
+
+Zi Wei Dou Shu (Purple Star Astrology) originated in the Tang Dynasty and was refined by Taoist practitioners. It is one of the most precise systems in Chinese destiny analysis. Its key difference from Bazi: while Bazi uses birth time to calculate Five Elements, Zi Wei Dou Shu uses it to plot a "chart" distributing fourteen major stars across twelve palaces.
+
+## Chart Structure
+
+The Zi Wei chart is a square divided into twelve palaces, each representing a life domain:
+
+| Palace | Domain | Plain Meaning |
+|--------|--------|---------------|
+| Ming (Life) | Self, personality | Who you are |
+| Siblings | Siblings, peers | Your peer group |
+| Spouse | Marriage, romance | Your partner |
+| Children | Children, subordinates | Your legacy |
+| Wealth | Fortune, finances | Your wallet |
+| Health | Health, illness | Your body |
+| Travel | Travel, socializing | Your social circle |
+| Friends | Friends, benefactors | Your support |
+| Career | Career, work | Your professional life |
+| Property | Real estate, family | Your foundation |
+| Fortune | Spirit, enjoyment | Your inner self |
+| Parents | Parents, elders | Your backing |
+
+## The Fourteen Major Stars
+
+The core of Zi Wei Dou Shu is fourteen major stars, each with unique energy:
+
+### Imperial Stars
+- **Zi Wei (Emperor Star)**: Leadership, strong self-esteem
+- **Tian Fu (Treasury Star)**: Financial wisdom, stability, wealth preservation
+
+### Celestial Image Group
+- **Tai Yang (Sun Star)**: Radiance, generosity, broad-mindedness
+- **Tai Yin (Moon Star)**: Sensitivity, introspection, gentleness
+
+### Heavenly Unity Group
+- **Tian Tong (Harmony Star)**: Blessings, contentment, kindness
+- **Tian Liang (Shade Star)**: Justice, helpfulness, protective energy
+
+### Heavenly Mechanism Group
+- **Tian Ji (Wisdom Star)**: Quick thinking, adaptability
+- **Ju Men (Giant Gate)**: Eloquence, communication, controversy
+
+### Tian Fu System
+- **Wu Qu (Martial Arts Star)**: Financial acumen, decisiveness, business talent
+- **Tian Xiang (Seal Star)**: Integrity, stability, supportive roles
+- **Qi Sha (Seven Killings)**: Boldness, drive, pioneering spirit
+- **Po Jun (Army Breaker)**: Innovation, restlessness, transformation
+
+### Tian Fu Counterpart Stars
+- **Tan Lang (Greedy Wolf)**: Talent, versatility, desire
+- **Lian Zhen (Pure Integrity)**: Complexity, emotional depth
+
+## Bazi vs Zi Wei Dou Shu
+
+| Dimension | Bazi | Zi Wei Dou Shu |
+|-----------|------|----------------|
+| Origin | Song Dynasty | Tang Dynasty |
+| Core | Five Element cycles | Star combinations |
+| Precision | Year-Month-Day-Hour | + Gender |
+| Strength | Concise, quick | Rich in detail |
+| Annual Fortune | Da Yun flow year | Da Xian flow year |
+
+The two systems don't contradict — they complement each other. Many professional destiny masters reference both.
+
+→ Our AI tool integrates Bazi and Zi Wei logic for multi-dimensional analysis
+    `,
+  },
+
+  // ────────────────────────────────────────────────────
+  // 22. 手相智慧线与感情线
+  // ────────────────────────────────────────────────────
+  {
+    id: "palm-head-heart",
+    title_zh: "手相智慧线与感情线：读懂你的思维与情感",
+    title_en: "Head Line & Heart Line: Understanding Your Mind and Emotions",
+    summary_zh: "智慧线代表思维方式，感情线代表情感模式。一条清晰的智慧线意味着什么？感情线分叉好不好？本文详解手相中最重要的两条主线。",
+    summary_en: "The Head Line reveals your thinking style; the Heart Line shows your emotional patterns. What does a clear Head Line mean? Is a forked Heart Line good? This article details the two most important lines in palmistry.",
+    category: "face",
+    tags_zh: ["手相", "智慧线", "感情线"],
+    tags_en: ["Palmistry", "Head Line", "Heart Line"],
+    read_time: 6,
+    cover_emoji: "🤚",
+    created_at: "2025-06-01",
+    content_zh: `
+## 手相三大主线
+
+手相学中有三条最重要的主线：生命线、智慧线、感情线。上一篇我们讲了生命线，本文详解智慧线和感情线。
+
+## 智慧线（人纹）
+
+智慧线从拇指与食指之间出发，横贯手掌中部，代表一个人的思维方式、智力特点和判断力。
+
+### 智慧线的形态
+
+**长而清晰**
+思维缜密、逻辑性强，适合从事需要精密思考的工作（如科研、法律、编程）。
+
+**短而有力**
+行动力强、直觉敏锐，适合从事需要快速决策的工作（如创业、销售、管理）。
+
+**向下弯曲**
+想象力丰富、富有艺术天赋，适合从事创意类工作（如设计、写作、音乐）。
+
+**笔直横贯**
+务实理性、注重细节，适合从事精确性工作（如会计、工程、医学）。
+
+### 智慧线的特殊纹路
+
+- **链状纹**：思维容易分心，注意力需要训练
+- **岛纹**：某个时期可能有思维困惑或判断失误
+- **分叉**：多才多艺，但可能过于分散精力
+- **末端向上**：乐观积极，善于发现机会
+
+## 感情线（天纹）
+
+感情线从小指下方出发，横贯手掌上方，代表一个人的情感表达方式、恋爱模式和情绪管理能力。
+
+### 感情线的形态
+
+**长而上扬**
+感情丰富、热情主动，在恋爱中积极表达，善于经营关系。
+
+**平直而短**
+理性克制、慢热型，不轻易表露感情，但一旦认定就很专一。
+
+**深入食指下方**
+重感情、重承诺，在婚姻中忠诚度高，但也可能过于理想化。
+
+**末端分叉**
+感情经历丰富，可能有多段重要感情，但也代表情感细腻、善于理解他人。
+
+### 感情线的特殊纹路
+
+- **链状纹**：感情上容易纠结，需要学会放下
+- **岛纹**：感情中可能有隐瞒或不坦诚的时期
+- **断裂**：感情中可能有重大变化（不一定是坏事，也可能是蜕变）
+- **向上支线**：感情运势积极，容易获得幸福
+- **向下支线**：感情中需要注意沟通和信任
+
+## 三线配合分析
+
+单独看一条线只能了解一个方面。真正的手相分析需要三条线配合：
+
+- **生命线深 + 智慧线长 + 感情线上扬**：行动力强、思维缜密、感情丰富——全面型人才
+- **生命线浅 + 智慧线短 + 感情线平直**：需要加强锻炼、培养思维、主动表达感情
+- **智慧线分叉 + 感情线分叉**：多才多艺但需要专注，感情丰富但需要稳定
+
+→ 上传手相照片，AI 将为你分析三大主线的综合含义
+    `,
+    content_en: `
+## The Three Major Lines in Palmistry
+
+Palmistry has three most important lines: the Life Line, Head Line, and Heart Line. Our previous article covered the Life Line. This one details the Head Line and Heart Line.
+
+## The Head Line (Ren Wen / Human Pattern)
+
+The Head Line starts between the thumb and index finger, crossing the middle of the palm. It represents thinking style, intellectual traits, and judgment ability.
+
+### Head Line Shapes
+
+**Long and Clear**
+Meticulous thinking, strong logic — suited for precision work (research, law, programming).
+
+**Short and Strong**
+Strong action drive, sharp intuition — suited for quick-decision roles (entrepreneurship, sales, management).
+
+**Curves Downward**
+Rich imagination, artistic talent — suited for creative work (design, writing, music).
+
+**Straight Across**
+Practical, detail-oriented — suited for precise work (accounting, engineering, medicine).
+
+### Special Markings
+
+- **Chain pattern**: Mind tends to wander; attention needs training
+- **Island**: Period of mental confusion or misjudgment
+- **Fork**: Multi-talented but may spread too thin
+- **Upturned end**: Optimistic, good at spotting opportunities
+
+## The Heart Line (Tian Wen / Heaven Pattern)
+
+The Heart Line starts below the little finger, crossing the upper palm. It represents emotional expression, love patterns, and emotional management.
+
+### Heart Line Shapes
+
+**Long and Upturned**
+Rich emotions, passionate and proactive in love, skilled at maintaining relationships.
+
+**Straight and Short**
+Rational and reserved, slow to warm up, but once committed, very loyal.
+
+**Extends Under Index Finger**
+Values deep feelings and commitment, high marital loyalty, but may idealize relationships.
+
+**Forks at the End**
+Rich emotional experiences, may have multiple significant relationships, but also represents emotional sensitivity and empathy.
+
+### Special Markings
+
+- **Chain pattern**: Tendency to overthink emotions; needs to learn letting go
+- **Island**: Period of emotional dishonesty or hidden feelings
+- **Break**: Major emotional shift (not necessarily bad — can be transformation)
+- **Upward branches**: Positive love fortune, easy to find happiness
+- **Downward branches**: Pay attention to communication and trust in relationships
+
+## Three-Line Combined Analysis
+
+Analyzing one line alone only reveals one aspect. True palmistry analysis requires combining all three:
+
+- **Deep Life + Long Head + Upturned Heart**: Strong drive, sharp mind, rich emotions — a well-rounded person
+- **Shallow Life + Short Head + Flat Heart**: Needs exercise, mental development, and proactive emotional expression
+- **Forked Head + Forked Heart**: Multi-talented but needs focus; emotionally rich but needs stability
+
+→ Upload a palm photo for AI analysis of your three major lines
+    `,
+  },
+
+  // ────────────────────────────────────────────────────
+  // 23. 塔罗逆位解读
+  // ────────────────────────────────────────────────────
+  {
+    id: "tarot-reversed",
+    title_zh: "塔罗逆位解读：当牌倒过来时意味着什么？",
+    title_en: "Reversed Tarot Cards: What Does It Mean When a Card Is Upside Down?",
+    summary_zh: "抽到逆位牌是不是坏事？其实逆位只是能量的另一种表达方式。本文教你正确理解塔罗逆位牌，不再被「倒牌」吓到。",
+    summary_en: "Does a reversed card mean bad luck? Actually, reversals are just another expression of card energy. Learn to correctly interpret reversed tarot cards without fear.",
+    category: "tarot",
+    tags_zh: ["塔罗", "逆位", "解读"],
+    tags_en: ["Tarot", "Reversed", "Interpretation"],
+    read_time: 6,
+    cover_emoji: "🔄",
+    created_at: "2025-06-02",
+    content_zh: `
+## 逆位不等于坏事
+
+很多人抽到逆位牌就紧张，觉得是坏兆头。这是最大的误解。逆位只是牌面能量的另一种表达方式——它可能代表：
+
+1. **内在化的能量**：能量向内而非向外，需要自我反省
+2. **被阻碍的能量**：能量想表达但受到阻碍
+3. **过度或不足**：正位的能量太多或太少
+4. **需要成长的领域**：提醒你在某个方面需要提升
+
+## 逆位的三种解读方法
+
+### 方法一：减弱法（最常用）
+逆位 = 正位能量减弱。
+
+例：正位「力量」代表勇气和自信，逆位则代表勇气不足、缺乏自信。
+
+### 方法二：相反法
+逆位 = 正位的反面。
+
+例：正位「恋人」代表和谐的选择，逆位则代表选择困难、关系不和。
+
+### 方法三：内在法（进阶）
+逆位 = 正位能量向内发展，尚未外显。
+
+例：正位「太阳」代表外在的成功和快乐，逆位可能代表内心有快乐但尚未展现给外界。
+
+## 常见大阿尔卡纳逆位速查
+
+| 牌 | 正位含义 | 逆位含义 |
+|----|---------|---------|
+| 0 愚者 | 新的开始、冒险 | 冲动、犹豫不决 |
+| 1 魔术师 | 创造力、行动力 | 缺乏方向、欺骗 |
+| 2 女祭司 | 直觉、内在智慧 | 忽视直觉、表面化 |
+| 3 皇后 | 丰收、享受 | 过度依赖、缺乏安全感 |
+| 4 皇帝 | 权威、稳定 | 控制欲强、固执 |
+| 6 恋人 | 爱情、和谐 | 关系不和、选择困难 |
+| 7 战车 | 胜利、决心 | 失控、方向迷失 |
+| 10 命运之轮 | 转变、好运 | 坏运、抗拒改变 |
+| 13 死神 | 结束、新生 | 抗拒结束、停滞不前 |
+| 17 星星 | 希望、灵感 | 失望、缺乏信心 |
+| 19 太阳 | 成功、快乐 | 暂时的挫折、内在快乐 |
+
+## 如何正确看待逆位？
+
+1. **不要恐慌**：逆位不是惩罚，而是提醒
+2. **结合问题理解**：逆位的含义取决于你问的问题
+3. **注意正逆位比例**：如果大部分牌是逆位，可能说明当前能量场较混乱
+4. **行动建议**：逆位牌通常暗示「需要在某个方面做出调整」
+
+→ AI 塔罗解析：自动解读正位与逆位，给你完整的能量地图
+    `,
+    content_en: `
+## Reversed ≠ Bad
+
+Many people panic when they draw a reversed card, thinking it's a bad omen. This is the biggest misconception. Reversed cards are simply another expression of card energy — they may represent:
+
+1. **Internalized energy**: Energy directed inward rather than outward, requiring self-reflection
+2. **Blocked energy**: Energy wanting to express but facing obstacles
+3. **Excess or deficiency**: Too much or too little of the upright energy
+4. **Growth area**: A reminder that you need development in a certain aspect
+
+## Three Methods for Reading Reversals
+
+### Method 1: Weakening (Most Common)
+Reversed = Upright energy is weakened.
+
+Example: Upright "Strength" represents courage and confidence; reversed represents lack of courage or low self-confidence.
+
+### Method 2: Opposition
+Reversed = Opposite of the upright meaning.
+
+Example: Upright "The Lovers" represents harmonious choice; reversed represents difficulty choosing or relationship discord.
+
+### Method 3: Internalization (Advanced)
+Reversed = Upright energy developing internally, not yet manifesting outwardly.
+
+Example: Upright "The Sun" represents external success and joy; reversed may mean inner happiness that hasn't been shared with the world yet.
+
+## Major Arcana Reversal Quick Reference
+
+| Card | Upright | Reversed |
+|------|---------|----------|
+| 0 The Fool | New beginnings, adventure | Impulsiveness, indecision |
+| 1 The Magician | Creativity, action | Lack of direction, deception |
+| 2 The High Priestess | Intuition, inner wisdom | Ignoring intuition, superficiality |
+| 3 The Empress | Abundance, enjoyment | Over-dependence, insecurity |
+| 4 The Emperor | Authority, stability | Controlling, stubbornness |
+| 6 The Lovers | Love, harmony | Relationship discord, indecision |
+| 7 The Chariot | Victory, determination | Loss of control, confusion |
+| 10 Wheel of Fortune | Change, good luck | Bad luck, resisting change |
+| 13 Death | Endings, rebirth | Resisting endings, stagnation |
+| 17 The Star | Hope, inspiration | Disappointment, loss of faith |
+| 19 The Sun | Success, joy | Temporary setbacks, inner joy |
+
+## How to Properly View Reversals?
+
+1. **Don't panic**: Reversals aren't punishment — they're reminders
+2. **Context matters**: Reversed meaning depends on your question
+3. **Check the ratio**: If most cards are reversed, the current energy may be chaotic
+4. **Action guidance**: Reversed cards usually suggest "an adjustment is needed in some area"
+
+→ AI Tarot Reading: automatically interprets upright and reversed cards for your complete energy map
+    `,
+  },
+
+  // ────────────────────────────────────────────────────
+  // 24. 平台使用指南
+  // ────────────────────────────────────────────────────
+  {
+    id: "platform-guide",
+    title_zh: "命盘智镜使用指南：从注册到获取报告",
+    title_en: "Destiny Mirror User Guide: From Registration to Your Report",
+    summary_zh: "第一次使用命盘智镜？本指南手把手教你如何注册、填写信息、上传面相手相、获取五维合参报告，以及如何使用星尘和代金券。",
+    summary_en: "First time using Destiny Mirror? This guide walks you through registration, filling in birth details, uploading face & palm photos, getting your 5-Dimension report, and using Stardust and coupons.",
+    category: "faq",
+    tags_zh: ["指南", "入门", "平台", "教程"],
+    tags_en: ["Guide", "Beginner", "Platform", "Tutorial"],
+    read_time: 5,
+    cover_emoji: "📱",
+    created_at: "2025-06-03",
+    content_zh: `
+## 第一步：注册账号
+
+1. 点击右上角「注册」按钮
+2. 输入邮箱和密码
+3. 验证邮箱后即可登录
+
+也可以使用微信快捷登录（小程序端）。
+
+## 第二步：填写出生信息
+
+进入「开始推命」页面，填写以下信息：
+
+- **出生年月日**：选择公历日期
+- **出生时辰**：尽量精确到时辰（如不确定可选「不确定」）
+- **性别**：男/女
+- **出生城市**：选择省市区
+
+> 提示：出生时间越精确，分析结果越准确。如果不确定时辰，AI 会用面相和手相来弥补。
+
+## 第三步：上传面相和手相（可选但推荐）
+
+这一步是五维合参的特色——通过上传照片，AI 可以分析你的面相和手相，与八字、星盘交叉验证。
+
+**面相照片要求：**
+- 正面免冠照
+- 光线充足，面部清晰
+- 不要戴墨镜或帽子
+
+**手相照片要求：**
+- 左右手掌各一张
+- 手指自然张开
+- 掌纹清晰可见
+
+## 第四步：获取五维合参报告
+
+提交后，AI 将在约 40 秒内生成你的专属报告。报告包含：
+
+1. **五行得分图**：金木水火土的分布比例
+2. **日主分析**：你的命格核心
+3. **喜用神**：你最需要的五行元素
+4. **十神格局**：你的天赋方向
+5. **五维交叉验证**：多个维度的一致性分析
+6. **改运建议**：颜色、方位、职业等具体建议
+
+## 星尘（Stardust）是什么？
+
+星尘是平台内的虚拟货币，用于：
+- 解锁详细报告内容
+- 追问 AI 命师
+- 使用事件复盘功能
+
+**获取星尘的方式：**
+- 注册赠送 100 星尘
+- 每日签到获取
+- 购买会员每月注入
+- 邀请好友获得奖励
+
+## 代金券（Coupon）是什么？
+
+代金券是商城购物的抵扣券：
+- 解锁报告时自动赠送 60 元代金券
+- 会员每月额外获得
+- 可在改运商城购买水晶、书籍等商品时使用
+
+## 会员等级
+
+| 等级 | 权益 |
+|------|------|
+| 免费用户 | 基础报告 + 每日签到 |
+| 月度会员 | 全维报告无限次 + 每月 100 星尘 |
+| 年度会员 | 月度全部权益 + 每月 150 星尘 + 8.8 折 |
+| 创始席位 | 永久全功能 + 每月 500 星尘 + 投票权 |
+
+→ 现在就注册，开始你的五维命运探索之旅
+    `,
+    content_en: `
+## Step 1: Create an Account
+
+1. Click the "Sign Up" button in the top right
+2. Enter your email and password
+3. Verify your email to log in
+
+WeChat Quick Login is also available on the miniprogram.
+
+## Step 2: Fill in Birth Details
+
+Go to the "Start Reading" page and fill in:
+
+- **Birth Date**: Select the Gregorian calendar date
+- **Birth Hour**: As precise as possible (select "Uncertain" if unsure)
+- **Gender**: Male / Female
+- **Birth City**: Select province, city, district
+
+> Tip: The more precise your birth time, the more accurate the analysis. If unsure, AI compensates with face and palm readings.
+
+## Step 3: Upload Face & Palm Photos (Optional but Recommended)
+
+This is the unique feature of 5-Dimension Analysis — uploading photos lets AI analyze your face and palm, cross-validating with Bazi and astrology.
+
+**Face photo requirements:**
+- Front-facing, no headwear
+- Well-lit, face clearly visible
+- No sunglasses or hats
+
+**Palm photo requirements:**
+- One photo each for left and right hand
+- Fingers naturally spread
+- Palm lines clearly visible
+
+## Step 4: Get Your 5-Dimension Report
+
+After submission, AI generates your personalized report in about 40 seconds. The report includes:
+
+1. **Five Element Score Chart**: Metal, Wood, Water, Fire, Earth distribution
+2. **Day Master Analysis**: Your chart's core identity
+3. **Favorable Element**: The element your chart most needs
+4. **Ten Gods Pattern**: Your natural talent direction
+5. **Five-Dimension Cross-Validation**: Consistency analysis across systems
+6. **Fortune Enhancement Guide**: Specific advice on colors, directions, careers
+
+## What Is Stardust?
+
+Stardust is the platform's virtual currency, used for:
+- Unlocking detailed report content
+- Follow-up questions to AI masters
+- Event Retrospective feature
+
+**Ways to earn Stardust:**
+- 100 free on registration
+- Daily check-ins
+- Monthly infusion with membership
+- Referral rewards
+
+## What Are Coupons?
+
+Coupons are marketplace discount vouchers:
+- 60 yuan coupon automatically granted when unlocking reports
+- Extra coupons for members each month
+- Usable in the Fortune Shop for crystals, books, etc.
+
+## Membership Tiers
+
+| Tier | Benefits |
+|------|----------|
+| Free User | Basic report + daily check-ins |
+| Monthly | Unlimited full reports + 100 Stardust/month |
+| Yearly | All monthly benefits + 150 Stardust/month + 12% off |
+| Founder Seat | Lifetime access + 500 Stardust/month + voting rights |
+
+→ Register now and start your 5-Dimension destiny exploration
     `,
   },
 ]

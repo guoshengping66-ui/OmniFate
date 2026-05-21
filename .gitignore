@@ -86,7 +86,17 @@ palm_report.txt
 # Debug / test scripts
 clean_hash_tags.py
 test_face_palm.py
+test_e2e_analysis.py
+test_prompt_perf.py
+test_real_inference.py
+test_token_breakdown.py
 scripts/
+
+# Test images
+*.jpg
+*.jpeg
+*.png
+!frontend/public/**
 
 # Binary / data files
 de421.bsp

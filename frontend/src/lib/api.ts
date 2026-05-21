@@ -1,19 +1,95 @@
 import axios from "axios"
 
-// Always use NEXT_PUBLIC_API_URL env var, fallback to localhost for dev
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8002"
+// ── Unicode Escape Helper ──────────────────────────────────────────────────
+// Some proxies (Clash/V2Ray) and old nginx versions mangle UTF-8 bytes in
+// POST request bodies, turning valid JSON into garbage that nginx rejects
+// with a 400 *before* FastAPI's CORS middleware runs — resulting in a
+// misleading "CORS" error in the browser.  By converting all non-ASCII
+// characters to \uXXXX escapes the body becomes pure ASCII and passes
+// through any proxy untouched.  The server-side JSON decoder understands
+// \uXXXX natively so no changes are needed on the backend.
+function escapeUnicode(str: string): string {
+  // Preserve already-escaped sequences, convert raw non-ASCII chars
+  return str.replace(/[-￿]/g, (ch) =>
+    "\\u" + ch.charCodeAt(0).toString(16).padStart(4, "0")
+  )
+}
 
-// Main API client — points directly to backend
+// ── API routing ────────────────────────────────────────────────────────────
+// In production, route all API calls through Next.js server-side proxy
+// (/api/proxy/*) to avoid nginx CORS issues.  The proxy forwards requests
+// to api.khanfate.com server-side where CORS doesn't apply.
+// In local dev, connect directly to the backend.
+const isBrowser = typeof window !== "undefined"
+const isLocalhost = isBrowser && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+const isProduction = isBrowser && !isLocalhost
+
+const BACKEND_URL = isLocalhost
+  ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8002")
+  : "https://api.khanfate.com"
+
+// Main API client — points directly to backend (local) or via proxy (production)
 export const api = axios.create({
-  baseURL: BACKEND_URL,
+  baseURL: isProduction ? "/api/proxy" : BACKEND_URL,
   timeout: 90_000,
 })
 
 // Direct backend connection for long-running / large-response endpoints
 export const apiDirect = axios.create({
-  baseURL: BACKEND_URL,
+  baseURL: isProduction ? "/api/proxy" : BACKEND_URL,
   timeout: 180_000,
 })
+
+// ── Production proxy interceptor ───────────────────────────────────────────
+// In production, route all API calls through Next.js server-side proxy
+// (/api/proxy/*) to avoid nginx CORS issues.
+//
+// DUAL-ENCODING STRATEGY: Clash/V2Ray MITM proxies corrupt POST request
+// bodies. To survive this, we send data in BOTH places:
+//   1. The request body (original JSON) — primary path
+//   2. ?_data=<URL-encoded JSON> in the URL — fallback if body is corrupted
+// The proxy route tries the URL param first, falls back to the body.
+if (isProduction) {
+  const productionInterceptor = (config: any) => {
+    const method = (config.method || "").toLowerCase()
+    if (["post", "patch", "put"].includes(method)) {
+      // ⚠️ CRITICAL: Skip dual-encoding for FormData (file uploads).
+      // FormData must be sent as-is with its native multipart boundary.
+      // Converting to JSON destroys binary file data.
+      if (config.data instanceof FormData) {
+        // Remove Content-Type header so axios/browser auto-sets it
+        // with the correct multipart/form-data boundary
+        if (config.headers) {
+          delete config.headers["Content-Type"]
+          delete config.headers["content-type"]
+        }
+        return config
+      }
+
+      // Ensure data is a string for URL encoding
+      let jsonStr: string
+      if (typeof config.data === "string") {
+        jsonStr = config.data
+      } else if (config.data !== undefined && config.data !== null) {
+        jsonStr = JSON.stringify(config.data)
+      } else {
+        return config
+      }
+      // Add URL-encoded data as fallback (proxy tries this first)
+      const sep = config.url.includes("?") ? "&" : "?"
+      config.url = config.url + sep + "_data=" + encodeURIComponent(jsonStr)
+      // Keep the body as-is for the primary path
+      config.data = jsonStr
+      config.headers = config.headers || {}
+      if (!config.headers["Content-Type"] && !config.headers["content-type"]) {
+        config.headers["Content-Type"] = "application/json"
+      }
+    }
+    return config
+  }
+  api.interceptors.request.use(productionInterceptor)
+  apiDirect.interceptors.request.use(productionInterceptor)
+}
 
 // ── Types aligned with new 1+5 agent backend ──────────────────────────────
 
@@ -31,6 +107,7 @@ export interface AnalysisRequest {
   longitude?: number
   user_question: string
   is_premium: boolean
+  language?: "zh" | "en"
   tarot_cards: { position: string; card: string; reversed: boolean }[]
   palm_raw_text: string
   face_raw_text: string
@@ -85,6 +162,7 @@ export interface Product {
   price_cny: number
   price_usd?: number
   image_url?: string
+  detail_images?: string[]
   keyword_tags?: string[]
   wuxing_tags?: string[]
   astro_tags?: string[]
@@ -95,6 +173,11 @@ export interface Product {
   material?: string
   rating?: number
   sales_count?: number
+  /** 详细内容 */
+  usage?: string
+  precautions?: string
+  efficacy?: string
+  specifications?: Record<string, string>
   /** Present when returned from match endpoints */
   match_score?: number
   match_reasons?: string[]
@@ -110,12 +193,42 @@ export interface MatchRequest {
   include_explain?: boolean
 }
 
+// ── Safe JSON serializer ──────────────────────────────────────────────────
+// Stringify + Unicode-escape non-ASCII so Chinese text survives proxies.
+// Pass the result directly as `data` in axios requests.
+function safeJson(data: unknown): string {
+  return escapeUnicode(JSON.stringify(data))
+}
+
 // ── API functions ──────────────────────────────────────────────────────────
 
 export async function runAnalysis(data: AnalysisRequest): Promise<AnalysisResponse> {
   // Step 1: POST starts analysis in background, returns immediately with session_id
-  const initRes = await apiDirect.post<AnalysisResponse>("/api/readings", data, { timeout: 30_000 })
-  const sessionId = initRes.data.session_id
+  // Retry up to 3 times on any transient error (network, 400, 502, 503)
+  // NOTE: We JSON.stringify the payload manually so the Unicode escape
+  //       interceptor can process it (converting Chinese chars to \uXXXX
+  //       before they hit any proxy that might re-encode UTF-8).
+  let lastError: any = null
+  let sessionId: string | undefined
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const body = safeJson(data)
+      const initRes = await apiDirect.post<AnalysisResponse>("/api/readings", body, {
+        timeout: 30_000,
+        headers: { "Content-Type": "application/json" },
+      })
+      sessionId = initRes.data.session_id
+      break
+    } catch (err: any) {
+      lastError = err
+      if (attempt < 3) {
+        await new Promise(r => setTimeout(r, 2000 * attempt))
+        continue
+      }
+      throw err
+    }
+  }
+  if (typeof sessionId === "undefined") throw lastError
 
   // Step 2: Poll until analysis completes (max 5 minutes)
   const deadline = Date.now() + 5 * 60 * 1000
@@ -132,13 +245,187 @@ export async function runAnalysis(data: AnalysisRequest): Promise<AnalysisRespon
   throw new Error("分析超时，请稍后在「我的命盘」中查看结果")
 }
 
-export async function getSession(sessionId: string): Promise<AnalysisResponse> {
-  const res = await api.get<AnalysisResponse>(`/api/readings/session/${sessionId}`)
+// ── Reading cache (browser sessionStorage) ──────────────────────────────────
+// Cache completed readings to avoid re-fetching on revisit. TTL: 10 minutes.
+const READING_CACHE_TTL = 10 * 60 * 1000
+
+function _getCachedReading(sessionId: string): AnalysisResponse | null {
+  try {
+    const raw = sessionStorage.getItem(`reading:${sessionId}`)
+    if (!raw) return null
+    const { ts, data } = JSON.parse(raw)
+    if (Date.now() - ts > READING_CACHE_TTL) {
+      sessionStorage.removeItem(`reading:${sessionId}`)
+      return null
+    }
+    return data as AnalysisResponse
+  } catch { return null }
+}
+
+function _setCachedReading(sessionId: string, data: AnalysisResponse) {
+  try {
+    // Only cache completed readings
+    if (data.status !== "done" && data.status !== "chat") return
+    sessionStorage.setItem(`reading:${sessionId}`, JSON.stringify({ ts: Date.now(), data }))
+  } catch { /* quota exceeded — ignore */ }
+}
+
+export async function getSession(sessionId: string, lang?: string): Promise<AnalysisResponse> {
+  // Fast path: browser cache for completed readings (skip network entirely)
+  if (!lang) {
+    const cached = _getCachedReading(sessionId)
+    if (cached) return cached
+  }
+  const params: Record<string, string> = {}
+  if (lang) params.lang = lang
+  // In production, GET requests go directly to backend (bypass proxy for speed).
+  // CORS is configured on backend to allow khanfate.com origin.
+  const client = isProduction ? apiDirect : api
+  const res = await client.get<AnalysisResponse>(`/api/readings/session/${sessionId}`, { params })
+  // Cache completed readings for instant revisit
+  _setCachedReading(sessionId, res.data)
   return res.data
 }
 
+// ── SSE Streaming ──────────────────────────────────────────────────────────
+
+export type AgentStatusValue = "pending" | "running" | "done" | "error" | "skipped"
+
+export interface SSEEvent {
+  type: "phase" | "worker_done" | "subtask_done" | "complete" | "error" | "progress" | "agent_status" | "heartbeat"
+  phase?: string
+  agent_id?: string
+  duration_ms?: number
+  subtask?: string
+  length?: number
+  master_summary?: string
+  master_detail?: string
+  message?: string
+  pct?: number
+  status?: Record<string, AgentStatusValue>
+}
+
+/**
+ * Connect to the SSE stream for a session.
+ * Calls `onEvent` for each progress event. Resolves when analysis is complete.
+ *
+ * IMPORTANT: In production, SSE connections bypass the Next.js proxy
+ * (which has a 30s timeout that kills long-running SSE streams).
+ * Instead, we connect directly to the backend — the backend's CORS
+ * middleware already allows the frontend origin.
+ *
+ * SECURITY: Includes auto-reconnect with exponential backoff (max 3 retries).
+ */
+export function streamSession(
+  sessionId: string,
+  onEvent: (event: SSEEvent) => void,
+  maxRetries: number = 3,
+): Promise<AnalysisResponse> {
+  return new Promise((resolve, reject) => {
+    let retryCount = 0
+    let settled = false // prevent double resolve/reject
+
+    function connect() {
+      // In production, bypass the Next.js proxy for SSE (proxy has a 30s
+      // timeout that kills long-running event streams).
+      const sseBaseUrl = isProduction ? "https://api.khanfate.com" : BACKEND_URL
+      const url = `${sseBaseUrl}/api/readings/session/${sessionId}/stream`
+
+      const es = new EventSource(url)
+
+      es.onmessage = (e) => {
+        try {
+          const data: SSEEvent = JSON.parse(e.data)
+          // Ignore heartbeat events (keep connection alive)
+          if (data.type === "heartbeat") return
+          onEvent(data)
+          if (data.type === "complete") {
+            settled = true
+            es.close()
+            resolve({
+              session_id: sessionId,
+              status: "done",
+              master_summary: data.master_summary || "",
+              master_detail: data.master_detail || "",
+              is_detail_unlocked: false,
+              astrology: { agent_id: "astrology", report: "", tags: [] },
+              tarot: { agent_id: "tarot", report: "", tags: [] },
+              bazi: { agent_id: "bazi", report: "", tags: [] },
+              qimen: { agent_id: "qimen", report: "", tags: [] },
+              ziwei: { agent_id: "ziwei", report: "", tags: [] },
+              face: { agent_id: "face", report: "", tags: [] },
+              palm: { agent_id: "palm", report: "", tags: [] },
+              recommended_product_ids: [],
+              computed_tags: [],
+              dimension_scores: {},
+              errors: [],
+            })
+          }
+          if (data.type === "error") {
+            settled = true
+            es.close()
+            reject(new Error(data.message || "Stream error"))
+          }
+        } catch { /* ignore parse errors */ }
+      }
+
+      es.onerror = () => {
+        es.close()
+        if (!settled && retryCount < maxRetries) {
+          retryCount++
+          // Exponential backoff: 1s, 2s, 4s
+          const delay = Math.min(1000 * Math.pow(2, retryCount), 10000)
+          setTimeout(connect, delay)
+        } else if (!settled) {
+          settled = true
+          reject(new Error("SSE unavailable after retries"))
+        }
+      }
+    }
+
+    connect()
+  })
+}
+
+/**
+ * Start analysis and return the session_id immediately.
+ *
+ * IMPORTANT: This does NOT wait for the analysis to complete.
+ * The reading page ([id]/page.tsx) handles progress display via SSE + polling.
+ * Previously this function blocked on polling fallback (up to 3 minutes),
+ * which prevented the progress bar from ever showing.
+ *
+ * @returns session_id — caller should navigate to /reading/{session_id}
+ */
+export async function runAnalysisStream(
+  data: AnalysisRequest,
+  onEvent?: (event: SSEEvent) => void,
+): Promise<{ session_id: string }> {
+  // POST to start analysis in background, return session_id immediately
+  const body = safeJson(data)
+  const initRes = await apiDirect.post<AnalysisResponse>("/api/readings", body, {
+    timeout: 30_000,
+    headers: { "Content-Type": "application/json" },
+  })
+
+  const sessionId = initRes.data.session_id
+
+  // Try to establish SSE stream in background (don't block).
+  // The reading page will also establish its own SSE connection.
+  // This early connection is a warm-up that may deliver initial progress events.
+  if (onEvent) {
+    streamSession(sessionId, onEvent).catch(() => {
+      // SSE unavailable from this context — reading page will handle it
+    })
+  }
+
+  return { session_id: sessionId }
+}
+
 export async function sendChat(data: ChatRequest): Promise<ChatResponse> {
-  const res = await api.post<ChatResponse>("/api/readings/chat", data)
+  const res = await api.post<ChatResponse>("/api/readings/chat", safeJson(data), {
+    headers: { "Content-Type": "application/json" },
+  })
   return res.data
 }
 
@@ -198,7 +485,10 @@ export async function listProducts(category?: string, lang?: string): Promise<Pr
 
 export async function matchProducts(data: MatchRequest, lang?: string): Promise<Product[]> {
   const params: Record<string, string> = lang ? { lang } : {}
-  const res = await api.post<Product[]>("/api/products/match", data, { params })
+  const res = await api.post<Product[]>("/api/products/match", safeJson(data), {
+    params,
+    headers: { "Content-Type": "application/json" },
+  })
   return res.data
 }
 
@@ -230,6 +520,7 @@ export interface AuthUser {
   premium_expires_at: string | null
   shop_coupon_balance: number
   subscription_tier: string | null
+  active_birth_profile_id?: string | null
 }
 
 export interface AuthResponse {
@@ -244,17 +535,34 @@ export async function loginUser(email: string, password: string): Promise<AuthRe
   return res.data
 }
 
+export interface RegisterBirthData {
+  nickname?: string
+  gender: string
+  birth_year: number
+  birth_month: number
+  birth_day: number
+  birth_hour: number
+  birth_minute?: number
+  birth_city?: string
+  latitude?: number | null
+  longitude?: number | null
+}
+
 export async function registerUser(
   email: string,
   password: string,
   displayName?: string,
   privacyAccepted?: boolean,
+  birthData?: RegisterBirthData,
 ): Promise<{ message: string; email: string }> {
-  const res = await api.post<{ message: string; email: string }>("/api/auth/register", {
+  const res = await api.post<{ message: string; email: string }>("/api/auth/register", safeJson({
     email,
     password,
     display_name: displayName,
     privacy_accepted: privacyAccepted ?? true,
+    birth_data: birthData || undefined,
+  }), {
+    headers: { "Content-Type": "application/json" },
   })
   return res.data
 }
@@ -302,17 +610,24 @@ export async function forgotPassword(email: string): Promise<{ message: string }
 // ── Profile Settings ────────────────────────────────────────────────────────
 
 export async function updateProfile(displayName: string): Promise<{ id: string; email: string; display_name: string | null }> {
-  const res = await api.put("/api/users/profile", { display_name: displayName })
+  const res = await api.put("/api/users/profile", safeJson({ display_name: displayName }), {
+    headers: { "Content-Type": "application/json" },
+  })
   return res.data
 }
 
 export async function changePassword(oldPassword: string, newPassword: string): Promise<{ message: string }> {
-  const res = await api.put("/api/users/password", { old_password: oldPassword, new_password: newPassword })
+  const res = await api.put("/api/users/password", safeJson({ old_password: oldPassword, new_password: newPassword }), {
+    headers: { "Content-Type": "application/json" },
+  })
   return res.data
 }
 
 export async function deleteAccount(password: string): Promise<{ message: string }> {
-  const res = await api.delete("/api/auth/delete-account", { data: { password } })
+  const res = await api.delete("/api/auth/delete-account", {
+    data: safeJson({ password }),
+    headers: { "Content-Type": "application/json" },
+  })
   return res.data
 }
 
@@ -340,6 +655,8 @@ export interface CreateOrderRequest {
   items: { product_id: string; product_name: string; quantity: number; unit_price_cny: number }[]
   total_cny: number
   use_coupon?: boolean
+  address_id?: string
+  notes?: string
 }
 
 export interface CreateOrderResult {
@@ -352,7 +669,9 @@ export interface CreateOrderResult {
 }
 
 export async function createOrder(data: CreateOrderRequest): Promise<CreateOrderResult> {
-  const res = await api.post<CreateOrderResult>("/api/payments/create-order", data)
+  const res = await api.post<CreateOrderResult>("/api/payments/create-order", safeJson(data), {
+    headers: { "Content-Type": "application/json" },
+  })
   return res.data
 }
 
@@ -460,15 +779,21 @@ export interface EventListItem {
 
 export interface DailyAlmanacResponse {
   date: string
+  lunar_date: string
+  bazi_day_pillar: string
   energy_score: number
   yi: string[]
   ji: string[]
   hu: { product: Product; reason: string }[]
   daily_quote: string
+  wuxing_analysis: string
 }
 
 export async function analyzeEvent(data: AnalyzeEventRequest): Promise<AnalyzeEventResponse> {
-  const res = await api.post<AnalyzeEventResponse>("/api/readings/analyze-event", data, { timeout: 180_000 })
+  const res = await api.post<AnalyzeEventResponse>("/api/fate/event-analyze", safeJson(data), {
+    timeout: 180_000,
+    headers: { "Content-Type": "application/json" },
+  })
   return res.data
 }
 
@@ -482,15 +807,60 @@ export async function getEventDetail(eventId: string): Promise<AnalyzeEventRespo
   return res.data
 }
 
-export async function getDailyAlmanac(sessionId: string): Promise<DailyAlmanacResponse> {
-  const res = await api.get<DailyAlmanacResponse>("/api/readings/daily-almanac", { params: { session_id: sessionId }, timeout: 30_000 })
+export async function getDailyAlmanac(sessionId: string, lang: string = "zh"): Promise<DailyAlmanacResponse> {
+  const res = await api.get<DailyAlmanacResponse>("/api/readings/daily-almanac", { params: { session_id: sessionId, lang }, timeout: 30_000 })
   return res.data
+}
+
+export interface PersonalizedAlmanacParams {
+  birth_year: number
+  birth_month: number
+  birth_day: number
+  birth_hour: number
+  birth_minute?: number
+  gender?: string
+  birth_city?: string
+  latitude?: number
+  longitude?: number
+}
+
+export async function getPersonalizedDailyAlmanac(
+  params: PersonalizedAlmanacParams,
+  lang: string = "zh",
+  fast: boolean = true,
+): Promise<DailyAlmanacResponse> {
+  const res = await api.post<DailyAlmanacResponse>(
+    "/api/readings/personalized-almanac",
+    safeJson({ ...params, birth_minute: params.birth_minute ?? 0, gender: params.gender ?? "male" }),
+    { timeout: 30_000, headers: { "Content-Type": "application/json" } },
+  )
+  return res.data
+}
+
+export async function getPersonalizedFortune(
+  birthProfile: { birth_year: number; birth_month: number; birth_day: number; birth_hour: number },
+): Promise<DailyFortuneResponse | null> {
+  try {
+    const res = await api.get<DailyFortuneResponse>("/api/readings/daily-fortune", {
+      params: {
+        birth_year: birthProfile.birth_year,
+        birth_month: birthProfile.birth_month,
+        birth_day: birthProfile.birth_day,
+        birth_hour: birthProfile.birth_hour,
+      },
+      timeout: 15_000,
+    })
+    return res.data
+  } catch {
+    return null
+  }
 }
 
 // ── My Readings (P1-1) ────────────────────────────────────────────────────
 
 export interface ReadingListItem {
   id: string
+  session_id: string
   status: string
   master_summary: string
   computed_tags: string[]
@@ -503,6 +873,10 @@ export interface ReadingListItem {
 export async function listMyReadings(): Promise<ReadingListItem[]> {
   const res = await api.get<ReadingListItem[]>("/api/readings/my")
   return res.data
+}
+
+export async function deleteReading(sessionId: string): Promise<void> {
+  await api.delete(`/api/readings/${sessionId}`)
 }
 
 // ── Product Detail (P1-2) ─────────────────────────────────────────────────
@@ -534,7 +908,9 @@ export async function createProductReview(
   productId: string,
   data: { rating: number; content: string; tags?: string[] }
 ): Promise<ProductReview> {
-  const res = await api.post<ProductReview>(`/api/products/${productId}/reviews`, data)
+  const res = await api.post<ProductReview>(`/api/products/${productId}/reviews`, safeJson(data), {
+    headers: { "Content-Type": "application/json" },
+  })
   return res.data
 }
 
@@ -570,6 +946,138 @@ export async function listMyOrders(): Promise<OrderListItem[]> {
   return res.data
 }
 
+// ── Addresses ─────────────────────────────────────────────────────────────
+
+export interface Address {
+  id: string
+  recipient_name: string
+  phone: string
+  country: string
+  province: string | null
+  city: string | null
+  district: string | null
+  address_line1: string
+  address_line2: string | null
+  postal_code: string | null
+  is_default: boolean
+  created_at: string
+}
+
+export interface AddressFormData {
+  recipient_name: string
+  phone: string
+  country: string
+  province?: string | null
+  city?: string | null
+  district?: string | null
+  address_line1: string
+  address_line2?: string | null
+  postal_code?: string | null
+  is_default?: boolean
+}
+
+export async function getAddresses(): Promise<Address[]> {
+  const res = await api.get<Address[]>("/api/users/addresses")
+  return res.data
+}
+
+export async function createAddress(data: AddressFormData): Promise<Address> {
+  const res = await api.post<Address>("/api/users/addresses", data)
+  return res.data
+}
+
+export async function updateAddress(id: string, data: AddressFormData): Promise<Address> {
+  const res = await api.put<Address>(`/api/users/addresses/${id}`, data)
+  return res.data
+}
+
+export async function deleteAddress(id: string): Promise<void> {
+  await api.delete(`/api/users/addresses/${id}`)
+}
+
+export async function setDefaultAddress(id: string): Promise<void> {
+  await api.put(`/api/users/addresses/${id}/default`)
+}
+
+// ── Order Detail ──────────────────────────────────────────────────────────
+
+export interface OrderItemDetail {
+  id: string
+  product_name: string
+  quantity: number
+  unit_price_cny: number
+  subtotal_cny: number
+  recommendation_reason: string | null
+}
+
+export interface OrderDetail {
+  id: string
+  order_no: string
+  status: string
+  total_cny: number
+  total_usd: number | null
+  payment_method: string | null
+  recipient_name: string | null
+  recipient_phone: string | null
+  shipping_address: {
+    country?: string
+    province?: string
+    city?: string
+    district?: string
+    address_line1?: string
+    address_line2?: string
+    postal_code?: string
+  } | null
+  tracking_number: string | null
+  shipping_carrier: string | null
+  notes: string | null
+  items: OrderItemDetail[]
+  created_at: string
+  paid_at: string | null
+  shipped_at: string | null
+}
+
+export async function getOrderDetail(orderId: string): Promise<OrderDetail> {
+  const res = await api.get<OrderDetail>(`/api/users/orders/${orderId}`)
+  return res.data
+}
+
+export async function cancelOrder(orderId: string): Promise<{ status: string; message: string }> {
+  const res = await api.post(`/api/users/orders/${orderId}/cancel`)
+  return res.data
+}
+
+export async function confirmReceive(orderId: string): Promise<{ status: string; message: string }> {
+  const res = await api.post(`/api/users/orders/${orderId}/confirm-receive`)
+  return res.data
+}
+
+export async function requestRefund(orderId: string): Promise<{ status: string; message: string }> {
+  const res = await api.post(`/api/users/orders/${orderId}/request-refund`)
+  return res.data
+}
+
+// ── Tracking ──────────────────────────────────────────────────────────────
+
+export interface TrackingTrajectory {
+  time: string
+  description: string
+}
+
+export interface TrackingInfo {
+  order_no: string
+  status: string
+  tracking_number: string | null
+  shipping_carrier: string | null
+  shipped_at: string | null
+  trajectory: TrackingTrajectory[]
+}
+
+export async function getTrackingInfo(orderId: string): Promise<TrackingInfo> {
+  const res = await api.get<TrackingInfo>(`/api/payments/tracking/${orderId}`)
+  return res.data
+}
+
 // ── Daily Fortune (P2-3) ──────────────────────────────────────────────────
 
 export interface DailyFortuneResponse {
@@ -586,8 +1094,8 @@ export interface DailyFortuneResponse {
   warning: string
 }
 
-export async function getDailyFortune(): Promise<DailyFortuneResponse> {
-  const res = await api.get<DailyFortuneResponse>("/api/readings/daily-fortune")
+export async function getDailyFortune(lang: string = "zh"): Promise<DailyFortuneResponse> {
+  const res = await api.get<DailyFortuneResponse>("/api/readings/daily-fortune", { params: { lang } })
   return res.data
 }
 
@@ -613,5 +1121,65 @@ export async function listBlogArticles(category?: string): Promise<BlogArticle[]
 
 export async function getBlogArticle(id: string): Promise<BlogArticle> {
   const res = await api.get<BlogArticle>(`/api/blog/${id}`)
+  return res.data
+}
+
+// ── Stardust (星尘) API ─────────────────────────────────────────────────────
+
+export interface StardustBalance {
+  balance: number
+  lifetime_earned: number
+}
+
+export interface StardustTransaction {
+  id: string
+  amount: number
+  balance_after: number
+  reason: string
+  reference_id: string | null
+  status: string
+  created_at: string | null
+}
+
+export async function getStardustBalance(): Promise<StardustBalance> {
+  const res = await api.get<StardustBalance>("/api/credits/balance")
+  return res.data
+}
+
+export async function getStardustHistory(limit = 50): Promise<{ items: StardustTransaction[] }> {
+  const res = await api.get<{ items: StardustTransaction[] }>("/api/credits/history", { params: { limit } })
+  return res.data
+}
+
+export async function deductStardust(
+  action: string,
+  referenceId?: string,
+): Promise<{ transaction_id: string; deducted: number; balance_after: number }> {
+  const res = await api.post("/api/credits/deduct", safeJson({
+    action,
+    reference_id: referenceId,
+  }), {
+    headers: { "Content-Type": "application/json" },
+  })
+  return res.data
+}
+
+export async function confirmStardustDeduction(transactionId: string): Promise<{ status: string }> {
+  const res = await api.post("/api/credits/confirm", null, {
+    params: { transaction_id: transactionId },
+  })
+  return res.data
+}
+
+export async function refundStardust(
+  transactionId: string,
+  reason?: string,
+): Promise<{ status: string; balance_after: number }> {
+  const res = await api.post("/api/credits/refund", safeJson({
+    transaction_id: transactionId,
+    reason,
+  }), {
+    headers: { "Content-Type": "application/json" },
+  })
   return res.data
 }

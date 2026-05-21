@@ -8,7 +8,7 @@ Upgraded with:
 - 5-dimension scoring system
 """
 from __future__ import annotations
-import re, json
+import asyncio, re, json
 from typing import Optional
 
 from langchain_openai import ChatOpenAI
@@ -17,6 +17,7 @@ from langchain_core.messages import SystemMessage, HumanMessage
 from config import get_settings
 from agents.state import SystemState, ChatMessage, ConflictRecord, WorkerOutput
 from agents.prompts import master_prompt, master_summary_prompt, master_detail_prompt, ROUTER_PROMPT
+from agents.prompts import master_subtask_core_prompt, master_subtask_dimensions_prompt, master_subtask_actions_prompt
 from services.product_matcher import ProductMatcher
 
 settings = get_settings()
@@ -60,27 +61,51 @@ _SENTIMENT_KW = {
 
 # ─── LLM helpers ──────────────────────────────────────────────────────────
 
+_llm_cache: dict[str, ChatOpenAI] = {}
+
+
 def _llm(temperature: float = 0.3, model: str | None = None) -> ChatOpenAI:
-    kwargs = dict(
-        model=model or settings.OPENAI_MODEL,
-        api_key=settings.OPENAI_API_KEY,
-        temperature=temperature,
-        max_tokens=settings.AGENT_MAX_TOKENS,
-    )
-    if settings.OPENAI_BASE_URL:
-        kwargs["base_url"] = settings.OPENAI_BASE_URL
-    return ChatOpenAI(**kwargs)
+    model_key = model or settings.OPENAI_MODEL
+    cache_key = f"{model_key}:{temperature}"
+    if cache_key not in _llm_cache:
+        kwargs = dict(
+            model=model_key,
+            api_key=settings.OPENAI_API_KEY,
+            temperature=temperature,
+            max_tokens=settings.AGENT_MAX_TOKENS,
+        )
+        if settings.OPENAI_BASE_URL:
+            kwargs["base_url"] = settings.OPENAI_BASE_URL
+        _llm_cache[cache_key] = ChatOpenAI(**kwargs)
+    return _llm_cache[cache_key]
 
 
 def _use_mock() -> bool:
     return not settings.OPENAI_API_KEY
 
 
-async def _call(system: str, user: str, model: str | None = None) -> str:
+async def _call(system: str, user: str, model: str | None = None, language: str = "zh") -> str:
     if _use_mock():
         return f"[MOCK] {user[:80]}\n\nSet OPENAI_API_KEY to enable real AI responses."
     llm = _llm(model=model)
-    msgs = [SystemMessage(content=system), HumanMessage(content=user)]
+
+    # Add explicit language instruction to prevent mixing
+    if language == "en":
+        lang_hint = (
+            "\n\n== LANGUAGE REQUIREMENT ==\n"
+            "CRITICAL: Output the ENTIRE analysis in English. "
+            "ALL text values, descriptions, and explanations MUST be in English. "
+            "Do NOT mix Chinese and English."
+        )
+    else:
+        lang_hint = (
+            "\n\n== 语言要求 ==\n"
+            "重要：整个分析报告必须使用纯中文输出。"
+            "所有文字值、描述和解释都必须使用中文。"
+            "不要中英文混杂。五行元素名称请使用中文（如：火、水、木、金、土）。"
+        )
+
+    msgs = [SystemMessage(content=system + lang_hint), HumanMessage(content=user)]
     resp = await llm.ainvoke(msgs)
     return resp.content
 
@@ -251,13 +276,18 @@ def _compute_dimension_scores(state: SystemState) -> dict[str, float]:
             if any(kw in tag for kw in keywords):
                 scores[dim] = min(8.5, scores[dim] + 0.5)  # ceiling at 8.5
 
-    # boost_elements: map to dimension
+    # boost_elements: map to dimension (supports both English and Chinese element names)
     element_dim_map = {
         "fire":  "career",       # 火→事业动力
         "water": "wealth",       # 水→财富流动
         "wood":  "relationship", # 木→关系生长
         "metal": "spiritual",    # 金→灵性纯粹
         "earth": "health",       # 土→健康稳固
+        "火":  "career",
+        "水": "wealth",
+        "木":  "relationship",
+        "金": "spiritual",
+        "土": "health",
     }
     for elem in all_boost:
         dim = element_dim_map.get(elem)
@@ -319,10 +349,19 @@ def _cross_validate_palm(state: SystemState) -> list[ConflictRecord]:
         return records
 
     # Rule 1: Palm hand shape vs bazi element needs
-    bazi_boost = [e.lower() for e in state.bazi_output.boost_elements]
+    # Support both English and Chinese element names
+    bazi_boost = state.bazi_output.boost_elements
+    bazi_boost_lower = [e.lower() for e in bazi_boost]
+    bazi_boost_str = str(bazi_boost) + str(bazi_boost_lower)
+
+    def _has_element(elem_en: str, elem_cn: str) -> bool:
+        """Check if element exists in bazi_boost (supports both EN and CN)."""
+        return (elem_en in bazi_boost_lower or elem_en in bazi_boost_str or
+                elem_cn in bazi_boost_str)
+
     if bazi_boost:
         if "土" in palm_report and "土型" in palm_report:
-            if "earth" in bazi_boost or "土" in str(bazi_boost):
+            if _has_element("earth", "土"):
                 records.append(ConflictRecord(
                     domain_a="palm", domain_b="bazi",
                     description="手相土型手 + 八字需补土：双重确认土性能量需求，"
@@ -330,7 +369,7 @@ def _cross_validate_palm(state: SystemState) -> list[ConflictRecord]:
                     severity="low",
                 ))
         if "火" in palm_report and "火型" in palm_report:
-            if "fire" in bazi_boost or "火" in str(bazi_boost):
+            if _has_element("fire", "火"):
                 records.append(ConflictRecord(
                     domain_a="palm", domain_b="bazi",
                     description="手相火型手 + 八字需补火：火性能量手型与八字用神一致，"
@@ -338,7 +377,7 @@ def _cross_validate_palm(state: SystemState) -> list[ConflictRecord]:
                     severity="low",
                 ))
         if "水" in palm_report and "水型" in palm_report:
-            if "water" in bazi_boost or "水" in str(bazi_boost):
+            if _has_element("water", "水"):
                 records.append(ConflictRecord(
                     domain_a="palm", domain_b="bazi",
                     description="手相水型手 + 八字需补水：水性能量手型与八字用神一致，"
@@ -353,8 +392,8 @@ def _cross_validate_palm(state: SystemState) -> list[ConflictRecord]:
             ("金型", "fire", "火"),
             ("木型", "metal", "金"),
         ]
-        for hand_type_str, conflict_elem, conflict_cn in element_conflicts:
-            if hand_type_str in palm_report and conflict_elem in bazi_boost:
+        for hand_type_str, conflict_elem_en, conflict_cn in element_conflicts:
+            if hand_type_str in palm_report and _has_element(conflict_elem_en, conflict_cn):
                 records.append(ConflictRecord(
                     domain_a="palm", domain_b="bazi",
                     description=f"手相检测为{hand_type_str}手，但八字需补{conflict_cn}元素。"
@@ -669,90 +708,130 @@ async def answer_with_expert(question: str, agent_id: str, state: SystemState) -
         "用你的领域知识和以下分析报告作为上下文，简洁权威地回答用户追问（200-400字，中文）。\n\n"
         f"== 你的分析报告 ==\n{expert_report[:1500]}"
     )
-    return await _call(system, question, model=settings.PREMIUM_MODEL if state.is_premium else None)
+    return await _call(system, question, model=settings.PREMIUM_MODEL if state.is_premium else None, language=state.language)
 
 
 # ─── Main: run_master ─────────────────────────────────────────────────────
 
-async def run_master(state: SystemState) -> SystemState:
+def _build_worker_summaries(state: SystemState, sum_lengths: dict[str, int] | None = None) -> dict[str, str]:
+    """Build trimmed worker summaries from state. Used by both preprocessing and sub-tasks.
+    Free users: 200字 (Master Core only needs key signals).
+    Premium users: 500字 (full detail for dims + actions sub-tasks).
     """
-    Layer 4 synthesis:
-    1. Detect cross-domain resonance (new)
-    2. Detect cross-domain conflicts (enhanced)
-    3. Compute dimension scores (new)
-    4. Build product recommendations with reasons (enhanced)
-    5. Call Master LLM with all context -> final report
-    """
-    state.phase = "master"
+    default_len = 200 if not state.is_premium else 500
+    lengths = sum_lengths or {}
+    summaries = {}
+    for agent_id in ["astrology", "tarot", "bazi", "qimen", "ziwei", "face", "palm"]:
+        report = getattr(state, f"{agent_id}_output").report or ""
+        length = lengths.get(agent_id, default_len)
+        # For short reports, use full text (no truncation)
+        summaries[agent_id] = report[:length] if len(report) > length else report
+    return summaries
 
-    # Step 1: resonance
+
+def run_master_preprocessing(state: SystemState) -> dict:
+    """
+    Deterministic analysis (no LLM, <1s).
+    Returns a dict with all computed data for sub-tasks.
+    """
     resonance_text = _detect_resonance(state)
-
-    # Step 2: conflicts
     state.conflicts = _detect_conflicts(state)
     conflicts_text = _conflicts_to_text(state.conflicts)
-
-    # Step 3: merge all tags with consensus refinement
     _refine_tags(state)
-
-    # Step 4: dimension scores (uses tags from step 3)
     state.dimension_scores = _compute_dimension_scores(state)
-
-    # Step 4b: confidence scoring + dynamic summary lengths
     confidence_text, sum_lengths = _compute_confidence(state)
 
-    # Step 5: products (uses computed_tags from step 3 + scores from step 4)
     matched_products, products_preview, products_with_reasons = _build_product_preview(state)
     state.recommended_product_ids = [p["id"] for p in matched_products]
     state.recommended_products = matched_products
 
-    # Step 6: build summaries with dynamic lengths based on confidence
-    default_len = 500
-    worker_summaries = {}
-    for agent_id in ["astrology", "tarot", "bazi", "qimen", "ziwei", "face", "palm"]:
-        report = getattr(state, f"{agent_id}_output").report or ""
-        length = sum_lengths.get(agent_id, default_len)
-        worker_summaries[agent_id] = report[:length]
-
-    # Step 7: chat context
-    chat_ctx = ""
-    if state.chat_history:
-        lines = [f"{m.role.upper()}: {m.content[:150]}" for m in state.chat_history[-6:]]
-        chat_ctx = "\n".join(lines)
-
-    # Step 8: build harmonization plan text (uses scores from step 4)
+    worker_summaries = _build_worker_summaries(state, sum_lengths)
     harm_text = _build_harmonization_hint(products_with_reasons, state)
 
-    # ── Generate summary + detail IN PARALLEL (independent, ~10s saved) ─
-    import asyncio as _asyncio
+    return {
+        "resonance_text": resonance_text,
+        "conflicts_text": conflicts_text,
+        "confidence_text": confidence_text,
+        "worker_summaries": worker_summaries,
+        "products_with_reasons": products_with_reasons,
+        "harm_text": harm_text,
+    }
 
-    summary_system = master_summary_prompt(
-        worker_summaries=worker_summaries,
-        user_question=state.user_question,
-        resonance_text=resonance_text,
-        conflicts_text=conflicts_text,
-        dimension_scores=state.dimension_scores,
-        confidence_text=confidence_text,
-    )
-    detail_system = master_detail_prompt(
-        worker_summaries=worker_summaries,
-        user_question=state.user_question,
-        products_with_reasons=products_with_reasons,
-        conflicts_text=conflicts_text,
-        chat_context=chat_ctx,
-        resonance_text=resonance_text,
-        harm_hint=harm_text,
-        dimension_scores=state.dimension_scores,
-        confidence_text=confidence_text,
-    )
 
-    summary_task = _call(summary_system, "请生成简洁的免费命盘报告。")
-    # 付费用户使用 deepseek-v4-pro 深度解析，免费用户使用基础模型
-    detail_model = settings.PREMIUM_MODEL if state.is_premium else None
-    detail_task = _call(detail_system, "请生成深度付费命盘报告，务必详细回答用户问题。", model=detail_model)
-    state.master_summary, state.master_detail = await _asyncio.gather(
-        summary_task, detail_task,
+async def run_subtask_core(state: SystemState, prep: dict) -> str:
+    """Run core synthesis sub-task (Sub-task A). Returns result text."""
+    llm_model = settings.PREMIUM_MODEL if state.is_premium else settings.MASTER_FAST_MODEL
+    system = master_subtask_core_prompt(
+        worker_summaries=prep["worker_summaries"],
+        user_question=state.user_question,
+        resonance_text=prep["resonance_text"],
+        conflicts_text=prep["conflicts_text"],
+        dimension_scores=state.dimension_scores,
+        confidence_text=prep["confidence_text"],
+        intent=state.intent,
     )
+    result = await _call(system, "请生成核心综合报告。", model=llm_model, language=state.language)
+    state.master_subtask_core = result
+    return result
+
+
+async def run_subtask_dims(state: SystemState, prep: dict) -> str:
+    """Run dimension analysis sub-task (Sub-task B). Returns result text."""
+    llm_model = settings.PREMIUM_MODEL if state.is_premium else settings.MASTER_FAST_MODEL
+    system = master_subtask_dimensions_prompt(
+        worker_summaries=prep["worker_summaries"],
+        user_question=state.user_question,
+        dimension_scores=state.dimension_scores,
+        confidence_text=prep["confidence_text"],
+        intent=state.intent,
+    )
+    result = await _call(system, "请生成五维诊断报告。", model=llm_model, language=state.language)
+    state.master_subtask_dimensions = result
+    return result
+
+
+async def run_subtask_actions(state: SystemState, prep: dict) -> str:
+    """Run action plan sub-task (Sub-task C). Returns result text."""
+    llm_model = settings.PREMIUM_MODEL if state.is_premium else settings.MASTER_FAST_MODEL
+    system = master_subtask_actions_prompt(
+        worker_summaries=prep["worker_summaries"],
+        user_question=state.user_question,
+        products_with_reasons=prep["products_with_reasons"],
+        harm_hint=prep["harm_text"],
+        dimension_scores=state.dimension_scores,
+        intent=state.intent,
+    )
+    result = await _call(system, "请生成行动建议报告。", model=llm_model, language=state.language)
+    state.master_subtask_actions = result
+    return result
+
+
+async def run_master(state: SystemState) -> SystemState:
+    """
+    Full master pipeline: preprocessing + sub-tasks.
+    Free users: only core synthesis (1 LLM call).
+    Premium users: 3 parallel sub-tasks for full detail.
+    """
+    state.phase = "master"
+    prep = run_master_preprocessing(state)
+
+    if state.is_premium:
+        # Full pipeline: 3 parallel sub-tasks
+        core_task = run_subtask_core(state, prep)
+        dims_task = run_subtask_dims(state, prep)
+        actions_task = run_subtask_actions(state, prep)
+
+        core_result, dims_result, actions_result = await asyncio.gather(
+            core_task, dims_task, actions_task,
+        )
+
+        state.master_summary = core_result[:500]
+        state.master_detail = f"{core_result}\n\n{dims_result}\n\n{actions_result}"
+    else:
+        # Free user: only core synthesis (saves 2 LLM calls + ~8000 tokens)
+        core_result = await run_subtask_core(state, prep)
+        state.master_summary = core_result[:500]
+        state.master_detail = ""  # Behind paywall anyway
 
     state.phase = "chat"
     return state
@@ -845,6 +924,14 @@ def _compute_confidence(state: SystemState) -> tuple[str, dict[str, int]]:
                 idx = levels.index(current) if current in levels else 2
                 new_idx = min(4, idx + boost)
                 confidence_levels[agent_id] = levels[new_idx]
+
+    # Free users: compressed confidence text to save tokens
+    if not state.is_premium:
+        brief = " | ".join(
+            f"{workers_info[aid][0]}:{confidence_levels.get(aid, '中')}"
+            for aid in workers_info
+        )
+        return f"置信度概览: {brief}", lengths
 
     return "\n".join(lines), lengths
 

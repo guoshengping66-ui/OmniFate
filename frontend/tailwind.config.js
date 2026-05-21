@@ -15,8 +15,12 @@ module.exports = {
         water:  "#2980B9",
       },
       fontFamily: {
-        serif: ["Noto Serif SC", "serif"],
-        sans:  ["Inter", "Noto Sans SC", "sans-serif"],
+        // System fonts for Chinese (no web font download needed)
+        // Windows: Microsoft YaHei, SimHei
+        // macOS: PingFang SC, Songti SC
+        // Linux: Noto Sans CJK SC, WenQuanYi Micro Hei
+        serif: ["PingFang SC", "Microsoft YaHei", "Songti SC", "SimSun", "serif"],
+        sans:  ["Inter", "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", "sans-serif"],
       },
       backgroundImage: {
         "star-field": "radial-gradient(ellipse at 50% 0%, #2D1B4E 0%, #1A0F2E 60%, #0D0715 100%)",

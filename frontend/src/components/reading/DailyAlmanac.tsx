@@ -8,6 +8,7 @@ import toast from "react-hot-toast"
 import { getDailyAlmanac, DailyAlmanacResponse } from "@/lib/api"
 import { ProductCard } from "@/components/reading/ProductCard"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { translateYiJi } from "@/lib/translations"
 
 interface Props {
   sessionId: string
@@ -23,7 +24,7 @@ export default function DailyAlmanac({ sessionId }: Props) {
   const fetchAlmanac = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await getDailyAlmanac(sessionId)
+      const res = await getDailyAlmanac(sessionId, locale)
       setData(res)
       setLoaded(true)
     } catch (err: any) {
@@ -32,7 +33,7 @@ export default function DailyAlmanac({ sessionId }: Props) {
     } finally {
       setLoading(false)
     }
-  }, [sessionId, t])
+  }, [sessionId, locale, t])
 
   useEffect(() => { fetchAlmanac() }, [fetchAlmanac])
 
@@ -104,7 +105,7 @@ export default function DailyAlmanac({ sessionId }: Props) {
                 {data.yi.map((item, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm text-white/70">
                     <span className="text-jade-light mt-0.5">✦</span>
-                    {item}
+                    {isZh ? item : translateYiJi(item)}
                   </li>
                 ))}
               </ul>
@@ -120,7 +121,7 @@ export default function DailyAlmanac({ sessionId }: Props) {
                 {data.ji.map((item, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm text-white/70">
                     <span className="text-rose-400 mt-0.5">✖</span>
-                    {item}
+                    {isZh ? item : translateYiJi(item)}
                   </li>
                 ))}
               </ul>

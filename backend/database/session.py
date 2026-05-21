@@ -24,6 +24,9 @@ if _is_sqlite:
 else:
     _kw["pool_pre_ping"] = True
     _kw["pool_timeout"] = 10
+    _kw["pool_size"] = 20          # Persistent connections
+    _kw["max_overflow"] = 10       # Temporary overflow connections
+    _kw["pool_recycle"] = 3600     # Recycle connections after 1 hour
 
 engine = create_async_engine(_database_url, **_kw)
 AsyncSessionLocal = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
@@ -65,8 +68,115 @@ async def _ensure_tables():
             await conn.run_sync(Base.metadata.create_all)
         _tables_created = True
         print("[DB] Tables ensured")
+        # Auto-migrate: add missing columns to users & readings tables
+        await _migrate_readings_columns()
     except Exception as e:
         print(f"[DB] Failed to ensure tables: {e}")
+
+
+async def _migrate_readings_columns():
+    """Add missing columns to users & readings tables (SQLite + PostgreSQL)."""
+    # ── Users table: founder, stardust, referral columns ──
+    user_columns = [
+        ("is_founder", "BOOLEAN DEFAULT FALSE"),
+        ("founder_seat_no", "INTEGER"),
+        ("founder_region", "VARCHAR(10)"),
+        ("founder_activated_at", "TIMESTAMPTZ"),
+        ("stardust_balance", "INTEGER DEFAULT 0"),
+        ("stardust_lifetime_earned", "INTEGER DEFAULT 0"),
+        ("referral_code", "VARCHAR(8)"),
+        ("referred_by", "VARCHAR(36)"),
+    ]
+    # ── Readings table: report + dimension columns ──
+    reading_columns = [
+        ("qimen_report", "TEXT"),
+        ("ziwei_report", "TEXT"),
+        ("palm_report", "TEXT"),
+        ("dimension_scores", "JSON"),
+        ("computed_tags", "JSON"),
+        ("recommended_product_ids", "JSON"),
+        ("face_analysis_text", "TEXT"),
+    ]
+    # ── Divination records: AI insight column ──
+    divination_columns = [
+        ("ai_insight", "TEXT"),
+    ]
+
+    try:
+        async with AsyncSessionLocal() as db:
+            for col_name, col_type in user_columns:
+                try:
+                    await db.execute(text(
+                        f"ALTER TABLE users ADD COLUMN IF NOT EXISTS {col_name} {col_type}"
+                    ))
+                except Exception:
+                    pass  # SQLite doesn't support IF NOT EXISTS, fallback
+            for col_name, col_type in reading_columns:
+                try:
+                    await db.execute(text(
+                        f"ALTER TABLE readings ADD COLUMN IF NOT EXISTS {col_name} {col_type}"
+                    ))
+                except Exception:
+                    pass
+            for col_name, col_type in divination_columns:
+                try:
+                    await db.execute(text(
+                        f"ALTER TABLE divination_records ADD COLUMN IF NOT EXISTS {col_name} {col_type}"
+                    ))
+                except Exception:
+                    pass
+            await db.commit()
+            print("[DB] Migration: ensured user & reading columns")
+    except Exception as e:
+        print(f"[DB] Migration warning: {e}")
+
+    # ── SQLite fallback: add columns one by one (no IF NOT EXISTS) ──
+    if _is_sqlite:
+        all_user_cols = user_columns
+        all_reading_cols = reading_columns
+        try:
+            async with AsyncSessionLocal() as db:
+                for col_name, col_type in all_user_cols:
+                    try:
+                        await db.execute(text(
+                            f"ALTER TABLE users ADD COLUMN {col_name} {col_type}"
+                        ))
+                        print(f"[DB] Added column users.{col_name}")
+                    except Exception:
+                        pass
+                for col_name, col_type in all_reading_cols:
+                    try:
+                        await db.execute(text(
+                            f"ALTER TABLE readings ADD COLUMN {col_name} {col_type}"
+                        ))
+                        print(f"[DB] Added column readings.{col_name}")
+                    except Exception:
+                        pass
+                for col_name, col_type in divination_columns:
+                    try:
+                        await db.execute(text(
+                            f"ALTER TABLE divination_records ADD COLUMN {col_name} {col_type}"
+                        ))
+                        print(f"[DB] Added column divination_records.{col_name}")
+                    except Exception:
+                        pass
+                await db.commit()
+        except Exception as e:
+            print(f"[DB] SQLite migration warning: {e}")
+
+    # Clean up test founder data: reset is_founder for users without seat_no
+    # (real activate always sets founder_seat_no + founder_activated_at)
+    try:
+        async with AsyncSessionLocal() as db:
+            result = await db.execute(text(
+                "UPDATE users SET is_founder = false WHERE is_founder = true "
+                "AND (founder_seat_no IS NULL OR founder_activated_at IS NULL)"
+            ))
+            if result.rowcount > 0:
+                print(f"[DB] Cleaned up {result.rowcount} test founder records")
+            await db.commit()
+    except Exception:
+        pass  # Table might not exist yet or no rows to update
 
 
 async def get_db():

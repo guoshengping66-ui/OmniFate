@@ -1,18 +1,20 @@
 ﻿"""backend/main.py — FastAPI 应用入口"""
 import sys
 import os
+import json
 import traceback
 sys.path.insert(0, os.path.dirname(__file__))
 
+import ipaddress
 import time
-from collections import defaultdict
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 
 from config import get_settings
-from api.routers import readings, users, products, payments, auth, blog, personal_payments
+from api.routers import readings, users, products, payments, auth, blog, personal_payments, credits, divination, cron, referrals, billing
 
 settings = get_settings()
 
@@ -55,9 +57,12 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allow_headers=["Authorization", "Content-Type", "Accept"],
 )
+
+# GZip compression — reduces response size ~3-5x (e.g. 5KB → 1-2KB)
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 
 @app.exception_handler(Exception)
@@ -65,42 +70,82 @@ async def global_exception_handler(request: Request, exc: Exception):
     """Log all unhandled exceptions to help debug Vercel 500 errors."""
     tb = traceback.format_exception(type(exc), exc, exc.__traceback__)
     print(f"[ERROR] {request.method} {request.url.path}: {''.join(tb)}")
+    # Never expose internal error details to clients — use a generic message
     return JSONResponse(
         status_code=500,
-        content={"detail": str(exc)[:200]},
+        content={"detail": "服务器内部错误，请稍后重试"},
     )
 
-# ── Simple in-memory rate limiter ───────────────────────────────────────────
-_rate_store: dict[str, list[float]] = defaultdict(list)
+# ── Enhanced rate limiter with endpoint-specific limits ──────────────────────
+# Uses Redis when REDIS_URL is configured, otherwise in-memory per-process.
+from services.rate_limiter import check_rate_limit
+
 RATE_LIMIT_WINDOW = 60  # seconds
-RATE_LIMIT_MAX = 30     # requests per window (global)
-_last_cleanup: float = 0.0
+RATE_LIMIT_MAX = 60     # requests per window (global)
+
+# Endpoint-specific rate limits (requests per minute)
+ENDPOINT_LIMITS = {
+    "/api/readings": 5,           # 排盘分析 - 最贵的 API，严格限制
+    "/api/readings/chat": 10,     # 推命问答
+    "/api/divination": 10,        # 推命
+    "/api/auth/login": 5,         # 登录
+    "/api/auth/register": 3,      # 注册
+    "/api/auth/send-code": 2,     # 验证码
+    "/api/payments": 20,          # 支付
+    "/api/credits": 30,           # 星尘
+    "/api/billing/verify-tx": 5,  # USDT verification - prevent brute force
+    "/api/webhooks/paypal": 10,   # PayPal webhooks - prevent spam
+}
+
+
+def _get_client_ip(request: Request) -> str:
+    """Get client IP from trusted sources only."""
+    # When behind Nginx reverse proxy, Nginx sets X-Real-IP
+    # Only trust this if we're behind our known proxy
+    real_ip = request.headers.get("x-real-ip")
+    if real_ip:
+        # Validate it looks like an IP (basic sanity check)
+        try:
+            ipaddress.ip_address(real_ip.split(",")[0].strip())
+            return real_ip.split(",")[0].strip()
+        except ValueError:
+            pass
+
+    # Fallback to direct client connection
+    return request.client.host if request.client else "unknown"
+
+# Cyberpunk-style rate limit error message
+RATE_LIMIT_MESSAGE = json.dumps({
+    "detail": "System Core Overheated. Please align your temporal node or upgrade to Premium Access.",
+    "error_code": "RATE_LIMIT_EXCEEDED",
+    "retry_after_seconds": 60,
+})
 
 
 @app.middleware("http")
 async def rate_limit_middleware(request: Request, call_next):
-    global _last_cleanup
     # Only rate-limit API endpoints
     if request.url.path.startswith("/api/"):
-        client_ip = request.client.host if request.client else "unknown"
-        now = time.time()
-        window_start = now - RATE_LIMIT_WINDOW
+        client_ip = _get_client_ip(request)
+        path = request.url.path
 
-        # Periodically purge stale IPs to prevent memory leak
-        if now - _last_cleanup > RATE_LIMIT_WINDOW * 10:
-            stale_ips = [ip for ip, times in _rate_store.items() if not times or times[-1] <= window_start]
-            for ip in stale_ips:
-                del _rate_store[ip]
-            _last_cleanup = now
+        # Check endpoint-specific limits first (higher priority)
+        limit = ENDPOINT_LIMITS.get(path)
+        if limit:
+            if await check_rate_limit(f"ep:{client_ip}:{path}", limit, RATE_LIMIT_WINDOW):
+                return JSONResponse(
+                    status_code=429,
+                    content=json.loads(RATE_LIMIT_MESSAGE),
+                    headers={"Retry-After": "60"},
+                )
 
-        # Clean old entries for this client
-        _rate_store[client_ip] = [t for t in _rate_store[client_ip] if t > window_start]
-        if len(_rate_store[client_ip]) >= RATE_LIMIT_MAX:
+        # Global rate limit
+        if await check_rate_limit(f"global:{client_ip}", RATE_LIMIT_MAX, RATE_LIMIT_WINDOW):
             return JSONResponse(
                 status_code=429,
                 content={"detail": "请求过于频繁，请稍后再试"},
             )
-        _rate_store[client_ip].append(now)
+
     return await call_next(request)
 
 
@@ -111,8 +156,15 @@ app.include_router(products.router, prefix="/api/products", tags=["Products"])
 app.include_router(payments.router, prefix="/api/payments", tags=["Payments"])
 app.include_router(blog.router,     prefix="/api/blog",     tags=["Blog"])
 app.include_router(personal_payments.router, prefix="/api/personal-payments", tags=["Personal Payments"])
+app.include_router(credits.router, prefix="/api/credits", tags=["Credits"])
+app.include_router(divination.router, prefix="/api/divination", tags=["Divination"])
+app.include_router(cron.router, prefix="/api/cron", tags=["Cron"])
+app.include_router(referrals.router, prefix="/api/referrals", tags=["Referrals"])
+app.include_router(billing.router, prefix="/api/billing", tags=["Billing"])
+app.include_router(billing.webhook_router, prefix="/api/webhooks", tags=["Webhooks"])
 
 
 @app.get("/health")
 async def health():
+    """Health check endpoint — auto-deploy test"""
     return {"status": "ok", "app": settings.APP_NAME}

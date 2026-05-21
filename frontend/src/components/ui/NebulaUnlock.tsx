@@ -10,13 +10,12 @@ interface NebulaUnlockProps {
 }
 
 export function NebulaUnlock({ children, trigger = false, onComplete }: NebulaUnlockProps) {
+  const { t } = useLanguage()
   const [phase, setPhase] = useState<"idle" | "converge" | "flash" | "reveal">("idle")
   const [statusIndex, setStatusIndex] = useState(0)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const { t: rawT } = useLanguage()
-  const t = rawT as unknown as (key: string) => string
 
-  const loadingStatuses = [
+  const LOADING_STATUSES = [
     t("nebulaUnlock.status1"),
     t("nebulaUnlock.status2"),
     t("nebulaUnlock.status3"),
@@ -38,7 +37,7 @@ export function NebulaUnlock({ children, trigger = false, onComplete }: NebulaUn
 
     // Cycle loading statuses
     intervalRef.current = setInterval(() => {
-      setStatusIndex(prev => (prev + 1) % loadingStatuses.length)
+      setStatusIndex(prev => (prev + 1) % LOADING_STATUSES.length)
     }, 800)
 
     const t1 = setTimeout(() => setPhase("flash"), 600)
@@ -55,7 +54,7 @@ export function NebulaUnlock({ children, trigger = false, onComplete }: NebulaUn
       clearTimeout(t3)
       if (intervalRef.current) clearInterval(intervalRef.current)
     }
-  }, [trigger, onComplete, loadingStatuses])
+  }, [trigger, onComplete]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (phase === "idle") {
     return <>{children}</>
@@ -78,23 +77,20 @@ export function NebulaUnlock({ children, trigger = false, onComplete }: NebulaUn
               </div>
             </div>
             <p className="text-gold/80 text-sm font-medium tracking-wide animate-pulse">
-              {loadingStatuses[statusIndex]}
+              {LOADING_STATUSES[statusIndex]}
             </p>
 
             {/* Particles converging to center */}
-            {Array.from({ length: 12 }).map((_, i) => {
-              const angle = (i / 12) * 360
-              return (
-                <div
-                  key={i}
-                  className="absolute left-1/2 top-1/2 w-2 h-2 bg-gold rounded-full"
-                  style={{
-                    animation: `nebula-particle-${i % 3} 0.6s ease-in forwards`,
-                    transform: `translate(-50%, -50%)`,
-                  }}
-                />
-              )
-            })}
+            {Array.from({ length: 12 }).map((_, i) => (
+              <div
+                key={i}
+                className="absolute left-1/2 top-1/2 w-2 h-2 bg-gold rounded-full"
+                style={{
+                  animation: `nebula-particle-${i % 3} 0.6s ease-in forwards`,
+                  transform: `translate(-50%, -50%)`,
+                }}
+              />
+            ))}
           </div>
 
           {/* Flash */}

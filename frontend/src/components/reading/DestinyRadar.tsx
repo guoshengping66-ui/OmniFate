@@ -13,22 +13,23 @@ interface Props {
  * Renders 5 concentric pentagons, gold grid lines, and a filled data area.
  */
 export function DestinyRadar({ scores, labels, size = 280 }: Props) {
-  const { t: rawT } = useLanguage()
-  const t = rawT as unknown as (key: string) => string
-  const defaultLabels = [
-    t("destinyRadar.wealth"),
-    t("destinyRadar.relationship"),
-    t("destinyRadar.career"),
-    t("destinyRadar.health"),
-    t("destinyRadar.spiritual"),
-  ]
-  const resolvedLabels = labels ?? defaultLabels
+  const { t } = useLanguage()
   const [animate, setAnimate] = useState(false)
   const cx = size / 2
   const cy = size / 2
   const radius = size * 0.34            // inner radius for data
   const labelRadius = size * 0.45       // radius for labels
   const levels = 5                      // concentric pentagons
+
+  const DEFAULT_LABELS = [
+    t("destinyRadar.wealth"),
+    t("destinyRadar.relationship"),
+    t("destinyRadar.career"),
+    t("destinyRadar.health"),
+    t("destinyRadar.spiritual"),
+  ]
+
+  const displayLabels = labels || DEFAULT_LABELS
 
   // Trigger entrance animation on mount
   useEffect(() => {
@@ -147,7 +148,7 @@ export function DestinyRadar({ scores, labels, size = 280 }: Props) {
                 fontSize={11}
                 fontFamily="sans-serif"
               >
-                {resolvedLabels[i]}
+                {displayLabels[i]}
               </text>
               {/* Score number */}
               <text

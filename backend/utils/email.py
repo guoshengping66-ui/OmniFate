@@ -1,6 +1,6 @@
 """
 email.py — Email sending utility using SMTP.
-Configure via environment variables or .env:
+Configure via .env file:
   SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM
 """
 import smtplib
@@ -14,26 +14,30 @@ settings = get_settings()
 
 
 def _get_smtp_config() -> dict:
-    """Get SMTP config from environment or defaults."""
-    import os
+    """Get SMTP config from pydantic settings (reads .env file)."""
     return {
-        "host": os.getenv("SMTP_HOST", ""),
-        "port": int(os.getenv("SMTP_PORT", "465")),
-        "user": os.getenv("SMTP_USER", ""),
-        "password": os.getenv("SMTP_PASS", ""),
-        "from_email": os.getenv("SMTP_FROM", ""),
-        "from_name": os.getenv("SMTP_FROM_NAME", "命盘智镜"),
+        "host": settings.SMTP_HOST,
+        "port": settings.SMTP_PORT,
+        "user": settings.SMTP_USER,
+        "password": settings.SMTP_PASS,
+        "from_email": settings.SMTP_FROM,
+        "from_name": settings.SMTP_FROM_NAME,
     }
 
 
+def is_smtp_configured() -> bool:
+    """Check if SMTP is properly configured with host and user."""
+    config = _get_smtp_config()
+    return bool(config["host"] and config["user"])
+
+
 def send_verification_email(to_email: str, code: str) -> bool:
-    """Send a 6-digit verification code email."""
+    """Send a 6-digit verification code email. Returns True if sent successfully."""
     config = _get_smtp_config()
     if not config["host"] or not config["user"]:
         print("[EMAIL] SMTP not configured, skipping email send")
         # Only log code in debug mode, never in production
-        import os
-        if os.getenv("DEBUG", "false").lower() == "true":
+        if settings.DEBUG:
             print(f"[EMAIL] Verification code for {to_email}: {code}")
         return False
 
@@ -53,7 +57,10 @@ def send_verification_email(to_email: str, code: str) -> bool:
         <p style="font-size:13px;color:#888;">如果这不是您的操作，请忽略此邮件。</p>
       </div>
       <div style="text-align:center;padding:15px;font-size:11px;color:#aaa;">
-        命盘智镜 · 全维度命理分析平台
+        命盘智镜 · 全维度命理分析平台<br/>
+        运营者：命盘智镜运营团队 | 如非本人操作请忽略此邮件<br/>
+        <a href="https://www.khanfate.com/privacy" style="color:#aaa;">隐私政策</a> ·
+        <a href="https://www.khanfate.com/terms" style="color:#aaa;">服务条款</a>
       </div>
     </div>
     """
@@ -66,8 +73,7 @@ def send_password_reset_email(to_email: str, code: str) -> bool:
     config = _get_smtp_config()
     if not config["host"] or not config["user"]:
         print("[EMAIL] SMTP not configured, skipping email send")
-        import os
-        if os.getenv("DEBUG", "false").lower() == "true":
+        if settings.DEBUG:
             print(f"[EMAIL] Password reset code for {to_email}: {code}")
         return False
 
@@ -87,7 +93,10 @@ def send_password_reset_email(to_email: str, code: str) -> bool:
         <p style="font-size:13px;color:#888;">如果这不是您的操作，请立即修改密码并联系客服。</p>
       </div>
       <div style="text-align:center;padding:15px;font-size:11px;color:#aaa;">
-        命盘智镜 · 全维度命理分析平台
+        命盘智镜 · 全维度命理分析平台<br/>
+        运营者：命盘智镜运营团队 | 如非本人操作请立即联系客服<br/>
+        <a href="https://www.khanfate.com/privacy" style="color:#aaa;">隐私政策</a> ·
+        <a href="https://www.khanfate.com/terms" style="color:#aaa;">服务条款</a>
       </div>
     </div>
     """

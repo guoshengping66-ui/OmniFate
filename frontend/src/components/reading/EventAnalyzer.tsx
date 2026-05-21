@@ -9,6 +9,7 @@ import {
   analyzeEvent, listEvents, getEventDetail,
   AnalyzeEventResponse, EventListItem, Product,
 } from "@/lib/api"
+import { useLanguage } from "@/contexts/LanguageContext"
 import { ProductCard } from "@/components/reading/ProductCard"
 
 interface Props {
@@ -17,29 +18,30 @@ interface Props {
 
 /** 情绪评分选项 */
 const EMOTION_OPTIONS = [
-  { value: 1, label: "非常差", emoji: "😢" },
-  { value: 2, label: "较差",   emoji: "😔" },
-  { value: 3, label: "一般",   emoji: "😐" },
-  { value: 4, label: "较好",   emoji: "🙂" },
-  { value: 5, label: "很好",   emoji: "😊" },
-  { value: 6, label: "非常好", emoji: "🥳" },
-  { value: 7, label: "极好",   emoji: "🌟" },
-  { value: 8, label: "平静",   emoji: "🧘" },
-  { value: 9, label: "焦虑",   emoji: "😰" },
-  { value: 10, label: "愤怒",  emoji: "😤" },
+  { value: 1, labelKey: "event.emotion.veryBad", emoji: "😢" },
+  { value: 2, labelKey: "event.emotion.bad",   emoji: "😔" },
+  { value: 3, labelKey: "event.emotion.neutral",   emoji: "😐" },
+  { value: 4, labelKey: "event.emotion.good",   emoji: "🙂" },
+  { value: 5, labelKey: "event.emotion.veryGood",   emoji: "😊" },
+  { value: 6, labelKey: "event.emotion.excellent", emoji: "🥳" },
+  { value: 7, labelKey: "event.emotion.superb",   emoji: "🌟" },
+  { value: 8, labelKey: "event.emotion.calm",   emoji: "🧘" },
+  { value: 9, labelKey: "event.emotion.anxious",   emoji: "😰" },
+  { value: 10, labelKey: "event.emotion.angry",  emoji: "😤" },
 ]
 
 /** 预置事件场景按钮 */
 const QUICK_EVENTS = [
-  { label: "工作冲突", desc: "今天和同事/领导发生了冲突" },
-  { label: "财运波动", desc: "最近有一笔意外的财务支出/收入" },
-  { label: "感情问题", desc: "和伴侣发生了争执或误会" },
-  { label: "健康预警", desc: "最近身体出现了不适症状" },
-  { label: "重要决策", desc: "面临一个重要的职业/人生选择" },
-  { label: "社交事件", desc: "参加了一个重要的社交活动" },
+  { labelKey: "event.quick.workConflict", descKey: "event.quick.workConflictDesc" },
+  { labelKey: "event.quick.financeFluctuation", descKey: "event.quick.financeFluctuationDesc" },
+  { labelKey: "event.quick.relationshipIssue", descKey: "event.quick.relationshipIssueDesc" },
+  { labelKey: "event.quick.healthAlert", descKey: "event.quick.healthAlertDesc" },
+  { labelKey: "event.quick.importantDecision", descKey: "event.quick.importantDecisionDesc" },
+  { labelKey: "event.quick.socialEvent", descKey: "event.quick.socialEventDesc" },
 ]
 
 export default function EventAnalyzer({ sessionId }: Props) {
+  const { t } = useLanguage()
   // Form state
   const [description, setDescription] = useState("")
   const [eventDate, setEventDate] = useState(() => {
@@ -75,7 +77,7 @@ export default function EventAnalyzer({ sessionId }: Props) {
 
   const handleAnalyze = async () => {
     if (!description.trim()) {
-      toast.error("请描述你的事件")
+      toast.error(t("event.pleaseDescribe"))
       return
     }
     setAnalyzing(true)
@@ -89,11 +91,11 @@ export default function EventAnalyzer({ sessionId }: Props) {
         emotion_score: emotionScore ?? undefined,
       })
       setResult(res)
-      toast.success("复盘分析完成！")
+      toast.success(t("event.analysisDone"))
       // Refresh event history
       fetchEvents()
     } catch (err: any) {
-      const detail = err?.response?.data?.detail ?? "分析失败，请稍后重试"
+      const detail = err?.response?.data?.detail ?? t("event.analysisFailed")
       toast.error(detail)
     } finally {
       setAnalyzing(false)
@@ -108,7 +110,7 @@ export default function EventAnalyzer({ sessionId }: Props) {
       const detail = await getEventDetail(eventId)
       setEventDetail(detail)
     } catch {
-      toast.error("加载事件详情失败")
+      toast.error(t("event.loadDetailFail"))
     } finally {
       setLoadingDetail(false)
     }
@@ -126,16 +128,16 @@ export default function EventAnalyzer({ sessionId }: Props) {
       <div className="card-glass p-6">
         <div className="flex items-center gap-2 mb-4">
           <Sparkles size={18} className="text-gold" />
-          <h3 className="font-serif text-lg font-bold text-gold">事件复盘</h3>
-          <span className="text-xs text-white/30">输入近期发生的事件，AI 结合你的命盘进行因果分析</span>
+          <h3 className="font-serif text-lg font-bold text-gold">{t("event.title")}</h3>
+          <span className="text-xs text-white/30">{t("event.subtitle")}</span>
         </div>
 
         {/* Quick event buttons */}
         <div className="flex flex-wrap gap-2 mb-4">
           {QUICK_EVENTS.map(qe => (
-            <button key={qe.label} onClick={() => handleQuickEvent(qe.desc)}
+            <button key={qe.labelKey} onClick={() => handleQuickEvent(t(qe.descKey))}
  className="text-xs px-3 py-1.5 bg-white/5 border border-white/10 rounded-full text-white/50 hover:text-gold hover:border-gold/30 hover:bg-gold/5 transition-all whitespace-nowrap">
-              {qe.label}
+              {t(qe.labelKey)}
             </button>
           ))}
         </div>
@@ -144,7 +146,7 @@ export default function EventAnalyzer({ sessionId }: Props) {
         <textarea
           value={description}
           onChange={e => setDescription(e.target.value)}
-          placeholder="描述一下发生了什么…&#10;例如：今天和领导因为项目方向产生了分歧，对方坚持采用保守方案，而我认为应该尝试新方法。"
+          placeholder={t("event.placeholder")}
  className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-white/80 placeholder-white/20 resize-none h-28 focus:outline-none focus:border-gold/40 focus:bg-white/[0.07]"
         />
 
@@ -152,7 +154,7 @@ export default function EventAnalyzer({ sessionId }: Props) {
           {/* Date/time picker */}
           <div>
             <label className="block text-xs text-white/40 mb-1.5 flex items-center gap-1.5">
-              <Clock size={12} /> 事件发生时间
+              <Clock size={12} /> {t("event.datetime")}
             </label>
             <input type="datetime-local" value={eventDate}
               onChange={e => setEventDate(e.target.value)}
@@ -162,7 +164,7 @@ export default function EventAnalyzer({ sessionId }: Props) {
 
           {/* Emotion score selector */}
           <div>
-            <label className="block text-xs text-white/40 mb-1.5">情绪状态（可选）</label>
+            <label className="block text-xs text-white/40 mb-1.5">{t("event.emotionState")}</label>
             <div className="flex flex-wrap gap-1.5">
               {EMOTION_OPTIONS.map(opt => (
                 <button key={opt.value} onClick={() => setEmotionScore(emotionScore === opt.value ? null : opt.value)}
@@ -170,7 +172,7 @@ export default function EventAnalyzer({ sessionId }: Props) {
                     ${emotionScore === opt.value
                       ? "bg-gold/20 border-gold/40 text-gold"
                       : "bg-white/5 border-white/10 text-white/40 hover:text-white/70"}`}
-                  title={opt.label}
+                  title={t(opt.labelKey)}
                 >
                   {opt.emoji}
                 </button>
@@ -183,9 +185,9 @@ export default function EventAnalyzer({ sessionId }: Props) {
           className="btn-gold flex items-center gap-2 mt-4"
         >
           {analyzing ? (
-            <><Loader2 size={16} className="animate-spin" /> AI 分析中…</>
+            <><Loader2 size={16} className="animate-spin" /> {t("event.analyzing")}</>
           ) : (
-            <><Send size={16} /> 开始复盘分析</>
+            <><Send size={16} /> {t("event.startAnalysis")}</>
           )}
         </button>
       </div>
@@ -197,8 +199,8 @@ export default function EventAnalyzer({ sessionId }: Props) {
           {activeResult.causal_analysis && (
             <SectionBlock
               icon={<TrendingUp size={18} />}
-              title="因果溯源"
-              subtitle="为什么这个事件会发生"
+              title={t("event.section.causal")}
+              subtitle={t("event.section.causalDesc")}
               content={activeResult.causal_analysis}
               color="gold"
             />
@@ -208,8 +210,8 @@ export default function EventAnalyzer({ sessionId }: Props) {
           {activeResult.current_advice && (
             <SectionBlock
               icon={<Eye size={18} />}
-              title="当下对策"
-              subtitle="基于当前流时的行动建议"
+              title={t("event.section.current")}
+              subtitle={t("event.section.currentDesc")}
               content={activeResult.current_advice}
               color="jade"
             />
@@ -219,8 +221,8 @@ export default function EventAnalyzer({ sessionId }: Props) {
           {activeResult.future_prevention && (
             <SectionBlock
               icon={<Shield size={18} />}
-              title="未来预防"
-              subtitle="如何避免/延续类似情况"
+              title={t("event.section.future")}
+              subtitle={t("event.section.futureDesc")}
               content={activeResult.future_prevention}
               color="purple"
             />
@@ -229,7 +231,7 @@ export default function EventAnalyzer({ sessionId }: Props) {
           {/* Remedy keywords */}
           {activeResult.remedy_keywords.length > 0 && (
             <div className="card-glass p-4">
-              <p className="text-xs text-white/40 mb-2">改运标签</p>
+              <p className="text-xs text-white/40 mb-2">{t("event.remedyTags")}</p>
               <div className="flex flex-wrap gap-2">
                 {activeResult.remedy_keywords.map(kw => (
                   <span key={kw}
@@ -246,10 +248,10 @@ export default function EventAnalyzer({ sessionId }: Props) {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Shield size={16} className="text-gold" />
-                <h4 className="font-serif text-base font-bold text-gold">针对此次事件的能量处方</h4>
+                <h4 className="font-serif text-base font-bold text-gold">{t("event.prescription")}</h4>
               </div>
               <p className="text-white/40 text-xs mb-4 leading-relaxed">
-                每一次事件都是能量的流动与转化。以下商品根据你的命盘与此事件的能量共振匹配，帮助你安抚情绪、重聚能量。
+                {t("event.prescriptionDesc")}
               </p>
               <div className="grid sm:grid-cols-2 gap-4">
                 {activeResult.recommended_products.map(p => (
@@ -265,7 +267,7 @@ export default function EventAnalyzer({ sessionId }: Props) {
       {loadingDetail && (
         <div className="card-glass p-10 text-center">
           <Loader2 size={24} className="animate-spin text-gold mx-auto mb-3" />
-          <p className="text-white/40 text-sm">加载事件详情…</p>
+          <p className="text-white/40 text-sm">{t("event.loadingDetail")}</p>
         </div>
       )}
 
@@ -273,16 +275,16 @@ export default function EventAnalyzer({ sessionId }: Props) {
       <div className="card-glass p-6">
         <div className="flex items-center gap-2 mb-4">
           <History size={16} className="text-white/40" />
-          <h3 className="text-sm font-medium text-white/60">复盘历史</h3>
+          <h3 className="text-sm font-medium text-white/60">{t("event.history")}</h3>
         </div>
 
         {loadingEvents ? (
           <div className="flex items-center gap-2 text-white/30 text-sm py-4">
-            <Loader2 size={14} className="animate-spin" /> 加载中…
+            <Loader2 size={14} className="animate-spin" /> {t("event.loading")}
           </div>
         ) : events.length === 0 ? (
           <p className="text-white/20 text-sm py-4 text-center">
-            暂无复盘记录，开始第一次分析吧
+            {t("event.noHistory")}
           </p>
         ) : (
           <div className="space-y-2">
@@ -297,7 +299,7 @@ export default function EventAnalyzer({ sessionId }: Props) {
                   <p className="text-sm text-white/70 truncate">{evt.event_description}</p>
                   <p className="text-xs text-white/30 mt-0.5">
                     {new Date(evt.event_datetime).toLocaleDateString("zh-CN")}
-                    {evt.emotion_score && ` · 情绪 ${evt.emotion_score}/10`}
+                    {evt.emotion_score && ` · ${t("event.emotion._label")} ${evt.emotion_score}/10`}
                   </p>
                 </div>
                 <ChevronRight size={16} className="text-white/20 flex-shrink-0" />

@@ -1,0 +1,85 @@
+# ══════════════════════════════════════════════════════════════════════════════
+#  命盘智镜 — 后端自动部署 (GitHub Actions → 阿里云)
+# ══════════════════════════════════════════════════════════════════════════════
+#  触发: push 到 main 且 backend/ 有变更，或手动触发
+#  流程: SSH → kill 进程 → systemd 自动重启 (deploy.sh 拉取最新代码) → 健康检查
+#
+#  服务器配置:
+#    /opt/OmniFate/deploy.sh — 拉取代码 + 启动 uvicorn
+#    systemd Restart=always — 进程被杀后自动重启 deploy.sh
+# ══════════════════════════════════════════════════════════════════════════════
+
+name: Deploy Backend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -euo pipefail
+
+            echo "═══════ 开始部署后端 ═══════"
+
+            # 1. 记录当前 commit
+            cd /opt/OmniFate
+            CURRENT_COMMIT=$(git rev-parse HEAD)
+            echo "当前 commit: $CURRENT_COMMIT"
+
+            # 2. 杀掉 uvicorn 进程 (systemd 会自动重启 deploy.sh → git pull → 新代码)
+            echo "🔄 杀掉旧进程，触发 systemd 自动重启..."
+            PID=$(lsof -ti :8002 2>/dev/null || true)
+            if [ -n "$PID" ]; then
+              kill "$PID" 2>/dev/null || true
+              echo "已停止进程: $PID"
+            else
+              echo "没有发现运行中的进程，尝试 fuser..."
+              fuser -k 8002/tcp 2>/dev/null || true
+            fi
+
+            # 3. 等待 systemd 重启 (deploy.sh 会 git pull + 启动新进程)
+            echo "⏳ 等待服务重启..."
+            sleep 15
+
+            # 4. 验证新 commit
+            NEW_COMMIT=$(git rev-parse HEAD)
+            echo "新 commit: $NEW_COMMIT"
+
+            # 5. 健康检查
+            echo "🔍 健康检查..."
+            HEALTH_OK=false
+            for i in 1 2 3 4 5; do
+              HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8002/health || echo "000")
+              if [ "$HTTP_CODE" = "200" ]; then
+                HEALTH_OK=true
+                echo "✅ 健康检查通过 (第${i}次)"
+                break
+              fi
+              echo "⚠️ 第${i}次健康检查失败 (HTTP $HTTP_CODE)，等待重试..."
+              sleep 5
+            done
+
+            if [ "$HEALTH_OK" = "false" ]; then
+              echo "❌ 健康检查失败！请手动检查服务器"
+              exit 1
+            fi
+
+            echo "═══════ 部署完成 ═══════"
+            echo "✅ 后端已更新: $CURRENT_COMMIT → $NEW_COMMIT"

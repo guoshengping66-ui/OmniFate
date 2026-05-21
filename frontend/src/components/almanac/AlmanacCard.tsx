@@ -1,5 +1,6 @@
 "use client"
 import { Calendar, Check, X, Shield } from "lucide-react"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 interface AlmanacItem {
   label: string
@@ -10,14 +11,15 @@ interface AlmanacItem {
 interface AlmanacCardProps {
   date: string
   lunarDate: string
-  yi: AlmanacItem[]   // 宜
-  ji: AlmanacItem[]    // 忌
-  hu: AlmanacItem[]    // 护 (protection items)
+  yi: AlmanacItem[]   // Auspicious
+  ji: AlmanacItem[]    // Inauspicious
+  hu: AlmanacItem[]    // Guard (protection items)
   dayScore: number     // overall day score
   baziDayPillar: string
 }
 
 export function AlmanacCard({ date, lunarDate, yi, ji, hu, dayScore, baziDayPillar }: AlmanacCardProps) {
+  const { t } = useLanguage()
   const scoreColor = dayScore >= 80 ? "text-green-400" : dayScore >= 50 ? "text-gold" : "text-red-400"
 
   return (
@@ -29,21 +31,21 @@ export function AlmanacCard({ date, lunarDate, yi, ji, hu, dayScore, baziDayPill
             <Calendar size={18} className="text-gold" />
             <h3 className="font-serif text-lg text-gold">{date}</h3>
           </div>
-          <p className="text-white/40 text-xs mt-0.5">{lunarDate} · 日柱: {baziDayPillar}</p>
+          <p className="text-white/40 text-xs mt-0.5">{lunarDate} · {t("almanacCard.dayPillar")}: {baziDayPillar}</p>
         </div>
         <div className="text-center">
           <div className={`text-2xl font-bold ${scoreColor}`}>{dayScore}</div>
-          <p className="text-white/30 text-[10px]">今日能量分</p>
+          <p className="text-white/30 text-[10px]">{t("almanacCard.energyScore")}</p>
         </div>
       </div>
 
-      {/* Three columns: 宜 / 忌 / 护 */}
+      {/* Three columns: Auspicious / Inauspicious / Guard */}
       <div className="grid grid-cols-3 gap-3">
-        {/* 宜 — Auspicious */}
+        {/* Auspicious */}
         <div className="bg-green-500/5 border border-green-500/20 rounded-xl p-3">
           <div className="flex items-center gap-1 mb-2">
             <Check size={12} className="text-green-400" />
-            <span className="text-xs text-green-400 font-medium">宜</span>
+            <span className="text-xs text-green-400 font-medium">{t("almanacCard.auspicious")}</span>
           </div>
           <ul className="space-y-1.5">
             {yi.map((item, i) => (
@@ -55,11 +57,11 @@ export function AlmanacCard({ date, lunarDate, yi, ji, hu, dayScore, baziDayPill
           </ul>
         </div>
 
-        {/* 忌 — Inauspicious */}
+        {/* Inauspicious */}
         <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-3">
           <div className="flex items-center gap-1 mb-2">
             <X size={12} className="text-red-400" />
-            <span className="text-xs text-red-400 font-medium">忌</span>
+            <span className="text-xs text-red-400 font-medium">{t("almanacCard.inauspicious")}</span>
           </div>
           <ul className="space-y-1.5">
             {ji.map((item, i) => (
@@ -71,11 +73,11 @@ export function AlmanacCard({ date, lunarDate, yi, ji, hu, dayScore, baziDayPill
           </ul>
         </div>
 
-        {/* 护 — Protection */}
+        {/* Guard / Protection */}
         <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-3">
           <div className="flex items-center gap-1 mb-2">
             <Shield size={12} className="text-blue-400" />
-            <span className="text-xs text-blue-400 font-medium">护</span>
+            <span className="text-xs text-blue-400 font-medium">{t("almanacCard.protection")}</span>
           </div>
           <ul className="space-y-1.5">
             {hu.map((item, i) => (

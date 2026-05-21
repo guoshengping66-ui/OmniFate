@@ -84,6 +84,21 @@ class User(Base):
     free_event_quota_reset_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     oauth_provider: Mapped[Optional[str]] = mapped_column(String(50))
     oauth_subject: Mapped[Optional[str]] = mapped_column(String(255))
+
+    # Stardust credits
+    stardust_balance: Mapped[int] = mapped_column(Integer, default=0)
+    stardust_lifetime_earned: Mapped[int] = mapped_column(Integer, default=0)
+
+    # Founder membership
+    is_founder: Mapped[bool] = mapped_column(Boolean, default=False)
+    founder_seat_no: Mapped[Optional[int]] = mapped_column(Integer)
+    founder_region: Mapped[Optional[str]] = mapped_column(String(10))  # "domestic"|"overseas"
+    founder_activated_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+
+    # Referral
+    referral_code: Mapped[Optional[str]] = mapped_column(String(8), unique=True, index=True)
+    referred_by: Mapped[Optional[str]] = mapped_column(String(36), nullable=True)
+
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
@@ -96,6 +111,9 @@ class User(Base):
         back_populates="user", cascade="all, delete-orphan"
     )
     orders: Mapped[list["Order"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
+    addresses: Mapped[list["UserAddress"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
 
@@ -161,14 +179,19 @@ class Reading(Base):
     bazi_report: Mapped[Optional[str]] = mapped_column(Text)
     astrology_report: Mapped[Optional[str]] = mapped_column(Text)
     tarot_report: Mapped[Optional[str]] = mapped_column(Text)
+    qimen_report: Mapped[Optional[str]] = mapped_column(Text)
+    ziwei_report: Mapped[Optional[str]] = mapped_column(Text)
+    palm_report: Mapped[Optional[str]] = mapped_column(Text)
 
     # MasterAgent synthesis
     master_summary: Mapped[Optional[str]] = mapped_column(Text)       # 免费摘要
     master_detail: Mapped[Optional[str]] = mapped_column(Text)        # 付费年度规划
     recommended_product_ids: Mapped[Optional[list]] = mapped_column(JSON)
     computed_tags: Mapped[Optional[list]] = mapped_column(JSON)
+    dimension_scores: Mapped[Optional[dict]] = mapped_column(JSON)
 
     is_detail_unlocked: Mapped[bool] = mapped_column(Boolean, default=False)
+    language: Mapped[Optional[str]] = mapped_column(String(5), default="zh")  # "zh" or "en"
     payment_status: Mapped[PaymentStatus] = mapped_column(Enum(PaymentStatus), default=PaymentStatus.unpaid)
     stripe_payment_intent: Mapped[Optional[str]] = mapped_column(String(200))
     error_message: Mapped[Optional[str]] = mapped_column(Text)
@@ -328,6 +351,31 @@ class UserFavorite(Base):
     __table_args__ = (UniqueConstraint("user_id", "product_id", name="uq_user_favorite_product"),)
 
 
+# ─── UserAddress ─────────────────────────────────────────────────────────────
+
+class UserAddress(Base):
+    """用户收货地址"""
+    __tablename__ = "user_addresses"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id: Mapped[str] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    recipient_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    phone: Mapped[str] = mapped_column(String(30), nullable=False)
+    country: Mapped[str] = mapped_column(String(50), nullable=False, default="CN")
+    province: Mapped[Optional[str]] = mapped_column(String(100))
+    city: Mapped[Optional[str]] = mapped_column(String(100))
+    district: Mapped[Optional[str]] = mapped_column(String(100))
+    address_line1: Mapped[str] = mapped_column(String(300), nullable=False)
+    address_line2: Mapped[Optional[str]] = mapped_column(String(300))
+    postal_code: Mapped[Optional[str]] = mapped_column(String(20))
+    is_default: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    user: Mapped["User"] = relationship(back_populates="addresses")
+
+
 # ─── ProductReview ───────────────────────────────────────────────────────────
 
 class ProductReview(Base):
@@ -345,4 +393,119 @@ class ProductReview(Base):
     rating: Mapped[int] = mapped_column(Integer, nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
     tags: Mapped[Optional[list]] = mapped_column(JSON)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+# ─── CreditTransaction ────────────────────────────────────────────────────────
+
+class CreditTransaction(Base):
+    """星尘流水记录 — 支持预扣/确认/回滚原子操作"""
+    __tablename__ = "credit_transactions"
+    __table_args__ = (
+        UniqueConstraint('reason', 'reference_id', name='uq_credit_reason_ref'),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id: Mapped[str] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    amount: Mapped[int] = mapped_column(Integer, nullable=False)  # 正=获得, 负=消耗
+    balance_after: Mapped[int] = mapped_column(Integer, nullable=False)
+    reason: Mapped[str] = mapped_column(String(50), nullable=False)
+    # reason 枚举: report_unlock, event_retro, follow_up, energy_radar, divination,
+    #              monthly_grant, register_bonus, referral, refund, founder_grant
+    reference_id: Mapped[Optional[str]] = mapped_column(String(36))  # 关联 reading/event ID
+    status: Mapped[str] = mapped_column(String(20), default="confirmed")  # pending|confirmed|refunded
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+# ─── FounderVote ──────────────────────────────────────────────────────────────
+
+class FounderVote(Base):
+    """创始席位产品路线图投票"""
+    __tablename__ = "founder_votes"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id: Mapped[str] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    feature_id: Mapped[str] = mapped_column(String(50), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    __table_args__ = (UniqueConstraint("user_id", "feature_id", name="uq_founder_vote"),)
+
+
+# ─── ReferralReward ───────────────────────────────────────────────────────────
+
+class ReferralReward(Base):
+    """星盟邀请奖励记录"""
+    __tablename__ = "referral_rewards"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    referrer_id: Mapped[str] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    referred_user_id: Mapped[str] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    reward_amount: Mapped[int] = mapped_column(Integer, default=20)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+# ─── DivinationRecord ─────────────────────────────────────────────────────────
+
+class DivinationRecord(Base):
+    """星际抽签记录"""
+    __tablename__ = "divination_records"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id: Mapped[Optional[str]] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=True, index=True
+    )
+    session_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    fortune: Mapped[str] = mapped_column(String(20), nullable=False)  # 大吉|中吉|小吉|吉|末吉|凶|大凶
+    wisdom_quote: Mapped[str] = mapped_column(Text, nullable=False)   # 王阳明心学金句
+    theme: Mapped[Optional[str]] = mapped_column(String(50))         # 事业|感情|财运|健康
+    is_free: Mapped[bool] = mapped_column(Boolean, default=True)
+    stardust_cost: Mapped[int] = mapped_column(Integer, default=0)
+    ai_insight: Mapped[Optional[str]] = mapped_column(Text)            # AI 深度解析（50字行动指引）
+    shared: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+# ─── RedeemCode ──────────────────────────────────────────────────────────────
+
+class RedeemCode(Base):
+    """卡密/兑换码系统 — 用于国内用户购买星尘"""
+    __tablename__ = "redeem_codes"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    code: Mapped[str] = mapped_column(String(32), unique=True, nullable=False, index=True)
+    stardust_amount: Mapped[int] = mapped_column(Integer, nullable=False)
+    description: Mapped[Optional[str]] = mapped_column(String(200))
+    is_used: Mapped[bool] = mapped_column(Boolean, default=False)
+    used_by_user_id: Mapped[Optional[str]] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    used_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created_by: Mapped[Optional[str]] = mapped_column(String(36))
+
+
+# ─── CryptoOrder ─────────────────────────────────────────────────────────────
+
+class CryptoOrder(Base):
+    """USDT 链上充值记录 — 用于海外用户购买星尘"""
+    __tablename__ = "crypto_orders"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    tx_id: Mapped[str] = mapped_column(String(128), unique=True, nullable=False, index=True)
+    user_id: Mapped[str] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    amount_usdt: Mapped[float] = mapped_column(Float, nullable=False)
+    network: Mapped[str] = mapped_column(String(20), nullable=False)  # "TRC20" | "ARBITRUM"
+    stardust_granted: Mapped[int] = mapped_column(Integer, default=0)
+    status: Mapped[str] = mapped_column(String(20), default="pending")  # pending|success|failed
+    verified_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

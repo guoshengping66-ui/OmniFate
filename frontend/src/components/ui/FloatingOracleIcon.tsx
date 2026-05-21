@@ -6,9 +6,8 @@ import { Sparkles } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 export function FloatingOracleIcon() {
+  const { t } = useLanguage()
   const [showTooltip, setShowTooltip] = useState(false)
-  const { t: rawT } = useLanguage()
-  const t = rawT as unknown as (key: string) => string
 
   return (
     <motion.div

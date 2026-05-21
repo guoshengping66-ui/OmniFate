@@ -5,16 +5,84 @@ import os
 from pathlib import Path
 
 TAG_FORMAT = (
-    "\n== MANDATORY JSON (last block) ==\n"
-    "```json\n"
-    '{"weakness_tags":["#缺火"],"strength_tags":["#领导力强"],'
-    '"boost_elements":["fire"],"conflict_warnings":[]}\n'
-    "```\n"
+    "\n== TAG RULES ==\n"
     "weakness_tags: 3-6 items, prefix #\n"
     "strength_tags: 2-4 items, prefix #\n"
-    "boost_elements: English element names\n"
+    "boost_elements: 五行元素中文名称（火、水、木、金、土）\n"
     "conflict_warnings: signals contradicting other domains, else []\n"
 )
+
+
+def _lang_instruction(language: str = "zh") -> str:
+    """Return language output instruction for prompt system messages."""
+    if language == "en":
+        return (
+            "Output the entire analysis in English. "
+            "ALL text values, descriptions, and explanations MUST be in English. "
+            "Keep Chinese terms in parentheses only when they are proper nouns "
+            "from Chinese metaphysics (e.g. BaZi, Wu Xing, Ten Gods).\n"
+        )
+    return "全中文输出。\n"
+
+# ─── Worker JSON Output Format (replaces free-text report) ──────────────
+
+WORKER_JSON_FORMAT = (
+    "\n== OUTPUT FORMAT (MANDATORY) ==\n"
+    "你必须以严格的JSON格式输出分析结果，不要输出任何其他文本。\n"
+    "```json\n"
+    '{\n'
+    '  "summary": "200字核心结论，概括命格特质和关键发现",\n'
+    '  "dimensions": {\n'
+    '    "wealth": "80-120字财运分析",\n'
+    '    "relationship": "80-120字感情分析",\n'
+    '    "career": "80-120字事业分析",\n'
+    '    "health": "80-120字健康分析",\n'
+    '    "spiritual": "80-120字精神/灵性分析"\n'
+    '  },\n'
+    '  "key_findings": ["发现1(含置信度)", "发现2", "发现3"],\n'
+    '  "weakness_tags": ["#缺火", "#官杀混杂"],\n'
+    '  "strength_tags": ["#领导力强"],\n'
+    '  "boost_elements": ["fire", "water"],\n'
+    '  "conflict_warnings": ["矛盾信号1"]\n'
+    '}\n'
+    "```\n"
+    "规则：summary必填；dimensions中无数据的维度填空字符串""；key_findings 3-5条；tags格式同TAG_FORMAT。\n"
+)
+
+# ─── 主题检测（条件知识加载） ────────────────────────────────────────────────
+
+def _detect_topics(question: str) -> set[str]:
+    """根据用户问题关键词返回相关主题集合，用于条件加载知识块。"""
+    q = question.lower()
+    topics: set[str] = set()
+    # 职业/事业
+    if any(k in q for k in ["事业", "工作", "职业", "创业", "升职", "跳槽", "领导", "同事", "上司",
+                              "career", "job", "work", "office", "同事", "管理", "高管"]):
+        topics.add("career")
+    # 健康
+    if any(k in q for k in ["健康", "生病", "疾病", "身体", "养生", "寿命", "手术", "康复",
+                              "health", "illness", "disease", "medical", "体质", "亚健康"]):
+        topics.add("health")
+    # 婚姻/感情/恋爱
+    if any(k in q for k in ["婚姻", "感情", "恋爱", "爱情", "对象", "桃花", "配偶", "夫妻",
+                              "分手", "复合", "出轨", "外遇", "marriage", "love", "relationship",
+                              "partner", "boyfriend", "girlfriend", "恋人", "缘分"]):
+        topics.add("relationship")
+    # 财富
+    if any(k in q for k in ["财运", "财富", "赚钱", "投资", "理财", "买房", "买车", "收入",
+                              "wealth", "money", "finance", "invest", "偏财", "正财"]):
+        topics.add("wealth")
+    # 推运/流年/时间
+    if any(k in q for k in ["流年", "今年", "明年", "运势", "大运", "十年", "什么时候",
+                              "timing", "transit", "何时", "未来", "近期", "下半年", "明年"]):
+        topics.add("timing")
+    # 子女
+    if any(k in q for k in ["子女", "孩子", "怀孕", "生育", "宝宝", "child", "pregnant"]):
+        topics.add("children")
+    # 学业/考试
+    if any(k in q for k in ["学业", "考试", "升学", "考研", "高考", "读书", "study", "exam"]):
+        topics.add("study")
+    return topics
 
 # ─── 塔罗牌意知识库加载 ─────────────────────────────────────────────────────
 
@@ -377,7 +445,9 @@ def astrology_prompt(sun_sign: str, moon_sign: str, ascendant: str,
                      sect_text: str = "",
                      planet_returns_text: str = "",
                      transit_planets_text: str = "",
-                     transit_aspects_text: str = "") -> str:
+                     transit_aspects_text: str = "",
+                     user_question: str = "",
+                     language: str = "zh") -> str:
     s = f"\nSaturn: {saturn_aspects}" if saturn_aspects else ""
     t = f"\nTransits:\n{transits}" if transits else ""
     yr_hint = ""
@@ -1141,11 +1211,44 @@ Stellium(星群): 三颗以上行星聚集在同一星座/宫位。
         "    5. 行运行星触发本命行星时，是健康事件的时间窗口。\n"
     )
 
+    # ── 条件知识加载：根据用户问题选择性注入知识块 ──
+    _topics = _detect_topics(user_question)
+    _astro_core = (
+        f"{DIGNITY_KNOWLEDGE}\n"
+        f"{ASPECT_PSYCHOLOGY}\n"
+        f"{FIXED_STAR_REFERENCE}\n"
+        f"{TEMPERAMENT_KNOWLEDGE}\n"
+        f"{ACCIDENTAL_DIGNITY_KNOWLEDGE}\n"
+        f"{HOUSE_KNOWLEDGE}\n"
+        f"{NODE_KNOWLEDGE}\n"
+        f"{SHAPE_SECT_KNOWLEDGE}\n"
+        f"{ASTRO_VISUAL_TABLES}\n"
+        f"{ASTRO_RETROGRADE_DEEP}\n"
+        f"{ASTRO_TOLERANCE_SYSTEM}\n"
+        f"{ASTRO_ASPECT_PATTERNS}\n"
+    )
+    _astro_optional = ""
+    if "timing" in _topics or "wealth" in _topics:
+        _astro_optional += f"{TRANSIT_KNOWLEDGE}\n{RETURN_KNOWLEDGE}\n{PROGRESSION_KNOWLEDGE}\n"
+    if "health" in _topics:
+        _astro_optional += f"{MEDICAL_ASTRO_KNOWLEDGE}\n{ASTRO_HEALTH_SYSTEM}\n"
+    if "career" in _topics:
+        _astro_optional += f"{CAREER_ASTRO_KNOWLEDGE}\n"
+    if "relationship" in _topics:
+        _astro_optional += f"{SYNASTRY_BASICS}\n{MOON_PHASE_KNOWLEDGE}\n"
+    if not _topics:
+        # 无特定主题时：只加载核心知识库（节省 ~2000 tokens），跳过专业细分
+        _astro_optional = (
+            f"{TRANSIT_KNOWLEDGE}\n{RETURN_KNOWLEDGE}\n"
+            f"{ASTEROID_KNOWLEDGE}\n"
+        )
+    _astro_knowledge = _astro_core + _astro_optional
+
     return (
         "你是融合古典占星（希腊占星/中世纪占星）与现代心理占星（荣格/进化占星）的"
         "顶尖星盘分析师。从业20年，精通Ptolemaic尊严体系、相位心理学和恒星占星。\n"
         "分析风格：严谨、深刻、带有宿命感的同时具备人文关怀。\n"
-        "全中文输出。\n"
+        f"{_lang_instruction(language)}"
         "STRICT SCOPE: 仅限西方占星学，不得涉及八字/塔罗/面相/手相/数字学。\n\n"
         "分析推理链：\n"
         "  第一步：定三轴 则 太阳/月亮/上升的星座和宫位，确定核心人格\n"
@@ -1168,30 +1271,7 @@ Stellium(星群): 三颗以上行星聚集在同一星座/宫位。
         f"太阳:{sun_sign} 月亮:{moon_sign} 上升:{ascendant}\n"
         f"行星配置: {chart_summary}{s}{t}{yr_hint}"
         f"\n{struct_block}\n\n"
-        f"{DIGNITY_KNOWLEDGE}\n"
-        f"{ASPECT_PSYCHOLOGY}\n"
-        f"{FIXED_STAR_REFERENCE}\n"
-        f"{TEMPERAMENT_KNOWLEDGE}\n"
-        f"{ACCIDENTAL_DIGNITY_KNOWLEDGE}\n"
-        f"{HOUSE_KNOWLEDGE}\n"
-        f"{NODE_KNOWLEDGE}\n"
-        f"{SHAPE_SECT_KNOWLEDGE}\n"
-        f"{TRANSIT_KNOWLEDGE}\n"
-        f"{RETURN_KNOWLEDGE}\n"
-        f"{PROGRESSION_KNOWLEDGE}\n"
-        f"{MEDICAL_ASTRO_KNOWLEDGE}\n"
-        f"{CAREER_ASTRO_KNOWLEDGE}\n"
-        f"{MOON_PHASE_KNOWLEDGE}\n"
-        f"{ASTEROID_KNOWLEDGE}\n"
-        f"{SYNASTRY_BASICS}\n"
-        f"{ASTRO_VISUAL_TABLES}\n"
-        f"{ASTRO_RETROGRADE_DEEP}\n"
-        f"{ASTRO_TOLERANCE_SYSTEM}\n"
-        f"{ASTRO_ASPECT_PATTERNS}\n"
-        f"{ARABIC_PARTS_KNOWLEDGE}\n"
-        f"{DECANS_KNOWLEDGE}\n"
-        f"{ASTRO_FIXED_STARS}\n"
-        f"{ASTRO_HEALTH_SYSTEM}\n"
+        f"{_astro_knowledge}\n"
         "请按以下结构输出占星分析报告（使用中文自然标题，不要编号列表）：\n\n"
         "【盘性总断】\n"
         "  一句话定性，融合元素/模态/半球/月相 则 如「日狮月蟹升羊，水象主导的情绪战士，新月出生的创造者」\n"
@@ -1246,21 +1326,12 @@ Stellium(星群): 三颗以上行星聚集在同一星座/宫位。
         "  职业方向建议（基于10宫/MC/太阳/上升的综合分析）\n"
         "  一句哲思结语\n\n"
         "写作要求：\n"
-        "  - 2000-3000字，精炼输出，古典占星与现代心理深度融合\n"
-        "  - 禁止巴纳姆效应式模糊语言（如「你最近会有变化」），每条断语必须标注计算依据\n"
-        "  - 三段式结构：行星/相位本质 则 对应的生活场景 则 内在心理动机\n"
-        "  - 综合力量/先天尊严/后天尊贵/相位格局/固定恒星/南北交点/宫头宫主星"
-        "已由计算器预计算，直接引用具体分数和数据，勿重复查表\n"
-        "  - 后天尊贵要引用具体因素（角宫/顺行/互溶等），勿笼统说「宫位好」\n"
-        "  - 与王阳明心学和荣格共时性哲学呼应，强调命盘是「初始参数」而非「最终判决」\n"
-        "  - 给出「能量转化」导向的建议，避免宿命断语（不用「你会走运」，用「火土能量正在转化」）\n"
-        "  - 每段以一句总结性断言收尾\n"
-        "  - 术语可括号注释（如四分相——90度刑克，代表冲突与压力）\n"
-        "  - 流年分析必须引用预计算的流年与本命相位数据，标注容许度和过境次数\n"
-        "  - 推运分析必须结合次限/三限/太阳弧三种技法\n"
-        "  - 健康分析必须结合医学占星知识，给出具体的身体部位预警\n"
-        "  - 职业分析必须结合10宫/MC/太阳/上升的综合判断\n"
-        "  - 月相分析必须结合出生月相的深层含义\n"
+        "  - 2000-3000字，古典占星与现代心理深度融合，每段以断言收尾\n"
+        "  - 禁止巴纳姆效应，每条断语标注计算依据，三段式：本质则场景则心理动机\n"
+        "  - 直接引用预计算数据（综合力量/尊严/相位/恒星/南北交），勿重复查表\n"
+        "  - 命盘是「初始参数」而非「最终判决」，给出「能量转化」导向建议，避免宿命断语\n"
+        "  - 流年引用预计算相位数据+容许度，推运结合次限/三限/太阳弧，健康结合医学占星\n"
+        "  - 术语括号注释，职业结合10宫/MC/太阳/上升综合判断\n"
         "  - 精炼表达：避免重复论述同一观点，每个章节聚焦核心要点\n"
         "  - 优先级排序：最强/最弱的行星优先分析，中等力量的行星可简要带过\n"
         "== JSON 标签生成规则 ==\n"
@@ -1296,7 +1367,8 @@ Stellium(星群): 三颗以上行星聚集在同一星座/宫位。
     )
 
 
-def tarot_prompt(user_question: str, spread_name: str, cards: list) -> str:
+def tarot_prompt(user_question: str, spread_name: str, cards: list,
+                  language: str = "zh") -> str:
     # ── 增强卡牌显示（含元数据） ────────────────────────────────────────
     _SUIT_CN = {"major": "大阿卡纳", "wands": "权杖牌组", "cups": "圣杯牌组",
                 "swords": "宝剑牌组", "pentacles": "星币牌组"}
@@ -1643,38 +1715,20 @@ Ten (10) — 循环/转变。一个周期的结束，新周期的预备
 
     # ── 知识库 N：潜意识投射分析 ──────────────────────────────────────
     PSYCHOLOGICAL_PROJECTIVE = """
-【潜意识投射分析 — 每张牌对应求问者的心理投射】
+【潜意识投射分析 — 荣格阴影理论在塔罗中的应用】
 
-荣格阴影理论在塔罗中的应用:
-  正位牌 = 意识层面的能量表达（你已经意识到的特质）
-  逆位牌 = 阴影层面的能量投射（你不愿面对或压抑的特质）
+正位牌 = 意识层面的能量表达 | 逆位牌 = 阴影层面的能量投射
 
-每张大阿卡纳的阴影投射:
-  愚人(0)阴影: 盲目冒险/不负责任/逃避现实
-  魔术师(1)阴影: 操控欲/欺骗/滥用才能
-  女祭司(2)阴影: 压抑情感/过度神秘化/逃避行动
-  皇后(3)阴影: 依赖/过度溺爱/物质主义
-  皇帝(4)阴影: 专制/控制欲/情感压抑
-  教皇(5)阴影: 盲从权威/教条主义/拒绝改变
-  恋人(6)阴影: 选择恐惧/价值观混乱/逃避承诺
-  战车(7)阴影: 攻击性/过度竞争/失控
-  力量(8)阴影: 自我怀疑/压抑本能/软弱
-  隐士(9)阴影: 孤僻/逃避社交/过度内省
-  命运之轮(10)阴影: 被动等待/宿命论/拒绝 responsibility
-  正义(11)阴影: 过度批判/冷酷无情/逃避责任
-  倒吊人(12)阴影: 自我牺牲过度/逃避现实/拖延
-  死神(13)阴影: 恐惧改变/执着过去/拒绝放手
-  节制(14)阴影: 压抑欲望/过度中庸/失去激情
-  恶魔(15)阴影: 欲望失控/物质束缚/上瘾行为
-  高塔(16)阴影: 恐惧崩塌/抗拒真相/控制欲
-  星星(17)阴影: 幻想破灭/失去希望/逃避现实
-  月亮(18)阴影: 恐惧幻象/自我欺骗/逃避真相
-  太阳(19)阴影: 自负/过度乐观/忽视阴影
-  审判(20)阴影: 自我否定/逃避觉醒/拒绝改变
-  世界(21)阴影: 自满/拒绝成长/执着完成
+大阿卡纳阴影速查（按类型分组）：
+  控制型阴影: 皇帝(4)=专制/控制欲 | 教皇(5)=盲从权威/教条 | 战车(7)=攻击性/失控
+  逃避型阴影: 愚人(0)=逃避现实 | 隐士(9)=孤僻/逃避社交 | 倒吊人(12)=拖延/逃避 | 死神(13)=恐惧改变/执着过去
+  欲望型阴影: 皇后(3)=依赖/物质主义 | 恶魔(15)=欲望失控/上瘾 | 节制(14)=压抑欲望/失去激情
+  自我型阴影: 魔术师(1)=操控/滥用才能 | 太阳(19)=自负/过度乐观 | 世界(21)=自满/拒绝成长
+  精神型阴影: 女祭司(2)=过度神秘化 | 月亮(18)=自我欺骗/恐惧幻象 | 星星(17)=幻想破灭/失去希望
+  关系型阴影: 恋人(6)=选择恐惧/逃避承诺 | 正义(11)=过度批判/冷酷 | 审判(20)=自我否定/拒绝改变
+  命运型阴影: 命运之轮(10)=被动等待/宿命论 | 力量(8)=自我怀疑/压抑本能 | 高塔(16)=恐惧崩塌/抗拒真相
 
-解读方法: 当某张牌逆位出现时，引导求问者觉察该牌的阴影投射，
-  并给出整合阴影的具体建议（而非简单说「能量受阻」）。
+解读方法: 逆位牌出现时引导求问者觉察阴影投射，给出整合建议（非简单说「能量受阻」）。
 """
 
     # ── 知识库 O：前世业力解读 ──────────────────────────────────────
@@ -2208,8 +2262,7 @@ Ten (10) — 循环/转变。一个周期的结束，新周期的预备
         _sp.append("  （见上方【数字命理】区块），各张牌编号之和、差带来的命理启示")
         _sp.append("【格局与特殊组合】引用计算器预计算的格局检测结果")
         _sp.append("  （见上方【格局检测】区块），分析全部大牌/全部逆位/特殊组合等格局含义")
-        _sp.append("【整合叙事】位置之间的逻辑链与能量流动，揭示牌阵的深层故事")
-    _sp.append("【牌与牌的对话】分析相邻/对称/跨位置的牌之间如何相互影响和解释")
+        _sp.append("【整合叙事与牌际对话】位置之间的逻辑链与能量流动，揭示牌阵深层故事；分析相邻/对称/跨位置的牌之间如何相互影响")
 
     # Always
     _sp.append("【疗愈处方】3条具体可执行建议，每条配一句塔罗哲言")
@@ -2230,9 +2283,7 @@ Ten (10) — 循环/转变。一个周期的结束，新周期的预备
     _sp.append("【时间应期窗口】若问题涉及时间，根据牌组+数字判断能量成熟期")
 
     # Universal conclusion
-    _sp.append("【潜意识映射与阴影整合】结合荣格阴影理论，分析牌阵揭示的深层心理模式")
-    _sp.append("【肯定语与能量仪式】每条处方配一句肯定语，可附加简易的仪式建议")
-    _sp.append("  （如蜡烛冥想/水晶/颜色疗法/芳香疗法，参考ENERGY_PRESCRIPTION知识库）")
+    _sp.append("【疗愈与整合】结合荣格阴影理论分析深层心理模式，每条处方配肯定语+简易仪式建议（参考ENERGY_PRESCRIPTION）")
 
     # Spread-specific
     if spread_name == "love":
@@ -2246,9 +2297,45 @@ Ten (10) — 循环/转变。一个周期的结束，新周期的预备
 
     dynamic_sections_str = "\n".join(_sp)
 
+    # ── 条件知识加载：根据用户问题选择性注入知识块 ──
+    _topics = _detect_topics(user_question)
+    _tarot_core = (
+        f"{ELEMENTAL_DIGNITIES}\n"
+        f"{NUMEROLOGY}\n"
+        f"{REVERSED_GUIDE}\n"
+        f"{MINOR_NUMEROLOGY}\n"
+        f"{COURT_ARCHETYPES}\n"
+        f"{TIMING_KNOWLEDGE}\n"
+        f"{SPREAD_POSITIONS}\n"
+        f"{COLOR_SYMBOLISM}\n"
+        f"{YES_NO_SYSTEM}\n"
+        f"{ENERGY_FLOW}\n"
+        f"{TAROT_VISUAL_TABLES}\n"
+    )
+    _tarot_optional = ""
+    if "relationship" in _topics:
+        _tarot_optional += f"{KABBALAH_KNOWLEDGE}\n{KARMIC_TAROT}\n{TAROT_LIFE_PATH_NUMEROLOGY}\n"
+    if "career" in _topics:
+        _tarot_optional += f"{TAROT_SPREAD_STRATEGY}\n{TAROT_ELEMENTAL_DEEP}\n"
+    if "timing" in _topics:
+        _tarot_optional += f"{TAROT_YEARLY_BIRTHDAY}\n"
+    if "health" in _topics or "study" in _topics:
+        _tarot_optional += f"{TAROT_MODERN_APPLICATION}\n{TAROT_MEDITATION_GUIDE}\n"
+    if not _topics:
+        # 无特定主题时加载全部（兼容旧调用方式）
+        _tarot_optional = (
+            f"{KABBALAH_KNOWLEDGE}\n{MYTHOLOGY}\n{PSYCHOLOGICAL_PROJECTIVE}\n"
+            f"{KARMIC_TAROT}\n{CARD_DIALOGUE}\n{TAOIST_TAROT}\n"
+            f"{INTUITIVE_READING}\n{TAROT_SPREAD_STRATEGY}\n{TAROT_ELEMENTAL_DEEP}\n"
+            f"{TAROT_LIFE_PATH_NUMEROLOGY}\n{TAROT_MODERN_APPLICATION}\n"
+            f"{TAROT_MEDITATION_GUIDE}\n{TAROT_YEARLY_BIRTHDAY}\n"
+            f"{ASTRO_CORRESPONDENCES}\n{ENERGY_PRESCRIPTION}\n"
+        )
+    _tarot_knowledge = _tarot_core + _tarot_optional
+
     return (
         "你是认证塔罗疗愈师，通晓荣格深度心理学与卡巴拉生命之树体系。\n"
-        "解牌温暖而精准，让求问者感受到深层共鸣。全中文输出。\n"
+        f"解牌温暖而精准，让求问者感受到深层共鸣。{_lang_instruction(language)}"
         "STRICT SCOPE: 仅限塔罗牌，不得涉及八字/星盘/面相/手相。\n\n"
         "分析推理链：\n"
         "  第一步：扫描整体能量 则 元素分布/大阿卡纳比例/逆位比例\n"
@@ -2269,93 +2356,16 @@ Ten (10) — 循环/转变。一个周期的结束，新周期的预备
         "== 卡牌意参考（基于塔罗知识库） ==\n"
         f"{card_meanings_str}\n\n"
         f"{struct_block}\n\n"
-        f"{ELEMENTAL_DIGNITIES}\n"
-        f"{NUMEROLOGY}\n"
-        f"{REVERSED_GUIDE}\n"
-        f"{MINOR_NUMEROLOGY}\n"
-        f"{COURT_ARCHETYPES}\n"
-        f"{KABBALAH_KNOWLEDGE}\n"
-        f"{TIMING_KNOWLEDGE}\n"
-        f"{MYTHOLOGY}\n"
-        f"{SPREAD_POSITIONS}\n"
-        f"{COLOR_SYMBOLISM}\n"
-        f"{ENERGY_PRESCRIPTION}\n"
-        f"{ASTRO_CORRESPONDENCES}\n"
-        f"{YES_NO_SYSTEM}\n"
-        f"{PSYCHOLOGICAL_PROJECTIVE}\n"
-        f"{KARMIC_TAROT}\n"
-        f"{ENERGY_FLOW}\n"
-        f"{CARD_DIALOGUE}\n"
-        f"{TAOIST_TAROT}\n"
-        f"{INTUITIVE_READING}\n"
-        f"{TAROT_SPREAD_STRATEGY}\n"
-        f"{TAROT_ELEMENTAL_DEEP}\n"
-        f"{TAROT_LIFE_PATH_NUMEROLOGY}\n"
-        f"{TAROT_MODERN_APPLICATION}\n"
-        f"{TAROT_MEDITATION_GUIDE}\n"
-        f"{TAROT_YEARLY_BIRTHDAY}\n"
-        f"{TAROT_VISUAL_TABLES}\n"
+        f"{_tarot_knowledge}\n"
         f"{dynamic_sections_str}\n\n"
-        "请按以下结构输出塔罗解读报告（使用自然语言标题，不要列出SECTIONS编号）：\n\n"
-        "【牌阵气场扫描】\n"
-        "  整体能量基调：元素分布/大阿卡纳比例/逆位比例\n"
-        "  用一句话定性：如「火风主导的行动牌阵，逆位占半，能量受阻但有突破潜力」\n\n"
-        "【逐牌深读】\n"
-        "  每张牌单独展开：\n"
-        "  - 牌名+正逆位+元素/星座呼应\n"
-        "  - 位置决定解读角度（过去位≠现在位≠未来位）\n"
-        "  - 大阿卡纳编号的命理含义和神话原型\n"
-        "  - 运用SPREAD_POSITIONS位置心理学深入解读\n"
-        "  - 运用PSYCHOLOGICAL_PROJECTIVE分析阴影投射（逆位牌）\n\n"
-        "【元素协同分析】\n"
-        "  引用计算器预计算的元素分布数据\n"
-        "  和元素尊贵关系，解析牌之间的生克协同\n"
-        "  分析能量流动路径（参考ENERGY_FLOW知识库）\n\n"
-        "【数字命理线索】\n"
-        "  引用计算器预计算的数字总和与简化值\n"
-        "  各张牌编号之和、差带来的命理启示\n\n"
-        "【格局与特殊组合】\n"
-        "  引用计算器预计算的格局检测结果\n"
-        "  分析全部大牌/全部逆位/特殊组合等格局含义\n\n"
-        "【牌阵整体故事线】\n"
-        "  位置之间的逻辑链与能量流动，揭示牌阵的深层故事\n"
-        "  牌与牌之间的「对话」和互动关系\n\n"
-        "【牌与牌的对话深度分析】\n"
-        "  运用CARD_DIALOGUE知识库，分析相邻/对称/跨位置的牌之间如何相互影响\n"
-        "  揭示牌阵中的深层互动模式和能量对话\n\n"
-        "【潜意识投射与阴影整合】\n"
-        "  结合荣格阴影理论，分析牌阵揭示的深层心理模式\n"
-        "  逆位牌的阴影投射和整合建议\n\n"
-        "【前世业力解读】（若出现多张大阿卡纳）\n"
-        "  大阿卡纳的业力主题分析\n"
-        "  此生需要完成的核心课题\n\n"
-        "【疗愈处方】\n"
-        "  3条具体可执行建议，每条配一句塔罗哲言\n"
-        "  能量处方：水晶/颜色/芳香疗法建议（参考ENERGY_PRESCRIPTION）\n"
-        "  肯定语与能量仪式建议\n\n"
-        "【时间应期窗口】\n"
-        "  若问题涉及时间，根据牌组+数字判断能量成熟期\n\n"
         "写作要求：\n"
-        f"  - {word_count}字，温暖而有力量，融合卡巴拉智慧与荣格深度心理学\n"
-        "  - 以\"你\"称呼求问者，对话感强\n"
-        "  - 避免恐惧语言，逆位解读为\"能量受阻\"而非\"厄运\"\n"
-        "  - 每段以一句总结断言收尾\n"
-        "  - 融入卡巴拉生命之树路径对应（若出现大阿卡纳），标注对应Sephirah\n"
-        "  - 融入荣格阴影理论，每张逆位牌/挑战牌与其阴影面的关系\n"
-        "  - 数字命理同时考虑大阿卡纳编号和小阿卡纳数字牌编号\n"
-        "  - 宫廷牌必须分析元素组合（如圣杯骑士=火之水，情感追求者）\n"
-        "  - 时间判断（若相关）需引用牌组+数字双重依据\n"
-        "  - 必须引用【计算器预计算数据】区块中的元素/数字/格局预计算数据\n"
-        "  - 元素分析必须引用具体计数（火:2 风:1 水:0 等），而非模糊描述\n"
-        "  - 数字命理必须引用预计算的总和与简化值\n"
-        "  - 大阿卡纳对应神话原型（如有），使用MYTHOLOGY知识库\n"
-        "  - 位置解读必须引用SPREAD_POSITIONS的位置心理学\n"
-        "  - 颜色/符号解读可参考COLOR_SYMBOLISM知识库\n"
-        "  - 能量处方可引用ENERGY_PRESCRIPTION知识库给出具体仪式建议\n"
-        "  - 若问题涉及的是非判断（Yes/No类），使用YES_NO_SYSTEM的投票制判断框架\n"
-        "  - 潜意识投射必须引用PSYCHOLOGICAL_PROJECTIVE知识库\n"
-        "  - 能量流动必须引用ENERGY_FLOW知识库\n"
-        "  - 若出现多张大阿卡纳，必须引用KARMIC_TAROT进行业力解读\n\n"
+        f"  - {word_count}字，温暖有力，以\"你\"称呼求问者，对话感强\n"
+        "  - 避免恐惧语言，逆位解读为\"能量受阻\"而非\"厄运\"，每段以断言收尾\n"
+        "  - 必须引用预计算数据（元素计数/数字总和/格局检测），不可模糊描述\n"
+        "  - 位置解读引用SPREAD_POSITIONS，阴影整合引用PSYCHOLOGICAL_PROJECTIVE，能量流动引用ENERGY_FLOW\n"
+        "  - 大阿卡纳引用MYTHOLOGY神话原型+KARMIC_TAROT业力解读，卡巴拉标注Sephirah\n"
+        "  - 宫廷牌分析元素组合（如圣杯骑士=火之水），时间判断引用牌组+数字双重依据\n"
+        "  - Yes/No类问题使用YES_NO_SYSTEM投票制，能量处方引用ENERGY_PRESCRIPTION\n\n"
         "== JSON 标签生成规则 ==\n"
         "根据牌阵数据精确生成：\n"
         "  - weakness_tags:\n"
@@ -2587,7 +2597,8 @@ def _compute_face_bone_comprehensive(face_text: str) -> str:
 
 
 
-def face_prompt(face_text: str, gender: str, bazi_supplement: str = "") -> str:
+def face_prompt(face_text: str, gender: str, bazi_supplement: str = "",
+                language: str = "zh") -> str:
     bazi_sec = f"\n八字参考(仅佐证):\n{bazi_supplement}" if bazi_supplement else ""
 
     # ── Precomputation ──
@@ -2625,7 +2636,24 @@ def face_prompt(face_text: str, gender: str, bazi_supplement: str = "") -> str:
         "  土形面：面厚鼻隆，五官稳重，骨肉匀停。\n"
         "    禀性：敦厚守信，包容力强，务实稳建，有经营才能。\n"
         "    宜忌：土旺需木疏(增强灵活性)，忌土多无金(保守固执)。\n"
-        "    对应：脾胃，宜注意消化系统与体重管理。\n"
+        "    对应：脾胃，宜注意消化系统与体重管理。\n\n"
+        "【面相与八字五行对应表】\n"
+        "  面相五行与八字五行相互印证，增强判断准确性：\n"
+        "  金形面 + 八字金旺：金气过旺，需火炼金。适合金融/法律/军警行业。\n"
+        "  金形面 + 八字金弱：金气不足，需补金。适合技术/手艺/精密工作。\n"
+        "  木形面 + 八字木旺：木气过旺，需金克木。适合教育/文化/医疗行业。\n"
+        "  木形面 + 八字木弱：木气不足，需补木。适合创意/设计/写作工作。\n"
+        "  水形面 + 八字水旺：水气过旺，需土制水。适合贸易/物流/传媒行业。\n"
+        "  水形面 + 八字水弱：水气不足，需补水。适合研究/咨询/策划工作。\n"
+        "  火形面 + 八字火旺：火气过旺，需水济火。适合演艺/教育/服务行业。\n"
+        "  火形面 + 八字火弱：火气不足，需补火。适合餐饮/能源/互联网行业。\n"
+        "  土形面 + 八字土旺：土气过旺，需木疏土。适合地产/农业/建筑行业。\n"
+        "  土形面 + 八字土弱：土气不足，需补土。适合金融/会计/管理行业。\n\n"
+        "  面相与八字五行不一致时的判断：\n"
+        "    面相五行克八字五行：外在表现与内在命格冲突，人生多矛盾\n"
+        "    面相五行生八字五行：外在表现助力内在命格，人生较顺遂\n"
+        "    面相五行与八字五行比和：内外一致，命格纯粹\n"
+        "    面相五行被八字五行克：内在命格压制外在表现，需后天努力\n"
     )
     BONE_STRUCTURE_KNOWLEDGE = (
         "【骨相基础 — 颧骨/眉骨/下颌骨/额骨形态含义】\n"
@@ -3411,36 +3439,47 @@ def face_prompt(face_text: str, gender: str, bazi_supplement: str = "") -> str:
 
     dynamic_sections_str = "\n".join(_sp)
 
-    return (
-        f"{struct_block}"
-        f"\n\n你是麻衣相法 / 神相全编嫡传相师，精通风鉴精髓。断语有据，引五岳四渎、十二宫位体系。全中文输出。\n"
-        f"STRICT SCOPE: 仅限面相学，不得涉及手相/八字/星盘/塔罗。\n\n"
-        f"性别:{gender}\n{face_text}{bazi_sec}\n\n"
+    # ── 条件知识加载：根据用户问题选择性注入知识块 ──
+    _topics = _detect_topics("")  # Face agent doesn't receive user_question directly
+    _face_core = (
         f"{FACE_ELEMENT_SYSTEM}\n\n"
         f"{FIVE_STARS_SIX_LUMINARIES}\n\n"
         f"{FIVE_PEAKS_FOUR_RIVERS}\n\n"
         f"{FACE_PATTERN_TYPES}\n\n"
         f"{BONE_STRUCTURE_KNOWLEDGE}\n\n"
         f"{FACE_INTERACTION}\n\n"
-        f"{MOLE_COMPLEXION_KNOWLEDGE}\n\n"
-        f"{FACE_MIND_CONNECTION}\n\n"
-        f"{FACE_HEALTH_DIAGNOSIS}\n\n"
-        f"{EYEBROW_EAR_KNOWLEDGE}\n\n"
         f"{TWELVE_PALACE_KNOWLEDGE}\n\n"
-        f"{LIUNIAN_KNOWLEDGE}\n\n"
-        f"{FACE_CAREER_KNOWLEDGE}\n\n"
-        f"{FACE_MARRIAGE_KNOWLEDGE}\n\n"
-        f"{FACE_WEALTH_KNOWLEDGE}\n\n"
-        f"{FACE_DYNAMIC_KNOWLEDGE}\n\n"
-        f"{FACE_CLASSIC_TEXTS}\n\n"
-        f"{FACE_AGE_MAPPING}\n\n"
         f"{FACE_VISUAL_TABLES}\n\n"
-        f"{FACE_MICRO_EXPRESSION}\n\n"
-        f"{FACE_IMPROVEMENT_METHODS}\n\n"
-        f"{FACE_CAREER_PROFESSION}\n\n"
-        f"{FACE_FENGSHUI}\n\n"
-        f"{FACE_HEALTH_WELLNESS}\n\n"
-        f"{FACE_DYNAMIC_COLOR}\n\n"
+    )
+    _face_optional = ""
+    if "health" in _topics:
+        _face_optional += f"{FACE_HEALTH_DIAGNOSIS}\n\n{FACE_HEALTH_WELLNESS}\n\n"
+    if "career" in _topics:
+        _face_optional += f"{FACE_CAREER_KNOWLEDGE}\n\n{FACE_CAREER_PROFESSION}\n\n"
+    if "wealth" in _topics:
+        _face_optional += f"{FACE_WEALTH_KNOWLEDGE}\n\n"
+    if "relationship" in _topics:
+        _face_optional += f"{FACE_MARRIAGE_KNOWLEDGE}\n\n"
+    if not _topics:
+        # 无特定主题时加载全部（兼容旧调用方式）
+        _face_optional = (
+            f"{MOLE_COMPLEXION_KNOWLEDGE}\n\n{FACE_MIND_CONNECTION}\n\n"
+            f"{FACE_HEALTH_DIAGNOSIS}\n\n{EYEBROW_EAR_KNOWLEDGE}\n\n"
+            f"{LIUNIAN_KNOWLEDGE}\n\n{FACE_CAREER_KNOWLEDGE}\n\n"
+            f"{FACE_MARRIAGE_KNOWLEDGE}\n\n{FACE_WEALTH_KNOWLEDGE}\n\n"
+            f"{FACE_DYNAMIC_KNOWLEDGE}\n\n{FACE_CLASSIC_TEXTS}\n\n"
+            f"{FACE_AGE_MAPPING}\n\n{FACE_MICRO_EXPRESSION}\n\n"
+            f"{FACE_IMPROVEMENT_METHODS}\n\n{FACE_CAREER_PROFESSION}\n\n"
+            f"{FACE_FENGSHUI}\n\n{FACE_HEALTH_WELLNESS}\n\n{FACE_DYNAMIC_COLOR}\n\n"
+        )
+    _face_knowledge = _face_core + _face_optional
+
+    return (
+        f"{struct_block}"
+        f"\n\n你是麻衣相法 / 神相全编嫡传相师，精通风鉴精髓。断语有据，引五岳四渎、十二宫位体系。{_lang_instruction(language)}"
+        f"STRICT SCOPE: 仅限面相学，不得涉及手相/八字/星盘/塔罗。\n\n"
+        f"性别:{gender}\n{face_text}{bazi_sec}\n\n"
+        f"{_face_knowledge}\n"
         "深度分析逻辑增强(五步分析法)：\n"
         "  第一步：定形格 -> 观察脸型+骨相定五行属性 -> 确定基本禀性和格局层次\n"
         "    -> 五行面型(金木水火土)决定核心性格和适合行业\n"
@@ -3455,44 +3494,16 @@ def face_prompt(face_text: str, gender: str, bazi_supplement: str = "") -> str:
         "  交叉验证提示：面相结论建议与八字(如有)对照验证，尤其是性格/事业/财运方面的判断\n\n"
         f"请按以下结构输出分析报告（使用自然语言标题，不要列出SECTIONS编号）：\n\n"
         f"{dynamic_sections_str}\n\n"
-        "【面相与事业规划】基于五官特征给出职业匹配建议：\n"
-        "  - 额头(官禄宫)类型则适合的行业/岗位\n"
-        "  - 鼻子(财帛宫)类型则求财方式(正财/偏财)\n"
-        "  - 颧骨(权力宫)类型则管理风格和领导力\n"
-        "  - 眼睛(监察官)类型则判断力和洞察力\n"
-        "  - 口唇(出纳官)类型则表达力和沟通方式\n"
-        "  - 综合面型+五官给出具体职业建议(3-5个推荐职业)\n\n"
-        "【面相与婚姻感情】基于夫妻宫和五官分析婚姻运：\n"
-        "  - 夫妻宫(鱼尾)状态则婚姻质量预判\n"
-        "  - 印堂(命宫)状态则婚姻中的包容度\n"
-        "  - 人中(子息宫)状态则生育缘分\n"
-        "  - 配偶特征推断(基于五官综合判断)\n"
-        "  - 婚姻时间窗口(结合流年分析)\n\n"
-        "【面相与财运详解】基于财帛宫和五行分析财运：\n"
-        "  - 鼻子(财帛宫)核心分析则正财/偏财能力\n"
-        "  - 颧骨与求财方式则权力型/技术型/服务型\n"
-        "  - 地阁与晚年财运则积蓄能力\n"
-        "  - 五行财运对应则行业/季节财运窗口\n"
-        "  - 财运时间窗口(结合流年分析)\n\n"
         "【面相改善方案】基于动态面相观给出改进建议：\n"
         "  - 面相三大变化规律(年龄/心境/修行)\n"
         "  - 改相七法的具体实践路径\n"
-        "  - 面相改善优先级(易则难排序)\n"
         "  - 3-5条可执行的日常改相方法\n\n"
         "写作要求：\n"
-        "  - 1800-2800字，精炼输出，引麻衣相法/神相全编/柳庄相法体系，引用预计算数据(五行面型/三庭比例/特征评分/十二宫预评/骨相评分)\n"
-        "  - 深度融合五星六曜、五岳四渎、十二宫三大体系进行交叉验证\n"
-        "  - 面相形格分类须引用十种形格体系，给出用户所属格局类型及对应的禀性分析\n"
-        "  - 弱势特征必须配具体改善建议，每项建议包含：五行原理 则 具体行动 则 预期效果\n"
-        "  - 每段以一句总结断言收尾\n"
-        "  - 术语可括号注释（如\"准头——鼻尖，财帛宫之主\"）\n"
-        "  - 优先使用V2T测量数据做精准判断，避免泛泛之谈\n"
-        "  - 面相结论需与五行生克制化结合，体现\"形理合一\"\n"
-        "  - 综合评分须引用预计算特征评分数据，不可虚构数字\n"
-        "  - 面诊健康部分须结合TCM五脏面诊理论，给出切实可行的养面建议\n"
-        "  - 心性修容部分须给出操作性强的日常修行方法\n"
-        "  - 精炼表达：避免重复论述同一观点，每个章节聚焦核心要点\n"
-        "  - 优先级排序：最突出/最弱势的特征优先分析，中等特征可简要带过\n\n"
+        "  - 1800-2800字，引麻衣相法/神相全编/柳庄相法体系，引用预计算数据(五行面型/三庭比例/特征评分/十二宫预评/骨相评分)\n"
+        "  - 深度融合五星六曜、五岳四渎、十二宫三大体系交叉验证，形格引用十种形格体系\n"
+        "  - 弱势特征配改善建议（五行原理则具体行动则预期效果），面诊结合TCM五脏理论\n"
+        "  - 每段以断言收尾，术语括号注释，优先使用V2T测量数据做精准判断\n"
+        "  - 综合评分引用预计算数据不可虚构，心性修容给出操作性强的日常修行方法\n\n"
         "== JSON 标签生成规则 =="
         "根据面部特征数据精确生成，严格按以下三级标签体系映射：\n"
         "【一级 — 宫位弱标签(源自十二宫五行)】\n"
@@ -3548,13 +3559,13 @@ def face_prompt(face_text: str, gender: str, bazi_supplement: str = "") -> str:
     )
 
 def palm_prompt(palm_text: str, gender: str, bazi_supplement: str = "",
-                 hand_side: str = "") -> str:
+                 hand_side: str = "", language: str = "zh") -> str:
     bazi_sec = f"\n八字参考(仅佐证):\n{bazi_supplement}" if bazi_supplement else ""
     hand_label = hand_side or "未指定"
     lines = [
         "你融合中国柳庄相法、水镜神相、西洋Cheiro手相学、印度手相(Hasta Samudrika)四大体系，",
         "精通手诊、五行手型、掌丘学、指纹学，从业20年。",
-        "断语精准，分线断事，每条结论标注所引体系。全中文输出。",
+        "断语精准，分线断事，每条结论标注所引体系。" + _lang_instruction(language).strip(),
         "STRICT SCOPE: 仅限手相学，不得涉及面相/八字/星盘/塔罗/数字学。",
         f"性别:{gender}\n{palm_text}{bazi_sec}",
         "",
@@ -4064,46 +4075,14 @@ def palm_prompt(palm_text: str, gender: str, bazi_supplement: str = "",
         "",
         "【开运处方】按五行补益+手型特征+八卦宫位给出5-7条具体建议，每项包含：对应元素/具体方法/仪式/饰品建议/预期效果。建议需有可操作性。",
         "",
-        "【手相与婚姻感情】基于婚姻线+感情线+金星丘分析婚恋运：",
-        "  - 婚姻线数量、形态、位置则婚姻质量预判",
-        "  - 感情线形态则感情模式(热烈/理智/被动)",
-        "  - 金星丘状态则情感能力和吸引力",
-        "  - 配偶特征推断(基于手相综合判断)",
-        "  - 婚姻时间窗口(结合流年分析)",
-        "",
-        "【手相与事业财运】基于事业线+太阳线+巽宫分析事业运：",
-        "  - 事业线起点、形态则事业类型和轨迹",
-        "  - 太阳线状态则成名机会和成就大小",
-        "  - 巽宫(食指根)饱满度则财运强弱",
-        "  - 八卦宫位与事业的对应关系",
-        "  - 事业关键时间点(结合流年分析)",
-        "",
-        "【手相与健康预警】基于TCM手诊+生命线+指甲分析健康：",
-        "  - 手掌区域与脏腑对应则健康状态评估",
-        "  - 生命线形态则体质强弱和健康风险",
-        "  - 指甲健康信号则营养和疾病预警",
-        "  - 手掌温度和颜色则气血状态",
-        "  - 3-5条具体的健康养护建议",
-        "",
-        "【手相与人生时间线】基于纹路时间定位法分析人生轨迹：",
-        "  - 生命线时间定位则各年龄段健康事件",
-        "  - 智慧线时间定位则各年龄段思维/决策事件",
-        "  - 感情线时间定位则各年龄段感情事件",
-        "  - 命运线时间定位则各年龄段事业事件",
-        "  - 标注当前年龄对应的关键纹路区域",
+        "【人生三大领域】综合婚姻线+事业线+健康线，给出婚恋/事业/健康的核心判断和改善建议。",
         "",
         "写作要求：",
-        "  - 1800-2800字，精炼输出，融合柳庄相法+陈抟老祖秘诀+西洋Cheiro+印度手相四大体系深度",
-        "  - 断裂/岛纹等瑕疵必须配改善指引，避免恐惧语言",
-        "  - 三段式：形态描述则命理含义则行动方向",
-        "  - 每段以一句断言收尾，术语括号注释",
-        "  - 引用具体形态分类(非笼统语句)，标注所引体系（柳庄相法/陈抟老祖/西洋Cheiro）增强可信度",
-        "  - 避免巴纳姆效应，以观察数据为起点",
-        "  - 改善方向具体：不做「多运动」而做「建议游泳(水属性运动)平衡火型手过燥」",
-        "  - 八卦九宫部分必须逐宫评判，不可合并跳过",
-        "  - 陈抟三奇总论须评估精炁神三元状态",
-        "  - 手诊部分须基于TCM五脏理论给出健康养护建议",
-        "  - 婚姻线/事业线/指纹部分须给出具体的时间定位和改善建议",
+        "  - 1800-2800字，融合柳庄相法+陈抟老祖+西洋Cheiro+印度手相四大体系，标注所引体系",
+        "  - 三段式：形态描述则命理含义则行动方向，断裂/岛纹配改善指引，避免恐惧语言",
+        "  - 八卦九宫逐宫评判，陈抟三奇评估精炁神三元，手诊基于TCM五脏理论",
+        "  - 改善方向具体（如「建议游泳(水属性)平衡火型手过燥」），避免巴纳姆效应",
+        "  - 每段以断言收尾，术语括号注释，以观察数据为起点",
         "  - 精炼表达：避免重复论述同一观点，每个章节聚焦核心要点",
         "  - 优先级排序：最突出/最弱势的特征优先分析，中等特征可简要带过",
         "",
@@ -4359,6 +4338,29 @@ def palm_prompt(palm_text: str, gender: str, bazi_supplement: str = "",
         "    太阳丘(无名指下)：对应肺和呼吸系统。发白则肺气虚弱。",
         "    水星丘(小指根)：对应肠道和生殖系统。",
         "",
+        "  六、指甲与健康对应",
+        "    指甲颜色诊断：",
+        "      指甲红润有泽：气血充足，身体健康。",
+        "      指甲苍白无血：气血不足，可能贫血或营养不良。",
+        "      指甲发黄：脾胃功能不佳，消化系统需调理。",
+        "      指甲发青发暗：血液循环不畅，可能有寒气或瘀血。",
+        "      指甲上有白点：缺锌或钙，需补充微量元素。",
+        "      指甲上有竖纹：体质虚弱，需加强锻炼。",
+        "      指甲上有横纹：曾有重大疾病或营养不良。",
+        "    指甲形态诊断：",
+        "      指甲饱满有弧度：生命力旺盛，抗病力强。",
+        "      指甲扁平凹陷：体质偏弱，需注意营养。",
+        "      指甲向上翘起：心肺功能可能偏弱。",
+        "      指甲向下弯曲：呼吸系统需注意保养。",
+        "      指甲过厚：可能有呼吸系统问题或遗传因素。",
+        "      指甲过薄：体质虚弱，易疲劳。",
+        "    指甲与五行对应：",
+        "      木形指甲(修长)：肝胆功能好，但易怒/抑郁。",
+        "      火形指甲(尖窄)：心血管功能好，但易失眠/心悸。",
+        "      土形指甲(方厚)：脾胃功能好，但易肥胖/消化不良。",
+        "      金形指甲(方正)：肺功能好，但易呼吸系统问题。",
+        "      水形指甲(圆润)：肾功能好，但易泌尿系统问题。",
+        "",
         "【手部气色诊断 — 手相望诊法】",
         "  手掌颜色诊断：",
         "    手掌红润有泽：气血充足，身体健康，运势佳。",
@@ -4545,6 +4547,7 @@ def qimen_prompt(
     god_sequence: list[str],
     gender: str = "female",
     birth_datetime: str = "",
+    language: str = "zh",
 ) -> str:
     """Generate the system prompt for the Qimen Dunjia agent."""
 
@@ -4805,6 +4808,34 @@ def qimen_prompt(
         "    主：事事迟滞，进展缓慢，需耐心等待。不宜冒进。\n\n"
         "   反吟(星对冲)：九星与本宫对冲，能量反复。\n"
         "    主：反复无常，变化多端，需防变故。不宜签约。\n\n"
+        "  【伏吟/反吟判断与化解详解】\n"
+        "   伏吟判断方法：\n"
+        "    1. 天盘九星与地盘九宫完全相同 → 天盘伏吟\n"
+        "    2. 人盘八门与地盘八宫完全相同 → 人盘伏吟\n"
+        "    3. 神盘八神与地盘八宫完全相同 → 神盘伏吟\n"
+        "    伏吟的核心特征：能量停滞不前，事情进展缓慢，需要耐心等待时机\n\n"
+        "   反吟判断方法：\n"
+        "    1. 天盘九星与地盘九宫对冲(如天盘一宫对地盘九宫) → 天盘反吟\n"
+        "    2. 人盘八门与地盘八宫对冲 → 人盘反吟\n"
+        "    3. 神盘八神与地盘八宫对冲 → 神盘反吟\n"
+        "    反吟的核心特征：能量反复无常，事情变化多端，需要灵活应对\n\n"
+        "   伏吟化解方法：\n"
+        "    1. 选择吉时行动：在吉门(开/休/生)当值时行动\n"
+        "    2. 借助吉神力量：在值符/太阴/六合等吉神落宫行动\n"
+        "    3. 耐心等待时机：伏吟宜守不宜攻，等待能量流动\n"
+        "    4. 借助外力：寻求贵人帮助或改变环境\n\n"
+        "   反吟化解方法：\n"
+        "    1. 选择稳定时机：在吉门稳定时行动，避免冲动决策\n"
+        "    2. 灵活应变：反吟主变化，需做好两手准备\n"
+        "    3. 借助稳定力量：在值符/天禽等稳定星落宫行动\n"
+        "    4. 避免重大决策：反吟不宜签约、投资等重大事项\n\n"
+        "   伏吟/反吟的吉凶判断：\n"
+        "    伏吟+吉格：虽迟但到，最终会成功\n"
+        "    伏吟+凶格：雪上加霜，需特别小心\n"
+        "    反吟+吉格：好事多磨，需耐心等待\n"
+        "    反吟+凶格：祸不单行，需全力化解\n"
+        "    注意：伏吟/反吟只是能量状态，需结合门星神综合判断吉凶\n"
+        "\n"
         "  【格局判断原则】\n"
         "    1. 吉格叠加(如青龙返首+三奇得使)：吉上加吉，大事可成。\n"
         "    2. 凶格叠加(如白虎猖狂+伏吟)：凶上加凶，需全力化解。\n"
@@ -4813,109 +4844,33 @@ def qimen_prompt(
     )
 
     QIMEN_SANQI_LIUYI_KNOWLEDGE = (
-        "【三奇六仪体系·深度详解】\n"
-        "  三奇六仪是奇门遁甲的核心排盘要素，代表天干能量在九宫中的分布。\n\n"
-        "  【三奇详解】\n"
-        "   乙奇(日奇·木)：\n"
-        "    象意：花草藤蔓、阴柔之美、艺术才华、女性贵人。\n"
-        "    乙奇特质：柔韧灵活，以柔克刚，善于迂回取胜。\n"
-        "    乙奇落宫分析：\n"
-        "      落震巽(木宫)：比和得助，艺术才华彰显。\n"
-        "      落离宫(火宫)：木生火泄气，才华外放但消耗。\n"
-        "      落坎宫(水宫)：水生木得助，智慧与才华并存。\n"
-        "      落乾兑(金宫)：金克木受制，才华受限需突破。\n"
-        "      落坤艮(土宫)：木克土为财，才华可转化为财富。\n\n"
-        "   丙奇(月奇·火)：\n"
-        "    象意：太阳烈火、光明正大、权威能量、男性贵人。\n"
-        "    丙奇特质：热情奔放，光明磊落，具有强大感染力。\n"
-        "    丙奇落宫分析：\n"
-        "      落离宫(火宫)：比和得助，权威能量最强。\n"
-        "      落震巽(木宫)：木生火得助，能量持续增强。\n"
-        "      落坤艮(土宫)：火生土泄气，权威外放但消耗。\n"
-        "      落乾兑(金宫)：火克金为财，权威可转化为财富。\n"
-        "      落坎宫(水宫)：水克火受制，权威受限需等待时机。\n\n"
-        "   丁奇(星奇·火)：\n"
-        "    象意：灯烛星光、文明礼仪、考试文章、阴柔贵人。\n"
-        "    丁奇特质：文雅细腻，善于谋划，有'玉女'之称。\n"
-        "    丁奇特殊作用：丁奇为玉女，临值使门为'玉女守门'，主婚姻美满。\n"
-        "    丁奇落宫分析：与丙奇类似，但丁奇更偏阴柔、文书、考试。\n\n"
-        "  【六仪详解】\n"
-        "  六仪为甲之藏身，甲子戊、甲戌己、甲申庚、甲午辛、甲辰壬、甲寅癸。\n"
-        "  六仪代表天干能量的基础载体，与三奇配合形成完整格局。\n\n"
-        "   甲子戊(土·中央)：天干之首的能量载体，代表核心力量。\n"
-        "    落宫与生克：戊土旺于四季月，落坤艮(土宫)为比和，最稳。\n"
-        "    青龙返首(戊+丙)：戊土得丙火生助，大吉大利。\n\n"
-        "   甲戌己(土·承载)：代表包容承载之力。\n"
-        "    己土为田园之土，柔顺包容，适合合作与养育。\n"
-        "    己土落宫：落坤宫为本位，能量最强。\n\n"
-        "   甲申庚(金·肃杀)：代表刚健肃杀之力。\n"
-        "    庚金为刀剑之金，刚硬锋利，适合竞争与突破。\n"
-        "    庚金落宫：落乾兑(金宫)为比和，最利决断。\n"
-        "    太白入荧(庚+丙)：庚金克丙火，凶格需防范。\n\n"
-        "   甲午辛(金·变革)：代表变革创新之力。\n"
-        "    辛金为首饰之金，精致细腻，适合改革与创新。\n"
-        "    白虎猖狂(辛+乙)：辛金克乙木，凶格需化解。\n\n"
-        "   甲辰壬(水·智慧)：代表智慧流动之力。\n"
-        "    壬水为江河之水，奔腾不息，适合谋略与变化。\n"
-        "    壬水落宫：落坎宫为本位，智慧能量最强。\n\n"
-        "   甲寅癸(水·隐秘)：代表隐秘暗流之力。\n"
-        "    癸水为雨露之水，润物无声，适合暗中运作。\n"
-        "    朱雀投江(丁+癸)：丁火入癸水，凶格需谨慎。\n\n"
-        "  【三奇六仪组合判断】\n"
-        "    三奇得用(乙丙丁临吉门)：天时助力最强，大事可成。\n"
-        "    六仪为体(戊己庚辛壬癸)：地利基础稳固，根基深厚。\n"
-        "    奇仪相合(如乙庚合、丙辛合等)：有合作和合之象。\n"
-        "    奇仪相冲(如甲庚冲)：有冲突变动之象，需把握变化。\n"
+        "【三奇六仪体系·详解】\n"
+        "  三奇六仪是奇门遁甲核心排盘要素，代表天干能量在九宫中的分布。\n\n"
+        "  三奇(天时助力)：\n"
+        "    乙奇(日奇·木)：象意花草藤蔓/阴柔之美/艺术才华/女性贵人。柔韧灵活，以柔克刚。\n"
+        "    丙奇(月奇·火)：象意太阳烈火/光明正大/权威能量/男性贵人。热情奔放，感染力强。\n"
+        "    丁奇(星奇·火)：象意灯烛星光/文明礼仪/考试文章。文雅细腻，有'玉女'之称。\n"
+        "      丁奇临值使门为'玉女守门'，主婚姻美满。\n"
+        "    三奇落宫通用规则：落本属性宫(比和)则力量最强；落生我宫(受生)则得助；\n"
+        "      落我生宫(泄气)则消耗；落克我宫(受制)则受限；落我克宫(为财)则可转化为财富。\n\n"
+        "  六仪(地利基础，甲之藏身)：\n"
+        "    甲子戊(土)：核心力量。甲戌己(土)：包容承载。甲申庚(金)：刚健肃杀。\n"
+        "    甲午辛(金)：变革创新。甲辰壬(水)：智慧流动。甲寅癸(水)：隐秘暗流。\n"
+        "    关键格局：青龙返首(戊+丙)=大吉 | 太白入荧(庚+丙)=凶 | 白虎猖狂(辛+乙)=凶 | 朱雀投江(丁+癸)=凶。\n\n"
+        "  组合判断：三奇得用(临吉门)则天时最强。奇仪相合(乙庚/丙辛等)则有合作之象。奇仪相冲则有变动之象。\n"
     )
 
     QIMEN_ADVANCED_TECHNIQUES = (
         "【奇门遁甲·高级分析技法】\n\n"
-        "  【用神落宫分析法】\n"
-        "  用神是奇门分析的核心——找到代表所求之事的符号，分析其落宫状态。\n\n"
-        "  求财用神：生门、戊土(甲子戊)、日干。\n"
-        "    生门落宫旺相 + 戊土得助 则 财运极佳，投资获利。\n"
-        "    生门落宫休囚 + 戊土受制 则 财运平平，需等待时机。\n"
-        "    生门克日干 则 财来找人，有意外之财。\n"
-        "    日干克生门 则 人找财，需主动出击。\n\n"
-        "  求官用神：开门、天心星、年干。\n"
-        "    开门落宫旺相 + 天心得助 则 升迁有望，贵人提拔。\n"
-        "    开门落宫休囚 + 天心受制 则 仕途平平，需韬光养晦。\n\n"
-        "  婚姻用神：六合、乙奇(女)、庚金(男)、日干。\n"
-        "    乙奇与庚金相生 则 夫妻和睦，感情深厚。\n"
-        "    乙奇与庚金相克 则 夫妻不和，需调和矛盾。\n"
-        "    六合落宫旺相 则 婚姻有成，合作顺利。\n\n"
-        "  出行用神：日干、开门、天蓬。\n"
-        "    日干落宫旺相 + 开门得助 则 出行顺利，贵人相助。\n"
-        "    天蓬落宫旺相 则 出行有险，需格外谨慎。\n"
-        "    日干克时干 则 我掌控局面，出行主动。\n"
-        "    时干克日干 则 局势不利，出行被动。\n\n"
-        "  【时干落宫法】\n"
-        "  时干代表事情的最终结果和走向，是奇门分析的'终审判决'。\n\n"
-        "  时干落宫判断：\n"
-        "    时干落吉宫(开/休/生门) 则 事情结果圆满，吉。\n"
-        "    时干落凶宫(死/惊/伤门) 则 事情结果不顺，凶。\n"
-        "    时干与日干相生 则 事情进展顺利，有人帮助。\n"
-        "    时干与日干相克 则 事情受阻，需克服困难。\n"
-        "    时干落旺宫 则 结果明显，不可改变。\n"
-        "    时干落衰宫 则 结果不确定，尚有转机。\n\n"
-        "  【日干时干关系论】\n"
-        "    日干为求测者，时干为所求之事。\n"
-        "    日干克时干 则 我能掌控此事，主动权在我。\n"
-        "    时干克日干 则 事情制约我，需审慎应对。\n"
-        "    日时比和 则 事情与我和谐，进展顺利。\n"
-        "    日时相生 则 有贵人相助，事半功倍。\n\n"
-        "  【值符值使联动法】\n"
-        "  值符代表天时大势，值使代表人事执行，两者联动决定成败。\n\n"
-        "    值符吉 + 值使吉 则 天时人事皆备，大吉大利。\n"
-        "    值符吉 + 值使凶 则 天时虽好但人事不顺，需调整策略。\n"
-        "    值符凶 + 值使吉 则 天时不利但人事可补，以人力胜天。\n"
-        "    值符凶 + 值使凶 则 天时人事皆不利，宜守不宜攻。\n\n"
-        "  【九宫能量场分析】\n"
-        "  将九宫视为一个能量场，分析各宫之间的能量流动。\n"
-        "    相生宫位：能量顺畅流动，事情进展顺利。\n"
-        "    相克宫位：能量相互制约，事情有阻碍。\n"
-        "    比和宫位：能量稳定平衡，适合守成。\n"
-        "    重点观察：用神落宫与值符宫、时干宫之间的生克关系。\n"
+        "  用神落宫分析(核心方法)：\n"
+        "    求财：用神=生门+戊土+日干。生门旺相+戊土得助则财运佳，生门克日干则财来找人。\n"
+        "    求官：用神=开门+天心星+年干。开门旺相+天心得助则升迁有望。\n"
+        "    婚姻：用神=六合+乙奇(女)+庚金(男)。乙庚相生则和睦，相克则不和。\n"
+        "    出行：用神=日干+开门+天蓬。日干克时干则主动，时干克日干则被动。\n\n"
+        "  时干落宫(终审判决)：时干落吉门(开/休/生)则结果圆满，落凶门(死/惊/伤)则不顺。\n"
+        "    时干与日干相生则顺利有人助，相克则受阻需克服。落旺宫则结果不可改变。\n\n"
+        "  值符值使联动：值符=天时，值使=人事。双吉则大利，双凶则宜守。一吉一凶则看哪方主导。\n"
+        "  九宫能量场：相生宫位则能量顺畅，相克则有阻碍，比和则适合守成。重点看用神/值符/时干宫生克关系。\n"
     )
     QIMEN_CLASSIC_PATTERNS = (
         "【奇门经典格局 — 20个经典吉凶格详解】\n"
@@ -5150,10 +5105,6 @@ def qimen_prompt(
 
     # ── Tag format ──
     TAG_FORMAT = """
-请严格按照以下JSON格式输出你的分析结果（在最后单独一行输出，不要包含在报告正文中）：
-```json
-{"weakness_tags":["#奇门凶格","#惊门临身","#伏吟迟滞"],"strength_tags":["#吉门得位","#三奇得助"],"boost_elements":["water"],"conflict_warnings":["某信号矛盾"],"tags":["#综合标签"]}
-```
 weakness_tags: 3-6个，以#开头
     值使门为死/惊/伤 则 #凶门当值
     值符星临天芮 则 #病星入局
@@ -5170,10 +5121,10 @@ strength_tags: 1-3个
     青龙返首等吉格 则 #奇门吉格
     三奇得助 则 #三奇贵人
     生门旺相 则 #财门大开
-boost_elements: 需补五行列表(英文)
-    坎宫(水)弱 则 water | 震巽(木)弱 则 wood
-    离宫(火)弱 则 fire  | 乾兑(金)弱 则 metal
-    坤艮(土)弱 则 earth
+boost_elements: 需补五行列表(中文)
+    坎宫(水)弱 则 水 | 震巽(木)弱 则 木
+    离宫(火)弱 则 火  | 乾兑(金)弱 则 金
+    坤艮(土)弱 则 土
 conflict_warnings: 1-3个
     吉格+凶门同现 则 吉中藏凶，需谨慎把握
     生门临死宫 则 生机会受阻，需耐心等待
@@ -5182,6 +5133,36 @@ conflict_warnings: 1-3个
     值符克值使 则 天时不利人事
 tags: 2-4个，综合标签，概括命主奇门格局的核心特征
 """
+
+    # ── 条件知识加载：根据用户问题选择性注入知识块 ──
+    # Qimen agent doesn't receive user_question directly, use dun_ju as context
+    _qimen_core = (
+        f"{QIMEN_DUNJU_KNOWLEDGE}\n\n"
+        f"{QIMEN_DOOR_KNOWLEDGE}\n\n"
+        f"{QIMEN_STAR_KNOWLEDGE}\n\n"
+        f"{QIMEN_GOD_KNOWLEDGE}\n\n"
+        f"{QIMEN_GE_KNOWLEDGE}\n\n"
+        f"{QIMEN_SANQI_LIUYI_KNOWLEDGE}\n\n"
+        f"{QIMEN_VISUAL_TABLES}\n\n"
+    )
+    _qimen_optional = ""
+    if "career" in dun_ju or "面试" in dun_ju or "求职" in dun_ju:
+        _qimen_optional += f"{QIMEN_STRATEGY_APPLICATIONS}\n\n"
+    if "health" in dun_ju or "疾病" in dun_ju:
+        _qimen_optional += f"{QIMEN_TIME_APPLICATIONS}\n\n"
+    if "wealth" in dun_ju or "投资" in dun_ju or "求财" in dun_ju:
+        _qimen_optional += f"{QIMEN_DOOR_STAR_GOD_COMBOS}\n\n"
+    if not _qimen_optional:
+        # 默认加载全部
+        _qimen_optional = (
+            f"{QIMEN_ADVANCED_TECHNIQUES}\n\n"
+            f"{QIMEN_CLASSIC_PATTERNS}\n\n"
+            f"{QIMEN_TIME_APPLICATIONS}\n\n"
+            f"{QIMEN_STRATEGY_APPLICATIONS}\n\n"
+            f"{QIMEN_DOOR_STAR_GOD_COMBOS}\n\n"
+            f"{QIMEN_ENVIRONMENT_FENGSHUI}\n\n"
+        )
+    _qimen_knowledge = _qimen_core + _qimen_optional
 
     return (
         "你是世界顶级的奇门遁甲命理师。精通《奇门遁甲秘笈大全》《烟波钓叟赋》，"
@@ -5201,19 +5182,7 @@ tags: 2-4个，综合标签，概括命主奇门格局的核心特征
         f"凶门列表：{doors_bad}\n"
         f"八神排序（前4神）：{gods_str}\n"
         f"八门方位提示：\n{door_hints_str}\n\n"
-        f"{QIMEN_DUNJU_KNOWLEDGE}\n\n"
-        f"{QIMEN_DOOR_KNOWLEDGE}\n\n"
-        f"{QIMEN_STAR_KNOWLEDGE}\n\n"
-        f"{QIMEN_GOD_KNOWLEDGE}\n\n"
-        f"{QIMEN_GE_KNOWLEDGE}\n\n"
-        f"{QIMEN_SANQI_LIUYI_KNOWLEDGE}\n\n"
-        f"{QIMEN_ADVANCED_TECHNIQUES}\n\n"
-        f"{QIMEN_CLASSIC_PATTERNS}\n\n"
-        f"{QIMEN_TIME_APPLICATIONS}\n\n"
-        f"{QIMEN_VISUAL_TABLES}\n\n"
-        f"{QIMEN_STRATEGY_APPLICATIONS}\n\n"
-        f"{QIMEN_DOOR_STAR_GOD_COMBOS}\n\n"
-        f"{QIMEN_ENVIRONMENT_FENGSHUI}\n\n"
+        f"{_qimen_knowledge}\n"
         "【分析要求·深度推理】\n"
         "请按照以下推理链进行分析：盘面数据则理论依据则生活场景则行动建议\n"
         "每个结论必须标注'依据来源'（如'根据值使门为开门...'）\n\n"
@@ -5270,7 +5239,7 @@ tags: 2-4个，综合标签，概括命主奇门格局的核心特征
         "   - 针对命主当前最关心的问题给出定向建议\n"
         "   - 提供3-5条可执行的奇门开运方法\n"
         "   - 提醒需要特别注意的风险和化解方式\n\n"
-        "9. 文字风格：专业而不晦涩，用中文输出，约1500-2500字。\n"
+        "9. 文字风格：专业而不晦涩，" + ("output in English", "用中文输出")[language == "zh"] + "，约1500-2500字。\n"
         "   将奇门千年兵家智慧转化为现代人的生活决策指南\n"
         "   结合命主的具体时盘数据，给出个性化、可操作的建议\n"
         "   精炼表达：避免重复论述同一观点，每个章节聚焦核心要点\n"
@@ -5291,6 +5260,7 @@ def ziwei_prompt(
     ming_gong_main_stars: list,
     gender: str = "female",
     birth_datetime: str = "",
+    language: str = "zh",
 ) -> str:
     """Generate the system prompt for the Ziwei Doushu agent."""
 
@@ -5341,7 +5311,29 @@ def ziwei_prompt(
         "  命宫无主星：需借对宫(迁移宫)星曜分析，命主自我定位较晚，人生方向需借他人/环境之力。\n"
         "  空宫：某宫无主星时，该领域的人生色彩较淡，但会有辅助星曜补充。\n"
         "  杀破狼格局：七杀+破军+贪狼三星联动，代表人生必有突破性变化，适合开拓型人生。\n"
-        "  机月同梁格局：多适合稳定型工作(公职/大企业)，不喜大变。\n"
+        "  机月同梁格局：多适合稳定型工作(公职/大企业)，不喜大变。\n\n"
+        "【命宫无主星完整处理流程】\n"
+        "  第一步：确认命宫是否真的无主星\n"
+        "    主星包括：紫微、天机、太阳、武曲、天同、廉贞、天府、太阴、贪狼、巨门、天相、天梁、七杀、破军\n"
+        "    命宫中无以上14颗主星 → 命宫无主星\n\n"
+        "  第二步：借对宫(迁移宫)星曜\n"
+        "    命宫无主星时，需借迁移宫的主星来分析命主的核心人格\n"
+        "    借星原则：将迁移宫的主星「借入」命宫，作为命主的主要特质\n"
+        "    注意：借星只是借用，不代表迁移宫的星曜消失，两宫需同时分析\n\n"
+        "  第三步：分析命宫辅星\n"
+        "    即使无主星，命宫中仍有辅星(文昌、文曲、左辅、右弼、天魁、天钺等)\n"
+        "    辅星组合决定命主的辅助特质和人生助力\n"
+        "    辅星吉则命主有贵人助力，辅星凶则命主需自力更生\n\n"
+        "  第四步：综合判断命宫格局\n"
+        "    借星+辅星+三方四正 → 综合判断命主的核心人格\n"
+        "    命宫无主星不代表命不好，只是人生方向需要借助外力\n"
+        "    具体吉凶需看借入的星曜庙旺利陷状态\n\n"
+        "  命宫无主星的人生特点：\n"
+        "    1. 自我定位较晚，需要通过外界反馈来认识自己\n"
+        "    2. 人生方向易受环境和他人影响，需主动寻找定位\n"
+        "    3. 适合团队合作，借他人之力成就事业\n"
+        "    4. 晚年运势通常优于早年，属于大器晚成型\n"
+        "    5. 需特别注意迁移宫的星曜配置，这是命主的主要能量来源\n"
     )
     ZIWEI_THREE_LIMITS_KNOWLEDGE = (
         "【紫微斗数·三方四正深度分析框架】\n\n"
@@ -5614,73 +5606,23 @@ def ziwei_prompt(
 
     ZIWEI_VISUAL_TABLES = (
         "【紫微斗数·速查图表】\n\n"
-        "  一、十四主星庙旺利陷速查表\n"
-        "  +----------+--------+--------+--------+--------+--------+\n"
-        "  | 主星     | 五行   | 临庙   | 临旺   | 临利   | 临陷   |\n"
-        "  +----------+--------+--------+--------+--------+--------+\n"
-        "  | 紫微     | 土     | 子/丑  | 寅/卯  | 辰/巳  | 午/未  |\n"
-        "  | 天机     | 木     | 子/丑  | 寅     | 卯/巳  | 午/申  |\n"
-        "  | 太阳     | 火     | 巳/午  | 未/申  | 辰/卯  | 亥/子  |\n"
-        "  | 武曲     | 金     | 丑/巳  | 申/酉  | 子/午  | 寅/辰  |\n"
-        "  | 天同     | 水     | 申     | 酉/亥  | 子/卯  | 午/未  |\n"
-        "  | 廉贞     | 火     | 丑/巳  | 午     | 寅/卯  | 申/酉  |\n"
-        "  | 天府     | 土     | 辰/戌  | 丑/未  | 巳/午  | 子/亥  |\n"
-        "  | 太阴     | 水     | 亥/子  | 丑     | 寅/卯  | 巳/午  |\n"
-        "  | 贪狼     | 木     | 亥/子  | 丑/寅  | 卯/巳  | 申/酉  |\n"
-        "  | 巨门     | 水     | 丑/辰  | 午/未  | 寅/巳  | 亥/子  |\n"
-        "  | 天相     | 水     | 辰/巳  | 申/亥  | 子/丑  | 寅/午  |\n"
-        "  | 天梁     | 土     | 丑/辰  | 午/未  | 申/亥  | 寅/卯  |\n"
-        "  | 七杀     | 金     | 丑/巳  | 午     | 寅/卯  | 申/亥  |\n"
-        "  | 破军     | 水     | 丑/巳  | 午/未  | 子/亥  | 寅/卯  |\n"
-        "  +----------+--------+--------+--------+--------+--------+\n"
-        "  说明：庙=最强/旺=强/利=平/陷=弱，主星入庙则 星曜力量最大发挥\n\n"
-        "  二、十二宫主题速查表\n"
-        "  +--------+--------+--------------------------+\n"
-        "  | 宫位   | 五行   | 核心主题                 |\n"
-        "  +--------+--------+--------------------------+\n"
-        "  | 命宫   | 木     | 自我/性格/外在形象       |\n"
-        "  | 兄弟宫 | 木     | 手足/同辈/合作关系       |\n"
-        "  | 夫妻宫 | 金     | 婚姻/配偶/情感状态       |\n"
-        "  | 子女宫 | 火     | 子女/下属/桃花           |\n"
-        "  | 财帛宫 | 金     | 财运/理财/收入来源       |\n"
-        "  | 疾厄宫 | 水     | 健康/疾病/体质           |\n"
-        "  | 迁移宫 | 土     | 外出/贵人/社会际遇       |\n"
-        "  | 仆役宫 | 土     | 朋友/部属/社交           |\n"
-        "  | 官禄宫 | 火     | 事业/学业/工作           |\n"
-        "  | 田宅宫 | 土     | 房产/家庭/居住环境       |\n"
-        "  | 福德宫 | 水     | 精神/享受/兴趣           |\n"
-        "  | 父母宫 | 火     | 父母/长辈/遗传           |\n"
-        "  +--------+--------+--------------------------+\n\n"
-        "  三、四化飞星速查表\n"
-        "  +------+--------+--------+--------+--------+--------+\n"
-        "  | 天干 | 化禄   | 化权   | 化科   | 化忌   | 吉凶   |\n"
-        "  +------+--------+--------+--------+--------+--------+\n"
-        "  | 甲   | 廉贞   | 破军   | 武曲   | 太阳   | 先苦后甜|\n"
-        "  | 乙   | 天机   | 天梁   | 紫微   | 太阴   | 智慧显达|\n"
-        "  | 丙   | 天同   | 天机   | 文昌   | 廉贞   | 福慧双修|\n"
-        "  | 丁   | 太阴   | 天同   | 天机   | 巨门   | 文采显达|\n"
-        "  | 戊   | 贪狼   | 太阴   | 右弼   | 天机   | 欲望驱动|\n"
-        "  | 己   | 武曲   | 贪狼   | 天梁   | 文曲   | 财官双美|\n"
-        "  | 庚   | 太阳   | 武曲   | 太阴   | 天同   | 光明显贵|\n"
-        "  | 辛   | 巨门   | 太阳   | 文曲   | 文昌   | 口才文采|\n"
-        "  | 壬   | 天梁   | 紫微   | 左辅   | 武曲   | 贵人福寿|\n"
-        "  | 癸   | 破军   | 巨门   | 太阴   | 贪狼   | 变动求新|\n"
-        "  +------+--------+--------+--------+--------+--------+\n"
-        "  四化化禄=锦上添花 | 化权=加强掌控 | 化科=名望贵助 | 化忌=阻碍损耗\n\n"
-        "  四、三方四正对照表\n"
-        "  命宫三方：命宫 + 财帛宫 + 官禄宫（人生黄金三角）\n"
-        "  夫妻三方：夫妻宫 + 迁移宫 + 福德宫（感情运势圈）\n"
-        "  疾厄三方：疾厄宫 + 田宅宫 + 仆役宫（健康根基圈）\n"
-        "  子女三方：子女宫 + 兄弟宫 + 父母宫（六亲缘分圈）\n"
-        "  正位对冲：命宫对迁移宫 | 夫妻宫对官禄宫 | 财帛宫对福德宫\n\n"
-        "  五、紫微斗数分析流程图\n"
-        "  第一步：定命宫 -> 看主星庙旺利陷 -> 确定核心人格与命格层次\n"
-        "    -> 第二步：看三方四正 -> 命+财+官+迁移 -> 人生黄金三角能量\n"
-        "      -> 第三步：析四化飞星 -> 禄权科忌的宫位分布 -> 运势起伏密码\n"
-        "        -> 第四步：论十二宫 -> 各宫星曜配置 -> 各领域吉凶详解\n"
-        "          -> 第五步：看杂曜 -> 红鸾天喜天刑等 -> 细节补充信息\n"
-        "            -> 第六步：看大限流年 -> 十年大运+当年流年 -> 时间窗口\n"
-        "              -> 第七步：综合判断 -> 给出具体行动建议\n"
+        "十四主星庙旺利陷(庙=最强/旺=强/利=平/陷=弱)：\n"
+        "  紫微(土):庙子丑|旺寅卯|利辰巳|陷午未  天机(木):庙子丑|旺寅|利卯巳|陷午申\n"
+        "  太阳(火):庙巳午|旺未申|利辰卯|陷亥子  武曲(金):庙丑巳|旺申酉|利子午|陷寅辰\n"
+        "  天同(水):庙申|旺酉亥|利子卯|陷午未    廉贞(火):庙丑巳|旺午|利寅卯|陷申酉\n"
+        "  天府(土):庙辰戌|旺丑未|利巳午|陷子亥  太阴(水):庙亥子|旺丑|利寅卯|陷巳午\n"
+        "  贪狼(木):庙亥子|旺丑寅|利卯巳|陷申酉  巨门(水):庙丑辰|旺午未|利寅巳|陷亥子\n"
+        "  天相(水):庙辰巳|旺申亥|利子丑|陷寅午  天梁(土):庙丑辰|旺午未|利申亥|陷寅卯\n"
+        "  七杀(金):庙丑巳|旺午|利寅卯|陷申亥    破军(水):庙丑巳|旺午未|利子亥|陷寅卯\n\n"
+        "十二宫主题：命宫(木/自我) 兄弟宫(木/手足) 夫妻宫(金/婚姻) 子女宫(火/子女)\n"
+        "  财帛宫(金/财运) 疾厄宫(水/健康) 迁移宫(土/外出) 仆役宫(土/社交)\n"
+        "  官禄宫(火/事业) 田宅宫(土/房产) 福德宫(水/精神) 父母宫(火/长辈)\n\n"
+        "四化飞星速查：甲廉破武阳 | 乙机梁紫阴 | 丙同机昌廉 | 丁阴同机巨\n"
+        "  戊贪阴右机 | 己武贪梁曲 | 庚阳武阴同 | 辛巨阳曲昌 | 壬梁紫左武 | 癸破巨阴贪\n"
+        "  化禄=锦上添花 化权=加强掌控 化科=名望贵助 化忌=阻碍损耗\n\n"
+        "三方四正：命三方=命+财帛+官禄(黄金三角) | 夫妻三方=夫妻+迁移+福德\n"
+        "  正位对冲：命对迁移 | 夫妻对官禄 | 财帛对福德\n\n"
+        "分析流程：定命宫看主星→看三方四正→析四化飞星→论十二宫→看杂曜→看大限流年→综合判断\n"
     )
 
     ZIWEI_SIhua_PRACTICAL = (
@@ -5829,67 +5771,20 @@ def ziwei_prompt(
     )
 
     ZIWEI_PALACE_FLY = (
-        "【紫微斗数·宫位飞化详解 — 四化在十二宫的深层影响】\n\n"
-        "  四化飞入不同宫位，产生的影响截然不同。理解飞化入宫是高级断命的关键。\n\n"
-        "  一、化禄入十二宫详解\n"
-        "    化禄入命宫：本人有福气，性格乐观，一生顺遂。\n"
-        "    化禄入兄弟宫：兄弟姐妹关系好，朋友多，人缘佳。\n"
-        "    化禄入夫妻宫：配偶条件好，婚姻幸福，感情甜蜜。\n"
-        "    化禄入子女宫：子女聪明孝顺，生育顺利。\n"
-        "    化禄入财帛宫：财运好，赚钱容易，有意外之财。\n"
-        "    化禄入疾厄宫：身体健康，少病少灾。\n"
-        "    化禄入迁移宫：外出发展好，贵人多，人脉广。\n"
-        "    化禄入交友宫：下属得力，社交圈层次高。\n"
-        "    化禄入官禄宫：事业顺利，工作体面，有升迁机会。\n"
-        "    化禄入田宅宫：置产顺利，家居舒适，家运兴旺。\n"
-        "    化禄入福德宫：精神愉悦，兴趣广泛，内心富足。\n"
-        "    化禄入父母宫：父母助力大，长辈缘好，得长辈提携。\n\n"
-        "  二、化权入十二宫详解\n"
-        "    化权入命宫：性格强势，有主见，有领导才能。\n"
-        "    化权入兄弟宫：与兄弟有竞争，但也互相促进。\n"
-        "    化权入夫妻宫：配偶能干但强势，婚姻中需平衡。\n"
-        "    化权入子女宫：子女有主见，教育需因材施教。\n"
-        "    化权入财帛宫：有赚钱能力，财务自主权强。\n"
-        "    化权入疾厄宫：身体底子好，但可能过于操劳。\n"
-        "    化权入迁移宫：在外有话语权，发展有主导权。\n"
-        "    化权入交友宫：社交中有影响力，能领导团队。\n"
-        "    化权入官禄宫：事业有掌控力，适合管理层。\n"
-        "    化权入田宅宫：置产有主见，家宅安宁。\n"
-        "    化权入福德宫：精神上有追求，有信仰或哲学倾向。\n"
-        "    化权入父母宫：与长辈有话语权交换，可能继承家业。\n\n"
-        "  三、化科入十二宫详解\n"
-        "    化科入命宫：有才华，有名气，受人尊敬。\n"
-        "    化科入兄弟宫：兄弟间和谐，有文化氛围。\n"
-        "    化科入夫妻宫：配偶文雅，婚姻有精神交流。\n"
-        "    化科入子女宫：子女学业好，有文化素养。\n"
-        "    化科入财帛宫：靠知识/技术赚钱，财务稳定。\n"
-        "    化科入疾厄宫：健康有保障，遇病有良医。\n"
-        "    化科入迁移宫：外出有名声，贵人以文贵为主。\n"
-        "    化科入交友宫：朋友圈有文化人，社交质量高。\n"
-        "    化科入官禄宫：事业有口碑，学术/文职发展好。\n"
-        "    化科入田宅宫：家居有文化底蕴，书香门第。\n"
-        "    化科入福德宫：精神世界丰富，有文艺爱好。\n"
-        "    化科入父母宫：父母有文化，家教好。\n\n"
-        "  四、化忌入十二宫详解\n"
-        "    化忌入命宫：本人有烦恼，性格纠结，需自我调整。\n"
-        "    化忌入兄弟宫：与兄弟有嫌隙，朋友关系需维护。\n"
-        "    化忌入夫妻宫：婚姻有波折，夫妻间有矛盾需化解。\n"
-        "    化忌入子女宫：子女教育需操心，亲子关系需沟通。\n"
-        "    化忌入财帛宫：财运不稳，需谨慎理财，防破财。\n"
-        "    化忌入疾厄宫：健康需注意，定期体检，防慢性病。\n"
-        "    化忌入迁移宫：外出不顺，远行需谨慎，防意外。\n"
-        "    化忌入交友宫：社交中有小人，交友需慎重。\n"
-        "    化忌入官禄宫：事业有阻碍，工作中易出错，需细心。\n"
-        "    化忌入田宅宫：置产不顺，家宅不安，需化解。\n"
-        "    化忌入福德宫：精神压力大，需注意心理健康。\n"
-        "    化忌入父母宫：与长辈有代沟，需多沟通理解。\n\n"
-        "  五、四化组合效应\n"
-        "    禄忌交驰(化禄+化忌同宫)：吉中藏凶，看似好实有隐患。\n"
-        "    双禄叠加(生年化禄+大限化禄)：大吉，把握时机大展宏图。\n"
-        "    双忌叠加(生年化忌+大限化忌)：大凶，保守为上，化解为先。\n"
-        "    化禄化权同宫：名利双收，有实权有名声。\n"
-        "    化科化忌同宫：有名声但也有争议，需谨慎维护声誉。\n"
-        "    化权化忌同宫：有权力但也有压力，需平衡权力与人际关系。\n"
+        "【紫微斗数·宫位飞化速查 — 四化入十二宫核心含义】\n\n"
+        "  四化飞入宫位的影响（按四化分类速查）：\n"
+        "  化禄(增益): 命=福气乐观 | 兄弟=人缘好 | 夫妻=婚姻甜 | 子女=聪明 | 财帛=财运好 | "
+        "疾厄=健康 | 迁移=贵人多 | 交友=下属得力 | 官禄=事业顺 | 田宅=置产顺 | 福德=精神富足 | 父母=长辈提携\n"
+        "  化权(掌控): 命=强势有主见 | 兄弟=竞争互促 | 夫妻=配偶能干但强势 | 子女=有主见 | "
+        "财帛=赚钱能力强 | 疾厄=底子好但操劳 | 迁移=有话语权 | 交友=能领导 | 官禄=适合管理 | "
+        "田宅=置产有主见 | 福德=有信仰 | 父母=可能继承家业\n"
+        "  化科(贵助): 命=有名气 | 兄弟=和谐 | 夫妻=配偶文雅 | 子女=学业好 | 财帛=靠知识赚钱 | "
+        "疾厄=遇良医 | 迁移=文贵 | 交友=文化圈 | 官禄=学术好 | 田宅=书香门第 | 福德=文艺爱好 | 父母=家教好\n"
+        "  化忌(阻碍): 命=烦恼纠结 | 兄弟=有嫌隙 | 夫妻=婚姻波折 | 子女=教育操心 | 财帛=财运不稳 | "
+        "疾厄=需体检 | 迁移=外出不顺 | 交友=有小人 | 官禄=事业阻碍 | 田宅=置产不顺 | 福德=精神压力 | 父母=代沟\n\n"
+        "  四化组合效应：\n"
+        "    禄忌交驰(同宫)：吉中藏凶 | 双禄叠加：大吉 | 双忌叠加：大凶\n"
+        "    禄权同宫：名利双收 | 科忌同宫：有名声但有争议 | 权忌同宫：有权力但有压力\n"
     )
 
     ZIWEI_DA_XIAN_SWITCH = (
@@ -5950,17 +5845,46 @@ strength_tags: 1-3个
     天府守财 则 #财库稳固
     四化吉化 则 #四化得宜
     命宫主星庙旺 则 #主星得力
-boost_elements: 需补五行列表(英文)
-    命宫五行局匹配 则 对应五行元素(fire/water/wood/metal/earth)
+boost_elements: 需补五行列表(中文)
+    命宫五行局匹配 则 对应五行元素(火/水/木/金/土)
 conflict_warnings: 1-3个
     命宫无主星+迁移宫强 则 自我定位依赖外部环境
     杀破狼格局+身命同宫 则 变动与安稳的人生抉择
     化忌+化禄同宫 则 吉中藏凶，需分辨真伪
 """
 
+    # ── 条件知识加载：根据用户问题选择性注入知识块 ──
+    # Ziwei agent doesn't receive user_question directly, use default full loading
+    _ziwei_core = (
+        f"{ZIWEI_STARS_KNOWLEDGE}\n\n"
+        f"{ZIWEI_PALACES_KNOWLEDGE}\n\n"
+        f"{ZIWEI_SIHUA_KNOWLEDGE}\n\n"
+        f"{ZIWEI_METHOD_KNOWLEDGE}\n\n"
+        f"{ZIWEI_THREE_LIMITS_KNOWLEDGE}\n\n"
+        f"{ZIWEI_DECADE_FORTUNE_KNOWLEDGE}\n\n"
+        f"{ZIWEI_VISUAL_TABLES}\n\n"
+    )
+    _ziwei_optional = (
+        f"{ZIWEI_RELATIONSHIP_KNOWLEDGE}\n\n"
+        f"{ZIWEI_CAREER_KNOWLEDGE}\n\n"
+        f"{ZIWEI_HEALTH_KNOWLEDGE}\n\n"
+        f"{ZIWEI_STARS_COMBO_KNOWLEDGE}\n\n"
+        f"{ZIWEI_OPEN_FORTUNE_KNOWLEDGE}\n\n"
+        f"{ZIWEI_CLASSIC_QUOTES}\n\n"
+        f"{ZIWEI_SPECIAL_STARS}\n\n"
+        f"{ZIWEI_SIhua_PRACTICAL}\n\n"
+        f"{ZIWEI_STAR_COMBOS_DEEP}\n\n"
+        f"{ZIWEI_SHEN_GONG}\n\n"
+        f"{ZIWEI_DA_XIAN_SWITCH}\n\n"
+        f"{ZIWEI_YEARLY_PRACTICAL}\n\n"
+        f"{ZIWEI_PALACE_FLY}\n\n"
+    )
+    _ziwei_knowledge = _ziwei_core + _ziwei_optional
+
     return (
         "你是世界顶级的紫微斗数命理师。精通《紫微斗数全书》《十八飞星策天紫微斗数》，"
-        "擅长从星曜分布和宫位组合解读命主一生的富贵贫贱、人事变迁。\n\n"
+        "擅长从星曜分布和宫位组合解读命主一生的富贵贫贱、人事变迁。\n"
+        f"{_lang_instruction(language)}\n"
         "你的任务：基于用户出生时间排出的紫微斗数命盘，给出专业精准的紫微斗数分析报告。\n\n"
         "分析推理链：\n"
         "  第一步：定命宫 则 看命宫主星的庙旺利陷，确定核心人格\n"
@@ -5991,26 +5915,7 @@ conflict_warnings: 1-3个
         f"命宫主星：{ming_stars}\n"
         f"十二宫星曜分布：\n{palaces_str}\n"
         f"生年天干四化：\n{sihua_str}\n\n"
-        f"{ZIWEI_STARS_KNOWLEDGE}\n\n"
-        f"{ZIWEI_PALACES_KNOWLEDGE}\n\n"
-        f"{ZIWEI_SIHUA_KNOWLEDGE}\n\n"
-        f"{ZIWEI_METHOD_KNOWLEDGE}\n\n"
-        f"{ZIWEI_THREE_LIMITS_KNOWLEDGE}\n\n"
-        f"{ZIWEI_DECADE_FORTUNE_KNOWLEDGE}\n\n"
-        f"{ZIWEI_RELATIONSHIP_KNOWLEDGE}\n\n"
-        f"{ZIWEI_CAREER_KNOWLEDGE}\n\n"
-        f"{ZIWEI_HEALTH_KNOWLEDGE}\n\n"
-        f"{ZIWEI_STARS_COMBO_KNOWLEDGE}\n\n"
-        f"{ZIWEI_OPEN_FORTUNE_KNOWLEDGE}\n\n"
-        f"{ZIWEI_CLASSIC_QUOTES}\n\n"
-        f"{ZIWEI_SPECIAL_STARS}\n\n"
-        f"{ZIWEI_VISUAL_TABLES}\n\n"
-        f"{ZIWEI_SIhua_PRACTICAL}\n\n"
-        f"{ZIWEI_STAR_COMBOS_DEEP}\n\n"
-        f"{ZIWEI_SHEN_GONG}\n\n"
-        f"{ZIWEI_DA_XIAN_SWITCH}\n\n"
-        f"{ZIWEI_YEARLY_PRACTICAL}\n\n"
-        f"{ZIWEI_PALACE_FLY}\n\n"
+        f"{_ziwei_knowledge}\n"
         "请按以下结构输出紫微斗数分析报告（使用自然语言标题，不要列出SECTIONS编号）：\n\n"
         "【命盘格局总断】\n"
         "  一句话定性：命宫主星+五行局+四化 则 如「紫微坐命，土五局，化禄入财帛，天生富贵命」\n"
@@ -6041,14 +5946,6 @@ conflict_warnings: 1-3个
         "  夫妻宫主星分析：配偶特质和婚姻基调\n"
         "  桃花星组合分析：红鸾/天喜/咸池/天姚等\n"
         "  婚姻时间窗口预测\n\n"
-        "【事业财运详析】\n"
-        "  官禄宫分析：事业方向和发展潜力\n"
-        "  财帛宫分析：赚钱方式和财运格局\n"
-        "  事业与财运的联动关系\n\n"
-        "【大限流年运势展望】（参考ZIWEI_DECADE_FORTUNE_KNOWLEDGE）\n"
-        "  当前大限的详细分析：十年运势基调\n"
-        "  当前流年的详细分析：年度运势主题\n"
-        "  大限交接年和关键时间节点\n\n"
         "【事业财运详析】（参考ZIWEI_CAREER_KNOWLEDGE）\n"
         "  官禄宫分析：事业方向和发展潜力\n"
         "  财帛宫分析：赚钱方式和财运格局\n"
@@ -6070,19 +5967,10 @@ conflict_warnings: 1-3个
         "  基于星曜组合给出性格优化建议\n"
         "  3-5条具体的日常开运方法（参考ZIWEI_OPEN_FORTUNE_KNOWLEDGE）\n\n"
         "写作要求：\n"
-        "  - 2500-3500字，精炼输出，专业深入，引《紫微斗数全书》等经典\n"
-        "  - 每个结论必须标注依据（如「根据紫微星坐命宫，庙旺得力...」）\n"
-        "  - 避免巴纳姆效应式模糊语言，给出具体可验证的判断\n"
-        "  - 三方四正分析必须引用ZIWEI_THREE_LIMITS_KNOWLEDGE知识库\n"
-        "  - 大限流年分析必须引用ZIWEI_DECADE_FORTUNE_KNOWLEDGE知识库\n"
-        "  - 感情分析必须引用ZIWEI_RELATIONSHIP_KNOWLEDGE知识库\n"
-        "  - 事业分析必须引用ZIWEI_CAREER_KNOWLEDGE知识库\n"
-        "  - 健康分析必须引用ZIWEI_HEALTH_KNOWLEDGE知识库\n"
-        "  - 星曜组合必须引用ZIWEI_STARS_COMBO_KNOWLEDGE知识库\n"
-        "  - 开运建议必须引用ZIWEI_OPEN_FORTUNE_KNOWLEDGE知识库\n"
-        "  - 术语可括号注释（如「庙旺——星曜在该宫位力量最强」）\n"
-        "  - 精炼表达：避免重复论述同一观点，每个章节聚焦核心要点\n"
-        "  - 优先级排序：命宫/身宫主星优先分析，其他宫位可简要带过\n"
+        "  - 2500-3500字，引《紫微斗数全书》等经典，每个结论标注依据\n"
+        "  - 避免巴纳姆效应，三方四正引用THREE_LIMITS，大限流年引用DECADE_FORTUNE\n"
+        "  - 感情/事业/健康/星曜组合/开运分别引用对应知识库，术语括号注释\n"
+        "  - 命宫/身宫主星优先分析，其他宫位可简要带过\n"
         f"{TAG_FORMAT}"
     )
 
@@ -6110,6 +5998,7 @@ def bazi_prompt(
     shi_er_chang_sheng: str = "",
     nayin_year: str = "",
     da_yun_str: str = "",
+    language: str = "zh",
 ) -> str:
     """八字分析专用 System Prompt"""
     # ── 核心知识体系 ──
@@ -6316,28 +6205,25 @@ def bazi_prompt(
 
     BAZI_MONTHLY_FORTUNE_KNOWLEDGE = (
         "【八字·月度运势详解】\n\n"
-        "流年各月运势判断方法：\n"
-        "  1. 先看大运基调（吉运/凶运）\n"
-        "  2. 再看流年干支与命局的关系\n"
-        "  3. 最后看各月地支与命局的互动\n\n"
-        "各月运势重点：\n"
-        "  正月(寅月)：木旺，利木属性用神者，不利金属性用神者\n"
-        "  二月(卯月)：木极旺，桃花月，感情活跃\n"
-        "  三月(辰月)：土旺，利土属性用神者，辰为水库\n"
-        "  四月(巳月)：火旺，利火属性用神者，巳为金长生\n"
-        "  五月(午月)：火极旺，心火旺，注意心血管\n"
-        "  六月(未月)：土旺，未为木库，利土属性用神者\n"
-        "  七月(申月)：金旺，利金属性用神者，申为水长生\n"
-        "  八月(酉月)：金极旺，桃花月，感情活跃\n"
-        "  九月(戌月)：土旺，戌为火库，利土属性用神者\n"
-        "  十月(亥月)：水旺，利水属性用神者，亥为木长生\n"
-        "  十一月(子月)：水极旺，桃花月，感情活跃\n"
-        "  十二月(丑月)：土旺，丑为金库，利土属性用神者\n\n"
-        "关键月份判断：\n"
-        "  用神旺的月份则该月运势好，适合行动\n"
-        "  忌神旺的月份则该月运势差，需保守\n"
-        "  冲太岁的月份则变动大，需谨慎\n"
-        "  合日主的月份则感情/合作机会多\n"
+        "流月分析原则：\n"
+        "  1. 先看大运基调（吉运/凶运），再看流年干支与命局关系\n"
+        "  2. 流月天干管上半月(初一至十五)，地支管下半月(十六至三十)\n"
+        "  3. 流月与命局的生克关系+与大运的叠加效应需同时考虑\n"
+        "  4. 节气交界处能量变化最明显\n\n"
+        "各月运势与冲合刑害：\n"
+        "  正月(寅)：木旺。寅申冲则变动大，寅巳刑则口舌多。喜木者顺，忌木者阻。\n"
+        "  二月(卯)：木极旺，桃花月。卯酉冲则变动，卯戌合则合作。异性缘强。\n"
+        "  三月(辰)：土旺，水库。辰辰自刑则自我矛盾，辰酉合则贵人，辰戌冲则变动。\n"
+        "  四月(巳)：火旺。巳亥冲则大变，巳申合则合作，巳寅刑则需谨慎。\n"
+        "  五月(午)：火极旺。午子冲则大变，午未合则助力，午午自刑则需冷静。\n"
+        "  六月(未)：土旺，木库。未丑冲则变动，未午合则助力。\n"
+        "  七月(申)：金旺。申寅冲则大变，申巳合则合作，申亥害则防小人。\n"
+        "  八月(酉)：金极旺，桃花月。酉卯冲则大变，酉辰合则贵人，酉酉自刑则谨慎。\n"
+        "  九月(戌)：土旺，火库。戌辰冲则变动，戌卯合则合作。\n"
+        "  十月(亥)：水旺。亥巳冲则大变，亥寅合则合作，亥亥自刑则冷静。\n"
+        "  十一月(子)：水极旺，桃花月。子午冲则大变，子丑合则助力，子卯刑则口舌。\n"
+        "  十二月(丑)：土旺，金库。丑未冲则变动，丑子合则助力，丑午害则防暗害。\n\n"
+        "关键判断：用神旺月则运势好宜行动，忌神旺月则需保守，冲太岁月变动大，合日主月感情/合作机会多。\n"
     )
     FORTUNE_PATTERNS = (
         "【格局分类与判断】\n"
@@ -6356,38 +6242,15 @@ def bazi_prompt(
     BAZI_CLASSIC_QUOTES = (
         "【八字经典古诀引用与白话解读】\n"
         "  《滴天髓》核心口诀：\n"
-        "    「欲识三元万法宗，先观帝载与神功」——八字是一切命理的根本，先看天干地支的配合。\n"
-        "    「天道左旋，地道右旋，天一生水，地六成之」——阴阳五行的生成顺序决定命局格局。\n"
-        "    「坤元合德机缄通，九气朝元万物功」——女命以柔顺为贵，阴阳和合则万事通达。\n"
-        "    「何知其人富，财气通门户」——看一个人是否富裕，关键看财星是否通达有力。\n"
-        "    「何知其人贵，官星有理会」——看一个人是否显贵，关键看官星是否得力有情。\n"
-        "    「何知其人贫，财星反不真」——贫者并非无财，而是财星虚浮或被劫夺。\n"
-        "    「何知其人夭，气索而偏枯」——短寿者五行偏枯，气机不畅，需注意养生。\n"
-        "    「何知其人吉，喜神为辅弼」——吉祥者有喜神扶持，命局流通有情。\n"
-        "    「何知其人凶，忌神辗转攻」——凶险者忌神重重，互相引动攻身。\n"
-        "    「何知其人死，气索而逢绝」——绝境者五行绝气，需特别注意流年引动。\n\n"
-        "  《穷通宝鉴》调候用神精要：\n"
-        "    正月甲木：先丙后庚，丙火调候为主，庚金劈甲为辅。\n"
-        "    二月乙木：先丙后癸，丙火暖局，癸水滋润，木方能生发。\n"
-        "    三月戊土：先甲后丙，甲木疏土，丙火暖局，土方能孕育万物。\n"
-        "    四月丙火：先壬后庚，壬水制火，庚金生水，火方不致炎上过亢。\n"
-        "    五月丁火：先壬后甲，壬水济火，甲木生火，丁火方能成灯烛之光。\n"
-        "    六月己土：先癸后丙，癸水润土，丙火暖土，己土方能孕育田园。\n"
-        "    七月庚金：先丁后甲，丁火炼金，甲木生火，庚金方能成剑戟之器。\n"
-        "    八月辛金：先壬后壬，壬水洗淘，辛金方能展现珠玉之光。\n"
-        "    九月戊土：先甲后丙，甲木疏土，丙火暖局，秋土方能收藏。\n"
-        "    十月壬水：先甲后庚，甲木泄秀，庚金生水，冬水方能流通。\n"
-        "    十一月癸水：先丙后辛，丙火暖局，辛金生水，冬水方不致冻结。\n"
-        "    十二月癸水：先丙后庚，丙火解冻，庚金生水，丑月寒土需暖。\n\n"
-        "  《三命通会》纳音五行精论：\n"
-        "    「纳音者，天干地支之气化也」——纳音是干支气化的另一种表达，不可忽视。\n"
-        "    「海中金则 藏而不露，炉中火则 炼而成器」——同是金命，海中金与炉中火命截然不同。\n"
-        "    「大林木则 根深叶茂，路旁土则 任人践踏」——纳音揭示命格的根基深浅。\n"
-        "    「天上火则 光明照耀，涧下水则 清澈灵动」——纳音补充日主五行的质感差异。\n\n"
-        "  《子平真诠》用神论：\n"
-        "    「用神者，月令所藏之物，透干会支为用」——用神首选月令藏干透出者。\n"
-        "    「有病方为贵，无伤不是奇」——命局有病有药方为贵格，无病无药反为平常。\n"
-        "    「去其寡者则 用其众」——命局某五行独旺，需用其克泄之物来平衡。\n"
+        "    「何知其人富，财气通门户」——财星通达有力则富。「何知其人贵，官星有理会」——官星得力有情则贵。\n"
+        "    「何知其人贫，财星反不真」——财星虚浮被劫夺。「何知其人吉，喜神为辅弼」——命局流通有情。\n"
+        "    「何知其人凶，忌神辗转攻」——忌神重重互相引动。「坤元合德机缄通」——女命以柔顺为贵。\n\n"
+        "  《穷通宝鉴》调候用神精要(速查)：\n"
+        "    甲木先丙后庚，乙木先丙后癸，丙火先壬后庚，丁火先壬后甲。\n"
+        "    戊土先甲后丙，己土先癸后丙，庚金先丁后甲，辛金先壬后壬。\n"
+        "    壬水先甲后庚，癸水先丙后辛/庚。核心：冬用丙火暖局，夏用水润局。\n\n"
+        "  《三命通会》纳音：纳音是干支气化的补充表达。海中金藏而不露，炉中火炼而成器。\n"
+        "  《子平真诠》用神：用神首选月令藏干透出者。「有病方为贵，无伤不是奇」——有病有药方为贵格。\n"
     )
     BAZI_BRANCH_HIDDEN = (
         "【地支藏干详解 — 本气中气余气的推导逻辑】\n"
@@ -6420,26 +6283,21 @@ def bazi_prompt(
         "    4. 判断身强身弱时，地支藏干是重要的力量来源，不可忽略。\n"
     )
     BAZI_SPECIAL_PATTERNS = (
-        "【特殊命格分类 — 超越常规的命局格局】\n"
-        "  从格(弃命从势)：日主极弱，无根无助，只能顺从大势。\n"
-        "    从杀格：七杀极旺，日主从杀——适合军警/高压行业，以刚克刚。\n"
-        "    从财格：财星极旺，日主从财——适合经商/金融，以财养命。\n"
-        "    从儿格：食伤极旺，日主从儿——适合艺术/技术/创作，以才华为生。\n"
-        "    从势格：官杀食伤财均旺，日主从其大势——灵活应变，随势而行。\n"
-        "  专旺格(一行独旺)：某五行极旺，形成专旺之势。\n"
-        "    曲直格(木旺)：木气通天，仁慈宽厚，适合教育/文化/医疗。\n"
-        "    炎上格(火旺)：火气冲天，热情奔放，适合表演/传媒/公益。\n"
-        "    稼穑格(土旺)：土气厚重，敦厚务实，适合农业/地产/建筑。\n"
-        "    从革格(金旺)：金气肃杀，刚毅果决，适合军警/法律/金融。\n"
-        "    润下格(水旺)：水气流通，聪慧灵活，适合贸易/航运/传播。\n"
-        "  化气格：天干五合化气成功。\n"
-        "    甲己化土、乙庚化金、丙辛化水、丁壬化木、戊癸化火。\n"
-        "    化气成功条件：月令为化神旺地，且无克破之神。化气则 变质，性格命运大变。\n"
-        "  天干一字连：四柱天干相同（如四甲/四乙等）——纯粹之命，专注一事可成大器。\n"
-        "  地支一字连：四柱地支相同——根基深厚但需防过于固执。\n"
-        "  天地同流：天干地支皆同（如甲寅/乙卯连排）——气场纯粹，大起大落之命。\n"
-        "  两神成象：两种五行各占两柱，形成对峙——需看哪种五行得令得势。\n"
-        "  拱贵拱禄：天干相同，地支拱出贵人/禄神——暗中有助，贵气隐含。\n"
+        "【特殊命格分类与判断】\n"
+        "  从格(弃命从势)：日主极弱无根，顺从大势。判断条件：日主极弱+最旺五行>3倍日主+无根。\n"
+        "    从杀格(官杀最旺)：适合军警/高压行业。从财格(财星最旺)：适合经商/金融。\n"
+        "    从儿格(食伤最旺)：适合艺术/技术。从势格(多旺)：随势而行。\n"
+        "  专旺格(一行独旺)：某五行占3柱以上+月令得令+无克破。\n"
+        "    曲直格(木)：教育/文化。炎上格(火)：表演/传媒。稼穑格(土)：农业/地产。\n"
+        "    从革格(金)：军警/法律。润下格(水)：贸易/传播。\n"
+        "  化气格：天干五合(甲己/乙庚/丙辛/丁壬/戊癸)相邻+月令为化神旺地+无克破。\n"
+        "    化气成功则五行变质，性格命运大变。\n"
+        "  其他特殊格局：天干一字连(纯粹专注)、地支一字连(根基深但固执)、天地同流(大起大落)、两神成象(对峙)、拱贵拱禄(暗中助)。\n\n"
+        "  格局应用要点：\n"
+        "    正官格：靠实力稳步上升，忌投机。七杀格：需制化方成器(食神制杀/杀印相生)。\n"
+        "    正财格：稳中求进。偏财格：人脉即财脉。食神格：以才华吃饭。\n"
+        "    伤官格：才华横溢但需内敛，伤官见官则官非。正印格：以学问立身。\n"
+        "    偏印格：偏门天赋但防孤独。从格忌行印比运(帮身运)则破格反灾。\n"
     )
 
     # ── Build input data section ──
@@ -6515,140 +6373,21 @@ def bazi_prompt(
     )
 
     BAZI_PRACTICAL_SAYINGS = (
-        "【八字实用断语秘诀 — 滴天髓/子平真诠/穷通宝鉴实战口诀】\n\n"
-        "  一、日主断语\n"
-        "    甲木参天，脱胎要火。春不容金，秋不容土。火炽乘龙，水宕骑虎。地润天和，植立千古。\n"
-        "      白话：甲木如参天大树，需火来温暖。春天木旺不容金克，秋天金旺木弱不容土多。\n"
-        "    乙木虽柔，刲羊解牛。怀丁抱丙，跨凤乘猴。虚湿之地，骑马亦忧。藤萝系甲，可春可秋。\n"
-        "      白话：乙木虽柔韧如藤，但能克土(丑未)。有丙丁火温暖则能适应金旺之境。\n"
-        "    丙火猛烈，欺霜侮雪。能煅庚金，逢辛反怯。土众成慈，水猖显节。虎马犬乡，甲来成灭。\n"
-        "      白话：丙火如太阳般猛烈，能克金但遇辛金(珠玉)反而柔和。土多则火被泄，水多则火被克。\n"
-        "    丁火柔中，内性昭融。抱乙而孝，合壬而忠。旺而不烈，衰而不穷。如有嫡母，可秋可冬。\n"
-        "      白话：丁火如灯烛之火，温柔而持久。有甲木(嫡母)生扶则秋冬不灭。\n"
-        "    戊土固重，既中且正。静翕动辟，万物司命。水润物生，火燥物病。若在艮坤，怕冲宜静。\n"
-        "      白话：戊土如城墙大地，中正厚重。水润则万物生长，火旺则土地干裂。在寅申位怕冲。\n"
-        "    己土卑湿，中正蓄藏。不愁木盛，不畏水狂。火少火晦，金多金光。若要物旺，宜助宜帮。\n"
-        "      白话：己土如田园湿土，包容万物。不怕木克也不怕水淹，但火少则土晦暗，金多则土生金泄气。\n"
-        "    庚金带煞，刚健为最。得水而清，得火而锐。土润则生，土干则脆。能赢甲兄，输于乙妹。\n"
-        "      白话：庚金如刀剑之金，刚健锋利。遇水则清澈，遇火则锻炼成器。能克甲木但被乙木合绊。\n"
-        "    辛金软弱，温润而清。畏土之叠，乐水之盈。能扶社稷，能救生灵。热则喜母，寒则喜丁。\n"
-        "      白话：辛金如珠玉之金，温润秀气。怕土多埋金，喜水多淘洗。夏天喜土(母)晦火，冬天喜丁火暖身。\n"
-        "    壬水通河，能泄金气。刚中之德，周流不滞。通根透癸，冲天奔地。化则有情，从则相济。\n"
-        "      白话：壬水如江河之水，奔流不息。有癸水(根)则力量倍增。化木则有情，从土则相济。\n"
-        "    癸水至弱，达于天津。得龙而运，功化斯神。不愁火土，不论庚辛。合戊见火，化象斯真。\n"
-        "      白话：癸水如雨露之水，至弱但至灵。遇辰(龙)则通达。与戊合化火需见火方真。\n\n"
-        "  二、用神断语\n"
-        "    用神专求月令，以日干配月令地支，而生克不同，格局分焉。\n"
-        "    有杀先论杀，无杀方论用。杀印相生，最为上格。\n"
-        "    财官印全，最为上格。食神制杀，英雄独压万人。\n"
-        "    伤官见官，为祸百端。伤官配印，贵不可言。\n"
-        "    羊刃驾杀，威名显赫。从格顺生，大富大贵。\n\n"
-        "  三、大运断语\n"
-        "    运中每遇用神则发，遇忌神则败。运干管前五年，运支管后五年。\n"
-        "    命好运好，富贵到老。命好运差，中途破败。命差运好，否极泰来。\n"
-        "    大运逢冲，十有九动。大运逢合，十有八变。大运逢刑，十有七忧。\n"
-        "    身旺逢财运则发财，身弱逢财运则因财致祸。官运亦然，身旺逢官运则升迁，身弱逢官运则受压。\n\n"
-        "  四、流年断语\n"
-        "    太岁当头坐，无灾必有祸。太岁当头坐，诸神退位让。\n"
-        "    流年冲太岁，一年不顺遂。流年合太岁，一年有喜事。\n"
-        "    岁运并临(流年大运同干支)，不死自己则死他人(凶年需特别注意)。\n"
-        "    流年见桃花(子午卯酉)，异性缘旺。流年见驿马(寅申巳亥)，变动出行。\n"
-        "    流年见华盖(辰戌丑未)，孤独求学。流年见天乙贵人，逢凶化吉。\n"
+        "【八字实用断语秘诀】\n\n"
+        "  日主断语(精简版)：\n"
+        "    甲木参天脱胎要火，乙木虽柔刲羊解牛，丙火猛烈逢辛反怯，丁火柔中旺而不烈。\n"
+        "    戊土固重怕冲宜静，己土卑湿不愁木盛，庚金带煞得水而清，辛金软弱畏土之叠。\n"
+        "    壬水通河周流不滞，癸水至弱得龙而运。(详见BAZI_CLASSIC_QUOTES白话解读)\n\n"
+        "  用神断语：用神专求月令。有杀先论杀，无杀方论用。杀印相生最上格。伤官见官为祸百端，伤官配印贵不可言。\n\n"
+        "  大运断语：运中遇用神则发，遇忌神则败。运干管前五年，运支管后五年。大运逢冲十有九动，逢合十有八变。\n"
+        "    身旺逢财运则发财，身弱逢财运则因财致祸。官运亦然。\n\n"
+        "  流年断语：太岁当头坐无灾必有祸。流年冲太岁不顺，合太岁有喜。岁运并临需特别注意。\n"
+        "    流年见桃花(子午卯酉)异性缘旺，见驿马(寅申巳亥)变动出行，见华盖(辰戌丑未)孤独求学。\n"
     )
 
-    BAZI_MONTHLY_FORTUNE_DEEP = (
-        "【八字流月详解 — 十二月运势精确断法】\n\n"
-        "  流月分析原则：\n"
-        "    1. 流月天干管上半月(初一至十五)，流月地支管下半月(十六至三十)。\n"
-        "    2. 流月与命局的生克关系决定该月吉凶。\n"
-        "    3. 流月与大运的叠加效应需同时考虑。\n"
-        "    4. 流月中的节气交界处能量变化最明显。\n\n"
-        "  正月(寅月)：木旺火相，金囚水死，土休。\n"
-        "    寅为甲木禄地，木旺之时。命局喜木者此月顺遂，忌木者此月多阻。\n"
-        "    寅申冲：命局有申者，正月变动大。寅巳刑：命局有巳者，正月口舌多。\n\n"
-        "  二月(卯月)：木极旺，火相，金死，水休，土囚。\n"
-        "    卯为乙木禄地，木极旺之时。桃花月(卯为桃花)，异性缘强。\n"
-        "    卯酉冲：命局有酉者，二月变动大。卯戌合：命局有戌者，二月有合作。\n\n"
-        "  三月(辰月)：土旺，金相，水休，木囚，火死。\n"
-        "    辰为水库，湿土月。辰辰自刑：命局有辰者，三月自我矛盾多。\n"
-        "    辰酉合：命局有酉者，三月有贵人。辰戌冲：命局有戌者，三月变动。\n\n"
-        "  四月(巳月)：火旺，土相，金囚，水死，木休。\n"
-        "    巳为丙火禄地，火极旺之时。巳亥冲：命局有亥者，四月变动大。\n"
-        "    巳申合：命局有申者，四月有合作。巳寅刑：命局有寅者，四月需谨慎。\n\n"
-        "  五月(午月)：火极旺，土相，金死，水囚，木休。\n"
-        "    午为丁火禄地，火最旺之时。午未合：命局有未者，五月有合作。\n"
-        "    午子冲：命局有子者，五月变动大。午午自刑：命局有午者，五月需冷静。\n\n"
-        "  六月(未月)：土旺，金相，水休，木囚，火死。\n"
-        "    未为木库，燥土月。未丑冲：命局有丑者，六月变动。未午合：命局有午者，六月有助力。\n\n"
-        "  七月(申月)：金旺，水相，木囚，火死，土休。\n"
-        "    申为庚金禄地，金极旺之时。申寅冲：命局有寅者，七月变动大。\n"
-        "    申巳合：命局有巳者，七月有合作。申亥害：命局有亥者，七月需防小人。\n\n"
-        "  八月(酉月)：金极旺，水相，木死，火囚，土休。\n"
-        "    酉为辛金禄地，金最旺之时。酉卯冲：命局有卯者，八月变动大。\n"
-        "    酉辰合：命局有辰者，八月有贵人。酉酉自刑：命局有酉者，八月需谨慎。\n\n"
-        "  九月(戌月)：土旺，金相，水休，木囚，火死。\n"
-        "    戌为火库，燥土月。戌辰冲：命局有辰者，九月变动。戌卯合：命局有卯者，九月有合作。\n\n"
-        "  十月(亥月)：水旺，木相，火囚，金休，土死。\n"
-        "    亥为壬水禄地，水极旺之时。亥巳冲：命局有巳者，十月变动大。\n"
-        "    亥寅合：命局有寅者，十月有合作。亥亥自刑：命局有亥者，十月需冷静。\n\n"
-        "  十一月(子月)：水极旺，木相，火死，金囚，土休。\n"
-        "    子为癸水禄地，水最旺之时。子午冲：命局有午者，十一月变动大。\n"
-        "    子丑合：命局有丑者，十一月有助力。子卯刑：命局有卯者，十一月口舌多。\n\n"
-        "  十二月(丑月)：土旺，金相，水休，木囚，火死。\n"
-        "    丑为金库，湿土月。丑未冲：命局有未者，十二月变动。丑子合：命局有子者，十二月有助力。\n"
-        "    丑午害：命局有午者，十二月需防暗害。\n"
-    )
+    # BAZI_MONTHLY_FORTUNE_DEEP merged into BAZI_MONTHLY_FORTUNE_KNOWLEDGE above
 
-    BAZI_PATTERN_APPLICATION = (
-        "【八字格局应用实战 — 从格局判断到人生指导】\n\n"
-        "  一、正官格应用\n"
-        "    正官格特征：月令透正官，官星有力不被合克。\n"
-        "    适合职业：公务员/管理层/法律/教育/国企。\n"
-        "    人生指导：以正道行事，靠实力和资历稳步上升。忌投机取巧，宜脚踏实地。\n"
-        "    婚姻指导：男命正官格则妻子贤惠持家，女命正官格则丈夫有地位。\n\n"
-        "  二、七杀格应用\n"
-        "    七杀格特征：月令透七杀，需食神制杀或印星化杀方成格。\n"
-        "    适合职业：军警/外科医生/运动员/创业者/竞争激烈行业。\n"
-        "    人生指导：杀伐果断，以暴制暴。需有制化方能成器，无制则灾祸不断。\n"
-        "    食神制杀则文武双全，杀印相生则权倾一方。\n\n"
-        "  三、正财格应用\n"
-        "    正财格特征：月令透正财，财星有力不被劫夺。\n"
-        "    适合职业：金融/会计/商贸/实业/稳定收入行业。\n"
-        "    人生指导：以财养身，稳中求进。正财为稳定收入，忌高风险投资。\n"
-        "    身旺财旺则大富，身弱财旺则因财惹祸。\n\n"
-        "  四、偏财格应用\n"
-        "    偏财格特征：月令透偏财，偏财有力不被劫夺。\n"
-        "    适合职业：投资/销售/公关/娱乐/灵活收入行业。\n"
-        "    人生指导：人脉即财脉，社交能力是赚钱的关键。偏财为意外之财，可适当冒险。\n"
-        "    身旺偏财旺则横财运佳，身弱偏财旺则为他人做嫁衣。\n\n"
-        "  五、食神格应用\n"
-        "    食神格特征：月令透食神，食神有力不被枭印夺食。\n"
-        "    适合职业：餐饮/教育/文艺/心理咨询/自由职业。\n"
-        "    人生指导：以才华吃饭，以技术立身。食神主口福和才华，适合凭本事赚钱。\n"
-        "    食神生财则才华变现，食神制杀则以柔克刚。\n\n"
-        "  六、伤官格应用\n"
-        "    伤官格特征：月令透伤官，伤官有力。需配印或生财方成格。\n"
-        "    适合职业：艺术/设计/写作/演艺/创新行业/自主创业。\n"
-        "    人生指导：才华横溢但性格张扬，需学会内敛。伤官配印则文采斐然，伤官生财则才华变现。\n"
-        "    伤官见官则官非口舌，需特别注意。女命伤官则婚姻多波折。\n\n"
-        "  七、正印格应用\n"
-        "    正印格特征：月令透正印，印星有力不被财星破印。\n"
-        "    适合职业：教育/学术/宗教/文化/公益/研究。\n"
-        "    人生指导：以学问立身，以品德服人。正印主学历和贵人，读书是最好的改运方式。\n"
-        "    印星旺则学识渊博，印星弱则需后天努力补足。\n\n"
-        "  八、偏印格应用\n"
-        "    偏印格特征：月令透偏印(枭神)，需食神配合方成格。\n"
-        "    适合职业：玄学/中医/心理咨询/特殊技能/偏门行业。\n"
-        "    人生指导：适合非常规路线，偏门学问是天赋所在。但枭神夺食则需防孤独和困境。\n"
-        "    偏印旺则悟性极高但性格孤僻，偏印弱则偏门天赋不显。\n\n"
-        "  九、从格应用(从财/从杀/从儿/从势)\n"
-        "    从格特征：日主极弱无根，顺从命局中最旺之五行。\n"
-        "    从财格：以经商为主，财来则顺，逆势则败。\n"
-        "    从杀格：以武职/竞争行业为主，需在激烈环境中发展。\n"
-        "    从儿格：以才华/技术为主，靠专业能力吃饭。\n"
-        "    从势格：随大势而动，顺势而为则大成。\n"
-        "    注意：从格忌行印比运(帮身运)，行之则破格反灾。\n"
-    )
+    # BAZI_PATTERN_APPLICATION merged into BAZI_SPECIAL_PATTERNS above
 
     BAZI_GAN_HE = (
         "【天干五合详解 — 合化条件与命理影响】\n\n"
@@ -6860,10 +6599,6 @@ def bazi_prompt(
 
     # ── Tag format ──
     TAG_FORMAT = """
-请严格按照以下JSON格式输出你的分析结果(在最后单独一行输出，不要包含在报告正文中)：
-```json
-{"weakness_tags":["#缺火","#财库空亡"],"strength_tags":["#领导力强"],"boost_elements":["fire","earth"],"conflict_warnings":["某信号矛盾"]}
-```
 weakness_tags: 3-6个，以#开头，精准描述命局缺陷
     日主弱(身弱无根) 则 #身弱
     五行缺某元素且为用神 则 #缺金/#缺木/#缺水/#缺火/#缺土
@@ -6878,10 +6613,10 @@ strength_tags: 1-3个，命局优势
     用神得力 则 #用神得力
     贵人星旺 则 #贵人运强
     财官印俱全 则 #三奇入命
-boost_elements: 需补五行列表(英文)，如["fire","water"]
-    用神为火 则 fire   用神为木 则 wood
-    用神为金 则 metal  用神为水 则 water
-    用神为土 则 earth
+boost_elements: 需补五行列表(中文)，如["火","水"]
+    用神为火 则 火   用神为木 则 木
+    用神为金 则 金   用神为水 则 水
+    用神为土 则 土
 conflict_warnings: 1-3个矛盾信号
     身旺财弱 则 有能力但财富不匹配
     印旺官弱 则 有学识但事业不顺
@@ -6889,9 +6624,41 @@ conflict_warnings: 1-3个矛盾信号
     比劫夺财 则 合作易破财
 """
 
+    # ── 条件知识加载：根据用户问题选择性注入知识块 ──
+    # Bazi agent doesn't receive user_question directly, use default full loading
+    _bazi_core = (
+        f"{BAZI_ELEMENT_SYSTEM}\n\n"
+        f"{TEN_GOD_SYSTEM}\n\n"
+        f"{TEN_GOD_COMBOS}\n\n"
+        f"{SHEN_SHA_KNOWLEDGE}\n\n"
+        f"{NAYIN_KNOWLEDGE}\n\n"
+        f"{DA_YUN_KNOWLEDGE}\n\n"
+        f"{FORTUNE_PATTERNS}\n\n"
+        f"{BAZI_VISUAL_TABLES}\n\n"
+    )
+    _bazi_optional = (
+        f"{HEALTH_SYSTEM}\n\n"
+        f"{RELATIONSHIP_SYSTEM}\n\n"
+        f"{CAREER_SYSTEM}\n\n"
+        f"{BAZI_ADVANCED_KNOWLEDGE}\n\n"
+        f"{BAZI_MONTHLY_FORTUNE_KNOWLEDGE}\n\n"
+        f"{BAZI_CLASSIC_QUOTES}\n\n"
+        f"{BAZI_BRANCH_HIDDEN}\n\n"
+        f"{BAZI_SPECIAL_PATTERNS}\n\n"
+        f"{BAZI_PRACTICAL_SAYINGS}\n\n"
+        f"{BAZI_GAN_HE}\n\n"
+        f"{BAZI_SHENSHA_PRACTICAL}\n\n"
+        f"{BAZI_NAYIN_PRACTICAL}\n\n"
+        f"{BAZI_KONG_WANG}\n\n"
+        f"{BAZI_TWELVE_STAGES}\n\n"
+        f"{BAZI_LU_SHEN}\n\n"
+    )
+    _bazi_knowledge = _bazi_core + _bazi_optional
+
     return (
         "你是世界顶级的周易八字命理师。精通《滴天髓》《三命通会》《渊海子平》《子平真诠》，"
-        "擅长从八字四柱提取命主一生的富贵贫贱、吉凶祸福。\n\n"
+        "擅长从八字四柱提取命主一生的富贵贫贱、吉凶祸福。\n"
+        f"{_lang_instruction(language)}\n"
         "你的任务：基于用户出生时间排出的八字四柱，给出专业、精准、深入的八字分析报告。\n\n"
         "分析推理链：\n"
         "  第一步：定格局 则 看月令透干，确定命格类型\n"
@@ -6934,31 +6701,7 @@ conflict_warnings: 1-3个矛盾信号
         f"过旺元素：{', '.join(strong_elements) if strong_elements else '无明显过旺'}\n"
         f"十神分布：\n{shishen_str}\n"
         f"{nayin_sec}{shensha_sec}{chang_sheng_sec}{da_yun_sec}{face_sec}\n\n"
-        f"{BAZI_ELEMENT_SYSTEM}\n\n"
-        f"{TEN_GOD_SYSTEM}\n\n"
-        f"{TEN_GOD_COMBOS}\n\n"
-        f"{SHEN_SHA_KNOWLEDGE}\n\n"
-        f"{NAYIN_KNOWLEDGE}\n\n"
-        f"{HEALTH_SYSTEM}\n\n"
-        f"{RELATIONSHIP_SYSTEM}\n\n"
-        f"{CAREER_SYSTEM}\n\n"
-        f"{DA_YUN_KNOWLEDGE}\n\n"
-        f"{FORTUNE_PATTERNS}\n\n"
-        f"{BAZI_ADVANCED_KNOWLEDGE}\n\n"
-        f"{BAZI_MONTHLY_FORTUNE_KNOWLEDGE}\n\n"
-        f"{BAZI_CLASSIC_QUOTES}\n\n"
-        f"{BAZI_BRANCH_HIDDEN}\n\n"
-        f"{BAZI_SPECIAL_PATTERNS}\n\n"
-        f"{BAZI_VISUAL_TABLES}\n\n"
-        f"{BAZI_PRACTICAL_SAYINGS}\n\n"
-        f"{BAZI_MONTHLY_FORTUNE_DEEP}\n\n"
-        f"{BAZI_PATTERN_APPLICATION}\n\n"
-        f"{BAZI_GAN_HE}\n\n"
-        f"{BAZI_SHENSHA_PRACTICAL}\n\n"
-        f"{BAZI_NAYIN_PRACTICAL}\n\n"
-        f"{BAZI_KONG_WANG}\n\n"
-        f"{BAZI_TWELVE_STAGES}\n\n"
-        f"{BAZI_LU_SHEN}\n\n"
+        f"{_bazi_knowledge}\n"
         "【请按以下结构输出八字分析报告（使用自然语言标题，不要列出SECTIONS编号）】\n\n"
         "【命格总断】\n"
         "  一句话定性：日主+旺衰+格局+用神 则 如「甲木日主身旺，正官格，用神为金」\n"
@@ -7010,25 +6753,11 @@ conflict_warnings: 1-3个矛盾信号
         "  根据用神五行给出开运建议：\n"
         "    幸运颜色/方位/数字/行业/饰物/习惯\n"
         "  根据忌神五行给出避忌建议\n\n"
-        "【天干地支关系深度分析】\n"
-        "  天干合化：逐对分析天干合化是否成功，对命局的影响\n"
-        "  地支关系：刑冲合害破的完整分析，特别关注日支\n"
-        "  三合局/三会局：命局中形成的三合/三会及其力量\n"
-        "  战局与通关：五行相战的化解路径\n\n"
-        "【月度运势详解】\n"
-        "  基于当前流年，逐月分析运势起伏\n"
-        "  标注每月的用神/忌神状态\n"
-        "  关键月份的重点提醒（换运月、冲合月）\n"
-        "  每月的行动建议（适合/不适合做什么）\n\n"
         "写作要求：\n"
-        "  - 2000-3500字，精炼输出，专业深入，引《滴天髓》《三命通会》《子平真诠》等经典\n"
-        "  - 每个结论必须标注依据（如「根据月令为酉金，金旺木衰...」）\n"
-        "  - 避免巴纳姆效应式模糊语言，给出具体可验证的判断\n"
-        "  - 流年分析要精确到月份，给出具体行动建议\n"
-        "  - 术语可括号注释（如「正官——克制日主的异性五行，代表事业/名望」）\n"
-        "  - 结合命主性别和实际生活场景，给出有针对性的建议\n"
-        "  - 精炼表达：避免重复论述同一观点，每个章节聚焦核心要点\n"
-        "  - 优先级排序：用神/忌神优先分析，其他十神可简要带过\n"
+        "  - 2000-3500字，引《滴天髓》《三命通会》《子平真诠》等经典\n"
+        "  - 每个结论标注依据（如「根据月令为酉金，金旺木衰...」），避免巴纳姆效应\n"
+        "  - 流年精确到月份，术语括号注释，结合命主性别和实际生活场景\n"
+        "  - 用神/忌神优先分析，其他十神可简要带过\n"
         f"{TAG_FORMAT}"
     )
 
@@ -7313,6 +7042,194 @@ def master_detail_prompt(worker_summaries: dict, user_question: str,
         f"{harm_hint}\n"
         f"{confidence_text}\n\n"
         "请立即生成深度付费报告。务必详细回答用户问题。"
+    )
+
+
+# ─── Master Sub-task Prompts (Parallel Synthesis) ────────────────────────
+
+def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
+                                resonance_text: str = "", conflicts_text: str = "",
+                                dimension_scores: dict | None = None,
+                                confidence_text: str = "",
+                                intent: str = "") -> str:
+    """Sub-task A: 核心综合 — 命盘底色 + 跨维度共鸣 + 核心矛盾 + 置信度表"""
+    workers_str = "\n\n".join(
+        f"[{k.upper()}]\n{v[:400]}" for k, v in worker_summaries.items() if v
+    )
+    scores_str = ""
+    if dimension_scores:
+        _DIM_CN = {"wealth": "财富", "relationship": "感情", "career": "事业",
+                   "health": "健康", "spiritual": "精神"}
+        scores_str = " | ".join(f"{_DIM_CN.get(k, k)}:{v}" for k, v in dimension_scores.items())
+
+    CROSS_DOMAIN = """
+【跨命理体系对应关系】
+- 八字"印旺" 相当于 星盘土星/月亮强势 相当于 手相感情线深长
+- 八字"七杀攻身" 相当于 星盘火土刑克 相当于 塔罗宝剑牌组
+- 多体系一致=高置信度，2体系矛盾=低置信度以"可能性"输出
+"""
+
+    # ── Intent-adaptive instructions ──
+    intent_hint = ""
+    if intent == "GENERAL_DAILY":
+        intent_hint = (
+            "\n== 推命通道：⚡量子快连（一键推命）==\n"
+            "用户选择了快捷通道，未提供精确出生时辰和面相/手相数据。\n"
+            "报告重心：\n"
+            "1. 聚焦【当下磁场】与【近期运势波动】，给出今日/本周的极简行为断语\n"
+            "2. 强调塔罗牌的潜意识解析和直觉引导\n"
+            "3. 不要提及面相、手相相关内容（用户未上传）\n"
+            "4. 如果出生信息不完整，在命盘底色中标注「基于粗略星盘推算」\n"
+            "5. 风格：简洁高效，像量子态坍缩一样直击核心\n\n"
+        )
+    elif intent == "FULL_MULTIMODAL":
+        intent_hint = (
+            "\n== 推命通道：🔱天命合参（完整推命）==\n"
+            "用户选择了全景通道，已上传面相/手相/精确出生信息。\n"
+            "报告重心：\n"
+            "1. 必须在命盘底色中融合手相骨骼特征与面相三庭五眼的AI分析结论\n"
+            "2. 出现「结合您上传的面相特征与八字财星互表」「手相生命线走势与流年对应」等融合表述\n"
+            "3. 在跨维度共鸣中，至少引用2个以上维度的交叉验证\n"
+            "4. 让用户感受到上传的照片和精确出生信息被AI 100%深度消化\n"
+            "5. 风格：深度、仪式感、全景式解读\n\n"
+        )
+
+    return (
+        "你是命盘智镜首席命运策师。根据7位专家的分析，生成核心综合报告。\n\n"
+        f"{intent_hint}"
+        "== 输出结构 ==\n"
+        "【A·命盘底色】150-250字，核心格局深度总结，结合至少3个专家体系交叉验证\n\n"
+        "【B·跨维度共鸣】列出3个以上专家一致确认的议题，每个引用具体专家结论\n\n"
+        "【C·核心矛盾解释】\n"
+        "  1. 列出矛盾点  2. 分析矛盾原因  3. 给出综合判断  4. 标注置信度\n\n"
+        "【D·置信度评估表】\n"
+        "  | 专家体系 | 置信度 | 理由 | 权重 |\n"
+        "  极高=1.0 | 高=0.8 | 中=0.6 | 低=0.4 | 极低=0.2\n\n"
+        f"{CROSS_DOMAIN}\n"
+        f"== 五维评分 ==\n{scores_str}\n\n"
+        f"== 跨维度共鸣 ==\n{resonance_text or '无'}\n\n"
+        f"== 跨维度冲突 ==\n{conflicts_text or '无'}\n\n"
+        f"== 专家报告 ==\n{workers_str}\n\n"
+        f"== 用户问题 ==\n{user_question}\n\n"
+        f"{confidence_text}\n\n"
+        "请生成核心综合报告。"
+    )
+
+
+def master_subtask_dimensions_prompt(worker_summaries: dict, user_question: str,
+                                      dimension_scores: dict | None = None,
+                                      confidence_text: str = "",
+                                      intent: str = "") -> str:
+    """Sub-task B: 五维诊断 — 财富/感情/事业/健康/精神 + 年度转折点 + 发展轨迹"""
+    workers_str = "\n\n".join(
+        f"[{k.upper()}]\n{v[:400]}" for k, v in worker_summaries.items() if v
+    )
+    scores_str = ""
+    if dimension_scores:
+        _DIM_CN = {"wealth": "财富", "relationship": "感情", "career": "事业",
+                   "health": "健康", "spiritual": "精神"}
+        scores_str = " | ".join(f"{_DIM_CN.get(k, k)}:{v}" for k, v in dimension_scores.items())
+
+    intent_hint = ""
+    if intent == "GENERAL_DAILY":
+        intent_hint = (
+            "\n== 推命通道：⚡量子快连（一键推命）==\n"
+            "五维诊断侧重【近期趋势】而非长期命格，给出未来7-30天的能量波动预判。\n"
+            "年度转折点简化为未来3个月的关键日期即可。\n"
+            "不要引用面相或手相数据。\n\n"
+        )
+    elif intent == "FULL_MULTIMODAL":
+        intent_hint = (
+            "\n== 推命通道：🔱天命合参（完整推命）==\n"
+            "五维诊断必须融合手相/面相AI分析结论，出现「面相山根与事业宫对应」「手相智慧线与精神维度交叉」等表述。\n"
+            "年度转折点覆盖完整12个月，并标注大运切换、土星回归等关键节点。\n\n"
+        )
+
+    return (
+        "你是命盘智镜首席命运策师。根据7位专家的分析，生成五维诊断报告。\n\n"
+        f"{intent_hint}"
+        "== 输出结构 ==\n"
+        "【E·五维诊断】财富/感情/事业/健康/精神各100-150字深度分析，\n"
+        "  结合至少2个专家交叉验证，每条标注：\n"
+        "  1. 置信度（极高/高/中/低/极低）\n"
+        "  2. 判断（吉/凶/平）\n"
+        "  3. 不确定性标注\n"
+        "  4. 行动指引\n\n"
+        "【F·年度转折点】标注未来12个月的关键月份窗口期\n\n"
+        "【H·命格发展轨迹】人生关键时间节点：大运切换、土星回归、流年触发\n\n"
+        f"== 五维评分 ==\n{scores_str}\n\n"
+        f"== 专家报告 ==\n{workers_str}\n\n"
+        f"== 用户问题 ==\n{user_question}\n\n"
+        f"{confidence_text}\n\n"
+        "请生成五维诊断报告。"
+    )
+
+
+def master_subtask_actions_prompt(worker_summaries: dict, user_question: str,
+                                   products_with_reasons: list,
+                                   harm_hint: str = "",
+                                   dimension_scores: dict | None = None,
+                                   intent: str = "") -> str:
+    """Sub-task C: 行动建议 — 用户问题专项分析 + 能量处方 + 商品推荐"""
+    workers_str = "\n\n".join(
+        f"[{k.upper()}]\n{v[:300]}" for k, v in worker_summaries.items() if v
+    )
+    scores_str = ""
+    if dimension_scores:
+        _DIM_CN = {"wealth": "财富", "relationship": "感情", "career": "事业",
+                   "health": "健康", "spiritual": "精神"}
+        scores_str = " | ".join(f"{_DIM_CN.get(k, k)}:{v}" for k, v in dimension_scores.items())
+
+    products_sec = ""
+    if products_with_reasons:
+        products_sec = "【推荐商品清单】\n"
+        for p in products_with_reasons:
+            name = p.get("product_name", p.get("name", "商品"))
+            price = p.get("price_cny", p.get("price", "?"))
+            reasons = p.get("match_reasons", [])
+            rec = p.get("recommendation_text", "")
+            products_sec += f"  - {name} ¥{price} | 匹配原因：{'；'.join(reasons[:3])}"
+            if rec:
+                products_sec += f" | 推荐语：{rec[:200]}"
+            products_sec += "\n"
+
+    intent_hint = ""
+    if intent == "GENERAL_DAILY":
+        intent_hint = (
+            "\n== 推命通道：⚡量子快连（一键推命）==\n"
+            "行动建议侧重【今日/本周可执行的极简动作】，给出3条以内最核心的行动指令。\n"
+            "能量处方简化为1-2条最急需的调和方法。\n"
+            "处方笺中的商品推荐以实用性和即时效果为主。\n\n"
+        )
+    elif intent == "FULL_MULTIMODAL":
+        intent_hint = (
+            "\n== 推命通道：🔱天命合参（完整推命）==\n"
+            "行动建议覆盖【年度行动路线图】，分阶段给出Q1-Q4的行动指引。\n"
+            "能量处方结合面相/手相特征给出个性化调和方案。\n"
+            "处方笺中的商品推荐引用面相/八字交叉验证结论。\n\n"
+        )
+
+    return (
+        "你是命盘智镜首席命运策师。根据专家分析，生成行动建议报告。\n\n"
+        f"{intent_hint}"
+        "== 输出结构 ==\n"
+        "【G·针对用户问题的专项分析】200-300字，直接回答用户提问，\n"
+        "  引用相关专家的具体分析数据，给出可操作的行动建议\n\n"
+        "【I·综合能量处方】基于五维评分，给出能量调和建议：\n"
+        "  1. 最需要补充的1-2个维度\n"
+        "  2. 推荐补充的五行元素\n"
+        "  3. 具体的日常调和方法（3-5条）\n"
+        "  4. 需要注意的风险提示\n\n"
+        "【J·处方笺·为你精选的助运物】\n"
+        "  从推荐商品中挑选最匹配的1-2个，按处方格式输出：\n"
+        "  【商品名称】(¥价格) — 推荐理由[80-120字]\n"
+        "  结尾加上「— 专属处方」标记\n\n"
+        f"== 五维评分 ==\n{scores_str}\n\n"
+        f"== 专家报告 ==\n{workers_str}\n\n"
+        f"== 用户问题 ==\n{user_question}\n\n"
+        f"== 推荐商品 ==\n{products_sec}\n\n"
+        f"{harm_hint}\n\n"
+        "请生成行动建议报告。"
     )
 
 

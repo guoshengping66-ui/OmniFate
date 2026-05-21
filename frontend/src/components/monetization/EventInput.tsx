@@ -17,14 +17,13 @@ export interface EventFormData {
 }
 
 export function EventInput({ onSubmit, loading, freeQuota = 0 }: EventInputProps) {
+  const { t } = useLanguage()
   const [description, setDescription] = useState("")
   const [eventDate, setEventDate] = useState("")
   const [eventTime, setEventTime] = useState("12:00")
   const [emotionScore, setEmotionScore] = useState(5)
-  const { t: rawT } = useLanguage()
-  const t = rawT as unknown as (key: string) => string
 
-  const emotionLabels: Record<number, string> = {
+  const EMOTION_LABELS: Record<number, string> = {
     1: t("eventInput.emotion1"),
     3: t("eventInput.emotion3"),
     5: t("eventInput.emotion5"),
@@ -113,7 +112,7 @@ export function EventInput({ onSubmit, loading, freeQuota = 0 }: EventInputProps
             className="flex-1 accent-gold"
           />
           <span className="text-sm text-white/60 min-w-[80px] text-right">
-            {emotionScore} · {emotionLabels[emotionScore] || t("eventInput.emotion5")}
+            {emotionScore} · {EMOTION_LABELS[emotionScore] || t("eventInput.emotion5")}
           </span>
         </div>
       </div>

@@ -4,6 +4,7 @@ import Link from "next/link"
 import type { Product } from "@/lib/api"
 import { useCart } from "@/contexts/CartContext"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { ProductImage } from "@/components/shop/ProductImage"
 import toast from "react-hot-toast"
 
 function getGlowClass(score?: number): string {
@@ -75,11 +76,13 @@ export function ProductCard({ product }: { product: Product }) {
       )}
 
       {/* Image */}
- <div className="w-20 h-20 flex-shrink-0 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center text-3xl overflow-hidden relative">
-        {product.image_url ? (
-          <img src={product.image_url} alt={product.name} className="w-full h-full object-cover rounded-xl" />
-        ) : "🔮"}
-      </div>
+      <ProductImage
+        src={product.image_url}
+        alt={product.name}
+        category={product.category}
+        size="md"
+        className="flex-shrink-0"
+      />
 
       {/* Info */}
       <div className="flex-1 min-w-0 relative z-10">

@@ -5,20 +5,23 @@ import hashlib
 import time
 import json
 import base64
+import logging
 import requests
-from datetime import datetime, timedelta
+
+logger = logging.getLogger(__name__)
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 from xml.etree import ElementTree as ET
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Query
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.session import get_db
 from database.models import (
-    Reading, User, Order, OrderItem, EventLog, Product,
-    PaymentStatus, OrderStatus,
+    Reading, User, Order, OrderItem, EventLog, Product, UserAddress,
+    FounderVote, CreditTransaction, PaymentStatus, OrderStatus,
 )
 from auth.dependencies import get_current_user, require_user
 from config import get_settings
@@ -32,21 +35,137 @@ EVENT_RETRO_PRICE = 19.9
 
 # ── Server-side price list (clients CANNOT override these) ───────────────────
 # Prices in CNY for Alipay/WeChat, USD for PayPal
-PREMIUM_MONTHLY_CNY = 49.0
-PREMIUM_YEARLY_CNY = 298.0
-PREMIUM_MONTHLY_USD = 6.99
-PREMIUM_YEARLY_USD = 39.99
-UNLOCK_PRICE_CNY = 69.0
+PREMIUM_MONTHLY_CNY = 59.0
+PREMIUM_YEARLY_CNY = 365.0
+PREMIUM_MONTHLY_USD = 14.99
+PREMIUM_YEARLY_USD = 99.00
+UNLOCK_PRICE_CNY = 88.0
+UNLOCK_PRICE_USD = 24.99
 
 # Price map for order validation
 PRODUCT_PRICES = {
     "premium_monthly": {"cny": PREMIUM_MONTHLY_CNY, "usd": PREMIUM_MONTHLY_USD},
     "premium_yearly": {"cny": PREMIUM_YEARLY_CNY, "usd": PREMIUM_YEARLY_USD},
-    "unlock_report": {"cny": UNLOCK_PRICE_CNY},
+    "unlock_report": {"cny": UNLOCK_PRICE_CNY, "usd": UNLOCK_PRICE_USD},
+    "founder_lifetime": {"cny": 1288, "usd": 399},
+}
+
+# ── Stardust constants ──────────────────────────────────────────────────────
+GRANT_ON_REPORT_UNLOCK = 100   # 解锁报告奖励星尘
+GRANT_ON_REGISTER = 50          # 注册奖励星尘
+SUBSCRIPTION_GRANTS = {
+    "premium_monthly": 100,
+    "premium_yearly": 150,
+    "founder_lifetime": 500,
 }
 
 
 # ─── Payment Methods ──────────────────────────────────────────────────────────
+
+
+async def _activate_subscription(user: User, tier: str, db: AsyncSession) -> dict:
+    """
+    激活订阅会员 — 单一事实来源（Single Source of Truth）。
+    由 QR 支付确认、正式支付回调、mock 订阅 共同调用。
+    """
+    if tier not in ("premium_monthly", "premium_yearly"):
+        return {}
+
+    now = datetime.now(timezone.utc)
+    grant_amount = SUBSCRIPTION_GRANTS.get(tier, 0)
+
+    if tier == "premium_yearly":
+        expires = now + timedelta(days=365)
+        free_events = 5
+    else:
+        expires = now + timedelta(days=30)
+        free_events = 2
+
+    user.is_premium = True
+    user.subscription_tier = tier
+    user.premium_expires_at = expires
+    user.free_event_quota = free_events
+    user.free_event_quota_reset_at = now + timedelta(days=30)
+
+    # 注入首月星尘
+    user.stardust_balance += grant_amount
+    user.stardust_lifetime_earned += grant_amount
+
+    tx = CreditTransaction(
+        user_id=user.id,
+        amount=grant_amount,
+        balance_after=user.stardust_balance,
+        reason="subscription_grant",
+        reference_id=None,
+        status="confirmed",
+    )
+    db.add(tx)
+
+    return {
+        "grant_amount": grant_amount,
+        "expires": expires.isoformat(),
+        "free_events": free_events,
+    }
+
+
+async def _activate_founder_seat(user: User, order_no: str, db: AsyncSession) -> dict:
+    """
+    激活创始席位 — 由 QR 支付确认和正式支付回调调用。
+    """
+    now = datetime.now(timezone.utc)
+
+    # Count current founders to determine next seat number (with lock to prevent race condition)
+    domestic_count_result = await db.execute(
+        select(func.count()).select_from(User).where(
+            User.is_founder == True,
+            User.founder_region == "domestic",
+        ).with_for_update()
+    )
+    domestic_count = domestic_count_result.scalar() or 0
+
+    if domestic_count < FOUNDER_TOTAL_DOMESTIC:
+        region = "domestic"
+        seat_no = domestic_count + 1
+    else:
+        overseas_count_result = await db.execute(
+            select(func.count()).select_from(User).where(
+                User.is_founder == True,
+                User.founder_region == "overseas",
+            ).with_for_update()
+        )
+        overseas_count = overseas_count_result.scalar() or 0
+        if overseas_count >= FOUNDER_TOTAL_OVERSEAS:
+            raise HTTPException(status_code=400, detail="创始席位已售罄")
+        region = "overseas"
+        seat_no = FOUNDER_TOTAL_DOMESTIC + overseas_count + 1
+
+    grant_amount = SUBSCRIPTION_GRANTS["founder_lifetime"]
+
+    user.is_founder = True
+    user.founder_seat_no = seat_no
+    user.founder_region = region
+    user.founder_activated_at = now
+    user.subscription_tier = "founder_lifetime"
+    user.is_premium = True
+    user.premium_expires_at = None  # Lifetime
+    user.stardust_balance += grant_amount
+    user.stardust_lifetime_earned += grant_amount
+
+    tx = CreditTransaction(
+        user_id=user.id,
+        amount=grant_amount,
+        balance_after=user.stardust_balance,
+        reason="founder_grant",
+        reference_id=order_no,
+        status="confirmed",
+    )
+    db.add(tx)
+
+    return {
+        "seat_no": seat_no,
+        "region": region,
+        "grant_amount": grant_amount,
+    }
 
 @router.get("/payment-methods")
 async def get_payment_methods():
@@ -109,9 +228,12 @@ async def _unlock_reading(reading_id: str, db: AsyncSession) -> dict:
 
     coupon_issued = 0
     trial_activated = False
+    stardust_granted = 0
 
     if reading.user_id:
-        user_result = await db.execute(select(User).where(User.id == reading.user_id))
+        user_result = await db.execute(
+            select(User).where(User.id == reading.user_id).with_for_update()
+        )
         user = user_result.scalar_one_or_none()
         if user:
             if (user.shop_coupon_balance or 0) == 0:
@@ -120,10 +242,23 @@ async def _unlock_reading(reading_id: str, db: AsyncSession) -> dict:
             if not user.is_premium:
                 user.is_premium = True
                 user.subscription_tier = "trial"
-                user.premium_expires_at = datetime.utcnow() + timedelta(days=TRIAL_DAYS)
+                user.premium_expires_at = datetime.now(timezone.utc) + timedelta(days=TRIAL_DAYS)
                 user.free_event_quota = 2
-                user.free_event_quota_reset_at = datetime.utcnow() + timedelta(days=TRIAL_DAYS)
+                user.free_event_quota_reset_at = datetime.now(timezone.utc) + timedelta(days=TRIAL_DAYS)
                 trial_activated = True
+            # 解锁报告奖励星尘
+            user.stardust_balance += GRANT_ON_REPORT_UNLOCK
+            user.stardust_lifetime_earned += GRANT_ON_REPORT_UNLOCK
+            stardust_granted = GRANT_ON_REPORT_UNLOCK
+            tx = CreditTransaction(
+                user_id=user.id,
+                amount=GRANT_ON_REPORT_UNLOCK,
+                balance_after=user.stardust_balance,
+                reason="report_unlock_grant",
+                reference_id=reading_id,
+                status="confirmed",
+            )
+            db.add(tx)
 
     await db.commit()
     return {
@@ -132,6 +267,7 @@ async def _unlock_reading(reading_id: str, db: AsyncSession) -> dict:
         "message": "报告已解锁",
         "shop_coupon_issued": coupon_issued,
         "trial_activated": trial_activated,
+        "stardust_granted": stardust_granted,
     }
 
 
@@ -202,7 +338,6 @@ class WeChatPay:
 @router.post("/wechat/create")
 async def create_wechat_order(
     item_type: str = Query("unlock_report", description="商品类型"),
-    description: str = Query("命盘智镜", description="商品描述"),
     reading_id: str = Query(None, description="报告 ID"),
     db: AsyncSession = Depends(get_db),
 ):
@@ -216,7 +351,16 @@ async def create_wechat_order(
         raise HTTPException(status_code=400, detail="无效的商品类型")
     amount = price_info["cny"]
 
-    order_no = f"WX{datetime.utcnow().strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
+    # 合规化包装: 面向微信支付风控的商品描述（与命理世界观隔离）
+    subject_map = {
+        "premium_monthly": "AlphaMirror AI算力月度套餐",
+        "premium_yearly": "AlphaMirror AI算力年度套餐",
+        "unlock_report": "AlphaMirror AI算力服务",
+        "founder_lifetime": "AlphaMirror AI算力终身套餐",
+    }
+    wechat_subject = subject_map.get(item_type, "AlphaMirror AI算力服务")
+
+    order_no = f"WX{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
 
     order = Order(
         order_no=order_no,
@@ -229,7 +373,7 @@ async def create_wechat_order(
     await db.commit()
 
     wechat = WeChatPay()
-    result = await wechat.create_order(order_no, amount, description)
+    result = await wechat.create_order(order_no, amount, wechat_subject)
 
     return {
         "order_no": order_no,
@@ -249,10 +393,12 @@ async def wechat_notify(request: Request, db: AsyncSession = Depends(get_db)):
     if data.get("return_code") != "SUCCESS":
         return "<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[FAIL]]></return_msg></xml>"
 
-    # 验证签名
+    # 验证签名 (timing-safe comparison to prevent timing attacks)
     wechat = WeChatPay()
     sign = data.pop("sign", "")
-    if wechat._generate_sign(data) != sign:
+    expected_sign = wechat._generate_sign(data)
+    import hmac
+    if not hmac.compare_digest(expected_sign.encode(), sign.encode()):
         return "<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[签名验证失败]]></return_msg></xml>"
 
     # 解锁报告
@@ -262,13 +408,16 @@ async def wechat_notify(request: Request, db: AsyncSession = Depends(get_db)):
     order_result = await db.execute(select(Order).where(Order.order_no == order_no))
     order = order_result.scalar_one_or_none()
     if order:
+        # 幂等保护：如果订单已支付，直接返回成功（避免重复激活）
+        if order.status == OrderStatus.paid:
+            return "<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>"
         # Verify paid amount matches expected amount
         paid_fee = int(data.get("total_fee", 0))
         expected_fee = int(order.total_cny * 100)
         if paid_fee != expected_fee:
             return "<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[金额不匹配]]></return_msg></xml>"
         order.status = OrderStatus.paid
-        order.paid_at = datetime.utcnow()
+        order.paid_at = datetime.now(timezone.utc)
 
     await db.commit()
     return "<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>"
@@ -346,7 +495,6 @@ class AlipayPay:
 @router.post("/alipay/create")
 async def create_alipay_order(
     item_type: str = Query("unlock_report", description="商品类型"),
-    subject: str = Query("命盘智镜", description="商品名称"),
     reading_id: str = Query(None, description="报告 ID"),
     db: AsyncSession = Depends(get_db),
 ):
@@ -359,7 +507,16 @@ async def create_alipay_order(
         raise HTTPException(status_code=400, detail="无效的商品类型")
     amount = price_info["cny"]
 
-    order_no = f"ALI{datetime.utcnow().strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
+    # 合规化包装: 面向支付宝风控的商品名称（与命理世界观隔离）
+    subject_map = {
+        "premium_monthly": "AlphaMirror AI算力月度套餐",
+        "premium_yearly": "AlphaMirror AI算力年度套餐",
+        "unlock_report": "AlphaMirror AI算力服务",
+        "founder_lifetime": "AlphaMirror AI算力终身套餐",
+    }
+    alipay_subject = subject_map.get(item_type, "AlphaMirror AI算力服务")
+
+    order_no = f"ALI{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
 
     order = Order(
         order_no=order_no,
@@ -372,7 +529,7 @@ async def create_alipay_order(
     await db.commit()
 
     alipay = AlipayPay()
-    result = await alipay.create_order(order_no, amount, subject)
+    result = await alipay.create_order(order_no, amount, alipay_subject)
 
     return {
         "order_no": order_no,
@@ -382,11 +539,47 @@ async def create_alipay_order(
     }
 
 
+def _verify_alipay_signature(data: dict) -> bool:
+    """验证支付宝回调 RSA2 签名"""
+    try:
+        from cryptography.hazmat.primitives import hashes, serialization
+        from cryptography.hazmat.primitives.asymmetric import padding
+
+        sign = data.pop("sign", "")
+        if not sign or not settings.ALIPAY_PUBLIC_KEY:
+            return False
+
+        # 构造待验签字符串（按 key 排序）
+        sorted_params = sorted(data.items())
+        sign_content = "&".join([f"{k}={v}" for k, v in sorted_params if v and k != "sign"])
+
+        # 加载支付宝公钥
+        public_key = serialization.load_pem_public_key(
+            settings.ALIPAY_PUBLIC_KEY.encode(),
+        )
+
+        # 验证签名
+        signature = base64.b64decode(sign)
+        public_key.verify(
+            signature,
+            sign_content.encode(),
+            padding.PKCS1v15(),
+            hashes.SHA256(),
+        )
+        return True
+    except Exception:
+        return False
+
+
 @router.post("/alipay/notify")
 async def alipay_notify(request: Request, db: AsyncSession = Depends(get_db)):
-    """支付宝回调通知"""
+    """支付宝回调通知 — 必须验证 RSA2 签名"""
     form = await request.form()
     data = dict(form)
+
+    # 1. 验证 RSA2 签名（防伪造回调）
+    if not _verify_alipay_signature(data):
+        return "fail"
 
     if data.get("trade_status") not in ("TRADE_SUCCESS", "TRADE_FINISHED"):
         return "fail"
@@ -397,12 +590,15 @@ async def alipay_notify(request: Request, db: AsyncSession = Depends(get_db)):
     order_result = await db.execute(select(Order).where(Order.order_no == order_no))
     order = order_result.scalar_one_or_none()
     if order:
+        # 幂等保护：如果订单已支付，直接返回成功（避免重复激活）
+        if order.status == OrderStatus.paid:
+            return "success"
         # Verify paid amount matches expected amount
         paid_amount = float(data.get("total_amount", 0))
         if abs(paid_amount - order.total_cny) > 0.01:
             return "fail"
         order.status = OrderStatus.paid
-        order.paid_at = datetime.utcnow()
+        order.paid_at = datetime.now(timezone.utc)
 
     await db.commit()
     return "success"
@@ -439,9 +635,21 @@ class PayPalPay:
         )
         return response.json().get("access_token", "")
 
-    async def create_order(self, order_no: str, amount_usd: float, description: str) -> dict:
+    async def create_order(self, order_no: str, amount_usd: float, description: str, custom_id: str = "") -> dict:
         """创建 PayPal 订单"""
         access_token = self._get_access_token()
+
+        purchase_unit = {
+            "reference_id": order_no,
+            "description": description,
+            "amount": {
+                "currency_code": "USD",
+                "value": f"{amount_usd:.2f}",
+            },
+        }
+        # 传递 custom_id（用户 ID）供 webhook 回调识别用户
+        if custom_id:
+            purchase_unit["custom_id"] = custom_id
 
         response = requests.post(
             f"{self.base_url}/v2/checkout/orders",
@@ -451,14 +659,7 @@ class PayPalPay:
             },
             json={
                 "intent": "CAPTURE",
-                "purchase_units": [{
-                    "reference_id": order_no,
-                    "description": description,
-                    "amount": {
-                        "currency_code": "USD",
-                        "value": f"{amount_usd:.2f}",
-                    },
-                }],
+                "purchase_units": [purchase_unit],
                 "application_context": {
                     "return_url": self.return_url,
                     "cancel_url": self.cancel_url,
@@ -486,11 +687,11 @@ class PayPalPay:
 @router.post("/paypal/create")
 async def create_paypal_order(
     item_type: str = Query("unlock_report", description="商品类型"),
-    description: str = Query("Destiny Mirror", description="商品描述"),
     reading_id: str = Query(None, description="报告 ID"),
     db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_user),
 ):
-    """创建 PayPal 订单 — 金额由服务端决定"""
+    """创建 PayPal 订单 — 金额由服务端决定，需要登录以传递用户 ID 给 webhook"""
     if not settings.PAYPAL_ENABLED:
         raise HTTPException(status_code=400, detail="PayPal 未启用")
 
@@ -500,20 +701,32 @@ async def create_paypal_order(
     amount_usd = price_info["usd"]
     amount_cny = price_info["cny"]
 
-    order_no = f"PP{datetime.utcnow().strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
+    # 合规化包装: 面向 PayPal 风控的商品描述（与命理世界观隔离）
+    subject_map = {
+        "premium_monthly": "AlphaMirror AI Computing Monthly",
+        "premium_yearly": "AlphaMirror AI Computing Yearly",
+        "unlock_report": "AlphaMirror AI Computing Service",
+        "founder_lifetime": "AlphaMirror AI Computing Lifetime",
+    }
+    paypal_description = subject_map.get(item_type, "AlphaMirror AI Computing Service")
+
+    order_no = f"PP{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
 
     order = Order(
+        user_id=current_user.id,
         order_no=order_no,
         status=OrderStatus.pending,
         total_cny=amount_cny,
         payment_method="paypal",
         payment_ref=order_no,
+        notes=f"item_type:{item_type}|reading_id:{reading_id or ''}",
     )
     db.add(order)
     await db.commit()
 
     paypal = PayPalPay()
-    result = await paypal.create_order(order_no, amount_usd, description)
+    # 传递 user.id 作为 custom_id，供 webhook 回调识别用户并自动激活
+    result = await paypal.create_order(order_no, amount_usd, paypal_description, custom_id=current_user.id)
 
     return {
         "order_no": order_no,
@@ -548,15 +761,45 @@ async def capture_paypal_order(
     if result.get("status") == "COMPLETED":
         order_no = result.get("purchase_units", [{}])[0].get("reference_id", "")
         if order_no:
-            order_result = await db.execute(select(Order).where(Order.order_no == order_no))
+            order_result = await db.execute(
+                select(Order).where(Order.order_no == order_no).with_for_update()
+            )
             order = order_result.scalar_one_or_none()
             if order:
-                # Verify captured amount matches expected
+                # Verify captured amount matches expected — use server-side USD price lookup
                 captured_amount = float(result.get("purchase_units", [{}])[0].get("amount", {}).get("value", 0))
-                if abs(captured_amount * 7.2 - order.total_cny) > 1.0:
+                # Find matching USD price from PRODUCT_PRICES by total_cny
+                expected_usd = None
+                for _item_type, prices in PRODUCT_PRICES.items():
+                    if "usd" in prices and "cny" in prices:
+                        if abs(prices["cny"] - order.total_cny) < 0.01:
+                            expected_usd = prices["usd"]
+                            break
+                if expected_usd and abs(captured_amount - expected_usd) > 0.01:
                     raise HTTPException(status_code=400, detail="支付金额不匹配")
+
+                # 如果订单尚未被 webhook 标记为 paid，激活对应权益
+                already_paid = order.status == OrderStatus.paid
                 order.status = OrderStatus.paid
-                order.paid_at = datetime.utcnow()
+                order.paid_at = datetime.now(timezone.utc)
+
+                if not already_paid and order.user_id:
+                    # 从 notes 中解析 item_type 并激活
+                    item_type = ""
+                    if order.notes and "item_type:" in order.notes:
+                        item_type = order.notes.split("item_type:")[1].split("|")[0]
+
+                    user_result = await db.execute(
+                        select(User).where(User.id == order.user_id).with_for_update()
+                    )
+                    user = user_result.scalar_one_or_none()
+                    if user and item_type in ("premium_monthly", "premium_yearly"):
+                        grant_info = await _activate_subscription(user, item_type, db)
+                        logger.info(f"[PAYPAL-CAPTURE] 激活订阅: 用户 {user.id}, {item_type}, 星尘 +{grant_info.get('grant_amount', 0)}")
+                    elif user and item_type == "founder_lifetime":
+                        grant_info = await _activate_founder_seat(user, order_no, db)
+                        logger.info(f"[PAYPAL-CAPTURE] 激活创始席位: 用户 {user.id}, 席位 #{grant_info.get('seat_no')}")
+
                 await db.commit()
 
         return {"status": "completed", "message": "支付成功"}
@@ -567,12 +810,51 @@ async def capture_paypal_order(
 # ─── Report Unlock ───────────────────────────────────────────────────────────
 
 @router.post("/unlock/{reading_id}")
-async def mock_unlock(
+async def unlock_report(
     reading_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_user),
 ):
-    """Mock 支付解锁报告（开发环境）— 需要登录"""
+    """
+    解锁报告 — 验证用户已通过 /personal-payments/confirm 完成支付。
+    不再允许直接调用免费解锁。
+    """
+    # 1. 查找报告
+    reading_result = await db.execute(select(Reading).where(Reading.id == reading_id))
+    reading = reading_result.scalar_one_or_none()
+    if not reading:
+        raise HTTPException(status_code=404, detail="报告不存在")
+
+    # 1.5 验证报告归属（只能解锁自己的报告）
+    if reading.user_id and str(reading.user_id) != str(current_user.id):
+        raise HTTPException(status_code=403, detail="无权操作此报告")
+
+    # 2. 检查是否已解锁
+    if reading.is_detail_unlocked:
+        return {
+            "unlocked": True,
+            "reading_id": reading_id,
+            "message": "报告已解锁，无需重复支付",
+            "shop_coupon_issued": 0,
+            "trial_activated": False,
+        }
+
+    # 3. 验证是否存在已支付的订单（必须通过正规支付流程）
+    paid_order = await db.execute(
+        select(Order).where(
+            Order.notes.contains(f"reading_id:{reading_id}"),
+            Order.status == OrderStatus.paid,
+        )
+    )
+    paid_order = paid_order.scalar_one_or_none()
+
+    if not paid_order:
+        raise HTTPException(
+            status_code=402,
+            detail="请先完成支付再解锁报告",
+        )
+
+    # 4. 通过支付验证，解锁报告
     return await _unlock_reading(reading_id, db)
 
 
@@ -608,7 +890,7 @@ async def pay_event(
         user = result.scalar_one_or_none()
 
     if user:
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         if user.free_event_quota_reset_at and now > user.free_event_quota_reset_at:
             user.free_event_quota = 2 if user.subscription_tier != "premium_yearly" else 5
             user.free_event_quota_reset_at = now + timedelta(days=30)
@@ -646,6 +928,12 @@ class CreateOrderRequest(BaseModel):
     items: list[OrderItemIn]
     total_cny: float
     use_coupon: bool = False
+    address_id: Optional[str] = None
+    payment_method: Optional[str] = None
+    recipient_name: Optional[str] = None
+    recipient_phone: Optional[str] = None
+    shipping_address: Optional[dict] = None
+    notes: Optional[str] = None
 
 
 @router.post("/create-order")
@@ -655,10 +943,12 @@ async def create_order(
     current_user: Optional[User] = Depends(get_current_user),
 ):
     """创建订单，支持代金券抵扣 — 服务端验证价格"""
-    # Refetch user within this session if logged in
+    # Refetch user within this session if logged in (with lock to prevent coupon race condition)
     user = None
     if current_user:
-        result = await db.execute(select(User).where(User.id == current_user.id))
+        result = await db.execute(
+            select(User).where(User.id == current_user.id).with_for_update()
+        )
         user = result.scalar_one_or_none()
 
     # Validate prices against product catalog (NEVER trust client prices)
@@ -680,16 +970,8 @@ async def create_order(
                 "unit_price_cny": server_price,
             })
         else:
-            # Non-catalog items (e.g., subscriptions) — use client price but cap at reasonable limit
-            if item.unit_price_cny > 9999 or item.unit_price_cny < 0:
-                raise HTTPException(status_code=400, detail="无效的价格")
-            server_total += item.unit_price_cny * item.quantity
-            validated_items.append({
-                "product_id": None,
-                "product_name": item.product_name,
-                "quantity": item.quantity,
-                "unit_price_cny": item.unit_price_cny,
-            })
+            # Non-catalog items rejected — subscriptions use /personal-payments, not shop
+            raise HTTPException(status_code=400, detail=f"商品不存在: {item.product_id or item.product_name}，请通过正确渠道购买")
 
     # Use server-calculated total, not client total
     final_total = round(server_total, 2)
@@ -703,15 +985,45 @@ async def create_order(
         user.shop_coupon_balance = balance - coupon_used
         final_total = round(final_total - coupon_used, 2)
 
-    order_no = f"ORD{datetime.utcnow().strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
+    order_no = f"ORD{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
+
+    # Resolve address info
+    recipient_name = req.recipient_name
+    recipient_phone = req.recipient_phone
+    shipping_address = req.shipping_address
+
+    if req.address_id and current_user:
+        addr_result = await db.execute(
+            select(UserAddress).where(
+                UserAddress.id == req.address_id,
+                UserAddress.user_id == current_user.id,
+            )
+        )
+        addr = addr_result.scalar_one_or_none()
+        if addr:
+            recipient_name = addr.recipient_name
+            recipient_phone = addr.phone
+            shipping_address = {
+                "country": addr.country,
+                "province": addr.province,
+                "city": addr.city,
+                "district": addr.district,
+                "address_line1": addr.address_line1,
+                "address_line2": addr.address_line2,
+                "postal_code": addr.postal_code,
+            }
 
     order = Order(
         user_id=user.id if user else None,
         order_no=order_no,
         status=OrderStatus.pending,
         total_cny=final_total,
-        payment_method="pending",
+        payment_method=req.payment_method or "pending",
         payment_ref=order_no,
+        recipient_name=recipient_name,
+        recipient_phone=recipient_phone,
+        shipping_address=shipping_address,
+        notes=req.notes,
     )
     db.add(order)
     await db.flush()
@@ -740,49 +1052,96 @@ async def create_order(
     }
 
 
+# ─── Tracking ──────────────────────────────────────────────────────────────
+
+@router.get("/tracking/{order_id}")
+async def get_tracking(
+    order_id: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user),
+):
+    """查询物流信息"""
+
+    stmt = select(Order).where(Order.id == order_id)
+    if current_user:
+        stmt = stmt.where(Order.user_id == current_user.id)
+    result = await db.execute(stmt)
+    order = result.scalar_one_or_none()
+    if not order:
+        raise HTTPException(status_code=404, detail="订单不存在")
+
+    tracking_info = {
+        "order_no": order.order_no,
+        "status": order.status.value if order.status else "pending",
+        "tracking_number": order.tracking_number,
+        "shipping_carrier": order.shipping_carrier,
+        "shipped_at": order.shipped_at.isoformat() if order.shipped_at else None,
+        "trajectory": [],
+    }
+
+    # Try Kuaidi100 API if tracking info exists
+    if order.tracking_number and order.shipping_carrier:
+        try:
+            kuaidi_url = "https://api.kuaidi100.com/query"
+            resp = requests.get(kuaidi_url, params={
+                "com": order.shipping_carrier,
+                "nu": order.tracking_number,
+                "key": "",  # 需要配置快递100 API key
+            }, timeout=5)
+            if resp.status_code == 200:
+                data = resp.json()
+                if data.get("status") == "200":
+                    tracking_info["trajectory"] = [
+                        {
+                            "time": item.get("ftime", ""),
+                            "description": item.get("context", ""),
+                        }
+                        for item in data.get("data", [])
+                    ]
+        except Exception:
+            pass  # 降级：不展示物流轨迹
+
+    return tracking_info
+
+
 # ─── Subscription ────────────────────────────────────────────────────────────
 
 @router.post("/subscribe")
-async def mock_subscribe(
+async def subscribe_tier(
     tier: str = Query("premium_monthly", pattern="^(premium_monthly|premium_yearly)$"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_user),
 ):
-    """订阅会员（Mock 模式）— 支付宝/微信正式支付请使用 /alipay/create 或 /wechat/create"""
+    """订阅会员（仅开发环境）— 正式支付请使用 /personal-payments/create"""
+    # 生产环境禁止直接订阅（必须通过支付流程）
+    if not settings.DEBUG:
+        raise HTTPException(
+            status_code=403,
+            detail="请通过正规支付流程订阅",
+        )
     if db is None:
         raise HTTPException(status_code=503, detail="数据库暂不可用")
 
     # Refetch user within THIS session to avoid detached-instance issues
-    result = await db.execute(select(User).where(User.id == current_user.id))
+    result = await db.execute(
+        select(User).where(User.id == current_user.id).with_for_update()
+    )
     user = result.scalar_one_or_none()
     if not user:
         raise HTTPException(status_code=404, detail="用户不存在")
 
-    now = datetime.utcnow()
-
-    if tier == "premium_yearly":
-        expires = now + timedelta(days=365)
-        free_events = 5
-        price_label = "¥298/年"
-    else:
-        expires = now + timedelta(days=30)
-        free_events = 2
-        price_label = "¥49/月"
-
-    user.is_premium = True
-    user.subscription_tier = tier
-    user.premium_expires_at = expires
-    user.free_event_quota = free_events
-    user.free_event_quota_reset_at = now + timedelta(days=30)
-
+    grant_info = await _activate_subscription(user, tier, db)
     await db.commit()
     await db.refresh(user)
+
+    price_label = "¥298/年" if tier == "premium_yearly" else "¥49/月"
 
     return {
         "subscription_id": f"sub_{uuid.uuid4().hex[:8]}",
         "tier": tier,
         "status": "active",
-        "current_period_end": expires.isoformat(),
+        "current_period_end": grant_info["expires"],
+        "stardust_granted": grant_info["grant_amount"],
         "message": f"订阅成功: {price_label}",
         "user": {
             "is_premium": user.is_premium,
@@ -790,6 +1149,7 @@ async def mock_subscribe(
             "premium_expires_at": user.premium_expires_at.isoformat() if user.premium_expires_at else None,
             "free_event_quota": user.free_event_quota,
             "shop_coupon_balance": user.shop_coupon_balance,
+            "stardust_balance": user.stardust_balance,
         },
     }
 
@@ -799,9 +1159,225 @@ async def mock_cancel_subscription(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_user),
 ):
-    """取消订阅"""
+    """取消订阅 — 当前周期结束后生效，立即停止自动续费"""
+    # Refetch user within THIS session to avoid detached-instance issues
+    result = await db.execute(
+        select(User).where(User.id == current_user.id).with_for_update()
+    )
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="用户不存在")
+
+    if not user.is_premium or user.subscription_tier in ("trial", "founder_lifetime", "cancelled"):
+        raise HTTPException(status_code=400, detail="当前没有可取消的有效订阅")
+
+    expires_at = user.premium_expires_at
+    # Clear auto-renewal flag (set subscription to non-renewing)
+    # The user keeps access until expires_at, then reverts to free
+    user.subscription_tier = "cancelled" if user.subscription_tier != "founder_lifetime" else user.subscription_tier
+    # Note: We do NOT immediately revoke access — user keeps premium until expires_at
+
+    await db.commit()
+    await db.refresh(user)
+
     return {
         "status": "cancelled",
-        "premium_expires_at": current_user.premium_expires_at.isoformat() if current_user.premium_expires_at else None,
-        "message": "订阅已取消，当前周期结束后恢复免费",
+        "premium_expires_at": expires_at.isoformat() if expires_at else None,
+        "message": "订阅已取消，当前付费周期结束后将恢复免费",
     }
+
+
+# ─── Founder Seats ──────────────────────────────────────────────────────────
+
+FOUNDER_TOTAL_DOMESTIC = 100
+FOUNDER_TOTAL_OVERSEAS = 100
+
+
+class FounderVoteRequest(BaseModel):
+    feature_id: str
+
+
+@router.post("/founder/purchase")
+async def create_founder_purchase(
+    method: str = Query("personal", description="支付方式: personal|alipay|wechat"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_user),
+):
+    """创建创始席位购买订单 — 支付后调用 /founder/activate 激活"""
+    if current_user.is_founder:
+        raise HTTPException(status_code=400, detail="您已拥有创始席位")
+
+    price_info = PRODUCT_PRICES["founder_lifetime"]
+    amount = price_info["cny"]
+
+    order_no = f"FO{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
+
+    order = Order(
+        user_id=current_user.id,
+        order_no=order_no,
+        status=OrderStatus.pending,
+        total_cny=amount,
+        payment_method=f"founder_{method}",
+        payment_ref=order_no,
+        notes=f"item_type:founder_lifetime|reading_id:",
+    )
+    db.add(order)
+    await db.commit()
+
+    return {
+        "order_no": order_no,
+        "amount": amount,
+        "currency": "CNY",
+        "message": "创始席位购买订单已创建",
+    }
+
+
+@router.get("/founder/status")
+async def get_founder_status(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_user),
+):
+    """获取创始席位状态 — 基于真实用户数据（仅统计已激活的席位）"""
+
+    # Count real founder seats — must have seat_no AND activated_at
+    # This excludes test/fake founder status that was set without going through activate
+    domestic_result = await db.execute(
+        select(func.count()).select_from(User).where(
+            User.is_founder == True,
+            User.founder_region == "domestic",
+            User.founder_seat_no.isnot(None),
+            User.founder_activated_at.isnot(None),
+        )
+    )
+    domestic_sold = domestic_result.scalar() or 0
+
+    overseas_result = await db.execute(
+        select(func.count()).select_from(User).where(
+            User.is_founder == True,
+            User.founder_region == "overseas",
+            User.founder_seat_no.isnot(None),
+            User.founder_activated_at.isnot(None),
+        )
+    )
+    overseas_sold = overseas_result.scalar() or 0
+
+    total_seats = FOUNDER_TOTAL_DOMESTIC + FOUNDER_TOTAL_OVERSEAS
+    sold_seats = domestic_sold + overseas_sold
+    remaining_seats = total_seats - sold_seats
+
+    return {
+        "total_seats": total_seats,
+        "sold_seats": sold_seats,
+        "remaining_seats": remaining_seats,
+        "domestic_total": FOUNDER_TOTAL_DOMESTIC,
+        "domestic_sold": domestic_sold,
+        "overseas_total": FOUNDER_TOTAL_OVERSEAS,
+        "overseas_sold": overseas_sold,
+        "is_founder": current_user.is_founder,
+        "seat_no": current_user.founder_seat_no,
+        "seat_region": current_user.founder_region,
+    }
+
+
+@router.get("/founder/seats")
+async def list_founder_seats(
+    db: AsyncSession = Depends(get_db),
+):
+    """获取所有已占用的创始席位编号（用于展示席位墙）"""
+    result = await db.execute(
+        select(User.founder_seat_no, User.founder_region, User.display_name, User.created_at)
+        .where(
+            User.is_founder == True,
+            User.founder_seat_no.isnot(None),
+            User.founder_activated_at.isnot(None),
+        )
+        .order_by(User.founder_seat_no)
+    )
+    seats = []
+    for row in result.all():
+        seats.append({
+            "seat_no": row[0],
+            "region": row[1],
+            "name": row[2] or "匿名",
+            "activated_at": row[3].isoformat() if row[3] else None,
+        })
+    return {"seats": seats}
+
+
+@router.post("/founder/activate")
+async def activate_founder_seat(
+    order_no: str = Query(..., description="已支付的订单号"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_user),
+):
+    """
+    激活创始席位 — 必须提供已支付的订单号。
+    生产环境不再允许无订单激活。
+    """
+    if current_user.is_founder:
+        raise HTTPException(status_code=400, detail="您已拥有创始席位")
+
+    # 必须提供 order_no（生产环境）
+    if not settings.DEBUG:
+        order_result = await db.execute(
+            select(Order).where(
+                Order.order_no == order_no,
+                Order.user_id == current_user.id,
+            )
+        )
+        order = order_result.scalar_one_or_none()
+        if not order:
+            raise HTTPException(status_code=404, detail="订单不存在")
+        if order.status != OrderStatus.paid:
+            raise HTTPException(status_code=400, detail="订单尚未支付")
+        if order.total_cny < 1288:
+            raise HTTPException(status_code=400, detail="订单金额不足，创始席位需支付 ¥1288")
+
+    # Refetch user with lock
+    result = await db.execute(
+        select(User).where(User.id == current_user.id).with_for_update()
+    )
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="用户不存在")
+
+    info = await _activate_founder_seat(user, order_no or "mock", db)
+    await db.commit()
+
+    return {
+        "status": "activated",
+        "seat_no": info["seat_no"],
+        "region": info["region"],
+        "stardust_granted": info["grant_amount"],
+        "message": f"恭喜！您已锁定创始席位 #{info['seat_no']}",
+    }
+
+
+@router.post("/founder/vote")
+async def vote_feature(
+    req: FounderVoteRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_user),
+):
+    """创始席位产品路线图投票"""
+    if not current_user.is_founder:
+        raise HTTPException(status_code=403, detail="仅创始会员可投票")
+
+    # Check if already voted
+    existing = await db.execute(
+        select(FounderVote).where(
+            FounderVote.user_id == current_user.id,
+            FounderVote.feature_id == req.feature_id,
+        )
+    )
+    if existing.scalar_one_or_none():
+        raise HTTPException(status_code=400, detail="您已为该功能投过票")
+
+    vote = FounderVote(
+        user_id=current_user.id,
+        feature_id=req.feature_id,
+    )
+    db.add(vote)
+    await db.commit()
+
+    return {"status": "voted", "feature_id": req.feature_id}

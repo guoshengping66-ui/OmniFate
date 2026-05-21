@@ -5,7 +5,7 @@ import { Sparkles, Send, MessageCircle, Globe, BookOpen } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 export function Footer() {
-  const { t } = useLanguage()
+  const { t, localeHref } = useLanguage()
   const [email, setEmail] = useState("")
   const [subscribed, setSubscribed] = useState(false)
 
@@ -40,17 +40,20 @@ export function Footer() {
               {/* Social icons */}
               <div className="flex gap-3">
                 {[
-                  { icon: <MessageCircle size={14} />, label: "WeChat" },
-                  { icon: <Globe size={14} />, label: "Weibo" },
-                  { icon: <BookOpen size={14} />, label: "Xiaohongshu" },
+                  { icon: <MessageCircle size={14} />, label: "WeChat", href: "#" },
+                  { icon: <Globe size={14} />, label: "Weibo", href: "#" },
+                  { icon: <BookOpen size={14} />, label: "Xiaohongshu", href: "#" },
                 ].map(s => (
-                  <div
+                  <a
                     key={s.label}
- className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/30 hover:text-gold hover:border-gold/30 hover:bg-gold/5 transition-all duration-300 cursor-pointer"
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+ className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/30 hover:text-gold hover:border-gold/30 hover:bg-gold/5 transition-all duration-300"
                     title={s.label}
                   >
                     {s.icon}
-                  </div>
+                  </a>
                 ))}
               </div>
             </div>
@@ -62,11 +65,10 @@ export function Footer() {
               </h4>
               <ul className="space-y-2.5">
                 {[
-                  [t("nav.home"), "/"],
-                  [t("nav.reading"), "/reading/new"],
-                  [t("nav.pricing"), "/pricing"],
-                  [t("nav.shop"), "/shop"],
-                  [t("nav.blog"), "/blog"],
+                  [t("nav.home"), localeHref("/")],
+                  [t("nav.pricing"), localeHref("/pricing")],
+                  [t("nav.shop"), localeHref("/shop")],
+                  [t("nav.blog"), localeHref("/blog")],
                 ].map(([l, h]) => (
                   <li key={h}>
                     <Link
@@ -86,7 +88,7 @@ export function Footer() {
                 {t("footer.systems")}
               </h4>
               <ul className="space-y-2.5">
-                {[t("agent.bazi"), t("agent.astrology"), t("agent.tarot"), t("agent.face")].map(s => (
+                {[t("agent.bazi._label"), t("agent.astrology._label"), t("agent.tarot._label"), t("agent.face._label")].map(s => (
                   <li key={s} className="text-white/40 text-sm">{s}</li>
                 ))}
               </ul>
@@ -95,15 +97,15 @@ export function Footer() {
             {/* Newsletter */}
             <div>
               <h4 className="text-gold/80 font-medium mb-4 text-sm uppercase tracking-wider">
-                订阅运势
+                {t("footer.newsletter")}
               </h4>
               <p className="text-white/30 text-xs mb-3 leading-relaxed">
-                每周推送五行运势与开运指南
+                {t("footer.newsletterDesc")}
               </p>
               {subscribed ? (
                 <div className="flex items-center gap-2 text-gold text-sm py-2">
                   <Sparkles size={14} />
-                  订阅成功
+                  {t("footer.subscribed")}
                 </div>
               ) : (
                 <form onSubmit={handleSubscribe} className="flex gap-2">
@@ -129,11 +131,18 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="border-t border-white/[0.06]">
           <div className="max-w-7xl mx-auto px-6 py-5 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-white/25 text-xs">{t("footer.copyright")}</p>
+            <p className="text-white/25 text-xs">
+              {t("footer.copyright")}
+              <span className="mx-2">|</span>
+              <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" className="hover:text-gold/60 transition-colors">{t("footer.icp")}</a>
+            </p>
             <div className="flex gap-6 text-white/25 text-xs">
-              <a href="/privacy" className="hover:text-gold/60 transition-colors">隐私政策</a>
-              <a href="/terms" className="hover:text-gold/60 transition-colors">服务条款</a>
-              <a href="/refund" className="hover:text-gold/60 transition-colors">退款政策</a>
+              <a href={localeHref("/faq")} className="hover:text-gold/60 transition-colors">{t("footer.faq")}</a>
+              <a href={localeHref("/contact")} className="hover:text-gold/60 transition-colors">{t("footer.contactUs")}</a>
+              <a href={localeHref("/privacy")} className="hover:text-gold/60 transition-colors">{t("footer.privacy")}</a>
+              <a href={localeHref("/terms")} className="hover:text-gold/60 transition-colors">{t("footer.terms")}</a>
+              <a href={localeHref("/refund")} className="hover:text-gold/60 transition-colors">{t("footer.refund")}</a>
+              <a href={localeHref("/disclaimer")} className="hover:text-gold/60 transition-colors">{t("footer.disclaimer")}</a>
             </div>
           </div>
         </div>
