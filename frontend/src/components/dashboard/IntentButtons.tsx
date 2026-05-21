@@ -177,7 +177,7 @@ export function IntentButtons({ onGework }: Props) {
                 <span className="text-[10px] font-mono text-gold/50 tracking-[0.2em] uppercase">PRIMARY</span>
                 <div className="h-px flex-1 bg-gradient-to-r from-gold/20 to-transparent" />
               </div>
-              <h3 className="text-lg md:text-xl font-bold text-gold mb-0.5 tracking-wide">
+              <h3 className="text-xl md:text-2xl font-bold text-gold mb-1 tracking-wider" style={{ textShadow: "0 0 20px rgba(201,168,76,0.4)" }}>
                 {t("dash.intent.full")}
               </h3>
               <p className="text-xs md:text-sm text-gold/40 font-light tracking-wider">
@@ -234,9 +234,9 @@ export function IntentButtons({ onGework }: Props) {
               }`} />
             </div>
             <div className="text-[9px] font-mono text-cyan-400/40 tracking-[0.15em] uppercase mb-1">QUICK</div>
-            <h4 className={`text-sm font-semibold mb-0.5 transition-colors duration-300 ${
-              hoveredCard === "quick" ? "text-cyan-300" : "text-white/70"
-            }`}>
+            <h4 className={`text-base md:text-lg font-bold mb-1 transition-colors duration-300 tracking-wide ${
+              hoveredCard === "quick" ? "text-cyan-300" : "text-white/80"
+            }`} style={{ textShadow: hoveredCard === "quick" ? "0 0 15px rgba(34,211,238,0.3)" : "none" }}>
               {t("dash.intent.quick")}
             </h4>
             <p className="text-[10px] text-cyan-400/30 font-light tracking-wider mb-1.5">{t("dash.intent.quickEn")}</p>
@@ -274,9 +274,9 @@ export function IntentButtons({ onGework }: Props) {
               }`} />
             </div>
             <div className="text-[9px] font-mono text-purple-400/40 tracking-[0.15em] uppercase mb-1">ANALYTICS</div>
-            <h4 className={`text-sm font-semibold mb-0.5 transition-colors duration-300 ${
-              hoveredCard === "event" ? "text-purple-300" : "text-white/70"
-            }`}>
+            <h4 className={`text-base md:text-lg font-bold mb-1 transition-colors duration-300 tracking-wide ${
+              hoveredCard === "event" ? "text-purple-300" : "text-white/80"
+            }`} style={{ textShadow: hoveredCard === "event" ? "0 0 15px rgba(168,85,247,0.3)" : "none" }}>
               {t("dash.intent.event")}
             </h4>
             <p className="text-[10px] text-purple-400/30 font-light tracking-wider mb-1.5">{t("dash.intent.eventEn")}</p>
@@ -314,9 +314,9 @@ export function IntentButtons({ onGework }: Props) {
               }`} />
             </div>
             <div className="text-[9px] font-mono text-amber-400/40 tracking-[0.15em] uppercase mb-1">COLLECTIVE</div>
-            <h4 className={`text-sm font-semibold mb-0.5 transition-colors duration-300 ${
-              hoveredCard === "friend" ? "text-amber-300" : "text-white/70"
-            }`}>
+            <h4 className={`text-base md:text-lg font-bold mb-1 transition-colors duration-300 tracking-wide ${
+              hoveredCard === "friend" ? "text-amber-300" : "text-white/80"
+            }`} style={{ textShadow: hoveredCard === "friend" ? "0 0 15px rgba(251,191,36,0.3)" : "none" }}>
               {t("dash.intent.friend")}
             </h4>
             <p className="text-[10px] text-amber-400/30 font-light tracking-wider mb-1.5">{t("dash.intent.friendEn")}</p>
