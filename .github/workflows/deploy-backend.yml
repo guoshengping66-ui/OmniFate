@@ -64,17 +64,15 @@ jobs:
 
             # 4. 杀掉旧的 uvicorn 进程
             echo "🔄 停止旧服务..."
-            # 用 kill 逐个杀，避免 pkill 信号传播导致脚本中断
-            PIDS=$(pgrep -f "uvicorn backend.main:app" || true)
-            if [ -n "$PIDS" ]; then
-              for PID in $PIDS; do
-                kill "$PID" 2>/dev/null || true
-              done
-              echo "已发送停止信号给进程: $PIDS"
+            # 用端口号定位进程，避免 pgrep -f 匹配到 SSH 命令本身
+            PID=$(lsof -ti :8002 2>/dev/null || fuser 8002/tcp 2>/dev/null | awk '{print $1}' || true)
+            if [ -n "$PID" ]; then
+              kill "$PID" 2>/dev/null || true
+              echo "已发送停止信号给进程: $PID"
+              sleep 3
             else
               echo "没有发现运行中的 uvicorn 进程"
             fi
-            sleep 3
 
             # 5. 启动新的 uvicorn (后台运行)
             echo "🚀 启动新服务..."
@@ -110,11 +108,9 @@ jobs:
               git reset --hard "$CURRENT_COMMIT"
 
               # 重启旧版本
-              PIDS=$(pgrep -f "uvicorn backend.main:app" || true)
-              if [ -n "$PIDS" ]; then
-                for PID in $PIDS; do
-                  kill "$PID" 2>/dev/null || true
-                done
+              PID=$(lsof -ti :8002 2>/dev/null || fuser 8002/tcp 2>/dev/null | awk '{print $1}' || true)
+              if [ -n "$PID" ]; then
+                kill "$PID" 2>/dev/null || true
               fi
               sleep 3
               cd /opt/OmniFate
