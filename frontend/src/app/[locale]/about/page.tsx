@@ -83,6 +83,9 @@ export default function AboutPage() {
               <p className="text-white/60 leading-relaxed">
                 {t("about.originP2")}
               </p>
+              <p className="text-gold/60 leading-relaxed italic">
+                {t("about.originP3")}
+              </p>
             </div>
           </div>
         </ScrollReveal>
