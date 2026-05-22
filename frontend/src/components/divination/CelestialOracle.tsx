@@ -290,7 +290,7 @@ export function CelestialOracle() {
         setShareReward(reward)
         setResult(prev => prev ? { ...prev, balance_after: res.data.balance_after } : prev)
         toast.success(t("divination.shareSuccess").replace("{count}", String(reward)) + " ✨")
-      } else if (todayCount >= 2) {
+      } else if (todayCount >= 1) {
         // 已达每日分享上限
         toast(t("divination.shareLimitReached"), { icon: "ℹ️" })
       }

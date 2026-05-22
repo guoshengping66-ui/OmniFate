@@ -333,7 +333,7 @@ async def share(
 ):
     """生成分享链接（Phase 2: 分享即赠星尘）
 
-    规则：每天最多分享 2 次获得星尘奖励（每次 5 颗，共 10 颗）。
+    规则：每天分享 1 次获得 5 颗星尘奖励。
     分享链接始终生成，但星尘奖励受每日次数限制。
     """
     result = await db.execute(
@@ -358,7 +358,7 @@ async def share(
     already_shared_today = share_count_result.scalar() or 0
 
     share_reward = 0
-    if already_shared_today < 2:
+    if already_shared_today < 1:
         # 在限额内，奖励 5 颗星尘（行级锁防并发）
         share_reward = 5
         user_result = await db.execute(
