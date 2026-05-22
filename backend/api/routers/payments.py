@@ -1235,9 +1235,9 @@ async def create_founder_purchase(
 @router.get("/founder/status")
 async def get_founder_status(
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_user),
+    current_user: Optional[User] = Depends(get_current_user),
 ):
-    """获取创始席位状态 — 基于真实用户数据（仅统计已激活的席位）"""
+    """获取创始席位状态 — 公开接口，登录用户额外返回个人席位信息"""
 
     # Count real founder seats — must have seat_no AND activated_at
     # This excludes test/fake founder status that was set without going through activate
@@ -1273,9 +1273,9 @@ async def get_founder_status(
         "domestic_sold": domestic_sold,
         "overseas_total": FOUNDER_TOTAL_OVERSEAS,
         "overseas_sold": overseas_sold,
-        "is_founder": current_user.is_founder,
-        "seat_no": current_user.founder_seat_no,
-        "seat_region": current_user.founder_region,
+        "is_founder": current_user.is_founder if current_user else False,
+        "seat_no": current_user.founder_seat_no if current_user else None,
+        "seat_region": current_user.founder_region if current_user else None,
     }
 
 

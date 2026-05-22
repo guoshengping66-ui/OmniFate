@@ -47,11 +47,8 @@ export default function FounderPage() {
 
   useEffect(() => {
     if (authLoading) return
-    if (!user) {
-      router.push("/login")
-      return
-    }
 
+    // Fetch status (now public) and seats in parallel
     Promise.all([
       api.get("/api/payments/founder/status").then(r => r.data).catch(() => null),
       api.get("/api/payments/founder/seats").then(r => r.data?.seats || []).catch(() => []),
@@ -60,6 +57,7 @@ export default function FounderPage() {
         if (statusData) {
           setStatus(statusData)
         } else {
+          // Fallback if API completely fails
           setStatus({
             total_seats: 200,
             sold_seats: 0,
@@ -68,8 +66,8 @@ export default function FounderPage() {
             domestic_sold: 0,
             overseas_total: 100,
             overseas_sold: 0,
-            is_founder: user.is_founder || false,
-            seat_no: user.founder_seat_no || null,
+            is_founder: user?.is_founder || false,
+            seat_no: user?.founder_seat_no || null,
             seat_region: null,
           })
         }
@@ -131,8 +129,8 @@ export default function FounderPage() {
 
   if (!user) return null
 
-  const isFounder = user.is_founder
-  const seatNo = user.founder_seat_no
+  const isFounder = status?.is_founder ?? user.is_founder
+  const seatNo = status?.seat_no ?? user.founder_seat_no
 
   return (
     <div className="min-h-screen pt-24 pb-16 px-4">
@@ -203,7 +201,7 @@ export default function FounderPage() {
                   <div className="w-full bg-white/10 rounded-full h-2">
                     <div
                       className="bg-gold h-2 rounded-full transition-all"
-                      style={{ width: `${(status.sold_seats / status.total_seats) * 100}%` }}
+                      style={{ width: `${status.total_seats > 0 ? (status.sold_seats / status.total_seats) * 100 : 0}%` }}
                     />
                   </div>
 

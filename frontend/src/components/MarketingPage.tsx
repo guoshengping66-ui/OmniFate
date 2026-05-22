@@ -9,7 +9,6 @@ import { AccordionItem } from "@/components/ui/AccordionItem"
 import { StatsSection } from "@/components/ui/StatsSection"
 import dynamic from "next/dynamic"
 
-const LiveBar = dynamic(() => import("@/components/ui/LiveBar").then(m => m.LiveBar), { ssr: false })
 const FloatingCTA = dynamic(() => import("@/components/ui/FloatingCTA").then(m => m.FloatingCTA), { ssr: false })
 const HeroScene = dynamic(() => import("@/components/ui/HeroScene").then(m => m.HeroScene), { ssr: false })
 const FloatingRunes = dynamic(() => import("@/components/ui/FloatingRunes").then(m => m.FloatingRunes), { ssr: false })
@@ -112,7 +111,6 @@ export default function MarketingPage() {
 
   return (
     <div className="min-h-screen">
-      <LiveBar />
       <FloatingCTA />
       <FloatingFortuneSubscribe />
 

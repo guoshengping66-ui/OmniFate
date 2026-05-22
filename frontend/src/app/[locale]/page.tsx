@@ -6,9 +6,6 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import { useAuth } from "@/contexts/AuthContext"
 import { useUserStore } from "@/stores/useUserStore"
 
-// ── Lazy-loaded heavy animated components (ssr: false) ───────────
-const LiveBar = dynamic(() => import("@/components/ui/LiveBar").then(m => m.LiveBar), { ssr: false })
-
 // ── Lazy-loaded marketing page ─────────────────────────────────────────────
 const MarketingPage = dynamic(() => import("@/components/MarketingPage"), {
   ssr: false,
@@ -60,8 +57,6 @@ export default function HomePage() {
   if (hasProfile) {
     return (
       <div className="min-h-screen">
-        <LiveBar />
-
         {/* ── Hero Fold: 底座 + 意图按钮 ───────────────────── */}
         <section className="pt-24 pb-10 px-4">
           <UserDashboard />
