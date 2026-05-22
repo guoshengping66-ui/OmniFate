@@ -22,6 +22,8 @@ const DailyDashboard = dynamic(() => import("@/components/DailyDashboard").then(
   loading: () => <div className="card-glass p-8"><div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin" /></div>,
 })
 
+const FloatingFortuneSubscribe = dynamic(() => import("@/components/ui/FloatingFortuneSubscribe").then(m => m.FloatingFortuneSubscribe), { ssr: false })
+
 export default function HomePage() {
   const { t, localeHref } = useLanguage()
   const { user, loading: authLoading } = useAuth()
@@ -80,6 +82,9 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+
+        {/* ── Floating Fortune Subscribe ──────────────────────── */}
+        <FloatingFortuneSubscribe />
       </div>
     )
   }
