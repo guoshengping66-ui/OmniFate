@@ -16,69 +16,84 @@ function loadFreq(): FreqChoice {
 }
 function saveFreq(f: FreqChoice) { localStorage.setItem(FREQ_KEY, f) }
 
-// ── Sub-week data (generated client-side for preview) ────────────────────
-const DAY_LABELS_ZH = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
-const DAY_LABELS_EN = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+// ── Locale-aware data ────────────────────────────────────────────────────
+const DAY_LABELS = { zh: ["周一", "周二", "周三", "周四", "周五", "周六", "周日"], en: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] }
 
-interface DailyMini {
-  yi: string
-  ji: string
+const THEMES = {
+  zh: ["贵人相助，主动出击", "稳中求进，蓄势待发", "桃花运旺，感情升温", "财运亨通，把握时机", "注意健康，劳逸结合", "学习充电，厚积薄发"],
+  en: ["Seek allies, take initiative", "Steady progress, build momentum", "Romance blooms, relationships deepen", "Financial flow, seize the moment", "Mind your health, balance rest", "Learn & grow, invest in yourself"],
+}
+const TAROT_NAMES = {
+  zh: ["正位太阳", "正位皇后", "正位魔术师", "正位力量", "正位星辰", "正位世界"],
+  en: ["Sun (Upright)", "Empress (Upright)", "Magician (Upright)", "Strength (Upright)", "Star (Upright)", "World (Upright)"],
+}
+const TAROT_DESCS = {
+  zh: ["光明与活力的一周，保持积极心态将迎来好运", "丰盛与创造的一周，适合开展新计划", "灵活应变的一周，你的才华将被看见", "内在力量的一周，坚定信念克服困难", "希望与灵感的一周，跟随直觉前进", "圆满与成就的一周，收获即将到来"],
+  en: ["A week of light and vitality — stay positive and好运 will follow", "A week of abundance and creation — ideal for launching new plans", "A week of adaptability — your talents will be recognized", "A week of inner strength — stay firm and overcome challenges", "A week of hope and inspiration — follow your intuition", "A week of fulfillment — rewards are on their way"],
+}
+const YI_ITEMS = {
+  zh: ["出行", "签约", "求财", "会友", "学习", "祈福", "开工"],
+  en: ["Travel", "Sign contracts", "Seek wealth", "Meet friends", "Study", "Pray", "Start work"],
+}
+const JI_ITEMS = {
+  zh: ["动土", "远行", "争吵", "熬夜", "冒险", "搬迁", "借贷"],
+  en: ["Groundbreaking", "Long travel", "Arguments", "Stay up late", "Take risks", "Move house", "Lend money"],
+}
+const LUCKY_COLORS = {
+  zh: ["翠绿", "金色", "红色", "蓝色", "紫色", "粉色"],
+  en: ["Emerald", "Gold", "Red", "Blue", "Purple", "Pink"],
+}
+const LUCKY_DIRECTIONS = {
+  zh: ["正东方", "正南方", "正西方", "正北方", "东南方", "西北方"],
+  en: ["East", "South", "West", "North", "Southeast", "Northwest"],
+}
+const AI_INSIGHTS = {
+  zh: [
+    "本周{yi}运势旺盛，结合你的八字日主分析，建议把握周中黄金时段推进重要事务。周末宜休整，为下周蓄力。",
+    "本周{yi}运势平稳，五行调和，适合按部就班推进计划。注意周五可能有小波折。",
+    "本周{ji}需谨慎，但{yi}运强劲，可主动出击。保持心态平和，好运自来。",
+  ],
+  en: [
+    "This week's {yi} fortune is strong. Based on your BaZi chart, we recommend tackling important tasks mid-week. Rest on the weekend to recharge.",
+    "This week's {yi} fortune is steady with balanced Five Elements. Stick to your plan. Watch out for minor setbacks on Friday.",
+    "Be cautious with {ji} this week, but {yi} luck is strong — take initiative. Stay calm and好运 will come naturally.",
+  ],
 }
 
-function generateWeeklyPreview(): { score: number; theme: string; yi: string[]; ji: string[]; daily: DailyMini[]; tarot: string; tarotDesc: string } {
+function pick<T>(arr: T[], hash: number): T { return arr[Math.floor(hash * arr.length)] }
+
+function generateWeeklyPreview(locale: "zh" | "en") {
   const today = new Date()
   const seed = today.getFullYear() * 100 + today.getMonth() * 10 + today.getDate()
-  const hash = (n: number) => {
-    const x = Math.sin(seed * 9301 + n * 49297) * 49297
-    return x - Math.floor(x)
-  }
+  const hash = (n: number) => { const x = Math.sin(seed * 9301 + n * 49297) * 49297; return x - Math.floor(x) }
   const score = Math.round(Math.max(4, Math.min(10, 6 + (hash(1) - 0.5) * 6)))
 
-  const themesZH = ["贵人相助，主动出击", "稳中求进，蓄势待发", "桃花运旺，感情升温",
-    "财运亨通，把握时机", "注意健康，劳逸结合", "学习充电，厚积薄发"]
-  const themesEN = ["Seek allies, take initiative", "Steady progress, build momentum", "Romance blooms, relationships deepen",
-    "Financial flow, seize the moment", "Mind your health, balance rest", "Learn & grow, invest in yourself"]
-  const tarotZH = ["正位太阳", "正位皇后", "正位魔术师", "正位力量", "正位星辰", "正位世界"]
-  const tarotEN = ["Sun (Upright)", "Empress (Upright)", "Magician (Upright)", "Strength (Upright)", "Star (Upright)", "World (Upright)"]
-  const tarotDescsZH = [
-    "光明与活力的一周，保持积极心态将迎来好运",
-    "丰盛与创造的一周，适合开展新计划",
-    "灵活应变的一周，你的才华将被看见",
-    "内在力量的一周，坚定信念克服困难",
-    "希望与灵感的一周，跟随直觉前进",
-    "圆满与成就的一周，收获即将到来"
-  ]
-  const tarotDescsEN = [
-    "A week of light and vitality — stay positive and好运 will follow",
-    "A week of abundance and creation — ideal for launching new plans",
-    "A week of adaptability — your talents will be recognized",
-    "A week of inner strength — stay firm and overcome challenges",
-    "A week of hope and inspiration — follow your intuition",
-    "A week of fulfillment — rewards are on their way"
-  ]
-  const yiItems = ["出行", "签约", "求财", "会友", "学习", "祈福", "开工"]
-  const jiItems = ["动土", "远行", "争吵", "熬夜", "冒险", "搬迁", "借贷"]
-  const yiEn = ["Travel", "Sign contracts", "Seek wealth", "Meet friends", "Study", "Pray", "Start work"]
-  const jiEn = ["Groundbreaking", "Long travel", "Arguments", "Stay up late", "Take risks", "Move house", "Lend money"]
-
-  const yi: string[] = [], ji: string[] = [], daily: DailyMini[] = []
+  const yi: string[] = [], ji: string[] = [], daily: { yi: string; ji: string }[] = []
   for (let i = 0; i < 3; i++) {
-    yi.push(yiItems[Math.floor(hash(10 + i) * yiItems.length)])
-    ji.push(jiItems[Math.floor(hash(20 + i) * jiItems.length)])
+    yi.push(YI_ITEMS[locale][Math.floor(hash(10 + i) * YI_ITEMS[locale].length)])
+    ji.push(JI_ITEMS[locale][Math.floor(hash(20 + i) * JI_ITEMS[locale].length)])
   }
   for (let d = 0; d < 7; d++) {
     daily.push({
-      yi: yiItems[Math.floor(hash(30 + d) * yiItems.length)],
-      ji: jiItems[Math.floor(hash(40 + d) * jiItems.length)],
+      yi: YI_ITEMS[locale][Math.floor(hash(30 + d) * YI_ITEMS[locale].length)],
+      ji: JI_ITEMS[locale][Math.floor(hash(40 + d) * JI_ITEMS[locale].length)],
     })
   }
 
+  const insight = pick(AI_INSIGHTS[locale], hash(8))
+    .replace("{yi}", yi[0])
+    .replace("{ji}", ji[0])
+
   return {
     score,
-    theme: themesZH[Math.floor(hash(5) * themesZH.length)],
+    theme: pick(THEMES[locale], hash(5)),
     yi, ji, daily,
-    tarot: tarotZH[Math.floor(hash(6) * tarotZH.length)],
-    tarotDesc: tarotDescsZH[Math.floor(hash(7) * tarotDescsZH.length)],
+    tarot: pick(TAROT_NAMES[locale], hash(6)),
+    tarotDesc: pick(TAROT_DESCS[locale], hash(7)),
+    luckyColor: pick(LUCKY_COLORS[locale], hash(9)),
+    luckyNumber: `${Math.floor(hash(100) * 9) + 1}, ${Math.floor(hash(101) * 9) + 1}`,
+    luckyDirection: pick(LUCKY_DIRECTIONS[locale], hash(10)),
+    aiInsight: insight,
   }
 }
 
@@ -90,11 +105,13 @@ export function FloatingFortuneSubscribe() {
   const { user } = useAuth()
   const { t, locale, localeHref } = useLanguage()
   const router = useRouter()
-  const preview = generateWeeklyPreview()
 
   const isZH = locale === "zh"
-  const dayLabels = isZH ? DAY_LABELS_ZH : DAY_LABELS_EN
+  const preview = generateWeeklyPreview(isZH ? "zh" : "en")
+  const dayLabels = isZH ? DAY_LABELS.zh : DAY_LABELS.en
   const scoreColor = preview.score >= 8 ? "#4ade80" : preview.score >= 6 ? "#C9A84C" : preview.score >= 4 ? "#fb923c" : "#f87171"
+  const yiLabel = isZH ? "宜" : "Do"
+  const jiLabel = isZH ? "忌" : "Don't"
 
   const handleSave = () => {
     saveFreq(freq)
@@ -119,7 +136,6 @@ export function FloatingFortuneSubscribe() {
                      hover:shadow-[0_0_24px_rgba(201,168,76,0.25)]
                      transition-all duration-300"
         >
-          {/* Breathing glow */}
           <div className="absolute inset-0 rounded-full bg-gold/10 animate-[pulse_3s_ease-in-out_infinite] pointer-events-none" />
           <div className="relative flex items-center gap-2">
             <Sparkles size={14} className="text-gold group-hover:animate-spin" />
@@ -215,15 +231,15 @@ export function FloatingFortuneSubscribe() {
                     <div className="grid grid-cols-2 gap-3 text-xs">
                       <div className="flex items-center gap-2">
                         <span className="text-white/30">{t("fortuneSub.luckyColor")}:</span>
-                        <span className="text-green-400/80 font-medium">翠绿</span>
+                        <span className="text-green-400/80 font-medium">{preview.luckyColor}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-white/30">{t("fortuneSub.luckyNumber")}:</span>
-                        <span className="text-gold font-medium">3, 8</span>
+                        <span className="text-gold font-medium">{preview.luckyNumber}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-white/30">{t("fortuneSub.luckyDirection")}:</span>
-                        <span className="text-blue-400/80 font-medium">{isZH ? "正东方" : "East"}</span>
+                        <span className="text-blue-400/80 font-medium">{preview.luckyDirection}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-white/30">{t("fortuneSub.tarotCard")}:</span>
@@ -243,8 +259,8 @@ export function FloatingFortuneSubscribe() {
                         {preview.daily.slice(0, 3).map((d, i) => (
                           <div key={i} className="bg-white/[0.03] rounded-lg p-2 text-center">
                             <p className="text-white/40 text-[10px] mb-1">{dayLabels[i]}</p>
-                            <p className="text-green-400/70 text-[10px]">宜 {d.yi}</p>
-                            <p className="text-red-400/50 text-[10px]">忌 {d.ji}</p>
+                            <p className="text-green-400/70 text-[10px]">{yiLabel} {d.yi}</p>
+                            <p className="text-red-400/50 text-[10px]">{jiLabel} {d.ji}</p>
                           </div>
                         ))}
                       </div>
@@ -254,12 +270,7 @@ export function FloatingFortuneSubscribe() {
                   {/* AI Insight Preview */}
                   <div className="card-glass p-4 flex items-start gap-3">
                     <span className="text-base flex-shrink-0">🤖</span>
-                    <p className="text-white/40 text-xs leading-relaxed">
-                      {isZH
-                        ? `本周${preview.yi[0]}运势旺盛，结合你的八字日主分析，建议把握周中黄金时段推进重要事务。周末宜休整，为下周蓄力。`
-                        : `This week's ${preview.yi[0]} luck is strong. Based on your BaZi chart, we recommend tackling important tasks mid-week. Rest on the weekend to recharge.`
-                      }
-                    </p>
+                    <p className="text-white/40 text-xs leading-relaxed">{preview.aiInsight}</p>
                   </div>
                 </>
               )}
@@ -278,7 +289,7 @@ export function FloatingFortuneSubscribe() {
                     onClick={handleSave}
                     className="flex-1 py-2.5 rounded-xl border border-white/15 text-white/50 text-sm hover:text-white/70 transition-colors"
                   >
-                    {saved ? <>{t("fortuneSub.subscribed")}</> : t("fortuneSub.unsubscribe")}
+                    {saved ? t("fortuneSub.subscribed") : t("fortuneSub.unsubscribe")}
                   </button>
                 )}
                 {!user && (
