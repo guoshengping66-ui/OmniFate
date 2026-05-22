@@ -85,13 +85,6 @@ export default function HomePage() {
     )
   }
 
-  // ── Auth still loading — don't block, just render marketing ──
-  // Auth will resolve in background; if user has profile, they'll
-  // see the dashboard on next visit (or after a quick re-render).
-  if (authLoading || profileStillLoading) {
-    // Show marketing immediately, auth resolves in background
-  }
-
   // ── New / logged-out visitors → Marketing (lazy-loaded) ────────
   return <MarketingPage />
 }
