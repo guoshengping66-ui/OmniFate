@@ -212,6 +212,7 @@ export default function AccountPage() {
                 )}
 
                 {/* Subscription info */}
+                {user && (
                 <div className="card-glass p-5">
                   <h3 className="text-sm font-medium text-white/60 mb-3">{t("account.subStatus")}</h3>
                   <div className="flex items-center justify-between">
@@ -228,6 +229,7 @@ export default function AccountPage() {
                     </Link>
                   </div>
                 </div>
+                )}
               </div>
             )}
 
@@ -389,7 +391,7 @@ export default function AccountPage() {
             )}
 
             {/* Subscription */}
-            {tab === "subscription" && (() => {
+            {tab === "subscription" && user && (() => {
               const tier = user.subscription_tier
               const isPremium = user.is_premium
               const expiresAt = user.premium_expires_at ? new Date(user.premium_expires_at) : null
@@ -494,7 +496,7 @@ export default function AccountPage() {
             })()}
 
             {/* Settings */}
-            {tab === "settings" && <SettingsTab user={user} refreshUser={refreshUser} t={t as unknown as (key: string) => string} />}
+            {tab === "settings" && user && <SettingsTab user={user} refreshUser={refreshUser} t={t as unknown as (key: string) => string} />}
           </div>
         </div>
       </div>

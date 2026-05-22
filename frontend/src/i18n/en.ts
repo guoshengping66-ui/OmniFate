@@ -1256,9 +1256,6 @@ export default {
   "about.architecture.layer5Desc": "Based on what your chart reveals, we suggest remedy products and weave improvement plans into your report — with interactive follow-up guidance.",
   "about.missionDesc1": "Destiny Mirror brings together the best of traditional metaphysics and modern technology. We believe everyone's life has its own unique patterns and rhythms — BaZi, astrology, face reading, palmistry, and tarot each reveal these from different angles.",
   "about.missionDesc2": "Our system doesn't replace metaphysics practitioners. Instead, we weave the wisdom of five traditions together through a Master Reading, giving you a more complete picture than any single tradition alone.",
-  "about.ctaTitle": "Experience Behavioral Clarity",
-  "about.ctaDesc": "Join thousands of traders who have transformed their trading psychology",
-  "about.ctaButton": "Start Your Analysis",
 
   // ─── Divination Extended ───
   "divination.rule4Title": "Share divination for Stardust",
@@ -1703,7 +1700,6 @@ export default {
 
   // ─── Pricing Page Misc ───
   "pricing.subtitle": "Stardust is your energy reserve for unlocking deeper wisdom — members get monthly infusions",
-  "about.heroDesc": "3,000 years of Eastern wisdom meets modern technology —\neveryone gets a unique life reading.",
 
   // ─── Almanac Card Extended ───
   "almanacCard.dayPillar": "Day Pillar",

@@ -111,6 +111,7 @@ export interface AnalysisRequest {
   tarot_cards: { position: string; card: string; reversed: boolean }[]
   palm_raw_text: string
   face_raw_text: string
+  intent?: string
 }
 
 export interface WorkerReport {
@@ -139,6 +140,7 @@ export interface AnalysisResponse {
   computed_tags: string[]
   dimension_scores: Record<string, number>
   errors: string[]
+  intent?: string
 }
 
 export interface ChatRequest {
@@ -657,6 +659,7 @@ export interface CreateOrderRequest {
   use_coupon?: boolean
   address_id?: string
   notes?: string
+  payment_method?: string
 }
 
 export interface CreateOrderResult {
@@ -1092,6 +1095,7 @@ export interface DailyFortuneResponse {
   lucky_number: number
   advice: string
   warning: string
+  personalized?: boolean
 }
 
 export async function getDailyFortune(lang: string = "zh"): Promise<DailyFortuneResponse> {
@@ -1179,6 +1183,49 @@ export async function refundStardust(
     transaction_id: transactionId,
     reason,
   }), {
+    headers: { "Content-Type": "application/json" },
+  })
+  return res.data
+}
+
+// ── Billing / Geo Config ─────────────────────────────────────────────────
+
+export interface StardustPackage {
+  id: string
+  stardust: number
+  price: number
+  popular: boolean
+}
+
+export interface GeoConfig {
+  region: string
+  currency: string
+  symbol: string
+  packages: StardustPackage[]
+  channels: string[]
+  aifadian_url?: string
+  wallet_addresses?: Record<string, string>
+  crypto_rate?: Record<string, number>
+}
+
+export async function getGeoConfig(regionOverride?: string): Promise<GeoConfig> {
+  const params = regionOverride ? { region: regionOverride } : {}
+  const res = await api.get<GeoConfig>("/api/billing/geo-config", { params })
+  return res.data
+}
+
+export async function redeemCode(code: string): Promise<{ message: string; stardust_granted: number; balance_after: number }> {
+  const res = await api.post("/api/billing/redeem", safeJson({ code }), {
+    headers: { "Content-Type": "application/json" },
+  })
+  return res.data
+}
+
+export async function verifyTx(
+  tx_id: string,
+  network: "TRC20" | "ARBITRUM",
+): Promise<{ success: boolean; stardust_granted: number; balance_after: number; message: string }> {
+  const res = await api.post("/api/billing/verify-tx", safeJson({ tx_id, network }), {
     headers: { "Content-Type": "application/json" },
   })
   return res.data

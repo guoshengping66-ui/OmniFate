@@ -79,11 +79,11 @@ export function QRPaymentModal({
   const isReportUnlock = !!readingId
   const isPreOrder = !!preOrderNo
   const tierInfo = isPreOrder
-    ? { amount: preAmount || 0, amountUsd: preAmount || 0, labelKey: "" }
+    ? { amountCny: preAmount || 0, amountUsd: preAmount || 0, labelKey: "" }
     : isReportUnlock
-      ? { amount: UNLOCK_PRICES.amountCny, amountUsd: UNLOCK_PRICES.amountUsd, labelKey: "payment.unlockReport" }
+      ? { amountCny: UNLOCK_PRICES.amountCny, amountUsd: UNLOCK_PRICES.amountUsd, labelKey: "payment.unlockReport" }
       : (TIER_PRICES[tier || "premium_monthly"] || TIER_PRICES.premium_monthly)
-  const displayAmount = isOverseas ? tierInfo.amountUsd : tierInfo.amount
+  const displayAmount = isOverseas ? tierInfo.amountUsd : tierInfo.amountCny
   const currencySymbol = isOverseas ? "$" : "¥"
   const tierLabel = isPreOrder ? (preLabel || "Founder Seat") : t(tierInfo.labelKey)
 
@@ -148,7 +148,7 @@ export function QRPaymentModal({
 
     try {
       const res = await apiDirect.post("/api/personal-payments/create", {
-        amount: tierInfo.amount,
+        amount: tierInfo.amountCny,
         currency: method === "alipay" ? "CNY_ALIPAY" : "CNY_WECHAT",
         description: isReportUnlock
           ? `Destiny Mirror - Unlock Report - ${readingId}`

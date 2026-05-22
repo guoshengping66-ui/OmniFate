@@ -1250,9 +1250,6 @@ export default {
   "about.architecture.layer5Desc": "根据生成的「能量标签」自动匹配改运商品，在报告建议中自然植入改善方案，并支持长尾交互追问。",
   "about.missionDesc1": "命盘智镜致力于将传统命理学的精髓与 AI 技术深度结合。我们相信，每个人的生命轨迹都有其独特的规律和节奏——八字、星盘、面相、手相、塔罗都是从不同角度揭示这一规律的工具。",
   "about.missionDesc2": "我们的 AI 系统并非替代命理师，而是将五位「专家」的知识融合在一起，通过 Master Agent 进行综合分析，提供比单一维度更全面、更精准的生命解读。",
-  "about.ctaTitle": "开启你的旅程",
-  "about.ctaDesc": "发现你独特命盘中蕴含的智慧",
-  "about.ctaButton": "免费开始推命",
 
   // ─── 抽签扩展 ───
   "divination.rule4Title": "分享签文得星尘",
@@ -1472,7 +1469,6 @@ export default {
 
   // ─── 定价页杂项 ───
   "pricing.subtitle": "星尘是窥探天机的能量储备，会员每月可自动获得能量注入",
-  "about.heroDesc": "让千年玄学智慧与最前沿的人工智能相遇，\n为每个人提供独一无二的生命解读。",
 
   // ─── 黄历卡片扩展 ───
   "almanacCard.dayPillar": "日柱",

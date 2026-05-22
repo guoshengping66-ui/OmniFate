@@ -12,6 +12,8 @@ interface PaywallGateProps {
   loading?: boolean
   children: ReactNode
   previewLines?: number
+  stardustBalance?: number
+  onStardustUnlock?: () => Promise<void>
 }
 
 export function PaywallGate({

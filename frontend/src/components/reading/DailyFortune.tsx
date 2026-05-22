@@ -29,7 +29,7 @@ interface PersonalizedFortune {
   lucky_number: number
   advice: string
   warning: string
-  personalized: boolean
+  personalized?: boolean
 }
 
 // Client-side pseudo-random fortune (for non-logged-in users)

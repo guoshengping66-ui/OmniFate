@@ -1,7 +1,7 @@
 "use client"
 import { useParams } from "next/navigation"
 import Link from "next/link"
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, type JSX } from "react"
 import { ArrowLeft, Clock, Share2, ChevronUp } from "lucide-react"
 import { ARTICLES } from "@/data/articles"
 import { useLanguage } from "@/contexts/LanguageContext"
