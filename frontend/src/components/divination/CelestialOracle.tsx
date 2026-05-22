@@ -215,16 +215,29 @@ export function CelestialOracle() {
 
   useEffect(() => {
     if (!user) return
+    // 优先尝试 today-result 接口（后端新版）
     api.get("/api/divination/today-result")
       .then(r => {
         if (r.data.has_drawn) {
-          // 今日已抽过 → 直接显示结果
           setResult(r.data)
           setPhase("result")
           setTodayFree(false)
         }
       })
-      .catch(() => {})
+      .catch(() => {
+        // fallback: 旧版后端没有 today-result，用 today-status + draw
+        api.get("/api/divination/today-status")
+          .then(async r => {
+            if (!r.data.is_free) {
+              // 今日已抽过 → 调用 draw 获取结果（后端会直接返回已有结果，不扣星尘）
+              setTodayFree(false)
+              const res = await api.post("/api/divination/draw", { use_free: false })
+              setResult(res.data)
+              setPhase("result")
+            }
+          })
+          .catch(() => {})
+      })
   }, [user])
 
   useEffect(() => {
