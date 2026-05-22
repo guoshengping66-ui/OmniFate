@@ -284,18 +284,27 @@ export function CelestialOracle() {
       })
       const shareUrl = res.data.share_url
       const reward = res.data.share_reward || 0
+      const todayCount = res.data.today_share_count || 0
 
       if (reward > 0) {
         setShareReward(reward)
         setResult(prev => prev ? { ...prev, balance_after: res.data.balance_after } : prev)
         toast.success(t("divination.shareSuccess").replace("{count}", String(reward)) + " ✨")
+      } else if (todayCount >= 2) {
+        // 已达每日分享上限
+        toast(t("divination.shareLimitReached"), { icon: "ℹ️" })
       }
 
+      // 复制/唤起分享
       if (navigator.share) {
         await navigator.share({ title: t("divination.shareTitle"), url: shareUrl })
       } else {
         await navigator.clipboard.writeText(shareUrl)
-        toast.success(reward > 0 ? `${t("divination.linkCopied")}，+${reward} Stardust` : t("divination.linkCopied"))
+        if (reward > 0) {
+          toast.success(`${t("divination.linkCopied")}，+${reward} Stardust`)
+        } else {
+          toast.success(t("divination.linkCopied"))
+        }
       }
     } catch {
       toast.error(t("divination.shareFailed"))

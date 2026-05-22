@@ -1249,6 +1249,8 @@
     "sharePlus5": "分享 +5星尘",
     "shareReward": "分享奖励 +{count} 星尘",
     "shareSuccess": "分享成功，获得 {count} 颗星尘奖励",
+    "shareLimitReached": "今日分享次数已用完（每日最多 2 次）",
+    "shareRemaining": "今日还可分享 {count} 次获得星尘",
     "shareTitle": "星际抽签",
     "subtitle": "每日首次免费，感受星辰之力为你指引方向",
     "title": "星际抽签",

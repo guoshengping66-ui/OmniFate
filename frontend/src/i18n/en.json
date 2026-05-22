@@ -1249,6 +1249,8 @@
     "sharePlus5": "Share +5 Stardust",
     "shareReward": "Share reward +{count} Stardust",
     "shareSuccess": "Shared! Earned {count} Stardust",
+    "shareLimitReached": "Daily share limit reached (max 2 per day)",
+    "shareRemaining": "{count} shares left today for Stardust",
     "shareTitle": "Celestial Divination",
     "subtitle": "First draw free daily · Feel the stars guiding you",
     "title": "Celestial Divination",

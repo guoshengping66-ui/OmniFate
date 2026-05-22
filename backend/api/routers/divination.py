@@ -331,7 +331,11 @@ async def share(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_user),
 ):
-    """生成分享链接（Phase 2: 分享即赠星尘）"""
+    """生成分享链接（Phase 2: 分享即赠星尘）
+
+    规则：每天最多分享 2 次获得星尘奖励（每次 5 颗，共 10 颗）。
+    分享链接始终生成，但星尘奖励受每日次数限制。
+    """
     result = await db.execute(
         select(DivinationRecord).where(
             DivinationRecord.id == req.divination_id,
@@ -342,11 +346,8 @@ async def share(
     if not record:
         raise HTTPException(status_code=404, detail="签文不存在")
 
-    record.shared = True
-    await db.commit()
-
-    # 分享奖励：赠送 5 颗星尘（每日上限 10 颗，即最多分享 2 次）
-    today = date.today()
+    # ── 1. 先统计今日已分享次数（不含本次），再决定是否奖励 ──
+    today = datetime.now(timezone.utc).date()
     share_count_result = await db.execute(
         select(func.count(DivinationRecord.id)).where(
             DivinationRecord.user_id == current_user.id,
@@ -354,10 +355,11 @@ async def share(
             func.date(DivinationRecord.created_at) == today,
         )
     )
-    today_share_count = share_count_result.scalar() or 0
-    share_reward = 0
+    already_shared_today = share_count_result.scalar() or 0
 
-    if today_share_count < 2:
+    share_reward = 0
+    if already_shared_today < 2:
+        # 在限额内，奖励 5 颗星尘（行级锁防并发）
         share_reward = 5
         user_result = await db.execute(
             select(User).where(User.id == current_user.id).with_for_update()
@@ -376,12 +378,19 @@ async def share(
         )
         db.add(tx)
 
+    # ── 2. 标记为已分享（无论是否获得奖励，链接都可以生成） ──
+    record.shared = True
     await db.commit()
 
     share_url = f"https://khanfate.com/divination/share/{record.id}"
 
+    # 重新读取用户余额以返回准确值
+    refreshed = await db.execute(select(User).where(User.id == current_user.id))
+    final_user = refreshed.scalar_one()
+
     return {
         "share_url": share_url,
         "share_reward": share_reward,
-        "balance_after": user.stardust_balance if share_reward > 0 else current_user.stardust_balance,
+        "balance_after": final_user.stardust_balance,
+        "today_share_count": already_shared_today + 1,
     }
