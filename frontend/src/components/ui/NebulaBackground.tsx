@@ -2,7 +2,7 @@
 
 export function NebulaBackground() {
   return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: -1 }}>
+    <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: -1 }} suppressHydrationWarning>
       {/* Nebula clouds */}
       <div
         className="absolute w-[600px] h-[600px] rounded-full"

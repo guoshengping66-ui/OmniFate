@@ -23,34 +23,40 @@ class SafeDynamicWrapper extends React.Component<
   }
 }
 
-// Lazy-load each component individually so one failure doesn't crash all three
-let NebulaBackground: React.ComponentType = () => null
-let StarField: React.ComponentType = () => null
-let MagicCursor: React.ComponentType = () => null
-
-if (typeof window !== "undefined") {
-  // Dynamic imports only run on client side
-  import("./NebulaBackground")
-    .then((m) => { NebulaBackground = m.NebulaBackground })
-    .catch((e) => console.warn("[AnimatedBackground] NebulaBackground load failed:", e))
-  import("./StarField")
-    .then((m) => { StarField = m.StarField })
-    .catch((e) => console.warn("[AnimatedBackground] StarField load failed:", e))
-  import("./MagicCursor")
-    .then((m) => { MagicCursor = m.MagicCursor })
-    .catch((e) => console.warn("[AnimatedBackground] MagicCursor load failed:", e))
-}
-
 export default function AnimatedBackground() {
+  const [components, setComponents] = React.useState<{
+    NebulaBackground?: React.ComponentType
+    StarField?: React.ComponentType
+    MagicCursor?: React.ComponentType
+  }>({})
+
+  React.useEffect(() => {
+    Promise.allSettled([
+      import("./NebulaBackground").then(m => setComponents(c => ({ ...c, NebulaBackground: m.NebulaBackground }))),
+      import("./StarField").then(m => setComponents(c => ({ ...c, StarField: m.StarField }))),
+      import("./MagicCursor").then(m => setComponents(c => ({ ...c, MagicCursor: m.MagicCursor }))),
+    ]).catch(e => console.warn("[AnimatedBackground] load failed:", e))
+  }, [])
+
+  const { NebulaBackground, StarField, MagicCursor } = components
+
   return (
-    <SafeDynamicWrapper>
-      <NebulaBackground />
-      <SafeDynamicWrapper>
-        <StarField />
-      </SafeDynamicWrapper>
-      <SafeDynamicWrapper>
-        <MagicCursor />
-      </SafeDynamicWrapper>
-    </SafeDynamicWrapper>
+    <div suppressHydrationWarning>
+      {NebulaBackground && (
+        <SafeDynamicWrapper>
+          <NebulaBackground />
+        </SafeDynamicWrapper>
+      )}
+      {StarField && (
+        <SafeDynamicWrapper>
+          <StarField />
+        </SafeDynamicWrapper>
+      )}
+      {MagicCursor && (
+        <SafeDynamicWrapper>
+          <MagicCursor />
+        </SafeDynamicWrapper>
+      )}
+    </div>
   )
 }

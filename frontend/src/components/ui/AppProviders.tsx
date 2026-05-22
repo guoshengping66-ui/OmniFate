@@ -19,7 +19,7 @@ interface AppProvidersProps {
 
 export function AppProviders({ children, messages, locale }: AppProvidersProps) {
   return (
-    <NextIntlClientProvider messages={messages} locale={locale}>
+    <NextIntlClientProvider messages={messages} locale={locale} timeZone="Asia/Shanghai">
       <LanguageProvider>
         <AuthProvider>
           <CartProviderWithAuth>

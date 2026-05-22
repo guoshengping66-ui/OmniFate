@@ -42,12 +42,8 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  // Use standalone output for better performance on self-hosted
   output: "standalone",
-  optimizePackageImports: [
-    "lucide-react",
-    "framer-motion",
-    "react-hot-toast",
-  ],
   async headers() {
     return [
       {
