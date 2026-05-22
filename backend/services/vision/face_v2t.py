@@ -120,16 +120,22 @@ class FaceV2T:
         import mediapipe.tasks
         vision = mediapipe.tasks.vision
 
-        # Find or download the model
+        # Find the model file
         model_path = os.path.join(os.path.dirname(__file__), "..", "..", "face_landmarker.task")
         model_path = os.path.normpath(model_path)
         if not os.path.exists(model_path):
             model_path = os.path.join(os.getcwd(), "face_landmarker.task")
         if not os.path.exists(model_path):
-            # Download from Google Storage
-            import urllib.request
-            url = "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task"
-            urllib.request.urlretrieve(url, model_path)
+            # Try downloading from Google Storage (may fail behind GFW)
+            try:
+                import urllib.request
+                url = "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task"
+                urllib.request.urlretrieve(url, model_path)
+            except Exception as e:
+                raise RuntimeError(
+                    f"face_landmarker.task not found and download failed: {e}. "
+                    "Please place face_landmarker.task in the backend/ directory."
+                )
 
         options = vision.FaceLandmarkerOptions(
             base_options=mediapipe.tasks.BaseOptions(model_asset_path=model_path),
@@ -149,6 +155,8 @@ class FaceV2T:
             if img is None:
                 return None
             return self._analyze(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), img.shape)
+        except RuntimeError:
+            raise  # Let module-not-found errors propagate
         except Exception as exc:
             import logging
             logging.getLogger(__name__).warning("face_v2t.analyze_bytes failed: %s", exc)

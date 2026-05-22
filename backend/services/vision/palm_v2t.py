@@ -121,15 +121,22 @@ class PalmV2T:
         import mediapipe.tasks
         vision = mediapipe.tasks.vision
 
-        # Find or download the hand landmarker model
+        # Find the model file
         model_path = os.path.join(os.path.dirname(__file__), "..", "..", "hand_landmarker.task")
         model_path = os.path.normpath(model_path)
         if not os.path.exists(model_path):
             model_path = os.path.join(os.getcwd(), "hand_landmarker.task")
         if not os.path.exists(model_path):
-            import urllib.request
-            url = "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task"
-            urllib.request.urlretrieve(url, model_path)
+            # Try downloading from Google Storage (may fail behind GFW)
+            try:
+                import urllib.request
+                url = "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task"
+                urllib.request.urlretrieve(url, model_path)
+            except Exception as e:
+                raise RuntimeError(
+                    f"hand_landmarker.task not found and download failed: {e}. "
+                    "Please place hand_landmarker.task in the backend/ directory."
+                )
 
         options = vision.HandLandmarkerOptions(
             base_options=mediapipe.tasks.BaseOptions(model_asset_path=model_path),
@@ -147,6 +154,8 @@ class PalmV2T:
             if img is None:
                 return None
             return self._analyze(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), img, img.shape)
+        except RuntimeError:
+            raise  # Let module-not-found errors propagate
         except Exception as exc:
             import logging
             logging.getLogger(__name__).warning("palm_v2t.analyze_bytes failed: %s", exc)
