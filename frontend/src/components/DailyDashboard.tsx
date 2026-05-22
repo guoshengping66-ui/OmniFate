@@ -6,7 +6,7 @@ import { api } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useUserStore } from "@/stores/useUserStore"
-import { translateYiJi, translateGanZhi, translateLunarDate } from "@/lib/translations"
+import { translateYiJi, translateGanZhi, cleanLunarDate } from "@/lib/translations"
 import { getCached, setCached } from "@/lib/dailyCache"
 
 // ── Fallback data for non-logged-in users ─────────────────────────
@@ -220,7 +220,7 @@ function AlmanacSection({ almanac, locale, t }: {
       </div>
 
       <div className="space-y-1.5">
-        <p className="text-white/60 text-sm">{locale === "zh" ? almanac.lunar_date : translateLunarDate(almanac.lunar_date)}</p>
+        <p className="text-white/60 text-sm">{cleanLunarDate(almanac.lunar_date, locale === "zh")}</p>
         <p className="text-white/40 text-xs">{t("dash.fortune.dayPillar")}: {locale === "zh" ? almanac.bazi_day_pillar : translateGanZhi(almanac.bazi_day_pillar)}</p>
       </div>
 

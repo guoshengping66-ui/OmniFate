@@ -8,7 +8,7 @@ import toast from "react-hot-toast"
 import { getDailyAlmanac, DailyAlmanacResponse } from "@/lib/api"
 import { ProductCard } from "@/components/reading/ProductCard"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { translateYiJi } from "@/lib/translations"
+import { translateYiJi, cleanLunarDate } from "@/lib/translations"
 
 interface Props {
   sessionId: string

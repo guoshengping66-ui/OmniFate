@@ -1,6 +1,7 @@
 "use client"
 import { Calendar, Check, X, Shield } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { cleanLunarDate } from "@/lib/translations"
 
 interface AlmanacItem {
   label: string
@@ -19,7 +20,7 @@ interface AlmanacCardProps {
 }
 
 export function AlmanacCard({ date, lunarDate, yi, ji, hu, dayScore, baziDayPillar }: AlmanacCardProps) {
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
   const scoreColor = dayScore >= 80 ? "text-green-400" : dayScore >= 50 ? "text-gold" : "text-red-400"
 
   return (
@@ -31,7 +32,7 @@ export function AlmanacCard({ date, lunarDate, yi, ji, hu, dayScore, baziDayPill
             <Calendar size={18} className="text-gold" />
             <h3 className="font-serif text-lg text-gold">{date}</h3>
           </div>
-          <p className="text-white/40 text-xs mt-0.5">{lunarDate} · {t("almanacCard.dayPillar")}: {baziDayPillar}</p>
+          <p className="text-white/40 text-xs mt-0.5">{cleanLunarDate(lunarDate, locale === "zh")} · {t("almanacCard.dayPillar")}: {baziDayPillar}</p>
         </div>
         <div className="text-center">
           <div className={`text-2xl font-bold ${scoreColor}`}>{dayScore}</div>

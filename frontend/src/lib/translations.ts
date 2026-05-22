@@ -181,6 +181,29 @@ export function translateLunarDate(lunarDate: string): string {
   return result
 }
 
+// ── Helper: Clean lunar date for display ─────────────────────────
+// Backend may return mixed format like "二〇二六年Fourth Moon6th"
+// This strips English parts for zh, or translates Chinese parts for en
+export function cleanLunarDate(lunarDate: string, isZh: boolean): string {
+  if (!lunarDate) return ""
+  if (isZh) {
+    // Strip English month/day patterns: "Fourth Moon", "6th", "1st", etc.
+    let result = lunarDate
+      .replace(/\s*(First|Second|Third|Fourth|Fifth|Sixth|Seventh|Eighth|Ninth|Tenth|Eleventh|Twelfth)\s*Moon\s*/g, "")
+      .replace(/\s*\d+(st|nd|rd|th)\s*/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+    // If result is empty after stripping, try to extract Chinese parts
+    if (!result) {
+      const chineseParts = lunarDate.match(/[一-鿿〇]+/g)
+      result = chineseParts ? chineseParts.join("") : lunarDate
+    }
+    return result
+  }
+  // English: translate Chinese parts
+  return translateLunarDate(lunarDate)
+}
+
 // ── Helper: Translate yi/ji item ─────────────────────────────────
 export function translateYiJi(label: string): string {
   return YI_TRANSLATION[label] || JI_TRANSLATION[label] || label
