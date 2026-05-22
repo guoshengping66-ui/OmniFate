@@ -28,6 +28,8 @@ FORTUNES = [
     {"fortune": "大凶", "level": 1, "weight": 5},
 ]
 
+FORTUNE_LEVEL = {f["fortune"]: f["level"] for f in FORTUNES}
+
 THEMES = ["事业", "感情", "财运", "健康", "学业", "人际", "出行"]
 
 # 王阳明心学金句库
@@ -245,46 +247,36 @@ async def draw(
     抽签（Phase 2: 动态感应种子 + AI 深度解析）
     同一用户同一天的结果由 user_id + date 哈希确定，
     不同用户看到不同的"星象感应"。
+
+    已登录用户今日已抽过 → 直接返回今日结果，不再扣星尘。
     """
     today = datetime.now(timezone.utc).date()
 
-    # 检查今日是否已免费抽过
-    count_result = await db.execute(
-        select(func.count(DivinationRecord.id)).where(
+    # ── 检查今日是否已抽过 ────────────────────────────────────────────────
+    existing_result = await db.execute(
+        select(DivinationRecord).where(
             DivinationRecord.user_id == current_user.id,
             func.date(DivinationRecord.created_at) == today,
-        )
+        ).order_by(DivinationRecord.created_at.desc())
     )
-    today_count = count_result.scalar() or 0
-    is_free = today_count == 0
-    stardust_cost = 0
+    existing = existing_result.scalars().first()
 
-    # 非免费则扣星尘
-    if not is_free:
-        stardust_cost = 1
-        user_result = await db.execute(
-            select(User).where(User.id == current_user.id).with_for_update()
-        )
-        user = user_result.scalar_one()
+    if existing:
+        # 今日已抽过 → 直接返回，不扣星尘
+        return {
+            "id": existing.id,
+            "fortune": existing.fortune,
+            "fortune_level": FORTUNE_LEVEL.get(existing.fortune, 4),
+            "wisdom_quote": existing.wisdom_quote,
+            "author": "王阳明",
+            "theme": existing.theme,
+            "ai_insight": existing.ai_insight,
+            "is_free": True,
+            "stardust_cost": 0,
+            "balance_after": current_user.stardust_balance,
+        }
 
-        if user.stardust_balance < stardust_cost:
-            raise HTTPException(
-                status_code=402,
-                detail="星尘不足，无法继续抽签"
-            )
-
-        user.stardust_balance -= stardust_cost
-
-        tx = CreditTransaction(
-            user_id=user.id,
-            amount=-stardust_cost,
-            balance_after=user.stardust_balance,
-            reason="divination",
-            status="confirmed",
-        )
-        db.add(tx)
-
-    # ── 动态种子抽签 ────────────────────────────────────────────────────────
+    # ── 今日首次抽签（免费） ──────────────────────────────────────────────
     seed = _dynamic_seed(str(current_user.id), today)
     fortune_data = _seeded_fortune(seed)
     wisdom_data = _seeded_wisdom(seed)
@@ -300,16 +292,11 @@ async def draw(
         wisdom_quote=wisdom_data["quote"],
         theme=theme,
         ai_insight=ai_insight,
-        is_free=is_free,
-        stardust_cost=stardust_cost,
+        is_free=True,
+        stardust_cost=0,
     )
     db.add(record)
     await db.commit()
-
-    # 计算最新余额
-    latest_balance = current_user.stardust_balance
-    if not is_free:
-        latest_balance = user.stardust_balance
 
     return {
         "id": record.id,
@@ -319,9 +306,9 @@ async def draw(
         "author": wisdom_data["author"],
         "theme": theme,
         "ai_insight": ai_insight,
-        "is_free": is_free,
-        "stardust_cost": stardust_cost,
-        "balance_after": latest_balance,
+        "is_free": True,
+        "stardust_cost": 0,
+        "balance_after": current_user.stardust_balance,
     }
 
 

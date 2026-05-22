@@ -331,7 +331,7 @@ export function CelestialOracle() {
           </div>
           <h3 className="font-serif text-xl font-bold text-gold">{t("divination.title")}</h3>
           <p className="text-white/40 text-sm mt-1">
-            {todayFree ? t("divination.todayFirstFree") : t("divination.payStardust")}
+            {todayFree ? t("divination.todayFirstFree") : t("divination.todayFirstFree")}
           </p>
         </div>
 
