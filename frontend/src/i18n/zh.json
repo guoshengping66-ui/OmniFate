@@ -1252,9 +1252,11 @@
     "shareLimitReached": "今日分享次数已用完（每日 1 次）",
     "shareRemaining": "今日还可分享 {count} 次获得星尘",
     "shareTitle": "星际抽签",
-    "subtitle": "每日首次免费，感受星辰之力为你指引方向",
+    "subtitle": "每日免费一签，感受星辰之力为你指引方向",
     "title": "星际抽签",
-    "todayFirstFree": "今日首次免费 · 感应星辰指引",
+    "todayFirstFree": "每日免费一签 · 感应星辰指引",
+    "todayAlreadyDrawn": "今日签文已感应 · 每日仅一次",
+    "comeBackTomorrow": "明日再来",
     "todayPalace": "今日星宫："
   },
   "energyId": {

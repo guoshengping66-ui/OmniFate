@@ -1279,7 +1279,9 @@ export default {
   "divination.shareFortune": "分享签文",
   "divination.sharePlus5": "分享 +5星尘",
   "divination.drawAgain2": "再来一签",
-  "divination.todayFirstFree": "今日首次免费 · 感应星辰指引",
+  "divination.todayFirstFree": "每日免费一签 · 感应星辰指引",
+  "divination.todayAlreadyDrawn": "今日签文已感应 · 每日仅一次",
+  "divination.comeBackTomorrow": "明日再来",
   "divination.payStardust": "消耗 1 颗星尘 · 与星象深度感应",
 
   // ─── 定价页扩展 ───

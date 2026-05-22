@@ -237,6 +237,39 @@ async def today_status(
     return {"is_free": count == 0, "today_count": count}
 
 
+@router.get("/today-result")
+async def today_result(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_user),
+):
+    """获取今日已有抽签结果（已抽过直接返回，未抽过返回空）"""
+    today = datetime.now(timezone.utc).date()
+    result = await db.execute(
+        select(DivinationRecord).where(
+            DivinationRecord.user_id == current_user.id,
+            func.date(DivinationRecord.created_at) == today,
+        ).order_by(DivinationRecord.created_at.desc())
+    )
+    record = result.scalars().first()
+    if not record:
+        return {"has_drawn": False}
+
+    return {
+        "has_drawn": True,
+        "id": record.id,
+        "fortune": record.fortune,
+        "fortune_level": FORTUNE_LEVEL.get(record.fortune, 4),
+        "wisdom_quote": record.wisdom_quote,
+        "author": "王阳明",
+        "theme": record.theme,
+        "ai_insight": record.ai_insight,
+        "is_free": True,
+        "stardust_cost": 0,
+        "balance_after": current_user.stardust_balance,
+        "shared": record.shared,
+    }
+
+
 @router.post("/draw")
 async def draw(
     req: DrawRequest,

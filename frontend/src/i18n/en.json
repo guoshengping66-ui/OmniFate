@@ -1252,9 +1252,11 @@
     "shareLimitReached": "Daily share limit reached (1 per day)",
     "shareRemaining": "{count} shares left today for Stardust",
     "shareTitle": "Celestial Divination",
-    "subtitle": "First draw free daily · Feel the stars guiding you",
+    "subtitle": "One free draw daily · Feel the stars guiding you",
     "title": "Celestial Divination",
-    "todayFirstFree": "First draw free today · Feel the celestial guidance",
+    "todayFirstFree": "One free draw per day · Feel the celestial guidance",
+    "todayAlreadyDrawn": "Today's fortune already revealed · Once per day",
+    "comeBackTomorrow": "Come Back Tomorrow",
     "todayPalace": "Today's Palace:"
   },
   "energyId": {

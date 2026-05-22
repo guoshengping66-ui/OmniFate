@@ -215,8 +215,15 @@ export function CelestialOracle() {
 
   useEffect(() => {
     if (!user) return
-    api.get("/api/divination/today-status")
-      .then(r => setTodayFree(r.data.is_free))
+    api.get("/api/divination/today-result")
+      .then(r => {
+        if (r.data.has_drawn) {
+          // 今日已抽过 → 直接显示结果
+          setResult(r.data)
+          setPhase("result")
+          setTodayFree(false)
+        }
+      })
       .catch(() => {})
   }, [user])
 
@@ -291,20 +298,14 @@ export function CelestialOracle() {
         setResult(prev => prev ? { ...prev, balance_after: res.data.balance_after } : prev)
         toast.success(t("divination.shareSuccess").replace("{count}", String(reward)) + " ✨")
       } else if (todayCount >= 1) {
-        // 已达每日分享上限
         toast(t("divination.shareLimitReached"), { icon: "ℹ️" })
       }
 
-      // 复制/唤起分享
       if (navigator.share) {
         await navigator.share({ title: t("divination.shareTitle"), url: shareUrl })
       } else {
         await navigator.clipboard.writeText(shareUrl)
-        if (reward > 0) {
-          toast.success(`${t("divination.linkCopied")}，+${reward} Stardust`)
-        } else {
-          toast.success(t("divination.linkCopied"))
-        }
+        toast.success(t("divination.linkCopied"))
       }
     } catch {
       toast.error(t("divination.shareFailed"))
@@ -331,7 +332,10 @@ export function CelestialOracle() {
           </div>
           <h3 className="font-serif text-xl font-bold text-gold">{t("divination.title")}</h3>
           <p className="text-white/40 text-sm mt-1">
-            {todayFree ? t("divination.todayFirstFree") : t("divination.todayFirstFree")}
+            {phase === "result" && !todayFree
+              ? t("divination.todayAlreadyDrawn")
+              : t("divination.todayFirstFree")
+            }
           </p>
         </div>
 
@@ -520,17 +524,25 @@ export function CelestialOracle() {
                            hover:bg-white/10 hover:text-gold transition-all"
                 >
                   <Share2 size={14} />
-                  {todayFree ? t("divination.shareFortune") : t("divination.sharePlus5")}
+                  {t("divination.shareFortune")}
                 </button>
-                <button
-                  onClick={handleReset}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl
-                           border border-gold/30 text-gold text-sm
-                           hover:bg-gold/10 transition-all"
-                >
-                  <RotateCcw size={14} />
-                  {t("divination.drawAgain2")}
-                </button>
+                {todayFree ? (
+                  <button
+                    onClick={handleReset}
+                    className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl
+                             border border-gold/30 text-gold text-sm
+                             hover:bg-gold/10 transition-all"
+                  >
+                    <RotateCcw size={14} />
+                    {t("divination.drawAgain2")}
+                  </button>
+                ) : (
+                  <div className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl
+                               border border-white/10 text-white/30 text-sm cursor-default">
+                    <Sparkles size={14} />
+                    {t("divination.comeBackTomorrow")}
+                  </div>
+                )}
               </div>
             </motion.div>
           )}

@@ -1285,7 +1285,9 @@ export default {
   "divination.shareFortune": "Share Fortune",
   "divination.sharePlus5": "Share +5 Stardust",
   "divination.drawAgain2": "Draw Again",
-  "divination.todayFirstFree": "First draw free today · Feel the celestial guidance",
+  "divination.todayFirstFree": "One free draw per day · Feel the celestial guidance",
+  "divination.todayAlreadyDrawn": "Today's fortune already revealed · Once per day",
+  "divination.comeBackTomorrow": "Come Back Tomorrow",
   "divination.payStardust": "1 Stardust per draw · Deep celestial resonance",
 
   // ─── Pricing Page Extended ───
