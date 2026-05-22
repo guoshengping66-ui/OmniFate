@@ -2,7 +2,7 @@
 
 import React from "react"
 
-// Error boundary to prevent framer-motion crashes from killing the entire layout
+// Error boundary to prevent crashes from killing the entire layout
 class SafeDynamicWrapper extends React.Component<
   { children: React.ReactNode; fallback?: React.ReactNode },
   { hasError: boolean }
@@ -24,37 +24,49 @@ class SafeDynamicWrapper extends React.Component<
 }
 
 export default function AnimatedBackground() {
-  const [components, setComponents] = React.useState<{
-    NebulaBackground?: React.ComponentType
-    StarField?: React.ComponentType
-    MagicCursor?: React.ComponentType
-  }>({})
+  const [nebula, setNebula] = React.useState<React.ComponentType | null>(null)
+  const [stars, setStars] = React.useState<React.ComponentType | null>(null)
+  const [cursor, setCursor] = React.useState<React.ComponentType | null>(null)
 
   React.useEffect(() => {
-    Promise.allSettled([
-      import("./NebulaBackground").then(m => setComponents(c => ({ ...c, NebulaBackground: m.NebulaBackground }))),
-      import("./StarField").then(m => setComponents(c => ({ ...c, StarField: m.StarField }))),
-      import("./MagicCursor").then(m => setComponents(c => ({ ...c, MagicCursor: m.MagicCursor }))),
-    ]).catch(e => console.warn("[AnimatedBackground] load failed:", e))
-  }, [])
+    // Phase 1: Load nebula immediately (lightweight CSS gradients)
+    import("./NebulaBackground").then(m => setNebula(() => m.NebulaBackground))
 
-  const { NebulaBackground, StarField, MagicCursor } = components
+    // Phase 2: Load stars after first paint (heavy DOM creation)
+    const idleFn = typeof requestIdleCallback !== "undefined"
+      ? requestIdleCallback
+      : (cb: IdleRequestCallback) => setTimeout(cb, 200) as unknown as number
+    const idleId = idleFn(() => {
+      import("./StarField").then(m => setStars(() => m.StarField))
+    }, { timeout: 3000 })
+
+    // Phase 3: Load cursor effect after 2s (heavy canvas animation)
+    const cursorTimer = setTimeout(() => {
+      import("./MagicCursor").then(m => setCursor(() => m.MagicCursor))
+    }, 2000)
+
+    return () => {
+      if (typeof cancelIdleCallback !== "undefined") cancelIdleCallback(idleId)
+      else clearTimeout(idleId as unknown as number)
+      clearTimeout(cursorTimer)
+    }
+  }, [])
 
   return (
     <div suppressHydrationWarning>
-      {NebulaBackground && (
+      {nebula && (
         <SafeDynamicWrapper>
-          <NebulaBackground />
+          {React.createElement(nebula)}
         </SafeDynamicWrapper>
       )}
-      {StarField && (
+      {stars && (
         <SafeDynamicWrapper>
-          <StarField />
+          {React.createElement(stars)}
         </SafeDynamicWrapper>
       )}
-      {MagicCursor && (
+      {cursor && (
         <SafeDynamicWrapper>
-          <MagicCursor />
+          {React.createElement(cursor)}
         </SafeDynamicWrapper>
       )}
     </div>

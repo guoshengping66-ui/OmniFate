@@ -1,13 +1,14 @@
 "use client"
 import Link from "next/link"
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, lazy, Suspense } from "react"
 import { Menu, X, Sparkles, User, LogOut, ChevronDown, Crown, ShoppingBag } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import { useCart } from "@/contexts/CartContext"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { CartDrawer } from "@/components/shop/CartDrawer"
 import { LanguageSwitch } from "@/components/ui/LanguageSwitch"
-import { StardustBalance } from "@/components/ui/StardustBalance"
+
+const CartDrawer = lazy(() => import("@/components/shop/CartDrawer").then(m => ({ default: m.CartDrawer })))
+const StardustBalance = lazy(() => import("@/components/ui/StardustBalance").then(m => ({ default: m.StardustBalance })))
 
 export function Navbar() {
   const [open, setOpen] = useState(false)
@@ -141,7 +142,9 @@ export function Navbar() {
             ) : user ? (
               <div ref={menuRef} className="relative flex items-center gap-2">
                 {/* Stardust Balance — left of avatar */}
-                <StardustBalance />
+                <Suspense fallback={null}>
+                  <StardustBalance />
+                </Suspense>
 
                 <button
                   onClick={() => setMenuOpen(!menuOpen)}
@@ -261,7 +264,9 @@ export function Navbar() {
       </header>
 
       {/* Cart Drawer */}
-      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
+      <Suspense fallback={null}>
+        <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
+      </Suspense>
     </>
   )
 }

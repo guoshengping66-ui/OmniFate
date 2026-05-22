@@ -41,15 +41,6 @@ export default function HomePage() {
     if (user) fetchBirthProfiles()
   }, [user])
 
-  // ── Auth gate: prevent flash of wrong layout ────────────────
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
-      </div>
-    )
-  }
-
   const hasProfile = !!user && !!userProfile
   const profileStillLoading = !!user && profileLoading && !userProfile
 
@@ -94,13 +85,11 @@ export default function HomePage() {
     )
   }
 
-  // ── Loading profile (logged in, no data yet) ────────────────
-  if (profileStillLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
-      </div>
-    )
+  // ── Auth still loading — don't block, just render marketing ──
+  // Auth will resolve in background; if user has profile, they'll
+  // see the dashboard on next visit (or after a quick re-render).
+  if (authLoading || profileStillLoading) {
+    // Show marketing immediately, auth resolves in background
   }
 
   // ── New / logged-out visitors → Marketing (lazy-loaded) ────────

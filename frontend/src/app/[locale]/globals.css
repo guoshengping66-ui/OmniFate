@@ -1,15 +1,13 @@
 ﻿/*
  * Font loading strategy:
- * - Inter: Latin subset (325KB) - loaded via CSS @import
+ * - Inter: Preloaded via <link> in layout.tsx (non-blocking)
  * - Chinese fonts: Use system fonts first, web font as fallback
- * - font-display: optional prevents FOUT (Flash of Unstyled Text)
  *
  * System font stack:
  * - Windows: Microsoft YaHei, SimHei
  * - macOS: PingFang SC, Songti SC
  * - Linux: Noto Sans CJK SC, WenQuanYi Micro Hei
  */
-@import url("https://fonts.font.im/css2?family=Inter:wght@300;400;500;600&display=optional");
 
 @tailwind base;
 @tailwind components;
