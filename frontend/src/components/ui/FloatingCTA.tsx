@@ -1,19 +1,30 @@
 "use client"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Sparkles } from "lucide-react"
-import { motion, useScroll, useTransform } from "framer-motion"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 export function FloatingCTA() {
-  const { scrollY } = useScroll()
-  const opacity = useTransform(scrollY, [300, 600], [0, 1])
-  const y = useTransform(scrollY, [300, 600], [20, 0])
+  const [visible, setVisible] = useState(false)
   const { t, localeHref } = useLanguage()
 
+  useEffect(() => {
+    const onScroll = () => {
+      setVisible(window.scrollY > 300)
+    }
+    window.addEventListener("scroll", onScroll, { passive: true })
+    return () => window.removeEventListener("scroll", onScroll)
+  }, [])
+
   return (
-    <motion.div
-      style={{ opacity, y }}
+    <div
       className="fixed bottom-0 left-0 right-0 z-40 sm:hidden"
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(20px)",
+        transition: "opacity 0.4s ease, transform 0.4s ease",
+        pointerEvents: visible ? "auto" : "none",
+      }}
     >
       <div className="bg-ink/90 backdrop-blur-xl border-t border-gold/20 px-4 py-3">
         <Link
@@ -24,6 +35,6 @@ export function FloatingCTA() {
           {t("floatingCta.text")}
         </Link>
       </div>
-    </motion.div>
+    </div>
   )
 }

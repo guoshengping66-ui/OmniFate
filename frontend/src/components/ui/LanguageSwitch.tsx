@@ -1,5 +1,4 @@
 "use client"
-import { motion } from "framer-motion"
 import { useLanguage } from "@/contexts/LanguageContext"
 import type { Locale } from "@/i18n/config"
 
@@ -24,10 +23,11 @@ export function LanguageSwitch() {
           }`}
         >
           {locale === lang.locale && (
-            <motion.div
-              layoutId="lang-indicator"
+            <div
               className="absolute inset-0 bg-gold/10 border border-gold/30 rounded-full"
-              transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
+              style={{
+                animation: "langSlide 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
+              }}
             />
           )}
           <span className="relative z-10 flex items-center gap-1">

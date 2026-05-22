@@ -1,6 +1,5 @@
 "use client"
 import { useEffect, useState, useRef, useCallback } from "react"
-import { motion, AnimatePresence } from "framer-motion"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useAuth } from "@/contexts/AuthContext"
 import { FounderBadge } from "@/components/ui/FounderBadge"
@@ -23,7 +22,6 @@ const NAMES_EN = [
   "Chenxi from Xiamen", "Bowen from Hefei", "Shihan from Kunming",
 ]
 
-// Founder names — will show FounderBadge
 const FOUNDER_NAMES_ZH = ["创始人·天行", "创始人·星尘", "创始人·若水"]
 const FOUNDER_NAMES_EN = ["Founder·Tianxing", "Founder·Stardust", "Founder·Ruoshui"]
 
@@ -32,7 +30,7 @@ function randomItem<T>(arr: T[]): T {
 }
 
 function generateMessage(isEn: boolean) {
-  const isFounder = Math.random() < 0.12 // 12% chance to show founder activity
+  const isFounder = Math.random() < 0.12
   const names = isFounder
     ? (isEn ? FOUNDER_NAMES_EN : FOUNDER_NAMES_ZH)
     : (isEn ? NAMES_EN : NAMES_ZH)
@@ -78,20 +76,16 @@ export function LiveBar() {
   const [isPaused, setIsPaused] = useState(false)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  // Improved scroll logic: pause when user scrolls past hero
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY
       const heroHeight = window.innerHeight * 0.8
-      // Pause live feed when scrolled past 80% of hero
       setIsPaused(scrollY > heroHeight)
     }
-
     window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
-  // Message generation with pause support
   const generateNewMessages = useCallback(() => {
     if (isPaused) return
     setMessages(prev => {
@@ -105,9 +99,7 @@ export function LiveBar() {
   useEffect(() => {
     const showTimer = setTimeout(() => setVisible(true), 3000)
     const hideTimer = setTimeout(() => setVisible(false), 180000)
-
     intervalRef.current = setInterval(generateNewMessages, 3500)
-
     return () => {
       clearTimeout(showTimer)
       clearTimeout(hideTimer)
@@ -116,81 +108,75 @@ export function LiveBar() {
   }, [generateNewMessages])
 
   return (
-    <AnimatePresence>
-      {visible && (
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 hidden sm:block w-[90vw] max-w-2xl"
-        >
-          <div className="relative overflow-hidden rounded-2xl bg-ink/80 backdrop-blur-xl border border-gold/20 shadow-[0_0_40px_rgba(201,168,76,0.08)]">
-            {/* Shimmer overlay */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+    <div
+      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 hidden sm:block w-[90vw] max-w-2xl"
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateX(-50%) translateY(0)" : "translateX(-50%) translateY(40px)",
+        transition: "opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
+        pointerEvents: visible ? "auto" : "none",
+      }}
+    >
+      <div className="relative overflow-hidden rounded-2xl bg-ink/80 backdrop-blur-xl border border-gold/20 shadow-[0_0_40px_rgba(201,168,76,0.08)]">
+        {/* Shimmer overlay */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div
+            className="absolute inset-0 opacity-[0.03]"
+            style={{
+              background: "linear-gradient(90deg, transparent 0%, rgba(201,168,76,0.8) 50%, transparent 100%)",
+              animation: "shimmer-slide 4s ease-in-out infinite",
+            }}
+          />
+        </div>
+
+        <div className="relative flex items-stretch">
+          {/* Left: activity messages */}
+          <div className="flex-1 px-5 py-3 space-y-1">
+            {messages.map((msg) => (
               <div
-                className="absolute inset-0 opacity-[0.03]"
+                key={msg.id}
+                className="flex items-center gap-2.5"
                 style={{
-                  background: "linear-gradient(90deg, transparent 0%, rgba(201,168,76,0.8) 50%, transparent 100%)",
-                  animation: "shimmer-slide 4s ease-in-out infinite",
+                  animation: "messageIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
                 }}
-              />
-            </div>
-
-            <div className="relative flex items-stretch">
-              {/* Left: activity messages */}
-              <div className="flex-1 px-5 py-3 space-y-1">
-                <AnimatePresence mode="popLayout">
-                  {messages.map((msg) => (
-                    <motion.div
-                      key={msg.id}
-                      initial={{ opacity: 0, x: -20, height: 0 }}
-                      animate={{ opacity: 1, x: 0, height: "auto" }}
-                      exit={{ opacity: 0, x: 20, height: 0 }}
-                      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                      className="flex items-center gap-2.5"
-                    >
-                      <span className="relative flex h-2 w-2 flex-shrink-0">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-60" />
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
-                      </span>
-                      <span className="text-white/50 text-xs whitespace-nowrap">
-                        <span className={`font-medium ${msg.isFounder ? "text-violet-300" : "text-gold"}`}>
-                          {msg.name}
-                        </span>
-                        {" "}{t(msg.activityKey as any)}
-                      </span>
-                      {/* Founder badge inline */}
-                      {msg.isFounder && <FounderBadge size="sm" />}
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
+              >
+                <span className="relative flex h-2 w-2 flex-shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-60" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+                </span>
+                <span className="text-white/50 text-xs whitespace-nowrap">
+                  <span className={`font-medium ${msg.isFounder ? "text-violet-300" : "text-gold"}`}>
+                    {msg.name}
+                  </span>
+                  {" "}{t(msg.activityKey as any)}
+                </span>
+                {msg.isFounder && <FounderBadge size="sm" />}
               </div>
+            ))}
+          </div>
 
-              {/* Right: concurrent counter */}
-              <div className="flex items-center gap-2 px-4 border-l border-white/[0.06] bg-white/[0.02]">
-                <div className="flex items-center gap-1.5">
-                  <div className="flex -space-x-1">
-                    {[0, 1, 2].map(i => (
-                      <div
-                        key={i}
-                        className="w-4 h-4 rounded-full border border-ink bg-gradient-to-br from-gold/60 to-gold/30"
-                        style={{ zIndex: 3 - i }}
-                      />
-                    ))}
-                  </div>
-                  <div className="text-xs">
-                    <span className="text-gold font-semibold">
-                      <AnimatedCounter target={127} />
-                    </span>
-                    <span className="text-white/30 ml-0.5">{t("live.people")}</span>
-                  </div>
-                </div>
+          {/* Right: concurrent counter */}
+          <div className="flex items-center gap-2 px-4 border-l border-white/[0.06] bg-white/[0.02]">
+            <div className="flex items-center gap-1.5">
+              <div className="flex -space-x-1">
+                {[0, 1, 2].map(i => (
+                  <div
+                    key={i}
+                    className="w-4 h-4 rounded-full border border-ink bg-gradient-to-br from-gold/60 to-gold/30"
+                    style={{ zIndex: 3 - i }}
+                  />
+                ))}
+              </div>
+              <div className="text-xs">
+                <span className="text-gold font-semibold">
+                  <AnimatedCounter target={127} />
+                </span>
+                <span className="text-white/30 ml-0.5">{t("live.people")}</span>
               </div>
             </div>
           </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+        </div>
+      </div>
+    </div>
   )
 }

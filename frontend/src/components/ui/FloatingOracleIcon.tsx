@@ -1,6 +1,5 @@
 "use client"
 import { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import { Sparkles } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
@@ -10,11 +9,12 @@ export function FloatingOracleIcon() {
   const [showTooltip, setShowTooltip] = useState(false)
 
   return (
-    <motion.div
-      initial={{ opacity: 0, x: -10 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: 1.2, duration: 0.5 }}
+    <div
       className="relative inline-flex"
+      style={{
+        opacity: 1,
+        animation: "fadeInRight 0.5s ease-out 1.2s both",
+      }}
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
     >
@@ -40,24 +40,22 @@ export function FloatingOracleIcon() {
       </Link>
 
       {/* Tooltip */}
-      <AnimatePresence>
-        {showTooltip && (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 4 }}
-            className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-50"
-          >
-            <div className="bg-ink/95 backdrop-blur-xl border border-gold/20 rounded-xl px-4 py-2.5
-                          shadow-[0_8px_32px_rgba(0,0,0,0.4)] whitespace-nowrap">
-              <p className="text-gold text-xs font-medium">{t("floatingOracle.freeToday")}</p>
-              <p className="text-white/40 text-[11px] mt-0.5">{t("floatingOracle.freeHint")}</p>
-              {/* Arrow */}
-              <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-ink/95 border-l border-t border-gold/20 rotate-45" />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
+      <div
+        className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-50"
+        style={{
+          opacity: showTooltip ? 1 : 0,
+          transform: showTooltip ? "translateX(-50%) translateY(0)" : "translateX(-50%) translateY(8px)",
+          transition: "opacity 0.2s ease, transform 0.2s ease",
+          pointerEvents: showTooltip ? "auto" : "none",
+        }}
+      >
+        <div className="bg-ink/95 backdrop-blur-xl border border-gold/20 rounded-xl px-4 py-2.5 shadow-[0_8px_32px_rgba(0,0,0,0.4)] whitespace-nowrap">
+          <p className="text-gold text-xs font-medium">{t("floatingOracle.freeToday")}</p>
+          <p className="text-white/40 text-[11px] mt-0.5">{t("floatingOracle.freeHint")}</p>
+          {/* Arrow */}
+          <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-ink/95 border-l border-t border-gold/20 rotate-45" />
+        </div>
+      </div>
+    </div>
   )
 }

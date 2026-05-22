@@ -1,6 +1,5 @@
 "use client"
-import { useRef, type ReactNode } from "react"
-import { motion, useMotionValue, useSpring } from "framer-motion"
+import { useRef, useState, useCallback, type ReactNode } from "react"
 
 interface Props {
   children: ReactNode
@@ -18,16 +17,9 @@ export function TiltCard({
   glowColor = "201,168,76",
 }: Props) {
   const ref = useRef<HTMLDivElement>(null)
-  const x = useMotionValue(0)
-  const y = useMotionValue(0)
+  const [tilt, setTilt] = useState({ rx: 0, ry: 0, gx: 50, gy: 50, hover: false })
 
-  const springX = useSpring(x, { stiffness: 150, damping: 15 })
-  const springY = useSpring(y, { stiffness: 150, damping: 15 })
-
-  const glareX = useMotionValue(50)
-  const glareY = useMotionValue(50)
-
-  function handleMove(e: React.MouseEvent) {
+  const handleMove = useCallback((e: React.MouseEvent) => {
     const el = ref.current
     if (!el) return
     const rect = el.getBoundingClientRect()
@@ -36,21 +28,21 @@ export function TiltCard({
     const dx = e.clientX - cx
     const dy = e.clientY - cy
 
-    x.set((dy / (rect.height / 2)) * -rotateX)
-    y.set((dx / (rect.width / 2)) * rotateY)
-    glareX.set((dx / rect.width) * 50 + 50)
-    glareY.set((dy / rect.height) * 50 + 50)
-  }
+    setTilt({
+      rx: (dy / (rect.height / 2)) * -rotateX,
+      ry: (dx / (rect.width / 2)) * rotateY,
+      gx: (dx / rect.width) * 50 + 50,
+      gy: (dy / rect.height) * 50 + 50,
+      hover: true,
+    })
+  }, [rotateX, rotateY])
 
-  function handleLeave() {
-    x.set(0)
-    y.set(0)
-    glareX.set(50)
-    glareY.set(50)
-  }
+  const handleLeave = useCallback(() => {
+    setTilt({ rx: 0, ry: 0, gx: 50, gy: 50, hover: false })
+  }, [])
 
   return (
-    <motion.div
+    <div
       ref={ref}
       onMouseMove={handleMove}
       onMouseLeave={handleLeave}
@@ -60,41 +52,45 @@ export function TiltCard({
       }}
       className={`relative group ${className}`}
     >
-      <motion.div
+      <div
         style={{
-          rotateX: springX,
-          rotateY: springY,
+          transform: `rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg) scale(${tilt.hover ? scale : 1})`,
           transformStyle: "preserve-3d",
+          transition: "transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+          willChange: "transform",
         }}
         className="relative w-full h-full"
-        whileHover={{ scale }}
-        transition={{ type: "spring", stiffness: 300, damping: 20 }}
       >
         {children}
 
         {/* Glare overlay */}
         {glare && (
-          <motion.div
-            className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          <div
+            className="pointer-events-none absolute inset-0 rounded-2xl transition-opacity duration-300"
             style={{
-              background: `radial-gradient(circle at ${glareX}% ${glareY}%, rgba(${glowColor},0.2) 0%, transparent 60%)`,
+              opacity: tilt.hover ? 1 : 0,
+              background: `radial-gradient(circle at ${tilt.gx}% ${tilt.gy}%, rgba(${glowColor},0.2) 0%, transparent 60%)`,
             }}
           />
         )}
 
         {/* Animated border glow */}
-        <div className="absolute -inset-[1px] rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+        <div
+          className="absolute -inset-[1px] rounded-2xl transition-opacity duration-500 pointer-events-none"
           style={{
+            opacity: tilt.hover ? 1 : 0,
             background: `conic-gradient(from 0deg, transparent, rgba(${glowColor},0.4), transparent, rgba(${glowColor},0.2), transparent)`,
             mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
             maskComposite: "exclude",
             padding: "1px",
-            animation: "border-spin 3s linear infinite",
           }}
         />
 
         {/* Corner accent */}
-        <div className="absolute -top-px -right-px w-8 h-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+        <div
+          className="absolute -top-px -right-px w-8 h-8 transition-opacity duration-300 pointer-events-none"
+          style={{ opacity: tilt.hover ? 1 : 0 }}
+        >
           <div className="absolute top-0 right-0 w-full h-[1px]"
             style={{ background: `linear-gradient(to left, rgba(${glowColor},0.6), transparent)` }}
           />
@@ -102,14 +98,7 @@ export function TiltCard({
             style={{ background: `linear-gradient(to bottom, rgba(${glowColor},0.6), transparent)` }}
           />
         </div>
-      </motion.div>
-
-      <style jsx>{`
-        @keyframes border-spin {
-          from { --border-angle: 0deg; }
-          to { --border-angle: 360deg; }
-        }
-      `}</style>
-    </motion.div>
+      </div>
+    </div>
   )
 }

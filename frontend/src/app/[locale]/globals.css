@@ -363,3 +363,99 @@ select.input-field option:checked {
   100% { top: 105%; opacity: 0; }
 }
 
+/* ═══ Component animations (replacing framer-motion) ═══════════════════════ */
+
+/* HeroScene astrolabe rotation */
+.hero-rotate {
+  animation: astrolabeSpin 60s linear infinite;
+}
+.hero-rotate-reverse {
+  animation: astrolabeSpinReverse 80s linear infinite;
+}
+@keyframes astrolabeSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes astrolabeSpinReverse {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+/* Floating particles */
+@keyframes particleFloat {
+  0%, 100% { transform: translateY(0); opacity: 0.2; }
+  50% { transform: translateY(-15px); opacity: 0.6; }
+}
+
+/* Floating runes */
+@keyframes runeFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.1; }
+  50% { transform: translateY(-20px) rotate(10deg); opacity: 0.3; }
+}
+
+/* Nebula background drift */
+@keyframes nebulaDrift1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(30px, -20px) scale(1.1); }
+}
+@keyframes nebulaDrift2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-25px, 25px) scale(1.15); }
+}
+@keyframes nebulaDrift3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(20px, -30px) scale(1.2); }
+}
+@keyframes symbolFloat {
+  0%, 100% { transform: translateY(0); opacity: 0.03; }
+  50% { transform: translateY(-15px); opacity: 0.08; }
+}
+
+/* Star field constellation */
+@keyframes constellation-fade {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 0.4; }
+}
+
+/* LiveBar */
+@keyframes shimmer-slide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+@keyframes messageIn {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Founder badge */
+@keyframes badgeIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Language switch */
+@keyframes langSlide {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Floating oracle icon */
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Fortune subscribe modal */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(100px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fortuneBtnIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+

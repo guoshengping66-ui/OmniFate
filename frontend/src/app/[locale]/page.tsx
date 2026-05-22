@@ -9,8 +9,18 @@ import { useUserStore } from "@/stores/useUserStore"
 // ── Lazy-loaded heavy animated components (ssr: false) ───────────
 const LiveBar = dynamic(() => import("@/components/ui/LiveBar").then(m => m.LiveBar), { ssr: false })
 
-// ── Lazy-loaded marketing page (framer-motion, ScrollReveal, TiltCard, etc.) ──
-const MarketingPage = dynamic(() => import("@/components/MarketingPage"), { ssr: false })
+// ── Lazy-loaded marketing page ─────────────────────────────────────────────
+const MarketingPage = dynamic(() => import("@/components/MarketingPage"), {
+  ssr: false,
+  loading: () => (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-8 h-8 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
+        <p className="text-gold/50 text-sm font-serif">命盘智镜</p>
+      </div>
+    </div>
+  ),
+})
 
 // ── Lazy-loaded below-the-fold sections ──────────────────────────
 const UserDashboard = dynamic(() => import("@/components/dashboard/UserDashboard").then(m => m.UserDashboard), {

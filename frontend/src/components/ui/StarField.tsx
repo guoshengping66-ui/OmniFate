@@ -120,12 +120,6 @@ export function StarField() {
   return (
     <>
       <div ref={ref} className="stars" aria-hidden />
-      <style jsx>{`
-        @keyframes constellation-fade {
-          0%, 100% { opacity: 0; }
-          50% { opacity: 0.4; }
-        }
-      `}</style>
     </>
   )
 }

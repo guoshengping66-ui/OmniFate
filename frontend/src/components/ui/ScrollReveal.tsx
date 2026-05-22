@@ -1,6 +1,5 @@
 "use client"
-import { useRef } from "react"
-import { motion, useInView } from "framer-motion"
+import { useRef, useEffect, useState, type ReactNode } from "react"
 
 interface Props {
   children: React.ReactNode
@@ -15,24 +14,44 @@ export function ScrollReveal({
   direction = "up", duration = 0.6,
 }: Props) {
   const ref = useRef<HTMLDivElement>(null)
-  const inView = useInView(ref, { once: true, margin: "-60px" })
+  const [visible, setVisible] = useState(false)
 
-  const directionOffset = {
-    up: { y: 48 },
-    down: { y: -48 },
-    left: { x: 48 },
-    right: { x: -48 },
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true)
+          observer.disconnect()
+        }
+      },
+      { rootMargin: "-60px" },
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  const offset = {
+    up: "translateY(48px)",
+    down: "translateY(-48px)",
+    left: "translateX(48px)",
+    right: "translateX(-48px)",
   }
 
   return (
-    <motion.div
+    <div
       ref={ref}
-      initial={{ opacity: 0, ...directionOffset[direction] }}
-      animate={inView ? { opacity: 1, x: 0, y: 0 } : {}}
-      transition={{ duration, delay, ease: "easeOut" }}
       className={className}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translate(0,0)" : offset[direction],
+        transition: `opacity ${duration}s ease-out ${delay}s, transform ${duration}s ease-out ${delay}s`,
+        willChange: "opacity, transform",
+      }}
     >
       {children}
-    </motion.div>
+    </div>
   )
 }

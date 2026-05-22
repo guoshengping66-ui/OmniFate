@@ -1,6 +1,5 @@
 "use client"
-import { useRef, type ReactNode } from "react"
-import { motion, useMotionValue, useSpring } from "framer-motion"
+import { useRef, useState, useCallback, type ReactNode } from "react"
 
 interface Props {
   children: ReactNode
@@ -16,34 +15,33 @@ export function MagneticButton({
   href, onClick, strength = 0.4,
 }: Props) {
   const ref = useRef<HTMLDivElement>(null)
-  const x = useMotionValue(0)
-  const y = useMotionValue(0)
-  const springX = useSpring(x, { stiffness: 200, damping: 15 })
-  const springY = useSpring(y, { stiffness: 200, damping: 15 })
+  const [offset, setOffset] = useState({ x: 0, y: 0 })
 
-  function handleMove(e: React.MouseEvent) {
+  const handleMove = useCallback((e: React.MouseEvent) => {
     const el = ref.current
     if (!el) return
     const rect = el.getBoundingClientRect()
     const dx = e.clientX - (rect.left + rect.width / 2)
     const dy = e.clientY - (rect.top + rect.height / 2)
-    x.set(dx * strength)
-    y.set(dy * strength)
-  }
+    setOffset({ x: dx * strength, y: dy * strength })
+  }, [strength])
 
-  function handleLeave() {
-    x.set(0)
-    y.set(0)
-  }
+  const handleLeave = useCallback(() => {
+    setOffset({ x: 0, y: 0 })
+  }, [])
 
-  const Tag = as === "a" ? motion.a : motion.button
+  const Tag = as === "a" ? "a" : "button"
 
   return (
     <div ref={ref} onMouseMove={handleMove} onMouseLeave={handleLeave} className="inline-block">
       <Tag
         href={href as any}
         onClick={onClick}
-        style={{ x: springX, y: springY }}
+        style={{
+          transform: `translate(${offset.x}px, ${offset.y}px)`,
+          transition: "transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+          willChange: "transform",
+        }}
         className={className}
       >
         {children}
