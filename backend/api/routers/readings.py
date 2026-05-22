@@ -2164,7 +2164,19 @@ async def get_daily_almanac(
                 f" | {weekday_en}"
             )
         else:
-            lunar_date_str = today_lunar.toFullString()
+            # Build proper Chinese lunar date string
+            _year_cn = today_lunar.getYearInChinese()
+            _year_gz = today_lunar.getYearInGanZhi()
+            _year_animal = today_lunar.getYearShengXiao()
+            _month_gz = today_lunar.getMonthInGanZhi()
+            _month_animal = today_lunar.getMonthShengXiao()
+            _day_gz = today_lunar.getDayInGanZhi()
+            _day_animal = today_lunar.getDayShengXiao()
+            lunar_date_str = (
+                f"{_year_cn}{_year_gz}({_year_animal})年 "
+                f"{_month_gz}({_month_animal})月 "
+                f"{_day_gz}({_day_animal})日"
+            )
     except Exception:
         pass
 
@@ -2243,6 +2255,7 @@ class PersonalizedAlmanacRequest(BaseModel):
     birth_city: str = ""
     latitude: Optional[float] = None
     longitude: Optional[float] = None
+    lang: str = "zh"
 
 
 @router.post("/personalized-almanac", response_model=DailyAlmanacResponse)
@@ -2312,7 +2325,21 @@ async def get_personalized_almanac(payload: PersonalizedAlmanacRequest):
     try:
         from lunar_python import Solar
         today_lunar = Solar.fromYmd(today.year, today.month, today.day).getLunar()
-        lunar_date_str = today_lunar.toFullString()
+        if payload.lang == "en":
+            lunar_date_str = today_lunar.toFullString()
+        else:
+            _year_cn = today_lunar.getYearInChinese()
+            _year_gz = today_lunar.getYearInGanZhi()
+            _year_animal = today_lunar.getYearShengXiao()
+            _month_gz = today_lunar.getMonthInGanZhi()
+            _month_animal = today_lunar.getMonthShengXiao()
+            _day_gz = today_lunar.getDayInGanZhi()
+            _day_animal = today_lunar.getDayShengXiao()
+            lunar_date_str = (
+                f"{_year_cn}{_year_gz}({_year_animal})年 "
+                f"{_month_gz}({_month_animal})月 "
+                f"{_day_gz}({_day_animal})日"
+            )
     except Exception:
         pass
 

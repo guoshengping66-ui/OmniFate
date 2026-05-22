@@ -834,7 +834,7 @@ export async function getPersonalizedDailyAlmanac(
 ): Promise<DailyAlmanacResponse> {
   const res = await api.post<DailyAlmanacResponse>(
     "/api/readings/personalized-almanac",
-    safeJson({ ...params, birth_minute: params.birth_minute ?? 0, gender: params.gender ?? "male" }),
+    safeJson({ ...params, birth_minute: params.birth_minute ?? 0, gender: params.gender ?? "male", lang }),
     { timeout: 30_000, headers: { "Content-Type": "application/json" } },
   )
   return res.data

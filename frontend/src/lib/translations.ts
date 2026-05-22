@@ -187,13 +187,18 @@ export function translateLunarDate(lunarDate: string): string {
 export function cleanLunarDate(lunarDate: string, isZh: boolean): string {
   if (!lunarDate) return ""
   if (isZh) {
-    // Strip English month/day patterns: "Fourth Moon", "6th", "1st", etc.
     let result = lunarDate
-      .replace(/\s*(First|Second|Third|Fourth|Fifth|Sixth|Seventh|Eighth|Ninth|Tenth|Eleventh|Twelfth)\s*Moon\s*/g, "")
-      .replace(/\s*\d+(st|nd|rd|th)\s*/g, " ")
-      .replace(/\s+/g, " ")
-      .trim()
-    // If result is empty after stripping, try to extract Chinese parts
+    // Strip "Lunar: " prefix
+    result = result.replace(/^Lunar:\s*/i, "")
+    // Strip English month patterns: "First Moon", "Fourth Moon", etc.
+    result = result.replace(/\b(First|Second|Third|Fourth|Fifth|Sixth|Seventh|Eighth|Ninth|Tenth|Eleventh|Twelfth)\s*Moon\b/gi, "")
+    // Strip ordinal day suffixes: "6th", "1st", "22nd", etc.
+    result = result.replace(/\b\d+(st|nd|rd|th)\b/gi, "")
+    // Strip standalone English words (Month, Day, Year, Hour, Mon-Sun)
+    result = result.replace(/\b(Month|Day|Year|Hour|Mon|Tue|Wed|Thu|Fri|Sat|Sun|January|February|March|April|May|June|July|August|September|October|November|December)\b/gi, "")
+    // Strip pipe separators and extra whitespace
+    result = result.replace(/\|/g, " ").replace(/\s+/g, " ").trim()
+    // If result is empty after stripping, extract Chinese parts
     if (!result) {
       const chineseParts = lunarDate.match(/[一-鿿〇]+/g)
       result = chineseParts ? chineseParts.join("") : lunarDate
