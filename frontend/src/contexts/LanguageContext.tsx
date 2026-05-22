@@ -1,6 +1,7 @@
 "use client"
 import { createContext, useContext, useCallback, type ReactNode } from "react"
 import { useLocale, useTranslations } from "next-intl"
+import { useRouter } from "@/i18n/navigation"
 import { type Locale, locales } from "@/i18n/config"
 
 interface LanguageState {
@@ -30,6 +31,7 @@ const isClient = typeof window !== "undefined"
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const locale = useLocale() as Locale
   const tFn = useTranslations()
+  const router = useRouter()
 
   const t = useCallback(
     (key: string): string => {
@@ -45,17 +47,13 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const setLocale = useCallback(
     (newLocale: Locale) => {
       if (!locales.includes(newLocale)) return
-      // Persist choice for next visit
       localStorage.setItem(LANG_KEY, newLocale)
       document.documentElement.lang = newLocale === "zh" ? "zh-CN" : "en"
-      // Navigate to the new locale using the browser URL
-      // (works during both SSG and client-side navigation)
       const currentPath = window.location.pathname
-      // Strip any existing locale prefix
       const stripped = currentPath.replace(/^\/(en|zh)(\/|$)/, "/")
-      window.location.href = `/${newLocale}${stripped === "/" ? "" : stripped}`
+      router.replace(stripped, { locale: newLocale })
     },
-    [],
+    [router],
   )
 
   /** Prefix a bare path with the current locale, e.g. "/pricing" → "/en/pricing" */
