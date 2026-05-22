@@ -2285,7 +2285,7 @@ async def get_personalized_almanac(payload: PersonalizedAlmanacRequest):
     )
 
     today = date.today()
-    cache_key = f"personalized:{payload.birth_year}-{payload.birth_month}-{payload.birth_day}:{today}"
+    cache_key = f"personalized:{payload.birth_year}-{payload.birth_month}-{payload.birth_day}:{today}:{payload.lang}"
     cached = _almanac_cache.get(cache_key)
     if cached and (time.time() - cached.get("_ts", 0)) < _ALMANAC_CACHE_TTL:
         from fastapi.responses import JSONResponse as _JSONResp
@@ -2326,7 +2326,31 @@ async def get_personalized_almanac(payload: PersonalizedAlmanacRequest):
         from lunar_python import Solar
         today_lunar = Solar.fromYmd(today.year, today.month, today.day).getLunar()
         if payload.lang == "en":
-            lunar_date_str = today_lunar.toFullString()
+            _g_map_en = {
+                "甲":"Jia","乙":"Yi","丙":"Bing","丁":"Ding","戊":"Wu",
+                "己":"Ji","庚":"Geng","辛":"Xin","壬":"Ren","癸":"Gui",
+            }
+            _z_map_en = {
+                "子":"Zi","丑":"Chou","寅":"Yin","卯":"Mao","辰":"Chen","巳":"Si",
+                "午":"Wu","未":"Wei","申":"Shen","酉":"You","戌":"Xu","亥":"Hai",
+            }
+            _animal_map_en = {
+                "鼠":"Rat","牛":"Ox","虎":"Tiger","兔":"Rabbit","龙":"Dragon","蛇":"Snake",
+                "马":"Horse","羊":"Goat","猴":"Monkey","鸡":"Rooster","狗":"Dog","猪":"Pig",
+            }
+            def _gz_en(gz):
+                if len(gz) >= 2:
+                    return f"{_g_map_en.get(gz[0], gz[0])}-{_z_map_en.get(gz[1], gz[1])}"
+                return gz
+            def _an_en(a):
+                return _animal_map_en.get(a, a)
+            lunar_date_str = (
+                f"Lunar: {today_lunar.getYearInChinese()}"
+                f" Year {_gz_en(today_lunar.getYearInGanZhi())}({_an_en(today_lunar.getYearShengXiao())})"
+                f" Month {_gz_en(today_lunar.getMonthInGanZhi())}({_an_en(today_lunar.getMonthShengXiao())})"
+                f" Day {_gz_en(today_lunar.getDayInGanZhi())}({_an_en(today_lunar.getDayShengXiao())})"
+                f" Hour {_gz_en(today_lunar.getTimeInGanZhi())}({_an_en(today_lunar.getTimeShengXiao())})"
+            )
         else:
             _year_cn = today_lunar.getYearInChinese()
             _year_gz = today_lunar.getYearInGanZhi()
