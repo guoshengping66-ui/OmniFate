@@ -42,7 +42,7 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // Optimize imports from large packages to reduce bundle size
+  output: "standalone",
   optimizePackageImports: [
     "lucide-react",
     "framer-motion",
