@@ -5,7 +5,6 @@ interface Star {
   x: number
   y: number
   size: number
-  baseOpacity: number
   element: HTMLDivElement
 }
 
@@ -55,71 +54,71 @@ export function StarField() {
     if (!ref.current) return
     const container = ref.current
 
-    // Create stars
-    for (let i = 0; i < 150; i++) {
-      const star = document.createElement("div")
-      const size = Math.random() * 2.5 + 0.5
-      const x = Math.random() * 100
-      const y = Math.random() * 100
-      star.className = "star"
-      star.style.cssText = `
-        width:${size}px; height:${size}px;
-        left:${x}%; top:${y}%;
-        --dur:${(Math.random() * 4 + 2).toFixed(1)}s;
-        animation-delay:${(Math.random() * 5).toFixed(1)}s;
-        opacity:${Math.random() * 0.6 + 0.1};
-      `
-      container.appendChild(star)
-      starsRef.current.push({
-        x, y, size,
-        baseOpacity: Math.random() * 0.6 + 0.1,
-        element: star,
-      })
-    }
-
-    // Create constellation lines
-    const constellationStars = starsRef.current.filter(s => s.size > 1.5)
-    for (let i = 0; i < Math.min(8, constellationStars.length - 1); i++) {
-      const s1 = constellationStars[i]
-      const s2 = constellationStars[i + 1]
-      const line = document.createElement("div")
-      line.className = "constellation-line"
-      const dx = s2.x - s1.x
-      const dy = s2.y - s1.y
-      const length = Math.sqrt(dx * dx + dy * dy)
-      const angle = Math.atan2(dy, dx) * (180 / Math.PI)
-      line.style.cssText = `
-        position: absolute;
-        left: ${s1.x}%;
-        top: ${s1.y}%;
-        width: ${length}%;
-        height: 1px;
-        background: linear-gradient(90deg, transparent, rgba(201,168,76,0.3), transparent);
-        transform-origin: 0 0;
-        transform: rotate(${angle}deg);
-        opacity: 0;
-        animation: constellation-fade 8s ease-in-out infinite;
-        animation-delay: ${i * 1.5}s;
-      `
-      container.appendChild(line)
-    }
-
-    // Random shooting stars
-    const interval = setInterval(() => {
-      if (Math.random() > 0.6) {
-        createShootingStar()
+    // Defer heavy DOM work to idle callback
+    const createStars = () => {
+      // Reduced from 150 to 60 stars — still visually rich, much lighter
+      for (let i = 0; i < 60; i++) {
+        const star = document.createElement("div")
+        const size = Math.random() * 2.5 + 0.5
+        const x = Math.random() * 100
+        const y = Math.random() * 100
+        star.className = "star"
+        star.style.cssText = `
+          width:${size}px; height:${size}px;
+          left:${x}%; top:${y}%;
+          --dur:${(Math.random() * 4 + 2).toFixed(1)}s;
+          animation-delay:${(Math.random() * 5).toFixed(1)}s;
+          opacity:${Math.random() * 0.6 + 0.1};
+        `
+        container.appendChild(star)
+        starsRef.current.push({ x, y, size, element: star })
       }
-    }, 3000)
+
+      // Reduced from 8 to 4 constellation lines
+      const bigStars = starsRef.current.filter(s => s.size > 1.5)
+      for (let i = 0; i < Math.min(4, bigStars.length - 1); i++) {
+        const s1 = bigStars[i]
+        const s2 = bigStars[i + 1]
+        const line = document.createElement("div")
+        line.className = "constellation-line"
+        const dx = s2.x - s1.x
+        const dy = s2.y - s1.y
+        const length = Math.sqrt(dx * dx + dy * dy)
+        const angle = Math.atan2(dy, dx) * (180 / Math.PI)
+        line.style.cssText = `
+          position: absolute;
+          left: ${s1.x}%;
+          top: ${s1.y}%;
+          width: ${length}%;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(201,168,76,0.3), transparent);
+          transform-origin: 0 0;
+          transform: rotate(${angle}deg);
+          opacity: 0;
+          animation: constellation-fade 8s ease-in-out infinite;
+          animation-delay: ${i * 1.5}s;
+        `
+        container.appendChild(line)
+      }
+    }
+
+    // Use requestIdleCallback to defer star creation, fallback to setTimeout
+    const idleId = typeof requestIdleCallback !== "undefined"
+      ? requestIdleCallback(createStars, { timeout: 2000 })
+      : setTimeout(createStars, 500) as unknown as number
+
+    // Shooting stars: less frequent (every 5s instead of 3s)
+    const interval = setInterval(() => {
+      if (Math.random() > 0.7) createShootingStar()
+    }, 5000)
 
     return () => {
+      if (typeof cancelIdleCallback !== "undefined") cancelIdleCallback(idleId)
+      else clearTimeout(idleId)
       clearInterval(interval)
       shootingStarsRef.current.forEach(s => s.remove())
     }
   }, [createShootingStar])
 
-  return (
-    <>
-      <div ref={ref} className="stars" aria-hidden />
-    </>
-  )
+  return <div ref={ref} className="stars" aria-hidden />
 }

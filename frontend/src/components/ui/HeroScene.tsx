@@ -15,19 +15,34 @@ export function HeroScene() {
   const [scrollY, setScrollY] = useState(0)
 
   useEffect(() => {
+    let rafId = 0
+    let pendingMouse: { x: number; y: number } | null = null
+    let pendingScroll: number | null = null
+
+    const flush = () => {
+      rafId = 0
+      if (pendingMouse) { setMouse(pendingMouse); pendingMouse = null }
+      if (pendingScroll !== null) { setScrollY(pendingScroll); pendingScroll = null }
+    }
+
     const handleMouse = (e: MouseEvent) => {
-      setMouse({
+      pendingMouse = {
         x: (e.clientX / window.innerWidth - 0.5) * 20,
         y: (e.clientY / window.innerHeight - 0.5) * 20,
-      })
+      }
+      if (!rafId) rafId = requestAnimationFrame(flush)
     }
-    const handleScroll = () => setScrollY(window.scrollY)
+    const handleScroll = () => {
+      pendingScroll = window.scrollY
+      if (!rafId) rafId = requestAnimationFrame(flush)
+    }
 
-    window.addEventListener("mousemove", handleMouse)
+    window.addEventListener("mousemove", handleMouse, { passive: true })
     window.addEventListener("scroll", handleScroll, { passive: true })
     return () => {
       window.removeEventListener("mousemove", handleMouse)
       window.removeEventListener("scroll", handleScroll)
+      if (rafId) cancelAnimationFrame(rafId)
     }
   }, [])
 
