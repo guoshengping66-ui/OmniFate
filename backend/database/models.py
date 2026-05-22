@@ -509,3 +509,52 @@ class CryptoOrder(Base):
     status: Mapped[str] = mapped_column(String(20), default="pending")  # pending|success|failed
     verified_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+# ─── FortuneSubscription ────────────────────────────────────────────────────
+
+class FortuneSubscription(Base):
+    """用户每周运势订阅偏好"""
+    __tablename__ = "fortune_subscriptions"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id: Mapped[str] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True, unique=True
+    )
+    frequency: Mapped[str] = mapped_column(String(10), default="weekly")  # "weekly" | "daily" | "off"
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    user: Mapped["User"] = relationship()
+
+
+# ─── WeeklyFortune ──────────────────────────────────────────────────────────
+
+class WeeklyFortune(Base):
+    """每周运势生成记录"""
+    __tablename__ = "weekly_fortunes"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id: Mapped[str] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    week_start: Mapped[str] = mapped_column(String(10), nullable=False)  # "2026-05-19"
+    week_end: Mapped[str] = mapped_column(String(10), nullable=False)    # "2026-05-25"
+    score: Mapped[int] = mapped_column(Integer, nullable=False)          # 1-10
+    theme: Mapped[str] = mapped_column(String(200), nullable=False)
+    lucky_color: Mapped[str] = mapped_column(String(50), nullable=False)
+    lucky_number: Mapped[str] = mapped_column(String(20), nullable=False)
+    lucky_direction: Mapped[str] = mapped_column(String(50), nullable=False)
+    tarot_card: Mapped[str] = mapped_column(String(100), nullable=False)
+    tarot_desc: Mapped[str] = mapped_column(String(500), nullable=False)
+    ai_insight: Mapped[str] = mapped_column(Text, nullable=False)
+    daily_yi_ji: Mapped[dict] = mapped_column(JSON, nullable=False)  # [{day, yi, ji}, ...]
+    is_read: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    user: Mapped["User"] = relationship()
+
+    __table_args__ = (UniqueConstraint("user_id", "week_start", name="uq_user_week"),)

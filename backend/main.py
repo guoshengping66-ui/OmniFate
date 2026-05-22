@@ -14,7 +14,7 @@ from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 
 from config import get_settings
-from api.routers import readings, users, products, payments, auth, blog, personal_payments, credits, divination, cron, referrals, billing, contact
+from api.routers import readings, users, products, payments, auth, blog, personal_payments, credits, divination, cron, referrals, billing, contact, fortune
 
 settings = get_settings()
 
@@ -163,6 +163,7 @@ app.include_router(referrals.router, prefix="/api/referrals", tags=["Referrals"]
 app.include_router(billing.router, prefix="/api/billing", tags=["Billing"])
 app.include_router(billing.webhook_router, prefix="/api/webhooks", tags=["Webhooks"])
 app.include_router(contact.router, prefix="/api/contact", tags=["Contact"])
+app.include_router(fortune.router, prefix="/api/fortune", tags=["Fortune"])
 
 
 @app.get("/health")

@@ -1183,3 +1183,43 @@ export async function refundStardust(
   })
   return res.data
 }
+
+// ── Fortune Subscription ──────────────────────────────────────────────────
+
+export interface FortuneSubscription {
+  frequency: string
+  is_active: boolean
+}
+
+export interface WeeklyFortuneResponse {
+  id?: string
+  week_start: string
+  week_end: string
+  score: number
+  theme: string
+  lucky_color: string
+  lucky_number: string
+  lucky_direction: string
+  tarot_card: string
+  tarot_desc: string
+  ai_insight: string
+  daily_yi_ji: { day: number; yi: string; ji: string }[]
+  is_read: boolean
+}
+
+export async function subscribeFortune(frequency: string): Promise<FortuneSubscription> {
+  const res = await api.post<FortuneSubscription>("/api/fortune/subscribe", safeJson({ frequency }), {
+    headers: { "Content-Type": "application/json" },
+  })
+  return res.data
+}
+
+export async function getFortuneSubscription(): Promise<FortuneSubscription> {
+  const res = await api.get<FortuneSubscription>("/api/fortune/subscription")
+  return res.data
+}
+
+export async function getWeeklyFortune(locale: string = "zh"): Promise<WeeklyFortuneResponse> {
+  const res = await api.get<WeeklyFortuneResponse>("/api/fortune/weekly", { params: { locale } })
+  return res.data
+}

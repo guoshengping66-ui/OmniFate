@@ -1,122 +1,75 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Sparkles, X, ChevronRight, Check } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useRouter } from "next/navigation"
-
-// ── LocalStorage Key ──────────────────────────────────────────────────────
-const FREQ_KEY = "destiny_mirror_fortune_freq"
-
-type FreqChoice = "weekly" | "daily" | "off"
-
-function loadFreq(): FreqChoice {
-  try { return (localStorage.getItem(FREQ_KEY) as FreqChoice) || "weekly" } catch { return "weekly" }
-}
-function saveFreq(f: FreqChoice) { localStorage.setItem(FREQ_KEY, f) }
+import toast from "react-hot-toast"
+import {
+  subscribeFortune,
+  getFortuneSubscription,
+  getWeeklyFortune,
+  type WeeklyFortuneResponse,
+} from "@/lib/api"
 
 // ── Locale-aware data ────────────────────────────────────────────────────
 const DAY_LABELS = { zh: ["周一", "周二", "周三", "周四", "周五", "周六", "周日"], en: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] }
 
-const THEMES = {
-  zh: ["贵人相助，主动出击", "稳中求进，蓄势待发", "桃花运旺，感情升温", "财运亨通，把握时机", "注意健康，劳逸结合", "学习充电，厚积薄发"],
-  en: ["Seek allies, take initiative", "Steady progress, build momentum", "Romance blooms, relationships deepen", "Financial flow, seize the moment", "Mind your health, balance rest", "Learn & grow, invest in yourself"],
-}
-const TAROT_NAMES = {
-  zh: ["正位太阳", "正位皇后", "正位魔术师", "正位力量", "正位星辰", "正位世界"],
-  en: ["Sun (Upright)", "Empress (Upright)", "Magician (Upright)", "Strength (Upright)", "Star (Upright)", "World (Upright)"],
-}
-const TAROT_DESCS = {
-  zh: ["光明与活力的一周，保持积极心态将迎来好运", "丰盛与创造的一周，适合开展新计划", "灵活应变的一周，你的才华将被看见", "内在力量的一周，坚定信念克服困难", "希望与灵感的一周，跟随直觉前进", "圆满与成就的一周，收获即将到来"],
-  en: ["A week of light and vitality — stay positive and好运 will follow", "A week of abundance and creation — ideal for launching new plans", "A week of adaptability — your talents will be recognized", "A week of inner strength — stay firm and overcome challenges", "A week of hope and inspiration — follow your intuition", "A week of fulfillment — rewards are on their way"],
-}
-const YI_ITEMS = {
-  zh: ["出行", "签约", "求财", "会友", "学习", "祈福", "开工"],
-  en: ["Travel", "Sign contracts", "Seek wealth", "Meet friends", "Study", "Pray", "Start work"],
-}
-const JI_ITEMS = {
-  zh: ["动土", "远行", "争吵", "熬夜", "冒险", "搬迁", "借贷"],
-  en: ["Groundbreaking", "Long travel", "Arguments", "Stay up late", "Take risks", "Move house", "Lend money"],
-}
-const LUCKY_COLORS = {
-  zh: ["翠绿", "金色", "红色", "蓝色", "紫色", "粉色"],
-  en: ["Emerald", "Gold", "Red", "Blue", "Purple", "Pink"],
-}
-const LUCKY_DIRECTIONS = {
-  zh: ["正东方", "正南方", "正西方", "正北方", "东南方", "西北方"],
-  en: ["East", "South", "West", "North", "Southeast", "Northwest"],
-}
-const AI_INSIGHTS = {
-  zh: [
-    "本周{yi}运势旺盛，结合你的八字日主分析，建议把握周中黄金时段推进重要事务。周末宜休整，为下周蓄力。",
-    "本周{yi}运势平稳，五行调和，适合按部就班推进计划。注意周五可能有小波折。",
-    "本周{ji}需谨慎，但{yi}运强劲，可主动出击。保持心态平和，好运自来。",
-  ],
-  en: [
-    "This week's {yi} fortune is strong. Based on your BaZi chart, we recommend tackling important tasks mid-week. Rest on the weekend to recharge.",
-    "This week's {yi} fortune is steady with balanced Five Elements. Stick to your plan. Watch out for minor setbacks on Friday.",
-    "Be cautious with {ji} this week, but {yi} luck is strong — take initiative. Stay calm and好运 will come naturally.",
-  ],
-}
-
-function pick<T>(arr: T[], hash: number): T { return arr[Math.floor(hash * arr.length)] }
-
-function generateWeeklyPreview(locale: "zh" | "en") {
-  const today = new Date()
-  const seed = today.getFullYear() * 100 + today.getMonth() * 10 + today.getDate()
-  const hash = (n: number) => { const x = Math.sin(seed * 9301 + n * 49297) * 49297; return x - Math.floor(x) }
-  const score = Math.round(Math.max(4, Math.min(10, 6 + (hash(1) - 0.5) * 6)))
-
-  const yi: string[] = [], ji: string[] = [], daily: { yi: string; ji: string }[] = []
-  for (let i = 0; i < 3; i++) {
-    yi.push(YI_ITEMS[locale][Math.floor(hash(10 + i) * YI_ITEMS[locale].length)])
-    ji.push(JI_ITEMS[locale][Math.floor(hash(20 + i) * JI_ITEMS[locale].length)])
-  }
-  for (let d = 0; d < 7; d++) {
-    daily.push({
-      yi: YI_ITEMS[locale][Math.floor(hash(30 + d) * YI_ITEMS[locale].length)],
-      ji: JI_ITEMS[locale][Math.floor(hash(40 + d) * JI_ITEMS[locale].length)],
-    })
-  }
-
-  const insight = pick(AI_INSIGHTS[locale], hash(8))
-    .replace("{yi}", yi[0])
-    .replace("{ji}", ji[0])
-
-  return {
-    score,
-    theme: pick(THEMES[locale], hash(5)),
-    yi, ji, daily,
-    tarot: pick(TAROT_NAMES[locale], hash(6)),
-    tarotDesc: pick(TAROT_DESCS[locale], hash(7)),
-    luckyColor: pick(LUCKY_COLORS[locale], hash(9)),
-    luckyNumber: `${Math.floor(hash(100) * 9) + 1}, ${Math.floor(hash(101) * 9) + 1}`,
-    luckyDirection: pick(LUCKY_DIRECTIONS[locale], hash(10)),
-    aiInsight: insight,
-  }
-}
-
 // ── Main Component ──────────────────────────────────────────────────────
 export function FloatingFortuneSubscribe() {
   const [open, setOpen] = useState(false)
-  const [freq, setFreq] = useState<FreqChoice>(loadFreq)
+  const [freq, setFreq] = useState<string>("weekly")
   const [saved, setSaved] = useState(false)
+  const [fortune, setFortune] = useState<WeeklyFortuneResponse | null>(null)
+  const [loading, setLoading] = useState(false)
   const { user } = useAuth()
   const { t, locale, localeHref } = useLanguage()
   const router = useRouter()
 
   const isZH = locale === "zh"
-  const preview = generateWeeklyPreview(isZH ? "zh" : "en")
   const dayLabels = isZH ? DAY_LABELS.zh : DAY_LABELS.en
-  const scoreColor = preview.score >= 8 ? "#4ade80" : preview.score >= 6 ? "#C9A84C" : preview.score >= 4 ? "#fb923c" : "#f87171"
+  const scoreColor = (fortune?.score ?? 6) >= 8 ? "#4ade80" : (fortune?.score ?? 6) >= 6 ? "#C9A84C" : (fortune?.score ?? 6) >= 4 ? "#fb923c" : "#f87171"
   const yiLabel = isZH ? "宜" : "Do"
   const jiLabel = isZH ? "忌" : "Don't"
 
-  const handleSave = () => {
-    saveFreq(freq)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
+  // Load subscription status and fortune on mount
+  useEffect(() => {
+    if (!open) return
+    loadData()
+  }, [open])
+
+  async function loadData() {
+    setLoading(true)
+    try {
+      // Load subscription preference
+      if (user) {
+        const sub = await getFortuneSubscription()
+        setFreq(sub.frequency)
+      }
+      // Load weekly fortune
+      const f = await getWeeklyFortune(locale)
+      setFortune(f)
+    } catch (err) {
+      console.error("Failed to load fortune:", err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSave = async () => {
+    if (!user) {
+      toast.error(t("auth.loginRequired"))
+      return
+    }
+    try {
+      await subscribeFortune(freq)
+      setSaved(true)
+      toast.success(t("fortuneSub.success"))
+      setTimeout(() => setSaved(false), 2000)
+    } catch (err) {
+      toast.error(t("account.profileSaveFail"))
+    }
   }
 
   return (
@@ -182,9 +135,9 @@ export function FloatingFortuneSubscribe() {
                 <p className="text-white/50 text-xs font-medium">{t("fortuneSub.frequency")}</p>
                 <div className="flex gap-2">
                   {([
-                    { key: "weekly" as const, label: t("fortuneSub.freqWeekly") },
-                    { key: "daily" as const, label: t("fortuneSub.freqDaily") },
-                    { key: "off" as const, label: t("fortuneSub.freqOff") },
+                    { key: "weekly", label: t("fortuneSub.freqWeekly") },
+                    { key: "daily", label: t("fortuneSub.freqDaily") },
+                    { key: "off", label: t("fortuneSub.freqOff") },
                   ]).map(o => (
                     <button
                       key={o.key}
@@ -203,9 +156,16 @@ export function FloatingFortuneSubscribe() {
                 </div>
               </div>
 
-              {freq !== "off" && (
+              {/* Loading state */}
+              {loading && (
+                <div className="flex items-center justify-center py-8">
+                  <div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
+                </div>
+              )}
+
+              {/* Fortune Preview */}
+              {!loading && fortune && freq !== "off" && (
                 <>
-                  {/* ── Preview Card ──────────────────────────────────── */}
                   <div className="bg-white/[0.03] rounded-2xl p-5 space-y-4 border border-white/[0.06]">
                     <p className="text-white/30 text-[10px] uppercase tracking-wider">{t("fortuneSub.previewHint")}</p>
 
@@ -215,15 +175,15 @@ export function FloatingFortuneSubscribe() {
                         <svg className="w-full h-full -rotate-90" viewBox="0 0 64 64">
                           <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="4" />
                           <circle cx="32" cy="32" r="26" fill="none" stroke={scoreColor} strokeWidth="4"
-                            strokeLinecap="round" strokeDasharray={`${(preview.score / 10) * 163.36} 163.36`} />
+                            strokeLinecap="round" strokeDasharray={`${(fortune.score / 10) * 163.36} 163.36`} />
                         </svg>
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <span className="text-xl font-bold font-serif" style={{ color: scoreColor }}>{preview.score}</span>
+                          <span className="text-xl font-bold font-serif" style={{ color: scoreColor }}>{fortune.score}</span>
                         </div>
                       </div>
                       <div className="flex-1">
                         <p className="text-white/50 text-[10px] mb-0.5">{t("fortuneSub.overallScore")}</p>
-                        <p className="text-gold text-sm font-medium">{preview.theme}</p>
+                        <p className="text-gold text-sm font-medium">{fortune.theme}</p>
                       </div>
                     </div>
 
@@ -231,32 +191,32 @@ export function FloatingFortuneSubscribe() {
                     <div className="grid grid-cols-2 gap-3 text-xs">
                       <div className="flex items-center gap-2">
                         <span className="text-white/30">{t("fortuneSub.luckyColor")}:</span>
-                        <span className="text-green-400/80 font-medium">{preview.luckyColor}</span>
+                        <span className="text-green-400/80 font-medium">{fortune.lucky_color}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-white/30">{t("fortuneSub.luckyNumber")}:</span>
-                        <span className="text-gold font-medium">{preview.luckyNumber}</span>
+                        <span className="text-gold font-medium">{fortune.lucky_number}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-white/30">{t("fortuneSub.luckyDirection")}:</span>
-                        <span className="text-blue-400/80 font-medium">{preview.luckyDirection}</span>
+                        <span className="text-blue-400/80 font-medium">{fortune.lucky_direction}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-white/30">{t("fortuneSub.tarotCard")}:</span>
-                        <span className="text-purple-400/80 font-medium">{preview.tarot}</span>
+                        <span className="text-purple-400/80 font-medium">{fortune.tarot_card}</span>
                       </div>
                     </div>
 
                     {/* Tarot description */}
                     <div className="bg-purple-500/5 border border-purple-500/15 rounded-xl p-3">
-                      <p className="text-purple-300/70 text-xs leading-relaxed">{preview.tarotDesc}</p>
+                      <p className="text-purple-300/70 text-xs leading-relaxed">{fortune.tarot_desc}</p>
                     </div>
 
                     {/* Daily Yi Ji preview (first 3 days) */}
                     <div>
                       <p className="text-white/30 text-[10px] mb-2">{t("fortuneSub.dailyYiJi")}</p>
                       <div className="grid grid-cols-3 gap-2">
-                        {preview.daily.slice(0, 3).map((d, i) => (
+                        {fortune.daily_yi_ji.slice(0, 3).map((d, i) => (
                           <div key={i} className="bg-white/[0.03] rounded-lg p-2 text-center">
                             <p className="text-white/40 text-[10px] mb-1">{dayLabels[i]}</p>
                             <p className="text-green-400/70 text-[10px]">{yiLabel} {d.yi}</p>
@@ -267,12 +227,25 @@ export function FloatingFortuneSubscribe() {
                     </div>
                   </div>
 
-                  {/* AI Insight Preview */}
+                  {/* AI Insight */}
                   <div className="card-glass p-4 flex items-start gap-3">
                     <span className="text-base flex-shrink-0">🤖</span>
-                    <p className="text-white/40 text-xs leading-relaxed">{preview.aiInsight}</p>
+                    <p className="text-white/40 text-xs leading-relaxed">{fortune.ai_insight}</p>
                   </div>
                 </>
+              )}
+
+              {/* No data state */}
+              {!loading && !fortune && (
+                <div className="text-center py-6">
+                  <p className="text-white/30 text-sm mb-3">{t("fortuneSub.noData")}</p>
+                  <button
+                    onClick={() => { setOpen(false); router.push(localeHref("/divination")) }}
+                    className="btn-gold px-6 py-2 text-sm"
+                  >
+                    {t("fortuneSub.goReading")}
+                  </button>
+                </div>
               )}
 
               {/* Action Buttons */}
