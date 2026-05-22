@@ -224,7 +224,7 @@ async def today_status(
     current_user: User = Depends(require_user),
 ):
     """查询今日是否还有免费抽签"""
-    today = date.today()
+    today = datetime.now(timezone.utc).date()
     result = await db.execute(
         select(func.count(DivinationRecord.id)).where(
             DivinationRecord.user_id == current_user.id,
@@ -246,7 +246,7 @@ async def draw(
     同一用户同一天的结果由 user_id + date 哈希确定，
     不同用户看到不同的"星象感应"。
     """
-    today = date.today()
+    today = datetime.now(timezone.utc).date()
 
     # 检查今日是否已免费抽过
     count_result = await db.execute(
