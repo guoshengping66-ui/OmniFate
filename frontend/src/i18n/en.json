@@ -2961,5 +2961,33 @@
     "water": "Water (Shui)",
     "wood": "Wood (Mu)"
   },
-  "coupon可用于": "Can be used for any item in the shop"
+  "coupon可用于": "Can be used for any item in the shop",
+  "fortuneSub": {
+    "label": "Subscribe",
+    "badge": "NEW",
+    "title": "Weekly Fortune & Lucky Guide",
+    "desc": "Personalized fortune analysis based on your BaZi chart, delivered every Monday",
+    "subscribe": "Subscribe Now",
+    "unsubscribe": "Unsubscribe",
+    "subscribed": "Subscribed",
+    "weekRange": "{start} - {end}",
+    "overallScore": "Overall Fortune",
+    "theme": "Weekly Theme",
+    "luckyColor": "Lucky Color",
+    "luckyNumber": "Lucky Number",
+    "luckyDirection": "Auspicious Direction",
+    "tarotCard": "Tarot of the Week",
+    "tarotDesc": "Weekly guidance card reading",
+    "dailyYiJi": "Daily Do's & Don'ts",
+    "aiInsight": "AI Fusion Insight",
+    "frequency": "Push Frequency",
+    "freqWeekly": "Weekly",
+    "freqDaily": "Daily",
+    "freqOff": "Off",
+    "previewHint": "Here's a preview of this week's fortune",
+    "noData": "No fortune data yet. Complete a reading first.",
+    "goReading": "Start Reading",
+    "success": "Subscription preferences saved",
+    "tooltip": "View this week's fortune"
+  }
 }
