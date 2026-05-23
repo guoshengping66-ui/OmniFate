@@ -149,7 +149,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
           link.download = `AM16-${code}-${Date.now()}.png`
           link.href = url
           link.click()
-          URL.revokeObjectObjectURL(url)
+          URL.revokeObjectURL(url)
         }
         toast.success(t("am16.saveImage"))
         setDownloading(false)

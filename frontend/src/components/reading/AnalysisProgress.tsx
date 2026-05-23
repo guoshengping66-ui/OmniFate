@@ -10,13 +10,6 @@ type AgentStatus = "pending" | "running" | "done" | "error" | "skipped"
 
 const AGENT_ORDER = ["bazi", "astrology", "tarot", "qimen", "ziwei", "face", "palm"] as const
 
-const PHASE_KEYS: Record<string, string> = {
-  init: "analysis.init",
-  parallel: "analysis.parallel",
-  master: "analysis.master",
-  done: "analysis.done",
-}
-
 const AGENT_I18N: Record<string, { running: string; done: string }> = {
   bazi:      { running: "analysis.bazi.running", done: "analysis.bazi.done" },
   astrology: { running: "analysis.astrology.running", done: "analysis.astrology.done" },

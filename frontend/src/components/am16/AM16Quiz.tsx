@@ -2,7 +2,7 @@
 import { useState, useCallback, useMemo } from "react"
 import { Sparkles } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { AM16_QUESTIONS, type AM16Question } from "@/lib/am16/constants"
+import { AM16_QUESTIONS } from "@/lib/am16/constants"
 
 // ── Fisher-Yates 洗牌 ──
 function shuffle<T>(arr: T[]): T[] {
