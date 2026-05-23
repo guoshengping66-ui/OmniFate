@@ -211,10 +211,14 @@ export function CelestialOracle() {
   const [result, setResult] = useState<DivinationResult | null>(null)
   const [todayFree, setTodayFree] = useState(true)
   const [shareReward, setShareReward] = useState(0)
+  const [checking, setChecking] = useState(true)  // 正在检查今日是否已抽过
   const cardRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!user) return
+    if (!user) {
+      setChecking(false)
+      return
+    }
     // 优先尝试 today-result 接口（后端新版）
     api.get("/api/divination/today-result")
       .then(r => {
@@ -238,6 +242,7 @@ export function CelestialOracle() {
           })
           .catch(() => {})
       })
+      .finally(() => setChecking(false))
   }, [user])
 
   useEffect(() => {
@@ -353,8 +358,22 @@ export function CelestialOracle() {
         </div>
 
         <AnimatePresence mode="wait">
-          {/* Idle phase */}
-          {phase === "idle" && (
+          {/* Checking phase — 正在检查今日是否已抽过 */}
+          {checking && (
+            <motion.div
+              key="checking"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="text-center py-12"
+            >
+              <div className="w-8 h-8 border-2 border-gold/30 border-t-gold rounded-full animate-spin mx-auto" />
+              <p className="text-white/30 text-xs mt-3">{t("divination.aligning")}</p>
+            </motion.div>
+          )}
+
+          {/* Idle phase — 今日未抽过才显示 */}
+          {!checking && phase === "idle" && (
             <motion.div
               key="idle"
               initial={{ opacity: 0, y: 10 }}
