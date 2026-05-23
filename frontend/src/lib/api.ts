@@ -40,6 +40,13 @@ export const apiDirect = axios.create({
   timeout: 180_000,
 })
 
+// Direct backend connection for auth endpoints (bypasses proxy for speed)
+// The backend CORS allows khanfate.com origin, so direct calls work
+export const apiAuth = axios.create({
+  baseURL: BACKEND_URL,
+  timeout: 30_000,
+})
+
 // ── Production proxy interceptor ───────────────────────────────────────────
 // In production, route all API calls through Next.js server-side proxy
 // (/api/proxy/*) to avoid nginx CORS issues.
@@ -533,7 +540,7 @@ export interface AuthResponse {
 }
 
 export async function loginUser(email: string, password: string): Promise<AuthResponse> {
-  const res = await api.post<AuthResponse>("/api/auth/login", { email, password })
+  const res = await apiAuth.post<AuthResponse>("/api/auth/login", { email, password })
   return res.data
 }
 
@@ -557,7 +564,7 @@ export async function registerUser(
   privacyAccepted?: boolean,
   birthData?: RegisterBirthData,
 ): Promise<{ message: string; email: string }> {
-  const res = await api.post<{ message: string; email: string }>("/api/auth/register", safeJson({
+  const res = await apiAuth.post<{ message: string; email: string }>("/api/auth/register", safeJson({
     email,
     password,
     display_name: displayName,
@@ -570,12 +577,12 @@ export async function registerUser(
 }
 
 export async function sendVerificationCode(email: string): Promise<{ message: string }> {
-  const res = await api.post<{ message: string }>("/api/auth/send-code", { email })
+  const res = await apiAuth.post<{ message: string }>("/api/auth/send-code", { email })
   return res.data
 }
 
 export async function verifyEmail(email: string, code: string): Promise<AuthResponse> {
-  const res = await api.post<AuthResponse>("/api/auth/verify-email", { email, code })
+  const res = await apiAuth.post<AuthResponse>("/api/auth/verify-email", { email, code })
   return res.data
 }
 
@@ -584,7 +591,7 @@ export async function resetPasswordWithCode(
   code: string,
   newPassword: string,
 ): Promise<{ message: string }> {
-  const res = await api.post<{ message: string }>("/api/auth/reset-password", {
+  const res = await apiAuth.post<{ message: string }>("/api/auth/reset-password", {
     email,
     code,
     new_password: newPassword,
@@ -593,19 +600,19 @@ export async function resetPasswordWithCode(
 }
 
 export async function getMe(): Promise<AuthUser> {
-  const res = await api.get<AuthUser>("/api/auth/me")
+  const res = await apiAuth.get<AuthUser>("/api/auth/me")
   return res.data
 }
 
 export async function refreshToken(refreshToken: string): Promise<{ access_token: string; refresh_token: string; token_type: string }> {
-  const res = await api.post("/api/auth/refresh", { refresh_token: refreshToken })
+  const res = await apiAuth.post("/api/auth/refresh", { refresh_token: refreshToken })
   return res.data
 }
 
 // ── Password Reset ──────────────────────────────────────────────────────────
 
 export async function forgotPassword(email: string): Promise<{ message: string }> {
-  const res = await api.post<{ message: string }>("/api/auth/forgot-password", { email })
+  const res = await apiAuth.post<{ message: string }>("/api/auth/forgot-password", { email })
   return res.data
 }
 
@@ -626,7 +633,7 @@ export async function changePassword(oldPassword: string, newPassword: string): 
 }
 
 export async function deleteAccount(password: string): Promise<{ message: string }> {
-  const res = await api.delete("/api/auth/delete-account", {
+  const res = await apiAuth.delete("/api/auth/delete-account", {
     data: safeJson({ password }),
     headers: { "Content-Type": "application/json" },
   })

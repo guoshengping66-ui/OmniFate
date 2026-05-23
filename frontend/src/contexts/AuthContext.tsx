@@ -1,6 +1,6 @@
 "use client"
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react"
-import { api, apiDirect, type RegisterBirthData } from "@/lib/api"
+import { api, apiDirect, apiAuth, type RegisterBirthData } from "@/lib/api"
 
 export interface AuthUser {
   id: string
@@ -43,34 +43,63 @@ const AuthContext = createContext<AuthState>({
 
 const TOKEN_KEY = "alpha_mirror_token"
 const REFRESH_KEY = "alpha_mirror_refresh"
+const USER_CACHE_KEY = "alpha_mirror_user" // Cached user for instant restore after reload
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null)
+  const [user, setUser] = useState<AuthUser | null>(() => {
+    // INSTANT restore from cache — no API call needed
+    // This prevents "logged out" flash during language switch or page reload
+    try {
+      const cached = localStorage.getItem(USER_CACHE_KEY)
+      return cached ? JSON.parse(cached) : null
+    } catch { return null }
+  })
   const [loading, setLoading] = useState(true)
 
-  // On mount, try to restore session from stored token
+  // Helper: save user to cache
+  const cacheUser = (u: AuthUser | null) => {
+    try {
+      if (u) {
+        localStorage.setItem(USER_CACHE_KEY, JSON.stringify(u))
+      } else {
+        localStorage.removeItem(USER_CACHE_KEY)
+      }
+    } catch { /* ignore quota errors */ }
+  }
+
+  // On mount, restore session from cache (instant) then refresh in background
   useEffect(() => {
     const storedToken = localStorage.getItem(TOKEN_KEY)
     if (storedToken) {
+      // User already cached from previous render — just refresh in background
       api.get("/api/auth/me")
-        .then(res => setUser(res.data))
+        .then(res => {
+          setUser(res.data)
+          cacheUser(res.data) // Update cache with fresh data
+        })
         .catch(() => {
           // Token expired — try refresh
           const refreshToken = localStorage.getItem(REFRESH_KEY)
           if (refreshToken) {
-            return api.post("/api/auth/refresh", { refresh_token: refreshToken })
+            return apiAuth.post("/api/auth/refresh", { refresh_token: refreshToken })
               .then(r => {
                 localStorage.setItem(TOKEN_KEY, r.data.access_token)
                 localStorage.setItem(REFRESH_KEY, r.data.refresh_token)
                 return api.get("/api/auth/me")
               })
-              .then(r => setUser(r?.data ?? null))
+              .then(r => {
+                setUser(r?.data ?? null)
+                cacheUser(r?.data ?? null)
+              })
               .catch(() => {
                 localStorage.removeItem(TOKEN_KEY)
                 localStorage.removeItem(REFRESH_KEY)
+                localStorage.removeItem(USER_CACHE_KEY)
+                setUser(null)
               })
           } else {
             localStorage.removeItem(TOKEN_KEY)
+            localStorage.removeItem(USER_CACHE_KEY)
           }
         })
         .finally(() => setLoading(false))
@@ -133,13 +162,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!refreshToken) {
         localStorage.removeItem(TOKEN_KEY)
         localStorage.removeItem(REFRESH_KEY)
+        localStorage.removeItem(USER_CACHE_KEY)
         setUser(null)
         isRefreshing = false
         return Promise.reject(error)
       }
 
       try {
-        const res = await apiDirect.post("/api/auth/refresh", { refresh_token: refreshToken })
+        const res = await apiAuth.post("/api/auth/refresh", { refresh_token: refreshToken })
         const newToken = res.data.access_token
         localStorage.setItem(TOKEN_KEY, newToken)
         localStorage.setItem(REFRESH_KEY, res.data.refresh_token)
@@ -150,6 +180,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         processQueue(refreshError, null)
         localStorage.removeItem(TOKEN_KEY)
         localStorage.removeItem(REFRESH_KEY)
+        localStorage.removeItem(USER_CACHE_KEY)
         setUser(null)
         return Promise.reject(refreshError)
       } finally {
@@ -159,6 +190,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const interceptor1 = api.interceptors.request.use(attachToken)
     const interceptor2 = apiDirect.interceptors.request.use(attachToken)
+    const interceptor3 = apiAuth.interceptors.request.use(attachToken)
     const responseInterceptor1 = api.interceptors.response.use(
       response => response,
       handle401
@@ -167,24 +199,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       response => response,
       handle401
     )
+    const responseInterceptor3 = apiAuth.interceptors.response.use(
+      response => response,
+      handle401
+    )
     return () => {
       api.interceptors.request.eject(interceptor1)
       apiDirect.interceptors.request.eject(interceptor2)
+      apiAuth.interceptors.request.eject(interceptor3)
       api.interceptors.response.eject(responseInterceptor1)
       apiDirect.interceptors.response.eject(responseInterceptor2)
+      apiAuth.interceptors.response.eject(responseInterceptor3)
     }
   }, [])
 
   const login = useCallback(async (email: string, password: string) => {
-    const res = await api.post("/api/auth/login", { email, password })
+    const res = await apiAuth.post("/api/auth/login", { email, password })
     const data = res.data
     localStorage.setItem(TOKEN_KEY, data.access_token)
     localStorage.setItem(REFRESH_KEY, data.refresh_token)
     setUser(data.user)
+    cacheUser(data.user) // Cache user for instant restore
   }, [])
 
   const register = useCallback(async (email: string, password: string, displayName?: string, birthData?: RegisterBirthData) => {
-    const res = await api.post("/api/auth/register", {
+    const res = await apiAuth.post("/api/auth/register", {
       email,
       password,
       display_name: displayName,
@@ -199,6 +238,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(() => {
     localStorage.removeItem(TOKEN_KEY)
     localStorage.removeItem(REFRESH_KEY)
+    localStorage.removeItem(USER_CACHE_KEY) // Clear cached user
     setUser(null)
   }, [])
 
@@ -206,6 +246,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const res = await api.get("/api/auth/me")
       setUser(res.data)
+      cacheUser(res.data) // Update cache
     } catch {
       // ignore
     }

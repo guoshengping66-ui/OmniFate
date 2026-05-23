@@ -7,8 +7,10 @@ import { useAuth } from "@/contexts/AuthContext"
 import { useUserStore } from "@/stores/useUserStore"
 
 // ── Lazy-loaded marketing page ─────────────────────────────────────────────
+// SSR enabled so text content renders immediately (no blank page)
+// Heavy 3D components inside MarketingPage are still dynamically loaded
 const MarketingPage = dynamic(() => import("@/components/MarketingPage"), {
-  ssr: false,
+  ssr: true,
   loading: () => (
     <div className="min-h-screen flex items-center justify-center">
       <div className="flex flex-col items-center gap-4">
