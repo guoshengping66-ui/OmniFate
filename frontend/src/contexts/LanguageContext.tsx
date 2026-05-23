@@ -10,6 +10,8 @@ interface LanguageState {
   t: (key: string) => string
   /** Prefix a bare path with the current locale, e.g. "/pricing" → "/en/pricing" */
   localeHref: (path: string) => string
+  /** Preload a locale page for instant switching */
+  preloadLocale: (locale: Locale) => void
 }
 
 const LanguageContext = createContext<LanguageState>({
@@ -17,6 +19,7 @@ const LanguageContext = createContext<LanguageState>({
   setLocale: () => {},
   t: (key: string) => key,
   localeHref: (path: string) => path,
+  preloadLocale: () => {},
 })
 
 const LANG_KEY = "destiny_mirror_lang"
@@ -68,8 +71,21 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     [locale],
   )
 
+  // Preload the other locale for instant switching
+  const preloadLocale = useCallback(
+    (targetLocale: Locale) => {
+      if (targetLocale === locale) return
+      const currentPath = window.location.pathname
+      const stripped = currentPath.replace(/^\/(en|zh)(\/|$)/, "/")
+      const targetPath = `/${targetLocale}${stripped.startsWith("/") ? stripped : `/${stripped}`}`
+      // Prefetch the target page
+      router.prefetch(targetPath)
+    },
+    [locale, router],
+  )
+
   return (
-    <LanguageContext.Provider value={{ locale, setLocale, t, localeHref }}>
+    <LanguageContext.Provider value={{ locale, setLocale, t, localeHref, preloadLocale }}>
       {children}
     </LanguageContext.Provider>
   )

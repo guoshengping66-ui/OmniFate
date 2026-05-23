@@ -8,7 +8,7 @@ const LANGUAGES: { locale: Locale; label: string; flag: string }[] = [
 ]
 
 export function LanguageSwitch() {
-  const { locale, setLocale } = useLanguage()
+  const { locale, setLocale, preloadLocale } = useLanguage()
 
   return (
     <div className="flex items-center gap-1 p-1 rounded-full bg-white/5 border border-white/10">
@@ -16,6 +16,7 @@ export function LanguageSwitch() {
         <button
           key={lang.locale}
           onClick={() => setLocale(lang.locale)}
+          onMouseEnter={() => preloadLocale(lang.locale)}
           className={`relative px-2.5 py-1 rounded-full text-xs font-medium transition-colors duration-200 ${
             locale === lang.locale
               ? "text-gold"
