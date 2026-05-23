@@ -204,6 +204,23 @@ function FortuneBadge({ fortune, level }: { fortune: string; level: number }) {
   )
 }
 
+// ── localStorage cache helpers ──────────────────────────────────────────────
+function _cacheKey(): string {
+  const today = new Date().toISOString().slice(0, 10) // "2026-05-23"
+  return `divination_result_${today}`
+}
+
+function loadCachedResult(): DivinationResult | null {
+  try {
+    const raw = localStorage.getItem(_cacheKey())
+    return raw ? JSON.parse(raw) : null
+  } catch { return null }
+}
+
+function saveCachedResult(result: DivinationResult) {
+  try { localStorage.setItem(_cacheKey(), JSON.stringify(result)) } catch {}
+}
+
 export function CelestialOracle() {
   const { user } = useAuth()
   const { t, locale } = useLanguage()
@@ -219,25 +236,43 @@ export function CelestialOracle() {
       setChecking(false)
       return
     }
-    // 优先尝试 today-result 接口（后端新版）
+
+    // 1) 优先从 localStorage 缓存加载，瞬间显示
+    const cached = loadCachedResult()
+    if (cached) {
+      setResult(cached)
+      setPhase("result")
+      setTodayFree(false)
+      setChecking(false)
+      // 后台静默刷新，确保数据最新
+      api.get("/api/divination/today-result").then(r => {
+        if (r.data.has_drawn) {
+          setResult(r.data)
+          saveCachedResult(r.data)
+        }
+      }).catch(() => {})
+      return
+    }
+
+    // 2) 无缓存，走 API 检查
     api.get("/api/divination/today-result")
       .then(r => {
         if (r.data.has_drawn) {
           setResult(r.data)
           setPhase("result")
           setTodayFree(false)
+          saveCachedResult(r.data)
         }
       })
       .catch(() => {
-        // fallback: 旧版后端没有 today-result，用 today-status + draw
         api.get("/api/divination/today-status")
           .then(async r => {
             if (!r.data.is_free) {
-              // 今日已抽过 → 调用 draw 获取结果（后端会直接返回已有结果，不扣星尘）
               setTodayFree(false)
               const res = await api.post("/api/divination/draw", { use_free: false })
               setResult(res.data)
               setPhase("result")
+              saveCachedResult(res.data)
             }
           })
           .catch(() => {})
@@ -284,6 +319,7 @@ export function CelestialOracle() {
       setResult(res.data)
       setPhase("result")
       setTodayFree(false)
+      saveCachedResult(res.data)
       setShareReward(0)
 
       const level = res.data.fortune_level
