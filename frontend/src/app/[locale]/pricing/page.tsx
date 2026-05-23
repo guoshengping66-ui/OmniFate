@@ -1,19 +1,19 @@
 "use client"
-import { useState, useEffect } from "react"
+import { useState, useEffect, lazy, Suspense } from "react"
 import { useRouter } from "next/navigation"
 import { Crown, Zap, ArrowRight, Sparkles, HelpCircle, ShieldCheck, Clock, MessageCircle } from "lucide-react"
-import { motion } from "framer-motion"
 import Link from "next/link"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { QRPaymentModal } from "@/components/payment/QRPaymentModal"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
-import { PricingCard } from "@/components/pricing/PricingCard"
 import { AccordionItem } from "@/components/ui/AccordionItem"
 import { TIERS, type Region } from "@/lib/tiers"
 import { useRegion } from "@/hooks/useRegion"
 import { ServiceTerms } from "@/components/ui/ServiceTerms"
 import toast from "react-hot-toast"
+
+const QRPaymentModal = lazy(() => import("@/components/payment/QRPaymentModal").then(m => ({ default: m.QRPaymentModal })))
+const PricingCard = lazy(() => import("@/components/pricing/PricingCard").then(m => ({ default: m.PricingCard })))
 
 
 export default function PricingPage() {
@@ -122,10 +122,8 @@ export default function PricingPage() {
         <div className="flex items-center justify-center mb-10">
           <div className="relative flex items-center bg-white/5 border border-white/10 rounded-full p-1">
             {/* Sliding indicator */}
-            <motion.div
+            <div
               className="absolute top-1 bottom-1 rounded-full bg-gold/15 border border-gold/25"
-              layout
-              transition={{ type: "spring", stiffness: 400, damping: 30 }}
               style={{
                 left: region === "domestic" ? "4px" : "50%",
                 width: "calc(50% - 4px)",
@@ -149,37 +147,36 @@ export default function PricingPage() {
         </div>
 
         {/* ══════════ Main Pricing Grid (3-Column) ══════════ */}
-        <div className="grid lg:grid-cols-3 gap-5 items-stretch mb-12">
-          {/* Left: Single Report */}
-          <PricingCard
-            tier={singleTier}
-            region={region}
-            isNewUser={true}
-            onSelect={handleSelect}
-          />
-
-          {/* Center: Yearly (Recommended) — taller card */}
-          <div className="lg:-mt-3 lg:mb-[-12px]">
+        <Suspense fallback={<div className="grid lg:grid-cols-3 gap-5 mb-12">{[1,2,3].map(i => <div key={i} className="h-64 bg-white/[0.03] rounded-2xl animate-pulse" />)}</div>}>
+          <div className="grid lg:grid-cols-3 gap-5 items-stretch mb-12">
+            {/* Left: Single Report */}
             <PricingCard
-              tier={yearlyTier}
+              tier={singleTier}
+              region={region}
+              isNewUser={true}
+              onSelect={handleSelect}
+            />
+
+            {/* Center: Yearly (Recommended) — taller card */}
+            <div className="lg:-mt-3 lg:mb-[-12px]">
+              <PricingCard
+                tier={yearlyTier}
+                region={region}
+                onSelect={handleSelect}
+              />
+            </div>
+
+            {/* Right: Monthly */}
+            <PricingCard
+              tier={monthlyTier}
               region={region}
               onSelect={handleSelect}
             />
           </div>
-
-          {/* Right: Monthly */}
-          <PricingCard
-            tier={monthlyTier}
-            region={region}
-            onSelect={handleSelect}
-          />
-        </div>
+        </Suspense>
 
         {/* ══════════ Feature Comparison Table ══════════ */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-40px" }}
+        <div
           className="mb-14 overflow-x-auto"
         >
           <div className="text-center mb-6">
@@ -217,13 +214,10 @@ export default function PricingPage() {
               </tbody>
             </table>
           </div>
-        </motion.div>
+        </div>
 
         {/* ══════════ Channel Comparison (一键推命 vs 完整推命) ══════════ */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-40px" }}
+        <div
           className="mb-14"
         >
           <div className="text-center mb-8">
@@ -284,13 +278,10 @@ export default function PricingPage() {
             <span className="text-white/30 text-xs">{t("pricing.channel.price")}：</span>
             <span className="text-gold text-sm font-medium">{t("pricing.channel.priceValue")}</span>
           </div>
-        </motion.div>
+        </div>
 
         {/* ══════════ Founder Section (Full-Width Premium) ══════════ */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-40px" }}
+        <div
           className="mb-14"
         >
           <div className="flex items-center justify-center gap-3 mb-5">
@@ -306,13 +297,10 @@ export default function PricingPage() {
             isFounderCard={true}
             onSelect={handleSelect}
           />
-        </motion.div>
+        </div>
 
         {/* ══════════ Event Retro Callout ══════════ */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+        <div
           className="card-glass p-5 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left
                      hover:border-gold/20 transition-all duration-300 hover:-translate-y-1 mb-14"
         >
@@ -332,13 +320,10 @@ export default function PricingPage() {
             {t("pricing.learnMore")}
             <ArrowRight size={14} />
           </button>
-        </motion.div>
+        </div>
 
         {/* ══════════ Stardust Legend (2x2 Grid) ══════════ */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+        <div
           className="mb-14"
         >
           <div className="text-center mb-6">
@@ -350,7 +335,7 @@ export default function PricingPage() {
             {STARDUST_COSTS.map((item) => {
               const Icon = item.icon
               return (
-                <motion.div
+                <div
                   key={item.label}
                   whileHover={{ y: -4, scale: 1.03 }}
                   className={`flex flex-col items-center gap-3 p-5 rounded-xl border ${item.bg}
@@ -366,17 +351,14 @@ export default function PricingPage() {
                       <span className="text-xs font-normal ml-0.5 opacity-60">✨</span>
                     </p>
                   </div>
-                </motion.div>
+                </div>
               )
             })}
           </div>
-        </motion.div>
+        </div>
 
         {/* ══════════ FAQ Section ══════════ */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+        <div
           className="mb-14 max-w-3xl mx-auto"
         >
           <div className="flex items-center justify-center gap-3 mb-6">
@@ -394,13 +376,10 @@ export default function PricingPage() {
               />
             ))}
           </div>
-        </motion.div>
+        </div>
 
         {/* ══════════ Founder Community Preview ══════════ */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+        <div
           className="mb-12 text-center"
         >
           <div className="card-glass p-6 max-w-md mx-auto border-gold/15">
@@ -431,7 +410,7 @@ export default function PricingPage() {
               <ArrowRight size={12} />
             </Link>
           </div>
-        </motion.div>
+        </div>
 
         {/* ══════════ Footer Legal ══════════ */}
         <p className="text-center text-white/20 text-[11px]">
@@ -449,13 +428,15 @@ export default function PricingPage() {
 
       {/* Payment modal */}
       {selectedTier && (
-        <QRPaymentModal
-          open={!!selectedTier}
-          onClose={() => setSelectedTier(null)}
-          tier={selectedTier as "premium_monthly" | "premium_yearly"}
-          region={region}
-          onSuccess={handlePaymentSuccess}
-        />
+        <Suspense fallback={null}>
+          <QRPaymentModal
+            open={!!selectedTier}
+            onClose={() => setSelectedTier(null)}
+            tier={selectedTier as "premium_monthly" | "premium_yearly"}
+            region={region}
+            onSuccess={handlePaymentSuccess}
+          />
+        </Suspense>
       )}
     </div>
   )

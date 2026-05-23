@@ -1,9 +1,10 @@
 "use client"
-import { CelestialOracle } from "@/components/divination/CelestialOracle"
+import { lazy, Suspense } from "react"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
-import { motion } from "framer-motion"
 import { Sparkles, Clock, Gift, Crown } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
+
+const CelestialOracle = lazy(() => import("@/components/divination/CelestialOracle").then(m => ({ default: m.CelestialOracle })))
 
 export default function DivinationPage() {
   const { t } = useLanguage()
@@ -20,14 +21,13 @@ export default function DivinationPage() {
           </p>
         </div>
 
-        <CelestialOracle />
+        <Suspense fallback={<div className="card-glass p-8 flex justify-center"><div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin" /></div>}>
+          <CelestialOracle />
+        </Suspense>
 
         {/* Divination Rules */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="mt-8 space-y-4"
+        <div
+          className="mt-8 space-y-4 animate-[fadeIn_0.3s_ease-out_0.3s_both]"
         >
           {/* Rules Card */}
           <div className="card-glass p-5">
@@ -82,7 +82,7 @@ export default function DivinationPage() {
               {t("divination.motto")}
             </p>
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   )
