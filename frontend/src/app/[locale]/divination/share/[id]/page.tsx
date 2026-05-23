@@ -1,7 +1,6 @@
 "use client"
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
-import { motion } from "framer-motion"
 import { Loader2, Sparkles, Zap, Gift, Crown, Share2 } from "lucide-react"
 import Link from "next/link"
 import { api } from "@/lib/api"
@@ -37,7 +36,6 @@ const FORTUNE_EMOJI: Record<string, string> = {
   "吉": "🌤", "末吉": "🌙", "凶": "🌑", "大凶": "⛈",
 }
 
-// Phase 2: 主题动态星图背景色
 const THEME_BG: Record<string, string> = {
   "事业": "from-amber-900/20 via-[#0d0b08] to-[#1a1510]",
   "感情": "from-pink-900/20 via-[#0d0b08] to-[#1a1510]",
@@ -101,7 +99,6 @@ export default function DivinationSharePage() {
   const totemIcon = THEME_TOTEM[data.theme] || "✧"
   const isHighFortune = data.fortune_level >= 5
 
-  // Format date
   const dateStr = data.created_at
     ? new Date(data.created_at).toLocaleDateString(undefined, { month: "long", day: "numeric" })
     : ""
@@ -109,18 +106,10 @@ export default function DivinationSharePage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-ink px-4 py-12">
       <div className="w-full max-w-sm">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="relative rounded-2xl overflow-hidden"
-        >
-          {/* Phase 2: 主题动态星图背景 */}
+        <div className="relative rounded-2xl overflow-hidden anim-slide-up">
           <div className={`absolute inset-0 bg-gradient-to-b ${bgTheme}`} />
-
-          {/* 顶部金线 */}
           <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-gold to-transparent" />
 
-          {/* Phase 2: 金粒子浮动效果（大吉/中吉） */}
           {isHighFortune && (
             <div className="absolute inset-0 pointer-events-none overflow-hidden">
               {Array.from({ length: 12 }).map((_, i) => (
@@ -138,14 +127,8 @@ export default function DivinationSharePage() {
           )}
 
           <div className="relative p-8 text-center">
-            {/* Phase 2: 身份锚点（创始人专属） */}
             {data.is_founder && data.seat_no && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="mb-6"
-              >
+              <div className="mb-6 anim-slide-up anim-delay-1">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full
                               bg-gold/10 border border-gold/25">
                   <Crown size={12} className="text-gold" />
@@ -153,16 +136,14 @@ export default function DivinationSharePage() {
                     {t("divination.share.founderSeat").replace("{seatNo}", String(data.seat_no))}
                   </span>
                 </div>
-              </motion.div>
+              </div>
             )}
 
-            {/* App branding */}
             <div className="flex items-center justify-center gap-2 mb-6">
               <Sparkles size={16} className="text-gold" />
               <span className="font-serif text-gold text-sm">{t("divination.share.appName")}</span>
             </div>
 
-            {/* Phase 2: 主题图腾 + 日期 */}
             {data.theme && (
               <div className="flex items-center justify-center gap-2 mb-4 text-white/30 text-xs">
                 <span className="text-base">{totemIcon}</span>
@@ -176,20 +157,13 @@ export default function DivinationSharePage() {
               </div>
             )}
 
-            {/* Fortune badge */}
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: "spring", damping: 12, delay: 0.2 }}
-              className="mb-6"
-            >
+            <div className="mb-6 anim-slide-up anim-delay-2" style={{ animation: "slideUp 0.5s cubic-bezier(0.32, 0.72, 0, 1) 0.2s forwards", opacity: 0 }}>
               <div className={`inline-flex items-center gap-2 px-8 py-4 rounded-full
                             bg-gradient-to-r ${FORTUNE_COLORS[data.fortune] || "from-gold to-[#E8CB7A]"}
                             text-ink font-bold text-3xl ${isHighFortune ? "shadow-lg shadow-gold/20" : ""}`}>
                 <span>{FORTUNE_EMOJI[data.fortune] || "✨"}</span>
                 <span>{data.fortune}</span>
               </div>
-              {/* 运势星级 */}
               <div className="flex items-center justify-center gap-1 mt-3">
                 {Array.from({ length: 7 }).map((_, i) => (
                   <div
@@ -200,44 +174,34 @@ export default function DivinationSharePage() {
                   />
                 ))}
               </div>
-            </motion.div>
+            </div>
 
-            {/* Divider */}
             <div className="flex items-center gap-3 my-5">
               <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
               <Sparkles size={12} className="text-gold/40" />
               <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
             </div>
 
-            {/* Wisdom quote */}
             <div className="mb-5">
               <p className="text-white/70 text-sm leading-relaxed italic">
-                "{data.wisdom_quote}"
+                &ldquo;{data.wisdom_quote}&rdquo;
               </p>
               <p className="text-gold/50 text-xs mt-3">—— {data.author}</p>
             </div>
 
-            {/* Phase 2: AI 深度解析 */}
             {data.ai_insight && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                className="bg-gold/5 rounded-xl p-4 mb-5 border border-gold/15 text-left"
-              >
+              <div className="bg-gold/5 rounded-xl p-4 mb-5 border border-gold/15 text-left anim-fade-in" style={{ animationDelay: "0.5s" }}>
                 <p className="text-gold/50 text-[10px] uppercase tracking-wider mb-1.5">{t("divination.share.aiAction")}</p>
                 <p className="text-white/60 text-xs leading-relaxed">{data.ai_insight}</p>
-              </motion.div>
+              </div>
             )}
 
-            {/* Divider */}
             <div className="flex items-center gap-3 my-5">
               <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
               <Zap size={12} className="text-gold/40" />
               <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
             </div>
 
-            {/* User info / Founder badge */}
             <div className="mb-5">
               {data.seat_no && !data.is_founder && (
                 <div className="inline-flex items-center gap-1.5 text-gold/60 text-xs mb-2">
@@ -250,20 +214,12 @@ export default function DivinationSharePage() {
               )}
             </div>
 
-            {/* Phase 2: 裂变引导 — 分享即赠星尘 */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 }}
-              className="bg-gradient-to-r from-gold/5 to-gold/10 rounded-xl p-4 border border-gold/20 mb-4"
-            >
+            <div className="bg-gradient-to-r from-gold/5 to-gold/10 rounded-xl p-4 border border-gold/20 mb-4 anim-slide-up" style={{ animationDelay: "0.7s" }}>
               <div className="flex items-center justify-center gap-1.5 mb-2">
                 <Gift size={14} className="text-gold" />
                 <p className="text-gold text-xs font-medium">{t("divination.share.shareForStardust")}</p>
               </div>
-              <p className="text-white/40 text-[11px] mb-3">
-                {t("divination.share.inviteDesc")}
-              </p>
+              <p className="text-white/40 text-[11px] mb-3">{t("divination.share.inviteDesc")}</p>
 
               {data.referral_code && (
                 <div className="bg-white/5 rounded-lg p-3 border border-white/10">
@@ -273,9 +229,8 @@ export default function DivinationSharePage() {
                   </div>
                 </div>
               )}
-            </motion.div>
+            </div>
 
-            {/* Phase 2: 分享按钮（含邀请链接） */}
             <button
               onClick={handleCopyLink}
               className="w-full mt-2 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl
@@ -295,7 +250,6 @@ export default function DivinationSharePage() {
               )}
             </button>
 
-            {/* CTA */}
             <Link
               href="/"
               className="mt-4 inline-flex items-center gap-2 px-6 py-2.5 rounded-full
@@ -306,7 +260,7 @@ export default function DivinationSharePage() {
               {t("divination.share.exploreMyChart")}
             </Link>
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   )

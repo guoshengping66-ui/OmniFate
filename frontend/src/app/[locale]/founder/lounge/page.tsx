@@ -1,6 +1,5 @@
 "use client"
 import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
 import { Crown, Vote, Star, MapPin, Calendar, Users, ChevronRight } from "lucide-react"
 import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"
@@ -92,16 +91,10 @@ export default function FounderLoungePage() {
       <div className="max-w-3xl mx-auto px-4 py-12">
         <Breadcrumbs items={[{ label: t("founder.lounge.breadcrumb") }]} />
 
-        {/* Identity Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="relative mb-8 rounded-2xl overflow-hidden mt-6"
-        >
+        <div className="relative mb-8 rounded-2xl overflow-hidden mt-6 anim-slide-up">
           <div className="absolute inset-0 bg-gradient-to-br from-gold/20 via-[#1a1507] to-[#0d0b04] opacity-90" />
           <div className="absolute inset-0 border border-gold/20 rounded-2xl" />
 
-          {/* Animated nebula background */}
           <div className="absolute inset-0 opacity-30">
             <div className="absolute w-64 h-64 bg-gold/10 rounded-full blur-[80px] -top-20 -right-20 animate-[nebula-pulse_4s_ease-in-out_infinite]" />
             <div className="absolute w-48 h-48 bg-gold/5 rounded-full blur-[60px] bottom-10 -left-10 animate-[nebula-pulse_4s_ease-in-out_infinite_2s]" />
@@ -153,32 +146,23 @@ export default function FounderLoungePage() {
               <span>{t("founder.lounge.unlockAll")}</span>
             </div>
           </div>
-        </motion.div>
+        </div>
 
-        {/* Product Roadmap Voting */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
+        <div className="anim-slide-up anim-delay-2">
           <div className="flex items-center gap-2 mb-4">
             <Vote size={18} className="text-gold" />
             <h2 className="text-gold font-serif text-lg font-bold">{t("founder.lounge.roadmapTitle")}</h2>
           </div>
-          <p className="text-white/30 text-sm mb-5">
-            {t("founder.lounge.roadmapDesc")}
-          </p>
+          <p className="text-white/30 text-sm mb-5">{t("founder.lounge.roadmapDesc")}</p>
 
           <div className="space-y-3">
             {ROADMAP_ITEMS.map((item, i) => {
               const vote = votes.find(v => v.id === item.id)
               return (
-                <motion.div
+                <div
                   key={item.id}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.15 + i * 0.05 }}
-                  className="bg-white/5 border border-white/10 rounded-xl p-5 hover:border-gold/20 transition-all"
+                  className="bg-white/5 border border-white/10 rounded-xl p-5 hover:border-gold/20 transition-all anim-slide-up"
+                  style={{ animationDelay: `${0.15 + i * 0.05}s` }}
                 >
                   <div className="flex items-start justify-between">
                     <div>
@@ -215,7 +199,6 @@ export default function FounderLoungePage() {
                     </div>
                   </div>
 
-                  {/* Progress bar */}
                   <div className="mt-3 h-1.5 bg-white/5 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-gradient-to-r from-gold/60 to-gold rounded-full transition-all duration-500"
@@ -224,19 +207,13 @@ export default function FounderLoungePage() {
                       }}
                     />
                   </div>
-                </motion.div>
+                </div>
               )
             })}
           </div>
-        </motion.div>
+        </div>
 
-        {/* Exclusive Perks */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mt-8 bg-white/5 border border-gold/10 rounded-xl p-6"
-        >
+        <div className="mt-8 bg-white/5 border border-gold/10 rounded-xl p-6 anim-slide-up anim-delay-3">
           <h3 className="text-gold font-medium text-sm mb-3">{t("founder.lounge.perksTitle")}</h3>
           <div className="space-y-2">
             {[
@@ -253,7 +230,7 @@ export default function FounderLoungePage() {
               </div>
             ))}
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   )

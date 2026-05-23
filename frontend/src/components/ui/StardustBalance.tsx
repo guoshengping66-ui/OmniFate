@@ -1,7 +1,6 @@
 "use client"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { motion } from "framer-motion"
 import Link from "next/link"
 
 export function StardustBalance() {
@@ -20,15 +19,12 @@ export function StardustBalance() {
                  hover:bg-gold/15 transition-all duration-200 group"
     >
       <span className="text-sm">✨</span>
-      <motion.span
+      <span
         key={balance}
-        initial={{ opacity: 0, y: -4 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-gold text-xs font-semibold tabular-nums"
+        className="text-gold text-xs font-semibold tabular-nums anim-fade-in"
       >
         {balance}
-      </motion.span>
-      {/* Low balance warning dot */}
+      </span>
       {balance < 5 && (
         <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-orange-400 animate-pulse" />
       )}

@@ -1,6 +1,5 @@
 "use client"
 import { useEffect, useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
 import { Sparkles, ShoppingCart, Check, Zap } from "lucide-react"
 import type { Product } from "@/lib/api"
 import { useCart } from "@/contexts/CartContext"
@@ -35,35 +34,22 @@ export function AIRecommendHero({ products }: { products: Product[] }) {
 
   return (
     <div className="mb-12">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        className="flex items-center gap-3 mb-6"
-      >
+      <div className="flex items-center gap-3 mb-6 anim-slide-up">
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gold/10 border border-gold/25">
           <Zap size={14} className="text-gold" />
           <span className="text-gold text-xs font-semibold tracking-wide">{t("shop.ai.selected")}</span>
         </div>
         <div className="flex-1 h-px bg-gradient-to-r from-gold/20 to-transparent" />
-      </motion.div>
+      </div>
 
-      {/* Cards */}
       <div className="grid md:grid-cols-3 gap-5">
         {top3.map((product, i) => (
-          <motion.div
+          <div
             key={product.id}
-            initial={{ opacity: 0, y: 40, scale: 0.92 }}
-            animate={revealed ? { opacity: 1, y: 0, scale: 1 } : {}}
-            transition={{
-              duration: 0.7,
-              delay: i * 0.15,
-              ease: [0.16, 1, 0.3, 1],
-            }}
+            className={revealed ? "anim-slide-up" : "opacity-0"}
+            style={revealed ? { animationDelay: `${i * 0.15}s` } : undefined}
           >
             <div className="relative group rounded-2xl overflow-hidden border border-white/10 hover:border-gold/40 transition-all duration-500">
-              {/* Animated glow border */}
               <div
                 className="absolute inset-0 rounded-2xl pointer-events-none"
                 style={{
@@ -76,7 +62,6 @@ export function AIRecommendHero({ products }: { products: Product[] }) {
                 }}
               />
 
-              {/* Ambient glow */}
               <div
                 className="absolute inset-0 rounded-2xl pointer-events-none opacity-30 group-hover:opacity-50 transition-opacity"
                 style={{
@@ -85,7 +70,6 @@ export function AIRecommendHero({ products }: { products: Product[] }) {
               />
 
               <div className="relative bg-gradient-to-b from-[#1a1430]/95 to-[#140f24]/95 backdrop-blur-xl p-5">
-                {/* Rank badge */}
                 <div className="flex items-center justify-between mb-4">
                   <div
                     className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold"
@@ -106,7 +90,6 @@ export function AIRecommendHero({ products }: { products: Product[] }) {
                   )}
                 </div>
 
-                {/* Product info */}
                 <div className="flex items-start gap-3 mb-4">
                   <ProductImage
                     src={product.image_url}
@@ -121,14 +104,12 @@ export function AIRecommendHero({ products }: { products: Product[] }) {
                   </div>
                 </div>
 
-                {/* AI reason */}
                 {product.recommendation_text && (
                   <p className="text-white/40 text-xs leading-relaxed mb-3 line-clamp-2 italic border-l-2 border-gold/20 pl-2">
                     &ldquo;{product.recommendation_text}&rdquo;
                   </p>
                 )}
 
-                {/* Match reasons */}
                 {product.match_reasons && product.match_reasons.length > 0 && (
                   <div className="flex gap-1 flex-wrap mb-4">
                     {product.match_reasons.slice(0, 3).map(r => (
@@ -147,7 +128,6 @@ export function AIRecommendHero({ products }: { products: Product[] }) {
                   </div>
                 )}
 
-                {/* Add to cart button */}
                 <button
                   onClick={() => handleAdd(product)}
                   disabled={addedIds.has(product.id)}
@@ -165,7 +145,7 @@ export function AIRecommendHero({ products }: { products: Product[] }) {
                 </button>
               </div>
             </div>
-          </motion.div>
+          </div>
         ))}
       </div>
     </div>

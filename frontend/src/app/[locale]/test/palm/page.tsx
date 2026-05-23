@@ -5,7 +5,6 @@ import Link from "next/link"
 import { useUserStore } from "@/stores/useUserStore"
 import { analyzePalmImage } from "@/lib/api"
 import { TargetSelector } from "@/components/dashboard/TargetSelector"
-import { motion } from "framer-motion"
 
 const PALM_KEY_FEATURES = [
   { key: "hand_shape", label: "手型" },
@@ -96,11 +95,7 @@ export default function PalmTestPage() {
         )}
 
         {features && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mt-6 card-glass p-5"
-          >
+          <div className="mt-6 card-glass p-5 anim-slide-up">
             <h3 className="text-gold text-sm font-medium mb-3">手相识别结果</h3>
             <div className="flex flex-wrap gap-2">
               {PALM_KEY_FEATURES.filter(f => features[f.key]).map(f => (
@@ -109,7 +104,7 @@ export default function PalmTestPage() {
                 </span>
               ))}
             </div>
-          </motion.div>
+          </div>
         )}
       </div>
     </div>

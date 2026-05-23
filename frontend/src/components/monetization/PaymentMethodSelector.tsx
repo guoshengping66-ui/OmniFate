@@ -1,11 +1,9 @@
 "use client"
 import { useEffect, useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
 import { CreditCard, Smartphone, Globe, Check, ChevronRight } from "lucide-react"
 import { getPaymentMethods, PaymentMethod } from "@/lib/api"
 import { useLanguage } from "@/contexts/LanguageContext"
 
-// Custom SVG icons for payment methods
 const PaymentIcons: Record<string, React.FC<{ size?: number; className?: string }>> = {
   "credit-card": ({ size = 20, className }) => (
     <CreditCard size={size} className={className} />
@@ -42,7 +40,6 @@ export function PaymentMethodSelector({ selected, onSelect, className = "" }: Pa
     getPaymentMethods()
       .then(setMethods)
       .catch(() => {
-        // Fallback if API not available
         setMethods([
           { id: "alipay", name: "支付宝", name_en: "Alipay", icon: "alipay", category: "china", enabled: true },
           { id: "wechat_pay", name: "微信支付", name_en: "WeChat Pay", icon: "wechat", category: "china", enabled: true },
@@ -66,7 +63,6 @@ export function PaymentMethodSelector({ selected, onSelect, className = "" }: Pa
 
   return (
     <div className={`space-y-4 ${className}`}>
-      {/* China payment methods */}
       {chinaMethods.length > 0 && (
         <div>
           <div className="flex items-center gap-2 mb-2.5">
@@ -86,7 +82,6 @@ export function PaymentMethodSelector({ selected, onSelect, className = "" }: Pa
         </div>
       )}
 
-      {/* Global payment methods */}
       {globalMethods.length > 0 && (
         <div>
           <div className="flex items-center gap-2 mb-2.5">
@@ -123,46 +118,27 @@ function PaymentMethodButton({
   const displayName = locale === "zh" ? method.name : (method.name_en || method.name)
 
   return (
-    <motion.button
+    <button
       type="button"
       onClick={onClick}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      className={`relative flex items-center gap-3 p-3 rounded-xl border transition-all duration-200 ${
+      className={`relative flex items-center gap-3 p-3 rounded-xl border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
         selected
           ? "bg-gold/10 border-gold/40 shadow-[0_0_20px_rgba(201,168,76,0.1)]"
           : "bg-white/[0.03] border-white/10 hover:border-white/20 hover:bg-white/[0.05]"
       }`}
     >
-      {/* Selection indicator */}
       <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
         selected ? "border-gold bg-gold" : "border-white/20"
       }`}>
-        <AnimatePresence>
-          {selected && (
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0 }}
-            >
-              <Check size={10} className="text-ink" strokeWidth={3} />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {selected && (
+          <Check size={10} className="text-ink anim-scale-in" strokeWidth={3} />
+        )}
       </div>
-
-      {/* Icon */}
       <Icon size={18} className={selected ? "text-gold" : "text-white/40"} />
-
-      {/* Name */}
       <span className={`text-sm font-medium ${selected ? "text-gold" : "text-white/70"}`}>
         {displayName}
       </span>
-
-      {/* Arrow */}
-      {selected && (
-        <ChevronRight size={14} className="text-gold/50 ml-auto" />
-      )}
-    </motion.button>
+      {selected && <ChevronRight size={14} className="text-gold/50 ml-auto" />}
+    </button>
   )
 }

@@ -1,6 +1,5 @@
 "use client"
 import { useState, useCallback, useMemo } from "react"
-import { motion, AnimatePresence } from "framer-motion"
 import { Sparkles } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { AM16_QUESTIONS, type AM16Question } from "@/lib/am16/constants"
@@ -118,17 +117,11 @@ export function AM16Quiz({ onComplete }: Props) {
   // ── 开屏 ──
   if (!started) {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center space-y-8 py-12"
-      >
+      <div className="text-center space-y-8 py-12 anim-slide-up">
         {/* Logo */}
         <div className="relative inline-block">
-          <motion.div
-            animate={{ scale: [1, 1.05, 1], opacity: [0.5, 1, 0.5] }}
-            transition={{ duration: 3, repeat: Infinity }}
-            className="absolute inset-0 bg-gold/10 rounded-full blur-3xl"
+          <div
+            className="absolute inset-0 bg-gold/10 rounded-full blur-3xl anim-pulse-glow"
             style={{ width: 200, height: 200, margin: "auto", left: 0, right: 0, top: -40 }}
           />
           <div className="relative text-7xl mb-4">🪞</div>
@@ -154,69 +147,59 @@ export function AM16Quiz({ onComplete }: Props) {
             { emoji: "🫂", label: t("am16.giverIndividual"), color: "text-pink-400" },
             { emoji: "⚡", label: t("am16.patienceExecution"), color: "text-amber-400" },
           ].map((d, i) => (
-            <motion.div
+            <div
               key={d.label}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 + i * 0.1 }}
-              className="card-glass p-3 text-center"
+              className="card-glass p-3 text-center anim-slide-up"
+              style={{ animationDelay: `${0.3 + i * 0.1}s` }}
             >
               <div className="text-xl mb-1">{d.emoji}</div>
               <div className={`text-xs ${d.color}`}>{d.label}</div>
-            </motion.div>
+            </div>
           ))}
         </div>
 
         <div className="inline-block pulse-ring">
-          <motion.button
+          <button
             onClick={handleStart}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="btn-gold inline-flex items-center gap-2 text-sm"
+            className="btn-gold inline-flex items-center gap-2 text-sm hover:scale-[1.05] active:scale-[0.95] transition-transform"
           >
             <Sparkles size={16} />
             {t("am16.start")}
-          </motion.button>
+          </button>
         </div>
 
         <p className="text-white/20 text-[11px]">{t("am16.free")}</p>
-      </motion.div>
+      </div>
     )
   }
 
   // ── 分析中 ──
   if (analyzing) {
     return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="text-center py-16 space-y-6"
-      >
+      <div className="text-center py-16 space-y-6 anim-fade-in">
         {/* 旋转星轨 */}
         <AnalysisOrbit />
 
         {/* 进度条 100% */}
         <div className="w-full max-w-md mx-auto h-1.5 bg-white/5 rounded-full overflow-hidden">
-          <motion.div
+          <div
             className="h-full bg-gradient-to-r from-gold/60 to-gold rounded-full"
-            initial={{ width: `${progress}%` }}
-            animate={{ width: "100%" }}
+            style={{
+              width: "100%",
+              transition: "width 0.8s ease-out",
+            }}
           />
         </div>
 
         <div>
-          <motion.p
-            animate={{ opacity: [0.5, 1, 0.5] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="text-gold text-lg font-serif"
-          >
+          <p className="text-gold text-lg font-serif animate-pulse">
             {calibrated ? t("am16.calibrating") : t("am16.analyzing")}
-          </motion.p>
+          </p>
           <p className="text-white/30 text-xs mt-2">
             {calibrated ? "✦" : t(`am16.step${analysisStep + 1}`)}
           </p>
         </div>
-      </motion.div>
+      </div>
     )
   }
 
@@ -234,10 +217,12 @@ export function AM16Quiz({ onComplete }: Props) {
           </span>
         </div>
         <div className="relative w-full h-1.5 bg-white/5 rounded-full overflow-hidden" role="progressbar" aria-valuenow={Math.round(progress)} aria-valuemin={0} aria-valuemax={100} aria-label={t("am16.progress")}>
-          <motion.div
+          <div
             className="h-full bg-gradient-to-r from-gold/40 to-gold rounded-full"
-            animate={{ width: `${((currentQ + 1) / total) * 100}%` }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
+            style={{
+              width: `${((currentQ + 1) / total) * 100}%`,
+              transition: "width 0.4s ease-out",
+            }}
           />
           {/* 发光端点 */}
           <div
@@ -252,82 +237,62 @@ export function AM16Quiz({ onComplete }: Props) {
       </div>
 
       {/* 题目卡片 */}
-      <AnimatePresence mode="wait">
-        {question && (
-          <motion.div
-            key={question.id}
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -40 }}
-            transition={{ duration: 0.3 }}
-          >
-            {/* 情景描述 */}
-            <div className="text-center mb-6">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", damping: 10 }}
-                className="text-4xl sm:text-5xl mb-4"
-              >
-                {question.emoji}
-              </motion.div>
-              <h2 className="text-xl md:text-2xl font-serif text-white/90 leading-relaxed">
-                {lang === "zh" ? question.titleCn : question.titleEn}
-              </h2>
-              <p className="text-white/30 text-xs mt-2">{t("am16.yourFirstReaction")}</p>
+      {question && (
+        <div key={question.id} className="anim-slide-in-right">
+          {/* 情景描述 */}
+          <div className="text-center mb-6">
+            <div className="text-4xl sm:text-5xl mb-4 anim-scale-in">
+              {question.emoji}
             </div>
+            <h2 className="text-xl md:text-2xl font-serif text-white/90 leading-relaxed">
+              {lang === "zh" ? question.titleCn : question.titleEn}
+            </h2>
+            <p className="text-white/30 text-xs mt-2">{t("am16.yourFirstReaction")}</p>
+          </div>
 
-            {/* 选项 */}
-            <div className="space-y-3" role="radiogroup" aria-label={t("am16.yourFirstReaction")}>
-              {question.options.map((opt, i) => {
-                const optText = lang === "zh" ? opt.textCn : opt.textEn
-                const isSelected = selectedOption === i
-                return (
-                  <motion.button
-                    key={i}
-                    onClick={() => handleAnswer(i)}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    disabled={selectedOption !== null}
-                    role="radio"
-                    aria-checked={isSelected}
-                    aria-label={optText}
-                    className={`w-full text-left p-4 min-h-[52px] rounded-xl border transition-all duration-200 ${
+          {/* 选项 */}
+          <div className="space-y-3" role="radiogroup" aria-label={t("am16.yourFirstReaction")}>
+            {question.options.map((opt, i) => {
+              const optText = lang === "zh" ? opt.textCn : opt.textEn
+              const isSelected = selectedOption === i
+              return (
+                <button
+                  key={i}
+                  onClick={() => handleAnswer(i)}
+                  disabled={selectedOption !== null}
+                  role="radio"
+                  aria-checked={isSelected}
+                  aria-label={optText}
+                  className={`w-full text-left p-4 min-h-[52px] rounded-xl border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
+                    isSelected
+                      ? "border-gold/60 bg-gold/10 shadow-[0_0_24px_rgba(201,168,76,0.2)]"
+                      : "border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]"
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold mt-0.5 transition-all duration-200 ${
                       isSelected
-                        ? "border-gold/60 bg-gold/10 shadow-[0_0_24px_rgba(201,168,76,0.2)]"
-                        : "border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]"
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold mt-0.5 transition-all duration-200 ${
-                        isSelected
-                          ? "bg-gold text-ink shadow-[0_0_12px_rgba(201,168,76,0.4)]"
-                          : "bg-white/10 text-white/50"
-                      }`}>
-                        {isSelected ? (
-                          <motion.span
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                          >
-                            ✓
-                          </motion.span>
-                        ) : (
-                          String.fromCharCode(65 + i)
-                        )}
-                      </span>
-                      <span className={`text-sm leading-relaxed ${
-                        isSelected ? "text-white/90" : "text-white/60"
-                      }`}>
-                        {optText}
-                      </span>
-                    </div>
-                  </motion.button>
-                )
-              })}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                        ? "bg-gold text-ink shadow-[0_0_12px_rgba(201,168,76,0.4)]"
+                        : "bg-white/10 text-white/50"
+                    }`}>
+                      {isSelected ? (
+                        <span className="anim-scale-in">✓</span>
+                      ) : (
+                        String.fromCharCode(65 + i)
+                      )}
+                    </span>
+                    <span className={`text-sm leading-relaxed ${
+                      isSelected ? "text-white/90" : "text-white/60"
+                    }`}>
+                      {optText}
+                    </span>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

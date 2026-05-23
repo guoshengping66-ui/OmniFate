@@ -5,7 +5,6 @@ import Link from "next/link"
 import { useUserStore } from "@/stores/useUserStore"
 import { analyzeFaceImage } from "@/lib/api"
 import { TargetSelector } from "@/components/dashboard/TargetSelector"
-import { motion } from "framer-motion"
 
 const FACE_KEY_FEATURES = [
   { key: "face_shape", label: "脸型" },
@@ -62,7 +61,6 @@ export default function FaceTestPage() {
           </div>
         )}
 
-        {/* Upload area */}
         <div
           onClick={() => ref.current?.click()}
           className="border-2 border-dashed border-white/20 hover:border-gold/40 rounded-2xl p-8 text-center cursor-pointer transition-all group"
@@ -100,11 +98,7 @@ export default function FaceTestPage() {
         )}
 
         {features && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mt-6 card-glass p-5"
-          >
+          <div className="mt-6 card-glass p-5 anim-slide-up">
             <h3 className="text-gold text-sm font-medium mb-3">面相识别结果</h3>
             <div className="flex flex-wrap gap-2">
               {FACE_KEY_FEATURES.filter(f => features[f.key]).map(f => (
@@ -113,7 +107,7 @@ export default function FaceTestPage() {
                 </span>
               ))}
             </div>
-          </motion.div>
+          </div>
         )}
       </div>
     </div>

@@ -4,7 +4,6 @@ import Link from "next/link"
 import { ArrowRight, Loader2 } from "lucide-react"
 import { useUserStore } from "@/stores/useUserStore"
 import { listMyReadings, type ReadingListItem } from "@/lib/api"
-import { motion } from "framer-motion"
 import { ProfileCard } from "./ProfileCard"
 import { IntentButtons } from "./IntentButtons"
 import { GeworkDrawer } from "./GeworkDrawer"
@@ -28,32 +27,15 @@ export function UserDashboard() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      {/* Profile card — full width */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="mb-6"
-      >
+      <div className="mb-6 anim-slide-up anim-delay-1">
         <ProfileCard />
-      </motion.div>
+      </div>
 
-      {/* Intent buttons — full width */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="mb-10"
-      >
+      <div className="mb-10 anim-slide-up anim-delay-2">
         <IntentButtons onGework={() => setEventDrawerOpen(true)} />
-      </motion.div>
+      </div>
 
-      {/* Recent readings */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.35 }}
-      >
+      <div className="anim-slide-up anim-delay-3">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-serif text-lg text-white/70">{t("dash.recent.title")}</h2>
           {recentReadings.length > 0 && (
@@ -96,7 +78,7 @@ export function UserDashboard() {
             <p className="text-white/20 text-xs mt-1">{t("dash.recent.emptyDesc")}</p>
           </div>
         )}
-      </motion.div>
+      </div>
 
       <GeworkDrawer open={eventDrawerOpen} onClose={() => setEventDrawerOpen(false)} />
     </div>

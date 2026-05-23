@@ -1,5 +1,4 @@
 "use client"
-import { motion, AnimatePresence } from "framer-motion"
 import type { Intent } from "@/stores/useWizardStore"
 import { useLanguage } from "@/contexts/LanguageContext"
 
@@ -37,24 +36,18 @@ export function FortuneGuide({ step, intent }: Props) {
   const tip = override ? { ...base, ...override } : base
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={`${step}-${intent}`}
-        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: -10, scale: 0.95 }}
-        transition={{ duration: 0.3 }}
-        className="flex items-start gap-3 mb-6 bg-white/[0.03] border border-white/10 rounded-xl p-4"
-      >
-        <div className="text-2xl flex-shrink-0">{tip.avatar}</div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-medium text-gold">{t(tip.nameKey)}</span>
-            <span className="text-[10px] text-white/20">· {t("fortuneGuide.guideLabel")}</span>
-          </div>
-          <p className="text-white/50 text-xs leading-relaxed">{t(tip.textKey)}</p>
+    <div
+      key={`${step}-${intent}`}
+      className="flex items-start gap-3 mb-6 bg-white/[0.03] border border-white/10 rounded-xl p-4 anim-fade-in"
+    >
+      <div className="text-2xl flex-shrink-0">{tip.avatar}</div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-xs font-medium text-gold">{t(tip.nameKey)}</span>
+          <span className="text-[10px] text-white/20">· {t("fortuneGuide.guideLabel")}</span>
         </div>
-      </motion.div>
-    </AnimatePresence>
+        <p className="text-white/50 text-xs leading-relaxed">{t(tip.textKey)}</p>
+      </div>
+    </div>
   )
 }

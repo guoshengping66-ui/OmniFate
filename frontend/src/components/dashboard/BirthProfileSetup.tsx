@@ -6,7 +6,6 @@ import { useUserStore } from "@/stores/useUserStore"
 import { DateSelector } from "@/components/reading/DateSelector"
 import { ShichenSelector } from "@/components/reading/ShichenSelector"
 import { LocationSelector } from "@/components/reading/LocationSelector"
-import { motion } from "framer-motion"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 export function BirthProfileSetup() {
@@ -46,11 +45,7 @@ export function BirthProfileSetup() {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="card-glass p-6"
-    >
+    <div className="card-glass p-6 anim-slide-up">
       <div className="text-center mb-5">
         <Sparkles size={24} className="text-gold mx-auto mb-2" />
         <h2 className="font-serif text-lg text-gold">{t("profile.setupTitle")}</h2>
@@ -58,7 +53,6 @@ export function BirthProfileSetup() {
       </div>
 
       <div className="space-y-4">
-        {/* Gender */}
         <div>
           <label className="label">{t("profile.gender")}</label>
           <div className="flex gap-3">
@@ -72,7 +66,6 @@ export function BirthProfileSetup() {
           </div>
         </div>
 
-        {/* Date */}
         <DateSelector
           year={year}
           month={month}
@@ -82,20 +75,17 @@ export function BirthProfileSetup() {
           onDayChange={setDay}
         />
 
-        {/* Time */}
         <ShichenSelector
           value={hour}
           onChange={(h) => { setHour(h); setMinute(0) }}
         />
 
-        {/* City */}
         <LocationSelector
           value={city}
           onChange={setCity}
           placeholder={t("profile.cityPlaceholder")}
         />
 
-        {/* Submit */}
         <button
           onClick={handleSubmit}
           disabled={loading || !hasData}
@@ -112,6 +102,6 @@ export function BirthProfileSetup() {
           {t("profile.privacy")}
         </p>
       </div>
-    </motion.div>
+    </div>
   )
 }

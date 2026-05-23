@@ -1,7 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState, useMemo, Suspense, lazy, useCallback } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import { useEffect, useRef, useState, useMemo, Suspense, lazy } from "react"
 import { AGENT_LABELS } from "@/lib/api"
 import { useLanguage } from "@/contexts/LanguageContext"
 
@@ -188,20 +187,11 @@ function WisdomQuote({ locale }: { locale: string }) {
   }, [quotes.length])
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={idx}
-        initial={{ opacity: 0, y: 6 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -6 }}
-        transition={{ duration: 0.6 }}
-        className="text-center px-4"
-      >
-        <p className="text-xs text-white/30 italic leading-relaxed">
-          &ldquo;{quotes[idx]}&rdquo;
-        </p>
-      </motion.div>
-    </AnimatePresence>
+    <div key={idx} className="text-center px-4 anim-fade-in">
+      <p className="text-xs text-white/30 italic leading-relaxed">
+        &ldquo;{quotes[idx]}&rdquo;
+      </p>
+    </div>
   )
 }
 
@@ -209,40 +199,32 @@ function WisdomQuote({ locale }: { locale: string }) {
 
 function CompletionBurst() {
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center"
-    >
+    <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center anim-fade-in">
       {/* Central burst */}
-      <motion.div
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: [0, 1.5, 1], opacity: [0, 0.8, 0] }}
-        transition={{ duration: 1.2, ease: "easeOut" }}
+      <div
         className="w-40 h-40 rounded-full"
         style={{
           background: "radial-gradient(circle, rgba(201,168,76,0.4) 0%, transparent 70%)",
           boxShadow: "0 0 80px rgba(201,168,76,0.3)",
+          animation: "burstExpand 1.2s ease-out forwards",
         }}
       />
       {/* Expanding rings */}
       {[0, 0.2, 0.4].map((delay, i) => (
-        <motion.div
+        <div
           key={i}
-          initial={{ scale: 0.5, opacity: 0 }}
-          animate={{ scale: [0.5, 3], opacity: [0.6, 0] }}
-          transition={{ duration: 1.5, delay, ease: "easeOut" }}
           className="absolute w-32 h-32 rounded-full border border-gold/40"
+          style={{
+            animation: `ringExpand 1.5s ease-out ${delay}s forwards`,
+          }}
         />
       ))}
       {/* Flash */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: [0, 1, 0] }}
-        transition={{ duration: 0.6, delay: 0.3 }}
+      <div
         className="absolute inset-0 bg-gold/10"
+        style={{ animation: "flashPulse 0.6s ease-out 0.3s forwards" }}
       />
-    </motion.div>
+    </div>
   )
 }
 
@@ -376,18 +358,12 @@ export default function AnalysisProgress({
             />
           </Suspense>
           <div className="absolute bottom-0 left-0 right-0 text-center">
-            <AnimatePresence mode="wait">
-              <motion.p
-                key={statusMessage}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.3 }}
-                className="text-sm text-gold/80 font-medium drop-shadow-lg"
-              >
-                {statusMessage}
-              </motion.p>
-            </AnimatePresence>
+            <p
+              key={statusMessage}
+              className="text-sm text-gold/80 font-medium drop-shadow-lg anim-fade-in"
+            >
+              {statusMessage}
+            </p>
           </div>
         </div>
 
@@ -403,13 +379,10 @@ export default function AnalysisProgress({
             const isRunning = status === "running"
 
             return (
-              <motion.div
+              <div
                 key={aid}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: idx * 0.08 }}
                 className={`
-                  flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all duration-500
+                  flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all duration-500 anim-slide-up
                   ${isRunning
                     ? "border-gold/60 bg-gold/10 node-running"
                     : status === "done"
@@ -421,6 +394,7 @@ export default function AnalysisProgress({
                     : "border-white/10 bg-white/5 node-pending"
                   }
                 `}
+                style={{ animationDelay: `${idx * 0.08}s` }}
               >
                 <span className="text-xl">{info.icon}</span>
                 <span className="text-[11px] text-white/70 text-center leading-tight">
@@ -440,16 +414,13 @@ export default function AnalysisProgress({
                     {isRunning ? (AGENT_I18N[aid] ? t(AGENT_I18N[aid].running) : "") : status === "done" ? (AGENT_I18N[aid] ? t(AGENT_I18N[aid].done) : "") : ""}
                   </span>
                 )}
-              </motion.div>
+              </div>
             )
           })}
           {/* Master node */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: AGENT_ORDER.length * 0.08 }}
+          <div
             className={`
-              flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all duration-500
+              flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all duration-500 anim-slide-up
               ${phase === "master"
                 ? "border-gold/60 bg-gold/10 node-running"
                 : phase === "done"
@@ -457,6 +428,7 @@ export default function AnalysisProgress({
                 : "border-white/10 bg-white/5 node-pending"
               }
             `}
+            style={{ animationDelay: `${AGENT_ORDER.length * 0.08}s` }}
           >
             <span className="text-xl">{AGENT_LABELS.master.icon}</span>
             <span className="text-[11px] text-white/70 text-center leading-tight">
@@ -470,25 +442,19 @@ export default function AnalysisProgress({
             `}>
               {phase === "done" ? "✓" : phase === "master" ? "◐" : "○"}
             </span>
-          </motion.div>
+          </div>
         </div>
 
         {/* Energy-Flow Progress Bar */}
         <div className="space-y-2">
           {/* Stage label */}
           <div className="flex items-center justify-between">
-            <AnimatePresence mode="wait">
-              <motion.span
-                key={stageLabel}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 10 }}
-                transition={{ duration: 0.4 }}
-                className="text-xs font-medium text-gold/70"
-              >
-                {stageLabel}
-              </motion.span>
-            </AnimatePresence>
+            <span
+              key={stageLabel}
+              className="text-xs font-medium text-gold/70 anim-fade-in"
+            >
+              {stageLabel}
+            </span>
             <span className="font-mono text-sm text-gold font-bold">{Math.round(displayPct)}%</span>
           </div>
 
@@ -521,17 +487,9 @@ export default function AnalysisProgress({
 
           {/* Progress message */}
           <div className="flex justify-between items-center text-xs text-white/50">
-            <AnimatePresence mode="wait">
-              <motion.span
-                key={progressMessage}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-              >
-                {progressMessage || t("analysis.preparing")}
-              </motion.span>
-            </AnimatePresence>
+            <span key={progressMessage} className="anim-fade-in">
+              {progressMessage || t("analysis.preparing")}
+            </span>
           </div>
         </div>
 
@@ -539,23 +497,17 @@ export default function AnalysisProgress({
         {!isComplete && <WisdomQuote locale={locale} />}
 
         {/* Preview */}
-        <AnimatePresence>
-          {showPreview && previewText && (
-            <motion.div
-              ref={previewRef}
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.5 }}
-              className="card-glass p-4 space-y-2"
-            >
-              <p className="text-xs text-gold/60 font-medium">{t("analysis.preview")}</p>
-              <p className="text-sm text-white/70 leading-relaxed whitespace-pre-line typewriter-cursor">
-                {previewText}
-              </p>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {showPreview && previewText && (
+          <div
+            ref={previewRef}
+            className="card-glass p-4 space-y-2 anim-slide-up"
+          >
+            <p className="text-xs text-gold/60 font-medium">{t("analysis.preview")}</p>
+            <p className="text-sm text-white/70 leading-relaxed whitespace-pre-line typewriter-cursor">
+              {previewText}
+            </p>
+          </div>
+        )}
       </div>
     </>
   )
