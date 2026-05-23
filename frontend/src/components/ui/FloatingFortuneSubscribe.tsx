@@ -230,42 +230,47 @@ export function FloatingFortuneSubscribe() {
               </>
             )}
 
-            {/* No data state */}
+            {/* No data state - show generic fortune or prompt to set birth info */}
             {!loading && !fortune && (
               <div className="text-center py-6">
-                <p className="text-white/30 text-sm mb-3">{t("fortuneSub.noData")}</p>
-                <button
-                  onClick={() => { setOpen(false); router.push(localeHref("/divination")) }}
-                  className="btn-gold px-6 py-2 text-sm"
-                >
-                  {t("fortuneSub.goReading")}
-                </button>
+                <p className="text-white/30 text-sm mb-3">
+                  {user ? t("fortuneSub.generating") : t("fortuneSub.loginRequired")}
+                </p>
+                {!user && (
+                  <button
+                    onClick={() => { setOpen(false); router.push(localeHref("/login")) }}
+                    className="btn-gold px-6 py-2 text-sm"
+                  >
+                    {t("nav.login")}
+                  </button>
+                )}
               </div>
             )}
 
             {/* Action Buttons */}
             <div className="flex gap-3 pt-1">
-              {freq !== "off" ? (
-                <button
-                  onClick={handleSave}
-                  className="flex-1 btn-gold py-2.5 text-sm flex items-center justify-center gap-2"
-                >
-                  {saved ? <><Check size={14} /> {t("fortuneSub.subscribed")} </> : <>{t("fortuneSub.subscribe")} <ChevronRight size={14} /></>}
-                </button>
+              {user ? (
+                freq !== "off" ? (
+                  <button
+                    onClick={handleSave}
+                    className="flex-1 btn-gold py-2.5 text-sm flex items-center justify-center gap-2"
+                  >
+                    {saved ? <><Check size={14} /> {t("fortuneSub.subscribed")} </> : <>{t("fortuneSub.subscribe")} <ChevronRight size={14} /></>}
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleSave}
+                    className="flex-1 py-2.5 rounded-xl border border-white/15 text-white/50 text-sm hover:text-white/70 transition-colors"
+                  >
+                    {saved ? t("fortuneSub.subscribed") : t("fortuneSub.unsubscribe")}
+                  </button>
+                )
               ) : (
                 <button
-                  onClick={handleSave}
-                  className="flex-1 py-2.5 rounded-xl border border-white/15 text-white/50 text-sm hover:text-white/70 transition-colors"
+                  onClick={() => { setOpen(false); router.push(localeHref("/login")) }}
+                  className="flex-1 btn-gold py-2.5 text-sm flex items-center justify-center gap-2"
                 >
-                  {saved ? t("fortuneSub.subscribed") : t("fortuneSub.unsubscribe")}
-                </button>
-              )}
-              {!user && (
-                <button
-                  onClick={() => { setOpen(false); router.push(localeHref("/divination")) }}
-                  className="px-4 py-2.5 rounded-xl border border-gold/20 text-gold/70 text-sm hover:text-gold hover:border-gold/40 transition-colors flex items-center gap-1"
-                >
-                  {t("fortuneSub.goReading")} <ChevronRight size={12} />
+                  {t("nav.login")} <ChevronRight size={14} />
                 </button>
               )}
             </div>

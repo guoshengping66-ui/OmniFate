@@ -2992,6 +2992,8 @@
     "noData": "No fortune data yet. Complete a reading first.",
     "goReading": "Start Reading",
     "success": "Subscription preferences saved",
-    "tooltip": "View this week's fortune"
+    "tooltip": "View this week's fortune",
+    "generating": "Generating your fortune...",
+    "loginRequired": "Login to see your personalized fortune"
   }
 }

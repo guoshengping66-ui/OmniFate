@@ -2992,6 +2992,8 @@
     "noData": "暂无运势数据，请先完成一次推命分析",
     "goReading": "去推命",
     "success": "订阅设置已保存",
-    "tooltip": "点击查看本周运势"
+    "tooltip": "点击查看本周运势",
+    "generating": "正在生成你的运势...",
+    "loginRequired": "登录后查看个性化运势"
   }
 }
