@@ -71,14 +71,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const storedToken = localStorage.getItem(TOKEN_KEY)
     if (storedToken) {
-      // User already cached from previous render — just refresh in background
+      // 有缓存用户 → 立即结束 loading，不阻塞渲染
+      setLoading(false)
+      // 后台静默刷新，不设置 loading=true
       apiAuth.get("/api/auth/me")
         .then(res => {
           setUser(res.data)
-          cacheUser(res.data) // Update cache with fresh data
+          cacheUser(res.data)
         })
         .catch(() => {
-          // Token expired — try refresh
           const refreshToken = localStorage.getItem(REFRESH_KEY)
           if (refreshToken) {
             return apiAuth.post("/api/auth/refresh", { refresh_token: refreshToken })
@@ -102,7 +103,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             localStorage.removeItem(USER_CACHE_KEY)
           }
         })
-        .finally(() => setLoading(false))
     } else {
       setLoading(false)
     }
