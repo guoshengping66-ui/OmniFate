@@ -84,7 +84,7 @@ AI_INSIGHTS_EN = [
 def _seed_hash(user_id: str, week_start: str, extra: int = 0) -> float:
     """Deterministic hash for consistent random within a week."""
     raw = f"{user_id}:{week_start}:{extra}"
-    h = hashlib.sha256.encode(raw.encode())
+    h = hashlib.sha256(raw.encode())
     return int(h.hexdigest()[:8], 16) / 0xFFFFFFFF
 
 
