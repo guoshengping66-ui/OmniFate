@@ -1,6 +1,6 @@
 "use client"
 import { useState, useRef, useEffect, useMemo } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -60,12 +60,33 @@ function clearSavedProgress() {
 
 export default function NewReadingPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { user } = useAuth()
   const { locale, t } = useLanguage()
   const isEn = locale === "en"
 
   // ── Wizard store: intent & prefill ──────────────────────────
   const { currentIntent, formData: wizardData, startStep: wizardStartStep, reset: resetWizard } = useWizardStore()
+
+  // ── Read intent from URL search params (direct navigation) ──
+  useEffect(() => {
+    const intentParam = searchParams.get("intent")
+    if (intentParam && !currentIntent) {
+      const INTENT_MAP: Record<string, string> = {
+        quick: "GENERAL_DAILY",
+        full: "FULL_MULTIMODAL",
+        friend: "FULL_MULTIMODAL",
+      }
+      const mapped = INTENT_MAP[intentParam]
+      if (mapped) {
+        resetWizard()
+        useWizardStore.getState().setIntent(mapped as any)
+        if (user) {
+          useWizardStore.getState().prefillFromProfile(user as any)
+        }
+      }
+    }
+  }, [searchParams]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Validation schema (uses t() for messages) ──
   // birth_city is only required when birth info step is shown (FULL_MULTIMODAL / no intent)

@@ -127,9 +127,9 @@ export function IntentButtons({ onGework }: Props) {
   const { t } = useLanguage()
   const [hoveredCard, setHoveredCard] = useState<string | null>(null)
 
-  const handleQuick = () => { resetWizard(); router.push("/predict?intent=quick") }
-  const handleFull = () => { resetWizard(); router.push("/predict?intent=full") }
-  const handleFriend = () => { resetWizard(); router.push("/predict?intent=friend") }
+  const handleQuick = () => { resetWizard(); router.push("/reading/new?intent=quick") }
+  const handleFull = () => { resetWizard(); router.push("/reading/new?intent=full") }
+  const handleFriend = () => { resetWizard(); router.push("/reading/new?intent=friend") }
 
   return (
     <div className="space-y-4">
