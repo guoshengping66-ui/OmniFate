@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect } from "react"
-import { Sparkles, X, ChevronRight, Check } from "lucide-react"
+import { Sparkles, X, ChevronRight, Check, Calendar, Clock } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useRouter } from "next/navigation"
@@ -9,7 +9,9 @@ import {
   subscribeFortune,
   getFortuneSubscription,
   getWeeklyFortune,
+  getFortuneDaily,
   type WeeklyFortuneResponse,
+  type FortuneDailyResponse,
 } from "@/lib/api"
 
 // ── Locale-aware data ────────────────────────────────────────────────────
@@ -19,8 +21,10 @@ const DAY_LABELS = { zh: ["周一", "周二", "周三", "周四", "周五", "周
 export function FloatingFortuneSubscribe() {
   const [open, setOpen] = useState(false)
   const [freq, setFreq] = useState<string>("weekly")
-  const [saved, setSaved] = useState(false)
+  const [isSubscribed, setIsSubscribed] = useState(false)
+  const [saving, setSaving] = useState(false)
   const [fortune, setFortune] = useState<WeeklyFortuneResponse | null>(null)
+  const [dailyFortune, setDailyFortune] = useState<FortuneDailyResponse | null>(null)
   const [loading, setLoading] = useState(false)
   const { user } = useAuth()
   const { t, locale, localeHref } = useLanguage()
@@ -28,7 +32,8 @@ export function FloatingFortuneSubscribe() {
 
   const isZH = locale === "zh"
   const dayLabels = isZH ? DAY_LABELS.zh : DAY_LABELS.en
-  const scoreColor = (fortune?.score ?? 6) >= 8 ? "#4ade80" : (fortune?.score ?? 6) >= 6 ? "#C9A84C" : (fortune?.score ?? 6) >= 4 ? "#fb923c" : "#f87171"
+  const currentScore = freq === "daily" ? (dailyFortune?.score ?? 6) : (fortune?.score ?? 6)
+  const scoreColor = currentScore >= 8 ? "#4ade80" : currentScore >= 6 ? "#C9A84C" : currentScore >= 4 ? "#fb923c" : "#f87171"
   const yiLabel = isZH ? "宜" : "Do"
   const jiLabel = isZH ? "忌" : "Don't"
 
@@ -44,9 +49,15 @@ export function FloatingFortuneSubscribe() {
       if (user) {
         const sub = await getFortuneSubscription()
         setFreq(sub.frequency)
+        setIsSubscribed(sub.is_active && sub.frequency !== "off")
       }
-      const f = await getWeeklyFortune(locale)
-      setFortune(f)
+      // Load both weekly and daily fortune so preview switches instantly on frequency change
+      const [w, d] = await Promise.all([
+        getWeeklyFortune(locale).catch(() => null),
+        getFortuneDaily(locale).catch(() => null),
+      ])
+      setFortune(w)
+      setDailyFortune(d)
     } catch (err) {
       console.error("Failed to load fortune:", err)
     } finally {
@@ -59,13 +70,15 @@ export function FloatingFortuneSubscribe() {
       toast.error(t("auth.loginRequired"))
       return
     }
+    setSaving(true)
     try {
       await subscribeFortune(freq)
-      setSaved(true)
-      toast.success(t("fortuneSub.success"))
-      setTimeout(() => setSaved(false), 2000)
+      setIsSubscribed(freq !== "off")
+      toast.success(freq === "off" ? t("fortuneSub.unsubscribed") : t("fortuneSub.success"))
     } catch (err) {
       toast.error(t("account.profileSaveFail"))
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -159,10 +172,15 @@ export function FloatingFortuneSubscribe() {
             )}
 
             {/* Fortune Preview */}
-            {!loading && fortune && freq !== "off" && (
+            {!loading && (fortune || dailyFortune) && freq !== "off" && (
               <>
                 <div className="bg-white/[0.03] rounded-2xl p-5 space-y-4 border border-white/[0.06]">
-                  <p className="text-white/30 text-[10px] uppercase tracking-wider">{t("fortuneSub.previewHint")}</p>
+                  <div className="flex items-center gap-2">
+                    {freq === "daily" ? <Calendar size={12} className="text-gold/50" /> : <Clock size={12} className="text-gold/50" />}
+                    <p className="text-white/30 text-[10px] uppercase tracking-wider">
+                      {freq === "daily" ? t("fortuneSub.dailyPreview") : t("fortuneSub.weeklyPreview")}
+                    </p>
+                  </div>
 
                   {/* Score + Theme */}
                   <div className="flex items-center gap-4">
@@ -170,15 +188,15 @@ export function FloatingFortuneSubscribe() {
                       <svg className="w-full h-full -rotate-90" viewBox="0 0 64 64">
                         <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="4" />
                         <circle cx="32" cy="32" r="26" fill="none" stroke={scoreColor} strokeWidth="4"
-                          strokeLinecap="round" strokeDasharray={`${(fortune.score / 10) * 163.36} 163.36`} />
+                          strokeLinecap="round" strokeDasharray={`${(currentScore / 10) * 163.36} 163.36`} />
                       </svg>
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-xl font-bold font-serif" style={{ color: scoreColor }}>{fortune.score}</span>
+                        <span className="text-xl font-bold font-serif" style={{ color: scoreColor }}>{freq === "daily" ? dailyFortune?.score : fortune?.score}</span>
                       </div>
                     </div>
                     <div className="flex-1">
                       <p className="text-white/50 text-[10px] mb-0.5">{t("fortuneSub.overallScore")}</p>
-                      <p className="text-gold text-sm font-medium">{fortune.theme}</p>
+                      <p className="text-gold text-sm font-medium">{freq === "daily" ? dailyFortune?.theme : fortune?.theme}</p>
                     </div>
                   </div>
 
@@ -186,52 +204,65 @@ export function FloatingFortuneSubscribe() {
                   <div className="grid grid-cols-2 gap-3 text-xs">
                     <div className="flex items-center gap-2">
                       <span className="text-white/30">{t("fortuneSub.luckyColor")}:</span>
-                      <span className="text-green-400/80 font-medium">{fortune.lucky_color}</span>
+                      <span className="text-green-400/80 font-medium">{freq === "daily" ? dailyFortune?.lucky_color : fortune?.lucky_color}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-white/30">{t("fortuneSub.luckyNumber")}:</span>
-                      <span className="text-gold font-medium">{fortune.lucky_number}</span>
+                      <span className="text-gold font-medium">{freq === "daily" ? dailyFortune?.lucky_number : fortune?.lucky_number}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-white/30">{t("fortuneSub.luckyDirection")}:</span>
-                      <span className="text-blue-400/80 font-medium">{fortune.lucky_direction}</span>
+                      <span className="text-blue-400/80 font-medium">{freq === "daily" ? dailyFortune?.lucky_direction : fortune?.lucky_direction}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-white/30">{t("fortuneSub.tarotCard")}:</span>
-                      <span className="text-purple-400/80 font-medium">{fortune.tarot_card}</span>
+                      <span className="text-purple-400/80 font-medium">{freq === "daily" ? dailyFortune?.tarot_card : fortune?.tarot_card}</span>
                     </div>
                   </div>
 
                   {/* Tarot description */}
                   <div className="bg-purple-500/5 border border-purple-500/15 rounded-xl p-3">
-                    <p className="text-purple-300/70 text-xs leading-relaxed">{fortune.tarot_desc}</p>
+                    <p className="text-purple-300/70 text-xs leading-relaxed">{freq === "daily" ? dailyFortune?.tarot_desc : fortune?.tarot_desc}</p>
                   </div>
 
-                  {/* Daily Yi Ji preview (first 3 days) */}
+                  {/* Daily Yi Ji - weekly shows 3-day preview, daily shows today's yi/ji */}
                   <div>
                     <p className="text-white/30 text-[10px] mb-2">{t("fortuneSub.dailyYiJi")}</p>
-                    <div className="grid grid-cols-3 gap-2">
-                      {fortune.daily_yi_ji.slice(0, 3).map((d, i) => (
-                        <div key={i} className="bg-white/[0.03] rounded-lg p-2 text-center">
-                          <p className="text-white/40 text-[10px] mb-1">{dayLabels[i]}</p>
-                          <p className="text-green-400/70 text-[10px]">{yiLabel} {d.yi}</p>
-                          <p className="text-red-400/50 text-[10px]">{jiLabel} {d.ji}</p>
+                    {freq === "daily" && dailyFortune ? (
+                      <div className="flex gap-3">
+                        <div className="flex-1 bg-green-500/5 border border-green-500/15 rounded-lg p-2 text-center">
+                          <p className="text-green-400/70 text-[10px] mb-1">{yiLabel}</p>
+                          <p className="text-white/60 text-xs">{dailyFortune.yi.join("、")}</p>
                         </div>
-                      ))}
-                    </div>
+                        <div className="flex-1 bg-red-500/5 border border-red-500/15 rounded-lg p-2 text-center">
+                          <p className="text-red-400/50 text-[10px] mb-1">{jiLabel}</p>
+                          <p className="text-white/60 text-xs">{dailyFortune.ji.join("、")}</p>
+                        </div>
+                      </div>
+                    ) : fortune?.daily_yi_ji ? (
+                      <div className="grid grid-cols-3 gap-2">
+                        {fortune.daily_yi_ji.slice(0, 3).map((d, i) => (
+                          <div key={i} className="bg-white/[0.03] rounded-lg p-2 text-center">
+                            <p className="text-white/40 text-[10px] mb-1">{dayLabels[i]}</p>
+                            <p className="text-green-400/70 text-[10px]">{yiLabel} {d.yi}</p>
+                            <p className="text-red-400/50 text-[10px]">{jiLabel} {d.ji}</p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : null}
                   </div>
                 </div>
 
                 {/* AI Insight */}
                 <div className="card-glass p-4 flex items-start gap-3">
                   <span className="text-base flex-shrink-0">🤖</span>
-                  <p className="text-white/40 text-xs leading-relaxed">{fortune.ai_insight}</p>
+                  <p className="text-white/40 text-xs leading-relaxed">{freq === "daily" ? dailyFortune?.ai_insight : fortune?.ai_insight}</p>
                 </div>
               </>
             )}
 
             {/* No data state - show generic fortune or prompt to set birth info */}
-            {!loading && !fortune && (
+            {!loading && !fortune && !dailyFortune && (
               <div className="text-center py-6">
                 <p className="text-white/30 text-sm mb-3">
                   {user ? t("fortuneSub.generating") : t("fortuneSub.loginRequired")}
@@ -253,16 +284,30 @@ export function FloatingFortuneSubscribe() {
                 freq !== "off" ? (
                   <button
                     onClick={handleSave}
-                    className="flex-1 btn-gold py-2.5 text-sm flex items-center justify-center gap-2"
+                    disabled={saving}
+                    className={`flex-1 py-2.5 text-sm flex items-center justify-center gap-2 rounded-xl transition-all ${
+                      isSubscribed && freq !== "off"
+                        ? "bg-green-500/10 text-green-400 border border-green-500/30"
+                        : "btn-gold"
+                    }`}
                   >
-                    {saved ? <><Check size={14} /> {t("fortuneSub.subscribed")} </> : <>{t("fortuneSub.subscribe")} <ChevronRight size={14} /></>}
+                    {saving ? (
+                      <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    ) : isSubscribed && freq !== "off" ? (
+                      <><Check size={14} /> {t("fortuneSub.subscribed")} </>
+                    ) : (
+                      <>{t("fortuneSub.subscribe")} <ChevronRight size={14} /></>
+                    )}
                   </button>
                 ) : (
                   <button
                     onClick={handleSave}
+                    disabled={saving}
                     className="flex-1 py-2.5 rounded-xl border border-white/15 text-white/50 text-sm hover:text-white/70 transition-colors"
                   >
-                    {saved ? t("fortuneSub.subscribed") : t("fortuneSub.unsubscribe")}
+                    {saving ? (
+                      <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mx-auto" />
+                    ) : t("fortuneSub.unsubscribe")}
                   </button>
                 )
               ) : (

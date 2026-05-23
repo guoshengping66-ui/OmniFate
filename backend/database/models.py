@@ -558,3 +558,32 @@ class WeeklyFortune(Base):
     user: Mapped["User"] = relationship()
 
     __table_args__ = (UniqueConstraint("user_id", "week_start", name="uq_user_week"),)
+
+
+# ─── DailyFortune ─────────────────────────────────────────────────────────
+
+class DailyFortune(Base):
+    """每日运势生成记录"""
+    __tablename__ = "daily_fortunes"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id: Mapped[str] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    fortune_date: Mapped[str] = mapped_column(String(10), nullable=False)  # "2026-05-23"
+    score: Mapped[int] = mapped_column(Integer, nullable=False)          # 1-10
+    theme: Mapped[str] = mapped_column(String(200), nullable=False)
+    lucky_color: Mapped[str] = mapped_column(String(50), nullable=False)
+    lucky_number: Mapped[str] = mapped_column(String(20), nullable=False)
+    lucky_direction: Mapped[str] = mapped_column(String(50), nullable=False)
+    tarot_card: Mapped[str] = mapped_column(String(100), nullable=False)
+    tarot_desc: Mapped[str] = mapped_column(String(500), nullable=False)
+    ai_insight: Mapped[str] = mapped_column(Text, nullable=False)
+    yi: Mapped[list] = mapped_column(JSON, nullable=False)               # ["出行", "签约", ...]
+    ji: Mapped[list] = mapped_column(JSON, nullable=False)               # ["动土", "远行", ...]
+    is_read: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    user: Mapped["User"] = relationship()
+
+    __table_args__ = (UniqueConstraint("user_id", "fortune_date", name="uq_user_day"),)

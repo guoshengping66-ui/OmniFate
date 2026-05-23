@@ -1261,10 +1261,31 @@ export interface WeeklyFortuneResponse {
   is_read: boolean
 }
 
+export interface FortuneDailyResponse {
+  id?: string
+  date: string
+  score: number
+  theme: string
+  lucky_color: string
+  lucky_number: string
+  lucky_direction: string
+  tarot_card: string
+  tarot_desc: string
+  ai_insight: string
+  yi: string[]
+  ji: string[]
+  is_read: boolean
+}
+
 export async function subscribeFortune(frequency: string): Promise<FortuneSubscription> {
   const res = await api.post<FortuneSubscription>("/api/fortune/subscribe", safeJson({ frequency }), {
     headers: { "Content-Type": "application/json" },
   })
+  return res.data
+}
+
+export async function getFortuneDaily(locale: string = "zh"): Promise<FortuneDailyResponse> {
+  const res = await api.get<FortuneDailyResponse>("/api/fortune/daily", { params: { locale } })
   return res.data
 }
 
