@@ -72,7 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const storedToken = localStorage.getItem(TOKEN_KEY)
     if (storedToken) {
       // User already cached from previous render — just refresh in background
-      api.get("/api/auth/me")
+      apiAuth.get("/api/auth/me")
         .then(res => {
           setUser(res.data)
           cacheUser(res.data) // Update cache with fresh data
@@ -85,7 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               .then(r => {
                 localStorage.setItem(TOKEN_KEY, r.data.access_token)
                 localStorage.setItem(REFRESH_KEY, r.data.refresh_token)
-                return api.get("/api/auth/me")
+                return apiAuth.get("/api/auth/me")
               })
               .then(r => {
                 setUser(r?.data ?? null)
@@ -244,7 +244,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshUser = useCallback(async () => {
     try {
-      const res = await api.get("/api/auth/me")
+      const res = await apiAuth.get("/api/auth/me")
       setUser(res.data)
       cacheUser(res.data) // Update cache
     } catch {
