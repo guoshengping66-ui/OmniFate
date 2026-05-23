@@ -1,12 +1,13 @@
 "use client"
-import { useState, useEffect } from "react"
+import { useState, useEffect, lazy, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
-import { AM16Quiz } from "@/components/am16/AM16Quiz"
-import { AM16ResultCard } from "@/components/am16/AM16Result"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { PERSONALITIES } from "@/lib/am16/constants"
-import { Suspense } from "react"
+
+// Lazy-load heavy components to reduce initial bundle
+const AM16Quiz = lazy(() => import("@/components/am16/AM16Quiz").then(m => ({ default: m.AM16Quiz })))
+const AM16ResultCard = lazy(() => import("@/components/am16/AM16Result").then(m => ({ default: m.AM16ResultCard })))
 
 const RESULT_KEY = "am16_last_result"
 const PROGRESS_KEY = "am16_progress"
@@ -61,11 +62,13 @@ function AM16PageInner() {
       <div className="max-w-lg mx-auto">
         <Breadcrumbs items={[{ label: t("nav.am16"), href: "/am16" }]} />
 
-        {answers === null ? (
-          <AM16Quiz onComplete={handleComplete} />
-        ) : (
-          <AM16ResultCard answers={answers} onRestart={handleRestart} />
-        )}
+        <Suspense fallback={<div className="text-center text-white/30 text-sm py-8">Loading...</div>}>
+          {answers === null ? (
+            <AM16Quiz onComplete={handleComplete} />
+          ) : (
+            <AM16ResultCard answers={answers} onRestart={handleRestart} />
+          )}
+        </Suspense>
       </div>
     </div>
   )
