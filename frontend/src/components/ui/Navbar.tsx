@@ -6,9 +6,9 @@ import { useAuth } from "@/contexts/AuthContext"
 import { useCart } from "@/contexts/CartContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { LanguageSwitch } from "@/components/ui/LanguageSwitch"
-import { CartDrawer } from "@/components/shop/CartDrawer"
 
 const StardustBalance = lazy(() => import("@/components/ui/StardustBalance").then(m => ({ default: m.StardustBalance })))
+const CartDrawer = lazy(() => import("@/components/shop/CartDrawer").then(m => ({ default: m.CartDrawer })))
 
 export function Navbar() {
   const [open, setOpen] = useState(false)
@@ -264,7 +264,9 @@ export function Navbar() {
       </header>
 
       {/* Cart Drawer */}
-      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
+      <Suspense fallback={null}>
+        <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
+      </Suspense>
     </>
   )
 }
