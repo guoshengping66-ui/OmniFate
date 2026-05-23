@@ -1,5 +1,5 @@
 "use client"
-import { useState, useRef, useEffect, useMemo } from "react"
+import { useState, useRef, useEffect, useMemo, lazy, Suspense } from "react"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -13,15 +13,15 @@ import { runAnalysisStream, AnalysisRequest, analyzeFaceImage, analyzePalmImage 
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { addReadingToHistory } from "@/lib/readingHistory"
-import { motion } from "framer-motion"
-import { TarotPicker } from "@/components/reading/TarotPicker"
-import { FaceScanAnimation } from "@/components/reading/FaceScanAnimation"
-import { ShichenSelector } from "@/components/reading/ShichenSelector"
-import { LocationSelector } from "@/components/reading/LocationSelector"
-import { DateSelector } from "@/components/reading/DateSelector"
-import { HotQuestions } from "@/components/reading/HotQuestions"
-import { FortuneGuide } from "@/components/reading/FortuneGuide"
 import { useWizardStore } from "@/stores/useWizardStore"
+
+const TarotPicker = lazy(() => import("@/components/reading/TarotPicker").then(m => ({ default: m.TarotPicker })))
+const FaceScanAnimation = lazy(() => import("@/components/reading/FaceScanAnimation").then(m => ({ default: m.FaceScanAnimation })))
+const ShichenSelector = lazy(() => import("@/components/reading/ShichenSelector").then(m => ({ default: m.ShichenSelector })))
+const LocationSelector = lazy(() => import("@/components/reading/LocationSelector").then(m => ({ default: m.LocationSelector })))
+const DateSelector = lazy(() => import("@/components/reading/DateSelector").then(m => ({ default: m.DateSelector })))
+const HotQuestions = lazy(() => import("@/components/reading/HotQuestions").then(m => ({ default: m.HotQuestions })))
+const FortuneGuide = lazy(() => import("@/components/reading/FortuneGuide").then(m => ({ default: m.FortuneGuide })))
 
 const STORAGE_KEY = "destiny_reading_progress"
 
@@ -494,10 +494,7 @@ export default function NewReadingPage() {
             {/* ── Step 0: Birth Info ─────────────────────────── */}
             <div className={step !== 0 ? 'hidden' : ''}>
               <FortuneGuide step={0} intent={currentIntent} />
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.25, ease: "easeOut" }}
+              <div
               >
                 <div className="card-glass p-6 md:p-8 space-y-6">
                   <h2 className="font-serif text-xl text-gold">{t("new.birthInfoTitle")}</h2>
@@ -555,16 +552,13 @@ export default function NewReadingPage() {
                 </div>
               </details>
             </div> {/* end card-glass */}
-              </motion.div>
+              </div>
             </div>
 
           {/* ── Step 1: Tarot & Question ─────────────────────── */}
           <div className={step !== 1 ? 'hidden' : ''}>
             <FortuneGuide step={1} intent={currentIntent} />
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
+            <div
             >
               <div className="card-glass p-6 md:p-8 space-y-6">
                 <h2 className="font-serif text-xl text-gold">{t("new.taroTitle")}</h2>
@@ -590,16 +584,13 @@ export default function NewReadingPage() {
 
               <TarotPicker onSelect={setTarotCards} />
             </div> {/* end card-glass */}
-              </motion.div>
+              </div>
             </div>
 
           {/* ── Step 2: Face & Palm ──────────────────────────── */}
           <div className={step !== 2 ? 'hidden' : ''}>
             <FortuneGuide step={2} intent={currentIntent} />
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
+            <div
             >
               <div className="card-glass p-6 md:p-8 space-y-8">
                 {/* ── Face Photo ───────────────────────────── */}
@@ -740,16 +731,13 @@ export default function NewReadingPage() {
                 </button>
               </div>
             </div> {/* end card-glass */}
-              </motion.div>
+              </div>
             </div>
 
           {/* ── Step 3: Confirm ─────────────────────────────── */}
           <div className={step !== 3 ? 'hidden' : ''}>
             <FortuneGuide step={3} intent={currentIntent} />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.97 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
+            <div
             >
               <div className="card-glass p-6 md:p-8 text-center space-y-6">
               <div className="text-6xl animate-float">🔮</div>
@@ -820,7 +808,7 @@ export default function NewReadingPage() {
                 </p>
               </div>
             </div> {/* end card-glass */}
-              </motion.div>
+              </div>
             </div>
           </div>
           <div className="flex justify-between mt-8">
