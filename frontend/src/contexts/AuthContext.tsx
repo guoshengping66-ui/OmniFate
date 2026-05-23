@@ -239,6 +239,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem(TOKEN_KEY)
     localStorage.removeItem(REFRESH_KEY)
     localStorage.removeItem(USER_CACHE_KEY) // Clear cached user
+    localStorage.removeItem("alpha_mirror_profiles") // Clear cached birth profiles
     setUser(null)
   }, [])
 
