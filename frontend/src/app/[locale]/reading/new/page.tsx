@@ -1,5 +1,5 @@
 "use client"
-import { useState, useRef, useEffect, useMemo, lazy, Suspense } from "react"
+import { useState, useRef, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -14,14 +14,13 @@ import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { addReadingToHistory } from "@/lib/readingHistory"
 import { useWizardStore } from "@/stores/useWizardStore"
-
-const TarotPicker = lazy(() => import("@/components/reading/TarotPicker").then(m => ({ default: m.TarotPicker })))
-const FaceScanAnimation = lazy(() => import("@/components/reading/FaceScanAnimation").then(m => ({ default: m.FaceScanAnimation })))
-const ShichenSelector = lazy(() => import("@/components/reading/ShichenSelector").then(m => ({ default: m.ShichenSelector })))
-const LocationSelector = lazy(() => import("@/components/reading/LocationSelector").then(m => ({ default: m.LocationSelector })))
-const DateSelector = lazy(() => import("@/components/reading/DateSelector").then(m => ({ default: m.DateSelector })))
-const HotQuestions = lazy(() => import("@/components/reading/HotQuestions").then(m => ({ default: m.HotQuestions })))
-const FortuneGuide = lazy(() => import("@/components/reading/FortuneGuide").then(m => ({ default: m.FortuneGuide })))
+import { TarotPicker } from "@/components/reading/TarotPicker"
+import { FaceScanAnimation } from "@/components/reading/FaceScanAnimation"
+import { ShichenSelector } from "@/components/reading/ShichenSelector"
+import { LocationSelector } from "@/components/reading/LocationSelector"
+import { DateSelector } from "@/components/reading/DateSelector"
+import { HotQuestions } from "@/components/reading/HotQuestions"
+import { FortuneGuide } from "@/components/reading/FortuneGuide"
 
 const STORAGE_KEY = "destiny_reading_progress"
 
