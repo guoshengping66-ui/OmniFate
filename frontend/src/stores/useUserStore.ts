@@ -7,6 +7,23 @@ import {
   deleteBirthProfile as apiDelete,
 } from "@/lib/birth-profile-api"
 
+const PROFILES_CACHE_KEY = "alpha_mirror_profiles"
+
+function loadCachedProfiles(): BirthProfile[] | null {
+  try {
+    const raw = localStorage.getItem(PROFILES_CACHE_KEY)
+    return raw ? JSON.parse(raw) : null
+  } catch { return null }
+}
+
+function saveCachedProfiles(profiles: BirthProfile[]) {
+  try { localStorage.setItem(PROFILES_CACHE_KEY, JSON.stringify(profiles)) } catch {}
+}
+
+function clearCachedProfiles() {
+  try { localStorage.removeItem(PROFILES_CACHE_KEY) } catch {}
+}
+
 interface UserStore {
   // 永久底座：用户自己的出生档案
   userProfile: BirthProfile | null
@@ -33,6 +50,17 @@ export const useUserStore = create<UserStore>((set, get) => ({
   loading: false,
 
   fetchBirthProfiles: async () => {
+    // Instant restore from cache
+    const cached = loadCachedProfiles()
+    if (cached && cached.length > 0) {
+      const mainProfile = cached.find(p => p.nickname === "本命") || cached[0] || null
+      set({
+        birthProfiles: cached,
+        userProfile: mainProfile,
+        activeTestTarget: get().activeTestTarget || mainProfile,
+      })
+    }
+
     set({ loading: true })
     try {
       const profiles = await listBirthProfiles()
@@ -42,8 +70,9 @@ export const useUserStore = create<UserStore>((set, get) => ({
         userProfile: mainProfile,
         activeTestTarget: get().activeTestTarget || mainProfile,
       })
+      saveCachedProfiles(profiles)
     } catch {
-      // Not logged in or error — silently ignore
+      // Not logged in or error — keep cached data if available
     } finally {
       set({ loading: false })
     }
