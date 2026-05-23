@@ -1,5 +1,5 @@
 "use client"
-import { useState, useRef, useEffect, useMemo } from "react"
+import { useState, useRef, useEffect, useMemo, Suspense, lazy } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -14,13 +14,14 @@ import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { addReadingToHistory } from "@/lib/readingHistory"
 import { useWizardStore } from "@/stores/useWizardStore"
-import { TarotPicker } from "@/components/reading/TarotPicker"
-import { FaceScanAnimation } from "@/components/reading/FaceScanAnimation"
-import { ShichenSelector } from "@/components/reading/ShichenSelector"
-import { LocationSelector } from "@/components/reading/LocationSelector"
-import { DateSelector } from "@/components/reading/DateSelector"
-import { HotQuestions } from "@/components/reading/HotQuestions"
-import { FortuneGuide } from "@/components/reading/FortuneGuide"
+
+const TarotPicker = lazy(() => import("@/components/reading/TarotPicker").then(m => ({ default: m.TarotPicker })))
+const FaceScanAnimation = lazy(() => import("@/components/reading/FaceScanAnimation").then(m => ({ default: m.FaceScanAnimation })))
+const ShichenSelector = lazy(() => import("@/components/reading/ShichenSelector").then(m => ({ default: m.ShichenSelector })))
+const LocationSelector = lazy(() => import("@/components/reading/LocationSelector").then(m => ({ default: m.LocationSelector })))
+const DateSelector = lazy(() => import("@/components/reading/DateSelector").then(m => ({ default: m.DateSelector })))
+const HotQuestions = lazy(() => import("@/components/reading/HotQuestions").then(m => ({ default: m.HotQuestions })))
+const FortuneGuide = lazy(() => import("@/components/reading/FortuneGuide").then(m => ({ default: m.FortuneGuide })))
 
 const STORAGE_KEY = "destiny_reading_progress"
 
@@ -531,26 +532,32 @@ export default function NewReadingPage() {
                 </div>
               </div>
 
-              <DateSelector
-                year={watch("birth_year") || 0}
-                month={watch("birth_month") || 0}
-                day={watch("birth_day") || 0}
-                onYearChange={v => setValue("birth_year", v)}
-                onMonthChange={v => setValue("birth_month", v)}
-                onDayChange={v => setValue("birth_day", v)}
-              />
+              <Suspense fallback={<div className="h-10 bg-white/5 rounded animate-pulse" />}>
+                <DateSelector
+                  year={watch("birth_year") || 0}
+                  month={watch("birth_month") || 0}
+                  day={watch("birth_day") || 0}
+                  onYearChange={v => setValue("birth_year", v)}
+                  onMonthChange={v => setValue("birth_month", v)}
+                  onDayChange={v => setValue("birth_day", v)}
+                />
+              </Suspense>
 
               {/* Shichen selector replaces hour input */}
-              <ShichenSelector
-                value={watchedHour ?? 0}
-                onChange={(h) => setValue("birth_hour", h)}
-              />
+              <Suspense fallback={<div className="h-10 bg-white/5 rounded animate-pulse" />}>
+                <ShichenSelector
+                  value={watchedHour ?? 0}
+                  onChange={(h) => setValue("birth_hour", h)}
+                />
+              </Suspense>
 
-              <LocationSelector
-                value={watch("birth_city") || ""}
-                onChange={(v) => setValue("birth_city", v)}
-                placeholder={t("new.cityPlaceholder")}
-              />
+              <Suspense fallback={<div className="h-10 bg-white/5 rounded animate-pulse" />}>
+                <LocationSelector
+                  value={watch("birth_city") || ""}
+                  onChange={(v) => setValue("birth_city", v)}
+                  placeholder={t("new.cityPlaceholder")}
+                />
+              </Suspense>
               {errors.birth_city && <p className="text-red-400 text-xs mt-1">{errors.birth_city.message}</p>}
 
               {/* Advanced: coordinates */}
@@ -584,10 +591,12 @@ export default function NewReadingPage() {
                 <h2 className="font-serif text-xl text-gold">{t("new.taroTitle")}</h2>
 
               {/* Hot question templates */}
-              <HotQuestions
-                value={watchedQuestion}
-                onChange={(q) => setValue("user_question", q)}
-              />
+              <Suspense fallback={<div className="h-8 bg-white/5 rounded animate-pulse" />}>
+                <HotQuestions
+                  value={watchedQuestion}
+                  onChange={(q) => setValue("user_question", q)}
+                />
+              </Suspense>
 
               <div>
                 <label className="label">{t("new.questionLabel")}</label>
@@ -602,7 +611,9 @@ export default function NewReadingPage() {
                 <span className="text-gold/40 text-xs tracking-widest">{t("new.tarotSpread")}</span>
               </div>
 
-              <TarotPicker onSelect={setTarotCards} />
+              <Suspense fallback={<div className="h-40 bg-white/5 rounded-xl animate-pulse" />}>
+                <TarotPicker onSelect={setTarotCards} />
+              </Suspense>
             </div> {/* end card-glass */}
               </div>
             </div>
