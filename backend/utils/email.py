@@ -104,6 +104,139 @@ def send_password_reset_email(to_email: str, code: str) -> bool:
     return _send_email(to_email, subject, html)
 
 
+def send_fortune_email(to_email: str, fortune: dict, locale: str = "zh") -> bool:
+    """Send weekly fortune email to user."""
+    is_zh = locale == "zh"
+    subject = "命盘智镜 - 本周运势" if is_zh else "Fate OS - Weekly Fortune"
+
+    score = fortune.get("score", 5)
+    theme = fortune.get("theme", "")
+    lucky_color = fortune.get("lucky_color", "")
+    lucky_number = fortune.get("lucky_number", "")
+    lucky_direction = fortune.get("lucky_direction", "")
+    tarot_card = fortune.get("tarot_card", "")
+    tarot_desc = fortune.get("tarot_desc", "")
+    ai_insight = fortune.get("ai_insight", "")
+    daily_yi_ji = fortune.get("daily_yi_ji", [])
+
+    day_labels_zh = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
+    day_labels_en = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    day_labels = day_labels_zh if is_zh else day_labels_en
+    yi_label = "宜" if is_zh else "Do"
+    ji_label = "忌" if is_zh else "Don't"
+
+    score_color = "#4ade80" if score >= 8 else "#C9A84C" if score >= 6 else "#fb923c" if score >= 4 else "#f87171"
+
+    # Build daily rows
+    daily_rows = ""
+    for i, d in enumerate(daily_yi_ji[:7]):
+        label = day_labels[i] if i < len(day_labels) else f"Day {i+1}"
+        daily_rows += f"""
+        <td style="padding:8px;text-align:center;border:1px solid #eee;">
+          <div style="font-size:12px;color:#888;">{label}</div>
+          <div style="font-size:13px;color:#22c55e;margin-top:4px;">{yi_label} {d.get('yi','')}</div>
+          <div style="font-size:13px;color:#ef4444;">{ji_label} {d.get('ji','')}</div>
+        </td>"""
+
+    if is_zh:
+        html = f"""
+        <div style="max-width:500px;margin:0 auto;font-family:'PingFang SC','Microsoft YaHei',Arial,sans-serif;color:#333;">
+          <div style="background:linear-gradient(135deg,#2D1B4E,#1a0f2e);padding:30px;text-align:center;border-radius:12px 12px 0 0;">
+            <h2 style="color:#C9A84C;margin:0 0 8px;">✦ 本周运势</h2>
+            <p style="color:rgba(255,255,255,0.5);font-size:13px;margin:0;">{fortune.get('week_start','')} ~ {fortune.get('week_end','')}</p>
+          </div>
+          <div style="background:#f9f9f9;padding:30px;border-radius:0 0 12px 12px;">
+            <!-- Score -->
+            <div style="text-align:center;margin-bottom:20px;">
+              <div style="display:inline-block;width:80px;height:80px;border-radius:50%;border:4px solid {score_color};line-height:72px;font-size:28px;font-weight:bold;color:{score_color};">{score}</div>
+              <p style="margin:8px 0 0;font-size:15px;color:#C9A84C;font-weight:600;">{theme}</p>
+            </div>
+            <!-- Lucky items -->
+            <table style="width:100%;font-size:13px;margin-bottom:16px;">
+              <tr>
+                <td style="padding:4px 0;color:#888;">幸运颜色</td>
+                <td style="padding:4px 0;color:#22c55e;font-weight:500;">{lucky_color}</td>
+                <td style="padding:4px 0;color:#888;">幸运数字</td>
+                <td style="padding:4px 0;color:#C9A84C;font-weight:500;">{lucky_number}</td>
+              </tr>
+              <tr>
+                <td style="padding:4px 0;color:#888;">吉方位</td>
+                <td style="padding:4px 0;color:#3b82f6;font-weight:500;">{lucky_direction}</td>
+                <td style="padding:4px 0;color:#888;">塔罗牌</td>
+                <td style="padding:4px 0;color:#a855f7;font-weight:500;">{tarot_card}</td>
+              </tr>
+            </table>
+            <!-- Tarot -->
+            <div style="background:#f3e8ff;border:1px solid #e9d5ff;border-radius:8px;padding:12px;margin-bottom:16px;">
+              <p style="font-size:13px;color:#7c3aed;margin:0;">{tarot_desc}</p>
+            </div>
+            <!-- Daily -->
+            <p style="font-size:12px;color:#888;margin:0 0 8px;">每日宜忌</p>
+            <table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
+              <tr>{''.join(daily_rows[:4])}</tr>
+              <tr>{''.join(daily_rows[4:])}</tr>
+            </table>
+            <!-- AI Insight -->
+            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px;">
+              <p style="font-size:13px;color:#166534;margin:0;">🤖 {ai_insight}</p>
+            </div>
+          </div>
+          <div style="text-align:center;padding:15px;font-size:11px;color:#aaa;">
+            命盘智镜 · 全维度命理分析平台<br/>
+            <a href="https://www.khanfate.com/privacy" style="color:#aaa;">隐私政策</a> ·
+            <a href="https://www.khanfate.com/unsubscribe" style="color:#aaa;">取消订阅</a>
+          </div>
+        </div>
+        """
+    else:
+        html = f"""
+        <div style="max-width:500px;margin:0 auto;font-family:Arial,sans-serif;color:#333;">
+          <div style="background:linear-gradient(135deg,#2D1B4E,#1a0f2e);padding:30px;text-align:center;border-radius:12px 12px 0 0;">
+            <h2 style="color:#C9A84C;margin:0 0 8px;">✦ Weekly Fortune</h2>
+            <p style="color:rgba(255,255,255,0.5);font-size:13px;margin:0;">{fortune.get('week_start','')} ~ {fortune.get('week_end','')}</p>
+          </div>
+          <div style="background:#f9f9f9;padding:30px;border-radius:0 0 12px 12px;">
+            <div style="text-align:center;margin-bottom:20px;">
+              <div style="display:inline-block;width:80px;height:80px;border-radius:50%;border:4px solid {score_color};line-height:72px;font-size:28px;font-weight:bold;color:{score_color};">{score}</div>
+              <p style="margin:8px 0 0;font-size:15px;color:#C9A84C;font-weight:600;">{theme}</p>
+            </div>
+            <table style="width:100%;font-size:13px;margin-bottom:16px;">
+              <tr>
+                <td style="padding:4px 0;color:#888;">Lucky Color</td>
+                <td style="padding:4px 0;color:#22c55e;font-weight:500;">{lucky_color}</td>
+                <td style="padding:4px 0;color:#888;">Lucky Number</td>
+                <td style="padding:4px 0;color:#C9A84C;font-weight:500;">{lucky_number}</td>
+              </tr>
+              <tr>
+                <td style="padding:4px 0;color:#888;">Direction</td>
+                <td style="padding:4px 0;color:#3b82f6;font-weight:500;">{lucky_direction}</td>
+                <td style="padding:4px 0;color:#888;">Tarot</td>
+                <td style="padding:4px 0;color:#a855f7;font-weight:500;">{tarot_card}</td>
+              </tr>
+            </table>
+            <div style="background:#f3e8ff;border:1px solid #e9d5ff;border-radius:8px;padding:12px;margin-bottom:16px;">
+              <p style="font-size:13px;color:#7c3aed;margin:0;">{tarot_desc}</p>
+            </div>
+            <p style="font-size:12px;color:#888;margin:0 0 8px;">Daily Do's & Don'ts</p>
+            <table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
+              <tr>{''.join(daily_rows[:4])}</tr>
+              <tr>{''.join(daily_rows[4:])}</tr>
+            </table>
+            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px;">
+              <p style="font-size:13px;color:#166534;margin:0;">🤖 {ai_insight}</p>
+            </div>
+          </div>
+          <div style="text-align:center;padding:15px;font-size:11px;color:#aaa;">
+            Fate OS · Full-Dimension Destiny Analysis<br/>
+            <a href="https://www.khanfate.com/privacy" style="color:#aaa;">Privacy</a> ·
+            <a href="https://www.khanfate.com/unsubscribe" style="color:#aaa;">Unsubscribe</a>
+          </div>
+        </div>
+        """
+
+    return _send_email(to_email, subject, html)
+
+
 def _send_email(to_email: str, subject: str, html_body: str) -> bool:
     """Send an HTML email via SMTP."""
     config = _get_smtp_config()

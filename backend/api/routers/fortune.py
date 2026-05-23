@@ -46,7 +46,7 @@ async def subscribe(
     user: User = Depends(require_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """保存用户的运势订阅偏好"""
+    """保存用户的运势订阅偏好，并立即生成并发送本周运势"""
     if body.frequency not in ("weekly", "daily", "off"):
         raise HTTPException(status_code=400, detail="Invalid frequency")
 
@@ -70,10 +70,68 @@ async def subscribe(
 
     await db.commit()
 
+    # If subscribing (not unsubscribing), generate and send fortune email immediately
+    email_sent = False
+    if body.frequency != "off":
+        try:
+            week_start, week_end = get_current_week_range()
+
+            # Get birth data
+            birth = await get_user_birth_data(db, user.id)
+
+            # Generate fortune
+            fortune_data = generate_weekly_fortune(
+                user_id=user.id,
+                week_start=week_start,
+                locale="zh",
+                birth_year=birth.get("birth_year") if birth else None,
+                birth_month=birth.get("birth_month") if birth else None,
+                birth_day=birth.get("birth_day") if birth else None,
+                birth_hour=birth.get("birth_hour") if birth else None,
+                gender=birth.get("gender") if birth else None,
+            )
+
+            fortune_data["week_start"] = week_start
+            fortune_data["week_end"] = week_end
+
+            # Save to database
+            existing = await db.execute(
+                select(WeeklyFortune).where(
+                    and_(
+                        WeeklyFortune.user_id == user.id,
+                        WeeklyFortune.week_start == week_start,
+                    )
+                )
+            )
+            if not existing.scalars().first():
+                wf = WeeklyFortune(
+                    user_id=user.id,
+                    week_start=week_start,
+                    week_end=week_end,
+                    score=fortune_data["score"],
+                    theme=fortune_data["theme"],
+                    lucky_color=fortune_data["lucky_color"],
+                    lucky_number=fortune_data["lucky_number"],
+                    lucky_direction=fortune_data["lucky_direction"],
+                    tarot_card=fortune_data["tarot_card"],
+                    tarot_desc=fortune_data["tarot_desc"],
+                    ai_insight=fortune_data["ai_insight"],
+                    daily_yi_ji=fortune_data["daily_yi_ji"],
+                )
+                db.add(wf)
+                await db.commit()
+
+            # Send fortune email
+            from utils.email import send_fortune_email
+            email_sent = send_fortune_email(user.email, fortune_data, locale="zh")
+        except Exception as e:
+            logger.warning(f"[FORTUNE-SUB] Failed to send fortune email: {e}")
+
     return {
         "status": "ok",
         "frequency": sub.frequency,
         "is_active": sub.is_active,
+        "email_sent": email_sent,
     }
 
 
@@ -266,6 +324,25 @@ async def generate_all_weekly_fortunes(
             )
             db.add(wf)
             generated_count += 1
+
+            # Send fortune email to subscribed users
+            sub_result = await db.execute(
+                select(FortuneSubscription).where(
+                    and_(
+                        FortuneSubscription.user_id == user.id,
+                        FortuneSubscription.is_active == True,
+                    )
+                )
+            )
+            sub = sub_result.scalars().first()
+            if sub and user.email:
+                try:
+                    from utils.email import send_fortune_email
+                    fortune_data["week_start"] = week_start
+                    fortune_data["week_end"] = week_end
+                    send_fortune_email(user.email, fortune_data, locale="zh")
+                except Exception as e:
+                    logger.warning(f"[FORTUNE-GEN] Failed to send email to {user.email}: {e}")
 
         except Exception as e:
             logger.warning(f"[FORTUNE-GEN] Failed for user {user.id}: {e}")
