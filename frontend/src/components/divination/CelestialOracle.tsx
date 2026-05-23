@@ -280,7 +280,7 @@ export function CelestialOracle() {
       const res = await api.post("/api/divination/draw", {
         use_free: todayFree,
       })
-      await new Promise(resolve => setTimeout(resolve, 2500))
+      // API 返回即有结果，无需额外等待
       setResult(res.data)
       setPhase("result")
       setTodayFree(false)
