@@ -1,12 +1,13 @@
 "use client"
-import { Suspense, useEffect, useState } from "react"
+import { Suspense, useEffect, useState, lazy } from "react"
 import { useSearchParams } from "next/navigation"
 import { ShoppingBag, Loader2, Sparkles, Search } from "lucide-react"
 import { listProducts, matchProducts, Product } from "@/lib/api"
-import { ProductCard } from "@/components/reading/ProductCard"
-import { AIRecommendHero } from "@/components/shop/AIRecommendHero"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
+
+const ProductCard = lazy(() => import("@/components/reading/ProductCard").then(m => ({ default: m.ProductCard })))
+const AIRecommendHero = lazy(() => import("@/components/shop/AIRecommendHero").then(m => ({ default: m.AIRecommendHero })))
 
 function ShopContent() {
   const searchParams = useSearchParams()
