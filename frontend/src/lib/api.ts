@@ -16,43 +16,41 @@ function escapeUnicode(str: string): string {
 }
 
 // ── API routing ────────────────────────────────────────────────────────────
-// All API calls go directly to the backend (browser → Cloudflare → backend).
-// The previous Vercel proxy (/api/proxy/*) added 3-4 seconds of latency to
-// EVERY request. Direct calls are ~3-4s faster.
-// The backend CORS allows khanfate.com, so direct browser calls work.
-// In local dev, connect to localhost backend.
+// Frontend and backend run on the SAME server. Nginx routes /api/* to the
+// Next.js proxy route, which forwards to the backend on localhost:8002.
+// No cross-origin requests — everything goes through the same domain.
 const isBrowser = typeof window !== "undefined"
 const isLocalhost = isBrowser && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
 
+// In production: calls go to /api/proxy/* (Next.js server-side proxy → localhost:8002)
+// In local dev: calls go directly to the backend
+const PROD_BACKEND = "https://api.khanfate.com"
 const BACKEND_URL = isLocalhost
   ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8002")
-  : "https://api.khanfate.com"
+  : PROD_BACKEND
 
-// Main API client — direct to backend (bypasses Vercel proxy for speed)
+// Main API client — routes through Next.js proxy in production
 export const api = axios.create({
-  baseURL: BACKEND_URL,
+  baseURL: isLocalhost ? BACKEND_URL : "/api/proxy",
   timeout: 90_000,
 })
 
 // Direct backend connection for long-running / large-response endpoints
 export const apiDirect = axios.create({
-  baseURL: BACKEND_URL,
+  baseURL: isLocalhost ? BACKEND_URL : "/api/proxy",
   timeout: 180_000,
 })
 
-// Auth endpoints — same direct backend connection
+// Auth endpoints — direct to backend (bypasses proxy for speed)
 export const apiAuth = axios.create({
   baseURL: BACKEND_URL,
   timeout: 30_000,
 })
 
-// ── Production interceptor: Unicode-escape POST bodies ─────────────────────
-// Some proxies (Clash/V2Ray) and old nginx mangle UTF-8 bytes in POST bodies.
-// By converting non-ASCII to \uXXXX escapes, the body becomes pure ASCII and
-// passes through any proxy untouched.  The backend JSON decoder understands
-// \uXXXX natively.
+// ── Production proxy interceptor ───────────────────────────────────────────
+// Unicode-escape POST bodies to survive nginx/Clash UTF-8 mangling.
 if (!isLocalhost) {
-  const unicodeEscapeInterceptor = (config: any) => {
+  const productionInterceptor = (config: any) => {
     const method = (config.method || "").toLowerCase()
     if (["post", "patch", "put"].includes(method)) {
       // Skip for FormData — must pass binary intact
@@ -80,9 +78,8 @@ if (!isLocalhost) {
     }
     return config
   }
-  api.interceptors.request.use(unicodeEscapeInterceptor)
-  apiDirect.interceptors.request.use(unicodeEscapeInterceptor)
-  apiAuth.interceptors.request.use(unicodeEscapeInterceptor)
+  api.interceptors.request.use(productionInterceptor)
+  apiDirect.interceptors.request.use(productionInterceptor)
 }
 
 // ── Types aligned with new 1+5 agent backend ──────────────────────────────
