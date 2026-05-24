@@ -41,22 +41,22 @@ settings = get_settings()
 router = APIRouter()
 
 # ── Session store: Redis-backed with in-memory fallback ───────────────────────
-from services.session_store import get_session, set_session, delete_session
+from services.session_store import get_session as _store_get_session, set_session as _store_set_session, delete_session as _store_delete_session
 
 
 async def _get_session(session_id: str) -> Optional[SystemState]:
     """Get an analysis session from Redis (or in-memory fallback)."""
-    return await get_session(session_id)
+    return await _store_get_session(session_id)
 
 
 async def _set_session(session_id: str, state: SystemState) -> None:
     """Store an analysis session in Redis (or in-memory fallback)."""
-    await set_session(session_id, state)
+    await _store_set_session(session_id, state)
 
 
 async def _delete_session(session_id: str) -> None:
     """Delete an analysis session."""
-    await delete_session(session_id)
+    await _store_delete_session(session_id)
 
 
 @router.get("/ping")
