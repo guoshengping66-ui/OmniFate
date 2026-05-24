@@ -13,8 +13,6 @@ settings = get_settings()
 # 备用模型列表（按优先级排序）
 FALLBACK_MODELS = [
     {"provider": "deepseek", "model": "deepseek-v4-flash", "base_url": "https://api.deepseek.com"},
-    {"provider": "openai", "model": "gpt-4o-mini", "base_url": "https://api.openai.com/v1"},
-    {"provider": "anthropic", "model": "claude-haiku-4-5-20251001", "base_url": "https://api.anthropic.com"},
 ]
 
 # 限流/超时状态追踪
