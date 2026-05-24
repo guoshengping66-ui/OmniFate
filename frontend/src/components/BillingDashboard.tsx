@@ -14,7 +14,16 @@ import {
   type GeoConfig, type StardustPackage,
 } from "@/lib/api"
 
-const CRYPTO_LOADING_TIPS = [
+const CRYPTO_LOADING_TIPS_EN = [
+  "Sensing on-chain energy...",
+  "Aligning hash causality...",
+  "Merging cross-chain meridians...",
+  "Deducing Token elements...",
+  "Verifying address feng shui...",
+  "Sensing aura resonance...",
+  "Parsing block imprints...",
+]
+const CRYPTO_LOADING_TIPS_ZH = [
   "正在感应链上灵气…",
   "正在对齐哈希因果…",
   "正在合参跨链脉络…",
@@ -55,6 +64,7 @@ function SkeletonScreen() {
 }
 
 function BalanceCard({ balance }: { balance: number }) {
+  const { t } = useLanguage()
   return (
     <div className="card-glow p-6 relative overflow-hidden">
       <div className="absolute -top-20 -right-20 w-40 h-40 bg-gold/10 rounded-full blur-3xl pointer-events-none" />
@@ -63,9 +73,9 @@ function BalanceCard({ balance }: { balance: number }) {
           <Coins size={28} className="text-gold" />
         </div>
         <div>
-          <p className="text-white/40 text-xs tracking-wider uppercase mb-1">星尘余额 Stardust</p>
+          <p className="text-white/40 text-xs tracking-wider uppercase mb-1">{t("billing.balance")}</p>
           <p className="text-3xl font-bold text-gold font-serif">{balance.toLocaleString()}</p>
-          <p className="text-white/30 text-xs mt-1">可用于解锁报告、事件复盘、AI 追问等</p>
+          <p className="text-white/30 text-xs mt-1">{t("billing.balanceDesc")}</p>
         </div>
       </div>
     </div>
@@ -81,6 +91,7 @@ function PackageCard({
   isSelected: boolean
   onSelect: () => void
 }) {
+  const { t } = useLanguage()
   const rate = currency === "CNY" ? (pkg.price / pkg.stardust * 100).toFixed(1) : (pkg.price / pkg.stardust).toFixed(2)
 
   return (
@@ -99,12 +110,12 @@ function PackageCard({
       )}
       <div className="flex items-baseline gap-1 mb-2">
         <Sparkles size={14} className="text-gold" />
-        <span className="text-white/60 text-xs">星尘</span>
+        <span className="text-white/60 text-xs">{t("billing.stardust")}</span>
       </div>
       <p className="text-2xl font-bold text-white mb-1">{pkg.stardust.toLocaleString()}</p>
       <p className="text-gold font-serif text-lg">{symbol}{pkg.price}</p>
       <p className="text-white/25 text-[10px] mt-2">
-        ≈ {currency === "CNY" ? "￥" : "$"}{rate}/{currency === "CNY" ? "百星" : "星"}
+        ≈ {currency === "CNY" ? "￥" : "$"}{rate}/{currency === "CNY" ? t("billing.perHundred") : t("billing.perUnit")}
       </p>
       {isSelected && (
         <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-gold flex items-center justify-center">
@@ -121,7 +132,7 @@ function CNPanel({ config, onRefreshBalance }: { config: GeoConfig; onRefreshBal
   const [redeeming, setRedeeming] = useState(false)
 
   const handleRedeem = async () => {
-    if (!redeemInput.trim()) { toast.error("请输入兑换码"); return }
+    if (!redeemInput.trim()) { toast.error(t("billing.enterCode")); return }
     setRedeeming(true)
     try {
       const result = await redeemCode(redeemInput.trim())
@@ -129,7 +140,7 @@ function CNPanel({ config, onRefreshBalance }: { config: GeoConfig; onRefreshBal
       setRedeemInput("")
       onRefreshBalance()
     } catch (err: any) {
-      toast.error(err?.response?.data?.detail || "兑换失败，请检查兑换码")
+      toast.error(err?.response?.data?.detail || t("billing.redeemFail"))
     } finally { setRedeeming(false) }
   }
 
@@ -138,10 +149,10 @@ function CNPanel({ config, onRefreshBalance }: { config: GeoConfig; onRefreshBal
       <div className="card-glass p-6">
         <div className="flex items-center gap-2 mb-4">
           <Gift size={16} className="text-gold" />
-          <span className="text-white/70 text-sm font-medium">赞助支持</span>
+          <span className="text-white/70 text-sm font-medium">{t("billing.sponsor")}</span>
         </div>
         <p className="text-white/40 text-xs mb-4 leading-relaxed">
-          通过爱发电平台赞助我们，获得等值星尘算力。赞助金额将全额转化为星尘。
+          {t("billing.sponsorDesc")}
         </p>
         <a
           href={config.aifadian_url || "https://afdian.com"}
@@ -149,24 +160,24 @@ function CNPanel({ config, onRefreshBalance }: { config: GeoConfig; onRefreshBal
           rel="noopener noreferrer"
           className="btn-gold w-full py-3 flex items-center justify-center gap-2 text-sm"
         >
-          前往爱发电赞助 <ExternalLink size={14} />
+          {t("billing.goSponsor")} <ExternalLink size={14} />
         </a>
       </div>
 
       <div className="card-glass p-6">
         <div className="flex items-center gap-2 mb-4">
           <LinkIcon size={16} className="text-gold" />
-          <span className="text-white/70 text-sm font-medium">卡密 / 兑换码</span>
+          <span className="text-white/70 text-sm font-medium">{t("billing.redeemTitle")}</span>
         </div>
         <p className="text-white/40 text-xs mb-4 leading-relaxed">
-          输入通过赞助获得的兑换码，直接激活星尘算力。
+          {t("billing.redeemDesc")}
         </p>
         <div className="flex gap-2">
           <input
             type="text"
             value={redeemInput}
             onChange={e => setRedeemInput(e.target.value.toUpperCase())}
-            placeholder="输入兑换码 (如 ABCD-1234)"
+            placeholder={t("billing.redeemPlaceholder")}
             className="input-field flex-1 text-sm tracking-widest font-mono"
             maxLength={32}
             onKeyDown={e => e.key === "Enter" && handleRedeem()}
@@ -177,7 +188,7 @@ function CNPanel({ config, onRefreshBalance }: { config: GeoConfig; onRefreshBal
             className="btn-gold px-6 py-3 flex items-center gap-2 text-sm whitespace-nowrap disabled:opacity-40"
           >
             {redeeming ? <Loader2 size={16} className="animate-spin" /> : <Zap size={16} />}
-            激活
+            {t("billing.activate")}
           </button>
         </div>
       </div>
@@ -192,7 +203,7 @@ function GlobalPanel({
   selectedPkg: StardustPackage | null
   onRefreshBalance: () => void
 }) {
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
   const [network, setNetwork] = useState<"TRC20" | "ARBITRUM">("TRC20")
   const [txInput, setTxInput] = useState("")
   const [verifying, setVerifying] = useState(false)
@@ -200,14 +211,15 @@ function GlobalPanel({
     success: boolean; stardust_granted: number; balance_after: number; message: string
   } | null>(null)
   const [copied, setCopied] = useState(false)
-  const [loadingTip, setLoadingTip] = useState(CRYPTO_LOADING_TIPS[0])
+  const tips = locale === "zh" ? CRYPTO_LOADING_TIPS_ZH : CRYPTO_LOADING_TIPS_EN
+  const [loadingTip, setLoadingTip] = useState(tips[0])
 
   useEffect(() => {
     if (!verifying) return
     let idx = 0
     const interval = setInterval(() => {
-      idx = (idx + 1) % CRYPTO_LOADING_TIPS.length
-      setLoadingTip(CRYPTO_LOADING_TIPS[idx])
+      idx = (idx + 1) % tips.length
+      setLoadingTip(tips[idx])
     }, 2500)
     return () => clearInterval(interval)
   }, [verifying])
@@ -218,12 +230,12 @@ function GlobalPanel({
     if (!walletAddress) return
     navigator.clipboard.writeText(walletAddress)
     setCopied(true)
-    toast.success("收款地址已复制")
+    toast.success(t("billing.addressCopied"))
     setTimeout(() => setCopied(false), 2000)
   }
 
   const handleVerifyTx = async () => {
-    if (!txInput.trim()) { toast.error("请输入交易哈希"); return }
+    if (!txInput.trim()) { toast.error(t("billing.enterTxHash")); return }
     setVerifying(true)
     setVerifyResult(null)
     try {
@@ -232,7 +244,7 @@ function GlobalPanel({
       toast.success(result.message)
       onRefreshBalance()
     } catch (err: any) {
-      toast.error(err?.response?.data?.detail || "校验失败，请检查 TxID")
+      toast.error(err?.response?.data?.detail || t("billing.verifyFail"))
     } finally { setVerifying(false) }
   }
 
@@ -245,24 +257,24 @@ function GlobalPanel({
           <svg viewBox="0 0 24 24" width={16} height={16} className="text-blue-400" fill="currentColor">
             <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106z" />
           </svg>
-          <span className="text-white/70 text-sm font-medium">PayPal 安全支付</span>
+          <span className="text-white/70 text-sm font-medium">{t("billing.paypalTitle")}</span>
         </div>
         <p className="text-white/40 text-xs mb-4 leading-relaxed">
-          使用 PayPal 信用卡/借记卡安全支付，到账即刻自动充值。
+          {t("billing.paypalDesc")}
         </p>
         {selectedPkg ? (
           <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-4 mb-4">
             <div className="flex justify-between items-center">
-              <span className="text-white/60 text-sm">充值金额</span>
+              <span className="text-white/60 text-sm">{t("billing.topUpAmount")}</span>
               <span className="text-white font-bold">{config.symbol}{selectedPkg.price} USD</span>
             </div>
             <div className="flex justify-between items-center mt-1">
-              <span className="text-white/60 text-sm">到账星尘</span>
+              <span className="text-white/60 text-sm">{t("billing.stardustReceived")}</span>
               <span className="text-gold font-bold">{selectedPkg.stardust.toLocaleString()}</span>
             </div>
           </div>
         ) : (
-          <p className="text-gold/50 text-xs mb-4">← 请先在上方选择充值套餐</p>
+          <p className="text-gold/50 text-xs mb-4">{t("billing.selectPackageFirst")}</p>
         )}
         <button
           disabled={!selectedPkg}
@@ -271,7 +283,7 @@ function GlobalPanel({
           <svg viewBox="0 0 24 24" width={18} height={18} fill="currentColor">
             <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106z" />
           </svg>
-          PayPal 支付 {selectedPkg ? `${config.symbol}${selectedPkg.price}` : ""}
+          {t("billing.paypalPay")} {selectedPkg ? `${config.symbol}${selectedPkg.price}` : ""}
         </button>
       </div>
 
@@ -280,14 +292,14 @@ function GlobalPanel({
         <div className="relative">
           <div className="flex items-center gap-2 mb-4">
             <ShieldCheck size={16} className="text-cyan-400" />
-            <span className="text-white/70 text-sm font-medium">赛博去中心化网络</span>
+            <span className="text-white/70 text-sm font-medium">{t("billing.cryptoTitle")}</span>
             <span className="text-[10px] px-2 py-0.5 bg-cyan-500/10 text-cyan-400 rounded-full border border-cyan-500/20">
               TRC-20 / Arbitrum
             </span>
           </div>
           <p className="text-white/40 text-xs mb-4 leading-relaxed">
-            向下方地址转入 USDT，完成转账后粘贴交易哈希，系统自动校验并发放星尘。
-            汇率: <span className="text-gold">1 USDT = {cryptoRate} 星尘</span>
+            {t("billing.cryptoDesc")}
+            {t("billing.cryptoRate")} <span className="text-gold">1 USDT = {cryptoRate} {t("billing.stardust")}</span>
           </p>
 
           <div className="flex gap-2 mb-4">
@@ -301,38 +313,38 @@ function GlobalPanel({
                     : "bg-white/5 text-white/40 border border-white/10 hover:border-white/20"
                 }`}
               >
-                {net === "TRC20" ? "TRC-20 (波场)" : "Arbitrum (EVM)"}
+                {net === "TRC20" ? t("billing.trc20") : "Arbitrum (EVM)"}
               </button>
             ))}
           </div>
 
           {walletAddress ? (
             <div className="bg-white/5 border border-white/10 rounded-xl p-3 mb-4">
-              <p className="text-white/30 text-[10px] mb-2 uppercase tracking-wider">收款地址</p>
+              <p className="text-white/30 text-[10px] mb-2 uppercase tracking-wider">{t("billing.walletAddress")}</p>
               <div className="flex items-center gap-2">
                 <code className="text-white/80 text-xs font-mono break-all flex-1 select-all">{walletAddress}</code>
                 <button onClick={copyAddress} className="flex-shrink-0 p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
                   {copied ? <Check size={14} className="text-green-400" /> : <Copy size={14} className="text-white/40" />}
                 </button>
               </div>
-              <p className="text-amber-400/50 text-[10px] mt-2">⚠️ 请确认转入 {network} 网络的 USDT，其他网络将无法到账</p>
+              <p className="text-amber-400/50 text-[10px] mt-2">⚠️ {t("billing.networkWarning", { network })}</p>
             </div>
           ) : (
             <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-4 mb-4 text-center">
               <AlertCircle size={20} className="text-amber-400 mx-auto mb-2" />
-              <p className="text-amber-300/60 text-xs">该网络收款地址暂未配置</p>
+              <p className="text-amber-300/60 text-xs">{t("billing.noAddress")}</p>
             </div>
           )}
 
           {!verifying && !verifyResult && (
             <>
               <div className="mb-4">
-                <label className="text-white/40 text-[10px] mb-1.5 block uppercase tracking-wider">交易哈希 TxID</label>
+                <label className="text-white/40 text-[10px] mb-1.5 block uppercase tracking-wider">{t("billing.txHash")}</label>
                 <input
                   type="text"
                   value={txInput}
                   onChange={e => setTxInput(e.target.value.trim())}
-                  placeholder={network === "TRC20" ? "粘贴波场交易哈希 (如 a1b2c3...)" : "粘贴 Arbitrum 交易哈希 (如 0xabc...)"}
+                  placeholder={network === "TRC20" ? t("billing.txPlaceholderTrc20") : t("billing.txPlaceholderArb")}
                   className="input-field text-xs font-mono"
                   spellCheck={false}
                 />
@@ -342,7 +354,7 @@ function GlobalPanel({
                 disabled={!txInput.trim() || !walletAddress}
                 className="w-full py-3 rounded-full font-semibold bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:from-cyan-400 hover:to-blue-500 transition-all disabled:opacity-30 flex items-center justify-center gap-2 text-sm"
               >
-                <Zap size={16} /> 校准链上算力
+                <Zap size={16} /> {t("billing.verifyOnChain")}
               </button>
             </>
           )}
@@ -356,7 +368,7 @@ function GlobalPanel({
                 </div>
               </div>
               <p className="text-gold/80 text-sm font-serif animate-pulse">{loadingTip}</p>
-              <p className="text-white/20 text-xs">正在与区块链节点建立连接…</p>
+              <p className="text-white/20 text-xs">{t("billing.connecting")}</p>
             </div>
           )}
 
@@ -365,13 +377,13 @@ function GlobalPanel({
               <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto border border-green-500/30">
                 <Check size={32} className="text-green-400" />
               </div>
-              <p className="text-green-400 font-bold text-lg">校验通过</p>
+              <p className="text-green-400 font-bold text-lg">{t("billing.verified")}</p>
               <p className="text-white/60 text-sm">
-                到账 <span className="text-gold font-bold text-xl">{verifyResult.stardust_granted.toLocaleString()}</span> 颗星尘
+                {t("billing.receivedStardust", { count: verifyResult.stardust_granted.toLocaleString() })}
               </p>
-              <p className="text-white/30 text-xs">当前余额: {verifyResult.balance_after.toLocaleString()} 星尘</p>
+              <p className="text-white/30 text-xs">{t("billing.currentBalance", { count: verifyResult.balance_after.toLocaleString() })}</p>
               <button onClick={() => { setVerifyResult(null); setTxInput("") }} className="btn-gold-outline text-xs px-4 py-2">
-                继续充值
+                {t("billing.continueTopUp")}
               </button>
             </div>
           )}
@@ -473,7 +485,7 @@ export function BillingDashboard() {
               ${region === "domestic" ? "text-gold" : "text-white/40 hover:text-white/60"}`}
           >
             <MapPin size={14} />
-            国内 (CNY)
+            {t("billing.domestic")}
           </button>
           <button
             onClick={() => handleRegionSwitch("overseas")}
@@ -481,7 +493,7 @@ export function BillingDashboard() {
               ${region === "overseas" ? "text-gold" : "text-white/40 hover:text-white/60"}`}
           >
             <Globe size={14} />
-            海外 (USD)
+            {t("billing.overseas")}
           </button>
         </div>
       </div>
@@ -489,7 +501,7 @@ export function BillingDashboard() {
       <div>
         <div className="section-heading mb-4">
           <div className="bar" />
-          <span className="text">选择充值套餐 — {isCN ? "人民币定价 CNY" : "美元定价 USD"}</span>
+          <span className="text">{t("billing.selectPackage")} — {isCN ? "CNY" : "USD"}</span>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {config.packages.map(pkg => (

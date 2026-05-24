@@ -21,6 +21,7 @@ function escapeUnicode(str: string): string {
 // No cross-origin requests — everything goes through the same domain.
 const isBrowser = typeof window !== "undefined"
 const isLocalhost = isBrowser && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+const isProduction = !isLocalhost
 
 // In production: calls go to /api/proxy/* (Next.js server-side proxy → localhost:8002)
 // In local dev: calls go directly to the backend
@@ -853,6 +854,7 @@ export async function getPersonalizedDailyAlmanac(
 
 export async function getPersonalizedFortune(
   birthProfile: { birth_year: number; birth_month: number; birth_day: number; birth_hour: number },
+  lang: string = "zh",
 ): Promise<DailyFortuneResponse | null> {
   try {
     const res = await api.get<DailyFortuneResponse>("/api/readings/daily-fortune", {
@@ -861,6 +863,7 @@ export async function getPersonalizedFortune(
         birth_month: birthProfile.birth_month,
         birth_day: birthProfile.birth_day,
         birth_hour: birthProfile.birth_hour,
+        lang,
       },
       timeout: 15_000,
     })
