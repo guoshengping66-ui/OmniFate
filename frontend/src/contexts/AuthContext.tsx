@@ -1,5 +1,5 @@
 "use client"
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, type ReactNode } from "react"
 import { api, apiDirect, apiAuth, type RegisterBirthData } from "@/lib/api"
 
 export interface AuthUser {
@@ -253,8 +253,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
+  // Memoize context value — prevents unnecessary re-renders of ALL consumers
+  // (Navbar, CartProviderWithAuth, etc.) when only one field changes
+  const value = useMemo(
+    () => ({ user, loading, login, register, logout, refreshUser }),
+    [user, loading, login, register, logout, refreshUser],
+  )
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, refreshUser }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   )

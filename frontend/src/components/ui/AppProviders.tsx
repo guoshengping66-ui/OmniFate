@@ -1,5 +1,5 @@
 "use client"
-import { type ReactNode } from "react"
+import { type ReactNode, useMemo } from "react"
 import { NextIntlClientProvider } from "next-intl"
 import { AuthProvider, useAuth } from "@/contexts/AuthContext"
 import { CartProvider } from "@/contexts/CartContext"
@@ -7,7 +7,9 @@ import { LanguageProvider } from "@/contexts/LanguageContext"
 
 function CartProviderWithAuth({ children }: { children: ReactNode }) {
   const { user } = useAuth()
-  const isMember = !!user?.is_premium
+  // Only re-render CartProvider when isMember actually changes,
+  // not on every user state update (e.g. background /api/auth/me refresh)
+  const isMember = useMemo(() => !!user?.is_premium, [user?.is_premium])
   return <CartProvider isMember={isMember}>{children}</CartProvider>
 }
 

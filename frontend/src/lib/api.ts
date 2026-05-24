@@ -16,56 +16,47 @@ function escapeUnicode(str: string): string {
 }
 
 // ── API routing ────────────────────────────────────────────────────────────
-// In production, route all API calls through Next.js server-side proxy
-// (/api/proxy/*) to avoid nginx CORS issues.  The proxy forwards requests
-// to api.khanfate.com server-side where CORS doesn't apply.
-// In local dev, connect directly to the backend.
+// All API calls go directly to the backend (browser → Cloudflare → backend).
+// The previous Vercel proxy (/api/proxy/*) added 3-4 seconds of latency to
+// EVERY request. Direct calls are ~3-4s faster.
+// The backend CORS allows khanfate.com, so direct browser calls work.
+// In local dev, connect to localhost backend.
 const isBrowser = typeof window !== "undefined"
 const isLocalhost = isBrowser && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
-const isProduction = isBrowser && !isLocalhost
 
 const BACKEND_URL = isLocalhost
   ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8002")
   : "https://api.khanfate.com"
 
-// Main API client — points directly to backend (local) or via proxy (production)
+// Main API client — direct to backend (bypasses Vercel proxy for speed)
 export const api = axios.create({
-  baseURL: isProduction ? "/api/proxy" : BACKEND_URL,
+  baseURL: BACKEND_URL,
   timeout: 90_000,
 })
 
 // Direct backend connection for long-running / large-response endpoints
 export const apiDirect = axios.create({
-  baseURL: isProduction ? "/api/proxy" : BACKEND_URL,
+  baseURL: BACKEND_URL,
   timeout: 180_000,
 })
 
-// Direct backend connection for auth endpoints (bypasses proxy for speed)
-// The backend CORS allows khanfate.com origin, so direct calls work
+// Auth endpoints — same direct backend connection
 export const apiAuth = axios.create({
   baseURL: BACKEND_URL,
   timeout: 30_000,
 })
 
-// ── Production proxy interceptor ───────────────────────────────────────────
-// In production, route all API calls through Next.js server-side proxy
-// (/api/proxy/*) to avoid nginx CORS issues.
-//
-// DUAL-ENCODING STRATEGY: Clash/V2Ray MITM proxies corrupt POST request
-// bodies. To survive this, we send data in BOTH places:
-//   1. The request body (original JSON) — primary path
-//   2. ?_data=<URL-encoded JSON> in the URL — fallback if body is corrupted
-// The proxy route tries the URL param first, falls back to the body.
-if (isProduction) {
-  const productionInterceptor = (config: any) => {
+// ── Production interceptor: Unicode-escape POST bodies ─────────────────────
+// Some proxies (Clash/V2Ray) and old nginx mangle UTF-8 bytes in POST bodies.
+// By converting non-ASCII to \uXXXX escapes, the body becomes pure ASCII and
+// passes through any proxy untouched.  The backend JSON decoder understands
+// \uXXXX natively.
+if (!isLocalhost) {
+  const unicodeEscapeInterceptor = (config: any) => {
     const method = (config.method || "").toLowerCase()
     if (["post", "patch", "put"].includes(method)) {
-      // ⚠️ CRITICAL: Skip dual-encoding for FormData (file uploads).
-      // FormData must be sent as-is with its native multipart boundary.
-      // Converting to JSON destroys binary file data.
+      // Skip for FormData — must pass binary intact
       if (config.data instanceof FormData) {
-        // Remove Content-Type header so axios/browser auto-sets it
-        // with the correct multipart/form-data boundary
         if (config.headers) {
           delete config.headers["Content-Type"]
           delete config.headers["content-type"]
@@ -73,7 +64,6 @@ if (isProduction) {
         return config
       }
 
-      // Ensure data is a string for URL encoding
       let jsonStr: string
       if (typeof config.data === "string") {
         jsonStr = config.data
@@ -82,11 +72,7 @@ if (isProduction) {
       } else {
         return config
       }
-      // Add URL-encoded data as fallback (proxy tries this first)
-      const sep = config.url.includes("?") ? "&" : "?"
-      config.url = config.url + sep + "_data=" + encodeURIComponent(jsonStr)
-      // Keep the body as-is for the primary path
-      config.data = jsonStr
+      config.data = escapeUnicode(jsonStr)
       config.headers = config.headers || {}
       if (!config.headers["Content-Type"] && !config.headers["content-type"]) {
         config.headers["Content-Type"] = "application/json"
@@ -94,8 +80,9 @@ if (isProduction) {
     }
     return config
   }
-  api.interceptors.request.use(productionInterceptor)
-  apiDirect.interceptors.request.use(productionInterceptor)
+  api.interceptors.request.use(unicodeEscapeInterceptor)
+  apiDirect.interceptors.request.use(unicodeEscapeInterceptor)
+  apiAuth.interceptors.request.use(unicodeEscapeInterceptor)
 }
 
 // ── Types aligned with new 1+5 agent backend ──────────────────────────────

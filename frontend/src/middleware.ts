@@ -48,10 +48,10 @@ export function middleware(request: NextRequest) {
     [
       "default-src 'self'",
       "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
-      "style-src 'self' 'unsafe-inline'",
+      "style-src 'self' 'unsafe-inline' https://fonts.font.im https://fonts.gstatic.com",
       "img-src 'self' data: blob: https:",
-      "font-src 'self' https://fonts.gstatic.com",
-      "connect-src 'self' https://api.khanfate.com https://fonts.googleapis.com",
+      "font-src 'self' data: https://fonts.font.im https://fonts.gstatic.com https://fonts.gstatic.font.im",
+      "connect-src 'self' https://api.khanfate.com https://fonts.googleapis.com https://fonts.font.im",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",

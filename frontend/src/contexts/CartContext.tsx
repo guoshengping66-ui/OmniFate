@@ -1,5 +1,5 @@
 "use client"
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, type ReactNode } from "react"
 import type { Product } from "@/lib/api"
 
 export interface CartItem {
@@ -85,11 +85,14 @@ export function CartProvider({ children, isMember = false }: { children: ReactNo
   const totalCny = items.reduce((sum, i) => sum + i.product.price_cny * i.quantity, 0)
   const totalWithDiscount = isMember ? totalCny * MEMBER_DISCOUNT : totalCny
 
+  // Memoize context value to prevent unnecessary re-renders of consumers
+  const value = useMemo(() => ({
+    items, addItem, removeItem, updateQuantity, clearCart,
+    itemCount, totalCny, totalWithDiscount, isMember,
+  }), [items, addItem, removeItem, updateQuantity, clearCart, itemCount, totalCny, totalWithDiscount, isMember])
+
   return (
-    <CartContext.Provider value={{
-      items, addItem, removeItem, updateQuantity, clearCart,
-      itemCount, totalCny, totalWithDiscount, isMember,
-    }}>
+    <CartContext.Provider value={value}>
       {children}
     </CartContext.Provider>
   )

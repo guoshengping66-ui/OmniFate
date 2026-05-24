@@ -1,5 +1,5 @@
 "use client"
-import { createContext, useContext, useCallback, type ReactNode } from "react"
+import { createContext, useContext, useCallback, useMemo, type ReactNode } from "react"
 import { useLocale, useTranslations } from "next-intl"
 import { useRouter } from "@/i18n/navigation"
 import { type Locale, locales } from "@/i18n/config"
@@ -84,8 +84,14 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     [locale, router],
   )
 
+  // Memoize context value — prevents unnecessary re-renders of ALL consumers
+  const value = useMemo(
+    () => ({ locale, setLocale, t, localeHref, preloadLocale }),
+    [locale, setLocale, t, localeHref, preloadLocale],
+  )
+
   return (
-    <LanguageContext.Provider value={{ locale, setLocale, t, localeHref, preloadLocale }}>
+    <LanguageContext.Provider value={value}>
       {children}
     </LanguageContext.Provider>
   )

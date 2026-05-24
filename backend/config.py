@@ -19,6 +19,9 @@ class Settings(BaseSettings):
         "http://localhost:3000", "http://localhost:3001",
         "https://khanfate.com", "https://www.khanfate.com",
         "https://destiny-platform.vercel.app",
+        # Vercel preview deployments (*.vercel.app)
+        "https://destiny-platform-git-main-guoshengping66-ui.vercel.app",
+        "https://destiny-platform-guoshengping66-ui.vercel.app",
     ]
 
     DATABASE_URL: str = "sqlite+aiosqlite:///./destiny_dev.db"
