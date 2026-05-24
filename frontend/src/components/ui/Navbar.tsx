@@ -70,14 +70,14 @@ export function Navbar() {
           {/* Desktop nav — wide screens: all links visible */}
           <nav className="hidden lg:flex items-center gap-5">
             {coreLinks.map(l => (
-              <Link key={l.href} href={l.href}
+              <Link key={l.href} href={l.href} prefetch={true}
                 className="text-sm text-white/70 hover:text-gold transition-colors duration-200">
                 {l.label}
               </Link>
             ))}
             {/* Extra links visible on lg+ */}
             {extraLinks.map(l => (
-              <Link key={l.href} href={l.href}
+              <Link key={l.href} href={l.href} prefetch={true}
                 className="text-sm text-white/50 hover:text-gold transition-colors duration-200">
                 {l.label}
               </Link>
@@ -87,7 +87,7 @@ export function Navbar() {
           {/* Medium screens: core links + hamburger for extras */}
           <nav className="hidden md:flex lg:hidden items-center gap-4">
             {coreLinks.map(l => (
-              <Link key={l.href} href={l.href}
+              <Link key={l.href} href={l.href} prefetch={true}
                 className="text-sm text-white/70 hover:text-gold transition-colors duration-200">
                 {l.label}
               </Link>
