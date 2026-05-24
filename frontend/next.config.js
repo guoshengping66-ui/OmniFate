@@ -59,6 +59,22 @@ const nextConfig = {
     "three",
     "@react-three/fiber",
   ],
+  experimental: {
+    // Optimize CSS to reduce render-blocking resources
+    optimizeCss: true,
+    // Tree-shake heavy packages more aggressively
+    optimizePackageImports: [
+      "lucide-react",
+      "date-fns",
+      "lodash",
+      "ramda",
+      "rxjs",
+      "@mui/material",
+      "@mui/icons-material",
+      "date-fns-tz",
+      "nanoid",
+    ],
+  },
   async headers() {
     return [
       {
