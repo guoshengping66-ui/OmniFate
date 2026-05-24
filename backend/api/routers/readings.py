@@ -392,6 +392,19 @@ async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
     except Exception:
         pass
 
+    # Periodically persist state to Redis so SSE stream can see live updates
+    _persist_done = asyncio.Event()
+
+    async def _periodic_persist():
+        while not _persist_done.is_set():
+            try:
+                await _set_session(state.session_id, state)
+            except Exception:
+                pass
+            await asyncio.sleep(3)  # persist every 3 seconds
+
+    persist_task = asyncio.create_task(_periodic_persist())
+
     try:
         # Lazy imports to avoid cold-start cost
         from agents.graph import run_full_analysis
@@ -409,8 +422,15 @@ async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
         state.errors.append(str(e))
         state.phase = "done"
         print(f"[BG] Analysis failed for {state.session_id}: {e}")
+    finally:
+        _persist_done.set()
+        persist_task.cancel()
+        try:
+            await persist_task
+        except asyncio.CancelledError:
+            pass
 
-    # Update session store
+    # Final persist to session store
     await _set_session(state.session_id, state)
 
     # Persist final results to database
@@ -845,6 +865,11 @@ async def stream_session(
         phase_changed_at = time.time()
 
         while state.phase != "done":
+            # Re-read state from session store to get live updates from background task
+            _fresh = await _get_session(session_id)
+            if _fresh:
+                state = _fresh
+
             # Phase changes
             if state.phase != last_phase:
                 yield f"data: {json.dumps({'type': 'phase', 'phase': state.phase})}\n\n"
