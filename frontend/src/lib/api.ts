@@ -290,10 +290,30 @@ export async function getSession(sessionId: string, lang?: string): Promise<Anal
   // In production, GET requests go directly to backend (bypass proxy for speed).
   // CORS is configured on backend to allow khanfate.com origin.
   const client = isProduction ? apiDirect : api
-  const res = await client.get<AnalysisResponse>(`/api/readings/session/${sessionId}`, { params })
-  // Cache completed readings for instant revisit
-  _setCachedReading(sessionId, res.data)
-  return res.data
+
+  // Retry on 500 errors (server may need time to recover after deploy)
+  const MAX_RETRIES = 5
+  const RETRY_DELAY_MS = 3000
+  let lastError: unknown = null
+
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    try {
+      const res = await client.get<AnalysisResponse>(`/api/readings/session/${sessionId}`, { params })
+      // Cache completed readings for instant revisit
+      _setCachedReading(sessionId, res.data)
+      return res.data
+    } catch (err: any) {
+      lastError = err
+      const status = err?.response?.status
+      // Only retry on 500 (server error) — don't retry 404/403/etc.
+      if (status === 500 && attempt < MAX_RETRIES - 1) {
+        await new Promise(r => setTimeout(r, RETRY_DELAY_MS))
+        continue
+      }
+      throw err
+    }
+  }
+  throw lastError
 }
 
 // ── SSE Streaming ──────────────────────────────────────────────────────────
