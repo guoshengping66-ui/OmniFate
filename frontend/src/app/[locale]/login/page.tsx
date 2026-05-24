@@ -26,7 +26,9 @@ export default function LoginPage() {
     try {
       await login(email, password)
       toast.success(t("auth.loginSuccess"))
-      router.replace("/")
+      // Use window.location for instant full-page reload instead of client-side navigation
+      // This avoids the slow RSC payload fetch and re-render cycle
+      window.location.href = "/"
     } catch (err: any) {
       console.error("[Login] error:", err)
       if (err.code === "ERR_NETWORK" || err.code === "ECONNABORTED" || err.message?.includes("Network Error")) {
