@@ -1,0 +1,83 @@
+# ══════════════════════════════════════════════════════════════════════════════
+#  命盘智镜 — 前端自动部署 (GitHub Actions → 阿里云)
+# ══════════════════════════════════════════════════════════════════════════════
+#  触发: push 到 main 且 frontend/ 有变更，或手动触发
+#  流程: SSH → git pull → npm build → PM2 restart
+# ══════════════════════════════════════════════════════════════════════════════
+
+name: Deploy Frontend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+      - 'ecosystem.config.js'
+      - 'deploy-frontend.sh'
+      - 'nginx-khanfate.conf'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -euo pipefail
+
+            echo "═══════ 开始部署前端 ═══════"
+
+            # 1. 同步最新代码
+            cd /opt/OmniFate
+            CURRENT_COMMIT=$(git rev-parse HEAD)
+            echo "当前 commit: $CURRENT_COMMIT"
+
+            echo "📥 同步最新代码..."
+            git fetch origin main
+            git reset --hard origin/main
+
+            # 2. 部署 Nginx 配置
+            echo "🌐 更新 Nginx 配置..."
+            cp /opt/OmniFate/nginx-khanfate.conf /etc/nginx/sites-available/khanfate.conf
+            ln -sf /etc/nginx/sites-available/khanfate.conf /etc/nginx/sites-enabled/
+            nginx -t 2>/dev/null && systemctl reload nginx && echo "✅ Nginx 已更新" || echo "⚠️ Nginx 配置检查失败"
+
+            # 3. 安装前端依赖
+            cd /opt/OmniFate/frontend
+            echo "📦 安装依赖..."
+            npm ci --production=false 2>/dev/null || npm install
+
+            # 4. 构建生产版本
+            echo "🔨 构建生产版本..."
+            NODE_ENV=production npm run build
+
+            # 5. 重启 PM2 进程
+            echo "🔄 重启前端服务..."
+            cd /opt/OmniFate
+            pm2 delete frontend 2>/dev/null || true
+            pm2 start ecosystem.config.js --only frontend
+            pm2 save
+
+            # 6. 验证
+            echo "🔍 验证服务..."
+            sleep 3
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3000/ || echo "000")
+            if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "307" ]; then
+              echo "✅ 前端健康检查通过 (HTTP $HTTP_CODE)"
+            else
+              echo "⚠️ 前端健康检查返回 HTTP $HTTP_CODE，可能需要手动检查"
+            fi
+
+            NEW_COMMIT=$(git rev-parse HEAD)
+            echo "═══════ 部署完成 ═══════"
+            echo "✅ 前端已更新: $CURRENT_COMMIT → $NEW_COMMIT"
