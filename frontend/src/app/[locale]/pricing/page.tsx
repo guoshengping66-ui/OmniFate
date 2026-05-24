@@ -337,9 +337,8 @@ export default function PricingPage() {
               return (
                 <div
                   key={item.label}
-                  whileHover={{ y: -4, scale: 1.03 }}
                   className={`flex flex-col items-center gap-3 p-5 rounded-xl border ${item.bg}
-                             hover:shadow-lg transition-all duration-300 cursor-default`}
+                             hover:shadow-lg hover:-translate-y-1 hover:scale-[1.03] transition-all duration-300 cursor-default`}
                 >
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center bg-white/5`}>
                     <Icon size={18} className={item.color} />
