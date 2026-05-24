@@ -21,6 +21,7 @@ function escapeUnicode(str: string): string {
 // No cross-origin requests — everything goes through the same domain.
 const isBrowser = typeof window !== "undefined"
 const isLocalhost = isBrowser && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+const isProduction = !isLocalhost
 
 // In production: calls go to /api/proxy/* (Next.js server-side proxy → localhost:8002)
 // In local dev: calls go directly to the backend
