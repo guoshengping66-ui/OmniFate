@@ -2344,7 +2344,21 @@ async def get_personalized_almanac(payload: PersonalizedAlmanacRequest):
         today_bazi = BaziCalculator.calculate_transit_pillars(today.year, today.month, today.day)
         if today_bazi:
             dp = today_bazi.get("day_pillar", {})
-            bazi_day_pillar_str = dp.get("ganzhi", "")
+            raw_gz = dp.get("ganzhi", "")
+            if payload.lang == "en" and len(raw_gz) >= 2:
+                _g_map_en_inner = {
+                    "甲":"Jia","乙":"Yi","丙":"Bing","丁":"Ding","戊":"Wu",
+                    "己":"Ji","庚":"Geng","辛":"Xin","壬":"Ren","癸":"Gui",
+                }
+                _z_map_en_inner = {
+                    "子":"Zi","丑":"Chou","寅":"Yin","卯":"Mao","辰":"Chen","巳":"Si",
+                    "午":"Wu","未":"Wei","申":"Shen","酉":"You","戌":"Xu","亥":"Hai",
+                }
+                g_en = _g_map_en_inner.get(raw_gz[0], raw_gz[0])
+                z_en = _z_map_en_inner.get(raw_gz[1], raw_gz[1])
+                bazi_day_pillar_str = f"{g_en} ({raw_gz[0]}) · {z_en} ({raw_gz[1]})"
+            else:
+                bazi_day_pillar_str = raw_gz
     except Exception:
         pass
     try:
@@ -2398,6 +2412,7 @@ async def get_personalized_almanac(payload: PersonalizedAlmanacRequest):
         state=state, today=today,
         transit_bazi=today_bazi, transit_astro=transit,
         energy_score=energy_score,
+        lang=payload.lang,
     )
 
     from services.product_matcher import ProductMatcher

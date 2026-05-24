@@ -854,6 +854,7 @@ export async function getPersonalizedDailyAlmanac(
 
 export async function getPersonalizedFortune(
   birthProfile: { birth_year: number; birth_month: number; birth_day: number; birth_hour: number },
+  lang: string = "zh",
 ): Promise<DailyFortuneResponse | null> {
   try {
     const res = await api.get<DailyFortuneResponse>("/api/readings/daily-fortune", {
@@ -862,6 +863,7 @@ export async function getPersonalizedFortune(
         birth_month: birthProfile.birth_month,
         birth_day: birthProfile.birth_day,
         birth_hour: birthProfile.birth_hour,
+        lang,
       },
       timeout: 15_000,
     })

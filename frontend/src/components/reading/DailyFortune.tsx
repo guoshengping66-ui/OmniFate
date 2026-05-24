@@ -267,7 +267,7 @@ export function DailyFortune({ user }: DailyFortuneProps) {
     // Try to get personalized fortune from backend
     const birthProfile = user?.birth_profiles?.[0]
     if (birthProfile) {
-      getPersonalizedFortune(birthProfile)
+      getPersonalizedFortune(birthProfile, locale)
         .then(data => {
           if (data && data.personalized) {
             setPersonalizedText(data)
