@@ -48,8 +48,6 @@ const nextConfig = {
   // ── Bundle optimization ──────────────────────────────────────────────
   modularizeImports: {
     // Transform lucide-react barrel imports into individual icon imports
-    // BEFORE: import { Sparkles, Crown } from "lucide-react" → full lib
-    // AFTER:  import Sparkles from "lucide-react/dist/esm/icons/sparkles" → single icon
     "lucide-react": {
       transform: "lucide-react/dist/esm/icons/{{ kebabCase member }}",
     },
