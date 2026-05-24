@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState, useCallback, useRef } from "react"
+import { useEffect, useState, useCallback, useRef, lazy, Suspense } from "react"
 import { useParams, useRouter } from "next/navigation"
 import {
   Loader2, Sparkles, ShoppingBag, AlertCircle,
@@ -15,24 +15,27 @@ const AGENT_I18N: Record<string, string> = {
   qimen: "agent.qimen", ziwei: "agent.ziwei", face: "agent.face",
   palm: "agent.palm", master: "agent.master",
 }
+// Core imports (always needed)
 import AnalysisProgress from "@/components/reading/AnalysisProgress"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { ReportSection } from "@/components/reading/ReportSection"
 import { ReadingSkeleton } from "@/components/reading/ReadingSkeleton"
-import { ProductCard } from "@/components/reading/ProductCard"
-import { ChatBox } from "@/components/reading/ChatBox"
-import EventAnalyzer from "@/components/reading/EventAnalyzer"
-import DailyAlmanac from "@/components/reading/DailyAlmanac"
-import { DestinyRadar } from "@/components/reading/DestinyRadar"
-import { ShareSheet } from "@/components/reading/ShareSheet"
-import { PaywallGate } from "@/components/monetization/PaywallGate"
-import { QRPaymentModal } from "@/components/payment/QRPaymentModal"
 import { TagBadge } from "@/components/ui/TagBadge"
 import { useRegion } from "@/hooks/useRegion"
-import { PrescriptionCard } from "@/components/reading/PrescriptionCard"
-import { FreeReportBanner } from "@/components/reading/FreeReportBanner"
-import { EnergyIDCard } from "@/components/reading/EnergyIDCard"
+
+// Lazy-loaded heavy/conditional components (reduces initial bundle ~150KB)
+const ProductCard = lazy(() => import("@/components/reading/ProductCard").then(m => ({ default: m.ProductCard })))
+const ChatBox = lazy(() => import("@/components/reading/ChatBox").then(m => ({ default: m.ChatBox })))
+const EventAnalyzer = lazy(() => import("@/components/reading/EventAnalyzer"))
+const DailyAlmanac = lazy(() => import("@/components/reading/DailyAlmanac"))
+const DestinyRadar = lazy(() => import("@/components/reading/DestinyRadar").then(m => ({ default: m.DestinyRadar })))
+const ShareSheet = lazy(() => import("@/components/reading/ShareSheet").then(m => ({ default: m.ShareSheet })))
+const PaywallGate = lazy(() => import("@/components/monetization/PaywallGate").then(m => ({ default: m.PaywallGate })))
+const QRPaymentModal = lazy(() => import("@/components/payment/QRPaymentModal").then(m => ({ default: m.QRPaymentModal })))
+const PrescriptionCard = lazy(() => import("@/components/reading/PrescriptionCard").then(m => ({ default: m.PrescriptionCard })))
+const FreeReportBanner = lazy(() => import("@/components/reading/FreeReportBanner").then(m => ({ default: m.FreeReportBanner })))
+const EnergyIDCard = lazy(() => import("@/components/reading/EnergyIDCard").then(m => ({ default: m.EnergyIDCard })))
 
 const WORKER_ORDER = ["bazi", "qimen", "ziwei", "astrology", "tarot", "face", "palm"] as const
 
@@ -472,7 +475,9 @@ export default function ReadingPage() {
                 {t("reading.disclaimer")}
               </span>
             </div>
-            <ShareSheet sessionId={id} />
+            <Suspense fallback={<div className="w-20 h-8" />}>
+              <ShareSheet sessionId={id} />
+            </Suspense>
           </div>
 
           {/* ── Main Hero Card ── */}
@@ -588,11 +593,13 @@ export default function ReadingPage() {
                     transform: heroVisible ? "translateY(0)" : "translateY(12px)",
                   }}
                 >
-                  <EnergyIDCard
-                    sessionId={id}
-                    userId={user?.id}
-                    dimensionScores={data.dimension_scores}
-                  />
+                  <Suspense fallback={<div className="h-32" />}>
+                    <EnergyIDCard
+                      sessionId={id}
+                      userId={user?.id}
+                      dimensionScores={data.dimension_scores}
+                    />
+                  </Suspense>
                 </div>
               )}
 
@@ -748,10 +755,12 @@ export default function ReadingPage() {
             {/* ── Radar Chart ── */}
             {data.dimension_scores && (
               <div className="flex justify-center">
-                <DestinyRadar
-                  scores={data.dimension_scores}
-                  labels={["wealth", "relationship", "career", "health", "spiritual"].map(k => t(I18N_DIM_KEYS[k]?.label || `reading.dim.${k}`))}
-                />
+                <Suspense fallback={<div className="h-64" />}>
+                  <DestinyRadar
+                    scores={data.dimension_scores}
+                    labels={["wealth", "relationship", "career", "health", "spiritual"].map(k => t(I18N_DIM_KEYS[k]?.label || `reading.dim.${k}`))}
+                  />
+                </Suspense>
               </div>
             )}
 
@@ -768,42 +777,46 @@ export default function ReadingPage() {
 
             {/* Zone 2: Free Report Banner */}
             {!isUnlocked && data.dimension_scores && (
-              <FreeReportBanner
-                weakestLabel={getWeakestLabel(data.dimension_scores, t)}
-                onCtaClick={() => setActiveTab("shop")}
-              />
+              <Suspense fallback={null}>
+                <FreeReportBanner
+                  weakestLabel={getWeakestLabel(data.dimension_scores, t)}
+                  onCtaClick={() => setActiveTab("shop")}
+                />
+              </Suspense>
             )}
 
             {/* Paid: Master Detail */}
-            <PaywallGate
-              isUnlocked={isUnlocked}
-              title={t("reading.master.detailTitle")}
-              description={t("reading.insight.locked")}
-              priceDisplay="¥69"
-              onUnlock={() => setShowPayment(true)}
-              loading={false}
-              previewLines={5}
-              stardustBalance={user?.stardust_balance || 0}
-              onStardustUnlock={handleStardustUnlock}
-            >
-              <div className="card-glass p-6 md:p-8 border-gold/20 bg-gradient-to-br from-gold/[0.03] to-transparent">
-                <div className="flex items-center gap-2.5 mb-5">
-                  <div className="w-10 h-10 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center">
-                    <Crown size={20} className="text-gold" />
+            <Suspense fallback={<div className="card-glass p-6 h-48" />}>
+              <PaywallGate
+                isUnlocked={isUnlocked}
+                title={t("reading.master.detailTitle")}
+                description={t("reading.insight.locked")}
+                priceDisplay="¥69"
+                onUnlock={() => setShowPayment(true)}
+                loading={false}
+                previewLines={5}
+                stardustBalance={user?.stardust_balance || 0}
+                onStardustUnlock={handleStardustUnlock}
+              >
+                <div className="card-glass p-6 md:p-8 border-gold/20 bg-gradient-to-br from-gold/[0.03] to-transparent">
+                  <div className="flex items-center gap-2.5 mb-5">
+                    <div className="w-10 h-10 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center">
+                      <Crown size={20} className="text-gold" />
+                    </div>
+                    <div>
+                      <h2 className="font-serif text-lg md:text-xl font-bold text-gold">{t("reading.master.detailTitle")}</h2>
+                      <p className="text-white/20 text-xs">{t("reading.master.detailSubtitle")}</p>
+                    </div>
+                    <span className="ml-auto text-[10px] px-2 py-0.5 bg-gold/10 border border-gold/20 rounded-full text-gold/70">
+                      {t("reading.master.unlocked")}
+                    </span>
                   </div>
-                  <div>
-                    <h2 className="font-serif text-lg md:text-xl font-bold text-gold">{t("reading.master.detailTitle")}</h2>
-                    <p className="text-white/20 text-xs">{t("reading.master.detailSubtitle")}</p>
+                  <div className="text-white/80 text-sm leading-relaxed whitespace-pre-line">
+                    {stripMarkdown(data.master_detail || t("reading.master.loading"))}
                   </div>
-                  <span className="ml-auto text-[10px] px-2 py-0.5 bg-gold/10 border border-gold/20 rounded-full text-gold/70">
-                    {t("reading.master.unlocked")}
-                  </span>
                 </div>
-                <div className="text-white/80 text-sm leading-relaxed whitespace-pre-line">
-                  {stripMarkdown(data.master_detail || t("reading.master.loading"))}
-                </div>
-              </div>
-            </PaywallGate>
+              </PaywallGate>
+            </Suspense>
 
             {/* Zone 1: 专属处方单 */}
             {isUnlocked && data.recommended_products && data.recommended_products.length > 0 && (
@@ -815,13 +828,15 @@ export default function ReadingPage() {
                     <p className="text-white/25 text-[11px]">{t("reading.master.prescriptionDesc")}</p>
                   </div>
                 </div>
-                {data.recommended_products.slice(0, 2).map((p, i) => (
-                  <PrescriptionCard
-                    key={p.id}
-                    product={p}
-                    variant={i === 0 ? "primary" : "secondary"}
-                  />
-                ))}
+                <Suspense fallback={<div className="card-glass p-4 h-24" />}>
+                  {data.recommended_products.slice(0, 2).map((p, i) => (
+                    <PrescriptionCard
+                      key={p.id}
+                      product={p}
+                      variant={i === 0 ? "primary" : "secondary"}
+                    />
+                  ))}
+                </Suspense>
               </div>
             )}
 
@@ -876,24 +891,26 @@ export default function ReadingPage() {
               </div>
             ) : workerMap[k].report ? (
               <div className="space-y-4">
-                <PaywallGate
-                  isUnlocked={isUnlocked}
-                  title={`${t(AGENT_I18N[k] || `agent.${k}`)} ${t("reading.worker.unlockTitle")}`}
-                  description={t("reading.worker.unlockDesc")}
-                  priceDisplay="¥69"
-                  onUnlock={() => setShowPayment(true)}
-                  loading={false}
-                  previewLines={3}
-                  stardustBalance={user?.stardust_balance || 0}
-                  onStardustUnlock={handleStardustUnlock}
-                >
-                  <ReportSection
-                    icon={AGENT_LABELS[k].icon}
+                <Suspense fallback={<div className="card-glass p-6 h-48" />}>
+                  <PaywallGate
+                    isUnlocked={isUnlocked}
                     title={`${t(AGENT_I18N[k] || `agent.${k}`)} ${t("reading.worker.unlockTitle")}`}
-                    color={AGENT_LABELS[k].color}
-                    content={workerMap[k].report}
-                  />
-                </PaywallGate>
+                    description={t("reading.worker.unlockDesc")}
+                    priceDisplay="¥69"
+                    onUnlock={() => setShowPayment(true)}
+                    loading={false}
+                    previewLines={3}
+                    stardustBalance={user?.stardust_balance || 0}
+                    onStardustUnlock={handleStardustUnlock}
+                  >
+                    <ReportSection
+                      icon={AGENT_LABELS[k].icon}
+                      title={`${t(AGENT_I18N[k] || `agent.${k}`)} ${t("reading.worker.unlockTitle")}`}
+                      color={AGENT_LABELS[k].color}
+                      content={workerMap[k].report}
+                    />
+                  </PaywallGate>
+                </Suspense>
                 {workerMap[k].tags.length > 0 && (
                   <div className="card-glass p-5">
                     <p className="text-white/30 text-xs mb-3">{t("reading.tags.title")}</p>
@@ -968,9 +985,15 @@ export default function ReadingPage() {
                 </button>
               </div>
             ) : products.length > 0 ? (
-              <div className="grid sm:grid-cols-2 gap-5">
-                {products.map(p => <ProductCard key={p.id} product={p} />)}
-              </div>
+              <Suspense fallback={<div className="grid sm:grid-cols-2 gap-5">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="card-glass h-48 animate-pulse" />
+                ))}
+              </div>}>
+                <div className="grid sm:grid-cols-2 gap-5">
+                  {products.map(p => <ProductCard key={p.id} product={p} />)}
+                </div>
+              </Suspense>
             ) : (
               <div className="card-glass p-12 text-center">
                 <ShoppingBag size={36} className="text-white/10 mx-auto mb-4" />
@@ -983,12 +1006,16 @@ export default function ReadingPage() {
 
         {/* ── Event Analyzer ─────────────────────────────── */}
         {activeTab === "event" && (
-          <EventAnalyzer sessionId={id} />
+          <Suspense fallback={<div className="card-glass p-10 text-center"><Loader2 size={24} className="animate-spin text-gold/40 mx-auto" /></div>}>
+            <EventAnalyzer sessionId={id} />
+          </Suspense>
         )}
 
         {/* ── Daily Almanac ──────────────────────────────── */}
         {activeTab === "almanac" && (
-          <DailyAlmanac sessionId={id} />
+          <Suspense fallback={<div className="card-glass p-10 text-center"><Loader2 size={24} className="animate-spin text-gold/40 mx-auto" /></div>}>
+            <DailyAlmanac sessionId={id} />
+          </Suspense>
         )}
 
         {/* ── Chat Loop ──────────────────────────────────── */}
@@ -1001,10 +1028,12 @@ export default function ReadingPage() {
               <h2 className="font-serif text-xl font-bold text-gold mb-1">{t("reading.chat.title")}</h2>
               <p className="text-white/30 text-xs">{t("reading.chat.desc")}</p>
             </div>
-            <ChatBox
-              sessionId={id}
-              availableAgents={WORKER_ORDER.filter(k => workerMap[k]?.report && !workerMap[k]?.error)}
-            />
+            <Suspense fallback={<div className="card-glass p-10 text-center"><Loader2 size={24} className="animate-spin text-gold/40 mx-auto" /></div>}>
+              <ChatBox
+                sessionId={id}
+                availableAgents={WORKER_ORDER.filter(k => workerMap[k]?.report && !workerMap[k]?.error)}
+              />
+            </Suspense>
           </div>
         )}
 
@@ -1013,14 +1042,16 @@ export default function ReadingPage() {
 
       {/* ── QR Payment Modal (Report Unlock) ──────────────────── */}
       {id && (
-        <QRPaymentModal
-          open={showPayment}
-          onClose={() => setShowPayment(false)}
-          readingId={id}
-          postAction="unlock"
-          region={region}
-          onSuccess={handlePaymentSuccess}
-        />
+        <Suspense fallback={null}>
+          <QRPaymentModal
+            open={showPayment}
+            onClose={() => setShowPayment(false)}
+            readingId={id}
+            postAction="unlock"
+            region={region}
+            onSuccess={handlePaymentSuccess}
+          />
+        </Suspense>
       )}
 
       {/* ════════════════════════════════════════════════════════════

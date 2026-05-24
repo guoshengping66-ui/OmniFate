@@ -44,6 +44,21 @@ const nextConfig = {
   },
   // Use standalone output for better performance on self-hosted
   output: "standalone",
+
+  // ── Bundle optimization ──────────────────────────────────────────────
+  modularizeImports: {
+    // Transform lucide-react barrel imports into individual icon imports
+    // BEFORE: import { Sparkles, Crown } from "lucide-react" → full lib
+    // AFTER:  import Sparkles from "lucide-react/dist/esm/icons/sparkles" → single icon
+    "lucide-react": {
+      transform: "lucide-react/dist/esm/icons/{{ kebabCase member }}",
+    },
+  },
+  // Packages to exclude from server bundle (only used client-side)
+  serverExternalPackages: [
+    "three",
+    "@react-three/fiber",
+  ],
   async headers() {
     return [
       {

@@ -61,7 +61,17 @@ export default async function LocaleLayout({
       <head>
         <link rel="preconnect" href="https://fonts.font.im" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://api.khanfate.com" />
-        <link rel="stylesheet" href="https://fonts.font.im/css2?family=Inter:wght@300;400;500;600&display=optional" />
+        {/* Async font loading: non-blocking, swap to system font until loaded */}
+        <link
+          rel="stylesheet"
+          href="https://fonts.font.im/css2?family=Inter:wght@300;400;500;600&display=swap"
+          media="print"
+          // @ts-ignore
+          onLoad="this.media='all'"
+        />
+        <noscript>
+          <link rel="stylesheet" href="https://fonts.font.im/css2?family=Inter:wght@300;400;500;600&display=swap" />
+        </noscript>
       </head>
       <body>
         <AppProviders messages={messages} locale={validLocale}>
