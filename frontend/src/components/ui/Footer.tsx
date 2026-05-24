@@ -22,7 +22,7 @@ export function Footer() {
       setEmail("")
       toast.success(t("footer.subscribed"))
     } catch {
-      toast.error("订阅失败，请稍后重试")
+      toast.error(t("footer.subscribeError"))
     } finally {
       setLoading(false)
     }
