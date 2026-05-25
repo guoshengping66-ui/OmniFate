@@ -134,6 +134,7 @@ export default function NewReadingPage() {
   const [showPalmGuide, setShowPalmGuide] = useState(false)
   const faceRef = useRef<HTMLInputElement>(null)
   const palmRef = useRef<HTMLInputElement>(null)
+  const prevIntentRef = useRef<string | null>(null)
 
   // Revoke blob URLs on unmount to prevent memory leak
   useEffect(() => {
@@ -171,12 +172,6 @@ export default function NewReadingPage() {
     [t]
   )
 
-  /** Convert a logical step index (0..STEPS.length-1) to the DOM step index (0..3) */
-  const toDomStep = (logical: number) => {
-    const label = STEPS[logical]
-    return ALL_STEP_LABELS.indexOf(label)
-  }
-
   // Prefill form from wizard store on mount
   useEffect(() => {
     if (wizardData.birth_year > 0) {
@@ -204,7 +199,19 @@ export default function NewReadingPage() {
     if (wizardStartStep > 0) return // Wizard controls the step — don't override from localStorage
     const saved = loadSavedProgress()
     if (saved) {
-      setStep(saved.step)
+      // Handle backward compatibility: old saves used DOM step indices
+      // New format uses logical step indices directly
+      const label = ALL_STEP_LABELS[saved.step]
+      const logicalFromDom = label ? STEPS.indexOf(label) : -1
+      if (logicalFromDom >= 0) {
+        // Old DOM format: convert to logical index
+        setStep(logicalFromDom)
+      } else if (saved.step >= 0 && saved.step < STEPS.length) {
+        // Already a logical index
+        setStep(saved.step)
+      } else {
+        setStep(0) // Fallback to first step
+      }
       setTarotCards(saved.tarotCards || [])
       setPalmData(saved.palmData || {})
       // Restore form values
@@ -218,6 +225,22 @@ export default function NewReadingPage() {
       toast.success(t("new.restoredMsg"), { duration: 3000 })
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Sync step with intent changes ─────────────────────────
+  // On first render or when intent changes, ensure step maps to a valid logical step
+  useEffect(() => {
+    const isFirstRender = prevIntentRef.current === null
+    const intentChanged = prevIntentRef.current !== currentIntent
+    prevIntentRef.current = currentIntent
+
+    if (isFirstRender || intentChanged) {
+      // Don't override if wizard has set a startStep or saved progress was restored
+      if (wizardStartStep > 0) return
+      if (step > 0 && !isFirstRender) return
+      // Reset to first logical step for the new intent
+      if (step !== 0) setStep(0)
+    }
+  }, [currentIntent, wizardStartStep, step]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Auto-save progress ──────────────────────────────────────
   useEffect(() => {
@@ -237,7 +260,7 @@ export default function NewReadingPage() {
 
   const handleClearProgress = () => {
     clearSavedProgress()
-    setStep(toDomStep(0)) // Reset to first step of current intent (e.g. tarot for GENERAL_DAILY)
+    setStep(0) // Reset to first logical step (e.g. tarot for GENERAL_DAILY)
     setTarotCards([])
     setPalmData({})
     setValue("gender", "female")
@@ -429,11 +452,7 @@ export default function NewReadingPage() {
         <div
           className="h-full bg-gradient-to-r from-gold/60 via-gold to-gold-light transition-all duration-500 ease-out shadow-[0_0_12px_rgba(201,168,76,0.4)]"
           style={{
-            width: `${(
-              // Find logical step index from DOM step
-              (STEPS.findIndex(s => ALL_STEP_LABELS.indexOf(s) === step) + 1)
-              / STEPS.length
-            ) * 100}%`
+            width: `${((step + 1) / STEPS.length) * 100}%`
           }}
         />
       </div>
@@ -455,12 +474,9 @@ export default function NewReadingPage() {
           <p className="text-white/50 text-sm">{t("new.startSubtitle")}</p>
         </div>
 
-        {/* Step indicators — rendered by DOM index for correct visual state */}
+        {/* Step indicators — step is now a logical index */}
         <div className="flex items-center justify-between mb-10 px-1">
-          {ALL_STEP_LABELS.map((label, i) => {
-            const visible = STEPS.includes(label)
-            if (!visible) return null
-            return (
+          {STEPS.map((label, i) => (
               <div key={label} className="flex flex-col items-center gap-1.5 flex-1">
                 <div className="flex items-center w-full">
                   <div className="flex-1 flex justify-end">
@@ -480,7 +496,7 @@ export default function NewReadingPage() {
                     {i < step ? "✓" : i + 1}
                   </div>
                   <div className="flex-1 flex justify-start">
-                    {i < 3 && (
+                    {i < STEPS.length - 1 && (
                       <div className={`h-px flex-1 ml-2 transition-all duration-500
                         ${i < step ? "bg-gold/60" : "bg-white/10"}`} />
                     )}
@@ -492,11 +508,11 @@ export default function NewReadingPage() {
                 </span>
               </div>
             )
-          })}
+          ))}
         </div>
 
         {/* Clear progress button — show when past the first logical step */}
-        {toDomStep(0) < step && (
+        {step > 0 && (
           <div className="flex justify-center mb-6">
             <button
               type="button"
@@ -513,7 +529,7 @@ export default function NewReadingPage() {
               react-hook-form register() references survive step transitions */}
           <div className="relative">
             {/* ── Step 0: Birth Info ─────────────────────────── */}
-            <div className={step !== 0 ? 'hidden' : ''}>
+            <div className={STEPS[step] !== t("new.step1") ? 'hidden' : ''}>
               <FortuneGuide step={0} intent={currentIntent} />
               <div
               >
@@ -583,7 +599,7 @@ export default function NewReadingPage() {
             </div>
 
           {/* ── Step 1: Tarot & Question ─────────────────────── */}
-          <div className={step !== 1 ? 'hidden' : ''}>
+          <div className={STEPS[step] !== t("new.step2") ? 'hidden' : ''}>
             <FortuneGuide step={1} intent={currentIntent} />
             <div
             >
@@ -619,7 +635,7 @@ export default function NewReadingPage() {
             </div>
 
           {/* ── Step 2: Face & Palm ──────────────────────────── */}
-          <div className={step !== 2 ? 'hidden' : ''}>
+          <div className={STEPS[step] !== t("new.step3") ? 'hidden' : ''}>
             <FortuneGuide step={2} intent={currentIntent} />
             <div
             >
@@ -753,8 +769,7 @@ export default function NewReadingPage() {
                 <button
                   type="button"
                   onClick={() => {
-                    const logical = STEPS.findIndex(s => ALL_STEP_LABELS.indexOf(s) === step) + 1
-                    if (logical < STEPS.length) setStep(toDomStep(logical))
+                    if (step < STEPS.length - 1) setStep(step + 1)
                   }}
                   className="text-white/30 text-xs hover:text-white/50 transition-colors underline underline-offset-2"
                 >
@@ -766,7 +781,7 @@ export default function NewReadingPage() {
             </div>
 
           {/* ── Step 3: Confirm ─────────────────────────────── */}
-          <div className={step !== 3 ? 'hidden' : ''}>
+          <div className={STEPS[step] !== t("new.step4") ? 'hidden' : ''}>
             <FortuneGuide step={3} intent={currentIntent} />
             <div
             >
@@ -843,23 +858,15 @@ export default function NewReadingPage() {
             </div>
           </div>
           <div className="flex justify-between mt-8">
-            {toDomStep(0) < step ? (
-              <button type="button" onClick={() => {
-                // Go to previous logical step
-                const logical = STEPS.findIndex(s => ALL_STEP_LABELS.indexOf(s) === step) - 1
-                if (logical >= 0) setStep(toDomStep(logical))
-              }}
+            {step > 0 && (
+              <button type="button" onClick={() => setStep(step - 1)}
  className="flex items-center gap-2 px-6 py-2.5 rounded-full border border-white/20 text-white/60 hover:border-white/40 transition-all">
                 <ChevronLeft size={16} /> {t("new.prevStep")}
               </button>
-            ) : <div />}
+            )}
 
-            {step < toDomStep(STEPS.length - 1) && (
-              <button type="button" onClick={() => {
-                // Go to next logical step
-                const logical = STEPS.findIndex(s => ALL_STEP_LABELS.indexOf(s) === step) + 1
-                if (logical < STEPS.length) setStep(toDomStep(logical))
-              }}
+            {step < STEPS.length - 1 && (
+              <button type="button" onClick={() => setStep(step + 1)}
                 className="btn-gold flex items-center gap-2">
                 {t("new.nextStep")} <ChevronRight size={16} />
               </button>
