@@ -45,6 +45,12 @@ def _load_products(lang: str = "zh") -> list[dict]:
                     for key in ("keyword_tags", "elements", "planets", "chakras", "function_tags", "material"):
                         if en.get(f"{key}_en") is not None:
                             p[key] = en[f"{key}_en"]
+                    # Translate detail fields
+                    for key in ("usage", "precautions", "efficacy"):
+                        if en.get(f"{key}_en"):
+                            p[key] = en[f"{key}_en"]
+                    if en.get("specifications_en"):
+                        p["specifications"] = en["specifications_en"]
         except (FileNotFoundError, json.JSONDecodeError):
             pass
 
