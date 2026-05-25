@@ -37,11 +37,11 @@ export function FloatingFortuneSubscribe() {
   const yiLabel = isZH ? "宜" : "Do"
   const jiLabel = isZH ? "忌" : "Don't"
 
-  // Load subscription status and fortune on mount
+  // Load subscription status and fortune on mount; re-fetch when locale changes
   useEffect(() => {
     if (!open) return
     loadData()
-  }, [open])
+  }, [open, locale])
 
   async function loadData() {
     setLoading(true)

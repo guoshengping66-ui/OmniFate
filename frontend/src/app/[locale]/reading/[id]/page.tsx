@@ -112,8 +112,9 @@ function getStrongestDimension(scores: Record<string, number>): string {
   return Object.entries(scores).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "career"
 }
 
-function getStrongestLabel(scores: Record<string, number>): string {
-  return DIM_LABELS[getStrongestDimension(scores)] ?? "事业"
+function getStrongestLabel(scores: Record<string, number>, t: (key: string) => string): string {
+  const dim = getStrongestDimension(scores)
+  return I18N_DIM_KEYS[dim] ? t(I18N_DIM_KEYS[dim].label) : (DIM_LABELS[dim] ?? dim)
 }
 
 function getI18nDimLabel(key: string, t: (k: string) => string): string {

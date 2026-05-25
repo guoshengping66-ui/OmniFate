@@ -328,6 +328,8 @@ def _fortune_to_dict(f: WeeklyFortune, locale: str) -> dict:
             THEMES_EN, THEMES_ZH, TAROT_NAMES_EN, TAROT_NAMES_ZH,
             TAROT_DESCS_EN, TAROT_DESCS_ZH, LUCKY_COLORS_EN, LUCKY_COLORS_ZH,
             LUCKY_DIRECTIONS_EN, LUCKY_DIRECTIONS_ZH,
+            YI_ITEMS_EN, YI_ITEMS_ZH, JI_ITEMS_EN, JI_ITEMS_ZH,
+            AI_INSIGHTS_EN,
         )
         _safe_translate = lambda val, zh_list, en_list: en_list[zh_list.index(val)] if val in zh_list else val
         d["theme"] = _safe_translate(f.theme, THEMES_ZH, THEMES_EN)
@@ -335,6 +337,24 @@ def _fortune_to_dict(f: WeeklyFortune, locale: str) -> dict:
         d["tarot_desc"] = _safe_translate(f.tarot_desc, TAROT_DESCS_ZH, TAROT_DESCS_EN)
         d["lucky_color"] = _safe_translate(f.lucky_color, LUCKY_COLORS_ZH, LUCKY_COLORS_EN)
         d["lucky_direction"] = _safe_translate(f.lucky_direction, LUCKY_DIRECTIONS_ZH, LUCKY_DIRECTIONS_EN)
+        # Regenerate ai_insight with English yi/ji values
+        yi_en = [_safe_translate(y, YI_ITEMS_ZH, YI_ITEMS_EN) for y in (f.yi or [])]
+        ji_en = [_safe_translate(j, JI_ITEMS_ZH, JI_ITEMS_EN) for j in (f.ji or [])]
+        if yi_en or ji_en:
+            import hashlib as _hl
+            seed = hash(f"{f.user_id}:{f.week_start}")
+            template_idx = abs(seed) % len(AI_INSIGHTS_EN)
+            d["ai_insight"] = AI_INSIGHTS_EN[template_idx].replace("{yi}", yi_en[0] if yi_en else "").replace("{ji}", ji_en[0] if ji_en else "")
+        # Translate daily_yi_ji items
+        if f.daily_yi_ji:
+            d["daily_yi_ji"] = [
+                {
+                    "day": dyj.get("day", i),
+                    "yi": _safe_translate(dyj.get("yi", ""), YI_ITEMS_ZH, YI_ITEMS_EN),
+                    "ji": _safe_translate(dyj.get("ji", ""), JI_ITEMS_ZH, JI_ITEMS_EN),
+                }
+                for i, dyj in enumerate(f.daily_yi_ji)
+            ]
     return d
 
 
@@ -359,12 +379,24 @@ def _daily_to_dict(f: DailyFortune, locale: str) -> dict:
         from services.fortune_generator import (
             DAILY_THEMES_EN, DAILY_THEMES_ZH, DAILY_TAROT_NAMES_EN, DAILY_TAROT_NAMES_ZH,
             DAILY_TAROT_DESCS_EN, DAILY_TAROT_DESCS_ZH, LUCKY_COLORS_EN, LUCKY_COLORS_ZH,
+            LUCKY_DIRECTIONS_EN, LUCKY_DIRECTIONS_ZH,
+            YI_ITEMS_EN, YI_ITEMS_ZH, JI_ITEMS_EN, JI_ITEMS_ZH,
+            DAILY_AI_INSIGHTS_EN,
         )
         _safe_translate = lambda val, zh_list, en_list: en_list[zh_list.index(val)] if val in zh_list else val
         d["theme"] = _safe_translate(f.theme, DAILY_THEMES_ZH, DAILY_THEMES_EN)
         d["tarot_card"] = _safe_translate(f.tarot_card, DAILY_TAROT_NAMES_ZH, DAILY_TAROT_NAMES_EN)
         d["tarot_desc"] = _safe_translate(f.tarot_desc, DAILY_TAROT_DESCS_ZH, DAILY_TAROT_DESCS_EN)
         d["lucky_color"] = _safe_translate(f.lucky_color, LUCKY_COLORS_ZH, LUCKY_COLORS_EN)
+        d["lucky_direction"] = _safe_translate(f.lucky_direction, LUCKY_DIRECTIONS_ZH, LUCKY_DIRECTIONS_EN)
+        # Regenerate ai_insight with English yi/ji values (stored ai_insight has Chinese embedded)
+        yi_en = [_safe_translate(y, YI_ITEMS_ZH, YI_ITEMS_EN) for y in (f.yi or [])]
+        ji_en = [_safe_translate(j, JI_ITEMS_ZH, JI_ITEMS_EN) for j in (f.ji or [])]
+        if yi_en or ji_en:
+            import hashlib as _hl
+            seed = hash(f"{f.user_id}:{f.fortune_date}")
+            template_idx = abs(seed) % len(DAILY_AI_INSIGHTS_EN)
+            d["ai_insight"] = DAILY_AI_INSIGHTS_EN[template_idx].replace("{yi}", yi_en[0] if yi_en else "").replace("{ji}", ji_en[0] if ji_en else "")
     return d
 
 

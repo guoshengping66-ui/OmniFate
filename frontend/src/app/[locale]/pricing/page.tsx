@@ -196,11 +196,11 @@ export default function PricingPage() {
               <tbody>
                 {[
                   { label: t("pricing.compare.feat1"), report: "3", yearly: "∞", monthly: "∞" },
-                  { label: t("pricing.compare.feat2"), report: "—", yearly: "5次/月", monthly: "2次/月" },
+                  { label: t("pricing.compare.feat2"), report: "—", yearly: locale === "zh" ? "5次/月" : "5/mo", monthly: locale === "zh" ? "2次/月" : "2/mo" },
                   { label: t("pricing.compare.feat3"), report: "—", yearly: "✓", monthly: "✓" },
-                  { label: t("pricing.compare.feat4"), report: "10次", yearly: "∞", monthly: "∞" },
-                  { label: t("pricing.compare.feat5"), report: "—", yearly: "8.8折", monthly: "88折" },
-                  { label: t("pricing.compare.feat6"), report: "100", yearly: "150/月", monthly: "100/月" },
+                  { label: t("pricing.compare.feat4"), report: locale === "zh" ? "10次" : "10", yearly: "∞", monthly: "∞" },
+                  { label: t("pricing.compare.feat5"), report: "—", yearly: locale === "zh" ? "8.8折" : "12% off", monthly: locale === "zh" ? "88折" : "12% off" },
+                  { label: t("pricing.compare.feat6"), report: "100", yearly: locale === "zh" ? "150/月" : "150/mo", monthly: locale === "zh" ? "100/月" : "100/mo" },
                   { label: t("pricing.compare.feat7"), report: "—", yearly: "✓", monthly: "—" },
                   { label: t("pricing.compare.feat8"), report: "—", yearly: "✓", monthly: "—" },
                 ].map((row, i) => (
