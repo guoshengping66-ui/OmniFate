@@ -36,6 +36,18 @@ export const api = axios.create({
   timeout: 90_000,
 })
 
+// Auto-pass locale for error translation on all API clients
+const addLangInterceptor = (client: typeof api) => {
+  client.interceptors.request.use((config) => {
+    try {
+      const lang = localStorage.getItem("destiny-lang") || (navigator.language.startsWith("zh") ? "zh" : "en")
+      config.params = { ...config.params, lang }
+    } catch {}
+    return config
+  })
+}
+addLangInterceptor(api)
+
 // Direct backend connection for long-running / large-response endpoints
 export const apiDirect = axios.create({
   baseURL: isLocalhost ? BACKEND_URL : "/api/proxy",
@@ -46,6 +58,15 @@ export const apiDirect = axios.create({
 export const apiAuth = axios.create({
   baseURL: BACKEND_URL,
   timeout: 30_000,
+})
+
+// Pass locale to backend so error messages are translated
+apiAuth.interceptors.request.use((config) => {
+  try {
+    const lang = localStorage.getItem("destiny-lang") || (navigator.language.startsWith("zh") ? "zh" : "en")
+    config.params = { ...config.params, lang }
+  } catch {}
+  return config
 })
 
 // ── Production proxy interceptor ───────────────────────────────────────────

@@ -2,6 +2,7 @@
 import sys
 import os
 import json
+import re
 import traceback
 sys.path.insert(0, os.path.dirname(__file__))
 
@@ -10,7 +11,7 @@ import time
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from contextlib import asynccontextmanager
 
 from config import get_settings
@@ -71,9 +72,11 @@ async def global_exception_handler(request: Request, exc: Exception):
     tb = traceback.format_exception(type(exc), exc, exc.__traceback__)
     print(f"[ERROR] {request.method} {request.url.path}: {''.join(tb)}")
     # Never expose internal error details to clients — use a generic message
+    lang = _get_lang_from_request(request)
+    detail = "Internal server error. Please try again later." if lang == "en" else "服务器内部错误，请稍后重试"
     return JSONResponse(
         status_code=500,
-        content={"detail": "服务器内部错误，请稍后重试"},
+        content={"detail": detail},
     )
 
 # ── Enhanced rate limiter with endpoint-specific limits ──────────────────────
@@ -141,12 +144,138 @@ async def rate_limit_middleware(request: Request, call_next):
 
         # Global rate limit
         if await check_rate_limit(f"global:{client_ip}", RATE_LIMIT_MAX, RATE_LIMIT_WINDOW):
+            lang = _get_lang_from_request(request)
             return JSONResponse(
                 status_code=429,
-                content={"detail": "请求过于频繁，请稍后再试"},
+                content={"detail": "Too many requests. Please try again later." if lang == "en" else "请求过于频繁，请稍后再试"},
             )
 
     return await call_next(request)
+
+
+# ── Error message translation middleware ───────────────────────────────────
+# When lang=en is passed as a query parameter, translate known Chinese
+# error messages to English in JSON error responses.
+
+_ERROR_TRANSLATIONS: dict[str, str] = {
+    "数据库暂不可用，请稍后再试": "Database temporarily unavailable. Please try again later.",
+    "请先阅读并同意隐私政策和服务条款": "Please read and accept the Privacy Policy and Terms of Service.",
+    "注册请求过于频繁，请稍后再试": "Registration requests too frequent. Please try again later.",
+    "登录尝试次数过多，请 ": "Too many login attempts. Please try again in ",
+    "秒后再试": " seconds.",
+    "登录尝试过多，请稍后再试": "Too many login attempts. Please try again later.",
+    "邮件服务暂不可用，请稍后再试": "Email service temporarily unavailable. Please try again later.",
+    "验证码发送过于频繁，请稍后再试": "Verification code requests too frequent. Please try again later.",
+    "验证尝试过于频繁，请稍后再试": "Too many verification attempts. Please try again later.",
+    "用户不存在": "User not found.",
+    "验证码已过期，请重新发送": "Verification code expired. Please request a new one.",
+    "验证码错误": "Incorrect verification code.",
+    "邮箱或密码错误": "Incorrect email or password.",
+    "请先验证邮箱后再使用": "Please verify your email before using this feature.",
+    "请先验证邮箱后再登录，验证码已发送至您的邮箱": "Please verify your email first. A verification code has been sent to your inbox.",
+    "无效的 refresh token": "Invalid refresh token.",
+    "请求过于频繁，请稍后再试": "Too many requests. Please try again later.",
+    "密码错误，无法删除账户": "Incorrect password. Account deletion cancelled.",
+    "密码强度不足：": "Password does not meet requirements: ",
+    "至少 8 个字符": "At least 8 characters",
+    "不能超过 128 个字符": "No more than 128 characters",
+    "至少包含一个小写字母": "At least one lowercase letter",
+    "至少包含一个大写字母": "At least one uppercase letter",
+    "至少包含一个数字": "At least one number",
+    "商品不存在": "Product not found.",
+    "签文不存在": "Divination record not found.",
+    "星尘不足": "Insufficient Stardust.",
+    "订单不存在": "Order not found.",
+    "订单已支付": "Order already paid.",
+    "分析记录不存在": "Analysis record not found.",
+    "分析任务失败": "Analysis task failed.",
+    "提交过于频繁，请稍后再试": "Submission too frequent. Please try again later.",
+    "重置尝试过于频繁，请稍后再试": "Password reset attempts too frequent. Please try again later.",
+    "服务器内部错误，请稍后重试": "Internal server error. Please try again later.",
+}
+
+# Longer pattern translations (for messages with variable parts)
+_ERROR_PATTERN_TRANSLATIONS = [
+    (r"登录尝试次数过多，请 (\d+) 秒后再试", r"Too many login attempts. Please try again in \1 seconds."),
+    (r"密码强度不足：(.+)", r"Password does not meet requirements: \1"),
+]
+
+_RE_CHINESE = re.compile(r"[一-鿿]")
+
+
+def _get_lang_from_request(request: Request) -> str:
+    lang = request.query_params.get("lang", "")
+    if lang in ("zh", "en"):
+        return lang
+    accept = request.headers.get("accept-language", "")
+    if accept.startswith("en"):
+        return "en"
+    return "zh"
+
+
+def _translate_error_text(text: str) -> str:
+    """Translate a single error text from Chinese to English."""
+    if not text or not _RE_CHINESE.search(text):
+        return text
+    # Try exact match first
+    if text in _ERROR_TRANSLATIONS:
+        return _ERROR_TRANSLATIONS[text]
+    # Try pattern matches
+    for pattern, replacement in _ERROR_PATTERN_TRANSLATIONS:
+        new_text = re.sub(pattern, replacement, text)
+        if new_text != text:
+            return new_text
+    return text
+
+
+def _translate_error_detail(detail):
+    """Translate error detail in a response body dict."""
+    if isinstance(detail, str):
+        return _translate_error_text(detail)
+    if isinstance(detail, list):
+        return [_translate_error_text(item) if isinstance(item, str) else item for item in detail]
+    return detail
+
+
+@app.middleware("http")
+async def error_translation_middleware(request: Request, call_next):
+    lang = _get_lang_from_request(request)
+
+    # Store lang in request state so endpoints can access it if needed
+    request.state.lang = lang
+
+    response = await call_next(request)
+
+    # Only translate error responses (4xx/5xx) when lang=en
+    if lang == "en" and response.status_code >= 400:
+        # Read the response body
+        body = b""
+        async for chunk in response.body_iterator:
+            if isinstance(chunk, str):
+                body += chunk.encode("utf-8")
+            else:
+                body += chunk
+
+        try:
+            data = json.loads(body)
+            if "detail" in data:
+                data["detail"] = _translate_error_detail(data["detail"])
+            new_body = json.dumps(data, ensure_ascii=False).encode("utf-8")
+            return JSONResponse(
+                status_code=response.status_code,
+                content=data,
+                headers=dict(response.headers),
+            )
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            pass
+
+        return Response(
+            content=body,
+            status_code=response.status_code,
+            headers=dict(response.headers),
+        )
+
+    return response
 
 
 app.include_router(auth.router,     prefix="/api/auth",     tags=["Auth"])

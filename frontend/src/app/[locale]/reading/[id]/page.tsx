@@ -303,11 +303,11 @@ export default function ReadingPage() {
         const { unlockReport } = await import("@/lib/api")
         await unlockReport(id)
         setIsUnlocked(true)
-        toast.success("星尘解锁成功！")
+        toast.success(t("reading.unlockedSuccess"))
         refreshUser()
       }
     } catch (err: any) {
-      toast.error(err?.response?.data?.detail || "星尘解锁失败")
+      toast.error(err?.response?.data?.detail || t("reading.unlockedFailed"))
     }
   }, [id, refreshUser])
 
