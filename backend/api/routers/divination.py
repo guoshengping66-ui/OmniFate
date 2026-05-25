@@ -5,7 +5,7 @@ import uuid
 from datetime import datetime, timezone, date
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -32,33 +32,80 @@ FORTUNE_LEVEL = {f["fortune"]: f["level"] for f in FORTUNES}
 
 THEMES = ["事业", "感情", "财运", "健康", "学业", "人际", "出行"]
 
+# ── 英文翻译 ──────────────────────────────────────────────────────────────
+
+FORTUNE_EN = {
+    "大吉": "Great Blessing",
+    "中吉": "Good Fortune",
+    "小吉": "Mild Fortune",
+    "吉": "Auspicious",
+    "末吉": "Moderate",
+    "凶": "Inauspicious",
+    "大凶": "Great Misfortune",
+}
+
+THEME_EN = {
+    "事业": "Career",
+    "感情": "Love",
+    "财运": "Wealth",
+    "健康": "Health",
+    "学业": "Studies",
+    "人际": "Social",
+    "出行": "Travel",
+}
+
 # 王阳明心学金句库
 WISDOM_QUOTES = [
-    {"quote": "你未看此花时，此花与汝心同归于寂；你来看此花时，则此花颜色一时明白起来。", "author": "王阳明"},
-    {"quote": "此心光明，亦复何言。", "author": "王阳明"},
-    {"quote": "知而不行，只是未知。", "author": "王阳明"},
-    {"quote": "破山中贼易，破心中贼难。", "author": "王阳明"},
-    {"quote": "立志用功，如种树然。方其根芽，犹未有干；及其有干，尚未有枝；枝而后叶，叶而后花、实。", "author": "王阳明"},
-    {"quote": "人须在事上磨，方能立得住；方能静亦定、动亦定。", "author": "王阳明"},
-    {"quote": "无善无恶心之体，有善有恶意之动，知善知恶是良知，为善去恶是格物。", "author": "王阳明"},
-    {"quote": "持志如心痛，一心在痛上，岂有工夫说闲话、管闲事？", "author": "王阳明"},
-    {"quote": "人人自有定盘针，万化根源总在心。却笑从前颠倒见，枝枝叶叶外头寻。", "author": "王阳明"},
-    {"quote": "个个人心有仲尼，自将闻见苦遮迷。而今指与真头面，只是良知更莫疑。", "author": "王阳明"},
-    {"quote": "君子之学，非有同志之友日相规切，则亦易以悠悠度日，而不见其过。", "author": "王阳明"},
-    {"quote": "不可以一时之得意，而自夸其能；亦不可以一时之失意，而自坠其志。", "author": "王阳明"},
-    {"quote": "人人自有定盘针，万化根源总在心。", "author": "王阳明"},
-    {"quote": "此心不动，随机而动。", "author": "王阳明"},
-    {"quote": "致良知是学问大头脑，是圣人教人第一义。", "author": "王阳明"},
-    {"quote": "夫学，天下之公学也，非朱子可得而私也，非孔子可得而私也。", "author": "王阳明"},
-    {"quote": "不贵于无过，而贵于能改过。", "author": "王阳明"},
-    {"quote": "谦虚其心，宏大其量。", "author": "王阳明"},
-    {"quote": "千圣皆过影，良知乃吾师。", "author": "王阳明"},
-    {"quote": "人生大病，只是一傲字。", "author": "王阳明"},
-    {"quote": "种树者必培其根，种德者必养其心。", "author": "王阳明"},
-    {"quote": "为学须有本原，须从本原上用力。", "author": "王阳明"},
-    {"quote": "圣人之道，吾性自足，向之求理于事物者误也。", "author": "王阳明"},
-    {"quote": "心即理也。天下又有心外之事，心外之理乎？", "author": "王阳明"},
-    {"quote": "你的心，决定你的世界。", "author": "王阳明"},
+    {"quote": "你未看此花时，此花与汝心同归于寂；你来看此花时，则此花颜色一时明白起来。", "author": "王阳明",
+     "quote_en": "Before you looked at this flower, it and your mind were both in silence. When you came to see it, the flower's color became vivid all at once.", "author_en": "Wang Yangming"},
+    {"quote": "此心光明，亦复何言。", "author": "王阳明",
+     "quote_en": "This heart is luminous — what more is there to say?", "author_en": "Wang Yangming"},
+    {"quote": "知而不行，只是未知。", "author": "王阳明",
+     "quote_en": "To know but not act is simply not to know.", "author_en": "Wang Yangming"},
+    {"quote": "破山中贼易，破心中贼难。", "author": "王阳明",
+     "quote_en": "It is easy to defeat the thieves in the mountains, but hard to conquer the thieves in one's heart.", "author_en": "Wang Yangming"},
+    {"quote": "立志用功，如种树然。方其根芽，犹未有干；及其有干，尚未有枝；枝而后叶，叶而后花、实。", "author": "王阳明",
+     "quote_en": "Setting your will and working hard is like planting a tree. When the roots first sprout, there is no trunk yet; when the trunk appears, there are no branches yet; branches come before leaves, and leaves before flowers and fruit.", "author_en": "Wang Yangming"},
+    {"quote": "人须在事上磨，方能立得住；方能静亦定、动亦定。", "author": "王阳明",
+     "quote_en": "One must be tempered by real affairs to stand firm — to be steady both in stillness and in action.", "author_en": "Wang Yangming"},
+    {"quote": "无善无恶心之体，有善有恶意之动，知善知恶是良知，为善去恶是格物。", "author": "王阳明",
+     "quote_en": "The substance of the mind is beyond good and evil; good and evil arise from the movement of intention; knowing good from evil is innate moral knowing; doing good and removing evil is the investigation of things.", "author_en": "Wang Yangming"},
+    {"quote": "持志如心痛，一心在痛上，岂有工夫说闲话、管闲事？", "author": "王阳明",
+     "quote_en": "Hold fast to your aspiration as if your heart aches — with your whole mind on the ache, how could you have time for idle talk or meddling?", "author_en": "Wang Yangming"},
+    {"quote": "人人自有定盘针，万化根源总在心。却笑从前颠倒见，枝枝叶叶外头寻。", "author": "王阳明",
+     "quote_en": "Everyone has their own compass within; the root of all transformation lies in the heart. Laugh at how you once sought it outside among branches and leaves.", "author_en": "Wang Yangming"},
+    {"quote": "个个人心有仲尼，自将闻见苦遮迷。而今指与真头面，只是良知更莫疑。", "author": "王阳明",
+     "quote_en": "In every person's heart dwells a sage like Confucius, yet sensory knowledge obscures it. Now pointing to your true face — it is nothing but innate moral knowing, beyond all doubt.", "author_en": "Wang Yangming"},
+    {"quote": "君子之学，非有同志之友日相规切，则亦易以悠悠度日，而不见其过。", "author": "王阳明",
+     "quote_en": "In the gentleman's learning, without friends of shared purpose to admonish and refine each day, it is easy to drift through life without seeing one's own faults.", "author_en": "Wang Yangming"},
+    {"quote": "不可以一时之得意，而自夸其能；亦不可以一时之失意，而自坠其志。", "author": "王阳明",
+     "quote_en": "Do not boast of your ability in a moment of success, nor abandon your aspirations in a moment of failure.", "author_en": "Wang Yangming"},
+    {"quote": "人人自有定盘针，万化根源总在心。", "author": "王阳明",
+     "quote_en": "Everyone has their own inner compass; the root of all change lies within the heart.", "author_en": "Wang Yangming"},
+    {"quote": "此心不动，随机而动。", "author": "王阳明",
+     "quote_en": "This mind does not move — yet it moves in response to circumstances.", "author_en": "Wang Yangming"},
+    {"quote": "致良知是学问大头脑，是圣人教人第一义。", "author": "王阳明",
+     "quote_en": "Extending innate moral knowing is the essence of learning and the foremost principle taught by the sages.", "author_en": "Wang Yangming"},
+    {"quote": "夫学，天下之公学也，非朱子可得而私也，非孔子可得而私也。", "author": "王阳明",
+     "quote_en": "Learning belongs to all under heaven — it cannot be claimed as private property by Zhu Xi, nor by Confucius.", "author_en": "Wang Yangming"},
+    {"quote": "不贵于无过，而贵于能改过。", "author": "王阳明",
+     "quote_en": "What matters is not being without fault, but being able to correct one's faults.", "author_en": "Wang Yangming"},
+    {"quote": "谦虚其心，宏大其量。", "author": "王阳明",
+     "quote_en": "Keep the mind humble and the heart generous.", "author_en": "Wang Yangming"},
+    {"quote": "千圣皆过影，良知乃吾师。", "author": "王阳明",
+     "quote_en": "A thousand sages are but passing shadows; innate moral knowing alone is my teacher.", "author_en": "Wang Yangming"},
+    {"quote": "人生大病，只是一傲字。", "author": "王阳明",
+     "quote_en": "The greatest ailment of life is nothing but the word 'pride'.", "author_en": "Wang Yangming"},
+    {"quote": "种树者必培其根，种德者必养其心。", "author": "王阳明",
+     "quote_en": "One who plants a tree must nourish its roots; one who cultivates virtue must nurture the heart.", "author_en": "Wang Yangming"},
+    {"quote": "为学须有本原，须从本原上用力。", "author": "王阳明",
+     "quote_en": "Learning must have a foundation, and effort must be applied at the root.", "author_en": "Wang Yangming"},
+    {"quote": "圣人之道，吾性自足，向之求理于事物者误也。", "author": "王阳明",
+     "quote_en": "The way of the sage is already complete in our nature — to seek principle in external things was the mistake.", "author_en": "Wang Yangming"},
+    {"quote": "心即理也。天下又有心外之事，心外之理乎？", "author": "王阳明",
+     "quote_en": "The mind is principle itself. Can there be affairs or principles beyond the mind?", "author_en": "Wang Yangming"},
+    {"quote": "你的心，决定你的世界。", "author": "王阳明",
+     "quote_en": "Your heart determines your world.", "author_en": "Wang Yangming"},
 ]
 
 # ── AI 深度解析层：运势×主题 行动指引 ──────────────────────────────────────
@@ -123,6 +170,93 @@ AI_INSIGHTS = {
     (1, "出行"): "今日宜静不宜动。把出行计划推迟一天，今天待在熟悉的地方反而会收获意外惊喜。",
 }
 
+# ── English AI Insights ──────────────────────────────────────────────────
+
+AI_INSIGHTS_EN = {
+    # ── Career ──────────────────────────────────────
+    (7, "Career"): "Stellar alignment opens wide — your benefactor is to the east. Take the initiative today, present your proposal. Leadership is waiting for a bold voice.",
+    (6, "Career"): "Jupiter enters your house — teamwork energy is abundant. Break core tasks into three steps; complete the first before noon and the rest will flow naturally.",
+    (5, "Career"): "Undercurrents run strong but the direction is clear. Focus on the most urgent task, block out distractions, and deliver a draft before 3 PM.",
+    (4, "Career"): "A steady progress day, perfect for reviewing this week's milestones. List three things you've accomplished — the accumulation is richer than you think.",
+    (3, "Career"): "Resistance comes from miscommunication. Say important things in person — text is easily misread. Schedule a brief sync meeting this afternoon.",
+    (2, "Career"): "Not the day for confrontation. Step back, reorganize your thoughts, archive unfinished documents, and build energy for the next window.",
+    (1, "Career"): "Pausing is strategy. Turn off notifications, spend two hours in deep reflection on the direction you truly want. Answers emerge in silence.",
+    # ── Love ──────────────────────────────────────
+    (7, "Love"): "Romance is blossoming — a small gesture from the other person signals interest. Respond proactively; today's sincere conversation will become a turning point.",
+    (6, "Love"): "Emotional warmth is rising. Prepare a small token — it needn't be expensive. A handwritten line holds more power than gold.",
+    (5, "Love"): "Listen rather than speak today. Give someone twenty uninterrupted minutes, and you'll discover tenderness that was overlooked.",
+    (4, "Love"): "Simplicity is real strength. Do an ordinary thing together — a walk, cooking a meal — rapport grows in quiet moments.",
+    (3, "Love"): "Emotions fluctuate today. Avoid making judgments on impulse. Take three deep breaths before replying, and your words will be twice as gentle.",
+    (2, "Love"): "Today's keyword is 'space.' Spend two hours apart before meeting again — distance will help clarify your true feelings.",
+    (1, "Love"): "The heart needs self-repair. Write down three things you're grateful for about the other person; once resentment dissolves, love will flow again.",
+    # ── Wealth ──────────────────────────────────────
+    (7, "Wealth"): "Windfall star enters your destiny — chance of unexpected gain is high. Watch for collaboration invitations; a project discussed over coffee may exceed expectations.",
+    (6, "Wealth"): "Steady income energy — ideal for handling bills and budgets. Check for a forgotten subscription; the compound savings each month is remarkable.",
+    (5, "Wealth"): "Spending desire rises but judgment holds. Put items in your cart and wait 24 hours — 80% of impulses fade naturally.",
+    (4, "Wealth"): "Break-even day. Open your expense tracker, analyze this month's spending structure, and find that 'invisible leak.'",
+    (3, "Wealth"): "Avoid large expenditures. Cut the budget by 20% and replan — you'll find core needs are already met.",
+    (2, "Wealth"): "Money energy hits a low. Today, only make 'necessary' purchases and resist every 'limited-time offer' temptation.",
+    (1, "Wealth"): "Protecting what you have is earning. Turn off all spending alerts — today's restraint lays the foundation for future abundance.",
+    # ── Health ──────────────────────────────────────
+    (7, "Health"): "Peak physical condition — perfect for trying a new sport. Your body craves release; run five kilometers outdoors and let endorphins surprise you.",
+    (6, "Health"): "Good bodily state — focus on sleep quality. Be in bed by 10 PM, screens off before sleep, and tomorrow's energy will double.",
+    (5, "Health"): "Shoulders and neck are sending signals. Move for five minutes every 50 minutes of work; warm water refreshes better than coffee.",
+    (4, "Health"): "Balance day. Eat three meals on time, keep protein above 1.2g per kilogram of body weight — your body will thank you.",
+    (3, "Health"): "Immunity fluctuation period. Supplement vitamin C and prioritize充足 sleep — the lowest-cost recovery plan.",
+    (2, "Health"): "Your body demands rest. Postpone high-intensity schedules, soak feet in hot water for 15 minutes, and reboot circulation.",
+    (1, "Health"): "Today calls for fasting recovery. Keep meals light, let the digestive system rest for a day — tomorrow you'll feel much lighter.",
+    # ── Studies ──────────────────────────────────────
+    (7, "Studies"): "Comprehension peaks — tackle the hardest chapter. Three hours of deep reading today will become the intellectual foundation for the next three months.",
+    (6, "Studies"): "Memory is at its height. Use the Feynman technique — explain today's concept to someone; what you can explain clearly is what you truly understand.",
+    (5, "Studies"): "Focus needs ritual. Tidy your desk, pour a glass of water, start a timer — a 25-minute Pomodoro is just right.",
+    (4, "Studies"): "Review rather than learn new material. Flip through last week's notes, mark 'mastered' and 'blurry areas' in different colors for precise gap-filling.",
+    (3, "Studies"): "A knowledge bottleneck appears. Don't grind — switch methods: video, podcast, or ask a classmate. A different path reaches the same goal.",
+    (2, "Studies"): "Efficiency dip day. Lower targets to 60% of normal — completion is enough. Allow yourself one day out of peak form.",
+    (1, "Studies"): "Today is not for learning new things. Close the books, go for a walk — inspiration sometimes arrives when you relax.",
+    # ── Social ──────────────────────────────────────
+    (7, "Social"): "Social energy overflows. Reach out to a friend you haven't contacted in a while — that message will brighten both your days.",
+    (6, "Social"): "A window for relationship repair. A sincere 'thank you for last time' warms more than any gift.",
+    (5, "Social"): "Ideal for deep socializing. Meet a trusted friend for coffee, share recent confusions — the wisdom of 1+1 far exceeds 2.",
+    (4, "Social"): "Stable relationship period. Share valuable information in your social circle — quiet contributions are remembered.",
+    (3, "Social"): "Misunderstandings arise easily. Use voice instead of text for important conversations — tone eliminates 80% of ambiguity.",
+    (2, "Social"): "Social energy dips. Today is for solitary recharging — no need to force socialization. True friends won't leave because you take a day off.",
+    (1, "Social"): "Conflict prevention day. If someone makes you uncomfortable, silently count to ten before responding — your approach will be entirely different.",
+    # ── Travel ──────────────────────────────────────
+    (7, "Travel"): "Excellent travel fortune — smooth journey ahead. Carry a small red item as both ornament and talisman; little joys along the way will follow one after another.",
+    (6, "Travel"): "Smooth travel, but don't forget to check your power bank and documents. Arrive fifteen minutes early — the sense of ease will help you notice beauty you'd otherwise miss.",
+    (5, "Travel"): "Suited for short trips. Bring headphones and a thin book — every stop along the way is a great time to read.",
+    (4, "Travel"): "An unremarkable travel day. Plan your route before departure — the blue line on your map is your most faithful companion.",
+    (3, "Travel"): "Minor delays possible. Build in a 20-minute buffer, bring snacks — even waiting can be pleasant.",
+    (2, "Travel"): "Avoid long-distance travel unless necessary. If you must go out, choose public transit over driving for higher safety.",
+    (1, "Travel"): "Today favors stillness over movement. Postpone travel plans by one day — staying in familiar surroundings may bring unexpected surprises.",
+}
+
+# ── Translation helper ──────────────────────────────────────────────────
+
+def _translate_fortune(fortune_zh: str, lang: str) -> str:
+    if lang == "en":
+        return FORTUNE_EN.get(fortune_zh, fortune_zh)
+    return fortune_zh
+
+def _translate_theme(theme_zh: str, lang: str) -> str:
+    if lang == "en":
+        return THEME_EN.get(theme_zh, theme_zh)
+    return theme_zh
+
+def _translate_wisdom(quote_data: dict, lang: str) -> dict:
+    if lang == "en":
+        return {
+            "quote": quote_data.get("quote_en", quote_data["quote"]),
+            "author": quote_data.get("author_en", quote_data["author"]),
+        }
+    return {"quote": quote_data["quote"], "author": quote_data["author"]}
+
+def _translate_insight(fortune_level: int, theme_zh: str, lang: str) -> str:
+    if lang == "en":
+        theme_en = THEME_EN.get(theme_zh, theme_zh)
+        return AI_INSIGHTS_EN.get((fortune_level, theme_en), AI_INSIGHTS_EN.get((4, theme_en), "Stay centered and follow your inner moral compass today."))
+    return AI_INSIGHTS.get((fortune_level, theme_zh), AI_INSIGHTS.get((4, theme_zh), "静心感受今日能量，跟随内心的良知指引行动。"))
+
 
 # ── 动态种子算法 ──────────────────────────────────────────────────────────────
 
@@ -178,6 +312,7 @@ class ShareRequest(BaseModel):
 @router.get("/share/{record_id}")
 async def get_share(
     record_id: str,
+    lang: str = Query("zh"),
     db: AsyncSession = Depends(get_db),
 ):
     """获取分享签文数据（公开接口）"""
@@ -206,12 +341,13 @@ async def get_share(
 
     return {
         "id": record.id,
-        "fortune": record.fortune,
+        "fortune": _translate_fortune(record.fortune, lang),
         "fortune_level": fortune_data["level"],
-        "wisdom_quote": record.wisdom_quote,
-        "author": "王阳明",
-        "theme": record.theme,
-        "ai_insight": record.ai_insight,
+        "wisdom_quote": record.wisdom_quote if lang == "zh" else None,
+        "wisdom_quote_en": record.wisdom_quote,
+        "author": "Wang Yangming" if lang == "en" else "王阳明",
+        "theme": _translate_theme(record.theme, lang),
+        "ai_insight": _translate_insight(fortune_data["level"], record.theme, lang),
         "user_name": user_name,
         "seat_no": seat_no,
         "is_founder": is_founder,
@@ -239,6 +375,7 @@ async def today_status(
 
 @router.get("/today-result")
 async def today_result(
+    lang: str = Query("zh"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_user),
 ):
@@ -254,15 +391,18 @@ async def today_result(
     if not record:
         return {"has_drawn": False}
 
+    fortune_level = FORTUNE_LEVEL.get(record.fortune, 4)
+
     return {
         "has_drawn": True,
         "id": record.id,
-        "fortune": record.fortune,
-        "fortune_level": FORTUNE_LEVEL.get(record.fortune, 4),
-        "wisdom_quote": record.wisdom_quote,
-        "author": "王阳明",
-        "theme": record.theme,
-        "ai_insight": record.ai_insight,
+        "fortune": _translate_fortune(record.fortune, lang),
+        "fortune_level": fortune_level,
+        "wisdom_quote": record.wisdom_quote if lang == "zh" else None,
+        "wisdom_quote_en": record.wisdom_quote,
+        "author": "Wang Yangming" if lang == "en" else "王阳明",
+        "theme": _translate_theme(record.theme, lang),
+        "ai_insight": _translate_insight(fortune_level, record.theme, lang),
         "is_free": True,
         "stardust_cost": 0,
         "balance_after": current_user.stardust_balance,
@@ -273,6 +413,7 @@ async def today_result(
 @router.post("/draw")
 async def draw(
     req: DrawRequest,
+    lang: str = Query("zh"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_user),
 ):
@@ -296,14 +437,16 @@ async def draw(
 
     if existing:
         # 今日已抽过 → 直接返回，不扣星尘
+        fortune_level = FORTUNE_LEVEL.get(existing.fortune, 4)
         return {
             "id": existing.id,
-            "fortune": existing.fortune,
-            "fortune_level": FORTUNE_LEVEL.get(existing.fortune, 4),
-            "wisdom_quote": existing.wisdom_quote,
-            "author": "王阳明",
-            "theme": existing.theme,
-            "ai_insight": existing.ai_insight,
+            "fortune": _translate_fortune(existing.fortune, lang),
+            "fortune_level": fortune_level,
+            "wisdom_quote": existing.wisdom_quote if lang == "zh" else None,
+            "wisdom_quote_en": existing.wisdom_quote,
+            "author": "Wang Yangming" if lang == "en" else "王阳明",
+            "theme": _translate_theme(existing.theme, lang),
+            "ai_insight": _translate_insight(fortune_level, existing.theme, lang),
             "is_free": True,
             "stardust_cost": 0,
             "balance_after": current_user.stardust_balance,
@@ -333,12 +476,13 @@ async def draw(
 
     return {
         "id": record.id,
-        "fortune": fortune_data["fortune"],
+        "fortune": _translate_fortune(fortune_data["fortune"], lang),
         "fortune_level": fortune_data["level"],
-        "wisdom_quote": wisdom_data["quote"],
-        "author": wisdom_data["author"],
-        "theme": theme,
-        "ai_insight": ai_insight,
+        "wisdom_quote": wisdom_data["quote"] if lang == "zh" else None,
+        "wisdom_quote_en": wisdom_data["quote"],
+        "author": wisdom_data.get("author_en", wisdom_data["author"]) if lang == "en" else wisdom_data["author"],
+        "theme": _translate_theme(theme, lang),
+        "ai_insight": _translate_insight(fortune_data["level"], theme, lang),
         "is_free": True,
         "stardust_cost": 0,
         "balance_after": current_user.stardust_balance,

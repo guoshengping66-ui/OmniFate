@@ -29,11 +29,20 @@ const FORTUNE_COLORS: Record<string, string> = {
   "末吉": "from-yellow-500 to-amber-400",
   "凶": "from-orange-500 to-red-400",
   "大凶": "from-red-500 to-rose-400",
+  "Great Blessing": "from-gold to-[#E8CB7A]",
+  "Good Fortune": "from-green-400 to-emerald-300",
+  "Mild Fortune": "from-blue-400 to-cyan-300",
+  "Auspicious": "from-teal-400 to-cyan-400",
+  "Moderate": "from-yellow-500 to-amber-400",
+  "Inauspicious": "from-orange-500 to-red-400",
+  "Great Misfortune": "from-red-500 to-rose-400",
 }
 
 const FORTUNE_EMOJI: Record<string, string> = {
   "大吉": "✨", "中吉": "🌟", "小吉": "⭐",
   "吉": "🌤", "末吉": "🌙", "凶": "🌑", "大凶": "⛈",
+  "Great Blessing": "✨", "Good Fortune": "🌟", "Mild Fortune": "⭐",
+  "Auspicious": "🌤", "Moderate": "🌙", "Inauspicious": "🌑", "Great Misfortune": "⛈",
 }
 
 const THEME_BG: Record<string, string> = {
@@ -44,27 +53,36 @@ const THEME_BG: Record<string, string> = {
   "学业": "from-blue-900/20 via-[#0d0b08] to-[#1a1510]",
   "人际": "from-violet-900/20 via-[#0d0b08] to-[#1a1510]",
   "出行": "from-sky-900/20 via-[#0d0b08] to-[#1a1510]",
+  "Career": "from-amber-900/20 via-[#0d0b08] to-[#1a1510]",
+  "Love": "from-pink-900/20 via-[#0d0b08] to-[#1a1510]",
+  "Wealth": "from-emerald-900/20 via-[#0d0b08] to-[#1a1510]",
+  "Health": "from-teal-900/20 via-[#0d0b08] to-[#1a1510]",
+  "Studies": "from-blue-900/20 via-[#0d0b08] to-[#1a1510]",
+  "Social": "from-violet-900/20 via-[#0d0b08] to-[#1a1510]",
+  "Travel": "from-sky-900/20 via-[#0d0b08] to-[#1a1510]",
 }
 
 const THEME_TOTEM: Record<string, string> = {
   "事业": "⚔", "感情": "♥", "财运": "◎",
   "健康": "☯", "学业": "☰", "人际": "⬡", "出行": "✈",
+  "Career": "⚔", "Love": "♥", "Wealth": "◎",
+  "Health": "☯", "Studies": "☰", "Social": "⬡", "Travel": "✈",
 }
 
 export default function DivinationSharePage() {
   const params = useParams()
   const id = params.id as string
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
   const [data, setData] = useState<DivinationData | null>(null)
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
-    api.get(`/api/divination/share/${id}`)
+    api.get(`/api/divination/share/${id}`, { params: { lang: locale } })
       .then(r => setData(r.data))
       .catch(() => {})
       .finally(() => setLoading(false))
-  }, [id])
+  }, [id, locale])
 
   const handleCopyLink = async () => {
     try {
@@ -184,7 +202,7 @@ export default function DivinationSharePage() {
 
             <div className="mb-5">
               <p className="text-white/70 text-sm leading-relaxed italic">
-                &ldquo;{data.wisdom_quote}&rdquo;
+                &ldquo;{(data as any).wisdom_quote || (data as any).wisdom_quote_en}&rdquo;
               </p>
               <p className="text-gold/50 text-xs mt-3">—— {data.author}</p>
             </div>
