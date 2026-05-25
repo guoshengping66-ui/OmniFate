@@ -1994,6 +1994,15 @@ async def get_daily_fortune(
         date_str = f"{today.month}月{today.day}日 星期{weekday_zh}"
         greeting = f"{today.month}月{today.day}日运势"
 
+    # Translate lucky color for English
+    COLOR_ZH_TO_EN = {
+        "金色": "Gold", "红色": "Red", "蓝色": "Blue", "绿色": "Green",
+        "紫色": "Purple", "白色": "White", "粉色": "Pink", "橙色": "Orange",
+        "翠绿": "Emerald", "青色": "Cyan", "黑色": "Black", "黄色": "Yellow", "银色": "Silver",
+    }
+    if lang == "en":
+        lucky_color_name = COLOR_ZH_TO_EN.get(lucky_color_name, lucky_color_name)
+
     return DailyFortuneResponse(
         date=date_str,
         greeting=greeting,

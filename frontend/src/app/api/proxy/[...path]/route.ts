@@ -141,6 +141,7 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
       headers,
       body,
       signal: controller.signal,
+      cache: "no-store",
     })
 
     // Build response headers — strip headers that Vercel runtime
