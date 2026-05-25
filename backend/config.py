@@ -35,7 +35,7 @@ class Settings(BaseSettings):
     PREMIUM_MODEL: str = "deepseek-v4-pro"      # 付费模型 — 付费用户 master 深度解析
     AGENT_TEMPERATURE: float = 0.3
     AGENT_MAX_TOKENS: int = 4096
-    WORKER_MAX_TOKENS: int = 1536   # 比 master 少一半——worker 只需提供分析素材
+    WORKER_MAX_TOKENS: int = 1024   # 优化：从1536降至1024，worker分析素材不需要那么多
     ZIWEI_MODEL: str = ""            # 空=使用默认OPENAI_MODEL；可单独指定更快模型
 
     JWT_SECRET_KEY: str = "change-me-in-production-use-openssl-rand-hex-32"

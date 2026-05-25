@@ -2,10 +2,14 @@
 agents/graph.py
 Custom orchestrator with speculative master execution.
 
-Pipeline:
-  init → workers(130s) ──┐
-           └── core子任务(启动于~55s, Bazi+Tarot完成时) ──┐
-                                dims/actions(启动于~130s) ──┤→ done(~165s)
+Pipeline (after optimization):
+  init → workers(5 parallel, ~30s) ──┐
+           └── core子任务(启动于~25s, Bazi完成时) ──┐
+                                dims/actions(启动于~80s) ──┤→ done(~95s)
+
+Optimizations applied:
+  - Merged qimen+ziwei → 1 LLM call (saves ~30s)
+  - Speculative master starts as soon as bazi completes
 """
 from __future__ import annotations
 import asyncio
@@ -309,19 +313,19 @@ async def run_full_analysis(state: SystemState) -> SystemState:
     """
     Custom orchestrator with speculative master execution.
 
-    Timeline:
+    Timeline (after optimization):
       0s   : init (astrology calc)
-      5s   : workers start (7 parallel)
-      ~55s : Bazi+Tarot complete → preprocessing + master_core starts
-      ~95s : master_core done
-      ~130s: all workers done → master_dims + master_actions start
-      ~165s: all done → assemble final report
+      5s   : workers start (5 parallel, merged qimen+ziwei)
+      ~25s : Bazi complete → preprocessing + master_core starts
+      ~60s : master_core done
+      ~80s : all workers done → master_dims + master_actions start
+      ~95s : all done → assemble final report
 
-    User-perceived latency via SSE: ~95s (when master_core first appears)
+    User-perceived latency via SSE: ~60s (when master_core first appears)
     """
     from agents.workers import (
-        run_astrology, run_tarot, run_bazi, run_qimen,
-        run_ziwei, run_face, run_palm, _WORKER_TIMEOUTS,
+        run_astrology, run_tarot, run_bazi,
+        run_qimen_ziwei, run_face, run_palm, _WORKER_TIMEOUTS,
     )
 
     # ── Phase 1: Init ──
@@ -338,19 +342,19 @@ async def run_full_analysis(state: SystemState) -> SystemState:
     worker_events = {aid: asyncio.Event() for aid in _WORKER_IDS}
     worker_outputs: dict[str, Any] = {}
     _completed_workers = 0
+    _total_workers = len(_WORKER_IDS)
 
-    _runners = [run_astrology, run_tarot, run_bazi, run_qimen, run_ziwei, run_face, run_palm]
+    # Runners: qimen_ziwei is a merged worker returning list[WorkerOutput]
+    _runners = [run_astrology, run_tarot, run_bazi, run_qimen_ziwei, run_face, run_palm]
 
     # Stagger face/palm worker start to avoid concurrent LLM API rate limits
-    # Reduced delays: DeepSeek API typically allows 20 RPM, 7 workers is fine
     _START_DELAYS = {
-        "face": 3,   # start face 3s after others (was 8s)
-        "palm": 6,   # start palm 6s after others (was 15s)
+        "face": 3,
+        "palm": 6,
     }
 
     async def _run_one(runner, agent_id: str, timeout: int):
         nonlocal _completed_workers
-        # Delay face/palm to avoid concurrent API calls
         delay = _START_DELAYS.get(agent_id, 0)
         if delay:
             await asyncio.sleep(delay)
@@ -359,17 +363,30 @@ async def run_full_analysis(state: SystemState) -> SystemState:
         except Exception as e:
             from agents.state import WorkerOutput
             result = WorkerOutput(agent_id=agent_id, error=str(e))
-        worker_outputs[agent_id] = result
-        # Immediately assign to state so speculative master sees the data
-        attr = f"{agent_id}_output"
-        if hasattr(state, attr):
-            setattr(state, attr, result)
+
+        # Handle merged workers that return lists of WorkerOutput
+        if isinstance(result, list):
+            # Merged worker: extract individual outputs
+            from agents.state import WorkerOutput as WO
+            for r in result:
+                if isinstance(r, WO):
+                    worker_outputs[r.agent_id] = r
+                    setattr(state, f"{r.agent_id}_output", r)
+                    # Update agent status for each sub-worker
+                    state.agent_status[r.agent_id] = "error" if r.error else "done"
+                    _completed_workers += 1
+        else:
+            worker_outputs[agent_id] = result
+            attr = f"{agent_id}_output"
+            if hasattr(state, attr):
+                setattr(state, attr, result)
+            _completed_workers += 1
+            state.agent_status[agent_id] = "error" if result.error else "done"
+
+        # Mark the merged worker event too
         worker_events[agent_id].set()
-        # Update progress
-        _completed_workers += 1
-        state.agent_status[agent_id] = "error" if result.error else "done"
-        state.progress_pct = 5 + int(60 * _completed_workers / len(_WORKER_IDS))
-        state.progress_message = f"已完成 {_completed_workers}/{len(_WORKER_IDS)} 项分析…"
+        state.progress_pct = 5 + int(60 * _completed_workers / 7)  # 7 total sub-workers
+        state.progress_message = f"已完成 {_completed_workers}/7 项分析…"
         return result
 
     worker_tasks = [
@@ -401,15 +418,6 @@ async def run_full_analysis(state: SystemState) -> SystemState:
 
     # ── Wait for ALL workers to finish ──
     await asyncio.gather(*worker_tasks)
-
-    # Assign worker results to state
-    state.astrology_output = worker_outputs.get("astrology", state.astrology_output)
-    state.tarot_output     = worker_outputs.get("tarot", state.tarot_output)
-    state.bazi_output      = worker_outputs.get("bazi", state.bazi_output)
-    state.qimen_output     = worker_outputs.get("qimen", state.qimen_output)
-    state.ziwei_output     = worker_outputs.get("ziwei", state.ziwei_output)
-    state.face_output      = worker_outputs.get("face", state.face_output)
-    state.palm_output      = worker_outputs.get("palm", state.palm_output)
 
     # Merge tags
     all_tags: list[str] = []

@@ -1,7 +1,8 @@
 """
 agents/workers.py
 5 vertical expert agents, each strictly isolated to its domain.
-All five run in PARALLEL via asyncio.gather().
+Merged workers (qimen+ziwei, astrology+bazi) reduce LLM calls from 7 to 5.
+All run in PARALLEL via asyncio.gather().
 """
 from __future__ import annotations
 import asyncio
@@ -18,6 +19,7 @@ from agents.state import SystemState, WorkerOutput
 from agents.prompts import (
     astrology_prompt, tarot_prompt, bazi_prompt,
     face_prompt, palm_prompt, qimen_prompt, ziwei_prompt,
+    qimen_ziwei_combined_prompt,
 )
 from agents.tools import draw_tarot
 from calculators.bazi_calculator import (
@@ -791,6 +793,180 @@ async def run_ziwei(state: SystemState) -> WorkerOutput:
                             duration_ms=(time.time() - t0) * 1000)
 
 
+# ─── COMBINED QIMEN + ZIWEI WORKER (1 LLM call instead of 2) ────────────
+
+async def run_qimen_ziwei(state: SystemState) -> list[WorkerOutput]:
+    """
+    Merged worker: runs both Qimen and Ziwei calculators,
+    then makes a SINGLE LLM call to produce both analyses.
+    Returns list of 2 WorkerOutput objects [qimen_output, ziwei_output].
+
+    Estimated time savings: ~30s (avoids one full LLM call).
+    """
+    t0 = time.time()
+    bi = state.birth_info
+    if bi is None:
+        return [
+            WorkerOutput(agent_id="qimen", error="birth_info missing"),
+            WorkerOutput(agent_id="ziwei", error="birth_info missing"),
+        ]
+
+    birth_str = f"{bi.year}-{bi.month:02d}-{bi.day:02d} {bi.hour:02d}:00"
+
+    # ── Run both calculators in parallel (CPU-bound) ──
+    loop = asyncio.get_event_loop()
+    _qimen_calc = QimenCalculator()
+    _ziwei_calc = ZiweiCalculator()
+
+    qimen_result, ziwei_result = await asyncio.gather(
+        loop.run_in_executor(
+            None,
+            lambda: _qimen_calc.calculate(
+                bi.year, bi.month, bi.day, bi.hour, bi.minute,
+                longitude=bi.longitude,
+            ),
+        ),
+        loop.run_in_executor(
+            None,
+            lambda: _ziwei_calc.calculate(
+                bi.year, bi.month, bi.day, bi.hour,
+                gender=bi.gender,
+            ),
+        ),
+    )
+
+    state.qimen_raw = qimen_result.to_dict()
+    state.ziwei_raw = ziwei_result.to_dict()
+    qimen_raw = state.qimen_raw
+    ziwei_raw = state.ziwei_raw
+
+    # ── Format ziwei data ──
+    ming_stars = ", ".join(ziwei_raw.get("ming_gong_main_stars", [])) or "无主星"
+    palaces_str = "\n".join(
+        f"  {name}: {', '.join(stars) if isinstance(stars, list) else stars}"
+        for name, stars in ziwei_raw.get("twelve_palaces", {}).items()
+    ) if ziwei_raw.get("twelve_palaces") else "无数据"
+    sihua_str = "\n".join(
+        f"  {star}: {action}" for star, action in ziwei_raw.get("si_hua", {}).items()
+    ) if ziwei_raw.get("si_hua") else "无四化"
+
+    # ── Build combined prompt ──
+    system = qimen_ziwei_combined_prompt(
+        # Qimen params
+        dun_ju=qimen_raw.get("dun_ju", "阳遁一局"),
+        zhi_fu_star=qimen_raw.get("zhi_fu_star", "天禽"),
+        zhi_shi_door=qimen_raw.get("zhi_shi_door", "死门"),
+        shi_chen_dizhi=qimen_raw.get("shi_chen_dizhi", "子"),
+        shi_chen_gong=qimen_raw.get("shi_chen_gong", "坎一宫"),
+        shi_chen_direction=qimen_raw.get("shi_chen_direction", "正北"),
+        jieqi_name=qimen_raw.get("jieqi_name", ""),
+        good_doors=qimen_raw.get("good_doors", []),
+        bad_doors=qimen_raw.get("bad_doors", []),
+        door_hints=qimen_raw.get("door_hints", {}),
+        god_sequence=qimen_raw.get("god_sequence", []),
+        # Ziwei params
+        ming_gong_dizhi=ziwei_raw.get("ming_gong_dizhi", ""),
+        shen_gong_dizhi=ziwei_raw.get("shen_gong_dizhi", ""),
+        twelve_palaces=ziwei_raw.get("twelve_palaces", {}),
+        wu_xing_ju=ziwei_raw.get("wu_xing_ju", "木三局"),
+        wu_xing_ju_num=ziwei_raw.get("wu_xing_ju_num", 3),
+        ziwei_gong_dizhi=ziwei_raw.get("ziwei_gong_dizhi", ""),
+        ziwei_gong_name=ziwei_raw.get("ziwei_gong_name", ""),
+        main_star_positions=ziwei_raw.get("main_star_positions", {}),
+        si_hua=ziwei_raw.get("si_hua", {}),
+        ming_gong_main_stars=ziwei_raw.get("ming_gong_main_stars", []),
+        ming_stars=ming_stars,
+        palaces_str=palaces_str,
+        sihua_str=sihua_str,
+        # Common params
+        gender=bi.gender,
+        birth_datetime=birth_str,
+        language=state.language,
+    )
+    user_msg = (
+        "请同时完成奇门遁甲和紫微斗数两个维度的完整分析。"
+        "分别输出两个独立的JSON对象，用===QIMEN_END===分隔。"
+    )
+
+    # ── Single LLM call ──
+    llm = _llm(temperature=0.35)
+    lang_instruction = (
+        "\n\n== 语言要求 ==\n"
+        "重要：整个分析必须使用纯中文输出。所有文字值、描述和解释都必须使用中文。"
+        "不要中英文混杂。五行元素名称请使用中文（如：火、水、木、金、土）。"
+    ) if state.language == "zh" else (
+        "\n\n== LANGUAGE REQUIREMENT ==\n"
+        "CRITICAL: Output the ENTIRE analysis in English. "
+        "ALL text values, descriptions, and explanations MUST be in English. "
+        "Do NOT mix Chinese and English."
+    )
+
+    sys_content = system + lang_instruction
+    msgs = [SystemMessage(content=sys_content), HumanMessage(content=user_msg)]
+
+    if _use_mock():
+        report_q = _mock("qimen", "merged qimen+ziwei")
+        report_z = _mock("ziwei", "merged qimen+ziwei")
+    else:
+        report = await llm.ainvoke(msgs)
+        full_text = report.content
+
+        # Split the combined response into qimen and ziwei parts
+        separator = "===QIMEN_END==="
+        if separator in full_text:
+            qimen_text, ziwei_text = full_text.split(separator, 1)
+        else:
+            # Fallback: try to find separate JSON blocks
+            # Look for the second ```json block for ziwei
+            json_blocks = re.findall(r"```json\s*(\{.*?\})\s*```", full_text, re.DOTALL)
+            if len(json_blocks) >= 2:
+                qimen_text = f"```json\n{json_blocks[0]}\n```"
+                ziwei_text = f"```json\n{json_blocks[1]}\n```"
+            else:
+                # Last resort: use the whole text for qimen, empty for ziwei
+                qimen_text = full_text
+                ziwei_text = ""
+
+        # Parse qimen output
+        qimen_data = _parse_worker_report(qimen_text)
+        if not _use_mock() and not _validate_worker_output(qimen_data, "qimen"):
+            print("[RETRY] qimen (combined): low quality, using raw text as summary")
+            qimen_data["summary"] = qimen_text[:500]
+
+        # Parse ziwei output
+        ziwei_data = _parse_worker_report(ziwei_text)
+        if not _use_mock() and not _validate_worker_output(ziwei_data, "ziwei"):
+            print("[RETRY] ziwei (combined): low quality, using raw text as summary")
+            ziwei_data["summary"] = ziwei_text[:500]
+
+        report_q = _build_compact_report(qimen_data)
+        report_z = _build_compact_report(ziwei_data)
+
+    t_elapsed = (time.time() - t0) * 1000
+
+    # Return two separate WorkerOutput objects
+    return [
+        WorkerOutput(
+            agent_id="qimen",
+            report=report_q if not _use_mock() else report_q,
+            tags=qimen_data.get("weakness_tags", []) if not _use_mock() else [],
+            strength_tags=qimen_data.get("strength_tags", []) if not _use_mock() else [],
+            boost_elements=qimen_data.get("boost_elements", []) if not _use_mock() else [],
+            conflict_warnings=qimen_data.get("conflict_warnings", []) if not _use_mock() else [],
+            duration_ms=t_elapsed,
+        ),
+        WorkerOutput(
+            agent_id="ziwei",
+            report=report_z if not _use_mock() else report_z,
+            tags=ziwei_data.get("weakness_tags", []) if not _use_mock() else [],
+            strength_tags=ziwei_data.get("strength_tags", []) if not _use_mock() else [],
+            boost_elements=ziwei_data.get("boost_elements", []) if not _use_mock() else [],
+            conflict_warnings=ziwei_data.get("conflict_warnings", []) if not _use_mock() else [],
+            duration_ms=t_elapsed,
+        ),
+    ]
+
+
 # ─── FACE WORKER ─────────────────────────────────────────────────────────
 
 async def run_face(state: SystemState) -> WorkerOutput:
@@ -922,15 +1098,19 @@ async def run_palm(state: SystemState) -> WorkerOutput:
 
 # ─── PARALLEL DISPATCHER ──────────────────────────────────────────────────
 
-_WORKER_IDS = ["astrology", "tarot", "bazi", "qimen", "ziwei", "face", "palm"]
-_WORKER_RUNNERS = [run_astrology, run_tarot, run_bazi, run_qimen, run_ziwei, run_face, run_palm]
-_WORKER_TIMEOUTS = [120, 120, 120, 120, 120, 30, 30]
+# Merged workers: qimen+ziwei combined into one LLM call
+_WORKER_IDS = ["astrology", "tarot", "bazi", "qimen_ziwei", "face", "palm"]
+_WORKER_RUNNERS = [run_astrology, run_tarot, run_bazi, run_qimen_ziwei, run_face, run_palm]
+_WORKER_TIMEOUTS = [90, 60, 60, 90, 30, 30]  # Reduced from 120s to prevent slow requests
+# Which worker IDs are merged (return list of WorkerOutput instead of single)
+_MERGED_WORKERS = {"qimen_ziwei"}
 
 
 async def run_all_workers(state: SystemState) -> dict[str, asyncio.Event]:
     """
-    Launch all 7 workers in parallel. Returns completion events for each worker.
+    Launch all workers in parallel. Returns completion events for each worker.
     Results are written back into the shared state.
+    Merged workers (qimen_ziwei) return lists of WorkerOutput.
     """
     state.phase = "parallel"
 
@@ -949,18 +1129,23 @@ async def run_all_workers(state: SystemState) -> dict[str, asyncio.Event]:
         for runner, aid, timeout in zip(_WORKER_RUNNERS, _WORKER_IDS, _WORKER_TIMEOUTS)
     ])
 
-    # Assign results to state
-    state.astrology_output = results[0]
-    state.tarot_output     = results[1]
-    state.bazi_output      = results[2]
-    state.qimen_output     = results[3]
-    state.ziwei_output     = results[4]
-    state.face_output      = results[5]
-    state.palm_output      = results[6]
+    # Flatten results (merged workers return lists)
+    flat_results = []
+    for aid, r in zip(_WORKER_IDS, results):
+        if isinstance(r, list):
+            flat_results.extend(r)
+        else:
+            flat_results.append(r)
+
+    # Assign results to state by agent_id
+    for r in flat_results:
+        attr = f"{r.agent_id}_output"
+        if hasattr(state, attr):
+            setattr(state, attr, r)
 
     # Merge all tags into computed_tags
     all_tags: list[str] = []
-    for r in results:
+    for r in flat_results:
         all_tags.extend(r.tags)
         if r.error:
             state.errors.append(f"{r.agent_id}: {r.error}")

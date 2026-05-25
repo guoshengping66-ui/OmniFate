@@ -5975,6 +5975,168 @@ conflict_warnings: 1-3个
     )
 
 
+def qimen_ziwei_combined_prompt(
+    # Qimen params
+    dun_ju: str,
+    zhi_fu_star: str,
+    zhi_shi_door: str,
+    shi_chen_dizhi: str,
+    shi_chen_gong: str,
+    shi_chen_direction: str,
+    jieqi_name: str,
+    good_doors: list[str],
+    bad_doors: list[str],
+    door_hints: dict[str, str],
+    god_sequence: list[str],
+    # Ziwei params
+    ming_gong_dizhi: str,
+    shen_gong_dizhi: str,
+    twelve_palaces: dict,
+    wu_xing_ju: str,
+    wu_xing_ju_num: int,
+    ziwei_gong_dizhi: str,
+    ziwei_gong_name: str,
+    main_star_positions: dict,
+    si_hua: dict,
+    ming_gong_main_stars: list,
+    ming_stars: str = "",
+    palaces_str: str = "",
+    sihua_str: str = "",
+    # Common params
+    gender: str = "female",
+    birth_datetime: str = "",
+    language: str = "zh",
+) -> str:
+    """
+    Combined prompt for Qimen Dunjia + Ziwei Doushu in a SINGLE LLM call.
+    Produces a dual-JSON output: one for qimen, one for ziwei, separated by ===QIMEN_END===.
+    """
+    # ── Qimen knowledge (condensed — key blocks only) ──
+    QIMEN_KNOWLEDGE_CONDENSED = (
+        "【奇门遁甲核心体系】\n"
+        "奇门遁甲以洛书九宫为框架，分阳遁(冬至后)和阴遁(夏至后)各9局。\n"
+        "四盘体系：天盘(九星)→天时运势 | 人盘(八门)→人事吉凶 | 神盘(八神)→隐性力量 | 地盘(九宫)→方位基础\n\n"
+        "八门速查：开门(吉·事业) 休门(吉·休养) 生门(吉·求财) 伤门(凶·竞争) 杜门(平·隐藏) 景门(中·文书) 死门(凶·停滞) 惊门(凶·口舌)\n"
+        "九星速查：天心(吉·决策) 天禽(吉·中正) 天辅(吉·文昌) 天任(平·稳重) 天英(平·名声) 天蓬(凶·暗昧) 天芮(凶·疾病) 天冲(凶·冲动) 天柱(凶·口舌)\n"
+        "八神速查：值符(大吉·贵人) 六合(大吉·合作) 太阴(吉·暗助) 九天(吉·进取) 九地(吉·守成) 螣蛇(凶·虚惊) 白虎(凶·灾祸) 玄武(凶·暗害)\n\n"
+        "三奇六仪：乙奇(日奇·柔) 丙奇(月奇·刚) 丁奇(星奇·贵) | 六仪：戊己庚辛壬癸\n"
+        "吉格：青龙返首(戊+丙) 飞鸟跌穴(丙+戊) 三奇得使 天遁 地遁 人遁\n"
+        "凶格：白虎猖狂(辛+乙) 朱雀投江(丁+癸) 腾蛇夭矫(癸+丁) 伏吟(停滞) 反吟(反复)\n\n"
+        "值符值使联动：值符=天时 值使=人事。双吉大利，双凶宜守。\n"
+        "用神落宫法：看用神所在宫的门星神组合，结合时干落宫判断结果。\n"
+        "择时原则：先定用神→看门星神→综合格局→吉格多则行动，凶格多则守待。\n"
+    )
+
+    # ── Ziwei knowledge (condensed — key blocks only) ──
+    ZIWEI_KNOWLEDGE_CONDENSED = (
+        "【紫微斗数核心体系】\n"
+        "紫微斗数以命宫为核心，十二宫覆盖人生各领域，14主星+四化飞星+杂曜构成完整论断体系。\n\n"
+        "14主星速查：紫微(帝星·领导) 天机(智谋) 太阳(光明) 武曲(财富) 天同(享福) 廉贞(才华) 天府(财库) 太阴(细腻) 贪狼(交际) 巨门(口才) 天相(辅佐) 天梁(长寿) 七杀(权威) 破军(开创)\n"
+        "十二宫：命宫(自我) 兄弟宫(手足) 夫妻宫(婚姻) 子女宫(子女) 财帛宫(财运) 疾厄宫(健康) 迁移宫(外出) 交友宫(社交) 官禄宫(事业) 田宅宫(房产) 福德宫(精神) 父母宫(长辈)\n"
+        "四化体系：化禄(增益·机会) 化权(掌控·主导) 化科(名声·贵助) 化忌(阻碍·收敛)\n"
+        "庙旺利陷：庙(最强) 旺(强) 利(平) 陷(弱) — 星曜力量的核心指标\n\n"
+        "三方四正(核心方法)：命三方=命+财帛+官禄+迁移(黄金三角) | 夫妻三方=夫妻+兄弟+子女+父母\n"
+        "命宫无主星处理：借对宫(迁移宫)主星分析，辅星决定辅助特质，适合团队合作。\n"
+        "杀破狼格局：七杀+破军+贪狼三星联动，人生必有突破性变化，适合开拓型人生。\n"
+        "机月同梁格局：天机/太阴/天同/天梁联动，适合稳定型工作(公职/大企业)。\n\n"
+        "大限(十年一换)：大限命宫星曜=十年基调，大限四化=十年能量流向。\n"
+        "流年(一年一换)：流年命宫星曜=年度事件，流年四化=年度变化。\n"
+        "关键转折：大限交接年(每10年) | 流年太岁同宫(本命年) | 流年化忌入命(需谨慎)\n\n"
+        "星曜组合：紫府同宫(富贵) 紫贪同宫(才貌) 紫相同宫(权印) 紫杀格(刚柔) 机月同梁(稳定)\n"
+        "感情判断：夫妻宫主星+桃花星(红鸾天喜咸池天姚)+三方四正+大限流年\n"
+        "健康判断：疾厄宫主星+五行体质+大限流年化忌入疾厄\n"
+    )
+
+    # ── Format input data ──
+    gender_cn = "男" if gender == "male" else "女" if gender == "female" else "其他"
+    qimen_doors = f"吉门: {', '.join(good_doors)} | 凶门: {', '.join(bad_doors)}" if good_doors or bad_doors else "无数据"
+    god_seq = ", ".join(god_sequence[:8]) if god_sequence else "无数据"
+
+    return (
+        "你是一位精通奇门遁甲和紫微斗数的顶级命理师。请同时完成两个维度的完整分析。\n\n"
+        f"== 用户信息 ==\n"
+        f"性别：{gender_cn}\n"
+        f"出生时间：{birth_datetime}\n\n"
+
+        # ── Qimen section ──
+        "━━━━━ 第一部分：奇门遁甲分析 ━━━━━\n\n"
+        f"【奇门遁甲命盘数据】\n"
+        f"遁局：{dun_ju}\n"
+        f"值符星：{zhi_fu_star} | 值使门：{zhi_shi_door}\n"
+        f"时辰：{shi_chen_dizhi} | 时辰落宫：{shi_chen_gong} | 方位：{shi_chen_direction}\n"
+        f"节气：{jieqi_name}\n"
+        f"八门状况：{qimen_doors}\n"
+        f"八神排列：{god_seq}\n"
+        f"门象提示：{door_hints}\n\n"
+        f"{QIMEN_KNOWLEDGE_CONDENSED}\n\n"
+
+        # ── Ziwei section ──
+        "━━━━━ 第二部分：紫微斗数分析 ━━━━━\n\n"
+        f"【紫微斗数命盘数据】\n"
+        f"命宫地支：{ming_gong_dizhi}\n"
+        f"身宫地支：{shen_gong_dizhi}\n"
+        f"五行局：{wu_xing_ju}（局数：{wu_xing_ju_num}）\n"
+        f"紫微星落宫：{ziwei_gong_name}({ziwei_gong_dizhi})\n"
+        f"命宫主星：{ming_stars}\n"
+        f"十二宫星曜分布：\n{palaces_str}\n"
+        f"生年天干四化：\n{sihua_str}\n\n"
+        f"{ZIWEI_KNOWLEDGE_CONDENSED}\n\n"
+
+        # ── Output format ──
+        "== 输出格式要求 ==\n"
+        "请严格按照以下格式输出两个JSON，中间用 ===QIMEN_END=== 分隔。\n\n"
+
+        "=== 第一个JSON（奇门遁甲）===\n"
+        "```json\n"
+        "{\n"
+        '  "summary": "200字奇门遁甲核心结论",\n'
+        '  "dimensions": {\n'
+        '    "wealth": "80-120字财运分析",\n'
+        '    "relationship": "80-120字感情分析",\n'
+        '    "career": "80-120字事业分析",\n'
+        '    "health": "80-120字健康分析",\n'
+        '    "spiritual": "80-120字精神/灵性分析"\n'
+        "  },\n"
+        '  "key_findings": ["发现1", "发现2", "发现3"],\n'
+        '  "weakness_tags": ["#忌格xxx"],\n'
+        '  "strength_tags": ["#吉格xxx"],\n'
+        '  "boost_elements": ["火", "水"],\n'
+        '  "conflict_warnings": ["矛盾信号"]\n'
+        "}\n"
+        "```\n\n"
+
+        "===QIMEN_END===\n\n"
+
+        "=== 第二个JSON（紫微斗数）===\n"
+        "```json\n"
+        "{\n"
+        '  "summary": "200字紫微斗数核心结论",\n'
+        '  "dimensions": {\n'
+        '    "wealth": "80-120字财运分析",\n'
+        '    "relationship": "80-120字感情分析",\n'
+        '    "career": "80-120字事业分析",\n'
+        '    "health": "80-120字健康分析",\n'
+        '    "spiritual": "80-120字精神/灵性分析"\n'
+        "  },\n"
+        '  "key_findings": ["发现1", "发现2", "发现3"],\n'
+        '  "weakness_tags": ["#命宫无主星"],\n'
+        '  "strength_tags": ["#紫微坐命"],\n'
+        '  "boost_elements": ["火", "水"],\n'
+        '  "conflict_warnings": ["矛盾信号"]\n'
+        "}\n"
+        "```\n\n"
+
+        "== 分析推理链 ==\n"
+        "奇门遁甲：定遁局→看值符值使→分析八门吉凶→查九星旺衰→判八神色彩→综合格局→给建议\n"
+        "紫微斗数：定命宫主星→看三方四正→析四化飞星→论十二宫→看大限流年→给建议\n\n"
+        "写作要求：\n"
+        "  - 两个维度的分析各2000-2500字（合计约4500字），每个结论标注命盘依据\n"
+        "  - 严格按输出格式输出JSON，两个JSON之间用===QIMEN_END===分隔\n"
+        "  - 所有文字值使用纯中文，boost_elements使用五行中文名（火、水、木、金、土）\n"
+        "  - key_findings 3-5条，weakness/strength_tags 3-6个\n"
+    )
+
+
 def bazi_prompt(
     gender: str,
     birth_datetime: str,
