@@ -40,7 +40,7 @@ export const api = axios.create({
 const addLangInterceptor = (client: typeof api) => {
   client.interceptors.request.use((config) => {
     try {
-      const lang = localStorage.getItem("destiny-lang") || (navigator.language.startsWith("zh") ? "zh" : "en")
+      const lang = localStorage.getItem("destiny_mirror_lang") || (navigator.language.startsWith("zh") ? "zh" : "en")
       config.params = { ...config.params, lang }
     } catch {}
     return config
@@ -63,7 +63,7 @@ export const apiAuth = axios.create({
 // Pass locale to backend so error messages are translated
 apiAuth.interceptors.request.use((config) => {
   try {
-    const lang = localStorage.getItem("destiny-lang") || (navigator.language.startsWith("zh") ? "zh" : "en")
+    const lang = localStorage.getItem("destiny_mirror_lang") || (navigator.language.startsWith("zh") ? "zh" : "en")
     config.params = { ...config.params, lang }
   } catch {}
   return config
