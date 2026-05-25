@@ -21,7 +21,7 @@ interface AlmanacData {
 export default function AlmanacPage() {
   const router = useRouter()
   const { user } = useAuth()
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
   const [data, setData] = useState<AlmanacData | null>(null)
   const [loading, setLoading] = useState(true)
   const [noSession, setNoSession] = useState(false)
@@ -59,7 +59,7 @@ export default function AlmanacPage() {
       let res
       try {
         res = await api.get("/api/readings/daily-almanac", {
-          params: { session_id: sessionId },
+          params: { session_id: sessionId, lang: locale },
           timeout: 60_000,
         })
       } catch (err: unknown) {
@@ -114,7 +114,7 @@ export default function AlmanacPage() {
     } finally {
       setLoading(false)
     }
-  }, [user, t])
+  }, [user, t, locale])
 
   useEffect(() => {
     fetchAlmanac()

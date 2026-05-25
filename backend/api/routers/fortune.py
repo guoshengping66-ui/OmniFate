@@ -206,10 +206,13 @@ async def get_subscription(
 @router.get("/weekly")
 async def get_weekly_fortune(
     locale: str = "zh",
+    lang: str = None,
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """获取本周运势（如果已生成则返回缓存，否则实时生成）"""
+    if lang in ("zh", "en"):
+        locale = lang
     week_start, week_end = get_current_week_range()
 
     # Check if already generated
@@ -256,10 +259,13 @@ async def get_weekly_fortune(
 @router.get("/daily")
 async def get_daily_fortune(
     locale: str = "zh",
+    lang: str = None,
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """获取今日运势（如果已生成则返回缓存，否则实时生成）"""
+    if lang in ("zh", "en"):
+        locale = lang
     day_str = get_current_day_str()
 
     # Check if already generated
