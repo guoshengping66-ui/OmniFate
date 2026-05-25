@@ -14,6 +14,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { addReadingToHistory } from "@/lib/readingHistory"
 import { useWizardStore } from "@/stores/useWizardStore"
+import { useUserStore } from "@/stores/useUserStore"
 
 const TarotPicker = lazy(() => import("@/components/reading/TarotPicker").then(m => ({ default: m.TarotPicker })))
 const FaceScanAnimation = lazy(() => import("@/components/reading/FaceScanAnimation").then(m => ({ default: m.FaceScanAnimation })))
@@ -65,6 +66,7 @@ export default function NewReadingPage() {
   const { user } = useAuth()
   const { locale, t } = useLanguage()
   const isEn = locale === "en"
+  const { userProfile, fetchBirthProfiles } = useUserStore()
 
   // ── Wizard store: intent & prefill ──────────────────────────
   const { currentIntent, formData: wizardData, startStep: wizardStartStep, reset: resetWizard } = useWizardStore()
@@ -82,12 +84,26 @@ export default function NewReadingPage() {
       if (mapped) {
         resetWizard()
         useWizardStore.getState().setIntent(mapped as any)
-        if (user) {
-          useWizardStore.getState().prefillFromProfile(user as any)
-        }
+        // Pre-fill is handled by the userProfile effect below
       }
     }
   }, [searchParams]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Pre-fill from user's birth profile when available ──────
+  // userProfile may be null on first render (store loading).
+  // When it becomes available, pre-fill the wizard store.
+  useEffect(() => {
+    if (prefilledFromProfile.current) return
+    if (!currentIntent) return // Only pre-fill for intent flows
+    // Ensure profiles are fetched (handles direct navigation to wizard)
+    if (user && !userProfile) {
+      fetchBirthProfiles()
+      return
+    }
+    if (!userProfile) return
+    prefilledFromProfile.current = true
+    useWizardStore.getState().prefillFromProfile(userProfile)
+  }, [user, userProfile, currentIntent]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Validation schema (uses t() for messages) ──
   // birth_city is only required when birth info step is shown (FULL_MULTIMODAL / no intent)
@@ -135,6 +151,7 @@ export default function NewReadingPage() {
   const faceRef = useRef<HTMLInputElement>(null)
   const palmRef = useRef<HTMLInputElement>(null)
   const prevIntentRef = useRef<string | null>(null)
+  const prefilledFromProfile = useRef(false)
 
   // Revoke blob URLs on unmount to prevent memory leak
   useEffect(() => {
@@ -172,7 +189,7 @@ export default function NewReadingPage() {
     [t]
   )
 
-  // Prefill form from wizard store on mount
+  // Prefill form from wizard store — re-runs when wizardData changes (e.g. after prefillFromProfile)
   useEffect(() => {
     if (wizardData.birth_year > 0) {
       setValue("gender", wizardData.gender)
@@ -186,7 +203,10 @@ export default function NewReadingPage() {
     if (wizardData.user_question) {
       setValue("user_question", wizardData.user_question)
     }
-    // Skip to appropriate step — clamp to valid range for the current STEPS array
+  }, [wizardData.birth_year]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Skip to appropriate step on mount
+  useEffect(() => {
     if (wizardStartStep > 0) {
       const maxStep = STEPS.length - 1
       setStep(Math.min(wizardStartStep, maxStep))
