@@ -13,24 +13,70 @@
     "price_usd": 55,
     "stock": 120,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/crystal/yellow-crystal-treasury.png",
     "detail_images": [],
-    "wuxing_tags": ["earth", "metal"],
+    "wuxing_tags": [
+      "earth",
+      "metal"
+    ],
     "astro_tags": [],
-    "keyword_tags": ["#缺土", "#财库空亡", "#招财", "#财运受损"],
-    "keyword_tags_en": ["#lack_earth", "#depleted_wealth", "#wealth_attraction", "#poor_fortune"],
-    "elements": ["土", "金"],
-    "elements_en": ["Earth", "Metal"],
-    "planets": ["太阳"],
-    "planets_en": ["Sun"],
-    "chakras": ["太阳神经丛轮", "海底轮"],
-    "chakras_en": ["Solar Plexus", "Root"],
+    "keyword_tags": [
+      "#缺土",
+      "#财库空亡",
+      "#招财",
+      "#财运受损"
+    ],
+    "keyword_tags_en": [
+      "#lack_earth",
+      "#depleted_wealth",
+      "#wealth_attraction",
+      "#poor_fortune"
+    ],
+    "elements": [
+      "土",
+      "金"
+    ],
+    "elements_en": [
+      "Earth",
+      "Metal"
+    ],
+    "planets": [
+      "太阳"
+    ],
+    "planets_en": [
+      "Sun"
+    ],
+    "chakras": [
+      "太阳神经丛轮",
+      "海底轮"
+    ],
+    "chakras_en": [
+      "Solar Plexus",
+      "Root"
+    ],
     "material": "天然黄水晶",
     "material_en": "Natural Citrine",
-    "function_tags": ["招财", "聚财", "稳固财库"],
-    "function_tags_en": ["Wealth Attraction", "Wealth Accumulation", "Stabilize Wealth"],
+    "function_tags": [
+      "招财",
+      "聚财",
+      "稳固财库"
+    ],
+    "function_tags_en": [
+      "Wealth Attraction",
+      "Wealth Accumulation",
+      "Stabilize Wealth"
+    ],
     "sales_count": 1280,
-    "rating": 4.8
+    "rating": 4.8,
+    "usage_en": "Place on your desk or in the wealth corner of your home (diagonal from the entrance). Wipe gently with clean water weekly. During meditation, hold the crystal and visualize golden light filling your body.",
+    "precautions_en": "1. Avoid prolonged direct sunlight to prevent fading\n2. Not recommended for bedroom nightstand\n3. Remove during exercise and bathing\n4. Purify under moonlight for 4 hours after purchase",
+    "efficacy_en": "Made from 天然黄水晶. Enhances wealth attraction and financial prosperity. ",
+    "specifications_en": {
+      "Weight": "约85g",
+      "Size": "直径约5cm",
+      "Origin": "巴西",
+      "Packaging": "锦盒+鉴定证书+开光证明"
+    }
   },
   {
     "id": "p2",
@@ -46,24 +92,69 @@
     "price_usd": 38,
     "stock": 230,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/jewelry/red-agate.png",
     "detail_images": [],
-    "wuxing_tags": ["fire"],
-    "astro_tags": ["mars"],
-    "keyword_tags": ["#缺火", "#桃花运", "#行动力", "#事业动荡"],
-    "keyword_tags_en": ["#lack_fire", "#romance", "#initiative", "#career_instability"],
-    "elements": ["火"],
-    "elements_en": ["Fire"],
-    "planets": ["火星"],
-    "planets_en": ["Mars"],
-    "chakras": ["海底轮", "脐轮"],
-    "chakras_en": ["Root", "Sacral"],
+    "wuxing_tags": [
+      "fire"
+    ],
+    "astro_tags": [
+      "mars"
+    ],
+    "keyword_tags": [
+      "#缺火",
+      "#桃花运",
+      "#行动力",
+      "#事业动荡"
+    ],
+    "keyword_tags_en": [
+      "#lack_fire",
+      "#romance",
+      "#initiative",
+      "#career_instability"
+    ],
+    "elements": [
+      "火"
+    ],
+    "elements_en": [
+      "Fire"
+    ],
+    "planets": [
+      "火星"
+    ],
+    "planets_en": [
+      "Mars"
+    ],
+    "chakras": [
+      "海底轮",
+      "脐轮"
+    ],
+    "chakras_en": [
+      "Root",
+      "Sacral"
+    ],
     "material": "天然红玛瑙",
     "material_en": "Natural Red Agate",
-    "function_tags": ["补火", "增强行动力", "招桃花"],
-    "function_tags_en": ["Boost Fire", "Enhance Initiative", "Attract Romance"],
+    "function_tags": [
+      "补火",
+      "增强行动力",
+      "招桃花"
+    ],
+    "function_tags_en": [
+      "Boost Fire",
+      "Enhance Initiative",
+      "Attract Romance"
+    ],
     "sales_count": 2350,
-    "rating": 4.9
+    "rating": 4.9,
+    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Purify with sandalwood smoke on the 1st and 15th of each lunar month.",
+    "precautions_en": "1. Avoid impact despite hardness\n2. Do not contact chemical cleaners\n3. Some may feel warmth initially — this is normal\n4. Pregnant women should consult before wearing",
+    "efficacy_en": "Made from 天然红玛瑙. Boosts romantic fortune and social charm. ",
+    "specifications_en": {
+      "Weight": "约32g",
+      "Bead Diameter": "8mm",
+      "Wrist Size": "可调节16-20cm",
+      "Origin": "马达加斯加"
+    }
   },
   {
     "id": "p3",
@@ -79,24 +170,67 @@
     "price_usd": 98,
     "stock": 85,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/crystal/green-phantom-crystal.png",
     "detail_images": [],
-    "wuxing_tags": ["wood"],
-    "astro_tags": ["jupiter"],
-    "keyword_tags": ["#缺木", "#贵人运", "#事业", "#领导力强"],
-    "keyword_tags_en": ["#lack_wood", "#noble_people", "#career", "#strong_leadership"],
-    "elements": ["木"],
-    "elements_en": ["Wood"],
-    "planets": ["木星"],
-    "planets_en": ["Jupiter"],
-    "chakras": ["心轮"],
-    "chakras_en": ["Heart"],
+    "wuxing_tags": [
+      "wood"
+    ],
+    "astro_tags": [
+      "jupiter"
+    ],
+    "keyword_tags": [
+      "#缺木",
+      "#贵人运",
+      "#事业",
+      "#领导力强"
+    ],
+    "keyword_tags_en": [
+      "#lack_wood",
+      "#noble_people",
+      "#career",
+      "#strong_leadership"
+    ],
+    "elements": [
+      "木"
+    ],
+    "elements_en": [
+      "Wood"
+    ],
+    "planets": [
+      "木星"
+    ],
+    "planets_en": [
+      "Jupiter"
+    ],
+    "chakras": [
+      "心轮"
+    ],
+    "chakras_en": [
+      "Heart"
+    ],
     "material": "天然绿幽灵水晶",
     "material_en": "Natural Green Phantom Quartz",
-    "function_tags": ["补木", "旺贵人", "事业提升"],
-    "function_tags_en": ["Boost Wood", "Enhance Noble People", "Career Elevation"],
+    "function_tags": [
+      "补木",
+      "旺贵人",
+      "事业提升"
+    ],
+    "function_tags_en": [
+      "Boost Wood",
+      "Enhance Noble People",
+      "Career Elevation"
+    ],
     "sales_count": 890,
-    "rating": 4.7
+    "rating": 4.7,
+    "usage_en": "Place on your desk or in the wealth corner of your home (diagonal from the entrance). Wipe gently with clean water weekly. During meditation, hold the crystal and visualize golden light filling your body.",
+    "precautions_en": "1. Avoid prolonged direct sunlight to prevent fading\n2. Not recommended for bedroom nightstand\n3. Remove during exercise and bathing\n4. Purify under moonlight for 4 hours after purchase",
+    "efficacy_en": "Made from 天然绿幽灵水晶. Supports career advancement and decision-making. ",
+    "specifications_en": {
+      "Weight": "约350g",
+      "Diameter": "约6cm",
+      "Origin": "非洲赞比亚",
+      "Packaging": "木质底座+绒布盒"
+    }
   },
   {
     "id": "p4",
@@ -112,24 +246,72 @@
     "price_usd": 27,
     "stock": 500,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/jewelry/obsidian-pixiu.png",
     "detail_images": [],
-    "wuxing_tags": ["water", "metal"],
-    "astro_tags": ["saturn"],
-    "keyword_tags": ["#官杀混杂", "#辟邪", "#土星刑克", "#阻碍"],
-    "keyword_tags_en": ["#clashing_killing", "#protection", "#saturn_square", "#obstacles"],
-    "elements": ["水", "金"],
-    "elements_en": ["Water", "Metal"],
-    "planets": ["土星"],
-    "planets_en": ["Saturn"],
-    "chakras": ["海底轮"],
-    "chakras_en": ["Root"],
+    "wuxing_tags": [
+      "water",
+      "metal"
+    ],
+    "astro_tags": [
+      "saturn"
+    ],
+    "keyword_tags": [
+      "#官杀混杂",
+      "#辟邪",
+      "#土星刑克",
+      "#阻碍"
+    ],
+    "keyword_tags_en": [
+      "#clashing_killing",
+      "#protection",
+      "#saturn_square",
+      "#obstacles"
+    ],
+    "elements": [
+      "水",
+      "金"
+    ],
+    "elements_en": [
+      "Water",
+      "Metal"
+    ],
+    "planets": [
+      "土星"
+    ],
+    "planets_en": [
+      "Saturn"
+    ],
+    "chakras": [
+      "海底轮"
+    ],
+    "chakras_en": [
+      "Root"
+    ],
     "material": "天然黑曜石",
     "material_en": "Natural Black Obsidian",
-    "function_tags": ["辟邪", "化煞", "防小人", "镇宅"],
-    "function_tags_en": ["Ward Off Evil", "Neutralize Sha", "Protect from Gossip", "Home Protection"],
+    "function_tags": [
+      "辟邪",
+      "化煞",
+      "防小人",
+      "镇宅"
+    ],
+    "function_tags_en": [
+      "Ward Off Evil",
+      "Neutralize Sha",
+      "Protect from Gossip",
+      "Home Protection"
+    ],
     "sales_count": 4100,
-    "rating": 4.9
+    "rating": 4.9,
+    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Purify with sandalwood smoke on the 1st and 15th of each lunar month.",
+    "precautions_en": "1. Avoid impact despite hardness\n2. Do not contact chemical cleaners\n3. Some may feel warmth initially — this is normal\n4. Pregnant women should consult before wearing",
+    "efficacy_en": "Made from 天然黑曜石. Provides protection and wards off negative energy. ",
+    "specifications_en": {
+      "Weight": "约18g",
+      "Size": "约3.5×2.5cm",
+      "Material": "天然黑曜石+红绳",
+      "Origin": "墨西哥"
+    }
   },
   {
     "id": "p5",
@@ -145,24 +327,73 @@
     "price_usd": 42,
     "stock": 340,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/incense/cypress-incense.png",
     "detail_images": [],
-    "wuxing_tags": ["water"],
-    "astro_tags": ["moon", "neptune"],
-    "keyword_tags": ["#缺水", "#安神", "#直觉", "#灵性"],
-    "keyword_tags_en": ["#lack_water", "#calm_mind", "#intuition", "#spirituality"],
-    "elements": ["水"],
-    "elements_en": ["Water"],
-    "planets": ["月亮", "海王星"],
-    "planets_en": ["Moon", "Neptune"],
-    "chakras": ["眉心轮", "顶轮"],
-    "chakras_en": ["Third Eye", "Crown"],
+    "wuxing_tags": [
+      "water"
+    ],
+    "astro_tags": [
+      "moon",
+      "neptune"
+    ],
+    "keyword_tags": [
+      "#缺水",
+      "#安神",
+      "#直觉",
+      "#灵性"
+    ],
+    "keyword_tags_en": [
+      "#lack_water",
+      "#calm_mind",
+      "#intuition",
+      "#spirituality"
+    ],
+    "elements": [
+      "水"
+    ],
+    "elements_en": [
+      "Water"
+    ],
+    "planets": [
+      "月亮",
+      "海王星"
+    ],
+    "planets_en": [
+      "Moon",
+      "Neptune"
+    ],
+    "chakras": [
+      "眉心轮",
+      "顶轮"
+    ],
+    "chakras_en": [
+      "Third Eye",
+      "Crown"
+    ],
     "material": "天然沉香粉",
     "material_en": "Natural Agarwood Powder",
-    "function_tags": ["安神", "提升直觉", "灵性修行"],
-    "function_tags_en": ["Calm Mind", "Enhance Intuition", "Spiritual Practice"],
+    "function_tags": [
+      "安神",
+      "提升直觉",
+      "灵性修行"
+    ],
+    "function_tags_en": [
+      "Calm Mind",
+      "Enhance Intuition",
+      "Spiritual Practice"
+    ],
     "sales_count": 760,
-    "rating": 4.6
+    "rating": 4.6,
+    "usage_en": "Light in a well-ventilated area. Place on a heat-resistant surface. Use during meditation or relaxation for best results.",
+    "precautions_en": "1. Use in well-ventilated areas only\n2. Keep away from flammable materials\n3. Do not leave burning unattended\n4. Store in a cool, dry place",
+    "efficacy_en": "Made from 天然沉香粉. Promotes physical and mental well-being. ",
+    "specifications_en": {
+      "数量": "约365根/年装",
+      "单根长度": "约21cm",
+      "燃烧时间": "约35分钟/根",
+      "Origin": "越南芽庄",
+      "Packaging": "密封防潮木盒"
+    }
   },
   {
     "id": "p7",
@@ -178,24 +409,69 @@
     "price_usd": 66,
     "stock": 200,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/talisman/five-element-luck.png",
     "detail_images": [],
-    "wuxing_tags": ["metal", "wood", "water", "fire", "earth"],
+    "wuxing_tags": [
+      "metal",
+      "wood",
+      "water",
+      "fire",
+      "earth"
+    ],
     "astro_tags": [],
-    "keyword_tags": ["#缺金", "#缺木", "#缺水", "#缺火", "#缺土"],
-    "keyword_tags_en": ["#lack_metal", "#lack_wood", "#lack_water", "#lack_fire", "#lack_earth"],
-    "elements": ["金", "木", "水", "火", "土"],
-    "elements_en": ["Metal", "Wood", "Water", "Fire", "Earth"],
+    "keyword_tags": [
+      "#缺金",
+      "#缺木",
+      "#缺水",
+      "#缺火",
+      "#缺土"
+    ],
+    "keyword_tags_en": [
+      "#lack_metal",
+      "#lack_wood",
+      "#lack_water",
+      "#lack_fire",
+      "#lack_earth"
+    ],
+    "elements": [
+      "金",
+      "木",
+      "水",
+      "火",
+      "土"
+    ],
+    "elements_en": [
+      "Metal",
+      "Wood",
+      "Water",
+      "Fire",
+      "Earth"
+    ],
     "planets": [],
     "planets_en": [],
     "chakras": [],
     "chakras_en": [],
     "material": "朱砂黄纸（定制）",
     "material_en": "Cinnabar on Yellow Paper (Custom)",
-    "function_tags": ["全五行补益", "定制化", "开运"],
-    "function_tags_en": ["Full Five Element Balance", "Customized", "Fortune Enhancement"],
+    "function_tags": [
+      "全五行补益",
+      "定制化",
+      "开运"
+    ],
+    "function_tags_en": [
+      "Full Five Element Balance",
+      "Customized",
+      "Fortune Enhancement"
+    ],
     "sales_count": 540,
-    "rating": 4.7
+    "rating": 4.7,
+    "usage_en": "Place in the appropriate feng shui position according to your needs. Keep clean and treat with respect. Avoid placing in bathrooms or bedrooms.",
+    "precautions_en": "1. Handle with care and respect\n2. Do not place in bathroom or cluttered areas\n3. Keep away from moisture\n4. Cleanse monthly with incense smoke",
+    "efficacy_en": "Made from 朱砂黄纸（定制）. ",
+    "specifications_en": {
+      "Material": "朱砂黄纸（定制）",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p8",
@@ -211,24 +487,75 @@
     "price_usd": 180,
     "stock": 30,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/crystal/amethyst-cave.png",
     "detail_images": [],
-    "wuxing_tags": ["water", "wood"],
-    "astro_tags": ["pluto", "neptune"],
-    "keyword_tags": ["#灵性", "#直觉", "#心灵转化", "#内耗"],
-    "keyword_tags_en": ["#spirituality", "#intuition", "#transformation", "#inner_drain"],
-    "elements": ["水", "木"],
-    "elements_en": ["Water", "Wood"],
-    "planets": ["冥王星", "海王星"],
-    "planets_en": ["Pluto", "Neptune"],
-    "chakras": ["眉心轮", "顶轮"],
-    "chakras_en": ["Third Eye", "Crown"],
+    "wuxing_tags": [
+      "water",
+      "wood"
+    ],
+    "astro_tags": [
+      "pluto",
+      "neptune"
+    ],
+    "keyword_tags": [
+      "#灵性",
+      "#直觉",
+      "#心灵转化",
+      "#内耗"
+    ],
+    "keyword_tags_en": [
+      "#spirituality",
+      "#intuition",
+      "#transformation",
+      "#inner_drain"
+    ],
+    "elements": [
+      "水",
+      "木"
+    ],
+    "elements_en": [
+      "Water",
+      "Wood"
+    ],
+    "planets": [
+      "冥王星",
+      "海王星"
+    ],
+    "planets_en": [
+      "Pluto",
+      "Neptune"
+    ],
+    "chakras": [
+      "眉心轮",
+      "顶轮"
+    ],
+    "chakras_en": [
+      "Third Eye",
+      "Crown"
+    ],
     "material": "天然紫水晶",
     "material_en": "Natural Amethyst",
-    "function_tags": ["灵性提升", "心灵疗愈", "转化", "守护"],
-    "function_tags_en": ["Spiritual Elevation", "Soul Healing", "Transformation", "Guardian"],
+    "function_tags": [
+      "灵性提升",
+      "心灵疗愈",
+      "转化",
+      "守护"
+    ],
+    "function_tags_en": [
+      "Spiritual Elevation",
+      "Soul Healing",
+      "Transformation",
+      "Guardian"
+    ],
     "sales_count": 210,
-    "rating": 4.9
+    "rating": 4.9,
+    "usage_en": "Place on your desk or in the wealth corner of your home (diagonal from the entrance). Wipe gently with clean water weekly. During meditation, hold the crystal and visualize golden light filling your body.",
+    "precautions_en": "1. Avoid prolonged direct sunlight to prevent fading\n2. Not recommended for bedroom nightstand\n3. Remove during exercise and bathing\n4. Purify under moonlight for 4 hours after purchase",
+    "efficacy_en": "Made from 天然紫水晶. ",
+    "specifications_en": {
+      "Material": "天然紫水晶",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p9",
@@ -244,24 +571,65 @@
     "price_usd": 34,
     "stock": 180,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/jewelry/rose-quartz-peach.png",
     "detail_images": [],
-    "wuxing_tags": ["earth"],
-    "astro_tags": ["venus"],
-    "keyword_tags": ["#桃花运", "#感情", "#金星刑克", "#婚姻"],
-    "keyword_tags_en": ["#romance", "#love", "#venus_square", "#marriage"],
-    "elements": ["土"],
-    "elements_en": ["Earth"],
-    "planets": ["金星"],
-    "planets_en": ["Venus"],
-    "chakras": ["心轮"],
-    "chakras_en": ["Heart"],
+    "wuxing_tags": [
+      "earth"
+    ],
+    "astro_tags": [
+      "venus"
+    ],
+    "keyword_tags": [
+      "#桃花运",
+      "#感情",
+      "#金星刑克",
+      "#婚姻"
+    ],
+    "keyword_tags_en": [
+      "#romance",
+      "#love",
+      "#venus_square",
+      "#marriage"
+    ],
+    "elements": [
+      "土"
+    ],
+    "elements_en": [
+      "Earth"
+    ],
+    "planets": [
+      "金星"
+    ],
+    "planets_en": [
+      "Venus"
+    ],
+    "chakras": [
+      "心轮"
+    ],
+    "chakras_en": [
+      "Heart"
+    ],
     "material": "天然粉水晶",
     "material_en": "Natural Rose Quartz",
-    "function_tags": ["招桃花", "增人缘", "感情和谐"],
-    "function_tags_en": ["Attract Romance", "Enhance Charm", "Harmonize Love"],
+    "function_tags": [
+      "招桃花",
+      "增人缘",
+      "感情和谐"
+    ],
+    "function_tags_en": [
+      "Attract Romance",
+      "Enhance Charm",
+      "Harmonize Love"
+    ],
     "sales_count": 1860,
-    "rating": 4.8
+    "rating": 4.8,
+    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Purify with sandalwood smoke on the 1st and 15th of each lunar month.",
+    "precautions_en": "1. Avoid impact despite hardness\n2. Do not contact chemical cleaners\n3. Some may feel warmth initially — this is normal\n4. Pregnant women should consult before wearing",
+    "efficacy_en": "Made from 天然粉水晶. Boosts romantic fortune and social charm. ",
+    "specifications_en": {
+      "Material": "天然粉水晶",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p10",
@@ -277,24 +645,66 @@
     "price_usd": 126,
     "stock": 65,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/jewelry/gold-rutilated-quartz.png",
     "detail_images": [],
-    "wuxing_tags": ["metal", "earth"],
+    "wuxing_tags": [
+      "metal",
+      "earth"
+    ],
     "astro_tags": [],
-    "keyword_tags": ["#财库空亡", "#招财", "#财运受损"],
-    "keyword_tags_en": ["#depleted_wealth", "#wealth_attraction", "#poor_fortune"],
-    "elements": ["金", "土"],
-    "elements_en": ["Metal", "Earth"],
-    "planets": ["太阳"],
-    "planets_en": ["Sun"],
-    "chakras": ["太阳神经丛轮", "海底轮"],
-    "chakras_en": ["Solar Plexus", "Root"],
+    "keyword_tags": [
+      "#财库空亡",
+      "#招财",
+      "#财运受损"
+    ],
+    "keyword_tags_en": [
+      "#depleted_wealth",
+      "#wealth_attraction",
+      "#poor_fortune"
+    ],
+    "elements": [
+      "金",
+      "土"
+    ],
+    "elements_en": [
+      "Metal",
+      "Earth"
+    ],
+    "planets": [
+      "太阳"
+    ],
+    "planets_en": [
+      "Sun"
+    ],
+    "chakras": [
+      "太阳神经丛轮",
+      "海底轮"
+    ],
+    "chakras_en": [
+      "Solar Plexus",
+      "Root"
+    ],
     "material": "天然金发晶",
     "material_en": "Natural Golden Rutilated Quartz",
-    "function_tags": ["招财", "聚财", "投资助运"],
-    "function_tags_en": ["Attract Wealth", "Accumulate Fortune", "Investment Luck"],
+    "function_tags": [
+      "招财",
+      "聚财",
+      "投资助运"
+    ],
+    "function_tags_en": [
+      "Attract Wealth",
+      "Accumulate Fortune",
+      "Investment Luck"
+    ],
     "sales_count": 920,
-    "rating": 4.9
+    "rating": 4.9,
+    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Purify with sandalwood smoke on the 1st and 15th of each lunar month.",
+    "precautions_en": "1. Avoid impact despite hardness\n2. Do not contact chemical cleaners\n3. Some may feel warmth initially — this is normal\n4. Pregnant women should consult before wearing",
+    "efficacy_en": "Made from 天然金发晶. Enhances wealth attraction and financial prosperity. ",
+    "specifications_en": {
+      "Material": "天然金发晶",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p11",
@@ -310,24 +720,62 @@
     "price_usd": 24,
     "stock": 400,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/incense/sandalwood-coil.png",
     "detail_images": [],
-    "wuxing_tags": ["wood", "earth"],
+    "wuxing_tags": [
+      "wood",
+      "earth"
+    ],
     "astro_tags": [],
-    "keyword_tags": ["#缺木", "#安神", "#缺土"],
-    "keyword_tags_en": ["#lack_wood", "#calm_mind", "#lack_earth"],
-    "elements": ["木", "土"],
-    "elements_en": ["Wood", "Earth"],
+    "keyword_tags": [
+      "#缺木",
+      "#安神",
+      "#缺土"
+    ],
+    "keyword_tags_en": [
+      "#lack_wood",
+      "#calm_mind",
+      "#lack_earth"
+    ],
+    "elements": [
+      "木",
+      "土"
+    ],
+    "elements_en": [
+      "Wood",
+      "Earth"
+    ],
     "planets": [],
     "planets_en": [],
-    "chakras": ["脐轮", "海底轮"],
-    "chakras_en": ["Sacral", "Root"],
+    "chakras": [
+      "脐轮",
+      "海底轮"
+    ],
+    "chakras_en": [
+      "Sacral",
+      "Root"
+    ],
     "material": "天然老山檀香粉",
     "material_en": "Natural Old Mountain Sandalwood Powder",
-    "function_tags": ["安神", "净化", "冥想辅助"],
-    "function_tags_en": ["Calm Mind", "Purify", "Meditation Aid"],
+    "function_tags": [
+      "安神",
+      "净化",
+      "冥想辅助"
+    ],
+    "function_tags_en": [
+      "Calm Mind",
+      "Purify",
+      "Meditation Aid"
+    ],
     "sales_count": 650,
-    "rating": 4.5
+    "rating": 4.5,
+    "usage_en": "Light in a well-ventilated area. Place on a heat-resistant surface. Use during meditation or relaxation for best results.",
+    "precautions_en": "1. Use in well-ventilated areas only\n2. Keep away from flammable materials\n3. Do not leave burning unattended\n4. Store in a cool, dry place",
+    "efficacy_en": "Made from 天然老山檀香粉. Promotes physical and mental well-being. ",
+    "specifications_en": {
+      "Material": "天然老山檀香粉",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p12",
@@ -343,24 +791,67 @@
     "price_usd": 80,
     "stock": 150,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/jewelry/six-char-mantra-silver.png",
     "detail_images": [],
-    "wuxing_tags": ["metal"],
-    "astro_tags": ["saturn"],
-    "keyword_tags": ["#官杀混杂", "#辟邪", "#身弱", "#小人是非"],
-    "keyword_tags_en": ["#clashing_killing", "#protection", "#weak_body", "#gossip"],
-    "elements": ["金"],
-    "elements_en": ["Metal"],
-    "planets": ["土星"],
-    "planets_en": ["Saturn"],
-    "chakras": ["海底轮"],
-    "chakras_en": ["Root"],
+    "wuxing_tags": [
+      "metal"
+    ],
+    "astro_tags": [
+      "saturn"
+    ],
+    "keyword_tags": [
+      "#官杀混杂",
+      "#辟邪",
+      "#身弱",
+      "#小人是非"
+    ],
+    "keyword_tags_en": [
+      "#clashing_killing",
+      "#protection",
+      "#weak_body",
+      "#gossip"
+    ],
+    "elements": [
+      "金"
+    ],
+    "elements_en": [
+      "Metal"
+    ],
+    "planets": [
+      "土星"
+    ],
+    "planets_en": [
+      "Saturn"
+    ],
+    "chakras": [
+      "海底轮"
+    ],
+    "chakras_en": [
+      "Root"
+    ],
     "material": "纯银",
     "material_en": "Sterling Silver",
-    "function_tags": ["辟邪", "防小人", "护身", "挡是非"],
-    "function_tags_en": ["Ward Off Evil", "Repel Gossip", "Protect", "Block Trouble"],
+    "function_tags": [
+      "辟邪",
+      "防小人",
+      "护身",
+      "挡是非"
+    ],
+    "function_tags_en": [
+      "Ward Off Evil",
+      "Repel Gossip",
+      "Protect",
+      "Block Trouble"
+    ],
     "sales_count": 780,
-    "rating": 4.7
+    "rating": 4.7,
+    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Purify with sandalwood smoke on the 1st and 15th of each lunar month.",
+    "precautions_en": "1. Avoid impact despite hardness\n2. Do not contact chemical cleaners\n3. Some may feel warmth initially — this is normal\n4. Pregnant women should consult before wearing",
+    "efficacy_en": "Made from 纯银. Provides protection and wards off negative energy. ",
+    "specifications_en": {
+      "Material": "纯银",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p13",
@@ -376,24 +867,65 @@
     "price_usd": 65,
     "stock": 95,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/jewelry/labradorite.png",
     "detail_images": [],
-    "wuxing_tags": ["water"],
-    "astro_tags": ["uranus"],
-    "keyword_tags": ["#直觉", "#灵性", "#心灵转化", "#迷茫"],
-    "keyword_tags_en": ["#intuition", "#spirituality", "#transformation", "#confusion"],
-    "elements": ["水"],
-    "elements_en": ["Water"],
-    "planets": ["天王星"],
-    "planets_en": ["Uranus"],
-    "chakras": ["眉心轮"],
-    "chakras_en": ["Third Eye"],
+    "wuxing_tags": [
+      "water"
+    ],
+    "astro_tags": [
+      "uranus"
+    ],
+    "keyword_tags": [
+      "#直觉",
+      "#灵性",
+      "#心灵转化",
+      "#迷茫"
+    ],
+    "keyword_tags_en": [
+      "#intuition",
+      "#spirituality",
+      "#transformation",
+      "#confusion"
+    ],
+    "elements": [
+      "水"
+    ],
+    "elements_en": [
+      "Water"
+    ],
+    "planets": [
+      "天王星"
+    ],
+    "planets_en": [
+      "Uranus"
+    ],
+    "chakras": [
+      "眉心轮"
+    ],
+    "chakras_en": [
+      "Third Eye"
+    ],
     "material": "天然拉长石",
     "material_en": "Natural Labradorite",
-    "function_tags": ["开启直觉", "灵性指引", "方向感"],
-    "function_tags_en": ["Open Intuition", "Spiritual Guidance", "Sense of Direction"],
+    "function_tags": [
+      "开启直觉",
+      "灵性指引",
+      "方向感"
+    ],
+    "function_tags_en": [
+      "Open Intuition",
+      "Spiritual Guidance",
+      "Sense of Direction"
+    ],
     "sales_count": 430,
-    "rating": 4.6
+    "rating": 4.6,
+    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Purify with sandalwood smoke on the 1st and 15th of each lunar month.",
+    "precautions_en": "1. Avoid impact despite hardness\n2. Do not contact chemical cleaners\n3. Some may feel warmth initially — this is normal\n4. Pregnant women should consult before wearing",
+    "efficacy_en": "Made from 天然拉长石. ",
+    "specifications_en": {
+      "Material": "天然拉长石",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p14",
@@ -409,24 +941,55 @@
     "price_usd": 52,
     "stock": 110,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/talisman/bagua-bronze-mirror.png",
     "detail_images": [],
-    "wuxing_tags": ["metal"],
+    "wuxing_tags": [
+      "metal"
+    ],
     "astro_tags": [],
-    "keyword_tags": ["#辟邪", "#风水", "#家居", "#土星刑克"],
-    "keyword_tags_en": ["#protection", "#feng_shui", "#home", "#saturn_square"],
-    "elements": ["金"],
-    "elements_en": ["Metal"],
+    "keyword_tags": [
+      "#辟邪",
+      "#风水",
+      "#家居",
+      "#土星刑克"
+    ],
+    "keyword_tags_en": [
+      "#protection",
+      "#feng_shui",
+      "#home",
+      "#saturn_square"
+    ],
+    "elements": [
+      "金"
+    ],
+    "elements_en": [
+      "Metal"
+    ],
     "planets": [],
     "planets_en": [],
     "chakras": [],
     "chakras_en": [],
     "material": "铜质",
     "material_en": "Bronze",
-    "function_tags": ["化煞", "镇宅", "风水调理"],
-    "function_tags_en": ["Neutralize Sha", "Home Protection", "Feng Shui Balance"],
+    "function_tags": [
+      "化煞",
+      "镇宅",
+      "风水调理"
+    ],
+    "function_tags_en": [
+      "Neutralize Sha",
+      "Home Protection",
+      "Feng Shui Balance"
+    ],
     "sales_count": 310,
-    "rating": 4.5
+    "rating": 4.5,
+    "usage_en": "Place in the appropriate feng shui position according to your needs. Keep clean and treat with respect. Avoid placing in bathrooms or bedrooms.",
+    "precautions_en": "1. Handle with care and respect\n2. Do not place in bathroom or cluttered areas\n3. Keep away from moisture\n4. Cleanse monthly with incense smoke",
+    "efficacy_en": "Made from 铜质. Provides protection and wards off negative energy. ",
+    "specifications_en": {
+      "Material": "铜质",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p15",
@@ -442,24 +1005,76 @@
     "price_usd": 238,
     "stock": 25,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/jewelry/watermelon-tourmaline.png",
     "detail_images": [],
-    "wuxing_tags": ["fire", "water", "wood"],
-    "astro_tags": ["venus", "mercury"],
-    "keyword_tags": ["#感情", "#婚姻", "#人际", "#桃花运"],
-    "keyword_tags_en": ["#love", "#marriage", "#relationships", "#romance"],
-    "elements": ["火", "水", "木"],
-    "elements_en": ["Fire", "Water", "Wood"],
-    "planets": ["金星", "水星"],
-    "planets_en": ["Venus", "Mercury"],
-    "chakras": ["心轮", "喉轮"],
-    "chakras_en": ["Heart", "Throat"],
+    "wuxing_tags": [
+      "fire",
+      "water",
+      "wood"
+    ],
+    "astro_tags": [
+      "venus",
+      "mercury"
+    ],
+    "keyword_tags": [
+      "#感情",
+      "#婚姻",
+      "#人际",
+      "#桃花运"
+    ],
+    "keyword_tags_en": [
+      "#love",
+      "#marriage",
+      "#relationships",
+      "#romance"
+    ],
+    "elements": [
+      "火",
+      "水",
+      "木"
+    ],
+    "elements_en": [
+      "Fire",
+      "Water",
+      "Wood"
+    ],
+    "planets": [
+      "金星",
+      "水星"
+    ],
+    "planets_en": [
+      "Venus",
+      "Mercury"
+    ],
+    "chakras": [
+      "心轮",
+      "喉轮"
+    ],
+    "chakras_en": [
+      "Heart",
+      "Throat"
+    ],
     "material": "天然西瓜碧玺",
     "material_en": "Natural Watermelon Tourmaline",
-    "function_tags": ["调和感情", "改善人际", "综合调理"],
-    "function_tags_en": ["Harmonize Love", "Improve Relationships", "Comprehensive Balance"],
+    "function_tags": [
+      "调和感情",
+      "改善人际",
+      "综合调理"
+    ],
+    "function_tags_en": [
+      "Harmonize Love",
+      "Improve Relationships",
+      "Comprehensive Balance"
+    ],
     "sales_count": 180,
-    "rating": 4.9
+    "rating": 4.9,
+    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Purify with sandalwood smoke on the 1st and 15th of each lunar month.",
+    "precautions_en": "1. Avoid impact despite hardness\n2. Do not contact chemical cleaners\n3. Some may feel warmth initially — this is normal\n4. Pregnant women should consult before wearing",
+    "efficacy_en": "Made from 天然西瓜碧玺. ",
+    "specifications_en": {
+      "Material": "天然西瓜碧玺",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p17",
@@ -475,24 +1090,73 @@
     "price_usd": 75,
     "stock": 80,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/jewelry/aquamarine.png",
     "detail_images": [],
-    "wuxing_tags": ["water"],
-    "astro_tags": ["moon", "neptune", "mercury"],
-    "keyword_tags": ["#沟通障碍", "#直觉", "#灵性", "#焦虑过度"],
-    "keyword_tags_en": ["#communication_block", "#intuition", "#spirituality", "#anxiety"],
-    "elements": ["水"],
-    "elements_en": ["Water"],
-    "planets": ["月亮", "海王星", "水星"],
-    "planets_en": ["Moon", "Neptune", "Mercury"],
-    "chakras": ["喉轮", "眉心轮"],
-    "chakras_en": ["Throat", "Third Eye"],
+    "wuxing_tags": [
+      "water"
+    ],
+    "astro_tags": [
+      "moon",
+      "neptune",
+      "mercury"
+    ],
+    "keyword_tags": [
+      "#沟通障碍",
+      "#直觉",
+      "#灵性",
+      "#焦虑过度"
+    ],
+    "keyword_tags_en": [
+      "#communication_block",
+      "#intuition",
+      "#spirituality",
+      "#anxiety"
+    ],
+    "elements": [
+      "水"
+    ],
+    "elements_en": [
+      "Water"
+    ],
+    "planets": [
+      "月亮",
+      "海王星",
+      "水星"
+    ],
+    "planets_en": [
+      "Moon",
+      "Neptune",
+      "Mercury"
+    ],
+    "chakras": [
+      "喉轮",
+      "眉心轮"
+    ],
+    "chakras_en": [
+      "Throat",
+      "Third Eye"
+    ],
     "material": "天然海蓝宝",
     "material_en": "Natural Aquamarine",
-    "function_tags": ["增强沟通", "提升直觉", "安神"],
-    "function_tags_en": ["Enhance Communication", "Boost Intuition", "Calm Mind"],
+    "function_tags": [
+      "增强沟通",
+      "提升直觉",
+      "安神"
+    ],
+    "function_tags_en": [
+      "Enhance Communication",
+      "Boost Intuition",
+      "Calm Mind"
+    ],
     "sales_count": 340,
-    "rating": 4.7
+    "rating": 4.7,
+    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Purify with sandalwood smoke on the 1st and 15th of each lunar month.",
+    "precautions_en": "1. Avoid impact despite hardness\n2. Do not contact chemical cleaners\n3. Some may feel warmth initially — this is normal\n4. Pregnant women should consult before wearing",
+    "efficacy_en": "Made from 天然海蓝宝. Promotes physical and mental well-being. ",
+    "specifications_en": {
+      "Material": "天然海蓝宝",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p18",
@@ -508,24 +1172,73 @@
     "price_usd": 46,
     "stock": 160,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/jewelry/tigers-eye.png",
     "detail_images": [],
-    "wuxing_tags": ["fire", "earth"],
-    "astro_tags": ["mars", "sun"],
-    "keyword_tags": ["#事业阻隔", "#决策困难", "#行动与思维的冲突", "#缺乏弹性"],
-    "keyword_tags_en": ["#career_barrier", "#decision_difficulty", "#mind_action_conflict", "#rigidity"],
-    "elements": ["火", "土"],
-    "elements_en": ["Fire", "Earth"],
-    "planets": ["火星", "太阳"],
-    "planets_en": ["Mars", "Sun"],
-    "chakras": ["太阳神经丛轮", "海底轮"],
-    "chakras_en": ["Solar Plexus", "Root"],
+    "wuxing_tags": [
+      "fire",
+      "earth"
+    ],
+    "astro_tags": [
+      "mars",
+      "sun"
+    ],
+    "keyword_tags": [
+      "#事业阻隔",
+      "#决策困难",
+      "#行动与思维的冲突",
+      "#缺乏弹性"
+    ],
+    "keyword_tags_en": [
+      "#career_barrier",
+      "#decision_difficulty",
+      "#mind_action_conflict",
+      "#rigidity"
+    ],
+    "elements": [
+      "火",
+      "土"
+    ],
+    "elements_en": [
+      "Fire",
+      "Earth"
+    ],
+    "planets": [
+      "火星",
+      "太阳"
+    ],
+    "planets_en": [
+      "Mars",
+      "Sun"
+    ],
+    "chakras": [
+      "太阳神经丛轮",
+      "海底轮"
+    ],
+    "chakras_en": [
+      "Solar Plexus",
+      "Root"
+    ],
     "material": "天然虎眼石",
     "material_en": "Natural Tiger Eye",
-    "function_tags": ["增强决断力", "提升行动力", "突破瓶颈"],
-    "function_tags_en": ["Boost Decisiveness", "Enhance Initiative", "Break Through"],
+    "function_tags": [
+      "增强决断力",
+      "提升行动力",
+      "突破瓶颈"
+    ],
+    "function_tags_en": [
+      "Boost Decisiveness",
+      "Enhance Initiative",
+      "Break Through"
+    ],
     "sales_count": 890,
-    "rating": 4.8
+    "rating": 4.8,
+    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Purify with sandalwood smoke on the 1st and 15th of each lunar month.",
+    "precautions_en": "1. Avoid impact despite hardness\n2. Do not contact chemical cleaners\n3. Some may feel warmth initially — this is normal\n4. Pregnant women should consult before wearing",
+    "efficacy_en": "Made from 天然虎眼石. ",
+    "specifications_en": {
+      "Material": "天然虎眼石",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p19",
@@ -541,24 +1254,70 @@
     "price_usd": 66,
     "stock": 70,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/jewelry/moonstone.png",
     "detail_images": [],
-    "wuxing_tags": ["water"],
-    "astro_tags": ["moon", "neptune"],
-    "keyword_tags": ["#内耗", "#焦虑过度", "#压力大", "#潜意识课题"],
-    "keyword_tags_en": ["#inner_drain", "#anxiety", "#high_stress", "#subconscious_issues"],
-    "elements": ["水"],
-    "elements_en": ["Water"],
-    "planets": ["月亮", "海王星"],
-    "planets_en": ["Moon", "Neptune"],
-    "chakras": ["顶轮", "眉心轮"],
-    "chakras_en": ["Crown", "Third Eye"],
+    "wuxing_tags": [
+      "water"
+    ],
+    "astro_tags": [
+      "moon",
+      "neptune"
+    ],
+    "keyword_tags": [
+      "#内耗",
+      "#焦虑过度",
+      "#压力大",
+      "#潜意识课题"
+    ],
+    "keyword_tags_en": [
+      "#inner_drain",
+      "#anxiety",
+      "#high_stress",
+      "#subconscious_issues"
+    ],
+    "elements": [
+      "水"
+    ],
+    "elements_en": [
+      "Water"
+    ],
+    "planets": [
+      "月亮",
+      "海王星"
+    ],
+    "planets_en": [
+      "Moon",
+      "Neptune"
+    ],
+    "chakras": [
+      "顶轮",
+      "眉心轮"
+    ],
+    "chakras_en": [
+      "Crown",
+      "Third Eye"
+    ],
     "material": "天然月光石",
     "material_en": "Natural Moonstone",
-    "function_tags": ["情绪安抚", "改善睡眠", "连接潜意识"],
-    "function_tags_en": ["Emotional Soothe", "Improve Sleep", "Connect Subconscious"],
+    "function_tags": [
+      "情绪安抚",
+      "改善睡眠",
+      "连接潜意识"
+    ],
+    "function_tags_en": [
+      "Emotional Soothe",
+      "Improve Sleep",
+      "Connect Subconscious"
+    ],
     "sales_count": 560,
-    "rating": 4.7
+    "rating": 4.7,
+    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Purify with sandalwood smoke on the 1st and 15th of each lunar month.",
+    "precautions_en": "1. Avoid impact despite hardness\n2. Do not contact chemical cleaners\n3. Some may feel warmth initially — this is normal\n4. Pregnant women should consult before wearing",
+    "efficacy_en": "Made from 天然月光石. ",
+    "specifications_en": {
+      "Material": "天然月光石",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p20",
@@ -574,24 +1333,73 @@
     "price_usd": 90,
     "stock": 55,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/jewelry/lapis-lazuli.png",
     "detail_images": [],
-    "wuxing_tags": ["water", "metal"],
-    "astro_tags": ["jupiter", "mercury"],
-    "keyword_tags": ["#缺乏弹性", "#决策困难", "#灵性", "#缺乏变通"],
-    "keyword_tags_en": ["#inflexibility", "#decision_difficulty", "#spirituality", "#rigid_thinking"],
-    "elements": ["水", "金"],
-    "elements_en": ["Water", "Metal"],
-    "planets": ["木星", "水星"],
-    "planets_en": ["Jupiter", "Mercury"],
-    "chakras": ["眉心轮", "喉轮"],
-    "chakras_en": ["Third Eye", "Throat"],
+    "wuxing_tags": [
+      "water",
+      "metal"
+    ],
+    "astro_tags": [
+      "jupiter",
+      "mercury"
+    ],
+    "keyword_tags": [
+      "#缺乏弹性",
+      "#决策困难",
+      "#灵性",
+      "#缺乏变通"
+    ],
+    "keyword_tags_en": [
+      "#inflexibility",
+      "#decision_difficulty",
+      "#spirituality",
+      "#rigid_thinking"
+    ],
+    "elements": [
+      "水",
+      "金"
+    ],
+    "elements_en": [
+      "Water",
+      "Metal"
+    ],
+    "planets": [
+      "木星",
+      "水星"
+    ],
+    "planets_en": [
+      "Jupiter",
+      "Mercury"
+    ],
+    "chakras": [
+      "眉心轮",
+      "喉轮"
+    ],
+    "chakras_en": [
+      "Third Eye",
+      "Throat"
+    ],
     "material": "天然青金石",
     "material_en": "Natural Lapis Lazuli",
-    "function_tags": ["开启智慧", "提升洞察力", "灵性成长"],
-    "function_tags_en": ["Unlock Wisdom", "Enhance Insight", "Spiritual Growth"],
+    "function_tags": [
+      "开启智慧",
+      "提升洞察力",
+      "灵性成长"
+    ],
+    "function_tags_en": [
+      "Unlock Wisdom",
+      "Enhance Insight",
+      "Spiritual Growth"
+    ],
     "sales_count": 380,
-    "rating": 4.6
+    "rating": 4.6,
+    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Purify with sandalwood smoke on the 1st and 15th of each lunar month.",
+    "precautions_en": "1. Avoid impact despite hardness\n2. Do not contact chemical cleaners\n3. Some may feel warmth initially — this is normal\n4. Pregnant women should consult before wearing",
+    "efficacy_en": "Made from 天然青金石. ",
+    "specifications_en": {
+      "Material": "天然青金石",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p21",
@@ -607,24 +1415,68 @@
     "price_usd": 196,
     "stock": 20,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/jewelry/ruby.png",
     "detail_images": [],
-    "wuxing_tags": ["fire"],
-    "astro_tags": ["mars", "pluto"],
-    "keyword_tags": ["#缺火", "#身弱", "#健康低谷", "#健康警示"],
-    "keyword_tags_en": ["#lack_fire", "#weak_body", "#health_low", "#health_warning"],
-    "elements": ["火"],
-    "elements_en": ["Fire"],
-    "planets": ["火星", "冥王星"],
-    "planets_en": ["Mars", "Pluto"],
-    "chakras": ["海底轮"],
-    "chakras_en": ["Root"],
+    "wuxing_tags": [
+      "fire"
+    ],
+    "astro_tags": [
+      "mars",
+      "pluto"
+    ],
+    "keyword_tags": [
+      "#缺火",
+      "#身弱",
+      "#健康低谷",
+      "#健康警示"
+    ],
+    "keyword_tags_en": [
+      "#lack_fire",
+      "#weak_body",
+      "#health_low",
+      "#health_warning"
+    ],
+    "elements": [
+      "火"
+    ],
+    "elements_en": [
+      "Fire"
+    ],
+    "planets": [
+      "火星",
+      "冥王星"
+    ],
+    "planets_en": [
+      "Mars",
+      "Pluto"
+    ],
+    "chakras": [
+      "海底轮"
+    ],
+    "chakras_en": [
+      "Root"
+    ],
     "material": "天然红宝石",
     "material_en": "Natural Ruby",
-    "function_tags": ["补火", "增强生命力", "稳固根基"],
-    "function_tags_en": ["Boost Fire", "Strengthen Vitality", "Stabilize Foundation"],
+    "function_tags": [
+      "补火",
+      "增强生命力",
+      "稳固根基"
+    ],
+    "function_tags_en": [
+      "Boost Fire",
+      "Strengthen Vitality",
+      "Stabilize Foundation"
+    ],
     "sales_count": 120,
-    "rating": 4.9
+    "rating": 4.9,
+    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Purify with sandalwood smoke on the 1st and 15th of each lunar month.",
+    "precautions_en": "1. Avoid impact despite hardness\n2. Do not contact chemical cleaners\n3. Some may feel warmth initially — this is normal\n4. Pregnant women should consult before wearing",
+    "efficacy_en": "Made from 天然红宝石. ",
+    "specifications_en": {
+      "Material": "天然红宝石",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p22",
@@ -640,24 +1492,59 @@
     "price_usd": 126,
     "stock": 40,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/jewelry/hetian-jade.png",
     "detail_images": [],
-    "wuxing_tags": ["earth"],
+    "wuxing_tags": [
+      "earth"
+    ],
     "astro_tags": [],
-    "keyword_tags": ["#健康低谷", "#健康警示", "#身弱", "#安神"],
-    "keyword_tags_en": ["#health_low", "#health_warning", "#weak_body", "#calm_mind"],
-    "elements": ["土"],
-    "elements_en": ["Earth"],
+    "keyword_tags": [
+      "#健康低谷",
+      "#健康警示",
+      "#身弱",
+      "#安神"
+    ],
+    "keyword_tags_en": [
+      "#health_low",
+      "#health_warning",
+      "#weak_body",
+      "#calm_mind"
+    ],
+    "elements": [
+      "土"
+    ],
+    "elements_en": [
+      "Earth"
+    ],
     "planets": [],
     "planets_en": [],
-    "chakras": ["海底轮"],
-    "chakras_en": ["Root"],
+    "chakras": [
+      "海底轮"
+    ],
+    "chakras_en": [
+      "Root"
+    ],
     "material": "天然和田玉",
     "material_en": "Natural Hetian Jade",
-    "function_tags": ["养护健康", "稳固元气", "安神"],
-    "function_tags_en": ["Nurture Health", "Stabilize Vitality", "Calm Mind"],
+    "function_tags": [
+      "养护健康",
+      "稳固元气",
+      "安神"
+    ],
+    "function_tags_en": [
+      "Nurture Health",
+      "Stabilize Vitality",
+      "Calm Mind"
+    ],
     "sales_count": 620,
-    "rating": 4.9
+    "rating": 4.9,
+    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Purify with sandalwood smoke on the 1st and 15th of each lunar month.",
+    "precautions_en": "1. Avoid impact despite hardness\n2. Do not contact chemical cleaners\n3. Some may feel warmth initially — this is normal\n4. Pregnant women should consult before wearing",
+    "efficacy_en": "Made from 天然和田玉. Promotes physical and mental well-being. ",
+    "specifications_en": {
+      "Material": "天然和田玉",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p23",
@@ -673,24 +1560,65 @@
     "price_usd": 42,
     "stock": 130,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/jewelry/garnet.png",
     "detail_images": [],
-    "wuxing_tags": ["fire"],
-    "astro_tags": ["pluto"],
-    "keyword_tags": ["#缺火", "#身弱", "#健康低谷", "#行动力"],
-    "keyword_tags_en": ["#lack_fire", "#weak_body", "#health_low", "#initiative"],
-    "elements": ["火"],
-    "elements_en": ["Fire"],
-    "planets": ["冥王星"],
-    "planets_en": ["Pluto"],
-    "chakras": ["海底轮"],
-    "chakras_en": ["Root"],
+    "wuxing_tags": [
+      "fire"
+    ],
+    "astro_tags": [
+      "pluto"
+    ],
+    "keyword_tags": [
+      "#缺火",
+      "#身弱",
+      "#健康低谷",
+      "#行动力"
+    ],
+    "keyword_tags_en": [
+      "#lack_fire",
+      "#weak_body",
+      "#health_low",
+      "#initiative"
+    ],
+    "elements": [
+      "火"
+    ],
+    "elements_en": [
+      "Fire"
+    ],
+    "planets": [
+      "冥王星"
+    ],
+    "planets_en": [
+      "Pluto"
+    ],
+    "chakras": [
+      "海底轮"
+    ],
+    "chakras_en": [
+      "Root"
+    ],
     "material": "天然石榴石",
     "material_en": "Natural Garnet",
-    "function_tags": ["补火", "活化气血", "增强活力"],
-    "function_tags_en": ["Boost Fire", "Activate Blood Flow", "Enhance Vitality"],
+    "function_tags": [
+      "补火",
+      "活化气血",
+      "增强活力"
+    ],
+    "function_tags_en": [
+      "Boost Fire",
+      "Activate Blood Flow",
+      "Enhance Vitality"
+    ],
     "sales_count": 720,
-    "rating": 4.7
+    "rating": 4.7,
+    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Purify with sandalwood smoke on the 1st and 15th of each lunar month.",
+    "precautions_en": "1. Avoid impact despite hardness\n2. Do not contact chemical cleaners\n3. Some may feel warmth initially — this is normal\n4. Pregnant women should consult before wearing",
+    "efficacy_en": "Made from 天然石榴石. ",
+    "specifications_en": {
+      "Material": "天然石榴石",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p24",
@@ -706,24 +1634,73 @@
     "price_usd": 109,
     "stock": 45,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/jewelry/beeswax-amber.png",
     "detail_images": [],
-    "wuxing_tags": ["earth", "fire"],
-    "astro_tags": ["sun", "saturn"],
-    "keyword_tags": ["#土星刑克", "#心灵转化", "#阻碍", "#压力大"],
-    "keyword_tags_en": ["#saturn_square", "#transformation", "#obstacles", "#high_stress"],
-    "elements": ["土", "火"],
-    "elements_en": ["Earth", "Fire"],
-    "planets": ["太阳", "土星"],
-    "planets_en": ["Sun", "Saturn"],
-    "chakras": ["太阳神经丛轮", "脐轮"],
-    "chakras_en": ["Solar Plexus", "Sacral"],
+    "wuxing_tags": [
+      "earth",
+      "fire"
+    ],
+    "astro_tags": [
+      "sun",
+      "saturn"
+    ],
+    "keyword_tags": [
+      "#土星刑克",
+      "#心灵转化",
+      "#阻碍",
+      "#压力大"
+    ],
+    "keyword_tags_en": [
+      "#saturn_square",
+      "#transformation",
+      "#obstacles",
+      "#high_stress"
+    ],
+    "elements": [
+      "土",
+      "火"
+    ],
+    "elements_en": [
+      "Earth",
+      "Fire"
+    ],
+    "planets": [
+      "太阳",
+      "土星"
+    ],
+    "planets_en": [
+      "Sun",
+      "Saturn"
+    ],
+    "chakras": [
+      "太阳神经丛轮",
+      "脐轮"
+    ],
+    "chakras_en": [
+      "Solar Plexus",
+      "Sacral"
+    ],
     "material": "天然波罗的海蜜蜡",
     "material_en": "Natural Baltic Amber",
-    "function_tags": ["温暖身心", "转化期守护", "提升安全感"],
-    "function_tags_en": ["Warm Body & Mind", "Guardian in Transition", "Boost Security"],
+    "function_tags": [
+      "温暖身心",
+      "转化期守护",
+      "提升安全感"
+    ],
+    "function_tags_en": [
+      "Warm Body & Mind",
+      "Guardian in Transition",
+      "Boost Security"
+    ],
     "sales_count": 280,
-    "rating": 4.8
+    "rating": 4.8,
+    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Purify with sandalwood smoke on the 1st and 15th of each lunar month.",
+    "precautions_en": "1. Avoid impact despite hardness\n2. Do not contact chemical cleaners\n3. Some may feel warmth initially — this is normal\n4. Pregnant women should consult before wearing",
+    "efficacy_en": "Made from 天然波罗的海蜜蜡. ",
+    "specifications_en": {
+      "Material": "天然波罗的海蜜蜡",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p25",
@@ -739,24 +1716,65 @@
     "price_usd": 85,
     "stock": 35,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/jewelry/malachite.png",
     "detail_images": [],
-    "wuxing_tags": ["wood"],
-    "astro_tags": ["venus"],
-    "keyword_tags": ["#感情心结", "#感情多磨", "#感情转折", "#感情复杂"],
-    "keyword_tags_en": ["#emotional_knots", "#troubled_love", "#love_turning_point", "#complex_relationships"],
-    "elements": ["木"],
-    "elements_en": ["Wood"],
-    "planets": ["金星"],
-    "planets_en": ["Venus"],
-    "chakras": ["心轮"],
-    "chakras_en": ["Heart"],
+    "wuxing_tags": [
+      "wood"
+    ],
+    "astro_tags": [
+      "venus"
+    ],
+    "keyword_tags": [
+      "#感情心结",
+      "#感情多磨",
+      "#感情转折",
+      "#感情复杂"
+    ],
+    "keyword_tags_en": [
+      "#emotional_knots",
+      "#troubled_love",
+      "#love_turning_point",
+      "#complex_relationships"
+    ],
+    "elements": [
+      "木"
+    ],
+    "elements_en": [
+      "Wood"
+    ],
+    "planets": [
+      "金星"
+    ],
+    "planets_en": [
+      "Venus"
+    ],
+    "chakras": [
+      "心轮"
+    ],
+    "chakras_en": [
+      "Heart"
+    ],
     "material": "天然孔雀石",
     "material_en": "Natural Malachite",
-    "function_tags": ["心轮疗愈", "修复感情", "情绪释放"],
-    "function_tags_en": ["Heart Healing", "Repair Love", "Emotional Release"],
+    "function_tags": [
+      "心轮疗愈",
+      "修复感情",
+      "情绪释放"
+    ],
+    "function_tags_en": [
+      "Heart Healing",
+      "Repair Love",
+      "Emotional Release"
+    ],
     "sales_count": 310,
-    "rating": 4.7
+    "rating": 4.7,
+    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Purify with sandalwood smoke on the 1st and 15th of each lunar month.",
+    "precautions_en": "1. Avoid impact despite hardness\n2. Do not contact chemical cleaners\n3. Some may feel warmth initially — this is normal\n4. Pregnant women should consult before wearing",
+    "efficacy_en": "Made from 天然孔雀石. ",
+    "specifications_en": {
+      "Material": "天然孔雀石",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p26",
@@ -772,24 +1790,68 @@
     "price_usd": 60,
     "stock": 90,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/jewelry/sunstone.png",
     "detail_images": [],
-    "wuxing_tags": ["fire", "earth"],
-    "astro_tags": ["sun"],
-    "keyword_tags": ["#财运受损", "#事业探索期", "#事业阻隔", "#缺乏弹性"],
-    "keyword_tags_en": ["#poor_fortune", "#career_exploration", "#career_barrier", "#inflexibility"],
-    "elements": ["火", "土"],
-    "elements_en": ["Fire", "Earth"],
-    "planets": ["太阳"],
-    "planets_en": ["Sun"],
-    "chakras": ["太阳神经丛轮"],
-    "chakras_en": ["Solar Plexus"],
+    "wuxing_tags": [
+      "fire",
+      "earth"
+    ],
+    "astro_tags": [
+      "sun"
+    ],
+    "keyword_tags": [
+      "#财运受损",
+      "#事业探索期",
+      "#事业阻隔",
+      "#缺乏弹性"
+    ],
+    "keyword_tags_en": [
+      "#poor_fortune",
+      "#career_exploration",
+      "#career_barrier",
+      "#inflexibility"
+    ],
+    "elements": [
+      "火",
+      "土"
+    ],
+    "elements_en": [
+      "Fire",
+      "Earth"
+    ],
+    "planets": [
+      "太阳"
+    ],
+    "planets_en": [
+      "Sun"
+    ],
+    "chakras": [
+      "太阳神经丛轮"
+    ],
+    "chakras_en": [
+      "Solar Plexus"
+    ],
     "material": "天然太阳石",
     "material_en": "Natural Sunstone",
-    "function_tags": ["提升自信", "招财", "事业助力"],
-    "function_tags_en": ["Boost Confidence", "Attract Wealth", "Career Boost"],
+    "function_tags": [
+      "提升自信",
+      "招财",
+      "事业助力"
+    ],
+    "function_tags_en": [
+      "Boost Confidence",
+      "Attract Wealth",
+      "Career Boost"
+    ],
     "sales_count": 470,
-    "rating": 4.8
+    "rating": 4.8,
+    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Purify with sandalwood smoke on the 1st and 15th of each lunar month.",
+    "precautions_en": "1. Avoid impact despite hardness\n2. Do not contact chemical cleaners\n3. Some may feel warmth initially — this is normal\n4. Pregnant women should consult before wearing",
+    "efficacy_en": "Made from 天然太阳石. Enhances wealth attraction and financial prosperity. Supports career advancement and decision-making. ",
+    "specifications_en": {
+      "Material": "天然太阳石",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p27",
@@ -807,22 +1869,56 @@
     "is_active": true,
     "image_url": "",
     "detail_images": [],
-    "wuxing_tags": ["metal", "water"],
+    "wuxing_tags": [
+      "metal",
+      "water"
+    ],
     "astro_tags": [],
-    "keyword_tags": ["#风水", "#家居", "#事业起伏", "#阻碍"],
-    "keyword_tags_en": ["#feng_shui", "#home", "#career_turbulence", "#obstacles"],
-    "elements": ["金", "水"],
-    "elements_en": ["Metal", "Water"],
+    "keyword_tags": [
+      "#风水",
+      "#家居",
+      "#事业起伏",
+      "#阻碍"
+    ],
+    "keyword_tags_en": [
+      "#feng_shui",
+      "#home",
+      "#career_turbulence",
+      "#obstacles"
+    ],
+    "elements": [
+      "金",
+      "水"
+    ],
+    "elements_en": [
+      "Metal",
+      "Water"
+    ],
     "planets": [],
     "planets_en": [],
     "chakras": [],
     "chakras_en": [],
     "material": "黄铜铸造",
     "material_en": "Cast Brass",
-    "function_tags": ["镇宅", "化煞", "稳固事业"],
-    "function_tags_en": ["Home Protection", "Neutralize Sha", "Stabilize Career"],
+    "function_tags": [
+      "镇宅",
+      "化煞",
+      "稳固事业"
+    ],
+    "function_tags_en": [
+      "Home Protection",
+      "Neutralize Sha",
+      "Stabilize Career"
+    ],
     "sales_count": 190,
-    "rating": 4.6
+    "rating": 4.6,
+    "usage_en": "Place in the appropriate feng shui position according to your needs. Keep clean and treat with respect. Avoid placing in bathrooms or bedrooms.",
+    "precautions_en": "1. Handle with care and respect\n2. Do not place in bathroom or cluttered areas\n3. Keep away from moisture\n4. Cleanse monthly with incense smoke",
+    "efficacy_en": "Made from 黄铜铸造. Provides protection and wards off negative energy. Supports career advancement and decision-making. ",
+    "specifications_en": {
+      "Material": "黄铜铸造",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p28",
@@ -840,22 +1936,55 @@
     "is_active": true,
     "image_url": "",
     "detail_images": [],
-    "wuxing_tags": ["metal"],
+    "wuxing_tags": [
+      "metal"
+    ],
     "astro_tags": [],
-    "keyword_tags": ["#财库空亡", "#招财", "#官杀混杂", "#财运受损"],
-    "keyword_tags_en": ["#depleted_wealth", "#wealth_attraction", "#clashing_killing", "#poor_fortune"],
-    "elements": ["金"],
-    "elements_en": ["Metal"],
+    "keyword_tags": [
+      "#财库空亡",
+      "#招财",
+      "#官杀混杂",
+      "#财运受损"
+    ],
+    "keyword_tags_en": [
+      "#depleted_wealth",
+      "#wealth_attraction",
+      "#clashing_killing",
+      "#poor_fortune"
+    ],
+    "elements": [
+      "金"
+    ],
+    "elements_en": [
+      "Metal"
+    ],
     "planets": [],
     "planets_en": [],
     "chakras": [],
     "chakras_en": [],
     "material": "清代古铜钱",
     "material_en": "Authentic Qing Dynasty Copper Coins",
-    "function_tags": ["招财", "化煞", "护身", "权威"],
-    "function_tags_en": ["Attract Wealth", "Neutralize Sha", "Protect", "Authority"],
+    "function_tags": [
+      "招财",
+      "化煞",
+      "护身",
+      "权威"
+    ],
+    "function_tags_en": [
+      "Attract Wealth",
+      "Neutralize Sha",
+      "Protect",
+      "Authority"
+    ],
     "sales_count": 850,
-    "rating": 4.8
+    "rating": 4.8,
+    "usage_en": "Place in the appropriate feng shui position according to your needs. Keep clean and treat with respect. Avoid placing in bathrooms or bedrooms.",
+    "precautions_en": "1. Handle with care and respect\n2. Do not place in bathroom or cluttered areas\n3. Keep away from moisture\n4. Cleanse monthly with incense smoke",
+    "efficacy_en": "Made from 清代古铜钱. Enhances wealth attraction and financial prosperity. ",
+    "specifications_en": {
+      "Material": "清代古铜钱",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p29",
@@ -871,24 +2000,59 @@
     "price_usd": 42,
     "stock": 200,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/talisman/cinnabar.png",
     "detail_images": [],
-    "wuxing_tags": ["fire"],
+    "wuxing_tags": [
+      "fire"
+    ],
     "astro_tags": [],
-    "keyword_tags": ["#官杀混杂", "#辟邪", "#身弱", "#小人是非"],
-    "keyword_tags_en": ["#clashing_killing", "#protection", "#weak_body", "#gossip"],
-    "elements": ["火"],
-    "elements_en": ["Fire"],
+    "keyword_tags": [
+      "#官杀混杂",
+      "#辟邪",
+      "#身弱",
+      "#小人是非"
+    ],
+    "keyword_tags_en": [
+      "#clashing_killing",
+      "#protection",
+      "#weak_body",
+      "#gossip"
+    ],
+    "elements": [
+      "火"
+    ],
+    "elements_en": [
+      "Fire"
+    ],
     "planets": [],
     "planets_en": [],
-    "chakras": ["海底轮"],
-    "chakras_en": ["Root"],
+    "chakras": [
+      "海底轮"
+    ],
+    "chakras_en": [
+      "Root"
+    ],
     "material": "高纯度朱砂",
     "material_en": "High-Purity Cinnabar",
-    "function_tags": ["辟邪", "护身", "本命年守护"],
-    "function_tags_en": ["Ward Off Evil", "Protect", "Zodiac Year Guardian"],
+    "function_tags": [
+      "辟邪",
+      "护身",
+      "本命年守护"
+    ],
+    "function_tags_en": [
+      "Ward Off Evil",
+      "Protect",
+      "Zodiac Year Guardian"
+    ],
     "sales_count": 2100,
-    "rating": 4.9
+    "rating": 4.9,
+    "usage_en": "Place in the appropriate feng shui position according to your needs. Keep clean and treat with respect. Avoid placing in bathrooms or bedrooms.",
+    "precautions_en": "1. Handle with care and respect\n2. Do not place in bathroom or cluttered areas\n3. Keep away from moisture\n4. Cleanse monthly with incense smoke",
+    "efficacy_en": "Made from 高纯度朱砂. Provides protection and wards off negative energy. ",
+    "specifications_en": {
+      "Material": "高纯度朱砂",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p30",
@@ -904,24 +2068,67 @@
     "price_usd": 36,
     "stock": 140,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/talisman/liuli-wenchang-tower.png",
     "detail_images": [],
-    "wuxing_tags": ["wood", "fire"],
-    "astro_tags": ["jupiter", "mercury"],
-    "keyword_tags": ["#事业探索期", "#决策困难", "#迷茫", "#事业"],
-    "keyword_tags_en": ["#career_exploration", "#decision_difficulty", "#confusion", "#career"],
-    "elements": ["木", "火"],
-    "elements_en": ["Wood", "Fire"],
-    "planets": ["木星", "水星"],
-    "planets_en": ["Jupiter", "Mercury"],
+    "wuxing_tags": [
+      "wood",
+      "fire"
+    ],
+    "astro_tags": [
+      "jupiter",
+      "mercury"
+    ],
+    "keyword_tags": [
+      "#事业探索期",
+      "#决策困难",
+      "#迷茫",
+      "#事业"
+    ],
+    "keyword_tags_en": [
+      "#career_exploration",
+      "#decision_difficulty",
+      "#confusion",
+      "#career"
+    ],
+    "elements": [
+      "木",
+      "火"
+    ],
+    "elements_en": [
+      "Wood",
+      "Fire"
+    ],
+    "planets": [
+      "木星",
+      "水星"
+    ],
+    "planets_en": [
+      "Jupiter",
+      "Mercury"
+    ],
     "chakras": [],
     "chakras_en": [],
     "material": "琉璃",
     "material_en": "Glazed Crystal",
-    "function_tags": ["学业提升", "事业方向", "开启智慧"],
-    "function_tags_en": ["Academic Elevation", "Career Direction", "Unlock Wisdom"],
+    "function_tags": [
+      "学业提升",
+      "事业方向",
+      "开启智慧"
+    ],
+    "function_tags_en": [
+      "Academic Elevation",
+      "Career Direction",
+      "Unlock Wisdom"
+    ],
     "sales_count": 490,
-    "rating": 4.6
+    "rating": 4.6,
+    "usage_en": "Place in the appropriate feng shui position according to your needs. Keep clean and treat with respect. Avoid placing in bathrooms or bedrooms.",
+    "precautions_en": "1. Handle with care and respect\n2. Do not place in bathroom or cluttered areas\n3. Keep away from moisture\n4. Cleanse monthly with incense smoke",
+    "efficacy_en": "Made from 琉璃. Supports career advancement and decision-making. ",
+    "specifications_en": {
+      "Material": "琉璃",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p31",
@@ -937,24 +2144,61 @@
     "price_usd": 26,
     "stock": 110,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/incense/bamboo-wind-chime.png",
     "detail_images": [],
-    "wuxing_tags": ["wood"],
-    "astro_tags": ["mercury"],
-    "keyword_tags": ["#缺木", "#沟通障碍", "#事业阻隔", "#家居"],
-    "keyword_tags_en": ["#lack_wood", "#communication_block", "#career_barrier", "#home"],
-    "elements": ["木"],
-    "elements_en": ["Wood"],
-    "planets": ["水星"],
-    "planets_en": ["Mercury"],
+    "wuxing_tags": [
+      "wood"
+    ],
+    "astro_tags": [
+      "mercury"
+    ],
+    "keyword_tags": [
+      "#缺木",
+      "#沟通障碍",
+      "#事业阻隔",
+      "#家居"
+    ],
+    "keyword_tags_en": [
+      "#lack_wood",
+      "#communication_block",
+      "#career_barrier",
+      "#home"
+    ],
+    "elements": [
+      "木"
+    ],
+    "elements_en": [
+      "Wood"
+    ],
+    "planets": [
+      "水星"
+    ],
+    "planets_en": [
+      "Mercury"
+    ],
     "chakras": [],
     "chakras_en": [],
     "material": "天然老竹",
     "material_en": "Natural Aged Bamboo",
-    "function_tags": ["补木气", "净化空间", "调和沟通"],
-    "function_tags_en": ["Boost Wood Energy", "Purify Space", "Harmonize Communication"],
+    "function_tags": [
+      "补木气",
+      "净化空间",
+      "调和沟通"
+    ],
+    "function_tags_en": [
+      "Boost Wood Energy",
+      "Purify Space",
+      "Harmonize Communication"
+    ],
     "sales_count": 260,
-    "rating": 4.5
+    "rating": 4.5,
+    "usage_en": "Light in a well-ventilated area. Place on a heat-resistant surface. Use during meditation or relaxation for best results.",
+    "precautions_en": "1. Use in well-ventilated areas only\n2. Keep away from flammable materials\n3. Do not leave burning unattended\n4. Store in a cool, dry place",
+    "efficacy_en": "Made from 天然老竹. ",
+    "specifications_en": {
+      "Material": "天然老竹",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p32",
@@ -970,24 +2214,68 @@
     "price_usd": 28,
     "stock": 250,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/crystal/himalayan-salt-lamp.png",
     "detail_images": [],
-    "wuxing_tags": ["earth", "fire"],
-    "astro_tags": ["saturn"],
-    "keyword_tags": ["#土星刑克", "#风水", "#家居", "#安神"],
-    "keyword_tags_en": ["#saturn_square", "#feng_shui", "#home", "#calm_mind"],
-    "elements": ["土", "火"],
-    "elements_en": ["Earth", "Fire"],
-    "planets": ["土星"],
-    "planets_en": ["Saturn"],
-    "chakras": ["海底轮"],
-    "chakras_en": ["Root"],
+    "wuxing_tags": [
+      "earth",
+      "fire"
+    ],
+    "astro_tags": [
+      "saturn"
+    ],
+    "keyword_tags": [
+      "#土星刑克",
+      "#风水",
+      "#家居",
+      "#安神"
+    ],
+    "keyword_tags_en": [
+      "#saturn_square",
+      "#feng_shui",
+      "#home",
+      "#calm_mind"
+    ],
+    "elements": [
+      "土",
+      "火"
+    ],
+    "elements_en": [
+      "Earth",
+      "Fire"
+    ],
+    "planets": [
+      "土星"
+    ],
+    "planets_en": [
+      "Saturn"
+    ],
+    "chakras": [
+      "海底轮"
+    ],
+    "chakras_en": [
+      "Root"
+    ],
     "material": "喜马拉雅水晶盐",
     "material_en": "Himalayan Crystal Salt",
-    "function_tags": ["净化空间", "稳固能量", "安神助眠"],
-    "function_tags_en": ["Purify Space", "Stabilize Energy", "Calm & Sleep Aid"],
+    "function_tags": [
+      "净化空间",
+      "稳固能量",
+      "安神助眠"
+    ],
+    "function_tags_en": [
+      "Purify Space",
+      "Stabilize Energy",
+      "Calm & Sleep Aid"
+    ],
     "sales_count": 920,
-    "rating": 4.7
+    "rating": 4.7,
+    "usage_en": "Place on your desk or in the wealth corner of your home (diagonal from the entrance). Wipe gently with clean water weekly. During meditation, hold the crystal and visualize golden light filling your body.",
+    "precautions_en": "1. Avoid prolonged direct sunlight to prevent fading\n2. Not recommended for bedroom nightstand\n3. Remove during exercise and bathing\n4. Purify under moonlight for 4 hours after purchase",
+    "efficacy_en": "Made from 喜马拉雅水晶盐. Promotes physical and mental well-being. ",
+    "specifications_en": {
+      "Material": "喜马拉雅水晶盐",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p33",
@@ -1003,24 +2291,80 @@
     "price_usd": 338,
     "stock": 15,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/talisman/bronze-bowl.png",
     "detail_images": [],
-    "wuxing_tags": ["metal"],
-    "astro_tags": ["neptune", "saturn"],
-    "keyword_tags": ["#灵性敏锐", "#内耗", "#心灵转化", "#感情心结"],
-    "keyword_tags_en": ["#spiritually_sensitive", "#inner_drain", "#transformation", "#emotional_knots"],
-    "elements": ["金"],
-    "elements_en": ["Metal"],
-    "planets": ["海王星", "土星"],
-    "planets_en": ["Neptune", "Saturn"],
-    "chakras": ["海底轮", "脐轮", "太阳神经丛轮", "心轮", "喉轮", "眉心轮", "顶轮"],
-    "chakras_en": ["Root", "Sacral", "Solar Plexus", "Heart", "Throat", "Third Eye", "Crown"],
+    "wuxing_tags": [
+      "metal"
+    ],
+    "astro_tags": [
+      "neptune",
+      "saturn"
+    ],
+    "keyword_tags": [
+      "#灵性敏锐",
+      "#内耗",
+      "#心灵转化",
+      "#感情心结"
+    ],
+    "keyword_tags_en": [
+      "#spiritually_sensitive",
+      "#inner_drain",
+      "#transformation",
+      "#emotional_knots"
+    ],
+    "elements": [
+      "金"
+    ],
+    "elements_en": [
+      "Metal"
+    ],
+    "planets": [
+      "海王星",
+      "土星"
+    ],
+    "planets_en": [
+      "Neptune",
+      "Saturn"
+    ],
+    "chakras": [
+      "海底轮",
+      "脐轮",
+      "太阳神经丛轮",
+      "心轮",
+      "喉轮",
+      "眉心轮",
+      "顶轮"
+    ],
+    "chakras_en": [
+      "Root",
+      "Sacral",
+      "Solar Plexus",
+      "Heart",
+      "Throat",
+      "Third Eye",
+      "Crown"
+    ],
     "material": "铜锡合金手工锻打",
     "material_en": "Hand-Forged Copper-Tin Alloy",
-    "function_tags": ["音声疗愈", "脉轮调频", "深层冥想"],
-    "function_tags_en": ["Sound Healing", "Chakra Tuning", "Deep Meditation"],
+    "function_tags": [
+      "音声疗愈",
+      "脉轮调频",
+      "深层冥想"
+    ],
+    "function_tags_en": [
+      "Sound Healing",
+      "Chakra Tuning",
+      "Deep Meditation"
+    ],
     "sales_count": 85,
-    "rating": 5.0
+    "rating": 5.0,
+    "usage_en": "Place in the appropriate feng shui position according to your needs. Keep clean and treat with respect. Avoid placing in bathrooms or bedrooms.",
+    "precautions_en": "1. Handle with care and respect\n2. Do not place in bathroom or cluttered areas\n3. Keep away from moisture\n4. Cleanse monthly with incense smoke",
+    "efficacy_en": "Made from 铜锡合金手工锻打. ",
+    "specifications_en": {
+      "Material": "铜锡合金手工锻打",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p34",
@@ -1036,24 +2380,76 @@
     "price_usd": 38,
     "stock": 180,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/incense/silk-eye-mask.png",
     "detail_images": [],
-    "wuxing_tags": ["wood", "water", "earth"],
-    "astro_tags": ["moon", "neptune"],
-    "keyword_tags": ["#焦虑过度", "#内耗", "#压力大", "#安神"],
-    "keyword_tags_en": ["#severe_anxiety", "#inner_drain", "#high_stress", "#calm_mind"],
-    "elements": ["木", "水", "土"],
-    "elements_en": ["Wood", "Water", "Earth"],
-    "planets": ["月亮", "海王星"],
-    "planets_en": ["Moon", "Neptune"],
-    "chakras": ["眉心轮", "顶轮"],
-    "chakras_en": ["Third Eye", "Crown"],
+    "wuxing_tags": [
+      "wood",
+      "water",
+      "earth"
+    ],
+    "astro_tags": [
+      "moon",
+      "neptune"
+    ],
+    "keyword_tags": [
+      "#焦虑过度",
+      "#内耗",
+      "#压力大",
+      "#安神"
+    ],
+    "keyword_tags_en": [
+      "#severe_anxiety",
+      "#inner_drain",
+      "#high_stress",
+      "#calm_mind"
+    ],
+    "elements": [
+      "木",
+      "水",
+      "土"
+    ],
+    "elements_en": [
+      "Wood",
+      "Water",
+      "Earth"
+    ],
+    "planets": [
+      "月亮",
+      "海王星"
+    ],
+    "planets_en": [
+      "Moon",
+      "Neptune"
+    ],
+    "chakras": [
+      "眉心轮",
+      "顶轮"
+    ],
+    "chakras_en": [
+      "Third Eye",
+      "Crown"
+    ],
     "material": "桑蚕丝+草本香包",
     "material_en": "Mulberry Silk + Herbal Sachet",
-    "function_tags": ["助眠", "安神", "缓解焦虑"],
-    "function_tags_en": ["Sleep Aid", "Calm Mind", "Relieve Anxiety"],
+    "function_tags": [
+      "助眠",
+      "安神",
+      "缓解焦虑"
+    ],
+    "function_tags_en": [
+      "Sleep Aid",
+      "Calm Mind",
+      "Relieve Anxiety"
+    ],
     "sales_count": 670,
-    "rating": 4.8
+    "rating": 4.8,
+    "usage_en": "Light in a well-ventilated area. Place on a heat-resistant surface. Use during meditation or relaxation for best results.",
+    "precautions_en": "1. Use in well-ventilated areas only\n2. Keep away from flammable materials\n3. Do not leave burning unattended\n4. Store in a cool, dry place",
+    "efficacy_en": "Made from 桑蚕丝+草本香包. Promotes physical and mental well-being. ",
+    "specifications_en": {
+      "Material": "桑蚕丝+草本香包",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p35",
@@ -1069,24 +2465,68 @@
     "price_usd": 24,
     "stock": 300,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/jewelry/sachet.png",
     "detail_images": [],
-    "wuxing_tags": ["earth", "metal"],
-    "astro_tags": ["venus"],
-    "keyword_tags": ["#招财", "#人际", "#桃花运", "#财运受损"],
-    "keyword_tags_en": ["#wealth_attraction", "#relationships", "#romance", "#poor_fortune"],
-    "elements": ["土", "金"],
-    "elements_en": ["Earth", "Metal"],
-    "planets": ["金星"],
-    "planets_en": ["Venus"],
-    "chakras": ["脐轮"],
-    "chakras_en": ["Sacral"],
+    "wuxing_tags": [
+      "earth",
+      "metal"
+    ],
+    "astro_tags": [
+      "venus"
+    ],
+    "keyword_tags": [
+      "#招财",
+      "#人际",
+      "#桃花运",
+      "#财运受损"
+    ],
+    "keyword_tags_en": [
+      "#wealth_attraction",
+      "#relationships",
+      "#romance",
+      "#poor_fortune"
+    ],
+    "elements": [
+      "土",
+      "金"
+    ],
+    "elements_en": [
+      "Earth",
+      "Metal"
+    ],
+    "planets": [
+      "金星"
+    ],
+    "planets_en": [
+      "Venus"
+    ],
+    "chakras": [
+      "脐轮"
+    ],
+    "chakras_en": [
+      "Sacral"
+    ],
     "material": "真丝刺绣+天然香料",
     "material_en": "Silk Embroidery + Natural Herbs",
-    "function_tags": ["招财", "增人缘", "随身护佑"],
-    "function_tags_en": ["Attract Wealth", "Enhance Charm", "Daily Protection"],
+    "function_tags": [
+      "招财",
+      "增人缘",
+      "随身护佑"
+    ],
+    "function_tags_en": [
+      "Attract Wealth",
+      "Enhance Charm",
+      "Daily Protection"
+    ],
     "sales_count": 1100,
-    "rating": 4.7
+    "rating": 4.7,
+    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Purify with sandalwood smoke on the 1st and 15th of each lunar month.",
+    "precautions_en": "1. Avoid impact despite hardness\n2. Do not contact chemical cleaners\n3. Some may feel warmth initially — this is normal\n4. Pregnant women should consult before wearing",
+    "efficacy_en": "Made from 真丝刺绣+天然香料. Enhances wealth attraction and financial prosperity. ",
+    "specifications_en": {
+      "Material": "真丝刺绣+天然香料",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p36",
@@ -1102,24 +2542,64 @@
     "price_usd": 18,
     "stock": 400,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/incense/cypress-incense.png",
     "detail_images": [],
-    "wuxing_tags": ["wood", "earth"],
+    "wuxing_tags": [
+      "wood",
+      "earth"
+    ],
     "astro_tags": [],
-    "keyword_tags": ["#缺木", "#安神", "#焦虑过度", "#灵性"],
-    "keyword_tags_en": ["#lack_wood", "#calm_mind", "#severe_anxiety", "#spirituality"],
-    "elements": ["木", "土"],
-    "elements_en": ["Wood", "Earth"],
+    "keyword_tags": [
+      "#缺木",
+      "#安神",
+      "#焦虑过度",
+      "#灵性"
+    ],
+    "keyword_tags_en": [
+      "#lack_wood",
+      "#calm_mind",
+      "#severe_anxiety",
+      "#spirituality"
+    ],
+    "elements": [
+      "木",
+      "土"
+    ],
+    "elements_en": [
+      "Wood",
+      "Earth"
+    ],
     "planets": [],
     "planets_en": [],
-    "chakras": ["脐轮", "海底轮"],
-    "chakras_en": ["Sacral", "Root"],
+    "chakras": [
+      "脐轮",
+      "海底轮"
+    ],
+    "chakras_en": [
+      "Sacral",
+      "Root"
+    ],
     "material": "太行山崖柏粉",
     "material_en": "Taihang Mountain Cliff Cypress Powder",
-    "function_tags": ["安神", "冥想辅助", "净化空间"],
-    "function_tags_en": ["Calm Mind", "Meditation Aid", "Purify Space"],
+    "function_tags": [
+      "安神",
+      "冥想辅助",
+      "净化空间"
+    ],
+    "function_tags_en": [
+      "Calm Mind",
+      "Meditation Aid",
+      "Purify Space"
+    ],
     "sales_count": 530,
-    "rating": 4.6
+    "rating": 4.6,
+    "usage_en": "Light in a well-ventilated area. Place on a heat-resistant surface. Use during meditation or relaxation for best results.",
+    "precautions_en": "1. Use in well-ventilated areas only\n2. Keep away from flammable materials\n3. Do not leave burning unattended\n4. Store in a cool, dry place",
+    "efficacy_en": "Made from 太行山崖柏粉. Promotes physical and mental well-being. ",
+    "specifications_en": {
+      "Material": "太行山崖柏粉",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p39",
@@ -1135,24 +2615,58 @@
     "price_usd": 66,
     "stock": 75,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/talisman/fengshui-wheel.jpg",
     "detail_images": [],
-    "wuxing_tags": ["metal", "water"],
+    "wuxing_tags": [
+      "metal",
+      "water"
+    ],
     "astro_tags": [],
-    "keyword_tags": ["#财库空亡", "#财运受损", "#风水", "#压力大"],
-    "keyword_tags_en": ["#depleted_wealth", "#poor_fortune", "#feng_shui", "#high_stress"],
-    "elements": ["金", "水"],
-    "elements_en": ["Metal", "Water"],
+    "keyword_tags": [
+      "#财库空亡",
+      "#财运受损",
+      "#风水",
+      "#压力大"
+    ],
+    "keyword_tags_en": [
+      "#depleted_wealth",
+      "#poor_fortune",
+      "#feng_shui",
+      "#high_stress"
+    ],
+    "elements": [
+      "金",
+      "水"
+    ],
+    "elements_en": [
+      "Metal",
+      "Water"
+    ],
     "planets": [],
     "planets_en": [],
     "chakras": [],
     "chakras_en": [],
     "material": "黄铜+循环水泵",
     "material_en": "Brass + Recirculating Water Pump",
-    "function_tags": ["招财", "化压", "风水布局"],
-    "function_tags_en": ["Attract Wealth", "Relieve Stress", "Feng Shui Layout"],
+    "function_tags": [
+      "招财",
+      "化压",
+      "风水布局"
+    ],
+    "function_tags_en": [
+      "Attract Wealth",
+      "Relieve Stress",
+      "Feng Shui Layout"
+    ],
     "sales_count": 440,
-    "rating": 4.7
+    "rating": 4.7,
+    "usage_en": "Place in the appropriate feng shui position according to your needs. Keep clean and treat with respect. Avoid placing in bathrooms or bedrooms.",
+    "precautions_en": "1. Handle with care and respect\n2. Do not place in bathroom or cluttered areas\n3. Keep away from moisture\n4. Cleanse monthly with incense smoke",
+    "efficacy_en": "Made from 黄铜+循环水泵. Enhances wealth attraction and financial prosperity. ",
+    "specifications_en": {
+      "Material": "黄铜+循环水泵",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p40",
@@ -1168,24 +2682,69 @@
     "price_usd": 52,
     "stock": 80,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/talisman/ebony-wood.png",
     "detail_images": [],
-    "wuxing_tags": ["wood", "fire"],
-    "astro_tags": ["jupiter", "mercury"],
-    "keyword_tags": ["#学业瓶颈", "#职称考试", "#印星不足", "#事业探索期"],
-    "keyword_tags_en": ["#academic_plateau", "#certification_exam", "#weak_resource_star", "#career_exploration"],
-    "elements": ["木", "火"],
-    "elements_en": ["Wood", "Fire"],
-    "planets": ["木星", "水星"],
-    "planets_en": ["Jupiter", "Mercury"],
+    "wuxing_tags": [
+      "wood",
+      "fire"
+    ],
+    "astro_tags": [
+      "jupiter",
+      "mercury"
+    ],
+    "keyword_tags": [
+      "#学业瓶颈",
+      "#职称考试",
+      "#印星不足",
+      "#事业探索期"
+    ],
+    "keyword_tags_en": [
+      "#academic_plateau",
+      "#certification_exam",
+      "#weak_resource_star",
+      "#career_exploration"
+    ],
+    "elements": [
+      "木",
+      "火"
+    ],
+    "elements_en": [
+      "Wood",
+      "Fire"
+    ],
+    "planets": [
+      "木星",
+      "水星"
+    ],
+    "planets_en": [
+      "Jupiter",
+      "Mercury"
+    ],
     "chakras": [],
     "chakras_en": [],
     "material": "黑檀木+白水晶",
     "material_en": "Ebony + White Quartz",
-    "function_tags": ["学业提升", "职称助力", "印星补益", "考试顺利"],
-    "function_tags_en": ["Academic Elevation", "Career Advancement", "Resource Star Boost", "Exam Success"],
+    "function_tags": [
+      "学业提升",
+      "职称助力",
+      "印星补益",
+      "考试顺利"
+    ],
+    "function_tags_en": [
+      "Academic Elevation",
+      "Career Advancement",
+      "Resource Star Boost",
+      "Exam Success"
+    ],
     "sales_count": 380,
-    "rating": 4.8
+    "rating": 4.8,
+    "usage_en": "Place in the appropriate feng shui position according to your needs. Keep clean and treat with respect. Avoid placing in bathrooms or bedrooms.",
+    "precautions_en": "1. Handle with care and respect\n2. Do not place in bathroom or cluttered areas\n3. Keep away from moisture\n4. Cleanse monthly with incense smoke",
+    "efficacy_en": "Made from 黑檀木+白水晶. ",
+    "specifications_en": {
+      "Material": "黑檀木+白水晶",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p41",
@@ -1201,24 +2760,78 @@
     "price_usd": 75,
     "stock": 60,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/jewelry/beeswax-amber.png",
     "detail_images": [],
-    "wuxing_tags": ["earth", "fire"],
-    "astro_tags": ["moon", "pluto", "venus"],
-    "keyword_tags": ["#子女缘薄", "#备孕调理", "#创作瓶颈", "#伤官受制"],
-    "keyword_tags_en": ["#weak_children_luck", "#preconception", "#creative_block", "#weak_talent_star"],
-    "elements": ["土", "火"],
-    "elements_en": ["Earth", "Fire"],
-    "planets": ["月亮", "冥王星", "金星"],
-    "planets_en": ["Moon", "Pluto", "Venus"],
-    "chakras": ["海底轮", "脐轮"],
-    "chakras_en": ["Root", "Sacral"],
+    "wuxing_tags": [
+      "earth",
+      "fire"
+    ],
+    "astro_tags": [
+      "moon",
+      "pluto",
+      "venus"
+    ],
+    "keyword_tags": [
+      "#子女缘薄",
+      "#备孕调理",
+      "#创作瓶颈",
+      "#伤官受制"
+    ],
+    "keyword_tags_en": [
+      "#weak_children_luck",
+      "#preconception",
+      "#creative_block",
+      "#weak_talent_star"
+    ],
+    "elements": [
+      "土",
+      "火"
+    ],
+    "elements_en": [
+      "Earth",
+      "Fire"
+    ],
+    "planets": [
+      "月亮",
+      "冥王星",
+      "金星"
+    ],
+    "planets_en": [
+      "Moon",
+      "Pluto",
+      "Venus"
+    ],
+    "chakras": [
+      "海底轮",
+      "脐轮"
+    ],
+    "chakras_en": [
+      "Root",
+      "Sacral"
+    ],
     "material": "天然波罗的海蜜蜡+石榴石",
     "material_en": "Natural Baltic Amber + Garnet",
-    "function_tags": ["调理生育", "催旺才华", "暖宫养身", "激发创作"],
-    "function_tags_en": ["Fertility Support", "Activate Talent", "Warm Womb", "Inspire Creativity"],
+    "function_tags": [
+      "调理生育",
+      "催旺才华",
+      "暖宫养身",
+      "激发创作"
+    ],
+    "function_tags_en": [
+      "Fertility Support",
+      "Activate Talent",
+      "Warm Womb",
+      "Inspire Creativity"
+    ],
     "sales_count": 260,
-    "rating": 4.7
+    "rating": 4.7,
+    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Purify with sandalwood smoke on the 1st and 15th of each lunar month.",
+    "precautions_en": "1. Avoid impact despite hardness\n2. Do not contact chemical cleaners\n3. Some may feel warmth initially — this is normal\n4. Pregnant women should consult before wearing",
+    "efficacy_en": "Made from 天然波罗的海蜜蜡+石榴石. ",
+    "specifications_en": {
+      "Material": "天然波罗的海蜜蜡+石榴石",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p42",
@@ -1234,24 +2847,70 @@
     "price_usd": 42,
     "stock": 100,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/crystal/white-crystal-cluster.png",
     "detail_images": [],
-    "wuxing_tags": ["metal", "water"],
-    "astro_tags": ["sun"],
-    "keyword_tags": ["#合作不顺", "#人际紧张", "#团队磨合", "#能量阻滞"],
-    "keyword_tags_en": ["#cooperation_issues", "#relationship_tension", "#team_friction", "#energy_blockage"],
-    "elements": ["金", "水"],
-    "elements_en": ["Metal", "Water"],
-    "planets": ["太阳"],
-    "planets_en": ["Sun"],
-    "chakras": ["顶轮"],
-    "chakras_en": ["Crown"],
+    "wuxing_tags": [
+      "metal",
+      "water"
+    ],
+    "astro_tags": [
+      "sun"
+    ],
+    "keyword_tags": [
+      "#合作不顺",
+      "#人际紧张",
+      "#团队磨合",
+      "#能量阻滞"
+    ],
+    "keyword_tags_en": [
+      "#cooperation_issues",
+      "#relationship_tension",
+      "#team_friction",
+      "#energy_blockage"
+    ],
+    "elements": [
+      "金",
+      "水"
+    ],
+    "elements_en": [
+      "Metal",
+      "Water"
+    ],
+    "planets": [
+      "太阳"
+    ],
+    "planets_en": [
+      "Sun"
+    ],
+    "chakras": [
+      "顶轮"
+    ],
+    "chakras_en": [
+      "Crown"
+    ],
     "material": "天然白水晶簇",
     "material_en": "Natural White Quartz Cluster",
-    "function_tags": ["增强合作", "净化空间", "团队和谐", "能量放大"],
-    "function_tags_en": ["Enhance Cooperation", "Purify Space", "Team Harmony", "Amplify Energy"],
+    "function_tags": [
+      "增强合作",
+      "净化空间",
+      "团队和谐",
+      "能量放大"
+    ],
+    "function_tags_en": [
+      "Enhance Cooperation",
+      "Purify Space",
+      "Team Harmony",
+      "Amplify Energy"
+    ],
     "sales_count": 520,
-    "rating": 4.6
+    "rating": 4.6,
+    "usage_en": "Place on your desk or in the wealth corner of your home (diagonal from the entrance). Wipe gently with clean water weekly. During meditation, hold the crystal and visualize golden light filling your body.",
+    "precautions_en": "1. Avoid prolonged direct sunlight to prevent fading\n2. Not recommended for bedroom nightstand\n3. Remove during exercise and bathing\n4. Purify under moonlight for 4 hours after purchase",
+    "efficacy_en": "Made from 天然白水晶簇. ",
+    "specifications_en": {
+      "Material": "天然白水晶簇",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p43",
@@ -1267,24 +2926,66 @@
     "price_usd": 26,
     "stock": 200,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/talisman/white-crystal.png",
     "detail_images": [],
-    "wuxing_tags": ["metal", "water"],
-    "astro_tags": ["mercury"],
-    "keyword_tags": ["#驿马奔波", "#出行安全", "#频繁变动", "#外地发展"],
-    "keyword_tags_en": ["#travel_star", "#travel_safety", "#frequent_changes", "#overseas_growth"],
-    "elements": ["金", "水"],
-    "elements_en": ["Metal", "Water"],
-    "planets": ["水星"],
-    "planets_en": ["Mercury"],
+    "wuxing_tags": [
+      "metal",
+      "water"
+    ],
+    "astro_tags": [
+      "mercury"
+    ],
+    "keyword_tags": [
+      "#驿马奔波",
+      "#出行安全",
+      "#频繁变动",
+      "#外地发展"
+    ],
+    "keyword_tags_en": [
+      "#travel_star",
+      "#travel_safety",
+      "#frequent_changes",
+      "#overseas_growth"
+    ],
+    "elements": [
+      "金",
+      "水"
+    ],
+    "elements_en": [
+      "Metal",
+      "Water"
+    ],
+    "planets": [
+      "水星"
+    ],
+    "planets_en": [
+      "Mercury"
+    ],
     "chakras": [],
     "chakras_en": [],
     "material": "天然白水晶+金刚结流苏",
     "material_en": "Natural White Quartz + Vajra Knot Tassel",
-    "function_tags": ["护佑出行", "化驿马为机遇", "净化车内磁场", "变动中求稳"],
-    "function_tags_en": ["Travel Protection", "Turn Travel to Opportunity", "Purify Car Energy", "Stability in Change"],
+    "function_tags": [
+      "护佑出行",
+      "化驿马为机遇",
+      "净化车内磁场",
+      "变动中求稳"
+    ],
+    "function_tags_en": [
+      "Travel Protection",
+      "Turn Travel to Opportunity",
+      "Purify Car Energy",
+      "Stability in Change"
+    ],
     "sales_count": 890,
-    "rating": 4.8
+    "rating": 4.8,
+    "usage_en": "Place in the appropriate feng shui position according to your needs. Keep clean and treat with respect. Avoid placing in bathrooms or bedrooms.",
+    "precautions_en": "1. Handle with care and respect\n2. Do not place in bathroom or cluttered areas\n3. Keep away from moisture\n4. Cleanse monthly with incense smoke",
+    "efficacy_en": "Made from 天然白水晶+金刚结流苏. ",
+    "specifications_en": {
+      "Material": "天然白水晶+金刚结流苏",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p44",
@@ -1300,24 +3001,75 @@
     "price_usd": 99,
     "stock": 35,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/jewelry/kunzite.png",
     "detail_images": [],
-    "wuxing_tags": ["fire", "wood"],
-    "astro_tags": ["neptune", "venus"],
-    "keyword_tags": ["#华盖孤独", "#玄学缘分", "#审美独特", "#情感连接"],
-    "keyword_tags_en": ["#huagai_solitude", "#metaphysical_connection", "#unique_aesthetic", "#emotional_connection"],
-    "elements": ["火", "木"],
-    "elements_en": ["Fire", "Wood"],
-    "planets": ["海王星", "金星"],
-    "planets_en": ["Neptune", "Venus"],
-    "chakras": ["心轮", "顶轮"],
-    "chakras_en": ["Heart", "Crown"],
+    "wuxing_tags": [
+      "fire",
+      "wood"
+    ],
+    "astro_tags": [
+      "neptune",
+      "venus"
+    ],
+    "keyword_tags": [
+      "#华盖孤独",
+      "#玄学缘分",
+      "#审美独特",
+      "#情感连接"
+    ],
+    "keyword_tags_en": [
+      "#huagai_solitude",
+      "#metaphysical_connection",
+      "#unique_aesthetic",
+      "#emotional_connection"
+    ],
+    "elements": [
+      "火",
+      "木"
+    ],
+    "elements_en": [
+      "Fire",
+      "Wood"
+    ],
+    "planets": [
+      "海王星",
+      "金星"
+    ],
+    "planets_en": [
+      "Neptune",
+      "Venus"
+    ],
+    "chakras": [
+      "心轮",
+      "顶轮"
+    ],
+    "chakras_en": [
+      "Heart",
+      "Crown"
+    ],
     "material": "天然紫锂辉石+925银针",
     "material_en": "Natural Kunzite + 925 Silver Posts",
-    "function_tags": ["孤独转化", "艺术灵感", "灵性成长", "情感连接"],
-    "function_tags_en": ["Transform Solitude", "Artistic Inspiration", "Spiritual Growth", "Emotional Connection"],
+    "function_tags": [
+      "孤独转化",
+      "艺术灵感",
+      "灵性成长",
+      "情感连接"
+    ],
+    "function_tags_en": [
+      "Transform Solitude",
+      "Artistic Inspiration",
+      "Spiritual Growth",
+      "Emotional Connection"
+    ],
     "sales_count": 140,
-    "rating": 4.9
+    "rating": 4.9,
+    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Purify with sandalwood smoke on the 1st and 15th of each lunar month.",
+    "precautions_en": "1. Avoid impact despite hardness\n2. Do not contact chemical cleaners\n3. Some may feel warmth initially — this is normal\n4. Pregnant women should consult before wearing",
+    "efficacy_en": "Made from 天然紫锂辉石+925银针. ",
+    "specifications_en": {
+      "Material": "天然紫锂辉石+925银针",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p45",
@@ -1333,24 +3085,78 @@
     "price_usd": 28,
     "stock": 150,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/incense/mugwort-pillow.png",
     "detail_images": [],
-    "wuxing_tags": ["wood", "fire", "earth"],
-    "astro_tags": ["moon", "neptune"],
-    "keyword_tags": ["#焦虑过度", "#内耗", "#精力透支", "#体质偏弱"],
-    "keyword_tags_en": ["#severe_anxiety", "#inner_drain", "#energy_depletion", "#weak_constitution"],
-    "elements": ["木", "火", "土"],
-    "elements_en": ["Wood", "Fire", "Earth"],
-    "planets": ["月亮", "海王星"],
-    "planets_en": ["Moon", "Neptune"],
-    "chakras": ["眉心轮", "顶轮"],
-    "chakras_en": ["Third Eye", "Crown"],
+    "wuxing_tags": [
+      "wood",
+      "fire",
+      "earth"
+    ],
+    "astro_tags": [
+      "moon",
+      "neptune"
+    ],
+    "keyword_tags": [
+      "#焦虑过度",
+      "#内耗",
+      "#精力透支",
+      "#体质偏弱"
+    ],
+    "keyword_tags_en": [
+      "#severe_anxiety",
+      "#inner_drain",
+      "#energy_depletion",
+      "#weak_constitution"
+    ],
+    "elements": [
+      "木",
+      "火",
+      "土"
+    ],
+    "elements_en": [
+      "Wood",
+      "Fire",
+      "Earth"
+    ],
+    "planets": [
+      "月亮",
+      "海王星"
+    ],
+    "planets_en": [
+      "Moon",
+      "Neptune"
+    ],
+    "chakras": [
+      "眉心轮",
+      "顶轮"
+    ],
+    "chakras_en": [
+      "Third Eye",
+      "Crown"
+    ],
     "material": "棉麻+陈艾绒+薰衣草+合欢花",
     "material_en": "Cotton-Linen + Aged Mugwort + Lavender + Albizia",
-    "function_tags": ["助眠", "安神", "补气血", "缓解焦虑"],
-    "function_tags_en": ["Sleep Aid", "Calm Mind", "Nourish Blood & Qi", "Relieve Anxiety"],
+    "function_tags": [
+      "助眠",
+      "安神",
+      "补气血",
+      "缓解焦虑"
+    ],
+    "function_tags_en": [
+      "Sleep Aid",
+      "Calm Mind",
+      "Nourish Blood & Qi",
+      "Relieve Anxiety"
+    ],
     "sales_count": 720,
-    "rating": 4.7
+    "rating": 4.7,
+    "usage_en": "Light in a well-ventilated area. Place on a heat-resistant surface. Use during meditation or relaxation for best results.",
+    "precautions_en": "1. Use in well-ventilated areas only\n2. Keep away from flammable materials\n3. Do not leave burning unattended\n4. Store in a cool, dry place",
+    "efficacy_en": "Made from 棉麻+陈艾绒+薰衣草+合欢花. Promotes physical and mental well-being. ",
+    "specifications_en": {
+      "Material": "棉麻+陈艾绒+薰衣草+合欢花",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p46",
@@ -1366,24 +3172,63 @@
     "price_usd": 98,
     "stock": 45,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/talisman/pixiu.png",
     "detail_images": [],
-    "wuxing_tags": ["metal"],
-    "astro_tags": ["jupiter"],
-    "keyword_tags": ["#偏财不足", "#投资失利", "#创业初期", "#财运受损"],
-    "keyword_tags_en": ["#weak_windfall", "#investment_loss", "#startup_phase", "#poor_fortune"],
-    "elements": ["金"],
-    "elements_en": ["Metal"],
-    "planets": ["木星"],
-    "planets_en": ["Jupiter"],
+    "wuxing_tags": [
+      "metal"
+    ],
+    "astro_tags": [
+      "jupiter"
+    ],
+    "keyword_tags": [
+      "#偏财不足",
+      "#投资失利",
+      "#创业初期",
+      "#财运受损"
+    ],
+    "keyword_tags_en": [
+      "#weak_windfall",
+      "#investment_loss",
+      "#startup_phase",
+      "#poor_fortune"
+    ],
+    "elements": [
+      "金"
+    ],
+    "elements_en": [
+      "Metal"
+    ],
+    "planets": [
+      "木星"
+    ],
+    "planets_en": [
+      "Jupiter"
+    ],
     "chakras": [],
     "chakras_en": [],
     "material": "铜鎏金",
     "material_en": "Gilded Bronze",
-    "function_tags": ["催偏财", "旺投资", "创业助力", "招财"],
-    "function_tags_en": ["Activate Windfall", "Boost Investments", "Startup Support", "Attract Wealth"],
+    "function_tags": [
+      "催偏财",
+      "旺投资",
+      "创业助力",
+      "招财"
+    ],
+    "function_tags_en": [
+      "Activate Windfall",
+      "Boost Investments",
+      "Startup Support",
+      "Attract Wealth"
+    ],
     "sales_count": 340,
-    "rating": 4.8
+    "rating": 4.8,
+    "usage_en": "Place in the appropriate feng shui position according to your needs. Keep clean and treat with respect. Avoid placing in bathrooms or bedrooms.",
+    "precautions_en": "1. Handle with care and respect\n2. Do not place in bathroom or cluttered areas\n3. Keep away from moisture\n4. Cleanse monthly with incense smoke",
+    "efficacy_en": "Made from 铜鎏金. Enhances wealth attraction and financial prosperity. ",
+    "specifications_en": {
+      "Material": "铜鎏金",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p47",
@@ -1401,22 +3246,71 @@
     "is_active": true,
     "image_url": "",
     "detail_images": [],
-    "wuxing_tags": ["wood", "earth"],
-    "astro_tags": ["jupiter", "sun"],
-    "keyword_tags": ["#中年转型", "#职场瓶颈", "#事业探索期", "#低调务实"],
-    "keyword_tags_en": ["#midlife_transition", "#career_plateau", "#career_exploration", "#humble_pragmatic"],
-    "elements": ["木", "土"],
-    "elements_en": ["Wood", "Earth"],
-    "planets": ["木星", "太阳"],
-    "planets_en": ["Jupiter", "Sun"],
-    "chakras": ["太阳神经丛轮"],
-    "chakras_en": ["Solar Plexus"],
+    "wuxing_tags": [
+      "wood",
+      "earth"
+    ],
+    "astro_tags": [
+      "jupiter",
+      "sun"
+    ],
+    "keyword_tags": [
+      "#中年转型",
+      "#职场瓶颈",
+      "#事业探索期",
+      "#低调务实"
+    ],
+    "keyword_tags_en": [
+      "#midlife_transition",
+      "#career_plateau",
+      "#career_exploration",
+      "#humble_pragmatic"
+    ],
+    "elements": [
+      "木",
+      "土"
+    ],
+    "elements_en": [
+      "Wood",
+      "Earth"
+    ],
+    "planets": [
+      "木星",
+      "太阳"
+    ],
+    "planets_en": [
+      "Jupiter",
+      "Sun"
+    ],
+    "chakras": [
+      "太阳神经丛轮"
+    ],
+    "chakras_en": [
+      "Solar Plexus"
+    ],
     "material": "天然A货翡翠+黑绳",
     "material_en": "Natural Grade A Jadeite + Black Cord",
-    "function_tags": ["职场晋升", "事业突破", "增强信心", "步步高升"],
-    "function_tags_en": ["Career Advancement", "Breakthrough", "Boost Confidence", "Rise Higher"],
+    "function_tags": [
+      "职场晋升",
+      "事业突破",
+      "增强信心",
+      "步步高升"
+    ],
+    "function_tags_en": [
+      "Career Advancement",
+      "Breakthrough",
+      "Boost Confidence",
+      "Rise Higher"
+    ],
     "sales_count": 480,
-    "rating": 4.9
+    "rating": 4.9,
+    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Purify with sandalwood smoke on the 1st and 15th of each lunar month.",
+    "precautions_en": "1. Avoid impact despite hardness\n2. Do not contact chemical cleaners\n3. Some may feel warmth initially — this is normal\n4. Pregnant women should consult before wearing",
+    "efficacy_en": "Made from 天然A货翡翠+黑绳. Supports career advancement and decision-making. ",
+    "specifications_en": {
+      "Material": "天然A货翡翠+黑绳",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p48",
@@ -1434,22 +3328,71 @@
     "is_active": true,
     "image_url": "",
     "detail_images": [],
-    "wuxing_tags": ["fire", "wood"],
-    "astro_tags": ["mars", "saturn"],
-    "keyword_tags": ["#官非口舌", "#合同纠纷", "#诉讼不断", "#压力大"],
-    "keyword_tags_en": ["#legal_disputes", "#contract_conflicts", "#persistent_litigation", "#high_stress"],
-    "elements": ["火", "木"],
-    "elements_en": ["Fire", "Wood"],
-    "planets": ["火星", "土星"],
-    "planets_en": ["Mars", "Saturn"],
-    "chakras": ["海底轮"],
-    "chakras_en": ["Root"],
+    "wuxing_tags": [
+      "fire",
+      "wood"
+    ],
+    "astro_tags": [
+      "mars",
+      "saturn"
+    ],
+    "keyword_tags": [
+      "#官非口舌",
+      "#合同纠纷",
+      "#诉讼不断",
+      "#压力大"
+    ],
+    "keyword_tags_en": [
+      "#legal_disputes",
+      "#contract_conflicts",
+      "#persistent_litigation",
+      "#high_stress"
+    ],
+    "elements": [
+      "火",
+      "木"
+    ],
+    "elements_en": [
+      "Fire",
+      "Wood"
+    ],
+    "planets": [
+      "火星",
+      "土星"
+    ],
+    "planets_en": [
+      "Mars",
+      "Saturn"
+    ],
+    "chakras": [
+      "海底轮"
+    ],
+    "chakras_en": [
+      "Root"
+    ],
     "material": "雷击枣木+朱砂填色",
     "material_en": "Thunder-Struck Jujube Wood + Cinnabar Fill",
-    "function_tags": ["化官非", "解诉讼", "止口舌", "护身"],
-    "function_tags_en": ["Resolve Legal Issues", "Settle Lawsuits", "Stop Gossip", "Protect"],
+    "function_tags": [
+      "化官非",
+      "解诉讼",
+      "止口舌",
+      "护身"
+    ],
+    "function_tags_en": [
+      "Resolve Legal Issues",
+      "Settle Lawsuits",
+      "Stop Gossip",
+      "Protect"
+    ],
     "sales_count": 190,
-    "rating": 4.7
+    "rating": 4.7,
+    "usage_en": "Place in the appropriate feng shui position according to your needs. Keep clean and treat with respect. Avoid placing in bathrooms or bedrooms.",
+    "precautions_en": "1. Handle with care and respect\n2. Do not place in bathroom or cluttered areas\n3. Keep away from moisture\n4. Cleanse monthly with incense smoke",
+    "efficacy_en": "Made from 雷击枣木+朱砂填色. ",
+    "specifications_en": {
+      "Material": "雷击枣木+朱砂填色",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p49",
@@ -1465,24 +3408,69 @@
     "price_usd": 24,
     "stock": 200,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/incense/sandalwood-comb.png",
     "detail_images": [],
-    "wuxing_tags": ["wood"],
-    "astro_tags": ["venus"],
-    "keyword_tags": ["#气血不足", "#肝胆关注", "#皮肤暗沉", "#焦虑过度"],
-    "keyword_tags_en": ["#blood_qi_deficiency", "#liver_concern", "#dull_skin", "#severe_anxiety"],
-    "elements": ["木"],
-    "elements_en": ["Wood"],
-    "planets": ["金星"],
-    "planets_en": ["Venus"],
-    "chakras": ["顶轮", "眉心轮"],
-    "chakras_en": ["Crown", "Third Eye"],
+    "wuxing_tags": [
+      "wood"
+    ],
+    "astro_tags": [
+      "venus"
+    ],
+    "keyword_tags": [
+      "#气血不足",
+      "#肝胆关注",
+      "#皮肤暗沉",
+      "#焦虑过度"
+    ],
+    "keyword_tags_en": [
+      "#blood_qi_deficiency",
+      "#liver_concern",
+      "#dull_skin",
+      "#severe_anxiety"
+    ],
+    "elements": [
+      "木"
+    ],
+    "elements_en": [
+      "Wood"
+    ],
+    "planets": [
+      "金星"
+    ],
+    "planets_en": [
+      "Venus"
+    ],
+    "chakras": [
+      "顶轮",
+      "眉心轮"
+    ],
+    "chakras_en": [
+      "Crown",
+      "Third Eye"
+    ],
     "material": "天然绿檀木",
     "material_en": "Natural Green Sandalwood",
-    "function_tags": ["美容养颜", "安神", "通经络", "缓解头痛"],
-    "function_tags_en": ["Beauty & Rejuvenation", "Calm Mind", "Clear Meridians", "Relieve Headache"],
+    "function_tags": [
+      "美容养颜",
+      "安神",
+      "通经络",
+      "缓解头痛"
+    ],
+    "function_tags_en": [
+      "Beauty & Rejuvenation",
+      "Calm Mind",
+      "Clear Meridians",
+      "Relieve Headache"
+    ],
     "sales_count": 1100,
-    "rating": 4.6
+    "rating": 4.6,
+    "usage_en": "Light in a well-ventilated area. Place on a heat-resistant surface. Use during meditation or relaxation for best results.",
+    "precautions_en": "1. Use in well-ventilated areas only\n2. Keep away from flammable materials\n3. Do not leave burning unattended\n4. Store in a cool, dry place",
+    "efficacy_en": "Made from 天然绿檀木. Promotes physical and mental well-being. ",
+    "specifications_en": {
+      "Material": "天然绿檀木",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p50",
@@ -1498,24 +3486,63 @@
     "price_usd": 84,
     "stock": 40,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/talisman/sword.png",
     "detail_images": [],
-    "wuxing_tags": ["metal"],
-    "astro_tags": ["saturn"],
-    "keyword_tags": ["#搬家入宅", "#风水紊乱", "#家居", "#阻碍"],
-    "keyword_tags_en": ["#moving_in", "#feng_shui_disorder", "#home", "#obstacles"],
-    "elements": ["金"],
-    "elements_en": ["Metal"],
-    "planets": ["土星"],
-    "planets_en": ["Saturn"],
+    "wuxing_tags": [
+      "metal"
+    ],
+    "astro_tags": [
+      "saturn"
+    ],
+    "keyword_tags": [
+      "#搬家入宅",
+      "#风水紊乱",
+      "#家居",
+      "#阻碍"
+    ],
+    "keyword_tags_en": [
+      "#moving_in",
+      "#feng_shui_disorder",
+      "#home",
+      "#obstacles"
+    ],
+    "elements": [
+      "金"
+    ],
+    "elements_en": [
+      "Metal"
+    ],
+    "planets": [
+      "土星"
+    ],
+    "planets_en": [
+      "Saturn"
+    ],
     "chakras": [],
     "chakras_en": [],
     "material": "黄铜+老铜钱",
     "material_en": "Brass + Antique Copper Coins",
-    "function_tags": ["镇宅", "化煞", "净宅", "安定气场"],
-    "function_tags_en": ["Home Protection", "Neutralize Sha", "Cleanse Home", "Stabilize Energy Field"],
+    "function_tags": [
+      "镇宅",
+      "化煞",
+      "净宅",
+      "安定气场"
+    ],
+    "function_tags_en": [
+      "Home Protection",
+      "Neutralize Sha",
+      "Cleanse Home",
+      "Stabilize Energy Field"
+    ],
     "sales_count": 150,
-    "rating": 4.7
+    "rating": 4.7,
+    "usage_en": "Place in the appropriate feng shui position according to your needs. Keep clean and treat with respect. Avoid placing in bathrooms or bedrooms.",
+    "precautions_en": "1. Handle with care and respect\n2. Do not place in bathroom or cluttered areas\n3. Keep away from moisture\n4. Cleanse monthly with incense smoke",
+    "efficacy_en": "Made from 黄铜+老铜钱. Provides protection and wards off negative energy. ",
+    "specifications_en": {
+      "Material": "黄铜+老铜钱",
+      "Packaging": "精美礼盒"
+    }
   },
   {
     "id": "p51",
@@ -1531,23 +3558,69 @@
     "price_usd": 56,
     "stock": 60,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/talisman/seal-stamp.png",
     "detail_images": [],
-    "wuxing_tags": ["earth", "metal"],
-    "astro_tags": ["jupiter"],
-    "keyword_tags": ["#长辈健康", "#孝亲", "#印星不足", "#家庭责任"],
-    "keyword_tags_en": ["#elder_health", "#filial_piety", "#weak_resource_star", "#family_responsibility"],
-    "elements": ["土", "金"],
-    "elements_en": ["Earth", "Metal"],
-    "planets": ["木星"],
-    "planets_en": ["Jupiter"],
-    "chakras": ["海底轮"],
-    "chakras_en": ["Root"],
+    "wuxing_tags": [
+      "earth",
+      "metal"
+    ],
+    "astro_tags": [
+      "jupiter"
+    ],
+    "keyword_tags": [
+      "#长辈健康",
+      "#孝亲",
+      "#印星不足",
+      "#家庭责任"
+    ],
+    "keyword_tags_en": [
+      "#elder_health",
+      "#filial_piety",
+      "#weak_resource_star",
+      "#family_responsibility"
+    ],
+    "elements": [
+      "土",
+      "金"
+    ],
+    "elements_en": [
+      "Earth",
+      "Metal"
+    ],
+    "planets": [
+      "木星"
+    ],
+    "planets_en": [
+      "Jupiter"
+    ],
+    "chakras": [
+      "海底轮"
+    ],
+    "chakras_en": [
+      "Root"
+    ],
     "material": "寿山石（艾叶绿冻）",
     "material_en": "Shoushan Stone (Ai-ye Green Frost)",
-    "function_tags": ["护佑长辈", "补印星", "孝亲", "家庭和睦"],
-    "function_tags_en": ["Protect Elders", "Boost Resource Star", "Filial Devotion", "Family Harmony"],
+    "function_tags": [
+      "护佑长辈",
+      "补印星",
+      "孝亲",
+      "家庭和睦"
+    ],
+    "function_tags_en": [
+      "Protect Elders",
+      "Boost Resource Star",
+      "Filial Devotion",
+      "Family Harmony"
+    ],
     "sales_count": 210,
-    "rating": 4.8
+    "rating": 4.8,
+    "usage_en": "Place in the appropriate feng shui position according to your needs. Keep clean and treat with respect. Avoid placing in bathrooms or bedrooms.",
+    "precautions_en": "1. Handle with care and respect\n2. Do not place in bathroom or cluttered areas\n3. Keep away from moisture\n4. Cleanse monthly with incense smoke",
+    "efficacy_en": "Made from 寿山石（艾叶绿冻）. ",
+    "specifications_en": {
+      "Material": "寿山石（艾叶绿冻）",
+      "Packaging": "精美礼盒"
+    }
   }
 ]
