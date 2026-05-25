@@ -301,8 +301,8 @@ async def get_daily_fortune(
 
 
 def _fortune_to_dict(f: WeeklyFortune, locale: str) -> dict:
-    """Convert a WeeklyFortune model to API response dict."""
-    return {
+    """Convert a WeeklyFortune model to API response dict, translating if needed."""
+    d = {
         "id": f.id,
         "week_start": f.week_start,
         "week_end": f.week_end,
@@ -317,11 +317,24 @@ def _fortune_to_dict(f: WeeklyFortune, locale: str) -> dict:
         "daily_yi_ji": f.daily_yi_ji,
         "is_read": f.is_read,
     }
+    if locale == "en":
+        from services.fortune_generator import (
+            THEMES_EN, THEMES_ZH, TAROT_NAMES_EN, TAROT_NAMES_ZH,
+            TAROT_DESCS_EN, TAROT_DESCS_ZH, LUCKY_COLORS_EN, LUCKY_COLORS_ZH,
+            LUCKY_DIRECTIONS_EN, LUCKY_DIRECTIONS_ZH,
+        )
+        _safe_translate = lambda val, zh_list, en_list: en_list[zh_list.index(val)] if val in zh_list else val
+        d["theme"] = _safe_translate(f.theme, THEMES_ZH, THEMES_EN)
+        d["tarot_card"] = _safe_translate(f.tarot_card, TAROT_NAMES_ZH, TAROT_NAMES_EN)
+        d["tarot_desc"] = _safe_translate(f.tarot_desc, TAROT_DESCS_ZH, TAROT_DESCS_EN)
+        d["lucky_color"] = _safe_translate(f.lucky_color, LUCKY_COLORS_ZH, LUCKY_COLORS_EN)
+        d["lucky_direction"] = _safe_translate(f.lucky_direction, LUCKY_DIRECTIONS_ZH, LUCKY_DIRECTIONS_EN)
+    return d
 
 
 def _daily_to_dict(f: DailyFortune, locale: str) -> dict:
-    """Convert a DailyFortune model to API response dict."""
-    return {
+    """Convert a DailyFortune model to API response dict, translating if needed."""
+    d = {
         "id": f.id,
         "date": f.fortune_date,
         "score": f.score,
@@ -336,6 +349,17 @@ def _daily_to_dict(f: DailyFortune, locale: str) -> dict:
         "ji": f.ji,
         "is_read": f.is_read,
     }
+    if locale == "en":
+        from services.fortune_generator import (
+            DAILY_THEMES_EN, DAILY_THEMES_ZH, DAILY_TAROT_NAMES_EN, DAILY_TAROT_NAMES_ZH,
+            DAILY_TAROT_DESCS_EN, DAILY_TAROT_DESCS_ZH, LUCKY_COLORS_EN, LUCKY_COLORS_ZH,
+        )
+        _safe_translate = lambda val, zh_list, en_list: en_list[zh_list.index(val)] if val in zh_list else val
+        d["theme"] = _safe_translate(f.theme, DAILY_THEMES_ZH, DAILY_THEMES_EN)
+        d["tarot_card"] = _safe_translate(f.tarot_card, DAILY_TAROT_NAMES_ZH, DAILY_TAROT_NAMES_EN)
+        d["tarot_desc"] = _safe_translate(f.tarot_desc, DAILY_TAROT_DESCS_ZH, DAILY_TAROT_DESCS_EN)
+        d["lucky_color"] = _safe_translate(f.lucky_color, LUCKY_COLORS_ZH, LUCKY_COLORS_EN)
+    return d
 
 
 # ── Generate All (Cron) ─────────────────────────────────────────────────────

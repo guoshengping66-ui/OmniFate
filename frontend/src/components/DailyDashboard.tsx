@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect } from "react"
 import { Wallet, Briefcase, Heart, Activity, Palette, Hash, AlertTriangle, TrendingUp } from "lucide-react"
-import { getDailyFortune, listMyReadings, getPersonalizedDailyAlmanac, type DailyFortuneResponse } from "@/lib/api"
+import { getDailyFortune, getPersonalizedFortune, listMyReadings, getPersonalizedDailyAlmanac, type DailyFortuneResponse } from "@/lib/api"
 import { api } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
@@ -266,7 +266,20 @@ export function DailyDashboard() {
       try {
         let f: DailyFortuneResponse
         if (user) {
-          try { f = await getDailyFortune(locale) } catch { f = generateFallbackFortune(t) }
+          try {
+            // Use personalized fortune when user has birth data
+            if (userProfile && userProfile.birth_year) {
+              const pf = await getPersonalizedFortune({
+                birth_year: userProfile.birth_year,
+                birth_month: userProfile.birth_month,
+                birth_day: userProfile.birth_day,
+                birth_hour: userProfile.birth_hour,
+              }, locale)
+              f = pf || await getDailyFortune(locale)
+            } else {
+              f = await getDailyFortune(locale)
+            }
+          } catch { f = generateFallbackFortune(t) }
         } else {
           f = generateFallbackFortune(t)
         }
@@ -277,7 +290,7 @@ export function DailyDashboard() {
       }
     }
     loadFortune()
-  }, [user, locale])
+  }, [user, locale, userProfile])
 
   // ── Load almanac (parallel, lazy — skeleton shown while loading) ──
   useEffect(() => {

@@ -2611,6 +2611,36 @@ _YI_EN: dict[str, str] = {
     "求医": "Health & healing",
     "开工": "Starting work",
     "纳财": "Wealth collection",
+    "求财": "Good for seeking wealth",
+    "面试": "Good for interviews",
+    "求学": "Good for academic pursuits",
+    "求医问药": "Good for health matters",
+    "修缮": "Good for repairs",
+    "祈愿": "Good for making wishes",
+    "读书": "Good for reading & study",
+    "运动": "Good for exercise",
+    "约会": "Good for dates",
+    "创业": "Good for entrepreneurship",
+    "谈判": "Good for negotiations",
+    "拜访": "Good for visits",
+    "聚餐": "Good for gatherings",
+    "烹饪": "Good for cooking",
+    "散步": "Good for walks",
+    "绘画": "Good for creative arts",
+    "音乐": "Good for music & arts",
+    "健身": "Good for fitness",
+    "旅行": "Good for travel",
+    "购物": "Good for shopping",
+    "打扫": "Good for cleaning",
+    "收纳": "Good for organizing",
+    "宜出行": "Good for travel",
+    "宜签约": "Good for signing contracts",
+    "宜求财": "Good for seeking wealth",
+    "宜会友": "Good for meeting friends",
+    "宜学习": "Good for studying",
+    "宜祈福": "Good for spiritual practice",
+    "宜开工": "Good for starting work",
+    "宜面试": "Good for interviews",
 }
 
 _JI_EN: dict[str, str] = {
@@ -2638,6 +2668,25 @@ _JI_EN: dict[str, str] = {
     "栽种": "Avoid planting",
     "出行": "Avoid travel",
     "祈福": "Avoid spiritual rituals",
+    "忌熬夜": "Avoid staying up late",
+    "忌争吵": "Avoid quarrels",
+    "忌借贷": "Avoid lending money",
+    "忌冒险": "Avoid taking risks",
+    "忌搬迁": "Avoid moving house",
+    "忌高风险投资": "Avoid high-risk investments",
+    "忌网购": "Avoid impulse online shopping",
+    "忌签约": "Avoid signing contracts",
+    "忌远行": "Avoid long trips",
+    "忌动土": "Avoid groundbreaking activities",
+    "忌诉讼": "Avoid legal proceedings",
+    "忌嫁娶": "Avoid weddings",
+    "忌开市": "Avoid opening new businesses",
+    "忌修造": "Avoid renovations",
+    "忌栽种": "Avoid planting",
+    "忌求医": "Avoid medical procedures",
+    "忌谈判": "Avoid negotiations",
+    "忌赌博": "Avoid gambling",
+    "忌酗酒": "Avoid excessive drinking",
 }
 
 _DAILY_QUOTES_EN = [
@@ -2656,13 +2705,30 @@ _DAILY_QUOTES_EN = [
 
 def _translate_almanac_to_en(data: dict) -> dict:
     """Translate yi/ji items and quote from Chinese to English."""
-    import random
+    import random, re
+
+    def _smart_translate(text: str, is_yi: bool) -> str:
+        """If text is still Chinese after map lookup, provide a generic English equivalent."""
+        if not any(ord(c) > 0x4E00 for c in text):
+            return text  # Already English
+        # Strip 宜/忌 prefix for cleaner matching
+        core = re.sub(r"^[宜忌]", "", text)
+        if core in _YI_EN:
+            return _YI_EN[core]
+        if core in _JI_EN:
+            return _JI_EN[core]
+        # Generic fallback
+        if is_yi:
+            return f"Good for {core}"
+        else:
+            return f"Avoid {core}"
+
     yi_items = []
     for item in data.get("yi", []):
-        yi_items.append(_YI_EN.get(item, item))
+        yi_items.append(_smart_translate(item, is_yi=True))
     ji_items = []
     for item in data.get("ji", []):
-        ji_items.append(_JI_EN.get(item, item))
+        ji_items.append(_smart_translate(item, is_yi=False))
 
     quote = data.get("daily_quote", "")
     # If the quote is still Chinese, replace with an English one
