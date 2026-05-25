@@ -476,7 +476,8 @@ export default function NewReadingPage() {
 
         {/* Step indicators — step is now a logical index */}
         <div className="flex items-center justify-between mb-10 px-1">
-          {STEPS.map((label, i) => (
+          {STEPS.map((label, i) => {
+            return (
               <div key={label} className="flex flex-col items-center gap-1.5 flex-1">
                 <div className="flex items-center w-full">
                   <div className="flex-1 flex justify-end">
@@ -508,7 +509,7 @@ export default function NewReadingPage() {
                 </span>
               </div>
             )
-          ))}
+          })}
         </div>
 
         {/* Clear progress button — show when past the first logical step */}
