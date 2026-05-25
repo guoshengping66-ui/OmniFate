@@ -47,7 +47,7 @@ export function middleware(request: NextRequest) {
     "Content-Security-Policy",
     [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com",
       "style-src 'self' 'unsafe-inline' https://fonts.font.im https://fonts.gstatic.com",
       "img-src 'self' data: blob: https:",
       "font-src 'self' data: https://fonts.font.im https://fonts.gstatic.com https://fonts.gstatic.font.im",
@@ -57,6 +57,9 @@ export function middleware(request: NextRequest) {
       "form-action 'self'",
     ].join("; "),
   )
+
+  // Prevent Cloudflare from caching HTML pages
+  intlResponse.headers.set("Cache-Control", "no-store, no-cache, must-revalidate")
 
   return intlResponse
 }
