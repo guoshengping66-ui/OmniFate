@@ -217,11 +217,13 @@ def _parse_worker_report(text: str) -> dict:
         except json.JSONDecodeError:
             pass
 
-    # 2. Try parsing entire text as JSON
-    try:
-        return _fill(json.loads(text))
-    except (json.JSONDecodeError, TypeError):
-        pass
+    # 2. Try parsing entire text as JSON (handles raw JSON without code fences)
+    stripped = text.strip()
+    if stripped.startswith("{"):
+        try:
+            return _fill(json.loads(stripped))
+        except (json.JSONDecodeError, TypeError):
+            pass
 
     # 3. Fallback: strip any JSON blocks from free text, use as summary
     clean = re.sub(r"```json\s*\{.*?\}\s*```", "", text, flags=re.DOTALL)
@@ -303,6 +305,27 @@ async def _call_and_parse(system: str, user_msg: str, agent_id: str, state: Syst
         data = _parse_worker_report(report)
 
     return data
+
+
+def _extract_json_block(text: str) -> str:
+    """Extract the first ```json ... ``` block from text.
+    If none found, try to find a bare { ... } JSON object.
+    Returns the raw JSON string (no code fences)."""
+    # 1. Try ```json block (greedy to handle nested braces)
+    m = re.search(r"```json\s*(\{.*\})\s*```", text, re.DOTALL)
+    if m:
+        return m.group(1)
+    # 2. Try bare JSON (first { ... } that parses)
+    m = re.search(r"\{.*\}", text, re.DOTALL)
+    if m:
+        try:
+            import json as _json
+            _json.loads(m.group(0))
+            return m.group(0)
+        except _json.JSONDecodeError:
+            pass
+    # 3. Fallback: return text as-is
+    return text
 
 
 def _build_compact_report(data: dict) -> str:
@@ -914,14 +937,16 @@ async def run_qimen_ziwei(state: SystemState) -> list[WorkerOutput]:
         # Split the combined response into qimen and ziwei parts
         separator = "===QIMEN_END==="
         if separator in full_text:
-            qimen_text, ziwei_text = full_text.split(separator, 1)
+            raw_q, raw_z = full_text.split(separator, 1)
+            # Strip non-JSON text (headings, etc.) and extract ```json blocks
+            qimen_text = _extract_json_block(raw_q)
+            ziwei_text = _extract_json_block(raw_z)
         else:
-            # Fallback: try to find separate JSON blocks
-            # Look for the second ```json block for ziwei
+            # Fallback: find all ```json ... ``` blocks in order
             json_blocks = re.findall(r"```json\s*(\{.*?\})\s*```", full_text, re.DOTALL)
             if len(json_blocks) >= 2:
-                qimen_text = f"```json\n{json_blocks[0]}\n```"
-                ziwei_text = f"```json\n{json_blocks[1]}\n```"
+                qimen_text = json_blocks[0]
+                ziwei_text = json_blocks[1]
             else:
                 # Last resort: use the whole text for qimen, empty for ziwei
                 qimen_text = full_text
