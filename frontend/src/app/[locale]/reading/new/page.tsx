@@ -177,7 +177,7 @@ export default function NewReadingPage() {
 
   const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { birth_minute: 0, gender: "female", user_question: t("new.defaultQuestion") },
+    defaultValues: { birth_minute: 0, gender: "female", birth_year: 1990, birth_month: 1, birth_day: 1, birth_hour: 12, user_question: t("new.defaultQuestion") },
   })
 
   const watchedQuestion = watch("user_question")
@@ -572,7 +572,23 @@ export default function NewReadingPage() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={async (e) => {
+          e.preventDefault()
+          const vals = watch()
+          if (!vals.birth_year || vals.birth_year < 1920) {
+            toast.error(t("new.dateRequired"))
+            return
+          }
+          if (!vals.user_question || vals.user_question.trim().length < 2) {
+            toast.error(t("new.questionMinChars"))
+            return
+          }
+          if (!currentIntent && (!vals.birth_city || vals.birth_city.trim().length === 0)) {
+            toast.error(t("new.cityRequired"))
+            return
+          }
+          await onSubmit(vals as FormValues)
+        }}>
           {/* All steps rendered simultaneously — hidden ones stay in DOM so
               react-hook-form register() references survive step transitions */}
           <div className="relative">
@@ -606,6 +622,9 @@ export default function NewReadingPage() {
                   onDayChange={v => setValue("birth_day", v)}
                 />
               </Suspense>
+              {(errors.birth_year || errors.birth_month || errors.birth_day) && (
+                <p className="text-red-400 text-xs mt-1">{t("new.dateRequired")}</p>
+              )}
 
               {/* Shichen selector replaces hour input */}
               <Suspense fallback={<div className="h-10 bg-white/5 rounded animate-pulse" />}>
@@ -614,6 +633,7 @@ export default function NewReadingPage() {
                   onChange={(h) => setValue("birth_hour", h)}
                 />
               </Suspense>
+              {errors.birth_hour && <p className="text-red-400 text-xs mt-1">{t("new.hourRequired")}</p>}
 
               <Suspense fallback={<div className="h-10 bg-white/5 rounded animate-pulse" />}>
                 <LocationSelector

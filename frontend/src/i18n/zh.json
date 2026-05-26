@@ -563,6 +563,8 @@
     "cheekbones": "两颧",
     "cityPlaceholder": "请输入国家或城市名称",
     "cityRequired": "请填写出生城市",
+    "dateRequired": "请选择出生日期",
+    "hourRequired": "请选择出生时辰",
     "clearedMsg": "已清除所有进度",
     "clearedProgress": "已清除所有进度",
     "clearProgress": "清除进度重新开始",

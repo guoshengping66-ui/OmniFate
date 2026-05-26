@@ -563,6 +563,8 @@
     "cheekbones": "Cheekbones",
     "cityPlaceholder": "Enter country or city name",
     "cityRequired": "Please enter your birth city",
+    "dateRequired": "Please select your birth date",
+    "hourRequired": "Please select your birth time",
     "clearedMsg": "All progress cleared",
     "clearedProgress": "All progress cleared",
     "clearProgress": "Clear progress and restart",
