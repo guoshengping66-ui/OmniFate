@@ -4,29 +4,43 @@ import { useLanguage } from "@/contexts/LanguageContext"
 interface Props {
   value: string
   onChange: (q: string) => void
+  intent?: string | null
 }
 
-export function HotQuestions({ value, onChange }: Props) {
+const GENERAL_QUESTIONS = [
+  { key: "1" as const, icon: "💼" },
+  { key: "2" as const, icon: "💕" },
+  { key: "3" as const, icon: "💰" },
+  { key: "4" as const, icon: "🌟" },
+  { key: "5" as const, icon: "🚀" },
+  { key: "6" as const, icon: "🏠" },
+]
+
+const RELATIONSHIP_QUESTIONS = [
+  { key: "RelQ1" as const, icon: "💞" },
+  { key: "RelQ2" as const, icon: "🔄" },
+  { key: "RelQ3" as const, icon: "💍" },
+  { key: "RelQ4" as const, icon: "🧠" },
+  { key: "RelQ5" as const, icon: "☯️" },
+  { key: "RelQ6" as const, icon: "📅" },
+]
+
+export function HotQuestions({ value, onChange, intent }: Props) {
   const { t } = useLanguage()
 
-  const HOT_QUESTIONS = [
-    { key: "1" as const, icon: "💼" },
-    { key: "2" as const, icon: "💕" },
-    { key: "3" as const, icon: "💰" },
-    { key: "4" as const, icon: "🌟" },
-    { key: "5" as const, icon: "🚀" },
-    { key: "6" as const, icon: "🏠" },
-  ]
+  const isRelationship = intent === "RELATIONSHIP"
+  const questions = isRelationship ? RELATIONSHIP_QUESTIONS : GENERAL_QUESTIONS
+  const prefix = isRelationship ? "hotRelQ" : "hotQ"
 
   return (
     <div>
       <label className="label text-sm text-white/50 mb-3">
-        {t("new.hotQuestionsLabel")}
+        {isRelationship ? t("new.hotQuestionsLabelRel") || t("new.hotQuestionsLabel") : t("new.hotQuestionsLabel")}
       </label>
       <div className="flex flex-wrap gap-2">
-        {HOT_QUESTIONS.map(({ key, icon }) => {
-          const text = t(`new.hotQ${key}`)
-          const fullText = t(`new.hotQ${key}Full`)
+        {questions.map(({ key, icon }) => {
+          const text = t(`new.${prefix}${key}`)
+          const fullText = t(`new.${prefix}${key}Full`)
           const selected = value === fullText
 
           return (

@@ -744,6 +744,7 @@ export default function NewReadingPage() {
                 <HotQuestions
                   value={watchedQuestion}
                   onChange={(q) => setValue("user_question", q)}
+                  intent={currentIntent}
                 />
               </Suspense>
 
