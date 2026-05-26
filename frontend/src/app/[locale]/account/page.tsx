@@ -172,7 +172,7 @@ export default function AccountPage() {
                         {t("account.viewAll")} <ChevronRight size={10} className="inline" />
                       </button>
                     </div>
-                    {readings.slice(0, 3).map(r => (
+                    {readings.map(r => (
                       <Link key={r.id} href={`/reading/${r.id}`}
                         className="flex items-center gap-3 py-2 hover:bg-white/[0.03] rounded-lg px-2 -mx-2 transition-colors">
                         <span className="text-lg">🔮</span>

@@ -20,7 +20,7 @@ export function UserDashboard() {
   useEffect(() => {
     fetchBirthProfiles()
     listMyReadings()
-      .then(r => setRecentReadings(r.slice(0, 5)))
+      .then(r => setRecentReadings(r))
       .catch(() => {})
       .finally(() => setLoadingReadings(false))
   }, [])
