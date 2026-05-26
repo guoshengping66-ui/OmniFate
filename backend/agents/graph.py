@@ -336,7 +336,12 @@ async def run_full_analysis(state: SystemState) -> SystemState:
     state.progress_pct = 5
     state.progress_message = "正在调取命理数据…"
     for aid in _WORKER_IDS:
-        state.agent_status[aid] = "running"
+        if aid == "qimen_ziwei":
+            # Merged worker: set individual sub-worker statuses the frontend expects
+            state.agent_status["qimen"] = "running"
+            state.agent_status["ziwei"] = "running"
+        else:
+            state.agent_status[aid] = "running"
 
     # ── Launch all workers as background tasks ──
     worker_events = {aid: asyncio.Event() for aid in _WORKER_IDS}
@@ -362,7 +367,14 @@ async def run_full_analysis(state: SystemState) -> SystemState:
             result = await asyncio.wait_for(runner(state), timeout=timeout)
         except Exception as e:
             from agents.state import WorkerOutput
-            result = WorkerOutput(agent_id=agent_id, error=str(e))
+            if agent_id == "qimen_ziwei":
+                # Merged worker error: create individual error outputs for each sub-worker
+                result = [
+                    WorkerOutput(agent_id="qimen", error=str(e)),
+                    WorkerOutput(agent_id="ziwei", error=str(e)),
+                ]
+            else:
+                result = WorkerOutput(agent_id=agent_id, error=str(e))
 
         # Handle merged workers that return lists of WorkerOutput
         if isinstance(result, list):
@@ -375,6 +387,8 @@ async def run_full_analysis(state: SystemState) -> SystemState:
                     # Update agent status for each sub-worker
                     state.agent_status[r.agent_id] = "error" if r.error else "done"
                     _completed_workers += 1
+            # Remove stale merged-worker key so frontend completedCount is correct
+            state.agent_status.pop("qimen_ziwei", None)
         else:
             worker_outputs[agent_id] = result
             attr = f"{agent_id}_output"
