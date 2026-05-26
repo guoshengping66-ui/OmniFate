@@ -196,13 +196,29 @@ export default function ReadingPage() {
       // Analysis is pending — start stuck timer
       startStuckTimer()
 
-      // Connect to SSE stream for progressive updates
-      let sseConnected = false
+      // Start polling IMMEDIATELY as the primary fallback (works even if SSE fails)
+      let pollDone = false
+      const pollInterval = setInterval(async () => {
+        if (cancelled || pollDone) { clearInterval(pollInterval); return }
+        try {
+          const fresh = await getSession(id)
+          if (fresh.status === "done" || fresh.status === "chat") {
+            pollDone = true
+            clearInterval(pollInterval)
+            setData(fresh)
+            setIsUnlocked(fresh.is_detail_unlocked)
+            if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
+          } else {
+            // Update partial data from polling
+            setData(prev => prev ? { ...prev, ...fresh } : fresh)
+          }
+        } catch { /* ignore */ }
+      }, 3000)
+
+      // Also connect to SSE stream for real-time progress updates
       streamSession(id, (event: SSEEvent) => {
-        sseConnected = true
         if (cancelled) return
         if (event.type === "phase" && event.phase) {
-          // Phase changed — reset stuck timer (real progress)
           if (event.phase !== lastSsePhase.current) {
             lastSsePhase.current = event.phase
             startStuckTimer()
@@ -210,7 +226,6 @@ export default function ReadingPage() {
           setSsePhase(event.phase)
         }
         if (event.type === "progress" && event.pct !== undefined) {
-          // Progress increased — reset stuck timer (real progress)
           if (event.pct > lastProgressPct.current) {
             lastProgressPct.current = event.pct
             startStuckTimer()
@@ -220,25 +235,24 @@ export default function ReadingPage() {
         }
         if (event.type === "agent_status" && event.status) {
           setAgentStatus(event.status)
-          // Agent status change means backend is alive — reset stuck timer
           startStuckTimer()
         }
         if (event.type === "worker_done" && event.agent_id) {
           setCompletedWorkers(prev => new Set(prev).add(event.agent_id!))
-          startStuckTimer()  // Worker completed — analysis is progressing
+          startStuckTimer()
         }
         if (event.type === "subtask_done" && event.subtask) {
           setCompletedSubtasks(prev => new Set(prev).add(event.subtask!))
-          startStuckTimer()  // Subtask completed — analysis is progressing
+          startStuckTimer()
         }
         if (event.type === "complete") {
-          // Re-fetch full data from API to get correct dimension_scores
-          // (SSE complete event doesn't include dimension_scores)
-          // Pass lang param to bypass browser cache and get fresh data
+          pollDone = true
+          clearInterval(pollInterval)
+          if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
+          // Re-fetch full data to get correct dimension_scores
           getSession(id, locale).then(fresh => {
             if (!cancelled) setData(fresh)
           }).catch(() => {
-            // Fallback: update with SSE data only
             setData(prev => prev ? {
               ...prev,
               master_summary: event.master_summary || prev.master_summary,
@@ -248,25 +262,7 @@ export default function ReadingPage() {
           })
         }
       }).catch(() => {
-        // SSE failed — fall back to polling
-      }).then(() => {
-        // If SSE didn't connect or failed, start polling as fallback
-        if (!sseConnected && !cancelled) {
-          const pollInterval = setInterval(async () => {
-            if (cancelled) { clearInterval(pollInterval); return }
-            try {
-              const fresh = await getSession(id)
-              if (fresh.status === "done" || fresh.status === "chat") {
-                setData(fresh)
-                setIsUnlocked(fresh.is_detail_unlocked)
-                clearInterval(pollInterval)
-              } else {
-                // Update partial data
-                setData(prev => prev ? { ...prev, ...fresh } : fresh)
-              }
-            } catch { /* ignore */ }
-          }, 3000)
-        }
+        // SSE failed — polling is already running as fallback
       })
     }).catch(() => {
       if (!cancelled) {
@@ -278,6 +274,7 @@ export default function ReadingPage() {
     return () => {
       cancelled = true
       if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
+      if (typeof pollInterval !== "undefined") clearInterval(pollInterval)
     }
   }, [id, locale])
 
