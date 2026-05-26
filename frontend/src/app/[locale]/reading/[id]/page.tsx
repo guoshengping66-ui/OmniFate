@@ -551,8 +551,8 @@ export default function ReadingPage() {
                 {t("reading.subtitle")}
               </p>
 
-              {/* ── Dimension Score Mini-Cards ── */}
-              {data.dimension_scores && (
+              {/* ── Dimension Score Mini-Cards (hidden for RELATIONSHIP) ── */}
+              {data.dimension_scores && data.intent !== "RELATIONSHIP" && (
                 <div
                   className="grid grid-cols-5 gap-2 md:gap-3 mb-8"
                   style={{
@@ -613,8 +613,8 @@ export default function ReadingPage() {
                 </div>
               )}
 
-              {/* ── Insight Blurb ── */}
-              <div
+              {/* ── Insight Blurb (hidden for RELATIONSHIP) ── */}
+              {data.intent !== "RELATIONSHIP" && (<div
                 className="flex items-start gap-3 p-4 rounded-2xl bg-gold/[0.04] border border-gold/10"
                 style={{
                   transition: "all 0.6s ease-out 0.9s",
@@ -631,7 +631,7 @@ export default function ReadingPage() {
                       : t("reading.insight.locked")}
                   </p>
                 </div>
-              </div>
+              </div>)}
 
               {/* CTA if not unlocked */}
               {!isUnlocked && (
