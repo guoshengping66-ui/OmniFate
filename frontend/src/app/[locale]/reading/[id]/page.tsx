@@ -231,12 +231,20 @@ export default function ReadingPage() {
           startStuckTimer()  // Subtask completed — analysis is progressing
         }
         if (event.type === "complete") {
-          setData(prev => prev ? {
-            ...prev,
-            master_summary: event.master_summary || prev.master_summary,
-            master_detail: event.master_detail || prev.master_detail,
-            status: "done",
-          } : prev)
+          // Re-fetch full data from API to get correct dimension_scores
+          // (SSE complete event doesn't include dimension_scores)
+          // Pass lang param to bypass browser cache and get fresh data
+          getSession(id, locale).then(fresh => {
+            if (!cancelled) setData(fresh)
+          }).catch(() => {
+            // Fallback: update with SSE data only
+            setData(prev => prev ? {
+              ...prev,
+              master_summary: event.master_summary || prev.master_summary,
+              master_detail: event.master_detail || prev.master_detail,
+              status: "done",
+            } : prev)
+          })
         }
       }).catch(() => {
         // SSE failed — fall back to polling
