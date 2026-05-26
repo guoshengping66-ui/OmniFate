@@ -739,6 +739,7 @@ def run_master_preprocessing(state: SystemState) -> dict:
     conflicts_text = _conflicts_to_text(state.conflicts)
     _refine_tags(state)
     state.dimension_scores = _compute_dimension_scores(state)
+    print(f"[PREPROCESS] dimension_scores: {state.dimension_scores}")
     confidence_text, sum_lengths = _compute_confidence(state)
 
     matched_products, products_preview, products_with_reasons = _build_product_preview(state)

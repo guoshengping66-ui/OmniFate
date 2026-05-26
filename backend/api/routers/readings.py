@@ -433,6 +433,18 @@ async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
     # Final persist to session store
     await _set_session(state.session_id, state)
 
+    # Safety net: recompute dimension_scores if still at defaults
+    default_scores = {"wealth": 5.0, "relationship": 5.0, "career": 5.0, "health": 5.0, "spiritual": 5.0}
+    if state.dimension_scores == default_scores:
+        print(f"[BG] WARNING: dimension_scores still at defaults, recomputing...")
+        try:
+            from agents.master import _compute_dimension_scores
+            state.dimension_scores = _compute_dimension_scores(state)
+            print(f"[BG] Recomputed dimension_scores: {state.dimension_scores}")
+            await _set_session(state.session_id, state)
+        except Exception as e:
+            print(f"[BG] Failed to recompute dimension_scores: {e}")
+
     # Persist final results to database
     try:
         async with AsyncSessionLocal() as db:
@@ -451,6 +463,7 @@ async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
                 reading.palm_report = state.palm_output.report if state.palm_output and state.palm_output.report != "No palm data provided. Palm analysis skipped." else None
                 reading.face_analysis_text = state.face_output.report if state.face_output and state.face_output.report != "No facial image provided. Face analysis skipped." else None
                 reading.dimension_scores = dict(state.dimension_scores) if state.dimension_scores else None
+                print(f"[BG] Persisting dimension_scores to DB: {state.dimension_scores}")
                 reading.computed_tags = list(state.computed_tags) if state.computed_tags else None
                 reading.recommended_product_ids = list(state.recommended_product_ids) if state.recommended_product_ids else None
                 reading.completed_at = datetime.now(timezone.utc)
