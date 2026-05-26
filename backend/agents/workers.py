@@ -188,7 +188,11 @@ async def _call(system: str, user: str, append_json_format: bool = True, model: 
 
     sys_content = system + lang_instruction + (_get_json_instruction(language, is_premium) if append_json_format else "")
     msgs = [SystemMessage(content=sys_content), HumanMessage(content=user)]
-    resp = await llm.ainvoke(msgs)
+    try:
+        resp = await asyncio.wait_for(llm.ainvoke(msgs), timeout=90)
+    except asyncio.TimeoutError:
+        print(f"[_call] Worker LLM timed out after 90s")
+        return ""
     return resp.content
 
 
@@ -931,7 +935,11 @@ async def run_qimen_ziwei(state: SystemState) -> list[WorkerOutput]:
         report_q = _mock("qimen", "merged qimen+ziwei")
         report_z = _mock("ziwei", "merged qimen+ziwei")
     else:
-        report = await llm.ainvoke(msgs)
+        try:
+            report = await asyncio.wait_for(llm.ainvoke(msgs), timeout=90)
+        except asyncio.TimeoutError:
+            print("[qimen_ziwei] LLM timed out after 90s")
+            report = type('obj', (object,), {'content': '{"error":"timeout"}'})()
         full_text = report.content
 
         # Split the combined response into qimen and ziwei parts

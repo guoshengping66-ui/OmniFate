@@ -581,18 +581,9 @@ async def run_full_analysis(state: SystemState) -> SystemState:
         # Free version: complete teaser that answers user question and creates upgrade desire
         state.master_summary = _build_free_summary(core_result, state)
 
-        # RELATIONSHIP free users: add synastry detail (with timeout to prevent 80% hang)
-        if is_relationship:
-            from agents.master import run_subtask_synastry
-            try:
-                synastry_result = await asyncio.wait_for(run_subtask_synastry(state), timeout=60)
-            except asyncio.TimeoutError:
-                synastry_result = ""
-                state.errors.append("synastry_subtask_timeout")
-                print(f"[TIMEOUT] Synastry subtask timed out for {state.session_id}")
-            state.master_detail = f"{core_result}\n\n{synastry_result}" if synastry_result else ""
-        else:
-            state.master_detail = ""  # Behind paywall anyway
+        # Free users don't need synastry subtask — it's behind paywall
+        # This avoids the extra LLM call that causes 80% hang
+        state.master_detail = ""
 
     state.progress_pct = 100
     state.progress_message = "分析完成"

@@ -107,7 +107,11 @@ async def _call(system: str, user: str, model: str | None = None, language: str 
         )
 
     msgs = [SystemMessage(content=system + lang_hint), HumanMessage(content=user)]
-    resp = await llm.ainvoke(msgs)
+    try:
+        resp = await asyncio.wait_for(llm.ainvoke(msgs), timeout=120)
+    except asyncio.TimeoutError:
+        print(f"[_call] LLM timed out after 120s (model={model})")
+        return ""
     return resp.content
 
 
