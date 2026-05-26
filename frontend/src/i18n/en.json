@@ -1659,8 +1659,13 @@
       "title": "Reading Tags"
     },
     "worker": {
+      "lockedDesc": "Unlock to access in-depth analysis of this destiny dimension, including expert interpretation, key findings, and action recommendations",
+      "lockedPreview": "🔒 Unlock to view full analysis",
+      "lockedTitle": "This dimension requires unlocking",
       "unlockDesc": "Unlock the full report to see every destiny system in detail",
-      "unlockTitle": "Full Reading"
+      "unlockFull": "Unlock Full Analysis",
+      "unlockTitle": "Full Reading",
+      "orUseStardust": "or use Stardust to unlock"
     },
     "badge": "Five-Path Destiny Report · Crafted with Care",
     "clickToView": "Tap to see full reading",

@@ -256,10 +256,14 @@ def _apply_content_lock(resp: AnalysisResponse, current_user: Optional[User], re
     if not is_unlocked:
         resp.master_detail = ""
         resp.is_detail_unlocked = False
+        # Hide all individual worker reports for free users
+        # Free users only see: master_summary + dimension_scores + tags
         for key in _WORKER_REPORT_KEYS:
             wo = getattr(resp, key, None)
-            if wo and wo.report and len(wo.report) > 600:
-                wo.report = wo.report[:600] + "\n\n🔒 解锁完整深度分析…"
+            if wo:
+                wo.report = ""
+                wo.tags = []
+                wo.error = None
     return resp
 
 

@@ -1659,8 +1659,13 @@
       "title": "分析标签"
     },
     "worker": {
+      "lockedDesc": "此命理维度的深度分析需要解锁后查看，涵盖专业术语解读、关键发现与行动建议",
+      "lockedPreview": "🔒 解锁后查看完整分析",
+      "lockedTitle": "此维度分析需要解锁",
       "unlockDesc": "解锁完整报告后查看每个命理体系的详细分析",
-      "unlockTitle": "完整分析"
+      "unlockFull": "解锁完整分析",
+      "unlockTitle": "完整分析",
+      "orUseStardust": "或使用星尘解锁"
     },
     "badge": "五维命理分析报告 · AI 精算",
     "clickToView": "点击查看完整分析",

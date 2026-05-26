@@ -692,25 +692,34 @@ export default function ReadingPage() {
       <div className="max-w-5xl mx-auto px-4 mb-8 sticky top-16 z-30">
         <div className="bg-[#1a1430]/80 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-1.5 shadow-2xl shadow-black/40">
           <div className="flex gap-1 overflow-x-auto scrollbar-none">
-            {I18N_NAV_ITEMS.map(item => (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-sm font-medium
-                            whitespace-nowrap transition-all duration-300 flex-shrink-0 group
-                  ${activeTab === item.id
-                    ? "bg-gold/15 text-gold shadow-[0_0_20px_rgba(201,168,76,0.15)]"
-                    : "text-white/40 hover:text-white/70 hover:bg-white/[0.04]"}`}
-              >
-                <span className="text-base transition-transform group-hover:scale-110 duration-200">
-                  {item.icon}
-                </span>
-                <span className="hidden sm:inline">{t(item.labelKey)}</span>
-                {activeTab === item.id && (
-                  <span className="hidden md:inline text-[10px] text-gold/50 ml-0.5">{t(item.descKey)}</span>
-                )}
-              </button>
-            ))}
+            {I18N_NAV_ITEMS.map(item => {
+              const isWorkerTab = WORKER_ORDER.includes(item.id as typeof WORKER_ORDER[number])
+              const isLocked = !isUnlocked && isWorkerTab
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  className={`flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-sm font-medium
+                              whitespace-nowrap transition-all duration-300 flex-shrink-0 group
+                    ${activeTab === item.id
+                      ? "bg-gold/15 text-gold shadow-[0_0_20px_rgba(201,168,76,0.15)]"
+                      : isLocked
+                        ? "text-white/25 hover:text-white/50 hover:bg-white/[0.04]"
+                        : "text-white/40 hover:text-white/70 hover:bg-white/[0.04]"}`}
+                >
+                  <span className="text-base transition-transform group-hover:scale-110 duration-200">
+                    {item.icon}
+                  </span>
+                  <span className="hidden sm:inline">{t(item.labelKey)}</span>
+                  {isLocked && (
+                    <Lock size={10} className="text-white/20 -ml-0.5" />
+                  )}
+                  {activeTab === item.id && (
+                    <span className="hidden md:inline text-[10px] text-gold/50 ml-0.5">{t(item.descKey)}</span>
+                  )}
+                </button>
+              )
+            })}
           </div>
         </div>
       </div>
@@ -859,26 +868,41 @@ export default function ReadingPage() {
                 {WORKER_ORDER.map(k => {
                   const w = workerMap[k]
                   const meta = AGENT_LABELS[k]
-                  if (!w.report) return null
+                  const hasReport = !!w.report
                   return (
                     <button
                       key={k}
                       onClick={() => setActiveTab(k)}
-                      className="card-glow p-4 text-left group cursor-pointer"
+                      className={`p-4 text-left group cursor-pointer transition-all duration-300 ${
+                        hasReport
+                          ? "card-glow hover:border-white/[0.15]"
+                          : "card-glass border-dashed border-white/[0.08] hover:border-white/[0.12]"
+                      }`}
                     >
                       <div className="flex items-center gap-2 mb-2">
                         <span className="text-xl">{meta.icon}</span>
                         <span className={`font-medium text-sm ${meta.color}`}>{t(AGENT_I18N[k] || `agent.${k}`)}</span>
-                        {w.tags.length > 0 && (
+                        {!isUnlocked && !hasReport && (
+                          <Lock size={11} className="text-white/20 ml-auto" />
+                        )}
+                        {hasReport && w.tags.length > 0 && (
                           <Tags size={11} className="text-white/20 ml-auto" />
                         )}
                       </div>
-                      <p className="text-white/40 text-xs leading-relaxed line-clamp-2">
-                        {stripMarkdown(w.report.slice(0, 100))}…
-                      </p>
-                      <p className="text-gold/40 text-[11px] mt-2 group-hover:text-gold/80 transition-colors">
-                        {t("reading.clickToView")} →
-                      </p>
+                      {hasReport ? (
+                        <>
+                          <p className="text-white/40 text-xs leading-relaxed line-clamp-2">
+                            {stripMarkdown(w.report.slice(0, 100))}…
+                          </p>
+                          <p className="text-gold/40 text-[11px] mt-2 group-hover:text-gold/80 transition-colors">
+                            {t("reading.clickToView")} →
+                          </p>
+                        </>
+                      ) : (
+                        <p className="text-white/25 text-xs leading-relaxed">
+                          {t("reading.worker.lockedPreview")}
+                        </p>
+                      )}
                     </button>
                   )
                 })}
@@ -932,6 +956,36 @@ export default function ReadingPage() {
                     </div>
                   </div>
                 )}
+              </div>
+            ) : !isUnlocked ? (
+              /* ── Locked worker: show upgrade prompt ── */
+              <div className="card-glass p-10 md:p-14 text-center">
+                <div className="w-20 h-20 rounded-full bg-gold/5 border border-gold/15 flex items-center justify-center mx-auto mb-6 relative">
+                  <span className="text-4xl">{AGENT_LABELS[k].icon}</span>
+                  <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-ink border border-white/10 flex items-center justify-center">
+                    <Lock size={12} className="text-white/40" />
+                  </div>
+                </div>
+                <h3 className="font-serif text-xl font-bold text-gold mb-2">
+                  {t(AGENT_I18N[k] || `agent.${k}`)}
+                </h3>
+                <p className="text-white/40 text-sm mb-2">
+                  {t("reading.worker.lockedTitle")}
+                </p>
+                <p className="text-white/25 text-xs mb-8 max-w-sm mx-auto leading-relaxed">
+                  {t("reading.worker.lockedDesc")}
+                </p>
+                <button
+                  onClick={() => setShowPayment(true)}
+                  className="btn-gold flex items-center gap-2 mx-auto text-sm px-8 py-3"
+                >
+                  <Crown size={16} />
+                  {t("reading.worker.unlockFull")}
+                  <span className="text-gold/60 ml-1">¥69</span>
+                </button>
+                <p className="text-white/20 text-[11px] mt-4">
+                  {t("reading.worker.orUseStardust")} · {user?.stardust_balance || 0} ✦
+                </p>
               </div>
             ) : (
               <div className="card-glass p-12 text-center">
