@@ -124,12 +124,12 @@ function PulseRing() {
 export function IntentButtons({ onGework }: Props) {
   const router = useRouter()
   const { reset: resetWizard } = useWizardStore()
-  const { t } = useLanguage()
+  const { t, localeHref } = useLanguage()
   const [hoveredCard, setHoveredCard] = useState<string | null>(null)
 
-  const handleQuick = () => { resetWizard(); router.push("/reading/new?intent=quick") }
-  const handleFull = () => { resetWizard(); router.push("/reading/new?intent=full") }
-  const handleFriend = () => { resetWizard(); router.push("/reading/new?intent=friend") }
+  const handleQuick = () => { resetWizard(); router.push(localeHref("/reading/new?intent=quick")) }
+  const handleFull = () => { resetWizard(); router.push(localeHref("/reading/new?intent=full")) }
+  const handleFriend = () => { resetWizard(); router.push(localeHref("/reading/new?intent=friend")) }
 
   return (
     <div className="space-y-4">
