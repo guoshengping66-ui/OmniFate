@@ -7213,11 +7213,32 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
                                 resonance_text: str = "", conflicts_text: str = "",
                                 dimension_scores: dict | None = None,
                                 confidence_text: str = "",
-                                intent: str = "") -> str:
+                                intent: str = "",
+                                partner_data: dict | None = None) -> str:
     """Sub-task A: 核心综合 — 命盘底色 + 跨维度共鸣 + 核心矛盾 + 置信度表"""
     workers_str = "\n\n".join(
         f"[{k.upper()}]\n{v[:400]}" for k, v in worker_summaries.items() if v
     )
+
+    # Add partner data for RELATIONSHIP intent
+    partner_section = ""
+    if intent == "RELATIONSHIP" and partner_data:
+        partner_name = partner_data.get("partner_name", "对方")
+        relationship_type = partner_data.get("relationship_type", "")
+        partner_astro = partner_data.get("partner_astrology", "")
+        partner_bazi = partner_data.get("partner_bazi", "")
+        rel_type_cn = {"lover": "恋人", "friend": "朋友", "colleague": "同事", "family": "家人"}
+        rel_type_display = rel_type_cn.get(relationship_type, relationship_type)
+
+        partner_section = (
+            f"\n\n== 对方信息 ==\n"
+            f"关系类型：{rel_type_display}\n"
+            f"对方昵称：{partner_name}\n"
+        )
+        if partner_astro:
+            partner_section += f"\n[对方星盘]\n{partner_astro[:600]}\n"
+        if partner_bazi:
+            partner_section += f"\n[对方八字]\n{partner_bazi[:600]}\n"
     scores_str = ""
     if dimension_scores:
         _DIM_CN = {"wealth": "财富", "relationship": "感情", "career": "事业",
@@ -7255,6 +7276,20 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
             "4. 让用户感受到上传的照片和精确出生信息被AI 100%深度消化\n"
             "5. 风格：深度、仪式感、全景式解读\n\n"
         )
+    elif intent == "RELATIONSHIP":
+        intent_hint = (
+            "\n== 推命通道：💫能量交织（人际关系分析）==\n"
+            "用户选择了人际关系分析通道，已提供双方出生信息。\n"
+            "报告重心：\n"
+            "1. 必须在命盘底色中加入双方命盘的对比分析\n"
+            "2. 分析五行互补性：双方八字五行的相生相克关系\n"
+            "3. 分析星盘相位：双方星盘的关键相位（合、冲、刑、拱）\n"
+            "4. 给出性格契合度评估：基于双方命盘特征的互补与冲突\n"
+            "5. 沟通模式分析：双方的沟通风格差异与协调方式\n"
+            "6. 潜在冲突点：命理层面可能产生摩擦的领域\n"
+            "7. 相处建议：基于双方命盘特征的具体相处策略\n"
+            "8. 风格：温暖、洞察、建设性，强调互补而非评判\n\n"
+        )
 
     return (
         "你是命盘智镜首席命运策师。根据7位专家的分析，生成核心综合报告。\n\n"
@@ -7273,6 +7308,7 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
         f"== 跨维度冲突 ==\n{conflicts_text or '无'}\n\n"
         f"== 专家报告 ==\n{workers_str}\n\n"
         f"== 用户问题 ==\n{user_question}\n\n"
+        f"{partner_section}\n"
         f"{confidence_text}\n\n"
         "请生成核心综合报告。"
     )

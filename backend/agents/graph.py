@@ -339,6 +339,33 @@ async def run_full_analysis(state: SystemState) -> SystemState:
     state.phase = "init"
     state = await node_init(state)
 
+    # ── Phase 1b: Partner calculations (RELATIONSHIP intent) ──
+    if state.intent == "RELATIONSHIP" and state.partner_birth_info:
+        state.progress_message = "正在计算对方命盘…"
+        try:
+            import asyncio as _aio
+            pi = state.partner_birth_info
+            partner_astro = await _aio.wait_for(
+                _aio.get_event_loop().run_in_executor(None, _calculate_astrology, pi),
+                timeout=30,
+            )
+            state.partner_astrology_raw = partner_astro
+        except Exception as e:
+            state.partner_astrology_raw = _stub_astrology(state.partner_birth_info)
+            state.errors.append(f"partner_astrology_fallback: {e}")
+
+        # Partner bazi calculation
+        try:
+            from calculators.bazi_calculator import BaziCalculator
+            pi = state.partner_birth_info
+            bazi_calc = BaziCalculator()
+            state.partner_bazi_raw = bazi_calc.calculate(
+                year=pi.year, month=pi.month, day=pi.day,
+                hour=pi.hour, minute=pi.minute, gender=pi.gender,
+            )
+        except Exception as e:
+            state.errors.append(f"partner_bazi_error: {e}")
+
     state.phase = "parallel"
     state.progress_pct = 5
     state.progress_message = "正在调取命理数据…"

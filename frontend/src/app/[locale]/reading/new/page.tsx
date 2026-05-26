@@ -78,7 +78,7 @@ export default function NewReadingPage() {
       const INTENT_MAP: Record<string, string> = {
         quick: "GENERAL_DAILY",
         full: "FULL_MULTIMODAL",
-        friend: "FULL_MULTIMODAL",
+        relationship: "RELATIONSHIP",
       }
       const mapped = INTENT_MAP[intentParam]
       if (mapped) {
@@ -120,6 +120,18 @@ export default function NewReadingPage() {
     latitude:     z.coerce.number().min(-90).max(90).optional().or(z.literal("")),
     longitude:    z.coerce.number().min(-180).max(180).optional().or(z.literal("")),
     user_question: z.string().min(2, t("new.questionMinChars")).max(200),
+    // Partner fields for RELATIONSHIP intent
+    partner_name: z.string().optional().default(""),
+    partner_gender: z.enum(["male", "female", "other"]).optional().default("female"),
+    partner_birth_year: z.coerce.number().min(1920).max(2026).optional().default(0),
+    partner_birth_month: z.coerce.number().min(1).max(12).optional().default(1),
+    partner_birth_day: z.coerce.number().min(1).max(31).optional().default(1),
+    partner_birth_hour: z.coerce.number().min(0).max(23).optional().default(0),
+    partner_birth_minute: z.coerce.number().min(0).max(59).optional().default(0),
+    partner_birth_city: z.string().optional().default(""),
+    partner_latitude: z.coerce.number().min(-90).max(90).optional().or(z.literal("")),
+    partner_longitude: z.coerce.number().min(-180).max(180).optional().or(z.literal("")),
+    relationship_type: z.string().optional().default(""),
   }), [t, currentIntent])
   type FormValues = z.infer<typeof schema>
 
@@ -178,6 +190,9 @@ export default function NewReadingPage() {
     }
     if (currentIntent === "GENERAL_DAILY") {
       return [t("new.step2"), t("new.step4")] // Tarot + confirm
+    }
+    if (currentIntent === "RELATIONSHIP") {
+      return [t("new.step1"), t("new.stepPartner"), t("new.step2"), t("new.step4")] // Birth info + Partner + Tarot + confirm
     }
     // FULL_MULTIMODAL or no intent — all 4 steps
     return [t("new.step1"), t("new.step2"), t("new.step3"), t("new.step4")]
@@ -402,6 +417,18 @@ export default function NewReadingPage() {
         palm_raw_text: finalPalmText,
         face_raw_text: finalFaceText,
         intent: currentIntent || undefined,
+        // Partner fields for RELATIONSHIP
+        partner_name: values.partner_name || "",
+        partner_gender: values.partner_gender || "female",
+        partner_birth_year: values.partner_birth_year || undefined,
+        partner_birth_month: values.partner_birth_month || undefined,
+        partner_birth_day: values.partner_birth_day || undefined,
+        partner_birth_hour: values.partner_birth_hour || undefined,
+        partner_birth_minute: values.partner_birth_minute || 0,
+        partner_birth_city: values.partner_birth_city || "",
+        partner_latitude: typeof values.partner_latitude === "number" ? values.partner_latitude : undefined,
+        partner_longitude: typeof values.partner_longitude === "number" ? values.partner_longitude : undefined,
+        relationship_type: values.relationship_type || "",
       }
 
       const result = await runAnalysisStream(payload, (event) => {
@@ -618,6 +645,91 @@ export default function NewReadingPage() {
             </div> {/* end card-glass */}
               </div>
             </div>
+
+          {/* ── Step 1b: Partner Info (RELATIONSHIP only) ────── */}
+          {currentIntent === "RELATIONSHIP" && (
+            <div className={STEPS[step] !== t("new.stepPartner") ? 'hidden' : ''}>
+              <div className="card-glass p-6 md:p-8 space-y-6">
+                <h2 className="font-serif text-xl text-gold">{t("new.partnerTitle")}</h2>
+                <p className="text-white/40 text-sm">{t("new.partnerDesc")}</p>
+
+                {/* Relationship type */}
+                <div>
+                  <label className="label">{t("new.relationshipType")}</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      ["lover", t("new.relLover")],
+                      ["friend", t("new.relFriend")],
+                      ["colleague", t("new.relColleague")],
+                      ["family", t("new.relFamily")],
+                    ].map(([v, l]) => (
+                      <label key={v} className="cursor-pointer">
+                        <input type="radio" value={v} {...register("relationship_type")} className="sr-only peer" />
+                        <div className="text-center py-2.5 rounded-xl border border-white/20 text-white/60 peer-checked:border-gold peer-checked:text-gold peer-checked:bg-gold/10 hover:border-white/40 transition-all text-sm">{l}</div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Partner name */}
+                <div>
+                  <label className="label">{t("new.partnerName")}</label>
+                  <input {...register("partner_name")} placeholder={t("new.partnerNamePlaceholder")} className="input-field" />
+                </div>
+
+                {/* Partner gender */}
+                <div>
+                  <label className="label">{t("new.partnerGender")}</label>
+                  <div className="flex gap-3">
+                    {([["female", t("new.genderFemale")], ["male", t("new.genderMale")], ["other", t("new.genderOther")]] as [string,string][]).map(([v,l]) => (
+                      <label key={v} className="flex-1 cursor-pointer">
+                        <input type="radio" value={v} {...register("partner_gender")} className="sr-only peer" />
+                        <div className="text-center py-2.5 rounded-xl border border-white/20 text-white/60 peer-checked:border-gold peer-checked:text-gold peer-checked:bg-gold/10 hover:border-white/40 transition-all text-sm">{l}</div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Partner birth date */}
+                <div>
+                  <label className="label">{t("new.partnerBirthDate")}</label>
+                  <Suspense fallback={<div className="h-10 bg-white/5 rounded animate-pulse" />}>
+                    <DateSelector
+                      year={watch("partner_birth_year") || 0}
+                      month={watch("partner_birth_month") || 0}
+                      day={watch("partner_birth_day") || 0}
+                      onYearChange={v => setValue("partner_birth_year", v)}
+                      onMonthChange={v => setValue("partner_birth_month", v)}
+                      onDayChange={v => setValue("partner_birth_day", v)}
+                    />
+                  </Suspense>
+                </div>
+
+                {/* Partner birth hour */}
+                <div>
+                  <label className="label">{t("new.partnerBirthHour")}</label>
+                  <Suspense fallback={<div className="h-10 bg-white/5 rounded animate-pulse" />}>
+                    <ShichenSelector
+                      value={watch("partner_birth_hour") ?? 0}
+                      onChange={(h) => setValue("partner_birth_hour", h)}
+                    />
+                  </Suspense>
+                </div>
+
+                {/* Partner birth city */}
+                <div>
+                  <label className="label">{t("new.partnerBirthCity")}</label>
+                  <Suspense fallback={<div className="h-10 bg-white/5 rounded animate-pulse" />}>
+                    <LocationSelector
+                      value={watch("partner_birth_city") || ""}
+                      onChange={(v) => setValue("partner_birth_city", v)}
+                      placeholder={t("new.partnerCityPlaceholder")}
+                    />
+                  </Suspense>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* ── Step 1: Tarot & Question ─────────────────────── */}
           <div className={STEPS[step] !== t("new.step2") ? 'hidden' : ''}>

@@ -133,6 +133,19 @@ class AnalysisRequest(BaseModel):
     tarot_cards: list[dict] = Field(default_factory=list)
     palm_raw_text: str = ""
     face_raw_text: str = ""
+    intent: Optional[str] = None  # GENERAL_DAILY | FULL_MULTIMODAL | RELATIONSHIP
+    # Relationship analysis fields
+    partner_name: str = ""
+    partner_gender: str = Field("female", pattern="^(male|female|other)$")
+    partner_birth_year: Optional[int] = Field(None, ge=1920, le=2026)
+    partner_birth_month: Optional[int] = Field(None, ge=1, le=12)
+    partner_birth_day: Optional[int] = Field(None, ge=1, le=31)
+    partner_birth_hour: Optional[int] = Field(None, ge=0, le=23)
+    partner_birth_minute: int = 0
+    partner_birth_city: str = ""
+    partner_latitude: Optional[float] = None
+    partner_longitude: Optional[float] = None
+    relationship_type: str = ""  # lover/friend/colleague/family
 
 
 class ReadingListItem(BaseModel):
@@ -178,6 +191,9 @@ class AnalysisResponse(BaseModel):
     computed_tags: list[str]
     dimension_scores: dict[str, float]
     errors: list[str]
+    intent: Optional[str] = None
+    partner_name: Optional[str] = None
+    relationship_type: Optional[str] = None
 
 
 class ChatResponse(BaseModel):
@@ -216,6 +232,9 @@ def _state_to_response(state: SystemState) -> AnalysisResponse:
         computed_tags=state.computed_tags,
         dimension_scores=state.dimension_scores,
         errors=state.errors,
+        intent=state.intent or None,
+        partner_name=state.partner_name or None,
+        relationship_type=state.relationship_type or None,
     )
 
 
@@ -312,7 +331,24 @@ async def create_analysis(
         is_premium=is_premium,
         language=payload.language,
         tarot_raw={"spread": "Three-Card Spread", "cards": payload.tarot_cards},
+        intent=payload.intent or "",
+        partner_name=payload.partner_name,
+        relationship_type=payload.relationship_type,
     )
+
+    # Build partner BirthInfo if relationship analysis
+    if payload.intent == "RELATIONSHIP" and payload.partner_birth_year:
+        state.partner_birth_info = BirthInfo(
+            year=payload.partner_birth_year,
+            month=payload.partner_birth_month or 1,
+            day=payload.partner_birth_day or 1,
+            hour=payload.partner_birth_hour or 0,
+            minute=payload.partner_birth_minute,
+            city=payload.partner_birth_city,
+            latitude=payload.partner_latitude,
+            longitude=payload.partner_longitude,
+            gender=payload.partner_gender,
+        )
 
     # Persist session to DATABASE (with timeout to avoid blocking)
     try:

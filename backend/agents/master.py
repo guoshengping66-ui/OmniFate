@@ -762,6 +762,18 @@ def run_master_preprocessing(state: SystemState) -> dict:
 async def run_subtask_core(state: SystemState, prep: dict) -> str:
     """Run core synthesis sub-task (Sub-task A). Returns result text."""
     llm_model = settings.PREMIUM_MODEL if state.is_premium else settings.MASTER_FAST_MODEL
+
+    # Build partner data for RELATIONSHIP intent
+    partner_data = None
+    if state.intent == "RELATIONSHIP" and state.partner_birth_info:
+        import json as _json
+        partner_data = {
+            "partner_name": state.partner_name,
+            "relationship_type": state.relationship_type,
+            "partner_astrology": _json.dumps(state.partner_astrology_raw, ensure_ascii=False, default=str)[:800] if state.partner_astrology_raw else "",
+            "partner_bazi": _json.dumps(state.partner_bazi_raw, ensure_ascii=False, default=str)[:800] if state.partner_bazi_raw else "",
+        }
+
     system = master_subtask_core_prompt(
         worker_summaries=prep["worker_summaries"],
         user_question=state.user_question,
@@ -770,6 +782,7 @@ async def run_subtask_core(state: SystemState, prep: dict) -> str:
         dimension_scores=state.dimension_scores,
         confidence_text=prep["confidence_text"],
         intent=state.intent,
+        partner_data=partner_data,
     )
     result = await _call(system, "请生成核心综合报告。", model=llm_model, language=state.language)
     state.master_subtask_core = result

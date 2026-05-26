@@ -129,7 +129,7 @@ export function IntentButtons({ onGework }: Props) {
 
   const handleQuick = () => { resetWizard(); router.push(localeHref("/reading/new?intent=quick")) }
   const handleFull = () => { resetWizard(); router.push(localeHref("/reading/new?intent=full")) }
-  const handleFriend = () => { resetWizard(); router.push(localeHref("/reading/new?intent=friend")) }
+  const handleFriend = () => { resetWizard(); router.push(localeHref("/reading/new?intent=relationship")) }
 
   return (
     <div className="space-y-4">

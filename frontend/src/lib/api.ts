@@ -125,6 +125,18 @@ export interface AnalysisRequest {
   palm_raw_text: string
   face_raw_text: string
   intent?: string
+  // Partner fields for RELATIONSHIP
+  partner_name?: string
+  partner_gender?: Gender
+  partner_birth_year?: number
+  partner_birth_month?: number
+  partner_birth_day?: number
+  partner_birth_hour?: number
+  partner_birth_minute?: number
+  partner_birth_city?: string
+  partner_latitude?: number
+  partner_longitude?: number
+  relationship_type?: string
 }
 
 export interface WorkerReport {
