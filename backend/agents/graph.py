@@ -161,6 +161,43 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
     3. Creates desire for the full deep analysis
     4. Is complete (not cut off mid-sentence)
     """
+    import re as _re
+
+    def _extract_section(text: str, marker: str) -> str:
+        """Extract a complete section from text, stopping at the next section marker."""
+        start = text.find(marker)
+        if start == -1:
+            return ""
+        # Find the end: next 【 that starts a new section (not inside current text)
+        # Search for 【 followed by a letter/Chinese char and then ·
+        rest = text[start + len(marker):]
+        # Find next section header pattern: 【X· where X is a letter or Chinese
+        end_match = _re.search(r'【[A-Za-z一-鿿]+·', rest)
+        if end_match:
+            section = rest[:end_match.start()].strip()
+        else:
+            section = rest.strip()
+        return section
+
+    def _complete_sentence(text: str, max_len: int = 600) -> str:
+        """Truncate text at a complete sentence boundary, never mid-sentence."""
+        if len(text) <= max_len:
+            return text
+        # Find the LAST complete sentence before max_len
+        best_pos = -1
+        for sep in ["。", "！", "？"]:
+            pos = text.rfind(sep, 0, max_len)
+            if pos > best_pos:
+                best_pos = pos
+        if best_pos > max_len // 3:  # At least 1/3 of max_len
+            return text[:best_pos + 1]
+        # Fallback: find last paragraph break
+        pos = text.rfind("\n\n", 0, max_len)
+        if pos > max_len // 3:
+            return text[:pos].strip()
+        # Last resort: truncate at max_len with ellipsis
+        return text[:max_len].rstrip() + "……"
+
     # Extract dimension scores for display
     scores = state.dimension_scores or {}
     score_display = ""
@@ -170,7 +207,6 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
         score_parts = []
         for dim, val in scores.items():
             cn = dim_cn.get(dim, dim)
-            # Color coding: <5 red, 5-7 yellow, >7 green
             if val < 5:
                 indicator = "⚠️"
             elif val > 7:
@@ -180,51 +216,25 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
             score_parts.append(f"{indicator} {cn}: {val}/10")
         score_display = " | ".join(score_parts)
 
-    # Build the teaser summary
     lines = []
 
-    # 1. Direct answer to user's question (extracted from core_result)
+    # 1. Direct answer to user's question
     lines.append("【命盘速览】")
     lines.append(f"你的问题：{state.user_question}")
     lines.append("")
 
-    # 2. Core insight from the analysis
-    # Find the first section that answers the question
-    if "【G·" in core_result:
-        # Extract the section that directly answers the user question
-        start = core_result.find("【G·")
-        end = core_result.find("【", start + 10) if core_result.find("【", start + 10) > 0 else len(core_result)
-        answer_section = core_result[start:end].strip()
-        if len(answer_section) > 400:
-            # Find a complete sentence boundary
-            for sep in ["。", "！", "\n\n"]:
-                pos = answer_section.rfind(sep, 0, 400)
-                if pos > 200:
-                    answer_section = answer_section[:pos + 1]
-                    break
-        lines.append(answer_section)
-    elif "【A·" in core_result:
-        # Extract命盘底色 section
-        start = core_result.find("【A·")
-        end = core_result.find("【", start + 10) if core_result.find("【", start + 10) > 0 else len(core_result)
-        answer_section = core_result[start:end].strip()
-        if len(answer_section) > 400:
-            for sep in ["。", "！", "\n\n"]:
-                pos = answer_section.rfind(sep, 0, 400)
-                if pos > 200:
-                    answer_section = answer_section[:pos + 1]
-                    break
-        lines.append(answer_section)
-    else:
-        # Fallback: use first 400 chars of core_result
-        teaser = core_result[:400]
-        for sep in ["。", "！", "\n\n"]:
-            pos = teaser.rfind(sep, 0, 400)
-            if pos > 200:
-                teaser = teaser[:pos + 1]
-                break
-        lines.append(teaser)
-
+    # 2. Core insight — extract the most relevant section completely
+    answer_section = ""
+    #优先提取直接回答用户问题的 section (G section)
+    for marker in ["【G·", "【H·", "【A·", "【B·"]:
+        section = _extract_section(core_result, marker)
+        if section and len(section) > 50:
+            answer_section = _complete_sentence(section, 600)
+            break
+    if not answer_section:
+        # Fallback: use first 600 chars at sentence boundary
+        answer_section = _complete_sentence(core_result, 600)
+    lines.append(answer_section)
     lines.append("")
 
     # 3. Dimension scores overview
@@ -235,7 +245,6 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
 
     # 4. Key findings teaser
     lines.append("【核心发现】")
-    # Extract key_findings or key points from the report
     findings = []
     for line in core_result.split("\n"):
         line = line.strip()
@@ -260,7 +269,6 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
         wo = getattr(state, f"{agent_id}_output", None)
         if not wo or not wo.report:
             continue
-        # Extract first 2 key_findings or first meaningful lines
         preview_lines = []
         for line in wo.report.split("\n"):
             line = line.strip()
@@ -271,17 +279,16 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
                 if len(text) > 10 and len(preview_lines) < 2:
                     preview_lines.append(f"  {label}：{text}")
             elif line.startswith("【") and "】" in line:
-                # Dimension header — extract the dimension analysis (first sentence)
                 dim_text = line.split("】", 1)[-1].strip()
                 if dim_text and len(dim_text) > 10:
-                    # Truncate to first sentence
+                    # Complete sentence, max 100 chars
                     for sep in ["。", "！", "；"]:
                         pos = dim_text.find(sep)
                         if 0 < pos < 80:
                             dim_text = dim_text[:pos + 1]
                             break
-                    if len(dim_text) > 80:
-                        dim_text = dim_text[:80] + "…"
+                    if len(dim_text) > 100:
+                        dim_text = dim_text[:100] + "…"
                     preview_lines.append(f"  {label}：{dim_text}")
             if len(preview_lines) >= 2:
                 break
@@ -294,7 +301,7 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
     if has_worker_previews:
         lines.append("")
 
-    # 6. Upgrade prompt - create desire for full analysis
+    # 6. Upgrade prompt
     lines.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     lines.append("🔓 解锁完整深度解析，你将获得：")
     lines.append("• 五维详细诊断（财富/感情/事业/健康/精神）")

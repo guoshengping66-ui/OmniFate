@@ -965,7 +965,7 @@ async def stream_session(
         tmp_resp = _state_to_response(state)
         _apply_content_lock(tmp_resp, current_user)
         yield f"data: {json.dumps({'type': 'progress', 'pct': 100, 'message': '分析完成'})}\n\n"
-        yield f"data: {json.dumps({'type': 'complete', 'master_summary': tmp_resp.master_summary[:500], 'master_detail': tmp_resp.master_detail})}\n\n"
+        yield f"data: {json.dumps({'type': 'complete', 'master_summary': tmp_resp.master_summary, 'master_detail': tmp_resp.master_detail})}\n\n"
 
     return StreamingResponse(
         event_generator(),
