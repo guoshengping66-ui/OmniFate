@@ -64,7 +64,7 @@ export default function NewReadingPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { user } = useAuth()
-  const { locale, t } = useLanguage()
+  const { locale, t, localeHref } = useLanguage()
   const isEn = locale === "en"
   const { userProfile, fetchBirthProfiles } = useUserStore()
 
@@ -441,7 +441,7 @@ export default function NewReadingPage() {
 
       clearSavedProgress()
       toast.success(t("new.readingStarted"))
-      router.push(`/reading/${result.session_id}`)
+      router.push(localeHref(`/reading/${result.session_id}`))
     } catch (err: any) {
       console.error("[Reading submit] Full error:", err)
       let msg: string
