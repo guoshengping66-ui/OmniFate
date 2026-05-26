@@ -594,8 +594,8 @@ export default function ReadingPage() {
                 </div>
               )}
 
-              {/* ── Energy Digital ID Card ── */}
-              {data.dimension_scores && (
+              {/* ── Energy Digital ID Card (hidden for RELATIONSHIP) ── */}
+              {data.dimension_scores && data.intent !== "RELATIONSHIP" && (
                 <div
                   style={{
                     transition: "all 0.8s ease-out 0.85s",
