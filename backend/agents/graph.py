@@ -29,6 +29,10 @@ from calculators.astrology_calculator import AstrologyCalculator
 # Singleton calculator instance
 _astro_calc = AstrologyCalculator(house_system="Equal")
 
+# Store AstrologyResult objects for synastry calculation (keyed by session_id)
+_astro_results: dict[str, dict] = {}  # session_id -> {"self": AstrologyResult, "partner": AstrologyResult}
+_bazi_results: dict[str, dict] = {}   # session_id -> {"self": BaziResult, "partner": BaziResult}
+
 
 # ─── Node functions ──────────────────────────────────────────────────────
 
@@ -47,6 +51,10 @@ async def node_init(state: SystemState) -> SystemState:
                 timeout=30,
             )
             state.astrology_raw = astro_dict
+            # Store AstrologyResult for synastry calculation
+            if _last_astro_result[0] is not None:
+                _astro_results.setdefault(state.session_id, {})["self"] = _last_astro_result[0]
+                _last_astro_result[0] = None
         except Exception as e:
             # Fallback to stub if real calculation fails or times out
             state.astrology_raw = _stub_astrology(bi)
@@ -64,6 +72,7 @@ def _calculate_astrology(bi: BirthInfo) -> dict:
     """
     Real astrology calculation via Skyfield (JPL DE421 ephemeris).
     Computes planetary positions, houses, ASC, MC, and aspects.
+    Returns dict (for state.astrology_raw) and stores AstrologyResult for synastry.
     """
     # Estimate UTC offset from longitude
     if bi.longitude is not None:
@@ -74,12 +83,20 @@ def _calculate_astrology(bi: BirthInfo) -> dict:
     lon_for_calc = bi.longitude if bi.longitude is not None else 120.0
     lat_for_calc = bi.latitude if bi.latitude is not None else 39.9
 
-    return _astro_calc.calculate(
+    result = _astro_calc.calculate(
         year=bi.year, month=bi.month, day=bi.day,
         hour=bi.hour, minute=bi.minute,
         latitude=lat_for_calc, longitude=lon_for_calc,
         utc_offset=utc_offset,
-    ).to_dict()
+    )
+    # Store the AstrologyResult object for later synastry calculation
+    # (will be stored in _astro_results by the caller)
+    _last_astro_result[0] = result
+    return result.to_dict()
+
+
+# Temporary storage for the last calculated AstrologyResult
+_last_astro_result: list = [None]
 
 
 def _stub_astrology(bi: BirthInfo) -> dict:
@@ -350,6 +367,10 @@ async def run_full_analysis(state: SystemState) -> SystemState:
                 timeout=30,
             )
             state.partner_astrology_raw = partner_astro
+            # Store partner AstrologyResult for synastry calculation
+            if _last_astro_result[0] is not None:
+                _astro_results.setdefault(state.session_id, {})["partner"] = _last_astro_result[0]
+                _last_astro_result[0] = None
         except Exception as e:
             state.partner_astrology_raw = _stub_astrology(state.partner_birth_info)
             state.errors.append(f"partner_astrology_fallback: {e}")
@@ -359,10 +380,13 @@ async def run_full_analysis(state: SystemState) -> SystemState:
             from calculators.bazi_calculator import BaziCalculator
             pi = state.partner_birth_info
             bazi_calc = BaziCalculator()
-            state.partner_bazi_raw = bazi_calc.calculate(
+            partner_bazi_result = bazi_calc.calculate(
                 year=pi.year, month=pi.month, day=pi.day,
                 hour=pi.hour, minute=pi.minute, gender=pi.gender,
             )
+            state.partner_bazi_raw = partner_bazi_result.to_dict()
+            # Store BaziResult for compatibility calculation
+            _bazi_results.setdefault(state.session_id, {})["partner"] = partner_bazi_result
         except Exception as e:
             state.errors.append(f"partner_bazi_error: {e}")
 
@@ -467,6 +491,46 @@ async def run_full_analysis(state: SystemState) -> SystemState:
     # ── Wait for ALL workers to finish ──
     await asyncio.gather(*worker_tasks)
 
+    # ── Synastry computation (RELATIONSHIP intent) ──
+    if state.intent == "RELATIONSHIP":
+        state.progress_message = "正在计算合盘数据…"
+        session_results = _astro_results.get(state.session_id, {})
+        astro_self = session_results.get("self")
+        astro_partner = session_results.get("partner")
+
+        if astro_self and astro_partner:
+            try:
+                # Synastry (比较盘)
+                synastry = _astro_calc.calculate_synastry(astro_self, astro_partner)
+                state.synastry_aspects = synastry.get("aspects", [])
+
+                # Composite chart (组合盘)
+                composite = _astro_calc.calculate_composite(astro_self, astro_partner)
+                state.composite_chart = composite
+
+                print(f"[SYNASTRY] {len(state.synastry_aspects)} cross-aspects computed")
+                print(f"[COMPOSITE] ASC={composite.get('ascendant', {}).get('sign_cn', '?')}")
+            except Exception as e:
+                state.errors.append(f"synastry_error: {e}")
+                print(f"[SYNASTRY] Error: {e}")
+
+        # Bazi compatibility (八字合婚)
+        if state.bazi_raw and state.partner_bazi_raw:
+            try:
+                from calculators.bazi_calculator import BaziCalculator
+                bazi_compat = BaziCalculator.calculate_compatibility(
+                    state.bazi_raw, state.partner_bazi_raw,
+                )
+                state.bazi_compatibility = bazi_compat
+                print(f"[BAZI_COMPAT] Score: {bazi_compat.get('score', 0)}/100, "
+                      f"Level: {bazi_compat.get('level', '?')}")
+            except Exception as e:
+                state.errors.append(f"bazi_compat_error: {e}")
+                print(f"[BAZI_COMPAT] Error: {e}")
+
+        # Cleanup stored results
+        _astro_results.pop(state.session_id, None)
+
     # Merge tags
     all_tags: list[str] = []
     for r in worker_outputs.values():
@@ -482,21 +546,44 @@ async def run_full_analysis(state: SystemState) -> SystemState:
     state.phase = "master"
     state.progress_pct = 80
 
+    is_relationship = state.intent == "RELATIONSHIP"
+
     # Free users: skip dims + actions sub-tasks (saves 2 LLM calls)
     if state.is_premium:
         state.progress_message = "AI 正在生成五维诊断与行动建议…"
         prep = run_master_preprocessing(state)  # re-run with complete data
-        dims_result, actions_result = await asyncio.gather(
+        tasks = [
             run_subtask_dims(state, prep),
             run_subtask_actions(state, prep),
-        )
+        ]
+        if is_relationship:
+            from agents.master import run_subtask_synastry
+            tasks.append(run_subtask_synastry(state))
+
+        results = await asyncio.gather(*tasks)
+        dims_result = results[0]
+        actions_result = results[1]
+        synastry_result = results[2] if is_relationship else ""
+
         state.master_summary = core_result[:500]
-        state.master_detail = f"{core_result}\n\n{dims_result}\n\n{actions_result}"
+        parts = [core_result]
+        if synastry_result:
+            parts.append(synastry_result)
+        parts.append(dims_result)
+        parts.append(actions_result)
+        state.master_detail = "\n\n".join(parts)
     else:
         state.progress_message = "核心综合完成，收尾中…"
         # Free version: complete teaser that answers user question and creates upgrade desire
         state.master_summary = _build_free_summary(core_result, state)
-        state.master_detail = ""  # Behind paywall anyway
+
+        # RELATIONSHIP free users: add synastry detail
+        if is_relationship:
+            from agents.master import run_subtask_synastry
+            synastry_result = await run_subtask_synastry(state)
+            state.master_detail = f"{core_result}\n\n{synastry_result}" if synastry_result else ""
+        else:
+            state.master_detail = ""  # Behind paywall anyway
 
     state.progress_pct = 100
     state.progress_message = "分析完成"

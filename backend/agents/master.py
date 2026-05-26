@@ -18,6 +18,7 @@ from config import get_settings
 from agents.state import SystemState, ChatMessage, ConflictRecord, WorkerOutput
 from agents.prompts import master_prompt, master_summary_prompt, master_detail_prompt, ROUTER_PROMPT
 from agents.prompts import master_subtask_core_prompt, master_subtask_dimensions_prompt, master_subtask_actions_prompt
+from agents.prompts import master_subtask_synastry_prompt
 from services.product_matcher import ProductMatcher
 
 settings = get_settings()
@@ -763,15 +764,15 @@ async def run_subtask_core(state: SystemState, prep: dict) -> str:
     """Run core synthesis sub-task (Sub-task A). Returns result text."""
     llm_model = settings.PREMIUM_MODEL if state.is_premium else settings.MASTER_FAST_MODEL
 
-    # Build partner data for RELATIONSHIP intent
+    # Build partner data for RELATIONSHIP intent (with structured synastry data)
     partner_data = None
     if state.intent == "RELATIONSHIP" and state.partner_birth_info:
-        import json as _json
         partner_data = {
             "partner_name": state.partner_name,
             "relationship_type": state.relationship_type,
-            "partner_astrology": _json.dumps(state.partner_astrology_raw, ensure_ascii=False, default=str)[:800] if state.partner_astrology_raw else "",
-            "partner_bazi": _json.dumps(state.partner_bazi_raw, ensure_ascii=False, default=str)[:800] if state.partner_bazi_raw else "",
+            "bazi_compatibility": state.bazi_compatibility,
+            "synastry_aspects": state.synastry_aspects,
+            "composite_chart": state.composite_chart,
         }
 
     system = master_subtask_core_prompt(
@@ -820,32 +821,72 @@ async def run_subtask_actions(state: SystemState, prep: dict) -> str:
     return result
 
 
+async def run_subtask_synastry(state: SystemState) -> str:
+    """合盘专属深度分析子任务 (RELATIONSHIP intent only)."""
+    llm_model = settings.PREMIUM_MODEL if state.is_premium else settings.MASTER_FAST_MODEL
+    system = master_subtask_synastry_prompt(
+        synastry_aspects=state.synastry_aspects,
+        composite_chart=state.composite_chart,
+        bazi_compatibility=state.bazi_compatibility,
+        relationship_type=state.relationship_type,
+        partner_name=state.partner_name,
+        language=state.language,
+    )
+    result = await _call(system, "请生成合盘深度分析报告。", model=llm_model, language=state.language)
+    return result
+
+
 async def run_master(state: SystemState) -> SystemState:
     """
     Full master pipeline: preprocessing + sub-tasks.
     Free users: only core synthesis (1 LLM call).
     Premium users: 3 parallel sub-tasks for full detail.
+    RELATIONSHIP intent: +1 synastry sub-task (4 total for premium).
     """
     state.phase = "master"
     prep = run_master_preprocessing(state)
 
+    is_relationship = state.intent == "RELATIONSHIP"
+
     if state.is_premium:
-        # Full pipeline: 3 parallel sub-tasks
-        core_task = run_subtask_core(state, prep)
-        dims_task = run_subtask_dims(state, prep)
-        actions_task = run_subtask_actions(state, prep)
+        # Full pipeline: 3 parallel sub-tasks (+ synastry for RELATIONSHIP)
+        tasks = [
+            run_subtask_core(state, prep),
+            run_subtask_dims(state, prep),
+            run_subtask_actions(state, prep),
+        ]
+        if is_relationship:
+            tasks.append(run_subtask_synastry(state))
 
-        core_result, dims_result, actions_result = await asyncio.gather(
-            core_task, dims_task, actions_task,
-        )
+        results = await asyncio.gather(*tasks)
+
+        core_result = results[0]
+        dims_result = results[1]
+        actions_result = results[2]
+        synastry_result = results[3] if is_relationship else ""
 
         state.master_summary = core_result[:500]
-        state.master_detail = f"{core_result}\n\n{dims_result}\n\n{actions_result}"
+        parts = [core_result]
+        if synastry_result:
+            parts.append(synastry_result)
+        parts.append(dims_result)
+        parts.append(actions_result)
+        state.master_detail = "\n\n".join(parts)
     else:
-        # Free user: only core synthesis (saves 2 LLM calls + ~8000 tokens)
-        core_result = await run_subtask_core(state, prep)
+        # Free user: core synthesis + synastry for RELATIONSHIP
+        tasks = [run_subtask_core(state, prep)]
+        if is_relationship:
+            tasks.append(run_subtask_synastry(state))
+
+        results = await asyncio.gather(*tasks)
+        core_result = results[0]
+        synastry_result = results[1] if is_relationship else ""
+
         state.master_summary = core_result[:500]
-        state.master_detail = ""  # Behind paywall anyway
+        if synastry_result:
+            state.master_detail = f"{core_result}\n\n{synastry_result}"
+        else:
+            state.master_detail = ""  # Behind paywall anyway
 
     state.phase = "chat"
     return state

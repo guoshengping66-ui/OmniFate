@@ -7220,25 +7220,54 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
         f"[{k.upper()}]\n{v[:400]}" for k, v in worker_summaries.items() if v
     )
 
-    # Add partner data for RELATIONSHIP intent
+    # Add partner data for RELATIONSHIP intent (structured synastry data)
     partner_section = ""
     if intent == "RELATIONSHIP" and partner_data:
         partner_name = partner_data.get("partner_name", "对方")
         relationship_type = partner_data.get("relationship_type", "")
-        partner_astro = partner_data.get("partner_astrology", "")
-        partner_bazi = partner_data.get("partner_bazi", "")
         rel_type_cn = {"lover": "恋人", "friend": "朋友", "colleague": "同事", "family": "家人"}
         rel_type_display = rel_type_cn.get(relationship_type, relationship_type)
 
+        # Bazi compatibility data
+        bazi_compat = partner_data.get("bazi_compatibility", {})
+        compat_score = bazi_compat.get("score", "?")
+        compat_level = bazi_compat.get("level", "?")
+        compat_dm = bazi_compat.get("day_master_detail", "")
+        compat_yong = bazi_compat.get("yong_shen_complement", "")
+        compat_day = bazi_compat.get("day_pillar_detail", "")
+        compat_supply = bazi_compat.get("wuxing_supply", "")
+
+        # Synastry aspects data
+        synastry_aspects = partner_data.get("synastry_aspects", [])
+        strongest = [a for a in synastry_aspects if a.get("meaning")][:5]
+        synastry_text = ""
+        for a in strongest:
+            synastry_text += (
+                f"  {a['planet_a']}方{a['aspect']}{a['planet_b']}方"
+                f"（容许度{a['orb']}°）— {a['meaning']}\n"
+            )
+
+        # Composite chart data
+        composite = partner_data.get("composite_chart", {})
+        composite_key = composite.get("key_readings", [])
+
         partner_section = (
-            f"\n\n== 对方信息 ==\n"
+            f"\n\n== 合盘数据 ==\n"
             f"关系类型：{rel_type_display}\n"
-            f"对方昵称：{partner_name}\n"
+            f"对方昵称：{partner_name}\n\n"
+            f"[八字合婚评分] {compat_score}/100 — {compat_level}\n"
+            f"  {compat_dm}\n"
+            f"  {compat_yong}\n"
+            f"  {compat_day}\n"
+            f"  {compat_supply}\n\n"
+            f"[星盘交叉相位 — 最强连接]\n"
+            f"{synastry_text}\n"
         )
-        if partner_astro:
-            partner_section += f"\n[对方星盘]\n{partner_astro[:600]}\n"
-        if partner_bazi:
-            partner_section += f"\n[对方八字]\n{partner_bazi[:600]}\n"
+        if composite_key:
+            partner_section += "[组合盘概要]\n"
+            for reading in composite_key:
+                partner_section += f"  {reading}\n"
+            partner_section += "\n"
     scores_str = ""
     if dimension_scores:
         _DIM_CN = {"wealth": "财富", "relationship": "感情", "career": "事业",
@@ -7278,17 +7307,39 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
         )
     elif intent == "RELATIONSHIP":
         intent_hint = (
-            "\n== 推命通道：💫能量交织（人际关系分析）==\n"
-            "用户选择了人际关系分析通道，已提供双方出生信息。\n"
-            "报告重心：\n"
-            "1. 必须在命盘底色中加入双方命盘的对比分析\n"
-            "2. 分析五行互补性：双方八字五行的相生相克关系\n"
-            "3. 分析星盘相位：双方星盘的关键相位（合、冲、刑、拱）\n"
-            "4. 给出性格契合度评估：基于双方命盘特征的互补与冲突\n"
-            "5. 沟通模式分析：双方的沟通风格差异与协调方式\n"
-            "6. 潜在冲突点：命理层面可能产生摩擦的领域\n"
-            "7. 相处建议：基于双方命盘特征的具体相处策略\n"
-            "8. 风格：温暖、洞察、建设性，强调互补而非评判\n\n"
+            "\n== 推命通道：💫能量交织（人际关系深度分析）==\n"
+            "用户选择了人际关系分析通道，已提供双方出生信息并完成合盘计算。\n\n"
+            "报告必须包含以下专属板块（替代常规A/B/C/D结构）：\n\n"
+            "【A·合盘总评】300-500字\n"
+            "  基于八字合婚评分+星盘交叉相位+组合盘，给出关系整体评估\n"
+            "  包含：契合度评分(引用合婚分数)、关系基调、核心引力、潜在挑战\n"
+            "  必须引用合盘数据中的具体信息\n\n"
+            "【B·五行互补详解】200-300字\n"
+            "  双方八字五行的相生相克关系\n"
+            "  日主互动分析（引用日主互动结果）\n"
+            "  用神互补分析（引用用神互补结果）\n"
+            "  五行互补度（引用五行互补结果）\n\n"
+            "【C·星盘灵魂连接】200-300字\n"
+            "  交叉相位中最强的3-5个连接（必须引用具体的行星相位）\n"
+            "  组合盘的核心基调（月亮/金星/土星/7宫头）\n"
+            "  灵魂契合度评估\n\n"
+            "【D·沟通与相处模式】150-250字\n"
+            "  基于双方命盘特征的沟通风格差异\n"
+            "  协调方式与相处策略\n\n"
+            "【E·潜在冲突与化解】150-250字\n"
+            "  命理层面可能产生摩擦的领域\n"
+            "  化解建议（基于五行调和+星盘互补）\n\n"
+            "【F·关系发展建议】150-250字\n"
+            "  基于双方命盘的具体相处策略\n"
+            "  关键时间节点预测\n\n"
+            "【G·置信度评估表】\n"
+            "  | 分析维度 | 置信度 | 理由 |\n\n"
+            "风格：温暖、洞察、建设性，强调互补而非评判\n"
+            "根据关系类型调整侧重点：\n"
+            "  恋人：重点分析情感连接、亲密关系、婚姻前景\n"
+            "  朋友：重点分析性格互补、共同成长、友谊深度\n"
+            "  同事：重点分析合作默契、职场配合、利益协调\n"
+            "  家人：重点分析血缘纽带、代际影响、家庭和谐\n\n"
         )
 
     return (
@@ -7428,6 +7479,122 @@ def master_subtask_actions_prompt(worker_summaries: dict, user_question: str,
         f"== 推荐商品 ==\n{products_sec}\n\n"
         f"{harm_hint}\n\n"
         "请生成行动建议报告。"
+    )
+
+
+def master_subtask_synastry_prompt(
+    synastry_aspects: list[dict],
+    composite_chart: dict,
+    bazi_compatibility: dict,
+    relationship_type: str,
+    partner_name: str,
+    language: str = "zh",
+) -> str:
+    """合盘专属深度分析子任务 — 星盘交叉相位 + 组合盘 + 八字合婚"""
+    rel_type_cn = {"lover": "恋人", "friend": "朋友", "colleague": "同事", "family": "家人"}
+    rel_display = rel_type_cn.get(relationship_type, relationship_type)
+
+    # Build synastry aspects text
+    strongest = [a for a in synastry_aspects if a.get("meaning")][:8]
+    synastry_lines = []
+    for a in strongest:
+        synastry_lines.append(
+            f"  {a['planet_a']}方 {a['aspect']} {a['planet_b']}方"
+            f"（容许度{a['orb']}°）— {a.get('meaning', '')}"
+        )
+    synastry_text = "\n".join(synastry_lines) if synastry_lines else "  无强烈交叉相位"
+
+    # Build composite chart text
+    composite_lines = composite_chart.get("key_readings", [])
+    composite_text = "\n".join(f"  {r}" for r in composite_lines) if composite_lines else "  无组合盘数据"
+
+    # Bazi compatibility summary
+    compat_score = bazi_compatibility.get("score", "?")
+    compat_level = bazi_compatibility.get("level", "?")
+    compat_dm = bazi_compatibility.get("day_master_detail", "")
+    compat_yong = bazi_compatibility.get("yong_shen_complement", "")
+    compat_day = bazi_compatibility.get("day_pillar_detail", "")
+    compat_supply = bazi_compatibility.get("wuxing_supply", "")
+
+    # Relationship type specific focus
+    focus_map = {
+        "lover": (
+            "恋人/伴侣关系重点：\n"
+            "  - 情感连接深度与灵魂契合度\n"
+            "  - 亲密关系中的吸引力建立与维持\n"
+            "  - 婚姻/长期承诺的命理基础\n"
+            "  - 性生活和谐度（基于火星/金星相位）\n"
+            "  - 共同成长与精神升华的可能性\n"
+        ),
+        "friend": (
+            "朋友关系重点：\n"
+            "  - 性格互补与共同兴趣\n"
+            "  - 忠诚度与信任基础\n"
+            "  - 共同成长与互相支持的模式\n"
+            "  - 友谊的持久度与深度\n"
+        ),
+        "colleague": (
+            "同事/合作关系重点：\n"
+            "  - 工作风格互补性\n"
+            "  - 沟通效率与协作默契\n"
+            "  - 利益分配与竞争关系\n"
+            "  - 共同目标的契合度\n"
+        ),
+        "family": (
+            "家人关系重点：\n"
+            "  - 血缘纽带与代际影响\n"
+            "  - 家庭角色与责任分配\n"
+            "  - 沟通模式与情感表达\n"
+            "  - 家族能量传承与化解\n"
+        ),
+    }
+    focus_text = focus_map.get(relationship_type, focus_map["lover"])
+
+    if language == "en":
+        return (
+            "You are a synastry specialist for a multi-dimensional fortune platform.\n"
+            "Generate a DEEP synastry analysis report based on the provided data.\n\n"
+            f"Relationship type: {rel_display} with {partner_name}\n\n"
+            f"== Bazi Compatibility ({compat_score}/100 - {compat_level}) ==\n"
+            f"  {compat_dm}\n  {compat_yong}\n  {compat_day}\n  {compat_supply}\n\n"
+            f"== Synastry Aspects (Strongest Connections) ==\n{synastry_text}\n\n"
+            f"== Composite Chart Key Readings ==\n{composite_text}\n\n"
+            f"== Focus Areas for {rel_display} Relationship ==\n{focus_text}\n\n"
+            "Output structure:\n"
+            "[Soul Connection Analysis] 200-300 words: Deep analysis of the strongest "
+            "synastry aspects and what they reveal about the soul-level connection\n\n"
+            "[Composite Chart Interpretation] 200-300 words: What the composite chart "
+            "reveals about the relationship itself as an entity\n\n"
+            "[Growth Opportunities] 150-200 words: How this relationship can help "
+            "both parties grow, based on the chart dynamics\n\n"
+            "Style: Warm, insightful, constructive. Emphasize complementarity over judgment.\n"
+        )
+
+    return (
+        "你是命盘智镜平台的合盘专家。基于精确的合盘计算数据，生成深度合盘分析报告。\n\n"
+        f"关系类型：{rel_display}（与{partner_name}）\n\n"
+        f"== 八字合婚数据 ({compat_score}/100 — {compat_level}) ==\n"
+        f"  {compat_dm}\n"
+        f"  {compat_yong}\n"
+        f"  {compat_day}\n"
+        f"  {compat_supply}\n\n"
+        f"== 星盘交叉相位（最强连接）==\n{synastry_text}\n\n"
+        f"== 组合盘关键解读 ==\n{composite_text}\n\n"
+        f"== {rel_display}关系分析重点 ==\n{focus_text}\n\n"
+        "请输出以下三个板块：\n\n"
+        "【灵魂连接深度解析】200-300字\n"
+        "  基于交叉相位数据，分析两人之间的灵魂层面连接\n"
+        "  必须引用具体的行星相位（如「你的金星合对方的火星」）\n"
+        "  解读这些相位在关系中的具体表现\n\n"
+        "【组合盘关系解读】200-300字\n"
+        "  基于组合盘数据，分析「这段关系本身」的命盘特征\n"
+        "  组合盘月亮=情感需求，金星=爱情模式，土星=考验\n"
+        "  给出关系的整体基调和发展方向\n\n"
+        "【关系成长契机】150-200字\n"
+        "  基于双方命盘的互补性，给出关系成长的具体建议\n"
+        "  如何利用五行互补和星盘和谐来深化关系\n"
+        "  需要注意的潜在挑战和化解方法\n\n"
+        "风格：温暖、洞察、建设性。强调互补而非评判，给出可操作的相处建议。"
     )
 
 
