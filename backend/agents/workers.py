@@ -1126,7 +1126,7 @@ async def run_palm(state: SystemState) -> WorkerOutput:
 # Merged workers: qimen+ziwei combined into one LLM call
 _WORKER_IDS = ["astrology", "tarot", "bazi", "qimen_ziwei", "face", "palm"]
 _WORKER_RUNNERS = [run_astrology, run_tarot, run_bazi, run_qimen_ziwei, run_face, run_palm]
-_WORKER_TIMEOUTS = [90, 60, 60, 90, 30, 30]  # Reduced from 120s to prevent slow requests
+_WORKER_TIMEOUTS = [60, 45, 45, 60, 25, 25]  # Tightened to speed up overall analysis
 # Which worker IDs are merged (return list of WorkerOutput instead of single)
 _MERGED_WORKERS = {"qimen_ziwei"}
 

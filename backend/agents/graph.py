@@ -254,8 +254,8 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
     lines.append(answer_section)
     lines.append("")
 
-    # 3. Dimension scores overview
-    if score_display:
+    # 3. Dimension scores overview (skip for RELATIONSHIP — not relevant)
+    if score_display and state.intent != "RELATIONSHIP":
         lines.append("【五维能量概览】")
         lines.append(score_display)
         lines.append("")
@@ -412,8 +412,8 @@ async def run_full_analysis(state: SystemState) -> SystemState:
 
     # Stagger face/palm worker start to avoid concurrent LLM API rate limits
     _START_DELAYS = {
-        "face": 3,
-        "palm": 6,
+        "face": 1,
+        "palm": 2,
     }
 
     async def _run_one(runner, agent_id: str, timeout: int):
@@ -488,33 +488,27 @@ async def run_full_analysis(state: SystemState) -> SystemState:
 
     core_task = asyncio.create_task(_speculative_core())
 
-    # ── Wait for ALL workers to finish ──
-    await asyncio.gather(*worker_tasks)
-
-    # ── Synastry computation (RELATIONSHIP intent) ──
-    if state.intent == "RELATIONSHIP":
-        state.progress_message = "正在计算合盘数据…"
+    # ── Synastry computation: run IN PARALLEL with workers (RELATIONSHIP only) ──
+    async def _compute_synastry():
+        """Compute synastry data (astrology aspects + bazi compatibility) in background."""
+        if state.intent != "RELATIONSHIP":
+            return
         session_results = _astro_results.get(state.session_id, {})
         astro_self = session_results.get("self")
         astro_partner = session_results.get("partner")
 
         if astro_self and astro_partner:
             try:
-                # Synastry (比较盘)
                 synastry = _astro_calc.calculate_synastry(astro_self, astro_partner)
                 state.synastry_aspects = synastry.get("aspects", [])
-
-                # Composite chart (组合盘)
                 composite = _astro_calc.calculate_composite(astro_self, astro_partner)
                 state.composite_chart = composite
-
                 print(f"[SYNASTRY] {len(state.synastry_aspects)} cross-aspects computed")
                 print(f"[COMPOSITE] ASC={composite.get('ascendant', {}).get('sign_cn', '?')}")
             except Exception as e:
                 state.errors.append(f"synastry_error: {e}")
                 print(f"[SYNASTRY] Error: {e}")
 
-        # Bazi compatibility (八字合婚)
         if state.bazi_raw and state.partner_bazi_raw:
             try:
                 from calculators.bazi_calculator import BaziCalculator
@@ -522,14 +516,24 @@ async def run_full_analysis(state: SystemState) -> SystemState:
                     state.bazi_raw, state.partner_bazi_raw,
                 )
                 state.bazi_compatibility = bazi_compat
-                print(f"[BAZI_COMPAT] Score: {bazi_compat.get('score', 0)}/100, "
-                      f"Level: {bazi_compat.get('level', '?')}")
+                print(f"[BAZI_COMPAT] Score: {bazi_compat.get('score', 0)}/100")
             except Exception as e:
                 state.errors.append(f"bazi_compat_error: {e}")
                 print(f"[BAZI_COMPAT] Error: {e}")
 
-        # Cleanup stored results
         _astro_results.pop(state.session_id, None)
+
+    synastry_task = asyncio.create_task(_compute_synastry())
+
+    # ── Wait for ALL workers to finish ──
+    await asyncio.gather(*worker_tasks)
+
+    # ── Wait for synastry computation to finish (if RELATIONSHIP) ──
+    if state.intent == "RELATIONSHIP":
+        try:
+            await asyncio.wait_for(synastry_task, timeout=15)
+        except asyncio.TimeoutError:
+            pass
 
     # Merge tags
     all_tags: list[str] = []
@@ -577,10 +581,15 @@ async def run_full_analysis(state: SystemState) -> SystemState:
         # Free version: complete teaser that answers user question and creates upgrade desire
         state.master_summary = _build_free_summary(core_result, state)
 
-        # RELATIONSHIP free users: add synastry detail
+        # RELATIONSHIP free users: add synastry detail (with timeout to prevent 80% hang)
         if is_relationship:
             from agents.master import run_subtask_synastry
-            synastry_result = await run_subtask_synastry(state)
+            try:
+                synastry_result = await asyncio.wait_for(run_subtask_synastry(state), timeout=60)
+            except asyncio.TimeoutError:
+                synastry_result = ""
+                state.errors.append("synastry_subtask_timeout")
+                print(f"[TIMEOUT] Synastry subtask timed out for {state.session_id}")
             state.master_detail = f"{core_result}\n\n{synastry_result}" if synastry_result else ""
         else:
             state.master_detail = ""  # Behind paywall anyway

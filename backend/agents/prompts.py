@@ -7339,6 +7339,22 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
             "  家人：家庭和谐、代际影响\n\n"
         )
 
+    # Output structure: skip for RELATIONSHIP (intent_hint already has its own structure)
+    output_structure = ""
+    if intent != "RELATIONSHIP":
+        output_structure = (
+            "== 输出结构 ==\n"
+            "【A·核心性格底色】\n"
+            '核心特质：用20字以内大白话抓住用户本质，如"外表坚强独立，内心极度缺乏安全感的幕后军师型人格"\n'
+            "性格解析：用100字以内现代大白话，分析性格优势与隐藏软肋\n\n"
+            "【B·跨维度共鸣（现状痛点）】\n"
+            "财富与事业现状：用现代行为学话术，指出当前可能遇到的瓶颈\n"
+            '例如："近期想法很多但落地困难，容易陷入精神内耗或盲目投资"\n'
+            "感情与人际关系现状：同上风格\n"
+            "健康与精神状态：同上风格\n\n"
+            f"== 五维评分 ==\n{scores_str}\n\n"
+        )
+
     return (
         "你是命盘智镜的资深分析师。根据多位专家的分析数据，用大白话生成易懂的分析报告。\n\n"
         f"{intent_hint}"
@@ -7348,16 +7364,7 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
         "禁止出现：命格、命局、格局、大运、流年、刑冲合害、三合三会\n"
         "禁止出现：天机、磁场、能量场、灵修、开悟等玄乎词汇\n"
         "以上术语全部翻译成现代大白话：性格特质、行为模式、心理倾向、能量状态\n\n"
-        "== 输出结构 ==\n"
-        "【A·核心性格底色】\n"
-        '核心特质：用20字以内大白话抓住用户本质，如"外表坚强独立，内心极度缺乏安全感的幕后军师型人格"\n'
-        "性格解析：用100字以内现代大白话，分析性格优势与隐藏软肋\n\n"
-        "【B·跨维度共鸣（现状痛点）】\n"
-        "财富与事业现状：用现代行为学话术，指出当前可能遇到的瓶颈\n"
-        '例如："近期想法很多但落地困难，容易陷入精神内耗或盲目投资"\n'
-        "感情与人际关系现状：同上风格\n"
-        "健康与精神状态：同上风格\n\n"
-        f"== 五维评分 ==\n{scores_str}\n\n"
+        f"{output_structure}"
         f"== 跨维度共鸣 ==\n{resonance_text or '无'}\n\n"
         f"== 跨维度冲突 ==\n{conflicts_text or '无'}\n\n"
         f"== 专家报告 ==\n{workers_str}\n\n"

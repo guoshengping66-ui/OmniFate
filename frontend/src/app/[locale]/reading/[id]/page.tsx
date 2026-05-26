@@ -773,8 +773,8 @@ export default function ReadingPage() {
               )}
             </div>
 
-            {/* ── Radar Chart ── */}
-            {data.dimension_scores && (
+            {/* ── Radar Chart (hidden for RELATIONSHIP) ── */}
+            {data.dimension_scores && data.intent !== "RELATIONSHIP" && (
               <div className="flex justify-center">
                 <Suspense fallback={<div className="h-64" />}>
                   <DestinyRadar
