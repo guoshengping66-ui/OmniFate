@@ -6,6 +6,7 @@ from __future__ import annotations
 import uuid
 import asyncio
 import time
+from collections import OrderedDict
 from datetime import datetime, date, timezone
 from typing import Optional
 import json
@@ -224,17 +225,18 @@ def _state_to_response(state: SystemState) -> AnalysisResponse:
 _WORKER_REPORT_KEYS = ["astrology", "tarot", "bazi", "qimen", "ziwei", "face", "palm"]
 
 
-def _apply_content_lock(resp: AnalysisResponse, current_user: Optional[User], reading: Optional[Reading] = None) -> AnalysisResponse:
+def _apply_content_lock(resp: AnalysisResponse, current_user: Optional[User], reading: Optional[Reading] = None, lang: str = "zh") -> AnalysisResponse:
     """
     Strip paid content (master_detail + long worker reports) for users who
     haven't unlocked the reading.  Called before every GET response.
     SECURITY: Anonymous reports show minimal data only.
     """
+    _lock_msg = "Login to view full analysis" if lang == "en" else "登录后查看完整分析"
     is_unlocked = False
     if reading:
         # Case 0: Anonymous report — strip all personal data
         if not reading.user_id:
-            resp.master_summary = "登录后查看完整分析"
+            resp.master_summary = _lock_msg
             resp.master_detail = ""
             resp.is_detail_unlocked = False
             for key in _WORKER_REPORT_KEYS:
@@ -256,10 +258,11 @@ def _apply_content_lock(resp: AnalysisResponse, current_user: Optional[User], re
     if not is_unlocked:
         resp.master_detail = ""
         resp.is_detail_unlocked = False
+        _trunc_msg = "Unlock full in-depth analysis..." if lang == "en" else "解锁完整深度分析…"
         for key in _WORKER_REPORT_KEYS:
             wo = getattr(resp, key, None)
             if wo and wo.report and len(wo.report) > 600:
-                wo.report = wo.report[:600] + "\n\n🔒 解锁完整深度分析…"
+                wo.report = wo.report[:600] + f"\n\n🔒 {_trunc_msg}"
     return resp
 
 
@@ -483,15 +486,29 @@ async def chat_followup(
 
     # ── SECURITY: Sanitize user input to prevent prompt injection ──
     question = payload.question[:2000] if payload.question else ""
+    # Normalize Unicode to strip homoglyphs and zero-width characters
+    import unicodedata
+    question = unicodedata.normalize("NFKC", question)
     injection_patterns = [
-        r"忽略.*指令", r"ignore.*instructions", r"system\s*prompt",
-        r"disregard.*previous", r"pretend.*you.*are", r"act\s+as\s+",
-        r"roleplay\s+as", r"ignore.*all.*rules", r"you\s+are\s+now",
-        r"bypass.*safety", r"jailbreak", r"DAN\s+mode",
+        # Chinese
+        r"忽略.*指令", r"忽略.*规则", r"无视.*规则", r"你是.*助手",
+        r"系统提示", r"新的指令", r"忘记.*之前",
+        # English — role override
+        r"ignore.*instructions", r"ignore.*rules", r"disregard.*previous",
+        r"disregard.*all", r"forget.*everything", r"forget.*previous",
+        r"pretend.*you.*are", r"act\s+as\s+", r"roleplay\s+as",
+        r"you\s+are\s+now", r"you\s+are\s+a", r"new\s+instructions",
+        r"override.*instructions", r"system\s*prompt", r"system\s*message",
+        r"developer\s*mode", r"bypass.*safety", r"jailbreak", r"DAN\s+mode",
+        r"do\s+anything\s+now", r"ignore\s+safety", r"no\s+restrictions",
+        r"unlock\s+all", r"reveal.*prompt", r"show.*system\s*prompt",
+        r"what\s+is\s+your\s+system\s*prompt", r"repeat.*above",
+        r"translate.*to.*chinese", r"decode.*base64", r"exec.*code",
     ]
     for pattern in injection_patterns:
         if _re.search(pattern, question, _re.IGNORECASE):
             question = "请围绕命理主题提问。"
+            break
 
     answer, agent_id, updated_state = await run_chat(question, state)
     await _set_session(payload.session_id, updated_state)
@@ -573,7 +590,7 @@ async def get_session(
             except Exception:
                 pass  # DB check failed — fall through to full DB path
         # Apply content lock before returning
-        return _apply_content_lock(cached, current_user, None)
+        return _apply_content_lock(cached, current_user, None, lang=lang or "zh")
 
     # Fast path: in-memory cache
     state = await _get_session(session_id)
@@ -596,7 +613,7 @@ async def get_session(
                             resp.master_detail = reading.master_detail
             except Exception:
                 pass
-        return _apply_content_lock(resp, current_user, None)
+        return _apply_content_lock(resp, current_user, None, lang=lang or "zh")
 
     # Slow path: read from DATABASE
     try:
@@ -710,7 +727,7 @@ async def get_session(
             )
 
             # Apply content lock BEFORE translation (so we don't waste API calls translating locked content)
-            _apply_content_lock(resp, current_user, reading)
+            _apply_content_lock(resp, current_user, reading, lang=lang or "zh")
 
             # Cache completed readings for faster subsequent access
             if reading.status == ReadingStatus.completed:
@@ -766,7 +783,8 @@ def _worker_from_report(agent_id: str, report: Optional[str]) -> WorkerReportOut
 
 # ─── On-the-fly Translation (for language mismatch) ────────────────────────
 
-_translate_cache: dict[str, str] = {}  # key = f"{text_hash}:{target_lang}" -> translated text
+_translate_cache: OrderedDict[str, str] = OrderedDict()  # LRU cache: key = f"{text_hash}:{target_lang}"
+_TRANSLATE_CACHE_MAX = 300  # max cached translations
 _translate_llm = None  # Shared LLM instance (created lazily)
 _translate_semaphore = asyncio.Semaphore(3)  # Max 3 concurrent translations
 
@@ -792,6 +810,7 @@ async def _translate_text(text: str, target_lang: str) -> str:
     # Check cache (use first 200 chars as key to avoid huge keys)
     cache_key = f"{hash(text[:200])}:{target_lang}"
     if cache_key in _translate_cache:
+        _translate_cache.move_to_end(cache_key)
         return _translate_cache[cache_key]
 
     from agents.master import _use_mock
@@ -822,11 +841,9 @@ async def _translate_text(text: str, target_lang: str) -> str:
         result = resp.content.strip()
         if result:
             _translate_cache[cache_key] = result
-            # Evict if too large
-            if len(_translate_cache) > 200:
-                oldest = list(_translate_cache.keys())[:50]
-                for k in oldest:
-                    _translate_cache.pop(k, None)
+            # LRU eviction: remove oldest entries when cache is full
+            while len(_translate_cache) > _TRANSLATE_CACHE_MAX:
+                _translate_cache.popitem(last=False)
             return result
     except Exception as e:
         print(f"[WARN] Translation failed: {e}")
@@ -950,7 +967,7 @@ async def stream_session(
 
         # Final complete event — apply content lock to SSE payload
         tmp_resp = _state_to_response(state)
-        _apply_content_lock(tmp_resp, current_user)
+        _apply_content_lock(tmp_resp, current_user, lang=state.language or "zh")
         yield f"data: {json.dumps({'type': 'progress', 'pct': 100, 'message': '分析完成'})}\n\n"
         yield f"data: {json.dumps({'type': 'complete', 'master_summary': tmp_resp.master_summary[:500], 'master_detail': tmp_resp.master_detail})}\n\n"
 

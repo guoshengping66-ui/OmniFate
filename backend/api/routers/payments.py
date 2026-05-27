@@ -340,6 +340,7 @@ async def create_wechat_order(
     item_type: str = Query("unlock_report", description="商品类型"),
     reading_id: str = Query(None, description="报告 ID"),
     db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_user),
 ):
     """创建微信支付订单 — 金额由服务端决定，客户端不可篡改"""
     if not settings.WECHAT_PAY_ENABLED:
@@ -368,6 +369,8 @@ async def create_wechat_order(
         total_cny=amount,
         payment_method="wechat_pay",
         payment_ref=order_no,
+        user_id=current_user.id,
+        notes=f"item_type:{item_type}|reading_id:{reading_id or ''}",
     )
     db.add(order)
     await db.commit()
@@ -418,6 +421,23 @@ async def wechat_notify(request: Request, db: AsyncSession = Depends(get_db)):
             return "<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[金额不匹配]]></return_msg></xml>"
         order.status = OrderStatus.paid
         order.paid_at = datetime.now(timezone.utc)
+
+        if order.user_id:
+            # 从 notes 中解析 item_type 并激活
+            item_type = ""
+            if order.notes and "item_type:" in order.notes:
+                item_type = order.notes.split("item_type:")[1].split("|")[0]
+
+            user_result = await db.execute(
+                select(User).where(User.id == order.user_id).with_for_update()
+            )
+            user = user_result.scalar_one_or_none()
+            if user and item_type in ("premium_monthly", "premium_yearly"):
+                grant_info = await _activate_subscription(user, item_type, db)
+                logger.info(f"[WECHAT-NOTIFY] 激活订阅: 用户 {user.id}, {item_type}, 星尘 +{grant_info.get('grant_amount', 0)}")
+            elif user and item_type == "founder_lifetime":
+                grant_info = await _activate_founder_seat(user, order_no, db)
+                logger.info(f"[WECHAT-NOTIFY] 激活创始席位: 用户 {user.id}, 席位 #{grant_info.get('seat_no')}")
 
     await db.commit()
     return "<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>"
@@ -497,6 +517,7 @@ async def create_alipay_order(
     item_type: str = Query("unlock_report", description="商品类型"),
     reading_id: str = Query(None, description="报告 ID"),
     db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_user),
 ):
     """创建支付宝订单 — 金额由服务端决定"""
     if not settings.ALIPAY_ENABLED:
@@ -524,6 +545,8 @@ async def create_alipay_order(
         total_cny=amount,
         payment_method="alipay",
         payment_ref=order_no,
+        user_id=current_user.id,
+        notes=f"item_type:{item_type}|reading_id:{reading_id or ''}",
     )
     db.add(order)
     await db.commit()
@@ -599,6 +622,23 @@ async def alipay_notify(request: Request, db: AsyncSession = Depends(get_db)):
             return "fail"
         order.status = OrderStatus.paid
         order.paid_at = datetime.now(timezone.utc)
+
+        if order.user_id:
+            # 从 notes 中解析 item_type 并激活
+            item_type = ""
+            if order.notes and "item_type:" in order.notes:
+                item_type = order.notes.split("item_type:")[1].split("|")[0]
+
+            user_result = await db.execute(
+                select(User).where(User.id == order.user_id).with_for_update()
+            )
+            user = user_result.scalar_one_or_none()
+            if user and item_type in ("premium_monthly", "premium_yearly"):
+                grant_info = await _activate_subscription(user, item_type, db)
+                logger.info(f"[ALIPAY-NOTIFY] 激活订阅: 用户 {user.id}, {item_type}, 星尘 +{grant_info.get('grant_amount', 0)}")
+            elif user and item_type == "founder_lifetime":
+                grant_info = await _activate_founder_seat(user, order_no, db)
+                logger.info(f"[ALIPAY-NOTIFY] 激活创始席位: 用户 {user.id}, 席位 #{grant_info.get('seat_no')}")
 
     await db.commit()
     return "success"

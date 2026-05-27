@@ -25,8 +25,13 @@ async def get_current_user(
     """
     if credentials is None:
         return None
+    # SECURITY: When DB is down, raise 503 so protected endpoints fail closed
+    # instead of silently allowing unauthenticated access
     if _db_available is False:
-        return None
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Authentication service temporarily unavailable",
+        )
     user_id = await verify_token(credentials.credentials)
     if user_id is None:
         return None

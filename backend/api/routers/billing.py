@@ -683,7 +683,8 @@ async def paypal_webhook(
             ip_allowed = any(first_ip.startswith(prefix) for prefix in PAYPAL_IP_PREFIXES)
     if not ip_allowed:
         logger.warning(f"[SECURITY] PayPal webhook from non-whitelisted IP: {client_ip}")
-        raise HTTPException(status_code=403, detail="Webhook source not allowed")
+        # Return 200 to prevent PayPal infinite retries (PayPal requires 200 for all events)
+        return {"status": "rejected", "reason": "IP not whitelisted"}
 
     body = await request.body()
     data = await request.json()

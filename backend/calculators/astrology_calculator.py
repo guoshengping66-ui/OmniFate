@@ -473,7 +473,13 @@ class AstrologyCalculator:
 
         # ── Normalize birth time to UTC ──
         if utc_offset is None:
-            utc_offset = round(longitude / 15.0)
+            # Use regional timezone rules instead of raw longitude/15
+            if latitude is not None and 18 <= latitude <= 54 and 73 <= longitude <= 135:
+                utc_offset = 8.0  # China: all UTC+8
+            elif latitude is not None and 6 <= latitude <= 37 and 68 <= longitude <= 98:
+                utc_offset = 5.5  # India: UTC+5:30
+            else:
+                utc_offset = round(longitude / 15.0)
 
         local_dt = datetime.datetime(year, month, day, hour, minute, 0)
         utc_dt = local_dt - datetime.timedelta(hours=utc_offset)

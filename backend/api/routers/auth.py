@@ -599,8 +599,8 @@ async def forgot_password(req: SendCodeRequest, request: Request, db: AsyncSessi
         await db.commit()
         if _s2.DEBUG:
             print(f"[DEV] Password reset code for {req.email}: {code}")
+        # Return success to prevent email enumeration (even when SMTP is down)
         return {"message": "验证码已发送到您的邮箱"}
-        raise HTTPException(status_code=503, detail="邮件服务暂不可用，请稍后再试")
 
     # Email sent (or SMTP configured) — now store code in DB
     user.verification_code = code

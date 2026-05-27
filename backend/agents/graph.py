@@ -56,16 +56,46 @@ async def node_init(state: SystemState) -> SystemState:
     return state
 
 
+def _estimate_utc_offset(longitude: float | None, latitude: float | None) -> float:
+    """
+    Estimate UTC offset from coordinates using regional timezone rules.
+    Uses political timezone boundaries where known (e.g., China is all UTC+8),
+    falls back to longitude/15.0 approximation for unknown regions.
+    """
+    if longitude is None:
+        return 8.0  # default CST for China
+
+    # China: entire country uses UTC+8 regardless of longitude
+    # Rough bounding box: 73°E-135°E, 18°N-54°N
+    if latitude is not None and 18 <= latitude <= 54 and 73 <= longitude <= 135:
+        return 8.0
+
+    # India: UTC+5:30 (unique 30-min offset)
+    if latitude is not None and 6 <= latitude <= 37 and 68 <= longitude <= 98:
+        return 5.5
+
+    # Iran: UTC+3:30
+    if latitude is not None and 25 <= latitude <= 40 and 44 <= longitude <= 64:
+        return 3.5
+
+    # Myanmar: UTC+6:30
+    if latitude is not None and 9 <= latitude <= 29 and 92 <= longitude <= 102:
+        return 6.5
+
+    # Nepal: UTC+5:45
+    if latitude is not None and 26 <= latitude <= 31 and 80 <= longitude <= 89:
+        return 5.75
+
+    # Default: solar time approximation
+    return round(longitude / 15.0)
+
+
 def _calculate_astrology(bi: BirthInfo) -> dict:
     """
     Real astrology calculation via Skyfield (JPL DE421 ephemeris).
     Computes planetary positions, houses, ASC, MC, and aspects.
     """
-    # Estimate UTC offset from longitude
-    if bi.longitude is not None:
-        utc_offset = round(bi.longitude / 15.0)
-    else:
-        utc_offset = 8.0  # default CST for China
+    utc_offset = _estimate_utc_offset(bi.longitude, bi.latitude)
 
     lon_for_calc = bi.longitude if bi.longitude is not None else 120.0
     lat_for_calc = bi.latitude if bi.latitude is not None else 39.9

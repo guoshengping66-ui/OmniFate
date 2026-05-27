@@ -17,6 +17,7 @@ from config import get_settings
 logger = logging.getLogger("credits")
 
 router = APIRouter()
+settings = get_settings()
 
 # ── 星尘消耗规则 ──────────────────────────────────────────────────────────────
 STARDUST_COST = {
@@ -278,12 +279,12 @@ async def grant_stardust(
     不再允许普通用户自行调用
     """
     # 管理员鉴权
-    if not _settings.CRON_SECRET:
+    if not settings.CRON_SECRET:
         raise HTTPException(status_code=500, detail="CRON_SECRET not configured")
     if not authorization:
         raise HTTPException(status_code=401, detail="Missing authorization")
     token = authorization.replace("Bearer ", "").strip()
-    if not hmac.compare_digest(token, _settings.CRON_SECRET):
+    if not hmac.compare_digest(token, settings.CRON_SECRET):
         raise HTTPException(status_code=403, detail="Invalid secret")
 
     if req.amount <= 0 or req.amount > 10000:
@@ -332,12 +333,12 @@ async def monthly_grant(
     包含幂等性检查：同一用户同一月只发放一次
     """
     # 管理员鉴权
-    if not _settings.CRON_SECRET:
+    if not settings.CRON_SECRET:
         raise HTTPException(status_code=500, detail="CRON_SECRET not configured")
     if not authorization:
         raise HTTPException(status_code=401, detail="Missing authorization")
     token = authorization.replace("Bearer ", "").strip()
-    if not hmac.compare_digest(token, _settings.CRON_SECRET):
+    if not hmac.compare_digest(token, settings.CRON_SECRET):
         raise HTTPException(status_code=403, detail="Invalid secret")
 
     if not user_id:
@@ -394,7 +395,6 @@ async def monthly_grant(
 
 
 # ── 管理审计接口 ────────────────────────────────────────────────────────────────
-_settings = get_settings()
 
 
 @router.get("/admin/audit")
@@ -409,12 +409,12 @@ async def admin_audit(
     - 异常消耗用户（今日消耗 > 200）
     """
     # 鉴权：复用 CRON_SECRET
-    if not _settings.CRON_SECRET:
+    if not settings.CRON_SECRET:
         raise HTTPException(status_code=500, detail="CRON_SECRET not configured")
     if not authorization:
         raise HTTPException(status_code=401, detail="Missing authorization")
     token = authorization.replace("Bearer ", "").strip()
-    if not hmac.compare_digest(token, _settings.CRON_SECRET):
+    if not hmac.compare_digest(token, settings.CRON_SECRET):
         raise HTTPException(status_code=403, detail="Invalid secret")
 
     # 全站总星尘存量
