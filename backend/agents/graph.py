@@ -179,16 +179,14 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
     4. Is complete (not cut off mid-sentence)
     """
     import re as _re
+    is_en = state.language == "en"
 
     def _extract_section(text: str, marker: str) -> str:
         """Extract a complete section from text, stopping at the next section marker."""
         start = text.find(marker)
         if start == -1:
             return ""
-        # Find the end: next 【 that starts a new section (not inside current text)
-        # Search for 【 followed by a letter/Chinese char and then ·
         rest = text[start + len(marker):]
-        # Find next section header pattern: 【X· where X is a letter or Chinese
         end_match = _re.search(r'【[A-Za-z一-鿿]+·', rest)
         if end_match:
             section = rest[:end_match.start()].strip()
@@ -200,43 +198,46 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
         """Truncate text at a complete sentence boundary, never mid-sentence."""
         if len(text) <= max_len:
             return text
-        # Find the LAST complete sentence before max_len
         best_pos = -1
-        for sep in ["。", "！", "？"]:
+        seps = [".", "!", "?"] if is_en else ["。", "！", "？"]
+        for sep in seps:
             pos = text.rfind(sep, 0, max_len)
             if pos > best_pos:
                 best_pos = pos
-        if best_pos > max_len // 3:  # At least 1/3 of max_len
+        if best_pos > max_len // 3:
             return text[:best_pos + 1]
-        # Fallback: find last paragraph break
         pos = text.rfind("\n\n", 0, max_len)
         if pos > max_len // 3:
             return text[:pos].strip()
-        # Last resort: truncate at max_len with ellipsis
-        return text[:max_len].rstrip() + "……"
+        ellipsis = "..." if is_en else "……"
+        return text[:max_len].rstrip() + ellipsis
 
     # Extract dimension scores for display
     scores = state.dimension_scores or {}
     score_display = ""
     if scores:
-        dim_cn = {"wealth": "财运", "relationship": "感情", "career": "事业",
-                  "health": "健康", "spiritual": "精神"}
+        dim_names = (
+            {"wealth": "Wealth", "relationship": "Love", "career": "Career",
+             "health": "Health", "spiritual": "Spirit"}
+            if is_en else
+            {"wealth": "财运", "relationship": "感情", "career": "事业",
+             "health": "健康", "spiritual": "精神"}
+        )
         score_parts = []
         for dim, val in scores.items():
-            cn = dim_cn.get(dim, dim)
+            name = dim_names.get(dim, dim)
             if val < 5:
                 indicator = "⚠️"
             elif val > 7:
                 indicator = "✨"
             else:
                 indicator = "📊"
-            score_parts.append(f"{indicator} {cn}: {val}/10")
+            score_parts.append(f"{indicator} {name}: {val}/10")
         score_display = " | ".join(score_parts)
 
     lines = []
 
     # Build a single cohesive summary paragraph
-    # 1. Extract the core personality/destiny description (A section)
     personality = ""
     for marker in ["【A·", "【命盘底色】"]:
         section = _extract_section(core_result, marker)
@@ -244,7 +245,6 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
             personality = _complete_sentence(section, 400)
             break
 
-    # 2. Extract the answer to user's question (G section)
     answer = ""
     for marker in ["【G·", "【H·"]:
         section = _extract_section(core_result, marker)
@@ -252,7 +252,6 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
             answer = _complete_sentence(section, 400)
             break
 
-    # 3. Extract cross-dimension resonance (B section)
     resonance = ""
     for marker in ["【B·", "【跨维度共鸣】"]:
         section = _extract_section(core_result, marker)
@@ -260,7 +259,6 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
             resonance = _complete_sentence(section, 300)
             break
 
-    # 4. Build the flowing summary
     if personality:
         lines.append(personality)
     if answer:
@@ -272,24 +270,32 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
             lines.append("")
         lines.append(resonance)
 
-    # Fallback: if nothing extracted, use first part of core_result
     if not lines:
         lines.append(_complete_sentence(core_result, 800))
 
-    # 5. Brief dimension scores (one line)
+    # Brief dimension scores (one line)
     if score_display and state.intent != "RELATIONSHIP":
         lines.append("")
-        lines.append(f"📊 五维能量：{score_display}")
+        label = "Five-Dimension Energy" if is_en else "五维能量"
+        lines.append(f"📊 {label}：{score_display}")
 
-    # 6. Upgrade prompt
+    # Upgrade prompt
     lines.append("")
     lines.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    lines.append("🔓 解锁完整深度解析，你将获得：")
-    lines.append("• 五维详细诊断（财富/感情/事业/健康/精神）")
-    lines.append("• 跨维度矛盾解释与置信度评估")
-    lines.append("• 未来12个月关键转折点预测")
-    lines.append("• 针对你问题的专项深度分析")
-    lines.append("• 专属能量调和方案与助运物推荐")
+    if is_en:
+        lines.append("🔓 Unlock the full deep analysis and get:")
+        lines.append("• Detailed 5-dimension diagnosis (Wealth/Love/Career/Health/Spirit)")
+        lines.append("• Cross-dimension contradiction analysis with confidence ratings")
+        lines.append("• Key turning point predictions for the next 12 months")
+        lines.append("• In-depth analysis targeted to your specific question")
+        lines.append("• Personalized energy harmonization plan & product recommendations")
+    else:
+        lines.append("🔓 解锁完整深度解析，你将获得：")
+        lines.append("• 五维详细诊断（财富/感情/事业/健康/精神）")
+        lines.append("• 跨维度矛盾解释与置信度评估")
+        lines.append("• 未来12个月关键转折点预测")
+        lines.append("• 针对你问题的专项深度分析")
+        lines.append("• 专属能量调和方案与助运物推荐")
     lines.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
     return "\n".join(lines)
@@ -320,9 +326,11 @@ async def run_full_analysis(state: SystemState) -> SystemState:
     state.phase = "init"
     state = await node_init(state)
 
+    is_en = state.language == "en"
+
     # ── Phase 1b: Partner calculations (RELATIONSHIP intent) ──
     if state.intent == "RELATIONSHIP" and state.partner_birth_info:
-        state.progress_message = "正在计算对方命盘…"
+        state.progress_message = "Calculating partner's chart…" if is_en else "正在计算对方命盘…"
         try:
             import asyncio as _aio
             pi = state.partner_birth_info
@@ -356,7 +364,7 @@ async def run_full_analysis(state: SystemState) -> SystemState:
 
     state.phase = "parallel"
     state.progress_pct = 5
-    state.progress_message = "正在调取命理数据…"
+    state.progress_message = "Loading destiny data…" if is_en else "正在调取命理数据…"
     for aid in _WORKER_IDS:
         if aid == "qimen_ziwei":
             # Merged worker: set individual sub-worker statuses the frontend expects
@@ -422,7 +430,7 @@ async def run_full_analysis(state: SystemState) -> SystemState:
         # Mark the merged worker event too
         worker_events[agent_id].set()
         state.progress_pct = 5 + int(60 * _completed_workers / 7)  # 7 total sub-workers
-        state.progress_message = f"已完成 {_completed_workers}/7 项分析…"
+        state.progress_message = f"Completed {_completed_workers}/7 analyses…" if is_en else f"已完成 {_completed_workers}/7 项分析…"
         return result
 
     worker_tasks = [
@@ -443,11 +451,11 @@ async def run_full_analysis(state: SystemState) -> SystemState:
 
         state.phase = "master"
         state.progress_pct = 70
-        state.progress_message = "正在进行跨维度交叉验证…"
+        state.progress_message = "Cross-validating across dimensions…" if is_en else "正在进行跨维度交叉验证…"
         prep = run_master_preprocessing(state)
         result = await run_subtask_core(state, prep)
         state.progress_pct = 75
-        state.progress_message = "核心综合完成，生成维度分析…"
+        state.progress_message = "Core synthesis done, generating dimension analysis…" if is_en else "核心综合完成，生成维度分析…"
         return result
 
     core_task = asyncio.create_task(_speculative_core())
@@ -518,7 +526,7 @@ async def run_full_analysis(state: SystemState) -> SystemState:
 
     # Free users: skip dims + actions sub-tasks (saves 2 LLM calls)
     if state.is_premium:
-        state.progress_message = "AI 正在生成五维诊断与行动建议…"
+        state.progress_message = "AI generating 5-dimension diagnosis & action plan…" if is_en else "AI 正在生成五维诊断与行动建议…"
         prep = run_master_preprocessing(state)  # re-run with complete data
         tasks = [
             run_subtask_dims(state, prep),
@@ -541,7 +549,7 @@ async def run_full_analysis(state: SystemState) -> SystemState:
         parts.append(actions_result)
         state.master_detail = "\n\n".join(parts)
     else:
-        state.progress_message = "核心综合完成，收尾中…"
+        state.progress_message = "Core synthesis done, finalizing…" if is_en else "核心综合完成，收尾中…"
         # Free version: complete teaser that answers user question and creates upgrade desire
         state.master_summary = _build_free_summary(core_result, state)
 
@@ -550,7 +558,7 @@ async def run_full_analysis(state: SystemState) -> SystemState:
         state.master_detail = ""
 
     state.progress_pct = 100
-    state.progress_message = "分析完成"
+    state.progress_message = "Analysis complete" if is_en else "分析完成"
     state.phase = "done"
     return state
 
