@@ -134,6 +134,19 @@ class AnalysisRequest(BaseModel):
     tarot_cards: list[dict] = Field(default_factory=list)
     palm_raw_text: str = ""
     face_raw_text: str = ""
+    intent: Optional[str] = None  # GENERAL_DAILY | FULL_MULTIMODAL | RELATIONSHIP
+    # Relationship analysis fields
+    partner_name: str = ""
+    partner_gender: str = Field("female", pattern="^(male|female|other)$")
+    partner_birth_year: Optional[int] = Field(None, ge=1920, le=2026)
+    partner_birth_month: Optional[int] = Field(None, ge=1, le=12)
+    partner_birth_day: Optional[int] = Field(None, ge=1, le=31)
+    partner_birth_hour: Optional[int] = Field(None, ge=0, le=23)
+    partner_birth_minute: int = 0
+    partner_birth_city: str = ""
+    partner_latitude: Optional[float] = None
+    partner_longitude: Optional[float] = None
+    relationship_type: str = ""  # lover/friend/colleague/family
 
 
 class ReadingListItem(BaseModel):
@@ -179,6 +192,9 @@ class AnalysisResponse(BaseModel):
     computed_tags: list[str]
     dimension_scores: dict[str, float]
     errors: list[str]
+    intent: Optional[str] = None
+    partner_name: Optional[str] = None
+    relationship_type: Optional[str] = None
 
 
 class ChatResponse(BaseModel):
@@ -217,6 +233,9 @@ def _state_to_response(state: SystemState) -> AnalysisResponse:
         computed_tags=state.computed_tags,
         dimension_scores=state.dimension_scores,
         errors=state.errors,
+        intent=state.intent or None,
+        partner_name=state.partner_name or None,
+        relationship_type=state.relationship_type or None,
     )
 
 
@@ -258,11 +277,14 @@ def _apply_content_lock(resp: AnalysisResponse, current_user: Optional[User], re
     if not is_unlocked:
         resp.master_detail = ""
         resp.is_detail_unlocked = False
-        _trunc_msg = "Unlock full in-depth analysis..." if lang == "en" else "解锁完整深度分析…"
+        # Hide all individual worker reports for free users
+        # Free users only see: master_summary + dimension_scores + tags
         for key in _WORKER_REPORT_KEYS:
             wo = getattr(resp, key, None)
-            if wo and wo.report and len(wo.report) > 600:
-                wo.report = wo.report[:600] + f"\n\n🔒 {_trunc_msg}"
+            if wo:
+                wo.report = ""
+                wo.tags = []
+                wo.error = None
     return resp
 
 
@@ -311,7 +333,24 @@ async def create_analysis(
         is_premium=is_premium,
         language=payload.language,
         tarot_raw={"spread": "Three-Card Spread", "cards": payload.tarot_cards},
+        intent=payload.intent or "",
+        partner_name=payload.partner_name,
+        relationship_type=payload.relationship_type,
     )
+
+    # Build partner BirthInfo if relationship analysis
+    if payload.intent == "RELATIONSHIP" and payload.partner_birth_year:
+        state.partner_birth_info = BirthInfo(
+            year=payload.partner_birth_year,
+            month=payload.partner_birth_month or 1,
+            day=payload.partner_birth_day or 1,
+            hour=payload.partner_birth_hour or 0,
+            minute=payload.partner_birth_minute,
+            city=payload.partner_birth_city,
+            latitude=payload.partner_latitude,
+            longitude=payload.partner_longitude,
+            gender=payload.partner_gender,
+        )
 
     # Persist session to DATABASE (with timeout to avoid blocking)
     try:
@@ -436,6 +475,18 @@ async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
     # Final persist to session store
     await _set_session(state.session_id, state)
 
+    # Safety net: recompute dimension_scores if still at defaults
+    default_scores = {"wealth": 5.0, "relationship": 5.0, "career": 5.0, "health": 5.0, "spiritual": 5.0}
+    if state.dimension_scores == default_scores:
+        print(f"[BG] WARNING: dimension_scores still at defaults, recomputing...")
+        try:
+            from agents.master import _compute_dimension_scores
+            state.dimension_scores = _compute_dimension_scores(state)
+            print(f"[BG] Recomputed dimension_scores: {state.dimension_scores}")
+            await _set_session(state.session_id, state)
+        except Exception as e:
+            print(f"[BG] Failed to recompute dimension_scores: {e}")
+
     # Persist final results to database
     try:
         async with AsyncSessionLocal() as db:
@@ -454,6 +505,7 @@ async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
                 reading.palm_report = state.palm_output.report if state.palm_output and state.palm_output.report != "No palm data provided. Palm analysis skipped." else None
                 reading.face_analysis_text = state.face_output.report if state.face_output and state.face_output.report != "No facial image provided. Face analysis skipped." else None
                 reading.dimension_scores = dict(state.dimension_scores) if state.dimension_scores else None
+                print(f"[BG] Persisting dimension_scores to DB: {state.dimension_scores}")
                 reading.computed_tags = list(state.computed_tags) if state.computed_tags else None
                 reading.recommended_product_ids = list(state.recommended_product_ids) if state.recommended_product_ids else None
                 reading.completed_at = datetime.now(timezone.utc)
@@ -969,7 +1021,7 @@ async def stream_session(
         tmp_resp = _state_to_response(state)
         _apply_content_lock(tmp_resp, current_user, lang=state.language or "zh")
         yield f"data: {json.dumps({'type': 'progress', 'pct': 100, 'message': '分析完成'})}\n\n"
-        yield f"data: {json.dumps({'type': 'complete', 'master_summary': tmp_resp.master_summary[:500], 'master_detail': tmp_resp.master_detail})}\n\n"
+        yield f"data: {json.dumps({'type': 'complete', 'master_summary': tmp_resp.master_summary, 'master_detail': tmp_resp.master_detail})}\n\n"
 
     return StreamingResponse(
         event_generator(),
@@ -2011,6 +2063,15 @@ async def get_daily_fortune(
         date_str = f"{today.month}月{today.day}日 星期{weekday_zh}"
         greeting = f"{today.month}月{today.day}日运势"
 
+    # Translate lucky color for English
+    COLOR_ZH_TO_EN = {
+        "金色": "Gold", "红色": "Red", "蓝色": "Blue", "绿色": "Green",
+        "紫色": "Purple", "白色": "White", "粉色": "Pink", "橙色": "Orange",
+        "翠绿": "Emerald", "青色": "Cyan", "黑色": "Black", "黄色": "Yellow", "银色": "Silver",
+    }
+    if lang == "en":
+        lucky_color_name = COLOR_ZH_TO_EN.get(lucky_color_name, lucky_color_name)
+
     return DailyFortuneResponse(
         date=date_str,
         greeting=greeting,
@@ -2628,6 +2689,36 @@ _YI_EN: dict[str, str] = {
     "求医": "Health & healing",
     "开工": "Starting work",
     "纳财": "Wealth collection",
+    "求财": "Good for seeking wealth",
+    "面试": "Good for interviews",
+    "求学": "Good for academic pursuits",
+    "求医问药": "Good for health matters",
+    "修缮": "Good for repairs",
+    "祈愿": "Good for making wishes",
+    "读书": "Good for reading & study",
+    "运动": "Good for exercise",
+    "约会": "Good for dates",
+    "创业": "Good for entrepreneurship",
+    "谈判": "Good for negotiations",
+    "拜访": "Good for visits",
+    "聚餐": "Good for gatherings",
+    "烹饪": "Good for cooking",
+    "散步": "Good for walks",
+    "绘画": "Good for creative arts",
+    "音乐": "Good for music & arts",
+    "健身": "Good for fitness",
+    "旅行": "Good for travel",
+    "购物": "Good for shopping",
+    "打扫": "Good for cleaning",
+    "收纳": "Good for organizing",
+    "宜出行": "Good for travel",
+    "宜签约": "Good for signing contracts",
+    "宜求财": "Good for seeking wealth",
+    "宜会友": "Good for meeting friends",
+    "宜学习": "Good for studying",
+    "宜祈福": "Good for spiritual practice",
+    "宜开工": "Good for starting work",
+    "宜面试": "Good for interviews",
 }
 
 _JI_EN: dict[str, str] = {
@@ -2655,6 +2746,25 @@ _JI_EN: dict[str, str] = {
     "栽种": "Avoid planting",
     "出行": "Avoid travel",
     "祈福": "Avoid spiritual rituals",
+    "忌熬夜": "Avoid staying up late",
+    "忌争吵": "Avoid quarrels",
+    "忌借贷": "Avoid lending money",
+    "忌冒险": "Avoid taking risks",
+    "忌搬迁": "Avoid moving house",
+    "忌高风险投资": "Avoid high-risk investments",
+    "忌网购": "Avoid impulse online shopping",
+    "忌签约": "Avoid signing contracts",
+    "忌远行": "Avoid long trips",
+    "忌动土": "Avoid groundbreaking activities",
+    "忌诉讼": "Avoid legal proceedings",
+    "忌嫁娶": "Avoid weddings",
+    "忌开市": "Avoid opening new businesses",
+    "忌修造": "Avoid renovations",
+    "忌栽种": "Avoid planting",
+    "忌求医": "Avoid medical procedures",
+    "忌谈判": "Avoid negotiations",
+    "忌赌博": "Avoid gambling",
+    "忌酗酒": "Avoid excessive drinking",
 }
 
 _DAILY_QUOTES_EN = [
@@ -2673,13 +2783,30 @@ _DAILY_QUOTES_EN = [
 
 def _translate_almanac_to_en(data: dict) -> dict:
     """Translate yi/ji items and quote from Chinese to English."""
-    import random
+    import random, re
+
+    def _smart_translate(text: str, is_yi: bool) -> str:
+        """If text is still Chinese after map lookup, provide a generic English equivalent."""
+        if not any(ord(c) > 0x4E00 for c in text):
+            return text  # Already English
+        # Strip 宜/忌 prefix for cleaner matching
+        core = re.sub(r"^[宜忌]", "", text)
+        if core in _YI_EN:
+            return _YI_EN[core]
+        if core in _JI_EN:
+            return _JI_EN[core]
+        # Generic fallback
+        if is_yi:
+            return f"Good for {core}"
+        else:
+            return f"Avoid {core}"
+
     yi_items = []
     for item in data.get("yi", []):
-        yi_items.append(_YI_EN.get(item, item))
+        yi_items.append(_smart_translate(item, is_yi=True))
     ji_items = []
     for item in data.get("ji", []):
-        ji_items.append(_JI_EN.get(item, item))
+        ji_items.append(_smart_translate(item, is_yi=False))
 
     quote = data.get("daily_quote", "")
     # If the quote is still Chinese, replace with an English one

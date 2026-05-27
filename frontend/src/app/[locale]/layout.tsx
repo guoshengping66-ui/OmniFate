@@ -72,8 +72,6 @@ export default async function LocaleLayout({
           rel="stylesheet"
           href="https://fonts.font.im/css2?family=Inter:wght@300;400;500;600&display=swap"
           media="print"
-          // @ts-ignore
-          onLoad="this.media='all'"
         />
         <noscript>
           <link rel="stylesheet" href="https://fonts.font.im/css2?family=Inter:wght@300;400;500;600&display=swap" />

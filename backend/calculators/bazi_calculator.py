@@ -630,6 +630,181 @@ class BaziCalculator:
             r.pattern  = "中和"
             r.yong_shen = "需结合大运细论"
 
+    # ── 八字合婚 ─────────────────────────────────────────────────────────────
+
+    @staticmethod
+    def calculate_compatibility(bazi_a, bazi_b) -> dict:
+        """
+        八字合婚分析：
+        1. 日主互动（A日主 vs B日主 的五行生克关系）
+        2. 用神互补（A的用神是否是B的喜神）
+        3. 日支互动（夫妻宫的五行生克）
+        4. 五行互补度
+        5. 综合评分（0-100）
+
+        Args:
+            bazi_a, bazi_b: BaziResult objects or dicts from to_dict()
+
+        返回：结构化合婚数据
+        """
+        # Normalize: accept both BaziResult and dict
+        def _get(obj, key, default=""):
+            if isinstance(obj, dict):
+                return obj.get(key, default)
+            return getattr(obj, key, default)
+
+        # 1. 日主互动
+        dm_a = _get(bazi_a, "day_master_element", "")
+        dm_b = _get(bazi_b, "day_master_element", "")
+
+        # A生B / B生A / A克B / B克A / 同五行
+        dm_interaction = ""
+        dm_detail = ""
+        if dm_a == dm_b:
+            dm_interaction = "比和"
+            dm_detail = f"{dm_a}与{dm_b}同五行，性格相似，容易理解对方"
+        elif WUXING_SHENG.get(dm_a) == dm_b:
+            dm_interaction = "A生B"
+            dm_detail = f"{dm_a}生{dm_b}，A对B有天然的付出与滋养倾向"
+        elif WUXING_SHENG.get(dm_b) == dm_a:
+            dm_interaction = "B生A"
+            dm_detail = f"{dm_b}生{dm_a}，B对A有天然的付出与滋养倾向"
+        elif WUXING_KE.get(dm_a) == dm_b:
+            dm_interaction = "A克B"
+            dm_detail = f"{dm_a}克{dm_b}，A对B有约束力，需注意相处方式"
+        elif WUXING_KE.get(dm_b) == dm_a:
+            dm_interaction = "B克A"
+            dm_detail = f"{dm_b}克{dm_a}，B对A有约束力，需注意相处方式"
+        else:
+            dm_interaction = "间接关系"
+            dm_detail = f"{dm_a}与{dm_b}为间接生克关系，需通过中间元素理解互动模式"
+
+        # 2. 用神互补
+        yong_a = _get(bazi_a, "yong_shen", "")
+        yong_b = _get(bazi_b, "yong_shen", "")
+        xi_a = _get(bazi_a, "xi_shen", "")
+        xi_b = _get(bazi_b, "xi_shen", "")
+
+        complement_score = 0
+        complement_detail = ""
+
+        # A的用神是否是B的喜神/用神
+        a_helps_b = (yong_a == xi_b or yong_a == yong_b or
+                     WUXING_SHENG.get(yong_a) == xi_b)
+        b_helps_a = (yong_b == xi_a or yong_b == yong_a or
+                     WUXING_SHENG.get(yong_b) == xi_a)
+
+        if a_helps_b and b_helps_a:
+            complement_score = 30
+            complement_detail = "双方用神高度互补，彼此是对方的贵人"
+        elif a_helps_b:
+            complement_score = 20
+            complement_detail = f"A的用神{yong_a}能助益B的喜神{xi_b}，A对B有助力"
+        elif b_helps_a:
+            complement_score = 20
+            complement_detail = f"B的用神{yong_b}能助益A的喜神{xi_a}，B对A有助力"
+        else:
+            complement_score = 10
+            complement_detail = "双方用神无明显互补，需通过后天努力磨合"
+
+        # 3. 日支互动（夫妻宫）
+        # day_gz format: "甲子" → last char is dizhi
+        day_gz_a = _get(bazi_a, "day_gz", "")
+        day_gz_b = _get(bazi_b, "day_gz", "")
+        day_dz_a = day_gz_a[-1] if day_gz_a else ""
+        day_dz_b = day_gz_b[-1] if day_gz_b else ""
+        day_wx_a = DIZHI_WUXING.get(day_dz_a, "")
+        day_wx_b = DIZHI_WUXING.get(day_dz_b, "")
+
+        if day_wx_a == day_wx_b:
+            day_interaction = "日支比和"
+            day_detail = f"日支同为{day_wx_a}，夫妻宫和谐，相处融洽"
+            day_score = 15
+        elif WUXING_SHENG.get(day_wx_a) == day_wx_b:
+            day_interaction = "日支相生(A→B)"
+            day_detail = f"{day_wx_a}生{day_wx_b}，A对B有付出倾向"
+            day_score = 12
+        elif WUXING_SHENG.get(day_wx_b) == day_wx_a:
+            day_interaction = "日支相生(B→A)"
+            day_detail = f"{day_wx_b}生{day_wx_a}，B对A有付出倾向"
+            day_score = 12
+        elif WUXING_KE.get(day_wx_a) == day_wx_b:
+            day_interaction = "日支相克(A→B)"
+            day_detail = f"{day_wx_a}克{day_wx_b}，夫妻宫有摩擦，需注意沟通"
+            day_score = 5
+        elif WUXING_KE.get(day_wx_b) == day_wx_a:
+            day_interaction = "日支相克(B→A)"
+            day_detail = f"{day_wx_b}克{day_wx_a}，夫妻宫有摩擦，需注意沟通"
+            day_score = 5
+        else:
+            day_interaction = "日支间接关系"
+            day_detail = f"{day_wx_a}与{day_wx_b}为间接关系"
+            day_score = 8
+
+        # 4. 五行互补度
+        scores_a = _get(bazi_a, "wuxing_scores", {})
+        scores_b = _get(bazi_b, "wuxing_scores", {})
+        elements = ["金", "木", "水", "火", "土"]
+        missing_a = set(_get(bazi_a, "missing_elements", []))
+        missing_b = set(_get(bazi_b, "missing_elements", []))
+
+        # A缺的B有 / B缺的A有
+        supply_count = 0
+        supply_details = []
+        for elem in elements:
+            a_has = scores_a.get(elem, 0) > 1.0
+            b_has = scores_b.get(elem, 0) > 1.0
+            a_lacks = elem in missing_a
+            b_lacks = elem in missing_b
+            if a_lacks and b_has:
+                supply_count += 1
+                supply_details.append(f"B的{elem}能补A之缺")
+            elif b_lacks and a_has:
+                supply_count += 1
+                supply_details.append(f"A的{elem}能补B之缺")
+
+        supply_score = min(supply_count * 5, 25)
+        supply_detail = "；".join(supply_details) if supply_details else "五行无明显互补"
+
+        # 5. 综合评分
+        # 基础分 30 + 日主互动 15 + 用神互补 complement_score + 日支互动 day_score + 五行互补 supply_score
+        total_score = min(30 + 15 + complement_score + day_score + supply_score, 100)
+
+        # 等级判定
+        if total_score >= 85:
+            level = "天作之合"
+            level_desc = "八字高度契合，天生一对"
+        elif total_score >= 70:
+            level = "上等婚配"
+            level_desc = "八字互补性强，相处融洽"
+        elif total_score >= 55:
+            level = "中等婚配"
+            level_desc = "八字有一定互补，需注意磨合"
+        elif total_score >= 40:
+            level = "下等婚配"
+            level_desc = "八字互补性弱，需较多包容与理解"
+        else:
+            level = "需谨慎"
+            level_desc = "八字冲克较多，需慎重考虑"
+
+        return {
+            "score": total_score,
+            "level": level,
+            "level_desc": level_desc,
+            "day_master_interaction": dm_interaction,
+            "day_master_detail": dm_detail,
+            "yong_shen_complement": complement_detail,
+            "day_pillar_interaction": day_interaction,
+            "day_pillar_detail": day_detail,
+            "wuxing_supply": supply_detail,
+            "detail": (
+                f"日主互动：{dm_detail}\n"
+                f"用神互补：{complement_detail}\n"
+                f"夫妻宫：{day_detail}\n"
+                f"五行互补：{supply_detail}"
+            ),
+        }
+
 
 # ─── 辅助工具函数 ────────────────────────────────────────────────────────────
 

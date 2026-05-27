@@ -5975,6 +5975,168 @@ conflict_warnings: 1-3个
     )
 
 
+def qimen_ziwei_combined_prompt(
+    # Qimen params
+    dun_ju: str,
+    zhi_fu_star: str,
+    zhi_shi_door: str,
+    shi_chen_dizhi: str,
+    shi_chen_gong: str,
+    shi_chen_direction: str,
+    jieqi_name: str,
+    good_doors: list[str],
+    bad_doors: list[str],
+    door_hints: dict[str, str],
+    god_sequence: list[str],
+    # Ziwei params
+    ming_gong_dizhi: str,
+    shen_gong_dizhi: str,
+    twelve_palaces: dict,
+    wu_xing_ju: str,
+    wu_xing_ju_num: int,
+    ziwei_gong_dizhi: str,
+    ziwei_gong_name: str,
+    main_star_positions: dict,
+    si_hua: dict,
+    ming_gong_main_stars: list,
+    ming_stars: str = "",
+    palaces_str: str = "",
+    sihua_str: str = "",
+    # Common params
+    gender: str = "female",
+    birth_datetime: str = "",
+    language: str = "zh",
+) -> str:
+    """
+    Combined prompt for Qimen Dunjia + Ziwei Doushu in a SINGLE LLM call.
+    Produces a dual-JSON output: one for qimen, one for ziwei, separated by ===QIMEN_END===.
+    """
+    # ── Qimen knowledge (condensed — key blocks only) ──
+    QIMEN_KNOWLEDGE_CONDENSED = (
+        "【奇门遁甲核心体系】\n"
+        "奇门遁甲以洛书九宫为框架，分阳遁(冬至后)和阴遁(夏至后)各9局。\n"
+        "四盘体系：天盘(九星)→天时运势 | 人盘(八门)→人事吉凶 | 神盘(八神)→隐性力量 | 地盘(九宫)→方位基础\n\n"
+        "八门速查：开门(吉·事业) 休门(吉·休养) 生门(吉·求财) 伤门(凶·竞争) 杜门(平·隐藏) 景门(中·文书) 死门(凶·停滞) 惊门(凶·口舌)\n"
+        "九星速查：天心(吉·决策) 天禽(吉·中正) 天辅(吉·文昌) 天任(平·稳重) 天英(平·名声) 天蓬(凶·暗昧) 天芮(凶·疾病) 天冲(凶·冲动) 天柱(凶·口舌)\n"
+        "八神速查：值符(大吉·贵人) 六合(大吉·合作) 太阴(吉·暗助) 九天(吉·进取) 九地(吉·守成) 螣蛇(凶·虚惊) 白虎(凶·灾祸) 玄武(凶·暗害)\n\n"
+        "三奇六仪：乙奇(日奇·柔) 丙奇(月奇·刚) 丁奇(星奇·贵) | 六仪：戊己庚辛壬癸\n"
+        "吉格：青龙返首(戊+丙) 飞鸟跌穴(丙+戊) 三奇得使 天遁 地遁 人遁\n"
+        "凶格：白虎猖狂(辛+乙) 朱雀投江(丁+癸) 腾蛇夭矫(癸+丁) 伏吟(停滞) 反吟(反复)\n\n"
+        "值符值使联动：值符=天时 值使=人事。双吉大利，双凶宜守。\n"
+        "用神落宫法：看用神所在宫的门星神组合，结合时干落宫判断结果。\n"
+        "择时原则：先定用神→看门星神→综合格局→吉格多则行动，凶格多则守待。\n"
+    )
+
+    # ── Ziwei knowledge (condensed — key blocks only) ──
+    ZIWEI_KNOWLEDGE_CONDENSED = (
+        "【紫微斗数核心体系】\n"
+        "紫微斗数以命宫为核心，十二宫覆盖人生各领域，14主星+四化飞星+杂曜构成完整论断体系。\n\n"
+        "14主星速查：紫微(帝星·领导) 天机(智谋) 太阳(光明) 武曲(财富) 天同(享福) 廉贞(才华) 天府(财库) 太阴(细腻) 贪狼(交际) 巨门(口才) 天相(辅佐) 天梁(长寿) 七杀(权威) 破军(开创)\n"
+        "十二宫：命宫(自我) 兄弟宫(手足) 夫妻宫(婚姻) 子女宫(子女) 财帛宫(财运) 疾厄宫(健康) 迁移宫(外出) 交友宫(社交) 官禄宫(事业) 田宅宫(房产) 福德宫(精神) 父母宫(长辈)\n"
+        "四化体系：化禄(增益·机会) 化权(掌控·主导) 化科(名声·贵助) 化忌(阻碍·收敛)\n"
+        "庙旺利陷：庙(最强) 旺(强) 利(平) 陷(弱) — 星曜力量的核心指标\n\n"
+        "三方四正(核心方法)：命三方=命+财帛+官禄+迁移(黄金三角) | 夫妻三方=夫妻+兄弟+子女+父母\n"
+        "命宫无主星处理：借对宫(迁移宫)主星分析，辅星决定辅助特质，适合团队合作。\n"
+        "杀破狼格局：七杀+破军+贪狼三星联动，人生必有突破性变化，适合开拓型人生。\n"
+        "机月同梁格局：天机/太阴/天同/天梁联动，适合稳定型工作(公职/大企业)。\n\n"
+        "大限(十年一换)：大限命宫星曜=十年基调，大限四化=十年能量流向。\n"
+        "流年(一年一换)：流年命宫星曜=年度事件，流年四化=年度变化。\n"
+        "关键转折：大限交接年(每10年) | 流年太岁同宫(本命年) | 流年化忌入命(需谨慎)\n\n"
+        "星曜组合：紫府同宫(富贵) 紫贪同宫(才貌) 紫相同宫(权印) 紫杀格(刚柔) 机月同梁(稳定)\n"
+        "感情判断：夫妻宫主星+桃花星(红鸾天喜咸池天姚)+三方四正+大限流年\n"
+        "健康判断：疾厄宫主星+五行体质+大限流年化忌入疾厄\n"
+    )
+
+    # ── Format input data ──
+    gender_cn = "男" if gender == "male" else "女" if gender == "female" else "其他"
+    qimen_doors = f"吉门: {', '.join(good_doors)} | 凶门: {', '.join(bad_doors)}" if good_doors or bad_doors else "无数据"
+    god_seq = ", ".join(god_sequence[:8]) if god_sequence else "无数据"
+
+    return (
+        "你是一位精通奇门遁甲和紫微斗数的顶级命理师。请同时完成两个维度的完整分析。\n\n"
+        f"== 用户信息 ==\n"
+        f"性别：{gender_cn}\n"
+        f"出生时间：{birth_datetime}\n\n"
+
+        # ── Qimen section ──
+        "━━━━━ 第一部分：奇门遁甲分析 ━━━━━\n\n"
+        f"【奇门遁甲命盘数据】\n"
+        f"遁局：{dun_ju}\n"
+        f"值符星：{zhi_fu_star} | 值使门：{zhi_shi_door}\n"
+        f"时辰：{shi_chen_dizhi} | 时辰落宫：{shi_chen_gong} | 方位：{shi_chen_direction}\n"
+        f"节气：{jieqi_name}\n"
+        f"八门状况：{qimen_doors}\n"
+        f"八神排列：{god_seq}\n"
+        f"门象提示：{door_hints}\n\n"
+        f"{QIMEN_KNOWLEDGE_CONDENSED}\n\n"
+
+        # ── Ziwei section ──
+        "━━━━━ 第二部分：紫微斗数分析 ━━━━━\n\n"
+        f"【紫微斗数命盘数据】\n"
+        f"命宫地支：{ming_gong_dizhi}\n"
+        f"身宫地支：{shen_gong_dizhi}\n"
+        f"五行局：{wu_xing_ju}（局数：{wu_xing_ju_num}）\n"
+        f"紫微星落宫：{ziwei_gong_name}({ziwei_gong_dizhi})\n"
+        f"命宫主星：{ming_stars}\n"
+        f"十二宫星曜分布：\n{palaces_str}\n"
+        f"生年天干四化：\n{sihua_str}\n\n"
+        f"{ZIWEI_KNOWLEDGE_CONDENSED}\n\n"
+
+        # ── Output format ──
+        "== 输出格式要求 ==\n"
+        "请严格按照以下格式输出两个JSON，中间用 ===QIMEN_END=== 分隔。\n\n"
+
+        "=== 第一个JSON（奇门遁甲）===\n"
+        "```json\n"
+        "{\n"
+        '  "summary": "200字奇门遁甲核心结论",\n'
+        '  "dimensions": {\n'
+        '    "wealth": "80-120字财运分析",\n'
+        '    "relationship": "80-120字感情分析",\n'
+        '    "career": "80-120字事业分析",\n'
+        '    "health": "80-120字健康分析",\n'
+        '    "spiritual": "80-120字精神/灵性分析"\n'
+        "  },\n"
+        '  "key_findings": ["发现1", "发现2", "发现3"],\n'
+        '  "weakness_tags": ["#忌格xxx"],\n'
+        '  "strength_tags": ["#吉格xxx"],\n'
+        '  "boost_elements": ["火", "水"],\n'
+        '  "conflict_warnings": ["矛盾信号"]\n'
+        "}\n"
+        "```\n\n"
+
+        "===QIMEN_END===\n\n"
+
+        "=== 第二个JSON（紫微斗数）===\n"
+        "```json\n"
+        "{\n"
+        '  "summary": "200字紫微斗数核心结论",\n'
+        '  "dimensions": {\n'
+        '    "wealth": "80-120字财运分析",\n'
+        '    "relationship": "80-120字感情分析",\n'
+        '    "career": "80-120字事业分析",\n'
+        '    "health": "80-120字健康分析",\n'
+        '    "spiritual": "80-120字精神/灵性分析"\n'
+        "  },\n"
+        '  "key_findings": ["发现1", "发现2", "发现3"],\n'
+        '  "weakness_tags": ["#命宫无主星"],\n'
+        '  "strength_tags": ["#紫微坐命"],\n'
+        '  "boost_elements": ["火", "水"],\n'
+        '  "conflict_warnings": ["矛盾信号"]\n'
+        "}\n"
+        "```\n\n"
+
+        "== 分析推理链 ==\n"
+        "奇门遁甲：定遁局→看值符值使→分析八门吉凶→查九星旺衰→判八神色彩→综合格局→给建议\n"
+        "紫微斗数：定命宫主星→看三方四正→析四化飞星→论十二宫→看大限流年→给建议\n\n"
+        "写作要求：\n"
+        "  - 两个维度的分析各2000-2500字（合计约4500字），每个结论标注命盘依据\n"
+        "  - 严格按输出格式输出JSON，两个JSON之间用===QIMEN_END===分隔\n"
+        "  - 所有文字值使用纯中文，boost_elements使用五行中文名（火、水、木、金、土）\n"
+        "  - key_findings 3-5条，weakness/strength_tags 3-6个\n"
+    )
+
+
 def bazi_prompt(
     gender: str,
     birth_datetime: str,
@@ -7051,11 +7213,61 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
                                 resonance_text: str = "", conflicts_text: str = "",
                                 dimension_scores: dict | None = None,
                                 confidence_text: str = "",
-                                intent: str = "") -> str:
+                                intent: str = "",
+                                partner_data: dict | None = None) -> str:
     """Sub-task A: 核心综合 — 命盘底色 + 跨维度共鸣 + 核心矛盾 + 置信度表"""
     workers_str = "\n\n".join(
         f"[{k.upper()}]\n{v[:400]}" for k, v in worker_summaries.items() if v
     )
+
+    # Add partner data for RELATIONSHIP intent (structured synastry data)
+    partner_section = ""
+    if intent == "RELATIONSHIP" and partner_data:
+        partner_name = partner_data.get("partner_name", "对方")
+        relationship_type = partner_data.get("relationship_type", "")
+        rel_type_cn = {"lover": "恋人", "friend": "朋友", "colleague": "同事", "family": "家人"}
+        rel_type_display = rel_type_cn.get(relationship_type, relationship_type)
+
+        # Bazi compatibility data
+        bazi_compat = partner_data.get("bazi_compatibility", {})
+        compat_score = bazi_compat.get("score", "?")
+        compat_level = bazi_compat.get("level", "?")
+        compat_dm = bazi_compat.get("day_master_detail", "")
+        compat_yong = bazi_compat.get("yong_shen_complement", "")
+        compat_day = bazi_compat.get("day_pillar_detail", "")
+        compat_supply = bazi_compat.get("wuxing_supply", "")
+
+        # Synastry aspects data
+        synastry_aspects = partner_data.get("synastry_aspects", [])
+        strongest = [a for a in synastry_aspects if a.get("meaning")][:5]
+        synastry_text = ""
+        for a in strongest:
+            synastry_text += (
+                f"  {a['planet_a']}方{a['aspect']}{a['planet_b']}方"
+                f"（容许度{a['orb']}°）— {a['meaning']}\n"
+            )
+
+        # Composite chart data
+        composite = partner_data.get("composite_chart", {})
+        composite_key = composite.get("key_readings", [])
+
+        partner_section = (
+            f"\n\n== 合盘数据 ==\n"
+            f"关系类型：{rel_type_display}\n"
+            f"对方昵称：{partner_name}\n\n"
+            f"[八字合婚评分] {compat_score}/100 — {compat_level}\n"
+            f"  {compat_dm}\n"
+            f"  {compat_yong}\n"
+            f"  {compat_day}\n"
+            f"  {compat_supply}\n\n"
+            f"[星盘交叉相位 — 最强连接]\n"
+            f"{synastry_text}\n"
+        )
+        if composite_key:
+            partner_section += "[组合盘概要]\n"
+            for reading in composite_key:
+                partner_section += f"  {reading}\n"
+            partner_section += "\n"
     scores_str = ""
     if dimension_scores:
         _DIM_CN = {"wealth": "财富", "relationship": "感情", "career": "事业",
@@ -7073,46 +7285,93 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
     intent_hint = ""
     if intent == "GENERAL_DAILY":
         intent_hint = (
-            "\n== 推命通道：⚡量子快连（一键推命）==\n"
+            "\n== 推命通道：一键推命 ==\n"
             "用户选择了快捷通道，未提供精确出生时辰和面相/手相数据。\n"
             "报告重心：\n"
-            "1. 聚焦【当下磁场】与【近期运势波动】，给出今日/本周的极简行为断语\n"
-            "2. 强调塔罗牌的潜意识解析和直觉引导\n"
-            "3. 不要提及面相、手相相关内容（用户未上传）\n"
-            "4. 如果出生信息不完整，在命盘底色中标注「基于粗略星盘推算」\n"
-            "5. 风格：简洁高效，像量子态坍缩一样直击核心\n\n"
+            "1. 聚焦当下状态与近期趋势\n"
+            "2. 不要提及面相、手相相关内容（用户未上传）\n"
+            "3. 如果出生信息不完整，说明基于粗略推算\n\n"
         )
     elif intent == "FULL_MULTIMODAL":
         intent_hint = (
-            "\n== 推命通道：🔱天命合参（完整推命）==\n"
+            "\n== 推命通道：完整推命 ==\n"
             "用户选择了全景通道，已上传面相/手相/精确出生信息。\n"
             "报告重心：\n"
-            "1. 必须在命盘底色中融合手相骨骼特征与面相三庭五眼的AI分析结论\n"
-            "2. 出现「结合您上传的面相特征与八字财星互表」「手相生命线走势与流年对应」等融合表述\n"
-            "3. 在跨维度共鸣中，至少引用2个以上维度的交叉验证\n"
-            "4. 让用户感受到上传的照片和精确出生信息被AI 100%深度消化\n"
-            "5. 风格：深度、仪式感、全景式解读\n\n"
+            "1. 融合面相和手相的分析结论\n"
+            "2. 结合多个体系交叉验证\n"
+            "3. 让用户感受到上传的信息被充分分析\n\n"
+        )
+    elif intent == "RELATIONSHIP":
+        intent_hint = (
+            "\n== 推命通道：双人合盘分析 ==\n"
+            "用户想了解两个人是否合适，已提供双方出生信息并完成合盘计算。\n\n"
+            "报告要求：\n"
+            "1. 全部用大白话写，禁止出现任何八字术语（如壬水、七杀、伤官、印星等）\n"
+            "2. 把命理术语翻译成现代人听得懂的话：性格特质、行为心理、能量波动、磁场互补\n"
+            "3. 不要输出能量卡、数字评分图表，纯文字分析\n"
+            "4. 结构像互联网大厂的分析报告：清晰醒目，短句为主\n"
+            "5. 先给结论，再展开分析，最后给建议\n\n"
+            "输出结构（严格按此格式）：\n\n"
+            "【A·两个磁场的碰撞】\n"
+            '用户（你）的底色：用一句话白话概括，如"心思细腻、极富创造力但容易焦虑的谋士"\n'
+            '对方（Ta）的底色：用一句话白话概括，如"目标明确、执行力极强但略显固执的开拓者"\n'
+            '磁场吸引力：用一句话点出两人的天然吸引力，如"一刚一柔，在能量上形成了极强的天然互补与吸引"\n\n'
+            "【B·深度共鸣与卡点】\n"
+            '完美互补点：描述两人最合拍的地方，如"Ta能给你的焦虑托底，你能为Ta的盲目提供策略"\n'
+            '潜在冲突源：描述两人会吵架的地方，但话不说满，如"两人容易在做重大决定时因沟通不畅产生压迫感"\n\n'
+            "【C·感情走向预判】\n"
+            "如果是恋人：感情基础、婚姻前景、需要注意的阶段\n"
+            "如果是朋友：友谊深度、共同成长点、可能疏远的情况\n"
+            "如果是同事：合作默契度、利益协调、沟通方式\n"
+            "如果是家人：家庭和谐度、代际影响、相处之道\n\n"
+            "【D·五行能量互动】\n"
+            "用大白话说清楚两人五行是怎么互相影响的\n"
+            '例如："你像火一样热情直接，Ta像水一样深沉内敛，水克火意味着你在这段关系里会感觉自己的热情有时被浇灭"\n'
+            '不要用"相生""相克""用神""日主"这类术语\n\n'
+            "【E·相处指南】\n"
+            "3-5条具体可操作的建议，要接地气\n"
+            '例如："有分歧当天说开，别冷战""每周安排一次只属于两个人的时间"\n\n'
+            "风格：大白话、直接、实用，像给好朋友建议一样\n"
+            "根据关系类型调整侧重点：\n"
+            "  恋人：感情、婚姻、亲密关系\n"
+            "  朋友：性格互补、共同成长\n"
+            "  同事：合作、沟通、利益协调\n"
+            "  家人：家庭和谐、代际影响\n\n"
+        )
+
+    # Output structure: skip for RELATIONSHIP (intent_hint already has its own structure)
+    output_structure = ""
+    if intent != "RELATIONSHIP":
+        output_structure = (
+            "== 输出结构 ==\n"
+            "【A·核心性格底色】\n"
+            '核心特质：用20字以内大白话抓住用户本质，如"外表坚强独立，内心极度缺乏安全感的幕后军师型人格"\n'
+            "性格解析：用100字以内现代大白话，分析性格优势与隐藏软肋\n\n"
+            "【B·跨维度共鸣（现状痛点）】\n"
+            "财富与事业现状：用现代行为学话术，指出当前可能遇到的瓶颈\n"
+            '例如："近期想法很多但落地困难，容易陷入精神内耗或盲目投资"\n'
+            "感情与人际关系现状：同上风格\n"
+            "健康与精神状态：同上风格\n\n"
+            f"== 五维评分 ==\n{scores_str}\n\n"
         )
 
     return (
-        "你是命盘智镜首席命运策师。根据7位专家的分析，生成核心综合报告。\n\n"
+        "你是命盘智镜的资深分析师。根据多位专家的分析数据，用大白话生成易懂的分析报告。\n\n"
         f"{intent_hint}"
-        "== 输出结构 ==\n"
-        "【A·命盘底色】150-250字，核心格局深度总结，结合至少3个专家体系交叉验证\n\n"
-        "【B·跨维度共鸣】列出3个以上专家一致确认的议题，每个引用具体专家结论\n\n"
-        "【C·核心矛盾解释】\n"
-        "  1. 列出矛盾点  2. 分析矛盾原因  3. 给出综合判断  4. 标注置信度\n\n"
-        "【D·置信度评估表】\n"
-        "  | 专家体系 | 置信度 | 理由 | 权重 |\n"
-        "  极高=1.0 | 高=0.8 | 中=0.6 | 低=0.4 | 极低=0.2\n\n"
-        f"{CROSS_DOMAIN}\n"
-        f"== 五维评分 ==\n{scores_str}\n\n"
+        "== 绝对禁止 ==\n"
+        "禁止出现以下术语：壬水、癸水、甲木、乙木、丙火、丁火、戊土、己土、庚金、辛金\n"
+        "禁止出现：七杀、正官、偏官、正印、偏印、食神、伤官、比肩、劫财、正财、偏财\n"
+        "禁止出现：命格、命局、格局、大运、流年、刑冲合害、三合三会\n"
+        "禁止出现：天机、磁场、能量场、灵修、开悟等玄乎词汇\n"
+        "以上术语全部翻译成现代大白话：性格特质、行为模式、心理倾向、能量状态\n\n"
+        f"{output_structure}"
         f"== 跨维度共鸣 ==\n{resonance_text or '无'}\n\n"
         f"== 跨维度冲突 ==\n{conflicts_text or '无'}\n\n"
         f"== 专家报告 ==\n{workers_str}\n\n"
         f"== 用户问题 ==\n{user_question}\n\n"
+        f"{partner_section}\n"
         f"{confidence_text}\n\n"
-        "请生成核心综合报告。"
+        "请用大白话生成分析报告。"
     )
 
 
@@ -7133,35 +7392,33 @@ def master_subtask_dimensions_prompt(worker_summaries: dict, user_question: str,
     intent_hint = ""
     if intent == "GENERAL_DAILY":
         intent_hint = (
-            "\n== 推命通道：⚡量子快连（一键推命）==\n"
-            "五维诊断侧重【近期趋势】而非长期命格，给出未来7-30天的能量波动预判。\n"
-            "年度转折点简化为未来3个月的关键日期即可。\n"
+            "\n== 推命通道：一键推命 ==\n"
+            "侧重近期趋势，给出未来7-30天的建议。\n"
             "不要引用面相或手相数据。\n\n"
         )
     elif intent == "FULL_MULTIMODAL":
         intent_hint = (
-            "\n== 推命通道：🔱天命合参（完整推命）==\n"
-            "五维诊断必须融合手相/面相AI分析结论，出现「面相山根与事业宫对应」「手相智慧线与精神维度交叉」等表述。\n"
-            "年度转折点覆盖完整12个月，并标注大运切换、土星回归等关键节点。\n\n"
+            "\n== 推命通道：完整推命 ==\n"
+            "融合面相和手相的分析结论。\n\n"
         )
 
     return (
-        "你是命盘智镜首席命运策师。根据7位专家的分析，生成五维诊断报告。\n\n"
+        "你是命盘智镜的资深分析师。用大白话生成五个方面的分析报告。\n\n"
         f"{intent_hint}"
+        "== 绝对禁止 ==\n"
+        "禁止出现八字术语（壬水、七杀、伤官等），全部翻译成大白话\n\n"
         "== 输出结构 ==\n"
-        "【E·五维诊断】财富/感情/事业/健康/精神各100-150字深度分析，\n"
-        "  结合至少2个专家交叉验证，每条标注：\n"
-        "  1. 置信度（极高/高/中/低/极低）\n"
-        "  2. 判断（吉/凶/平）\n"
-        "  3. 不确定性标注\n"
-        "  4. 行动指引\n\n"
-        "【F·年度转折点】标注未来12个月的关键月份窗口期\n\n"
-        "【H·命格发展轨迹】人生关键时间节点：大运切换、土星回归、流年触发\n\n"
+        "【C·五维诊断】用大白话说清楚五个方面：\n"
+        "财富与事业：当前状态、可能遇到的问题、建议\n"
+        "感情与人际：当前状态、可能遇到的问题、建议\n"
+        "健康与精神：当前状态、可能遇到的问题、建议\n"
+        "每个方面50-100字，直接说结论和建议\n\n"
+        "【D·近期关键节点】未来1-3个月需要注意的时间点\n\n"
         f"== 五维评分 ==\n{scores_str}\n\n"
         f"== 专家报告 ==\n{workers_str}\n\n"
         f"== 用户问题 ==\n{user_question}\n\n"
         f"{confidence_text}\n\n"
-        "请生成五维诊断报告。"
+        "请用大白话生成分析报告。"
     )
 
 
@@ -7196,40 +7453,151 @@ def master_subtask_actions_prompt(worker_summaries: dict, user_question: str,
     intent_hint = ""
     if intent == "GENERAL_DAILY":
         intent_hint = (
-            "\n== 推命通道：⚡量子快连（一键推命）==\n"
-            "行动建议侧重【今日/本周可执行的极简动作】，给出3条以内最核心的行动指令。\n"
-            "能量处方简化为1-2条最急需的调和方法。\n"
-            "处方笺中的商品推荐以实用性和即时效果为主。\n\n"
+            "\n== 推命通道：一键推命 ==\n"
+            "给出3条以内最核心的行动建议。\n\n"
         )
     elif intent == "FULL_MULTIMODAL":
         intent_hint = (
-            "\n== 推命通道：🔱天命合参（完整推命）==\n"
-            "行动建议覆盖【年度行动路线图】，分阶段给出Q1-Q4的行动指引。\n"
-            "能量处方结合面相/手相特征给出个性化调和方案。\n"
-            "处方笺中的商品推荐引用面相/八字交叉验证结论。\n\n"
+            "\n== 推命通道：完整推命 ==\n"
+            "给出分阶段的行动建议。\n\n"
         )
 
     return (
-        "你是命盘智镜首席命运策师。根据专家分析，生成行动建议报告。\n\n"
+        "你是命盘智镜的资深分析师。用大白话生成行动建议。\n\n"
         f"{intent_hint}"
+        "== 绝对禁止 ==\n"
+        "禁止出现八字术语，全部翻译成大白话\n\n"
         "== 输出结构 ==\n"
-        "【G·针对用户问题的专项分析】200-300字，直接回答用户提问，\n"
-        "  引用相关专家的具体分析数据，给出可操作的行动建议\n\n"
-        "【I·综合能量处方】基于五维评分，给出能量调和建议：\n"
-        "  1. 最需要补充的1-2个维度\n"
-        "  2. 推荐补充的五行元素\n"
-        "  3. 具体的日常调和方法（3-5条）\n"
-        "  4. 需要注意的风险提示\n\n"
-        "【J·处方笺·为你精选的助运物】\n"
-        "  从推荐商品中挑选最匹配的1-2个，按处方格式输出：\n"
-        "  【商品名称】(¥价格) — 推荐理由[80-120字]\n"
-        "  结尾加上「— 专属处方」标记\n\n"
+        "【F·针对你问题的分析】直接回答用户提问，给出可操作的建议\n\n"
+        "【G·日常调整建议】3-5条具体的、可执行的建议\n"
+        '例如："每周安排一次运动""睡前放下手机15分钟""有话直说，别憋着"\n\n'
         f"== 五维评分 ==\n{scores_str}\n\n"
         f"== 专家报告 ==\n{workers_str}\n\n"
         f"== 用户问题 ==\n{user_question}\n\n"
         f"== 推荐商品 ==\n{products_sec}\n\n"
         f"{harm_hint}\n\n"
-        "请生成行动建议报告。"
+        "请用大白话生成行动建议。"
+    )
+
+
+def master_subtask_synastry_prompt(
+    synastry_aspects: list[dict],
+    composite_chart: dict,
+    bazi_compatibility: dict,
+    relationship_type: str,
+    partner_name: str,
+    language: str = "zh",
+) -> str:
+    """合盘专属深度分析子任务 — 星盘交叉相位 + 组合盘 + 八字合婚"""
+    rel_type_cn = {"lover": "恋人", "friend": "朋友", "colleague": "同事", "family": "家人"}
+    rel_display = rel_type_cn.get(relationship_type, relationship_type)
+
+    # Build synastry aspects text
+    strongest = [a for a in synastry_aspects if a.get("meaning")][:8]
+    synastry_lines = []
+    for a in strongest:
+        synastry_lines.append(
+            f"  {a['planet_a']}方 {a['aspect']} {a['planet_b']}方"
+            f"（容许度{a['orb']}°）— {a.get('meaning', '')}"
+        )
+    synastry_text = "\n".join(synastry_lines) if synastry_lines else "  无强烈交叉相位"
+
+    # Build composite chart text
+    composite_lines = composite_chart.get("key_readings", [])
+    composite_text = "\n".join(f"  {r}" for r in composite_lines) if composite_lines else "  无组合盘数据"
+
+    # Bazi compatibility summary
+    compat_score = bazi_compatibility.get("score", "?")
+    compat_level = bazi_compatibility.get("level", "?")
+    compat_dm = bazi_compatibility.get("day_master_detail", "")
+    compat_yong = bazi_compatibility.get("yong_shen_complement", "")
+    compat_day = bazi_compatibility.get("day_pillar_detail", "")
+    compat_supply = bazi_compatibility.get("wuxing_supply", "")
+
+    # Relationship type specific focus
+    focus_map = {
+        "lover": (
+            "恋人/伴侣关系重点：\n"
+            "  - 情感连接深度与灵魂契合度\n"
+            "  - 亲密关系中的吸引力建立与维持\n"
+            "  - 婚姻/长期承诺的命理基础\n"
+            "  - 性生活和谐度（基于火星/金星相位）\n"
+            "  - 共同成长与精神升华的可能性\n"
+        ),
+        "friend": (
+            "朋友关系重点：\n"
+            "  - 性格互补与共同兴趣\n"
+            "  - 忠诚度与信任基础\n"
+            "  - 共同成长与互相支持的模式\n"
+            "  - 友谊的持久度与深度\n"
+        ),
+        "colleague": (
+            "同事/合作关系重点：\n"
+            "  - 工作风格互补性\n"
+            "  - 沟通效率与协作默契\n"
+            "  - 利益分配与竞争关系\n"
+            "  - 共同目标的契合度\n"
+        ),
+        "family": (
+            "家人关系重点：\n"
+            "  - 血缘纽带与代际影响\n"
+            "  - 家庭角色与责任分配\n"
+            "  - 沟通模式与情感表达\n"
+            "  - 家族能量传承与化解\n"
+        ),
+    }
+    focus_text = focus_map.get(relationship_type, focus_map["lover"])
+
+    if language == "en":
+        return (
+            "You are a synastry specialist for a multi-dimensional fortune platform.\n"
+            "Generate a synastry analysis report based on the provided data.\n\n"
+            f"Relationship type: {rel_display} with {partner_name}\n\n"
+            f"== Bazi Compatibility ({compat_score}/100 - {compat_level}) ==\n"
+            f"  {compat_dm}\n  {compat_yong}\n  {compat_day}\n  {compat_supply}\n\n"
+            f"== Synastry Aspects (Strongest Connections) ==\n{synastry_text}\n\n"
+            f"== Composite Chart Key Readings ==\n{composite_text}\n\n"
+            f"== Focus Areas for {rel_display} Relationship ==\n{focus_text}\n\n"
+            "Requirements:\n"
+            "1. Write in plain, simple English. No fancy words, no mystical language.\n"
+            "2. No energy cards, score charts, or visual elements. Text analysis only.\n"
+            "3. Get straight to the point. Be direct and practical.\n\n"
+            "Output structure:\n"
+            "[What Attracts You to Each Other] 150-200 words: Based on synastry aspects, "
+            "explain in simple terms what the strongest attraction between you two is\n\n"
+            "[How the Relationship Feels] 150-200 words: Based on composite chart, "
+            "describe what this relationship feels like as a whole\n\n"
+            "[Tips for Getting Along] 150-200 words: 3-5 specific, practical tips "
+            "for making the relationship work better\n\n"
+            "Style: Direct, practical, like giving advice to a good friend. No mystical language.\n"
+        )
+
+    return (
+        "你是命盘智镜平台的合盘专家。基于精确的合盘计算数据，生成合盘分析报告。\n\n"
+        f"关系类型：{rel_display}（与{partner_name}）\n\n"
+        f"== 八字合婚数据 ({compat_score}/100 — {compat_level}) ==\n"
+        f"  {compat_dm}\n"
+        f"  {compat_yong}\n"
+        f"  {compat_day}\n"
+        f"  {compat_supply}\n\n"
+        f"== 星盘交叉相位（最强连接）==\n{synastry_text}\n\n"
+        f"== 组合盘关键解读 ==\n{composite_text}\n\n"
+        f"== {rel_display}关系分析重点 ==\n{focus_text}\n\n"
+        "要求：\n"
+        "1. 用大白话写，不要文言文，不要华丽辞藻\n"
+        "2. 不要输出能量卡、评分图表，纯文字分析\n"
+        "3. 直接说结论和分析，不要绕弯子\n\n"
+        "请输出以下内容：\n\n"
+        "【两人之间的吸引力】\n"
+        "基于星盘交叉相位，说清楚两人之间最强的吸引力来自哪里\n"
+        '用大白话说，比如"你特别容易被他的幽默吸引"而不是"金星合水星带来沟通层面的吸引力"\n\n'
+        "【这段关系的整体感觉】\n"
+        "基于组合盘数据，说清楚这段关系给人的感觉是什么\n"
+        '比如"这段关系一开始会很热烈，但时间长了需要学会给彼此空间"\n\n'
+        "【怎么相处更好】\n"
+        "给出3-5条具体的相处建议\n"
+        '要接地气，比如"有分歧的时候别冷战，当天说开""多一起做一些轻松的事情"\n\n'
+        "风格：大白话、直接、实用。像给好朋友建议一样，不要装深沉。"
     )
 
 

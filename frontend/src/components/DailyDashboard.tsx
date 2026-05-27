@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect } from "react"
 import { Wallet, Briefcase, Heart, Activity, Palette, Hash, AlertTriangle, TrendingUp } from "lucide-react"
-import { getDailyFortune, listMyReadings, getPersonalizedDailyAlmanac, type DailyFortuneResponse } from "@/lib/api"
+import { getDailyFortune, getPersonalizedFortune, listMyReadings, getPersonalizedDailyAlmanac, type DailyFortuneResponse } from "@/lib/api"
 import { api } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
@@ -255,8 +255,8 @@ export function DailyDashboard() {
   const { user } = useAuth()
   const { locale, t } = useLanguage()
   const { userProfile } = useUserStore()
-  const [fortune, setFortune] = useState<DailyFortuneResponse | null>(() => getCached<DailyFortuneResponse>("fortune"))
-  const [almanac, setAlmanac] = useState<AlmanacData | null>(() => getCached<AlmanacData>("almanac"))
+  const [fortune, setFortune] = useState<DailyFortuneResponse | null>(() => getCached<DailyFortuneResponse>("fortune_" + locale))
+  const [almanac, setAlmanac] = useState<AlmanacData | null>(() => getCached<AlmanacData>("almanac_" + locale))
   const [fortuneLoading, setFortuneLoading] = useState(!fortune)
   const [almanacLoading, setAlmanacLoading] = useState(!almanac)
 
@@ -266,18 +266,31 @@ export function DailyDashboard() {
       try {
         let f: DailyFortuneResponse
         if (user) {
-          try { f = await getDailyFortune(locale) } catch { f = generateFallbackFortune(t) }
+          try {
+            // Use personalized fortune when user has birth data
+            if (userProfile && userProfile.birth_year) {
+              const pf = await getPersonalizedFortune({
+                birth_year: userProfile.birth_year,
+                birth_month: userProfile.birth_month,
+                birth_day: userProfile.birth_day,
+                birth_hour: userProfile.birth_hour,
+              }, locale)
+              f = pf || await getDailyFortune(locale)
+            } else {
+              f = await getDailyFortune(locale)
+            }
+          } catch { f = generateFallbackFortune(t) }
         } else {
           f = generateFallbackFortune(t)
         }
-        setCached("fortune", f)
+        setCached("fortune_" + locale, f)
         setFortune(f)
       } finally {
         setFortuneLoading(false)
       }
     }
     loadFortune()
-  }, [user, locale])
+  }, [user, locale, userProfile])
 
   // ── Load almanac (parallel, lazy — skeleton shown while loading) ──
   useEffect(() => {
@@ -304,7 +317,7 @@ export function DailyDashboard() {
           })
           if (res?.data) {
             const data = parseAlmanac(res.data)
-            setCached("almanac", data)
+            setCached("almanac_" + locale, data)
             setAlmanac(data)
             setAlmanacLoading(false)
             return
@@ -326,14 +339,14 @@ export function DailyDashboard() {
             longitude: userProfile.longitude ?? undefined,
           }, locale, true)
           const parsed = parseAlmanac(data)
-          setCached("almanac", parsed)
+          setCached("almanac_" + locale, parsed)
           setAlmanac(parsed)
           setAlmanacLoading(false)
           return
         }
       } catch {}
       const fallback = generateFallbackAlmanac(t)
-      setCached("almanac", fallback)
+      setCached("almanac_" + locale, fallback)
       setAlmanac(fallback)
       setAlmanacLoading(false)
     }

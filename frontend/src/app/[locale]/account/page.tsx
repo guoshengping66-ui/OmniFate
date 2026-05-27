@@ -18,7 +18,7 @@ type Tab = "overview" | "readings" | "orders" | "favorites" | "subscription" | "
 export default function AccountPage() {
   const router = useRouter()
   const { user, loading: authLoading, logout, refreshUser } = useAuth()
-  const { t } = useLanguage()
+  const { t, localeHref } = useLanguage()
   const [tab, setTab] = useState<Tab>("overview")
   const [readings, setReadings] = useState<ReadingListItem[]>([])
   const [anonymousReadings, setAnonymousReadings] = useState<ReadingHistoryItem[]>([])
@@ -168,9 +168,9 @@ export default function AccountPage() {
                   <div className="card-glass p-5">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="text-sm font-medium text-white/60">{t("account.recentReports")}</h3>
-                      <button onClick={() => setTab("readings")} className="text-gold/60 text-xs hover:text-gold">
+                      <Link href={localeHref("/readings")} className="text-gold/60 text-xs hover:text-gold">
                         {t("account.viewAll")} <ChevronRight size={10} className="inline" />
-                      </button>
+                      </Link>
                     </div>
                     {readings.slice(0, 3).map(r => (
                       <Link key={r.id} href={`/reading/${r.id}`}

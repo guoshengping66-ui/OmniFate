@@ -43,7 +43,7 @@ TAROT_DESCS_ZH = [
     "勇往直前的一周，行动力是关键",
 ]
 TAROT_DESCS_EN = [
-    "A week of light and vitality — stay positive and好运 will follow",
+    "A week of light and vitality — stay positive and good fortune will follow",
     "A week of abundance and creation — ideal for launching new plans",
     "A week of adaptability — your talents will be recognized",
     "A week of inner strength — stay firm and overcome challenges",
@@ -75,7 +75,7 @@ AI_INSIGHTS_ZH = [
 AI_INSIGHTS_EN = [
     "This week's {yi} fortune is strong. Based on your BaZi chart, we recommend tackling important tasks mid-week. Rest on the weekend to recharge.",
     "This week's {yi} fortune is steady with balanced Five Elements. Stick to your plan. Watch out for minor setbacks on Friday.",
-    "Be cautious with {ji} this week, but {yi} luck is strong — take initiative. Stay calm and好运 will come naturally.",
+    "Be cautious with {ji} this week, but {yi} luck is strong — take initiative. Stay calm and good fortune will come naturally.",
     "The Five Elements flow favors you this week. Look for allies in the {yi} direction. Expand your network.",
     "Watch out for {ji} this week, but overall fortune is positive. Patience is key.",
 ]

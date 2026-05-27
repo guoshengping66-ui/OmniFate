@@ -2,7 +2,7 @@ import { create } from "zustand"
 import type { BirthProfile } from "@/lib/birth-profile-api"
 import type { Gender } from "@/lib/api"
 
-export type Intent = "GENERAL_DAILY" | "SPECIFIC_EVENT" | "FULL_MULTIMODAL"
+export type Intent = "GENERAL_DAILY" | "SPECIFIC_EVENT" | "FULL_MULTIMODAL" | "RELATIONSHIP"
 
 export interface WizardFormData {
   gender: Gender
@@ -15,6 +15,18 @@ export interface WizardFormData {
   latitude?: number
   longitude?: number
   user_question: string
+  // Partner info for RELATIONSHIP intent
+  partner_name: string
+  partner_gender: Gender
+  partner_birth_year: number
+  partner_birth_month: number
+  partner_birth_day: number
+  partner_birth_hour: number
+  partner_birth_minute: number
+  partner_birth_city: string
+  partner_latitude?: number
+  partner_longitude?: number
+  relationship_type: string  // lover/friend/colleague/family
 }
 
 interface WizardStore {
@@ -37,6 +49,15 @@ const DEFAULT_FORM: WizardFormData = {
   birth_minute: 0,
   birth_city: "",
   user_question: "",
+  partner_name: "",
+  partner_gender: "female",
+  partner_birth_year: 0,
+  partner_birth_month: 0,
+  partner_birth_day: 0,
+  partner_birth_hour: 0,
+  partner_birth_minute: 0,
+  partner_birth_city: "",
+  relationship_type: "",
 }
 
 export const useWizardStore = create<WizardStore>((set, get) => ({
@@ -64,12 +85,13 @@ export const useWizardStore = create<WizardStore>((set, get) => ({
       // FULL_MULTIMODAL: skip birth info, go to tarot (step 1)
       // GENERAL_DAILY: skip birth info, go to tarot (step 1)
       // SPECIFIC_EVENT: skip everything, go to confirm (step 3)
+      // RELATIONSHIP: start at birth info (step 0) — need user's own info
       startStep:
         intent === "SPECIFIC_EVENT"
           ? 3
           : intent === "GENERAL_DAILY"
             ? 1
-            : 1, // FULL_MULTIMODAL also starts at tarot
+            : 0, // FULL_MULTIMODAL and RELATIONSHIP start at birth info
     })
   },
 

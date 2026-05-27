@@ -18,6 +18,7 @@ from config import get_settings
 from agents.state import SystemState, ChatMessage, ConflictRecord, WorkerOutput
 from agents.prompts import master_prompt, master_summary_prompt, master_detail_prompt, ROUTER_PROMPT
 from agents.prompts import master_subtask_core_prompt, master_subtask_dimensions_prompt, master_subtask_actions_prompt
+from agents.prompts import master_subtask_synastry_prompt
 from services.product_matcher import ProductMatcher
 
 settings = get_settings()
@@ -93,10 +94,18 @@ async def _call(system: str, user: str, model: str | None = None, language: str 
     # Placed at the START of system prompt for maximum LLM attention
     if language == "en":
         lang_hint = (
-            "== LANGUAGE REQUIREMENT (CRITICAL) ==\n"
-            "Output the ENTIRE response in English. "
-            "ALL text, descriptions, explanations, and cultural terms MUST be in English. "
-            "Do NOT mix Chinese and English. Do NOT include any Chinese characters.\n\n"
+            "\n\n== STRICT LANGUAGE REQUIREMENT ==\n"
+            "CRITICAL: Output the ENTIRE analysis in English. ZERO Chinese characters allowed.\n"
+            "Translate ALL Chinese命理 terms to English equivalents:\n"
+            "  日主→Day Master, 用神→Favorable God, 忌神→Unfavorable God\n"
+            "  正官→Officer, 七杀→Seven Killings, 正印→Seal, 食神→Eating God\n"
+            "  伤官→Hurting Officer, 正财→Direct Wealth, 偏财→Indirect Wealth\n"
+            "  五行→Five Elements, 金→Metal, 木→Wood, 水→Water, 火→Fire, 土→Earth\n"
+            "  命宫→Life Palace, 财帛宫→Wealth Palace, 官禄宫→Career Palace\n"
+            "  疾厄宫→Health Palace, 迁移宫→Travel Palace, 田宅宫→Property Palace\n"
+            "  夫妻宫→Spouse Palace, 子女宫→Children Palace, 兄弟宫→Siblings Palace\n"
+            "  父母宫→Parents Palace, 交友宫→Friends Palace\n"
+            "Do NOT output any Chinese characters. Use pinyin or English equivalents."
         )
     else:
         lang_hint = (
@@ -106,9 +115,18 @@ async def _call(system: str, user: str, model: str | None = None, language: str 
             "不要中英文混杂，不要出现任何英文。五行元素名称请使用中文（如：火、水、木、金、土）。\n\n"
         )
 
-    msgs = [SystemMessage(content=lang_hint + system), HumanMessage(content=user)]
-    resp = await llm.ainvoke(msgs)
-    return resp.content
+    msgs = [SystemMessage(content=system + lang_hint), HumanMessage(content=user)]
+    try:
+        resp = await asyncio.wait_for(llm.ainvoke(msgs), timeout=120)
+    except asyncio.TimeoutError:
+        print(f"[_call] LLM timed out after 120s (model={model})")
+        return ""
+    result = resp.content
+    # Post-process: clean residual Chinese in English output
+    if language == "en":
+        from agents.workers import _clean_english
+        result = _clean_english(result)
+    return result
 
 
 # ─── Layer 4A: Sentiment ──────────────────────────────────────────────────
@@ -744,6 +762,7 @@ def run_master_preprocessing(state: SystemState) -> dict:
     conflicts_text = _conflicts_to_text(state.conflicts)
     _refine_tags(state)
     state.dimension_scores = _compute_dimension_scores(state)
+    print(f"[PREPROCESS] dimension_scores: {state.dimension_scores}")
     confidence_text, sum_lengths = _compute_confidence(state)
 
     matched_products, products_preview, products_with_reasons = _build_product_preview(state)
@@ -766,6 +785,18 @@ def run_master_preprocessing(state: SystemState) -> dict:
 async def run_subtask_core(state: SystemState, prep: dict) -> str:
     """Run core synthesis sub-task (Sub-task A). Returns result text."""
     llm_model = settings.PREMIUM_MODEL if state.is_premium else settings.MASTER_FAST_MODEL
+
+    # Build partner data for RELATIONSHIP intent (with structured synastry data)
+    partner_data = None
+    if state.intent == "RELATIONSHIP" and state.partner_birth_info:
+        partner_data = {
+            "partner_name": state.partner_name,
+            "relationship_type": state.relationship_type,
+            "bazi_compatibility": state.bazi_compatibility,
+            "synastry_aspects": state.synastry_aspects,
+            "composite_chart": state.composite_chart,
+        }
+
     system = master_subtask_core_prompt(
         worker_summaries=prep["worker_summaries"],
         user_question=state.user_question,
@@ -774,6 +805,7 @@ async def run_subtask_core(state: SystemState, prep: dict) -> str:
         dimension_scores=state.dimension_scores,
         confidence_text=prep["confidence_text"],
         intent=state.intent,
+        partner_data=partner_data,
     )
     result = await _call(system, "请生成核心综合报告。", model=llm_model, language=state.language)
     state.master_subtask_core = result
@@ -811,32 +843,72 @@ async def run_subtask_actions(state: SystemState, prep: dict) -> str:
     return result
 
 
+async def run_subtask_synastry(state: SystemState) -> str:
+    """合盘专属深度分析子任务 (RELATIONSHIP intent only)."""
+    llm_model = settings.PREMIUM_MODEL if state.is_premium else settings.MASTER_FAST_MODEL
+    system = master_subtask_synastry_prompt(
+        synastry_aspects=state.synastry_aspects,
+        composite_chart=state.composite_chart,
+        bazi_compatibility=state.bazi_compatibility,
+        relationship_type=state.relationship_type,
+        partner_name=state.partner_name,
+        language=state.language,
+    )
+    result = await _call(system, "请生成合盘深度分析报告。", model=llm_model, language=state.language)
+    return result
+
+
 async def run_master(state: SystemState) -> SystemState:
     """
     Full master pipeline: preprocessing + sub-tasks.
     Free users: only core synthesis (1 LLM call).
     Premium users: 3 parallel sub-tasks for full detail.
+    RELATIONSHIP intent: +1 synastry sub-task (4 total for premium).
     """
     state.phase = "master"
     prep = run_master_preprocessing(state)
 
+    is_relationship = state.intent == "RELATIONSHIP"
+
     if state.is_premium:
-        # Full pipeline: 3 parallel sub-tasks
-        core_task = run_subtask_core(state, prep)
-        dims_task = run_subtask_dims(state, prep)
-        actions_task = run_subtask_actions(state, prep)
+        # Full pipeline: 3 parallel sub-tasks (+ synastry for RELATIONSHIP)
+        tasks = [
+            run_subtask_core(state, prep),
+            run_subtask_dims(state, prep),
+            run_subtask_actions(state, prep),
+        ]
+        if is_relationship:
+            tasks.append(run_subtask_synastry(state))
 
-        core_result, dims_result, actions_result = await asyncio.gather(
-            core_task, dims_task, actions_task,
-        )
+        results = await asyncio.gather(*tasks)
+
+        core_result = results[0]
+        dims_result = results[1]
+        actions_result = results[2]
+        synastry_result = results[3] if is_relationship else ""
 
         state.master_summary = core_result[:500]
-        state.master_detail = f"{core_result}\n\n{dims_result}\n\n{actions_result}"
+        parts = [core_result]
+        if synastry_result:
+            parts.append(synastry_result)
+        parts.append(dims_result)
+        parts.append(actions_result)
+        state.master_detail = "\n\n".join(parts)
     else:
-        # Free user: only core synthesis (saves 2 LLM calls + ~8000 tokens)
-        core_result = await run_subtask_core(state, prep)
+        # Free user: core synthesis + synastry for RELATIONSHIP
+        tasks = [run_subtask_core(state, prep)]
+        if is_relationship:
+            tasks.append(run_subtask_synastry(state))
+
+        results = await asyncio.gather(*tasks)
+        core_result = results[0]
+        synastry_result = results[1] if is_relationship else ""
+
         state.master_summary = core_result[:500]
-        state.master_detail = ""  # Behind paywall anyway
+        if synastry_result:
+            state.master_detail = f"{core_result}\n\n{synastry_result}"
+        else:
+            state.master_detail = ""  # Behind paywall anyway
 
     state.phase = "chat"
     return state

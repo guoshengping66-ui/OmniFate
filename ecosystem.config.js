@@ -17,7 +17,7 @@ module.exports = {
       name: "backend",
       cwd: "/opt/OmniFate",
       script: "backend/main.py",
-      interpreter: "python3",
+      interpreter: "/usr/bin/python3.9",
       args: "-m uvicorn backend.main:app --host 0.0.0.0 --port 8002",
       env: {
         PYTHONUNBUFFERED: "1",

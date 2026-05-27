@@ -1747,6 +1747,255 @@ class AstrologyCalculator:
 
         return {"transit_planets": transit_planets, "transit_natal_aspects": aspects}
 
+    # ── Synastry (比较盘) ──────────────────────────────────────────────────
+
+    def calculate_synastry(
+        self,
+        chart_a: AstrologyResult,
+        chart_b: AstrologyResult,
+    ) -> dict:
+        """
+        比较盘（Synastry）：计算 A 的行星与 B 的行星之间的交叉相位。
+
+        核心原理：
+          - A的行星落入B的宫位 → A在B生活中的哪个领域发挥作用
+          - 交叉相位揭示两人之间的能量连接模式
+
+        返回：交叉相位列表 + 关键连接解读
+        """
+        KEY_CONNECTIONS = {
+            ("Venus", "Mars"): "强烈肉体吸引力与浪漫激情",
+            ("Moon", "Sun"): "深层情感共鸣与灵魂认同",
+            ("Saturn", "Venus"): "感情中有责任与考验，但稳定持久",
+            ("Pluto", "Moon"): "深度灵魂连接，可能有控制与依赖",
+            ("Venus", "Venus"): "审美与爱情模式高度相似，天然亲近",
+            ("Moon", "Moon"): "情感需求一致，彼此理解内心世界",
+            ("Sun", "Sun"): "核心自我认同相似，彼此认可",
+            ("Mercury", "Mercury"): "思维与沟通方式契合",
+            ("Jupiter", "Venus"): "相互带来幸运与扩展，感情充满喜悦",
+            ("Mars", "Sun"): "行动力与生命力的互相激发",
+            ("Neptune", "Venus"): "浪漫理想化，灵魂之爱但需防幻觉",
+            ("Uranus", "Moon"): "激发彼此自由与独立，关系充满惊喜",
+            ("Saturn", "Moon"): "情感中有约束与考验，但能建立深层安全感",
+            ("Jupiter", "Moon"): "情感滋养与精神成长，彼此带来温暖",
+        }
+
+        # 五行元素互动解读
+        ELEMENT_INTERACTION = {
+            ("fire", "fire"): "火+火：热情洋溢但需防过度燃烧",
+            ("fire", "earth"): "火+土：火温暖土，土稳定火，互补型",
+            ("fire", "air"): "火+风：风助火势，充满活力与创造力",
+            ("fire", "water"): "火+水：水火既济，需平衡激情与情感",
+            ("earth", "earth"): "土+土：踏实稳定，共同建设",
+            ("earth", "air"): "土+风：需磨合，一个务实一个理想",
+            ("earth", "water"): "土+水：水润土生，滋养型关系",
+            ("air", "air"): "风+风：思想碰撞，沟通无障碍",
+            ("air", "water"): "风+水：需理解差异，一个理性一个感性",
+            ("water", "water"): "水+水：情感深度共鸣，但需防情绪化",
+        }
+
+        aspects: list[dict] = []
+        key_readings: list[str] = []
+        planet_a = chart_a.planets
+        planet_b = chart_b.planets
+
+        # 计算交叉相位
+        for pa_name, pa_data in planet_a.items():
+            pa_lon = pa_data.get("longitude", 0)
+            for pb_name, pb_data in planet_b.items():
+                pb_lon = pb_data.get("longitude", 0)
+
+                diff = abs(pa_lon - pb_lon) % 360
+                if diff > 180:
+                    diff = 360 - diff
+
+                for asp_name, asp_angle, max_orb in MAJOR_ASPECTS:
+                    orb = abs(diff - asp_angle)
+                    if orb <= max_orb:
+                        aspect_entry = {
+                            "planet_a": pa_name,
+                            "planet_b": pb_name,
+                            "aspect": asp_name,
+                            "angle": asp_angle,
+                            "orb": round(orb, 2),
+                            "exact_angle": round(diff, 2),
+                            "type": "major",
+                        }
+
+                        # 查找关键连接解读
+                        key_pair = (pa_name, pb_name)
+                        key_pair_rev = (pb_name, pa_name)
+                        if key_pair in KEY_CONNECTIONS:
+                            aspect_entry["meaning"] = KEY_CONNECTIONS[key_pair]
+                            key_readings.append(
+                                f"{pa_name}({pa_name}方) {asp_name} {pb_name}({pb_name}方) "
+                                f"— {KEY_CONNECTIONS[key_pair]}"
+                            )
+                        elif key_pair_rev in KEY_CONNECTIONS:
+                            aspect_entry["meaning"] = KEY_CONNECTIONS[key_pair_rev]
+                            key_readings.append(
+                                f"{pb_name}({pb_name}方) {asp_name} {pa_name}({pa_name}方) "
+                                f"— {KEY_CONNECTIONS[key_pair_rev]}"
+                            )
+
+                        aspects.append(aspect_entry)
+                        break
+
+        # 元素互动分析
+        a_elements = chart_a.element_summary
+        b_elements = chart_b.element_summary
+        dominant_a = max(a_elements, key=a_elements.get) if a_elements else ""
+        dominant_b = max(b_elements, key=b_elements.get) if b_elements else ""
+        element_pair = tuple(sorted([dominant_a, dominant_b]))
+        element_reading = ELEMENT_INTERACTION.get(element_pair, "")
+
+        # A的行星落入B的宫位分析
+        house_influence: list[str] = []
+        for pa_name, pa_data in planet_a.items():
+            pa_lon = pa_data.get("longitude", 0)
+            # 看A的行星落在B的哪个宫位
+            b_cusps = chart_b.house_cusps
+            sorted_cusps = sorted(b_cusps.items(), key=lambda x: x[1])
+            for i, (hnum, start_lon) in enumerate(sorted_cusps):
+                next_lon = sorted_cusps[(i + 1) % 12][1]
+                if start_lon <= next_lon:
+                    if start_lon <= pa_lon < next_lon:
+                        house_influence.append(f"{pa_name}落入对方第{hnum}宫")
+                        break
+                else:
+                    if pa_lon >= start_lon or pa_lon < next_lon:
+                        house_influence.append(f"{pa_name}落入对方第{hnum}宫")
+                        break
+
+        # 按相位精确度排序，取前5个最强连接
+        aspects.sort(key=lambda x: x["orb"])
+        strongest = [a for a in aspects if a.get("meaning")][:5]
+
+        return {
+            "aspects": aspects,
+            "key_readings": key_readings[:10],
+            "strongest_connections": strongest,
+            "element_interaction": element_reading,
+            "house_influence": house_influence[:8],
+            "a_dominant_element": dominant_a,
+            "b_dominant_element": dominant_b,
+        }
+
+    # ── Composite Chart (组合盘) ───────────────────────────────────────────
+
+    def calculate_composite(
+        self,
+        chart_a: AstrologyResult,
+        chart_b: AstrologyResult,
+    ) -> dict:
+        """
+        组合盘（Composite）：取 A 和 B 每颗行星的中点，形成一张新盘。
+        组合盘代表「这段关系本身」的命盘，而非任何一方。
+
+        返回：组合盘行星位置 + 关键解读
+        """
+        composite_planets: dict[str, dict] = {}
+
+        for pname in PLANET_NAMES:
+            pa = chart_a.planets.get(pname, {})
+            pb = chart_b.planets.get(pname, {})
+            if not pa or not pb:
+                continue
+
+            lon_a = pa.get("longitude", 0)
+            lon_b = pb.get("longitude", 0)
+
+            # 计算中点（处理跨越0°的情况）
+            diff = (lon_b - lon_a) % 360
+            if diff > 180:
+                diff = diff - 360
+            mid_lon = (lon_a + diff / 2) % 360
+
+            composite_planets[pname] = {
+                "longitude": round(mid_lon, 4),
+                "sign": _sign_name(mid_lon),
+                "sign_cn": SIGN_CN.get(_sign_name(mid_lon), ""),
+                "degree": round(_sign_degree(mid_lon), 2),
+            }
+
+        # 计算组合盘的 ASC（取双方 ASC 中点）
+        asc_a = chart_a.ascendant
+        asc_b = chart_b.ascendant
+        diff_asc = (asc_b - asc_a) % 360
+        if diff_asc > 180:
+            diff_asc = diff_asc - 360
+        composite_asc = (asc_a + diff_asc / 2) % 360
+
+        # 组合盘的 MC
+        mc_a = chart_a.midheaven
+        mc_b = chart_b.midheaven
+        diff_mc = (mc_b - mc_a) % 360
+        if diff_mc > 180:
+            diff_mc = diff_mc - 360
+        composite_mc = (mc_a + diff_mc / 2) % 360
+
+        # 组合盘宫位（Equal house system from composite ASC）
+        composite_houses = self._equal_houses(composite_asc)
+
+        # 为组合盘行星分配宫位
+        for pname, pdata in composite_planets.items():
+            plon = pdata["longitude"]
+            for hnum in range(1, 13):
+                start = composite_houses[hnum]
+                end = composite_houses[(hnum % 12) + 1]
+                if start <= end:
+                    if start <= plon < end:
+                        pdata["house"] = hnum
+                        break
+                else:
+                    if plon >= start or plon < end:
+                        pdata["house"] = hnum
+                        break
+            else:
+                pdata["house"] = 1
+
+        # 组合盘相位
+        composite_aspects = self._calc_aspects(composite_planets)
+
+        # 关键解读
+        KEY_COMPOSITE_MEANINGS = {
+            "Moon": "月亮代表这段关系的情感需求与安全感模式",
+            "Venus": "金星代表这段关系的爱情模式与审美共鸣",
+            "Saturn": "土星代表这段关系的考验、责任与持久力",
+            "Sun": "太阳代表这段关系的核心目的与生命力",
+            "Mars": "火星代表这段关系的激情、行动力与冲突模式",
+            "Mercury": "水星代表这段关系的沟通模式与思维交流",
+            "Jupiter": "木星代表这段关系的扩展、幸运与精神成长",
+        }
+
+        key_readings: list[str] = []
+        for pname in ["Moon", "Venus", "Saturn", "Sun", "Mars"]:
+            if pname in composite_planets:
+                p = composite_planets[pname]
+                meaning = KEY_COMPOSITE_MEANINGS.get(pname, "")
+                key_readings.append(
+                    f"组合盘{pname}在{p['sign_cn']}{p['degree']}°"
+                    f"（第{p.get('house', '?')}宫）— {meaning}"
+                )
+
+        return {
+            "planets": composite_planets,
+            "ascendant": {
+                "longitude": round(composite_asc, 4),
+                "sign": _sign_name(composite_asc),
+                "sign_cn": SIGN_CN.get(_sign_name(composite_asc), ""),
+                "degree": round(_sign_degree(composite_asc), 2),
+            },
+            "midheaven": {
+                "longitude": round(composite_mc, 4),
+                "sign": _sign_name(composite_mc),
+                "sign_cn": SIGN_CN.get(_sign_name(composite_mc), ""),
+                "degree": round(_sign_degree(composite_mc), 2),
+            },
+            "aspects": composite_aspects,
+            "key_readings": key_readings,
+        }
+
 
 # ─── Convenience function ───────────────────────────────────────────────────────
 

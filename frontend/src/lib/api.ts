@@ -36,6 +36,18 @@ export const api = axios.create({
   timeout: 90_000,
 })
 
+// Auto-pass locale for error translation on all API clients
+const addLangInterceptor = (client: typeof api) => {
+  client.interceptors.request.use((config) => {
+    try {
+      const lang = localStorage.getItem("destiny_mirror_lang") || (navigator.language.startsWith("zh") ? "zh" : "en")
+      config.params = { ...config.params, lang }
+    } catch {}
+    return config
+  })
+}
+addLangInterceptor(api)
+
 // Direct backend connection for long-running / large-response endpoints
 export const apiDirect = axios.create({
   baseURL: isLocalhost ? BACKEND_URL : "/api/proxy",
@@ -46,6 +58,15 @@ export const apiDirect = axios.create({
 export const apiAuth = axios.create({
   baseURL: BACKEND_URL,
   timeout: 30_000,
+})
+
+// Pass locale to backend so error messages are translated
+apiAuth.interceptors.request.use((config) => {
+  try {
+    const lang = localStorage.getItem("destiny_mirror_lang") || (navigator.language.startsWith("zh") ? "zh" : "en")
+    config.params = { ...config.params, lang }
+  } catch {}
+  return config
 })
 
 // ── Production proxy interceptor ───────────────────────────────────────────
@@ -104,6 +125,18 @@ export interface AnalysisRequest {
   palm_raw_text: string
   face_raw_text: string
   intent?: string
+  // Partner fields for RELATIONSHIP
+  partner_name?: string
+  partner_gender?: Gender
+  partner_birth_year?: number
+  partner_birth_month?: number
+  partner_birth_day?: number
+  partner_birth_hour?: number
+  partner_birth_minute?: number
+  partner_birth_city?: string
+  partner_latitude?: number
+  partner_longitude?: number
+  relationship_type?: string
 }
 
 export interface WorkerReport {

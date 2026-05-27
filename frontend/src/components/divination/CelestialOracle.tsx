@@ -29,6 +29,13 @@ const FORTUNE_COLORS: Record<string, string> = {
   "末吉": "from-yellow-500 to-amber-400",
   "凶": "from-orange-500 to-red-400",
   "大凶": "from-red-500 to-rose-400",
+  "Great Blessing": "from-gold to-[#E8CB7A]",
+  "Good Fortune": "from-green-400 to-emerald-300",
+  "Mild Fortune": "from-blue-400 to-cyan-300",
+  "Auspicious": "from-teal-400 to-cyan-400",
+  "Moderate": "from-yellow-500 to-amber-400",
+  "Inauspicious": "from-orange-500 to-red-400",
+  "Great Misfortune": "from-red-500 to-rose-400",
 }
 
 const FORTUNE_EMOJI: Record<string, string> = {
@@ -39,6 +46,13 @@ const FORTUNE_EMOJI: Record<string, string> = {
   "末吉": "🌙",
   "凶": "🌑",
   "大凶": "⛈",
+  "Great Blessing": "✨",
+  "Good Fortune": "🌟",
+  "Mild Fortune": "⭐",
+  "Auspicious": "🌤",
+  "Moderate": "🌙",
+  "Inauspicious": "🌑",
+  "Great Misfortune": "⛈",
 }
 
 // Theme energy totem
@@ -50,6 +64,13 @@ const THEME_TOTEM: Record<string, { icon: string; color: string; bg: string }> =
   "学业": { icon: "☰", color: "text-blue-400",    bg: "from-blue-500/10 to-indigo-500/5" },
   "人际": { icon: "⬡", color: "text-violet-400",  bg: "from-violet-500/10 to-purple-500/5" },
   "出行": { icon: "✈", color: "text-sky-400",     bg: "from-sky-500/10 to-cyan-500/5" },
+  "Career": { icon: "⚔", color: "text-amber-400",  bg: "from-amber-500/10 to-orange-500/5" },
+  "Love": { icon: "♥", color: "text-pink-400",   bg: "from-pink-500/10 to-rose-500/5" },
+  "Wealth": { icon: "◎", color: "text-emerald-400", bg: "from-emerald-500/10 to-green-500/5" },
+  "Health": { icon: "☯", color: "text-teal-400",    bg: "from-teal-500/10 to-cyan-500/5" },
+  "Studies": { icon: "☰", color: "text-blue-400",    bg: "from-blue-500/10 to-indigo-500/5" },
+  "Social": { icon: "⬡", color: "text-violet-400",  bg: "from-violet-500/10 to-purple-500/5" },
+  "Travel": { icon: "✈", color: "text-sky-400",     bg: "from-sky-500/10 to-cyan-500/5" },
 }
 
 // Fortune stars display
@@ -245,7 +266,7 @@ export function CelestialOracle() {
       setTodayFree(false)
       setChecking(false)
       // 后台静默刷新，确保数据最新
-      api.get("/api/divination/today-result").then(r => {
+      api.get("/api/divination/today-result", { params: { lang: locale } }).then(r => {
         if (r.data.has_drawn) {
           setResult(r.data)
           saveCachedResult(r.data)
@@ -255,7 +276,7 @@ export function CelestialOracle() {
     }
 
     // 2) 无缓存，走 API 检查
-    api.get("/api/divination/today-result")
+    api.get("/api/divination/today-result", { params: { lang: locale } })
       .then(r => {
         if (r.data.has_drawn) {
           setResult(r.data)
@@ -269,7 +290,7 @@ export function CelestialOracle() {
           .then(async r => {
             if (!r.data.is_free) {
               setTodayFree(false)
-              const res = await api.post("/api/divination/draw", { use_free: false })
+              const res = await api.post("/api/divination/draw", { use_free: false }, { params: { lang: locale } })
               setResult(res.data)
               setPhase("result")
               saveCachedResult(res.data)
@@ -278,7 +299,7 @@ export function CelestialOracle() {
           .catch(() => {})
       })
       .finally(() => setChecking(false))
-  }, [user])
+  }, [user, locale])
 
   useEffect(() => {
     let lastShake = 0
@@ -314,7 +335,7 @@ export function CelestialOracle() {
     try {
       const res = await api.post("/api/divination/draw", {
         use_free: todayFree,
-      })
+      }, { params: { lang: locale } })
       // API 返回即有结果，无需额外等待
       setResult(res.data)
       setPhase("result")
@@ -334,7 +355,7 @@ export function CelestialOracle() {
       toast.error(err.response?.data?.detail || t("divination.drawFailed"))
       setPhase("idle")
     }
-  }, [phase, todayFree, user, t])
+  }, [phase, todayFree, user, t, locale])
 
   const handleShare = async () => {
     if (!result) return
@@ -342,7 +363,7 @@ export function CelestialOracle() {
     try {
       const res = await api.post("/api/divination/share", {
         divination_id: result.id,
-      })
+      }, { params: { lang: locale } })
       const shareUrl = res.data.share_url
       const reward = res.data.share_reward || 0
       const todayCount = res.data.today_share_count || 0
@@ -503,7 +524,7 @@ export function CelestialOracle() {
                 className="bg-white/5 rounded-xl p-5 mb-4 border border-white/10"
               >
                 <p className="text-white/80 text-sm leading-relaxed italic">
-                  &ldquo;{result.wisdom_quote}&rdquo;
+                  &ldquo;{(result as any).wisdom_quote || (result as any).wisdom_quote_en}&rdquo;
                 </p>
                 <p className="text-gold/60 text-xs mt-3 text-right">
                   —— {result.author}

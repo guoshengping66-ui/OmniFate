@@ -58,6 +58,9 @@ export function middleware(request: NextRequest) {
     ].join("; "),
   )
 
+  // Prevent Cloudflare from caching HTML pages
+  intlResponse.headers.set("Cache-Control", "no-store, no-cache, must-revalidate")
+
   return intlResponse
 }
 

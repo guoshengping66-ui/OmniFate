@@ -16,9 +16,9 @@ import { z } from "zod"
 const DEFAULT_DIMENSION_SCORES: Record<string, number> = {
   wealth: 50,
   career: 50,
-  love: 50,
+  relationship: 50,
   health: 50,
-  knowledge: 50,
+  spiritual: 50,
 }
 
 const DIMENSION_KEYS = Object.keys(DEFAULT_DIMENSION_SCORES)

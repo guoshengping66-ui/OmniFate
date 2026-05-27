@@ -2,10 +2,14 @@
 agents/graph.py
 Custom orchestrator with speculative master execution.
 
-Pipeline:
-  init → workers(130s) ──┐
-           └── core子任务(启动于~55s, Bazi+Tarot完成时) ──┐
-                                dims/actions(启动于~130s) ──┤→ done(~165s)
+Pipeline (after optimization):
+  init → workers(5 parallel, ~30s) ──┐
+           └── core子任务(启动于~25s, Bazi完成时) ──┐
+                                dims/actions(启动于~80s) ──┤→ done(~95s)
+
+Optimizations applied:
+  - Merged qimen+ziwei → 1 LLM call (saves ~30s)
+  - Speculative master starts as soon as bazi completes
 """
 from __future__ import annotations
 import asyncio
@@ -25,6 +29,10 @@ from calculators.astrology_calculator import AstrologyCalculator
 # Singleton calculator instance
 _astro_calc = AstrologyCalculator(house_system="Equal")
 
+# Store AstrologyResult objects for synastry calculation (keyed by session_id)
+_astro_results: dict[str, dict] = {}  # session_id -> {"self": AstrologyResult, "partner": AstrologyResult}
+_bazi_results: dict[str, dict] = {}   # session_id -> {"self": BaziResult, "partner": BaziResult}
+
 
 # ─── Node functions ──────────────────────────────────────────────────────
 
@@ -43,6 +51,10 @@ async def node_init(state: SystemState) -> SystemState:
                 timeout=30,
             )
             state.astrology_raw = astro_dict
+            # Store AstrologyResult for synastry calculation
+            if _last_astro_result[0] is not None:
+                _astro_results.setdefault(state.session_id, {})["self"] = _last_astro_result[0]
+                _last_astro_result[0] = None
         except Exception as e:
             # Fallback to stub if real calculation fails or times out
             state.astrology_raw = _stub_astrology(bi)
@@ -94,18 +106,27 @@ def _calculate_astrology(bi: BirthInfo) -> dict:
     """
     Real astrology calculation via Skyfield (JPL DE421 ephemeris).
     Computes planetary positions, houses, ASC, MC, and aspects.
+    Returns dict (for state.astrology_raw) and stores AstrologyResult for synastry.
     """
     utc_offset = _estimate_utc_offset(bi.longitude, bi.latitude)
 
     lon_for_calc = bi.longitude if bi.longitude is not None else 120.0
     lat_for_calc = bi.latitude if bi.latitude is not None else 39.9
 
-    return _astro_calc.calculate(
+    result = _astro_calc.calculate(
         year=bi.year, month=bi.month, day=bi.day,
         hour=bi.hour, minute=bi.minute,
         latitude=lat_for_calc, longitude=lon_for_calc,
         utc_offset=utc_offset,
-    ).to_dict()
+    )
+    # Store the AstrologyResult object for later synastry calculation
+    # (will be stored in _astro_results by the caller)
+    _last_astro_result[0] = result
+    return result.to_dict()
+
+
+# Temporary storage for the last calculated AstrologyResult
+_last_astro_result: list = [None]
 
 
 def _stub_astrology(bi: BirthInfo) -> dict:
@@ -187,148 +208,125 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
     3. Creates desire for the full deep analysis
     4. Is complete (not cut off mid-sentence)
     """
+    import re as _re
+    is_en = state.language == "en"
+
+    def _extract_section(text: str, marker: str) -> str:
+        """Extract a complete section from text, stopping at the next section marker."""
+        start = text.find(marker)
+        if start == -1:
+            return ""
+        rest = text[start + len(marker):]
+        end_match = _re.search(r'【[A-Za-z一-鿿]+·', rest)
+        if end_match:
+            section = rest[:end_match.start()].strip()
+        else:
+            section = rest.strip()
+        return section
+
+    def _complete_sentence(text: str, max_len: int = 600) -> str:
+        """Truncate text at a complete sentence boundary, never mid-sentence."""
+        if len(text) <= max_len:
+            return text
+        best_pos = -1
+        seps = [".", "!", "?"] if is_en else ["。", "！", "？"]
+        for sep in seps:
+            pos = text.rfind(sep, 0, max_len)
+            if pos > best_pos:
+                best_pos = pos
+        if best_pos > max_len // 3:
+            return text[:best_pos + 1]
+        pos = text.rfind("\n\n", 0, max_len)
+        if pos > max_len // 3:
+            return text[:pos].strip()
+        ellipsis = "..." if is_en else "……"
+        return text[:max_len].rstrip() + ellipsis
+
     # Extract dimension scores for display
     scores = state.dimension_scores or {}
     score_display = ""
     if scores:
-        dim_cn = {"wealth": "财运", "relationship": "感情", "career": "事业",
-                  "health": "健康", "spiritual": "精神"}
+        dim_names = (
+            {"wealth": "Wealth", "relationship": "Love", "career": "Career",
+             "health": "Health", "spiritual": "Spirit"}
+            if is_en else
+            {"wealth": "财运", "relationship": "感情", "career": "事业",
+             "health": "健康", "spiritual": "精神"}
+        )
         score_parts = []
         for dim, val in scores.items():
-            cn = dim_cn.get(dim, dim)
-            # Color coding: <5 red, 5-7 yellow, >7 green
+            name = dim_names.get(dim, dim)
             if val < 5:
                 indicator = "⚠️"
             elif val > 7:
                 indicator = "✨"
             else:
                 indicator = "📊"
-            score_parts.append(f"{indicator} {cn}: {val}/10")
+            score_parts.append(f"{indicator} {name}: {val}/10")
         score_display = " | ".join(score_parts)
 
-    # Build the teaser summary
     lines = []
 
-    # 1. Direct answer to user's question (extracted from core_result)
-    lines.append("【命盘速览】")
-    lines.append(f"你的问题：{state.user_question}")
-    lines.append("")
+    # Build a single cohesive summary paragraph
+    personality = ""
+    for marker in ["【A·", "【命盘底色】"]:
+        section = _extract_section(core_result, marker)
+        if section and len(section) > 50:
+            personality = _complete_sentence(section, 400)
+            break
 
-    # 2. Core insight from the analysis
-    # Find the first section that answers the question
-    if "【G·" in core_result:
-        # Extract the section that directly answers the user question
-        start = core_result.find("【G·")
-        end = core_result.find("【", start + 10) if core_result.find("【", start + 10) > 0 else len(core_result)
-        answer_section = core_result[start:end].strip()
-        if len(answer_section) > 400:
-            # Find a complete sentence boundary
-            for sep in ["。", "！", "\n\n"]:
-                pos = answer_section.rfind(sep, 0, 400)
-                if pos > 200:
-                    answer_section = answer_section[:pos + 1]
-                    break
-        lines.append(answer_section)
-    elif "【A·" in core_result:
-        # Extract命盘底色 section
-        start = core_result.find("【A·")
-        end = core_result.find("【", start + 10) if core_result.find("【", start + 10) > 0 else len(core_result)
-        answer_section = core_result[start:end].strip()
-        if len(answer_section) > 400:
-            for sep in ["。", "！", "\n\n"]:
-                pos = answer_section.rfind(sep, 0, 400)
-                if pos > 200:
-                    answer_section = answer_section[:pos + 1]
-                    break
-        lines.append(answer_section)
-    else:
-        # Fallback: use first 400 chars of core_result
-        teaser = core_result[:400]
-        for sep in ["。", "！", "\n\n"]:
-            pos = teaser.rfind(sep, 0, 400)
-            if pos > 200:
-                teaser = teaser[:pos + 1]
-                break
-        lines.append(teaser)
+    answer = ""
+    for marker in ["【G·", "【H·"]:
+        section = _extract_section(core_result, marker)
+        if section and len(section) > 50:
+            answer = _complete_sentence(section, 400)
+            break
 
-    lines.append("")
+    resonance = ""
+    for marker in ["【B·", "【跨维度共鸣】"]:
+        section = _extract_section(core_result, marker)
+        if section and len(section) > 50:
+            resonance = _complete_sentence(section, 300)
+            break
 
-    # 3. Dimension scores overview
-    if score_display:
-        lines.append("【五维能量概览】")
-        lines.append(score_display)
+    if personality:
+        lines.append(personality)
+    if answer:
+        if lines:
+            lines.append("")
+        lines.append(answer)
+    if resonance:
+        if lines:
+            lines.append("")
+        lines.append(resonance)
+
+    if not lines:
+        lines.append(_complete_sentence(core_result, 800))
+
+    # Brief dimension scores (one line)
+    if score_display and state.intent != "RELATIONSHIP":
         lines.append("")
+        label = "Five-Dimension Energy" if is_en else "五维能量"
+        lines.append(f"📊 {label}：{score_display}")
 
-    # 4. Key findings teaser
-    lines.append("【核心发现】")
-    # Extract key_findings or key points from the report
-    findings = []
-    for line in core_result.split("\n"):
-        line = line.strip()
-        if line.startswith(("•", "·", "-", "1.", "2.", "3.")):
-            if len(line) > 10 and len(findings) < 3:
-                findings.append(line)
-    if findings:
-        for f in findings:
-            lines.append(f)
-    else:
-        lines.append("• 你的命盘呈现独特的能量格局，多维度分析揭示了关键的人生密码")
+    # Upgrade prompt
     lines.append("")
-
-    # 5. 各维度速览 — show key findings from each worker
-    worker_labels = {
-        "bazi": "☯ 周易八字", "astrology": "✦ 西方星盘", "tarot": "🃏 塔罗疗愈",
-        "qimen": "🎯 奇门遁甲", "ziwei": "⭐ 紫微斗数",
-        "face": "👁 AI面相", "palm": "🤚 手相解读",
-    }
-    has_worker_previews = False
-    for agent_id, label in worker_labels.items():
-        wo = getattr(state, f"{agent_id}_output", None)
-        if not wo or not wo.report:
-            continue
-        # Extract first 2 key_findings or first meaningful lines
-        preview_lines = []
-        for line in wo.report.split("\n"):
-            line = line.strip()
-            if line.startswith(("【关键发现】",)):
-                continue
-            if line.startswith(("- ", "• ", "· ")):
-                text = line.lstrip("-•· ").strip()
-                if len(text) > 10 and len(preview_lines) < 2:
-                    preview_lines.append(f"  {label}：{text}")
-            elif line.startswith("【") and "】" in line:
-                # Dimension header — extract the dimension analysis (first sentence)
-                dim_text = line.split("】", 1)[-1].strip()
-                if dim_text and len(dim_text) > 10:
-                    # Truncate to first sentence
-                    for sep in ["。", "！", "；"]:
-                        pos = dim_text.find(sep)
-                        if 0 < pos < 80:
-                            dim_text = dim_text[:pos + 1]
-                            break
-                    if len(dim_text) > 80:
-                        dim_text = dim_text[:80] + "…"
-                    preview_lines.append(f"  {label}：{dim_text}")
-            if len(preview_lines) >= 2:
-                break
-        if preview_lines:
-            if not has_worker_previews:
-                lines.append("【各维度速览】")
-                has_worker_previews = True
-            for pl in preview_lines:
-                lines.append(pl)
-    if has_worker_previews:
-        lines.append("")
-
-    # 6. Upgrade prompt - create desire for full analysis
-    lines.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    lines.append("🔓 解锁完整深度解析，你将获得：")
-    lines.append("• 五维详细诊断（财富/感情/事业/健康/精神）")
-    lines.append("• 跨维度矛盾解释与置信度评估")
-    lines.append("• 未来12个月关键转折点预测")
-    lines.append("• 针对你问题的专项深度分析")
-    lines.append("• 专属能量调和方案与助运物推荐")
-    lines.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    lines.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    if is_en:
+        lines.append("🔓 Unlock the full deep analysis and get:")
+        lines.append("• Detailed 5-dimension diagnosis (Wealth/Love/Career/Health/Spirit)")
+        lines.append("• Cross-dimension contradiction analysis with confidence ratings")
+        lines.append("• Key turning point predictions for the next 12 months")
+        lines.append("• In-depth analysis targeted to your specific question")
+        lines.append("• Personalized energy harmonization plan & product recommendations")
+    else:
+        lines.append("🔓 解锁完整深度解析，你将获得：")
+        lines.append("• 五维详细诊断（财富/感情/事业/健康/精神）")
+        lines.append("• 跨维度矛盾解释与置信度评估")
+        lines.append("• 未来12个月关键转折点预测")
+        lines.append("• 针对你问题的专项深度分析")
+        lines.append("• 专属能量调和方案与助运物推荐")
+    lines.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
     return "\n".join(lines)
 
@@ -339,48 +337,89 @@ async def run_full_analysis(state: SystemState) -> SystemState:
     """
     Custom orchestrator with speculative master execution.
 
-    Timeline:
+    Timeline (after optimization):
       0s   : init (astrology calc)
-      5s   : workers start (7 parallel)
-      ~55s : Bazi+Tarot complete → preprocessing + master_core starts
-      ~95s : master_core done
-      ~130s: all workers done → master_dims + master_actions start
-      ~165s: all done → assemble final report
+      5s   : workers start (5 parallel, merged qimen+ziwei)
+      ~25s : Bazi complete → preprocessing + master_core starts
+      ~60s : master_core done
+      ~80s : all workers done → master_dims + master_actions start
+      ~95s : all done → assemble final report
 
-    User-perceived latency via SSE: ~95s (when master_core first appears)
+    User-perceived latency via SSE: ~60s (when master_core first appears)
     """
     from agents.workers import (
-        run_astrology, run_tarot, run_bazi, run_qimen,
-        run_ziwei, run_face, run_palm, _WORKER_TIMEOUTS,
+        run_astrology, run_tarot, run_bazi,
+        run_qimen_ziwei, run_face, run_palm, _WORKER_TIMEOUTS,
     )
 
     # ── Phase 1: Init ──
     state.phase = "init"
     state = await node_init(state)
 
+    is_en = state.language == "en"
+
+    # ── Phase 1b: Partner calculations (RELATIONSHIP intent) ──
+    if state.intent == "RELATIONSHIP" and state.partner_birth_info:
+        state.progress_message = "Calculating partner's chart…" if is_en else "正在计算对方命盘…"
+        try:
+            import asyncio as _aio
+            pi = state.partner_birth_info
+            partner_astro = await _aio.wait_for(
+                _aio.get_event_loop().run_in_executor(None, _calculate_astrology, pi),
+                timeout=30,
+            )
+            state.partner_astrology_raw = partner_astro
+            # Store partner AstrologyResult for synastry calculation
+            if _last_astro_result[0] is not None:
+                _astro_results.setdefault(state.session_id, {})["partner"] = _last_astro_result[0]
+                _last_astro_result[0] = None
+        except Exception as e:
+            state.partner_astrology_raw = _stub_astrology(state.partner_birth_info)
+            state.errors.append(f"partner_astrology_fallback: {e}")
+
+        # Partner bazi calculation
+        try:
+            from calculators.bazi_calculator import BaziCalculator
+            pi = state.partner_birth_info
+            bazi_calc = BaziCalculator()
+            partner_bazi_result = bazi_calc.calculate(
+                year=pi.year, month=pi.month, day=pi.day,
+                hour=pi.hour, minute=pi.minute, gender=pi.gender,
+            )
+            state.partner_bazi_raw = partner_bazi_result.to_dict()
+            # Store BaziResult for compatibility calculation
+            _bazi_results.setdefault(state.session_id, {})["partner"] = partner_bazi_result
+        except Exception as e:
+            state.errors.append(f"partner_bazi_error: {e}")
+
     state.phase = "parallel"
     state.progress_pct = 5
-    state.progress_message = "正在调取命理数据…"
+    state.progress_message = "Loading destiny data…" if is_en else "正在调取命理数据…"
     for aid in _WORKER_IDS:
-        state.agent_status[aid] = "running"
+        if aid == "qimen_ziwei":
+            # Merged worker: set individual sub-worker statuses the frontend expects
+            state.agent_status["qimen"] = "running"
+            state.agent_status["ziwei"] = "running"
+        else:
+            state.agent_status[aid] = "running"
 
     # ── Launch all workers as background tasks ──
     worker_events = {aid: asyncio.Event() for aid in _WORKER_IDS}
     worker_outputs: dict[str, Any] = {}
     _completed_workers = 0
+    _total_workers = len(_WORKER_IDS)
 
-    _runners = [run_astrology, run_tarot, run_bazi, run_qimen, run_ziwei, run_face, run_palm]
+    # Runners: qimen_ziwei is a merged worker returning list[WorkerOutput]
+    _runners = [run_astrology, run_tarot, run_bazi, run_qimen_ziwei, run_face, run_palm]
 
     # Stagger face/palm worker start to avoid concurrent LLM API rate limits
-    # Reduced delays: DeepSeek API typically allows 20 RPM, 7 workers is fine
     _START_DELAYS = {
-        "face": 3,   # start face 3s after others (was 8s)
-        "palm": 6,   # start palm 6s after others (was 15s)
+        "face": 1,
+        "palm": 2,
     }
 
     async def _run_one(runner, agent_id: str, timeout: int):
         nonlocal _completed_workers
-        # Delay face/palm to avoid concurrent API calls
         delay = _START_DELAYS.get(agent_id, 0)
         if delay:
             await asyncio.sleep(delay)
@@ -388,18 +427,40 @@ async def run_full_analysis(state: SystemState) -> SystemState:
             result = await asyncio.wait_for(runner(state), timeout=timeout)
         except Exception as e:
             from agents.state import WorkerOutput
-            result = WorkerOutput(agent_id=agent_id, error=str(e))
-        worker_outputs[agent_id] = result
-        # Immediately assign to state so speculative master sees the data
-        attr = f"{agent_id}_output"
-        if hasattr(state, attr):
-            setattr(state, attr, result)
+            if agent_id == "qimen_ziwei":
+                # Merged worker error: create individual error outputs for each sub-worker
+                result = [
+                    WorkerOutput(agent_id="qimen", error=str(e)),
+                    WorkerOutput(agent_id="ziwei", error=str(e)),
+                ]
+            else:
+                result = WorkerOutput(agent_id=agent_id, error=str(e))
+
+        # Handle merged workers that return lists of WorkerOutput
+        if isinstance(result, list):
+            # Merged worker: extract individual outputs
+            from agents.state import WorkerOutput as WO
+            for r in result:
+                if isinstance(r, WO):
+                    worker_outputs[r.agent_id] = r
+                    setattr(state, f"{r.agent_id}_output", r)
+                    # Update agent status for each sub-worker
+                    state.agent_status[r.agent_id] = "error" if r.error else "done"
+                    _completed_workers += 1
+            # Remove stale merged-worker key so frontend completedCount is correct
+            state.agent_status.pop("qimen_ziwei", None)
+        else:
+            worker_outputs[agent_id] = result
+            attr = f"{agent_id}_output"
+            if hasattr(state, attr):
+                setattr(state, attr, result)
+            _completed_workers += 1
+            state.agent_status[agent_id] = "error" if result.error else "done"
+
+        # Mark the merged worker event too
         worker_events[agent_id].set()
-        # Update progress
-        _completed_workers += 1
-        state.agent_status[agent_id] = "error" if result.error else "done"
-        state.progress_pct = 5 + int(60 * _completed_workers / len(_WORKER_IDS))
-        state.progress_message = f"已完成 {_completed_workers}/{len(_WORKER_IDS)} 项分析…"
+        state.progress_pct = 5 + int(60 * _completed_workers / 7)  # 7 total sub-workers
+        state.progress_message = f"Completed {_completed_workers}/7 analyses…" if is_en else f"已完成 {_completed_workers}/7 项分析…"
         return result
 
     worker_tasks = [
@@ -420,26 +481,61 @@ async def run_full_analysis(state: SystemState) -> SystemState:
 
         state.phase = "master"
         state.progress_pct = 70
-        state.progress_message = "正在进行跨维度交叉验证…"
+        state.progress_message = "Cross-validating across dimensions…" if is_en else "正在进行跨维度交叉验证…"
         prep = run_master_preprocessing(state)
         result = await run_subtask_core(state, prep)
         state.progress_pct = 75
-        state.progress_message = "核心综合完成，生成维度分析…"
+        state.progress_message = "Core synthesis done, generating dimension analysis…" if is_en else "核心综合完成，生成维度分析…"
         return result
 
     core_task = asyncio.create_task(_speculative_core())
 
+    # ── Synastry computation: run IN PARALLEL with workers (RELATIONSHIP only) ──
+    async def _compute_synastry():
+        """Compute synastry data (astrology aspects + bazi compatibility) in background."""
+        if state.intent != "RELATIONSHIP":
+            return
+        session_results = _astro_results.get(state.session_id, {})
+        astro_self = session_results.get("self")
+        astro_partner = session_results.get("partner")
+
+        if astro_self and astro_partner:
+            try:
+                synastry = _astro_calc.calculate_synastry(astro_self, astro_partner)
+                state.synastry_aspects = synastry.get("aspects", [])
+                composite = _astro_calc.calculate_composite(astro_self, astro_partner)
+                state.composite_chart = composite
+                print(f"[SYNASTRY] {len(state.synastry_aspects)} cross-aspects computed")
+                print(f"[COMPOSITE] ASC={composite.get('ascendant', {}).get('sign_cn', '?')}")
+            except Exception as e:
+                state.errors.append(f"synastry_error: {e}")
+                print(f"[SYNASTRY] Error: {e}")
+
+        if state.bazi_raw and state.partner_bazi_raw:
+            try:
+                from calculators.bazi_calculator import BaziCalculator
+                bazi_compat = BaziCalculator.calculate_compatibility(
+                    state.bazi_raw, state.partner_bazi_raw,
+                )
+                state.bazi_compatibility = bazi_compat
+                print(f"[BAZI_COMPAT] Score: {bazi_compat.get('score', 0)}/100")
+            except Exception as e:
+                state.errors.append(f"bazi_compat_error: {e}")
+                print(f"[BAZI_COMPAT] Error: {e}")
+
+        _astro_results.pop(state.session_id, None)
+
+    synastry_task = asyncio.create_task(_compute_synastry())
+
     # ── Wait for ALL workers to finish ──
     await asyncio.gather(*worker_tasks)
 
-    # Assign worker results to state
-    state.astrology_output = worker_outputs.get("astrology", state.astrology_output)
-    state.tarot_output     = worker_outputs.get("tarot", state.tarot_output)
-    state.bazi_output      = worker_outputs.get("bazi", state.bazi_output)
-    state.qimen_output     = worker_outputs.get("qimen", state.qimen_output)
-    state.ziwei_output     = worker_outputs.get("ziwei", state.ziwei_output)
-    state.face_output      = worker_outputs.get("face", state.face_output)
-    state.palm_output      = worker_outputs.get("palm", state.palm_output)
+    # ── Wait for synastry computation to finish (if RELATIONSHIP) ──
+    if state.intent == "RELATIONSHIP":
+        try:
+            await asyncio.wait_for(synastry_task, timeout=15)
+        except asyncio.TimeoutError:
+            pass
 
     # Merge tags
     all_tags: list[str] = []
@@ -456,24 +552,43 @@ async def run_full_analysis(state: SystemState) -> SystemState:
     state.phase = "master"
     state.progress_pct = 80
 
+    is_relationship = state.intent == "RELATIONSHIP"
+
     # Free users: skip dims + actions sub-tasks (saves 2 LLM calls)
     if state.is_premium:
-        state.progress_message = "AI 正在生成五维诊断与行动建议…"
+        state.progress_message = "AI generating 5-dimension diagnosis & action plan…" if is_en else "AI 正在生成五维诊断与行动建议…"
         prep = run_master_preprocessing(state)  # re-run with complete data
-        dims_result, actions_result = await asyncio.gather(
+        tasks = [
             run_subtask_dims(state, prep),
             run_subtask_actions(state, prep),
-        )
+        ]
+        if is_relationship:
+            from agents.master import run_subtask_synastry
+            tasks.append(run_subtask_synastry(state))
+
+        results = await asyncio.gather(*tasks)
+        dims_result = results[0]
+        actions_result = results[1]
+        synastry_result = results[2] if is_relationship else ""
+
         state.master_summary = core_result[:500]
-        state.master_detail = f"{core_result}\n\n{dims_result}\n\n{actions_result}"
+        parts = [core_result]
+        if synastry_result:
+            parts.append(synastry_result)
+        parts.append(dims_result)
+        parts.append(actions_result)
+        state.master_detail = "\n\n".join(parts)
     else:
-        state.progress_message = "核心综合完成，收尾中…"
+        state.progress_message = "Core synthesis done, finalizing…" if is_en else "核心综合完成，收尾中…"
         # Free version: complete teaser that answers user question and creates upgrade desire
         state.master_summary = _build_free_summary(core_result, state)
-        state.master_detail = ""  # Behind paywall anyway
+
+        # Free users don't need synastry subtask — it's behind paywall
+        # This avoids the extra LLM call that causes 80% hang
+        state.master_detail = ""
 
     state.progress_pct = 100
-    state.progress_message = "分析完成"
+    state.progress_message = "Analysis complete" if is_en else "分析完成"
     state.phase = "done"
     return state
 

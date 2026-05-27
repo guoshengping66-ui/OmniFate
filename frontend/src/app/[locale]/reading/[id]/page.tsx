@@ -112,8 +112,9 @@ function getStrongestDimension(scores: Record<string, number>): string {
   return Object.entries(scores).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "career"
 }
 
-function getStrongestLabel(scores: Record<string, number>): string {
-  return DIM_LABELS[getStrongestDimension(scores)] ?? "事业"
+function getStrongestLabel(scores: Record<string, number>, t: (key: string) => string): string {
+  const dim = getStrongestDimension(scores)
+  return I18N_DIM_KEYS[dim] ? t(I18N_DIM_KEYS[dim].label) : (DIM_LABELS[dim] ?? dim)
 }
 
 function getI18nDimLabel(key: string, t: (k: string) => string): string {
@@ -167,6 +168,7 @@ export default function ReadingPage() {
   // Scroll-driven progressive reveal
   const [heroVisible, setHeroVisible] = useState(false)
   const heroRef = useRef<HTMLDivElement>(null)
+  const navScrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!id) return
@@ -194,13 +196,29 @@ export default function ReadingPage() {
       // Analysis is pending — start stuck timer
       startStuckTimer()
 
-      // Connect to SSE stream for progressive updates
-      let sseConnected = false
+      // Start polling IMMEDIATELY as the primary fallback (works even if SSE fails)
+      let pollDone = false
+      const pollInterval = setInterval(async () => {
+        if (cancelled || pollDone) { clearInterval(pollInterval); return }
+        try {
+          const fresh = await getSession(id)
+          if (fresh.status === "done" || fresh.status === "chat") {
+            pollDone = true
+            clearInterval(pollInterval)
+            setData(fresh)
+            setIsUnlocked(fresh.is_detail_unlocked)
+            if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
+          } else {
+            // Update partial data from polling
+            setData(prev => prev ? { ...prev, ...fresh } : fresh)
+          }
+        } catch { /* ignore */ }
+      }, 3000)
+
+      // Also connect to SSE stream for real-time progress updates
       streamSession(id, (event: SSEEvent) => {
-        sseConnected = true
         if (cancelled) return
         if (event.type === "phase" && event.phase) {
-          // Phase changed — reset stuck timer (real progress)
           if (event.phase !== lastSsePhase.current) {
             lastSsePhase.current = event.phase
             startStuckTimer()
@@ -208,7 +226,6 @@ export default function ReadingPage() {
           setSsePhase(event.phase)
         }
         if (event.type === "progress" && event.pct !== undefined) {
-          // Progress increased — reset stuck timer (real progress)
           if (event.pct > lastProgressPct.current) {
             lastProgressPct.current = event.pct
             startStuckTimer()
@@ -218,45 +235,34 @@ export default function ReadingPage() {
         }
         if (event.type === "agent_status" && event.status) {
           setAgentStatus(event.status)
-          // Agent status change means backend is alive — reset stuck timer
           startStuckTimer()
         }
         if (event.type === "worker_done" && event.agent_id) {
           setCompletedWorkers(prev => new Set(prev).add(event.agent_id!))
-          startStuckTimer()  // Worker completed — analysis is progressing
+          startStuckTimer()
         }
         if (event.type === "subtask_done" && event.subtask) {
           setCompletedSubtasks(prev => new Set(prev).add(event.subtask!))
-          startStuckTimer()  // Subtask completed — analysis is progressing
+          startStuckTimer()
         }
         if (event.type === "complete") {
-          setData(prev => prev ? {
-            ...prev,
-            master_summary: event.master_summary || prev.master_summary,
-            master_detail: event.master_detail || prev.master_detail,
-            status: "done",
-          } : prev)
+          pollDone = true
+          clearInterval(pollInterval)
+          if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
+          // Re-fetch full data to get correct dimension_scores
+          getSession(id, locale).then(fresh => {
+            if (!cancelled) setData(fresh)
+          }).catch(() => {
+            setData(prev => prev ? {
+              ...prev,
+              master_summary: event.master_summary || prev.master_summary,
+              master_detail: event.master_detail || prev.master_detail,
+              status: "done",
+            } : prev)
+          })
         }
       }).catch(() => {
-        // SSE failed — fall back to polling
-      }).then(() => {
-        // If SSE didn't connect or failed, start polling as fallback
-        if (!sseConnected && !cancelled) {
-          const pollInterval = setInterval(async () => {
-            if (cancelled) { clearInterval(pollInterval); return }
-            try {
-              const fresh = await getSession(id)
-              if (fresh.status === "done" || fresh.status === "chat") {
-                setData(fresh)
-                setIsUnlocked(fresh.is_detail_unlocked)
-                clearInterval(pollInterval)
-              } else {
-                // Update partial data
-                setData(prev => prev ? { ...prev, ...fresh } : fresh)
-              }
-            } catch { /* ignore */ }
-          }, 3000)
-        }
+        // SSE failed — polling is already running as fallback
       })
     }).catch(() => {
       if (!cancelled) {
@@ -268,6 +274,7 @@ export default function ReadingPage() {
     return () => {
       cancelled = true
       if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
+      if (typeof pollInterval !== "undefined") clearInterval(pollInterval)
     }
   }, [id, locale])
 
@@ -303,11 +310,11 @@ export default function ReadingPage() {
         const { unlockReport } = await import("@/lib/api")
         await unlockReport(id)
         setIsUnlocked(true)
-        toast.success("星尘解锁成功！")
+        toast.success(t("reading.unlockedSuccess"))
         refreshUser()
       }
     } catch (err: any) {
-      toast.error(err?.response?.data?.detail || "星尘解锁失败")
+      toast.error(err?.response?.data?.detail || t("reading.unlockedFailed"))
     }
   }, [id, refreshUser])
 
@@ -541,8 +548,8 @@ export default function ReadingPage() {
                 {t("reading.subtitle")}
               </p>
 
-              {/* ── Dimension Score Mini-Cards ── */}
-              {data.dimension_scores && (
+              {/* ── Dimension Score Mini-Cards (hidden for RELATIONSHIP) ── */}
+              {data.dimension_scores && data.intent !== "RELATIONSHIP" && (
                 <div
                   className="grid grid-cols-5 gap-2 md:gap-3 mb-8"
                   style={{
@@ -584,8 +591,8 @@ export default function ReadingPage() {
                 </div>
               )}
 
-              {/* ── Energy Digital ID Card ── */}
-              {data.dimension_scores && (
+              {/* ── Energy Digital ID Card (hidden for RELATIONSHIP) ── */}
+              {data.dimension_scores && data.intent !== "RELATIONSHIP" && (
                 <div
                   style={{
                     transition: "all 0.8s ease-out 0.85s",
@@ -603,8 +610,8 @@ export default function ReadingPage() {
                 </div>
               )}
 
-              {/* ── Insight Blurb ── */}
-              <div
+              {/* ── Insight Blurb (hidden for RELATIONSHIP) ── */}
+              {data.intent !== "RELATIONSHIP" && (<div
                 className="flex items-start gap-3 p-4 rounded-2xl bg-gold/[0.04] border border-gold/10"
                 style={{
                   transition: "all 0.6s ease-out 0.9s",
@@ -621,7 +628,7 @@ export default function ReadingPage() {
                       : t("reading.insight.locked")}
                   </p>
                 </div>
-              </div>
+              </div>)}
 
               {/* CTA if not unlocked */}
               {!isUnlocked && (
@@ -681,27 +688,38 @@ export default function ReadingPage() {
           NAVIGATION — Side-oriented nav system
           ════════════════════════════════════════════════════════════ */}
       <div className="max-w-5xl mx-auto px-4 mb-8 sticky top-16 z-30">
-        <div className="bg-[#1a1430]/80 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-1.5 shadow-2xl shadow-black/40">
-          <div className="flex gap-1 overflow-x-auto scrollbar-none">
-            {I18N_NAV_ITEMS.map(item => (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-sm font-medium
-                            whitespace-nowrap transition-all duration-300 flex-shrink-0 group
-                  ${activeTab === item.id
-                    ? "bg-gold/15 text-gold shadow-[0_0_20px_rgba(201,168,76,0.15)]"
-                    : "text-white/40 hover:text-white/70 hover:bg-white/[0.04]"}`}
-              >
-                <span className="text-base transition-transform group-hover:scale-110 duration-200">
-                  {item.icon}
-                </span>
-                <span className="hidden sm:inline">{t(item.labelKey)}</span>
-                {activeTab === item.id && (
-                  <span className="hidden md:inline text-[10px] text-gold/50 ml-0.5">{t(item.descKey)}</span>
-                )}
-              </button>
-            ))}
+        <div className="bg-[#1a1430]/80 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-1.5 shadow-2xl shadow-black/40 relative">
+          {/* Scroll fade indicator on right edge */}
+          <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-[#1a1430]/90 to-transparent rounded-r-2xl pointer-events-none z-10 md:hidden" />
+          <div ref={navScrollRef} className="flex gap-0.5 sm:gap-1 overflow-x-auto scrollbar-none scroll-smooth">
+            {I18N_NAV_ITEMS.map(item => {
+              const isWorkerTab = WORKER_ORDER.includes(item.id as typeof WORKER_ORDER[number])
+              const isLocked = !isUnlocked && isWorkerTab
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  className={`flex items-center gap-1 px-2 py-2 sm:px-3.5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-medium
+                              whitespace-nowrap transition-all duration-300 flex-shrink-0 group
+                    ${activeTab === item.id
+                      ? "bg-gold/15 text-gold shadow-[0_0_20px_rgba(201,168,76,0.15)]"
+                      : isLocked
+                        ? "text-white/25 hover:text-white/50 hover:bg-white/[0.04]"
+                        : "text-white/40 hover:text-white/70 hover:bg-white/[0.04]"}`}
+                >
+                  <span className="text-sm sm:text-base transition-transform group-hover:scale-110 duration-200">
+                    {item.icon}
+                  </span>
+                  <span className="hidden sm:inline">{t(item.labelKey)}</span>
+                  {isLocked && (
+                    <Lock size={10} className="text-white/20 -ml-0.5" />
+                  )}
+                  {activeTab === item.id && (
+                    <span className="hidden lg:inline text-[10px] text-gold/50 ml-0.5">{t(item.descKey)}</span>
+                  )}
+                </button>
+              )
+            })}
           </div>
         </div>
       </div>
@@ -752,8 +770,8 @@ export default function ReadingPage() {
               )}
             </div>
 
-            {/* ── Radar Chart ── */}
-            {data.dimension_scores && (
+            {/* ── Radar Chart (hidden for RELATIONSHIP) ── */}
+            {data.dimension_scores && data.intent !== "RELATIONSHIP" && (
               <div className="flex justify-center">
                 <Suspense fallback={<div className="h-64" />}>
                   <DestinyRadar
@@ -850,26 +868,41 @@ export default function ReadingPage() {
                 {WORKER_ORDER.map(k => {
                   const w = workerMap[k]
                   const meta = AGENT_LABELS[k]
-                  if (!w.report) return null
+                  const hasReport = !!w.report
                   return (
                     <button
                       key={k}
                       onClick={() => setActiveTab(k)}
-                      className="card-glow p-4 text-left group cursor-pointer"
+                      className={`p-4 text-left group cursor-pointer transition-all duration-300 ${
+                        hasReport
+                          ? "card-glow hover:border-white/[0.15]"
+                          : "card-glass border-dashed border-white/[0.08] hover:border-white/[0.12]"
+                      }`}
                     >
                       <div className="flex items-center gap-2 mb-2">
                         <span className="text-xl">{meta.icon}</span>
                         <span className={`font-medium text-sm ${meta.color}`}>{t(AGENT_I18N[k] || `agent.${k}`)}</span>
-                        {w.tags.length > 0 && (
+                        {!isUnlocked && !hasReport && (
+                          <Lock size={11} className="text-white/20 ml-auto" />
+                        )}
+                        {hasReport && w.tags.length > 0 && (
                           <Tags size={11} className="text-white/20 ml-auto" />
                         )}
                       </div>
-                      <p className="text-white/40 text-xs leading-relaxed line-clamp-2">
-                        {stripMarkdown(w.report.slice(0, 100))}…
-                      </p>
-                      <p className="text-gold/40 text-[11px] mt-2 group-hover:text-gold/80 transition-colors">
-                        {t("reading.clickToView")} →
-                      </p>
+                      {hasReport ? (
+                        <>
+                          <p className="text-white/40 text-xs leading-relaxed line-clamp-2">
+                            {stripMarkdown(w.report.slice(0, 100))}…
+                          </p>
+                          <p className="text-gold/40 text-[11px] mt-2 group-hover:text-gold/80 transition-colors">
+                            {t("reading.clickToView")} →
+                          </p>
+                        </>
+                      ) : (
+                        <p className="text-white/25 text-xs leading-relaxed">
+                          {t("reading.worker.lockedPreview")}
+                        </p>
+                      )}
                     </button>
                   )
                 })}
@@ -923,6 +956,36 @@ export default function ReadingPage() {
                     </div>
                   </div>
                 )}
+              </div>
+            ) : !isUnlocked ? (
+              /* ── Locked worker: show upgrade prompt ── */
+              <div className="card-glass p-10 md:p-14 text-center">
+                <div className="w-20 h-20 rounded-full bg-gold/5 border border-gold/15 flex items-center justify-center mx-auto mb-6 relative">
+                  <span className="text-4xl">{AGENT_LABELS[k].icon}</span>
+                  <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-ink border border-white/10 flex items-center justify-center">
+                    <Lock size={12} className="text-white/40" />
+                  </div>
+                </div>
+                <h3 className="font-serif text-xl font-bold text-gold mb-2">
+                  {t(AGENT_I18N[k] || `agent.${k}`)}
+                </h3>
+                <p className="text-white/40 text-sm mb-2">
+                  {t("reading.worker.lockedTitle")}
+                </p>
+                <p className="text-white/25 text-xs mb-8 max-w-sm mx-auto leading-relaxed">
+                  {t("reading.worker.lockedDesc")}
+                </p>
+                <button
+                  onClick={() => setShowPayment(true)}
+                  className="btn-gold flex items-center gap-2 mx-auto text-sm px-8 py-3"
+                >
+                  <Crown size={16} />
+                  {t("reading.worker.unlockFull")}
+                  <span className="text-gold/60 ml-1">¥69</span>
+                </button>
+                <p className="text-white/20 text-[11px] mt-4">
+                  {t("reading.worker.orUseStardust")} · {user?.stardust_balance || 0} ✦
+                </p>
               </div>
             ) : (
               <div className="card-glass p-12 text-center">

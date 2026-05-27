@@ -12,7 +12,7 @@ import { useLanguage } from "@/contexts/LanguageContext"
 
 export function UserDashboard() {
   const { fetchBirthProfiles } = useUserStore()
-  const { t, locale } = useLanguage()
+  const { t, locale, localeHref } = useLanguage()
   const [recentReadings, setRecentReadings] = useState<ReadingListItem[]>([])
   const [loadingReadings, setLoadingReadings] = useState(true)
   const [eventDrawerOpen, setEventDrawerOpen] = useState(false)
@@ -20,7 +20,7 @@ export function UserDashboard() {
   useEffect(() => {
     fetchBirthProfiles()
     listMyReadings()
-      .then(r => setRecentReadings(r.slice(0, 5)))
+      .then(r => setRecentReadings(r.slice(0, 3)))
       .catch(() => {})
       .finally(() => setLoadingReadings(false))
   }, [])
@@ -39,7 +39,7 @@ export function UserDashboard() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-serif text-lg text-white/70">{t("dash.recent.title")}</h2>
           {recentReadings.length > 0 && (
-            <Link href="/readings" className="text-gold/60 hover:text-gold text-xs">{t("dash.recent.viewAll")}</Link>
+            <Link href={localeHref("/readings")} className="text-gold/60 hover:text-gold text-xs">{t("dash.recent.viewAll")}</Link>
           )}
         </div>
 

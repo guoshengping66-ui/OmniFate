@@ -282,8 +282,10 @@ async def register(req: RegisterRequest, request: Request, db: AsyncSession = De
 
     existing = await db.execute(select(User).where(User.email == req.email))
     if existing.scalar_one_or_none():
-        # Generic message to prevent email enumeration
-        return {"message": "如果该邮箱未注册，验证码已发送", "email": req.email}
+        raise HTTPException(
+            status_code=409,
+            detail="该邮箱已注册，请直接登录或使用忘记密码",
+        )
 
     # Create user (unverified)
     code = _generate_code()
@@ -318,7 +320,17 @@ async def register(req: RegisterRequest, request: Request, db: AsyncSession = De
         )
         db.add(bp)
 
-    await db.commit()
+    try:
+        await db.commit()
+    except Exception as e:
+        # Handle race condition: two concurrent registrations with same email
+        if "UNIQUE" in str(e) or "unique" in str(e).lower():
+            await db.rollback()
+            raise HTTPException(
+                status_code=409,
+                detail="该邮箱已注册，请直接登录或使用忘记密码",
+            )
+        raise
 
     # Send verification email
     from utils.email import send_verification_email

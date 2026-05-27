@@ -1,0 +1,17 @@
+├ ƒ /api/proxy/[...path]                   188 B         103 kB
+├ ○ /robots.txt                            188 B         103 kB
+└ ○ /sitemap.xml                           188 B         103 kB
++ First Load JS shared by all             103 kB
+  ├ chunks/1255-371dc95e3e4383e0.js      45.7 kB
+  ├ chunks/4bd1b696-100b9d70ed4e49c1.js  54.2 kB
+  └ other shared chunks (total)             3 kB
+
+
+ƒ Middleware                             46.8 kB
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+
+
+---STDERR---

@@ -14,6 +14,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { addReadingToHistory } from "@/lib/readingHistory"
 import { useWizardStore } from "@/stores/useWizardStore"
+import { useUserStore } from "@/stores/useUserStore"
 
 const TarotPicker = lazy(() => import("@/components/reading/TarotPicker").then(m => ({ default: m.TarotPicker })))
 const FaceScanAnimation = lazy(() => import("@/components/reading/FaceScanAnimation").then(m => ({ default: m.FaceScanAnimation })))
@@ -63,8 +64,9 @@ export default function NewReadingPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { user } = useAuth()
-  const { locale, t } = useLanguage()
+  const { locale, t, localeHref } = useLanguage()
   const isEn = locale === "en"
+  const { userProfile, fetchBirthProfiles } = useUserStore()
 
   // ── Wizard store: intent & prefill ──────────────────────────
   const { currentIntent, formData: wizardData, startStep: wizardStartStep, reset: resetWizard } = useWizardStore()
@@ -76,18 +78,32 @@ export default function NewReadingPage() {
       const INTENT_MAP: Record<string, string> = {
         quick: "GENERAL_DAILY",
         full: "FULL_MULTIMODAL",
-        friend: "FULL_MULTIMODAL",
+        relationship: "RELATIONSHIP",
       }
       const mapped = INTENT_MAP[intentParam]
       if (mapped) {
         resetWizard()
         useWizardStore.getState().setIntent(mapped as any)
-        if (user) {
-          useWizardStore.getState().prefillFromProfile(user as any)
-        }
+        // Pre-fill is handled by the userProfile effect below
       }
     }
   }, [searchParams]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Pre-fill from user's birth profile when available ──────
+  // userProfile may be null on first render (store loading).
+  // When it becomes available, pre-fill the wizard store.
+  useEffect(() => {
+    if (prefilledFromProfile.current) return
+    if (!currentIntent) return // Only pre-fill for intent flows
+    // Ensure profiles are fetched (handles direct navigation to wizard)
+    if (user && !userProfile) {
+      fetchBirthProfiles()
+      return
+    }
+    if (!userProfile) return
+    prefilledFromProfile.current = true
+    useWizardStore.getState().prefillFromProfile(userProfile)
+  }, [user, userProfile, currentIntent]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Validation schema (uses t() for messages) ──
   // birth_city is only required when birth info step is shown (FULL_MULTIMODAL / no intent)
@@ -104,6 +120,18 @@ export default function NewReadingPage() {
     latitude:     z.coerce.number().min(-90).max(90).optional().or(z.literal("")),
     longitude:    z.coerce.number().min(-180).max(180).optional().or(z.literal("")),
     user_question: z.string().min(2, t("new.questionMinChars")).max(200),
+    // Partner fields for RELATIONSHIP intent
+    partner_name: z.string().optional().default(""),
+    partner_gender: z.enum(["male", "female", "other"]).optional().default("female"),
+    partner_birth_year: z.coerce.number().min(1920).max(2026).optional().default(0),
+    partner_birth_month: z.coerce.number().min(1).max(12).optional().default(1),
+    partner_birth_day: z.coerce.number().min(1).max(31).optional().default(1),
+    partner_birth_hour: z.coerce.number().min(0).max(23).optional().default(0),
+    partner_birth_minute: z.coerce.number().min(0).max(59).optional().default(0),
+    partner_birth_city: z.string().optional().default(""),
+    partner_latitude: z.coerce.number().min(-90).max(90).optional().or(z.literal("")),
+    partner_longitude: z.coerce.number().min(-180).max(180).optional().or(z.literal("")),
+    relationship_type: z.string().optional().default(""),
   }), [t, currentIntent])
   type FormValues = z.infer<typeof schema>
 
@@ -134,6 +162,8 @@ export default function NewReadingPage() {
   const [showPalmGuide, setShowPalmGuide] = useState(false)
   const faceRef = useRef<HTMLInputElement>(null)
   const palmRef = useRef<HTMLInputElement>(null)
+  const prevIntentRef = useRef<string | null>(null)
+  const prefilledFromProfile = useRef(false)
 
   // Revoke blob URLs on unmount to prevent memory leak
   useEffect(() => {
@@ -147,7 +177,7 @@ export default function NewReadingPage() {
 
   const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { birth_minute: 0, gender: "female", user_question: t("new.defaultQuestion") },
+    defaultValues: { birth_minute: 0, gender: "female", birth_year: 1990, birth_month: 1, birth_day: 1, birth_hour: 12, user_question: t("new.defaultQuestion") },
   })
 
   const watchedQuestion = watch("user_question")
@@ -161,6 +191,9 @@ export default function NewReadingPage() {
     if (currentIntent === "GENERAL_DAILY") {
       return [t("new.step2"), t("new.step4")] // Tarot + confirm
     }
+    if (currentIntent === "RELATIONSHIP") {
+      return [t("new.step1"), t("new.stepPartner"), t("new.step2"), t("new.step4")] // Birth info + Partner + Tarot + confirm
+    }
     // FULL_MULTIMODAL or no intent — all 4 steps
     return [t("new.step1"), t("new.step2"), t("new.step3"), t("new.step4")]
   }, [currentIntent, t])
@@ -171,13 +204,7 @@ export default function NewReadingPage() {
     [t]
   )
 
-  /** Convert a logical step index (0..STEPS.length-1) to the DOM step index (0..3) */
-  const toDomStep = (logical: number) => {
-    const label = STEPS[logical]
-    return ALL_STEP_LABELS.indexOf(label)
-  }
-
-  // Prefill form from wizard store on mount
+  // Prefill form from wizard store — re-runs when wizardData changes (e.g. after prefillFromProfile)
   useEffect(() => {
     if (wizardData.birth_year > 0) {
       setValue("gender", wizardData.gender)
@@ -191,7 +218,10 @@ export default function NewReadingPage() {
     if (wizardData.user_question) {
       setValue("user_question", wizardData.user_question)
     }
-    // Skip to appropriate step — clamp to valid range for the current STEPS array
+  }, [wizardData.birth_year]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Skip to appropriate step on mount
+  useEffect(() => {
     if (wizardStartStep > 0) {
       const maxStep = STEPS.length - 1
       setStep(Math.min(wizardStartStep, maxStep))
@@ -204,7 +234,19 @@ export default function NewReadingPage() {
     if (wizardStartStep > 0) return // Wizard controls the step — don't override from localStorage
     const saved = loadSavedProgress()
     if (saved) {
-      setStep(saved.step)
+      // Handle backward compatibility: old saves used DOM step indices
+      // New format uses logical step indices directly
+      const label = ALL_STEP_LABELS[saved.step]
+      const logicalFromDom = label ? STEPS.indexOf(label) : -1
+      if (logicalFromDom >= 0) {
+        // Old DOM format: convert to logical index
+        setStep(logicalFromDom)
+      } else if (saved.step >= 0 && saved.step < STEPS.length) {
+        // Already a logical index
+        setStep(saved.step)
+      } else {
+        setStep(0) // Fallback to first step
+      }
       setTarotCards(saved.tarotCards || [])
       setPalmData(saved.palmData || {})
       // Restore form values
@@ -218,6 +260,22 @@ export default function NewReadingPage() {
       toast.success(t("new.restoredMsg"), { duration: 3000 })
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Sync step with intent changes ─────────────────────────
+  // On first render or when intent changes, ensure step maps to a valid logical step
+  useEffect(() => {
+    const isFirstRender = prevIntentRef.current === null
+    const intentChanged = prevIntentRef.current !== currentIntent
+    prevIntentRef.current = currentIntent
+
+    if (isFirstRender || intentChanged) {
+      // Don't override if wizard has set a startStep or saved progress was restored
+      if (wizardStartStep > 0) return
+      if (step > 0 && !isFirstRender) return
+      // Reset to first logical step for the new intent
+      if (step !== 0) setStep(0)
+    }
+  }, [currentIntent, wizardStartStep, step]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Auto-save progress ──────────────────────────────────────
   useEffect(() => {
@@ -237,7 +295,7 @@ export default function NewReadingPage() {
 
   const handleClearProgress = () => {
     clearSavedProgress()
-    setStep(toDomStep(0)) // Reset to first step of current intent (e.g. tarot for GENERAL_DAILY)
+    setStep(0) // Reset to first logical step (e.g. tarot for GENERAL_DAILY)
     setTarotCards([])
     setPalmData({})
     setValue("gender", "female")
@@ -359,6 +417,18 @@ export default function NewReadingPage() {
         palm_raw_text: finalPalmText,
         face_raw_text: finalFaceText,
         intent: currentIntent || undefined,
+        // Partner fields for RELATIONSHIP
+        partner_name: values.partner_name || "",
+        partner_gender: values.partner_gender || "female",
+        partner_birth_year: values.partner_birth_year || undefined,
+        partner_birth_month: values.partner_birth_month || undefined,
+        partner_birth_day: values.partner_birth_day || undefined,
+        partner_birth_hour: values.partner_birth_hour || undefined,
+        partner_birth_minute: values.partner_birth_minute || 0,
+        partner_birth_city: values.partner_birth_city || "",
+        partner_latitude: typeof values.partner_latitude === "number" ? values.partner_latitude : undefined,
+        partner_longitude: typeof values.partner_longitude === "number" ? values.partner_longitude : undefined,
+        relationship_type: values.relationship_type || "",
       }
 
       const result = await runAnalysisStream(payload, (event) => {
@@ -371,7 +441,7 @@ export default function NewReadingPage() {
 
       clearSavedProgress()
       toast.success(t("new.readingStarted"))
-      router.push(`/reading/${result.session_id}`)
+      router.push(localeHref(`/reading/${result.session_id}`))
     } catch (err: any) {
       console.error("[Reading submit] Full error:", err)
       let msg: string
@@ -429,11 +499,7 @@ export default function NewReadingPage() {
         <div
           className="h-full bg-gradient-to-r from-gold/60 via-gold to-gold-light transition-all duration-500 ease-out shadow-[0_0_12px_rgba(201,168,76,0.4)]"
           style={{
-            width: `${(
-              // Find logical step index from DOM step
-              (STEPS.findIndex(s => ALL_STEP_LABELS.indexOf(s) === step) + 1)
-              / STEPS.length
-            ) * 100}%`
+            width: `${((step + 1) / STEPS.length) * 100}%`
           }}
         />
       </div>
@@ -455,11 +521,9 @@ export default function NewReadingPage() {
           <p className="text-white/50 text-sm">{t("new.startSubtitle")}</p>
         </div>
 
-        {/* Step indicators — rendered by DOM index for correct visual state */}
+        {/* Step indicators — step is now a logical index */}
         <div className="flex items-center justify-between mb-10 px-1">
-          {ALL_STEP_LABELS.map((label, i) => {
-            const visible = STEPS.includes(label)
-            if (!visible) return null
+          {STEPS.map((label, i) => {
             return (
               <div key={label} className="flex flex-col items-center gap-1.5 flex-1">
                 <div className="flex items-center w-full">
@@ -480,7 +544,7 @@ export default function NewReadingPage() {
                     {i < step ? "✓" : i + 1}
                   </div>
                   <div className="flex-1 flex justify-start">
-                    {i < 3 && (
+                    {i < STEPS.length - 1 && (
                       <div className={`h-px flex-1 ml-2 transition-all duration-500
                         ${i < step ? "bg-gold/60" : "bg-white/10"}`} />
                     )}
@@ -496,7 +560,7 @@ export default function NewReadingPage() {
         </div>
 
         {/* Clear progress button — show when past the first logical step */}
-        {toDomStep(0) < step && (
+        {step > 0 && (
           <div className="flex justify-center mb-6">
             <button
               type="button"
@@ -508,12 +572,28 @@ export default function NewReadingPage() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={async (e) => {
+          e.preventDefault()
+          const vals = watch()
+          if (!vals.birth_year || vals.birth_year < 1920) {
+            toast.error(t("new.dateRequired"))
+            return
+          }
+          if (!vals.user_question || vals.user_question.trim().length < 2) {
+            toast.error(t("new.questionMinChars"))
+            return
+          }
+          if (!currentIntent && (!vals.birth_city || vals.birth_city.trim().length === 0)) {
+            toast.error(t("new.cityRequired"))
+            return
+          }
+          await onSubmit(vals as FormValues)
+        }}>
           {/* All steps rendered simultaneously — hidden ones stay in DOM so
               react-hook-form register() references survive step transitions */}
           <div className="relative">
             {/* ── Step 0: Birth Info ─────────────────────────── */}
-            <div className={step !== 0 ? 'hidden' : ''}>
+            <div className={STEPS[step] !== t("new.step1") ? 'hidden' : ''}>
               <FortuneGuide step={0} intent={currentIntent} />
               <div
               >
@@ -542,6 +622,9 @@ export default function NewReadingPage() {
                   onDayChange={v => setValue("birth_day", v)}
                 />
               </Suspense>
+              {(errors.birth_year || errors.birth_month || errors.birth_day) && (
+                <p className="text-red-400 text-xs mt-1">{t("new.dateRequired")}</p>
+              )}
 
               {/* Shichen selector replaces hour input */}
               <Suspense fallback={<div className="h-10 bg-white/5 rounded animate-pulse" />}>
@@ -550,6 +633,7 @@ export default function NewReadingPage() {
                   onChange={(h) => setValue("birth_hour", h)}
                 />
               </Suspense>
+              {errors.birth_hour && <p className="text-red-400 text-xs mt-1">{t("new.hourRequired")}</p>}
 
               <Suspense fallback={<div className="h-10 bg-white/5 rounded animate-pulse" />}>
                 <LocationSelector
@@ -582,8 +666,93 @@ export default function NewReadingPage() {
               </div>
             </div>
 
+          {/* ── Step 1b: Partner Info (RELATIONSHIP only) ────── */}
+          {currentIntent === "RELATIONSHIP" && (
+            <div className={STEPS[step] !== t("new.stepPartner") ? 'hidden' : ''}>
+              <div className="card-glass p-6 md:p-8 space-y-6">
+                <h2 className="font-serif text-xl text-gold">{t("new.partnerTitle")}</h2>
+                <p className="text-white/40 text-sm">{t("new.partnerDesc")}</p>
+
+                {/* Relationship type */}
+                <div>
+                  <label className="label">{t("new.relationshipType")}</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      ["lover", t("new.relLover")],
+                      ["friend", t("new.relFriend")],
+                      ["colleague", t("new.relColleague")],
+                      ["family", t("new.relFamily")],
+                    ].map(([v, l]) => (
+                      <label key={v} className="cursor-pointer">
+                        <input type="radio" value={v} {...register("relationship_type")} className="sr-only peer" />
+                        <div className="text-center py-2.5 rounded-xl border border-white/20 text-white/60 peer-checked:border-gold peer-checked:text-gold peer-checked:bg-gold/10 hover:border-white/40 transition-all text-sm">{l}</div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Partner name */}
+                <div>
+                  <label className="label">{t("new.partnerName")}</label>
+                  <input {...register("partner_name")} placeholder={t("new.partnerNamePlaceholder")} className="input-field" />
+                </div>
+
+                {/* Partner gender */}
+                <div>
+                  <label className="label">{t("new.partnerGender")}</label>
+                  <div className="flex gap-3">
+                    {([["female", t("new.genderFemale")], ["male", t("new.genderMale")], ["other", t("new.genderOther")]] as [string,string][]).map(([v,l]) => (
+                      <label key={v} className="flex-1 cursor-pointer">
+                        <input type="radio" value={v} {...register("partner_gender")} className="sr-only peer" />
+                        <div className="text-center py-2.5 rounded-xl border border-white/20 text-white/60 peer-checked:border-gold peer-checked:text-gold peer-checked:bg-gold/10 hover:border-white/40 transition-all text-sm">{l}</div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Partner birth date */}
+                <div>
+                  <label className="label">{t("new.partnerBirthDate")}</label>
+                  <Suspense fallback={<div className="h-10 bg-white/5 rounded animate-pulse" />}>
+                    <DateSelector
+                      year={watch("partner_birth_year") || 0}
+                      month={watch("partner_birth_month") || 0}
+                      day={watch("partner_birth_day") || 0}
+                      onYearChange={v => setValue("partner_birth_year", v)}
+                      onMonthChange={v => setValue("partner_birth_month", v)}
+                      onDayChange={v => setValue("partner_birth_day", v)}
+                    />
+                  </Suspense>
+                </div>
+
+                {/* Partner birth hour */}
+                <div>
+                  <label className="label">{t("new.partnerBirthHour")}</label>
+                  <Suspense fallback={<div className="h-10 bg-white/5 rounded animate-pulse" />}>
+                    <ShichenSelector
+                      value={watch("partner_birth_hour") ?? 0}
+                      onChange={(h) => setValue("partner_birth_hour", h)}
+                    />
+                  </Suspense>
+                </div>
+
+                {/* Partner birth city */}
+                <div>
+                  <label className="label">{t("new.partnerBirthCity")}</label>
+                  <Suspense fallback={<div className="h-10 bg-white/5 rounded animate-pulse" />}>
+                    <LocationSelector
+                      value={watch("partner_birth_city") || ""}
+                      onChange={(v) => setValue("partner_birth_city", v)}
+                      placeholder={t("new.partnerCityPlaceholder")}
+                    />
+                  </Suspense>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* ── Step 1: Tarot & Question ─────────────────────── */}
-          <div className={step !== 1 ? 'hidden' : ''}>
+          <div className={STEPS[step] !== t("new.step2") ? 'hidden' : ''}>
             <FortuneGuide step={1} intent={currentIntent} />
             <div
             >
@@ -595,6 +764,7 @@ export default function NewReadingPage() {
                 <HotQuestions
                   value={watchedQuestion}
                   onChange={(q) => setValue("user_question", q)}
+                  intent={currentIntent}
                 />
               </Suspense>
 
@@ -619,7 +789,7 @@ export default function NewReadingPage() {
             </div>
 
           {/* ── Step 2: Face & Palm ──────────────────────────── */}
-          <div className={step !== 2 ? 'hidden' : ''}>
+          <div className={STEPS[step] !== t("new.step3") ? 'hidden' : ''}>
             <FortuneGuide step={2} intent={currentIntent} />
             <div
             >
@@ -753,8 +923,7 @@ export default function NewReadingPage() {
                 <button
                   type="button"
                   onClick={() => {
-                    const logical = STEPS.findIndex(s => ALL_STEP_LABELS.indexOf(s) === step) + 1
-                    if (logical < STEPS.length) setStep(toDomStep(logical))
+                    if (step < STEPS.length - 1) setStep(step + 1)
                   }}
                   className="text-white/30 text-xs hover:text-white/50 transition-colors underline underline-offset-2"
                 >
@@ -766,7 +935,7 @@ export default function NewReadingPage() {
             </div>
 
           {/* ── Step 3: Confirm ─────────────────────────────── */}
-          <div className={step !== 3 ? 'hidden' : ''}>
+          <div className={STEPS[step] !== t("new.step4") ? 'hidden' : ''}>
             <FortuneGuide step={3} intent={currentIntent} />
             <div
             >
@@ -843,23 +1012,15 @@ export default function NewReadingPage() {
             </div>
           </div>
           <div className="flex justify-between mt-8">
-            {toDomStep(0) < step ? (
-              <button type="button" onClick={() => {
-                // Go to previous logical step
-                const logical = STEPS.findIndex(s => ALL_STEP_LABELS.indexOf(s) === step) - 1
-                if (logical >= 0) setStep(toDomStep(logical))
-              }}
+            {step > 0 && (
+              <button type="button" onClick={() => setStep(step - 1)}
  className="flex items-center gap-2 px-6 py-2.5 rounded-full border border-white/20 text-white/60 hover:border-white/40 transition-all">
                 <ChevronLeft size={16} /> {t("new.prevStep")}
               </button>
-            ) : <div />}
+            )}
 
-            {step < toDomStep(STEPS.length - 1) && (
-              <button type="button" onClick={() => {
-                // Go to next logical step
-                const logical = STEPS.findIndex(s => ALL_STEP_LABELS.indexOf(s) === step) + 1
-                if (logical < STEPS.length) setStep(toDomStep(logical))
-              }}
+            {step < STEPS.length - 1 && (
+              <button type="button" onClick={() => setStep(step + 1)}
                 className="btn-gold flex items-center gap-2">
                 {t("new.nextStep")} <ChevronRight size={16} />
               </button>

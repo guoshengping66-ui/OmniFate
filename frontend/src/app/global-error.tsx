@@ -24,7 +24,7 @@ export default function GlobalError({
 
   const lang = useMemo(() => {
     try {
-      const stored = localStorage.getItem("destiny-lang")
+      const stored = localStorage.getItem("destiny_mirror_lang")
       if (stored === "en" || stored === "zh") return stored
     } catch {}
     return navigator.language.startsWith("zh") ? "zh" : "en"
