@@ -191,7 +191,7 @@ export default function ReadingPage() {
       setLoading(false)
 
       // If already done, no need for SSE
-      if (d.status === "done" || d.status === "chat") return
+      if (d.status === "done" || d.status === "completed" || d.status === "chat") return
 
       // Analysis is pending — start stuck timer
       startStuckTimer()
@@ -202,7 +202,7 @@ export default function ReadingPage() {
         if (cancelled || pollDone) { clearInterval(pollInterval); return }
         try {
           const fresh = await getSession(id)
-          if (fresh.status === "done" || fresh.status === "chat") {
+          if (fresh.status === "done" || fresh.status === "completed" || fresh.status === "chat") {
             pollDone = true
             clearInterval(pollInterval)
             setData(fresh)
@@ -257,7 +257,7 @@ export default function ReadingPage() {
               ...prev,
               master_summary: event.master_summary || prev.master_summary,
               master_detail: event.master_detail || prev.master_detail,
-              status: "done",
+              status: "completed",
             } : prev)
           })
         }
@@ -345,7 +345,7 @@ export default function ReadingPage() {
     )
   }
 
-  if (data.status !== "done" && data.status !== "chat") {
+  if (data.status !== "done" && data.status !== "completed" && data.status !== "chat") {
     return (
       <div className="min-h-screen flex items-center justify-center px-4">
         {isStuck ? (

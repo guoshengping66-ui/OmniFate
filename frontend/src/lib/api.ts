@@ -262,7 +262,7 @@ export async function runAnalysis(data: AnalysisRequest): Promise<AnalysisRespon
   while (Date.now() < deadline) {
     await new Promise(r => setTimeout(r, 3000))
     const poll = await api.get<AnalysisResponse>(`/api/readings/session/${sessionId}`, { timeout: 60_000 })
-    if (poll.data.status === "done" || poll.data.status === "chat") {
+    if (poll.data.status === "done" || poll.data.status === "completed" || poll.data.status === "chat") {
       return poll.data
     }
     if (poll.data.errors && poll.data.errors.length > 0 && poll.data.master_summary) {
