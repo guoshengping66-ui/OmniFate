@@ -26,7 +26,10 @@ export function PricingCard({
 
   const resolveFeatures = (): string[] => {
     const result: string[] = []
-    for (let i = 0; i < 10; i++) {
+    // Only iterate up to the number of features defined in tiers.ts
+    // to avoid MISSING_MESSAGE warnings for non-existent keys
+    const maxFeats = tier.features.length
+    for (let i = 0; i < maxFeats; i++) {
       const key = `tier.${tier.id}.feat${i}`
       const val = t(key)
       if (val !== key) result.push(val)
