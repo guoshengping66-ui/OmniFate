@@ -22,7 +22,7 @@ export default function ProductDetailPage() {
   const router = useRouter()
   const { user } = useAuth()
   const { addItem } = useCart()
-  const { t, locale } = useLanguage()
+  const { t, locale, localeHref } = useLanguage()
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
   const [added, setAdded] = useState(false)
@@ -198,7 +198,7 @@ export default function ProductDetailPage() {
             <h2 className="font-serif text-lg text-gold mb-4">{t("shop.detail.relatedReadings")}</h2>
             <div className="space-y-3">
               {relatedReadings.map(r => (
-                <Link key={r.id} href={`/reading/${r.id}`}
+                <Link key={r.id} href={localeHref(`/reading/${r.id}`)}
                   className="block card-glass p-4 hover:border-gold/30 transition-all group">
                   <div className="flex items-center justify-between">
                     <div>

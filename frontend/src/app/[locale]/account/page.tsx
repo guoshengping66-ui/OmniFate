@@ -173,7 +173,7 @@ export default function AccountPage() {
                       </Link>
                     </div>
                     {readings.slice(0, 3).map(r => (
-                      <Link key={r.id} href={`/reading/${r.id}`}
+                      <Link key={r.id} href={localeHref(`/reading/${r.id}`)}
                         className="flex items-center gap-3 py-2 hover:bg-white/[0.03] rounded-lg px-2 -mx-2 transition-colors">
                         <span className="text-lg">🔮</span>
                         <div className="flex-1 min-w-0">
@@ -238,7 +238,7 @@ export default function AccountPage() {
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="font-serif text-lg text-gold">{t("account.myReports")}</h2>
-                  <Link href="/reading/new" className="btn-gold text-xs py-1.5 px-4">{t("account.newReading")}</Link>
+                  <Link href={localeHref("/reading/new")} className="btn-gold text-xs py-1.5 px-4">{t("account.newReading")}</Link>
                 </div>
 
                 {/* Logged-in readings */}
@@ -272,7 +272,7 @@ export default function AccountPage() {
                             >
                               ✕
                             </button>
-                            <Link href={`/reading/${r.id}`} className="flex-shrink-0">
+                            <Link href={localeHref(`/reading/${r.id}`)} className="flex-shrink-0">
                               <ChevronRight size={14} className="text-white/20 group-hover:text-gold" />
                             </Link>
                           </div>
@@ -323,7 +323,7 @@ export default function AccountPage() {
                             >
                               ✕
                             </button>
-                            <Link href={`/reading/${r.sessionId}`} className="flex-shrink-0">
+                            <Link href={localeHref(`/reading/${r.sessionId}`)} className="flex-shrink-0">
                               <ChevronRight size={14} className="text-white/20 group-hover:text-gold" />
                             </Link>
                           </div>
