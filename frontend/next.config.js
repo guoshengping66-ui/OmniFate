@@ -91,7 +91,7 @@ const nextConfig = {
       },
       {
         // Cache public assets
-        source: "/(favicon\\.svg|manifest\\.json|robots\\.txt)",
+        source: "/(favicon\\.svg|manifest\\.json|robots\\.txt|logo\\.png|logo-.*\\.png)",
         headers: [
           { key: "Cache-Control", value: "public, max-age=86400" },
         ],
