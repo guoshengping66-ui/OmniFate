@@ -648,6 +648,7 @@
     "hotRelQ6Full": "What are the key milestones and important phases in our relationship?",
     "hotQuestionsHint": "Or type your own question below",
     "hotQuestionsLabel": "Quick picks (tap to auto-fill)",
+    "hotQuestionsLabelRel": "Relationship quick picks (tap to auto-fill)",
     "inputError": "Something's off with your input — double check your info",
     "jawline": "Jawline",
     "latHint": "Positive for north, negative for south",
@@ -1001,7 +1002,20 @@
       "detail": "Each spread is unique to your moment — real-time cards offering healing guidance just for you.",
       "tag": "Earth",
       "_label": "Tarot Reading"
-    }
+    },
+    "qimen": {
+      "desc": "Spatiotemporal Energy · Auspicious Directions · Decision Timing",
+      "detail": "Based on the Qimen Dunjia spatiotemporal model, AI precisely locates favorable directions and action timing.",
+      "tag": "Fire",
+      "_label": "Qi Men Dun Jia"
+    },
+    "ziwei": {
+      "desc": "Star Distribution · Palace Analysis · Life Pattern",
+      "detail": "Purple Star Astrology — 14 main stars palace analysis revealing life trajectory and fortune trends.",
+      "tag": "Water",
+      "_label": "Purple Star Astrology"
+    },
+    "master": "AI Cross-Dimensional Verification"
   },
   "analysis": {
     "astrology": {

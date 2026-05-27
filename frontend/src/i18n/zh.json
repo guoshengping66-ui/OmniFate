@@ -648,6 +648,7 @@
     "hotRelQ6Full": "这段关系未来的关键时间节点和需要注意的阶段",
     "hotQuestionsHint": "或在下方面向框中输入你关心的问题",
     "hotQuestionsLabel": "热门问题快速选择（点击后自动填入）",
+    "hotQuestionsLabelRel": "感情分析热门问题（点击后自动填入）",
     "inputError": "输入数据有误，请检查填写信息",
     "jawline": "地阁",
     "latHint": "北纬为正，南纬为负",
@@ -1001,7 +1002,20 @@
       "detail": "每次解读独一无二，AI 实时生成牌阵与疗愈指引。",
       "tag": "土",
       "_label": "塔罗占卜"
-    }
+    },
+    "qimen": {
+      "desc": "时空能量场·吉凶方位·决策时机",
+      "detail": "基于奇门遁甲时空模型，AI 精准定位有利方位与行动时机。",
+      "tag": "火",
+      "_label": "奇门遁甲"
+    },
+    "ziwei": {
+      "desc": "星曜分布·宫位解析·人生格局",
+      "detail": "紫微斗数十四主星入宫分析，揭示人生轨迹与运势走向。",
+      "tag": "水",
+      "_label": "紫微斗数"
+    },
+    "master": "AI 综合交叉验证"
   },
   "analysis": {
     "astrology": {
