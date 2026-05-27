@@ -61,8 +61,7 @@ export default async function LocaleLayout({
       <head>
         <link rel="preconnect" href="https://fonts.font.im" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://api.khanfate.com" />
-        {/* Prefetch common navigation routes — only for static pages to avoid 503 from Cloudflare */}
-        <link rel="prefetch" href={`/${validLocale}/pricing`} as="document" />
+        {/* No prefetch links — Cloudflare returns 503 for some pages, causing console errors */}
         {/* Async font loading: non-blocking, swap to system font until loaded */}
         <link
           rel="stylesheet"
