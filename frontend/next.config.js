@@ -25,7 +25,10 @@ const securityHeaders = [
       // 'unsafe-inline' is REQUIRED for Next.js React Server Components (RSC).
       // RSC pushes hydration data via inline <script> tags — without 'unsafe-inline'
       // the browser blocks all inline scripts, causing a blank page on every device.
-      `script-src 'self' 'unsafe-inline'${isProd ? "" : " 'unsafe-eval'"}`,
+      // 'unsafe-inline' is REQUIRED for Next.js RSC hydration scripts
+      isProd
+        ? "script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com"
+        : "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
       "style-src 'self' 'unsafe-inline' https://fonts.font.im https://fonts.gstatic.com",
       "img-src 'self' data: blob: https:",
       "font-src 'self' data: https://fonts.font.im https://fonts.gstatic.com https://fonts.gstatic.font.im",
