@@ -1,7 +1,7 @@
 "use client"
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useParams } from "next/navigation"
 import {
   Loader2, ScrollText, Sparkles, Lock, Unlock, Clock,
   ArrowRight, Plus, AlertCircle, Star, Trash2,
@@ -31,6 +31,8 @@ function stripMarkdown(text: string): string {
 
 export default function ReadingsPage() {
   const router = useRouter()
+  const params = useParams()
+  const locale = (params?.locale as string) || "en"
   const { user, loading: authLoading } = useAuth()
   const { t } = useLanguage()
   const [readings, setReadings] = useState<ReadingListItem[]>([])
@@ -105,7 +107,7 @@ export default function ReadingsPage() {
             <p className="text-white/40 text-sm">{t("readings.subtitle")}</p>
           </div>
           <Link
-            href="/reading/new"
+            href={`/${locale}/reading/new`}
             className="btn-gold flex items-center gap-2 text-sm py-2.5 px-5"
           >
             <Plus size={16} /> {t("readings.newReading")}
@@ -117,7 +119,7 @@ export default function ReadingsPage() {
             <ScrollText size={48} className="mx-auto mb-4 text-white/10" />
             <p className="text-white/40 text-sm mb-2">{t("readings.empty")}</p>
             <p className="text-white/20 text-xs mb-6">{t("readings.startFirst")}</p>
-            <Link href="/reading/new" className="btn-gold inline-flex items-center gap-2 text-sm">
+            <Link href={`/${locale}/reading/new`} className="btn-gold inline-flex items-center gap-2 text-sm">
               {t("readings.startReading")} <ArrowRight size={14} />
             </Link>
           </div>
@@ -128,7 +130,7 @@ export default function ReadingsPage() {
               return (
                 <Link
                   key={r.id}
-                  href={`/reading/${r.id}`}
+                  href={`/${locale}/reading/${r.id}`}
                   className="block card-glow p-5 hover:border-gold/30 transition-all duration-300 group"
                 >
                   <div className="flex items-start gap-4">
