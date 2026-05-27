@@ -165,6 +165,42 @@ def _llm(temperature: float = 0.35, model: str | None = None):
     return _llm_cache[cache_key]
 
 
+# Common Chinese命理 terms → English mapping for post-processing cleanup
+_ZH_EN_MAP = {
+    "日主": "Day Master", "月令": "Month Command", "用神": "Favorable God",
+    "忌神": "Unfavorable God", "喜神": "Joy God", "闲神": "Idle God",
+    "正官": "Officer", "七杀": "Seven Killings", "正印": "Seal",
+    "偏印": "Indirect Seal", "食神": "Eating God", "伤官": "Hurting Officer",
+    "正财": "Direct Wealth", "偏财": "Indirect Wealth", "比肩": "Shoulder",
+    "劫财": "Rob Wealth", "天干": "Heavenly Stem", "地支": "Earthly Branch",
+    "命宫": "Life Palace", "财帛宫": "Wealth Palace", "官禄宫": "Career Palace",
+    "疾厄宫": "Health Palace", "迁移宫": "Travel Palace", "田宅宫": "Property Palace",
+    "夫妻宫": "Spouse Palace", "子女宫": "Children Palace", "兄弟宫": "Siblings Palace",
+    "父母宫": "Parents Palace", "交友宫": "Friends Palace",
+    "金": "Metal", "木": "Wood", "水": "Water", "火": "Fire", "土": "Earth",
+    "身旺": "strong Day Master", "身弱": "weak Day Master",
+    "调候": "climate adjustment", "通关": "bridging element",
+    "桃花": "Peach Blossom", "驿马": "Travel Star", "华盖": "Scholar Star",
+    "天乙贵人": "Noble Helper", "文昌贵人": "Literary Star",
+    "羊刃": "Blade Star", "空亡": "Void Emptiness",
+    "大运": "Major Luck", "流年": "Annual Luck", "流月": "Monthly Luck",
+}
+
+
+def _clean_english(text: str) -> str:
+    """Replace common Chinese命理 terms with English equivalents in English output."""
+    if not text:
+        return text
+    for zh, en in _ZH_EN_MAP.items():
+        text = text.replace(zh, en)
+    # Remove any remaining CJK characters (Chinese/Japanese/Korean)
+    # But keep punctuation and numbers
+    text = re.sub(r'[一-鿿㐀-䶿]+', '', text)
+    # Clean up double spaces left by removal
+    text = re.sub(r'  +', ' ', text)
+    return text.strip()
+
+
 async def _call(system: str, user: str, append_json_format: bool = True, model: str | None = None, language: str = "zh", is_premium: bool = False) -> str:
     """Single async LLM call. append_json_format adds JSON output instruction."""
     from langchain_core.messages import SystemMessage, HumanMessage
@@ -173,10 +209,18 @@ async def _call(system: str, user: str, append_json_format: bool = True, model: 
     # Add explicit language instruction to prevent mixing
     if language == "en":
         lang_instruction = (
-            "\n\n== LANGUAGE REQUIREMENT ==\n"
-            "CRITICAL: Output the ENTIRE analysis in English. "
-            "ALL text values, descriptions, and explanations MUST be in English. "
-            "Do NOT mix Chinese and English. Keep technical terms (like element names) in English only."
+            "\n\n== STRICT LANGUAGE REQUIREMENT ==\n"
+            "CRITICAL: Output the ENTIRE analysis in English. ZERO Chinese characters allowed.\n"
+            "Translate ALL Chinese命理 terms to English equivalents:\n"
+            "  日主→Day Master, 月令→Month Command, 用神→Favorable God, 忌神→Unfavorable God\n"
+            "  正官→Officer, 七杀→Seven Killings, 正印→Seal, 偏印→Indirect Seal\n"
+            "  食神→Eating God, 伤官→Hurting Officer, 正财→Direct Wealth, 偏财→Indirect Wealth\n"
+            "  比肩→Shoulder, 劫财→Rob Wealth, 天干→Heavenly Stem, 地支→Earthly Branch\n"
+            "  五行→Five Elements, 金→Metal, 木→Wood, 水→Water, 火→Fire, 土→Earth\n"
+            "  子→Zi(Rat), 丑→Chou(Ox), 寅→Yin(Tiger), 卯→Mao(Rabbit), 辰→Chen(Dragon)\n"
+            "  巳→Si(Snake), 午→Wu(Horse), 未→Wei(Goat), 申→Shen(Monkey), 酉→You(Rooster)\n"
+            "  戌→Xu(Dog), 亥→Hai(Pig)\n"
+            "Do NOT output any Chinese characters. If unsure, use pinyin transliteration."
         )
     else:
         lang_instruction = (
@@ -193,7 +237,11 @@ async def _call(system: str, user: str, append_json_format: bool = True, model: 
     except asyncio.TimeoutError:
         print(f"[_call] Worker LLM timed out after 90s")
         return ""
-    return resp.content
+    result = resp.content
+    # Post-process: clean residual Chinese in English output
+    if language == "en":
+        result = _clean_english(result)
+    return result
 
 
 def _parse_worker_report(text: str) -> dict:
@@ -941,6 +989,9 @@ async def run_qimen_ziwei(state: SystemState) -> list[WorkerOutput]:
             print("[qimen_ziwei] LLM timed out after 90s")
             report = type('obj', (object,), {'content': '{"error":"timeout"}'})()
         full_text = report.content
+        # Post-process: clean residual Chinese in English output
+        if state.language == "en":
+            full_text = _clean_english(full_text)
 
         # Split the combined response into qimen and ziwei parts
         separator = "===QIMEN_END==="

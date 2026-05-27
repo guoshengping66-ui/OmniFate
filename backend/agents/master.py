@@ -93,10 +93,18 @@ async def _call(system: str, user: str, model: str | None = None, language: str 
     # Add explicit language instruction to prevent mixing
     if language == "en":
         lang_hint = (
-            "\n\n== LANGUAGE REQUIREMENT ==\n"
-            "CRITICAL: Output the ENTIRE analysis in English. "
-            "ALL text values, descriptions, and explanations MUST be in English. "
-            "Do NOT mix Chinese and English."
+            "\n\n== STRICT LANGUAGE REQUIREMENT ==\n"
+            "CRITICAL: Output the ENTIRE analysis in English. ZERO Chinese characters allowed.\n"
+            "Translate ALL Chinese命理 terms to English equivalents:\n"
+            "  日主→Day Master, 用神→Favorable God, 忌神→Unfavorable God\n"
+            "  正官→Officer, 七杀→Seven Killings, 正印→Seal, 食神→Eating God\n"
+            "  伤官→Hurting Officer, 正财→Direct Wealth, 偏财→Indirect Wealth\n"
+            "  五行→Five Elements, 金→Metal, 木→Wood, 水→Water, 火→Fire, 土→Earth\n"
+            "  命宫→Life Palace, 财帛宫→Wealth Palace, 官禄宫→Career Palace\n"
+            "  疾厄宫→Health Palace, 迁移宫→Travel Palace, 田宅宫→Property Palace\n"
+            "  夫妻宫→Spouse Palace, 子女宫→Children Palace, 兄弟宫→Siblings Palace\n"
+            "  父母宫→Parents Palace, 交友宫→Friends Palace\n"
+            "Do NOT output any Chinese characters. Use pinyin or English equivalents."
         )
     else:
         lang_hint = (
@@ -112,7 +120,12 @@ async def _call(system: str, user: str, model: str | None = None, language: str 
     except asyncio.TimeoutError:
         print(f"[_call] LLM timed out after 120s (model={model})")
         return ""
-    return resp.content
+    result = resp.content
+    # Post-process: clean residual Chinese in English output
+    if language == "en":
+        from agents.workers import _clean_english
+        result = _clean_english(result)
+    return result
 
 
 # ─── Layer 4A: Sentiment ──────────────────────────────────────────────────
