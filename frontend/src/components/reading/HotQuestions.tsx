@@ -17,12 +17,12 @@ const GENERAL_QUESTIONS = [
 ]
 
 const RELATIONSHIP_QUESTIONS = [
-  { key: "RelQ1" as const, icon: "💞" },
-  { key: "RelQ2" as const, icon: "🔄" },
-  { key: "RelQ3" as const, icon: "💍" },
-  { key: "RelQ4" as const, icon: "🧠" },
-  { key: "RelQ5" as const, icon: "☯️" },
-  { key: "RelQ6" as const, icon: "📅" },
+  { key: "1" as const, icon: "💞" },
+  { key: "2" as const, icon: "🔄" },
+  { key: "3" as const, icon: "💍" },
+  { key: "4" as const, icon: "🧠" },
+  { key: "5" as const, icon: "☯️" },
+  { key: "6" as const, icon: "📅" },
 ]
 
 export function HotQuestions({ value, onChange, intent }: Props) {
