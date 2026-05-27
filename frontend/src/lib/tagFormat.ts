@@ -122,18 +122,31 @@ export function formatTag(raw: string): TagStyle {
     badge = " (Unverified)"
   }
 
-  // Try exact match first (Chinese tags are case-sensitive)
+  // 1. Try exact match (Chinese tags are case-sensitive)
   if (TAG_MAP[clean]) {
     return { ...TAG_MAP[clean], label: TAG_MAP[clean].label + badge }
   }
 
-  // Try lowercase match (English snake_case tags)
+  // 2. Try lowercase match (English snake_case tags)
   const key = clean.toLowerCase()
   if (TAG_MAP[key]) {
     return { ...TAG_MAP[key], label: TAG_MAP[key].label + badge }
   }
 
-  // Fallback: generate a neutral style
+  // 3. For compound Chinese tags (e.g. "天芮寄宫脾胃弱"), find the longest matching substring
+  let bestMatch: TagStyle | null = null
+  let bestLen = 0
+  for (const [tagKey, style] of Object.entries(TAG_MAP)) {
+    if (tagKey.length >= 2 && clean.includes(tagKey) && tagKey.length > bestLen) {
+      bestMatch = style
+      bestLen = tagKey.length
+    }
+  }
+  if (bestMatch) {
+    return { ...bestMatch, label: bestMatch.label + badge }
+  }
+
+  // 4. Fallback: generate a neutral style
   return {
     label: snakeToTitle(clean) + badge,
     color: "text-white/50",
