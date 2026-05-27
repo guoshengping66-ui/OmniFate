@@ -9,6 +9,7 @@
 
 interface TagStyle {
   label: string
+  labelCn: string     // Chinese label
   color: string       // Tailwind text color class
   bg: string          // Tailwind bg color class
   border: string      // Tailwind border color class
@@ -17,86 +18,86 @@ interface TagStyle {
 
 const TAG_MAP: Record<string, TagStyle> = {
   // ── English snake_case tags (from old workers) ──
-  ren_depleted:       { label: "Ren Energy Low",    color: "text-red-400",    bg: "bg-red-500/10",    border: "border-red-500/20",    icon: "⚠️" },
-  peach_blossom_risk: { label: "Romance Risk",      color: "text-pink-400",   bg: "bg-pink-500/10",   border: "border-pink-500/20",   icon: "🌸" },
-  wealth_block:       { label: "Wealth Blocked",    color: "text-amber-400",  bg: "bg-amber-500/10",  border: "border-amber-500/20",  icon: "💰" },
-  health_caution:     { label: "Health Attention",  color: "text-emerald-400",bg: "bg-emerald-500/10",border: "border-emerald-500/20",icon: "💚" },
-  career_pressure:    { label: "Career Pressure",   color: "text-blue-400",   bg: "bg-blue-500/10",   border: "border-blue-500/20",   icon: "📊" },
-  emotional_volatility:{ label: "Emotional Flux",   color: "text-violet-400", bg: "bg-violet-500/10", border: "border-violet-500/20", icon: "🌊" },
-  fire_weak:          { label: "Fire Weak",         color: "text-orange-400", bg: "bg-orange-500/10", border: "border-orange-500/20", icon: "🔥" },
-  water_excess:       { label: "Water Excess",      color: "text-cyan-400",   bg: "bg-cyan-500/10",   border: "border-cyan-500/20",   icon: "💧" },
-  wood_weak:          { label: "Wood Weak",         color: "text-green-400",  bg: "bg-green-500/10",  border: "border-green-500/20",  icon: "🌿" },
-  earth_weak:         { label: "Earth Weak",        color: "text-yellow-400", bg: "bg-yellow-500/10", border: "border-yellow-500/20", icon: "🌍" },
-  metal_weak:         { label: "Metal Weak",        color: "text-gray-400",   bg: "bg-gray-500/10",   border: "border-gray-500/20",   icon: "⚔️" },
+  ren_depleted:       { label: "Ren Energy Low",    labelCn: "壬水不足",      color: "text-red-400",    bg: "bg-red-500/10",    border: "border-red-500/20",    icon: "⚠️" },
+  peach_blossom_risk: { label: "Romance Risk",      labelCn: "桃花风险",      color: "text-pink-400",   bg: "bg-pink-500/10",   border: "border-pink-500/20",   icon: "🌸" },
+  wealth_block:       { label: "Wealth Blocked",    labelCn: "财运受阻",      color: "text-amber-400",  bg: "bg-amber-500/10",  border: "border-amber-500/20",  icon: "💰" },
+  health_caution:     { label: "Health Attention",  labelCn: "健康关注",      color: "text-emerald-400",bg: "bg-emerald-500/10",border: "border-emerald-500/20",icon: "💚" },
+  career_pressure:    { label: "Career Pressure",   labelCn: "事业压力",      color: "text-blue-400",   bg: "bg-blue-500/10",   border: "border-blue-500/20",   icon: "📊" },
+  emotional_volatility:{ label: "Emotional Flux",   labelCn: "情绪波动",      color: "text-violet-400", bg: "bg-violet-500/10", border: "border-violet-500/20", icon: "🌊" },
+  fire_weak:          { label: "Fire Weak",         labelCn: "火弱",          color: "text-orange-400", bg: "bg-orange-500/10", border: "border-orange-500/20", icon: "🔥" },
+  water_excess:       { label: "Water Excess",      labelCn: "水旺",          color: "text-cyan-400",   bg: "bg-cyan-500/10",   border: "border-cyan-500/20",   icon: "💧" },
+  wood_weak:          { label: "Wood Weak",         labelCn: "木弱",          color: "text-green-400",  bg: "bg-green-500/10",  border: "border-green-500/20",  icon: "🌿" },
+  earth_weak:         { label: "Earth Weak",        labelCn: "土弱",          color: "text-yellow-400", bg: "bg-yellow-500/10", border: "border-yellow-500/20", icon: "🌍" },
+  metal_weak:         { label: "Metal Weak",        labelCn: "金弱",          color: "text-gray-400",   bg: "bg-gray-500/10",   border: "border-gray-500/20",   icon: "⚔️" },
 
   // ── Strength tags (English) ──
-  wealth_boost:       { label: "Wealth Flowing",    color: "text-emerald-400",bg: "bg-emerald-500/10",border: "border-emerald-500/20",icon: "✨" },
-  career_boost:       { label: "Career Rising",     color: "text-blue-400",   bg: "bg-blue-500/10",   border: "border-blue-500/20",   icon: "🚀" },
-  love_boost:         { label: "Love Harmony",      color: "text-pink-400",   bg: "bg-pink-500/10",   border: "border-pink-500/20",   icon: "💕" },
-  health_boost:       { label: "Vitality High",     color: "text-emerald-400",bg: "bg-emerald-500/10",border: "border-emerald-500/20",icon: "💪" },
-  spiritual_boost:    { label: "Spirit Rising",     color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20", icon: "🔮" },
+  wealth_boost:       { label: "Wealth Flowing",    labelCn: "财运亨通",      color: "text-emerald-400",bg: "bg-emerald-500/10",border: "border-emerald-500/20",icon: "✨" },
+  career_boost:       { label: "Career Rising",     labelCn: "事业上升",      color: "text-blue-400",   bg: "bg-blue-500/10",   border: "border-blue-500/20",   icon: "🚀" },
+  love_boost:         { label: "Love Harmony",      labelCn: "感情和谐",      color: "text-pink-400",   bg: "bg-pink-500/10",   border: "border-pink-500/20",   icon: "💕" },
+  health_boost:       { label: "Vitality High",     labelCn: "精力充沛",      color: "text-emerald-400",bg: "bg-emerald-500/10",border: "border-emerald-500/20",icon: "💪" },
+  spiritual_boost:    { label: "Spirit Rising",     labelCn: "灵性提升",      color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20", icon: "🔮" },
 
   // ── Chinese tags (from current workers) — 八字 ──
-  "官杀混杂":         { label: "Officer-Killer Mix",    color: "text-red-400",    bg: "bg-red-500/10",    border: "border-red-500/20",    icon: "⚠️" },
-  "食神受伤":         { label: "Eating God Weakened",    color: "text-orange-400", bg: "bg-orange-500/10", border: "border-orange-500/20", icon: "🍽️" },
-  "财星微弱":         { label: "Wealth Star Weak",       color: "text-amber-400",  bg: "bg-amber-500/10",  border: "border-amber-500/20",  icon: "💰" },
-  "印星为忌":         { label: "Seal Star Unfavorable",  color: "text-yellow-400", bg: "bg-yellow-500/10", border: "border-yellow-500/20", icon: "📜" },
-  "比劫争财":         { label: "Peer Competition",       color: "text-blue-400",   bg: "bg-blue-500/10",   border: "border-blue-500/20",   icon: "⚔️" },
-  "伤官见官":         { label: "Hurting Officer Clash",  color: "text-red-400",    bg: "bg-red-500/10",    border: "border-red-500/20",    icon: "🔥" },
-  "财多身弱":         { label: "Wealth Overwhelms Self", color: "text-amber-400",  bg: "bg-amber-500/10",  border: "border-amber-500/20",  icon: "💸" },
-  "食神泄秀":         { label: "Eating God Expression",  color: "text-emerald-400",bg: "bg-emerald-500/10",border: "border-emerald-500/20",icon: "✨" },
-  "杀旺攻身":         { label: "Killer Attacks Self",    color: "text-red-400",    bg: "bg-red-500/10",    border: "border-red-500/20",    icon: "⚔️" },
-  "桃花旺盛":         { label: "Peach Blossom Strong",   color: "text-pink-400",   bg: "bg-pink-500/10",   border: "border-pink-500/20",   icon: "🌸" },
-  "驿马星动":         { label: "Travel Star Active",     color: "text-cyan-400",   bg: "bg-cyan-500/10",   border: "border-cyan-500/20",   icon: "🐴" },
-  "天乙贵人":         { label: "Noble Person Helper",    color: "text-emerald-400",bg: "bg-emerald-500/10",border: "border-emerald-500/20",icon: "🤝" },
-  "华盖星":           { label: "Scholar Star",           color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20", icon: "🎓" },
-  "红鸾天喜":         { label: "Marriage Star",          color: "text-pink-400",   bg: "bg-pink-500/10",   border: "border-pink-500/20",   icon: "💒" },
-  "羊刃":             { label: "Blade Star",             color: "text-red-400",    bg: "bg-red-500/10",    border: "border-red-500/20",    icon: "🗡️" },
-  "空亡":             { label: "Void Emptiness",         color: "text-gray-400",   bg: "bg-gray-500/10",   border: "border-gray-500/20",   icon: "🌀" },
+  "官杀混杂":         { label: "Officer-Killer Mix",    labelCn: "官杀混杂",    color: "text-red-400",    bg: "bg-red-500/10",    border: "border-red-500/20",    icon: "⚠️" },
+  "食神受伤":         { label: "Eating God Weakened",    labelCn: "食神受伤",    color: "text-orange-400", bg: "bg-orange-500/10", border: "border-orange-500/20", icon: "🍽️" },
+  "财星微弱":         { label: "Wealth Star Weak",       labelCn: "财星微弱",    color: "text-amber-400",  bg: "bg-amber-500/10",  border: "border-amber-500/20",  icon: "💰" },
+  "印星为忌":         { label: "Seal Star Unfavorable",  labelCn: "印星为忌",    color: "text-yellow-400", bg: "bg-yellow-500/10", border: "border-yellow-500/20", icon: "📜" },
+  "比劫争财":         { label: "Peer Competition",       labelCn: "比劫争财",    color: "text-blue-400",   bg: "bg-blue-500/10",   border: "border-blue-500/20",   icon: "⚔️" },
+  "伤官见官":         { label: "Hurting Officer Clash",  labelCn: "伤官见官",    color: "text-red-400",    bg: "bg-red-500/10",    border: "border-red-500/20",    icon: "🔥" },
+  "财多身弱":         { label: "Wealth Overwhelms Self", labelCn: "财多身弱",    color: "text-amber-400",  bg: "bg-amber-500/10",  border: "border-amber-500/20",  icon: "💸" },
+  "食神泄秀":         { label: "Eating God Expression",  labelCn: "食神泄秀",    color: "text-emerald-400",bg: "bg-emerald-500/10",border: "border-emerald-500/20",icon: "✨" },
+  "杀旺攻身":         { label: "Killer Attacks Self",    labelCn: "杀旺攻身",    color: "text-red-400",    bg: "bg-red-500/10",    border: "border-red-500/20",    icon: "⚔️" },
+  "桃花旺盛":         { label: "Peach Blossom Strong",   labelCn: "桃花旺盛",    color: "text-pink-400",   bg: "bg-pink-500/10",   border: "border-pink-500/20",   icon: "🌸" },
+  "驿马星动":         { label: "Travel Star Active",     labelCn: "驿马星动",    color: "text-cyan-400",   bg: "bg-cyan-500/10",   border: "border-cyan-500/20",   icon: "🐴" },
+  "天乙贵人":         { label: "Noble Person Helper",    labelCn: "天乙贵人",    color: "text-emerald-400",bg: "bg-emerald-500/10",border: "border-emerald-500/20",icon: "🤝" },
+  "华盖星":           { label: "Scholar Star",           labelCn: "华盖星",      color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20", icon: "🎓" },
+  "红鸾天喜":         { label: "Marriage Star",          labelCn: "红鸾天喜",    color: "text-pink-400",   bg: "bg-pink-500/10",   border: "border-pink-500/20",   icon: "💒" },
+  "羊刃":             { label: "Blade Star",             labelCn: "羊刃",        color: "text-red-400",    bg: "bg-red-500/10",    border: "border-red-500/20",    icon: "🗡️" },
+  "空亡":             { label: "Void Emptiness",         labelCn: "空亡",        color: "text-gray-400",   bg: "bg-gray-500/10",   border: "border-gray-500/20",   icon: "🌀" },
 
   // ── Chinese tags — 奇门遁甲 ──
-  "杜门伏吟":         { label: "Hidden Door Stagnant",   color: "text-gray-400",   bg: "bg-gray-500/10",   border: "border-gray-500/20",   icon: "🚪" },
-  "时干惊门":         { label: "Shock Door Activity",    color: "text-amber-400",  bg: "bg-amber-500/10",  border: "border-amber-500/20",  icon: "⚡" },
-  "天芮寄宫":         { label: "Tian Rui Illness Star",  color: "text-red-400",    bg: "bg-red-500/10",    border: "border-red-500/20",    icon: "🏥" },
-  "螣蛇缠绕":         { label: "Snake Entanglement",     color: "text-violet-400", bg: "bg-violet-500/10", border: "border-violet-500/20", icon: "🐍" },
-  "白虎凶兆":         { label: "White Tiger Omen",       color: "text-red-400",    bg: "bg-red-500/10",    border: "border-red-500/20",    icon: "🐯" },
-  "玄武暗耗":         { label: "Dark Water Drain",       color: "text-cyan-400",   bg: "bg-cyan-500/10",   border: "border-cyan-500/20",   icon: "🌑" },
-  "九地保守":         { label: "Earth保守 Energy",       color: "text-yellow-400", bg: "bg-yellow-500/10", border: "border-yellow-500/20", icon: "🏔️" },
-  "值符吉庆":         { label: "Master Star Auspicious", color: "text-emerald-400",bg: "bg-emerald-500/10",border: "border-emerald-500/20",icon: "🌟" },
+  "杜门伏吟":         { label: "Hidden Door Stagnant",   labelCn: "杜门伏吟",    color: "text-gray-400",   bg: "bg-gray-500/10",   border: "border-gray-500/20",   icon: "🚪" },
+  "时干惊门":         { label: "Shock Door Activity",    labelCn: "时干惊门",    color: "text-amber-400",  bg: "bg-amber-500/10",  border: "border-amber-500/20",  icon: "⚡" },
+  "天芮寄宫":         { label: "Tian Rui Illness Star",  labelCn: "天芮寄宫",    color: "text-red-400",    bg: "bg-red-500/10",    border: "border-red-500/20",    icon: "🏥" },
+  "螣蛇缠绕":         { label: "Snake Entanglement",     labelCn: "螣蛇缠绕",    color: "text-violet-400", bg: "bg-violet-500/10", border: "border-violet-500/20", icon: "🐍" },
+  "白虎凶兆":         { label: "White Tiger Omen",       labelCn: "白虎凶兆",    color: "text-red-400",    bg: "bg-red-500/10",    border: "border-red-500/20",    icon: "🐯" },
+  "玄武暗耗":         { label: "Dark Water Drain",       labelCn: "玄武暗耗",    color: "text-cyan-400",   bg: "bg-cyan-500/10",   border: "border-cyan-500/20",   icon: "🌑" },
+  "九地保守":         { label: "Earth Energy",           labelCn: "九地保守",    color: "text-yellow-400", bg: "bg-yellow-500/10", border: "border-yellow-500/20", icon: "🏔️" },
+  "值符吉庆":         { label: "Master Star Auspicious", labelCn: "值符吉庆",    color: "text-emerald-400",bg: "bg-emerald-500/10",border: "border-emerald-500/20",icon: "🌟" },
 
   // ── Chinese tags — 紫微斗数 ──
-  "命宫空亡":         { label: "Life Palace Void",       color: "text-gray-400",   bg: "bg-gray-500/10",   border: "border-gray-500/20",   icon: "🌀" },
-  "天同化忌":         { label: "Tian Tong Restrained",   color: "text-blue-400",   bg: "bg-blue-500/10",   border: "border-blue-500/20",   icon: "❄️" },
-  "武曲化忌":         { label: "Wu Qu Restricted",       color: "text-amber-400",  bg: "bg-amber-500/10",  border: "border-amber-500/20",  icon: "💰" },
-  "巨门暗曜":         { label: "Ju Men Dark Star",       color: "text-gray-400",   bg: "bg-gray-500/10",   border: "border-gray-500/20",   icon: "🌑" },
-  "廉贞囚星":         { label: "Lian Zhen Prison Star",  color: "text-red-400",    bg: "bg-red-500/10",    border: "border-red-500/20",    icon: "🔒" },
-  "破军耗星":         { label: "Po Jun Drain Star",      color: "text-orange-400", bg: "bg-orange-500/10", border: "border-orange-500/20", icon: "💥" },
-  "七杀朝斗":         { label: "Seven Killings Rising",   color: "text-red-400",    bg: "bg-red-500/10",    border: "border-red-500/20",    icon: "⚔️" },
-  "紫微帝座":         { label: "Emperor Star",           color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20", icon: "👑" },
-  "太阳化权":         { label: "Sun Empowered",          color: "text-amber-400",  bg: "bg-amber-500/10",  border: "border-amber-500/20",  icon: "☀️" },
-  "太阴化科":         { label: "Moon Scholarly",         color: "text-blue-400",   bg: "bg-blue-500/10",   border: "border-blue-500/20",   icon: "🌙" },
+  "命宫空亡":         { label: "Life Palace Void",       labelCn: "命宫空亡",    color: "text-gray-400",   bg: "bg-gray-500/10",   border: "border-gray-500/20",   icon: "🌀" },
+  "天同化忌":         { label: "Tian Tong Restrained",   labelCn: "天同化忌",    color: "text-blue-400",   bg: "bg-blue-500/10",   border: "border-blue-500/20",   icon: "❄️" },
+  "武曲化忌":         { label: "Wu Qu Restricted",       labelCn: "武曲化忌",    color: "text-amber-400",  bg: "bg-amber-500/10",  border: "border-amber-500/20",  icon: "💰" },
+  "巨门暗曜":         { label: "Ju Men Dark Star",       labelCn: "巨门暗曜",    color: "text-gray-400",   bg: "bg-gray-500/10",   border: "border-gray-500/20",   icon: "🌑" },
+  "廉贞囚星":         { label: "Lian Zhen Prison Star",  labelCn: "廉贞囚星",    color: "text-red-400",    bg: "bg-red-500/10",    border: "border-red-500/20",    icon: "🔒" },
+  "破军耗星":         { label: "Po Jun Drain Star",      labelCn: "破军耗星",    color: "text-orange-400", bg: "bg-orange-500/10", border: "border-orange-500/20", icon: "💥" },
+  "七杀朝斗":         { label: "Seven Killings Rising",   labelCn: "七杀朝斗",    color: "text-red-400",    bg: "bg-red-500/10",    border: "border-red-500/20",    icon: "⚔️" },
+  "紫微帝座":         { label: "Emperor Star",           labelCn: "紫微帝座",    color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20", icon: "👑" },
+  "太阳化权":         { label: "Sun Empowered",          labelCn: "太阳化权",    color: "text-amber-400",  bg: "bg-amber-500/10",  border: "border-amber-500/20",  icon: "☀️" },
+  "太阴化科":         { label: "Moon Scholarly",         labelCn: "太阴化科",    color: "text-blue-400",   bg: "bg-blue-500/10",   border: "border-blue-500/20",   icon: "🌙" },
 
   // ── Chinese tags — 星盘 ──
-  "水星逆行":         { label: "Mercury Retrograde",     color: "text-gray-400",   bg: "bg-gray-500/10",   border: "border-gray-500/20",   icon: "🔄" },
-  "土星刑克":         { label: "Saturn Square",          color: "text-yellow-400", bg: "bg-yellow-500/10", border: "border-yellow-500/20", icon: "🪐" },
-  "天王突变":         { label: "Uranus Disruption",      color: "text-cyan-400",   bg: "bg-cyan-500/10",   border: "border-cyan-500/20",   icon: "⚡" },
-  "海王迷惑":         { label: "Neptune Confusion",      color: "text-violet-400", bg: "bg-violet-500/10", border: "border-violet-500/20", icon: "🌊" },
-  "冥王转化":         { label: "Pluto Transform",        color: "text-red-400",    bg: "bg-red-500/10",    border: "border-red-500/20",    icon: "🔥" },
-  "火星冲动":         { label: "Mars Impulsive",         color: "text-orange-400", bg: "bg-orange-500/10", border: "border-orange-500/20", icon: "🔴" },
-  "金星和谐":         { label: "Venus Harmonious",       color: "text-pink-400",   bg: "bg-pink-500/10",   border: "border-pink-500/20",   icon: "💕" },
-  "木星扩展":         { label: "Jupiter Expansive",      color: "text-emerald-400",bg: "bg-emerald-500/10",border: "border-emerald-500/20",icon: "🌟" },
+  "水星逆行":         { label: "Mercury Retrograde",     labelCn: "水星逆行",    color: "text-gray-400",   bg: "bg-gray-500/10",   border: "border-gray-500/20",   icon: "🔄" },
+  "土星刑克":         { label: "Saturn Square",          labelCn: "土星刑克",    color: "text-yellow-400", bg: "bg-yellow-500/10", border: "border-yellow-500/20", icon: "🪐" },
+  "天王突变":         { label: "Uranus Disruption",      labelCn: "天王突变",    color: "text-cyan-400",   bg: "bg-cyan-500/10",   border: "border-cyan-500/20",   icon: "⚡" },
+  "海王迷惑":         { label: "Neptune Confusion",      labelCn: "海王迷惑",    color: "text-violet-400", bg: "bg-violet-500/10", border: "border-violet-500/20", icon: "🌊" },
+  "冥王转化":         { label: "Pluto Transform",        labelCn: "冥王转化",    color: "text-red-400",    bg: "bg-red-500/10",    border: "border-red-500/20",    icon: "🔥" },
+  "火星冲动":         { label: "Mars Impulsive",         labelCn: "火星冲动",    color: "text-orange-400", bg: "bg-orange-500/10", border: "border-orange-500/20", icon: "🔴" },
+  "金星和谐":         { label: "Venus Harmonious",       labelCn: "金星和谐",    color: "text-pink-400",   bg: "bg-pink-500/10",   border: "border-pink-500/20",   icon: "💕" },
+  "木星扩展":         { label: "Jupiter Expansive",      labelCn: "木星扩展",    color: "text-emerald-400",bg: "bg-emerald-500/10",border: "border-emerald-500/20",icon: "🌟" },
 
   // ── Chinese tags — 通用/塔罗/面相/手相 ──
-  "脾胃虚弱":         { label: "Spleen Weak",            color: "text-yellow-400", bg: "bg-yellow-500/10", border: "border-yellow-500/20", icon: "🫁" },
-  "肝胆不适":         { label: "Liver Attention",        color: "text-green-400",  bg: "bg-green-500/10",  border: "border-green-500/20",  icon: "💚" },
-  "心脏压力":         { label: "Heart Pressure",         color: "text-red-400",    bg: "bg-red-500/10",    border: "border-red-500/20",    icon: "❤️" },
-  "多噩梦":           { label: "Nightmare Prone",        color: "text-violet-400", bg: "bg-violet-500/10", border: "border-violet-500/20", icon: "🌙" },
-  "巨人心热":         { label: "Giant Heart Warm",       color: "text-orange-400", bg: "bg-orange-500/10", border: "border-orange-500/20", icon: "🔥" },
-  "挑衅事":           { label: "Provocation Risk",       color: "text-amber-400",  bg: "bg-amber-500/10",  border: "border-amber-500/20",  icon: "⚡" },
-  "粗发展":           { label: "Rough Growth",           color: "text-gray-400",   bg: "bg-gray-500/10",   border: "border-gray-500/20",   icon: "📈" },
-  "财官咸库":         { label: "Wealth-Career Treasury", color: "text-emerald-400",bg: "bg-emerald-500/10",border: "border-emerald-500/20",icon: "🏦" },
-  "父母宫刑":         { label: "Parents Palace Clash",   color: "text-red-400",    bg: "bg-red-500/10",    border: "border-red-500/20",    icon: "👨‍👩‍👧" },
-  "夫妻宫逢冲":       { label: "Spouse Palace Clash",    color: "text-pink-400",   bg: "bg-pink-500/10",   border: "border-pink-500/20",   icon: "💔" },
+  "脾胃虚弱":         { label: "Spleen Weak",            labelCn: "脾胃虚弱",    color: "text-yellow-400", bg: "bg-yellow-500/10", border: "border-yellow-500/20", icon: "🫁" },
+  "肝胆不适":         { label: "Liver Attention",        labelCn: "肝胆不适",    color: "text-green-400",  bg: "bg-green-500/10",  border: "border-green-500/20",  icon: "💚" },
+  "心脏压力":         { label: "Heart Pressure",         labelCn: "心脏压力",    color: "text-red-400",    bg: "bg-red-500/10",    border: "border-red-500/20",    icon: "❤️" },
+  "多噩梦":           { label: "Nightmare Prone",        labelCn: "多噩梦",      color: "text-violet-400", bg: "bg-violet-500/10", border: "border-violet-500/20", icon: "🌙" },
+  "巨人心热":         { label: "Giant Heart Warm",       labelCn: "巨人心热",    color: "text-orange-400", bg: "bg-orange-500/10", border: "border-orange-500/20", icon: "🔥" },
+  "挑衅事":           { label: "Provocation Risk",       labelCn: "挑衅事",      color: "text-amber-400",  bg: "bg-amber-500/10",  border: "border-amber-500/20",  icon: "⚡" },
+  "粗发展":           { label: "Rough Growth",           labelCn: "粗发展",      color: "text-gray-400",   bg: "bg-gray-500/10",   border: "border-gray-500/20",   icon: "📈" },
+  "财官咸库":         { label: "Wealth-Career Treasury", labelCn: "财官咸库",    color: "text-emerald-400",bg: "bg-emerald-500/10",border: "border-emerald-500/20",icon: "🏦" },
+  "父母宫刑":         { label: "Parents Palace Clash",   labelCn: "父母宫刑",    color: "text-red-400",    bg: "bg-red-500/10",    border: "border-red-500/20",    icon: "👨‍👩‍👧" },
+  "夫妻宫逢冲":       { label: "Spouse Palace Clash",    labelCn: "夫妻宫逢冲",  color: "text-pink-400",   bg: "bg-pink-500/10",   border: "border-pink-500/20",   icon: "💔" },
 }
 
 /* ── Fallback: convert any snake_case to Title Case ─── */
@@ -109,7 +110,7 @@ function snakeToTitle(s: string): string {
 
 /* ── Public API ─── */
 
-export function formatTag(raw: string): TagStyle {
+export function formatTag(raw: string, lang: string = "en"): TagStyle {
   // Strip backend modifiers: "(待验证)", "严重⚠️"
   let clean = raw.trim()
   let badge = ""
@@ -119,18 +120,22 @@ export function formatTag(raw: string): TagStyle {
   }
   if (clean.endsWith("(待验证)")) {
     clean = clean.replace("(待验证)", "").trim()
-    badge = " (Unverified)"
+    badge = lang === "zh" ? " (待验证)" : " (Unverified)"
   }
+
+  const isZh = lang === "zh"
 
   // 1. Try exact match (Chinese tags are case-sensitive)
   if (TAG_MAP[clean]) {
-    return { ...TAG_MAP[clean], label: TAG_MAP[clean].label + badge }
+    const t = TAG_MAP[clean]
+    return { ...t, label: (isZh ? t.labelCn : t.label) + badge }
   }
 
   // 2. Try lowercase match (English snake_case tags)
   const key = clean.toLowerCase()
   if (TAG_MAP[key]) {
-    return { ...TAG_MAP[key], label: TAG_MAP[key].label + badge }
+    const t = TAG_MAP[key]
+    return { ...t, label: (isZh ? t.labelCn : t.label) + badge }
   }
 
   // 3. For compound Chinese tags (e.g. "天芮寄宫脾胃弱"), find the longest matching substring
@@ -143,12 +148,13 @@ export function formatTag(raw: string): TagStyle {
     }
   }
   if (bestMatch) {
-    return { ...bestMatch, label: bestMatch.label + badge }
+    return { ...bestMatch, label: (isZh ? bestMatch.labelCn : bestMatch.label) + badge }
   }
 
-  // 4. Fallback: generate a neutral style
+  // 4. Fallback: use raw tag as-is for Chinese, Title Case for English
   return {
-    label: snakeToTitle(clean) + badge,
+    label: (isZh ? clean : snakeToTitle(clean)) + badge,
+    labelCn: clean,
     color: "text-white/50",
     bg: "bg-white/5",
     border: "border-white/10",

@@ -1,5 +1,6 @@
 "use client"
 import { formatTag } from "@/lib/tagFormat"
+import { useParams } from "next/navigation"
 
 interface Props {
   tag: string
@@ -7,7 +8,9 @@ interface Props {
 }
 
 export function TagBadge({ tag, size = "sm" }: Props) {
-  const s = formatTag(tag)
+  const params = useParams()
+  const lang = (params?.locale as string) || "en"
+  const s = formatTag(tag, lang)
   const sizeClasses = size === "sm"
     ? "text-[10px] px-1.5 py-0.5"
     : "text-xs px-2.5 py-1"
