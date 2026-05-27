@@ -24,6 +24,14 @@ export function middleware(request: NextRequest) {
     return new NextResponse("Page Not Found", { status: 404 })
   }
 
+  // Redirect /reading/* to /{locale}/reading/* if locale is missing
+  if (pathname.startsWith("/reading")) {
+    const locale = request.cookies.get("NEXT_LOCALE")?.value || "zh"
+    const url = request.nextUrl.clone()
+    url.pathname = `/${locale}${pathname}`
+    return NextResponse.redirect(url)
+  }
+
   // Run i18n middleware first (handles locale detection & redirects)
   const intlResponse = intlMiddleware(request)
 
