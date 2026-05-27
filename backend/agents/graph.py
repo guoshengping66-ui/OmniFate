@@ -235,98 +235,62 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
 
     lines = []
 
-    # 1. Direct answer to user's question
-    lines.append("【命盘速览】")
-    lines.append(f"你的问题：{state.user_question}")
-    lines.append("")
-
-    # 2. Core insight — extract the most relevant section completely
-    answer_section = ""
-    #优先提取直接回答用户问题的 section (G section)
-    for marker in ["【G·", "【H·", "【A·", "【B·"]:
+    # Build a single cohesive summary paragraph
+    # 1. Extract the core personality/destiny description (A section)
+    personality = ""
+    for marker in ["【A·", "【命盘底色】"]:
         section = _extract_section(core_result, marker)
         if section and len(section) > 50:
-            answer_section = _complete_sentence(section, 600)
+            personality = _complete_sentence(section, 400)
             break
-    if not answer_section:
-        # Fallback: use first 600 chars at sentence boundary
-        answer_section = _complete_sentence(core_result, 600)
-    lines.append(answer_section)
-    lines.append("")
 
-    # 3. Dimension scores overview (skip for RELATIONSHIP — not relevant)
+    # 2. Extract the answer to user's question (G section)
+    answer = ""
+    for marker in ["【G·", "【H·"]:
+        section = _extract_section(core_result, marker)
+        if section and len(section) > 50:
+            answer = _complete_sentence(section, 400)
+            break
+
+    # 3. Extract cross-dimension resonance (B section)
+    resonance = ""
+    for marker in ["【B·", "【跨维度共鸣】"]:
+        section = _extract_section(core_result, marker)
+        if section and len(section) > 50:
+            resonance = _complete_sentence(section, 300)
+            break
+
+    # 4. Build the flowing summary
+    if personality:
+        lines.append(personality)
+    if answer:
+        if lines:
+            lines.append("")
+        lines.append(answer)
+    if resonance:
+        if lines:
+            lines.append("")
+        lines.append(resonance)
+
+    # Fallback: if nothing extracted, use first part of core_result
+    if not lines:
+        lines.append(_complete_sentence(core_result, 800))
+
+    # 5. Brief dimension scores (one line)
     if score_display and state.intent != "RELATIONSHIP":
-        lines.append("【五维能量概览】")
-        lines.append(score_display)
         lines.append("")
-
-    # 4. Key findings teaser
-    lines.append("【核心发现】")
-    findings = []
-    for line in core_result.split("\n"):
-        line = line.strip()
-        if line.startswith(("•", "·", "-", "1.", "2.", "3.")):
-            if len(line) > 10 and len(findings) < 3:
-                findings.append(line)
-    if findings:
-        for f in findings:
-            lines.append(f)
-    else:
-        lines.append("• 你的命盘呈现独特的能量格局，多维度分析揭示了关键的人生密码")
-    lines.append("")
-
-    # 5. 各维度速览 — show key findings from each worker
-    worker_labels = {
-        "bazi": "☯ 周易八字", "astrology": "✦ 西方星盘", "tarot": "🃏 塔罗疗愈",
-        "qimen": "🎯 奇门遁甲", "ziwei": "⭐ 紫微斗数",
-        "face": "👁 AI面相", "palm": "🤚 手相解读",
-    }
-    has_worker_previews = False
-    for agent_id, label in worker_labels.items():
-        wo = getattr(state, f"{agent_id}_output", None)
-        if not wo or not wo.report:
-            continue
-        preview_lines = []
-        for line in wo.report.split("\n"):
-            line = line.strip()
-            if line.startswith(("【关键发现】",)):
-                continue
-            if line.startswith(("- ", "• ", "· ")):
-                text = line.lstrip("-•· ").strip()
-                if len(text) > 10 and len(preview_lines) < 2:
-                    preview_lines.append(f"  {label}：{text}")
-            elif line.startswith("【") and "】" in line:
-                dim_text = line.split("】", 1)[-1].strip()
-                if dim_text and len(dim_text) > 10:
-                    # Complete sentence, max 100 chars
-                    for sep in ["。", "！", "；"]:
-                        pos = dim_text.find(sep)
-                        if 0 < pos < 80:
-                            dim_text = dim_text[:pos + 1]
-                            break
-                    if len(dim_text) > 100:
-                        dim_text = dim_text[:100] + "…"
-                    preview_lines.append(f"  {label}：{dim_text}")
-            if len(preview_lines) >= 2:
-                break
-        if preview_lines:
-            if not has_worker_previews:
-                lines.append("【各维度速览】")
-                has_worker_previews = True
-            for pl in preview_lines:
-                lines.append(pl)
-    if has_worker_previews:
-        lines.append("")
+        lines.append(f"📊 五维能量：{score_display}")
 
     # 6. Upgrade prompt
-    lines.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    lines.append("")
+    lines.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     lines.append("🔓 解锁完整深度解析，你将获得：")
     lines.append("• 五维详细诊断（财富/感情/事业/健康/精神）")
     lines.append("• 跨维度矛盾解释与置信度评估")
     lines.append("• 未来12个月关键转折点预测")
     lines.append("• 针对你问题的专项深度分析")
     lines.append("• 专属能量调和方案与助运物推荐")
-    lines.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    lines.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
     return "\n".join(lines)
 
