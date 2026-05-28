@@ -1,6 +1,6 @@
 "use client"
-import { useState } from "react"
-import { Share2, Check, Copy, X, Download, Users, Gift } from "lucide-react"
+import { useState, useCallback } from "react"
+import { Share2, Check, Copy, X, Download, Users, Gift, FileText } from "lucide-react"
 import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
@@ -54,6 +54,26 @@ export function ShareSheet({ sessionId }: Props) {
       }).catch(() => {})
     }
   }
+
+  const handleDownloadPdf = useCallback(async () => {
+    try {
+      const { generateReadingPdf } = await import("@/lib/generate-pdf")
+      // Find the main report content area
+      const reportEl = document.querySelector("[data-report-content]") as HTMLElement
+      if (!reportEl) {
+        toast.error(t("share.pdfNotFound"))
+        return
+      }
+      await generateReadingPdf({
+        element: reportEl,
+        filename: `destiny-mirror-report-${sessionId.slice(0, 8)}`,
+      })
+      toast.success(t("share.pdfDownloaded"))
+    } catch (err) {
+      console.error("PDF generation failed:", err)
+      toast.error(t("share.pdfError"))
+    }
+  }, [sessionId, t])
 
   const handleDownloadPoster = () => {
     const canvas = document.createElement("canvas")
@@ -173,6 +193,14 @@ export function ShareSheet({ sessionId }: Props) {
                   <Download size={18} className="text-white/60" />
                 </div>
                 <span className="text-[10px] text-white/40">{t("share.downloadCard")}</span>
+              </button>
+
+              <button onClick={handleDownloadPdf}
+                className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 hover:bg-gold/10 border border-white/10 hover:border-gold/30 transition-all group">
+                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
+                  <FileText size={18} className="text-white/60" />
+                </div>
+                <span className="text-[10px] text-white/40">{t("share.downloadPdf")}</span>
               </button>
 
               <div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 border border-white/10 transition-all group opacity-60 cursor-not-allowed">

@@ -328,6 +328,76 @@ def send_fortune_email(to_email: str, fortune: dict, locale: str = "zh") -> bool
     return _send_email(to_email, subject, html)
 
 
+def send_analysis_complete_email(to_email: str, session_id: str, locale: str = "zh") -> bool:
+    """Send notification when analysis is complete."""
+    is_zh = locale == "zh"
+    subject = "命盘智镜 - 你的命理分析已完成" if is_zh else "Destiny Mirror - Your Analysis is Ready"
+    view_url = f"https://www.khanfate.com/{locale}/reading/{session_id}"
+
+    if is_zh:
+        html = f"""
+        <div style="max-width:480px;margin:0 auto;font-family:'PingFang SC','Microsoft YaHei',Arial,sans-serif;color:#333;">
+          <div style="background:linear-gradient(135deg,#2D1B4E,#1a0f2e);padding:30px;text-align:center;border-radius:12px 12px 0 0;">
+            <h2 style="color:#C9A84C;margin:0 0 8px;">✦ 命理分析已完成</h2>
+            <p style="color:rgba(255,255,255,0.5);font-size:13px;margin:0;">AI 全维度分析报告已就绪</p>
+          </div>
+          <div style="background:#f9f9f9;padding:30px;border-radius:0 0 12px 12px;">
+            <p style="font-size:15px;margin:0 0 16px;">您好，</p>
+            <p style="font-size:14px;color:#555;margin:0 0 20px;">你的全维度命理分析已完成！包含八字、星盘、塔罗、面相、手相五大维度的 AI 深度解析。</p>
+            <div style="text-align:center;margin:24px 0;">
+              <a href="{view_url}" style="display:inline-block;padding:12px 32px;background:linear-gradient(135deg,#C9A84C,#b8943f);color:#1a0f2e;text-decoration:none;border-radius:24px;font-weight:bold;font-size:15px;">查看完整报告</a>
+            </div>
+            <p style="font-size:13px;color:#888;margin:0 0 8px;">报告包含：</p>
+            <ul style="font-size:13px;color:#666;padding-left:20px;margin:0 0 16px;">
+              <li>八字命盘解析</li>
+              <li>西方星盘分析</li>
+              <li>塔罗牌指引</li>
+              <li>面相运势解读</li>
+              <li>手相生命密码</li>
+            </ul>
+            <p style="font-size:12px;color:#aaa;margin:0;">使用 100 星尘即可解锁完整报告，包含年度规划和改运建议。</p>
+          </div>
+          <div style="text-align:center;padding:15px;font-size:11px;color:#aaa;">
+            命盘智镜 · 全维度命理分析平台<br/>
+            <a href="https://www.khanfate.com/privacy" style="color:#aaa;">隐私政策</a> ·
+            <a href="https://www.khanfate.com/unsubscribe" style="color:#aaa;">取消订阅</a>
+          </div>
+        </div>
+        """
+    else:
+        html = f"""
+        <div style="max-width:480px;margin:0 auto;font-family:Arial,sans-serif;color:#333;">
+          <div style="background:linear-gradient(135deg,#2D1B4E,#1a0f2e);padding:30px;text-align:center;border-radius:12px 12px 0 0;">
+            <h2 style="color:#C9A84C;margin:0 0 8px;">✦ Analysis Complete</h2>
+            <p style="color:rgba(255,255,255,0.5);font-size:13px;margin:0;">Your AI destiny analysis report is ready</p>
+          </div>
+          <div style="background:#f9f9f9;padding:30px;border-radius:0 0 12px 12px;">
+            <p style="font-size:15px;margin:0 0 16px;">Hello,</p>
+            <p style="font-size:14px;color:#555;margin:0 0 20px;">Your full-dimension destiny analysis is complete! It includes AI-powered insights across Bazi, Western Astrology, Tarot, Face Reading, and Palmistry.</p>
+            <div style="text-align:center;margin:24px 0;">
+              <a href="{view_url}" style="display:inline-block;padding:12px 32px;background:linear-gradient(135deg,#C9A84C,#b8943f);color:#1a0f2e;text-decoration:none;border-radius:24px;font-weight:bold;font-size:15px;">View Full Report</a>
+            </div>
+            <p style="font-size:13px;color:#888;margin:0 0 8px;">Report includes:</p>
+            <ul style="font-size:13px;color:#666;padding-left:20px;margin:0 0 16px;">
+              <li>Bazi (Four Pillars) Analysis</li>
+              <li>Western Astrology Chart</li>
+              <li>Tarot Card Guidance</li>
+              <li>Face Reading Insights</li>
+              <li>Palmistry Life Code</li>
+            </ul>
+            <p style="font-size:12px;color:#aaa;margin:0;">Unlock the full report with 100 Stardust for annual planning and fortune guidance.</p>
+          </div>
+          <div style="text-align:center;padding:15px;font-size:11px;color:#aaa;">
+            Destiny Mirror · Multi-Dimension Destiny Analysis<br/>
+            <a href="https://www.khanfate.com/privacy" style="color:#aaa;">Privacy</a> ·
+            <a href="https://www.khanfate.com/unsubscribe" style="color:#aaa;">Unsubscribe</a>
+          </div>
+        </div>
+        """
+
+    return _send_email(to_email, subject, html)
+
+
 def send_daily_fortune_email(to_email: str, fortune: dict, locale: str = "zh") -> bool:
     """Send a daily fortune email with rich HTML template."""
     is_zh = locale == "zh"

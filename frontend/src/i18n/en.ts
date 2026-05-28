@@ -2348,6 +2348,10 @@ export default {
   "share.previewTitle": "Share Preview",
   "share.previewText": "Check out my full-dimension destiny analysis 🔮",
   "share.previewDesc": "Bazi · Astrology · Tarot · Face · Palm — Five Systems Combined",
+  "share.downloadPdf": "PDF Report",
+  "share.pdfNotFound": "Report content not found",
+  "share.pdfDownloaded": "PDF report downloaded!",
+  "share.pdfError": "Failed to generate PDF",
 
   // ─── FortuneGuide ───
   "fortuneGuide.guideLabel": "Guide",

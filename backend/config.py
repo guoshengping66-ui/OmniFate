@@ -103,6 +103,9 @@ class Settings(BaseSettings):
     # ── Redis (distributed state: rate limits, session store, token blacklist) ──
     REDIS_URL: str = ""                # e.g. "redis://localhost:6379/0" — empty = in-memory fallback
 
+    # ── Google OAuth ──
+    GOOGLE_CLIENT_ID: str = ""         # Google Cloud Console OAuth 2.0 Client ID
+
 
 @lru_cache
 def get_settings() -> Settings:

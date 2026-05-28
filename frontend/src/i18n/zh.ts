@@ -2342,6 +2342,10 @@ export default {
   "share.previewTitle": "分享预览",
   "share.previewText": "看看我的全维度命理分析 🔮",
   "share.previewDesc": "八字 · 占星 · 塔罗 · 面相 · 手相 — 五大系统合一",
+  "share.downloadPdf": "PDF 报告",
+  "share.pdfNotFound": "未找到报告内容",
+  "share.pdfDownloaded": "PDF 报告已下载！",
+  "share.pdfError": "PDF 生成失败",
 
   // ─── 运势指南 ───
   "fortuneGuide.guideLabel": "指引",

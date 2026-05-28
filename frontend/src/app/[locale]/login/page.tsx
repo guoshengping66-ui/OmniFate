@@ -1,11 +1,14 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Sparkles, Loader2, Eye, EyeOff } from "lucide-react"
 import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
+
+// Google Client ID — replace with your actual Client ID from Google Cloud Console
+const GOOGLE_CLIENT_ID = ""  // TODO: Set this in env or hardcode here
 
 export default function LoginPage() {
   const router = useRouter()
@@ -110,6 +113,16 @@ export default function LoginPage() {
             {loading ? <><Loader2 size={18} className="animate-spin" /> {t("auth.loggingIn")}</> : t("auth.login")}
           </button>
 
+          {/* Divider */}
+          <div className="flex items-center gap-3 my-2">
+            <div className="flex-1 h-px bg-white/10" />
+            <span className="text-white/30 text-xs">{t("auth.or")}</span>
+            <div className="flex-1 h-px bg-white/10" />
+          </div>
+
+          {/* Google Login Button */}
+          <GoogleLoginButton />
+
           <div className="flex items-center justify-between text-sm">
             <Link href="/forgot-password" className="text-gold/60 hover:text-gold">
               {t("auth.forgotPassword")}
@@ -130,6 +143,82 @@ export default function LoginPage() {
           </p>
         </form>
       </div>
+    </div>
+  )
+}
+
+function GoogleLoginButton() {
+  const { t } = useLanguage()
+  const googleBtnRef = useRef<HTMLDivElement>(null)
+  const [googleLoaded, setGoogleLoaded] = useState(false)
+
+  useEffect(() => {
+    if (!GOOGLE_CLIENT_ID) return
+
+    // Load Google Identity Services script
+    const script = document.createElement("script")
+    script.src = "https://accounts.google.com/gsi/client"
+    script.async = true
+    script.onload = () => {
+      if (window.google) {
+        window.google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          callback: handleGoogleResponse,
+        })
+        if (googleBtnRef.current) {
+          window.google.accounts.id.renderButton(googleBtnRef.current, {
+            theme: "outline",
+            size: "large",
+            width: "100%",
+            text: "continue_with",
+          })
+          setGoogleLoaded(true)
+        }
+      }
+    }
+    document.head.appendChild(script)
+
+    return () => {
+      // Cleanup
+      const existingScript = document.querySelector('script[src="https://accounts.google.com/gsi/client"]')
+      if (existingScript) existingScript.remove()
+    }
+  }, [])
+
+  const handleGoogleResponse = async (response: any) => {
+    try {
+      const { api } = await import("@/lib/api")
+      const result = await api.post("/api/auth/google", {
+        credential: response.credential,
+      })
+
+      // Store tokens
+      localStorage.setItem("access_token", result.data.access_token)
+      localStorage.setItem("refresh_token", result.data.refresh_token)
+
+      toast.success(t("auth.loginSuccess"))
+      window.location.href = "/"
+    } catch (err: any) {
+      console.error("[Google Login] error:", err)
+      toast.error(err?.response?.data?.detail ?? t("auth.loginFail"))
+    }
+  }
+
+  if (!GOOGLE_CLIENT_ID) {
+    return null  // Don't show if not configured
+  }
+
+  return (
+    <div
+      ref={googleBtnRef}
+      className="w-full flex justify-center"
+      style={{ minHeight: 44 }}
+    >
+      {!googleLoaded && (
+        <div className="w-full py-3 rounded-xl border border-white/10 bg-white/5 text-white/30 text-sm text-center">
+          Google {t("auth.login")}
+        </div>
+      )}
     </div>
   )
 }

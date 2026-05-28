@@ -2896,7 +2896,11 @@
     "shareText": "Check out my full-dimension destiny analysis! Bazi · Astrology · Tarot · Face · Palm — five systems combined",
     "shareTitle": "My Destiny Report — Destiny Mirror",
     "title": "Share Report",
-    "wechat": "WeChat"
+    "wechat": "WeChat",
+    "downloadPdf": "PDF Report",
+    "pdfNotFound": "Report content not found",
+    "pdfDownloaded": "PDF report downloaded!",
+    "pdfError": "Failed to generate PDF"
   },
   "shengxiao": {
     "dog": "Dog",
@@ -3076,5 +3080,20 @@
     "totalRevenue": "Total Revenue",
     "conversionRate": "Conversion Rate",
     "avgOrderValue": "Avg Order Value"
+  },
+  "onboarding": {
+    "step1Title": "Welcome to Destiny Mirror",
+    "step1Desc": "AI-powered multi-dimension destiny analysis. You've received 100 Stardust — enough to unlock your first full report!",
+    "step2Title": "Fill in Your Birth Info",
+    "step2Desc": "Enter your birth date, time, and location. This is the foundation for all destiny calculations.",
+    "step2Link": "Start Now",
+    "step3Title": "5 AI Analysis Dimensions",
+    "step3Desc": "Bazi, Western Astrology, Tarot, Face Reading, and Palmistry — all powered by AI for comprehensive insights.",
+    "step4Title": "Discover Destiny Products",
+    "step4Desc": "Based on your reading, we recommend crystals, talismans, and services tailored to your destiny blueprint.",
+    "step4Link": "Explore Shop"
+  },
+  "auth": {
+    "or": "or"
   }
 }

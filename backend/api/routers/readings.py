@@ -511,6 +511,20 @@ async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
                 reading.completed_at = datetime.now(timezone.utc)
                 await db.commit()
                 print(f"[BG] Persisted reading {state.session_id} to DB")
+
+                # Send completion notification email
+                try:
+                    from utils.email import send_analysis_complete_email, is_smtp_configured
+                    if is_smtp_configured() and reading.user_id:
+                        user_stmt = select(User).where(User.id == reading.user_id)
+                        user_result = await db.execute(user_stmt)
+                        user = user_result.scalar_one_or_none()
+                        if user and user.email:
+                            reading_lang = reading.language or "zh"
+                            send_analysis_complete_email(user.email, state.session_id, locale=reading_lang)
+                            print(f"[BG] Sent completion email to {user.email}")
+                except Exception as email_err:
+                    print(f"[WARN] Failed to send completion email: {email_err}")
     except Exception as e:
         print(f"[WARN] Failed to persist reading to DB: {e}")
 
@@ -697,10 +711,12 @@ async def get_session(
                     await db.commit()
                     # Fall through to the "completed" path below
 
-                # Auto-recover truly stuck sessions: >10 minutes old with no results
+                # Auto-recover stuck sessions: >5 minutes old with no results.
+                # The analysis pipeline has a 5-min timeout, so anything beyond
+                # that is guaranteed stuck (background task crashed or server restarted).
                 elif not has_results:
                     session_age = datetime.now(timezone.utc) - reading.created_at.replace(tzinfo=timezone.utc)
-                    if session_age.total_seconds() > 600:  # 10 minutes
+                    if session_age.total_seconds() > 300:  # 5 minutes
                         print(f"[WARN] Auto-recovering stuck session {session_id} (age={session_age}, status={reading.status})")
                         reading.status = ReadingStatus.failed
                         reading.error_message = "Analysis timed out — background task may have crashed"
@@ -722,11 +738,18 @@ async def get_session(
                             errors=["Analysis timed out — please try again"],
                         )
 
-                # If still pending/processing and <10min old, return processing status
+                # If still pending/processing and <5min old, check in-memory session
+                # to see if analysis is actually running (returns live progress)
                 if reading.status in (ReadingStatus.pending, ReadingStatus.processing):
+                    state = await _get_session(session_id)
+                    if state and state.phase in ("parallel", "master"):
+                        # Analysis is actively running — return live state
+                        resp = _state_to_response(state)
+                        return _apply_content_lock(resp, current_user, None, lang=lang or "zh")
+                    # No active session found — analysis likely crashed
                     return AnalysisResponse(
                         session_id=session_id,
-                        status=reading.status.value,
+                        status="failed",
                         master_summary="",
                         astrology=_empty_worker("astrology"),
                         tarot=_empty_worker("tarot"),
@@ -738,7 +761,7 @@ async def get_session(
                         recommended_product_ids=[],
                         computed_tags=[],
                         dimension_scores={},
-                        errors=[],
+                        errors=["Analysis did not complete — please retry"],
                     )
 
                 return AnalysisResponse(

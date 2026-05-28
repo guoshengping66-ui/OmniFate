@@ -11,9 +11,9 @@ import toast from "react-hot-toast"
 import { getSession, matchProducts, streamSession, AnalysisResponse, Product, AGENT_LABELS, SSEEvent, AgentStatusValue } from "@/lib/api"
 
 const AGENT_I18N: Record<string, string> = {
-  astrology: "agent.astrology", tarot: "agent.tarot", bazi: "agent.bazi",
-  qimen: "agent.qimen", ziwei: "agent.ziwei", face: "agent.face",
-  palm: "agent.palm", master: "agent.master",
+  astrology: "agent.astrology._label", tarot: "agent.tarot._label", bazi: "agent.bazi._label",
+  qimen: "agent.qimen._label", ziwei: "agent.ziwei._label", face: "agent.face._label",
+  palm: "agent.palm._label", master: "agent.master",
 }
 // Core imports (always needed)
 import AnalysisProgress from "@/components/reading/AnalysisProgress"
@@ -184,6 +184,12 @@ export default function ReadingPage() {
       }, STUCK_TIMEOUT)
     }
 
+    // Poll interval ref — accessible from both the callback and cleanup
+    let pollDone = false
+    let pollInterval: ReturnType<typeof setInterval> | null = null
+    let stalePollCount = 0
+    const STALE_POLL_THRESHOLD = 20 // ~60s with no status change → assume stuck
+
     getSession(id).then(d => {
       if (cancelled) return
       setData(d)
@@ -197,20 +203,33 @@ export default function ReadingPage() {
       startStuckTimer()
 
       // Start polling IMMEDIATELY as the primary fallback (works even if SSE fails)
-      let pollDone = false
-      const pollInterval = setInterval(async () => {
-        if (cancelled || pollDone) { clearInterval(pollInterval); return }
+      pollInterval = setInterval(async () => {
+        if (cancelled || pollDone) { if (pollInterval) clearInterval(pollInterval); return }
         try {
           const fresh = await getSession(id)
           if (fresh.status === "done" || fresh.status === "completed" || fresh.status === "chat") {
             pollDone = true
-            clearInterval(pollInterval)
+            if (pollInterval) clearInterval(pollInterval)
             setData(fresh)
             setIsUnlocked(fresh.is_detail_unlocked)
+            if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
+          } else if (fresh.status === "failed") {
+            // Backend detected stuck session — show error page
+            pollDone = true
+            if (pollInterval) clearInterval(pollInterval)
+            setData(fresh)
             if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
           } else {
             // Update partial data from polling
             setData(prev => prev ? { ...prev, ...fresh } : fresh)
+            // Detect stale polling: if status hasn't changed for too long, mark as stuck
+            stalePollCount++
+            if (stalePollCount >= STALE_POLL_THRESHOLD && !pollDone) {
+              pollDone = true
+              if (pollInterval) clearInterval(pollInterval)
+              setIsStuck(true)
+              if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
+            }
           }
         } catch { /* ignore */ }
       }, 3000)
@@ -221,6 +240,7 @@ export default function ReadingPage() {
         if (event.type === "phase" && event.phase) {
           if (event.phase !== lastSsePhase.current) {
             lastSsePhase.current = event.phase
+            stalePollCount = 0 // reset stale counter on real progress
             startStuckTimer()
           }
           setSsePhase(event.phase)
@@ -228,6 +248,7 @@ export default function ReadingPage() {
         if (event.type === "progress" && event.pct !== undefined) {
           if (event.pct > lastProgressPct.current) {
             lastProgressPct.current = event.pct
+            stalePollCount = 0 // reset stale counter on real progress
             startStuckTimer()
           }
           setProgressPct(event.pct)
@@ -235,30 +256,35 @@ export default function ReadingPage() {
         }
         if (event.type === "agent_status" && event.status) {
           setAgentStatus(event.status)
+          stalePollCount = 0
           startStuckTimer()
         }
         if (event.type === "worker_done" && event.agent_id) {
           setCompletedWorkers(prev => new Set(prev).add(event.agent_id!))
+          stalePollCount = 0
           startStuckTimer()
         }
         if (event.type === "subtask_done" && event.subtask) {
           setCompletedSubtasks(prev => new Set(prev).add(event.subtask!))
+          stalePollCount = 0
           startStuckTimer()
         }
         if (event.type === "complete") {
           pollDone = true
-          clearInterval(pollInterval)
+          if (pollInterval) clearInterval(pollInterval)
           if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
-          // Re-fetch full data to get correct dimension_scores
+          // Immediately mark as done so the page transitions to report view
+          setData(prev => prev ? {
+            ...prev,
+            status: "done",
+            master_summary: event.master_summary || prev.master_summary,
+            master_detail: event.master_detail || prev.master_detail,
+          } : prev)
+          // Re-fetch full data to get correct dimension_scores and worker reports
           getSession(id, locale).then(fresh => {
             if (!cancelled) setData(fresh)
           }).catch(() => {
-            setData(prev => prev ? {
-              ...prev,
-              master_summary: event.master_summary || prev.master_summary,
-              master_detail: event.master_detail || prev.master_detail,
-              status: "completed",
-            } : prev)
+            // Already set status to "done" above — report content may be partial
           })
         }
       }).catch(() => {
@@ -274,7 +300,7 @@ export default function ReadingPage() {
     return () => {
       cancelled = true
       if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
-      if (typeof pollInterval !== "undefined") clearInterval(pollInterval)
+      if (pollInterval) clearInterval(pollInterval)
     }
   }, [id, locale])
 
@@ -443,7 +469,7 @@ export default function ReadingPage() {
           ))}
         </div>
 
-        <div className="max-w-5xl mx-auto relative">
+        <div className="max-w-5xl mx-auto relative" data-report-content>
           {/* ── Top bar: badge + share ── */}
           <div
             className="flex flex-wrap items-center justify-between gap-3 mb-8"
