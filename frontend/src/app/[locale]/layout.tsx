@@ -48,7 +48,7 @@ export async function generateMetadata({
       siteName: "Destiny Mirror",
       images: [
         {
-          url: `${baseUrl}/og-image.png`,
+          url: `${baseUrl}/og-image.svg`,
           width: 1200,
           height: 630,
           alt: isZh ? "命盘智镜" : "Destiny Mirror",
@@ -63,7 +63,7 @@ export async function generateMetadata({
       description: isZh
         ? "AI 全维度命理分析平台"
         : "AI-powered multi-dimension destiny analysis",
-      images: [`${baseUrl}/og-image.png`],
+      images: [`${baseUrl}/og-image.svg`],
     },
     alternates: {
       canonical: `${baseUrl}/${locale}`,
