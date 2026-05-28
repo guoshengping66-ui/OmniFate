@@ -11,9 +11,9 @@ import toast from "react-hot-toast"
 import { getSession, matchProducts, streamSession, AnalysisResponse, Product, AGENT_LABELS, SSEEvent, AgentStatusValue } from "@/lib/api"
 
 const AGENT_I18N: Record<string, string> = {
-  astrology: "agent.astrology", tarot: "agent.tarot", bazi: "agent.bazi",
-  qimen: "agent.qimen", ziwei: "agent.ziwei", face: "agent.face",
-  palm: "agent.palm", master: "agent.master",
+  astrology: "agent.astrology._label", tarot: "agent.tarot._label", bazi: "agent.bazi._label",
+  qimen: "agent.qimen._label", ziwei: "agent.ziwei._label", face: "agent.face._label",
+  palm: "agent.palm._label", master: "agent.master",
 }
 // Core imports (always needed)
 import AnalysisProgress from "@/components/reading/AnalysisProgress"
