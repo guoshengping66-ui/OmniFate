@@ -2896,7 +2896,11 @@
     "shareText": "看看我的全维度命理分析吧！八字 · 占星 · 塔罗 · 面相 · 手相 — 五大系统合一",
     "shareTitle": "我的命盘报告 — 命盘智镜",
     "title": "分享报告",
-    "wechat": "微信"
+    "wechat": "微信",
+    "downloadPdf": "PDF 报告",
+    "pdfNotFound": "未找到报告内容",
+    "pdfDownloaded": "PDF 报告已下载！",
+    "pdfError": "PDF 生成失败"
   },
   "shengxiao": {
     "dog": "狗",
@@ -3074,12 +3078,6 @@
     "step4Title": "发现改运好物",
     "step4Desc": "根据你的命理分析，我们推荐适合你的水晶、符咒和改运服务。",
     "step4Link": "逛逛商城"
-  },
-  "share": {
-    "downloadPdf": "PDF 报告",
-    "pdfNotFound": "未找到报告内容",
-    "pdfDownloaded": "PDF 报告已下载！",
-    "pdfError": "PDF 生成失败"
   },
   "auth": {
     "or": "或"
