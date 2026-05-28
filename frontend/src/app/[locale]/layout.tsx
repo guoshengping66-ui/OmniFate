@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next"
+import { Suspense } from "react"
 import { getMessages, setRequestLocale } from "next-intl/server"
 import { locales, type Locale } from "@/i18n/config"
 import "./globals.css"
@@ -189,7 +190,9 @@ export default async function LocaleLayout({
       </head>
       <body>
         <AppProviders messages={messages} locale={validLocale}>
-          <RouteTracker />
+          <Suspense fallback={null}>
+            <RouteTracker />
+          </Suspense>
           <ServiceWorkerRegistration />
           <MonthlyGrantToast />
           <OnboardingGuide />
