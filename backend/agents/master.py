@@ -254,16 +254,18 @@ def _compute_dimension_scores(state: SystemState) -> dict[str, float]:
     """
     Compute 5-dimension scores (0-10) based on tags, elements, and per-theme sentiment.
 
-    Base score: 6.0
+    Base score: 7.0
     Adjustments:
-      - Each matching weakness_tag:  -0.5 (per unique worker → max -2.5)
-      - Each matching strength_tag:  +0.5 (per unique worker → max +2.5)
+      - Each matching weakness_tag:  -0.3 (per unique worker → max -2.1)
+      - Each matching strength_tag:  +0.5 (per unique worker → max +3.5)
       - boost_elements: minor boost to related dimension
       - Per-theme sentiment: only affects the matched dimension
+
+    Target distribution: most scores 5-9, average ~6.5-7.5
     """
     scores: dict[str, float] = {
-        "wealth": 6.0, "relationship": 6.0,
-        "career": 6.0, "health": 6.0, "spiritual": 6.0,
+        "wealth": 7.0, "relationship": 7.0,
+        "career": 7.0, "health": 7.0, "spiritual": 7.0,
     }
 
     # Dimension → keyword mapping (used for both tags and sentiment)
@@ -286,14 +288,24 @@ def _compute_dimension_scores(state: SystemState) -> dict[str, float]:
         all_strong.extend(out.strength_tags)
         all_boost.extend(out.boost_elements)
 
-    # Tag-based adjustments: limit per dimension to ±2.5 (7 workers × 0.5)
-    for dim, keywords in dim_keywords.items():
-        for tag in all_weak:
-            if any(kw in tag for kw in keywords):
-                scores[dim] = max(3.5, scores[dim] - 0.5)  # floor at 3.5
-        for tag in all_strong:
-            if any(kw in tag for kw in keywords):
-                scores[dim] = min(8.5, scores[dim] + 0.5)  # ceiling at 8.5
+    # Tag-based adjustments: track unique workers per dimension to avoid over-penalizing
+    # Each worker contributes at most once per dimension (even if multiple tags match)
+    weak_by_dim: dict[str, set] = {d: set() for d in dim_keywords}
+    strong_by_dim: dict[str, set] = {d: set() for d in dim_keywords}
+    for out in [state.bazi_output, state.qimen_output, state.ziwei_output,
+                state.astrology_output, state.tarot_output,
+                state.face_output, state.palm_output]:
+        for dim, keywords in dim_keywords.items():
+            if any(any(kw in tag for kw in keywords) for tag in out.weakness_tags):
+                weak_by_dim[dim].add(out.agent_id)
+            if any(any(kw in tag for kw in keywords) for tag in out.strength_tags):
+                strong_by_dim[dim].add(out.agent_id)
+
+    for dim in dim_keywords:
+        # -0.3 per unique worker with weakness tags (max ~7 workers × -0.3 = -2.1)
+        scores[dim] += -0.3 * len(weak_by_dim[dim])
+        # +0.5 per unique worker with strength tags (max ~7 workers × +0.5 = +3.5)
+        scores[dim] += 0.5 * len(strong_by_dim[dim])
 
     # boost_elements: map to dimension (supports both English and Chinese element names)
     element_dim_map = {
@@ -335,13 +347,13 @@ def _compute_dimension_scores(state: SystemState) -> dict[str, float]:
             dim_text = " ".join(relevant)
             sent = _sentiment(dim_text)
             if sent == "positive":
-                scores[dim] = min(10.0, scores[dim] + 0.3)
+                scores[dim] = min(10.0, scores[dim] + 0.4)
             elif sent == "negative":
-                scores[dim] = max(0.0, scores[dim] - 0.3)
+                scores[dim] = max(0.0, scores[dim] - 0.2)
 
-    # Clamp and round
+    # Clamp to 1-10 (never show 0, minimum meaningful score is 1)
     for dim in scores:
-        scores[dim] = round(max(0.0, min(10.0, scores[dim])), 1)
+        scores[dim] = round(max(1.0, min(10.0, scores[dim])), 1)
 
     return scores
 
