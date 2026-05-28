@@ -73,36 +73,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (storedToken) {
       // 有缓存用户 → 立即结束 loading，不阻塞渲染
       setLoading(false)
+
+      const tryRefreshAndRetry = async (retryCount = 0): Promise<void> => {
+        const refreshToken = localStorage.getItem(REFRESH_KEY)
+        if (!refreshToken) {
+          localStorage.removeItem(TOKEN_KEY)
+          localStorage.removeItem(USER_CACHE_KEY)
+          setUser(null)
+          return
+        }
+        try {
+          const r = await apiAuth.post("/api/auth/refresh", { refresh_token: refreshToken })
+          localStorage.setItem(TOKEN_KEY, r.data.access_token)
+          localStorage.setItem(REFRESH_KEY, r.data.refresh_token)
+          // Small delay to let backend state settle after refresh
+          await new Promise(resolve => setTimeout(resolve, 200))
+          const meRes = await apiAuth.get("/api/auth/me")
+          setUser(meRes.data)
+          cacheUser(meRes.data)
+        } catch {
+          if (retryCount < 2) {
+            // Retry with exponential backoff (500ms, 1500ms)
+            await new Promise(resolve => setTimeout(resolve, 500 * (retryCount + 1)))
+            return tryRefreshAndRetry(retryCount + 1)
+          }
+          localStorage.removeItem(TOKEN_KEY)
+          localStorage.removeItem(REFRESH_KEY)
+          localStorage.removeItem(USER_CACHE_KEY)
+          setUser(null)
+        }
+      }
+
       // 后台静默刷新，不设置 loading=true
       apiAuth.get("/api/auth/me")
         .then(res => {
           setUser(res.data)
           cacheUser(res.data)
         })
-        .catch(() => {
-          const refreshToken = localStorage.getItem(REFRESH_KEY)
-          if (refreshToken) {
-            return apiAuth.post("/api/auth/refresh", { refresh_token: refreshToken })
-              .then(r => {
-                localStorage.setItem(TOKEN_KEY, r.data.access_token)
-                localStorage.setItem(REFRESH_KEY, r.data.refresh_token)
-                return apiAuth.get("/api/auth/me")
-              })
-              .then(r => {
-                setUser(r?.data ?? null)
-                cacheUser(r?.data ?? null)
-              })
-              .catch(() => {
-                localStorage.removeItem(TOKEN_KEY)
-                localStorage.removeItem(REFRESH_KEY)
-                localStorage.removeItem(USER_CACHE_KEY)
-                setUser(null)
-              })
-          } else {
-            localStorage.removeItem(TOKEN_KEY)
-            localStorage.removeItem(USER_CACHE_KEY)
-          }
-        })
+        .catch(() => tryRefreshAndRetry())
     } else {
       setLoading(false)
     }
@@ -133,6 +141,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       failedQueue = []
     }
 
+    const clearAuth = () => {
+      localStorage.removeItem(TOKEN_KEY)
+      localStorage.removeItem(REFRESH_KEY)
+      localStorage.removeItem(USER_CACHE_KEY)
+      setUser(null)
+    }
+
     const handle401 = async (error: any) => {
       // Safety: if error has no config (network/timeout), reject immediately
       const originalRequest = error?.config
@@ -152,18 +167,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }).then(token => {
           originalRequest.headers.Authorization = `Bearer ${token}`
           return api(originalRequest)
-        }).catch(err => Promise.reject(err))
+        }).catch(err => {
+          // If the retried request also fails, clean up auth state
+          clearAuth()
+          return Promise.reject(err)
+        })
       }
 
       originalRequest._retry = true
       isRefreshing = true
 
+      const accessToken = localStorage.getItem(TOKEN_KEY)
       const refreshToken = localStorage.getItem(REFRESH_KEY)
-      if (!refreshToken) {
-        localStorage.removeItem(TOKEN_KEY)
-        localStorage.removeItem(REFRESH_KEY)
-        localStorage.removeItem(USER_CACHE_KEY)
-        setUser(null)
+      if (!refreshToken || !accessToken) {
+        clearAuth()
+        isRefreshing = false
+        return Promise.reject(error)
+      }
+
+      // Safety: reject if tokens are corrupted (same value for both)
+      if (refreshToken === accessToken) {
+        clearAuth()
         isRefreshing = false
         return Promise.reject(error)
       }
@@ -178,10 +202,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return api(originalRequest)
       } catch (refreshError) {
         processQueue(refreshError, null)
-        localStorage.removeItem(TOKEN_KEY)
-        localStorage.removeItem(REFRESH_KEY)
-        localStorage.removeItem(USER_CACHE_KEY)
-        setUser(null)
+        clearAuth()
         return Promise.reject(refreshError)
       } finally {
         isRefreshing = false
