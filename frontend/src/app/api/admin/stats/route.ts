@@ -45,13 +45,24 @@ export async function GET(request: Request) {
 
     // Get paid users (users with orders)
     const paidResult = await client.query(
-      "SELECT COUNT(DISTINCT user_id) as count FROM orders"
+      "SELECT COUNT(DISTINCT user_id) as count FROM orders WHERE status = 'paid'"
     )
     const paidUsers = parseInt(paidResult.rows[0].count)
+
+    // Get total revenue (sum of paid orders)
+    const revenueResult = await client.query(
+      "SELECT COALESCE(SUM(total_cny), 0) as total FROM orders WHERE status = 'paid'"
+    )
+    const totalRevenue = parseFloat(revenueResult.rows[0].total)
 
     // Get recent users
     const recentResult = await client.query(
       "SELECT email, created_at FROM users ORDER BY created_at DESC LIMIT 10"
+    )
+
+    // Get recent orders
+    const recentOrdersResult = await client.query(
+      "SELECT id, user_id, total_cny, status, created_at FROM orders ORDER BY created_at DESC LIMIT 10"
     )
 
     await client.end()
@@ -61,7 +72,9 @@ export async function GET(request: Request) {
       totalReadings,
       totalOrders,
       paidUsers,
+      totalRevenue,
       recentUsers: recentResult.rows,
+      recentOrders: recentOrdersResult.rows,
     })
   } catch (error: any) {
     console.error("Admin stats error:", error)

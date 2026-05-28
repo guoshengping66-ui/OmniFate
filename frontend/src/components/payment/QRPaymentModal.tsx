@@ -240,8 +240,8 @@ export function QRPaymentModal({
       attempts++
       setPollAttempts(attempts)
       try {
-        const { api } = await import("@/lib/api")
-        const userRes = await api.get("/api/auth/me")
+        const { apiAuth } = await import("@/lib/api")
+        const userRes = await apiAuth.get("/api/auth/me")
         const user = userRes.data
         if (user?.is_premium || user?.is_founder) { await activateSubscription(); return }
       } catch {}

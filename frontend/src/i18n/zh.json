@@ -3061,6 +3061,20 @@
     "totalOrders": "总订单数",
     "recentUsers": "最近注册用户",
     "email": "邮箱",
-    "registeredAt": "注册时间"
+    "registeredAt": "注册时间",
+    "tabOverview": "概览",
+    "tabUsers": "用户",
+    "tabOrders": "订单",
+    "tabRevenue": "收入",
+    "searchUsers": "搜索邮箱...",
+    "recentOrders": "最近订单",
+    "amount": "金额",
+    "status": "状态",
+    "createdAt": "创建时间",
+    "noOrders": "暂无订单",
+    "revenueStats": "收入统计",
+    "totalRevenue": "总收入",
+    "conversionRate": "转化率",
+    "avgOrderValue": "平均客单价"
   }
 }

@@ -3061,6 +3061,20 @@
     "totalOrders": "Total Orders",
     "recentUsers": "Recent Users",
     "email": "Email",
-    "registeredAt": "Registered At"
+    "registeredAt": "Registered At",
+    "tabOverview": "Overview",
+    "tabUsers": "Users",
+    "tabOrders": "Orders",
+    "tabRevenue": "Revenue",
+    "searchUsers": "Search by email...",
+    "recentOrders": "Recent Orders",
+    "amount": "Amount",
+    "status": "Status",
+    "createdAt": "Created At",
+    "noOrders": "No orders yet",
+    "revenueStats": "Revenue Statistics",
+    "totalRevenue": "Total Revenue",
+    "conversionRate": "Conversion Rate",
+    "avgOrderValue": "Avg Order Value"
   }
 }

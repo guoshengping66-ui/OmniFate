@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { Users, FileText, ShoppingCart, TrendingUp, RefreshCw } from "lucide-react"
+import { Users, FileText, ShoppingCart, TrendingUp, RefreshCw, Search, DollarSign, Activity } from "lucide-react"
 
 interface AdminStats {
   totalUsers: number
@@ -10,7 +10,17 @@ interface AdminStats {
   totalOrders: number
   paidUsers: number
   recentUsers: Array<{ email: string; created_at: string }>
+  totalRevenue?: number
+  recentOrders?: Array<{
+    id: string
+    user_id: string
+    total_cny: number
+    status: string
+    created_at: string
+  }>
 }
+
+type Tab = "overview" | "users" | "orders" | "revenue"
 
 export default function AdminPage() {
   const { t } = useLanguage()
@@ -19,6 +29,8 @@ export default function AdminPage() {
   const [error, setError] = useState<string | null>(null)
   const [adminKey, setAdminKey] = useState("")
   const [authenticated, setAuthenticated] = useState(false)
+  const [activeTab, setActiveTab] = useState<Tab>("overview")
+  const [userSearch, setUserSearch] = useState("")
 
   const fetchStats = async () => {
     if (!adminKey) return
@@ -77,20 +89,51 @@ export default function AdminPage() {
     )
   }
 
+  const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
+    { key: "overview", label: t("admin.tabOverview") || "Overview", icon: <Activity size={16} /> },
+    { key: "users", label: t("admin.tabUsers") || "Users", icon: <Users size={16} /> },
+    { key: "orders", label: t("admin.tabOrders") || "Orders", icon: <ShoppingCart size={16} /> },
+    { key: "revenue", label: t("admin.tabRevenue") || "Revenue", icon: <DollarSign size={16} /> },
+  ]
+
+  const filteredUsers = stats?.recentUsers?.filter(u =>
+    !userSearch || u.email.toLowerCase().includes(userSearch.toLowerCase())
+  ) || []
+
   return (
     <div className="min-h-screen bg-ink px-4 py-12">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
+      <div className="max-w-5xl mx-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-serif font-bold text-white">
             {t("admin.title") || "Admin Dashboard"}
           </h1>
           <button
             onClick={fetchStats}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.06] border border-white/10 text-white/70 hover:border-gold/30 transition-all"
+            disabled={loading}
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.06] border border-white/10 text-white/70 hover:border-gold/30 transition-all disabled:opacity-50"
           >
-            <RefreshCw size={16} />
+            <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
             {t("admin.refresh") || "Refresh"}
           </button>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+          {tabs.map(tab => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm transition-all whitespace-nowrap ${
+                activeTab === tab.key
+                  ? "bg-gold/20 text-gold border border-gold/30"
+                  : "bg-white/[0.04] text-white/50 border border-white/10 hover:text-white/70"
+              }`}
+            >
+              {tab.icon}
+              {tab.label}
+            </button>
+          ))}
         </div>
 
         {loading && !stats ? (
@@ -99,60 +142,186 @@ export default function AdminPage() {
           </div>
         ) : stats ? (
           <>
-            {/* Stats Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-              <StatCard
-                icon={<Users size={20} />}
-                label={t("admin.totalUsers") || "Total Users"}
-                value={stats.totalUsers}
-              />
-              <StatCard
-                icon={<TrendingUp size={20} />}
-                label={t("admin.paidUsers") || "Paid Users"}
-                value={stats.paidUsers}
-              />
-              <StatCard
-                icon={<FileText size={20} />}
-                label={t("admin.totalReadings") || "Total Readings"}
-                value={stats.totalReadings}
-              />
-              <StatCard
-                icon={<ShoppingCart size={20} />}
-                label={t("admin.totalOrders") || "Total Orders"}
-                value={stats.totalOrders}
-              />
-            </div>
+            {/* Overview Tab */}
+            {activeTab === "overview" && (
+              <>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                  <StatCard
+                    icon={<Users size={20} />}
+                    label={t("admin.totalUsers") || "Total Users"}
+                    value={stats.totalUsers}
+                  />
+                  <StatCard
+                    icon={<TrendingUp size={20} />}
+                    label={t("admin.paidUsers") || "Paid Users"}
+                    value={stats.paidUsers}
+                  />
+                  <StatCard
+                    icon={<FileText size={20} />}
+                    label={t("admin.totalReadings") || "Total Readings"}
+                    value={stats.totalReadings}
+                  />
+                  <StatCard
+                    icon={<ShoppingCart size={20} />}
+                    label={t("admin.totalOrders") || "Total Orders"}
+                    value={stats.totalOrders}
+                  />
+                </div>
 
-            {/* Recent Users */}
-            <div className="rounded-2xl bg-white/[0.04] border border-white/10 p-6">
-              <h2 className="text-xl font-serif font-bold text-white mb-4">
-                {t("admin.recentUsers") || "Recent Users"}
-              </h2>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                  <thead>
-                    <tr className="border-b border-white/10">
-                      <th className="pb-3 text-white/50 font-normal text-sm">
-                        {t("admin.email") || "Email"}
-                      </th>
-                      <th className="pb-3 text-white/50 font-normal text-sm">
-                        {t("admin.registeredAt") || "Registered At"}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {stats.recentUsers.map((user, i) => (
-                      <tr key={i} className="border-b border-white/5">
-                        <td className="py-3 text-white/70">{user.email}</td>
-                        <td className="py-3 text-white/50 text-sm">
-                          {new Date(user.created_at).toLocaleDateString("zh-CN")}
-                        </td>
+                {/* Recent Users */}
+                <div className="rounded-2xl bg-white/[0.04] border border-white/10 p-6">
+                  <h2 className="text-xl font-serif font-bold text-white mb-4">
+                    {t("admin.recentUsers") || "Recent Users"}
+                  </h2>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                      <thead>
+                        <tr className="border-b border-white/10">
+                          <th className="pb-3 text-white/50 font-normal text-sm">
+                            {t("admin.email") || "Email"}
+                          </th>
+                          <th className="pb-3 text-white/50 font-normal text-sm">
+                            {t("admin.registeredAt") || "Registered At"}
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {stats.recentUsers.map((user, i) => (
+                          <tr key={i} className="border-b border-white/5">
+                            <td className="py-3 text-white/70">{user.email}</td>
+                            <td className="py-3 text-white/50 text-sm">
+                              {new Date(user.created_at).toLocaleDateString("zh-CN")}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Users Tab */}
+            {activeTab === "users" && (
+              <div className="rounded-2xl bg-white/[0.04] border border-white/10 p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="relative flex-1">
+                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+                    <input
+                      type="text"
+                      value={userSearch}
+                      onChange={(e) => setUserSearch(e.target.value)}
+                      placeholder={t("admin.searchUsers") || "Search by email..."}
+                      className="w-full pl-10 pr-4 py-2 rounded-xl bg-white/[0.06] border border-white/10 text-white placeholder-white/40 text-sm"
+                    />
+                  </div>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left">
+                    <thead>
+                      <tr className="border-b border-white/10">
+                        <th className="pb-3 text-white/50 font-normal text-sm">#</th>
+                        <th className="pb-3 text-white/50 font-normal text-sm">
+                          {t("admin.email") || "Email"}
+                        </th>
+                        <th className="pb-3 text-white/50 font-normal text-sm">
+                          {t("admin.registeredAt") || "Registered At"}
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {filteredUsers.map((user, i) => (
+                        <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02]">
+                          <td className="py-3 text-white/40 text-sm">{i + 1}</td>
+                          <td className="py-3 text-white/70">{user.email}</td>
+                          <td className="py-3 text-white/50 text-sm">
+                            {new Date(user.created_at).toLocaleDateString("zh-CN")}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Orders Tab */}
+            {activeTab === "orders" && (
+              <div className="rounded-2xl bg-white/[0.04] border border-white/10 p-6">
+                <h2 className="text-xl font-serif font-bold text-white mb-4">
+                  {t("admin.recentOrders") || "Recent Orders"}
+                </h2>
+                {stats.recentOrders && stats.recentOrders.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                      <thead>
+                        <tr className="border-b border-white/10">
+                          <th className="pb-3 text-white/50 font-normal text-sm">ID</th>
+                          <th className="pb-3 text-white/50 font-normal text-sm">
+                            {t("admin.amount") || "Amount"}
+                          </th>
+                          <th className="pb-3 text-white/50 font-normal text-sm">
+                            {t("admin.status") || "Status"}
+                          </th>
+                          <th className="pb-3 text-white/50 font-normal text-sm">
+                            {t("admin.createdAt") || "Created At"}
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {stats.recentOrders.map((order, i) => (
+                          <tr key={i} className="border-b border-white/5">
+                            <td className="py-3 text-white/50 text-sm font-mono">{order.id.slice(0, 8)}...</td>
+                            <td className="py-3 text-white/70">¥{order.total_cny}</td>
+                            <td className="py-3">
+                              <span className={`px-2 py-0.5 rounded-full text-xs ${
+                                order.status === "paid" ? "bg-green-500/20 text-green-400" :
+                                order.status === "pending" ? "bg-yellow-500/20 text-yellow-400" :
+                                "bg-white/10 text-white/50"
+                              }`}>
+                                {order.status}
+                              </span>
+                            </td>
+                            <td className="py-3 text-white/50 text-sm">
+                              {new Date(order.created_at).toLocaleDateString("zh-CN")}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <p className="text-white/40 text-sm">{t("admin.noOrders") || "No orders yet"}</p>
+                )}
+              </div>
+            )}
+
+            {/* Revenue Tab */}
+            {activeTab === "revenue" && (
+              <div className="rounded-2xl bg-white/[0.04] border border-white/10 p-6">
+                <h2 className="text-xl font-serif font-bold text-white mb-4">
+                  {t("admin.revenueStats") || "Revenue Statistics"}
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="p-4 rounded-xl bg-white/[0.04] border border-white/10">
+                    <p className="text-white/40 text-sm mb-1">{t("admin.totalRevenue") || "Total Revenue"}</p>
+                    <p className="text-2xl font-bold text-gold">¥{stats.totalRevenue || 0}</p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-white/[0.04] border border-white/10">
+                    <p className="text-white/40 text-sm mb-1">{t("admin.conversionRate") || "Conversion Rate"}</p>
+                    <p className="text-2xl font-bold text-gold">
+                      {stats.totalUsers > 0 ? Math.round((stats.paidUsers / stats.totalUsers) * 100) : 0}%
+                    </p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-white/[0.04] border border-white/10">
+                    <p className="text-white/40 text-sm mb-1">{t("admin.avgOrderValue") || "Avg Order Value"}</p>
+                    <p className="text-2xl font-bold text-gold">
+                      ¥{stats.totalOrders > 0 ? Math.round((stats.totalRevenue || 0) / stats.totalOrders) : 0}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </>
         ) : null}
       </div>
