@@ -34,7 +34,7 @@ interface SeatInfo {
 export default function FounderPage() {
   const router = useRouter()
   const { user, loading: authLoading, refreshUser } = useAuth()
-  const { t } = useLanguage()
+  const { t, localeHref } = useLanguage()
   const [status, setStatus] = useState<FounderStatus | null>(null)
   const [seats, setSeats] = useState<SeatInfo[]>([])
   const [loading, setLoading] = useState(true)
@@ -137,7 +137,7 @@ export default function FounderPage() {
   return (
     <div className="min-h-screen pt-24 pb-16 px-4">
       <div className="max-w-4xl mx-auto">
-        <Breadcrumbs items={[{ label: t("pricing.breadcrumb"), href: "/pricing" }, { label: t("founder.pricing.title") }]} />
+        <Breadcrumbs items={[{ label: t("pricing.breadcrumb"), href: localeHref("/pricing") }, { label: t("founder.pricing.title") }]} />
 
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gold/10 mb-4">
@@ -382,7 +382,7 @@ export default function FounderPage() {
         )}
 
         <div className="text-center mt-8">
-          <Link href="/pricing" className="text-white/40 hover:text-gold text-sm inline-flex items-center gap-1">
+          <Link href={localeHref("/pricing")} className="text-white/40 hover:text-gold text-sm inline-flex items-center gap-1">
             <ArrowLeft size={14} />
             {t("founder.pricing.backToPricing")}
           </Link>

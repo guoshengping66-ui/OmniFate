@@ -19,7 +19,7 @@ const PricingCard = lazy(() => import("@/components/pricing/PricingCard").then(m
 export default function PricingPage() {
   const router = useRouter()
   const { user, refreshUser } = useAuth()
-  const { locale, t } = useLanguage()
+  const { locale, t, localeHref } = useLanguage()
   const { region, switchRegion, isLoaded } = useRegion()
   const [selectedTier, setSelectedTier] = useState<string | null>(null)
   const [founderSoldPercent, setFounderSoldPercent] = useState(67)
@@ -79,7 +79,7 @@ export default function PricingPage() {
           router.push("/login")
           return
         }
-        router.push("/pricing/founder")
+        router.push(localeHref("/pricing/founder"))
         break
     }
   }
@@ -402,7 +402,7 @@ export default function PricingPage() {
               </div>
             </div>
             <Link
-              href="/pricing/founder"
+              href={localeHref("/pricing/founder")}
               className="inline-flex items-center gap-2 text-gold/60 text-xs hover:text-gold transition-colors"
             >
               {t("pricing.learnFounder")}
@@ -418,7 +418,7 @@ export default function PricingPage() {
             {t("pricing.termsOfService")}
           </button>
           {" "}{t("pricing.and")}{" "}
-          <a href="/refund" className="text-gold/40 hover:text-gold underline">{t("pricing.refundPolicy")}</a>
+          <a href={localeHref("/refund")} className="text-gold/40 hover:text-gold underline">{t("pricing.refundPolicy")}</a>
           。{t("pricing.legalNote")}
         </p>
 

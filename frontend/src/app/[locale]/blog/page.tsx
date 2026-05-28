@@ -7,7 +7,7 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 
 export default function BlogPage() {
-  const { locale, t } = useLanguage()
+  const { locale, t, localeHref } = useLanguage()
   const [activeCategory, setActiveCategory] = useState("")
   const [searchQuery, setSearchQuery] = useState("")
 
@@ -112,7 +112,7 @@ export default function BlogPage() {
             {filteredArticles.map(article => (
               <Link
                 key={article.id}
-                href={`/blog/${article.id}`}
+                href={localeHref(`/blog/${article.id}`)}
                 className="card-glow p-5 hover:border-gold/30 transition-all duration-300 group block"
               >
                 {/* Cover emoji */}

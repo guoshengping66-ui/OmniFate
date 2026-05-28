@@ -75,5 +75,5 @@ export function middleware(request: NextRequest) {
 export const config = {
   // Only run middleware on routes that need locale detection.
   // Static assets, _next/*, and API routes are excluded.
-  matcher: ["/", "/(zh|en)/:path*"],
+  matcher: ["/", "/((?!_next|api|favicon.ico|.*\\.).*)"],
 }
