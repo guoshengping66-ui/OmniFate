@@ -1158,7 +1158,8 @@
     "verifyFail": "验证失败",
     "verifying": "验证中...",
     "verifySentTo": "验证码已发送至",
-    "verifyTitle": "邮箱验证"
+    "verifyTitle": "邮箱验证",
+    "or": "或"
   },
   "chat": {
     "quick": {
@@ -3092,8 +3093,5 @@
     "step4Title": "发现改运好物",
     "step4Desc": "根据你的命理分析，我们推荐适合你的水晶、符咒和改运服务。",
     "step4Link": "逛逛商城"
-  },
-  "auth": {
-    "or": "或"
   }
 }

@@ -1158,7 +1158,8 @@
     "verifyFail": "Verification failed",
     "verifying": "Verifying...",
     "verifySentTo": "Verification code sent to",
-    "verifyTitle": "Email Verification"
+    "verifyTitle": "Email Verification",
+    "or": "or"
   },
   "chat": {
     "quick": {
@@ -3092,8 +3093,5 @@
     "step4Title": "Discover Destiny Products",
     "step4Desc": "Based on your reading, we recommend crystals, talismans, and services tailored to your destiny blueprint.",
     "step4Link": "Explore Shop"
-  },
-  "auth": {
-    "or": "or"
   }
 }
