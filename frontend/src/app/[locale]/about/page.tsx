@@ -6,7 +6,7 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 export default function AboutPage() {
-  const { t } = useLanguage()
+  const { t, localeHref } = useLanguage()
 
   const pillars = [
     {
@@ -156,7 +156,7 @@ export default function AboutPage() {
             <h2 className="font-serif text-2xl text-gold mb-4">{t("about.ctaTitle")}</h2>
             <p className="text-white/50 mb-8 max-w-lg mx-auto">{t("about.ctaDesc")}</p>
             <Link
-              href="/reading/new"
+              href={localeHref("/reading/new")}
               className="btn-gold inline-flex items-center gap-2 text-lg px-10 py-4 group"
             >
               {t("about.ctaButton")}

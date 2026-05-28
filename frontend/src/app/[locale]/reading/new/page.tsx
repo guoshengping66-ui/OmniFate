@@ -510,7 +510,7 @@ export default function NewReadingPage() {
         <div className="mb-6 p-3 rounded-xl border border-amber-500/20 bg-amber-500/5 text-center">
           <p className="text-amber-200/70 text-xs leading-relaxed">
             {t("new.disclaimer")}
-            <a href="/disclaimer" className="text-gold/60 hover:text-gold ml-1 underline">{t("new.viewDetails")}</a>
+            <a href={localeHref("/disclaimer")} className="text-gold/60 hover:text-gold ml-1 underline">{t("new.viewDetails")}</a>
           </p>
         </div>
 

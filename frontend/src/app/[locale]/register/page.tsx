@@ -17,7 +17,7 @@ type Step = "account" | "birth" | "verify"
 
 export default function RegisterPage() {
   const router = useRouter()
-  const { t } = useLanguage()
+  const { t, localeHref } = useLanguage()
 
   // Step 1: Account
   const [step, setStep] = useState<Step>("account")
@@ -428,7 +428,7 @@ export default function RegisterPage() {
             />
             <span className="text-white/50 text-xs leading-relaxed">
               {t("auth.agreePolicy")}{" "}
-              <a href="/privacy" target="_blank" className="text-gold hover:underline">{t("auth.privacyPolicyLink")}</a>
+              <a href={localeHref("/privacy")} target="_blank" className="text-gold hover:underline">{t("auth.privacyPolicyLink")}</a>
               {" "}{t("auth.and")}{" "}
               <button type="button" onClick={() => setShowTerms(true)} className="text-gold hover:underline">
                 {t("auth.termsLink")}
@@ -446,7 +446,7 @@ export default function RegisterPage() {
 
           <p className="text-center text-white/40 text-sm">
             {t("auth.hasAccount")}{" "}
-            <Link href="/login" className="text-gold hover:underline">
+            <Link href={localeHref("/login")} className="text-gold hover:underline">
               {t("auth.loginNow")}
             </Link>
           </p>

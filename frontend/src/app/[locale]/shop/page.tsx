@@ -12,7 +12,7 @@ const AIRecommendHero = lazy(() => import("@/components/shop/AIRecommendHero").t
 function ShopContent() {
   const searchParams = useSearchParams()
   const sessionTags = searchParams.get("tags") ?? ""
-  const { t, locale } = useLanguage()
+  const { t, locale, localeHref } = useLanguage()
   const [products, setProducts] = useState<Product[]>([])
   const [allProducts, setAllProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
@@ -92,7 +92,7 @@ function ShopContent() {
         <div className="mb-6 p-3 rounded-xl border border-amber-500/20 bg-amber-500/5 text-center">
           <p className="text-amber-200/70 text-xs leading-relaxed">
             {t("shop.disclaimer") || "Products are cultural creative items. Descriptions are based on traditional destiny culture, not scientifically verified."}
-            <a href="/disclaimer" className="text-gold/60 hover:text-gold ml-1 underline">{t("shop.disclaimerLink") || "View Details"}</a>
+            <a href={localeHref("/disclaimer")} className="text-gold/60 hover:text-gold ml-1 underline">{t("shop.disclaimerLink") || "View Details"}</a>
           </p>
         </div>
 

@@ -14,7 +14,7 @@ const SYMBOLS = ["BTC", "ETH", "SOL", "BNB", "XRP", "ADA", "DOGE", "DOT", "AVAX"
 export default function NewTradePage() {
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
-  const { t } = useLanguage()
+  const { t, localeHref } = useLanguage()
   const [symbol, setSymbol] = useState("BTC")
   const [direction, setDirection] = useState<"long" | "short">("long")
   const [entryPrice, setEntryPrice] = useState("")
@@ -33,7 +33,7 @@ export default function NewTradePage() {
 
   useEffect(() => {
     if (authLoading) return
-    if (!user) router.push("/login")
+    if (!user) router.push(localeHref("/login"))
   }, [user, authLoading, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -82,7 +82,7 @@ export default function NewTradePage() {
         <Breadcrumbs items={[{ label: t("trading.breadcrumb"), href: "/trading" }, { label: t("trading.new.breadcrumb") }]} />
 
         <div className="mb-8">
-          <Link href="/trading" className="text-white/40 hover:text-gold text-sm inline-flex items-center gap-1 mb-4">
+          <Link href={localeHref("/trading")} className="text-white/40 hover:text-gold text-sm inline-flex items-center gap-1 mb-4">
             <ArrowLeft size={14} />
             {t("trading.new.back")}
           </Link>

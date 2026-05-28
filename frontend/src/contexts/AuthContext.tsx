@@ -71,7 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const storedToken = localStorage.getItem(TOKEN_KEY)
     if (storedToken) {
-      console.log("[Auth] Found stored token, validating...", storedToken.slice(0, 20) + "...")
+      console.log("[Auth] Found stored token, validating...")
       setLoading(false)
 
       const tryRefreshAndRetry = async (retryCount = 0): Promise<void> => {
@@ -86,7 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.log(`[Auth] Attempting refresh (attempt ${retryCount + 1}/3)...`)
         try {
           const r = await apiAuth.post("/api/auth/refresh", { refresh_token: refreshToken })
-          console.log("[Auth] Refresh succeeded, new token:", r.data.access_token.slice(0, 20) + "...")
+          console.log("[Auth] Refresh succeeded")
           localStorage.setItem(TOKEN_KEY, r.data.access_token)
           localStorage.setItem(REFRESH_KEY, r.data.refresh_token)
           // Small delay to let backend state settle after refresh

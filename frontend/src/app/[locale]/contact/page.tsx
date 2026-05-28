@@ -8,7 +8,7 @@ import { api } from "@/lib/api"
 import toast from "react-hot-toast"
 
 export default function ContactPage() {
-  const { t } = useLanguage()
+  const { t, localeHref } = useLanguage()
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [subject, setSubject] = useState("")
@@ -81,7 +81,7 @@ export default function ContactPage() {
                 <p className="text-white/30 text-xs leading-relaxed">
                   {t("contact.faq.desc")}
                 </p>
-                <a href="/faq" className="text-gold/60 text-xs hover:text-gold mt-2 inline-block">
+                <a href={localeHref("/faq")} className="text-gold/60 text-xs hover:text-gold mt-2 inline-block">
                   {t("contact.faq.link")}
                 </a>
               </div>

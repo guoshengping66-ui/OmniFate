@@ -34,7 +34,7 @@ export default function OrderDetailPage() {
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
-  const { t, locale } = useLanguage()
+  const { t, locale, localeHref } = useLanguage()
   const [order, setOrder] = useState<OrderDetail | null>(null)
   const [tracking, setTracking] = useState<TrackingInfo | null>(null)
   const [loading, setLoading] = useState(true)
@@ -42,7 +42,7 @@ export default function OrderDetailPage() {
 
   useEffect(() => {
     if (authLoading) return
-    if (!user) { router.push("/login"); return }
+    if (!user) { router.push(localeHref("/login")); return }
     loadOrder()
   }, [id, user, authLoading])
 
@@ -114,7 +114,7 @@ export default function OrderDetailPage() {
     return (
       <div className="min-h-screen pt-24 pb-16 px-4 text-center">
         <p className="text-white/40">{t("order.detail.notFound")}</p>
-        <Link href="/account" className="text-gold text-sm mt-2 hover:underline">{t("account.myOrders")}</Link>
+        <Link href={localeHref("/account")} className="text-gold text-sm mt-2 hover:underline">{t("account.myOrders")}</Link>
       </div>
     )
   }

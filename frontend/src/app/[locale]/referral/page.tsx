@@ -28,7 +28,7 @@ interface ReferralReward {
 export default function ReferralPage() {
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
-  const { t } = useLanguage()
+  const { t, localeHref } = useLanguage()
   const [code, setCode] = useState<ReferralCode | null>(null)
   const [stats, setStats] = useState<ReferralStats | null>(null)
   const [rewards, setRewards] = useState<ReferralReward[]>([])
@@ -40,7 +40,7 @@ export default function ReferralPage() {
   useEffect(() => {
     if (authLoading) return
     if (!user) {
-      router.push("/login")
+      router.push(localeHref("/login"))
       return
     }
 

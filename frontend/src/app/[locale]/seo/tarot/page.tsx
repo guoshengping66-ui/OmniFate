@@ -6,7 +6,7 @@ import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 export default function TarotSEOPage() {
-  const { t } = useLanguage()
+  const { t, localeHref } = useLanguage()
 
   const features = [
     { icon: "🃏", title: t("seo.tarot.f1Title"), desc: t("seo.tarot.f1Desc") },
@@ -105,7 +105,7 @@ export default function TarotSEOPage() {
                 {t("seo.tarot.ctaDesc")}
               </p>
               <Link
-                href="/reading/new"
+                href={localeHref("/reading/new")}
                 className="btn-gold inline-flex items-center gap-2 text-lg px-10 py-4"
               >
                 {t("seo.tarot.ctaBtn")} <ArrowRight size={20} />

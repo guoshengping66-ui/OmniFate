@@ -21,7 +21,7 @@ interface AlmanacData {
 export default function AlmanacPage() {
   const router = useRouter()
   const { user } = useAuth()
-  const { t, locale } = useLanguage()
+  const { t, locale, localeHref } = useLanguage()
   const [data, setData] = useState<AlmanacData | null>(null)
   const [loading, setLoading] = useState(true)
   const [noSession, setNoSession] = useState(false)
@@ -132,7 +132,7 @@ export default function AlmanacPage() {
           <p className="text-white/50 text-sm mb-6">
             {t("almanac.premiumDesc")}
           </p>
-          <button onClick={() => router.push("/pricing")} className="btn-gold">
+          <button onClick={() => router.push(localeHref("/pricing"))} className="btn-gold">
             {t("almanac.viewPlans")}
           </button>
         </div>
@@ -153,7 +153,7 @@ export default function AlmanacPage() {
     <div className="min-h-screen pt-24 pb-16 px-4 flex items-center justify-center">
       <div className="card-glass p-10 text-center max-w-md">
         <p className="text-white/50 text-sm mb-4">{t("almanac.needReading")}</p>
-        <button onClick={() => router.push("/reading/new")} className="btn-gold">
+        <button onClick={() => router.push(localeHref("/reading/new"))} className="btn-gold">
           {t("almanac.startReading")}
         </button>
       </div>

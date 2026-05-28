@@ -82,7 +82,7 @@ export default function ProductDetailPage() {
     return (
       <div className="min-h-screen pt-24 pb-16 px-4 text-center">
         <p className="text-white/40">{t("shop.detail.notFound")}</p>
-        <Link href="/shop" className="text-gold text-sm mt-2 hover:underline">{t("shop.detail.backToShop")}</Link>
+        <Link href={localeHref("/shop")} className="text-gold text-sm mt-2 hover:underline">{t("shop.detail.backToShop")}</Link>
       </div>
     )
   }

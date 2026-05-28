@@ -83,7 +83,7 @@ export default function AccountPage() {
   // Allow anonymous users to view their reading history
   // Only redirect if no anonymous readings exist
   if (!user && anonymousReadings.length === 0) {
-    router.push("/login")
+    router.push(localeHref("/login"))
     return null
   }
 
@@ -110,7 +110,7 @@ export default function AccountPage() {
               )}
             </div>
             <button
-              onClick={() => { logout(); router.push("/"); }}
+              onClick={() => { logout(); router.push(localeHref("/")); }}
               className="flex items-center gap-1.5 text-white/30 hover:text-red-400 text-xs transition-colors"
             >
               <LogOut size={14} /> {t("account.logout")}
@@ -224,7 +224,7 @@ export default function AccountPage() {
                           : t("membership.free")}
                       </span>
                     </div>
-                    <Link href="/pricing" className="text-gold text-xs hover:underline">
+                    <Link href={localeHref("/pricing")} className="text-gold text-xs hover:underline">
                       {user.is_premium ? t("account.manageSub") : t("account.upgrade")}
                     </Link>
                   </div>
@@ -351,7 +351,7 @@ export default function AccountPage() {
                   <div className="card-glass p-12 text-center">
                     <ShoppingBag size={36} className="mx-auto mb-3 text-white/10" />
                     <p className="text-white/30 text-sm">{t("account.noOrders")}</p>
-                    <Link href="/shop" className="text-gold text-xs mt-2 hover:underline">{t("account.browseShop")}</Link>
+                    <Link href={localeHref("/shop")} className="text-gold text-xs mt-2 hover:underline">{t("account.browseShop")}</Link>
                   </div>
                 ) : (
                   <OrderList orders={orders} statusLabels={ORDER_STATUS_LABELS} t={t as unknown as (key: string) => string} />
@@ -367,7 +367,7 @@ export default function AccountPage() {
                   <div className="card-glass p-12 text-center">
                     <Heart size={36} className="mx-auto mb-3 text-white/10" />
                     <p className="text-white/30 text-sm">{t("account.noFavorites")}</p>
-                    <Link href="/shop" className="text-gold text-xs mt-2 hover:underline">{t("account.browseShopAlt")}</Link>
+                    <Link href={localeHref("/shop")} className="text-gold text-xs mt-2 hover:underline">{t("account.browseShopAlt")}</Link>
                   </div>
                 ) : (
                   <div className="grid sm:grid-cols-2 gap-3">
@@ -475,7 +475,7 @@ export default function AccountPage() {
                       <p className="flex items-center gap-2"><span className="text-gold">✓</span> {t("account.multiProfile")}</p>
                     </div>
 
-                    <Link href="/pricing" className="btn-gold inline-flex items-center gap-2 text-sm">
+                    <Link href={localeHref("/pricing")} className="btn-gold inline-flex items-center gap-2 text-sm">
                       {isPremium ? t("account.manageSub") : t("account.upgrade")}
                     </Link>
                   </div>

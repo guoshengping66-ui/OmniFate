@@ -9,11 +9,11 @@ import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 export default function CreditsPage() {
   const { user, loading } = useAuth()
   const router = useRouter()
-  const { t } = useLanguage()
+  const { t, localeHref } = useLanguage()
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push("/login")
+      router.push(localeHref("/login"))
     }
   }, [user, loading, router])
 

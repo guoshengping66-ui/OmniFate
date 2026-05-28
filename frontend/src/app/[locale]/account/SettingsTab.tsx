@@ -72,7 +72,7 @@ function Toggle({ enabled, onToggle }: { enabled: boolean; onToggle: () => void 
 export default function SettingsTab({ user, refreshUser, t }: { user: AuthUser; refreshUser: () => Promise<void>; t: (key: string) => string }) {
   const router = useRouter()
   const { logout } = useAuth()
-  const { locale, setLocale } = useLanguage()
+  const { locale, setLocale, localeHref } = useLanguage()
 
   // Profile state
   const [displayName, setDisplayName] = useState(user.display_name || "")
@@ -161,7 +161,7 @@ export default function SettingsTab({ user, refreshUser, t }: { user: AuthUser; 
       await deleteAccount(deletePassword)
       toast.success(t("account.deleteSuccess"))
       logout()
-      router.push("/")
+      router.push(localeHref("/"))
     } catch (err: any) {
       toast.error(err?.response?.data?.detail ?? t("account.deleteFail"))
     } finally {

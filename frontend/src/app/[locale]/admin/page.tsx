@@ -37,7 +37,9 @@ export default function AdminPage() {
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch(`/api/admin/stats?key=${adminKey}`)
+      const res = await fetch("/api/admin/stats", {
+        headers: { "x-admin-key": adminKey },
+      })
       if (!res.ok) {
         const errData = await res.json()
         throw new Error(errData.error || "Failed to fetch stats")

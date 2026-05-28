@@ -22,7 +22,7 @@ interface RadarEvent {
 export default function EventsRadarPage() {
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
-  const { t } = useLanguage()
+  const { t, localeHref } = useLanguage()
   const [events, setEvents] = useState<RadarEvent[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedEvent, setSelectedEvent] = useState<RadarEvent | null>(null)
@@ -30,7 +30,7 @@ export default function EventsRadarPage() {
   useEffect(() => {
     if (authLoading) return
     if (!user) {
-      router.push("/login")
+      router.push(localeHref("/login"))
       return
     }
 
@@ -173,7 +173,7 @@ export default function EventsRadarPage() {
             <p className="text-white/60 mb-4">
               {t("radar.upgradePrompt")}
             </p>
-            <Link href="/pricing" className="btn-gold-outline inline-flex items-center gap-2">
+            <Link href={localeHref("/pricing")} className="btn-gold-outline inline-flex items-center gap-2">
               {t("radar.viewBenefits")}
               <ArrowRight size={14} />
             </Link>

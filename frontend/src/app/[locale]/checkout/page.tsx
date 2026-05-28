@@ -14,7 +14,7 @@ export default function CheckoutPage() {
   const router = useRouter()
   const { items, totalCny, totalWithDiscount, isMember, clearCart } = useCart()
   const { user, refreshUser } = useAuth()
-  const { t } = useLanguage()
+  const { t, localeHref } = useLanguage()
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
   const [useCoupon, setUseCoupon] = useState(false)
@@ -29,7 +29,7 @@ export default function CheckoutPage() {
   const handleCheckout = async () => {
     if (!user) {
       toast.error(t("checkout.loginFirst"))
-      router.push("/login")
+      router.push(localeHref("/login"))
       return
     }
     if (!selectedAddress) {
@@ -70,7 +70,7 @@ export default function CheckoutPage() {
       <div className="min-h-screen pt-24 pb-16 px-4 text-center">
         <ShoppingBag size={48} className="text-white/10 mx-auto mb-4" />
         <p className="text-white/40">{t("checkout.empty")}</p>
-        <button onClick={() => router.push("/shop")} className="text-gold text-sm mt-2 hover:underline">
+        <button onClick={() => router.push(localeHref("/shop"))} className="text-gold text-sm mt-2 hover:underline">
           {t("checkout.goShop")}
         </button>
       </div>
@@ -113,10 +113,10 @@ export default function CheckoutPage() {
             </ul>
           </div>
           <div className="flex gap-3">
-            <button onClick={() => router.push("/account/orders")} className="btn-gold flex-1 text-sm">
+            <button onClick={() => router.push(localeHref("/account/orders"))} className="btn-gold flex-1 text-sm">
               {t("checkout.viewOrders")}
             </button>
-            <button onClick={() => router.push("/shop")} className="btn-gold flex-1 text-sm">
+            <button onClick={() => router.push(localeHref("/shop"))} className="btn-gold flex-1 text-sm">
               {t("checkout.continueShop")}
             </button>
           </div>
@@ -237,9 +237,9 @@ export default function CheckoutPage() {
           />
           <span className="text-white/50 text-xs leading-relaxed">
             {t("checkout.terms")}
-            <a href="/terms" target="_blank" className="text-gold hover:underline">{t("checkout.termsOfService")}</a>
+            <a href={localeHref("/terms")} target="_blank" className="text-gold hover:underline">{t("checkout.termsOfService")}</a>
             {t("checkout.and")}
-            <a href="/refund" target="_blank" className="text-gold hover:underline">{t("checkout.refundPolicy")}</a>
+            <a href={localeHref("/refund")} target="_blank" className="text-gold hover:underline">{t("checkout.refundPolicy")}</a>
           </span>
         </label>
         <button

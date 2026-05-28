@@ -297,7 +297,7 @@ export default function BlogArticlePage() {
         {/* CTA */}
         <div className="mt-8 text-center card-glass p-8">
           <p className="text-white/40 text-sm mb-4">{t("blog.ctaQuestion")}</p>
-          <Link href="/reading/new" className="btn-gold inline-flex items-center gap-2 text-sm">
+          <Link href={localeHref("/reading/new")} className="btn-gold inline-flex items-center gap-2 text-sm">
             {t("blog.ctaButton")} 🔮
           </Link>
         </div>

@@ -25,7 +25,7 @@ interface VoteItem {
 
 export default function FounderLoungePage() {
   const { user } = useAuth()
-  const { t } = useLanguage()
+  const { t, localeHref } = useLanguage()
   const [founderInfo, setFounderInfo] = useState<FounderInfo | null>(null)
   const [votes, setVotes] = useState<VoteItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -78,7 +78,7 @@ export default function FounderLoungePage() {
         <div className="text-center">
           <Crown size={48} className="text-gold/30 mx-auto mb-4" />
           <p className="text-white/40 text-lg">{t("founder.lounge.notFounder")}</p>
-          <a href="/pricing/founder" className="text-gold text-sm mt-2 inline-block hover:underline">
+          <a href={localeHref("/pricing/founder")} className="text-gold text-sm mt-2 inline-block hover:underline">
             {t("founder.lounge.learnMore")}
           </a>
         </div>

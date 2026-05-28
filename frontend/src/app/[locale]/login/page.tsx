@@ -13,7 +13,7 @@ const GOOGLE_CLIENT_ID = ""  // TODO: Set this in env or hardcode here
 export default function LoginPage() {
   const router = useRouter()
   const { login } = useAuth()
-  const { t } = useLanguage()
+  const { t, localeHref } = useLanguage()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPw, setShowPw] = useState(false)
@@ -31,7 +31,7 @@ export default function LoginPage() {
       toast.success(t("auth.loginSuccess"))
       // Use window.location for instant full-page reload instead of client-side navigation
       // This avoids the slow RSC payload fetch and re-render cycle
-      window.location.href = "/"
+      window.location.href = localeHref("/")
     } catch (err: any) {
       console.error("[Login] error:", err)
       if (err.code === "ERR_NETWORK" || err.code === "ECONNABORTED" || err.message?.includes("Network Error")) {
@@ -124,12 +124,12 @@ export default function LoginPage() {
           <GoogleLoginButton />
 
           <div className="flex items-center justify-between text-sm">
-            <Link href="/forgot-password" className="text-gold/60 hover:text-gold">
+            <Link href={localeHref("/forgot-password")} className="text-gold/60 hover:text-gold">
               {t("auth.forgotPassword")}
             </Link>
             <p className="text-white/40">
               {t("auth.noAccount")}{" "}
-              <Link href="/register" className="text-gold hover:underline">
+              <Link href={localeHref("/register")} className="text-gold hover:underline">
                 {t("auth.registerNow")}
               </Link>
             </p>
@@ -137,9 +137,9 @@ export default function LoginPage() {
 
           <p className="text-center text-white/25 text-[10px] mt-2">
             {t("auth.agreeTo")}{" "}
-            <a href="/privacy" className="text-gold/50 hover:text-gold underline">{t("auth.privacyPolicy")}</a>
+            <a href={localeHref("/privacy")} className="text-gold/50 hover:text-gold underline">{t("auth.privacyPolicy")}</a>
             {" "}{t("auth.and")}{" "}
-            <a href="/terms" className="text-gold/50 hover:text-gold underline">{t("auth.termsOfService")}</a>
+            <a href={localeHref("/terms")} className="text-gold/50 hover:text-gold underline">{t("auth.termsOfService")}</a>
           </p>
         </form>
       </div>
@@ -148,7 +148,7 @@ export default function LoginPage() {
 }
 
 function GoogleLoginButton() {
-  const { t } = useLanguage()
+  const { t, localeHref } = useLanguage()
   const googleBtnRef = useRef<HTMLDivElement>(null)
   const [googleLoaded, setGoogleLoaded] = useState(false)
 
@@ -197,7 +197,7 @@ function GoogleLoginButton() {
       localStorage.setItem("refresh_token", result.data.refresh_token)
 
       toast.success(t("auth.loginSuccess"))
-      window.location.href = "/"
+      window.location.href = localeHref("/")
     } catch (err: any) {
       console.error("[Google Login] error:", err)
       toast.error(err?.response?.data?.detail ?? t("auth.loginFail"))

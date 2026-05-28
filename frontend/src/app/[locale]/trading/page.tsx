@@ -30,7 +30,7 @@ interface TradeStats {
 export default function TradingPage() {
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
-  const { t } = useLanguage()
+  const { t, localeHref } = useLanguage()
   const [trades, setTrades] = useState<TradeEntry[]>([])
   const [stats, setStats] = useState<TradeStats | null>(null)
   const [loading, setLoading] = useState(true)
@@ -39,7 +39,7 @@ export default function TradingPage() {
   useEffect(() => {
     if (authLoading) return
     if (!user) {
-      router.push("/login")
+      router.push(localeHref("/login"))
       return
     }
 
@@ -79,7 +79,7 @@ export default function TradingPage() {
             <p className="text-white/50 text-sm">{t("trading.desc")}</p>
           </div>
           <Link
-            href="/trading/new"
+            href={localeHref("/trading/new")}
             className="btn-gold flex items-center gap-2 text-sm"
           >
             <Plus size={16} />
@@ -137,7 +137,7 @@ export default function TradingPage() {
           <div className="card-glass p-12 text-center">
             <Calendar size={48} className="text-white/20 mx-auto mb-4" />
             <p className="text-white/40 mb-4">{t("trading.empty")}</p>
-            <Link href="/trading/new" className="btn-gold-outline inline-flex items-center gap-2">
+            <Link href={localeHref("/trading/new")} className="btn-gold-outline inline-flex items-center gap-2">
               <Plus size={16} />
               {t("trading.emptyBtn")}
             </Link>

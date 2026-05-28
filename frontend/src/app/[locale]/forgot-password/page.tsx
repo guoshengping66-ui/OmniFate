@@ -8,7 +8,7 @@ import { forgotPassword, resetPasswordWithCode } from "@/lib/api"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 export default function ForgotPasswordPage() {
-  const { t } = useLanguage()
+  const { t, localeHref } = useLanguage()
   const router = useRouter()
 
   // Step 1: Enter email
@@ -105,7 +105,7 @@ export default function ForgotPasswordPage() {
           <h1 className="text-2xl font-serif font-bold text-gold mb-2">{t("auth.resetSuccess")}</h1>
           <p className="text-white/40 text-sm mb-6">{t("auth.resetSuccessDesc")}</p>
           <button
-            onClick={() => router.push("/login")}
+            onClick={() => router.push(localeHref("/login"))}
             className="btn-gold px-8 py-3"
           >
             {t("auth.goToLogin")}
@@ -241,7 +241,7 @@ export default function ForgotPasswordPage() {
           </button>
 
           <p className="text-center text-white/40 text-sm">
-            <Link href="/login" className="text-gold hover:underline">{t("auth.backToLogin")}</Link>
+            <Link href={localeHref("/login")} className="text-gold hover:underline">{t("auth.backToLogin")}</Link>
           </p>
         </form>
       </div>

@@ -167,7 +167,7 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
   } catch (err: any) {
     const msg = err?.name === "AbortError"
       ? "Backend timeout — analysis is running, please check back in a moment"
-      : `Proxy error: ${err.message}`
+      : "Proxy error"
     return new Response(
       JSON.stringify({ detail: msg }),
       { status: 502, headers: { "Content-Type": "application/json" } },

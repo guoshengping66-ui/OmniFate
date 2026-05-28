@@ -48,7 +48,7 @@ export default function FounderPage() {
   useEffect(() => {
     if (authLoading) return
     if (!user) {
-      router.push("/login")
+      router.push(localeHref("/login"))
       return
     }
 

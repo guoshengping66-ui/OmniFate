@@ -59,24 +59,24 @@ export default function PricingPage() {
     switch (tierId) {
       case "free":
       case "full_report":
-        router.push("/reading/new")
+        router.push(localeHref("/reading/new"))
         break
       case "premium_monthly":
       case "premium_yearly":
         if (!user) {
           toast.error(t("pricing.loginRequired"))
-          router.push("/login")
+          router.push(localeHref("/login"))
           return
         }
         setSelectedTier(tierId)
         break
       case "event_retro":
-        router.push("/events")
+        router.push(localeHref("/events"))
         break
       case "founder_lifetime":
         if (!user) {
           toast.error(t("pricing.purchaseRequired"))
-          router.push("/login")
+          router.push(localeHref("/login"))
           return
         }
         router.push(localeHref("/pricing/founder"))

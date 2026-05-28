@@ -7,7 +7,7 @@ import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import Link from "next/link"
 
 export default function FAQPage() {
-  const { t } = useLanguage()
+  const { t, localeHref } = useLanguage()
 
   const faqs = [
     { q: t("faq.q1"), a: t("faq.a1") },
@@ -46,7 +46,7 @@ export default function FAQPage() {
               {t("faq.contactTeamDesc")}
             </p>
             <Link
-              href="/contact"
+              href={localeHref("/contact")}
               className="btn-gold inline-flex items-center gap-2 px-8 py-3"
             >
               {t("faq.contactUs")}

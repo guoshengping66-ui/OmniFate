@@ -6,7 +6,7 @@ import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 export default function FaceReadingSEOPage() {
-  const { t } = useLanguage()
+  const { t, localeHref } = useLanguage()
 
   const features = [
     { icon: "📸", title: t("seo.face.f1Title"), desc: t("seo.face.f1Desc") },
@@ -117,7 +117,7 @@ export default function FaceReadingSEOPage() {
                 {t("seo.face.ctaDesc")}
               </p>
               <Link
-                href="/reading/new"
+                href={localeHref("/reading/new")}
                 className="btn-gold inline-flex items-center gap-2 text-lg px-10 py-4"
               >
                 {t("seo.face.ctaBtn")} <ArrowRight size={20} />

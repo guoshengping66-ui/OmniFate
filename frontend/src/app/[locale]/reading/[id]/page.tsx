@@ -137,7 +137,7 @@ function getGreeting(t: (key: string) => string): string {
 export default function ReadingPage() {
   const { id } = useParams<{ id: string }>()
   const { user, refreshUser } = useAuth()
-  const { locale, t } = useLanguage()
+  const { locale, t, localeHref } = useLanguage()
   const { region } = useRegion()
   const router = useRouter()
   const [data, setData]         = useState<AnalysisResponse | null>(null)
@@ -360,7 +360,7 @@ export default function ReadingPage() {
             {t("analysis.stuckMessage") || "后台分析任务异常中断，请重新发起分析。"}
           </p>
           <button
-            onClick={() => router.push("/reading/new")}
+            onClick={() => router.push(localeHref("/reading/new"))}
             className="btn-gold inline-flex items-center gap-2 text-sm"
           >
             <RefreshCw size={14} />
@@ -392,7 +392,7 @@ export default function ReadingPage() {
                 {t("analysis.stuckContinue") || "继续等待"}
               </button>
               <button
-                onClick={() => router.push("/reading/new")}
+                onClick={() => router.push(localeHref("/reading/new"))}
                 className="btn-gold flex items-center gap-2 text-sm"
               >
                 <RefreshCw size={14} />

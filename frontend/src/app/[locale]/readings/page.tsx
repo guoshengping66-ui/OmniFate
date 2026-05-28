@@ -34,7 +34,7 @@ export default function ReadingsPage() {
   const params = useParams()
   const locale = (params?.locale as string) || "en"
   const { user, loading: authLoading } = useAuth()
-  const { t } = useLanguage()
+  const { t, localeHref } = useLanguage()
   const [readings, setReadings] = useState<ReadingListItem[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -78,7 +78,7 @@ export default function ReadingsPage() {
     if (authLoading) return
     if (!user) {
       toast.error(t("readings.loginRequired"))
-      router.push("/login")
+      router.push(localeHref("/login"))
       return
     }
     listMyReadings()
