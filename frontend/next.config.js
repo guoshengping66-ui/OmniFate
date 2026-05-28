@@ -27,12 +27,12 @@ const securityHeaders = [
       // the browser blocks all inline scripts, causing a blank page on every device.
       // 'unsafe-inline' is REQUIRED for Next.js RSC hydration scripts
       isProd
-        ? "script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com"
+        ? "script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://www.googletagmanager.com https://www.google-analytics.com https://clarity.ms"
         : "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
       "style-src 'self' 'unsafe-inline' https://fonts.font.im https://fonts.gstatic.com",
       "img-src 'self' data: blob: https:",
       "font-src 'self' data: https://fonts.font.im https://fonts.gstatic.com https://fonts.gstatic.font.im",
-      `connect-src 'self' https://api.khanfate.com https://api.deepseek.com${isProd ? "" : " http://localhost:* http://127.0.0.1:*"}`,
+      `connect-src 'self' https://api.khanfate.com https://api.deepseek.com https://www.google-analytics.com https://analytics.google.com${isProd ? "" : " http://localhost:* http://127.0.0.1:*"}`,
       "frame-ancestors 'self'",
     ].join("; "),
   },
@@ -90,10 +90,32 @@ const nextConfig = {
         ],
       },
       {
-        // Cache public assets
+        // Cache public assets (icons, manifest, robots)
         source: "/(favicon\\.svg|manifest\\.json|robots\\.txt|logo\\.png|logo-.*\\.png)",
         headers: [
-          { key: "Cache-Control", value: "public, max-age=86400" },
+          { key: "Cache-Control", value: "public, max-age=604800, stale-while-revalidate=86400" },
+        ],
+      },
+      {
+        // OG images — cache 1 day, stale-while-revalidate for fast social previews
+        source: "/api/og(.*)",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" },
+        ],
+      },
+      {
+        // HTML pages — short cache with stale-while-revalidate for fast TTFB
+        source: "/((?!_next|api|favicon|logo|og|robots|manifest).*)",
+        headers: [
+          { key: "Cache-Control", value: "public, s-maxage=300, stale-while-revalidate=3600" },
+        ],
+      },
+      {
+        // API routes — no cache (dynamic, auth-dependent)
+        source: "/api/(.*)",
+        headers: [
+          { key: "Cache-Control", value: "no-store, no-cache, must-revalidate" },
+          { key: "Pragma", value: "no-cache" },
         ],
       },
     ]

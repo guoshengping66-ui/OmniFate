@@ -25,7 +25,22 @@ PRODUCTS_PATH = Path(__file__).parent.parent.parent / "data" / "products.json"
 PRODUCTS_EN_PATH = Path(__file__).parent.parent.parent / "data" / "products_en.json"
 
 
+# ── Cached product loader (avoids re-reading JSON on every request) ────────
+_product_cache: dict[str, tuple[float, list[dict]]] = {}
+_PRODUCT_CACHE_TTL = 300  # 5 minutes
+
+
 def _load_products(lang: str = "zh") -> list[dict]:
+    import time
+    now = time.time()
+    cache_key = lang
+
+    # Return cached if fresh
+    if cache_key in _product_cache:
+        ts, cached = _product_cache[cache_key]
+        if now - ts < _PRODUCT_CACHE_TTL:
+            return cached
+
     try:
         products = json.loads(PRODUCTS_PATH.read_text(encoding="utf-8"))
     except (FileNotFoundError, json.JSONDecodeError):
@@ -53,6 +68,13 @@ def _load_products(lang: str = "zh") -> list[dict]:
                         p["specifications"] = en["specifications_en"]
         except (FileNotFoundError, json.JSONDecodeError):
             pass
+
+    # Cache the result
+    _product_cache[cache_key] = (now, products)
+    # Evict old entries
+    if len(_product_cache) > 10:
+        oldest = min(_product_cache, key=lambda k: _product_cache[k][0])
+        del _product_cache[oldest]
 
     return products
 

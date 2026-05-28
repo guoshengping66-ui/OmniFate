@@ -100,6 +100,18 @@ ENDPOINT_LIMITS = {
     "/api/webhooks/paypal": 10,   # PayPal webhooks - prevent spam
 }
 
+# ── Response cache for public GET endpoints ──────────────────────────────────
+# Caches responses in Redis (or in-memory fallback) to reduce DB/JSON reads.
+# Only caches GET requests without Authorization header.
+from services.cache import cache_get_json, cache_set_json
+
+# Endpoints to cache: path -> TTL in seconds
+CACHE_ENDPOINTS = {
+    "/api/products": 300,          # 商品列表 - 5 min
+    "/api/products/match": 0,      # 商品匹配 - 不缓存 (POST)
+    "/api/fortune/daily": 3600,    # 每日运势 - 1 hour
+}
+
 
 def _get_client_ip(request: Request) -> str:
     """Get client IP from trusted sources only."""
@@ -250,6 +262,66 @@ async def error_translation_middleware(request: Request, call_next):
             status_code=response.status_code,
             headers=dict(response.headers),
         )
+
+    return response
+
+
+# ── Response cache middleware for public GET endpoints ───────────────────────
+# Only caches GET requests without Authorization header (public data).
+# Skips streaming responses and non-JSON responses.
+
+@app.middleware("http")
+async def cache_middleware(request: Request, call_next):
+    # Only cache specific public GET endpoints
+    if request.method != "GET":
+        return await call_next(request)
+
+    path = request.url.path
+    cache_ttl = 0
+    for prefix, ttl in CACHE_ENDPOINTS.items():
+        if path == prefix or (path.startswith(prefix) and path[len(prefix)] in ("?", "/", "")):
+            cache_ttl = ttl
+            break
+
+    if cache_ttl <= 0:
+        return await call_next(request)
+
+    # Don't cache if user is authenticated (private data may differ)
+    if request.headers.get("authorization"):
+        return await call_next(request)
+
+    # Build cache key from path + query string
+    query = request.url.query or ""
+    cache_key = f"{path}:{query}"
+
+    # Try cache
+    cached_body = await cache_get_json(cache_key)
+    if cached_body is not None:
+        return JSONResponse(
+            content=cached_body,
+            headers={"X-Cache": "HIT", "Cache-Control": f"public, max-age={cache_ttl}"},
+        )
+
+    # Execute request
+    response = await call_next(request)
+
+    # Cache successful JSON responses only
+    if response.status_code == 200:
+        body = b""
+        async for chunk in response.body_iterator:
+            if isinstance(chunk, str):
+                body += chunk.encode("utf-8")
+            else:
+                body += chunk
+        try:
+            data = json.loads(body)
+            await cache_set_json(cache_key, data, ttl=cache_ttl)
+            return JSONResponse(
+                content=data,
+                headers={"X-Cache": "MISS", "Cache-Control": f"public, max-age={cache_ttl}"},
+            )
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            return Response(content=body, status_code=200, headers=dict(response.headers))
 
     return response
 
