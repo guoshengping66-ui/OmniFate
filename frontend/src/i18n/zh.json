@@ -3048,5 +3048,19 @@
     "tooltip": "点击查看运势",
     "generating": "正在生成你的运势...",
     "loginRequired": "登录后查看个性化运势"
+  },
+  "admin": {
+    "title": "管理后台",
+    "enterKey": "输入管理密钥",
+    "login": "登录",
+    "refresh": "刷新",
+    "loading": "加载中...",
+    "totalUsers": "总用户数",
+    "paidUsers": "付费用户",
+    "totalReadings": "总推命次数",
+    "totalOrders": "总订单数",
+    "recentUsers": "最近注册用户",
+    "email": "邮箱",
+    "registeredAt": "注册时间"
   }
 }

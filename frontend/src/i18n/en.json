@@ -3048,5 +3048,19 @@
     "tooltip": "View your fortune",
     "generating": "Generating your fortune...",
     "loginRequired": "Login to see your personalized fortune"
+  },
+  "admin": {
+    "title": "Admin Dashboard",
+    "enterKey": "Enter admin key",
+    "login": "Login",
+    "refresh": "Refresh",
+    "loading": "Loading...",
+    "totalUsers": "Total Users",
+    "paidUsers": "Paid Users",
+    "totalReadings": "Total Readings",
+    "totalOrders": "Total Orders",
+    "recentUsers": "Recent Users",
+    "email": "Email",
+    "registeredAt": "Registered At"
   }
 }
