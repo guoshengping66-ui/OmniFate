@@ -71,32 +71,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const storedToken = localStorage.getItem(TOKEN_KEY)
     if (storedToken) {
-      // 有缓存用户 → 立即结束 loading，不阻塞渲染
+      console.log("[Auth] Found stored token, validating...", storedToken.slice(0, 20) + "...")
       setLoading(false)
 
       const tryRefreshAndRetry = async (retryCount = 0): Promise<void> => {
         const refreshToken = localStorage.getItem(REFRESH_KEY)
         if (!refreshToken) {
+          console.warn("[Auth] No refresh token, clearing auth state")
           localStorage.removeItem(TOKEN_KEY)
           localStorage.removeItem(USER_CACHE_KEY)
           setUser(null)
           return
         }
+        console.log(`[Auth] Attempting refresh (attempt ${retryCount + 1}/3)...`)
         try {
           const r = await apiAuth.post("/api/auth/refresh", { refresh_token: refreshToken })
+          console.log("[Auth] Refresh succeeded, new token:", r.data.access_token.slice(0, 20) + "...")
           localStorage.setItem(TOKEN_KEY, r.data.access_token)
           localStorage.setItem(REFRESH_KEY, r.data.refresh_token)
           // Small delay to let backend state settle after refresh
           await new Promise(resolve => setTimeout(resolve, 200))
           const meRes = await apiAuth.get("/api/auth/me")
+          console.log("[Auth] /api/auth/me succeeded after refresh")
           setUser(meRes.data)
           cacheUser(meRes.data)
-        } catch {
+        } catch (err: any) {
+          const status = err?.response?.status
+          const detail = err?.response?.data?.detail || err?.message
+          console.error(`[Auth] Refresh/retry failed (attempt ${retryCount + 1}):`, status, detail)
           if (retryCount < 2) {
-            // Retry with exponential backoff (500ms, 1500ms)
             await new Promise(resolve => setTimeout(resolve, 500 * (retryCount + 1)))
             return tryRefreshAndRetry(retryCount + 1)
           }
+          console.warn("[Auth] All refresh attempts failed, clearing auth state")
           localStorage.removeItem(TOKEN_KEY)
           localStorage.removeItem(REFRESH_KEY)
           localStorage.removeItem(USER_CACHE_KEY)
@@ -107,10 +114,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // 后台静默刷新，不设置 loading=true
       apiAuth.get("/api/auth/me")
         .then(res => {
+          console.log("[Auth] /api/auth/me succeeded, user:", res.data.email)
           setUser(res.data)
           cacheUser(res.data)
         })
-        .catch(() => tryRefreshAndRetry())
+        .catch((err) => {
+          console.warn("[Auth] /api/auth/me failed:", err?.response?.status, err?.response?.data?.detail)
+          tryRefreshAndRetry()
+        })
     } else {
       setLoading(false)
     }
@@ -154,6 +165,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!originalRequest || error.response?.status !== 401 || originalRequest._retry) {
         return Promise.reject(error)
       }
+      console.warn("[Auth:401] Received 401 on:", originalRequest.url, "isRefreshing:", isRefreshing)
 
       // Skip refresh for login/register/refresh endpoints
       const skipPaths = ["/api/auth/login", "/api/auth/register", "/api/auth/refresh", "/api/auth/verify-email"]
