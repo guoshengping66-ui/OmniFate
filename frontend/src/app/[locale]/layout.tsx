@@ -10,6 +10,7 @@ import { AppProviders } from "@/components/ui/AppProviders"
 import { RouteProgress } from "@/components/ui/RouteProgress"
 import { ServiceWorkerRegistration } from "@/components/ui/ServiceWorkerRegistration"
 import { MonthlyGrantToast } from "@/components/ui/MonthlyGrantToast"
+import { OnboardingGuide } from "@/components/ui/OnboardingGuide"
 
 export const viewport: Viewport = {
   themeColor: "#C9A84C",
@@ -26,15 +27,59 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params
   const isZh = locale === "zh"
+  const baseUrl = "https://www.khanfate.com"
+
   return {
     title: isZh ? "命盘智镜 · 全维度命理分析" : "Destiny Mirror · Multi-Dimension Destiny Analysis",
     description: isZh
       ? "融合八字、星盘、塔罗、面相、手相五大 AI 命理系统，为你提供精准的命运解读与改运方案。"
       : "AI-powered destiny analysis combining Bazi, Western astrology, Tarot, face reading, and palmistry. Discover your life blueprint and personalized fortune guidance.",
+    keywords: isZh
+      ? "八字,星盘,塔罗,面相,手相,命理,AI分析,运势,命运,改运"
+      : "bazi,astrology,tarot,face reading,palmistry,destiny,fortune,AI analysis",
+    authors: [{ name: "Destiny Mirror" }],
+    openGraph: {
+      title: isZh ? "命盘智镜 · 全维度命理分析" : "Destiny Mirror · Multi-Dimension Destiny Analysis",
+      description: isZh
+        ? "融合八字、星盘、塔罗、面相、手相五大 AI 命理系统，为你提供精准的命运解读与改运方案。"
+        : "AI-powered destiny analysis combining Bazi, Western astrology, Tarot, face reading, and palmistry.",
+      url: `${baseUrl}/${locale}`,
+      siteName: "Destiny Mirror",
+      images: [
+        {
+          url: `${baseUrl}/og-image.png`,
+          width: 1200,
+          height: 630,
+          alt: isZh ? "命盘智镜" : "Destiny Mirror",
+        },
+      ],
+      locale: isZh ? "zh_CN" : "en_US",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: isZh ? "命盘智镜 · 全维度命理分析" : "Destiny Mirror",
+      description: isZh
+        ? "AI 全维度命理分析平台"
+        : "AI-powered multi-dimension destiny analysis",
+      images: [`${baseUrl}/og-image.png`],
+    },
     alternates: {
+      canonical: `${baseUrl}/${locale}`,
       languages: {
         en: "/en",
         zh: "/zh",
+      },
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
       },
     },
   }
@@ -71,11 +116,46 @@ export default async function LocaleLayout({
         <noscript>
           <link rel="stylesheet" href="https://fonts.font.im/css2?family=Inter:wght@300;400;500;600&display=swap" />
         </noscript>
+
+        {/* JSON-LD Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebApplication",
+              name: validLocale === "zh" ? "命盘智镜" : "Destiny Mirror",
+              url: `https://www.khanfate.com/${validLocale}`,
+              applicationCategory: "LifestyleApplication",
+              operatingSystem: "Web",
+              description: validLocale === "zh"
+                ? "融合八字、星盘、塔罗、面相、手相五大 AI 命理系统"
+                : "AI-powered destiny analysis combining Bazi, Western astrology, Tarot, face reading, and palmistry",
+              offers: {
+                "@type": "Offer",
+                price: "0",
+                priceCurrency: "CNY",
+              },
+              author: {
+                "@type": "Organization",
+                name: "Destiny Mirror",
+                url: "https://www.khanfate.com",
+              },
+              inLanguage: validLocale === "zh" ? "zh-CN" : "en",
+              potentialAction: {
+                "@type": "SearchAction",
+                target: "https://www.khanfate.com/{search_term_string}",
+                "query-input": "required name=search_term_string",
+              },
+            })
+          }}
+        />
       </head>
       <body>
         <AppProviders messages={messages} locale={validLocale}>
           <ServiceWorkerRegistration />
           <MonthlyGrantToast />
+          <OnboardingGuide />
           <RouteProgress />
           <AnimatedBackground />
           <Navbar />

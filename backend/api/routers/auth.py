@@ -28,7 +28,7 @@ router = APIRouter()
 settings = get_settings()
 
 # ── Registration bonus ────────────────────────────────────────────────────
-REGISTER_BONUS_STARDUST = 50  # 注册验证通过奖励星尘
+REGISTER_BONUS_STARDUST = 100  # 注册验证通过奖励星尘（足够解锁一次完整分析）
 
 # ── Rate limiting ──────────────────────────────────────────────────────────
 _rate_store: dict[str, list[float]] = defaultdict(list)
@@ -684,3 +684,144 @@ async def delete_account(
     await db.commit()
 
     return {"message": "账户及所有数据已删除"}
+
+
+# ── Google OAuth Login ──────────────────────────────────────────────────
+
+class GoogleLoginRequest(BaseModel):
+    credential: str  # Google ID token from frontend
+
+
+@router.post("/google")
+async def google_login(req: GoogleLoginRequest, request: Request, db: AsyncSession = Depends(get_db)):
+    """
+    Login/register with Google OAuth.
+    Frontend uses Google Identity Services to get an ID token,
+    then sends it here for verification and account creation/login.
+    """
+    if db is None:
+        raise HTTPException(status_code=503, detail="数据库暂不可用，请稍后再试")
+
+    client_ip = _get_client_ip(request)
+    if _check_rate_limit(f"google:{client_ip}", max_per_window=10):
+        raise HTTPException(status_code=429, detail="请求过于频繁，请稍后再试")
+
+    # Verify Google ID token
+    try:
+        import requests as _requests
+        # Fetch Google's public keys
+        google_keys_url = "https://www.googleapis.com/oauth2/v3/certs"
+        keys_resp = _requests.get(google_keys_url, timeout=10)
+        keys_resp.raise_for_status()
+        google_keys = keys_resp.json()
+
+        # Decode the JWT header to get the key ID
+        from jose import jwt as _jwt
+        import base64 as _b64
+
+        # Split the token
+        parts = req.credential.split(".")
+        if len(parts) != 3:
+            raise HTTPException(status_code=400, detail="Invalid Google token")
+
+        # Decode header to get kid
+        header_data = _b64.urlsafe_b64decode(parts[0] + "==")
+        header = __import__("json").loads(header_data)
+        kid = header.get("kid")
+
+        # Find the matching public key
+        public_key = None
+        for key in google_keys.get("keys", []):
+            if key.get("kid") == kid:
+                public_key = key
+                break
+
+        if not public_key:
+            raise HTTPException(status_code=400, detail="Invalid Google token key")
+
+        # Verify and decode the token
+        from jose import jwk
+        from jose.utils import long_to_bytes
+        import cryptography.hazmat.primitives.asymmetric.rsa as rsa
+
+        # Use python-jose to verify with the JWK
+        payload = _jwt.decode(
+            req.credential,
+            public_key,
+            algorithms=["RS256"],
+            audience=settings.GOOGLE_CLIENT_ID if hasattr(settings, 'GOOGLE_CLIENT_ID') else None,
+            options={"verify_aud": False}  # We'll verify manually if needed
+        )
+
+        google_email = payload.get("email")
+        google_name = payload.get("name", "")
+        google_picture = payload.get("picture", "")
+        google_sub = payload.get("sub")  # Google user ID
+
+        if not google_email:
+            raise HTTPException(status_code=400, detail="Google token missing email")
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"[AUTH] Google token verification failed: {e}")
+        raise HTTPException(status_code=400, detail="Google 登录验证失败")
+
+    # Find or create user
+    result = await db.execute(
+        select(User).where(
+            (User.email == google_email) |
+            ((User.oauth_provider == "google") & (User.oauth_subject == google_sub))
+        )
+    )
+    user = result.scalar_one_or_none()
+
+    is_new_user = False
+    if not user:
+        # Create new user
+        is_new_user = True
+        user = User(
+            email=google_email,
+            display_name=google_name,
+            avatar_url=google_picture,
+            oauth_provider="google",
+            oauth_subject=google_sub,
+            is_verified=True,  # Google email is already verified
+            stardust_balance=REGISTER_BONUS_STARDUST,
+            stardust_lifetime_earned=REGISTER_BONUS_STARDUST,
+        )
+        db.add(user)
+        await db.flush()  # Get the user ID
+
+        # Grant registration bonus
+        tx = CreditTransaction(
+            user_id=user.id,
+            amount=REGISTER_BONUS_STARDUST,
+            balance_after=REGISTER_BONUS_STARDUST,
+            reason="register_bonus",
+            reference_id=None,
+            status="confirmed",
+        )
+        db.add(tx)
+        await db.commit()
+        print(f"[AUTH] Created new Google user: {google_email}")
+    else:
+        # Update existing user's Google info if needed
+        if not user.oauth_provider:
+            user.oauth_provider = "google"
+            user.oauth_subject = google_sub
+        if google_picture and not user.avatar_url:
+            user.avatar_url = google_picture
+        if google_name and not user.display_name:
+            user.display_name = google_name
+        await db.commit()
+
+    # Generate tokens
+    access = create_access_token(str(user.id))
+    refresh = create_refresh_token(str(user.id))
+
+    return AuthResponse(
+        access_token=access,
+        refresh_token=refresh,
+        user=_user_dict(user),
+    )

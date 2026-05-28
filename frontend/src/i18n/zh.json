@@ -3062,5 +3062,26 @@
     "recentUsers": "最近注册用户",
     "email": "邮箱",
     "registeredAt": "注册时间"
+  },
+  "onboarding": {
+    "step1Title": "欢迎来到命盘智镜",
+    "step1Desc": "AI 全维度命理分析平台。你已获得 100 星尘 — 足够解锁你的第一份完整报告！",
+    "step2Title": "填写出生信息",
+    "step2Desc": "输入你的出生日期、时间和地点，这是所有命理计算的基础。",
+    "step2Link": "立即填写",
+    "step3Title": "5 大 AI 分析维度",
+    "step3Desc": "八字、星盘、塔罗、面相、手相 — 全部由 AI 驱动，提供全面的命运洞察。",
+    "step4Title": "发现改运好物",
+    "step4Desc": "根据你的命理分析，我们推荐适合你的水晶、符咒和改运服务。",
+    "step4Link": "逛逛商城"
+  },
+  "share": {
+    "downloadPdf": "PDF 报告",
+    "pdfNotFound": "未找到报告内容",
+    "pdfDownloaded": "PDF 报告已下载！",
+    "pdfError": "PDF 生成失败"
+  },
+  "auth": {
+    "or": "或"
   }
 }

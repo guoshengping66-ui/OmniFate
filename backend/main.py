@@ -156,43 +156,19 @@ async def rate_limit_middleware(request: Request, call_next):
 # ── Error message translation middleware ───────────────────────────────────
 # When lang=en is passed as a query parameter, translate known Chinese
 # error messages to English in JSON error responses.
+# Translations loaded from i18n/error_messages.json for easier maintenance.
 
-_ERROR_TRANSLATIONS: dict[str, str] = {
-    "数据库暂不可用，请稍后再试": "Database temporarily unavailable. Please try again later.",
-    "请先阅读并同意隐私政策和服务条款": "Please read and accept the Privacy Policy and Terms of Service.",
-    "注册请求过于频繁，请稍后再试": "Registration requests too frequent. Please try again later.",
-    "登录尝试次数过多，请 ": "Too many login attempts. Please try again in ",
-    "秒后再试": " seconds.",
-    "登录尝试过多，请稍后再试": "Too many login attempts. Please try again later.",
-    "邮件服务暂不可用，请稍后再试": "Email service temporarily unavailable. Please try again later.",
-    "验证码发送过于频繁，请稍后再试": "Verification code requests too frequent. Please try again later.",
-    "验证尝试过于频繁，请稍后再试": "Too many verification attempts. Please try again later.",
-    "用户不存在": "User not found.",
-    "验证码已过期，请重新发送": "Verification code expired. Please request a new one.",
-    "验证码错误": "Incorrect verification code.",
-    "邮箱或密码错误": "Incorrect email or password.",
-    "请先验证邮箱后再使用": "Please verify your email before using this feature.",
-    "请先验证邮箱后再登录，验证码已发送至您的邮箱": "Please verify your email first. A verification code has been sent to your inbox.",
-    "无效的 refresh token": "Invalid refresh token.",
-    "请求过于频繁，请稍后再试": "Too many requests. Please try again later.",
-    "密码错误，无法删除账户": "Incorrect password. Account deletion cancelled.",
-    "密码强度不足：": "Password does not meet requirements: ",
-    "至少 8 个字符": "At least 8 characters",
-    "不能超过 128 个字符": "No more than 128 characters",
-    "至少包含一个小写字母": "At least one lowercase letter",
-    "至少包含一个大写字母": "At least one uppercase letter",
-    "至少包含一个数字": "At least one number",
-    "商品不存在": "Product not found.",
-    "签文不存在": "Divination record not found.",
-    "星尘不足": "Insufficient Stardust.",
-    "订单不存在": "Order not found.",
-    "订单已支付": "Order already paid.",
-    "分析记录不存在": "Analysis record not found.",
-    "分析任务失败": "Analysis task failed.",
-    "提交过于频繁，请稍后再试": "Submission too frequent. Please try again later.",
-    "重置尝试过于频繁，请稍后再试": "Password reset attempts too frequent. Please try again later.",
-    "服务器内部错误，请稍后重试": "Internal server error. Please try again later.",
-}
+import json as _json
+from pathlib import Path as _Path
+
+_error_i18n_path = _Path(__file__).parent / "i18n" / "error_messages.json"
+try:
+    with open(_error_i18n_path, "r", encoding="utf-8") as _f:
+        _error_i18n_data = _json.load(_f)
+    _ERROR_TRANSLATIONS: dict[str, str] = _error_i18n_data.get("en", {})
+except Exception:
+    # Fallback to empty dict if file not found
+    _ERROR_TRANSLATIONS = {}
 
 # Longer pattern translations (for messages with variable parts)
 _ERROR_PATTERN_TRANSLATIONS = [

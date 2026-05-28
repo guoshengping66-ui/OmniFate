@@ -511,6 +511,20 @@ async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
                 reading.completed_at = datetime.now(timezone.utc)
                 await db.commit()
                 print(f"[BG] Persisted reading {state.session_id} to DB")
+
+                # Send completion notification email
+                try:
+                    from utils.email import send_analysis_complete_email, is_smtp_configured
+                    if is_smtp_configured() and reading.user_id:
+                        user_stmt = select(User).where(User.id == reading.user_id)
+                        user_result = await db.execute(user_stmt)
+                        user = user_result.scalar_one_or_none()
+                        if user and user.email:
+                            reading_lang = reading.language or "zh"
+                            send_analysis_complete_email(user.email, state.session_id, locale=reading_lang)
+                            print(f"[BG] Sent completion email to {user.email}")
+                except Exception as email_err:
+                    print(f"[WARN] Failed to send completion email: {email_err}")
     except Exception as e:
         print(f"[WARN] Failed to persist reading to DB: {e}")
 

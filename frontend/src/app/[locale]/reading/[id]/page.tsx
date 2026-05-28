@@ -443,7 +443,7 @@ export default function ReadingPage() {
           ))}
         </div>
 
-        <div className="max-w-5xl mx-auto relative">
+        <div className="max-w-5xl mx-auto relative" data-report-content>
           {/* ── Top bar: badge + share ── */}
           <div
             className="flex flex-wrap items-center justify-between gap-3 mb-8"
