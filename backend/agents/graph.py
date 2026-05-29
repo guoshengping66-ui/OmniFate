@@ -272,21 +272,21 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
     for marker in ["【A·", "【命盘底色】"]:
         section = _extract_section(core_result, marker)
         if section and len(section) > 50:
-            personality = _complete_sentence(section, 400)
+            personality = _complete_sentence(section, 800)
             break
 
     answer = ""
     for marker in ["【G·", "【H·"]:
         section = _extract_section(core_result, marker)
         if section and len(section) > 50:
-            answer = _complete_sentence(section, 400)
+            answer = _complete_sentence(section, 600)
             break
 
     resonance = ""
     for marker in ["【B·", "【跨维度共鸣】"]:
         section = _extract_section(core_result, marker)
         if section and len(section) > 50:
-            resonance = _complete_sentence(section, 300)
+            resonance = _complete_sentence(section, 600)
             break
 
     if personality:
