@@ -54,7 +54,7 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
   if (BLOCKED_PATHS.some(p => targetPath.startsWith(p))) {
     return new Response(
       JSON.stringify({ detail: "This endpoint is not accessible via proxy" }),
-      { status: 403, headers: { "Content-Type": "application/json" } },
+      { status: 403, headers: { "Content-Type": "application/json; charset=utf-8" } },
     )
   }
 
@@ -159,6 +159,13 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
       }
     })
 
+    // Ensure charset=utf-8 for JSON responses — Chinese mobile browsers
+    // default to GBK when charset is missing, causing garbled text (乱码)
+    const ct = respHeaders.get("content-type") || ""
+    if (ct.includes("application/json") && !ct.includes("charset")) {
+      respHeaders.set("Content-Type", "application/json; charset=utf-8")
+    }
+
     return new Response(resp.body, {
       status: resp.status,
       statusText: resp.statusText,
@@ -170,7 +177,7 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
       : "Proxy error"
     return new Response(
       JSON.stringify({ detail: msg }),
-      { status: 502, headers: { "Content-Type": "application/json" } },
+      { status: 502, headers: { "Content-Type": "application/json; charset=utf-8" } },
     )
   } finally {
     clearTimeout(timer)
