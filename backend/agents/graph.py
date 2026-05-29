@@ -202,21 +202,25 @@ def _stub_astrology(bi: BirthInfo) -> dict:
 
 def _build_free_summary(core_result: str, state: SystemState) -> str:
     """
-    Build a complete free version summary that:
-    1. Shows complete A (personality) + B (cross-dimension resonance) sections
-    2. Is NEVER cut off mid-sentence
-    3. Creates desire for the full deep analysis (paywall incentive)
-    4. Total length ~2000-3000 chars (concise but complete)
+    Build a complete free version with TWO clear sections:
+      1. 【A·核心性格底色】 — full personality overview
+      2. 【B·跨维度共鸣】 — full cross-dimension resonance (all sub-dimensions)
+
+    Rules:
+      - Each section is COMPLETE (never cut off mid-sentence)
+      - Total length capped at ~3000 chars (concise but comprehensive)
+      - Ends with a compelling upgrade CTA
     """
     import re as _re
     is_en = state.language == "en"
 
     def _extract_section(text: str, marker: str) -> str:
-        """Extract a complete section from text, stopping at the next section marker."""
+        """Extract a complete section, stopping at the next 【X· marker."""
         start = text.find(marker)
         if start == -1:
             return ""
         rest = text[start + len(marker):]
+        # Find next section marker
         end_match = _re.search(r'【[A-Za-z一-鿿]+·', rest)
         if end_match:
             section = rest[:end_match.start()].strip()
@@ -224,10 +228,11 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
             section = rest.strip()
         return section
 
-    def _trim_to_complete(text: str, max_len: int) -> str:
-        """Trim to max_len, always ending at a complete sentence boundary."""
+    def _ensure_complete(text: str, max_len: int) -> str:
+        """Ensure text ends at a complete sentence within max_len."""
         if len(text) <= max_len:
             return text
+        # Find last sentence-ending punctuation within limit
         seps = [".", "!", "?"] if is_en else ["。", "！", "？"]
         best_pos = -1
         for sep in seps:
@@ -236,11 +241,11 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
                 best_pos = pos
         if best_pos > max_len // 3:
             return text[:best_pos + 1]
-        # Fallback: trim at paragraph break
+        # Fallback: paragraph break
         pos = text.rfind("\n\n", 0, max_len)
         if pos > max_len // 3:
             return text[:pos].strip()
-        # Last resort: trim at sentence-like break
+        # Last resort: comma break
         for sep in ["，", ",", "；", ";"]:
             pos = text.rfind(sep, max_len // 2, max_len)
             if pos > max_len // 3:
@@ -248,41 +253,45 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
         ellipsis = "..." if is_en else "……"
         return text[:max_len].rstrip() + ellipsis
 
-    # ── Extract sections (no per-section limit — only total matters) ──
+    # ── Extract Section A: Personality ──
     personality = ""
     for marker in ["【A·", "【命盘底色】"]:
         section = _extract_section(core_result, marker)
         if section and len(section) > 50:
-            personality = section
+            personality = _ensure_complete(section, 1500)
             break
 
+    # ── Extract Section B: Cross-dimension Resonance ──
     resonance = ""
     for marker in ["【B·", "【跨维度共鸣】"]:
         section = _extract_section(core_result, marker)
         if section and len(section) > 50:
-            resonance = section
+            resonance = _ensure_complete(section, 1500)
             break
 
-    # ── If sections not found, fallback to truncated core_result ──
+    # ── Fallback: if sections not found, use first 2000 chars ──
     if not personality and not resonance:
-        return _trim_to_complete(core_result, 2000)
+        return _ensure_complete(core_result, 2000)
 
-    # ── Assemble with total length cap ──
-    TOTAL_MAX = 2500  # Total chars for free report content
+    # ── Assemble two-section report ──
     lines = []
 
+    # Section 1: Core Personality
     if personality:
+        if is_en:
+            lines.append("【A · Core Personality Blueprint】")
+        else:
+            lines.append("【A · 核心性格底色】")
         lines.append(personality)
-    if resonance:
-        if lines:
-            lines.append("")
-        lines.append(resonance)
 
-    # Trim combined text to total limit, preserving complete sentences
-    combined = "\n".join(lines)
-    if len(combined) > TOTAL_MAX:
-        combined = _trim_to_complete(combined, TOTAL_MAX)
-        lines = combined.split("\n")
+    # Section 2: Cross-dimension Resonance
+    if resonance:
+        lines.append("")
+        if is_en:
+            lines.append("【B · Cross-Dimension Resonance (Pain Points)】")
+        else:
+            lines.append("【B · 跨维度共鸣（现状痛点）】")
+        lines.append(resonance)
 
     # ── Dimension scores (one line) ──
     scores = state.dimension_scores or {}
@@ -308,19 +317,19 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
         label = "Five-Dimension Energy" if is_en else "五维能量"
         lines.append(f"📊 {label}：{' | '.join(score_parts)}")
 
-    # ── Compelling upgrade CTA ──
+    # ── Upgrade CTA ──
     lines.append("")
     lines.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     if is_en:
         lines.append("🔓 Your full destiny blueprint is ready — unlock it now:")
         lines.append("")
         lines.append("• Complete 5-dimension diagnosis with confidence ratings")
-        lines.append("• Cross-dimension contradiction analysis (which systems agree & disagree)")
+        lines.append("• Cross-dimension contradiction analysis")
         lines.append("• Your next 12 months: key turning points & lucky windows")
-        lines.append("• Deep-dive answer to your specific question with evidence")
-        lines.append("• Personalized energy harmonization plan + curated product recommendations")
+        lines.append("• Deep-dive answer to your specific question")
+        lines.append("• Energy harmonization plan + product recommendations")
         lines.append("")
-        lines.append("💡 First-time unlock: 100 Stardust FREE — enough for your first full report!")
+        lines.append("💡 First-time unlock: 100 Stardust FREE!")
     else:
         lines.append("🔓 你的完整命盘蓝图已就绪，立即解锁：")
         lines.append("")
