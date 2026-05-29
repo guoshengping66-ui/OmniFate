@@ -327,7 +327,10 @@ function _setCachedReading(sessionId: string, data: AnalysisResponse) {
   try {
     // Only cache completed readings
     if (data.status !== "done" && data.status !== "chat") return
-    sessionStorage.setItem(`reading:${sessionId}`, JSON.stringify({ ts: Date.now(), data }))
+    // Don't cache is_detail_unlocked — it depends on the user's premium
+    // status which may change. Always fetch fresh from backend.
+    const { is_detail_unlocked, ...rest } = data
+    sessionStorage.setItem(`reading:${sessionId}`, JSON.stringify({ ts: Date.now(), data: rest }))
   } catch { /* quota exceeded — ignore */ }
 }
 
