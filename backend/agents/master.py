@@ -19,6 +19,7 @@ from agents.state import SystemState, ChatMessage, ConflictRecord, WorkerOutput
 from agents.prompts import master_prompt, master_summary_prompt, master_detail_prompt, ROUTER_PROMPT
 from agents.prompts import master_subtask_core_prompt, master_subtask_dimensions_prompt, master_subtask_actions_prompt
 from agents.prompts import master_subtask_synastry_prompt
+from agents.prompts import master_subtask_core_personality_prompt, master_subtask_core_resonance_prompt
 from services.product_matcher import ProductMatcher
 
 settings = get_settings()
@@ -796,7 +797,9 @@ def run_master_preprocessing(state: SystemState) -> dict:
 
 
 async def run_subtask_core(state: SystemState, prep: dict) -> str:
-    """Run core synthesis sub-task (Sub-task A). Returns result text."""
+    """Run core synthesis sub-task (Sub-task A). Returns result text.
+    For free users: two separate LLM calls (A+B) to avoid truncation.
+    For premium users: single call (only A is needed in summary)."""
     llm_model = settings.PREMIUM_MODEL if state.is_premium else settings.MASTER_FAST_MODEL
 
     # Build partner data for RELATIONSHIP intent (with structured synastry data)
@@ -810,7 +813,7 @@ async def run_subtask_core(state: SystemState, prep: dict) -> str:
             "composite_chart": state.composite_chart,
         }
 
-    system = master_subtask_core_prompt(
+    common_args = dict(
         worker_summaries=prep["worker_summaries"],
         user_question=state.user_question,
         resonance_text=prep["resonance_text"],
@@ -819,9 +822,29 @@ async def run_subtask_core(state: SystemState, prep: dict) -> str:
         confidence_text=prep["confidence_text"],
         intent=state.intent,
         partner_data=partner_data,
-        is_premium=state.is_premium,
     )
-    result = await _call(system, "请生成核心综合报告。", model=llm_model, language=state.language)
+
+    if state.is_premium:
+        # Premium: single call (A+B+C, full report goes to master_detail)
+        system = master_subtask_core_prompt(**common_args, is_premium=True)
+        result = await _call(system, "请生成核心综合报告。", model=llm_model, language=state.language)
+    elif state.intent == "RELATIONSHIP":
+        # RELATIONSHIP free users: single call (different output structure A-E)
+        system = master_subtask_core_prompt(**common_args, is_premium=False)
+        result = await _call(system, "请生成核心综合报告。", model=llm_model, language=state.language)
+    else:
+        # Free users (non-RELATIONSHIP): two separate LLM calls to avoid
+        # 4096-token truncation. Each section gets its own full token budget.
+        # Call 1: Section A (personality)
+        sys_a = master_subtask_core_personality_prompt(**common_args)
+        part_a = await _call(sys_a, "请生成核心性格底色分析。", model=llm_model, language=state.language)
+
+        # Call 2: Section B (cross-dimension resonance)
+        sys_b = master_subtask_core_resonance_prompt(**common_args)
+        part_b = await _call(sys_b, "请生成跨维度共鸣分析。", model=llm_model, language=state.language)
+
+        result = f"{part_a}\n\n{part_b}"
+
     state.master_subtask_core = result
     return result
 

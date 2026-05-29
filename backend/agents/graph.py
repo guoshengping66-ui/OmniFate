@@ -270,6 +270,7 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
             break
 
     # ── Apply total length cap only if combined is too long ──
+    # With two-call approach, each section is already complete — just cap total
     TOTAL_MAX = 4000
     if personality and resonance:
         combined_len = len(personality) + len(resonance)
