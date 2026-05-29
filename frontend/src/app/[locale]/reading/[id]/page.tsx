@@ -1019,6 +1019,20 @@ export default function ReadingPage() {
                 <p className="text-white/25 text-xs mb-8 max-w-sm mx-auto leading-relaxed">
                   {t("reading.worker.lockedDesc")}
                 </p>
+                {(user?.stardust_balance || 0) >= 100 ? (
+                  <button
+                    onClick={handleStardustUnlock}
+                    className="flex items-center gap-2 mx-auto text-sm px-8 py-3 rounded-xl bg-gradient-to-r from-violet-500/20 to-blue-500/20 border border-violet-400/30 hover:border-violet-400/50 text-violet-300 hover:text-violet-200 transition-all mb-3"
+                  >
+                    <Sparkles size={16} />
+                    {t("paywall.useStardust")}（100 ✦）
+                    <span className="text-violet-400/60 ml-1">· {user?.stardust_balance || 0} ✦</span>
+                  </button>
+                ) : (
+                  <p className="text-white/20 text-[11px] mb-3">
+                    {t("reading.worker.orUseStardust")} · {user?.stardust_balance || 0} ✦
+                  </p>
+                )}
                 <button
                   onClick={() => setShowPayment(true)}
                   className="btn-gold flex items-center gap-2 mx-auto text-sm px-8 py-3"
@@ -1027,9 +1041,6 @@ export default function ReadingPage() {
                   {t("reading.worker.unlockFull")}
                   <span className="text-gold/60 ml-1">¥69</span>
                 </button>
-                <p className="text-white/20 text-[11px] mt-4">
-                  {t("reading.worker.orUseStardust")} · {user?.stardust_balance || 0} ✦
-                </p>
               </div>
             ) : (
               <div className="card-glass p-12 text-center">

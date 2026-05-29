@@ -2170,6 +2170,8 @@ export default {
   "paywall.processing": "处理中…",
   "paywall.unlockReport": "解锁完整报告",
   "paywall.giftNote": "解锁后赠送 ¥60 商城代金券 + 3 天会员试用",
+  "paywall.useStardust": "使用星尘解锁",
+  "paywall.stardustInsufficient": "星尘能量不足",
 
   // ─── 套餐对比 ───
   "tierComparison.title": "选择适合你的命理方案",

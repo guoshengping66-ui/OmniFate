@@ -2176,6 +2176,8 @@ export default {
   "paywall.processing": "Processing...",
   "paywall.unlockReport": "Unlock Full Report",
   "paywall.giftNote": "Unlock to receive ¥60 shop coupon + 3-day membership trial",
+  "paywall.useStardust": "Unlock with Stardust",
+  "paywall.stardustInsufficient": "Insufficient stardust",
 
   // ─── Tier Comparison ───
   "tierComparison.title": "Choose Your Destiny Plan",
