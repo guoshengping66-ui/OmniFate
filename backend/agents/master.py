@@ -67,13 +67,14 @@ _llm_cache: dict[str, ChatOpenAI] = {}
 
 def _llm(temperature: float = 0.3, model: str | None = None) -> ChatOpenAI:
     model_key = model or settings.OPENAI_MODEL
-    cache_key = f"{model_key}:{temperature}"
+    max_tok = settings.AGENT_MAX_TOKENS
+    cache_key = f"{model_key}:{temperature}:{max_tok}"
     if cache_key not in _llm_cache:
         kwargs = dict(
             model=model_key,
             api_key=settings.OPENAI_API_KEY,
             temperature=temperature,
-            max_tokens=settings.AGENT_MAX_TOKENS,
+            max_tokens=max_tok,
         )
         if settings.OPENAI_BASE_URL:
             kwargs["base_url"] = settings.OPENAI_BASE_URL

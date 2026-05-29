@@ -34,7 +34,7 @@ class Settings(BaseSettings):
     MASTER_FAST_MODEL: str = "deepseek-v4-flash"  # Master子任务快速模型
     PREMIUM_MODEL: str = "deepseek-v4-pro"      # 付费模型 — 付费用户 master 深度解析
     AGENT_TEMPERATURE: float = 0.3
-    AGENT_MAX_TOKENS: int = 4096
+    AGENT_MAX_TOKENS: int = 8192
     WORKER_MAX_TOKENS: int = 1024   # 优化：从1536降至1024，worker分析素材不需要那么多
     ZIWEI_MODEL: str = ""            # 空=使用默认OPENAI_MODEL；可单独指定更快模型
 
