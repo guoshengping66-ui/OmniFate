@@ -8,17 +8,26 @@
  *
  * SOLUTION: By proxying through Next.js Server-side, the browser sees
  * same-origin requests (no CORS needed), and the server-to-server
- * connection (Vercel → api.khanfate.com) is不受 CORS restrictions.
+ * connection (localhost → localhost:8002) is不受 CORS restrictions.
  *
  * PROXY CORRUPTION: Some client-side proxies (Clash/V2Ray) performing
  * HTTPS MITM intercept and corrupt POST request bodies. To survive this,
  * the client sends data in BOTH the body AND a ?_data= URL parameter.
  * The proxy route tries URL param first (with error handling), then
  * falls back to the body. If both fail, it returns a clear error.
+ *
+ * CHINA MAINLAND: The proxy connects to the local backend (localhost:8002),
+ * bypassing Cloudflare entirely. This ensures reliable connectivity from
+ * mainland China where external API calls may be blocked or slow.
  */
 
-const BACKEND = "https://api.khanfate.com"
-const TIMEOUT_MS = 30_000  // 30s - Vercel Pro has 60s max, keep headroom
+// In production, proxy to the local backend (same server, no Cloudflare hop).
+// The backend listens on localhost:8002 — nginx exposes it externally via port 443.
+// Using localhost avoids an unnecessary round-trip through Cloudflare for
+// server-to-server communication, improving speed and reliability.
+const BACKEND = process.env.BACKEND_URL || "http://localhost:8002"
+const TIMEOUT_MS = 30_000  // 30s for regular requests (POST/GET with expected fast response)
+const SSE_TIMEOUT_MS = 300_000  // 5 min for SSE streams (analysis can take 2-3 min)
 
 export async function GET(request: Request, { params }: { params: Promise<{ path: string[] }> }) {
   return proxy(request, params)
@@ -131,9 +140,12 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
     }
   }
 
-  // AbortController with timeout to prevent hanging
+  // AbortController with timeout to prevent hanging.
+  // SSE streaming endpoints (/stream) get a longer timeout since analysis
+  // can take 2-3 minutes and heartbeats keep the connection alive.
+  const isStream = targetPath.includes("/stream")
   const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS)
+  const timer = setTimeout(() => controller.abort(), isStream ? SSE_TIMEOUT_MS : TIMEOUT_MS)
 
   try {
     const resp = await fetch(targetUrl, {
@@ -144,14 +156,21 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
       cache: "no-store",
     })
 
-    // Build response headers — strip headers that Vercel runtime
-    // already handles (decompression, chunked transfer, etc.)
+    // Build response headers — strip headers that the runtime handles
+    // (decompression, chunked transfer) and CORS headers from the backend
+    // (unnecessary for same-origin proxy responses).
     const respHeaders = new Headers()
     const skipHeaders = new Set([
       "transfer-encoding",
       "connection",
-      "content-encoding",   // Vercel auto-decompresses; forwarding gzip header breaks browser
+      "content-encoding",   // Runtime auto-decompresses; forwarding gzip header breaks browser
       "content-length",     // Length changes after decompression
+      "access-control-allow-origin",      // Backend CORS — not needed for same-origin proxy
+      "access-control-allow-methods",
+      "access-control-allow-headers",
+      "access-control-allow-credentials",
+      "access-control-max-age",
+      "vary",                // Backend Vary: Origin — not needed for same-origin proxy
     ])
     resp.headers.forEach((value, key) => {
       if (!skipHeaders.has(key.toLowerCase())) {

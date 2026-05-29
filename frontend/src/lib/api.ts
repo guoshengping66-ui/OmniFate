@@ -390,10 +390,11 @@ export interface SSEEvent {
  * Connect to the SSE stream for a session.
  * Calls `onEvent` for each progress event. Resolves when analysis is complete.
  *
- * IMPORTANT: In production, SSE connections bypass the Next.js proxy
- * (which has a 30s timeout that kills long-running SSE streams).
- * Instead, we connect directly to the backend — the backend's CORS
- * middleware already allows the frontend origin.
+ * IMPORTANT: In production, SSE connections go through the Next.js proxy
+ * (same-origin, no CORS issues). The backend sends heartbeats every ~15s,
+ * well within the proxy's timeout, so the connection stays alive.
+ * This approach works reliably from mainland China because the server
+ * proxies locally (localhost) — no Cloudflare/GFW in the path.
  *
  * SECURITY: Includes auto-reconnect with exponential backoff (max 3 retries).
  */
@@ -407,10 +408,14 @@ export function streamSession(
     let settled = false // prevent double resolve/reject
 
     function connect() {
-      // In production, bypass the Next.js proxy for SSE (proxy has a 30s
-      // timeout that kills long-running event streams).
-      const sseBaseUrl = isProduction ? "https://api.khanfate.com" : BACKEND_URL
-      const url = `${sseBaseUrl}/api/readings/session/${sessionId}/stream`
+      // Route SSE through the same-origin proxy path.
+      // This avoids CORS issues and works reliably from mainland China
+      // (direct connections to api.khanfate.com may be blocked by GFW).
+      // In local dev, connect directly to backend (no proxy needed).
+      const sseBaseUrl = isProduction ? "" : BACKEND_URL
+      const url = isProduction
+        ? `/api/proxy/api/readings/session/${sessionId}/stream`
+        : `${BACKEND_URL}/api/readings/session/${sessionId}/stream`
 
       const es = new EventSource(url)
 
