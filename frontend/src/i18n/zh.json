@@ -2669,7 +2669,9 @@
   "paywall": {
     "giftNote": "解锁后赠送 ¥60 商城代金券 + 3 天会员试用",
     "processing": "处理中…",
-    "unlockReport": "解锁完整报告"
+    "unlockReport": "解锁完整报告",
+    "useStardust": "使用星尘解锁",
+    "stardustInsufficient": "星尘能量不足"
   },
   "predict": {
     "preparing": "正在准备推演…"
