@@ -19,6 +19,7 @@ const AGENT_I18N: Record<string, string> = {
 import AnalysisProgress from "@/components/reading/AnalysisProgress"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
+import MembershipBadge, { getUserTier } from "@/components/ui/MembershipBadge"
 import { ReportSection } from "@/components/reading/ReportSection"
 import { ReadingSkeleton } from "@/components/reading/ReadingSkeleton"
 import { TagBadge } from "@/components/ui/TagBadge"
@@ -583,6 +584,13 @@ export default function ReadingPage() {
               >
                 {t("reading.subtitle")}
               </p>
+
+              {/* Membership badge */}
+              {user && (
+                <div className="mb-6">
+                  <MembershipBadge tier={getUserTier(user)} size="md" />
+                </div>
+              )}
 
               {/* ── Dimension Score Mini-Cards (hidden for RELATIONSHIP) ── */}
               {data.dimension_scores && data.intent !== "RELATIONSHIP" && (

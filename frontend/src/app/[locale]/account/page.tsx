@@ -9,6 +9,7 @@ import {
 import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
+import MembershipBadge, { getUserTier } from "@/components/ui/MembershipBadge"
 import { listMyReadings, listMyOrders, getFavorites, deleteReading, type ReadingListItem, type OrderListItem, type Product } from "@/lib/api"
 import { getReadingHistory, clearReadingHistory, removeReadingFromHistory, type ReadingHistoryItem } from "@/lib/readingHistory"
 import SettingsTab from "./SettingsTab"
@@ -102,12 +103,9 @@ export default function AccountPage() {
             <div className="flex-1">
               <h1 className="text-xl font-serif font-bold text-gold">{user.display_name || user.email}</h1>
               <p className="text-white/40 text-sm">{user.email}</p>
-              {user.is_premium && (
-                <span className="inline-flex items-center gap-1 mt-1 text-[10px] text-gold bg-gold/10 px-2 py-0.5 rounded-full border border-gold/20">
-                  <Crown size={10} />
-                  {user.subscription_tier === "premium_yearly" ? t("membership.yearly") : user.subscription_tier === "premium_monthly" ? t("membership.monthly") : t("membership.trial")}
-                </span>
-              )}
+              <div className="mt-1.5">
+                <MembershipBadge tier={getUserTier(user)} size="sm" />
+              </div>
             </div>
             <button
               onClick={() => { logout(); router.push(localeHref("/")); }}
