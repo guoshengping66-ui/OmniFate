@@ -103,8 +103,8 @@ export default function AccountPage() {
             <div className="flex-1">
               <h1 className="text-xl font-serif font-bold text-gold">{user.display_name || user.email}</h1>
               <p className="text-white/40 text-sm">{user.email}</p>
-              <div className="mt-1.5">
-                <MembershipBadge tier={getUserTier(user)} size="sm" />
+              <div className="mt-2">
+                <MembershipBadge tier={getUserTier(user)} size="md" showLabel />
               </div>
             </div>
             <button

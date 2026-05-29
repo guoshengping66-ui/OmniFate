@@ -588,7 +588,7 @@ export default function ReadingPage() {
               {/* Membership badge */}
               {user && (
                 <div className="mb-6">
-                  <MembershipBadge tier={getUserTier(user)} size="md" />
+                  <MembershipBadge tier={getUserTier(user)} size="md" showLabel />
                 </div>
               )}
 
