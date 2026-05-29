@@ -337,19 +337,11 @@ export default function ReadingPage() {
   const handleStardustUnlock = useCallback(async () => {
     if (!id) return
     try {
-      const { deductStardust } = await import("@/lib/api")
-      const result = await deductStardust("report_unlock", id)
-      if (result) {
-        // Confirm the deduction
-        const { api } = await import("@/lib/api")
-        await api.post(`/api/credits/confirm?transaction_id=${result.transaction_id}`)
-        // Unlock the report
-        const { unlockReport } = await import("@/lib/api")
-        await unlockReport(id)
-        setIsUnlocked(true)
-        toast.success(t("reading.unlockedSuccess"))
-        refreshUser()
-      }
+      const { unlockReport } = await import("@/lib/api")
+      await unlockReport(id, "stardust")
+      setIsUnlocked(true)
+      toast.success(t("reading.unlockedSuccess"))
+      refreshUser()
     } catch (err: any) {
       toast.error(err?.response?.data?.detail || t("reading.unlockedFailed"))
     }

@@ -594,8 +594,8 @@ export interface UnlockResult {
   trial_activated: boolean
 }
 
-export async function unlockReport(sessionId: string): Promise<UnlockResult> {
-  const res = await api.post<UnlockResult>(`/api/payments/unlock/${sessionId}`)
+export async function unlockReport(sessionId: string, source: "payment" | "stardust" = "payment"): Promise<UnlockResult> {
+  const res = await api.post<UnlockResult>(`/api/payments/unlock/${sessionId}?source=${source}`)
   return res.data
 }
 
