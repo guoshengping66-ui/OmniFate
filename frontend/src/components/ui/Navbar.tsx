@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { useCart } from "@/contexts/CartContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { LanguageSwitch } from "@/components/ui/LanguageSwitch"
+import MembershipBadge, { getUserTier } from "@/components/ui/MembershipBadge"
 
 const StardustBalance = lazy(() => import("@/components/ui/StardustBalance").then(m => ({ default: m.StardustBalance })))
 const CartDrawer = lazy(() => import("@/components/shop/CartDrawer").then(m => ({ default: m.CartDrawer })))
@@ -161,11 +162,9 @@ export function Navbar() {
                     <div className="px-3 py-2 border-b border-white/10 mb-1">
                       <p className="text-white/80 text-sm font-medium truncate">{user.display_name || user.email}</p>
                       <p className="text-white/40 text-xs truncate">{user.email}</p>
-                      {user.is_premium && (
-                        <span className="inline-flex items-center gap-1 mt-1 text-[10px] text-gold bg-gold/10 px-1.5 py-0.5 rounded-full">
-                          <Crown size={10} /> {user.subscription_tier === "premium_yearly" ? t("membership.yearly") : user.subscription_tier === "premium_monthly" ? t("membership.monthly") : t("membership.trial")}
-                        </span>
-                      )}
+                      <div className="mt-1">
+                        <MembershipBadge tier={getUserTier(user)} size="sm" />
+                      </div>
                       {user.shop_coupon_balance > 0 && (
                         <p className="text-gold/60 text-[10px] mt-0.5">
                           {t("coupon.balance")}: ¥{user.shop_coupon_balance}
@@ -267,9 +266,7 @@ export function Navbar() {
                     <User size={12} className="text-gold" />
                   </div>
                   <span className="text-white/80 text-sm truncate">{user.display_name || user.email}</span>
-                  {user.is_premium && (
-                    <Crown size={12} className="text-gold ml-auto" />
-                  )}
+                  <MembershipBadge tier={getUserTier(user)} size="sm" className="ml-auto" />
                 </div>
                 <Link href={localeHref("/dashboard")} onClick={() => setOpen(false)}
                   className="text-white/60 hover:text-gold py-2 pl-4 text-sm">
