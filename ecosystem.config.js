@@ -3,7 +3,7 @@ module.exports = {
     {
       name: "frontend",
       cwd: "/opt/OmniFate/frontend",
-      script: ".next/standalone/server.js",
+      script: ".next/standalone/frontend/server.js",
       env: {
         NODE_ENV: "production",
         PORT: 3000,
