@@ -196,17 +196,18 @@ export default function ReadingPage() {
       setIsUnlocked(d.is_detail_unlocked)
       setLoading(false)
 
-      // If already done, re-fetch from backend to get fresh is_detail_unlocked
-      // (cache doesn't store is_detail_unlocked since it depends on premium status)
-      if (d.status === "done" || d.status === "completed" || d.status === "chat") {
-        getSession(id, locale).then(fresh => {
-          if (!cancelled) {
-            setData(fresh)
-            setIsUnlocked(fresh.is_detail_unlocked)
-          }
-        }).catch(() => {})
-        return
-      }
+      // Always re-fetch from backend to get fresh is_detail_unlocked.
+      // The cache doesn't store is_detail_unlocked (depends on premium status).
+      // This ensures premium users see unlocked content immediately.
+      getSession(id, locale).then(fresh => {
+        if (!cancelled) {
+          setData(fresh)
+          setIsUnlocked(fresh.is_detail_unlocked)
+        }
+      }).catch(() => {})
+
+      // If already done, no need for SSE
+      if (d.status === "done" || d.status === "completed" || d.status === "chat") return
 
       // Analysis is pending — start stuck timer
       startStuckTimer()
