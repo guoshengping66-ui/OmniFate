@@ -7214,7 +7214,8 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
                                 dimension_scores: dict | None = None,
                                 confidence_text: str = "",
                                 intent: str = "",
-                                partner_data: dict | None = None) -> str:
+                                partner_data: dict | None = None,
+                                is_premium: bool = False) -> str:
     """Sub-task A: 核心综合 — 命盘底色 + 跨维度共鸣 + 核心矛盾 + 置信度表"""
     workers_str = "\n\n".join(
         f"[{k.upper()}]\n{v[:400]}" for k, v in worker_summaries.items() if v
@@ -7355,7 +7356,7 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
             f"== 五维评分 ==\n{scores_str}\n\n"
         )
 
-    return (
+    base_prompt = (
         "你是命盘智镜的资深分析师。根据多位专家的分析数据，用大白话生成易懂的分析报告。\n\n"
         f"{intent_hint}"
         "== 绝对禁止 ==\n"
@@ -7373,6 +7374,18 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
         f"{confidence_text}\n\n"
         "请用大白话生成分析报告。"
     )
+
+    # For free users, add length guidance since master_summary is no longer truncated.
+    # Free users see this as their ONLY report, so it must be complete and self-contained.
+    if not is_premium:
+        base_prompt += (
+            "\n\n== 报告长度要求（免费用户唯一报告）==\n"
+            "总长度：1000-2000字。每个部分必须完整输出，不要截断或省略。\n"
+            "这是用户能看到的唯一报告，必须包含完整的分析和实用建议。\n"
+            "结尾加一句引导语：提示用户解锁深度报告可获取五维诊断、年度转折点、行动方案和专属处方。\n"
+        )
+
+    return base_prompt
 
 
 def master_subtask_dimensions_prompt(worker_summaries: dict, user_question: str,

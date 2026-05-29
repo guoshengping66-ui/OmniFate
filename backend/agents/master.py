@@ -818,6 +818,7 @@ async def run_subtask_core(state: SystemState, prep: dict) -> str:
         confidence_text=prep["confidence_text"],
         intent=state.intent,
         partner_data=partner_data,
+        is_premium=state.is_premium,
     )
     result = await _call(system, "请生成核心综合报告。", model=llm_model, language=state.language)
     state.master_subtask_core = result
@@ -916,7 +917,10 @@ async def run_master(state: SystemState) -> SystemState:
         core_result = results[0]
         synastry_result = results[1] if is_relationship else ""
 
-        state.master_summary = core_result[:500]
+        # Free users see master_summary as their ONLY report — don't truncate.
+        # (Premium users get master_detail for the full report, so truncation
+        #  there is fine — it's just a preview.)
+        state.master_summary = core_result
         if synastry_result:
             state.master_detail = f"{core_result}\n\n{synastry_result}"
         else:
