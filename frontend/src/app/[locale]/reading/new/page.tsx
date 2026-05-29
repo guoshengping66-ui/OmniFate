@@ -163,6 +163,7 @@ export default function NewReadingPage() {
   const faceRef = useRef<HTMLInputElement>(null)
   const palmRef = useRef<HTMLInputElement>(null)
   const prevIntentRef = useRef<string | null>(null)
+  const isFirstRenderRef = useRef(true)
   const prefilledFromProfile = useRef(false)
 
   // Revoke blob URLs on unmount to prevent memory leak
@@ -264,18 +265,20 @@ export default function NewReadingPage() {
   // ── Sync step with intent changes ─────────────────────────
   // On first render or when intent changes, ensure step maps to a valid logical step.
   // IMPORTANT: The wizard's startStep takes priority — don't override it.
-  // Previously this effect would reset step=0 on mount even when the wizard
-  // had already set startStep=1 (GENERAL_DAILY flow), causing the page to
-  // flash back to the birth info step immediately after showing tarot.
+  //
+  // BUG FIX: Previously used `prevIntentRef.current === null` to detect first render,
+  // but when currentIntent is also null (direct navigation without wizard), this
+  // condition was perpetually true, causing step to reset to 0 on every re-render.
+  // Fixed by using a separate isFirstRenderRef boolean that only fires once.
   useEffect(() => {
     // Skip entirely if wizard has set a starting step — it controls the flow
     if (wizardStartStep > 0) return
 
-    const isFirstRender = prevIntentRef.current === null
     const intentChanged = prevIntentRef.current !== currentIntent
     prevIntentRef.current = currentIntent
 
-    if (isFirstRender || intentChanged) {
+    if (isFirstRenderRef.current || intentChanged) {
+      isFirstRenderRef.current = false
       // Only reset if step is somehow invalid for the current intent
       if (step !== 0) setStep(0)
     }
