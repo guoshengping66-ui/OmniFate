@@ -27,7 +27,7 @@
 // server-to-server communication, improving speed and reliability.
 const BACKEND = process.env.BACKEND_URL || "http://localhost:8002"
 const TIMEOUT_MS = 30_000  // 30s for regular requests (POST/GET with expected fast response)
-const SSE_TIMEOUT_MS = 300_000  // 5 min for SSE streams (analysis can take 2-3 min)
+const SSE_TIMEOUT_MS = 600_000  // 10 min for SSE streams (analysis can take 5-8 min with two-call approach)
 
 export async function GET(request: Request, { params }: { params: Promise<{ path: string[] }> }) {
   return proxy(request, params)

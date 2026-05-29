@@ -422,7 +422,7 @@ async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
     """Background task: run the full pipeline then persist results to DB.
     SECURITY: Includes timeout protection to prevent infinite-running tasks.
     """
-    ANALYSIS_TIMEOUT_SECONDS = 300  # 5 minutes max
+    ANALYSIS_TIMEOUT_SECONDS = 600  # 10 minutes max
     print(f"[BG] Starting analysis for {state.session_id}")
     # Update status to processing
     try:

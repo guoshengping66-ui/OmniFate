@@ -51,7 +51,7 @@ addLangInterceptor(api)
 // Direct backend connection for long-running / large-response endpoints
 export const apiDirect = axios.create({
   baseURL: isLocalhost ? BACKEND_URL : "/api/proxy",
-  timeout: 180_000,
+  timeout: 360_000,
 })
 
 // Auth endpoints — route through Next.js proxy in production for
@@ -881,7 +881,7 @@ export interface DailyAlmanacResponse {
 
 export async function analyzeEvent(data: AnalyzeEventRequest): Promise<AnalyzeEventResponse> {
   const res = await api.post<AnalyzeEventResponse>("/api/fate/event-analyze", safeJson(data), {
-    timeout: 180_000,
+    timeout: 360_000,
     headers: { "Content-Type": "application/json" },
   })
   return res.data

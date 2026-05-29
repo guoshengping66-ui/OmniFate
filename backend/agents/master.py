@@ -119,9 +119,9 @@ async def _call(system: str, user: str, model: str | None = None, language: str 
 
     msgs = [SystemMessage(content=system + lang_hint), HumanMessage(content=user)]
     try:
-        resp = await asyncio.wait_for(llm.ainvoke(msgs), timeout=120)
+        resp = await asyncio.wait_for(llm.ainvoke(msgs), timeout=180)
     except asyncio.TimeoutError:
-        print(f"[_call] LLM timed out after 120s (model={model})")
+        print(f"[_call] LLM timed out after 180s (model={model})")
         return ""
     result = resp.content
     # Post-process: clean residual Chinese in English output
