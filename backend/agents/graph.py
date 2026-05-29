@@ -203,10 +203,10 @@ def _stub_astrology(bi: BirthInfo) -> dict:
 def _build_free_summary(core_result: str, state: SystemState) -> str:
     """
     Build a complete free version summary that:
-    1. Directly answers the user's specific question
-    2. Shows key findings from each dimension
-    3. Creates desire for the full deep analysis
-    4. Is complete (not cut off mid-sentence)
+    1. Shows complete A (personality) + B (cross-dimension resonance) sections
+    2. Is NEVER cut off mid-sentence
+    3. Creates desire for the full deep analysis (paywall incentive)
+    4. Total length ~2000-3000 chars (concise but complete)
     """
     import re as _re
     is_en = state.language == "en"
@@ -224,28 +224,69 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
             section = rest.strip()
         return section
 
-    def _complete_sentence(text: str, max_len: int = 600) -> str:
-        """Truncate text at a complete sentence boundary, never mid-sentence."""
+    def _trim_to_complete(text: str, max_len: int) -> str:
+        """Trim to max_len, always ending at a complete sentence boundary."""
         if len(text) <= max_len:
             return text
-        best_pos = -1
         seps = [".", "!", "?"] if is_en else ["。", "！", "？"]
+        best_pos = -1
         for sep in seps:
             pos = text.rfind(sep, 0, max_len)
             if pos > best_pos:
                 best_pos = pos
         if best_pos > max_len // 3:
             return text[:best_pos + 1]
+        # Fallback: trim at paragraph break
         pos = text.rfind("\n\n", 0, max_len)
         if pos > max_len // 3:
             return text[:pos].strip()
+        # Last resort: trim at sentence-like break
+        for sep in ["，", ",", "；", ";"]:
+            pos = text.rfind(sep, max_len // 2, max_len)
+            if pos > max_len // 3:
+                return text[:pos + 1]
         ellipsis = "..." if is_en else "……"
         return text[:max_len].rstrip() + ellipsis
 
-    # Extract dimension scores for display
+    # ── Extract sections (no per-section limit — only total matters) ──
+    personality = ""
+    for marker in ["【A·", "【命盘底色】"]:
+        section = _extract_section(core_result, marker)
+        if section and len(section) > 50:
+            personality = section
+            break
+
+    resonance = ""
+    for marker in ["【B·", "【跨维度共鸣】"]:
+        section = _extract_section(core_result, marker)
+        if section and len(section) > 50:
+            resonance = section
+            break
+
+    # ── If sections not found, fallback to truncated core_result ──
+    if not personality and not resonance:
+        return _trim_to_complete(core_result, 2000)
+
+    # ── Assemble with total length cap ──
+    TOTAL_MAX = 2500  # Total chars for free report content
+    lines = []
+
+    if personality:
+        lines.append(personality)
+    if resonance:
+        if lines:
+            lines.append("")
+        lines.append(resonance)
+
+    # Trim combined text to total limit, preserving complete sentences
+    combined = "\n".join(lines)
+    if len(combined) > TOTAL_MAX:
+        combined = _trim_to_complete(combined, TOTAL_MAX)
+        lines = combined.split("\n")
+
+    # ── Dimension scores (one line) ──
     scores = state.dimension_scores or {}
-    score_display = ""
-    if scores:
+    if scores and state.intent != "RELATIONSHIP":
         dim_names = (
             {"wealth": "Wealth", "relationship": "Love", "career": "Career",
              "health": "Health", "spiritual": "Spirit"}
@@ -263,69 +304,33 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
             else:
                 indicator = "📊"
             score_parts.append(f"{indicator} {name}: {val}/10")
-        score_display = " | ".join(score_parts)
-
-    lines = []
-
-    # Build a single cohesive summary paragraph
-    personality = ""
-    for marker in ["【A·", "【命盘底色】"]:
-        section = _extract_section(core_result, marker)
-        if section and len(section) > 50:
-            personality = _complete_sentence(section, 800)
-            break
-
-    answer = ""
-    for marker in ["【G·", "【H·"]:
-        section = _extract_section(core_result, marker)
-        if section and len(section) > 50:
-            answer = _complete_sentence(section, 600)
-            break
-
-    resonance = ""
-    for marker in ["【B·", "【跨维度共鸣】"]:
-        section = _extract_section(core_result, marker)
-        if section and len(section) > 50:
-            resonance = _complete_sentence(section, 600)
-            break
-
-    if personality:
-        lines.append(personality)
-    if answer:
-        if lines:
-            lines.append("")
-        lines.append(answer)
-    if resonance:
-        if lines:
-            lines.append("")
-        lines.append(resonance)
-
-    if not lines:
-        lines.append(_complete_sentence(core_result, 800))
-
-    # Brief dimension scores (one line)
-    if score_display and state.intent != "RELATIONSHIP":
         lines.append("")
         label = "Five-Dimension Energy" if is_en else "五维能量"
-        lines.append(f"📊 {label}：{score_display}")
+        lines.append(f"📊 {label}：{' | '.join(score_parts)}")
 
-    # Upgrade prompt
+    # ── Compelling upgrade CTA ──
     lines.append("")
     lines.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     if is_en:
-        lines.append("🔓 Unlock the full deep analysis and get:")
-        lines.append("• Detailed 5-dimension diagnosis (Wealth/Love/Career/Health/Spirit)")
-        lines.append("• Cross-dimension contradiction analysis with confidence ratings")
-        lines.append("• Key turning point predictions for the next 12 months")
-        lines.append("• In-depth analysis targeted to your specific question")
-        lines.append("• Personalized energy harmonization plan & product recommendations")
+        lines.append("🔓 Your full destiny blueprint is ready — unlock it now:")
+        lines.append("")
+        lines.append("• Complete 5-dimension diagnosis with confidence ratings")
+        lines.append("• Cross-dimension contradiction analysis (which systems agree & disagree)")
+        lines.append("• Your next 12 months: key turning points & lucky windows")
+        lines.append("• Deep-dive answer to your specific question with evidence")
+        lines.append("• Personalized energy harmonization plan + curated product recommendations")
+        lines.append("")
+        lines.append("💡 First-time unlock: 100 Stardust FREE — enough for your first full report!")
     else:
-        lines.append("🔓 解锁完整深度解析，你将获得：")
-        lines.append("• 五维详细诊断（财富/感情/事业/健康/精神）")
-        lines.append("• 跨维度矛盾解释与置信度评估")
-        lines.append("• 未来12个月关键转折点预测")
-        lines.append("• 针对你问题的专项深度分析")
-        lines.append("• 专属能量调和方案与助运物推荐")
+        lines.append("🔓 你的完整命盘蓝图已就绪，立即解锁：")
+        lines.append("")
+        lines.append("• 五维详细诊断（财富/感情/事业/健康/精神）+ 置信度评分")
+        lines.append("• 跨维度矛盾解释 — 哪些体系一致、哪些存在分歧")
+        lines.append("• 未来12个月关键转折点 & 黄金窗口期")
+        lines.append("• 针对你问题的专项深度分析（附专家数据支撑）")
+        lines.append("• 专属能量调和方案 + 助运物推荐")
+        lines.append("")
+        lines.append("💡 新用户首次解锁赠送 100 星尘 — 足够解锁你的第一份完整报告！")
     lines.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
     return "\n".join(lines)
