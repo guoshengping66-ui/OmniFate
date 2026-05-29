@@ -270,8 +270,10 @@ def _apply_content_lock(resp: AnalysisResponse, current_user: Optional[User], re
         elif current_user and current_user.is_premium and current_user.premium_expires_at and current_user.premium_expires_at > datetime.now(timezone.utc):
             is_unlocked = True
     else:
-        # In-memory session — only unlocked if user owns it
+        # In-memory session — unlocked if user owns it OR has premium
         if current_user and getattr(resp, "is_detail_unlocked", False):
+            is_unlocked = True
+        elif current_user and current_user.is_premium and current_user.premium_expires_at and current_user.premium_expires_at > datetime.now(timezone.utc):
             is_unlocked = True
 
     if not is_unlocked:
