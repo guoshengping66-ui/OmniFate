@@ -262,17 +262,21 @@ export default function NewReadingPage() {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Sync step with intent changes ─────────────────────────
-  // On first render or when intent changes, ensure step maps to a valid logical step
+  // On first render or when intent changes, ensure step maps to a valid logical step.
+  // IMPORTANT: The wizard's startStep takes priority — don't override it.
+  // Previously this effect would reset step=0 on mount even when the wizard
+  // had already set startStep=1 (GENERAL_DAILY flow), causing the page to
+  // flash back to the birth info step immediately after showing tarot.
   useEffect(() => {
+    // Skip entirely if wizard has set a starting step — it controls the flow
+    if (wizardStartStep > 0) return
+
     const isFirstRender = prevIntentRef.current === null
     const intentChanged = prevIntentRef.current !== currentIntent
     prevIntentRef.current = currentIntent
 
     if (isFirstRender || intentChanged) {
-      // Don't override if wizard has set a startStep or saved progress was restored
-      if (wizardStartStep > 0) return
-      if (step > 0 && !isFirstRender) return
-      // Reset to first logical step for the new intent
+      // Only reset if step is somehow invalid for the current intent
       if (step !== 0) setStep(0)
     }
   }, [currentIntent, wizardStartStep, step]) // eslint-disable-line react-hooks/exhaustive-deps
