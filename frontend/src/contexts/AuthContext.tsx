@@ -67,6 +67,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch { /* ignore quota errors */ }
   }
 
+  // Helper: check if error is a definitive auth failure (should clear state)
+  const isAuthFailure = (err: any): boolean => {
+    const status = err?.response?.status
+    // 401/403 = token definitely invalid → clear
+    // Network errors / timeouts = keep cached user, retry later
+    return status === 401 || status === 403
+  }
+
   // On mount, restore session from cache (instant) then refresh in background
   useEffect(() => {
     const storedToken = localStorage.getItem(TOKEN_KEY)
@@ -98,16 +106,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } catch (err: any) {
           const status = err?.response?.status
           const detail = err?.response?.data?.detail || err?.message
+          const isNetwork = err?.code === "ERR_NETWORK" || err?.code === "ECONNABORTED" || !err?.response
           console.error(`[Auth] Refresh/retry failed (attempt ${retryCount + 1}):`, status, detail)
           if (retryCount < 2) {
-            await new Promise(resolve => setTimeout(resolve, 500 * (retryCount + 1)))
+            // Network errors: keep cached user, retry with longer delay
+            const delay = isNetwork ? 2000 * (retryCount + 1) : 500 * (retryCount + 1)
+            await new Promise(resolve => setTimeout(resolve, delay))
             return tryRefreshAndRetry(retryCount + 1)
           }
-          console.warn("[Auth] All refresh attempts failed, clearing auth state")
-          localStorage.removeItem(TOKEN_KEY)
-          localStorage.removeItem(REFRESH_KEY)
-          localStorage.removeItem(USER_CACHE_KEY)
-          setUser(null)
+          // Only clear auth state on definitive failures (401/403)
+          // Keep cached user on network errors — user can still use cached data
+          if (isAuthFailure(err)) {
+            console.warn("[Auth] Auth failure, clearing auth state")
+            localStorage.removeItem(TOKEN_KEY)
+            localStorage.removeItem(REFRESH_KEY)
+            localStorage.removeItem(USER_CACHE_KEY)
+            setUser(null)
+          } else {
+            console.warn("[Auth] Network error, keeping cached user for offline use")
+          }
         }
       }
 
@@ -119,8 +136,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           cacheUser(res.data)
         })
         .catch((err) => {
-          console.warn("[Auth] /api/auth/me failed:", err?.response?.status, err?.response?.data?.detail)
-          tryRefreshAndRetry()
+          const isNetwork = err?.code === "ERR_NETWORK" || err?.code === "ECONNABORTED" || !err?.response
+          console.warn("[Auth] /api/auth/me failed:", isNetwork ? "network error" : err?.response?.status, err?.response?.data?.detail)
+          // Only attempt refresh on auth failures, not network errors
+          if (!isNetwork || isAuthFailure(err)) {
+            tryRefreshAndRetry()
+          }
+          // On network error: keep cached user, don't clear state
         })
     } else {
       setLoading(false)

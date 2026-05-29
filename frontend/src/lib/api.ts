@@ -54,10 +54,13 @@ export const apiDirect = axios.create({
   timeout: 180_000,
 })
 
-// Auth endpoints — direct to backend (bypasses proxy for speed)
+// Auth endpoints — route through Next.js proxy in production for
+// China mainland reliability (direct api.khanfate.com connections
+// can fail due to Cloudflare routing / GFW interference).
+// In local dev: connect directly to backend.
 export const apiAuth = axios.create({
-  baseURL: BACKEND_URL,
-  timeout: 30_000,
+  baseURL: isLocalhost ? BACKEND_URL : "/api/proxy",
+  timeout: 15_000,
 })
 
 // Pass locale to backend so error messages are translated
@@ -68,6 +71,37 @@ apiAuth.interceptors.request.use((config) => {
   } catch {}
   return config
 })
+
+// Apply unicode escape interceptor to apiAuth in production (same as api/apiDirect)
+// so POST bodies survive Clash/V2Ray/nginx UTF-8 mangling
+if (!isLocalhost) {
+  apiAuth.interceptors.request.use((config) => {
+    const method = (config.method || "").toLowerCase()
+    if (["post", "patch", "put"].includes(method)) {
+      if (config.data instanceof FormData) {
+        if (config.headers) {
+          delete config.headers["Content-Type"]
+          delete config.headers["content-type"]
+        }
+        return config
+      }
+      let jsonStr: string
+      if (typeof config.data === "string") {
+        jsonStr = config.data
+      } else if (config.data !== undefined && config.data !== null) {
+        jsonStr = JSON.stringify(config.data)
+      } else {
+        return config
+      }
+      config.data = escapeUnicode(jsonStr)
+      config.headers = config.headers || {}
+      if (!config.headers["Content-Type"] && !config.headers["content-type"]) {
+        config.headers["Content-Type"] = "application/json"
+      }
+    }
+    return config
+  })
+}
 
 // ── Production proxy interceptor ───────────────────────────────────────────
 // Unicode-escape POST bodies to survive nginx/Clash UTF-8 mangling.
