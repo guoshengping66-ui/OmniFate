@@ -7441,50 +7441,32 @@ def master_subtask_core_resonance_prompt(
         intent: str = "",
         partner_data: dict | None = None) -> str:
     """Free-user only: generate ONLY Section B (跨维度共鸣).
-    Separate call to avoid truncation within 4096 tokens."""
-    workers_str = "\n\n".join(
-        f"[{k.upper()}]\n{v[:400]}" for k, v in worker_summaries.items() if v
-    )
-    partner_section = ""
-    if intent == "RELATIONSHIP" and partner_data:
-        partner_name = partner_data.get("partner_name", "对方")
-        bazi_compat = partner_data.get("bazi_compatibility", {})
-        compat_level = bazi_compat.get("level", "?")
-        partner_section = (
-            f"\n\n== 合盘数据（简要）==\n"
-            f"关系类型：{partner_data.get('relationship_type', '')}\n"
-            f"对方昵称：{partner_name}\n"
-            f"八字合婚：{compat_level}\n"
-        )
-
+    Ultra-compact prompt to stay well under 4096 token output limit.
+    Only passes dimension_scores (not full worker reports) to minimize input."""
     scores_str = ""
     if dimension_scores:
         _DIM_CN = {"wealth": "财富", "relationship": "感情", "career": "事业",
                    "health": "健康", "spiritual": "精神"}
         scores_str = " | ".join(f"{_DIM_CN.get(k, k)}:{v}" for k, v in dimension_scores.items())
 
+    # Only pass first 200 chars of each worker summary for context
+    compact_workers = "\n".join(
+        f"[{k.upper()}]{v[:200]}" for k, v in worker_summaries.items() if v
+    )
+
     return (
-        "你是命盘智镜的资深分析师。请根据以下专家报告数据，生成【Section B：跨维度共鸣（现状痛点）】。\n\n"
-        "== 绝对禁止 ==\n"
-        "禁止出现：壬水、癸水、甲木、乙木、丙火、丁火、戊土、己土、庚金、辛金\n"
-        "禁止出现：七杀、正官、偏官、正印、偏印、食神、伤官、比肩、劫财\n"
-        "禁止出现：命格、命局、格局、大运、流年、刑冲合害、天机、磁场、能量场\n"
-        "以上术语全部翻译成现代大白话\n\n"
-        f"== 跨维度共鸣 ==\n{resonance_text or '无'}\n\n"
-        f"== 跨维度冲突 ==\n{conflicts_text or '无'}\n\n"
-        f"== 专家报告 ==\n{workers_str}\n\n"
-        f"== 用户问题 ==\n{user_question}\n\n"
-        f"{partner_section}\n"
-        f"== 五维评分 ==\n{scores_str}\n\n"
-        f"{confidence_text}\n\n"
-        "== 输出要求 ==\n"
-        "只输出【B·跨维度共鸣（现状痛点）】部分，不要输出A或C部分。\n"
-        "格式：\n"
-        "财富与事业现状：用现代大白话，指出当前瓶颈和痛点\n"
-        "感情与人际关系现状：同上风格\n"
-        "健康与精神状态：同上风格\n\n"
-        "每个子维度 100-200 字，总共不超过 600 字。\n"
-        "要求：完整、不要截断、不要省略。"
+        "你是命盘智镜的资深分析师。根据以下数据，输出【B·跨维度共鸣（现状痛点）】。\n\n"
+        "禁止术语：壬水甲木丙火戊土庚金、七杀正官偏印食神伤官、命格格局大运流年\n"
+        "全部用现代大白话，像跟朋友聊天一样。\n\n"
+        f"== 专家简报 ==\n{compact_workers}\n\n"
+        f"== 共鸣/冲突 ==\n{resonance_text or '无'}\n{conflicts_text or '无'}\n\n"
+        f"== 评分 == {scores_str}\n\n"
+        "== 输出格式（严格遵守）==\n"
+        "【B·跨维度共鸣（现状痛点）】\n\n"
+        "财富与事业现状：80-120字，指出瓶颈\n"
+        "感情与人际关系现状：80-120字\n"
+        "健康与精神状态：80-120字\n\n"
+        "总计不超过400字。必须三个子维度都写完，不要截断。"
     )
 
 
