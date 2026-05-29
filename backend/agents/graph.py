@@ -253,21 +253,36 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
         ellipsis = "..." if is_en else "……"
         return text[:max_len].rstrip() + ellipsis
 
-    # ── Extract Section A: Personality ──
+    # ── Extract Section A: Personality (full, no truncation) ──
     personality = ""
     for marker in ["【A·", "【命盘底色】"]:
         section = _extract_section(core_result, marker)
         if section and len(section) > 50:
-            personality = _ensure_complete(section, 1500)
+            personality = section  # Keep full section
             break
 
-    # ── Extract Section B: Cross-dimension Resonance ──
+    # ── Extract Section B: Cross-dimension Resonance (full, no truncation) ──
     resonance = ""
     for marker in ["【B·", "【跨维度共鸣】"]:
         section = _extract_section(core_result, marker)
         if section and len(section) > 50:
-            resonance = _ensure_complete(section, 1500)
+            resonance = section  # Keep full section
             break
+
+    # ── Apply total length cap only if combined is too long ──
+    TOTAL_MAX = 4000
+    if personality and resonance:
+        combined_len = len(personality) + len(resonance)
+        if combined_len > TOTAL_MAX:
+            # Trim the longer section to fit, always at sentence boundary
+            if len(personality) > len(resonance):
+                personality = _ensure_complete(personality, TOTAL_MAX - len(resonance))
+            else:
+                resonance = _ensure_complete(resonance, TOTAL_MAX - len(personality))
+    elif personality:
+        personality = _ensure_complete(personality, TOTAL_MAX)
+    elif resonance:
+        resonance = _ensure_complete(resonance, TOTAL_MAX)
 
     # ── Fallback: if sections not found, use first 2000 chars ──
     if not personality and not resonance:
