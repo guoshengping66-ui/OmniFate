@@ -879,7 +879,7 @@ async def unlock_report(
             "trial_activated": False,
         }
 
-    # 3. 验证是否存在已支付的订单（必须通过正规支付流程）
+    # 3. 验证支付凭证 — 已支付订单 OR 已确认的星尘扣减
     paid_order = await db.execute(
         select(Order).where(
             Order.notes.contains(f"reading_id:{reading_id}"),
@@ -888,7 +888,18 @@ async def unlock_report(
     )
     paid_order = paid_order.scalar_one_or_none()
 
-    if not paid_order:
+    # Check for confirmed stardust deduction for this report
+    stardust_tx = await db.execute(
+        select(CreditTransaction).where(
+            CreditTransaction.user_id == current_user.id,
+            CreditTransaction.reference_id == reading_id,
+            CreditTransaction.reason == "report_unlock",
+            CreditTransaction.status == "confirmed",
+        )
+    )
+    stardust_tx = stardust_tx.scalar_one_or_none()
+
+    if not paid_order and not stardust_tx:
         raise HTTPException(
             status_code=402,
             detail="请先完成支付再解锁报告",
