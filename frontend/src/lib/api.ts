@@ -880,7 +880,7 @@ export interface DailyAlmanacResponse {
 }
 
 export async function analyzeEvent(data: AnalyzeEventRequest): Promise<AnalyzeEventResponse> {
-  const res = await api.post<AnalyzeEventResponse>("/api/fate/event-analyze", safeJson(data), {
+  const res = await api.post<AnalyzeEventResponse>("/api/readings/analyze-event", safeJson(data), {
     timeout: 360_000,
     headers: { "Content-Type": "application/json" },
   })
