@@ -19,6 +19,7 @@ const AGENT_I18N: Record<string, string> = {
 import AnalysisProgress from "@/components/reading/AnalysisProgress"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { STARDUST_COST } from "@/lib/pricing.config"
 import MembershipBadge, { getUserTier } from "@/components/ui/MembershipBadge"
 import { ReportSection } from "@/components/reading/ReportSection"
 import { ReadingSkeleton } from "@/components/reading/ReadingSkeleton"
@@ -1011,13 +1012,13 @@ export default function ReadingPage() {
                 <p className="text-white/25 text-xs mb-8 max-w-sm mx-auto leading-relaxed">
                   {t("reading.worker.lockedDesc")}
                 </p>
-                {(user?.stardust_balance || 0) >= 100 ? (
+                {(user?.stardust_balance || 0) >= STARDUST_COST.FULL_REPORT ? (
                   <button
                     onClick={handleStardustUnlock}
                     className="flex items-center gap-2 mx-auto text-sm px-8 py-3 rounded-xl bg-gradient-to-r from-violet-500/20 to-blue-500/20 border border-violet-400/30 hover:border-violet-400/50 text-violet-300 hover:text-violet-200 transition-all mb-3"
                   >
                     <Sparkles size={16} />
-                    {t("paywall.useStardust")}（100 ✦）
+                    {t("paywall.useStardust")}（{STARDUST_COST.FULL_REPORT} ✦）
                     <span className="text-violet-400/60 ml-1">· {user?.stardust_balance || 0} ✦</span>
                   </button>
                 ) : (

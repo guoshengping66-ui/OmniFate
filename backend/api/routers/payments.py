@@ -884,6 +884,23 @@ async def unlock_report(
     # 3. 星尘解锁 — 原子操作（扣星尘 + 解锁报告）
     if source == "stardust":
         STARDUST_COST_UNLOCK = 100
+
+        # 幂等检查：是否已有此报告的星尘扣减记录（防止重试违反唯一约束）
+        existing_tx = await db.execute(
+            select(CreditTransaction).where(
+                CreditTransaction.user_id == current_user.id,
+                CreditTransaction.reference_id == reading_id,
+                CreditTransaction.reason == "report_unlock",
+            )
+        )
+        existing_tx = existing_tx.scalar_one_or_none()
+
+        if existing_tx:
+            # 已有扣减记录 → 直接解锁（幂等）
+            unlock_result = await _unlock_reading(reading_id, db)
+            return {**unlock_result, "stardust_deducted": 0}
+
+        # 新扣减
         user_result = await db.execute(
             select(User).where(User.id == current_user.id).with_for_update()
         )
