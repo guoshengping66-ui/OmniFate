@@ -38,40 +38,47 @@ jobs:
 
             echo "═══════ 开始部署后端 ═══════"
 
-            # 1. 强制同步最新代码 + 安装新依赖
+            # 1. 同步最新代码
             cd /opt/OmniFate
             CURRENT_COMMIT=$(git rev-parse HEAD)
             echo "当前 commit: $CURRENT_COMMIT"
 
-            echo "📥 强制同步最新代码 (解决本地修改冲突)..."
+            echo "📥 同步最新代码..."
             git fetch origin main
             git reset --hard origin/main
 
-            echo "📦 安装 Python 依赖..."
-            pip install -r backend/requirements.txt --quiet 2>/dev/null || \
-              pip3 install -r backend/requirements.txt --quiet 2>/dev/null || \
-              echo "⚠️ pip install 失败，跳过"
-
-            # 2. 杀掉 uvicorn 进程 (systemd 会自动重启 deploy.sh → git pull → 新代码)
-            echo "🔄 杀掉旧进程，触发 systemd 自动重启..."
-            PID=$(lsof -ti :8002 2>/dev/null || true)
-            if [ -n "$PID" ]; then
-              kill "$PID" 2>/dev/null || true
-              echo "已停止进程: $PID"
-            else
-              echo "没有发现运行中的进程，尝试 fuser..."
-              fuser -k 8002/tcp 2>/dev/null || true
-            fi
-
-            # 3. 等待 systemd 重启 (deploy.sh 会 git pull + 启动新进程)
-            echo "⏳ 等待服务重启..."
-            sleep 15
-
-            # 4. 验证新 commit
             NEW_COMMIT=$(git rev-parse HEAD)
             echo "新 commit: $NEW_COMMIT"
 
-            # 5. 健康检查
+            # 2. 检测部署方式: Docker 或 PM2
+            if command -v docker >/dev/null 2>&1 && [ -f docker-compose.yml ]; then
+              echo "🐳 检测到 Docker，使用 docker compose 重新构建并部署..."
+              docker compose -f docker-compose.yml -f docker-compose.prod.yml build backend
+              docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --no-deps backend
+              echo "⏳ 等待容器启动..."
+              sleep 10
+            else
+              echo "📦 使用 PM2 部署..."
+              pip install -r backend/requirements.txt --quiet 2>/dev/null || \
+                pip3 install -r backend/requirements.txt --quiet 2>/dev/null || \
+                echo "⚠️ pip install 失败，跳过"
+
+              # 杀掉旧进程触发 PM2 自动重启
+              PID=$(lsof -ti :8002 2>/dev/null || true)
+              if [ -n "$PID" ]; then
+                kill "$PID" 2>/dev/null || true
+                echo "已停止进程: $PID"
+              else
+                fuser -k 8002/tcp 2>/dev/null || true
+              fi
+
+              pm2 restart backend 2>/dev/null || pm2 start ecosystem.config.js --only backend 2>/dev/null || true
+              pm2 save 2>/dev/null || true
+              echo "⏳ 等待服务重启..."
+              sleep 10
+            fi
+
+            # 3. 健康检查
             echo "🔍 健康检查..."
             HEALTH_OK=false
             for i in 1 2 3 4 5; do
