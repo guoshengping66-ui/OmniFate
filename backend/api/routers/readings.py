@@ -699,7 +699,7 @@ async def get_session(
 
             # If still pending/processing, check for stuck sessions
             if reading.status in (ReadingStatus.pending, ReadingStatus.processing):
-                # Heuristic: if DB has worker reports or master_summary, the analysis
+                # Heuristic 1: if DB has worker reports or master_summary, the analysis
                 # actually completed but status wasn't updated (server crash/restart).
                 has_results = bool(
                     reading.master_summary
@@ -713,42 +713,21 @@ async def get_session(
                     await db.commit()
                     # Fall through to the "completed" path below
 
-                # Auto-recover stuck sessions: >5 minutes old with no results.
-                # The analysis pipeline has a 5-min timeout, so anything beyond
-                # that is guaranteed stuck (background task crashed or server restarted).
-                elif not has_results:
-                    session_age = datetime.now(timezone.utc) - reading.created_at.replace(tzinfo=timezone.utc)
-                    if session_age.total_seconds() > 300:  # 5 minutes
-                        print(f"[WARN] Auto-recovering stuck session {session_id} (age={session_age}, status={reading.status})")
-                        reading.status = ReadingStatus.failed
-                        reading.error_message = "Analysis timed out — background task may have crashed"
-                        await db.commit()
-                        return AnalysisResponse(
-                            session_id=session_id,
-                            status="failed",
-                            master_summary="",
-                            astrology=_empty_worker("astrology"),
-                            tarot=_empty_worker("tarot"),
-                            bazi=_empty_worker("bazi"),
-                            qimen=_empty_worker("qimen"),
-                            ziwei=_empty_worker("ziwei"),
-                            face=_empty_worker("face"),
-                            palm=_empty_worker("palm"),
-                            recommended_product_ids=[],
-                            computed_tags=[],
-                            dimension_scores={},
-                            errors=["Analysis timed out — please try again"],
-                        )
-
-                # If still pending/processing and <5min old, check in-memory session
-                # to see if analysis is actually running (returns live progress)
-                if reading.status in (ReadingStatus.pending, ReadingStatus.processing):
+                else:
+                    # No results yet — check if analysis is still running in-memory
                     state = await _get_session(session_id)
                     if state and state.phase in ("parallel", "master"):
                         # Analysis is actively running — return live state
                         resp = _state_to_response(state)
                         return _apply_content_lock(resp, current_user, None, lang=lang or "zh")
-                    # No active session found — analysis likely crashed
+
+                    # No active in-memory session AND no results = orphaned session
+                    # (server crashed/restarted during analysis). Fail immediately.
+                    session_age = datetime.now(timezone.utc) - reading.created_at.replace(tzinfo=timezone.utc)
+                    print(f"[WARN] Orphaned session {session_id}: status={reading.status}, age={session_age}s, no active session — marking as failed")
+                    reading.status = ReadingStatus.failed
+                    reading.error_message = "Analysis did not complete — background task may have crashed"
+                    await db.commit()
                     return AnalysisResponse(
                         session_id=session_id,
                         status="failed",
@@ -943,6 +922,19 @@ async def stream_session(
     async def event_generator():
         state = await _get_session(session_id)
         if not state:
+            # Session not in memory — mark DB status as failed if still pending/processing
+            try:
+                async with AsyncSessionLocal() as db:
+                    stmt = select(Reading).where(Reading.id == session_id)
+                    result = await db.execute(stmt)
+                    reading = result.scalar_one_or_none()
+                    if reading and reading.status in (ReadingStatus.pending, ReadingStatus.processing):
+                        print(f"[SSE] Session {session_id} not in memory but status={reading.status} — marking as failed")
+                        reading.status = ReadingStatus.failed
+                        reading.error_message = "Analysis did not complete — background task may have crashed"
+                        await db.commit()
+            except Exception:
+                pass
             yield f"data: {json.dumps({'type': 'error', 'message': 'Session not found'})}\n\n"
             return
 

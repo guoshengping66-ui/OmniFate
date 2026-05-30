@@ -176,9 +176,9 @@ export default function ReadingPage() {
     if (!id) return
     let cancelled = false
 
-    // Start stuck timer: if status stays "init"/"processing" for 180s with no progress, show retry.
-    // 180s because workers take ~65s + master phase ~30s = ~95s total; allow 2x headroom.
-    const STUCK_TIMEOUT = 180_000
+    // Start stuck timer: if status stays "init"/"processing" for 120s with no progress, show retry.
+    // 120s because workers take ~65s + master phase ~30s = ~95s total; allow ~1.3x headroom.
+    const STUCK_TIMEOUT = 120_000
     const startStuckTimer = () => {
       if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
       stuckTimerRef.current = setTimeout(() => {
@@ -190,7 +190,7 @@ export default function ReadingPage() {
     let pollDone = false
     let pollInterval: ReturnType<typeof setInterval> | null = null
     let stalePollCount = 0
-    const STALE_POLL_THRESHOLD = 20 // ~60s with no status change → assume stuck
+    const STALE_POLL_THRESHOLD = 12 // ~36s with no status change → assume stuck
 
     getSession(id).then(d => {
       if (cancelled) return
