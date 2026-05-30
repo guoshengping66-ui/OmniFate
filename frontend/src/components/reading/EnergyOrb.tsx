@@ -1,8 +1,22 @@
 "use client"
 
-import { useRef, useMemo, Suspense, useEffect } from "react"
+import { useRef, useMemo, Suspense, useEffect, useState, Component, type ReactNode } from "react"
 import { Canvas, useFrame } from "@react-three/fiber"
 import * as THREE from "three"
+
+// ── Error Boundary for WebGL context loss ───────────────────────────────────
+interface ErrorBoundaryState { hasError: boolean }
+class WebGLErrorBoundary extends Component<{ children: ReactNode; fallback: ReactNode }, ErrorBoundaryState> {
+  state: ErrorBoundaryState = { hasError: false }
+  static getDerivedStateFromError() { return { hasError: true } }
+  componentDidCatch(error: Error) {
+    console.warn("[EnergyOrb] WebGL error caught:", error.message)
+  }
+  render() {
+    if (this.state.hasError) return this.props.fallback
+    return this.props.children
+  }
+}
 
 type AgentStatusValue = "pending" | "running" | "done" | "error" | "skipped"
 
@@ -262,18 +276,43 @@ function OrbFallback() {
 
 // ── Main Export ────────────────────────────────────────────────────────────
 export default function EnergyOrb(props: EnergyOrbProps) {
+  const [contextLost, setContextLost] = useState(false)
+
   return (
     <div className="w-full aspect-square max-w-[320px] mx-auto">
-      <Suspense fallback={<OrbFallback />}>
-        <Canvas
-          camera={{ position: [0, 0, 4], fov: 45 }}
-          dpr={[1, 1.5]}
-          gl={{ antialias: true, alpha: true }}
-          style={{ background: "transparent" }}
-        >
-          <Scene {...props} />
-        </Canvas>
-      </Suspense>
+      <WebGLErrorBoundary fallback={<OrbFallback />}>
+        {contextLost ? (
+          <OrbFallback />
+        ) : (
+          <Suspense fallback={<OrbFallback />}>
+            <Canvas
+              camera={{ position: [0, 0, 4], fov: 45 }}
+              dpr={[1, 1.25]}
+              gl={{
+                antialias: true,
+                alpha: true,
+                powerPreference: "default",
+                failIfMajorPerformanceCaveat: false,
+              }}
+              style={{ background: "transparent" }}
+              onCreated={({ gl }) => {
+                const canvas = gl.domElement
+                canvas.addEventListener("webglcontextlost", (e) => {
+                  e.preventDefault()
+                  console.warn("[EnergyOrb] WebGL context lost — showing fallback")
+                  setContextLost(true)
+                })
+                canvas.addEventListener("webglcontextrestored", () => {
+                  console.log("[EnergyOrb] WebGL context restored")
+                  setContextLost(false)
+                })
+              }}
+            >
+              <Scene {...props} />
+            </Canvas>
+          </Suspense>
+        )}
+      </WebGLErrorBoundary>
     </div>
   )
 }

@@ -143,6 +143,3 @@ export default function EventsPage() {
     </div>
   )
 }
-// force redeploy — sudo fix for .next cleanup
-// chown fix
-// v3
