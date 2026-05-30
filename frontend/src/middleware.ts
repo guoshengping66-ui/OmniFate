@@ -25,7 +25,8 @@ export function middleware(request: NextRequest) {
   }
 
   // Redirect /reading/* to /{locale}/reading/* if locale is missing
-  if (pathname.startsWith("/reading")) {
+  // Skip if path already has a locale prefix (e.g. /en/reading or /zh/reading)
+  if (pathname.startsWith("/reading") && !pathname.match(/^\/(en|zh)\//)) {
     const locale = request.cookies.get("NEXT_LOCALE")?.value || "zh"
     const url = request.nextUrl.clone()
     url.pathname = `/${locale}${pathname}`
@@ -75,5 +76,6 @@ export function middleware(request: NextRequest) {
 export const config = {
   // Only run middleware on routes that need locale detection.
   // Static assets, _next/*, and API routes are excluded.
-  matcher: ["/", "/((?!_next|api|favicon.ico|.*\\.|en|zh).*)"],
+  // Also exclude paths already prefixed with /en or /zh to prevent double-prefix.
+  matcher: ["/", "/((?!_next|api|favicon.ico|.*\\.|en/|zh/|en$|zh$).*)"],
 }
