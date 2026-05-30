@@ -724,35 +724,34 @@ export default function ReadingPage() {
       {/* ════════════════════════════════════════════════════════════
           NAVIGATION — Side-oriented nav system
           ════════════════════════════════════════════════════════════ */}
-      <div className="max-w-5xl mx-auto px-4 mb-8 sticky top-16 z-30">
-        <div className="bg-[#1a1430]/80 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-1.5 shadow-2xl shadow-black/40 relative">
-          {/* Scroll fade indicator on right edge */}
-          <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-[#1a1430]/90 to-transparent rounded-r-2xl pointer-events-none z-10 md:hidden" />
-          <div ref={navScrollRef} className="flex gap-0.5 sm:gap-1 overflow-x-auto scrollbar-none scroll-smooth">
+      <div className="max-w-5xl mx-auto px-2 sm:px-4 mb-6 sm:mb-8 sticky top-16 z-30">
+        <div className="bg-[#1a1430]/80 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-1 sm:p-1.5 shadow-2xl shadow-black/40">
+          <div ref={navScrollRef} className="flex gap-0.5 sm:gap-1 justify-center flex-wrap sm:flex-nowrap sm:overflow-x-auto scrollbar-none sm:scroll-smooth">
             {I18N_NAV_ITEMS.map(item => {
               const isWorkerTab = WORKER_ORDER.includes(item.id as typeof WORKER_ORDER[number])
               const isLocked = !isUnlocked && isWorkerTab
               return (
                 <button
                   key={item.id}
+                  title={t(item.labelKey)}
                   onClick={() => setActiveTab(item.id)}
-                  className={`flex items-center gap-1 px-2 py-2 sm:px-3.5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-medium
-                              whitespace-nowrap transition-all duration-300 flex-shrink-0 group
+                  className={`flex items-center justify-center px-1.5 py-1.5 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl text-base sm:text-sm font-medium
+                              transition-all duration-300 flex-shrink-0 group
                     ${activeTab === item.id
                       ? "bg-gold/15 text-gold shadow-[0_0_20px_rgba(201,168,76,0.15)]"
                       : isLocked
                         ? "text-white/25 hover:text-white/50 hover:bg-white/[0.04]"
                         : "text-white/40 hover:text-white/70 hover:bg-white/[0.04]"}`}
                 >
-                  <span className="text-sm sm:text-base transition-transform group-hover:scale-110 duration-200">
+                  <span className="transition-transform group-hover:scale-110 duration-200">
                     {item.icon}
                   </span>
-                  <span className="hidden sm:inline">{t(item.labelKey)}</span>
+                  <span className="hidden sm:inline ml-1">{t(item.labelKey)}</span>
                   {isLocked && (
-                    <Lock size={10} className="text-white/20 -ml-0.5" />
+                    <Lock size={10} className="text-white/20 -ml-0.5 hidden sm:inline" />
                   )}
                   {activeTab === item.id && (
-                    <span className="hidden lg:inline text-[10px] text-gold/50 ml-0.5">{t(item.descKey)}</span>
+                    <span className="hidden lg:inline text-[10px] text-gold/50 ml-1">{t(item.descKey)}</span>
                   )}
                 </button>
               )
