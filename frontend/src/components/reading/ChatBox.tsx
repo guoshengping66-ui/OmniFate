@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react"
 import { Send, Loader2, Bot, User, Sparkles } from "lucide-react"
 import { sendChat, AGENT_LABELS } from "@/lib/api"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { useAuth } from "@/contexts/AuthContext"
 import toast from "react-hot-toast"
 
 interface Message {
@@ -18,6 +19,7 @@ interface Props {
 
 export function ChatBox({ sessionId, availableAgents = [] }: Props) {
   const { t } = useLanguage()
+  const { refreshUser } = useAuth()
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
@@ -46,6 +48,7 @@ export function ChatBox({ sessionId, availableAgents = [] }: Props) {
         content: res.answer,
         routed_to: res.routed_to,
       }])
+      refreshUser() // 刷新星尘余额（后端已扣费）
     } catch {
       toast.error(t("chat.sendFail"))
       setMessages(m => [...m, {

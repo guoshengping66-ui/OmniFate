@@ -30,14 +30,17 @@ from agents.master import _llm, _use_mock
 from services.vision.face_v2t import FaceV2T
 from services.vision.palm_v2t import PalmV2T
 from services.product_matcher import ProductMatcher
-from database.session import AsyncSessionLocal, engine
-from database.models import Reading, ReadingStatus, PaymentStatus, EventLog, User
+from database.session import AsyncSessionLocal, engine, get_db
+from database.models import Reading, ReadingStatus, PaymentStatus, EventLog, User, CreditTransaction
 from auth.dependencies import get_current_user, require_user
 from calculators.astrology_calculator import AstrologyCalculator
 from calculators.bazi_calculator import BaziCalculator
 from config import get_settings
 
 settings = get_settings()
+
+# ── Stardust costs ────────────────────────────────────────────────────────
+STARDUST_COST_FOLLOW_UP = 10  # AI 追问每次消耗
 
 router = APIRouter()
 
@@ -568,11 +571,13 @@ async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
 async def chat_followup(
     payload: ChatRequest,
     current_user: User = Depends(require_user),
+    db: AsyncSession = Depends(get_db),
 ):
     """
     Task C: Dynamic routing follow-up chat.
     Routes user question to the correct expert agent and returns a focused answer.
     需要登录，防止未授权消耗 API 额度
+    非会员每次追问消耗 10 星尘，会员免费。
     """
     import re as _re
     from agents.graph import run_chat
@@ -611,15 +616,66 @@ async def chat_followup(
             question = "请围绕命理主题提问。"
             break
 
-    answer, agent_id, updated_state = await run_chat(question, state)
-    await _set_session(payload.session_id, updated_state)
+    # ── 星尘扣费（会员免费） ──
+    deducted = False
+    tx_id = None
+    if not current_user.is_premium:
+        user_result = await db.execute(
+            select(User).where(User.id == current_user.id).with_for_update()
+        )
+        user = user_result.scalar_one()
+        if user.stardust_balance < STARDUST_COST_FOLLOW_UP:
+            raise HTTPException(
+                status_code=402,
+                detail=f"星尘不足: 需要 {STARDUST_COST_FOLLOW_UP}，当前 {user.stardust_balance}",
+            )
+        user.stardust_balance -= STARDUST_COST_FOLLOW_UP
+        tx = CreditTransaction(
+            user_id=user.id,
+            amount=-STARDUST_COST_FOLLOW_UP,
+            balance_after=user.stardust_balance,
+            reason="follow_up",
+            reference_id=payload.session_id,
+            status="confirmed",
+        )
+        db.add(tx)
+        await db.commit()
+        deducted = True
+        tx_id = tx.id
 
-    return ChatResponse(
-        answer=answer,
-        routed_to=agent_id,
-        session_id=payload.session_id,
-        loop_count=updated_state.loop_count,
-    )
+    # ── 执行 LLM 追问 ──
+    try:
+        answer, agent_id, updated_state = await run_chat(question, state)
+        await _set_session(payload.session_id, updated_state)
+
+        return ChatResponse(
+            answer=answer,
+            routed_to=agent_id,
+            session_id=payload.session_id,
+            loop_count=updated_state.loop_count,
+        )
+    except Exception:
+        # LLM 失败 → 退款
+        if deducted and tx_id:
+            try:
+                refund_result = await db.execute(
+                    select(User).where(User.id == current_user.id).with_for_update()
+                )
+                refund_user = refund_result.scalar_one()
+                refund_user.stardust_balance += STARDUST_COST_FOLLOW_UP
+                refund_tx = CreditTransaction(
+                    user_id=refund_user.id,
+                    amount=STARDUST_COST_FOLLOW_UP,
+                    balance_after=refund_user.stardust_balance,
+                    reason="refund",
+                    reference_id=str(tx_id),
+                    status="confirmed",
+                )
+                db.add(refund_tx)
+                await db.commit()
+            except Exception:
+                pass  # 退款失败不阻塞用户
+        raise
 
 
 async def _run_analysis_inline(state: SystemState) -> SystemState:
@@ -1490,7 +1546,7 @@ async def analyze_palm_image(file: UploadFile = File(...)):
 
 
 class AnalyzeEventRequest(BaseModel):
-    session_id: str
+    session_id: Optional[str] = None
     event_description: str = Field(..., min_length=2, max_length=2000)
     event_datetime: datetime
     emotion_score: Optional[int] = Field(None, ge=1, le=10)
@@ -1635,21 +1691,76 @@ def _compute_energy_score(
 async def analyze_event(
     payload: AnalyzeEventRequest,
     current_user: User = Depends(require_user),
+    db: AsyncSession = Depends(get_db),
 ):
     """
     Analyze a user event against their birth chart + transit data.
 
     Steps:
-    1. Load session state
+    1. Load session state (from Redis or fall back to latest Reading in DB)
     2. Compute transit astrology + bazi for event datetime
     3. Call ReplayAgent LLM for causal analysis
     4. Match products from remedy keywords
     5. Save EventLog to database
     """
-    # 1. Load session
-    state = await _get_session(payload.session_id)
+    # 1. Load session — try Redis first, then fall back to latest Reading
+    state = None
+    if payload.session_id:
+        state = await _get_session(payload.session_id)
+
     if not state:
-        raise HTTPException(status_code=404, detail="Session not found. Run /readings/ first.")
+        # Fall back: reconstruct from user's latest completed Reading
+        from database.models import BirthProfile
+        reading_result = await db.execute(
+            select(Reading)
+            .where(
+                Reading.user_id == current_user.id,
+                Reading.status == ReadingStatus.completed,
+            )
+            .order_by(Reading.created_at.desc())
+            .limit(1)
+        )
+        reading = reading_result.scalar_one_or_none()
+        if not reading:
+            raise HTTPException(
+                status_code=404,
+                detail="请先完成一次推命分析后再使用复盘功能",
+            )
+
+        # Reconstruct BirthInfo from BirthProfile
+        bi = None
+        if reading.birth_profile_id:
+            bp_result = await db.execute(
+                select(BirthProfile).where(BirthProfile.id == reading.birth_profile_id)
+            )
+            bp = bp_result.scalar_one_or_none()
+            if bp:
+                bi = BirthInfo(
+                    year=bp.birth_year, month=bp.birth_month, day=bp.birth_day,
+                    hour=bp.birth_hour, minute=bp.birth_minute,
+                    city=bp.birth_city or "",
+                    latitude=bp.latitude, longitude=bp.longitude,
+                )
+
+        from agents.state import WorkerOutput
+        state = SystemState(
+            session_id=reading.id,
+            user_id=current_user.id,
+            birth_info=bi,
+            master_summary=reading.master_summary or "",
+            dimension_scores=reading.dimension_scores or {},
+            computed_tags=reading.computed_tags or [],
+            bazi_raw=reading.bazi_raw or {},
+            astrology_raw=reading.astrology_raw or {},
+        )
+        # Worker outputs — tags are empty but report text is preserved
+        state.bazi_output = WorkerOutput(
+            agent_id="bazi", report=reading.bazi_report or "",
+        )
+        state.astrology_output = WorkerOutput(
+            agent_id="astrology", report=reading.astrology_report or "",
+        )
+
     if not state.birth_info:
         raise HTTPException(status_code=400, detail="Session missing birth info.")
 
