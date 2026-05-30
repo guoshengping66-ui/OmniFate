@@ -27,6 +27,7 @@
 // server-to-server communication, improving speed and reliability.
 const BACKEND = process.env.BACKEND_URL || "http://localhost:8002"
 const TIMEOUT_MS = 30_000  // 30s for regular requests (POST/GET with expected fast response)
+const ANALYSIS_TIMEOUT_MS = 120_000  // 2 min for LLM-heavy endpoints (analyze-event, readings)
 const SSE_TIMEOUT_MS = 600_000  // 10 min for SSE streams (analysis can take 5-8 min with two-call approach)
 
 export async function GET(request: Request, { params }: { params: Promise<{ path: string[] }> }) {
@@ -143,9 +144,12 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
   // AbortController with timeout to prevent hanging.
   // SSE streaming endpoints (/stream) get a longer timeout since analysis
   // can take 2-3 minutes and heartbeats keep the connection alive.
+  // LLM-heavy endpoints (analyze-event, readings) get 2 min timeout.
   const isStream = targetPath.includes("/stream")
+  const isAnalysis = targetPath.includes("/analyze-event") || targetPath.includes("/readings/stream")
   const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), isStream ? SSE_TIMEOUT_MS : TIMEOUT_MS)
+  const timeoutMs = isStream ? SSE_TIMEOUT_MS : (isAnalysis ? ANALYSIS_TIMEOUT_MS : TIMEOUT_MS)
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
 
   try {
     const resp = await fetch(targetUrl, {
@@ -192,8 +196,9 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
     })
   } catch (err: any) {
     const msg = err?.name === "AbortError"
-      ? "Backend timeout — analysis is running, please check back in a moment"
-      : "Proxy error"
+      ? `Backend timeout (${Math.round(timeoutMs / 1000)}s) — analysis is running, please check back in a moment`
+      : `Proxy error: ${err?.message || "unknown"}`
+    console.error(`[Proxy] ${targetPath} failed:`, err?.name || err?.message)
     return new Response(
       JSON.stringify({ detail: msg }),
       { status: 502, headers: { "Content-Type": "application/json; charset=utf-8" } },

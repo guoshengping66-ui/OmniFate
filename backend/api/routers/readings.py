@@ -1703,6 +1703,26 @@ async def analyze_event(
     4. Match products from remedy keywords
     5. Save EventLog to database
     """
+    try:
+        return await _analyze_event_inner(payload, current_user, db)
+    except HTTPException:
+        raise
+    except Exception as exc:
+        import traceback
+        traceback.print_exc()
+        print(f"[EVENT] analyze_event crashed for user {current_user.id}: {exc}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Event analysis failed: {str(exc)[:200]}",
+        )
+
+
+async def _analyze_event_inner(
+    payload: AnalyzeEventRequest,
+    current_user: User,
+    db: AsyncSession,
+):
+    """Inner handler — wrapped by analyze_event for error handling."""
     # 1. Load session — try Redis first, then fall back to latest Reading
     state = None
     if payload.session_id:
