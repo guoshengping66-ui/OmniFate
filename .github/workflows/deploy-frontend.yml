@@ -56,23 +56,32 @@ jobs:
               echo "⚠️ /etc/nginx/sites-available 不存在，跳过 Nginx 配置更新"
             fi
 
-            # 3. 安装前端依赖
-            cd /opt/OmniFate/frontend
-            echo "📦 安装依赖..."
-            npm ci --production=false 2>/dev/null || npm install
+            # 3. 检测部署方式: Docker 或 PM2
+            if command -v docker >/dev/null 2>&1 && [ -f docker-compose.yml ]; then
+              echo "🐳 检测到 Docker，重新构建并部署前端容器..."
+              docker compose -f docker-compose.yml -f docker-compose.prod.yml build frontend
+              docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --no-deps frontend
+              echo "⏳ 等待容器启动..."
+              sleep 10
+            else
+              echo "📦 使用 PM2 部署前端..."
+              cd /opt/OmniFate/frontend
+              echo "📦 安装依赖..."
+              npm ci --production=false 2>/dev/null || npm install
 
-            # 4. 构建生产版本
-            echo "🔨 构建生产版本..."
-            NODE_ENV=production npm run build
+              echo "🔨 构建生产版本..."
+              NODE_ENV=production npm run build
 
-            # 5. 重启 PM2 进程
-            echo "🔄 重启前端服务..."
-            cd /opt/OmniFate
-            pm2 delete frontend 2>/dev/null || true
-            pm2 start ecosystem.config.js --only frontend
-            pm2 save
+              echo "🔄 重启前端服务..."
+              cd /opt/OmniFate
+              pm2 delete frontend 2>/dev/null || true
+              pm2 start ecosystem.config.js --only frontend
+              pm2 save
 
-            # 6. 验证
+              sleep 3
+            fi
+
+            # 4. 验证
             echo "🔍 验证服务..."
             sleep 3
             HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3000/ || echo "000")
