@@ -78,8 +78,7 @@ jobs:
 
               echo "📦 安装依赖..."
               sudo chown -R $(whoami) . 2>/dev/null || true
-              # 清理旧构建缓存，确保新代码被正确打包
-              rm -rf .next
+              # 不删除 .next — 让 build 直接覆盖，避免运行中的服务器文件被删
               npm ci --production=false 2>/dev/null || npm install
 
               echo "🔨 构建生产版本..."
