@@ -15,15 +15,15 @@ module.exports = {
     {
       name: "backend",
       cwd: "/opt/OmniFate",
-      script: "backend/main.py",
+      script: "start_backend.py",
       interpreter: "/usr/bin/python3.9",
-      args: "-m uvicorn backend.main:app --host 0.0.0.0 --port 8002",
       env: {
         PYTHONUNBUFFERED: "1",
       },
       max_memory_restart: "1G",
       autorestart: true,
       watch: false,
+      kill_timeout: 10000,
     },
   ],
 };

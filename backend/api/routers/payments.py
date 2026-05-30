@@ -851,7 +851,6 @@ async def capture_paypal_order(
 
 @router.post("/unlock/{reading_id}")
 async def unlock_report(
-    request: Request,
     reading_id: str,
     source: str = Query("payment", description="payment 或 stardust"),
     db: AsyncSession = Depends(get_db),
@@ -862,11 +861,7 @@ async def unlock_report(
     source=payment: 验证已支付订单（支付宝/微信/PayPal）。
     source=stardust: 原子操作——检查余额→扣减星尘→解锁报告。
     """
-    # ── DEBUG: log raw request info to diagnose ?source=stardust not reaching stardust branch ──
-    raw_url = str(request.url)
-    query_params = dict(request.query_params)
-    print(f"[UNLOCK] reading_id={reading_id}, source_param={source!r}, user={current_user.id}", flush=True)
-    print(f"[UNLOCK] raw_url={raw_url}, query_params={query_params}", flush=True)
+    print(f"[UNLOCK] reading_id={reading_id}, source={source}, user={current_user.id}", flush=True)
     # 1. 查找报告
     reading_result = await db.execute(select(Reading).where(Reading.id == reading_id))
     reading = reading_result.scalar_one_or_none()
@@ -889,7 +884,6 @@ async def unlock_report(
 
     # 3. 星尘解锁 — 原子操作（扣星尘 + 解锁报告）
     if source == "stardust":
-        print(f"[UNLOCK] ★ ENTERING STARDUST BRANCH ★ reading={reading_id}", flush=True)
         STARDUST_COST_UNLOCK = 100
 
         # 幂等检查：是否已有此报告的星尘扣减记录（防止重试违反唯一约束）
@@ -935,7 +929,6 @@ async def unlock_report(
         return {**unlock_result, "stardust_deducted": STARDUST_COST_UNLOCK}
 
     # 4. 支付宝/微信/PayPal 解锁 — 验证已支付订单
-    print(f"[UNLOCK] ★ PAYMENT BRANCH ★ source={source!r} (stardust branch was skipped)", flush=True)
     paid_order = await db.execute(
         select(Order).where(
             Order.notes.contains(f"reading_id:{reading_id}"),
