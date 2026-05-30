@@ -1892,8 +1892,8 @@ async def analyze_event(
         async with AsyncSessionLocal() as db:
             evt = EventLog(
                 id=event_id,
-                session_id=payload.session_id,
-                user_id=None,  # anonymous sessions
+                session_id=payload.session_id or state.session_id,
+                user_id=current_user.id,
                 event_description=payload.event_description,
                 event_datetime=event_dt,
                 emotion_score=payload.emotion_score,
