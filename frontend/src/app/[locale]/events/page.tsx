@@ -143,4 +143,4 @@ export default function EventsPage() {
     </div>
   )
 }
-// force redeploy with clean .next build
+// force redeploy — standalone static copy fix
