@@ -342,6 +342,17 @@ app.include_router(billing.webhook_router, prefix="/api/webhooks", tags=["Webhoo
 app.include_router(contact.router, prefix="/api/contact", tags=["Contact"])
 app.include_router(fortune.router, prefix="/api/fortune", tags=["Fortune"])
 
+# ── Route alias: 旧前端调用 /api/fate/event-analyze，后端实际在 /api/readings/analyze-event ──
+# 在前端新版本部署前临时兼容
+from fastapi import APIRouter as _APIRouter
+_fate_compat = _APIRouter()
+@_fate_compat.post("/event-analyze")
+async def _fate_event_analyze_compat(*args, **kwargs):
+    """Backward-compat: redirects /api/fate/event-analyze → readings.analyze_event"""
+    from api.routers.readings import analyze_event
+    return await analyze_event(*args, **kwargs)
+app.include_router(_fate_compat, prefix="/api/fate", tags=["Fate-Compat"])
+
 
 @app.get("/health")
 async def health():
