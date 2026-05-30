@@ -98,6 +98,11 @@ jobs:
               echo "🔨 构建生产版本..."
               NODE_ENV=production npm run build
 
+              # ⚠️ standalone 模式必须手动复制静态文件到 standalone 目录
+              echo "📋 复制静态文件到 standalone 目录..."
+              cp -r .next/static .next/standalone/frontend/.next/static
+              cp -r public .next/standalone/frontend/public 2>/dev/null || true
+
               echo "🔄 启动前端服务..."
               cd /opt/OmniFate
               pm2 start ecosystem.config.js --only frontend
