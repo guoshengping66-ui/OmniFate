@@ -44,7 +44,12 @@ jobs:
 
             echo "📥 同步最新代码..."
             git fetch origin main
-            git reset --hard origin/main
+            git clean -fd 2>/dev/null || true
+            git reset --hard origin/main || {
+              echo "⚠️ git reset 失败，尝试修复权限后重试..."
+              chmod -R u+w frontend/ 2>/dev/null || true
+              git reset --hard origin/main
+            }
 
             # 2. 部署 Nginx 配置 (跳过如果 sites-available 不存在)
             echo "🌐 更新 Nginx 配置..."
