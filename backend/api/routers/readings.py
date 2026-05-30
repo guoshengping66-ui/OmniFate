@@ -376,46 +376,57 @@ async def create_analysis(
 
 
 async def _persist_session(session_id: str, user_id: Optional[str] = None, language: str = "zh"):
-    """Persist a reading session to the database, auto-linking birth_profile_id."""
+    """Persist a reading session to the database, auto-linking birth_profile_id.
+    Includes retry logic for transient DB failures — if this fails, the analysis
+    results will be lost because the background task can't find the reading in DB.
+    """
     from database.session import _db_available
     from database.models import BirthProfile
     if _db_available is False:
         return
-    async with AsyncSessionLocal() as db:
-        # Auto-link user's default birth profile
-        birth_profile_id = None
-        if user_id:
-            stmt = (
-                select(BirthProfile)
-                .where(BirthProfile.user_id == user_id, BirthProfile.nickname == "本命")
-                .limit(1)
-            )
-            result = await db.execute(stmt)
-            bp = result.scalar_one_or_none()
-            if not bp:
-                # Fallback: use first profile
-                stmt2 = (
-                    select(BirthProfile)
-                    .where(BirthProfile.user_id == user_id)
-                    .order_by(BirthProfile.created_at.asc())
-                    .limit(1)
-                )
-                result2 = await db.execute(stmt2)
-                bp = result2.scalar_one_or_none()
-            if bp:
-                birth_profile_id = bp.id
 
-        reading = Reading(
-            id=session_id,
-            user_id=user_id,
-            birth_profile_id=birth_profile_id,
-            status=ReadingStatus.pending,
-            master_summary="",
-            is_detail_unlocked=False,
-            language=language,
-        )
-        db.add(reading)
-        await db.commit()
+    for attempt in range(3):
+        try:
+            async with AsyncSessionLocal() as db:
+                # Auto-link user's default birth profile
+                birth_profile_id = None
+                if user_id:
+                    stmt = (
+                        select(BirthProfile)
+                        .where(BirthProfile.user_id == user_id, BirthProfile.nickname == "本命")
+                        .limit(1)
+                    )
+                    result = await db.execute(stmt)
+                    bp = result.scalar_one_or_none()
+                    if not bp:
+                        # Fallback: use first profile
+                        stmt2 = (
+                            select(BirthProfile)
+                            .where(BirthProfile.user_id == user_id)
+                            .order_by(BirthProfile.created_at.asc())
+                            .limit(1)
+                        )
+                        result2 = await db.execute(stmt2)
+                        bp = result2.scalar_one_or_none()
+                    if bp:
+                        birth_profile_id = bp.id
+
+                reading = Reading(
+                    id=session_id,
+                    user_id=user_id,
+                    birth_profile_id=birth_profile_id,
+                    status=ReadingStatus.pending,
+                    master_summary="",
+                    is_detail_unlocked=False,
+                    language=language,
+                )
+                db.add(reading)
+                await db.commit()
+                return  # Success
+        except Exception as e:
+            print(f"[WARN] _persist_session attempt {attempt + 1}/3 failed: {e}")
+            if attempt < 2:
+                await asyncio.sleep(1)
 
 
 async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
@@ -475,7 +486,10 @@ async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
             pass
 
     # Final persist to session store
-    await _set_session(state.session_id, state)
+    try:
+        await _set_session(state.session_id, state)
+    except Exception as e:
+        print(f"[BG] Failed to persist session to Redis: {e}")
 
     # Safety net: recompute dimension_scores if still at defaults
     default_scores = {"wealth": 5.0, "relationship": 5.0, "career": 5.0, "health": 5.0, "spiritual": 5.0}
@@ -489,30 +503,46 @@ async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
         except Exception as e:
             print(f"[BG] Failed to recompute dimension_scores: {e}")
 
-    # Persist final results to database
-    try:
-        async with AsyncSessionLocal() as db:
-            stmt = select(Reading).where(Reading.id == state.session_id)
-            result = await db.execute(stmt)
-            reading = result.scalar_one_or_none()
-            if reading:
-                reading.status = ReadingStatus.completed
-                reading.master_summary = state.master_summary
-                reading.master_detail = getattr(state, "master_detail", "")
-                reading.astrology_report = state.astrology_output.report if state.astrology_output else ""
-                reading.tarot_report = state.tarot_output.report if state.tarot_output else ""
-                reading.bazi_report = state.bazi_output.report if state.bazi_output else ""
-                reading.qimen_report = state.qimen_output.report if state.qimen_output else ""
-                reading.ziwei_report = state.ziwei_output.report if state.ziwei_output else ""
-                reading.palm_report = state.palm_output.report if state.palm_output and state.palm_output.report != "No palm data provided. Palm analysis skipped." else None
-                reading.face_analysis_text = state.face_output.report if state.face_output and state.face_output.report != "No facial image provided. Face analysis skipped." else None
-                reading.dimension_scores = dict(state.dimension_scores) if state.dimension_scores else None
-                print(f"[BG] Persisting dimension_scores to DB: {state.dimension_scores}")
-                reading.computed_tags = list(state.computed_tags) if state.computed_tags else None
-                reading.recommended_product_ids = list(state.recommended_product_ids) if state.recommended_product_ids else None
-                reading.completed_at = datetime.now(timezone.utc)
-                await db.commit()
-                print(f"[BG] Persisted reading {state.session_id} to DB")
+    # Persist final results to database (with retry for transient failures)
+    for _persist_attempt in range(3):
+        try:
+            async with AsyncSessionLocal() as db:
+                stmt = select(Reading).where(Reading.id == state.session_id)
+                result = await db.execute(stmt)
+                reading = result.scalar_one_or_none()
+
+                # Safety net: if reading doesn't exist (initial persist failed), create it
+                if not reading:
+                    print(f"[BG] Reading {state.session_id} not in DB — creating (safety net)")
+                    reading = Reading(
+                        id=state.session_id,
+                        user_id=user_id,
+                        status=ReadingStatus.pending,
+                        master_summary="",
+                        is_detail_unlocked=False,
+                        language=state.language or "zh",
+                    )
+                    db.add(reading)
+                    await db.flush()
+
+                if reading:
+                    reading.status = ReadingStatus.completed
+                    reading.master_summary = state.master_summary
+                    reading.master_detail = getattr(state, "master_detail", "")
+                    reading.astrology_report = state.astrology_output.report if state.astrology_output else ""
+                    reading.tarot_report = state.tarot_output.report if state.tarot_output else ""
+                    reading.bazi_report = state.bazi_output.report if state.bazi_output else ""
+                    reading.qimen_report = state.qimen_output.report if state.qimen_output else ""
+                    reading.ziwei_report = state.ziwei_output.report if state.ziwei_output else ""
+                    reading.palm_report = state.palm_output.report if state.palm_output and state.palm_output.report != "No palm data provided. Palm analysis skipped." else None
+                    reading.face_analysis_text = state.face_output.report if state.face_output and state.face_output.report != "No facial image provided. Face analysis skipped." else None
+                    reading.dimension_scores = dict(state.dimension_scores) if state.dimension_scores else None
+                    print(f"[BG] Persisting dimension_scores to DB: {state.dimension_scores}")
+                    reading.computed_tags = list(state.computed_tags) if state.computed_tags else None
+                    reading.recommended_product_ids = list(state.recommended_product_ids) if state.recommended_product_ids else None
+                    reading.completed_at = datetime.now(timezone.utc)
+                    await db.commit()
+                    print(f"[BG] Persisted reading {state.session_id} to DB (attempt {_persist_attempt + 1})")
 
                 # Send completion notification email
                 try:
@@ -527,8 +557,11 @@ async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
                             print(f"[BG] Sent completion email to {user.email}")
                 except Exception as email_err:
                     print(f"[WARN] Failed to send completion email: {email_err}")
-    except Exception as e:
-        print(f"[WARN] Failed to persist reading to DB: {e}")
+                break  # Success — exit retry loop
+        except Exception as e:
+            print(f"[WARN] Failed to persist reading to DB (attempt {_persist_attempt + 1}/3): {e}")
+            if _persist_attempt < 2:
+                await asyncio.sleep(2)  # Wait before retry
 
 
 @router.post("/chat", response_model=ChatResponse)
