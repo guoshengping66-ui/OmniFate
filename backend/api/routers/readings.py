@@ -1762,29 +1762,35 @@ async def analyze_event(
         )
 
     if not state.birth_info:
-        raise HTTPException(status_code=400, detail="Session missing birth info.")
+        # No birth info available (e.g. Reading without birth_profile_id).
+        # Proceed with empty transit data — LLM can still analyze based on
+        # master_summary + computed_tags.
+        print(f"[EVENT] No birth_info for user {current_user.id}, proceeding without transit data")
+        state.birth_info = None
 
     bi = state.birth_info
     event_dt = payload.event_datetime
 
-    # 2a. Compute transit astrology
-    from calculators.astrology_calculator import AstrologyCalculator
-    astro_calc = AstrologyCalculator()
-    try:
-        natal_chart = astro_calc.calculate(
-            year=bi.year, month=bi.month, day=bi.day,
-            hour=bi.hour, minute=bi.minute,
-            latitude=bi.latitude or 0.0,
-            longitude=bi.longitude or 0.0,
-        )
-        natal_planets = natal_chart.planets  # raw planet data for transit calc
+    # 2a. Compute transit astrology (skip if no birth info)
+    transit_astro = {"transit_planets": {}, "transit_natal_aspects": []}
+    if bi:
+        from calculators.astrology_calculator import AstrologyCalculator
+        astro_calc = AstrologyCalculator()
+        try:
+            natal_chart = astro_calc.calculate(
+                year=bi.year, month=bi.month, day=bi.day,
+                hour=bi.hour, minute=bi.minute,
+                latitude=bi.latitude or 0.0,
+                longitude=bi.longitude or 0.0,
+            )
+            natal_planets = natal_chart.planets  # raw planet data for transit calc
 
-        transit_astro = astro_calc.calculate_transit_for_date(
-            target_date=event_dt,
-            natal_planets=natal_planets,
-        )
-    except Exception as exc:
-        transit_astro = {"transit_planets": {}, "transit_natal_aspects": []}
+            transit_astro = astro_calc.calculate_transit_for_date(
+                target_date=event_dt,
+                natal_planets=natal_planets,
+            )
+        except Exception as exc:
+            transit_astro = {"transit_planets": {}, "transit_natal_aspects": []}
 
     # 2b. Compute transit bazi pillars
     from calculators.bazi_calculator import BaziCalculator
