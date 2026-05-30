@@ -205,9 +205,8 @@ async def match_products(payload: MatchRequest, lang: str = Query("zh")):
 
     if payload.include_explain:
         for p in matched:
-            explanation = _matcher.explain_why(
+            explanation = _matcher.explain_why_template(
                 product=p,
-                master_summary=payload.master_summary,
                 weakness_tags=payload.weakness_tags,
                 boost_elements=payload.boost_elements,
             )
