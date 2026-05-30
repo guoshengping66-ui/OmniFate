@@ -143,4 +143,4 @@ export default function EventsPage() {
     </div>
   )
 }
-// force redeploy — standalone static copy fix
+// force redeploy — sudo fix for .next cleanup
