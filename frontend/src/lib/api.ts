@@ -843,7 +843,7 @@ export const AGENT_LABELS: Record<string, { icon: string; label: string; color: 
 // ── Event Analyzer (事件复盘) ────────────────────────────────────────────────
 
 export interface AnalyzeEventRequest {
-  session_id: string
+  session_id?: string
   event_description: string
   event_datetime: string
   emotion_score?: number

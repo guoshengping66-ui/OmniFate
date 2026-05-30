@@ -5,7 +5,7 @@ import { Sparkles, CreditCard } from "lucide-react"
 import toast from "react-hot-toast"
 import { EventInput, type EventFormData } from "@/components/monetization/EventInput"
 import { PaymentModal } from "@/components/monetization/PaymentModal"
-import { api, payEvent } from "@/lib/api"
+import { api, payEvent, analyzeEvent } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 
@@ -26,12 +26,12 @@ export default function EventsPage() {
   const handleSubmit = async (form: EventFormData) => {
     setLoading(true)
     try {
-      const res = await api.post("/api/readings/analyze-event", {
+      const res = await analyzeEvent({
         event_description: form.description,
         event_datetime: `${form.eventDate}T${form.eventTime}:00`,
         emotion_score: form.emotionScore,
       })
-      const eventId = res.data?.event_id || res.data?.id
+      const eventId = res.event_id
       if (!eventId) {
         toast.error(t("events.createFail"))
         return
