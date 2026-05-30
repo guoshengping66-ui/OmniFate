@@ -180,14 +180,14 @@ export default function PricingPage() {
           className="mb-14 overflow-x-auto"
         >
           <div className="text-center mb-6">
-            <h3 className="text-lg font-serif font-bold text-white/80">{t("pricing.compare.title")}</h3>
-            <p className="text-white/30 text-xs mt-1">{t("pricing.compare.subtitle")}</p>
+            <h3 className="text-lg font-serif font-bold text-white/80">{t("pricing.tierCompare.title")}</h3>
+            <p className="text-white/30 text-xs mt-1">{t("pricing.tierCompare.subtitle")}</p>
           </div>
           <div className="min-w-[600px]">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-white/10">
-                  <th className="text-left py-3 px-4 text-white/40 font-medium">{t("pricing.compare.feature")}</th>
+                  <th className="text-left py-3 px-4 text-white/40 font-medium">{t("pricing.tierCompare.feature")}</th>
                   <th className="text-center py-3 px-2 text-white/50 font-medium">{t("tier.full_report.name")}</th>
                   <th className="text-center py-3 px-2 text-gold font-medium">{t("tier.premium_yearly.name")}</th>
                   <th className="text-center py-3 px-2 text-white/50 font-medium">{t("tier.premium_monthly.name")}</th>
@@ -195,14 +195,14 @@ export default function PricingPage() {
               </thead>
               <tbody>
                 {[
-                  { label: t("pricing.compare.feat1"), report: "3", yearly: "∞", monthly: "∞" },
-                  { label: t("pricing.compare.feat2"), report: "—", yearly: locale === "zh" ? "5次/月" : "5/mo", monthly: locale === "zh" ? "2次/月" : "2/mo" },
-                  { label: t("pricing.compare.feat3"), report: "—", yearly: "✓", monthly: "✓" },
-                  { label: t("pricing.compare.feat4"), report: locale === "zh" ? "10次" : "10", yearly: "∞", monthly: "∞" },
-                  { label: t("pricing.compare.feat5"), report: "—", yearly: locale === "zh" ? "8.8折" : "12% off", monthly: locale === "zh" ? "88折" : "12% off" },
-                  { label: t("pricing.compare.feat6"), report: "100", yearly: locale === "zh" ? "150/月" : "150/mo", monthly: locale === "zh" ? "100/月" : "100/mo" },
-                  { label: t("pricing.compare.feat7"), report: "—", yearly: "✓", monthly: "—" },
-                  { label: t("pricing.compare.feat8"), report: "—", yearly: "✓", monthly: "—" },
+                  { label: t("pricing.tierCompare.feat1"), report: "3", yearly: "∞", monthly: "∞" },
+                  { label: t("pricing.tierCompare.feat2"), report: "—", yearly: locale === "zh" ? "5次/月" : "5/mo", monthly: locale === "zh" ? "2次/月" : "2/mo" },
+                  { label: t("pricing.tierCompare.feat3"), report: "—", yearly: "✓", monthly: "✓" },
+                  { label: t("pricing.tierCompare.feat4"), report: locale === "zh" ? "10次" : "10", yearly: "∞", monthly: "∞" },
+                  { label: t("pricing.tierCompare.feat5"), report: "—", yearly: locale === "zh" ? "8.8折" : "12% off", monthly: "—" },
+                  { label: t("pricing.tierCompare.feat6"), report: "100", yearly: locale === "zh" ? "150/月" : "150/mo", monthly: locale === "zh" ? "100/月" : "100/mo" },
+                  { label: t("pricing.tierCompare.feat7"), report: "—", yearly: "✓", monthly: "—" },
+                  { label: t("pricing.tierCompare.feat8"), report: "—", yearly: "✓", monthly: "—" },
                 ].map((row, i) => (
                   <tr key={i} className={`border-b border-white/5 ${i % 2 === 0 ? "bg-white/[0.02]" : ""}`}>
                     <td className="py-2.5 px-4 text-white/50">{row.label}</td>

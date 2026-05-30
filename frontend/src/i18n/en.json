@@ -2768,6 +2768,91 @@
       "feat6": "Use Case",
       "feat7": "Daily Limit",
       "feat8": "Stardust Cost"
+    },
+    "tierCompare": {
+      "title": "Plan Feature Comparison",
+      "subtitle": "Choose the plan that fits you best",
+      "feature": "Feature",
+      "feat1": "Report Unlocks",
+      "feat2": "Event Reviews",
+      "feat3": "Daily Almanac",
+      "feat4": "Follow-up Questions",
+      "feat5": "Stardust Discount",
+      "feat6": "Monthly Stardust",
+      "feat7": "Yearly Review",
+      "feat8": "Crystal Customization"
+    }
+  },
+  "tier": {
+    "free": {
+      "name": "Free",
+      "subtitle": "Basic chart reading",
+      "feat0": "Bazi Four Pillars analysis",
+      "feat1": "Western astrology house reading",
+      "feat2": "One tarot spread",
+      "feat3": "Chart overview (limited preview)",
+      "feat4": "Shop browsing",
+      "cta": "Start Free",
+      "billing": "Free forever"
+    },
+    "full_report": {
+      "name": "Full Report",
+      "subtitle": "One-time full chart deep analysis",
+      "feat0": "Full chart deep report",
+      "feat1": "Five-dimension diagnosis & action plan",
+      "feat2": "Five Elements gap diagnosis",
+      "feat3": "AI product matching",
+      "feat4": "Follow-ups (stardust-based)",
+      "feat5": "100 stardust bonus",
+      "feat6": "3-day membership trial",
+      "cta": "Unlock Now",
+      "badge": "¥30 off first order",
+      "billing": "One-time payment"
+    },
+    "premium_monthly": {
+      "name": "Fate OS Monthly",
+      "subtitle": "Full-dimension destiny OS",
+      "feat0": "Unlimited report unlocks",
+      "feat1": "2 event reviews/month",
+      "feat2": "Full daily almanac access",
+      "feat3": "Unlimited follow-ups",
+      "feat4": "12% shop discount",
+      "feat5": "100 stardust/month",
+      "feat6": "Energy alerts",
+      "feat7": "Priority support",
+      "cta": "Subscribe Monthly",
+      "billing": "Auto-renew monthly, cancel anytime"
+    },
+    "premium_yearly": {
+      "name": "Fate OS Yearly",
+      "subtitle": "Best value annual plan",
+      "feat0": "All monthly features",
+      "feat1": "Only ¥1/day",
+      "feat2": "5 event reviews/month",
+      "feat3": "150 stardust/month",
+      "feat4": "12% stardust discount",
+      "feat5": "Yearly chart review",
+      "feat6": "Crystal customization 1/year",
+      "feat7": "Birthday reading ritual",
+      "feat8": "Early access to new features",
+      "cta": "Subscribe Yearly",
+      "badge": "Best Value",
+      "billing": "Auto-renew yearly, cancel anytime"
+    },
+    "founder_lifetime": {
+      "name": "Founder",
+      "subtitle": "Lifetime · Limited seats",
+      "feat0": "Lifetime full access",
+      "feat1": "Unlimited stardust",
+      "feat2": "500 stardust/month",
+      "feat3": "Product roadmap voting",
+      "feat4": "Exclusive black-gold theme",
+      "feat5": "Early access to new features",
+      "feat6": "Dedicated support",
+      "feat7": "Crystal customization 1/year",
+      "cta": "Lock Your Seat",
+      "badge": "Limited Seats",
+      "billing": "One-time lifetime"
     }
   },
   "pricingCard": {
