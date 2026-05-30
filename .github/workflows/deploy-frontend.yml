@@ -39,6 +39,11 @@ jobs:
 
             # 1. 同步最新代码
             cd /opt/OmniFate
+
+            # 修复 .git 目录权限 (root 拥有的文件 deploy 用户无法写入)
+            echo "🔧 修复 .git 权限..."
+            sudo chown -R $(whoami) .git 2>/dev/null || true
+
             CURRENT_COMMIT=$(git rev-parse HEAD)
             echo "当前 commit: $CURRENT_COMMIT"
 
