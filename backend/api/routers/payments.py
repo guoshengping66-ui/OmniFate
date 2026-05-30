@@ -207,8 +207,10 @@ async def get_payment_methods():
 
 # ─── Shared helpers ──────────────────────────────────────────────────────────
 
-async def _unlock_reading(reading_id: str, db: AsyncSession) -> dict:
-    """Shared unlock logic: mark reading paid, issue coupon, activate trial."""
+async def _unlock_reading(reading_id: str, db: AsyncSession, skip_stardust_grant: bool = False) -> dict:
+    """Shared unlock logic: mark reading paid, issue coupon, activate trial.
+    skip_stardust_grant: 当用户已通过星尘扣费解锁时，跳过解锁奖励（避免抵消扣费）。
+    """
     reading_result = await db.execute(select(Reading).where(Reading.id == reading_id))
     reading = reading_result.scalar_one_or_none()
     if not reading:
@@ -246,19 +248,20 @@ async def _unlock_reading(reading_id: str, db: AsyncSession) -> dict:
                 user.free_event_quota = 2
                 user.free_event_quota_reset_at = datetime.now(timezone.utc) + timedelta(days=TRIAL_DAYS)
                 trial_activated = True
-            # 解锁报告奖励星尘
-            user.stardust_balance += GRANT_ON_REPORT_UNLOCK
-            user.stardust_lifetime_earned += GRANT_ON_REPORT_UNLOCK
-            stardust_granted = GRANT_ON_REPORT_UNLOCK
-            tx = CreditTransaction(
-                user_id=user.id,
-                amount=GRANT_ON_REPORT_UNLOCK,
-                balance_after=user.stardust_balance,
-                reason="report_unlock_grant",
-                reference_id=reading_id,
-                status="confirmed",
-            )
-            db.add(tx)
+            # 解锁报告奖励星尘（星尘解锁时跳过，避免抵消扣费）
+            if not skip_stardust_grant:
+                user.stardust_balance += GRANT_ON_REPORT_UNLOCK
+                user.stardust_lifetime_earned += GRANT_ON_REPORT_UNLOCK
+                stardust_granted = GRANT_ON_REPORT_UNLOCK
+                tx = CreditTransaction(
+                    user_id=user.id,
+                    amount=GRANT_ON_REPORT_UNLOCK,
+                    balance_after=user.stardust_balance,
+                    reason="report_unlock_grant",
+                    reference_id=reading_id,
+                    status="confirmed",
+                )
+                db.add(tx)
 
     await db.commit()
     return {
@@ -923,9 +926,9 @@ async def unlock_report(
             status="confirmed",
         )
         db.add(tx)
-        # 解锁报告
+        # 解锁报告（跳过星尘奖励，因为用户已通过星尘支付）
         await db.flush()
-        unlock_result = await _unlock_reading(reading_id, db)
+        unlock_result = await _unlock_reading(reading_id, db, skip_stardust_grant=True)
         return {**unlock_result, "stardust_deducted": STARDUST_COST_UNLOCK}
 
     # 4. 支付宝/微信/PayPal 解锁 — 验证已支付订单
