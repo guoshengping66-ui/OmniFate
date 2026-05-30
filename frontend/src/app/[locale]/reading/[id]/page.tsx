@@ -95,8 +95,6 @@ const I18N_NAV_ITEMS = [
   { id: "tarot",     icon: "🃏", labelKey: "reading.nav.tarot",       descKey: "reading.nav.tarotDesc" },
   { id: "face",      icon: "👁",  labelKey: "reading.nav.face",        descKey: "reading.nav.faceDesc" },
   { id: "palm",      icon: "🤚", labelKey: "reading.nav.palm",        descKey: "reading.nav.palmDesc" },
-  { id: "event",     icon: "🔍", labelKey: "reading.nav.event",       descKey: "reading.nav.eventDesc" },
-  { id: "almanac",   icon: "📅", labelKey: "reading.nav.almanac",     descKey: "reading.nav.almanacDesc" },
   { id: "shop",      icon: "🎁", labelKey: "reading.nav.shop",        descKey: "reading.nav.shopDesc" },
   { id: "chat",      icon: "💬", labelKey: "reading.nav.chat",        descKey: "reading.nav.chatDesc" },
 ]
@@ -724,32 +722,34 @@ export default function ReadingPage() {
       {/* ════════════════════════════════════════════════════════════
           NAVIGATION — Side-oriented nav system
           ════════════════════════════════════════════════════════════ */}
-      <div className="max-w-5xl mx-auto px-3 sm:px-4 mb-6 sm:mb-8 sticky top-16 z-30">
-        <div className="bg-[#1a1430]/80 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-2 sm:p-2.5 shadow-2xl shadow-black/40">
-          {/* Mobile: 4-col grid | Tablet: 6-col grid | Desktop: horizontal scrollable row */}
-          <div ref={navScrollRef} className="grid grid-cols-4 sm:grid-cols-6 gap-1.5 sm:gap-2 lg:grid-cols-none lg:flex lg:gap-1 lg:overflow-x-auto lg:scrollbar-none lg:scroll-smooth">
+      <div className="max-w-5xl mx-auto px-4 mb-8 sticky top-16 z-30">
+        <div className="bg-[#1a1430]/80 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-1.5 shadow-2xl shadow-black/40 relative">
+          <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-[#1a1430]/90 to-transparent rounded-r-2xl pointer-events-none z-10 md:hidden" />
+          <div ref={navScrollRef} className="flex gap-0.5 sm:gap-1 overflow-x-auto scrollbar-none scroll-smooth">
             {I18N_NAV_ITEMS.map(item => {
               const isWorkerTab = WORKER_ORDER.includes(item.id as typeof WORKER_ORDER[number])
               const isLocked = !isUnlocked && isWorkerTab
-              const isActive = activeTab === item.id
               return (
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
-                  className={`flex flex-col items-center gap-0.5 px-1 py-2 sm:py-2.5 rounded-xl text-[10px] sm:text-xs font-medium
-                              transition-all duration-300 group
-                    ${isActive
-                      ? "bg-gold/15 text-gold shadow-[0_0_15px_rgba(201,168,76,0.15)] ring-1 ring-gold/20"
+                  className={`flex items-center gap-1 px-2 py-2 sm:px-3.5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-medium
+                              whitespace-nowrap transition-all duration-300 flex-shrink-0 group
+                    ${activeTab === item.id
+                      ? "bg-gold/15 text-gold shadow-[0_0_20px_rgba(201,168,76,0.15)]"
                       : isLocked
                         ? "text-white/25 hover:text-white/50 hover:bg-white/[0.04]"
                         : "text-white/40 hover:text-white/70 hover:bg-white/[0.04]"}`}
                 >
-                  <span className="text-base sm:text-lg transition-transform group-hover:scale-110 duration-200 leading-none">
+                  <span className="text-sm sm:text-base transition-transform group-hover:scale-110 duration-200">
                     {item.icon}
                   </span>
-                  <span className="leading-tight whitespace-nowrap">{t(item.labelKey)}</span>
+                  <span className="hidden sm:inline">{t(item.labelKey)}</span>
                   {isLocked && (
-                    <Lock size={8} className="text-white/20" />
+                    <Lock size={10} className="text-white/20 -ml-0.5" />
+                  )}
+                  {activeTab === item.id && (
+                    <span className="hidden lg:inline text-[10px] text-gold/50 ml-0.5">{t(item.descKey)}</span>
                   )}
                 </button>
               )
