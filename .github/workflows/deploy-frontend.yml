@@ -90,7 +90,7 @@ jobs:
               pm2 delete frontend 2>/dev/null || true
 
               echo "🧹 清理旧构建产物..."
-              rm -rf /opt/OmniFate/frontend/.next
+              sudo rm -rf /opt/OmniFate/frontend/.next
 
               cd /opt/OmniFate/frontend
               npm ci --production=false 2>/dev/null || npm install
@@ -100,8 +100,8 @@ jobs:
 
               # ⚠️ standalone 模式必须手动复制静态文件到 standalone 目录
               echo "📋 复制静态文件到 standalone 目录..."
-              cp -r .next/static .next/standalone/frontend/.next/static
-              cp -r public .next/standalone/frontend/public 2>/dev/null || true
+              sudo cp -r .next/static .next/standalone/frontend/.next/static
+              sudo cp -r public .next/standalone/frontend/public 2>/dev/null || true
 
               echo "🔄 启动前端服务..."
               cd /opt/OmniFate
