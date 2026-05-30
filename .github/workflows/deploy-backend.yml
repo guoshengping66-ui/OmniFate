@@ -64,6 +64,11 @@ jobs:
               sleep 10
             else
               echo "📦 使用 PM2 部署..."
+              # 修复目录权限
+              echo "🔧 修复目录权限..."
+              sudo chown -R $(whoami) /opt/OmniFate/backend 2>/dev/null || true
+              sudo chown -R $(whoami) /opt/OmniFate/frontend 2>/dev/null || true
+
               pip install -r backend/requirements.txt --quiet 2>/dev/null || \
                 pip3 install -r backend/requirements.txt --quiet 2>/dev/null || \
                 echo "⚠️ pip install 失败，跳过"
