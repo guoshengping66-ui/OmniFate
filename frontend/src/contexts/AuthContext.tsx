@@ -75,75 +75,81 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return status === 401 || status === 403
   }
 
-  // On mount, restore session from cache (instant) then refresh in background
+  // Helper: decode JWT and check expiry (returns true if token is expired)
+  const isTokenExpired = (token: string): boolean => {
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]))
+      // Expire 60s early to avoid edge-case race conditions
+      return Date.now() >= (payload.exp ?? 0) * 1000 - 60_000
+    } catch {
+      return true // corrupt token → treat as expired
+    }
+  }
+
+  // Helper: refresh token and fetch user data
+  const refreshAndFetchUser = async (): Promise<boolean> => {
+    const refreshToken = localStorage.getItem(REFRESH_KEY)
+    if (!refreshToken) return false
+    try {
+      const r = await apiAuth.post("/api/auth/refresh", { refresh_token: refreshToken })
+      localStorage.setItem(TOKEN_KEY, r.data.access_token)
+      localStorage.setItem(REFRESH_KEY, r.data.refresh_token)
+      const meRes = await apiAuth.get("/api/auth/me")
+      setUser(meRes.data)
+      cacheUser(meRes.data)
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  // On mount, restore session from cache (instant) then validate/refresh in background
   useEffect(() => {
     const storedToken = localStorage.getItem(TOKEN_KEY)
     if (storedToken) {
-      console.log("[Auth] Found stored token, validating...")
       setLoading(false)
 
-      const tryRefreshAndRetry = async (retryCount = 0): Promise<void> => {
-        const refreshToken = localStorage.getItem(REFRESH_KEY)
-        if (!refreshToken) {
-          console.warn("[Auth] No refresh token, clearing auth state")
-          localStorage.removeItem(TOKEN_KEY)
-          localStorage.removeItem(USER_CACHE_KEY)
-          setUser(null)
-          return
-        }
-        console.log(`[Auth] Attempting refresh (attempt ${retryCount + 1}/3)...`)
-        try {
-          const r = await apiAuth.post("/api/auth/refresh", { refresh_token: refreshToken })
-          console.log("[Auth] Refresh succeeded")
-          localStorage.setItem(TOKEN_KEY, r.data.access_token)
-          localStorage.setItem(REFRESH_KEY, r.data.refresh_token)
-          // Small delay to let backend state settle after refresh
-          await new Promise(resolve => setTimeout(resolve, 200))
-          const meRes = await apiAuth.get("/api/auth/me")
-          console.log("[Auth] /api/auth/me succeeded after refresh")
-          setUser(meRes.data)
-          cacheUser(meRes.data)
-        } catch (err: any) {
-          const status = err?.response?.status
-          const detail = err?.response?.data?.detail || err?.message
-          const isNetwork = err?.code === "ERR_NETWORK" || err?.code === "ECONNABORTED" || !err?.response
-          console.error(`[Auth] Refresh/retry failed (attempt ${retryCount + 1}):`, status, detail)
-          if (retryCount < 2) {
-            // Network errors: keep cached user, retry with longer delay
-            const delay = isNetwork ? 2000 * (retryCount + 1) : 500 * (retryCount + 1)
-            await new Promise(resolve => setTimeout(resolve, delay))
-            return tryRefreshAndRetry(retryCount + 1)
-          }
-          // Only clear auth state on definitive failures (401/403)
-          // Keep cached user on network errors — user can still use cached data
-          if (isAuthFailure(err)) {
-            console.warn("[Auth] Auth failure, clearing auth state")
+      const initAuth = async () => {
+        // Check if token is expired BEFORE making any API call
+        if (isTokenExpired(storedToken)) {
+          console.log("[Auth] Token expired, refreshing...")
+          const ok = await refreshAndFetchUser()
+          if (!ok) {
+            console.warn("[Auth] Refresh failed, clearing auth state")
             localStorage.removeItem(TOKEN_KEY)
             localStorage.removeItem(REFRESH_KEY)
             localStorage.removeItem(USER_CACHE_KEY)
             setUser(null)
-          } else {
-            console.warn("[Auth] Network error, keeping cached user for offline use")
+          }
+          return
+        }
+
+        // Token looks valid — try /api/auth/me
+        try {
+          const res = await apiAuth.get("/api/auth/me")
+          setUser(res.data)
+          cacheUser(res.data)
+        } catch (err: any) {
+          const isNetwork = err?.code === "ERR_NETWORK" || err?.code === "ECONNABORTED" || !err?.response
+          if (isNetwork) {
+            // Network error — keep cached user
+            return
+          }
+          // Auth failure (401/403) — token was actually invalid, try refresh
+          if (isAuthFailure(err)) {
+            console.log("[Auth] Token invalid, attempting refresh...")
+            const ok = await refreshAndFetchUser()
+            if (!ok) {
+              localStorage.removeItem(TOKEN_KEY)
+              localStorage.removeItem(REFRESH_KEY)
+              localStorage.removeItem(USER_CACHE_KEY)
+              setUser(null)
+            }
           }
         }
       }
 
-      // 后台静默刷新，不设置 loading=true
-      apiAuth.get("/api/auth/me")
-        .then(res => {
-          console.log("[Auth] /api/auth/me succeeded, user:", res.data.email)
-          setUser(res.data)
-          cacheUser(res.data)
-        })
-        .catch((err) => {
-          const isNetwork = err?.code === "ERR_NETWORK" || err?.code === "ECONNABORTED" || !err?.response
-          console.warn("[Auth] /api/auth/me failed:", isNetwork ? "network error" : err?.response?.status, err?.response?.data?.detail)
-          // Only attempt refresh on auth failures, not network errors
-          if (!isNetwork || isAuthFailure(err)) {
-            tryRefreshAndRetry()
-          }
-          // On network error: keep cached user, don't clear state
-        })
+      initAuth()
     } else {
       setLoading(false)
     }
