@@ -104,6 +104,15 @@ const nextConfig = {
       },
     ]
   },
+  // Backward-compat rewrites: old frontend paths → correct backend paths
+  async rewrites() {
+    return [
+      {
+        source: "/api/fate/event-analyze",
+        destination: "/api/proxy/api/readings/analyze-event",
+      },
+    ]
+  },
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "khanfate.com" },
