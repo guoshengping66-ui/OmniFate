@@ -861,6 +861,7 @@ async def unlock_report(
     source=payment: 验证已支付订单（支付宝/微信/PayPal）。
     source=stardust: 原子操作——检查余额→扣减星尘→解锁报告。
     """
+    print(f"[UNLOCK] reading_id={reading_id}, source={source}, user={current_user.id}")
     # 1. 查找报告
     reading_result = await db.execute(select(Reading).where(Reading.id == reading_id))
     reading = reading_result.scalar_one_or_none()
@@ -905,6 +906,7 @@ async def unlock_report(
             select(User).where(User.id == current_user.id).with_for_update()
         )
         user = user_result.scalar_one()
+        print(f"[UNLOCK] stardust check: balance={user.stardust_balance}, cost={STARDUST_COST_UNLOCK}, source={source}")
         if user.stardust_balance < STARDUST_COST_UNLOCK:
             raise HTTPException(
                 status_code=402,
