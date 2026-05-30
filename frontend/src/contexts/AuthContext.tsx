@@ -112,10 +112,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const initAuth = async () => {
         // Check if token is expired BEFORE making any API call
         if (isTokenExpired(storedToken)) {
-          console.log("[Auth] Token expired, refreshing...")
           const ok = await refreshAndFetchUser()
           if (!ok) {
-            console.warn("[Auth] Refresh failed, clearing auth state")
             localStorage.removeItem(TOKEN_KEY)
             localStorage.removeItem(REFRESH_KEY)
             localStorage.removeItem(USER_CACHE_KEY)
@@ -135,9 +133,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             // Network error — keep cached user
             return
           }
-          // Auth failure (401/403) — token was actually invalid, try refresh
+          // Auth failure (401/403) — token was actually invalid, try refresh silently
           if (isAuthFailure(err)) {
-            console.log("[Auth] Token invalid, attempting refresh...")
             const ok = await refreshAndFetchUser()
             if (!ok) {
               localStorage.removeItem(TOKEN_KEY)
@@ -193,7 +190,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!originalRequest || error.response?.status !== 401 || originalRequest._retry) {
         return Promise.reject(error)
       }
-      console.warn("[Auth:401] Received 401 on:", originalRequest.url, "isRefreshing:", isRefreshing)
+      // 401 during refresh flow is expected — no logging needed
 
       // Skip refresh for login/register/refresh endpoints
       const skipPaths = ["/api/auth/login", "/api/auth/register", "/api/auth/refresh", "/api/auth/verify-email"]
