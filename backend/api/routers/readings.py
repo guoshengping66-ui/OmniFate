@@ -1895,7 +1895,7 @@ async def _analyze_event_inner(
     except Exception:
         pass
 
-    event_id = uuid.uuid4()
+    event_id = str(uuid.uuid4())
     try:
         # Ensure JSON-serializable types (strip numpy types, UUIDs, etc.)
         def _clean_json(val):
