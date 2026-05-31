@@ -15,9 +15,18 @@ CMD = [sys.executable, "-m", "uvicorn", "backend.main:app",
        "--host", "0.0.0.0", "--port", "8002", "--log-level", "info"]
 
 running = True
+proc = None
+
 def shutdown(sig, frame):
-    global running
+    global running, proc
     running = False
+    # Kill the child uvicorn process to release the port
+    if proc and proc.poll() is None:
+        try:
+            proc.terminate()
+            proc.wait(timeout=5)
+        except Exception:
+            proc.kill()
 
 signal.signal(signal.SIGTERM, shutdown)
 signal.signal(signal.SIGINT, shutdown)
@@ -28,6 +37,7 @@ while running:
         proc = subprocess.Popen(CMD)
         proc.wait()
         rc = proc.returncode
+        proc = None
         if not running:
             break
         print(f"[LAUNCHER] Backend exited with code {rc}, restarting in 3s...", flush=True)
