@@ -41,7 +41,8 @@ class Settings(BaseSettings):
     # ── 免费模型（硅基流动 SiliconFlow）── 追问等低频场景使用
     FREE_MODEL_API_KEY: str = ""                 # 硅基流动 API Key（免费注册送额度）
     FREE_MODEL_BASE_URL: str = "https://api.siliconflow.cn/v1"
-    FREE_MODEL: str = "Qwen/Qwen2.5-7B-Instruct"  # 免费模型 — 追问等
+    FREE_MODEL: str = "Qwen/Qwen2.5-14B-Instruct"  # 免费模型 — 追问等（14B 更强）
+    FREE_MODEL_MAX_TOKENS: int = 4096            # 免费模型输出上限
 
     JWT_SECRET_KEY: str = "change-me-in-production-use-openssl-rand-hex-32"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30

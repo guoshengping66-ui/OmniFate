@@ -86,7 +86,7 @@ def _llm(temperature: float = 0.3, model: str | None = None) -> ChatOpenAI:
 def _free_llm(temperature: float = 0.3) -> ChatOpenAI:
     """免费模型实例（硅基流动），用于追问等低频场景。"""
     model_key = settings.FREE_MODEL
-    max_tok = settings.AGENT_MAX_TOKENS
+    max_tok = settings.FREE_MODEL_MAX_TOKENS
     cache_key = f"free:{model_key}:{temperature}:{max_tok}"
     if cache_key not in _llm_cache:
         kwargs = dict(
