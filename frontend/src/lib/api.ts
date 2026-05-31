@@ -818,13 +818,19 @@ export interface PayEventResult {
   charge: number
   used_free_quota: boolean
   remaining_free_quota: number
+  stardust_deducted: number
   message: string
 }
 
-export async function payEvent(eventId: string, useFreeQuota = true): Promise<PayEventResult> {
+export async function payEvent(
+  eventId: string,
+  useFreeQuota = true,
+  source: "payment" | "stardust" = "payment",
+): Promise<PayEventResult> {
   const res = await api.post<PayEventResult>("/api/payments/pay-event", {
     event_id: eventId,
     use_free_quota: useFreeQuota,
+    source,
   })
   return res.data
 }

@@ -952,6 +952,7 @@ async def unlock_report(
 class PayEventRequest(BaseModel):
     event_id: str
     use_free_quota: bool = True
+    source: str = "payment"  # "payment" | "stardust"
 
 
 @router.post("/pay-event")
@@ -960,7 +961,7 @@ async def pay_event(
     db: AsyncSession = Depends(get_db),
     current_user: Optional[User] = Depends(get_current_user),
 ):
-    """支付事件复盘：订阅用户免费额度 → 超量 ¥19.9/次"""
+    """支付事件复盘：订阅用户免费额度 → 星尘(30) → ¥19.9/次"""
     event_result = await db.execute(select(EventLog).where(EventLog.id == req.event_id))
     event = event_result.scalar_one_or_none()
     if not event:
@@ -971,6 +972,7 @@ async def pay_event(
 
     charge = 0.0
     used_free = False
+    stardust_deducted = 0
     user = None
 
     # Refetch user within this session if logged in
@@ -987,6 +989,30 @@ async def pay_event(
         if req.use_free_quota and (user.free_event_quota or 0) > 0:
             user.free_event_quota -= 1
             used_free = True
+        elif req.source == "stardust":
+            # 星尘支付 — 悲观锁扣费
+            STARDUST_COST_EVENT = 30
+            from database.models import CreditTransaction as CT
+            lock_result = await db.execute(
+                select(User).where(User.id == current_user.id).with_for_update()
+            )
+            locked_user = lock_result.scalar_one()
+            if locked_user.stardust_balance < STARDUST_COST_EVENT:
+                raise HTTPException(
+                    status_code=402,
+                    detail=f"星尘不足: 需要 {STARDUST_COST_EVENT}，当前 {locked_user.stardust_balance}",
+                )
+            locked_user.stardust_balance -= STARDUST_COST_EVENT
+            tx = CT(
+                user_id=locked_user.id,
+                amount=-STARDUST_COST_EVENT,
+                balance_after=locked_user.stardust_balance,
+                reason="event_retro",
+                reference_id=req.event_id,
+                status="confirmed",
+            )
+            db.add(tx)
+            stardust_deducted = STARDUST_COST_EVENT
         else:
             charge = EVENT_RETRO_PRICE
     else:
@@ -1000,7 +1026,8 @@ async def pay_event(
         "charge": charge,
         "used_free_quota": used_free,
         "remaining_free_quota": user.free_event_quota if user else 0,
-        "message": "使用免费额度" if used_free else f"已支付 ¥{charge}",
+        "stardust_deducted": stardust_deducted,
+        "message": "使用免费额度" if used_free else ("星尘支付成功" if stardust_deducted else f"已支付 ¥{charge}"),
     }
 
 

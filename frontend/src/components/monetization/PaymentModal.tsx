@@ -12,6 +12,9 @@ interface PaymentModalProps {
   priceDisplay: string
   description: string
   perks?: string[]
+  showStardustOption?: boolean
+  stardustCost?: number
+  onStardustPayment?: () => Promise<void>
 }
 
 export function PaymentModal({
@@ -22,6 +25,9 @@ export function PaymentModal({
   priceDisplay,
   description,
   perks = [],
+  showStardustOption = false,
+  stardustCost = 0,
+  onStardustPayment,
 }: PaymentModalProps) {
   const { t } = useLanguage()
   const [status, setStatus] = useState<"idle" | "processing" | "success">("idle")
@@ -33,6 +39,17 @@ export function PaymentModal({
     setStatus("processing")
     try {
       await onConfirm(paymentMethod)
+      setStatus("success")
+    } catch {
+      setStatus("idle")
+    }
+  }
+
+  const handleStardustPay = async () => {
+    if (!onStardustPayment) return
+    setStatus("processing")
+    try {
+      await onStardustPayment()
       setStatus("success")
     } catch {
       setStatus("idle")
@@ -76,6 +93,31 @@ export function PaymentModal({
           <p className="text-white/40 text-xs mb-1">{t("paymentModal.amount")}</p>
           <p className="text-3xl font-bold text-gold">{priceDisplay}</p>
         </div>
+
+        {/* Stardust option */}
+        {showStardustOption && onStardustPayment && (
+          <div className="mb-4">
+            <button
+              onClick={handleStardustPay}
+              disabled={status === "processing"}
+              className="w-full flex items-center justify-center gap-3 py-3 rounded-xl
+                       bg-gradient-to-r from-purple-500/20 to-indigo-500/20 border border-purple-400/30
+                       text-purple-300 hover:border-purple-400/50 hover:bg-purple-500/30 transition-all"
+            >
+              {status === "processing"
+                ? <Loader2 size={18} className="animate-spin" />
+                : <Sparkles size={18} className="text-purple-400" />}
+              <span className="text-sm font-medium">
+                {t("paymentModal.useStardust")} ({stardustCost} ✨)
+              </span>
+            </button>
+            <div className="flex items-center justify-center gap-2 my-3">
+              <div className="flex-1 h-px bg-white/10" />
+              <span className="text-white/20 text-xs">{t("paymentModal.or")}</span>
+              <div className="flex-1 h-px bg-white/10" />
+            </div>
+          </div>
+        )}
 
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-3">

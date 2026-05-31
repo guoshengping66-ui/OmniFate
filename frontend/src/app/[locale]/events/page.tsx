@@ -8,6 +8,7 @@ import { PaymentModal } from "@/components/monetization/PaymentModal"
 import { api, payEvent, analyzeEvent } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { STARDUST_COSTS } from "@/lib/pricing.config"
 
 export default function EventsPage() {
   const router = useRouter()
@@ -22,6 +23,8 @@ export default function EventsPage() {
 
   const freeQuota = user?.free_event_quota ?? 0
   const isPremium = !!user?.is_premium
+  const stardustBalance = user?.stardust_balance ?? 0
+  const canUseStardust = stardustBalance >= STARDUST_COSTS.EVENT_RETRO
 
   const handleSubmit = async (form: EventFormData) => {
     setLoading(true)
@@ -71,6 +74,22 @@ export default function EventsPage() {
     } catch (err: any) {
       toast.error(err?.response?.data?.detail ?? t("events.payError"))
       throw err // re-throw so PaymentModal resets
+    } finally {
+      setPayLoading(false)
+    }
+  }
+
+  const handleStardustPayment = async () => {
+    if (!pendingEventId) return
+    setPayLoading(true)
+    try {
+      const result = await payEvent(pendingEventId, false, "stardust")
+      toast.success(result.message || t("events.paySuccess"))
+      refreshUser()
+      setShowPayment(false)
+      router.push(`/events/${pendingEventId}`)
+    } catch (err: any) {
+      toast.error(err?.response?.data?.detail ?? t("events.payError"))
     } finally {
       setPayLoading(false)
     }
@@ -139,6 +158,9 @@ export default function EventsPage() {
           t("events.perk3"),
           t("events.perk4"),
         ]}
+        showStardustOption={canUseStardust}
+        stardustCost={STARDUST_COSTS.EVENT_RETRO}
+        onStardustPayment={handleStardustPayment}
       />
     </div>
   )

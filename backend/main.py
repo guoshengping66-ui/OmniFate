@@ -15,7 +15,7 @@ from fastapi.responses import JSONResponse, Response
 from contextlib import asynccontextmanager
 
 from config import get_settings
-from api.routers import readings, users, products, payments, auth, blog, personal_payments, credits, divination, cron, referrals, billing, contact, fortune
+from api.routers import readings, users, products, payments, auth, blog, personal_payments, credits, divination, cron, referrals, billing, contact, fortune, events
 
 settings = get_settings()
 
@@ -341,6 +341,7 @@ app.include_router(billing.router, prefix="/api/billing", tags=["Billing"])
 app.include_router(billing.webhook_router, prefix="/api/webhooks", tags=["Webhooks"])
 app.include_router(contact.router, prefix="/api/contact", tags=["Contact"])
 app.include_router(fortune.router, prefix="/api/fortune", tags=["Fortune"])
+app.include_router(events.router, prefix="/api/events", tags=["Events"])
 
 # ── Route alias: 旧前端调用 /api/fate/event-analyze，后端实际在 /api/readings/analyze-event ──
 # 在前端新版本部署前临时兼容

@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect, useCallback, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Sparkles, Share2, RotateCcw, Zap, Gift, Hand } from "lucide-react"
+import { Sparkles, Share2, RotateCcw, Zap, Gift, Hand, Loader2 } from "lucide-react"
 import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
@@ -615,23 +615,22 @@ export function CelestialOracle() {
                   <Share2 size={14} />
                   {t("divination.shareFortune")}
                 </button>
-                {todayFree ? (
-                  <button
-                    onClick={handleReset}
-                    className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl
-                             border border-gold/30 text-gold text-sm
-                             hover:bg-gold/10 transition-all"
-                  >
-                    <RotateCcw size={14} />
-                    {t("divination.drawAgain2")}
-                  </button>
-                ) : (
-                  <div className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl
-                               border border-white/10 text-white/30 text-sm cursor-default">
-                    <Sparkles size={14} />
-                    {t("divination.comeBackTomorrow")}
-                  </div>
-                )}
+                <button
+                  onClick={handleDivine}
+                  disabled={phase === "spinning"}
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm transition-all
+                    ${todayFree
+                      ? "border border-gold/30 text-gold hover:bg-gold/10"
+                      : "border border-purple-400/30 text-purple-300 hover:bg-purple-500/10"
+                    }`}
+                >
+                  {phase === "spinning"
+                    ? <Loader2 size={14} className="animate-spin" />
+                    : <RotateCcw size={14} />}
+                  {todayFree
+                    ? t("divination.drawAgain2")
+                    : t("divination.drawAgainPaid", { cost: "1" })}
+                </button>
               </div>
             </motion.div>
           )}

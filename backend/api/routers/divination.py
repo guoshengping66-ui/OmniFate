@@ -422,9 +422,10 @@ async def draw(
     同一用户同一天的结果由 user_id + date 哈希确定，
     不同用户看到不同的"星象感应"。
 
-    已登录用户今日已抽过 → 直接返回今日结果，不再扣星尘。
+    首次抽签免费，额外抽签消耗 1 星尘（会员/创始会员免费）。
     """
     today = datetime.now(timezone.utc).date()
+    STARDUST_COST_DIVINATION = 1
 
     # ── 检查今日是否已抽过 ────────────────────────────────────────────────
     existing_result = await db.execute(
@@ -436,20 +437,96 @@ async def draw(
     existing = existing_result.scalars().first()
 
     if existing:
-        # 今日已抽过 → 直接返回，不扣星尘
-        fortune_level = FORTUNE_LEVEL.get(existing.fortune, 4)
+        if req.use_free:
+            # 今日已抽过 → 直接返回已有结果，不扣星尘
+            fortune_level = FORTUNE_LEVEL.get(existing.fortune, 4)
+            return {
+                "id": existing.id,
+                "fortune": _translate_fortune(existing.fortune, lang),
+                "fortune_level": fortune_level,
+                "wisdom_quote": existing.wisdom_quote if lang == "zh" else None,
+                "wisdom_quote_en": existing.wisdom_quote,
+                "author": "Wang Yangming" if lang == "en" else "王阳明",
+                "theme": _translate_theme(existing.theme, lang),
+                "ai_insight": _translate_insight(fortune_level, existing.theme, lang),
+                "is_free": True,
+                "stardust_cost": 0,
+                "balance_after": current_user.stardust_balance,
+            }
+
+        # ── 额外抽签 → 扣费 1 星尘 ──────────────────────────────────────
+        # 会员/创始会员免费
+        if current_user.is_founder or current_user.is_premium:
+            actual_cost = 0
+        else:
+            actual_cost = STARDUST_COST_DIVINATION
+
+        new_balance = current_user.stardust_balance
+        if actual_cost > 0:
+            user_result = await db.execute(
+                select(User).where(User.id == current_user.id).with_for_update()
+            )
+            user = user_result.scalar_one()
+            if user.stardust_balance < actual_cost:
+                raise HTTPException(
+                    status_code=402,
+                    detail=f"星尘不足: 需要 {actual_cost}，当前 {user.stardust_balance}",
+                )
+            user.stardust_balance -= actual_cost
+            tx = CreditTransaction(
+                user_id=user.id,
+                amount=-actual_cost,
+                balance_after=user.stardust_balance,
+                reason="divination",
+                reference_id=None,
+                status="confirmed",
+            )
+            db.add(tx)
+            new_balance = user.stardust_balance
+
+        # 用今日抽签次数作为额外种子变量，产生不同结果
+        today_count_result = await db.execute(
+            select(func.count(DivinationRecord.id)).where(
+                DivinationRecord.user_id == current_user.id,
+                func.date(DivinationRecord.created_at) == today,
+            )
+        )
+        today_count = today_count_result.scalar() or 0
+
+        seed = _dynamic_seed(str(current_user.id), today)
+        # 将今日抽签次数混入种子，使每次结果不同
+        extra_seed = hashlib.md5(f"{seed}_{today_count}".encode()).hexdigest()
+        fortune_data = _seeded_fortune(extra_seed)
+        wisdom_data = _seeded_wisdom(extra_seed)
+        theme = _seeded_theme(extra_seed)
+        ai_insight = _generate_ai_insight(fortune_data["level"], theme, extra_seed)
+
+        session_id = str(uuid.uuid4())[:8]
+        record = DivinationRecord(
+            user_id=current_user.id,
+            session_id=session_id,
+            fortune=fortune_data["fortune"],
+            wisdom_quote=wisdom_data["quote"],
+            theme=theme,
+            ai_insight=ai_insight,
+            is_free=False,
+            stardust_cost=actual_cost,
+        )
+        db.add(record)
+        await db.commit()
+
         return {
-            "id": existing.id,
-            "fortune": _translate_fortune(existing.fortune, lang),
-            "fortune_level": fortune_level,
-            "wisdom_quote": existing.wisdom_quote if lang == "zh" else None,
-            "wisdom_quote_en": existing.wisdom_quote,
-            "author": "Wang Yangming" if lang == "en" else "王阳明",
-            "theme": _translate_theme(existing.theme, lang),
-            "ai_insight": _translate_insight(fortune_level, existing.theme, lang),
-            "is_free": True,
-            "stardust_cost": 0,
-            "balance_after": current_user.stardust_balance,
+            "id": record.id,
+            "fortune": _translate_fortune(fortune_data["fortune"], lang),
+            "fortune_level": fortune_data["level"],
+            "wisdom_quote": wisdom_data["quote"] if lang == "zh" else None,
+            "wisdom_quote_en": wisdom_data["quote"],
+            "author": wisdom_data.get("author_en", wisdom_data["author"]) if lang == "en" else wisdom_data["author"],
+            "theme": _translate_theme(theme, lang),
+            "ai_insight": _translate_insight(fortune_data["level"], theme, lang),
+            "is_free": False,
+            "stardust_cost": actual_cost,
+            "balance_after": new_balance,
         }
 
     # ── 今日首次抽签（免费） ──────────────────────────────────────────────
