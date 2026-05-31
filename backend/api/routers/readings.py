@@ -583,8 +583,54 @@ async def chat_followup(
     from agents.graph import run_chat
 
     state = await _get_session(payload.session_id)
+
+    # Redis session 过期时，从数据库 Reading 回退重建
     if not state:
-        raise HTTPException(status_code=404, detail="Session not found. Run /readings/ first.")
+        from database.models import BirthProfile
+        reading_result = await db.execute(
+            select(Reading)
+            .where(
+                Reading.id == payload.session_id,
+                Reading.user_id == current_user.id,
+                Reading.status == ReadingStatus.completed,
+            )
+            .limit(1)
+        )
+        reading = reading_result.scalar_one_or_none()
+        if not reading:
+            raise HTTPException(status_code=404, detail="Session not found. Run /readings/ first.")
+
+        # 从 BirthProfile 重建 BirthInfo
+        bi = None
+        if reading.birth_profile_id:
+            bp_result = await db.execute(
+                select(BirthProfile).where(BirthProfile.id == reading.birth_profile_id)
+            )
+            bp = bp_result.scalar_one_or_none()
+            if bp:
+                bi = BirthInfo(
+                    year=bp.birth_year, month=bp.birth_month, day=bp.birth_day,
+                    hour=bp.birth_hour, minute=bp.birth_minute,
+                    city=bp.birth_city or "",
+                    latitude=bp.latitude, longitude=bp.longitude,
+                )
+
+        from agents.state import WorkerOutput
+        state = SystemState(
+            session_id=reading.id,
+            user_id=current_user.id,
+            birth_info=bi,
+            master_summary=reading.master_summary or "",
+            dimension_scores=reading.dimension_scores or {},
+            computed_tags=reading.computed_tags or [],
+            bazi_raw=reading.bazi_raw or {},
+            astrology_raw=reading.astrology_raw or {},
+        )
+        state.bazi_output = WorkerOutput(agent_id="bazi", report=reading.bazi_report or "")
+        state.astrology_output = WorkerOutput(agent_id="astrology", report=reading.astrology_report or "")
+        # 重建后存回 Redis，后续追问不再需要查库
+        await _set_session(payload.session_id, state)
+        print(f"[CHAT] Reconstructed session {payload.session_id} from DB for user {current_user.id}")
 
     # 验证 session 归属
     if state.user_id and str(state.user_id) != str(current_user.id):
