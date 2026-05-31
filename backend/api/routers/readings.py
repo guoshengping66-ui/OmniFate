@@ -1144,7 +1144,7 @@ async def stream_session(
                 last_agent_status = dict(state.agent_status)
 
             # Worker completions — emit when output exists (even with empty report on error)
-            for agent_id in ["astrology", "tarot", "bazi", "qimen", "ziwei", "face", "palm"]:
+            for agent_id in ["astrology", "tarot", "bazi", "qimen", "ziwei", "face", "palm", "partner_face", "partner_palm"]:
                 if agent_id in streamed_workers:
                     continue
                 wo = getattr(state, f"{agent_id}_output", None)
