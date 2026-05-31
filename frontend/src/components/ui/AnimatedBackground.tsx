@@ -14,9 +14,7 @@ class SafeDynamicWrapper extends React.Component<
   static getDerivedStateFromError() {
     return { hasError: true }
   }
-  componentDidCatch(error: Error) {
-    console.warn("[AnimatedBackground] Component failed to load:", error.message)
-  }
+  componentDidCatch() {}
   render() {
     if (this.state.hasError) return this.props.fallback ?? null
     return this.props.children

@@ -156,8 +156,7 @@ export type SafePersonalizedFortune = z.infer<typeof PersonalizedFortuneSchema>
 export function safeParseAnalysis(data: unknown): SafeAnalysisResponse {
   try {
     return AnalysisResponseSchema.parse(data)
-  } catch (e) {
-    console.warn("[Zod] safeParseAnalysis fallback:", e)
+  } catch {
     return AnalysisResponseSchema.parse({})
   }
 }
@@ -168,8 +167,7 @@ export function safeParseAnalysis(data: unknown): SafeAnalysisResponse {
 export function safeParseDailyFortune(data: unknown): SafeDailyFortune {
   try {
     return DailyFortuneResponseSchema.parse(data)
-  } catch (e) {
-    console.warn("[Zod] safeParseDailyFortune fallback:", e)
+  } catch {
     return DailyFortuneResponseSchema.parse({})
   }
 }
@@ -182,8 +180,7 @@ export function safeParsePersonalizedFortune(
 ): SafePersonalizedFortune {
   try {
     return PersonalizedFortuneSchema.parse(data)
-  } catch (e) {
-    console.warn("[Zod] safeParsePersonalizedFortune fallback:", e)
+  } catch {
     return PersonalizedFortuneSchema.parse({})
   }
 }
@@ -196,8 +193,7 @@ export function safeParseDimensionScores(
 ): Record<string, number> {
   try {
     return DimensionScoresSchema.parse(data)
-  } catch (e) {
-    console.warn("[Zod] safeParseDimensionScores fallback:", e)
+  } catch {
     return DimensionScoresSchema.parse({})
   }
 }

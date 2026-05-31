@@ -299,11 +299,9 @@ export default function EnergyOrb(props: EnergyOrbProps) {
                 const canvas = gl.domElement
                 canvas.addEventListener("webglcontextlost", (e) => {
                   e.preventDefault()
-                  console.warn("[EnergyOrb] WebGL context lost — showing fallback")
                   setContextLost(true)
                 })
                 canvas.addEventListener("webglcontextrestored", () => {
-                  console.log("[EnergyOrb] WebGL context restored")
                   setContextLost(false)
                 })
               }}
