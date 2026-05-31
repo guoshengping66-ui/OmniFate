@@ -190,24 +190,35 @@ export default function ReadingPage() {
     let stalePollCount = 0
     const STALE_POLL_THRESHOLD = 12 // ~36s with no status change → assume stuck
 
+    // Add timeout to prevent hanging on slow backend responses
+    const LOAD_TIMEOUT_MS = 15_000 // 15 seconds timeout for initial load
+    const loadTimeout = setTimeout(() => {
+      if (cancelled) return
+      // If still loading after timeout, show error
+      if (!data) {
+        setLoading(false)
+        toast.error(t("reading.error.loadTimeout") || "加载超时，请刷新重试")
+      }
+    }, LOAD_TIMEOUT_MS)
+
     getSession(id).then(d => {
       if (cancelled) return
+      clearTimeout(loadTimeout)
       setData(d)
       setIsUnlocked(d.is_detail_unlocked)
       setLoading(false)
 
-      // Always re-fetch from backend to get fresh is_detail_unlocked.
-      // The cache doesn't store is_detail_unlocked (depends on premium status).
-      // This ensures premium users see unlocked content immediately.
-      getSession(id, locale).then(fresh => {
-        if (!cancelled) {
-          setData(fresh)
-          setIsUnlocked(fresh.is_detail_unlocked)
-        }
-      }).catch(() => {})
-
-      // If already done, no need for SSE
-      if (d.status === "done" || d.status === "completed" || d.status === "chat") return
+      // If already done, no need for SSE or polling — just render the report
+      if (d.status === "done" || d.status === "completed" || d.status === "chat") {
+        // Still re-fetch to get fresh is_detail_unlocked (premium status)
+        getSession(id, locale).then(fresh => {
+          if (!cancelled) {
+            setData(fresh)
+            setIsUnlocked(fresh.is_detail_unlocked)
+          }
+        }).catch(() => {})
+        return
+      }
 
       // Analysis is pending — start stuck timer
       startStuckTimer()
@@ -302,6 +313,7 @@ export default function ReadingPage() {
       })
     }).catch(() => {
       if (!cancelled) {
+        clearTimeout(loadTimeout)
         toast.error(t("reading.error.loadFailed"))
         setLoading(false)
       }
@@ -309,6 +321,7 @@ export default function ReadingPage() {
 
     return () => {
       cancelled = true
+      clearTimeout(loadTimeout)
       if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
       if (pollInterval) clearInterval(pollInterval)
     }

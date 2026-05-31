@@ -1194,7 +1194,9 @@
     "fallback4": "What does a rounded nose tip mean in face reading?",
     "fallback5": "What should I watch for with a broken life line?",
     "placeholder2": "Keep asking... (Enter to send, Shift+Enter for new line)",
-    "sendFail": "Couldn't send — try again in a moment"
+    "sendFail": "Couldn't send — try again in a moment",
+    "insufficientStardust": "Not enough stardust: each follow-up costs {cost} ✨",
+    "needStardust": "needs {cost}✨"
   },
   "contact": {
     "faq": {

@@ -4,6 +4,7 @@ import { Send, Loader2, Bot, User, Sparkles } from "lucide-react"
 import { sendChat, AGENT_LABELS } from "@/lib/api"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useAuth } from "@/contexts/AuthContext"
+import { STARDUST_COST } from "@/lib/pricing.config"
 import toast from "react-hot-toast"
 
 interface Message {
@@ -19,7 +20,7 @@ interface Props {
 
 export function ChatBox({ sessionId, availableAgents = [] }: Props) {
   const { t } = useLanguage()
-  const { refreshUser } = useAuth()
+  const { user, refreshUser } = useAuth()
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
@@ -35,9 +36,20 @@ export function ChatBox({ sessionId, availableAgents = [] }: Props) {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
+  const isPremium = !!user?.is_premium
+  const stardustBalance = user?.stardust_balance ?? 0
+  const canFollowUp = isPremium || stardustBalance >= STARDUST_COST.FOLLOW_UP
+
   const send = async () => {
     const q = input.trim()
     if (!q || loading) return
+
+    // 前端预检查：非会员且星尘不足时提示
+    if (!isPremium && stardustBalance < STARDUST_COST.FOLLOW_UP) {
+      toast.error(t("chat.insufficientStardust").replace("{cost}", String(STARDUST_COST.FOLLOW_UP)))
+      return
+    }
+
     setInput("")
     setMessages(m => [...m, { role: "user", content: q }])
     setLoading(true)
@@ -49,11 +61,19 @@ export function ChatBox({ sessionId, availableAgents = [] }: Props) {
         routed_to: res.routed_to,
       }])
       refreshUser() // 刷新星尘余额（后端已扣费）
-    } catch {
-      toast.error(t("chat.sendFail"))
+    } catch (err: any) {
+      // 处理 402 星尘不足错误
+      const detail = err?.response?.data?.detail ?? ""
+      if (err?.response?.status === 402 || detail.includes("星尘不足")) {
+        toast.error(detail || t("chat.insufficientStardust").replace("{cost}", String(STARDUST_COST.FOLLOW_UP)))
+      } else {
+        toast.error(t("chat.sendFail"))
+      }
       setMessages(m => [...m, {
         role: "assistant",
-        content: t("chat.defaultError"),
+        content: detail.includes("星尘不足")
+          ? t("chat.insufficientStardust").replace("{cost}", String(STARDUST_COST.FOLLOW_UP))
+          : t("chat.defaultError"),
         routed_to: "master",
       }])
     } finally {
@@ -96,8 +116,14 @@ export function ChatBox({ sessionId, availableAgents = [] }: Props) {
         <span className="font-medium text-white text-sm">{t("chat.experts")}</span>
         <span className="text-xs text-white/30 ml-1">{t("chat.autoRoute")}</span>
         {availableAgents.length > 0 && (
-          <span className="ml-auto flex items-center gap-1 text-[10px] text-gold/50">
+          <span className="flex items-center gap-1 text-[10px] text-gold/50">
             <Sparkles size={8} /> {availableAgents.length} {t("chat.expertsOnline")}
+          </span>
+        )}
+        {!isPremium && (
+          <span className={`flex items-center gap-1 text-[10px] ml-auto ${canFollowUp ? "text-gold/40" : "text-red-400/60"}`}>
+            <Sparkles size={8} /> {stardustBalance} ✨
+            {!canFollowUp && <span className="text-red-400/60">({t("chat.needStardust", { cost: String(STARDUST_COST.FOLLOW_UP) })})</span>}
           </span>
         )}
       </div>
@@ -171,8 +197,9 @@ export function ChatBox({ sessionId, availableAgents = [] }: Props) {
           placeholder={t("chat.placeholder2")}
           className="flex-1 input-field text-sm py-2.5 resize-none min-h-[42px] max-h-[120px]"
         />
-        <button onClick={send} disabled={loading || !input.trim()}
- className="w-10 h-10 rounded-xl bg-gold/20 border border-gold/30 text-gold hover:bg-gold/30 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center transition-all flex-shrink-0 self-end">
+        <button onClick={send} disabled={loading || !input.trim() || !canFollowUp}
+ className="w-10 h-10 rounded-xl bg-gold/20 border border-gold/30 text-gold hover:bg-gold/30 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center transition-all flex-shrink-0 self-end"
+          title={!canFollowUp ? t("chat.insufficientStardust").replace("{cost}", String(STARDUST_COST.FOLLOW_UP)) : undefined}>
           <Send size={16} />
         </button>
       </div>

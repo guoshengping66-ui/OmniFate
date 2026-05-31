@@ -192,6 +192,7 @@ async def energy_radar(
 
     # 2. 非会员扣费 5 星尘
     stardust_deducted = 0
+    new_balance = None
     if not current_user.is_premium:
         user_result = await db.execute(
             select(User).where(User.id == current_user.id).with_for_update()
@@ -203,6 +204,7 @@ async def energy_radar(
                 detail=f"星尘不足: 需要 {STARDUST_COST_ENERGY_RADAR}，当前 {user.stardust_balance}",
             )
         user.stardust_balance -= STARDUST_COST_ENERGY_RADAR
+        new_balance = user.stardust_balance
         tx = CreditTransaction(
             user_id=user.id,
             amount=-STARDUST_COST_ENERGY_RADAR,
@@ -254,5 +256,5 @@ async def energy_radar(
         "events": events,
         "cached": False,
         "stardust_deducted": stardust_deducted,
-        "balance_after": current_user.stardust_balance if stardust_deducted > 0 else None,
+        "balance_after": new_balance if stardust_deducted > 0 else None,
     }

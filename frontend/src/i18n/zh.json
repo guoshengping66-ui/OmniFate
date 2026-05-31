@@ -1194,7 +1194,9 @@
     "fallback4": "面相上准头圆润代表什么？",
     "fallback5": "我的生命线断开需要注意什么？",
     "placeholder2": "继续追问…（Enter 发送，Shift+Enter 换行）",
-    "sendFail": "追问失败，请稍后重试"
+    "sendFail": "追问失败，请稍后重试",
+    "insufficientStardust": "星尘不足：每次追问需要 {cost} 颗星尘",
+    "needStardust": "需{cost}✨"
   },
   "contact": {
     "faq": {
