@@ -1180,6 +1180,133 @@ async def run_palm(state: SystemState) -> WorkerOutput:
                             duration_ms=(time.time() - t0) * 1000)
 
 
+# ─── PARTNER FACE WORKER ────────────────────────────────────────────────
+
+async def run_partner_face(state: SystemState) -> WorkerOutput:
+    """Analyze partner's face for RELATIONSHIP intent."""
+    from agents.prompts import face_prompt
+    t0 = time.time()
+    agent_id = "partner_face"
+    try:
+        ff = state.partner_face_features
+        if ff is None:
+            return WorkerOutput(agent_id=agent_id,
+                                report="",
+                                duration_ms=(time.time() - t0) * 1000)
+
+        face_text = ff.to_prompt_text()
+
+        # Inject raw_metrics as supplementary numerical data
+        if ff.raw_metrics:
+            metrics_str = "\n".join(f"  {k}: {v}" for k, v in ff.raw_metrics.items())
+            face_text += f"\n\n== 原始测量指标 ==\n{metrics_str}"
+
+        gender = state.partner_birth_info.gender if state.partner_birth_info else "unknown"
+        bazi_sup = ""
+        if state.partner_bazi_raw:
+            raw = state.partner_bazi_raw
+            bazi_sup = (
+                f"Day Master: {raw.get('day_master','')} | "
+                f"Missing: {raw.get('missing_elements',[])} | "
+                f"Pattern: {raw.get('pattern','')}"
+            )
+
+        system = face_prompt(face_text, gender, bazi_sup, language=state.language)
+        user_msg = "Please deliver a complete face reading for the partner based on the facial feature data above."
+
+        if _use_mock():
+            report = _mock(agent_id, face_text)
+        else:
+            report = ""
+            for attempt in range(3):
+                report = await _call(system, user_msg, language=state.language, is_premium=state.is_premium)
+                if report.strip():
+                    break
+                if attempt < 2:
+                    print(f"[PARTNER_FACE] empty response on attempt {attempt+1}, retrying in 3s...")
+                    await asyncio.sleep(3)
+
+        data = _parse_worker_report(report)
+        if not _use_mock() and not _validate_worker_output(data, "face"):
+            print(f"[RETRY] {agent_id}: low quality output, retrying once...")
+            report = await _call(system, user_msg, language=state.language, is_premium=state.is_premium)
+            data = _parse_worker_report(report)
+
+        return WorkerOutput(
+            agent_id=agent_id,
+            report=_build_compact_report(data),
+            tags=data.get("weakness_tags", []),
+            strength_tags=data.get("strength_tags", []),
+            boost_elements=data.get("boost_elements", []),
+            conflict_warnings=data.get("conflict_warnings", []),
+            duration_ms=(time.time() - t0) * 1000,
+        )
+    except Exception as e:
+        return WorkerOutput(agent_id=agent_id, error=str(e),
+                            duration_ms=(time.time() - t0) * 1000)
+
+
+# ─── PARTNER PALM WORKER ────────────────────────────────────────────────
+
+async def run_partner_palm(state: SystemState) -> WorkerOutput:
+    """Analyze partner's palm for RELATIONSHIP intent."""
+    from agents.prompts import palm_prompt
+    t0 = time.time()
+    agent_id = "partner_palm"
+    try:
+        pf = state.partner_palm_features
+        if pf is None:
+            return WorkerOutput(agent_id=agent_id,
+                                report="",
+                                duration_ms=(time.time() - t0) * 1000)
+
+        palm_text = pf.to_prompt_text()
+        # Inject raw_metrics as supplementary numerical data
+        if pf.raw_metrics:
+            metrics_str = "\n".join(f"  {k}: {v}" for k, v in pf.raw_metrics.items())
+            palm_text += f"\n\n== 原始测量指标 ==\n{metrics_str}"
+        gender = state.partner_birth_info.gender if state.partner_birth_info else "unknown"
+
+        bazi_sup = ""
+        if state.partner_bazi_raw:
+            raw = state.partner_bazi_raw
+            bazi_sup = f"Day Master: {raw.get('day_master','')} | Missing: {raw.get('missing_elements',[])}"
+
+        system = palm_prompt(palm_text, gender, bazi_sup, pf.hand_side, language=state.language)
+        user_msg = "Please deliver a complete palm reading for the partner based on the hand line data above."
+
+        if _use_mock():
+            report = _mock(agent_id, palm_text)
+        else:
+            report = ""
+            for attempt in range(3):
+                report = await _call(system, user_msg, language=state.language, is_premium=state.is_premium)
+                if report.strip():
+                    break
+                if attempt < 2:
+                    print(f"[PARTNER_PALM] empty response on attempt {attempt+1}, retrying in 3s...")
+                    await asyncio.sleep(3)
+
+        data = _parse_worker_report(report)
+        if not _use_mock() and not _validate_worker_output(data, "palm"):
+            print(f"[RETRY] {agent_id}: low quality output, retrying once...")
+            report = await _call(system, user_msg, language=state.language, is_premium=state.is_premium)
+            data = _parse_worker_report(report)
+
+        return WorkerOutput(
+            agent_id=agent_id,
+            report=_build_compact_report(data),
+            tags=data.get("weakness_tags", []),
+            strength_tags=data.get("strength_tags", []),
+            boost_elements=data.get("boost_elements", []),
+            conflict_warnings=data.get("conflict_warnings", []),
+            duration_ms=(time.time() - t0) * 1000,
+        )
+    except Exception as e:
+        return WorkerOutput(agent_id=agent_id, error=str(e),
+                            duration_ms=(time.time() - t0) * 1000)
+
+
 # ─── PARALLEL DISPATCHER ──────────────────────────────────────────────────
 
 # Merged workers: qimen+ziwei combined into one LLM call

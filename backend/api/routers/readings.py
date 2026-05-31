@@ -150,6 +150,8 @@ class AnalysisRequest(BaseModel):
     partner_latitude: Optional[float] = None
     partner_longitude: Optional[float] = None
     relationship_type: str = ""  # lover/friend/colleague/family
+    partner_face_raw_text: str = ""
+    partner_palm_raw_text: str = ""
 
 
 class ReadingListItem(BaseModel):
@@ -190,6 +192,8 @@ class AnalysisResponse(BaseModel):
     ziwei: WorkerReportOut
     face: WorkerReportOut
     palm: WorkerReportOut
+    partner_face: Optional[WorkerReportOut] = None
+    partner_palm: Optional[WorkerReportOut] = None
     recommended_product_ids: list[str]
     recommended_products: list[dict] = Field(default_factory=list)
     computed_tags: list[str]
@@ -231,6 +235,8 @@ def _state_to_response(state: SystemState) -> AnalysisResponse:
         ziwei=out(state.ziwei_output),
         face=out(state.face_output),
         palm=out(state.palm_output),
+        partner_face=out(state.partner_face_output) if state.partner_face_output.report else None,
+        partner_palm=out(state.partner_palm_output) if state.partner_palm_output.report else None,
         recommended_product_ids=state.recommended_product_ids,
         recommended_products=state.recommended_products,
         computed_tags=state.computed_tags,
@@ -356,6 +362,11 @@ async def create_analysis(
             longitude=payload.partner_longitude,
             gender=payload.partner_gender,
         )
+        # Partner face/palm features
+        if payload.partner_face_raw_text:
+            state.partner_face_features = FaceFeatures(raw_text=payload.partner_face_raw_text)
+        if payload.partner_palm_raw_text:
+            state.partner_palm_features = PalmFeatures(raw_text=payload.partner_palm_raw_text)
 
     # Persist session to DATABASE (with timeout to avoid blocking)
     try:
@@ -539,6 +550,8 @@ async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
                     reading.ziwei_report = state.ziwei_output.report if state.ziwei_output else ""
                     reading.palm_report = state.palm_output.report if state.palm_output and state.palm_output.report != "No palm data provided. Palm analysis skipped." else None
                     reading.face_analysis_text = state.face_output.report if state.face_output and state.face_output.report != "No facial image provided. Face analysis skipped." else None
+                    reading.partner_face_report = state.partner_face_output.report if state.partner_face_output and state.partner_face_output.report else None
+                    reading.partner_palm_report = state.partner_palm_output.report if state.partner_palm_output and state.partner_palm_output.report else None
                     reading.dimension_scores = dict(state.dimension_scores) if state.dimension_scores else None
                     print(f"[BG] Persisting dimension_scores to DB: {state.dimension_scores}")
                     reading.computed_tags = list(state.computed_tags) if state.computed_tags else None
@@ -751,6 +764,8 @@ async def _run_analysis_inline(state: SystemState) -> SystemState:
                 reading.ziwei_report = state.ziwei_output.report if state.ziwei_output else ""
                 reading.palm_report = state.palm_output.report if state.palm_output and state.palm_output.report != "No palm data provided. Palm analysis skipped." else None
                 reading.face_analysis_text = state.face_output.report if state.face_output and state.face_output.report != "No facial image provided. Face analysis skipped." else None
+                reading.partner_face_report = state.partner_face_output.report if state.partner_face_output and state.partner_face_output.report else None
+                reading.partner_palm_report = state.partner_palm_output.report if state.partner_palm_output and state.partner_palm_output.report else None
                 reading.dimension_scores = dict(state.dimension_scores) if state.dimension_scores else None
                 reading.computed_tags = list(state.computed_tags) if state.computed_tags else None
                 reading.recommended_product_ids = list(state.recommended_product_ids) if state.recommended_product_ids else None

@@ -735,6 +735,16 @@
     "partnerBirthHour": "对方出生时辰",
     "partnerBirthCity": "对方出生城市",
     "partnerCityPlaceholder": "如：北京",
+    "partnerFaceTitle": "对方面相",
+    "partnerFaceDesc": "上传对方的正面照片，AI将自动分析面相特征",
+    "partnerFaceClickUpload": "点击上传对方正面照",
+    "partnerFaceDoneToast": "对方面相分析完成",
+    "partnerFaceErrorToast": "对方面相分析失败，请重试",
+    "partnerPalmTitle": "对方手相",
+    "partnerPalmDesc": "上传对方的手掌照片，AI将自动分析掌纹特征",
+    "partnerPalmClickUpload": "点击上传对方手掌照",
+    "partnerPalmDoneToast": "对方手相分析完成",
+    "partnerPalmErrorToast": "对方手相分析失败，请重试",
     "submitError": "提交失败 (HTTP {status})，请重试",
     "submitErrorMsg": "提交失败 (HTTP {status})，请重试",
     "sunLineLabel": "太阳线",
@@ -996,6 +1006,18 @@
       "detail": "AI 识别手型分类与纹路走势，结合传统手相学深度解读。",
       "tag": "水",
       "_label": "手相解读"
+    },
+    "partner_face": {
+      "desc": "对方面相分析",
+      "detail": "AI 分析对方面部特征，用于合盘共振分析。",
+      "tag": "金",
+      "_label": "对方面相"
+    },
+    "partner_palm": {
+      "desc": "对方手相分析",
+      "detail": "AI 分析对方掌纹特征，用于合盘共振分析。",
+      "tag": "水",
+      "_label": "对方手相"
     },
     "tarot": {
       "desc": "凯尔特十字·当下能量·行动指引",
@@ -1671,6 +1693,10 @@
       "eventDesc": "事件溯源",
       "face": "面相",
       "faceDesc": "AI 观相",
+      "partnerFace": "对方面相",
+      "partnerFaceDesc": "AI 观相·对方",
+      "partnerPalm": "对方手相",
+      "partnerPalmDesc": "掌中乾坤·对方",
       "overview": "总览",
       "overviewDesc": "全维度命盘",
       "palm": "手相",

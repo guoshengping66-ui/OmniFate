@@ -170,6 +170,8 @@ export interface AnalysisRequest {
   partner_birth_city?: string
   partner_latitude?: number
   partner_longitude?: number
+  partner_face_raw_text?: string
+  partner_palm_raw_text?: string
   relationship_type?: string
 }
 
@@ -194,6 +196,8 @@ export interface AnalysisResponse {
   ziwei: WorkerReport
   face: WorkerReport
   palm: WorkerReport
+  partner_face?: WorkerReport
+  partner_palm?: WorkerReport
   recommended_product_ids: string[]
   recommended_products?: Product[]
   computed_tags: string[]
@@ -843,6 +847,8 @@ export const AGENT_LABELS: Record<string, { icon: string; label: string; color: 
   ziwei:     { icon: "⭐", label: "紫微斗数",  color: "text-purple-400" },
   face:      { icon: "👁", label: "AI 面相",   color: "text-rose-400" },
   palm:      { icon: "🤚", label: "手相解读",  color: "text-amber-400" },
+  partner_face: { icon: "👁", label: "对方面相", color: "text-rose-400" },
+  partner_palm: { icon: "🤚", label: "对方手相", color: "text-amber-400" },
   master:    { icon: "🌟", label: "命盘总览",  color: "text-gold" },
 }
 

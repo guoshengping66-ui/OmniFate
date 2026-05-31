@@ -199,6 +199,12 @@ class SystemState(BaseModel):
         default_factory=lambda: WorkerOutput(agent_id="partner_astrology"))
     partner_bazi_output: WorkerOutput = Field(
         default_factory=lambda: WorkerOutput(agent_id="partner_bazi"))
+    partner_face_features: Optional[FaceFeatures] = None
+    partner_palm_features: Optional[PalmFeatures] = None
+    partner_face_output: WorkerOutput = Field(
+        default_factory=lambda: WorkerOutput(agent_id="partner_face"))
+    partner_palm_output: WorkerOutput = Field(
+        default_factory=lambda: WorkerOutput(agent_id="partner_palm"))
 
     # 合盘计算结果
     synastry_aspects: list[dict] = Field(default_factory=list)      # 星盘交叉相位

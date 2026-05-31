@@ -735,6 +735,16 @@
     "partnerBirthHour": "Partner's Birth Hour",
     "partnerBirthCity": "Partner's Birth City",
     "partnerCityPlaceholder": "e.g. New York",
+    "partnerFaceTitle": "Partner's Face Reading",
+    "partnerFaceDesc": "Upload a front-facing photo — AI will analyze facial features automatically",
+    "partnerFaceClickUpload": "Click to upload partner's face photo",
+    "partnerFaceDoneToast": "Partner face analysis complete",
+    "partnerFaceErrorToast": "Partner face analysis failed — please retry",
+    "partnerPalmTitle": "Partner's Palm Reading",
+    "partnerPalmDesc": "Upload a palm photo — AI will analyze palm lines automatically",
+    "partnerPalmClickUpload": "Click to upload partner's palm photo",
+    "partnerPalmDoneToast": "Partner palm analysis complete",
+    "partnerPalmErrorToast": "Partner palm analysis failed — please retry",
     "submitError": "Submission failed (HTTP {status}) — please retry",
     "submitErrorMsg": "Submission failed (HTTP {status}) — please retry",
     "sunLineLabel": "Sun Line",
@@ -996,6 +1006,18 @@
       "detail": "The shape of your hand and the lines on your palm carry centuries of palmistry wisdom — we read them for you.",
       "tag": "Water",
       "_label": "Palm Reading"
+    },
+    "partner_face": {
+      "desc": "Partner's Face Analysis",
+      "detail": "AI analyzes partner's facial features for compatibility resonance analysis.",
+      "tag": "Metal",
+      "_label": "Partner Face"
+    },
+    "partner_palm": {
+      "desc": "Partner's Palm Analysis",
+      "detail": "AI analyzes partner's palm features for compatibility resonance analysis.",
+      "tag": "Water",
+      "_label": "Partner Palm"
     },
     "tarot": {
       "desc": "Celtic Cross · Current Energy · Action Guidance",
@@ -1671,6 +1693,10 @@
       "eventDesc": "Retrospect",
       "face": "Face",
       "faceDesc": "Face Reading",
+      "partnerFace": "Partner Face",
+      "partnerFaceDesc": "Partner Reading",
+      "partnerPalm": "Partner Palm",
+      "partnerPalmDesc": "Partner Palmistry",
       "overview": "Overview",
       "overviewDesc": "Full Chart",
       "palm": "Palm",

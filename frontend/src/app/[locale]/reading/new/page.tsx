@@ -155,6 +155,22 @@ export default function NewReadingPage() {
   const [palmText, setPalmText]   = useState<string>("")
   const [palmV2TError, setPalmV2TError] = useState(false)
   const [palmFeatures, setPalmFeatures] = useState<Record<string, string> | null>(null)
+  // Partner face state
+  const [partnerFaceFile, setPartnerFaceFile] = useState<File | null>(null)
+  const [partnerFacePreview, setPartnerFacePreview] = useState<string | null>(null)
+  const [partnerIsFaceScanning, setPartnerIsFaceScanning] = useState(false)
+  const [partnerFaceScanDone, setPartnerFaceScanDone] = useState(false)
+  const [partnerFaceText, setPartnerFaceText] = useState<string>("")
+  const [partnerFaceV2TError, setPartnerFaceV2TError] = useState(false)
+  const [partnerFaceFeatures, setPartnerFaceFeatures] = useState<Record<string, string> | null>(null)
+  // Partner palm state
+  const [partnerPalmFile, setPartnerPalmFile] = useState<File | null>(null)
+  const [partnerPalmPreview, setPartnerPalmPreview] = useState<string | null>(null)
+  const [partnerIsPalmScanning, setPartnerIsPalmScanning] = useState(false)
+  const [partnerPalmScanDone, setPartnerPalmScanDone] = useState(false)
+  const [partnerPalmText, setPartnerPalmText] = useState<string>("")
+  const [partnerPalmV2TError, setPartnerPalmV2TError] = useState(false)
+  const [partnerPalmFeatures, setPartnerPalmFeatures] = useState<Record<string, string> | null>(null)
   // Other state
   const [tarotCards, setTarotCards]   = useState<{ position: string; card: string; reversed: boolean }[]>([])
   const [palmData, setPalmData]       = useState<Record<string, string>>({})
@@ -162,6 +178,8 @@ export default function NewReadingPage() {
   const [showPalmGuide, setShowPalmGuide] = useState(false)
   const faceRef = useRef<HTMLInputElement>(null)
   const palmRef = useRef<HTMLInputElement>(null)
+  const partnerFaceRef = useRef<HTMLInputElement>(null)
+  const partnerPalmRef = useRef<HTMLInputElement>(null)
   const prevIntentRef = useRef<string | null>(null)
   const isFirstRenderRef = useRef(true)
   const prefilledFromProfile = useRef(false)
@@ -171,6 +189,8 @@ export default function NewReadingPage() {
     return () => {
       if (facePreview) URL.revokeObjectURL(facePreview)
       if (palmPreview) URL.revokeObjectURL(palmPreview)
+      if (partnerFacePreview) URL.revokeObjectURL(partnerFacePreview)
+      if (partnerPalmPreview) URL.revokeObjectURL(partnerPalmPreview)
       // Reset wizard store when leaving
       resetWizard()
     }
@@ -404,6 +424,67 @@ export default function NewReadingPage() {
     }
   }
 
+  // ── Partner face/palm handlers ──────────────────────────────
+  const handlePartnerFacePick = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0]
+    if (!f) return
+    if (partnerFacePreview) URL.revokeObjectURL(partnerFacePreview)
+    setPartnerFaceFile(f)
+    const url = URL.createObjectURL(f)
+    setPartnerFacePreview(url)
+    setPartnerIsFaceScanning(true)
+    setPartnerFaceScanDone(false)
+    setPartnerFaceV2TError(false)
+    setPartnerFaceFeatures(null)
+  }
+
+  const handlePartnerFaceScanComplete = () => {
+    setPartnerFaceScanDone(true)
+    setPartnerIsFaceScanning(false)
+    if (partnerFaceFile) {
+      analyzeFaceImage(partnerFaceFile)
+        .then(res => {
+          setPartnerFaceText(res.face_text)
+          setPartnerFaceFeatures(res.features)
+          toast.success(t("new.partnerFaceDoneToast"))
+        })
+        .catch(() => {
+          setPartnerFaceV2TError(true)
+          toast.error(t("new.partnerFaceErrorToast"))
+        })
+    }
+  }
+
+  const handlePartnerPalmPick = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0]
+    if (!f) return
+    if (partnerPalmPreview) URL.revokeObjectURL(partnerPalmPreview)
+    setPartnerPalmFile(f)
+    const url = URL.createObjectURL(f)
+    setPartnerPalmPreview(url)
+    setPartnerIsPalmScanning(true)
+    setPartnerPalmScanDone(false)
+    setPartnerPalmV2TError(false)
+    setPartnerPalmFeatures(null)
+  }
+
+  const handlePartnerPalmScanComplete = () => {
+    setPartnerPalmScanDone(true)
+    setPartnerIsPalmScanning(false)
+    if (partnerPalmFile) {
+      analyzePalmImage(partnerPalmFile)
+        .then(res => {
+          setPartnerPalmText(res.palm_text)
+          setPartnerPalmFeatures(res.features)
+          toast.success(t("new.partnerPalmDoneToast"))
+        })
+        .catch(() => {
+          setPartnerPalmV2TError(true)
+          toast.error(t("new.partnerPalmErrorToast"))
+        })
+    }
+  }
+
   const onSubmit = async (values: FormValues) => {
     setLoading(true)
     try {
@@ -435,6 +516,8 @@ export default function NewReadingPage() {
         partner_birth_city: values.partner_birth_city || "",
         partner_latitude: typeof values.partner_latitude === "number" ? values.partner_latitude : undefined,
         partner_longitude: typeof values.partner_longitude === "number" ? values.partner_longitude : undefined,
+        partner_face_raw_text: partnerFaceText || undefined,
+        partner_palm_raw_text: partnerPalmText || undefined,
         relationship_type: values.relationship_type || "",
       }
 
@@ -753,6 +836,112 @@ export default function NewReadingPage() {
                       placeholder={t("new.partnerCityPlaceholder")}
                     />
                   </Suspense>
+                </div>
+
+                {/* Partner Face Photo */}
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Camera size={18} className="text-gold" />
+                    <h3 className="font-serif text-lg text-gold">{t("new.partnerFaceTitle")}</h3>
+                    <span className="text-white/30 text-sm font-sans">{t("new.faceRecommended")}</span>
+                  </div>
+                  <p className="text-white/40 text-xs mb-4">{t("new.partnerFaceDesc")}</p>
+
+                  {partnerIsFaceScanning && partnerFacePreview ? (
+                    <FaceScanAnimation
+                      imageUrl={partnerFacePreview}
+                      isScanning={true}
+                      onComplete={handlePartnerFaceScanComplete}
+                    />
+                  ) : (
+                    <div onClick={() => partnerFaceRef.current?.click()}
+                      className="border-2 border-dashed border-white/20 hover:border-gold/40 rounded-2xl p-6 md:p-8 text-center cursor-pointer transition-all group">
+                      {partnerFacePreview ? (
+                        <div className="relative inline-block">
+                          <img src={partnerFacePreview} alt="partner face preview"
+                            className="w-28 h-28 md:w-32 md:h-32 object-cover rounded-full mx-auto border-2 border-gold/40" />
+                          {partnerFaceText && (
+                            <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1">
+                              <CheckCircle size={14} className="text-white" />
+                            </div>
+                          )}
+                          {partnerFaceV2TError && (
+                            <div className="mt-2 space-y-1">
+                              <p className="text-amber-400 text-xs">{t("new.faceScanFail")}</p>
+                              <p className="text-white/30 text-[10px]">{t("new.clickToRetry")}</p>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div>
+                          <Camera size={36} className="mx-auto text-white/20 group-hover:text-gold/50 mb-2 transition-colors" />
+                          <p className="text-white/40 text-sm">{t("new.partnerFaceClickUpload")}</p>
+                          <p className="text-white/20 text-xs mt-1">{t("new.faceAutoScan")}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  <input ref={partnerFaceRef} type="file" accept="image/*" className="sr-only" onChange={handlePartnerFacePick} />
+
+                  {partnerFaceFeatures && !partnerIsFaceScanning && (
+                    <div className="mt-4 flex items-center gap-2 text-green-400/80 text-xs">
+                      <CheckCircle size={14} />
+                      <span>{t("new.faceScanComplete")}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Partner Palm Photo */}
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Hand size={18} className="text-gold" />
+                    <h3 className="font-serif text-lg text-gold">{t("new.partnerPalmTitle")}</h3>
+                    <span className="text-white/30 text-sm font-sans">{t("new.faceRecommended")}</span>
+                  </div>
+                  <p className="text-white/40 text-xs mb-4">{t("new.partnerPalmDesc")}</p>
+
+                  {partnerIsPalmScanning && partnerPalmPreview ? (
+                    <FaceScanAnimation
+                      imageUrl={partnerPalmPreview}
+                      isScanning={true}
+                      onComplete={handlePartnerPalmScanComplete}
+                    />
+                  ) : (
+                    <div onClick={() => partnerPalmRef.current?.click()}
+                      className="border-2 border-dashed border-white/20 hover:border-gold/40 rounded-2xl p-6 md:p-8 text-center cursor-pointer transition-all group">
+                      {partnerPalmPreview ? (
+                        <div className="relative inline-block">
+                          <img src={partnerPalmPreview} alt="partner palm preview"
+                            className="w-32 h-32 md:w-36 md:h-36 object-contain rounded-xl mx-auto border-2 border-gold/40" />
+                          {partnerPalmText && (
+                            <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1">
+                              <CheckCircle size={14} className="text-white" />
+                            </div>
+                          )}
+                          {partnerPalmV2TError && (
+                            <div className="mt-2 space-y-1">
+                              <p className="text-amber-400 text-xs">{t("new.palmScanFail")}</p>
+                              <p className="text-white/30 text-[10px]">{t("new.clickToRetry")}</p>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div>
+                          <Hand size={36} className="mx-auto text-white/20 group-hover:text-gold/50 mb-2 transition-colors" />
+                          <p className="text-white/40 text-sm">{t("new.partnerPalmClickUpload")}</p>
+                          <p className="text-white/20 text-xs mt-1">{t("new.palmAutoScan")}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  <input ref={partnerPalmRef} type="file" accept="image/*" className="sr-only" onChange={handlePartnerPalmPick} />
+
+                  {partnerPalmFeatures && !partnerIsPalmScanning && (
+                    <div className="mt-4 flex items-center gap-2 text-green-400/80 text-xs">
+                      <CheckCircle size={14} />
+                      <span>{t("new.palmScanComplete")}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

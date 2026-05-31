@@ -183,6 +183,10 @@ class Reading(Base):
     ziwei_report: Mapped[Optional[str]] = mapped_column(Text)
     palm_report: Mapped[Optional[str]] = mapped_column(Text)
 
+    # Partner analysis outputs (RELATIONSHIP intent)
+    partner_face_report: Mapped[Optional[str]] = mapped_column(Text)
+    partner_palm_report: Mapped[Optional[str]] = mapped_column(Text)
+
     # MasterAgent synthesis
     master_summary: Mapped[Optional[str]] = mapped_column(Text)       # 免费摘要
     master_detail: Mapped[Optional[str]] = mapped_column(Text)        # 付费年度规划

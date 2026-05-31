@@ -379,7 +379,9 @@ async def run_full_analysis(state: SystemState) -> SystemState:
     """
     from agents.workers import (
         run_astrology, run_tarot, run_bazi,
-        run_qimen_ziwei, run_face, run_palm, _WORKER_TIMEOUTS,
+        run_qimen_ziwei, run_face, run_palm,
+        run_partner_face, run_partner_palm,
+        _WORKER_TIMEOUTS,
     )
 
     # ── Phase 1: Init ──
@@ -440,12 +442,33 @@ async def run_full_analysis(state: SystemState) -> SystemState:
     _total_workers = len(_WORKER_IDS)
 
     # Runners: qimen_ziwei is a merged worker returning list[WorkerOutput]
+    # Conditionally add partner face/palm workers for RELATIONSHIP intent
     _runners = [run_astrology, run_tarot, run_bazi, run_qimen_ziwei, run_face, run_palm]
+    _runner_ids = list(_WORKER_IDS)
+    _runner_timeouts = list(_WORKER_TIMEOUTS)
+
+    if state.intent == "RELATIONSHIP":
+        if state.partner_face_features:
+            _runners.append(run_partner_face)
+            _runner_ids.append("partner_face")
+            _runner_timeouts.append(25)
+            state.agent_status["partner_face"] = "running"
+            worker_events["partner_face"] = asyncio.Event()
+            _total_workers += 1
+        if state.partner_palm_features:
+            _runners.append(run_partner_palm)
+            _runner_ids.append("partner_palm")
+            _runner_timeouts.append(25)
+            state.agent_status["partner_palm"] = "running"
+            worker_events["partner_palm"] = asyncio.Event()
+            _total_workers += 1
 
     # Stagger face/palm worker start to avoid concurrent LLM API rate limits
     _START_DELAYS = {
         "face": 1,
         "palm": 2,
+        "partner_face": 3,
+        "partner_palm": 4,
     }
 
     async def _run_one(runner, agent_id: str, timeout: int):
@@ -489,13 +512,13 @@ async def run_full_analysis(state: SystemState) -> SystemState:
 
         # Mark the merged worker event too
         worker_events[agent_id].set()
-        state.progress_pct = 5 + int(60 * _completed_workers / 7)  # 7 total sub-workers
-        state.progress_message = f"Completed {_completed_workers}/7 analyses…" if is_en else f"已完成 {_completed_workers}/7 项分析…"
+        state.progress_pct = 5 + int(60 * _completed_workers / _total_workers)
+        state.progress_message = f"Completed {_completed_workers}/{_total_workers} analyses…" if is_en else f"已完成 {_completed_workers}/{_total_workers} 项分析…"
         return result
 
     worker_tasks = [
         asyncio.create_task(_run_one(r, aid, t))
-        for r, aid, t in zip(_runners, _WORKER_IDS, _WORKER_TIMEOUTS)
+        for r, aid, t in zip(_runners, _runner_ids, _runner_timeouts)
     ]
 
     # ── Speculative Master: start core when Bazi completes (fastest worker) ──

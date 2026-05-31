@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState, useCallback, useRef, lazy, Suspense } from "react"
+import { useEffect, useState, useCallback, useRef, useMemo, lazy, Suspense } from "react"
 import { useParams, useRouter } from "next/navigation"
 import {
   Loader2, Sparkles, ShoppingBag, AlertCircle,
@@ -13,7 +13,8 @@ import { getSession, matchProducts, streamSession, AnalysisResponse, Product, AG
 const AGENT_I18N: Record<string, string> = {
   astrology: "agent.astrology._label", tarot: "agent.tarot._label", bazi: "agent.bazi._label",
   qimen: "agent.qimen._label", ziwei: "agent.ziwei._label", face: "agent.face._label",
-  palm: "agent.palm._label", master: "agent.master",
+  palm: "agent.palm._label", partner_face: "agent.partner_face._label",
+  partner_palm: "agent.partner_palm._label", master: "agent.master",
 }
 // Core imports (always needed)
 import AnalysisProgress from "@/components/reading/AnalysisProgress"
@@ -437,7 +438,35 @@ export default function ReadingPage() {
     ziwei:     data.ziwei,
     face:      data.face,
     palm:      data.palm,
+    ...(data.partner_face ? { partner_face: data.partner_face } : {}),
+    ...(data.partner_palm ? { partner_palm: data.partner_palm } : {}),
   }
+
+  // Dynamic worker order — include partner_face/palm only when data exists
+  const WORKER_ORDER_ALL = useMemo(() => {
+    const base = ["bazi", "qimen", "ziwei", "astrology", "tarot", "face", "palm"]
+    if (data.partner_face) base.push("partner_face")
+    if (data.partner_palm) base.push("partner_palm")
+    return base as readonly string[]
+  }, [data.partner_face, data.partner_palm])
+
+  // Dynamic navigation items — include partner tabs when available
+  const NAV_ITEMS_ALL = useMemo(() => {
+    const items = [...I18N_NAV_ITEMS]
+    if (data.partner_face) {
+      items.splice(items.findIndex(i => i.id === "face") + 1, 0,
+        { id: "partner_face", icon: "👁", labelKey: "reading.nav.partnerFace", descKey: "reading.nav.partnerFaceDesc" })
+    }
+    if (data.partner_palm) {
+      const palmIdx = items.findIndex(i => i.id === "palm")
+      items.splice(palmIdx + 1, 0,
+        { id: "partner_palm", icon: "🤚", labelKey: "reading.nav.partnerPalm", descKey: "reading.nav.partnerPalmDesc" })
+    }
+    return items
+  }, [data.partner_face, data.partner_palm])
+
+  // Type for worker keys
+  type WorkerKey = typeof WORKER_ORDER_ALL[number]
 
   const strongestDim = data.dimension_scores ? getStrongestDimension(data.dimension_scores) : "career"
   const strongestLabel = data.dimension_scores ? getI18nDimLabel(getStrongestDimension(data.dimension_scores), t) : t("reading.dim.career")
@@ -709,7 +738,7 @@ export default function ReadingPage() {
                   opacity: heroVisible ? 1 : 0,
                 }}
               >
-                {WORKER_ORDER.map(k => {
+                {WORKER_ORDER_ALL.map((k: string) => {
                   const w = workerMap[k]
                   const meta = AGENT_LABELS[k]
                   return (
@@ -739,8 +768,8 @@ export default function ReadingPage() {
         <div className="bg-[#1a1430]/80 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-1.5 shadow-2xl shadow-black/40 relative">
           <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-[#1a1430]/90 to-transparent rounded-r-2xl pointer-events-none z-10 md:hidden" />
           <div ref={navScrollRef} className="flex gap-0.5 sm:gap-1 overflow-x-auto scrollbar-none scroll-smooth">
-            {I18N_NAV_ITEMS.map(item => {
-              const isWorkerTab = WORKER_ORDER.includes(item.id as typeof WORKER_ORDER[number])
+            {NAV_ITEMS_ALL.map((item: { id: string; icon: string; labelKey: string; descKey: string }) => {
+              const isWorkerTab = WORKER_ORDER_ALL.includes(item.id)
               const isLocked = !isUnlocked && isWorkerTab
               return (
                 <button
@@ -912,7 +941,7 @@ export default function ReadingPage() {
                 <h3 className="text-sm font-medium text-white/40">{t("reading.summary")}</h3>
               </div>
               <div className="grid sm:grid-cols-2 gap-3">
-                {WORKER_ORDER.map(k => {
+                {WORKER_ORDER_ALL.map((k: string) => {
                   const w = workerMap[k]
                   const meta = AGENT_LABELS[k]
                   const hasReport = !!w.report
@@ -959,7 +988,7 @@ export default function ReadingPage() {
         )}
 
         {/* ── Individual Worker Reports ───────────────────── */}
-        {WORKER_ORDER.map(k => activeTab === k && (
+        {WORKER_ORDER_ALL.map((k: string) => activeTab === k && (
           <div key={k}>
             {workerMap[k].error ? (
               <div className="card-glass p-10 text-center">
@@ -1152,7 +1181,7 @@ export default function ReadingPage() {
             <Suspense fallback={<div className="card-glass p-10 text-center"><Loader2 size={24} className="animate-spin text-gold/40 mx-auto" /></div>}>
               <ChatBox
                 sessionId={id}
-                availableAgents={WORKER_ORDER.filter(k => workerMap[k]?.report && !workerMap[k]?.error)}
+                availableAgents={WORKER_ORDER_ALL.filter((k: string) => workerMap[k]?.report && !workerMap[k]?.error)}
               />
             </Suspense>
           </div>
