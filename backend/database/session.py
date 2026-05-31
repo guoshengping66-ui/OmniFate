@@ -96,6 +96,8 @@ async def _migrate_readings_columns():
         ("computed_tags", "JSON"),
         ("recommended_product_ids", "JSON"),
         ("face_analysis_text", "TEXT"),
+        ("partner_face_report", "TEXT"),
+        ("partner_palm_report", "TEXT"),
     ]
     # ── Divination records: AI insight column ──
     divination_columns = [
