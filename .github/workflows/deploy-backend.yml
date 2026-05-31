@@ -79,12 +79,12 @@ jobs:
                 echo "⚠️ pip install 失败，跳过"
 
               # 杀掉旧进程触发 PM2 自动重启
-              PID=$(lsof -ti :8002 2>/dev/null || true)
+              PID=$(lsof -ti :8003 2>/dev/null || true)
               if [ -n "$PID" ]; then
                 kill "$PID" 2>/dev/null || true
                 echo "已停止进程: $PID"
               else
-                fuser -k 8002/tcp 2>/dev/null || true
+                fuser -k 8003/tcp 2>/dev/null || true
               fi
 
               pm2 restart backend 2>/dev/null || pm2 start ecosystem.config.js --only backend 2>/dev/null || true
@@ -97,7 +97,7 @@ jobs:
             echo "🔍 健康检查..."
             HEALTH_OK=false
             for i in 1 2 3 4 5; do
-              HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8002/health || echo "000")
+              HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8003/health || echo "000")
               if [ "$HTTP_CODE" = "200" ]; then
                 HEALTH_OK=true
                 echo "✅ 健康检查通过 (第${i}次)"

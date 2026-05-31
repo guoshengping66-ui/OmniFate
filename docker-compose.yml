@@ -27,8 +27,8 @@ services:
 
   backend:
     build: ./backend
-    command: uvicorn backend.main:app --host 0.0.0.0 --port 8002 --reload
-    ports: ["8002:8002"]
+    command: uvicorn backend.main:app --host 0.0.0.0 --port 8003 --reload
+    ports: ["8003:8003"]
     environment:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?请在 .env 中设置 POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-destiny}
       CHROMA_HOST: chromadb
@@ -46,7 +46,7 @@ services:
     command: npm run dev
     ports: ["3000:3000"]
     environment:
-      BACKEND_URL: http://backend:8002
+      BACKEND_URL: http://backend:8003
     depends_on: [backend]
 
 volumes:

@@ -12,7 +12,7 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 os.environ["PYTHONUNBUFFERED"] = "1"
 
 CMD = [sys.executable, "-m", "uvicorn", "backend.main:app",
-       "--host", "0.0.0.0", "--port", "8002", "--log-level", "info"]
+       "--host", "0.0.0.0", "--port", "8003", "--log-level", "info"]
 
 running = True
 proc = None

@@ -61,8 +61,8 @@ case "$ACTION" in
         docker compose ps
         echo ""
         log "🔗 前端: http://localhost:3000"
-        log "🔗 后端: http://localhost:8002"
-        log "🔗 健康检查: http://localhost:8002/health"
+        log "🔗 后端: http://localhost:8003"
+        log "🔗 健康检查: http://localhost:8003/health"
         ;;
 
     update)

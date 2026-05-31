@@ -8,7 +8,7 @@
  *
  * SOLUTION: By proxying through Next.js Server-side, the browser sees
  * same-origin requests (no CORS needed), and the server-to-server
- * connection (localhost → localhost:8002) is不受 CORS restrictions.
+ * connection (localhost → localhost:8003) is不受 CORS restrictions.
  *
  * PROXY CORRUPTION: Some client-side proxies (Clash/V2Ray) performing
  * HTTPS MITM intercept and corrupt POST request bodies. To survive this,
@@ -16,16 +16,16 @@
  * The proxy route tries URL param first (with error handling), then
  * falls back to the body. If both fail, it returns a clear error.
  *
- * CHINA MAINLAND: The proxy connects to the local backend (localhost:8002),
+ * CHINA MAINLAND: The proxy connects to the local backend (localhost:8003),
  * bypassing Cloudflare entirely. This ensures reliable connectivity from
  * mainland China where external API calls may be blocked or slow.
  */
 
 // In production, proxy to the local backend (same server, no Cloudflare hop).
-// The backend listens on localhost:8002 — nginx exposes it externally via port 443.
+// The backend listens on localhost:8003 — nginx exposes it externally via port 443.
 // Using localhost avoids an unnecessary round-trip through Cloudflare for
 // server-to-server communication, improving speed and reliability.
-const BACKEND = process.env.BACKEND_URL || "http://localhost:8002"
+const BACKEND = process.env.BACKEND_URL || "http://localhost:8003"
 const TIMEOUT_MS = 30_000  // 30s for regular requests (POST/GET with expected fast response)
 const ANALYSIS_TIMEOUT_MS = 120_000  // 2 min for LLM-heavy endpoints (analyze-event, readings)
 const SSE_TIMEOUT_MS = 600_000  // 10 min for SSE streams (analysis can take 5-8 min with two-call approach)

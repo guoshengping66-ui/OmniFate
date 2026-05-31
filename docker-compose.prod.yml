@@ -6,7 +6,7 @@
 
 services:
   backend:
-    command: uvicorn backend.main:app --host 0.0.0.0 --port 8002 --workers 2
+    command: uvicorn backend.main:app --host 0.0.0.0 --port 8003 --workers 2
     restart: unless-stopped
     volumes: []  # 生产环境不挂载源码
     environment:
@@ -20,7 +20,7 @@ services:
     restart: unless-stopped
     environment:
       NODE_ENV: production
-      BACKEND_URL: http://backend:8002
+      BACKEND_URL: http://backend:8003
 
   chromadb:
     restart: unless-stopped
