@@ -250,7 +250,7 @@ def _state_to_response(state: SystemState) -> AnalysisResponse:
 
 # ─── Content Lock ─────────────────────────────────────────────────────────
 
-_WORKER_REPORT_KEYS = ["astrology", "tarot", "bazi", "qimen", "ziwei", "face", "palm"]
+_WORKER_REPORT_KEYS = ["astrology", "tarot", "bazi", "qimen", "ziwei", "face", "palm", "partner_face", "partner_palm"]
 
 
 def _apply_content_lock(resp: AnalysisResponse, current_user: Optional[User], reading: Optional[Reading] = None, lang: str = "zh") -> AnalysisResponse:
@@ -926,6 +926,8 @@ async def get_session(
                 ziwei=_worker_from_report("ziwei", reading.ziwei_report),
                 face=_worker_from_report("face", reading.face_analysis_text),
                 palm=_worker_from_report("palm", reading.palm_report),
+                partner_face=_worker_from_report("partner_face", reading.partner_face_report) if reading.partner_face_report else None,
+                partner_palm=_worker_from_report("partner_palm", reading.partner_palm_report) if reading.partner_palm_report else None,
                 recommended_product_ids=reading.recommended_product_ids or [],
                 computed_tags=reading.computed_tags or [],
                 dimension_scores=reading.dimension_scores or {},
@@ -955,6 +957,8 @@ async def get_session(
                     _translate_text(resp.ziwei.report, target),
                     _translate_text(resp.face.report, target),
                     _translate_text(resp.palm.report, target),
+                    _translate_text(resp.partner_face.report, target) if resp.partner_face else None,
+                    _translate_text(resp.partner_palm.report, target) if resp.partner_palm else None,
                 )
                 resp.master_summary = translations[0]
                 resp.master_detail = translations[1]
@@ -965,6 +969,10 @@ async def get_session(
                 resp.ziwei = WorkerReportOut(agent_id="ziwei", report=translations[6], tags=resp.ziwei.tags, error=resp.ziwei.error, duration_ms=resp.ziwei.duration_ms)
                 resp.face = WorkerReportOut(agent_id="face", report=translations[7], tags=resp.face.tags, error=resp.face.error, duration_ms=resp.face.duration_ms)
                 resp.palm = WorkerReportOut(agent_id="palm", report=translations[8], tags=resp.palm.tags, error=resp.palm.error, duration_ms=resp.palm.duration_ms)
+                if resp.partner_face:
+                    resp.partner_face = WorkerReportOut(agent_id="partner_face", report=translations[9] or resp.partner_face.report, tags=resp.partner_face.tags, error=resp.partner_face.error, duration_ms=resp.partner_face.duration_ms)
+                if resp.partner_palm:
+                    resp.partner_palm = WorkerReportOut(agent_id="partner_palm", report=translations[10] or resp.partner_palm.report, tags=resp.partner_palm.tags, error=resp.partner_palm.error, duration_ms=resp.partner_palm.duration_ms)
 
             return resp
     except HTTPException:
