@@ -8,7 +8,7 @@ const EnergyOrb = lazy(() => import("./EnergyOrb"))
 
 type AgentStatus = "pending" | "running" | "done" | "error" | "skipped"
 
-const AGENT_ORDER = ["bazi", "astrology", "tarot", "qimen", "ziwei", "face", "palm"] as const
+const AGENT_ORDER_BASE = ["bazi", "astrology", "tarot", "qimen", "ziwei", "face", "palm"] as const
 
 const AGENT_I18N: Record<string, { running: string; done: string }> = {
   bazi:      { running: "analysis.bazi.running", done: "analysis.bazi.done" },
@@ -18,6 +18,8 @@ const AGENT_I18N: Record<string, { running: string; done: string }> = {
   ziwei:     { running: "analysis.ziwei.running", done: "analysis.ziwei.done" },
   face:      { running: "analysis.face.running", done: "analysis.face.done" },
   palm:      { running: "analysis.palm.running", done: "analysis.palm.done" },
+  partner_face: { running: "analysis.partnerFace.running", done: "analysis.partnerFace.done" },
+  partner_palm: { running: "analysis.partnerPalm.running", done: "analysis.partnerPalm.done" },
 }
 
 // ── Wisdom quotes shown during analysis ────────────────────────────────────
@@ -243,6 +245,15 @@ export default function AnalysisProgress({
   const burstShownRef = useRef(false)
 
   const isComplete = phase === "done"
+
+  // Dynamic agent order — include partner_face/partner_palm when they appear in agentStatus
+  const AGENT_ORDER: string[] = useMemo(() => {
+    const base: string[] = [...AGENT_ORDER_BASE]
+    if (agentStatus.partner_face) base.push("partner_face")
+    if (agentStatus.partner_palm) base.push("partner_palm")
+    return base
+  }, [agentStatus])
+
   const completedCount = useMemo(() =>
     Object.values(agentStatus).filter((s) => s === "done" || s === "error").length,
     [agentStatus]
@@ -315,7 +326,7 @@ export default function AnalysisProgress({
     if (isComplete) return isZh ? "分析完成" : "Analysis Complete"
     if (phase === "master") return isZh ? "✦ AI 宗师交叉验证" : "✦ AI Master Cross-Validation"
     if (runningAgent) {
-      const icons: Record<string, string> = { bazi: "☯", astrology: "🌌", tarot: "🃏", qimen: "🔮", ziwei: "⭐", face: "👤", palm: "✋" }
+      const icons: Record<string, string> = { bazi: "☯", astrology: "🌌", tarot: "🃏", qimen: "🔮", ziwei: "⭐", face: "👤", palm: "✋", partner_face: "👥", partner_palm: "🤲" }
       return `${icons[runningAgent] || "◆"} ${AGENT_I18N[runningAgent] ? t(AGENT_I18N[runningAgent].running) : ""}`
     }
     return isZh ? "◆ 系统初始化中..." : "◆ Initializing systems..."

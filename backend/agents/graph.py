@@ -611,6 +611,8 @@ async def run_full_analysis(state: SystemState) -> SystemState:
     if state.is_premium:
         state.progress_message = "AI generating 5-dimension diagnosis & action plan…" if is_en else "AI 正在生成五维诊断与行动建议…"
         prep = run_master_preprocessing(state)  # re-run with complete data
+        state.progress_pct = 85
+        state.progress_message = "Generating dimension analysis…" if is_en else "正在生成维度分析…"
         tasks = [
             run_subtask_dims(state, prep),
             run_subtask_actions(state, prep),
@@ -624,6 +626,8 @@ async def run_full_analysis(state: SystemState) -> SystemState:
         actions_result = results[1]
         synastry_result = results[2] if is_relationship else ""
 
+        state.progress_pct = 90
+        state.progress_message = "Generating action plan…" if is_en else "正在生成行动建议…"
         state.master_summary = core_result[:500]
         parts = [core_result]
         if synastry_result:
@@ -632,6 +636,7 @@ async def run_full_analysis(state: SystemState) -> SystemState:
         parts.append(actions_result)
         state.master_detail = "\n\n".join(parts)
     else:
+        state.progress_pct = 85
         state.progress_message = "Core synthesis done, finalizing…" if is_en else "核心综合完成，收尾中…"
         # Free version: complete teaser that answers user question and creates upgrade desire
         state.master_summary = _build_free_summary(core_result, state)
@@ -639,6 +644,10 @@ async def run_full_analysis(state: SystemState) -> SystemState:
         # Free users don't need synastry subtask — it's behind paywall
         # This avoids the extra LLM call that causes 80% hang
         state.master_detail = ""
+
+    state.progress_pct = 95
+    state.progress_message = "Finalizing report…" if is_en else "正在整理报告…"
+    await asyncio.sleep(0.5)  # Brief pause so user sees 95%
 
     state.progress_pct = 100
     state.progress_message = "Analysis complete" if is_en else "分析完成"

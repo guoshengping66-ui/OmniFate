@@ -1112,9 +1112,9 @@ async def stream_session(
                 last_phase = state.phase
                 phase_changed_at = time.time()
 
-            # Stuck detection: if phase hasn't changed for 120s, mark as failed
-            if time.time() - phase_changed_at > 120:
-                print(f"[WARN] SSE stuck detection: session {session_id} stuck in phase={state.phase} for >120s")
+            # Stuck detection: if phase hasn't changed for 180s, mark as failed
+            if time.time() - phase_changed_at > 180:
+                print(f"[WARN] SSE stuck detection: session {session_id} stuck in phase={state.phase} for >180s")
                 state.phase = "done"
                 state.errors.append("Analysis timed out — stuck in phase for too long")
                 # Persist failure to DB

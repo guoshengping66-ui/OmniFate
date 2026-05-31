@@ -1052,6 +1052,14 @@
       "done": "面相分析完成",
       "running": "正在分析面相特征…"
     },
+    "partnerFace": {
+      "done": "对方面相分析完成",
+      "running": "正在分析对方面相特征…"
+    },
+    "partnerPalm": {
+      "done": "对方手相解读完成",
+      "running": "正在解读对方掌纹纹路…"
+    },
     "palm": {
       "done": "手相解读完成",
       "running": "正在解读掌纹纹路…"

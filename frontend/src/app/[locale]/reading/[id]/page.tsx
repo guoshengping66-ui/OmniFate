@@ -189,7 +189,7 @@ export default function ReadingPage() {
     let pollDone = false
     let pollInterval: ReturnType<typeof setInterval> | null = null
     let stalePollCount = 0
-    const STALE_POLL_THRESHOLD = 12 // ~36s with no status change → assume stuck
+    const STALE_POLL_THRESHOLD = 30 // ~90s with no status change → assume stuck (increased from 12)
 
     // Add timeout to prevent hanging on slow backend responses
     const LOAD_TIMEOUT_MS = 15_000 // 15 seconds timeout for initial load

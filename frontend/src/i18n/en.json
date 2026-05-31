@@ -1052,6 +1052,14 @@
       "done": "Face reading complete",
       "running": "Analyzing facial features…"
     },
+    "partnerFace": {
+      "done": "Partner face reading complete",
+      "running": "Analyzing partner's facial features…"
+    },
+    "partnerPalm": {
+      "done": "Partner palm reading complete",
+      "running": "Interpreting partner's palm lines…"
+    },
     "palm": {
       "done": "Palm reading complete",
       "running": "Interpreting palm lines…"
