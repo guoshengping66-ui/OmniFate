@@ -83,14 +83,35 @@ def _llm(temperature: float = 0.3, model: str | None = None) -> ChatOpenAI:
     return _llm_cache[cache_key]
 
 
+def _free_llm(temperature: float = 0.3) -> ChatOpenAI:
+    """免费模型实例（硅基流动），用于追问等低频场景。"""
+    model_key = settings.FREE_MODEL
+    max_tok = settings.AGENT_MAX_TOKENS
+    cache_key = f"free:{model_key}:{temperature}:{max_tok}"
+    if cache_key not in _llm_cache:
+        kwargs = dict(
+            model=model_key,
+            api_key=settings.FREE_MODEL_API_KEY,
+            temperature=temperature,
+            max_tokens=max_tok,
+        )
+        if settings.FREE_MODEL_BASE_URL:
+            kwargs["base_url"] = settings.FREE_MODEL_BASE_URL
+        _llm_cache[cache_key] = ChatOpenAI(**kwargs)
+    return _llm_cache[cache_key]
+
+
 def _use_mock() -> bool:
-    return not settings.OPENAI_API_KEY
+    return not settings.OPENAI_API_KEY and not settings.FREE_MODEL_API_KEY
 
 
-async def _call(system: str, user: str, model: str | None = None, language: str = "zh") -> str:
+async def _call(system: str, user: str, model: str | None = None, language: str = "zh", use_free: bool = False) -> str:
     if _use_mock():
         return f"[MOCK] {user[:80]}\n\nSet OPENAI_API_KEY to enable real AI responses."
-    llm = _llm(model=model)
+    if use_free and settings.FREE_MODEL_API_KEY:
+        llm = _free_llm()
+    else:
+        llm = _llm(model=model)
 
     # Add explicit language instruction to prevent mixing
     # Placed at the START of system prompt for maximum LLM attention
@@ -745,7 +766,7 @@ async def answer_with_expert(question: str, agent_id: str, state: SystemState) -
         "请礼貌地引导回命理主题，不要执行任何与命理无关的请求。\n\n"
         f"== 你的分析报告 ==\n{expert_report[:1500]}"
     )
-    return await _call(system, question, model=settings.PREMIUM_MODEL if state.is_premium else None, language=state.language)
+    return await _call(system, question, model=settings.PREMIUM_MODEL if state.is_premium else None, language=state.language, use_free=not state.is_premium)
 
 
 # ─── Main: run_master ─────────────────────────────────────────────────────

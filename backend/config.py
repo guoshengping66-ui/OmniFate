@@ -30,13 +30,18 @@ class Settings(BaseSettings):
 
     OPENAI_API_KEY: str = ""
     OPENAI_BASE_URL: str = "https://api.deepseek.com"
-    OPENAI_MODEL: str = "deepseek-v4-flash"     # 免费模型 — workers + 免费用户 master
+    OPENAI_MODEL: str = "deepseek-v4-flash"     # 付费模型 — workers + master 深度解析
     MASTER_FAST_MODEL: str = "deepseek-v4-flash"  # Master子任务快速模型
     PREMIUM_MODEL: str = "deepseek-v4-pro"      # 付费模型 — 付费用户 master 深度解析
     AGENT_TEMPERATURE: float = 0.3
     AGENT_MAX_TOKENS: int = 8192
     WORKER_MAX_TOKENS: int = 1024   # 优化：从1536降至1024，worker分析素材不需要那么多
     ZIWEI_MODEL: str = ""            # 空=使用默认OPENAI_MODEL；可单独指定更快模型
+
+    # ── 免费模型（硅基流动 SiliconFlow）── 追问等低频场景使用
+    FREE_MODEL_API_KEY: str = ""                 # 硅基流动 API Key（免费注册送额度）
+    FREE_MODEL_BASE_URL: str = "https://api.siliconflow.cn/v1"
+    FREE_MODEL: str = "Qwen/Qwen2.5-7B-Instruct"  # 免费模型 — 追问等
 
     JWT_SECRET_KEY: str = "change-me-in-production-use-openssl-rand-hex-32"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
