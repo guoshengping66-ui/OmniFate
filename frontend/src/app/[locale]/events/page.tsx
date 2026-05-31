@@ -8,7 +8,7 @@ import { PaymentModal } from "@/components/monetization/PaymentModal"
 import { api, payEvent, analyzeEvent } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { STARDUST_COSTS } from "@/lib/pricing.config"
+import { STARDUST_COST } from "@/lib/pricing.config"
 
 export default function EventsPage() {
   const router = useRouter()
@@ -24,7 +24,7 @@ export default function EventsPage() {
   const freeQuota = user?.free_event_quota ?? 0
   const isPremium = !!user?.is_premium
   const stardustBalance = user?.stardust_balance ?? 0
-  const canUseStardust = stardustBalance >= STARDUST_COSTS.EVENT_RETRO
+  const canUseStardust = stardustBalance >= STARDUST_COST.EVENT_RETRO
 
   const handleSubmit = async (form: EventFormData) => {
     setLoading(true)
@@ -159,7 +159,7 @@ export default function EventsPage() {
           t("events.perk4"),
         ]}
         showStardustOption={canUseStardust}
-        stardustCost={STARDUST_COSTS.EVENT_RETRO}
+        stardustCost={STARDUST_COST.EVENT_RETRO}
         onStardustPayment={handleStardustPayment}
       />
     </div>
