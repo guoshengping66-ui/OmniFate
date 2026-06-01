@@ -244,6 +244,12 @@ export default function ReadingPage() {
           } else {
             // Update partial data from polling
             setData(prev => prev ? { ...prev, ...fresh } : fresh)
+            // Also update progress from polling (fallback when SSE fails)
+            if (fresh.progress_pct !== undefined && fresh.progress_pct > 0) {
+              setProgressPct(fresh.progress_pct)
+              if (fresh.progress_message) setProgressMessage(fresh.progress_message)
+              stalePollCount = 0 // reset stale counter on real progress
+            }
             // Detect stale polling: if status hasn't changed for too long, mark as stuck
             stalePollCount++
             if (stalePollCount >= STALE_POLL_THRESHOLD && !pollDone) {

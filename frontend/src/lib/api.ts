@@ -186,6 +186,8 @@ export interface WorkerReport {
 export interface AnalysisResponse {
   session_id: string
   status: string
+  progress_pct?: number
+  progress_message?: string
   master_summary: string
   master_detail: string
   is_detail_unlocked: boolean

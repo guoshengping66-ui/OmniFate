@@ -182,6 +182,8 @@ class WorkerReportOut(BaseModel):
 class AnalysisResponse(BaseModel):
     session_id: str
     status: str
+    progress_pct: float = 0              # 进度百分比（轮询也能获取）
+    progress_message: str = ""           # 进度描述
     master_summary: str
     master_detail: str = ""               # 付费详细报告
     is_detail_unlocked: bool = False      # 是否已解锁付费内容
@@ -225,6 +227,8 @@ def _state_to_response(state: SystemState) -> AnalysisResponse:
     return AnalysisResponse(
         session_id=state.session_id,
         status=state.phase,
+        progress_pct=state.progress_pct,
+        progress_message=state.progress_message,
         master_summary=state.master_summary,
         master_detail=getattr(state, "master_detail", "") or "",
         is_detail_unlocked=getattr(state, "is_detail_unlocked", False),
@@ -919,6 +923,8 @@ async def get_session(
             resp = AnalysisResponse(
                 session_id=session_id,
                 status=reading.status.value,
+                progress_pct=100.0 if reading.status == ReadingStatus.completed else 0.0,
+                progress_message="分析完成" if reading.status == ReadingStatus.completed else (reading.error_message or ""),
                 master_summary=reading.master_summary or "",
                 master_detail=reading.master_detail or "",
                 is_detail_unlocked=reading.is_detail_unlocked,
