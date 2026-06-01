@@ -870,7 +870,7 @@ async def get_session(
                 else:
                     # No results yet — check if analysis is still running in-memory
                     state = await _get_session(session_id)
-                    if state and state.phase in ("parallel", "master"):
+                    if state and state.phase in ("init", "parallel", "master"):
                         # Analysis is actively running — return live state
                         resp = _state_to_response(state)
                         return _apply_content_lock(resp, current_user, None, lang=lang or "zh")
