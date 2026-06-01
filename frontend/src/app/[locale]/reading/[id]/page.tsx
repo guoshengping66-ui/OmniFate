@@ -217,10 +217,15 @@ export default function ReadingPage() {
       setIsUnlocked(d.is_detail_unlocked)
       setLoading(false)
 
-      // Initialize progress from the initial response (avoids stuck-at-0% before first SSE event)
+      // Initialize progress from the initial response
+      // Show at least 1% for active sessions so the bar isn't stuck at 0%
       if (d.progress_pct !== undefined && d.progress_pct > 0) {
         setProgressPct(d.progress_pct)
         if (d.progress_message) setProgressMessage(d.progress_message)
+      } else if (d.status !== "done" && d.status !== "completed" && d.status !== "chat" && d.status !== "failed") {
+        // Analysis is active but progress hasn't started yet — show minimal activity
+        setProgressPct(1)
+        setProgressMessage(t("analysis.preparing"))
       }
       lastPollStatus = d.status // track initial status for stale detection
 

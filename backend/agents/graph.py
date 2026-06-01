@@ -521,6 +521,34 @@ async def run_full_analysis(state: SystemState) -> SystemState:
         for r, aid, t in zip(_runners, _runner_ids, _runner_timeouts)
     ]
 
+    # ── Continuous progress updater: interpolates between discrete worker completions ──
+    # Without this, progress jumps abruptly (e.g., 5% → 14% → 28%) and stays
+    # flat for 15-30s between completions, making the bar look stuck.
+    _worker_start_time = asyncio.get_event_loop().time()
+    _WORKER_PHASE_DURATION = 65  # expected total time for all workers in seconds
+
+    async def _continuous_progress():
+        """Smoothly advance progress_pct between worker completions using time interpolation."""
+        while state.phase == "parallel":
+            await asyncio.sleep(1)
+            if state.phase != "parallel":
+                break
+            elapsed = asyncio.get_event_loop().time() - _worker_start_time
+            # Time-based progress: linearly interpolate from 5% to 65% over expected duration
+            time_pct = 5 + int(60 * min(elapsed / _WORKER_PHASE_DURATION, 0.95))
+            # Use max of time-based and actual worker-completion progress
+            actual_pct = 5 + int(60 * _completed_workers / _total_workers)
+            blended = max(time_pct, actual_pct)
+            if blended > state.progress_pct:
+                state.progress_pct = blended
+                # Update message based on actual completions
+                state.progress_message = (
+                    f"Completed {_completed_workers}/{_total_workers} analyses…"
+                    if is_en else f"已完成 {_completed_workers}/{_total_workers} 项分析…"
+                )
+
+    progress_updater = asyncio.create_task(_continuous_progress())
+
     # ── Speculative Master: start core when Bazi completes (fastest worker) ──
     async def _speculative_core():
         """Wait for Bazi (typically fastest ~20-30s), then run preprocessing + core sub-task."""
@@ -582,6 +610,13 @@ async def run_full_analysis(state: SystemState) -> SystemState:
 
     # ── Wait for ALL workers to finish ──
     await asyncio.gather(*worker_tasks)
+
+    # Stop continuous progress updater — workers are all done
+    progress_updater.cancel()
+    try:
+        await progress_updater
+    except asyncio.CancelledError:
+        pass
 
     # ── Wait for synastry computation to finish (if RELATIONSHIP) ──
     if state.intent == "RELATIONSHIP":

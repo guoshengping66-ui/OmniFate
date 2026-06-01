@@ -45,11 +45,11 @@ const WISDOM_QUOTES_EN = [
  * Uses a ref-based animation loop that only pushes to React state when the
  * displayed value changes by >= 0.5, preventing infinite re-render loops.
  *
- * The RAF loop runs independently of React's render cycle — it only reads
- * the target from a ref, so changing `target` mid-animation simply redirects
- * the animation without creating new state-update cycles.
+ * The backend now provides continuous time-based progress, so the frontend
+ * no longer needs elapsed-time smoothing — it just smoothly interpolates
+ * toward whatever target the backend reports.
  */
-function useSmoothProgress(target: number, startTime: number): number {
+function useSmoothProgress(target: number, _startTime: number): number {
   const [displayPct, setDisplayPct] = useState(0)
   const targetRef = useRef(target)
   const displayRefVal = useRef(0)
@@ -66,17 +66,9 @@ function useSmoothProgress(target: number, startTime: number): number {
       if (stopped) return
 
       const tgt = targetRef.current
-      // Elapsed-time floor: prevent bar from appearing stuck at 0%
-      const elapsed = (Date.now() - startTime) / 1000
-      let effectiveTgt = tgt
-      if (effectiveTgt < 5 && elapsed > 2) effectiveTgt = Math.min(5, (elapsed / 5) * 5)
-      if (effectiveTgt < 40 && elapsed > 15 && effectiveTgt < elapsed * 0.8) {
-        effectiveTgt = Math.min(40, Math.max(effectiveTgt, elapsed * 1.2))
-      }
-
       const cur = displayRefVal.current
-      const next = cur + (effectiveTgt - cur) * 0.15
-      displayRefVal.current = Math.abs(effectiveTgt - next) < 0.1 ? effectiveTgt : next
+      const next = cur + (tgt - cur) * 0.15
+      displayRefVal.current = Math.abs(tgt - next) < 0.1 ? tgt : next
 
       // Only push to React state when value changed meaningfully
       const diff = Math.abs(displayRefVal.current - prevReactVal.current)
@@ -85,13 +77,13 @@ function useSmoothProgress(target: number, startTime: number): number {
         setDisplayPct(displayRefVal.current)
       }
 
-      if (Math.abs(effectiveTgt - displayRefVal.current) > 0.1) {
+      if (Math.abs(tgt - displayRefVal.current) > 0.1) {
         rafRef.current = requestAnimationFrame(tick)
       } else {
         // Animation converged — force final state update to exact target
-        if (prevReactVal.current !== effectiveTgt) {
-          prevReactVal.current = effectiveTgt
-          setDisplayPct(effectiveTgt)
+        if (prevReactVal.current !== tgt) {
+          prevReactVal.current = tgt
+          setDisplayPct(tgt)
         }
       }
     }
@@ -102,7 +94,7 @@ function useSmoothProgress(target: number, startTime: number): number {
       if (rafRef.current) cancelAnimationFrame(rafRef.current)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [target, startTime])
+  }, [target, _startTime])
 
   return displayPct
 }
