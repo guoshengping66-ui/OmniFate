@@ -1,7 +1,7 @@
 "use client"
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
-import Link from "next/link"
+import { Link } from "@/i18n/navigation"
 import {
   Loader2, ArrowLeft, ShoppingCart, Check, Star, Heart,
   Sparkles, Tag, Package, Shield, ChevronRight,

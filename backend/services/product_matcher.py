@@ -66,6 +66,7 @@ class ProductMatcher:
         boost_elements: list[str],
         astro_weakness_tags: Optional[list[str]] = None,
         top_k: int = 4,
+        lang: str = "zh",
     ) -> list[dict]:
         """
         Like match(), but each result includes 'match_reasons' explaining
@@ -79,7 +80,7 @@ class ProductMatcher:
             if not product.get("is_active", True):
                 continue
             score, reasons = self._score_with_reasons(
-                product, weakness_tags, boost_elements, astro_tags,
+                product, weakness_tags, boost_elements, astro_tags, lang=lang,
             )
             if score > 0:
                 scored.append((score, product, reasons))
@@ -99,6 +100,7 @@ class ProductMatcher:
         weakness_tags: list[str],
         boost_elements: list[str],
         astro_tags: list[str],
+        lang: str = "zh",
     ) -> tuple[float, list[str]]:
         score = 0.0
         reasons: list[str] = []
@@ -109,7 +111,10 @@ class ProductMatcher:
         for tag in weakness_tags:
             if tag in p_keywords:
                 score += 3.0
-                reasons.append(f"命盘标签「{tag}」匹配商品标签")
+                if lang == "en":
+                    reasons.append(f"Chart tag \"{tag}\" matches product tag")
+                else:
+                    reasons.append(f"命盘标签「{tag}」匹配商品标签")
 
         for element in boost_elements:
             # Handle both English and Chinese element names
@@ -127,13 +132,19 @@ class ProductMatcher:
                 element_en = element
             if element_en in p_wuxing or element_zh in p_keywords:
                 score += 2.0
-                if element_zh not in {r for r in reasons}:
-                    reasons.append(f"五行缺失「{element_zh}」需补充")
+                if element_zh not in {r.split("」")[0].split("「")[-1] for r in reasons if "「" in r}:
+                    if lang == "en":
+                        reasons.append(f"Five-element \"{element_en}\" deficiency needs supplement")
+                    else:
+                        reasons.append(f"五行缺失「{element_zh}」需补充")
 
         for tag in astro_tags:
             if tag in p_astro or tag in p_keywords:
                 score += 1.5
-                reasons.append(f"星盘配置「{tag}」对应")
+                if lang == "en":
+                    reasons.append(f"Astrology config \"{tag}\" corresponds")
+                else:
+                    reasons.append(f"星盘配置「{tag}」对应")
 
         sales_bonus = min(product.get("sales_count", 0) / 1000, 0.5)
         rating_bonus = (product.get("rating", 3.0) - 3.0) * 0.2
@@ -239,6 +250,7 @@ class ProductMatcher:
         product: dict,
         weakness_tags: Optional[list[str]] = None,
         boost_elements: Optional[list[str]] = None,
+        lang: str = "zh",
     ) -> str:
         """
         Generate template-based recommendation text WITHOUT LLM.
@@ -250,6 +262,24 @@ class ProductMatcher:
         p_funcs = product.get("function_tags", [])
         p_elems = product.get("elements", [])
         boosts = "、".join(self.WUXING_EN_ZH.get(e, e) for e in boost_elements) or "能量"
+
+        if lang == "en":
+            boosts_en = ", ".join(boost_elements) or "energy"
+            funcs_en = ", ".join(p_funcs[:2]) if p_funcs else "restore balance"
+            elems_en = ", ".join(p_elems) if p_elems else "natural"
+            if weakness_tags and p_funcs:
+                main_weak = weakness_tags[0].lstrip("#")
+                return (
+                    f"Addressing the \"{main_weak}\" pattern in your chart, "
+                    f"{p_name} carries {elems_en} energy that helps {funcs_en}, "
+                    f"restoring elemental balance and improving your fortune."
+                )
+            if p_elems:
+                return (
+                    f"Rich in {elems_en} energy, {p_name} is ideal for those needing "
+                    f"more {boosts_en}, helping harmonize your aura and elevate fortune."
+                )
+            return f"{p_name} is precisely matched to your chart and helps improve your current fortune."
 
         if weakness_tags and p_funcs:
             main_weak = weakness_tags[0].lstrip("#")

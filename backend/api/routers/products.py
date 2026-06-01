@@ -188,6 +188,7 @@ async def match_products(payload: MatchRequest, lang: str = Query("zh")):
         boost_elements=payload.boost_elements,
         astro_weakness_tags=payload.astro_weakness_tags,
         top_k=payload.top_k,
+        lang=lang,
     )
 
     # Apply language translations to matched results
@@ -209,6 +210,7 @@ async def match_products(payload: MatchRequest, lang: str = Query("zh")):
                 product=p,
                 weakness_tags=payload.weakness_tags,
                 boost_elements=payload.boost_elements,
+                lang=lang,
             )
             p["recommendation_text"] = explanation
 
