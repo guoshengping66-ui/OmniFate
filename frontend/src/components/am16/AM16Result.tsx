@@ -7,7 +7,7 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import { PERSONALITIES, DIMENSIONS } from "@/lib/am16/constants"
 import { calculateAM16 } from "@/lib/am16/calculator"
 import { DIMENSION_ORDER, DIMENSIONS_MAP, getPoleLabel } from "@/lib/am16/dimensions"
-import Link from "next/link"
+import { Link } from "@/i18n/navigation"
 
 // ── 高亮发疯文案：将 **关键词** 包裹为金色高亮 ──
 function HighlightCrazy({ text }: { text: string }) {

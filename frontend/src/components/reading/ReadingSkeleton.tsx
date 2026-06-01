@@ -1,5 +1,6 @@
 "use client"
 import { Loader2 } from "lucide-react"
+import { Link } from "@/i18n/navigation"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 interface Props {
@@ -25,9 +26,9 @@ export function ReadingSkeleton({ phase }: Props) {
         <p className="text-white/40 text-sm mb-6">
           {t("skeleton.error.desc")}
         </p>
-        <a href="/reading/new" className="btn-gold inline-block">
+        <Link href="/reading/new" className="btn-gold inline-block">
           {t("skeleton.error.retry")}
-        </a>
+        </Link>
       </div>
     )
   }

@@ -1,6 +1,6 @@
 "use client"
-import { useState } from "react"
-import Link from "next/link"
+import { useState, useRef, useEffect } from "react"
+import { Link } from "@/i18n/navigation"
 import { useRouter } from "next/navigation"
 import { Mail, Loader2, Eye, EyeOff, CheckCircle, KeyRound } from "lucide-react"
 import toast from "react-hot-toast"
@@ -83,12 +83,22 @@ export default function ForgotPasswordPage() {
     }
   }
 
+  const timerRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Cleanup interval on unmount to prevent memory leak
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current)
+    }
+  }, [])
+
   const startResendCooldown = () => {
+    if (timerRef.current) clearInterval(timerRef.current)
     setResendCooldown(60)
-    const timer = setInterval(() => {
+    timerRef.current = setInterval(() => {
       setResendCooldown(prev => {
         if (prev <= 1) {
-          clearInterval(timer)
+          if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null }
           return 0
         }
         return prev - 1

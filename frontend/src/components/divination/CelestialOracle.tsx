@@ -6,7 +6,7 @@ import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { api } from "@/lib/api"
-import Link from "next/link"
+import { Link } from "@/i18n/navigation"
 
 interface DivinationResult {
   id: string

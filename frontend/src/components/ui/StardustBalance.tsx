@@ -1,7 +1,7 @@
 "use client"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
-import Link from "next/link"
+import { Link } from "@/i18n/navigation"
 
 export function StardustBalance() {
   const { user } = useAuth()

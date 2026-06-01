@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect } from "react"
-import Link from "next/link"
+import { Link } from "@/i18n/navigation"
 import { Sparkles, TrendingUp, TrendingDown, Minus, Heart, Briefcase, Wallet, Activity, AlertTriangle, Palette, Hash, ArrowRight, User } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { api, getPersonalizedFortune } from "@/lib/api"

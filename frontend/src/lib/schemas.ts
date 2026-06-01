@@ -79,13 +79,15 @@ export const AnalysisResponseSchema = z
     ziwei: WorkerReportSchema,
     face: WorkerReportSchema,
     palm: WorkerReportSchema,
+    partner_face: WorkerReportSchema.optional(),
+    partner_palm: WorkerReportSchema.optional(),
     recommended_product_ids: z.array(z.string()).catch([]),
     recommended_products: z.array(z.any()).optional(),
     computed_tags: z.array(z.string()).catch([]),
     dimension_scores: DimensionScoresSchema,
     errors: z.array(z.string()).catch([]),
     intent: z
-      .enum(["GENERAL_DAILY", "FULL_MULTIMODAL", "SPECIFIC_EVENT"])
+      .enum(["GENERAL_DAILY", "FULL_MULTIMODAL", "SPECIFIC_EVENT", "RELATIONSHIP"])
       .optional(),
   })
   .passthrough() // 保留 AI 返回的额外字段
