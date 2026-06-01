@@ -160,6 +160,7 @@ export default function ReadingPage() {
   const [agentStatus, setAgentStatus] = useState<Record<string, AgentStatusValue>>({})
   const lastAgentStatusRef = useRef<Record<string, AgentStatusValue>>({})
   const sseStartTime = useRef(Date.now())
+  const lastProgressUpdateRef = useRef(0) // throttle SSE progress updates
 
   // Stuck detection — if analysis stays in init/processing for >90s with no REAL progress, show retry
   const [isStuck, setIsStuck] = useState(false)
@@ -278,7 +279,10 @@ export default function ReadingPage() {
               return merged
             })
             // Also update progress from polling (fallback when SSE fails)
-            if (fresh.progress_pct !== undefined && fresh.progress_pct > 0) {
+            // Throttle progress updates to avoid rapid re-renders
+            const now = Date.now()
+            if (fresh.progress_pct !== undefined && fresh.progress_pct > 0 && now - lastProgressUpdateRef.current >= 300) {
+              lastProgressUpdateRef.current = now
               setProgressPct(prev => fresh.progress_pct! > prev ? fresh.progress_pct! : prev)
               if (fresh.progress_message) setProgressMessage(fresh.progress_message)
             }
@@ -319,10 +323,14 @@ export default function ReadingPage() {
             lastProgressPct.current = event.pct
             stalePollCountRef.current = 0 // reset stale counter on real progress
             startStuckTimer()
-            // Only update state when going forward (prevents re-render on duplicate/lower events)
-            setProgressPct(prev => event.pct! > prev ? event.pct! : prev)
+            // Throttle state updates to max once per 300ms to prevent re-render storms
+            const now = Date.now()
+            if (now - lastProgressUpdateRef.current >= 300) {
+              lastProgressUpdateRef.current = now
+              setProgressPct(prev => event.pct! > prev ? event.pct! : prev)
+              if (event.message) setProgressMessage(event.message)
+            }
           }
-          if (event.message) setProgressMessage(event.message)
         }
         if (event.type === "agent_status" && event.status) {
           // Only update state if values actually changed (avoids re-render storm

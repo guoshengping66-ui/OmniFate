@@ -56,7 +56,7 @@ function useSmoothProgress(target: number, _startTime: number): number {
   const rafRef = useRef(0)
   const prevReactVal = useRef(0) // track last value pushed to React state
 
-  // Always keep the ref in sync (no render triggered)
+  // Keep the ref in sync on every render (no effect triggered)
   targetRef.current = target
 
   useEffect(() => {
@@ -65,12 +65,12 @@ function useSmoothProgress(target: number, _startTime: number): number {
     const tick = () => {
       if (stopped) return
 
-      const tgt = targetRef.current
+      const tgt = targetRef.current   // always reads latest target from ref
       const cur = displayRefVal.current
       const next = cur + (tgt - cur) * 0.15
       displayRefVal.current = Math.abs(tgt - next) < 0.1 ? tgt : next
 
-      // Only push to React state when value changed meaningfully
+      // Only push to React state when value changed meaningfully (≥0.5%)
       const diff = Math.abs(displayRefVal.current - prevReactVal.current)
       if (diff >= 0.5) {
         prevReactVal.current = displayRefVal.current
@@ -94,7 +94,7 @@ function useSmoothProgress(target: number, _startTime: number): number {
       if (rafRef.current) cancelAnimationFrame(rafRef.current)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [target, _startTime])
+  }, []) // mount-only: target changes are read via ref, no effect restart needed
 
   return displayPct
 }

@@ -529,6 +529,7 @@ async def run_full_analysis(state: SystemState) -> SystemState:
 
     async def _continuous_progress():
         """Smoothly advance progress_pct between worker completions using time interpolation."""
+        _last_msg_time = asyncio.get_event_loop().time()
         while state.phase == "parallel":
             await asyncio.sleep(1)
             if state.phase != "parallel":
@@ -541,11 +542,14 @@ async def run_full_analysis(state: SystemState) -> SystemState:
             blended = max(time_pct, actual_pct)
             if blended > state.progress_pct:
                 state.progress_pct = blended
-                # Update message based on actual completions
-                state.progress_message = (
-                    f"Completed {_completed_workers}/{_total_workers} analyses…"
-                    if is_en else f"已完成 {_completed_workers}/{_total_workers} 项分析…"
-                )
+                # Throttle message updates to max once per 5s to avoid SSE re-render storms
+                now = asyncio.get_event_loop().time()
+                if now - _last_msg_time >= 5:
+                    _last_msg_time = now
+                    state.progress_message = (
+                        f"Completed {_completed_workers}/{_total_workers} analyses…"
+                        if is_en else f"已完成 {_completed_workers}/{_total_workers} 项分析…"
+                    )
 
     progress_updater = asyncio.create_task(_continuous_progress())
 
