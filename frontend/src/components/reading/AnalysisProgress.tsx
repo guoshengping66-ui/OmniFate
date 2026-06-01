@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useRef, useState, useMemo, Suspense, lazy } from "react"
+import { useEffect, useRef, useState, useMemo, Suspense, lazy } from "react"
 import { AGENT_LABELS } from "@/lib/api"
 import { useLanguage } from "@/contexts/LanguageContext"
 
@@ -587,20 +587,4 @@ function AnalysisProgressInner({
   )
 }
 
-/**
- * Memoized export: only re-render when progressPct, phase, or agentStatus
- * actually change. This breaks the re-render storm from parent SSE updates.
- */
-export default React.memo(AnalysisProgressInner, (prev, next) => {
-  // Always re-render if phase or agent status changed
-  if (prev.phase !== next.phase) return false
-  if (prev.agentStatus !== next.agentStatus) return false
-  // Re-render if progressPct changed by more than 0.3 (suppress tiny jitter)
-  if (Math.abs(prev.progressPct - next.progressPct) > 0.3) return false
-  // Re-render if progressMessage changed
-  if (prev.progressMessage !== next.progressMessage) return false
-  // Re-render if masterSummary changed
-  if (prev.masterSummary !== next.masterSummary) return false
-  // startTime never changes — skip re-render
-  return true
-})
+export default AnalysisProgressInner
