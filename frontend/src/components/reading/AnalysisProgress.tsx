@@ -42,48 +42,65 @@ const WISDOM_QUOTES_EN = [
 
 /**
  * Smoothly animate a display value toward a target using RAF + refs.
- * Only triggers a React re-render when the displayed value changes by >= 0.5,
- * preventing infinite re-render loops while keeping the UI smooth.
+ * Uses a ref-based animation loop that only pushes to React state when the
+ * displayed value changes by >= 0.5, preventing infinite re-render loops.
  *
- * Also applies elapsed-time smoothing: if the real progress is lagging,
- * show a minimum floor so the bar never looks stuck at 0%.
+ * The RAF loop runs independently of React's render cycle — it only reads
+ * the target from a ref, so changing `target` mid-animation simply redirects
+ * the animation without creating new state-update cycles.
  */
 function useSmoothProgress(target: number, startTime: number): number {
   const [displayPct, setDisplayPct] = useState(0)
   const targetRef = useRef(target)
   const displayRefVal = useRef(0)
   const rafRef = useRef(0)
+  const prevReactVal = useRef(0) // track last value pushed to React state
 
-  // Keep targetRef in sync — this runs on every render but doesn't cause loops
-  // because we never call setDisplayPct unconditionally
+  // Always keep the ref in sync (no render triggered)
   targetRef.current = target
 
   useEffect(() => {
-    // Compute elapsed-time smoothing inside the effect (avoids Date.now() in render)
-    const elapsed = (Date.now() - startTime) / 1000
-    let tgt = target
-    if (tgt < 5 && elapsed > 2) tgt = Math.min(5, (elapsed / 5) * 5)
-    if (tgt < 40 && elapsed > 15 && tgt < elapsed * 0.8) tgt = Math.min(40, Math.max(tgt, elapsed * 1.2))
-
     let stopped = false
+
     const tick = () => {
       if (stopped) return
+
+      const tgt = targetRef.current
+      // Elapsed-time floor: prevent bar from appearing stuck at 0%
+      const elapsed = (Date.now() - startTime) / 1000
+      let effectiveTgt = tgt
+      if (effectiveTgt < 5 && elapsed > 2) effectiveTgt = Math.min(5, (elapsed / 5) * 5)
+      if (effectiveTgt < 40 && elapsed > 15 && effectiveTgt < elapsed * 0.8) {
+        effectiveTgt = Math.min(40, Math.max(effectiveTgt, elapsed * 1.2))
+      }
+
       const cur = displayRefVal.current
-      const next = cur + (tgt - cur) * 0.15
-      displayRefVal.current = Math.abs(tgt - next) < 0.1 ? tgt : next
-      // Only push to React state when value changed meaningfully (avoids infinite loop)
-      if (Math.abs(displayRefVal.current - displayPct) >= 0.5) {
+      const next = cur + (effectiveTgt - cur) * 0.15
+      displayRefVal.current = Math.abs(effectiveTgt - next) < 0.1 ? effectiveTgt : next
+
+      // Only push to React state when value changed meaningfully
+      const diff = Math.abs(displayRefVal.current - prevReactVal.current)
+      if (diff >= 0.5) {
+        prevReactVal.current = displayRefVal.current
         setDisplayPct(displayRefVal.current)
       }
-      if (Math.abs(tgt - displayRefVal.current) > 0.1) {
+
+      if (Math.abs(effectiveTgt - displayRefVal.current) > 0.1) {
         rafRef.current = requestAnimationFrame(tick)
       } else {
-        // Animation converged — force final state update to ensure bar reaches exact target
-        setDisplayPct(tgt)
+        // Animation converged — force final state update to exact target
+        if (prevReactVal.current !== effectiveTgt) {
+          prevReactVal.current = effectiveTgt
+          setDisplayPct(effectiveTgt)
+        }
       }
     }
+
     rafRef.current = requestAnimationFrame(tick)
-    return () => { stopped = true; if (rafRef.current) cancelAnimationFrame(rafRef.current) }
+    return () => {
+      stopped = true
+      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [target, startTime])
 
@@ -356,11 +373,19 @@ export default function AnalysisProgress({
     return progressMessage || t("analysis.preparing")
   }, [isStalled, phase, runningAgent, progressMessage, t])
 
+  // Update elapsed time display periodically (every 5s)
+  const [elapsedTick, setElapsedTick] = useState(0)
+  useEffect(() => {
+    if (isComplete) return
+    const timer = setInterval(() => setElapsedTick(t => t + 1), 5000)
+    return () => clearInterval(timer)
+  }, [isComplete])
   const elapsed = useMemo(() => {
     const secs = Math.floor((Date.now() - startTime) / 1000)
     if (secs < 60) return `${secs}s`
     return `${Math.floor(secs / 60)}m ${secs % 60}s`
-  }, [progressPct, startTime])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [elapsedTick, startTime])
 
   // Stage labels for dramatic display
   const stageLabel = useMemo(() => {

@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useMemo, Suspense, useEffect, useState, Component, type ReactNode } from "react"
+import React, { useRef, useMemo, Suspense, useEffect, useState, Component, type ReactNode } from "react"
 import { Canvas, useFrame } from "@react-three/fiber"
 import * as THREE from "three"
 
@@ -275,7 +275,7 @@ function OrbFallback() {
 }
 
 // ── Main Export ────────────────────────────────────────────────────────────
-export default function EnergyOrb(props: EnergyOrbProps) {
+const MemoizedEnergyOrb = React.memo(function EnergyOrb(props: EnergyOrbProps) {
   const [contextLost, setContextLost] = useState(false)
 
   return (
@@ -313,4 +313,6 @@ export default function EnergyOrb(props: EnergyOrbProps) {
       </WebGLErrorBoundary>
     </div>
   )
-}
+})
+
+export default MemoizedEnergyOrb

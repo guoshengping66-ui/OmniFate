@@ -158,6 +158,7 @@ export default function ReadingPage() {
   const [progressPct, setProgressPct] = useState(0)
   const [progressMessage, setProgressMessage] = useState("")
   const [agentStatus, setAgentStatus] = useState<Record<string, AgentStatusValue>>({})
+  const lastAgentStatusRef = useRef<Record<string, AgentStatusValue>>({})
   const sseStartTime = useRef(Date.now())
 
   // Stuck detection — if analysis stays in init/processing for >90s with no REAL progress, show retry
@@ -260,6 +261,11 @@ export default function ReadingPage() {
             // Filter out undefined values to avoid overwriting existing data (e.g., partner_face)
             setData(prev => {
               if (!prev) return fresh
+              // Check if any meaningful field actually changed to avoid unnecessary re-renders
+              const hasChanges = (Object.keys(fresh) as (keyof AnalysisResponse)[]).some(k =>
+                (fresh as any)[k] !== undefined && (prev as any)[k] !== (fresh as any)[k]
+              )
+              if (!hasChanges) return prev // same reference → no re-render
               const merged = { ...prev }
               for (const [k, v] of Object.entries(fresh)) {
                 if (v !== undefined) (merged as Record<string, unknown>)[k] = v
@@ -268,7 +274,7 @@ export default function ReadingPage() {
             })
             // Also update progress from polling (fallback when SSE fails)
             if (fresh.progress_pct !== undefined && fresh.progress_pct > 0) {
-              setProgressPct(fresh.progress_pct)
+              setProgressPct(prev => fresh.progress_pct! > prev ? fresh.progress_pct! : prev)
               if (fresh.progress_message) setProgressMessage(fresh.progress_message)
             }
             // Reset stale counter when status changes between polls (real activity)
@@ -300,30 +306,46 @@ export default function ReadingPage() {
             lastSsePhase.current = event.phase
             stalePollCountRef.current = 0 // reset stale counter on real progress
             startStuckTimer()
+            setSsePhase(event.phase)
           }
-          setSsePhase(event.phase)
         }
         if (event.type === "progress" && event.pct !== undefined) {
           if (event.pct > lastProgressPct.current) {
             lastProgressPct.current = event.pct
             stalePollCountRef.current = 0 // reset stale counter on real progress
             startStuckTimer()
+            // Only update state when going forward (prevents re-render on duplicate/lower events)
+            setProgressPct(prev => event.pct! > prev ? event.pct! : prev)
           }
-          setProgressPct(event.pct)
           if (event.message) setProgressMessage(event.message)
         }
         if (event.type === "agent_status" && event.status) {
-          setAgentStatus(event.status)
+          // Only update state if values actually changed (avoids re-render storm
+          // when backend sends same dict via pickle deserialization)
+          const prev = lastAgentStatusRef.current
+          const next = event.status
+          const changed = Object.keys(next).length !== Object.keys(prev).length ||
+            Object.entries(next).some(([k, v]) => prev[k] !== v)
+          if (changed) {
+            lastAgentStatusRef.current = { ...next }
+            setAgentStatus(next)
+          }
           stalePollCountRef.current = 0
           startStuckTimer()
         }
         if (event.type === "worker_done" && event.agent_id) {
-          setCompletedWorkers(prev => new Set(prev).add(event.agent_id!))
+          setCompletedWorkers(prev => {
+            if (prev.has(event.agent_id!)) return prev // avoid new Set if already tracked
+            return new Set(prev).add(event.agent_id!)
+          })
           stalePollCountRef.current = 0
           startStuckTimer()
         }
         if (event.type === "subtask_done" && event.subtask) {
-          setCompletedSubtasks(prev => new Set(prev).add(event.subtask!))
+          setCompletedSubtasks(prev => {
+            if (prev.has(event.subtask!)) return prev // avoid new Set if already tracked
+            return new Set(prev).add(event.subtask!)
+          })
           stalePollCountRef.current = 0
           startStuckTimer()
         }
