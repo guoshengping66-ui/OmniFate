@@ -77,6 +77,9 @@ function useSmoothProgress(target: number, startTime: number): number {
       }
       if (Math.abs(tgt - displayRefVal.current) > 0.1) {
         rafRef.current = requestAnimationFrame(tick)
+      } else {
+        // Animation converged — force final state update to ensure bar reaches exact target
+        setDisplayPct(tgt)
       }
     }
     rafRef.current = requestAnimationFrame(tick)
@@ -319,7 +322,7 @@ export default function AnalysisProgress({
       if (stallTimerRef.current) { clearTimeout(stallTimerRef.current); stallTimerRef.current = null }
       setIsStalled(false)
     }
-    return () => { if (stallTimerRef.current) clearTimeout(stallTimerRef.current) }
+    return () => { if (stallTimerRef.current) { clearTimeout(stallTimerRef.current); stallTimerRef.current = null } }
   }, [displayPct, phase])
 
   // Completion burst

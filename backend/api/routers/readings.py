@@ -1132,9 +1132,9 @@ async def stream_session(
             # Stuck detection: if phase hasn't changed for 180s, mark as failed
             if time.time() - phase_changed_at > 180:
                 print(f"[WARN] SSE stuck detection: session {session_id} stuck in phase={state.phase} for >180s")
-                state.phase = "done"
-                state.errors.append("Analysis timed out — stuck in phase for too long")
-                # Persist failure to DB
+                # NOTE: Do NOT mutate shared `state` object (race with background task).
+                # Just persist failure to DB and send error event. The frontend's own
+                # stuck timer (120s) will show the retry UI independently.
                 try:
                     async with AsyncSessionLocal() as db:
                         stmt = select(Reading).where(Reading.id == session_id)
@@ -1146,7 +1146,6 @@ async def stream_session(
                             await db.commit()
                 except Exception:
                     pass
-                await _set_session(session_id, state)
                 yield f"data: {json.dumps({'type': 'error', 'message': 'Analysis timed out'})}\n\n"
                 return
 

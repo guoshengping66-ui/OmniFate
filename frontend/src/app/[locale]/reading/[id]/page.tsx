@@ -165,11 +165,14 @@ export default function ReadingPage() {
   const stuckTimerRef = useRef<NodeJS.Timeout | null>(null)
   const lastProgressPct = useRef(0)
   const lastSsePhase = useRef("")
+  const stuckShownRef = useRef(false) // prevent re-triggering stuck UI while user reviews
+  const stalePollCountRef = useRef(0) // shared between polling callback and button handler
 
   // Scroll-driven progressive reveal
   const [heroVisible, setHeroVisible] = useState(false)
   const heroRef = useRef<HTMLDivElement>(null)
   const navScrollRef = useRef<HTMLDivElement>(null)
+  const dataLoadedRef = useRef(false) // track if data has loaded (avoids stale closure in timeout)
 
   useEffect(() => {
     if (!id) return
@@ -188,16 +191,18 @@ export default function ReadingPage() {
     // Poll interval ref — accessible from both the callback and cleanup
     let pollDone = false
     let pollInterval: ReturnType<typeof setInterval> | null = null
-    let stalePollCount = 0
     let lastPollStatus = "" // track status across polls for stale detection
     const STALE_POLL_THRESHOLD = 30 // ~90s with no status change → assume stuck (increased from 12)
+    stalePollCountRef.current = 0
+    stuckShownRef.current = false
 
     // Add timeout to prevent hanging on slow backend responses
     const LOAD_TIMEOUT_MS = 15_000 // 15 seconds timeout for initial load
+    dataLoadedRef.current = false
     const loadTimeout = setTimeout(() => {
       if (cancelled) return
-      // If still loading after timeout, show error
-      if (!data) {
+      // If still loading after timeout, show error (use ref to avoid stale closure)
+      if (!dataLoadedRef.current) {
         setLoading(false)
         toast.error(t("reading.error.loadTimeout") || "加载超时，请刷新重试")
       }
@@ -206,6 +211,7 @@ export default function ReadingPage() {
     getSession(id).then(d => {
       if (cancelled) return
       clearTimeout(loadTimeout)
+      dataLoadedRef.current = true
       setData(d)
       setIsUnlocked(d.is_detail_unlocked)
       setLoading(false)
@@ -236,7 +242,7 @@ export default function ReadingPage() {
       pollInterval = setInterval(async () => {
         if (cancelled || pollDone) { if (pollInterval) clearInterval(pollInterval); return }
         try {
-          const fresh = await getSession(id)
+          const fresh = await getSession(id, locale)
           if (fresh.status === "done" || fresh.status === "completed" || fresh.status === "chat") {
             pollDone = true
             if (pollInterval) clearInterval(pollInterval)
@@ -251,7 +257,15 @@ export default function ReadingPage() {
             if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
           } else {
             // Update partial data from polling
-            setData(prev => prev ? { ...prev, ...fresh } : fresh)
+            // Filter out undefined values to avoid overwriting existing data (e.g., partner_face)
+            setData(prev => {
+              if (!prev) return fresh
+              const merged = { ...prev }
+              for (const [k, v] of Object.entries(fresh)) {
+                if (v !== undefined) (merged as Record<string, unknown>)[k] = v
+              }
+              return merged
+            })
             // Also update progress from polling (fallback when SSE fails)
             if (fresh.progress_pct !== undefined && fresh.progress_pct > 0) {
               setProgressPct(fresh.progress_pct)
@@ -261,15 +275,15 @@ export default function ReadingPage() {
             const hasProgress = fresh.progress_pct !== undefined && fresh.progress_pct > 0
             const statusChanged = fresh.status !== lastPollStatus
             if (hasProgress || statusChanged) {
-              stalePollCount = 0
+              stalePollCountRef.current = 0
               lastPollStatus = fresh.status
               startStuckTimer() // reset stuck timer on real activity
             } else {
-              // Detect stale polling: if nothing changed for too long, mark as stuck
-              stalePollCount++
-              if (stalePollCount >= STALE_POLL_THRESHOLD && !pollDone) {
-                pollDone = true
-                if (pollInterval) clearInterval(pollInterval)
+              // Detect stale polling: if nothing changed for too long, show stuck UI
+              // NOTE: Don't kill the poll — user can click "Continue waiting" to dismiss
+              stalePollCountRef.current++
+              if (stalePollCountRef.current >= STALE_POLL_THRESHOLD && !pollDone && !stuckShownRef.current) {
+                stuckShownRef.current = true
                 setIsStuck(true)
                 if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
               }
@@ -284,7 +298,7 @@ export default function ReadingPage() {
         if (event.type === "phase" && event.phase) {
           if (event.phase !== lastSsePhase.current) {
             lastSsePhase.current = event.phase
-            stalePollCount = 0 // reset stale counter on real progress
+            stalePollCountRef.current = 0 // reset stale counter on real progress
             startStuckTimer()
           }
           setSsePhase(event.phase)
@@ -292,7 +306,7 @@ export default function ReadingPage() {
         if (event.type === "progress" && event.pct !== undefined) {
           if (event.pct > lastProgressPct.current) {
             lastProgressPct.current = event.pct
-            stalePollCount = 0 // reset stale counter on real progress
+            stalePollCountRef.current = 0 // reset stale counter on real progress
             startStuckTimer()
           }
           setProgressPct(event.pct)
@@ -300,17 +314,17 @@ export default function ReadingPage() {
         }
         if (event.type === "agent_status" && event.status) {
           setAgentStatus(event.status)
-          stalePollCount = 0
+          stalePollCountRef.current = 0
           startStuckTimer()
         }
         if (event.type === "worker_done" && event.agent_id) {
           setCompletedWorkers(prev => new Set(prev).add(event.agent_id!))
-          stalePollCount = 0
+          stalePollCountRef.current = 0
           startStuckTimer()
         }
         if (event.type === "subtask_done" && event.subtask) {
           setCompletedSubtasks(prev => new Set(prev).add(event.subtask!))
-          stalePollCount = 0
+          stalePollCountRef.current = 0
           startStuckTimer()
         }
         if (event.type === "complete") {
@@ -424,7 +438,11 @@ export default function ReadingPage() {
             </p>
             <div className="flex gap-3 justify-center">
               <button
-                onClick={() => setIsStuck(false)}
+                onClick={() => {
+                  setIsStuck(false)
+                  stuckShownRef.current = false
+                  stalePollCountRef.current = 0 // restart stale detection
+                }}
                 className="btn-gold-outline flex items-center gap-2 text-sm"
               >
                 {t("analysis.stuckContinue") || "继续等待"}
@@ -852,7 +870,7 @@ export default function ReadingPage() {
                     ? (
                       <span className="flex items-center gap-2 text-white/40">
                         <Loader2 size={14} className="animate-spin" />
-                        {ssePhase === "parallel" && `${t("reading.progress.analyzing")} (${completedWorkers.size}/7)`}
+                        {ssePhase === "parallel" && `${t("reading.progress.analyzing")} (${completedWorkers.size}/${WORKER_ORDER_ALL.length})`}
                         {ssePhase === "master" && `${t("reading.progress.synthesizing")} (${completedSubtasks.size}/3)`}
                         {!["parallel", "master"].includes(ssePhase) && t("reading.progress.preparing")}
                       </span>
