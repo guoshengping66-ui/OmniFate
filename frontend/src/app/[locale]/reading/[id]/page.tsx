@@ -189,6 +189,7 @@ export default function ReadingPage() {
     let pollDone = false
     let pollInterval: ReturnType<typeof setInterval> | null = null
     let stalePollCount = 0
+    let lastPollStatus = "" // track status across polls for stale detection
     const STALE_POLL_THRESHOLD = 30 // ~90s with no status change → assume stuck (increased from 12)
 
     // Add timeout to prevent hanging on slow backend responses
@@ -208,6 +209,13 @@ export default function ReadingPage() {
       setData(d)
       setIsUnlocked(d.is_detail_unlocked)
       setLoading(false)
+
+      // Initialize progress from the initial response (avoids stuck-at-0% before first SSE event)
+      if (d.progress_pct !== undefined && d.progress_pct > 0) {
+        setProgressPct(d.progress_pct)
+        if (d.progress_message) setProgressMessage(d.progress_message)
+      }
+      lastPollStatus = d.status // track initial status for stale detection
 
       // If already done, no need for SSE or polling — just render the report
       if (d.status === "done" || d.status === "completed" || d.status === "chat") {
@@ -248,15 +256,23 @@ export default function ReadingPage() {
             if (fresh.progress_pct !== undefined && fresh.progress_pct > 0) {
               setProgressPct(fresh.progress_pct)
               if (fresh.progress_message) setProgressMessage(fresh.progress_message)
-              stalePollCount = 0 // reset stale counter on real progress
             }
-            // Detect stale polling: if status hasn't changed for too long, mark as stuck
-            stalePollCount++
-            if (stalePollCount >= STALE_POLL_THRESHOLD && !pollDone) {
-              pollDone = true
-              if (pollInterval) clearInterval(pollInterval)
-              setIsStuck(true)
-              if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
+            // Reset stale counter when status changes between polls (real activity)
+            const hasProgress = fresh.progress_pct !== undefined && fresh.progress_pct > 0
+            const statusChanged = fresh.status !== lastPollStatus
+            if (hasProgress || statusChanged) {
+              stalePollCount = 0
+              lastPollStatus = fresh.status
+              startStuckTimer() // reset stuck timer on real activity
+            } else {
+              // Detect stale polling: if nothing changed for too long, mark as stuck
+              stalePollCount++
+              if (stalePollCount >= STALE_POLL_THRESHOLD && !pollDone) {
+                pollDone = true
+                if (pollInterval) clearInterval(pollInterval)
+                setIsStuck(true)
+                if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
+              }
             }
           }
         } catch { /* ignore */ }

@@ -40,6 +40,53 @@ const WISDOM_QUOTES_EN = [
   "Softness overcomes hardness — the best trading strategy is often patience.",
 ]
 
+/**
+ * Smoothly animate a display value toward a target using RAF + refs.
+ * Only triggers a React re-render when the displayed value changes by >= 0.5,
+ * preventing infinite re-render loops while keeping the UI smooth.
+ *
+ * Also applies elapsed-time smoothing: if the real progress is lagging,
+ * show a minimum floor so the bar never looks stuck at 0%.
+ */
+function useSmoothProgress(target: number, startTime: number): number {
+  const [displayPct, setDisplayPct] = useState(0)
+  const targetRef = useRef(target)
+  const displayRefVal = useRef(0)
+  const rafRef = useRef(0)
+
+  // Keep targetRef in sync — this runs on every render but doesn't cause loops
+  // because we never call setDisplayPct unconditionally
+  targetRef.current = target
+
+  useEffect(() => {
+    // Compute elapsed-time smoothing inside the effect (avoids Date.now() in render)
+    const elapsed = (Date.now() - startTime) / 1000
+    let tgt = target
+    if (tgt < 5 && elapsed > 2) tgt = Math.min(5, (elapsed / 5) * 5)
+    if (tgt < 40 && elapsed > 15 && tgt < elapsed * 0.8) tgt = Math.min(40, Math.max(tgt, elapsed * 1.2))
+
+    let stopped = false
+    const tick = () => {
+      if (stopped) return
+      const cur = displayRefVal.current
+      const next = cur + (tgt - cur) * 0.15
+      displayRefVal.current = Math.abs(tgt - next) < 0.1 ? tgt : next
+      // Only push to React state when value changed meaningfully (avoids infinite loop)
+      if (Math.abs(displayRefVal.current - displayPct) >= 0.5) {
+        setDisplayPct(displayRefVal.current)
+      }
+      if (Math.abs(tgt - displayRefVal.current) > 0.1) {
+        rafRef.current = requestAnimationFrame(tick)
+      }
+    }
+    rafRef.current = requestAnimationFrame(tick)
+    return () => { stopped = true; if (rafRef.current) cancelAnimationFrame(rafRef.current) }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [target, startTime])
+
+  return displayPct
+}
+
 interface AnalysisProgressProps {
   progressPct: number
   progressMessage: string
@@ -235,7 +282,7 @@ export default function AnalysisProgress({
 }: AnalysisProgressProps) {
   const { locale, t } = useLanguage()
   const isZh = locale === "zh"
-  const [displayPct, setDisplayPct] = useState(0)
+  const displayPct = useSmoothProgress(progressPct, startTime)
   const [previewText, setPreviewText] = useState("")
   const [showPreview, setShowPreview] = useState(false)
   const [isStalled, setIsStalled] = useState(false)
@@ -263,15 +310,6 @@ export default function AnalysisProgress({
     const entry = Object.entries(agentStatus).find(([, s]) => s === "running")
     return entry ? entry[0] : null
   }, [agentStatus])
-
-  // Smart progress smoothing
-  useEffect(() => {
-    const elapsed = (Date.now() - startTime) / 1000
-    let target = progressPct
-    if (progressPct < 5 && elapsed > 2) target = Math.min(5, (elapsed / 5) * 5)
-    if (progressPct < 40 && elapsed > 15 && progressPct < elapsed * 0.8) target = Math.min(40, Math.max(progressPct, elapsed * 1.2))
-    setDisplayPct(prev => target > prev ? target : prev + (target - prev) * 0.3)
-  }, [progressPct, startTime])
 
   // Stall detection
   useEffect(() => {
