@@ -399,6 +399,12 @@ export default function ReadingPage() {
     }
   }, [id, locale])
 
+  // Stable props for AnalysisProgress — prevent re-render storms from parent SSE updates
+  const analysisPhase = useMemo(() => ssePhase || data?.status || "", [ssePhase, data?.status])
+  const stableProgressPct = useMemo(() => progressPct, [progressPct])
+  const stableProgressMessage = useMemo(() => progressMessage, [progressMessage])
+  const stableMasterSummary = useMemo(() => data?.master_summary, [data?.master_summary])
+
   // Trigger hero animation
   useEffect(() => {
     const t = setTimeout(() => setHeroVisible(true), 150)
@@ -493,11 +499,11 @@ export default function ReadingPage() {
           </div>
         ) : (
           <AnalysisProgress
-            progressPct={progressPct}
-            progressMessage={progressMessage}
+            progressPct={stableProgressPct}
+            progressMessage={stableProgressMessage}
             agentStatus={agentStatus}
-            phase={ssePhase || data.status}
-            masterSummary={data.master_summary}
+            phase={analysisPhase}
+            masterSummary={stableMasterSummary}
             startTime={sseStartTime.current}
           />
         )}

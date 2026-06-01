@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState, useMemo, Suspense, lazy } from "react"
+import React, { useEffect, useRef, useState, useMemo, Suspense, lazy } from "react"
 import { AGENT_LABELS } from "@/lib/api"
 import { useLanguage } from "@/contexts/LanguageContext"
 
@@ -284,7 +284,7 @@ function CompletionBurst() {
 
 // ── Main Component ─────────────────────────────────────────────────────────
 
-export default function AnalysisProgress({
+function AnalysisProgressInner({
   progressPct,
   progressMessage,
   agentStatus,
@@ -323,16 +323,28 @@ export default function AnalysisProgress({
     return entry ? entry[0] : null
   }, [agentStatus])
 
-  // Stall detection
+  // Stall detection — uses phase-only dependency to avoid re-running on every displayPct change
+  const displayPctRef = useRef(displayPct)
+  displayPctRef.current = displayPct
+
   useEffect(() => {
-    if (displayPct >= 95 && phase !== "done") {
-      if (!stallTimerRef.current) stallTimerRef.current = setTimeout(() => setIsStalled(true), 5000)
-    } else {
-      if (stallTimerRef.current) { clearTimeout(stallTimerRef.current); stallTimerRef.current = null }
-      setIsStalled(false)
+    // Check stall condition using ref (avoids effect restart on displayPct change)
+    const checkStall = () => {
+      if (displayPctRef.current >= 95 && phase !== "done") {
+        if (!stallTimerRef.current) stallTimerRef.current = setTimeout(() => setIsStalled(true), 5000)
+      } else {
+        if (stallTimerRef.current) { clearTimeout(stallTimerRef.current); stallTimerRef.current = null }
+        setIsStalled(false)
+      }
     }
-    return () => { if (stallTimerRef.current) { clearTimeout(stallTimerRef.current); stallTimerRef.current = null } }
-  }, [displayPct, phase])
+    checkStall()
+    // Also check periodically in case displayPct crosses 95 between phase changes
+    const pollTimer = setInterval(checkStall, 2000)
+    return () => {
+      if (stallTimerRef.current) { clearTimeout(stallTimerRef.current); stallTimerRef.current = null }
+      clearInterval(pollTimer)
+    }
+  }, [phase])
 
   // Completion burst
   useEffect(() => {
@@ -574,3 +586,21 @@ export default function AnalysisProgress({
     </>
   )
 }
+
+/**
+ * Memoized export: only re-render when progressPct, phase, or agentStatus
+ * actually change. This breaks the re-render storm from parent SSE updates.
+ */
+export default React.memo(AnalysisProgressInner, (prev, next) => {
+  // Always re-render if phase or agent status changed
+  if (prev.phase !== next.phase) return false
+  if (prev.agentStatus !== next.agentStatus) return false
+  // Re-render if progressPct changed by more than 0.3 (suppress tiny jitter)
+  if (Math.abs(prev.progressPct - next.progressPct) > 0.3) return false
+  // Re-render if progressMessage changed
+  if (prev.progressMessage !== next.progressMessage) return false
+  // Re-render if masterSummary changed
+  if (prev.masterSummary !== next.masterSummary) return false
+  // startTime never changes — skip re-render
+  return true
+})
