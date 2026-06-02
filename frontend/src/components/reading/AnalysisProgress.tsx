@@ -243,6 +243,11 @@ function AnalysisProgressInner({
   startTime,
 }: AnalysisProgressProps) {
   const { locale, t } = useLanguage()
+  // Stabilize `t` via ref — prevents useMemo hooks below from recalculating
+  // when parent re-renders but the locale/translations haven't changed.
+  const tRef = useRef(t)
+  tRef.current = t
+  const stableT = useCallback((key: string) => tRef.current(key), [])
   const isZh = locale === "zh"
   const displayPct = useSmoothProgress(progressPct, startTime)
   const [previewText, setPreviewText] = useState("")
@@ -320,12 +325,12 @@ function AnalysisProgressInner({
   }, [masterSummary])
 
   const statusMessage = useMemo(() => {
-    if (isStalled) return t("analysis.stalled")
-    if (phase === "done") return t("analysis.done")
-    if (phase === "master") return t("analysis.crossValidate")
-    if (runningAgent) return AGENT_I18N[runningAgent] ? t(AGENT_I18N[runningAgent].running) : progressMessage
-    return progressMessage || t("analysis.preparing")
-  }, [isStalled, phase, runningAgent, progressMessage, t])
+    if (isStalled) return stableT("analysis.stalled")
+    if (phase === "done") return stableT("analysis.done")
+    if (phase === "master") return stableT("analysis.crossValidate")
+    if (runningAgent) return AGENT_I18N[runningAgent] ? stableT(AGENT_I18N[runningAgent].running) : progressMessage
+    return progressMessage || stableT("analysis.preparing")
+  }, [isStalled, phase, runningAgent, progressMessage, stableT])
 
   // Update elapsed time display periodically (every 5s)
   const [elapsedTick, setElapsedTick] = useState(0)
@@ -347,10 +352,10 @@ function AnalysisProgressInner({
     if (phase === "master") return isZh ? "✦ AI 宗师交叉验证" : "✦ AI Master Cross-Validation"
     if (runningAgent) {
       const icons: Record<string, string> = { bazi: "☯", astrology: "🌌", tarot: "🃏", qimen: "🔮", ziwei: "⭐", face: "👤", palm: "✋", partner_face: "👥", partner_palm: "🤲" }
-      return `${icons[runningAgent] || "◆"} ${AGENT_I18N[runningAgent] ? t(AGENT_I18N[runningAgent].running) : ""}`
+      return `${icons[runningAgent] || "◆"} ${AGENT_I18N[runningAgent] ? stableT(AGENT_I18N[runningAgent].running) : ""}`
     }
     return isZh ? "◆ 系统初始化中..." : "◆ Initializing systems..."
-  }, [isComplete, phase, runningAgent, t, isZh])
+  }, [isComplete, phase, runningAgent, stableT, isZh])
 
   return (
     <>

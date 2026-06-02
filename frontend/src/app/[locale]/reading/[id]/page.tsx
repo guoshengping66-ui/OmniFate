@@ -284,20 +284,24 @@ export default function ReadingPage() {
             setData(prev => prev && !dataChanged(fresh, prev) ? prev : mergeFresh(prev, fresh))
             if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
           } else {
-            // Update partial data from polling
+            // Update partial data from polling — only when meaningful fields changed.
+            // SSE handles real-time progress, so polling is just a fallback.
             setData(prev => {
               if (!prev) return fresh
-              return dataChanged(fresh, prev) ? mergeFresh(prev, fresh) : prev
+              // Only update state when status or progress actually changed —
+              // avoids creating new object refs that cascade re-renders.
+              if (!dataChanged(fresh, prev)) return prev
+              return mergeFresh(prev, fresh)
             })
-            // Also update progress from polling (fallback when SSE fails)
+            // Progress updates are handled by SSE (real-time).
+            // Polling only updates progress as a fallback when SSE is unavailable.
             const now = Date.now()
             if (fresh.progress_pct !== undefined && fresh.progress_pct > 0 && now - lastProgressUpdateRef.current >= 300) {
               lastProgressUpdateRef.current = now
               setProgressPct(prev => fresh.progress_pct! > prev ? fresh.progress_pct! : prev)
             }
-            if (fresh.progress_message) {
-              setProgressMessage(prev => prev === fresh.progress_message ? prev : fresh.progress_message!)
-            }
+            // NOTE: setProgressMessage removed from polling — SSE handles it in real-time.
+            // Calling it every 3s even when value unchanged can cause render storms.
             // Reset stale counter when status changes between polls (real activity)
             const hasProgress = fresh.progress_pct !== undefined && fresh.progress_pct > 0
             const statusChanged = fresh.status !== lastPollStatus
@@ -415,14 +419,20 @@ export default function ReadingPage() {
   // agentStatus is the main trigger: SSE handler does deep check before setAgentStatus,
   // but parent re-renders from other state (setData etc.) still create new prop refs.
   // Use a serialized key to keep the same reference when values haven't changed.
+  // Stable agentStatus reference — only update ref when values actually change.
+  // Uses a serialized key to detect real changes vs new object references from SSE.
   const agentStatusKey = useMemo(
     () => Object.entries(agentStatus).map(([k, v]) => `${k}:${v}`).join(","),
     [agentStatus],
   )
   const stableAgentStatusRef = useRef(agentStatus)
-  if (agentStatusKey !== (Object.entries(stableAgentStatusRef.current).map(([k, v]) => `${k}:${v}`).join(","))) {
-    stableAgentStatusRef.current = agentStatus
-  }
+  const prevKeyRef = useRef(agentStatusKey)
+  useEffect(() => {
+    if (agentStatusKey !== prevKeyRef.current) {
+      prevKeyRef.current = agentStatusKey
+      stableAgentStatusRef.current = agentStatus
+    }
+  }, [agentStatusKey, agentStatus])
   const stableAgentStatus = stableAgentStatusRef.current
 
   const analysisPhase = useMemo(() => ssePhase || data?.status || "", [ssePhase, data?.status])
