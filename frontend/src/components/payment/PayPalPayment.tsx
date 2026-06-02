@@ -244,7 +244,7 @@ export function PayPalPayment({
                 </div>
               </div>
               <PayPalNameField />
-              <PayPalCardFieldsForm onApprove={handleCardApprove} />
+              <PayPalCardFieldsForm />
             </PayPalCardFieldsProvider>
           </div>
         )}
