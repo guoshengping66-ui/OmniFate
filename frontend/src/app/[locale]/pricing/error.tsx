@@ -2,6 +2,7 @@
 
 import { useEffect } from "react"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { useChunkLoadRecovery } from "@/lib/chunk-load-recovery"
 
 export default function PricingError({
   error,
@@ -10,10 +11,26 @@ export default function PricingError({
   error: Error & { digest?: string }
   reset: () => void
 }) {
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
+  const { autoReloading } = useChunkLoadRecovery(error)
+
   useEffect(() => {
     console.error("[PricingError]", error)
   }, [error])
+
+  if (autoReloading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-ink px-4">
+        <div className="max-w-md w-full card-glass p-8 text-center">
+          <div className="text-4xl mb-4">🔄</div>
+          <h2 className="font-serif text-xl text-gold mb-3">{t("error.title")}</h2>
+          <p className="text-white/50 text-sm mb-2">
+            {locale === "zh" ? "页面资源已更新，正在自动刷新..." : "Page resources updated, auto-refreshing..."}
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-ink px-4">
