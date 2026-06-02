@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState, useCallback, useRef, useMemo, lazy, Suspense } from "react"
+import { useEffect, useState, useCallback, useRef, lazy, Suspense } from "react"
 import { useParams, useRouter } from "next/navigation"
 import {
   Loader2, Sparkles, ShoppingBag, AlertCircle,
@@ -156,6 +156,12 @@ export default function ReadingPage() {
   const heroRef = useRef<HTMLDivElement>(null)
   const navScrollRef = useRef<HTMLDivElement>(null)
 
+  // Stable callback for AnalysisSession — prevents new reference on every render
+  const handleAnalysisComplete = useCallback((fresh: AnalysisResponse) => {
+    setData(fresh)
+    setIsUnlocked(fresh.is_detail_unlocked)
+  }, [])
+
   // Fetch initial data — AnalysisSession handles all SSE/polling/streaming
   useEffect(() => {
     if (!id) return
@@ -235,10 +241,7 @@ export default function ReadingPage() {
       <AnalysisSession
         sessionId={id}
         initialData={data}
-        onComplete={(fresh) => {
-          setData(fresh)
-          setIsUnlocked(fresh.is_detail_unlocked)
-        }}
+        onComplete={handleAnalysisComplete}
       />
     ) : (
       <div className="min-h-screen flex items-center justify-center px-4">
@@ -252,28 +255,19 @@ export default function ReadingPage() {
     )
   }
 
-  const workerMap: Record<string, typeof data.bazi> = {
-    astrology: data.astrology,
-    tarot:     data.tarot,
-    bazi:      data.bazi,
-    qimen:     data.qimen,
-    ziwei:     data.ziwei,
-    face:      data.face,
-    palm:      data.palm,
-    ...(data.partner_face ? { partner_face: data.partner_face } : {}),
-    ...(data.partner_palm ? { partner_palm: data.partner_palm } : {}),
-  }
-
   // Dynamic worker order — include partner_face/palm only when data exists
-  const WORKER_ORDER_ALL = useMemo(() => {
+  // NOTE: No useMemo here — the computation is trivial and memo deps
+  // (data.partner_face, data.partner_palm) can change on every setData(fresh)
+  // call, defeating the purpose of memoization.
+  const WORKER_ORDER_ALL: readonly string[] = (() => {
     const base = ["bazi", "qimen", "ziwei", "astrology", "tarot", "face", "palm"]
     if (data.partner_face) base.push("partner_face")
     if (data.partner_palm) base.push("partner_palm")
     return base as readonly string[]
-  }, [data.partner_face, data.partner_palm])
+  })()
 
   // Dynamic navigation items — include partner tabs when available
-  const NAV_ITEMS_ALL = useMemo(() => {
+  const NAV_ITEMS_ALL = (() => {
     const items = [...I18N_NAV_ITEMS]
     if (data.partner_face) {
       items.splice(items.findIndex(i => i.id === "face") + 1, 0,
@@ -285,10 +279,19 @@ export default function ReadingPage() {
         { id: "partner_palm", icon: "🤚", labelKey: "reading.nav.partnerPalm", descKey: "reading.nav.partnerPalmDesc" })
     }
     return items
-  }, [data.partner_face, data.partner_palm])
+  })()
 
-  // Type for worker keys
-  type WorkerKey = typeof WORKER_ORDER_ALL[number]
+  const workerMap: Record<string, typeof data.bazi> = {
+    astrology: data.astrology,
+    tarot:     data.tarot,
+    bazi:      data.bazi,
+    qimen:     data.qimen,
+    ziwei:     data.ziwei,
+    face:      data.face,
+    palm:      data.palm,
+    ...(data.partner_face ? { partner_face: data.partner_face } : {}),
+    ...(data.partner_palm ? { partner_palm: data.partner_palm } : {}),
+  }
 
   const strongestDim = data.dimension_scores ? getStrongestDimension(data.dimension_scores) : "career"
   const strongestLabel = data.dimension_scores ? getI18nDimLabel(getStrongestDimension(data.dimension_scores), t) : t("reading.dim.career")
@@ -1048,6 +1051,16 @@ export default function ReadingPage() {
             transform: translateY(0);
           }
         }
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(8px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
         .scrollbar-none {
           -ms-overflow-style: none;
           scrollbar-width: none;
@@ -1060,21 +1073,14 @@ export default function ReadingPage() {
   )
 }
 
-/** Simple fade-in wrapper for tab transitions */
+/** Simple fade-in wrapper for tab transitions — pure CSS, no state */
 function FadeInSection({ children }: { children: React.ReactNode }) {
-  const [visible, setVisible] = useState(false)
-  useEffect(() => {
-    setVisible(false)
-    const t = requestAnimationFrame(() => setVisible(true))
-    return () => cancelAnimationFrame(t)
-  }, [])
-
   return (
     <div
+      className="animate-[fadeInUp_0.35s_ease-out_both]"
       style={{
-        opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(8px)",
-        transition: "opacity 0.35s ease-out, transform 0.35s ease-out",
+        opacity: 1,
+        transform: "translateY(0)",
       }}
     >
       {children}

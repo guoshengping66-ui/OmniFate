@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState, useMemo } from "react"
+import React, { useEffect, useState, useMemo } from "react"
 import { motion } from "framer-motion"
 import { Share2, Copy, Check, ShieldCheck, Fingerprint, RotateCcw, QrCode } from "lucide-react"
 import toast from "react-hot-toast"
@@ -237,7 +237,7 @@ function ParticleRing({ color }: { color: string }) {
 
 // ── Main Component ──────────────────────────────────────────────────────────
 
-export function EnergyIDCard({ sessionId, dimensionScores, generatedAt, ..._rest }: EnergyIDCardProps) {
+const EnergyIDCardInner = ({ sessionId, dimensionScores, generatedAt, ..._rest }: EnergyIDCardProps) => {
   const { t, locale } = useLanguage()
   const [copied, setCopied] = useState(false)
   const [visible, setVisible] = useState(false)
@@ -475,3 +475,5 @@ export function EnergyIDCard({ sessionId, dimensionScores, generatedAt, ..._rest
     </motion.div>
   )
 }
+
+export const EnergyIDCard = React.memo(EnergyIDCardInner)
