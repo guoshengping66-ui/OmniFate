@@ -205,6 +205,17 @@ async def get_payment_methods():
     return {"methods": methods, "count": len(methods)}
 
 
+@router.get("/paypal/config")
+async def paypal_config():
+    """Return PayPal client ID and mode for frontend SDK initialization."""
+    if not settings.PAYPAL_ENABLED or not settings.PAYPAL_CLIENT_ID:
+        raise HTTPException(status_code=404, detail="PayPal not configured")
+    return {
+        "client_id": settings.PAYPAL_CLIENT_ID,
+        "mode": settings.PAYPAL_MODE,  # "sandbox" or "live"
+    }
+
+
 # ─── Shared helpers ──────────────────────────────────────────────────────────
 
 async def _unlock_reading(reading_id: str, db: AsyncSession, skip_stardust_grant: bool = False) -> dict:

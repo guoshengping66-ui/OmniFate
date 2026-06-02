@@ -1,8 +1,9 @@
 "use client"
 import { useState, useEffect, useRef, useCallback } from "react"
 import { X, Clock, CheckCircle, Loader2, Copy, AlertCircle, RefreshCw, ExternalLink } from "lucide-react"
-import { apiDirect, unlockReport, createCheckoutUrl } from "@/lib/api"
+import { apiDirect, unlockReport } from "@/lib/api"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { PayPalPayment } from "./PayPalPayment"
 
 interface QRPaymentModalProps {
   open: boolean
@@ -27,6 +28,7 @@ type PaymentStatus =
   | "success"
   | "waiting"
   | "failed"
+  | "paypal_embedded"
 
 const TIER_PRICES: Record<string, { amountCny: number; amountUsd: number; labelKey: string }> = {
   premium_monthly: { amountCny: 59, amountUsd: 14.99, labelKey: "payment.monthlyPlan" },
@@ -104,21 +106,8 @@ export function QRPaymentModal({
     setQrError(null)
 
     if (method === "paypal") {
-      try {
-        const itemType = isReportUnlock ? "unlock_report" : (tier || "premium_monthly")
-        const result = await createCheckoutUrl(readingId || "", "paypal", itemType)
-        if (result.approve_url) {
-          setPaypalOrderId(result.approve_url)
-          window.open(result.approve_url, "_blank")
-          setStatus("waiting")
-          startPaypalPolling(itemType)
-        } else {
-          throw new Error("PayPal 未返回支付链接")
-        }
-      } catch (err: any) {
-        setError(err?.message || err?.response?.data?.detail || t("payment.createOrderFailed"))
-        setStatus("failed")
-      }
+      // Show embedded PayPal payment component (wallet + card)
+      setStatus("paypal_embedded")
       return
     }
 
@@ -337,6 +326,32 @@ export function QRPaymentModal({
               <p className="text-white/50 mt-4">
                 {method === "paypal" ? "Opening PayPal..." : t("payment.preparingQR")}
               </p>
+            </div>
+          )}
+
+          {/* paypal_embedded - inline PayPal wallet + card payment */}
+          {status === "paypal_embedded" && (
+            <div>
+              <div className="bg-white/5 rounded-xl p-4 text-center mb-4">
+                <p className="text-white/40 text-xs mb-1">{t("payment.amount")}</p>
+                <p className="text-2xl font-bold text-gold">${tierInfo.amountUsd}</p>
+              </div>
+              <PayPalPayment
+                itemType={isPreOrder ? "founder_lifetime" : isReportUnlock ? "unlock_report" : (tier || "premium_monthly")}
+                readingId={readingId}
+                amount={`$${tierInfo.amountUsd}`}
+                compact
+                onSuccess={async () => {
+                  await activateSubscription()
+                }}
+                onError={(msg) => {
+                  setError(msg)
+                  setStatus("failed")
+                }}
+              />
+              <button onClick={reset} className="text-white/30 text-xs mt-4 hover:text-white/50 w-full text-center">
+                {t("payment.cancel")}
+              </button>
             </div>
           )}
 

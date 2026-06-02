@@ -792,6 +792,23 @@ export async function getPaymentMethods(): Promise<PaymentMethod[]> {
   return res.data.methods
 }
 
+export interface PayPalConfig {
+  client_id: string
+  mode: "sandbox" | "live"
+}
+
+export async function getPayPalConfig(): Promise<PayPalConfig> {
+  const res = await apiDirect.get<PayPalConfig>("/api/payments/paypal/config")
+  return res.data
+}
+
+export async function capturePayPalOrder(paypalOrderId: string): Promise<{ status: string }> {
+  const res = await apiDirect.post(`/api/payments/paypal/capture`, null, {
+    params: { paypal_order_id: paypalOrderId },
+  })
+  return res.data
+}
+
 export async function createCheckoutUrl(
   readingId: string,
   paymentMethod: string,

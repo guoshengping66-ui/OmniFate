@@ -13,6 +13,7 @@ import {
   getGeoConfig, redeemCode, verifyTx,
   type GeoConfig, type StardustPackage,
 } from "@/lib/api"
+import { PayPalPayment } from "@/components/payment/PayPalPayment"
 
 const CRYPTO_LOADING_TIPS_EN = [
   "Sensing on-chain energy...",
@@ -211,6 +212,7 @@ function GlobalPanel({
     success: boolean; stardust_granted: number; balance_after: number; message: string
   } | null>(null)
   const [copied, setCopied] = useState(false)
+  const [showPaypalPayment, setShowPaypalPayment] = useState(false)
   const tips = locale === "zh" ? CRYPTO_LOADING_TIPS_ZH : CRYPTO_LOADING_TIPS_EN
   const [loadingTip, setLoadingTip] = useState(tips[0])
 
@@ -276,15 +278,37 @@ function GlobalPanel({
         ) : (
           <p className="text-gold/50 text-xs mb-4">{t("billing.selectPackageFirst")}</p>
         )}
-        <button
-          disabled={!selectedPkg}
-          className="w-full py-3 rounded-full font-semibold text-white bg-[#0070ba] hover:bg-[#005ea6] transition-colors disabled:opacity-30 flex items-center justify-center gap-2"
-        >
-          <svg viewBox="0 0 24 24" width={18} height={18} fill="currentColor">
-            <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106z" />
-          </svg>
-          {t("billing.paypalPay")} {selectedPkg ? `${config.symbol}${selectedPkg.price}` : ""}
-        </button>
+        {!showPaypalPayment ? (
+          <button
+            disabled={!selectedPkg}
+            onClick={() => setShowPaypalPayment(true)}
+            className="w-full py-3 rounded-full font-semibold text-white bg-[#0070ba] hover:bg-[#005ea6] transition-colors disabled:opacity-30 flex items-center justify-center gap-2"
+          >
+            <svg viewBox="0 0 24 24" width={18} height={18} fill="currentColor">
+              <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106z" />
+            </svg>
+            {t("billing.paypalPay")} {selectedPkg ? `${config.symbol}${selectedPkg.price}` : ""}
+          </button>
+        ) : (
+          <div className="space-y-3">
+            <PayPalPayment
+              itemType={selectedPkg?.id || "stardust_topup"}
+              amount={`$${selectedPkg?.price || 0}`}
+              compact
+              onSuccess={() => {
+                setShowPaypalPayment(false)
+                onRefreshBalance()
+              }}
+              onError={() => {}}
+            />
+            <button
+              onClick={() => setShowPaypalPayment(false)}
+              className="w-full text-white/30 text-xs hover:text-white/50 text-center"
+            >
+              {t("billing.cancel") || "Cancel"}
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="card-glass p-6 relative overflow-hidden">
