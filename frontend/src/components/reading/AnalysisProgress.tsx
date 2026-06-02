@@ -284,12 +284,15 @@ function AnalysisProgressInner({
 
   useEffect(() => {
     // Check stall condition using ref (avoids effect restart on displayPct change)
+    // IMPORTANT: only call setIsStalled when value actually changes — calling it
+    // every 2s even when unchanged triggers reconciliation cycles that can cascade
+    // with SSE state updates → React error #310.
     const checkStall = () => {
       if (displayPctRef.current >= 95 && phase !== "done") {
         if (!stallTimerRef.current) stallTimerRef.current = setTimeout(() => setIsStalled(true), 5000)
       } else {
         if (stallTimerRef.current) { clearTimeout(stallTimerRef.current); stallTimerRef.current = null }
-        setIsStalled(false)
+        setIsStalled(prev => { if (prev) return false; return prev })
       }
     }
     checkStall()
