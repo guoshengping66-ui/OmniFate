@@ -37,7 +37,7 @@ interface Props {
 }
 
 export default function AnalysisSession({ sessionId, initialData, onComplete }: Props) {
-  const { t, localeHref } = useLanguage()
+  const { locale, t, localeHref } = useLanguage()
   const router = useRouter()
   const { region } = useRegion()
 
