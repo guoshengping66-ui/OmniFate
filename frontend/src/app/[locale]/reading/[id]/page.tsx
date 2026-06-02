@@ -262,21 +262,29 @@ export default function ReadingPage() {
       // Helper: compare only the fields that matter for re-renders.
       // API always returns new object instances for nested fields (bazi, tarot etc.)
       // even when unchanged — comparing them with !== always detects "changes".
-      const dataChanged = (fresh: AnalysisResponse, prev: AnalysisResponse) =>
-        fresh.status !== prev.status ||
-        fresh.progress_pct !== prev.progress_pct ||
-        fresh.progress_message !== prev.progress_message ||
-        fresh.is_detail_unlocked !== prev.is_detail_unlocked ||
-        JSON.stringify(fresh.computed_tags) !== JSON.stringify(prev.computed_tags) ||
-        JSON.stringify(fresh.dimension_scores) !== JSON.stringify(prev.dimension_scores) ||
-        fresh.master_summary !== prev.master_summary
-
-      const mergeFresh = (prev: AnalysisResponse, fresh: AnalysisResponse) => {
-        const merged = { ...prev }
-        for (const [k, v] of Object.entries(fresh)) {
-          if (v !== undefined) (merged as Record<string, unknown>)[k] = v
+      // We MUST compare worker reports too, otherwise setData(fresh) creates a new
+      // `data` reference on every poll, which causes useMemo values to recalculate
+      // and triggers an infinite re-render loop when combined with SSE state updates.
+      const WORKER_KEYS = ["bazi", "tarot", "qimen", "ziwei", "astrology", "face", "palm",
+        "partner_face", "partner_palm"] as const
+      const dataChanged = (fresh: AnalysisResponse, prev: AnalysisResponse) => {
+        if (fresh.status !== prev.status) return true
+        if (fresh.progress_pct !== prev.progress_pct) return true
+        if (fresh.progress_message !== prev.progress_message) return true
+        if (fresh.is_detail_unlocked !== prev.is_detail_unlocked) return true
+        if (fresh.master_summary !== prev.master_summary) return true
+        if (JSON.stringify(fresh.computed_tags) !== JSON.stringify(prev.computed_tags)) return true
+        if (JSON.stringify(fresh.dimension_scores) !== JSON.stringify(prev.dimension_scores)) return true
+        // Compare worker report content — this is what actually changes during analysis
+        for (const key of WORKER_KEYS) {
+          const f = fresh[key]
+          const p = prev[key]
+          if (!f && !p) continue
+          if (!f || !p) return true
+          if (f.report !== p.report) return true
+          if (JSON.stringify(f.tags) !== JSON.stringify(p.tags)) return true
         }
-        return merged
+        return false
       }
 
       // Start polling IMMEDIATELY as the primary fallback (works even if SSE fails)
