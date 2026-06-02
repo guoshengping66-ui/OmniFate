@@ -232,10 +232,9 @@ export default function ReadingPage() {
 
       // If already done, no need for SSE or polling — just render the report
       if (d.status === "done" || d.status === "completed" || d.status === "chat") {
-        // Still re-fetch to get fresh is_detail_unlocked (premium status)
+        // Only update is_detail_unlocked if it changed (avoids full setData cascade)
         getSession(id, locale).then(fresh => {
-          if (!cancelled) {
-            setData(fresh)
+          if (!cancelled && fresh.is_detail_unlocked !== d.is_detail_unlocked) {
             setIsUnlocked(fresh.is_detail_unlocked)
           }
         }).catch(() => {})
@@ -294,7 +293,9 @@ export default function ReadingPage() {
             if (fresh.progress_pct !== undefined && fresh.progress_pct > 0 && now - lastProgressUpdateRef.current >= 300) {
               lastProgressUpdateRef.current = now
               setProgressPct(prev => fresh.progress_pct! > prev ? fresh.progress_pct! : prev)
-              if (fresh.progress_message) setProgressMessage(fresh.progress_message)
+            }
+            if (fresh.progress_message) {
+              setProgressMessage(prev => prev === fresh.progress_message ? prev : fresh.progress_message!)
             }
             // Reset stale counter when status changes between polls (real activity)
             const hasProgress = fresh.progress_pct !== undefined && fresh.progress_pct > 0
@@ -336,7 +337,9 @@ export default function ReadingPage() {
             if (now - lastProgressUpdateRef.current >= 300) {
               lastProgressUpdateRef.current = now
               setProgressPct(prev => event.pct! > prev ? event.pct! : prev)
-              if (event.message) setProgressMessage(event.message)
+            }
+            if (event.message) {
+              setProgressMessage(prev => prev === event.message ? prev : event.message!)
             }
           }
         }

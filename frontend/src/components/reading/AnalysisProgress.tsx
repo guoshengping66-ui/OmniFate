@@ -97,7 +97,7 @@ const STREAM_LINES_EN = [
   ">> High-dimension data integration...",
 ]
 
-function DataStream({ isComplete, locale }: { isComplete: boolean; locale: string }) {
+const DataStream = React.memo(function DataStream({ isComplete, locale }: { isComplete: boolean; locale: string }) {
   const [lines, setLines] = useState<string[]>([])
   const containerRef = useRef<HTMLDivElement>(null)
   const poolRef = useRef<string[]>([])
@@ -175,11 +175,11 @@ function DataStream({ isComplete, locale }: { isComplete: boolean; locale: strin
       </div>
     </div>
   )
-}
+})
 
 // ── Wisdom Quote ───────────────────────────────────────────────────────────
 
-function WisdomQuote({ locale }: { locale: string }) {
+const WisdomQuote = React.memo(function WisdomQuote({ locale }: { locale: string }) {
   const [idx, setIdx] = useState(() => Math.floor(Math.random() * WISDOM_QUOTES_ZH.length))
   const quotes = locale === "zh" ? WISDOM_QUOTES_ZH : WISDOM_QUOTES_EN
 
@@ -197,7 +197,7 @@ function WisdomQuote({ locale }: { locale: string }) {
       </p>
     </div>
   )
-}
+})
 
 // ── Completion Burst Animation ─────────────────────────────────────────────
 
@@ -383,7 +383,6 @@ function AnalysisProgressInner({
           </Suspense>
           <div className="absolute bottom-0 left-0 right-0 text-center">
             <p
-              key={statusMessage}
               className="text-sm text-gold/80 font-medium drop-shadow-lg anim-fade-in"
             >
               {statusMessage}
@@ -474,7 +473,6 @@ function AnalysisProgressInner({
           {/* Stage label */}
           <div className="flex items-center justify-between">
             <span
-              key={stageLabel}
               className="text-xs font-medium text-gold/70 anim-fade-in"
             >
               {stageLabel}
@@ -511,7 +509,7 @@ function AnalysisProgressInner({
 
           {/* Progress message */}
           <div className="flex justify-between items-center text-xs text-white/50">
-            <span key={progressMessage} className="anim-fade-in">
+            <span className="anim-fade-in">
               {progressMessage || t("analysis.preparing")}
             </span>
           </div>
