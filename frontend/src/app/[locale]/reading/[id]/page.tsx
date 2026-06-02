@@ -415,30 +415,10 @@ export default function ReadingPage() {
     }
   }, [id, locale])
 
-  // Stable props for AnalysisProgress — prevent re-render storms from parent SSE updates.
-  // agentStatus is the main trigger: SSE handler does deep check before setAgentStatus,
-  // but parent re-renders from other state (setData etc.) still create new prop refs.
-  // Use a serialized key to keep the same reference when values haven't changed.
-  // Stable agentStatus reference — only update ref when values actually change.
-  // Uses a serialized key to detect real changes vs new object references from SSE.
-  const agentStatusKey = useMemo(
-    () => Object.entries(agentStatus).map(([k, v]) => `${k}:${v}`).join(","),
-    [agentStatus],
-  )
-  const stableAgentStatusRef = useRef(agentStatus)
-  const prevKeyRef = useRef(agentStatusKey)
-  useEffect(() => {
-    if (agentStatusKey !== prevKeyRef.current) {
-      prevKeyRef.current = agentStatusKey
-      stableAgentStatusRef.current = agentStatus
-    }
-  }, [agentStatusKey, agentStatus])
-  const stableAgentStatus = stableAgentStatusRef.current
-
+  // Props for AnalysisProgress — kept simple to avoid ref-lag issues.
+  // agentStatus deduplication is handled by the SSE deep check (lastAgentStatusRef),
+  // so we pass it directly without ref-based stabilization.
   const analysisPhase = useMemo(() => ssePhase || data?.status || "", [ssePhase, data?.status])
-  const stableProgressPct = useMemo(() => progressPct, [progressPct])
-  const stableProgressMessage = useMemo(() => progressMessage, [progressMessage])
-  const stableMasterSummary = useMemo(() => data?.master_summary, [data?.master_summary])
 
   // Trigger hero animation
   useEffect(() => {
@@ -534,11 +514,11 @@ export default function ReadingPage() {
           </div>
         ) : (
           <AnalysisProgress
-            progressPct={stableProgressPct}
-            progressMessage={stableProgressMessage}
-            agentStatus={stableAgentStatus}
+            progressPct={progressPct}
+            progressMessage={progressMessage}
+            agentStatus={agentStatus}
             phase={analysisPhase}
-            masterSummary={stableMasterSummary}
+            masterSummary={data?.master_summary}
             startTime={sseStartTime.current}
           />
         )}
