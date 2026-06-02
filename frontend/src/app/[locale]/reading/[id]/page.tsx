@@ -264,14 +264,19 @@ export default function ReadingPage() {
             if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
           } else {
             // Update partial data from polling
-            // Filter out undefined values to avoid overwriting existing data (e.g., partner_face)
+            // Only compare status + simple fields — nested objects (bazi, tarot etc.)
+            // always return new instances from API even when unchanged, so comparing
+            // them causes unnecessary re-renders every 3 seconds.
             setData(prev => {
               if (!prev) return fresh
-              // Check if any meaningful field actually changed to avoid unnecessary re-renders
-              const hasChanges = (Object.keys(fresh) as (keyof AnalysisResponse)[]).some(k =>
-                (fresh as any)[k] !== undefined && (prev as any)[k] !== (fresh as any)[k]
-              )
-              if (!hasChanges) return prev // same reference → no re-render
+              const statusChanged = fresh.status !== prev.status
+              const progressChanged = fresh.progress_pct !== prev.progress_pct
+              const messageChanged = fresh.progress_message !== prev.progress_message
+              const tagsChanged = JSON.stringify(fresh.computed_tags) !== JSON.stringify(prev.computed_tags)
+              const scoresChanged = JSON.stringify(fresh.dimension_scores) !== JSON.stringify(prev.dimension_scores)
+              if (!statusChanged && !progressChanged && !messageChanged && !tagsChanged && !scoresChanged) {
+                return prev // same reference → no re-render
+              }
               const merged = { ...prev }
               for (const [k, v] of Object.entries(fresh)) {
                 if (v !== undefined) (merged as Record<string, unknown>)[k] = v
