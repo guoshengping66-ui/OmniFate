@@ -161,6 +161,9 @@ export default function ReadingPage() {
   const lastAgentStatusRef = useRef<Record<string, AgentStatusValue>>({})
   const sseStartTime = useRef(Date.now())
   const lastProgressUpdateRef = useRef(0) // throttle SSE progress updates
+  const lastDataRef = useRef<AnalysisResponse | null>(null) // dedup setData calls
+  const lastProgressPctRef = useRef(0) // dedup setProgressPct calls
+  const lastProgressMsgRef = useRef("") // dedup setProgressMessage calls
 
   // Stuck detection — if analysis stays in init/processing for >90s with no REAL progress, show retry
   const [isStuck, setIsStuck] = useState(false)
@@ -215,6 +218,7 @@ export default function ReadingPage() {
       clearTimeout(loadTimeout)
       dataLoadedRef.current = true
       setData(d)
+      lastDataRef.current = d
       setIsUnlocked(d.is_detail_unlocked)
       setLoading(false)
 
@@ -222,11 +226,17 @@ export default function ReadingPage() {
       // Show at least 1% for active sessions so the bar isn't stuck at 0%
       if (d.progress_pct !== undefined && d.progress_pct > 0) {
         setProgressPct(d.progress_pct)
-        if (d.progress_message) setProgressMessage(d.progress_message)
+        lastProgressPctRef.current = d.progress_pct
+        if (d.progress_message) {
+          setProgressMessage(d.progress_message)
+          lastProgressMsgRef.current = d.progress_message
+        }
       } else if (d.status !== "done" && d.status !== "completed" && d.status !== "chat" && d.status !== "failed") {
         // Analysis is active but progress hasn't started yet — show minimal activity
         setProgressPct(1)
+        lastProgressPctRef.current = 1
         setProgressMessage(t("analysis.preparing"))
+        lastProgressMsgRef.current = t("analysis.preparing")
       }
       lastPollStatus = d.status // track initial status for stale detection
 
@@ -235,7 +245,11 @@ export default function ReadingPage() {
         // Re-fetch with locale to get fresh data (bypasses browser cache)
         getSession(id, locale).then(fresh => {
           if (!cancelled) {
-            setData(fresh)
+            if (fresh.status !== d.status || fresh.master_summary !== d.master_summary ||
+                fresh.progress_pct !== d.progress_pct || fresh.is_detail_unlocked !== d.is_detail_unlocked) {
+              setData(fresh)
+              lastDataRef.current = fresh
+            }
             setIsUnlocked(fresh.is_detail_unlocked)
           }
         }).catch(() => {})
@@ -273,32 +287,40 @@ export default function ReadingPage() {
           if (fresh.status === "done" || fresh.status === "completed" || fresh.status === "chat") {
             pollDone = true
             if (pollInterval) clearInterval(pollInterval)
-            // Only update if data actually changed — avoids unnecessary re-renders
-            // that cascade through all child components
-            setData(prev => prev && !dataChanged(fresh, prev) ? prev : mergeFresh(prev, fresh))
+            // Dedup: only update if data actually changed — prevents re-render storms
+            const prevData = lastDataRef.current
+            if (!prevData || dataChanged(fresh, prevData)) {
+              setData(fresh)
+              lastDataRef.current = fresh
+            }
             setIsUnlocked(fresh.is_detail_unlocked)
             if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
           } else if (fresh.status === "failed") {
             pollDone = true
             if (pollInterval) clearInterval(pollInterval)
-            setData(prev => prev && !dataChanged(fresh, prev) ? prev : mergeFresh(prev, fresh))
+            const prevData = lastDataRef.current
+            if (!prevData || dataChanged(fresh, prevData)) {
+              setData(fresh)
+              lastDataRef.current = fresh
+            }
             if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
           } else {
             // Update partial data from polling — only when meaningful fields changed.
             // SSE handles real-time progress, so polling is just a fallback.
-            setData(prev => {
-              if (!prev) return fresh
-              // Only update state when status or progress actually changed —
-              // avoids creating new object refs that cascade re-renders.
-              if (!dataChanged(fresh, prev)) return prev
-              return mergeFresh(prev, fresh)
-            })
+            const prevData = lastDataRef.current
+            if (!prevData || dataChanged(fresh, prevData)) {
+              setData(fresh)
+              lastDataRef.current = fresh
+            }
             // Progress updates are handled by SSE (real-time).
             // Polling only updates progress as a fallback when SSE is unavailable.
             const now = Date.now()
-            if (fresh.progress_pct !== undefined && fresh.progress_pct > 0 && now - lastProgressUpdateRef.current >= 300) {
+            if (fresh.progress_pct !== undefined && fresh.progress_pct > 0 &&
+                fresh.progress_pct > lastProgressPctRef.current &&
+                now - lastProgressUpdateRef.current >= 300) {
               lastProgressUpdateRef.current = now
-              setProgressPct(prev => fresh.progress_pct! > prev ? fresh.progress_pct! : prev)
+              lastProgressPctRef.current = fresh.progress_pct
+              setProgressPct(fresh.progress_pct)
             }
             // NOTE: setProgressMessage removed from polling — SSE handles it in real-time.
             // Calling it every 3s even when value unchanged can cause render storms.
@@ -339,12 +361,14 @@ export default function ReadingPage() {
             startStuckTimer()
             // Throttle state updates to max once per 300ms to prevent re-render storms
             const now = Date.now()
-            if (now - lastProgressUpdateRef.current >= 300) {
+            if (now - lastProgressUpdateRef.current >= 300 && event.pct! > lastProgressPctRef.current) {
               lastProgressUpdateRef.current = now
-              setProgressPct(prev => event.pct! > prev ? event.pct! : prev)
+              lastProgressPctRef.current = event.pct!
+              setProgressPct(event.pct!)
             }
-            if (event.message) {
-              setProgressMessage(prev => prev === event.message ? prev : event.message!)
+            if (event.message && event.message !== lastProgressMsgRef.current) {
+              lastProgressMsgRef.current = event.message
+              setProgressMessage(event.message)
             }
           }
         }
@@ -383,15 +407,29 @@ export default function ReadingPage() {
           if (pollInterval) clearInterval(pollInterval)
           if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
           // Immediately mark as done so the page transitions to report view
-          setData(prev => prev ? {
-            ...prev,
-            status: "done",
-            master_summary: event.master_summary || prev.master_summary,
-            master_detail: event.master_detail || prev.master_detail,
-          } : prev)
+          // Dedup: only update if status actually changed
+          const prevData = lastDataRef.current
+          if (!prevData || prevData.status !== "done") {
+            const newData = prevData ? {
+              ...prevData,
+              status: "done" as const,
+              master_summary: event.master_summary || prevData.master_summary,
+              master_detail: event.master_detail || prevData.master_detail,
+            } : null
+            if (newData) {
+              setData(newData)
+              lastDataRef.current = newData
+            }
+          }
           // Re-fetch full data to get correct dimension_scores and worker reports
           getSession(id, locale).then(fresh => {
-            if (!cancelled) setData(fresh)
+            if (!cancelled) {
+              const prevData = lastDataRef.current
+              if (!prevData || dataChanged(fresh, prevData)) {
+                setData(fresh)
+                lastDataRef.current = fresh
+              }
+            }
           }).catch(() => {
             // Already set status to "done" above — report content may be partial
           })
