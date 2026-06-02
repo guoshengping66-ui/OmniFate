@@ -1,5 +1,5 @@
 "use client"
-import { createContext, useContext, useCallback, useMemo, type ReactNode } from "react"
+import { createContext, useContext, useCallback, useMemo, useRef, type ReactNode } from "react"
 import { useLocale, useTranslations } from "next-intl"
 import { useRouter } from "@/i18n/navigation"
 import { type Locale, locales } from "@/i18n/config"
@@ -36,15 +36,22 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const tFn = useTranslations()
   const router = useRouter()
 
+  // Wrap tFn in a ref so the `t` function identity is stable across renders.
+  // useTranslations() from next-intl may return a new function reference on
+  // each render; if that happens the memoised context value changes, forcing
+  // ALL consumers (ReadingPage, AnalysisProgress, …) to re-render — which
+  // triggers another render cycle via SSE setState calls → React error #310.
+  const tFnRef = useRef(tFn)
+  tFnRef.current = tFn
   const t = useCallback(
     (key: string): string => {
       try {
-        return tFn(key)
+        return tFnRef.current(key)
       } catch {
         return key
       }
     },
-    [tFn],
+    [],
   )
 
   const setLocale = useCallback(
