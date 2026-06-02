@@ -41,34 +41,12 @@ const WISDOM_QUOTES_EN = [
 ]
 
 /**
- * Smoothly animate a display value toward a target.
- * Uses CSS transitions for visual smoothness — no RAF loop, no re-render storm.
- * The progress bar element has `transition: width 0.8s ease-out` which handles
- * the animation. This hook just returns the target value, and React state
- * updates are throttled to avoid excessive re-renders.
+ * Return the target progress value directly.
+ * Visual smoothness is handled by CSS `transition: width 0.8s ease-out`
+ * on the progress bar element — no React state animation needed.
  */
 function useSmoothProgress(target: number, _startTime: number): number {
-  const [displayPct, setDisplayPct] = useState(0)
-  const lastUpdateRef = useRef(0)
-
-  useEffect(() => {
-    const now = Date.now()
-    // Throttle state updates to max once per 200ms
-    if (now - lastUpdateRef.current >= 200) {
-      lastUpdateRef.current = now
-      setDisplayPct(target)
-    } else {
-      // Schedule a deferred update for the throttled value
-      const delay = 200 - (now - lastUpdateRef.current)
-      const timer = setTimeout(() => {
-        lastUpdateRef.current = Date.now()
-        setDisplayPct(target)
-      }, delay)
-      return () => clearTimeout(timer)
-    }
-  }, [target])
-
-  return displayPct
+  return target
 }
 
 interface AnalysisProgressProps {
