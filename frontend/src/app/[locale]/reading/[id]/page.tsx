@@ -245,6 +245,26 @@ export default function ReadingPage() {
       // Analysis is pending — start stuck timer
       startStuckTimer()
 
+      // Helper: compare only the fields that matter for re-renders.
+      // API always returns new object instances for nested fields (bazi, tarot etc.)
+      // even when unchanged — comparing them with !== always detects "changes".
+      const dataChanged = (fresh: AnalysisResponse, prev: AnalysisResponse) =>
+        fresh.status !== prev.status ||
+        fresh.progress_pct !== prev.progress_pct ||
+        fresh.progress_message !== prev.progress_message ||
+        fresh.is_detail_unlocked !== prev.is_detail_unlocked ||
+        JSON.stringify(fresh.computed_tags) !== JSON.stringify(prev.computed_tags) ||
+        JSON.stringify(fresh.dimension_scores) !== JSON.stringify(prev.dimension_scores) ||
+        fresh.master_summary !== prev.master_summary
+
+      const mergeFresh = (prev: AnalysisResponse, fresh: AnalysisResponse) => {
+        const merged = { ...prev }
+        for (const [k, v] of Object.entries(fresh)) {
+          if (v !== undefined) (merged as Record<string, unknown>)[k] = v
+        }
+        return merged
+      }
+
       // Start polling IMMEDIATELY as the primary fallback (works even if SSE fails)
       pollInterval = setInterval(async () => {
         if (cancelled || pollDone) { if (pollInterval) clearInterval(pollInterval); return }
@@ -253,38 +273,23 @@ export default function ReadingPage() {
           if (fresh.status === "done" || fresh.status === "completed" || fresh.status === "chat") {
             pollDone = true
             if (pollInterval) clearInterval(pollInterval)
-            setData(fresh)
+            // Only update if data actually changed — avoids unnecessary re-renders
+            // that cascade through all child components
+            setData(prev => prev && !dataChanged(fresh, prev) ? prev : mergeFresh(prev, fresh))
             setIsUnlocked(fresh.is_detail_unlocked)
             if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
           } else if (fresh.status === "failed") {
-            // Backend detected stuck session — show error page
             pollDone = true
             if (pollInterval) clearInterval(pollInterval)
-            setData(fresh)
+            setData(prev => prev && !dataChanged(fresh, prev) ? prev : mergeFresh(prev, fresh))
             if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
           } else {
             // Update partial data from polling
-            // Only compare status + simple fields — nested objects (bazi, tarot etc.)
-            // always return new instances from API even when unchanged, so comparing
-            // them causes unnecessary re-renders every 3 seconds.
             setData(prev => {
               if (!prev) return fresh
-              const statusChanged = fresh.status !== prev.status
-              const progressChanged = fresh.progress_pct !== prev.progress_pct
-              const messageChanged = fresh.progress_message !== prev.progress_message
-              const tagsChanged = JSON.stringify(fresh.computed_tags) !== JSON.stringify(prev.computed_tags)
-              const scoresChanged = JSON.stringify(fresh.dimension_scores) !== JSON.stringify(prev.dimension_scores)
-              if (!statusChanged && !progressChanged && !messageChanged && !tagsChanged && !scoresChanged) {
-                return prev // same reference → no re-render
-              }
-              const merged = { ...prev }
-              for (const [k, v] of Object.entries(fresh)) {
-                if (v !== undefined) (merged as Record<string, unknown>)[k] = v
-              }
-              return merged
+              return dataChanged(fresh, prev) ? mergeFresh(prev, fresh) : prev
             })
             // Also update progress from polling (fallback when SSE fails)
-            // Throttle progress updates to avoid rapid re-renders
             const now = Date.now()
             if (fresh.progress_pct !== undefined && fresh.progress_pct > 0 && now - lastProgressUpdateRef.current >= 300) {
               lastProgressUpdateRef.current = now
@@ -297,10 +302,8 @@ export default function ReadingPage() {
             if (hasProgress || statusChanged) {
               stalePollCountRef.current = 0
               lastPollStatus = fresh.status
-              startStuckTimer() // reset stuck timer on real activity
+              startStuckTimer()
             } else {
-              // Detect stale polling: if nothing changed for too long, show stuck UI
-              // NOTE: Don't kill the poll — user can click "Continue waiting" to dismiss
               stalePollCountRef.current++
               if (stalePollCountRef.current >= STALE_POLL_THRESHOLD && !pollDone && !stuckShownRef.current) {
                 stuckShownRef.current = true
