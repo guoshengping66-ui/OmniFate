@@ -148,16 +148,17 @@ _JSON_OUTPUT_INSTRUCTION_COMPACT_EN = (
 _llm_cache: dict[str, ChatOpenAI] = {}
 
 
-def _llm(temperature: float = 0.35, model: str | None = None):
+def _llm(temperature: float = 0.35, model: str | None = None, max_tokens: int | None = None):
     from langchain_openai import ChatOpenAI
     model_key = model or settings.OPENAI_MODEL
-    cache_key = f"{model_key}:{temperature}"
+    tokens = max_tokens or settings.WORKER_MAX_TOKENS
+    cache_key = f"{model_key}:{temperature}:{tokens}"
     if cache_key not in _llm_cache:
         kwargs = dict(
             model=model_key,
             api_key=settings.OPENAI_API_KEY,
             temperature=temperature,
-            max_tokens=settings.WORKER_MAX_TOKENS,
+            max_tokens=tokens,
         )
         if settings.OPENAI_BASE_URL:
             kwargs["base_url"] = settings.OPENAI_BASE_URL
@@ -378,6 +379,48 @@ def _extract_json_block(text: str) -> str:
             pass
     # 3. Fallback: return text as-is
     return text
+
+
+def _find_json_blocks(text: str) -> list[str]:
+    """Find all ```json ... ``` blocks using brace counting for nested JSON.
+    Unlike regex with .*?, this correctly handles nested { } inside JSON objects."""
+    blocks = []
+    i = 0
+    while True:
+        start = text.find("```json", i)
+        if start == -1:
+            break
+        # Find the opening { after ```json
+        brace_start = text.find("{", start)
+        if brace_start == -1:
+            i = start + 7
+            continue
+        # Count braces to find matching closing }
+        depth = 0
+        in_string = False
+        escape = False
+        for j in range(brace_start, len(text)):
+            ch = text[j]
+            if escape:
+                escape = False
+                continue
+            if ch == "\\":
+                escape = True
+                continue
+            if ch == '"':
+                in_string = not in_string
+                continue
+            if in_string:
+                continue
+            if ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    blocks.append(text[brace_start:j + 1])
+                    break
+        i = brace_start + 1
+    return blocks
 
 
 def _build_compact_report(data: dict) -> str:
@@ -963,8 +1006,8 @@ async def run_qimen_ziwei(state: SystemState) -> list[WorkerOutput]:
         "分别输出两个独立的JSON对象，用===QIMEN_END===分隔。"
     )
 
-    # ── Single LLM call ──
-    llm = _llm(temperature=0.35)
+    # ── Single LLM call (needs more tokens: two full analyses in one response) ──
+    llm = _llm(temperature=0.35, max_tokens=4096)
     lang_instruction = (
         "\n\n== 语言要求 ==\n"
         "重要：整个分析必须使用纯中文输出。所有文字值、描述和解释都必须使用中文。"
@@ -1001,11 +1044,14 @@ async def run_qimen_ziwei(state: SystemState) -> list[WorkerOutput]:
             qimen_text = _extract_json_block(raw_q)
             ziwei_text = _extract_json_block(raw_z)
         else:
-            # Fallback: find all ```json ... ``` blocks in order
-            json_blocks = re.findall(r"```json\s*(\{.*?\})\s*```", full_text, re.DOTALL)
+            # Fallback: find ```json blocks using brace counting (handles nested JSON)
+            json_blocks = _find_json_blocks(full_text)
             if len(json_blocks) >= 2:
                 qimen_text = json_blocks[0]
                 ziwei_text = json_blocks[1]
+            elif len(json_blocks) == 1:
+                qimen_text = json_blocks[0]
+                ziwei_text = ""
             else:
                 # Last resort: use the whole text for qimen, empty for ziwei
                 qimen_text = full_text
