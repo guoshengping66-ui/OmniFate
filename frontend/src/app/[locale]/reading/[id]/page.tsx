@@ -5,10 +5,10 @@ import {
   Loader2, Sparkles, ShoppingBag, AlertCircle,
   CheckCircle, MessageSquare, Tags, Gift, Lock,
   Crown, ArrowRight, TrendingUp, Zap, Star, Shield,
-  ChevronDown, Eye, Clock, Compass, ScrollText, RefreshCw,
+  ChevronDown, Eye, Clock, Compass, ScrollText,
 } from "lucide-react"
 import toast from "react-hot-toast"
-import { getSession, matchProducts, streamSession, AnalysisResponse, Product, AGENT_LABELS, SSEEvent, AgentStatusValue } from "@/lib/api"
+import { getSession, matchProducts, AnalysisResponse, Product, AGENT_LABELS } from "@/lib/api"
 
 const AGENT_I18N: Record<string, string> = {
   astrology: "agent.astrology._label", tarot: "agent.tarot._label", bazi: "agent.bazi._label",
@@ -17,7 +17,7 @@ const AGENT_I18N: Record<string, string> = {
   partner_palm: "agent.partner_palm._label", master: "agent.master",
 }
 // Core imports (always needed)
-import AnalysisProgress from "@/components/reading/AnalysisProgress"
+import AnalysisSession from "@/components/reading/AnalysisSession"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { STARDUST_COST } from "@/lib/pricing.config"
@@ -151,300 +151,34 @@ export default function ReadingPage() {
   const [showPayment, setShowPayment] = useState(false)
   const [isUnlocked, setIsUnlocked] = useState(false)
 
-  // SSE streaming progress
-  const [ssePhase, setSsePhase] = useState<string>("")
-  const [completedWorkers, setCompletedWorkers] = useState<Set<string>>(new Set())
-  const [completedSubtasks, setCompletedSubtasks] = useState<Set<string>>(new Set())
-  const [progressPct, setProgressPct] = useState(0)
-  const [progressMessage, setProgressMessage] = useState("")
-  const [agentStatus, setAgentStatus] = useState<Record<string, AgentStatusValue>>({})
-  const lastAgentStatusRef = useRef<Record<string, AgentStatusValue>>({})
-  const sseStartTime = useRef(Date.now())
-  const lastProgressUpdateRef = useRef(0) // throttle SSE progress updates
-  const lastDataRef = useRef<AnalysisResponse | null>(null) // dedup setData calls
-  const lastProgressPctRef = useRef(0) // dedup setProgressPct calls
-  const lastProgressMsgRef = useRef("") // dedup setProgressMessage calls
-
-  // Stuck detection — if analysis stays in init/processing for >90s with no REAL progress, show retry
-  const [isStuck, setIsStuck] = useState(false)
-  const stuckTimerRef = useRef<NodeJS.Timeout | null>(null)
-  const lastProgressPct = useRef(0)
-  const lastSsePhase = useRef("")
-  const stuckShownRef = useRef(false) // prevent re-triggering stuck UI while user reviews
-  const stalePollCountRef = useRef(0) // shared between polling callback and button handler
-
   // Scroll-driven progressive reveal
   const [heroVisible, setHeroVisible] = useState(false)
   const heroRef = useRef<HTMLDivElement>(null)
   const navScrollRef = useRef<HTMLDivElement>(null)
-  const dataLoadedRef = useRef(false) // track if data has loaded (avoids stale closure in timeout)
 
+  // Fetch initial data — AnalysisSession handles all SSE/polling/streaming
   useEffect(() => {
     if (!id) return
     let cancelled = false
 
-    // Start stuck timer: if status stays "init"/"processing" for 120s with no progress, show retry.
-    // 120s because workers take ~65s + master phase ~30s = ~95s total; allow ~1.3x headroom.
-    const STUCK_TIMEOUT = 120_000
-    const startStuckTimer = () => {
-      if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
-      stuckTimerRef.current = setTimeout(() => {
-        if (!cancelled) setIsStuck(true)
-      }, STUCK_TIMEOUT)
-    }
+    setLoading(true)
+    setProducts([])
+    setShopFetched(false)
+    setActiveTab("master")
 
-    // Poll interval ref — accessible from both the callback and cleanup
-    let pollDone = false
-    let pollInterval: ReturnType<typeof setInterval> | null = null
-    let lastPollStatus = "" // track status across polls for stale detection
-    const STALE_POLL_THRESHOLD = 30 // ~90s with no status change → assume stuck (increased from 12)
-    stalePollCountRef.current = 0
-    stuckShownRef.current = false
-
-    // Add timeout to prevent hanging on slow backend responses
-    const LOAD_TIMEOUT_MS = 15_000 // 15 seconds timeout for initial load
-    dataLoadedRef.current = false
+    const LOAD_TIMEOUT_MS = 15_000
     const loadTimeout = setTimeout(() => {
       if (cancelled) return
-      // If still loading after timeout, show error (use ref to avoid stale closure)
-      if (!dataLoadedRef.current) {
-        setLoading(false)
-        toast.error(t("reading.error.loadTimeout") || "加载超时，请刷新重试")
-      }
+      setLoading(false)
+      toast.error(t("reading.error.loadTimeout") || "加载超时，请刷新重试")
     }, LOAD_TIMEOUT_MS)
 
     getSession(id).then(d => {
       if (cancelled) return
       clearTimeout(loadTimeout)
-      dataLoadedRef.current = true
       setData(d)
-      lastDataRef.current = d
       setIsUnlocked(d.is_detail_unlocked)
       setLoading(false)
-
-      // Initialize progress from the initial response
-      // Show at least 1% for active sessions so the bar isn't stuck at 0%
-      if (d.progress_pct !== undefined && d.progress_pct > 0) {
-        setProgressPct(d.progress_pct)
-        lastProgressPctRef.current = d.progress_pct
-        if (d.progress_message) {
-          setProgressMessage(d.progress_message)
-          lastProgressMsgRef.current = d.progress_message
-        }
-      } else if (d.status !== "done" && d.status !== "completed" && d.status !== "chat" && d.status !== "failed") {
-        // Analysis is active but progress hasn't started yet — show minimal activity
-        setProgressPct(1)
-        lastProgressPctRef.current = 1
-        setProgressMessage(t("analysis.preparing"))
-        lastProgressMsgRef.current = t("analysis.preparing")
-      }
-      lastPollStatus = d.status // track initial status for stale detection
-
-      // If already done, no need for SSE or polling — just render the report
-      if (d.status === "done" || d.status === "completed" || d.status === "chat") {
-        // Re-fetch with locale to get fresh data (bypasses browser cache)
-        getSession(id, locale).then(fresh => {
-          if (!cancelled) {
-            if (fresh.status !== d.status || fresh.master_summary !== d.master_summary ||
-                fresh.progress_pct !== d.progress_pct || fresh.is_detail_unlocked !== d.is_detail_unlocked) {
-              setData(fresh)
-              lastDataRef.current = fresh
-            }
-            setIsUnlocked(fresh.is_detail_unlocked)
-          }
-        }).catch(() => {})
-        return
-      }
-
-      // Analysis is pending — start stuck timer
-      startStuckTimer()
-
-      // Helper: compare only the fields that matter for re-renders.
-      // API always returns new object instances for nested fields (bazi, tarot etc.)
-      // even when unchanged — comparing them with !== always detects "changes".
-      // We MUST compare worker reports too, otherwise setData(fresh) creates a new
-      // `data` reference on every poll, which causes useMemo values to recalculate
-      // and triggers an infinite re-render loop when combined with SSE state updates.
-      const WORKER_KEYS = ["bazi", "tarot", "qimen", "ziwei", "astrology", "face", "palm",
-        "partner_face", "partner_palm"] as const
-      const dataChanged = (fresh: AnalysisResponse, prev: AnalysisResponse) => {
-        if (fresh.status !== prev.status) return true
-        if (fresh.progress_pct !== prev.progress_pct) return true
-        if (fresh.progress_message !== prev.progress_message) return true
-        if (fresh.is_detail_unlocked !== prev.is_detail_unlocked) return true
-        if (fresh.master_summary !== prev.master_summary) return true
-        if (JSON.stringify(fresh.computed_tags) !== JSON.stringify(prev.computed_tags)) return true
-        if (JSON.stringify(fresh.dimension_scores) !== JSON.stringify(prev.dimension_scores)) return true
-        // Compare worker report content — this is what actually changes during analysis
-        for (const key of WORKER_KEYS) {
-          const f = fresh[key]
-          const p = prev[key]
-          if (!f && !p) continue
-          if (!f || !p) return true
-          if (f.report !== p.report) return true
-          if (JSON.stringify(f.tags) !== JSON.stringify(p.tags)) return true
-        }
-        return false
-      }
-
-      // Start polling IMMEDIATELY as the primary fallback (works even if SSE fails)
-      pollInterval = setInterval(async () => {
-        if (cancelled || pollDone) { if (pollInterval) clearInterval(pollInterval); return }
-        try {
-          const fresh = await getSession(id, locale)
-          if (fresh.status === "done" || fresh.status === "completed" || fresh.status === "chat") {
-            pollDone = true
-            if (pollInterval) clearInterval(pollInterval)
-            // Dedup: only update if data actually changed — prevents re-render storms
-            const prevData = lastDataRef.current
-            if (!prevData || dataChanged(fresh, prevData)) {
-              setData(fresh)
-              lastDataRef.current = fresh
-            }
-            setIsUnlocked(fresh.is_detail_unlocked)
-            if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
-          } else if (fresh.status === "failed") {
-            pollDone = true
-            if (pollInterval) clearInterval(pollInterval)
-            const prevData = lastDataRef.current
-            if (!prevData || dataChanged(fresh, prevData)) {
-              setData(fresh)
-              lastDataRef.current = fresh
-            }
-            if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
-          } else {
-            // Update partial data from polling — only when meaningful fields changed.
-            // SSE handles real-time progress, so polling is just a fallback.
-            const prevData = lastDataRef.current
-            if (!prevData || dataChanged(fresh, prevData)) {
-              setData(fresh)
-              lastDataRef.current = fresh
-            }
-            // Progress updates are handled by SSE (real-time).
-            // Polling only updates progress as a fallback when SSE is unavailable.
-            const now = Date.now()
-            if (fresh.progress_pct !== undefined && fresh.progress_pct > 0 &&
-                fresh.progress_pct > lastProgressPctRef.current &&
-                now - lastProgressUpdateRef.current >= 300) {
-              lastProgressUpdateRef.current = now
-              lastProgressPctRef.current = fresh.progress_pct
-              setProgressPct(fresh.progress_pct)
-            }
-            // NOTE: setProgressMessage removed from polling — SSE handles it in real-time.
-            // Calling it every 3s even when value unchanged can cause render storms.
-            // Reset stale counter when status changes between polls (real activity)
-            const hasProgress = fresh.progress_pct !== undefined && fresh.progress_pct > 0
-            const statusChanged = fresh.status !== lastPollStatus
-            if (hasProgress || statusChanged) {
-              stalePollCountRef.current = 0
-              lastPollStatus = fresh.status
-              startStuckTimer()
-            } else {
-              stalePollCountRef.current++
-              if (stalePollCountRef.current >= STALE_POLL_THRESHOLD && !pollDone && !stuckShownRef.current) {
-                stuckShownRef.current = true
-                setIsStuck(true)
-                if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
-              }
-            }
-          }
-        } catch { /* ignore */ }
-      }, 3000)
-
-      // Also connect to SSE stream for real-time progress updates
-      streamSession(id, (event: SSEEvent) => {
-        if (cancelled) return
-        if (event.type === "phase" && event.phase) {
-          if (event.phase !== lastSsePhase.current) {
-            lastSsePhase.current = event.phase
-            stalePollCountRef.current = 0 // reset stale counter on real progress
-            startStuckTimer()
-            setSsePhase(event.phase)
-          }
-        }
-        if (event.type === "progress" && event.pct !== undefined) {
-          if (event.pct > lastProgressPct.current) {
-            lastProgressPct.current = event.pct
-            stalePollCountRef.current = 0 // reset stale counter on real progress
-            startStuckTimer()
-            // Throttle state updates to max once per 300ms to prevent re-render storms
-            const now = Date.now()
-            if (now - lastProgressUpdateRef.current >= 300 && event.pct! > lastProgressPctRef.current) {
-              lastProgressUpdateRef.current = now
-              lastProgressPctRef.current = event.pct!
-              setProgressPct(event.pct!)
-            }
-            if (event.message && event.message !== lastProgressMsgRef.current) {
-              lastProgressMsgRef.current = event.message
-              setProgressMessage(event.message)
-            }
-          }
-        }
-        if (event.type === "agent_status" && event.status) {
-          // Only update state if values actually changed (avoids re-render storm
-          // when backend sends same dict via pickle deserialization)
-          const prev = lastAgentStatusRef.current
-          const next = event.status
-          const changed = Object.keys(next).length !== Object.keys(prev).length ||
-            Object.entries(next).some(([k, v]) => prev[k] !== v)
-          if (changed) {
-            lastAgentStatusRef.current = { ...next }
-            setAgentStatus(next)
-          }
-          stalePollCountRef.current = 0
-          startStuckTimer()
-        }
-        if (event.type === "worker_done" && event.agent_id) {
-          setCompletedWorkers(prev => {
-            if (prev.has(event.agent_id!)) return prev // avoid new Set if already tracked
-            return new Set(prev).add(event.agent_id!)
-          })
-          stalePollCountRef.current = 0
-          startStuckTimer()
-        }
-        if (event.type === "subtask_done" && event.subtask) {
-          setCompletedSubtasks(prev => {
-            if (prev.has(event.subtask!)) return prev // avoid new Set if already tracked
-            return new Set(prev).add(event.subtask!)
-          })
-          stalePollCountRef.current = 0
-          startStuckTimer()
-        }
-        if (event.type === "complete") {
-          pollDone = true
-          if (pollInterval) clearInterval(pollInterval)
-          if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
-          // Immediately mark as done so the page transitions to report view
-          // Dedup: only update if status actually changed
-          const prevData = lastDataRef.current
-          if (!prevData || prevData.status !== "done") {
-            const newData = prevData ? {
-              ...prevData,
-              status: "done" as const,
-              master_summary: event.master_summary || prevData.master_summary,
-              master_detail: event.master_detail || prevData.master_detail,
-            } : null
-            if (newData) {
-              setData(newData)
-              lastDataRef.current = newData
-            }
-          }
-          // Re-fetch full data to get correct dimension_scores and worker reports
-          getSession(id, locale).then(fresh => {
-            if (!cancelled) {
-              const prevData = lastDataRef.current
-              if (!prevData || dataChanged(fresh, prevData)) {
-                setData(fresh)
-                lastDataRef.current = fresh
-              }
-            }
-          }).catch(() => {
-            // Already set status to "done" above — report content may be partial
-          })
-        }
-      }).catch(() => {
-        // SSE failed — polling is already running as fallback
-      })
     }).catch(() => {
       if (!cancelled) {
         clearTimeout(loadTimeout)
@@ -456,15 +190,8 @@ export default function ReadingPage() {
     return () => {
       cancelled = true
       clearTimeout(loadTimeout)
-      if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
-      if (pollInterval) clearInterval(pollInterval)
     }
-  }, [id, locale])
-
-  // Props for AnalysisProgress — kept simple to avoid ref-lag issues.
-  // agentStatus deduplication is handled by the SSE deep check (lastAgentStatusRef),
-  // so we pass it directly without ref-based stabilization.
-  const analysisPhase = useMemo(() => ssePhase || data?.status || "", [ssePhase, data?.status])
+  }, [id])
 
   // Trigger hero animation
   useEffect(() => {
@@ -501,73 +228,26 @@ export default function ReadingPage() {
   if (loading) return <ReadingSkeleton phase="loading" />
   if (!data) return <ReadingSkeleton phase="error" />
 
-  // Show AnalysisProgress when analysis is still running via SSE
-  if (data.status === "failed") {
-    return (
+  // Show AnalysisSession when analysis is still running — all SSE/polling state is
+  // isolated inside AnalysisSession so ReadingPage re-renders only on completion.
+  if (!data || data.status !== "done" && data.status !== "completed" && data.status !== "chat") {
+    return data ? (
+      <AnalysisSession
+        sessionId={id}
+        initialData={data}
+        onComplete={(fresh) => {
+          setData(fresh)
+          setIsUnlocked(fresh.is_detail_unlocked)
+        }}
+      />
+    ) : (
       <div className="min-h-screen flex items-center justify-center px-4">
         <div className="card-glass p-8 max-w-md text-center">
-          <AlertCircle size={48} className="mx-auto mb-4 text-red-400/80" />
-          <h2 className="text-lg font-serif font-bold text-white mb-2">
-            {t("analysis.stuckTitle") || "分析未能完成"}
-          </h2>
-          <p className="text-white/40 text-sm mb-6 leading-relaxed">
-            {t("analysis.stuckMessage") || "后台分析任务异常中断，请重新发起分析。"}
-          </p>
-          <button
-            onClick={() => router.push(localeHref("/reading/new"))}
-            className="btn-gold inline-flex items-center gap-2 text-sm"
-          >
-            <RefreshCw size={14} />
-            {t("analysis.stuckRetry") || "重新分析"}
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  if (data.status !== "done" && data.status !== "completed" && data.status !== "chat") {
-    return (
-      <div className="min-h-screen flex items-center justify-center px-4">
-        {isStuck ? (
-          /* Stuck state — analysis hung, show retry button */
-          <div className="card-glass p-8 max-w-md text-center">
-            <AlertCircle size={48} className="mx-auto mb-4 text-amber-400/80" />
-            <h2 className="text-lg font-serif font-bold text-white mb-2">
-              {t("analysis.stuckTitle") || "分析似乎遇到了问题"}
-            </h2>
-            <p className="text-white/40 text-sm mb-6 leading-relaxed">
-              {t("analysis.stuckMessage") || "后台分析任务可能意外中断了。您可以重新发起分析。"}
-            </p>
-            <div className="flex gap-3 justify-center">
-              <button
-                onClick={() => {
-                  setIsStuck(false)
-                  stuckShownRef.current = false
-                  stalePollCountRef.current = 0 // restart stale detection
-                }}
-                className="btn-gold-outline flex items-center gap-2 text-sm"
-              >
-                {t("analysis.stuckContinue") || "继续等待"}
-              </button>
-              <button
-                onClick={() => router.push(localeHref("/reading/new"))}
-                className="btn-gold flex items-center gap-2 text-sm"
-              >
-                <RefreshCw size={14} />
-                {t("analysis.stuckRetry") || "重新分析"}
-              </button>
-            </div>
+          <div className="w-12 h-12 rounded-full bg-gold/10 border border-gold/20 flex items-center justify-center mx-auto mb-4">
+            <div className="w-5 h-5 border-2 border-gold/40 border-t-gold rounded-full animate-spin" />
           </div>
-        ) : (
-          <AnalysisProgress
-            progressPct={progressPct}
-            progressMessage={progressMessage}
-            agentStatus={agentStatus}
-            phase={analysisPhase}
-            masterSummary={data?.master_summary}
-            startTime={sseStartTime.current}
-          />
-        )}
+          <p className="text-white/40 text-sm">{t("reading.loading") || "加载中..."}</p>
+        </div>
       </div>
     )
   }
