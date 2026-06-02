@@ -42,20 +42,17 @@ const WISDOM_QUOTES_EN = [
 
 /**
  * Smoothly animate a display value toward a target using RAF + refs.
- * Uses a ref-based animation loop that only pushes to React state when the
- * displayed value changes by >= 0.5, preventing infinite re-render loops.
- *
- * The backend now provides continuous time-based progress, so the frontend
- * no longer needs elapsed-time smoothing — it just smoothly interpolates
- * toward whatever target the backend reports.
+ * The animation loop runs continuously so it can pick up target changes
+ * at any time — even after previously converging.  setState is throttled
+ * to max once per 150ms to prevent re-render storms.
  */
 function useSmoothProgress(target: number, _startTime: number): number {
   const [displayPct, setDisplayPct] = useState(0)
   const targetRef = useRef(target)
   const displayRefVal = useRef(0)
   const rafRef = useRef(0)
-  const prevReactVal = useRef(0) // track last value pushed to React state
-  const lastPushTimeRef = useRef(0) // throttle: min 150ms between setState calls
+  const prevReactVal = useRef(0)
+  const lastPushTimeRef = useRef(0)
 
   // Keep the ref in sync on every render (no effect triggered)
   targetRef.current = target
@@ -66,14 +63,12 @@ function useSmoothProgress(target: number, _startTime: number): number {
     const tick = () => {
       if (stopped) return
 
-      const tgt = targetRef.current   // always reads latest target from ref
+      const tgt = targetRef.current
       const cur = displayRefVal.current
       const next = cur + (tgt - cur) * 0.15
       displayRefVal.current = Math.abs(tgt - next) < 0.1 ? tgt : next
 
       const now = Date.now()
-      // Throttle setState to max once per 150ms to prevent re-render storms
-      // when SSE events interleave with RAF callbacks
       const diff = Math.abs(displayRefVal.current - prevReactVal.current)
       if (diff >= 0.5 && now - lastPushTimeRef.current >= 150) {
         lastPushTimeRef.current = now
@@ -81,16 +76,9 @@ function useSmoothProgress(target: number, _startTime: number): number {
         setDisplayPct(displayRefVal.current)
       }
 
-      if (Math.abs(tgt - displayRefVal.current) > 0.1) {
-        rafRef.current = requestAnimationFrame(tick)
-      } else {
-        // Animation converged — force final state update to exact target
-        if (prevReactVal.current !== tgt) {
-          prevReactVal.current = tgt
-          lastPushTimeRef.current = Date.now()
-          setDisplayPct(tgt)
-        }
-      }
+      // Always schedule next frame — when target changes after convergence
+      // the loop will pick it up immediately instead of staying dead.
+      rafRef.current = requestAnimationFrame(tick)
     }
 
     rafRef.current = requestAnimationFrame(tick)
@@ -99,7 +87,7 @@ function useSmoothProgress(target: number, _startTime: number): number {
       if (rafRef.current) cancelAnimationFrame(rafRef.current)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []) // mount-only: target changes are read via ref, no effect restart needed
+  }, []) // mount-only: target changes are read via ref
 
   return displayPct
 }
