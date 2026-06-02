@@ -41,15 +41,63 @@ const WISDOM_QUOTES_EN = [
 ]
 
 /**
- * Smooth display percentage — NO React state updates for animation.
+ * Smoothly animate a display value toward a target using RAF + refs.
+ * Uses a ref-based animation loop that only pushes to React state when the
+ * displayed value changes by >= 0.5, preventing infinite re-render loops.
  *
- * Previously used a RAF loop with setDisplayPct, which caused React error #310
- * (Maximum update depth exceeded) when interleaved with SSE-driven state updates.
- *
- * Now the progress bar uses CSS transition for visual smoothing, and this hook
- * simply returns the raw target. The EnergyOrb component handles its own
- * internal smoothing via R3F's useFrame + refs.
+ * The backend now provides continuous time-based progress, so the frontend
+ * no longer needs elapsed-time smoothing — it just smoothly interpolates
+ * toward whatever target the backend reports.
  */
+function useSmoothProgress(target: number, _startTime: number): number {
+  const [displayPct, setDisplayPct] = useState(0)
+  const targetRef = useRef(target)
+  const displayRefVal = useRef(0)
+  const rafRef = useRef(0)
+  const prevReactVal = useRef(0) // track last value pushed to React state
+
+  // Keep the ref in sync on every render (no effect triggered)
+  targetRef.current = target
+
+  useEffect(() => {
+    let stopped = false
+
+    const tick = () => {
+      if (stopped) return
+
+      const tgt = targetRef.current   // always reads latest target from ref
+      const cur = displayRefVal.current
+      const next = cur + (tgt - cur) * 0.15
+      displayRefVal.current = Math.abs(tgt - next) < 0.1 ? tgt : next
+
+      // Only push to React state when value changed meaningfully (≥0.5%)
+      const diff = Math.abs(displayRefVal.current - prevReactVal.current)
+      if (diff >= 0.5) {
+        prevReactVal.current = displayRefVal.current
+        setDisplayPct(displayRefVal.current)
+      }
+
+      if (Math.abs(tgt - displayRefVal.current) > 0.1) {
+        rafRef.current = requestAnimationFrame(tick)
+      } else {
+        // Animation converged — force final state update to exact target
+        if (prevReactVal.current !== tgt) {
+          prevReactVal.current = tgt
+          setDisplayPct(tgt)
+        }
+      }
+    }
+
+    rafRef.current = requestAnimationFrame(tick)
+    return () => {
+      stopped = true
+      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // mount-only: target changes are read via ref, no effect restart needed
+
+  return displayPct
+}
 
 interface AnalysisProgressProps {
   progressPct: number
@@ -246,9 +294,7 @@ function AnalysisProgressInner({
 }: AnalysisProgressProps) {
   const { locale, t } = useLanguage()
   const isZh = locale === "zh"
-  // Use progressPct directly — CSS transition handles smooth animation.
-  // This eliminates the RAF→setState loop that caused React error #310.
-  const displayPct = progressPct
+  const displayPct = useSmoothProgress(progressPct, startTime)
   const [previewText, setPreviewText] = useState("")
   const [showPreview, setShowPreview] = useState(false)
   const [isStalled, setIsStalled] = useState(false)
@@ -277,7 +323,7 @@ function AnalysisProgressInner({
     return entry ? entry[0] : null
   }, [agentStatus])
 
-  // Stall detection — uses a ref to read displayPct without restarting the effect
+  // Stall detection — uses phase-only dependency to avoid re-running on every displayPct change
   const displayPctRef = useRef(displayPct)
   displayPctRef.current = displayPct
 

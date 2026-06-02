@@ -466,50 +466,48 @@ export default function ReadingPage() {
 
   if (data.status !== "done" && data.status !== "completed" && data.status !== "chat") {
     return (
-      <AnalysisErrorBoundary>
-        <div className="min-h-screen flex items-center justify-center px-4">
-          {isStuck ? (
-            /* Stuck state — analysis hung, show retry button */
-            <div className="card-glass p-8 max-w-md text-center">
-              <AlertCircle size={48} className="mx-auto mb-4 text-amber-400/80" />
-              <h2 className="text-lg font-serif font-bold text-white mb-2">
-                {t("analysis.stuckTitle") || "分析似乎遇到了问题"}
-              </h2>
-              <p className="text-white/40 text-sm mb-6 leading-relaxed">
-                {t("analysis.stuckMessage") || "后台分析任务可能意外中断了。您可以重新发起分析。"}
-              </p>
-              <div className="flex gap-3 justify-center">
-                <button
-                  onClick={() => {
-                    setIsStuck(false)
-                    stuckShownRef.current = false
-                    stalePollCountRef.current = 0 // restart stale detection
-                  }}
-                  className="btn-gold-outline flex items-center gap-2 text-sm"
-                >
-                  {t("analysis.stuckContinue") || "继续等待"}
-                </button>
-                <button
-                  onClick={() => router.push(localeHref("/reading/new"))}
-                  className="btn-gold flex items-center gap-2 text-sm"
-                >
-                  <RefreshCw size={14} />
-                  {t("analysis.stuckRetry") || "重新分析"}
-                </button>
-              </div>
+      <div className="min-h-screen flex items-center justify-center px-4">
+        {isStuck ? (
+          /* Stuck state — analysis hung, show retry button */
+          <div className="card-glass p-8 max-w-md text-center">
+            <AlertCircle size={48} className="mx-auto mb-4 text-amber-400/80" />
+            <h2 className="text-lg font-serif font-bold text-white mb-2">
+              {t("analysis.stuckTitle") || "分析似乎遇到了问题"}
+            </h2>
+            <p className="text-white/40 text-sm mb-6 leading-relaxed">
+              {t("analysis.stuckMessage") || "后台分析任务可能意外中断了。您可以重新发起分析。"}
+            </p>
+            <div className="flex gap-3 justify-center">
+              <button
+                onClick={() => {
+                  setIsStuck(false)
+                  stuckShownRef.current = false
+                  stalePollCountRef.current = 0 // restart stale detection
+                }}
+                className="btn-gold-outline flex items-center gap-2 text-sm"
+              >
+                {t("analysis.stuckContinue") || "继续等待"}
+              </button>
+              <button
+                onClick={() => router.push(localeHref("/reading/new"))}
+                className="btn-gold flex items-center gap-2 text-sm"
+              >
+                <RefreshCw size={14} />
+                {t("analysis.stuckRetry") || "重新分析"}
+              </button>
             </div>
-          ) : (
-            <AnalysisProgress
-              progressPct={stableProgressPct}
-              progressMessage={stableProgressMessage}
-              agentStatus={agentStatus}
-              phase={analysisPhase}
-              masterSummary={stableMasterSummary}
-              startTime={sseStartTime.current}
-            />
-          )}
-        </div>
-      </AnalysisErrorBoundary>
+          </div>
+        ) : (
+          <AnalysisProgress
+            progressPct={stableProgressPct}
+            progressMessage={stableProgressMessage}
+            agentStatus={agentStatus}
+            phase={analysisPhase}
+            masterSummary={stableMasterSummary}
+            startTime={sseStartTime.current}
+          />
+        )}
+      </div>
     )
   }
 
@@ -556,19 +554,6 @@ export default function ReadingPage() {
   const weakestDim = data.dimension_scores ? getWeakestDimension(data.dimension_scores) : "wealth"
   const weakestLabel = data.dimension_scores ? getI18nDimLabel(getWeakestDimension(data.dimension_scores), t) : t("reading.dim.wealth")
 
-  // Memoize star particles to avoid Math.random() in render (prevents new objects every render)
-  const starParticles = useMemo(() =>
-    Array.from({ length: 12 }, (_, i) => ({
-      key: i,
-      size: 2 + Math.random() * 3,
-      left: 5 + Math.random() * 90,
-      top: 5 + Math.random() * 80,
-      duration: 3 + Math.random() * 4,
-      delay: Math.random() * 3,
-    })),
-    [] // mount-only: particles are static decorative elements
-  )
-
   return (
     <div className="min-h-screen pb-24">
       {/* ════════════════════════════════════════════════════════════
@@ -593,17 +578,17 @@ export default function ReadingPage() {
               animation: "float 8s ease-in-out infinite",
             }}
           />
-          {/* Floating star particles (memoized — no Math.random in render) */}
-          {starParticles.map((p) => (
+          {/* Floating star particles */}
+          {Array.from({ length: 12 }).map((_, i) => (
             <div
-              key={p.key}
+              key={i}
               className="absolute rounded-full bg-gold/30"
               style={{
-                width: `${p.size}px`,
-                height: `${p.size}px`,
-                left: `${p.left}%`,
-                top: `${p.top}%`,
-                animation: `twinkle ${p.duration}s ease-in-out ${p.delay}s infinite`,
+                width: `${2 + Math.random() * 3}px`,
+                height: `${2 + Math.random() * 3}px`,
+                left: `${5 + Math.random() * 90}%`,
+                top: `${5 + Math.random() * 80}%`,
+                animation: `twinkle ${3 + Math.random() * 4}s ease-in-out ${Math.random() * 3}s infinite`,
               }}
             />
           ))}
@@ -1354,35 +1339,4 @@ function FadeInSection({ children }: { children: React.ReactNode }) {
       {children}
     </div>
   )
-}
-
-// ── React Error Boundary — catches render errors to prevent white screen ──
-import { Component, type ErrorInfo, type ReactNode as RNode } from "react"
-
-interface ErrorBoundaryProps { children: RNode; fallback?: RNode }
-interface ErrorBoundaryState { hasError: boolean }
-
-class AnalysisErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  state: ErrorBoundaryState = { hasError: false }
-  static getDerivedStateFromError() { return { hasError: true } }
-  componentDidCatch(error: Error, info: ErrorInfo) {
-    console.warn("[AnalysisErrorBoundary] Caught:", error.message, info.componentStack)
-  }
-  render() {
-    if (this.state.hasError) {
-      return this.props.fallback || (
-        <div className="min-h-screen flex items-center justify-center px-4">
-          <div className="card-glass p-8 max-w-md text-center">
-            <AlertCircle size={48} className="mx-auto mb-4 text-amber-400/80" />
-            <h2 className="text-lg font-serif font-bold text-white mb-2">渲染异常</h2>
-            <p className="text-white/40 text-sm mb-6">页面遇到了临时错误，请刷新页面重试。</p>
-            <button onClick={() => window.location.reload()} className="btn-gold text-sm">
-              刷新页面
-            </button>
-          </div>
-        </div>
-      )
-    }
-    return this.props.children
-  }
 }

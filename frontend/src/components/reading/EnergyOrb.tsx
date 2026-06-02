@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useRef, useMemo, Suspense, useEffect, useState, useCallback, Component, type ReactNode } from "react"
+import React, { useRef, useMemo, Suspense, useEffect, useState, Component, type ReactNode } from "react"
 import { Canvas, useFrame } from "@react-three/fiber"
 import * as THREE from "three"
 
@@ -50,22 +50,23 @@ const AGENT_COLORS: Record<string, THREE.Color> = {
 function CoreOrb({ progressPct, phase }: { progressPct: number; phase: string }) {
   const meshRef = useRef<THREE.Mesh>(null)
   const wireRef = useRef<THREE.Mesh>(null)
-  // Internal smoothed value — avoids React state updates for animation
-  const smoothPctRef = useRef(0)
-  const materialRef = useRef<THREE.MeshStandardMaterial>(null)
 
   const color = useMemo(() => {
     return PHASE_COLORS[phase] || PHASE_COLORS.init
   }, [phase])
 
-  // Throttled geometry detail — only changes at wider thresholds to avoid
-  // heavy geometry recreation that can trigger WebGL context loss
-  const detailRef = useRef(0)
+  // Geometry detail increases with progress
+  const detail = useMemo(() => {
+    if (progressPct < 20) return 0  // icosahedron
+    if (progressPct < 60) return 1
+    return 2
+  }, [progressPct])
 
   useFrame((_, delta) => {
     if (meshRef.current) {
       meshRef.current.rotation.y += delta * 0.3
       meshRef.current.rotation.x += delta * 0.15
+      // Gentle scale pulse
       const scale = 1 + Math.sin(Date.now() * 0.002) * 0.05
       meshRef.current.scale.setScalar(scale)
     }
@@ -73,28 +74,13 @@ function CoreOrb({ progressPct, phase }: { progressPct: number; phase: string })
       wireRef.current.rotation.y -= delta * 0.5
       wireRef.current.rotation.z += delta * 0.2
     }
-    // Smooth interpolation in useFrame (no React state updates)
-    const cur = smoothPctRef.current
-    const tgt = progressPct
-    smoothPctRef.current = cur + (tgt - cur) * 0.08
-
-    // Update emissive intensity directly on material (no React re-render)
-    if (materialRef.current) {
-      let intensity: number
-      if (phase === "done") intensity = 1.2
-      else if (phase === "master") intensity = 0.8
-      else intensity = 0.4 + (smoothPctRef.current / 100) * 0.4
-      materialRef.current.emissiveIntensity = intensity
-    }
-
-    // Throttled geometry detail change — only update when crossing wider thresholds
-    const newDetail = smoothPctRef.current < 15 ? 0 : smoothPctRef.current < 55 ? 1 : 2
-    if (newDetail !== detailRef.current) {
-      detailRef.current = newDetail
-    }
   })
 
-  const detail = detailRef.current
+  const emissiveIntensity = useMemo(() => {
+    if (phase === "done") return 1.2
+    if (phase === "master") return 0.8
+    return 0.4 + (progressPct / 100) * 0.4
+  }, [phase, progressPct])
 
   return (
     <group>
@@ -102,10 +88,9 @@ function CoreOrb({ progressPct, phase }: { progressPct: number; phase: string })
       <mesh ref={meshRef}>
         <icosahedronGeometry args={[1, detail]} />
         <meshStandardMaterial
-          ref={materialRef}
           color={color}
           emissive={color}
-          emissiveIntensity={0.4}
+          emissiveIntensity={emissiveIntensity}
           transparent
           opacity={0.6}
           roughness={0.3}
@@ -210,25 +195,15 @@ function ParticleField({
     pointsRef.current.rotation.x += 0.001
   })
 
-  // Smooth particle size via ref (no React state)
-  const particleSizeRef = useRef(0.02)
-
-  useFrame(() => {
-    // Smooth interpolation of particle size
-    const targetSize = 0.02 + (progressPct / 100) * 0.03
-    particleSizeRef.current += (targetSize - particleSizeRef.current) * 0.05
-    // Update material size directly if available
-    if (pointsRef.current) {
-      const mat = pointsRef.current.material as THREE.PointsMaterial
-      if (mat) mat.size = particleSizeRef.current
-    }
-  })
+  const particleSize = useMemo(() => {
+    return 0.02 + (progressPct / 100) * 0.03
+  }, [progressPct])
 
   return (
     <points ref={pointsRef} geometry={geometry}>
       <pointsMaterial
         vertexColors
-        size={0.02}
+        size={particleSize}
         sizeAttenuation
         transparent
         opacity={0.8}
@@ -241,7 +216,6 @@ function ParticleField({
 // ── Glow Ring ─────────────────────────────────────────────────────────────
 function GlowRing({ progressPct, phase }: { progressPct: number; phase: string }) {
   const ringRef = useRef<THREE.Mesh>(null)
-  const materialRef = useRef<THREE.MeshBasicMaterial>(null)
 
   const color = useMemo(() => {
     return PHASE_COLORS[phase] || PHASE_COLORS.init
@@ -252,21 +226,20 @@ function GlowRing({ progressPct, phase }: { progressPct: number; phase: string }
       ringRef.current.rotation.z += delta * 0.8
       ringRef.current.rotation.x += delta * 0.3
     }
-    // Smooth opacity update via ref (no React state)
-    if (materialRef.current) {
-      const targetOpacity = phase === "done" ? 0.5 : 0.15 + (progressPct / 100) * 0.2
-      materialRef.current.opacity += (targetOpacity - materialRef.current.opacity) * 0.1
-    }
   })
+
+  const opacity = useMemo(() => {
+    if (phase === "done") return 0.5
+    return 0.15 + (progressPct / 100) * 0.2
+  }, [phase, progressPct])
 
   return (
     <mesh ref={ringRef} rotation={[Math.PI / 3, 0, 0]}>
       <torusGeometry args={[1.8, 0.02, 16, 64]} />
       <meshBasicMaterial
-        ref={materialRef}
         color={color}
         transparent
-        opacity={0.15}
+        opacity={opacity}
       />
     </mesh>
   )
@@ -304,22 +277,6 @@ function OrbFallback() {
 // ── Main Export ────────────────────────────────────────────────────────────
 const MemoizedEnergyOrb = React.memo(function EnergyOrb(props: EnergyOrbProps) {
   const [contextLost, setContextLost] = useState(false)
-  const lastContextLostRef = useRef(0)
-
-  const handleContextLost = useCallback((e: Event) => {
-    e.preventDefault()
-    const now = Date.now()
-    // Cooldown: don't process context loss more than once per 3 seconds
-    // Prevents rapid cycling that can cause React error #310
-    if (now - lastContextLostRef.current < 3000) return
-    lastContextLostRef.current = now
-    setContextLost(true)
-  }, [])
-
-  const handleContextRestored = useCallback(() => {
-    // Only restore if we actually lost context
-    setContextLost(false)
-  }, [])
 
   return (
     <div className="w-full aspect-square max-w-[320px] mx-auto">
@@ -340,8 +297,13 @@ const MemoizedEnergyOrb = React.memo(function EnergyOrb(props: EnergyOrbProps) {
               style={{ background: "transparent" }}
               onCreated={({ gl }) => {
                 const canvas = gl.domElement
-                canvas.addEventListener("webglcontextlost", handleContextLost)
-                canvas.addEventListener("webglcontextrestored", handleContextRestored)
+                canvas.addEventListener("webglcontextlost", (e) => {
+                  e.preventDefault()
+                  setContextLost(true)
+                })
+                canvas.addEventListener("webglcontextrestored", () => {
+                  setContextLost(false)
+                })
               }}
             >
               <Scene {...props} />
