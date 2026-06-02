@@ -232,9 +232,10 @@ export default function ReadingPage() {
 
       // If already done, no need for SSE or polling — just render the report
       if (d.status === "done" || d.status === "completed" || d.status === "chat") {
-        // Only update is_detail_unlocked if it changed (avoids full setData cascade)
+        // Re-fetch with locale to get fresh data (bypasses browser cache)
         getSession(id, locale).then(fresh => {
-          if (!cancelled && fresh.is_detail_unlocked !== d.is_detail_unlocked) {
+          if (!cancelled) {
+            setData(fresh)
             setIsUnlocked(fresh.is_detail_unlocked)
           }
         }).catch(() => {})
