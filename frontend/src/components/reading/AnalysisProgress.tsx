@@ -55,6 +55,7 @@ function useSmoothProgress(target: number, _startTime: number): number {
   const displayRefVal = useRef(0)
   const rafRef = useRef(0)
   const prevReactVal = useRef(0) // track last value pushed to React state
+  const lastPushTimeRef = useRef(0) // throttle: min 150ms between setState calls
 
   // Keep the ref in sync on every render (no effect triggered)
   targetRef.current = target
@@ -70,9 +71,12 @@ function useSmoothProgress(target: number, _startTime: number): number {
       const next = cur + (tgt - cur) * 0.15
       displayRefVal.current = Math.abs(tgt - next) < 0.1 ? tgt : next
 
-      // Only push to React state when value changed meaningfully (≥0.5%)
+      const now = Date.now()
+      // Throttle setState to max once per 150ms to prevent re-render storms
+      // when SSE events interleave with RAF callbacks
       const diff = Math.abs(displayRefVal.current - prevReactVal.current)
-      if (diff >= 0.5) {
+      if (diff >= 0.5 && now - lastPushTimeRef.current >= 150) {
+        lastPushTimeRef.current = now
         prevReactVal.current = displayRefVal.current
         setDisplayPct(displayRefVal.current)
       }
@@ -83,6 +87,7 @@ function useSmoothProgress(target: number, _startTime: number): number {
         // Animation converged — force final state update to exact target
         if (prevReactVal.current !== tgt) {
           prevReactVal.current = tgt
+          lastPushTimeRef.current = Date.now()
           setDisplayPct(tgt)
         }
       }
