@@ -407,7 +407,20 @@ export default function ReadingPage() {
     }
   }, [id, locale])
 
-  // Stable props for AnalysisProgress — prevent re-render storms from parent SSE updates
+  // Stable props for AnalysisProgress — prevent re-render storms from parent SSE updates.
+  // agentStatus is the main trigger: SSE handler does deep check before setAgentStatus,
+  // but parent re-renders from other state (setData etc.) still create new prop refs.
+  // Use a serialized key to keep the same reference when values haven't changed.
+  const agentStatusKey = useMemo(
+    () => Object.entries(agentStatus).map(([k, v]) => `${k}:${v}`).join(","),
+    [agentStatus],
+  )
+  const stableAgentStatusRef = useRef(agentStatus)
+  if (agentStatusKey !== (Object.entries(stableAgentStatusRef.current).map(([k, v]) => `${k}:${v}`).join(","))) {
+    stableAgentStatusRef.current = agentStatus
+  }
+  const stableAgentStatus = stableAgentStatusRef.current
+
   const analysisPhase = useMemo(() => ssePhase || data?.status || "", [ssePhase, data?.status])
   const stableProgressPct = useMemo(() => progressPct, [progressPct])
   const stableProgressMessage = useMemo(() => progressMessage, [progressMessage])
@@ -509,7 +522,7 @@ export default function ReadingPage() {
           <AnalysisProgress
             progressPct={stableProgressPct}
             progressMessage={stableProgressMessage}
-            agentStatus={agentStatus}
+            agentStatus={stableAgentStatus}
             phase={analysisPhase}
             masterSummary={stableMasterSummary}
             startTime={sseStartTime.current}

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState, useMemo, Suspense, lazy } from "react"
+import React, { useEffect, useRef, useState, useMemo, Suspense, lazy } from "react"
 import { AGENT_LABELS } from "@/lib/api"
 import { useLanguage } from "@/contexts/LanguageContext"
 
@@ -537,4 +537,9 @@ function AnalysisProgressInner({
   )
 }
 
-export default AnalysisProgressInner
+/**
+ * Wrap in React.memo — props are already memoized by parent useMemo hooks,
+ * so this prevents re-renders when parent re-renders but props haven't changed.
+ * This breaks the re-render cascade that causes React error #310.
+ */
+export default React.memo(AnalysisProgressInner)
