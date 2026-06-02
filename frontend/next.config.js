@@ -90,11 +90,11 @@ const nextConfig = {
       {
         // HTML pages — never cache. After each deploy new chunk hashes are
         // generated; serving stale HTML causes ChunkLoadError (404 on old
-        // chunk filenames).  s-maxage=5 gives the CDN a tiny grace window
-        // while stale-while-revalidate=30 allows background refresh.
+        // chunk filenames).  Surrogate-Control tells Cloudflare to never cache.
         source: "/((?!_next|api|favicon|logo|og|robots|manifest).*)",
         headers: [
-          { key: "Cache-Control", value: "no-cache, no-store, must-revalidate, s-maxage=5, stale-while-revalidate=30" },
+          { key: "Cache-Control", value: "no-cache, no-store, must-revalidate" },
+          { key: "Surrogate-Control", value: "no-store" },
           { key: "Pragma", value: "no-cache" },
           { key: "Expires", value: "0" },
         ],
