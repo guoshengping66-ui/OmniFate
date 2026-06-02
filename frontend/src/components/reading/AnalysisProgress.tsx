@@ -541,8 +541,22 @@ function AnalysisProgressInner({
 }
 
 /**
- * Wrap in React.memo — props are already memoized by parent useMemo hooks,
- * so this prevents re-renders when parent re-renders but props haven't changed.
- * This breaks the re-render cascade that causes React error #310.
+ * Deep-compare props to prevent re-renders when parent re-renders but values
+ * are identical. The parent creates new object refs for agentStatus on every
+ * SSE event (pickle deserialization), which breaks React.memo shallow comparison.
  */
-export default React.memo(AnalysisProgressInner)
+export default React.memo(AnalysisProgressInner, (prev, next) => {
+  if (prev.progressPct !== next.progressPct) return false
+  if (prev.progressMessage !== next.progressMessage) return false
+  if (prev.phase !== next.phase) return false
+  if (prev.startTime !== next.startTime) return false
+  if (prev.masterSummary !== next.masterSummary) return false
+  // Deep-compare agentStatus — SSE creates new object refs with same values
+  const prevKeys = Object.keys(prev.agentStatus)
+  const nextKeys = Object.keys(next.agentStatus)
+  if (prevKeys.length !== nextKeys.length) return false
+  for (const k of prevKeys) {
+    if (prev.agentStatus[k] !== next.agentStatus[k]) return false
+  }
+  return true
+})
