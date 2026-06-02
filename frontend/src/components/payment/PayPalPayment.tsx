@@ -4,7 +4,11 @@ import {
   PayPalScriptProvider,
   PayPalButtons,
   PayPalCardFieldsProvider,
-  PayPalCardFields,
+  PayPalNumberField,
+  PayPalExpiryField,
+  PayPalCVVField,
+  PayPalNameField,
+  PayPalCardFieldsForm,
   type CreateOrderActions,
   type OnApproveActions,
 } from "@paypal/react-paypal-js"
@@ -230,17 +234,17 @@ export function PayPalPayment({
                 ".invalid": { color: "#ef4444" },
               }}
             >
-              <PayPalCardFields.NumberField />
+              <PayPalNumberField />
               <div className="flex gap-2">
                 <div className="flex-1">
-                  <PayPalCardFields.ExpiryField />
+                  <PayPalExpiryField />
                 </div>
                 <div className="flex-1">
-                  <PayPalCardFields.CVVField />
+                  <PayPalCVVField />
                 </div>
               </div>
-              <PayPalCardFields.NameField />
-              <PayPalCardFields.SubmitForm onApprove={handleCardApprove} />
+              <PayPalNameField />
+              <PayPalCardFieldsForm onApprove={handleCardApprove} />
             </PayPalCardFieldsProvider>
           </div>
         )}
