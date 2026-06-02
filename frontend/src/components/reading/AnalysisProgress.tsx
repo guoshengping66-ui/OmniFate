@@ -41,53 +41,32 @@ const WISDOM_QUOTES_EN = [
 ]
 
 /**
- * Smoothly animate a display value toward a target using RAF + refs.
- * The animation loop runs continuously so it can pick up target changes
- * at any time — even after previously converging.  setState is throttled
- * to max once per 150ms to prevent re-render storms.
+ * Smoothly animate a display value toward a target.
+ * Uses CSS transitions for visual smoothness — no RAF loop, no re-render storm.
+ * The progress bar element has `transition: width 0.8s ease-out` which handles
+ * the animation. This hook just returns the target value, and React state
+ * updates are throttled to avoid excessive re-renders.
  */
 function useSmoothProgress(target: number, _startTime: number): number {
   const [displayPct, setDisplayPct] = useState(0)
-  const targetRef = useRef(target)
-  const displayRefVal = useRef(0)
-  const rafRef = useRef(0)
-  const prevReactVal = useRef(0)
-  const lastPushTimeRef = useRef(0)
-
-  // Keep the ref in sync on every render (no effect triggered)
-  targetRef.current = target
+  const lastUpdateRef = useRef(0)
 
   useEffect(() => {
-    let stopped = false
-
-    const tick = () => {
-      if (stopped) return
-
-      const tgt = targetRef.current
-      const cur = displayRefVal.current
-      const next = cur + (tgt - cur) * 0.15
-      displayRefVal.current = Math.abs(tgt - next) < 0.1 ? tgt : next
-
-      const now = Date.now()
-      const diff = Math.abs(displayRefVal.current - prevReactVal.current)
-      if (diff >= 0.5 && now - lastPushTimeRef.current >= 150) {
-        lastPushTimeRef.current = now
-        prevReactVal.current = displayRefVal.current
-        setDisplayPct(displayRefVal.current)
-      }
-
-      // Always schedule next frame — when target changes after convergence
-      // the loop will pick it up immediately instead of staying dead.
-      rafRef.current = requestAnimationFrame(tick)
+    const now = Date.now()
+    // Throttle state updates to max once per 200ms
+    if (now - lastUpdateRef.current >= 200) {
+      lastUpdateRef.current = now
+      setDisplayPct(target)
+    } else {
+      // Schedule a deferred update for the throttled value
+      const delay = 200 - (now - lastUpdateRef.current)
+      const timer = setTimeout(() => {
+        lastUpdateRef.current = Date.now()
+        setDisplayPct(target)
+      }, delay)
+      return () => clearTimeout(timer)
     }
-
-    rafRef.current = requestAnimationFrame(tick)
-    return () => {
-      stopped = true
-      if (rafRef.current) cancelAnimationFrame(rafRef.current)
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []) // mount-only: target changes are read via ref
+  }, [target])
 
   return displayPct
 }
