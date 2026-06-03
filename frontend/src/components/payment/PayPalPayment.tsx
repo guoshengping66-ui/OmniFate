@@ -88,15 +88,15 @@ export function PayPalPayment({
     }
   }
 
-  const handleCardApprove = async () => {
+  const handleCardApprove = async (data: Record<string, unknown>) => {
     setProcessing(true)
     try {
-      // For card fields, the order is created via createOrder callback above,
-      // then card fields submit the payment. On approve, capture via backend.
-      // The PayPalCardFieldsProvider handles the actual card submission.
-      // We need to get the order ID from the card fields flow.
-      // Card fields use a different flow — they submit directly to PayPal.
-      // We'll handle this in the card fields component.
+      // Card fields create order via createOrder callback, then submit to PayPal.
+      // On approve, we get the order ID and capture it via backend.
+      const orderId = data.orderID as string
+      if (orderId) {
+        await capturePayPalOrder(orderId)
+      }
       setSuccess(true)
       onSuccess()
     } catch (err: unknown) {
