@@ -171,30 +171,32 @@ export function PayPalPayment({
         </div>
 
         {/* Card Fields */}
-        <div className="relative rounded-xl bg-white/5 border border-white/10 p-4">
-          <div className="flex items-center gap-2 mb-3">
+        <div className="relative">
+          <div className="flex items-center gap-2 mb-2">
             <CreditCard size={14} className="text-white/40" />
             <span className="text-white/50 text-xs">{t("payment.creditCard") || "Credit Card"}</span>
           </div>
-          <PayPalCardFieldsProvider
-            createOrder={createOrder}
-            onApprove={handleCardApprove}
-            onError={(err) => {
-              setError(String(err))
-              onError?.(String(err))
-            }}
-            style={{
-              input: {
-                "font-size": "14px",
-                "font-family": "system-ui, -apple-system, sans-serif",
-                color: "#e5e7eb",
-              },
-              ".valid": { color: "#10b981" },
-              ".invalid": { color: "#ef4444" },
-            }}
-          >
-            <PayPalCardFieldsForm />
-          </PayPalCardFieldsProvider>
+          <div className="rounded-xl overflow-hidden bg-white p-3">
+            <PayPalCardFieldsProvider
+              createOrder={createOrder}
+              onApprove={handleCardApprove}
+              onError={(err) => {
+                setError(String(err))
+                onError?.(String(err))
+              }}
+              style={{
+                input: {
+                  "font-size": "14px",
+                  "font-family": "system-ui, -apple-system, sans-serif",
+                  color: "#1f2937",
+                },
+                ".valid": { color: "#059669" },
+                ".invalid": { color: "#dc2626" },
+              }}
+            >
+              <PayPalCardFieldsForm />
+            </PayPalCardFieldsProvider>
+          </div>
         </div>
 
         {/* Error display */}
