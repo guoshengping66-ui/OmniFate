@@ -66,8 +66,10 @@ export function PayPalPayment({
       await capturePayPalOrder(orderId)
       setSuccess(true)
       onSuccess()
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err)
+    } catch (err: any) {
+      // Extract actual backend error message from axios response
+      const msg = err?.response?.data?.detail || err?.response?.data?.message || err?.message || String(err)
+      console.error("[PayPal] capture error:", err?.response?.status, err?.response?.data || err?.message)
       setError(msg)
       onError?.(msg)
     } finally {
@@ -84,8 +86,9 @@ export function PayPalPayment({
       }
       setSuccess(true)
       onSuccess()
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err)
+    } catch (err: any) {
+      const msg = err?.response?.data?.detail || err?.response?.data?.message || err?.message || String(err)
+      console.error("[PayPal] card capture error:", err?.response?.status, err?.response?.data || err?.message)
       setError(msg)
       onError?.(msg)
     } finally {

@@ -154,11 +154,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Set up axios interceptors for JWT on both API instances
   useEffect(() => {
-    const attachToken = (config: any) => {
+    const makeAttachToken = (client: typeof api) => (config: any) => {
       const token = localStorage.getItem(TOKEN_KEY)
       if (token) {
         config.headers.Authorization = `Bearer ${token}`
       }
+      // Tag request with source axios instance so 401 handler retries with the same one
+      config._sourceClient = client
       return config
     }
 
@@ -203,7 +205,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           failedQueue.push({ resolve, reject })
         }).then(token => {
           originalRequest.headers.Authorization = `Bearer ${token}`
-          return api(originalRequest)
+          return (originalRequest._sourceClient || api)(originalRequest)
         }).catch(err => {
           // If the retried request also fails, clean up auth state
           clearAuth()
@@ -236,7 +238,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.setItem(REFRESH_KEY, res.data.refresh_token)
         processQueue(null, newToken)
         originalRequest.headers.Authorization = `Bearer ${newToken}`
-        return api(originalRequest)
+        return (originalRequest._sourceClient || api)(originalRequest)
       } catch (refreshError) {
         processQueue(refreshError, null)
         clearAuth()
@@ -246,9 +248,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    const interceptor1 = api.interceptors.request.use(attachToken)
-    const interceptor2 = apiDirect.interceptors.request.use(attachToken)
-    const interceptor3 = apiAuth.interceptors.request.use(attachToken)
+    const interceptor1 = api.interceptors.request.use(makeAttachToken(api))
+    const interceptor2 = apiDirect.interceptors.request.use(makeAttachToken(apiDirect))
+    const interceptor3 = apiAuth.interceptors.request.use(makeAttachToken(apiAuth))
     const responseInterceptor1 = api.interceptors.response.use(
       response => response,
       handle401
