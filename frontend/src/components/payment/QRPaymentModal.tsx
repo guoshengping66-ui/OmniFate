@@ -56,7 +56,9 @@ export function QRPaymentModal({
   const t = rawT as unknown as (key: string, vars?: Record<string, string | number>) => string
   const isOverseas = region === "overseas"
   const [method, setMethod] = useState<PaymentMethod>(isOverseas ? "paypal" : "alipay")
-  const [status, setStatus] = useState<PaymentStatus>(preOrderNo ? "showing_qr" : "idle")
+  const [status, setStatus] = useState<PaymentStatus>(
+    preOrderNo ? "showing_qr" : isOverseas ? "paypal_embedded" : "idle"
+  )
   const [orderNo, setOrderNo] = useState<string | null>(preOrderNo || null)
   const [paypalOrderId, setPaypalOrderId] = useState<string | null>(null)
   const [qrUrl, setQrUrl] = useState<string | null>(null)
