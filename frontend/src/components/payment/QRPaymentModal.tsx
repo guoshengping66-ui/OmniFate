@@ -35,7 +35,7 @@ const TIER_PRICES: Record<string, { amountCny: number; amountUsd: number; labelK
   premium_yearly: { amountCny: 365, amountUsd: 99, labelKey: "payment.yearlyPlan" },
 }
 
-const UNLOCK_PRICES = { amountCny: 69, amountUsd: 19.99 }
+const UNLOCK_PRICES = { amountCny: 88, amountUsd: 24.99 }
 
 const POLL_INTERVAL = 3000
 const MAX_POLL_ATTEMPTS = 20

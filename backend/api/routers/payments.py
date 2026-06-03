@@ -1003,12 +1003,16 @@ async def capture_paypal_order(
                 captured_amount = float(result.get("purchase_units", [{}])[0].get("amount", {}).get("value", 0))
                 # Find matching USD price from PRODUCT_PRICES by total_cny
                 expected_usd = None
+                matched_item_type = None
                 for _item_type, prices in PRODUCT_PRICES.items():
                     if "usd" in prices and "cny" in prices:
                         if abs(prices["cny"] - order.total_cny) < 0.01:
                             expected_usd = prices["usd"]
+                            matched_item_type = _item_type
                             break
+                logger.info(f"[PAYPAL-CAPTURE] 金额验证: captured={captured_amount}, expected_usd={expected_usd}, matched_item={matched_item_type}, order.total_cny={order.total_cny}, order.order_no={order_no}")
                 if expected_usd and abs(captured_amount - expected_usd) > 0.01:
+                    logger.error(f"[PAYPAL-CAPTURE] 金额不匹配! captured={captured_amount} != expected={expected_usd}")
                     raise HTTPException(status_code=400, detail="支付金额不匹配")
 
                 # 如果订单尚未被 webhook 标记为 paid，激活对应权益
