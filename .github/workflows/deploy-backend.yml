@@ -78,19 +78,24 @@ jobs:
                 pip3 install -r backend/requirements.txt --quiet 2>/dev/null || \
                 echo "⚠️ pip install 失败，跳过"
 
-              # 杀掉旧进程触发 PM2 自动重启
-              PID=$(lsof -ti :8003 2>/dev/null || true)
-              if [ -n "$PID" ]; then
-                kill "$PID" 2>/dev/null || true
-                echo "已停止进程: $PID"
-              else
-                fuser -k 8003/tcp 2>/dev/null || true
-              fi
+              # 强制停止旧进程
+              echo "🔧 停止旧后端进程..."
+              pm2 stop backend 2>/dev/null || true
+              pm2 delete backend 2>/dev/null || true
+              # 确保端口释放
+              fuser -k 8003/tcp 2>/dev/null || true
+              sleep 2
 
-              pm2 restart backend 2>/dev/null || pm2 start ecosystem.config.js --only backend 2>/dev/null || true
+              # 清理 Python 字节码缓存
+              find /opt/OmniFate/backend -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
+
+              # 重新启动
+              echo "🚀 启动新后端进程..."
+              cd /opt/OmniFate
+              pm2 start ecosystem.config.js --only backend
               pm2 save 2>/dev/null || true
               echo "⏳ 等待服务重启..."
-              sleep 10
+              sleep 15
             fi
 
             # 3. 健康检查
