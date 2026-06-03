@@ -8,6 +8,7 @@ module.exports = {
         NODE_ENV: "production",
         PORT: 3000,
         HOSTNAME: "0.0.0.0",
+        BACKEND_URL: "http://172.19.51.134:8003",
       },
       max_memory_restart: "512M",
       autorestart: true,
