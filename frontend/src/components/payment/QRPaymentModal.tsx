@@ -145,14 +145,19 @@ export function QRPaymentModal({
     startPollForStatus()
   }
 
-  const activateSubscription = async () => {
+  const activateSubscription = async (paidOrderNo?: string) => {
     setStatus("activating")
     try {
-      if (postAction === "founder" && orderNo) {
-        try {
-          const { api } = await import("@/lib/api")
-          await api.post(`/api/payments/founder/activate?order_no=${orderNo}`)
-        } catch {}
+      if (postAction === "founder") {
+        // For founder: use the PAID order number (PayPal order or personal order)
+        // The founder purchase order (FO...) may not be the one that was actually paid
+        const activateOrderNo = paidOrderNo || orderNo
+        if (activateOrderNo) {
+          try {
+            const { api } = await import("@/lib/api")
+            await api.post(`/api/payments/founder/activate?order_no=${activateOrderNo}`)
+          } catch {}
+        }
       } else if (postAction === "unlock" && readingId) {
         try {
           await unlockReport(readingId)
@@ -341,8 +346,8 @@ export function QRPaymentModal({
                 readingId={readingId}
                 amount={`$${tierInfo.amountUsd}`}
                 compact
-                onSuccess={async () => {
-                  await activateSubscription()
+                onSuccess={async (orderId?: string) => {
+                  await activateSubscription(orderId)
                 }}
                 onError={(msg) => {
                   setError(msg)

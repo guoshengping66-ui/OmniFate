@@ -16,7 +16,7 @@ interface PayPalPaymentProps {
   itemType: string
   readingId?: string
   amount?: string
-  onSuccess: () => void
+  onSuccess: (orderId?: string) => void
   onError?: (error: string) => void
   compact?: boolean
 }
@@ -65,7 +65,7 @@ export function PayPalPayment({
       const orderId = data.orderID as string
       await capturePayPalOrder(orderId)
       setSuccess(true)
-      onSuccess()
+      onSuccess(orderId)
     } catch (err: any) {
       // Extract actual backend error message from axios response
       const msg = err?.response?.data?.detail || err?.response?.data?.message || err?.message || String(err)
@@ -85,7 +85,7 @@ export function PayPalPayment({
         await capturePayPalOrder(orderId)
       }
       setSuccess(true)
-      onSuccess()
+      onSuccess(orderId)
     } catch (err: any) {
       const msg = err?.response?.data?.detail || err?.response?.data?.message || err?.message || String(err)
       console.error("[PayPal] card capture error:", err?.response?.status, err?.response?.data || err?.message)
