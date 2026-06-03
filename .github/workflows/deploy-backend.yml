@@ -38,71 +38,44 @@ jobs:
 
             echo "═══════ 开始部署后端 ═══════"
 
-            # 1. 同步最新代码
+            # 1. 强制同步最新代码 + 安装新依赖
             cd /opt/OmniFate
-
-            # 修复目录权限 (root 拥有的文件 deploy 用户无法写入)
-            echo "🔧 修复目录权限..."
-            sudo chown -R $(whoami) /opt/OmniFate 2>/dev/null || true
-
             CURRENT_COMMIT=$(git rev-parse HEAD)
             echo "当前 commit: $CURRENT_COMMIT"
 
-            echo "📥 同步最新代码..."
+            echo "📥 强制同步最新代码 (解决本地修改冲突)..."
             git fetch origin main
-            git clean -fd 2>/dev/null || true
-            git reset --hard origin/main || {
-              echo "⚠️ git reset 失败，尝试修复权限后重试..."
-              chmod -R u+w frontend/ 2>/dev/null || true
-              git reset --hard origin/main
-            }
+            git reset --hard origin/main
 
+            echo "📦 安装 Python 依赖..."
+            pip install -r backend/requirements.txt --quiet 2>/dev/null || \
+              pip3 install -r backend/requirements.txt --quiet 2>/dev/null || \
+              echo "⚠️ pip install 失败，跳过"
+
+            # 2. 杀掉 uvicorn 进程 (systemd 会自动重启 deploy.sh → git pull → 新代码)
+            echo "🔄 杀掉旧进程，触发 systemd 自动重启..."
+            PID=$(lsof -ti :8002 2>/dev/null || true)
+            if [ -n "$PID" ]; then
+              kill "$PID" 2>/dev/null || true
+              echo "已停止进程: $PID"
+            else
+              echo "没有发现运行中的进程，尝试 fuser..."
+              fuser -k 8002/tcp 2>/dev/null || true
+            fi
+
+            # 3. 等待 systemd 重启 (deploy.sh 会 git pull + 启动新进程)
+            echo "⏳ 等待服务重启..."
+            sleep 15
+
+            # 4. 验证新 commit
             NEW_COMMIT=$(git rev-parse HEAD)
             echo "新 commit: $NEW_COMMIT"
 
-            # 2. 检测部署方式: Docker 或 PM2
-            if command -v docker >/dev/null 2>&1 && [ -f docker-compose.yml ]; then
-              echo "🐳 检测到 Docker，使用 docker compose 重新构建并部署..."
-              docker compose -f docker-compose.yml -f docker-compose.prod.yml build backend
-              docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --no-deps backend
-              echo "⏳ 等待容器启动..."
-              sleep 10
-            else
-              echo "📦 使用 PM2 部署..."
-              # 修复目录权限
-              echo "🔧 修复目录权限..."
-              sudo chown -R $(whoami) /opt/OmniFate/backend 2>/dev/null || true
-              sudo chown -R $(whoami) /opt/OmniFate/frontend 2>/dev/null || true
-
-              pip install -r backend/requirements.txt --quiet 2>/dev/null || \
-                pip3 install -r backend/requirements.txt --quiet 2>/dev/null || \
-                echo "⚠️ pip install 失败，跳过"
-
-              # 强制停止旧进程
-              echo "🔧 停止旧后端进程..."
-              pm2 stop backend 2>/dev/null || true
-              pm2 delete backend 2>/dev/null || true
-              # 确保端口释放
-              fuser -k 8003/tcp 2>/dev/null || true
-              sleep 2
-
-              # 清理 Python 字节码缓存
-              find /opt/OmniFate/backend -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
-
-              # 重新启动
-              echo "🚀 启动新后端进程..."
-              cd /opt/OmniFate
-              pm2 start ecosystem.config.js --only backend
-              pm2 save 2>/dev/null || true
-              echo "⏳ 等待服务重启..."
-              sleep 15
-            fi
-
-            # 3. 健康检查
+            # 5. 健康检查
             echo "🔍 健康检查..."
             HEALTH_OK=false
             for i in 1 2 3 4 5; do
-              HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8003/health || echo "000")
+              HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8002/health || echo "000")
               if [ "$HTTP_CODE" = "200" ]; then
                 HEALTH_OK=true
                 echo "✅ 健康检查通过 (第${i}次)"
