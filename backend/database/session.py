@@ -111,6 +111,10 @@ async def _migrate_readings_columns():
     divination_columns = [
         ("ai_insight", "TEXT"),
     ]
+    # ── Orders table: item_type column ──
+    order_columns = [
+        ("item_type", "VARCHAR(50)"),
+    ]
 
     try:
         async with AsyncSessionLocal() as db:
@@ -135,8 +139,15 @@ async def _migrate_readings_columns():
                     ))
                 except Exception:
                     pass
+            for col_name, col_type in order_columns:
+                try:
+                    await db.execute(text(
+                        f"ALTER TABLE orders ADD COLUMN IF NOT EXISTS {col_name} {col_type}"
+                    ))
+                except Exception:
+                    pass
             await db.commit()
-            print("[DB] Migration: ensured user & reading columns")
+            print("[DB] Migration: ensured user, reading & order columns")
     except Exception as e:
         print(f"[DB] Migration warning: {e}")
 
@@ -168,6 +179,14 @@ async def _migrate_readings_columns():
                             f"ALTER TABLE divination_records ADD COLUMN {col_name} {col_type}"
                         ))
                         print(f"[DB] Added column divination_records.{col_name}")
+                    except Exception:
+                        pass
+                for col_name, col_type in order_columns:
+                    try:
+                        await db.execute(text(
+                            f"ALTER TABLE orders ADD COLUMN {col_name} {col_type}"
+                        ))
+                        print(f"[DB] Added column orders.{col_name}")
                     except Exception:
                         pass
                 await db.commit()
