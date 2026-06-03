@@ -727,7 +727,11 @@ class PayPalPay:
             data={"grant_type": "client_credentials"},
             timeout=10,
         )
-        return response.json().get("access_token", "")
+        result = response.json()
+        token = result.get("access_token", "")
+        if not token:
+            logger.error(f"[PAYPAL] 获取 access_token 失败: status={response.status_code}, response={result}")
+        return token
 
     async def create_order(self, order_no: str, amount_usd: float, description: str, custom_id: str = "") -> dict:
         """创建 PayPal 订单"""
@@ -974,6 +978,7 @@ async def capture_paypal_order(
     """捕获 PayPal 支付（用户支付完成后调用）— 需要登录"""
     paypal = PayPalPay()
     access_token = paypal._get_access_token()
+    logger.info(f"[PAYPAL-CAPTURE] order_id={paypal_order_id}, has_token={bool(access_token)}, base_url={paypal.base_url}")
 
     response = requests.post(
         f"{paypal.base_url}/v2/checkout/orders/{paypal_order_id}/capture",
