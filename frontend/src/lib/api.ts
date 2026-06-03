@@ -34,6 +34,7 @@ const BACKEND_URL = isLocalhost
 export const api = axios.create({
   baseURL: isLocalhost ? BACKEND_URL : "/api/proxy",
   timeout: 90_000,
+  withCredentials: true,
 })
 
 // Auto-pass locale for error translation on all API clients
@@ -52,6 +53,7 @@ addLangInterceptor(api)
 export const apiDirect = axios.create({
   baseURL: isLocalhost ? BACKEND_URL : "/api/proxy",
   timeout: 360_000,
+  withCredentials: true,
 })
 
 // Auth endpoints — route through Next.js proxy in production for
@@ -61,6 +63,7 @@ export const apiDirect = axios.create({
 export const apiAuth = axios.create({
   baseURL: isLocalhost ? BACKEND_URL : "/api/proxy",
   timeout: 15_000,
+  withCredentials: true,
 })
 
 // Pass locale to backend so error messages are translated

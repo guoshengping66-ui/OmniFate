@@ -7,10 +7,10 @@ import re
 from typing import Optional
 import time
 import secrets
-from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Header
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, EmailStr, field_validator
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -21,19 +21,58 @@ from auth.jwt import (
     create_access_token, create_refresh_token, verify_token,
     hash_password, verify_password, blacklist_token, ALGORITHM,
 )
-from auth.dependencies import get_current_user, require_user
+from auth.dependencies import get_current_user, require_user, ACCESS_TOKEN_COOKIE
 from config import get_settings
 
 router = APIRouter()
 settings = get_settings()
 
+# ── Rate limiting (Redis-backed with in-memory fallback) ─────────────────────
+from services.rate_limiter import check_rate_limit as _redis_check_rate_limit
+
+
+def _set_auth_cookies(response: JSONResponse, access_token: str, refresh_token: str) -> None:
+    """Set httpOnly access_token and refresh_token cookies on the response."""
+    response.set_cookie(
+        key=ACCESS_TOKEN_COOKIE,
+        value=access_token,
+        max_delta=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        httponly=True,
+        secure=_COOKIE_SECURE,
+        samesite=_COOKIE_SAMESITE,
+        path="/",
+    )
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        max_delta=30 * 24 * 3600,  # 30 days
+        httponly=True,
+        secure=_COOKIE_SECURE,
+        samesite=_COOKIE_SAMESITE,
+        path="/",
+    )
+
+
+def _clear_auth_cookies(response: JSONResponse) -> None:
+    """Clear auth cookies on logout."""
+    response.delete_cookie(ACCESS_TOKEN_COOKIE, path="/")
+    response.delete_cookie("refresh_token", path="/")
+
 # ── Registration bonus ────────────────────────────────────────────────────
 REGISTER_BONUS_STARDUST = 100  # 注册验证通过奖励星尘（足够解锁一次完整分析）
 
-# ── Rate limiting ──────────────────────────────────────────────────────────
-_rate_store: dict[str, list[float]] = defaultdict(list)
+# ── Cookie settings ──────────────────────────────────────────────────────────
+_COOKIE_SECURE = not settings.DEBUG  # HTTPS in production
+_COOKIE_SAMESITE = "none" if not settings.DEBUG else "lax"
+
+
+# ── Rate limiting wrapper (Redis-backed with in-memory fallback) ─────────────
 _RATE_WINDOW = 60  # seconds
-_RATE_MAX = 20     # max requests per window (allows multi-step flows + testing)
+
+
+async def _check_rate_limit(key: str, max_per_window: int = 20) -> bool:
+    """Check rate limit using Redis (or in-memory fallback). Returns True if blocked."""
+    return await _redis_check_rate_limit(key, max_per_window, _RATE_WINDOW)
 
 
 def _get_client_ip(request: Request) -> str:
@@ -51,19 +90,6 @@ def _get_client_ip(request: Request) -> str:
 
     # Fallback to direct client connection
     return request.client.host if request.client else "unknown"
-
-
-def _check_rate_limit(key: str, max_per_window: int = 0) -> bool:
-    """Return True if request should be blocked. Uses _RATE_MAX if max_per_window not specified."""
-    if max_per_window <= 0:
-        max_per_window = _RATE_MAX
-    now = time.time()
-    window_start = now - _RATE_WINDOW
-    _rate_store[key] = [t for t in _rate_store[key] if t > window_start]
-    if len(_rate_store[key]) >= max_per_window:
-        return True
-    _rate_store[key].append(now)
-    return False
 
 
 # ── Account lockout ────────────────────────────────────────────────────────
@@ -192,7 +218,7 @@ class AuthResponse(BaseModel):
 
 
 class RefreshRequest(BaseModel):
-    refresh_token: str
+    refresh_token: str = ""
 
 
 class SendCodeRequest(BaseModel):
@@ -274,7 +300,7 @@ async def register(req: RegisterRequest, request: Request, db: AsyncSession = De
 
     # Rate limit (use real IP behind proxy)
     client_ip = _get_client_ip(request)
-    if _check_rate_limit(f"register:{client_ip}") or _check_rate_limit(f"register:{req.email}"):
+    if await _check_rate_limit(f"register:{client_ip}") or await _check_rate_limit(f"register:{req.email}"):
         raise HTTPException(status_code=429, detail="注册请求过于频繁，请稍后再试")
 
     # Password strength check
@@ -373,7 +399,7 @@ async def send_code(req: SendCodeRequest, request: Request, db: AsyncSession = D
         raise HTTPException(status_code=503, detail="数据库暂不可用，请稍后再试")
 
     client_ip = _get_client_ip(request)
-    if _check_rate_limit(f"code:{client_ip}") or _check_rate_limit(f"code:{req.email}"):
+    if await _check_rate_limit(f"code:{client_ip}") or await _check_rate_limit(f"code:{req.email}"):
         raise HTTPException(status_code=429, detail="验证码发送过于频繁，请稍后再试")
 
     result = await db.execute(select(User).where(User.email == req.email))
@@ -419,7 +445,7 @@ async def verify_email(req: VerifyCodeRequest, request: Request, db: AsyncSessio
 
     # Rate limit verification attempts (stricter: 10 per minute per email/IP)
     client_ip = _get_client_ip(request)
-    if _check_rate_limit(f"verify:{client_ip}", max_per_window=10) or _check_rate_limit(f"verify:{req.email}", max_per_window=10):
+    if await _check_rate_limit(f"verify:{client_ip}", max_per_window=10) or await _check_rate_limit(f"verify:{req.email}", max_per_window=10):
         raise HTTPException(status_code=429, detail="验证尝试过于频繁，请稍后再试")
 
     result = await db.execute(select(User).where(User.email == req.email))
@@ -431,11 +457,13 @@ async def verify_email(req: VerifyCodeRequest, request: Request, db: AsyncSessio
         # User already verified — return tokens so they can log in
         access = create_access_token(str(user.id))
         refresh = create_refresh_token(str(user.id))
-        return AuthResponse(
+        resp = JSONResponse(content=AuthResponse(
             access_token=access,
             refresh_token=refresh,
             user=_user_dict(user),
-        )
+        ).model_dump())
+        _set_auth_cookies(resp, access, refresh)
+        return resp
 
     # Check expiration first (before code comparison)
     if user.verification_expires_at and datetime.now(timezone.utc) > _ensure_aware(user.verification_expires_at):
@@ -466,11 +494,13 @@ async def verify_email(req: VerifyCodeRequest, request: Request, db: AsyncSessio
     # Return tokens so user can log in immediately
     access = create_access_token(str(user.id))
     refresh = create_refresh_token(str(user.id))
-    return AuthResponse(
+    resp = JSONResponse(content=AuthResponse(
         access_token=access,
         refresh_token=refresh,
         user=_user_dict(user),
-    )
+    ).model_dump())
+    _set_auth_cookies(resp, access, refresh)
+    return resp
 
 
 # ── Login ──────────────────────────────────────────────────────────────────
@@ -481,7 +511,7 @@ async def login(req: LoginRequest, request: Request, db: AsyncSession = Depends(
         raise HTTPException(status_code=503, detail="数据库暂不可用，请稍后再试")
 
     client_ip = _get_client_ip(request)
-    if _check_rate_limit(f"login:{client_ip}") or _check_rate_limit(f"login:{req.email}"):
+    if await _check_rate_limit(f"login:{client_ip}") or await _check_rate_limit(f"login:{req.email}"):
         raise HTTPException(status_code=429, detail="登录尝试过多，请稍后再试")
 
     # Check account lockout
@@ -512,11 +542,12 @@ async def login(req: LoginRequest, request: Request, db: AsyncSession = Depends(
 
     access = create_access_token(str(user.id))
     refresh = create_refresh_token(str(user.id))
-    resp = AuthResponse(
+    resp = JSONResponse(content=AuthResponse(
         access_token=access,
         refresh_token=refresh,
         user=_user_dict(user),
-    )
+    ).model_dump())
+    _set_auth_cookies(resp, access, refresh)
     return resp
 
 
@@ -531,12 +562,19 @@ async def get_me(user: User = Depends(require_user)):
 
 @router.post("/logout")
 async def logout(
+    request: Request,
     current_user: User = Depends(require_user),
     authorization: Optional[str] = Header(None),
 ):
-    """Logout — blacklist the current refresh token to prevent reuse."""
+    """Logout — blacklist the current refresh token and clear auth cookies."""
+    # Try to get refresh token from cookie or Authorization header
+    token = None
     if authorization:
         token = authorization.replace("Bearer ", "").strip()
+    if not token:
+        token = request.cookies.get("refresh_token")
+
+    if token:
         try:
             from jose import jwt as _jwt
             payload = _jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[ALGORITHM])
@@ -546,20 +584,28 @@ async def logout(
                     await blacklist_token(jti)
         except Exception:
             pass  # Token invalid/expired — proceed with logout anyway
-    return {"message": "已登出"}
+
+    resp = JSONResponse(content={"message": "已登出"})
+    _clear_auth_cookies(resp)
+    return resp
 
 
 # ── Refresh Token ──────────────────────────────────────────────────────────
 
 @router.post("/refresh")
 async def refresh_token(req: RefreshRequest, request: Request, db: AsyncSession = Depends(get_db)):
-    user_id = await verify_token(req.refresh_token)
+    # Try cookie first, then request body
+    refresh_tok = req.refresh_token or request.cookies.get("refresh_token", "")
+    if not refresh_tok:
+        raise HTTPException(status_code=401, detail="无效的 refresh token")
+
+    user_id = await verify_token(refresh_tok)
     if user_id is None:
         raise HTTPException(status_code=401, detail="无效的 refresh token")
 
     # Rate limit refresh attempts
     client_ip = _get_client_ip(request)
-    if _check_rate_limit(f"refresh:{client_ip}", max_per_window=10):
+    if await _check_rate_limit(f"refresh:{client_ip}", max_per_window=10):
         raise HTTPException(status_code=429, detail="请求过于频繁，请稍后再试")
 
     # Verify user still exists and is active
@@ -574,7 +620,10 @@ async def refresh_token(req: RefreshRequest, request: Request, db: AsyncSession 
 
     access = create_access_token(user_id)
     refresh = create_refresh_token(user_id)
-    return {"access_token": access, "refresh_token": refresh, "token_type": "bearer"}
+
+    resp = JSONResponse(content={"access_token": access, "refresh_token": refresh, "token_type": "bearer"})
+    _set_auth_cookies(resp, access, refresh)
+    return resp
 
 
 # ── Forgot Password (send verification code) ───────────────────────────────
@@ -586,7 +635,7 @@ async def forgot_password(req: SendCodeRequest, request: Request, db: AsyncSessi
         raise HTTPException(status_code=503, detail="数据库暂不可用，请稍后再试")
 
     client_ip = _get_client_ip(request)
-    if _check_rate_limit(f"reset:{client_ip}") or _check_rate_limit(f"reset:{req.email}"):
+    if await _check_rate_limit(f"reset:{client_ip}") or await _check_rate_limit(f"reset:{req.email}"):
         raise HTTPException(status_code=429, detail="请求过于频繁，请稍后再试")
 
     result = await db.execute(select(User).where(User.email == req.email))
@@ -637,7 +686,7 @@ async def reset_password(req: ResetPasswordRequest, request: Request, db: AsyncS
 
     # Rate limit reset attempts
     client_ip = _get_client_ip(request)
-    if _check_rate_limit(f"reset-verify:{client_ip}", max_per_window=3) or _check_rate_limit(f"reset-verify:{req.email}", max_per_window=3):
+    if await _check_rate_limit(f"reset-verify:{client_ip}", max_per_window=3) or await _check_rate_limit(f"reset-verify:{req.email}", max_per_window=3):
         raise HTTPException(status_code=429, detail="重置尝试过于频繁，请稍后再试")
 
     _validate_password_strength(req.new_password)
@@ -703,7 +752,7 @@ async def google_login(req: GoogleLoginRequest, request: Request, db: AsyncSessi
         raise HTTPException(status_code=503, detail="数据库暂不可用，请稍后再试")
 
     client_ip = _get_client_ip(request)
-    if _check_rate_limit(f"google:{client_ip}", max_per_window=10):
+    if await _check_rate_limit(f"google:{client_ip}", max_per_window=10):
         raise HTTPException(status_code=429, detail="请求过于频繁，请稍后再试")
 
     # Verify Google ID token
@@ -819,8 +868,10 @@ async def google_login(req: GoogleLoginRequest, request: Request, db: AsyncSessi
     access = create_access_token(str(user.id))
     refresh = create_refresh_token(str(user.id))
 
-    return AuthResponse(
+    resp = JSONResponse(content=AuthResponse(
         access_token=access,
         refresh_token=refresh,
         user=_user_dict(user),
-    )
+    ).model_dump())
+    _set_auth_cookies(resp, access, refresh)
+    return resp

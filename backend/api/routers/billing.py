@@ -773,8 +773,9 @@ async def paypal_webhook(
         if order:
             order.status = OrderStatus.paid
             order.paid_at = datetime.now(timezone.utc)
-            # 从 notes 中解析 item_type (格式: "item_type:xxx|reading_id:xxx")
-            if order.notes and "item_type:" in order.notes:
+            # 使用 order.item_type 字段（向后兼容 notes 解析）
+            item_type = order.item_type or ""
+            if not item_type and order.notes and "item_type:" in order.notes:
                 item_type = order.notes.split("item_type:")[1].split("|")[0]
 
     # 根据 item_type 激活对应权益

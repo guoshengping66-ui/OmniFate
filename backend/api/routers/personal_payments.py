@@ -78,6 +78,7 @@ async def _create_order(
     description: str,
     reading_id: str = "",
     user_id: str = "",
+    item_type: str = "",
 ) -> Order:
     """创建订单"""
     order_no = _generate_order_no(prefix="QR" if payment_method == "alipay" else "QW")
@@ -89,6 +90,7 @@ async def _create_order(
         payment_method=payment_method,
         payment_ref=order_no,
         user_id=user_id if user_id else None,
+        item_type=item_type,
         notes=f"reading_id:{reading_id}|{description}",
     )
     db.add(order)
@@ -156,6 +158,7 @@ async def create_payment_order(
         description=payload.description or "AlphaMirror AI算力服务",
         reading_id=payload.reading_id,
         user_id=current_user.id,
+        item_type=matched_type or "",
     )
 
     # 4. 返回支付信息
