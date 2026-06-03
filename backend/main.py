@@ -361,4 +361,4 @@ app.include_router(_fate_compat, prefix="/api/fate", tags=["Fate-Compat"])
 @app.get("/health")
 async def health():
     """Health check endpoint"""
-    return {"status": "ok", "app": settings.APP_NAME, "version": "2.1.1"}
+    return {"status": "ok", "app": settings.APP_NAME, "version": "2.2.0", "build": "20260604"}
