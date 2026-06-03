@@ -4,10 +4,6 @@ import {
   PayPalScriptProvider,
   PayPalButtons,
   PayPalCardFieldsProvider,
-  PayPalNumberField,
-  PayPalExpiryField,
-  PayPalCVVField,
-  PayPalNameField,
   PayPalCardFieldsForm,
   type CreateOrderActions,
   type OnApproveActions,
@@ -234,16 +230,6 @@ export function PayPalPayment({
                 ".invalid": { color: "#ef4444" },
               }}
             >
-              <PayPalNumberField />
-              <div className="flex gap-2">
-                <div className="flex-1">
-                  <PayPalExpiryField />
-                </div>
-                <div className="flex-1">
-                  <PayPalCVVField />
-                </div>
-              </div>
-              <PayPalNameField />
               <PayPalCardFieldsForm />
             </PayPalCardFieldsProvider>
           </div>
