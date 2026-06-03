@@ -1,11 +1,12 @@
 "use client"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Loader2, Crown, Check, Users, ArrowLeft, MapPin, Star } from "lucide-react"
+import { Loader2, Crown, Check, Users, ArrowLeft, MapPin, Star, MessageSquare } from "lucide-react"
 import Link from "next/link"
 import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { useRegion } from "@/hooks/useRegion"
 import { api } from "@/lib/api"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { TIER_MAP } from "@/lib/tiers"
@@ -35,6 +36,8 @@ export default function FounderPage() {
   const router = useRouter()
   const { user, loading: authLoading, refreshUser } = useAuth()
   const { t, localeHref } = useLanguage()
+  const { region } = useRegion()
+  const isOverseas = region === "overseas"
   const [status, setStatus] = useState<FounderStatus | null>(null)
   const [seats, setSeats] = useState<SeatInfo[]>([])
   const [loading, setLoading] = useState(true)
@@ -42,6 +45,8 @@ export default function FounderPage() {
   const [showPayment, setShowPayment] = useState(false)
   const [selectedFeature, setSelectedFeature] = useState<string | null>(null)
   const [voting, setVoting] = useState(false)
+  const [feedbackText, setFeedbackText] = useState("")
+  const [submittingFeedback, setSubmittingFeedback] = useState(false)
 
   const founderTier = TIER_MAP["founder_lifetime"]
 
@@ -83,10 +88,17 @@ export default function FounderPage() {
   const handleActivate = async () => {
     setActivating(true)
     try {
-      const orderRes = await api.post("/api/payments/founder/purchase?method=personal")
-      const orderNo = orderRes.data.order_no
-      setFounderOrderNo(orderNo)
-      setShowPayment(true)
+      if (isOverseas) {
+        // Overseas: skip pre-order creation, go directly to PayPal
+        setFounderOrderNo(null)
+        setShowPayment(true)
+      } else {
+        // Domestic: create pre-order for QR payment
+        const orderRes = await api.post("/api/payments/founder/purchase?method=personal")
+        const orderNo = orderRes.data.order_no
+        setFounderOrderNo(orderNo)
+        setShowPayment(true)
+      }
     } catch (err: any) {
       toast.error(err.response?.data?.detail || t("founder.pricing.createOrderFail"))
     } finally {
@@ -118,6 +130,23 @@ export default function FounderPage() {
     } finally {
       setVoting(false)
       setSelectedFeature(null)
+    }
+  }
+
+  const handleSubmitFeedback = async () => {
+    if (!feedbackText.trim()) {
+      toast.error(t("founder.pricing.feedbackEmpty"))
+      return
+    }
+    setSubmittingFeedback(true)
+    try {
+      await api.post("/api/payments/founder/feedback", { content: feedbackText.trim() })
+      toast.success(t("founder.pricing.feedbackSuccess"))
+      setFeedbackText("")
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || t("founder.pricing.feedbackFail"))
+    } finally {
+      setSubmittingFeedback(false)
     }
   }
 
@@ -381,6 +410,38 @@ export default function FounderPage() {
           </div>
         )}
 
+        {/* Founder feedback */}
+        {isFounder && (
+          <div className="card-glass p-6 mt-8">
+            <div className="flex items-center gap-2 mb-2">
+              <MessageSquare size={18} className="text-gold" />
+              <h2 className="font-serif text-xl text-gold">{t("founder.pricing.feedbackTitle")}</h2>
+            </div>
+            <p className="text-white/40 text-sm mb-4">
+              {t("founder.pricing.feedbackDesc")}
+            </p>
+            <textarea
+              value={feedbackText}
+              onChange={(e) => setFeedbackText(e.target.value)}
+              placeholder={t("founder.pricing.feedbackPlaceholder")}
+              rows={4}
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white/80 text-sm placeholder:text-white/20 focus:outline-none focus:border-gold/40 resize-none"
+            />
+            <button
+              onClick={handleSubmitFeedback}
+              disabled={submittingFeedback || !feedbackText.trim()}
+              className="mt-3 btn-gold px-6 py-2 text-sm flex items-center gap-2 disabled:opacity-40"
+            >
+              {submittingFeedback ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                <MessageSquare size={14} />
+              )}
+              {t("founder.pricing.feedbackSubmit")}
+            </button>
+          </div>
+        )}
+
         <div className="text-center mt-8">
           <Link href={localeHref("/pricing")} className="text-white/40 hover:text-gold text-sm inline-flex items-center gap-1">
             <ArrowLeft size={14} />
@@ -390,14 +451,15 @@ export default function FounderPage() {
       </div>
 
       {/* Founder QR Payment Modal */}
-      {showPayment && founderOrderNo && (
+      {showPayment && (
         <QRPaymentModal
           open={showPayment}
           onClose={() => setShowPayment(false)}
-          orderNo={founderOrderNo}
+          orderNo={isOverseas ? undefined : founderOrderNo}
           amount={1288}
           label={t("founder.pricing.founderSeat")}
           postAction="founder"
+          region={region}
           onSuccess={handlePaymentSuccess}
         />
       )}

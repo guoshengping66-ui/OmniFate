@@ -439,6 +439,20 @@ class FounderVote(Base):
     __table_args__ = (UniqueConstraint("user_id", "feature_id", name="uq_founder_vote"),)
 
 
+# ─── FounderFeedback ──────────────────────────────────────────────────────────
+
+class FounderFeedback(Base):
+    """创始席位用户反馈"""
+    __tablename__ = "founder_feedback"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id: Mapped[str] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
 # ─── ReferralReward ───────────────────────────────────────────────────────────
 
 class ReferralReward(Base):

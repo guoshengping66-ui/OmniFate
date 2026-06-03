@@ -387,7 +387,14 @@
       "voteSuccess": "Vote successful! Thank you for your feedback",
       "youOwn": "You already own a founder seat",
       "yourSeat": "You're a Founder Member",
-      "yourSeatLabel": "Your Seat"
+      "yourSeatLabel": "Your Seat",
+      "feedbackTitle": "Your Feedback",
+      "feedbackDesc": "Share your ideas, suggestions, or issues — your input shapes our product",
+      "feedbackPlaceholder": "Tell us what you think...",
+      "feedbackSubmit": "Submit Feedback",
+      "feedbackSuccess": "Thank you for your feedback!",
+      "feedbackFail": "Failed to submit feedback",
+      "feedbackEmpty": "Please enter your feedback"
     },
     "vote": {
       "astro_trading": "Astrology Trading Signals",

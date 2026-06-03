@@ -21,7 +21,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from database.session import get_db
 from database.models import (
     Reading, User, Order, OrderItem, EventLog, Product, UserAddress,
-    FounderVote, CreditTransaction, PaymentStatus, OrderStatus,
+    FounderVote, FounderFeedback, CreditTransaction, PaymentStatus, OrderStatus,
 )
 from auth.dependencies import get_current_user, require_user
 from config import get_settings
@@ -1520,6 +1520,10 @@ class FounderVoteRequest(BaseModel):
     feature_id: str
 
 
+class FounderFeedbackRequest(BaseModel):
+    content: str
+
+
 @router.post("/founder/purchase")
 async def create_founder_purchase(
     method: str = Query("personal", description="支付方式: personal|alipay|wechat"),
@@ -1704,3 +1708,26 @@ async def vote_feature(
     await db.commit()
 
     return {"status": "voted", "feature_id": req.feature_id}
+
+
+@router.post("/founder/feedback")
+async def submit_founder_feedback(
+    req: FounderFeedbackRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_user),
+):
+    """创始席位用户反馈"""
+    if not current_user.is_founder:
+        raise HTTPException(status_code=403, detail="仅创始会员可提交反馈")
+
+    if not req.content or not req.content.strip():
+        raise HTTPException(status_code=400, detail="反馈内容不能为空")
+
+    feedback = FounderFeedback(
+        user_id=current_user.id,
+        content=req.content.strip()[:2000],
+    )
+    db.add(feedback)
+    await db.commit()
+
+    return {"status": "submitted"}

@@ -387,7 +387,14 @@
       "voteSuccess": "投票成功！感谢您的反馈",
       "youOwn": "您已拥有创始席位",
       "yourSeat": "您已是创始会员",
-      "yourSeatLabel": "您的席位"
+      "yourSeatLabel": "您的席位",
+      "feedbackTitle": "您的反馈",
+      "feedbackDesc": "分享您的想法、建议或问题，您的意见将直接影响产品方向",
+      "feedbackPlaceholder": "请输入您的反馈...",
+      "feedbackSubmit": "提交反馈",
+      "feedbackSuccess": "感谢您的反馈！",
+      "feedbackFail": "提交反馈失败",
+      "feedbackEmpty": "请输入反馈内容"
     },
     "vote": {
       "astro_trading": "星座交易信号",
