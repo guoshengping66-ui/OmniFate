@@ -992,15 +992,23 @@ async def capture_paypal_order(
     result = response.json()
     logger.info(f"[PAYPAL-CAPTURE] order_id={paypal_order_id}, status={response.status_code}, result={result}")
     if result.get("status") == "COMPLETED":
-        order_no = result.get("purchase_units", [{}])[0].get("reference_id", "")
+        purchase_units = result.get("purchase_units", [])
+        order_no = purchase_units[0].get("reference_id", "") if purchase_units else ""
         if order_no:
             order_result = await db.execute(
                 select(Order).where(Order.order_no == order_no).with_for_update()
             )
             order = order_result.scalar_one_or_none()
             if order:
-                # Verify captured amount matches expected — use server-side USD price lookup
-                captured_amount = float(result.get("purchase_units", [{}])[0].get("amount", {}).get("value", 0))
+                # Extract captured amount from payments.captures (correct PayPal v2 path)
+                captured_amount = 0.0
+                if purchase_units:
+                    captures = purchase_units[0].get("payments", {}).get("captures", [])
+                    if captures:
+                        captured_amount = float(captures[0].get("amount", {}).get("value", 0))
+                    else:
+                        # Fallback: some responses put amount directly on purchase_unit
+                        captured_amount = float(purchase_units[0].get("amount", {}).get("value", 0))
                 # Find matching USD price from PRODUCT_PRICES by total_cny
                 expected_usd = None
                 matched_item_type = None
