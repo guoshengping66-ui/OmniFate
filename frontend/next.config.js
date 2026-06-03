@@ -27,7 +27,7 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   // Use standalone output for better performance on self-hosted
   output: "standalone",
@@ -123,8 +123,8 @@ const nextConfig = {
       { protocol: "https", hostname: "khanfate.com" },
       { protocol: "https", hostname: "www.khanfate.com" },
       { protocol: "https", hostname: "api.khanfate.com" },
-      { protocol: "https", hostname: "**.amazonaws.com" },   // S3
-      { protocol: "https", hostname: "**.aliyuncs.com" },    // 阿里云 OSS
+      { protocol: "https", hostname: "s3.amazonaws.com" },   // S3
+      { protocol: "https", hostname: "oss-cn-hangzhou.aliyuncs.com" },  // 阿里云 OSS
     ],
   },
 }

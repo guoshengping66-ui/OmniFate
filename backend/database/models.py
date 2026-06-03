@@ -11,7 +11,7 @@ from typing import Optional
 
 from sqlalchemy import (
     BigInteger, Boolean, DateTime, Enum, Float, ForeignKey,
-    Integer, JSON, String, Text, UniqueConstraint, func,
+    Integer, JSON, Numeric, String, Text, UniqueConstraint, func,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -79,7 +79,7 @@ class User(Base):
     verification_expires_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     premium_expires_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     subscription_tier: Mapped[Optional[str]] = mapped_column(String(30), default=None)  # "free"|"premium_monthly"|"premium_yearly"
-    shop_coupon_balance: Mapped[float] = mapped_column(Float, default=0.0)
+    shop_coupon_balance: Mapped[float] = mapped_column(Numeric(12, 2), default=0.0)
     free_event_quota: Mapped[int] = mapped_column(Integer, default=0)
     free_event_quota_reset_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     oauth_provider: Mapped[Optional[str]] = mapped_column(String(50))
@@ -221,8 +221,8 @@ class Product(Base):
     short_pitch: Mapped[Optional[str]] = mapped_column(Text)
 
     category: Mapped[ProductCategory] = mapped_column(Enum(ProductCategory), nullable=False)
-    price_cny: Mapped[float] = mapped_column(Float, nullable=False)
-    price_usd: Mapped[Optional[float]] = mapped_column(Float)
+    price_cny: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
+    price_usd: Mapped[Optional[float]] = mapped_column(Numeric(10, 2))
     stock: Mapped[int] = mapped_column(Integer, default=0)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
@@ -257,8 +257,8 @@ class Order(Base):
     order_no: Mapped[str] = mapped_column(String(64), unique=True, nullable=False, index=True)
     status: Mapped[OrderStatus] = mapped_column(Enum(OrderStatus), default=OrderStatus.pending)
 
-    total_cny: Mapped[float] = mapped_column(Float, nullable=False)
-    total_usd: Mapped[Optional[float]] = mapped_column(Float)
+    total_cny: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
+    total_usd: Mapped[Optional[float]] = mapped_column(Numeric(10, 2))
 
     payment_method: Mapped[Optional[str]] = mapped_column(String(50))
     payment_ref: Mapped[Optional[str]] = mapped_column(String(200))
@@ -450,7 +450,7 @@ class FounderFeedback(Base):
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
     content: Mapped[str] = mapped_column(Text, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), index=True)
 
 
 # ─── ReferralReward ───────────────────────────────────────────────────────────

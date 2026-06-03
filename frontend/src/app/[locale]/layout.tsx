@@ -118,7 +118,7 @@ export default async function LocaleLayout({
           <link rel="stylesheet" href="https://fonts.font.im/css2?family=Inter:wght@300;400;500;600&display=swap" />
         </noscript>
 
-        {/* JSON-LD Structured Data */}
+        {/* JSON-LD Structured Data — content is server-generated, not user-controlled */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

@@ -1,4 +1,5 @@
 ﻿"""config.py — 项目全局配置"""
+import secrets
 from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from functools import lru_cache
@@ -18,10 +19,6 @@ class Settings(BaseSettings):
     ALLOWED_ORIGINS: list[str] = [
         "http://localhost:3000", "http://localhost:3001",
         "https://khanfate.com", "https://www.khanfate.com",
-        "https://destiny-platform.vercel.app",
-        # Vercel preview deployments (*.vercel.app)
-        "https://destiny-platform-git-main-guoshengping66-ui.vercel.app",
-        "https://destiny-platform-guoshengping66-ui.vercel.app",
     ]
 
     DATABASE_URL: str = "sqlite+aiosqlite:///./destiny_dev.db"
@@ -128,11 +125,9 @@ def get_settings() -> Settings:
     if s.SECRET_KEY in _default_secrets or s.SECRET_KEY.startswith("change-me"):
         print("[SECURITY] ⚠️ SECRET_KEY 使用默认值！请在 .env 中设置强密钥。")
     if s.JWT_SECRET_KEY in _default_secrets or s.JWT_SECRET_KEY.startswith("change-me"):
-        print("[SECURITY] ⚠️ JWT_SECRET_KEY 使用默认值！请在 .env 中设置强密钥。")
-        # 生产环境拒绝启动
-        if not s.DEBUG:
-            print("[SECURITY] ❌ FATAL: 生产环境不允许使用默认 JWT 密钥！")
-            sys.exit(1)
+        # Auto-generate a random secret instead of crashing
+        s.JWT_SECRET_KEY = secrets.token_hex(32)
+        print("[SECURITY] ⚠️ JWT_SECRET_KEY 未设置，已自动生成随机密钥。请在 .env 中设置固定密钥以避免重启后 token 失效。")
     if s.DEBUG:
         print("[SECURITY] WARNING: DEBUG mode is ON -- do not use in production.")
     return s

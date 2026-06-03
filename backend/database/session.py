@@ -33,6 +33,7 @@ AsyncSessionLocal = async_sessionmaker(engine, class_=AsyncSession, expire_on_co
 
 _db_available = None  # cached availability check
 _tables_created = False  # ensure tables are created once per cold start
+_founder_reset_done = False  # one-time founder data cleanup
 
 
 async def _check_db_available() -> bool:
@@ -168,6 +169,9 @@ async def _migrate_readings_columns():
 
     # Clean up test founder data: reset is_founder for users without seat_no
     # (real activate always sets founder_seat_no + founder_activated_at)
+    global _founder_reset_done
+    if _founder_reset_done:
+        return
     try:
         async with AsyncSessionLocal() as db:
             result = await db.execute(text(
@@ -179,6 +183,7 @@ async def _migrate_readings_columns():
             await db.commit()
     except Exception:
         pass  # Table might not exist yet or no rows to update
+    _founder_reset_done = True
 
 
 async def get_db():

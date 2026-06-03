@@ -45,7 +45,7 @@ STARDUST_COST_FOLLOW_UP = 10  # AI 追问每次消耗
 router = APIRouter()
 
 # ── Session store: Redis-backed with in-memory fallback ───────────────────────
-from services.session_store import get_session as _store_get_session, set_session as _store_set_session, delete_session as _store_delete_session
+from services.session_store import get_session as _store_get_session, set_session as _store_set_session, delete_session as _store_delete_session, get_sessions_batch as _store_get_sessions_batch
 
 
 async def _get_session(session_id: str) -> Optional[SystemState]:
@@ -1214,7 +1214,11 @@ async def stream_session(
 
 
 @router.get("/my", response_model=list[ReadingListItem])
-async def list_my_readings(user: User = Depends(require_user)):
+async def list_my_readings(
+    user: User = Depends(require_user),
+    offset: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=100),
+):
     """List all readings belonging to the current user, newest first."""
     try:
         async with AsyncSessionLocal() as db:
@@ -1222,17 +1226,26 @@ async def list_my_readings(user: User = Depends(require_user)):
                 select(Reading)
                 .where(Reading.user_id == user.id)
                 .order_by(Reading.created_at.desc())
-                .limit(50)
+                .offset(offset)
+                .limit(limit)
             )
             result = await db.execute(stmt)
             readings = result.scalars().all()
+
+            # Batch-fetch sessions to avoid N+1 queries
+            missing_ids = [
+                str(r.id) for r in readings
+                if not r.computed_tags or not r.dimension_scores
+            ]
+            session_cache = await _store_get_sessions_batch(missing_ids) if missing_ids else {}
+
             items = []
             for r in readings:
-                # Read from DB columns (persisted), fall back to in-memory cache
+                # Read from DB columns (persisted), fall back to session cache
                 computed_tags = list(r.computed_tags or [])
                 dimension_scores = dict(r.dimension_scores or {})
                 if not computed_tags or not dimension_scores:
-                    state = await _get_session(str(r.id))
+                    state = session_cache.get(str(r.id))
                     if state:
                         if not computed_tags:
                             computed_tags = list(state.computed_tags or [])

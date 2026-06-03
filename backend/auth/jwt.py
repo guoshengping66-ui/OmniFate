@@ -16,6 +16,9 @@ settings = get_settings()
 
 ALGORITHM = "HS256"
 
+if not settings.REDIS_URL:
+    print("[JWT] ⚠️ REDIS_URL 未设置，token 黑名单将使用内存存储（重启后丢失）。")
+
 # ── Token blacklist (auto-selects Redis or in-memory) ────────────────────────
 
 _memory_blacklist: set[str] = set()

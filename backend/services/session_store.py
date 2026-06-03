@@ -112,6 +112,40 @@ async def delete_session(key: str) -> None:
     _memory_sessions.pop(key, None)
 
 
+async def get_sessions_batch(keys: list[str]) -> dict[str, object]:
+    """Get multiple sessions by keys in one round-trip (Redis mget)."""
+    if not keys:
+        return {}
+    r = await _get_session_redis()
+    if r:
+        try:
+            raw = await r.mget(f"sess:{k}" for k in keys)
+            result = {}
+            for key, data in zip(keys, raw):
+                if data:
+                    try:
+                        result[key] = pickle.loads(data)
+                    except Exception:
+                        pass
+            return result
+        except Exception:
+            # Fallback to individual gets on mget failure
+            pass
+
+    # In-memory fallback
+    now = time.time()
+    result = {}
+    for key in keys:
+        entry = _memory_sessions.get(key)
+        if entry:
+            expire_ts, obj = entry
+            if now < expire_ts:
+                result[key] = obj
+            else:
+                del _memory_sessions[key]
+    return result
+
+
 async def session_exists(key: str) -> bool:
     """Check if a session exists (without retrieving it)."""
     r = await _get_session_redis()

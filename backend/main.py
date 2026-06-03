@@ -236,13 +236,16 @@ async def error_translation_middleware(request: Request, call_next):
 
     # Only translate error responses (4xx/5xx) when lang=en
     if lang == "en" and response.status_code >= 400:
-        # Read the response body
+        # Read the response body (limit to 64KB to prevent memory issues)
         body = b""
+        body_limit = 65536
         async for chunk in response.body_iterator:
             if isinstance(chunk, str):
                 body += chunk.encode("utf-8")
             else:
                 body += chunk
+            if len(body) > body_limit:
+                break
 
         try:
             data = json.loads(body)
