@@ -63,10 +63,10 @@ jobs:
             # 2. 检测部署方式: Docker 或 PM2
             if command -v docker >/dev/null 2>&1 && [ -f docker-compose.yml ]; then
               echo "🐳 检测到 Docker，使用 docker compose 重新构建并部署..."
-              docker compose -f docker-compose.yml -f docker-compose.prod.yml build backend
-              docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --no-deps backend
+              docker compose -f docker-compose.yml -f docker-compose.prod.yml build --no-cache backend
+              docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --force-recreate --no-deps backend
               echo "⏳ 等待容器启动..."
-              sleep 10
+              sleep 15
             else
               echo "📦 使用 PM2 部署..."
               # 修复目录权限
