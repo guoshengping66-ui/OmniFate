@@ -216,6 +216,46 @@ async def paypal_config():
     }
 
 
+# ── PayPal SDK proxy (for mainland China where paypal.com is blocked) ─────
+_sdk_cache: dict = {"content": None, "ts": 0.0}
+
+
+@router.get("/paypal/sdk")
+async def paypal_sdk_proxy(
+    request: Request,
+    client_id: str = Query(""),
+    currency: str = Query("USD"),
+    intent: str = Query("capture"),
+    components: str = Query("buttons"),
+):
+    """Proxy PayPal JS SDK to bypass GFW blocking paypal.com.
+
+    The server can reach paypal.com; browsers in mainland China cannot.
+    This endpoint fetches the SDK once and caches it for 1 hour.
+    """
+    now = time.time()
+    # Re-fetch if cache is empty or older than 1 hour
+    if not _sdk_cache["content"] or (now - _sdk_cache["ts"]) > 3600:
+        sdk_url = f"https://www.paypal.com/sdk/js?client-id={client_id}&currency={currency}&intent={intent}&components={components}"
+        logger.info(f"[PayPal SDK Proxy] Fetching {sdk_url}")
+        try:
+            resp = requests.get(sdk_url, timeout=15, headers={"User-Agent": "Mozilla/5.0"})
+            if resp.status_code != 200:
+                raise HTTPException(status_code=502, detail=f"Failed to fetch PayPal SDK: {resp.status_code}")
+            _sdk_cache["content"] = resp.content
+            _sdk_cache["ts"] = now
+            logger.info(f"[PayPal SDK Proxy] Cached SDK ({len(resp.content)} bytes)")
+        except requests.RequestException as e:
+            raise HTTPException(status_code=502, detail=f"Failed to fetch PayPal SDK: {e}")
+
+    from fastapi.responses import Response
+    return Response(
+        content=_sdk_cache["content"],
+        media_type="application/javascript",
+        headers={"Cache-Control": "public, max-age=3600"},
+    )
+
+
 # ─── Shared helpers ──────────────────────────────────────────────────────────
 
 async def _unlock_reading(reading_id: str, db: AsyncSession, skip_stardust_grant: bool = False) -> dict:

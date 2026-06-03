@@ -137,12 +137,19 @@ export function PayPalPayment({
 
   if (!config) return null
 
+  // In mainland China, paypal.com is blocked by GFW.
+  // The backend proxy (/payments/paypal/sdk) fetches the SDK from paypal.com
+  // and serves it to the browser, bypassing the firewall.
   const sdkOptions = {
     "client-id": config.clientId,
     currency: "USD",
     intent: "capture" as const,
     components: ["buttons", "card-fields"] as string[],
+    "sdk-client-token": "",
   }
+
+  // Use backend proxy for SDK loading (GFW bypass)
+  const sdkScriptSrc = `/api/proxy/api/payments/paypal/sdk?client-id=${config.clientId}&currency=USD&intent=capture&components=buttons,card-fields`
 
   const style = {
     layout: "vertical" as const,
@@ -152,7 +159,7 @@ export function PayPalPayment({
   }
 
   return (
-    <PayPalScriptProvider options={sdkOptions}>
+    <PayPalScriptProvider options={{ ...sdkOptions, scriptSrc: sdkScriptSrc }}>
       <div className={`space-y-4 ${compact ? "" : "py-2"}`}>
         {/* Mode selector: PayPal vs Card */}
         <div className="flex gap-2">
