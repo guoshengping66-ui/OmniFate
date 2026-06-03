@@ -1,15 +1,6 @@
 "use client"
-import { useState, useEffect } from "react"
-import {
-  PayPalScriptProvider,
-  PayPalButtons,
-  PayPalCardFieldsProvider,
-  PayPalCardFieldsForm,
-  type CreateOrderActions,
-  type OnApproveActions,
-} from "@paypal/react-paypal-js"
-import { Loader2, CreditCard, CheckCircle, AlertCircle } from "lucide-react"
-import { getPayPalConfig, capturePayPalOrder } from "@/lib/api"
+import { useState } from "react"
+import { Loader2, CreditCard, CheckCircle, AlertCircle, ExternalLink } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 interface PayPalPaymentProps {
@@ -27,8 +18,16 @@ interface PayPalPaymentProps {
   compact?: boolean
 }
 
-type PayMode = "paypal" | "card"
-
+/**
+ * Server-side PayPal checkout flow.
+ *
+ * WHY: The PayPal JS SDK makes browser-side API calls to api-m.paypal.com.
+ * In mainland China, GFW blocks paypal.com — the SDK cannot function.
+ * Instead, the backend creates the order and returns PayPal's approve URL.
+ * The user opens PayPal's hosted checkout page in a new tab.
+ * After payment, PayPal redirects back to our callback endpoint which
+ * captures the order and activates the subscription.
+ */
 export function PayPalPayment({
   itemType,
   readingId,
@@ -38,225 +37,91 @@ export function PayPalPayment({
   compact = false,
 }: PayPalPaymentProps) {
   const { t } = useLanguage()
-  const [config, setConfig] = useState<{ clientId: string; mode: string } | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  const [processing, setProcessing] = useState(false)
   const [success, setSuccess] = useState(false)
-  const [payMode, setPayMode] = useState<PayMode>("paypal")
-  const [cardComplete, setCardComplete] = useState(false)
 
-  useEffect(() => {
-    getPayPalConfig()
-      .then(c => setConfig({ clientId: c.client_id, mode: c.mode }))
-      .catch(() => setError("PayPal is not available"))
-      .finally(() => setLoading(false))
-  }, [])
-
-  const createOrder = async (_data: Record<string, unknown>, actions: CreateOrderActions) => {
-    // Amount is determined server-side; we pass itemType and readingId
-    // The backend create endpoint returns order details; here we use SDK's createOrder
-    // which posts to PayPal directly. We need a server-side order first.
-    //
-    // For embedded flow: call backend to create order, get PayPal order ID,
-    // then confirm with SDK.
+  const handlePayPalCheckout = async () => {
+    setLoading(true)
+    setError("")
     try {
-      const { apiDirect } = await import("@/lib/api")
-      const params: Record<string, string> = { item_type: itemType }
-      if (readingId) params.reading_id = readingId
-      const res = await apiDirect.post("/api/payments/paypal/create", null, { params })
-      return res.data.paypal_order_id
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err)
-      throw new Error(msg)
-    }
-  }
-
-  const handlePayPalApprove = async (data: Record<string, unknown>, actions?: OnApproveActions) => {
-    setProcessing(true)
-    try {
-      const orderId = data.orderID as string
-      await capturePayPalOrder(orderId)
-      setSuccess(true)
-      onSuccess()
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err)
-      setError(msg)
-      onError?.(msg)
-    } finally {
-      setProcessing(false)
-    }
-  }
-
-  const handleCardApprove = async (data: Record<string, unknown>) => {
-    setProcessing(true)
-    try {
-      // Card fields create order via createOrder callback, then submit to PayPal.
-      // On approve, we get the order ID and capture it via backend.
-      const orderId = data.orderID as string
-      if (orderId) {
-        await capturePayPalOrder(orderId)
+      const params = new URLSearchParams({ item_type: itemType })
+      if (readingId) params.set("reading_id", readingId)
+      const res = await fetch(`/api/proxy/api/payments/paypal/checkout-url?${params}`, {
+        credentials: "include",
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.detail || `HTTP ${res.status}`)
       }
-      setSuccess(true)
-      onSuccess()
+      const data = await res.json()
+      if (data.checkout_url) {
+        // Open PayPal checkout in new tab
+        window.open(data.checkout_url, "_blank")
+        // Show message that payment is in progress
+        setSuccess(true)
+        onSuccess()
+      } else {
+        throw new Error("No checkout URL returned")
+      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err)
       setError(msg)
       onError?.(msg)
     } finally {
-      setProcessing(false)
+      setLoading(false)
     }
-  }
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-6">
-        <Loader2 size={20} className="animate-spin text-white/40" />
-        <span className="text-white/40 text-sm ml-2">{t("payment.loading") || "Loading..."}</span>
-      </div>
-    )
-  }
-
-  if (error && !config) {
-    return (
-      <div className="flex items-center gap-2 py-4 text-red-400/80 text-sm">
-        <AlertCircle size={16} />
-        <span>{error}</span>
-      </div>
-    )
   }
 
   if (success) {
     return (
-      <div className="flex items-center gap-2 py-6 text-green-400 text-sm">
-        <CheckCircle size={20} />
-        <span>{t("payment.success") || "Payment successful!"}</span>
+      <div className="flex flex-col items-center gap-3 py-6">
+        <div className="flex items-center gap-2 text-green-400 text-sm">
+          <CheckCircle size={20} />
+          <span>{t("payment.success") || "Payment window opened!"}</span>
+        </div>
+        <p className="text-white/40 text-xs text-center">
+          {t("payment.paypalCompleteInNewTab") || "Complete payment in the new tab. Your subscription will activate automatically."}
+        </p>
       </div>
     )
   }
 
-  if (!config) return null
-
-  // In mainland China, paypal.com is blocked by GFW.
-  // The backend proxy (/payments/paypal/sdk) fetches the SDK from paypal.com
-  // and serves it to the browser, bypassing the firewall.
-  const sdkOptions = {
-    "client-id": config.clientId,
-    currency: "USD",
-    intent: "capture" as const,
-    components: ["buttons", "card-fields"] as string[],
-    "sdk-client-token": "",
-  }
-
-  // Use backend proxy for SDK loading (GFW bypass)
-  const sdkScriptSrc = `/api/proxy/api/payments/paypal/sdk?client-id=${config.clientId}&currency=USD&intent=capture&components=buttons,card-fields`
-
-  const style = {
-    layout: "vertical" as const,
-    color: "gold" as const,
-    shape: "rect" as const,
-    label: "pay" as const,
-  }
-
   return (
-    <PayPalScriptProvider options={{ ...sdkOptions, scriptSrc: sdkScriptSrc }}>
-      <div className={`space-y-4 ${compact ? "" : "py-2"}`}>
-        {/* Mode selector: PayPal vs Card */}
-        <div className="flex gap-2">
-          <button
-            onClick={() => setPayMode("paypal")}
-            className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 ${
-              payMode === "paypal"
-                ? "bg-[#0070ba]/15 text-[#0070ba] border border-[#0070ba]/30"
-                : "bg-white/5 text-white/40 border border-white/10 hover:border-white/20"
-            }`}
-          >
+    <div className={`space-y-4 ${compact ? "" : "py-2"}`}>
+      {/* PayPal checkout button */}
+      <button
+        onClick={handlePayPalCheckout}
+        disabled={loading}
+        className="w-full py-3 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 bg-[#0070ba]/15 text-[#0070ba] border border-[#0070ba]/30 hover:bg-[#0070ba]/25 disabled:opacity-50"
+      >
+        {loading ? (
+          <Loader2 size={16} className="animate-spin" />
+        ) : (
+          <>
             <svg viewBox="0 0 24 24" width={16} height={16} fill="currentColor">
               <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106z" />
             </svg>
-            PayPal
-          </button>
-          <button
-            onClick={() => setPayMode("card")}
-            className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 ${
-              payMode === "card"
-                ? "bg-white/10 text-white/80 border border-white/20"
-                : "bg-white/5 text-white/40 border border-white/10 hover:border-white/20"
-            }`}
-          >
-            <CreditCard size={14} />
-            {t("payment.creditCard") || "Credit Card"}
-          </button>
+            {loading ? (t("payment.connecting") || "Connecting...") : "PayPal"}
+            <ExternalLink size={12} className="opacity-50" />
+          </>
+        )}
+      </button>
+
+      {/* Error display */}
+      {error && (
+        <div className="flex items-center gap-2 text-red-400/80 text-xs">
+          <AlertCircle size={12} />
+          <span>{error}</span>
         </div>
+      )}
 
-        {/* Processing overlay */}
-        {processing && (
-          <div className="absolute inset-0 bg-ink/80 backdrop-blur-sm rounded-xl flex items-center justify-center z-10">
-            <div className="flex items-center gap-2 text-gold text-sm">
-              <Loader2 size={16} className="animate-spin" />
-              <span>{t("payment.processing") || "Processing payment..."}</span>
-            </div>
-          </div>
-        )}
-
-        {/* PayPal Buttons */}
-        {payMode === "paypal" && (
-          <div className="relative">
-            <PayPalButtons
-              style={style}
-              createOrder={createOrder}
-              onApprove={handlePayPalApprove}
-              onError={(err) => {
-                setError(String(err))
-                onError?.(String(err))
-              }}
-              disabled={processing}
-            />
-          </div>
-        )}
-
-        {/* Card Fields */}
-        {payMode === "card" && (
-          <div className="relative">
-            <PayPalCardFieldsProvider
-              createOrder={createOrder}
-              onApprove={handleCardApprove}
-              onError={(err) => {
-                setError(String(err))
-                onError?.(String(err))
-              }}
-              style={{
-                input: {
-                  "font-size": "14px",
-                  "font-family": "system-ui, -apple-system, sans-serif",
-                  color: "#e5e7eb",
-                  "background-color": "rgba(255,255,255,0.05)",
-                  "border-color": "rgba(255,255,255,0.1)",
-                },
-                ".valid": { color: "#10b981" },
-                ".invalid": { color: "#ef4444" },
-              }}
-            >
-              <PayPalCardFieldsForm />
-            </PayPalCardFieldsProvider>
-          </div>
-        )}
-
-        {/* Error display */}
-        {error && config && (
-          <div className="flex items-center gap-2 text-red-400/80 text-xs mt-2">
-            <AlertCircle size={12} />
-            <span>{error}</span>
-          </div>
-        )}
-
-        {/* Amount display */}
-        {amount && (
-          <div className="text-center text-white/30 text-xs">
-            {t("payment.totalAmount") || "Total"}: <span className="text-white/60 font-medium">{amount}</span>
-          </div>
-        )}
-      </div>
-    </PayPalScriptProvider>
+      {/* Amount display */}
+      {amount && (
+        <div className="text-center text-white/30 text-xs">
+          {t("payment.totalAmount") || "Total"}: <span className="text-white/60 font-medium">{amount}</span>
+        </div>
+      )}
+    </div>
   )
 }

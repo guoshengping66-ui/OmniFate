@@ -832,6 +832,139 @@ async def create_paypal_order(
     }
 
 
+@router.get("/paypal/checkout-url")
+async def paypal_checkout_url(
+    item_type: str = Query("unlock_report"),
+    reading_id: str = Query(None),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_user),
+):
+    """Server-side PayPal checkout: create order and return approve URL.
+
+    Used for mainland China where the PayPal JS SDK cannot reach paypal.com.
+    The user is redirected to PayPal's hosted checkout page.
+    """
+    if not settings.PAYPAL_ENABLED:
+        raise HTTPException(status_code=400, detail="PayPal 未启用")
+
+    price_info = PRODUCT_PRICES.get(item_type)
+    if not price_info or "usd" not in price_info:
+        raise HTTPException(status_code=400, detail="无效的商品类型")
+    amount_usd = price_info["usd"]
+    amount_cny = price_info["cny"]
+
+    subject_map = {
+        "premium_monthly": "AlphaMirror AI Computing Monthly",
+        "premium_yearly": "AlphaMirror AI Computing Yearly",
+        "unlock_report": "AlphaMirror AI Computing Service",
+        "founder_lifetime": "AlphaMirror AI Computing Lifetime",
+    }
+    paypal_description = subject_map.get(item_type, "AlphaMirror AI Computing Service")
+
+    order_no = f"PP{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
+
+    order = Order(
+        user_id=current_user.id,
+        order_no=order_no,
+        status=OrderStatus.pending,
+        total_cny=amount_cny,
+        payment_method="paypal",
+        payment_ref=order_no,
+        notes=f"item_type:{item_type}|reading_id:{reading_id or ''}",
+    )
+    db.add(order)
+    await db.commit()
+
+    paypal = PayPalPay()
+    # Override return/cancel URLs to include order_no for callback identification
+    base = "https://khanfate.com"
+    result = await paypal.create_order(order_no, amount_usd, paypal_description, custom_id=current_user.id)
+
+    # Build URLs with order_no embedded
+    approve_url = result["approve_url"]
+    separator = "&" if "?" in approve_url else "?"
+    checkout_url = f"{approve_url}{separator}return={base}/api/proxy/api/payments/paypal/return/{order_no}&cancel={base}/api/proxy/api/payments/paypal/cancel/{order_no}"
+
+    return {
+        "checkout_url": checkout_url,
+        "order_no": order_no,
+        "total_amount": amount_usd,
+    }
+
+
+@router.get("/paypal/return/{order_no}")
+async def paypal_return(
+    order_no: str,
+    token: str = Query(""),
+    PayerID: str = Query(""),
+    db: AsyncSession = Depends(get_db),
+):
+    """PayPal redirect callback after user approves payment.
+
+    Captures the order and activates the subscription/unlock.
+    Redirects user to a success page.
+    """
+    from fastapi.responses import RedirectResponse
+
+    if not token:
+        return RedirectResponse("https://khanfate.com/payment?error=no_token")
+
+    paypal = PayPalPay()
+    access_token = paypal._get_access_token()
+
+    # Capture the order
+    response = requests.post(
+        f"{paypal.base_url}/v2/checkout/orders/{token}/capture",
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": "application/json",
+        },
+        timeout=10,
+    )
+    result = response.json()
+
+    if result.get("status") == "COMPLETED":
+        # Activate subscription/unlock
+        order_result = await db.execute(
+            select(Order).where(Order.order_no == order_no).with_for_update()
+        )
+        order = order_result.scalar_one_or_none()
+        if order and order.status != OrderStatus.paid:
+            order.status = OrderStatus.paid
+            order.paid_at = datetime.now(timezone.utc)
+            order.payment_ref = token
+
+            if order.user_id:
+                item_type = ""
+                if order.notes and "item_type:" in order.notes:
+                    item_type = order.notes.split("item_type:")[1].split("|")[0]
+
+                user_result = await db.execute(
+                    select(User).where(User.id == order.user_id).with_for_update()
+                )
+                user = user_result.scalar_one_or_none()
+                if user and item_type in ("premium_monthly", "premium_yearly"):
+                    await _activate_subscription(user, item_type, db)
+                    logger.info(f"[PAYPAL-RETURN] 激活订阅: 用户 {user.id}, {item_type}")
+                elif user and item_type == "founder_lifetime":
+                    await _activate_founder_seat(user, order_no, db)
+                    logger.info(f"[PAYPAL-RETURN] 激活创始席位: 用户 {user.id}")
+
+            await db.commit()
+
+        return RedirectResponse("https://khanfate.com/payment?paypal=success")
+    else:
+        logger.error(f"[PAYPAL-RETURN] 捕获失败: {order_no}, {result}")
+        return RedirectResponse("https://khanfate.com/payment?paypal=failed")
+
+
+@router.get("/paypal/cancel/{order_no}")
+async def paypal_cancel(order_no: str):
+    """PayPal redirect when user cancels payment."""
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse("https://khanfate.com/payment?paypal=cancelled")
+
+
 @router.post("/paypal/capture")
 async def capture_paypal_order(
     paypal_order_id: str = Query(..., description="PayPal 订单 ID"),
