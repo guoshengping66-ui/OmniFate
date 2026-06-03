@@ -88,6 +88,18 @@ async def monthly_stardust_grant(
 
         grant_amount = MONTHLY_GRANTS[tier]
 
+        # 幂等检查：本月是否已发放过
+        month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        existing_grant = await db.execute(
+            select(CreditTransaction).where(
+                CreditTransaction.user_id == user.id,
+                CreditTransaction.reason == "monthly_grant",
+                CreditTransaction.created_at >= month_start,
+            )
+        )
+        if existing_grant.scalar_one_or_none():
+            continue  # 本月已发放，跳过
+
         # 悲观锁
         user_result = await db.execute(
             select(User).where(User.id == user.id).with_for_update()

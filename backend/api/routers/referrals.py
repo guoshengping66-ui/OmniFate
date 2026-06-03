@@ -46,11 +46,13 @@ async def get_my_code(
 
     if not user.referral_code:
         code = _generate_referral_code()
-        while True:
+        for _ in range(20):  # Max 20 attempts to find unique code
             existing = await db.execute(select(User).where(User.referral_code == code))
             if not existing.scalar_one_or_none():
                 break
             code = _generate_referral_code()
+        else:
+            raise HTTPException(status_code=500, detail="无法生成唯一邀请码，请稍后重试")
         user.referral_code = code
         await db.commit()
 

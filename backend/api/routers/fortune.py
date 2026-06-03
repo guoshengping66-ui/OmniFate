@@ -435,15 +435,27 @@ async def generate_all_weekly_fortunes(
     emails_sent = 0
     errors = []
 
-    # Get all users with birth profiles and subscriptions
-    result = await db.execute(
-        select(User).options(selectinload(User.birth_profiles))
+    # Get active subscribers first (smaller set)
+    sub_result = await db.execute(
+        select(FortuneSubscription).where(FortuneSubscription.is_active == True)
     )
-    all_users = result.scalars().unique().all()
+    active_subs = {s.user_id: s for s in sub_result.scalars().all()}
 
-    # Build subscription map
-    sub_result = await db.execute(select(FortuneSubscription))
-    sub_map = {s.user_id: s for s in sub_result.scalars().all()}
+    if not active_subs:
+        return {"status": "ok", "emails_sent": 0, "message": "No active subscribers"}
+
+    # Load users in batches to avoid memory issues
+    BATCH_SIZE = 100
+    user_ids = list(active_subs.keys())
+    all_users = []
+    for i in range(0, len(user_ids), BATCH_SIZE):
+        batch_ids = user_ids[i:i + BATCH_SIZE]
+        result = await db.execute(
+            select(User).where(User.id.in_(batch_ids)).options(selectinload(User.birth_profiles))
+        )
+        all_users.extend(result.scalars().unique().all())
+
+    sub_map = active_subs
 
     for user in all_users:
         sub = sub_map.get(user.id)

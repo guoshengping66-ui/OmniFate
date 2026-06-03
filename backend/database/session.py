@@ -32,14 +32,20 @@ engine = create_async_engine(_database_url, **_kw)
 AsyncSessionLocal = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 _db_available = None  # cached availability check
+_db_last_check = 0.0   # timestamp of last check
+_DB_CHECK_INTERVAL = 30  # recheck every 30s if previously failed
 _tables_created = False  # ensure tables are created once per cold start
 _founder_reset_done = False  # one-time founder data cleanup
 
 
 async def _check_db_available() -> bool:
-    """Quick check if database is reachable (10s timeout)."""
-    global _db_available
-    if _db_available is not None:
+    """Quick check if database is reachable (10s timeout). Rechecks periodically if previously failed."""
+    global _db_available, _db_last_check
+    import time
+    now = time.time()
+    # If previously available, trust cached result for 30s
+    # If previously unavailable, recheck every 30s to detect recovery
+    if _db_available is not None and (now - _db_last_check) < _DB_CHECK_INTERVAL:
         return _db_available
     try:
         await asyncio.wait_for(
@@ -48,6 +54,7 @@ async def _check_db_available() -> bool:
     except Exception as ex:
         _db_available = False
         print(f"[DB] Database not available: {ex}, running in stateless mode")
+    _db_last_check = now
     return _db_available
 
 

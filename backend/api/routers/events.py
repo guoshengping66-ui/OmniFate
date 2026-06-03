@@ -190,7 +190,18 @@ async def energy_radar(
             "balance_after": current_user.stardust_balance,
         }
 
-    # 2. 非会员扣费 5 星尘
+    # 2. 先获取用户出生盘数据（在扣费之前验证）
+    reading_result = await db.execute(
+        select(Reading).where(
+            Reading.user_id == current_user.id,
+            Reading.status == ReadingStatus.completed,
+        ).order_by(Reading.created_at.desc()).limit(1)
+    )
+    reading = reading_result.scalar_one_or_none()
+    if not reading:
+        raise HTTPException(status_code=404, detail="请先完成一次推命分析后再使用能量雷达")
+
+    # 3. 非会员扣费 5 星尘（已验证有可用的 Reading）
     stardust_deducted = 0
     new_balance = None
     if not current_user.is_premium:
@@ -216,33 +227,6 @@ async def energy_radar(
         db.add(tx)
         stardust_deducted = STARDUST_COST_ENERGY_RADAR
         await db.flush()
-
-    # 3. 获取用户出生盘数据
-    reading_result = await db.execute(
-        select(Reading).where(
-            Reading.user_id == current_user.id,
-            Reading.status == ReadingStatus.completed,
-        ).order_by(Reading.created_at.desc()).limit(1)
-    )
-    reading = reading_result.scalar_one_or_none()
-    if not reading:
-        if stardust_deducted > 0:
-            # 退款
-            refund_user_result = await db.execute(
-                select(User).where(User.id == current_user.id).with_for_update()
-            )
-            refund_user = refund_user_result.scalar_one()
-            refund_user.stardust_balance += STARDUST_COST_ENERGY_RADAR
-            refund_tx = CreditTransaction(
-                user_id=refund_user.id,
-                amount=STARDUST_COST_ENERGY_RADAR,
-                balance_after=refund_user.stardust_balance,
-                reason="refund",
-                reference_id=None,
-                status="confirmed",
-            )
-            db.add(refund_tx)
-        raise HTTPException(status_code=404, detail="请先完成一次推命分析后再使用能量雷达")
 
     # 4. 计算能量事件
     events = _calc_energy_events(

@@ -1,6 +1,7 @@
 """
 Contact form & newsletter endpoints — sends user messages to support email.
 """
+import html
 import time
 from collections import defaultdict
 
@@ -59,17 +60,22 @@ async def submit_contact(req: ContactRequest, request: Request):
     }
     subject_label = subject_map.get(req.subject, req.subject or "未分类")
 
-    html = f"""
+    # HTML-escape all user input to prevent email XSS
+    safe_name = html.escape(req.name)
+    safe_email = html.escape(req.email)
+    safe_message = html.escape(req.message)
+
+    email_html = f"""
     <div style="max-width:500px;margin:0 auto;font-family:Arial,sans-serif;color:#333;">
       <div style="background:linear-gradient(135deg,#2D1B4E,#1a0f2e);padding:20px;text-align:center;border-radius:12px 12px 0 0;">
         <h2 style="color:#C9A84C;margin:0;">✦ 命盘智镜 — 用户留言</h2>
       </div>
       <div style="background:#f9f9f9;padding:24px;border-radius:0 0 12px 12px;">
         <p><strong>主题：</strong>{subject_label}</p>
-        <p><strong>姓名：</strong>{req.name}</p>
-        <p><strong>邮箱：</strong><a href="mailto:{req.email}">{req.email}</a></p>
+        <p><strong>姓名：</strong>{safe_name}</p>
+        <p><strong>邮箱：</strong><a href="mailto:{safe_email}">{safe_email}</a></p>
         <hr style="border:none;border-top:1px solid #eee;margin:16px 0;" />
-        <p style="white-space:pre-wrap;line-height:1.6;">{req.message}</p>
+        <p style="white-space:pre-wrap;line-height:1.6;">{safe_message}</p>
       </div>
       <div style="text-align:center;padding:12px;font-size:11px;color:#aaa;">
         此邮件由命盘智镜联系表单自动发送
@@ -78,7 +84,7 @@ async def submit_contact(req: ContactRequest, request: Request):
     """
 
     to_email = settings.SMTP_FROM or "support@khanfate.com"
-    ok = _send_email(to_email, f"[命盘智镜] 联系表单 - {subject_label} - {req.name}", html)
+    ok = _send_email(to_email, f"[命盘智镜] 联系表单 - {subject_label} - {req.name}", email_html)
 
     if not ok:
         # Still return success to user — don't expose email failures

@@ -749,8 +749,7 @@ async def google_login(req: GoogleLoginRequest, request: Request, db: AsyncSessi
             req.credential,
             public_key,
             algorithms=["RS256"],
-            audience=settings.GOOGLE_CLIENT_ID if hasattr(settings, 'GOOGLE_CLIENT_ID') else None,
-            options={"verify_aud": False}  # We'll verify manually if needed
+            audience=settings.GOOGLE_CLIENT_ID,
         )
 
         google_email = payload.get("email")

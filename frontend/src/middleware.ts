@@ -39,7 +39,7 @@ export function middleware(request: NextRequest) {
   // Add security headers to the i18n response
   intlResponse.headers.set("X-Content-Type-Options", "nosniff")
   intlResponse.headers.set("X-Frame-Options", "DENY")
-  intlResponse.headers.set("X-XSS-Protection", "1; mode=block")
+  // X-XSS-Protection removed — deprecated, can introduce XSS in older browsers
   intlResponse.headers.set("Referrer-Policy", "strict-origin-when-cross-origin")
   intlResponse.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
 
@@ -56,8 +56,9 @@ export function middleware(request: NextRequest) {
     "Content-Security-Policy",
     [
       "default-src 'self'",
+      // script-src 'unsafe-inline' required by Next.js hydration — migrate to nonces when possible
       "script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://www.gstatic.com https://www.paypal.com https://sandbox.paypal.com https://www.sandbox.paypal.com",
-      "style-src 'self' 'unsafe-inline' https://fonts.font.im https://fonts.gstatic.com https://www.gstatic.com",
+      "style-src 'self' https://fonts.font.im https://fonts.gstatic.com https://www.gstatic.com",
       "img-src 'self' data: blob: https:",
       "font-src 'self' data: https://fonts.font.im https://fonts.gstatic.com https://fonts.gstatic.font.im",
       "connect-src 'self' https://api.khanfate.com https://fonts.googleapis.com https://fonts.font.im https://translate.googleapis.com https://www.paypal.com https://sandbox.paypal.com https://api-m.paypal.com https://api-m.sandbox.paypal.com",

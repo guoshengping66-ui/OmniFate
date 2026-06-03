@@ -95,7 +95,7 @@ class ReviewRequest(BaseModel):
 
 
 @router.get("")
-async def list_products(category: str = Query(None), search: str = Query(None), lang: str = Query("zh"), limit: int = 50):
+async def list_products(category: str = Query(None), search: str = Query(None), lang: str = Query("zh"), limit: int = Query(50, le=200)):
     products = _load_products(lang)
     if category:
         products = [p for p in products if p.get("category") == category]
@@ -140,8 +140,10 @@ async def list_reviews(product_id: str):
                 }
                 for r in reviews
             ]
-    except Exception:
+    except Exception as e:
         # Fallback if table doesn't exist yet
+        import logging
+        logging.getLogger(__name__).warning(f"Failed to load reviews for {product_id}: {e}")
         return []
 
 
