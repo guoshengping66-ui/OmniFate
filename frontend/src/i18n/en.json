@@ -2638,6 +2638,9 @@
   },
   "payment": {
     "activating": "Payment confirmed — activating membership...",
+    "creditCard": "Credit Card",
+    "loading": "Loading...",
+    "totalAmount": "Total Amount",
     "activationIssue": "Activation issue — refresh and try again",
     "alipayQR": "Alipay QR Code",
     "alipaySteps": "Alipay Payment Steps",

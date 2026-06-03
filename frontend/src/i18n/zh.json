@@ -2638,6 +2638,9 @@
   },
   "payment": {
     "activating": "支付已确认，正在激活会员...",
+    "creditCard": "信用卡",
+    "loading": "加载中...",
+    "totalAmount": "总金额",
     "activationIssue": "会员激活遇到问题，请稍后刷新页面重试",
     "alipayQR": "支付宝收款码",
     "alipaySteps": "支付宝支付步骤",
