@@ -29,6 +29,8 @@ log "📦 安装依赖..."
 npm ci --production=false 2>/dev/null || npm install
 
 # ── 3. 构建生产版本 ──────────────────────────────────────────────────────
+log "🔨 清理旧构建缓存..."
+rm -rf .next
 log "🔨 构建生产版本..."
 NODE_ENV=production npm run build
 
