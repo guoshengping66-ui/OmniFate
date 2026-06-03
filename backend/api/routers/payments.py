@@ -978,7 +978,7 @@ async def capture_paypal_order(
     """捕获 PayPal 支付（用户支付完成后调用）— 需要登录"""
     paypal = PayPalPay()
     access_token = paypal._get_access_token()
-    logger.info(f"[PAYPAL-CAPTURE] order_id={paypal_order_id}, has_token={bool(access_token)}, base_url={paypal.base_url}")
+    logger.info(f"[PAYPAL-CAPTURE] order_id={paypal_order_id}, has_token={bool(access_token)}, base_url={paypal.base_url}, user={current_user.id}")
 
     response = requests.post(
         f"{paypal.base_url}/v2/checkout/orders/{paypal_order_id}/capture",
@@ -1011,9 +1011,12 @@ async def capture_paypal_order(
                             matched_item_type = _item_type
                             break
                 logger.info(f"[PAYPAL-CAPTURE] 金额验证: captured={captured_amount}, expected_usd={expected_usd}, matched_item={matched_item_type}, order.total_cny={order.total_cny}, order.order_no={order_no}")
-                if expected_usd and abs(captured_amount - expected_usd) > 0.01:
-                    logger.error(f"[PAYPAL-CAPTURE] 金额不匹配! captured={captured_amount} != expected={expected_usd}")
-                    raise HTTPException(status_code=400, detail="支付金额不匹配")
+                if expected_usd is not None and abs(captured_amount - expected_usd) > 0.01:
+                    detail_msg = f"支付金额不匹配: 实际${captured_amount}, 预期${expected_usd} ({matched_item_type})"
+                    logger.error(f"[PAYPAL-CAPTURE] {detail_msg}")
+                    raise HTTPException(status_code=400, detail=detail_msg)
+                if expected_usd is None:
+                    logger.warning(f"[PAYPAL-CAPTURE] 未找到匹配的价格配置, order.total_cny={order.total_cny}")
 
                 # 如果订单尚未被 webhook 标记为 paid，激活对应权益
                 already_paid = order.status == OrderStatus.paid
