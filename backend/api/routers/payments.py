@@ -985,6 +985,7 @@ async def capture_paypal_order(
     )
 
     result = response.json()
+    logger.info(f"[PAYPAL-CAPTURE] order_id={paypal_order_id}, status={response.status_code}, result={result}")
     if result.get("status") == "COMPLETED":
         order_no = result.get("purchase_units", [{}])[0].get("reference_id", "")
         if order_no:
@@ -1031,7 +1032,9 @@ async def capture_paypal_order(
 
         return {"status": "completed", "message": "支付成功"}
     else:
-        raise HTTPException(status_code=400, detail="PayPal 捕获失败")
+        error_msg = result.get("message", "未知错误")
+        logger.error(f"[PAYPAL-CAPTURE] 捕获失败: order_id={paypal_order_id}, status={result.get('status')}, error={error_msg}, full={result}")
+        raise HTTPException(status_code=400, detail=f"PayPal 捕获失败: {error_msg}")
 
 
 # ─── Report Unlock ───────────────────────────────────────────────────────────
