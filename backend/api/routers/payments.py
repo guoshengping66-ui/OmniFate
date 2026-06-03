@@ -1146,11 +1146,12 @@ async def unlock_report(
         unlock_result = await _unlock_reading(reading_id, db, skip_stardust_grant=True)
         return {**unlock_result, "stardust_deducted": STARDUST_COST_UNLOCK}
 
-    # 4. 支付宝/微信/PayPal 解锁 — 验证已支付订单
+    # 4. 支付宝/微信/PayPal 解锁 — 验证已支付订单（只检查当前用户的订单）
     paid_order = await db.execute(
         select(Order).where(
             Order.notes.contains(f"reading_id:{reading_id}"),
             Order.status == OrderStatus.paid,
+            Order.user_id == current_user.id,
         )
     )
     paid_order = paid_order.scalar_one_or_none()
@@ -1174,7 +1175,7 @@ class PayEventRequest(BaseModel):
 async def pay_event(
     req: PayEventRequest,
     db: AsyncSession = Depends(get_db),
-    current_user: Optional[User] = Depends(get_current_user),
+    current_user: User = Depends(require_user),
 ):
     """支付事件复盘：订阅用户免费额度 → 星尘(30) → ¥19.9/次"""
     event_result = await db.execute(select(EventLog).where(EventLog.id == req.event_id))
@@ -1182,18 +1183,20 @@ async def pay_event(
     if not event:
         raise HTTPException(status_code=404, detail="事件不存在")
 
+    # Verify event belongs to current user
+    if hasattr(event, "user_id") and event.user_id and event.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="无权操作此事件")
+
     if getattr(event, "is_paid", False):
         return {"paid": True, "event_id": req.event_id, "charge": 0, "message": "已支付"}
 
     charge = 0.0
     used_free = False
     stardust_deducted = 0
-    user = None
 
-    # Refetch user within this session if logged in
-    if current_user:
-        result = await db.execute(select(User).where(User.id == current_user.id))
-        user = result.scalar_one_or_none()
+    # Refetch user within this session
+    result = await db.execute(select(User).where(User.id == current_user.id))
+    user = result.scalar_one_or_none()
 
     if user:
         now = datetime.now(timezone.utc)
@@ -1230,8 +1233,6 @@ async def pay_event(
             stardust_deducted = STARDUST_COST_EVENT
         else:
             charge = EVENT_RETRO_PRICE
-    else:
-        charge = EVENT_RETRO_PRICE
 
     setattr(event, "is_paid", True)
     await db.commit()
@@ -1389,13 +1390,14 @@ async def create_order(
 async def get_tracking(
     order_id: str,
     db: AsyncSession = Depends(get_db),
-    current_user: Optional[User] = Depends(get_current_user),
+    current_user: User = Depends(require_user),
 ):
-    """查询物流信息"""
+    """查询物流信息 — 需要登录，只能查看自己的订单"""
 
-    stmt = select(Order).where(Order.id == order_id)
-    if current_user:
-        stmt = stmt.where(Order.user_id == current_user.id)
+    stmt = select(Order).where(
+        Order.id == order_id,
+        Order.user_id == current_user.id,
+    )
     result = await db.execute(stmt)
     order = result.scalar_one_or_none()
     if not order:

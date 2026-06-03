@@ -123,28 +123,31 @@ async def create_payment_order(
 
     返回支付宝/微信收款码URL，供前端展示
     """
-    # 1. 验证金额
+    # 1. 验证金额 — 必须匹配已知产品价格
     if payload.amount <= 0:
         raise HTTPException(status_code=400, detail="金额必须大于0")
-    if payload.amount > 50000:
-        raise HTTPException(status_code=400, detail="单笔金额不能超过5万元")
-
-    # Price validation against known product prices
     valid_amounts = {
         "report_unlock": PRODUCT_PRICES.get("report_unlock", {}).get("cny", 10),
         "premium_monthly": PRODUCT_PRICES.get("premium_monthly", {}).get("cny", 59),
         "premium_yearly": PRODUCT_PRICES.get("premium_yearly", {}).get("cny", 365),
     }
-    # Only reject clearly invalid amounts (personal payments are flexible in amount)
-    if payload.amount > 50000 or payload.amount <= 0:
-        raise HTTPException(status_code=400, detail="金额必须在0-50000之间")
+    # Only accept amounts that match known product prices
+    matched_type = None
+    for ptype, price in valid_amounts.items():
+        if abs(payload.amount - price) < 0.01:
+            matched_type = ptype
+            break
+    if matched_type is None:
+        raise HTTPException(status_code=400, detail="金额不匹配任何已知产品价格")
 
     # 2. 验证支付方式
     method = payload.currency.upper()
     if method not in ("CNY", "CNY_ALIPAY", "CNY_WECHAT", "USD_PAYPAL"):
         raise HTTPException(status_code=400, detail="不支持的支付方式")
 
-    # 3. 创建订单
+    # 3. 创建订单 — user_id 必须来自认证用户，不可由客户端指定
+    if not current_user:
+        raise HTTPException(status_code=401, detail="请先登录后再创建订单")
     payment_method = "alipay" if "ALIPAY" in method else ("wechat" if "WECHAT" in method else "paypal")
     order = await _create_order(
         db=db,
@@ -152,7 +155,7 @@ async def create_payment_order(
         payment_method=payment_method,
         description=payload.description or "AlphaMirror AI算力服务",
         reading_id=payload.reading_id,
-        user_id=current_user.id if current_user else payload.user_id,
+        user_id=current_user.id,
     )
 
     # 4. 返回支付信息
@@ -379,14 +382,18 @@ async def admin_confirm_payment(
 async def check_order_status(
     order_no: str,
     db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_user),
 ):
     """
     查询订单状态
 
-    前端轮询此接口检查支付状态
+    前端轮询此接口检查支付状态 — 需要登录，只能查看自己的订单
     """
     result = await db.execute(
-        select(Order).where(Order.order_no == order_no)
+        select(Order).where(
+            Order.order_no == order_no,
+            Order.user_id == current_user.id,
+        )
     )
     order = result.scalar_one_or_none()
     if not order:

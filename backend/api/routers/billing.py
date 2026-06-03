@@ -424,7 +424,9 @@ async def _verify_arbitrum_tx(tx_id: str) -> dict:
     Arbitrum USDT (ERC-20) 交易全链路校验。
     使用公共 RPC 读取交易收据, 校验 Log events。
     """
-    rpc_url = "https://arb-mainnet.g.alchemy.com/v2/demo"  # 公共 fallback
+    rpc_url = settings.ARBITRUM_RPC_URL
+    if not rpc_url:
+        raise HTTPException(status_code=500, detail="ARBITRUM_RPC_URL not configured")
 
     async with httpx.AsyncClient(timeout=15) as client:
         # 获取交易详情

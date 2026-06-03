@@ -15,7 +15,7 @@ class Settings(BaseSettings):
 
     APP_NAME: str = "命盘智镜"
     DEBUG: bool = False
-    SECRET_KEY: str = "change-me-in-production"
+    SECRET_KEY: str = ""
     ALLOWED_ORIGINS: list[str] = [
         "http://localhost:3000", "http://localhost:3001",
         "https://khanfate.com", "https://www.khanfate.com",
@@ -102,6 +102,7 @@ class Settings(BaseSettings):
     USDT_GRANT_RATE: int = 70          # 1 USDT = 70 星尘
     PAYPAL_GRANT_RATE: float = 70.0    # 1 USD = 70 星尘
     TRONGRID_API_KEY: str = ""         # TronGrid API Key (可选, 提高限额)
+    ARBITRUM_RPC_URL: str = ""         # Arbitrum RPC URL (必填, 用于 USDT 链上校验)
 
     # ── Redis (distributed state: rate limits, session store, token blacklist) ──
     REDIS_URL: str = ""                # e.g. "redis://localhost:6379/0" — empty = in-memory fallback
@@ -122,8 +123,9 @@ def get_settings() -> Settings:
         "change-me-to-a-random-32-char-string",
         "alpha-mirror-jwt-secret-dev-key-2025",
     }
-    if s.SECRET_KEY in _default_secrets or s.SECRET_KEY.startswith("change-me"):
-        print("[SECURITY] ⚠️ SECRET_KEY 使用默认值！请在 .env 中设置强密钥。")
+    if not s.SECRET_KEY or s.SECRET_KEY in _default_secrets or s.SECRET_KEY.startswith("change-me"):
+        s.SECRET_KEY = secrets.token_hex(32)
+        print("[SECURITY] ⚠️ SECRET_KEY 未设置，已自动生成随机密钥。请在 .env 中设置固定密钥以避免重启后 session 失效。")
     if s.JWT_SECRET_KEY in _default_secrets or s.JWT_SECRET_KEY.startswith("change-me"):
         # Auto-generate a random secret instead of crashing
         s.JWT_SECRET_KEY = secrets.token_hex(32)

@@ -33,7 +33,12 @@ async def is_token_blacklisted(jti: str) -> bool:
     r = await _get_redis()
     if r:
         return await r.exists(f"bl:token:{jti}") > 0
-    return jti in _memory_blacklist
+    # Check both the old set and the new ordered dict
+    if jti in _memory_blacklist:
+        return True
+    if hasattr(blacklist_token, "_mem_ordered") and jti in blacklist_token._mem_ordered:
+        return True
+    return False
 
 
 async def blacklist_token(jti: str) -> None:
@@ -43,20 +48,23 @@ async def blacklist_token(jti: str) -> None:
     if r:
         await r.setex(f"bl:token:{jti}", _BLACKLIST_TTL_DAYS * 86400, "1")
         return
-    # In-memory fallback with bounded size
-    _memory_blacklist.add(jti)
-    if len(_memory_blacklist) > _MEMORY_BLACKLIST_MAX:
-        _lst = list(_memory_blacklist)
-        _memory_blacklist.clear()
-        _memory_blacklist.update(_lst[-_MEMORY_BLACKLIST_MAX // 2:])
+    # In-memory fallback with bounded size — use OrderedDict-like behavior
+    # to evict oldest entries instead of discarding random ones
+    import collections
+    if not hasattr(blacklist_token, "_mem_ordered"):
+        blacklist_token._mem_ordered = collections.OrderedDict()
+    _mem = blacklist_token._mem_ordered
+    _mem[jti] = True
+    while len(_mem) > _MEMORY_BLACKLIST_MAX:
+        _mem.popitem(last=False)  # Evict oldest
 
 
 def create_access_token(user_id: str, expires_delta: Optional[timedelta] = None) -> str:
-    """Create a JWT access token for a user."""
+    """Create a JWT access token for a user with jti for blacklist support."""
     expire = datetime.now(timezone.utc) + (
         expires_delta or timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     )
-    to_encode = {"sub": user_id, "exp": expire, "type": "access"}
+    to_encode = {"sub": user_id, "exp": expire, "type": "access", "jti": str(uuid.uuid4())}
     return jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=ALGORITHM)
 
 
@@ -75,7 +83,7 @@ async def verify_token(token: str) -> Optional[str]:
         user_id: str = payload.get("sub")
         if user_id is None:
             return None
-        # Check blacklist for refresh tokens
+        # Check blacklist for ALL tokens (access + refresh)
         jti = payload.get("jti")
         if jti and await is_token_blacklisted(jti):
             return None

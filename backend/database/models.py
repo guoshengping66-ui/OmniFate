@@ -49,6 +49,7 @@ class OrderStatus(str, enum.Enum):
     shipped = "shipped"
     delivered = "delivered"
     cancelled = "cancelled"
+    pending_refund = "pending_refund"
     refunded = "refunded"
 
 
@@ -294,8 +295,8 @@ class OrderItem(Base):
 
     product_name: Mapped[str] = mapped_column(String(200), nullable=False)
     quantity: Mapped[int] = mapped_column(Integer, default=1)
-    unit_price_cny: Mapped[float] = mapped_column(Float, nullable=False)
-    subtotal_cny: Mapped[float] = mapped_column(Float, nullable=False)
+    unit_price_cny: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
+    subtotal_cny: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
     recommendation_reason: Mapped[Optional[str]] = mapped_column(Text)
 
     order: Mapped["Order"] = relationship(back_populates="items")

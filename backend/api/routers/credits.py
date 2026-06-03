@@ -82,7 +82,7 @@ async def get_balance(
 async def get_history(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_user),
-    limit: int = 50,
+    limit: int = Query(50, le=200),
 ):
     """查询星尘流水"""
     result = await db.execute(

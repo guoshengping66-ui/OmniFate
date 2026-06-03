@@ -10,6 +10,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.session import AsyncSessionLocal
@@ -122,22 +123,20 @@ async def list_orders(user: User = Depends(require_user)):
             stmt = (
                 select(Order)
                 .where(Order.user_id == user.id)
+                .options(selectinload(Order.items))
                 .order_by(Order.created_at.desc())
                 .limit(30)
             )
             result = await db.execute(stmt)
-            orders = result.scalars().all()
+            orders = result.scalars().unique().all()
             items = []
             for o in orders:
-                item_stmt = select(OrderItem).where(OrderItem.order_id == o.id)
-                item_result = await db.execute(item_stmt)
-                order_items = item_result.scalars().all()
                 items.append({
                     "id": str(o.id),
                     "order_no": o.order_no,
                     "status": o.status.value if o.status else "pending",
                     "total_cny": o.total_cny,
-                    "item_count": len(order_items),
+                    "item_count": len(o.items),
                     "created_at": o.created_at.isoformat() if o.created_at else "",
                     "paid_at": o.paid_at.isoformat() if o.paid_at else None,
                 })
@@ -423,9 +422,9 @@ async def request_refund(order_id: str, user: User = Depends(require_user)):
             raise HTTPException(status_code=404, detail="订单不存在")
         if order.status not in (OrderStatus.paid, OrderStatus.shipped):
             raise HTTPException(status_code=400, detail="当前订单状态不允许申请退款")
-        order.status = OrderStatus.refunded
+        order.status = OrderStatus.pending_refund
         await db.commit()
-        return {"status": "refunded", "message": "退款申请已提交"}
+        return {"status": "pending_refund", "message": "退款申请已提交，等待管理员审核"}
 
 
 # ── Birth Profiles (出生档案 CRUD) ─────────────────────────────────────────
@@ -433,7 +432,7 @@ async def request_refund(order_id: str, user: User = Depends(require_user)):
 class BirthProfileRequest(BaseModel):
     nickname: str = "本命"
     gender: str = "female"
-    birth_year: int
+    birth_year: int  # validated below
     birth_month: int
     birth_day: int
     birth_hour: int
@@ -441,6 +440,16 @@ class BirthProfileRequest(BaseModel):
     birth_city: str = ""
     latitude: Optional[float] = None
     longitude: Optional[float] = None
+
+    def model_post_init(self, __context) -> None:
+        if not (1900 <= self.birth_year <= 2100):
+            raise ValueError("birth_year must be between 1900 and 2100")
+        if not (1 <= self.birth_month <= 12):
+            raise ValueError("birth_month must be between 1 and 12")
+        if not (1 <= self.birth_day <= 31):
+            raise ValueError("birth_day must be between 1 and 31")
+        if not (0 <= self.birth_hour <= 23):
+            raise ValueError("birth_hour must be between 0 and 23")
 
 
 def _birth_profile_to_dict(bp: BirthProfile) -> dict:

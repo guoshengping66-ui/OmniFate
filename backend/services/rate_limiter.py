@@ -34,17 +34,23 @@ async def check_rate_limit(
 
 
 async def _check_redis(r, key: str, limit: int, window: int) -> bool:
-    """Redis sliding window using sorted sets."""
+    """Redis sliding window using sorted sets — count before adding for accuracy."""
     now = time.time()
     redis_key = f"rl:{key}"
     pipe = r.pipeline()
     pipe.zremrangebyscore(redis_key, 0, now - window)  # Remove expired entries
-    pipe.zadd(redis_key, {str(now): now})               # Add current request
-    pipe.zcard(redis_key)                                # Count entries in window
+    pipe.zcard(redis_key)                                # Count BEFORE adding
     pipe.expire(redis_key, window + 10)                  # Auto-cleanup
     results = await pipe.execute()
-    count = results[2]
-    return count > limit
+    count = results[1]
+    if count >= limit:
+        return True  # Rate limit exceeded — don't add this request
+    # Only add if under limit
+    pipe2 = r.pipeline()
+    pipe2.zadd(redis_key, {str(now): now})
+    pipe2.expire(redis_key, window + 10)
+    await pipe2.execute()
+    return False
 
 
 def _check_memory(key: str, limit: int, window: int) -> bool:

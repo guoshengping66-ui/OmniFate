@@ -5,13 +5,11 @@ Replaces the in-memory `_sessions` dict in readings.py.
 Supports distributed session storage across multiple worker processes.
 Falls back to in-memory dict when Redis is unavailable.
 
-NOTE: Session data is stored as pickle (binary). We must NOT use
-decode_responses=True on the Redis connection, otherwise hiredis will
-try to decode binary pickle data as UTF-8 and throw UnicodeDecodeError.
+NOTE: Session data is stored as JSON (not pickle) for security.
 """
 from __future__ import annotations
 
-import pickle
+import json
 import time
 from typing import Optional
 
@@ -21,13 +19,13 @@ from config import get_settings
 
 SESSION_TTL = 3600 * 2  # 2 hours
 
-# ── Binary Redis client (for pickle-serialized session data) ──────────────────
+# ── Redis client ─────────────────────────────────────────────────────────────
 _session_redis = None
 _session_redis_available: Optional[bool] = None  # None = not checked yet
 
 
 async def _get_session_redis():
-    """Return a Redis client with decode_responses=False for binary data."""
+    """Return a Redis client with decode_responses=True for JSON string data."""
     global _session_redis, _session_redis_available
     if _session_redis_available is False:
         return None
@@ -40,7 +38,7 @@ async def _get_session_redis():
     try:
         _session_redis = aioredis.from_url(
             settings.REDIS_URL,
-            decode_responses=False,  # Binary mode — pickle data is NOT UTF-8
+            decode_responses=True,  # JSON strings — safe UTF-8
             socket_connect_timeout=3,
             socket_timeout=3,
         )
@@ -66,7 +64,7 @@ async def get_session(key: str) -> Optional[object]:
         data = await r.get(f"sess:{key}")
         if data:
             try:
-                return pickle.loads(data)
+                return json.loads(data)
             except Exception:
                 return None
         return None
@@ -86,7 +84,7 @@ async def set_session(key: str, obj: object, ttl: int = SESSION_TTL) -> None:
     r = await _get_session_redis()
     if r:
         try:
-            data = pickle.dumps(obj)
+            data = json.dumps(obj, ensure_ascii=False, default=str)
             await r.setex(f"sess:{key}", ttl, data)
         except Exception as e:
             print(f"[SESSION-REDIS] Failed to store session {key}: {e}")
@@ -124,7 +122,7 @@ async def get_sessions_batch(keys: list[str]) -> dict[str, object]:
             for key, data in zip(keys, raw):
                 if data:
                     try:
-                        result[key] = pickle.loads(data)
+                        result[key] = json.loads(data)
                     except Exception:
                         pass
             return result

@@ -51,7 +51,21 @@ export async function OPTIONS(request: Request, { params }: { params: Promise<{ 
 
 async function proxy(request: Request, params: Promise<{ path: string[] }>) {
   const { path } = await params
-  const targetPath = "/" + path.join("/")
+
+  // ── SECURITY: Validate and sanitize path segments ──
+  // Prevent path traversal (../, %2e%2e, etc.) by validating each segment
+  const sanitizedSegments: string[] = []
+  for (const seg of path) {
+    // Reject path traversal patterns
+    if (seg === ".." || seg === "." || seg === "" || /%2[eE]/i.test(seg)) {
+      return new Response(
+        JSON.stringify({ detail: "Invalid path" }),
+        { status: 400, headers: { "Content-Type": "application/json; charset=utf-8" } },
+      )
+    }
+    sanitizedSegments.push(seg)
+  }
+  const targetPath = "/" + sanitizedSegments.join("/")
 
   // ── SECURITY: Block sensitive admin/cron/webhook endpoints from proxy ──
   const BLOCKED_PATHS = [
@@ -195,10 +209,10 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
       headers: respHeaders,
     })
   } catch (err: any) {
+    console.error(`[Proxy] ${targetPath} failed:`, err?.name || err?.message)
     const msg = err?.name === "AbortError"
       ? `Backend timeout (${Math.round(timeoutMs / 1000)}s) — analysis is running, please check back in a moment`
-      : `Proxy error: ${err?.message || "unknown"}`
-    console.error(`[Proxy] ${targetPath} failed:`, err?.name || err?.message)
+      : "Backend service temporarily unavailable. Please try again later."
     return new Response(
       JSON.stringify({ detail: msg }),
       { status: 502, headers: { "Content-Type": "application/json; charset=utf-8" } },
