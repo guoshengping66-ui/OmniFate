@@ -155,10 +155,8 @@ export function QRPaymentModal({
         // The founder purchase order (FO...) may not be the one that was actually paid
         const activateOrderNo = paidOrderNo || orderNo
         if (activateOrderNo) {
-          try {
-            const { api } = await import("@/lib/api")
-            await api.post(`/api/payments/founder/activate?order_no=${activateOrderNo}`)
-          } catch {}
+          const { api } = await import("@/lib/api")
+          await api.post(`/api/payments/founder/activate?order_no=${activateOrderNo}`)
         }
       } else if (postAction === "unlock" && readingId) {
         try {

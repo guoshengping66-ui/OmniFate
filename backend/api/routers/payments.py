@@ -14,7 +14,7 @@ from typing import Optional
 from xml.etree import ElementTree as ET
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Query
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -28,6 +28,14 @@ from config import get_settings
 
 router = APIRouter()
 settings = get_settings()
+
+
+_admin_emails_cached = [e.strip().lower() for e in settings.ADMIN_EMAILS.split(",") if e.strip()]
+
+
+def _is_effective_founder(user) -> bool:
+    """Check if user is effectively a founder (DB flag or admin auto-upgrade)."""
+    return user.is_founder or user.email.lower() in _admin_emails_cached
 
 SHOP_COUPON_AMOUNT = 60
 TRIAL_DAYS = 3
@@ -1521,7 +1529,7 @@ class FounderVoteRequest(BaseModel):
 
 
 class FounderFeedbackRequest(BaseModel):
-    content: str
+    content: str = Field(..., min_length=1, max_length=2000)
 
 
 @router.post("/founder/purchase")
@@ -1687,7 +1695,7 @@ async def vote_feature(
     current_user: User = Depends(require_user),
 ):
     """创始席位产品路线图投票"""
-    if not current_user.is_founder:
+    if not _is_effective_founder(current_user):
         raise HTTPException(status_code=403, detail="仅创始会员可投票")
 
     # Check if already voted
@@ -1717,11 +1725,21 @@ async def submit_founder_feedback(
     current_user: User = Depends(require_user),
 ):
     """创始席位用户反馈"""
-    if not current_user.is_founder:
+    if not _is_effective_founder(current_user):
         raise HTTPException(status_code=403, detail="仅创始会员可提交反馈")
 
     if not req.content or not req.content.strip():
         raise HTTPException(status_code=400, detail="反馈内容不能为空")
+
+    # Rate limit: max 5 feedback per hour
+    recent = await db.execute(
+        select(func.count()).select_from(FounderFeedback).where(
+            FounderFeedback.user_id == current_user.id,
+            FounderFeedback.created_at > datetime.now(timezone.utc) - timedelta(hours=1),
+        )
+    )
+    if (recent.scalar() or 0) >= 5:
+        raise HTTPException(status_code=429, detail="反馈过于频繁，请稍后再试")
 
     feedback = FounderFeedback(
         user_id=current_user.id,

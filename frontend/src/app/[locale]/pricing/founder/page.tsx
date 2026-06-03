@@ -160,8 +160,8 @@ export default function FounderPage() {
 
   if (!user) return null
 
-  const isFounder = user.is_founder
-  const seatNo = user.founder_seat_no
+  const isFounder = status?.is_founder ?? user.is_founder
+  const seatNo = status?.seat_no ?? user.founder_seat_no
 
   return (
     <div className="min-h-screen pt-24 pb-16 px-4">
