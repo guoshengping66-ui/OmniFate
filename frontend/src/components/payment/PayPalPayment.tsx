@@ -171,8 +171,8 @@ export function PayPalPayment({
         </div>
 
         {/* Card Fields */}
-        <div className="relative">
-          <div className="flex items-center gap-2 mb-2">
+        <div className="relative rounded-xl bg-white/5 border border-white/10 p-4">
+          <div className="flex items-center gap-2 mb-3">
             <CreditCard size={14} className="text-white/40" />
             <span className="text-white/50 text-xs">{t("payment.creditCard") || "Credit Card"}</span>
           </div>
@@ -188,8 +188,6 @@ export function PayPalPayment({
                 "font-size": "14px",
                 "font-family": "system-ui, -apple-system, sans-serif",
                 color: "#e5e7eb",
-                "background-color": "rgba(255,255,255,0.05)",
-                "border-color": "rgba(255,255,255,0.1)",
               },
               ".valid": { color: "#10b981" },
               ".invalid": { color: "#ef4444" },
