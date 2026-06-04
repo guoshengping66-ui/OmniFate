@@ -192,7 +192,13 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
     ])
     resp.headers.forEach((value, key) => {
       if (!skipHeaders.has(key.toLowerCase())) {
-        respHeaders.set(key, value)
+        // set-cookie can appear multiple times (access_token + refresh_token).
+        // Headers.set() overwrites previous values — use append() to keep all.
+        if (key.toLowerCase() === "set-cookie") {
+          respHeaders.append(key, value)
+        } else {
+          respHeaders.set(key, value)
+        }
       }
     })
 
