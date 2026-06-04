@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Star, ShoppingCart, ExternalLink, Sparkles, Check, Zap } from "lucide-react"
+import { Star, ShoppingBag, ExternalLink, Sparkles, Check, Zap } from "lucide-react"
 import { Link } from "@/i18n/navigation"
 import type { Product } from "@/lib/api"
 import { useCart } from "@/contexts/CartContext"
