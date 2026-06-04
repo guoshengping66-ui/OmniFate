@@ -319,19 +319,16 @@ export function TarotPicker({ onSelect }: Props) {
             )
           })}
 
-          {/* ── Deck (tappable) ── */}
-          <AnimatePresence>
-            {isDeckVisible && (
+          {/* ── Deck (tappable) — no AnimatePresence to avoid React DOM conflict ── */}
+          {isDeckVisible && (
               <motion.div
                 ref={deckRef}
-                key="deck"
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{
                   opacity: 1,
                   scale: isAnimating ? 0.95 : 1,
                   x: 0,
                 }}
-                exit={{ opacity: 0, scale: 0.7, y: -20 }}
                 transition={{ type: "spring", stiffness: 200, damping: 18 }}
                 onClick={drawCard}
                 className="absolute cursor-pointer select-none"
@@ -377,8 +374,7 @@ export function TarotPicker({ onSelect }: Props) {
                   </span>
                 </motion.div>
               </motion.div>
-            )}
-          </AnimatePresence>
+          )}
         </div>
       </div>
 
