@@ -145,6 +145,10 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
     if (!dataParam && body === undefined) {
       // Fall back to reading the request body directly
       const raw = await request.text()
+      // DEBUG: log body for auth endpoints
+      if (targetPath.includes("/auth/")) {
+        console.log(`[Proxy] ${request.method} ${targetPath} body length: ${raw?.length ?? 0}, body preview: ${raw?.substring(0, 200)}`)
+      }
       if (raw) {
         body = raw
         // Ensure Content-Type is set for the backend
@@ -207,6 +211,11 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
     const ct = respHeaders.get("content-type") || ""
     if (ct.includes("application/json") && !ct.includes("charset")) {
       respHeaders.set("Content-Type", "application/json; charset=utf-8")
+    }
+
+    // DEBUG: log auth response status
+    if (targetPath.includes("/auth/")) {
+      console.log(`[Proxy] ${targetPath} → ${resp.status}`)
     }
 
     return new Response(resp.body, {
