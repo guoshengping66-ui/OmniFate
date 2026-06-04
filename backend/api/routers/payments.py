@@ -432,6 +432,7 @@ async def create_wechat_order(
         payment_method="wechat_pay",
         payment_ref=order_no,
         user_id=current_user.id,
+        item_type=item_type,
         notes=f"item_type:{item_type}|reading_id:{reading_id or ''}",
     )
     db.add(order)
@@ -485,9 +486,9 @@ async def wechat_notify(request: Request, db: AsyncSession = Depends(get_db)):
         order.paid_at = datetime.now(timezone.utc)
 
         if order.user_id:
-            # 从 notes 中解析 item_type 并激活
-            item_type = ""
-            if order.notes and "item_type:" in order.notes:
+            # 使用 order.item_type 字段（向后兼容 notes 解析）
+            item_type = order.item_type or ""
+            if not item_type and order.notes and "item_type:" in order.notes:
                 item_type = order.notes.split("item_type:")[1].split("|")[0]
 
             user_result = await db.execute(
@@ -608,6 +609,7 @@ async def create_alipay_order(
         payment_method="alipay",
         payment_ref=order_no,
         user_id=current_user.id,
+        item_type=item_type,
         notes=f"item_type:{item_type}|reading_id:{reading_id or ''}",
     )
     db.add(order)
@@ -686,9 +688,9 @@ async def alipay_notify(request: Request, db: AsyncSession = Depends(get_db)):
         order.paid_at = datetime.now(timezone.utc)
 
         if order.user_id:
-            # 从 notes 中解析 item_type 并激活
-            item_type = ""
-            if order.notes and "item_type:" in order.notes:
+            # 使用 order.item_type 字段（向后兼容 notes 解析）
+            item_type = order.item_type or ""
+            if not item_type and order.notes and "item_type:" in order.notes:
                 item_type = order.notes.split("item_type:")[1].split("|")[0]
 
             user_result = await db.execute(
@@ -825,6 +827,7 @@ async def create_paypal_order(
         total_cny=amount_cny,
         payment_method="paypal",
         payment_ref=order_no,
+        item_type=item_type,
         notes=f"item_type:{item_type}|reading_id:{reading_id or ''}",
     )
     db.add(order)
@@ -882,6 +885,7 @@ async def paypal_checkout_url(
         total_cny=amount_cny,
         payment_method="paypal",
         payment_ref=order_no,
+        item_type=item_type,
         notes=f"item_type:{item_type}|reading_id:{reading_id or ''}",
     )
     db.add(order)
@@ -947,8 +951,8 @@ async def paypal_return(
             order.payment_ref = token
 
             if order.user_id:
-                item_type = ""
-                if order.notes and "item_type:" in order.notes:
+                item_type = order.item_type or ""
+                if not item_type and order.notes and "item_type:" in order.notes:
                     item_type = order.notes.split("item_type:")[1].split("|")[0]
 
                 user_result = await db.execute(
@@ -1040,9 +1044,9 @@ async def capture_paypal_order(
                 order.paid_at = datetime.now(timezone.utc)
 
                 if not already_paid and order.user_id:
-                    # 从 notes 中解析 item_type 并激活
-                    item_type = ""
-                    if order.notes and "item_type:" in order.notes:
+                    # 使用 order.item_type 字段（向后兼容 notes 解析）
+                    item_type = order.item_type or ""
+                    if not item_type and order.notes and "item_type:" in order.notes:
                         item_type = order.notes.split("item_type:")[1].split("|")[0]
 
                     user_result = await db.execute(
@@ -1352,6 +1356,7 @@ async def create_order(
         total_cny=final_total,
         payment_method=req.payment_method or "pending",
         payment_ref=order_no,
+        item_type="shop",
         recipient_name=recipient_name,
         recipient_phone=recipient_phone,
         shipping_address=shipping_address,
@@ -1556,6 +1561,7 @@ async def create_founder_purchase(
         total_cny=amount,
         payment_method=f"founder_{method}",
         payment_ref=order_no,
+        item_type="founder_lifetime",
         notes=f"item_type:founder_lifetime|reading_id:",
     )
     db.add(order)

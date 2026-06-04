@@ -263,6 +263,7 @@ class Order(Base):
 
     payment_method: Mapped[Optional[str]] = mapped_column(String(50))
     payment_ref: Mapped[Optional[str]] = mapped_column(String(200))
+    item_type: Mapped[Optional[str]] = mapped_column(String(50), index=True)  # premium_monthly|premium_yearly|unlock_report|founder_lifetime|shop
 
     recipient_name: Mapped[Optional[str]] = mapped_column(String(100))
     recipient_phone: Mapped[Optional[str]] = mapped_column(String(30))

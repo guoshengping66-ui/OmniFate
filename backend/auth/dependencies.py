@@ -1,10 +1,11 @@
 """
-FastAPI dependency for extracting the current user from JWT bearer token.
+FastAPI dependency for extracting the current user from JWT.
+Supports both Bearer token (Authorization header) and httpOnly cookies.
 """
 
 from typing import Optional
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy import select
 
@@ -14,25 +15,36 @@ from database.models import User
 
 bearer_scheme = HTTPBearer(auto_error=False)
 
+ACCESS_TOKEN_COOKIE = "access_token"
+
 
 async def get_current_user(
+    request: Request,
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme),
 ) -> Optional[User]:
     """
     Extract and validate the current user from JWT.
+    Accepts Bearer token (Authorization header) or httpOnly cookie.
     Returns the User ORM object, or None if no valid token is present.
     Use `require_user` below for endpoints that MUST have auth.
     """
-    if credentials is None:
+    # Try Authorization header first, then fall back to cookie
+    token = None
+    if credentials and credentials.credentials:
+        token = credentials.credentials
+    else:
+        token = request.cookies.get(ACCESS_TOKEN_COOKIE)
+
+    if not token:
         return None
+
     # SECURITY: When DB is down, raise 503 so protected endpoints fail closed
-    # instead of silently allowing unauthenticated access
     if _db_available is False:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Authentication service temporarily unavailable",
         )
-    user_id = await verify_token(credentials.credentials)
+    user_id = await verify_token(token)
     if user_id is None:
         return None
     try:

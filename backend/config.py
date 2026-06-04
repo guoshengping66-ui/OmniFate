@@ -127,9 +127,21 @@ def get_settings() -> Settings:
         s.SECRET_KEY = secrets.token_hex(32)
         print("[SECURITY] ⚠️ SECRET_KEY 未设置，已自动生成随机密钥。请在 .env 中设置固定密钥以避免重启后 session 失效。")
     if s.JWT_SECRET_KEY in _default_secrets or s.JWT_SECRET_KEY.startswith("change-me"):
-        # Auto-generate a random secret instead of crashing
-        s.JWT_SECRET_KEY = secrets.token_hex(32)
-        print("[SECURITY] ⚠️ JWT_SECRET_KEY 未设置，已自动生成随机密钥。请在 .env 中设置固定密钥以避免重启后 token 失效。")
+        # Auto-generate a random secret and PERSIST it to a file so that
+        # backend restarts (PM2, deploy) don't invalidate all existing tokens.
+        _jwt_key_file = Path(__file__).parent / ".jwt_secret"
+        try:
+            if _jwt_key_file.exists():
+                s.JWT_SECRET_KEY = _jwt_key_file.read_text().strip()
+                print("[SECURITY] JWT_SECRET_KEY 已从 .jwt_secret 文件加载（跨重启持久化）")
+            else:
+                s.JWT_SECRET_KEY = secrets.token_hex(32)
+                _jwt_key_file.write_text(s.JWT_SECRET_KEY)
+                _jwt_key_file.chmod(0o600)  # owner-only read/write
+                print("[SECURITY] ⚠️ JWT_SECRET_KEY 已自动生成并保存到 .jwt_secret，重启后不会失效。")
+        except Exception as e:
+            s.JWT_SECRET_KEY = secrets.token_hex(32)
+            print(f"[SECURITY] ⚠️ JWT_SECRET_KEY 生成成功但保存到文件失败 ({e})，重启后会失效。")
     if s.DEBUG:
         print("[SECURITY] WARNING: DEBUG mode is ON -- do not use in production.")
     return s
