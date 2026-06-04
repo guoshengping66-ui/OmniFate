@@ -84,11 +84,11 @@ jobs:
               # 用 sudo 运行整个构建流程，避免 root 权限问题
               echo "🧹 清理旧构建 + 安装依赖 + 构建..."
               sudo chown -R $(whoami) /opt/OmniFate/frontend
-              sudo rm -rf /opt/OmniFate/frontend/.next
+              sudo rm -rf /opt/OmniFate/frontend/.next /opt/OmniFate/frontend/node_modules
 
               cd /opt/OmniFate/frontend
               sudo chown -R $(whoami) .
-              npm ci --production=false 2>/dev/null || npm install
+              npm ci --production=false || npm install
               sudo chown -R $(whoami) .next 2>/dev/null || true
 
               echo "🔨 构建生产版本..."
