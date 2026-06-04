@@ -763,6 +763,8 @@
     "tarotRedraw": "重新抽牌",
     "tarotReversed": "逆位",
     "tarotShuffling": "洗牌中…",
+    "tarotPickCards": "请选择 3 张牌 — 过去、现在、未来",
+    "tarotRevealing": "命运之牌正在揭示…",
     "tarotSpread": "塔罗牌阵",
     "tarotSystem": "塔罗疗愈 — 牌阵解读 · 当下能量 · 行动指引",
     "threeZonesRatio": "三庭",
