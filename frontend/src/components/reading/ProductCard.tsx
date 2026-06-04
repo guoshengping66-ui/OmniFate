@@ -25,7 +25,7 @@ function getGlowIntensity(score?: number): string {
 
 export function ProductCard({ product }: { product: Product }) {
   const { addItem } = useCart()
-  const { t, localeHref } = useLanguage()
+  const { t } = useLanguage()
   const [added, setAdded] = useState(false)
   const hasMatch = product.match_score != null && product.match_score > 0
   const glowClass = getGlowClass(product.match_score)
@@ -41,7 +41,7 @@ export function ProductCard({ product }: { product: Product }) {
   }
 
   return (
-    <Link href={localeHref(`/shop/${product.id}`)} className={`block relative card-glow p-5 flex gap-4 overflow-hidden ${glowClass} hover:border-gold/40 transition-all duration-300`}>
+    <Link href={`/shop/${product.id}`} className={`block relative card-glow p-5 flex gap-4 overflow-hidden ${glowClass} hover:border-gold/40 transition-all duration-300`}>
       {/* ── Animated energy flow (glow ring) ── */}
       {hasMatch && (
         <>
