@@ -51,6 +51,7 @@ export const ProductImage = memo(function ProductImage({ src, alt, category, cla
           height={px}
           loading="lazy"
           quality={75}
+          unoptimized
           className={`object-cover transition-opacity duration-300 ${imgLoaded ? "opacity-100" : "opacity-0"}`}
           sizes={`(max-width: 640px) ${px}px, ${px}px`}
           onLoad={() => setImgLoaded(true)}
