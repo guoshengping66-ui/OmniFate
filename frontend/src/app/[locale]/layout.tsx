@@ -12,6 +12,7 @@ import { RouteProgress } from "@/components/ui/RouteProgress"
 import { ServiceWorkerRegistration } from "@/components/ui/ServiceWorkerRegistration"
 import { MonthlyGrantToast } from "@/components/ui/MonthlyGrantToast"
 import { OnboardingGuide } from "@/components/ui/OnboardingGuide"
+import { ChunkRecovery } from "@/components/ui/ChunkRecovery"
 
 export const viewport: Viewport = {
   themeColor: "#C9A84C",
@@ -154,6 +155,7 @@ export default async function LocaleLayout({
 
       </head>
       <body>
+        <ChunkRecovery />
         <AppProviders messages={messages} locale={validLocale}>
           <ServiceWorkerRegistration />
           <MonthlyGrantToast />
