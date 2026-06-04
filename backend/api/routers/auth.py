@@ -273,7 +273,7 @@ def _user_dict(user: User) -> dict:
         "is_verified": user.is_verified,
         "is_premium": True if is_admin else user.is_premium,
         "premium_expires_at": None if is_admin else (user.premium_expires_at.isoformat() if user.premium_expires_at else None),
-        "shop_coupon_balance": user.shop_coupon_balance,
+        "shop_coupon_balance": float(user.shop_coupon_balance) if user.shop_coupon_balance else 0,
         "subscription_tier": "founder_lifetime" if is_admin else user.subscription_tier,
         "free_event_quota": 999 if is_admin else user.free_event_quota,
         # Stardust
