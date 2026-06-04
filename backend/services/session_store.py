@@ -64,7 +64,13 @@ async def get_session(key: str) -> Optional[object]:
         data = await r.get(f"sess:{key}")
         if data:
             try:
-                return json.loads(data)
+                obj = json.loads(data)
+                # Redis stores JSON dicts — reconstruct SystemState with proper
+                # nested model deserialization (BirthInfo, WorkerOutput, etc.)
+                if isinstance(obj, dict) and "session_id" in obj and "phase" in obj:
+                    from agents.state import SystemState
+                    return SystemState.model_validate(obj)
+                return obj
             except Exception:
                 return None
         return None
@@ -84,7 +90,12 @@ async def set_session(key: str, obj: object, ttl: int = SESSION_TTL) -> None:
     r = await _get_session_redis()
     if r:
         try:
-            data = json.dumps(obj, ensure_ascii=False, default=str)
+            # Use Pydantic model_dump() for SystemState to properly serialize
+            # nested models (BirthInfo, WorkerOutput, etc.) as dicts, not strings.
+            if hasattr(obj, "model_dump"):
+                data = json.dumps(obj.model_dump(), ensure_ascii=False)
+            else:
+                data = json.dumps(obj, ensure_ascii=False, default=str)
             await r.setex(f"sess:{key}", ttl, data)
         except Exception as e:
             print(f"[SESSION-REDIS] Failed to store session {key}: {e}")
@@ -122,7 +133,11 @@ async def get_sessions_batch(keys: list[str]) -> dict[str, object]:
             for key, data in zip(keys, raw):
                 if data:
                     try:
-                        result[key] = json.loads(data)
+                        obj = json.loads(data)
+                        if isinstance(obj, dict) and "session_id" in obj and "phase" in obj:
+                            from agents.state import SystemState
+                            obj = SystemState.model_validate(obj)
+                        result[key] = obj
                     except Exception:
                         pass
             return result
