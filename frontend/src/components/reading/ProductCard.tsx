@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, memo, useCallback, useMemo } from "react"
 import { Star, ShoppingBag, ExternalLink, Sparkles, Check, Zap } from "lucide-react"
 import { Link } from "@/i18n/navigation"
 import type { Product } from "@/lib/api"
@@ -25,27 +25,26 @@ function getGlowIntensity(score?: number): string {
 
 function getMatchPercentage(score?: number): number {
   if (score == null || score <= 0) return 0
-  // Normalize score to 0-100% (score is typically 1-12)
   return Math.min(100, Math.round((score / 12) * 100))
 }
 
-export function ProductCard({ product }: { product: Product }) {
+export const ProductCard = memo(function ProductCard({ product }: { product: Product }) {
   const { addItem } = useCart()
   const { t } = useLanguage()
   const [added, setAdded] = useState(false)
   const hasMatch = product.match_score != null && product.match_score > 0
-  const glowClass = getGlowClass(product.match_score)
-  const glowIntensity = getGlowIntensity(product.match_score)
-  const matchPct = getMatchPercentage(product.match_score)
+  const glowClass = useMemo(() => getGlowClass(product.match_score), [product.match_score])
+  const glowIntensity = useMemo(() => getGlowIntensity(product.match_score), [product.match_score])
+  const matchPct = useMemo(() => getMatchPercentage(product.match_score), [product.match_score])
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = useCallback((e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     addItem(product)
     setAdded(true)
     toast.success(t("shop.addedToCart").replace("{name}", product.name))
     setTimeout(() => setAdded(false), 1500)
-  }
+  }, [addItem, product, t])
 
   return (
     <Link href={`/shop/${product.id}`} className={`block relative card-glow p-5 flex gap-4 overflow-hidden ${glowClass} hover:border-gold/40 transition-all duration-300`}>
@@ -177,4 +176,4 @@ export function ProductCard({ product }: { product: Product }) {
       </div>
     </Link>
   )
-}
+})

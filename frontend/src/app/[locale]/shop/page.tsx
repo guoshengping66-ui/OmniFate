@@ -1,5 +1,5 @@
 "use client"
-import { Suspense, useEffect, useState, lazy } from "react"
+import { Suspense, useEffect, useState, useMemo, useCallback, lazy } from "react"
 import { useSearchParams } from "next/navigation"
 import { ShoppingBag, Loader2, Sparkles, Search, TrendingUp, Zap, ArrowRight } from "lucide-react"
 import { listProducts, matchProducts, Product } from "@/lib/api"
@@ -9,7 +9,6 @@ import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 const ProductCard = lazy(() => import("@/components/reading/ProductCard").then(m => ({ default: m.ProductCard })))
 const AIRecommendHero = lazy(() => import("@/components/shop/AIRecommendHero").then(m => ({ default: m.AIRecommendHero })))
 
-// Scenario-based browsing cards
 const SCENARIOS = [
   { key: "wealth", emoji: "💰", tag: "求财旺运", color: "from-amber-500/10 to-yellow-500/5", border: "border-amber-500/20" },
   { key: "career", emoji: "💼", tag: "事业腾飞", color: "from-blue-500/10 to-cyan-500/5", border: "border-blue-500/20" },
@@ -17,11 +16,28 @@ const SCENARIOS = [
   { key: "health", emoji: "🏥", tag: "健康平安", color: "from-green-500/10 to-emerald-500/5", border: "border-green-500/20" },
 ]
 
+// Skeleton card for loading state
+function ProductCardSkeleton() {
+  return (
+    <div className="card-glass p-5 flex gap-4 animate-pulse">
+      <div className="w-20 h-20 rounded-xl bg-white/[0.04] flex-shrink-0" />
+      <div className="flex-1 space-y-2">
+        <div className="h-4 bg-white/[0.06] rounded w-3/4" />
+        <div className="h-3 bg-white/[0.04] rounded w-1/2" />
+        <div className="h-3 bg-white/[0.04] rounded w-full" />
+        <div className="flex justify-between items-center pt-2">
+          <div className="h-5 bg-gold/10 rounded w-16" />
+          <div className="h-7 bg-gold/10 rounded-full w-20" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function ShopContent() {
   const searchParams = useSearchParams()
   const sessionTags = searchParams.get("tags") ?? ""
   const { t, locale, localeHref } = useLanguage()
-  const [products, setProducts] = useState<Product[]>([])
   const [allProducts, setAllProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [isPersonalized, setIsPersonalized] = useState(false)
@@ -29,7 +45,7 @@ function ShopContent() {
   const [searchQuery, setSearchQuery] = useState("")
   const [sortBy, setSortBy] = useState<"match" | "rating" | "price_asc" | "price_desc">("match")
 
-  const CATEGORIES = [
+  const CATEGORIES = useMemo(() => [
     { key: "", label: t("shop.category.all") },
     { key: "crystal", label: t("shop.category.crystal") },
     { key: "jewelry", label: t("shop.category.jewelry") },
@@ -37,14 +53,14 @@ function ShopContent() {
     { key: "talisman", label: t("shop.category.talisman") },
     { key: "book", label: t("shop.category.book") },
     { key: "service", label: t("shop.category.service") },
-  ]
+  ], [t])
 
   useEffect(() => {
     setLoading(true)
     setIsPersonalized(false)
 
     if (sessionTags.trim()) {
-      const weaknessTags = sessionTags.split(",").map(t => t.trim()).filter(Boolean)
+      const weaknessTags = sessionTags.split(",").map(s => s.trim()).filter(Boolean)
       matchProducts({
         weakness_tags: weaknessTags,
         top_k: 20,
@@ -53,30 +69,25 @@ function ShopContent() {
         .then(matched => {
           matched.sort((a, b) => (b.match_score ?? 0) - (a.match_score ?? 0))
           setAllProducts(matched)
-          setProducts(matched)
           setIsPersonalized(true)
         })
         .catch(() => {
           return listProducts(undefined, locale).then(all => {
             setAllProducts(all)
-            setProducts(all)
             return all
           })
         })
         .finally(() => setLoading(false))
     } else {
       listProducts(undefined, locale)
-        .then(all => {
-          setAllProducts(all)
-          setProducts(all)
-        })
-        .catch(() => setProducts([]))
+        .then(all => setAllProducts(all))
+        .catch(() => setAllProducts([]))
         .finally(() => setLoading(false))
     }
   }, [sessionTags, locale])
 
-  // Filter, search, and sort
-  useEffect(() => {
+  // Memoized filtered + sorted products — no state, just derived value
+  const products = useMemo(() => {
     let filtered = allProducts
     if (activeCategory) {
       filtered = filtered.filter(p => p.category === activeCategory)
@@ -86,27 +97,23 @@ function ShopContent() {
       filtered = filtered.filter(p =>
         p.name.toLowerCase().includes(q) ||
         (p.description || "").toLowerCase().includes(q) ||
-        (p.keyword_tags || []).some(t => t.toLowerCase().includes(q))
+        (p.keyword_tags || []).some(tag => tag.toLowerCase().includes(q))
       )
     }
-    // Sort
     const sorted = [...filtered]
     switch (sortBy) {
-      case "match":
-        sorted.sort((a, b) => (b.match_score ?? 0) - (a.match_score ?? 0))
-        break
-      case "rating":
-        sorted.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
-        break
-      case "price_asc":
-        sorted.sort((a, b) => a.price_cny - b.price_cny)
-        break
-      case "price_desc":
-        sorted.sort((a, b) => b.price_cny - a.price_cny)
-        break
+      case "match": sorted.sort((a, b) => (b.match_score ?? 0) - (a.match_score ?? 0)); break
+      case "rating": sorted.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0)); break
+      case "price_asc": sorted.sort((a, b) => a.price_cny - b.price_cny); break
+      case "price_desc": sorted.sort((a, b) => b.price_cny - a.price_cny); break
     }
-    setProducts(sorted)
-  }, [activeCategory, searchQuery, allProducts, sortBy])
+    return sorted
+  }, [allProducts, activeCategory, searchQuery, sortBy])
+
+  const handleCategoryChange = useCallback((key: string) => setActiveCategory(key), [])
+  const handleSortChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => setSortBy(e.target.value as any), [])
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value), [])
+  const handleClearFilter = useCallback(() => { setActiveCategory(""); setSearchQuery("") }, [])
 
   return (
     <div className="min-h-screen pt-24 pb-20 px-4">
@@ -136,7 +143,7 @@ function ShopContent() {
           )}
         </div>
 
-        {/* Scenario-based quick entry cards */}
+        {/* Scenario cards */}
         {!isPersonalized && !loading && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
             {SCENARIOS.map(scenario => (
@@ -156,17 +163,18 @@ function ShopContent() {
 
         {/* AI Recommend Hero */}
         {!loading && isPersonalized && products.length > 0 && (
-          <AIRecommendHero products={products} />
+          <Suspense fallback={null}>
+            <AIRecommendHero products={products} />
+          </Suspense>
         )}
 
-        {/* Category filter + Sort + Search */}
+        {/* Category + Sort + Search */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-6">
-          {/* Category tabs */}
           <div className="flex gap-1.5 overflow-x-auto scrollbar-none flex-1">
             {CATEGORIES.map(cat => (
               <button
                 key={cat.key}
-                onClick={() => setActiveCategory(cat.key)}
+                onClick={() => handleCategoryChange(cat.key)}
                 className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all
                   ${activeCategory === cat.key
                     ? "bg-gold/15 text-gold border border-gold/30"
@@ -177,31 +185,19 @@ function ShopContent() {
               </button>
             ))}
           </div>
-
-          {/* Sort + Search row */}
           <div className="flex items-center gap-2">
-            {/* Sort dropdown */}
-            <select
-              value={sortBy}
-              onChange={e => setSortBy(e.target.value as any)}
-              className="bg-white/[0.04] border border-white/[0.08] rounded-full px-3 py-1.5 text-xs text-white/50 focus:border-gold/30 focus:outline-none appearance-none cursor-pointer"
-            >
+            <select value={sortBy} onChange={handleSortChange}
+              className="bg-white/[0.04] border border-white/[0.08] rounded-full px-3 py-1.5 text-xs text-white/50 focus:border-gold/30 focus:outline-none appearance-none cursor-pointer">
               <option value="match">{t("shop.sort.match") || "命盘匹配"}</option>
               <option value="rating">{t("shop.sort.rating") || "评分最高"}</option>
               <option value="price_asc">{t("shop.sort.priceAsc") || "价格低→高"}</option>
               <option value="price_desc">{t("shop.sort.priceDesc") || "价格高→低"}</option>
             </select>
-
-            {/* Search */}
             <div className="relative">
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
+              <input type="text" value={searchQuery} onChange={handleSearchChange}
                 placeholder={t("shop.search")}
-                className="w-full sm:w-44 bg-white/[0.04] border border-white/[0.08] rounded-full pl-9 pr-4 py-1.5 text-xs text-white/70 placeholder-white/25 focus:border-gold/30 focus:outline-none transition-colors"
-              />
+                className="w-full sm:w-44 bg-white/[0.04] border border-white/[0.08] rounded-full pl-9 pr-4 py-1.5 text-xs text-white/70 placeholder-white/25 focus:border-gold/30 focus:outline-none transition-colors" />
             </div>
           </div>
         </div>
@@ -215,8 +211,8 @@ function ShopContent() {
 
         {/* Products grid */}
         {loading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 size={32} className="text-gold animate-spin" />
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, i) => <ProductCardSkeleton key={i} />)}
           </div>
         ) : products.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -227,14 +223,9 @@ function ShopContent() {
         ) : (
           <div className="card-glass p-16 text-center">
             <ShoppingBag size={48} className="mx-auto mb-4 text-white/20" />
-            <p className="text-white/40">
-              {allProducts.length > 0 ? t("shop.noMatch") : t("shop.noProducts")}
-            </p>
+            <p className="text-white/40">{allProducts.length > 0 ? t("shop.noMatch") : t("shop.noProducts")}</p>
             {allProducts.length > 0 && (
-              <button
-                onClick={() => { setActiveCategory(""); setSearchQuery(""); }}
-                className="text-gold text-xs mt-2 hover:underline"
-              >
+              <button onClick={handleClearFilter} className="text-gold text-xs mt-2 hover:underline">
                 {t("shop.clearFilter")}
               </button>
             )}

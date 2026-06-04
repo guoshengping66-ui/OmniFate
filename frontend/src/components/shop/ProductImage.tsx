@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react"
 import Image from "next/image"
+import { memo } from "react"
 
 const CATEGORY_ICONS: Record<string, { emoji: string; gradient: string }> = {
   crystal: { emoji: "💎", gradient: "from-purple-500/20 to-purple-600/5" },
@@ -28,37 +29,36 @@ const SIZE_CLASSES = {
   lg: "w-64 h-64 text-7xl",
 }
 
-export function ProductImage({ src, alt, category, className = "", size = "md" }: ProductImageProps) {
+// Map size to pixel values for Next.js sizes attribute
+const SIZE_PX = { sm: 64, md: 80, lg: 256 }
+
+export const ProductImage = memo(function ProductImage({ src, alt, category, className = "", size = "md" }: ProductImageProps) {
   const [imgError, setImgError] = useState(false)
-  const [imgLoading, setImgLoading] = useState(true)
+  const [imgLoaded, setImgLoaded] = useState(false)
   const icon = CATEGORY_ICONS[category || ""] || DEFAULT_ICON
-  const showImage = src && !imgError
+  const showImage = !!src && !imgError
+  const px = SIZE_PX[size]
 
   return (
     <div
       className={`relative flex items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br ${icon.gradient} border border-white/10 ${SIZE_CLASSES[size]} ${className}`}
     >
       {showImage ? (
-        <>
-          {imgLoading && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
-            </div>
-          )}
-          <Image
-            src={src}
-            alt={alt}
-            fill
-            className={`object-cover transition-opacity duration-300 ${imgLoading ? "opacity-0" : "opacity-100"}`}
-            sizes="(max-width: 768px) 80px, 256px"
-            unoptimized
-            onLoad={() => setImgLoading(false)}
-            onError={() => setImgError(true)}
-          />
-        </>
+        <Image
+          src={src}
+          alt={alt}
+          width={px}
+          height={px}
+          loading="lazy"
+          quality={75}
+          className={`object-cover transition-opacity duration-300 ${imgLoaded ? "opacity-100" : "opacity-0"}`}
+          sizes={`(max-width: 640px) ${px}px, ${px}px`}
+          onLoad={() => setImgLoaded(true)}
+          onError={() => setImgError(true)}
+        />
       ) : (
         <span className="select-none">{icon.emoji}</span>
       )}
     </div>
   )
-}
+})
