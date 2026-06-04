@@ -2747,6 +2747,9 @@
     "useStardust": "使用星尘解锁",
     "stardustInsufficient": "星尘能量不足"
   },
+  "productCard": {
+    "aiRecommended": "AI 推荐"
+  },
   "predict": {
     "preparing": "正在准备推演…"
   },

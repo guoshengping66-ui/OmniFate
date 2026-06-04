@@ -2747,6 +2747,9 @@
     "useStardust": "Unlock with Stardust",
     "stardustInsufficient": "Insufficient stardust"
   },
+  "productCard": {
+    "aiRecommended": "AI Recommended"
+  },
   "predict": {
     "preparing": "Preparing reading…"
   },
