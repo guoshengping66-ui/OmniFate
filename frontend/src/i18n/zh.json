@@ -1066,38 +1066,47 @@
   },
   "analysis": {
     "astrology": {
+      "label": "西方星盘",
       "done": "星盘计算完成",
       "running": "正在计算行星轨道与宫位…"
     },
     "bazi": {
+      "label": "周易八字",
       "done": "八字排盘完成",
       "running": "正在排盘推演四柱八字…"
     },
     "face": {
+      "label": "AI 面相",
       "done": "面相分析完成",
       "running": "正在分析面相特征…"
     },
     "partnerFace": {
+      "label": "对方面相",
       "done": "对方面相分析完成",
       "running": "正在分析对方面相特征…"
     },
     "partnerPalm": {
+      "label": "对方手相",
       "done": "对方手相解读完成",
       "running": "正在解读对方掌纹纹路…"
     },
     "palm": {
+      "label": "手相解读",
       "done": "手相解读完成",
       "running": "正在解读掌纹纹路…"
     },
     "qimen": {
+      "label": "奇门遁甲",
       "done": "奇门推演完成",
       "running": "正在遁甲时空推演…"
     },
     "tarot": {
+      "label": "塔罗疗愈",
       "done": "塔罗解读完成",
       "running": "正在解读塔罗牌阵能量…"
     },
     "ziwei": {
+      "label": "紫微斗数",
       "done": "紫微排盘完成",
       "running": "正在排布紫微星盘…"
     },

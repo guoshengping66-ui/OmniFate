@@ -66,9 +66,9 @@ _SENTIMENT_KW = {
 _llm_cache: dict[str, ChatOpenAI] = {}
 
 
-def _llm(temperature: float = 0.3, model: str | None = None) -> ChatOpenAI:
+def _llm(temperature: float = 0.3, model: str | None = None, max_tokens: int | None = None) -> ChatOpenAI:
     model_key = model or settings.OPENAI_MODEL
-    max_tok = settings.AGENT_MAX_TOKENS
+    max_tok = max_tokens or settings.AGENT_MAX_TOKENS
     cache_key = f"{model_key}:{temperature}:{max_tok}"
     if cache_key not in _llm_cache:
         kwargs = dict(
@@ -105,13 +105,14 @@ def _use_mock() -> bool:
     return not settings.OPENAI_API_KEY and not settings.FREE_MODEL_API_KEY
 
 
-async def _call(system: str, user: str, model: str | None = None, language: str = "zh", use_free: bool = False) -> str:
+async def _call(system: str, user: str, model: str | None = None, language: str = "zh",
+                use_free: bool = False, max_tokens: int | None = None) -> str:
     if _use_mock():
         return f"[MOCK] {user[:80]}\n\nSet OPENAI_API_KEY to enable real AI responses."
     if use_free and settings.FREE_MODEL_API_KEY:
         llm = _free_llm()
     else:
-        llm = _llm(model=model)
+        llm = _llm(model=model, max_tokens=max_tokens)
 
     # Add explicit language instruction to prevent mixing
     # Placed at the START of system prompt for maximum LLM attention
@@ -145,6 +146,13 @@ async def _call(system: str, user: str, model: str | None = None, language: str 
         print(f"[_call] LLM timed out after 180s (model={model})")
         return ""
     result = resp.content
+
+    # Detect truncation (finish_reason == "length")
+    resp_meta = getattr(resp, "response_metadata", {}) or {}
+    finish_reason = resp_meta.get("finish_reason", "")
+    if finish_reason == "length":
+        print(f"[_call] ⚠️  OUTPUT TRUNCATED (finish_reason=length, model={model or settings.OPENAI_MODEL})")
+        print(f"[_call]    Output length: {len(result)} chars, ~{len(result)//2} tokens est.")
     # Post-process: clean residual Chinese in English output
     if language == "en":
         from agents.workers import _clean_english
@@ -822,6 +830,8 @@ async def run_subtask_core(state: SystemState, prep: dict) -> str:
     For free users: two separate LLM calls (A+B) to avoid truncation.
     For premium users: single call (only A is needed in summary)."""
     llm_model = settings.PREMIUM_MODEL if state.is_premium else settings.MASTER_FAST_MODEL
+    # Use higher token limit for master fast model (English mode needs more tokens)
+    llm_max_tokens = None if state.is_premium else settings.MASTER_FAST_MODEL_MAX_TOKENS
 
     # Build partner data for RELATIONSHIP intent (with structured synastry data)
     partner_data = None
@@ -848,21 +858,25 @@ async def run_subtask_core(state: SystemState, prep: dict) -> str:
     if state.is_premium:
         # Premium: single call (A+B+C, full report goes to master_detail)
         system = master_subtask_core_prompt(**common_args, is_premium=True)
-        result = await _call(system, "请生成核心综合报告。", model=llm_model, language=state.language)
+        result = await _call(system, "请生成核心综合报告。", model=llm_model, language=state.language,
+                            max_tokens=llm_max_tokens)
     elif state.intent == "RELATIONSHIP":
         # RELATIONSHIP free users: single call (different output structure A-E)
         system = master_subtask_core_prompt(**common_args, is_premium=False)
-        result = await _call(system, "请生成核心综合报告。", model=llm_model, language=state.language)
+        result = await _call(system, "请生成核心综合报告。", model=llm_model, language=state.language,
+                            max_tokens=llm_max_tokens)
     else:
         # Free users (non-RELATIONSHIP): two separate LLM calls to avoid
-        # 4096-token truncation. Each section gets its own full token budget.
+        # truncation. Each section gets its own full token budget.
         # Call 1: Section A (personality)
         sys_a = master_subtask_core_personality_prompt(**common_args)
-        part_a = await _call(sys_a, "请生成核心性格底色分析。", model=llm_model, language=state.language)
+        part_a = await _call(sys_a, "请生成核心性格底色分析。", model=llm_model, language=state.language,
+                            max_tokens=llm_max_tokens)
 
         # Call 2: Section B (cross-dimension resonance)
         sys_b = master_subtask_core_resonance_prompt(**common_args)
-        part_b = await _call(sys_b, "请生成跨维度共鸣分析。", model=llm_model, language=state.language)
+        part_b = await _call(sys_b, "请生成跨维度共鸣分析。", model=llm_model, language=state.language,
+                            max_tokens=llm_max_tokens)
 
         result = f"{part_a}\n\n{part_b}"
 
@@ -873,6 +887,7 @@ async def run_subtask_core(state: SystemState, prep: dict) -> str:
 async def run_subtask_dims(state: SystemState, prep: dict) -> str:
     """Run dimension analysis sub-task (Sub-task B). Returns result text."""
     llm_model = settings.PREMIUM_MODEL if state.is_premium else settings.MASTER_FAST_MODEL
+    llm_max_tokens = None if state.is_premium else settings.MASTER_FAST_MODEL_MAX_TOKENS
     system = master_subtask_dimensions_prompt(
         worker_summaries=prep["worker_summaries"],
         user_question=state.user_question,
@@ -880,7 +895,8 @@ async def run_subtask_dims(state: SystemState, prep: dict) -> str:
         confidence_text=prep["confidence_text"],
         intent=state.intent,
     )
-    result = await _call(system, "请生成五维诊断报告。", model=llm_model, language=state.language)
+    result = await _call(system, "请生成五维诊断报告。", model=llm_model, language=state.language,
+                        max_tokens=llm_max_tokens)
     state.master_subtask_dimensions = result
     return result
 
@@ -888,6 +904,7 @@ async def run_subtask_dims(state: SystemState, prep: dict) -> str:
 async def run_subtask_actions(state: SystemState, prep: dict) -> str:
     """Run action plan sub-task (Sub-task C). Returns result text."""
     llm_model = settings.PREMIUM_MODEL if state.is_premium else settings.MASTER_FAST_MODEL
+    llm_max_tokens = None if state.is_premium else settings.MASTER_FAST_MODEL_MAX_TOKENS
     system = master_subtask_actions_prompt(
         worker_summaries=prep["worker_summaries"],
         user_question=state.user_question,
@@ -896,7 +913,8 @@ async def run_subtask_actions(state: SystemState, prep: dict) -> str:
         dimension_scores=state.dimension_scores,
         intent=state.intent,
     )
-    result = await _call(system, "请生成行动建议报告。", model=llm_model, language=state.language)
+    result = await _call(system, "请生成行动建议报告。", model=llm_model, language=state.language,
+                        max_tokens=llm_max_tokens)
     state.master_subtask_actions = result
     return result
 
@@ -904,6 +922,7 @@ async def run_subtask_actions(state: SystemState, prep: dict) -> str:
 async def run_subtask_synastry(state: SystemState) -> str:
     """合盘专属深度分析子任务 (RELATIONSHIP intent only)."""
     llm_model = settings.PREMIUM_MODEL if state.is_premium else settings.MASTER_FAST_MODEL
+    llm_max_tokens = None if state.is_premium else settings.MASTER_FAST_MODEL_MAX_TOKENS
     system = master_subtask_synastry_prompt(
         synastry_aspects=state.synastry_aspects,
         composite_chart=state.composite_chart,
@@ -912,7 +931,8 @@ async def run_subtask_synastry(state: SystemState) -> str:
         partner_name=state.partner_name,
         language=state.language,
     )
-    result = await _call(system, "请生成合盘深度分析报告。", model=llm_model, language=state.language)
+    result = await _call(system, "请生成合盘深度分析报告。", model=llm_model, language=state.language,
+                        max_tokens=llm_max_tokens)
     return result
 
 

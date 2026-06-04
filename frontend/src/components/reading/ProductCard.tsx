@@ -30,9 +30,11 @@ function getMatchPercentage(score?: number): number {
 
 export const ProductCard = memo(function ProductCard({ product }: { product: Product }) {
   const { addItem } = useCart()
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
   const [added, setAdded] = useState(false)
   const hasMatch = product.match_score != null && product.match_score > 0
+  const isEn = locale === "en"
+  const hasChinese = (s: string) => /[一-鿿]/.test(s)
   const glowClass = useMemo(() => getGlowClass(product.match_score), [product.match_score])
   const glowIntensity = useMemo(() => getGlowIntensity(product.match_score), [product.match_score])
   const matchPct = useMemo(() => getMatchPercentage(product.match_score), [product.match_score])
@@ -132,14 +134,14 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
         )}
 
         {/* LLM-generated recommendation text */}
-        {product.recommendation_text && (
+        {product.recommendation_text && !(isEn && hasChinese(product.recommendation_text)) && (
           <p className="text-gold/70 text-xs leading-relaxed italic mb-2 border-l-2 border-gold/30 pl-2">
             &ldquo;{product.recommendation_text}&rdquo;
           </p>
         )}
 
         {/* Match reasons */}
-        {product.match_reasons && product.match_reasons.length > 0 && (
+        {product.match_reasons && product.match_reasons.length > 0 && !(isEn && product.match_reasons.some(hasChinese)) && (
           <div className="flex gap-1 flex-wrap mb-2">
             {product.match_reasons.slice(0, 2).map(r => (
               <span key={r} className="text-xs px-1.5 py-0.5 bg-gold/10 text-gold/70 rounded-full">

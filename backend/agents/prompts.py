@@ -7398,7 +7398,7 @@ def master_subtask_core_personality_prompt(
     """Free-user only: generate ONLY Section A (核心性格底色).
     Separate call to avoid truncation within 4096 tokens."""
     workers_str = "\n\n".join(
-        f"[{k.upper()}]\n{v[:400]}" for k, v in worker_summaries.items() if v
+        f"[{k.upper()}]\n{v[:300]}" for k, v in worker_summaries.items() if v
     )
     # ... partner data (reuse from core_prompt) ...
     partner_section = ""
@@ -7428,8 +7428,9 @@ def master_subtask_core_personality_prompt(
         "只输出【A·核心性格底色】部分，不要输出B或C部分。\n"
         "格式：\n"
         '核心特质：用20字以内大白话抓住本质\n'
-        "性格解析：用150-250字分析性格优势与隐藏软肋\n\n"
-        "要求：完整、不要截断、不要省略。"
+        "性格解析：用120-200字分析性格优势与隐藏软肋\n\n"
+        "CRITICAL: Complete ALL content. Do NOT truncate mid-sentence. "
+        "End with a complete sentence. If you need to stop early, summarize briefly."
     )
 
 
@@ -7441,7 +7442,7 @@ def master_subtask_core_resonance_prompt(
         intent: str = "",
         partner_data: dict | None = None) -> str:
     """Free-user only: generate ONLY Section B (跨维度共鸣).
-    Ultra-compact prompt to stay well under 4096 token output limit.
+    Ultra-compact prompt to stay well under token output limit.
     Only passes dimension_scores (not full worker reports) to minimize input."""
     scores_str = ""
     if dimension_scores:
@@ -7463,10 +7464,12 @@ def master_subtask_core_resonance_prompt(
         f"== 评分 == {scores_str}\n\n"
         "== 输出格式（严格遵守）==\n"
         "【B·跨维度共鸣（现状痛点）】\n\n"
-        "财富与事业现状：80-120字，指出瓶颈\n"
-        "感情与人际关系现状：80-120字\n"
-        "健康与精神状态：80-120字\n\n"
-        "总计不超过400字。必须三个子维度都写完，不要截断。"
+        "财富与事业现状：60-100字，指出瓶颈\n"
+        "感情与人际关系现状：60-100字\n"
+        "健康与精神状态：60-100字\n\n"
+        "总计不超过300字。必须三个子维度都写完。\n"
+        "CRITICAL: Complete ALL three sub-sections. Do NOT truncate mid-sentence. "
+        "End each sub-section with a complete sentence."
     )
 
 

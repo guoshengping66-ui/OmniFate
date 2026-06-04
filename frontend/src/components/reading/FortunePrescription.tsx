@@ -19,11 +19,15 @@ interface FortunePrescriptionProps {
  * with personalized product recommendations.
  */
 export function FortunePrescription({ products, weakestLabel, strongestLabel }: FortunePrescriptionProps) {
-  const { t, localeHref } = useLanguage()
+  const { t, locale, localeHref } = useLanguage()
   const { addItem } = useCart()
   const [addedIds, setAddedIds] = useState<Set<string>>(new Set())
 
   if (!products || products.length === 0) return null
+
+  // Skip recommendation_text if it's Chinese but user is in English mode
+  const hasChinese = (s: string) => /[一-鿿]/.test(s)
+  const isEn = locale === "en"
 
   const handleAdd = (product: Product) => {
     addItem(product)
@@ -139,12 +143,12 @@ export function FortunePrescription({ products, weakestLabel, strongestLabel }: 
                     )}
                     <h4 className="font-medium text-white text-sm truncate">{product.name}</h4>
                   </div>
-                  {product.recommendation_text && (
+                  {product.recommendation_text && !(isEn && hasChinese(product.recommendation_text)) && (
                     <p className="text-white/35 text-[11px] leading-relaxed line-clamp-1 italic">
                       &ldquo;{product.recommendation_text}&rdquo;
                     </p>
                   )}
-                  {product.match_reasons && product.match_reasons.length > 0 && (
+                  {product.match_reasons && product.match_reasons.length > 0 && !(isEn && product.match_reasons.some(hasChinese)) && (
                     <div className="flex gap-1 mt-1">
                       {product.match_reasons.slice(0, 2).map(r => (
                         <span key={r} className="text-[9px] px-1.5 py-0.5 bg-gold/8 text-gold/50 rounded-full">

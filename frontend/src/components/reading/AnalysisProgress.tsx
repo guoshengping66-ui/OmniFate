@@ -10,16 +10,16 @@ type AgentStatus = "pending" | "running" | "done" | "error" | "skipped"
 
 const AGENT_ORDER_BASE = ["bazi", "astrology", "tarot", "qimen", "ziwei", "face", "palm"] as const
 
-const AGENT_I18N: Record<string, { running: string; done: string }> = {
-  bazi:      { running: "analysis.bazi.running", done: "analysis.bazi.done" },
-  astrology: { running: "analysis.astrology.running", done: "analysis.astrology.done" },
-  tarot:     { running: "analysis.tarot.running", done: "analysis.tarot.done" },
-  qimen:     { running: "analysis.qimen.running", done: "analysis.qimen.done" },
-  ziwei:     { running: "analysis.ziwei.running", done: "analysis.ziwei.done" },
-  face:      { running: "analysis.face.running", done: "analysis.face.done" },
-  palm:      { running: "analysis.palm.running", done: "analysis.palm.done" },
-  partner_face: { running: "analysis.partnerFace.running", done: "analysis.partnerFace.done" },
-  partner_palm: { running: "analysis.partnerPalm.running", done: "analysis.partnerPalm.done" },
+const AGENT_I18N: Record<string, { label: string; running: string; done: string }> = {
+  bazi:         { label: "analysis.bazi.label",         running: "analysis.bazi.running", done: "analysis.bazi.done" },
+  astrology:    { label: "analysis.astrology.label",    running: "analysis.astrology.running", done: "analysis.astrology.done" },
+  tarot:        { label: "analysis.tarot.label",        running: "analysis.tarot.running", done: "analysis.tarot.done" },
+  qimen:        { label: "analysis.qimen.label",        running: "analysis.qimen.running", done: "analysis.qimen.done" },
+  ziwei:        { label: "analysis.ziwei.label",        running: "analysis.ziwei.running", done: "analysis.ziwei.done" },
+  face:         { label: "analysis.face.label",         running: "analysis.face.running", done: "analysis.face.done" },
+  palm:         { label: "analysis.palm.label",         running: "analysis.palm.running", done: "analysis.palm.done" },
+  partner_face: { label: "analysis.partnerFace.label",  running: "analysis.partnerFace.running", done: "analysis.partnerFace.done" },
+  partner_palm: { label: "analysis.partnerPalm.label",  running: "analysis.partnerPalm.running", done: "analysis.partnerPalm.done" },
 }
 
 // ── Wisdom quotes shown during analysis ────────────────────────────────────
@@ -429,7 +429,7 @@ function AnalysisProgressInner({
               >
                 <span className="text-xl">{info.icon}</span>
                 <span className="text-[11px] text-white/70 text-center leading-tight">
-                  {info.label}
+                  {AGENT_I18N[aid] ? t(AGENT_I18N[aid].label) : info.label}
                 </span>
                 <span className={`
                   text-xs font-mono

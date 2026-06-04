@@ -1066,38 +1066,47 @@
   },
   "analysis": {
     "astrology": {
+      "label": "Western Astrology",
       "done": "Astrology calculation complete",
       "running": "Calculating planetary orbits…"
     },
     "bazi": {
+      "label": "Four Pillars Bazi",
       "done": "Bazi calculation complete",
       "running": "Calculating Four Pillars Bazi…"
     },
     "face": {
+      "label": "AI Face Reading",
       "done": "Face reading complete",
       "running": "Analyzing facial features…"
     },
     "partnerFace": {
+      "label": "Partner Face",
       "done": "Partner face reading complete",
       "running": "Analyzing partner's facial features…"
     },
     "partnerPalm": {
+      "label": "Partner Palm",
       "done": "Partner palm reading complete",
       "running": "Interpreting partner's palm lines…"
     },
     "palm": {
+      "label": "Palm Reading",
       "done": "Palm reading complete",
       "running": "Interpreting palm lines…"
     },
     "qimen": {
+      "label": "Qimen Divination",
       "done": "Qimen divination complete",
       "running": "Performing Qimen divination…"
     },
     "tarot": {
+      "label": "Tarot Healing",
       "done": "Tarot interpretation complete",
       "running": "Interpreting tarot card energy…"
     },
     "ziwei": {
+      "label": "Ziwei Astrology",
       "done": "Ziwei chart complete",
       "running": "Arranging Ziwei star chart…"
     },

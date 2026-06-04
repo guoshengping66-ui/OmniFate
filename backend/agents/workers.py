@@ -239,6 +239,11 @@ async def _call(system: str, user: str, append_json_format: bool = True, model: 
         print(f"[_call] Worker LLM timed out after 90s")
         return ""
     result = resp.content
+    # Detect truncation
+    resp_meta = getattr(resp, "response_metadata", {}) or {}
+    finish_reason = resp_meta.get("finish_reason", "")
+    if finish_reason == "length":
+        print(f"[_call] ⚠️  Worker output TRUNCATED (finish_reason=length)")
     # Post-process: clean residual Chinese in English output
     if language == "en":
         result = _clean_english(result)

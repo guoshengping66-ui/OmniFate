@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     PREMIUM_MODEL: str = "deepseek-v4-pro"      # 付费模型 — 付费用户 master 深度解析
     AGENT_TEMPERATURE: float = 0.3
     AGENT_MAX_TOKENS: int = 8192
+    MASTER_FAST_MODEL_MAX_TOKENS: int = 16384  # 子任务模型输出上限（英文模式需要更多token）
     WORKER_MAX_TOKENS: int = 1024   # 优化：从1536降至1024，worker分析素材不需要那么多
     ZIWEI_MODEL: str = ""            # 空=使用默认OPENAI_MODEL；可单独指定更快模型
 
