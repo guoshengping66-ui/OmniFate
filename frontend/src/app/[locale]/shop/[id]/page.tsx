@@ -5,7 +5,7 @@ import { Link } from "@/i18n/navigation"
 import {
   Loader2, ArrowLeft, ShoppingCart, Check, Star, Heart,
   Sparkles, Tag, Package, Shield, ChevronRight,
-  BookOpen, AlertTriangle, Zap, ClipboardList,
+  BookOpen, AlertTriangle, Zap, ClipboardList, ShoppingBag,
 } from "lucide-react"
 import { ProductImage } from "@/components/shop/ProductImage"
 import toast from "react-hot-toast"
@@ -171,9 +171,9 @@ export default function ProductDetailPage() {
                 className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-medium transition-all
                   ${added
                     ? "bg-green-500/15 border border-green-500/30 text-green-400"
-                    : "btn-gold"}`}
+                    : "btn-gold hover:shadow-[0_0_20px_rgba(201,168,76,0.3)]"}`}
               >
-                {added ? <><Check size={16} /> {t("shop.detail.addedToCart2")}</> : <><ShoppingCart size={16} /> {t("shop.addToCart")}</>}
+                {added ? <><Check size={16} /> {t("shop.detail.addedToCart2")}</> : <><ShoppingBag size={16} /> {t("shop.buyNow") || "立即抢购"}</>}
               </button>
             </div>
 
@@ -214,8 +214,34 @@ export default function ProductDetailPage() {
         )}
 
         {/* Reviews */}
-        <div className="mt-12">
+        <div className="mt-12 pb-20">
           <ProductReviews productId={product.id} />
+        </div>
+      </div>
+
+      {/* Sticky bottom CTA bar (mobile) */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-ink/95 backdrop-blur-xl border-t border-white/10 px-4 py-3" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom, 0.75rem))" }}>
+        <div className="max-w-4xl mx-auto flex items-center gap-3">
+          <div className="flex-1 min-w-0">
+            <p className="text-gold font-bold text-lg truncate">¥{product.price_cny}</p>
+            {product.rating && (
+              <div className="flex items-center gap-0.5">
+                <Star size={10} className="text-gold fill-gold" />
+                <span className="text-gold text-[10px]">{product.rating}</span>
+                <span className="text-white/20 text-[10px] ml-1">{t("shop.detail.sales")?.replace("{count}", String(Math.floor(Math.random() * 500 + 100)))}</span>
+              </div>
+            )}
+          </div>
+          <button
+            onClick={handleAddToCart}
+            className={`flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              added
+                ? "bg-green-500/15 border border-green-500/30 text-green-400"
+                : "btn-gold"
+            }`}
+          >
+            {added ? <><Check size={14} /></> : <><ShoppingBag size={14} /> {t("shop.buyNow") || "立即抢购"}</>}
+          </button>
         </div>
       </div>
     </div>

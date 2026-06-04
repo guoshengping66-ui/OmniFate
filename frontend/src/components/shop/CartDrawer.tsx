@@ -1,8 +1,11 @@
 "use client"
-import { X, ShoppingBag, Minus, Plus, Trash2, Crown } from "lucide-react"
+import { X, ShoppingBag, Minus, Plus, Trash2, Crown, Truck } from "lucide-react"
 import { useCart } from "@/contexts/CartContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useRouter } from "next/navigation"
+import { ProductImage } from "@/components/shop/ProductImage"
+
+const FREE_SHIPPING_THRESHOLD = 299
 
 interface CartDrawerProps {
   open: boolean
@@ -15,6 +18,10 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
   const router = useRouter()
 
   if (!open) return null
+
+  const freeShippingRemaining = FREE_SHIPPING_THRESHOLD - totalWithDiscount
+  const showShippingHint = freeShippingRemaining > 0 && freeShippingRemaining < FREE_SHIPPING_THRESHOLD
+  const shippingProgress = Math.min(100, (totalWithDiscount / FREE_SHIPPING_THRESHOLD) * 100)
 
   return (
     <>
@@ -37,8 +44,35 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
           </button>
         </div>
 
+        {/* Free shipping progress bar */}
+        {items.length > 0 && (
+          <div className="px-4 py-3 border-b border-white/5">
+            {showShippingHint ? (
+              <div>
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <Truck size={12} className="text-gold/60" />
+                  <p className="text-gold/70 text-[11px]">
+                    {t("cart.freeShipping")?.replace("{amount}", freeShippingRemaining.toFixed(0)) || `再买 ¥${freeShippingRemaining.toFixed(0)} 免运费`}
+                  </p>
+                </div>
+                <div className="w-full h-1 bg-white/[0.06] rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-gold/50 to-gold rounded-full transition-all duration-500"
+                    style={{ width: `${shippingProgress}%` }}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5">
+                <Truck size={12} className="text-green-400/60" />
+                <p className="text-green-400/70 text-[11px]">{t("cart.freeShippingUnlocked") || "已享免运费"}</p>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Items */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="flex-1 overflow-y-auto p-4 space-y-3">
           {items.length === 0 ? (
             <div className="text-center py-12">
               <ShoppingBag size={48} className="text-white/10 mx-auto mb-4" />
@@ -51,10 +85,14 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
           ) : (
             items.map(item => (
               <div key={item.product.id} className="flex gap-3 card-glass p-3">
-                {/* Image */}
-                <div className="w-16 h-16 rounded-lg bg-white/5 flex-shrink-0 flex items-center justify-center text-white/20 text-2xl">
-                  🎁
-                </div>
+                {/* Product image */}
+                <ProductImage
+                  src={item.product.image_url}
+                  alt={item.product.name}
+                  category={item.product.category}
+                  size="sm"
+                  className="flex-shrink-0"
+                />
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
@@ -112,8 +150,9 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
 
             <button
               onClick={() => { onClose(); router.push("/checkout") }}
-              className="btn-gold w-full py-3"
+              className="btn-gold w-full py-3 flex items-center justify-center gap-2"
             >
+              <ShoppingBag size={16} />
               {t("cart.checkout")}
             </button>
           </div>

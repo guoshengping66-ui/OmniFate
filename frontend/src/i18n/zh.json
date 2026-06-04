@@ -813,6 +813,7 @@
     "added": "已加入",
     "addedToCart": "已将「{name}」加入购物车",
     "addToCart": "加入购物车",
+    "buyNow": "立即抢购",
     "aiRecommend": "AI 已根据您的命盘弱点智能排序",
     "clearFilter": "清除筛选",
     "desc": "每件商品均与命理弱点精准对应，由 AI 推荐引擎智能匹配",
@@ -821,7 +822,17 @@
     "noMatch": "没有找到匹配的商品",
     "noProducts": "暂无商品",
     "search": "搜索商品…",
-    "title": "改运商城"
+    "title": "改运商城",
+    "resultCount": "共 {count} 件商品",
+    "scenario": {
+      "cta": "推命获取专属推荐"
+    },
+    "sort": {
+      "match": "命盘匹配",
+      "rating": "评分最高",
+      "priceAsc": "价格低→高",
+      "priceDesc": "价格高→低"
+    }
   },
   "about": {
     "title": "关于命盘智镜",
@@ -1752,7 +1763,8 @@
       "unlockDesc": "解锁完整报告后查看每个命理体系的详细分析",
       "unlockFull": "解锁完整分析",
       "unlockTitle": "完整分析",
-      "orUseStardust": "或使用星尘解锁"
+      "orUseStardust": "或使用星尘解锁",
+      "relatedGoods": "与此维度相关的好物"
     },
     "badge": "五维命理分析报告 · AI 精算",
     "clickToView": "点击查看完整分析",
@@ -2230,6 +2242,8 @@
   "cart": {
     "checkout": "去结算",
     "empty": "购物车是空的",
+    "freeShipping": "再买 ¥{amount} 免运费",
+    "freeShippingUnlocked": "已享免运费",
     "goShop": "去商城看看",
     "items": "件",
     "memberDiscount": "会员 88 折: -¥{amount}",
@@ -2485,7 +2499,8 @@
     "removed": "已取消收藏"
   },
   "floatingCta": {
-    "text": "免费推命 · 五维分析"
+    "text": "免费推命 · 五维分析",
+    "shopText": "查看改运好物"
   },
   "floatingOracle": {
     "freeHint": "每日首次免费，感受星辰指引",
@@ -2743,7 +2758,12 @@
     "indication": "适应症",
     "matchScore": "命盘匹配度",
     "primary": "主推",
-    "title": "处方笺 · 专属助运物"
+    "title": "处方笺 · 专属助运物",
+    "modal": {
+      "title": "你的改运处方已生成",
+      "subtitle": "AI 根据你的命盘精准匹配",
+      "cta": "查看完整处方"
+    }
   },
   "pricing": {
     "aiQuestion": "AI 追问",

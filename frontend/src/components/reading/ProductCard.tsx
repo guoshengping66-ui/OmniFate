@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Star, ShoppingCart, ExternalLink, Sparkles, Check } from "lucide-react"
+import { Star, ShoppingCart, ExternalLink, Sparkles, Check, Zap } from "lucide-react"
 import { Link } from "@/i18n/navigation"
 import type { Product } from "@/lib/api"
 import { useCart } from "@/contexts/CartContext"
@@ -23,6 +23,12 @@ function getGlowIntensity(score?: number): string {
   return "opacity-0"
 }
 
+function getMatchPercentage(score?: number): number {
+  if (score == null || score <= 0) return 0
+  // Normalize score to 0-100% (score is typically 1-12)
+  return Math.min(100, Math.round((score / 12) * 100))
+}
+
 export function ProductCard({ product }: { product: Product }) {
   const { addItem } = useCart()
   const { t } = useLanguage()
@@ -30,6 +36,7 @@ export function ProductCard({ product }: { product: Product }) {
   const hasMatch = product.match_score != null && product.match_score > 0
   const glowClass = getGlowClass(product.match_score)
   const glowIntensity = getGlowIntensity(product.match_score)
+  const matchPct = getMatchPercentage(product.match_score)
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -45,7 +52,6 @@ export function ProductCard({ product }: { product: Product }) {
       {/* ── Animated energy flow (glow ring) ── */}
       {hasMatch && (
         <>
-          {/* Flowing golden border */}
           <div
             className="absolute inset-0 rounded-2xl pointer-events-none"
             style={{
@@ -63,7 +69,6 @@ export function ProductCard({ product }: { product: Product }) {
               padding: "2px",
             }}
           />
-          {/* Subtle ambient glow */}
           <div
             className="absolute inset-0 rounded-2xl pointer-events-none"
             style={{
@@ -73,6 +78,14 @@ export function ProductCard({ product }: { product: Product }) {
             }}
           />
         </>
+      )}
+
+      {/* AI Recommendation Badge */}
+      {hasMatch && (
+        <div className="absolute top-3 left-3 z-10 flex items-center gap-1 px-2 py-0.5 rounded-full bg-gold/15 border border-gold/30 text-[10px] text-gold font-medium">
+          <Zap size={9} className="fill-gold/50" />
+          {t("productCard.aiRecommended") || "AI 推荐"}
+        </div>
       )}
 
       {/* Image */}
@@ -89,12 +102,6 @@ export function ProductCard({ product }: { product: Product }) {
         <div className="flex items-start justify-between gap-2 mb-1">
           <h3 className="font-medium text-white text-sm leading-tight">{product.name}</h3>
           <div className="flex items-center gap-1.5 flex-shrink-0">
-            {hasMatch && (
-              <span className="flex items-center gap-0.5 text-xs text-gold/80">
-                <Sparkles size={10} className="fill-gold/30" />
-                {product.match_score?.toFixed(1)}
-              </span>
-            )}
             {product.rating && (
               <div className="flex items-center gap-0.5">
                 <Star size={11} className="text-gold fill-gold" />
@@ -104,13 +111,28 @@ export function ProductCard({ product }: { product: Product }) {
           </div>
         </div>
 
+        {/* Match score bar */}
+        {hasMatch && matchPct > 0 && (
+          <div className="flex items-center gap-2 mb-2">
+            <div className="flex-1 h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-gold/60 to-gold transition-all duration-700"
+                style={{ width: `${matchPct}%` }}
+              />
+            </div>
+            <span className="text-[10px] text-gold/70 font-medium tabular-nums">
+              {matchPct}%
+            </span>
+          </div>
+        )}
+
         {product.short_pitch && (
           <p className="text-white/50 text-xs leading-relaxed line-clamp-2 mb-2">
             {product.short_pitch}
           </p>
         )}
 
-        {/* ── LLM-generated recommendation text ── */}
+        {/* LLM-generated recommendation text */}
         {product.recommendation_text && (
           <p className="text-gold/70 text-xs leading-relaxed italic mb-2 border-l-2 border-gold/30 pl-2">
             &ldquo;{product.recommendation_text}&rdquo;
@@ -131,25 +153,25 @@ export function ProductCard({ product }: { product: Product }) {
         {/* keyword tags */}
         {!hasMatch && product.keyword_tags && (
           <div className="flex gap-1 flex-wrap mb-3">
-            {product.keyword_tags.slice(0, 3).map(t => (
-              <span key={t} className="text-xs px-1.5 py-0.5 bg-gold/10 text-gold/70 rounded-full">
-                {t}
+            {product.keyword_tags.slice(0, 3).map(tag => (
+              <span key={tag} className="text-xs px-1.5 py-0.5 bg-gold/10 text-gold/70 rounded-full">
+                {tag}
               </span>
             ))}
           </div>
         )}
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between pt-1">
           <span className="text-gold font-bold">¥{product.price_cny.toFixed(0)}</span>
           <button
             onClick={handleAddToCart}
             className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full transition-all
               ${added
                 ? "bg-green-500/20 border border-green-500/40 text-green-400"
-                : "bg-gold/10 border border-gold/30 text-gold hover:bg-gold/20"}`}
+                : "bg-gold/15 border border-gold/30 text-gold hover:bg-gold/25 hover:shadow-[0_0_15px_rgba(201,168,76,0.2)]"}`}
           >
-            {added ? <Check size={12} /> : <ShoppingCart size={12} />}
-            {added ? t("shop.added") : t("shop.addToCart")}
+            {added ? <Check size={12} /> : <ShoppingBag size={12} />}
+            {added ? t("shop.added") : (t("shop.buyNow") || "立即抢购")}
           </button>
         </div>
       </div>

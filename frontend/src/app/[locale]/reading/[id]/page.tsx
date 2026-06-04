@@ -39,6 +39,8 @@ const QRPaymentModal = lazy(() => import("@/components/payment/QRPaymentModal").
 const PrescriptionCard = lazy(() => import("@/components/reading/PrescriptionCard").then(m => ({ default: m.PrescriptionCard })))
 const FreeReportBanner = lazy(() => import("@/components/reading/FreeReportBanner").then(m => ({ default: m.FreeReportBanner })))
 const EnergyIDCard = lazy(() => import("@/components/reading/EnergyIDCard").then(m => ({ default: m.EnergyIDCard })))
+const FortunePrescription = lazy(() => import("@/components/reading/FortunePrescription").then(m => ({ default: m.FortunePrescription })))
+const PostAnalysisModal = lazy(() => import("@/components/reading/PostAnalysisModal").then(m => ({ default: m.PostAnalysisModal })))
 
 const WORKER_ORDER = ["bazi", "qimen", "ziwei", "astrology", "tarot", "face", "palm"] as const
 
@@ -672,16 +674,7 @@ export default function ReadingPage() {
               <div className="text-white/75 text-sm leading-relaxed whitespace-pre-line">
                 {data.master_summary
                   ? stripMarkdown(data.master_summary)
-                  : ssePhase
-                    ? (
-                      <span className="flex items-center gap-2 text-white/40">
-                        <Loader2 size={14} className="animate-spin" />
-                        {ssePhase === "parallel" && `${t("reading.progress.analyzing")} (${completedWorkers.size}/${WORKER_ORDER_ALL.length})`}
-                        {ssePhase === "master" && `${t("reading.progress.synthesizing")} (${completedSubtasks.size}/3)`}
-                        {!["parallel", "master"].includes(ssePhase) && t("reading.progress.preparing")}
-                      </span>
-                    )
-                    : t("reading.progress.masterAgent")
+                  : t("reading.progress.masterAgent")
                 }
               </div>
               {/* AI-generated content disclaimer — required by 《生成式人工智能服务管理暂行办法》 */}
@@ -758,26 +751,15 @@ export default function ReadingPage() {
               </PaywallGate>
             </Suspense>
 
-            {/* Zone 1: 改运处方 — always visible when products exist */}
+            {/* Zone 1: 改运处方 — immersive prescription card */}
             {data.recommended_products && data.recommended_products.length > 0 && (
-              <div className="mt-6 space-y-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-xl">⚕</span>
-                  <div>
-                    <h3 className="font-serif text-lg font-bold text-gold">{t("reading.master.prescription")}</h3>
-                    <p className="text-white/25 text-[11px]">{t("reading.master.prescriptionDesc")}</p>
-                  </div>
-                </div>
-                <Suspense fallback={<div className="card-glass p-4 h-24" />}>
-                  {data.recommended_products.slice(0, 2).map((p, i) => (
-                    <PrescriptionCard
-                      key={p.id}
-                      product={p}
-                      variant={i === 0 ? "primary" : "secondary"}
-                    />
-                  ))}
-                </Suspense>
-              </div>
+              <Suspense fallback={<div className="card-glass p-4 h-32 animate-pulse" />}>
+                <FortunePrescription
+                  products={data.recommended_products}
+                  weakestLabel={data.dimension_scores ? getWeakestLabel(data.dimension_scores, t) : undefined}
+                  strongestLabel={data.dimension_scores ? getStrongestLabel(data.dimension_scores, t) : undefined}
+                />
+              </Suspense>
             )}
 
             {/* Zone 1b: AI 匹配好物 — auto-fetched products from matchProducts */}
@@ -902,6 +884,37 @@ export default function ReadingPage() {
                         <span key={tag} className="text-xs px-2.5 py-1 bg-white/[0.06] rounded-full text-white/50">
                           {tag}
                         </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Inline product recommendations for this worker */}
+                {products.length > 0 && (
+                  <div className="card-glass p-4 border-gold/10">
+                    <div className="flex items-center gap-2 mb-3">
+                      <ShoppingBag size={12} className="text-gold/50" />
+                      <p className="text-gold/60 text-xs font-medium">{t("reading.worker.relatedGoods")}</p>
+                    </div>
+                    <div className="flex gap-3 overflow-x-auto scrollbar-none">
+                      {products.slice(0, 2).map(p => (
+                        <a
+                          key={p.id}
+                          href={localeHref(`/shop/${p.id}`)}
+                          className="flex items-center gap-3 min-w-[200px] p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:border-gold/20 transition-all group"
+                        >
+                          <div className="w-10 h-10 rounded-lg bg-gold/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                            {p.image_url ? (
+                              <img src={p.image_url} alt={p.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <ShoppingBag size={14} className="text-gold/40" />
+                            )}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-white/70 text-[11px] font-medium truncate group-hover:text-gold transition-colors">{p.name}</p>
+                            <p className="text-gold text-xs font-bold">¥{p.price_cny.toFixed(0)}</p>
+                          </div>
+                        </a>
                       ))}
                     </div>
                   </div>
@@ -1043,6 +1056,19 @@ export default function ReadingPage() {
             postAction="unlock"
             region={region}
             onSuccess={handlePaymentSuccess}
+          />
+        </Suspense>
+      )}
+
+      {/* ── Post-Analysis Modal (auto-shows with products) ──────── */}
+      {products.length > 0 && (
+        <Suspense fallback={null}>
+          <PostAnalysisModal
+            products={products}
+            onViewPrescription={() => {
+              setActiveTab("master")
+              window.scrollTo({ top: 0, behavior: "smooth" })
+            }}
           />
         </Suspense>
       )}

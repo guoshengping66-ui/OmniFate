@@ -813,6 +813,7 @@
     "added": "Added",
     "addedToCart": "Added \"{name}\" to cart",
     "addToCart": "Add to Cart",
+    "buyNow": "Grab Now",
     "aiRecommend": "Items ranked by your chart's needs",
     "clearFilter": "Clear Filters",
     "desc": "Every item handpicked to match your chart — thoughtfully ranked to fit your unique needs",
@@ -821,7 +822,17 @@
     "noMatch": "No matching products found",
     "noProducts": "No products available",
     "search": "Search products...",
-    "title": "Fortune Enhancement Shop"
+    "title": "Fortune Enhancement Shop",
+    "resultCount": "{count} items found",
+    "scenario": {
+      "cta": "Get personalized picks via reading"
+    },
+    "sort": {
+      "match": "Chart match",
+      "rating": "Top rated",
+      "priceAsc": "Price: low→high",
+      "priceDesc": "Price: high→low"
+    }
   },
   "about": {
     "title": "About AlphaMirror",
@@ -1752,7 +1763,8 @@
       "unlockDesc": "Unlock the full report to see every destiny system in detail",
       "unlockFull": "Unlock Full Analysis",
       "unlockTitle": "Full Reading",
-      "orUseStardust": "or use Stardust to unlock"
+      "orUseStardust": "or use Stardust to unlock",
+      "relatedGoods": "Related items for this dimension"
     },
     "badge": "Five-Path Destiny Report · Crafted with Care",
     "clickToView": "Tap to see full reading",
@@ -2230,6 +2242,8 @@
   "cart": {
     "checkout": "Checkout",
     "empty": "Your cart is empty",
+    "freeShipping": "Spend ¥{amount} more for free shipping",
+    "freeShippingUnlocked": "Free shipping unlocked",
     "goShop": "Browse Shop",
     "items": "items",
     "memberDiscount": "Member 12% Off: -¥{amount}",
@@ -2485,7 +2499,8 @@
     "removed": "Removed from favorites"
   },
   "floatingCta": {
-    "text": "Free Reading · 5D Analysis"
+    "text": "Free Reading · 5D Analysis",
+    "shopText": "Shop Fortune Items"
   },
   "floatingOracle": {
     "freeHint": "First draw free daily, feel the stars guide you",
@@ -2743,7 +2758,12 @@
     "indication": "INDICATIONS",
     "matchScore": "Chart match score",
     "primary": "Featured",
-    "title": "Prescription · Personalized Fortune Items"
+    "title": "Prescription · Personalized Fortune Items",
+    "modal": {
+      "title": "Your fortune prescription is ready",
+      "subtitle": "AI-matched items based on your chart",
+      "cta": "View full prescription"
+    }
   },
   "pricing": {
     "aiQuestion": "Expert Questions",
