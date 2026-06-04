@@ -89,6 +89,7 @@ const I18N_DIM_KEYS: Record<string, { label: string; desc: string }> = {
 
 const I18N_NAV_ITEMS = [
   { id: "master",    icon: "🌟", labelKey: "reading.nav.overview",     descKey: "reading.nav.overviewDesc" },
+  { id: "shop",      icon: "🎁", labelKey: "reading.nav.shop",        descKey: "reading.nav.shopDesc" },
   { id: "bazi",      icon: "☯",  labelKey: "reading.nav.bazi",        descKey: "reading.nav.baziDesc" },
   { id: "qimen",     icon: "🎯", labelKey: "reading.nav.qimen",       descKey: "reading.nav.qimenDesc" },
   { id: "ziwei",     icon: "⭐", labelKey: "reading.nav.ziwei",       descKey: "reading.nav.ziweiDesc" },
@@ -96,7 +97,6 @@ const I18N_NAV_ITEMS = [
   { id: "tarot",     icon: "🃏", labelKey: "reading.nav.tarot",       descKey: "reading.nav.tarotDesc" },
   { id: "face",      icon: "👁",  labelKey: "reading.nav.face",        descKey: "reading.nav.faceDesc" },
   { id: "palm",      icon: "🤚", labelKey: "reading.nav.palm",        descKey: "reading.nav.palmDesc" },
-  { id: "shop",      icon: "🎁", labelKey: "reading.nav.shop",        descKey: "reading.nav.shopDesc" },
   { id: "chat",      icon: "💬", labelKey: "reading.nav.chat",        descKey: "reading.nav.chatDesc" },
 ]
 
@@ -204,6 +204,27 @@ export default function ReadingPage() {
     const t = setTimeout(() => setHeroVisible(true), 150)
     return () => clearTimeout(t)
   }, [])
+
+  // Auto-fetch product recommendations when analysis completes
+  useEffect(() => {
+    if (!data || data.status !== "done" && data.status !== "completed" && data.status !== "chat") return
+    if (shopFetched || shopLoading) return
+    if (!data.computed_tags || data.computed_tags.length === 0) return
+
+    setShopLoading(true)
+    matchProducts({
+      weakness_tags: data.computed_tags,
+      master_summary: data.master_summary,
+      top_k: 6,
+      include_explain: true,
+    }, locale)
+      .then(result => {
+        setProducts(result)
+        setShopFetched(true)
+      })
+      .catch(() => {})
+      .finally(() => setShopLoading(false))
+  }, [data?.status, shopFetched, shopLoading])
 
   const handleUnlock = useCallback(async (paymentMethod: string = "card") => {
     if (!id) return
@@ -737,8 +758,8 @@ export default function ReadingPage() {
               </PaywallGate>
             </Suspense>
 
-            {/* Zone 1: 专属处方单 */}
-            {isUnlocked && data.recommended_products && data.recommended_products.length > 0 && (
+            {/* Zone 1: 改运处方 — always visible when products exist */}
+            {data.recommended_products && data.recommended_products.length > 0 && (
               <div className="mt-6 space-y-4">
                 <div className="flex items-center gap-2">
                   <span className="text-xl">⚕</span>
@@ -756,6 +777,34 @@ export default function ReadingPage() {
                     />
                   ))}
                 </Suspense>
+              </div>
+            )}
+
+            {/* Zone 1b: AI 匹配好物 — auto-fetched products from matchProducts */}
+            {!isUnlocked && products.length > 0 && (
+              <div className="mt-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-xl">🎁</span>
+                  <div>
+                    <h3 className="font-serif text-lg font-bold text-gold">{t("reading.shop.title")}</h3>
+                    <p className="text-white/25 text-[11px]">{t("reading.shop.desc")}</p>
+                  </div>
+                </div>
+                <div className="grid sm:grid-cols-2 gap-3">
+                  {products.slice(0, 2).map(p => (
+                    <Suspense key={p.id} fallback={<div className="card-glass h-32 animate-pulse" />}>
+                      <ProductCard product={p} />
+                    </Suspense>
+                  ))}
+                </div>
+                {products.length > 2 && (
+                  <button
+                    onClick={() => setActiveTab("shop")}
+                    className="mt-3 text-gold/60 text-xs hover:text-gold transition-colors"
+                  >
+                    {t("curated.viewAll")} →
+                  </button>
+                )}
               </div>
             )}
 
@@ -921,43 +970,12 @@ export default function ReadingPage() {
               </p>
             </div>
 
-            {!shopFetched ? (
-              <div className="card-glass p-10 md:p-16 text-center">
-                <div className="relative inline-block mb-6">
-                  <div className="w-20 h-20 rounded-full bg-gold/5 border border-gold/10 flex items-center justify-center">
-                    <Gift size={36} className="text-gold/40" />
-                  </div>
-                  <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-gold/20 border border-gold/30 flex items-center justify-center animate-pulse">
-                    <Sparkles size={10} className="text-gold" />
-                  </div>
+            {shopLoading ? (
+              <div className="flex justify-center py-12">
+                <div className="flex items-center gap-3 text-gold/60">
+                  <Loader2 size={20} className="animate-spin" />
+                  <span className="text-sm">{t("reading.shop.matching")}</span>
                 </div>
-                <p className="text-white/50 text-sm mb-2">{t("reading.shop.aiWill")}</p>
-                <p className="text-white/25 text-xs mb-8">{t("reading.shop.matchForYou")}</p>
-                <button
-                  onClick={async () => {
-                    setShopLoading(true)
-                    try {
-                      const result = await matchProducts({
-                        weakness_tags: data.computed_tags,
-                        master_summary: data.master_summary,
-                        top_k: 6,
-                        include_explain: true,
-                      }, locale)
-                      setProducts(result)
-                      setShopFetched(true)
-                    } catch {
-                      toast.error(t("reading.shop.matchFailed"))
-                    } finally {
-                      setShopLoading(false)
-                    }
-                  }}
-                  disabled={shopLoading}
-                  className="btn-gold flex items-center gap-2 mx-auto text-sm md:text-base"
-                >
-                  {shopLoading
-                    ? <><Loader2 size={16} className="animate-spin" /> {t("reading.shop.matching")}</>
-                    : <><Sparkles size={16} /> {t("reading.shop.recommendBtn")}</>}
-                </button>
               </div>
             ) : products.length > 0 ? (
               <Suspense fallback={<div className="grid sm:grid-cols-2 gap-5">

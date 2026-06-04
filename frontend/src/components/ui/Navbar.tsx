@@ -28,17 +28,16 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
 
-  // Core links — always visible
+  // Core links — always visible (product-oriented nav)
   const coreLinks = [
     { href: localeHref("/"), label: t("nav.home") },
-    { href: localeHref("/divination"), label: t("nav.divination") },
-    { href: localeHref("/am16"), label: t("nav.am16") },
+    { href: localeHref("/shop"), label: t("nav.shop"), highlight: true },
+    { href: localeHref("/reading/new"), label: t("nav.reading") || "推命体验" },
     { href: localeHref("/pricing"), label: t("nav.pricing") },
   ]
 
   // Extra links — visible on wide screens, collapsed on narrow
   const extraLinks = [
-    { href: localeHref("/shop"), label: t("nav.shop") },
     { href: localeHref("/blog"), label: t("nav.blog") },
     { href: localeHref("/about"), label: t("nav.about") },
   ]
@@ -71,7 +70,11 @@ export function Navbar() {
           <nav className="hidden lg:flex items-center gap-5">
             {coreLinks.map(l => (
               <Link key={l.href} href={l.href} prefetch={true}
-                className="text-sm text-white/70 hover:text-gold transition-colors duration-200">
+                className={`text-sm transition-colors duration-200 ${
+                  (l as any).highlight
+                    ? "text-gold font-medium hover:text-gold-light"
+                    : "text-white/70 hover:text-gold"
+                }`}>
                 {l.label}
               </Link>
             ))}
@@ -88,7 +91,11 @@ export function Navbar() {
           <nav className="hidden md:flex lg:hidden items-center gap-4">
             {coreLinks.map(l => (
               <Link key={l.href} href={l.href} prefetch={true}
-                className="text-sm text-white/70 hover:text-gold transition-colors duration-200">
+                className={`text-sm transition-colors duration-200 ${
+                  (l as any).highlight
+                    ? "text-gold font-medium hover:text-gold-light"
+                    : "text-white/70 hover:text-gold"
+                }`}>
                 {l.label}
               </Link>
             ))}
@@ -246,7 +253,7 @@ export function Navbar() {
           <div className="lg:hidden bg-ink/95 border-t border-white/10 px-4 py-4 flex flex-col gap-1">
             {coreLinks.map(l => (
               <Link key={l.href} href={l.href} onClick={() => setOpen(false)}
-                className="text-white/80 hover:text-gold py-2.5">
+                className={`py-2.5 ${(l as any).highlight ? "text-gold font-medium" : "text-white/80 hover:text-gold"}`}>
                 {l.label}
               </Link>
             ))}

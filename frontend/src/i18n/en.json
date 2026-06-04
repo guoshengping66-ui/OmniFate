@@ -2557,18 +2557,30 @@
     "title": "Something went wrong"
   },
   "hero": {
-    "badge": "128,000+ seekers have found their pattern",
+    "badge": "128,000+ people found their fortune essentials",
     "badgePeople": "",
-    "cta1": "Reveal My Destiny",
-    "cta2": "See What Others Found",
-    "desc": "Bazi · Astrology · Tarot · Face Reading · Palmistry\nAI combines five ancient traditions to reveal the forces shaping your life.",
+    "cta1": "Shop Fortune Essentials",
+    "cta2": "Free Destiny Reading",
+    "desc": "AI destiny analysis × Five-Element energy matching\nPersonalized crystals, jewelry & aromatherapy recommendations for your energy upgrade.",
     "stat1": "Readings",
     "stat2": "Satisfaction",
     "stat3": "Dimensions",
-    "stat4": "Report Time",
+    "stat4": "Curated Items",
     "statPeople": "",
-    "title1": "Discover Your Hidden",
-    "title2": "Destiny Pattern"
+    "title1": "Destiny Wisdom,",
+    "title2": "Curated for You"
+  },
+  "curated": {
+    "badge": "AI Curated for You",
+    "title": "Popular Fortune Essentials",
+    "desc": "Five-Element energy matching recommends the perfect items for your fortune",
+    "viewAll": "View All Essentials",
+    "hot": "Hot",
+    "new": "New",
+    "limited": "Limited",
+    "bestSeller": "{count}+ sold/mo",
+    "addToCart": "Grab Now",
+    "added": "Added"
   },
   "live": {
     "activity1": "just finished a full reading ✨",
