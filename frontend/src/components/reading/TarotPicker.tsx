@@ -1,10 +1,10 @@
 "use client"
 import { useState, useCallback, useMemo, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { RotateCcw, Sparkles, Hand } from "lucide-react"
+import { RotateCcw, Sparkles } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 
-/* ── Major Arcana data ──────────────────────────────────────── */
+/* ── Major Arcana ───────────────────────────────────────────── */
 
 const MAJOR_ARCANA = [
   { emoji: "🌟", zh: "愚者",       en: "The Fool" },
@@ -31,10 +31,13 @@ const MAJOR_ARCANA = [
   { emoji: "🌍", zh: "世界",       en: "The World" },
 ]
 
-const NUM_CARDS = 10
 const SELECT_COUNT = 3
 
-interface CardData {
+/* ── State machine ──────────────────────────────────────────── */
+
+type Phase = "deck" | "drawing" | "complete"
+
+interface DrawnCard {
   position: string
   card: string
   reversed: boolean
@@ -42,65 +45,52 @@ interface CardData {
 }
 
 interface Props {
-  onSelect: (cards: CardData[]) => void
+  onSelect: (cards: DrawnCard[]) => void
 }
 
-/* ── Shuffle helper ─────────────────────────────────────────── */
+/* ── Helpers ────────────────────────────────────────────────── */
 
-function shuffleDeck(): typeof MAJOR_ARCANA {
-  const shuffled = [...MAJOR_ARCANA].sort(() => Math.random() - 0.5)
-  return shuffled.slice(0, NUM_CARDS)
+function shuffleAndPick(): typeof MAJOR_ARCANA {
+  return [...MAJOR_ARCANA]
+    .sort(() => Math.random() - 0.5)
+    .slice(0, SELECT_COUNT)
 }
 
-/* ── Card back (pure CSS / SVG) ─────────────────────────────── */
+/* ── Card Back (shared) ─────────────────────────────────────── */
 
-function CardBack() {
+function CardBack({ className = "" }: { className?: string }) {
   return (
-    <div className="absolute inset-0 rounded-xl overflow-hidden"
+    <div className={`absolute inset-0 rounded-xl overflow-hidden ${className}`}
       style={{
         backfaceVisibility: "hidden",
         background: "linear-gradient(145deg, #1a0a2e 0%, #0d1b3e 50%, #160830 100%)",
       }}>
-      {/* Gold outer border */}
       <div className="absolute inset-0 rounded-xl border-2 border-gold/30" />
-      {/* Inner decorative border */}
       <div className="absolute inset-[5px] rounded-[10px] border border-gold/15" />
 
-      {/* Center mandala SVG */}
       <svg className="absolute inset-0 w-full h-full opacity-25" viewBox="0 0 100 140">
-        {/* Outer ring */}
         <circle cx="50" cy="70" r="36" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-gold" />
         <circle cx="50" cy="70" r="30" fill="none" stroke="currentColor" strokeWidth="0.3" className="text-gold" />
-        {/* 5-pointed star */}
-        {[0, 72, 144, 216, 288].map((angle) => {
-          const rad = (angle * Math.PI) / 180
-          const x1 = 50 + 22 * Math.cos(rad)
-          const y1 = 70 + 22 * Math.sin(rad)
-          const rad2 = ((angle + 144) * Math.PI) / 180
-          const x2 = 50 + 22 * Math.cos(rad2)
-          const y2 = 70 + 22 * Math.sin(rad2)
-          return (
-            <line key={angle} x1={x1} y1={y1} x2={x2} y2={y2}
-              stroke="currentColor" strokeWidth="0.4" className="text-gold" />
-          )
+        {[0, 72, 144, 216, 288].map((a) => {
+          const r1 = (a * Math.PI) / 180, r2 = ((a + 144) * Math.PI) / 180
+          return <line key={a} x1={50 + 22 * Math.cos(r1)} y1={70 + 22 * Math.sin(r1)}
+            x2={50 + 22 * Math.cos(r2)} y2={70 + 22 * Math.sin(r2)}
+            stroke="currentColor" strokeWidth="0.4" className="text-gold" />
         })}
-        {/* Center eye */}
         <circle cx="50" cy="70" r="4" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-gold/60" />
         <circle cx="50" cy="70" r="1.5" fill="currentColor" className="text-gold/50" />
-        {/* Corner ornaments */}
         {[[18, 22], [82, 22], [18, 118], [82, 118]].map(([cx, cy], i) => (
           <polygon key={i} points={`${cx},${cy! - 3} ${cx! + 2.5},${cy} ${cx},${cy! + 3} ${cx! - 2.5},${cy}`}
             fill="currentColor" className="text-gold/25" />
         ))}
       </svg>
 
-      {/* Breathing glow */}
       <div className="absolute inset-0 rounded-xl animate-tarot-breathe pointer-events-none" />
     </div>
   )
 }
 
-/* ── Card front face ────────────────────────────────────────── */
+/* ── Card Front ─────────────────────────────────────────────── */
 
 function CardFront({ arcana, reversed }: { arcana: typeof MAJOR_ARCANA[number]; reversed: boolean }) {
   const { locale } = useLanguage()
@@ -121,9 +111,7 @@ function CardFront({ arcana, reversed }: { arcana: typeof MAJOR_ARCANA[number]; 
       <p className="text-gold font-serif font-bold text-[11px] sm:text-xs leading-tight text-center px-1.5 mt-1">
         {locale === "zh" ? arcana.zh : arcana.en}
       </p>
-      {locale === "en" && (
-        <p className="text-gold/40 text-[9px]">{arcana.zh}</p>
-      )}
+      {locale === "en" && <p className="text-gold/40 text-[9px]">{arcana.zh}</p>}
       {reversed && (
         <span className="text-white/40 text-[9px] mt-0.5">
           {locale === "zh" ? "逆位" : "Reversed"}
@@ -133,7 +121,7 @@ function CardFront({ arcana, reversed }: { arcana: typeof MAJOR_ARCANA[number]; 
   )
 }
 
-/* ── Flash on reveal ────────────────────────────────────────── */
+/* ── Reveal flash ───────────────────────────────────────────── */
 
 function RevealFlash() {
   return (
@@ -142,24 +130,29 @@ function RevealFlash() {
       initial={{ opacity: 0 }}
       animate={{ opacity: [0, 0.7, 0] }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      style={{
-        background: "radial-gradient(circle, rgba(201,168,76,0.5) 0%, transparent 70%)",
-      }}
+      style={{ background: "radial-gradient(circle, rgba(201,168,76,0.5) 0%, transparent 70%)" }}
     />
   )
 }
 
-/* ── Main TarotPicker ───────────────────────────────────────── */
-
-type Phase = "spread" | "select" | "reveal" | "confirm"
+/* ══════════════════════════════════════════════════════════════ */
+/*  Main TarotPicker — Tap to Draw                              */
+/* ══════════════════════════════════════════════════════════════ */
 
 export function TarotPicker({ onSelect }: Props) {
   const { t, locale } = useLanguage()
-  const [phase, setPhase] = useState<Phase>("spread")
-  const [deck] = useState(() => shuffleDeck())
-  const [selectedIndices, setSelectedIndices] = useState<number[]>([])
-  const [revealedCards, setRevealedCards] = useState<CardData[]>([])
-  const revealTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const [phase, setPhase] = useState<Phase>("deck")
+  const [drawnCards, setDrawnCards] = useState<DrawnCard[]>([])
+  const [currentDrawIndex, setCurrentDrawIndex] = useState(0) // 0, 1, 2
+  const [isAnimating, setIsAnimating] = useState(false)
+  const [flipComplete, setFlipComplete] = useState<boolean[]>([false, false, false])
+
+  const deckRef = useRef<HTMLDivElement>(null)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const drawnCardsRef = useRef<DrawnCard[]>([]) // mirror state for stale closures
+
+  const picks = useRef(shuffleAndPick())
 
   const POSITIONS = useMemo(() => [
     t("new.tarot.past"),
@@ -167,81 +160,72 @@ export function TarotPicker({ onSelect }: Props) {
     t("new.tarot.future"),
   ], [t])
 
-  /* ── Auto-transition: spread → select after fan animation ── */
-  useEffect(() => {
-    const totalSpreadDuration = NUM_CARDS * 60 + 400 // stagger + settle
-    const timer = setTimeout(() => setPhase("select"), totalSpreadDuration)
-    return () => clearTimeout(timer)
-  }, [])
+  useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current) }, [])
 
-  /* Cleanup timers on unmount */
-  useEffect(() => {
-    return () => {
-      if (revealTimerRef.current) clearTimeout(revealTimerRef.current)
+  // Keep drawnCardsRef in sync with state
+  useEffect(() => { drawnCardsRef.current = drawnCards }, [drawnCards])
+
+  /* ── Draw a card ──────────────────────────────────────────── */
+  const drawCard = useCallback(() => {
+    if (isAnimating || phase === "complete") return
+    if (currentDrawIndex >= SELECT_COUNT) return
+
+    setIsAnimating(true)
+    const idx = currentDrawIndex
+    const arcana = picks.current[idx]
+    const card: DrawnCard = {
+      position: POSITIONS[idx],
+      card: locale === "zh" ? arcana.zh : arcana.en,
+      reversed: Math.random() > 0.65,
+      arcana,
     }
-  }, [])
 
-  /* ── Card click handler ── */
-  const handleCardClick = useCallback((index: number) => {
-    if (phase !== "select") return
-    if (selectedIndices.includes(index)) return
-    if (selectedIndices.length >= SELECT_COUNT) return
+    // Step 1: card slides out from deck (animation handled by motion)
+    // Step 2: after slide completes, flip
+    timerRef.current = setTimeout(() => {
+      setDrawnCards(prev => [...prev, card])
+      setFlipComplete(prev => { const c = [...prev]; c[idx] = true; return c })
 
-    const newSelected = [...selectedIndices, index]
-    setSelectedIndices(newSelected)
+      // Step 3: after flip completes, check if done
+      timerRef.current = setTimeout(() => {
+        const nextIdx = idx + 1
+        setCurrentDrawIndex(nextIdx)
+        setIsAnimating(false)
 
-    if (newSelected.length === SELECT_COUNT) {
-      setPhase("reveal")
+        if (nextIdx >= SELECT_COUNT) {
+          // All 3 drawn — use ref to avoid stale closure
+          const allCards = [...drawnCardsRef.current]
+          onSelect(allCards.length === SELECT_COUNT ? allCards : [card])
+          timerRef.current = setTimeout(() => setPhase("complete"), 400)
+        }
+      }, 700) // flip duration
+    }, 350) // slide duration
+  }, [isAnimating, phase, currentDrawIndex, POSITIONS, locale, onSelect])
 
-      revealTimerRef.current = setTimeout(() => {
-        const cards: CardData[] = newSelected.map((idx, i) => {
-          const arcana = deck[idx]
-          return {
-            position: POSITIONS[i],
-            card: locale === "zh" ? arcana.zh : arcana.en,
-            reversed: Math.random() > 0.65,
-            arcana,
-          }
-        })
-        setRevealedCards(cards)
-        onSelect(cards)
-
-        revealTimerRef.current = setTimeout(() => setPhase("confirm"), 700)
-      }, 300)
-    }
-  }, [phase, selectedIndices, deck, POSITIONS, locale, onSelect])
-
-  /* ── Redraw ── */
+  /* ── Redraw ───────────────────────────────────────────────── */
   const handleRedraw = useCallback(() => {
-    if (revealTimerRef.current) clearTimeout(revealTimerRef.current)
-    setSelectedIndices([])
-    setRevealedCards([])
-    setPhase("spread")
-    setTimeout(() => setPhase("select"), NUM_CARDS * 60 + 400)
+    if (timerRef.current) clearTimeout(timerRef.current)
+    picks.current = shuffleAndPick()
+    drawnCardsRef.current = []
+    setDrawnCards([])
+    setCurrentDrawIndex(0)
+    setFlipComplete([false, false, false])
+    setIsAnimating(false)
+    setPhase("deck")
   }, [])
 
-  /* ── Fan layout math ── */
-  const fanLayout = useMemo(() => {
-    const totalAngle = 44 // degrees
-    const start = -totalAngle / 2
-    const step = totalAngle / (NUM_CARDS - 1)
-    return Array.from({ length: NUM_CARDS }, (_, i) => ({
-      rotation: start + step * i,
-      y: Math.abs(start + step * i) * 0.35,
-      delay: i * 0.06,
-    }))
-  }, [])
-
-  const isInteractive = phase === "select"
+  /* ── Position slots (left, center, right) ─────────────────── */
+  const slotX = [-130, 0, 130] // px offsets from center
+  const isDeckVisible = phase !== "complete" && currentDrawIndex < SELECT_COUNT
 
   return (
     <div className="space-y-3">
-      {/* ── Header row ── */}
+      {/* ── Header ── */}
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-medium text-white/70">
           {t("new.tarotDrawTitle")}
         </h3>
-        {(phase === "confirm" || phase === "select") && (
+        {phase === "complete" && (
           <motion.button
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -249,144 +233,170 @@ export function TarotPicker({ onSelect }: Props) {
             className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border border-gold/40 text-gold hover:bg-gold/10 transition-all"
           >
             <RotateCcw size={12} />
-            {selectedIndices.length > 0 ? t("new.tarotRedraw") : t("new.tarotRedraw")}
+            {t("new.tarotRedraw")}
           </motion.button>
         )}
       </div>
 
       {/* ── Instruction ── */}
       <AnimatePresence mode="wait">
-        {phase === "select" && (
-          <motion.p key="pick"
-            initial={{ opacity: 0, y: -5 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            className="text-center text-white/40 text-xs"
-          >
-            <Hand size={12} className="inline mr-1 -mt-0.5" />
-            {t("new.tarotPickCards") || `请选择 ${SELECT_COUNT} 张牌 — 过去、现在、未来`}
+        {phase === "deck" && (
+          <motion.p key="deck" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="text-center text-white/40 text-xs">
+            {t("new.tarotTapDeck") || "点击牌堆，抽取命运之牌"}
           </motion.p>
         )}
-        {phase === "reveal" && (
-          <motion.p key="reveal"
-            initial={{ opacity: 0, y: -5 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            className="text-center text-gold/60 text-xs flex items-center justify-center gap-1.5"
-          >
+        {phase === "drawing" && currentDrawIndex < SELECT_COUNT && (
+          <motion.p key={`draw-${currentDrawIndex}`} initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+            className="text-center text-gold/50 text-xs flex items-center justify-center gap-1.5">
+            <Sparkles size={11} className="text-gold/60" />
+            {t(`new.tarotDraw${currentDrawIndex + 1}`) ||
+              ["抽取第二张 — 现在", "抽取最后一张 — 未来"][currentDrawIndex - 1] ||
+              "继续抽取…"}
+            <Sparkles size={11} className="text-gold/60" />
+          </motion.p>
+        )}
+        {phase === "complete" && (
+          <motion.p key="done" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="text-center text-gold/60 text-xs flex items-center justify-center gap-1.5">
             <Sparkles size={12} className="text-gold" />
-            {t("new.tarotRevealing") || "命运之牌正在揭示…"}
+            {t("new.tarotComplete") || "三张命运之牌已揭示"}
             <Sparkles size={12} className="text-gold" />
           </motion.p>
         )}
       </AnimatePresence>
 
-      {/* ── Card fan area ── */}
-      <div className="relative flex justify-center items-start" style={{ minHeight: 200 }}>
-        {deck.map((arcana, i) => {
-          const isSelected = selectedIndices.includes(i)
-          const selectOrder = selectedIndices.indexOf(i)
-          const isRevealed = phase === "reveal" || phase === "confirm"
-          const shouldHide = isRevealed && !isSelected
-          const isFlipped = isSelected && isRevealed
-          const cardData = revealedCards[selectOrder]
-          const layout = fanLayout[i]
+      {/* ── Main area: cards + deck ── */}
+      <div className="relative flex justify-center items-center" style={{ minHeight: 180 }}>
 
-          return (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, scale: 0.4, y: 60 }}
-              animate={{
-                opacity: shouldHide ? 0 : 1,
-                scale: isSelected
-                  ? (isRevealed ? 1.08 : 1.12)
-                  : (isRevealed ? 0.7 : 1),
-                rotate: isSelected ? 0 : layout.rotation,
-                x: isSelected ? (selectOrder - 1) * 120 : 0,
-                y: isSelected
-                  ? (isRevealed ? -8 : -25)
-                  : layout.y,
-                zIndex: shouldHide ? 0 : (isSelected ? 30 : (10 - Math.abs(layout.rotation) * 0.1)),
-              }}
-              transition={{
-                type: "spring",
-                stiffness: 260,
-                damping: 22,
-                delay: phase === "spread" ? layout.delay : 0,
-              }}
-              whileHover={
-                isInteractive && !isSelected
-                  ? { y: layout.y - 14, scale: 1.06, transition: { duration: 0.15 } }
-                  : undefined
-              }
-              whileTap={isInteractive && !isSelected ? { scale: 0.97 } : undefined}
-              onClick={() => handleCardClick(i)}
-              className={`absolute ${isInteractive && !isSelected ? "cursor-pointer" : ""} ${shouldHide ? "pointer-events-none" : ""}`}
-            >
-              {/* 3D flip container */}
-              <div className="relative" style={{ perspective: 800 }}>
+        {/* ── Drawn cards (slots) ── */}
+        <div className="relative flex items-start justify-center" style={{ width: "100%", maxWidth: 440 }}>
+          {drawnCards.map((card, i) => {
+            const isFlipped = flipComplete[i]
+            return (
+              <motion.div
+                key={`card-${i}`}
+                initial={{ opacity: 0, x: 0, y: 0, scale: 0.6, rotate: 0 }}
+                animate={{
+                  opacity: 1,
+                  x: slotX[i],
+                  y: 0,
+                  scale: 1,
+                  rotate: 0,
+                }}
+                transition={{
+                  type: "spring",
+                  stiffness: 200,
+                  damping: 20,
+                  delay: 0.05,
+                }}
+                className="absolute"
+                style={{ perspective: 800, left: "50%", marginLeft: -42 }}
+              >
                 <motion.div
-                  className="relative w-[72px] h-[108px] sm:w-[84px] sm:h-[126px]"
+                  className="relative w-[84px] h-[126px]"
                   animate={{ rotateY: isFlipped ? 180 : 0 }}
                   transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
                   style={{ transformStyle: "preserve-3d" }}
                 >
                   <CardBack />
-                  {cardData && <CardFront arcana={cardData.arcana} reversed={cardData.reversed} />}
+                  <CardFront arcana={card.arcana} reversed={card.reversed} />
                   {isFlipped && <RevealFlash />}
-
-                  {/* Selection glow ring */}
-                  {isSelected && !isRevealed && (
-                    <motion.div
-                      className="absolute -inset-[3px] rounded-xl pointer-events-none"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      style={{
-                        background: "conic-gradient(from 0deg, transparent 0%, rgba(201,168,76,0.5) 25%, transparent 50%, rgba(201,168,76,0.5) 75%, transparent 100%)",
-                        animation: "glow-rotate 2.5s linear infinite",
-                        WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-                        WebkitMaskComposite: "xor",
-                        maskComposite: "exclude",
-                        padding: "2px",
-                      }}
-                    />
-                  )}
                 </motion.div>
-              </div>
 
-              {/* Position label — OUTSIDE the 3D container */}
-              {isSelected && isRevealed && cardData && (
+                {/* Position label */}
+                {isFlipped && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4, duration: 0.3 }}
+                    className="text-center mt-2"
+                  >
+                    <span className="text-gold/70 text-[10px] font-medium">{card.position}</span>
+                  </motion.div>
+                )}
+              </motion.div>
+            )
+          })}
+
+          {/* ── Deck (tappable) ── */}
+          <AnimatePresence>
+            {isDeckVisible && (
+              <motion.div
+                ref={deckRef}
+                key="deck"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{
+                  opacity: 1,
+                  scale: isAnimating ? 0.95 : 1,
+                  x: 0,
+                }}
+                exit={{ opacity: 0, scale: 0.7, y: -20 }}
+                transition={{ type: "spring", stiffness: 200, damping: 18 }}
+                onClick={drawCard}
+                className="absolute cursor-pointer select-none"
+                style={{ perspective: 800, left: "50%", marginLeft: -42 }}
+                whileHover={{ scale: 1.05, y: -3 }}
+                whileTap={{ scale: 0.93 }}
+              >
+                {/* Stacked deck: 3-4 offset card backs */}
+                <div className="relative w-[84px] h-[126px]">
+                  {[3, 2, 1, 0].map(layer => (
+                    <div key={layer}
+                      className="absolute inset-0"
+                      style={{
+                        transform: `translate(${layer * 1.5}px, ${layer * 2}px)`,
+                        opacity: 0.5 + layer * 0.15,
+                        zIndex: layer,
+                      }}>
+                      <CardBack />
+                    </div>
+                  ))}
+
+                  {/* Pulsing glow ring around deck */}
+                  <div className="absolute -inset-2 rounded-xl pointer-events-none"
+                    style={{
+                      background: "conic-gradient(from 0deg, transparent, rgba(201,168,76,0.3), transparent, rgba(201,168,76,0.3), transparent)",
+                      animation: "glow-rotate 3s linear infinite",
+                      WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+                      WebkitMaskComposite: "xor",
+                      maskComposite: "exclude",
+                      padding: "2px",
+                    }}
+                  />
+                </div>
+
+                {/* "Tap to draw" hint on the deck */}
                 <motion.div
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 + selectOrder * 0.12, duration: 0.35 }}
-                  className="text-center mt-2"
+                  animate={{ opacity: [0.4, 0.8, 0.4] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="absolute -bottom-6 left-0 right-0 text-center"
                 >
-                  <span className="text-gold/70 text-[10px] font-medium whitespace-nowrap">
-                    {cardData.position}
+                  <span className="text-gold/50 text-[10px] whitespace-nowrap">
+                    ✦ {t("new.tarotTapHint") || "点击抽取"} ✦
                   </span>
                 </motion.div>
-              )}
-            </motion.div>
-          )
-        })}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
-      {/* ── Confirm: result summary cards ── */}
-      {phase === "confirm" && revealedCards.length > 0 && (
+      {/* ── Complete: summary cards ── */}
+      {phase === "complete" && drawnCards.length === SELECT_COUNT && (
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
-          className="mt-8"
+          transition={{ delay: 0.3, duration: 0.4 }}
+          className="mt-2"
         >
           <div className="grid grid-cols-3 gap-3">
-            {revealedCards.map((c, i) => (
+            {drawnCards.map((c, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 12 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 + i * 0.12 }}
+                transition={{ delay: 0.5 + i * 0.1 }}
                 className="card-glow p-3 text-center"
               >
                 <div className="text-[10px] text-white/40 mb-1">{c.position}</div>
@@ -405,9 +415,9 @@ export function TarotPicker({ onSelect }: Props) {
         </motion.div>
       )}
 
-      {/* ── Empty / hint state ── */}
-      {phase === "spread" && (
-        <div className="border border-dashed border-white/10 rounded-xl p-4 text-center text-white/30 text-xs">
+      {/* ── Deck empty state ── */}
+      {phase === "deck" && (
+        <div className="border border-dashed border-white/10 rounded-xl p-3 text-center text-white/25 text-[11px]">
           {t("new.tarotHint")}
         </div>
       )}
