@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useRef, useState, useMemo, Suspense, lazy } from "react"
+import React, { useEffect, useRef, useState, useMemo, useCallback, Suspense, lazy } from "react"
 import { AGENT_LABELS } from "@/lib/api"
 import { useLanguage } from "@/contexts/LanguageContext"
 
