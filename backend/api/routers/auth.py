@@ -36,7 +36,7 @@ def _set_auth_cookies(response: JSONResponse, access_token: str, refresh_token: 
     response.set_cookie(
         key=ACCESS_TOKEN_COOKIE,
         value=access_token,
-        max_delta=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         httponly=True,
         secure=_COOKIE_SECURE,
         samesite=_COOKIE_SAMESITE,
@@ -45,7 +45,7 @@ def _set_auth_cookies(response: JSONResponse, access_token: str, refresh_token: 
     response.set_cookie(
         key="refresh_token",
         value=refresh_token,
-        max_delta=30 * 24 * 3600,  # 30 days
+        max_age=30 * 24 * 3600,  # 30 days
         httponly=True,
         secure=_COOKIE_SECURE,
         samesite=_COOKIE_SAMESITE,
