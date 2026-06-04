@@ -126,16 +126,22 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
   // Read body — handle multipart (binary) vs JSON differently
   let body: string | ArrayBuffer | undefined
   if (request.method !== "GET" && request.method !== "HEAD") {
+    // DEBUG: Log every non-GET request body for diagnosis
+    const authTag = targetPath.includes("/auth/") ? "AUTH|" : ""
+    console.log(`[Proxy] ${authTag}${request.method} ${targetPath} ct=${contentType}`)
+
     if (isMultipart) {
       // ⚠️ CRITICAL: Use arrayBuffer() for multipart to preserve binary file data.
       // text() corrupts binary by interpreting bytes as UTF-8.
       const ab = await request.arrayBuffer()
       body = ab
+      console.log(`[Proxy] ${authTag}multipart body size: ${ab.byteLength}`)
     } else if (dataParam) {
       // Data from URL param — decode and use as JSON body
       try {
         body = decodeURIComponent(dataParam)
         headers.set("Content-Type", "application/json")
+        console.log(`[Proxy] ${authTag}body from _data param, len=${(body as string)?.length}`)
       } catch {
         // URL param decoding failed — fall through to body
         dataParam = null
@@ -145,10 +151,7 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
     if (!dataParam && body === undefined) {
       // Fall back to reading the request body directly
       const raw = await request.text()
-      // DEBUG: log body for auth endpoints
-      if (targetPath.includes("/auth/")) {
-        console.log(`[Proxy] ${request.method} ${targetPath} body length: ${raw?.length ?? 0}, body preview: ${raw?.substring(0, 200)}`)
-      }
+      console.log(`[Proxy] ${authTag}body from request.text(), len=${raw?.length ?? 0}, preview=${raw?.substring(0, 300)}`)
       if (raw) {
         body = raw
         // Ensure Content-Type is set for the backend
