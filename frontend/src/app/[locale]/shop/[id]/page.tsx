@@ -22,7 +22,7 @@ export default function ProductDetailPage() {
   const router = useRouter()
   const { user } = useAuth()
   const { addItem } = useCart()
-  const { t, locale, localeHref } = useLanguage()
+  const { t, locale } = useLanguage()
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
   const [added, setAdded] = useState(false)
@@ -82,7 +82,7 @@ export default function ProductDetailPage() {
     return (
       <div className="min-h-screen pt-24 pb-16 px-4 text-center">
         <p className="text-white/40">{t("shop.detail.notFound")}</p>
-        <Link href={localeHref("/shop")} className="text-gold text-sm mt-2 hover:underline">{t("shop.detail.backToShop")}</Link>
+        <Link href="/shop" className="text-gold text-sm mt-2 hover:underline">{t("shop.detail.backToShop")}</Link>
       </div>
     )
   }
@@ -198,7 +198,7 @@ export default function ProductDetailPage() {
             <h2 className="font-serif text-lg text-gold mb-4">{t("shop.detail.relatedReadings")}</h2>
             <div className="space-y-3">
               {relatedReadings.map(r => (
-                <Link key={r.id} href={localeHref(`/reading/${r.id}`)}
+                <Link key={r.id} href={`/reading/${r.id}`}
                   className="block card-glass p-4 hover:border-gold/30 transition-all group">
                   <div className="flex items-center justify-between">
                     <div>
