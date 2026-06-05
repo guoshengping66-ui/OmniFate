@@ -288,9 +288,9 @@ export default function ReadingPage() {
 
   const handleUnlock = useCallback(async (paymentMethod: string = "card") => {
     if (!id) return
-    // 打开 QR 支付弹窗，由用户扫码支付后自动解锁
-    setShowPayment(true)
-  }, [id])
+    // 跳转到定价页面，用户选择会员方案
+    router.push(`/${locale}/pricing`)
+  }, [id, router, locale])
 
   const handlePaymentSuccess = useCallback(async () => {
     setIsUnlocked(true)
@@ -875,7 +875,7 @@ export default function ReadingPage() {
                 title={t("reading.master.detailTitle")}
                 description={t("reading.insight.locked")}
                 priceDisplay="¥69"
-                onUnlock={() => setShowPayment(true)}
+                onUnlock={() => router.push(`/${locale}/pricing`)}
                 loading={false}
                 previewLines={5}
                 stardustBalance={user?.stardust_balance || 0}
@@ -1014,7 +1014,7 @@ export default function ReadingPage() {
                     title={`${t(AGENT_I18N[k] || `agent.${k}`)} ${t("reading.worker.unlockTitle")}`}
                     description={t("reading.worker.unlockDesc")}
                     priceDisplay="¥69"
-                    onUnlock={() => setShowPayment(true)}
+                    onUnlock={() => router.push(`/${locale}/pricing`)}
                     loading={false}
                     previewLines={3}
                     stardustBalance={user?.stardust_balance || 0}

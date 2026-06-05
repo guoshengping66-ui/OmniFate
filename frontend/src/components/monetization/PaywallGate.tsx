@@ -175,7 +175,7 @@ export function PaywallGate({
           </>
         )}
 
-        {/* Secondary: Pay with money */}
+        {/* Pay with money — direct to pricing page */}
         <button
           onClick={onUnlock}
           disabled={loading}
@@ -184,7 +184,7 @@ export function PaywallGate({
           {loading ? (
             <><span className="animate-spin inline-block">⏳</span> {t("paywall.processing")}</>
           ) : (
-            <><Sparkles size={18} /> {t("paywall.unlockReport")}</>
+            <><Sparkles size={18} /> {t("paywall.joinMember") || "加入会员解锁"}</>
           )}
         </button>
 

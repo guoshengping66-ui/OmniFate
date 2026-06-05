@@ -7,15 +7,6 @@
       "master_detail_visible": false,
       "shop_coupon_on_upgrade": 0
     },
-    "full_report": {
-      "name": "全维报告",
-      "price_cny": 69,
-      "first_price_cny": 29.9,
-      "unlocks": ["master_detail", "follow_up_10"],
-      "shop_coupon_on_purchase": 60,
-      "trial_days": 3,
-      "one_time": true
-    },
     "premium_monthly": {
       "name": "Fate OS 月度",
       "price_cny": 49,

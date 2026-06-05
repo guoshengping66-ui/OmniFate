@@ -47,31 +47,6 @@ export interface PlanConfig {
 
 export const PLANS: PlanConfig[] = [
   {
-    id: "full_report",
-    name: "全维全景报告",
-    subtitle: "单次解锁完整命盘深度分析",
-    priceCny: 88,
-    priceUsd: 24.99,
-    monthlyStardustGrant: 0,
-    displayCny: "¥88",
-    displayUsd: "$24.99",
-    originalCny: 118,
-    originalUsd: 34.99,
-    features: [
-      "解锁完整命盘深度报告",
-      "年度运势规划（12个月）",
-      "五行缺失精准诊断",
-      "AI 改运商品精准匹配",
-      "追问功能（10次/报告）",
-      "赠送 100 星尘能量",
-      "自动激活 3 天会员试用",
-    ],
-    cta: "立即解锁",
-    highlight: false,
-    badge: "首单立减 ¥30",
-    billingLabel: "一次性付费",
-  },
-  {
     id: "premium_monthly",
     name: "Fate OS 月度",
     subtitle: "全维度命理操作系统",

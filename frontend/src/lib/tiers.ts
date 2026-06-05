@@ -1,6 +1,6 @@
 /** Dual-track pricing system — domestic (CNY) & overseas (USD) */
 
-export type TierId = "free" | "full_report" | "premium_monthly" | "premium_yearly" | "event_retro" | "founder_lifetime"
+export type TierId = "free" | "premium_monthly" | "premium_yearly" | "event_retro" | "founder_lifetime"
 export type Region = "domestic" | "overseas"
 
 export interface PricingTier {
@@ -59,31 +59,6 @@ export const TIERS: PricingTier[] = [
     cta: "免费开始",
     highlight: false,
     billingLabel: "永久免费",
-  },
-  {
-    id: "full_report",
-    name: "全维全景报告",
-    subtitle: "单次解锁完整命盘深度分析",
-    priceCny: 88,
-    priceUsd: 24.99,
-    stardust: 100,
-    priceDisplay: "¥88",
-    priceDisplayUsd: "$24.99",
-    originalPriceCny: 118,
-    originalPriceUsd: 34.99,
-    features: [
-      "解锁完整命盘深度报告",
-      "五维诊断与行动建议",
-      "五行缺失精准诊断",
-      "AI 改运商品精准匹配",
-      "追问功能（星尘计费）",
-      "赠送 100 星尘能量",
-      "自动激活 3 天会员试用",
-    ],
-    cta: "立即解锁",
-    highlight: false,
-    badge: "首单立减 ¥30",
-    billingLabel: "一次性付费",
   },
   {
     id: "premium_monthly",

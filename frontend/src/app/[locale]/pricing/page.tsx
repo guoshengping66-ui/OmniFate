@@ -58,7 +58,6 @@ export default function PricingPage() {
   const handleSelect = async (tierId: string) => {
     switch (tierId) {
       case "free":
-      case "full_report":
         router.push(localeHref("/reading/new"))
         break
       case "premium_monthly":
@@ -94,8 +93,7 @@ export default function PricingPage() {
     setSelectedTier(null)
   }
 
-  // ── Filter tiers for 3-column grid (Single, Monthly, Yearly) ──
-  const singleTier = TIERS.find(t => t.id === "full_report")!
+  // ── Filter tiers for grid (Monthly, Yearly, Founder) ──
   const monthlyTier = TIERS.find(t => t.id === "premium_monthly")!
   const yearlyTier = TIERS.find(t => t.id === "premium_yearly")!
   const founderTier = TIERS.find(t => t.id === "founder_lifetime")!
@@ -146,18 +144,10 @@ export default function PricingPage() {
           </div>
         </div>
 
-        {/* ══════════ Main Pricing Grid (3-Column) ══════════ */}
-        <Suspense fallback={<div className="grid lg:grid-cols-3 gap-5 mb-12">{[1,2,3].map(i => <div key={i} className="h-64 bg-white/[0.03] rounded-2xl animate-pulse" />)}</div>}>
-          <div className="grid lg:grid-cols-3 gap-5 items-stretch mb-12">
-            {/* Left: Single Report */}
-            <PricingCard
-              tier={singleTier}
-              region={region}
-              isNewUser={true}
-              onSelect={handleSelect}
-            />
-
-            {/* Center: Yearly (Recommended) — taller card */}
+        {/* ══════════ Main Pricing Grid (2-Column) ══════════ */}
+        <Suspense fallback={<div className="grid lg:grid-cols-2 gap-5 mb-12">{[1,2].map(i => <div key={i} className="h-64 bg-white/[0.03] rounded-2xl animate-pulse" />)}</div>}>
+          <div className="grid lg:grid-cols-2 gap-5 items-stretch mb-12 max-w-4xl mx-auto">
+            {/* Left: Yearly (Recommended) — taller card */}
             <div className="lg:-mt-3 lg:mb-[-12px]">
               <PricingCard
                 tier={yearlyTier}
@@ -188,25 +178,23 @@ export default function PricingPage() {
               <thead>
                 <tr className="border-b border-white/10">
                   <th className="text-left py-3 px-4 text-white/40 font-medium">{t("pricing.tierCompare.feature")}</th>
-                  <th className="text-center py-3 px-2 text-white/50 font-medium">{t("tier.full_report.name")}</th>
                   <th className="text-center py-3 px-2 text-gold font-medium">{t("tier.premium_yearly.name")}</th>
                   <th className="text-center py-3 px-2 text-white/50 font-medium">{t("tier.premium_monthly.name")}</th>
                 </tr>
               </thead>
               <tbody>
                 {[
-                  { label: t("pricing.tierCompare.feat1"), report: "3", yearly: "∞", monthly: "∞" },
-                  { label: t("pricing.tierCompare.feat2"), report: "—", yearly: locale === "zh" ? "5次/月" : "5/mo", monthly: locale === "zh" ? "2次/月" : "2/mo" },
-                  { label: t("pricing.tierCompare.feat3"), report: "—", yearly: "✓", monthly: "✓" },
-                  { label: t("pricing.tierCompare.feat4"), report: locale === "zh" ? "10次" : "10", yearly: "∞", monthly: "∞" },
-                  { label: t("pricing.tierCompare.feat5"), report: "—", yearly: locale === "zh" ? "8.8折" : "12% off", monthly: "—" },
-                  { label: t("pricing.tierCompare.feat6"), report: "100", yearly: locale === "zh" ? "150/月" : "150/mo", monthly: locale === "zh" ? "100/月" : "100/mo" },
-                  { label: t("pricing.tierCompare.feat7"), report: "—", yearly: "✓", monthly: "—" },
-                  { label: t("pricing.tierCompare.feat8"), report: "—", yearly: "✓", monthly: "—" },
+                  { label: t("pricing.tierCompare.feat1"), yearly: "∞", monthly: "∞" },
+                  { label: t("pricing.tierCompare.feat2"), yearly: locale === "zh" ? "5次/月" : "5/mo", monthly: locale === "zh" ? "2次/月" : "2/mo" },
+                  { label: t("pricing.tierCompare.feat3"), yearly: "✓", monthly: "✓" },
+                  { label: t("pricing.tierCompare.feat4"), yearly: "∞", monthly: "∞" },
+                  { label: t("pricing.tierCompare.feat5"), yearly: locale === "zh" ? "8.8折" : "12% off", monthly: "—" },
+                  { label: t("pricing.tierCompare.feat6"), yearly: locale === "zh" ? "150/月" : "150/mo", monthly: locale === "zh" ? "100/月" : "100/mo" },
+                  { label: t("pricing.tierCompare.feat7"), yearly: "✓", monthly: "—" },
+                  { label: t("pricing.tierCompare.feat8"), yearly: "✓", monthly: "—" },
                 ].map((row, i) => (
                   <tr key={i} className={`border-b border-white/5 ${i % 2 === 0 ? "bg-white/[0.02]" : ""}`}>
                     <td className="py-2.5 px-4 text-white/50">{row.label}</td>
-                    <td className="py-2.5 px-2 text-center text-white/40">{row.report}</td>
                     <td className="py-2.5 px-2 text-center text-gold font-medium">{row.yearly}</td>
                     <td className="py-2.5 px-2 text-center text-white/40">{row.monthly}</td>
                   </tr>
