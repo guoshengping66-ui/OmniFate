@@ -1678,7 +1678,8 @@
       "health": "Health",
       "relationship": "Love",
       "spiritual": "Spiritual",
-      "wealth": "Wealth"
+      "wealth": "Wealth",
+      "beat": "Beats"
     },
     "dimDesc": {
       "career": "Career Momentum",
@@ -1710,7 +1711,10 @@
     },
     "insight": {
       "locked": "Unlock the full report for your personalized annual fortune plan and enhancement strategy.",
-      "unlocked": "Full report unlocked — scroll down to explore every part of your reading."
+      "unlocked": "Full report unlocked — scroll down to explore every part of your reading.",
+      "balanced": "Balanced five-dimension energy, stable overall fortune",
+      "moderate": "Energy leans toward certain areas, consider strengthening weaknesses",
+      "imbalanced": "Significant energy gaps — focus on weaker dimensions"
     },
     "master": {
       "detailSubtitle": "Based on your exact birth time",
@@ -1726,10 +1730,12 @@
     },
     "painPoints": {
       "title": "Key Pain Points",
-      "subtitle": "Top 3 areas that need your attention"
+      "subtitle": "Top 3 areas that need your attention",
+      "consequence": "If unaddressed, may affect your fortune in the coming months"
     },
     "reminder": {
-      "title": "Upcoming Key Reminder"
+      "title": "Upcoming Key Reminder",
+      "validity": "Valid until"
     },
     "nav": {
       "almanac": "Almanac",
@@ -1776,7 +1782,8 @@
       "noMatch": "No matching fortune items found",
       "recommendBtn": "Recommend fortune items based on my chart",
       "title": "Personalized Destiny Enhancement",
-      "tryLater": "Please try again later"
+      "tryLater": "Please try again later",
+      "matched": "{count} items matched for you"
     },
     "tags": {
       "title": "Reading Tags"
@@ -1789,7 +1796,9 @@
       "unlockFull": "Unlock Full Analysis",
       "unlockTitle": "Full Reading",
       "orUseStardust": "or use Stardust to unlock",
-      "relatedGoods": "Related items for this dimension"
+      "relatedGoods": "Related items for this dimension",
+      "insightCount": "{count} insights",
+      "unlockHint": "Unlock for detailed analysis"
     },
     "badge": "Five-Path Destiny Report · Crafted with Care",
     "clickToView": "Tap to see full reading",
@@ -1812,6 +1821,40 @@
       "full": "Deep Resonance",
       "quick": "Instant Insight",
       "event": "Flow Analytics"
+    },
+    "quickInsight": {
+      "title": "Quick Insights",
+      "focus": "Focus Area",
+      "strength": "Top Strength",
+      "timing": "Key Timing"
+    },
+    "destinyType": {
+      "label": "Your Destiny Type",
+      "hint": "Based on five-dimension energy analysis"
+    },
+    "growthPath": {
+      "title": "Current → Ideal",
+      "hint": "Unlock full report for detailed improvement plan"
+    },
+    "testimonials": {
+      "title": "Real User Reviews",
+      "list": [
+        {
+          "name": "Alex",
+          "text": "Very accurate analysis that helped me understand my strengths and weaknesses",
+          "score": "9.2"
+        },
+        {
+          "name": "Sarah",
+          "text": "Practical advice that actually improved my fortune after following it",
+          "score": "8.8"
+        },
+        {
+          "name": "Mike",
+          "text": "More in-depth than other platforms, definitely worth unlocking",
+          "score": "9.5"
+        }
+      ]
     }
   },
   "readings": {
@@ -2024,75 +2067,75 @@
     }
   },
   "tier": {
-    "founder_lifetime": {
-      "badge": "Limited Seats",
-      "billing": "One-time lifetime",
-      "cta": "Lock Your Seat",
-      "feat0": "Lifetime full-feature access",
-      "feat1": "Unlimited Stardust allowance",
-      "feat2": "500 Stardust infused monthly",
-      "feat3": "Feature voting rights",
-      "feat4": "Exclusive black-gold UI theme",
-      "feat5": "Early access to new features",
-      "feat6": "Dedicated support",
-      "feat7": "1 crystal custom service per year",
-      "name": "Founder Seat",
-      "subtitle": "Lifetime membership · Limited seats"
-    },
     "free": {
-      "billing": "Free forever",
-      "cta": "Start Free",
-      "feat0": "BaZi Four Pillars analysis",
-      "feat1": "Western natal chart placement",
+      "name": "Free",
+      "subtitle": "Basic chart reading",
+      "feat0": "Bazi Four Pillars analysis",
+      "feat1": "Western astrology house reading",
       "feat2": "One tarot spread",
-      "feat3": "Chart overview summary (preview limited)",
-      "feat4": "Browse remedy marketplace",
-      "name": "Free Trial",
-      "subtitle": "Basic chart reading"
+      "feat3": "Chart overview (limited preview)",
+      "feat4": "Shop browsing",
+      "cta": "Start Free",
+      "billing": "Free forever"
     },
     "full_report": {
-      "badge": "$3 off first order",
-      "billing": "One-time payment",
-      "cta": "Unlock Now",
-      "feat0": "Unlock full deep-dive report",
-      "feat1": "Five-dimension diagnosis & action plan",
-      "feat2": "Five-element deficiency diagnosis",
-      "feat3": "Smart remedy product matching",
-      "feat4": "Follow-up questions (stardust-based)",
-      "feat5": "100 Stardust energy bonus",
-      "feat6": "Auto-activate 3-day membership trial",
       "name": "Full Report",
-      "subtitle": "One-time unlock of complete chart analysis"
+      "subtitle": "One-time full chart deep analysis",
+      "feat0": "Full chart deep report",
+      "feat1": "Five-dimension diagnosis & action plan",
+      "feat2": "Five Elements gap diagnosis",
+      "feat3": "AI product matching",
+      "feat4": "Follow-ups (stardust-based)",
+      "feat5": "100 stardust bonus",
+      "feat6": "3-day membership trial",
+      "cta": "Unlock Now",
+      "badge": "¥30 off first order",
+      "billing": "One-time payment"
     },
     "premium_monthly": {
-      "billing": "Auto-renews monthly, cancel anytime",
-      "cta": "Subscribe Monthly",
-      "feat0": "Unlimited five-path reports",
-      "feat1": "2 free Event Retros per month",
+      "name": "Fate OS Monthly",
+      "subtitle": "Full-dimension destiny OS",
+      "feat0": "Unlimited report unlocks",
+      "feat1": "2 event reviews/month",
       "feat2": "Full daily almanac access",
-      "feat3": "Unlimited follow-up questions",
-      "feat4": "12% off marketplace purchases",
-      "feat5": "100 Stardust infused monthly",
-      "feat6": "Exclusive energy alerts",
-      "feat7": "Priority customer support",
-      "name": "Destiny Monthly",
-      "subtitle": "Full five-path membership"
+      "feat3": "Unlimited follow-ups",
+      "feat4": "12% shop discount",
+      "feat5": "100 stardust/month",
+      "feat6": "Energy alerts",
+      "feat7": "Priority support",
+      "cta": "Subscribe Monthly",
+      "billing": "Auto-renew monthly, cancel anytime"
     },
     "premium_yearly": {
-      "badge": "Best Value · ~$0.27/day",
-      "billing": "Auto-renews yearly, cancel anytime",
-      "cta": "Subscribe Yearly",
-      "feat0": "All Monthly membership benefits",
-      "feat1": "About $0.27/day",
-      "feat2": "5 free Event Retros per month",
-      "feat3": "150 Stardust infused monthly",
-      "feat4": "12% off Stardust costs",
-      "feat5": "Annual chart review report",
-      "feat6": "Exclusive crystal custom service 1×/year",
-      "feat7": "Birthday special divination ritual",
+      "name": "Fate OS Yearly",
+      "subtitle": "Best value annual plan",
+      "feat0": "All monthly features",
+      "feat1": "Only ¥1/day",
+      "feat2": "5 event reviews/month",
+      "feat3": "150 stardust/month",
+      "feat4": "12% stardust discount",
+      "feat5": "Yearly chart review",
+      "feat6": "Crystal customization 1/year",
+      "feat7": "Birthday reading ritual",
       "feat8": "Early access to new features",
-      "name": "Destiny Yearly",
-      "subtitle": "Best value annual protection"
+      "cta": "Subscribe Yearly",
+      "badge": "Best Value",
+      "billing": "Auto-renew yearly, cancel anytime"
+    },
+    "founder_lifetime": {
+      "name": "Founder",
+      "subtitle": "Lifetime · Limited seats",
+      "feat0": "Lifetime full access",
+      "feat1": "Unlimited stardust",
+      "feat2": "500 stardust/month",
+      "feat3": "Product roadmap voting",
+      "feat4": "Exclusive black-gold theme",
+      "feat5": "Early access to new features",
+      "feat6": "Dedicated support",
+      "feat7": "Crystal customization 1/year",
+      "cta": "Lock Your Seat",
+      "badge": "Limited Seats",
+      "billing": "One-time lifetime"
     }
   },
   "trading": {
@@ -2779,7 +2822,14 @@
     "unlockFull": "Full Report",
     "useStardust": "Unlock with Stardust",
     "stardustInsufficient": "Insufficient stardust",
-    "stardustBalance": "Stardust Balance"
+    "stardustBalance": "Stardust Balance",
+    "youWillGet": "What you'll get",
+    "valueList": [
+      "Full five-dimension depth diagnosis",
+      "Detailed analysis of 7 destiny systems",
+      "Personalized fortune prescription & action plan",
+      "Curated product recommendations"
+    ]
   },
   "productCard": {
     "aiRecommended": "AI Recommended"
@@ -2899,78 +2949,6 @@
       "feat6": "Monthly Stardust",
       "feat7": "Yearly Review",
       "feat8": "Crystal Customization"
-    }
-  },
-  "tier": {
-    "free": {
-      "name": "Free",
-      "subtitle": "Basic chart reading",
-      "feat0": "Bazi Four Pillars analysis",
-      "feat1": "Western astrology house reading",
-      "feat2": "One tarot spread",
-      "feat3": "Chart overview (limited preview)",
-      "feat4": "Shop browsing",
-      "cta": "Start Free",
-      "billing": "Free forever"
-    },
-    "full_report": {
-      "name": "Full Report",
-      "subtitle": "One-time full chart deep analysis",
-      "feat0": "Full chart deep report",
-      "feat1": "Five-dimension diagnosis & action plan",
-      "feat2": "Five Elements gap diagnosis",
-      "feat3": "AI product matching",
-      "feat4": "Follow-ups (stardust-based)",
-      "feat5": "100 stardust bonus",
-      "feat6": "3-day membership trial",
-      "cta": "Unlock Now",
-      "badge": "¥30 off first order",
-      "billing": "One-time payment"
-    },
-    "premium_monthly": {
-      "name": "Fate OS Monthly",
-      "subtitle": "Full-dimension destiny OS",
-      "feat0": "Unlimited report unlocks",
-      "feat1": "2 event reviews/month",
-      "feat2": "Full daily almanac access",
-      "feat3": "Unlimited follow-ups",
-      "feat4": "12% shop discount",
-      "feat5": "100 stardust/month",
-      "feat6": "Energy alerts",
-      "feat7": "Priority support",
-      "cta": "Subscribe Monthly",
-      "billing": "Auto-renew monthly, cancel anytime"
-    },
-    "premium_yearly": {
-      "name": "Fate OS Yearly",
-      "subtitle": "Best value annual plan",
-      "feat0": "All monthly features",
-      "feat1": "Only ¥1/day",
-      "feat2": "5 event reviews/month",
-      "feat3": "150 stardust/month",
-      "feat4": "12% stardust discount",
-      "feat5": "Yearly chart review",
-      "feat6": "Crystal customization 1/year",
-      "feat7": "Birthday reading ritual",
-      "feat8": "Early access to new features",
-      "cta": "Subscribe Yearly",
-      "badge": "Best Value",
-      "billing": "Auto-renew yearly, cancel anytime"
-    },
-    "founder_lifetime": {
-      "name": "Founder",
-      "subtitle": "Lifetime · Limited seats",
-      "feat0": "Lifetime full access",
-      "feat1": "Unlimited stardust",
-      "feat2": "500 stardust/month",
-      "feat3": "Product roadmap voting",
-      "feat4": "Exclusive black-gold theme",
-      "feat5": "Early access to new features",
-      "feat6": "Dedicated support",
-      "feat7": "Crystal customization 1/year",
-      "cta": "Lock Your Seat",
-      "badge": "Limited Seats",
-      "billing": "One-time lifetime"
     }
   },
   "pricingCard": {

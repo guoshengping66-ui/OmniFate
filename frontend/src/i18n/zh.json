@@ -1678,7 +1678,8 @@
       "health": "健康",
       "relationship": "感情",
       "spiritual": "精神",
-      "wealth": "财富"
+      "wealth": "财富",
+      "beat": "击败了"
     },
     "dimDesc": {
       "career": "事业腾飞力",
@@ -1710,7 +1711,10 @@
     },
     "insight": {
       "locked": "解锁完整报告，获取专属于你的年度命盘规划与改运策略。",
-      "unlocked": "深度报告已解锁，向下滑动探索你的完整命运图景。"
+      "unlocked": "深度报告已解锁，向下滑动探索你的完整命运图景。",
+      "balanced": "五维能量均衡，整体运势稳定",
+      "moderate": "能量分布有侧重，注意补强短板",
+      "imbalanced": "能量差异较大，建议重点关注弱势维度"
     },
     "master": {
       "detailSubtitle": "基于你的出生时辰精准推算",
@@ -1726,10 +1730,12 @@
     },
     "painPoints": {
       "title": "痛点诊断",
-      "subtitle": "当前最需要关注的3个问题"
+      "subtitle": "当前最需要关注的3个问题",
+      "consequence": "如不调整，可能影响下半年运势"
     },
     "reminder": {
-      "title": "近期关键提醒"
+      "title": "近期关键提醒",
+      "validity": "有效期至"
     },
     "nav": {
       "almanac": "黄历",
@@ -1776,7 +1782,8 @@
       "noMatch": "暂未匹配到合适的改运好物",
       "recommendBtn": "根据我的命盘推荐改运好物",
       "title": "个性化改运处方",
-      "tryLater": "请稍后再试"
+      "tryLater": "请稍后再试",
+      "matched": "已为你匹配 {count} 件专属好物"
     },
     "tags": {
       "title": "分析标签"
@@ -1789,7 +1796,9 @@
       "unlockFull": "解锁完整分析",
       "unlockTitle": "完整分析",
       "orUseStardust": "或使用星尘解锁",
-      "relatedGoods": "与此维度相关的好物"
+      "relatedGoods": "与此维度相关的好物",
+      "insightCount": "{count} 条洞察",
+      "unlockHint": "解锁后可获得详细分析"
     },
     "badge": "五维命理分析报告 · AI 精算",
     "clickToView": "点击查看完整分析",
@@ -1812,6 +1821,40 @@
       "full": "深度共振",
       "quick": "瞬时洞察",
       "event": "心流格物"
+    },
+    "quickInsight": {
+      "title": "三句话速览",
+      "focus": "最需关注",
+      "strength": "最大优势",
+      "timing": "近期时机"
+    },
+    "destinyType": {
+      "label": "你的命格类型",
+      "hint": "基于五维能量场综合分析"
+    },
+    "growthPath": {
+      "title": "从当前到理想",
+      "hint": "解锁完整报告获取详细提升方案"
+    },
+    "testimonials": {
+      "title": "用户真实反馈",
+      "list": [
+        {
+          "name": "小明",
+          "text": "分析非常准确，帮我理解了自己的优势和不足",
+          "score": "9.2"
+        },
+        {
+          "name": "小红",
+          "text": "改运建议很实用，按照建议调整后运势明显好转",
+          "score": "8.8"
+        },
+        {
+          "name": "小李",
+          "text": "比其他平台的分析更深入，值得解锁完整报告",
+          "score": "9.5"
+        }
+      ]
     }
   },
   "readings": {
@@ -2024,36 +2067,20 @@
     }
   },
   "tier": {
-    "founder_lifetime": {
-      "badge": "限量席位",
-      "billing": "一次性终身",
-      "cta": "锁定席位",
-      "feat0": "永久全功能访问",
-      "feat1": "无限星尘额度",
-      "feat2": "每月注入 500 星尘",
-      "feat3": "产品路线图投票权",
-      "feat4": "专属黑金 UI 主题",
-      "feat5": "新功能优先体验",
-      "feat6": "专属客服通道",
-      "feat7": "每年 1 次水晶定制服务",
-      "name": "创始席位",
-      "subtitle": "永久会员 · 限量席位"
-    },
     "free": {
-      "billing": "永久免费",
-      "cta": "免费开始",
+      "name": "免费体验",
+      "subtitle": "基础命盘解读",
       "feat0": "八字四柱格局分析",
       "feat1": "西方星盘落宫解读",
       "feat2": "塔罗牌阵一次",
       "feat3": "命盘总览摘要（限制预览）",
       "feat4": "改运商城浏览",
-      "name": "免费体验",
-      "subtitle": "基础命盘解读"
+      "cta": "免费开始",
+      "billing": "永久免费"
     },
     "full_report": {
-      "badge": "首单立减 ¥30",
-      "billing": "一次性付费",
-      "cta": "立即解锁",
+      "name": "全维全景报告",
+      "subtitle": "单次解锁完整命盘深度分析",
       "feat0": "解锁完整命盘深度报告",
       "feat1": "五维诊断与行动建议",
       "feat2": "五行缺失精准诊断",
@@ -2061,12 +2088,13 @@
       "feat4": "追问功能（星尘计费）",
       "feat5": "赠送 100 星尘能量",
       "feat6": "自动激活 3 天会员试用",
-      "name": "全维全景报告",
-      "subtitle": "单次解锁完整命盘深度分析"
+      "cta": "立即解锁",
+      "badge": "首单立减 ¥30",
+      "billing": "一次性付费"
     },
     "premium_monthly": {
-      "billing": "每月自动续费，随时取消",
-      "cta": "订阅月度",
+      "name": "Fate OS 月度",
+      "subtitle": "全维度命理操作系统",
       "feat0": "全维报告无限次解锁",
       "feat1": "事件复盘 2次/月免费",
       "feat2": "每日黄历完整访问",
@@ -2075,13 +2103,12 @@
       "feat5": "每月注入 100 星尘",
       "feat6": "专属能量预警推送",
       "feat7": "优先客服通道",
-      "name": "Fate OS 月度",
-      "subtitle": "全维度命理操作系统"
+      "cta": "订阅月度",
+      "billing": "每月自动续费，随时取消"
     },
     "premium_yearly": {
-      "badge": "推荐 · 每天仅需 1 元",
-      "billing": "每年自动续费，随时取消",
-      "cta": "订阅年度",
+      "name": "Fate OS 年度",
+      "subtitle": "最划算的年度守护",
       "feat0": "月度会员全部权益",
       "feat1": "相当于 ¥1/天",
       "feat2": "事件复盘 5次/月免费",
@@ -2091,8 +2118,24 @@
       "feat6": "专属水晶定制服务 1次/年",
       "feat7": "生日特别推命仪式",
       "feat8": "新功能优先体验",
-      "name": "Fate OS 年度",
-      "subtitle": "最划算的年度守护"
+      "cta": "订阅年度",
+      "badge": "推荐 · 每天仅需 1 元",
+      "billing": "每年自动续费，随时取消"
+    },
+    "founder_lifetime": {
+      "name": "创始席位",
+      "subtitle": "永久会员 · 限量席位",
+      "feat0": "永久全功能访问",
+      "feat1": "无限星尘额度",
+      "feat2": "每月注入 500 星尘",
+      "feat3": "产品路线图投票权",
+      "feat4": "专属黑金 UI 主题",
+      "feat5": "新功能优先体验",
+      "feat6": "专属客服通道",
+      "feat7": "每年 1 次水晶定制服务",
+      "cta": "锁定席位",
+      "badge": "限量席位",
+      "billing": "一次性终身"
     }
   },
   "trading": {
@@ -2779,7 +2822,14 @@
     "unlockFull": "全维报告",
     "useStardust": "使用星尘解锁",
     "stardustInsufficient": "星尘能量不足",
-    "stardustBalance": "当前星尘"
+    "stardustBalance": "当前星尘",
+    "youWillGet": "解锁后你将获得",
+    "valueList": [
+      "完整五维深度诊断报告",
+      "7个专业维度详细分析",
+      "个性化改运处方和行动建议",
+      "专属好物推荐和搭配指南"
+    ]
   },
   "productCard": {
     "aiRecommended": "AI 推荐"
@@ -2899,78 +2949,6 @@
       "feat6": "每月星尘注入",
       "feat7": "年度命盘回顾",
       "feat8": "水晶定制服务"
-    }
-  },
-  "tier": {
-    "free": {
-      "name": "免费体验",
-      "subtitle": "基础命盘解读",
-      "feat0": "八字四柱格局分析",
-      "feat1": "西方星盘落宫解读",
-      "feat2": "塔罗牌阵一次",
-      "feat3": "命盘总览摘要（限制预览）",
-      "feat4": "改运商城浏览",
-      "cta": "免费开始",
-      "billing": "永久免费"
-    },
-    "full_report": {
-      "name": "全维全景报告",
-      "subtitle": "单次解锁完整命盘深度分析",
-      "feat0": "解锁完整命盘深度报告",
-      "feat1": "五维诊断与行动建议",
-      "feat2": "五行缺失精准诊断",
-      "feat3": "AI 改运商品精准匹配",
-      "feat4": "追问功能（星尘计费）",
-      "feat5": "赠送 100 星尘能量",
-      "feat6": "自动激活 3 天会员试用",
-      "cta": "立即解锁",
-      "badge": "首单立减 ¥30",
-      "billing": "一次性付费"
-    },
-    "premium_monthly": {
-      "name": "Fate OS 月度",
-      "subtitle": "全维度命理操作系统",
-      "feat0": "全维报告无限次解锁",
-      "feat1": "事件复盘 2次/月免费",
-      "feat2": "每日黄历完整访问",
-      "feat3": "追问无限次数",
-      "feat4": "商城会员价 88 折",
-      "feat5": "每月注入 100 星尘",
-      "feat6": "专属能量预警推送",
-      "feat7": "优先客服通道",
-      "cta": "订阅月度",
-      "billing": "每月自动续费，随时取消"
-    },
-    "premium_yearly": {
-      "name": "Fate OS 年度",
-      "subtitle": "最划算的年度守护",
-      "feat0": "月度会员全部权益",
-      "feat1": "相当于 ¥1/天",
-      "feat2": "事件复盘 5次/月免费",
-      "feat3": "每月注入 150 星尘",
-      "feat4": "星尘消耗享 8.8 折",
-      "feat5": "年度命盘回顾报告",
-      "feat6": "专属水晶定制服务 1次/年",
-      "feat7": "生日特别推命仪式",
-      "feat8": "新功能优先体验",
-      "cta": "订阅年度",
-      "badge": "推荐 · 每天仅需 1 元",
-      "billing": "每年自动续费，随时取消"
-    },
-    "founder_lifetime": {
-      "name": "创始席位",
-      "subtitle": "永久会员 · 限量席位",
-      "feat0": "永久全功能访问",
-      "feat1": "无限星尘额度",
-      "feat2": "每月注入 500 星尘",
-      "feat3": "产品路线图投票权",
-      "feat4": "专属黑金 UI 主题",
-      "feat5": "新功能优先体验",
-      "feat6": "专属客服通道",
-      "feat7": "每年 1 次水晶定制服务",
-      "cta": "锁定席位",
-      "badge": "限量席位",
-      "billing": "一次性终身"
     }
   },
   "pricingCard": {
