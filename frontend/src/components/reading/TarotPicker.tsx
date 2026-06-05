@@ -56,36 +56,56 @@ function shuffleAndPick(): typeof MAJOR_ARCANA {
     .slice(0, SELECT_COUNT)
 }
 
-/* ── Card Back (shared) ─────────────────────────────────────── */
+/* ── Card Back ──────────────────────────────────────────────── */
 
-function CardBack({ className = "" }: { className?: string }) {
+function CardBack() {
   return (
-    <div className={`absolute inset-0 rounded-xl overflow-hidden ${className}`}
+    <div className="absolute inset-0 rounded-2xl overflow-hidden"
       style={{
         backfaceVisibility: "hidden",
-        background: "linear-gradient(145deg, #1a0a2e 0%, #0d1b3e 50%, #160830 100%)",
+        background: "linear-gradient(160deg, #12082a 0%, #0a1628 40%, #15092e 100%)",
       }}>
-      <div className="absolute inset-0 rounded-xl border-2 border-gold/30" />
-      <div className="absolute inset-[5px] rounded-[10px] border border-gold/15" />
+      {/* Outer border */}
+      <div className="absolute inset-0 rounded-2xl border-[1.5px] border-gold/25" />
+      {/* Inner border */}
+      <div className="absolute inset-[4px] rounded-[12px] border border-gold/12" />
 
-      <svg className="absolute inset-0 w-full h-full opacity-25" viewBox="0 0 100 140">
-        <circle cx="50" cy="70" r="36" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-gold" />
-        <circle cx="50" cy="70" r="30" fill="none" stroke="currentColor" strokeWidth="0.3" className="text-gold" />
+      {/* Pentagram SVG — larger and more visible */}
+      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 140">
+        {/* Outer circle */}
+        <circle cx="50" cy="70" r="38" fill="none" stroke="currentColor" strokeWidth="0.6" className="text-gold/30" />
+        {/* Middle circle */}
+        <circle cx="50" cy="70" r="32" fill="none" stroke="currentColor" strokeWidth="0.4" className="text-gold/20" />
+        {/* Inner circle */}
+        <circle cx="50" cy="70" r="26" fill="none" stroke="currentColor" strokeWidth="0.3" className="text-gold/15" />
+        {/* Pentagram star */}
         {[0, 72, 144, 216, 288].map((a) => {
           const r1 = (a * Math.PI) / 180, r2 = ((a + 144) * Math.PI) / 180
-          return <line key={a} x1={50 + 22 * Math.cos(r1)} y1={70 + 22 * Math.sin(r1)}
-            x2={50 + 22 * Math.cos(r2)} y2={70 + 22 * Math.sin(r2)}
-            stroke="currentColor" strokeWidth="0.4" className="text-gold" />
+          return <line key={a}
+            x1={50 + 24 * Math.cos(r1)} y1={70 + 24 * Math.sin(r1)}
+            x2={50 + 24 * Math.cos(r2)} y2={70 + 24 * Math.sin(r2)}
+            stroke="currentColor" strokeWidth="0.5" className="text-gold/35" />
         })}
-        <circle cx="50" cy="70" r="4" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-gold/60" />
-        <circle cx="50" cy="70" r="1.5" fill="currentColor" className="text-gold/50" />
-        {[[18, 22], [82, 22], [18, 118], [82, 118]].map(([cx, cy], i) => (
-          <polygon key={i} points={`${cx},${cy! - 3} ${cx! + 2.5},${cy} ${cx},${cy! + 3} ${cx! - 2.5},${cy}`}
-            fill="currentColor" className="text-gold/25" />
+        {/* Center dot */}
+        <circle cx="50" cy="70" r="3" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-gold/25" />
+        <circle cx="50" cy="70" r="1.2" fill="currentColor" className="text-gold/20" />
+        {/* Corner diamonds */}
+        {[[16, 18], [84, 18], [16, 122], [84, 122]].map(([cx, cy], i) => (
+          <polygon key={i}
+            points={`${cx},${cy! - 3.5} ${cx! + 3},${cy} ${cx},${cy! + 3.5} ${cx! - 3},${cy}`}
+            fill="none" stroke="currentColor" strokeWidth="0.4" className="text-gold/20" />
+        ))}
+        {/* Top/bottom decorative dots */}
+        {[20, 50, 80].map((x) => (
+          <g key={`tb-${x}`}>
+            <circle cx={x} cy={12} r="0.8" fill="currentColor" className="text-gold/15" />
+            <circle cx={x} cy={128} r="0.8" fill="currentColor" className="text-gold/15" />
+          </g>
         ))}
       </svg>
 
-      <div className="absolute inset-0 rounded-xl animate-tarot-breathe pointer-events-none" />
+      {/* Breathing glow */}
+      <div className="absolute inset-0 rounded-2xl animate-tarot-breathe pointer-events-none" />
     </div>
   )
 }
@@ -95,25 +115,56 @@ function CardBack({ className = "" }: { className?: string }) {
 function CardFront({ arcana, reversed }: { arcana: typeof MAJOR_ARCANA[number]; reversed: boolean }) {
   const { locale } = useLanguage()
   return (
-    <div className="absolute inset-0 rounded-xl overflow-hidden flex flex-col items-center justify-center gap-0.5"
+    <div className="absolute inset-0 rounded-2xl overflow-hidden flex flex-col items-center justify-center"
       style={{
         backfaceVisibility: "hidden",
         transform: "rotateY(180deg)",
-        background: "linear-gradient(160deg, #1e1040 0%, #0f1a35 100%)",
+        background: "linear-gradient(170deg, #1a0f3a 0%, #0c1a38 50%, #180d35 100%)",
       }}>
-      <div className="absolute inset-0 rounded-xl border-2 border-gold/40" />
-      <div className="absolute inset-0 rounded-xl"
-        style={{ background: "radial-gradient(circle at 50% 35%, rgba(201,168,76,0.18) 0%, transparent 65%)" }} />
+      {/* Outer gold border */}
+      <div className="absolute inset-0 rounded-2xl border-[1.5px] border-gold/40" />
+      {/* Inner border */}
+      <div className="absolute inset-[3px] rounded-[13px] border border-gold/15" />
 
-      <span className={`text-3xl sm:text-4xl leading-none ${reversed ? "scale-y-[-1]" : ""}`}>
+      {/* Top radial glow behind emoji */}
+      <div className="absolute inset-0 rounded-2xl"
+        style={{ background: "radial-gradient(ellipse at 50% 38%, rgba(201,168,76,0.2) 0%, transparent 55%)" }} />
+
+      {/* Decorative top line */}
+      <div className="absolute top-[10px] left-[15px] right-[15px] h-px bg-gradient-to-r from-transparent via-gold/25 to-transparent" />
+      {/* Decorative bottom line */}
+      <div className="absolute bottom-[10px] left-[15px] right-[15px] h-px bg-gradient-to-r from-transparent via-gold/25 to-transparent" />
+
+      {/* Corner ornaments */}
+      <svg className="absolute top-1.5 left-1.5 w-4 h-4 text-gold/20" viewBox="0 0 16 16">
+        <path d="M0 8 Q0 0 8 0" fill="none" stroke="currentColor" strokeWidth="1" />
+      </svg>
+      <svg className="absolute top-1.5 right-1.5 w-4 h-4 text-gold/20" viewBox="0 0 16 16">
+        <path d="M16 8 Q16 0 8 0" fill="none" stroke="currentColor" strokeWidth="1" />
+      </svg>
+      <svg className="absolute bottom-1.5 left-1.5 w-4 h-4 text-gold/20" viewBox="0 0 16 16">
+        <path d="M0 8 Q0 16 8 16" fill="none" stroke="currentColor" strokeWidth="1" />
+      </svg>
+      <svg className="absolute bottom-1.5 right-1.5 w-4 h-4 text-gold/20" viewBox="0 0 16 16">
+        <path d="M16 8 Q16 16 8 16" fill="none" stroke="currentColor" strokeWidth="1" />
+      </svg>
+
+      {/* Emoji — large and prominent */}
+      <span className={`text-5xl sm:text-6xl leading-none mb-2 drop-shadow-[0_0_12px_rgba(201,168,76,0.3)] ${reversed ? "scale-y-[-1]" : ""}`}>
         {arcana.emoji}
       </span>
-      <p className="text-gold font-serif font-bold text-[11px] sm:text-xs leading-tight text-center px-1.5 mt-1">
+
+      {/* Card name */}
+      <p className="text-gold font-serif font-bold text-sm sm:text-[15px] leading-tight text-center px-2">
         {locale === "zh" ? arcana.zh : arcana.en}
       </p>
-      {locale === "en" && <p className="text-gold/40 text-[9px]">{arcana.zh}</p>}
+      {locale === "en" && (
+        <p className="text-gold/30 text-[9px] mt-0.5">{arcana.zh}</p>
+      )}
+
+      {/* Reversed indicator */}
       {reversed && (
-        <span className="text-white/40 text-[9px] mt-0.5">
+        <span className="text-white/40 text-[10px] mt-1 tracking-wider">
           {locale === "zh" ? "逆位" : "Reversed"}
         </span>
       )}
@@ -128,28 +179,29 @@ function RevealFlash() {
     <>
       {/* Main gold flash */}
       <motion.div
-        className="absolute inset-0 rounded-xl pointer-events-none z-20"
+        className="absolute inset-0 rounded-2xl pointer-events-none z-20"
         initial={{ opacity: 0 }}
-        animate={{ opacity: [0, 0.8, 0] }}
+        animate={{ opacity: [0, 0.85, 0] }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        style={{ background: "radial-gradient(circle, rgba(201,168,76,0.6) 0%, transparent 70%)" }}
+        style={{ background: "radial-gradient(circle, rgba(201,168,76,0.65) 0%, transparent 65%)" }}
       />
-      {/* Sparkle particles */}
-      {Array.from({ length: 6 }).map((_, i) => {
-        const angle = (i / 6) * Math.PI * 2
-        const dist = 25 + Math.random() * 20
+      {/* Sparkle particles radiating outward */}
+      {Array.from({ length: 8 }).map((_, i) => {
+        const angle = (i / 8) * Math.PI * 2
+        const dist = 30 + Math.random() * 25
         return (
           <motion.div
             key={i}
-            className="absolute top-1/2 left-1/2 w-1.5 h-1.5 rounded-full bg-gold pointer-events-none z-20"
+            className="absolute top-1/2 left-1/2 w-1.5 h-1.5 rounded-full pointer-events-none z-20"
+            style={{ background: i % 2 === 0 ? "#c9a84c" : "#e8d48b" }}
             initial={{ opacity: 0, x: 0, y: 0, scale: 0 }}
             animate={{
               opacity: [0, 1, 0],
               x: Math.cos(angle) * dist,
               y: Math.sin(angle) * dist,
-              scale: [0, 1.2, 0],
+              scale: [0, 1.3, 0],
             }}
-            transition={{ duration: 0.5, delay: 0.1 + i * 0.03, ease: "easeOut" }}
+            transition={{ duration: 0.5, delay: 0.08 + i * 0.025, ease: "easeOut" }}
           />
         )
       })}
@@ -170,7 +222,6 @@ export function TarotPicker({ onSelect }: Props) {
   const [isAnimating, setIsAnimating] = useState(false)
   const [isShaking, setIsShaking] = useState(false)
   const [flipComplete, setFlipComplete] = useState<boolean[]>([false, false, false])
-  const [showSparkles, setShowSparkles] = useState(false)
 
   const deckRef = useRef<HTMLDivElement>(null)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -187,7 +238,7 @@ export function TarotPicker({ onSelect }: Props) {
   useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current) }, [])
   useEffect(() => { drawnCardsRef.current = drawnCards }, [drawnCards])
 
-  /* ── Draw a card (with shake → slide → flip → flash) ──── */
+  /* ── Draw a card (shake → slide → flip → flash) ──────── */
   const drawCard = useCallback(() => {
     if (isAnimating || phase === "complete") return
     if (currentDrawIndex >= SELECT_COUNT) return
@@ -202,23 +253,21 @@ export function TarotPicker({ onSelect }: Props) {
       arcana,
     }
 
-    // Phase 1: Shake the deck (200ms)
+    // Phase 1: Shake deck (200ms)
     setIsShaking(true)
-    setShowSparkles(true)
 
     timerRef.current = setTimeout(() => {
       setIsShaking(false)
 
-      // Phase 2: Card slides out from deck (350ms delay before appearing)
+      // Phase 2: Card appears and slides to slot (350ms)
       timerRef.current = setTimeout(() => {
         setDrawnCards(prev => [...prev, card])
 
-        // Phase 3: Flip the card (after slide completes, 400ms)
+        // Phase 3: Flip card (400ms after appear)
         timerRef.current = setTimeout(() => {
           setFlipComplete(prev => { const c = [...prev]; c[idx] = true; return c })
-          setShowSparkles(false)
 
-          // Phase 4: After flip, check if done (600ms for flip animation)
+          // Phase 4: Check if done (600ms for flip)
           timerRef.current = setTimeout(() => {
             const nextIdx = idx + 1
             setCurrentDrawIndex(nextIdx)
@@ -232,7 +281,7 @@ export function TarotPicker({ onSelect }: Props) {
           }, 600)
         }, 400)
       }, 350)
-    }, 200) // shake duration
+    }, 200)
   }, [isAnimating, phase, currentDrawIndex, POSITIONS, locale, onSelect])
 
   /* ── Redraw ───────────────────────────────────────────────── */
@@ -245,17 +294,15 @@ export function TarotPicker({ onSelect }: Props) {
     setFlipComplete([false, false, false])
     setIsAnimating(false)
     setIsShaking(false)
-    setShowSparkles(false)
     setPhase("deck")
   }, [])
 
-  /* ── Position slots (responsive) ──────────────────────────── */
-  // Use smaller gaps on mobile via CSS clamp
+  /* ── Position slots ───────────────────────────────────────── */
   const slotX = [-130, 0, 130]
   const isDeckVisible = phase !== "complete" && currentDrawIndex < SELECT_COUNT
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       {/* ── Header ── */}
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-medium text-white/70">
@@ -274,22 +321,22 @@ export function TarotPicker({ onSelect }: Props) {
         )}
       </div>
 
-      {/* ── Instruction ── */}
+      {/* ── Instruction text ── */}
       <AnimatePresence mode="wait">
         {phase === "deck" && (
           <motion.p key="deck" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="text-center text-white/40 text-xs">
+            className="text-center text-white/35 text-xs">
             {t("new.tarotTapDeck") || "点击牌堆，抽取命运之牌"}
           </motion.p>
         )}
         {phase === "drawing" && currentDrawIndex < SELECT_COUNT && (
           <motion.p key={`draw-${currentDrawIndex}`} initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-            className="text-center text-gold/50 text-xs flex items-center justify-center gap-1.5">
-            <Sparkles size={11} className="text-gold/60" />
+            className="text-center text-gold/45 text-xs flex items-center justify-center gap-1.5">
+            <Sparkles size={10} className="text-gold/50" />
             {t(`new.tarotDraw${currentDrawIndex + 1}`) ||
               ["抽取第二张 — 现在", "抽取最后一张 — 未来"][currentDrawIndex - 1] ||
               "继续抽取…"}
-            <Sparkles size={11} className="text-gold/60" />
+            <Sparkles size={10} className="text-gold/50" />
           </motion.p>
         )}
         {phase === "complete" && (
@@ -327,10 +374,10 @@ export function TarotPicker({ onSelect }: Props) {
                   mass: 0.8,
                 }}
                 className="absolute"
-                style={{ perspective: 800, left: "50%", marginLeft: -42 }}
+                style={{ perspective: 800, left: "50%", marginLeft: -45 }}
               >
                 <motion.div
-                  className="relative w-[84px] h-[126px]"
+                  className="relative w-[90px] h-[135px]"
                   animate={{ rotateY: isFlipped ? 180 : 0 }}
                   transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
                   style={{ transformStyle: "preserve-3d" }}
@@ -346,7 +393,7 @@ export function TarotPicker({ onSelect }: Props) {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3, duration: 0.4, ease: "easeOut" }}
-                    className="text-center mt-2"
+                    className="text-center mt-2.5"
                   >
                     <span className="text-gold/80 text-[11px] font-medium tracking-wide">{card.position}</span>
                   </motion.div>
@@ -361,35 +408,35 @@ export function TarotPicker({ onSelect }: Props) {
                 ref={deckRef}
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{
-                  opacity: isAnimating ? 0.7 : 1,
-                  scale: isAnimating && !isShaking ? 0.9 : 1,
+                  opacity: isAnimating ? 0.6 : 1,
+                  scale: isAnimating && !isShaking ? 0.88 : 1,
                   x: 0,
                 }}
                 transition={{ type: "spring", stiffness: 200, damping: 18 }}
                 onClick={drawCard}
                 className={`absolute cursor-pointer select-none ${isShaking ? "animate-tarot-shake" : ""}`}
-                style={{ perspective: 800, left: "50%", marginLeft: -42 }}
-                whileHover={!isAnimating ? { scale: 1.06, y: -4 } : undefined}
-                whileTap={!isAnimating ? { scale: 0.92 } : undefined}
+                style={{ perspective: 800, left: "50%", marginLeft: -45 }}
+                whileHover={!isAnimating ? { scale: 1.06, y: -5 } : undefined}
+                whileTap={!isAnimating ? { scale: 0.9 } : undefined}
               >
                 {/* Stacked deck: 4 offset card backs */}
-                <div className="relative w-[84px] h-[126px]">
+                <div className="relative w-[90px] h-[135px]">
                   {[3, 2, 1, 0].map(layer => (
                     <div key={layer}
                       className="absolute inset-0 transition-transform duration-300"
                       style={{
                         transform: `translate(${layer * 1.5}px, ${layer * 2}px)`,
-                        opacity: 0.4 + layer * 0.18,
+                        opacity: 0.35 + layer * 0.2,
                         zIndex: layer,
                       }}>
                       <CardBack />
                     </div>
                   ))}
 
-                  {/* Pulsing glow ring around deck */}
-                  <div className="absolute -inset-3 rounded-xl pointer-events-none"
+                  {/* Pulsing glow ring */}
+                  <div className="absolute -inset-3 rounded-2xl pointer-events-none"
                     style={{
-                      background: "conic-gradient(from 0deg, transparent, rgba(201,168,76,0.35), transparent, rgba(201,168,76,0.35), transparent)",
+                      background: "conic-gradient(from 0deg, transparent, rgba(201,168,76,0.3), transparent, rgba(201,168,76,0.3), transparent)",
                       animation: "glow-rotate 3s linear infinite",
                       WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
                       WebkitMaskComposite: "xor",
@@ -399,33 +446,35 @@ export function TarotPicker({ onSelect }: Props) {
                   />
                 </div>
 
-                {/* "Tap to draw" hint above the deck */}
+                {/* "Tap to draw" hint — above deck */}
                 <motion.div
-                  animate={{ opacity: [0.3, 0.7, 0.3] }}
+                  animate={{ opacity: [0.35, 0.75, 0.35] }}
                   transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute -top-5 left-0 right-0 text-center"
+                  className="absolute -top-6 left-0 right-0 text-center"
                 >
-                  <span className="text-gold/50 text-[10px] whitespace-nowrap">
+                  <span className="text-gold/55 text-[10px] whitespace-nowrap font-medium">
                     ✦ {t("new.tarotTapHint") || "点击抽取"} ✦
                   </span>
                 </motion.div>
 
-                {/* Sparkle effect around deck when shaking */}
-                {showSparkles && (
-                  <div className="absolute inset-0 pointer-events-none">
+                {/* Deck sparkles during shake — INSIDE deck container */}
+                {isShaking && (
+                  <div className="absolute -inset-4 pointer-events-none overflow-visible">
                     {Array.from({ length: 8 }).map((_, i) => {
                       const angle = (i / 8) * Math.PI * 2
+                      const dist = 55 + Math.random() * 15
                       return (
                         <motion.div
                           key={i}
-                          className="absolute w-1 h-1 rounded-full bg-gold/70"
+                          className="absolute w-1.5 h-1.5 rounded-full"
                           style={{
-                            top: `calc(50% + ${Math.sin(angle) * 50}px)`,
-                            left: `calc(50% + ${Math.cos(angle) * 40}px)`,
+                            background: i % 2 === 0 ? "#c9a84c" : "#f0d878",
+                            top: `calc(50% + ${Math.sin(angle) * dist}px)`,
+                            left: `calc(50% + ${Math.cos(angle) * dist}px)`,
                           }}
                           initial={{ opacity: 0, scale: 0 }}
                           animate={{ opacity: [0, 1, 0], scale: [0, 1.5, 0] }}
-                          transition={{ duration: 0.5, delay: i * 0.04 }}
+                          transition={{ duration: 0.4, delay: i * 0.03 }}
                         />
                       )
                     })}
@@ -436,8 +485,6 @@ export function TarotPicker({ onSelect }: Props) {
         </div>
       </div>
       )}
-
-      {/* ── Deck empty state removed — deck hint "点击抽取" already provides guidance ── */}
 
       {/* ── Complete: summary cards ── */}
       {phase === "complete" && drawnCards.length === SELECT_COUNT && (
@@ -454,15 +501,20 @@ export function TarotPicker({ onSelect }: Props) {
                 initial={{ opacity: 0, y: 10, scale: 0.9 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ delay: 0.4 + i * 0.12, type: "spring", stiffness: 200, damping: 18 }}
-                className="card-glow p-3 text-center"
+                className="rounded-2xl p-3 text-center"
+                style={{
+                  background: "linear-gradient(170deg, rgba(26,15,58,0.8) 0%, rgba(12,26,56,0.6) 100%)",
+                  border: "1px solid rgba(201,168,76,0.2)",
+                  boxShadow: "0 0 20px rgba(201,168,76,0.08)",
+                }}
               >
-                <div className="text-[10px] text-white/40 mb-1">{c.position}</div>
-                <div className={`text-2xl mb-1 ${c.reversed ? "scale-y-[-1]" : ""}`}>
+                <div className="text-[10px] text-white/35 mb-1.5 uppercase tracking-wider">{c.position}</div>
+                <div className={`text-3xl mb-1.5 drop-shadow-[0_0_8px_rgba(201,168,76,0.25)] ${c.reversed ? "scale-y-[-1]" : ""}`}>
                   {c.arcana.emoji}
                 </div>
-                <div className="text-gold text-sm font-medium leading-tight">{c.card}</div>
+                <div className="text-gold text-sm font-serif font-bold leading-tight">{c.card}</div>
                 {c.reversed && (
-                  <div className="text-white/30 text-[10px] mt-0.5">
+                  <div className="text-white/30 text-[10px] mt-1 tracking-wider">
                     {locale === "zh" ? "逆位" : "Reversed"}
                   </div>
                 )}
