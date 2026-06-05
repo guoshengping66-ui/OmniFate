@@ -1844,6 +1844,14 @@
     "strongest": "能量最为充盈",
     "subtitle": "七大命理系统融会贯通，AI 深度解析你的命运密码",
     "summary": "各命理系统摘要",
+    "testimonials": {
+      "title": "用户真实反馈",
+      "list": [
+        { "name": "用户A", "text": "分析非常准确，帮我理解了自己的优势和不足", "score": "9.2" },
+        { "name": "用户B", "text": "改运建议很实用，按照建议调整后运势明显好转", "score": "8.8" },
+        { "name": "用户C", "text": "比其他平台的分析更深入，值得解锁完整报告", "score": "9.5" }
+      ]
+    },
     "title": "命盘智镜 · 全维度解读",
     "unlock": "解锁完整报告",
     "unlockPerk1": "解锁完整年度命盘规划",
@@ -2881,6 +2889,7 @@
   },
   "paywall": {
     "giftNote": "解锁后赠送 ¥60 商城代金券 + 3 天会员试用",
+    "joinMember": "加入会员解锁",
     "processing": "处理中…",
     "unlockReport": "解锁完整报告",
     "unlockDetailed": "精读报告",
@@ -3182,7 +3191,7 @@
     "_label": "获取命盘报告"
   },
   "steps": {
-    "badge": "四步流程",
+    "badge": "三步流程",
     "title": "从输入到洞见，仅需 40 秒"
   },
   "target": {

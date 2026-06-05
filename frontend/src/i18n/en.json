@@ -1844,6 +1844,14 @@
     "strongest": "your strongest energy",
     "subtitle": "Seven systems woven together — here's your destiny in full clarity",
     "summary": "System Summaries",
+    "testimonials": {
+      "title": "User Reviews",
+      "list": [
+        { "name": "User A", "text": "Very accurate analysis — helped me understand my strengths and weaknesses", "score": "9.2" },
+        { "name": "User B", "text": "The fortune remedies are practical — my luck improved after following them", "score": "8.8" },
+        { "name": "User C", "text": "Deeper analysis than other platforms — worth unlocking the full report", "score": "9.5" }
+      ]
+    },
     "title": "Destiny Mirror · Your Reading",
     "unlock": "Unlock Full Report",
     "unlockPerk1": "Get your complete annual destiny plan",
@@ -2881,6 +2889,7 @@
   },
   "paywall": {
     "giftNote": "Unlock to receive ¥60 shop coupon + 3-day membership trial",
+    "joinMember": "Join to Unlock",
     "processing": "Processing...",
     "unlockReport": "Unlock Full Report",
     "unlockDetailed": "Detailed Report",
@@ -3182,7 +3191,7 @@
     "_label": "Get Your Report"
   },
   "steps": {
-    "badge": "Simple as 1-2-3-4",
+    "badge": "Simple as 1-2-3",
     "title": "Your Reading, Ready in Seconds"
   },
   "target": {
