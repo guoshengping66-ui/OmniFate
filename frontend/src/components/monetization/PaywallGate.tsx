@@ -1,6 +1,6 @@
 "use client"
 import { ReactNode, useState } from "react"
-import { Lock, Crown, Sparkles, Loader2, ChevronRight } from "lucide-react"
+import { Lock, Crown, Sparkles, Loader2, ChevronRight, CheckCircle } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { STARDUST_COST } from "@/lib/pricing.config"
 
@@ -82,7 +82,25 @@ export function PaywallGate({
           <Lock size={24} className="text-gold" />
         </div>
         <h3 className="text-xl font-serif font-bold text-gold mb-2">{title}</h3>
-        <p className="text-white/50 text-sm mb-6 max-w-md mx-auto">{description}</p>
+        <p className="text-white/50 text-sm mb-4 max-w-md mx-auto">{description}</p>
+
+        {/* Value list — what you'll get */}
+        <div className="max-w-sm mx-auto mb-6 text-left">
+          <p className="text-white/30 text-[10px] uppercase tracking-wider mb-2 text-center">{t("paywall.youWillGet") || "解锁后你将获得"}</p>
+          <div className="space-y-1.5">
+            {(t("paywall.valueList", { returnObjects: true }) as string[] || [
+              "完整五维深度诊断报告",
+              "7个专业维度详细分析",
+              "个性化改运处方和行动建议",
+              "专属好物推荐和搭配指南",
+            ]).map((item: string, i: number) => (
+              <div key={i} className="flex items-center gap-2 text-white/50 text-xs">
+                <CheckCircle size={12} className="text-green-400/70 flex-shrink-0" />
+                <span>{item}</span>
+              </div>
+            ))}
+          </div>
+        </div>
 
         {showDualTier ? (
           /* 双档解锁：精读 + 全维 */
