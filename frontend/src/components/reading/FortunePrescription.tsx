@@ -116,6 +116,12 @@ export function FortunePrescription({ products, weakestLabel, strongestLabel }: 
           {products.slice(0, 3).map((product, i) => {
             const isAdded = addedIds.has(product.id)
             const isPrimary = i === 0
+            const isHot = (product.sales_count || 0) >= 500
+            const formattedSales = product.sales_count
+              ? product.sales_count >= 1000
+                ? `${(product.sales_count / 1000).toFixed(1)}k+`
+                : `${product.sales_count}+`
+              : null
 
             return (
               <div
@@ -127,13 +133,19 @@ export function FortunePrescription({ products, weakestLabel, strongestLabel }: 
                 }`}
               >
                 {/* Product image */}
-                <ProductImage
-                  src={product.image_url}
-                  alt={product.name}
-                  category={product.category}
-                  size="sm"
-                  className="flex-shrink-0"
-                />
+                <div className="relative flex-shrink-0">
+                  <ProductImage
+                    src={product.image_url}
+                    alt={product.name}
+                    category={product.category}
+                    size="sm"
+                  />
+                  {isHot && (
+                    <span className="absolute -top-1 -right-1 text-[8px] px-1 py-0.5 bg-red-500/80 text-white rounded-full font-medium">
+                      {t("prescription.hot") || "热"}
+                    </span>
+                  )}
+                </div>
 
                 {/* Product info */}
                 <div className="flex-1 min-w-0">
@@ -142,6 +154,11 @@ export function FortunePrescription({ products, weakestLabel, strongestLabel }: 
                       <Sparkles size={10} className="text-gold fill-gold/30 flex-shrink-0" />
                     )}
                     <h4 className="font-medium text-white text-sm truncate">{product.name}</h4>
+                    {formattedSales && (
+                      <span className="text-[9px] text-white/25 flex-shrink-0">
+                        {formattedSales} {t("prescription.sold") || "已售"}
+                      </span>
+                    )}
                   </div>
                   {product.recommendation_text && !(isEn && hasChinese(product.recommendation_text)) && (
                     <p className="text-white/35 text-[11px] leading-relaxed line-clamp-1 italic">
