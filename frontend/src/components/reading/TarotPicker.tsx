@@ -301,6 +301,10 @@ export function TarotPicker({ onSelect }: Props) {
   const slotX = [-130, 0, 130]
   const isDeckVisible = phase !== "complete" && currentDrawIndex < SELECT_COUNT
 
+  // Deck shifts right as cards fill slots to avoid overlap
+  // 0 drawn → center (0), 1 drawn → right of center (80), 2 drawn → right slot (130)
+  const deckX = currentDrawIndex === 0 ? 0 : currentDrawIndex === 1 ? 80 : 130
+
   return (
     <div className="space-y-2">
       {/* ── Header ── */}
@@ -406,11 +410,11 @@ export function TarotPicker({ onSelect }: Props) {
           {isDeckVisible && (
               <motion.div
                 ref={deckRef}
-                initial={{ opacity: 0, scale: 0.8 }}
+                initial={{ opacity: 0, scale: 0.8, x: 0 }}
                 animate={{
                   opacity: isAnimating ? 0.6 : 1,
                   scale: isAnimating && !isShaking ? 0.88 : 1,
-                  x: 0,
+                  x: deckX,
                 }}
                 transition={{ type: "spring", stiffness: 200, damping: 18 }}
                 onClick={drawCard}
