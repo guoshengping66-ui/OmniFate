@@ -113,7 +113,7 @@ async def _call(system: str, user: str, model: str | None = None, language: str 
                 use_free: bool = False, max_tokens: int | None = None) -> str:
     if _use_mock():
         return f"[MOCK] {user[:80]}\n\nSet OPENAI_API_KEY to enable real AI responses."
-    if use_free and settings.FREE_MODEL_API_KEY:
+    if use_free and (settings.FREE_MODEL_API_KEY or settings.OPENAI_API_KEY):
         llm = _free_llm()
     else:
         llm = _llm(model=model, max_tokens=max_tokens)

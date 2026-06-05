@@ -222,6 +222,8 @@ export interface ChatResponse {
   routed_to: string
   session_id: string
   loop_count: number
+  free_followup_used?: boolean
+  has_used_free_followup?: boolean
 }
 
 export interface Product {

@@ -213,6 +213,8 @@ class ChatResponse(BaseModel):
     routed_to: str
     session_id: str
     loop_count: int
+    free_followup_used: bool = False   # 本次是否为首次免费追问
+    has_used_free_followup: bool = False  # 是否曾经使用过免费追问
 
 
 # ─── Helper ───────────────────────────────────────────────────────────────
@@ -288,7 +290,7 @@ def _apply_content_lock(resp: AnalysisResponse, current_user: Optional[User], re
         if current_user and str(reading.user_id) == str(current_user.id):
             if reading.is_detail_unlocked:
                 is_full_unlocked = True
-            elif reading.is_detailed_unlocked:
+            elif getattr(reading, "is_detailed_unlocked", False):
                 is_detailed_unlocked = True
         # Case 2: user has an active premium subscription → full unlock
         elif current_user and current_user.is_premium and current_user.premium_expires_at and current_user.premium_expires_at > datetime.now(timezone.utc):
@@ -709,6 +711,7 @@ async def chat_followup(
     deducted = False
     tx_id = None
     is_first_followup = False
+    followup_count = 0
     if not current_user.is_premium:
         # 检查是否是首次追问（新用户免费 1 次）
         existing_followups = await db.execute(
@@ -756,6 +759,8 @@ async def chat_followup(
             routed_to=agent_id,
             session_id=payload.session_id,
             loop_count=updated_state.loop_count,
+            free_followup_used=is_first_followup,
+            has_used_free_followup=followup_count > 0 if not current_user.is_premium else False,
         )
     except Exception:
         # LLM 失败 → 退款

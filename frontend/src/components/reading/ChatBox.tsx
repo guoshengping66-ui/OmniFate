@@ -38,8 +38,8 @@ export function ChatBox({ sessionId, availableAgents = [] }: Props) {
 
   const isPremium = !!user?.is_premium
   const stardustBalance = user?.stardust_balance ?? 0
-  const [hasUsedFollowUp, setHasUsedFollowUp] = useState(false)
-  const isFirstFree = !isPremium && !hasUsedFollowUp
+  const [freeFollowupUsed, setFreeFollowupUsed] = useState(false)
+  const isFirstFree = !isPremium && !freeFollowupUsed
   const canFollowUp = isPremium || isFirstFree || stardustBalance >= STARDUST_COST.FOLLOW_UP
 
   const send = async () => {
@@ -63,7 +63,8 @@ export function ChatBox({ sessionId, availableAgents = [] }: Props) {
         routed_to: res.routed_to,
       }])
       refreshUser() // 刷新星尘余额（后端已扣费）
-      if (isFirstFree) setHasUsedFollowUp(true) // 标记已使用首次免费
+      // 从 API 响应同步免费追问状态
+      if (res.free_followup_used || res.has_used_free_followup) setFreeFollowupUsed(true)
     } catch (err: any) {
       // 处理 402 星尘不足错误
       const detail = err?.response?.data?.detail ?? ""

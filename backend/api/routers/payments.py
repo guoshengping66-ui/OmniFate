@@ -1098,7 +1098,7 @@ async def unlock_report(
         raise HTTPException(status_code=403, detail="无权操作此报告")
 
     # 2. 检查是否已解锁（目标档位或更高）
-    if tier == "detailed" and reading.is_detailed_unlocked:
+    if tier == "detailed" and getattr(reading, "is_detailed_unlocked", False):
         return {
             "unlocked": True,
             "tier": "detailed",
@@ -1113,7 +1113,7 @@ async def unlock_report(
             "message": "全维已解锁，无需重复支付",
         }
     # 升级场景：精读→全维，只需要补差价
-    if tier == "full" and reading.is_detailed_unlocked:
+    if tier == "full" and getattr(reading, "is_detailed_unlocked", False):
         tier = "upgrade"  # 标记为升级，只扣 70 星尘
 
     # 3. 星尘解锁 — 原子操作

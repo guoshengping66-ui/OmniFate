@@ -303,9 +303,12 @@ export default function ReadingPage() {
     if (!id) return
     try {
       const { unlockReport } = await import("@/lib/api")
-      await unlockReport(id, "stardust", "full")
-      setIsUnlocked(true)
-      setIsDetailedUnlocked(true)
+      const result = await unlockReport(id, "stardust", "full")
+      // Only update state after API success
+      if (result.unlocked) {
+        setIsUnlocked(true)
+        setIsDetailedUnlocked(true)
+      }
       toast.success(t("reading.unlockedSuccess"))
       refreshUser()
     } catch (err: any) {
@@ -317,8 +320,11 @@ export default function ReadingPage() {
     if (!id) return
     try {
       const { unlockReport } = await import("@/lib/api")
-      await unlockReport(id, "stardust", "detailed")
-      setIsDetailedUnlocked(true)
+      const result = await unlockReport(id, "stardust", "detailed")
+      // Only update state after API success
+      if (result.unlocked) {
+        setIsDetailedUnlocked(true)
+      }
       toast.success(t("reading.detailedUnlocked") || "精读报告已解锁")
       refreshUser()
     } catch (err: any) {
