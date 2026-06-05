@@ -60,7 +60,7 @@ PRODUCT_PRICES = {
 
 # ── Stardust constants ──────────────────────────────────────────────────────
 GRANT_ON_REPORT_UNLOCK = 100   # 解锁报告奖励星尘
-GRANT_ON_REGISTER = 100         # 注册奖励星尘（足够解锁一次完整分析）
+GRANT_ON_REGISTER = 150         # 注册奖励星尘（足够解锁精读+多次追问）
 SUBSCRIPTION_GRANTS = {
     "premium_monthly": 100,
     "premium_yearly": 150,

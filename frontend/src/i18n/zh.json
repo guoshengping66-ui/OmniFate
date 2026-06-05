@@ -2588,7 +2588,13 @@
     "ctaShort": "去看看",
     "hint": "AI 根据你的五维命盘评分，自动匹配最适合你当前能量状态的改运物品",
     "subtitle": "命盘精算 · 为你匹配专属能量守护物",
-    "weakEnergy": "你的能量待激活"
+    "weakEnergy": "你的能量待激活",
+    "detailedTitle": "精读报告",
+    "detailedDesc": "深度分析 + 行动建议",
+    "fullTitle": "全维报告",
+    "fullDesc": "完整工人报告 + AI追问",
+    "stardustHint": "当前星尘",
+    "needMore": "邀请好友可获得额外星尘"
   },
   "globalError": {
     "desc": "发生了意外错误，请尝试刷新页面。",

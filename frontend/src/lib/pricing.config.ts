@@ -166,6 +166,7 @@ export const FIRST_ORDER_DISCOUNT = 30  // 首单立减 ¥30
 export const STARDUST_MESSAGES = {
   lowBalance: "星辰能量暂不足以支撑此次推演，是否向星空索取更多能量？",
   insufficientForReport: "推演全维报告需要 100 颗星尘，当前能量储备不足",
+  insufficientForDetailed: "精读报告需要 30 颗星尘，当前能量储备不足",
   insufficientForRetro: "事件复盘需要 30 颗星尘，当前能量储备不足",
   insufficientForFollowUp: "每次追问需要 10 颗星尘，当前能量储备不足",
   insufficientForRadar: "能量雷达需要 5 颗星尘，当前能量储备不足",

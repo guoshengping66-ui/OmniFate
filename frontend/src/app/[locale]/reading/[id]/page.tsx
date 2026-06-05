@@ -849,11 +849,14 @@ export default function ReadingPage() {
               </div>
             )}
 
-            {/* Zone 2: Free Report Banner */}
-            {!isUnlocked && data.dimension_scores && (
+            {/* Zone 2: Free Report Banner — dual-tier conversion */}
+            {!isUnlocked && !isDetailedUnlocked && data.dimension_scores && (
               <Suspense fallback={null}>
                 <FreeReportBanner
                   weakestLabel={getWeakestLabel(data.dimension_scores, t)}
+                  stardustBalance={user?.stardust_balance || 0}
+                  onDetailedUnlock={handleDetailedUnlock}
+                  onFullUnlock={handleStardustUnlock}
                   onCtaClick={() => setActiveTab("shop")}
                 />
               </Suspense>

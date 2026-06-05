@@ -59,7 +59,7 @@ def _clear_auth_cookies(response: JSONResponse) -> None:
     response.delete_cookie("refresh_token", path="/")
 
 # ── Registration bonus ────────────────────────────────────────────────────
-REGISTER_BONUS_STARDUST = 100  # 注册验证通过奖励星尘（足够解锁一次完整分析）
+REGISTER_BONUS_STARDUST = 150  # 注册验证通过奖励星尘（足够解锁精读+多次追问）
 
 # ── Cookie settings ──────────────────────────────────────────────────────────
 _COOKIE_SECURE = not settings.DEBUG  # HTTPS in production
