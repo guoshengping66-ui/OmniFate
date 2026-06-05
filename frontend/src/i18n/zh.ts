@@ -429,6 +429,12 @@ export default {
     { "name": "小红", "text": "改运建议很实用，按照建议调整后运势明显好转", "score": "8.8" },
     { "name": "小李", "text": "比其他平台的分析更深入，值得解锁完整报告", "score": "9.5" }
   ],
+  "reading.worker.insightCount": "{count} 条洞察",
+  "reading.worker.unlockHint": "解锁后可获得详细分析",
+  "reading.shop.matched": "已为你匹配 {count} 件专属好物",
+  "reading.insight.balanced": "五维能量均衡，整体运势稳定",
+  "reading.insight.moderate": "能量分布有侧重，注意补强短板",
+  "reading.insight.imbalanced": "能量差异较大，建议重点关注弱势维度",
   "paywall.youWillGet": "解锁后你将获得",
   "paywall.valueList": [
     "完整五维深度诊断报告",

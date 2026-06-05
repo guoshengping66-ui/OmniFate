@@ -429,6 +429,12 @@ export default {
     { "name": "Sarah", "text": "Practical advice that actually improved my fortune after following it", "score": "8.8" },
     { "name": "Mike", "text": "More in-depth than other platforms, definitely worth unlocking", "score": "9.5" }
   ],
+  "reading.worker.insightCount": "{count} insights",
+  "reading.worker.unlockHint": "Unlock for detailed analysis",
+  "reading.shop.matched": "{count} items matched for you",
+  "reading.insight.balanced": "Balanced five-dimension energy, stable overall fortune",
+  "reading.insight.moderate": "Energy leans toward certain areas, consider strengthening weaknesses",
+  "reading.insight.imbalanced": "Significant energy gaps — focus on weaker dimensions",
   "paywall.youWillGet": "What you'll get",
   "paywall.valueList": [
     "Full five-dimension depth diagnosis",

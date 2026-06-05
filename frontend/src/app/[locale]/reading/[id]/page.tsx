@@ -702,6 +702,17 @@ export default function ReadingPage() {
                       ? t("reading.insight.unlocked")
                       : t("reading.insight.locked")}
                   </p>
+                  {/* Energy balance summary */}
+                  <p className="text-white/30 text-[11px] mt-1.5">
+                    {(() => {
+                      const scores = Object.values(data.dimension_scores || {})
+                      const avg = scores.reduce((a, b) => a + b, 0) / scores.length
+                      const balance = Math.max(...scores) - Math.min(...scores)
+                      if (balance <= 1.5) return t("reading.insight.balanced") || "五维能量均衡，整体运势稳定"
+                      if (balance <= 3) return t("reading.insight.moderate") || "能量分布有侧重，注意补强短板"
+                      return t("reading.insight.imbalanced") || "能量差异较大，建议重点关注弱势维度"
+                    })()}
+                  </p>
                 </div>
               </div>)}
 
@@ -769,12 +780,13 @@ export default function ReadingPage() {
               {NAV_ITEMS_DIMENSIONS.map((item) => {
                 const isWorkerTab = WORKER_ORDER_ALL.includes(item.id)
                 const isLocked = !isUnlocked && isWorkerTab
+                const hasReport = isWorkerTab && workerMap[item.id]?.report
                 return (
                   <button
                     key={item.id}
                     onClick={() => setActiveTab(item.id)}
                     className={`flex items-center gap-1 px-2 py-1.5 sm:px-2.5 sm:py-2 rounded-lg text-[11px] sm:text-xs font-medium
-                                whitespace-nowrap transition-all duration-300 flex-shrink-0 group
+                                whitespace-nowrap transition-all duration-300 flex-shrink-0 group relative
                       ${activeTab === item.id
                         ? "bg-gold/15 text-gold shadow-[0_0_12px_rgba(201,168,76,0.12)]"
                         : isLocked
@@ -783,7 +795,8 @@ export default function ReadingPage() {
                   >
                     <span className="text-xs sm:text-sm transition-transform group-hover:scale-110 duration-200">{item.icon}</span>
                     <span className="hidden sm:inline">{t(item.labelKey)}</span>
-                    {isLocked && <Lock size={9} className="text-white/15 -ml-0.5" />}
+                    {hasReport && <span className="w-1.5 h-1.5 rounded-full bg-green-400/70 -ml-0.5" />}
+                    {isLocked && !hasReport && <Lock size={9} className="text-white/15 -ml-0.5" />}
                     {activeTab === item.id && (
                       <span className="hidden lg:inline text-[10px] text-gold/50 ml-0.5">{t(item.descKey)}</span>
                     )}
@@ -1130,6 +1143,8 @@ export default function ReadingPage() {
                   const w = workerMap[k]
                   const meta = AGENT_LABELS[k]
                   const hasReport = !!w.report
+                  // Estimate insight count from report length
+                  const insightCount = hasReport ? Math.max(2, Math.min(8, Math.floor(w.report.length / 150))) : 0
                   return (
                     <button
                       key={k}
@@ -1155,14 +1170,26 @@ export default function ReadingPage() {
                           <p className="text-white/40 text-xs leading-relaxed line-clamp-2">
                             {stripMarkdown(w.report.slice(0, 100))}…
                           </p>
-                          <p className="text-gold/40 text-[11px] mt-2 group-hover:text-gold/80 transition-colors">
-                            {t("reading.clickToView")} →
-                          </p>
+                          <div className="flex items-center justify-between mt-2">
+                            <p className="text-gold/40 text-[11px] group-hover:text-gold/80 transition-colors">
+                              {t("reading.clickToView")} →
+                            </p>
+                            {!isUnlocked && (
+                              <span className="text-[10px] text-white/20 bg-white/[0.04] px-1.5 py-0.5 rounded">
+                                {t("reading.worker.insightCount", { count: String(insightCount) }) || `${insightCount} 条洞察`}
+                              </span>
+                            )}
+                          </div>
                         </>
                       ) : (
-                        <p className="text-white/25 text-xs leading-relaxed">
-                          {t("reading.worker.lockedPreview")}
-                        </p>
+                        <div>
+                          <p className="text-white/25 text-xs leading-relaxed">
+                            {t("reading.worker.lockedPreview")}
+                          </p>
+                          <p className="text-[10px] text-white/15 mt-1">
+                            {t("reading.worker.unlockHint") || "解锁后可获得详细分析"}
+                          </p>
+                        </div>
                       )}
                     </button>
                   )
@@ -1314,6 +1341,15 @@ export default function ReadingPage() {
               <p className="text-white/35 text-sm max-w-md">
                 {t("reading.shop.desc")}
               </p>
+              {/* Personalized match indicator */}
+              {products.length > 0 && (
+                <div className="mt-3 flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-400/20">
+                  <CheckCircle size={12} className="text-green-400" />
+                  <span className="text-[11px] text-green-300/70">
+                    {t("reading.shop.matched", { count: String(products.length) }) || `已为你匹配 ${products.length} 件专属好物`}
+                  </span>
+                </div>
+              )}
             </div>
 
             {shopLoading ? (
