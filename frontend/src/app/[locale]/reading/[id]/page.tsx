@@ -230,10 +230,25 @@ function extractQuickInsights(summary: string): string[] {
     return summary.slice(start, end).trim()
   }
 
-  // 1. Pain point from 【B·痛点诊断】
+  // Helper: extract best matching sentence by keywords
+  function bestSentence(text: string, keywords: RegExp): string {
+    const lines = text.split("\n").filter(l => l.trim().length > 0)
+    // First pass: find a line matching keywords
+    for (const line of lines) {
+      const trimmed = line.trim()
+      if (keywords.test(trimmed) && trimmed.length >= 8) {
+        const s = trimmed.replace(/^[🔴🟡🟢⚠️✨🔥💎⏰💪❤️💚\s●◆■]+/, "").split(/[。！？]/)[0].trim()
+        if (s.length >= 8) return s.slice(0, 60)
+      }
+    }
+    return ""
+  }
+
+  // 1. Pain point from 【B·痛点诊断】 — look for problem indicators
   const sectionB = findSectionContent("痛点诊断")
   if (sectionB) {
-    const s = firstSentence(sectionB)
+    const s = bestSentence(sectionB, /受阻|压力|风险|不足|困扰|矛盾|消耗|瓶颈|失衡|反复|阻碍|挑战|隐患|波动|受制/)
+      || firstSentence(sectionB)
     if (s) insights.push(s)
   }
 
@@ -241,26 +256,18 @@ function extractQuickInsights(summary: string): string[] {
   if (insights.length < 2) {
     const sectionA = findSectionContent("核心性格底色") || findSectionContent("综合总论")
     if (sectionA) {
-      const lines = sectionA.split("\n").filter(l => l.trim().length > 0)
-      for (const line of lines) {
-        const trimmed = line.trim()
-        if (/优势|强项|擅长|天赋|出色|突出|能量强|充盈|充沛/.test(trimmed) && trimmed.length >= 8) {
-          const s = trimmed.replace(/^[🔴🟡🟢⚠️✨🔥💎⏰💪❤️💚\s]+/, "").split(/[。！？]/)[0].trim()
-          if (s.length >= 8) { insights.push(s.slice(0, 60)); break }
-        }
-      }
-      if (insights.length < 2) {
-        const s = firstSentence(sectionA)
-        if (s && !insights.includes(s)) insights.push(s)
-      }
+      const s = bestSentence(sectionA, /优势|强项|擅长|天赋|出色|突出|能量强|充盈|充沛|潜力|敏锐|直觉|领导|创造|洞察|智慧|果断|坚韧|灵活/)
+        || firstSentence(sectionA)
+      if (s && !insights.includes(s)) insights.push(s)
     }
   }
 
-  // 3. Timing from 【D·近期关键提醒】
+  // 3. Timing from 【D·近期关键提醒】 — look for actionable timing advice
   if (insights.length < 3) {
     const sectionD = findSectionContent("近期关键提醒")
     if (sectionD) {
-      const s = firstSentence(sectionD)
+      const s = bestSentence(sectionD, /建议|近期|适合|机会|注意|把握|调整|行动|时机|适合|可以|值得|应当|关键|重要/)
+        || firstSentence(sectionD)
       if (s && !insights.includes(s)) insights.push(s)
     }
   }
@@ -414,10 +421,12 @@ export default function ReadingPage() {
     try {
       const { unlockReport } = await import("@/lib/api")
       const result = await unlockReport(id, "stardust", "full")
-      // Only update state after API success
       if (result.unlocked) {
         setIsUnlocked(true)
         setIsDetailedUnlocked(true)
+        // Re-fetch session data so master_detail / worker reports are populated
+        const fresh = await getSession(id)
+        if (fresh) setData(fresh)
       }
       toast.success(t("reading.unlockedSuccess"))
       refreshUser()
@@ -431,9 +440,11 @@ export default function ReadingPage() {
     try {
       const { unlockReport } = await import("@/lib/api")
       const result = await unlockReport(id, "stardust", "detailed")
-      // Only update state after API success
       if (result.unlocked) {
         setIsDetailedUnlocked(true)
+        // Re-fetch session data so detailed content is populated
+        const fresh = await getSession(id)
+        if (fresh) setData(fresh)
       }
       toast.success(t("reading.detailedUnlocked") || "精读报告已解锁")
       refreshUser()
