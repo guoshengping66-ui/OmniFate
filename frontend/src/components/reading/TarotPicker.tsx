@@ -215,7 +215,7 @@ export function TarotPicker({ onSelect }: Props) {
   }, [])
 
   /* ── Position slots (left, center, right) ─────────────────── */
-  const slotX = [-130, 0, 130] // px offsets from center
+  const slotX = [-140, 0, 140] // px offsets from center (wider gap to avoid overlap)
   const isDeckVisible = phase !== "complete" && currentDrawIndex < SELECT_COUNT
 
   return (
@@ -266,7 +266,8 @@ export function TarotPicker({ onSelect }: Props) {
         )}
       </AnimatePresence>
 
-      {/* ── Main area: cards + deck ── */}
+      {/* ── Main area: cards + deck (hidden in complete phase to avoid duplicate with summary) ── */}
+      {phase !== "complete" && (
       <div className="relative flex justify-center items-center" style={{ minHeight: 180 }}>
 
         {/* ── Drawn cards (slots) ── */}
@@ -377,6 +378,7 @@ export function TarotPicker({ onSelect }: Props) {
           )}
         </div>
       </div>
+      )}
 
       {/* ── Complete: summary cards ── */}
       {phase === "complete" && drawnCards.length === SELECT_COUNT && (
@@ -411,8 +413,8 @@ export function TarotPicker({ onSelect }: Props) {
         </motion.div>
       )}
 
-      {/* ── Deck empty state ── */}
-      {phase === "deck" && (
+      {/* ── Deck empty state (only when deck visible and no cards drawn) ── */}
+      {phase === "deck" && drawnCards.length === 0 && (
         <div className="border border-dashed border-white/10 rounded-xl p-3 text-center text-white/25 text-[11px]">
           {t("new.tarotHint")}
         </div>
