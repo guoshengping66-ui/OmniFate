@@ -1260,7 +1260,8 @@
     "placeholder2": "Keep asking... (Enter to send, Shift+Enter for new line)",
     "sendFail": "Couldn't send — try again in a moment",
     "insufficientStardust": "Not enough stardust: each follow-up costs {cost} ✨",
-    "needStardust": "needs {cost}✨"
+    "needStardust": "needs {cost}✨",
+    "firstFree": "First one free ✨"
   },
   "contact": {
     "faq": {

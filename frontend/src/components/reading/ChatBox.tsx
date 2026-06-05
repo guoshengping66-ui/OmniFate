@@ -38,14 +38,16 @@ export function ChatBox({ sessionId, availableAgents = [] }: Props) {
 
   const isPremium = !!user?.is_premium
   const stardustBalance = user?.stardust_balance ?? 0
-  const canFollowUp = isPremium || stardustBalance >= STARDUST_COST.FOLLOW_UP
+  const [hasUsedFollowUp, setHasUsedFollowUp] = useState(false)
+  const isFirstFree = !isPremium && !hasUsedFollowUp
+  const canFollowUp = isPremium || isFirstFree || stardustBalance >= STARDUST_COST.FOLLOW_UP
 
   const send = async () => {
     const q = input.trim()
     if (!q || loading) return
 
-    // 前端预检查：非会员且星尘不足时提示
-    if (!isPremium && stardustBalance < STARDUST_COST.FOLLOW_UP) {
+    // 前端预检查：非会员且非首次且星尘不足时提示
+    if (!isPremium && !isFirstFree && stardustBalance < STARDUST_COST.FOLLOW_UP) {
       toast.error(t("chat.insufficientStardust").replace("{cost}", String(STARDUST_COST.FOLLOW_UP)))
       return
     }
@@ -61,6 +63,7 @@ export function ChatBox({ sessionId, availableAgents = [] }: Props) {
         routed_to: res.routed_to,
       }])
       refreshUser() // 刷新星尘余额（后端已扣费）
+      if (isFirstFree) setHasUsedFollowUp(true) // 标记已使用首次免费
     } catch (err: any) {
       // 处理 402 星尘不足错误
       const detail = err?.response?.data?.detail ?? ""
@@ -122,8 +125,14 @@ export function ChatBox({ sessionId, availableAgents = [] }: Props) {
         )}
         {!isPremium && (
           <span className={`flex items-center gap-1 text-[10px] ml-auto ${canFollowUp ? "text-gold/40" : "text-red-400/60"}`}>
-            <Sparkles size={8} /> {stardustBalance} ✨
-            {!canFollowUp && <span className="text-red-400/60">({t("chat.needStardust", { cost: String(STARDUST_COST.FOLLOW_UP) })})</span>}
+            {isFirstFree ? (
+              <span className="text-green-400/70 font-medium">{t("chat.firstFree") || "首次免费 ✨"}</span>
+            ) : (
+              <>
+                <Sparkles size={8} /> {stardustBalance} ✨
+                {!canFollowUp && <span className="text-red-400/60">({t("chat.needStardust", { cost: String(STARDUST_COST.FOLLOW_UP) })})</span>}
+              </>
+            )}
           </span>
         )}
       </div>

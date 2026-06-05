@@ -36,10 +36,10 @@ class Settings(BaseSettings):
     WORKER_MAX_TOKENS: int = 1024   # 优化：从1536降至1024，worker分析素材不需要那么多
     ZIWEI_MODEL: str = ""            # 空=使用默认OPENAI_MODEL；可单独指定更快模型
 
-    # ── 免费模型（硅基流动 SiliconFlow）── 追问等低频场景使用
-    FREE_MODEL_API_KEY: str = ""                 # 硅基流动 API Key（免费注册送额度）
-    FREE_MODEL_BASE_URL: str = "https://api.siliconflow.cn/v1"
-    FREE_MODEL: str = "Qwen/Qwen3.5-4B"  # 免费模型 — 追问等（¥0/K tokens）
+    # ── 免费模型（追问等低频场景使用）──
+    FREE_MODEL_API_KEY: str = ""                 # 空则复用 OPENAI_API_KEY
+    FREE_MODEL_BASE_URL: str = ""                # 空则复用 OPENAI_BASE_URL (DeepSeek)
+    FREE_MODEL: str = "deepseek-v4-flash"        # 追问模型 — 与主模型同款，保证质量
     FREE_MODEL_MAX_TOKENS: int = 4096            # 免费模型输出上限
 
     JWT_SECRET_KEY: str = "change-me-in-production-use-openssl-rand-hex-32"

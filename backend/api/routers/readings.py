@@ -14,7 +14,7 @@ import json
 from fastapi import APIRouter, HTTPException, UploadFile, File, BackgroundTasks, Query, Depends
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, func, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import sys
@@ -705,32 +705,46 @@ async def chat_followup(
             question = "请围绕命理主题提问。"
             break
 
-    # ── 星尘扣费（会员免费） ──
+    # ── 星尘扣费（会员免费 + 新用户首次免费） ──
     deducted = False
     tx_id = None
+    is_first_followup = False
     if not current_user.is_premium:
-        user_result = await db.execute(
-            select(User).where(User.id == current_user.id).with_for_update()
-        )
-        user = user_result.scalar_one()
-        if user.stardust_balance < STARDUST_COST_FOLLOW_UP:
-            raise HTTPException(
-                status_code=402,
-                detail=f"星尘不足: 需要 {STARDUST_COST_FOLLOW_UP}，当前 {user.stardust_balance}",
+        # 检查是否是首次追问（新用户免费 1 次）
+        existing_followups = await db.execute(
+            select(func.count(CreditTransaction.id)).where(
+                and_(
+                    CreditTransaction.user_id == current_user.id,
+                    CreditTransaction.reason == "follow_up",
+                )
             )
-        user.stardust_balance -= STARDUST_COST_FOLLOW_UP
-        tx = CreditTransaction(
-            user_id=user.id,
-            amount=-STARDUST_COST_FOLLOW_UP,
-            balance_after=user.stardust_balance,
-            reason="follow_up",
-            reference_id=payload.session_id,
-            status="confirmed",
         )
-        db.add(tx)
-        await db.commit()
-        deducted = True
-        tx_id = tx.id
+        followup_count = existing_followups.scalar() or 0
+        is_first_followup = followup_count == 0
+
+        if not is_first_followup:
+            user_result = await db.execute(
+                select(User).where(User.id == current_user.id).with_for_update()
+            )
+            user = user_result.scalar_one()
+            if user.stardust_balance < STARDUST_COST_FOLLOW_UP:
+                raise HTTPException(
+                    status_code=402,
+                    detail=f"星尘不足: 需要 {STARDUST_COST_FOLLOW_UP}，当前 {user.stardust_balance}",
+                )
+            user.stardust_balance -= STARDUST_COST_FOLLOW_UP
+            tx = CreditTransaction(
+                user_id=user.id,
+                amount=-STARDUST_COST_FOLLOW_UP,
+                balance_after=user.stardust_balance,
+                reason="follow_up",
+                reference_id=payload.session_id,
+                status="confirmed",
+            )
+            db.add(tx)
+            await db.commit()
+            deducted = True
+            tx_id = tx.id
 
     # ── 执行 LLM 追问 ──
     try:

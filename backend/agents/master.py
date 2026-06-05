@@ -84,25 +84,29 @@ def _llm(temperature: float = 0.3, model: str | None = None, max_tokens: int | N
 
 
 def _free_llm(temperature: float = 0.3) -> ChatOpenAI:
-    """免费模型实例（硅基流动），用于追问等低频场景。"""
+    """免费模型实例 — 追问等低频场景使用。
+    如果 FREE_MODEL_API_KEY 为空，复用 OPENAI_API_KEY / OPENAI_BASE_URL (DeepSeek)。
+    """
     model_key = settings.FREE_MODEL
     max_tok = settings.FREE_MODEL_MAX_TOKENS
+    api_key = settings.FREE_MODEL_API_KEY or settings.OPENAI_API_KEY
+    base_url = settings.FREE_MODEL_BASE_URL or settings.OPENAI_BASE_URL or None
     cache_key = f"free:{model_key}:{temperature}:{max_tok}"
     if cache_key not in _llm_cache:
         kwargs = dict(
             model=model_key,
-            api_key=settings.FREE_MODEL_API_KEY,
+            api_key=api_key,
             temperature=temperature,
             max_tokens=max_tok,
         )
-        if settings.FREE_MODEL_BASE_URL:
-            kwargs["base_url"] = settings.FREE_MODEL_BASE_URL
+        if base_url:
+            kwargs["base_url"] = base_url
         _llm_cache[cache_key] = ChatOpenAI(**kwargs)
     return _llm_cache[cache_key]
 
 
 def _use_mock() -> bool:
-    return not settings.OPENAI_API_KEY and not settings.FREE_MODEL_API_KEY
+    return not settings.OPENAI_API_KEY
 
 
 async def _call(system: str, user: str, model: str | None = None, language: str = "zh",
