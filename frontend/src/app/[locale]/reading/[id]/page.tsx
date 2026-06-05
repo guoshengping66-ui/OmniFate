@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState, useCallback, useRef, lazy, Suspense } from "react"
+import { useEffect, useState, useCallback, useRef, useMemo, lazy, Suspense } from "react"
 import { useParams, useRouter } from "next/navigation"
 import {
   Loader2, Sparkles, ShoppingBag, AlertCircle,
@@ -192,7 +192,7 @@ function extractLifeTheme(summary: string): string {
     if (/^[一二三四五六七八九十]+[、．.]/.test(trimmed)) continue
     // Return first meaningful sentence (max 40 chars)
     const sentence = trimmed.split(/[。！？\n]/)[0]
-    if (sentence.length > 5) return sentence.slice(0, 40)
+    if (sentence.length > 5) return sentence.length > 40 ? sentence.slice(0, 38) + "…" : sentence
   }
   return ""
 }
@@ -207,37 +207,31 @@ function extractQuickInsights(summary: string): string[] {
     const lines = text.split("\n").filter(l => l.trim().length > 0)
     for (const line of lines) {
       const trimmed = line.trim()
-      // Skip section markers, emoji-only lines, and very short lines
       if (/^[【\[（(]/.test(trimmed) || trimmed.length < 8) continue
       if (/^[🔴🟡🟢⚠️✨🔥💎⏰💪❤️💚]/.test(trimmed)) {
-        // Emoji-prefixed line: strip emoji and use the text after it
         const stripped = trimmed.replace(/^[🔴🟡🟢⚠️✨🔥💎⏰💪❤️💚\s]+/, "").trim()
         if (stripped.length >= 8) return stripped.slice(0, 60)
         continue
       }
-      // Return first meaningful sentence
       const sentence = trimmed.split(/[。！？\n]/)[0]
       if (sentence.length >= 8) return sentence.slice(0, 60)
     }
     return ""
   }
 
-  // Split by section markers 【X·...】
-  const sectionPattern = /【[A-E]·[^】]+】/
-  const parts = summary.split(sectionPattern)
-
-  // Find the section content by marker label
-  function findSection(label: string): string {
-    for (let i = 0; i < parts.length; i++) {
-      if (parts[i].includes(label) && i + 1 < parts.length) {
-        return parts[i + 1]
-      }
-    }
-    return ""
+  // Extract section content by matching marker directly in original text
+  function findSectionContent(label: string): string {
+    const markerRegex = new RegExp(`【[A-E]·${label}】`)
+    const match = summary.match(markerRegex)
+    if (!match) return ""
+    const start = (match.index || 0) + match[0].length
+    const nextMarker = summary.slice(start).match(/【[A-E]·[^】]+】/)
+    const end = nextMarker ? start + (nextMarker.index || 0) : summary.length
+    return summary.slice(start, end).trim()
   }
 
   // 1. Pain point from 【B·痛点诊断】
-  const sectionB = findSection("痛点诊断")
+  const sectionB = findSectionContent("痛点诊断")
   if (sectionB) {
     const s = firstSentence(sectionB)
     if (s) insights.push(s)
@@ -245,7 +239,7 @@ function extractQuickInsights(summary: string): string[] {
 
   // 2. Strength from 【A·核心性格底色】 — look for positive traits
   if (insights.length < 2) {
-    const sectionA = findSection("核心性格底色") || findSection("综合总论")
+    const sectionA = findSectionContent("核心性格底色") || findSectionContent("综合总论")
     if (sectionA) {
       const lines = sectionA.split("\n").filter(l => l.trim().length > 0)
       for (const line of lines) {
@@ -255,7 +249,6 @@ function extractQuickInsights(summary: string): string[] {
           if (s.length >= 8) { insights.push(s.slice(0, 60)); break }
         }
       }
-      // Fallback: use first sentence of section A
       if (insights.length < 2) {
         const s = firstSentence(sectionA)
         if (s && !insights.includes(s)) insights.push(s)
@@ -265,17 +258,16 @@ function extractQuickInsights(summary: string): string[] {
 
   // 3. Timing from 【D·近期关键提醒】
   if (insights.length < 3) {
-    const sectionD = findSection("近期关键提醒")
+    const sectionD = findSectionContent("近期关键提醒")
     if (sectionD) {
       const s = firstSentence(sectionD)
       if (s && !insights.includes(s)) insights.push(s)
     }
   }
 
-  // Fallback: if still less than 3, grab from remaining sections
+  // Fallback: if still less than 3, grab from remaining non-section lines
   if (insights.length < 3) {
-    const allText = summary
-    const lines = allText.split("\n").filter(l => l.trim().length > 0)
+    const lines = summary.split("\n").filter(l => l.trim().length > 0)
     for (const line of lines) {
       const trimmed = line.trim()
       if (trimmed.length >= 10 && !/^[【\[（(]/.test(trimmed) && !insights.some(i => trimmed.includes(i) || i.includes(trimmed))) {
@@ -387,8 +379,8 @@ export default function ReadingPage() {
 
     setShopLoading(true)
     // Strip backend modifiers (待验证, 严重⚠️) so tags match product keyword_tags exactly
-    const cleanTags = data.computed_tags.map((t: string) =>
-      t.replace(/^严重⚠️\s*/, "").replace(/\(待验证\)$/, "").trim()
+    const cleanTags = data.computed_tags.map((tag: string) =>
+      tag.replace(/^严重⚠️\s*/, "").replace(/\(待验证\)$/, "").trim()
     )
     matchProducts({
       weakness_tags: cleanTags,
@@ -402,7 +394,7 @@ export default function ReadingPage() {
       })
       .catch(() => {})
       .finally(() => setShopLoading(false))
-  }, [data?.status, shopFetched, shopLoading])
+  }, [data?.status, shopFetched, shopLoading, locale])
 
   const handleUnlock = useCallback(async (paymentMethod: string = "card") => {
     if (!id) return
@@ -518,6 +510,9 @@ export default function ReadingPage() {
   const strongestLabel = data.dimension_scores ? getI18nDimLabel(getStrongestDimension(data.dimension_scores), t) : t("reading.dim.career")
   const weakestDim = data.dimension_scores ? getWeakestDimension(data.dimension_scores) : "wealth"
   const weakestLabel = data.dimension_scores ? getI18nDimLabel(getWeakestDimension(data.dimension_scores), t) : t("reading.dim.wealth")
+
+  const masterSummary = data?.master_summary || ""
+  const quickInsights = useMemo(() => extractQuickInsights(masterSummary), [masterSummary])
 
   return (
     <div className="min-h-screen pb-24">
@@ -729,7 +724,7 @@ export default function ReadingPage() {
                           />
                         </div>
                         <p className="text-[9px] md:text-[10px] text-white/25 mt-0.5">
-                          {t("reading.dim.beat")} {percentile}%
+                          {score >= 7 ? "★★★" : score >= 4 ? "★★" : "★"}
                         </p>
                         {isWeakest && (
                           <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-rose-400 animate-pulse" />
@@ -903,7 +898,7 @@ export default function ReadingPage() {
 
             {/* ── 1b. Quick Insights (三句话速览) ── */}
             {(() => {
-              const insights = extractQuickInsights(summary)
+              const insights = quickInsights
               if (insights.length === 0) return null
               const icons = ["🔥", "💎", "⏰"]
               const labels = [
