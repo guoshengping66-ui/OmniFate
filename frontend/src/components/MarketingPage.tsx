@@ -69,28 +69,33 @@ export default function MarketingPage() {
 
             <ScrollReveal delay={0.45}>
               <div className="flex flex-col sm:flex-row gap-4 items-start">
-                {/* Primary CTA → Shop */}
+                {/* Primary CTA → Free Reading */}
                 <MagneticButton>
                   <Link
-                    href={localeHref("/shop")}
+                    href={localeHref("/reading/new")}
                     className="btn-gold pulse-ring text-base inline-flex items-center gap-2 px-10 py-4 text-lg group"
                   >
-                    <ShoppingBag size={20} />
                     {t("hero.cta1")}
                     <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </MagneticButton>
 
-                {/* Secondary CTA → Reading */}
+                {/* Secondary CTA → Shop */}
                 <MagneticButton>
                   <Link
-                    href={localeHref("/reading/new")}
+                    href={localeHref("/shop")}
                     className="inline-flex items-center gap-2 px-8 py-4 rounded-full border border-white/20 text-white/60 hover:border-gold/30 hover:text-gold transition-all text-lg backdrop-blur-sm"
                   >
+                    <ShoppingBag size={18} />
                     {t("hero.cta2")}
                   </Link>
                 </MagneticButton>
               </div>
+            </ScrollReveal>
+
+            {/* Trust micro-label */}
+            <ScrollReveal delay={0.55}>
+              <p className="text-white/25 text-xs mt-4 tracking-wide">{t("hero.trust")}</p>
             </ScrollReveal>
 
             {/* Social proof strip */}

@@ -1453,6 +1453,8 @@
     "title": "Event Review"
   },
   "fortune": {
+    "badge": "Daily Fortune",
+    "sectionDesc": "Personalized fortune guidance and energy recommendations, updated daily based on your chart",
     "advice": {
       "1": "A good day for quiet reflection and reviewing your goals",
       "2": "Social energy is high — great for networking",
@@ -1616,7 +1618,39 @@
     "knowledgeButton": "Knowledge Base",
     "shopButton": "Fortune Shop",
     "shopCta": "Explore Fortune Items",
-    "shopDesc": "Handpicked crystals and lucky charms to boost your fortune"
+    "shopDesc": "Handpicked crystals and lucky charms to boost your fortune",
+    "quick": {
+      "reading": "Free Reading",
+      "almanac": "Daily Almanac",
+      "shop": "Fortune Shop",
+      "chat": "Stellar Oracle"
+    },
+    "testimonials": {
+      "title": "Real User Reviews",
+      "list": [
+        {
+          "name": "Ms. Lin",
+          "job": "Entrepreneur",
+          "text": "Bazi said I lack Metal, recommended citrine — business actually improved! Three months later, the key timing window the report predicted turned out to be real.",
+          "score": "9.2",
+          "source": "Xiaohongshu"
+        },
+        {
+          "name": "Mr. Chen",
+          "job": "Engineer",
+          "text": "The natal chart nailed my Saturn lessons and relationship patterns perfectly! More accurate than any master I've visited.",
+          "score": "9.5",
+          "source": "Zhihu"
+        },
+        {
+          "name": "Ms. Wang",
+          "job": "Teacher",
+          "text": "The tarot reading was genuinely healing — it helped me see my way through challenges, not scary fortune-telling.",
+          "score": "8.8",
+          "source": "WeChat"
+        }
+      ]
+    }
   },
   "order": {
     "detail": {
@@ -2230,7 +2264,37 @@
   "agents": {
     "badge": "The Five Wisdom Council",
     "desc": "Five ancient traditions each look at your chart from a different angle — then we weave them all together into one reading.",
-    "title": "Five Paths, One Reading"
+    "title": "Five Paths, One Reading",
+    "bazi": {
+      "_label": "Bazi (Four Pillars)",
+      "tag": "Eastern Destiny",
+      "desc": "Decode your life path through the Heavenly Stems and Earthly Branches of your birth chart",
+      "detail": "Four Pillars · Ten Gods · Luck Cycles · Five Element Balance"
+    },
+    "astrology": {
+      "_label": "Western Astrology",
+      "tag": "Western Charts",
+      "desc": "Reveal your deeper personality patterns and soul lessons through planetary placements",
+      "detail": "House Placements · Aspect Analysis · Node Axis · Transit Forecast"
+    },
+    "tarot": {
+      "_label": "AI Tarot",
+      "tag": "Intuitive Guidance",
+      "desc": "Chart-synced tarot readings that reflect your current energy state and next steps",
+      "detail": "Spread Reading · Energy Mapping · Lesson Guidance · Timing Advice"
+    },
+    "face": {
+      "_label": "AI Face Reading",
+      "tag": "Facial Analysis",
+      "desc": "Analyze your personality traits and fortune trends through facial features and structure",
+      "detail": "Feature Analysis · Face Shape · Complexion Reading · Fortune Forecast"
+    },
+    "palm": {
+      "_label": "AI Palm Reading",
+      "tag": "Palm Diagnosis",
+      "desc": "Decode your life, heart, and head lines to reveal career, relationship, and health insights",
+      "detail": "Palm Line Analysis · Hand Shape · Career & Love · Health Indicators"
+    }
   },
   "almanac": {
     "auspicious": "Auspicious",
@@ -2646,18 +2710,19 @@
     "title": "Something went wrong"
   },
   "hero": {
-    "badge": "128,000+ people found their fortune essentials",
+    "badge": "128,000+ users have found their destiny answers",
     "badgePeople": "",
-    "cta1": "Shop Fortune Essentials",
-    "cta2": "Free Destiny Reading",
-    "desc": "AI destiny analysis × Five-Element energy matching\nPersonalized crystals, jewelry & aromatherapy recommendations for your energy upgrade.",
+    "cta1": "Free Reading",
+    "cta2": "Browse Fortune Shop",
+    "desc": "Bazi · Astrology · Tarot · Face Reading · Palmistry — Five systems, one AI-powered reading\n40-second personalized chart report with fortune enhancement matching.",
     "stat1": "Readings",
     "stat2": "Satisfaction",
     "stat3": "Dimensions",
-    "stat4": "Curated Items",
+    "stat4": "Sec Report",
     "statPeople": "",
-    "title1": "Destiny Wisdom,",
-    "title2": "Curated for You"
+    "title1": "Your Destiny Code,",
+    "title2": "Decoded by AI",
+    "trust": "128,000+ users · 4.9/5 rating · 40-second reports"
   },
   "curated": {
     "badge": "AI Curated for You",

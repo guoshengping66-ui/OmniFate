@@ -21,38 +21,16 @@ const AGENTS = [
   { key: "palm", icon: "🤚", accent: "#2980B9", span: "md:col-span-1" },
 ]
 
-const PRODUCTS = [
-  { key: "product1", price: "¥388", gradient: "from-purple-900/40 to-purple-800/10", glow: "rgba(147,51,234,0.2)", icon: "🔮" },
-  { key: "product2", price: "¥268", gradient: "from-amber-900/40 to-amber-800/10", glow: "rgba(245,158,11,0.2)", icon: "🧘" },
-  { key: "product3", price: "¥328", gradient: "from-emerald-900/40 to-emerald-800/10", glow: "rgba(16,185,129,0.2)", icon: "🌿" },
-]
-
 export function MarketingBelowFold() {
   const { t, locale, localeHref } = useLanguage()
 
-  const testimonials = [
-    {
-      name: locale === "zh" ? "林小姐" : "Ms. Lin",
-      job: locale === "zh" ? "创业者" : "Entrepreneur",
-      text: locale === "zh"
-        ? "八字说我缺金，推荐了黄水晶，生意确实好转了。三个月后复盘，报告说的那个关键时间窗口是真的！"
-        : "Bazi said I lack Metal, recommended citrine — business actually improved!",
-    },
-    {
-      name: locale === "zh" ? "陈先生" : "Mr. Chen",
-      job: locale === "zh" ? "工程师" : "Engineer",
-      text: locale === "zh"
-        ? "星盘把我的土星功课说得一清二楚，感情模式完全对上了。这比我去找大师算得还准。"
-        : "The natal chart nailed my Saturn lessons and relationship patterns perfectly!",
-    },
-    {
-      name: locale === "zh" ? "王女士" : "Ms. Wang",
-      job: locale === "zh" ? "教师" : "Teacher",
-      text: locale === "zh"
-        ? "塔罗的疗愈感很强，不是吓人的命理预测，是真的帮我看清了困境和出路。"
-        : "The tarot reading was genuinely healing — it helped me see my way through challenges.",
-    },
-  ]
+  const testimonials = Array.isArray(t("home.testimonials.list", { returnObjects: true }))
+    ? (t("home.testimonials.list", { returnObjects: true }) as Array<{ name: string; job: string; text: string; score: string; source: string }>)
+    : [
+      { name: "林小姐", job: "创业者", text: "八字说我缺金，推荐了黄水晶，生意确实好转了。", score: "9.2", source: "小红书" },
+      { name: "陈先生", job: "工程师", text: "星盘把我的土星功课说得一清二楚，感情模式完全对上了。", score: "9.5", source: "知乎" },
+      { name: "王女士", job: "教师", text: "塔罗的疗愈感很强，不是吓人的命理预测，是真的帮我看清了困境和出路。", score: "8.8", source: "微信" },
+    ]
 
   return (
     <>
@@ -145,14 +123,13 @@ export function MarketingBelowFold() {
               <h2 className="section-title mt-3">{t("steps.title")}</h2>
             </div>
           </ScrollReveal>
-          <div className="grid md:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-3 gap-8">
             {[
               { n: "01", title: t("step1._label"), icon: "📋", desc: t("step1.desc") },
-              { n: "02", title: t("step2._label"), icon: "📸", desc: t("step2.desc") },
-              { n: "03", title: t("step3._label"), icon: "⚡", desc: t("step3.desc") },
-              { n: "04", title: t("step4._label"), icon: "📖", desc: t("step4.desc") },
+              { n: "02", title: t("step3._label"), icon: "⚡", desc: t("step3.desc") },
+              { n: "03", title: t("step4._label"), icon: "📖", desc: t("step4.desc") },
             ].map((s, i) => (
-              <ScrollReveal key={s.n} delay={i * 0.1} direction="up">
+              <ScrollReveal key={s.n} delay={i * 0.12} direction="up">
                 <div className="text-center group">
                   <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-4 text-2xl group-hover:border-gold/30 group-hover:bg-gold/5 transition-all duration-300">{s.icon}</div>
                   <div className="text-sm text-gold/40 font-bold mb-2">{s.n}</div>
@@ -236,56 +213,6 @@ export function MarketingBelowFold() {
         </div>
       </section>
 
-      {/* ══════════ PRODUCTS ══════════ */}
-      <section className="py-28 px-4 bg-white/[0.015] relative">
-        <div className="max-w-5xl mx-auto">
-          <ScrollReveal>
-            <div className="text-center mb-16">
-              <span className="text-gold/60 text-sm tracking-[0.2em] uppercase">{t("products.badge")}</span>
-              <h2 className="section-title mt-3">{t("products.title")}</h2>
-              <p className="text-white/40 mt-4 max-w-lg mx-auto">{t("products.desc")}</p>
-            </div>
-          </ScrollReveal>
-          <div className="grid md:grid-cols-3 gap-6">
-            {PRODUCTS.map((p, i) => (
-              <ScrollReveal key={p.key} delay={i * 0.12} direction="up">
-                <Link href={localeHref("/shop")}>
-                  <TiltCard glare={true} scale={1.02}>
-                    <div className="relative overflow-hidden rounded-2xl border border-white/10 p-6 h-full group cursor-pointer transition-all duration-500" style={{ background: `linear-gradient(135deg, ${p.gradient}, transparent)`, boxShadow: `0 0 60px ${p.glow}` }}>
-                      <div className="absolute -inset-20 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style={{ background: `radial-gradient(circle at 50% 50%, ${p.glow}, transparent 60%)` }} />
-                      <div className="relative z-10 inline-block text-[10px] font-bold px-2 py-1 rounded-full bg-white/10 text-white/60 mb-4 border border-white/10">{t(`home.${p.key}.tag`)}</div>
-                      <div className="relative z-10 w-24 h-24 mx-auto mb-5 rounded-2xl border border-white/10 flex items-center justify-center text-4xl bg-white/[0.03] group-hover:scale-110 transition-transform duration-500">{p.icon}</div>
-                      <div className="relative z-10 text-center">
-                        <h3 className="font-serif font-bold text-white text-lg mb-1">{t(`home.${p.key}.name`)}</h3>
-                        <p className="text-white/30 text-xs mb-3">{t(`home.${p.key}.desc`)}</p>
-                        <div className="text-gold font-bold text-xl">{p.price}</div>
-                      </div>
-                    </div>
-                  </TiltCard>
-                </Link>
-              </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════ TRUST ══════════ */}
-      <ScrollReveal>
-        <section className="py-16 px-4">
-          <div className="max-w-4xl mx-auto flex flex-wrap justify-center gap-8 md:gap-16">
-            {[[ShieldCheck, t("trust.security._label"), t("trust.security.desc")], [Zap, t("trust.speed._label"), t("trust.speed.desc")], [Eye, t("trust.privacy._label"), t("trust.privacy.desc")]].map(([Icon, title, desc]) => (
-              <div key={String(title)} className="flex items-center gap-3 text-white/40">
-                <Icon size={20} className="text-gold/50" />
-                <div>
-                  <div className="text-sm text-white/60">{String(title)}</div>
-                  <div className="text-xs text-white/20">{String(desc)}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      </ScrollReveal>
-
       {/* ══════════ DAILY FORTUNE ══════════ */}
       <section className="py-28 px-4 bg-white/[0.015] relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gold/[0.02] to-transparent pointer-events-none" />
@@ -318,14 +245,22 @@ export function MarketingBelowFold() {
               <ScrollReveal key={item.name} delay={i * 0.1} direction="up">
                 <TiltCard glare={false} rotateX={4} rotateY={4} scale={1.02}>
                   <div className="card-glow p-6 h-full">
-                    <div className="flex gap-1 mb-4">{[...Array(5)].map((_, si) => (<Star key={si} size={14} className="text-gold fill-gold" />))}</div>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex gap-0.5">{[...Array(5)].map((_, si) => (<Star key={si} size={12} className="text-gold fill-gold" />))}</div>
+                      <span className="text-gold/60 text-xs font-medium">★ {item.score}</span>
+                    </div>
                     <p className="text-white/60 text-sm leading-relaxed mb-4">"{item.text}"</p>
-                    <div className="border-t border-white/10 pt-4 flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center text-gold text-sm font-bold">{item.name[0]}</div>
-                      <div>
-                        <div className="text-white text-sm font-medium">{item.name}</div>
-                        <div className="text-white/30 text-xs">{item.job}</div>
+                    <div className="border-t border-white/10 pt-4 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center text-gold text-sm font-bold">{item.name[0]}</div>
+                        <div>
+                          <div className="text-white text-sm font-medium">{item.name}</div>
+                          <div className="text-white/30 text-xs">{item.job}</div>
+                        </div>
                       </div>
+                      {item.source && (
+                        <span className="text-white/15 text-[10px] bg-white/5 px-2 py-0.5 rounded-full">{item.source}</span>
+                      )}
                     </div>
                   </div>
                 </TiltCard>
@@ -334,6 +269,23 @@ export function MarketingBelowFold() {
           </div>
         </div>
       </section>
+
+      {/* ══════════ TRUST ══════════ */}
+      <ScrollReveal>
+        <section className="py-16 px-4">
+          <div className="max-w-4xl mx-auto flex flex-wrap justify-center gap-8 md:gap-16">
+            {[[ShieldCheck, t("trust.security._label"), t("trust.security.desc")], [Zap, t("trust.speed._label"), t("trust.speed.desc")], [Eye, t("trust.privacy._label"), t("trust.privacy.desc")]].map(([Icon, title, desc]) => (
+              <div key={String(title)} className="flex items-center gap-3 text-white/40">
+                <Icon size={20} className="text-gold/50" />
+                <div>
+                  <div className="text-sm text-white/60">{String(title)}</div>
+                  <div className="text-xs text-white/20">{String(desc)}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </ScrollReveal>
 
       {/* ══════════ FAQ ══════════ */}
       <section className="py-28 px-4">
