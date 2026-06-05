@@ -1073,11 +1073,14 @@ export default function ReadingPage() {
                   <h3 className="text-sm font-semibold text-white/60">{t("reading.testimonials.title") || "用户真实反馈"}</h3>
                 </div>
                 <div className="grid sm:grid-cols-3 gap-3">
-                  {(t("reading.testimonials.list", { returnObjects: true }) as Array<{name: string; text: string; score: string}> || [
-                    { name: "用户A", text: "分析非常准确，帮我理解了自己的优势和不足", score: "9.2" },
-                    { name: "用户B", text: "改运建议很实用，按照建议调整后运势明显好转", score: "8.8" },
-                    { name: "用户C", text: "比其他平台的分析更深入，值得解锁完整报告", score: "9.5" },
-                  ]).map((item, i) => (
+                  {(Array.isArray(t("reading.testimonials.list", { returnObjects: true }))
+                    ? t("reading.testimonials.list", { returnObjects: true }) as Array<{name: string; text: string; score: string}>
+                    : [
+                      { name: "用户A", text: "分析非常准确，帮我理解了自己的优势和不足", score: "9.2" },
+                      { name: "用户B", text: "改运建议很实用，按照建议调整后运势明显好转", score: "8.8" },
+                      { name: "用户C", text: "比其他平台的分析更深入，值得解锁完整报告", score: "9.5" },
+                    ]
+                  ).map((item, i) => (
                     <div key={i} className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
                       <div className="flex items-center gap-2 mb-2">
                         <div className="w-6 h-6 rounded-full bg-gold/10 flex items-center justify-center text-[10px] text-gold/70">

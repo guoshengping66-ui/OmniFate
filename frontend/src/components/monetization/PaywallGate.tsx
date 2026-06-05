@@ -88,12 +88,15 @@ export function PaywallGate({
         <div className="max-w-sm mx-auto mb-6 text-left">
           <p className="text-white/30 text-[10px] uppercase tracking-wider mb-2 text-center">{t("paywall.youWillGet") || "解锁后你将获得"}</p>
           <div className="space-y-1.5">
-            {(t("paywall.valueList", { returnObjects: true }) as string[] || [
-              "完整五维深度诊断报告",
-              "7个专业维度详细分析",
-              "个性化改运处方和行动建议",
-              "专属好物推荐和搭配指南",
-            ]).map((item: string, i: number) => (
+            {(Array.isArray(t("paywall.valueList", { returnObjects: true }))
+              ? t("paywall.valueList", { returnObjects: true }) as string[]
+              : [
+                "完整五维深度诊断报告",
+                "7个专业维度详细分析",
+                "个性化改运处方和行动建议",
+                "专属好物推荐和搭配指南",
+              ]
+            ).map((item: string, i: number) => (
               <div key={i} className="flex items-center gap-2 text-white/50 text-xs">
                 <CheckCircle size={12} className="text-green-400/70 flex-shrink-0" />
                 <span>{item}</span>
