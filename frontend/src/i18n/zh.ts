@@ -486,6 +486,26 @@ export default {
   "shop.ai.strongRec": "强力推荐",
   "shop.ai.worthIt": "值得一试",
   "shop.ai.addToCart2": "一键加入购物车",
+  "shop.sort.match": "命盘匹配",
+  "shop.sort.rating": "评分最高",
+  "shop.sort.priceAsc": "价格低→高",
+  "shop.sort.priceDesc": "价格高→低",
+  "shop.scenario.cta": "推命获取专属推荐",
+  "shop.resultCount": "共 {count} 件商品",
+  "shop.buyNow": "立即抢购",
+  "productCard.aiRecommended": "AI 推荐",
+
+  // ─── 甄选好物 ───
+  "curated.badge": "甄选好物",
+  "curated.title": "甄选好物",
+  "curated.desc": "高评分热销好物精选",
+  "curated.hot": "热销",
+  "curated.new": "新品",
+  "curated.limited": "限量",
+  "curated.bestSeller": "已售 {count} 件",
+  "curated.added": "已加入",
+  "curated.addToCart": "加入购物车",
+  "curated.viewAll": "查看全部",
 
   // ─── 结算 ───
   "checkout.title": "确认订单",
@@ -813,6 +833,8 @@ export default {
   "cart.memberDiscount": "会员 88 折: -¥{amount}",
   "cart.total": "合计",
   "cart.checkout": "去结算",
+  "cart.freeShipping": "再买 ¥{amount} 免运费",
+  "cart.freeShippingUnlocked": "已享免运费",
 
   // ─── 收藏 ───
   "fav.add": "收藏",

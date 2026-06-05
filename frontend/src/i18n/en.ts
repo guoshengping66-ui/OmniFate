@@ -492,6 +492,26 @@ export default {
   "shop.ai.strongRec": "Highly Recommended",
   "shop.ai.worthIt": "Worth Exploring",
   "shop.ai.addToCart2": "Add to Cart",
+  "shop.sort.match": "Chart Match",
+  "shop.sort.rating": "Top Rated",
+  "shop.sort.priceAsc": "Price: Low→High",
+  "shop.sort.priceDesc": "Price: High→Low",
+  "shop.scenario.cta": "Get personalized recs",
+  "shop.resultCount": "{count} products",
+  "shop.buyNow": "Buy Now",
+  "productCard.aiRecommended": "AI Recommended",
+
+  // ─── Curated Products ───
+  "curated.badge": "Curated Picks",
+  "curated.title": "Curated for You",
+  "curated.desc": "Top-rated bestsellers handpicked for you",
+  "curated.hot": "Hot",
+  "curated.new": "New",
+  "curated.limited": "Limited",
+  "curated.bestSeller": "{count} sold",
+  "curated.added": "Added",
+  "curated.addToCart": "Add to Cart",
+  "curated.viewAll": "View All",
 
   // ─── Checkout ───
   "checkout.title": "Confirm Order",
@@ -819,6 +839,8 @@ export default {
   "cart.memberDiscount": "Member 12% Off: -¥{amount}",
   "cart.total": "Total",
   "cart.checkout": "Checkout",
+  "cart.freeShipping": "Add ¥{amount} more for free shipping",
+  "cart.freeShippingUnlocked": "Free shipping unlocked",
 
   // ─── Favorites ───
   "fav.add": "Favorite",
