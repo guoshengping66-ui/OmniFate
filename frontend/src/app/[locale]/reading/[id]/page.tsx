@@ -4,7 +4,7 @@ import { useParams, useRouter } from "next/navigation"
 import {
   Loader2, Sparkles, ShoppingBag, AlertCircle,
   CheckCircle, MessageSquare, Tags, Gift, Lock,
-  Crown, ArrowRight, TrendingUp, Zap, Star, Shield,
+  Crown, ArrowRight, ArrowLeft, TrendingUp, Zap, Star, Shield,
   ChevronDown, Eye, Clock, Compass, ScrollText,
 } from "lucide-react"
 import toast from "react-hot-toast"
@@ -37,7 +37,6 @@ const ShareSheet = lazy(() => import("@/components/reading/ShareSheet").then(m =
 const PaywallGate = lazy(() => import("@/components/monetization/PaywallGate").then(m => ({ default: m.PaywallGate })))
 const QRPaymentModal = lazy(() => import("@/components/payment/QRPaymentModal").then(m => ({ default: m.QRPaymentModal })))
 const PrescriptionCard = lazy(() => import("@/components/reading/PrescriptionCard").then(m => ({ default: m.PrescriptionCard })))
-const FreeReportBanner = lazy(() => import("@/components/reading/FreeReportBanner").then(m => ({ default: m.FreeReportBanner })))
 const EnergyIDCard = lazy(() => import("@/components/reading/EnergyIDCard").then(m => ({ default: m.EnergyIDCard })))
 const FortunePrescription = lazy(() => import("@/components/reading/FortunePrescription").then(m => ({ default: m.FortunePrescription })))
 const PostAnalysisModal = lazy(() => import("@/components/reading/PostAnalysisModal").then(m => ({ default: m.PostAnalysisModal })))
@@ -89,9 +88,13 @@ const I18N_DIM_KEYS: Record<string, { label: string; desc: string }> = {
   spiritual: { label: "reading.dim.spiritual", desc: "reading.dimDesc.spiritual" },
 }
 
-const I18N_NAV_ITEMS = [
+const I18N_NAV_CORE = [
   { id: "master",    icon: "🌟", labelKey: "reading.nav.overview",     descKey: "reading.nav.overviewDesc" },
   { id: "shop",      icon: "🎁", labelKey: "reading.nav.shop",        descKey: "reading.nav.shopDesc" },
+  { id: "chat",      icon: "💬", labelKey: "reading.nav.chat",        descKey: "reading.nav.chatDesc" },
+]
+
+const I18N_NAV_DIMENSIONS = [
   { id: "bazi",      icon: "☯",  labelKey: "reading.nav.bazi",        descKey: "reading.nav.baziDesc" },
   { id: "qimen",     icon: "🎯", labelKey: "reading.nav.qimen",       descKey: "reading.nav.qimenDesc" },
   { id: "ziwei",     icon: "⭐", labelKey: "reading.nav.ziwei",       descKey: "reading.nav.ziweiDesc" },
@@ -99,8 +102,9 @@ const I18N_NAV_ITEMS = [
   { id: "tarot",     icon: "🃏", labelKey: "reading.nav.tarot",       descKey: "reading.nav.tarotDesc" },
   { id: "face",      icon: "👁",  labelKey: "reading.nav.face",        descKey: "reading.nav.faceDesc" },
   { id: "palm",      icon: "🤚", labelKey: "reading.nav.palm",        descKey: "reading.nav.palmDesc" },
-  { id: "chat",      icon: "💬", labelKey: "reading.nav.chat",        descKey: "reading.nav.chatDesc" },
 ]
+
+const I18N_NAV_ITEMS = [...I18N_NAV_CORE, ...I18N_NAV_DIMENSIONS]
 
 /** Parse free report sections from master_summary */
 function parseFreeReportSections(summary: string): {
@@ -368,8 +372,8 @@ export default function ReadingPage() {
   })()
 
   // Dynamic navigation items — include partner tabs when available
-  const NAV_ITEMS_ALL = (() => {
-    const items = [...I18N_NAV_ITEMS]
+  const NAV_ITEMS_DIMENSIONS = (() => {
+    const items = [...I18N_NAV_DIMENSIONS]
     if (data.partner_face) {
       items.splice(items.findIndex(i => i.id === "face") + 1, 0,
         { id: "partner_face", icon: "👁", labelKey: "reading.nav.partnerFace", descKey: "reading.nav.partnerFaceDesc" })
@@ -381,6 +385,8 @@ export default function ReadingPage() {
     }
     return items
   })()
+
+  const NAV_ITEMS_ALL = [...I18N_NAV_CORE, ...NAV_ITEMS_DIMENSIONS]
 
   const workerMap: Record<string, typeof data.bazi> = {
     astrology: data.astrology,
@@ -504,7 +510,7 @@ export default function ReadingPage() {
                 animation: "hero-border-spin 8s linear infinite",
               }}
             />
-            <div className="relative bg-gradient-to-br from-[#1a1430]/90 via-[#1e1835]/90 to-[#140f24]/90 backdrop-blur-xl p-8 md:p-12">
+            <div className="relative bg-gradient-to-br from-[#1a1430]/90 via-[#1e1835]/90 to-[#140f24]/90 backdrop-blur-xl p-6 md:p-10">
               {/* Greeting */}
               <p
                 className="text-gold/60 text-xs md:text-sm tracking-widest uppercase mb-4"
@@ -544,14 +550,7 @@ export default function ReadingPage() {
                 {t("reading.subtitle")}
               </p>
 
-              {/* Membership badge */}
-              {user && (
-                <div className="mb-6">
-                  <MembershipBadge tier={getUserTier(user)} size="md" showLabel />
-                </div>
-              )}
-
-              {/* ── Dimension Score Mini-Cards (hidden for RELATIONSHIP) ── */}
+              {/* ── Dimension Score Compact Row (hidden for RELATIONSHIP) ── */}
               {data.dimension_scores && data.intent !== "RELATIONSHIP" && (
                 <div
                   className="grid grid-cols-5 gap-2 md:gap-3 mb-8"
@@ -591,25 +590,6 @@ export default function ReadingPage() {
                       </div>
                     )
                   })}
-                </div>
-              )}
-
-              {/* ── Energy Digital ID Card (hidden for RELATIONSHIP) ── */}
-              {data.dimension_scores && data.intent !== "RELATIONSHIP" && (
-                <div
-                  style={{
-                    transition: "all 0.8s ease-out 0.85s",
-                    opacity: heroVisible ? 1 : 0,
-                    transform: heroVisible ? "translateY(0)" : "translateY(12px)",
-                  }}
-                >
-                  <Suspense fallback={<div className="h-32" />}>
-                    <EnergyIDCard
-                      sessionId={id}
-                      userId={user?.id}
-                      dimensionScores={data.dimension_scores}
-                    />
-                  </Suspense>
                 </div>
               )}
 
@@ -656,32 +636,6 @@ export default function ReadingPage() {
                 </div>
               )}
 
-              {/* Worker badges */}
-              <div
-                className="flex flex-wrap gap-3 mt-8 pt-6 border-t border-white/[0.06]"
-                style={{
-                  transition: "all 0.6s ease-out 1.05s",
-                  opacity: heroVisible ? 1 : 0,
-                }}
-              >
-                {WORKER_ORDER_ALL.map((k: string) => {
-                  const w = workerMap[k]
-                  const meta = AGENT_LABELS[k]
-                  return (
-                    <div key={k} className="flex items-center gap-1.5">
-                      <span className="text-sm">{meta.icon}</span>
-                      <span className={`text-[11px] ${w.error ? "text-red-400/60" : "text-green-400/40"}`}>
-                        {t(AGENT_I18N[k] || `agent.${k}`)}
-                      </span>
-                      {w.duration_ms && (
-                        <span className="text-[10px] text-white/15 font-mono">
-                          {(w.duration_ms / 1000).toFixed(1)}s
-                        </span>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
             </div>
           </div>
         </div>
@@ -691,37 +645,60 @@ export default function ReadingPage() {
           NAVIGATION — Side-oriented nav system
           ════════════════════════════════════════════════════════════ */}
       <div className="max-w-5xl mx-auto px-4 mb-8 sticky top-16 z-30">
-        <div className="bg-[#1a1430]/80 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-1.5 shadow-2xl shadow-black/40 relative">
-          <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-[#1a1430]/90 to-transparent rounded-r-2xl pointer-events-none z-10 md:hidden" />
-          <div ref={navScrollRef} className="flex gap-0.5 sm:gap-1 overflow-x-auto scrollbar-none scroll-smooth">
-            {NAV_ITEMS_ALL.map((item: { id: string; icon: string; labelKey: string; descKey: string }) => {
-              const isWorkerTab = WORKER_ORDER_ALL.includes(item.id)
-              const isLocked = !isUnlocked && isWorkerTab
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveTab(item.id)}
-                  className={`flex items-center gap-1 px-2 py-2 sm:px-3.5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-medium
-                              whitespace-nowrap transition-all duration-300 flex-shrink-0 group
-                    ${activeTab === item.id
-                      ? "bg-gold/15 text-gold shadow-[0_0_20px_rgba(201,168,76,0.15)]"
-                      : isLocked
-                        ? "text-white/25 hover:text-white/50 hover:bg-white/[0.04]"
-                        : "text-white/40 hover:text-white/70 hover:bg-white/[0.04]"}`}
-                >
-                  <span className="text-sm sm:text-base transition-transform group-hover:scale-110 duration-200">
-                    {item.icon}
-                  </span>
-                  <span className="hidden sm:inline">{t(item.labelKey)}</span>
-                  {isLocked && (
-                    <Lock size={10} className="text-white/20 -ml-0.5" />
-                  )}
-                  {activeTab === item.id && (
-                    <span className="hidden lg:inline text-[10px] text-gold/50 ml-0.5">{t(item.descKey)}</span>
-                  )}
-                </button>
-              )
-            })}
+        <div className="bg-[#1a1430]/80 backdrop-blur-xl border border-white/[0.08] rounded-2xl shadow-2xl shadow-black/40 relative overflow-hidden">
+          {/* Row 1: Core navigation */}
+          <div className="flex justify-center gap-1 px-3 pt-2.5 pb-1.5">
+            {I18N_NAV_CORE.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium
+                            whitespace-nowrap transition-all duration-300 group
+                  ${activeTab === item.id
+                    ? "bg-gold/15 text-gold shadow-[0_0_20px_rgba(201,168,76,0.15)]"
+                    : "text-white/50 hover:text-white/70 hover:bg-white/[0.04]"}`}
+              >
+                <span className="text-sm sm:text-base transition-transform group-hover:scale-110 duration-200">{item.icon}</span>
+                <span>{t(item.labelKey)}</span>
+                {activeTab === item.id && (
+                  <span className="hidden lg:inline text-[10px] text-gold/50 ml-0.5">{t(item.descKey)}</span>
+                )}
+              </button>
+            ))}
+          </div>
+
+          {/* Divider */}
+          <div className="mx-4 border-t border-white/[0.06]" />
+
+          {/* Row 2: Dimension tabs (scrollable) */}
+          <div className="relative">
+            <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#1a1430]/90 to-transparent pointer-events-none z-10 md:hidden" />
+            <div ref={navScrollRef} className="flex gap-0.5 px-2 py-2 overflow-x-auto scrollbar-none scroll-smooth">
+              {NAV_ITEMS_DIMENSIONS.map((item) => {
+                const isWorkerTab = WORKER_ORDER_ALL.includes(item.id)
+                const isLocked = !isUnlocked && isWorkerTab
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveTab(item.id)}
+                    className={`flex items-center gap-1 px-2 py-1.5 sm:px-2.5 sm:py-2 rounded-lg text-[11px] sm:text-xs font-medium
+                                whitespace-nowrap transition-all duration-300 flex-shrink-0 group
+                      ${activeTab === item.id
+                        ? "bg-gold/15 text-gold shadow-[0_0_12px_rgba(201,168,76,0.12)]"
+                        : isLocked
+                          ? "text-white/20 hover:text-white/40 hover:bg-white/[0.03]"
+                          : "text-white/35 hover:text-white/60 hover:bg-white/[0.04]"}`}
+                  >
+                    <span className="text-xs sm:text-sm transition-transform group-hover:scale-110 duration-200">{item.icon}</span>
+                    <span className="hidden sm:inline">{t(item.labelKey)}</span>
+                    {isLocked && <Lock size={9} className="text-white/15 -ml-0.5" />}
+                    {activeTab === item.id && (
+                      <span className="hidden lg:inline text-[10px] text-gold/50 ml-0.5">{t(item.descKey)}</span>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
           </div>
         </div>
       </div>
@@ -740,8 +717,8 @@ export default function ReadingPage() {
 
           return (
           <div className="space-y-6">
-            {/* Section A: 核心性格底色 */}
-            {parsed.sectionA && (
+            {/* ── 1. Core Summary (Section A) ── */}
+            {(parsed.sectionA || summary) && (
             <div className="card-glass p-6 md:p-8 group hover:border-white/[0.15] transition-all duration-500">
               <div className="flex items-center gap-2.5 mb-5">
                 <div className="w-10 h-10 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center">
@@ -756,32 +733,7 @@ export default function ReadingPage() {
                 </span>
               </div>
               <div className="text-white/75 text-sm leading-relaxed whitespace-pre-line">
-                {stripMarkdown(parsed.sectionA)}
-              </div>
-              {/* AI-generated content disclaimer */}
-              <p className="mt-4 pt-3 border-t border-white/[0.06] text-white/25 text-[11px] leading-relaxed">
-                {t("reading.master.disclaimer")}
-              </p>
-            </div>
-            )}
-
-            {/* Fallback: if parsing failed, show raw master_summary */}
-            {!parsed.sectionA && (
-            <div className="card-glass p-6 md:p-8 group hover:border-white/[0.15] transition-all duration-500">
-              <div className="flex items-center gap-2.5 mb-5">
-                <div className="w-10 h-10 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center">
-                  <Sparkles size={20} className="text-gold" />
-                </div>
-                <div>
-                  <h2 className="font-serif text-lg md:text-xl font-bold text-gold">{t("reading.master.title")}</h2>
-                  <p className="text-white/20 text-xs">{t("reading.master.subtitle")}</p>
-                </div>
-                <span className="ml-auto text-[10px] px-2 py-0.5 bg-green-500/10 border border-green-500/20 rounded-full text-green-400">
-                  {t("reading.master.free")}
-                </span>
-              </div>
-              <div className="text-white/75 text-sm leading-relaxed whitespace-pre-line">
-                {summary ? stripMarkdown(summary) : t("reading.progress.masterAgent")}
+                {stripMarkdown(parsed.sectionA || summary || t("reading.progress.masterAgent"))}
               </div>
               <p className="mt-4 pt-3 border-t border-white/[0.06] text-white/25 text-[11px] leading-relaxed">
                 {t("reading.master.disclaimer")}
@@ -789,7 +741,19 @@ export default function ReadingPage() {
             </div>
             )}
 
-            {/* Section B: 痛点诊断 (parsed from master_summary) */}
+            {/* ── 2. Radar Chart (hidden for RELATIONSHIP) ── */}
+            {data.dimension_scores && data.intent !== "RELATIONSHIP" && (
+              <div className="flex justify-center">
+                <Suspense fallback={<div className="h-64" />}>
+                  <DestinyRadar
+                    scores={data.dimension_scores}
+                    labels={["wealth", "relationship", "career", "health", "spiritual"].map(k => t(I18N_DIM_KEYS[k]?.label || `reading.dim.${k}`))}
+                  />
+                </Suspense>
+              </div>
+            )}
+
+            {/* ── 3. Pain Points (Section B) ── */}
             {parsed.sectionB && !isUnlocked && (
             <div className="card-glass p-6 md:p-8 border-l-2 border-l-amber-400/40 hover:border-l-amber-400/60 transition-all duration-500">
               <div className="flex items-center gap-2.5 mb-4">
@@ -819,7 +783,7 @@ export default function ReadingPage() {
             </div>
             )}
 
-            {/* Section D: 近期关键提醒 (parsed from master_summary) */}
+            {/* ── 4. Key Reminders (Section D) ── */}
             {parsed.sectionD && !isUnlocked && (
             <div className="card-glass p-5 md:p-6 border-l-2 border-l-cyan-400/40 bg-gradient-to-r from-cyan-500/[0.04] to-transparent">
               <div className="flex items-start gap-3">
@@ -832,19 +796,7 @@ export default function ReadingPage() {
             </div>
             )}
 
-            {/* ── Radar Chart (hidden for RELATIONSHIP) ── */}
-            {data.dimension_scores && data.intent !== "RELATIONSHIP" && (
-              <div className="flex justify-center">
-                <Suspense fallback={<div className="h-64" />}>
-                  <DestinyRadar
-                    scores={data.dimension_scores}
-                    labels={["wealth", "relationship", "career", "health", "spiritual"].map(k => t(I18N_DIM_KEYS[k]?.label || `reading.dim.${k}`))}
-                  />
-                </Suspense>
-              </div>
-            )}
-
-            {/* ── Tags ── */}
+            {/* ── 5. Tags ── */}
             {data.computed_tags.length > 0 && (
               <div className="flex flex-wrap justify-center gap-2">
                 {data.computed_tags.slice(0, 10).map((tag, i) => (
@@ -855,29 +807,26 @@ export default function ReadingPage() {
               </div>
             )}
 
-            {/* Zone 2: Free Report Banner — dual-tier conversion */}
-            {!isUnlocked && !isDetailedUnlocked && data.dimension_scores && (
-              <Suspense fallback={null}>
-                <FreeReportBanner
-                  weakestLabel={getWeakestLabel(data.dimension_scores, t)}
-                  stardustBalance={user?.stardust_balance || 0}
-                  onDetailedUnlock={handleDetailedUnlock}
-                  onFullUnlock={handleStardustUnlock}
-                  onCtaClick={() => setActiveTab("shop")}
+            {/* ── 6. Energy ID Card (hidden for RELATIONSHIP) ── */}
+            {data.dimension_scores && data.intent !== "RELATIONSHIP" && (
+              <Suspense fallback={<div className="h-32" />}>
+                <EnergyIDCard
+                  sessionId={id}
+                  userId={user?.id}
+                  dimensionScores={data.dimension_scores}
                 />
               </Suspense>
             )}
 
-            {/* Paid: Master Detail — 精读 or 全维 */}
+            {/* ── 7. Detailed Report (PaywallGate) ── */}
             <Suspense fallback={<div className="card-glass p-6 h-48" />}>
               <PaywallGate
                 isUnlocked={isUnlocked || isDetailedUnlocked}
                 title={t("reading.master.detailTitle")}
                 description={t("reading.insight.locked")}
-                priceDisplay="¥69"
                 onUnlock={() => router.push(`/${locale}/pricing`)}
                 loading={false}
-                previewLines={5}
+                previewLines={8}
                 stardustBalance={user?.stardust_balance || 0}
                 onDetailedUnlock={handleDetailedUnlock}
                 onStardustUnlock={handleStardustUnlock}
@@ -903,7 +852,7 @@ export default function ReadingPage() {
               </PaywallGate>
             </Suspense>
 
-            {/* Zone 1: 改运处方 — immersive prescription card */}
+            {/* ── 8. Fortune Prescription ── */}
             {data.recommended_products && data.recommended_products.length > 0 && (
               <Suspense fallback={<div className="card-glass p-4 h-32 animate-pulse" />}>
                 <FortunePrescription
@@ -914,7 +863,7 @@ export default function ReadingPage() {
               </Suspense>
             )}
 
-            {/* Zone 1b: AI 匹配好物 — auto-fetched products from matchProducts */}
+            {/* ── 9. AI Matched Products ── */}
             {!isUnlocked && products.length > 0 && (
               <div className="mt-6">
                 <div className="flex items-center gap-2 mb-4">
@@ -942,7 +891,7 @@ export default function ReadingPage() {
               </div>
             )}
 
-            {/* Mini previews of each worker */}
+            {/* ── 10. Worker Dimension Previews ── */}
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <Compass size={16} className="text-white/30" />
@@ -998,6 +947,15 @@ export default function ReadingPage() {
         {/* ── Individual Worker Reports ───────────────────── */}
         {WORKER_ORDER_ALL.map((k: string) => activeTab === k && (
           <div key={k}>
+            {/* Back to overview button */}
+            <button
+              onClick={() => setActiveTab("master")}
+              className="flex items-center gap-1.5 text-white/30 hover:text-white/60 text-xs mb-4 transition-colors group"
+            >
+              <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
+              {t("reading.nav.overview")}
+            </button>
+
             {workerMap[k].error ? (
               <div className="card-glass p-10 text-center">
                 <div className="w-16 h-16 rounded-full bg-red-500/10 border border-red-400/20 flex items-center justify-center mx-auto mb-4">
@@ -1013,10 +971,9 @@ export default function ReadingPage() {
                     isUnlocked={isUnlocked}
                     title={`${t(AGENT_I18N[k] || `agent.${k}`)} ${t("reading.worker.unlockTitle")}`}
                     description={t("reading.worker.unlockDesc")}
-                    priceDisplay="¥69"
                     onUnlock={() => router.push(`/${locale}/pricing`)}
                     loading={false}
-                    previewLines={3}
+                    previewLines={5}
                     stardustBalance={user?.stardust_balance || 0}
                     onStardustUnlock={handleStardustUnlock}
                   >
@@ -1087,31 +1044,27 @@ export default function ReadingPage() {
                 <p className="text-white/40 text-sm mb-2">
                   {t("reading.worker.lockedTitle")}
                 </p>
-                <p className="text-white/25 text-xs mb-8 max-w-sm mx-auto leading-relaxed">
+                <p className="text-white/25 text-xs mb-6 max-w-sm mx-auto leading-relaxed">
                   {t("reading.worker.lockedDesc")}
                 </p>
                 {(user?.stardust_balance || 0) >= STARDUST_COST.FULL_REPORT ? (
                   <button
                     onClick={handleStardustUnlock}
-                    className="flex items-center gap-2 mx-auto text-sm px-8 py-3 rounded-xl bg-gradient-to-r from-violet-500/20 to-blue-500/20 border border-violet-400/30 hover:border-violet-400/50 text-violet-300 hover:text-violet-200 transition-all mb-3"
+                    className="flex items-center gap-2 mx-auto text-sm px-8 py-3 rounded-xl bg-gradient-to-r from-violet-500/20 to-blue-500/20 border border-violet-400/30 hover:border-violet-400/50 text-violet-300 hover:text-violet-200 transition-all"
                   >
                     <Sparkles size={16} />
                     {t("paywall.useStardust")}（{STARDUST_COST.FULL_REPORT} ✦）
                     <span className="text-violet-400/60 ml-1">· {user?.stardust_balance || 0} ✦</span>
                   </button>
                 ) : (
-                  <p className="text-white/20 text-[11px] mb-3">
-                    {t("reading.worker.orUseStardust")} · {user?.stardust_balance || 0} ✦
-                  </p>
+                  <button
+                    onClick={() => router.push(`/${locale}/pricing`)}
+                    className="btn-gold flex items-center gap-2 mx-auto text-sm px-8 py-3"
+                  >
+                    <Crown size={16} />
+                    {t("reading.worker.unlockFull")}
+                  </button>
                 )}
-                <button
-                  onClick={() => setShowPayment(true)}
-                  className="btn-gold flex items-center gap-2 mx-auto text-sm px-8 py-3"
-                >
-                  <Crown size={16} />
-                  {t("reading.worker.unlockFull")}
-                  <span className="text-gold/60 ml-1">¥69</span>
-                </button>
               </div>
             ) : (
               <div className="card-glass p-12 text-center">

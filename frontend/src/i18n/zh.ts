@@ -444,6 +444,7 @@ export default {
   "energyId.tier.health": "翡翠",
   "energyId.tier.spiritual": "紫罗兰",
   "report.expand": "查看完整分析",
+  "report.moreLines": "行更多",
   "report.collapse": "收起",
 
   // ─── 商城 ───

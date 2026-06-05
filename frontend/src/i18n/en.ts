@@ -444,6 +444,7 @@ export default {
   "energyId.tier.health": "Emerald",
   "energyId.tier.spiritual": "Violet",
   "report.expand": "View Full Reading",
+  "report.moreLines": "more lines",
   "report.collapse": "Collapse",
 
   // ─── Shop ───
