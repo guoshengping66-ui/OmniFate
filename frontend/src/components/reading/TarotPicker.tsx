@@ -304,7 +304,7 @@ export function TarotPicker({ onSelect }: Props) {
 
       {/* ── Main area: cards + deck ── */}
       {phase !== "complete" && (
-      <div className="relative flex justify-center items-center" style={{ minHeight: 200 }}>
+      <div className="relative flex justify-center items-center" style={{ minHeight: 220 }}>
 
         {/* ── Drawn cards (slots) ── */}
         <div className="relative flex items-start justify-center" style={{ width: "100%", maxWidth: 440 }}>
@@ -399,11 +399,11 @@ export function TarotPicker({ onSelect }: Props) {
                   />
                 </div>
 
-                {/* "Tap to draw" hint on the deck */}
+                {/* "Tap to draw" hint above the deck */}
                 <motion.div
                   animate={{ opacity: [0.3, 0.7, 0.3] }}
                   transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute -bottom-7 left-0 right-0 text-center"
+                  className="absolute -top-5 left-0 right-0 text-center"
                 >
                   <span className="text-gold/50 text-[10px] whitespace-nowrap">
                     ✦ {t("new.tarotTapHint") || "点击抽取"} ✦
@@ -437,6 +437,8 @@ export function TarotPicker({ onSelect }: Props) {
       </div>
       )}
 
+      {/* ── Deck empty state removed — deck hint "点击抽取" already provides guidance ── */}
+
       {/* ── Complete: summary cards ── */}
       {phase === "complete" && drawnCards.length === SELECT_COUNT && (
         <motion.div
@@ -468,13 +470,6 @@ export function TarotPicker({ onSelect }: Props) {
             ))}
           </div>
         </motion.div>
-      )}
-
-      {/* ── Deck empty state (only before any draw) ── */}
-      {phase === "deck" && drawnCards.length === 0 && (
-        <div className="border border-dashed border-white/10 rounded-xl p-3 text-center text-white/25 text-[11px]">
-          {t("new.tarotHint")}
-        </div>
       )}
     </div>
   )
