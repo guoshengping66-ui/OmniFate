@@ -1694,6 +1694,7 @@
     },
     "unlockedSuccess": "星尘解锁成功！",
     "unlockedFailed": "星尘解锁失败",
+    "detailedUnlocked": "精读报告已解锁 ✨",
     "greeting": {
       "afternoon": "午安",
       "earlyMorning": "晨曦初照",
@@ -1721,6 +1722,13 @@
       "subtitle": "AI 综合分析你的命运蓝本",
       "title": "全维度命盘总览",
       "unlocked": "已解锁"
+    },
+    "painPoints": {
+      "title": "痛点诊断",
+      "subtitle": "当前最需要关注的3个问题"
+    },
+    "reminder": {
+      "title": "近期关键提醒"
     },
     "nav": {
       "almanac": "黄历",
@@ -2760,8 +2768,11 @@
     "giftNote": "解锁后赠送 ¥60 商城代金券 + 3 天会员试用",
     "processing": "处理中…",
     "unlockReport": "解锁完整报告",
+    "unlockDetailed": "精读报告",
+    "unlockFull": "全维报告",
     "useStardust": "使用星尘解锁",
-    "stardustInsufficient": "星尘能量不足"
+    "stardustInsufficient": "星尘能量不足",
+    "stardustBalance": "当前星尘"
   },
   "productCard": {
     "aiRecommended": "AI 推荐"

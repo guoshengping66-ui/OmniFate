@@ -8,7 +8,8 @@ export type Region = "domestic" | "overseas"
 // ── 星尘消耗规则 ──────────────────────────────────────────────────────────────
 export const STARDUST_COST = {
   /** 高能消耗 */
-  FULL_REPORT: 100,       // 解锁全维报告
+  FULL_REPORT: 100,       // 解锁全维报告（完整工人报告+追问资格）
+  DETAILED_REPORT: 30,    // 解锁精读报告（深度分析文本）
   EVENT_RETRO: 30,        // 生命事件复盘
   /** 中能消耗 */
   FOLLOW_UP: 10,          // AI 追问/对话 (每轮)

@@ -939,7 +939,7 @@ async def run_subtask_synastry(state: SystemState) -> str:
 async def run_master(state: SystemState) -> SystemState:
     """
     Full master pipeline: preprocessing + sub-tasks.
-    Free users: only core synthesis (1 LLM call).
+    Free users: core synthesis + pain points + dimension summary + key reminder.
     Premium users: 3 parallel sub-tasks for full detail.
     RELATIONSHIP intent: +1 synastry sub-task (4 total for premium).
     """
@@ -973,7 +973,7 @@ async def run_master(state: SystemState) -> SystemState:
         parts.append(actions_result)
         state.master_detail = "\n\n".join(parts)
     else:
-        # Free user: core synthesis + synastry for RELATIONSHIP
+        # Free user: core synthesis + pain points/reminders + synastry for RELATIONSHIP
         tasks = [run_subtask_core(state, prep)]
         if is_relationship:
             tasks.append(run_subtask_synastry(state))
@@ -982,17 +982,104 @@ async def run_master(state: SystemState) -> SystemState:
         core_result = results[0]
         synastry_result = results[1] if is_relationship else ""
 
-        # Free users see master_summary as their ONLY report — don't truncate.
-        # (Premium users get master_detail for the full report, so truncation
-        #  there is fine — it's just a preview.)
-        state.master_summary = core_result
+        # Build comprehensive free report from Section A + B + C + D + E
+        free_parts = [core_result]
+
+        # Section C: 五维速览 (formatted deterministically from scores — no LLM needed)
+        dim_summary = _format_dimension_summaries(state.dimension_scores, state.language)
+        if dim_summary:
+            free_parts.append(dim_summary)
+
+        # Section D: 近期关键提醒 (from resonance output — already parsed in B)
+        key_reminder = _extract_key_reminder(core_result)
+        if key_reminder:
+            free_parts.append(key_reminder)
+
+        # Section E: 行动建议速览 (from resonance output)
+        action_summary = _extract_action_summary(core_result)
+        if action_summary:
+            free_parts.append(action_summary)
+
+        state.master_summary = "\n\n".join(free_parts)
+
         if synastry_result:
-            state.master_detail = f"{core_result}\n\n{synastry_result}"
+            state.master_detail = f"{state.master_summary}\n\n{synastry_result}"
         else:
             state.master_detail = ""  # Behind paywall anyway
 
     state.phase = "chat"
     return state
+
+
+def _format_dimension_summaries(scores: dict[str, float], language: str = "zh") -> str:
+    """Format five-dimension summaries from scores deterministically.
+    Returns Section C with emoji + score + 1-sentence status per dimension."""
+    if not scores:
+        return ""
+    _DIM_CONFIG = {
+        "wealth":       ("💰", "财富", "Wealth"),
+        "career":       ("💼", "事业", "Career"),
+        "relationship": ("💕", "感情", "Relationship"),
+        "health":       ("🏥", "健康", "Health"),
+        "spiritual":    ("🧘", "精神", "Spiritual"),
+    }
+    _STATUS_ZH = {
+        (9.0, 10.0): "状态极佳，把握机遇",
+        (7.5, 9.0):  "运势不错，稳中求进",
+        (6.0, 7.5):  "中规中矩，注意细节",
+        (4.0, 6.0):  "偏弱，需要重点关注",
+        (0.0, 4.0):  "较弱，建议重点调理",
+    }
+    _STATUS_EN = {
+        (9.0, 10.0): "Excellent — seize opportunities",
+        (7.5, 9.0):  "Good — steady progress",
+        (6.0, 7.5):  "Average — watch details",
+        (4.0, 6.0):  "Below average — needs attention",
+        (0.0, 4.0):  "Weak — recommend focused improvement",
+    }
+    status_map = _STATUS_ZH if language == "zh" else _STATUS_EN
+    lines = ["【C·五维速览】"]
+    for key in ["wealth", "career", "relationship", "health", "spiritual"]:
+        emoji, cn, en = _DIM_CONFIG.get(key, ("❓", key, key))
+        score = scores.get(key, 5.0)
+        label = cn if language == "zh" else en
+        status = ""
+        for (lo, hi), s in status_map.items():
+            if lo <= score < hi:
+                status = s
+                break
+        if not status:
+            status = status_map.get((9.0, 10.0), "")
+        lines.append(f"{emoji} {label} {score:.1f} — {status}")
+    return "\n".join(lines)
+
+
+def _extract_key_reminder(text: str) -> str:
+    """Extract the key reminder (Section D) from the resonance LLM output."""
+    markers = ["【D·近期关键提醒】", "[D·近期关键提醒]", "D·近期关键提醒"]
+    for marker in markers:
+        idx = text.find(marker)
+        if idx != -1:
+            reminder = text[idx + len(marker):].strip()
+            next_section = reminder.find("【")
+            if next_section > 0:
+                reminder = reminder[:next_section].strip()
+            return reminder[:200]
+    return ""
+
+
+def _extract_action_summary(text: str) -> str:
+    """Extract the action suggestions (Section E) from the resonance LLM output."""
+    markers = ["【E·行动建议速览】", "[E·行动建议速览]", "E·行动建议速览"]
+    for marker in markers:
+        idx = text.find(marker)
+        if idx != -1:
+            action = text[idx + len(marker):].strip()
+            next_section = action.find("【")
+            if next_section > 0:
+                action = action[:next_section].strip()
+            return action[:300]
+    return ""
 
 
 def _compute_confidence(state: SystemState) -> tuple[str, dict[str, int]]:

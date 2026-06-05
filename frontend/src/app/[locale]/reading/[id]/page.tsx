@@ -102,6 +102,61 @@ const I18N_NAV_ITEMS = [
   { id: "chat",      icon: "💬", labelKey: "reading.nav.chat",        descKey: "reading.nav.chatDesc" },
 ]
 
+/** Parse free report sections from master_summary */
+function parseFreeReportSections(summary: string): {
+  sectionA: string; sectionB: string; painPoints: string[]; sectionD: string;
+} {
+  if (!summary) return { sectionA: "", sectionB: "", painPoints: [], sectionD: "" }
+  const result = { sectionA: "", sectionB: "", painPoints: [] as string[], sectionD: "" }
+
+  // Try to find Section A (核心性格底色)
+  const markersA = ["【A·核心性格底色】", "[A·核心性格底色]", "A·核心性格底色"]
+  const markersB = ["【B·痛点诊断】", "[B·痛点诊断]", "B·痛点诊断"]
+  const markersC = ["【C·五维速览】", "[C·五维速览]", "C·五维速览"]
+  const markersD = ["【D·近期关键提醒】", "[D·近期关键提醒]", "D·近期关键提醒"]
+
+  function findMarker(text: string, markers: string[]): number {
+    for (const m of markers) {
+      const idx = text.indexOf(m)
+      if (idx !== -1) return idx + m.length
+    }
+    return -1
+  }
+
+  const startA = findMarker(summary, markersA)
+  const startB = findMarker(summary, markersB)
+  const startC = findMarker(summary, markersC)
+  const startD = findMarker(summary, markersD)
+
+  // Extract Section A (everything before B, C, or D markers, or before first marker)
+  if (startA > 0) {
+    const endA = [startB, startC, startD].filter(x => x > startA).sort((a, b) => a - b)[0] || summary.length
+    result.sectionA = summary.slice(startA, endA).trim()
+  } else if (startB === -1 && startC === -1 && startD === -1) {
+    // No markers found — treat entire text as Section A (legacy format)
+    result.sectionA = summary
+  }
+
+  // Extract Section B (pain points)
+  if (startB > 0) {
+    const endB = [startC, startD].filter(x => x > startB).sort((a, b) => a - b)[0] || summary.length
+    result.sectionB = summary.slice(startB, endB).trim()
+    // Extract individual pain point lines (🔴🟡🟢)
+    result.painPoints = result.sectionB
+      .split("\n")
+      .filter(line => /^[🔴🟡🟢]/.test(line.trim()))
+      .map(line => line.trim())
+  }
+
+  // Extract Section D (key reminder)
+  if (startD > 0) {
+    const endD = summary.length
+    result.sectionD = summary.slice(startD, endD).trim()
+  }
+
+  return result
+}
+
 function getWeakestDimension(scores: Record<string, number>): string {
   return Object.entries(scores).sort((a, b) => a[1] - b[1])[0]?.[0] ?? "wealth"
 }
@@ -152,6 +207,7 @@ export default function ReadingPage() {
 
   const [showPayment, setShowPayment] = useState(false)
   const [isUnlocked, setIsUnlocked] = useState(false)
+  const [isDetailedUnlocked, setIsDetailedUnlocked] = useState(false)
 
   // Scroll-driven progressive reveal
   const [heroVisible, setHeroVisible] = useState(false)
@@ -162,6 +218,7 @@ export default function ReadingPage() {
   const handleAnalysisComplete = useCallback((fresh: AnalysisResponse) => {
     setData(fresh)
     setIsUnlocked(fresh.is_detail_unlocked)
+    setIsDetailedUnlocked(fresh.is_detailed_unlocked)
   }, [])
 
   // Fetch initial data — AnalysisSession handles all SSE/polling/streaming
@@ -186,6 +243,7 @@ export default function ReadingPage() {
       clearTimeout(loadTimeout)
       setData(d)
       setIsUnlocked(d.is_detail_unlocked)
+      setIsDetailedUnlocked(d.is_detailed_unlocked)
       setLoading(false)
     }).catch(() => {
       if (!cancelled) {
@@ -245,9 +303,23 @@ export default function ReadingPage() {
     if (!id) return
     try {
       const { unlockReport } = await import("@/lib/api")
-      await unlockReport(id, "stardust")
+      await unlockReport(id, "stardust", "full")
       setIsUnlocked(true)
+      setIsDetailedUnlocked(true)
       toast.success(t("reading.unlockedSuccess"))
+      refreshUser()
+    } catch (err: any) {
+      toast.error(err?.response?.data?.detail || t("reading.unlockedFailed"))
+    }
+  }, [id, refreshUser])
+
+  const handleDetailedUnlock = useCallback(async () => {
+    if (!id) return
+    try {
+      const { unlockReport } = await import("@/lib/api")
+      await unlockReport(id, "stardust", "detailed")
+      setIsDetailedUnlocked(true)
+      toast.success(t("reading.detailedUnlocked") || "精读报告已解锁")
       refreshUser()
     } catch (err: any) {
       toast.error(err?.response?.data?.detail || t("reading.unlockedFailed"))
@@ -655,9 +727,15 @@ export default function ReadingPage() {
         <FadeInSection key={activeTab}>
 
         {/* ── Master Summary ──────────────────────────────────── */}
-        {activeTab === "master" && (
+        {activeTab === "master" && (() => {
+          // Parse master_summary into sections for free users
+          const summary = data.master_summary || ""
+          const parsed = parseFreeReportSections(summary)
+
+          return (
           <div className="space-y-6">
-            {/* Free: Master Summary */}
+            {/* Section A: 核心性格底色 */}
+            {parsed.sectionA && (
             <div className="card-glass p-6 md:p-8 group hover:border-white/[0.15] transition-all duration-500">
               <div className="flex items-center gap-2.5 mb-5">
                 <div className="w-10 h-10 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center">
@@ -672,18 +750,81 @@ export default function ReadingPage() {
                 </span>
               </div>
               <div className="text-white/75 text-sm leading-relaxed whitespace-pre-line">
-                {data.master_summary
-                  ? stripMarkdown(data.master_summary)
-                  : t("reading.progress.masterAgent")
-                }
+                {stripMarkdown(parsed.sectionA)}
               </div>
-              {/* AI-generated content disclaimer — required by 《生成式人工智能服务管理暂行办法》 */}
-              {data.master_summary && (
-                <p className="mt-4 pt-3 border-t border-white/[0.06] text-white/25 text-[11px] leading-relaxed">
-                  {t("reading.master.disclaimer")}
-                </p>
-              )}
+              {/* AI-generated content disclaimer */}
+              <p className="mt-4 pt-3 border-t border-white/[0.06] text-white/25 text-[11px] leading-relaxed">
+                {t("reading.master.disclaimer")}
+              </p>
             </div>
+            )}
+
+            {/* Fallback: if parsing failed, show raw master_summary */}
+            {!parsed.sectionA && (
+            <div className="card-glass p-6 md:p-8 group hover:border-white/[0.15] transition-all duration-500">
+              <div className="flex items-center gap-2.5 mb-5">
+                <div className="w-10 h-10 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center">
+                  <Sparkles size={20} className="text-gold" />
+                </div>
+                <div>
+                  <h2 className="font-serif text-lg md:text-xl font-bold text-gold">{t("reading.master.title")}</h2>
+                  <p className="text-white/20 text-xs">{t("reading.master.subtitle")}</p>
+                </div>
+                <span className="ml-auto text-[10px] px-2 py-0.5 bg-green-500/10 border border-green-500/20 rounded-full text-green-400">
+                  {t("reading.master.free")}
+                </span>
+              </div>
+              <div className="text-white/75 text-sm leading-relaxed whitespace-pre-line">
+                {summary ? stripMarkdown(summary) : t("reading.progress.masterAgent")}
+              </div>
+              <p className="mt-4 pt-3 border-t border-white/[0.06] text-white/25 text-[11px] leading-relaxed">
+                {t("reading.master.disclaimer")}
+              </p>
+            </div>
+            )}
+
+            {/* Section B: 痛点诊断 (parsed from master_summary) */}
+            {parsed.sectionB && !isUnlocked && (
+            <div className="card-glass p-6 md:p-8 border-l-2 border-l-amber-400/40 hover:border-l-amber-400/60 transition-all duration-500">
+              <div className="flex items-center gap-2.5 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-400/20 flex items-center justify-center">
+                  <span className="text-xl">🎯</span>
+                </div>
+                <div>
+                  <h2 className="font-serif text-lg font-bold text-amber-300">{t("reading.painPoints.title") || "痛点诊断"}</h2>
+                  <p className="text-white/20 text-xs">{t("reading.painPoints.subtitle") || "当前最需要关注的3个问题"}</p>
+                </div>
+              </div>
+              <div className="space-y-3">
+                {parsed.painPoints.map((point, i) => {
+                  const isRed = point.startsWith("🔴")
+                  const isGreen = point.startsWith("🟢")
+                  return (
+                    <div key={i} className={`flex items-start gap-3 p-3 rounded-xl transition-all duration-300
+                      ${isRed ? "bg-red-500/[0.06] border border-red-400/15" :
+                        isGreen ? "bg-green-500/[0.06] border border-green-400/15" :
+                        "bg-amber-500/[0.06] border border-amber-400/15"}`}>
+                      <span className="text-sm mt-0.5 flex-shrink-0">{point.slice(0, 2)}</span>
+                      <span className="text-white/70 text-sm leading-relaxed">{stripMarkdown(point.slice(2).trim())}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+            )}
+
+            {/* Section D: 近期关键提醒 (parsed from master_summary) */}
+            {parsed.sectionD && !isUnlocked && (
+            <div className="card-glass p-5 md:p-6 border-l-2 border-l-cyan-400/40 bg-gradient-to-r from-cyan-500/[0.04] to-transparent">
+              <div className="flex items-start gap-3">
+                <span className="text-xl flex-shrink-0">⏰</span>
+                <div>
+                  <h3 className="text-cyan-300 font-semibold text-sm mb-1">{t("reading.reminder.title") || "近期关键提醒"}</h3>
+                  <p className="text-white/65 text-sm leading-relaxed">{stripMarkdown(parsed.sectionD)}</p>
+                </div>
+              </div>
+            </div>
+            )}
 
             {/* ── Radar Chart (hidden for RELATIONSHIP) ── */}
             {data.dimension_scores && data.intent !== "RELATIONSHIP" && (
@@ -718,10 +859,10 @@ export default function ReadingPage() {
               </Suspense>
             )}
 
-            {/* Paid: Master Detail */}
+            {/* Paid: Master Detail — 精读 or 全维 */}
             <Suspense fallback={<div className="card-glass p-6 h-48" />}>
               <PaywallGate
-                isUnlocked={isUnlocked}
+                isUnlocked={isUnlocked || isDetailedUnlocked}
                 title={t("reading.master.detailTitle")}
                 description={t("reading.insight.locked")}
                 priceDisplay="¥69"
@@ -729,7 +870,9 @@ export default function ReadingPage() {
                 loading={false}
                 previewLines={5}
                 stardustBalance={user?.stardust_balance || 0}
+                onDetailedUnlock={handleDetailedUnlock}
                 onStardustUnlock={handleStardustUnlock}
+                showDualTier={!isUnlocked && !isDetailedUnlocked}
               >
                 <div className="card-glass p-6 md:p-8 border-gold/20 bg-gradient-to-br from-gold/[0.03] to-transparent">
                   <div className="flex items-center gap-2.5 mb-5">
@@ -841,7 +984,7 @@ export default function ReadingPage() {
               </div>
             </div>
           </div>
-        )}
+        )})()}
 
         {/* ── Individual Worker Reports ───────────────────── */}
         {WORKER_ORDER_ALL.map((k: string) => activeTab === k && (

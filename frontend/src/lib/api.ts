@@ -194,6 +194,7 @@ export interface AnalysisResponse {
   master_summary: string
   master_detail: string
   is_detail_unlocked: boolean
+  is_detailed_unlocked: boolean
   astrology: WorkerReport
   tarot: WorkerReport
   bazi: WorkerReport
@@ -336,9 +337,9 @@ function _setCachedReading(sessionId: string, data: AnalysisResponse) {
   try {
     // Only cache completed readings
     if (data.status !== "done" && data.status !== "chat") return
-    // Don't cache is_detail_unlocked — it depends on the user's premium
+    // Don't cache unlock status — it depends on the user's premium
     // status which may change. Always fetch fresh from backend.
-    const { is_detail_unlocked, ...rest } = data
+    const { is_detail_unlocked, is_detailed_unlocked, ...rest } = data
     sessionStorage.setItem(`reading:${sessionId}`, JSON.stringify({ ts: Date.now(), data: rest }))
   } catch { /* quota exceeded — ignore */ }
 }
@@ -599,12 +600,15 @@ export interface UnlockResult {
   unlocked: boolean
   reading_id: string
   message: string
-  shop_coupon_issued: number
-  trial_activated: boolean
+  tier?: string
+  stardust_deducted?: number
+  balance_after?: number
+  shop_coupon_issued?: number
+  trial_activated?: boolean
 }
 
-export async function unlockReport(sessionId: string, source: "payment" | "stardust" = "payment"): Promise<UnlockResult> {
-  const res = await api.post<UnlockResult>(`/api/payments/unlock/${sessionId}?source=${source}`)
+export async function unlockReport(sessionId: string, source: "payment" | "stardust" = "payment", tier: "detailed" | "full" = "full"): Promise<UnlockResult> {
+  const res = await api.post<UnlockResult>(`/api/payments/unlock/${sessionId}?source=${source}&tier=${tier}`)
   return res.data
 }
 
@@ -992,6 +996,7 @@ export interface ReadingListItem {
   computed_tags: string[]
   dimension_scores: Record<string, number>
   is_detail_unlocked: boolean
+  is_detailed_unlocked: boolean
   created_at: string
   completed_at: string | null
 }

@@ -21,7 +21,8 @@ settings = get_settings()
 
 # ── 星尘消耗规则 ──────────────────────────────────────────────────────────────
 STARDUST_COST = {
-    "report_unlock": 100,      # 全维报告
+    "report_detailed": 30,     # 精读报告（五维诊断+行动建议，不含工人详细报告）
+    "report_unlock": 100,      # 全维报告（完整工人报告+AI追问资格）
     "event_retro": 30,         # 事件复盘
     "follow_up": 10,           # AI 追问
     "energy_radar": 5,         # 能量雷达

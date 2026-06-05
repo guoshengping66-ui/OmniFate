@@ -1,6 +1,6 @@
 "use client"
 import { ReactNode, useState } from "react"
-import { Lock, Crown, Sparkles, Loader2 } from "lucide-react"
+import { Lock, Crown, Sparkles, Loader2, ChevronRight } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { STARDUST_COST } from "@/lib/pricing.config"
 
@@ -14,7 +14,12 @@ interface PaywallGateProps {
   children: ReactNode
   previewLines?: number
   stardustBalance?: number
+  /** 精读解锁回调 (30 stardust) */
+  onDetailedUnlock?: () => Promise<void>
+  /** 全维解锁回调 (100 stardust) */
   onStardustUnlock?: () => Promise<void>
+  /** 显示双档解锁按钮 (精读+全维) */
+  showDualTier?: boolean
 }
 
 export function PaywallGate({
@@ -27,20 +32,35 @@ export function PaywallGate({
   children,
   previewLines = 4,
   stardustBalance = 0,
+  onDetailedUnlock,
   onStardustUnlock,
+  showDualTier = false,
 }: PaywallGateProps) {
   const { t } = useLanguage()
-  const [stardustLoading, setStardustLoading] = useState(false)
-  const stardustCost = STARDUST_COST.FULL_REPORT
-  const canUseStardust = stardustBalance >= stardustCost && !!onStardustUnlock
+  const [stardustLoading, setStardustLoading] = useState<"detailed" | "full" | null>(null)
 
-  const handleStardustUnlock = async () => {
+  const detailedCost = STARDUST_COST.DETAILED_REPORT
+  const fullCost = STARDUST_COST.FULL_REPORT
+  const canDetailed = stardustBalance >= detailedCost && !!onDetailedUnlock
+  const canFull = stardustBalance >= fullCost && !!onStardustUnlock
+
+  const handleDetailedUnlock = async () => {
+    if (!onDetailedUnlock) return
+    setStardustLoading("detailed")
+    try {
+      await onDetailedUnlock()
+    } finally {
+      setStardustLoading(null)
+    }
+  }
+
+  const handleFullUnlock = async () => {
     if (!onStardustUnlock) return
-    setStardustLoading(true)
+    setStardustLoading("full")
     try {
       await onStardustUnlock()
     } finally {
-      setStardustLoading(false)
+      setStardustLoading(null)
     }
   }
 
@@ -64,42 +84,102 @@ export function PaywallGate({
         <h3 className="text-xl font-serif font-bold text-gold mb-2">{title}</h3>
         <p className="text-white/50 text-sm mb-6 max-w-md mx-auto">{description}</p>
 
-        <div className="flex items-center justify-center gap-2 mb-5">
-          <Crown size={16} className="text-gold" />
-          <span className="text-2xl font-bold text-white">{priceDisplay}</span>
-        </div>
+        {showDualTier ? (
+          /* 双档解锁：精读 + 全维 */
+          <div className="space-y-3 mb-5">
+            {/* 精读按钮 */}
+            <button
+              onClick={handleDetailedUnlock}
+              disabled={!canDetailed || stardustLoading !== null}
+              className={`w-full flex items-center justify-between py-3.5 px-5 rounded-xl border transition-all duration-200 ${
+                canDetailed
+                  ? 'bg-gradient-to-r from-violet-500/15 to-indigo-500/15 border-violet-400/30 hover:border-violet-400/50 text-violet-200'
+                  : 'bg-white/[0.02] border-white/10 text-white/30 cursor-not-allowed'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                {stardustLoading === "detailed" ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <Sparkles size={16} className="text-violet-400" />
+                )}
+                <span className="font-medium text-sm">
+                  {t("paywall.unlockDetailed") || "精读报告"}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-violet-400/70">✦ {detailedCost}</span>
+                <ChevronRight size={14} className="text-violet-400/40" />
+              </div>
+            </button>
 
-        {/* Primary: Pay with stardust */}
-        {canUseStardust && (
-          <button
-            onClick={handleStardustUnlock}
-            disabled={stardustLoading}
-            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-to-r from-violet-500/20 to-blue-500/20 border border-violet-400/30 hover:border-violet-400/50 text-violet-300 hover:text-violet-200 transition-all duration-200 mb-3"
-          >
-            {stardustLoading ? (
-              <Loader2 size={18} className="animate-spin" />
-            ) : (
-              <Sparkles size={18} />
+            {/* 全维按钮 */}
+            <button
+              onClick={handleFullUnlock}
+              disabled={!canFull || stardustLoading !== null}
+              className={`w-full flex items-center justify-between py-3.5 px-5 rounded-xl border transition-all duration-200 ${
+                canFull
+                  ? 'bg-gradient-to-r from-gold/10 to-amber-500/10 border-gold/30 hover:border-gold/50 text-gold'
+                  : 'bg-white/[0.02] border-white/10 text-white/30 cursor-not-allowed'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                {stardustLoading === "full" ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <Crown size={16} className="text-gold" />
+                )}
+                <span className="font-medium text-sm">
+                  {t("paywall.unlockFull") || "全维报告"}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gold/60">✦ {fullCost}</span>
+                <ChevronRight size={14} className="text-gold/40" />
+              </div>
+            </button>
+
+            {/* 余额提示 */}
+            <p className="text-white/25 text-xs text-center">
+              {t("paywall.stardustBalance") || `当前星尘`} ✦ {stardustBalance}
+            </p>
+          </div>
+        ) : (
+          /* 单按钮模式 (兼容旧版) */
+          <>
+            {/* Primary: Pay with stardust */}
+            {canFull && (
+              <button
+                onClick={handleFullUnlock}
+                disabled={stardustLoading !== null}
+                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-to-r from-violet-500/20 to-blue-500/20 border border-violet-400/30 hover:border-violet-400/50 text-violet-300 hover:text-violet-200 transition-all duration-200 mb-3"
+              >
+                {stardustLoading ? (
+                  <Loader2 size={18} className="animate-spin" />
+                ) : (
+                  <Sparkles size={18} />
+                )}
+                <span className="font-medium">
+                  {t("paywall.useStardust") || `使用 ${fullCost} 星尘解锁`}
+                </span>
+                <span className="text-violet-400/60 text-sm ml-1">✦ {stardustBalance}</span>
+              </button>
             )}
-            <span className="font-medium">
-              {t("paywall.useStardust") || `使用 ${stardustCost} 星尘解锁`}
-            </span>
-            <span className="text-violet-400/60 text-sm ml-1">✦ {stardustBalance}</span>
-          </button>
-        )}
 
-        {/* Insufficient stardust hint */}
-        {onStardustUnlock && !canUseStardust && stardustBalance > 0 && (
-          <p className="text-white/25 text-xs mb-3">
-            {t("paywall.stardustInsufficient") || `星尘不足（需要 ${stardustCost}，当前 ${stardustBalance} ✦）`}
-          </p>
+            {/* Insufficient stardust hint */}
+            {onStardustUnlock && !canFull && stardustBalance > 0 && (
+              <p className="text-white/25 text-xs mb-3">
+                {t("paywall.stardustInsufficient") || `星尘不足（需要 ${fullCost}，当前 ${stardustBalance} ✦）`}
+              </p>
+            )}
+          </>
         )}
 
         {/* Secondary: Pay with money */}
         <button
           onClick={onUnlock}
           disabled={loading}
-          className={`btn-gold flex items-center gap-2 mx-auto text-base px-10 py-3.5 ${canUseStardust ? 'text-sm px-8 py-3 opacity-80 hover:opacity-100' : ''}`}
+          className={`btn-gold flex items-center gap-2 mx-auto text-base px-10 py-3.5 ${(canDetailed || canFull) ? 'text-sm px-8 py-3 opacity-80 hover:opacity-100' : ''}`}
         >
           {loading ? (
             <><span className="animate-spin inline-block">⏳</span> {t("paywall.processing")}</>

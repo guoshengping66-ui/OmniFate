@@ -106,6 +106,7 @@ async def _migrate_readings_columns():
         ("face_analysis_text", "TEXT"),
         ("partner_face_report", "TEXT"),
         ("partner_palm_report", "TEXT"),
+        ("is_detailed_unlocked", "BOOLEAN DEFAULT FALSE"),
     ]
     # ── Divination records: AI insight column ──
     divination_columns = [

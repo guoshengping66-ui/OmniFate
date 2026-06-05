@@ -1694,6 +1694,7 @@
     },
     "unlockedSuccess": "Unlocked with Stardust!",
     "unlockedFailed": "Failed to unlock with Stardust",
+    "detailedUnlocked": "Detailed report unlocked ✨",
     "greeting": {
       "afternoon": "Good Afternoon",
       "earlyMorning": "Early Morning",
@@ -1721,6 +1722,13 @@
       "subtitle": "Here's the big picture of your chart",
       "title": "Your Chart at a Glance",
       "unlocked": "Unlocked"
+    },
+    "painPoints": {
+      "title": "Key Pain Points",
+      "subtitle": "Top 3 areas that need your attention"
+    },
+    "reminder": {
+      "title": "Upcoming Key Reminder"
     },
     "nav": {
       "almanac": "Almanac",
@@ -2760,8 +2768,11 @@
     "giftNote": "Unlock to receive ¥60 shop coupon + 3-day membership trial",
     "processing": "Processing...",
     "unlockReport": "Unlock Full Report",
+    "unlockDetailed": "Detailed Report",
+    "unlockFull": "Full Report",
     "useStardust": "Unlock with Stardust",
-    "stardustInsufficient": "Insufficient stardust"
+    "stardustInsufficient": "Insufficient stardust",
+    "stardustBalance": "Stardust Balance"
   },
   "productCard": {
     "aiRecommended": "AI Recommended"

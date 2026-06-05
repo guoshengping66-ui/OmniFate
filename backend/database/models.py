@@ -195,7 +195,8 @@ class Reading(Base):
     computed_tags: Mapped[Optional[list]] = mapped_column(JSON)
     dimension_scores: Mapped[Optional[dict]] = mapped_column(JSON)
 
-    is_detail_unlocked: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_detail_unlocked: Mapped[bool] = mapped_column(Boolean, default=False)   # 全维解锁 (100星尘)
+    is_detailed_unlocked: Mapped[bool] = mapped_column(Boolean, default=False) # 精读解锁 (30星尘)
     language: Mapped[Optional[str]] = mapped_column(String(5), default="zh")  # "zh" or "en"
     payment_status: Mapped[PaymentStatus] = mapped_column(Enum(PaymentStatus), default=PaymentStatus.unpaid)
     stripe_payment_intent: Mapped[Optional[str]] = mapped_column(String(200))

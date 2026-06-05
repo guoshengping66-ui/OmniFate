@@ -7441,35 +7441,52 @@ def master_subtask_core_resonance_prompt(
         confidence_text: str = "",
         intent: str = "",
         partner_data: dict | None = None) -> str:
-    """Free-user only: generate ONLY Section B (跨维度共鸣).
-    Ultra-compact prompt to stay well under token output limit.
-    Only passes dimension_scores (not full worker reports) to minimize input."""
+    """Free-user only: generate Section B (痛点诊断) + Section D (近期关键提醒).
+    The five-dimension summaries (Section C) are formatted deterministically from scores
+    in master.py — no LLM call needed for those."""
     scores_str = ""
     if dimension_scores:
         _DIM_CN = {"wealth": "财富", "relationship": "感情", "career": "事业",
                    "health": "健康", "spiritual": "精神"}
         scores_str = " | ".join(f"{_DIM_CN.get(k, k)}:{v}" for k, v in dimension_scores.items())
 
-    # Only pass first 200 chars of each worker summary for context
     compact_workers = "\n".join(
-        f"[{k.upper()}]{v[:200]}" for k, v in worker_summaries.items() if v
+        f"[{k.upper()}]{v[:300]}" for k, v in worker_summaries.items() if v
     )
 
     return (
-        "你是命盘智镜的资深分析师。根据以下数据，输出【B·跨维度共鸣（现状痛点）】。\n\n"
+        "你是命盘智镜的资深分析师。根据以下数据，输出分析摘要。\n\n"
         "禁止术语：壬水甲木丙火戊土庚金、七杀正官偏印食神伤官、命格格局大运流年\n"
         "全部用现代大白话，像跟朋友聊天一样。\n\n"
         f"== 专家简报 ==\n{compact_workers}\n\n"
         f"== 共鸣/冲突 ==\n{resonance_text or '无'}\n{conflicts_text or '无'}\n\n"
         f"== 评分 == {scores_str}\n\n"
         "== 输出格式（严格遵守）==\n"
-        "【B·跨维度共鸣（现状痛点）】\n\n"
-        "财富与事业现状：60-100字，指出瓶颈\n"
-        "感情与人际关系现状：60-100字\n"
-        "健康与精神状态：60-100字\n\n"
-        "总计不超过300字。必须三个子维度都写完。\n"
-        "CRITICAL: Complete ALL three sub-sections. Do NOT truncate mid-sentence. "
-        "End each sub-section with a complete sentence."
+        "请按以下三个部分输出，每部分用标题行开头：\n\n"
+        "【B·痛点诊断】\n"
+        "用3个要点指出当前最需要关注的问题，每个要点20-40字。\n"
+        "格式：\n"
+        "🔴 [领域名] — [具体痛点描述，要直击要害]\n"
+        "🟡 [领域名] — [具体痛点描述]\n"
+        "🟢 [领域名] — [做得好的地方或需要注意的小问题]\n\n"
+        "要求：\n"
+        "- 第1个痛点必须是评分最低的维度\n"
+        "- 用🔴🟡🟢三色标记严重程度\n"
+        "- 描述要具体，不要泛泛而谈\n"
+        "- 像给好朋友提醒一样，直接说问题\n\n"
+        "【D·近期关键提醒】\n"
+        "根据专家数据，给出未来1-3个月最重要的1个提醒（50-80字）。\n"
+        "格式：⚠️ [时间范围]：[具体提醒内容]\n"
+        "如果没有明确的近期信号，可以写一个通用但实用的建议。\n\n"
+        "【E·行动建议速览】\n"
+        "针对痛点诊断中🔴标记的问题，给出2-3条具体可操作的建议（每条15-25字）。\n"
+        "格式：\n"
+        "✅ [具体建议1]\n"
+        "✅ [具体建议2]\n"
+        "✅ [具体建议3]\n\n"
+        "要求：建议要接地气、可执行，不要空泛的鸡汤。\n\n"
+        "CRITICAL: Complete ALL content. Do NOT truncate mid-sentence. "
+        "End each section with a complete sentence."
     )
 
 

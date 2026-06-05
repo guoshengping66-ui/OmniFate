@@ -1075,15 +1075,18 @@ async def capture_paypal_order(
 async def unlock_report(
     reading_id: str,
     source: str = Query("payment", description="payment 或 stardust"),
+    tier: str = Query("full", description="detailed(精读/30星尘) 或 full(全维/100星尘)"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_user),
 ):
     """
-    解锁报告。
-    source=payment: 验证已支付订单（支付宝/微信/PayPal）。
+    解锁报告 — 支持两档解锁：
+    - tier=detailed (精读): 30 星尘，解锁 master_detail（深度分析文本）
+    - tier=full (全维): 100 星尘，解锁 master_detail + 所有工人报告
+    source=payment: 验证已支付订单。
     source=stardust: 原子操作——检查余额→扣减星尘→解锁报告。
     """
-    print(f"[UNLOCK] reading_id={reading_id}, source={source}, user={current_user.id}", flush=True)
+    print(f"[UNLOCK] reading_id={reading_id}, source={source}, tier={tier}, user={current_user.id}", flush=True)
     # 1. 查找报告
     reading_result = await db.execute(select(Reading).where(Reading.id == reading_id))
     reading = reading_result.scalar_one_or_none()
@@ -1094,63 +1097,103 @@ async def unlock_report(
     if reading.user_id and str(reading.user_id) != str(current_user.id):
         raise HTTPException(status_code=403, detail="无权操作此报告")
 
-    # 2. 检查是否已解锁
-    if reading.is_detail_unlocked:
+    # 2. 检查是否已解锁（目标档位或更高）
+    if tier == "detailed" and reading.is_detailed_unlocked:
         return {
             "unlocked": True,
+            "tier": "detailed",
             "reading_id": reading_id,
-            "message": "报告已解锁，无需重复支付",
-            "shop_coupon_issued": 0,
-            "trial_activated": False,
+            "message": "精读已解锁，无需重复支付",
         }
+    if tier == "full" and reading.is_detail_unlocked:
+        return {
+            "unlocked": True,
+            "tier": "full",
+            "reading_id": reading_id,
+            "message": "全维已解锁，无需重复支付",
+        }
+    # 升级场景：精读→全维，只需要补差价
+    if tier == "full" and reading.is_detailed_unlocked:
+        tier = "upgrade"  # 标记为升级，只扣 70 星尘
 
-    # 3. 星尘解锁 — 原子操作（扣星尘 + 解锁报告）
+    # 3. 星尘解锁 — 原子操作
     if source == "stardust":
-        STARDUST_COST_UNLOCK = 100
+        # 根据 tier 确定扣费
+        TIER_COSTS = {
+            "detailed": 30,   # 精读
+            "full": 100,      # 全维
+            "upgrade": 70,    # 精读→全维 补差价
+        }
+        if tier not in TIER_COSTS:
+            raise HTTPException(status_code=400, detail=f"无效的解锁档位: {tier}")
+        stardust_cost = TIER_COSTS[tier]
 
-        # 幂等检查：是否已有此报告的星尘扣减记录（防止重试违反唯一约束）
+        # 幂等检查：是否已有此报告的同档位星尘扣减记录
+        reason_key = "report_detailed" if tier == "detailed" else "report_unlock"
         existing_tx = await db.execute(
             select(CreditTransaction).where(
                 CreditTransaction.user_id == current_user.id,
                 CreditTransaction.reference_id == reading_id,
-                CreditTransaction.reason == "report_unlock",
+                CreditTransaction.reason == reason_key,
             )
         )
         existing_tx = existing_tx.scalar_one_or_none()
 
         if existing_tx:
             # 已有扣减记录 → 直接解锁（幂等）
-            unlock_result = await _unlock_reading(reading_id, db)
-            return {**unlock_result, "stardust_deducted": 0}
+            if tier == "detailed":
+                reading.is_detailed_unlocked = True
+            else:
+                reading.is_detail_unlocked = True
+            await db.commit()
+            return {
+                "unlocked": True,
+                "tier": tier if tier != "upgrade" else "full",
+                "reading_id": reading_id,
+                "stardust_deducted": 0,
+            }
 
         # 新扣减
         user_result = await db.execute(
             select(User).where(User.id == current_user.id).with_for_update()
         )
         user = user_result.scalar_one()
-        print(f"[UNLOCK] stardust check: balance={user.stardust_balance}, cost={STARDUST_COST_UNLOCK}, source={source}")
-        if user.stardust_balance < STARDUST_COST_UNLOCK:
+        print(f"[UNLOCK] stardust check: balance={user.stardust_balance}, cost={stardust_cost}, tier={tier}")
+        if user.stardust_balance < stardust_cost:
             raise HTTPException(
                 status_code=402,
-                detail=f"星尘不足：需要 {STARDUST_COST_UNLOCK}，当前 {user.stardust_balance}",
+                detail=f"星尘不足：需要 {stardust_cost}，当前 {user.stardust_balance}",
             )
-        user.stardust_balance -= STARDUST_COST_UNLOCK
+        user.stardust_balance -= stardust_cost
         # 记录扣减流水
         tx = CreditTransaction(
             user_id=user.id,
-            amount=-STARDUST_COST_UNLOCK,
+            amount=-stardust_cost,
             balance_after=user.stardust_balance,
-            reason="report_unlock",
+            reason=reason_key,
             reference_id=reading_id,
             status="confirmed",
         )
         db.add(tx)
-        # 解锁报告（跳过星尘奖励，因为用户已通过星尘支付）
-        await db.flush()
-        unlock_result = await _unlock_reading(reading_id, db, skip_stardust_grant=True)
-        return {**unlock_result, "stardust_deducted": STARDUST_COST_UNLOCK}
 
-    # 4. 支付宝/微信/PayPal 解锁 — 验证已支付订单（只检查当前用户的订单）
+        # 解锁报告
+        if tier == "detailed":
+            reading.is_detailed_unlocked = True
+            await db.commit()
+            return {
+                "unlocked": True,
+                "tier": "detailed",
+                "reading_id": reading_id,
+                "stardust_deducted": stardust_cost,
+                "balance_after": user.stardust_balance,
+            }
+        else:
+            # full 或 upgrade → 调用 _unlock_reading 设置 is_detail_unlocked
+            await db.flush()
+            unlock_result = await _unlock_reading(reading_id, db, skip_stardust_grant=True)
+            return {**unlock_result, "tier": "full", "stardust_deducted": stardust_cost, "balance_after": user.stardust_balance}
+
+    # 4. 支付宝/微信/PayPal 解锁 — 验证已支付订单
     paid_order = await db.execute(
         select(Order).where(
             Order.notes.contains(f"reading_id:{reading_id}"),

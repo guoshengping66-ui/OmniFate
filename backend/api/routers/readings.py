@@ -162,6 +162,7 @@ class ReadingListItem(BaseModel):
     computed_tags: list[str] = Field(default_factory=list)
     dimension_scores: dict[str, float] = Field(default_factory=dict)
     is_detail_unlocked: bool = False
+    is_detailed_unlocked: bool = False    # 精读解锁 (30星尘)
     created_at: datetime
     completed_at: Optional[datetime] = None
 
@@ -186,7 +187,8 @@ class AnalysisResponse(BaseModel):
     progress_message: str = ""           # 进度描述
     master_summary: str
     master_detail: str = ""               # 付费详细报告
-    is_detail_unlocked: bool = False      # 是否已解锁付费内容
+    is_detail_unlocked: bool = False      # 全维解锁 (100星尘)
+    is_detailed_unlocked: bool = False    # 精读解锁 (30星尘)
     astrology: WorkerReportOut
     tarot: WorkerReportOut
     bazi: WorkerReportOut
@@ -232,6 +234,7 @@ def _state_to_response(state: SystemState) -> AnalysisResponse:
         master_summary=state.master_summary,
         master_detail=getattr(state, "master_detail", "") or "",
         is_detail_unlocked=getattr(state, "is_detail_unlocked", False),
+        is_detailed_unlocked=getattr(state, "is_detailed_unlocked", False),
         astrology=out(state.astrology_output),
         tarot=out(state.tarot_output),
         bazi=out(state.bazi_output),
@@ -259,41 +262,64 @@ _WORKER_REPORT_KEYS = ["astrology", "tarot", "bazi", "qimen", "ziwei", "face", "
 
 def _apply_content_lock(resp: AnalysisResponse, current_user: Optional[User], reading: Optional[Reading] = None, lang: str = "zh") -> AnalysisResponse:
     """
-    Strip paid content (master_detail + long worker reports) for users who
-    haven't unlocked the reading.  Called before every GET response.
+    Strip paid content based on unlock tier:
+    - Free: master_summary only (Sections A-E)
+    - 精读 (30 stardust): master_summary + master_detail
+    - 全维 (100 stardust): everything (master_detail + all worker reports)
     SECURITY: Anonymous reports show minimal data only.
     """
     _lock_msg = "Login to view full analysis" if lang == "en" else "登录后查看完整分析"
-    is_unlocked = False
+    is_full_unlocked = False
+    is_detailed_unlocked = False
+
     if reading:
         # Case 0: Anonymous report — strip all personal data
         if not reading.user_id:
             resp.master_summary = _lock_msg
             resp.master_detail = ""
             resp.is_detail_unlocked = False
+            resp.is_detailed_unlocked = False
             for key in _WORKER_REPORT_KEYS:
                 wo = getattr(resp, key, None)
                 if wo:
                     wo.report = ""
             return resp
-        # Case 1: user owns this reading AND has unlocked it
-        if current_user and str(reading.user_id) == str(current_user.id) and reading.is_detail_unlocked:
-            is_unlocked = True
-        # Case 2: user has an active premium subscription
+        # Case 1: user owns this reading — check tiers
+        if current_user and str(reading.user_id) == str(current_user.id):
+            if reading.is_detail_unlocked:
+                is_full_unlocked = True
+            elif reading.is_detailed_unlocked:
+                is_detailed_unlocked = True
+        # Case 2: user has an active premium subscription → full unlock
         elif current_user and current_user.is_premium and current_user.premium_expires_at and current_user.premium_expires_at > datetime.now(timezone.utc):
-            is_unlocked = True
+            is_full_unlocked = True
     else:
-        # In-memory session — unlocked if user owns it OR has premium
+        # In-memory session
         if current_user and getattr(resp, "is_detail_unlocked", False):
-            is_unlocked = True
+            is_full_unlocked = True
+        elif current_user and getattr(resp, "is_detailed_unlocked", False):
+            is_detailed_unlocked = True
         elif current_user and current_user.is_premium and current_user.premium_expires_at and current_user.premium_expires_at > datetime.now(timezone.utc):
-            is_unlocked = True
+            is_full_unlocked = True
 
-    if not is_unlocked:
+    if is_full_unlocked:
+        # 全维 — show everything
+        pass
+    elif is_detailed_unlocked:
+        # 精读 — show master_detail, hide worker reports
+        resp.is_detail_unlocked = False
+        resp.is_detailed_unlocked = True
+        for key in _WORKER_REPORT_KEYS:
+            wo = getattr(resp, key, None)
+            if wo:
+                wo.report = ""
+                wo.tags = []
+                wo.error = None
+    else:
+        # Free — hide master_detail and worker reports
         resp.master_detail = ""
         resp.is_detail_unlocked = False
-        # Hide all individual worker reports for free users
-        # Free users only see: master_summary + dimension_scores + tags
+        resp.is_detailed_unlocked = False
         for key in _WORKER_REPORT_KEYS:
             wo = getattr(resp, key, None)
             if wo:
@@ -831,6 +857,7 @@ async def get_session(
                     reading = result.scalar_one_or_none()
                     if reading:
                         resp.is_detail_unlocked = reading.is_detail_unlocked
+                        resp.is_detailed_unlocked = getattr(reading, "is_detailed_unlocked", False)
                         if reading.master_detail:
                             resp.master_detail = reading.master_detail
             except Exception:
@@ -928,6 +955,7 @@ async def get_session(
                 master_summary=reading.master_summary or "",
                 master_detail=reading.master_detail or "",
                 is_detail_unlocked=reading.is_detail_unlocked,
+                is_detailed_unlocked=getattr(reading, "is_detailed_unlocked", False),
                 astrology=_worker_from_report("astrology", reading.astrology_report),
                 tarot=_worker_from_report("tarot", reading.tarot_report),
                 bazi=_worker_from_report("bazi", reading.bazi_report),
@@ -1259,6 +1287,7 @@ async def list_my_readings(
                     computed_tags=computed_tags,
                     dimension_scores=dimension_scores,
                     is_detail_unlocked=r.is_detail_unlocked,
+                    is_detailed_unlocked=getattr(r, "is_detailed_unlocked", False),
                     created_at=r.created_at,
                     completed_at=r.completed_at,
                 ))
