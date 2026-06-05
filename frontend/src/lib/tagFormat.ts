@@ -111,16 +111,14 @@ function snakeToTitle(s: string): string {
 /* ── Public API ─── */
 
 export function formatTag(raw: string, lang: string = "en"): TagStyle {
-  // Strip backend modifiers: "(待验证)", "严重⚠️"
+  // Strip backend modifiers: "(待验证)", "严重⚠️" — do not display to users
   let clean = raw.trim()
   let badge = ""
   if (clean.startsWith("严重⚠️")) {
     clean = clean.replace("严重⚠️", "").trim()
-    badge = " ⚠️"
   }
   if (clean.endsWith("(待验证)")) {
     clean = clean.replace("(待验证)", "").trim()
-    badge = lang === "zh" ? " (待验证)" : " (Unverified)"
   }
 
   const isZh = lang === "zh"

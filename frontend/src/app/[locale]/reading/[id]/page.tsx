@@ -197,39 +197,90 @@ function extractLifeTheme(summary: string): string {
   return ""
 }
 
-/** Extract 3 key insights from master_summary */
+/** Extract 3 key insights from master_summary using section markers */
 function extractQuickInsights(summary: string): string[] {
   if (!summary) return []
   const insights: string[] = []
-  const lines = summary.split("\n").filter(l => l.trim().length > 0)
 
-  // Look for pain points (🔴)
-  for (const line of lines) {
-    if (/^🔴/.test(line.trim()) && insights.length < 1) {
-      insights.push(line.trim().replace(/^🔴\s*/, ""))
-    }
-  }
-
-  // Look for strengths (🟢 or 优势)
-  for (const line of lines) {
-    if ((/^🟢/.test(line.trim()) || /优势|最强|擅长/.test(line.trim())) && insights.length < 2) {
-      insights.push(line.trim().replace(/^[🟢🟡🔴]\s*/, ""))
-    }
-  }
-
-  // Look for timing (⏰ or 时机)
-  for (const line of lines) {
-    if ((/^⏰/.test(line.trim()) || /时机|关键|近期/.test(line.trim())) && insights.length < 3) {
-      insights.push(line.trim().replace(/^[🟢🟡🔴⏰]\s*/, ""))
-    }
-  }
-
-  // Fallback: take first 3 non-empty lines that aren't section markers
-  if (insights.length < 3) {
+  // Helper: extract first meaningful sentence from a text block
+  function firstSentence(text: string): string {
+    const lines = text.split("\n").filter(l => l.trim().length > 0)
     for (const line of lines) {
       const trimmed = line.trim()
-      if (trimmed.length > 10 && !/^[【\[（(]/.test(trimmed) && !insights.includes(trimmed)) {
-        insights.push(trimmed.slice(0, 50))
+      // Skip section markers, emoji-only lines, and very short lines
+      if (/^[【\[（(]/.test(trimmed) || trimmed.length < 8) continue
+      if (/^[🔴🟡🟢⚠️✨🔥💎⏰💪❤️💚]/.test(trimmed)) {
+        // Emoji-prefixed line: strip emoji and use the text after it
+        const stripped = trimmed.replace(/^[🔴🟡🟢⚠️✨🔥💎⏰💪❤️💚\s]+/, "").trim()
+        if (stripped.length >= 8) return stripped.slice(0, 60)
+        continue
+      }
+      // Return first meaningful sentence
+      const sentence = trimmed.split(/[。！？\n]/)[0]
+      if (sentence.length >= 8) return sentence.slice(0, 60)
+    }
+    return ""
+  }
+
+  // Split by section markers 【X·...】
+  const sectionPattern = /【[A-E]·[^】]+】/
+  const parts = summary.split(sectionPattern)
+
+  // Find the section content by marker label
+  function findSection(label: string): string {
+    for (let i = 0; i < parts.length; i++) {
+      if (parts[i].includes(label) && i + 1 < parts.length) {
+        return parts[i + 1]
+      }
+    }
+    return ""
+  }
+
+  // 1. Pain point from 【B·痛点诊断】
+  const sectionB = findSection("痛点诊断")
+  if (sectionB) {
+    const s = firstSentence(sectionB)
+    if (s) insights.push(s)
+  }
+
+  // 2. Strength from 【A·核心性格底色】 — look for positive traits
+  if (insights.length < 2) {
+    const sectionA = findSection("核心性格底色") || findSection("综合总论")
+    if (sectionA) {
+      const lines = sectionA.split("\n").filter(l => l.trim().length > 0)
+      for (const line of lines) {
+        const trimmed = line.trim()
+        if (/优势|强项|擅长|天赋|出色|突出|能量强|充盈|充沛/.test(trimmed) && trimmed.length >= 8) {
+          const s = trimmed.replace(/^[🔴🟡🟢⚠️✨🔥💎⏰💪❤️💚\s]+/, "").split(/[。！？]/)[0].trim()
+          if (s.length >= 8) { insights.push(s.slice(0, 60)); break }
+        }
+      }
+      // Fallback: use first sentence of section A
+      if (insights.length < 2) {
+        const s = firstSentence(sectionA)
+        if (s && !insights.includes(s)) insights.push(s)
+      }
+    }
+  }
+
+  // 3. Timing from 【D·近期关键提醒】
+  if (insights.length < 3) {
+    const sectionD = findSection("近期关键提醒")
+    if (sectionD) {
+      const s = firstSentence(sectionD)
+      if (s && !insights.includes(s)) insights.push(s)
+    }
+  }
+
+  // Fallback: if still less than 3, grab from remaining sections
+  if (insights.length < 3) {
+    const allText = summary
+    const lines = allText.split("\n").filter(l => l.trim().length > 0)
+    for (const line of lines) {
+      const trimmed = line.trim()
+      if (trimmed.length >= 10 && !/^[【\[（(]/.test(trimmed) && !insights.some(i => trimmed.includes(i) || i.includes(trimmed))) {
+        const s = trimmed.replace(/^[🔴🟡🟢⚠️✨🔥💎⏰💪❤️💚\s]+/, "").split(/[。！？]/)[0].trim()
+        if (s.length >= 8) insights.push(s.slice(0, 60))
         if (insights.length >= 3) break
       }
     }
@@ -335,8 +386,12 @@ export default function ReadingPage() {
     if (!data.computed_tags || data.computed_tags.length === 0) return
 
     setShopLoading(true)
+    // Strip backend modifiers (待验证, 严重⚠️) so tags match product keyword_tags exactly
+    const cleanTags = data.computed_tags.map((t: string) =>
+      t.replace(/^严重⚠️\s*/, "").replace(/\(待验证\)$/, "").trim()
+    )
     matchProducts({
-      weakness_tags: data.computed_tags,
+      weakness_tags: cleanTags,
       master_summary: data.master_summary,
       top_k: 6,
       include_explain: true,
@@ -975,7 +1030,7 @@ export default function ReadingPage() {
                   <Sparkles size={14} className="text-gold" />
                   <span className="text-xs text-white/50">{t("reading.destinyType.label") || "你的命格类型"}</span>
                   <span className="text-sm font-serif font-bold text-gold">
-                    {data.computed_tags[0]}
+                    {data.computed_tags[0].replace(/^严重⚠️\s*/, "").replace(/\(待验证\)$/, "").trim()}
                   </span>
                 </div>
                 <p className="mt-2 text-white/30 text-[11px]">{t("reading.destinyType.hint") || "基于五维能量场综合分析"}</p>
