@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 # ══════════════════════════════════════════════════════════════════════════════
-#  命盘智镜 — 一键部署脚本
+#  命盘智镜 — 一键部署脚本 (PM2)
 # ══════════════════════════════════════════════════════════════════════════════
 #  用法:
-#    首次部署:  bash deploy.sh
-#    更新部署:  bash deploy.sh update
-#    查看日志:  bash deploy.sh logs
-#    重启服务:  bash deploy.sh restart
+#    bash deploy.sh           — 拉取代码 + 构建前端 + 重启所有服务
+#    bash deploy.sh frontend  — 仅构建前端 + 重启前端
+#    bash deploy.sh backend   — 仅重启后端
+#    bash deploy.sh nginx     — 仅更新 nginx 配置
+#    bash deploy.sh restart   — 重启所有服务 (不重新构建)
+#    bash deploy.sh logs      — 查看 PM2 日志
+#    bash deploy.sh status    — 查看服务状态
 # ══════════════════════════════════════════════════════════════════════════════
 
 set -euo pipefail
@@ -20,87 +23,89 @@ log()  { echo -e "${GREEN}[DEPLOY]${NC} $*"; }
 warn() { echo -e "${YELLOW}[WARN]${NC} $*"; }
 err()  { echo -e "${RED}[ERROR]${NC} $*" >&2; exit 1; }
 
-# ── 前置检查 ─────────────────────────────────────────────────────────────────
-command -v docker >/dev/null 2>&1 || err "Docker 未安装。请先安装: https://docs.docker.com/engine/install/"
+cd /opt/OmniFate
+ACTION="${1:-all}"
 
-if [ ! -f backend/.env ]; then
-    err "backend/.env 不存在！请先复制并填写:\n  cp backend/.env.example backend/.env\n  nano backend/.env"
+# ── Git pull ──────────────────────────────────────────────────────────────────
+if [[ "$ACTION" != "logs" && "$ACTION" != "status" ]]; then
+    log "📥 拉取最新代码..."
+    git pull origin main
 fi
 
-# 检查必填项
-source backend/.env 2>/dev/null || true
-[ -z "${SECRET_KEY:-}" ] && err "SECRET_KEY 未填写"
-[ -z "${JWT_SECRET_KEY:-}" ] && err "JWT_SECRET_KEY 未填写"
-[ -z "${DATABASE_URL:-}" ] && err "DATABASE_URL 未填写"
-[ -z "${OPENAI_API_KEY:-}" ] && err "OPENAI_API_KEY 未填写"
-[ -z "${CRON_SECRET:-}" ] && err "CRON_SECRET 未填写"
+# ── Frontend ──────────────────────────────────────────────────────────────────
+if [[ "$ACTION" == "frontend" || "$ACTION" == "all" ]]; then
+    log "🔨 构建前端..."
+    cd frontend
+    npm ci 2>/dev/null || npm install --legacy-peer-deps
+    rm -rf .next
+    NODE_ENV=production npx next build
+    cd ..
+    log "🔄 重启前端..."
+    pm2 restart frontend 2>/dev/null || pm2 start ecosystem.config.js --only frontend
+    log "✔ 前端已重启"
+fi
 
-# ── 功能选择 ─────────────────────────────────────────────────────────────────
-ACTION="${1:-deploy}"
+# ── Backend ───────────────────────────────────────────────────────────────────
+if [[ "$ACTION" == "backend" || "$ACTION" == "all" ]]; then
+    log "🔄 重启后端..."
+    pm2 restart backend 2>/dev/null || pm2 start ecosystem.config.js --only backend
+    log "✔ 后端已重启"
+fi
 
-case "$ACTION" in
-    deploy|up)
-        log "🚀 开始部署..."
+# ── Nginx ─────────────────────────────────────────────────────────────────────
+if [[ "$ACTION" == "nginx" || "$ACTION" == "all" ]]; then
+    log "🔧 更新 nginx 配置..."
+    if [ -f nginx-khanfate.conf ]; then
+        sudo cp nginx-khanfate.conf /etc/nginx/sites-available/khanfate.conf
+        sudo ln -sf /etc/nginx/sites-available/khanfate.conf /etc/nginx/sites-enabled/
+        sudo nginx -t && sudo systemctl reload nginx
+        log "✔ nginx 已更新"
+    else
+        warn "nginx-khanfate.conf 不存在，跳过"
+    fi
+fi
 
-        # 拉取最新代码
-        if [ -d .git ]; then
-            log "📥 拉取最新代码..."
-            git pull origin main
-        fi
+# ── Restart only ──────────────────────────────────────────────────────────────
+if [[ "$ACTION" == "restart" ]]; then
+    log "🔄 重启所有服务..."
+    pm2 restart frontend backend
+fi
 
-        # 构建并启动
-        log "🔨 构建 Docker 镜像..."
-        docker compose build --no-cache
+# ── Logs ──────────────────────────────────────────────────────────────────────
+if [[ "$ACTION" == "logs" ]]; then
+    pm2 logs --lines 50 --nostream
+    exit 0
+fi
 
-        log "🚀 启动服务..."
-        docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# ── Status ────────────────────────────────────────────────────────────────────
+if [[ "$ACTION" == "status" ]]; then
+    pm2 list
+    exit 0
+fi
 
-        log "✅ 部署完成！"
-        echo ""
-        log "📋 服务状态:"
-        docker compose ps
-        echo ""
-        log "🔗 前端: http://localhost:3000"
-        log "🔗 后端: http://localhost:8003"
-        log "🔗 健康检查: http://localhost:8003/health"
-        ;;
+# ── Health check ──────────────────────────────────────────────────────────────
+log "🏥 健康检查..."
+pm2 save 2>/dev/null
+sleep 2
 
-    update)
-        log "🔄 更新部署..."
-        git pull origin main
-        docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
-        log "✅ 更新完成！"
-        docker compose ps
-        ;;
+FRONTEND=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/ 2>/dev/null || echo "000")
+BACKEND=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8003/api/health 2>/dev/null || echo "000")
 
-    logs)
-        docker compose logs -f --tail=50
-        ;;
+echo ""
+echo "  前端 (3000): $FRONTEND"
+echo "  后端 (8003): $BACKEND"
+echo ""
 
-    restart)
-        log "🔄 重启服务..."
-        docker compose restart
-        docker compose ps
-        ;;
+if [[ "$FRONTEND" =~ ^2 || "$FRONTEND" == "307" ]]; then
+    log "✔ 前端正常"
+else
+    warn "⚠ 前端异常 (HTTP $FRONTEND)"
+fi
 
-    stop)
-        log "⏹️  停止服务..."
-        docker compose -f docker-compose.yml -f docker-compose.prod.yml down
-        ;;
+if [[ "$BACKEND" =~ ^2 || "$BACKEND" == "422" || "$BACKEND" == "405" ]]; then
+    log "✔ 后端正常"
+else
+    warn "⚠ 后端异常 (HTTP $BACKEND)"
+fi
 
-    status)
-        docker compose ps
-        ;;
-
-    *)
-        echo "用法: bash deploy.sh [deploy|update|logs|restart|stop|status]"
-        echo ""
-        echo "  deploy  — 首次部署 (构建 + 启动)"
-        echo "  update  — 更新部署 (拉取代码 + 重建)"
-        echo "  logs    — 查看日志"
-        echo "  restart — 重启服务"
-        echo "  stop    — 停止服务"
-        echo "  status  — 查看状态"
-        exit 1
-        ;;
-esac
+log "✅ 部署完成！"
