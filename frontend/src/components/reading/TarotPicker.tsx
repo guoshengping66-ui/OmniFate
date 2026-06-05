@@ -355,10 +355,10 @@ export function TarotPicker({ onSelect }: Props) {
 
       {/* ── Main area: cards + deck ── */}
       {phase !== "complete" && (
-      <div className="relative flex justify-center items-center" style={{ minHeight: 220 }}>
+      <div className="relative flex justify-center" style={{ height: 240 }}>
 
-        {/* ── Drawn cards (slots) ── */}
-        <div className="relative flex items-start justify-center" style={{ width: "100%", maxWidth: 440 }}>
+        {/* ── Drawn cards + deck container (centered vertically) ── */}
+        <div className="relative w-full flex items-center justify-center" style={{ maxWidth: 440 }}>
           {drawnCards.map((card, i) => {
             const isFlipped = flipComplete[i]
             return (
@@ -378,7 +378,7 @@ export function TarotPicker({ onSelect }: Props) {
                   mass: 0.8,
                 }}
                 className="absolute"
-                style={{ perspective: 800, left: "50%", marginLeft: -45 }}
+                style={{ perspective: 800, left: "50%", marginLeft: -45, top: "50%", marginTop: -67 }}
               >
                 <motion.div
                   className="relative w-[90px] h-[135px]"
@@ -419,7 +419,7 @@ export function TarotPicker({ onSelect }: Props) {
                 transition={{ type: "spring", stiffness: 200, damping: 18 }}
                 onClick={drawCard}
                 className={`absolute cursor-pointer select-none ${isShaking ? "animate-tarot-shake" : ""}`}
-                style={{ perspective: 800, left: "50%", marginLeft: -45 }}
+                style={{ perspective: 800, left: "50%", marginLeft: -45, top: "50%", marginTop: -67 }}
                 whileHover={!isAnimating ? { scale: 1.06, y: -5 } : undefined}
                 whileTap={!isAnimating ? { scale: 0.9 } : undefined}
               >
