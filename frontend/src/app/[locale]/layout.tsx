@@ -119,6 +119,16 @@ export default async function LocaleLayout({
           <link rel="stylesheet" href="https://fonts.font.im/css2?family=Inter:wght@300;400;500;600&display=swap" />
         </noscript>
 
+        {/* Pre-React chunk error recovery: catches 404 on critical chunks
+            (layout, page, webpack) that fail before React can mount.
+            Cloudflare may serve stale HTML referencing old chunk hashes;
+            this script detects the failure and forces a fresh fetch. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var k="_destiny_cr",s=sessionStorage;var r=s.getItem(k);if(r==="2")return;s.setItem(k,"2");window.addEventListener("error",function(e){var t=(e.target&&e.target.tagName)||"";if(t==="SCRIPT"||t==="LINK"){s.setItem(k,"2");setTimeout(function(){window.location.reload()},200)}},{capture:true});setTimeout(function(){s.removeItem(k)},30000)}catch(e){}})();`
+          }}
+        />
+
         {/* JSON-LD Structured Data — content is server-generated, not user-controlled */}
         <script
           type="application/ld+json"
