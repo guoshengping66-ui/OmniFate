@@ -121,17 +121,39 @@ function CardFront({ arcana, reversed }: { arcana: typeof MAJOR_ARCANA[number]; 
   )
 }
 
-/* ── Reveal flash ───────────────────────────────────────────── */
+/* ── Reveal flash + particles ───────────────────────────────── */
 
 function RevealFlash() {
   return (
-    <motion.div
-      className="absolute inset-0 rounded-xl pointer-events-none z-20"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: [0, 0.7, 0] }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-      style={{ background: "radial-gradient(circle, rgba(201,168,76,0.5) 0%, transparent 70%)" }}
-    />
+    <>
+      {/* Main gold flash */}
+      <motion.div
+        className="absolute inset-0 rounded-xl pointer-events-none z-20"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: [0, 0.8, 0] }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        style={{ background: "radial-gradient(circle, rgba(201,168,76,0.6) 0%, transparent 70%)" }}
+      />
+      {/* Sparkle particles */}
+      {Array.from({ length: 6 }).map((_, i) => {
+        const angle = (i / 6) * Math.PI * 2
+        const dist = 25 + Math.random() * 20
+        return (
+          <motion.div
+            key={i}
+            className="absolute top-1/2 left-1/2 w-1.5 h-1.5 rounded-full bg-gold pointer-events-none z-20"
+            initial={{ opacity: 0, x: 0, y: 0, scale: 0 }}
+            animate={{
+              opacity: [0, 1, 0],
+              x: Math.cos(angle) * dist,
+              y: Math.sin(angle) * dist,
+              scale: [0, 1.2, 0],
+            }}
+            transition={{ duration: 0.5, delay: 0.1 + i * 0.03, ease: "easeOut" }}
+          />
+        )
+      })}
+    </>
   )
 }
 
@@ -144,13 +166,15 @@ export function TarotPicker({ onSelect }: Props) {
 
   const [phase, setPhase] = useState<Phase>("deck")
   const [drawnCards, setDrawnCards] = useState<DrawnCard[]>([])
-  const [currentDrawIndex, setCurrentDrawIndex] = useState(0) // 0, 1, 2
+  const [currentDrawIndex, setCurrentDrawIndex] = useState(0)
   const [isAnimating, setIsAnimating] = useState(false)
+  const [isShaking, setIsShaking] = useState(false)
   const [flipComplete, setFlipComplete] = useState<boolean[]>([false, false, false])
+  const [showSparkles, setShowSparkles] = useState(false)
 
   const deckRef = useRef<HTMLDivElement>(null)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const drawnCardsRef = useRef<DrawnCard[]>([]) // mirror state for stale closures
+  const drawnCardsRef = useRef<DrawnCard[]>([])
 
   const picks = useRef(shuffleAndPick())
 
@@ -161,11 +185,9 @@ export function TarotPicker({ onSelect }: Props) {
   ], [t])
 
   useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current) }, [])
-
-  // Keep drawnCardsRef in sync with state
   useEffect(() => { drawnCardsRef.current = drawnCards }, [drawnCards])
 
-  /* ── Draw a card ──────────────────────────────────────────── */
+  /* ── Draw a card (with shake → slide → flip → flash) ──── */
   const drawCard = useCallback(() => {
     if (isAnimating || phase === "complete") return
     if (currentDrawIndex >= SELECT_COUNT) return
@@ -180,26 +202,37 @@ export function TarotPicker({ onSelect }: Props) {
       arcana,
     }
 
-    // Step 1: card slides out from deck (animation handled by motion)
-    // Step 2: after slide completes, flip
+    // Phase 1: Shake the deck (200ms)
+    setIsShaking(true)
+    setShowSparkles(true)
+
     timerRef.current = setTimeout(() => {
-      setDrawnCards(prev => [...prev, card])
-      setFlipComplete(prev => { const c = [...prev]; c[idx] = true; return c })
+      setIsShaking(false)
 
-      // Step 3: after flip completes, check if done
+      // Phase 2: Card slides out from deck (350ms delay before appearing)
       timerRef.current = setTimeout(() => {
-        const nextIdx = idx + 1
-        setCurrentDrawIndex(nextIdx)
-        setIsAnimating(false)
+        setDrawnCards(prev => [...prev, card])
 
-        if (nextIdx >= SELECT_COUNT) {
-          // All 3 drawn — use ref to avoid stale closure
-          const allCards = [...drawnCardsRef.current]
-          onSelect(allCards.length === SELECT_COUNT ? allCards : [card])
-          timerRef.current = setTimeout(() => setPhase("complete"), 400)
-        }
-      }, 700) // flip duration
-    }, 350) // slide duration
+        // Phase 3: Flip the card (after slide completes, 400ms)
+        timerRef.current = setTimeout(() => {
+          setFlipComplete(prev => { const c = [...prev]; c[idx] = true; return c })
+          setShowSparkles(false)
+
+          // Phase 4: After flip, check if done (600ms for flip animation)
+          timerRef.current = setTimeout(() => {
+            const nextIdx = idx + 1
+            setCurrentDrawIndex(nextIdx)
+            setIsAnimating(false)
+
+            if (nextIdx >= SELECT_COUNT) {
+              const allCards = [...drawnCardsRef.current]
+              onSelect(allCards.length === SELECT_COUNT ? allCards : [card])
+              timerRef.current = setTimeout(() => setPhase("complete"), 400)
+            }
+          }, 600)
+        }, 400)
+      }, 350)
+    }, 200) // shake duration
   }, [isAnimating, phase, currentDrawIndex, POSITIONS, locale, onSelect])
 
   /* ── Redraw ───────────────────────────────────────────────── */
@@ -211,11 +244,14 @@ export function TarotPicker({ onSelect }: Props) {
     setCurrentDrawIndex(0)
     setFlipComplete([false, false, false])
     setIsAnimating(false)
+    setIsShaking(false)
+    setShowSparkles(false)
     setPhase("deck")
   }, [])
 
-  /* ── Position slots (left, center, right) ─────────────────── */
-  const slotX = [-140, 0, 140] // px offsets from center (wider gap to avoid overlap)
+  /* ── Position slots (responsive) ──────────────────────────── */
+  // Use smaller gaps on mobile via CSS clamp
+  const slotX = [-130, 0, 130]
   const isDeckVisible = phase !== "complete" && currentDrawIndex < SELECT_COUNT
 
   return (
@@ -266,9 +302,9 @@ export function TarotPicker({ onSelect }: Props) {
         )}
       </AnimatePresence>
 
-      {/* ── Main area: cards + deck (hidden in complete phase to avoid duplicate with summary) ── */}
+      {/* ── Main area: cards + deck ── */}
       {phase !== "complete" && (
-      <div className="relative flex justify-center items-center" style={{ minHeight: 180 }}>
+      <div className="relative flex justify-center items-center" style={{ minHeight: 200 }}>
 
         {/* ── Drawn cards (slots) ── */}
         <div className="relative flex items-start justify-center" style={{ width: "100%", maxWidth: 440 }}>
@@ -277,19 +313,18 @@ export function TarotPicker({ onSelect }: Props) {
             return (
               <motion.div
                 key={`card-${i}`}
-                initial={{ opacity: 0, x: 0, y: 0, scale: 0.6, rotate: 0 }}
+                initial={{ opacity: 0, y: 30, scale: 0.5, x: 0 }}
                 animate={{
                   opacity: 1,
                   x: slotX[i],
                   y: 0,
                   scale: 1,
-                  rotate: 0,
                 }}
                 transition={{
                   type: "spring",
-                  stiffness: 200,
-                  damping: 20,
-                  delay: 0.05,
+                  stiffness: 180,
+                  damping: 18,
+                  mass: 0.8,
                 }}
                 className="absolute"
                 style={{ perspective: 800, left: "50%", marginLeft: -42 }}
@@ -308,43 +343,43 @@ export function TarotPicker({ onSelect }: Props) {
                 {/* Position label */}
                 {isFlipped && (
                   <motion.div
-                    initial={{ opacity: 0, y: 6 }}
+                    initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4, duration: 0.3 }}
+                    transition={{ delay: 0.3, duration: 0.4, ease: "easeOut" }}
                     className="text-center mt-2"
                   >
-                    <span className="text-gold/70 text-[10px] font-medium">{card.position}</span>
+                    <span className="text-gold/80 text-[11px] font-medium tracking-wide">{card.position}</span>
                   </motion.div>
                 )}
               </motion.div>
             )
           })}
 
-          {/* ── Deck (tappable) — no AnimatePresence to avoid React DOM conflict ── */}
+          {/* ── Deck (tappable) ── */}
           {isDeckVisible && (
               <motion.div
                 ref={deckRef}
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{
-                  opacity: 1,
-                  scale: isAnimating ? 0.95 : 1,
+                  opacity: isAnimating ? 0.7 : 1,
+                  scale: isAnimating && !isShaking ? 0.9 : 1,
                   x: 0,
                 }}
                 transition={{ type: "spring", stiffness: 200, damping: 18 }}
                 onClick={drawCard}
-                className="absolute cursor-pointer select-none"
+                className={`absolute cursor-pointer select-none ${isShaking ? "animate-tarot-shake" : ""}`}
                 style={{ perspective: 800, left: "50%", marginLeft: -42 }}
-                whileHover={{ scale: 1.05, y: -3 }}
-                whileTap={{ scale: 0.93 }}
+                whileHover={!isAnimating ? { scale: 1.06, y: -4 } : undefined}
+                whileTap={!isAnimating ? { scale: 0.92 } : undefined}
               >
-                {/* Stacked deck: 3-4 offset card backs */}
+                {/* Stacked deck: 4 offset card backs */}
                 <div className="relative w-[84px] h-[126px]">
                   {[3, 2, 1, 0].map(layer => (
                     <div key={layer}
-                      className="absolute inset-0"
+                      className="absolute inset-0 transition-transform duration-300"
                       style={{
                         transform: `translate(${layer * 1.5}px, ${layer * 2}px)`,
-                        opacity: 0.5 + layer * 0.15,
+                        opacity: 0.4 + layer * 0.18,
                         zIndex: layer,
                       }}>
                       <CardBack />
@@ -352,9 +387,9 @@ export function TarotPicker({ onSelect }: Props) {
                   ))}
 
                   {/* Pulsing glow ring around deck */}
-                  <div className="absolute -inset-2 rounded-xl pointer-events-none"
+                  <div className="absolute -inset-3 rounded-xl pointer-events-none"
                     style={{
-                      background: "conic-gradient(from 0deg, transparent, rgba(201,168,76,0.3), transparent, rgba(201,168,76,0.3), transparent)",
+                      background: "conic-gradient(from 0deg, transparent, rgba(201,168,76,0.35), transparent, rgba(201,168,76,0.35), transparent)",
                       animation: "glow-rotate 3s linear infinite",
                       WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
                       WebkitMaskComposite: "xor",
@@ -366,14 +401,36 @@ export function TarotPicker({ onSelect }: Props) {
 
                 {/* "Tap to draw" hint on the deck */}
                 <motion.div
-                  animate={{ opacity: [0.4, 0.8, 0.4] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                  className="absolute -bottom-6 left-0 right-0 text-center"
+                  animate={{ opacity: [0.3, 0.7, 0.3] }}
+                  transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute -bottom-7 left-0 right-0 text-center"
                 >
                   <span className="text-gold/50 text-[10px] whitespace-nowrap">
                     ✦ {t("new.tarotTapHint") || "点击抽取"} ✦
                   </span>
                 </motion.div>
+
+                {/* Sparkle effect around deck when shaking */}
+                {showSparkles && (
+                  <div className="absolute inset-0 pointer-events-none">
+                    {Array.from({ length: 8 }).map((_, i) => {
+                      const angle = (i / 8) * Math.PI * 2
+                      return (
+                        <motion.div
+                          key={i}
+                          className="absolute w-1 h-1 rounded-full bg-gold/70"
+                          style={{
+                            top: `calc(50% + ${Math.sin(angle) * 50}px)`,
+                            left: `calc(50% + ${Math.cos(angle) * 40}px)`,
+                          }}
+                          initial={{ opacity: 0, scale: 0 }}
+                          animate={{ opacity: [0, 1, 0], scale: [0, 1.5, 0] }}
+                          transition={{ duration: 0.5, delay: i * 0.04 }}
+                        />
+                      )
+                    })}
+                  </div>
+                )}
               </motion.div>
           )}
         </div>
@@ -392,9 +449,9 @@ export function TarotPicker({ onSelect }: Props) {
             {drawnCards.map((c, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 + i * 0.1 }}
+                initial={{ opacity: 0, y: 10, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ delay: 0.4 + i * 0.12, type: "spring", stiffness: 200, damping: 18 }}
                 className="card-glow p-3 text-center"
               >
                 <div className="text-[10px] text-white/40 mb-1">{c.position}</div>
@@ -413,7 +470,7 @@ export function TarotPicker({ onSelect }: Props) {
         </motion.div>
       )}
 
-      {/* ── Deck empty state (only when deck visible and no cards drawn) ── */}
+      {/* ── Deck empty state (only before any draw) ── */}
       {phase === "deck" && drawnCards.length === 0 && (
         <div className="border border-dashed border-white/10 rounded-xl p-3 text-center text-white/25 text-[11px]">
           {t("new.tarotHint")}

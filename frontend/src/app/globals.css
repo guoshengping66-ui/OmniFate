@@ -456,3 +456,23 @@ select.input-field option:checked {
   animation: tarot-breathe 3s ease-in-out infinite;
 }
 
+/* Tarot deck shake before draw */
+@keyframes tarot-shake {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  15% { transform: translateX(-3px) rotate(-1.5deg); }
+  30% { transform: translateX(3px) rotate(1.5deg); }
+  45% { transform: translateX(-2px) rotate(-1deg); }
+  60% { transform: translateX(2px) rotate(1deg); }
+  75% { transform: translateX(-1px) rotate(-0.5deg); }
+  90% { transform: translateX(1px) rotate(0.5deg); }
+}
+.animate-tarot-shake {
+  animation: tarot-shake 0.4s ease-in-out;
+}
+
+/* Gold particle burst on reveal */
+@keyframes gold-particle {
+  0% { opacity: 1; transform: translate(0, 0) scale(1); }
+  100% { opacity: 0; transform: translate(var(--px, 0), var(--py, -20px)) scale(0); }
+}
+
