@@ -526,6 +526,10 @@ export default function NewReadingPage() {
         console.debug("[Analysis]", event.type)
       })
 
+      if (!result?.session_id) {
+        throw new Error("Server returned no session_id — analysis may not have started")
+      }
+
       // Save to reading history for anonymous users
       addReadingToHistory(result.session_id, values.user_question || undefined)
 
@@ -534,6 +538,12 @@ export default function NewReadingPage() {
       router.push(localeHref(`/reading/${result.session_id}`))
     } catch (err: any) {
       console.error("[Reading submit] Full error:", err)
+      console.error("[Reading submit] Error details:", {
+        status: err?.response?.status,
+        data: err?.response?.data,
+        code: err?.code,
+        message: err?.message,
+      })
       let msg: string
       const status = err?.response?.status
       if (err?.code === "ECONNABORTED" || err?.message?.includes("timeout")) {
@@ -544,7 +554,9 @@ export default function NewReadingPage() {
           ? details.map((d: any) => d.msg).join("; ")
           : t("new.inputError")
       } else if (status === 400) {
-        msg = t("new.parseError")
+        // 400 usually means malformed request body — include server detail
+        const detail = err?.response?.data?.detail
+        msg = detail ? `${t("new.parseError")}: ${detail}` : t("new.parseError")
       } else if (status === 502 || status === 503) {
         msg = t("new.serverBusy")
       } else if (status === 429) {

@@ -16,11 +16,24 @@ function escapeUnicode(str: string): string {
 }
 
 // ── Global 429 Rate-Limit Cooldown ─────────────────────────────────────────
-// When any request hits 429, pause all requests for COOLDOWN_MS to let the
-// backend's rate limiter window expire. Stored in sessionStorage so it
-// survives component remounts but resets on tab close.
-const COOLDOWN_MS = 8_000
+// When any request hits 429, pause NON-CRITICAL requests for COOLDOWN_MS.
+// Critical endpoints (readings, analysis, SSE) are exempt — they should
+// never be blocked by auth rate limits.
+const COOLDOWN_MS = 3_000
 let _cooldownUntil = 0
+
+// Endpoints that must NEVER be delayed by the 429 cooldown
+const CRITICAL_PATHS = [
+  "/api/readings",           // POST: create reading
+  "/api/readings/session/",  // GET: poll/poll session
+  "/api/readings/chat",      // POST: follow-up chat
+  "/api/readings/daily",     // GET: daily fortune/almanac
+  "/api/payments/",          // Payment flows
+]
+
+function _isCriticalPath(url: string): boolean {
+  return CRITICAL_PATHS.some(p => url.includes(p))
+}
 
 function _getCooldownRemaining(): number {
   return Math.max(0, _cooldownUntil - Date.now())
@@ -71,9 +84,13 @@ addLangInterceptor(api)
 // overwhelming the backend rate limiter.
 if (isBrowser) {
   api.interceptors.request.use((config) => {
-    const remaining = _getCooldownRemaining()
-    if (remaining > 0) {
-      return new Promise((resolve) => setTimeout(() => resolve(config), remaining))
+    // Skip cooldown for critical endpoints (readings, payments, SSE)
+    const url = config.url || ""
+    if (!_isCriticalPath(url)) {
+      const remaining = _getCooldownRemaining()
+      if (remaining > 0) {
+        return new Promise((resolve) => setTimeout(() => resolve(config), remaining))
+      }
     }
     return config
   })
@@ -96,12 +113,15 @@ export const apiDirect = axios.create({
   withCredentials: true,
 })
 
-// Apply same 429 cooldown to apiDirect
+// Apply same 429 cooldown to apiDirect (skip critical paths)
 if (isBrowser) {
   apiDirect.interceptors.request.use((config) => {
-    const remaining = _getCooldownRemaining()
-    if (remaining > 0) {
-      return new Promise((resolve) => setTimeout(() => resolve(config), remaining))
+    const url = config.url || ""
+    if (!_isCriticalPath(url)) {
+      const remaining = _getCooldownRemaining()
+      if (remaining > 0) {
+        return new Promise((resolve) => setTimeout(() => resolve(config), remaining))
+      }
     }
     return config
   })
@@ -560,12 +580,35 @@ export async function runAnalysisStream(
   data: AnalysisRequest,
   onEvent?: (event: SSEEvent) => void,
 ): Promise<{ session_id: string }> {
-  // POST to start analysis in background, return session_id immediately
+  // POST to start analysis in background, return session_id immediately.
+  // Retry up to 3 times on transient errors (network, 429, 502, 503).
   const body = safeJson(data)
-  const initRes = await apiDirect.post<AnalysisResponse>("/api/readings", body, {
-    timeout: 30_000,
-    headers: { "Content-Type": "application/json" },
-  })
+  let initRes: { data: AnalysisResponse } | null = null
+  let lastError: any = null
+
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      initRes = await apiDirect.post<AnalysisResponse>("/api/readings", body, {
+        timeout: 30_000,
+        headers: { "Content-Type": "application/json" },
+      })
+      break
+    } catch (err: any) {
+      lastError = err
+      const status = err?.response?.status
+      // Only retry on transient errors (network, 429, 502, 503)
+      if (status && status >= 400 && status < 500 && status !== 429) {
+        throw err // Client error — don't retry
+      }
+      if (attempt < 3) {
+        console.warn(`[AnalysisStream] Attempt ${attempt} failed (${status || err?.code || err?.message}), retrying...`)
+        await new Promise(r => setTimeout(r, 1500 * attempt))
+        continue
+      }
+      throw err
+    }
+  }
+  if (!initRes) throw lastError
 
   const sessionId = initRes.data.session_id
 
