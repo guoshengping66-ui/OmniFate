@@ -38,12 +38,12 @@ export function useVersionCheck() {
         if (!res.ok) return
         const { buildId: serverBuildId } = await res.json()
         if (serverBuildId && serverBuildId !== embeddedBuildId) {
-          console.warn(
-            `[VersionCheck] Build mismatch: embedded=${embeddedBuildId} server=${serverBuildId}. Reloading...`,
-          )
           // Clear interval to prevent re-checking during reload
           if (timer) clearInterval(timer)
-          window.location.reload()
+          // Use cache-busting URL to bypass Cloudflare CDN cache
+          const url = new URL(window.location.href)
+          url.searchParams.set("_cb", Date.now().toString())
+          window.location.href = url.toString()
         }
       } catch {
         // Network error — skip, will retry next interval
@@ -63,27 +63,18 @@ export function useVersionCheck() {
 }
 
 /**
- * Extract the Next.js build ID from the page's __NEXT_DATA__ script or
- * the `next/script` injection.
+ * Extract the Next.js build ID from the page's __NEXT_DATA__ script.
+ *
+ * IMPORTANT: Do NOT try to extract from script src paths — in Next.js 15
+ * standalone mode, chunk URLs are like /_next/static/chunks/... which would
+ * incorrectly capture "chunks" instead of the actual build ID.
  */
 function getEmbeddedBuildId(): string | null {
   try {
-    // Method 1: __NEXT_DATA__ (standard Next.js hydration data)
     const nextData = (window as Record<string, unknown>).__NEXT_DATA__
     if (nextData && typeof nextData === "object") {
       const buildId = (nextData as { buildId?: string }).buildId
       if (buildId) return buildId
-    }
-  } catch {}
-
-  try {
-    // Method 2: Look for the build ID in the next/static script paths
-    const scripts = document.querySelectorAll('script[src*="/_next/static/"]')
-    for (const script of scripts) {
-      const src = script.getAttribute("src") || ""
-      // Pattern: /_next/static/{buildId}/...
-      const match = src.match(/\/_next\/static\/([^/]+)\//)
-      if (match) return match[1]
     }
   } catch {}
 

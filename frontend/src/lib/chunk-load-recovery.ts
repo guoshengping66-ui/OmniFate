@@ -59,7 +59,11 @@ export function useChunkLoadRecovery(error: Error | null): { autoReloading: bool
     markRetried()
     setAutoReloading(true)
     console.warn("[ChunkLoadRecovery] Stale chunk detected — auto-reloading in 500ms")
-    const timer = setTimeout(() => window.location.reload(), 500)
+    const timer = setTimeout(() => {
+      const url = new URL(window.location.href)
+      url.searchParams.set("_cb", Date.now().toString())
+      window.location.href = url.toString()
+    }, 500)
     return () => clearTimeout(timer)
   }, [error])
 

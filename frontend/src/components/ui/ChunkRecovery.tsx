@@ -58,8 +58,9 @@ export function ChunkRecovery() {
 
       console.warn("[ChunkRecovery] Chunk load error detected — reloading with cache-bust")
       incrementAttempt()
-      // First attempt: hard reload (bypass cache). Second: normal reload.
-      window.location.reload(getAttemptCount() <= 1)
+      const url = new URL(window.location.href)
+      url.searchParams.set("_cb", Date.now().toString())
+      window.location.href = url.toString()
     }
 
     const handleWindowError = (
@@ -75,7 +76,9 @@ export function ChunkRecovery() {
 
       console.warn("[ChunkRecovery] Chunk load error via onerror — reloading with cache-bust")
       incrementAttempt()
-      window.location.reload(getAttemptCount() <= 1)
+      const url = new URL(window.location.href)
+      url.searchParams.set("_cb", Date.now().toString())
+      window.location.href = url.toString()
     }
 
     window.addEventListener("unhandledrejection", handleUnhandledRejection)
@@ -91,7 +94,7 @@ export function ChunkRecovery() {
         if (!res.ok) return
         const { buildId: serverBuildId } = await res.json()
 
-        // Read embedded build ID from the page
+        // Read embedded build ID from __NEXT_DATA__
         let embeddedBuildId: string | null = null
         try {
           const nextData = (window as Record<string, unknown>).__NEXT_DATA__
@@ -100,30 +103,17 @@ export function ChunkRecovery() {
           }
         } catch {}
 
-        if (!embeddedBuildId) {
-          // Extract from script tags
-          const scripts = document.querySelectorAll('script[src*="/_next/static/"]')
-          for (const script of scripts) {
-            const src = script.getAttribute("src") || ""
-            const match = src.match(/\/_next\/static\/([^/]+)\//)
-            if (match) {
-              embeddedBuildId = match[1]
-              break
-            }
-          }
-        }
-
         if (serverBuildId && embeddedBuildId && serverBuildId !== embeddedBuildId) {
-          console.warn(
-            `[ChunkRecovery] Build mismatch: embedded=${embeddedBuildId} server=${serverBuildId}. Reloaded with cache-bust.`
-          )
           // Store server build ID for future comparisons
           try {
             sessionStorage.setItem(VERSION_KEY, serverBuildId)
           } catch {}
           if (canRetry()) {
             incrementAttempt()
-            window.location.reload(true)
+            // Use cache-busting URL to bypass Cloudflare CDN cache
+            const url = new URL(window.location.href)
+            url.searchParams.set("_cb", Date.now().toString())
+            window.location.href = url.toString()
           }
         }
       } catch {
