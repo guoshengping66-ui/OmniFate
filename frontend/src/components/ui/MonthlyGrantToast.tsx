@@ -20,6 +20,8 @@ export function MonthlyGrantToast() {
     const lastShown = localStorage.getItem(STORAGE_KEY)
     if (lastShown === today) return
 
+    // Stagger to avoid 429 burst with homepage components
+    const timer = setTimeout(() => {
     // Check balance and show toast if user has stardust
     api.get("/api/credits/balance")
       .then(res => {
@@ -53,6 +55,8 @@ export function MonthlyGrantToast() {
         }
       })
       .catch(() => {})
+    }, 500) // 500ms stagger — after homepage API calls
+    return () => clearTimeout(timer)
   }, [user])
 
   return null

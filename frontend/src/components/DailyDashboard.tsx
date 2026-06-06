@@ -262,6 +262,9 @@ export function DailyDashboard() {
 
   // ── Load fortune (fast, parallel) ──────────────────────────────
   useEffect(() => {
+    // Stagger to avoid 429 burst with other homepage components
+    let cancelled = false
+    const timer = setTimeout(async () => {
     const loadFortune = async () => {
       try {
         let f: DailyFortuneResponse
@@ -284,16 +287,20 @@ export function DailyDashboard() {
           f = generateFallbackFortune(t)
         }
         setCached("fortune_" + locale, f)
-        setFortune(f)
+        if (!cancelled) setFortune(f)
       } finally {
-        setFortuneLoading(false)
+        if (!cancelled) setFortuneLoading(false)
       }
     }
     loadFortune()
+    }, 150) // 150ms stagger
+    return () => { cancelled = true; clearTimeout(timer) }
   }, [user, locale, userProfile])
 
   // ── Load almanac (parallel, lazy — skeleton shown while loading) ──
   useEffect(() => {
+    let cancelled = false
+    const timer = setTimeout(async () => {
     const loadAlmanac = async () => {
       if (!user) {
         setAlmanac(generateFallbackAlmanac(t))
@@ -370,10 +377,14 @@ export function DailyDashboard() {
       }
       const fallback = generateFallbackAlmanac(t)
       setCached("almanac_" + locale, fallback)
-      setAlmanac(fallback)
-      setAlmanacLoading(false)
+      if (!cancelled) {
+        setAlmanac(fallback)
+        setAlmanacLoading(false)
+      }
     }
     loadAlmanac()
+    }, 400) // 400ms stagger — after fortune loads
+    return () => { cancelled = true; clearTimeout(timer) }
   }, [user, locale, userProfile])
 
   // ── Loading state: only block if BOTH are missing ──────────────

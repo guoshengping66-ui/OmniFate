@@ -37,7 +37,11 @@ export default function HomePage() {
   const { userProfile, loading: profileLoading, fetchBirthProfiles } = useUserStore()
 
   useEffect(() => {
-    if (user) fetchBirthProfiles()
+    if (user) {
+      // Stagger initial API calls to avoid 429 burst from multiple components
+      const t = setTimeout(() => fetchBirthProfiles(), 200)
+      return () => clearTimeout(t)
+    }
   }, [user])
 
   const hasProfile = !!user && !!userProfile

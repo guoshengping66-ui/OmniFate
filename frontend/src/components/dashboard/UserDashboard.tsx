@@ -18,11 +18,15 @@ export function UserDashboard() {
   const [eventDrawerOpen, setEventDrawerOpen] = useState(false)
 
   useEffect(() => {
-    fetchBirthProfiles()
-    listMyReadings()
-      .then(r => setRecentReadings(r.slice(0, 3)))
-      .catch(() => {})
-      .finally(() => setLoadingReadings(false))
+    // Stagger calls to avoid 429 burst with other components
+    const t1 = setTimeout(() => fetchBirthProfiles(), 300)
+    const t2 = setTimeout(() => {
+      listMyReadings()
+        .then(r => setRecentReadings(r.slice(0, 3)))
+        .catch(() => {})
+        .finally(() => setLoadingReadings(false))
+    }, 600)
+    return () => { clearTimeout(t1); clearTimeout(t2) }
   }, [])
 
   return (

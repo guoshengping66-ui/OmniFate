@@ -15,6 +15,21 @@ function escapeUnicode(str: string): string {
   )
 }
 
+// ── Global 429 Rate-Limit Cooldown ─────────────────────────────────────────
+// When any request hits 429, pause all requests for COOLDOWN_MS to let the
+// backend's rate limiter window expire. Stored in sessionStorage so it
+// survives component remounts but resets on tab close.
+const COOLDOWN_MS = 8_000
+let _cooldownUntil = 0
+
+function _getCooldownRemaining(): number {
+  return Math.max(0, _cooldownUntil - Date.now())
+}
+
+function _enterCooldown() {
+  _cooldownUntil = Date.now() + COOLDOWN_MS
+}
+
 // ── API routing ────────────────────────────────────────────────────────────
 // Frontend and backend run on the SAME server. Nginx routes /api/* to the
 // Next.js proxy route, which forwards to the backend on localhost:8002.
@@ -49,12 +64,55 @@ const addLangInterceptor = (client: typeof api) => {
 }
 addLangInterceptor(api)
 
+// ── 429 Rate-Limit Interceptor (api client) ───────────────────────────────
+// When any request hits 429, delay all subsequent requests for COOLDOWN_MS.
+// This prevents the burst of simultaneous API calls from multiple components
+// (fetchBirthProfiles, listMyReadings, getDailyFortune, etc.) from
+// overwhelming the backend rate limiter.
+if (isBrowser) {
+  api.interceptors.request.use((config) => {
+    const remaining = _getCooldownRemaining()
+    if (remaining > 0) {
+      return new Promise((resolve) => setTimeout(() => resolve(config), remaining))
+    }
+    return config
+  })
+
+  api.interceptors.response.use(
+    (res) => res,
+    (err) => {
+      if (err?.response?.status === 429) {
+        _enterCooldown()
+      }
+      return Promise.reject(err)
+    },
+  )
+}
+
 // Direct backend connection for long-running / large-response endpoints
 export const apiDirect = axios.create({
   baseURL: isLocalhost ? BACKEND_URL : "/api/proxy",
   timeout: 360_000,
   withCredentials: true,
 })
+
+// Apply same 429 cooldown to apiDirect
+if (isBrowser) {
+  apiDirect.interceptors.request.use((config) => {
+    const remaining = _getCooldownRemaining()
+    if (remaining > 0) {
+      return new Promise((resolve) => setTimeout(() => resolve(config), remaining))
+    }
+    return config
+  })
+  apiDirect.interceptors.response.use(
+    (res) => res,
+    (err) => {
+      if (err?.response?.status === 429) _enterCooldown()
+      return Promise.reject(err)
+    },
+  )
+}
 
 // Auth endpoints — route through Next.js proxy in production for
 // China mainland reliability (direct api.khanfate.com connections
