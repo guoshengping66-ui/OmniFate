@@ -119,13 +119,13 @@ export default async function LocaleLayout({
           <link rel="stylesheet" href="https://fonts.font.im/css2?family=Inter:wght@300;400;500;600&display=swap" />
         </noscript>
 
-        {/* Pre-React chunk error recovery — multi-layer defense against
-            Cloudflare serving stale HTML with dead chunk hashes.
+        {/* Pre-React chunk error recovery — defense against Cloudflare
+            serving stale HTML with dead chunk hashes.
 
             Layer 1 (0ms): Listen for <script>/<link> load failures → flag
-            Layer 2 (500ms): Fetch fresh HTML, compare build IDs → reload
+            Layer 2 (1s): If script/link failed, reload once
             Layer 3 (3s): Fetch /api/version → if build ID differs, reload
-            All layers use sessionStorage to prevent reload loops. */}
+            All layers use sessionStorage (max 3 attempts) to prevent loops. */}
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){
@@ -137,49 +137,17 @@ try{
   if(attempts>=3)return;
   s.setItem(K,String(attempts+1));
 
-  // Extract build ID from a <script src> tag
-  function getEmbeddedBuildId(){
-    var scripts=document.querySelectorAll('script[src*="/_next/static/"]');
-    for(var i=0;i<scripts.length;i++){
-      var m=scripts[i].src.match(/\\/_next\\/static\\/([^/]+)\\//);
-      if(m)return m[1];
-    }
-    return null;
-  }
-
   // ── Layer 1: Detect <script>/<link> load failures (0ms) ──
-  var hadFailure=false;
   window.addEventListener("error",function(e){
     var tag=(e.target&&e.target.tagName)||"";
     if(tag==="SCRIPT"||tag==="LINK"){
-      hadFailure=true;
       s.setItem(K+"_fail","1");
     }
   },true);
 
-  // ── Layer 2: Compare embedded vs server build ID (500ms) ──
-  setTimeout(function(){
-    var embeddedBid=getEmbeddedBuildId();
-    if(!embeddedBid)return;
-
-    var xhr=new XMLHttpRequest();
-    xhr.open("GET",window.location.href,true);
-    xhr.timeout=8000;
-    xhr.onload=function(){
-      if(xhr.status===200){
-        var match=xhr.responseText.match(/\\/_next\\/static\\/([^/]+)\\//);
-        if(match&&match[1]!==embeddedBid){
-          window.location.reload(true);
-        }
-      }
-    };
-    xhr.onerror=function(){
-      if(hadFailure)window.location.reload(true);
-    };
-    xhr.send();
-  },500);
-
-  // ── Layer 3: Version API check (3s) ──
+  // ── Layer 2: Version API check (3s) ──
+  // Compare the build ID from /api/version with the cached one.
+  // If they differ the server has a new build → reload.
   setTimeout(function(){
     fetch("/api/version",{cache:"no-store"}).then(function(r){
       return r.json();
@@ -196,6 +164,13 @@ try{
       }
     }).catch(function(){});
   },3000);
+
+  // ── If a script/link failed to load, also try a quick reload after 1s ──
+  setTimeout(function(){
+    if(s.getItem(K+"_fail")==="1"){
+      window.location.reload(true);
+    }
+  },1000);
 
   // ── Cleanup after 60s ──
   setTimeout(function(){
