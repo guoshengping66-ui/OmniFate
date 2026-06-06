@@ -114,8 +114,8 @@ export default function AnalysisSession({ sessionId, initialData, onComplete }: 
           if (!prevData || dataChanged(fresh, prevData)) {
             setData(fresh)
             lastDataRef.current = fresh
+            onComplete(fresh)
           }
-          onComplete(fresh)
         } else if (fresh.status === "failed") {
           pollDone = true
           if (pollInterval) clearInterval(pollInterval)
@@ -124,8 +124,8 @@ export default function AnalysisSession({ sessionId, initialData, onComplete }: 
           if (!prevData || dataChanged(fresh, prevData)) {
             setData(fresh)
             lastDataRef.current = fresh
+            onComplete(fresh)
           }
-          onComplete(fresh)
         } else {
           const prevData = lastDataRef.current
           if (!prevData || dataChanged(fresh, prevData)) {
@@ -238,8 +238,8 @@ export default function AnalysisSession({ sessionId, initialData, onComplete }: 
             if (!prevData || dataChanged(fresh, prevData)) {
               setData(fresh)
               lastDataRef.current = fresh
+              onComplete(fresh)
             }
-            onComplete(fresh)
           }
         }).catch(() => {})
       }
