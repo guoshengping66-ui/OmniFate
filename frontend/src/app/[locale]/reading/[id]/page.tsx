@@ -393,9 +393,13 @@ export default function ReadingPage() {
     return () => clearTimeout(t)
   }, [])
 
-  // Auto-fetch product recommendations when analysis completes
+  // Auto-fetch product recommendations when analysis completes.
+  // Use `data?.status` (primitive string) as dependency — NOT the `data` object,
+  // which is a new reference on every setData() call and would cause the effect
+  // to re-run endlessly.
+  const dataStatus = data?.status
   useEffect(() => {
-    if (!data || data.status !== "done" && data.status !== "completed" && data.status !== "chat") return
+    if (!data || (dataStatus !== "done" && dataStatus !== "completed" && dataStatus !== "chat")) return
     if (shopFetched || shopLoading) return
     if (!data.computed_tags || data.computed_tags.length === 0) return
 
@@ -416,7 +420,7 @@ export default function ReadingPage() {
       })
       .catch(() => {})
       .finally(() => setShopLoading(false))
-  }, [data?.status, shopFetched, shopLoading, locale])
+  }, [dataStatus, shopFetched, shopLoading, locale])
 
   const handleUnlock = useCallback(async (paymentMethod: string = "card") => {
     if (!id) return
