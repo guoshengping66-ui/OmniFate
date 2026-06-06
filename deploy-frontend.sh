@@ -49,6 +49,13 @@ if [ "$CHUNK_COUNT" -lt 10 ]; then
 fi
 log "✅ 验证通过: standalone 目录有 $CHUNK_COUNT 个 chunk 文件"
 
+# 🔑 关键验证: webpack chunk 必须存在
+WEBPACK_CHUNK=$(find .next/standalone/frontend/.next/static/chunks -name "webpack-*.js" 2>/dev/null | head -1)
+if [ -z "$WEBPACK_CHUNK" ]; then
+  err "验证失败: standalone 目录缺少 webpack chunk! 这会导致 JS 无法加载，页面无内容。"
+fi
+log "✅ Webpack chunk 验证通过: $(basename $WEBPACK_CHUNK)"
+
 # ── 6. 重启 PM2 进程 ────────────────────────────────────────────────────
 log "🔄 重启前端服务..."
 cd /opt/OmniFate

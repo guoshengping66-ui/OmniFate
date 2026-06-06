@@ -117,6 +117,10 @@ export default async function LocaleLayout({
         />
         <noscript>
           <link rel="stylesheet" href="https://fonts.font.im/css2?family=Inter:wght@300;400;500;600&display=swap" />
+          <style>{`/* Fallback: make all content visible when JS fails to load */
+[style*="opacity:0"] { opacity: 1 !important; transform: none !important; }
+.anim-stagger > * { opacity: 1 !important; animation: none !important; }
+[data-animate] { opacity: 1 !important; transform: none !important; }`}</style>
         </noscript>
 
         {/* Pre-React chunk error recovery — defense against Cloudflare

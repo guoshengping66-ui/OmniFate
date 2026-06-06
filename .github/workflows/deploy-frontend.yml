@@ -155,6 +155,18 @@ jobs:
               fi
               echo "✅ 验证通过: standalone 目录有 $CHUNK_COUNT 个 chunk 文件"
 
+              # 🔑 关键验证: webpack chunk 必须存在，否则整个 JS 无法加载
+              WEBPACK_CHUNK=$(find "$STANDALONE_DIR/.next/static/chunks" -name "webpack-*.js" 2>/dev/null | head -1)
+              if [ -z "$WEBPACK_CHUNK" ]; then
+                echo "❌ 验证失败: standalone 目录缺少 webpack chunk!"
+                echo "   构建输出中的 webpack chunk:"
+                ls -la .next/static/chunks/webpack*.js 2>/dev/null || echo "   构建输出中也没有 webpack chunk!"
+                echo "   Standalone chunks 目录内容:"
+                ls "$STANDALONE_DIR/.next/static/chunks/" 2>/dev/null | head -10
+                exit 1
+              fi
+              echo "✅ Webpack chunk 验证通过: $(basename $WEBPACK_CHUNK)"
+
               # Verify layout chunk exists in standalone
               STANDALONE_LAYOUT=$(find "$STANDALONE_DIR/.next/static/chunks/app" -name "layout-*.js" 2>/dev/null | head -1)
               if [ -n "$STANDALONE_LAYOUT" ]; then
