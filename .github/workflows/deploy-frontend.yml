@@ -121,3 +121,22 @@ jobs:
             NEW_COMMIT=$(git rev-parse HEAD)
             echo "═══════ 部署完成 ═══════"
             echo "✅ 前端已更新: $CURRENT_COMMIT → $NEW_COMMIT"
+
+      # ── Purge Cloudflare cache (prevents stale HTML → chunk 404) ──
+      - name: Purge Cloudflare cache
+        if: success() && vars.CLOUDFLARE_ZONE_ID != '' && vars.CLOUDFLARE_API_TOKEN != ''
+        env:
+          CF_ZONE_ID: ${{ vars.CLOUDFLARE_ZONE_ID }}
+          CF_API_TOKEN: ${{ vars.CLOUDFLARE_API_TOKEN }}
+        run: |
+          echo "🔄 清除 Cloudflare 缓存..."
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
+            -H "Authorization: Bearer ${CF_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d '{"purge_everything":true}')
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "✅ Cloudflare 缓存已清除"
+          else
+            echo "⚠️ Cloudflare 缓存清除返回 HTTP $HTTP_CODE（非致命错误）"
+          fi

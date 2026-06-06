@@ -119,13 +119,90 @@ export default async function LocaleLayout({
           <link rel="stylesheet" href="https://fonts.font.im/css2?family=Inter:wght@300;400;500;600&display=swap" />
         </noscript>
 
-        {/* Pre-React chunk error recovery: catches 404 on critical chunks.
-            (layout, page, webpack) that fail before React can mount.
-            Cloudflare may serve stale HTML referencing old chunk hashes;
-            this script detects the failure and forces a fresh fetch. */}
+        {/* Pre-React chunk error recovery — multi-layer defense against
+            Cloudflare serving stale HTML with dead chunk hashes.
+
+            Layer 1 (0ms): Listen for <script>/<link> load failures → reload
+            Layer 2 (200ms): Probe a known critical chunk → if 404, hard reload
+            Layer 3 (5s): Fetch /api/version → if build ID differs, reload
+            All layers use sessionStorage to prevent reload loops. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var k="_destiny_cr",s=sessionStorage;var r=s.getItem(k);if(r==="2")return;s.setItem(k,"2");window.addEventListener("error",function(e){var t=(e.target&&e.target.tagName)||"";if(t==="SCRIPT"||t==="LINK"){s.setItem(k,"2");setTimeout(function(){window.location.reload()},200)}},{capture:true});setTimeout(function(){s.removeItem(k)},30000)}catch(e){}})();`
+            __html: `(function(){
+try{
+  var S="sessionStorage",K="_destiny_cr",B="_destiny_bid";
+  var s=window[S];
+  if(!s)return;
+  // Prevent reload loops: if we already reloaded once, stop
+  var attempts=parseInt(s.getItem(K)||"0",10);
+  if(attempts>=3)return;
+  s.setItem(K,String(attempts+1));
+
+  // ── Layer 1: Catch <script>/<link> load failures (0ms) ──
+  window.addEventListener("error",function(e){
+    var tag=(e.target&&e.target.tagName)||"";
+    if(tag==="SCRIPT"||tag==="LINK"){
+      // Don't reload immediately — wait for Layer 2 probe
+      s.setItem(K+"_fail","1");
+    }
+  },true);
+
+  // ── Layer 2: Probe critical chunk (200ms after DOM ready) ──
+  setTimeout(function(){
+    // Extract build ID from existing script tags in the page
+    var scripts=document.querySelectorAll('script[src*="/_next/static/"]');
+    var buildId=null;
+    for(var i=0;i<scripts.length;i++){
+      var m=scripts[i].src.match(/\\/_next\\/static\\/([^/]+)\\//);
+      if(m){buildId=m[1];break;}
+    }
+    if(!buildId)return; // Can't determine build ID, skip probe
+
+    // Try to fetch a known critical chunk
+    var probe="/_next/static/"+buildId+"/main-*.js";
+    // Use the webpack chunk as a canary — if it 404s, chunks are stale
+    var xhr=new XMLHttpRequest();
+    xhr.open("GET","/_next/static/"+buildId+"/chunks/webpack-*.js",true);
+    xhr.timeout=5000;
+    xhr.onload=function(){
+      if(xhr.status===404){
+        // Chunks are stale — force hard reload (bypass all caches)
+        window.location.reload(true);
+      }
+    };
+    xhr.onerror=function(){
+      // Network error — if Layer 1 already detected failures, reload
+      if(s.getItem(K+"_fail")==="1"){
+        window.location.reload(true);
+      }
+    };
+    xhr.send();
+  },200);
+
+  // ── Layer 3: Version check (5s) ──
+  setTimeout(function(){
+    fetch("/api/version",{cache:"no-store"}).then(function(r){
+      return r.json();
+    }).then(function(d){
+      var serverBid=d&&d.buildId;
+      if(!serverBid)return;
+      var embedded=s.getItem(B);
+      if(!embedded){
+        s.setItem(B,serverBid);
+        return;
+      }
+      if(serverBid!==embedded){
+        window.location.reload(true);
+      }
+    }).catch(function(){});
+  },5000);
+
+  // ── Cleanup after 60s ──
+  setTimeout(function(){
+    try{s.removeItem(K);s.removeItem(K+"_fail");}catch(e){}
+  },60000);
+}catch(e){}
+})();`
           }}
         />
 
