@@ -363,7 +363,13 @@ export default function ReadingPage() {
     getSession(id, locale).then(d => {
       if (cancelled) return
       clearTimeout(loadTimeout)
-      setData(d)
+      // Deduplicate: don't overwrite if AnalysisSession already set identical data
+      const json = JSON.stringify(d)
+      if (json !== lastCompleteJsonRef.current) {
+        lastCompleteJsonRef.current = json
+        lastCompleteDataRef.current = d
+        setData(d)
+      }
       setIsUnlocked(d.is_detail_unlocked)
       setIsDetailedUnlocked(d.is_detailed_unlocked)
       setLoading(false)
@@ -434,7 +440,7 @@ export default function ReadingPage() {
         setIsUnlocked(true)
         setIsDetailedUnlocked(true)
         // Re-fetch session data so master_detail / worker reports are populated
-        const fresh = await getSession(id)
+        const fresh = await getSession(id, locale)
         if (fresh) setData(fresh)
       }
       toast.success(t("reading.unlockedSuccess"))
@@ -442,7 +448,7 @@ export default function ReadingPage() {
     } catch (err: any) {
       toast.error(err?.response?.data?.detail || t("reading.unlockedFailed"))
     }
-  }, [id, refreshUser])
+  }, [id, refreshUser, locale])
 
   const handleDetailedUnlock = useCallback(async () => {
     if (!id) return
@@ -452,7 +458,7 @@ export default function ReadingPage() {
       if (result.unlocked) {
         setIsDetailedUnlocked(true)
         // Re-fetch session data so detailed content is populated
-        const fresh = await getSession(id)
+        const fresh = await getSession(id, locale)
         if (fresh) setData(fresh)
       }
       toast.success(t("reading.detailedUnlocked") || "精读报告已解锁")
@@ -460,7 +466,7 @@ export default function ReadingPage() {
     } catch (err: any) {
       toast.error(err?.response?.data?.detail || t("reading.unlockedFailed"))
     }
-  }, [id, refreshUser])
+  }, [id, refreshUser, locale])
 
   if (loading) return <ReadingSkeleton phase="loading" />
   if (!data) return <ReadingSkeleton phase="error" />

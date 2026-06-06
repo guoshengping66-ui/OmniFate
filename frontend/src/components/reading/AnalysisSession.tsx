@@ -245,13 +245,20 @@ export default function AnalysisSession({ sessionId, initialData, onComplete }: 
         if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
         if (completionCalledRef.current) return
         completionCalledRef.current = true
-        // Re-fetch full data to get correct dimension_scores and worker reports
-        getSession(sessionId, locale).then(fresh => {
-          if (!cancelled) {
-            lastDataRef.current = fresh
-            onComplete(fresh)
+        // Use lastDataRef (from latest poll) instead of re-fetching.
+        // Re-fetching races with ReadingPage's initial fetch and causes
+        // duplicate onComplete calls with slightly different data → React #310.
+        const prev = lastDataRef.current
+        if (prev) {
+          const merged = {
+            ...prev,
+            status: "done" as const,
+            master_summary: event.master_summary || prev.master_summary,
+            master_detail: event.master_detail || prev.master_detail,
           }
-        }).catch(() => {})
+          lastDataRef.current = merged
+          if (!cancelled) onComplete(merged)
+        }
       }
     }).catch(() => {})
 
