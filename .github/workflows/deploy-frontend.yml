@@ -89,8 +89,8 @@ jobs:
               sudo rm -rf /opt/OmniFate/frontend/node_modules
               sudo rm -rf /opt/OmniFate/frontend/.turbo
               # Also clear any webpack cache that might persist
-              sudo rm -rf /tmp/webpack*
-              sudo rm -rf /root/.cache/webpack*
+              sudo rm -rf /tmp/webpack* 2>/dev/null || true
+              sudo rm -rf /root/.cache/webpack* 2>/dev/null || true
 
               cd /opt/OmniFate/frontend
               sudo chown -R $(whoami) .
