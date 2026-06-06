@@ -9,16 +9,17 @@ import { IntentButtons } from "./IntentButtons"
 import { GeworkDrawer } from "./GeworkDrawer"
 import { TagBadge } from "@/components/ui/TagBadge"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { useAuth } from "@/contexts/AuthContext"
 
 export function UserDashboard() {
   const { t, locale, localeHref } = useLanguage()
+  const { user } = useAuth()
   const [recentReadings, setRecentReadings] = useState<ReadingListItem[]>([])
   const [loadingReadings, setLoadingReadings] = useState(true)
   const [eventDrawerOpen, setEventDrawerOpen] = useState(false)
 
   useEffect(() => {
-    // NOTE: fetchBirthProfiles() is called by page.tsx — no need to duplicate here.
-    // Only fetch recent readings (stagger to avoid 429 burst).
+    if (!user) return
     const timer = setTimeout(() => {
       listMyReadings()
         .then(r => setRecentReadings(r.slice(0, 3)))
@@ -26,7 +27,7 @@ export function UserDashboard() {
         .finally(() => setLoadingReadings(false))
     }, 300)
     return () => clearTimeout(timer)
-  }, [])
+  }, [user])
 
   return (
     <div className="max-w-4xl mx-auto">
