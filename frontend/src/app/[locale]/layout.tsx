@@ -123,6 +123,38 @@ export default async function LocaleLayout({
 [data-animate] { opacity: 1 !important; transform: none !important; }`}</style>
         </noscript>
 
+        {/* Safety net: if webpack/React fails to hydrate within 4s, force all
+            content visible. This inline script runs independently of the bundle.
+            It's harmless when React hydrates normally (opacity is already 1). */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){
+try{
+  var t=setTimeout(function(){
+    document.querySelectorAll('[style*="opacity:0"]').forEach(function(el){
+      el.style.opacity='1';
+      el.style.transform='none';
+    });
+    document.querySelectorAll('.anim-stagger>*').forEach(function(el){
+      el.style.opacity='1';
+      el.style.animation='none';
+    });
+    document.querySelectorAll('[data-animate]').forEach(function(el){
+      el.style.opacity='1';
+      el.style.transform='none';
+    });
+    document.querySelectorAll('[style*="translateY(30px)"]').forEach(function(el){
+      el.style.opacity='1';
+      el.style.transform='none';
+    });
+  },4000);
+  // Cancel if React hydrates (App Router uses __next_f, not __NEXT_DATA__)
+  if(window.__next_f){try{clearTimeout(t)}catch(e){}}
+}catch(e){}
+})();`,
+          }}
+        />
+
         {/* Pre-React chunk error recovery — defense against Cloudflare
             serving stale HTML with dead chunk hashes.
 

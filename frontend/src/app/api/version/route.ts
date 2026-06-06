@@ -40,6 +40,8 @@ export async function GET() {
     {
       headers: {
         "Cache-Control": "no-store, no-cache, must-revalidate",
+        "Surrogate-Control": "no-store",
+        "CDN-Cache-Control": "no-store",
       },
     },
   )

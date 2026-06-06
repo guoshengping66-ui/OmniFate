@@ -123,25 +123,52 @@ jobs:
                 ls .next/static/chunks/app/ 2>/dev/null || echo "   chunks/app 目录不存在"
               fi
 
-              # ⚠️ standalone 模式必须手动复制静态文件到 standalone 目录
-              # Determine standalone path (may vary based on project structure)
+              # ── Rebuild standalone server completely from fresh build ──
+              # Instead of patching .next/static into an existing standalone dir,
+              # we stop PM2 first, delete the OLD standalone dir, rebuild, then start.
+              # This ensures pre-rendered HTML and static chunks are always in sync.
+
+              # Stop PM2 BEFORE rebuilding so there's no stale process
+              echo "🛑 停止前端服务 (确保无旧进程)..."
+              cd /opt/OmniFate
+              pm2 delete frontend 2>/dev/null || true
+
+              # Delete old standalone output completely
+              echo "🧹 清理旧 standalone 目录..."
+              sudo rm -rf /opt/OmniFate/frontend/.next
+
+              cd /opt/OmniFate/frontend
+              sudo chown -R $(whoami) .
+              npm ci --production=false || npm install
+              sudo chown -R $(whoami) .next 2>/dev/null || true
+
+              echo "🔨 构建生产版本 (standalone)..."
+              NODE_ENV=production npm run build
+
+              # ── Verify build output ──
+              echo "🔍 验证构建产物..."
+              BUILD_PAGE_COUNT=$(find .next/server/app -name "*.html" 2>/dev/null | wc -l)
+              echo "   Pre-rendered pages: $BUILD_PAGE_COUNT"
+              if [ "$BUILD_PAGE_COUNT" -lt 2 ]; then
+                echo "❌ 构建异常: 只有 $BUILD_PAGE_COUNT 个预渲染页面（预期 >= 2）"
+                exit 1
+              fi
+
+              # Determine standalone path
               STANDALONE_DIR=""
               if [ -d ".next/standalone/frontend" ]; then
                 STANDALONE_DIR=".next/standalone/frontend"
               elif [ -f ".next/standalone/server.js" ]; then
                 STANDALONE_DIR=".next/standalone"
               else
-                echo "❌ 未找到 standalone 目录: .next/standalone/frontend 或 .next/standalone"
-                echo "   目录内容:"
+                echo "❌ 未找到 standalone 目录"
                 ls -la .next/standalone/ 2>/dev/null || echo "   .next/standalone 不存在"
                 exit 1
               fi
               echo "   Standalone 目录: $STANDALONE_DIR"
 
-              # 先删除旧 static 目录，避免 cp -r 嵌套导致 static/static/chunks
-              echo "📋 复制静态文件到 standalone 目录..."
-              sudo rm -rf "$STANDALONE_DIR/.next/static"
-              sudo cp -r .next/static "$STANDALONE_DIR/.next/static"
+              # ⚠️ 关键: standalone 输出已有 fresh .next/static，但我们仍需
+              # 确保 public/ 被复制（standalone 不包含 public）
               sudo rm -rf "$STANDALONE_DIR/public"
               sudo cp -r public "$STANDALONE_DIR/public" 2>/dev/null || true
               sudo chown -R $(whoami) /opt/OmniFate/frontend
@@ -150,7 +177,6 @@ jobs:
               CHUNK_COUNT=$(find "$STANDALONE_DIR/.next/static/chunks" -name "*.js" 2>/dev/null | wc -l)
               if [ "$CHUNK_COUNT" -lt 10 ]; then
                 echo "❌ 验证失败: standalone 目录只有 $CHUNK_COUNT 个 chunk 文件（预期 >10）"
-                echo "💡 可能原因: cp -r 嵌套导致 static/static/chunks，需要先 rm -rf static 再复制"
                 exit 1
               fi
               echo "✅ 验证通过: standalone 目录有 $CHUNK_COUNT 个 chunk 文件"
@@ -159,21 +185,17 @@ jobs:
               WEBPACK_CHUNK=$(find "$STANDALONE_DIR/.next/static/chunks" -name "webpack-*.js" 2>/dev/null | head -1)
               if [ -z "$WEBPACK_CHUNK" ]; then
                 echo "❌ 验证失败: standalone 目录缺少 webpack chunk!"
-                echo "   构建输出中的 webpack chunk:"
                 ls -la .next/static/chunks/webpack*.js 2>/dev/null || echo "   构建输出中也没有 webpack chunk!"
-                echo "   Standalone chunks 目录内容:"
-                ls "$STANDALONE_DIR/.next/static/chunks/" 2>/dev/null | head -10
                 exit 1
               fi
               echo "✅ Webpack chunk 验证通过: $(basename $WEBPACK_CHUNK)"
 
-              # Verify layout chunk exists in standalone
-              STANDALONE_LAYOUT=$(find "$STANDALONE_DIR/.next/static/chunks/app" -name "layout-*.js" 2>/dev/null | head -1)
-              if [ -n "$STANDALONE_LAYOUT" ]; then
-                echo "   Standalone layout chunk: $(basename $STANDALONE_LAYOUT)"
+              # 🔑 验证: pre-rendered HTML 引用的 chunk 必须在 standalone 中存在
+              BUILD_LAYOUT=$(find "$STANDALONE_DIR/.next/static/chunks/app" -name "layout-*.js" 2>/dev/null | head -1)
+              if [ -n "$BUILD_LAYOUT" ]; then
+                echo "   Layout chunk: $(basename $BUILD_LAYOUT)"
               else
                 echo "❌ standalone 缺少 layout chunk!"
-                ls "$STANDALONE_DIR/.next/static/chunks/app/" 2>/dev/null
                 exit 1
               fi
 
