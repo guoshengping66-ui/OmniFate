@@ -15,7 +15,6 @@ on:
       - 'ecosystem.config.js'
       - 'deploy-frontend.sh'
       - 'nginx-khanfate.conf'
-      - '.github/workflows/deploy-frontend.yml'
   workflow_dispatch:
 
 jobs:
@@ -100,14 +99,6 @@ jobs:
               sudo cp -r .next/static .next/standalone/frontend/.next/static
               sudo cp -r public .next/standalone/frontend/public 2>/dev/null || true
               sudo chown -R $(whoami) /opt/OmniFate/frontend
-
-              # Verify chunks exist
-              CHUNK_COUNT=$(ls .next/standalone/frontend/.next/static/chunks/ 2>/dev/null | wc -l)
-              if [ "$CHUNK_COUNT" -lt 10 ]; then
-                echo "⚠️ 警告: 只有 $CHUNK_COUNT 个 chunk 文件，可能构建不完整"
-              else
-                echo "✅ 构建验证通过: $CHUNK_COUNT 个 chunk 文件"
-              fi
 
               echo "🔄 启动前端服务..."
               cd /opt/OmniFate
