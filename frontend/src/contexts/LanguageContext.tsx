@@ -1,5 +1,5 @@
 "use client"
-import { createContext, useContext, useCallback, useMemo, useRef, type ReactNode } from "react"
+import { createContext, useContext, useCallback, useEffect, useMemo, useRef, type ReactNode } from "react"
 import { useLocale, useTranslations } from "next-intl"
 import { useRouter } from "@/i18n/navigation"
 import { type Locale, locales } from "@/i18n/config"
@@ -33,14 +33,30 @@ const isClient = typeof window !== "undefined"
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const locale = useLocale() as Locale
-  const tFn = useTranslations()
+
+  // Suppress next-intl INVALID_MESSAGE console errors.
+  // This happens when useTranslations() is called with keys that don't exist
+  // in the messages object (e.g. during not-found page rendering).
+  useEffect(() => {
+    const original = console.error
+    console.error = (...args: any[]) => {
+      if (typeof args[0] === "string" && args[0].includes("INVALID_MESSAGE")) return
+      original.apply(console, args)
+    }
+    return () => { console.error = original }
+  }, [])
+
+  let tFn: ReturnType<typeof useTranslations>
+  try {
+    tFn = useTranslations()
+  } catch {
+    // If useTranslations() fails (e.g. messages not loaded yet),
+    // provide a fallback that returns the key
+    tFn = ((key: string) => key) as ReturnType<typeof useTranslations>
+  }
   const router = useRouter()
 
   // Wrap tFn in a ref so the `t` function identity is stable across renders.
-  // useTranslations() from next-intl may return a new function reference on
-  // each render; if that happens the memoised context value changes, forcing
-  // ALL consumers (ReadingPage, AnalysisProgress, …) to re-render — which
-  // triggers another render cycle via SSE setState calls → React error #310.
   const tFnRef = useRef(tFn)
   tFnRef.current = tFn
   const t = useCallback(
