@@ -147,7 +147,8 @@ try{
 
   // ── Layer 2: Version API check (3s) ──
   // Compare the build ID from /api/version with the cached one.
-  // If they differ the server has a new build → reload.
+  // If they differ the server has a new build → reload with cache-bust.
+  // Use ?v=<timestamp> to bypass Cloudflare CDN cache.
   setTimeout(function(){
     fetch("/api/version",{cache:"no-store"}).then(function(r){
       return r.json();
@@ -160,7 +161,9 @@ try{
         return;
       }
       if(serverBid!==embedded){
-        window.location.reload(true);
+        var url=new URL(window.location.href);
+        url.searchParams.set("_cb",Date.now().toString());
+        window.location.href=url.toString();
       }
     }).catch(function(){});
   },3000);
@@ -168,7 +171,9 @@ try{
   // ── If a script/link failed to load, also try a quick reload after 1s ──
   setTimeout(function(){
     if(s.getItem(K+"_fail")==="1"){
-      window.location.reload(true);
+      var url=new URL(window.location.href);
+      url.searchParams.set("_cb",Date.now().toString());
+      window.location.href=url.toString();
     }
   },1000);
 
