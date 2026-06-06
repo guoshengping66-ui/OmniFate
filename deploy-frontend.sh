@@ -35,8 +35,11 @@ log "🔨 构建生产版本..."
 NODE_ENV=production npm run build
 
 # ── 4. 复制静态文件到 standalone 目录（关键步骤！）─────────────────────────
+# ⚠️ 必须先删除旧目录，否则 cp -r 会嵌套导致 static/static/chunks
 log "📋 复制静态文件到 standalone 目录..."
+rm -rf .next/standalone/frontend/.next/static
 cp -r .next/static .next/standalone/frontend/.next/static
+rm -rf .next/standalone/frontend/public
 cp -r public .next/standalone/frontend/public 2>/dev/null || true
 
 # ── 5. 验证 standalone 目录完整性 ────────────────────────────────────────
