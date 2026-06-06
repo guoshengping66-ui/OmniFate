@@ -44,15 +44,23 @@ const AuthContext = createContext<AuthState>({
 const USER_CACHE_KEY = "alpha_mirror_user" // Cached user for instant restore after reload
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(() => {
-    // INSTANT restore from cache — no API call needed
-    // This prevents "logged out" flash during language switch or page reload
+  // IMPORTANT: Do NOT read localStorage in useState initializer.
+  // Server renders with user=null; if client reads localStorage here,
+  // the hydration HTML won't match → React error #418 → error #310 cascade.
+  // Instead, start with null and restore from cache in a useEffect (below).
+  const [user, setUser] = useState<AuthUser | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  // Restore cached user AFTER hydration to avoid server/client mismatch
+  useEffect(() => {
     try {
       const cached = localStorage.getItem(USER_CACHE_KEY)
-      return cached ? JSON.parse(cached) : null
-    } catch { return null }
-  })
-  const [loading, setLoading] = useState(true)
+      if (cached) {
+        const parsed = JSON.parse(cached) as AuthUser
+        setUser(parsed)
+      }
+    } catch { /* ignore */ }
+  }, [])
 
   // Helper: save user to cache
   const cacheUser = (u: AuthUser | null) => {
