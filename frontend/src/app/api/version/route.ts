@@ -5,18 +5,29 @@ import { join } from "path"
 /**
  * Lightweight endpoint that returns the current Next.js build ID.
  * Used by the client-side version-check hook to detect stale cached HTML
- * after a deployment.  Response is tiny (~40 bytes) and cachable for a
- * short window.
+ * after a deployment.  Response is tiny (~40 bytes) and no-cache.
  */
 export async function GET() {
   let buildId: string | undefined
 
-  // Strategy 1: Read from .next/BUILD_ID file (works in standalone mode)
-  try {
-    buildId = readFileSync(join(process.cwd(), ".next", "BUILD_ID"), "utf-8").trim()
-  } catch {}
+  // In standalone mode, process.cwd() = .next/standalone/frontend/
+  // BUILD_ID is at .next/BUILD_ID relative to the project root.
+  // Try multiple paths to cover both standalone and dev modes.
+  const cwd = process.cwd()
+  const possiblePaths = [
+    join(cwd, ".next", "BUILD_ID"),           // dev mode: cwd = frontend/
+    join(cwd, "..", ".next", "BUILD_ID"),     // standalone: cwd = .next/standalone/frontend/ → ../../
+    join(cwd, "..", "..", ".next", "BUILD_ID"), // deep standalone: cwd = .next/standalone/frontend/.next/...
+  ]
 
-  // Strategy 2: Dynamic import (may fail in standalone)
+  for (const p of possiblePaths) {
+    try {
+      buildId = readFileSync(p, "utf-8").trim()
+      if (buildId) break
+    } catch {}
+  }
+
+  // Fallback: dynamic import
   if (!buildId) {
     try {
       const mod = await import("next/dist/shared/lib/constants")
@@ -28,7 +39,6 @@ export async function GET() {
     { buildId: buildId || "unknown" },
     {
       headers: {
-        // No-cache: always return fresh build ID
         "Cache-Control": "no-store, no-cache, must-revalidate",
       },
     },

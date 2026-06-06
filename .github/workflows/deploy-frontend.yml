@@ -82,9 +82,15 @@ jobs:
               pm2 delete frontend 2>/dev/null || true
 
               # 用 sudo 运行整个构建流程，避免 root 权限问题
-              echo "🧹 清理旧构建 + 安装依赖 + 构建..."
+              echo "🧹 彻底清理旧构建 + webpack 缓存..."
               sudo chown -R $(whoami) /opt/OmniFate/frontend
-              sudo rm -rf /opt/OmniFate/frontend/.next /opt/OmniFate/frontend/node_modules
+              # Delete EVERYTHING to ensure clean build (prevents stale chunk hashes)
+              sudo rm -rf /opt/OmniFate/frontend/.next
+              sudo rm -rf /opt/OmniFate/frontend/node_modules
+              sudo rm -rf /opt/OmniFate/frontend/.turbo
+              # Also clear any webpack cache that might persist
+              sudo rm -rf /tmp/webpack*
+              sudo rm -rf /root/.cache/webpack*
 
               cd /opt/OmniFate/frontend
               sudo chown -R $(whoami) .
@@ -94,17 +100,49 @@ jobs:
               echo "🔨 构建生产版本..."
               NODE_ENV=production npm run build
 
+              # ── Verify build output before copying ──
+              echo "🔍 验证构建产物..."
+              BUILD_PAGE_COUNT=$(find .next/server/app -name "*.html" 2>/dev/null | wc -l)
+              echo "   Pre-rendered pages: $BUILD_PAGE_COUNT"
+              if [ "$BUILD_PAGE_COUNT" -lt 2 ]; then
+                echo "❌ 构建异常: 只有 $BUILD_PAGE_COUNT 个预渲染页面（预期 >= 2）"
+                exit 1
+              fi
+
+              # Extract a build chunk hash to verify freshness
+              BUILD_LAYOUT=$(ls .next/static/chunks/app/\\[locale\\]/layout-*.js 2>/dev/null | head -1)
+              if [ -n "$BUILD_LAYOUT" ]; then
+                echo "   Layout chunk: $(basename $BUILD_LAYOUT)"
+              else
+                echo "⚠️  未找到 layout chunk，检查构建输出..."
+                ls .next/static/chunks/app/ 2>/dev/null || echo "   chunks/app 目录不存在"
+              fi
+
               # ⚠️ standalone 模式必须手动复制静态文件到 standalone 目录
+              # Determine standalone path (may vary based on project structure)
+              STANDALONE_DIR=""
+              if [ -d ".next/standalone/frontend" ]; then
+                STANDALONE_DIR=".next/standalone/frontend"
+              elif [ -f ".next/standalone/server.js" ]; then
+                STANDALONE_DIR=".next/standalone"
+              else
+                echo "❌ 未找到 standalone 目录: .next/standalone/frontend 或 .next/standalone"
+                echo "   目录内容:"
+                ls -la .next/standalone/ 2>/dev/null || echo "   .next/standalone 不存在"
+                exit 1
+              fi
+              echo "   Standalone 目录: $STANDALONE_DIR"
+
               # 先删除旧 static 目录，避免 cp -r 嵌套导致 static/static/chunks
               echo "📋 复制静态文件到 standalone 目录..."
-              sudo rm -rf .next/standalone/frontend/.next/static
-              sudo cp -r .next/static .next/standalone/frontend/.next/static
-              sudo rm -rf .next/standalone/frontend/public
-              sudo cp -r public .next/standalone/frontend/public 2>/dev/null || true
+              sudo rm -rf "$STANDALONE_DIR/.next/static"
+              sudo cp -r .next/static "$STANDALONE_DIR/.next/static"
+              sudo rm -rf "$STANDALONE_DIR/public"
+              sudo cp -r public "$STANDALONE_DIR/public" 2>/dev/null || true
               sudo chown -R $(whoami) /opt/OmniFate/frontend
 
               # ⚠️ 验证: standalone 目录必须包含 chunks，否则部署会白跑
-              CHUNK_COUNT=$(find .next/standalone/frontend/.next/static/chunks -name "*.js" 2>/dev/null | wc -l)
+              CHUNK_COUNT=$(find "$STANDALONE_DIR/.next/static/chunks" -name "*.js" 2>/dev/null | wc -l)
               if [ "$CHUNK_COUNT" -lt 10 ]; then
                 echo "❌ 验证失败: standalone 目录只有 $CHUNK_COUNT 个 chunk 文件（预期 >10）"
                 echo "💡 可能原因: cp -r 嵌套导致 static/static/chunks，需要先 rm -rf static 再复制"
@@ -112,12 +150,40 @@ jobs:
               fi
               echo "✅ 验证通过: standalone 目录有 $CHUNK_COUNT 个 chunk 文件"
 
+              # Verify layout chunk exists in standalone
+              STANDALONE_LAYOUT=$(ls "$STANDALONE_DIR/.next/static/chunks/app/\\[locale\\]/layout-"*.js 2>/dev/null | head -1)
+              if [ -n "$STANDALONE_LAYOUT" ]; then
+                echo "   Standalone layout chunk: $(basename $STANDALONE_LAYOUT)"
+              else
+                echo "❌ standalone 缺少 layout chunk!"
+                ls "$STANDALONE_DIR/.next/static/chunks/app/" 2>/dev/null
+                exit 1
+              fi
+
               echo "🔄 启动前端服务..."
               cd /opt/OmniFate
               pm2 start ecosystem.config.js --only frontend
               pm2 save
 
-              sleep 3
+              sleep 5
+
+              # Post-restart verification: check that the server is serving new chunks
+              echo "🔍 验证服务器正在运行新构建..."
+              SERVER_LAYOUT=$(curl -sk https://www.khanfate.com/api/version 2>/dev/null)
+              echo "   Version endpoint: $SERVER_LAYOUT"
+
+              # Verify HTML serves new chunk references
+              HTML_RESPONSE=$(curl -sk https://www.khanfate.com/zh 2>/dev/null | head -5)
+              HTML_LAYOUT_HASH=$(echo "$HTML_RESPONSE" | grep -oP 'layout-[a-f0-9]+\.js' | head -1)
+              echo "   HTML layout chunk: $HTML_LAYOUT_HASH"
+
+              EXPECTED_LAYOUT=$(basename "$STANDALONE_LAYOUT" 2>/dev/null)
+              if [ "$HTML_LAYOUT_HASH" = "$EXPECTED_LAYOUT" ]; then
+                echo "✅ 部署验证通过: HTML 引用的 chunk 与构建产物匹配"
+              else
+                echo "⚠️  警告: HTML layout hash ($HTML_LAYOUT_HASH) 与预期 ($EXPECTED_LAYOUT) 不匹配"
+                echo "   可能原因: Cloudflare 缓存未清除，或服务器未正确重启"
+              fi
             fi
 
             # 4. 验证
@@ -141,14 +207,27 @@ jobs:
           CF_ZONE_ID: ${{ vars.CLOUDFLARE_ZONE_ID }}
           CF_API_TOKEN: ${{ vars.CLOUDFLARE_API_TOKEN }}
         run: |
-          echo "🔄 清除 Cloudflare 缓存..."
-          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+          echo "🔄 清除 Cloudflare 全部缓存..."
+          RESPONSE=$(curl -s -w "\n%{http_code}" \
             -X POST "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
             -H "Authorization: Bearer ${CF_API_TOKEN}" \
             -H "Content-Type: application/json" \
             -d '{"purge_everything":true}')
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | head -1)
           if [ "$HTTP_CODE" = "200" ]; then
             echo "✅ Cloudflare 缓存已清除"
           else
-            echo "⚠️ Cloudflare 缓存清除返回 HTTP $HTTP_CODE（非致命错误）"
+            echo "⚠️ Cloudflare 缓存清除返回 HTTP $HTTP_CODE"
+            echo "   响应: $BODY"
           fi
+
+          # Also purge specific critical URLs to be safe
+          echo "🔄 额外清除关键页面缓存..."
+          for URL in "https://www.khanfate.com/" "https://www.khanfate.com/zh" "https://www.khanfate.com/en"; do
+            curl -s -o /dev/null \
+              -X POST "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
+              -H "Authorization: Bearer ${CF_API_TOKEN}" \
+              -H "Content-Type: application/json" \
+              -d "{\"files\":[\"$URL\"]}" && echo "   已清除: $URL" || echo "   ⚠️ 清除失败: $URL"
+          done
