@@ -457,7 +457,6 @@ export default function ReadingPage() {
       const result = await unlockReport(id, "stardust", "detailed")
       if (result.unlocked) {
         setIsDetailedUnlocked(true)
-        // Re-fetch session data so detailed content is populated
         const fresh = await getSession(id, locale)
         if (fresh) setData(fresh)
       }
@@ -468,34 +467,29 @@ export default function ReadingPage() {
     }
   }, [id, refreshUser, locale])
 
+  // ── All hooks MUST be called before any early returns (React rules of hooks).
+  //    Compute derived values used by hooks here, guard with null checks. ──
+  const masterSummary = data?.master_summary || ""
+  const quickInsights = useMemo(() => extractQuickInsights(masterSummary), [masterSummary])
+
+  // Guard: show loading skeleton
   if (loading) return <ReadingSkeleton phase="loading" />
   if (!data) return <ReadingSkeleton phase="error" />
 
   // Show AnalysisSession when analysis is still running — all SSE/polling state is
   // isolated inside AnalysisSession so ReadingPage re-renders only on completion.
-  if (!data || data.status !== "done" && data.status !== "completed" && data.status !== "chat") {
-    return data ? (
+  const isTerminal = data.status === "done" || data.status === "completed" || data.status === "chat"
+  if (!isTerminal) {
+    return (
       <AnalysisSession
         sessionId={id}
         initialData={data}
         onComplete={handleAnalysisComplete}
       />
-    ) : (
-      <div className="min-h-screen flex items-center justify-center px-4">
-        <div className="card-glass p-8 max-w-md text-center">
-          <div className="w-12 h-12 rounded-full bg-gold/10 border border-gold/20 flex items-center justify-center mx-auto mb-4">
-            <div className="w-5 h-5 border-2 border-gold/40 border-t-gold rounded-full animate-spin" />
-          </div>
-          <p className="text-white/40 text-sm">{t("reading.loading") || "加载中..."}</p>
-        </div>
-      </div>
     )
   }
 
   // Dynamic worker order — include partner_face/palm only when data exists
-  // NOTE: No useMemo here — the computation is trivial and memo deps
-  // (data.partner_face, data.partner_palm) can change on every setData(fresh)
-  // call, defeating the purpose of memoization.
   const WORKER_ORDER_ALL: readonly string[] = (() => {
     const base = ["bazi", "qimen", "ziwei", "astrology", "tarot", "face", "palm"]
     if (data.partner_face) base.push("partner_face")
@@ -536,9 +530,6 @@ export default function ReadingPage() {
   const strongestLabel = data.dimension_scores ? getI18nDimLabel(getStrongestDimension(data.dimension_scores), t) : t("reading.dim.career")
   const weakestDim = data.dimension_scores ? getWeakestDimension(data.dimension_scores) : "wealth"
   const weakestLabel = data.dimension_scores ? getI18nDimLabel(getWeakestDimension(data.dimension_scores), t) : t("reading.dim.wealth")
-
-  const masterSummary = data?.master_summary || ""
-  const quickInsights = useMemo(() => extractQuickInsights(masterSummary), [masterSummary])
 
   return (
     <div className="min-h-screen pb-24">

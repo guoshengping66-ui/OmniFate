@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 
 export type Region = "domestic" | "overseas"
 
@@ -25,13 +25,10 @@ function detectRegion(): Region {
 }
 
 export function useRegion() {
-  const [region, setRegion] = useState<Region>("domestic")
-  const [isLoaded, setIsLoaded] = useState(false)
-
-  useEffect(() => {
-    setRegion(detectRegion())
-    setIsLoaded(true)
-  }, [])
+  // Initialize directly from detectRegion() to avoid an extra render.
+  // detectRegion() is safe on mount (reads localStorage + navigator).
+  const [region, setRegion] = useState<Region>(detectRegion)
+  const [isLoaded, setIsLoaded] = useState(true)
 
   const switchRegion = (newRegion: Region) => {
     localStorage.setItem(REGION_KEY, newRegion)
