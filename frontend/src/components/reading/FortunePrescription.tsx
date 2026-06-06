@@ -19,7 +19,7 @@ interface FortunePrescriptionProps {
  * with personalized product recommendations.
  */
 export function FortunePrescription({ products, weakestLabel, strongestLabel }: FortunePrescriptionProps) {
-  const { t, locale, localeHref } = useLanguage()
+  const { t, locale } = useLanguage()
   const { addItem } = useCart()
   const [addedIds, setAddedIds] = useState<Set<string>>(new Set())
 
@@ -208,7 +208,7 @@ export function FortunePrescription({ products, weakestLabel, strongestLabel }: 
             {t("prescription.footer")}
           </p>
           <Link
-            href={localeHref("/shop")}
+            href="/shop"
             className="flex items-center gap-1 text-gold/50 text-xs hover:text-gold transition-colors group"
           >
             {t("curated.viewAll")}
