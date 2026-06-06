@@ -110,7 +110,7 @@ jobs:
               fi
 
               # Extract a build chunk hash to verify freshness
-              BUILD_LAYOUT=$(ls .next/static/chunks/app/\\[locale\\]/layout-*.js 2>/dev/null | head -1)
+              BUILD_LAYOUT=$(find .next/static/chunks/app -name "layout-*.js" 2>/dev/null | head -1)
               if [ -n "$BUILD_LAYOUT" ]; then
                 echo "   Layout chunk: $(basename $BUILD_LAYOUT)"
               else
@@ -151,7 +151,7 @@ jobs:
               echo "✅ 验证通过: standalone 目录有 $CHUNK_COUNT 个 chunk 文件"
 
               # Verify layout chunk exists in standalone
-              STANDALONE_LAYOUT=$(ls "$STANDALONE_DIR/.next/static/chunks/app/\\[locale\\]/layout-"*.js 2>/dev/null | head -1)
+              STANDALONE_LAYOUT=$(find "$STANDALONE_DIR/.next/static/chunks/app" -name "layout-*.js" 2>/dev/null | head -1)
               if [ -n "$STANDALONE_LAYOUT" ]; then
                 echo "   Standalone layout chunk: $(basename $STANDALONE_LAYOUT)"
               else
