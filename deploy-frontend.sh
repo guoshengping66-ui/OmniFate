@@ -3,7 +3,7 @@
 #  命盘智镜 — 前端部署脚本 (服务器端)
 # ══════════════════════════════════════════════════════════════════════════════
 #  用法: bash deploy-frontend.sh
-#  流程: git pull → npm install → npm run build → restart PM2
+#  流程: git pull → npm install → npm run build → copy static → restart PM2
 # ══════════════════════════════════════════════════════════════════════════════
 
 set -euo pipefail
@@ -34,16 +34,36 @@ rm -rf .next
 log "🔨 构建生产版本..."
 NODE_ENV=production npm run build
 
-# ── 4. 重启 PM2 进程 ────────────────────────────────────────────────────
+# ── 4. 复制静态文件到 standalone 目录（关键步骤！）─────────────────────────
+log "📋 复制静态文件到 standalone 目录..."
+cp -r .next/static .next/standalone/frontend/.next/static
+cp -r public .next/standalone/frontend/public 2>/dev/null || true
+
+# ── 5. 验证 standalone 目录完整性 ────────────────────────────────────────
+CHUNK_COUNT=$(find .next/standalone/frontend/.next/static/chunks -name "*.js" 2>/dev/null | wc -l)
+if [ "$CHUNK_COUNT" -lt 10 ]; then
+  err "验证失败: standalone 目录只有 $CHUNK_COUNT 个 chunk 文件（预期 >10）"
+fi
+log "✅ 验证通过: standalone 目录有 $CHUNK_COUNT 个 chunk 文件"
+
+# ── 6. 重启 PM2 进程 ────────────────────────────────────────────────────
 log "🔄 重启前端服务..."
 cd /opt/OmniFate
 pm2 delete frontend 2>/dev/null || true
 pm2 start ecosystem.config.js --only frontend
 pm2 save
 
+# ── 7. 健康检查 ──────────────────────────────────────────────────────────
+sleep 3
+HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3000/ || echo "000")
+if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "307" ]; then
+  log "✅ 健康检查通过 (HTTP $HTTP_CODE)"
+else
+  warn "健康检查返回 HTTP $HTTP_CODE，可能需要手动检查"
+fi
+
 log "✅ 前端部署完成！"
 echo ""
 pm2 list | grep frontend
 echo ""
 log "🔗 前端: http://localhost:3000"
-log "🔗 健康检查: curl -s http://localhost:3000 | head -1"
