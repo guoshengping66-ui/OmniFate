@@ -119,7 +119,7 @@ export default async function LocaleLayout({
           <link rel="stylesheet" href="https://fonts.font.im/css2?family=Inter:wght@300;400;500;600&display=swap" />
         </noscript>
 
-        {/* Pre-React chunk error recovery: catches 404 on critical chunks
+        {/* Pre-React chunk error recovery: catches 404 on critical chunks.
             (layout, page, webpack) that fail before React can mount.
             Cloudflare may serve stale HTML referencing old chunk hashes;
             this script detects the failure and forces a fresh fetch. */}
