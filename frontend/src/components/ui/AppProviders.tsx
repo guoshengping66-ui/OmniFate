@@ -4,7 +4,6 @@ import { NextIntlClientProvider } from "next-intl"
 import { AuthProvider, useAuth } from "@/contexts/AuthContext"
 import { CartProvider } from "@/contexts/CartContext"
 import { LanguageProvider } from "@/contexts/LanguageContext"
-import { useVersionCheck } from "@/hooks/useVersionCheck"
 
 function CartProviderWithAuth({ children }: { children: ReactNode }) {
   const { user } = useAuth()
@@ -21,9 +20,6 @@ interface AppProvidersProps {
 }
 
 export function AppProviders({ children, messages, locale }: AppProvidersProps) {
-  // Proactively detect stale builds and auto-reload before chunks fail
-  useVersionCheck()
-
   return (
     <NextIntlClientProvider messages={messages} locale={locale} timeZone="Asia/Shanghai">
       <LanguageProvider>
