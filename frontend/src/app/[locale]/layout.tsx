@@ -122,9 +122,9 @@ export default async function LocaleLayout({
         {/* Pre-React chunk error recovery — multi-layer defense against
             Cloudflare serving stale HTML with dead chunk hashes.
 
-            Layer 1 (0ms): Listen for <script>/<link> load failures → reload
-            Layer 2 (200ms): Probe a known critical chunk → if 404, hard reload
-            Layer 3 (5s): Fetch /api/version → if build ID differs, reload
+            Layer 1 (0ms): Listen for <script>/<link> load failures → flag
+            Layer 2 (500ms): Fetch fresh HTML, compare build IDs → reload
+            Layer 3 (3s): Fetch /api/version → if build ID differs, reload
             All layers use sessionStorage to prevent reload loops. */}
         <script
           dangerouslySetInnerHTML={{
@@ -133,61 +133,59 @@ try{
   var S="sessionStorage",K="_destiny_cr",B="_destiny_bid";
   var s=window[S];
   if(!s)return;
-  // Prevent reload loops: if we already reloaded once, stop
   var attempts=parseInt(s.getItem(K)||"0",10);
   if(attempts>=3)return;
   s.setItem(K,String(attempts+1));
 
-  // ── Layer 1: Catch <script>/<link> load failures (0ms) ──
+  // Extract build ID from a <script src> tag
+  function getEmbeddedBuildId(){
+    var scripts=document.querySelectorAll('script[src*="/_next/static/"]');
+    for(var i=0;i<scripts.length;i++){
+      var m=scripts[i].src.match(/\\/_next\\/static\\/([^/]+)\\//);
+      if(m)return m[1];
+    }
+    return null;
+  }
+
+  // ── Layer 1: Detect <script>/<link> load failures (0ms) ──
+  var hadFailure=false;
   window.addEventListener("error",function(e){
     var tag=(e.target&&e.target.tagName)||"";
     if(tag==="SCRIPT"||tag==="LINK"){
-      // Don't reload immediately — wait for Layer 2 probe
+      hadFailure=true;
       s.setItem(K+"_fail","1");
     }
   },true);
 
-  // ── Layer 2: Probe the page itself for build ID mismatch (200ms) ──
+  // ── Layer 2: Compare embedded vs server build ID (500ms) ──
   setTimeout(function(){
-    // Extract build ID from existing script tags in the page
-    var scripts=document.querySelectorAll('script[src*="/_next/static/"]');
-    var buildId=null;
-    for(var i=0;i<scripts.length;i++){
-      var m=scripts[i].src.match(/\\/_next\\/static\\/([^/]+)\\//);
-      if(m){buildId=m[1];break;}
-    }
-    if(!buildId)return; // Can't determine build ID, skip probe
+    var embeddedBid=getEmbeddedBuildId();
+    if(!embeddedBid)return;
 
-    // Fetch the current page HTML and check if its build ID matches
     var xhr=new XMLHttpRequest();
     xhr.open("GET",window.location.href,true);
-    xhr.timeout=5000;
+    xhr.timeout=8000;
     xhr.onload=function(){
       if(xhr.status===200){
-        var html=xhr.responseText;
-        var match=html.match(/\\/_next\\/static\\/([^/]+)\\//);
-        if(match&&match[1]!==buildId){
-          // Server has a different build — stale HTML, reload
+        var match=xhr.responseText.match(/\\/_next\\/static\\/([^/]+)\\//);
+        if(match&&match[1]!==embeddedBid){
           window.location.reload(true);
         }
       }
     };
     xhr.onerror=function(){
-      // Network error — if Layer 1 already detected failures, reload
-      if(s.getItem(K+"_fail")==="1"){
-        window.location.reload(true);
-      }
+      if(hadFailure)window.location.reload(true);
     };
     xhr.send();
-  },200);
+  },500);
 
-  // ── Layer 3: Version check (5s) ──
+  // ── Layer 3: Version API check (3s) ──
   setTimeout(function(){
     fetch("/api/version",{cache:"no-store"}).then(function(r){
       return r.json();
     }).then(function(d){
       var serverBid=d&&d.buildId;
-      if(!serverBid)return;
+      if(!serverBid||serverBid==="unknown")return;
       var embedded=s.getItem(B);
       if(!embedded){
         s.setItem(B,serverBid);
@@ -197,7 +195,7 @@ try{
         window.location.reload(true);
       }
     }).catch(function(){});
-  },5000);
+  },3000);
 
   // ── Cleanup after 60s ──
   setTimeout(function(){
