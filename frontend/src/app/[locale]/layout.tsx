@@ -147,7 +147,7 @@ try{
     }
   },true);
 
-  // ── Layer 2: Probe critical chunk (200ms after DOM ready) ──
+  // ── Layer 2: Probe the page itself for build ID mismatch (200ms) ──
   setTimeout(function(){
     // Extract build ID from existing script tags in the page
     var scripts=document.querySelectorAll('script[src*="/_next/static/"]');
@@ -158,16 +158,18 @@ try{
     }
     if(!buildId)return; // Can't determine build ID, skip probe
 
-    // Try to fetch a known critical chunk
-    var probe="/_next/static/"+buildId+"/main-*.js";
-    // Use the webpack chunk as a canary — if it 404s, chunks are stale
+    // Fetch the current page HTML and check if its build ID matches
     var xhr=new XMLHttpRequest();
-    xhr.open("GET","/_next/static/"+buildId+"/chunks/webpack-*.js",true);
+    xhr.open("GET",window.location.href,true);
     xhr.timeout=5000;
     xhr.onload=function(){
-      if(xhr.status===404){
-        // Chunks are stale — force hard reload (bypass all caches)
-        window.location.reload(true);
+      if(xhr.status===200){
+        var html=xhr.responseText;
+        var match=html.match(/\\/_next\\/static\\/([^/]+)\\//);
+        if(match&&match[1]!==buildId){
+          // Server has a different build — stale HTML, reload
+          window.location.reload(true);
+        }
       }
     };
     xhr.onerror=function(){

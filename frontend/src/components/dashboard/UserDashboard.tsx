@@ -11,22 +11,21 @@ import { TagBadge } from "@/components/ui/TagBadge"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 export function UserDashboard() {
-  const { fetchBirthProfiles } = useUserStore()
   const { t, locale, localeHref } = useLanguage()
   const [recentReadings, setRecentReadings] = useState<ReadingListItem[]>([])
   const [loadingReadings, setLoadingReadings] = useState(true)
   const [eventDrawerOpen, setEventDrawerOpen] = useState(false)
 
   useEffect(() => {
-    // Stagger calls to avoid 429 burst with other components
-    const t1 = setTimeout(() => fetchBirthProfiles(), 300)
-    const t2 = setTimeout(() => {
+    // NOTE: fetchBirthProfiles() is called by page.tsx — no need to duplicate here.
+    // Only fetch recent readings (stagger to avoid 429 burst).
+    const timer = setTimeout(() => {
       listMyReadings()
         .then(r => setRecentReadings(r.slice(0, 3)))
         .catch(() => {})
         .finally(() => setLoadingReadings(false))
-    }, 600)
-    return () => { clearTimeout(t1); clearTimeout(t2) }
+    }, 300)
+    return () => clearTimeout(timer)
   }, [])
 
   return (

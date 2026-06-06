@@ -9,6 +9,10 @@ import {
 
 const PROFILES_CACHE_KEY = "alpha_mirror_profiles"
 
+// Guard against redundant concurrent fetchBirthProfiles() calls.
+// Multiple components (page.tsx, UserDashboard) may call this on mount.
+let _fetching = false
+
 function loadCachedProfiles(): BirthProfile[] | null {
   try {
     const raw = localStorage.getItem(PROFILES_CACHE_KEY)
@@ -50,6 +54,10 @@ export const useUserStore = create<UserStore>((set, get) => ({
   loading: false,
 
   fetchBirthProfiles: async () => {
+    // Prevent redundant concurrent API calls from multiple components
+    if (_fetching) return
+    _fetching = true
+
     // Instant restore from cache
     const cached = loadCachedProfiles()
     if (cached && cached.length > 0) {
@@ -74,6 +82,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
     } catch {
       // Not logged in or error — keep cached data if available
     } finally {
+      _fetching = false
       set({ loading: false })
     }
   },

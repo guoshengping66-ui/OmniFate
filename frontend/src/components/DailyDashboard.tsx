@@ -255,6 +255,19 @@ export function DailyDashboard() {
   const { user } = useAuth()
   const { locale, t } = useLanguage()
   const { userProfile } = useUserStore()
+
+  // Extract primitive fields to stabilize effect dependencies
+  // (using the whole userProfile object risks re-running effects on reference changes)
+  const birthYear = userProfile?.birth_year
+  const birthMonth = userProfile?.birth_month
+  const birthDay = userProfile?.birth_day
+  const birthHour = userProfile?.birth_hour
+  const birthMinute = userProfile?.birth_minute
+  const gender = userProfile?.gender
+  const birthCity = userProfile?.birth_city
+  const latitude = userProfile?.latitude
+  const longitude = userProfile?.longitude
+
   const [fortune, setFortune] = useState<DailyFortuneResponse | null>(() => getCached<DailyFortuneResponse>("fortune_" + locale))
   const [almanac, setAlmanac] = useState<AlmanacData | null>(() => getCached<AlmanacData>("almanac_" + locale))
   const [fortuneLoading, setFortuneLoading] = useState(!fortune)
@@ -271,12 +284,12 @@ export function DailyDashboard() {
         if (user) {
           try {
             // Use personalized fortune when user has birth data
-            if (userProfile && userProfile.birth_year) {
+            if (birthYear) {
               const pf = await getPersonalizedFortune({
-                birth_year: userProfile.birth_year,
-                birth_month: userProfile.birth_month,
-                birth_day: userProfile.birth_day,
-                birth_hour: userProfile.birth_hour,
+                birth_year: birthYear,
+                birth_month: birthMonth,
+                birth_day: birthDay,
+                birth_hour: birthHour,
               }, locale)
               f = pf || await getDailyFortune(locale)
             } else {
@@ -295,7 +308,7 @@ export function DailyDashboard() {
     loadFortune()
     }, 150) // 150ms stagger
     return () => { cancelled = true; clearTimeout(timer) }
-  }, [user, locale, userProfile])
+  }, [user, locale, birthYear, birthMonth, birthDay, birthHour])
 
   // ── Load almanac (parallel, lazy — skeleton shown while loading) ──
   useEffect(() => {
@@ -352,17 +365,17 @@ export function DailyDashboard() {
       }
       // Fallback: try personalized endpoint (if user has birth profile)
       try {
-        if (userProfile && userProfile.birth_year) {
+        if (birthYear) {
           const data = await getPersonalizedDailyAlmanac({
-            birth_year: userProfile.birth_year,
-            birth_month: userProfile.birth_month,
-            birth_day: userProfile.birth_day,
-            birth_hour: userProfile.birth_hour,
-            birth_minute: userProfile.birth_minute,
-            gender: userProfile.gender,
-            birth_city: userProfile.birth_city,
-            latitude: userProfile.latitude ?? undefined,
-            longitude: userProfile.longitude ?? undefined,
+            birth_year: birthYear,
+            birth_month: birthMonth,
+            birth_day: birthDay,
+            birth_hour: birthHour,
+            birth_minute: birthMinute,
+            gender: gender,
+            birth_city: birthCity,
+            latitude: latitude ?? undefined,
+            longitude: longitude ?? undefined,
           }, locale, true)
           const parsed = parseAlmanac(data)
           setCached("almanac_" + locale, parsed)
@@ -385,7 +398,7 @@ export function DailyDashboard() {
     loadAlmanac()
     }, 400) // 400ms stagger — after fortune loads
     return () => { cancelled = true; clearTimeout(timer) }
-  }, [user, locale, userProfile])
+  }, [user, locale, birthYear, birthMonth, birthDay, birthHour, birthMinute, gender, birthCity, latitude, longitude])
 
   // ── Loading state: only block if BOTH are missing ──────────────
   if (fortuneLoading && !fortune) {
