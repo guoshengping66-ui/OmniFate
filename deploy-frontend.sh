@@ -29,32 +29,38 @@ log "📦 安装依赖..."
 npm ci --production=false 2>/dev/null || npm install
 
 # ── 3. 构建生产版本 ──────────────────────────────────────────────────────
-log "🔨 清理旧构建缓存..."
+log "🛑 停止前端服务..."
+pm2 delete frontend 2>/dev/null || true
+log "🧹 清理旧构建缓存..."
 rm -rf .next
-log "🔨 构建生产版本..."
+log "🔨 构建生产版本 (standalone)..."
 NODE_ENV=production npm run build
 
-# ── 4. 复制静态文件到 standalone 目录（关键步骤！）─────────────────────────
-# ⚠️ 必须先删除旧目录，否则 cp -r 会嵌套导致 static/static/chunks
-log "📋 复制静态文件到 standalone 目录..."
-rm -rf .next/standalone/frontend/.next/static
-cp -r .next/static .next/standalone/frontend/.next/static
-rm -rf .next/standalone/frontend/public
-cp -r public .next/standalone/frontend/public 2>/dev/null || true
+# ── 4. 验证 standalone 目录完整性 ──────────────────────────────────────
+STANDALONE_DIR=""
+if [ -d ".next/standalone/frontend" ]; then
+  STANDALONE_DIR=".next/standalone/frontend"
+elif [ -f ".next/standalone/server.js" ]; then
+  STANDALONE_DIR=".next/standalone"
+else
+  err "未找到 standalone 目录"
+fi
 
-# ── 5. 验证 standalone 目录完整性 ────────────────────────────────────────
-CHUNK_COUNT=$(find .next/standalone/frontend/.next/static/chunks -name "*.js" 2>/dev/null | wc -l)
+CHUNK_COUNT=$(find "$STANDALONE_DIR/.next/static/chunks" -name "*.js" 2>/dev/null | wc -l)
 if [ "$CHUNK_COUNT" -lt 10 ]; then
   err "验证失败: standalone 目录只有 $CHUNK_COUNT 个 chunk 文件（预期 >10）"
 fi
 log "✅ 验证通过: standalone 目录有 $CHUNK_COUNT 个 chunk 文件"
 
-# 🔑 关键验证: webpack chunk 必须存在
-WEBPACK_CHUNK=$(find .next/standalone/frontend/.next/static/chunks -name "webpack-*.js" 2>/dev/null | head -1)
+WEBPACK_CHUNK=$(find "$STANDALONE_DIR/.next/static/chunks" -name "webpack-*.js" 2>/dev/null | head -1)
 if [ -z "$WEBPACK_CHUNK" ]; then
   err "验证失败: standalone 目录缺少 webpack chunk! 这会导致 JS 无法加载，页面无内容。"
 fi
 log "✅ Webpack chunk 验证通过: $(basename $WEBPACK_CHUNK)"
+
+# ── 5. 复制 public 到 standalone 目录 ──────────────────────────────────
+rm -rf "$STANDALONE_DIR/public"
+cp -r public "$STANDALONE_DIR/public" 2>/dev/null || true
 
 # ── 6. 重启 PM2 进程 ────────────────────────────────────────────────────
 log "🔄 重启前端服务..."
