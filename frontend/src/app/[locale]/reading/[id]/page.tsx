@@ -330,10 +330,13 @@ export default function ReadingPage() {
   // Guard against redundant setData calls from AnalysisSession onComplete.
   // getSession() returns new object refs each call, so without this guard
   // every poll/SSE completion triggers a re-render even when data is identical.
+  // The stringified snapshot prevents re-render cascades that cause React error #310.
   const lastCompleteDataRef = useRef<AnalysisResponse | null>(null)
+  const lastCompleteJsonRef = useRef<string>("")
   const handleAnalysisComplete = useCallback((fresh: AnalysisResponse) => {
-    const prev = lastCompleteDataRef.current
-    if (prev && JSON.stringify(prev) === JSON.stringify(fresh)) return
+    const json = JSON.stringify(fresh)
+    if (json === lastCompleteJsonRef.current) return
+    lastCompleteJsonRef.current = json
     lastCompleteDataRef.current = fresh
     setData(fresh)
     setIsUnlocked(fresh.is_detail_unlocked)
@@ -357,7 +360,7 @@ export default function ReadingPage() {
       toast.error(t("reading.error.loadTimeout") || "加载超时，请刷新重试")
     }, LOAD_TIMEOUT_MS)
 
-    getSession(id).then(d => {
+    getSession(id, locale).then(d => {
       if (cancelled) return
       clearTimeout(loadTimeout)
       setData(d)

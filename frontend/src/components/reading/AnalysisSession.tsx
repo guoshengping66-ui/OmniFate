@@ -94,6 +94,9 @@ export default function AnalysisSession({ sessionId, initialData, onComplete }: 
   const lastSsePhase = useRef("")
   const stalePollCountRef = useRef(0)
   const stuckShownRef = useRef(false)
+  // Prevents multiple onComplete calls when polling and SSE race.
+  // Once onComplete fires with terminal data, no further calls are made.
+  const completionCalledRef = useRef(false)
 
   useEffect(() => {
     if (!sessionId) return
@@ -106,16 +109,18 @@ export default function AnalysisSession({ sessionId, initialData, onComplete }: 
     const STUCK_TIMEOUT = 120_000
     stalePollCountRef.current = 0
     stuckShownRef.current = false
+    completionCalledRef.current = false
 
     const startStuckTimer = () => {
       if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
       stuckTimerRef.current = setTimeout(() => {
-        if (!cancelled) setIsStuck(true)
+        if (cancelled) setIsStuck(true)
       }, STUCK_TIMEOUT)
     }
 
     // If already done, just report back
     if (initialData.status === "done" || initialData.status === "completed" || initialData.status === "chat") {
+      completionCalledRef.current = true
       onComplete(initialData)
       return () => { cancelled = true }
     }
@@ -132,8 +137,8 @@ export default function AnalysisSession({ sessionId, initialData, onComplete }: 
           pollDone = true
           if (pollInterval) clearInterval(pollInterval)
           if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
-          const prevData = lastDataRef.current
-          if (!prevData || hasMeaningfulChange(fresh, prevData)) {
+          if (!completionCalledRef.current) {
+            completionCalledRef.current = true
             lastDataRef.current = fresh
             onComplete(fresh)
           }
@@ -141,8 +146,8 @@ export default function AnalysisSession({ sessionId, initialData, onComplete }: 
           pollDone = true
           if (pollInterval) clearInterval(pollInterval)
           if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
-          const prevData = lastDataRef.current
-          if (!prevData || hasMeaningfulChange(fresh, prevData)) {
+          if (!completionCalledRef.current) {
+            completionCalledRef.current = true
             lastDataRef.current = fresh
             onComplete(fresh)
           }
@@ -238,26 +243,13 @@ export default function AnalysisSession({ sessionId, initialData, onComplete }: 
         pollDone = true
         if (pollInterval) clearInterval(pollInterval)
         if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
-        const prevData = lastDataRef.current
-        if (!prevData || prevData.status !== "done") {
-          const newData = prevData ? {
-            ...prevData,
-            status: "done" as const,
-            master_summary: event.master_summary || prevData.master_summary,
-            master_detail: event.master_detail || prevData.master_detail,
-          } : null
-          if (newData) {
-            lastDataRef.current = newData
-          }
-        }
+        if (completionCalledRef.current) return
+        completionCalledRef.current = true
         // Re-fetch full data to get correct dimension_scores and worker reports
         getSession(sessionId, locale).then(fresh => {
           if (!cancelled) {
-            const prevData = lastDataRef.current
-            if (!prevData || hasMeaningfulChange(fresh, prevData)) {
-              lastDataRef.current = fresh
-              onComplete(fresh)
-            }
+            lastDataRef.current = fresh
+            onComplete(fresh)
           }
         }).catch(() => {})
       }
