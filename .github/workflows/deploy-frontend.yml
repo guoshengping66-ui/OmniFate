@@ -173,7 +173,8 @@ jobs:
               echo "   Version endpoint: $SERVER_LAYOUT"
 
               # Verify HTML serves new chunk references
-              HTML_RESPONSE=$(curl -sk https://www.khanfate.com/zh 2>/dev/null | head -5)
+              # Store curl output in a variable first (avoids SIGPIPE when piped to head)
+              HTML_RESPONSE=$(curl -sk https://www.khanfate.com/zh 2>/dev/null)
               HTML_LAYOUT_HASH=$(echo "$HTML_RESPONSE" | grep -oP 'layout-[a-f0-9]+\.js' | head -1)
               echo "   HTML layout chunk: $HTML_LAYOUT_HASH"
 
