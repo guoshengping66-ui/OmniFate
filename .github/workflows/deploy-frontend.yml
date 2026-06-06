@@ -15,6 +15,7 @@ on:
       - 'ecosystem.config.js'
       - 'deploy-frontend.sh'
       - 'nginx-khanfate.conf'
+      - '.github/workflows/deploy-frontend.yml'
   workflow_dispatch:
 
 jobs:
