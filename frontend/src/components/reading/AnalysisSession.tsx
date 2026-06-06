@@ -30,6 +30,28 @@ function dataChanged(fresh: AnalysisResponse, prev: AnalysisResponse) {
   return false
 }
 
+/**
+ * Stricter comparison for done/failed handlers — only checks fields that matter
+ * for the final result. Prevents re-render cascades when the backend returns
+ * slightly different data on each poll (e.g. updated timestamps, minor field changes).
+ */
+function hasMeaningfulChange(fresh: AnalysisResponse, prev: AnalysisResponse) {
+  if (fresh.status !== prev.status) return true
+  if (fresh.master_summary !== prev.master_summary) return true
+  if (fresh.is_detail_unlocked !== prev.is_detail_unlocked) return true
+  if (fresh.is_detailed_unlocked !== prev.is_detailed_unlocked) return true
+  if (JSON.stringify(fresh.dimension_scores) !== JSON.stringify(prev.dimension_scores)) return true
+  if (JSON.stringify(fresh.computed_tags) !== JSON.stringify(prev.computed_tags)) return true
+  for (const key of WORKER_KEYS) {
+    const f = fresh[key]; const p = prev[key]
+    if (!f && !p) continue
+    if (!f || !p) return true
+    if (f.report !== p.report) return true
+    if (JSON.stringify(f.tags) !== JSON.stringify(p.tags)) return true
+  }
+  return false
+}
+
 interface Props {
   sessionId: string
   initialData: AnalysisResponse
@@ -111,8 +133,7 @@ export default function AnalysisSession({ sessionId, initialData, onComplete }: 
           if (pollInterval) clearInterval(pollInterval)
           if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
           const prevData = lastDataRef.current
-          if (!prevData || dataChanged(fresh, prevData)) {
-            setData(fresh)
+          if (!prevData || hasMeaningfulChange(fresh, prevData)) {
             lastDataRef.current = fresh
             onComplete(fresh)
           }
@@ -121,8 +142,7 @@ export default function AnalysisSession({ sessionId, initialData, onComplete }: 
           if (pollInterval) clearInterval(pollInterval)
           if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
           const prevData = lastDataRef.current
-          if (!prevData || dataChanged(fresh, prevData)) {
-            setData(fresh)
+          if (!prevData || hasMeaningfulChange(fresh, prevData)) {
             lastDataRef.current = fresh
             onComplete(fresh)
           }
@@ -227,7 +247,6 @@ export default function AnalysisSession({ sessionId, initialData, onComplete }: 
             master_detail: event.master_detail || prevData.master_detail,
           } : null
           if (newData) {
-            setData(newData)
             lastDataRef.current = newData
           }
         }
@@ -235,8 +254,7 @@ export default function AnalysisSession({ sessionId, initialData, onComplete }: 
         getSession(sessionId, locale).then(fresh => {
           if (!cancelled) {
             const prevData = lastDataRef.current
-            if (!prevData || dataChanged(fresh, prevData)) {
-              setData(fresh)
+            if (!prevData || hasMeaningfulChange(fresh, prevData)) {
               lastDataRef.current = fresh
               onComplete(fresh)
             }
