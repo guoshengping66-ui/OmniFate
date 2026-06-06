@@ -327,8 +327,14 @@ export default function ReadingPage() {
   const heroRef = useRef<HTMLDivElement>(null)
   const navScrollRef = useRef<HTMLDivElement>(null)
 
-  // Stable callback for AnalysisSession — prevents new reference on every render
+  // Guard against redundant setData calls from AnalysisSession onComplete.
+  // getSession() returns new object refs each call, so without this guard
+  // every poll/SSE completion triggers a re-render even when data is identical.
+  const lastCompleteDataRef = useRef<AnalysisResponse | null>(null)
   const handleAnalysisComplete = useCallback((fresh: AnalysisResponse) => {
+    const prev = lastCompleteDataRef.current
+    if (prev && JSON.stringify(prev) === JSON.stringify(fresh)) return
+    lastCompleteDataRef.current = fresh
     setData(fresh)
     setIsUnlocked(fresh.is_detail_unlocked)
     setIsDetailedUnlocked(fresh.is_detailed_unlocked)
