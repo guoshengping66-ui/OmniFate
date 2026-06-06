@@ -308,8 +308,23 @@ export function DailyDashboard() {
         ji: (raw.ji || []).slice(0, 3).map((i: any) => typeof i === "string" ? { label: i, value: "" } : { label: i.label || i.name || "", value: i.value || i.desc || "" }),
       })
       try {
-        // Try session-based endpoint first (if user has readings)
-        const readings = await listMyReadings()
+        // Rate limit cooldown: skip API calls if recently got 429
+        const lastFail = getCached<number>("almanac_rate_limit")
+        if (lastFail && Date.now() - lastFail < 60_000) {
+          const fallback = generateFallbackAlmanac(t)
+          setCached("almanac_" + locale, fallback)
+          setAlmanac(fallback)
+          setAlmanacLoading(false)
+          return
+        }
+        // Use cached readings list to avoid repeated API calls
+        let readings = getCached<any[]>("readings_list")
+        if (!readings) {
+          readings = await listMyReadings()
+          if (readings && readings.length > 0) {
+            setCached("readings_list", readings)
+          }
+        }
         if (readings && readings.length > 0) {
           const res = await api.get("/api/readings/daily-almanac", {
             params: { session_id: readings[0].session_id, lang: locale, fast: true },
@@ -323,7 +338,11 @@ export function DailyDashboard() {
             return
           }
         }
-      } catch {}
+      } catch (err: any) {
+        if (err?.response?.status === 429) {
+          setCached("almanac_rate_limit", Date.now())
+        }
+      }
       // Fallback: try personalized endpoint (if user has birth profile)
       try {
         if (userProfile && userProfile.birth_year) {
@@ -344,7 +363,11 @@ export function DailyDashboard() {
           setAlmanacLoading(false)
           return
         }
-      } catch {}
+      } catch (err: any) {
+        if (err?.response?.status === 429) {
+          setCached("almanac_rate_limit", Date.now())
+        }
+      }
       const fallback = generateFallbackAlmanac(t)
       setCached("almanac_" + locale, fallback)
       setAlmanac(fallback)

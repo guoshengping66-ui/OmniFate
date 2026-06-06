@@ -2,7 +2,6 @@
 import { useEffect } from "react"
 import dynamic from "next/dynamic"
 import Link from "next/link"
-import { Sparkles, Calendar, ShoppingBag, MessageCircle, Compass } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useAuth } from "@/contexts/AuthContext"
 import { useUserStore } from "@/stores/useUserStore"
@@ -31,14 +30,6 @@ const DailyDashboard = dynamic(() => import("@/components/DailyDashboard").then(
 })
 
 const FloatingFortuneSubscribe = dynamic(() => import("@/components/ui/FloatingFortuneSubscribe").then(m => m.FloatingFortuneSubscribe), { ssr: false })
-
-const QUICK_ACTIONS = [
-  { key: "reading", icon: Sparkles, href: "/reading/new", color: "text-violet-400", bg: "bg-violet-500/10", border: "border-violet-400/20" },
-  { key: "am16", icon: Compass, href: "/am16", color: "text-rose-400", bg: "bg-rose-500/10", border: "border-rose-400/20" },
-  { key: "almanac", icon: Calendar, href: "/almanac", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-400/20" },
-  { key: "shop", icon: ShoppingBag, href: "/shop", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-400/20" },
-  { key: "chat", icon: MessageCircle, href: "/divination", color: "text-sky-400", bg: "bg-sky-500/10", border: "border-sky-400/20" },
-]
 
 export default function HomePage() {
   const { t, localeHref } = useLanguage()
@@ -78,30 +69,9 @@ export default function HomePage() {
   if (hasProfile) {
     return (
       <div className="min-h-screen">
-        {/* ── Hero Fold: Profile + Quick Actions ────────────── */}
+        {/* ── Hero Fold: Profile ────────────────────────────── */}
         <section className="pt-24 pb-10 px-4">
           <UserDashboard />
-        </section>
-
-        {/* ── Quick Actions ─────────────────────────────────── */}
-        <section className="pb-8 px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="grid grid-cols-5 gap-3">
-              {QUICK_ACTIONS.map(action => {
-                const Icon = action.icon
-                return (
-                  <Link
-                    key={action.key}
-                    href={localeHref(action.href)}
-                    className={`flex flex-col items-center gap-2 py-4 rounded-xl border ${action.bg} ${action.border} hover:scale-[1.03] transition-all duration-200`}
-                  >
-                    <Icon size={20} className={action.color} />
-                    <span className="text-white/50 text-[11px] font-medium">{t(`home.quick.${action.key}`)}</span>
-                  </Link>
-                )
-              })}
-            </div>
-          </div>
         </section>
 
         {/* ── Daily Focus Fold ──────────────────────────────── */}
