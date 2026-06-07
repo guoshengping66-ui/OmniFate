@@ -5,21 +5,57 @@ import type { NextRequest } from "next/server"
 
 /**
  * Combined middleware:
- *  1. Locale detection & i18n routing (via next-intl)
- *  2. Block /test/* routes in production
- *  3. Add security response headers (CSP, HSTS, X-Frame-Options, etc.)
+ *  1. Region detection via GeoIP (CF-IPCountry → Accept-Language → default)
+ *  2. Locale detection & i18n routing (via next-intl)
+ *  3. Block /test/* routes in production
+ *  4. Add security response headers (HSTS, X-Frame-Options, etc.)
  *
- * NOTE: Region detection is NOT done in middleware because Cloudflare's
- * CF-IPCountry header can be inaccurate (returns wrong country for some IPs).
- * Instead, the frontend calls /api/region on mount to get the correct region
- * from the CF-IPCountry header, and sets the cookie client-side.
+ * Region detection flow (server-side, no API call):
+ *   1. Check existing "region" cookie (fast path, set by previous detection)
+ *   2. Use Cloudflare's CF-IPCountry header (accurate for CN/HK/MO/TW)
+ *   3. Fall back to Accept-Language header (weak signal for zh-*)
+ *   4. Default to "overseas"
+ *
+ * The detected region is set as a cookie and injected as x-omni-region header,
+ * so server components and API routes can read it without client detection.
  */
+
+const DOMESTIC_COUNTRY_CODES = new Set(["CN", "HK", "MO", "TW"])
+
+type Region = "domestic" | "overseas"
 
 const intlMiddleware = createMiddleware({
   locales,
   defaultLocale,
   localePrefix: "always",
 })
+
+/**
+ * Detect user's region from request headers.
+ * Priority: cookie > CF-IPCountry > Accept-Language > default
+ */
+function detectRegion(request: NextRequest): Region {
+  // 1. Existing cookie (set by previous detection or client switch)
+  const cookieRegion = request.cookies.get("region")?.value
+  if (cookieRegion === "domestic" || cookieRegion === "overseas") {
+    return cookieRegion
+  }
+
+  // 2. Cloudflare IP country code (most accurate signal)
+  const cfCountry = request.headers.get("cf-ipcountry")?.toUpperCase()
+  if (cfCountry && DOMESTIC_COUNTRY_CODES.has(cfCountry)) {
+    return "domestic"
+  }
+
+  // 3. Accept-Language as weak fallback
+  const acceptLang = request.headers.get("accept-language") || ""
+  if (acceptLang.toLowerCase().includes("zh")) {
+    return "domestic"
+  }
+
+  // 4. Default to overseas
+  return "overseas"
+}
 
 /** Apply common security + cache-control headers to a response */
 function applySecurityHeaders(response: NextResponse) {
@@ -61,6 +97,20 @@ export function middleware(request: NextRequest) {
 
   // Apply security headers
   applySecurityHeaders(intlResponse)
+
+  // ── Server-side region detection ──
+  // Detect region from GeoIP headers and set cookie + header for downstream use
+  const region = detectRegion(request)
+
+  // Set region cookie (30-day expiry) — client reads this, no flash of wrong content
+  intlResponse.cookies.set("region", region, {
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+    path: "/",
+    sameSite: "lax",
+  })
+
+  // Inject region header for server components and API routes
+  intlResponse.headers.set("x-omni-region", region)
 
   return intlResponse
 }

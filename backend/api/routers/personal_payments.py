@@ -116,6 +116,7 @@ async def _get_pending_order(db: AsyncSession, order_no: str) -> Optional[Order]
 
 @router.post("/create")
 async def create_payment_order(
+    request: Request,
     payload: QRPayload,
     db: AsyncSession = Depends(get_db),
     current_user: Optional[User] = Depends(get_current_user),
@@ -125,6 +126,13 @@ async def create_payment_order(
 
     返回支付宝/微信收款码URL，供前端展示
     """
+    # 0. Region validation: QR code payments are domestic-only
+    region = request.cookies.get("region", "overseas")
+    if region != "domestic":
+        raise HTTPException(
+            status_code=403,
+            detail="QR code payments are only available for domestic users. Please use PayPal.",
+        )
     # 1. 验证金额 — 必须匹配已知产品价格
     if payload.amount <= 0:
         raise HTTPException(status_code=400, detail="金额必须大于0")

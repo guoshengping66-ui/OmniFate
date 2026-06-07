@@ -30,6 +30,35 @@ router = APIRouter()
 settings = get_settings()
 
 
+# ── Region-to-payment-method validation ──────────────────────────────────────
+# Prevents cross-region price abuse: domestic users can only use Alipay/WeChat,
+# overseas users can only use PayPal. This is a defense-in-depth measure.
+ALLOWED_METHODS = {
+    "domestic": {"alipay", "wechat_pay"},
+    "overseas": {"paypal"},
+}
+
+
+def get_client_region(request: Request) -> str:
+    """Get user's region from middleware-set cookie (set by CF-IPCountry / Accept-Language)."""
+    region = request.cookies.get("region", "overseas")
+    return region if region in ("domestic", "overseas") else "overseas"
+
+
+def validate_payment_region(request: Request, payment_method: str):
+    """Validate that the payment method matches the user's detected region.
+    Raises HTTP 403 if cross-region payment is attempted.
+    """
+    region = get_client_region(request)
+    allowed = ALLOWED_METHODS.get(region, set())
+    if payment_method not in allowed:
+        raise HTTPException(
+            status_code=403,
+            detail=f"Payment method '{payment_method}' is not available for your region ('{region}'). "
+                   f"Available methods: {', '.join(allowed)}",
+        )
+
+
 _admin_emails_cached = [e.strip().lower() for e in settings.ADMIN_EMAILS.split(",") if e.strip()]
 
 
@@ -399,12 +428,15 @@ class WeChatPay:
 
 @router.post("/wechat/create")
 async def create_wechat_order(
+    request: Request,
     item_type: str = Query("unlock_report", description="商品类型"),
     reading_id: str = Query(None, description="报告 ID"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_user),
 ):
     """创建微信支付订单 — 金额由服务端决定，客户端不可篡改"""
+    # Region validation: WeChat is domestic-only
+    validate_payment_region(request, "wechat_pay")
     if not settings.WECHAT_PAY_ENABLED:
         raise HTTPException(status_code=400, detail="微信支付未启用")
 
@@ -577,12 +609,15 @@ class AlipayPay:
 
 @router.post("/alipay/create")
 async def create_alipay_order(
+    request: Request,
     item_type: str = Query("unlock_report", description="商品类型"),
     reading_id: str = Query(None, description="报告 ID"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_user),
 ):
     """创建支付宝订单 — 金额由服务端决定"""
+    # Region validation: Alipay is domestic-only
+    validate_payment_region(request, "alipay")
     if not settings.ALIPAY_ENABLED:
         raise HTTPException(status_code=400, detail="支付宝未启用")
 
@@ -794,12 +829,15 @@ class PayPalPay:
 
 @router.post("/paypal/create")
 async def create_paypal_order(
+    request: Request,
     item_type: str = Query("unlock_report", description="商品类型"),
     reading_id: str = Query(None, description="报告 ID"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_user),
 ):
     """创建 PayPal 订单 — 金额由服务端决定，需要登录以传递用户 ID 给 webhook"""
+    # Region validation: PayPal is overseas-only
+    validate_payment_region(request, "paypal")
     if not settings.PAYPAL_ENABLED:
         raise HTTPException(status_code=400, detail="PayPal 未启用")
 

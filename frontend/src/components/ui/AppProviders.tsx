@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from "next-intl"
 import { AuthProvider, useAuth } from "@/contexts/AuthContext"
 import { CartProvider } from "@/contexts/CartContext"
 import { LanguageProvider } from "@/contexts/LanguageContext"
+import { RegionProvider } from "@/contexts/RegionContext"
 
 function CartProviderWithAuth({ children }: { children: ReactNode }) {
   const { user } = useAuth()
@@ -22,13 +23,15 @@ interface AppProvidersProps {
 export function AppProviders({ children, messages, locale }: AppProvidersProps) {
   return (
     <NextIntlClientProvider messages={messages} locale={locale} timeZone="Asia/Shanghai">
-      <LanguageProvider>
-        <AuthProvider>
-          <CartProviderWithAuth>
-            {children}
-          </CartProviderWithAuth>
-        </AuthProvider>
-      </LanguageProvider>
+      <RegionProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            <CartProviderWithAuth>
+              {children}
+            </CartProviderWithAuth>
+          </AuthProvider>
+        </LanguageProvider>
+      </RegionProvider>
     </NextIntlClientProvider>
   )
 }

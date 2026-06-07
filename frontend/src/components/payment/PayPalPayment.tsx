@@ -11,6 +11,7 @@ import {
 import { Loader2, CreditCard, CheckCircle, AlertCircle } from "lucide-react"
 import { getPayPalConfig, capturePayPalOrder } from "@/lib/api"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { useRegion } from "@/hooks/useRegion"
 
 type PayPalPaymentMode = "both" | "wallet" | "card"
 
@@ -22,6 +23,24 @@ interface PayPalPaymentProps {
   onError?: (error: string) => void
   compact?: boolean
   mode?: PayPalPaymentMode
+}
+
+/**
+ * Region guard: domestic users should never load the PayPal SDK.
+ * This is a safety net — the SDK should not be imported for domestic users
+ * due to lazy loading in QRPaymentModal, but this guard ensures isolation.
+ */
+function RegionGuard({ children }: { children: React.ReactNode }) {
+  const { region } = useRegion()
+  if (region === "domestic") {
+    return (
+      <div className="text-center py-4">
+        <AlertCircle size={20} className="text-amber-400 mx-auto mb-2" />
+        <p className="text-white/50 text-sm">PayPal is not available in your region</p>
+      </div>
+    )
+  }
+  return <>{children}</>
 }
 
 export function PayPalPayment({
@@ -145,6 +164,7 @@ export function PayPalPayment({
   }
 
   return (
+    <RegionGuard>
     <PayPalScriptProvider options={sdkOptions}>
       <div className={`space-y-4 ${compact ? "" : "py-2"}`}>
         {/* Processing overlay */}
@@ -229,5 +249,6 @@ export function PayPalPayment({
         )}
       </div>
     </PayPalScriptProvider>
+    </RegionGuard>
   )
 }
