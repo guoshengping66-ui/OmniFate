@@ -58,7 +58,9 @@ if [ -z "$WEBPACK_CHUNK" ]; then
 fi
 log "✅ Webpack chunk 验证通过: $(basename $WEBPACK_CHUNK)"
 
-# ── 5. 复制 public 到 standalone 目录 ──────────────────────────────────
+# ── 5. 复制 static + public 到 standalone 目录 ──────────────────────────
+rm -rf "$STANDALONE_DIR/.next/static"
+cp -r .next/static "$STANDALONE_DIR/.next/static"
 rm -rf "$STANDALONE_DIR/public"
 cp -r public "$STANDALONE_DIR/public" 2>/dev/null || true
 
