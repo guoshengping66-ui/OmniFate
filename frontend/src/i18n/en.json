@@ -2904,7 +2904,20 @@
       "Detailed analysis of 7 destiny systems",
       "Personalized fortune prescription & action plan",
       "Curated product recommendations"
-    ]
+    ],
+    "detailedFeatures": [
+      "Deep master summary",
+      "Pain point diagnosis & remedies"
+    ],
+    "fullFeatures": [
+      "Everything in Detailed",
+      "All 7 dimension reports",
+      "AI follow-up chat",
+      "Curated product picks"
+    ],
+    "detailedIncludes": "Detailed includes:",
+    "fullIncludes": "Full includes:",
+    "fullIncludesAll": "Detailed + 7-D reports + Chat"
   },
   "productCard": {
     "aiRecommended": "AI Recommended"

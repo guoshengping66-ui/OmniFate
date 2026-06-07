@@ -85,7 +85,7 @@ export function PaywallGate({
         <p className="text-white/50 text-sm mb-4 max-w-md mx-auto">{description}</p>
 
         {/* Value list — what you'll get */}
-        <div className="max-w-sm mx-auto mb-6 text-left">
+        <div className="max-w-sm mx-auto mb-5 text-left">
           <p className="text-white/30 text-[10px] uppercase tracking-wider mb-2 text-center">{t("paywall.youWillGet") || "解锁后你将获得"}</p>
           <div className="space-y-1.5">
             {(Array.isArray(t("paywall.valueList", { returnObjects: true }))
@@ -159,6 +159,38 @@ export function PaywallGate({
                 <ChevronRight size={14} className="text-gold/40" />
               </div>
             </button>
+
+            {/* ── 精读内容列表 ── */}
+            <div className="rounded-xl bg-violet-500/[0.05] border border-violet-400/10 p-3 text-left">
+              <p className="text-violet-300/60 text-[10px] uppercase tracking-wider mb-2 font-medium">
+                {t("paywall.detailedIncludes") || "精读包含："}
+              </p>
+              {(Array.isArray(t("paywall.detailedFeatures", { returnObjects: true }))
+                ? t("paywall.detailedFeatures", { returnObjects: true }) as string[]
+                : ["精读深度总论", "痛点诊断与改运方案"]
+              ).map((item: string, i: number) => (
+                <div key={i} className="flex items-center gap-2 text-white/40 text-[11px] py-0.5">
+                  <CheckCircle size={10} className="text-violet-400/60 flex-shrink-0" />
+                  <span>{item}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* ── 全维内容列表 ── */}
+            <div className="rounded-xl bg-gold/[0.05] border border-gold/10 p-3 text-left">
+              <p className="text-gold/60 text-[10px] uppercase tracking-wider mb-2 font-medium">
+                {t("paywall.fullIncludes") || "全维包含："}
+              </p>
+              {(Array.isArray(t("paywall.fullFeatures", { returnObjects: true }))
+                ? t("paywall.fullFeatures", { returnObjects: true }) as string[]
+                : ["包含精读全部内容", "7个维度完整报告", "AI 追问互动", "专属好物推荐"]
+              ).map((item: string, i: number) => (
+                <div key={i} className="flex items-center gap-2 text-white/40 text-[11px] py-0.5">
+                  <CheckCircle size={10} className="text-gold/60 flex-shrink-0" />
+                  <span>{item}</span>
+                </div>
+              ))}
+            </div>
 
             {/* 余额提示 */}
             <p className="text-white/25 text-xs text-center">

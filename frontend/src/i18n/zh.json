@@ -2904,7 +2904,20 @@
       "7个专业维度详细分析",
       "个性化改运处方和行动建议",
       "专属好物推荐和搭配指南"
-    ]
+    ],
+    "detailedFeatures": [
+      "精读深度总论",
+      "痛点诊断与改运方案"
+    ],
+    "fullFeatures": [
+      "包含精读全部内容",
+      "7个维度完整报告",
+      "AI 追问互动",
+      "专属好物推荐"
+    ],
+    "detailedIncludes": "精读包含：",
+    "fullIncludes": "全维包含：",
+    "fullIncludesAll": "精读内容 + 7维报告 + 追问"
   },
   "productCard": {
     "aiRecommended": "AI 推荐"
