@@ -158,9 +158,9 @@ try{
         {/* Pre-React chunk error recovery — defense against Cloudflare
             serving stale HTML with dead chunk hashes.
 
-            Layer 1 (0ms): Listen for <script>/<link> load failures → flag
-            Layer 2 (1s): If script/link failed, reload once
-            Layer 3 (3s): Fetch /api/version → if build ID differs, reload
+            IMMEDIATE version check: compares embedded build ID with server
+            on page load. If stale, reloads instantly with cache-bust.
+            Also detects <script>/<link> load failures as a fallback.
             All layers use sessionStorage (max 3 attempts) to prevent loops. */}
         <script
           dangerouslySetInnerHTML={{
@@ -173,6 +173,12 @@ try{
   if(attempts>=3)return;
   s.setItem(K,String(attempts+1));
 
+  function reloadWithCacheBust(){
+    var url=new URL(window.location.href);
+    url.searchParams.set("_cb",Date.now().toString());
+    window.location.href=url.toString();
+  }
+
   // ── Layer 1: Detect <script>/<link> load failures (0ms) ──
   window.addEventListener("error",function(e){
     var tag=(e.target&&e.target.tagName)||"";
@@ -181,37 +187,30 @@ try{
     }
   },true);
 
-  // ── Layer 2: Version API check (3s) ──
-  // Compare the build ID from /api/version with the cached one.
-  // If they differ the server has a new build → reload with cache-bust.
-  // Use ?v=<timestamp> to bypass Cloudflare CDN cache.
-  setTimeout(function(){
-    fetch("/api/version",{cache:"no-store"}).then(function(r){
-      return r.json();
-    }).then(function(d){
-      var serverBid=d&&d.buildId;
-      if(!serverBid||serverBid==="unknown")return;
-      var embedded=s.getItem(B);
-      if(!embedded){
-        s.setItem(B,serverBid);
-        return;
-      }
-      if(serverBid!==embedded){
-        var url=new URL(window.location.href);
-        url.searchParams.set("_cb",Date.now().toString());
-        window.location.href=url.toString();
-      }
-    }).catch(function(){});
-  },3000);
+  // ── Layer 2: IMMEDIATE version check (0ms) ──
+  // Fetch /api/version immediately and compare with stored build ID.
+  // If different → new deploy happened → reload with cache-bust instantly.
+  fetch("/api/version?_cb="+Date.now(),{cache:"no-store"}).then(function(r){
+    return r.json();
+  }).then(function(d){
+    var serverBid=d&&d.buildId;
+    if(!serverBid||serverBid==="unknown")return;
+    var embedded=s.getItem(B);
+    if(!embedded){
+      s.setItem(B,serverBid);
+      return;
+    }
+    if(serverBid!==embedded){
+      reloadWithCacheBust();
+    }
+  }).catch(function(){});
 
-  // ── If a script/link failed to load, also try a quick reload after 1s ──
+  // ── Layer 3: If a script/link failed, reload after 500ms ──
   setTimeout(function(){
     if(s.getItem(K+"_fail")==="1"){
-      var url=new URL(window.location.href);
-      url.searchParams.set("_cb",Date.now().toString());
-      window.location.href=url.toString();
+      reloadWithCacheBust();
     }
-  },1000);
+  },500);
 
   // ── Cleanup after 60s ──
   setTimeout(function(){
