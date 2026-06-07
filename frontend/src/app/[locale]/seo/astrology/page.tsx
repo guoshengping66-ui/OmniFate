@@ -37,11 +37,16 @@ export default function AstrologySEOPage() {
 
         <ScrollReveal>
           <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 text-[11px] tracking-[0.25em] uppercase text-gold/50 font-medium mb-4">
+              <span className="w-8 h-px bg-gradient-to-r from-transparent to-gold/30" />
+              {t("seo.astrology.breadcrumb")}
+              <span className="w-8 h-px bg-gradient-to-l from-transparent to-gold/30" />
+            </div>
             <div className="text-5xl mb-4">✦</div>
-            <h1 className="text-4xl md:text-5xl font-serif font-bold text-gold mb-4">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-white mb-4">
               {t("seo.astrology.title")}
             </h1>
-            <p className="text-white/50 text-lg max-w-2xl mx-auto leading-relaxed">
+            <p className="text-white/40 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
               {t("seo.astrology.desc")}
             </p>
           </div>

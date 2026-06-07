@@ -1,10 +1,11 @@
 "use client"
 import { Suspense, useEffect, useState, useMemo, useCallback, lazy } from "react"
 import { useSearchParams } from "next/navigation"
-import { ShoppingBag, Loader2, Sparkles, Search, TrendingUp, Zap, ArrowRight } from "lucide-react"
+import { ShoppingBag, Loader2, Sparkles, Search, ArrowRight } from "lucide-react"
 import { listProducts, matchProducts, Product } from "@/lib/api"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
+import { ScrollReveal } from "@/components/ui/ScrollReveal"
 
 const ProductCard = lazy(() => import("@/components/reading/ProductCard").then(m => ({ default: m.ProductCard })))
 const AIRecommendHero = lazy(() => import("@/components/shop/AIRecommendHero").then(m => ({ default: m.AIRecommendHero })))
@@ -86,7 +87,7 @@ function ShopContent() {
     }
   }, [sessionTags, locale])
 
-  // Memoized filtered + sorted products — no state, just derived value
+  // Memoized filtered + sorted products
   const products = useMemo(() => {
     let filtered = allProducts
     if (activeCategory) {
@@ -121,44 +122,55 @@ function ShopContent() {
         <Breadcrumbs items={[{ label: t("nav.shop") }]} />
 
         {/* Disclaimer banner */}
-        <div className="mb-6 p-3 rounded-xl border border-amber-500/20 bg-amber-500/5 text-center">
-          <p className="text-amber-200/70 text-xs leading-relaxed">
-            {t("shop.disclaimer") || "Products are cultural creative items. Descriptions are based on traditional destiny culture, not scientifically verified."}
-            <a href={localeHref("/disclaimer")} className="text-gold/60 hover:text-gold ml-1 underline">{t("shop.disclaimerLink") || "View Details"}</a>
-          </p>
-        </div>
+        <ScrollReveal>
+          <div className="mb-6 p-3 rounded-xl border border-amber-500/20 bg-amber-500/5 text-center">
+            <p className="text-amber-200/70 text-xs leading-relaxed">
+              {t("shop.disclaimer") || "Products are cultural creative items. Descriptions are based on traditional destiny culture, not scientifically verified."}
+              <a href={localeHref("/disclaimer")} className="text-gold/60 hover:text-gold ml-1 underline">{t("shop.disclaimerLink") || "View Details"}</a>
+            </p>
+          </div>
+        </ScrollReveal>
 
         {/* Header */}
-        <div className="text-center mb-6">
-          <ShoppingBag size={36} className="text-gold mx-auto mb-3" />
-          <h1 className="text-4xl font-serif font-bold text-gold mb-2">{t("shop.title")}</h1>
-          {isPersonalized ? (
-            <p className="text-gold/70 flex items-center justify-center gap-1.5">
-              <Sparkles size={14} className="fill-gold/30" />
-              {t("shop.aiRecommend")}
-              <Sparkles size={14} className="fill-gold/30" />
-            </p>
-          ) : (
-            <p className="text-white/50">{t("shop.desc")}</p>
-          )}
-        </div>
+        <ScrollReveal>
+          <div className="text-center mb-6">
+            <div className="inline-flex items-center gap-2 text-[11px] tracking-[0.25em] uppercase text-gold/50 font-medium mb-4">
+              <span className="w-8 h-px bg-gradient-to-r from-transparent to-gold/30" />
+              {t("nav.shop")}
+              <span className="w-8 h-px bg-gradient-to-l from-transparent to-gold/30" />
+            </div>
+            <ShoppingBag size={28} className="text-gold mx-auto mb-3" />
+            <h1 className="text-2xl md:text-3xl font-serif font-bold text-white mb-2">{t("shop.title")}</h1>
+            {isPersonalized ? (
+              <p className="text-gold/70 flex items-center justify-center gap-1.5 text-sm">
+                <Sparkles size={14} className="fill-gold/30" />
+                {t("shop.aiRecommend")}
+                <Sparkles size={14} className="fill-gold/30" />
+              </p>
+            ) : (
+              <p className="text-white/40 text-sm">{t("shop.desc")}</p>
+            )}
+          </div>
+        </ScrollReveal>
 
         {/* Scenario cards */}
         {!isPersonalized && !loading && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-            {SCENARIOS.map(scenario => (
-              <a
-                key={scenario.key}
-                href={localeHref(`/reading/new`)}
-                className={`relative overflow-hidden rounded-xl p-4 bg-gradient-to-br ${scenario.color} border ${scenario.border} hover:scale-[1.02] transition-all duration-300 group`}
-              >
-                <span className="text-2xl mb-2 block">{scenario.emoji}</span>
-                <p className="text-white/70 text-xs font-medium">{scenario.tag}</p>
-                <p className="text-white/30 text-[10px] mt-1">{t("shop.scenario.cta") || "推命获取专属推荐"}</p>
-                <ArrowRight size={12} className="absolute top-3 right-3 text-white/20 group-hover:text-white/50 group-hover:translate-x-0.5 transition-all" />
-              </a>
-            ))}
-          </div>
+          <ScrollReveal delay={0.08}>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+              {SCENARIOS.map(scenario => (
+                <a
+                  key={scenario.key}
+                  href={localeHref(`/reading/new`)}
+                  className={`relative overflow-hidden rounded-xl p-4 bg-gradient-to-br ${scenario.color} border ${scenario.border} hover:scale-[1.02] transition-all duration-300 group`}
+                >
+                  <span className="text-xl mb-2 block">{scenario.emoji}</span>
+                  <p className="text-white/70 text-xs font-medium">{scenario.tag}</p>
+                  <p className="text-white/30 text-[10px] mt-1">{t("shop.scenario.cta") || "推命获取专属推荐"}</p>
+                  <ArrowRight size={12} className="absolute top-3 right-3 text-white/20 group-hover:text-white/50 group-hover:translate-x-0.5 transition-all" />
+                </a>
+              ))}
+            </div>
+          </ScrollReveal>
         )}
 
         {/* AI Recommend Hero */}
@@ -169,38 +181,40 @@ function ShopContent() {
         )}
 
         {/* Category + Sort + Search */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-6">
-          <div className="flex gap-1.5 overflow-x-auto scrollbar-none flex-1">
-            {CATEGORIES.map(cat => (
-              <button
-                key={cat.key}
-                onClick={() => handleCategoryChange(cat.key)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all
-                  ${activeCategory === cat.key
-                    ? "bg-gold/15 text-gold border border-gold/30"
-                    : "bg-white/[0.04] text-white/40 border border-white/[0.08] hover:text-white/60 hover:border-white/15"
-                  }`}
-              >
-                {cat.label}
-              </button>
-            ))}
-          </div>
-          <div className="flex items-center gap-2">
-            <select value={sortBy} onChange={handleSortChange}
-              className="bg-white/[0.04] border border-white/[0.08] rounded-full px-3 py-1.5 text-xs text-white/50 focus:border-gold/30 focus:outline-none appearance-none cursor-pointer">
-              <option value="match">{t("shop.sort.match") || "命盘匹配"}</option>
-              <option value="rating">{t("shop.sort.rating") || "评分最高"}</option>
-              <option value="price_asc">{t("shop.sort.priceAsc") || "价格低→高"}</option>
-              <option value="price_desc">{t("shop.sort.priceDesc") || "价格高→低"}</option>
-            </select>
-            <div className="relative">
-              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
-              <input type="text" value={searchQuery} onChange={handleSearchChange}
-                placeholder={t("shop.search")}
-                className="w-full sm:w-44 bg-white/[0.04] border border-white/[0.08] rounded-full pl-9 pr-4 py-1.5 text-xs text-white/70 placeholder-white/25 focus:border-gold/30 focus:outline-none transition-colors" />
+        <ScrollReveal delay={0.1}>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-6">
+            <div className="flex gap-1.5 overflow-x-auto scrollbar-none flex-1">
+              {CATEGORIES.map(cat => (
+                <button
+                  key={cat.key}
+                  onClick={() => handleCategoryChange(cat.key)}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all
+                    ${activeCategory === cat.key
+                      ? "bg-gold/15 text-gold border border-gold/30"
+                      : "bg-white/[0.04] text-white/40 border border-white/[0.08] hover:text-white/60 hover:border-white/15"
+                    }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+            <div className="flex items-center gap-2">
+              <select value={sortBy} onChange={handleSortChange}
+                className="bg-white/[0.04] border border-white/[0.08] rounded-full px-3 py-1.5 text-xs text-white/50 focus:border-gold/30 focus:outline-none appearance-none cursor-pointer">
+                <option value="match">{t("shop.sort.match") || "命盘匹配"}</option>
+                <option value="rating">{t("shop.sort.rating") || "评分最高"}</option>
+                <option value="price_asc">{t("shop.sort.priceAsc") || "价格低→高"}</option>
+                <option value="price_desc">{t("shop.sort.priceDesc") || "价格高→低"}</option>
+              </select>
+              <div className="relative">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+                <input type="text" value={searchQuery} onChange={handleSearchChange}
+                  placeholder={t("shop.search")}
+                  className="w-full sm:w-44 bg-white/[0.04] border border-white/[0.08] rounded-full pl-9 pr-4 py-1.5 text-xs text-white/70 placeholder-white/25 focus:border-gold/30 focus:outline-none transition-colors" />
+              </div>
             </div>
           </div>
-        </div>
+        </ScrollReveal>
 
         {/* Results count */}
         {!loading && products.length > 0 && (
@@ -211,19 +225,19 @@ function ShopContent() {
 
         {/* Products grid */}
         {loading ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {Array.from({ length: 6 }).map((_, i) => <ProductCardSkeleton key={i} />)}
           </div>
         ) : products.length > 0 ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {products.map(p => (
               <ProductCard key={p.id} product={p} />
             ))}
           </div>
         ) : (
           <div className="card-glass p-16 text-center">
-            <ShoppingBag size={48} className="mx-auto mb-4 text-white/20" />
-            <p className="text-white/40">{allProducts.length > 0 ? t("shop.noMatch") : t("shop.noProducts")}</p>
+            <ShoppingBag size={40} className="mx-auto mb-4 text-white/20" />
+            <p className="text-white/40 text-sm">{allProducts.length > 0 ? t("shop.noMatch") : t("shop.noProducts")}</p>
             {allProducts.length > 0 && (
               <button onClick={handleClearFilter} className="text-gold text-xs mt-2 hover:underline">
                 {t("shop.clearFilter")}

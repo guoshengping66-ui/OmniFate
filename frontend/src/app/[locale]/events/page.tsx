@@ -1,7 +1,7 @@
 "use client"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Sparkles, CreditCard } from "lucide-react"
+import { Sparkles, Clock, AlertCircle } from "lucide-react"
 import toast from "react-hot-toast"
 import { EventInput, type EventFormData } from "@/components/monetization/EventInput"
 import { PaymentModal } from "@/components/monetization/PaymentModal"
@@ -9,6 +9,8 @@ import { api, payEvent, analyzeEvent } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { STARDUST_COST } from "@/lib/pricing.config"
+import { ScrollReveal } from "@/components/ui/ScrollReveal"
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 
 export default function EventsPage() {
   const router = useRouter()
@@ -98,50 +100,73 @@ export default function EventsPage() {
   return (
     <div className="min-h-screen pt-24 pb-16 px-4">
       <div className="max-w-2xl mx-auto">
+        <Breadcrumbs items={[{ label: t("nav.events") || t("events.title") }]} />
+
         {/* Disclaimer banner */}
-        <div className="mb-6 p-3 rounded-xl border border-amber-500/20 bg-amber-500/5 text-center">
-          <p className="text-amber-200/70 text-xs leading-relaxed">
-            {t("events.disclaimer")}
-            <a href={localeHref("/disclaimer")} className="text-gold/60 hover:text-gold ml-1 underline">{t("events.disclaimerDetail")}</a>
-          </p>
-        </div>
-
-        <div className="text-center mb-10">
-          <Sparkles className="text-gold mx-auto mb-3" size={28} />
-          <h1 className="text-2xl font-serif font-bold text-gold">{t("events.title")}</h1>
-          <p className="text-white/40 text-sm mt-1">
-            {t("events.desc")}
-          </p>
-        </div>
-
-        <EventInput
-          onSubmit={handleSubmit}
-          loading={loading}
-          freeQuota={freeQuota}
-        />
-
-        {/* Info card */}
-        <div className="card-glass p-5 mt-6 text-sm text-white/40 space-y-2">
-          <p><strong className="text-white/60">{t("events.whatIs")}</strong></p>
-          <p>
-            {t("events.explanation")}
-          </p>
-          <div className="border-t border-white/10 pt-2 mt-2">
-            {isPremium ? (
-              <p className="text-green-400/60 text-xs">
-                {t("events.memberQuota").replace("{count}", String(freeQuota))}
-                {user?.subscription_tier === "premium_yearly" ? t("events.yearlyMember") : t("events.monthlyMember")}
-              </p>
-            ) : (
-              <p className="text-gold/60 text-xs">
-                {t("events.freeUserNote")}
-              </p>
-            )}
-            <p className="text-white/30 text-xs mt-1">
-              {t("events.afterComplete")}
+        <ScrollReveal>
+          <div className="mb-6 p-3 rounded-xl border border-amber-500/20 bg-amber-500/5 text-center">
+            <p className="text-amber-200/70 text-xs leading-relaxed">
+              {t("events.disclaimer")}
+              <a href={localeHref("/disclaimer")} className="text-gold/60 hover:text-gold ml-1 underline">{t("events.disclaimerDetail")}</a>
             </p>
           </div>
-        </div>
+        </ScrollReveal>
+
+        {/* Header */}
+        <ScrollReveal>
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-2 text-[11px] tracking-[0.25em] uppercase text-gold/50 font-medium mb-4">
+              <span className="w-8 h-px bg-gradient-to-r from-transparent to-gold/30" />
+              {t("events.title")}
+              <span className="w-8 h-px bg-gradient-to-l from-transparent to-gold/30" />
+            </div>
+            <Sparkles className="text-gold mx-auto mb-3" size={28} />
+            <h1 className="text-2xl md:text-3xl font-serif font-bold text-white mb-2">{t("events.title")}</h1>
+            <p className="text-white/40 text-sm max-w-md mx-auto">
+              {t("events.desc")}
+            </p>
+          </div>
+        </ScrollReveal>
+
+        {/* Event Input Form */}
+        <ScrollReveal delay={0.08}>
+          <EventInput
+            onSubmit={handleSubmit}
+            loading={loading}
+            freeQuota={freeQuota}
+          />
+        </ScrollReveal>
+
+        {/* Info card */}
+        <ScrollReveal delay={0.12}>
+          <div className="card-glass p-5 mt-6">
+            <div className="flex items-center gap-2 mb-3">
+              <AlertCircle size={14} className="text-gold/50" />
+              <p className="text-white/60 text-xs font-medium">{t("events.whatIs")}</p>
+            </div>
+            <p className="text-white/40 text-xs leading-relaxed mb-3">
+              {t("events.explanation")}
+            </p>
+            <div className="border-t border-white/[0.06] pt-3">
+              {isPremium ? (
+                <div className="flex items-center gap-2 text-green-400/60 text-xs">
+                  <Clock size={12} />
+                  <span>
+                    {t("events.memberQuota").replace("{count}", String(freeQuota))}
+                    {user?.subscription_tier === "premium_yearly" ? t("events.yearlyMember") : t("events.monthlyMember")}
+                  </span>
+                </div>
+              ) : (
+                <p className="text-gold/50 text-xs">
+                  {t("events.freeUserNote")}
+                </p>
+              )}
+              <p className="text-white/25 text-[11px] mt-2">
+                {t("events.afterComplete")}
+              </p>
+            </div>
+          </div>
+        </ScrollReveal>
       </div>
 
       {/* Payment Modal for non-subscribers */}
