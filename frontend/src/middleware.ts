@@ -97,8 +97,8 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Only run middleware on routes that need locale detection.
-  // Static assets, _next/*, and API routes are excluded.
-  // Also exclude paths already prefixed with /en or /zh to prevent double-prefix.
-  matcher: ["/", "/((?!_next|api|favicon.ico|.*\\.|en/|zh/|en$|zh$).*)"],
+  // Run on ALL routes except static assets, API routes, and files with extensions.
+  // Region detection MUST run on /en/* and /zh/* paths too, so users on localized
+  // pages get the correct region cookie.
+  matcher: ["/", "/((?!_next|api|favicon.ico|.*\\.).*)"],
 }
