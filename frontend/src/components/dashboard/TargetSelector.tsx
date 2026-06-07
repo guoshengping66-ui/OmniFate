@@ -1,5 +1,6 @@
 "use client"
 import { useState, useRef, useEffect, Suspense, lazy } from "react"
+import { createPortal } from "react-dom"
 import { ChevronDown, User, Users, Plus, Check, X, Loader2 } from "lucide-react"
 import toast from "react-hot-toast"
 import { useUserStore } from "@/stores/useUserStore"
@@ -69,7 +70,7 @@ export function TargetSelector() {
           {/* Divider */}
           <div className="border-t border-white/10" />
 
-          {/* Add new */}
+          {/* Add new — uses portal to escape parent stacking context */}
           <button
             onClick={() => { setOpen(false); setShowAddDialog(true) }}
             className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-white/40 hover:bg-white/5 hover:text-white/60 transition-colors"
@@ -80,13 +81,14 @@ export function TargetSelector() {
         </div>
       )}
 
-      {/* Add Friend Dialog */}
-      {showAddDialog && (
+      {/* Add Friend Dialog — rendered via portal to document.body */}
+      {showAddDialog && createPortal(
         <AddFriendDialog
           onClose={() => setShowAddDialog(false)}
           onSave={createBirthProfile}
           t={t}
-        />
+        />,
+        document.body,
       )}
     </div>
   )
@@ -110,6 +112,13 @@ function AddFriendDialog({
   const [birthMinute, setBirthMinute] = useState(0)
   const [birthCity, setBirthCity] = useState("")
   const [saving, setSaving] = useState(false)
+
+  // Lock body scroll while dialog is open
+  useEffect(() => {
+    const prev = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    return () => { document.body.style.overflow = prev }
+  }, [])
 
   const handleSave = async () => {
     if (!nickname.trim()) {
@@ -142,10 +151,13 @@ function AddFriendDialog({
   }
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-      <div className="bg-ink-light/95 border border-white/10 rounded-2xl w-full max-w-md max-h-[85vh] overflow-y-auto shadow-2xl">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-md p-4"
+      style={{ zIndex: 2147483647 }}>
+      {/* Click backdrop to close */}
+      <div className="absolute inset-0" onClick={onClose} />
+      <div className="relative bg-[#1a1430] border border-white/10 rounded-2xl w-full max-w-md max-h-[85vh] overflow-y-auto shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-white/10">
+        <div className="flex items-center justify-between p-5 border-b border-white/10 sticky top-0 bg-[#1a1430] z-10">
           <div>
             <h3 className="font-serif text-lg text-gold">{t("target.addFriendTitle")}</h3>
             <p className="text-white/40 text-xs mt-0.5">{t("target.addFriendDesc")}</p>
@@ -229,7 +241,7 @@ function AddFriendDialog({
         </div>
 
         {/* Footer */}
-        <div className="flex gap-3 p-5 border-t border-white/10">
+        <div className="flex gap-3 p-5 border-t border-white/10 sticky bottom-0 bg-[#1a1430]">
           <button
             onClick={onClose}
             disabled={saving}
