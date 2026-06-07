@@ -4,10 +4,13 @@ import { NextRequest, NextResponse } from "next/server"
  * Region detection API
  *
  * Detection priority:
- *   1. CF-IPCountry header (Cloudflare — may be inaccurate for some IPs)
- *   2. ipwho.is geolocation API (free, no key required — fallback)
- *   3. Accept-Language header (weak signal)
- *   4. Default to "overseas"
+ *   1. ipwho.is geolocation API (free, accurate, no key required)
+ *   2. Accept-Language header (weak signal)
+ *   3. Default to "overseas"
+ *
+ * NOTE: We do NOT use CF-IPCountry because it is inaccurate for some IPs
+ * (e.g. returns CN for US-based VPN IPs). ipwho.is uses MaxMind data
+ * and is more reliable.
  *
  * Response: { region: "domestic" | "overseas", country: string, source: string }
  */
@@ -26,28 +29,14 @@ const noCacheHeaders = {
 }
 
 export async function GET(request: NextRequest) {
-  // 1. Try Cloudflare IP Country header
-  const cfCountry = request.headers.get("cf-ipcountry")?.toUpperCase()
-  if (cfCountry && DOMESTIC_COUNTRIES.has(cfCountry)) {
-    return NextResponse.json(
-      { region: "domestic", country: cfCountry, source: "cf-ipcountry" },
-      { headers: noCacheHeaders },
-    )
-  }
-  if (cfCountry && !DOMESTIC_COUNTRIES.has(cfCountry)) {
-    return NextResponse.json(
-      { region: "overseas", country: cfCountry, source: "cf-ipcountry" },
-      { headers: noCacheHeaders },
-    )
-  }
-
-  // 2. Fallback: use ipwho.is geolocation API (free, no key required)
+  // 1. Get user's real IP from Cloudflare/proxy headers
   const connectingIp = request.headers.get("cf-connecting-ip")
     || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+
   if (connectingIp) {
     try {
       const geoRes = await fetch(`https://ipwho.is/${connectingIp}`, {
-        signal: AbortSignal.timeout(3000), // 3 second timeout
+        signal: AbortSignal.timeout(3000),
       })
       const geoData = await geoRes.json()
       if (geoData.success && geoData.country_code) {
@@ -59,11 +48,11 @@ export async function GET(request: NextRequest) {
         )
       }
     } catch {
-      // ipwho.is failed — fall through to next method
+      // ipwho.is failed — fall through
     }
   }
 
-  // 3. Try Accept-Language as weak signal
+  // 2. Try Accept-Language as weak signal
   const acceptLang = request.headers.get("accept-language") || ""
   if (acceptLang.toLowerCase().includes("zh")) {
     return NextResponse.json(
@@ -72,7 +61,7 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  // 4. Default to overseas
+  // 3. Default to overseas
   return NextResponse.json(
     { region: "overseas", country: "UNKNOWN", source: "default" },
     { headers: noCacheHeaders },
