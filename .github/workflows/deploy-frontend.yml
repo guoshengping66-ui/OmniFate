@@ -191,6 +191,9 @@ jobs:
 
               sleep 5
 
+              # ⚠️ 关键: STANDALONE_DIR 是相对路径，必须先 cd 回 frontend 目录才能正确读取
+              cd /opt/OmniFate/frontend
+
               # ── Post-deploy verification ──
               echo "🔍 验证服务器正在运行新构建..."
 
