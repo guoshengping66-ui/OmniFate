@@ -89,53 +89,11 @@ jobs:
               # 用 sudo 运行整个构建流程，避免 root 权限问题
               echo "🧹 彻底清理旧构建 + webpack 缓存..."
               sudo chown -R $(whoami) /opt/OmniFate/frontend
-              # Delete EVERYTHING to ensure clean build (prevents stale chunk hashes)
               sudo rm -rf /opt/OmniFate/frontend/.next
               sudo rm -rf /opt/OmniFate/frontend/node_modules
               sudo rm -rf /opt/OmniFate/frontend/.turbo
-              # Also clear any webpack cache that might persist
               sudo rm -rf /tmp/webpack* 2>/dev/null || true
               sudo rm -rf /root/.cache/webpack* 2>/dev/null || true
-
-              cd /opt/OmniFate/frontend
-              sudo chown -R $(whoami) .
-              npm ci --production=false || npm install
-              sudo chown -R $(whoami) .next 2>/dev/null || true
-
-              echo "🔨 构建生产版本..."
-              NODE_ENV=production npm run build
-
-              # ── Verify build output before copying ──
-              echo "🔍 验证构建产物..."
-              BUILD_PAGE_COUNT=$(find .next/server/app -name "*.html" 2>/dev/null | wc -l)
-              echo "   Pre-rendered pages: $BUILD_PAGE_COUNT"
-              if [ "$BUILD_PAGE_COUNT" -lt 2 ]; then
-                echo "❌ 构建异常: 只有 $BUILD_PAGE_COUNT 个预渲染页面（预期 >= 2）"
-                exit 1
-              fi
-
-              # Extract a build chunk hash to verify freshness
-              BUILD_LAYOUT=$(find .next/static/chunks/app -name "layout-*.js" 2>/dev/null | head -1)
-              if [ -n "$BUILD_LAYOUT" ]; then
-                echo "   Layout chunk: $(basename $BUILD_LAYOUT)"
-              else
-                echo "⚠️  未找到 layout chunk，检查构建输出..."
-                ls .next/static/chunks/app/ 2>/dev/null || echo "   chunks/app 目录不存在"
-              fi
-
-              # ── Rebuild standalone server completely from fresh build ──
-              # Instead of patching .next/static into an existing standalone dir,
-              # we stop PM2 first, delete the OLD standalone dir, rebuild, then start.
-              # This ensures pre-rendered HTML and static chunks are always in sync.
-
-              # Stop PM2 BEFORE rebuilding so there's no stale process
-              echo "🛑 停止前端服务 (确保无旧进程)..."
-              cd /opt/OmniFate
-              pm2 delete frontend 2>/dev/null || true
-
-              # Delete old standalone output completely
-              echo "🧹 清理旧 standalone 目录..."
-              sudo rm -rf /opt/OmniFate/frontend/.next
 
               cd /opt/OmniFate/frontend
               sudo chown -R $(whoami) .
@@ -239,7 +197,7 @@ jobs:
               HTML_LAYOUT_HASH=$(echo "$HTML_RESPONSE" | grep -oP 'layout-[a-f0-9]+\.js' | head -1)
               echo "   HTML layout chunk: $HTML_LAYOUT_HASH"
 
-              EXPECTED_LAYOUT=$(basename "$STANDALONE_LAYOUT" 2>/dev/null)
+              EXPECTED_LAYOUT=$(basename "${STANDALONE_LAYOUT:-}" 2>/dev/null)
               if [ "$HTML_LAYOUT_HASH" = "$EXPECTED_LAYOUT" ]; then
                 echo "✅ 部署验证通过: HTML 引用的 chunk 与构建产物匹配"
               else
