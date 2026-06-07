@@ -44,34 +44,38 @@ export function middleware(request: NextRequest) {
     return new NextResponse("Page Not Found", { status: 404 })
   }
 
-  // ── Region detection: set region cookie from CF-IPCountry ──
+  // ── Region detection: set/update region cookie from CF-IPCountry ──
   // Cloudflare sets this header; nginx must pass it through (proxy_set_header CF-IPCountry $http_cf_ipcountry;)
-  const cfCountry = request.headers.get("cf-ipcountry")
+  // Always update when country changes (e.g. user switches network/VPN)
+  const cfCountry = request.headers.get("cf-ipcountry")?.toUpperCase()
+  const existingCountry = request.cookies.get("country")?.value
   const existingRegion = request.cookies.get("region")?.value
-  if (cfCountry && !existingRegion) {
-    const isDomestic = DOMESTIC_COUNTRIES.has(cfCountry.toUpperCase())
+
+  if (cfCountry) {
+    const isDomestic = DOMESTIC_COUNTRIES.has(cfCountry)
     const region = isDomestic ? "domestic" : "overseas"
-    const country = cfCountry.toUpperCase()
 
-    // Run i18n middleware first, then set cookies on its response
-    const intlResponse = intlMiddleware(request)
-    applySecurityHeaders(intlResponse)
+    // Only update if: no cookie exists yet, OR country changed
+    if (!existingRegion || existingCountry !== cfCountry) {
+      // Run i18n middleware first, then set cookies on its response
+      const intlResponse = intlMiddleware(request)
+      applySecurityHeaders(intlResponse)
 
-    // Set region cookies: 30-day expiry, same-site, secure, path=/
-    intlResponse.cookies.set("region", region, {
-      maxAge: 30 * 24 * 60 * 60,
-      sameSite: "lax",
-      secure: true,
-      path: "/",
-    })
-    intlResponse.cookies.set("country", country, {
-      maxAge: 30 * 24 * 60 * 60,
-      sameSite: "lax",
-      secure: true,
-      path: "/",
-    })
+      intlResponse.cookies.set("region", region, {
+        maxAge: 30 * 24 * 60 * 60,
+        sameSite: "lax",
+        secure: true,
+        path: "/",
+      })
+      intlResponse.cookies.set("country", cfCountry, {
+        maxAge: 30 * 24 * 60 * 60,
+        sameSite: "lax",
+        secure: true,
+        path: "/",
+      })
 
-    return intlResponse
+      return intlResponse
+    }
   }
 
   // Redirect /reading/* to /{locale}/reading/* if locale is missing

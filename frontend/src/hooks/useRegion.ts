@@ -82,10 +82,15 @@ export function useRegion() {
   })
   const [isLoaded, setIsLoaded] = useState(true)
 
-  // On mount, if no cookie and no cache, fetch from API in background
+  // On mount: if cookie exists, sync localStorage to stay consistent;
+  // otherwise fetch from API in background
   useEffect(() => {
     const cookieRegion = getCookie("region")
-    if (cookieRegion) return // Middleware already detected
+    if (cookieRegion === "domestic" || cookieRegion === "overseas") {
+      // Always sync cookie → localStorage (in case user's location changed)
+      cacheRegion(cookieRegion)
+      return
+    }
 
     const cached = getCachedRegion()
     if (cached) return // Already have a valid cached value
