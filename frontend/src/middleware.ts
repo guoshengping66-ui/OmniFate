@@ -44,35 +44,32 @@ export function middleware(request: NextRequest) {
     return new NextResponse("Page Not Found", { status: 404 })
   }
 
-  // ── Region detection: set/update region cookie from CF-IPCountry ──
+  // ── Region detection: set region cookie from CF-IPCountry ──
   // Cloudflare sets this header; nginx must pass it through (proxy_set_header CF-IPCountry $http_cf_ipcountry;)
-  // Always update when country changes (e.g. user switches network/VPN)
+  // Always set/refresh cookies so they stay accurate even if Cloudflare
+  // caches a response with old cookie values from a different visitor.
   const cfCountry = request.headers.get("cf-ipcountry")?.toUpperCase()
-  const existingCountry = request.cookies.get("country")?.value
-  const existingRegion = request.cookies.get("region")?.value
 
   if (cfCountry) {
     const isDomestic = DOMESTIC_COUNTRIES.has(cfCountry)
     const region = isDomestic ? "domestic" : "overseas"
 
-    // Only update if: no cookie exists yet, OR country changed
-    if (!existingRegion || existingCountry !== cfCountry) {
-      // Run i18n middleware first, then set cookies on its response
-      const intlResponse = intlMiddleware(request)
-      applySecurityHeaders(intlResponse)
+    // Always run i18n middleware and set cookies
+    const intlResponse = intlMiddleware(request)
+    applySecurityHeaders(intlResponse)
 
-      intlResponse.cookies.set("region", region, {
-        maxAge: 30 * 24 * 60 * 60,
-        sameSite: "lax",
-        secure: true,
-        path: "/",
-      })
-      intlResponse.cookies.set("country", cfCountry, {
-        maxAge: 30 * 24 * 60 * 60,
-        sameSite: "lax",
-        secure: true,
-        path: "/",
-      })
+    intlResponse.cookies.set("region", region, {
+      maxAge: 30 * 24 * 60 * 60,
+      sameSite: "lax",
+      secure: true,
+      path: "/",
+    })
+    intlResponse.cookies.set("country", cfCountry, {
+      maxAge: 30 * 24 * 60 * 60,
+      sameSite: "lax",
+      secure: true,
+      path: "/",
+    })
 
       return intlResponse
     }
