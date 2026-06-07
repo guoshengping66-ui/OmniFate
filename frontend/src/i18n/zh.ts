@@ -248,6 +248,15 @@ export default {
   "target.self": "本命",
   "target.selfLabel": "本命：",
   "target.addFriend": "添加朋友档案",
+  "target.addFriendTitle": "添加朋友档案",
+  "target.addFriendDesc": "填写朋友的出生信息，用于命理分析",
+  "target.nickname": "昵称",
+  "target.nicknamePlaceholder": "如：小明",
+  "target.cancel": "取消",
+  "target.save": "保存",
+  "target.saving": "保存中...",
+  "target.saved": "朋友档案已添加",
+  "target.saveFail": "添加失败，请稍后重试",
 
   // ─── 格物致知 ───
   "gework.title": "格物致知",

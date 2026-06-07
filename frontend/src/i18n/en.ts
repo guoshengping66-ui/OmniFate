@@ -248,6 +248,15 @@ export default {
   "target.self": "Self",
   "target.selfLabel": "Self: ",
   "target.addFriend": "Add Friend Profile",
+  "target.addFriendTitle": "Add Friend Profile",
+  "target.addFriendDesc": "Enter your friend's birth details for analysis",
+  "target.nickname": "Nickname",
+  "target.nicknamePlaceholder": "e.g. Alex",
+  "target.cancel": "Cancel",
+  "target.save": "Save",
+  "target.saving": "Saving...",
+  "target.saved": "Friend profile added",
+  "target.saveFail": "Failed to add, please try again",
 
   // ─── Gework Drawer ───
   "gework.title": "Event Analysis",
