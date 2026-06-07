@@ -71,8 +71,7 @@ export function middleware(request: NextRequest) {
       path: "/",
     })
 
-      return intlResponse
-    }
+    return intlResponse
   }
 
   // Redirect /reading/* to /{locale}/reading/* if locale is missing
