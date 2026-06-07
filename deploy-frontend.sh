@@ -36,7 +36,7 @@ rm -rf .next
 log "🔨 构建生产版本 (standalone)..."
 NODE_ENV=production npm run build
 
-# ── 4. 验证 standalone 目录完整性 ──────────────────────────────────────
+# ── 4. 定位 standalone 目录 ────────────────────────────────────────────
 STANDALONE_DIR=""
 if [ -d ".next/standalone/frontend" ]; then
   STANDALONE_DIR=".next/standalone/frontend"
@@ -46,6 +46,14 @@ else
   err "未找到 standalone 目录"
 fi
 
+# ── 5. 复制 static + public 到 standalone 目录 ──────────────────────────
+log "📋 复制 static 文件到 standalone..."
+rm -rf "$STANDALONE_DIR/.next/static"
+cp -r .next/static "$STANDALONE_DIR/.next/static"
+rm -rf "$STANDALONE_DIR/public"
+cp -r public "$STANDALONE_DIR/public" 2>/dev/null || true
+
+# ── 6. 验证 standalone 目录完整性 ──────────────────────────────────────
 CHUNK_COUNT=$(find "$STANDALONE_DIR/.next/static/chunks" -name "*.js" 2>/dev/null | wc -l)
 if [ "$CHUNK_COUNT" -lt 10 ]; then
   err "验证失败: standalone 目录只有 $CHUNK_COUNT 个 chunk 文件（预期 >10）"
@@ -58,20 +66,14 @@ if [ -z "$WEBPACK_CHUNK" ]; then
 fi
 log "✅ Webpack chunk 验证通过: $(basename $WEBPACK_CHUNK)"
 
-# ── 5. 复制 static + public 到 standalone 目录 ──────────────────────────
-rm -rf "$STANDALONE_DIR/.next/static"
-cp -r .next/static "$STANDALONE_DIR/.next/static"
-rm -rf "$STANDALONE_DIR/public"
-cp -r public "$STANDALONE_DIR/public" 2>/dev/null || true
-
-# ── 6. 重启 PM2 进程 ────────────────────────────────────────────────────
+# ── 7. 重启 PM2 进程 ────────────────────────────────────────────────────
 log "🔄 重启前端服务..."
 cd /opt/OmniFate
 pm2 delete frontend 2>/dev/null || true
 pm2 start ecosystem.config.js --only frontend
 pm2 save
 
-# ── 7. 健康检查 + chunk 验证 ──────────────────────────────────────────────
+# ── 8. 健康检查 + chunk 验证 ──────────────────────────────────────────────
 sleep 3
 HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3000/ || echo "000")
 if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "307" ]; then
