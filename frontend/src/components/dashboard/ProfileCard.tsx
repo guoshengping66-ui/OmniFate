@@ -30,12 +30,15 @@ function getConstellation(month: number, day: number, locale: string): string {
 }
 
 export function ProfileCard() {
-  const { userProfile } = useUserStore()
+  const { userProfile, activeTestTarget } = useUserStore()
   const { t, locale } = useLanguage()
 
-  const constellation = userProfile ? getConstellation(userProfile.birth_month, userProfile.birth_day, locale) : ""
-  const zodiac = userProfile ? getZodiac(userProfile.birth_year, locale) : ""
-  const shengxiao = userProfile ? getShengxiao(userProfile.birth_year) : ""
+  // Show activeTestTarget (friend) if set, otherwise show own profile
+  const profile = activeTestTarget || userProfile
+
+  const constellation = profile ? getConstellation(profile.birth_month, profile.birth_day, locale) : ""
+  const zodiac = profile ? getZodiac(profile.birth_year, locale) : ""
+  const shengxiao = profile ? getShengxiao(profile.birth_year) : ""
 
   return (
     <div className="card-glass p-6">
@@ -46,27 +49,27 @@ export function ProfileCard() {
         <TargetSelector />
       </div>
 
-      {userProfile ? (
+      {profile ? (
         <div className="space-y-3">
           <div className="flex items-center gap-3 text-sm">
             <span className="text-white/30 w-16">{t("dash.profile.nickname")}</span>
-            <span className="text-white/70">{userProfile.nickname}</span>
+            <span className="text-white/70">{profile.nickname}</span>
           </div>
           <div className="flex items-center gap-3 text-sm">
             <Calendar size={14} className="text-white/30" />
             <span className="text-white/70">
               {t("dash.profile.dateFormat")
-                .replace("{y}", String(userProfile.birth_year))
-                .replace("{M}", String(userProfile.birth_month))
-                .replace("{d}", String(userProfile.birth_day))
-                .replace("{h}", String(userProfile.birth_hour))
-                .replace("{m}", String(userProfile.birth_minute))
+                .replace("{y}", String(profile.birth_year))
+                .replace("{M}", String(profile.birth_month))
+                .replace("{d}", String(profile.birth_day))
+                .replace("{h}", String(profile.birth_hour))
+                .replace("{m}", String(profile.birth_minute))
               }
             </span>
           </div>
           <div className="flex items-center gap-3 text-sm">
             <MapPin size={14} className="text-white/30" />
-            <span className="text-white/70">{userProfile.birth_city || t("dash.profile.notSet")}</span>
+            <span className="text-white/70">{profile.birth_city || t("dash.profile.notSet")}</span>
           </div>
           {/* Tags */}
           <div className="flex flex-wrap gap-2 pt-2">
