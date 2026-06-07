@@ -12,10 +12,20 @@ interface CachedRegion {
 }
 
 /**
- * Multi-layer region detection:
- *   1. localStorage cache (instant, survives refresh)
- *   2. /api/region endpoint (Cloudflare CF-IPCountry header)
- *   3. Browser locale / timezone heuristic (fallback)
+ * Read a cookie value by name.
+ */
+function getCookie(name: string): string | null {
+  if (typeof document === "undefined") return null
+  const match = document.cookie.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`))
+  return match ? decodeURIComponent(match[1]) : null
+}
+
+/**
+ * Multi-layer region detection (priority order):
+ *   1. Middleware-set "region" cookie (Cloudflare CF-IPCountry — most accurate)
+ *   2. localStorage cache (fast, survives refresh)
+ *   3. /api/region endpoint (Cloudflare CF-IPCountry via fetch)
+ *   4. Browser locale / timezone heuristic (fallback)
  */
 function detectRegionFromBrowser(): Region {
   if (typeof window === "undefined") return "domestic"
@@ -56,20 +66,31 @@ function cacheRegion(region: Region) {
 }
 
 export function useRegion() {
-  // Start with cached value if available (synchronous, no flash)
+  // Start with the most accurate source available (synchronous, no flash)
   const [region, setRegion] = useState<Region>(() => {
+    // 1. Middleware cookie (set by Cloudflare IP detection) — highest priority
+    const cookieRegion = getCookie("region") as Region | null
+    if (cookieRegion === "domestic" || cookieRegion === "overseas") {
+      cacheRegion(cookieRegion) // sync to localStorage for future visits
+      return cookieRegion
+    }
+    // 2. localStorage cache
     const cached = getCachedRegion()
-    return cached || detectRegionFromBrowser()
+    if (cached) return cached
+    // 3. Browser heuristic
+    return detectRegionFromBrowser()
   })
   const [isLoaded, setIsLoaded] = useState(true)
 
-  // On mount, if no cache, fetch from API in background and update
+  // On mount, if no cookie and no cache, fetch from API in background
   useEffect(() => {
+    const cookieRegion = getCookie("region")
+    if (cookieRegion) return // Middleware already detected
+
     const cached = getCachedRegion()
     if (cached) return // Already have a valid cached value
 
     fetch("/api/region", {
-      // Force no-cache so we always get a fresh detection
       cache: "no-store",
       headers: { Accept: "application/json" },
     })
