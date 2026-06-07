@@ -16,12 +16,62 @@ const intlMiddleware = createMiddleware({
   localePrefix: "always",
 })
 
+/** Apply common security + cache-control headers to a response */
+function applySecurityHeaders(response: NextResponse) {
+  // CSP is handled by nginx — do NOT set it here to avoid double-header conflicts
+  response.headers.set("X-Content-Type-Options", "nosniff")
+  response.headers.set("X-Frame-Options", "DENY")
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin")
+  response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+
+  if (process.env.NODE_ENV === "production") {
+    response.headers.set(
+      "Strict-Transport-Security",
+      "max-age=63072000; includeSubDomains; preload",
+    )
+  }
+
+  response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate")
+}
+
+const DOMESTIC_COUNTRIES = new Set(["CN", "HK", "MO", "TW"])
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Block test routes in production
   if (process.env.NODE_ENV === "production" && pathname.startsWith("/test")) {
     return new NextResponse("Page Not Found", { status: 404 })
+  }
+
+  // ── Region detection: set region cookie from CF-IPCountry ──
+  // Cloudflare sets this header; nginx must pass it through (proxy_set_header CF-IPCountry $http_cf_ipcountry;)
+  const cfCountry = request.headers.get("cf-ipcountry")
+  const existingRegion = request.cookies.get("region")?.value
+  if (cfCountry && !existingRegion) {
+    const isDomestic = DOMESTIC_COUNTRIES.has(cfCountry.toUpperCase())
+    const region = isDomestic ? "domestic" : "overseas"
+    const country = cfCountry.toUpperCase()
+
+    // Run i18n middleware first, then set cookies on its response
+    const intlResponse = intlMiddleware(request)
+    applySecurityHeaders(intlResponse)
+
+    // Set region cookies: 30-day expiry, same-site, secure, path=/
+    intlResponse.cookies.set("region", region, {
+      maxAge: 30 * 24 * 60 * 60,
+      sameSite: "lax",
+      secure: true,
+      path: "/",
+    })
+    intlResponse.cookies.set("country", country, {
+      maxAge: 30 * 24 * 60 * 60,
+      sameSite: "lax",
+      secure: true,
+      path: "/",
+    })
+
+    return intlResponse
   }
 
   // Redirect /reading/* to /{locale}/reading/* if locale is missing
@@ -36,23 +86,8 @@ export function middleware(request: NextRequest) {
   // Run i18n middleware first (handles locale detection & redirects)
   const intlResponse = intlMiddleware(request)
 
-  // Add security headers to the i18n response
-  // CSP is handled by nginx — do NOT set it here to avoid double-header conflicts
-  intlResponse.headers.set("X-Content-Type-Options", "nosniff")
-  intlResponse.headers.set("X-Frame-Options", "DENY")
-  intlResponse.headers.set("Referrer-Policy", "strict-origin-when-cross-origin")
-  intlResponse.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
-
-  // HSTS (production only)
-  if (process.env.NODE_ENV === "production") {
-    intlResponse.headers.set(
-      "Strict-Transport-Security",
-      "max-age=63072000; includeSubDomains; preload",
-    )
-  }
-
-  // Prevent Cloudflare from caching HTML pages
-  intlResponse.headers.set("Cache-Control", "no-store, no-cache, must-revalidate")
+  // Apply security headers
+  applySecurityHeaders(intlResponse)
 
   return intlResponse
 }
