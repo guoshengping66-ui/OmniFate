@@ -21,19 +21,35 @@ function getCookie(name: string): string | null {
 }
 
 /**
- * Multi-layer region detection (priority order):
- *   1. "region" cookie (set by /api/region call)
+ * Region detection (priority order):
+ *   1. "region" cookie (set by previous detection)
  *   2. localStorage cache (fast, survives refresh)
- *   3. /api/region endpoint (Cloudflare CF-IPCountry via fetch — runs on mount)
- *   4. Browser locale / timezone heuristic (fallback)
+ *   3. Browser timezone (reliable for domestic/overseas split)
+ *   4. Browser language as weak fallback
  */
 function detectRegionFromBrowser(): Region {
   if (typeof window === "undefined") return "domestic"
 
-  const lang = navigator.language || ""
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || ""
+  const lang = navigator.language || ""
 
-  if (lang.startsWith("zh") || timezone.includes("Shanghai") || timezone.includes("Hong_Kong") || timezone.includes("Taipei")) {
+  // Timezone is the most reliable signal for domestic vs overseas
+  const domesticTimezones = [
+    "Asia/Shanghai",      // China mainland
+    "Asia/Chongqing",     // China (alias)
+    "Asia/Harbin",        // China (alias)
+    "Asia/Urumqi",        // China (alias)
+    "Asia/Hong_Kong",     // Hong Kong
+    "Asia/Macau",         // Macau
+    "Asia/Taipei",        // Taiwan
+  ]
+
+  if (domesticTimezones.some(tz => timezone === tz || timezone.startsWith(tz + "/"))) {
+    return "domestic"
+  }
+
+  // Weak fallback: language
+  if (lang.startsWith("zh")) {
     return "domestic"
   }
 
@@ -82,28 +98,15 @@ export function useRegion() {
   })
   const [isLoaded, setIsLoaded] = useState(true)
 
-  // On mount: call ipwho.is directly from the browser to detect region.
-  // This bypasses Cloudflare header issues (CF-IPCountry can be inaccurate,
-  // CF-Connecting-IP not passed to origin). ipwho.is uses MaxMind GeoIP
-  // and correctly identifies the user's real location.
+  // On mount: use browser timezone to detect and cache region.
+  // Timezone is reliable and doesn't require network requests.
+  // Cloudflare headers (CF-IPCountry, CF-Connecting-IP) are unreliable
+  // or not passed to the origin.
   useEffect(() => {
-    fetch("https://ipwho.is/", { signal: AbortSignal.timeout(5000) })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success && data.country_code) {
-          const code = data.country_code.toUpperCase()
-          const isDomestic = ["CN", "HK", "MO", "TW"].includes(code)
-          const newRegion = isDomestic ? "domestic" : "overseas"
-          setRegion(newRegion)
-          cacheRegion(newRegion)
-          // Set cookies for SSR and subsequent page loads
-          document.cookie = `region=${newRegion}; max-age=86400; path=/; SameSite=lax`
-          document.cookie = `country=${code}; max-age=86400; path=/; SameSite=lax`
-        }
-      })
-      .catch(() => {
-        // ipwho.is unreachable — keep existing cookie/heuristic result
-      })
+    const detected = detectRegionFromBrowser()
+    setRegion(detected)
+    cacheRegion(detected)
+    document.cookie = `region=${detected}; max-age=86400; path=/; SameSite=lax`
   }, [])
 
   const switchRegion = (newRegion: Region) => {
