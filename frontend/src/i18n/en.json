@@ -3198,6 +3198,15 @@
   },
   "target": {
     "addFriend": "Add Friend Profile",
+    "addFriendTitle": "Add Friend Profile",
+    "addFriendDesc": "Enter your friend's birth details for analysis",
+    "nickname": "Nickname",
+    "nicknamePlaceholder": "e.g. Alex",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving...",
+    "saved": "Friend profile added",
+    "saveFail": "Failed to add, please try again",
     "self": "Self",
     "selfLabel": "Self: "
   },

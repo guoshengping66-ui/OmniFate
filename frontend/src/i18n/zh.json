@@ -3198,6 +3198,15 @@
   },
   "target": {
     "addFriend": "添加朋友档案",
+    "addFriendTitle": "添加朋友档案",
+    "addFriendDesc": "填写朋友的出生信息，用于命理分析",
+    "nickname": "昵称",
+    "nicknamePlaceholder": "如：小明",
+    "cancel": "取消",
+    "save": "保存",
+    "saving": "保存中...",
+    "saved": "朋友档案已添加",
+    "saveFail": "添加失败，请稍后重试",
     "self": "本命",
     "selfLabel": "本命："
   },
