@@ -71,13 +71,36 @@ pm2 delete frontend 2>/dev/null || true
 pm2 start ecosystem.config.js --only frontend
 pm2 save
 
-# ── 7. 健康检查 ──────────────────────────────────────────────────────────
+# ── 7. 健康检查 + chunk 验证 ──────────────────────────────────────────────
 sleep 3
 HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3000/ || echo "000")
 if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "307" ]; then
   log "✅ 健康检查通过 (HTTP $HTTP_CODE)"
 else
   warn "健康检查返回 HTTP $HTTP_CODE，可能需要手动检查"
+fi
+
+# Verify buildId matches
+NEW_BUILD_ID=$(cat "$STANDALONE_DIR/.next/BUILD_ID" 2>/dev/null || echo "unknown")
+API_BUILD_ID=$(curl -sk https://www.khanfate.com/api/version 2>/dev/null | python3 -c "import sys,json;print(json.load(sys.stdin).get('buildId',''))" 2>/dev/null || echo "")
+log "   Build ID on disk: $NEW_BUILD_ID"
+log "   Build ID from API: $API_BUILD_ID"
+
+# Verify webpack chunk is accessible
+NEW_WEBPACK=$(find "$STANDALONE_DIR/.next/static/chunks" -name "webpack-*.js" 2>/dev/null | head -1)
+if [ -n "$NEW_WEBPACK" ]; then
+  WEBPACK_NAME=$(basename "$NEW_WEBPACK")
+  HTTP_CHECK=$(curl -sk "https://www.khanfate.com/_next/static/chunks/$WEBPACK_NAME" -o /dev/null -w "%{http_code}" 2>/dev/null)
+  if [ "$HTTP_CHECK" = "200" ]; then
+    log "✅ Webpack chunk 可访问: $WEBPACK_NAME (HTTP $HTTP_CHECK)"
+  else
+    warn "Webpack chunk 不可访问: $WEBPACK_NAME (HTTP $HTTP_CHECK)"
+    warn "尝试强制重启 PM2..."
+    pm2 delete frontend 2>/dev/null || true
+    pm2 start ecosystem.config.js --only frontend
+    pm2 save
+    sleep 3
+  fi
 fi
 
 log "✅ 前端部署完成！"
