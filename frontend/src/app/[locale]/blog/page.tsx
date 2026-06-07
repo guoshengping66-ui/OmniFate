@@ -5,7 +5,6 @@ import { BookOpen, Clock, ChevronRight, Search, X, ArrowRight } from "lucide-rea
 import { ARTICLES, CATEGORIES } from "@/data/articles"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
-import { SectionHeader } from "@/components/ui/SectionHeader"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { useState } from "react"
 
