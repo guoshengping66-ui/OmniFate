@@ -12,6 +12,8 @@ import { Loader2, CreditCard, CheckCircle, AlertCircle } from "lucide-react"
 import { getPayPalConfig, capturePayPalOrder } from "@/lib/api"
 import { useLanguage } from "@/contexts/LanguageContext"
 
+type PayPalPaymentMode = "both" | "wallet" | "card"
+
 interface PayPalPaymentProps {
   itemType: string
   readingId?: string
@@ -19,6 +21,7 @@ interface PayPalPaymentProps {
   onSuccess: (orderId?: string) => void
   onError?: (error: string) => void
   compact?: boolean
+  mode?: PayPalPaymentMode
 }
 
 export function PayPalPayment({
@@ -28,6 +31,7 @@ export function PayPalPayment({
   onSuccess,
   onError,
   compact = false,
+  mode = "both",
 }: PayPalPaymentProps) {
   const { t } = useLanguage()
   const [config, setConfig] = useState<{ clientId: string; mode: string } | null>(null)
@@ -122,11 +126,15 @@ export function PayPalPayment({
 
   if (!config) return null
 
+  const sdkComponents: string[] = []
+  if (mode === "both" || mode === "wallet") sdkComponents.push("buttons")
+  if (mode === "both" || mode === "card") sdkComponents.push("card-fields")
+
   const sdkOptions = {
     "client-id": config.clientId,
     currency: "USD",
     intent: "capture" as const,
-    components: ["buttons", "card-fields"] as string[],
+    components: sdkComponents,
   }
 
   const style = {
@@ -150,32 +158,37 @@ export function PayPalPayment({
         )}
 
         {/* PayPal Buttons */}
-        <div className="relative">
-          <PayPalButtons
-            style={style}
-            createOrder={createOrder}
-            onApprove={handlePayPalApprove}
-            onError={(err) => {
-              setError(String(err))
-              onError?.(String(err))
-            }}
-            disabled={processing}
-          />
-        </div>
+        {(mode === "both" || mode === "wallet") && (
+          <div className="relative">
+            <PayPalButtons
+              style={style}
+              createOrder={createOrder}
+              onApprove={handlePayPalApprove}
+              onError={(err) => {
+                setError(String(err))
+                onError?.(String(err))
+              }}
+              disabled={processing}
+            />
+          </div>
+        )}
 
         {/* Divider */}
-        <div className="flex items-center gap-3">
-          <div className="flex-1 h-px bg-white/10" />
-          <span className="text-white/30 text-xs">{t("payment.or") || "or"}</span>
-          <div className="flex-1 h-px bg-white/10" />
-        </div>
+        {mode === "both" && (
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-px bg-white/10" />
+            <span className="text-white/30 text-xs">{t("payment.or") || "or"}</span>
+            <div className="flex-1 h-px bg-white/10" />
+          </div>
+        )}
 
         {/* Card Fields */}
-        <div className="relative">
-          <div className="flex items-center gap-2 mb-2">
-            <CreditCard size={14} className="text-white/40" />
-            <span className="text-white/50 text-xs">{t("payment.creditCard") || "Credit Card"}</span>
-          </div>
+        {(mode === "both" || mode === "card") && (
+          <div className="relative">
+            <div className="flex items-center gap-2 mb-2">
+              <CreditCard size={14} className="text-white/40" />
+              <span className="text-white/50 text-xs">{t("payment.creditCard") || "Credit Card"}</span>
+            </div>
           <div className="rounded-xl overflow-hidden bg-white p-3">
             <PayPalCardFieldsProvider
               createOrder={createOrder}
@@ -198,6 +211,7 @@ export function PayPalPayment({
             </PayPalCardFieldsProvider>
           </div>
         </div>
+        )}
 
         {/* Error display */}
         {error && config && (

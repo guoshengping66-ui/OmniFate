@@ -18,7 +18,7 @@ interface QRPaymentModalProps {
   region?: "domestic" | "overseas"
 }
 
-type PaymentMethod = "alipay" | "wechat" | "paypal"
+type PaymentMethod = "alipay" | "wechat" | "paypal" | "credit_card"
 type PaymentStatus =
   | "idle"
   | "loading"
@@ -29,6 +29,7 @@ type PaymentStatus =
   | "waiting"
   | "failed"
   | "paypal_embedded"
+  | "card_embedded"
 
 const TIER_PRICES: Record<string, { amountCny: number; amountUsd: number; labelKey: string }> = {
   premium_monthly: { amountCny: 59, amountUsd: 14.99, labelKey: "payment.monthlyPlan" },
@@ -110,6 +111,12 @@ export function QRPaymentModal({
     if (method === "paypal") {
       // Show embedded PayPal payment component (wallet + card)
       setStatus("paypal_embedded")
+      return
+    }
+
+    if (method === "credit_card") {
+      // Show embedded credit card payment component
+      setStatus("card_embedded")
       return
     }
 
@@ -296,13 +303,22 @@ export function QRPaymentModal({
               <div className="mb-6">
                 <p className="text-white/50 text-xs mb-3">{t("payment.selectMethod")}</p>
                 {isOverseas ? (
-                  <button
-                    onClick={() => setMethod("paypal")}
-                    className="w-full p-4 rounded-xl border bg-blue-600/10 border-blue-500/40"
-                  >
-                    <div className="text-blue-400 font-medium">PayPal</div>
-                    <div className="text-white/40 text-xs mt-1">Pay securely with PayPal</div>
-                  </button>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      onClick={() => setMethod("paypal")}
+                      className={`p-4 rounded-xl border transition-all ${method === "paypal" ? "bg-blue-600/10 border-blue-500/40" : "bg-white/[0.03] border-white/10 hover:border-white/20"}`}
+                    >
+                      <div className="text-blue-400 font-medium">PayPal</div>
+                      <div className="text-white/40 text-xs mt-1">PayPal Wallet</div>
+                    </button>
+                    <button
+                      onClick={() => setMethod("credit_card")}
+                      className={`p-4 rounded-xl border transition-all ${method === "credit_card" ? "bg-purple-500/10 border-purple-500/40" : "bg-white/[0.03] border-white/10 hover:border-white/20"}`}
+                    >
+                      <div className="text-purple-400 font-medium">Credit Card</div>
+                      <div className="text-white/40 text-xs mt-1">Visa / Mastercard</div>
+                    </button>
+                  </div>
                 ) : (
                   <div className="grid grid-cols-2 gap-3">
                     <button onClick={() => setMethod("alipay")}
@@ -329,7 +345,7 @@ export function QRPaymentModal({
             <div className="text-center py-12">
               <Loader2 size={40} className="animate-spin text-gold mx-auto" />
               <p className="text-white/50 mt-4">
-                {method === "paypal" ? "Opening PayPal..." : t("payment.preparingQR")}
+                {method === "paypal" ? "Opening PayPal..." : method === "credit_card" ? "Preparing card payment..." : t("payment.preparingQR")}
               </p>
             </div>
           )}
@@ -346,6 +362,33 @@ export function QRPaymentModal({
                 readingId={readingId}
                 amount={`$${tierInfo.amountUsd}`}
                 compact
+                onSuccess={async (orderId?: string) => {
+                  await activateSubscription(orderId)
+                }}
+                onError={(msg) => {
+                  setError(msg)
+                  setStatus("failed")
+                }}
+              />
+              <button onClick={reset} className="text-white/30 text-xs mt-4 hover:text-white/50 w-full text-center">
+                {t("payment.cancel")}
+              </button>
+            </div>
+          )}
+
+          {/* card_embedded - standalone credit card payment */}
+          {status === "card_embedded" && (
+            <div>
+              <div className="bg-white/5 rounded-xl p-4 text-center mb-4">
+                <p className="text-white/40 text-xs mb-1">{t("payment.amount")}</p>
+                <p className="text-2xl font-bold text-gold">${tierInfo.amountUsd}</p>
+              </div>
+              <PayPalPayment
+                itemType={isPreOrder ? "founder_lifetime" : isReportUnlock ? "unlock_report" : (tier || "premium_monthly")}
+                readingId={readingId}
+                amount={`$${tierInfo.amountUsd}`}
+                compact
+                mode="card"
                 onSuccess={async (orderId?: string) => {
                   await activateSubscription(orderId)
                 }}
