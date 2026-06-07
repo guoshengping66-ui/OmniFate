@@ -372,6 +372,11 @@ export async function runAnalysis(data: AnalysisRequest): Promise<AnalysisRespon
       break
     } catch (err: any) {
       lastError = err
+      const status = err?.response?.status
+      // Don't retry client errors (4xx) except 429 (rate limit)
+      if (status && status >= 400 && status < 500 && status !== 429) {
+        throw err
+      }
       if (attempt < 3) {
         await new Promise(r => setTimeout(r, 2000 * attempt))
         continue
@@ -548,10 +553,19 @@ export function streamSession(
         } catch { /* ignore parse errors */ }
       }
 
-      es.onerror = () => {
+      es.onerror = async () => {
         es.close()
         if (!settled && retryCount < maxRetries) {
           retryCount++
+          // Try to get the actual HTTP status for a better error message
+          try {
+            const resp = await fetch(url, { method: "HEAD" })
+            if (resp.status === 401 || resp.status === 403) {
+              settled = true
+              reject(new Error(resp.status === 401 ? "认证已过期，请重新登录" : "无权访问"))
+              return
+            }
+          } catch { /* ignore — will retry below */ }
           // Exponential backoff: 1s, 2s, 4s
           const delay = Math.min(1000 * Math.pow(2, retryCount), 10000)
           setTimeout(connect, delay)

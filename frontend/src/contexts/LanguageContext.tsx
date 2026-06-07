@@ -24,27 +24,8 @@ const LanguageContext = createContext<LanguageState>({
 
 const LANG_KEY = "destiny_mirror_lang"
 
-/**
- * Detect if we're running on the client (browser).
- * During SSG or server rendering this is false, preventing
- * hooks like useRouter from being called in a server context.
- */
-const isClient = typeof window !== "undefined"
-
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const locale = useLocale() as Locale
-
-  // Suppress next-intl INVALID_MESSAGE console errors.
-  // This happens when useTranslations() is called with keys that don't exist
-  // in the messages object (e.g. during not-found page rendering).
-  useEffect(() => {
-    const original = console.error
-    console.error = (...args: any[]) => {
-      if (typeof args[0] === "string" && args[0].includes("INVALID_MESSAGE")) return
-      original.apply(console, args)
-    }
-    return () => { console.error = original }
-  }, [])
 
   let tFn: ReturnType<typeof useTranslations>
   try {

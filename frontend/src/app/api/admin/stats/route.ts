@@ -1,9 +1,20 @@
 import { NextResponse } from "next/server"
+import { timingSafeEqual } from "crypto"
+
+function verifyAdminKey(provided: string | null): boolean {
+  const expected = process.env.ADMIN_STATS_KEY || ""
+  if (!provided || provided.length !== expected.length) return false
+  try {
+    return timingSafeEqual(Buffer.from(provided), Buffer.from(expected))
+  } catch {
+    return false
+  }
+}
 
 export async function GET(request: Request) {
   const key = request.headers.get("x-admin-key")
 
-  if (!key || key !== process.env.ADMIN_STATS_KEY) {
+  if (!verifyAdminKey(key)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
@@ -22,29 +33,30 @@ export async function GET(request: Request) {
     })
 
     await client.connect()
+    try {
+      const [usersResult, readingsResult, ordersResult, paidResult, revenueResult, recentResult, recentOrdersResult] =
+        await Promise.all([
+          client.query("SELECT COUNT(*) as count FROM users"),
+          client.query("SELECT COUNT(*) as count FROM readings"),
+          client.query("SELECT COUNT(*) as count FROM orders"),
+          client.query("SELECT COUNT(DISTINCT user_id) as count FROM orders WHERE status = 'paid'"),
+          client.query("SELECT COALESCE(SUM(total_cny), 0) as total FROM orders WHERE status = 'paid'"),
+          client.query("SELECT email, created_at FROM users ORDER BY created_at DESC LIMIT 10"),
+          client.query("SELECT id, user_id, total_cny, status, created_at FROM orders ORDER BY created_at DESC LIMIT 10"),
+        ])
 
-    const [usersResult, readingsResult, ordersResult, paidResult, revenueResult, recentResult, recentOrdersResult] =
-      await Promise.all([
-        client.query("SELECT COUNT(*) as count FROM users"),
-        client.query("SELECT COUNT(*) as count FROM readings"),
-        client.query("SELECT COUNT(*) as count FROM orders"),
-        client.query("SELECT COUNT(DISTINCT user_id) as count FROM orders WHERE status = 'paid'"),
-        client.query("SELECT COALESCE(SUM(total_cny), 0) as total FROM orders WHERE status = 'paid'"),
-        client.query("SELECT email, created_at FROM users ORDER BY created_at DESC LIMIT 10"),
-        client.query("SELECT id, user_id, total_cny, status, created_at FROM orders ORDER BY created_at DESC LIMIT 10"),
-      ])
-
-    await client.end()
-
-    return NextResponse.json({
-      totalUsers: parseInt(usersResult.rows[0].count),
-      totalReadings: parseInt(readingsResult.rows[0].count),
-      totalOrders: parseInt(ordersResult.rows[0].count),
-      paidUsers: parseInt(paidResult.rows[0].count),
-      totalRevenue: parseFloat(revenueResult.rows[0].total),
-      recentUsers: recentResult.rows,
-      recentOrders: recentOrdersResult.rows,
-    })
+      return NextResponse.json({
+        totalUsers: parseInt(usersResult.rows[0].count),
+        totalReadings: parseInt(readingsResult.rows[0].count),
+        totalOrders: parseInt(ordersResult.rows[0].count),
+        paidUsers: parseInt(paidResult.rows[0].count),
+        totalRevenue: parseFloat(revenueResult.rows[0].total),
+        recentUsers: recentResult.rows,
+        recentOrders: recentOrdersResult.rows,
+      })
+    } finally {
+      await client.end()
+    }
   } catch {
     return NextResponse.json({ error: "Failed to fetch stats" }, { status: 500 })
   }

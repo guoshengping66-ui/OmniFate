@@ -95,10 +95,17 @@ export const useWizardStore = create<WizardStore>((set, get) => ({
     })
   },
 
-  updateField: (key, value) =>
+  updateField: (key, value) => {
+    // Validate date/time fields to prevent invalid values reaching the backend
+    if (key === "birth_year" && typeof value === "number" && (value < 1900 || value > 2100)) return
+    if (key === "birth_month" && typeof value === "number" && (value < 1 || value > 12)) return
+    if (key === "birth_day" && typeof value === "number" && (value < 1 || value > 31)) return
+    if (key === "birth_hour" && typeof value === "number" && (value < 0 || value > 23)) return
+    if (key === "birth_minute" && typeof value === "number" && (value < 0 || value > 59)) return
     set((s) => ({
       formData: { ...s.formData, [key]: value },
-    })),
+    }))
+  },
 
   reset: () => {
     // Also clear any saved wizard progress from localStorage
