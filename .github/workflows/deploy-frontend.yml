@@ -189,23 +189,67 @@ jobs:
 
               sleep 5
 
-              # Post-restart verification: check that the server is serving new chunks
+              # ── Post-deploy verification ──
               echo "🔍 验证服务器正在运行新构建..."
-              SERVER_LAYOUT=$(curl -sk https://www.khanfate.com/api/version 2>/dev/null)
-              echo "   Version endpoint: $SERVER_LAYOUT"
 
-              # Verify HTML serves new chunk references
-              # Store curl output in a variable first (avoids SIGPIPE when piped to head)
+              # 1. Check PM2 is running
+              PM2_STATUS=$(pm2 jlist 2>/dev/null | python3 -c "import sys,json;d=json.load(sys.stdin);print(d[0]['pm2_env']['status'] if d else 'stopped')" 2>/dev/null || echo "unknown")
+              echo "   PM2 frontend status: $PM2_STATUS"
+              if [ "$PM2_STATUS" != "online" ]; then
+                echo "❌ PM2 frontend 不在线！尝试重启..."
+                pm2 delete frontend 2>/dev/null || true
+                pm2 start ecosystem.config.js --only frontend
+                pm2 save
+                sleep 5
+              fi
+
+              # 2. Check API buildId
+              NEW_BUILD_ID=$(cat "$STANDALONE_DIR/.next/BUILD_ID" 2>/dev/null || echo "unknown")
+              API_BUILD_ID=$(curl -sk https://www.khanfate.com/api/version 2>/dev/null | python3 -c "import sys,json;print(json.load(sys.stdin).get('buildId',''))" 2>/dev/null || echo "")
+              echo "   Build ID on disk: $NEW_BUILD_ID"
+              echo "   Build ID from API: $API_BUILD_ID"
+
+              # 3. Verify new webpack chunk exists in standalone
+              NEW_WEBPACK=$(find "$STANDALONE_DIR/.next/static/chunks" -name "webpack-*.js" 2>/dev/null | head -1)
+              if [ -n "$NEW_WEBPACK" ]; then
+                WEBPACK_NAME=$(basename "$NEW_WEBPACK")
+                echo "   New webpack chunk: $WEBPACK_NAME"
+                # Check if this chunk is accessible via HTTP
+                HTTP_CHECK=$(curl -sk "https://www.khanfate.com/_next/static/chunks/$WEBPACK_NAME" -o /dev/null -w "%{http_code}" 2>/dev/null)
+                echo "   HTTP status for new chunk: $HTTP_CHECK"
+                if [ "$HTTP_CHECK" != "200" ]; then
+                  echo "⚠️  新构建的 webpack chunk 无法通过 HTTP 访问 (HTTP $HTTP_CHECK)"
+                  echo "   可能原因: Cloudflare 缓存未清除，或 PM2 仍在运行旧版本"
+                fi
+              fi
+
+              # 4. Verify HTML references match new build
               HTML_RESPONSE=$(curl -sk https://www.khanfate.com/zh 2>/dev/null)
-              HTML_LAYOUT_HASH=$(echo "$HTML_RESPONSE" | grep -oP 'layout-[a-f0-9]+\.js' | head -1)
-              echo "   HTML layout chunk: $HTML_LAYOUT_HASH"
+              HTML_WEBPACK=$(echo "$HTML_RESPONSE" | grep -oE 'webpack-[a-f0-9]+\.js' | head -1)
+              echo "   HTML webpack ref: $HTML_WEBPACK"
 
-              EXPECTED_LAYOUT=$(basename "${STANDALONE_LAYOUT:-}" 2>/dev/null)
-              if [ "$HTML_LAYOUT_HASH" = "$EXPECTED_LAYOUT" ]; then
-                echo "✅ 部署验证通过: HTML 引用的 chunk 与构建产物匹配"
-              else
-                echo "⚠️  警告: HTML layout hash ($HTML_LAYOUT_HASH) 与预期 ($EXPECTED_LAYOUT) 不匹配"
-                echo "   可能原因: Cloudflare 缓存未清除，或服务器未正确重启"
+              if [ -n "$NEW_WEBPACK" ] && [ -n "$HTML_WEBPACK" ]; then
+                NEW_WNAME=$(basename "$NEW_WEBPACK")
+                if [ "$HTML_WEBPACK" = "$NEW_WNAME" ]; then
+                  echo "✅ 部署验证通过: HTML 引用的 chunk 与构建产物匹配"
+                else
+                  echo "⚠️  HTML 引用旧 chunk ($HTML_WEBPACK) != 新 chunk ($NEW_WNAME)"
+                  echo "   尝试强制重启 PM2..."
+                  pm2 delete frontend 2>/dev/null || true
+                  pm2 start ecosystem.config.js --only frontend
+                  pm2 save
+                  sleep 3
+                  # Re-check
+                  HTML_RESPONSE2=$(curl -sk https://www.khanfate.com/zh 2>/dev/null)
+                  HTML_WEBPACK2=$(echo "$HTML_RESPONSE2" | grep -oE 'webpack-[a-f0-9]+\.js' | head -1)
+                  if [ "$HTML_WEBPACK2" = "$NEW_WNAME" ]; then
+                    echo "✅ 重启后验证通过"
+                  else
+                    echo "❌ 重启后仍然不匹配: $HTML_WEBPACK2 != $NEW_WNAME"
+                    echo "   需要手动检查服务器"
+                    exit 1
+                  fi
+                fi
               fi
             fi
 
