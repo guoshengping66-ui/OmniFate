@@ -55,14 +55,16 @@ fi
 # ── Nginx ─────────────────────────────────────────────────────────────────────
 if [[ "$ACTION" == "nginx" || "$ACTION" == "all" ]]; then
     log "🔧 更新 nginx 配置..."
-    # 同步后端端口到 nginx（确保 proxy_pass 指向正确的后端端口）
-    if [ -f /etc/nginx/nginx.conf ]; then
-        sudo cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.bak
-        sudo sed -i 's/proxy_pass http:\/\/127.0.0.1:8004/proxy_pass http:\/\/127.0.0.1:8003/g' /etc/nginx/nginx.conf
+    NGINX_CONF="/etc/nginx/conf.d/frontend.conf"
+    if [ -f "$NGINX_CONF" ]; then
+        sudo cp "$NGINX_CONF" "${NGINX_CONF}.bak"
+    fi
+    if [ -f nginx-khanfate.conf ]; then
+        sudo cp nginx-khanfate.conf "$NGINX_CONF"
         sudo nginx -t && sudo systemctl reload nginx
         log "✔ nginx 已更新"
     else
-        warn "/etc/nginx/nginx.conf 不存在，跳过"
+        warn "nginx-khanfate.conf 不存在，跳过"
     fi
 fi
 

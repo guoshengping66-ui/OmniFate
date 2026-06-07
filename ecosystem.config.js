@@ -7,7 +7,7 @@ module.exports = {
       env: {
         NODE_ENV: "production",
         PORT: 3000,
-        HOSTNAME: "0.0.0.0",
+        HOSTNAME: "127.0.0.1", // Next.js standalone binds here; nginx proxies externally
         BACKEND_URL: "http://127.0.0.1:8003",
       },
       max_memory_restart: "512M",
