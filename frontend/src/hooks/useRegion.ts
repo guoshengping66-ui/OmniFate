@@ -22,9 +22,9 @@ function getCookie(name: string): string | null {
 
 /**
  * Multi-layer region detection (priority order):
- *   1. Middleware-set "region" cookie (Cloudflare CF-IPCountry — most accurate)
+ *   1. "region" cookie (set by /api/region call)
  *   2. localStorage cache (fast, survives refresh)
- *   3. /api/region endpoint (Cloudflare CF-IPCountry via fetch)
+ *   3. /api/region endpoint (Cloudflare CF-IPCountry via fetch — runs on mount)
  *   4. Browser locale / timezone heuristic (fallback)
  */
 function detectRegionFromBrowser(): Region {
@@ -84,7 +84,8 @@ export function useRegion() {
 
   // On mount: ALWAYS call /api/region to get server-confirmed region.
   // The API reads CF-IPCountry header (Cloudflare sets this per-request).
-  // This is more reliable than cookies (which Cloudflare may cache).
+  // Sets both region and country cookies so the correct region is used
+  // on subsequent page loads.
   useEffect(() => {
     fetch("/api/region", {
       cache: "no-store",
@@ -95,8 +96,11 @@ export function useRegion() {
         if (data.region === "domestic" || data.region === "overseas") {
           setRegion(data.region)
           cacheRegion(data.region)
-          // Also set a short-lived cookie so SSR picks it up on next visit
-          document.cookie = `region=${data.region}; max-age=3600; path=/; SameSite=lax`
+          // Set cookies for SSR and subsequent page loads
+          document.cookie = `region=${data.region}; max-age=86400; path=/; SameSite=lax`
+          if (data.country) {
+            document.cookie = `country=${data.country}; max-age=86400; path=/; SameSite=lax`
+          }
         }
       })
       .catch(() => {

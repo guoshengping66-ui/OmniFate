@@ -8,6 +8,11 @@ import type { NextRequest } from "next/server"
  *  1. Locale detection & i18n routing (via next-intl)
  *  2. Block /test/* routes in production
  *  3. Add security response headers (CSP, HSTS, X-Frame-Options, etc.)
+ *
+ * NOTE: Region detection is NOT done in middleware because Cloudflare's
+ * CF-IPCountry header can be inaccurate (returns wrong country for some IPs).
+ * Instead, the frontend calls /api/region on mount to get the correct region
+ * from the CF-IPCountry header, and sets the cookie client-side.
  */
 
 const intlMiddleware = createMiddleware({
@@ -34,44 +39,12 @@ function applySecurityHeaders(response: NextResponse) {
   response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate")
 }
 
-const DOMESTIC_COUNTRIES = new Set(["CN", "HK", "MO", "TW"])
-
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Block test routes in production
   if (process.env.NODE_ENV === "production" && pathname.startsWith("/test")) {
     return new NextResponse("Page Not Found", { status: 404 })
-  }
-
-  // ── Region detection: set region cookie from CF-IPCountry ──
-  // Cloudflare sets this header; nginx must pass it through (proxy_set_header CF-IPCountry $http_cf_ipcountry;)
-  // Always set/refresh cookies so they stay accurate even if Cloudflare
-  // caches a response with old cookie values from a different visitor.
-  const cfCountry = request.headers.get("cf-ipcountry")?.toUpperCase()
-
-  if (cfCountry) {
-    const isDomestic = DOMESTIC_COUNTRIES.has(cfCountry)
-    const region = isDomestic ? "domestic" : "overseas"
-
-    // Always run i18n middleware and set cookies
-    const intlResponse = intlMiddleware(request)
-    applySecurityHeaders(intlResponse)
-
-    intlResponse.cookies.set("region", region, {
-      maxAge: 30 * 24 * 60 * 60,
-      sameSite: "lax",
-      secure: true,
-      path: "/",
-    })
-    intlResponse.cookies.set("country", cfCountry, {
-      maxAge: 30 * 24 * 60 * 60,
-      sameSite: "lax",
-      secure: true,
-      path: "/",
-    })
-
-    return intlResponse
   }
 
   // Redirect /reading/* to /{locale}/reading/* if locale is missing
@@ -83,7 +56,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // Run i18n middleware first (handles locale detection & redirects)
+  // Run i18n middleware (handles locale detection & redirects)
   const intlResponse = intlMiddleware(request)
 
   // Apply security headers
@@ -94,7 +67,5 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   // Run on ALL routes except static assets, API routes, and files with extensions.
-  // Region detection MUST run on /en/* and /zh/* paths too, so users on localized
-  // pages get the correct region cookie.
   matcher: ["/", "/((?!_next|api|favicon.ico|.*\\.).*)"],
 }
