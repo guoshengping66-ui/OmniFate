@@ -82,19 +82,10 @@ export function useRegion() {
   })
   const [isLoaded, setIsLoaded] = useState(true)
 
-  // On mount: if cookie exists, sync localStorage to stay consistent;
-  // otherwise fetch from API in background
+  // On mount: ALWAYS call /api/region to get server-confirmed region.
+  // The API reads CF-IPCountry header (Cloudflare sets this per-request).
+  // This is more reliable than cookies (which Cloudflare may cache).
   useEffect(() => {
-    const cookieRegion = getCookie("region")
-    if (cookieRegion === "domestic" || cookieRegion === "overseas") {
-      // Always sync cookie → localStorage (in case user's location changed)
-      cacheRegion(cookieRegion)
-      return
-    }
-
-    const cached = getCachedRegion()
-    if (cached) return // Already have a valid cached value
-
     fetch("/api/region", {
       cache: "no-store",
       headers: { Accept: "application/json" },
@@ -104,10 +95,12 @@ export function useRegion() {
         if (data.region === "domestic" || data.region === "overseas") {
           setRegion(data.region)
           cacheRegion(data.region)
+          // Also set a short-lived cookie so SSR picks it up on next visit
+          document.cookie = `region=${data.region}; max-age=3600; path=/; SameSite=lax`
         }
       })
       .catch(() => {
-        // API unreachable — keep browser heuristic result
+        // API unreachable — keep existing cookie/heuristic result
       })
   }, [])
 
