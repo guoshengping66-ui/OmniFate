@@ -40,6 +40,16 @@ if [[ "$ACTION" == "frontend" || "$ACTION" == "all" ]]; then
     rm -rf .next
     NODE_ENV=production npx next build
     cd ..
+
+    # Standalone server uses __dirname (server.js dir) to find .next/static.
+    # PM2 CWD is /opt/OmniFate/frontend, but server.js is at
+    # .next/standalone/frontend/server.js — so __dirname = .next/standalone/frontend/.
+    # Create symlinks so the standalone server can find .next/static and .next/server.
+    STANDALONE_DIR="/opt/OmniFate/frontend/.next/standalone/frontend"
+    mkdir -p "$STANDALONE_DIR/.next"
+    ln -sf /opt/OmniFate/frontend/.next/static "$STANDALONE_DIR/.next/static"
+    ln -sf /opt/OmniFate/frontend/.next/server "$STANDALONE_DIR/.next/server"
+
     log "🔄 重启前端..."
     pm2 restart frontend 2>/dev/null || pm2 start ecosystem.config.js --only frontend
     log "✔ 前端已重启"
