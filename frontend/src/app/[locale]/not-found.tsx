@@ -16,7 +16,8 @@ export default function NotFound() {
     return navigator.language.startsWith("zh") ? "zh" : "en"
   }, [])
 
-  const m = MESSAGES[lang] || MESSAGES.en
+  const validLang = (lang === "zh" || lang === "en") ? lang : "en"
+  const m = MESSAGES[validLang] || MESSAGES.en
 
   return (
     <div className="min-h-screen pt-24 pb-16 px-4 flex items-center justify-center">
@@ -24,7 +25,7 @@ export default function NotFound() {
         <p className="text-6xl mb-4">🌌</p>
         <h1 className="text-2xl font-serif font-bold text-gold mb-2">{m.title}</h1>
         <p className="text-white/40 text-sm mb-6">{m.desc}</p>
-        <Link href={`/${lang}`} className="btn-gold inline-block px-8 py-3">
+        <Link href={`/${validLang}`} className="btn-gold inline-block px-8 py-3">
           {m.home}
         </Link>
       </div>

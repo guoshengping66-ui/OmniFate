@@ -19,7 +19,10 @@ export function UserDashboard() {
   const [eventDrawerOpen, setEventDrawerOpen] = useState(false)
 
   useEffect(() => {
-    if (!user) return
+    if (!user) {
+      setLoadingReadings(false)
+      return
+    }
     const timer = setTimeout(() => {
       listMyReadings()
         .then(r => setRecentReadings(r.slice(0, 3)))

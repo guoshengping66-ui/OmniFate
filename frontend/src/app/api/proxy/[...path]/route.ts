@@ -29,6 +29,8 @@ const BACKEND = process.env.BACKEND_URL || "http://localhost:8003"
 const TIMEOUT_MS = 30_000  // 30s for regular requests (POST/GET with expected fast response)
 const ANALYSIS_TIMEOUT_MS = 120_000  // 2 min for LLM-heavy endpoints (analyze-event, readings)
 const SSE_TIMEOUT_MS = 600_000  // 10 min for SSE streams (analysis can take 5-8 min with two-call approach)
+const MAX_BODY_SIZE = 10 * 1024 * 1024  // 10MB — prevents memory exhaustion from oversized requests
+const IS_DEV = process.env.NODE_ENV !== "production"
 
 export async function GET(request: Request, { params }: { params: Promise<{ path: string[] }> }) {
   return proxy(request, params)
@@ -56,8 +58,15 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
   // Prevent path traversal (../, %2e%2e, etc.) by validating each segment
   const sanitizedSegments: string[] = []
   for (const seg of path) {
-    // Reject path traversal patterns
-    if (seg === ".." || seg === "." || seg === "" || /%2[eE]/i.test(seg)) {
+    // Reject path traversal patterns — check both raw and decoded forms
+    let decoded: string
+    try { decoded = decodeURIComponent(seg) } catch { decoded = seg }
+    if (
+      seg === ".." || seg === "." || seg === "" ||
+      decoded === ".." || decoded === "." || decoded === "" ||
+      decoded.includes("/") || decoded.includes("\\") ||
+      /%2[eE]/i.test(seg)
+    ) {
       return new Response(
         JSON.stringify({ detail: "Invalid path" }),
         { status: 400, headers: { "Content-Type": "application/json; charset=utf-8" } },
@@ -126,22 +135,33 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
   // Read body — handle multipart (binary) vs JSON differently
   let body: string | ArrayBuffer | undefined
   if (request.method !== "GET" && request.method !== "HEAD") {
-    // DEBUG: Log every non-GET request body for diagnosis
     const authTag = targetPath.includes("/auth/") ? "AUTH|" : ""
-    console.log(`[Proxy] ${authTag}${request.method} ${targetPath} ct=${contentType}`)
+    if (IS_DEV) console.log(`[Proxy] ${authTag}${request.method} ${targetPath} ct=${contentType}`)
 
     if (isMultipart) {
       // ⚠️ CRITICAL: Use arrayBuffer() for multipart to preserve binary file data.
       // text() corrupts binary by interpreting bytes as UTF-8.
       const ab = await request.arrayBuffer()
+      if (ab.byteLength > MAX_BODY_SIZE) {
+        return new Response(
+          JSON.stringify({ detail: "Request body too large" }),
+          { status: 413, headers: { "Content-Type": "application/json; charset=utf-8" } },
+        )
+      }
       body = ab
-      console.log(`[Proxy] ${authTag}multipart body size: ${ab.byteLength}`)
+      if (IS_DEV) console.log(`[Proxy] ${authTag}multipart body size: ${ab.byteLength}`)
     } else if (dataParam) {
       // Data from URL param — decode and use as JSON body
       try {
         body = decodeURIComponent(dataParam)
+        if ((body as string).length > MAX_BODY_SIZE) {
+          return new Response(
+            JSON.stringify({ detail: "Request body too large" }),
+            { status: 413, headers: { "Content-Type": "application/json; charset=utf-8" } },
+          )
+        }
         headers.set("Content-Type", "application/json")
-        console.log(`[Proxy] ${authTag}body from _data param, len=${(body as string)?.length}`)
+        if (IS_DEV) console.log(`[Proxy] ${authTag}body from _data param, len=${(body as string)?.length}`)
       } catch {
         // URL param decoding failed — fall through to body
         dataParam = null
@@ -151,7 +171,13 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
     if (!dataParam && body === undefined) {
       // Fall back to reading the request body directly
       const raw = await request.text()
-      console.log(`[Proxy] ${authTag}body from request.text(), len=${raw?.length ?? 0}, preview=${raw?.substring(0, 300)}`)
+      if (raw.length > MAX_BODY_SIZE) {
+        return new Response(
+          JSON.stringify({ detail: "Request body too large" }),
+          { status: 413, headers: { "Content-Type": "application/json; charset=utf-8" } },
+        )
+      }
+      if (IS_DEV) console.log(`[Proxy] ${authTag}body from request.text(), len=${raw?.length ?? 0}`)
       if (raw) {
         body = raw
         // Ensure Content-Type is set for the backend
@@ -216,8 +242,8 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
       respHeaders.set("Content-Type", "application/json; charset=utf-8")
     }
 
-    // DEBUG: log auth response status
-    if (targetPath.includes("/auth/")) {
+    // DEBUG: log auth response status (dev only — production logs leak tokens)
+    if (IS_DEV && targetPath.includes("/auth/")) {
       console.log(`[Proxy] ${targetPath} → ${resp.status}`)
     }
 
