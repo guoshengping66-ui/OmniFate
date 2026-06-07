@@ -82,29 +82,27 @@ export function useRegion() {
   })
   const [isLoaded, setIsLoaded] = useState(true)
 
-  // On mount: ALWAYS call /api/region to get server-confirmed region.
-  // The API reads CF-IPCountry header (Cloudflare sets this per-request).
-  // Sets both region and country cookies so the correct region is used
-  // on subsequent page loads.
+  // On mount: call ipwho.is directly from the browser to detect region.
+  // This bypasses Cloudflare header issues (CF-IPCountry can be inaccurate,
+  // CF-Connecting-IP not passed to origin). ipwho.is uses MaxMind GeoIP
+  // and correctly identifies the user's real location.
   useEffect(() => {
-    fetch("/api/region", {
-      cache: "no-store",
-      headers: { Accept: "application/json" },
-    })
+    fetch("https://ipwho.is/", { signal: AbortSignal.timeout(5000) })
       .then((res) => res.json())
       .then((data) => {
-        if (data.region === "domestic" || data.region === "overseas") {
-          setRegion(data.region)
-          cacheRegion(data.region)
+        if (data.success && data.country_code) {
+          const code = data.country_code.toUpperCase()
+          const isDomestic = ["CN", "HK", "MO", "TW"].includes(code)
+          const newRegion = isDomestic ? "domestic" : "overseas"
+          setRegion(newRegion)
+          cacheRegion(newRegion)
           // Set cookies for SSR and subsequent page loads
-          document.cookie = `region=${data.region}; max-age=86400; path=/; SameSite=lax`
-          if (data.country) {
-            document.cookie = `country=${data.country}; max-age=86400; path=/; SameSite=lax`
-          }
+          document.cookie = `region=${newRegion}; max-age=86400; path=/; SameSite=lax`
+          document.cookie = `country=${code}; max-age=86400; path=/; SameSite=lax`
         }
       })
       .catch(() => {
-        // API unreachable — keep existing cookie/heuristic result
+        // ipwho.is unreachable — keep existing cookie/heuristic result
       })
   }, [])
 
