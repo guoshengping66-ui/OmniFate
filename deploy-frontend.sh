@@ -23,10 +23,18 @@ log "📥 同步最新代码..."
 git fetch origin main
 git reset --hard origin/main
 
-# ── 2. 安装依赖 ──────────────────────────────────────────────────────────
+# ── 2. 安装依赖 (only if package.json changed) ──────────────────────────
 cd /opt/OmniFate/frontend
-log "📦 安装依赖..."
-npm ci --production=false 2>/dev/null || npm install
+CURRENT_PKG_HASH=$(md5sum package.json 2>/dev/null | awk '{print $1}')
+SAVED_PKG_HASH=$(cat .last_pkg_hash 2>/dev/null || echo "")
+if [ "$CURRENT_PKG_HASH" != "$SAVED_PKG_HASH" ]; then
+  log "📦 安装依赖 (package.json changed)..."
+  rm -rf node_modules
+  npm install --prefer-offline 2>/dev/null || npm install
+  echo "$CURRENT_PKG_HASH" > .last_pkg_hash
+else
+  log "📦 依赖未变化，跳过安装"
+fi
 
 # ── 3. 构建生产版本 ──────────────────────────────────────────────────────
 log "🛑 停止前端服务..."
