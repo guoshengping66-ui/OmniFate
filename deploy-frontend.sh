@@ -38,10 +38,10 @@ NODE_ENV=production npm run build
 
 # ── 4. 定位 standalone 目录 ────────────────────────────────────────────
 STANDALONE_DIR=""
-if [ -f ".next/standalone/server.js" ]; then
-  STANDALONE_DIR=".next/standalone"
-elif [ -d ".next/standalone/frontend" ]; then
+if [ -d ".next/standalone/frontend" ]; then
   STANDALONE_DIR=".next/standalone/frontend"
+elif [ -f ".next/standalone/server.js" ]; then
+  STANDALONE_DIR=".next/standalone"
 else
   err "未找到 standalone 目录"
 fi
