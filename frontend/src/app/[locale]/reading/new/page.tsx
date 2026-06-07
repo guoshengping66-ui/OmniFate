@@ -66,7 +66,7 @@ export default function NewReadingPage() {
   const { user } = useAuth()
   const { locale, t, localeHref } = useLanguage()
   const isEn = locale === "en"
-  const { userProfile, fetchBirthProfiles } = useUserStore()
+  const { userProfile, activeTestTarget, fetchBirthProfiles } = useUserStore()
 
   // ── Wizard store: intent & prefill ──────────────────────────
   const { currentIntent, formData: wizardData, startStep: wizardStartStep, reset: resetWizard } = useWizardStore()
@@ -89,21 +89,22 @@ export default function NewReadingPage() {
     }
   }, [searchParams]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Pre-fill from user's birth profile when available ──────
-  // userProfile may be null on first render (store loading).
+  // ── Pre-fill from active birth profile when available ──────
+  // Uses activeTestTarget (friend profile if selected) or userProfile (own).
   // When it becomes available, pre-fill the wizard store.
+  const activeProfile = activeTestTarget || userProfile
   useEffect(() => {
     if (prefilledFromProfile.current) return
     if (!currentIntent) return // Only pre-fill for intent flows
     // Ensure profiles are fetched (handles direct navigation to wizard)
-    if (user && !userProfile) {
+    if (user && !activeProfile) {
       fetchBirthProfiles()
       return
     }
-    if (!userProfile) return
+    if (!activeProfile) return
     prefilledFromProfile.current = true
-    useWizardStore.getState().prefillFromProfile(userProfile)
-  }, [user, userProfile, currentIntent]) // eslint-disable-line react-hooks/exhaustive-deps
+    useWizardStore.getState().prefillFromProfile(activeProfile)
+  }, [user, activeProfile, currentIntent]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Validation schema (uses t() for messages) ──
   // birth_city is only required when birth info step is shown (FULL_MULTIMODAL / no intent)
