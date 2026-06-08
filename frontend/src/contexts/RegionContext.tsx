@@ -7,14 +7,14 @@ interface RegionContextValue {
   region: Region
   switchRegion: (r: Region) => void
   isLoaded: boolean
-  detectionSource: "cookie" | "timezone" | "language" | "middleware" | "api" | "tz_override"
+  detectionSource: "cookie" | "timezone" | "language" | "middleware" | "api"
 }
 
 const RegionContext = createContext<RegionContextValue>({
   region: "domestic",
   switchRegion: () => {},
   isLoaded: false,
-  detectionSource: "cookie",
+  detectionSource: "middleware",
 })
 
 // ── Browser-based region detection ──
@@ -82,38 +82,26 @@ export function RegionProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Detection priority:
-    //   1. Middleware-set cookie (from CF-IPCountry — quick but can be wrong with VPN/proxy)
-    //   2. Browser timezone detection (reliable, can't be spoofed easily)
+    //   1. Middleware-set cookie (from CF-IPCountry — most reliable, server-side)
+    //   2. Browser timezone detection (fallback when no cookie)
     //   3. Browser language (weak fallback)
     //
-    // If server detected "domestic" but browser timezone says "overseas",
-    // we override with timezone (handles VPN/proxy scenarios).
+    // IMPORTANT: We do NOT override the server's IP-based detection with timezone.
+    // The server (Cloudflare CF-IPCountry) is the authoritative source for region.
+    // Timezone is only used as a fallback when no cookie exists.
 
-    // 1. Read middleware-set cookie
+    // 1. Read middleware-set cookie (set by server via CF-IPCountry)
     const cookieRegion = getCookie("region") as Region | null
     const hasCookie = cookieRegion === "domestic" || cookieRegion === "overseas"
 
-    // 2. Browser timezone detection (always runs for accuracy check)
-    const tzRegion = detectFromTimezone()
-
-    // 3. Determine final region
     if (hasCookie) {
-      // Cookie exists from middleware
-      if (cookieRegion !== tzRegion) {
-        // Mismatch: server and browser disagree
-        // Trust browser timezone (handles VPN/proxy where server sees wrong IP)
-        setRegion(tzRegion)
-        setDetectionSource("tz_override")
-        setLocalStorage("alpha_mirror_region", JSON.stringify({ region: tzRegion, ts: Date.now() }))
-        setRegionCookie(tzRegion)
-      } else {
-        // Agreement: both say the same region
-        setRegion(cookieRegion)
-        setDetectionSource("middleware")
-        setLocalStorage("alpha_mirror_region", JSON.stringify({ region: cookieRegion, ts: Date.now() }))
-      }
+      // Cookie exists from middleware — trust it (authoritative)
+      setRegion(cookieRegion)
+      setDetectionSource("middleware")
+      setLocalStorage("alpha_mirror_region", JSON.stringify({ region: cookieRegion, ts: Date.now() }))
     } else {
-      // No cookie — use timezone
+      // No cookie — use timezone as fallback
+      const tzRegion = detectFromTimezone()
       setRegion(tzRegion)
       setDetectionSource("timezone")
       setLocalStorage("alpha_mirror_region", JSON.stringify({ region: tzRegion, ts: Date.now() }))
