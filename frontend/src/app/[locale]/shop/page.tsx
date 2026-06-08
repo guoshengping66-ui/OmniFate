@@ -12,10 +12,10 @@ const ProductCard = lazy(() => import("@/components/reading/ProductCard").then(m
 const AIRecommendHero = lazy(() => import("@/components/shop/AIRecommendHero").then(m => ({ default: m.AIRecommendHero })))
 
 const SCENARIOS = [
-  { key: "wealth", emoji: "💰", tag: "求财旺运", color: "from-amber-500/10 to-yellow-500/5", border: "border-amber-500/20" },
-  { key: "career", emoji: "💼", tag: "事业腾飞", color: "from-blue-500/10 to-cyan-500/5", border: "border-blue-500/20" },
-  { key: "love", emoji: "💕", tag: "姻缘感情", color: "from-pink-500/10 to-rose-500/5", border: "border-pink-500/20" },
-  { key: "health", emoji: "🏥", tag: "健康平安", color: "from-green-500/10 to-emerald-500/5", border: "border-green-500/20" },
+  { key: "wealth", emoji: "💰", color: "from-amber-500/10 to-yellow-500/5", border: "border-amber-500/20" },
+  { key: "career", emoji: "💼", color: "from-blue-500/10 to-cyan-500/5", border: "border-blue-500/20" },
+  { key: "love", emoji: "💕", color: "from-pink-500/10 to-rose-500/5", border: "border-pink-500/20" },
+  { key: "health", emoji: "🏥", color: "from-green-500/10 to-emerald-500/5", border: "border-green-500/20" },
 ]
 
 // Skeleton card for loading state
@@ -166,7 +166,7 @@ function ShopContent() {
                   className={`relative overflow-hidden rounded-xl p-4 bg-gradient-to-br ${scenario.color} border ${scenario.border} hover:scale-[1.02] transition-all duration-300 group`}
                 >
                   <span className="text-xl mb-2 block">{scenario.emoji}</span>
-                  <p className="text-white/70 text-xs font-medium">{scenario.tag}</p>
+                  <p className="text-white/70 text-xs font-medium">{t(`shop.scenario.${scenario.key}`)}</p>
                   <p className="text-white/30 text-[10px] mt-1">{t("shop.scenario.cta") || "推命获取专属推荐"}</p>
                   <ArrowRight size={12} className="absolute top-3 right-3 text-white/20 group-hover:text-white/50 group-hover:translate-x-0.5 transition-all" />
                 </a>

@@ -832,7 +832,11 @@
     "title": "Fortune Enhancement Shop",
     "resultCount": "{count} items found",
     "scenario": {
-      "cta": "Get personalized picks via reading"
+      "cta": "Get personalized picks via reading",
+      "wealth": "Wealth & Prosperity",
+      "career": "Career Success",
+      "love": "Love & Romance",
+      "health": "Health & Wellness"
     },
     "sort": {
       "match": "Chart match",
