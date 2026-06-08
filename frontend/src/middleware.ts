@@ -34,16 +34,23 @@ const intlMiddleware = createMiddleware({
  * ALWAYS re-detects from CF-IPCountry on every request.
  * This ensures VPN/proxy IP changes are immediately reflected.
  *
- * Priority: CF-IPCountry > Accept-Language > default
+ * Priority: CF-IPCountry (authoritative) > Accept-Language (only when CF-IPCountry missing) > default
+ *
+ * IMPORTANT: When CF-IPCountry is present but indicates a non-domestic country,
+ * we MUST trust it and return "overseas". Accept-Language is only used as a
+ * fallback when CF-IPCountry header is completely absent (e.g. non-Cloudflare setup).
+ * Otherwise a Chinese user on a US VPN would be misclassified as domestic
+ * because their browser language is "zh".
  */
 function detectRegion(request: NextRequest): Region {
   // 1. Cloudflare IP country code (most accurate, always fresh)
   const cfCountry = request.headers.get("cf-ipcountry")?.toUpperCase()
-  if (cfCountry && DOMESTIC_COUNTRY_CODES.has(cfCountry)) {
-    return "domestic"
+  if (cfCountry) {
+    // CF-IPCountry is present — trust it as authoritative
+    return DOMESTIC_COUNTRY_CODES.has(cfCountry) ? "domestic" : "overseas"
   }
 
-  // 2. Accept-Language as weak fallback
+  // 2. Accept-Language as weak fallback (ONLY when CF-IPCountry is missing)
   const acceptLang = request.headers.get("accept-language") || ""
   if (acceptLang.toLowerCase().includes("zh")) {
     return "domestic"
