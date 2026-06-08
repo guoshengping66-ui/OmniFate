@@ -29,6 +29,152 @@ class ProductMatcher:
         "火": "fire", "土": "earth",
     }
 
+    # Tag translation mapping (Chinese -> English)
+    TAG_ZH_EN = {
+        "#缺土": "#lack_earth",
+        "#缺木": "#lack_wood",
+        "#缺水": "#lack_water",
+        "#缺火": "#lack_fire",
+        "#缺金": "#lack_metal",
+        "#财库空空": "#depleted_wealth",
+        "#招财": "#wealth_attraction",
+        "#财运受损": "#poor_fortune",
+        "#事业动荡": "#career_turbulence",
+        "#事业瓶颈": "#career_plateau",
+        "#事业": "#career",
+        "#桃花运": "#romance",
+        "#感情": "#love",
+        "#婚姻": "#marriage",
+        "#行动力": "#initiative",
+        "#领导力强": "#strong_leadership",
+        "#学业瓶颈": "#academic_plateau",
+        "#健康": "#health",
+        "#健康警告": "#health_warning",
+        "#压力大": "#high_stress",
+        "#焦虑": "#anxiety",
+        "#睡眠": "#calm_mind",
+        "#人际关系": "#relationships",
+        "#小人是非": "#gossip",
+        "#口舌是非": "#gossip",
+        "#官非": "#legal_disputes",
+        "#诉讼": "#persistent_litigation",
+        "#投资失败": "#investment_loss",
+        "#破财": "#investment_loss",
+        "#家庭": "#home",
+        "#子女运弱": "#weak_children_luck",
+        "#搬家": "#moving_in",
+        "#旅行": "#travel_safety",
+        "#驿马": "#travel_star",
+        "#贵人": "#noble_people",
+        "#阻碍": "#obstacles",
+        "#变革": "#transformation",
+        "#转型": "#midlife_transition",
+        "#灵性": "#spirituality",
+        "#直觉": "#intuition",
+        "#能量不足": "#energy_depletion",
+        "#能量阻塞": "#energy_blockage",
+        "#内耗": "#inner_drain",
+        "#体质弱": "#weak_constitution",
+        "#气血不足": "#blood_qi_deficiency",
+        "#皮肤问题": "#dull_skin",
+        "#肝": "#liver_concern",
+        "#思维僵化": "#rigid_thinking",
+        "#固执": "#rigidity",
+        "#决策困难": "#decision_difficulty",
+        "#沟通障碍": "#communication_block",
+        "#合作问题": "#cooperation_issues",
+        "#团队摩擦": "#team_friction",
+        "#合同纠纷": "#contract_conflicts",
+        "#创意枯竭": "#creative_block",
+        "#华盖孤": "#huagai_solitude",
+        "#孤独": "#huagai_solitude",
+        "#五行缺": "#lack_",
+        "#偏财受损": "#investment_loss",
+        "#暗桃花": "#troubled_love",
+        "#感情复杂": "#complex_relationships",
+        "#情绪纠结": "#emotional_knots",
+        "#情感连接": "#emotional_connection",
+        "#子女性格": "#unique_aesthetic",
+        "#学业运弱": "#academic_plateau",
+        "#考试": "#certification_exam",
+        "#创业": "#startup_phase",
+        "#海外发展": "#overseas_growth",
+        "#父母健康": "#elder_health",
+        "#孝道": "#filial_piety",
+        "#家庭责任": "#family_responsibility",
+        "#风水": "#feng_shui",
+        "#风水失调": "#feng_shui_disorder",
+        "#装修": "#feng_shui_disorder",
+        "#怀孕": "#preconception",
+        "#备孕": "#preconception",
+        "#伤官见官": "#clashing_killing",
+        "#枭神夺食": "#subconscious_issues",
+        "#羊刃": "#weak_body",
+        "#驿马星动": "#frequent_changes",
+        "#桃花劫": "#troubled_love",
+        "#红鸾星动": "#romance",
+        "#天喜星动": "#romance",
+        "#华盖星": "#metaphysical_connection",
+        "#天乙贵人": "#noble_people",
+        "#文昌星": "#academic_plateau",
+        "#武曲星": "#career",
+        "#贪狼星": "#romance",
+        "#紫微星": "#strong_leadership",
+        "#天府星": "#depleted_wealth",
+        "#太阳": "#strong_leadership",
+        "#太阴": "#emotional_connection",
+        "#天机": "#intuition",
+        "#巨门": "#communication_block",
+        "#天相": "#cooperation_issues",
+        "#天梁": "#noble_people",
+                "#七杀": "#clashing_killing",
+        "#破军": "#transformation",
+        "#廉贞": "#inner_drain",
+        "#武曲": "#career",
+        "#贪狼": "#romance",
+        "#天府": "#depleted_wealth",
+        "#太阴": "#emotional_connection",
+        "#天机": "#intuition",
+        "#巨门": "#communication_block",
+        "#天相": "#cooperation_issues",
+        "#天梁": "#noble_people",
+        "#七杀": "#clashing_killing",
+        "#破军": "#transformation",
+        "#廉贞": "#inner_drain",
+        "#左辅": "#noble_people",
+        "#右弼": "#noble_people",
+        "#文曲": "#academic_plateau",
+        "#文昌": "#academic_plateau",
+        "#天魁": "#noble_people",
+        "#天钺": "#noble_people",
+        "#禄存": "#depleted_wealth",
+        "#擎羊": "#clashing_killing",
+                "#陀罗": "#inner_drain",
+        "#火星": "#fire",
+        "#铃星": "#fire",
+        "#地空": "#energy_depletion",
+        "#地劫": "#energy_depletion",
+        "#天刑": "#legal_disputes",
+        "#天姚": "#romance",
+        "#天喜": "#romance",
+        "#红鸾": "#romance",
+        "#龙德": "#noble_people",
+        "#凤阁": "#unique_aesthetic",
+        "#天德": "#noble_people",
+        "#月德": "#noble_people",
+        "#福德": "#calm_mind",
+        "#禄勋": "#depleted_wealth",
+        "#帝旺": "#strong_leadership",
+        "#长生": "#startup_phase",
+        "#墓库": "#depleted_wealth",
+        "#绝地": "#energy_depletion",
+        "#胎养": "#preconception",
+        "#冠带": "#career",
+        "#临官": "#career",
+        "#衰病": "#health_warning",
+        "#死绝": "#energy_depletion",
+    }
+
     def __init__(self, products_path: Optional[str] = None):
         path = products_path or str(
             Path(__file__).parent.parent / "data" / "products.json"
@@ -60,6 +206,22 @@ class ProductMatcher:
         scored.sort(key=lambda x: x[0], reverse=True)
         return [p for _, p in scored[:top_k]]
 
+    def translate_tags_to_en(self, tags: list[str]) -> list[str]:
+        """Translate Chinese tags to English equivalents."""
+        translated = []
+        for tag in tags:
+            if tag in self.TAG_ZH_EN:
+                translated.append(self.TAG_ZH_EN[tag])
+            else:
+                # Try partial match (e.g., "#五行缺土" -> "#lack_earth")
+                for zh, en in self.TAG_ZH_EN.items():
+                    if zh in tag:
+                        translated.append(en)
+                        break
+                else:
+                    translated.append(tag)  # Keep original if no translation
+        return translated
+
     def match_with_reasons(
         self,
         weakness_tags: list[str],
@@ -74,6 +236,12 @@ class ProductMatcher:
         Returns list of product dicts with extra 'match_reasons' key.
         """
         astro_tags = astro_weakness_tags or []
+
+        # Translate tags to English if needed for matching
+        if lang == "en":
+            # Convert Chinese tags to English for matching
+            weakness_tags = self.translate_tags_to_en(weakness_tags)
+            astro_tags = self.translate_tags_to_en(astro_tags)
         scored: list[tuple[float, dict, list[str]]] = []
 
         for product in self._products:
@@ -105,11 +273,13 @@ class ProductMatcher:
         score = 0.0
         reasons: list[str] = []
         p_keywords = set(product.get("keyword_tags") or [])
+        p_keywords_en = set(product.get("keyword_tags_en") or [])
         p_wuxing = set(product.get("wuxing_tags") or [])
         p_astro = set(product.get("astro_tags") or [])
 
         for tag in weakness_tags:
-            if tag in p_keywords:
+            # Check against both Chinese and English tags
+            if tag in p_keywords or tag in p_keywords_en:
                 score += 3.0
                 if lang == "en":
                     reasons.append(f"Chart tag \"{tag}\" matches product tag")
@@ -139,7 +309,7 @@ class ProductMatcher:
                         reasons.append(f"五行缺失「{element_zh}」需补充")
 
         for tag in astro_tags:
-            if tag in p_astro or tag in p_keywords:
+            if tag in p_astro or tag in p_keywords or tag in p_keywords_en:
                 score += 1.5
                 if lang == "en":
                     reasons.append(f"Astrology config \"{tag}\" corresponds")
@@ -161,11 +331,13 @@ class ProductMatcher:
     ) -> float:
         score = 0.0
         p_keywords = set(product.get("keyword_tags") or [])
+        p_keywords_en = set(product.get("keyword_tags_en") or [])
         p_wuxing   = set(product.get("wuxing_tags") or [])
         p_astro    = set(product.get("astro_tags") or [])
 
         for tag in weakness_tags:
-            if tag in p_keywords:
+            # Check against both Chinese and English tags
+            if tag in p_keywords or tag in p_keywords_en:
                 score += 3.0
 
         for element in boost_elements:
@@ -186,7 +358,7 @@ class ProductMatcher:
                 score += 2.0
 
         for tag in astro_tags:
-            if tag in p_astro or tag in p_keywords:
+            if tag in p_astro or tag in p_keywords or tag in p_keywords_en:
                 score += 1.5
 
         sales_bonus = min(product.get("sales_count", 0) / 1000, 0.5)
@@ -258,28 +430,46 @@ class ProductMatcher:
         """
         weakness_tags = weakness_tags or []
         boost_elements = boost_elements or []
-        p_name = product.get("name", "")
-        p_funcs = product.get("function_tags", [])
-        p_elems = product.get("elements", [])
-        boosts = "、".join(self.WUXING_EN_ZH.get(e, e) for e in boost_elements) or "能量"
 
         if lang == "en":
-            boosts_en = ", ".join(boost_elements) or "energy"
-            funcs_en = ", ".join(p_funcs[:2]) if p_funcs else "restore balance"
-            elems_en = ", ".join(p_elems) if p_elems else "natural"
+            # Always prefer _en fields for English output
+            p_name = product.get("name_en") or product.get("name", "")
+            p_funcs = product.get("function_tags_en") or product.get("function_tags", [])
+            p_elems = product.get("elements_en") or product.get("elements", [])
+            boosts = ", ".join(boost_elements) or "energy"
+
+            # Translate weakness tag if it's Chinese
+            def _translate_weakness_tag(tag: str) -> str:
+                tag_clean = tag.lstrip("#")
+                # Try to find English translation
+                en_tag = self.TAG_ZH_EN.get(f"#{tag_clean}", "")
+                if en_tag:
+                    return en_tag.lstrip("#")
+                # Try partial match
+                for zh, en in self.TAG_ZH_EN.items():
+                    if tag_clean in zh or zh.lstrip("#") in tag_clean:
+                        return en.lstrip("#")
+                return tag_clean  # Return as-is if no translation
+
             if weakness_tags and p_funcs:
-                main_weak = weakness_tags[0].lstrip("#")
+                main_weak = _translate_weakness_tag(weakness_tags[0])
                 return (
                     f"Addressing the \"{main_weak}\" pattern in your chart, "
-                    f"{p_name} carries {elems_en} energy that helps {funcs_en}, "
+                    f"{p_name} carries {', '.join(p_elems)} energy that helps {', '.join(p_funcs[:2])}, "
                     f"restoring elemental balance and improving your fortune."
                 )
             if p_elems:
                 return (
-                    f"Rich in {elems_en} energy, {p_name} is ideal for those needing "
-                    f"more {boosts_en}, helping harmonize your aura and elevate fortune."
+                    f"Rich in {', '.join(p_elems)} energy, {p_name} is ideal for those needing "
+                    f"more {boosts}, helping harmonize your aura and elevate fortune."
                 )
             return f"{p_name} is precisely matched to your chart and helps improve your current fortune."
+
+        # Chinese mode
+        p_name = product.get("name", "")
+        p_funcs = product.get("function_tags", [])
+        p_elems = product.get("elements", [])
+        boosts = "、".join(self.WUXING_EN_ZH.get(e, e) for e in boost_elements) or "能量"
 
         if weakness_tags and p_funcs:
             main_weak = weakness_tags[0].lstrip("#")
