@@ -115,6 +115,11 @@ export function middleware(request: NextRequest) {
   // Inject region header for server components and API routes
   intlResponse.headers.set("x-omni-region", region)
 
+  // Debug: show what CF-IPCountry was detected (remove after testing)
+  const debugCfCountry = request.headers.get("cf-ipcountry") || "MISSING"
+  const debugAcceptLang = (request.headers.get("accept-language") || "").substring(0, 30)
+  intlResponse.headers.set("x-debug-region", `${region}|cf=${debugCfCountry}|lang=${debugAcceptLang}`)
+
   return intlResponse
 }
 
