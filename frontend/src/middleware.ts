@@ -10,11 +10,10 @@ import type { NextRequest } from "next/server"
  *  3. Block /test/* routes in production
  *  4. Add security response headers (HSTS, X-Frame-Options, etc.)
  *
- * Region detection flow (server-side, no API call):
- *   1. Check existing "region" cookie (fast path, set by previous detection)
- *   2. Use Cloudflare's CF-IPCountry header (accurate for CN/HK/MO/TW)
- *   3. Fall back to Accept-Language header (weak signal for zh-*)
- *   4. Default to "overseas"
+ * Region detection flow (always re-detects from IP):
+ *   1. Use Cloudflare's CF-IPCountry header (most accurate, always fresh)
+ *   2. Fall back to Accept-Language header (weak signal for zh-*)
+ *   3. Default to "overseas"
  *
  * The detected region is set as a cookie and injected as x-omni-region header,
  * so server components and API routes can read it without client detection.
@@ -24,10 +23,6 @@ const DOMESTIC_COUNTRY_CODES = new Set(["CN", "HK", "MO", "TW"])
 
 type Region = "domestic" | "overseas"
 
-// Re-detect region every 6 hours to handle IP changes (VPN, travel, etc.)
-const REGION_TTL_MS = 6 * 60 * 60 * 1000
-const REGION_TS_KEY = "region_ts"
-
 const intlMiddleware = createMiddleware({
   locales,
   defaultLocale,
@@ -36,39 +31,25 @@ const intlMiddleware = createMiddleware({
 
 /**
  * Detect user's region from request headers.
- * Priority: cookie (if fresh) > CF-IPCountry > Accept-Language > default
+ * ALWAYS re-detects from CF-IPCountry on every request.
+ * This ensures VPN/proxy IP changes are immediately reflected.
  *
- * Cookie TTL: 6 hours. After TTL expires, re-detect from CF-IPCountry.
- * This handles IP changes (VPN connect/disconnect, travel, etc.)
+ * Priority: CF-IPCountry > Accept-Language > default
  */
 function detectRegion(request: NextRequest): Region {
-  // 1. Existing cookie with TTL check
-  const cookieRegion = request.cookies.get("region")?.value
-  const cookieTs = request.cookies.get(REGION_TS_KEY)?.value
-  if (cookieRegion === "domestic" || cookieRegion === "overseas") {
-    // If cookie is fresh (< 6 hours), trust it
-    if (cookieTs) {
-      const age = Date.now() - parseInt(cookieTs, 10)
-      if (age < REGION_TTL_MS) {
-        return cookieRegion
-      }
-    }
-    // Cookie expired or no timestamp — re-detect from IP
-  }
-
-  // 2. Cloudflare IP country code (most accurate signal)
+  // 1. Cloudflare IP country code (most accurate, always fresh)
   const cfCountry = request.headers.get("cf-ipcountry")?.toUpperCase()
   if (cfCountry && DOMESTIC_COUNTRY_CODES.has(cfCountry)) {
     return "domestic"
   }
 
-  // 3. Accept-Language as weak fallback
+  // 2. Accept-Language as weak fallback
   const acceptLang = request.headers.get("accept-language") || ""
   if (acceptLang.toLowerCase().includes("zh")) {
     return "domestic"
   }
 
-  // 4. Default to overseas
+  // 3. Default to overseas
   return "overseas"
 }
 
@@ -117,13 +98,8 @@ export function middleware(request: NextRequest) {
   // Detect region from GeoIP headers and set cookie + header for downstream use
   const region = detectRegion(request)
 
-  // Set region cookie (30-day expiry) + timestamp for TTL check
+  // Set region cookie (30-day expiry)
   intlResponse.cookies.set("region", region, {
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-    path: "/",
-    sameSite: "lax",
-  })
-  intlResponse.cookies.set(REGION_TS_KEY, String(Date.now()), {
     maxAge: 30 * 24 * 60 * 60, // 30 days
     path: "/",
     sameSite: "lax",
