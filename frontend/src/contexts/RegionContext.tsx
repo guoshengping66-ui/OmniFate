@@ -7,8 +7,7 @@ interface RegionContextValue {
   region: Region
   switchRegion: (r: Region) => void
   isLoaded: boolean
-  /** Whether the current region was detected server-side (middleware) or client-side */
-  detectionSource: "cookie" | "timezone" | "language" | "middleware" | "api"
+  detectionSource: "cookie" | "timezone" | "language" | "middleware" | "api" | "tz_override"
 }
 
 const RegionContext = createContext<RegionContextValue>({
@@ -18,7 +17,7 @@ const RegionContext = createContext<RegionContextValue>({
   detectionSource: "cookie",
 })
 
-// ── Browser-based region detection (fallback when no API available) ──
+// ── Browser-based region detection ──
 
 const DOMESTIC_TIMEZONES = [
   "Asia/Shanghai",
@@ -80,71 +79,57 @@ export function RegionProvider({ children }: { children: ReactNode }) {
   const [detectionSource, setDetectionSource] = useState<RegionContextValue["detectionSource"]>("cookie")
 
   useEffect(() => {
-    // Priority order for region detection:
-    //   1. "region" cookie (set by middleware via CF-IPCountry)
-    //   2. Call /api/region for accurate detection via ip-api.com
-    //   3. Browser timezone (fallback)
-    //   4. Browser language (weak fallback)
+    // Detection priority:
+    //   1. Middleware-set cookie (from CF-IPCountry — quick but can be wrong with VPN/proxy)
+    //   2. Browser timezone detection (reliable, can't be spoofed easily)
+    //   3. Browser language (weak fallback)
+    //
+    // If server detected "domestic" but browser timezone says "overseas",
+    // we override with timezone (handles VPN/proxy scenarios).
 
-    // 1. Check middleware-set cookie first (fast, no API call)
+    // 1. Read middleware-set cookie
     const cookieRegion = getCookie("region") as Region | null
-    if (cookieRegion === "domestic" || cookieRegion === "overseas") {
-      setRegion(cookieRegion)
-      setDetectionSource("middleware")
-      setLocalStorage("alpha_mirror_region", JSON.stringify({ region: cookieRegion, ts: Date.now() }))
+    const hasCookie = cookieRegion === "domestic" || cookieRegion === "overseas"
 
-      // 2. Verify with /api/region for accuracy (CF-IPCountry can be wrong)
-      //    Override cookie if API returns different result
-      fetch("/api/region", { cache: "no-store" })
-        .then(r => r.json())
-        .then(data => {
-          if (data.region && data.region !== cookieRegion) {
-            // API detected different region — override
-            setRegion(data.region)
-            setDetectionSource("api")
-            setLocalStorage("alpha_mirror_region", JSON.stringify({ region: data.region, ts: Date.now() }))
-            setRegionCookie(data.region)
-          }
-        })
-        .catch(() => {
-          // API failed — keep middleware value
-        })
+    // 2. Browser timezone detection (always runs for accuracy check)
+    const tzRegion = detectFromTimezone()
 
-      setIsLoaded(true)
-      return
-    }
-
-    // 3. No cookie — call /api/region for accurate detection
-    fetch("/api/region", { cache: "no-store" })
-      .then(r => r.json())
-      .then(data => {
-        const apiRegion = (data.region === "domestic" || data.region === "overseas") ? data.region : "overseas"
-        setRegion(apiRegion)
-        setDetectionSource("api")
-        setLocalStorage("alpha_mirror_region", JSON.stringify({ region: apiRegion, ts: Date.now() }))
-        setRegionCookie(apiRegion)
-        setIsLoaded(true)
-      })
-      .catch(() => {
-        // API failed — fallback to timezone
-        const tzRegion = detectFromTimezone()
+    // 3. Determine final region
+    if (hasCookie) {
+      // Cookie exists from middleware
+      if (cookieRegion !== tzRegion) {
+        // Mismatch: server and browser disagree
+        // Trust browser timezone (handles VPN/proxy where server sees wrong IP)
         setRegion(tzRegion)
-        setDetectionSource("timezone")
+        setDetectionSource("tz_override")
         setLocalStorage("alpha_mirror_region", JSON.stringify({ region: tzRegion, ts: Date.now() }))
         setRegionCookie(tzRegion)
+      } else {
+        // Agreement: both say the same region
+        setRegion(cookieRegion)
+        setDetectionSource("middleware")
+        setLocalStorage("alpha_mirror_region", JSON.stringify({ region: cookieRegion, ts: Date.now() }))
+      }
+    } else {
+      // No cookie — use timezone
+      setRegion(tzRegion)
+      setDetectionSource("timezone")
+      setLocalStorage("alpha_mirror_region", JSON.stringify({ region: tzRegion, ts: Date.now() }))
+      setRegionCookie(tzRegion)
 
-        // Language fallback
-        if (tzRegion === "overseas") {
-          const langRegion = detectFromLanguage()
-          if (langRegion === "domestic") {
-            setRegion("domestic")
-            setDetectionSource("language")
-            setLocalStorage("alpha_mirror_region", JSON.stringify({ region: "domestic", ts: Date.now() }))
-            setRegionCookie("domestic")
-          }
+      // Language fallback (only if timezone says overseas)
+      if (tzRegion === "overseas") {
+        const langRegion = detectFromLanguage()
+        if (langRegion === "domestic") {
+          setRegion("domestic")
+          setDetectionSource("language")
+          setLocalStorage("alpha_mirror_region", JSON.stringify({ region: "domestic", ts: Date.now() }))
+          setRegionCookie("domestic")
         }
-        setIsLoaded(true)
-      })
+      }
+    }
+
+    setIsLoaded(true)
   }, [])
 
   const switchRegion = (newRegion: Region) => {
