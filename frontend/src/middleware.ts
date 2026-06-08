@@ -24,6 +24,10 @@ const DOMESTIC_COUNTRY_CODES = new Set(["CN", "HK", "MO", "TW"])
 
 type Region = "domestic" | "overseas"
 
+// Re-detect region every 6 hours to handle IP changes (VPN, travel, etc.)
+const REGION_TTL_MS = 6 * 60 * 60 * 1000
+const REGION_TS_KEY = "region_ts"
+
 const intlMiddleware = createMiddleware({
   locales,
   defaultLocale,
@@ -32,13 +36,24 @@ const intlMiddleware = createMiddleware({
 
 /**
  * Detect user's region from request headers.
- * Priority: cookie > CF-IPCountry > Accept-Language > default
+ * Priority: cookie (if fresh) > CF-IPCountry > Accept-Language > default
+ *
+ * Cookie TTL: 6 hours. After TTL expires, re-detect from CF-IPCountry.
+ * This handles IP changes (VPN connect/disconnect, travel, etc.)
  */
 function detectRegion(request: NextRequest): Region {
-  // 1. Existing cookie (set by previous detection or client switch)
+  // 1. Existing cookie with TTL check
   const cookieRegion = request.cookies.get("region")?.value
+  const cookieTs = request.cookies.get(REGION_TS_KEY)?.value
   if (cookieRegion === "domestic" || cookieRegion === "overseas") {
-    return cookieRegion
+    // If cookie is fresh (< 6 hours), trust it
+    if (cookieTs) {
+      const age = Date.now() - parseInt(cookieTs, 10)
+      if (age < REGION_TTL_MS) {
+        return cookieRegion
+      }
+    }
+    // Cookie expired or no timestamp — re-detect from IP
   }
 
   // 2. Cloudflare IP country code (most accurate signal)
@@ -102,8 +117,13 @@ export function middleware(request: NextRequest) {
   // Detect region from GeoIP headers and set cookie + header for downstream use
   const region = detectRegion(request)
 
-  // Set region cookie (30-day expiry) — client reads this, no flash of wrong content
+  // Set region cookie (30-day expiry) + timestamp for TTL check
   intlResponse.cookies.set("region", region, {
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+    path: "/",
+    sameSite: "lax",
+  })
+  intlResponse.cookies.set(REGION_TS_KEY, String(Date.now()), {
     maxAge: 30 * 24 * 60 * 60, // 30 days
     path: "/",
     sameSite: "lax",
