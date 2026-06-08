@@ -27,6 +27,8 @@ const DOMESTIC_TIMEZONES = [
   "Asia/Hong_Kong",
   "Asia/Macau",
   "Asia/Taipei",
+  // UTC+8 generic timezone formats (POSIX convention uses inverted signs)
+  "Etc/GMT-8", // UTC+8 (POSIX: negative = east of UTC)
 ]
 
 function detectFromTimezone(): Region {
