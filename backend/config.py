@@ -42,7 +42,7 @@ class Settings(BaseSettings):
     FREE_MODEL: str = "deepseek-v4-flash"        # 追问模型 — 与主模型同款，保证质量
     FREE_MODEL_MAX_TOKENS: int = 4096            # 免费模型输出上限
 
-    JWT_SECRET_KEY: str = "change-me-in-production-use-openssl-rand-hex-32"
+    JWT_SECRET_KEY: str = ""  # 空字符串，必须配置
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
     # ── 微信支付 ──
@@ -50,23 +50,23 @@ class Settings(BaseSettings):
     WECHAT_APPID: str = ""
     WECHAT_MCH_ID: str = ""
     WECHAT_API_KEY: str = ""
-    WECHAT_NOTIFY_URL: str = "https://yourdomain.com/api/payments/wechat/notify"
+    WECHAT_NOTIFY_URL: str = ""  # 必须配置: https://yourdomain.com/api/payments/wechat/notify
 
     # ── 支付宝 ──
     ALIPAY_ENABLED: bool = False
     ALIPAY_APP_ID: str = ""
     ALIPAY_PRIVATE_KEY: str = ""
     ALIPAY_PUBLIC_KEY: str = ""
-    ALIPAY_NOTIFY_URL: str = "https://yourdomain.com/api/payments/alipay/notify"
-    ALIPAY_RETURN_URL: str = "https://yourdomain.com/payment/success"
+    ALIPAY_NOTIFY_URL: str = ""  # 必须配置: https://yourdomain.com/api/payments/alipay/notify
+    ALIPAY_RETURN_URL: str = ""  # 必须配置: https://yourdomain.com/payment/success
 
     # ── PayPal ──
     PAYPAL_ENABLED: bool = False
     PAYPAL_CLIENT_ID: str = ""
     PAYPAL_SECRET: str = ""
     PAYPAL_MODE: str = "sandbox"  # sandbox 或 live
-    PAYPAL_RETURN_URL: str = "https://yourdomain.com/payment/success"
-    PAYPAL_CANCEL_URL: str = "https://yourdomain.com/payment/cancel"
+    PAYPAL_RETURN_URL: str = ""  # 必须配置: https://yourdomain.com/payment/success
+    PAYPAL_CANCEL_URL: str = ""  # 必须配置: https://yourdomain.com/payment/cancel
     PAYPAL_WEBHOOK_ID: str = ""  # PayPal webhook ID for signature verification
 
     S3_BUCKET: str = ""

@@ -95,48 +95,90 @@ def _get_client_ip(request: Request) -> str:
 # ── Account lockout ────────────────────────────────────────────────────────
 # Tracks failed login attempts per email. After MAX_FAILED attempts,
 # account is locked for LOCKOUT_DURATION seconds.
-_lockout_store: dict[str, dict] = {}  # email -> {"count": int, "locked_until": float}
+# Uses Redis when available, otherwise in-memory fallback.
 FAILED_LOGIN_MAX = 5          # max failed attempts before lockout
 LOCKOUT_DURATION = 900        # 15 minutes lockout
+_lockout_memory_store: dict[str, dict] = {}  # in-memory fallback
 
 
-def _check_lockout(email: str) -> None:
+async def _check_lockout(email: str) -> None:
     """Raise 429 if account is locked due to too many failed attempts."""
-    info = _lockout_store.get(email)
-    if not info:
-        return
-    now = time.time()
-    if info.get("locked_until") and now < info["locked_until"]:
-        remaining = int(info["locked_until"] - now)
-        raise HTTPException(
-            status_code=429,
-            detail=f"登录尝试次数过多，请 {remaining} 秒后再试",
-        )
-    # Lockout expired, reset
-    if info.get("locked_until") and now >= info["locked_until"]:
-        _lockout_store.pop(email, None)
+    from services.redis_client import _get_redis
+    r = await _get_redis()
+
+    if r:
+        # Redis-backed lockout
+        locked_until = await r.get(f"lockout:{email}")
+        if locked_until:
+            remaining = int(float(locked_until) - time.time())
+            if remaining > 0:
+                raise HTTPException(
+                    status_code=429,
+                    detail=f"登录尝试次数过多，请 {remaining} 秒后再试",
+                )
+            else:
+                await r.delete(f"lockout:{email}", f"lockout_count:{email}")
+    else:
+        # In-memory fallback
+        info = _lockout_memory_store.get(email)
+        if info:
+            now = time.time()
+            if info.get("locked_until") and now < info["locked_until"]:
+                remaining = int(info["locked_until"] - now)
+                raise HTTPException(
+                    status_code=429,
+                    detail=f"登录尝试次数过多，请 {remaining} 秒后再试",
+                )
+            if info.get("locked_until") and now >= info["locked_until"]:
+                _lockout_memory_store.pop(email, None)
 
 
-def _record_failed_login(email: str) -> None:
+async def _record_failed_login(email: str) -> None:
     """Record a failed login attempt. Lock account if threshold exceeded."""
-    now = time.time()
-    if email not in _lockout_store:
-        _lockout_store[email] = {"count": 0, "locked_until": None}
-    info = _lockout_store[email]
-    info["count"] += 1
-    if info["count"] >= FAILED_LOGIN_MAX:
-        info["locked_until"] = now + LOCKOUT_DURATION
-        info["count"] = 0
+    from services.redis_client import _get_redis
+    r = await _get_redis()
+
+    if r:
+        # Redis-backed
+        count_key = f"lockout_count:{email}"
+        count = await r.incr(count_key)
+        await r.expire(count_key, LOCKOUT_DURATION)
+        if count >= FAILED_LOGIN_MAX:
+            import time as _time
+            await r.setex(f"lockout:{email}", LOCKOUT_DURATION, str(_time.time() + LOCKOUT_DURATION))
+            await r.delete(count_key)
+    else:
+        # In-memory fallback
+        now = time.time()
+        if email not in _lockout_memory_store:
+            _lockout_memory_store[email] = {"count": 0, "locked_until": None}
+        info = _lockout_memory_store[email]
+        info["count"] += 1
+        if info["count"] >= FAILED_LOGIN_MAX:
+            info["locked_until"] = now + LOCKOUT_DURATION
+            info["count"] = 0
 
 
-def _clear_failed_login(email: str) -> None:
+async def _clear_failed_login(email: str) -> None:
     """Clear failed login tracking on successful login."""
-    _lockout_store.pop(email, None)
+    from services.redis_client import _get_redis
+    r = await _get_redis()
+
+    if r:
+        await r.delete(f"lockout:{email}", f"lockout_count:{email}")
+    else:
+        _lockout_memory_store.pop(email, None)
 
 
 def _generate_code() -> str:
     """Generate a 6-digit verification code."""
     return f"{secrets.randbelow(1000000):06d}"
+
+
+def _hash_code(code: str) -> str:
+    """Hash a verification code for secure storage."""
+    import hashlib
+    return hashlib.sha256(code.encode()).hexdigest()
 
 
 def _timing_safe_compare(a: str, b: str) -> bool:
@@ -320,7 +362,7 @@ async def register(req: RegisterRequest, request: Request, db: AsyncSession = De
         hashed_password=hash_password(req.password),
         display_name=req.display_name or req.email.split("@")[0],
         is_verified=False,
-        verification_code=code,
+        verification_code=_hash_code(code),  # Store hash, not plaintext
         verification_expires_at=datetime.now(timezone.utc) + timedelta(minutes=15),
     )
     db.add(user)
@@ -419,7 +461,7 @@ async def send_code(req: SendCodeRequest, request: Request, db: AsyncSession = D
         from config import get_settings as _gs3
         _s3 = _gs3()
         # Always store code in DB so verify-email can check it
-        user.verification_code = code
+        user.verification_code = _hash_code(code)  # Store hash, not plaintext
         user.verification_expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
         await db.commit()
         if _s3.DEBUG:
@@ -428,7 +470,7 @@ async def send_code(req: SendCodeRequest, request: Request, db: AsyncSession = D
         return {"message": "验证码已发送"}
 
     # Email sent (or SMTP configured) — now store code in DB
-    user.verification_code = code
+    user.verification_code = _hash_code(code)  # Store hash, not plaintext
     user.verification_expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
     await db.commit()
 
@@ -469,7 +511,8 @@ async def verify_email(req: VerifyCodeRequest, request: Request, db: AsyncSessio
     if user.verification_expires_at and datetime.now(timezone.utc) > _ensure_aware(user.verification_expires_at):
         raise HTTPException(status_code=400, detail="验证码已过期，请重新发送")
 
-    if not user.verification_code or not _timing_safe_compare(user.verification_code, req.code):
+    # Compare hash of provided code with stored hash
+    if not user.verification_code or not _timing_safe_compare(user.verification_code, _hash_code(req.code)):
         raise HTTPException(status_code=400, detail="验证码错误")
 
     user.is_verified = True
@@ -515,15 +558,15 @@ async def login(req: LoginRequest, request: Request, db: AsyncSession = Depends(
         raise HTTPException(status_code=429, detail="登录尝试过多，请稍后再试")
 
     # Check account lockout
-    _check_lockout(req.email)
+    await _check_lockout(req.email)
 
     result = await db.execute(select(User).where(User.email == req.email))
     user = result.scalar_one_or_none()
     if not user or not user.hashed_password:
-        _record_failed_login(req.email)
+        await _record_failed_login(req.email)
         raise HTTPException(status_code=401, detail="邮箱或密码错误")
     if not verify_password(req.password, user.hashed_password):
-        _record_failed_login(req.email)
+        await _record_failed_login(req.email)
         raise HTTPException(status_code=401, detail="邮箱或密码错误")
 
     # Check email verification — block unverified users from logging in
@@ -531,14 +574,14 @@ async def login(req: LoginRequest, request: Request, db: AsyncSession = Depends(
         # Actually send a verification email so the user can verify and log in
         from utils.email import send_verification_email
         code = _generate_code()
-        user.verification_code = code
+        user.verification_code = _hash_code(code)  # Store hash, not plaintext
         user.verification_expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
         await db.commit()
         send_verification_email(req.email, code)
         raise HTTPException(status_code=403, detail="请先验证邮箱后再登录，验证码已发送至您的邮箱")
 
     # Login successful — clear failed attempts
-    _clear_failed_login(req.email)
+    await _clear_failed_login(req.email)
 
     access = create_access_token(str(user.id))
     refresh = create_refresh_token(str(user.id))
@@ -655,7 +698,7 @@ async def forgot_password(req: SendCodeRequest, request: Request, db: AsyncSessi
         from config import get_settings as _gs2
         _s2 = _gs2()
         # Always store code in DB so reset-password can verify it
-        user.verification_code = code
+        user.verification_code = _hash_code(code)  # Store hash, not plaintext
         user.verification_expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
         await db.commit()
         if _s2.DEBUG:
@@ -664,7 +707,7 @@ async def forgot_password(req: SendCodeRequest, request: Request, db: AsyncSessi
         return {"message": "验证码已发送到您的邮箱"}
 
     # Email sent (or SMTP configured) — now store code in DB
-    user.verification_code = code
+    user.verification_code = _hash_code(code)  # Store hash, not plaintext
     user.verification_expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
     await db.commit()
 
@@ -700,7 +743,8 @@ async def reset_password(req: ResetPasswordRequest, request: Request, db: AsyncS
     if user.verification_expires_at and datetime.now(timezone.utc) > _ensure_aware(user.verification_expires_at):
         raise HTTPException(status_code=400, detail="验证码已过期，请重新发送")
 
-    if not user.verification_code or not _timing_safe_compare(user.verification_code, req.code):
+    # Compare hash of provided code with stored hash
+    if not user.verification_code or not _timing_safe_compare(user.verification_code, _hash_code(req.code)):
         raise HTTPException(status_code=400, detail="验证码错误")
 
     user.hashed_password = hash_password(req.new_password)
@@ -741,6 +785,34 @@ class GoogleLoginRequest(BaseModel):
     credential: str  # Google ID token from frontend
 
 
+# ── Google OAuth public key cache ─────────────────────────────────────────
+_google_keys_cache: dict = {"keys": None, "expires_at": 0}
+_GOOGLE_KEYS_CACHE_TTL = 86400  # 24 hours
+
+
+async def _get_google_keys() -> dict:
+    """Fetch Google's public keys with caching."""
+    import time as _time
+    now = _time.time()
+
+    # Return cached keys if still valid
+    if _google_keys_cache["keys"] and now < _google_keys_cache["expires_at"]:
+        return _google_keys_cache["keys"]
+
+    # Fetch fresh keys
+    import requests as _requests
+    google_keys_url = "https://www.googleapis.com/oauth2/v3/certs"
+    keys_resp = _requests.get(google_keys_url, timeout=10)
+    keys_resp.raise_for_status()
+    google_keys = keys_resp.json()
+
+    # Cache the keys
+    _google_keys_cache["keys"] = google_keys
+    _google_keys_cache["expires_at"] = now + _GOOGLE_KEYS_CACHE_TTL
+
+    return google_keys
+
+
 @router.post("/google")
 async def google_login(req: GoogleLoginRequest, request: Request, db: AsyncSession = Depends(get_db)):
     """
@@ -757,12 +829,8 @@ async def google_login(req: GoogleLoginRequest, request: Request, db: AsyncSessi
 
     # Verify Google ID token
     try:
-        import requests as _requests
-        # Fetch Google's public keys
-        google_keys_url = "https://www.googleapis.com/oauth2/v3/certs"
-        keys_resp = _requests.get(google_keys_url, timeout=10)
-        keys_resp.raise_for_status()
-        google_keys = keys_resp.json()
+        # Get Google's public keys (cached)
+        google_keys = await _get_google_keys()
 
         # Decode the JWT header to get the key ID
         from jose import jwt as _jwt

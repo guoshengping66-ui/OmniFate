@@ -157,37 +157,6 @@ apiAuth.interceptors.request.use((config) => {
   return config
 })
 
-// Apply unicode escape interceptor to apiAuth in production (same as api/apiDirect)
-// so POST bodies survive Clash/V2Ray/nginx UTF-8 mangling
-if (!isLocalhost) {
-  apiAuth.interceptors.request.use((config) => {
-    const method = (config.method || "").toLowerCase()
-    if (["post", "patch", "put"].includes(method)) {
-      if (config.data instanceof FormData) {
-        if (config.headers) {
-          delete config.headers["Content-Type"]
-          delete config.headers["content-type"]
-        }
-        return config
-      }
-      let jsonStr: string
-      if (typeof config.data === "string") {
-        jsonStr = config.data
-      } else if (config.data !== undefined && config.data !== null) {
-        jsonStr = JSON.stringify(config.data)
-      } else {
-        return config
-      }
-      config.data = escapeUnicode(jsonStr)
-      config.headers = config.headers || {}
-      if (!config.headers["Content-Type"] && !config.headers["content-type"]) {
-        config.headers["Content-Type"] = "application/json"
-      }
-    }
-    return config
-  })
-}
-
 // ── Production proxy interceptor ───────────────────────────────────────────
 // Unicode-escape POST bodies to survive nginx/Clash UTF-8 mangling.
 if (!isLocalhost) {
@@ -221,6 +190,7 @@ if (!isLocalhost) {
   }
   api.interceptors.request.use(productionInterceptor)
   apiDirect.interceptors.request.use(productionInterceptor)
+  apiAuth.interceptors.request.use(productionInterceptor)
 }
 
 // ── Types aligned with new 1+5 agent backend ──────────────────────────────

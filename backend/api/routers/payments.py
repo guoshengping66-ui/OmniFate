@@ -40,7 +40,41 @@ ALLOWED_METHODS = {
 
 
 def get_client_region(request: Request) -> str:
-    """Get user's region from middleware-set cookie (set by CF-IPCountry / Accept-Language)."""
+    """
+    Get user's region using server-side detection (defense-in-depth).
+    Priority: CF-IPCountry header > Accept-Language > client cookie > default overseas.
+    """
+    import ipaddress
+
+    # 1. Cloudflare's CF-IPCountry header (most reliable when behind CF)
+    cf_country = request.headers.get("cf-ipcountry", "").upper()
+    if cf_country:
+        # China mainland countries
+        if cf_country in ("CN", "HK", "MO", "TW"):
+            return "domestic"
+        return "overseas"
+
+    # 2. Accept-Language header heuristic
+    accept_lang = request.headers.get("accept-language", "")
+    if accept_lang.startswith("zh"):
+        # Check if it's specifically zh-CN (mainland)
+        if "zh-CN" in accept_lang or "zh_CN" in accept_lang:
+            return "domestic"
+        # Other zh variants (zh-TW, zh-HK) are still domestic for payment
+        return "domestic"
+
+    # 3. Client IP geolocation fallback (basic)
+    client_ip = request.client.host if request.client else ""
+    if client_ip:
+        try:
+            ip = ipaddress.ip_address(client_ip)
+            # Private IPs are likely domestic
+            if ip.is_private or ip.is_loopback:
+                return "domestic"
+        except ValueError:
+            pass
+
+    # 4. Fall back to cookie (least reliable, can be forged)
     region = request.cookies.get("region", "overseas")
     return region if region in ("domestic", "overseas") else "overseas"
 
