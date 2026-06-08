@@ -202,6 +202,7 @@ jobs:
               echo "   PM2 frontend status: $PM2_STATUS"
               if [ "$PM2_STATUS" != "online" ]; then
                 echo "❌ PM2 frontend 不在线！尝试重启..."
+                cd /opt/OmniFate
                 pm2 delete frontend 2>/dev/null || true
                 pm2 start ecosystem.config.js --only frontend
                 pm2 save
@@ -240,6 +241,7 @@ jobs:
                 else
                   echo "⚠️  HTML 引用旧 chunk ($HTML_WEBPACK) != 新 chunk ($NEW_WNAME)"
                   echo "   尝试强制重启 PM2..."
+                  cd /opt/OmniFate
                   pm2 delete frontend 2>/dev/null || true
                   pm2 start ecosystem.config.js --only frontend
                   pm2 save
