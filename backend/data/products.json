@@ -2241,5 +2241,464 @@
       "材质": "寿山石（艾叶绿冻）",
       "包装": "精美礼盒"
     }
+  },
+  {
+    "id": "p52",
+    "sku": "CRY-ROSE-001",
+    "name": "天然粉水晶原石摆件（旺桃花）",
+    "description": "天然粉水晶原石保留自然形态，散发柔和粉色光芒，对应心轮，招正桃花与好人缘。适合感情线不佳、桃花运弱、心轮堵塞、人际关系冷淡者摆放于卧室或客厅。",
+    "short_pitch": "心轮激活与桃花催旺",
+    "category": "crystal",
+    "price_cny": 358,
+    "price_usd": 50,
+    "stock": 90,
+    "is_active": true,
+    "image_url": "/products/crystal/rose-quartz-raw.png",
+    "detail_images": [],
+    "wuxing_tags": [
+      "earth",
+      "fire"
+    ],
+    "astro_tags": [
+      "venus"
+    ],
+    "keyword_tags": [
+      "#桃花运",
+      "#感情",
+      "#人缘",
+      "#心轮堵塞"
+    ],
+    "elements": [
+      "土",
+      "火"
+    ],
+    "planets": [
+      "金星"
+    ],
+    "chakras": [
+      "心轮"
+    ],
+    "material": "天然粉水晶原石",
+    "function_tags": [
+      "招桃花",
+      "增人缘",
+      "心轮疗愈",
+      "感情和谐"
+    ],
+    "sales_count": 680,
+    "rating": 4.8,
+    "usage": "放置于卧室梳妆台或床头柜，面朝房门方向。也可置于客厅西南方位（桃花位），配合鲜花效果更佳。每周用月光照射净化一次。",
+    "precautions": "1. 原石有天然裂纹属正常现象\n2. 避免阳光长时间直射以免褪色\n3. 不宜放在厨房或卫生间\n4. 建议配合粉色鲜花一同摆放",
+    "efficacy": "粉水晶原石保留最纯粹的自然能量，对应心轮，五行属土火。金星能量加持，长期摆放可软化心轮堵塞、提升个人魅力、吸引正缘桃花。适合感情线不佳、人际冷淡、需要提升亲和力者。",
+    "specifications": {
+      "重量": "约200g",
+      "尺寸": "约8×6×5cm",
+      "产地": "马达加斯加",
+      "包装": "绒布底座+锦盒"
+    }
+  },
+  {
+    "id": "p53",
+    "sku": "CRY-SMOKEY-001",
+    "name": "天然茶晶球（接地稳固）",
+    "description": "茶晶又名烟晶，能量沉稳厚重，强力对应海底轮，接地稳固能量场。适合土星刑克、内耗严重、焦虑过度、身心失衡者作为日常冥想与空间能量锚定点。",
+    "short_pitch": "接地稳固与焦虑化解",
+    "category": "crystal",
+    "price_cny": 458,
+    "price_usd": 65,
+    "stock": 70,
+    "is_active": true,
+    "image_url": "/products/crystal/smoky-quartz-sphere.png",
+    "detail_images": [],
+    "wuxing_tags": [
+      "earth",
+      "water"
+    ],
+    "astro_tags": [
+      "saturn",
+      "pluto"
+    ],
+    "keyword_tags": [
+      "#内耗",
+      "#焦虑过度",
+      "#土星刑克",
+      "#压力大"
+    ],
+    "elements": [
+      "土",
+      "水"
+    ],
+    "planets": [
+      "土星",
+      "冥王星"
+    ],
+    "chakras": [
+      "海底轮"
+    ],
+    "material": "天然茶晶",
+    "function_tags": [
+      "接地稳固",
+      "化解焦虑",
+      "排负能量",
+      "稳定情绪"
+    ],
+    "sales_count": 420,
+    "rating": 4.7,
+    "usage": "放置于办公桌或书房，作为能量锚定点。冥想时可双手握住水晶球，观想根须向下延伸入地。睡前置于枕边有助深度睡眠。",
+    "precautions": "1. 茶晶属天然矿物，色泽深浅不一属正常\n2. 避免高温环境\n3. 不宜与其他强能量水晶紧贴摆放\n4. 建议每月用流水冲洗净化",
+    "efficacy": "茶晶能量沉稳厚重，对应海底轮，五行属土水。土星与冥王星双重能量加持，强力接地稳固能量场。长期使用可化解内耗焦虑、排出负能量、平衡身心状态。",
+    "specifications": {
+      "重量": "约400g",
+      "直径": "约6.5cm",
+      "产地": "巴西",
+      "包装": "木质底座+绒布盒"
+    }
+  },
+  {
+    "id": "p54",
+    "sku": "CRY-TOURMALINE-002",
+    "name": "黑碧玺原石簇（强力辟邪）",
+    "description": "黑碧玺是公认最强辟邪水晶，能吸收转化一切负能量。原石簇形态能量辐射面广，适合官杀混杂、小人是非多、家居风水有缺陷者作为镇宅辟邪之用。",
+    "short_pitch": "最强辟邪与负能量转化",
+    "category": "crystal",
+    "price_cny": 388,
+    "price_usd": 55,
+    "stock": 60,
+    "is_active": true,
+    "image_url": "/products/crystal/black-tourmaline-raw.png",
+    "detail_images": [],
+    "wuxing_tags": [
+      "water",
+      "metal"
+    ],
+    "astro_tags": [
+      "saturn",
+      "mars"
+    ],
+    "keyword_tags": [
+      "#官杀混杂",
+      "#辟邪",
+      "#小人是非",
+      "#土星刑克"
+    ],
+    "elements": [
+      "水",
+      "金"
+    ],
+    "planets": [
+      "土星",
+      "火星"
+    ],
+    "chakras": [
+      "海底轮"
+    ],
+    "material": "天然黑碧玺原石",
+    "function_tags": [
+      "辟邪化煞",
+      "吸收负能量",
+      "镇宅",
+      "防小人"
+    ],
+    "sales_count": 560,
+    "rating": 4.8,
+    "usage": "放置于大门入口处或窗户旁，形成能量防护屏障。也可置于办公桌下方，隔绝职场负能量。定期用流水冲洗净化，保持辟邪效力。",
+    "precautions": "1. 原石有天然纹理属正常特征\n2. 黑碧玺质地较脆，避免高处跌落\n3. 不宜放在卧室，能量过强可能影响睡眠\n4. 需定期净化，否则吸收负能量饱和后效力降低",
+    "efficacy": "黑碧玺五行属水金，公认最强辟邪水晶。能将负能量转化为中性能量释放。土星与火星双重能量加持，强力镇宅辟邪防小人。原石簇辐射面广，适合大空间能量防护。",
+    "specifications": {
+      "重量": "约300g",
+      "尺寸": "约10×8×6cm",
+      "产地": "巴西",
+      "包装": "木质底座+锦盒"
+    }
+  },
+  {
+    "id": "p55",
+    "sku": "CRY-AMAZON-001",
+    "name": "天然天河石手串（沟通之石）",
+    "description": "天河石又称亚马逊石，蓝绿色调清新通透，对应喉轮与心轮，增强沟通表达与自信心。适合水星逆行、沟通障碍、公众表达紧张、社交恐惧者日常佩戴。",
+    "short_pitch": "沟通表达与自信提升",
+    "category": "crystal",
+    "price_cny": 328,
+    "price_usd": 46,
+    "stock": 100,
+    "is_active": true,
+    "image_url": "/products/crystal/amazonite-bracelet.png",
+    "detail_images": [],
+    "wuxing_tags": [
+      "water",
+      "wood"
+    ],
+    "astro_tags": [
+      "mercury",
+      "neptune"
+    ],
+    "keyword_tags": [
+      "#沟通障碍",
+      "#事业阻隔",
+      "#缺乏弹性",
+      "#社交恐惧"
+    ],
+    "elements": [
+      "水",
+      "木"
+    ],
+    "planets": [
+      "水星",
+      "海王星"
+    ],
+    "chakras": [
+      "喉轮",
+      "心轮"
+    ],
+    "material": "天然天河石",
+    "function_tags": [
+      "增强沟通",
+      "提升自信",
+      "化解冲突",
+      "社交助力"
+    ],
+    "sales_count": 380,
+    "rating": 4.7,
+    "usage": "日常佩戴于左手腕，出席重要会议或社交场合前可双手握住天河石冥想3分钟，观想喉轮发出蓝绿色光芒。每月用流水净化一次。",
+    "precautions": "1. 天河石色泽天然不均匀属正常\n2. 避免接触化学清洁剂\n3. 运动洗澡时建议取下\n4. 避免与尖锐物品同放",
+    "efficacy": "天河石对应喉轮与心轮，五行属水木。水星与海王星能量加持，增强沟通表达能力与自信心。长期佩戴可化解沟通障碍、提升社交魅力、改善人际关系。",
+    "specifications": {
+      "重量": "约28g",
+      "珠径": "8mm",
+      "手围": "可调节16-20cm",
+      "产地": "巴西",
+      "包装": "绒布袋+鉴定证书"
+    }
+  },
+  {
+    "id": "p56",
+    "sku": "CRY-CARNELIAN-001",
+    "name": "天然红玛瑙晶洞（创造力之源）",
+    "description": "红玛瑙晶洞火性能量充沛，内壁结晶如火焰般炽烈，激活脐轮与创造力。适合食伤星弱、创作灵感枯竭、行动力不足、需要激情与动力者摆放于工作空间。",
+    "short_pitch": "创造力激活与激情点燃",
+    "category": "crystal",
+    "price_cny": 528,
+    "price_usd": 75,
+    "stock": 50,
+    "is_active": true,
+    "image_url": "/products/crystal/carnelian-geode.png",
+    "detail_images": [],
+    "wuxing_tags": [
+      "fire",
+      "earth"
+    ],
+    "astro_tags": [
+      "mars",
+      "sun"
+    ],
+    "keyword_tags": [
+      "#创作瓶颈",
+      "#行动力",
+      "#缺火",
+      "#伤官受制"
+    ],
+    "elements": [
+      "火",
+      "土"
+    ],
+    "planets": [
+      "火星",
+      "太阳"
+    ],
+    "chakras": [
+      "脐轮",
+      "太阳神经丛轮"
+    ],
+    "material": "天然红玛瑙晶洞",
+    "function_tags": [
+      "激活创造力",
+      "增强行动力",
+      "点燃激情",
+      "催旺才华"
+    ],
+    "sales_count": 310,
+    "rating": 4.8,
+    "usage": "放置于书房或工作室的南方（火位），晶洞开口朝向工作区域。创作前可双手靠近晶洞感受火性能量流动。每周用檀香烟熏净化一次。",
+    "precautions": "1. 晶洞内壁结晶为天然形态，轻触即可\n2. 避免高温与阳光直射\n3. 搬动时托住底部，勿抓晶洞边缘\n4. 不宜放在卧室，火气过旺影响睡眠",
+    "efficacy": "红玛瑙晶洞五行属火土，对应脐轮与太阳神经丛轮。火星与太阳双重能量加持，内壁结晶形成天然火性能量场。长期摆放可激活创造力、增强行动力、催旺食伤才华。",
+    "specifications": {
+      "重量": "约500g",
+      "尺寸": "约12×10×8cm",
+      "产地": "马达加斯加",
+      "包装": "木质底座+锦盒"
+    }
+  },
+  {
+    "id": "p57",
+    "sku": "CRY-SELENITE-001",
+    "name": "天然透石膏能量棒（净化之光）",
+    "description": "透石膏又称月光石（非月光宝石），色白通透如月光，能量纯净高频，是天然的空间净化器。可为其他水晶消磁充电，适合灵性修行者、空间能量需定期清理者。",
+    "short_pitch": "天然净化与水晶消磁",
+    "category": "crystal",
+    "price_cny": 198,
+    "price_usd": 28,
+    "stock": 150,
+    "is_active": true,
+    "image_url": "/products/crystal/selenite-wand.png",
+    "detail_images": [],
+    "wuxing_tags": [
+      "metal",
+      "water"
+    ],
+    "astro_tags": [
+      "moon"
+    ],
+    "keyword_tags": [
+      "#灵性",
+      "#净化空间",
+      "#安神",
+      "#焦虑过度"
+    ],
+    "elements": [
+      "金",
+      "水"
+    ],
+    "planets": [
+      "月亮"
+    ],
+    "chakras": [
+      "顶轮",
+      "眉心轮"
+    ],
+    "material": "天然透石膏",
+    "function_tags": [
+      "空间净化",
+      "水晶消磁",
+      "安神",
+      "高频能量"
+    ],
+    "sales_count": 890,
+    "rating": 4.6,
+    "usage": "将其他水晶放置于透石膏棒旁6-12小时即可完成消磁。也可置于卧室床头净化睡眠空间能量。手持透石膏棒沿身体轮廓缓慢移动可清理个人气场。",
+    "precautions": "1. 透石膏硬度极低（莫氏2），避免碰撞\n2. 不可水洗，会溶解损坏\n3. 仅可用干布轻轻擦拭\n4. 避免与其他水晶混放，防止刮伤",
+    "efficacy": "透石膏五行属金水，对应顶轮与眉心轮。月亮能量加持，是天然的高频净化器。可为其他水晶消磁充电，净化空间能量场，安神定志。灵性修行者必备的净化工具。",
+    "specifications": {
+      "重量": "约120g",
+      "长度": "约15cm",
+      "产地": "摩洛哥",
+      "包装": "绒布袋"
+    }
+  },
+  {
+    "id": "p58",
+    "sku": "CRY-LABRADOR-002",
+    "name": "拉长石水晶球（极光幻彩）",
+    "description": "拉长石水晶球在光线下呈现蓝绿极光般幻彩光芒，是第三眼活化的强力宝石。球形能量360度均匀辐射，适合灵性修行、冥想深化、直觉力提升。",
+    "short_pitch": "第三眼活化与极光冥想",
+    "category": "crystal",
+    "price_cny": 688,
+    "price_usd": 98,
+    "stock": 40,
+    "is_active": true,
+    "image_url": "/products/crystal/labradorite-sphere.png",
+    "detail_images": [],
+    "wuxing_tags": [
+      "water",
+      "metal"
+    ],
+    "astro_tags": [
+      "uranus",
+      "neptune"
+    ],
+    "keyword_tags": [
+      "#直觉",
+      "#灵性",
+      "#心灵转化",
+      "#迷茫"
+    ],
+    "elements": [
+      "水",
+      "金"
+    ],
+    "planets": [
+      "天王星",
+      "海王星"
+    ],
+    "chakras": [
+      "眉心轮",
+      "顶轮"
+    ],
+    "material": "天然拉长石",
+    "function_tags": [
+      "开启直觉",
+      "灵性指引",
+      "冥想深化",
+      "方向感"
+    ],
+    "sales_count": 260,
+    "rating": 4.9,
+    "usage": "冥想时将水晶球置于面前约30cm处，注视球体内部的幻彩光芒，持续10-15分钟。也可置于书房或冥想室，作为空间能量锚定点。",
+    "precautions": "1. 拉长石的幻彩为天然光学效应，角度不同效果不同\n2. 避免高温环境\n3. 球体较重，放置于稳固平面\n4. 建议配合薰衣草精油净化",
+    "efficacy": "拉长石对应眉心轮与顶轮，五行属水金。天王星与海王星双重能量加持，球形360度均匀辐射，极光幻彩可开启第三眼、深化冥想、增强直觉力与灵性感知。",
+    "specifications": {
+      "重量": "约450g",
+      "直径": "约6cm",
+      "产地": "马达加斯加",
+      "包装": "木质底座+绒布盒"
+    }
+  },
+  {
+    "id": "p59",
+    "sku": "CRY-CITRINE-003",
+    "name": "天然黄水晶六字真言吊坠",
+    "description": "天然黄水晶雕刻六字真言，金色光芒与佛音共振，兼具招财与护身双重功效。黄水晶主偏财，六字真言辟邪护身，适合财运需关注且希望随身护身者。",
+    "short_pitch": "招财护身双重守护",
+    "category": "crystal",
+    "price_cny": 268,
+    "price_usd": 38,
+    "stock": 120,
+    "is_active": true,
+    "image_url": "/products/crystal/citrine-mantra-pendant.png",
+    "detail_images": [],
+    "wuxing_tags": [
+      "earth",
+      "metal"
+    ],
+    "astro_tags": [
+      "sun",
+      "jupiter"
+    ],
+    "keyword_tags": [
+      "#招财",
+      "#辟邪",
+      "#财运受损",
+      "#官杀混杂"
+    ],
+    "elements": [
+      "土",
+      "金"
+    ],
+    "planets": [
+      "太阳",
+      "木星"
+    ],
+    "chakras": [
+      "太阳神经丛轮",
+      "海底轮"
+    ],
+    "material": "天然黄水晶+红绳",
+    "function_tags": [
+      "招财",
+      "护身",
+      "辟邪",
+      "双重守护"
+    ],
+    "sales_count": 450,
+    "rating": 4.8,
+    "usage": "日常佩戴于胸前，吊坠贴近心脏位置效果最佳。貔貅嘴朝外（朝向门外或窗外）为佳。每月初一十五可用檀香净化一次。",
+    "precautions": "1. 黄水晶避免阳光长时间直射\n2. 六字真言雕刻处避免碰撞\n3. 洗澡游泳时建议取下\n4. 左进右出：招财戴左手，辟邪戴右手",
+    "efficacy": "黄水晶五行属土金，对应太阳神经丛轮与海底轮。太阳与木星双重能量加持，黄水晶招偏财、六字真言辟邪护身。二者结合形成攻守兼备的能量守护，适合财运需关注且希望随身护佑者。",
+    "specifications": {
+      "重量": "约12g",
+      "尺寸": "约2.5×2cm",
+      "材质": "天然黄水晶+红绳",
+      "产地": "巴西",
+      "包装": "绒布袋+鉴定证书"
+    }
   }
 ]
