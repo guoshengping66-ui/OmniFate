@@ -100,6 +100,10 @@ jobs:
               npm ci --production=false || npm install
               sudo chown -R $(whoami) . 2>/dev/null || true
 
+              # ⚠️ 构建前再次清理 .next，防止旧 root 权限目录导致 EACCES
+              sudo rm -rf /opt/OmniFate/frontend/.next 2>/dev/null || true
+              sudo chown -R $(whoami) /opt/OmniFate/frontend 2>/dev/null || true
+
               echo "🔨 构建生产版本 (standalone)..."
               NODE_ENV=production npm run build
               # ⚠️ 关键: build 过程中会以 root 创建 .next/types/ 等目录，必须在 build 后 chown
