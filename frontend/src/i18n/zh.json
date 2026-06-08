@@ -832,7 +832,11 @@
     "title": "改运商城",
     "resultCount": "共 {count} 件商品",
     "scenario": {
-      "cta": "推命获取专属推荐"
+      "cta": "推命获取专属推荐",
+      "wealth": "求财旺运",
+      "career": "事业腾飞",
+      "love": "姻缘感情",
+      "health": "健康平安"
     },
     "sort": {
       "match": "命盘匹配",
