@@ -30,6 +30,14 @@ _product_cache: dict[str, tuple[float, list[dict]]] = {}
 _PRODUCT_CACHE_TTL = 300  # 5 minutes
 
 
+def _is_pure_english(text: str) -> bool:
+    """Check if a string contains no Chinese characters."""
+    for ch in text:
+        if "一" <= ch <= "鿿":
+            return False
+    return True
+
+
 def _load_products(lang: str = "zh") -> list[dict]:
     import time
     now = time.time()
@@ -55,17 +63,31 @@ def _load_products(lang: str = "zh") -> list[dict]:
                 en = en_products.get(p["id"])
                 if en:
                     for key in ("name", "description", "short_pitch"):
-                        if en.get(f"{key}_en"):
-                            p[key] = en[f"{key}_en"]
+                        val = en.get(f"{key}_en")
+                        if val and _is_pure_english(val):
+                            p[key] = val
                     for key in ("keyword_tags", "elements", "planets", "chakras", "function_tags", "material"):
-                        if en.get(f"{key}_en") is not None:
-                            p[key] = en[f"{key}_en"]
+                        val = en.get(f"{key}_en")
+                        if val is not None:
+                            # For list fields, keep only if items are English
+                            if isinstance(val, list):
+                                if all(_is_pure_english(str(v)) for v in val):
+                                    p[key] = val
+                            elif isinstance(val, str):
+                                if _is_pure_english(val):
+                                    p[key] = val
+                            else:
+                                p[key] = val
                     # Translate detail fields
                     for key in ("usage", "precautions", "efficacy"):
-                        if en.get(f"{key}_en"):
-                            p[key] = en[f"{key}_en"]
-                    if en.get("specifications_en"):
-                        p["specifications"] = en["specifications_en"]
+                        val = en.get(f"{key}_en")
+                        if val and _is_pure_english(val):
+                            p[key] = val
+                    spec_en = en.get("specifications_en")
+                    if spec_en and isinstance(spec_en, dict):
+                        # Keep only if all values are English
+                        if all(_is_pure_english(str(v)) for v in spec_en.values()):
+                            p["specifications"] = spec_en
         except (FileNotFoundError, json.JSONDecodeError):
             pass
 
@@ -199,17 +221,13 @@ async def match_products(payload: MatchRequest, lang: str = Query("zh")):
         for p in matched:
             en = translated.get(p["id"])
             if en:
-                for key in ("name", "description", "short_pitch"):
-                    if en.get(key):
+                # Copy all translated fields from the pre-filtered English product
+                for key in ("name", "description", "short_pitch", "material",
+                            "keyword_tags", "elements", "planets", "chakras",
+                            "function_tags", "usage", "precautions", "efficacy",
+                            "specifications"):
+                    if key in en and en[key] is not None:
                         p[key] = en[key]
-                for key in ("keyword_tags", "elements", "planets", "chakras", "function_tags", "material"):
-                    if en.get(key) is not None:
-                        p[key] = en[key]
-                for key in ("usage", "precautions", "efficacy"):
-                    if en.get(f"{key}_en"):
-                        p[key] = en[f"{key}_en"]
-                if en.get("specifications_en"):
-                    p["specifications"] = en["specifications_en"]
 
     if payload.include_explain:
         for p in matched:
