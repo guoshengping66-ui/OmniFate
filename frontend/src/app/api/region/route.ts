@@ -4,13 +4,9 @@ import { NextRequest, NextResponse } from "next/server"
  * Region detection API
  *
  * Detection priority:
- *   1. ipwho.is geolocation API (free, accurate, no key required)
+ *   1. CF-IPCountry header from Cloudflare (most reliable, no API call needed)
  *   2. Accept-Language header (weak signal)
  *   3. Default to "overseas"
- *
- * NOTE: We do NOT use CF-IPCountry because it is inaccurate for some IPs
- * (e.g. returns CN for US-based VPN IPs). ipwho.is uses MaxMind data
- * and is more reliable.
  *
  * Response: { region: "domestic" | "overseas", country: string, source: string }
  */
@@ -29,27 +25,14 @@ const noCacheHeaders = {
 }
 
 export async function GET(request: NextRequest) {
-  // 1. Get user's real IP from Cloudflare/proxy headers
-  const connectingIp = request.headers.get("cf-connecting-ip")
-    || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
-
-  if (connectingIp) {
-    try {
-      const geoRes = await fetch(`https://ipwho.is/${connectingIp}`, {
-        signal: AbortSignal.timeout(3000),
-      })
-      const geoData = await geoRes.json()
-      if (geoData.success && geoData.country_code) {
-        const code = geoData.country_code.toUpperCase()
-        const region = DOMESTIC_COUNTRIES.has(code) ? "domestic" : "overseas"
-        return NextResponse.json(
-          { region, country: code, source: "ipwho.is" },
-          { headers: noCacheHeaders },
-        )
-      }
-    } catch {
-      // ipwho.is failed — fall through
-    }
+  // 1. Cloudflare IP country code (most accurate, set by Cloudflare edge)
+  const cfCountry = request.headers.get("cf-ipcountry")?.toUpperCase()
+  if (cfCountry) {
+    const region = DOMESTIC_COUNTRIES.has(cfCountry) ? "domestic" : "overseas"
+    return NextResponse.json(
+      { region, country: cfCountry, source: "cf-ipcountry" },
+      { headers: noCacheHeaders },
+    )
   }
 
   // 2. Try Accept-Language as weak signal
