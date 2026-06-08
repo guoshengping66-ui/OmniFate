@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next"
 
 import { getMessages, setRequestLocale } from "next-intl/server"
+import { cookies } from "next/headers"
 import { locales, type Locale } from "@/i18n/config"
 import "./globals.css"
 import { Navbar } from "@/components/ui/Navbar"
@@ -102,6 +103,11 @@ export default async function LocaleLayout({
 
   // Load translations server-side — only the active locale is fetched
   const messages = await getMessages()
+
+  // Read region cookie set by middleware (CF-IPCountry based)
+  const cookieStore = await cookies()
+  const regionCookie = cookieStore.get("region")?.value
+  const initialRegion = regionCookie === "overseas" ? "overseas" : "domestic"
 
   return (
     <html lang={validLocale === "zh" ? "zh-CN" : "en"}>
@@ -258,7 +264,7 @@ try{
       </head>
       <body>
         <ChunkRecovery />
-        <AppProviders messages={messages} locale={validLocale}>
+        <AppProviders messages={messages} locale={validLocale} initialRegion={initialRegion}>
           <ServiceWorkerRegistration />
           <MonthlyGrantToast />
           <OnboardingGuide />

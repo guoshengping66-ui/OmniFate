@@ -17,12 +17,13 @@ interface AppProvidersProps {
   children: ReactNode
   messages: Record<string, unknown>
   locale: string
+  initialRegion?: "domestic" | "overseas"
 }
 
-export function AppProviders({ children, messages, locale }: AppProvidersProps) {
+export function AppProviders({ children, messages, locale, initialRegion }: AppProvidersProps) {
   return (
     <NextIntlClientProvider messages={messages} locale={locale} timeZone="Asia/Shanghai">
-      <RegionProvider>
+      <RegionProvider initialRegion={initialRegion}>
         <LanguageProvider>
           <AuthProvider>
             <CartProviderWithAuth>

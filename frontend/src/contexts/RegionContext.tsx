@@ -75,8 +75,8 @@ function setRegionCookie(region: Region) {
 
 // ── Provider ──
 
-export function RegionProvider({ children }: { children: ReactNode }) {
-  const [region, setRegion] = useState<Region>("domestic")
+export function RegionProvider({ children, initialRegion }: { children: ReactNode; initialRegion?: Region }) {
+  const [region, setRegion] = useState<Region>(initialRegion ?? "domestic")
   const [isLoaded, setIsLoaded] = useState(false)
   const [detectionSource, setDetectionSource] = useState<RegionContextValue["detectionSource"]>("cookie")
 
