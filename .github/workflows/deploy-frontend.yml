@@ -27,6 +27,20 @@ jobs:
         with:
           fetch-depth: 2
 
+      # ── Purge Cloudflare BEFORE deploy so verification sees fresh HTML ──
+      - name: Pre-purge Cloudflare cache
+        if: vars.CLOUDFLARE_ZONE_ID != '' && vars.CLOUDFLARE_API_TOKEN != ''
+        env:
+          CF_ZONE_ID: ${{ vars.CLOUDFLARE_ZONE_ID }}
+          CF_API_TOKEN: ${{ vars.CLOUDFLARE_API_TOKEN }}
+        run: |
+          echo "🔄 预清除 Cloudflare 缓存 (防止验证时读到旧 HTML)..."
+          curl -s -o /dev/null \
+            -X POST "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
+            -H "Authorization: Bearer ${CF_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d '{"purge_everything":true}' && echo "✅ Cloudflare 缓存已预清除" || echo "⚠️ 预清除失败"
+
       - name: Deploy to server
         uses: appleboy/ssh-action@v1
         env:
