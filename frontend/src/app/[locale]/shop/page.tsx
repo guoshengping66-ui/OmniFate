@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation"
 import { ShoppingBag, Loader2, Sparkles, Search, ArrowRight } from "lucide-react"
 import { listProducts, matchProducts, Product } from "@/lib/api"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { useRegion } from "@/contexts/RegionContext"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 
@@ -39,6 +40,7 @@ function ShopContent() {
   const searchParams = useSearchParams()
   const sessionTags = searchParams.get("tags") ?? ""
   const { t, locale, localeHref } = useLanguage()
+  const { region } = useRegion()
   const [allProducts, setAllProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [isPersonalized, setIsPersonalized] = useState(false)
@@ -105,8 +107,8 @@ function ShopContent() {
     switch (sortBy) {
       case "match": sorted.sort((a, b) => (b.match_score ?? 0) - (a.match_score ?? 0)); break
       case "rating": sorted.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0)); break
-      case "price_asc": sorted.sort((a, b) => a.price_cny - b.price_cny); break
-      case "price_desc": sorted.sort((a, b) => b.price_cny - a.price_cny); break
+      case "price_asc": sorted.sort((a, b) => (region === "overseas" && a.price_usd ? a.price_usd : a.price_cny) - (region === "overseas" && b.price_usd ? b.price_usd : b.price_cny)); break
+      case "price_desc": sorted.sort((a, b) => (region === "overseas" && b.price_usd ? b.price_usd : b.price_cny) - (region === "overseas" && a.price_usd ? a.price_usd : a.price_cny)); break
     }
     return sorted
   }, [allProducts, activeCategory, searchQuery, sortBy])

@@ -6,13 +6,15 @@ import toast from "react-hot-toast"
 import { useCart } from "@/contexts/CartContext"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { useRegion } from "@/contexts/RegionContext"
+import { getProductPrice } from "@/lib/regionPrice"
 import { createOrder, type Address } from "@/lib/api"
 import { PaymentMethodSelector } from "@/components/monetization/PaymentMethodSelector"
 import { AddressForm } from "@/components/shop/AddressForm"
 
 export default function CheckoutPage() {
   const router = useRouter()
-  const { items, totalCny, totalWithDiscount, isMember, clearCart } = useCart()
+  const { items, totalCny, totalWithDiscount, isMember, clearCart, getItemPrice, symbol } = useCart()
   const { user, refreshUser } = useAuth()
   const { t, localeHref } = useLanguage()
   const [loading, setLoading] = useState(false)
@@ -149,7 +151,7 @@ export default function CheckoutPage() {
                   <p className="text-white/30 text-xs">x{item.quantity}</p>
                 </div>
               </div>
-              <span className="text-white/70 text-sm">¥{(item.product.price_cny * item.quantity).toFixed(2)}</span>
+              <span className="text-white/70 text-sm">{symbol}{(getItemPrice(item.product) * item.quantity).toFixed(2)}</span>
             </div>
           ))}
         </div>
@@ -179,18 +181,18 @@ export default function CheckoutPage() {
         <div className="card-glass p-6 mb-6 space-y-3">
           <div className="flex justify-between text-sm text-white/60">
             <span>{t("checkout.subtotal")}</span>
-            <span>¥{totalCny.toFixed(2)}</span>
+            <span>{symbol}{totalCny.toFixed(2)}</span>
           </div>
           {isMember && totalCny !== totalWithDiscount && (
             <div className="flex justify-between text-sm text-green-400/80">
               <span className="flex items-center gap-1"><Crown size={12} /> {t("checkout.memberDiscount")}</span>
-              <span>-¥{(totalCny - totalWithDiscount).toFixed(2)}</span>
+              <span>-{symbol}{(totalCny - totalWithDiscount).toFixed(2)}</span>
             </div>
           )}
           {useCoupon && couponDiscount > 0 && (
             <div className="flex justify-between text-sm text-gold/80">
               <span className="flex items-center gap-1"><Ticket size={12} /> {t("checkout.couponDeduction")}</span>
-              <span>-¥{couponDiscount.toFixed(2)}</span>
+              <span>-{symbol}{couponDiscount.toFixed(2)}</span>
             </div>
           )}
           <div className="flex justify-between text-sm text-white/60">
@@ -199,7 +201,7 @@ export default function CheckoutPage() {
           </div>
           <div className="border-t border-white/10 pt-3 flex justify-between">
             <span className="text-white/80 font-medium">{t("checkout.total")}</span>
-            <span className="text-gold text-xl font-bold">¥{finalTotal.toFixed(2)}</span>
+            <span className="text-gold text-xl font-bold">{symbol}{finalTotal.toFixed(2)}</span>
           </div>
         </div>
 
@@ -249,7 +251,7 @@ export default function CheckoutPage() {
         >
           {loading
             ? <><Loader2 size={18} className="animate-spin" /> {t("checkout.processing")}</>
-            : <><ShoppingBag size={16} /> {t("checkout.pay")} ¥{finalTotal.toFixed(2)}</>}
+            : <><ShoppingBag size={16} /> {t("checkout.pay")} {symbol}{finalTotal.toFixed(2)}</>}
         </button>
 
         <p className="text-white/20 text-[11px] text-center mt-4">

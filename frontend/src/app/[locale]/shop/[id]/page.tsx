@@ -13,6 +13,8 @@ import { getProduct, listMyReadings, type Product, type ReadingListItem } from "
 import { useCart } from "@/contexts/CartContext"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { useRegion } from "@/contexts/RegionContext"
+import { getProductPrice } from "@/lib/regionPrice"
 import { ProductReviews } from "@/components/shop/ProductReviews"
 import { FavoriteButton } from "@/components/shop/FavoriteButton"
 import { useState as useStateLocal } from "react"
@@ -23,6 +25,7 @@ export default function ProductDetailPage() {
   const { user } = useAuth()
   const { addItem } = useCart()
   const { t, locale } = useLanguage()
+  const { region } = useRegion()
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
   const [added, setAdded] = useState(false)
@@ -128,10 +131,20 @@ export default function ProductDetailPage() {
 
             {/* Price */}
             <div className="flex items-baseline gap-2 mb-6">
-              <span className="text-3xl font-bold text-gold">¥{product.price_cny}</span>
-              {product.price_usd && (
-                <span className="text-white/30 text-sm">≈ ${product.price_usd}</span>
-              )}
+              {(() => {
+                const pp = getProductPrice(product, region)
+                return (
+                  <>
+                    <span className="text-3xl font-bold text-gold">{pp.symbol}{pp.price}</span>
+                    {region === "domestic" && product.price_usd && (
+                      <span className="text-white/30 text-sm">≈ ${product.price_usd}</span>
+                    )}
+                    {region === "overseas" && (
+                      <span className="text-white/30 text-sm">≈ ¥{product.price_cny}</span>
+                    )}
+                  </>
+                )
+              })()}
             </div>
 
             {/* Short pitch */}
@@ -223,7 +236,7 @@ export default function ProductDetailPage() {
       <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-ink/95 backdrop-blur-xl border-t border-white/10 px-4 py-3" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom, 0.75rem))" }}>
         <div className="max-w-4xl mx-auto flex items-center gap-3">
           <div className="flex-1 min-w-0">
-            <p className="text-gold font-bold text-lg truncate">¥{product.price_cny}</p>
+            <p className="text-gold font-bold text-lg truncate">{getProductPrice(product, region).symbol}{getProductPrice(product, region).price}</p>
             {product.rating && (
               <div className="flex items-center gap-0.5">
                 <Star size={10} className="text-gold fill-gold" />

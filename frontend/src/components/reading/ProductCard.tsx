@@ -4,6 +4,8 @@ import { Link } from "@/i18n/navigation"
 import type { Product } from "@/lib/api"
 import { useCart } from "@/contexts/CartContext"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { useRegion } from "@/contexts/RegionContext"
+import { getProductPrice } from "@/lib/regionPrice"
 import { ProductImage } from "@/components/shop/ProductImage"
 import toast from "react-hot-toast"
 
@@ -30,6 +32,7 @@ function getMatchPercentage(score?: number): number {
 
 export const ProductCard = memo(function ProductCard({ product }: { product: Product }) {
   const { addItem } = useCart()
+  const { region } = useRegion()
   const { t, locale } = useLanguage()
   const [added, setAdded] = useState(false)
   const hasMatch = product.match_score != null && product.match_score > 0
@@ -163,7 +166,7 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
         )}
 
         <div className="flex items-center justify-between pt-1">
-          <span className="text-gold font-bold">¥{product.price_cny.toFixed(0)}</span>
+          <span className="text-gold font-bold">{getProductPrice(product, region).symbol}{getProductPrice(product, region).price.toFixed(0)}</span>
           <button
             onClick={handleAddToCart}
             className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full transition-all

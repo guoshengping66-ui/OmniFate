@@ -2,6 +2,8 @@
 import { X, ShoppingBag, Minus, Plus, Trash2, Crown, Truck } from "lucide-react"
 import { useCart } from "@/contexts/CartContext"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { useRegion } from "@/contexts/RegionContext"
+import { getProductPrice } from "@/lib/regionPrice"
 import { useRouter } from "next/navigation"
 import { ProductImage } from "@/components/shop/ProductImage"
 
@@ -13,9 +15,10 @@ interface CartDrawerProps {
 }
 
 export function CartDrawer({ open, onClose }: CartDrawerProps) {
-  const { items, removeItem, updateQuantity, totalCny, totalWithDiscount, itemCount, isMember } = useCart()
+  const { items, removeItem, updateQuantity, totalCny, totalWithDiscount, itemCount, isMember, symbol } = useCart()
   const { t } = useLanguage()
   const router = useRouter()
+  const { region } = useRegion()
 
   if (!open) return null
 
@@ -52,7 +55,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                 <div className="flex items-center gap-1.5 mb-1.5">
                   <Truck size={12} className="text-gold/60" />
                   <p className="text-gold/70 text-[11px]">
-                    {t("cart.freeShipping")?.replace("{amount}", freeShippingRemaining.toFixed(0)) || `再买 ¥${freeShippingRemaining.toFixed(0)} 免运费`}
+                    {t("cart.freeShipping")?.replace("{amount}", freeShippingRemaining.toFixed(0)) || `再买 ${symbol}${freeShippingRemaining.toFixed(0)} 免运费`}
                   </p>
                 </div>
                 <div className="w-full h-1 bg-white/[0.06] rounded-full overflow-hidden">
@@ -97,7 +100,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                 {/* Info */}
                 <div className="flex-1 min-w-0">
                   <p className="text-white/80 text-sm font-medium truncate">{item.product.name}</p>
-                  <p className="text-gold text-sm">¥{item.product.price_cny}</p>
+                  <p className="text-gold text-sm">{getProductPrice(item.product, region).symbol}{getProductPrice(item.product, region).price}</p>
 
                   {/* Quantity controls */}
                   <div className="flex items-center gap-2 mt-2">
@@ -142,9 +145,9 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
               <span className="text-white/60 text-sm">{t("cart.total")}</span>
               <div className="text-right">
                 {isMember && totalCny !== totalWithDiscount && (
-                  <span className="text-white/30 text-xs line-through mr-1">¥{totalCny.toFixed(2)}</span>
+                  <span className="text-white/30 text-xs line-through mr-1">{symbol}{totalCny.toFixed(2)}</span>
                 )}
-                <span className="text-gold text-xl font-bold">¥{totalWithDiscount.toFixed(2)}</span>
+                <span className="text-gold text-xl font-bold">{symbol}{totalWithDiscount.toFixed(2)}</span>
               </div>
             </div>
 

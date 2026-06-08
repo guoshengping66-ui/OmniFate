@@ -5,6 +5,8 @@ import { Link } from "@/i18n/navigation"
 import { listProducts, type Product } from "@/lib/api"
 import { useCart } from "@/contexts/CartContext"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { useRegion } from "@/contexts/RegionContext"
+import { getProductPrice } from "@/lib/regionPrice"
 import { ProductImage } from "@/components/shop/ProductImage"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { MagneticButton } from "@/components/ui/MagneticButton"
@@ -28,6 +30,7 @@ function getBadge(product: Product): string | null {
 export function CuratedProducts() {
   const { t, locale } = useLanguage()
   const { addItem } = useCart()
+  const { region } = useRegion()
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [addedIds, setAddedIds] = useState<Set<string>>(new Set())
@@ -149,7 +152,7 @@ export function CuratedProducts() {
                     {/* Price + CTA */}
                     <div className="flex items-center justify-between pt-1">
                       <span className="text-gold font-bold text-base">
-                        ¥{product.price_cny.toFixed(0)}
+                        {getProductPrice(product, region).symbol}{getProductPrice(product, region).price.toFixed(0)}
                       </span>
                       <button
                         onClick={(e) => {

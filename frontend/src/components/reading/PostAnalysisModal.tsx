@@ -3,6 +3,8 @@ import { useState, useEffect, useCallback } from "react"
 import { X, ShoppingBag, Sparkles, ArrowRight, Check } from "lucide-react"
 import { useCart } from "@/contexts/CartContext"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { useRegion } from "@/contexts/RegionContext"
+import { getProductPrice } from "@/lib/regionPrice"
 import { ProductImage } from "@/components/shop/ProductImage"
 import type { Product } from "@/lib/api"
 
@@ -19,6 +21,7 @@ interface PostAnalysisModalProps {
 export function PostAnalysisModal({ products, onViewPrescription }: PostAnalysisModalProps) {
   const { t } = useLanguage()
   const { addItem } = useCart()
+  const { region } = useRegion()
   const [visible, setVisible] = useState(false)
   const [dismissed, setDismissed] = useState(false)
   const [addedIds, setAddedIds] = useState<Set<string>>(new Set())
@@ -138,7 +141,7 @@ export function PostAnalysisModal({ products, onViewPrescription }: PostAnalysis
                     />
                     <div className="flex-1 min-w-0">
                       <p className="text-white/80 text-xs font-medium truncate">{product.name}</p>
-                      <p className="text-gold text-xs font-bold">¥{product.price_cny.toFixed(0)}</p>
+                      <p className="text-gold text-xs font-bold">{getProductPrice(product, region).symbol}{getProductPrice(product, region).price.toFixed(0)}</p>
                     </div>
                     <button
                       onClick={() => handleAdd(product)}

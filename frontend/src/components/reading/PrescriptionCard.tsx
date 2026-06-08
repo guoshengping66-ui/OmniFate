@@ -4,6 +4,8 @@ import { ShoppingBag, CheckCircle, Sparkles } from "lucide-react"
 import type { Product } from "@/lib/api"
 import { useCart } from "@/contexts/CartContext"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { useRegion } from "@/contexts/RegionContext"
+import { getProductPrice } from "@/lib/regionPrice"
 
 interface PrescriptionCardProps {
   product: Product
@@ -14,6 +16,7 @@ interface PrescriptionCardProps {
 export function PrescriptionCard({ product, variant = "primary" }: PrescriptionCardProps) {
   const { addItem } = useCart()
   const { t } = useLanguage()
+  const { region } = useRegion()
   const [claimed, setClaimed] = useState(false)
 
   const handleClaim = () => {
@@ -81,7 +84,7 @@ export function PrescriptionCard({ product, variant = "primary" }: PrescriptionC
           {/* Price as "剂量" */}
           <p className="text-xs text-white/40 mb-3">
             {t("prescription.dosage")}
-            <span className="text-gold/80 font-semibold ml-1">¥{product.price_cny}</span>
+            <span className="text-gold/80 font-semibold ml-1">{getProductPrice(product, region).symbol}{getProductPrice(product, region).price}</span>
           </p>
 
           {/* Match reasons as "适应症" */}

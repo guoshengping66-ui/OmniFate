@@ -4,14 +4,13 @@ import { NextIntlClientProvider } from "next-intl"
 import { AuthProvider, useAuth } from "@/contexts/AuthContext"
 import { CartProvider } from "@/contexts/CartContext"
 import { LanguageProvider } from "@/contexts/LanguageContext"
-import { RegionProvider } from "@/contexts/RegionContext"
+import { RegionProvider, useRegion } from "@/contexts/RegionContext"
 
 function CartProviderWithAuth({ children }: { children: ReactNode }) {
   const { user } = useAuth()
-  // Only re-render CartProvider when isMember actually changes,
-  // not on every user state update (e.g. background /api/auth/me refresh)
+  const { region } = useRegion()
   const isMember = useMemo(() => !!user?.is_premium, [user?.is_premium])
-  return <CartProvider isMember={isMember}>{children}</CartProvider>
+  return <CartProvider isMember={isMember} region={region}>{children}</CartProvider>
 }
 
 interface AppProvidersProps {

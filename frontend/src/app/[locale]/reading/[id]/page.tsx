@@ -26,6 +26,7 @@ import { ReportSection } from "@/components/reading/ReportSection"
 import { ReadingSkeleton } from "@/components/reading/ReadingSkeleton"
 import { TagBadge } from "@/components/ui/TagBadge"
 import { useRegion } from "@/hooks/useRegion"
+import { getProductPrice } from "@/lib/regionPrice"
 
 // Lazy-loaded heavy/conditional components (reduces initial bundle ~150KB)
 const ProductCard = lazy(() => import("@/components/reading/ProductCard").then(m => ({ default: m.ProductCard })))
@@ -1350,7 +1351,7 @@ export default function ReadingPage() {
                           </div>
                           <div className="min-w-0 flex-1">
                             <p className="text-white/70 text-[11px] font-medium truncate group-hover:text-gold transition-colors">{p.name}</p>
-                            <p className="text-gold text-xs font-bold">¥{p.price_cny.toFixed(0)}</p>
+                            <p className="text-gold text-xs font-bold">{getProductPrice(p, region).symbol}{getProductPrice(p, region).price.toFixed(0)}</p>
                           </div>
                         </a>
                       ))}

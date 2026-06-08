@@ -1,6 +1,7 @@
 "use client"
 import { createContext, useContext, useState, useEffect, useCallback, useMemo, type ReactNode } from "react"
 import type { Product } from "@/lib/api"
+import { type Region } from "@/contexts/RegionContext"
 
 export interface CartItem {
   product: Product
@@ -18,6 +19,10 @@ interface CartState {
   /** Total after member discount (88折) */
   totalWithDiscount: number
   isMember: boolean
+  /** Get item price based on region */
+  getItemPrice: (product: Product) => number
+  /** Currency symbol based on region */
+  symbol: string
 }
 
 const CartContext = createContext<CartState>({
@@ -30,12 +35,14 @@ const CartContext = createContext<CartState>({
   totalCny: 0,
   totalWithDiscount: 0,
   isMember: false,
+  getItemPrice: (p) => p.price_cny,
+  symbol: "¥",
 })
 
 const STORAGE_KEY = "alpha_mirror_cart"
 const MEMBER_DISCOUNT = 0.88
 
-export function CartProvider({ children, isMember = false }: { children: ReactNode; isMember?: boolean }) {
+export function CartProvider({ children, isMember = false, region = "domestic" }: { children: ReactNode; isMember?: boolean; region?: Region }) {
   const [items, setItems] = useState<CartItem[]>([])
 
   // Load from localStorage
@@ -81,15 +88,22 @@ export function CartProvider({ children, isMember = false }: { children: ReactNo
 
   const clearCart = useCallback(() => setItems([]), [])
 
+  const getItemPrice = useCallback((product: Product) => {
+    if (region === "overseas" && product.price_usd) return product.price_usd
+    return product.price_cny
+  }, [region])
+
+  const symbol = region === "overseas" ? "$" : "¥"
+
   const itemCount = items.reduce((sum, i) => sum + i.quantity, 0)
-  const totalCny = items.reduce((sum, i) => sum + i.product.price_cny * i.quantity, 0)
+  const totalCny = items.reduce((sum, i) => sum + getItemPrice(i.product) * i.quantity, 0)
   const totalWithDiscount = isMember ? totalCny * MEMBER_DISCOUNT : totalCny
 
   // Memoize context value to prevent unnecessary re-renders of consumers
   const value = useMemo(() => ({
     items, addItem, removeItem, updateQuantity, clearCart,
-    itemCount, totalCny, totalWithDiscount, isMember,
-  }), [items, addItem, removeItem, updateQuantity, clearCart, itemCount, totalCny, totalWithDiscount, isMember])
+    itemCount, totalCny, totalWithDiscount, isMember, getItemPrice, symbol,
+  }), [items, addItem, removeItem, updateQuantity, clearCart, itemCount, totalCny, totalWithDiscount, isMember, getItemPrice, symbol])
 
   return (
     <CartContext.Provider value={value}>

@@ -5,6 +5,8 @@ import { Link } from "@/i18n/navigation"
 import type { Product } from "@/lib/api"
 import { useCart } from "@/contexts/CartContext"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { useRegion } from "@/contexts/RegionContext"
+import { getProductPrice } from "@/lib/regionPrice"
 import { ProductImage } from "@/components/shop/ProductImage"
 
 interface FortunePrescriptionProps {
@@ -21,6 +23,7 @@ interface FortunePrescriptionProps {
 export function FortunePrescription({ products, weakestLabel, strongestLabel }: FortunePrescriptionProps) {
   const { t, locale } = useLanguage()
   const { addItem } = useCart()
+  const { region } = useRegion()
   const [addedIds, setAddedIds] = useState<Set<string>>(new Set())
 
   if (!products || products.length === 0) return null
@@ -178,7 +181,7 @@ export function FortunePrescription({ products, weakestLabel, strongestLabel }: 
 
                 {/* Price + CTA */}
                 <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-                  <span className="text-gold font-bold text-sm">¥{product.price_cny.toFixed(0)}</span>
+                  <span className="text-gold font-bold text-sm">{getProductPrice(product, region).symbol}{getProductPrice(product, region).price.toFixed(0)}</span>
                   <button
                     onClick={() => handleAdd(product)}
                     disabled={isAdded}

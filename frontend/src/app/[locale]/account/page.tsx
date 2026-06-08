@@ -9,6 +9,8 @@ import {
 import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { useRegion } from "@/contexts/RegionContext"
+import { getProductPrice } from "@/lib/regionPrice"
 import MembershipBadge, { getUserTier } from "@/components/ui/MembershipBadge"
 import { listMyReadings, listMyOrders, getFavorites, deleteReading, type ReadingListItem, type OrderListItem, type Product } from "@/lib/api"
 import { getReadingHistory, clearReadingHistory, removeReadingFromHistory, type ReadingHistoryItem } from "@/lib/readingHistory"
@@ -20,6 +22,7 @@ export default function AccountPage() {
   const router = useRouter()
   const { user, loading: authLoading, logout, refreshUser } = useAuth()
   const { t, localeHref } = useLanguage()
+  const { region } = useRegion()
   const [tab, setTab] = useState<Tab>("overview")
   const [readings, setReadings] = useState<ReadingListItem[]>([])
   const [anonymousReadings, setAnonymousReadings] = useState<ReadingHistoryItem[]>([])
@@ -378,7 +381,7 @@ export default function AccountPage() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-white/70 text-sm truncate">{p.name}</p>
-                            <p className="text-gold text-sm font-bold">¥{p.price_cny}</p>
+                            <p className="text-gold text-sm font-bold">{getProductPrice(p, region).symbol}{getProductPrice(p, region).price}</p>
                           </div>
                         </div>
                       </Link>

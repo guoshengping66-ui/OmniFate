@@ -4,6 +4,8 @@ import { Sparkles, ShoppingCart, Check, Zap } from "lucide-react"
 import type { Product } from "@/lib/api"
 import { useCart } from "@/contexts/CartContext"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { useRegion } from "@/contexts/RegionContext"
+import { getProductPrice } from "@/lib/regionPrice"
 import { ProductImage } from "@/components/shop/ProductImage"
 import toast from "react-hot-toast"
 
@@ -12,6 +14,7 @@ const RANK_COLORS = ["#C9A84C", "#A78BFA", "#60A5FA"]
 export function AIRecommendHero({ products }: { products: Product[] }) {
   const { addItem } = useCart()
   const { t } = useLanguage()
+  const { region } = useRegion()
   const [revealed, setRevealed] = useState(false)
   const [addedIds, setAddedIds] = useState<Set<string>>(new Set())
 
@@ -100,7 +103,7 @@ export function AIRecommendHero({ products }: { products: Product[] }) {
                   />
                   <div className="flex-1 min-w-0">
                     <h3 className="font-serif font-bold text-white text-base mb-1 truncate">{product.name}</h3>
-                    <p className="text-gold font-bold text-lg">¥{product.price_cny.toFixed(0)}</p>
+                    <p className="text-gold font-bold text-lg">{getProductPrice(product, region).symbol}{getProductPrice(product, region).price.toFixed(0)}</p>
                   </div>
                 </div>
 
