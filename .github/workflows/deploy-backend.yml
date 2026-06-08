@@ -82,9 +82,19 @@ jobs:
               echo "🔧 停止旧后端进程..."
               pm2 stop backend 2>/dev/null || true
               pm2 delete backend 2>/dev/null || true
-              # 确保端口释放
-              fuser -k 8003/tcp 2>/dev/null || true
-              sleep 2
+              # 确保端口释放 — 多次尝试杀死占用端口的进程
+              for i in 1 2 3 4 5; do
+                if fuser 8003/tcp >/dev/null 2>&1; then
+                  echo "⚠️ 端口 8003 仍被占用，第${i}次尝试释放..."
+                  fuser -k 8003/tcp 2>/dev/null || true
+                  sleep 2
+                else
+                  echo "✅ 端口 8003 已释放"
+                  break
+                fi
+              done
+              # 额外等待确保完全释放
+              sleep 3
 
               # 清理 Python 字节码缓存
               find /opt/OmniFate/backend -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
