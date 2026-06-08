@@ -205,6 +205,11 @@ async def match_products(payload: MatchRequest, lang: str = Query("zh")):
                 for key in ("keyword_tags", "elements", "planets", "chakras", "function_tags", "material"):
                     if en.get(key) is not None:
                         p[key] = en[key]
+                for key in ("usage", "precautions", "efficacy"):
+                    if en.get(f"{key}_en"):
+                        p[key] = en[f"{key}_en"]
+                if en.get("specifications_en"):
+                    p["specifications"] = en["specifications_en"]
 
     if payload.include_explain:
         for p in matched:
