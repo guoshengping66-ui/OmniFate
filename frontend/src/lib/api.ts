@@ -65,12 +65,16 @@ export const api = axios.create({
   withCredentials: true,
 })
 
-// Auto-pass locale for error translation on all API clients
+// Auto-pass locale for error translation on all API clients.
+// Only sets lang as a default — does NOT overwrite an explicit lang param
+// (e.g. listProducts(..., "en") must not be overridden by localStorage).
 const addLangInterceptor = (client: typeof api) => {
   client.interceptors.request.use((config) => {
     try {
-      const lang = localStorage.getItem("destiny_mirror_lang") || (navigator.language.startsWith("zh") ? "zh" : "en")
-      config.params = { ...config.params, lang }
+      if (!config.params?.lang) {
+        const lang = localStorage.getItem("destiny_mirror_lang") || (navigator.language.startsWith("zh") ? "zh" : "en")
+        config.params = { ...config.params, lang }
+      }
     } catch {}
     return config
   })
