@@ -159,6 +159,17 @@ export function QRPaymentModal({
     }
   }, [method])
 
+  // When modal opens with shop order, force correct status based on method
+  useEffect(() => {
+    if (open && isShopPayment && shopOrderNo) {
+      if (method === "credit_card" && status !== "loading" && status !== "card_embedded" && status !== "success") {
+        setStatus("loading")
+      } else if (method === "paypal" && status !== "paypal_embedded" && status !== "success") {
+        setStatus("paypal_embedded")
+      }
+    }
+  }, [open, isShopPayment, shopOrderNo, method])
+
   const createOrder = async () => {
     setStatus("loading")
     setError("")
