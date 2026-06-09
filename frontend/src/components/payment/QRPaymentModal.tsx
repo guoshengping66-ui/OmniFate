@@ -37,7 +37,7 @@ const TIER_PRICES: Record<string, { amountCny: number; amountUsd: number; labelK
   onetime_unlock: { amountCny: 19.9, amountUsd: 9.9, labelKey: "payment.onetimeUnlock" },
 }
 
-const UNLOCK_PRICES = { amountCny: 0, amountUsd: 0 } // Deprecated: ¥69 unlock removed
+const UNLOCK_PRICES = { amountCny: 19.9, amountUsd: 9.9 }
 
 const POLL_INTERVAL = 3000
 const MAX_POLL_ATTEMPTS = 20

@@ -348,7 +348,7 @@ async def admin_confirm_payment(
                         user = user_result.scalar_one_or_none()
                         if user:
                             if (user.shop_coupon_balance or 0) == 0:
-                                user.shop_coupon_balance = 60
+                                user.shop_coupon_balance = 50
                             from api.routers.payments import GRANT_ON_REPORT_UNLOCK
                             user.stardust_balance += GRANT_ON_REPORT_UNLOCK
                             user.stardust_lifetime_earned += GRANT_ON_REPORT_UNLOCK

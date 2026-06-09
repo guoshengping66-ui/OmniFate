@@ -26,7 +26,7 @@ export interface PricingTier {
 export const PRICING_DATA = {
   domestic: {
     currency: "¥",
-    single_report: { price: 88, stardust: 100, label: "全维全景报告" },
+    single_report: { price: 19.9, stardust: 50, label: "全维全景报告" },
     onetime_unlock: { price: 19.9, stardust_grant: 50, label: "一次性解锁", tag: "每个账户限一次" },
     monthly: { price: 59, stardust_grant: 100, label: "Fate OS 月度订阅" },
     yearly: { price: 365, stardust_grant: 150, label: "Fate OS 年度订阅", tag: "每天仅需 1 元" },
@@ -34,7 +34,7 @@ export const PRICING_DATA = {
   },
   overseas: {
     currency: "$",
-    single_report: { price: 24.99, stardust: 100, label: "Full-Dimension Report" },
+    single_report: { price: 9.9, stardust: 50, label: "Full-Dimension Report" },
     onetime_unlock: { price: 9.9, stardust_grant: 50, label: "One-Time Unlock", tag: "One per account" },
     monthly: { price: 14.99, stardust_grant: 100, label: "Fate OS Monthly" },
     yearly: { price: 99.00, stardust_grant: 150, label: "Fate OS Yearly", tag: "Best Value" },
@@ -147,7 +147,7 @@ export const TIERS: PricingTier[] = [
     features: [
       "永久解锁一份全维报告",
       "赠送 50 星尘（追问5次）",
-      "¥20 商城代金券",
+      "¥50 商城代金券（首次解锁）/ ¥20（重复）",
       "每个账户限一次",
     ],
     cta: "立即解锁",
@@ -185,8 +185,8 @@ export const TIER_MAP: Record<string, PricingTier> = Object.fromEntries(
   TIERS.map(t => [t.id, t])
 )
 
-export const FULL_REPORT_PRICE = 88
-export const FULL_REPORT_PRICE_USD = 24.99
+export const FULL_REPORT_PRICE = 19.9
+export const FULL_REPORT_PRICE_USD = 9.9
 export const FIRST_REPORT_PRICE = 29.9
 export const EVENT_RETRO_PRICE = 19.9
 export const EVENT_RETRO_PRICE_USD = 4.99
@@ -194,7 +194,7 @@ export const PREMIUM_MONTHLY = 59
 export const PREMIUM_MONTHLY_USD = 14.99
 export const PREMIUM_YEARLY = 365
 export const PREMIUM_YEARLY_USD = 99
-export const SHOP_COUPON_AMOUNT = 60
+export const SHOP_COUPON_AMOUNT = 50
 export const TRIAL_DAYS = 3
 export const MEMBER_DISCOUNT = 0.88
 export const FOUNDER_PRICE = 1288

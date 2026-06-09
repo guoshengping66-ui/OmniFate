@@ -100,7 +100,7 @@ def _is_effective_founder(user) -> bool:
     """Check if user is effectively a founder (DB flag or admin auto-upgrade)."""
     return user.is_founder or user.email.lower() in _admin_emails_cached
 
-SHOP_COUPON_AMOUNT = 60
+SHOP_COUPON_AMOUNT = 50  # 首次解锁报告赠送代金券
 TRIAL_DAYS = 3
 EVENT_RETRO_PRICE = 19.9
 
@@ -110,8 +110,8 @@ PREMIUM_MONTHLY_CNY = 59.0
 PREMIUM_YEARLY_CNY = 365.0
 PREMIUM_MONTHLY_USD = 14.99
 PREMIUM_YEARLY_USD = 99.00
-UNLOCK_PRICE_CNY = 88.0
-UNLOCK_PRICE_USD = 24.99
+UNLOCK_PRICE_CNY = 19.9
+UNLOCK_PRICE_USD = 9.9
 ONETIME_UNLOCK_CNY = 19.9
 ONETIME_UNLOCK_USD = 9.9
 
@@ -125,7 +125,7 @@ PRODUCT_PRICES = {
 }
 
 # ── Stardust constants ──────────────────────────────────────────────────────
-GRANT_ON_REPORT_UNLOCK = 100   # 解锁报告奖励星尘
+GRANT_ON_REPORT_UNLOCK = 50   # 解锁报告奖励星尘
 GRANT_ON_REGISTER = 150         # 注册奖励星尘（足够解锁精读+多次追问）
 SUBSCRIPTION_GRANTS = {
     "premium_monthly": 100,

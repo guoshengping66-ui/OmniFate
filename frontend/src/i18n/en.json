@@ -614,8 +614,8 @@
     "freeTier": "Free Preview",
     "freeTierDesc": "Chart overview + dimension peeks",
     "fullReport": "Full Report",
-    "fullReportDesc": "Complete annual plan + remedy product matching + ~$8 coupon",
-    "fullReportPrice": "¥69",
+    "fullReportDesc": "Complete annual plan + remedy product matching + ~$7 coupon",
+    "fullReportPrice": "¥19.9",
     "genderFemale": "Female",
     "genderLabel": "Gender",
     "genderMale": "Male",
@@ -1712,7 +1712,7 @@
     },
     "loading": "Loading…",
     "cta": {
-      "perks": "Unlock to get ~$8 coupon + 3-day membership",
+      "perks": "Unlock to get ~$7 coupon + 3-day membership",
       "unlockBtn": "Join Membership to Unlock"
     },
     "dim": {
@@ -1856,9 +1856,9 @@
     "title": "Destiny Mirror · Your Reading",
     "unlock": "Unlock Full Report",
     "unlockPerk1": "Get your complete annual destiny plan",
-    "unlockPerk2": "Plus a ¥60 shop coupon",
+    "unlockPerk2": "Plus a ~$7 shop coupon",
     "unlockPerk3": "Auto-activate 3-day membership trial",
-    "unlockPrice": "¥69",
+    "unlockPrice": "¥19.9",
     "weakest": "room to grow",
     "channel": {
       "full": "Deep Resonance",
@@ -2617,7 +2617,7 @@
     "a1": "Destiny Mirror brings together Bazi (Four Pillars), Western Astrology, Tarot, Face Reading, and Palmistry. We blend ancient wisdom with modern technology to give you a deep and complete destiny reading.",
     "a2": "We look at your chart from five different wisdom traditions to give you a well-rounded reading. That said, destiny readings are for reference and fun — they're not professional advice and can't replace an experienced practitioner. Think of it as a mirror for self-understanding.",
     "a3": "Totally. Everything is encrypted with SSL. Your face and palm photos are never stored after processing — we keep only the analysis results. Your personal info is strictly protected and never used for anything else.",
-    "a4": "The free version gives you a basic chart overview. The paid version (¥69) unlocks the complete report: detailed annual fortune planning, personalized remedy suggestions, ¥60 shop coupons, and a 3-day membership trial. Members also get 12% off in the shop and multiple free readings per month.",
+    "a4": "The free version gives you a basic chart overview. The paid version (¥19.9) unlocks the complete report: detailed annual fortune planning, personalized remedy suggestions, ¥50 shop coupons, and a 3-day membership trial. Members also get 12% off in the shop and multiple free readings per month.",
     "a5": "Just three easy steps: 1) Enter your birth date, time, and city; 2) Optionally add face and palm photos; 3) Hit Start Reading — your personalized five-path report is ready in about 40 seconds. No sign-up needed to try the free version.",
     "badge": "FAQ",
     "breadcrumb": "FAQ",
@@ -2867,7 +2867,7 @@
     "success": "Payment Successful!",
     "successDesc": "Membership activated — start exploring your destiny!",
     "successTitle": "Payment Successful!",
-    "unlockReport": "Unlock Report ¥88",
+    "unlockReport": "Unlock Report ¥19.9",
     "waitingConfirm": "Awaiting Confirmation",
     "waitingDesc1": "Payment submitted — awaiting admin verification",
     "waitingDesc2": "Membership activates after verification (typically 1–24 hours).",
@@ -2884,7 +2884,7 @@
     "amount": "Amount Due",
     "confirmPay": "Confirm Payment",
     "paid": "Payment Successful!",
-    "paidDesc": "Full report unlocked, ¥60 coupon has been credited to your account",
+    "paidDesc": "Full report unlocked, ¥50 coupon has been credited to your account",
     "processing": "Processing...",
     "selectPayment": "Select Payment Method",
     "supportedMethods": "Supports Alipay, WeChat, PayPal and more",
@@ -2893,7 +2893,7 @@
     "or": "or"
   },
   "paywall": {
-    "giftNote": "Unlock to receive ~$8.33 shop coupon + 3-day membership trial",
+    "giftNote": "Unlock to receive ~$7 shop coupon + 3-day membership trial",
     "joinMember": "Join to Unlock",
     "oneTimeUnlock": "One-Time Unlock $9.9",
     "oneTimeUnlockDesc": "Permanent + 50 Stardust + ~$2.78 Coupon",
