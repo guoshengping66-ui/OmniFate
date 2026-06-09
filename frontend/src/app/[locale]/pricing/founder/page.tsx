@@ -219,7 +219,7 @@ export default function FounderPage() {
           {/* Purchase */}
           <div className="card-glass p-6 border-gold/20">
             <div className="text-center mb-6">
-              <p className="text-5xl font-bold text-gold mb-2">¥1,288</p>
+              <p className="text-5xl font-bold text-gold mb-2">¥1,688</p>
               <p className="text-white/40 text-sm">{t("founder.pricing.oneTime")}</p>
               {status && (
                 <div className="mt-4">

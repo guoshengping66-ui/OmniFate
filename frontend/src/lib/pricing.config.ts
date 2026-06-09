@@ -105,7 +105,7 @@ export const PLANS: PlanConfig[] = [
     priceUsd: 499,
     monthlyStardustGrant: 500,
     stardustDiscount: 0,
-    displayCny: "¥1,288",
+    displayCny: "¥1,688",
     displayUsd: "$499",
     features: [
       "永久全功能访问",

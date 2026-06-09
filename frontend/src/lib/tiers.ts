@@ -162,8 +162,8 @@ export const TIERS: PricingTier[] = [
     priceUsd: 499,
     stardustGrant: 500,
     stardustDiscount: 0,
-    priceDisplay: "¥1,288",
-    priceDisplayUsd: "$399",
+    priceDisplay: "¥1,688",
+    priceDisplayUsd: "$499",
     features: [
       "永久全功能访问",
       "无限星尘额度",
