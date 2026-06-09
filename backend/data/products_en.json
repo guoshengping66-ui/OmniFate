@@ -3754,7 +3754,7 @@
     "price_cny": 268,
     "price_usd": 49,
     "stock": 120,
-    "is_active": true,
+    "is_active": false,
     "image_url": "/products/crystal/citrine-mantra-pendant.png",
     "detail_images": [],
     "wuxing_tags": ["earth", "metal"],
