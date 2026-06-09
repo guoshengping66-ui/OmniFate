@@ -19,9 +19,10 @@ err()  { echo -e "${RED}[ERROR]${NC} $*" >&2; exit 1; }
 
 # ── 1. 同步最新代码 ────────────────────────────────────────────────────────
 cd /opt/OmniFate
-log "📥 同步最新代码..."
-git fetch origin main
-git reset --hard origin/main
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+log "📥 同步最新代码 (分支: $CURRENT_BRANCH)..."
+git fetch origin "$CURRENT_BRANCH"
+git reset --hard "origin/$CURRENT_BRANCH"
 
 # ── 2. 安装依赖 (only if package.json changed) ──────────────────────────
 cd /opt/OmniFate/frontend
