@@ -1,7 +1,7 @@
 "use client"
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import {
   Loader2, User, Crown, ScrollText, ShoppingBag, Heart,
   Ticket, Settings, LogOut, ChevronRight, Package, Clock,
@@ -20,10 +20,12 @@ type Tab = "overview" | "readings" | "orders" | "favorites" | "subscription" | "
 
 export default function AccountPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { user, loading: authLoading, logout, refreshUser } = useAuth()
   const { t, localeHref } = useLanguage()
   const { region } = useRegion()
-  const [tab, setTab] = useState<Tab>("overview")
+  const initialTab = (searchParams.get("tab") as Tab) || "overview"
+  const [tab, setTab] = useState<Tab>(initialTab)
   const [readings, setReadings] = useState<ReadingListItem[]>([])
   const [anonymousReadings, setAnonymousReadings] = useState<ReadingHistoryItem[]>([])
   const [orders, setOrders] = useState<OrderListItem[]>([])

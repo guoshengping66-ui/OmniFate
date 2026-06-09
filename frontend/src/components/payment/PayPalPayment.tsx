@@ -5,6 +5,7 @@ import {
   PayPalButtons,
   PayPalCardFieldsProvider,
   PayPalCardFieldsForm,
+  usePayPalCardFields,
   type CreateOrderActions,
   type OnApproveActions,
 } from "@paypal/react-paypal-js"
@@ -43,6 +44,32 @@ function RegionGuard({ children }: { children: React.ReactNode }) {
     )
   }
   return <>{children}</>
+}
+
+function CardSubmitButton({ processing }: { processing: boolean }) {
+  const { cardFieldsForm } = usePayPalCardFields()
+  const { t } = useLanguage()
+
+  const handleSubmit = async () => {
+    if (!cardFieldsForm || processing) return
+    const state = await cardFieldsForm.getState()
+    if (state.isFormValid) {
+      await cardFieldsForm.submit()
+    }
+  }
+
+  return (
+    <button
+      onClick={handleSubmit}
+      disabled={processing}
+      className="w-full py-3 mt-3 rounded-xl bg-gold text-ink font-semibold hover:shadow-[0_0_24px_rgba(201,168,76,0.5)] transition-all disabled:opacity-40 flex items-center justify-center gap-2 text-sm"
+    >
+      {processing
+        ? <><Loader2 size={16} className="animate-spin" /> {t("payment.processing") || "Processing..."}</>
+        : <><CreditCard size={16} /> {t("payment.confirmPay") || "Pay"} {""}</>
+      }
+    </button>
+  )
 }
 
 export function PayPalPayment({
@@ -241,6 +268,7 @@ export function PayPalPayment({
               }}
             >
               <PayPalCardFieldsForm />
+              <CardSubmitButton processing={processing} />
             </PayPalCardFieldsProvider>
           </div>
         </div>

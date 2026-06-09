@@ -119,7 +119,7 @@ export default function CheckoutPage() {
             </ul>
           </div>
           <div className="flex gap-3">
-            <button onClick={() => router.push(localeHref("/account/orders"))} className="btn-gold flex-1 text-sm">
+            <button onClick={() => router.push(localeHref("/account") + "?tab=orders")} className="btn-gold flex-1 text-sm">
               {t("checkout.viewOrders")}
             </button>
             <button onClick={() => router.push(localeHref("/shop"))} className="btn-gold flex-1 text-sm">
