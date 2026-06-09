@@ -2134,41 +2134,40 @@ async def list_shop_orders(
     page_size: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
     authorization: Optional[str] = Header(None),
+    x_admin_key: Optional[str] = Header(None),
 ):
     """管理员查看所有商城订单"""
-    _require_admin_auth(authorization)
+    _require_admin_auth(authorization, x_admin_key)
 
-    query = select(Order).where(Order.item_type == "shop")
+    from sqlalchemy.orm import joinedload
+
+    query = (
+        select(Order)
+        .where(Order.item_type == "shop")
+        .options(joinedload(Order.items), joinedload(Order.user))
+    )
     if status:
         query = query.where(Order.status == status)
     query = query.order_by(Order.created_at.desc())
 
     # Count total
     count_result = await db.execute(
-        select(func.count()).select_from(query.subquery())
+        select(func.count()).select_from(
+            select(Order.id).where(Order.item_type == "shop").subquery()
+        )
     )
     total = count_result.scalar() or 0
 
     # Paginate
     query = query.offset((page - 1) * page_size).limit(page_size)
     result = await db.execute(query)
-    orders = result.scalars().all()
+    orders = result.unique().scalars().all()
 
-    # Enrich with order items and address info
     order_list = []
     for order in orders:
-        items_result = await db.execute(
-            select(OrderItem).where(OrderItem.order_id == order.id)
-        )
-        items = items_result.scalars().all()
-
-        # Get user info
         user_info = None
-        if order.user_id:
-            user_result = await db.execute(select(User).where(User.id == order.user_id))
-            user = user_result.scalar_one_or_none()
-            if user:
-                user_info = {"id": user.id, "nickname": user.nickname, "email": user.email}
+        if order.user:
+            user_info = {"id": order.user.id, "nickname": order.user.nickname, "email": order.user.email}
 
         order_list.append({
             "order_no": order.order_no,
@@ -2190,7 +2189,7 @@ async def list_shop_orders(
                     "unit_price_cny": float(item.unit_price_cny) if item.unit_price_cny else 0,
                     "subtotal_cny": float(item.subtotal_cny) if item.subtotal_cny else 0,
                 }
-                for item in items
+                for item in order.items
             ],
         })
 
@@ -2207,28 +2206,25 @@ async def get_shop_order_detail(
     order_no: str,
     db: AsyncSession = Depends(get_db),
     authorization: Optional[str] = Header(None),
+    x_admin_key: Optional[str] = Header(None),
 ):
     """管理员查看订单详情"""
-    _require_admin_auth(authorization)
+    _require_admin_auth(authorization, x_admin_key)
+
+    from sqlalchemy.orm import joinedload
 
     result = await db.execute(
-        select(Order).where(Order.order_no == order_no, Order.item_type == "shop")
+        select(Order)
+        .where(Order.order_no == order_no, Order.item_type == "shop")
+        .options(joinedload(Order.items), joinedload(Order.user))
     )
-    order = result.scalar_one_or_none()
+    order = result.unique().scalar_one_or_none()
     if not order:
         raise HTTPException(status_code=404, detail="订单不存在")
 
-    items_result = await db.execute(
-        select(OrderItem).where(OrderItem.order_id == order.id)
-    )
-    items = items_result.scalars().all()
-
     user_info = None
-    if order.user_id:
-        user_result = await db.execute(select(User).where(User.id == order.user_id))
-        user = user_result.scalar_one_or_none()
-        if user:
-            user_info = {"id": user.id, "nickname": user.nickname, "email": user.email}
+    if order.user:
+        user_info = {"id": order.user.id, "nickname": order.user.nickname, "email": order.user.email}
 
     return {
         "order_no": order.order_no,
@@ -2250,7 +2246,7 @@ async def get_shop_order_detail(
                 "unit_price_cny": float(item.unit_price_cny) if item.unit_price_cny else 0,
                 "subtotal_cny": float(item.subtotal_cny) if item.subtotal_cny else 0,
             }
-            for item in items
+            for item in order.items
         ],
     }
 
@@ -2261,9 +2257,10 @@ async def update_shop_order_status(
     payload: AdminOrderStatusUpdate,
     db: AsyncSession = Depends(get_db),
     authorization: Optional[str] = Header(None),
+    x_admin_key: Optional[str] = Header(None),
 ):
     """管理员更新商城订单状态"""
-    _require_admin_auth(authorization)
+    _require_admin_auth(authorization, x_admin_key)
 
     valid_statuses = {"pending", "processing", "paid", "shipped", "delivered", "cancelled"}
     if payload.status not in valid_statuses:
@@ -2276,11 +2273,15 @@ async def update_shop_order_status(
     if not order:
         raise HTTPException(status_code=404, detail="订单不存在")
 
+    old_status = order.status.value if order.status else "pending"
     order.status = payload.status
     if payload.tracking_number is not None:
         order.tracking_number = payload.tracking_number
     if payload.status == "paid" and not order.paid_at:
         order.paid_at = datetime.now(timezone.utc)
+
+    # Audit log
+    logger.info(f"[ADMIN] Order {order_no} status: {old_status} → {payload.status}")
 
     await db.commit()
 
@@ -2290,5 +2291,3 @@ async def update_shop_order_status(
         "status": order.status.value,
         "tracking_number": order.tracking_number,
     }
-
-    return {"status": "submitted"}

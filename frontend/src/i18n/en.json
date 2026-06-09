@@ -2380,6 +2380,33 @@
   "breadcrumb": {
     "home": "Home"
   },
+  "adminOrders": {
+    "title": "Order Management",
+    "enterKey": "Enter admin key",
+    "login": "Login",
+    "authFailed": "Authentication failed",
+    "refresh": "Refresh",
+    "all": "All",
+    "loading": "Loading...",
+    "noOrders": "No orders",
+    "items": "Order Items",
+    "userInfo": "User Info",
+    "shippingAddress": "Shipping Address",
+    "trackingNumber": "Tracking Number",
+    "updating": "Updating...",
+    "prevPage": "Previous",
+    "nextPage": "Next",
+    "page": "Page",
+    "updateFailed": "Update failed",
+    "status": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "paid": "Paid",
+      "shipped": "Shipped",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    }
+  },
   "cart": {
     "checkout": "Checkout",
     "empty": "Your cart is empty",

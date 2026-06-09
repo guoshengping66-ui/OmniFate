@@ -2380,6 +2380,33 @@
   "breadcrumb": {
     "home": "首页"
   },
+  "adminOrders": {
+    "title": "订单管理",
+    "enterKey": "输入管理员密钥",
+    "login": "登录",
+    "authFailed": "认证失败",
+    "refresh": "刷新",
+    "all": "全部",
+    "loading": "加载中...",
+    "noOrders": "暂无订单",
+    "items": "商品明细",
+    "userInfo": "用户信息",
+    "shippingAddress": "收货地址",
+    "trackingNumber": "物流单号",
+    "updating": "更新中...",
+    "prevPage": "上一页",
+    "nextPage": "下一页",
+    "page": "第",
+    "updateFailed": "更新失败",
+    "status": {
+      "pending": "待支付",
+      "processing": "处理中",
+      "paid": "已支付",
+      "shipped": "已发货",
+      "delivered": "已完成",
+      "cancelled": "已取消"
+    }
+  },
   "cart": {
     "checkout": "去结算",
     "empty": "购物车是空的",
