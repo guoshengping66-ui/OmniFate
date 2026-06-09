@@ -1567,10 +1567,11 @@ async def create_order(
     await db.flush()
 
     for item in validated_items:
-        pid = item["product_id"]
+        # product_id FK points to products table which is empty (products live in JSON).
+        # Store None to avoid foreign key constraint violation; product_name has the info.
         oi = OrderItem(
             order_id=order.id,
-            product_id=pid,
+            product_id=None,
             product_name=item["product_name"],
             quantity=item["quantity"],
             unit_price_cny=item["unit_price_cny"],
