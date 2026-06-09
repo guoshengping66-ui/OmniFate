@@ -187,6 +187,11 @@ export function PayPalPayment({
   const sdkComponents: string[] = []
   if (mode === "both" || mode === "wallet") sdkComponents.push("buttons")
   if (mode === "both" || mode === "card") sdkComponents.push("card-fields")
+  // Apple Pay + Google Pay (requires Advanced Card Fields enabled in PayPal dashboard)
+  if (mode === "both" || mode === "card") {
+    sdkComponents.push("applepay")
+    sdkComponents.push("googlepay")
+  }
 
   const sdkOptions = {
     "client-id": config.clientId,
@@ -242,12 +247,14 @@ export function PayPalPayment({
           </div>
         )}
 
-        {/* Card Fields */}
+        {/* Card Fields + Apple Pay + Google Pay */}
         {(mode === "both" || mode === "card") && (
           <div className="relative">
             <div className="flex items-center gap-2 mb-2">
               <CreditCard size={14} className="text-white/40" />
-              <span className="text-white/50 text-xs">{t("payment.creditCard") || "Credit Card"}</span>
+              <span className="text-white/50 text-xs">
+                {t("payment.creditCard") || "Credit Card"} / Apple Pay / Google Pay
+              </span>
             </div>
             <PayPalCardFieldsProvider
               createOrder={createOrder}

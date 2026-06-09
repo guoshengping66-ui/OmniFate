@@ -430,8 +430,8 @@ export function QRPaymentModal({
                       onClick={() => setMethod("credit_card")}
                       className={`p-4 rounded-xl border transition-all ${method === "credit_card" ? "bg-purple-500/10 border-purple-500/40" : "bg-white/[0.03] border-white/10 hover:border-white/20"}`}
                     >
-                      <div className="text-purple-400 font-medium">Credit Card</div>
-                      <div className="text-white/40 text-xs mt-1">Visa / Mastercard</div>
+                      <div className="text-purple-400 font-medium">{t("payment.creditCard") || "Credit Card"}</div>
+                      <div className="text-white/40 text-xs mt-1">Visa / MC / Apple Pay / Google Pay</div>
                     </button>
                   </div>
                 ) : (
