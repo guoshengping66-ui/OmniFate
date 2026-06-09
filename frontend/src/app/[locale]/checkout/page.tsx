@@ -33,8 +33,6 @@ export default function CheckoutPage() {
   const couponBalanceLocal = region === "overseas" ? couponBalanceCny / CNY_TO_USD_RATE : couponBalanceCny
   const couponDiscount = useCoupon ? Math.min(couponBalanceLocal, totalWithDiscount) : 0
   const finalTotal = Math.max(0, totalWithDiscount - couponDiscount)
-  // After order creation, use backend's calculated total (authoritative)
-  const displayTotal = createdOrderNo ? createdOrderTotal : finalTotal
   const couponDisplay = formatCouponBalance(couponBalanceCny, region)
   const couponDiscountDisplay = formatCouponBalance(
     region === "overseas" ? couponDiscount * CNY_TO_USD_RATE : couponDiscount,
@@ -66,11 +64,8 @@ export default function CheckoutPage() {
         payment_method: paymentMethod,
       })
       setCreatedOrderNo(result.order_no)
-      // Backend returns final_total in CNY — convert to USD for overseas users
-      const displayTotal = region === "overseas"
-        ? Math.round((result.final_total / CNY_TO_USD_RATE) * 100) / 100
-        : result.final_total
-      setCreatedOrderTotal(displayTotal)
+      // Use cart's total (in local currency) for display — products have independent USD/CNY prices
+      setCreatedOrderTotal(finalTotal)
       setPaymentOpen(true)
     } catch (err: any) {
       toast.error(err?.response?.data?.detail ?? t("checkout.orderFail"))
@@ -216,7 +211,7 @@ export default function CheckoutPage() {
           </div>
           <div className="border-t border-white/10 pt-3 flex justify-between">
             <span className="text-white/80 font-medium">{t("checkout.total")}</span>
-            <span className="text-gold text-xl font-bold">{symbol}{displayTotal.toFixed(2)}</span>
+            <span className="text-gold text-xl font-bold">{symbol}{finalTotal.toFixed(2)}</span>
           </div>
         </div>
 
@@ -266,7 +261,7 @@ export default function CheckoutPage() {
         >
           {loading
             ? <><Loader2 size={18} className="animate-spin" /> {t("checkout.processing")}</>
-            : <><ShoppingBag size={16} /> {t("checkout.pay")} {symbol}{displayTotal.toFixed(2)}</>}
+            : <><ShoppingBag size={16} /> {t("checkout.pay")} {symbol}{finalTotal.toFixed(2)}</>}
         </button>
 
         <p className="text-white/20 text-[11px] text-center mt-4">

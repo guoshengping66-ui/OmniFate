@@ -465,7 +465,7 @@ export function QRPaymentModal({
             </div>
           )}
 
-          {/* paypal_embedded - inline PayPal wallet payment only */}
+          {/* paypal_embedded - inline PayPal payment (wallet + card for subscriptions, wallet only for shop) */}
           {status === "paypal_embedded" && (
             <div>
               <div className="bg-white/5 rounded-xl p-4 text-center mb-4">
@@ -477,7 +477,7 @@ export function QRPaymentModal({
                 readingId={readingId}
                 amount={`$${tierInfo.amountUsd}`}
                 compact
-                mode="wallet"
+                mode={isShopPayment ? "wallet" : "both"}
                 paypalOrderId={isShopPayment ? paypalOrderId || undefined : undefined}
                 onSuccess={async (orderId?: string) => {
                   if (isShopPayment) {
