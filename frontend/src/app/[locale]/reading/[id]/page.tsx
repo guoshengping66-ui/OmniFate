@@ -1132,6 +1132,7 @@ export default function ReadingPage() {
                 onStardustUnlock={handleStardustUnlock}
                 showDualTier={!isUnlocked && !isDetailedUnlocked}
                 onOneTimeUnlock={handleOneTimeUnlock}
+                isPremium={user?.is_premium}
               >
                 <div className="card-glass p-6 md:p-8 border-gold/20 bg-gradient-to-br from-gold/[0.03] to-transparent">
                   <div className="flex items-center gap-2.5 mb-5">

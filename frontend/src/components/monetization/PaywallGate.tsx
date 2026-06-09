@@ -24,6 +24,8 @@ interface PaywallGateProps {
   onOneTimeUnlock?: () => void
   /** 用户是否已使用过一次性解锁 */
   oneTimeUsed?: boolean
+  /** 用户是否已是会员 */
+  isPremium?: boolean
 }
 
 export function PaywallGate({
@@ -41,6 +43,7 @@ export function PaywallGate({
   showDualTier = false,
   onOneTimeUnlock,
   oneTimeUsed = false,
+  isPremium = false,
 }: PaywallGateProps) {
   const { t } = useLanguage()
   const [stardustLoading, setStardustLoading] = useState<"detailed" | "full" | null>(null)
@@ -234,18 +237,20 @@ export function PaywallGate({
           </>
         )}
 
-        {/* Pay with money — direct to pricing page */}
-        <button
-          onClick={onUnlock}
-          disabled={loading}
-          className={`btn-gold flex items-center gap-2 mx-auto text-base px-10 py-3.5 ${(canDetailed || canFull || onOneTimeUnlock) ? 'text-sm px-8 py-3 opacity-80 hover:opacity-100' : ''}`}
-        >
-          {loading ? (
-            <><span className="animate-spin inline-block">⏳</span> {t("paywall.processing")}</>
-          ) : (
-            <><Sparkles size={18} /> {t("paywall.joinMember") || "加入会员解锁"}</>
-          )}
-        </button>
+        {/* Pay with money — direct to pricing page (only for non-premium users) */}
+        {!isPremium && (
+          <button
+            onClick={onUnlock}
+            disabled={loading}
+            className={`btn-gold flex items-center gap-2 mx-auto text-base px-10 py-3.5 ${(canDetailed || canFull || onOneTimeUnlock) ? 'text-sm px-8 py-3 opacity-80 hover:opacity-100' : ''}`}
+          >
+            {loading ? (
+              <><span className="animate-spin inline-block">⏳</span> {t("paywall.processing")}</>
+            ) : (
+              <><Sparkles size={18} /> {t("paywall.joinMember") || "加入会员解锁"}</>
+            )}
+          </button>
+        )}
 
         {/* 一次性解锁选项 */}
         {onOneTimeUnlock && !oneTimeUsed && (
@@ -259,9 +264,12 @@ export function PaywallGate({
           </button>
         )}
 
-        <p className="text-white/25 text-xs mt-4">
-          {t("paywall.giftNote")}
-        </p>
+        {/* 赠品提示 — 仅首次解锁显示 */}
+        {!isPremium && (
+          <p className="text-white/25 text-xs mt-4">
+            {t("paywall.giftNote")}
+          </p>
+        )}
       </div>
     </div>
   )
