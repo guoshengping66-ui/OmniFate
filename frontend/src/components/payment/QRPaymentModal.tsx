@@ -85,6 +85,13 @@ export function QRPaymentModal({
   const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pollActiveRef = useRef(false)
 
+  // Sync method state with initialMethod prop (useState only initializes once)
+  useEffect(() => {
+    if (initialMethod && initialMethod !== method) {
+      setMethod(initialMethod)
+    }
+  }, [initialMethod])
+
   const isReportUnlock = !!readingId && tier !== "onetime_unlock"
   const isPreOrder = !!preOrderNo
   const tierInfo = isShopPayment
