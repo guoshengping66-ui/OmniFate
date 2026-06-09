@@ -137,6 +137,7 @@ export function QRPaymentModal({
 
   // Auto-create PayPal order when paypal_embedded for shop orders (no paypalOrderId yet)
   useEffect(() => {
+    console.log("[QR] paypal_embedded effect:", { status, isShopPayment, shopOrderNo, paypalOrderId })
     if (status === "paypal_embedded" && isShopPayment && shopOrderNo && !paypalOrderId) {
       apiDirect.post(`/api/payments/paypal/create-shop-order?order_no=${shopOrderNo}`)
         .then(res => setPaypalOrderId(res.data.paypal_order_id))
@@ -161,6 +162,7 @@ export function QRPaymentModal({
 
   // When modal opens with shop order, force correct status based on method
   useEffect(() => {
+    console.log("[QR] open effect:", { open, isShopPayment, shopOrderNo, method, status })
     if (open && isShopPayment && shopOrderNo) {
       if (method === "credit_card" && status !== "loading" && status !== "card_embedded" && status !== "success") {
         setStatus("loading")

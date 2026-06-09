@@ -64,8 +64,14 @@ export function PayPalPayment({
 
   useEffect(() => {
     getPayPalConfig()
-      .then(c => setConfig({ clientId: c.client_id, mode: c.mode }))
-      .catch(() => setError("PayPal is not available"))
+      .then(c => {
+        console.log("[PayPal] config loaded:", c)
+        setConfig({ clientId: c.client_id, mode: c.mode })
+      })
+      .catch(e => {
+        console.error("[PayPal] config error:", e)
+        setError("PayPal is not available")
+      })
       .finally(() => setLoading(false))
   }, [])
 
