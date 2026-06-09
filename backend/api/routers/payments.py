@@ -340,6 +340,14 @@ async def get_payment_methods():
             "category": "global",
             "enabled": True,
         })
+        methods.append({
+            "id": "credit_card",
+            "name": "信用卡",
+            "name_en": "Credit Card",
+            "icon": "credit-card",
+            "category": "global",
+            "enabled": True,
+        })
 
     return {"methods": methods, "count": len(methods)}
 

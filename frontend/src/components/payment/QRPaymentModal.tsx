@@ -20,6 +20,8 @@ interface QRPaymentModalProps {
   shopOrderNo?: string
   /** Shop order total in display currency (CNY or USD) */
   shopAmount?: number
+  /** Pre-selected payment method from checkout page */
+  initialMethod?: PaymentMethod
 }
 
 type PaymentMethod = "alipay" | "wechat" | "paypal" | "credit_card"
@@ -59,15 +61,20 @@ export function QRPaymentModal({
   region = "domestic",
   shopOrderNo,
   shopAmount,
+  initialMethod,
 }: QRPaymentModalProps) {
   const { t: rawT } = useLanguage()
   const t = rawT as unknown as (key: string, vars?: Record<string, string | number>) => string
   const isOverseas = region === "overseas"
   const isShopPayment = !!shopOrderNo
-  const [method, setMethod] = useState<PaymentMethod>(isOverseas ? "paypal" : "alipay")
-  const [status, setStatus] = useState<PaymentStatus>(
-    isShopPayment ? (isOverseas ? "paypal_embedded" : "showing_qr") : preOrderNo ? "showing_qr" : isOverseas ? "paypal_embedded" : "idle"
-  )
+  const effectiveMethod = initialMethod || (isOverseas ? "paypal" : "alipay")
+  const [method, setMethod] = useState<PaymentMethod>(effectiveMethod)
+  const [status, setStatus] = useState<PaymentStatus>(() => {
+    if (initialMethod === "credit_card" && isShopPayment) return "loading"
+    if (isShopPayment) return isOverseas ? "paypal_embedded" : "showing_qr"
+    if (preOrderNo) return "showing_qr"
+    return isOverseas ? "paypal_embedded" : "idle"
+  })
   const [orderNo, setOrderNo] = useState<string | null>(shopOrderNo || preOrderNo || null)
   const [paypalOrderId, setPaypalOrderId] = useState<string | null>(null)
   const [qrUrl, setQrUrl] = useState<string | null>(null)
@@ -113,6 +120,21 @@ export function QRPaymentModal({
     }
   }, [preOrderNo, shopOrderNo, status, method])
 
+  // Auto-create PayPal order when credit_card is pre-selected for shop orders
+  useEffect(() => {
+    if (status === "loading" && method === "credit_card" && isShopPayment && shopOrderNo) {
+      apiDirect.post(`/api/payments/paypal/create-shop-order?order_no=${shopOrderNo}`)
+        .then(res => {
+          setPaypalOrderId(res.data.paypal_order_id)
+          setStatus("card_embedded")
+        })
+        .catch(err => {
+          setError(err?.response?.data?.detail || t("payment.createOrderFailed"))
+          setStatus("failed")
+        })
+    }
+  }, [status, method, isShopPayment, shopOrderNo])
+
   const createOrder = async () => {
     setStatus("loading")
     setError("")
@@ -138,7 +160,19 @@ export function QRPaymentModal({
     }
 
     if (method === "credit_card") {
-      // Show embedded credit card payment component
+      // Credit card for shop orders: create PayPal order first, then show card fields
+      if (isShopPayment) {
+        try {
+          const res = await apiDirect.post(`/api/payments/paypal/create-shop-order?order_no=${shopOrderNo}`)
+          setPaypalOrderId(res.data.paypal_order_id)
+          setStatus("card_embedded")
+        } catch (err: any) {
+          setError(err?.response?.data?.detail || t("payment.createOrderFailed"))
+          setStatus("failed")
+        }
+        return
+      }
+      // Subscription/unlock: show embedded credit card payment component
       setStatus("card_embedded")
       return
     }
