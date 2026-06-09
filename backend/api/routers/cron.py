@@ -1,14 +1,14 @@
-"""定时任务 API — 月度星尘发放 + 会员状态维护 + 到期提醒"""
+"""定时任务 API — 月度星尘发放 + 会员状态维护 + 到期提醒 + 推命清理 + 订单超时"""
 import hmac
 import logging
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Header
-from sqlalchemy import select, func, and_
+from sqlalchemy import select, func, and_, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.session import get_db
-from database.models import User, CreditTransaction
+from database.models import User, CreditTransaction, Reading, Order, OrderStatus
 from config import get_settings
 
 logger = logging.getLogger(__name__)
@@ -218,3 +218,61 @@ async def expiry_reminder(
         "reminded_count": reminded_count,
         "total_expiring": len(users_to_remind),
     }
+
+
+@router.post("/cleanup-readings")
+async def cleanup_old_readings(
+    authorization: str = Header(None),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    清除超过 7 天的推命内容（由 cron 每天调用）
+    删除 7 天前创建的 Reading 记录
+    """
+    _verify_cron_secret(authorization)
+
+    cutoff = datetime.now(timezone.utc) - timedelta(days=7)
+
+    # 删除旧推命记录
+    result = await db.execute(
+        delete(Reading).where(Reading.created_at < cutoff)
+    )
+    deleted_count = result.rowcount
+    await db.commit()
+
+    logger.info(f"[CLEANUP-READINGS] Deleted {deleted_count} readings older than 7 days")
+    return {"status": "ok", "deleted_count": deleted_count}
+
+
+@router.post("/cancel-expired-orders")
+async def cancel_expired_orders(
+    authorization: str = Header(None),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    取消超过 30 分钟未支付的订单（由 cron 每 5 分钟调用）
+    将 pending 状态超过 30 分钟的订单标记为 cancelled
+    """
+    _verify_cron_secret(authorization)
+
+    cutoff = datetime.now(timezone.utc) - timedelta(minutes=30)
+
+    result = await db.execute(
+        select(Order).where(
+            and_(
+                Order.status == OrderStatus.pending,
+                Order.created_at < cutoff,
+            )
+        )
+    )
+    expired_orders = result.scalars().all()
+
+    cancelled_count = 0
+    for order in expired_orders:
+        order.status = OrderStatus.cancelled
+        cancelled_count += 1
+
+    await db.commit()
+
+    logger.info(f"[CANCEL-ORDERS] Cancelled {cancelled_count} orders expired > 30min")
+    return {"status": "ok", "cancelled_count": cancelled_count}

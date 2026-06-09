@@ -20,6 +20,12 @@ on:
     # 每周日 10:00 UTC+8 — 会员到期提醒
     - cron: "0 02 * * 0"     # 02:00 UTC = 10:00+8
 
+    # 每天 03:00 UTC+8 — 清除 7 天前的推命内容
+    - cron: "0 19 * * *"     # 19:00 UTC = 03:00+8
+
+    # 每 5 分钟 — 取消超时未支付订单
+    - cron: "*/5 * * * *"
+
   workflow_dispatch:  # 允许手动触发
 
 jobs:
@@ -83,6 +89,52 @@ jobs:
           RESP=$(curl -sL -w "\n%{http_code}" -X POST \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             "${{ secrets.API_BASE }}/api/cron/expiry-reminder")
+          HTTP_CODE=$(echo "$RESP" | tail -1)
+          BODY=$(echo "$RESP" | head -n -1)
+          echo "Status: $HTTP_CODE"
+          echo "Response: $BODY"
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "❌ Failed with HTTP $HTTP_CODE"
+            exit 1
+          fi
+
+  cleanup-readings:
+    if: github.event.schedule == '0 19 * * *' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cleanup Old Readings (7 days)
+        run: |
+          echo "🕐 $(date -u) — Cleaning up readings older than 7 days..."
+          if [ -z "${{ secrets.CRON_SECRET }}" ] || [ -z "${{ secrets.API_BASE }}" ]; then
+            echo "⚠️ Secrets CRON_SECRET or API_BASE not configured, skipping."
+            exit 0
+          fi
+          RESP=$(curl -sL -w "\n%{http_code}" -X POST \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.API_BASE }}/api/cron/cleanup-readings")
+          HTTP_CODE=$(echo "$RESP" | tail -1)
+          BODY=$(echo "$RESP" | head -n -1)
+          echo "Status: $HTTP_CODE"
+          echo "Response: $BODY"
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "❌ Failed with HTTP $HTTP_CODE"
+            exit 1
+          fi
+
+  cancel-expired-orders:
+    if: github.event.schedule == '*/5 * * * *' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel Expired Orders (30min timeout)
+        run: |
+          echo "🕐 $(date -u) — Cancelling orders expired > 30min..."
+          if [ -z "${{ secrets.CRON_SECRET }}" ] || [ -z "${{ secrets.API_BASE }}" ]; then
+            echo "⚠️ Secrets CRON_SECRET or API_BASE not configured, skipping."
+            exit 0
+          fi
+          RESP=$(curl -sL -w "\n%{http_code}" -X POST \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.API_BASE }}/api/cron/cancel-expired-orders")
           HTTP_CODE=$(echo "$RESP" | tail -1)
           BODY=$(echo "$RESP" | head -n -1)
           echo "Status: $HTTP_CODE"
