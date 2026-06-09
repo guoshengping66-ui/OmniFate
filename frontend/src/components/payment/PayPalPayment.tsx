@@ -150,26 +150,6 @@ export function PayPalPayment({
     )
   }
 
-  // Hide card-related elements when mode is wallet (SDK may still show them)
-  useEffect(() => {
-    if (mode !== "wallet" || !config) return
-    const hideCard = () => {
-      try {
-        document.querySelectorAll(
-          '[data-funding-source="card"], [data-payment-method="card"], [data-funding-source="credit"]'
-        ).forEach(el => (el as HTMLElement).style.display = "none")
-      } catch {}
-    }
-    // MutationObserver to catch dynamically rendered card elements
-    const observer = new MutationObserver(() => hideCard())
-    observer.observe(document.body, { childList: true, subtree: true })
-    // Also run immediately and after delays
-    hideCard()
-    const t1 = setTimeout(hideCard, 1000)
-    const t2 = setTimeout(hideCard, 2000)
-    return () => { observer.disconnect(); clearTimeout(t1); clearTimeout(t2) }
-  }, [mode, config])
-
   if (!config) return null
 
   const sdkComponents: string[] = []
