@@ -20,9 +20,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.session import get_db
 from database.models import (
-    Reading, User, Order, OrderItem, EventLog, Product, UserAddress,
+    Reading, User, Order, OrderItem, EventLog, UserAddress,
     FounderVote, FounderFeedback, CreditTransaction, PaymentStatus, OrderStatus,
 )
+from api.routers.products import _load_products
 from auth.dependencies import get_current_user, require_user
 from config import get_settings
 
@@ -1485,20 +1486,23 @@ async def create_order(
         user = result.scalar_one_or_none()
 
     # Validate prices against product catalog (NEVER trust client prices)
+    # Products are stored in JSON, not in database — load from JSON file
+    all_products = _load_products("zh")
+    product_map = {p["id"]: p for p in all_products}
+
     server_total = 0.0
     validated_items = []
     for item in req.items:
         if item.product_id:
-            prod_result = await db.execute(select(Product).where(Product.id == item.product_id))
-            prod = prod_result.scalar_one_or_none()
+            prod = product_map.get(item.product_id)
             if not prod:
                 raise HTTPException(status_code=400, detail=f"商品不存在: {item.product_id}")
             # Use server-side price, ignore client price
-            server_price = prod.price_cny
+            server_price = prod["price_cny"]
             server_total += server_price * item.quantity
             validated_items.append({
                 "product_id": item.product_id,
-                "product_name": prod.name,
+                "product_name": prod["name"],
                 "quantity": item.quantity,
                 "unit_price_cny": server_price,
             })
