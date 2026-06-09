@@ -355,34 +355,35 @@ async def admin_confirm_payment(
     except Exception:
         pass
 
-    # 6. 激活订阅会员（验证金额匹配）
-    try:
-        description = order.notes or ""
-        activated_tier = None
+    # 6. 激活订阅会员（验证金额匹配）— 商城订单跳过此步骤
+    if order.item_type != "shop":
+        try:
+            description = order.notes or ""
+            activated_tier = None
 
-        if "premium_yearly" in description and abs(order.total_cny - 365.0) < 0.01:
-            activated_tier = "premium_yearly"
-        elif "premium_monthly" in description and abs(order.total_cny - 59.0) < 0.01:
-            activated_tier = "premium_monthly"
-        elif "founder_lifetime" in description and abs(order.total_cny - 1688.0) < 0.01:
-            activated_tier = "founder_lifetime"
-        elif "onetime_unlock" in description and abs(order.total_cny - 19.9) < 0.01:
-            activated_tier = "onetime_unlock"
+            if "premium_yearly" in description and abs(order.total_cny - 365.0) < 0.01:
+                activated_tier = "premium_yearly"
+            elif "premium_monthly" in description and abs(order.total_cny - 59.0) < 0.01:
+                activated_tier = "premium_monthly"
+            elif "founder_lifetime" in description and abs(order.total_cny - 1688.0) < 0.01:
+                activated_tier = "founder_lifetime"
+            elif "onetime_unlock" in description and abs(order.total_cny - 19.9) < 0.01:
+                activated_tier = "onetime_unlock"
 
-        if activated_tier and order.user_id:
-            user_result = await db.execute(
-                select(User).where(User.id == order.user_id).with_for_update()
-            )
-            sub_user = user_result.scalar_one_or_none()
-            if sub_user:
-                if activated_tier == "founder_lifetime" and not sub_user.is_founder:
-                    await _activate_founder_seat(sub_user, order.order_no, db)
-                elif activated_tier in ("premium_monthly", "premium_yearly"):
-                    await _activate_subscription(sub_user, activated_tier, db)
-                elif activated_tier == "onetime_unlock":
-                    await _handle_onetime_unlock_activation(sub_user, order, db)
-    except Exception:
-        pass
+            if activated_tier and order.user_id:
+                user_result = await db.execute(
+                    select(User).where(User.id == order.user_id).with_for_update()
+                )
+                sub_user = user_result.scalar_one_or_none()
+                if sub_user:
+                    if activated_tier == "founder_lifetime" and not sub_user.is_founder:
+                        await _activate_founder_seat(sub_user, order.order_no, db)
+                    elif activated_tier in ("premium_monthly", "premium_yearly"):
+                        await _activate_subscription(sub_user, activated_tier, db)
+                    elif activated_tier == "onetime_unlock":
+                        await _handle_onetime_unlock_activation(sub_user, order, db)
+        except Exception:
+            pass
 
     await db.commit()
 

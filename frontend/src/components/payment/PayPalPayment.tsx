@@ -23,6 +23,8 @@ interface PayPalPaymentProps {
   onError?: (error: string) => void
   compact?: boolean
   mode?: PayPalPaymentMode
+  /** Pre-created PayPal order ID — skip creating a new one */
+  paypalOrderId?: string
 }
 
 /**
@@ -51,6 +53,7 @@ export function PayPalPayment({
   onError,
   compact = false,
   mode = "both",
+  paypalOrderId: preCreatedOrderId,
 }: PayPalPaymentProps) {
   const { t } = useLanguage()
   const [config, setConfig] = useState<{ clientId: string; mode: string } | null>(null)
@@ -67,6 +70,10 @@ export function PayPalPayment({
   }, [])
 
   const createOrder = async (_data: Record<string, unknown>, actions: CreateOrderActions) => {
+    // Use pre-created PayPal order (shop orders)
+    if (preCreatedOrderId) {
+      return preCreatedOrderId
+    }
     try {
       const { apiDirect } = await import("@/lib/api")
       const params: Record<string, string> = { item_type: itemType }

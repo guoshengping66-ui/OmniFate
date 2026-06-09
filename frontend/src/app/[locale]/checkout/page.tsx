@@ -11,6 +11,7 @@ import { getProductPrice, formatCouponBalance, CNY_TO_USD_RATE } from "@/lib/reg
 import { createOrder, type Address } from "@/lib/api"
 import { PaymentMethodSelector } from "@/components/monetization/PaymentMethodSelector"
 import { AddressForm } from "@/components/shop/AddressForm"
+import { QRPaymentModal } from "@/components/payment/QRPaymentModal"
 
 export default function CheckoutPage() {
   const router = useRouter()
@@ -24,13 +25,14 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState("card")
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null)
+  const [paymentOpen, setPaymentOpen] = useState(false)
+  const [createdOrderNo, setCreatedOrderNo] = useState<string | null>(null)
+  const [createdOrderTotal, setCreatedOrderTotal] = useState(0)
 
   const couponBalanceCny = user?.shop_coupon_balance ?? 0
-  // Convert coupon balance to display currency for overseas users
   const couponBalanceLocal = region === "overseas" ? couponBalanceCny / CNY_TO_USD_RATE : couponBalanceCny
   const couponDiscount = useCoupon ? Math.min(couponBalanceLocal, totalWithDiscount) : 0
   const finalTotal = Math.max(0, totalWithDiscount - couponDiscount)
-  // Display amounts in local currency (convert from CNY for overseas)
   const couponDisplay = formatCouponBalance(couponBalanceCny, region)
   const couponDiscountDisplay = formatCouponBalance(
     region === "overseas" ? couponDiscount * CNY_TO_USD_RATE : couponDiscount,
@@ -61,14 +63,9 @@ export default function CheckoutPage() {
         address_id: selectedAddress.id,
         payment_method: paymentMethod,
       })
-      toast.success(
-        result.coupon_used > 0
-          ? t("checkout.successCoupon").replace("{amount}", String(result.coupon_used)).replace("{paid}", String(result.final_total))
-          : t("checkout.successMock")
-      )
-      clearCart()
-      refreshUser()
-      setDone(true)
+      setCreatedOrderNo(result.order_no)
+      setCreatedOrderTotal(result.final_total)
+      setPaymentOpen(true)
     } catch (err: any) {
       toast.error(err?.response?.data?.detail ?? t("checkout.orderFail"))
     } finally {
@@ -76,7 +73,14 @@ export default function CheckoutPage() {
     }
   }
 
-  if (items.length === 0 && !done) {
+  const handlePaymentSuccess = () => {
+    setPaymentOpen(false)
+    clearCart()
+    refreshUser()
+    setDone(true)
+  }
+
+  if (items.length === 0 && !done && !paymentOpen) {
     return (
       <div className="min-h-screen pt-24 pb-16 px-4 text-center">
         <ShoppingBag size={48} className="text-white/10 mx-auto mb-4" />
@@ -96,21 +100,7 @@ export default function CheckoutPage() {
             <CheckCircle size={32} className="text-green-400" />
           </div>
           <h2 className="font-serif text-xl text-gold mb-2">{t("checkout.orderSuccessTitle")}</h2>
-          <p className="text-white/50 text-sm mb-4">
-            {couponDiscount > 0
-              ? t("checkout.couponApplied").replace("{amount}", couponDiscountDisplay)
-              : t("checkout.thankYou")}
-          </p>
-          {couponDiscount > 0 && (
-            <p className="text-white/30 text-xs mb-4">
-              {t("coupon.remaining")}: {formatCouponBalance(
-                region === "overseas"
-                  ? Math.max(0, couponBalanceCny - couponDiscount * CNY_TO_USD_RATE)
-                  : Math.max(0, couponBalanceCny - couponDiscount),
-                region
-              )}
-            </p>
-          )}
+          <p className="text-white/50 text-sm mb-4">{t("checkout.thankYou")}</p>
           <div className="bg-white/5 border border-white/10 rounded-lg p-4 mb-6 text-left">
             <p className="text-white/60 text-xs mb-2">{t("checkout.nextSteps")}:</p>
             <ul className="text-white/40 text-xs space-y-1.5">
@@ -277,6 +267,16 @@ export default function CheckoutPage() {
           {t("checkout.mockNote")}
         </p>
       </div>
+
+      {/* Payment Modal */}
+      <QRPaymentModal
+        open={paymentOpen}
+        onClose={() => setPaymentOpen(false)}
+        shopOrderNo={createdOrderNo || undefined}
+        shopAmount={createdOrderTotal}
+        region={region === "overseas" ? "overseas" : "domestic"}
+        onSuccess={handlePaymentSuccess}
+      />
     </div>
   )
 }

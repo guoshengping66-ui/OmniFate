@@ -2,6 +2,7 @@
 import uuid
 import random
 import hashlib
+import hmac
 import time
 import json
 import base64
@@ -13,7 +14,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 from xml.etree import ElementTree as ET
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Query
+from fastapi import APIRouter, Depends, HTTPException, Request, Query, Header
 from pydantic import BaseModel, Field
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -133,6 +134,8 @@ SUBSCRIPTION_GRANTS = {
     "premium_yearly": 150,
     "founder_lifetime": 500,
 }
+
+CNY_TO_USD_RATE = 7.2  # 1 USD ≈ 7.2 CNY
 
 
 # ─── Payment Methods ──────────────────────────────────────────────────────────
@@ -994,6 +997,54 @@ async def create_paypal_order(
     }
 
 
+@router.post("/paypal/create-shop-order")
+async def create_shop_paypal_order(
+    request: Request,
+    order_no: str = Query(..., description="商城订单号"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_user),
+):
+    """为已有商城订单创建 PayPal 支付 — 海外用户使用"""
+    validate_payment_region(request, "paypal")
+    if not settings.PAYPAL_ENABLED:
+        raise HTTPException(status_code=400, detail="PayPal 未启用")
+
+    # 查找并验证订单
+    result = await db.execute(
+        select(Order).where(
+            Order.order_no == order_no,
+            Order.user_id == current_user.id,
+            Order.status == OrderStatus.pending,
+        )
+    )
+    order = result.scalar_one_or_none()
+    if not order:
+        raise HTTPException(status_code=404, detail="订单不存在或已处理")
+
+    # CNY → USD 转换
+    amount_cny = float(order.total_cny)
+    amount_usd = round(amount_cny / CNY_TO_USD_RATE, 2)
+    if amount_usd < 0.01:
+        raise HTTPException(status_code=400, detail="订单金额异常")
+
+    paypal = PayPalPay()
+    result = await paypal.create_order(
+        order_no, amount_usd, "AlphaMirror AI Shop Order", custom_id=current_user.id
+    )
+
+    # 更新订单支付方式
+    order.payment_method = "paypal"
+    await db.commit()
+
+    return {
+        "order_no": order_no,
+        "paypal_order_id": result["order_id"],
+        "approve_url": result["approve_url"],
+        "total_amount": amount_usd,
+        "currency": "USD",
+    }
+
+
 @router.get("/paypal/checkout-url")
 async def paypal_checkout_url(
     item_type: str = Query("unlock_report"),
@@ -1172,22 +1223,31 @@ async def capture_paypal_order(
                     else:
                         # Fallback: some responses put amount directly on purchase_unit
                         captured_amount = float(purchase_units[0].get("amount", {}).get("value", 0))
-                # Find matching USD price from PRODUCT_PRICES by total_cny
-                expected_usd = None
-                matched_item_type = None
-                for _item_type, prices in PRODUCT_PRICES.items():
-                    if "usd" in prices and "cny" in prices:
-                        if abs(prices["cny"] - order.total_cny) < 0.01:
-                            expected_usd = prices["usd"]
-                            matched_item_type = _item_type
-                            break
-                logger.info(f"[PAYPAL-CAPTURE] 金额验证: captured={captured_amount}, expected_usd={expected_usd}, matched_item={matched_item_type}, order.total_cny={order.total_cny}, order.order_no={order_no}")
-                if expected_usd is not None and abs(captured_amount - expected_usd) > 0.01:
-                    detail_msg = f"支付金额不匹配: 实际${captured_amount}, 预期${expected_usd} ({matched_item_type})"
-                    logger.error(f"[PAYPAL-CAPTURE] {detail_msg}")
-                    raise HTTPException(status_code=400, detail=detail_msg)
-                if expected_usd is None:
-                    logger.warning(f"[PAYPAL-CAPTURE] 未找到匹配的价格配置, order.total_cny={order.total_cny}")
+                # Amount validation — shop orders use CNY→USD conversion, others use PRODUCT_PRICES
+                is_shop_order = (order.item_type == "shop")
+                if is_shop_order:
+                    expected_usd = round(float(order.total_cny) / CNY_TO_USD_RATE, 2)
+                    logger.info(f"[PAYPAL-CAPTURE] 商城订单金额验证: captured={captured_amount}, expected_usd={expected_usd}, order.total_cny={order.total_cny}")
+                    if abs(captured_amount - expected_usd) > 0.01:
+                        detail_msg = f"支付金额不匹配: 实际${captured_amount}, 预期${expected_usd}"
+                        logger.error(f"[PAYPAL-CAPTURE] {detail_msg}")
+                        raise HTTPException(status_code=400, detail=detail_msg)
+                else:
+                    expected_usd = None
+                    matched_item_type = None
+                    for _item_type, prices in PRODUCT_PRICES.items():
+                        if "usd" in prices and "cny" in prices:
+                            if abs(prices["cny"] - order.total_cny) < 0.01:
+                                expected_usd = prices["usd"]
+                                matched_item_type = _item_type
+                                break
+                    logger.info(f"[PAYPAL-CAPTURE] 金额验证: captured={captured_amount}, expected_usd={expected_usd}, matched_item={matched_item_type}, order.total_cny={order.total_cny}, order.order_no={order_no}")
+                    if expected_usd is not None and abs(captured_amount - expected_usd) > 0.01:
+                        detail_msg = f"支付金额不匹配: 实际${captured_amount}, 预期${expected_usd} ({matched_item_type})"
+                        logger.error(f"[PAYPAL-CAPTURE] {detail_msg}")
+                        raise HTTPException(status_code=400, detail=detail_msg)
+                    if expected_usd is None:
+                        logger.warning(f"[PAYPAL-CAPTURE] 未找到匹配的价格配置, order.total_cny={order.total_cny}")
 
                 # 如果订单尚未被 webhook 标记为 paid，激活对应权益
                 already_paid = order.status == OrderStatus.paid
@@ -1957,5 +2017,195 @@ async def submit_founder_feedback(
     )
     db.add(feedback)
     await db.commit()
+
+
+# ─── Admin: Shop Order Management ────────────────────────────────────────────
+
+class AdminOrderStatusUpdate(BaseModel):
+    status: str  # paid, shipped, delivered, cancelled
+    tracking_number: Optional[str] = None
+
+
+def _require_admin_auth(
+    authorization: Optional[str] = Header(None),
+    x_admin_key: Optional[str] = Header(None),
+):
+    """验证管理员权限 — 支持 CRON_SECRET (Bearer) 或 x-admin-key"""
+    if not settings.CRON_SECRET:
+        raise HTTPException(status_code=500, detail="CRON_SECRET not configured")
+    # Try Bearer token first
+    if authorization:
+        token = authorization.replace("Bearer ", "")
+        if hmac.compare_digest(token, settings.CRON_SECRET):
+            return
+    # Try x-admin-key header (frontend admin panel)
+    if x_admin_key and hmac.compare_digest(x_admin_key, settings.CRON_SECRET):
+        return
+    raise HTTPException(status_code=401, detail="Unauthorized")
+
+
+@router.get("/admin/shop-orders")
+async def list_shop_orders(
+    status: Optional[str] = Query(None, description="按状态筛选"),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+    authorization: Optional[str] = Header(None),
+):
+    """管理员查看所有商城订单"""
+    _require_admin_auth(authorization)
+
+    query = select(Order).where(Order.item_type == "shop")
+    if status:
+        query = query.where(Order.status == status)
+    query = query.order_by(Order.created_at.desc())
+
+    # Count total
+    count_result = await db.execute(
+        select(func.count()).select_from(query.subquery())
+    )
+    total = count_result.scalar() or 0
+
+    # Paginate
+    query = query.offset((page - 1) * page_size).limit(page_size)
+    result = await db.execute(query)
+    orders = result.scalars().all()
+
+    # Enrich with order items and address info
+    order_list = []
+    for order in orders:
+        items_result = await db.execute(
+            select(OrderItem).where(OrderItem.order_id == order.id)
+        )
+        items = items_result.scalars().all()
+
+        # Get user info
+        user_info = None
+        if order.user_id:
+            user_result = await db.execute(select(User).where(User.id == order.user_id))
+            user = user_result.scalar_one_or_none()
+            if user:
+                user_info = {"id": user.id, "nickname": user.nickname, "email": user.email}
+
+        order_list.append({
+            "order_no": order.order_no,
+            "status": order.status.value if order.status else "pending",
+            "total_cny": float(order.total_cny) if order.total_cny else 0,
+            "payment_method": order.payment_method,
+            "recipient_name": order.recipient_name,
+            "recipient_phone": order.recipient_phone,
+            "shipping_address": order.shipping_address,
+            "tracking_number": order.tracking_number,
+            "notes": order.notes,
+            "created_at": order.created_at.isoformat() if order.created_at else None,
+            "paid_at": order.paid_at.isoformat() if order.paid_at else None,
+            "user": user_info,
+            "items": [
+                {
+                    "product_name": item.product_name,
+                    "quantity": item.quantity,
+                    "unit_price_cny": float(item.unit_price_cny) if item.unit_price_cny else 0,
+                    "subtotal_cny": float(item.subtotal_cny) if item.subtotal_cny else 0,
+                }
+                for item in items
+            ],
+        })
+
+    return {
+        "orders": order_list,
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+    }
+
+
+@router.get("/admin/shop-orders/{order_no}")
+async def get_shop_order_detail(
+    order_no: str,
+    db: AsyncSession = Depends(get_db),
+    authorization: Optional[str] = Header(None),
+):
+    """管理员查看订单详情"""
+    _require_admin_auth(authorization)
+
+    result = await db.execute(
+        select(Order).where(Order.order_no == order_no, Order.item_type == "shop")
+    )
+    order = result.scalar_one_or_none()
+    if not order:
+        raise HTTPException(status_code=404, detail="订单不存在")
+
+    items_result = await db.execute(
+        select(OrderItem).where(OrderItem.order_id == order.id)
+    )
+    items = items_result.scalars().all()
+
+    user_info = None
+    if order.user_id:
+        user_result = await db.execute(select(User).where(User.id == order.user_id))
+        user = user_result.scalar_one_or_none()
+        if user:
+            user_info = {"id": user.id, "nickname": user.nickname, "email": user.email}
+
+    return {
+        "order_no": order.order_no,
+        "status": order.status.value if order.status else "pending",
+        "total_cny": float(order.total_cny) if order.total_cny else 0,
+        "payment_method": order.payment_method,
+        "recipient_name": order.recipient_name,
+        "recipient_phone": order.recipient_phone,
+        "shipping_address": order.shipping_address,
+        "tracking_number": order.tracking_number,
+        "notes": order.notes,
+        "created_at": order.created_at.isoformat() if order.created_at else None,
+        "paid_at": order.paid_at.isoformat() if order.paid_at else None,
+        "user": user_info,
+        "items": [
+            {
+                "product_name": item.product_name,
+                "quantity": item.quantity,
+                "unit_price_cny": float(item.unit_price_cny) if item.unit_price_cny else 0,
+                "subtotal_cny": float(item.subtotal_cny) if item.subtotal_cny else 0,
+            }
+            for item in items
+        ],
+    }
+
+
+@router.put("/admin/shop-orders/{order_no}/status")
+async def update_shop_order_status(
+    order_no: str,
+    payload: AdminOrderStatusUpdate,
+    db: AsyncSession = Depends(get_db),
+    authorization: Optional[str] = Header(None),
+):
+    """管理员更新商城订单状态"""
+    _require_admin_auth(authorization)
+
+    valid_statuses = {"pending", "processing", "paid", "shipped", "delivered", "cancelled"}
+    if payload.status not in valid_statuses:
+        raise HTTPException(status_code=400, detail=f"无效状态，可选: {', '.join(valid_statuses)}")
+
+    result = await db.execute(
+        select(Order).where(Order.order_no == order_no, Order.item_type == "shop")
+    )
+    order = result.scalar_one_or_none()
+    if not order:
+        raise HTTPException(status_code=404, detail="订单不存在")
+
+    order.status = payload.status
+    if payload.tracking_number is not None:
+        order.tracking_number = payload.tracking_number
+    if payload.status == "paid" and not order.paid_at:
+        order.paid_at = datetime.now(timezone.utc)
+
+    await db.commit()
+
+    return {
+        "success": True,
+        "order_no": order.order_no,
+        "status": order.status.value,
+        "tracking_number": order.tracking_number,
+    }
 
     return {"status": "submitted"}

@@ -16,6 +16,10 @@ interface QRPaymentModalProps {
   postAction?: "subscription" | "unlock" | "founder" | "onetime_unlock"
   onSuccess?: () => void
   region?: "domestic" | "overseas"
+  /** Shop order number — when set, uses shop payment flow */
+  shopOrderNo?: string
+  /** Shop order total in display currency (CNY or USD) */
+  shopAmount?: number
 }
 
 type PaymentMethod = "alipay" | "wechat" | "paypal" | "credit_card"
@@ -53,15 +57,18 @@ export function QRPaymentModal({
   postAction,
   onSuccess,
   region = "domestic",
+  shopOrderNo,
+  shopAmount,
 }: QRPaymentModalProps) {
   const { t: rawT } = useLanguage()
   const t = rawT as unknown as (key: string, vars?: Record<string, string | number>) => string
   const isOverseas = region === "overseas"
+  const isShopPayment = !!shopOrderNo
   const [method, setMethod] = useState<PaymentMethod>(isOverseas ? "paypal" : "alipay")
   const [status, setStatus] = useState<PaymentStatus>(
-    preOrderNo ? "showing_qr" : isOverseas ? "paypal_embedded" : "idle"
+    isShopPayment ? (isOverseas ? "paypal_embedded" : "showing_qr") : preOrderNo ? "showing_qr" : isOverseas ? "paypal_embedded" : "idle"
   )
-  const [orderNo, setOrderNo] = useState<string | null>(preOrderNo || null)
+  const [orderNo, setOrderNo] = useState<string | null>(shopOrderNo || preOrderNo || null)
   const [paypalOrderId, setPaypalOrderId] = useState<string | null>(null)
   const [qrUrl, setQrUrl] = useState<string | null>(null)
   const [qrError, setQrError] = useState<string | null>(null)
@@ -73,11 +80,13 @@ export function QRPaymentModal({
 
   const isReportUnlock = !!readingId && tier !== "onetime_unlock"
   const isPreOrder = !!preOrderNo
-  const tierInfo = isPreOrder
-    ? { amountCny: preAmount || 0, amountUsd: preAmount || 0, labelKey: "" }
-    : isReportUnlock
-      ? { amountCny: UNLOCK_PRICES.amountCny, amountUsd: UNLOCK_PRICES.amountUsd, labelKey: "payment.unlockReport" }
-      : (TIER_PRICES[tier || "premium_monthly"] || TIER_PRICES.premium_monthly)
+  const tierInfo = isShopPayment
+    ? { amountCny: shopAmount || 0, amountUsd: shopAmount || 0, labelKey: "" }
+    : isPreOrder
+      ? { amountCny: preAmount || 0, amountUsd: preAmount || 0, labelKey: "" }
+      : isReportUnlock
+        ? { amountCny: UNLOCK_PRICES.amountCny, amountUsd: UNLOCK_PRICES.amountUsd, labelKey: "payment.unlockReport" }
+        : (TIER_PRICES[tier || "premium_monthly"] || TIER_PRICES.premium_monthly)
   const displayAmount = isOverseas ? tierInfo.amountUsd : tierInfo.amountCny
   const currencySymbol = isOverseas ? "$" : "¥"
   const tierLabel = isPreOrder ? (preLabel || "Founder Seat") : t(tierInfo.labelKey)
@@ -97,17 +106,30 @@ export function QRPaymentModal({
   }, [status, orderNo])
 
   useEffect(() => {
-    if (preOrderNo && status === "showing_qr" && !qrUrl && method !== "paypal") {
+    if ((preOrderNo || shopOrderNo) && status === "showing_qr" && !qrUrl && method !== "paypal") {
       apiDirect.get(`/api/personal-payments/qr/${method}`)
         .then(r => setQrUrl(r.data.qr_url))
         .catch(err => setQrError(err?.response?.data?.detail || t("payment.qrNotConfigured")))
     }
-  }, [preOrderNo, status, method])
+  }, [preOrderNo, shopOrderNo, status, method])
 
   const createOrder = async () => {
     setStatus("loading")
     setError("")
     setQrError(null)
+
+    // Shop order + PayPal: create PayPal order for existing shop order
+    if (isShopPayment && method === "paypal") {
+      try {
+        const res = await apiDirect.post(`/api/payments/paypal/create-shop-order?order_no=${shopOrderNo}`)
+        setPaypalOrderId(res.data.paypal_order_id)
+        setStatus("paypal_embedded")
+      } catch (err: any) {
+        setError(err?.response?.data?.detail || t("payment.createOrderFailed"))
+        setStatus("failed")
+      }
+      return
+    }
 
     if (method === "paypal") {
       // Show embedded PayPal payment component (wallet + card)
@@ -118,6 +140,19 @@ export function QRPaymentModal({
     if (method === "credit_card") {
       // Show embedded credit card payment component
       setStatus("card_embedded")
+      return
+    }
+
+    // Shop order + QR: order already exists, just show QR code
+    if (isShopPayment) {
+      try {
+        const qrRes = await apiDirect.get(`/api/personal-payments/qr/${method}`)
+        setQrUrl(qrRes.data.qr_url)
+        setStatus("showing_qr")
+      } catch (err: any) {
+        setQrError(err?.response?.data?.detail || t("payment.qrNotConfigured"))
+        setStatus("failed")
+      }
       return
     }
 
@@ -362,12 +397,18 @@ export function QRPaymentModal({
                 <p className="text-2xl font-bold text-gold">${tierInfo.amountUsd}</p>
               </div>
               <PayPalPayment
-                itemType={isPreOrder ? "founder_lifetime" : isReportUnlock ? "unlock_report" : (tier || "premium_monthly")}
+                itemType={isShopPayment ? "shop" : isPreOrder ? "founder_lifetime" : isReportUnlock ? "unlock_report" : (tier || "premium_monthly")}
                 readingId={readingId}
                 amount={`$${tierInfo.amountUsd}`}
                 compact
+                paypalOrderId={isShopPayment ? paypalOrderId || undefined : undefined}
                 onSuccess={async (orderId?: string) => {
-                  await activateSubscription(orderId)
+                  if (isShopPayment) {
+                    setStatus("success")
+                    onSuccess?.()
+                  } else {
+                    await activateSubscription(orderId)
+                  }
                 }}
                 onError={(msg) => {
                   setError(msg)
@@ -388,13 +429,19 @@ export function QRPaymentModal({
                 <p className="text-2xl font-bold text-gold">${tierInfo.amountUsd}</p>
               </div>
               <PayPalPayment
-                itemType={isPreOrder ? "founder_lifetime" : isReportUnlock ? "unlock_report" : (tier || "premium_monthly")}
+                itemType={isShopPayment ? "shop" : isPreOrder ? "founder_lifetime" : isReportUnlock ? "unlock_report" : (tier || "premium_monthly")}
                 readingId={readingId}
                 amount={`$${tierInfo.amountUsd}`}
                 compact
                 mode="card"
+                paypalOrderId={isShopPayment ? paypalOrderId || undefined : undefined}
                 onSuccess={async (orderId?: string) => {
-                  await activateSubscription(orderId)
+                  if (isShopPayment) {
+                    setStatus("success")
+                    onSuccess?.()
+                  } else {
+                    await activateSubscription(orderId)
+                  }
                 }}
                 onError={(msg) => {
                   setError(msg)
