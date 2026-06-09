@@ -18,6 +18,10 @@ on:
       - 'backend/**'
   workflow_dispatch:
 
+concurrency:
+  group: deploy-${{ github.workflow }}
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -49,6 +53,8 @@ jobs:
             echo "当前 commit: $CURRENT_COMMIT"
 
             echo "📥 同步最新代码..."
+            # 清理可能残留的 git lock 文件
+            rm -f /opt/OmniFate/.git/index.lock 2>/dev/null || true
             git fetch origin main
             git clean -fd 2>/dev/null || true
             git reset --hard origin/main || {
