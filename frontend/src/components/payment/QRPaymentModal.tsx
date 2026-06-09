@@ -147,6 +147,18 @@ export function QRPaymentModal({
     }
   }, [status, isShopPayment, shopOrderNo, paypalOrderId])
 
+  // Handle user switching payment method within the modal
+  const prevMethodRef = useRef(method)
+  useEffect(() => {
+    if (prevMethodRef.current === method) return
+    prevMethodRef.current = method
+    setError("")
+
+    if (method === "paypal" || method === "credit_card") {
+      setStatus("loading")
+    }
+  }, [method])
+
   const createOrder = async () => {
     setStatus("loading")
     setError("")
