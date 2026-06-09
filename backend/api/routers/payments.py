@@ -2019,6 +2019,81 @@ async def submit_founder_feedback(
     await db.commit()
 
 
+# ─── Admin: Dashboard Stats ──────────────────────────────────────────────────
+
+@router.get("/admin/stats")
+async def admin_stats(
+    db: AsyncSession = Depends(get_db),
+    authorization: Optional[str] = Header(None),
+    x_admin_key: Optional[str] = Header(None),
+):
+    """管理员仪表盘统计 — 用户数、订单数、收入等"""
+    _require_admin_auth(authorization, x_admin_key)
+
+    from sqlalchemy import func as sqlfunc
+
+    # Total users
+    total_users = (await db.execute(select(sqlfunc.count(User.id)))).scalar() or 0
+
+    # Paid users (is_premium or is_founder)
+    paid_users = (await db.execute(
+        select(sqlfunc.count(User.id)).where(User.is_premium == True)
+    )).scalar() or 0
+    founder_users = (await db.execute(
+        select(sqlfunc.count(User.id)).where(User.is_founder == True)
+    )).scalar() or 0
+
+    # Total readings
+    total_readings = (await db.execute(select(sqlfunc.count(Reading.id)))).scalar() or 0
+
+    # Orders
+    total_orders = (await db.execute(
+        select(sqlfunc.count(Order.id)).where(Order.item_type == "shop")
+    )).scalar() or 0
+
+    # Revenue
+    revenue_result = await db.execute(
+        select(sqlfunc.sum(Order.total_cny)).where(
+            Order.status == OrderStatus.paid,
+            Order.item_type == "shop",
+        )
+    )
+    total_revenue = float(revenue_result.scalar() or 0)
+
+    # Recent users (last 20)
+    recent_users_result = await db.execute(
+        select(User).order_by(User.created_at.desc()).limit(20)
+    )
+    recent_users = [
+        {"email": u.email, "nickname": u.nickname, "created_at": u.created_at.isoformat() if u.created_at else None}
+        for u in recent_users_result.scalars().all()
+    ]
+
+    # Recent orders (last 10)
+    recent_orders_result = await db.execute(
+        select(Order).where(Order.item_type == "shop").order_by(Order.created_at.desc()).limit(10)
+    )
+    recent_orders = [
+        {
+            "id": o.id, "order_no": o.order_no, "total_cny": float(o.total_cny) if o.total_cny else 0,
+            "status": o.status.value if o.status else "pending",
+            "created_at": o.created_at.isoformat() if o.created_at else None,
+        }
+        for o in recent_orders_result.scalars().all()
+    ]
+
+    return {
+        "totalUsers": total_users,
+        "totalReadings": total_readings,
+        "totalOrders": total_orders,
+        "paidUsers": paid_users,
+        "founderUsers": founder_users,
+        "totalRevenue": total_revenue,
+        "recentUsers": recent_users,
+        "recentOrders": recent_orders,
+    }
+
+
 # ─── Admin: Shop Order Management ────────────────────────────────────────────
 
 class AdminOrderStatusUpdate(BaseModel):

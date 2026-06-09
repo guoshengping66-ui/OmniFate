@@ -37,7 +37,7 @@ export default function AdminPage() {
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch("/api/admin/stats", {
+      const res = await fetch("/api/proxy/api/payments/admin/stats", {
         headers: { "x-admin-key": adminKey },
       })
       if (!res.ok) {
