@@ -10,7 +10,7 @@ import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useRegion } from "@/contexts/RegionContext"
-import { getProductPrice } from "@/lib/regionPrice"
+import { getProductPrice, formatCouponBalance } from "@/lib/regionPrice"
 import MembershipBadge, { getUserTier } from "@/components/ui/MembershipBadge"
 import { listMyReadings, listMyOrders, getFavorites, deleteReading, type ReadingListItem, type OrderListItem, type Product } from "@/lib/api"
 import { getReadingHistory, clearReadingHistory, removeReadingFromHistory, type ReadingHistoryItem } from "@/lib/readingHistory"
@@ -488,7 +488,7 @@ export default function AccountPage() {
                         <Ticket size={16} className="text-gold" />
                         <span className="text-white/60 text-sm">{t("account.couponBalance2")}</span>
                       </div>
-                      <p className="text-gold text-2xl font-bold">¥{user.shop_coupon_balance}</p>
+                      <p className="text-gold text-2xl font-bold">{formatCouponBalance(user.shop_coupon_balance, region)}</p>
                       <p className="text-white/20 text-xs mt-1">{t("account.couponUseHint")}</p>
                     </div>
                   )}

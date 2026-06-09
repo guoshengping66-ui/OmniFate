@@ -5,6 +5,8 @@ import { Menu, X, Sparkles, User, LogOut, ChevronDown, Crown, ShoppingBag } from
 import { useAuth } from "@/contexts/AuthContext"
 import { useCart } from "@/contexts/CartContext"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { useRegion } from "@/contexts/RegionContext"
+import { formatCouponBalance } from "@/lib/regionPrice"
 import { LanguageSwitch } from "@/components/ui/LanguageSwitch"
 import MembershipBadge, { getUserTier } from "@/components/ui/MembershipBadge"
 
@@ -20,6 +22,7 @@ export function Navbar() {
   const { user, loading, logout } = useAuth()
   const { itemCount } = useCart()
   const { t, localeHref } = useLanguage()
+  const { region } = useRegion()
 
   // Track scroll for compact header
   useEffect(() => {
@@ -176,7 +179,7 @@ export function Navbar() {
                       </div>
                       {user.shop_coupon_balance > 0 && (
                         <p className="text-gold/60 text-[10px] mt-0.5">
-                          {t("coupon.balance")}: ¥{user.shop_coupon_balance}
+                          {t("coupon.balance")}: {formatCouponBalance(user.shop_coupon_balance, region)}
                         </p>
                       )}
                     </div>

@@ -614,7 +614,7 @@
     "freeTier": "Free Preview",
     "freeTierDesc": "Chart overview + dimension peeks",
     "fullReport": "Full Report",
-    "fullReportDesc": "Complete annual plan + remedy product matching + ¥60 coupon",
+    "fullReportDesc": "Complete annual plan + remedy product matching + ~$8 coupon",
     "fullReportPrice": "¥69",
     "genderFemale": "Female",
     "genderLabel": "Gender",
@@ -1712,7 +1712,7 @@
     },
     "loading": "Loading…",
     "cta": {
-      "perks": "Unlock to get ¥60 coupon + 3-day membership",
+      "perks": "Unlock to get ~$8 coupon + 3-day membership",
       "unlockBtn": "Join Membership to Unlock"
     },
     "dim": {
@@ -2893,10 +2893,10 @@
     "or": "or"
   },
   "paywall": {
-    "giftNote": "Unlock to receive ¥60 shop coupon + 3-day membership trial",
+    "giftNote": "Unlock to receive ~$8.33 shop coupon + 3-day membership trial",
     "joinMember": "Join to Unlock",
     "oneTimeUnlock": "One-Time Unlock $9.9",
-    "oneTimeUnlockDesc": "Permanent + 50 Stardust + $20 Coupon",
+    "oneTimeUnlockDesc": "Permanent + 50 Stardust + ~$2.78 Coupon",
     "processing": "Processing...",
     "unlockReport": "Unlock Full Report",
     "unlockDetailed": "Detailed Report",

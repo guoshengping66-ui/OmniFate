@@ -7,7 +7,7 @@ import { useCart } from "@/contexts/CartContext"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useRegion } from "@/contexts/RegionContext"
-import { getProductPrice } from "@/lib/regionPrice"
+import { getProductPrice, formatCouponBalance } from "@/lib/regionPrice"
 import { createOrder, type Address } from "@/lib/api"
 import { PaymentMethodSelector } from "@/components/monetization/PaymentMethodSelector"
 import { AddressForm } from "@/components/shop/AddressForm"
@@ -17,6 +17,7 @@ export default function CheckoutPage() {
   const { items, totalCny, totalWithDiscount, isMember, clearCart, getItemPrice, symbol } = useCart()
   const { user, refreshUser } = useAuth()
   const { t, localeHref } = useLanguage()
+  const { region } = useRegion()
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
   const [useCoupon, setUseCoupon] = useState(false)
@@ -27,6 +28,9 @@ export default function CheckoutPage() {
   const couponBalance = user?.shop_coupon_balance ?? 0
   const couponDiscount = useCoupon ? Math.min(couponBalance, totalWithDiscount) : 0
   const finalTotal = Math.max(0, totalWithDiscount - couponDiscount)
+  // Display amounts in local currency (convert from CNY for overseas)
+  const couponDisplay = formatCouponBalance(couponBalance, region)
+  const couponDiscountDisplay = formatCouponBalance(couponDiscount, region)
 
   const handleCheckout = async () => {
     if (!user) {
@@ -89,12 +93,12 @@ export default function CheckoutPage() {
           <h2 className="font-serif text-xl text-gold mb-2">{t("checkout.orderSuccessTitle")}</h2>
           <p className="text-white/50 text-sm mb-4">
             {couponDiscount > 0
-              ? t("checkout.couponApplied").replace("{amount}", String(couponDiscount))
+              ? t("checkout.couponApplied").replace("{amount}", couponDiscountDisplay)
               : t("checkout.thankYou")}
           </p>
           {couponDiscount > 0 && (
             <p className="text-white/30 text-xs mb-4">
-              {t("coupon.remaining")}: ¥{Math.max(0, couponBalance - couponDiscount)}
+              {t("coupon.remaining")}: {formatCouponBalance(Math.max(0, couponBalance - couponDiscount), region)}
             </p>
           )}
           <div className="bg-white/5 border border-white/10 rounded-lg p-4 mb-6 text-left">
@@ -170,7 +174,7 @@ export default function CheckoutPage() {
               <div className="flex-1">
                 <span className="text-white/80 text-sm">{t("checkout.coupon")}</span>
                 <span className="text-white/40 text-xs ml-2">
-                  {t("checkout.couponBalance")} ¥{couponBalance}，{t("checkout.couponDeduct")} ¥{couponDiscount || Math.min(couponBalance, totalWithDiscount)}
+                  {t("checkout.couponBalance")} {couponDisplay}，{t("checkout.couponDeduct")} {formatCouponBalance(couponDiscount || Math.min(couponBalance, totalWithDiscount), region)}
                 </span>
               </div>
             </label>
@@ -192,7 +196,7 @@ export default function CheckoutPage() {
           {useCoupon && couponDiscount > 0 && (
             <div className="flex justify-between text-sm text-gold/80">
               <span className="flex items-center gap-1"><Ticket size={12} /> {t("checkout.couponDeduction")}</span>
-              <span>-{symbol}{couponDiscount.toFixed(2)}</span>
+              <span>-{couponDiscountDisplay}</span>
             </div>
           )}
           <div className="flex justify-between text-sm text-white/60">
