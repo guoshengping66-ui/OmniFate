@@ -10,7 +10,7 @@
     "price_usd": 59,
     "stock": 120,
     "is_active": true,
-    "image_url": "/products/crystal/yellow-crystal-treasury.png",
+    "image_url": "/products/crystal/yellow-crystal-treasury.webp",
     "detail_images": [],
     "wuxing_tags": [
       "earth",
@@ -63,7 +63,7 @@
     "price_usd": 49,
     "stock": 230,
     "is_active": true,
-    "image_url": "/products/jewelry/red-agate.png",
+    "image_url": "/products/jewelry/red-agate.webp",
     "detail_images": [],
     "wuxing_tags": [
       "fire"
@@ -116,7 +116,7 @@
     "price_usd": 199,
     "stock": 85,
     "is_active": true,
-    "image_url": "/products/crystal/green-phantom-crystal.png",
+    "image_url": "/products/crystal/green-phantom-crystal.webp",
     "detail_images": [],
     "wuxing_tags": [
       "wood"
@@ -168,7 +168,7 @@
     "price_usd": 29,
     "stock": 500,
     "is_active": true,
-    "image_url": "/products/jewelry/obsidian-pixiu.png",
+    "image_url": "/products/jewelry/obsidian-pixiu.webp",
     "detail_images": [],
     "wuxing_tags": [
       "water",
@@ -223,7 +223,7 @@
     "price_usd": 49,
     "stock": 340,
     "is_active": true,
-    "image_url": "/products/incense/cypress-incense.png",
+    "image_url": "/products/incense/cypress-incense.webp",
     "detail_images": [],
     "wuxing_tags": [
       "water"
@@ -279,7 +279,7 @@
     "price_usd": 69,
     "stock": 200,
     "is_active": true,
-    "image_url": "/products/talisman/five-element-luck.png",
+    "image_url": "/products/talisman/five-element-luck.webp",
     "detail_images": [],
     "wuxing_tags": [
       "metal",
@@ -332,7 +332,7 @@
     "price_usd": 1299,
     "stock": 30,
     "is_active": true,
-    "image_url": "/products/crystal/amethyst-cave.png",
+    "image_url": "/products/crystal/amethyst-cave.webp",
     "detail_images": [],
     "wuxing_tags": [
       "water",
@@ -388,7 +388,7 @@
     "price_usd": 49,
     "stock": 180,
     "is_active": true,
-    "image_url": "/products/jewelry/rose-quartz-peach.png",
+    "image_url": "/products/jewelry/rose-quartz-peach.webp",
     "detail_images": [],
     "wuxing_tags": [
       "earth"
@@ -438,7 +438,7 @@
     "price_usd": 199,
     "stock": 65,
     "is_active": true,
-    "image_url": "/products/jewelry/gold-rutilated-quartz.png",
+    "image_url": "/products/jewelry/gold-rutilated-quartz.webp",
     "detail_images": [],
     "wuxing_tags": [
       "metal",
@@ -488,7 +488,7 @@
     "price_usd": 29,
     "stock": 400,
     "is_active": true,
-    "image_url": "/products/incense/sandalwood-coil.png",
+    "image_url": "/products/incense/sandalwood-coil.webp",
     "detail_images": [],
     "wuxing_tags": [
       "wood",
@@ -536,7 +536,7 @@
     "price_usd": 79,
     "stock": 150,
     "is_active": true,
-    "image_url": "/products/jewelry/six-char-mantra-silver.png",
+    "image_url": "/products/jewelry/six-char-mantra-silver.webp",
     "detail_images": [],
     "wuxing_tags": [
       "metal"
@@ -587,7 +587,7 @@
     "price_usd": 69,
     "stock": 95,
     "is_active": true,
-    "image_url": "/products/jewelry/labradorite.png",
+    "image_url": "/products/jewelry/labradorite.webp",
     "detail_images": [],
     "wuxing_tags": [
       "water"
@@ -637,7 +637,7 @@
     "price_usd": 59,
     "stock": 110,
     "is_active": true,
-    "image_url": "/products/talisman/bagua-bronze-mirror.png",
+    "image_url": "/products/talisman/bagua-bronze-mirror.webp",
     "detail_images": [],
     "wuxing_tags": [
       "metal"
@@ -681,7 +681,7 @@
     "price_usd": 289,
     "stock": 25,
     "is_active": true,
-    "image_url": "/products/jewelry/watermelon-tourmaline.png",
+    "image_url": "/products/jewelry/watermelon-tourmaline.webp",
     "detail_images": [],
     "wuxing_tags": [
       "fire",
@@ -738,7 +738,7 @@
     "price_usd": 79,
     "stock": 80,
     "is_active": true,
-    "image_url": "/products/jewelry/aquamarine.png",
+    "image_url": "/products/jewelry/aquamarine.webp",
     "detail_images": [],
     "wuxing_tags": [
       "water"
@@ -793,7 +793,7 @@
     "price_usd": 59,
     "stock": 160,
     "is_active": true,
-    "image_url": "/products/jewelry/tigers-eye.png",
+    "image_url": "/products/jewelry/tigers-eye.webp",
     "detail_images": [],
     "wuxing_tags": [
       "fire",
@@ -848,7 +848,7 @@
     "price_usd": 89,
     "stock": 70,
     "is_active": true,
-    "image_url": "/products/jewelry/moonstone.png",
+    "image_url": "/products/jewelry/moonstone.webp",
     "detail_images": [],
     "wuxing_tags": [
       "water"
@@ -901,7 +901,7 @@
     "price_usd": 79,
     "stock": 55,
     "is_active": true,
-    "image_url": "/products/jewelry/lapis-lazuli.png",
+    "image_url": "/products/jewelry/lapis-lazuli.webp",
     "detail_images": [],
     "wuxing_tags": [
       "water",
@@ -956,7 +956,7 @@
     "price_usd": 289,
     "stock": 20,
     "is_active": true,
-    "image_url": "/products/jewelry/ruby.png",
+    "image_url": "/products/jewelry/ruby.webp",
     "detail_images": [],
     "wuxing_tags": [
       "fire"
@@ -1008,7 +1008,7 @@
     "price_usd": 219,
     "stock": 40,
     "is_active": true,
-    "image_url": "/products/jewelry/hetian-jade.png",
+    "image_url": "/products/jewelry/hetian-jade.webp",
     "detail_images": [],
     "wuxing_tags": [
       "earth"
@@ -1054,7 +1054,7 @@
     "price_usd": 59,
     "stock": 130,
     "is_active": true,
-    "image_url": "/products/jewelry/garnet.png",
+    "image_url": "/products/jewelry/garnet.webp",
     "detail_images": [],
     "wuxing_tags": [
       "fire"
@@ -1104,7 +1104,7 @@
     "price_usd": 189,
     "stock": 45,
     "is_active": true,
-    "image_url": "/products/jewelry/beeswax-amber.png",
+    "image_url": "/products/jewelry/beeswax-amber.webp",
     "detail_images": [],
     "wuxing_tags": [
       "earth",
@@ -1159,7 +1159,7 @@
     "price_usd": 79,
     "stock": 35,
     "is_active": true,
-    "image_url": "/products/jewelry/malachite.png",
+    "image_url": "/products/jewelry/malachite.webp",
     "detail_images": [],
     "wuxing_tags": [
       "wood"
@@ -1209,7 +1209,7 @@
     "price_usd": 69,
     "stock": 90,
     "is_active": true,
-    "image_url": "/products/jewelry/sunstone.png",
+    "image_url": "/products/jewelry/sunstone.webp",
     "detail_images": [],
     "wuxing_tags": [
       "fire",
@@ -1261,7 +1261,7 @@
     "price_usd": 169,
     "stock": 200,
     "is_active": true,
-    "image_url": "/products/talisman/cinnabar.png",
+    "image_url": "/products/talisman/cinnabar.webp",
     "detail_images": [],
     "wuxing_tags": [
       "fire"
@@ -1307,7 +1307,7 @@
     "price_usd": 159,
     "stock": 140,
     "is_active": true,
-    "image_url": "/products/talisman/liuli-wenchang-tower.png",
+    "image_url": "/products/talisman/liuli-wenchang-tower.webp",
     "detail_images": [],
     "wuxing_tags": [
       "wood",
@@ -1359,7 +1359,7 @@
     "price_usd": 79,
     "stock": 110,
     "is_active": true,
-    "image_url": "/products/incense/bamboo-wind-chime.png",
+    "image_url": "/products/incense/bamboo-wind-chime.webp",
     "detail_images": [],
     "wuxing_tags": [
       "wood"
@@ -1407,7 +1407,7 @@
     "price_usd": 129,
     "stock": 250,
     "is_active": true,
-    "image_url": "/products/crystal/himalayan-salt-lamp.png",
+    "image_url": "/products/crystal/himalayan-salt-lamp.webp",
     "detail_images": [],
     "wuxing_tags": [
       "earth",
@@ -1459,7 +1459,7 @@
     "price_usd": 899,
     "stock": 15,
     "is_active": true,
-    "image_url": "/products/talisman/bronze-bowl.png",
+    "image_url": "/products/talisman/bronze-bowl.webp",
     "detail_images": [],
     "wuxing_tags": [
       "metal"
@@ -1517,7 +1517,7 @@
     "price_usd": 59,
     "stock": 180,
     "is_active": true,
-    "image_url": "/products/incense/silk-eye-mask.png",
+    "image_url": "/products/incense/silk-eye-mask.webp",
     "detail_images": [],
     "wuxing_tags": [
       "wood",
@@ -1574,7 +1574,7 @@
     "price_usd": 39,
     "stock": 300,
     "is_active": true,
-    "image_url": "/products/jewelry/sachet.png",
+    "image_url": "/products/jewelry/sachet.webp",
     "detail_images": [],
     "wuxing_tags": [
       "earth",
@@ -1626,7 +1626,7 @@
     "price_usd": 129,
     "stock": 400,
     "is_active": true,
-    "image_url": "/products/incense/cypress-incense.png",
+    "image_url": "/products/incense/cypress-incense.webp",
     "detail_images": [],
     "wuxing_tags": [
       "wood",
@@ -1721,7 +1721,7 @@
     "price_usd": 249,
     "stock": 80,
     "is_active": true,
-    "image_url": "/products/talisman/ebony-wood.png",
+    "image_url": "/products/talisman/ebony-wood.webp",
     "detail_images": [],
     "wuxing_tags": [
       "wood",
@@ -1774,7 +1774,7 @@
     "price_usd": 79,
     "stock": 60,
     "is_active": true,
-    "image_url": "/products/jewelry/beeswax-amber.png",
+    "image_url": "/products/jewelry/beeswax-amber.webp",
     "detail_images": [],
     "wuxing_tags": [
       "earth",
@@ -1832,7 +1832,7 @@
     "price_usd": 199,
     "stock": 100,
     "is_active": true,
-    "image_url": "/products/crystal/white-crystal-cluster.png",
+    "image_url": "/products/crystal/white-crystal-cluster.webp",
     "detail_images": [],
     "wuxing_tags": [
       "metal",
@@ -1885,7 +1885,7 @@
     "price_usd": 49,
     "stock": 200,
     "is_active": true,
-    "image_url": "/products/talisman/white-crystal.png",
+    "image_url": "/products/talisman/white-crystal.webp",
     "detail_images": [],
     "wuxing_tags": [
       "metal",
@@ -1936,7 +1936,7 @@
     "price_usd": 79,
     "stock": 35,
     "is_active": true,
-    "image_url": "/products/jewelry/kunzite.png",
+    "image_url": "/products/jewelry/kunzite.webp",
     "detail_images": [],
     "wuxing_tags": [
       "fire",
@@ -1992,7 +1992,7 @@
     "price_usd": 69,
     "stock": 150,
     "is_active": true,
-    "image_url": "/products/incense/mugwort-pillow.png",
+    "image_url": "/products/incense/mugwort-pillow.webp",
     "detail_images": [],
     "wuxing_tags": [
       "wood",
@@ -2050,7 +2050,7 @@
     "price_usd": 189,
     "stock": 45,
     "is_active": true,
-    "image_url": "/products/talisman/pixiu.png",
+    "image_url": "/products/talisman/pixiu.webp",
     "detail_images": [],
     "wuxing_tags": [
       "metal"
@@ -2099,7 +2099,7 @@
     "price_usd": 49,
     "stock": 200,
     "is_active": true,
-    "image_url": "/products/incense/sandalwood-comb.png",
+    "image_url": "/products/incense/sandalwood-comb.webp",
     "detail_images": [],
     "wuxing_tags": [
       "wood"
@@ -2151,7 +2151,7 @@
     "price_usd": 899,
     "stock": 40,
     "is_active": true,
-    "image_url": "/products/talisman/sword.png",
+    "image_url": "/products/talisman/sword.webp",
     "detail_images": [],
     "wuxing_tags": [
       "metal"
@@ -2200,7 +2200,7 @@
     "price_usd": 599,
     "stock": 60,
     "is_active": true,
-    "image_url": "/products/talisman/seal-stamp.png",
+    "image_url": "/products/talisman/seal-stamp.webp",
     "detail_images": [],
     "wuxing_tags": [
       "earth",
@@ -2253,7 +2253,7 @@
     "price_usd": 59,
     "stock": 90,
     "is_active": true,
-    "image_url": "/products/crystal/rose-quartz-raw.png",
+    "image_url": "/products/crystal/rose-quartz-raw.webp",
     "detail_images": [],
     "wuxing_tags": [
       "earth",
@@ -2308,7 +2308,7 @@
     "price_usd": 69,
     "stock": 70,
     "is_active": true,
-    "image_url": "/products/crystal/smoky-quartz-sphere.png",
+    "image_url": "/products/crystal/smoky-quartz-sphere.webp",
     "detail_images": [],
     "wuxing_tags": [
       "earth",
@@ -2365,7 +2365,7 @@
     "price_usd": 59,
     "stock": 60,
     "is_active": true,
-    "image_url": "/products/crystal/black-tourmaline-raw.png",
+    "image_url": "/products/crystal/black-tourmaline-raw.webp",
     "detail_images": [],
     "wuxing_tags": [
       "water",
@@ -2422,7 +2422,7 @@
     "price_usd": 59,
     "stock": 100,
     "is_active": true,
-    "image_url": "/products/crystal/amazonite-bracelet.png",
+    "image_url": "/products/crystal/amazonite-bracelet.webp",
     "detail_images": [],
     "wuxing_tags": [
       "water",
@@ -2481,7 +2481,7 @@
     "price_usd": 1299,
     "stock": 50,
     "is_active": true,
-    "image_url": "/products/crystal/carnelian-geode.png",
+    "image_url": "/products/crystal/carnelian-geode.webp",
     "detail_images": [],
     "wuxing_tags": [
       "fire",
@@ -2539,7 +2539,7 @@
     "price_usd": 39,
     "stock": 150,
     "is_active": true,
-    "image_url": "/products/crystal/selenite-wand.png",
+    "image_url": "/products/crystal/selenite-wand.webp",
     "detail_images": [],
     "wuxing_tags": [
       "metal",
@@ -2595,7 +2595,7 @@
     "price_usd": 189,
     "stock": 40,
     "is_active": true,
-    "image_url": "/products/crystal/labradorite-sphere.png",
+    "image_url": "/products/crystal/labradorite-sphere.webp",
     "detail_images": [],
     "wuxing_tags": [
       "water",
@@ -2653,7 +2653,7 @@
     "price_usd": 49,
     "stock": 120,
     "is_active": false,
-    "image_url": "/products/crystal/citrine-mantra-pendant.png",
+    "image_url": "/products/crystal/citrine-mantra-pendant.webp",
     "detail_images": [],
     "wuxing_tags": [
       "earth",
