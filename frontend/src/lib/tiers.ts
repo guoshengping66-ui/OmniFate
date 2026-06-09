@@ -30,7 +30,7 @@ export const PRICING_DATA = {
     onetime_unlock: { price: 19.9, stardust_grant: 50, label: "一次性解锁", tag: "每个账户限一次" },
     monthly: { price: 59, stardust_grant: 100, label: "Fate OS 月度订阅" },
     yearly: { price: 365, stardust_grant: 150, label: "Fate OS 年度订阅", tag: "每天仅需 1 元" },
-    founder: { price: 1288, stardust_grant: 500, label: "创始席位", limit: 100 },
+    founder: { price: 1688, stardust_grant: 500, label: "创始席位", limit: 100 },
   },
   overseas: {
     currency: "$",
@@ -38,7 +38,7 @@ export const PRICING_DATA = {
     onetime_unlock: { price: 9.9, stardust_grant: 50, label: "One-Time Unlock", tag: "One per account" },
     monthly: { price: 14.99, stardust_grant: 100, label: "Fate OS Monthly" },
     yearly: { price: 99.00, stardust_grant: 150, label: "Fate OS Yearly", tag: "Best Value" },
-    founder: { price: 399.00, stardust_grant: 500, label: "Founder Circle", limit: 100 },
+    founder: { price: 499.00, stardust_grant: 500, label: "Founder Circle", limit: 100 },
   },
 } as const
 
@@ -158,8 +158,8 @@ export const TIERS: PricingTier[] = [
     id: "founder_lifetime",
     name: "创始席位",
     subtitle: "永久会员 · 限量席位",
-    priceCny: 1288,
-    priceUsd: 399,
+    priceCny: 1688,
+    priceUsd: 499,
     stardustGrant: 500,
     stardustDiscount: 0,
     priceDisplay: "¥1,288",
@@ -197,8 +197,8 @@ export const PREMIUM_YEARLY_USD = 99
 export const SHOP_COUPON_AMOUNT = 50
 export const TRIAL_DAYS = 3
 export const MEMBER_DISCOUNT = 0.88
-export const FOUNDER_PRICE = 1288
-export const FOUNDER_PRICE_USD = 399
+export const FOUNDER_PRICE = 1688
+export const FOUNDER_PRICE_USD = 499
 export const FOUNDER_MAX_SEATS = 200
 export const ONETIME_UNLOCK_PRICE = 19.9
 export const ONETIME_UNLOCK_PRICE_USD = 9.9

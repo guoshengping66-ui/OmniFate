@@ -456,7 +456,7 @@ export default function FounderPage() {
           open={showPayment}
           onClose={() => setShowPayment(false)}
           orderNo={isOverseas ? undefined : founderOrderNo}
-          amount={1288}
+          amount={1688}
           label={t("founder.pricing.founderSeat")}
           postAction="founder"
           region={region}

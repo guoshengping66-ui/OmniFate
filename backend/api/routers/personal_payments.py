@@ -364,7 +364,7 @@ async def admin_confirm_payment(
             activated_tier = "premium_yearly"
         elif "premium_monthly" in description and abs(order.total_cny - 59.0) < 0.01:
             activated_tier = "premium_monthly"
-        elif "founder_lifetime" in description and abs(order.total_cny - 1288.0) < 0.01:
+        elif "founder_lifetime" in description and abs(order.total_cny - 1688.0) < 0.01:
             activated_tier = "founder_lifetime"
         elif "onetime_unlock" in description and abs(order.total_cny - 19.9) < 0.01:
             activated_tier = "onetime_unlock"

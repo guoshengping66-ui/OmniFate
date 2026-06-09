@@ -120,7 +120,7 @@ PRODUCT_PRICES = {
     "premium_monthly": {"cny": PREMIUM_MONTHLY_CNY, "usd": PREMIUM_MONTHLY_USD},
     "premium_yearly": {"cny": PREMIUM_YEARLY_CNY, "usd": PREMIUM_YEARLY_USD},
     "unlock_report": {"cny": UNLOCK_PRICE_CNY, "usd": UNLOCK_PRICE_USD},
-    "founder_lifetime": {"cny": 1288, "usd": 399},
+    "founder_lifetime": {"cny": 1688, "usd": 499},
     "onetime_unlock": {"cny": ONETIME_UNLOCK_CNY, "usd": ONETIME_UNLOCK_USD},
 }
 
@@ -1870,8 +1870,8 @@ async def activate_founder_seat(
             raise HTTPException(status_code=404, detail="订单不存在")
         if order.status != OrderStatus.paid:
             raise HTTPException(status_code=400, detail="订单尚未支付")
-        if order.total_cny < 1288:
-            raise HTTPException(status_code=400, detail="订单金额不足，创始席位需支付 ¥1288")
+        if order.total_cny < 1688:
+            raise HTTPException(status_code=400, detail="订单金额不足，创始席位需支付 ¥1688")
 
     # Refetch user with lock
     result = await db.execute(
