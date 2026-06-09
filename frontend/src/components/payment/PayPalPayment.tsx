@@ -249,7 +249,6 @@ export function PayPalPayment({
               <CreditCard size={14} className="text-white/40" />
               <span className="text-white/50 text-xs">{t("payment.creditCard") || "Credit Card"}</span>
             </div>
-          <div className="rounded-xl overflow-hidden bg-white p-3">
             <PayPalCardFieldsProvider
               createOrder={createOrder}
               onApprove={handleCardApprove}
@@ -267,11 +266,12 @@ export function PayPalPayment({
                 ".invalid": { color: "#dc2626" },
               }}
             >
-              <PayPalCardFieldsForm />
+              <div className="rounded-xl overflow-hidden bg-white p-3">
+                <PayPalCardFieldsForm />
+              </div>
               <CardSubmitButton processing={processing} />
             </PayPalCardFieldsProvider>
           </div>
-        </div>
         )}
 
         {/* Error display */}
