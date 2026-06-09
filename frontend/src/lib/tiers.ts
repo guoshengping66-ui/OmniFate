@@ -1,6 +1,6 @@
 /** Dual-track pricing system — domestic (CNY) & overseas (USD) */
 
-export type TierId = "free" | "premium_monthly" | "premium_yearly" | "event_retro" | "founder_lifetime"
+export type TierId = "free" | "premium_monthly" | "premium_yearly" | "event_retro" | "founder_lifetime" | "onetime_unlock"
 export type Region = "domestic" | "overseas"
 
 export interface PricingTier {
@@ -27,6 +27,7 @@ export const PRICING_DATA = {
   domestic: {
     currency: "¥",
     single_report: { price: 88, stardust: 100, label: "全维全景报告" },
+    onetime_unlock: { price: 19.9, stardust_grant: 50, label: "一次性解锁", tag: "每个账户限一次" },
     monthly: { price: 59, stardust_grant: 100, label: "Fate OS 月度订阅" },
     yearly: { price: 365, stardust_grant: 150, label: "Fate OS 年度订阅", tag: "每天仅需 1 元" },
     founder: { price: 1288, stardust_grant: 500, label: "创始席位", limit: 100 },
@@ -34,6 +35,7 @@ export const PRICING_DATA = {
   overseas: {
     currency: "$",
     single_report: { price: 24.99, stardust: 100, label: "Full-Dimension Report" },
+    onetime_unlock: { price: 9.9, stardust_grant: 50, label: "One-Time Unlock", tag: "One per account" },
     monthly: { price: 14.99, stardust_grant: 100, label: "Fate OS Monthly" },
     yearly: { price: 99.00, stardust_grant: 150, label: "Fate OS Yearly", tag: "Best Value" },
     founder: { price: 399.00, stardust_grant: 500, label: "Founder Circle", limit: 100 },
@@ -133,6 +135,26 @@ export const TIERS: PricingTier[] = [
     billingLabel: "按次计费",
   },
   {
+    id: "onetime_unlock",
+    name: "一次性解锁",
+    subtitle: "永久解锁一份全维报告",
+    priceCny: 19.9,
+    priceUsd: 9.9,
+    stardust: 0,
+    stardustGrant: 50,
+    priceDisplay: "¥19.9",
+    priceDisplayUsd: "$9.9",
+    features: [
+      "永久解锁一份全维报告",
+      "赠送 50 星尘（追问5次）",
+      "¥20 商城代金券",
+      "每个账户限一次",
+    ],
+    cta: "立即解锁",
+    highlight: false,
+    billingLabel: "一次性付费",
+  },
+  {
     id: "founder_lifetime",
     name: "创始席位",
     subtitle: "永久会员 · 限量席位",
@@ -178,3 +200,5 @@ export const MEMBER_DISCOUNT = 0.88
 export const FOUNDER_PRICE = 1288
 export const FOUNDER_PRICE_USD = 399
 export const FOUNDER_MAX_SEATS = 200
+export const ONETIME_UNLOCK_PRICE = 19.9
+export const ONETIME_UNLOCK_PRICE_USD = 9.9

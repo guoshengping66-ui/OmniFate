@@ -59,7 +59,7 @@ function TierCard({ tier, onSelect }: { tier: PricingTier; onSelect?: (id: strin
 
 export function TierComparison({ onSelect }: { onSelect?: (tierId: string) => void }) {
   const { t } = useLanguage()
-  const displayTiers = TIERS.filter(t => t.id !== "event_retro")
+  const displayTiers = TIERS.filter(t => t.id !== "event_retro" && t.id !== "onetime_unlock")
 
   return (
     <div>
@@ -88,6 +88,26 @@ export function TierComparison({ onSelect }: { onSelect?: (tierId: string) => vo
           className="btn-gold-outline text-sm whitespace-nowrap"
         >
           {t("tierComparison.learnMore")}
+        </button>
+      </div>
+
+      <div className="mt-4 card-glass p-5 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left border border-gold/20">
+        <div className="w-12 h-12 bg-gold/10 rounded-xl flex items-center justify-center flex-shrink-0">
+          <span className="text-2xl">🔑</span>
+        </div>
+        <div className="flex-1">
+          <p className="text-white/80 font-medium">{t("tierComparison.onetimeUnlock")}</p>
+          <p className="text-white/40 text-sm">{t("tierComparison.onetimeUnlockDesc")}</p>
+          <div className="flex flex-wrap gap-2 mt-1.5">
+            <span className="text-gold/60 text-xs">🎁 {t("tierComparison.onetimeUnlockGift1")}</span>
+            <span className="text-gold/60 text-xs">🎫 {t("tierComparison.onetimeUnlockGift2")}</span>
+          </div>
+        </div>
+        <button
+          onClick={() => onSelect?.("onetime_unlock")}
+          className="btn-gold-outline text-sm whitespace-nowrap"
+        >
+          {t("tierComparison.onetimeUnlockCta")}
         </button>
       </div>
     </div>

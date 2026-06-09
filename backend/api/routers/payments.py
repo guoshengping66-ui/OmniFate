@@ -112,6 +112,8 @@ PREMIUM_MONTHLY_USD = 14.99
 PREMIUM_YEARLY_USD = 99.00
 UNLOCK_PRICE_CNY = 88.0
 UNLOCK_PRICE_USD = 24.99
+ONETIME_UNLOCK_CNY = 19.9
+ONETIME_UNLOCK_USD = 9.9
 
 # Price map for order validation
 PRODUCT_PRICES = {
@@ -119,6 +121,7 @@ PRODUCT_PRICES = {
     "premium_yearly": {"cny": PREMIUM_YEARLY_CNY, "usd": PREMIUM_YEARLY_USD},
     "unlock_report": {"cny": UNLOCK_PRICE_CNY, "usd": UNLOCK_PRICE_USD},
     "founder_lifetime": {"cny": 1288, "usd": 399},
+    "onetime_unlock": {"cny": ONETIME_UNLOCK_CNY, "usd": ONETIME_UNLOCK_USD},
 }
 
 # ── Stardust constants ──────────────────────────────────────────────────────
@@ -236,6 +239,51 @@ async def _activate_founder_seat(user: User, order_no: str, db: AsyncSession) ->
         "seat_no": seat_no,
         "region": region,
         "grant_amount": grant_amount,
+    }
+
+
+async def _activate_onetime_unlock(user: User, reading_id: str, db: AsyncSession) -> dict:
+    """
+    激活一次性解锁 — 解锁指定报告 + 赠送 20 商城代金券 + 赠送 50 星尘（追问用）。
+    每个账户限一次。
+    """
+    # 检查是否已使用过
+    existing = await db.execute(
+        select(Order).where(
+            Order.user_id == user.id,
+            Order.item_type == "onetime_unlock",
+            Order.status == OrderStatus.paid,
+        )
+    )
+    if existing.first():
+        raise HTTPException(status_code=400, detail="您已使用过一次性解锁权益，每个账户限一次")
+
+    now = datetime.now(timezone.utc)
+    coupon_amount = 20
+    stardust_amount = 50
+
+    # 赠送商城代金券
+    user.shop_coupon_balance = (user.shop_coupon_balance or 0) + coupon_amount
+
+    # 赠送星尘（可用于追问，每轮 10 星尘 = 5 次追问）
+    user.stardust_balance += stardust_amount
+    user.stardust_lifetime_earned += stardust_amount
+
+    # 记录星尘流水
+    tx = CreditTransaction(
+        user_id=user.id,
+        amount=stardust_amount,
+        balance_after=user.stardust_balance,
+        reason="onetime_unlock_grant",
+        reference_id=reading_id,
+        status="confirmed",
+    )
+    db.add(tx)
+
+    return {
+        "coupon_granted": coupon_amount,
+        "stardust_granted": stardust_amount,
+        "reading_id": reading_id,
     }
 
 @router.get("/payment-methods")
@@ -486,6 +534,7 @@ async def create_wechat_order(
         "premium_yearly": "AlphaMirror AI算力年度套餐",
         "unlock_report": "AlphaMirror AI算力服务",
         "founder_lifetime": "AlphaMirror AI算力终身套餐",
+        "onetime_unlock": "AlphaMirror AI算力单次服务",
     }
     wechat_subject = subject_map.get(item_type, "AlphaMirror AI算力服务")
 
@@ -567,6 +616,18 @@ async def wechat_notify(request: Request, db: AsyncSession = Depends(get_db)):
             elif user and item_type == "founder_lifetime":
                 grant_info = await _activate_founder_seat(user, order_no, db)
                 logger.info(f"[WECHAT-NOTIFY] 激活创始席位: 用户 {user.id}, 席位 #{grant_info.get('seat_no')}")
+            elif user and item_type == "onetime_unlock":
+                reading_id = order.notes.split("reading_id:")[1].split("|")[0] if "reading_id:" in (order.notes or "") else ""
+                if reading_id:
+                    # 解锁报告
+                    reading_result = await db.execute(select(Reading).where(Reading.id == reading_id))
+                    reading = reading_result.scalar_one_or_none()
+                    if reading and not reading.is_detail_unlocked:
+                        reading.is_detail_unlocked = True
+                        reading.payment_status = PaymentStatus.paid
+                        reading.stripe_payment_intent = "paid_" + reading_id[:8]
+                    grant_info = await _activate_onetime_unlock(user, reading_id, db)
+                    logger.info(f"[WECHAT-NOTIFY] 激活一次性解锁: 用户 {user.id}, 代金券 +{grant_info.get('coupon_granted', 0)}, 星尘 +{grant_info.get('stardust_granted', 0)}")
 
     await db.commit()
     return "<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>"
@@ -666,6 +727,7 @@ async def create_alipay_order(
         "premium_yearly": "AlphaMirror AI算力年度套餐",
         "unlock_report": "AlphaMirror AI算力服务",
         "founder_lifetime": "AlphaMirror AI算力终身套餐",
+        "onetime_unlock": "AlphaMirror AI算力单次服务",
     }
     alipay_subject = subject_map.get(item_type, "AlphaMirror AI算力服务")
 
@@ -772,6 +834,17 @@ async def alipay_notify(request: Request, db: AsyncSession = Depends(get_db)):
             elif user and item_type == "founder_lifetime":
                 grant_info = await _activate_founder_seat(user, order_no, db)
                 logger.info(f"[ALIPAY-NOTIFY] 激活创始席位: 用户 {user.id}, 席位 #{grant_info.get('seat_no')}")
+            elif user and item_type == "onetime_unlock":
+                reading_id = order.notes.split("reading_id:")[1].split("|")[0] if "reading_id:" in (order.notes or "") else ""
+                if reading_id:
+                    reading_result = await db.execute(select(Reading).where(Reading.id == reading_id))
+                    reading = reading_result.scalar_one_or_none()
+                    if reading and not reading.is_detail_unlocked:
+                        reading.is_detail_unlocked = True
+                        reading.payment_status = PaymentStatus.paid
+                        reading.stripe_payment_intent = "paid_" + reading_id[:8]
+                    grant_info = await _activate_onetime_unlock(user, reading_id, db)
+                    logger.info(f"[ALIPAY-NOTIFY] 激活一次性解锁: 用户 {user.id}")
 
     await db.commit()
     return "success"
@@ -1037,6 +1110,17 @@ async def paypal_return(
                 elif user and item_type == "founder_lifetime":
                     await _activate_founder_seat(user, order_no, db)
                     logger.info(f"[PAYPAL-RETURN] 激活创始席位: 用户 {user.id}")
+                elif user and item_type == "onetime_unlock":
+                    reading_id = order.notes.split("reading_id:")[1].split("|")[0] if "reading_id:" in (order.notes or "") else ""
+                    if reading_id:
+                        reading_result = await db.execute(select(Reading).where(Reading.id == reading_id))
+                        reading = reading_result.scalar_one_or_none()
+                        if reading and not reading.is_detail_unlocked:
+                            reading.is_detail_unlocked = True
+                            reading.payment_status = PaymentStatus.paid
+                            reading.stripe_payment_intent = "paid_" + reading_id[:8]
+                        await _activate_onetime_unlock(user, reading_id, db)
+                        logger.info(f"[PAYPAL-RETURN] 激活一次性解锁: 用户 {user.id}")
 
             await db.commit()
 
@@ -1131,6 +1215,17 @@ async def capture_paypal_order(
                     elif user and item_type == "founder_lifetime":
                         grant_info = await _activate_founder_seat(user, order_no, db)
                         logger.info(f"[PAYPAL-CAPTURE] 激活创始席位: 用户 {user.id}, 席位 #{grant_info.get('seat_no')}")
+                    elif user and item_type == "onetime_unlock":
+                        reading_id = order.notes.split("reading_id:")[1].split("|")[0] if "reading_id:" in (order.notes or "") else ""
+                        if reading_id:
+                            reading_result = await db.execute(select(Reading).where(Reading.id == reading_id))
+                            reading = reading_result.scalar_one_or_none()
+                            if reading and not reading.is_detail_unlocked:
+                                reading.is_detail_unlocked = True
+                                reading.payment_status = PaymentStatus.paid
+                                reading.stripe_payment_intent = "paid_" + reading_id[:8]
+                            grant_info = await _activate_onetime_unlock(user, reading_id, db)
+                            logger.info(f"[PAYPAL-CAPTURE] 激活一次性解锁: 用户 {user.id}")
 
                 await db.commit()
 

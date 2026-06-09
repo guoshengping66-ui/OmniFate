@@ -730,6 +730,7 @@ export default {
   "payment.success": "支付成功！",
   "payment.monthlyPlan": "月度会员 ¥59/月",
   "payment.yearlyPlan": "年度会员 ¥365/年",
+  "payment.onetimeUnlock": "一次性解锁 ¥19.9",
   "payment.unlockReport": "加入会员解锁",
   "payment.orderExpired": "订单已过期，请重新下单",
   "payment.qrNotConfigured": "收款码未配置",
@@ -2242,6 +2243,11 @@ export default {
   "tierComparison.eventRetrospection": "事件复盘 · 按次计费",
   "tierComparison.eventDesc": "¥19.9/次 — 针对特定事件的流时溯源诊断，含 AI 因果链分析和能量处方",
   "tierComparison.learnMore": "了解事件复盘",
+  "tierComparison.onetimeUnlock": "一次性解锁 · 永久报告",
+  "tierComparison.onetimeUnlockDesc": "¥19.9 永久解锁一份全维报告，每个账户限一次",
+  "tierComparison.onetimeUnlockGift1": "赠送 50 星尘",
+  "tierComparison.onetimeUnlockGift2": "¥20 商城代金券",
+  "tierComparison.onetimeUnlockCta": "立即解锁",
 
   // ─── 支付方式选择器 ───
   "paymentMethod.chinaMethods": "中国支付方式",

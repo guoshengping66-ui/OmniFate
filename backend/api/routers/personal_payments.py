@@ -27,7 +27,7 @@ from config import get_settings
 # Import activation functions from payments router
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
-from api.routers.payments import _activate_subscription, _activate_founder_seat, PRODUCT_PRICES
+from api.routers.payments import _activate_subscription, _activate_founder_seat, _activate_onetime_unlock, PRODUCT_PRICES
 
 router = APIRouter()
 settings = get_settings()
@@ -140,6 +140,7 @@ async def create_payment_order(
         "report_unlock": PRODUCT_PRICES.get("report_unlock", {}).get("cny", 10),
         "premium_monthly": PRODUCT_PRICES.get("premium_monthly", {}).get("cny", 59),
         "premium_yearly": PRODUCT_PRICES.get("premium_yearly", {}).get("cny", 365),
+        "onetime_unlock": PRODUCT_PRICES.get("onetime_unlock", {}).get("cny", 19.9),
     }
     # Only accept amounts that match known product prices
     matched_type = None
@@ -365,6 +366,8 @@ async def admin_confirm_payment(
             activated_tier = "premium_monthly"
         elif "founder_lifetime" in description and abs(order.total_cny - 1288.0) < 0.01:
             activated_tier = "founder_lifetime"
+        elif "onetime_unlock" in description and abs(order.total_cny - 19.9) < 0.01:
+            activated_tier = "onetime_unlock"
 
         if activated_tier and order.user_id:
             user_result = await db.execute(
@@ -376,6 +379,15 @@ async def admin_confirm_payment(
                     await _activate_founder_seat(sub_user, order.order_no, db)
                 elif activated_tier in ("premium_monthly", "premium_yearly"):
                     await _activate_subscription(sub_user, activated_tier, db)
+                elif activated_tier == "onetime_unlock":
+                    reading_id = notes.split("reading_id:")[1].split("|")[0] if "reading_id:" in notes else ""
+                    if reading_id:
+                        reading_result = await db.execute(select(Reading).where(Reading.id == reading_id))
+                        reading = reading_result.scalar_one_or_none()
+                        if reading:
+                            reading.is_detail_unlocked = True
+                            reading.payment_status = PaymentStatus.paid
+                    await _activate_onetime_unlock(sub_user, reading_id or order.order_no, db)
     except Exception:
         pass
 

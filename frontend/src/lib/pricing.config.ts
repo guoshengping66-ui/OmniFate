@@ -122,6 +122,25 @@ export const PLANS: PlanConfig[] = [
     badge: "限量席位",
     billingLabel: "一次性终身",
   },
+  {
+    id: "onetime_unlock",
+    name: "一次性解锁",
+    subtitle: "永久解锁一份全维报告",
+    priceCny: 19.9,
+    priceUsd: 9.9,
+    monthlyStardustGrant: 0,
+    displayCny: "¥19.9",
+    displayUsd: "$9.9",
+    features: [
+      "永久解锁一份全维报告",
+      "赠送 50 星尘（追问5次）",
+      "¥20 商城代金券",
+      "每个账户限一次",
+    ],
+    cta: "立即解锁",
+    highlight: false,
+    billingLabel: "一次性付费",
+  },
 ]
 
 // ── 创始席位配置 ──────────────────────────────────────────────────────────────
@@ -136,6 +155,8 @@ export const FOUNDER_CONFIG = {
 
 // ── 首单优惠 ──────────────────────────────────────────────────────────────────
 export const FIRST_ORDER_DISCOUNT = 30  // 首单立减 ¥30
+export const ONETIME_UNLOCK_CNY = 19.9
+export const ONETIME_UNLOCK_USD = 9.9
 
 // ── 星尘注入文案 ──────────────────────────────────────────────────────────────
 export const STARDUST_MESSAGES = {

@@ -736,6 +736,7 @@ export default {
   "payment.success": "Payment Successful!",
   "payment.monthlyPlan": "Monthly Plan ¥59/mo",
   "payment.yearlyPlan": "Yearly Plan ¥365/yr",
+  "payment.onetimeUnlock": "One-Time Unlock $9.9",
   "payment.unlockReport": "Join Membership",
   "payment.orderExpired": "Order expired — try again",
   "payment.qrNotConfigured": "QR code not configured",
@@ -2248,6 +2249,11 @@ export default {
   "tierComparison.eventRetrospection": "Event Retrospection · Pay per use",
   "tierComparison.eventDesc": "{price}/time — Trace specific events with causality analysis and energy prescription",
   "tierComparison.learnMore": "Learn about Event Retrospection",
+  "tierComparison.onetimeUnlock": "One-Time Unlock · Permanent Report",
+  "tierComparison.onetimeUnlockDesc": "$9.9 permanently unlock one full report, one per account",
+  "tierComparison.onetimeUnlockGift1": "50 Stardust bonus",
+  "tierComparison.onetimeUnlockGift2": "$20 shop coupon",
+  "tierComparison.onetimeUnlockCta": "Unlock Now",
 
   // ─── Payment Method Selector ───
   "paymentMethod.chinaMethods": "China Payment Methods",

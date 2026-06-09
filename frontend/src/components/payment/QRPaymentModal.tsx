@@ -8,12 +8,12 @@ import { PayPalPayment } from "./PayPalPayment"
 interface QRPaymentModalProps {
   open: boolean
   onClose: () => void
-  tier?: "premium_monthly" | "premium_yearly"
+  tier?: "premium_monthly" | "premium_yearly" | "onetime_unlock"
   readingId?: string
   orderNo?: string
   amount?: number
   label?: string
-  postAction?: "subscription" | "unlock" | "founder"
+  postAction?: "subscription" | "unlock" | "founder" | "onetime_unlock"
   onSuccess?: () => void
   region?: "domestic" | "overseas"
 }
@@ -34,6 +34,7 @@ type PaymentStatus =
 const TIER_PRICES: Record<string, { amountCny: number; amountUsd: number; labelKey: string }> = {
   premium_monthly: { amountCny: 59, amountUsd: 14.99, labelKey: "payment.monthlyPlan" },
   premium_yearly: { amountCny: 365, amountUsd: 99, labelKey: "payment.yearlyPlan" },
+  onetime_unlock: { amountCny: 19.9, amountUsd: 9.9, labelKey: "payment.onetimeUnlock" },
 }
 
 const UNLOCK_PRICES = { amountCny: 0, amountUsd: 0 } // Deprecated: ¥69 unlock removed
@@ -169,6 +170,9 @@ export function QRPaymentModal({
         try {
           await unlockReport(readingId)
         } catch {}
+      } else if (postAction === "onetime_unlock" && readingId) {
+        // One-time unlock: report is activated by backend callback, no client-side action needed
+        // The backend handles: unlock report + grant stardust + grant coupon
       }
       setStatus("success")
       onSuccess?.()
