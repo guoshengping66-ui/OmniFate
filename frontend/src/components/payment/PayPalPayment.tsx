@@ -189,6 +189,7 @@ export function PayPalPayment({
           <div className="relative">
             <PayPalButtons
               style={style}
+              fundingSource="paypal"
               createOrder={createOrder}
               onApprove={handlePayPalApprove}
               onError={(err) => {
