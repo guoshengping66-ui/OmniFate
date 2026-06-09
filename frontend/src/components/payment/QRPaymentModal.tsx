@@ -71,7 +71,7 @@ export function QRPaymentModal({
   const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pollActiveRef = useRef(false)
 
-  const isReportUnlock = !!readingId
+  const isReportUnlock = !!readingId && tier !== "onetime_unlock"
   const isPreOrder = !!preOrderNo
   const tierInfo = isPreOrder
     ? { amountCny: preAmount || 0, amountUsd: preAmount || 0, labelKey: "" }

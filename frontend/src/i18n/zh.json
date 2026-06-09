@@ -2895,6 +2895,8 @@
   "paywall": {
     "giftNote": "解锁后赠送 ¥60 商城代金券 + 3 天会员试用",
     "joinMember": "加入会员解锁",
+    "oneTimeUnlock": "一次性解锁 ¥19.9",
+    "oneTimeUnlockDesc": "永久解锁 + 50星尘 + ¥20代金券",
     "processing": "处理中…",
     "unlockReport": "解锁完整报告",
     "unlockDetailed": "精读报告",
