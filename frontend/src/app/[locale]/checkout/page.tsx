@@ -22,7 +22,7 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
   const [useCoupon, setUseCoupon] = useState(false)
-  const [paymentMethod, setPaymentMethod] = useState("card")
+  const [paymentMethod, setPaymentMethod] = useState("credit_card")
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null)
   const [paymentOpen, setPaymentOpen] = useState(false)
