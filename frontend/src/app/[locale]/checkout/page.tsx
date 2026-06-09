@@ -7,7 +7,7 @@ import { useCart } from "@/contexts/CartContext"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useRegion } from "@/contexts/RegionContext"
-import { getProductPrice, formatCouponBalance } from "@/lib/regionPrice"
+import { getProductPrice, formatCouponBalance, CNY_TO_USD_RATE } from "@/lib/regionPrice"
 import { createOrder, type Address } from "@/lib/api"
 import { PaymentMethodSelector } from "@/components/monetization/PaymentMethodSelector"
 import { AddressForm } from "@/components/shop/AddressForm"
@@ -25,12 +25,17 @@ export default function CheckoutPage() {
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null)
 
-  const couponBalance = user?.shop_coupon_balance ?? 0
-  const couponDiscount = useCoupon ? Math.min(couponBalance, totalWithDiscount) : 0
+  const couponBalanceCny = user?.shop_coupon_balance ?? 0
+  // Convert coupon balance to display currency for overseas users
+  const couponBalanceLocal = region === "overseas" ? couponBalanceCny / CNY_TO_USD_RATE : couponBalanceCny
+  const couponDiscount = useCoupon ? Math.min(couponBalanceLocal, totalWithDiscount) : 0
   const finalTotal = Math.max(0, totalWithDiscount - couponDiscount)
   // Display amounts in local currency (convert from CNY for overseas)
-  const couponDisplay = formatCouponBalance(couponBalance, region)
-  const couponDiscountDisplay = formatCouponBalance(couponDiscount, region)
+  const couponDisplay = formatCouponBalance(couponBalanceCny, region)
+  const couponDiscountDisplay = formatCouponBalance(
+    region === "overseas" ? couponDiscount * CNY_TO_USD_RATE : couponDiscount,
+    region
+  )
 
   const handleCheckout = async () => {
     if (!user) {
@@ -51,7 +56,7 @@ export default function CheckoutPage() {
           quantity: i.quantity,
           unit_price_cny: i.product.price_cny,
         })),
-        total_cny: totalWithDiscount,
+        total_cny: items.reduce((sum, i) => sum + i.product.price_cny * i.quantity, 0),
         use_coupon: useCoupon,
         address_id: selectedAddress.id,
         payment_method: paymentMethod,
@@ -98,7 +103,12 @@ export default function CheckoutPage() {
           </p>
           {couponDiscount > 0 && (
             <p className="text-white/30 text-xs mb-4">
-              {t("coupon.remaining")}: {formatCouponBalance(Math.max(0, couponBalance - couponDiscount), region)}
+              {t("coupon.remaining")}: {formatCouponBalance(
+                region === "overseas"
+                  ? Math.max(0, couponBalanceCny - couponDiscount * CNY_TO_USD_RATE)
+                  : Math.max(0, couponBalanceCny - couponDiscount),
+                region
+              )}
             </p>
           )}
           <div className="bg-white/5 border border-white/10 rounded-lg p-4 mb-6 text-left">
@@ -161,7 +171,7 @@ export default function CheckoutPage() {
         </div>
 
         {/* Coupon section */}
-        {couponBalance > 0 && (
+        {couponBalanceCny > 0 && (
           <div className="card-glass p-4 mb-4">
             <label className="flex items-center gap-3 cursor-pointer">
               <input
@@ -174,7 +184,12 @@ export default function CheckoutPage() {
               <div className="flex-1">
                 <span className="text-white/80 text-sm">{t("checkout.coupon")}</span>
                 <span className="text-white/40 text-xs ml-2">
-                  {t("checkout.couponBalance")} {couponDisplay}，{t("checkout.couponDeduct")} {formatCouponBalance(couponDiscount || Math.min(couponBalance, totalWithDiscount), region)}
+                  {t("checkout.couponBalance")} {couponDisplay}，{t("checkout.couponDeduct")} {formatCouponBalance(
+                    region === "overseas"
+                      ? (couponDiscount || Math.min(couponBalanceLocal, totalWithDiscount)) * CNY_TO_USD_RATE
+                      : (couponDiscount || Math.min(couponBalanceLocal, totalWithDiscount)),
+                    region
+                  )}
                 </span>
               </div>
             </label>
