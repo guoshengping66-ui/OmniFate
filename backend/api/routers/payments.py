@@ -1518,8 +1518,8 @@ async def create_order(
         balance = float(user.shop_coupon_balance or 0)
         if balance <= 0:
             raise HTTPException(status_code=400, detail="没有可用的代金券余额")
-        coupon_used = min(balance, final_total)
-        user.shop_coupon_balance = balance - coupon_used
+        coupon_used = float(min(balance, final_total))
+        user.shop_coupon_balance = float(balance) - coupon_used
         final_total = round(final_total - coupon_used, 2)
 
     order_no = f"ORD{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
