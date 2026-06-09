@@ -1243,13 +1243,14 @@ async def capture_paypal_order(
                 else:
                     expected_usd = None
                     matched_item_type = None
+                    order_total_cny = float(order.total_cny)
                     for _item_type, prices in PRODUCT_PRICES.items():
                         if "usd" in prices and "cny" in prices:
-                            if abs(prices["cny"] - order.total_cny) < 0.01:
+                            if abs(prices["cny"] - order_total_cny) < 0.01:
                                 expected_usd = prices["usd"]
                                 matched_item_type = _item_type
                                 break
-                    logger.info(f"[PAYPAL-CAPTURE] 金额验证: captured={captured_amount}, expected_usd={expected_usd}, matched_item={matched_item_type}, order.total_cny={order.total_cny}, order.order_no={order_no}")
+                    logger.info(f"[PAYPAL-CAPTURE] 金额验证: captured={captured_amount}, expected_usd={expected_usd}, matched_item={matched_item_type}, order.total_cny={order_total_cny}, order.order_no={order_no}")
                     if expected_usd is not None and abs(captured_amount - expected_usd) > 0.01:
                         detail_msg = f"支付金额不匹配: 实际${captured_amount}, 预期${expected_usd} ({matched_item_type})"
                         logger.error(f"[PAYPAL-CAPTURE] {detail_msg}")
