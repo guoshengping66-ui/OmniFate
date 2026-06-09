@@ -320,6 +320,7 @@ export default function ReadingPage() {
   const [activeTab, setActiveTab] = useState<string>("master")
 
   const [showPayment, setShowPayment] = useState(false)
+  const [showOneTimePayment, setShowOneTimePayment] = useState(false)
   const [isUnlocked, setIsUnlocked] = useState(false)
   const [isDetailedUnlocked, setIsDetailedUnlocked] = useState(false)
 
@@ -453,6 +454,20 @@ export default function ReadingPage() {
     } catch (err: any) {
       toast.error(err?.response?.data?.detail || t("reading.unlockedFailed"))
     }
+  }, [id, refreshUser, locale])
+
+  const handleOneTimeUnlock = useCallback(() => {
+    setShowOneTimePayment(true)
+  }, [])
+
+  const handleOneTimePaymentSuccess = useCallback(async () => {
+    setShowOneTimePayment(false)
+    setIsUnlocked(true)
+    setIsDetailedUnlocked(true)
+    const fresh = await getSession(id!, locale)
+    if (fresh) setData(fresh)
+    toast.success(t("reading.unlockedSuccess"))
+    refreshUser()
   }, [id, refreshUser, locale])
 
   const handleDetailedUnlock = useCallback(async () => {
@@ -1116,6 +1131,7 @@ export default function ReadingPage() {
                 onDetailedUnlock={handleDetailedUnlock}
                 onStardustUnlock={handleStardustUnlock}
                 showDualTier={!isUnlocked && !isDetailedUnlocked}
+                onOneTimeUnlock={handleOneTimeUnlock}
               >
                 <div className="card-glass p-6 md:p-8 border-gold/20 bg-gradient-to-br from-gold/[0.03] to-transparent">
                   <div className="flex items-center gap-2.5 mb-5">
@@ -1500,6 +1516,21 @@ export default function ReadingPage() {
             postAction="unlock"
             region={region}
             onSuccess={handlePaymentSuccess}
+          />
+        </Suspense>
+      )}
+
+      {/* ── QR Payment Modal (One-Time Unlock) ──────────────── */}
+      {id && (
+        <Suspense fallback={null}>
+          <QRPaymentModal
+            open={showOneTimePayment}
+            onClose={() => setShowOneTimePayment(false)}
+            tier="onetime_unlock"
+            readingId={id}
+            postAction="onetime_unlock"
+            region={region}
+            onSuccess={handleOneTimePaymentSuccess}
           />
         </Suspense>
       )}

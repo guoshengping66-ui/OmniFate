@@ -2242,6 +2242,8 @@ export default {
   "paywall.useStardust": "Unlock with Stardust",
   "paywall.stardustInsufficient": "Insufficient stardust",
   "paywall.joinMember": "Join Membership to Unlock",
+  "paywall.oneTimeUnlock": "One-Time Unlock $9.9",
+  "paywall.oneTimeUnlockDesc": "Permanent + 50 Stardust + $20 Coupon",
 
   // ─── Tier Comparison ───
   "tierComparison.title": "Choose Your Destiny Plan",

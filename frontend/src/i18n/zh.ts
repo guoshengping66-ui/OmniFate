@@ -2236,6 +2236,8 @@ export default {
   "paywall.useStardust": "使用星尘解锁",
   "paywall.stardustInsufficient": "星尘能量不足",
   "paywall.joinMember": "加入会员解锁",
+  "paywall.oneTimeUnlock": "一次性解锁 ¥19.9",
+  "paywall.oneTimeUnlockDesc": "永久解锁 + 50星尘 + ¥20代金券",
 
   // ─── 套餐对比 ───
   "tierComparison.title": "选择适合你的命理方案",

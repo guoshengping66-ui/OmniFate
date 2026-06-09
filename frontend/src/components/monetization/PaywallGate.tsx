@@ -20,6 +20,10 @@ interface PaywallGateProps {
   onStardustUnlock?: () => Promise<void>
   /** 显示双档解锁按钮 (精读+全维) */
   showDualTier?: boolean
+  /** 一次性解锁回调 */
+  onOneTimeUnlock?: () => void
+  /** 用户是否已使用过一次性解锁 */
+  oneTimeUsed?: boolean
 }
 
 export function PaywallGate({
@@ -35,6 +39,8 @@ export function PaywallGate({
   onDetailedUnlock,
   onStardustUnlock,
   showDualTier = false,
+  onOneTimeUnlock,
+  oneTimeUsed = false,
 }: PaywallGateProps) {
   const { t } = useLanguage()
   const [stardustLoading, setStardustLoading] = useState<"detailed" | "full" | null>(null)
@@ -232,7 +238,7 @@ export function PaywallGate({
         <button
           onClick={onUnlock}
           disabled={loading}
-          className={`btn-gold flex items-center gap-2 mx-auto text-base px-10 py-3.5 ${(canDetailed || canFull) ? 'text-sm px-8 py-3 opacity-80 hover:opacity-100' : ''}`}
+          className={`btn-gold flex items-center gap-2 mx-auto text-base px-10 py-3.5 ${(canDetailed || canFull || onOneTimeUnlock) ? 'text-sm px-8 py-3 opacity-80 hover:opacity-100' : ''}`}
         >
           {loading ? (
             <><span className="animate-spin inline-block">⏳</span> {t("paywall.processing")}</>
@@ -240,6 +246,18 @@ export function PaywallGate({
             <><Sparkles size={18} /> {t("paywall.joinMember") || "加入会员解锁"}</>
           )}
         </button>
+
+        {/* 一次性解锁选项 */}
+        {onOneTimeUnlock && !oneTimeUsed && (
+          <button
+            onClick={onOneTimeUnlock}
+            className="w-full flex items-center justify-center gap-2 mt-3 py-3 rounded-xl border border-gold/30 bg-gold/[0.05] hover:bg-gold/10 text-gold/80 hover:text-gold transition-all duration-200"
+          >
+            <span className="text-lg">🔑</span>
+            <span className="text-sm font-medium">{t("paywall.oneTimeUnlock") || "一次性解锁 ¥19.9"}</span>
+            <span className="text-gold/50 text-xs">· {t("paywall.oneTimeUnlockDesc") || "永久解锁 + 50星尘 + ¥20代金券"}</span>
+          </button>
+        )}
 
         <p className="text-white/25 text-xs mt-4">
           {t("paywall.giftNote")}
