@@ -27,7 +27,7 @@ from config import get_settings
 # Import activation functions from payments router
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
-from api.routers.payments import _activate_subscription, _activate_founder_seat, _activate_onetime_unlock, PRODUCT_PRICES
+from api.routers.payments import _activate_subscription, _activate_founder_seat, _handle_onetime_unlock_activation, PRODUCT_PRICES
 
 router = APIRouter()
 settings = get_settings()
@@ -380,14 +380,7 @@ async def admin_confirm_payment(
                 elif activated_tier in ("premium_monthly", "premium_yearly"):
                     await _activate_subscription(sub_user, activated_tier, db)
                 elif activated_tier == "onetime_unlock":
-                    reading_id = notes.split("reading_id:")[1].split("|")[0] if "reading_id:" in notes else ""
-                    if reading_id:
-                        reading_result = await db.execute(select(Reading).where(Reading.id == reading_id))
-                        reading = reading_result.scalar_one_or_none()
-                        if reading:
-                            reading.is_detail_unlocked = True
-                            reading.payment_status = PaymentStatus.paid
-                    await _activate_onetime_unlock(sub_user, reading_id or order.order_no, db)
+                    await _handle_onetime_unlock_activation(sub_user, order, db)
     except Exception:
         pass
 

@@ -245,7 +245,7 @@ async def _activate_founder_seat(user: User, order_no: str, db: AsyncSession) ->
 async def _activate_onetime_unlock(user: User, reading_id: str, db: AsyncSession) -> dict:
     """
     激活一次性解锁 — 解锁指定报告 + 赠送 20 商城代金券 + 赠送 50 星尘（追问用）。
-    每个账户限一次。
+    每个账户限一次。回调场景幂等：已激活则返回空结果，不抛异常。
     """
     # 检查是否已使用过
     existing = await db.execute(
@@ -256,9 +256,8 @@ async def _activate_onetime_unlock(user: User, reading_id: str, db: AsyncSession
         )
     )
     if existing.first():
-        raise HTTPException(status_code=400, detail="您已使用过一次性解锁权益，每个账户限一次")
+        return {"coupon_granted": 0, "stardust_granted": 0, "reading_id": reading_id, "already_activated": True}
 
-    now = datetime.now(timezone.utc)
     coupon_amount = 20
     stardust_amount = 50
 
@@ -285,6 +284,23 @@ async def _activate_onetime_unlock(user: User, reading_id: str, db: AsyncSession
         "stardust_granted": stardust_amount,
         "reading_id": reading_id,
     }
+
+
+async def _handle_onetime_unlock_activation(user, order, db) -> dict:
+    """
+    一次性解锁统一激活入口 — 解锁报告 + 赠送代金券/星尘。
+    供 WeChat/Alipay/PayPal/管理端等多处调用，消除重复代码。
+    """
+    notes = order.notes or ""
+    reading_id = notes.split("reading_id:")[1].split("|")[0] if "reading_id:" in notes else ""
+    if reading_id:
+        reading_result = await db.execute(select(Reading).where(Reading.id == reading_id))
+        reading = reading_result.scalar_one_or_none()
+        if reading and not reading.is_detail_unlocked:
+            reading.is_detail_unlocked = True
+            reading.payment_status = PaymentStatus.paid
+            reading.stripe_payment_intent = "paid_" + reading_id[:8]
+    return await _activate_onetime_unlock(user, reading_id or order.order_no, db)
 
 @router.get("/payment-methods")
 async def get_payment_methods():
@@ -617,16 +633,8 @@ async def wechat_notify(request: Request, db: AsyncSession = Depends(get_db)):
                 grant_info = await _activate_founder_seat(user, order_no, db)
                 logger.info(f"[WECHAT-NOTIFY] 激活创始席位: 用户 {user.id}, 席位 #{grant_info.get('seat_no')}")
             elif user and item_type == "onetime_unlock":
-                reading_id = order.notes.split("reading_id:")[1].split("|")[0] if "reading_id:" in (order.notes or "") else ""
-                if reading_id:
-                    # 解锁报告
-                    reading_result = await db.execute(select(Reading).where(Reading.id == reading_id))
-                    reading = reading_result.scalar_one_or_none()
-                    if reading and not reading.is_detail_unlocked:
-                        reading.is_detail_unlocked = True
-                        reading.payment_status = PaymentStatus.paid
-                        reading.stripe_payment_intent = "paid_" + reading_id[:8]
-                    grant_info = await _activate_onetime_unlock(user, reading_id, db)
+                grant_info = await _handle_onetime_unlock_activation(user, order, db)
+                if not grant_info.get("already_activated"):
                     logger.info(f"[WECHAT-NOTIFY] 激活一次性解锁: 用户 {user.id}, 代金券 +{grant_info.get('coupon_granted', 0)}, 星尘 +{grant_info.get('stardust_granted', 0)}")
 
     await db.commit()
@@ -835,15 +843,8 @@ async def alipay_notify(request: Request, db: AsyncSession = Depends(get_db)):
                 grant_info = await _activate_founder_seat(user, order_no, db)
                 logger.info(f"[ALIPAY-NOTIFY] 激活创始席位: 用户 {user.id}, 席位 #{grant_info.get('seat_no')}")
             elif user and item_type == "onetime_unlock":
-                reading_id = order.notes.split("reading_id:")[1].split("|")[0] if "reading_id:" in (order.notes or "") else ""
-                if reading_id:
-                    reading_result = await db.execute(select(Reading).where(Reading.id == reading_id))
-                    reading = reading_result.scalar_one_or_none()
-                    if reading and not reading.is_detail_unlocked:
-                        reading.is_detail_unlocked = True
-                        reading.payment_status = PaymentStatus.paid
-                        reading.stripe_payment_intent = "paid_" + reading_id[:8]
-                    grant_info = await _activate_onetime_unlock(user, reading_id, db)
+                grant_info = await _handle_onetime_unlock_activation(user, order, db)
+                if not grant_info.get("already_activated"):
                     logger.info(f"[ALIPAY-NOTIFY] 激活一次性解锁: 用户 {user.id}")
 
     await db.commit()
@@ -1111,15 +1112,8 @@ async def paypal_return(
                     await _activate_founder_seat(user, order_no, db)
                     logger.info(f"[PAYPAL-RETURN] 激活创始席位: 用户 {user.id}")
                 elif user and item_type == "onetime_unlock":
-                    reading_id = order.notes.split("reading_id:")[1].split("|")[0] if "reading_id:" in (order.notes or "") else ""
-                    if reading_id:
-                        reading_result = await db.execute(select(Reading).where(Reading.id == reading_id))
-                        reading = reading_result.scalar_one_or_none()
-                        if reading and not reading.is_detail_unlocked:
-                            reading.is_detail_unlocked = True
-                            reading.payment_status = PaymentStatus.paid
-                            reading.stripe_payment_intent = "paid_" + reading_id[:8]
-                        await _activate_onetime_unlock(user, reading_id, db)
+                    grant_info = await _handle_onetime_unlock_activation(user, order, db)
+                    if not grant_info.get("already_activated"):
                         logger.info(f"[PAYPAL-RETURN] 激活一次性解锁: 用户 {user.id}")
 
             await db.commit()
@@ -1216,15 +1210,8 @@ async def capture_paypal_order(
                         grant_info = await _activate_founder_seat(user, order_no, db)
                         logger.info(f"[PAYPAL-CAPTURE] 激活创始席位: 用户 {user.id}, 席位 #{grant_info.get('seat_no')}")
                     elif user and item_type == "onetime_unlock":
-                        reading_id = order.notes.split("reading_id:")[1].split("|")[0] if "reading_id:" in (order.notes or "") else ""
-                        if reading_id:
-                            reading_result = await db.execute(select(Reading).where(Reading.id == reading_id))
-                            reading = reading_result.scalar_one_or_none()
-                            if reading and not reading.is_detail_unlocked:
-                                reading.is_detail_unlocked = True
-                                reading.payment_status = PaymentStatus.paid
-                                reading.stripe_payment_intent = "paid_" + reading_id[:8]
-                            grant_info = await _activate_onetime_unlock(user, reading_id, db)
+                        grant_info = await _handle_onetime_unlock_activation(user, order, db)
+                        if not grant_info.get("already_activated"):
                             logger.info(f"[PAYPAL-CAPTURE] 激活一次性解锁: 用户 {user.id}")
 
                 await db.commit()
