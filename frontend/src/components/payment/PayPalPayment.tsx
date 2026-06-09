@@ -65,7 +65,6 @@ export function PayPalPayment({
   useEffect(() => {
     getPayPalConfig()
       .then(c => {
-        console.log("[PayPal] config loaded:", c)
         setConfig({ clientId: c.client_id, mode: c.mode })
       })
       .catch(e => {
