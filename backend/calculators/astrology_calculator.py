@@ -567,7 +567,7 @@ class AstrologyCalculator:
                 )
                 astro_plus = earth.at(t_plus).observe(self._ephemeris[sky_name])
                 _, lon2, _ = astro_plus.ecliptic_latlon()
-                retro = bool((lon2.degrees - lon.degrees) % 360 < 0.1)
+                retro = bool((lon2.degrees - lon.degrees) % 360 > 180)
 
                 result.planets[pname] = {
                     "longitude": lon_deg,
@@ -685,13 +685,8 @@ class AstrologyCalculator:
 
     @staticmethod
     def _gmst(t) -> float:
-        """Greenwich Mean Sidereal Time in degrees."""
-        gmst = t.gmst  # returns radians in newer skyfield? Let's check
-        # skyfield returns degrees for gmst
-        try:
-            return t.gmst * 15.0  # if gmst is hours, convert to degrees
-        except Exception:
-            return t.gmst  # already in degrees
+        """Convert GMST from hours to degrees. Skyfield returns hours (0-24)."""
+        return t.gmst * 15.0
 
     @staticmethod
     def _calc_ascendant(ramc: float, epsilon: float, latitude: float) -> float:
@@ -1280,7 +1275,7 @@ class AstrologyCalculator:
 
             for star_name, star_lon_j2000 in FIXED_STARS.items():
                 # Correct star longitude for precession
-                star_lon = (star_lon_j2000 + precession) % 360
+                star_lon = (star_lon_j2000 - precession) % 360
 
                 # Angular distance
                 diff = abs(plon - star_lon) % 360
@@ -1635,7 +1630,7 @@ class AstrologyCalculator:
                 t_next = self._ts.utc(now.year, now.month, now.day + 1, now.hour, now.minute)
                 astro_next = earth.at(t_next).observe(self._ephemeris[sky_key])
                 _, lon2, _ = astro_next.ecliptic_latlon()
-                retro = bool((lon2.degrees - lon_deg) % 360 < 0.1)
+                retro = bool((lon2.degrees - lon_deg) % 360 > 180)
                 transit_planets[pname] = {
                     "sign": _sign_name(lon_deg), "degree": round(_sign_degree(lon_deg), 2),
                     "longitude": round(lon_deg, 4), "retrograde": retro,
@@ -1712,7 +1707,7 @@ class AstrologyCalculator:
                 )
                 astro_next = earth.at(t_next).observe(self._ephemeris[sky_key])
                 _, lon2, _ = astro_next.ecliptic_latlon()
-                retro = bool((lon2.degrees - lon_deg) % 360 < 0.1)
+                retro = bool((lon2.degrees - lon_deg) % 360 > 180)
                 transit_planets[pname] = {
                     "sign": _sign_name(lon_deg),
                     "degree": round(_sign_degree(lon_deg), 2),
