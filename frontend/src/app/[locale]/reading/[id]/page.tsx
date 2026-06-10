@@ -324,6 +324,16 @@ export default function ReadingPage() {
   const [isUnlocked, setIsUnlocked] = useState(false)
   const [isDetailedUnlocked, setIsDetailedUnlocked] = useState(false)
 
+  // Pre-compute star particle styles to avoid Math.random() in render
+  const starParticles = useMemo(() =>
+    Array.from({ length: 12 }, () => ({
+      width: `${2 + Math.random() * 3}px`,
+      height: `${2 + Math.random() * 3}px`,
+      left: `${5 + Math.random() * 90}%`,
+      top: `${5 + Math.random() * 80}%`,
+      animation: `twinkle ${3 + Math.random() * 4}s ease-in-out ${Math.random() * 3}s infinite`,
+    })), [])
+
   // Scroll-driven progressive reveal
   const [heroVisible, setHeroVisible] = useState(false)
   const heroRef = useRef<HTMLDivElement>(null)
@@ -576,17 +586,11 @@ export default function ReadingPage() {
             }}
           />
           {/* Floating star particles */}
-          {Array.from({ length: 12 }).map((_, i) => (
+          {starParticles.map((style, i) => (
             <div
               key={i}
               className="absolute rounded-full bg-gold/30"
-              style={{
-                width: `${2 + Math.random() * 3}px`,
-                height: `${2 + Math.random() * 3}px`,
-                left: `${5 + Math.random() * 90}%`,
-                top: `${5 + Math.random() * 80}%`,
-                animation: `twinkle ${3 + Math.random() * 4}s ease-in-out ${Math.random() * 3}s infinite`,
-              }}
+              style={style}
             />
           ))}
         </div>

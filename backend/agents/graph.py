@@ -46,15 +46,14 @@ async def node_init(state: SystemState) -> SystemState:
         bi = state.birth_info
         try:
             import asyncio as _aio
-            astro_dict = await _aio.wait_for(
+            astro_dict, astro_obj = await _aio.wait_for(
                 _aio.get_event_loop().run_in_executor(None, _calculate_astrology, bi),
                 timeout=30,
             )
             state.astrology_raw = astro_dict
-            # Store AstrologyResult for synastry calculation
-            if _last_astro_result[0] is not None:
-                _astro_results.setdefault(state.session_id, {})["self"] = _last_astro_result[0]
-                _last_astro_result[0] = None
+            # Store AstrologyResult for synastry calculation (no global needed)
+            if astro_obj is not None:
+                _astro_results.setdefault(state.session_id, {})["self"] = astro_obj
         except Exception as e:
             # Fallback to stub if real calculation fails or times out
             state.astrology_raw = _stub_astrology(bi)
@@ -102,11 +101,13 @@ def _estimate_utc_offset(longitude: float | None, latitude: float | None) -> flo
     return round(longitude / 15.0)
 
 
-def _calculate_astrology(bi: BirthInfo) -> dict:
+def _calculate_astrology(bi: BirthInfo) -> tuple[dict, Any]:
     """
     Real astrology calculation via Skyfield (JPL DE421 ephemeris).
     Computes planetary positions, houses, ASC, MC, and aspects.
-    Returns dict (for state.astrology_raw) and stores AstrologyResult for synastry.
+    Returns (dict, AstrologyResult) tuple so callers can store both the
+    serialized dict (for state) and the live object (for synastry) without
+    relying on shared global state.
     """
     utc_offset = _estimate_utc_offset(bi.longitude, bi.latitude)
 
@@ -119,14 +120,7 @@ def _calculate_astrology(bi: BirthInfo) -> dict:
         latitude=lat_for_calc, longitude=lon_for_calc,
         utc_offset=utc_offset,
     )
-    # Store the AstrologyResult object for later synastry calculation
-    # (will be stored in _astro_results by the caller)
-    _last_astro_result[0] = result
-    return result.to_dict()
-
-
-# Temporary storage for the last calculated AstrologyResult
-_last_astro_result: list = [None]
+    return result.to_dict(), result
 
 
 def _stub_astrology(bi: BirthInfo) -> dict:
@@ -494,15 +488,14 @@ async def run_full_analysis(state: SystemState) -> SystemState:
         try:
             import asyncio as _aio
             pi = state.partner_birth_info
-            partner_astro = await _aio.wait_for(
+            partner_astro, partner_astro_obj = await _aio.wait_for(
                 _aio.get_event_loop().run_in_executor(None, _calculate_astrology, pi),
                 timeout=30,
             )
             state.partner_astrology_raw = partner_astro
-            # Store partner AstrologyResult for synastry calculation
-            if _last_astro_result[0] is not None:
-                _astro_results.setdefault(state.session_id, {})["partner"] = _last_astro_result[0]
-                _last_astro_result[0] = None
+            # Store partner AstrologyResult for synastry calculation (no global needed)
+            if partner_astro_obj is not None:
+                _astro_results.setdefault(state.session_id, {})["partner"] = partner_astro_obj
         except Exception as e:
             state.partner_astrology_raw = _stub_astrology(state.partner_birth_info)
             state.errors.append(f"partner_astrology_fallback: {e}")

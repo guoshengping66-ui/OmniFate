@@ -370,6 +370,16 @@ export default function NewReadingPage() {
   const handleFacePick = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]
     if (!f) return
+    // Validate file type and size
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/heic']
+    if (!allowedTypes.includes(f.type)) {
+      toast.error(t('reading.invalidImageType') || 'Please upload a JPG, PNG, or WebP image')
+      return
+    }
+    if (f.size > 10 * 1024 * 1024) { // 10MB limit
+      toast.error(t('reading.imageTooLarge') || 'Image must be under 10MB')
+      return
+    }
     if (facePreview) URL.revokeObjectURL(facePreview)
     setFaceFile(f)
     const url = URL.createObjectURL(f)
@@ -400,6 +410,16 @@ export default function NewReadingPage() {
   const handlePalmPick = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]
     if (!f) return
+    // Validate file type and size
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/heic']
+    if (!allowedTypes.includes(f.type)) {
+      toast.error(t('reading.invalidImageType') || 'Please upload a JPG, PNG, or WebP image')
+      return
+    }
+    if (f.size > 10 * 1024 * 1024) { // 10MB limit
+      toast.error(t('reading.imageTooLarge') || 'Image must be under 10MB')
+      return
+    }
     if (palmPreview) URL.revokeObjectURL(palmPreview)
     setPalmFile(f)
     const url = URL.createObjectURL(f)
@@ -431,6 +451,16 @@ export default function NewReadingPage() {
   const handlePartnerFacePick = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]
     if (!f) return
+    // Validate file type and size
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/heic']
+    if (!allowedTypes.includes(f.type)) {
+      toast.error(t('reading.invalidImageType') || 'Please upload a JPG, PNG, or WebP image')
+      return
+    }
+    if (f.size > 10 * 1024 * 1024) {
+      toast.error(t('reading.imageTooLarge') || 'Image must be under 10MB')
+      return
+    }
     if (partnerFacePreview) URL.revokeObjectURL(partnerFacePreview)
     setPartnerFaceFile(f)
     const url = URL.createObjectURL(f)
@@ -461,6 +491,16 @@ export default function NewReadingPage() {
   const handlePartnerPalmPick = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]
     if (!f) return
+    // Validate file type and size
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/heic']
+    if (!allowedTypes.includes(f.type)) {
+      toast.error(t('reading.invalidImageType') || 'Please upload a JPG, PNG, or WebP image')
+      return
+    }
+    if (f.size > 10 * 1024 * 1024) {
+      toast.error(t('reading.imageTooLarge') || 'Image must be under 10MB')
+      return
+    }
     if (partnerPalmPreview) URL.revokeObjectURL(partnerPalmPreview)
     setPartnerPalmFile(f)
     const url = URL.createObjectURL(f)

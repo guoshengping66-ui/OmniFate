@@ -255,7 +255,7 @@ class FaceV2T:
             chord_dx = outer[0] - inner[0]
             chord_dy = outer[1] - inner[1]
             chord_len = np.sqrt(chord_dx**2 + chord_dy**2) + 1e-6
-            return abs(chord_dx * (inner[1] - mid[1]) - chord_dx * (inner[0] - mid[0])) / chord_len
+            return abs(chord_dx * (inner[1] - mid[1]) - chord_dy * (inner[0] - mid[0])) / chord_len
         l_arch = _arch_height(lb_in, lb_mid, lb_out)
         r_arch = _arch_height(rb_in, rb_mid, rb_out)
         avg_arch = (l_arch + r_arch) / 2

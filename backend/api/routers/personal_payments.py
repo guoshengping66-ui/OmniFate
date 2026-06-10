@@ -249,7 +249,7 @@ async def verify_payment(
 async def confirm_payment(
     order_no: str = Query(...),
     db: AsyncSession = Depends(get_db),
-    current_user: Optional[User] = Depends(get_current_user),
+    current_user: User = Depends(require_user),
 ):
     """
     用户确认已付款 — 仅标记为 processing，等待管理员核实后激活。
@@ -267,6 +267,8 @@ async def confirm_payment(
         )
         order = result.scalar_one_or_none()
         if order:
+            if order.user_id and order.user_id != str(current_user.id):
+                raise HTTPException(status_code=403, detail="Not your order")
             return {
                 "success": True,
                 "order_no": order.order_no,
@@ -274,6 +276,10 @@ async def confirm_payment(
                 "message": "已提交，等待管理员确认",
             }
         raise HTTPException(status_code=404, detail="订单不存在或已过期")
+
+    # 1b. Ownership check
+    if order.user_id and order.user_id != str(current_user.id):
+        raise HTTPException(status_code=403, detail="Not your order")
 
     # 2. 验证订单金额合理性
     if order.total_cny <= 0 or order.total_cny > 50000:

@@ -1,7 +1,7 @@
 """星尘积分系统 API — 支持预扣/确认/回滚原子操作 + 阈值监控"""
 import hmac
 import logging
-from datetime import datetime, timezone, date
+from datetime import datetime, timezone, date, timedelta
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Header, Query
@@ -215,6 +215,28 @@ async def confirm_deduct(
         raise HTTPException(status_code=404, detail="交易记录不存在")
     if tx.status != "pending":
         raise HTTPException(status_code=400, detail=f"交易状态异常: {tx.status}")
+
+    # Auto-refund if pending transaction has expired (30 min timeout)
+    if tx.created_at:
+        age = datetime.utcnow() - tx.created_at.replace(tzinfo=None)
+        if age > timedelta(minutes=30):
+            user_result = await db.execute(
+                select(User).where(User.id == current_user.id).with_for_update()
+            )
+            user = user_result.scalar_one()
+            user.stardust_balance -= tx.amount  # tx.amount is negative, so -= negative = add back
+            tx.status = "refunded"
+            refund_tx = CreditTransaction(
+                user_id=user.id,
+                amount=-tx.amount,
+                balance_after=user.stardust_balance,
+                reason="refund",
+                reference_id=transaction_id,
+                status="confirmed",
+            )
+            db.add(refund_tx)
+            await db.commit()
+            raise HTTPException(status_code=400, detail="Pending transaction expired and has been refunded")
 
     tx.status = "confirmed"
     await db.commit()

@@ -123,7 +123,7 @@ def _set_reading_cache(session_id: str, resp: AnalysisResponse):
 
 class AnalysisRequest(BaseModel):
     gender: str = Field("female", pattern="^(male|female|other)$")
-    birth_year: int = Field(..., ge=1920, le=2026)
+    birth_year: int = Field(..., ge=1920, le=datetime.now().year)
     birth_month: int = Field(..., ge=1, le=12)
     birth_day: int = Field(..., ge=1, le=31)
     birth_hour: int = Field(..., ge=0, le=23)
@@ -141,7 +141,7 @@ class AnalysisRequest(BaseModel):
     # Relationship analysis fields
     partner_name: str = ""
     partner_gender: str = Field("female", pattern="^(male|female|other)$")
-    partner_birth_year: Optional[int] = Field(None, ge=1920, le=2026)
+    partner_birth_year: Optional[int] = Field(None, ge=1920, le=datetime.now().year)
     partner_birth_month: Optional[int] = Field(None, ge=1, le=12)
     partner_birth_day: Optional[int] = Field(None, ge=1, le=31)
     partner_birth_hour: Optional[int] = Field(None, ge=0, le=23)
@@ -855,7 +855,8 @@ async def get_session(
             except HTTPException:
                 raise
             except Exception:
-                pass  # DB check failed — fall through to full DB path
+                # DB check failed — do not serve cached data without ownership verification
+                raise HTTPException(status_code=503, detail="Service temporarily unavailable")
         # Apply content lock before returning
         return _apply_content_lock(cached, current_user, None, lang=lang or "zh")
 
@@ -1851,7 +1852,7 @@ async def analyze_event(
         print(f"[EVENT] analyze_event crashed for user {current_user.id}: {exc}")
         raise HTTPException(
             status_code=500,
-            detail=f"Event analysis failed: {str(exc)[:200]}",
+            detail="Event analysis failed. Please try again.",
         )
 
 
@@ -2206,7 +2207,7 @@ class DailyFortuneResponse(BaseModel):
 
 @router.get("/daily-fortune")
 async def get_daily_fortune(
-    birth_year: Optional[int] = Query(None, ge=1920, le=2026),
+    birth_year: Optional[int] = Query(None, ge=1920, le=datetime.now().year),
     birth_month: Optional[int] = Query(None, ge=1, le=12),
     birth_day: Optional[int] = Query(None, ge=1, le=31),
     birth_hour: Optional[int] = Query(None, ge=0, le=23),

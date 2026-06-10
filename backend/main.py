@@ -1,4 +1,4 @@
-﻿"""backend/main.py — FastAPI 应用入口"""
+"""backend/main.py — FastAPI 应用入口"""
 import sys
 import os
 import json
@@ -64,6 +64,16 @@ app.add_middleware(
 
 # GZip compression — reduces response size ~3-5x (e.g. 5KB → 1-2KB)
 app.add_middleware(GZipMiddleware, minimum_size=1000)
+
+
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    return response
 
 
 @app.exception_handler(Exception)
@@ -308,14 +318,23 @@ async def cache_middleware(request: Request, call_next):
     # Execute request
     response = await call_next(request)
 
-    # Cache successful JSON responses only
+    # Cache successful JSON responses only (skip if body > 256KB to avoid memory bloat)
+    MAX_CACHE_BODY = 256 * 1024  # 256KB
     if response.status_code == 200:
         body = b""
+        total = 0
+        too_large = False
         async for chunk in response.body_iterator:
             if isinstance(chunk, str):
-                body += chunk.encode("utf-8")
-            else:
-                body += chunk
+                chunk = chunk.encode("utf-8")
+            total += len(chunk)
+            if total > MAX_CACHE_BODY:
+                too_large = True
+                break
+            body += chunk
+        if too_large:
+            # Response too large to cache, return original
+            return Response(content=body, status_code=200, headers=dict(response.headers))
         try:
             data = json.loads(body)
             await cache_set_json(cache_key, data, ttl=cache_ttl)

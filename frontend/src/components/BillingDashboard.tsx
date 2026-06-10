@@ -299,7 +299,10 @@ function GlobalPanel({
                 setShowPaypalPayment(false)
                 onRefreshBalance()
               }}
-              onError={() => {}}
+              onError={(err) => {
+                console.error("PayPal payment error:", err)
+                toast.error(t("billing.paymentFailed") || "Payment failed. Please try again.")
+              }}
             />
             <button
               onClick={() => setShowPaypalPayment(false)}

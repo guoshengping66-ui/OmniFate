@@ -94,6 +94,8 @@ function getProphecy(sessionId: string, locale: string): string {
 
 // ── QR Code ─────────────────────────────────────────────────────────────────
 
+// TODO: Replace with real QR library (e.g., qrcode.react)
+// Current pattern is decorative only, not scannable
 function generateQRMatrix(text: string, size: number = 25): boolean[][] {
   const matrix: boolean[][] = Array.from({ length: size }, () => Array(size).fill(false))
   const drawFinder = (sx: number, sy: number) => {

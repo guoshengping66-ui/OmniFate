@@ -144,8 +144,8 @@ export default function RegisterPage() {
     setVerifyLoading(true)
     try {
       const res = await verifyEmail(email, verifyCode)
-      localStorage.setItem("alpha_mirror_token", res.access_token)
-      localStorage.setItem("alpha_mirror_refresh", res.refresh_token)
+      localStorage.setItem("access_token", res.access_token)
+      localStorage.setItem("refresh_token", res.refresh_token)
       toast.success(t("auth.loginSuccess"))
       router.replace("/dashboard")
     } catch (err: any) {

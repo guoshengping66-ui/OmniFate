@@ -187,7 +187,10 @@ class PalmV2T:
         hand_side = ""
         if result.handedness:
             label = result.handedness[0][0].category_name
-            hand_side = "左手" if label == "Left" else "右手"
+            # MediaPipe labels from camera perspective; for selfie/front camera,
+            # Left in camera = user's right hand. Default to inverting since
+            # users typically photograph their own palms with front camera.
+            hand_side = "右手" if label == "Left" else "左手"
             confidence = result.handedness[0][0].score
         else:
             confidence = 0.0

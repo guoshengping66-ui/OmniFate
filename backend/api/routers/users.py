@@ -3,7 +3,7 @@ from typing import Optional
 
 import json
 from pathlib import Path
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -148,7 +148,7 @@ async def list_orders(user: User = Depends(require_user)):
 # ── Profile Settings ──────────────────────────────────────────────────────
 
 class UpdateProfileRequest(BaseModel):
-    display_name: Optional[str] = None
+    display_name: Optional[str] = Field(None, max_length=100)
 
 
 class ChangePasswordRequest(BaseModel):
