@@ -171,6 +171,16 @@ jobs:
                 echo "❌ 验证失败: standalone 目录只有 $CHUNK_COUNT 个 chunk 文件（预期 >10）"
                 exit 1
               fi
+
+              # ⚠️ 验证: 检测嵌套路径错误 (static/static/chunks)
+              NESTED_COUNT=$(find "$STANDALONE_DIR/.next/static/static" -name "*.js" 2>/dev/null | wc -l)
+              if [ "$NESTED_COUNT" -gt 0 ]; then
+                echo "❌ 检测到嵌套目录错误: static/static/ (共 $NESTED_COUNT 个文件)"
+                echo "   修复中: 移动文件到正确位置..."
+                sudo mv "$STANDALONE_DIR/.next/static/static/"* "$STANDALONE_DIR/.next/static/" 2>/dev/null || true
+                sudo rm -rf "$STANDALONE_DIR/.next/static/static"
+                echo "✅ 已修复嵌套目录"
+              fi
               echo "✅ 验证通过: standalone 目录有 $CHUNK_COUNT 个 chunk 文件"
 
               # 🔑 关键验证: webpack chunk 必须存在，否则整个 JS 无法加载
