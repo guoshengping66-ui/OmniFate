@@ -49,8 +49,8 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
           </button>
         </div>
 
-        {/* Free shipping progress bar */}
-        {items.length > 0 && (
+        {/* Free shipping progress bar — overseas only, domestic is always free */}
+        {items.length > 0 && region === "overseas" && (
           <div className="px-4 py-3 border-b border-white/5">
             {showShippingHint ? (
               <div>
