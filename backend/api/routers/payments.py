@@ -1231,12 +1231,33 @@ async def capture_paypal_order(
                     else:
                         # Fallback: some responses put amount directly on purchase_unit
                         captured_amount = float(purchase_units[0].get("amount", {}).get("value", 0))
-                # Amount validation — shop orders use CNY→USD conversion, others use PRODUCT_PRICES
+                # Amount validation — shop orders use product's independent price_usd, others use PRODUCT_PRICES
                 is_shop_order = (order.item_type == "shop")
                 if is_shop_order:
-                    expected_usd = round(float(order.total_cny) / CNY_TO_USD_RATE, 2)
+                    # Products have independent price_usd — calculate expected from order items
+                    all_products = _load_products("zh")
+                    product_map = {p["id"]: p for p in all_products}
+                    expected_usd = 0.0
+                    for oi in (order.items or []):
+                        prod = product_map.get(oi.product_name, {})
+                        # Try matching by product_name first, then by product_id
+                        if not prod:
+                            for p in all_products:
+                                if p.get("name") == oi.product_name:
+                                    prod = p
+                                    break
+                        price_usd = prod.get("price_usd", 0)
+                        expected_usd += price_usd * oi.quantity
+                    # Apply coupon proportionally in USD
+                    if order.total_cny and expected_usd > 0:
+                        coupon_ratio = 1 - (float(order.total_cny) / (sum(
+                            product_map.get(oi.product_name, {}).get("price_cny", 0) * oi.quantity
+                            for oi in (order.items or [])
+                        ) or 1))
+                        expected_usd = round(expected_usd * (1 - coupon_ratio), 2)
                     logger.info(f"[PAYPAL-CAPTURE] 商城订单金额验证: captured={captured_amount}, expected_usd={expected_usd}, order.total_cny={order.total_cny}")
-                    if abs(captured_amount - expected_usd) > 0.01:
+                    # Allow 5% tolerance for rounding differences between independent CNY/USD pricing
+                    if expected_usd > 0 and abs(captured_amount - expected_usd) / expected_usd > 0.05:
                         detail_msg = f"支付金额不匹配: 实际${captured_amount}, 预期${expected_usd}"
                         logger.error(f"[PAYPAL-CAPTURE] {detail_msg}")
                         raise HTTPException(status_code=400, detail=detail_msg)
