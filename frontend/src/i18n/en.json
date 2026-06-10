@@ -2410,7 +2410,7 @@
   "cart": {
     "checkout": "Checkout",
     "empty": "Your cart is empty",
-    "freeShipping": "Spend ¥{amount} more for free shipping",
+    "freeShipping": "Add {amount} more for free shipping",
     "freeShippingUnlocked": "Free shipping unlocked",
     "goShop": "Browse Shop",
     "items": "items",

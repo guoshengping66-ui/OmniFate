@@ -905,7 +905,7 @@ export default {
   "cart.memberDiscount": "Member 12% Off: -¥{amount}",
   "cart.total": "Total",
   "cart.checkout": "Checkout",
-  "cart.freeShipping": "Add ¥{amount} more for free shipping",
+  "cart.freeShipping": "Add {amount} more for free shipping",
   "cart.freeShippingUnlocked": "Free shipping unlocked",
 
   // ─── Favorites ───

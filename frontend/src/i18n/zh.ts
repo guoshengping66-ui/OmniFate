@@ -899,7 +899,7 @@ export default {
   "cart.memberDiscount": "会员 88 折: -¥{amount}",
   "cart.total": "合计",
   "cart.checkout": "去结算",
-  "cart.freeShipping": "再买 ¥{amount} 免运费",
+  "cart.freeShipping": "再买 {amount} 免运费",
   "cart.freeShippingUnlocked": "已享免运费",
 
   // ─── 收藏 ───

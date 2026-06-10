@@ -7,7 +7,8 @@ import { getProductPrice } from "@/lib/regionPrice"
 import { useRouter } from "next/navigation"
 import { ProductImage } from "@/components/shop/ProductImage"
 
-const FREE_SHIPPING_THRESHOLD = 299
+const FREE_SHIPPING_THRESHOLD_DOMESTIC = 299
+const FREE_SHIPPING_THRESHOLD_OVERSEAS = 79
 
 interface CartDrawerProps {
   open: boolean
@@ -22,6 +23,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
 
   if (!open) return null
 
+  const FREE_SHIPPING_THRESHOLD = region === "overseas" ? FREE_SHIPPING_THRESHOLD_OVERSEAS : FREE_SHIPPING_THRESHOLD_DOMESTIC
   const freeShippingRemaining = FREE_SHIPPING_THRESHOLD - totalWithDiscount
   const showShippingHint = freeShippingRemaining > 0 && freeShippingRemaining < FREE_SHIPPING_THRESHOLD
   const shippingProgress = Math.min(100, (totalWithDiscount / FREE_SHIPPING_THRESHOLD) * 100)
@@ -55,7 +57,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                 <div className="flex items-center gap-1.5 mb-1.5">
                   <Truck size={12} className="text-gold/60" />
                   <p className="text-gold/70 text-[11px]">
-                    {t("cart.freeShipping")?.replace("{amount}", freeShippingRemaining.toFixed(0)) || `再买 ${symbol}${freeShippingRemaining.toFixed(0)} 免运费`}
+                    {t("cart.freeShipping")?.replace("{amount}", `${symbol}${freeShippingRemaining.toFixed(0)}`) || `再买 ${symbol}${freeShippingRemaining.toFixed(0)} 免运费`}
                   </p>
                 </div>
                 <div className="w-full h-1 bg-white/[0.06] rounded-full overflow-hidden">

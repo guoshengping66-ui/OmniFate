@@ -2410,7 +2410,7 @@
   "cart": {
     "checkout": "去结算",
     "empty": "购物车是空的",
-    "freeShipping": "再买 ¥{amount} 免运费",
+    "freeShipping": "再买 {amount} 免运费",
     "freeShippingUnlocked": "已享免运费",
     "goShop": "去商城看看",
     "items": "件",
