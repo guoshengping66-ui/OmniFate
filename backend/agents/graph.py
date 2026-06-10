@@ -525,7 +525,7 @@ async def run_full_analysis(state: SystemState) -> SystemState:
     # Without this, progress jumps abruptly (e.g., 5% → 14% → 28%) and stays
     # flat for 15-30s between completions, making the bar look stuck.
     _worker_start_time = asyncio.get_event_loop().time()
-    _WORKER_PHASE_DURATION = 65  # expected total time for all workers in seconds
+    _WORKER_PHASE_DURATION = 120  # expected total time for all workers in seconds (qimen_ziwei can take ~100s)
 
     async def _continuous_progress():
         """Smoothly advance progress_pct between worker completions using time interpolation."""

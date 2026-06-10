@@ -928,9 +928,9 @@ async def run_qimen_ziwei(state: SystemState) -> list[WorkerOutput]:
     """
     t0 = time.time()
     bi = state.birth_info
-    print(f"[QIMEN_ZIWEI] Worker started, birth_info={bi is not None}, mock={_use_mock()}")
+    print(f"[QIMEN_ZIWEI] Worker started, birth_info={bi is not None}, mock={_use_mock()}", flush=True)
     if bi is None:
-        print("[QIMEN_ZIWEI] ERROR: birth_info is None, skipping")
+        print("[QIMEN_ZIWEI] ERROR: birth_info is None, skipping", flush=True)
         return [
             WorkerOutput(agent_id="qimen", error="birth_info missing"),
             WorkerOutput(agent_id="ziwei", error="birth_info missing"),
@@ -1030,16 +1030,16 @@ async def run_qimen_ziwei(state: SystemState) -> list[WorkerOutput]:
     msgs = [SystemMessage(content=sys_content), HumanMessage(content=user_msg)]
 
     if _use_mock():
-        print("[QIMEN_ZIWEI] Using MOCK data (no API key)")
+        print("[QIMEN_ZIWEI] Using MOCK data (no API key)", flush=True)
         report_q = _mock("qimen", "merged qimen+ziwei")
         report_z = _mock("ziwei", "merged qimen+ziwei")
     else:
-        print(f"[QIMEN_ZIWEI] Calling LLM, model={settings.FREE_MODEL}, timeout=90s")
+        print(f"[QIMEN_ZIWEI] Calling LLM, model={settings.FREE_MODEL}, timeout=80s", flush=True)
         try:
-            report = await asyncio.wait_for(llm.ainvoke(msgs), timeout=90)
-            print(f"[QIMEN_ZIWEI] LLM response received, length={len(report.content)}")
+            report = await asyncio.wait_for(llm.ainvoke(msgs), timeout=80)
+            print(f"[QIMEN_ZIWEI] LLM response received, length={len(report.content)}", flush=True)
         except asyncio.TimeoutError:
-            print("[QIMEN_ZIWEI] LLM timed out after 90s")
+            print("[QIMEN_ZIWEI] LLM timed out after 80s", flush=True)
             report = type('obj', (object,), {'content': '{"error":"timeout"}'})()
         full_text = report.content
         # Post-process: clean residual Chinese in English output
@@ -1083,7 +1083,7 @@ async def run_qimen_ziwei(state: SystemState) -> list[WorkerOutput]:
         report_z = _build_compact_report(ziwei_data)
 
     t_elapsed = (time.time() - t0) * 1000
-    print(f"[QIMEN_ZIWEI] Done in {t_elapsed:.0f}ms, qimen report={len(report_q)}chars, ziwei report={len(report_z)}chars")
+    print(f"[QIMEN_ZIWEI] Done in {t_elapsed:.0f}ms, qimen report={len(report_q)}chars, ziwei report={len(report_z)}chars", flush=True)
 
     # Return two separate WorkerOutput objects
     return [
@@ -1369,7 +1369,7 @@ async def run_partner_palm(state: SystemState) -> WorkerOutput:
 # Merged workers: qimen+ziwei combined into one LLM call
 _WORKER_IDS = ["astrology", "tarot", "bazi", "qimen_ziwei", "face", "palm"]
 _WORKER_RUNNERS = [run_astrology, run_tarot, run_bazi, run_qimen_ziwei, run_face, run_palm]
-_WORKER_TIMEOUTS = [60, 45, 45, 60, 25, 25]  # Tightened to speed up overall analysis
+_WORKER_TIMEOUTS = [60, 45, 45, 120, 25, 25]  # qimen_ziwei needs 120s: calculators + LLM (90s inner)
 # Which worker IDs are merged (return list of WorkerOutput instead of single)
 _MERGED_WORKERS = {"qimen_ziwei"}
 
