@@ -585,6 +585,8 @@ export default {
   "checkout.subtotal": "Subtotal",
   "checkout.shipping": "Shipping",
   "checkout.free": "Free",
+  "checkout.freeShippingHint": "Free shipping on orders over $79",
+  "checkout.processingNote": "Due to the magnetic field tuning and handcrafted customization required at ancient Eastern temples/Daoist venues for each energy artifact, your order will be shipped within 3-5 business days. Global express delivery takes approximately 7-14 days.",
   "checkout.total": "Total",
   "checkout.success": "Order Successful!",
   "checkout.empty": "Your cart is empty",

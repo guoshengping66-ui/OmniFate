@@ -32,7 +32,11 @@ export default function CheckoutPage() {
   const couponBalanceCny = user?.shop_coupon_balance ?? 0
   const couponBalanceLocal = region === "overseas" ? couponBalanceCny / CNY_TO_USD_RATE : couponBalanceCny
   const couponDiscount = useCoupon ? Math.min(couponBalanceLocal, totalWithDiscount) : 0
-  const finalTotal = Math.max(0, totalWithDiscount - couponDiscount)
+  // Shipping: free for domestic, free worldwide over $79, otherwise $8
+  const FREE_SHIPPING_THRESHOLD = 79
+  const SHIPPING_FEE = 8
+  const shippingFee = region === "domestic" ? 0 : (totalWithDiscount >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE)
+  const finalTotal = Math.max(0, totalWithDiscount - couponDiscount + shippingFee)
   const couponDisplay = formatCouponBalance(couponBalanceCny, region)
   const couponDiscountDisplay = formatCouponBalance(
     region === "overseas" ? couponDiscount * CNY_TO_USD_RATE : couponDiscount,
@@ -207,8 +211,17 @@ export default function CheckoutPage() {
           )}
           <div className="flex justify-between text-sm text-white/60">
             <span>{t("checkout.shipping")}</span>
-            <span className="text-green-400">{t("checkout.free")}</span>
+            {shippingFee > 0 ? (
+              <span>{symbol}{shippingFee.toFixed(2)}</span>
+            ) : (
+              <span className="text-green-400">{t("checkout.free")}</span>
+            )}
           </div>
+          {region === "overseas" && shippingFee > 0 && (
+            <p className="text-white/30 text-[11px] text-right -mt-1">
+              {t("checkout.freeShippingHint") || `满$${FREE_SHIPPING_THRESHOLD}免运费`}
+            </p>
+          )}
           <div className="border-t border-white/10 pt-3 flex justify-between">
             <span className="text-white/80 font-medium">{t("checkout.total")}</span>
             <span className="text-gold text-xl font-bold">{symbol}{finalTotal.toFixed(2)}</span>
@@ -237,6 +250,13 @@ export default function CheckoutPage() {
             selected={paymentMethod}
             onSelect={setPaymentMethod}
           />
+        </div>
+
+        {/* Processing time disclaimer */}
+        <div className="bg-gold/5 border border-gold/20 rounded-xl p-4 mb-4">
+          <p className="text-white/50 text-xs leading-relaxed">
+            {t("checkout.processingNote") || "由于每一件能量法器均需在东方古寺/道场进行特定磁场调频与手工定制，您的订单将在 3-5 个工作日内发出，全球专线预计 7-14 天送达。"}
+          </p>
         </div>
 
         {/* Terms acceptance */}

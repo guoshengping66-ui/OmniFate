@@ -579,6 +579,8 @@ export default {
   "checkout.subtotal": "商品总额",
   "checkout.shipping": "运费",
   "checkout.free": "免运费",
+  "checkout.freeShippingHint": "满$79免运费",
+  "checkout.processingNote": "由于每一件能量法器均需在东方古寺/道场进行特定磁场调频与手工定制，您的订单将在 3-5 个工作日内发出，全球专线预计 7-14 天送达。",
   "checkout.total": "应付总额",
   "checkout.success": "下单成功！",
   "checkout.empty": "购物车是空的",
