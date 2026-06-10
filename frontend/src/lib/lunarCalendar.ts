@@ -66,12 +66,21 @@ export function getLunarMonthDays(year: number, month: number, isLeapMonth: bool
 /** 获取某年所有农历月份（含闰月） */
 export function getLunarMonths(year: number): { month: number; isLeap: boolean; name: string }[] {
   const lunarYear = LunarYear.fromYear(year)
-  const months = lunarYear.getMonths()
-  return months.map(m => ({
-    month: Math.abs(m.getMonthWithLeap()),
-    isLeap: m.getMonthWithLeap() < 0,
-    name: getLunarMonthName(Math.abs(m.getMonthWithLeap()), m.getMonthWithLeap() < 0),
-  }))
+  const allMonths = lunarYear.getMonths()
+  // getMonths() 包含前后年的月份，需过滤只保留该农历年的月份
+  const result: { month: number; isLeap: boolean; name: string }[] = []
+  for (const m of allMonths) {
+    if (m.getYear() !== year) continue
+    const monthVal = m.getMonth() // 负数表示闰月 (e.g. -5 = 闰五月)
+    const month = Math.abs(monthVal)
+    const isLeap = monthVal < 0
+    result.push({
+      month,
+      isLeap,
+      name: getLunarMonthName(month, isLeap),
+    })
+  }
+  return result
 }
 
 /** 农历日期转字符串 */
