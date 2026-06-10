@@ -1117,11 +1117,13 @@ async def run_face(state: SystemState) -> WorkerOutput:
     try:
         ff = state.face_features
         if ff is None:
+            print(f"[FACE] no face features, skipping")
             return WorkerOutput(agent_id=agent_id,
                                 report="No facial image provided. Face analysis skipped.",
                                 duration_ms=(time.time() - t0) * 1000)
 
         face_text = ff.to_prompt_text()
+        print(f"[FACE] starting LLM call, features length={len(face_text)}")
 
         # Inject raw_metrics as supplementary numerical data (same pattern as run_palm)
         if ff.raw_metrics:
@@ -1161,7 +1163,7 @@ async def run_face(state: SystemState) -> WorkerOutput:
             report = await _call(system, user_msg, language=state.language, is_premium=state.is_premium)
             data = _parse_worker_report(report)
 
-        return WorkerOutput(
+        out = WorkerOutput(
             agent_id=agent_id,
             report=_build_compact_report(data),
             tags=data.get("weakness_tags", []),
@@ -1170,7 +1172,10 @@ async def run_face(state: SystemState) -> WorkerOutput:
             conflict_warnings=data.get("conflict_warnings", []),
             duration_ms=(time.time() - t0) * 1000,
         )
+        print(f"[FACE] completed in {out.duration_ms:.0f}ms, report length={len(out.report)}")
+        return out
     except Exception as e:
+        print(f"[FACE] ERROR: {e}")
         return WorkerOutput(agent_id=agent_id, error=str(e),
                             duration_ms=(time.time() - t0) * 1000)
 
@@ -1184,11 +1189,13 @@ async def run_palm(state: SystemState) -> WorkerOutput:
     try:
         pf = state.palm_features
         if pf is None:
+            print(f"[PALM] no palm features, skipping")
             return WorkerOutput(agent_id=agent_id,
                                 report="No palm data provided. Palm analysis skipped.",
                                 duration_ms=(time.time() - t0) * 1000)
 
         palm_text = pf.to_prompt_text()
+        print(f"[PALM] starting LLM call, features length={len(palm_text)}")
         # Inject raw_metrics as supplementary numerical data
         if pf.raw_metrics:
             metrics_str = "\n".join(f"  {k}: {v}" for k, v in pf.raw_metrics.items())
@@ -1223,7 +1230,7 @@ async def run_palm(state: SystemState) -> WorkerOutput:
             report = await _call(system, user_msg, language=state.language, is_premium=state.is_premium)
             data = _parse_worker_report(report)
 
-        return WorkerOutput(
+        out = WorkerOutput(
             agent_id=agent_id,
             report=_build_compact_report(data),
             tags=data.get("weakness_tags", []),
@@ -1232,7 +1239,10 @@ async def run_palm(state: SystemState) -> WorkerOutput:
             conflict_warnings=data.get("conflict_warnings", []),
             duration_ms=(time.time() - t0) * 1000,
         )
+        print(f"[PALM] completed in {out.duration_ms:.0f}ms, report length={len(out.report)}")
+        return out
     except Exception as e:
+        print(f"[PALM] ERROR: {e}")
         return WorkerOutput(agent_id=agent_id, error=str(e),
                             duration_ms=(time.time() - t0) * 1000)
 
@@ -1369,7 +1379,7 @@ async def run_partner_palm(state: SystemState) -> WorkerOutput:
 # Merged workers: qimen+ziwei combined into one LLM call
 _WORKER_IDS = ["astrology", "tarot", "bazi", "qimen_ziwei", "face", "palm"]
 _WORKER_RUNNERS = [run_astrology, run_tarot, run_bazi, run_qimen_ziwei, run_face, run_palm]
-_WORKER_TIMEOUTS = [60, 45, 45, 120, 25, 25]  # qimen_ziwei needs 120s: calculators + LLM (90s inner)
+_WORKER_TIMEOUTS = [60, 45, 45, 120, 90, 90]  # qimen_ziwei 120s (calculators+LLM); face/palm 90s (LLM inner timeout)
 # Which worker IDs are merged (return list of WorkerOutput instead of single)
 _MERGED_WORKERS = {"qimen_ziwei"}
 
