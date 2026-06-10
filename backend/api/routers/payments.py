@@ -1029,9 +1029,20 @@ async def create_shop_paypal_order(
     if not order:
         raise HTTPException(status_code=404, detail="订单不存在或已处理")
 
-    # CNY → USD 转换
-    amount_cny = float(order.total_cny)
-    amount_usd = round(amount_cny / CNY_TO_USD_RATE, 2)
+    # Products have independent price_usd — look up from products.json instead of CNY→USD conversion
+    all_products = _load_products("zh")
+    product_map = {p["id"]: p for p in all_products}
+    amount_usd = 0.0
+    for oi in (order.items or []):
+        prod = product_map.get(oi.product_name, {})
+        if not prod:
+            for p in all_products:
+                if p.get("name") == oi.product_name:
+                    prod = p
+                    break
+        price_usd = prod.get("price_usd", 0)
+        amount_usd += price_usd * oi.quantity
+    amount_usd = round(amount_usd, 2)
     if amount_usd < 0.01:
         raise HTTPException(status_code=400, detail="订单金额异常")
 
