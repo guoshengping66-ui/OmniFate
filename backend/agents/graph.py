@@ -202,13 +202,18 @@ def _stub_astrology(bi: BirthInfo) -> dict:
 
 def _build_free_summary(core_result: str, state: SystemState) -> str:
     """
-    Build a complete free version with TWO clear sections:
+    Build a complete free version with enhanced sections:
       1. 【A·核心性格底色】 — full personality overview
       2. 【B·跨维度共鸣】 — full cross-dimension resonance (all sub-dimensions)
+      3. 【C·五维速览】 — dimension scores visualization
+      4. 【D·近期关键提醒】 — near-term alerts
+      5. 【E·行动建议速览】 — quick action suggestions
+      6. 【F·你的独特优势】 — user's unique strengths
+      7. 【G·深度报告预览】 — preview of premium report
 
     Rules:
       - Each section is COMPLETE (never cut off mid-sentence)
-      - Total length capped at ~3000 chars (concise but comprehensive)
+      - Total length capped at ~4000 chars (concise but comprehensive)
       - Ends with a compelling upgrade CTA
     """
     import re as _re
@@ -269,27 +274,68 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
             resonance = section  # Keep full section
             break
 
-    # ── Apply total length cap only if combined is too long ──
-    # With two-call approach, each section is already complete — just cap total
-    TOTAL_MAX = 4000
-    if personality and resonance:
-        combined_len = len(personality) + len(resonance)
-        if combined_len > TOTAL_MAX:
-            # Trim the longer section to fit, always at sentence boundary
-            if len(personality) > len(resonance):
-                personality = _ensure_complete(personality, TOTAL_MAX - len(resonance))
-            else:
-                resonance = _ensure_complete(resonance, TOTAL_MAX - len(personality))
-    elif personality:
-        personality = _ensure_complete(personality, TOTAL_MAX)
-    elif resonance:
-        resonance = _ensure_complete(resonance, TOTAL_MAX)
+    # ── Extract Section D: Near-term Alerts ──
+    near_term = ""
+    for marker in ["【D·", "【近期关键提醒】"]:
+        section = _extract_section(core_result, marker)
+        if section and len(section) > 20:
+            near_term = section
+            break
+
+    # ── Extract Section E: Action Suggestions ──
+    action_tips = ""
+    for marker in ["【E·", "【行动建议速览】"]:
+        section = _extract_section(core_result, marker)
+        if section and len(section) > 20:
+            action_tips = section
+            break
+
+    # ── Build Section F: Unique Strengths (from personality section) ──
+    unique_strengths = ""
+    if personality:
+        # Extract strength-related sentences from personality
+        strength_patterns = [
+            r'优势[：:](.+?)(?:\n|$)',
+            r'擅长[：:](.+?)(?:\n|$)',
+            r'天赋[：:](.+?)(?:\n|$)',
+            r'特点是?(.+?)(?:[。，]|$)',
+        ]
+        strengths = []
+        for pattern in strength_patterns:
+            matches = _re.findall(pattern, personality)
+            for m in matches[:2]:
+                cleaned = m.strip().rstrip("。，")
+                if len(cleaned) > 10:
+                    strengths.append(f"• {cleaned}")
+        if strengths:
+            unique_strengths = "\n".join(strengths[:3])
+
+    # ── Build Section G: Premium Preview (teaser from resonance) ──
+    premium_preview = ""
+    if resonance:
+        # Take first meaningful sentence as preview
+        sentences = _re.split(r'[。！？\n]', resonance)
+        for s in sentences:
+            s = s.strip()
+            if len(s) > 30 and any(kw in s for kw in ['问题', '瓶颈', '挑战', '需要注意', '建议', '关键']):
+                premium_preview = s.rstrip("。，")
+                break
+
+    # ── Apply total length cap ──
+    TOTAL_MAX = 4500
+    combined_sections = personality + resonance + near_term + action_tips
+    if len(combined_sections) > TOTAL_MAX:
+        # Prioritize: personality > resonance > action_tips > near_term
+        if len(personality) > TOTAL_MAX // 2:
+            personality = _ensure_complete(personality, TOTAL_MAX // 2)
+        if len(resonance) > TOTAL_MAX // 2:
+            resonance = _ensure_complete(resonance, TOTAL_MAX // 2)
 
     # ── Fallback: if sections not found, use first 2000 chars ──
     if not personality and not resonance:
         return _ensure_complete(core_result, 2000)
 
-    # ── Assemble two-section report ──
+    # ── Assemble enhanced report ──
     lines = []
 
     # Section 1: Core Personality
@@ -309,7 +355,7 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
             lines.append("【B · 跨维度共鸣（现状痛点）】")
         lines.append(resonance)
 
-    # ── Dimension scores (one line) ──
+    # ── Dimension scores (visual) ──
     scores = state.dimension_scores or {}
     if scores and state.intent != "RELATIONSHIP":
         dim_names = (
@@ -319,19 +365,65 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
             {"wealth": "财运", "relationship": "感情", "career": "事业",
              "health": "健康", "spiritual": "精神"}
         )
-        score_parts = []
+        lines.append("")
+        if is_en:
+            lines.append("【C · Five-Dimension Energy Overview】")
+        else:
+            lines.append("【C · 五维能量速览】")
+        score_lines = []
         for dim, val in scores.items():
             name = dim_names.get(dim, dim)
+            # Visual bar
+            bar_len = int(val)
             if val < 5:
+                bar = "▓" * bar_len + "░" * (10 - bar_len)
                 indicator = "⚠️"
             elif val > 7:
+                bar = "▓" * bar_len + "░" * (10 - bar_len)
                 indicator = "✨"
             else:
+                bar = "▓" * bar_len + "░" * (10 - bar_len)
                 indicator = "📊"
-            score_parts.append(f"{indicator} {name}: {val}/10")
+            score_lines.append(f"{indicator} {name}: {bar} {val}/10")
+        lines.append("\n".join(score_lines))
+
+    # Section D: Near-term Alerts
+    if near_term:
         lines.append("")
-        label = "Five-Dimension Energy" if is_en else "五维能量"
-        lines.append(f"📊 {label}：{' | '.join(score_parts)}")
+        if is_en:
+            lines.append("【D · Near-Term Key Alerts】")
+        else:
+            lines.append("【D · 近期关键提醒】")
+        lines.append(near_term)
+
+    # Section E: Quick Action Tips
+    if action_tips:
+        lines.append("")
+        if is_en:
+            lines.append("【E · Quick Action Tips】")
+        else:
+            lines.append("【E · 行动建议速览】")
+        lines.append(action_tips)
+
+    # Section F: Unique Strengths
+    if unique_strengths:
+        lines.append("")
+        if is_en:
+            lines.append("【F · Your Unique Strengths】")
+        else:
+            lines.append("【F · 你的独特优势】")
+        lines.append("根据命盘分析，你拥有以下独特优势：")
+        lines.append(unique_strengths)
+
+    # Section G: Premium Preview
+    if premium_preview:
+        lines.append("")
+        if is_en:
+            lines.append("【G · Premium Report Preview】")
+            lines.append(f"💡 Unlock to see: {premium_preview}...")
+        else:
+            lines.append("【G · 深度报告预览】")
+            lines.append(f"💡 解锁后可查看：{premium_preview}...")
 
     # ── Upgrade CTA ──
     lines.append("")

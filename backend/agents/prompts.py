@@ -6058,7 +6058,6 @@ def qimen_ziwei_combined_prompt(
         f"性别：{gender_cn}\n"
         f"出生时间：{birth_datetime}\n\n"
 
-        # ── Qimen section ──
         "━━━━━ 第一部分：奇门遁甲分析 ━━━━━\n\n"
         f"【奇门遁甲命盘数据】\n"
         f"遁局：{dun_ju}\n"
@@ -6070,7 +6069,6 @@ def qimen_ziwei_combined_prompt(
         f"门象提示：{door_hints}\n\n"
         f"{QIMEN_KNOWLEDGE_CONDENSED}\n\n"
 
-        # ── Ziwei section ──
         "━━━━━ 第二部分：紫微斗数分析 ━━━━━\n\n"
         f"【紫微斗数命盘数据】\n"
         f"命宫地支：{ming_gong_dizhi}\n"
@@ -6082,7 +6080,6 @@ def qimen_ziwei_combined_prompt(
         f"生年天干四化：\n{sihua_str}\n\n"
         f"{ZIWEI_KNOWLEDGE_CONDENSED}\n\n"
 
-        # ── Output format ──
         "== 输出格式要求 ==\n"
         "请严格按照以下格式输出两个JSON，中间用 ===QIMEN_END=== 分隔。\n\n"
 
@@ -7066,7 +7063,7 @@ def master_summary_prompt(worker_summaries: dict, user_question: str,
     - Focus on top 2-3 most important findings
     """
     workers_str = "\n\n".join(
-        f"[{k.upper()}]\n{v[:300]}" for k, v in worker_summaries.items() if v
+        f"[{k.upper()}]\n{v[:500]}" for k, v in worker_summaries.items() if v
     )
     scores_str = ""
     if dimension_scores:
@@ -7215,10 +7212,11 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
                                 confidence_text: str = "",
                                 intent: str = "",
                                 partner_data: dict | None = None,
-                                is_premium: bool = False) -> str:
+                                is_premium: bool = False,
+                                evidence_chains: str = "") -> str:
     """Sub-task A: 核心综合 — 命盘底色 + 跨维度共鸣 + 核心矛盾 + 置信度表"""
     workers_str = "\n\n".join(
-        f"[{k.upper()}]\n{v[:400]}" for k, v in worker_summaries.items() if v
+        f"[{k.upper()}]\n{v[:600]}" for k, v in worker_summaries.items() if v
     )
 
     # Add partner data for RELATIONSHIP intent (structured synastry data)
@@ -7280,6 +7278,14 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
 - 八字"印旺" 相当于 星盘土星/月亮强势 相当于 手相感情线深长
 - 八字"七杀攻身" 相当于 星盘火土刑克 相当于 塔罗宝剑牌组
 - 多体系一致=高置信度，2体系矛盾=低置信度以"可能性"输出
+
+== 交叉验证执行规则 ==
+1. 一致性检测：逐维度检查八字、奇门、紫微、星盘的结论是否指向同一方向
+2. 分歧处理：
+   - 如果八字和星盘结论一致 → 标注"多体系印证，置信度高"
+   - 如果存在分歧 → 诚实说明"XX体系认为A，YY体系认为B，综合判断为C"
+   - 不要强行统一矛盾的结论，用户的信任来自于你的诚实
+3. 证据权重：精确出生信息（八字/奇门/紫微）> 模糊信息（星盘近似）> 单一体系信号
 """
 
     # ── Intent-adaptive instructions ──
@@ -7398,7 +7404,7 @@ def master_subtask_core_personality_prompt(
     """Free-user only: generate ONLY Section A (核心性格底色).
     Separate call to avoid truncation within 4096 tokens."""
     workers_str = "\n\n".join(
-        f"[{k.upper()}]\n{v[:300]}" for k, v in worker_summaries.items() if v
+        f"[{k.upper()}]\n{v[:500]}" for k, v in worker_summaries.items() if v
     )
     # ... partner data (reuse from core_prompt) ...
     partner_section = ""
@@ -7451,7 +7457,7 @@ def master_subtask_core_resonance_prompt(
         scores_str = " | ".join(f"{_DIM_CN.get(k, k)}:{v}" for k, v in dimension_scores.items())
 
     compact_workers = "\n".join(
-        f"[{k.upper()}]{v[:300]}" for k, v in worker_summaries.items() if v
+        f"[{k.upper()}]{v[:500]}" for k, v in worker_summaries.items() if v
     )
 
     return (
@@ -7496,7 +7502,7 @@ def master_subtask_dimensions_prompt(worker_summaries: dict, user_question: str,
                                       intent: str = "") -> str:
     """Sub-task B: 五维诊断 — 财富/感情/事业/健康/精神 + 年度转折点 + 发展轨迹"""
     workers_str = "\n\n".join(
-        f"[{k.upper()}]\n{v[:400]}" for k, v in worker_summaries.items() if v
+        f"[{k.upper()}]\n{v[:600]}" for k, v in worker_summaries.items() if v
     )
     scores_str = ""
     if dimension_scores:
@@ -7522,13 +7528,25 @@ def master_subtask_dimensions_prompt(worker_summaries: dict, user_question: str,
         f"{intent_hint}"
         "== 绝对禁止 ==\n"
         "禁止出现八字术语（壬水、七杀、伤官等），全部翻译成大白话\n\n"
+        "== 诊断深度要求 ==\n"
+        "每个维度必须包含四层分析，缺一不可：\n"
+        "1. 当前状态：你现在这个方面大概是什么水平（用具体描述，不用分数）\n"
+        "2. 问题根源：导致这个状态的深层原因是什么（关联到具体的命理特征，但用大白话描述）\n"
+        "3. 具体表现：在日常生活中，这个特点会怎么体现（举1-2个生活场景）\n"
+        "4. 改善方向：可以做什么来提升或规避（具体到行为层面）\n\n"
+        "== 时间线要求 ==\n"
+        "每个维度的分析必须覆盖三个时间窗口：\n"
+        "- 近期（1-3个月）：马上会遇到什么，需要立刻注意的\n"
+        "- 中期（半年左右）：趋势往哪个方向走，该提前准备什么\n"
+        "- 长期（1-3年）：大方向上的机遇和挑战\n"
+        "不是每个维度都要写满三个时间窗口，但至少要覆盖近期\n\n"
         "== 输出结构 ==\n"
         "【C·五维诊断】用大白话说清楚五个方面：\n"
-        "财富与事业：当前状态、可能遇到的问题、建议\n"
-        "感情与人际：当前状态、可能遇到的问题、建议\n"
-        "健康与精神：当前状态、可能遇到的问题、建议\n"
-        "每个方面50-100字，直接说结论和建议\n\n"
-        "【D·近期关键节点】未来1-3个月需要注意的时间点\n\n"
+        "财富与事业：四层分析 + 时间线\n"
+        "感情与人际：四层分析 + 时间线\n"
+        "健康与精神：四层分析 + 时间线\n"
+        "每个方面80-150字，要有具体场景和行为建议\n\n"
+        "【D·近期关键节点】未来1-3个月需要注意的时间点，说明具体会发生什么以及怎么应对\n\n"
         f"== 五维评分 ==\n{scores_str}\n\n"
         f"== 专家报告 ==\n{workers_str}\n\n"
         f"== 用户问题 ==\n{user_question}\n\n"
@@ -7544,7 +7562,7 @@ def master_subtask_actions_prompt(worker_summaries: dict, user_question: str,
                                    intent: str = "") -> str:
     """Sub-task C: 行动建议 — 用户问题专项分析 + 能量处方 + 商品推荐"""
     workers_str = "\n\n".join(
-        f"[{k.upper()}]\n{v[:300]}" for k, v in worker_summaries.items() if v
+        f"[{k.upper()}]\n{v[:500]}" for k, v in worker_summaries.items() if v
     )
     scores_str = ""
     if dimension_scores:
@@ -7582,10 +7600,25 @@ def master_subtask_actions_prompt(worker_summaries: dict, user_question: str,
         f"{intent_hint}"
         "== 绝对禁止 ==\n"
         "禁止出现八字术语，全部翻译成大白话\n\n"
+        "== 建议质量要求 ==\n"
+        "1. 证据链接：每条建议必须说明原因，格式为\"因为你的XX特点，所以建议...\"\n"
+        "   用户要知道为什么这条建议适合ta，而不是泛泛的通用建议\n"
+        "2. 优先级排序：用标记区分紧迫程度\n"
+        "   🔴 高优先级：不处理会有明显负面影响的\n"
+        "   🟡 中优先级：做了会明显加分的\n"
+        "   🟢 长期培养：慢慢养成好习惯的\n"
+        "3. 避坑指南：明确告诉用户不要做什么\n"
+        "   至少列出1-2条\"千万别做\"的事情，比如\"不要在冲动时做重大决定\"\n"
+        "4. 可执行性检查：每条建议必须具体到可以今天就开始做\n"
+        "   禁止：\"注意身体健康\"（太笼统）\n"
+        "   要求：\"每天晚饭后散步20分钟\"（具体可执行）\n\n"
         "== 输出结构 ==\n"
-        "【F·针对你问题的分析】直接回答用户提问，给出可操作的建议\n\n"
-        "【G·日常调整建议】3-5条具体的、可执行的建议\n"
-        '例如："每周安排一次运动""睡前放下手机15分钟""有话直说，别憋着"\n\n'
+        "【F·针对你问题的分析】直接回答用户提问，每条建议带原因链接\n\n"
+        "【G·日常调整建议】按优先级排列4-6条具体建议\n"
+        "每条格式：[优先级标记] 建议内容 — 因为你的XX特点\n"
+        '例如：🔴 因为你近期事业压力大，建议每周至少安排2次30分钟的运动来释放压力\n'
+        '例如：🟡 因为你容易在感情中犹豫，建议下次遇到选择时给自己设定48小时的决策期限\n\n'
+        "【H·避坑指南】1-2条明确的\"不要做\"清单\n\n"
         f"== 五维评分 ==\n{scores_str}\n\n"
         f"== 专家报告 ==\n{workers_str}\n\n"
         f"== 用户问题 ==\n{user_question}\n\n"

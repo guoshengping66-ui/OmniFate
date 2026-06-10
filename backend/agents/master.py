@@ -785,10 +785,10 @@ async def answer_with_expert(question: str, agent_id: str, state: SystemState) -
 
 def _build_worker_summaries(state: SystemState, sum_lengths: dict[str, int] | None = None) -> dict[str, str]:
     """Build trimmed worker summaries from state. Used by both preprocessing and sub-tasks.
-    Free users: 200字 (Master Core only needs key signals).
-    Premium users: 500字 (full detail for dims + actions sub-tasks).
+    Free users: 400字 (richer signals for better free report quality).
+    Premium users: 800字 (full detail for dims + actions sub-tasks).
     """
-    default_len = 200 if not state.is_premium else 500
+    default_len = 400 if not state.is_premium else 800
     lengths = sum_lengths or {}
     summaries = {}
     for agent_id in ["astrology", "tarot", "bazi", "qimen", "ziwei", "face", "palm"]:
@@ -819,6 +819,9 @@ def run_master_preprocessing(state: SystemState) -> dict:
     worker_summaries = _build_worker_summaries(state, sum_lengths)
     harm_text = _build_harmonization_hint(products_with_reasons, state)
 
+    # Build evidence chains for cross-validation
+    evidence_chains = _build_evidence_chains(state)
+
     return {
         "resonance_text": resonance_text,
         "conflicts_text": conflicts_text,
@@ -826,6 +829,7 @@ def run_master_preprocessing(state: SystemState) -> dict:
         "worker_summaries": worker_summaries,
         "products_with_reasons": products_with_reasons,
         "harm_text": harm_text,
+        "evidence_chains": evidence_chains,
     }
 
 
@@ -857,6 +861,7 @@ async def run_subtask_core(state: SystemState, prep: dict) -> str:
         confidence_text=prep["confidence_text"],
         intent=state.intent,
         partner_data=partner_data,
+        evidence_chains=prep.get("evidence_chains", ""),
     )
 
     if state.is_premium:
@@ -1235,6 +1240,88 @@ def _detect_cross_confirmations(state: SystemState) -> list[tuple[str, str, int]
             ))
 
     return confirmations
+
+
+def _build_evidence_chains(state: SystemState) -> str:
+    """
+    Build evidence chains for key conclusions across dimensions.
+    Each chain links a conclusion to specific data from multiple workers.
+    """
+    workers = {
+        "八字": state.bazi_output,
+        "奇门": state.qimen_output,
+        "紫微": state.ziwei_output,
+        "星盘": state.astrology_output,
+        "塔罗": state.tarot_output,
+        "面相": state.face_output,
+        "手相": state.palm_output,
+    }
+
+    # Dimension → evidence keywords mapping
+    dim_evidence = {
+        "wealth": {
+            "positive": ["财运好", "财星旺", "财库", "收入稳定", "偏财运"],
+            "negative": ["破财", "财运弱", "投资失利", "收入不稳"],
+            "label": "财运",
+        },
+        "career": {
+            "positive": ["事业心强", "领导力", "升职", "创业成功", "职场顺利"],
+            "negative": ["事业受阻", "工作压力", "职场竞争", "升迁困难"],
+            "label": "事业",
+        },
+        "relationship": {
+            "positive": ["感情顺利", "桃花旺", "婚姻美满", "伴侣和睦"],
+            "negative": ["感情波折", "桃花劫", "婚姻不稳", "感情困扰"],
+            "label": "感情",
+        },
+        "health": {
+            "positive": ["身体健康", "精力充沛", "养生有方"],
+            "negative": ["健康隐患", "身体虚弱", "需要注意健康"],
+            "label": "健康",
+        },
+    }
+
+    evidence_chains = []
+    for dim, keywords in dim_evidence.items():
+        positive_sources = []
+        negative_sources = []
+
+        for agent_label, out in workers.items():
+            text = out.report or ""
+            if any(kw in text for kw in keywords["positive"]):
+                positive_sources.append(agent_label)
+            if any(kw in text for kw in keywords["negative"]):
+                negative_sources.append(agent_label)
+
+        # Build evidence chain for this dimension
+        if positive_sources or negative_sources:
+            chain_parts = []
+            if positive_sources:
+                chain_parts.append(f"正面信号：{'、'.join(positive_sources)} 认可")
+            if negative_sources:
+                chain_parts.append(f"负面信号：{'、'.join(negative_sources)} 提示风险")
+
+            # Calculate consistency score
+            total_sources = len(set(positive_sources + negative_sources))
+            if len(positive_sources) > len(negative_sources):
+                verdict = "整体偏积极"
+            elif len(negative_sources) > len(positive_sources):
+                verdict = "需要关注"
+            else:
+                verdict = "信号混合，需综合判断"
+
+            evidence_chains.append(
+                f"  [{keywords['label']}] {'；'.join(chain_parts)} → {verdict}"
+            )
+
+    if not evidence_chains:
+        return ""
+
+    return (
+        "== 证据链摘要（供报告引用）==\n"
+        "以下为各维度的多体系证据汇总，报告中引用时请注明数据来源：\n"
+        + "\n".join(evidence_chains)
+    )
 
 
 def _build_harmonization_hint(products_with_reasons: list[dict], state: SystemState) -> str:
