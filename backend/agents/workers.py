@@ -928,7 +928,9 @@ async def run_qimen_ziwei(state: SystemState) -> list[WorkerOutput]:
     """
     t0 = time.time()
     bi = state.birth_info
+    print(f"[QIMEN_ZIWEI] Worker started, birth_info={bi is not None}, mock={_use_mock()}")
     if bi is None:
+        print("[QIMEN_ZIWEI] ERROR: birth_info is None, skipping")
         return [
             WorkerOutput(agent_id="qimen", error="birth_info missing"),
             WorkerOutput(agent_id="ziwei", error="birth_info missing"),
@@ -1028,13 +1030,16 @@ async def run_qimen_ziwei(state: SystemState) -> list[WorkerOutput]:
     msgs = [SystemMessage(content=sys_content), HumanMessage(content=user_msg)]
 
     if _use_mock():
+        print("[QIMEN_ZIWEI] Using MOCK data (no API key)")
         report_q = _mock("qimen", "merged qimen+ziwei")
         report_z = _mock("ziwei", "merged qimen+ziwei")
     else:
+        print(f"[QIMEN_ZIWEI] Calling LLM, model={settings.FREE_MODEL}, timeout=90s")
         try:
             report = await asyncio.wait_for(llm.ainvoke(msgs), timeout=90)
+            print(f"[QIMEN_ZIWEI] LLM response received, length={len(report.content)}")
         except asyncio.TimeoutError:
-            print("[qimen_ziwei] LLM timed out after 90s")
+            print("[QIMEN_ZIWEI] LLM timed out after 90s")
             report = type('obj', (object,), {'content': '{"error":"timeout"}'})()
         full_text = report.content
         # Post-process: clean residual Chinese in English output
@@ -1078,6 +1083,7 @@ async def run_qimen_ziwei(state: SystemState) -> list[WorkerOutput]:
         report_z = _build_compact_report(ziwei_data)
 
     t_elapsed = (time.time() - t0) * 1000
+    print(f"[QIMEN_ZIWEI] Done in {t_elapsed:.0f}ms, qimen report={len(report_q)}chars, ziwei report={len(report_z)}chars")
 
     # Return two separate WorkerOutput objects
     return [
