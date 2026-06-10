@@ -51,14 +51,18 @@ function fixLocalhostRedirects(response: NextResponse, request: NextRequest): Ne
   const host = request.headers.get("host") || "khanfate.com"
   const proto = request.headers.get("x-forwarded-proto") || "https"
 
+  // Hostname allowlist to prevent open redirect attacks
+  const ALLOWED_HOSTS = ["khanfate.com", "www.khanfate.com", "localhost:3000", "127.0.0.1:3000"]
+  const safeHost = ALLOWED_HOSTS.includes(host) ? host : "khanfate.com"
+
   // Extract just the path (and query) from the redirect URL
   try {
     const locUrl = new URL(location)
-    const fixedUrl = `${proto}://${host}${locUrl.pathname}${locUrl.search}`
+    const fixedUrl = `${proto}://${safeHost}${locUrl.pathname}${locUrl.search}`
     response.headers.set("location", fixedUrl)
   } catch {
     // If URL parsing fails, try a simple regex replace
-    const fixed = location.replace(/https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?/, `${proto}://${host}`)
+    const fixed = location.replace(/https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?/, `${proto}://${safeHost}`)
     response.headers.set("location", fixed)
   }
 

@@ -5,8 +5,11 @@ services/product_matcher.py
 """
 from __future__ import annotations
 import json
+import logging
 from pathlib import Path
 from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 
 class ProductMatcher:
@@ -184,7 +187,7 @@ class ProductMatcher:
                 self._products: list[dict] = json.load(f)
         except (FileNotFoundError, json.JSONDecodeError):
             self._products = []
-            print(f"[WARN] 商品数据文件不存在或格式错误: {path}")
+            logger.warning("商品数据文件不存在或格式错误: %s", path)
 
     def match(
         self,
@@ -316,8 +319,8 @@ class ProductMatcher:
                 else:
                     reasons.append(f"星盘配置「{tag}」对应")
 
-        sales_bonus = min(product.get("sales_count", 0) / 1000, 0.5)
-        rating_bonus = (product.get("rating", 3.0) - 3.0) * 0.2
+        sales_bonus = min((product.get("sales_count") or 0) / 1000, 0.5)
+        rating_bonus = ((product.get("rating") or 3.0) - 3.0) * 0.2
         score += sales_bonus + rating_bonus
 
         return score, reasons
@@ -361,8 +364,8 @@ class ProductMatcher:
             if tag in p_astro or tag in p_keywords or tag in p_keywords_en:
                 score += 1.5
 
-        sales_bonus = min(product.get("sales_count", 0) / 1000, 0.5)
-        rating_bonus = (product.get("rating", 3.0) - 3.0) * 0.2
+        sales_bonus = min((product.get("sales_count") or 0) / 1000, 0.5)
+        rating_bonus = ((product.get("rating") or 3.0) - 3.0) * 0.2
         score += sales_bonus + rating_bonus
 
         return score

@@ -1,6 +1,7 @@
 "use client"
 import { useState, useEffect, useRef, useCallback } from "react"
 import { X, Clock, CheckCircle, Loader2, Copy, AlertCircle, RefreshCw, ExternalLink } from "lucide-react"
+import toast from "react-hot-toast"
 import { apiDirect, unlockReport } from "@/lib/api"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { PayPalPayment } from "./PayPalPayment"
@@ -261,7 +262,10 @@ export function QRPaymentModal({
     setStatus("verifying")
     try {
       await apiDirect.post("/api/personal-payments/verify", { order_no: orderNo })
-    } catch {}
+    } catch (err) {
+      console.error("Payment verification failed:", err)
+      // Still continue to waiting state — server may process asynchronously
+    }
     setStatus("waiting")
     startPollForStatus()
   }
@@ -341,6 +345,7 @@ export function QRPaymentModal({
         pollTimerRef.current = setTimeout(poll, POLL_INTERVAL)
       } else {
         setStatus("waiting")
+        toast.error(t("payment.pollTimeout") || "Payment verification is taking longer than expected. Please check your email for updates.")
       }
     }
     pollTimerRef.current = setTimeout(poll, POLL_INTERVAL)
@@ -365,6 +370,7 @@ export function QRPaymentModal({
         pollTimerRef.current = setTimeout(poll, POLL_INTERVAL)
       } else {
         setStatus("waiting")
+        toast.error(t("payment.pollTimeout") || "Payment verification is taking longer than expected. Please check your email for updates.")
       }
     }
     pollTimerRef.current = setTimeout(poll, POLL_INTERVAL)
@@ -631,7 +637,7 @@ export function QRPaymentModal({
                   <p className="text-white/50 text-sm mb-2">Please complete payment in the PayPal window</p>
                   <p className="text-white/30 text-xs mb-4">Once payment is confirmed, your account will be activated automatically</p>
                   {paypalOrderId && (
-                    <button onClick={() => window.open(paypalOrderId, "_blank")}
+                    <button onClick={() => window.open("https://www.paypal.com/myaccount/checkout/", "_blank")}
                       className="btn-secondary flex items-center justify-center gap-2 mx-auto mb-4 px-6 py-2">
                       <ExternalLink size={14} /> Reopen PayPal
                     </button>

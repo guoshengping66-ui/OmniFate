@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { ShoppingBag, CheckCircle, Loader2, ArrowLeft, Ticket, Crown, CreditCard, MapPin } from "lucide-react"
 import toast from "react-hot-toast"
@@ -28,6 +28,7 @@ export default function CheckoutPage() {
   const [paymentOpen, setPaymentOpen] = useState(false)
   const [createdOrderNo, setCreatedOrderNo] = useState<string | null>(null)
   const [createdOrderTotal, setCreatedOrderTotal] = useState(0)
+  const isSubmitting = useRef(false)
 
   const couponBalanceCny = user?.shop_coupon_balance ?? 0
   const couponBalanceLocal = region === "overseas" ? couponBalanceCny / CNY_TO_USD_RATE : couponBalanceCny
@@ -44,6 +45,7 @@ export default function CheckoutPage() {
   )
 
   const handleCheckout = async () => {
+    if (isSubmitting.current) return
     if (!user) {
       toast.error(t("checkout.loginFirst"))
       router.push(localeHref("/login"))
@@ -53,6 +55,7 @@ export default function CheckoutPage() {
       toast.error(t("checkout.selectAddress"))
       return
     }
+    isSubmitting.current = true
     setLoading(true)
     try {
       const result = await createOrder({
@@ -75,6 +78,7 @@ export default function CheckoutPage() {
       toast.error(err?.response?.data?.detail ?? t("checkout.orderFail"))
     } finally {
       setLoading(false)
+      isSubmitting.current = false
     }
   }
 

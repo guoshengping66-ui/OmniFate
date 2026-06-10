@@ -317,7 +317,10 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
         sentences = _re.split(r'[。！？\n]', resonance)
         for s in sentences:
             s = s.strip()
-            if len(s) > 30 and any(kw in s for kw in ['问题', '瓶颈', '挑战', '需要注意', '建议', '关键']):
+            _preview_kw_cn = ['问题', '瓶颈', '挑战', '需要注意', '建议', '关键']
+            _preview_kw_en = ['problem', 'bottleneck', 'challenge', 'attention', 'suggest', 'key', 'important', 'difficulty']
+            _preview_kws = _preview_kw_cn + _preview_kw_en
+            if len(s) > 30 and any(kw in s.lower() for kw in _preview_kws):
                 premium_preview = s.rstrip("。，")
                 break
 
@@ -412,7 +415,10 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
             lines.append("【F · Your Unique Strengths】")
         else:
             lines.append("【F · 你的独特优势】")
-        lines.append("根据命盘分析，你拥有以下独特优势：")
+        if is_en:
+            lines.append("Based on your chart analysis, your unique strengths are:")
+        else:
+            lines.append("根据命盘分析，你拥有以下独特优势：")
         lines.append(unique_strengths)
 
     # Section G: Premium Preview

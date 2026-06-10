@@ -7377,6 +7377,7 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
         f"== 专家报告 ==\n{workers_str}\n\n"
         f"== 用户问题 ==\n{user_question}\n\n"
         f"{partner_section}\n"
+        f"== 跨体系证据链 ==\n{evidence_chains or '无额外交叉验证证据'}\n\n"
         f"{confidence_text}\n\n"
         "请用大白话生成分析报告。"
     )

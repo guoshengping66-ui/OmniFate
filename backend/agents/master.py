@@ -795,7 +795,18 @@ def _build_worker_summaries(state: SystemState, sum_lengths: dict[str, int] | No
         report = getattr(state, f"{agent_id}_output").report or ""
         length = lengths.get(agent_id, default_len)
         # For short reports, use full text (no truncation)
-        summaries[agent_id] = report[:length] if len(report) > length else report
+        if len(report) > length:
+            truncated = report[:length]
+            # Find a sentence boundary (。！？\n) within the last 20% of the truncation point
+            search_start = int(length * 0.8)
+            for boundary_char in ['。', '！', '？', '\n']:
+                idx = truncated.rfind(boundary_char, search_start)
+                if idx != -1:
+                    truncated = truncated[:idx + 1]
+                    break
+            summaries[agent_id] = truncated
+        else:
+            summaries[agent_id] = report
     return summaries
 
 
@@ -877,13 +888,16 @@ async def run_subtask_core(state: SystemState, prep: dict) -> str:
     else:
         # Free users (non-RELATIONSHIP): two separate LLM calls to avoid
         # truncation. Each section gets its own full token budget.
+        # personality and resonance functions don't accept evidence_chains
+        no_chain_args = {k: v for k, v in common_args.items() if k != "evidence_chains"}
+
         # Call 1: Section A (personality)
-        sys_a = master_subtask_core_personality_prompt(**common_args)
+        sys_a = master_subtask_core_personality_prompt(**no_chain_args)
         part_a = await _call(sys_a, "请生成核心性格底色分析。", model=llm_model, language=state.language,
                             max_tokens=llm_max_tokens)
 
         # Call 2: Section B (cross-dimension resonance)
-        sys_b = master_subtask_core_resonance_prompt(**common_args)
+        sys_b = master_subtask_core_resonance_prompt(**no_chain_args)
         part_b = await _call(sys_b, "请生成跨维度共鸣分析。", model=llm_model, language=state.language,
                             max_tokens=llm_max_tokens)
 
@@ -1302,7 +1316,6 @@ def _build_evidence_chains(state: SystemState) -> str:
                 chain_parts.append(f"负面信号：{'、'.join(negative_sources)} 提示风险")
 
             # Calculate consistency score
-            total_sources = len(set(positive_sources + negative_sources))
             if len(positive_sources) > len(negative_sources):
                 verdict = "整体偏积极"
             elif len(negative_sources) > len(positive_sources):

@@ -76,20 +76,18 @@ async def _check_rate_limit(key: str, max_per_window: int = 20) -> bool:
 
 
 def _get_client_ip(request: Request) -> str:
-    """Get client IP from trusted sources only."""
-    # When behind Nginx reverse proxy, Nginx sets X-Real-IP
-    # Only trust this if we're behind our known proxy
-    real_ip = request.headers.get("x-real-ip")
-    if real_ip:
-        # Validate it looks like an IP (basic sanity check)
-        try:
-            ipaddress.ip_address(real_ip.split(",")[0].strip())
-            return real_ip.split(",")[0].strip()
-        except ValueError:
-            pass
-
-    # Fallback to direct client connection
-    return request.client.host if request.client else "unknown"
+    """Get client IP — only trust X-Real-IP from the local reverse proxy."""
+    client_host = request.client.host if request.client else "unknown"
+    # Only trust X-Real-IP if the connection comes from the local reverse proxy
+    if client_host in ("127.0.0.1", "::1", "localhost"):
+        real_ip = request.headers.get("x-real-ip")
+        if real_ip:
+            try:
+                ipaddress.ip_address(real_ip.split(",")[0].strip())
+                return real_ip.split(",")[0].strip()
+            except ValueError:
+                pass
+    return client_host
 
 
 # ── Account lockout ────────────────────────────────────────────────────────

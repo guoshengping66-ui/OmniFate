@@ -7,6 +7,7 @@ from __future__ import annotations
 import enum
 import uuid
 from datetime import datetime
+from decimal import Decimal
 from typing import Optional
 
 from sqlalchemy import (
@@ -524,7 +525,7 @@ class CryptoOrder(Base):
     user_id: Mapped[str] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    amount_usdt: Mapped[float] = mapped_column(Float, nullable=False)
+    amount_usdt: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
     network: Mapped[str] = mapped_column(String(20), nullable=False)  # "TRC20" | "ARBITRUM"
     stardust_granted: Mapped[int] = mapped_column(Integer, default=0)
     status: Mapped[str] = mapped_column(String(20), default="pending")  # pending|success|failed

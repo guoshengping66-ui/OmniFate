@@ -98,7 +98,7 @@ export function solarToDateStr(year: number, month: number, day: number): string
 export function getGanZhiYear(year: number): string {
   const gan = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"]
   const zhi = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"]
-  const ganIdx = (year - 4) % 10
-  const zhiIdx = (year - 4) % 12
+  const ganIdx = ((year - 4) % 10 + 10) % 10
+  const zhiIdx = ((year - 4) % 12 + 12) % 12
   return `${gan[ganIdx]}${zhi[zhiIdx]}`
 }

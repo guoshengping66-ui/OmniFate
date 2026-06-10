@@ -128,14 +128,11 @@ PRODUCT_PRICES = {
 
 # ── Stardust constants ──────────────────────────────────────────────────────
 GRANT_ON_REPORT_UNLOCK = 50   # 解锁报告奖励星尘
-GRANT_ON_REGISTER = 150         # 注册奖励星尘（足够解锁精读+多次追问）
 SUBSCRIPTION_GRANTS = {
     "premium_monthly": 100,
     "premium_yearly": 150,
     "founder_lifetime": 500,
 }
-
-CNY_TO_USD_RATE = 7.2  # 1 USD ≈ 7.2 CNY
 
 
 # ─── Payment Methods ──────────────────────────────────────────────────────────
@@ -516,7 +513,7 @@ class WeChatPay:
             "body": description,
             "out_trade_no": order_no,
             "total_fee": str(amount_fen),
-            "spbill_create_ip": "127.0.0.1",
+            "spbill_create_ip": "127.0.0.1",  # TODO: Use actual client IP from request.headers.get("x-real-ip") or request.client.host
             "notify_url": self.notify_url,
             "trade_type": "NATIVE",
         }
@@ -1131,6 +1128,7 @@ async def paypal_return(
     token: str = Query(""),
     PayerID: str = Query(""),
     db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_user),
 ):
     """PayPal redirect callback after user approves payment.
 
@@ -1342,7 +1340,7 @@ async def unlock_report(
     source=payment: 验证已支付订单。
     source=stardust: 原子操作——检查余额→扣减星尘→解锁报告。
     """
-    print(f"[UNLOCK] reading_id={reading_id}, source={source}, tier={tier}, user={current_user.id}", flush=True)
+    logger.info(f"[UNLOCK] reading_id={reading_id}, source={source}, tier={tier}, user={current_user.id}")
     # 1. 查找报告
     reading_result = await db.execute(select(Reading).where(Reading.id == reading_id))
     reading = reading_result.scalar_one_or_none()
@@ -1414,7 +1412,7 @@ async def unlock_report(
             select(User).where(User.id == current_user.id).with_for_update()
         )
         user = user_result.scalar_one()
-        print(f"[UNLOCK] stardust check: balance={user.stardust_balance}, cost={stardust_cost}, tier={tier}")
+        logger.info(f"[UNLOCK] stardust check: balance={user.stardust_balance}, cost={stardust_cost}, tier={tier}")
         if user.stardust_balance < stardust_cost:
             raise HTTPException(
                 status_code=402,
@@ -1775,7 +1773,7 @@ async def subscribe_tier(
     await db.commit()
     await db.refresh(user)
 
-    price_label = "¥298/年" if tier == "premium_yearly" else "¥49/月"
+    price_label = f"¥{int(PREMIUM_YEARLY_CNY)}/年" if tier == "premium_yearly" else f"¥{int(PREMIUM_MONTHLY_CNY)}/月"
 
     return {
         "subscription_id": f"sub_{uuid.uuid4().hex[:8]}",

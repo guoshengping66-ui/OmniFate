@@ -36,13 +36,13 @@ jobs:
       - name: Monthly Stardust Grant
         run: |
           echo "🕐 $(date -u) — Running monthly stardust grant..."
-          if [ -z "${{ secrets.CRON_SECRET }}" ] || [ -z "${{ secrets.API_BASE }}" ]; then
+          if [ -z "$CRON_SECRET" ] || [ -z "$API_BASE" ]; then
             echo "⚠️ Secrets CRON_SECRET or API_BASE not configured, skipping."
             exit 0
           fi
           RESP=$(curl -sL -w "\n%{http_code}" -X POST \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            "${{ secrets.API_BASE }}/api/cron/monthly-stardust")
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "$API_BASE/api/cron/monthly-stardust")
           HTTP_CODE=$(echo "$RESP" | tail -1)
           BODY=$(echo "$RESP" | head -n -1)
           echo "Status: $HTTP_CODE"
@@ -51,6 +51,9 @@ jobs:
             echo "❌ Failed with HTTP $HTTP_CODE"
             exit 1
           fi
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          API_BASE: ${{ secrets.API_BASE }}
 
   expire-check:
     if: github.event.schedule == '30 16 * * *' || github.event_name == 'workflow_dispatch'
@@ -59,13 +62,13 @@ jobs:
       - name: Membership Expiry Check
         run: |
           echo "🕐 $(date -u) — Running expire check..."
-          if [ -z "${{ secrets.CRON_SECRET }}" ] || [ -z "${{ secrets.API_BASE }}" ]; then
+          if [ -z "$CRON_SECRET" ] || [ -z "$API_BASE" ]; then
             echo "⚠️ Secrets CRON_SECRET or API_BASE not configured, skipping."
             exit 0
           fi
           RESP=$(curl -sL -w "\n%{http_code}" -X POST \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            "${{ secrets.API_BASE }}/api/cron/expire-check")
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "$API_BASE/api/cron/expire-check")
           HTTP_CODE=$(echo "$RESP" | tail -1)
           BODY=$(echo "$RESP" | head -n -1)
           echo "Status: $HTTP_CODE"
@@ -74,6 +77,9 @@ jobs:
             echo "❌ Failed with HTTP $HTTP_CODE"
             exit 1
           fi
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          API_BASE: ${{ secrets.API_BASE }}
 
   expiry-reminder:
     if: github.event.schedule == '0 02 * * 0' || github.event_name == 'workflow_dispatch'
@@ -82,13 +88,13 @@ jobs:
       - name: Expiry Reminder
         run: |
           echo "🕐 $(date -u) — Running expiry reminder..."
-          if [ -z "${{ secrets.CRON_SECRET }}" ] || [ -z "${{ secrets.API_BASE }}" ]; then
+          if [ -z "$CRON_SECRET" ] || [ -z "$API_BASE" ]; then
             echo "⚠️ Secrets CRON_SECRET or API_BASE not configured, skipping."
             exit 0
           fi
           RESP=$(curl -sL -w "\n%{http_code}" -X POST \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            "${{ secrets.API_BASE }}/api/cron/expiry-reminder")
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "$API_BASE/api/cron/expiry-reminder")
           HTTP_CODE=$(echo "$RESP" | tail -1)
           BODY=$(echo "$RESP" | head -n -1)
           echo "Status: $HTTP_CODE"
@@ -97,6 +103,9 @@ jobs:
             echo "❌ Failed with HTTP $HTTP_CODE"
             exit 1
           fi
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          API_BASE: ${{ secrets.API_BASE }}
 
   cleanup-readings:
     if: github.event.schedule == '0 19 * * *' || github.event_name == 'workflow_dispatch'
@@ -105,13 +114,13 @@ jobs:
       - name: Cleanup Old Readings (7 days)
         run: |
           echo "🕐 $(date -u) — Cleaning up readings older than 7 days..."
-          if [ -z "${{ secrets.CRON_SECRET }}" ] || [ -z "${{ secrets.API_BASE }}" ]; then
+          if [ -z "$CRON_SECRET" ] || [ -z "$API_BASE" ]; then
             echo "⚠️ Secrets CRON_SECRET or API_BASE not configured, skipping."
             exit 0
           fi
           RESP=$(curl -sL -w "\n%{http_code}" -X POST \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            "${{ secrets.API_BASE }}/api/cron/cleanup-readings")
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "$API_BASE/api/cron/cleanup-readings")
           HTTP_CODE=$(echo "$RESP" | tail -1)
           BODY=$(echo "$RESP" | head -n -1)
           echo "Status: $HTTP_CODE"
@@ -120,6 +129,9 @@ jobs:
             echo "❌ Failed with HTTP $HTTP_CODE"
             exit 1
           fi
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          API_BASE: ${{ secrets.API_BASE }}
 
   cancel-expired-orders:
     if: github.event.schedule == '*/5 * * * *' || github.event_name == 'workflow_dispatch'
@@ -128,13 +140,13 @@ jobs:
       - name: Cancel Expired Orders (30min timeout)
         run: |
           echo "🕐 $(date -u) — Cancelling orders expired > 30min..."
-          if [ -z "${{ secrets.CRON_SECRET }}" ] || [ -z "${{ secrets.API_BASE }}" ]; then
+          if [ -z "$CRON_SECRET" ] || [ -z "$API_BASE" ]; then
             echo "⚠️ Secrets CRON_SECRET or API_BASE not configured, skipping."
             exit 0
           fi
           RESP=$(curl -sL -w "\n%{http_code}" -X POST \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            "${{ secrets.API_BASE }}/api/cron/cancel-expired-orders")
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "$API_BASE/api/cron/cancel-expired-orders")
           HTTP_CODE=$(echo "$RESP" | tail -1)
           BODY=$(echo "$RESP" | head -n -1)
           echo "Status: $HTTP_CODE"
@@ -143,3 +155,6 @@ jobs:
             echo "❌ Failed with HTTP $HTTP_CODE"
             exit 1
           fi
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          API_BASE: ${{ secrets.API_BASE }}

@@ -30,7 +30,7 @@ def _verify_cron_secret(authorization: str = Header(None)):
     if not authorization:
         raise HTTPException(status_code=401, detail="Missing authorization")
     # 支持 "Bearer <token>" 格式
-    token = authorization.replace("Bearer ", "").strip()
+    token = authorization.split(" ", 1)[-1] if " " in authorization else authorization.strip()
     if not hmac.compare_digest(token, settings.CRON_SECRET):
         raise HTTPException(status_code=403, detail="Invalid cron secret")
 
