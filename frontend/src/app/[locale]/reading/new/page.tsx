@@ -175,6 +175,8 @@ export default function NewReadingPage() {
   // Other state
   const [tarotCards, setTarotCards]   = useState<{ position: string; card: string; reversed: boolean }[]>([])
   const [palmData, setPalmData]       = useState<Record<string, string>>({})
+  const [calendarType, setCalendarType] = useState<"solar" | "lunar">("solar")
+  const [partnerCalendarType, setPartnerCalendarType] = useState<"solar" | "lunar">("solar")
   const [showFaceGuide, setShowFaceGuide] = useState(false)
   const [showPalmGuide, setShowPalmGuide] = useState(false)
   const faceRef = useRef<HTMLInputElement>(null)
@@ -723,6 +725,8 @@ export default function NewReadingPage() {
                   onYearChange={v => setValue("birth_year", v)}
                   onMonthChange={v => setValue("birth_month", v)}
                   onDayChange={v => setValue("birth_day", v)}
+                  calendarType={calendarType}
+                  onCalendarTypeChange={setCalendarType}
                 />
               </Suspense>
               {(errors.birth_year || errors.birth_month || errors.birth_day) && (
@@ -824,6 +828,8 @@ export default function NewReadingPage() {
                       onYearChange={v => setValue("partner_birth_year", v)}
                       onMonthChange={v => setValue("partner_birth_month", v)}
                       onDayChange={v => setValue("partner_birth_day", v)}
+                      calendarType={partnerCalendarType}
+                      onCalendarTypeChange={setPartnerCalendarType}
                     />
                   </Suspense>
                 </div>

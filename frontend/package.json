@@ -21,6 +21,7 @@
     "html2canvas": "^1.4.1",
     "jspdf": "^2.5.2",
     "lucide-react": "^0.511.0",
+    "lunar-javascript": "^1.7.7",
     "negotiate": "^1.0.1",
     "next": "15.5.15",
     "next-intl": "^4.12.0",

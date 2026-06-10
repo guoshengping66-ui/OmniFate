@@ -7,6 +7,7 @@ import { DateSelector } from "@/components/reading/DateSelector"
 import { ShichenSelector } from "@/components/reading/ShichenSelector"
 import { LocationSelector } from "@/components/reading/LocationSelector"
 import { useLanguage } from "@/contexts/LanguageContext"
+import type { CalendarType } from "@/lib/lunarCalendar"
 
 export function BirthProfileSetup() {
   const { createBirthProfile } = useUserStore()
@@ -19,6 +20,7 @@ export function BirthProfileSetup() {
   const [minute, setMinute] = useState(0)
   const [city, setCity] = useState("")
   const [loading, setLoading] = useState(false)
+  const [calendarType, setCalendarType] = useState<CalendarType>("solar")
 
   const hasData = year > 0 && month > 0 && day > 0
 
@@ -73,6 +75,8 @@ export function BirthProfileSetup() {
           onYearChange={setYear}
           onMonthChange={setMonth}
           onDayChange={setDay}
+          calendarType={calendarType}
+          onCalendarTypeChange={setCalendarType}
         />
 
         <ShichenSelector
