@@ -2896,6 +2896,7 @@
     "success": "Payment Successful!",
     "successDesc": "Membership activated — start exploring your destiny!",
     "successTitle": "Payment Successful!",
+    "onetimeUnlock": "One-Time Unlock $9.9",
     "unlockReport": "Unlock Report ¥19.9",
     "waitingConfirm": "Awaiting Confirmation",
     "waitingDesc1": "Payment submitted — awaiting admin verification",

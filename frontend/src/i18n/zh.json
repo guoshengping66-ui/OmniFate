@@ -2896,6 +2896,7 @@
     "success": "支付成功！",
     "successDesc": "会员已激活，开始探索你的命运吧",
     "successTitle": "支付成功！",
+    "onetimeUnlock": "一次性解锁 ¥19.9",
     "unlockReport": "解锁报告 ¥19.9",
     "waitingConfirm": "等待确认",
     "waitingDesc1": "您的支付已提交，正在等待管理员核实收款",
