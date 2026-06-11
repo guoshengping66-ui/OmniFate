@@ -2109,7 +2109,7 @@ async def admin_stats(
         select(User).order_by(User.created_at.desc()).limit(20)
     )
     recent_users = [
-        {"email": u.email, "nickname": u.nickname, "created_at": u.created_at.isoformat() if u.created_at else None}
+        {"email": u.email, "nickname": u.display_name, "created_at": u.created_at.isoformat() if u.created_at else None}
         for u in recent_users_result.scalars().all()
     ]
 
@@ -2203,7 +2203,7 @@ async def list_shop_orders(
     for order in orders:
         user_info = None
         if order.user:
-            user_info = {"id": order.user.id, "nickname": order.user.nickname, "email": order.user.email}
+            user_info = {"id": order.user.id, "nickname": order.user.display_name, "email": order.user.email}
 
         order_list.append({
             "order_no": order.order_no,
@@ -2269,7 +2269,7 @@ async def get_shop_order_detail(
 
     user_info = None
     if order.user:
-        user_info = {"id": order.user.id, "nickname": order.user.nickname, "email": order.user.email}
+        user_info = {"id": order.user.id, "nickname": order.user.display_name, "email": order.user.email}
 
     return {
         "order_no": order.order_no,
