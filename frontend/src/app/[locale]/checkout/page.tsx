@@ -253,6 +253,7 @@ export default function CheckoutPage() {
           <PaymentMethodSelector
             selected={paymentMethod}
             onSelect={setPaymentMethod}
+            region={region}
           />
         </div>
 
@@ -300,7 +301,7 @@ export default function CheckoutPage() {
         shopOrderNo={createdOrderNo || undefined}
         shopAmount={createdOrderTotal}
         region={region === "overseas" ? "overseas" : "domestic"}
-        initialMethod={paymentMethod as "paypal" | "credit_card" | "alipay" | "wechat" | undefined}
+        initialMethod={(paymentMethod === "wechat_pay" ? "wechat" : paymentMethod) as "paypal" | "credit_card" | "alipay" | "wechat" | undefined}
         onSuccess={handlePaymentSuccess}
       />
     </div>

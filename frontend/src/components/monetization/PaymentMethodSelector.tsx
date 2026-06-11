@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useState } from "react"
-import { CreditCard, Smartphone, Globe, Check, ChevronRight } from "lucide-react"
+import { CreditCard, Check, ChevronRight } from "lucide-react"
 import { getPaymentMethods, PaymentMethod } from "@/lib/api"
 import { useLanguage } from "@/contexts/LanguageContext"
 
@@ -29,9 +29,11 @@ interface PaymentMethodSelectorProps {
   selected: string
   onSelect: (methodId: string) => void
   className?: string
+  /** Filter methods by region: "domestic" = china only, "overseas" = global only */
+  region?: "domestic" | "overseas"
 }
 
-export function PaymentMethodSelector({ selected, onSelect, className = "" }: PaymentMethodSelectorProps) {
+export function PaymentMethodSelector({ selected, onSelect, className = "", region = "domestic" }: PaymentMethodSelectorProps) {
   const { t } = useLanguage()
   const [methods, setMethods] = useState<PaymentMethod[]>([])
   const [loading, setLoading] = useState(true)
@@ -50,8 +52,17 @@ export function PaymentMethodSelector({ selected, onSelect, className = "" }: Pa
       .finally(() => setLoading(false))
   }, [])
 
+  // Filter by region: domestic → china methods only, overseas → global methods only
   const chinaMethods = methods.filter(m => m.category === "china" && m.enabled)
   const globalMethods = methods.filter(m => m.category === "global" && m.enabled)
+  const visibleMethods = region === "overseas" ? globalMethods : chinaMethods
+
+  // Auto-select first available method if current selection is not in visible list
+  useEffect(() => {
+    if (visibleMethods.length > 0 && !visibleMethods.some(m => m.id === selected)) {
+      onSelect(visibleMethods[0].id)
+    }
+  }, [visibleMethods, selected, onSelect])
 
   if (loading) {
     return (
@@ -64,43 +75,14 @@ export function PaymentMethodSelector({ selected, onSelect, className = "" }: Pa
 
   return (
     <div className={`space-y-4 ${className}`}>
-      {chinaMethods.length > 0 && (
-        <div>
-          <div className="flex items-center gap-2 mb-2.5">
-            <Smartphone size={12} className="text-gold/50" />
-            <span className="text-white/30 text-[10px] tracking-wider uppercase">{t("paymentMethod.chinaMethods")}</span>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            {chinaMethods.map((method) => (
-              <PaymentMethodButton
-                key={method.id}
-                method={method}
-                selected={selected === method.id}
-                onClick={() => onSelect(method.id)}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {globalMethods.length > 0 && (
-        <div>
-          <div className="flex items-center gap-2 mb-2.5">
-            <Globe size={12} className="text-gold/50" />
-            <span className="text-white/30 text-[10px] tracking-wider uppercase">Global Payment</span>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            {globalMethods.map((method) => (
-              <PaymentMethodButton
-                key={method.id}
-                method={method}
-                selected={selected === method.id}
-                onClick={() => onSelect(method.id)}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+      {visibleMethods.map((method) => (
+        <PaymentMethodButton
+          key={method.id}
+          method={method}
+          selected={selected === method.id}
+          onClick={() => onSelect(method.id)}
+        />
+      ))}
     </div>
   )
 }

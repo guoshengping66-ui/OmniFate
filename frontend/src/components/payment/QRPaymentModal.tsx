@@ -75,8 +75,8 @@ export function QRPaymentModal({
   const [status, setStatus] = useState<PaymentStatus>(() => {
     if (initialMethod === "credit_card" && isShopPayment) return "loading"
     if (isShopPayment) {
-      // alipay/wechat → show QR; paypal/credit_card → embed
-      if (initialMethod === "alipay" || initialMethod === "wechat_pay") return "showing_qr"
+      // alipay/wechat → show QR directly; paypal → embed; credit_card → loading
+      if (initialMethod === "alipay" || initialMethod === "wechat") return "showing_qr"
       return isOverseas ? "paypal_embedded" : "showing_qr"
     }
     if (preOrderNo) return "showing_qr"
@@ -177,7 +177,7 @@ export function QRPaymentModal({
 
     if (method === "paypal" || method === "credit_card") {
       setStatus("loading")
-    } else if (method === "alipay" || method === "wechat_pay") {
+    } else if (method === "alipay" || method === "wechat") {
       // Switch to QR code display for alipay/wechat
       if (isShopPayment) {
         setStatus("showing_qr")
