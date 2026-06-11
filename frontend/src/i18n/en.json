@@ -891,7 +891,19 @@
     "milestone3": "Multi-system reading online, Face/Palm recognition integrated",
     "milestone4": "Public beta launch, remedy shop & payment system online",
     "milestone5": "Privacy compliance upgrade, legal pages finalized",
-    "architecture": "How It Works",
+    "architecture": {
+      "_original": "How It Works",
+      "layer1": "Your Input",
+      "layer1Desc": "You share your birth information (date, time, and city), face photo, palm photo, and a tarot question — each piece adds depth to your reading.",
+      "layer2": "Path Selection",
+      "layer2Desc": "The Master Reading picks the right wisdom paths based on your needs, activating all five traditions at once.",
+      "layer3": "Deep Reading",
+      "layer3Desc": "Bazi traces the Five Elements flow, Astrology interprets houses and aspects, Tarot maps the current moment, Face and Palm reveal hidden patterns.",
+      "layer4": "Master Weave",
+      "layer4Desc": "The Master Reading weaves five tradition reports into one cohesive narrative, resolving conflicts and finding deep consensus.",
+      "layer5": "Remedy Suggestions",
+      "layer5Desc": "Based on what your chart reveals, we suggest remedy products and weave improvement plans into your report — with interactive follow-up guidance."
+    },
     "architecture-layer1": "Your Input",
     "architecture-layer1Desc": "You share your birth information (date, time, and city), face photo, palm photo, and a tarot question — each piece adds depth to your reading.",
     "architecture-layer2": "Path Selection",
@@ -1460,7 +1472,7 @@
   },
   "fortune": {
     "badge": "Daily Fortune",
-    "sectionDesc": "Personalized fortune guidance and energy recommendations, updated daily based on your chart",
+    "sectionDesc": "Every day carries its own energy — here's what today has in store",
     "advice": {
       "1": "A good day for quiet reflection and reviewing your goals",
       "2": "Social energy is high — great for networking",
@@ -1514,7 +1526,6 @@
       "tuesday": "Tue",
       "wednesday": "Wed"
     },
-    "badge": "Daily Fortune",
     "basedOnChart": "Based on your chart data",
     "career": "Career",
     "collapse": "Collapse",
@@ -1526,7 +1537,6 @@
     "luckyColor": "Lucky Color",
     "luckyNumber": "Lucky Number",
     "overallScore": "Overall",
-    "sectionDesc": "Every day carries its own energy — here's what today has in store",
     "sectionTitle": "Your Daily Fortune Guide",
     "startReading": "Start Your Reading",
     "title": "Today's Fortune",
@@ -1898,7 +1908,9 @@
           "score": "9.5"
         }
       ]
-    }
+    },
+    "imageTooLarge": "Image must be under 10MB",
+    "invalidImageType": "Please upload a JPG, PNG, or WebP image"
   },
   "readings": {
     "dim": {
@@ -3329,7 +3341,12 @@
     "eventDesc": "{price}/time — Trace specific events with causality analysis and energy prescription",
     "eventRetrospection": "Event Retrospection · Pay per use",
     "learnMore": "Learn about Event Retrospection",
-    "title": "Choose Your Destiny Plan"
+    "title": "Choose Your Destiny Plan",
+    "onetimeUnlock": "One-Time Unlock · Permanent Report",
+    "onetimeUnlockDesc": "$9.9 permanently unlock one full report, one per account",
+    "onetimeUnlockGift1": "50 Stardust bonus",
+    "onetimeUnlockGift2": "$20 shop coupon",
+    "onetimeUnlockCta": "Unlock Now"
   },
   "wuxing": {
     "earth": "Earth (Tu)",
@@ -3455,6 +3472,16 @@
     "continueTopUp": "Continue Top-up",
     "domestic": "Domestic",
     "overseas": "Overseas",
-    "selectPackage": "Select Package"
+    "selectPackage": "Select Package",
+    "paymentFailed": "Payment failed. Please try again.",
+    "loadingTips": [
+      "Sensing on-chain energy...",
+      "Aligning hash causality...",
+      "Merging cross-chain meridians...",
+      "Deducing Token elements...",
+      "Verifying address feng shui...",
+      "Sensing aura resonance...",
+      "Parsing block imprints..."
+    ]
   }
 }

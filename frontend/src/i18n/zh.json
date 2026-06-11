@@ -891,7 +891,19 @@
     "milestone3": "多 Agent 框架上线，面相/手相 CV 模型集成",
     "milestone4": "公测发布，改运商城 & 付费系统上线",
     "milestone5": "隐私合规升级，法律页面完善",
-    "architecture": "运作原理",
+    "architecture": {
+      "_original": "运作原理",
+      "layer1": "数据采集层",
+      "layer1Desc": "用户提交出生信息（年月日时分+城市经纬度）、面部照片、手掌照片、塔罗选择。多模态输入确保分析原料的丰富性。",
+      "layer2": "专家调度层",
+      "layer2Desc": "Master Agent 根据用户需求激活对应的专家节点，五个垂直 Agent 同时开始并行计算。",
+      "layer3": "专业分析层",
+      "layer3Desc": "八字 Agent 论断五行流年，星盘 Agent 论断宫位相位，塔罗 Agent 结合牌阵进行心理映射，面相与手相 Agent 解读图像特征。",
+      "layer4": "逻辑合参层",
+      "layer4Desc": "Master Agent 读取五份专家报告，寻找共识、处理冲突，以「主诊医生」身份进行逻辑闭环，生成终极报告。",
+      "layer5": "商业变现层",
+      "layer5Desc": "根据生成的「能量标签」自动匹配改运商品，在报告建议中自然植入改善方案，并支持长尾交互追问。"
+    },
     "architecture-layer1": "数据采集层",
     "architecture-layer1Desc": "用户提交出生信息（年月日时分+城市经纬度）、面部照片、手掌照片、塔罗选择。多模态输入确保分析原料的丰富性。",
     "architecture-layer2": "专家调度层",
@@ -1459,8 +1471,8 @@
     "title": "事件复盘"
   },
   "fortune": {
-    "badge": "每日运势",
-    "sectionDesc": "基于你的命盘数据，每日更新个人化运势指引与能量建议",
+    "badge": "每日签",
+    "sectionDesc": "每一天都有独特的能量场，了解今日运势指南",
     "advice": {
       "1": "今日适合静心思考，梳理近期目标",
       "2": "社交运势旺盛，适合拓展人脉",
@@ -1514,7 +1526,6 @@
       "tuesday": "星期二",
       "wednesday": "星期三"
     },
-    "badge": "每日签",
     "basedOnChart": "基于您的命盘数据",
     "career": "事业",
     "collapse": "收起",
@@ -1526,7 +1537,6 @@
     "luckyColor": "幸运色",
     "luckyNumber": "幸运数字",
     "overallScore": "整体运势",
-    "sectionDesc": "每一天都有独特的能量场，了解今日运势指南",
     "sectionTitle": "今日运势指南",
     "startReading": "开始你的推命",
     "title": "今日运势",
@@ -1898,7 +1908,9 @@
           "score": "9.5"
         }
       ]
-    }
+    },
+    "imageTooLarge": "图片大小不能超过 10MB",
+    "invalidImageType": "请上传 JPG、PNG 或 WebP 格式的图片"
   },
   "readings": {
     "dim": {
@@ -3329,7 +3341,12 @@
     "eventDesc": "¥19.9/次 — 针对特定事件的流时溯源诊断，含 AI 因果链分析和能量处方",
     "eventRetrospection": "事件复盘 · 按次计费",
     "learnMore": "了解事件复盘",
-    "title": "选择适合你的命理方案"
+    "title": "选择适合你的命理方案",
+    "onetimeUnlock": "一次性解锁 · 永久报告",
+    "onetimeUnlockDesc": "¥19.9 永久解锁一份全维报告，每个账户限一次",
+    "onetimeUnlockGift1": "赠送 50 星尘",
+    "onetimeUnlockGift2": "¥20 商城代金券",
+    "onetimeUnlockCta": "立即解锁"
   },
   "wuxing": {
     "earth": "土",
@@ -3455,6 +3472,16 @@
     "continueTopUp": "继续充值",
     "domestic": "国内充值",
     "overseas": "海外充值",
-    "selectPackage": "选择套餐"
+    "selectPackage": "选择套餐",
+    "paymentFailed": "支付失败，请重试",
+    "loadingTips": [
+      "正在感应链上灵气…",
+      "正在对齐哈希因果…",
+      "正在合参跨链脉络…",
+      "正在推演 Token 生克…",
+      "正在验证地址风水…",
+      "正在感应气场共振…",
+      "正在解析区块心印…"
+    ]
   }
 }
