@@ -424,6 +424,52 @@ def send_payment_notification_email(
         return False
 
 
+# ── QR 支付确认邮件 ─────────────────────────────────────────────────────────
+
+def send_qr_confirm_email(to_email: str, order_no: str, amount_cny: float, token: str) -> bool:
+    """Send QR payment confirmation email — user must click link to confirm payment."""
+    config = _get_smtp_config()
+    if not config["host"] or not config["user"]:
+        print("[EMAIL] SMTP not configured, skipping QR confirm email")
+        if settings.DEBUG:
+            print(f"[EMAIL] QR confirm link for {to_email}: https://www.khanfate.com/api/payments/confirm-email?token={token}")
+        return False
+
+    confirm_url = f"https://www.khanfate.com/api/payments/confirm-email?token={token}"
+
+    subject = f"确认付款 ¥{amount_cny} - 订单 {order_no}"
+    html_content = f"""
+    <div style="max-width:480px;margin:0 auto;font-family:'PingFang SC','Microsoft YaHei',Arial,sans-serif;color:#333;">
+      <div style="background:linear-gradient(135deg,#2D1B4E,#1a0f2e);padding:30px;text-align:center;border-radius:12px 12px 0 0;">
+        <h2 style="color:#C9A84C;margin:0 0 8px;">✦ 确认付款</h2>
+        <p style="color:rgba(255,255,255,0.5);font-size:13px;margin:0;">请确认您已完成支付</p>
+      </div>
+      <div style="background:#f9f9f9;padding:30px;border-radius:0 0 12px 12px;">
+        <p style="font-size:15px;margin:0 0 16px;">您好，</p>
+        <p style="font-size:14px;color:#555;margin:0 0 20px;">您提交了一笔微信/支付宝付款，请确认您已扫码支付：</p>
+        <div style="background:white;border-radius:8px;padding:16px;margin-bottom:16px;border:1px solid #e5e7eb;">
+          <p style="margin:0 0 8px;font-size:13px;color:#666;">订单号</p>
+          <p style="margin:0 0 16px;font-size:15px;font-weight:bold;color:#111;">{html_mod.escape(order_no)}</p>
+          <p style="margin:0 0 8px;font-size:13px;color:#666;">支付金额</p>
+          <p style="margin:0;font-size:24px;font-weight:bold;color:#C9A84C;">¥{amount_cny}</p>
+        </div>
+        <div style="text-align:center;margin:24px 0;">
+          <a href="{confirm_url}" style="display:inline-block;padding:14px 40px;background:linear-gradient(135deg,#C9A84C,#b8943f);color:#1a0f2e;text-decoration:none;border-radius:24px;font-weight:bold;font-size:16px;">✅ 我已确认付款</a>
+        </div>
+        <p style="font-size:12px;color:#888;margin:0 0 8px;text-align:center;">点击上方按钮确认您已完成支付</p>
+        <p style="font-size:12px;color:#f87171;margin:12px 0 0;text-align:center;">⚠️ 如果您尚未支付，请勿点击此按钮</p>
+        <p style="font-size:11px;color:#aaa;margin:16px 0 0;text-align:center;">此确认链接 30 分钟内有效</p>
+      </div>
+      <div style="text-align:center;padding:15px;font-size:11px;color:#aaa;">
+        命盘智镜 · 全维度命理分析平台<br/>
+        <a href="https://www.khanfate.com/privacy" style="color:#aaa;">隐私政策</a> ·
+        <a href="https://www.khanfate.com/terms" style="color:#aaa;">服务条款</a>
+      </div>
+    </div>
+    """
+    return _send_email(to_email, subject, html_content)
+
+
 # ── 退款相关邮件通知 ──────────────────────────────────────────────────────────
 
 def send_refund_request_notification(

@@ -292,6 +292,10 @@ class Order(Base):
     cj_response: Mapped[Optional[dict]] = mapped_column(JSON)                # CJ 原始响应
     fulfilled_via: Mapped[Optional[str]] = mapped_column(String(20))         # "cj" / "manual"
 
+    # QR payment email confirmation fields
+    confirm_token: Mapped[Optional[str]] = mapped_column(String(64))         # 邮件确认 token
+    confirm_expires: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))  # token 过期时间
+
     user: Mapped[Optional["User"]] = relationship(back_populates="orders")
     items: Mapped[list["OrderItem"]] = relationship(back_populates="order", cascade="all, delete-orphan")
 

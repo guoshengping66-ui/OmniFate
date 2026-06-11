@@ -2485,9 +2485,12 @@ async def confirm_shop_qr_payment(
     current_user: User = Depends(require_user),
 ):
     """
-    用户通过微信/支付宝个人收款码付款后，点击"我已付款"确认。
-    将订单状态从 pending 更新为 paid，等待管理员核实。
+    用户通过微信/支付宝个人收款码付款后，点击"我已付款"。
+    生成确认 token 并发送确认邮件，用户点击邮件链接后订单才变为已付款。
     """
+    import secrets as _secrets
+    from utils.email import send_qr_confirm_email
+
     result = await db.execute(
         select(Order).where(
             Order.order_no == order_no,
@@ -2500,17 +2503,73 @@ async def confirm_shop_qr_payment(
     if order.status != OrderStatus.pending:
         raise HTTPException(status_code=400, detail=f"订单状态为 {order.status.value}，无法确认付款")
 
-    order.status = OrderStatus.paid
-    order.paid_at = datetime.now(timezone.utc)
-    order.notes = (order.notes or "") + f"\n[QR] 用户确认微信/支付宝付款 {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M')}"
+    # Generate confirmation token (valid for 30 minutes)
+    token = _secrets.token_urlsafe(32)
+    order.confirm_token = token
+    order.confirm_expires = datetime.now(timezone.utc) + timedelta(minutes=30)
+    order.notes = (order.notes or "") + f"\n[QR] 用户点击确认付款，等待邮件验证 {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M')}"
     await db.commit()
+
+    # Send confirmation email
+    user_email = current_user.email
+    if user_email:
+        amount = float(order.total_cny or 0)
+        send_qr_confirm_email(user_email, order_no, amount, token)
 
     return {
         "success": True,
         "order_no": order.order_no,
-        "status": "paid",
-        "message": "已确认付款，等待管理员核实发货",
+        "status": "pending_confirmation",
+        "message": "确认邮件已发送，请查收邮箱完成付款确认",
     }
+
+
+@router.get("/confirm-email")
+async def confirm_email_payment(
+    token: str,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    用户点击邮件中的确认链接，验证 token 后将订单标记为已付款。
+    无需登录 — token 本身包含授权。
+    """
+    from fastapi.responses import RedirectResponse
+
+    result = await db.execute(
+        select(Order).where(Order.confirm_token == token)
+    )
+    order = result.scalar_one_or_none()
+    if not order:
+        return RedirectResponse(
+            url="https://www.khanfate.com/zh/checkout?error=invalid_token",
+            status_code=302,
+        )
+
+    # Check expiry
+    if order.confirm_expires and order.confirm_expires < datetime.now(timezone.utc):
+        return RedirectResponse(
+            url="https://www.khanfate.com/zh/checkout?error=token_expired",
+            status_code=302,
+        )
+
+    if order.status != OrderStatus.pending:
+        # Already confirmed
+        return RedirectResponse(
+            url=f"https://www.khanfate.com/zh/account/orders/{order.order_no}",
+            status_code=302,
+        )
+
+    # Mark as paid
+    order.status = OrderStatus.paid
+    order.paid_at = datetime.now(timezone.utc)
+    order.confirm_token = None  # Invalidate token
+    order.notes = (order.notes or "") + f"\n[QR-EMAIL] 邮件确认付款 {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M')}"
+    await db.commit()
+
+    return RedirectResponse(
+        url=f"https://www.khanfate.com/zh/account/orders/{order.order_no}?payment=confirmed",
+        status_code=302,
+    )
 
 
 @router.get("/shop-orders/{order_no}/payment-status")
