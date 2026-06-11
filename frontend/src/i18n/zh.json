@@ -3459,6 +3459,7 @@
     "status": "状态",
     "createdAt": "创建时间",
     "noOrders": "暂无订单",
+    "viewAllOrders": "管理订单",
     "revenueStats": "收入统计",
     "totalRevenue": "总收入",
     "conversionRate": "转化率",

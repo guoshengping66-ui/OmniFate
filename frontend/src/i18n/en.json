@@ -3459,6 +3459,7 @@
     "status": "Status",
     "createdAt": "Created At",
     "noOrders": "No orders yet",
+    "viewAllOrders": "Manage Orders",
     "revenueStats": "Revenue Statistics",
     "totalRevenue": "Total Revenue",
     "conversionRate": "Conversion Rate",

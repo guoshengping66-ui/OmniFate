@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { Users, FileText, ShoppingCart, TrendingUp, RefreshCw, Search, DollarSign, Activity } from "lucide-react"
+import { Users, FileText, ShoppingCart, TrendingUp, RefreshCw, Search, DollarSign, Activity, ExternalLink, Clock, CheckCircle, Truck, XCircle } from "lucide-react"
 
 interface AdminStats {
   totalUsers: number
@@ -250,9 +250,17 @@ export default function AdminPage() {
             {/* Orders Tab */}
             {activeTab === "orders" && (
               <div className="rounded-2xl bg-white/[0.04] border border-white/10 p-6">
-                <h2 className="text-xl font-serif font-bold text-white mb-4">
-                  {t("admin.recentOrders") || "Recent Orders"}
-                </h2>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-serif font-bold text-white">
+                    {t("admin.recentOrders") || "Recent Orders"}
+                  </h2>
+                  <a
+                    href="/zh/admin/orders"
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs font-medium hover:bg-gold/20 transition-colors"
+                  >
+                    {t("admin.viewAllOrders") || "Manage Orders"} <ExternalLink size={12} />
+                  </a>
+                </div>
                 {stats.recentOrders && stats.recentOrders.length > 0 ? (
                   <div className="overflow-x-auto">
                     <table className="w-full text-left">
@@ -271,24 +279,42 @@ export default function AdminPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {stats.recentOrders.map((order, i) => (
-                          <tr key={i} className="border-b border-white/5">
-                            <td className="py-3 text-white/50 text-sm font-mono">{order.id.slice(0, 8)}...</td>
-                            <td className="py-3 text-white/70">¥{order.total_cny}</td>
-                            <td className="py-3">
-                              <span className={`px-2 py-0.5 rounded-full text-xs ${
-                                order.status === "paid" ? "bg-green-500/20 text-green-400" :
-                                order.status === "pending" ? "bg-yellow-500/20 text-yellow-400" :
-                                "bg-white/10 text-white/50"
-                              }`}>
-                                {order.status}
-                              </span>
-                            </td>
-                            <td className="py-3 text-white/50 text-sm">
-                              {new Date(order.created_at).toLocaleDateString("zh-CN")}
-                            </td>
-                          </tr>
-                        ))}
+                        {stats.recentOrders.map((order, i) => {
+                          const statusStyles: Record<string, string> = {
+                            pending: "bg-amber-500/20 text-amber-400",
+                            processing: "bg-blue-500/20 text-blue-400",
+                            paid: "bg-green-500/20 text-green-400",
+                            shipped: "bg-purple-500/20 text-purple-400",
+                            delivered: "bg-green-300/20 text-green-300",
+                            cancelled: "bg-red-500/20 text-red-400",
+                            pending_refund: "bg-orange-500/20 text-orange-400",
+                            refunded: "bg-gray-500/20 text-gray-400",
+                          }
+                          const statusLabels: Record<string, string> = {
+                            pending: t("adminOrders.status.pending") || "Pending",
+                            processing: t("adminOrders.status.processing") || "Processing",
+                            paid: t("adminOrders.status.paid") || "Paid",
+                            shipped: t("adminOrders.status.shipped") || "Shipped",
+                            delivered: t("adminOrders.status.delivered") || "Delivered",
+                            cancelled: t("adminOrders.status.cancelled") || "Cancelled",
+                            pending_refund: t("adminOrders.status.pending_refund") || "Refund Pending",
+                            refunded: t("adminOrders.status.refunded") || "Refunded",
+                          }
+                          return (
+                            <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02]">
+                              <td className="py-3 text-white/50 text-sm font-mono">{order.id.slice(0, 8)}...</td>
+                              <td className="py-3 text-white/70">¥{order.total_cny}</td>
+                              <td className="py-3">
+                                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusStyles[order.status] || "bg-white/10 text-white/50"}`}>
+                                  {statusLabels[order.status] || order.status}
+                                </span>
+                              </td>
+                              <td className="py-3 text-white/50 text-sm">
+                                {new Date(order.created_at).toLocaleDateString("zh-CN")}
+                              </td>
+                            </tr>
+                          )
+                        })}
                       </tbody>
                     </table>
                   </div>
