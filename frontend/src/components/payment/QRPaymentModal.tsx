@@ -298,17 +298,25 @@ export function QRPaymentModal({
   }
 
   const handleConfirmPaid = async () => {
-    if (!orderNo) return
+    const targetOrderNo = shopOrderNo || orderNo
+    if (!targetOrderNo) {
+      toast.error("订单号不存在，请重试")
+      return
+    }
     setStatus("verifying")
 
     if (isShopPayment) {
       // Shop order QR payment: mark order as paid, admin verifies later
       try {
-        await apiDirect.post(`/api/payments/shop-orders/${orderNo}/confirm-qr-payment`)
+        await apiDirect.post(`/api/payments/shop-orders/${targetOrderNo}/confirm-qr-payment`)
+        toast.success(t("payment.confirmed") || "已确认付款，等待管理员核实")
         setStatus("waiting")
         startShopOrderPolling()
       } catch (err: any) {
-        setError(err?.response?.data?.detail || t("payment verification failed"))
+        console.error("[QRPayment] confirm-qr-payment failed:", err)
+        const msg = err?.response?.data?.detail || err?.message || t("payment verification failed")
+        toast.error(String(msg))
+        setError(String(msg))
         setStatus("showing_qr")
       }
       return
@@ -316,7 +324,7 @@ export function QRPaymentModal({
 
     // Personal payment: verify via personal-payments endpoint
     try {
-      await apiDirect.post("/api/personal-payments/verify", { order_no: orderNo })
+      await apiDirect.post("/api/personal-payments/verify", { order_no: targetOrderNo })
     } catch (err) {
       console.error("Payment verification failed:", err)
     }
