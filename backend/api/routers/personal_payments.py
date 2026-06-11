@@ -7,6 +7,7 @@ import uuid
 import time
 import hashlib
 import hmac
+import logging
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
@@ -18,6 +19,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+
+logger = logging.getLogger(__name__)
 
 from database.session import get_db
 from database.models import Order, OrderStatus, Reading, PaymentStatus, User
@@ -340,7 +343,7 @@ async def verify_payment(
 
     user_email = current_user.email or ""
     try:
-        send_payment_notification_email(
+        result = send_payment_notification_email(
             order_no=order.order_no,
             amount_cny=order.total_cny,
             item_type=item_type,
@@ -348,8 +351,12 @@ async def verify_payment(
             confirm_token=confirm_token,
             reject_token=reject_token,
         )
-    except Exception:
-        pass  # 邮件发送失败不影响流程
+        if result:
+            logger.info(f"[PAYMENT] Email notification sent for order {order.order_no}")
+        else:
+            logger.warning(f"[PAYMENT] Email notification returned False for order {order.order_no}")
+    except Exception as e:
+        logger.error(f"[PAYMENT] Failed to send email for order {order.order_no}: {e}")
 
     return {
         "success": True,
