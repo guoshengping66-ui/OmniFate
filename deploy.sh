@@ -102,7 +102,7 @@ pm2 save 2>/dev/null
 sleep 2
 
 FRONTEND=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/ 2>/dev/null || echo "000")
-BACKEND=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8003/api/health 2>/dev/null || echo "000")
+BACKEND=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8003/health 2>/dev/null || echo "000")
 
 echo ""
 echo "  前端 (3000): $FRONTEND"
