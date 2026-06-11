@@ -2306,7 +2306,7 @@ async def update_shop_order_status(
     """管理员更新商城订单状态"""
     _require_admin_auth(authorization, x_admin_key)
 
-    valid_statuses = {"pending", "processing", "paid", "shipped", "delivered", "cancelled", "pending_refund", "refunded"}
+    valid_statuses = {"pending", "processing", "paid", "shipped", "delivered", "cancelled"}
     if payload.status not in valid_statuses:
         raise HTTPException(status_code=400, detail=f"无效状态，可选: {', '.join(valid_statuses)}")
 
@@ -2371,7 +2371,7 @@ async def approve_refund(
     # 退款金额：默认全额
     refund_amount = req.refund_amount if req.refund_amount is not None else float(order.total_cny)
     if refund_amount <= 0 or refund_amount > float(order.total_cny):
-        raise HTTPException(status_code=400, detail=f"退款金额必须在 0-{float(order.total_cny)} 之间")
+        raise HTTPException(status_code=400, detail=f"退款金额必须在 0.01-{float(order.total_cny)} 之间")
 
     order.status = OrderStatus.refunded
     order.refund_amount = refund_amount
@@ -2388,8 +2388,10 @@ async def approve_refund(
             user_result = await db.execute(select(User).where(User.id == order.user_id))
             user = user_result.scalar_one_or_none()
             if user and user.email:
+                import asyncio
                 from utils.email import send_refund_approved_notification
-                send_refund_approved_notification(
+                await asyncio.to_thread(
+                    send_refund_approved_notification,
                     to_email=user.email,
                     order_no=order.order_no,
                     refund_amount=refund_amount,
@@ -2446,8 +2448,10 @@ async def reject_refund(
             user_result = await db.execute(select(User).where(User.id == order.user_id))
             user = user_result.scalar_one_or_none()
             if user and user.email:
+                import asyncio
                 from utils.email import send_refund_rejected_notification
-                send_refund_rejected_notification(
+                await asyncio.to_thread(
+                    send_refund_rejected_notification,
                     to_email=user.email,
                     order_no=order.order_no,
                     reject_reason=req.reason.strip(),

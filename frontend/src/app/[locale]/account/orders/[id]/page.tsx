@@ -4,7 +4,7 @@ import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import {
   Loader2, ArrowLeft, Package, MapPin, Truck, CheckCircle,
-  Clock, XCircle, RotateCcw, AlertTriangle, ExternalLink, MessageSquare,
+  Clock, XCircle, RotateCcw, AlertTriangle, ExternalLink,
 } from "lucide-react"
 import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"

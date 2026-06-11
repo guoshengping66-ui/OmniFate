@@ -51,6 +51,7 @@ export default function AdminOrdersPage() {
   const [refundAmounts, setRefundAmounts] = useState<Record<string, string>>({})
   const [refundNotes, setRefundNotes] = useState<Record<string, string>>({})
   const [rejectReasons, setRejectReasons] = useState<Record<string, string>>({})
+  const [showRejectInput, setShowRejectInput] = useState<Record<string, boolean>>({})
   const [processingRefund, setProcessingRefund] = useState<string | null>(null)
 
   const getStatusInfo = (status: string) => {
@@ -368,9 +369,9 @@ export default function AdminOrdersPage() {
                               </button>
                               <button
                                 onClick={() => {
-                                  const reason = rejectReasons[order.order_no]
-                                  if (!reason?.trim()) {
-                                    setRejectReasons(prev => ({ ...prev, [order.order_no]: " " }))
+                                  if (!showRejectInput[order.order_no]) {
+                                    setShowRejectInput(prev => ({ ...prev, [order.order_no]: true }))
+                                    return
                                   }
                                   handleRejectRefund(order.order_no)
                                 }}
@@ -380,7 +381,7 @@ export default function AdminOrdersPage() {
                                 {t("adminOrders.rejectRefund")}
                               </button>
                             </div>
-                            {rejectReasons[order.order_no] === " " && (
+                            {showRejectInput[order.order_no] && (
                               <input
                                 type="text"
                                 placeholder={t("adminOrders.rejectReason")}

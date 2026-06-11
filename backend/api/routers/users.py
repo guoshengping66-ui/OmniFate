@@ -455,8 +455,10 @@ async def request_refund(
 
         # 异步通知管理员（不阻塞响应）
         try:
+            import asyncio
             from utils.email import send_refund_request_notification
-            await send_refund_request_notification(
+            await asyncio.to_thread(
+                send_refund_request_notification,
                 order_no=order.order_no,
                 total_cny=float(order.total_cny),
                 user_email=user.email or "",
