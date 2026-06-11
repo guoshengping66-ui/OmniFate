@@ -219,9 +219,7 @@ async def verify_payment(
     current_user: User = Depends(require_user),
 ):
     """
-    验证支付（手动确认）— 需要登录
-
-    用户付款后提交订单号进行确认
+    验证支付 — 用户付款后点击「我已付款」，直接激活订阅/解锁报告。
     """
     # 1. 获取订单
     order = await _get_pending_order(db, payload.order_no)
@@ -232,16 +230,77 @@ async def verify_payment(
     if order.user_id and order.user_id != str(current_user.id):
         raise HTTPException(status_code=403, detail="无权操作此订单")
 
-    # 2. 标记为已验证（等待人工/系统确认）
-    order.status = OrderStatus.processing
-    order.payment_ref = f"{order.order_no}_verified"
+    # 3. 验证金额合理
+    if order.total_cny <= 0 or order.total_cny > 50000:
+        raise HTTPException(status_code=400, detail="订单金额异常")
+
+    # 4. 标记为已支付
+    order.status = OrderStatus.paid
+    order.paid_at = datetime.now(timezone.utc)
+    order.payment_ref = f"{order.order_no}_auto_confirmed"
+
+    # 5. 解锁报告（如果有）
+    try:
+        notes = order.notes or ""
+        if "reading_id:" in notes:
+            reading_id = notes.split("reading_id:")[1].split("|")[0]
+            if reading_id:
+                reading_result = await db.execute(select(Reading).where(Reading.id == reading_id))
+                reading = reading_result.scalar_one_or_none()
+                if reading:
+                    reading.is_detail_unlocked = True
+                    reading.payment_status = PaymentStatus.paid
+                    if reading.user_id:
+                        user_result = await db.execute(
+                            select(User).where(User.id == reading.user_id).with_for_update()
+                        )
+                        user = user_result.scalar_one_or_none()
+                        if user:
+                            if (user.shop_coupon_balance or 0) == 0:
+                                user.shop_coupon_balance = 50
+                            from api.routers.payments import GRANT_ON_REPORT_UNLOCK
+                            user.stardust_balance += GRANT_ON_REPORT_UNLOCK
+                            user.stardust_lifetime_earned += GRANT_ON_REPORT_UNLOCK
+    except Exception:
+        pass
+
+    # 6. 激活订阅会员（验证金额匹配）
+    if order.item_type != "shop":
+        try:
+            description = order.notes or ""
+            activated_tier = None
+
+            if "premium_yearly" in description and abs(order.total_cny - 365.0) < 0.01:
+                activated_tier = "premium_yearly"
+            elif "premium_monthly" in description and abs(order.total_cny - 59.0) < 0.01:
+                activated_tier = "premium_monthly"
+            elif "founder_lifetime" in description and abs(order.total_cny - 1688.0) < 0.01:
+                activated_tier = "founder_lifetime"
+            elif "onetime_unlock" in description and abs(order.total_cny - 19.9) < 0.01:
+                activated_tier = "onetime_unlock"
+
+            if activated_tier and order.user_id:
+                user_result = await db.execute(
+                    select(User).where(User.id == order.user_id).with_for_update()
+                )
+                sub_user = user_result.scalar_one_or_none()
+                if sub_user:
+                    if activated_tier == "founder_lifetime" and not sub_user.is_founder:
+                        await _activate_founder_seat(sub_user, order.order_no, db)
+                    elif activated_tier in ("premium_monthly", "premium_yearly"):
+                        await _activate_subscription(sub_user, activated_tier, db)
+                    elif activated_tier == "onetime_unlock":
+                        await _handle_onetime_unlock_activation(sub_user, order, db)
+        except Exception:
+            pass
+
     await db.commit()
 
     return {
         "success": True,
         "order_no": order.order_no,
-        "status": "processing",
-        "message": "支付已提交，等待确认",
+        "status": "paid",
+        "message": "支付成功，已激活",
     }
 
 
