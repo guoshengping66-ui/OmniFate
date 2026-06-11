@@ -2220,6 +2220,10 @@ async def list_shop_orders(
             "refund_note": order.refund_note,
             "refund_requested_at": order.refund_requested_at.isoformat() if order.refund_requested_at else None,
             "refund_processed_at": order.refund_processed_at.isoformat() if order.refund_processed_at else None,
+            "cj_order_number": order.cj_order_number,
+            "cj_order_status": order.cj_order_status,
+            "cj_shipping_cost": float(order.cj_shipping_cost) if order.cj_shipping_cost else None,
+            "fulfilled_via": order.fulfilled_via,
             "user": user_info,
             "items": [
                 {
@@ -2282,6 +2286,10 @@ async def get_shop_order_detail(
         "refund_note": order.refund_note,
         "refund_requested_at": order.refund_requested_at.isoformat() if order.refund_requested_at else None,
         "refund_processed_at": order.refund_processed_at.isoformat() if order.refund_processed_at else None,
+        "cj_order_number": order.cj_order_number,
+        "cj_order_status": order.cj_order_status,
+        "cj_shipping_cost": float(order.cj_shipping_cost) if order.cj_shipping_cost else None,
+        "fulfilled_via": order.fulfilled_via,
         "user": user_info,
         "items": [
             {
@@ -2464,3 +2472,282 @@ async def reject_refund(
         "order_no": order.order_no,
         "status": order.status.value,
     }
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  CJ Dropshipping Integration
+# ══════════════════════════════════════════════════════════════════════════════
+
+class FulfillCJRequest(BaseModel):
+    shipping_method: str = "CJPacket Ordinary"
+
+
+@router.post("/admin/shop-orders/{order_no}/fulfill-cj")
+async def fulfill_via_cj(
+    order_no: str,
+    req: FulfillCJRequest,
+    db: AsyncSession = Depends(get_db),
+    authorization: Optional[str] = Header(None),
+    x_admin_key: Optional[str] = Header(None),
+):
+    """Push a paid order to CJ Dropshipping for fulfillment."""
+    _require_admin_auth(authorization, x_admin_key)
+
+    from services.cj_dropshipping import create_order as cj_create, is_enabled
+    if not is_enabled():
+        raise HTTPException(status_code=400, detail="CJ API 未启用")
+
+    # Query order
+    result = await db.execute(
+        select(Order)
+        .options(selectinload(Order.items))
+        .where(Order.order_no == order_no)
+    )
+    order = result.scalar_one_or_none()
+    if not order:
+        raise HTTPException(status_code=404, detail="订单不存在")
+    if order.status != OrderStatus.paid:
+        raise HTTPException(status_code=400, detail=f"订单状态 {order.status.value} 不可推送（需为 paid）")
+
+    # Load products to get CJ variant IDs
+    all_products = _load_products()
+    products_by_id = {p["id"]: p for p in all_products}
+
+    # Build CJ order products
+    cj_products = []
+    for item in order.items:
+        product_data = products_by_id.get(item.product_id) or {}
+        cj_vid = product_data.get("cj_variant_id", "")
+        if not cj_vid:
+            raise HTTPException(
+                status_code=400,
+                detail=f"商品 {item.product_name} 未配置 CJ variant ID，请先在 products.json 中设置 cj_variant_id",
+            )
+        cj_products.append({"vid": cj_vid, "quantity": item.quantity})
+
+    # Build shipping address
+    addr = order.shipping_address or {}
+    addr_str = addr.get("address_line1", "")
+    if addr.get("address_line2"):
+        addr_str += f" {addr['address_line2']}"
+
+    # Country code mapping
+    country_map = {"中国": "CN", "美国": "US", "英国": "GB", "加拿大": "CA", "澳大利亚": "AU", "日本": "JP"}
+    country = country_map.get(addr.get("country", ""), addr.get("country", "CN")[:2].upper())
+
+    cj_order_data = {
+        "orderNumber": order.order_no,
+        "shippingMethod": req.shipping_method,
+        "shippingCountry": country,
+        "shippingProvince": addr.get("province", ""),
+        "shippingCity": addr.get("city", ""),
+        "shippingAddress": addr_str,
+        "shippingZipCode": addr.get("postal_code", ""),
+        "shippingPhone": order.recipient_phone or "",
+        "shippingName": order.recipient_name or "",
+        "recipientEmail": "",
+        "products": cj_products,
+    }
+
+    try:
+        resp = await cj_create(cj_order_data)
+    except Exception as e:
+        logger.error(f"[CJ] Fulfill order {order_no} failed: {e}")
+        raise HTTPException(status_code=502, detail=f"CJ 推送失败: {str(e)}")
+
+    # Update order with CJ info
+    cj_data = resp.get("data", {})
+    order.cj_order_number = cj_data.get("cjOrderNumber") or cj_data.get("orderNumber")
+    order.cj_order_status = cj_data.get("orderStatus", "")
+    order.cj_shipping_cost = cj_data.get("totalShippingCost")
+    order.cj_response = cj_data
+    order.fulfilled_via = "cj"
+    order.notes = (order.notes or "") + f"\n[CJ] 已推送: {order.cj_order_number}"
+    await db.commit()
+
+    return {
+        "success": True,
+        "cj_order_number": order.cj_order_number,
+        "cj_status": order.cj_order_status,
+        "total_product_cost": cj_data.get("totalProductCost"),
+        "total_shipping_cost": cj_data.get("totalShippingCost"),
+        "total_cost": cj_data.get("totalCost"),
+    }
+
+
+@router.post("/admin/shop-orders/{order_no}/sync-cj-tracking")
+async def sync_cj_tracking(
+    order_no: str,
+    db: AsyncSession = Depends(get_db),
+    authorization: Optional[str] = Header(None),
+    x_admin_key: Optional[str] = Header(None),
+):
+    """Sync tracking info from CJ for a pushed order."""
+    _require_admin_auth(authorization, x_admin_key)
+
+    from services.cj_dropshipping import get_tracking, get_order_status as cj_order_status, is_enabled
+    if not is_enabled():
+        raise HTTPException(status_code=400, detail="CJ API 未启用")
+
+    result = await db.execute(
+        select(Order).where(Order.order_no == order_no)
+    )
+    order = result.scalar_one_or_none()
+    if not order:
+        raise HTTPException(status_code=404, detail="订单不存在")
+    if not order.cj_order_number:
+        raise HTTPException(status_code=400, detail="该订单未推送到 CJ")
+
+    try:
+        # Get tracking info
+        tracking_resp = await get_tracking(order_number=order.cj_order_number)
+        tracking_data = tracking_resp.get("data", {})
+
+        # Get order status
+        status_resp = await cj_order_status([order.cj_order_number])
+        status_list = status_resp.get("data", {}).get("list", [])
+
+        # Update tracking
+        tracking_number = tracking_data.get("trackingNumber") or tracking_data.get("trackingNumber1")
+        if tracking_number and not order.tracking_number:
+            order.tracking_number = tracking_number
+            order.shipping_carrier = tracking_data.get("shippingMethod", "CJ Logistics")
+
+        # Update status from CJ
+        if status_list:
+            cj_status = status_list[0].get("orderStatus", "")
+            order.cj_order_status = cj_status
+
+            # Map CJ status to our status
+            status_map = {
+                "Awaiting Shipment": None,  # don't change
+                "Shipped": OrderStatus.shipped,
+                "In Transit": OrderStatus.shipped,
+                "Delivered": OrderStatus.delivered,
+            }
+            new_status = status_map.get(cj_status)
+            if new_status and order.status != new_status:
+                order.status = new_status
+                if new_status == OrderStatus.shipped and not order.shipped_at:
+                    order.shipped_at = datetime.now(timezone.utc)
+
+        await db.commit()
+
+        return {
+            "success": True,
+            "tracking_number": order.tracking_number,
+            "shipping_carrier": order.shipping_carrier,
+            "cj_order_status": order.cj_order_status,
+            "our_status": order.status.value,
+            "trajectory": tracking_data.get("trajectory", []),
+        }
+    except Exception as e:
+        logger.error(f"[CJ] Sync tracking for {order_no} failed: {e}")
+        raise HTTPException(status_code=502, detail=f"CJ 物流同步失败: {str(e)}")
+
+
+@router.get("/admin/cj/search-product")
+async def cj_search_product(
+    q: str = Query(..., description="Search keyword"),
+    page: int = Query(1, ge=1),
+    authorization: Optional[str] = Header(None),
+    x_admin_key: Optional[str] = Header(None),
+):
+    """Search CJ product catalog."""
+    _require_admin_auth(authorization, x_admin_key)
+
+    from services.cj_dropshipping import search_product, is_enabled
+    if not is_enabled():
+        raise HTTPException(status_code=400, detail="CJ API 未启用")
+
+    try:
+        resp = await search_product(q, page_num=page)
+        return resp.get("data", resp)
+    except Exception as e:
+        logger.error(f"[CJ] Product search failed: {e}")
+        raise HTTPException(status_code=502, detail=f"CJ 搜索失败: {str(e)}")
+
+
+# ── CJ Webhook ──────────────────────────────────────────────────────────────
+
+@router.post("/webhooks/cj")
+async def cj_webhook(request: Request, db: AsyncSession = Depends(get_db)):
+    """
+    Receive CJ Dropshipping webhook notifications.
+    Configure in CJ Dashboard → Settings → API Settings → Webhook URL:
+    https://yourdomain.com/api/webhooks/cj
+    """
+    body = await request.json()
+    logger.info(f"[CJ Webhook] Received: {json.dumps(body, ensure_ascii=False)[:500]}")
+
+    # Verify webhook signature if secret is configured
+    if settings.CJ_WEBHOOK_SECRET:
+        signature = request.headers.get("X-CJ-Signature", "")
+        import hashlib
+        expected = hashlib.sha256(
+            (json.dumps(body, separators=(",", ":")) + settings.CJ_WEBHOOK_SECRET).encode()
+        ).hexdigest()
+        if not hmac.compare_digest(signature, expected):
+            logger.warning("[CJ Webhook] Invalid signature")
+            raise HTTPException(status_code=403, detail="Invalid signature")
+
+    # Extract order info
+    cj_order_number = body.get("orderId") or body.get("orderNumber") or body.get("cjOrderNumber")
+    tracking_number = body.get("trackingNumber") or body.get("trackingNumber1")
+    cj_status = body.get("status") or body.get("orderStatus", "")
+
+    if not cj_order_number:
+        logger.warning("[CJ Webhook] No order number in payload")
+        return {"success": True}
+
+    # Find matching order
+    result = await db.execute(
+        select(Order).where(Order.cj_order_number == cj_order_number)
+    )
+    order = result.scalar_one_or_none()
+    if not order:
+        logger.warning(f"[CJ Webhook] No matching order for CJ order {cj_order_number}")
+        return {"success": True}  # Return 200 to prevent retries
+
+    # Idempotent: skip if already in target state
+    if cj_status.lower() in ("shipped", "in transit") and order.status == OrderStatus.shipped:
+        return {"success": True}
+    if cj_status.lower() == "delivered" and order.status == OrderStatus.delivered:
+        return {"success": True}
+
+    # Update order
+    order.cj_order_status = cj_status
+    if tracking_number:
+        order.tracking_number = tracking_number
+        order.shipping_carrier = body.get("shippingMethod", body.get("carrierName", "CJ Logistics"))
+
+    # Status mapping
+    if cj_status.lower() in ("shipped", "in transit"):
+        order.status = OrderStatus.shipped
+        if not order.shipped_at:
+            order.shipped_at = datetime.now(timezone.utc)
+    elif cj_status.lower() == "delivered":
+        order.status = OrderStatus.delivered
+
+    await db.commit()
+    logger.info(f"[CJ Webhook] Order {order.order_no} updated: status={order.status.value}, tracking={tracking_number}")
+
+    # Notify user asynchronously
+    try:
+        if order.user and order.user.email:
+            from utils.email import _send_email
+            import asyncio
+
+            status_text = {"shipped": "已发货", "in transit": "运输中", "delivered": "已签收"}.get(cj_status.lower(), cj_status)
+            subject = f"订单 {order.order_no} {status_text}"
+            body_html = f"""
+            <p>您的订单 <b>{order.order_no}</b> 状态更新：</p>
+            <p>状态：<b>{status_text}</b></p>
+            {f'<p>物流单号：{tracking_number}</p>' if tracking_number else ''}
+            <p>物流公司：{order.shipping_carrier or 'CJ Logistics'}</p>
+            """
+            await asyncio.to_thread(_send_email, order.user.email, subject, body_html)
+    except Exception as e:
+        logger.warning(f"[CJ Webhook] Failed to notify user: {e}")
+
+    return {"success": True}

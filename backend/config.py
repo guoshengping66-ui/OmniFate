@@ -96,6 +96,12 @@ class Settings(BaseSettings):
     # ── Admin 管理员邮箱（自动获得创始会员权限，逗号分隔）──
     ADMIN_EMAILS: str = ""
 
+    # ── CJ Dropshipping ──
+    CJ_API_ENABLED: bool = False
+    CJ_API_EMAIL: str = ""
+    CJ_API_PASSWORD: str = ""
+    CJ_WEBHOOK_SECRET: str = ""
+
     # ── 充值系统（星尘 Stardust）──
     AIFADIAN_URL: str = ""             # 爱发电赞助链接
     USDT_TRC20_ADDRESS: str = ""       # TRC20 收款地址 (波场)

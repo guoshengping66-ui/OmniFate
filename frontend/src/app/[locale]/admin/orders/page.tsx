@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { Package, Search, RefreshCw, Truck, CheckCircle, Clock, XCircle, ChevronDown, ChevronUp, RotateCcw } from "lucide-react"
+import { Package, Search, RefreshCw, Truck, CheckCircle, Clock, XCircle, ChevronDown, ChevronUp, RotateCcw, Send } from "lucide-react"
 
 interface OrderItem {
   product_name: string
@@ -28,6 +28,10 @@ interface ShopOrder {
   refund_note: string | null
   refund_requested_at: string | null
   refund_processed_at: string | null
+  cj_order_number: string | null
+  cj_order_status: string | null
+  cj_shipping_cost: number | null
+  fulfilled_via: string | null
   user: { id: string; nickname: string; email: string } | null
   items: OrderItem[]
 }
@@ -53,6 +57,9 @@ export default function AdminOrdersPage() {
   const [rejectReasons, setRejectReasons] = useState<Record<string, string>>({})
   const [showRejectInput, setShowRejectInput] = useState<Record<string, boolean>>({})
   const [processingRefund, setProcessingRefund] = useState<string | null>(null)
+  // CJ Dropshipping state
+  const [fulfillingCJ, setFulfillingCJ] = useState<string | null>(null)
+  const [syncingCJ, setSyncingCJ] = useState<string | null>(null)
 
   const getStatusInfo = (status: string) => {
     const map: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
@@ -181,6 +188,46 @@ export default function AdminOrdersPage() {
       setError(err.message)
     } finally {
       setProcessingRefund(null)
+    }
+  }
+
+  const handleFulfillCJ = async (orderNo: string) => {
+    if (!confirm(t("adminOrders.fulfillCJConfirm"))) return
+    setFulfillingCJ(orderNo)
+    try {
+      const res = await fetch(`/api/proxy/api/payments/admin/shop-orders/${orderNo}/fulfill-cj`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-admin-key": adminKey },
+        body: JSON.stringify({}),
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.detail || t("adminOrders.cjPushFailed"))
+      }
+      fetchOrders()
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setFulfillingCJ(null)
+    }
+  }
+
+  const handleSyncCJ = async (orderNo: string) => {
+    setSyncingCJ(orderNo)
+    try {
+      const res = await fetch(`/api/proxy/api/payments/admin/shop-orders/${orderNo}/sync-cj-tracking`, {
+        method: "POST",
+        headers: { "x-admin-key": adminKey },
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.detail || t("adminOrders.cjSyncFailed"))
+      }
+      fetchOrders()
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setSyncingCJ(null)
     }
   }
 
@@ -320,6 +367,50 @@ export default function AdminOrdersPage() {
                           <p className="text-white/50 text-xs mb-1">{t("adminOrders.trackingNumber")}</p>
                           <p className="text-white/70 text-sm font-mono">{order.tracking_number}</p>
                         </div>
+                      )}
+
+                      {/* CJ Dropshipping section */}
+                      {order.fulfilled_via === "cj" && (
+                        <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                          <p className="text-blue-400 text-xs font-medium mb-2 flex items-center gap-1">
+                            <Truck size={12} /> {t("adminOrders.cjFulfilled")}
+                          </p>
+                          {order.cj_order_number && (
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-white/40 text-[10px]">{t("adminOrders.cjOrderNo")}:</span>
+                              <span className="text-white/70 text-xs font-mono">{order.cj_order_number}</span>
+                            </div>
+                          )}
+                          {order.cj_order_status && (
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-white/40 text-[10px]">{t("adminOrders.cjStatus")}:</span>
+                              <span className="text-blue-300 text-xs">{order.cj_order_status}</span>
+                            </div>
+                          )}
+                          {order.cj_shipping_cost != null && (
+                            <p className="text-white/40 text-[10px]">
+                              {t("adminOrders.cjShippingCost")}: ${order.cj_shipping_cost.toFixed(2)}
+                            </p>
+                          )}
+                          <button
+                            onClick={() => handleSyncCJ(order.order_no)}
+                            disabled={syncingCJ === order.order_no}
+                            className="mt-2 px-3 py-1 rounded-lg bg-blue-600/80 hover:bg-blue-500 text-white text-[11px] font-medium transition-colors disabled:opacity-50 flex items-center gap-1"
+                          >
+                            <RefreshCw size={10} className={syncingCJ === order.order_no ? "animate-spin" : ""} />
+                            {t("adminOrders.syncCJTracking")}
+                          </button>
+                        </div>
+                      )}
+                      {order.status === "paid" && order.fulfilled_via !== "cj" && (
+                        <button
+                          onClick={() => handleFulfillCJ(order.order_no)}
+                          disabled={fulfillingCJ === order.order_no}
+                          className="px-4 py-2 rounded-lg bg-gold/20 border border-gold/30 text-gold text-sm font-medium hover:bg-gold/30 transition-colors disabled:opacity-50 flex items-center gap-2"
+                        >
+                          <Send size={14} />
+                          {fulfillingCJ === order.order_no ? t("adminOrders.cjPushing") : t("adminOrders.fulfillCJ")}
+                        </button>
                       )}
 
                       {/* Refund info — pending */}

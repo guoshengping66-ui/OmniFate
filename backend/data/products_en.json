@@ -2,6 +2,8 @@
   {
     "id": "p1",
     "sku": "CRY-YELLOW-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "天然黄水晶聚宝盆",
     "name_en": "Natural Citrine Treasure Bowl",
     "description": "黄水晶是财富与成功的象征，聚宝盆造型更能聚集财气。适合财库空亡、财运不济的命格，补土金二气，招财纳福。",
@@ -81,6 +83,8 @@
   {
     "id": "p2",
     "sku": "JWL-RED-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "天然红玛瑙手链",
     "name_en": "Natural Red Agate Bracelet",
     "description": "红玛瑙火属性强烈，能激活个人行动力与决策力。对八字缺火、事业停滞、缺乏动力者有显著助益。",
@@ -159,6 +163,8 @@
   {
     "id": "p3",
     "sku": "CRY-GREEN-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "绿幽灵水晶球",
     "name_en": "Green Phantom Quartz Sphere",
     "description": "绿幽灵对应心轮，主贵人运与事业成长。木气不足者佩戴可增强人际缘分，吸引正向合作伙伴。",
@@ -233,6 +239,8 @@
   {
     "id": "p4",
     "sku": "JWL-BLACK-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "黑曜石貔貅挂件",
     "name_en": "Black Obsidian Pixiu Pendant",
     "description": "黑曜石强力辟邪化煞，貔貅招财镇宅。对官杀混杂、小人是非多、土星刑克严重者是最佳防护。",
@@ -311,6 +319,8 @@
   {
     "id": "p5",
     "sku": "INC-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "沉香线香（一年装）",
     "name_en": "Agarwood Incense Sticks (1-Year Supply)",
     "description": "沉香属水，气味沉静悠远，能安神定志、提升智慧与直觉。适合水气不足、心绪不宁、决策困难者。",
@@ -386,6 +396,8 @@
   {
     "id": "p7",
     "sku": "TAL-CUSTOM-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "五行开运符（个人定制）",
     "name_en": "Five Element Fortune Talisman (Custom)",
     "description": "由专业符师根据个人八字缺失量身绘制，针对性最强的开运方案。需提供详细出生信息。",
@@ -460,6 +472,8 @@
   {
     "id": "p8",
     "sku": "CRY-AMETHYST-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "紫水晶洞（天然）",
     "name_en": "Natural Amethyst Geode",
     "description": "天然紫水晶洞高频振动，助力灵性转化与深层疗愈。冥王星过境者、经历重大人生转变期的守护石。",
@@ -543,6 +557,8 @@
   {
     "id": "p9",
     "sku": "JWL-ROSE-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "粉水晶桃花手链",
     "name_en": "Rose Quartz Romance Bracelet",
     "description": "粉水晶招正桃花，增进人缘与感情运势。对感情线不佳、桃花运弱、金星受克者有温润改善作用。",
@@ -616,6 +632,8 @@
   {
     "id": "p10",
     "sku": "CRY-CITRINE-002",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "金发晶手串",
     "name_en": "Golden Rutilated Quartz Bracelet",
     "description": "金发晶被誉为「财富之石」，强力招正财偏财。适合财运不顺、投资决策频繁者佩戴。",
@@ -690,6 +708,8 @@
   {
     "id": "p11",
     "sku": "INC-SANDAL-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "檀香盘香套装",
     "name_en": "Sandalwood Coil Incense Set",
     "description": "天然老山檀香，木质调深沉安稳，补木土二气。适合冥想、工作、阅读时使用，净化空间能量场。",
@@ -757,6 +777,8 @@
   {
     "id": "p12",
     "sku": "JWL-SILVER-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "纯银六字真言手镯",
     "name_en": "Sterling Silver Om Mani Bracelet",
     "description": "纯银材质配六字真言刻文，防小人、挡是非、护身辟邪。适合官杀混杂、八字身弱易受外界干扰者。",
@@ -832,6 +854,8 @@
   {
     "id": "p13",
     "sku": "CRY-LABRADOR-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "拉长石吊坠",
     "name_en": "Labradorite Pendant",
     "description": "拉长石激发潜能与直觉力，眉心轮活化宝石。适合太阳线不明显、对未来方向迷茫者。",
@@ -905,6 +929,8 @@
   {
     "id": "p14",
     "sku": "TAL-GUA-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "八卦铜镜（居家镇宅）",
     "name_en": "Bagua Bronze Mirror (Home Protection)",
     "description": "传统八卦铜镜，悬挂于大门或阳台化解外煞。适合房屋风水有缺陷、家居能量场紊乱者。",
@@ -965,6 +991,8 @@
   {
     "id": "p15",
     "sku": "CRY-TOURMALINE-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "西瓜碧玺吊坠",
     "name_en": "Watermelon Tourmaline Pendant",
     "description": "碧玺色彩丰富，能量全面，西瓜碧玺尤其能调和人际关系、增进感情和谐。对感情婚姻问题有综合调理作用。",
@@ -1049,6 +1077,8 @@
   {
     "id": "p17",
     "sku": "CRY-AQUA-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "海蓝宝吊坠（月光面）",
     "name_en": "Aquamarine Pendant (Moonlit)",
     "description": "海蓝宝对应喉轮，水性能量纯净通透，增强沟通表达能力与直觉力。特别适合水星逆行、沟通困难、需要提升公众表达者。",
@@ -1130,6 +1160,8 @@
   {
     "id": "p18",
     "sku": "JWL-TIGER-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "虎眼石手串（金运版）",
     "name_en": "Tiger Eye Bracelet (Wealth Edition)",
     "description": "虎眼石如虎眼般锐利，火土能量充沛，激发勇气与决断力。对事业阻隔、决策困难、行动力不足者有强力助推效果。",
@@ -1211,6 +1243,8 @@
   {
     "id": "p19",
     "sku": "CRY-MOON-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "月光石项链（银月款）",
     "name_en": "Moonstone Necklace (Silver Moon)",
     "description": "月光石散发柔和水性能量，连接月亮与潜意识，安抚情绪波动、改善睡眠。适合内耗严重、情绪敏感、水象能量紊乱者。",
@@ -1289,6 +1323,8 @@
   {
     "id": "p20",
     "sku": "CRY-LAPIS-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "青金石三通套链",
     "name_en": "Lapis Lazuli Mala Necklace",
     "description": "青金石被誉为智慧之石，水金能量交融，开启第三眼与喉轮。适合智慧线过直缺乏弹性、思维僵化、需要提升洞察力者。",
@@ -1370,6 +1406,8 @@
   {
     "id": "p21",
     "sku": "CRY-RUBY-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "红宝石原石吊坠（星火）",
     "name_en": "Raw Ruby Pendant (Starfire)",
     "description": "红宝石火性能量极为炽烈，激活海底轮与生命力。适合日主弱、身弱、精力不济、生命线偏弱者的强力补火增元气之选。",
@@ -1446,6 +1484,8 @@
   {
     "id": "p22",
     "sku": "JWL-HETIAN-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "和田玉平安扣挂件",
     "name_en": "Hetian Jade Peace Buckle Pendant",
     "description": "和田玉温润厚实，土性能量沉稳，自古以来是君子配饰。对健康需要关注、生命线有岛纹、精力不济者有稳固元气的养护作用。",
@@ -1513,6 +1553,8 @@
   {
     "id": "p23",
     "sku": "JWL-GARNET-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "石榴石脚链（赤焰）",
     "name_en": "Garnet Anklet (Crimson Flame)",
     "description": "石榴石深红如血，火性能量深入海底轮，促进血液循环与新陈代谢。适合身弱体寒、生命线浅弱、长期疲劳者佩戴。",
@@ -1586,6 +1628,8 @@
   {
     "id": "p24",
     "sku": "JWL-AMBER-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "蜜蜡随形手串",
     "name_en": "Amber Organic Bracelet",
     "description": "蜜蜡是远古树脂化石，土火能量交融，温暖如阳。适合土星回归、经历成长阵痛、需要温暖与安全感的身心过渡期。",
@@ -1664,6 +1708,8 @@
   {
     "id": "p25",
     "sku": "JWL-MALACHITE-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "孔雀石圆珠项链",
     "name_en": "Malachite Beaded Necklace",
     "description": "孔雀石木性能量饱满，翠绿纹路对应心轮振动，化解感情心结与旧伤。适合感情线有岛纹、感情多磨、婚姻线紊乱者佩戴。",
@@ -1737,6 +1783,8 @@
   {
     "id": "p26",
     "sku": "JWL-SUN-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "太阳石戒指（晨曦）",
     "name_en": "Sunstone Ring (Dawn)",
     "description": "太阳石闪耀金色光芒，太阳神经丛轮的激活密钥。对太阳线不明显、财运受损、自信心不足者是最佳的光芒补充。",
@@ -1813,6 +1861,8 @@
   {
     "id": "p27",
     "sku": "TAL-SHANHAI-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "铜制山海镇壁挂",
     "name_en": "Brass Mountain & Sea Wall Shield",
     "description": "山海镇汇聚山之气场与水之流动，传统风水第一大镇。对家居风水不佳、事业起伏大、命运线波浪者能镇宅化煞、稳固事业。",
@@ -1876,6 +1926,8 @@
   {
     "id": "p28",
     "sku": "TAL-COIN-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "五帝钱挂坠（清代真品）",
     "name_en": "Five Emperor Coins Pendant (Authentic Qing Dynasty)",
     "description": "清朝五位盛世帝王之铜钱串联，金气鼎盛，招财化煞。对财运需关注、财库空亡、官杀混杂者有极强的催旺与护身作用。",
@@ -1938,6 +1990,8 @@
   {
     "id": "p29",
     "sku": "TAL-CINNABAR-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "朱砂平安牌（本命年款）",
     "name_en": "Cinnabar Peace Talisman (Zodiac Year Edition)",
     "description": "朱砂火性纯阳，辟邪第一圣品。对本命年值太岁、八字身弱、官杀混杂者提供至阳护盾，是传统中不可或缺的护身符。",
@@ -2002,6 +2056,8 @@
   {
     "id": "p30",
     "sku": "TAL-WENCHANG-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "文昌塔琉璃笔筒",
     "name_en": "Wenchang Tower Glazed Pen Holder",
     "description": "文昌塔主文运官运，木火相生助学业事业。对命运线不明、事业探索期、决策困难者有开启智慧、明确方向的助益。",
@@ -2077,6 +2133,8 @@
   {
     "id": "p31",
     "sku": "HOME-BAMBOO-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "竹节风铃（五音调频）",
     "name_en": "Bamboo Wind Chime (Five-Tone Tuning)",
     "description": "天然竹节风铃，木形修长，风吹过时发出五行角音。能调和家居木气不足，净化空间能量，特别适合事业阻隔、沟通不畅的居家办公环境。",
@@ -2143,6 +2201,8 @@
   {
     "id": "p32",
     "sku": "HOME-SALT-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "喜马拉雅水晶盐灯",
     "name_en": "Himalayan Crystal Salt Lamp",
     "description": "亿万年的岩盐结晶，通电后散发温暖橙红光，土火能量交融。净化空气的同时稳固家居能量场，适合土星刑克、家居能量紊乱者。",
@@ -2216,6 +2276,8 @@
   {
     "id": "p33",
     "sku": "HOME-BOWL-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "铜钵音疗套装（七脉轮）",
     "name_en": "Singing Bowl Sound Healing Set (7 Chakras)",
     "description": "七枚铜钵对应七大脉轮频率，金声玉振通经络。对灵性敏锐者做能量清理、感情心结释放、深层冥想有不可替代的作用。",
@@ -2301,6 +2363,8 @@
   {
     "id": "p34",
     "sku": "WEAR-SILK-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "真丝眼罩（五行安神）",
     "name_en": "Silk Eye Mask (Five Element Calm)",
     "description": "桑蚕丝亲肤柔滑，内置五行草药香包（艾草、薰衣草、合欢花、柏子仁、琥珀粉）。适合焦虑过度、内耗严重、睡眠质量差者夜间佩戴。",
@@ -2381,6 +2445,8 @@
   {
     "id": "p35",
     "sku": "WEAR-BAG-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "手工刺绣香囊（招财进宝）",
     "name_en": "Hand-Embroidered Sachet (Wealth Attraction)",
     "description": "传统老绣娘手工刺绣，内置天然香料与五帝钱。随身佩戴可聚财气、增人缘、辟邪气，适合财运需关注、人际困扰者日常携带。",
@@ -2453,6 +2519,8 @@
   {
     "id": "p36",
     "sku": "HOME-INCENSE-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "崖柏线香（古法手工）",
     "name_en": "Cliff Cypress Incense Sticks (Traditional Craft)",
     "description": "太行山崖柏老料，木土能量厚重沉稳。适合木气不足、思绪纷乱、冥想难以专注者。点燃后如置身千年古林，瞬间安稳心神。",
@@ -2522,6 +2590,8 @@
   {
     "id": "p39",
     "sku": "HOME-FLOW-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "铜质风水轮摆件（流水生财）",
     "name_en": "Brass Feng Shui Water Wheel (Flowing Wealth)",
     "description": "风水轮以水为引、以金为器，水金相生催旺财库。流水声舒缓减压，适合财运受损、财务需关注、压力大的居住或办公空间。",
@@ -2584,6 +2654,8 @@
   {
     "id": "p40",
     "sku": "TAL-WENCHANG-002",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "黑檀木文昌塔+笔套装",
     "name_en": "Ebony Wenchang Tower + Brush Set",
     "description": "文昌塔以黑檀木精雕七层，塔顶镶白水晶，配狼毫笔一支。文昌主文运官运，正印偏印皆宜。适合学业瓶颈、职称晋升、证书考试、需要印星助力者，置于书桌左上角效果最佳。",
@@ -2657,6 +2729,8 @@
   {
     "id": "p41",
     "sku": "JWL-GARNET-002",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "蜜蜡石榴石手串（多子多福）",
     "name_en": "Amber & Garnet Bracelet (Abundant Blessings)",
     "description": "蜜蜡金黄温暖配石榴石殷红，土火相生暖宫养身。石榴石对应海底轮与生殖系统，蜜蜡代表延续与传承。适合子女缘薄、备孕调理、创作灵感枯竭、食伤星弱需催旺才华者。",
@@ -2739,6 +2813,8 @@
   {
     "id": "p42",
     "sku": "CRY-CLUSTER-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "天然白水晶簇摆件",
     "name_en": "Natural White Quartz Cluster Display",
     "description": "白水晶簇是天然能量放大器，多尖朝向四面八方，象征团队协作与能量辐射。适合比劫为用神需旺合作运者、团队领导者、社交频繁者。同时净化空间磁场，是办公室与客厅的百搭能量摆件。",
@@ -2817,6 +2893,8 @@
   {
     "id": "p43",
     "sku": "TAL-TRAVEL-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "白水晶平安车挂（驿马守护）",
     "name_en": "White Quartz Travel Guardian Car Charm",
     "description": "白水晶圆珠串配金刚结流苏，挂于车内后视镜。水晶折射七彩光净化车内磁场，金刚结护佑出行平安。适合命带驿马常出差者、频繁搬家变动者、长途驾驶者，以水晶至纯之光护佑一路顺遂。",
@@ -2887,6 +2965,8 @@
   {
     "id": "p44",
     "sku": "JWL-KUNZITE-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "紫锂辉石耳坠（灵犀）",
     "name_en": "Kunzite Earrings (Spirit Link)",
     "description": "紫锂辉石淡紫至粉红的渐变，是心轮与顶轮的桥梁。锂辉石含锂元素，能稳定情绪、化解孤独感。适合华盖/孤辰/寡宿入命者、享受独处但渴望深度连接者、艺术创作者、审美品味独特者佩戴。",
@@ -2966,6 +3046,8 @@
   {
     "id": "p45",
     "sku": "INC-SLEEP-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "艾草薰衣草助眠香枕",
     "name_en": "Mugwort & Lavender Sleep Pillow",
     "description": "三年陈艾绒配薰衣草干花、合欢花、柏子仁，纯手工填充棉麻枕。艾草温通经络，薰衣草安神定志，合欢花解郁除烦。适合掌色偏青(循环关注)、指甲软薄(体质偏弱)、无半月痕(精力透支)、睡眠质量差者。",
@@ -3048,6 +3130,8 @@
   {
     "id": "p46",
     "sku": "TAL-PIXIU-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "铜鎏金貔貅摆件（招偏财）",
     "name_en": "Gilded Bronze Pixiu Statue (Windfall Wealth)",
     "description": "铜鎏金貔貅呈蹲坐回首状，大口吞财、圆臀守财。底座刻五鬼运财符，专催偏财与投资运。适合偏财为用神者、股票基金投资者、创业者、经商人士，置于财位或收银台，以金气引动偏财星。",
@@ -3119,6 +3203,8 @@
   {
     "id": "p47",
     "sku": "JWL-BAMBOO-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "翡翠竹结挂件（节节高升）",
     "name_en": "Jadeite Bamboo Knot Pendant (Rising Higher)",
     "description": "天然A货翡翠雕刻竹节造型，一节更比一节高。竹中空而节坚，象征虚怀若谷与坚韧不拔。适合命运线不明、事业探索期、寻求职场晋升者佩戴，配黑绳可作锁骨链或包挂，时刻提醒步步攀升。",
@@ -3196,6 +3282,8 @@
   {
     "id": "p48",
     "sku": "TAL-LEGAL-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "雷击枣木令牌（化官非）",
     "name_en": "Thunder-Struck Jujube Wood Command Token (Legal Resolution)",
     "description": "雷击枣木为道教至阳法木，经天雷击打后木纹焦黑带金丝，蕴含雷霆正气。令牌正面刻「敕令化讼」，背面刻「冤家解散」。适合官司缠身、合同纠纷、口舌是非不断者，化官非解讼事，以雷霆之力破除阴霾。",
@@ -3273,6 +3361,8 @@
   {
     "id": "p49",
     "sku": "INC-COMB-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "绿檀木花草按摩梳",
     "name_en": "Green Sandalwood Herbal Massage Comb",
     "description": "绿檀木遇光渐变翠绿，天然木香清雅持久。梳齿圆润打磨，每日梳头百下按摩头部经络。绿檀木性温润，木气通肝。适合掌色偏黄(肝胆关注)、气血不足、皮肤暗沉、用脑过度者，晨起睡前梳头，养颜又安神。",
@@ -3350,6 +3440,8 @@
   {
     "id": "p50",
     "sku": "TAL-SWORD-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "铜制七星镇宅剑",
     "name_en": "Brass Seven-Star Home Protection Sword",
     "description": "七星剑以黄铜铸就，剑身嵌七枚铜钱呈北斗七星状，剑鞘刻八卦符文。传统风水镇宅至宝，搬家入宅时悬于客厅镇煞纳吉，化五黄二黑等流年凶星。适合刚搬家、办公室乔迁、家居风水需调理者。",
@@ -3417,6 +3509,8 @@
   {
     "id": "p51",
     "sku": "TAL-ELDER-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "寿山石福寿印章",
     "name_en": "Shoushan Stone Longevity Seal",
     "description": "寿山石温润凝结，朱红艾叶绿冻石雕刻蝠纹寿字。印纽为仙鹤衔灵芝，寓意延年益寿。适合正印偏印为用需补长辈缘者、父母健康需关注者、孝亲敬老之礼。可作为书房印章实用，亦为客厅福寿摆件。",
@@ -3492,6 +3586,8 @@
   {
     "id": "p52",
     "sku": "CRY-ROSE-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "天然粉水晶原石摆件（旺桃花）",
     "name_en": "Natural Rose Quartz Raw Stone Display (Peach Blossom)",
     "description": "天然粉水晶原石保留自然形态，散发柔和粉色光芒，对应心轮，招正桃花与好人缘。适合感情线不佳、桃花运弱、心轮堵塞、人际关系冷淡者摆放于卧室或客厅。",
@@ -3505,20 +3601,59 @@
     "is_active": true,
     "image_url": "/products/crystal/rose-quartz-raw.webp",
     "detail_images": [],
-    "wuxing_tags": ["earth", "fire"],
-    "astro_tags": ["venus"],
-    "keyword_tags": ["#桃花运", "#感情", "#人缘", "#心轮堵塞"],
-    "keyword_tags_en": ["#romance", "#relationships", "#charm", "#blocked_heart_chakra"],
-    "elements": ["土", "火"],
-    "elements_en": ["Earth", "Fire"],
-    "planets": ["金星"],
-    "planets_en": ["Venus"],
-    "chakras": ["心轮"],
-    "chakras_en": ["Heart"],
+    "wuxing_tags": [
+      "earth",
+      "fire"
+    ],
+    "astro_tags": [
+      "venus"
+    ],
+    "keyword_tags": [
+      "#桃花运",
+      "#感情",
+      "#人缘",
+      "#心轮堵塞"
+    ],
+    "keyword_tags_en": [
+      "#romance",
+      "#relationships",
+      "#charm",
+      "#blocked_heart_chakra"
+    ],
+    "elements": [
+      "土",
+      "火"
+    ],
+    "elements_en": [
+      "Earth",
+      "Fire"
+    ],
+    "planets": [
+      "金星"
+    ],
+    "planets_en": [
+      "Venus"
+    ],
+    "chakras": [
+      "心轮"
+    ],
+    "chakras_en": [
+      "Heart"
+    ],
     "material": "天然粉水晶原石",
     "material_en": "Natural Rose Quartz Raw Stone",
-    "function_tags": ["招桃花", "增人缘", "心轮疗愈", "感情和谐"],
-    "function_tags_en": ["Attract Romance", "Enhance Charm", "Heart Chakra Healing", "Relationship Harmony"],
+    "function_tags": [
+      "招桃花",
+      "增人缘",
+      "心轮疗愈",
+      "感情和谐"
+    ],
+    "function_tags_en": [
+      "Attract Romance",
+      "Enhance Charm",
+      "Heart Chakra Healing",
+      "Relationship Harmony"
+    ],
     "sales_count": 680,
     "rating": 4.8,
     "usage_en": "Place on your bedroom vanity or nightstand, facing the door. Also suitable for the southwest corner (romance corner) of your living room. Purify under moonlight weekly.",
@@ -3528,6 +3663,8 @@
   {
     "id": "p53",
     "sku": "CRY-SMOKEY-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "天然茶晶球（接地稳固）",
     "name_en": "Natural Smoky Quartz Sphere (Grounding & Stability)",
     "description": "茶晶又名烟晶，能量沉稳厚重，强力对应海底轮，接地稳固能量场。适合土星刑克、内耗严重、焦虑过度、身心失衡者作为日常冥想与空间能量锚定点。",
@@ -3541,20 +3678,62 @@
     "is_active": true,
     "image_url": "/products/crystal/smoky-quartz-sphere.webp",
     "detail_images": [],
-    "wuxing_tags": ["earth", "water"],
-    "astro_tags": ["saturn", "pluto"],
-    "keyword_tags": ["#内耗", "#焦虑过度", "#土星刑克", "#压力大"],
-    "keyword_tags_en": ["#inner_drain", "#severe_anxiety", "#saturn_square", "#high_stress"],
-    "elements": ["土", "水"],
-    "elements_en": ["Earth", "Water"],
-    "planets": ["土星", "冥王星"],
-    "planets_en": ["Saturn", "Pluto"],
-    "chakras": ["海底轮"],
-    "chakras_en": ["Root"],
+    "wuxing_tags": [
+      "earth",
+      "water"
+    ],
+    "astro_tags": [
+      "saturn",
+      "pluto"
+    ],
+    "keyword_tags": [
+      "#内耗",
+      "#焦虑过度",
+      "#土星刑克",
+      "#压力大"
+    ],
+    "keyword_tags_en": [
+      "#inner_drain",
+      "#severe_anxiety",
+      "#saturn_square",
+      "#high_stress"
+    ],
+    "elements": [
+      "土",
+      "水"
+    ],
+    "elements_en": [
+      "Earth",
+      "Water"
+    ],
+    "planets": [
+      "土星",
+      "冥王星"
+    ],
+    "planets_en": [
+      "Saturn",
+      "Pluto"
+    ],
+    "chakras": [
+      "海底轮"
+    ],
+    "chakras_en": [
+      "Root"
+    ],
     "material": "天然茶晶",
     "material_en": "Natural Smoky Quartz",
-    "function_tags": ["接地稳固", "化解焦虑", "排负能量", "稳定情绪"],
-    "function_tags_en": ["Ground & Stabilize", "Relieve Anxiety", "Release Negativity", "Stabilize Emotions"],
+    "function_tags": [
+      "接地稳固",
+      "化解焦虑",
+      "排负能量",
+      "稳定情绪"
+    ],
+    "function_tags_en": [
+      "Ground & Stabilize",
+      "Relieve Anxiety",
+      "Release Negativity",
+      "Stabilize Emotions"
+    ],
     "sales_count": 420,
     "rating": 4.7,
     "usage_en": "Place on your desk or in your study as an energy anchor. During meditation, hold the sphere and visualize roots extending deep into the earth. Place by your pillow before sleep for deep rest.",
@@ -3564,6 +3743,8 @@
   {
     "id": "p54",
     "sku": "CRY-TOURMALINE-002",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "黑碧玺原石簇（强力辟邪）",
     "name_en": "Black Tourmaline Raw Cluster (Powerful Protection)",
     "description": "黑碧玺是公认最强辟邪水晶，能吸收转化一切负能量。原石簇形态能量辐射面广，适合官杀混杂、小人是非多、家居风水有缺陷者作为镇宅辟邪之用。",
@@ -3577,20 +3758,62 @@
     "is_active": true,
     "image_url": "/products/crystal/black-tourmaline-raw.webp",
     "detail_images": [],
-    "wuxing_tags": ["water", "metal"],
-    "astro_tags": ["saturn", "mars"],
-    "keyword_tags": ["#官杀混杂", "#辟邪", "#小人是非", "#土星刑克"],
-    "keyword_tags_en": ["#mixed_officer_stars", "#protection", "#petty_people", "#saturn_square"],
-    "elements": ["水", "金"],
-    "elements_en": ["Water", "Metal"],
-    "planets": ["土星", "火星"],
-    "planets_en": ["Saturn", "Mars"],
-    "chakras": ["海底轮"],
-    "chakras_en": ["Root"],
+    "wuxing_tags": [
+      "water",
+      "metal"
+    ],
+    "astro_tags": [
+      "saturn",
+      "mars"
+    ],
+    "keyword_tags": [
+      "#官杀混杂",
+      "#辟邪",
+      "#小人是非",
+      "#土星刑克"
+    ],
+    "keyword_tags_en": [
+      "#mixed_officer_stars",
+      "#protection",
+      "#petty_people",
+      "#saturn_square"
+    ],
+    "elements": [
+      "水",
+      "金"
+    ],
+    "elements_en": [
+      "Water",
+      "Metal"
+    ],
+    "planets": [
+      "土星",
+      "火星"
+    ],
+    "planets_en": [
+      "Saturn",
+      "Mars"
+    ],
+    "chakras": [
+      "海底轮"
+    ],
+    "chakras_en": [
+      "Root"
+    ],
     "material": "天然黑碧玺原石",
     "material_en": "Natural Black Tourmaline Raw Stone",
-    "function_tags": ["辟邪化煞", "吸收负能量", "镇宅", "防小人"],
-    "function_tags_en": ["Ward Off Evil", "Absorb Negativity", "Home Protection", "Defend Against Pettiness"],
+    "function_tags": [
+      "辟邪化煞",
+      "吸收负能量",
+      "镇宅",
+      "防小人"
+    ],
+    "function_tags_en": [
+      "Ward Off Evil",
+      "Absorb Negativity",
+      "Home Protection",
+      "Defend Against Pettiness"
+    ],
     "sales_count": 560,
     "rating": 4.8,
     "usage_en": "Place at your front door entrance or beside windows to form an energy shield. Also suitable under your desk to block workplace negativity. Rinse under running water regularly to maintain protective power.",
@@ -3600,6 +3823,8 @@
   {
     "id": "p55",
     "sku": "CRY-AMAZON-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "天然天河石手串（沟通之石）",
     "name_en": "Natural Amazonite Bracelet (Stone of Communication)",
     "description": "天河石又称亚马逊石，蓝绿色调清新通透，对应喉轮与心轮，增强沟通表达与自信心。适合水星逆行、沟通障碍、公众表达紧张、社交恐惧者日常佩戴。",
@@ -3613,20 +3838,64 @@
     "is_active": true,
     "image_url": "/products/crystal/amazonite-bracelet.webp",
     "detail_images": [],
-    "wuxing_tags": ["water", "wood"],
-    "astro_tags": ["mercury", "neptune"],
-    "keyword_tags": ["#沟通障碍", "#事业阻隔", "#缺乏弹性", "#社交恐惧"],
-    "keyword_tags_en": ["#communication_barrier", "#career_block", "#inflexibility", "#social_anxiety"],
-    "elements": ["水", "木"],
-    "elements_en": ["Water", "Wood"],
-    "planets": ["水星", "海王星"],
-    "planets_en": ["Mercury", "Neptune"],
-    "chakras": ["喉轮", "心轮"],
-    "chakras_en": ["Throat", "Heart"],
+    "wuxing_tags": [
+      "water",
+      "wood"
+    ],
+    "astro_tags": [
+      "mercury",
+      "neptune"
+    ],
+    "keyword_tags": [
+      "#沟通障碍",
+      "#事业阻隔",
+      "#缺乏弹性",
+      "#社交恐惧"
+    ],
+    "keyword_tags_en": [
+      "#communication_barrier",
+      "#career_block",
+      "#inflexibility",
+      "#social_anxiety"
+    ],
+    "elements": [
+      "水",
+      "木"
+    ],
+    "elements_en": [
+      "Water",
+      "Wood"
+    ],
+    "planets": [
+      "水星",
+      "海王星"
+    ],
+    "planets_en": [
+      "Mercury",
+      "Neptune"
+    ],
+    "chakras": [
+      "喉轮",
+      "心轮"
+    ],
+    "chakras_en": [
+      "Throat",
+      "Heart"
+    ],
     "material": "天然天河石",
     "material_en": "Natural Amazonite",
-    "function_tags": ["增强沟通", "提升自信", "化解冲突", "社交助力"],
-    "function_tags_en": ["Enhance Communication", "Boost Confidence", "Resolve Conflicts", "Social Aid"],
+    "function_tags": [
+      "增强沟通",
+      "提升自信",
+      "化解冲突",
+      "社交助力"
+    ],
+    "function_tags_en": [
+      "Enhance Communication",
+      "Boost Confidence",
+      "Resolve Conflicts",
+      "Social Aid"
+    ],
     "sales_count": 380,
     "rating": 4.7,
     "usage_en": "Wear on left wrist daily. Before important meetings or social events, hold the bracelet and meditate for 3 minutes, visualizing blue-green light at your Throat Chakra. Rinse under running water monthly.",
@@ -3636,6 +3905,8 @@
   {
     "id": "p56",
     "sku": "CRY-CARNELIAN-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "天然红玛瑙晶洞（创造力之源）",
     "name_en": "Natural Carnelian Geode (Source of Creativity)",
     "description": "红玛瑙晶洞火性能量充沛，内壁结晶如火焰般炽烈，激活脐轮与创造力。适合食伤星弱、创作灵感枯竭、行动力不足、需要激情与动力者摆放于工作空间。",
@@ -3649,20 +3920,64 @@
     "is_active": true,
     "image_url": "/products/crystal/carnelian-geode.webp",
     "detail_images": [],
-    "wuxing_tags": ["fire", "earth"],
-    "astro_tags": ["mars", "sun"],
-    "keyword_tags": ["#创作瓶颈", "#行动力", "#缺火", "#伤官受制"],
-    "keyword_tags_en": ["#creative_block", "#drive", "#lack_fire", "#weak_talent_star"],
-    "elements": ["火", "土"],
-    "elements_en": ["Fire", "Earth"],
-    "planets": ["火星", "太阳"],
-    "planets_en": ["Mars", "Sun"],
-    "chakras": ["脐轮", "太阳神经丛轮"],
-    "chakras_en": ["Sacral", "Solar Plexus"],
+    "wuxing_tags": [
+      "fire",
+      "earth"
+    ],
+    "astro_tags": [
+      "mars",
+      "sun"
+    ],
+    "keyword_tags": [
+      "#创作瓶颈",
+      "#行动力",
+      "#缺火",
+      "#伤官受制"
+    ],
+    "keyword_tags_en": [
+      "#creative_block",
+      "#drive",
+      "#lack_fire",
+      "#weak_talent_star"
+    ],
+    "elements": [
+      "火",
+      "土"
+    ],
+    "elements_en": [
+      "Fire",
+      "Earth"
+    ],
+    "planets": [
+      "火星",
+      "太阳"
+    ],
+    "planets_en": [
+      "Mars",
+      "Sun"
+    ],
+    "chakras": [
+      "脐轮",
+      "太阳神经丛轮"
+    ],
+    "chakras_en": [
+      "Sacral",
+      "Solar Plexus"
+    ],
     "material": "天然红玛瑙晶洞",
     "material_en": "Natural Carnelian Geode",
-    "function_tags": ["激活创造力", "增强行动力", "点燃激情", "催旺才华"],
-    "function_tags_en": ["Activate Creativity", "Boost Drive", "Ignite Passion", "Awaken Talent"],
+    "function_tags": [
+      "激活创造力",
+      "增强行动力",
+      "点燃激情",
+      "催旺才华"
+    ],
+    "function_tags_en": [
+      "Activate Creativity",
+      "Boost Drive",
+      "Ignite Passion",
+      "Awaken Talent"
+    ],
     "sales_count": 310,
     "rating": 4.8,
     "usage_en": "Place in the south (Fire position) of your study or workspace, opening facing your work area. Before creating, place hands near the geode to feel the Fire energy flow. Purify with sandalwood smoke weekly.",
@@ -3672,6 +3987,8 @@
   {
     "id": "p57",
     "sku": "CRY-SELENITE-001",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "天然透石膏能量棒（净化之光）",
     "name_en": "Natural Selenite Energy Wand (Light of Purification)",
     "description": "透石膏又称月光石（非月光宝石），色白通透如月光，能量纯净高频，是天然的空间净化器。可为其他水晶消磁充电，适合灵性修行者、空间能量需定期清理者。",
@@ -3685,20 +4002,61 @@
     "is_active": true,
     "image_url": "/products/crystal/selenite-wand.webp",
     "detail_images": [],
-    "wuxing_tags": ["metal", "water"],
-    "astro_tags": ["moon"],
-    "keyword_tags": ["#灵性", "#净化空间", "#安神", "#焦虑过度"],
-    "keyword_tags_en": ["#spirituality", "#purify_space", "#calm_mind", "#severe_anxiety"],
-    "elements": ["金", "水"],
-    "elements_en": ["Metal", "Water"],
-    "planets": ["月亮"],
-    "planets_en": ["Moon"],
-    "chakras": ["顶轮", "眉心轮"],
-    "chakras_en": ["Crown", "Third Eye"],
+    "wuxing_tags": [
+      "metal",
+      "water"
+    ],
+    "astro_tags": [
+      "moon"
+    ],
+    "keyword_tags": [
+      "#灵性",
+      "#净化空间",
+      "#安神",
+      "#焦虑过度"
+    ],
+    "keyword_tags_en": [
+      "#spirituality",
+      "#purify_space",
+      "#calm_mind",
+      "#severe_anxiety"
+    ],
+    "elements": [
+      "金",
+      "水"
+    ],
+    "elements_en": [
+      "Metal",
+      "Water"
+    ],
+    "planets": [
+      "月亮"
+    ],
+    "planets_en": [
+      "Moon"
+    ],
+    "chakras": [
+      "顶轮",
+      "眉心轮"
+    ],
+    "chakras_en": [
+      "Crown",
+      "Third Eye"
+    ],
     "material": "天然透石膏",
     "material_en": "Natural Selenite",
-    "function_tags": ["空间净化", "水晶消磁", "安神", "高频能量"],
-    "function_tags_en": ["Space Purification", "Crystal Cleansing", "Calm Mind", "High-Frequency Energy"],
+    "function_tags": [
+      "空间净化",
+      "水晶消磁",
+      "安神",
+      "高频能量"
+    ],
+    "function_tags_en": [
+      "Space Purification",
+      "Crystal Cleansing",
+      "Calm Mind",
+      "High-Frequency Energy"
+    ],
     "sales_count": 890,
     "rating": 4.6,
     "usage_en": "Place other crystals next to the selenite wand for 6-12 hours to complete cleansing. Also place at bedside to purify sleep space energy. Hold the wand and slowly move along your body outline to clear your personal aura.",
@@ -3708,6 +4066,8 @@
   {
     "id": "p58",
     "sku": "CRY-LABRADOR-002",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "拉长石水晶球（极光幻彩）",
     "name_en": "Labradorite Crystal Sphere (Aurora Flash)",
     "description": "拉长石水晶球在光线下呈现蓝绿极光般幻彩光芒，是第三眼活化的强力宝石。球形能量360度均匀辐射，适合灵性修行、冥想深化、直觉力提升。",
@@ -3721,20 +4081,64 @@
     "is_active": true,
     "image_url": "/products/crystal/labradorite-sphere.webp",
     "detail_images": [],
-    "wuxing_tags": ["water", "metal"],
-    "astro_tags": ["uranus", "neptune"],
-    "keyword_tags": ["#直觉", "#灵性", "#心灵转化", "#迷茫"],
-    "keyword_tags_en": ["#intuition", "#spirituality", "#transformation", "#confusion"],
-    "elements": ["水", "金"],
-    "elements_en": ["Water", "Metal"],
-    "planets": ["天王星", "海王星"],
-    "planets_en": ["Uranus", "Neptune"],
-    "chakras": ["眉心轮", "顶轮"],
-    "chakras_en": ["Third Eye", "Crown"],
+    "wuxing_tags": [
+      "water",
+      "metal"
+    ],
+    "astro_tags": [
+      "uranus",
+      "neptune"
+    ],
+    "keyword_tags": [
+      "#直觉",
+      "#灵性",
+      "#心灵转化",
+      "#迷茫"
+    ],
+    "keyword_tags_en": [
+      "#intuition",
+      "#spirituality",
+      "#transformation",
+      "#confusion"
+    ],
+    "elements": [
+      "水",
+      "金"
+    ],
+    "elements_en": [
+      "Water",
+      "Metal"
+    ],
+    "planets": [
+      "天王星",
+      "海王星"
+    ],
+    "planets_en": [
+      "Uranus",
+      "Neptune"
+    ],
+    "chakras": [
+      "眉心轮",
+      "顶轮"
+    ],
+    "chakras_en": [
+      "Third Eye",
+      "Crown"
+    ],
     "material": "天然拉长石",
     "material_en": "Natural Labradorite",
-    "function_tags": ["开启直觉", "灵性指引", "冥想深化", "方向感"],
-    "function_tags_en": ["Awaken Intuition", "Spiritual Guidance", "Deep Meditation", "Inner Direction"],
+    "function_tags": [
+      "开启直觉",
+      "灵性指引",
+      "冥想深化",
+      "方向感"
+    ],
+    "function_tags_en": [
+      "Awaken Intuition",
+      "Spiritual Guidance",
+      "Deep Meditation",
+      "Inner Direction"
+    ],
     "sales_count": 260,
     "rating": 4.9,
     "usage_en": "During meditation, place the sphere about 30cm before your eyes and gaze into its aurora flashes for 10-15 minutes. Also suitable for your study or meditation room as a space energy anchor.",
@@ -3744,6 +4148,8 @@
   {
     "id": "p59",
     "sku": "CRY-CITRINE-003",
+    "cj_variant_id": "",
+    "cj_product_id": "",
     "name": "天然黄水晶六字真言吊坠",
     "name_en": "Natural Citrine Six-Syllable Mantra Pendant",
     "description": "天然黄水晶雕刻六字真言，金色光芒与佛音共振，兼具招财与护身双重功效。黄水晶主偏财，六字真言辟邪护身，适合财运需关注且希望随身护身者。",
@@ -3757,20 +4163,64 @@
     "is_active": false,
     "image_url": "/products/crystal/citrine-mantra-pendant.webp",
     "detail_images": [],
-    "wuxing_tags": ["earth", "metal"],
-    "astro_tags": ["sun", "jupiter"],
-    "keyword_tags": ["#招财", "#辟邪", "#财运受损", "#官杀混杂"],
-    "keyword_tags_en": ["#wealth_attraction", "#protection", "#poor_fortune", "#mixed_officer_stars"],
-    "elements": ["土", "金"],
-    "elements_en": ["Earth", "Metal"],
-    "planets": ["太阳", "木星"],
-    "planets_en": ["Sun", "Jupiter"],
-    "chakras": ["太阳神经丛轮", "海底轮"],
-    "chakras_en": ["Solar Plexus", "Root"],
+    "wuxing_tags": [
+      "earth",
+      "metal"
+    ],
+    "astro_tags": [
+      "sun",
+      "jupiter"
+    ],
+    "keyword_tags": [
+      "#招财",
+      "#辟邪",
+      "#财运受损",
+      "#官杀混杂"
+    ],
+    "keyword_tags_en": [
+      "#wealth_attraction",
+      "#protection",
+      "#poor_fortune",
+      "#mixed_officer_stars"
+    ],
+    "elements": [
+      "土",
+      "金"
+    ],
+    "elements_en": [
+      "Earth",
+      "Metal"
+    ],
+    "planets": [
+      "太阳",
+      "木星"
+    ],
+    "planets_en": [
+      "Sun",
+      "Jupiter"
+    ],
+    "chakras": [
+      "太阳神经丛轮",
+      "海底轮"
+    ],
+    "chakras_en": [
+      "Solar Plexus",
+      "Root"
+    ],
     "material": "天然黄水晶+红绳",
     "material_en": "Natural Citrine + Red Cord",
-    "function_tags": ["招财", "护身", "辟邪", "双重守护"],
-    "function_tags_en": ["Attract Wealth", "Protect", "Ward Off Evil", "Dual Blessing"],
+    "function_tags": [
+      "招财",
+      "护身",
+      "辟邪",
+      "双重守护"
+    ],
+    "function_tags_en": [
+      "Attract Wealth",
+      "Protect",
+      "Ward Off Evil",
+      "Dual Blessing"
+    ],
     "sales_count": 450,
     "rating": 4.8,
     "usage_en": "Wear daily at chest level, close to the heart for best effect. The Pixiu mouth should face outward (toward door or window). Purify with sandalwood on the 1st and 15th of each lunar month.",

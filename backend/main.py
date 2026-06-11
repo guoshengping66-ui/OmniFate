@@ -108,6 +108,7 @@ ENDPOINT_LIMITS = {
     "/api/credits": 30,           # 星尘
     "/api/billing/verify-tx": 5,  # USDT verification - prevent brute force
     "/api/webhooks/paypal": 10,   # PayPal webhooks - prevent spam
+    "/api/webhooks/cj": 10,       # CJ Dropshipping webhooks
 }
 
 # ── Response cache for public GET endpoints ──────────────────────────────────

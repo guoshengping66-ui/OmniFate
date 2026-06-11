@@ -285,6 +285,13 @@ class Order(Base):
     refund_requested_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     refund_processed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
 
+    # CJ Dropshipping fields
+    cj_order_number: Mapped[Optional[str]] = mapped_column(String(100))      # CJ 订单号
+    cj_order_status: Mapped[Optional[str]] = mapped_column(String(50))       # CJ 订单状态
+    cj_shipping_cost: Mapped[Optional[float]] = mapped_column(Numeric(10, 2))  # CJ 运费
+    cj_response: Mapped[Optional[dict]] = mapped_column(JSON)                # CJ 原始响应
+    fulfilled_via: Mapped[Optional[str]] = mapped_column(String(20))         # "cj" / "manual"
+
     user: Mapped[Optional["User"]] = relationship(back_populates="orders")
     items: Mapped[list["OrderItem"]] = relationship(back_populates="order", cascade="all, delete-orphan")
 
