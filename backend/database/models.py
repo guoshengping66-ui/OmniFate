@@ -296,6 +296,10 @@ class Order(Base):
     confirm_token: Mapped[Optional[str]] = mapped_column(String(64))         # 邮件确认 token
     confirm_expires: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))  # token 过期时间
 
+    # Admin payment confirmation fields
+    admin_confirm_token: Mapped[Optional[str]] = mapped_column(String(64))   # 管理员确认 token
+    admin_confirm_expires: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))  # 管理员 token 过期时间
+
     user: Mapped[Optional["User"]] = relationship(back_populates="orders")
     items: Mapped[list["OrderItem"]] = relationship(back_populates="order", cascade="all, delete-orphan")
 

@@ -470,6 +470,101 @@ def send_qr_confirm_email(to_email: str, order_no: str, amount_cny: float, token
     return _send_email(to_email, subject, html_content)
 
 
+def send_admin_payment_confirm_email(
+    to_email: str, order_no: str, amount_cny: float, token: str,
+    user_email: str = "", payment_method: str = "", items_desc: str = "",
+) -> bool:
+    """Send payment confirmation email to admin — admin clicks link to confirm payment."""
+    config = _get_smtp_config()
+    if not config["host"] or not config["user"]:
+        print("[EMAIL] SMTP not configured, skipping admin confirm email")
+        if settings.DEBUG:
+            print(f"[EMAIL] Admin confirm link: https://www.khanfate.com/api/payments/admin-confirm-email?token={token}")
+        return False
+
+    confirm_url = f"https://www.khanfate.com/api/payments/admin-confirm-email?token={token}"
+    reject_url = f"https://www.khanfate.com/api/payments/admin-reject-email?token={token}"
+
+    subject = f"🔔 新订单待确认 ¥{amount_cny} - {order_no}"
+    html_content = f"""
+    <div style="max-width:520px;margin:0 auto;font-family:'PingFang SC','Microsoft YaHei',Arial,sans-serif;color:#333;">
+      <div style="background:linear-gradient(135deg,#2D1B4E,#1a0f2e);padding:30px;text-align:center;border-radius:12px 12px 0 0;">
+        <h2 style="color:#C9A84C;margin:0 0 8px;">🔔 新订单待确认</h2>
+        <p style="color:rgba(255,255,255,0.5);font-size:13px;margin:0;">用户已扫码付款，请核实收款</p>
+      </div>
+      <div style="background:#f9f9f9;padding:30px;border-radius:0 0 12px 12px;">
+        <div style="background:white;border-radius:8px;padding:16px;margin-bottom:20px;border:1px solid #e5e7eb;">
+          <table style="width:100%;border-collapse:collapse;">
+            <tr>
+              <td style="padding:6px 0;font-size:13px;color:#666;">订单号</td>
+              <td style="padding:6px 0;font-size:14px;font-weight:bold;text-align:right;">{html_mod.escape(order_no)}</td>
+            </tr>
+            <tr>
+              <td style="padding:6px 0;font-size:13px;color:#666;">支付金额</td>
+              <td style="padding:6px 0;font-size:22px;font-weight:bold;color:#C9A84C;text-align:right;">¥{amount_cny}</td>
+            </tr>
+            <tr>
+              <td style="padding:6px 0;font-size:13px;color:#666;">支付方式</td>
+              <td style="padding:6px 0;font-size:14px;text-align:right;">{html_mod.escape(payment_method or '未知')}</td>
+            </tr>
+            <tr>
+              <td style="padding:6px 0;font-size:13px;color:#666;">用户邮箱</td>
+              <td style="padding:6px 0;font-size:14px;text-align:right;">{html_mod.escape(user_email or '未知')}</td>
+            </tr>
+            {f'<tr><td style="padding:6px 0;font-size:13px;color:#666;">商品</td><td style="padding:6px 0;font-size:14px;text-align:right;">{html_mod.escape(items_desc)}</td></tr>' if items_desc else ''}
+          </table>
+        </div>
+        <p style="font-size:14px;color:#555;margin:0 0 20px;">请检查支付宝/微信是否收到 ¥{amount_cny} 的转账，确认无误后点击下方按钮：</p>
+        <div style="text-align:center;margin:24px 0;">
+          <a href="{confirm_url}" style="display:inline-block;padding:14px 40px;background:linear-gradient(135deg,#22c55e,#16a34a);color:white;text-decoration:none;border-radius:24px;font-weight:bold;font-size:16px;margin-right:8px;">✅ 确认收款</a>
+        </div>
+        <div style="text-align:center;margin:12px 0;">
+          <a href="{reject_url}" style="display:inline-block;padding:10px 30px;background:#f3f4f6;color:#666;text-decoration:none;border-radius:20px;font-size:14px;">❌ 未收到款项</a>
+        </div>
+        <p style="font-size:12px;color:#f87171;margin:16px 0 0;text-align:center;">⚠️ 请务必核实后再确认，确认后订单将变为已付款</p>
+        <p style="font-size:11px;color:#aaa;margin:8px 0 0;text-align:center;">此确认链接 24 小时内有效</p>
+      </div>
+      <div style="text-align:center;padding:15px;font-size:11px;color:#aaa;">
+        命盘智镜 · 管理后台<br/>
+        <a href="https://www.khanfate.com/admin/orders" style="color:#aaa;">查看订单管理</a>
+      </div>
+    </div>
+    """
+    return _send_email(to_email, subject, html_content)
+
+
+def send_admin_payment_reject_email(
+    to_email: str, order_no: str, amount_cny: float,
+) -> bool:
+    """Notify user that their QR payment was not confirmed by admin."""
+    config = _get_smtp_config()
+    if not config["host"] or not config["user"]:
+        return False
+
+    subject = f"订单 {order_no} 付款未确认"
+    html_content = f"""
+    <div style="max-width:480px;margin:0 auto;font-family:'PingFang SC','Microsoft YaHei',Arial,sans-serif;color:#333;">
+      <div style="background:linear-gradient(135deg,#2D1B4E,#1a0f2e);padding:30px;text-align:center;border-radius:12px 12px 0 0;">
+        <h2 style="color:#f87171;margin:0 0 8px;">付款未确认</h2>
+      </div>
+      <div style="background:#f9f9f9;padding:30px;border-radius:0 0 12px 12px;">
+        <p style="font-size:14px;color:#555;margin:0 0 16px;">您好，</p>
+        <p style="font-size:14px;color:#555;margin:0 0 16px;">您的订单 <strong>{html_mod.escape(order_no)}</strong>（¥{amount_cny}）付款未被确认。</p>
+        <p style="font-size:14px;color:#555;margin:0 0 16px;">可能原因：未收到对应金额的转账。请您：</p>
+        <ul style="font-size:14px;color:#555;margin:0 0 20px;padding-left:20px;">
+          <li>检查是否使用了正确的支付方式和金额</li>
+          <li>确认转账已完成</li>
+          <li>如需帮助请联系客服</li>
+        </ul>
+        <div style="text-align:center;">
+          <a href="https://www.khanfate.com/zh/account/orders/{html_mod.escape(order_no)}" style="display:inline-block;padding:12px 32px;background:linear-gradient(135deg,#C9A84C,#b8943f);color:#1a0f2e;text-decoration:none;border-radius:20px;font-weight:bold;">查看订单</a>
+        </div>
+      </div>
+    </div>
+    """
+    return _send_email(to_email, subject, html_content)
+
+
 # ── 退款相关邮件通知 ──────────────────────────────────────────────────────────
 
 def send_refund_request_notification(

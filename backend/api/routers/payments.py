@@ -2486,10 +2486,10 @@ async def confirm_shop_qr_payment(
 ):
     """
     用户通过微信/支付宝个人收款码付款后，点击"我已付款"。
-    生成确认 token 并发送确认邮件，用户点击邮件链接后订单才变为已付款。
+    生成 admin_confirm_token 并发送确认邮件给管理员，管理员核实收款后点击确认链接。
     """
     import secrets as _secrets
-    from utils.email import send_qr_confirm_email
+    from utils.email import send_admin_payment_confirm_email
 
     result = await db.execute(
         select(Order).where(
@@ -2503,24 +2503,44 @@ async def confirm_shop_qr_payment(
     if order.status != OrderStatus.pending:
         raise HTTPException(status_code=400, detail=f"订单状态为 {order.status.value}，无法确认付款")
 
-    # Generate confirmation token (valid for 30 minutes)
-    token = _secrets.token_urlsafe(32)
-    order.confirm_token = token
-    order.confirm_expires = datetime.now(timezone.utc) + timedelta(minutes=30)
-    order.notes = (order.notes or "") + f"\n[QR] 用户点击确认付款，等待邮件验证 {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M')}"
+    # Generate admin confirmation token (valid for 24 hours)
+    admin_token = _secrets.token_urlsafe(32)
+    order.admin_confirm_token = admin_token
+    order.admin_confirm_expires = datetime.now(timezone.utc) + timedelta(hours=24)
+    order.notes = (order.notes or "") + f"\n[QR] 用户点击确认付款，等待管理员确认 {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M')}"
     await db.commit()
 
-    # Send confirmation email
-    user_email = current_user.email
-    if user_email:
+    # Send confirmation email to admin
+    admin_emails_str = settings.ADMIN_EMAILS
+    if admin_emails_str:
+        import asyncio
+        from utils.email import send_admin_payment_confirm_email as _send_admin
+        admin_emails = [e.strip() for e in admin_emails_str.split(",") if e.strip()]
         amount = float(order.total_cny or 0)
-        send_qr_confirm_email(user_email, order_no, amount, token)
+        user_email = current_user.email or ""
+        # Collect items description
+        item_stmt = select(OrderItem).where(OrderItem.order_id == order.id)
+        item_result = await db.execute(item_stmt)
+        items = item_result.scalars().all()
+        items_desc = ", ".join(f"{i.product_name}×{i.quantity}" for i in items) if items else ""
+        payment_display = order.payment_method or "微信/支付宝"
+
+        for admin_email in admin_emails:
+            try:
+                await asyncio.to_thread(
+                    _send_admin,
+                    admin_email, order_no, amount, admin_token,
+                    user_email=user_email, payment_method=payment_display,
+                    items_desc=items_desc,
+                )
+            except Exception as e:
+                logger.warning(f"[EMAIL] Failed to send admin confirm email to {admin_email}: {e}")
 
     return {
         "success": True,
         "order_no": order.order_no,
-        "status": "pending_confirmation",
-        "message": "确认邮件已发送，请查收邮箱完成付款确认",
+        "status": "pending_admin_confirm",
+        "message": "付款确认已提交，管理员将在核实收款后确认订单",
     }
 
 
@@ -2532,6 +2552,7 @@ async def confirm_email_payment(
     """
     用户点击邮件中的确认链接，验证 token 后将订单标记为已付款。
     无需登录 — token 本身包含授权。
+    保留用于兼容旧流程。
     """
     from fastapi.responses import RedirectResponse
 
@@ -2545,7 +2566,6 @@ async def confirm_email_payment(
             status_code=302,
         )
 
-    # Check expiry
     if order.confirm_expires and order.confirm_expires < datetime.now(timezone.utc):
         return RedirectResponse(
             url="https://www.khanfate.com/zh/checkout?error=token_expired",
@@ -2553,21 +2573,129 @@ async def confirm_email_payment(
         )
 
     if order.status != OrderStatus.pending:
-        # Already confirmed
         return RedirectResponse(
             url=f"https://www.khanfate.com/zh/account/orders/{order.order_no}",
+            status_code=302,
+        )
+
+    order.status = OrderStatus.paid
+    order.paid_at = datetime.now(timezone.utc)
+    order.confirm_token = None
+    order.notes = (order.notes or "") + f"\n[QR-EMAIL] 邮件确认付款 {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M')}"
+    await db.commit()
+
+    return RedirectResponse(
+        url=f"https://www.khanfate.com/zh/account/orders/{order.order_no}?payment=confirmed",
+        status_code=302,
+    )
+
+
+@router.get("/admin-confirm-email")
+async def admin_confirm_email_payment(
+    token: str,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    管理员点击邮件中的确认链接，验证 admin_confirm_token 后将订单标记为已付款。
+    无需登录 — admin token 本身包含授权。
+    """
+    from fastapi.responses import RedirectResponse
+
+    result = await db.execute(
+        select(Order).where(Order.admin_confirm_token == token)
+    )
+    order = result.scalar_one_or_none()
+    if not order:
+        return RedirectResponse(
+            url="https://www.khanfate.com/zh/admin/orders?error=invalid_token",
+            status_code=302,
+        )
+
+    if order.admin_confirm_expires and order.admin_confirm_expires < datetime.now(timezone.utc):
+        return RedirectResponse(
+            url="https://www.khanfate.com/zh/admin/orders?error=token_expired",
+            status_code=302,
+        )
+
+    if order.status != OrderStatus.pending:
+        return RedirectResponse(
+            url=f"https://www.khanfate.com/zh/admin/orders",
             status_code=302,
         )
 
     # Mark as paid
     order.status = OrderStatus.paid
     order.paid_at = datetime.now(timezone.utc)
-    order.confirm_token = None  # Invalidate token
-    order.notes = (order.notes or "") + f"\n[QR-EMAIL] 邮件确认付款 {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M')}"
+    order.admin_confirm_token = None
+    order.notes = (order.notes or "") + f"\n[QR-ADMIN] 管理员确认收款 {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M')}"
     await db.commit()
 
+    # Notify user that payment is confirmed
+    try:
+        import asyncio
+        from utils.email import send_refund_approved_notification
+        user_stmt = select(User).where(User.id == order.user_id)
+        user_result = await db.execute(user_stmt)
+        user = user_result.scalar_one_or_none()
+        if user and user.email:
+            # Reuse a simple notification — just inform user their order is confirmed
+            from utils.email import _send_email
+            await asyncio.to_thread(
+                _send_email, user.email,
+                f"订单 {order.order_no} 已确认付款",
+                f"<div style='font-family:sans-serif;padding:20px;'><h2>✅ 付款已确认</h2><p>您的订单 <strong>{order.order_no}</strong>（¥{float(order.total_cny or 0)}）已确认收款，订单正在处理中。</p></div>",
+            )
+    except Exception as e:
+        logger.warning(f"[EMAIL] Failed to notify user of payment confirmation: {e}")
+
     return RedirectResponse(
-        url=f"https://www.khanfate.com/zh/account/orders/{order.order_no}?payment=confirmed",
+        url=f"https://www.khanfate.com/zh/admin/orders?confirmed={order.order_no}",
+        status_code=302,
+    )
+
+
+@router.get("/admin-reject-email")
+async def admin_reject_email_payment(
+    token: str,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    管理员点击邮件中的拒绝链接，通知用户付款未被确认。
+    """
+    from fastapi.responses import RedirectResponse
+
+    result = await db.execute(
+        select(Order).where(Order.admin_confirm_token == token)
+    )
+    order = result.scalar_one_or_none()
+    if not order:
+        return RedirectResponse(
+            url="https://www.khanfate.com/zh/admin/orders?error=invalid_token",
+            status_code=302,
+        )
+
+    # Invalidate token
+    order.admin_confirm_token = None
+    order.notes = (order.notes or "") + f"\n[QR-ADMIN-REJECT] 管理员拒绝确认 {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M')}"
+    await db.commit()
+
+    # Notify user
+    try:
+        import asyncio
+        from utils.email import send_admin_payment_reject_email
+        user_stmt = select(User).where(User.id == order.user_id)
+        user_result = await db.execute(user_stmt)
+        user = user_result.scalar_one_or_none()
+        if user and user.email:
+            await asyncio.to_thread(
+                send_admin_payment_reject_email,
+                user.email, order.order_no, float(order.total_cny or 0),
+            )
+    except Exception as e:
+        logger.warning(f"[EMAIL] Failed to notify user of payment rejection: {e}")
+
+    return RedirectResponse(
+        url=f"https://www.khanfate.com/zh/admin/orders?rejected={order.order_no}",
         status_code=302,
     )
 

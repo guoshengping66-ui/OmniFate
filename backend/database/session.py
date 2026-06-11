@@ -127,6 +127,8 @@ async def _migrate_readings_columns():
         ("fulfilled_via", "VARCHAR(20)"),
         ("confirm_token", "VARCHAR(64)"),
         ("confirm_expires", "TIMESTAMPTZ"),
+        ("admin_confirm_token", "VARCHAR(64)"),
+        ("admin_confirm_expires", "TIMESTAMPTZ"),
     ]
 
     try:

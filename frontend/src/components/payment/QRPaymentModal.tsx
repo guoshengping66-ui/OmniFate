@@ -307,10 +307,10 @@ export function QRPaymentModal({
     setStatus("verifying")
 
     if (isShopPayment) {
-      // Shop order QR payment: send confirmation email, user clicks link to confirm
+      // Shop order QR payment: notify admin, admin confirms payment
       try {
         await apiDirect.post(`/api/payments/shop-orders/${targetOrderNo}/confirm-qr-payment`)
-        toast.success(t("payment.emailSent") || "确认邮件已发送，请查收邮箱")
+        toast.success(t("payment.adminNotified") || "已通知管理员核实收款")
         setStatus("check_email")
       } catch (err: any) {
         console.error("[QRPayment] confirm-qr-payment failed:", err)
@@ -518,7 +518,7 @@ export function QRPaymentModal({
         </button>
 
         <h3 className="text-xl font-serif font-bold text-gold mb-2">
-          {status === "success" ? t("payment.success") : status === "waiting" ? t("payment.waitingConfirm") : status === "check_email" ? (t("payment.checkEmail") || "请查收确认邮件") : t("payment.scanToPay")}
+          {status === "success" ? t("payment.success") : status === "waiting" ? t("payment.waitingConfirm") : status === "check_email" ? (t("payment.waitingAdminConfirm") || "等待管理员确认") : t("payment.scanToPay")}
         </h3>
         <p className="text-white/40 text-sm mb-6">{tierLabel}</p>
 
@@ -781,13 +781,13 @@ export function QRPaymentModal({
             <div className="text-center py-8">
               <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg viewBox="0 0 24 24" width={32} height={32} fill="none" stroke="currentColor" strokeWidth={2} className="text-blue-400">
-                  <rect x={2} y={4} width={20} height={16} rx={2} />
-                  <path d="M22 4L12 13L2 4" />
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="12,6 12,12 16,14" />
                 </svg>
               </div>
-              <h4 className="text-xl font-bold text-blue-400 mb-2">{t("payment.checkEmail") || "请查收确认邮件"}</h4>
-              <p className="text-white/50 text-sm mb-2">{t("payment.emailSentDesc") || "确认邮件已发送到您的邮箱"}</p>
-              <p className="text-white/30 text-xs mb-6">{t("payment.emailSentHint") || "请点击邮件中的按钮确认付款，30分钟内有效"}</p>
+              <h4 className="text-xl font-bold text-blue-400 mb-2">{t("payment.waitingAdminConfirm") || "等待管理员确认"}</h4>
+              <p className="text-white/50 text-sm mb-2">{t("payment.adminNotifyingDesc") || "管理员正在核实您的付款，确认后订单将自动完成"}</p>
+              <p className="text-white/30 text-xs mb-6">{t("payment.adminNotifyingHint") || "通常 1-24 小时内完成确认，请耐心等待"}</p>
               <div className="bg-white/5 rounded-xl p-4 mb-4">
                 <p className="text-white/40 text-xs">{t("payment.orderNo")}</p>
                 <p className="text-white/70 text-sm font-mono">{shopOrderNo || orderNo}</p>
