@@ -212,34 +212,38 @@ async def get_qr_code(method: str):
     }
 
 
-@router.post("/verify")
-async def verify_payment(
-    payload: PaymentVerify,
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_user),
-):
-    """
-    验证支付 — 用户付款后点击「我已付款」，直接激活订阅/解锁报告。
-    """
-    # 1. 获取订单
-    order = await _get_pending_order(db, payload.order_no)
-    if not order:
-        raise HTTPException(status_code=404, detail="订单不存在或已处理")
+def _generate_admin_token(order_no: str, action: str) -> str:
+    """生成管理员确认/拒绝的 HMAC token"""
+    secret = settings.SECRET_KEY[:16]
+    expiry = int(time.time()) + 1800  # 30 分钟有效期
+    payload_str = f"{order_no}:{action}:{expiry}"
+    sig = hmac.new(f"{secret}:{payload_str}".encode(), digestmod=hashlib.sha256).hexdigest()[:16]
+    return f"{expiry}:{sig}"
 
-    # 2. 验证订单归属（只能提交自己的订单）
-    if order.user_id and order.user_id != str(current_user.id):
-        raise HTTPException(status_code=403, detail="无权操作此订单")
 
-    # 3. 验证金额合理
-    if order.total_cny <= 0 or order.total_cny > 50000:
-        raise HTTPException(status_code=400, detail="订单金额异常")
+def _verify_admin_token(order_no: str, action: str, token: str) -> bool:
+    """验证管理员 token 是否有效"""
+    try:
+        parts = token.split(":")
+        if len(parts) != 2:
+            return False
+        expiry, sig = int(parts[0]), parts[1]
+        if time.time() > expiry:
+            return False
+        secret = settings.SECRET_KEY[:16]
+        payload_str = f"{order_no}:{action}:{expiry}"
+        expected = hmac.new(f"{secret}:{payload_str}".encode(), digestmod=hashlib.sha256).hexdigest()[:16]
+        return hmac.compare_digest(sig, expected)
+    except Exception:
+        return False
 
-    # 4. 标记为已支付
+
+async def _activate_order(db: AsyncSession, order) -> None:
+    """激活订单（解锁报告 + 激活订阅）"""
     order.status = OrderStatus.paid
     order.paid_at = datetime.now(timezone.utc)
-    order.payment_ref = f"{order.order_no}_auto_confirmed"
 
-    # 5. 解锁报告（如果有）
+    # 解锁报告
     try:
         notes = order.notes or ""
         if "reading_id:" in notes:
@@ -264,12 +268,11 @@ async def verify_payment(
     except Exception:
         pass
 
-    # 6. 激活订阅会员（验证金额匹配）
+    # 激活订阅
     if order.item_type != "shop":
         try:
             description = order.notes or ""
             activated_tier = None
-
             if "premium_yearly" in description and abs(order.total_cny - 365.0) < 0.01:
                 activated_tier = "premium_yearly"
             elif "premium_monthly" in description and abs(order.total_cny - 59.0) < 0.01:
@@ -294,14 +297,175 @@ async def verify_payment(
         except Exception:
             pass
 
+
+@router.post("/verify")
+async def verify_payment(
+    payload: PaymentVerify,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_user),
+):
+    """
+    验证支付 — 用户付款后点击「我已付款」。
+    发送邮件通知管理员确认，¥50 以下 30 分钟自动激活。
+    """
+    from utils.email import send_payment_notification_email
+
+    # 1. 获取订单
+    order = await _get_pending_order(db, payload.order_no)
+    if not order:
+        raise HTTPException(status_code=404, detail="订单不存在或已处理")
+
+    # 2. 验证订单归属
+    if order.user_id and order.user_id != str(current_user.id):
+        raise HTTPException(status_code=403, detail="无权操作此订单")
+
+    # 3. 验证金额合理
+    if order.total_cny <= 0 or order.total_cny > 50000:
+        raise HTTPException(status_code=400, detail="订单金额异常")
+
+    # 4. 标记为已验证（等待确认）
+    order.status = OrderStatus.processing
+    order.payment_ref = f"{order.order_no}_submitted"
     await db.commit()
+
+    # 5. 生成确认/拒绝 token
+    confirm_token = f"{order.order_no}:{_generate_admin_token(order.order_no, 'confirm')}"
+    reject_token = f"{order.order_no}:{_generate_admin_token(order.order_no, 'reject')}"
+
+    # 6. 发送邮件通知管理员
+    notes = order.notes or ""
+    item_type = order.item_type or ""
+    if not item_type and "item_type:" in notes:
+        item_type = notes.split("item_type:")[1].split("|")[0]
+
+    user_email = current_user.email or ""
+    try:
+        send_payment_notification_email(
+            order_no=order.order_no,
+            amount_cny=order.total_cny,
+            item_type=item_type,
+            user_email=user_email,
+            confirm_token=confirm_token,
+            reject_token=reject_token,
+        )
+    except Exception:
+        pass  # 邮件发送失败不影响流程
 
     return {
         "success": True,
         "order_no": order.order_no,
-        "status": "paid",
-        "message": "支付成功，已激活",
+        "status": "processing",
+        "message": "支付已提交，等待管理员确认",
     }
+
+
+@router.get("/admin/quick-confirm")
+async def quick_confirm_payment(
+    token: str = Query(...),
+    db: AsyncSession = Depends(get_db),
+):
+    """管理员一键确认收款 — 无需登录，通过 token 验证"""
+    from fastapi.responses import HTMLResponse
+
+    try:
+        order_no, admin_token = token.split(":", 1)
+    except ValueError:
+        return HTMLResponse("<html><body><h2>❌ 无效链接</h2></body></html>", status_code=400)
+
+    if not _verify_admin_token(order_no, "confirm", admin_token):
+        return HTMLResponse("<html><body><h2>❌ 链接已过期或无效</h2></body></html>", status_code=400)
+
+    # 查找 processing 状态的订单
+    result = await db.execute(
+        select(Order).where(Order.order_no == order_no, Order.status == OrderStatus.processing)
+    )
+    order = result.scalar_one_or_none()
+    if not order:
+        return HTMLResponse("<html><body><h2>⚠️ 订单不存在或已处理</h2></body></html>")
+
+    # 激活订单
+    await _activate_order(db, order)
+    await db.commit()
+
+    return HTMLResponse(f"""
+    <html><body style="text-align:center;padding:50px;font-family:sans-serif;">
+      <h2>✅ 已确认收款 ¥{order.total_cny}</h2>
+      <p>订单 {order_no} 已激活</p>
+    </body></html>
+    """)
+
+
+@router.get("/admin/quick-reject")
+async def quick_reject_payment(
+    token: str = Query(...),
+    db: AsyncSession = Depends(get_db),
+):
+    """管理员一键拒绝 — 无需登录，通过 token 验证"""
+    from fastapi.responses import HTMLResponse
+
+    try:
+        order_no, admin_token = token.split(":", 1)
+    except ValueError:
+        return HTMLResponse("<html><body><h2>❌ 无效链接</h2></body></html>", status_code=400)
+
+    if not _verify_admin_token(order_no, "reject", admin_token):
+        return HTMLResponse("<html><body><h2>❌ 链接已过期或无效</h2></body></html>", status_code=400)
+
+    result = await db.execute(
+        select(Order).where(Order.order_no == order_no, Order.status == OrderStatus.processing)
+    )
+    order = result.scalar_one_or_none()
+    if not order:
+        return HTMLResponse("<html><body><h2>⚠️ 订单不存在或已处理</h2></body></html>")
+
+    order.status = OrderStatus.cancelled
+    await db.commit()
+
+    return HTMLResponse(f"""
+    <html><body style="text-align:center;padding:50px;font-family:sans-serif;">
+      <h2>❌ 已拒绝 ¥{order.total_cny}</h2>
+      <p>订单 {order_no} 已取消</p>
+    </body></html>
+    """)
+
+
+@router.post("/admin/auto-confirm-expired")
+async def auto_confirm_expired_orders(
+    db: AsyncSession = Depends(get_db),
+    authorization: Optional[str] = Header(None),
+):
+    """
+    自动确认超时订单 — ¥50 以下超过 30 分钟的 processing 订单自动激活。
+    通过 CRON_SECRET 鉴权。
+    """
+    if not settings.CRON_SECRET:
+        raise HTTPException(status_code=500, detail="CRON_SECRET not configured")
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Missing authorization")
+    token = authorization.replace("Bearer ", "")
+    if not hmac.compare_digest(token, settings.CRON_SECRET):
+        raise HTTPException(status_code=403, detail="Invalid token")
+
+    cutoff = datetime.now(timezone.utc) - timedelta(minutes=30)
+    result = await db.execute(
+        select(Order).where(
+            Order.status == OrderStatus.processing,
+            Order.created_at < cutoff,
+            Order.total_cny <= 50.0,
+        )
+    )
+    orders = result.scalars().all()
+
+    activated_count = 0
+    for order in orders:
+        try:
+            await _activate_order(db, order)
+            activated_count += 1
+        except Exception:
+            pass
+
+    await db.commit()
+    return {"activated": activated_count}
 
 
 @router.post("/confirm")

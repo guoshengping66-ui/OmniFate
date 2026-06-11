@@ -261,12 +261,7 @@ export function QRPaymentModal({
     if (!orderNo) return
     setStatus("verifying")
     try {
-      const res = await apiDirect.post("/api/personal-payments/verify", { order_no: orderNo })
-      // Server auto-confirms: if status is "paid", activate immediately
-      if (res.data?.status === "paid") {
-        await activateSubscription()
-        return
-      }
+      await apiDirect.post("/api/personal-payments/verify", { order_no: orderNo })
     } catch (err) {
       console.error("Payment verification failed:", err)
     }

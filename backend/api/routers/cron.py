@@ -276,3 +276,38 @@ async def cancel_expired_orders(
 
     logger.info(f"[CANCEL-ORDERS] Cancelled {cancelled_count} orders expired > 30min")
     return {"status": "ok", "cancelled_count": cancelled_count}
+
+
+@router.post("/auto-confirm-orders")
+async def auto_confirm_expired_qr_orders(
+    authorization: str = Header(None),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    自动确认超时的收款码订单 — ¥50 以下超过 30 分钟的 processing 订单自动激活。
+    """
+    _verify_cron_secret(authorization)
+
+    from api.routers.personal_payments import _activate_order
+
+    cutoff = datetime.now(timezone.utc) - timedelta(minutes=30)
+    result = await db.execute(
+        select(Order).where(
+            Order.status == OrderStatus.processing,
+            Order.created_at < cutoff,
+            Order.total_cny <= 50.0,
+        )
+    )
+    orders = result.scalars().all()
+
+    activated_count = 0
+    for order in orders:
+        try:
+            await _activate_order(db, order)
+            activated_count += 1
+        except Exception as e:
+            logger.warning(f"[AUTO-CONFIRM] Failed to activate {order.order_no}: {e}")
+
+    await db.commit()
+    logger.info(f"[AUTO-CONFIRM] Auto-activated {activated_count} expired QR orders (≤¥50)")
+    return {"status": "ok", "activated_count": activated_count}

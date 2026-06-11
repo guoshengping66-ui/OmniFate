@@ -331,3 +331,93 @@ def send_daily_fortune_email(to_email: str, fortune: dict, locale: str = "zh") -
     </div>
     """
     return _send_email(to_email, subject, html_content)
+
+
+def send_payment_notification_email(
+    order_no: str, amount_cny: float, item_type: str,
+    user_email: str, confirm_token: str, reject_token: str,
+) -> bool:
+    """Send admin payment notification with one-click confirm/reject links."""
+    config = _get_smtp_config()
+    if not config["host"] or not config["user"]:
+        logger.warning("[EMAIL] SMTP not configured, skipping payment notification")
+        return False
+
+    admin_emails_str = settings.ADMIN_EMAILS
+    if not admin_emails_str:
+        logger.warning("[EMAIL] ADMIN_EMAILS not configured, skipping payment notification")
+        return False
+
+    admin_emails = [e.strip() for e in admin_emails_str.split(",") if e.strip()]
+    if not admin_emails:
+        return False
+
+    base_url = "https://www.khanfate.com"
+    confirm_url = f"{base_url}/api/personal-payments/admin/quick-confirm?token={confirm_token}"
+    reject_url = f"{base_url}/api/personal-payments/admin/quick-reject?token={reject_token}"
+
+    tier_labels = {
+        "premium_monthly": "月度会员 ¥59",
+        "premium_yearly": "年度会员 ¥365",
+        "unlock_report": "报告解锁 ¥19.9",
+        "onetime_unlock": "一次性解锁 ¥19.9",
+        "founder_lifetime": "创始人席位 ¥1688",
+    }
+    tier_label = tier_labels.get(item_type, item_type)
+
+    subject = f"💰 新付款通知 ¥{amount_cny} - {order_no}"
+    html_content = f"""
+    <div style="max-width:480px;margin:0 auto;font-family:'PingFang SC','Microsoft YaHei',Arial,sans-serif;color:#333;">
+      <div style="background:linear-gradient(135deg,#1a5c2e,#0d3d1a);padding:24px;text-align:center;border-radius:12px 12px 0 0;">
+        <h2 style="color:#4ade80;margin:0 0 8px;">💰 新付款通知</h2>
+        <p style="color:rgba(255,255,255,0.6);font-size:13px;margin:0;">请核实后确认收款</p>
+      </div>
+      <div style="background:#f9f9f9;padding:24px;border-radius:0 0 12px 12px;">
+        <div style="background:white;border-radius:8px;padding:16px;margin-bottom:16px;border:1px solid #e5e7eb;">
+          <p style="margin:0 0 8px;font-size:13px;color:#666;">订单号</p>
+          <p style="margin:0 0 16px;font-size:15px;font-weight:bold;color:#111;">{html_mod.escape(order_no)}</p>
+          <p style="margin:0 0 8px;font-size:13px;color:#666;">商品</p>
+          <p style="margin:0 0 16px;font-size:15px;font-weight:bold;color:#111;">{html_mod.escape(tier_label)}</p>
+          <p style="margin:0 0 8px;font-size:13px;color:#666;">金额</p>
+          <p style="margin:0 0 16px;font-size:24px;font-weight:bold;color:#16a34a;">¥{amount_cny}</p>
+          <p style="margin:0 0 8px;font-size:13px;color:#666;">用户邮箱</p>
+          <p style="margin:0;font-size:14px;color:#333;">{html_mod.escape(user_email)}</p>
+        </div>
+        <p style="font-size:13px;color:#666;margin:0 0 12px;text-align:center;">请打开手机收款通知核实金额，然后点击下方按钮：</p>
+        <div style="text-align:center;margin:16px 0;">
+          <a href="{confirm_url}" style="display:inline-block;padding:12px 32px;background:#16a34a;color:white;text-decoration:none;border-radius:24px;font-weight:bold;font-size:15px;margin-right:8px;">✅ 已收到 ¥{amount_cny}</a>
+        </div>
+        <div style="text-align:center;margin:8px 0;">
+          <a href="{reject_url}" style="display:inline-block;padding:8px 24px;background:#dc2626;color:white;text-decoration:none;border-radius:20px;font-size:13px;">❌ 未收到</a>
+        </div>
+        <p style="font-size:11px;color:#aaa;margin:16px 0 0;text-align:center;">
+          ¥50 以下订单 30 分钟未确认将自动激活<br/>
+          ¥50 以上订单必须手动确认
+        </p>
+      </div>
+      <div style="text-align:center;padding:12px;font-size:11px;color:#aaa;">
+        命盘智镜 · 支付管理系统
+      </div>
+    </div>
+    """
+
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = Header(subject, "utf-8")
+    msg["From"] = formataddr((config["from_name"], config["from_email"]))
+    msg["To"] = ", ".join(admin_emails)
+    msg.attach(MIMEText(html_content, "html", "utf-8"))
+
+    try:
+        if config["port"] == 465:
+            server = smtplib.SMTP_SSL(config["host"], config["port"], timeout=10)
+        else:
+            server = smtplib.SMTP(config["host"], config["port"], timeout=10)
+            server.starttls(required=True)
+        server.login(config["user"], config["password"])
+        server.sendmail(config["from_email"], admin_emails, msg.as_string())
+        server.quit()
+        logger.info(f"[EMAIL] Payment notification sent for order {order_no}")
+        return True
+    except Exception as e:
+        logger.error(f"[EMAIL] Failed to send payment notification: {e}")
+        return False
