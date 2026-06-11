@@ -67,7 +67,7 @@ export function QRPaymentModal({
   shopAmount,
   initialMethod,
 }: QRPaymentModalProps) {
-  const { t: rawT } = useLanguage()
+  const { t: rawT, localeHref } = useLanguage()
   const t = rawT as unknown as (key: string, vars?: Record<string, string | number>) => string
   const isOverseas = region === "overseas"
   const isShopPayment = !!shopOrderNo
@@ -792,7 +792,7 @@ export function QRPaymentModal({
                 <p className="text-white/40 text-xs">{t("payment.orderNo")}</p>
                 <p className="text-white/70 text-sm font-mono">{shopOrderNo || orderNo}</p>
               </div>
-              <button onClick={onClose} className="btn-secondary w-full">{t("payment.close") || "关闭"}</button>
+              <button onClick={() => window.location.href = localeHref("/shop")} className="btn-secondary w-full">{t("payment.close") || "关闭"}</button>
             </div>
           )}
 
