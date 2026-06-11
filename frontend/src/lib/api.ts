@@ -895,9 +895,16 @@ export interface PayPalConfig {
   mode: "sandbox" | "live"
 }
 
+let _paypalConfigCache: PayPalConfig | null = null
+let _paypalConfigPromise: Promise<PayPalConfig> | null = null
+
 export async function getPayPalConfig(): Promise<PayPalConfig> {
-  const res = await apiDirect.get<PayPalConfig>("/api/payments/paypal/config")
-  return res.data
+  if (_paypalConfigCache) return _paypalConfigCache
+  if (_paypalConfigPromise) return _paypalConfigPromise
+  _paypalConfigPromise = apiDirect.get<PayPalConfig>("/api/payments/paypal/config")
+    .then(res => { _paypalConfigCache = res.data; return res.data })
+    .catch(e => { _paypalConfigPromise = null; throw e })
+  return _paypalConfigPromise
 }
 
 export async function capturePayPalOrder(paypalOrderId: string): Promise<{ status: string }> {

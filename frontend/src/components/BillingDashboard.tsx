@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, lazy, Suspense } from "react"
 import {
   Coins, Copy, Check, Loader2, Zap, Gift, Link as LinkIcon,
   ExternalLink, ShieldCheck, AlertCircle, Sparkles, ChevronRight,
@@ -13,7 +13,7 @@ import {
   getGeoConfig, redeemCode, verifyTx,
   type GeoConfig, type StardustPackage,
 } from "@/lib/api"
-import { PayPalPayment } from "@/components/payment/PayPalPayment"
+const PayPalPayment = lazy(() => import("@/components/payment/PayPalPayment").then(m => ({ default: m.PayPalPayment })))
 
 const CRYPTO_LOADING_TIPS_EN = [
   "Sensing on-chain energy...",
@@ -291,19 +291,21 @@ function GlobalPanel({
           </button>
         ) : (
           <div className="space-y-3">
-            <PayPalPayment
-              itemType={selectedPkg?.id || "stardust_topup"}
-              amount={`$${selectedPkg?.price || 0}`}
-              compact
-              onSuccess={() => {
-                setShowPaypalPayment(false)
-                onRefreshBalance()
-              }}
-              onError={(err) => {
-                console.error("PayPal payment error:", err)
-                toast.error(t("billing.paymentFailed") || "Payment failed. Please try again.")
-              }}
-            />
+            <Suspense fallback={<div className="text-center py-4"><Loader2 size={20} className="animate-spin text-gold mx-auto" /></div>}>
+              <PayPalPayment
+                itemType={selectedPkg?.id || "stardust_topup"}
+                amount={`$${selectedPkg?.price || 0}`}
+                compact
+                onSuccess={() => {
+                  setShowPaypalPayment(false)
+                  onRefreshBalance()
+                }}
+                onError={(err) => {
+                  console.error("PayPal payment error:", err)
+                  toast.error(t("billing.paymentFailed") || "Payment failed. Please try again.")
+                }}
+              />
+            </Suspense>
             <button
               onClick={() => setShowPaypalPayment(false)}
               className="w-full text-white/30 text-xs hover:text-white/50 text-center"

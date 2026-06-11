@@ -187,11 +187,8 @@ export function PayPalPayment({
   const sdkComponents: string[] = []
   if (mode === "both" || mode === "wallet") sdkComponents.push("buttons")
   if (mode === "both" || mode === "card") sdkComponents.push("card-fields")
-  // Apple Pay + Google Pay (requires Advanced Card Fields enabled in PayPal dashboard)
-  if (mode === "both" || mode === "card") {
-    sdkComponents.push("applepay")
-    sdkComponents.push("googlepay")
-  }
+  // Note: applepay/googlepay removed from default — they add SDK load time and
+  // require Advanced Card Fields enabled in PayPal dashboard. Add back if needed.
 
   const sdkOptions = {
     "client-id": config.clientId,

@@ -1,10 +1,12 @@
 "use client"
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect, useRef, useCallback, lazy, Suspense } from "react"
 import { X, Clock, CheckCircle, Loader2, Copy, AlertCircle, RefreshCw, ExternalLink } from "lucide-react"
 import toast from "react-hot-toast"
-import { apiDirect, unlockReport } from "@/lib/api"
+import { apiDirect, unlockReport, getPayPalConfig } from "@/lib/api"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { PayPalPayment } from "./PayPalPayment"
+
+// Lazy load PayPalPayment — avoids bundling PayPal SDK into the main chunk
+const PayPalPayment = lazy(() => import("./PayPalPayment").then(m => ({ default: m.PayPalPayment })))
 
 interface QRPaymentModalProps {
   open: boolean
@@ -170,6 +172,27 @@ export function QRPaymentModal({
       setStatus("loading")
     }
   }, [method])
+
+  // Preload PayPal config + SDK script as soon as modal opens for overseas users
+  useEffect(() => {
+    if (!open) return
+    if (!isOverseas && method !== "credit_card") return
+
+    // Pre-fetch config (cached after first call)
+    getPayPalConfig().then(cfg => {
+      if (cfg?.client_id) {
+        // Preload the PayPal SDK script so it's ready when PayPalPayment mounts
+        const sdkUrl = `https://www.paypal.com/sdk/js?client-id=${cfg.client_id}&currency=USD&intent=capture&components=buttons,card-fields`
+        const existing = document.querySelector(`script[src*="paypal.com/sdk/js"]`)
+        if (!existing) {
+          const script = document.createElement("script")
+          script.src = sdkUrl
+          script.async = true
+          document.head.appendChild(script)
+        }
+      }
+    }).catch(() => {})
+  }, [open, isOverseas, method])
 
   // When modal opens with shop order, force correct status based on method
   useEffect(() => {
@@ -481,6 +504,7 @@ export function QRPaymentModal({
                 <p className="text-white/40 text-xs mb-1">{t("payment.amount")}</p>
                 <p className="text-2xl font-bold text-gold">${tierInfo.amountUsd}</p>
               </div>
+              <Suspense fallback={<div className="text-center py-6"><Loader2 size={20} className="animate-spin text-gold mx-auto" /><p className="text-white/40 text-sm mt-2">Loading PayPal...</p></div>}>
               <PayPalPayment
                 itemType={isShopPayment ? "shop" : isPreOrder ? "founder_lifetime" : isReportUnlock ? "unlock_report" : (tier || "premium_monthly")}
                 readingId={readingId}
@@ -501,6 +525,7 @@ export function QRPaymentModal({
                   setStatus("failed")
                 }}
               />
+              </Suspense>
               <button onClick={reset} className="text-white/30 text-xs mt-4 hover:text-white/50 w-full text-center">
                 {t("payment.cancel")}
               </button>
@@ -514,6 +539,7 @@ export function QRPaymentModal({
                 <p className="text-white/40 text-xs mb-1">{t("payment.amount")}</p>
                 <p className="text-2xl font-bold text-gold">${tierInfo.amountUsd}</p>
               </div>
+              <Suspense fallback={<div className="text-center py-6"><Loader2 size={20} className="animate-spin text-gold mx-auto" /><p className="text-white/40 text-sm mt-2">Loading card fields...</p></div>}>
               <PayPalPayment
                 itemType={isShopPayment ? "shop" : isPreOrder ? "founder_lifetime" : isReportUnlock ? "unlock_report" : (tier || "premium_monthly")}
                 readingId={readingId}
@@ -534,6 +560,7 @@ export function QRPaymentModal({
                   setStatus("failed")
                 }}
               />
+              </Suspense>
               <button onClick={reset} className="text-white/30 text-xs mt-4 hover:text-white/50 w-full text-center">
                 {t("payment.cancel")}
               </button>
