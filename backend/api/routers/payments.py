@@ -306,10 +306,11 @@ async def _handle_onetime_unlock_activation(user, order, db) -> dict:
 
 @router.get("/payment-methods")
 async def get_payment_methods():
-    """返回可用的支付方式列表"""
+    """返回可用的支付方式列表 — 个人收款码不需要官方 API 开启"""
     methods = []
 
-    if settings.ALIPAY_ENABLED:
+    # 支付宝：有个人收款码即可（不需要官方 ALIPAY_ENABLED）
+    if settings.ALIPAY_PERSONAL_QR_URL or settings.ALIPAY_ENABLED:
         methods.append({
             "id": "alipay",
             "name": "支付宝",
@@ -319,7 +320,8 @@ async def get_payment_methods():
             "enabled": True,
         })
 
-    if settings.WECHAT_PAY_ENABLED:
+    # 微信支付：有个人收款码即可（不需要官方 WECHAT_PAY_ENABLED）
+    if settings.WECHAT_PERSONAL_QR_URL or settings.WECHAT_PAY_ENABLED:
         methods.append({
             "id": "wechat_pay",
             "name": "微信支付",
@@ -2471,6 +2473,67 @@ async def reject_refund(
         "success": True,
         "order_no": order.order_no,
         "status": order.status.value,
+    }
+
+
+# ── Shop Order QR Payment (personal collection codes) ──────────────────────
+
+@router.post("/shop-orders/{order_no}/confirm-qr-payment")
+async def confirm_shop_qr_payment(
+    order_no: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_user),
+):
+    """
+    用户通过微信/支付宝个人收款码付款后，点击"我已付款"确认。
+    将订单状态从 pending 更新为 paid，等待管理员核实。
+    """
+    result = await db.execute(
+        select(Order).where(
+            Order.order_no == order_no,
+            Order.user_id == current_user.id,
+        )
+    )
+    order = result.scalar_one_or_none()
+    if not order:
+        raise HTTPException(status_code=404, detail="订单不存在")
+    if order.status != OrderStatus.pending:
+        raise HTTPException(status_code=400, detail=f"订单状态为 {order.status.value}，无法确认付款")
+
+    order.status = OrderStatus.paid
+    order.paid_at = datetime.now(timezone.utc)
+    order.notes = (order.notes or "") + f"\n[QR] 用户确认微信/支付宝付款 {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M')}"
+    await db.commit()
+
+    return {
+        "success": True,
+        "order_no": order.order_no,
+        "status": "paid",
+        "message": "已确认付款，等待管理员核实发货",
+    }
+
+
+@router.get("/shop-orders/{order_no}/payment-status")
+async def get_shop_payment_status(
+    order_no: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_user),
+):
+    """查询商城订单支付状态 — 前端轮询用"""
+    result = await db.execute(
+        select(Order).where(
+            Order.order_no == order_no,
+            Order.user_id == current_user.id,
+        )
+    )
+    order = result.scalar_one_or_none()
+    if not order:
+        raise HTTPException(status_code=404, detail="订单不存在")
+
+    return {
+        "order_no": order.order_no,
+        "status": order.status.value,
+        "paid_at": order.paid_at.isoformat() if order.paid_at else None,
     }
 
 

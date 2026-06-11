@@ -74,7 +74,11 @@ export function QRPaymentModal({
   const [method, setMethod] = useState<PaymentMethod>(effectiveMethod)
   const [status, setStatus] = useState<PaymentStatus>(() => {
     if (initialMethod === "credit_card" && isShopPayment) return "loading"
-    if (isShopPayment) return isOverseas ? "paypal_embedded" : "showing_qr"
+    if (isShopPayment) {
+      // alipay/wechat → show QR; paypal/credit_card → embed
+      if (initialMethod === "alipay" || initialMethod === "wechat_pay") return "showing_qr"
+      return isOverseas ? "paypal_embedded" : "showing_qr"
+    }
     if (preOrderNo) return "showing_qr"
     return isOverseas ? "paypal_embedded" : "idle"
   })
@@ -128,7 +132,9 @@ export function QRPaymentModal({
 
   useEffect(() => {
     if ((preOrderNo || shopOrderNo) && status === "showing_qr" && !qrUrl && method !== "paypal") {
-      apiDirect.get(`/api/personal-payments/qr/${method}`)
+      // Map payment method IDs to QR endpoint method names
+      const qrMethod = method === "wechat_pay" ? "wechat" : method
+      apiDirect.get(`/api/personal-payments/qr/${qrMethod}`)
         .then(r => setQrUrl(r.data.qr_url))
         .catch(err => setQrError(err?.response?.data?.detail || t("payment.qrNotConfigured")))
     }
@@ -167,9 +173,15 @@ export function QRPaymentModal({
     if (prevMethodRef.current === method) return
     prevMethodRef.current = method
     setError("")
+    setQrError(null)
 
     if (method === "paypal" || method === "credit_card") {
       setStatus("loading")
+    } else if (method === "alipay" || method === "wechat_pay") {
+      // Switch to QR code display for alipay/wechat
+      if (isShopPayment) {
+        setStatus("showing_qr")
+      }
     }
   }, [method])
 
@@ -250,7 +262,8 @@ export function QRPaymentModal({
     // Shop order + QR: order already exists, just show QR code
     if (isShopPayment) {
       try {
-        const qrRes = await apiDirect.get(`/api/personal-payments/qr/${method}`)
+        const qrMethod = method === "wechat_pay" ? "wechat" : method
+        const qrRes = await apiDirect.get(`/api/personal-payments/qr/${qrMethod}`)
         setQrUrl(qrRes.data.qr_url)
         setStatus("showing_qr")
       } catch (err: any) {
@@ -287,6 +300,21 @@ export function QRPaymentModal({
   const handleConfirmPaid = async () => {
     if (!orderNo) return
     setStatus("verifying")
+
+    if (isShopPayment) {
+      // Shop order QR payment: mark order as paid, admin verifies later
+      try {
+        await apiDirect.post(`/api/payments/shop-orders/${orderNo}/confirm-qr-payment`)
+        setStatus("waiting")
+        startShopOrderPolling()
+      } catch (err: any) {
+        setError(err?.response?.data?.detail || t("payment verification failed"))
+        setStatus("showing_qr")
+      }
+      return
+    }
+
+    // Personal payment: verify via personal-payments endpoint
     try {
       await apiDirect.post("/api/personal-payments/verify", { order_no: orderNo })
     } catch (err) {
@@ -335,6 +363,27 @@ export function QRPaymentModal({
     cancelPolling()
     setStatus("verifying")
     setPollAttempts(0)
+
+    // Shop order: check shop order status
+    if (isShopPayment && shopOrderNo) {
+      try {
+        const statusRes = await apiDirect.get(`/api/payments/shop-orders/${shopOrderNo}/payment-status`)
+        const orderStatus = statusRes.data.status
+        if (orderStatus === "paid") {
+          setStatus("success")
+          onSuccess?.()
+          return
+        } else {
+          startShopOrderPolling()
+          return
+        }
+      } catch {
+        setStatus("waiting")
+        setError(t("payment.networkError"))
+        return
+      }
+    }
+
     try {
       const statusRes = await apiDirect.get(`/api/personal-payments/status/${orderNo}`)
       const orderStatus = statusRes.data.status
@@ -350,7 +399,7 @@ export function QRPaymentModal({
       setStatus("waiting")
       setError(t("payment.networkError"))
     }
-  }, [orderNo])
+  }, [orderNo, shopOrderNo, isShopPayment])
 
   const startPollForStatus = useCallback(() => {
     cancelPolling()
@@ -401,6 +450,36 @@ export function QRPaymentModal({
     }
     pollTimerRef.current = setTimeout(poll, POLL_INTERVAL)
   }, [])
+
+  // Poll shop order payment status (for QR/WeChat/Alipay personal code payments)
+  const startShopOrderPolling = useCallback(() => {
+    cancelPolling()
+    pollActiveRef.current = true
+    let attempts = 0
+
+    const poll = async () => {
+      if (!pollActiveRef.current || !shopOrderNo) return
+      attempts++
+      setPollAttempts(attempts)
+      try {
+        const res = await apiDirect.get(`/api/payments/shop-orders/${shopOrderNo}/payment-status`)
+        const orderStatus = res.data.status
+        if (orderStatus === "paid") {
+          setStatus("success")
+          onSuccess?.()
+          return
+        }
+      } catch {}
+      if (pollActiveRef.current && attempts < MAX_POLL_ATTEMPTS) {
+        pollTimerRef.current = setTimeout(poll, POLL_INTERVAL)
+      } else {
+        // Timeout: order was submitted, just close
+        setStatus("success")
+        onSuccess?.()
+      }
+    }
+    pollTimerRef.current = setTimeout(poll, POLL_INTERVAL)
+  }, [shopOrderNo])
 
   useEffect(() => {
     return () => cancelPolling()
