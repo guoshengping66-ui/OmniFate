@@ -48,9 +48,10 @@ if [[ "$ACTION" == "frontend" || "$ACTION" == "all" ]]; then
     STANDALONE_DIR="/opt/OmniFate/frontend/.next/standalone/frontend"
     mkdir -p "$STANDALONE_DIR/.next"
     # Remove existing dirs/symlinks first (cp -r may have left real dirs)
-    rm -rf "$STANDALONE_DIR/.next/static" "$STANDALONE_DIR/.next/server"
+    rm -rf "$STANDALONE_DIR/.next/static" "$STANDALONE_DIR/.next/server" "$STANDALONE_DIR/public"
     ln -sf /opt/OmniFate/frontend/.next/static "$STANDALONE_DIR/.next/static"
     ln -sf /opt/OmniFate/frontend/.next/server "$STANDALONE_DIR/.next/server"
+    ln -sf /opt/OmniFate/frontend/public "$STANDALONE_DIR/public"
 
     log "🔄 重启前端..."
     pm2 restart frontend 2>/dev/null || pm2 start ecosystem.config.js --only frontend
