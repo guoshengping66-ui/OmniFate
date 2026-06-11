@@ -112,9 +112,21 @@ async def _migrate_readings_columns():
     divination_columns = [
         ("ai_insight", "TEXT"),
     ]
-    # ── Orders table: item_type column ──
+    # ── Orders table: item_type, refund, CJ, confirm columns ──
     order_columns = [
         ("item_type", "VARCHAR(50)"),
+        ("refund_reason", "TEXT"),
+        ("refund_amount", "NUMERIC(10,2)"),
+        ("refund_note", "TEXT"),
+        ("refund_requested_at", "TIMESTAMPTZ"),
+        ("refund_processed_at", "TIMESTAMPTZ"),
+        ("cj_order_number", "VARCHAR(100)"),
+        ("cj_order_status", "VARCHAR(50)"),
+        ("cj_shipping_cost", "NUMERIC(10,2)"),
+        ("cj_response", "JSON"),
+        ("fulfilled_via", "VARCHAR(20)"),
+        ("confirm_token", "VARCHAR(64)"),
+        ("confirm_expires", "TIMESTAMPTZ"),
     ]
 
     try:

@@ -342,7 +342,7 @@ export default function OrderDetailPage() {
             </h3>
             <div className="space-y-3">
               <div>
-                <label className="text-white/50 text-xs mb-1 block">{t("order.detail.refundReason")} *</label>
+                <label className="text-white/50 text-xs mb-1 block">{t("order.detail.refundReason.label")} *</label>
                 <select
                   value={refundReason}
                   onChange={(e) => setRefundReason(e.target.value)}
