@@ -108,7 +108,7 @@ export function QRPaymentModal({
       : isReportUnlock
         ? { amountCny: UNLOCK_PRICES.amountCny, amountUsd: UNLOCK_PRICES.amountUsd, labelKey: "payment.unlockReport" }
         : (TIER_PRICES[tier || "premium_monthly"] || TIER_PRICES.premium_monthly)
-  const displayAmount = isOverseas ? tierInfo.amountUsd : tierInfo.amountCny
+  const displayAmount = Math.round((isOverseas ? tierInfo.amountUsd : tierInfo.amountCny) * 100) / 100
   const currencySymbol = isOverseas ? "$" : "¥"
   const tierLabel = isPreOrder
     ? (preLabel || "Founder Seat")
@@ -581,7 +581,7 @@ export function QRPaymentModal({
             <div>
               <div className="bg-white/5 rounded-xl p-4 text-center mb-4">
                 <p className="text-white/40 text-xs mb-1">{t("payment.amount")}</p>
-                <p className="text-2xl font-bold text-gold">${tierInfo.amountUsd}</p>
+                <p className="text-2xl font-bold text-gold">${Math.round(tierInfo.amountUsd * 100) / 100}</p>
               </div>
               <Suspense fallback={<div className="text-center py-6"><Loader2 size={20} className="animate-spin text-gold mx-auto" /><p className="text-white/40 text-sm mt-2">Loading PayPal...</p></div>}>
               <PayPalPayment
@@ -616,7 +616,7 @@ export function QRPaymentModal({
             <div>
               <div className="bg-white/5 rounded-xl p-4 text-center mb-4">
                 <p className="text-white/40 text-xs mb-1">{t("payment.amount")}</p>
-                <p className="text-2xl font-bold text-gold">${tierInfo.amountUsd}</p>
+                <p className="text-2xl font-bold text-gold">${Math.round(tierInfo.amountUsd * 100) / 100}</p>
               </div>
               <Suspense fallback={<div className="text-center py-6"><Loader2 size={20} className="animate-spin text-gold mx-auto" /><p className="text-white/40 text-sm mt-2">Loading card fields...</p></div>}>
               <PayPalPayment
