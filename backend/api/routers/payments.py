@@ -2537,15 +2537,19 @@ async def fulfill_via_cj(
 
     cj_order_data = {
         "orderNumber": order.order_no,
-        "shippingMethod": req.shipping_method,
-        "shippingCountry": country,
+        "logisticName": req.shipping_method,
+        "shippingCountryCode": country,
+        "shippingCountry": addr.get("country", ""),
         "shippingProvince": addr.get("province", ""),
         "shippingCity": addr.get("city", ""),
         "shippingAddress": addr_str,
-        "shippingZipCode": addr.get("postal_code", ""),
+        "shippingZip": addr.get("postal_code", ""),
         "shippingPhone": order.recipient_phone or "",
-        "shippingName": order.recipient_name or "",
-        "recipientEmail": "",
+        "shippingCustomerName": order.recipient_name or "",
+        "email": "",
+        "payType": 3,               # 3 = create order only (no CJ payment page)
+        "platform": "api",
+        "fromCountryCode": "CN",
         "products": cj_products,
     }
 
@@ -2557,9 +2561,9 @@ async def fulfill_via_cj(
 
     # Update order with CJ info
     cj_data = resp.get("data", {})
-    order.cj_order_number = cj_data.get("cjOrderNumber") or cj_data.get("orderNumber")
+    order.cj_order_number = cj_data.get("orderId") or cj_data.get("orderNumber")
     order.cj_order_status = cj_data.get("orderStatus", "")
-    order.cj_shipping_cost = cj_data.get("totalShippingCost")
+    order.cj_shipping_cost = float(cj_data.get("postageAmount") or 0)
     order.cj_response = cj_data
     order.fulfilled_via = "cj"
     order.notes = (order.notes or "") + f"\n[CJ] 已推送: {order.cj_order_number}"
@@ -2569,9 +2573,9 @@ async def fulfill_via_cj(
         "success": True,
         "cj_order_number": order.cj_order_number,
         "cj_status": order.cj_order_status,
-        "total_product_cost": cj_data.get("totalProductCost"),
-        "total_shipping_cost": cj_data.get("totalShippingCost"),
-        "total_cost": cj_data.get("totalCost"),
+        "product_amount": cj_data.get("productAmount"),
+        "postage_amount": cj_data.get("postageAmount"),
+        "actual_payment": cj_data.get("actualPayment"),
     }
 
 
@@ -2585,7 +2589,7 @@ async def sync_cj_tracking(
     """Sync tracking info from CJ for a pushed order."""
     _require_admin_auth(authorization, x_admin_key)
 
-    from services.cj_dropshipping import get_tracking, get_order_status as cj_order_status, is_enabled
+    from services.cj_dropshipping import get_tracking, list_orders as cj_list_orders, is_enabled
     if not is_enabled():
         raise HTTPException(status_code=400, detail="CJ API 未启用")
 
@@ -2599,37 +2603,51 @@ async def sync_cj_tracking(
         raise HTTPException(status_code=400, detail="该订单未推送到 CJ")
 
     try:
-        # Get tracking info
-        tracking_resp = await get_tracking(order_number=order.cj_order_number)
-        tracking_data = tracking_resp.get("data", {})
+        # Get order status from CJ order list
+        status_resp = await cj_list_orders(order_ids=[order.cj_order_number])
+        order_list = status_resp.get("data", {}).get("list", [])
 
-        # Get order status
-        status_resp = await cj_order_status([order.cj_order_number])
-        status_list = status_resp.get("data", {}).get("list", [])
-
-        # Update tracking
-        tracking_number = tracking_data.get("trackingNumber") or tracking_data.get("trackingNumber1")
-        if tracking_number and not order.tracking_number:
-            order.tracking_number = tracking_number
-            order.shipping_carrier = tracking_data.get("shippingMethod", "CJ Logistics")
-
-        # Update status from CJ
-        if status_list:
-            cj_status = status_list[0].get("orderStatus", "")
+        # Update CJ order status
+        if order_list:
+            cj_order = order_list[0]
+            cj_status = cj_order.get("orderStatus", "")
             order.cj_order_status = cj_status
+
+            # Update tracking from order info
+            track_number = cj_order.get("trackNumber")
+            if track_number and not order.tracking_number:
+                order.tracking_number = track_number
+                order.shipping_carrier = cj_order.get("logisticName", "CJ Logistics")
+                order.shipped_at = datetime.now(timezone.utc)
 
             # Map CJ status to our status
             status_map = {
-                "Awaiting Shipment": None,  # don't change
-                "Shipped": OrderStatus.shipped,
-                "In Transit": OrderStatus.shipped,
-                "Delivered": OrderStatus.delivered,
+                "CREATED": None, "IN_CART": None, "UNPAID": None,
+                "UNSHIPPED": None,
+                "SHIPPED": OrderStatus.shipped,
+                "DELIVERED": OrderStatus.delivered,
+                "CANCELLED": OrderStatus.cancelled,
             }
             new_status = status_map.get(cj_status)
             if new_status and order.status != new_status:
                 order.status = new_status
                 if new_status == OrderStatus.shipped and not order.shipped_at:
                     order.shipped_at = datetime.now(timezone.utc)
+
+        # Get detailed tracking if we have a tracking number
+        trajectory = []
+        if order.tracking_number:
+            try:
+                tracking_resp = await get_tracking([order.tracking_number])
+                tracking_list = tracking_resp.get("data", [])
+                if tracking_list:
+                    track_info = tracking_list[0]
+                    trajectory = track_info.get("trajectory", [])
+                    # Update carrier info from tracking
+                    if track_info.get("logisticName") and not order.shipping_carrier:
+                        order.shipping_carrier = track_info["logisticName"]
+            except Exception as te:
+                logger.warning(f"[CJ] Tracking detail fetch failed: {te}")
 
         await db.commit()
 
@@ -2639,7 +2657,7 @@ async def sync_cj_tracking(
             "shipping_carrier": order.shipping_carrier,
             "cj_order_status": order.cj_order_status,
             "our_status": order.status.value,
-            "trajectory": tracking_data.get("trajectory", []),
+            "trajectory": trajectory,
         }
     except Exception as e:
         logger.error(f"[CJ] Sync tracking for {order_no} failed: {e}")
