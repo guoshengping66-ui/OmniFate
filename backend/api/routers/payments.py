@@ -2328,7 +2328,7 @@ async def update_shop_order_status(
         raise HTTPException(status_code=404, detail="订单不存在")
 
     old_status = order.status.value if order.status else "pending"
-    order.status = payload.status
+    order.status = OrderStatus(payload.status)
     if payload.tracking_number is not None:
         order.tracking_number = payload.tracking_number
     if payload.status == "paid" and not order.paid_at:
