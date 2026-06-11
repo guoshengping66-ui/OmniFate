@@ -98,6 +98,7 @@ class Settings(BaseSettings):
 
     # ── CJ Dropshipping ──
     CJ_API_ENABLED: bool = False
+    CJ_API_KEY: str = ""                  # 直接使用 API Key（优先于 email/password）
     CJ_API_EMAIL: str = ""
     CJ_API_PASSWORD: str = ""
     CJ_WEBHOOK_SECRET: str = ""

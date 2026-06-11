@@ -27,6 +27,10 @@ async def _ensure_token() -> str:
     if not settings.CJ_API_ENABLED:
         raise RuntimeError("CJ API is not enabled (CJ_API_ENABLED=false)")
 
+    # API Key mode: use the key directly (no JWT needed)
+    if settings.CJ_API_KEY:
+        return settings.CJ_API_KEY
+
     now = time.time()
 
     # Token still valid (with 5-min buffer)
@@ -54,7 +58,7 @@ async def _ensure_token() -> str:
 
     # Fresh login
     if not settings.CJ_API_EMAIL or not settings.CJ_API_PASSWORD:
-        raise RuntimeError("CJ API credentials not configured (CJ_API_EMAIL / CJ_API_PASSWORD)")
+        raise RuntimeError("CJ API credentials not configured (CJ_API_KEY or CJ_API_EMAIL/CJ_API_PASSWORD)")
 
     async with httpx.AsyncClient(timeout=30) as client:
         resp = await client.post(
