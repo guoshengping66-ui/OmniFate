@@ -422,3 +422,130 @@ def send_payment_notification_email(
     except Exception as e:
         logger.error(f"[EMAIL] Failed to send payment notification: {e}")
         return False
+
+
+# ── 退款相关邮件通知 ──────────────────────────────────────────────────────────
+
+def send_refund_request_notification(
+    order_no: str, total_cny: float, user_email: str, reason: str,
+) -> bool:
+    """通知管理员：用户申请了退款"""
+    config = _get_smtp_config()
+    if not config["host"] or not config["user"]:
+        return False
+
+    admin_emails_str = settings.ADMIN_EMAILS
+    if not admin_emails_str:
+        logger.warning("[EMAIL] ADMIN_EMAILS not configured, skipping refund notification")
+        return False
+
+    admin_emails = [e.strip() for e in admin_emails_str.split(",") if e.strip()]
+    if not admin_emails:
+        return False
+
+    subject = f"🔄 退款申请 ¥{total_cny} - {order_no}"
+    html_content = f"""
+    <div style="max-width:480px;margin:0 auto;font-family:'PingFang SC','Microsoft YaHei',Arial,sans-serif;color:#333;">
+      <div style="background:linear-gradient(135deg,#b45309,#78350f);padding:24px;text-align:center;border-radius:12px 12px 0 0;">
+        <h2 style="color:#fbbf24;margin:0 0 8px;">🔄 退款申请</h2>
+        <p style="color:rgba(255,255,255,0.6);font-size:13px;margin:0;">请尽快处理</p>
+      </div>
+      <div style="background:#f9f9f9;padding:24px;border-radius:0 0 12px 12px;">
+        <div style="background:white;border-radius:8px;padding:16px;margin-bottom:16px;border:1px solid #e5e7eb;">
+          <p style="margin:0 0 8px;font-size:13px;color:#666;">订单号</p>
+          <p style="margin:0 0 16px;font-size:15px;font-weight:bold;color:#111;">{html_mod.escape(order_no)}</p>
+          <p style="margin:0 0 8px;font-size:13px;color:#666;">订单金额</p>
+          <p style="margin:0 0 16px;font-size:20px;font-weight:bold;color:#b45309;">¥{total_cny}</p>
+          <p style="margin:0 0 8px;font-size:13px;color:#666;">用户邮箱</p>
+          <p style="margin:0 0 16px;font-size:14px;color:#333;">{html_mod.escape(user_email)}</p>
+          <p style="margin:0 0 8px;font-size:13px;color:#666;">退款原因</p>
+          <p style="margin:0;font-size:14px;color:#333;background:#fff7ed;padding:8px;border-radius:6px;border:1px solid #fed7aa;">{html_mod.escape(reason)}</p>
+        </div>
+        <p style="font-size:13px;color:#666;margin:12px 0;text-align:center;">
+          请登录管理后台审核退款申请
+        </p>
+        <div style="text-align:center;margin:16px 0;">
+          <a href="https://www.khanfate.com/zh/admin/orders" style="display:inline-block;padding:12px 32px;background:#b45309;color:white;text-decoration:none;border-radius:24px;font-weight:bold;font-size:15px;">前往审核</a>
+        </div>
+      </div>
+    </div>
+    """
+
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = Header(subject, "utf-8")
+    msg["From"] = formataddr((config["from_name"], config["from_email"]))
+    msg["To"] = ", ".join(admin_emails)
+    msg.attach(MIMEText(html_content, "html", "utf-8"))
+
+    try:
+        if config["port"] == 465:
+            server = smtplib.SMTP_SSL(config["host"], config["port"], timeout=10)
+        else:
+            server = smtplib.SMTP(config["host"], config["port"], timeout=10)
+            server.starttls(required=True)
+        server.login(config["user"], config["password"])
+        server.sendmail(config["from_email"], admin_emails, msg.as_string())
+        server.quit()
+        logger.info(f"[EMAIL] Refund request notification sent for order {order_no}")
+        return True
+    except Exception as e:
+        logger.error(f"[EMAIL] Failed to send refund request notification: {e}")
+        return False
+
+
+def send_refund_approved_notification(
+    to_email: str, order_no: str, refund_amount: float,
+) -> bool:
+    """通知用户：退款已批准"""
+    subject = f"✅ 退款已批准 - {order_no}"
+    html_content = f"""
+    <div style="max-width:480px;margin:0 auto;font-family:'PingFang SC','Microsoft YaHei',Arial,sans-serif;color:#333;">
+      <div style="background:linear-gradient(135deg,#166534,#14532d);padding:24px;text-align:center;border-radius:12px 12px 0 0;">
+        <h2 style="color:#4ade80;margin:0 0 8px;">✅ 退款已批准</h2>
+      </div>
+      <div style="background:#f9f9f9;padding:24px;border-radius:0 0 12px 12px;">
+        <div style="background:white;border-radius:8px;padding:16px;margin-bottom:16px;border:1px solid #e5e7eb;">
+          <p style="margin:0 0 8px;font-size:13px;color:#666;">订单号</p>
+          <p style="margin:0 0 16px;font-size:15px;font-weight:bold;color:#111;">{html_mod.escape(order_no)}</p>
+          <p style="margin:0 0 8px;font-size:13px;color:#666;">退款金额</p>
+          <p style="margin:0;font-size:24px;font-weight:bold;color:#16a34a;">¥{refund_amount}</p>
+        </div>
+        <p style="font-size:13px;color:#666;margin:0 0 12px;text-align:center;">
+          退款将在 1-3 个工作日内原路退回您的付款账户。<br/>如有问题请联系 refund@khanfate.com
+        </p>
+      </div>
+      <div style="text-align:center;padding:12px;font-size:11px;color:#aaa;">
+        命盘智镜 · 全维度命理分析平台
+      </div>
+    </div>
+    """
+    return _send_email(to_email, subject, html_content)
+
+
+def send_refund_rejected_notification(
+    to_email: str, order_no: str, reject_reason: str,
+) -> bool:
+    """通知用户：退款申请被拒绝"""
+    subject = f"❌ 退款申请未通过 - {order_no}"
+    html_content = f"""
+    <div style="max-width:480px;margin:0 auto;font-family:'PingFang SC','Microsoft YaHei',Arial,sans-serif;color:#333;">
+      <div style="background:linear-gradient(135deg,#991b1b,#7f1d1d);padding:24px;text-align:center;border-radius:12px 12px 0 0;">
+        <h2 style="color:#fca5a5;margin:0 0 8px;">❌ 退款申请未通过</h2>
+      </div>
+      <div style="background:#f9f9f9;padding:24px;border-radius:0 0 12px 12px;">
+        <div style="background:white;border-radius:8px;padding:16px;margin-bottom:16px;border:1px solid #e5e7eb;">
+          <p style="margin:0 0 8px;font-size:13px;color:#666;">订单号</p>
+          <p style="margin:0 0 16px;font-size:15px;font-weight:bold;color:#111;">{html_mod.escape(order_no)}</p>
+          <p style="margin:0 0 8px;font-size:13px;color:#666;">未通过原因</p>
+          <p style="margin:0;font-size:14px;color:#333;background:#fef2f2;padding:8px;border-radius:6px;border:1px solid #fecaca;">{html_mod.escape(reject_reason)}</p>
+        </div>
+        <p style="font-size:13px;color:#666;margin:0 0 12px;text-align:center;">
+          如需帮助请联系 refund@khanfate.com
+        </p>
+      </div>
+      <div style="text-align:center;padding:12px;font-size:11px;color:#aaa;">
+        命盘智镜 · 全维度命理分析平台
+      </div>
+    </div>
+    """
+    return _send_email(to_email, subject, html_content)

@@ -4,7 +4,7 @@ import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import {
   Loader2, ArrowLeft, Package, MapPin, Truck, CheckCircle,
-  Clock, XCircle, RotateCcw, AlertTriangle, ExternalLink,
+  Clock, XCircle, RotateCcw, AlertTriangle, ExternalLink, MessageSquare,
 } from "lucide-react"
 import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"
@@ -27,6 +27,7 @@ const STATUS_COLORS: Record<string, string> = {
   shipped: "text-purple-400",
   delivered: "text-green-400",
   cancelled: "text-white/30",
+  pending_refund: "text-orange-400",
   refunded: "text-orange-400",
 }
 
@@ -39,6 +40,10 @@ export default function OrderDetailPage() {
   const [tracking, setTracking] = useState<TrackingInfo | null>(null)
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState(false)
+  // Refund form state
+  const [showRefundForm, setShowRefundForm] = useState(false)
+  const [refundReason, setRefundReason] = useState("")
+  const [refundDetail, setRefundDetail] = useState("")
 
   useEffect(() => {
     if (authLoading) return
@@ -89,11 +94,18 @@ export default function OrderDetailPage() {
   }
 
   async function handleRefund() {
-    if (!confirm(t("order.detail.refundConfirm"))) return
+    if (!refundReason) {
+      toast.error(t("order.detail.refundReasonRequired"))
+      return
+    }
     setActionLoading(true)
     try {
-      await requestRefund(id)
+      const fullReason = refundDetail
+        ? `${refundReason} — ${refundDetail}`
+        : refundReason
+      await requestRefund(id, fullReason)
       toast.success(t("order.detail.refundSubmitted"))
+      setShowRefundForm(false)
       loadOrder()
     } catch (err: any) {
       toast.error(err?.response?.data?.detail || t("order.detail.refundFail"))
@@ -177,6 +189,35 @@ export default function OrderDetailPage() {
               <span className="text-sm">
                 {order.status === "cancelled" ? t("order.status.cancelled") : t("order.status.refunded")}
               </span>
+            </div>
+          )}
+
+          {/* Refund pending indicator */}
+          {order.status === "pending_refund" && (
+            <div className="flex items-center gap-2 mt-4 px-3 py-2 rounded-lg bg-orange-500/10 border border-orange-500/20">
+              <RotateCcw size={14} className="text-orange-400" />
+              <span className="text-orange-400 text-sm">{t("order.detail.refundPending")}</span>
+            </div>
+          )}
+
+          {/* Refund result indicator */}
+          {order.status === "refunded" && order.refund_amount != null && (
+            <div className="mt-4 p-3 rounded-lg bg-orange-500/10 border border-orange-500/20">
+              <div className="flex items-center gap-2 mb-1">
+                <CheckCircle size={14} className="text-orange-400" />
+                <span className="text-orange-400 text-sm font-medium">{t("order.detail.refundApproved")}</span>
+              </div>
+              <p className="text-white/60 text-xs ml-5">
+                {t("order.detail.refundAmount")}: <span className="text-orange-300 font-bold">¥{order.refund_amount.toFixed(2)}</span>
+              </p>
+              {order.refund_processed_at && (
+                <p className="text-white/40 text-[10px] ml-5 mt-0.5">
+                  {t("order.detail.refundProcessedAt")}: {new Date(order.refund_processed_at).toLocaleString()}
+                </p>
+              )}
+              {order.refund_note && (
+                <p className="text-white/40 text-[10px] ml-5 mt-0.5">{order.refund_note}</p>
+              )}
             </div>
           )}
         </div>
@@ -293,6 +334,56 @@ export default function OrderDetailPage() {
           </div>
         </div>
 
+        {/* Refund Form */}
+        {showRefundForm && (
+          <div className="card-glass p-6 mb-4">
+            <h3 className="text-sm font-medium text-orange-400 mb-3 flex items-center gap-2">
+              <RotateCcw size={14} /> {t("order.detail.requestRefund")}
+            </h3>
+            <div className="space-y-3">
+              <div>
+                <label className="text-white/50 text-xs mb-1 block">{t("order.detail.refundReason")} *</label>
+                <select
+                  value={refundReason}
+                  onChange={(e) => setRefundReason(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg bg-white/[0.06] border border-white/10 text-white text-sm focus:outline-none focus:border-orange-400/50"
+                >
+                  <option value="">{t("order.detail.refundReasonRequired")}</option>
+                  <option value={t("order.detail.refundReason.notWant")}>{t("order.detail.refundReason.notWant")}</option>
+                  <option value={t("order.detail.refundReason.quality")}>{t("order.detail.refundReason.quality")}</option>
+                  <option value={t("order.detail.refundReason.wrongItem")}>{t("order.detail.refundReason.wrongItem")}</option>
+                  <option value={t("order.detail.refundReason.other")}>{t("order.detail.refundReason.other")}</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-white/50 text-xs mb-1 block">{t("order.detail.refundDetail")}</label>
+                <textarea
+                  value={refundDetail}
+                  onChange={(e) => setRefundDetail(e.target.value)}
+                  rows={3}
+                  className="w-full px-3 py-2 rounded-lg bg-white/[0.06] border border-white/10 text-white text-sm placeholder-white/30 focus:outline-none focus:border-orange-400/50 resize-none"
+                />
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => { setShowRefundForm(false); setRefundReason(""); setRefundDetail("") }}
+                  className="flex-1 py-2.5 rounded-xl border border-white/15 text-white/50 text-sm hover:border-white/25 transition-all"
+                >
+                  {t("common.cancel")}
+                </button>
+                <button
+                  onClick={handleRefund}
+                  disabled={actionLoading || !refundReason}
+                  className="flex-1 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-sm font-medium transition-all flex items-center justify-center gap-2 disabled:opacity-40"
+                >
+                  {actionLoading ? <Loader2 size={14} className="animate-spin" /> : <RotateCcw size={14} />}
+                  {t("order.detail.refundSubmit")}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Action Buttons */}
         <div className="flex gap-3">
           {order.status === "pending" && (
@@ -315,23 +406,25 @@ export default function OrderDetailPage() {
                 {actionLoading ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle size={14} />}
                 {t("order.detail.confirmReceive")}
               </button>
-              <button
-                onClick={handleRefund}
-                disabled={actionLoading}
-                className="flex-1 py-3 rounded-xl border border-white/15 text-white/50 text-sm hover:border-orange-400/40 hover:text-orange-400 transition-all flex items-center justify-center gap-2"
-              >
-                {actionLoading ? <Loader2 size={14} className="animate-spin" /> : <RotateCcw size={14} />}
-                {t("order.detail.requestRefund")}
-              </button>
+              {!showRefundForm && (
+                <button
+                  onClick={() => setShowRefundForm(true)}
+                  disabled={actionLoading}
+                  className="flex-1 py-3 rounded-xl border border-white/15 text-white/50 text-sm hover:border-orange-400/40 hover:text-orange-400 transition-all flex items-center justify-center gap-2"
+                >
+                  <RotateCcw size={14} />
+                  {t("order.detail.requestRefund")}
+                </button>
+              )}
             </>
           )}
-          {order.status === "paid" && (
+          {order.status === "paid" && !showRefundForm && (
             <button
-              onClick={handleRefund}
+              onClick={() => setShowRefundForm(true)}
               disabled={actionLoading}
               className="flex-1 py-3 rounded-xl border border-white/15 text-white/50 text-sm hover:border-orange-400/40 hover:text-orange-400 transition-all flex items-center justify-center gap-2"
             >
-              {actionLoading ? <Loader2 size={14} className="animate-spin" /> : <RotateCcw size={14} />}
+              <RotateCcw size={14} />
               {t("order.detail.requestRefund")}
             </button>
           )}

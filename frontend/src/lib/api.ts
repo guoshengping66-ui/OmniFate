@@ -1257,6 +1257,12 @@ export interface OrderDetail {
   created_at: string
   paid_at: string | null
   shipped_at: string | null
+  // Refund fields
+  refund_reason: string | null
+  refund_amount: number | null
+  refund_note: string | null
+  refund_requested_at: string | null
+  refund_processed_at: string | null
 }
 
 export async function getOrderDetail(orderId: string): Promise<OrderDetail> {
@@ -1274,8 +1280,8 @@ export async function confirmReceive(orderId: string): Promise<{ status: string;
   return res.data
 }
 
-export async function requestRefund(orderId: string): Promise<{ status: string; message: string }> {
-  const res = await api.post(`/api/users/orders/${orderId}/request-refund`)
+export async function requestRefund(orderId: string, reason: string): Promise<{ status: string; message: string }> {
+  const res = await api.post(`/api/users/orders/${orderId}/request-refund`, { reason })
   return res.data
 }
 

@@ -1,5 +1,6 @@
 """api/routers/users.py — User profile, favorites, orders, settings"""
 from typing import Optional
+from datetime import datetime, timezone
 
 import json
 from pathlib import Path
@@ -376,6 +377,12 @@ async def get_order_detail(order_id: str, user: User = Depends(require_user)):
             "created_at": order.created_at.isoformat() if order.created_at else "",
             "paid_at": order.paid_at.isoformat() if order.paid_at else None,
             "shipped_at": order.shipped_at.isoformat() if order.shipped_at else None,
+            # Refund fields
+            "refund_reason": order.refund_reason,
+            "refund_amount": float(order.refund_amount) if order.refund_amount else None,
+            "refund_note": order.refund_note,
+            "refund_requested_at": order.refund_requested_at.isoformat() if order.refund_requested_at else None,
+            "refund_processed_at": order.refund_processed_at.isoformat() if order.refund_processed_at else None,
         }
 
 
@@ -411,8 +418,19 @@ async def confirm_receive(order_id: str, user: User = Depends(require_user)):
         return {"status": "delivered", "message": "已确认收货"}
 
 
+class RefundRequest(BaseModel):
+    reason: str  # 退款原因（必填）
+
+
 @router.post("/orders/{order_id}/request-refund")
-async def request_refund(order_id: str, user: User = Depends(require_user)):
+async def request_refund(
+    order_id: str,
+    req: RefundRequest,
+    user: User = Depends(require_user),
+):
+    if not req.reason or not req.reason.strip():
+        raise HTTPException(status_code=400, detail="请填写退款原因")
+
     async with AsyncSessionLocal() as db:
         result = await db.execute(
             select(Order).where(Order.id == order_id, Order.user_id == user.id)
@@ -422,8 +440,32 @@ async def request_refund(order_id: str, user: User = Depends(require_user)):
             raise HTTPException(status_code=404, detail="订单不存在")
         if order.status not in (OrderStatus.paid, OrderStatus.shipped):
             raise HTTPException(status_code=400, detail="当前订单状态不允许申请退款")
+
+        # 退款时间窗口校验：付款后 30 天内
+        if order.paid_at:
+            from datetime import timedelta
+            paid_time = order.paid_at.replace(tzinfo=timezone.utc) if order.paid_at.tzinfo is None else order.paid_at
+            if datetime.now(timezone.utc) - paid_time > timedelta(days=30):
+                raise HTTPException(status_code=400, detail="已超过30天退款期限，如需帮助请联系客服")
+
         order.status = OrderStatus.pending_refund
+        order.refund_reason = req.reason.strip()
+        order.refund_requested_at = datetime.now(timezone.utc)
         await db.commit()
+
+        # 异步通知管理员（不阻塞响应）
+        try:
+            from utils.email import send_refund_request_notification
+            await send_refund_request_notification(
+                order_no=order.order_no,
+                total_cny=float(order.total_cny),
+                user_email=user.email or "",
+                reason=req.reason.strip(),
+            )
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning(f"[REFUND] Failed to notify admin: {e}")
+
         return {"status": "pending_refund", "message": "退款申请已提交，等待管理员审核"}
 
 

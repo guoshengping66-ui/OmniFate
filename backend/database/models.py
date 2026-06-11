@@ -278,6 +278,13 @@ class Order(Base):
     paid_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     shipped_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
 
+    # Refund fields
+    refund_reason: Mapped[Optional[str]] = mapped_column(Text)           # 用户退款原因
+    refund_amount: Mapped[Optional[float]] = mapped_column(Numeric(10, 2))  # 退款金额（支持部分退款）
+    refund_note: Mapped[Optional[str]] = mapped_column(Text)             # 管理员备注
+    refund_requested_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+    refund_processed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+
     user: Mapped[Optional["User"]] = relationship(back_populates="orders")
     items: Mapped[list["OrderItem"]] = relationship(back_populates="order", cascade="all, delete-orphan")
 

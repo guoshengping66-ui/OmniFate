@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { Package, Search, RefreshCw, Truck, CheckCircle, Clock, XCircle, ChevronDown, ChevronUp } from "lucide-react"
+import { Package, Search, RefreshCw, Truck, CheckCircle, Clock, XCircle, ChevronDown, ChevronUp, RotateCcw } from "lucide-react"
 
 interface OrderItem {
   product_name: string
@@ -23,11 +23,16 @@ interface ShopOrder {
   notes: string | null
   created_at: string
   paid_at: string | null
+  refund_reason: string | null
+  refund_amount: number | null
+  refund_note: string | null
+  refund_requested_at: string | null
+  refund_processed_at: string | null
   user: { id: string; nickname: string; email: string } | null
   items: OrderItem[]
 }
 
-const STATUS_OPTIONS = ["pending", "processing", "paid", "shipped", "delivered", "cancelled"]
+const STATUS_OPTIONS = ["pending", "processing", "paid", "shipped", "delivered", "cancelled", "pending_refund", "refunded"]
 
 export default function AdminOrdersPage() {
   const { t } = useLanguage()
@@ -42,6 +47,11 @@ export default function AdminOrdersPage() {
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null)
   const [updatingOrder, setUpdatingOrder] = useState<string | null>(null)
   const [trackingInput, setTrackingInput] = useState<Record<string, string>>({})
+  // Refund operation state
+  const [refundAmounts, setRefundAmounts] = useState<Record<string, string>>({})
+  const [refundNotes, setRefundNotes] = useState<Record<string, string>>({})
+  const [rejectReasons, setRejectReasons] = useState<Record<string, string>>({})
+  const [processingRefund, setProcessingRefund] = useState<string | null>(null)
 
   const getStatusInfo = (status: string) => {
     const map: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
@@ -51,6 +61,8 @@ export default function AdminOrdersPage() {
       shipped: { label: t("adminOrders.status.shipped"), color: "text-purple-400 bg-purple-500/10", icon: <Truck size={14} /> },
       delivered: { label: t("adminOrders.status.delivered"), color: "text-green-300 bg-green-500/10", icon: <CheckCircle size={14} /> },
       cancelled: { label: t("adminOrders.status.cancelled"), color: "text-red-400 bg-red-500/10", icon: <XCircle size={14} /> },
+      pending_refund: { label: t("adminOrders.status.pending_refund"), color: "text-orange-400 bg-orange-500/10", icon: <RotateCcw size={14} /> },
+      refunded: { label: t("adminOrders.status.refunded"), color: "text-gray-400 bg-gray-500/10", icon: <CheckCircle size={14} /> },
     }
     return map[status] || map.pending
   }
@@ -119,6 +131,55 @@ export default function AdminOrdersPage() {
       setError(err.message)
     } finally {
       setUpdatingOrder(null)
+    }
+  }
+
+  const handleApproveRefund = async (orderNo: string, totalCny: number) => {
+    setProcessingRefund(orderNo)
+    try {
+      const body: Record<string, any> = {}
+      const amt = refundAmounts[orderNo]
+      if (amt && parseFloat(amt) > 0) body.refund_amount = parseFloat(amt)
+      if (refundNotes[orderNo]) body.refund_note = refundNotes[orderNo]
+      const res = await fetch(`/api/proxy/api/payments/admin/shop-orders/${orderNo}/approve-refund`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-admin-key": adminKey },
+        body: JSON.stringify(body),
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.detail || t("adminOrders.refundFailed"))
+      }
+      fetchOrders()
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setProcessingRefund(null)
+    }
+  }
+
+  const handleRejectRefund = async (orderNo: string) => {
+    const reason = rejectReasons[orderNo]
+    if (!reason || !reason.trim()) {
+      setError(t("adminOrders.rejectReason"))
+      return
+    }
+    setProcessingRefund(orderNo)
+    try {
+      const res = await fetch(`/api/proxy/api/payments/admin/shop-orders/${orderNo}/reject-refund`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-admin-key": adminKey },
+        body: JSON.stringify({ reason: reason.trim() }),
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.detail || t("adminOrders.refundFailed"))
+      }
+      fetchOrders()
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setProcessingRefund(null)
     }
   }
 
@@ -257,6 +318,96 @@ export default function AdminOrdersPage() {
                         <div>
                           <p className="text-white/50 text-xs mb-1">{t("adminOrders.trackingNumber")}</p>
                           <p className="text-white/70 text-sm font-mono">{order.tracking_number}</p>
+                        </div>
+                      )}
+
+                      {/* Refund info — pending */}
+                      {order.status === "pending_refund" && (
+                        <div className="p-3 rounded-lg bg-orange-500/10 border border-orange-500/20">
+                          <p className="text-orange-400 text-xs font-medium mb-2 flex items-center gap-1">
+                            <RotateCcw size={12} /> {t("adminOrders.refundSection")}
+                          </p>
+                          {order.refund_reason && (
+                            <div className="mb-2">
+                              <p className="text-white/40 text-[10px] mb-0.5">{t("adminOrders.refundReason")}</p>
+                              <p className="text-white/70 text-sm">{order.refund_reason}</p>
+                            </div>
+                          )}
+                          {order.refund_requested_at && (
+                            <p className="text-white/30 text-[10px]">
+                              {new Date(order.refund_requested_at).toLocaleString()}
+                            </p>
+                          )}
+                          <div className="mt-3 space-y-2">
+                            <div className="flex items-center gap-2">
+                              <label className="text-white/40 text-xs whitespace-nowrap">{t("adminOrders.refundAmount")}</label>
+                              <input
+                                type="number"
+                                step="0.01"
+                                max={order.total_cny}
+                                placeholder={`¥${order.total_cny.toFixed(2)}`}
+                                value={refundAmounts[order.order_no] || ""}
+                                onChange={(e) => setRefundAmounts(prev => ({ ...prev, [order.order_no]: e.target.value }))}
+                                className="flex-1 px-2 py-1 rounded bg-white/[0.06] border border-white/10 text-white text-xs focus:outline-none focus:border-gold/50"
+                              />
+                            </div>
+                            <input
+                              type="text"
+                              placeholder={t("adminOrders.refundNote")}
+                              value={refundNotes[order.order_no] || ""}
+                              onChange={(e) => setRefundNotes(prev => ({ ...prev, [order.order_no]: e.target.value }))}
+                              className="w-full px-2 py-1 rounded bg-white/[0.06] border border-white/10 text-white text-xs placeholder-white/30 focus:outline-none focus:border-gold/50"
+                            />
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleApproveRefund(order.order_no, order.total_cny)}
+                                disabled={processingRefund === order.order_no}
+                                className="flex-1 py-1.5 rounded-lg bg-green-600 hover:bg-green-500 text-white text-xs font-medium transition-colors disabled:opacity-50"
+                              >
+                                {t("adminOrders.approveRefund")}
+                              </button>
+                              <button
+                                onClick={() => {
+                                  const reason = rejectReasons[order.order_no]
+                                  if (!reason?.trim()) {
+                                    setRejectReasons(prev => ({ ...prev, [order.order_no]: " " }))
+                                  }
+                                  handleRejectRefund(order.order_no)
+                                }}
+                                disabled={processingRefund === order.order_no}
+                                className="flex-1 py-1.5 rounded-lg bg-red-600/80 hover:bg-red-500 text-white text-xs font-medium transition-colors disabled:opacity-50"
+                              >
+                                {t("adminOrders.rejectRefund")}
+                              </button>
+                            </div>
+                            {rejectReasons[order.order_no] === " " && (
+                              <input
+                                type="text"
+                                placeholder={t("adminOrders.rejectReason")}
+                                autoFocus
+                                value=""
+                                onChange={(e) => setRejectReasons(prev => ({ ...prev, [order.order_no]: e.target.value }))}
+                                className="w-full px-2 py-1 rounded bg-white/[0.06] border border-red-500/30 text-white text-xs placeholder-white/30 focus:outline-none focus:border-red-500/50"
+                              />
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Refund info — processed */}
+                      {order.status === "refunded" && (
+                        <div className="p-3 rounded-lg bg-gray-500/10 border border-gray-500/20">
+                          <p className="text-gray-400 text-xs font-medium mb-2 flex items-center gap-1">
+                            <CheckCircle size={12} /> {t("adminOrders.status.refunded")}
+                          </p>
+                          {order.refund_amount != null && (
+                            <p className="text-white/70 text-sm">{t("adminOrders.refundAmount")}: ¥{order.refund_amount.toFixed(2)}</p>
+                          )}
+                          {order.refund_processed_at && (
+                            <p className="text-white/30 text-[10px] mt-1">
+                              {t("adminOrders.refundNote")}: {order.refund_note || "—"}
+                            </p>
+                          )}
                         </div>
                       )}
 

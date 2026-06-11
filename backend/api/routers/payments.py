@@ -2215,6 +2215,11 @@ async def list_shop_orders(
             "notes": order.notes,
             "created_at": order.created_at.isoformat() if order.created_at else None,
             "paid_at": order.paid_at.isoformat() if order.paid_at else None,
+            "refund_reason": order.refund_reason,
+            "refund_amount": float(order.refund_amount) if order.refund_amount else None,
+            "refund_note": order.refund_note,
+            "refund_requested_at": order.refund_requested_at.isoformat() if order.refund_requested_at else None,
+            "refund_processed_at": order.refund_processed_at.isoformat() if order.refund_processed_at else None,
             "user": user_info,
             "items": [
                 {
@@ -2272,6 +2277,11 @@ async def get_shop_order_detail(
         "notes": order.notes,
         "created_at": order.created_at.isoformat() if order.created_at else None,
         "paid_at": order.paid_at.isoformat() if order.paid_at else None,
+        "refund_reason": order.refund_reason,
+        "refund_amount": float(order.refund_amount) if order.refund_amount else None,
+        "refund_note": order.refund_note,
+        "refund_requested_at": order.refund_requested_at.isoformat() if order.refund_requested_at else None,
+        "refund_processed_at": order.refund_processed_at.isoformat() if order.refund_processed_at else None,
         "user": user_info,
         "items": [
             {
@@ -2296,7 +2306,7 @@ async def update_shop_order_status(
     """管理员更新商城订单状态"""
     _require_admin_auth(authorization, x_admin_key)
 
-    valid_statuses = {"pending", "processing", "paid", "shipped", "delivered", "cancelled"}
+    valid_statuses = {"pending", "processing", "paid", "shipped", "delivered", "cancelled", "pending_refund", "refunded"}
     if payload.status not in valid_statuses:
         raise HTTPException(status_code=400, detail=f"无效状态，可选: {', '.join(valid_statuses)}")
 
@@ -2324,4 +2334,129 @@ async def update_shop_order_status(
         "order_no": order.order_no,
         "status": order.status.value,
         "tracking_number": order.tracking_number,
+    }
+
+
+# ── 退款审批端点 ─────────────────────────────────────────────────────────────
+
+class ApproveRefundRequest(BaseModel):
+    refund_amount: Optional[float] = None  # None = 全额退款
+    refund_note: Optional[str] = None
+
+
+class RejectRefundRequest(BaseModel):
+    reason: str  # 拒绝原因（必填）
+
+
+@router.post("/admin/shop-orders/{order_no}/approve-refund")
+async def approve_refund(
+    order_no: str,
+    req: ApproveRefundRequest,
+    db: AsyncSession = Depends(get_db),
+    authorization: Optional[str] = Header(None),
+    x_admin_key: Optional[str] = Header(None),
+):
+    """管理员批准退款"""
+    _require_admin_auth(authorization, x_admin_key)
+
+    result = await db.execute(
+        select(Order).where(Order.order_no == order_no, Order.item_type == "shop")
+    )
+    order = result.scalar_one_or_none()
+    if not order:
+        raise HTTPException(status_code=404, detail="订单不存在")
+    if order.status != OrderStatus.pending_refund:
+        raise HTTPException(status_code=400, detail="该订单不在退款审核状态")
+
+    # 退款金额：默认全额
+    refund_amount = req.refund_amount if req.refund_amount is not None else float(order.total_cny)
+    if refund_amount <= 0 or refund_amount > float(order.total_cny):
+        raise HTTPException(status_code=400, detail=f"退款金额必须在 0-{float(order.total_cny)} 之间")
+
+    order.status = OrderStatus.refunded
+    order.refund_amount = refund_amount
+    order.refund_note = req.refund_note
+    order.refund_processed_at = datetime.now(timezone.utc)
+
+    logger.info(f"[ADMIN] Order {order_no} refund APPROVED: ¥{refund_amount}")
+
+    await db.commit()
+
+    # 邮件通知用户
+    if order.user_id:
+        try:
+            user_result = await db.execute(select(User).where(User.id == order.user_id))
+            user = user_result.scalar_one_or_none()
+            if user and user.email:
+                from utils.email import send_refund_approved_notification
+                send_refund_approved_notification(
+                    to_email=user.email,
+                    order_no=order.order_no,
+                    refund_amount=refund_amount,
+                )
+        except Exception as e:
+            logger.warning(f"[REFUND] Failed to notify user of approval: {e}")
+
+    return {
+        "success": True,
+        "order_no": order.order_no,
+        "status": "refunded",
+        "refund_amount": refund_amount,
+    }
+
+
+@router.post("/admin/shop-orders/{order_no}/reject-refund")
+async def reject_refund(
+    order_no: str,
+    req: RejectRefundRequest,
+    db: AsyncSession = Depends(get_db),
+    authorization: Optional[str] = Header(None),
+    x_admin_key: Optional[str] = Header(None),
+):
+    """管理员拒绝退款"""
+    _require_admin_auth(authorization, x_admin_key)
+
+    if not req.reason or not req.reason.strip():
+        raise HTTPException(status_code=400, detail="请填写拒绝原因")
+
+    result = await db.execute(
+        select(Order).where(Order.order_no == order_no, Order.item_type == "shop")
+    )
+    order = result.scalar_one_or_none()
+    if not order:
+        raise HTTPException(status_code=404, detail="订单不存在")
+    if order.status != OrderStatus.pending_refund:
+        raise HTTPException(status_code=400, detail="该订单不在退款审核状态")
+
+    # 恢复原状态：如果之前有 paid_at，恢复为 paid；否则恢复为 pending
+    order.status = OrderStatus.paid if order.paid_at else OrderStatus.pending
+    reject_note = f"[退款拒绝] {req.reason.strip()}"
+    order.notes = f"{order.notes}\n{reject_note}".strip() if order.notes else reject_note
+    # 清除退款相关字段
+    order.refund_reason = None
+    order.refund_requested_at = None
+
+    logger.info(f"[ADMIN] Order {order_no} refund REJECTED: {req.reason.strip()}")
+
+    await db.commit()
+
+    # 邮件通知用户
+    if order.user_id:
+        try:
+            user_result = await db.execute(select(User).where(User.id == order.user_id))
+            user = user_result.scalar_one_or_none()
+            if user and user.email:
+                from utils.email import send_refund_rejected_notification
+                send_refund_rejected_notification(
+                    to_email=user.email,
+                    order_no=order.order_no,
+                    reject_reason=req.reason.strip(),
+                )
+        except Exception as e:
+            logger.warning(f"[REFUND] Failed to notify user of rejection: {e}")
+
+    return {
+        "success": True,
+        "order_no": order.order_no,
+        "status": order.status.value,
     }
