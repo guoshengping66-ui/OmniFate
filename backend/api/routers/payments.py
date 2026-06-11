@@ -2680,8 +2680,9 @@ async def admin_reject_email_payment(
             status_code=302,
         )
 
-    # Invalidate token
+    # Invalidate token and mark as cancelled
     order.admin_confirm_token = None
+    order.status = OrderStatus.cancelled
     order.notes = (order.notes or "") + f"\n[QR-ADMIN-REJECT] 管理员拒绝确认 {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M')}"
     await db.commit()
 
