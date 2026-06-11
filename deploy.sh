@@ -47,6 +47,8 @@ if [[ "$ACTION" == "frontend" || "$ACTION" == "all" ]]; then
     # Create symlinks so the standalone server can find .next/static and .next/server.
     STANDALONE_DIR="/opt/OmniFate/frontend/.next/standalone/frontend"
     mkdir -p "$STANDALONE_DIR/.next"
+    # Remove existing dirs/symlinks first (cp -r may have left real dirs)
+    rm -rf "$STANDALONE_DIR/.next/static" "$STANDALONE_DIR/.next/server"
     ln -sf /opt/OmniFate/frontend/.next/static "$STANDALONE_DIR/.next/static"
     ln -sf /opt/OmniFate/frontend/.next/server "$STANDALONE_DIR/.next/server"
 
