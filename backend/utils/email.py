@@ -432,10 +432,10 @@ def send_qr_confirm_email(to_email: str, order_no: str, amount_cny: float, token
     if not config["host"] or not config["user"]:
         print("[EMAIL] SMTP not configured, skipping QR confirm email")
         if settings.DEBUG:
-            print(f"[EMAIL] QR confirm link for {to_email}: https://www.khanfate.com/api/payments/confirm-email?token={token}")
+            print(f"[EMAIL] QR confirm link for {to_email}: https://api.khanfate.com/api/payments/confirm-email?token={token}")
         return False
 
-    confirm_url = f"https://www.khanfate.com/api/payments/confirm-email?token={token}"
+    confirm_url = f"https://api.khanfate.com/api/payments/confirm-email?token={token}"
 
     subject = f"确认付款 ¥{amount_cny} - 订单 {order_no}"
     html_content = f"""
@@ -479,11 +479,11 @@ def send_admin_payment_confirm_email(
     if not config["host"] or not config["user"]:
         print("[EMAIL] SMTP not configured, skipping admin confirm email")
         if settings.DEBUG:
-            print(f"[EMAIL] Admin confirm link: https://www.khanfate.com/api/payments/admin-confirm-email?token={token}")
+            print(f"[EMAIL] Admin confirm link: https://api.khanfate.com/api/payments/admin-confirm-email?token={token}")
         return False
 
-    confirm_url = f"https://www.khanfate.com/api/payments/admin-confirm-email?token={token}"
-    reject_url = f"https://www.khanfate.com/api/payments/admin-reject-email?token={token}"
+    confirm_url = f"https://api.khanfate.com/api/payments/admin-confirm-email?token={token}"
+    reject_url = f"https://api.khanfate.com/api/payments/admin-reject-email?token={token}"
 
     subject = f"🔔 新订单待确认 ¥{amount_cny} - {order_no}"
     html_content = f"""

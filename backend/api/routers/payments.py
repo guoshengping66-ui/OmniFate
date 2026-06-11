@@ -2513,8 +2513,8 @@ async def confirm_shop_qr_payment(
     # Send confirmation email to admin
     admin_emails_str = settings.ADMIN_EMAILS
     logger.info(f"[QR-ADMIN] Order {order_no}: admin_confirm_token generated, ADMIN_EMAILS={'configured' if admin_emails_str else 'NOT configured'}")
-    logger.info(f"[QR-ADMIN] Confirm URL: https://www.khanfate.com/api/payments/admin-confirm-email?token={admin_token}")
-    logger.info(f"[QR-ADMIN] Reject URL: https://www.khanfate.com/api/payments/admin-reject-email?token={admin_token}")
+    logger.info(f"[QR-ADMIN] Confirm URL: https://api.khanfate.com/api/payments/admin-confirm-email?token={admin_token}")
+    logger.info(f"[QR-ADMIN] Reject URL: https://api.khanfate.com/api/payments/admin-reject-email?token={admin_token}")
     if admin_emails_str:
         import asyncio
         from utils.email import send_admin_payment_confirm_email as _send_admin
@@ -2540,7 +2540,7 @@ async def confirm_shop_qr_payment(
             except Exception as e:
                 logger.warning(f"[EMAIL] Failed to send admin confirm email to {admin_email}: {e}")
     else:
-        logger.warning(f"[QR-ADMIN] ADMIN_EMAILS not configured! Cannot send email. Admin confirm URL: https://www.khanfate.com/api/payments/admin-confirm-email?token={admin_token}")
+        logger.warning(f"[QR-ADMIN] ADMIN_EMAILS not configured! Cannot send email. Admin confirm URL: https://api.khanfate.com/api/payments/admin-confirm-email?token={admin_token}")
 
     return {
         "success": True,
