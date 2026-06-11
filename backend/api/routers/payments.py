@@ -17,6 +17,7 @@ from xml.etree import ElementTree as ET
 from fastapi import APIRouter, Depends, HTTPException, Request, Query, Header
 from pydantic import BaseModel, Field
 from sqlalchemy import select, func
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.session import get_db
@@ -1014,9 +1015,11 @@ async def create_shop_paypal_order(
     if not settings.PAYPAL_ENABLED:
         raise HTTPException(status_code=400, detail="PayPal 未启用")
 
-    # 查找并验证订单
+    # 查找并验证订单 (eagerly load items to avoid MissingGreenlet in async)
     result = await db.execute(
-        select(Order).where(
+        select(Order)
+        .options(selectinload(Order.items))
+        .where(
             Order.order_no == order_no,
             Order.user_id == current_user.id,
             Order.status == OrderStatus.pending,
