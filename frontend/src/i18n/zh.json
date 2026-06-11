@@ -2879,6 +2879,7 @@
     "pleasePay": "请支付",
     "pleaseWait": "请稍候",
     "preparingQR": "准备收款码...",
+    "pollTimeout": "支付确认超时，请稍后刷新状态或联系客服",
     "processing": "处理中...",
     "qrLoadFailed": "收款码图片加载失败",
     "qrNotConfigured": "收款码未配置",

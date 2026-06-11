@@ -2879,6 +2879,7 @@
     "pleasePay": "Please pay",
     "pleaseWait": "Please wait",
     "preparingQR": "Preparing QR code...",
+    "pollTimeout": "Payment verification is taking longer than expected. Please check your email for updates.",
     "processing": "Processing...",
     "qrLoadFailed": "QR code failed to load",
     "qrNotConfigured": "QR code not configured",
