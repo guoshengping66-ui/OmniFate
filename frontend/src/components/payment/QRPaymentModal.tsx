@@ -104,7 +104,11 @@ export function QRPaymentModal({
         : (TIER_PRICES[tier || "premium_monthly"] || TIER_PRICES.premium_monthly)
   const displayAmount = isOverseas ? tierInfo.amountUsd : tierInfo.amountCny
   const currencySymbol = isOverseas ? "$" : "¥"
-  const tierLabel = isPreOrder ? (preLabel || "Founder Seat") : t(tierInfo.labelKey)
+  const tierLabel = isPreOrder
+    ? (preLabel || "Founder Seat")
+    : tierInfo.labelKey
+      ? t(tierInfo.labelKey)
+      : ""
 
   useEffect(() => {
     if (status !== "showing_qr" || !orderNo) return
