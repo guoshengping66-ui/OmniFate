@@ -105,7 +105,7 @@ export function FortunePrescription({ products, weakestLabel, strongestLabel }: 
                 {strongestLabel && (
                   <>
                     {" · "}
-                    <span className="text-white/30">优势维度</span>{" "}
+                    <span className="text-white/30">{t("freeBanner.strongDimension")}</span>{" "}
                     <span className="text-green-400/80 font-semibold">{strongestLabel}</span>
                   </>
                 )}

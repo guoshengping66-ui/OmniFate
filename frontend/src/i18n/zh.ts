@@ -2263,6 +2263,14 @@ export default {
   "paywall.joinMember": "加入会员解锁",
   "paywall.oneTimeUnlock": "一次性解锁 ¥19.9",
   "paywall.oneTimeUnlockDesc": "永久解锁 + 50星尘 + ¥20代金券",
+  "paywall.unlockDetailed": "精读报告",
+  "paywall.unlockFull": "全维报告",
+  "paywall.detailedIncludes": "精读包含：",
+  "paywall.detailedFeatures": ["精读深度总论", "痛点诊断与改运方案"],
+  "paywall.fullIncludes": "全维包含：",
+  "paywall.fullFeatures": ["包含精读全部内容", "7个维度完整报告", "AI 追问互动", "专属好物推荐"],
+  "paywall.stardustBalance": "当前星尘",
+  "freeBanner.strongDimension": "优势维度",
 
   // ─── 套餐对比 ───
   "tierComparison.title": "选择适合你的命理方案",

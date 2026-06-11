@@ -95,16 +95,11 @@ export function PaywallGate({
 
         {/* Value list — what you'll get */}
         <div className="max-w-sm mx-auto mb-5 text-left">
-          <p className="text-white/30 text-[10px] uppercase tracking-wider mb-2 text-center">{t("paywall.youWillGet") || "解锁后你将获得"}</p>
+          <p className="text-white/30 text-[10px] uppercase tracking-wider mb-2 text-center">{t("paywall.youWillGet")}</p>
           <div className="space-y-1.5">
             {(Array.isArray(t("paywall.valueList", { returnObjects: true }))
               ? t("paywall.valueList", { returnObjects: true }) as string[]
-              : [
-                "完整五维深度诊断报告",
-                "7个专业维度详细分析",
-                "个性化改运处方和行动建议",
-                "专属好物推荐和搭配指南",
-              ]
+              : []
             ).map((item: string, i: number) => (
               <div key={i} className="flex items-center gap-2 text-white/50 text-xs">
                 <CheckCircle size={12} className="text-green-400/70 flex-shrink-0" />
@@ -134,7 +129,7 @@ export function PaywallGate({
                   <Sparkles size={16} className="text-violet-400" />
                 )}
                 <span className="font-medium text-sm">
-                  {t("paywall.unlockDetailed") || "精读报告"}
+                  {t("paywall.unlockDetailed")}
                 </span>
               </div>
               <div className="flex items-center gap-2">
@@ -160,7 +155,7 @@ export function PaywallGate({
                   <Crown size={16} className="text-gold" />
                 )}
                 <span className="font-medium text-sm">
-                  {t("paywall.unlockFull") || "全维报告"}
+                  {t("paywall.unlockFull")}
                 </span>
               </div>
               <div className="flex items-center gap-2">
@@ -172,11 +167,11 @@ export function PaywallGate({
             {/* ── 精读内容列表 ── */}
             <div className="rounded-xl bg-violet-500/[0.05] border border-violet-400/10 p-3 text-left">
               <p className="text-violet-300/60 text-[10px] uppercase tracking-wider mb-2 font-medium">
-                {t("paywall.detailedIncludes") || "精读包含："}
+                {t("paywall.detailedIncludes")}
               </p>
               {(Array.isArray(t("paywall.detailedFeatures", { returnObjects: true }))
                 ? t("paywall.detailedFeatures", { returnObjects: true }) as string[]
-                : ["精读深度总论", "痛点诊断与改运方案"]
+                : []
               ).map((item: string, i: number) => (
                 <div key={i} className="flex items-center gap-2 text-white/40 text-[11px] py-0.5">
                   <CheckCircle size={10} className="text-violet-400/60 flex-shrink-0" />
@@ -188,11 +183,11 @@ export function PaywallGate({
             {/* ── 全维内容列表 ── */}
             <div className="rounded-xl bg-gold/[0.05] border border-gold/10 p-3 text-left">
               <p className="text-gold/60 text-[10px] uppercase tracking-wider mb-2 font-medium">
-                {t("paywall.fullIncludes") || "全维包含："}
+                {t("paywall.fullIncludes")}
               </p>
               {(Array.isArray(t("paywall.fullFeatures", { returnObjects: true }))
                 ? t("paywall.fullFeatures", { returnObjects: true }) as string[]
-                : ["包含精读全部内容", "7个维度完整报告", "AI 追问互动", "专属好物推荐"]
+                : []
               ).map((item: string, i: number) => (
                 <div key={i} className="flex items-center gap-2 text-white/40 text-[11px] py-0.5">
                   <CheckCircle size={10} className="text-gold/60 flex-shrink-0" />
@@ -203,7 +198,7 @@ export function PaywallGate({
 
             {/* 余额提示 */}
             <p className="text-white/25 text-xs text-center">
-              {t("paywall.stardustBalance") || `当前星尘`} ✦ {stardustBalance}
+              {t("paywall.stardustBalance")} ✦ {stardustBalance}
             </p>
           </div>
         ) : (
@@ -222,7 +217,7 @@ export function PaywallGate({
                   <Sparkles size={18} />
                 )}
                 <span className="font-medium">
-                  {t("paywall.useStardust") || `使用 ${fullCost} 星尘解锁`}
+                  {t("paywall.useStardust")}
                 </span>
                 <span className="text-violet-400/60 text-sm ml-1">✦ {stardustBalance}</span>
               </button>
@@ -231,7 +226,7 @@ export function PaywallGate({
             {/* Insufficient stardust hint */}
             {onStardustUnlock && !canFull && stardustBalance > 0 && (
               <p className="text-white/25 text-xs mb-3">
-                {t("paywall.stardustInsufficient") || `星尘不足（需要 ${fullCost}，当前 ${stardustBalance} ✦）`}
+                {t("paywall.stardustInsufficient")}
               </p>
             )}
           </>
@@ -247,7 +242,7 @@ export function PaywallGate({
             {loading ? (
               <><span className="animate-spin inline-block">⏳</span> {t("paywall.processing")}</>
             ) : (
-              <><Sparkles size={18} /> {t("paywall.joinMember") || "加入会员解锁"}</>
+              <><Sparkles size={18} /> {t("paywall.joinMember")}</>
             )}
           </button>
         )}
@@ -259,8 +254,8 @@ export function PaywallGate({
             className="w-full flex items-center justify-center gap-2 mt-3 py-3 rounded-xl border border-gold/30 bg-gold/[0.05] hover:bg-gold/10 text-gold/80 hover:text-gold transition-all duration-200"
           >
             <span className="text-lg">🔑</span>
-            <span className="text-sm font-medium">{t("paywall.oneTimeUnlock") || "一次性解锁 ¥19.9"}</span>
-            <span className="text-gold/50 text-xs">· {t("paywall.oneTimeUnlockDesc") || "永久解锁 + 50星尘 + ¥20代金券"}</span>
+            <span className="text-sm font-medium">{t("paywall.oneTimeUnlock")}</span>
+            <span className="text-gold/50 text-xs">· {t("paywall.oneTimeUnlockDesc")}</span>
           </button>
         )}
 

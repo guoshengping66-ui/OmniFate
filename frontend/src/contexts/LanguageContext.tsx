@@ -7,7 +7,7 @@ import { type Locale, locales } from "@/i18n/config"
 interface LanguageState {
   locale: Locale
   setLocale: (locale: Locale) => void
-  t: (key: string) => string
+  t: (key: string, values?: Record<string, any>) => any
   /** Prefix a bare path with the current locale, e.g. "/pricing" → "/en/pricing" */
   localeHref: (path: string) => string
   /** Preload a locale page for instant switching */
@@ -41,9 +41,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const tFnRef = useRef(tFn)
   tFnRef.current = tFn
   const t = useCallback(
-    (key: string): string => {
+    (key: string, values?: Record<string, any>): any => {
       try {
-        return tFnRef.current(key)
+        return values ? tFnRef.current(key, values) : tFnRef.current(key)
       } catch {
         return key
       }

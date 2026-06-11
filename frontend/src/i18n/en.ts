@@ -2269,6 +2269,14 @@ export default {
   "paywall.joinMember": "Join Membership to Unlock",
   "paywall.oneTimeUnlock": "One-Time Unlock $9.9",
   "paywall.oneTimeUnlockDesc": "Permanent + 50 Stardust + $20 Coupon",
+  "paywall.unlockDetailed": "Detailed Report",
+  "paywall.unlockFull": "Full Report",
+  "paywall.detailedIncludes": "DETAILED INCLUDES:",
+  "paywall.detailedFeatures": ["In-depth summary", "Pain-point diagnosis & fortune plan"],
+  "paywall.fullIncludes": "FULL INCLUDES:",
+  "paywall.fullFeatures": ["All detailed content", "Complete 7-dimension report", "AI follow-up chat", "Curated product picks"],
+  "paywall.stardustBalance": "Stardust Balance",
+  "freeBanner.strongDimension": "Strength",
 
   // ─── Tier Comparison ───
   "tierComparison.title": "Choose Your Destiny Plan",
