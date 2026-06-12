@@ -25,7 +25,7 @@ const CONSTELLATION_EN = ["Aquarius","Pisces","Aries","Taurus","Gemini","Cancer"
 function getConstellation(month: number, day: number, locale: string): string {
   const dates = [20,19,21,20,21,22,23,23,23,24,22,22]
   const signs = locale === "zh" ? CONSTELLATION_ZH : CONSTELLATION_EN
-  const idx = (month - 1 + (day >= dates[month - 1] ? 1 : 0)) % 12
+  const idx = (month - 2 + (day >= dates[month - 1] ? 1 : 0) + 12) % 12
   return signs[idx]
 }
 
