@@ -2263,12 +2263,12 @@ export default {
   // ─── Paywall Gate ───
   "paywall.processing": "Processing...",
   "paywall.unlockReport": "Unlock Full Report",
-  "paywall.giftNote": "Members get unlimited report access + monthly stardust",
+  "paywall.giftNote": "Unlock to receive $20 coupon + 50 Stardust + 3-day membership trial",
   "paywall.useStardust": "Unlock with Stardust",
   "paywall.stardustInsufficient": "Insufficient stardust",
   "paywall.joinMember": "Join Membership to Unlock",
   "paywall.oneTimeUnlock": "One-Time Unlock $9.9",
-  "paywall.oneTimeUnlockDesc": "Permanent + 50 Stardust + $20 Coupon",
+  "paywall.oneTimeUnlockDesc": "Permanent + 50 Stardust + $20 Coupon + 3-day trial",
   "paywall.unlockDetailed": "Detailed Report",
   "paywall.unlockFull": "Full Report",
   "paywall.detailedIncludes": "DETAILED INCLUDES:",
@@ -2286,8 +2286,8 @@ export default {
   "tierComparison.learnMore": "Learn about Event Retrospection",
   "tierComparison.onetimeUnlock": "One-Time Unlock · Permanent Report",
   "tierComparison.onetimeUnlockDesc": "$9.9 permanently unlock one full report, one per account",
-  "tierComparison.onetimeUnlockGift1": "50 Stardust bonus",
-  "tierComparison.onetimeUnlockGift2": "$20 shop coupon",
+  "tierComparison.onetimeUnlockGift1": "50 Stardust + $20 coupon",
+  "tierComparison.onetimeUnlockGift2": "3-day membership trial",
   "tierComparison.onetimeUnlockCta": "Unlock Now",
 
   // ─── Payment Method Selector ───

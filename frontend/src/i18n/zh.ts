@@ -425,7 +425,7 @@ export default {
   "reading.insight.unlocked": "深度报告已解锁，向下滑动探索你的完整命运图景。",
   "reading.insight.locked": "解锁完整报告，获取专属于你的年度命盘规划与改运策略。",
   "reading.cta.unlockBtn": "加入会员解锁",
-  "reading.cta.perks": "解锁赠送 ¥60 代金券 + 3 天会员",
+  "reading.cta.perks": "解锁赠送 ¥20 代金券 + 50 星尘 + 3 天会员",
   "reading.progress.analyzing": "专家分析中…",
   "reading.progress.synthesizing": "综合 synthesis 中…",
   "reading.progress.preparing": "分析准备中…",
@@ -2262,7 +2262,7 @@ export default {
   "paywall.stardustInsufficient": "星尘能量不足",
   "paywall.joinMember": "加入会员解锁",
   "paywall.oneTimeUnlock": "一次性解锁 ¥19.9",
-  "paywall.oneTimeUnlockDesc": "永久解锁 + 50星尘 + ¥20代金券",
+  "paywall.oneTimeUnlockDesc": "永久解锁 + 50星尘 + ¥20代金券 + 3天会员",
   "paywall.unlockDetailed": "精读报告",
   "paywall.unlockFull": "全维报告",
   "paywall.detailedIncludes": "精读包含：",
@@ -2280,8 +2280,8 @@ export default {
   "tierComparison.learnMore": "了解事件复盘",
   "tierComparison.onetimeUnlock": "一次性解锁 · 永久报告",
   "tierComparison.onetimeUnlockDesc": "¥19.9 永久解锁一份全维报告，每个账户限一次",
-  "tierComparison.onetimeUnlockGift1": "赠送 50 星尘",
-  "tierComparison.onetimeUnlockGift2": "¥20 商城代金券",
+  "tierComparison.onetimeUnlockGift1": "赠送 50 星尘 + ¥20 代金券",
+  "tierComparison.onetimeUnlockGift2": "3 天会员试用",
   "tierComparison.onetimeUnlockCta": "立即解锁",
 
   // ─── 支付方式选择器 ───

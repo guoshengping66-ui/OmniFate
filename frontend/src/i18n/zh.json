@@ -1738,7 +1738,7 @@
     },
     "loading": "加载中…",
     "cta": {
-      "perks": "解锁赠送 ¥50 代金券 + 3 天会员",
+      "perks": "解锁赠送 ¥20 代金券 + 50 星尘 + 3 天会员",
       "unlockBtn": "加入会员解锁"
     },
     "dim": {
@@ -1882,7 +1882,7 @@
     "title": "命盘智镜 · 全维度解读",
     "unlock": "解锁完整报告",
     "unlockPerk1": "解锁完整年度命盘规划",
-    "unlockPerk2": "赠送 ¥50 商城代金券",
+    "unlockPerk2": "赠送 50 星尘 + ¥20 代金券",
     "unlockPerk3": "自动激活 3 天会员试用",
     "unlockPrice": "¥19.9",
     "weakest": "蕴含成长空间",
@@ -2991,7 +2991,7 @@
     "or": "或"
   },
   "paywall": {
-    "giftNote": "解锁后赠送 ¥50 商城代金券 + 3 天会员试用",
+    "giftNote": "解锁后赠送 ¥20 代金券 + 50 星尘 + 3 天会员试用",
     "joinMember": "加入会员解锁",
     "oneTimeUnlock": "一次性解锁 ¥19.9",
     "oneTimeUnlockDesc": "永久解锁 + 50星尘 + ¥20代金券",
@@ -3401,8 +3401,8 @@
     "title": "选择适合你的命理方案",
     "onetimeUnlock": "一次性解锁 · 永久报告",
     "onetimeUnlockDesc": "¥19.9 永久解锁一份全维报告，每个账户限一次",
-    "onetimeUnlockGift1": "赠送 50 星尘",
-    "onetimeUnlockGift2": "¥20 商城代金券",
+    "onetimeUnlockGift1": "赠送 50 星尘 + ¥20 代金券",
+    "onetimeUnlockGift2": "3 天会员试用",
     "onetimeUnlockCta": "立即解锁"
   },
   "wuxing": {

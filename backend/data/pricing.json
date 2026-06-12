@@ -32,7 +32,7 @@
     }
   },
   "shop": {
-    "coupon_on_report_purchase": 60,
+    "coupon_on_report_purchase": 20,
     "member_discount": 0.88,
     "trial_days_after_report": 3
   }

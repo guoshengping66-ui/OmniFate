@@ -807,29 +807,6 @@ export default function ReadingPage() {
                 </div>
               </div>)}
 
-              {/* CTA if not unlocked */}
-              {!isUnlocked && (
-                <div
-                  className="mt-6 flex flex-wrap items-center gap-3"
-                  style={{
-                    transition: "all 0.6s ease-out 1.05s",
-                    opacity: heroVisible ? 1 : 0,
-                    transform: heroVisible ? "translateY(0)" : "translateY(12px)",
-                  }}
-                >
-                  <button
-                    onClick={() => setShowPayment(true)}
-                    className="btn-gold flex items-center gap-2 text-sm md:text-base"
-                  >
-                    <Crown size={16} />
-                    {t("reading.cta.unlockBtn")}
-                  </button>
-                  <span className="text-white/20 text-xs">
-                    {t("reading.cta.perks")}
-                  </span>
-                </div>
-              )}
-
             </div>
           </div>
         </div>

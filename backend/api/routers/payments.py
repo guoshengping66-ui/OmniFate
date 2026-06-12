@@ -259,7 +259,7 @@ async def _activate_founder_seat(user: User, order_no: str, db: AsyncSession) ->
 
 async def _activate_onetime_unlock(user: User, reading_id: str, db: AsyncSession) -> dict:
     """
-    激活一次性解锁 — 解锁指定报告 + 赠送 20 商城代金券 + 赠送 50 星尘（追问用）。
+    激活一次性解锁 — 解锁指定报告 + 赠送 20 商城代金券 + 50 星尘 + 3天会员试用。
     每个账户限一次。回调场景幂等：已激活则返回空结果，不抛异常。
     """
     # 检查是否已使用过
@@ -294,9 +294,20 @@ async def _activate_onetime_unlock(user: User, reading_id: str, db: AsyncSession
     )
     db.add(tx)
 
+    # 激活 3 天会员试用
+    trial_activated = False
+    if not user.is_premium:
+        user.is_premium = True
+        user.subscription_tier = "trial"
+        user.premium_expires_at = datetime.now(timezone.utc) + timedelta(days=TRIAL_DAYS)
+        user.free_event_quota = 2
+        user.free_event_quota_reset_at = datetime.now(timezone.utc) + timedelta(days=TRIAL_DAYS)
+        trial_activated = True
+
     return {
         "coupon_granted": coupon_amount,
         "stardust_granted": stardust_amount,
+        "trial_activated": trial_activated,
         "reading_id": reading_id,
     }
 

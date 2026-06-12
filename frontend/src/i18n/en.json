@@ -1738,7 +1738,7 @@
     },
     "loading": "Loading…",
     "cta": {
-      "perks": "Unlock to get ~$7 coupon + 3-day membership",
+      "perks": "Unlock to get $20 coupon + 50 Stardust + 3-day membership",
       "unlockBtn": "Join Membership to Unlock"
     },
     "dim": {
@@ -1882,7 +1882,7 @@
     "title": "Destiny Mirror · Your Reading",
     "unlock": "Unlock Full Report",
     "unlockPerk1": "Get your complete annual destiny plan",
-    "unlockPerk2": "Plus a ~$7 shop coupon",
+    "unlockPerk2": "Plus 50 Stardust + $20 coupon",
     "unlockPerk3": "Auto-activate 3-day membership trial",
     "unlockPrice": "¥19.9",
     "weakest": "room to grow",
@@ -2991,7 +2991,7 @@
     "or": "or"
   },
   "paywall": {
-    "giftNote": "Unlock to receive ~$7 shop coupon + 3-day membership trial",
+    "giftNote": "Unlock to receive $20 coupon + 50 Stardust + 3-day membership trial",
     "joinMember": "Join to Unlock",
     "oneTimeUnlock": "One-Time Unlock $9.9",
     "oneTimeUnlockDesc": "Permanent + 50 Stardust + ~$2.78 Coupon",
@@ -3401,8 +3401,8 @@
     "title": "Choose Your Destiny Plan",
     "onetimeUnlock": "One-Time Unlock · Permanent Report",
     "onetimeUnlockDesc": "$9.9 permanently unlock one full report, one per account",
-    "onetimeUnlockGift1": "50 Stardust bonus",
-    "onetimeUnlockGift2": "$20 shop coupon",
+    "onetimeUnlockGift1": "50 Stardust + $20 coupon",
+    "onetimeUnlockGift2": "3-day membership trial",
     "onetimeUnlockCta": "Unlock Now"
   },
   "wuxing": {
