@@ -2020,6 +2020,7 @@ async def _analyze_event_inner(
         boost_elements=boost_elements,
         astro_weakness_tags=[],
         top_k=4,
+        lang=state.language or "zh",
     )
     # Add LLM explanations
     for p in matched_products:
@@ -2028,6 +2029,7 @@ async def _analyze_event_inner(
             master_summary=state.master_summary,
             weakness_tags=remedy_keywords,
             boost_elements=boost_elements,
+            lang=state.language or "zh",
         )
         p["recommendation_text"] = explanation
 
@@ -2168,12 +2170,14 @@ async def get_event_detail(
                     weakness_tags=evt.remedy_keywords or [],
                     boost_elements=[],
                     top_k=4,
+                    lang="zh",
                 )
                 for p in matched:
                     p["recommendation_text"] = matcher.explain_why(
                         product=p,
                         master_summary="",
                         weakness_tags=evt.remedy_keywords or [],
+                        lang="zh",
                     )
 
             return EventDetailResponse(
@@ -2639,12 +2643,14 @@ async def get_daily_almanac(
         weakness_tags=all_weakness,
         boost_elements=almanac_data.get("boost_elements", []),
         top_k=3,
+        lang=lang,
     )
     for p in matched:
         p["recommendation_text"] = matcher.explain_why_template(
             product=p,
             weakness_tags=all_weakness,
             boost_elements=almanac_data.get("boost_elements", []),
+            lang=payload.lang,
         )
 
     hu_items = [
@@ -2829,10 +2835,12 @@ async def get_personalized_almanac(payload: PersonalizedAlmanacRequest):
     matcher = ProductMatcher()
     matched = matcher.match_with_reasons(
         weakness_tags=[], boost_elements=almanac_data.get("boost_elements", []), top_k=3,
+        lang=payload.lang,
     )
     for p in matched:
         p["recommendation_text"] = matcher.explain_why_template(
             product=p, weakness_tags=[], boost_elements=almanac_data.get("boost_elements", []),
+            lang=payload.lang,
         )
 
     hu_items = [{"product": p, "reason": p.get("match_reasons", [""])[0] if p.get("match_reasons") else "今日能量匹配"} for p in matched]

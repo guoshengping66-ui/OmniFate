@@ -378,6 +378,7 @@ class ProductMatcher:
         master_summary: str = "",
         weakness_tags: Optional[list[str]] = None,
         boost_elements: Optional[list[str]] = None,
+        lang: str = "zh",
     ) -> str:
         """
         Generate personalized recommendation text for a product based on the user's fate analysis.
@@ -387,36 +388,45 @@ class ProductMatcher:
         boost_elements = boost_elements or []
 
         def _fallback() -> str:
-            p_name = product.get("name", "")
-            p_funcs = product.get("function_tags", [])
-            p_elems = product.get("elements", [])
-            # Handle both English and Chinese element names
-            def _to_chinese(elem: str) -> str:
-                if elem in self.WUXING_EN_ZH:
-                    return self.WUXING_EN_ZH[elem]
-                return elem  # Already Chinese or unknown
+            p_name = product.get("name_en" if lang == "en" else "name", "")
+            p_funcs = product.get("function_tags_en" if lang == "en" else "function_tags", []) or product.get("function_tags", [])
+            p_elems = product.get("elements_en" if lang == "en" else "elements", []) or product.get("elements", [])
 
-            boosts = "、".join(
-                _to_chinese(e) for e in boost_elements
-            ) or "能量"
-
-            if weakness_tags:
-                main_weak = weakness_tags[0].lstrip("#")
-                if p_funcs:
+            if lang == "en":
+                boosts = ", ".join(boost_elements) or "energy"
+                if weakness_tags:
+                    main_weak = weakness_tags[0].lstrip("#")
+                    if p_funcs:
+                        return (
+                            f"Addressing \"{main_weak}\" in your chart, {p_name} carries "
+                            f"{', '.join(p_elems)} energy that helps "
+                            f"{', '.join(p_funcs[:2])} to balance your five elements."
+                        )
+                if p_elems:
                     return (
-                        f"针对您命盘中「{main_weak}」的问题，{p_name}蕴含"
-                        f"{'、'.join(p_elems)}性能量，"
-                        f"能{'、'.join(p_funcs[:2])}，帮助您平衡五行、改善运势。"
+                        f"{p_name} is rich in {', '.join(p_elems)} energy, "
+                        f"ideal for supplementing {boosts} to harmonize your aura."
                     )
-            if p_elems:
-                return (
-                    f"这款{p_name}富含{'、'.join(p_elems)}性能量，"
-                    f"适合需要补充{boosts}的您，助您调和气场、提升运势。"
-                )
-            return f"这款{p_name}根据您的命盘精准匹配，能有效改善当前运势状态。"
+                return f"{p_name} is precisely matched to your chart and helps improve your current fortune."
+            else:
+                boosts = "、".join(boost_elements) or "能量"
+                if weakness_tags:
+                    main_weak = weakness_tags[0].lstrip("#")
+                    if p_funcs:
+                        return (
+                            f"针对您命盘中「{main_weak}」的问题，{p_name}蕴含"
+                            f"{'、'.join(p_elems)}性能量，"
+                            f"能{'、'.join(p_funcs[:2])}，帮助您平衡五行、改善运势。"
+                        )
+                if p_elems:
+                    return (
+                        f"这款{p_name}富含{'、'.join(p_elems)}性能量，"
+                        f"适合需要补充{boosts}的您，助您调和气场、提升运势。"
+                    )
+                return f"这款{p_name}根据您的命盘精准匹配，能有效改善当前运势状态。"
 
         try:
-            return self._llm_explain(product, master_summary, weakness_tags, boost_elements)
+            return self._llm_explain(product, master_summary, weakness_tags, boost_elements, lang=lang)
         except Exception:
             return _fallback()
 
@@ -494,6 +504,7 @@ class ProductMatcher:
         master_summary: str,
         weakness_tags: list[str],
         boost_elements: list[str],
+        lang: str = "zh",
     ) -> str:
         """Internal: generate recommendation via OpenAI-compatible LLM."""
         from langchain_openai import ChatOpenAI
@@ -514,41 +525,71 @@ class ProductMatcher:
             kwargs["base_url"] = settings.OPENAI_BASE_URL
         llm = ChatOpenAI(**kwargs)
 
-        p_name = product.get("name", "")
-        p_desc = product.get("description", "")
-        p_funcs = "、".join(product.get("function_tags", []) or [])
-        p_elems = "、".join(product.get("elements", []) or [])
+        p_name = product.get("name_en" if lang == "en" else "name", "")
+        p_desc = product.get("description_en" if lang == "en" else "description", "") or product.get("description", "")
+        p_funcs = "、".join(product.get("function_tags", []) or []) if lang == "zh" else ", ".join(product.get("function_tags_en" if lang == "en" else "function_tags", []) or product.get("function_tags", []) or [])
+        p_elems = "、".join(product.get("elements", []) or []) if lang == "zh" else ", ".join(product.get("elements_en" if lang == "en" else "elements", []) or product.get("elements", []) or [])
         p_chakras = "、".join(product.get("chakras", []) or [])
 
-        weak_str = "、".join(weakness_tags) if weakness_tags else "无明显突出弱点"
-        boost_str = "、".join(
-            self.WUXING_EN_ZH.get(e, e) for e in boost_elements
-        ) if boost_elements else "综合平衡"
-        summary_excerpt = master_summary[:300] if master_summary else "（无详细命盘数据）"
+        if lang == "en":
+            weak_str = ", ".join(weakness_tags) if weakness_tags else "no notable weaknesses"
+            boost_str = ", ".join(boost_elements) if boost_elements else "general balance"
+            summary_excerpt = master_summary[:300] if master_summary else "(no detailed chart data)"
 
-        system = SystemMessage(content=(
-            "你是命盘智镜平台的资深命理推荐师。你的任务是为改运商品撰写个性化的「处方级」推荐语。\n"
-            "规则：\n"
-            "1. 必须结合用户的命盘信息（如下）来解释为什么这个商品对他特别有效\n"
-            "2. 语言风格：权威、温暖、精准，像中医开药方一样有说服力\n"
-            "3. 使用「由于你的命局中…」或「针对你…」等个性化开头\n"
-            "4. 60-120 字，中文，不要用 emoji\n"
-            "5. 不要编造用户命盘中没有提到的信息"
-        ))
+            system = SystemMessage(content=(
+                "You are a senior fortune advisor at Destiny Mirror. Write a personalized "
+                "'prescription-level' product recommendation.\n"
+                "Rules:\n"
+                "1. Explain why this product is especially effective for the user based on their chart\n"
+                "2. Tone: authoritative, warm, precise — like a doctor writing a prescription\n"
+                "3. Start with phrases like \"Given your chart's...\" or \"Addressing your...\"\n"
+                "4. 40-80 words in English, no emoji\n"
+                "5. Do not fabricate information not in the user's chart"
+            ))
 
-        user = HumanMessage(content=(
-            f"【商品信息】\n"
-            f"名称：{p_name}\n"
-            f"描述：{p_desc}\n"
-            f"五行属性：{p_elems}\n"
-            f"功能标签：{p_funcs}\n"
-            f"对应脉轮：{p_chakras}\n\n"
-            f"【用户命盘信息】\n"
-            f"弱点标签：{weak_str}\n"
-            f"需补五行：{boost_str}\n"
-            f"命盘总览摘要：{summary_excerpt}\n\n"
-            f"请为这款商品生成一段个性化的推荐语。"
-        ))
+            user = HumanMessage(content=(
+                f"【Product Info】\n"
+                f"Name: {p_name}\n"
+                f"Description: {p_desc}\n"
+                f"Five-element: {p_elems}\n"
+                f"Function tags: {p_funcs}\n"
+                f"Chakras: {p_chakras}\n\n"
+                f"【User Chart Info】\n"
+                f"Weakness tags: {weak_str}\n"
+                f"Elements to boost: {boost_str}\n"
+                f"Chart summary: {summary_excerpt}\n\n"
+                f"Generate a personalized recommendation for this product."
+            ))
+        else:
+            weak_str = "、".join(weakness_tags) if weakness_tags else "无明显突出弱点"
+            boost_str = "、".join(
+                self.WUXING_EN_ZH.get(e, e) for e in boost_elements
+            ) if boost_elements else "综合平衡"
+            summary_excerpt = master_summary[:300] if master_summary else "（无详细命盘数据）"
+
+            system = SystemMessage(content=(
+                "你是命盘智镜平台的资深命理推荐师。你的任务是为改运商品撰写个性化的「处方级」推荐语。\n"
+                "规则：\n"
+                "1. 必须结合用户的命盘信息（如下）来解释为什么这个商品对他特别有效\n"
+                "2. 语言风格：权威、温暖、精准，像中医开药方一样有说服力\n"
+                "3. 使用「由于你的命局中…」或「针对你…」等个性化开头\n"
+                "4. 60-120 字，中文，不要用 emoji\n"
+                "5. 不要编造用户命盘中没有提到的信息"
+            ))
+
+            user = HumanMessage(content=(
+                f"【商品信息】\n"
+                f"名称：{p_name}\n"
+                f"描述：{p_desc}\n"
+                f"五行属性：{p_elems}\n"
+                f"功能标签：{p_funcs}\n"
+                f"对应脉轮：{p_chakras}\n\n"
+                f"【用户命盘信息】\n"
+                f"弱点标签：{weak_str}\n"
+                f"需补五行：{boost_str}\n"
+                f"命盘总览摘要：{summary_excerpt}\n\n"
+                f"请为这款商品生成一段个性化的推荐语。"
+            ))
 
         resp = llm.invoke([system, user])
         text = resp.content.strip().strip('"').strip("'")

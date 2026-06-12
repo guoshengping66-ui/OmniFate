@@ -706,6 +706,7 @@ def _build_product_preview(state: SystemState) -> tuple[list[dict], str, list[di
         boost_elements=all_boost,
         astro_weakness_tags=astro_tags,
         top_k=4,
+        lang=state.language or "zh",
     )
 
     # Add LLM-generated personalized recommendation text
@@ -715,6 +716,7 @@ def _build_product_preview(state: SystemState) -> tuple[list[dict], str, list[di
             master_summary=state.master_summary,
             weakness_tags=all_weakness,
             boost_elements=all_boost,
+            lang=state.language or "zh",
         )
         p["recommendation_text"] = explanation
 

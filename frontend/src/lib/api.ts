@@ -304,8 +304,11 @@ export interface ChatResponse {
 export interface Product {
   id: string
   name: string
+  name_en?: string
   description: string
+  description_en?: string
   short_pitch: string
+  short_pitch_en?: string
   category: string
   price_cny: number
   price_usd?: number
