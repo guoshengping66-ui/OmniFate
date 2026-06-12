@@ -87,6 +87,9 @@ CSRF_EXEMPT_PATHS = [
     "/api/payments/alipay/notify",  # Alipay callback (signature verified)
     "/api/webhooks/",               # Webhook endpoints (verify signature)
     "/api/cron/",                   # Cron jobs (secret key verified)
+    "/api/auth/login",              # Login — password-protected, no CSRF risk
+    "/api/auth/register",           # Register — rate-limited, no CSRF risk
+    "/api/auth/refresh",            # Refresh — token-based, no CSRF risk
 ]
 
 
