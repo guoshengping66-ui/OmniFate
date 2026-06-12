@@ -475,7 +475,7 @@
         "title": "4. Coupons & Discounts"
       },
       "s5": {
-        "content": "To request a refund or exchange, contact us:\n\n- Email: refund@khanfate.com\n- Subject format: [Refund Request] Order Number/Subscription Type\n- Please provide: Registration email, order number, refund reason\n\nFor spiritual artifact products, please include photos of the issue to expedite review.\nWe will review and respond within 1-3 business days.",
+        "content": "To request a refund or exchange, contact us:\n\n- WeChat Customer Service: khan18553325258 (please add a note with \"refund\" + order number)\n- Email: refund@khanfate.com\n- Subject format: [Refund Request] Order Number/Subscription Type\n- Please provide: Registration email, order number, refund reason\n\nFor spiritual artifact products, please include photos of the issue to expedite review.\nWe will review and respond within 1-3 business days.",
         "title": "5. How to Request a Refund"
       },
       "intro": "Thank you for using Destiny Mirror. We are committed to providing high-quality destiny analysis and spiritual artifact services. All spiritual artifacts on this platform are deeply personalized custom products. Please read the following refund policy carefully before placing your order.",
@@ -2750,7 +2750,8 @@
     "subscribed": "Subscribed",
     "subscribeError": "Subscription failed, please try again later",
     "systems": "Divination Systems",
-    "terms": "Terms of Service"
+    "terms": "Terms of Service",
+    "wechatHint": "Click to copy WeChat ID"
   },
   "forgotPassword": {
     "changeEmail": "← Change email",

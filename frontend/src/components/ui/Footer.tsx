@@ -1,10 +1,12 @@
 "use client"
 import Link from "next/link"
 import { useState } from "react"
-import { Sparkles, Send, MessageCircle, Globe, BookOpen, Loader2 } from "lucide-react"
+import { Sparkles, Send, MessageCircle, Globe, BookOpen, Loader2, Copy } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { api } from "@/lib/api"
 import toast from "react-hot-toast"
+
+const WECHAT_ID = "khan18553325258"
 
 export function Footer() {
   const { t, localeHref } = useLanguage()
@@ -50,23 +52,34 @@ export function Footer() {
 
               {/* Social icons */}
               <div className="flex gap-3">
-                {[
-                  { icon: <MessageCircle size={14} />, label: "WeChat", href: "#" },
-                  { icon: <Globe size={14} />, label: "Weibo", href: "#" },
-                  { icon: <BookOpen size={14} />, label: "Xiaohongshu", href: "#" },
-                ].map(s => (
-                  <a
-                    key={s.label}
-                    href={s.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
- className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/30 hover:text-gold hover:border-gold/30 hover:bg-gold/5 transition-all duration-300"
-                    title={s.label}
-                  >
-                    {s.icon}
-                  </a>
-                ))}
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(WECHAT_ID)
+                    toast.success(`WeChat ID copied: ${WECHAT_ID}`)
+                  }}
+                  className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/30 hover:text-gold hover:border-gold/30 hover:bg-gold/5 transition-all duration-300"
+                  title={`WeChat: ${WECHAT_ID}`}
+                >
+                  <MessageCircle size={14} />
+                </button>
+                <a
+                  href="#"
+                  className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/30 hover:text-gold hover:border-gold/30 hover:bg-gold/5 transition-all duration-300"
+                  title="Weibo"
+                >
+                  <Globe size={14} />
+                </a>
+                <a
+                  href="#"
+                  className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/30 hover:text-gold hover:border-gold/30 hover:bg-gold/5 transition-all duration-300"
+                  title="Xiaohongshu"
+                >
+                  <BookOpen size={14} />
+                </a>
               </div>
+              <p className="text-white/30 text-[11px] mt-2 flex items-center gap-1">
+                <Copy size={10} /> {t("footer.wechatHint")}: {WECHAT_ID}
+              </p>
             </div>
 
             {/* Navigation */}
