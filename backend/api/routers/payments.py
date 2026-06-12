@@ -410,13 +410,15 @@ async def paypal_sdk_proxy(
         sdk_url = f"https://www.paypal.com/sdk/js?client-id={client_id}&currency={currency}&intent={intent}&components={components}"
         logger.info(f"[PayPal SDK Proxy] Fetching {sdk_url}")
         try:
-            resp = requests.get(sdk_url, timeout=15, headers={"User-Agent": "Mozilla/5.0"})
+            import httpx
+            async with httpx.AsyncClient(timeout=15) as client:
+                resp = await client.get(sdk_url, headers={"User-Agent": "Mozilla/5.0"})
             if resp.status_code != 200:
                 raise HTTPException(status_code=502, detail=f"Failed to fetch PayPal SDK: {resp.status_code}")
             _sdk_cache["content"] = resp.content
             _sdk_cache["ts"] = now
             logger.info(f"[PayPal SDK Proxy] Cached SDK ({len(resp.content)} bytes)")
-        except requests.RequestException as e:
+        except httpx.RequestError as e:
             raise HTTPException(status_code=502, detail=f"Failed to fetch PayPal SDK: {e}")
 
     from fastapi.responses import Response
@@ -547,7 +549,9 @@ class WeChatPay:
         data["sign"] = self._generate_sign(data)
 
         xml_data = self._dict_to_xml(data)
-        response = requests.post(self.unified_url, data=xml_data.encode("utf-8"), timeout=10)
+        import httpx
+        async with httpx.AsyncClient(timeout=10) as client:
+            response = await client.post(self.unified_url, content=xml_data.encode("utf-8"))
         result = self._parse_xml(response.text)
 
         if result.get("return_code") == "SUCCESS" and result.get("result_code") == "SUCCESS":
@@ -905,18 +909,19 @@ class PayPalPay:
         else:
             self.base_url = "https://api-m.paypal.com"
 
-    def _get_access_token(self) -> str:
+    async def _get_access_token(self) -> str:
         """获取 PayPal Access Token"""
         auth = base64.b64encode(f"{self.client_id}:{self.secret}".encode()).decode()
-        response = requests.post(
-            f"{self.base_url}/v1/oauth2/token",
-            headers={
-                "Authorization": f"Basic {auth}",
-                "Content-Type": "application/x-www-form-urlencoded",
-            },
-            data={"grant_type": "client_credentials"},
-            timeout=10,
-        )
+        import httpx
+        async with httpx.AsyncClient(timeout=10) as client:
+            response = await client.post(
+                f"{self.base_url}/v1/oauth2/token",
+                headers={
+                    "Authorization": f"Basic {auth}",
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                data={"grant_type": "client_credentials"},
+            )
         result = response.json()
         token = result.get("access_token", "")
         if not token:
@@ -925,7 +930,7 @@ class PayPalPay:
 
     async def create_order(self, order_no: str, amount_usd: float, description: str, custom_id: str = "") -> dict:
         """创建 PayPal 订单"""
-        access_token = self._get_access_token()
+        access_token = await self._get_access_token()
 
         purchase_unit = {
             "reference_id": order_no,
@@ -939,22 +944,23 @@ class PayPalPay:
         if custom_id:
             purchase_unit["custom_id"] = custom_id
 
-        response = requests.post(
-            f"{self.base_url}/v2/checkout/orders",
-            headers={
-                "Authorization": f"Bearer {access_token}",
-                "Content-Type": "application/json",
-            },
-            json={
-                "intent": "CAPTURE",
-                "purchase_units": [purchase_unit],
-                "application_context": {
-                    "return_url": self.return_url,
-                    "cancel_url": self.cancel_url,
+        import httpx
+        async with httpx.AsyncClient(timeout=10) as client:
+            response = await client.post(
+                f"{self.base_url}/v2/checkout/orders",
+                headers={
+                    "Authorization": f"Bearer {access_token}",
+                    "Content-Type": "application/json",
                 },
-            },
-            timeout=10,
-        )
+                json={
+                    "intent": "CAPTURE",
+                    "purchase_units": [purchase_unit],
+                    "application_context": {
+                        "return_url": self.return_url,
+                        "cancel_url": self.cancel_url,
+                    },
+                },
+            )
 
         result = response.json()
         if "id" in result:
@@ -1172,17 +1178,18 @@ async def paypal_return(
         return RedirectResponse("https://khanfate.com/payment?error=no_token")
 
     paypal = PayPalPay()
-    access_token = paypal._get_access_token()
+    access_token = await paypal._get_access_token()
 
     # Capture the order
-    response = requests.post(
-        f"{paypal.base_url}/v2/checkout/orders/{token}/capture",
-        headers={
-            "Authorization": f"Bearer {access_token}",
-            "Content-Type": "application/json",
-        },
-        timeout=10,
-    )
+    import httpx
+    async with httpx.AsyncClient(timeout=10) as client:
+        response = await client.post(
+            f"{paypal.base_url}/v2/checkout/orders/{token}/capture",
+            headers={
+                "Authorization": f"Bearer {access_token}",
+                "Content-Type": "application/json",
+            },
+        )
     result = response.json()
 
     if result.get("status") == "COMPLETED":
@@ -1239,17 +1246,18 @@ async def capture_paypal_order(
 ):
     """捕获 PayPal 支付（用户支付完成后调用）— 需要登录"""
     paypal = PayPalPay()
-    access_token = paypal._get_access_token()
+    access_token = await paypal._get_access_token()
     logger.info(f"[PAYPAL-CAPTURE] order_id={paypal_order_id}, has_token={bool(access_token)}, base_url={paypal.base_url}, user={current_user.id}")
 
-    response = requests.post(
-        f"{paypal.base_url}/v2/checkout/orders/{paypal_order_id}/capture",
-        headers={
-            "Authorization": f"Bearer {access_token}",
-            "Content-Type": "application/json",
-        },
-        timeout=10,
-    )
+    import httpx
+    async with httpx.AsyncClient(timeout=10) as client:
+        response = await client.post(
+            f"{paypal.base_url}/v2/checkout/orders/{paypal_order_id}/capture",
+            headers={
+                "Authorization": f"Bearer {access_token}",
+                "Content-Type": "application/json",
+            },
+        )
 
     result = response.json()
     logger.info(f"[PAYPAL-CAPTURE] order_id={paypal_order_id}, status={response.status_code}, result={result}")
@@ -1754,11 +1762,13 @@ async def get_tracking(
     if order.tracking_number and order.shipping_carrier:
         try:
             kuaidi_url = "https://api.kuaidi100.com/query"
-            resp = requests.get(kuaidi_url, params={
-                "com": order.shipping_carrier,
-                "nu": order.tracking_number,
-                "key": "",  # 需要配置快递100 API key
-            }, timeout=5)
+            import httpx
+            async with httpx.AsyncClient(timeout=5) as client:
+                resp = await client.get(kuaidi_url, params={
+                    "com": order.shipping_carrier,
+                    "nu": order.tracking_number,
+                    "key": "",  # 需要配置快递100 API key
+                })
             if resp.status_code == 200:
                 data = resp.json()
                 if data.get("status") == "200":

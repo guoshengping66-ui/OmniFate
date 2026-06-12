@@ -44,8 +44,8 @@ const AuthContext = createContext<AuthState>({
 const USER_CACHE_KEY = "alpha_mirror_user" // Cached user for instant restore after reload
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  // IMPORTANT: Do NOT read localStorage in useState initializer.
-  // Server renders with user=null; if client reads localStorage here,
+  // IMPORTANT: Do NOT read sessionStorage in useState initializer.
+  // Server renders with user=null; if client reads sessionStorage here,
   // the hydration HTML won't match → React error #418 → error #310 cascade.
   // Instead, start with null and restore from cache in a useEffect (below).
   const [user, setUser] = useState<AuthUser | null>(null)
@@ -54,7 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Restore cached user AFTER hydration to avoid server/client mismatch
   useEffect(() => {
     try {
-      const cached = localStorage.getItem(USER_CACHE_KEY)
+      const cached = sessionStorage.getItem(USER_CACHE_KEY)
       if (cached) {
         const parsed = JSON.parse(cached) as AuthUser
         setUser(parsed)
@@ -66,9 +66,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const cacheUser = (u: AuthUser | null) => {
     try {
       if (u) {
-        localStorage.setItem(USER_CACHE_KEY, JSON.stringify(u))
+        sessionStorage.setItem(USER_CACHE_KEY, JSON.stringify(u))
       } else {
-        localStorage.removeItem(USER_CACHE_KEY)
+        sessionStorage.removeItem(USER_CACHE_KEY)
       }
     } catch { /* ignore quota errors */ }
   }
@@ -109,7 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Try refresh if cookies exist
           const ok = await refreshAndFetchUser()
           if (!ok) {
-            localStorage.removeItem(USER_CACHE_KEY)
+            sessionStorage.removeItem(USER_CACHE_KEY)
             setUser(null)
           }
         }
@@ -145,7 +145,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     const clearAuth = () => {
-      localStorage.removeItem(USER_CACHE_KEY)
+      sessionStorage.removeItem(USER_CACHE_KEY)
       setUser(null)
     }
 
@@ -231,8 +231,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {
       // Ignore — clear local state regardless
     }
-    localStorage.removeItem(USER_CACHE_KEY)
-    localStorage.removeItem("alpha_mirror_profiles")
+    sessionStorage.removeItem(USER_CACHE_KEY)
+    sessionStorage.removeItem("alpha_mirror_profiles")
     setUser(null)
   }, [])
 
