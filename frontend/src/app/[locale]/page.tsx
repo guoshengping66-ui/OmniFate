@@ -7,7 +7,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { useUserStore } from "@/stores/useUserStore"
 
 // ── Lazy-loaded marketing page ─────────────────────────────────────────────
-const MarketingPage = dynamic(() => import("@/components/MarketingPage"), {
+const HomepageV2 = dynamic(() => import("@/components/HomepageV2"), {
   ssr: true,
   loading: () => (
     <div className="min-h-screen flex items-center justify-center">
@@ -105,5 +105,5 @@ export default function HomePage() {
     )
   }
 
-  return <MarketingPage />
+  return <HomepageV2 />
 }

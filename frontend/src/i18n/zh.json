@@ -2833,6 +2833,101 @@
     "title2": "AI 命理精算揭晓",
     "trust": "已有 128,000+ 用户 · 4.9/5 评分 · 40 秒出报告"
   },
+  "homepage": {
+    "hero": {
+      "badge": "五维命理分析报告 · AI 精算",
+      "title1": "你的命运密码",
+      "title2": "正在影响你的人生",
+      "subtitle": "AI驱动的命理分析，揭示你的天命人格",
+      "cta1": "免费推命",
+      "cta2": "天命人格测试",
+      "trust": "已有 128,000+ 用户 · 4.9/5 评分 · 40 秒出报告",
+      "stat1": "已推命",
+      "stat3": "合参维度"
+    },
+    "resultPreview": {
+      "title": "你的命运档案",
+      "subtitle": "点击测试，获取你的专属结果",
+      "fateLevel": "命格等级",
+      "destinyPower": "命运战力",
+      "strongest": "最强领域",
+      "weakest": "当前短板",
+      "clickToTest": "点击测试，获取你的专属结果"
+    },
+    "am16Showcase": {
+      "badge": "天命人格测试",
+      "title": "12道题，解锁你的命运密码",
+      "subtitle": "基于心学与命理学的AI人格测试，精准匹配你的天命人格",
+      "cta": "开始测试",
+      "stats": "已为10万+用户揭示命运密码"
+    },
+    "fiveSystems": {
+      "title": "五大命理系统",
+      "subtitle": "八字 · 星盘 · 塔罗 · 面相 · 手相，AI智能合参"
+    },
+    "reportContent": {
+      "title": "你的专属命盘报告",
+      "subtitle": "基于你的生辰信息，AI精算生成专属报告",
+      "problems": "人生问题诊断",
+      "advice": "改运建议",
+      "trends": "流年趋势",
+      "viewFull": "查看完整报告 →"
+    },
+    "dailyFortune": {
+      "badge": "每日运势",
+      "title": "今日运势速览",
+      "subtitle": "基于你的命盘，每日更新专属运势"
+    },
+    "testimonials": {
+      "title": "用户真实反馈",
+      "subtitle": "来自全国各地用户的真实评价"
+    },
+    "deepReport": {
+      "title": "完整命盘报告",
+      "subtitle": "解锁全部深度分析模块",
+      "unlockCTA": "解锁完整命盘 · 100 ✨",
+      "locked": {
+        "shadow": "隐藏人格阴影",
+        "wealth": "财富天赋",
+        "romance": "感情弱点",
+        "mentor": "贵人类型",
+        "annual": "2026流年命盘",
+        "roadmap": "逆天改命路线图"
+      }
+    },
+    "membership": {
+      "badge": "天命OS会员",
+      "title": "解锁全部命理功能",
+      "subtitle": "成为会员，享受完整命理服务",
+      "featureTitle": "会员专属权益",
+      "featureDesc": "解锁全部命理功能，享受个性化改运服务",
+      "benefits": {
+        "daily": "每日运势推送",
+        "advice": "专属改运建议",
+        "support": "优先客服支持",
+        "events": "会员专属活动"
+      },
+      "price": "每月",
+      "cta": "立即开通",
+      "note": "7天无理由退款"
+    },
+    "shop": {
+      "badge": "改运好物",
+      "title": "AI精选改运好物",
+      "subtitle": "基于五行能量匹配，为你推荐最适合的改运物品",
+      "viewAll": "查看全部好物"
+    },
+    "faq": {
+      "title": "常见问题",
+      "subtitle": "关于天命OS的常见疑问"
+    },
+    "finalCta": {
+      "title": "开始你的命运之旅",
+      "desc": "40秒生成专属命盘报告，揭示你的天命人格",
+      "button": "免费推命",
+      "note": "无需注册，即刻体验"
+    }
+  },
   "curated": {
     "badge": "AI 为你精选",
     "title": "热门改运好物",

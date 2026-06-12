@@ -2833,6 +2833,101 @@
     "title2": "Decoded by AI",
     "trust": "128,000+ users · 4.9/5 rating · 40-second reports"
   },
+  "homepage": {
+    "hero": {
+      "badge": "AI-Powered Destiny Analysis",
+      "title1": "Your Destiny Code",
+      "title2": "Is Shaping Your Life",
+      "subtitle": "AI-driven destiny analysis reveals your true personality",
+      "cta1": "Free Reading",
+      "cta2": "Destiny Personality Test",
+      "trust": "128,000+ users · 4.9/5 rating · 40-second reports",
+      "stat1": "Readings",
+      "stat3": "Dimensions"
+    },
+    "resultPreview": {
+      "title": "Your Destiny Profile",
+      "subtitle": "Click to test and get your personalized result",
+      "fateLevel": "Fate Level",
+      "destinyPower": "Destiny Power",
+      "strongest": "Strongest",
+      "weakest": "Weakest",
+      "clickToTest": "Click to test and get your result"
+    },
+    "am16Showcase": {
+      "badge": "Destiny Personality Test",
+      "title": "12 Questions to Unlock Your Destiny Code",
+      "subtitle": "AI personality test based on XinXue and destiny studies",
+      "cta": "Start Test",
+      "stats": "100,000+ users have revealed their destiny codes"
+    },
+    "fiveSystems": {
+      "title": "Five Destiny Systems",
+      "subtitle": "Bazi · Astrology · Tarot · Face Reading · Palmistry — AI-powered analysis"
+    },
+    "reportContent": {
+      "title": "Your Personalized Chart Report",
+      "subtitle": "AI-calculated report based on your birth information",
+      "problems": "Life Problem Diagnosis",
+      "advice": "Fortune Advice",
+      "trends": "Annual Trends",
+      "viewFull": "View Full Report →"
+    },
+    "dailyFortune": {
+      "badge": "Daily Fortune",
+      "title": "Today's Fortune Overview",
+      "subtitle": "Personalized daily fortune based on your chart"
+    },
+    "testimonials": {
+      "title": "Real User Feedback",
+      "subtitle": "Genuine reviews from users worldwide"
+    },
+    "deepReport": {
+      "title": "Full Destiny Report",
+      "subtitle": "Unlock all deep analysis modules",
+      "unlockCTA": "Unlock Full Report · 100 ✨",
+      "locked": {
+        "shadow": "Hidden Personality Shadow",
+        "wealth": "Wealth Talent",
+        "romance": "Romance Weakness",
+        "mentor": "Noble Person Type",
+        "annual": "2026 Annual Chart",
+        "roadmap": "Fortune Enhancement Roadmap"
+      }
+    },
+    "membership": {
+      "badge": "Fate OS Membership",
+      "title": "Unlock All Destiny Features",
+      "subtitle": "Become a member for complete destiny services",
+      "featureTitle": "Member Exclusive Benefits",
+      "featureDesc": "Unlock all destiny features with personalized fortune services",
+      "benefits": {
+        "daily": "Daily Fortune Push",
+        "advice": "Personalized Fortune Advice",
+        "support": "Priority Customer Support",
+        "events": "Member-Exclusive Events"
+      },
+      "price": "per month",
+      "cta": "Subscribe Now",
+      "note": "7-day money-back guarantee"
+    },
+    "shop": {
+      "badge": "Fortune Essentials",
+      "title": "AI-Curated Fortune Essentials",
+      "subtitle": "Five-Element energy matching recommends the perfect items for you",
+      "viewAll": "View All Essentials"
+    },
+    "faq": {
+      "title": "FAQ",
+      "subtitle": "Common questions about Fate OS"
+    },
+    "finalCta": {
+      "title": "Start Your Destiny Journey",
+      "desc": "40-second personalized chart report reveals your destiny personality",
+      "button": "Free Reading",
+      "note": "No registration required"
+    }
+  },
   "curated": {
     "badge": "AI Curated for You",
     "title": "Popular Fortune Essentials",
