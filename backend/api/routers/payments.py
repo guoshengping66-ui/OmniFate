@@ -1,6 +1,7 @@
 """api/routers/payments.py — 直接对接微信支付/支付宝/PayPal（不使用 Stripe）"""
 import uuid
 import random
+import secrets
 import hashlib
 import hmac
 import time
@@ -12,7 +13,7 @@ import requests
 logger = logging.getLogger(__name__)
 from datetime import datetime, timedelta, timezone
 from typing import Optional
-from xml.etree import ElementTree as ET
+import defusedxml.ElementTree as ET
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Query, Header
 from pydantic import BaseModel, Field
@@ -49,9 +50,10 @@ def get_client_region(request: Request) -> str:
     """
     import ipaddress
 
-    # 1. Cloudflare's CF-IPCountry header (most reliable when behind CF)
+    # 1. Cloudflare's CF-IPCountry header (only trust when CF-Ray present = verified CF request)
+    cf_ray = request.headers.get("cf-ray", "")
     cf_country = request.headers.get("cf-ipcountry", "").upper()
-    if cf_country:
+    if cf_country and cf_ray:
         # China mainland countries
         if cf_country in ("CN", "HK", "MO", "TW"):
             return "domestic"
@@ -202,6 +204,12 @@ async def _activate_founder_seat(user: User, order_no: str, db: AsyncSession) ->
     if domestic_count < FOUNDER_TOTAL_DOMESTIC:
         region = "domestic"
         seat_no = domestic_count + 1
+        # Double-check seat uniqueness to prevent TOCTOU race
+        existing = await db.execute(
+            select(User).where(User.founder_region == "domestic", User.founder_seat_no == seat_no)
+        )
+        if existing.scalar_one_or_none():
+            seat_no = domestic_count + 2  # Fallback to next seat
     else:
         overseas_count_result = await db.execute(
             select(func.count()).select_from(User).where(
@@ -214,6 +222,11 @@ async def _activate_founder_seat(user: User, order_no: str, db: AsyncSession) ->
             raise HTTPException(status_code=400, detail="创始席位已售罄")
         region = "overseas"
         seat_no = FOUNDER_TOTAL_DOMESTIC + overseas_count + 1
+        existing = await db.execute(
+            select(User).where(User.founder_region == "overseas", User.founder_seat_no == seat_no)
+        )
+        if existing.scalar_one_or_none():
+            seat_no = FOUNDER_TOTAL_DOMESTIC + overseas_count + 2
 
     grant_amount = SUBSCRIPTION_GRANTS["founder_lifetime"]
 
@@ -380,6 +393,17 @@ async def paypal_sdk_proxy(
     The server can reach paypal.com; browsers in mainland China cannot.
     This endpoint fetches the SDK once and caches it for 1 hour.
     """
+    # Input validation — prevent SSRF / parameter injection
+    import re
+    if not re.match(r'^[A-Za-z0-9_\-]+$', client_id):
+        raise HTTPException(status_code=400, detail="Invalid client_id")
+    if currency not in ("USD", "EUR", "GBP", "CAD", "AUD", "JPY", "CNY", "HKD"):
+        raise HTTPException(status_code=400, detail="Invalid currency")
+    if intent not in ("capture", "authorize"):
+        raise HTTPException(status_code=400, detail="Invalid intent")
+    if components not in ("buttons",):
+        raise HTTPException(status_code=400, detail="Invalid components")
+
     now = time.time()
     # Re-fetch if cache is empty or older than 1 hour
     if not _sdk_cache["content"] or (now - _sdk_cache["ts"]) > 3600:
@@ -533,7 +557,8 @@ class WeChatPay:
                 "total_fee": amount_fen,
             }
         else:
-            raise HTTPException(status_code=400, detail=f"微信支付下单失败: {result.get('err_code_des', '未知错误')}")
+            logger.error(f"[WECHAT] Order failed: {result.get('err_code_des')}")
+            raise HTTPException(status_code=400, detail="微信支付下单失败，请稍后重试")
 
 
 @router.post("/wechat/create")
@@ -566,7 +591,7 @@ async def create_wechat_order(
     }
     wechat_subject = subject_map.get(item_type, "AlphaMirror AI算力服务")
 
-    order_no = f"WX{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
+    order_no = f"WX{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{secrets.randbelow(90000) + 10000}"
 
     order = Order(
         order_no=order_no,
@@ -613,8 +638,8 @@ async def wechat_notify(request: Request, db: AsyncSession = Depends(get_db)):
     # 解锁报告
     order_no = data.get("out_trade_no", "")
 
-    # 查找订单并验证金额
-    order_result = await db.execute(select(Order).where(Order.order_no == order_no))
+    # 查找订单并验证金额（行锁防止并发回调双重激活）
+    order_result = await db.execute(select(Order).where(Order.order_no == order_no).with_for_update())
     order = order_result.scalar_one_or_none()
     if order:
         # 幂等保护：如果订单已支付，直接返回成功（避免重复激活）
@@ -751,7 +776,7 @@ async def create_alipay_order(
     }
     alipay_subject = subject_map.get(item_type, "AlphaMirror AI算力服务")
 
-    order_no = f"ALI{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
+    order_no = f"ALI{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{secrets.randbelow(90000) + 10000}"
 
     order = Order(
         order_no=order_no,
@@ -824,8 +849,8 @@ async def alipay_notify(request: Request, db: AsyncSession = Depends(get_db)):
 
     order_no = data.get("out_trade_no", "")
 
-    # 查找订单并验证金额
-    order_result = await db.execute(select(Order).where(Order.order_no == order_no))
+    # 查找订单并验证金额（行锁防止并发回调双重激活）
+    order_result = await db.execute(select(Order).where(Order.order_no == order_no).with_for_update())
     order = order_result.scalar_one_or_none()
     if order:
         # 幂等保护：如果订单已支付，直接返回成功（避免重复激活）
@@ -944,7 +969,8 @@ class PayPalPay:
                 "order_no": order_no,
             }
         else:
-            raise HTTPException(status_code=400, detail=f"PayPal 下单失败: {result.get('message', '未知错误')}")
+            logger.error(f"[PAYPAL] Order failed: {result.get('message')}")
+            raise HTTPException(status_code=400, detail="PayPal 下单失败，请稍后重试")
 
 
 @router.post("/paypal/create")
@@ -976,7 +1002,7 @@ async def create_paypal_order(
     }
     paypal_description = subject_map.get(item_type, "AlphaMirror AI Computing Service")
 
-    order_no = f"PP{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
+    order_no = f"PP{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{secrets.randbelow(90000) + 10000}"
 
     order = Order(
         user_id=current_user.id,
@@ -1095,7 +1121,7 @@ async def paypal_checkout_url(
     }
     paypal_description = subject_map.get(item_type, "AlphaMirror AI Computing Service")
 
-    order_no = f"PP{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
+    order_no = f"PP{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{secrets.randbelow(90000) + 10000}"
 
     order = Order(
         user_id=current_user.id,
@@ -1325,7 +1351,8 @@ async def capture_paypal_order(
     else:
         error_msg = result.get("message", "未知错误")
         logger.error(f"[PAYPAL-CAPTURE] 捕获失败: order_id={paypal_order_id}, status={result.get('status')}, error={error_msg}, full={result}")
-        raise HTTPException(status_code=400, detail=f"PayPal 捕获失败: {error_msg}")
+        logger.error(f"[PAYPAL] Capture failed: {error_msg}")
+        raise HTTPException(status_code=400, detail="PayPal 支付捕获失败，请稍后重试")
 
 
 # ─── Report Unlock ───────────────────────────────────────────────────────────
@@ -1501,7 +1528,7 @@ async def pay_event(
     stardust_deducted = 0
 
     # Refetch user within this session
-    result = await db.execute(select(User).where(User.id == current_user.id))
+    result = await db.execute(select(User).where(User.id == current_user.id).with_for_update())
     user = result.scalar_one_or_none()
 
     if user:
@@ -1626,7 +1653,7 @@ async def create_order(
         user.shop_coupon_balance = float(balance) - coupon_used
         final_total = round(final_total - coupon_used, 2)
 
-    order_no = f"ORD{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
+    order_no = f"ORD{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{secrets.randbelow(90000) + 10000}"
 
     # Resolve address info
     recipient_name = req.recipient_name
@@ -1858,7 +1885,7 @@ async def create_founder_purchase(
     price_info = PRODUCT_PRICES["founder_lifetime"]
     amount = price_info["cny"]
 
-    order_no = f"FO{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{random.randint(1000, 9999)}"
+    order_no = f"FO{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{secrets.randbelow(90000) + 10000}"
 
     order = Order(
         user_id=current_user.id,
@@ -2320,6 +2347,16 @@ async def update_shop_order_status(
     if payload.status not in valid_statuses:
         raise HTTPException(status_code=400, detail=f"无效状态，可选: {', '.join(valid_statuses)}")
 
+    # State machine: define legal transitions
+    LEGAL_TRANSITIONS = {
+        "pending": {"processing", "paid", "cancelled"},
+        "processing": {"paid", "cancelled"},
+        "paid": {"shipped", "cancelled"},
+        "shipped": {"delivered"},
+        "delivered": set(),
+        "cancelled": set(),
+    }
+
     result = await db.execute(
         select(Order).where(Order.order_no == order_no, Order.item_type == "shop")
     )
@@ -2328,6 +2365,15 @@ async def update_shop_order_status(
         raise HTTPException(status_code=404, detail="订单不存在")
 
     old_status = order.status.value if order.status else "pending"
+
+    # Validate state transition
+    allowed = LEGAL_TRANSITIONS.get(old_status, set())
+    if payload.status not in allowed:
+        raise HTTPException(
+            status_code=400,
+            detail=f"不允许从 {old_status} 转换到 {payload.status}，允许: {', '.join(allowed) or '无'}"
+        )
+
     order.status = OrderStatus(payload.status)
     if payload.tracking_number is not None:
         order.tracking_number = payload.tracking_number
@@ -2563,7 +2609,7 @@ async def confirm_email_payment(
     from fastapi.responses import RedirectResponse
 
     result = await db.execute(
-        select(Order).where(Order.confirm_token == token)
+        select(Order).where(Order.confirm_token == token).with_for_update()
     )
     order = result.scalar_one_or_none()
     if not order:
@@ -2608,7 +2654,7 @@ async def admin_confirm_email_payment(
     from fastapi.responses import RedirectResponse
 
     result = await db.execute(
-        select(Order).where(Order.admin_confirm_token == token)
+        select(Order).where(Order.admin_confirm_token == token).with_for_update()
     )
     order = result.scalar_one_or_none()
     if not order:
@@ -2677,6 +2723,13 @@ async def admin_reject_email_payment(
     if not order:
         return RedirectResponse(
             url="https://www.khanfate.com/zh/admin/orders?error=invalid_token",
+            status_code=302,
+        )
+
+    # Check token expiry
+    if order.admin_confirm_expires and order.admin_confirm_expires < datetime.now(timezone.utc):
+        return RedirectResponse(
+            url="https://www.khanfate.com/zh/admin/orders?error=token_expired",
             status_code=302,
         )
 

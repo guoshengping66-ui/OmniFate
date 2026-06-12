@@ -40,3 +40,6 @@ redis[hiredis]>=5.0.0
 
 # ── Security: file upload validation ──
 python-magic>=0.4.27
+
+# ── Security: XML parsing ──
+defusedxml>=0.7.1

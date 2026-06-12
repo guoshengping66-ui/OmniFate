@@ -84,7 +84,9 @@ async def submit_contact(req: ContactRequest, request: Request):
     """
 
     to_email = settings.SMTP_FROM or "guoshengping66@gmail.com"
-    ok = _send_email(to_email, f"[命盘智镜] 联系表单 - {subject_label} - {req.name}", email_html)
+    # Sanitize name to prevent email header injection
+    safe_name = req.name.replace('\r', '').replace('\n', '').strip()[:50]
+    ok = _send_email(to_email, f"[命盘智镜] 联系表单 - {subject_label} - {safe_name}", email_html)
 
     if not ok:
         # Still return success to user — don't expose email failures
