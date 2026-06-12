@@ -116,12 +116,14 @@ function parseFreeReportSections(summary: string): {
   if (!summary) return { sectionA: "", sectionB: "", painPoints: [], sectionD: "" }
   const result = { sectionA: "", sectionB: "", painPoints: [] as string[], sectionD: "" }
 
-  // Find all section markers sequentially — avoids false matches from content
+  // Match section markers: 【X·任意文本】 or [X·任意文本]
+  // where X is a letter A-E, · may be surrounded by spaces
   const markerRe = /[【\[]([A-E])\s*·[^】\]]*[】\]]/g
-  const markers: { letter: string; end: number }[] = []
+  // Store both idx (start of 【) and end (position after 】) for each marker
+  const markers: { letter: string; idx: number; end: number }[] = []
   let m: RegExpExecArray | null
   while ((m = markerRe.exec(summary)) !== null) {
-    markers.push({ letter: m[1], end: m.index + m[0].length })
+    markers.push({ letter: m[1], idx: m.index, end: m.index + m[0].length })
   }
 
   if (markers.length === 0) {
@@ -130,11 +132,11 @@ function parseFreeReportSections(summary: string): {
     return result
   }
 
-  // Content before first marker (if any) is preamble
   for (let i = 0; i < markers.length; i++) {
-    const start = markers[i].end
-    const end = i + 1 < markers.length ? markers[i + 1].end - markers[i + 1].letter.length - 2 : summary.length
-    const content = summary.slice(start, end).trim()
+    const contentStart = markers[i].end
+    // Content ends where the next marker's 【 begins — no fragile math needed
+    const contentEnd = i + 1 < markers.length ? markers[i + 1].idx : summary.length
+    const content = summary.slice(contentStart, contentEnd).trim()
     const letter = markers[i].letter
 
     if (letter === "A") result.sectionA = content
@@ -217,6 +219,7 @@ function extractQuickInsights(summary: string): string[] {
   function findSectionContent(label: string, letter?: string): string {
     // Find all section markers in order (each entry has index = start of 【, end = position after 】)
     const allMarkers: { idx: number; end: number }[] = []
+    // Match: 【X·任意文本】 or [X·任意文本] where X = A-E, · may have spaces around it
     const markerRe = /[【\[]([A-E])\s*·[^】\]]*[】\]]/g
     let m: RegExpExecArray | null
     while ((m = markerRe.exec(summary)) !== null) {

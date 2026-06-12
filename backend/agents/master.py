@@ -1118,32 +1118,38 @@ def _format_dimension_summaries(scores: dict[str, float], language: str = "zh") 
 def _extract_key_reminder(text: str) -> str:
     """Extract the key reminder (Section D) from the resonance LLM output.
     Handles both Chinese (【D·近期关键提醒】) and English (【D · Near-Term Key Alerts】),
-    RELATIONSHIP (【D·五行能量互动】), and optional spaces around the middle dot."""
-    import re as _re
-    match = _re.search(r'[【\[]D\s*·[^】\]]*[】\]]', text)
+    RELATIONSHIP (【D·五行能量互动】), and optional spaces around the middle dot.
+    Uses regex to find the next section marker (not just any 【) to avoid
+    premature truncation when section content contains 【 characters."""
+    match = re.search(r'[【\[]D\s*·[^】\]]*[】\]]', text)
     if not match:
         return ""
     start = match.end()
     rest = text[start:].strip()
-    next_section = rest.find("【")
-    if next_section > 0:
-        rest = rest[:next_section].strip()
+    # Find next SECTION marker (【X·), not just any 【 — avoids truncating
+    # content that legitimately contains 【 characters
+    next_section = re.search(r'[【\[]\s*[A-Ea-e]\s*·', rest)
+    if next_section:
+        rest = rest[:next_section.start()].strip()
     return rest[:200]
 
 
 def _extract_action_summary(text: str) -> str:
     """Extract the action suggestions (Section E) from the resonance LLM output.
     Handles both Chinese (【E·行动建议速览】) and English (【E · Quick Action Tips】),
-    RELATIONSHIP (【E·相处指南】), and optional spaces around the middle dot."""
-    import re as _re
-    match = _re.search(r'[【\[]E\s*·[^】\]]*[】\]]', text)
+    RELATIONSHIP (【E·相处指南】), and optional spaces around the middle dot.
+    Uses regex to find the next section marker (not just any 【) to avoid
+    premature truncation when section content contains 【 characters."""
+    match = re.search(r'[【\[]E\s*·[^】\]]*[】\]]', text)
     if not match:
         return ""
     start = match.end()
     rest = text[start:].strip()
-    next_section = rest.find("【")
-    if next_section > 0:
-        rest = rest[:next_section].strip()
+    # Find next SECTION marker (【X·), not just any 【 — avoids truncating
+    # content that legitimately contains 【 characters
+    next_section = re.search(r'[【\[]\s*[A-Ea-e]\s*·', rest)
+    if next_section:
+        rest = rest[:next_section.start()].strip()
     return rest[:300]
 
 
