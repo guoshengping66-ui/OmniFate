@@ -156,7 +156,7 @@ export function FortunePrescription({ products, weakestLabel, strongestLabel }: 
                     {isPrimary && (
                       <Sparkles size={10} className="text-gold fill-gold/30 flex-shrink-0" />
                     )}
-                    <h4 className="font-medium text-white text-sm truncate">{product.name}</h4>
+                    <h4 className="font-medium text-white text-sm truncate">{isEn ? (product.name_en || product.name) : product.name}</h4>
                     {formattedSales && (
                       <span className="text-[9px] text-white/25 flex-shrink-0">
                         {formattedSales} {t("prescription.sold") || "已售"}

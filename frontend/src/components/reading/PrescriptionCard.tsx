@@ -15,9 +15,12 @@ interface PrescriptionCardProps {
 
 export function PrescriptionCard({ product, variant = "primary" }: PrescriptionCardProps) {
   const { addItem } = useCart()
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
   const { region } = useRegion()
   const [claimed, setClaimed] = useState(false)
+
+  // Use English name when in English locale
+  const productName = locale === "en" ? (product.name_en || product.name) : product.name
 
   const handleClaim = () => {
     addItem(product, 1)
@@ -78,7 +81,7 @@ export function PrescriptionCard({ product, variant = "primary" }: PrescriptionC
         <div className="border-l-4 border-l-gold/50 pl-4 py-1">
           {/* Product name as "方名" */}
           <p className="font-serif text-lg md:text-xl font-bold text-gold leading-snug mb-1">
-            {product.name}
+            {productName}
           </p>
 
           {/* Price as "剂量" */}

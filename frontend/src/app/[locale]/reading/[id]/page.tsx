@@ -114,24 +114,21 @@ function parseFreeReportSections(summary: string): {
   if (!summary) return { sectionA: "", sectionB: "", painPoints: [], sectionD: "" }
   const result = { sectionA: "", sectionB: "", painPoints: [] as string[], sectionD: "" }
 
-  // Try to find Section A (核心性格底色)
-  const markersA = ["【A·核心性格底色】", "[A·核心性格底色]", "A·核心性格底色"]
-  const markersB = ["【B·痛点诊断】", "[B·痛点诊断]", "B·痛点诊断"]
-  const markersC = ["【C·五维速览】", "[C·五维速览]", "C·五维速览"]
-  const markersD = ["【D·近期关键提醒】", "[D·近期关键提醒]", "D·近期关键提醒"]
-
-  function findMarker(text: string, markers: string[]): number {
-    for (const m of markers) {
-      const idx = text.indexOf(m)
-      if (idx !== -1) return idx + m.length
-    }
-    return -1
+  // Find position right after a section marker for a given letter (A–D).
+  // Handles both Chinese (【A·核心性格底色】) and English (【A · Core Personality Blueprint】)
+  // markers, with or without spaces, brackets, or full-width brackets.
+  function findMarker(text: string, letter: string): number {
+    // Match: 【X·…】, [X·…], or bare X·… (where X = the section letter)
+    const re = new RegExp(`[【\\[]?${letter}\\s*·[^】\\]]*[】\\]]?|(?<![A-Za-z])${letter}\\s*·`, 'g')
+    const match = re.exec(text)
+    if (!match) return -1
+    return match.index + match[0].length
   }
 
-  const startA = findMarker(summary, markersA)
-  const startB = findMarker(summary, markersB)
-  const startC = findMarker(summary, markersC)
-  const startD = findMarker(summary, markersD)
+  const startA = findMarker(summary, "A")
+  const startB = findMarker(summary, "B")
+  const startC = findMarker(summary, "C")
+  const startD = findMarker(summary, "D")
 
   // Extract Section A (everything before B, C, or D markers, or before first marker)
   if (startA > 0) {
@@ -189,10 +186,10 @@ function extractLifeTheme(summary: string): string {
     const trimmed = line.trim()
     // Skip section markers and very short lines
     if (/^[【\[（(]/.test(trimmed) || trimmed.length < 5) continue
-    // Skip lines that are just labels
-    if (/^[一二三四五六七八九十]+[、．.]/.test(trimmed)) continue
+    // Skip lines that are just labels (Chinese numbered or English numbered)
+    if (/^[一二三四五六七八九十]+[、．.]/.test(trimmed) || /^\d+[.、]/.test(trimmed)) continue
     // Return first meaningful sentence (max 40 chars)
-    const sentence = trimmed.split(/[。！？\n]/)[0]
+    const sentence = trimmed.split(/[。！？.!?\n]/)[0]
     if (sentence.length > 5) return sentence.length > 40 ? sentence.slice(0, 38) + "…" : sentence
   }
   return ""
@@ -214,19 +211,24 @@ function extractQuickInsights(summary: string): string[] {
         if (stripped.length >= 8) return stripped.slice(0, 60)
         continue
       }
-      const sentence = trimmed.split(/[。！？\n]/)[0]
+      const sentence = trimmed.split(/[。！？.!?\n]/)[0]
       if (sentence.length >= 8) return sentence.slice(0, 60)
     }
     return ""
   }
 
-  // Extract section content by matching marker directly in original text
-  function findSectionContent(label: string): string {
-    const markerRegex = new RegExp(`【[A-E]·${label}】`)
+  // Extract section content by matching marker directly in original text.
+  // Works with both Chinese (【A·核心性格底色】) and English (【A · Core Personality Blueprint】)
+  function findSectionContent(label: string, letter?: string): string {
+    // If a letter is provided, match any marker for that section letter (locale-agnostic)
+    // Otherwise fall back to exact label match (backward compatible)
+    const markerRegex = letter
+      ? new RegExp(`[【\\[]?${letter}\\s*·[^】\\]]*[】\\]]?`)
+      : new RegExp(`【[A-E]·${label}】`)
     const match = summary.match(markerRegex)
     if (!match) return ""
     const start = (match.index || 0) + match[0].length
-    const nextMarker = summary.slice(start).match(/【[A-E]·[^】]+】/)
+    const nextMarker = summary.slice(start).match(/[【\\[]?[A-E]\\s*·[^】\\]]*[】\\]]?/)
     const end = nextMarker ? start + (nextMarker.index || 0) : summary.length
     return summary.slice(start, end).trim()
   }
@@ -238,36 +240,36 @@ function extractQuickInsights(summary: string): string[] {
     for (const line of lines) {
       const trimmed = line.trim()
       if (keywords.test(trimmed) && trimmed.length >= 8) {
-        const s = trimmed.replace(/^[🔴🟡🟢⚠️✨🔥💎⏰💪❤️💚\s●◆■]+/, "").split(/[。！？]/)[0].trim()
+        const s = trimmed.replace(/^[🔴🟡🟢⚠️✨🔥💎⏰💪❤️💚\s●◆■]+/, "").split(/[。！？.!?]/)[0].trim()
         if (s.length >= 8) return s.slice(0, 60)
       }
     }
     return ""
   }
 
-  // 1. Pain point from 【B·痛点诊断】 — look for problem indicators
-  const sectionB = findSectionContent("痛点诊断")
+  // 1. Pain point from Section B — look for problem indicators
+  const sectionB = findSectionContent("痛点诊断", "B")
   if (sectionB) {
-    const s = bestSentence(sectionB, /受阻|压力|风险|不足|困扰|矛盾|消耗|瓶颈|失衡|反复|阻碍|挑战|隐患|波动|受制/)
+    const s = bestSentence(sectionB, /受阻|压力|风险|不足|困扰|矛盾|消耗|瓶颈|失衡|反复|阻碍|挑战|隐患|波动|受制|problem|challenge|risk|weakness|imbalanc|stagnan|conflict|stress|struggle|vulnerab|fluctuat/)
       || firstSentence(sectionB)
     if (s) insights.push(s)
   }
 
-  // 2. Strength from 【A·核心性格底色】 — look for positive traits
+  // 2. Strength from Section A — look for positive traits
   if (insights.length < 2) {
-    const sectionA = findSectionContent("核心性格底色") || findSectionContent("综合总论")
+    const sectionA = findSectionContent("核心性格底色", "A") || findSectionContent("综合总论")
     if (sectionA) {
-      const s = bestSentence(sectionA, /优势|强项|擅长|天赋|出色|突出|能量强|充盈|充沛|潜力|敏锐|直觉|领导|创造|洞察|智慧|果断|坚韧|灵活/)
+      const s = bestSentence(sectionA, /优势|强项|擅长|天赋|出色|突出|能量强|充盈|充沛|潜力|敏锐|直觉|领导|创造|洞察|智慧|果断|坚韧|灵活|strength|talent|gift|exceptional|lead|creat|insight|wisdom|resilien|flexib|potential|intuit/)
         || firstSentence(sectionA)
       if (s && !insights.includes(s)) insights.push(s)
     }
   }
 
-  // 3. Timing from 【D·近期关键提醒】 — look for actionable timing advice
+  // 3. Timing from Section D — look for actionable timing advice
   if (insights.length < 3) {
-    const sectionD = findSectionContent("近期关键提醒")
+    const sectionD = findSectionContent("近期关键提醒", "D")
     if (sectionD) {
-      const s = bestSentence(sectionD, /建议|近期|适合|机会|注意|把握|调整|行动|时机|适合|可以|值得|应当|关键|重要/)
+      const s = bestSentence(sectionD, /建议|近期|适合|机会|注意|把握|调整|行动|时机|适合|可以|值得|应当|关键|重要|suggest|opportunity|timing|action|important|attention|adjust|seize|worth|key|recent|advice/)
         || firstSentence(sectionD)
       if (s && !insights.includes(s)) insights.push(s)
     }

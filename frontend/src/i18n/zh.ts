@@ -2481,6 +2481,8 @@ export default {
   "prescription.claimed": "已加入购物车",
   "prescription.claimBtn": "领取专属处方",
   "prescription.footer": "— 专属处方 · 根据你的命盘弱点精准匹配 —",
+  "prescription.hot": "热",
+  "prescription.sold": "已售",
 
   // ─── 分析进度 ───
   "analysis.title": "命盘智镜 · 深度解析中",
