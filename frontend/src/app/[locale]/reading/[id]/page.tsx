@@ -39,7 +39,6 @@ const PaywallGate = lazy(() => import("@/components/monetization/PaywallGate").t
 const QRPaymentModal = lazy(() => import("@/components/payment/QRPaymentModal").then(m => ({ default: m.QRPaymentModal })))
 const PrescriptionCard = lazy(() => import("@/components/reading/PrescriptionCard").then(m => ({ default: m.PrescriptionCard })))
 const EnergyIDCard = lazy(() => import("@/components/reading/EnergyIDCard").then(m => ({ default: m.EnergyIDCard })))
-const FortunePrescription = lazy(() => import("@/components/reading/FortunePrescription").then(m => ({ default: m.FortunePrescription })))
 const PostAnalysisModal = lazy(() => import("@/components/reading/PostAnalysisModal").then(m => ({ default: m.PostAnalysisModal })))
 
 const WORKER_ORDER = ["bazi", "qimen", "ziwei", "astrology", "tarot", "face", "palm"] as const
@@ -154,18 +153,8 @@ function getWeakestDimension(scores: Record<string, number>): string {
   return Object.entries(scores).sort((a, b) => a[1] - b[1])[0]?.[0] ?? "wealth"
 }
 
-function getWeakestLabel(scores: Record<string, number>, t: (key: string) => string): string {
-  const dim = getWeakestDimension(scores)
-  return I18N_DIM_KEYS[dim] ? t(I18N_DIM_KEYS[dim].label) : (DIM_LABELS[dim] ?? dim)
-}
-
 function getStrongestDimension(scores: Record<string, number>): string {
   return Object.entries(scores).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "career"
-}
-
-function getStrongestLabel(scores: Record<string, number>, t: (key: string) => string): string {
-  const dim = getStrongestDimension(scores)
-  return I18N_DIM_KEYS[dim] ? t(I18N_DIM_KEYS[dim].label) : (DIM_LABELS[dim] ?? dim)
 }
 
 /** Extract a life theme from master_summary — first sentence or first 30 chars */
@@ -1175,18 +1164,7 @@ export default function ReadingPage() {
               </div>
             )}
 
-            {/* ── 8. Fortune Prescription ── */}
-            {data.recommended_products && data.recommended_products.length > 0 && (
-              <Suspense fallback={<div className="card-glass p-4 h-32 animate-pulse" />}>
-                <FortunePrescription
-                  products={data.recommended_products}
-                  weakestLabel={data.dimension_scores ? getWeakestLabel(data.dimension_scores, t) : undefined}
-                  strongestLabel={data.dimension_scores ? getStrongestLabel(data.dimension_scores, t) : undefined}
-                />
-              </Suspense>
-            )}
-
-            {/* ── 9. AI Matched Products ── */}
+            {/* ── 8. AI Matched Products ── */}
             {!isUnlocked && products.length > 0 && (
               <div className="mt-6">
                 <div className="flex items-center gap-2 mb-4">
@@ -1214,7 +1192,7 @@ export default function ReadingPage() {
               </div>
             )}
 
-            {/* ── 10. Worker Dimension Previews ── */}
+            {/* ── 9. Worker Dimension Previews ── */}
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <Compass size={16} className="text-white/30" />
