@@ -2795,6 +2795,7 @@
     "hint": "Items matched to your chart's unique energy profile",
     "subtitle": "Chart-matched · Fortune enhancement items",
     "weakEnergy": "Your energy needs a boost",
+    "strongDimension": "Strength",
     "detailedTitle": "Detailed Report",
     "detailedDesc": "Deep analysis + action plan",
     "fullTitle": "Full Report",
