@@ -1186,35 +1186,7 @@ export default function ReadingPage() {
               </Suspense>
             )}
 
-            {/* ── 9. AI Matched Products ── */}
-            {!isUnlocked && products.length > 0 && (
-              <div className="mt-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-xl">🎁</span>
-                  <div>
-                    <h3 className="font-serif text-lg font-bold text-gold">{t("reading.shop.title")}</h3>
-                    <p className="text-white/25 text-[11px]">{t("reading.shop.desc")}</p>
-                  </div>
-                </div>
-                <div className="grid sm:grid-cols-2 gap-3">
-                  {products.slice(0, 2).map(p => (
-                    <Suspense key={p.id} fallback={<div className="card-glass h-32 animate-pulse" />}>
-                      <ProductCard product={p} />
-                    </Suspense>
-                  ))}
-                </div>
-                {products.length > 2 && (
-                  <button
-                    onClick={() => setActiveTab("shop")}
-                    className="mt-3 text-gold/60 text-xs hover:text-gold transition-colors"
-                  >
-                    {t("curated.viewAll")} →
-                  </button>
-                )}
-              </div>
-            )}
-
-            {/* ── 10. Worker Dimension Previews ── */}
+            {/* ── 9. Worker Dimension Previews ── */}
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <Compass size={16} className="text-white/30" />
