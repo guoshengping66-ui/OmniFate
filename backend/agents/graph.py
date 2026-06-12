@@ -214,13 +214,17 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
     is_en = state.language == "en"
 
     def _extract_section(text: str, marker: str) -> str:
-        """Extract a complete section, stopping at the next 【X· marker."""
-        start = text.find(marker)
-        if start == -1:
+        """Extract a complete section, stopping at the next 【X· marker.
+        Uses regex for flexible matching (handles optional spaces around ·)."""
+        # Build a regex from the first character after 【 to match the section letter
+        # e.g. marker="【A·" → regex r'【A\s*·'
+        letter = marker[1] if len(marker) > 1 else marker[0]
+        start_match = _re.search(_re.escape(marker[0]) + letter + r'\s*·', text)
+        if not start_match:
             return ""
-        rest = text[start + len(marker):]
+        rest = text[start_match.end():]
         # Find next section marker
-        end_match = _re.search(r'【[A-Za-z一-鿿]+·', rest)
+        end_match = _re.search(r'[【\[]\s*[A-Za-z一-鿿]\s*·', rest)
         if end_match:
             section = rest[:end_match.start()].strip()
         else:

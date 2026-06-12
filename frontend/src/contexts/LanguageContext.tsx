@@ -43,6 +43,11 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const t = useCallback(
     (key: string, values?: Record<string, any>): any => {
       try {
+        // next-intl v4: use t.raw() for returnObjects to avoid @formatjs INVALID_MESSAGE
+        if (values?.returnObjects === true) {
+          const raw = (tFnRef.current as any).raw
+          return raw ? raw(key) : tFnRef.current(key, values)
+        }
         return values ? tFnRef.current(key, values) : tFnRef.current(key)
       } catch {
         return key

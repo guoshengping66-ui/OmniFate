@@ -1116,31 +1116,35 @@ def _format_dimension_summaries(scores: dict[str, float], language: str = "zh") 
 
 
 def _extract_key_reminder(text: str) -> str:
-    """Extract the key reminder (Section D) from the resonance LLM output."""
-    markers = ["【D·近期关键提醒】", "[D·近期关键提醒]", "D·近期关键提醒"]
-    for marker in markers:
-        idx = text.find(marker)
-        if idx != -1:
-            reminder = text[idx + len(marker):].strip()
-            next_section = reminder.find("【")
-            if next_section > 0:
-                reminder = reminder[:next_section].strip()
-            return reminder[:200]
-    return ""
+    """Extract the key reminder (Section D) from the resonance LLM output.
+    Handles both Chinese (【D·近期关键提醒】) and English (【D · Near-Term Key Alerts】),
+    RELATIONSHIP (【D·五行能量互动】), and optional spaces around the middle dot."""
+    import re as _re
+    match = _re.search(r'[【\[]D\s*·[^】\]]*[】\]]', text)
+    if not match:
+        return ""
+    start = match.end()
+    rest = text[start:].strip()
+    next_section = rest.find("【")
+    if next_section > 0:
+        rest = rest[:next_section].strip()
+    return rest[:200]
 
 
 def _extract_action_summary(text: str) -> str:
-    """Extract the action suggestions (Section E) from the resonance LLM output."""
-    markers = ["【E·行动建议速览】", "[E·行动建议速览]", "E·行动建议速览"]
-    for marker in markers:
-        idx = text.find(marker)
-        if idx != -1:
-            action = text[idx + len(marker):].strip()
-            next_section = action.find("【")
-            if next_section > 0:
-                action = action[:next_section].strip()
-            return action[:300]
-    return ""
+    """Extract the action suggestions (Section E) from the resonance LLM output.
+    Handles both Chinese (【E·行动建议速览】) and English (【E · Quick Action Tips】),
+    RELATIONSHIP (【E·相处指南】), and optional spaces around the middle dot."""
+    import re as _re
+    match = _re.search(r'[【\[]E\s*·[^】\]]*[】\]]', text)
+    if not match:
+        return ""
+    start = match.end()
+    rest = text[start:].strip()
+    next_section = rest.find("【")
+    if next_section > 0:
+        rest = rest[:next_section].strip()
+    return rest[:300]
 
 
 def _compute_confidence(state: SystemState) -> tuple[str, dict[str, int]]:

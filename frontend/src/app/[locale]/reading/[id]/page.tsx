@@ -107,53 +107,42 @@ const I18N_NAV_DIMENSIONS = [
 
 const I18N_NAV_ITEMS = [...I18N_NAV_CORE, ...I18N_NAV_DIMENSIONS]
 
-/** Parse free report sections from master_summary */
+/** Parse free report sections from master_summary.
+ *  Uses sequential marker parsing to avoid false matches when content
+ *  contains text that looks like a section marker (e.g. "C·" inside Section D). */
 function parseFreeReportSections(summary: string): {
   sectionA: string; sectionB: string; painPoints: string[]; sectionD: string;
 } {
   if (!summary) return { sectionA: "", sectionB: "", painPoints: [], sectionD: "" }
   const result = { sectionA: "", sectionB: "", painPoints: [] as string[], sectionD: "" }
 
-  // Find position right after a section marker for a given letter (A–D).
-  // Handles both Chinese (【A·核心性格底色】) and English (【A · Core Personality Blueprint】)
-  // markers, with or without spaces, brackets, or full-width brackets.
-  function findMarker(text: string, letter: string): number {
-    // Match: 【X·…】, [X·…], or bare X·… (where X = the section letter)
-    const re = new RegExp(`[【\\[]?${letter}\\s*·[^】\\]]*[】\\]]?|(?<![A-Za-z])${letter}\\s*·`, 'g')
-    const match = re.exec(text)
-    if (!match) return -1
-    return match.index + match[0].length
+  // Find all section markers sequentially — avoids false matches from content
+  const markerRe = /[【\[]([A-E])\s*·[^】\]]*[】\]]/g
+  const markers: { letter: string; end: number }[] = []
+  let m: RegExpExecArray | null
+  while ((m = markerRe.exec(summary)) !== null) {
+    markers.push({ letter: m[1], end: m.index + m[0].length })
   }
 
-  const startA = findMarker(summary, "A")
-  const startB = findMarker(summary, "B")
-  const startC = findMarker(summary, "C")
-  const startD = findMarker(summary, "D")
-
-  // Extract Section A (everything before B, C, or D markers, or before first marker)
-  if (startA > 0) {
-    const endA = [startB, startC, startD].filter(x => x > startA).sort((a, b) => a - b)[0] || summary.length
-    result.sectionA = summary.slice(startA, endA).trim()
-  } else if (startB === -1 && startC === -1 && startD === -1) {
-    // No markers found — treat entire text as Section A (legacy format)
+  if (markers.length === 0) {
+    // No markers — treat entire text as Section A (legacy format)
     result.sectionA = summary
+    return result
   }
 
-  // Extract Section B (pain points)
-  if (startB > 0) {
-    const endB = [startC, startD].filter(x => x > startB).sort((a, b) => a - b)[0] || summary.length
-    result.sectionB = summary.slice(startB, endB).trim()
-    // Extract individual pain point lines (🔴🟡🟢)
-    result.painPoints = result.sectionB
-      .split("\n")
-      .filter(line => /^[🔴🟡🟢]/.test(line.trim()))
-      .map(line => line.trim())
-  }
+  // Content before first marker (if any) is preamble
+  for (let i = 0; i < markers.length; i++) {
+    const start = markers[i].end
+    const end = i + 1 < markers.length ? markers[i + 1].end - markers[i + 1].letter.length - 2 : summary.length
+    const content = summary.slice(start, end).trim()
+    const letter = markers[i].letter
 
-  // Extract Section D (key reminder)
-  if (startD > 0) {
-    const endD = summary.length
-    result.sectionD = summary.slice(startD, endD).trim()
+    if (letter === "A") result.sectionA = content
+    else if (letter === "B") {
+      result.sectionB = content
+      result.painPoints = content.split("\n").filter(l => /^[🔴🟡🟢]/.test(l.trim())).map(l => l.trim())
+    }
+    else if (letter === "D") result.sectionD = content
   }
 
   return result
@@ -223,18 +212,28 @@ function extractQuickInsights(summary: string): string[] {
   }
 
   // Extract section content by matching marker directly in original text.
+  // Uses sequential parsing to avoid false matches (e.g. "C·" inside Section D content).
   // Works with both Chinese (【A·核心性格底色】) and English (【A · Core Personality Blueprint】)
   function findSectionContent(label: string, letter?: string): string {
-    // If a letter is provided, match any marker for that section letter (locale-agnostic)
-    // Otherwise fall back to exact label match (backward compatible)
-    const markerRegex = letter
+    // Find all section markers in order (each entry has index = start of 【, end = position after 】)
+    const allMarkers: { idx: number; end: number }[] = []
+    const markerRe = /[【\[]([A-E])\s*·[^】\]]*[】\]]/g
+    let m: RegExpExecArray | null
+    while ((m = markerRe.exec(summary)) !== null) {
+      allMarkers.push({ idx: m.index, end: m.index + m[0].length })
+    }
+
+    // Find the target marker
+    const targetRe = letter
       ? new RegExp(`[【\\[]?${letter}\\s*·[^】\\]]*[】\\]]?`)
       : new RegExp(`【[A-E]·${label}】`)
-    const match = summary.match(markerRegex)
-    if (!match) return ""
-    const start = (match.index || 0) + match[0].length
-    const nextMarker = summary.slice(start).match(/[【\\[]?[A-E]\\s*·[^】\\]]*[】\\]]?/)
-    const end = nextMarker ? start + (nextMarker.index || 0) : summary.length
+    const target = summary.match(targetRe)
+    if (!target) return ""
+
+    const start = (target.index || 0) + target[0].length
+    // Find next section marker AFTER start using the sequential list
+    const nextM = allMarkers.find(mk => mk.idx >= start)
+    const end = nextM ? nextM.idx : summary.length
     return summary.slice(start, end).trim()
   }
 
