@@ -58,7 +58,8 @@ fi
 # ── 5. 复制 static + public 到 standalone 目录 ──────────────────────────
 log "📋 复制 static 文件到 standalone..."
 rm -rf "$STANDALONE_DIR/.next/static"
-cp -r .next/static "$STANDALONE_DIR/.next/static"
+mkdir -p "$STANDALONE_DIR/.next/static"
+cp -r .next/static/* "$STANDALONE_DIR/.next/static/"
 rm -rf "$STANDALONE_DIR/public"
 cp -r public "$STANDALONE_DIR/public" 2>/dev/null || true
 
@@ -68,6 +69,12 @@ if [ "$CHUNK_COUNT" -lt 10 ]; then
   err "验证失败: standalone 目录只有 $CHUNK_COUNT 个 chunk 文件（预期 >10）"
 fi
 log "✅ 验证通过: standalone 目录有 $CHUNK_COUNT 个 chunk 文件"
+
+PAGE_CHUNK=$(find "$STANDALONE_DIR/.next/static/chunks/app/[locale]" -maxdepth 1 -name "page-*.js" 2>/dev/null | head -1)
+if [ -z "$PAGE_CHUNK" ]; then
+  err "验证失败: standalone 目录缺少首页 page chunk!"
+fi
+log "✅ 首页 page chunk 验证通过: $(basename $PAGE_CHUNK)"
 
 WEBPACK_CHUNK=$(find "$STANDALONE_DIR/.next/static/chunks" -name "webpack-*.js" 2>/dev/null | head -1)
 if [ -z "$WEBPACK_CHUNK" ]; then

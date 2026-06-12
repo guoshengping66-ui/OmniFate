@@ -158,9 +158,11 @@ jobs:
 
               # ⚠️ 关键: 复制 static 和 public 到 standalone 目录
               # standalone 构建可能不包含完整的 .next/static，必须手动同步
+              # ⚠️ 必须先 rm -rf 再 mkdir + cp，否则 cp -r 会合并而非替换
               echo "📋 复制静态文件到 standalone 目录..."
               sudo rm -rf "$STANDALONE_DIR/.next/static" 2>/dev/null || true
-              sudo cp -r .next/static "$STANDALONE_DIR/.next/static"
+              sudo mkdir -p "$STANDALONE_DIR/.next/static"
+              sudo cp -r .next/static/* "$STANDALONE_DIR/.next/static/"
               sudo rm -rf "$STANDALONE_DIR/public" 2>/dev/null || true
               sudo cp -r public "$STANDALONE_DIR/public" 2>/dev/null || true
               sudo chown -R $(whoami) /opt/OmniFate/frontend 2>/dev/null || true
@@ -183,7 +185,15 @@ jobs:
               fi
               echo "✅ 验证通过: standalone 目录有 $CHUNK_COUNT 个 chunk 文件"
 
-              # 🔑 关键验证: webpack chunk 必须存在，否则整个 JS 无法加载
+              # 🔑 验证: 首页 page chunk 必须存在，否则首页白屏
+              PAGE_CHUNK=$(find "$STANDALONE_DIR/.next/static/chunks/app/[locale]" -maxdepth 1 -name "page-*.js" 2>/dev/null | head -1)
+              if [ -z "$PAGE_CHUNK" ]; then
+                echo "❌ 验证失败: standalone 目录缺少首页 page chunk!"
+                exit 1
+              fi
+              echo "✅ 首页 page chunk 验证通过: $(basename $PAGE_CHUNK)"
+
+              # 🔑 验证: webpack chunk 必须存在，否则整个 JS 无法加载
               WEBPACK_CHUNK=$(find "$STANDALONE_DIR/.next/static/chunks" -name "webpack-*.js" 2>/dev/null | head -1)
               if [ -z "$WEBPACK_CHUNK" ]; then
                 echo "❌ 验证失败: standalone 目录缺少 webpack chunk!"
