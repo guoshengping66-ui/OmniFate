@@ -58,6 +58,10 @@ const BACKEND_URL = isLocalhost
   ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8002")
   : PROD_BACKEND
 
+// CSRF protection: all state-changing requests must include this header.
+// Backend verifies this header to prevent CSRF attacks.
+const CSRF_HEADER = { "X-Requested-With": "XMLHttpRequest" }
+
 // Main API client — routes through Next.js proxy in production
 export const api = axios.create({
   baseURL: isLocalhost ? BACKEND_URL : "/api/proxy",
@@ -70,6 +74,11 @@ export const api = axios.create({
 // (e.g. listProducts(..., "en") must not be overridden by localStorage).
 const addLangInterceptor = (client: typeof api) => {
   client.interceptors.request.use((config) => {
+    // Add CSRF header to all state-changing requests
+    const method = (config.method || "").toLowerCase()
+    if (["post", "put", "patch", "delete"].includes(method)) {
+      config.headers = { ...config.headers, ...CSRF_HEADER }
+    }
     try {
       if (!config.params?.lang) {
         const lang = localStorage.getItem("destiny_mirror_lang") || (navigator.language.startsWith("zh") ? "zh" : "en")
@@ -117,6 +126,15 @@ export const apiDirect = axios.create({
   withCredentials: true,
 })
 
+// Add CSRF header interceptor to apiDirect
+apiDirect.interceptors.request.use((config) => {
+  const method = (config.method || "").toLowerCase()
+  if (["post", "put", "patch", "delete"].includes(method)) {
+    config.headers = { ...config.headers, ...CSRF_HEADER }
+  }
+  return config
+})
+
 // Apply same 429 cooldown to apiDirect (skip critical paths)
 if (isBrowser) {
   apiDirect.interceptors.request.use((config) => {
@@ -148,8 +166,13 @@ export const apiAuth = axios.create({
   withCredentials: true,
 })
 
-// Pass locale to backend so error messages are translated
+// Pass locale to backend so error messages are translated + add CSRF header
 apiAuth.interceptors.request.use((config) => {
+  // Add CSRF header to all state-changing requests
+  const method = (config.method || "").toLowerCase()
+  if (["post", "put", "patch", "delete"].includes(method)) {
+    config.headers = { ...config.headers, ...CSRF_HEADER }
+  }
   try {
     const lang = localStorage.getItem("destiny_mirror_lang") || (navigator.language.startsWith("zh") ? "zh" : "en")
     config.params = { ...config.params, lang }

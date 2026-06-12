@@ -59,7 +59,7 @@ app.add_middleware(
     allow_origins=settings.ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-    allow_headers=["Authorization", "Content-Type", "Accept"],
+    allow_headers=["Authorization", "Content-Type", "Accept", "X-Requested-With"],
 )
 
 # GZip compression — reduces response size ~3-5x (e.g. 5KB → 1-2KB)
@@ -74,6 +74,46 @@ async def security_headers(request: Request, call_next):
     response.headers["X-XSS-Protection"] = "1; mode=block"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     return response
+
+
+# ── CSRF Protection Middleware ────────────────────────────────────────────────
+# Require X-Requested-With header on state-changing requests (POST/PUT/DELETE/PATCH).
+# This prevents CSRF attacks because:
+# 1. HTML forms cannot set custom headers (no preflight)
+# 2. CORS blocks cross-origin JS from sending this header without explicit allowlist
+# Exemptions: payment callbacks (WeChat/Alipay), webhooks, SSE — these use other auth.
+CSRF_EXEMPT_PATHS = [
+    "/api/payments/wechat/notify",  # WeChat callback (XML signature verified)
+    "/api/payments/alipay/notify",  # Alipay callback (signature verified)
+    "/api/webhooks/",               # Webhook endpoints (verify signature)
+    "/api/cron/",                   # Cron jobs (secret key verified)
+]
+
+
+@app.middleware("http")
+async def csrf_protection(request: Request, call_next):
+    # Only check state-changing methods
+    if request.method in ("POST", "PUT", "DELETE", "PATCH"):
+        path = request.url.path
+
+        # Skip exempt paths (they use signature verification instead)
+        if any(path.startswith(exempt) for exempt in CSRF_EXEMPT_PATHS):
+            return await call_next(request)
+
+        # Skip CORS preflight (OPTIONS)
+        if request.method == "OPTIONS":
+            return await call_next(request)
+
+        # Check for X-Requested-With header (must be "XMLHttpRequest" or "fetch")
+        x_requested_with = request.headers.get("x-requested-with", "")
+        if x_requested_with not in ("XMLHttpRequest", "fetch", "nextjs-action"):
+            from fastapi.responses import JSONResponse
+            return JSONResponse(
+                status_code=403,
+                content={"detail": "CSRF validation failed: missing X-Requested-With header"},
+            )
+
+    return await call_next(request)
 
 
 @app.exception_handler(Exception)
