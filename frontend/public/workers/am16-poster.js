@@ -26,7 +26,7 @@ function wrapText(ctx, text, x, y, maxWidth, lineHeight, maxLines) {
 }
 
 self.onmessage = function (e) {
-  const { code, emoji, title, quote, quoteExplain, diagnosis, advice, inviteCode, poster } = e.data
+  const { code, emoji, title, quote, quoteExplain, diagnosis, advice, inviteCode, poster, fateLevel, destinyPower } = e.data
 
   let canvas
   try {
@@ -74,44 +74,57 @@ self.onmessage = function (e) {
   // Personality title
   ctx.font = "bold 36px sans-serif"
   ctx.fillStyle = "rgba(255,255,255,0.9)"
-  ctx.fillText(title, 375, 360)
+  ctx.fillText(title, 375, 340)
 
   // Emoji
   ctx.font = "80px serif"
-  ctx.fillText(emoji, 375, 470)
+  ctx.fillText(emoji, 375, 440)
+
+  // Fate Level + Power
+  if (fateLevel && destinyPower) {
+    ctx.font = "bold 28px sans-serif"
+    ctx.fillStyle = "#C9A84C"
+    ctx.fillText(`${fateLevel.emoji} ${poster.fateLevel}: ${fateLevel.name}`, 375, 500)
+    ctx.font = "24px sans-serif"
+    ctx.fillStyle = "rgba(255,255,255,0.6)"
+    ctx.fillText(`${poster.power}: ${destinyPower.total}`, 375, 535)
+    ctx.font = "20px sans-serif"
+    ctx.fillStyle = "rgba(255,255,255,0.5)"
+    ctx.fillText(`${poster.beat.replace("{percent}", fateLevel.beatPercent)}`, 375, 565)
+  }
 
   // Quote
   ctx.fillStyle = "rgba(201,168,76,0.8)"
   ctx.font = "italic 28px serif"
-  ctx.fillText(`"${quote}"`, 375, 560)
+  ctx.fillText(`"${quote}"`, 375, 620)
 
   // Quote explain
   ctx.fillStyle = "rgba(255,255,255,0.5)"
   ctx.font = "22px sans-serif"
-  ctx.fillText(quoteExplain, 375, 600)
+  ctx.fillText(quoteExplain, 375, 660)
 
   // Divider
   ctx.strokeStyle = "rgba(201,168,76,0.2)"
   ctx.lineWidth = 1
   ctx.beginPath()
-  ctx.moveTo(150, 640)
-  ctx.lineTo(600, 640)
+  ctx.moveTo(150, 700)
+  ctx.lineTo(600, 700)
   ctx.stroke()
 
   // Diagnosis header
   ctx.fillStyle = "rgba(255,255,255,0.7)"
   ctx.font = "bold 24px sans-serif"
-  ctx.fillText(poster.diagnosis, 375, 700)
+  ctx.fillText(poster.diagnosis, 375, 750)
 
   // Diagnosis body (max 6 lines)
   ctx.font = "20px sans-serif"
   ctx.fillStyle = "rgba(255,255,255,0.5)"
-  const diagEnd = wrapText(ctx, diagnosis, 375, 740, 580, 28, 6)
+  const diagEnd = wrapText(ctx, diagnosis, 375, 790, 580, 28, 6)
 
   // Guide header
   ctx.fillStyle = "rgba(255,255,255,0.7)"
   ctx.font = "bold 24px sans-serif"
-  const guideY = Math.max(diagEnd + 40, 920)
+  const guideY = Math.max(diagEnd + 40, 980)
   ctx.fillText(poster.guide, 375, guideY)
 
   // Guide body (max 5 lines)
@@ -122,12 +135,12 @@ self.onmessage = function (e) {
   // CTA
   ctx.fillStyle = "#C9A84C"
   ctx.font = "bold 28px sans-serif"
-  ctx.fillText(poster.scan, 375, 1130)
+  ctx.fillText(poster.scan, 375, 1170)
 
   // Invite code
   ctx.fillStyle = "rgba(255,255,255,0.3)"
   ctx.font = "18px sans-serif"
-  ctx.fillText(`${poster.stardust}${inviteCode}`, 375, 1180)
+  ctx.fillText(`${poster.stardust}${inviteCode}`, 375, 1220)
 
   // Brand
   ctx.font = "16px sans-serif"

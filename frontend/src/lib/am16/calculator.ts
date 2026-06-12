@@ -8,6 +8,8 @@ import {
   DIMENSIONS,
   type AM16Personality,
 } from "./constants"
+import { getFateLevel, type FateLevel } from "./fateLevel"
+import { calculateDestinyPower, type DestinyPower } from "./destinyPower"
 
 /** 每个维度两极的原始分数 */
 export interface DimensionScores {
@@ -30,6 +32,10 @@ export interface AM16Result {
   code: string
   /** 人格定义 */
   personality: AM16Personality
+  /** 命格等级 */
+  fateLevel: FateLevel
+  /** 命运战力 */
+  destinyPower: DestinyPower
 }
 
 /**
@@ -86,10 +92,18 @@ export function calculateAM16(answers: number[]): AM16Result {
   // 5. 查表获取人格
   const personality = PERSONALITIES[code] ?? PERSONALITIES["DXIE"] // fallback
 
+  // 6. 计算命格等级
+  const fateLevel = getFateLevel(code)
+
+  // 7. 计算命运战力
+  const destinyPower = calculateDestinyPower(code, radarScores)
+
   return {
     radarScores,
     rawScores: raw,
     code,
     personality,
+    fateLevel,
+    destinyPower,
   }
 }

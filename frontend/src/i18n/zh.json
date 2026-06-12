@@ -139,14 +139,24 @@
       "title": "高维冥想隐世咸鱼"
     },
     "poster": {
-      "brand": "AlphaMirror · AI 天命解读",
+      "brand": "KhanFate · AI 天命解读",
       "defaultInvite": "DESTINY",
       "diagnosis": "🧠 精神状态诊断",
       "guide": "🧭 改运指南",
       "scan": "🔮 扫码测试你的天命",
       "stardust": "免费 20 星尘 · 邀请码：",
-      "title": "✦ AM16 天命编码 ✦"
+      "title": "✦ AM16 天命编码 ✦",
+      "fateLevel": "命格等级",
+      "power": "命运战力",
+      "beat": "击败了{percent}%的命格"
     },
+    "fateLevel": "命格等级",
+    "beatPercent": "击败了{percent}%的命格",
+    "destinyPower": "命运战力",
+    "strongest": "最强领域",
+    "weakest": "当前短板",
+    "lockedTitle": "解锁完整命运档案",
+    "unlockFull": "解锁完整命运档案",
     "advice": "改运指南",
     "aligningCoords": "校准四维坐标",
     "analyzing": "正在解析你的天命编码...",

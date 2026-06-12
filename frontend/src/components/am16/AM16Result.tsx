@@ -1,12 +1,13 @@
 "use client"
 import { useEffect, useState } from "react"
-import { Share2, Download, Check, Copy, X, Sparkles, Heart, Skull, RefreshCw, Users, Gift, Wand2 } from "lucide-react"
+import { Share2, Download, Check, Copy, X, Sparkles, Heart, Skull, RefreshCw, Users, Gift, Wand2, Lock, TrendingUp, TrendingDown, Zap, Crown, Shield, Swords, HeartPulse, Brain } from "lucide-react"
 import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { PERSONALITIES, DIMENSIONS } from "@/lib/am16/constants"
 import { calculateAM16 } from "@/lib/am16/calculator"
 import { DIMENSION_ORDER, DIMENSIONS_MAP, getPoleLabel } from "@/lib/am16/dimensions"
+import { POWER_DIMENSIONS } from "@/lib/am16/destinyPower"
 import { Link } from "@/i18n/navigation"
 
 // ── 高亮发疯文案：将 **关键词** 包裹为金色高亮 ──
@@ -54,7 +55,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
   const [copied, setCopied] = useState(false)
   const [copiedReferral, setCopiedReferral] = useState(false)
   const result = calculateAM16(answers)
-  const { personality: rawPersonality, radarScores, code } = result
+  const { personality: rawPersonality, radarScores, code, fateLevel, destinyPower } = result
   const personality = resolvePersonality(rawPersonality, t)
 
   const compatNames = rawPersonality.compatible.map(c => {
@@ -120,6 +121,14 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
       diagnosis: personality.diagnosis,
       advice: personality.advice,
       inviteCode,
+      fateLevel: {
+        emoji: fateLevel.emoji,
+        name: locale === "zh" ? fateLevel.name : fateLevel.nameEn,
+        beatPercent: fateLevel.beatPercent,
+      },
+      destinyPower: {
+        total: destinyPower.total,
+      },
       poster: {
         title: t("am16.poster.title"),
         diagnosis: t("am16.poster.diagnosis"),
@@ -127,6 +136,9 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
         scan: t("am16.poster.scan"),
         stardust: t("am16.poster.stardust"),
         brand: t("am16.poster.brand"),
+        fateLevel: t("am16.fateLevel"),
+        power: t("am16.destinyPower"),
+        beat: t("am16.poster.beat"),
       },
     }
 
@@ -186,43 +198,53 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
         ctx.font = "bold 120px sans-serif"
         ctx.shadowColor = "rgba(201,168,76,0.6)"
         ctx.shadowBlur = 30
-        ctx.fillText(code, 375, 280)
+        ctx.fillText(code, 375, 260)
         ctx.shadowBlur = 0
         ctx.font = "bold 36px sans-serif"
         ctx.fillStyle = "rgba(255,255,255,0.9)"
-        ctx.fillText(personality.title, 375, 360)
+        ctx.fillText(personality.title, 375, 340)
         ctx.font = "80px serif"
-        ctx.fillText(personality.emoji, 375, 470)
+        ctx.fillText(personality.emoji, 375, 430)
+        // Fate Level + Power
+        ctx.font = "bold 28px sans-serif"
+        ctx.fillStyle = "#C9A84C"
+        ctx.fillText(`${fateLevel.emoji} ${t("am16.fateLevel")}: ${locale === "zh" ? fateLevel.name : fateLevel.nameEn}`, 375, 490)
+        ctx.font = "24px sans-serif"
+        ctx.fillStyle = "rgba(255,255,255,0.6)"
+        ctx.fillText(`${t("am16.destinyPower")}: ${destinyPower.total}`, 375, 525)
+        ctx.font = "20px sans-serif"
+        ctx.fillStyle = "rgba(255,255,255,0.5)"
+        ctx.fillText(t("am16.beatPercent", { percent: fateLevel.beatPercent }), 375, 555)
         ctx.fillStyle = "rgba(201,168,76,0.8)"
         ctx.font = "italic 28px serif"
-        ctx.fillText(`"${personality.quote}"`, 375, 560)
+        ctx.fillText(`"${personality.quote}"`, 375, 610)
         ctx.fillStyle = "rgba(255,255,255,0.5)"
         ctx.font = "22px sans-serif"
-        ctx.fillText(personality.quoteExplain, 375, 600)
+        ctx.fillText(personality.quoteExplain, 375, 650)
         ctx.strokeStyle = "rgba(201,168,76,0.2)"
         ctx.lineWidth = 1
         ctx.beginPath()
-        ctx.moveTo(150, 640)
-        ctx.lineTo(600, 640)
+        ctx.moveTo(150, 690)
+        ctx.lineTo(600, 690)
         ctx.stroke()
         ctx.fillStyle = "rgba(255,255,255,0.7)"
         ctx.font = "bold 24px sans-serif"
-        ctx.fillText(t("am16.poster.diagnosis"), 375, 700)
+        ctx.fillText(t("am16.poster.diagnosis"), 375, 740)
         ctx.font = "20px sans-serif"
         ctx.fillStyle = "rgba(255,255,255,0.5)"
-        wrapText(ctx, personality.diagnosis, 375, 740, 580, 28)
+        wrapText(ctx, personality.diagnosis, 375, 780, 580, 28)
         ctx.fillStyle = "rgba(255,255,255,0.7)"
         ctx.font = "bold 24px sans-serif"
-        ctx.fillText(t("am16.poster.guide"), 375, 920)
+        ctx.fillText(t("am16.poster.guide"), 375, 960)
         ctx.font = "20px sans-serif"
         ctx.fillStyle = "rgba(255,255,255,0.5)"
-        wrapText(ctx, personality.advice, 375, 960, 580, 28)
+        wrapText(ctx, personality.advice, 375, 1000, 580, 28)
         ctx.fillStyle = "#C9A84C"
         ctx.font = "bold 28px sans-serif"
-        ctx.fillText(t("am16.poster.scan"), 375, 1130)
+        ctx.fillText(t("am16.poster.scan"), 375, 1170)
         ctx.fillStyle = "rgba(255,255,255,0.3)"
         ctx.font = "18px sans-serif"
-        ctx.fillText(`${t("am16.poster.stardust")}${inviteCode}`, 375, 1180)
+        ctx.fillText(`${t("am16.poster.stardust")}${inviteCode}`, 375, 1220)
         ctx.font = "16px sans-serif"
         ctx.fillStyle = "rgba(255,255,255,0.2)"
         ctx.fillText(t("am16.poster.brand"), 375, 1300)
@@ -289,6 +311,78 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
           >
             {personality.emoji} {personality.title}
           </p>
+        </div>
+      </div>
+
+      {/* ═══ 命格等级 ═══ */}
+      <div
+        className={`card-glass p-5 text-center anim-slide-up bg-gradient-to-b ${fateLevel.glowColor}`}
+        style={{ animationDelay: "0.35s" }}
+      >
+        <div className="flex items-center justify-center gap-3">
+          <span className="text-3xl">{fateLevel.emoji}</span>
+          <div>
+            <p className="text-white/40 text-xs uppercase tracking-wider">{t("am16.fateLevel")}</p>
+            <p className={`text-xl font-serif font-bold ${fateLevel.color}`}>
+              {fateLevel.name} <span className="text-sm font-normal text-white/50">{fateLevel.nameEn}</span>
+            </p>
+          </div>
+        </div>
+        <p className="text-gold/80 text-sm mt-2">
+          {t("am16.beatPercent", { percent: fateLevel.beatPercent })}
+        </p>
+      </div>
+
+      {/* ═══ 命运战力 ═══ */}
+      <div
+        className="card-glass p-6 anim-slide-up"
+        style={{ animationDelay: "0.4s" }}
+      >
+        <div className="text-center mb-4">
+          <p className="text-gold/50 text-xs uppercase tracking-wider">{t("am16.destinyPower")}</p>
+          <p className="text-4xl font-serif font-bold text-gold mt-1">{destinyPower.total}</p>
+        </div>
+
+        {/* 最强 & 最短 */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-3 text-center">
+            <div className="flex items-center justify-center gap-1 text-emerald-400 text-xs mb-1">
+              <TrendingUp size={12} />
+              {t("am16.strongest")}
+            </div>
+            <p className="text-white/80 text-sm font-medium">{destinyPower.strongest.labelCn} <span className="text-emerald-400">{destinyPower.strongest.rank}</span></p>
+          </div>
+          <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-3 text-center">
+            <div className="flex items-center justify-center gap-1 text-red-400 text-xs mb-1">
+              <TrendingDown size={12} />
+              {t("am16.weakest")}
+            </div>
+            <p className="text-white/80 text-sm font-medium">{destinyPower.weakest.labelCn} <span className="text-red-400">{destinyPower.weakest.rank}</span></p>
+          </div>
+        </div>
+
+        {/* 五维战力条 */}
+        <div className="space-y-2.5">
+          {POWER_DIMENSIONS.map((dim) => {
+            const dimData = destinyPower[dim.key as keyof typeof destinyPower]
+            if (!dimData || typeof dimData !== "object" || !("score" in dimData)) return null
+            const score = dimData.score
+            const rank = dimData.rank
+            const percent = Math.round((score / 1000) * 100)
+            return (
+              <div key={dim.key} className="flex items-center gap-3">
+                <span className="text-sm w-6">{dim.icon}</span>
+                <span className="text-white/60 text-xs w-8">{dim.labelCn}</span>
+                <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-gold/60 to-gold transition-all duration-1000"
+                    style={{ width: `${percent}%` }}
+                  />
+                </div>
+                <span className="text-gold text-xs font-mono w-8 text-right">{rank}</span>
+              </div>
+            )
+          })}
         </div>
       </div>
 
@@ -444,41 +538,46 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
         </div>
       </div>
 
-      {/* ═══ AI 深度解读 CTA — 流光 + 脉冲 ═══ */}
+      {/* ═══ 解锁完整命运档案 — 锁定模块 ═══ */}
       <div
-        className="relative rounded-2xl overflow-hidden anim-slide-up"
+        className="card-glass p-6 anim-slide-up"
         style={{ animationDelay: "1.0s" }}
       >
-        {/* 流光边框动画 */}
-        <div className="absolute inset-0 rounded-2xl p-[1px]">
-          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-gold/0 via-gold/40 to-gold/0 animate-[shimmer_3s_ease-in-out_infinite]" />
-        </div>
-
-        <div className="relative card-glass-elevated p-6 m-[1px] rounded-2xl">
-          <div className="text-center mb-4">
-            <div className="inline-flex items-center gap-2 text-gold/70 text-xs mb-2">
-              <Wand2 size={14} />
-              <span>{t("am16.ctaTitle")}</span>
-            </div>
-            <p className="text-white/60 text-sm leading-relaxed mb-3">
-              {t("am16.ctaDesc")}
-            </p>
-            <p className="text-white/40 text-xs">
-              {t("am16.ctaFull").replace("{cost}", t("am16.ctaCost"))}
-            </p>
+        <div className="text-center mb-4">
+          <div className="inline-flex items-center gap-2 text-gold/70 text-xs mb-2">
+            <Lock size={14} />
+            <span>{t("am16.lockedTitle")}</span>
           </div>
-
-          <Link href="/reading/new" className="block relative group">
-            <button
-              className="w-full btn-gold text-sm flex items-center justify-center gap-2 relative z-10 hover:scale-[1.03] active:scale-[0.97] transition-transform"
-            >
-              🔮 {t("am16.ctaAction")}
-              <span className="text-xs opacity-70">· 100 ✨</span>
-            </button>
-            {/* 按钮呼吸光环 */}
-            <div className="absolute -inset-1 rounded-xl bg-gold/10 animate-[pulse_2s_ease-in-out_infinite] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />
-          </Link>
         </div>
+
+        <div className="grid grid-cols-2 gap-2.5 mb-5">
+          {[
+            { icon: "shadow", labelCn: "隐藏人格阴影", labelEn: "Shadow Personality" },
+            { icon: "wealth", labelCn: "财富天赋", labelEn: "Wealth Talent" },
+            { icon: "romance", labelCn: "感情弱点", labelEn: "Romance Weakness" },
+            { icon: "noble", labelCn: "贵人类型", labelEn: "Noble Person Type" },
+            { icon: "fortune", labelCn: "2026命运副本", labelEn: "2026 Destiny Instance" },
+            { icon: "roadmap", labelCn: "逆命路线图", labelEn: "Rebel Roadmap" },
+          ].map((mod) => (
+            <div
+              key={mod.icon}
+              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] opacity-70"
+            >
+              <Lock size={12} className="text-white/30 shrink-0" />
+              <span className="text-white/50 text-xs">{locale === "zh" ? mod.labelCn : mod.labelEn}</span>
+            </div>
+          ))}
+        </div>
+
+        <Link href="/reading/new" className="block relative group">
+          <button
+            className="w-full btn-gold text-sm flex items-center justify-center gap-2 relative z-10 hover:scale-[1.03] active:scale-[0.97] transition-transform"
+          >
+            🔮 {t("am16.unlockFull")}
+            <span className="text-xs opacity-70">· 100 ✨</span>
+          </button>
+          <div className="absolute -inset-1 rounded-xl bg-gold/10 animate-[pulse_2s_ease-in-out_infinite] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />
+        </Link>
       </div>
 
       {/* ═══ 操作按钮 — 保存长图提权 ═══ */}

@@ -139,14 +139,24 @@
       "title": "The Transcendent Lying-Flat Hermit"
     },
     "poster": {
-      "brand": "Destiny Mirror · Ancient Wisdom, Modern Insight",
+      "brand": "KhanFate · Ancient Wisdom, Modern Insight",
       "defaultInvite": "DESTINY",
       "diagnosis": "🧠 Mental State Diagnosis",
       "guide": "🧭 Fortune Guide",
       "scan": "🔮 Scan to try your destiny",
       "stardust": "Free 20 stardust · Code: ",
-      "title": "✦ AM16 Destiny Code ✦"
+      "title": "✦ AM16 Destiny Code ✦",
+      "fateLevel": "Fate Level",
+      "power": "Destiny Power",
+      "beat": "Beat {percent}% of all fates"
     },
+    "fateLevel": "Fate Level",
+    "beatPercent": "Beat {percent}% of all fates",
+    "destinyPower": "Destiny Power",
+    "strongest": "Strongest",
+    "weakest": "Weakest",
+    "lockedTitle": "Unlock Full Destiny Profile",
+    "unlockFull": "Unlock Full Destiny Profile",
     "advice": "Fortune Guide",
     "aligningCoords": "Reading Your Four Dimensions",
     "analyzing": "Reading your energy pattern...",
