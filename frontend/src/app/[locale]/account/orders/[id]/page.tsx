@@ -14,12 +14,25 @@ import {
   getTrackingInfo, type OrderDetail, type TrackingInfo,
 } from "@/lib/api"
 
-const STATUS_STEPS = [
+// Digital/membership orders: no shipping, just pending → paid
+const DIGITAL_STATUS_STEPS = [
+  { key: "pending", icon: Clock, zh: "待付款", en: "Pending" },
+  { key: "paid", icon: CheckCircle, zh: "已完成", en: "Completed" },
+]
+
+// Physical product orders: full shipping flow
+const SHIPPING_STATUS_STEPS = [
   { key: "pending", icon: Clock, zh: "待付款", en: "Pending" },
   { key: "paid", icon: Package, zh: "已付款", en: "Paid" },
   { key: "shipped", icon: Truck, zh: "已发货", en: "Shipped" },
   { key: "delivered", icon: CheckCircle, zh: "已收货", en: "Delivered" },
 ]
+
+const DIGITAL_ITEM_TYPES = new Set([
+  "founder_lifetime", "premium_monthly", "premium_yearly",
+  "onetime_unlock", "unlock_report", "report_unlock",
+  "report_unlock_cny", "unlock_report_cny",
+])
 
 const STATUS_COLORS: Record<string, string> = {
   pending: "text-yellow-400",
@@ -131,7 +144,14 @@ export default function OrderDetailPage() {
     )
   }
 
-  const currentStepIndex = STATUS_STEPS.findIndex(s => s.key === order.status)
+  // Determine if this is a digital/membership order (no shipping)
+  const isDigitalOrder = Boolean(
+    order.item_type && DIGITAL_ITEM_TYPES.has(order.item_type)
+  )
+  const statusSteps = isDigitalOrder ? DIGITAL_STATUS_STEPS : SHIPPING_STATUS_STEPS
+  // For digital orders, "paid" means completed
+  const statusKey = (isDigitalOrder && order.status === "paid") ? "paid" : order.status
+  const currentStepIndex = statusSteps.findIndex(s => s.key === statusKey)
   const isCancelled = order.status === "cancelled" || order.status === "refunded"
 
   return (
@@ -158,7 +178,7 @@ export default function OrderDetailPage() {
           {/* Status Timeline */}
           {!isCancelled && (
             <div className="flex items-center justify-between mt-6">
-              {STATUS_STEPS.map((step, i) => {
+              {statusSteps.map((step, i) => {
                 const isActive = i <= currentStepIndex
                 const Icon = step.icon
                 return (
@@ -242,8 +262,8 @@ export default function OrderDetailPage() {
           </div>
         </div>
 
-        {/* Shipping Address */}
-        {order.shipping_address && (
+        {/* Shipping Address — only for physical product orders */}
+        {!isDigitalOrder && order.shipping_address && (
           <div className="card-glass p-6 mb-4">
             <div className="flex items-center gap-2 mb-3">
               <MapPin size={14} className="text-gold" />
@@ -263,8 +283,8 @@ export default function OrderDetailPage() {
           </div>
         )}
 
-        {/* Tracking Info */}
-        {tracking && (tracking.tracking_number || tracking.trajectory.length > 0) && (
+        {/* Tracking Info — only for physical product orders */}
+        {!isDigitalOrder && tracking && (tracking.tracking_number || tracking.trajectory.length > 0) && (
           <div className="card-glass p-6 mb-4">
             <div className="flex items-center gap-2 mb-3">
               <Truck size={14} className="text-gold" />
@@ -418,7 +438,7 @@ export default function OrderDetailPage() {
               )}
             </>
           )}
-          {order.status === "paid" && !showRefundForm && (
+          {order.status === "paid" && !isDigitalOrder && !showRefundForm && (
             <button
               onClick={() => setShowRefundForm(true)}
               disabled={actionLoading}
