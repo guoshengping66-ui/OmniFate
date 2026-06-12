@@ -195,6 +195,11 @@ function extractLifeTheme(summary: string): string {
   return ""
 }
 
+// Keyword patterns for matching insights (Chinese + English)
+const PAIN_KEYWORDS = /受阻|压力|风险|不足|困扰|矛盾|消耗|瓶颈|失衡|反复|阻碍|挑战|隐患|波动|受制|problem|challenge|risk|weakness|imbalanc|stagnan|conflict|stress|struggle|vulnerab|fluctuat/
+const STRENGTH_KEYWORDS = /优势|强项|擅长|天赋|出色|突出|能量强|充盈|充沛|潜力|敏锐|直觉|领导|创造|洞察|智慧|果断|坚韧|灵活|strength|talent|gift|exceptional|lead|creat|insight|wisdom|resilien|flexib|potential|intuit/
+const TIMING_KEYWORDS = /建议|近期|适合|机会|注意|把握|调整|行动|时机|适合|可以|值得|应当|关键|重要|suggest|opportunity|timing|action|important|attention|adjust|seize|worth|key|recent|advice/
+
 /** Extract 3 key insights from master_summary using section markers */
 function extractQuickInsights(summary: string): string[] {
   if (!summary) return []
@@ -250,7 +255,7 @@ function extractQuickInsights(summary: string): string[] {
   // 1. Pain point from Section B — look for problem indicators
   const sectionB = findSectionContent("痛点诊断", "B")
   if (sectionB) {
-    const s = bestSentence(sectionB, /受阻|压力|风险|不足|困扰|矛盾|消耗|瓶颈|失衡|反复|阻碍|挑战|隐患|波动|受制|problem|challenge|risk|weakness|imbalanc|stagnan|conflict|stress|struggle|vulnerab|fluctuat/)
+    const s = bestSentence(sectionB, PAIN_KEYWORDS)
       || firstSentence(sectionB)
     if (s) insights.push(s)
   }
@@ -259,7 +264,7 @@ function extractQuickInsights(summary: string): string[] {
   if (insights.length < 2) {
     const sectionA = findSectionContent("核心性格底色", "A") || findSectionContent("综合总论")
     if (sectionA) {
-      const s = bestSentence(sectionA, /优势|强项|擅长|天赋|出色|突出|能量强|充盈|充沛|潜力|敏锐|直觉|领导|创造|洞察|智慧|果断|坚韧|灵活|strength|talent|gift|exceptional|lead|creat|insight|wisdom|resilien|flexib|potential|intuit/)
+      const s = bestSentence(sectionA, STRENGTH_KEYWORDS)
         || firstSentence(sectionA)
       if (s && !insights.includes(s)) insights.push(s)
     }
@@ -269,7 +274,7 @@ function extractQuickInsights(summary: string): string[] {
   if (insights.length < 3) {
     const sectionD = findSectionContent("近期关键提醒", "D")
     if (sectionD) {
-      const s = bestSentence(sectionD, /建议|近期|适合|机会|注意|把握|调整|行动|时机|适合|可以|值得|应当|关键|重要|suggest|opportunity|timing|action|important|attention|adjust|seize|worth|key|recent|advice/)
+      const s = bestSentence(sectionD, TIMING_KEYWORDS)
         || firstSentence(sectionD)
       if (s && !insights.includes(s)) insights.push(s)
     }

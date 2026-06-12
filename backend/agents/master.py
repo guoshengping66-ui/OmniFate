@@ -782,16 +782,11 @@ async def answer_with_expert(question: str, agent_id: str, state: SystemState) -
     history_text = ""
     recent = state.chat_history[-7:-1]  # exclude current question
     if recent:
-        if is_en:
-            history_text = "\n".join(
-                f"{'User' if m.role == 'user' else 'Expert'}: {m.content[:200]}"
-                for m in recent
-            )
-        else:
-            history_text = "\n".join(
-                f"{'用户' if m.role == 'user' else '专家'}: {m.content[:200]}"
-                for m in recent
-            )
+        labels = ("User", "Expert") if is_en else ("用户", "专家")
+        history_text = "\n".join(
+            f"{labels[0] if m.role == 'user' else labels[1]}: {m.content[:200]}"
+            for m in recent
+        )
 
     if is_en:
         system = (
