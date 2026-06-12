@@ -83,7 +83,7 @@ async def submit_contact(req: ContactRequest, request: Request):
     </div>
     """
 
-    to_email = settings.SMTP_FROM or "support@khanfate.com"
+    to_email = settings.SMTP_FROM or "guoshengping66@gmail.com"
     ok = _send_email(to_email, f"[命盘智镜] 联系表单 - {subject_label} - {req.name}", email_html)
 
     if not ok:
@@ -133,7 +133,7 @@ async def subscribe_newsletter(req: NewsletterRequest, request: Request):
     </div>
     """
 
-    to_email = settings.SMTP_FROM or "support@khanfate.com"
+    to_email = settings.SMTP_FROM or "guoshengping66@gmail.com"
     _send_email(to_email, f"[命盘智镜] 新订阅 - {email}", html)
 
     return {"success": True, "message": "订阅成功，每周将收到五行运势推送"}
