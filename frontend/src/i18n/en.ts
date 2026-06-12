@@ -2033,9 +2033,9 @@ export default {
   "legal.terms.s7.title": "7. Terms Updates",
   "legal.terms.s7.content": "We reserve the right to modify these terms at any time. Updated terms will be posted on this page with an updated \"Last Updated\" date. Continued use constitutes acceptance of modified terms.",
   "legal.terms.s8.title": "8. Contact",
-  "legal.terms.s8.content": "For questions about these terms:\n\n- Email: support@khanfate.com\n- Website: https://www.khanfate.com/about",
+  "legal.terms.s8.content": "For questions about these terms:\n\n- Email: guoshengping66@gmail.com\n- Website: https://www.khanfate.com/about",
   "legal.terms.s9.title": "9. Operator Information",
-  "legal.terms.s9.content": "Operator: Destiny Mirror Operations Team\nEmail: support@khanfate.com\nWebsite: https://www.khanfate.com",
+  "legal.terms.s9.content": "Operator: Destiny Mirror Operations Team\nEmail: guoshengping66@gmail.com\nWebsite: https://www.khanfate.com",
 
   // Refund Policy
   "legal.refund.title": "Refund Policy",
@@ -2078,10 +2078,10 @@ export default {
   "contact.form.message": "Message",
   "contact.form.messagePlaceholder": "Please describe your question or suggestion in detail...",
   "contact.form.send": "Send Message",
-  "contact.form.note": "After submitting, check your email for a reply, or email us at support@khanfate.com",
+  "contact.form.note": "After submitting, check your email for a reply, or email us at guoshengping66@gmail.com",
   "contact.form.fillAll": "Please fill in all required fields",
   "contact.form.sentSuccess": "Message sent! We'll reply soon.",
-  "contact.form.sendFailed": "Failed to send. Please try again or email us at support@khanfate.com",
+  "contact.form.sendFailed": "Failed to send. Please try again or email us at guoshengping66@gmail.com",
   "contact.form.sending": "Sending...",
 
   // ─── Referral Page ───

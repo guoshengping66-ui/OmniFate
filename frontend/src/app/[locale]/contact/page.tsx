@@ -57,7 +57,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="text-white/80 font-medium text-sm">{t("contact.email")}</h3>
-                    <p className="text-gold/70 text-sm">support@khanfate.com</p>
+                    <p className="text-gold/70 text-sm">guoshengping66@gmail.com</p>
                   </div>
                 </div>
                 <p className="text-white/30 text-xs">{t("contact.emailHint")}</p>
@@ -70,7 +70,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="text-white/80 font-medium text-sm">{t("contact.wechat")}</h3>
-                    <p className="text-gold/70 text-sm">DestinyMirror_CS</p>
+                    <p className="text-gold/70 text-sm">khan18553325258</p>
                   </div>
                 </div>
                 <p className="text-white/30 text-xs">{t("contact.wechatHint")}</p>

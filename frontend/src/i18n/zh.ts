@@ -2027,9 +2027,9 @@ export default {
   "legal.terms.s7.title": "七、条款更新",
   "legal.terms.s7.content": "我们保留随时修改本服务条款的权利。修改后的条款将在本页面发布，并更新顶部的「最后更新」日期。继续使用本服务即表示您接受修改后的条款。",
   "legal.terms.s8.title": "八、联系方式",
-  "legal.terms.s8.content": "如对本服务条款有任何疑问，请联系我们：\n\n- 电子邮件：support@khanfate.com\n- 网站：https://www.khanfate.com/about",
+  "legal.terms.s8.content": "如对本服务条款有任何疑问，请联系我们：\n\n- 电子邮件：guoshengping66@gmail.com\n- 网站：https://www.khanfate.com/about",
   "legal.terms.s9.title": "九、运营者信息",
-  "legal.terms.s9.content": "运营者名称：命盘智镜运营团队\n联系邮箱：support@khanfate.com\n网站地址：https://www.khanfate.com",
+  "legal.terms.s9.content": "运营者名称：命盘智镜运营团队\n联系邮箱：guoshengping66@gmail.com\n网站地址：https://www.khanfate.com",
 
   // 退款政策
   "legal.refund.title": "退款政策",
@@ -2072,10 +2072,10 @@ export default {
   "contact.form.message": "消息内容",
   "contact.form.messagePlaceholder": "请详细描述你的问题或建议...",
   "contact.form.send": "发送消息",
-  "contact.form.note": "提交后请留意邮箱回复，或直接发送邮件至 support@khanfate.com",
+  "contact.form.note": "提交后请留意邮箱回复，或直接发送邮件至 guoshengping66@gmail.com",
   "contact.form.fillAll": "请填写完整信息",
   "contact.form.sentSuccess": "消息已发送，我们会尽快回复！",
-  "contact.form.sendFailed": "发送失败，请稍后重试或直接发邮件至 support@khanfate.com",
+  "contact.form.sendFailed": "发送失败，请稍后重试或直接发邮件至 guoshengping66@gmail.com",
   "contact.form.sending": "发送中...",
 
   // ─── 邀请页面 ───
