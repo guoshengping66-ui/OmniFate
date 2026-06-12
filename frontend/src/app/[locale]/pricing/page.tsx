@@ -87,9 +87,22 @@ export default function PricingPage() {
   const handlePaymentSuccess = async () => {
     try {
       await refreshUser()
-      toast.success(t("pricing.membershipActivated"))
+      toast.success(t("pricing.membershipActivated"), { duration: 6000 })
+      // Show WeChat group invite after a short delay
+      setTimeout(() => {
+        toast(
+          (t: any) => (
+            <div className="text-sm">
+              <p className="font-medium text-gold mb-1">{t("pricing.wechatGroupTitle")}</p>
+              <p className="text-white/70 text-xs">{t("pricing.wechatGroupDesc")}</p>
+              <p className="text-gold text-xs mt-1 font-mono">khan18553325258</p>
+            </div>
+          ),
+          { duration: 10000, icon: "💬" }
+        )
+      }, 1500)
     } catch {
-      toast.success(t("pricing.paymentSuccess"))
+      toast.success(t("pricing.paymentSuccess"), { duration: 6000 })
     }
     setSelectedTier(null)
   }

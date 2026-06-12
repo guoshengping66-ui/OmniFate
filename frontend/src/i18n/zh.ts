@@ -2043,7 +2043,7 @@ export default {
   "legal.refund.s4.title": "四、优惠券与折扣",
   "legal.refund.s4.content": "1. 使用优惠券支付的部分，退款时优惠券不予退还。\n2. 通过「命盘解锁」获得的商城优惠券，退款后优惠券将被回收。",
   "legal.refund.s5.title": "五、退款申请方式",
-  "legal.refund.s5.content": "如需申请退款，请通过以下方式联系我们：\n\n- 电子邮件：refund@khanfate.com\n- 邮件标题格式：【退款申请】订单号/订阅类型\n- 请提供：注册邮箱、订单号、退款原因\n\n我们将在收到申请后 1-3 个工作日内审核并回复。",
+  "legal.refund.s5.content": "如需申请退款，请通过以下方式联系我们：\n\n- 电子邮件：guoshengping66@gmail.com\n- 邮件标题格式：【退款申请】订单号/订阅类型\n- 请提供：注册邮箱、订单号、退款原因\n\n我们将在收到申请后 1-3 个工作日内审核并回复。",
 
   // ─── 联系我们页面 ───
   "contact.title": "联系我们",

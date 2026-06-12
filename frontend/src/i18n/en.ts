@@ -2049,7 +2049,7 @@ export default {
   "legal.refund.s4.title": "4. Coupons & Discounts",
   "legal.refund.s4.content": "1. Coupons used for payment are not refunded.\n2. Coupons obtained through \"Chart Unlock\" promotions will be revoked upon refund.",
   "legal.refund.s5.title": "5. How to Request a Refund",
-  "legal.refund.s5.content": "To request a refund, contact us:\n\n- Email: refund@khanfate.com\n- Subject format: [Refund Request] Order Number/Subscription Type\n- Please provide: Registration email, order number, refund reason\n\nWe will review and respond within 1-3 business days.",
+  "legal.refund.s5.content": "To request a refund, contact us:\n\n- Email: guoshengping66@gmail.com\n- Subject format: [Refund Request] Order Number/Subscription Type\n- Please provide: Registration email, order number, refund reason\n\nWe will review and respond within 1-3 business days.",
 
   // ─── Contact Page ───
   "contact.title": "Contact Us",
