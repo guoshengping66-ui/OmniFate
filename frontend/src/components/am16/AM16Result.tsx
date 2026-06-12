@@ -350,14 +350,14 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
               <TrendingUp size={12} />
               {t("am16.strongest")}
             </div>
-            <p className="text-white/80 text-sm font-medium">{destinyPower.strongest.labelCn} <span className="text-emerald-400">{destinyPower.strongest.rank}</span></p>
+            <p className="text-white/80 text-sm font-medium">{locale === "zh" ? destinyPower.strongest.labelCn : destinyPower.strongest.labelEn} <span className="text-emerald-400">{destinyPower.strongest.rank}</span></p>
           </div>
           <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-3 text-center">
             <div className="flex items-center justify-center gap-1 text-red-400 text-xs mb-1">
               <TrendingDown size={12} />
               {t("am16.weakest")}
             </div>
-            <p className="text-white/80 text-sm font-medium">{destinyPower.weakest.labelCn} <span className="text-red-400">{destinyPower.weakest.rank}</span></p>
+            <p className="text-white/80 text-sm font-medium">{locale === "zh" ? destinyPower.weakest.labelCn : destinyPower.weakest.labelEn} <span className="text-red-400">{destinyPower.weakest.rank}</span></p>
           </div>
         </div>
 
@@ -372,7 +372,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
             return (
               <div key={dim.key} className="flex items-center gap-3">
                 <span className="text-sm w-6">{dim.icon}</span>
-                <span className="text-white/60 text-xs w-8">{dim.labelCn}</span>
+                <span className="text-white/60 text-xs w-8">{locale === "zh" ? dim.labelCn : dim.labelEn}</span>
                 <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden">
                   <div
                     className="h-full rounded-full bg-gradient-to-r from-gold/60 to-gold transition-all duration-1000"
