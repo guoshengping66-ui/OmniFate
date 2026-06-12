@@ -5,15 +5,15 @@ import { TrendingUp, TrendingDown } from "lucide-react"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { useLanguage } from "@/contexts/LanguageContext"
 
-const DEMO_RESULT = {
-  code: "DXIP",
-  title: "孤独的直觉反骨战士",
-  fateLevel: { emoji: "⚔️", name: "逆命", beatPercent: 88 },
-  destinyPower: { total: 7820, strongest: { label: "事业", rank: "S+" }, weakest: { label: "感情", rank: "B-" } },
-}
-
 export default function ResultPreview() {
-  const { t, localeHref } = useLanguage()
+  const { t, locale, localeHref } = useLanguage()
+
+  const DEMO_RESULT = {
+    code: "DXIP",
+    title: t("am16.DXIP.title"),
+    fateLevel: { emoji: "⚔️", name: locale === "zh" ? "逆命" : "Rebel", beatPercent: 88 },
+    destinyPower: { total: 7820, strongest: { label: locale === "zh" ? "事业" : "Career", rank: "S+" }, weakest: { label: locale === "zh" ? "感情" : "Romance", rank: "B-" } },
+  }
 
   return (
     <section className="py-20 px-4 bg-white/[0.015]">

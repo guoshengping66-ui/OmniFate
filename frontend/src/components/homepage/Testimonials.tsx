@@ -5,43 +5,76 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { TiltCard } from "@/components/ui/TiltCard"
 import { useLanguage } from "@/contexts/LanguageContext"
 
-const TESTIMONIALS = [
-  {
-    profession: "创业者",
-    location: "深圳",
-    text: "八字说我缺金，推荐了黄水晶，生意确实好转了。",
-    score: "9.2",
-    source: "小红书",
-    avatar: "林",
-  },
-  {
-    profession: "工程师",
-    location: "北京",
-    text: "星盘把我的土星功课说得一清二楚，感情模式完全对上了。",
-    score: "9.5",
-    source: "知乎",
-    avatar: "陈",
-  },
-  {
-    profession: "教师",
-    location: "上海",
-    text: "塔罗的疗愈感很强，不是吓人的命理预测，是真的帮我看清了困境和出路。",
-    score: "8.8",
-    source: "微信",
-    avatar: "王",
-  },
-  {
-    profession: "设计师",
-    location: "杭州",
-    text: "AM16测试太准了！我的人格代码完美描述了我的工作风格。",
-    score: "9.3",
-    source: "小红书",
-    avatar: "张",
-  },
-]
-
 export default function Testimonials() {
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
+
+  const TESTIMONIALS = locale === "zh" ? [
+    {
+      profession: "创业者",
+      location: "深圳",
+      text: "八字说我缺金，推荐了黄水晶，生意确实好转了。",
+      score: "9.2",
+      source: "小红书",
+      avatar: "林",
+    },
+    {
+      profession: "工程师",
+      location: "北京",
+      text: "星盘把我的土星功课说得一清二楚，感情模式完全对上了。",
+      score: "9.5",
+      source: "知乎",
+      avatar: "陈",
+    },
+    {
+      profession: "教师",
+      location: "上海",
+      text: "塔罗的疗愈感很强，不是吓人的命理预测，是真的帮我看清了困境和出路。",
+      score: "8.8",
+      source: "微信",
+      avatar: "王",
+    },
+    {
+      profession: "设计师",
+      location: "杭州",
+      text: "AM16测试太准了！我的人格代码完美描述了我的工作风格。",
+      score: "9.3",
+      source: "小红书",
+      avatar: "张",
+    },
+  ] : [
+    {
+      profession: "Entrepreneur",
+      location: "Shenzhen",
+      text: "Bazi said I lack Metal, recommended citrine. Business has improved significantly.",
+      score: "9.2",
+      source: "Xiaohongshu",
+      avatar: "L",
+    },
+    {
+      profession: "Engineer",
+      location: "Beijing",
+      text: "Astrology nailed my Saturn lessons. My relationship patterns are exactly as described.",
+      score: "9.5",
+      source: "Zhihu",
+      avatar: "C",
+    },
+    {
+      profession: "Teacher",
+      location: "Shanghai",
+      text: "Tarot reading was truly healing — not scary fortune-telling, but genuine guidance through my challenges.",
+      score: "8.8",
+      source: "WeChat",
+      avatar: "W",
+    },
+    {
+      profession: "Designer",
+      location: "Hangzhou",
+      text: "AM16 test is amazingly accurate! My personality code perfectly describes my work style.",
+      score: "9.3",
+      source: "Xiaohongshu",
+      avatar: "Z",
+    },
+  ]
 
   return (
     <section className="py-24 px-4">

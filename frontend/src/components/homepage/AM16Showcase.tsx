@@ -6,15 +6,15 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { MagneticButton } from "@/components/ui/MagneticButton"
 import { useLanguage } from "@/contexts/LanguageContext"
 
-const EXAMPLE_TYPES = [
-  { code: "DXIE", emoji: "🔥", title: "凌晨三点与天对线狂人", level: "天选" },
-  { code: "DSIE", emoji: "⚡", title: "格物派逆天执行狂魔", level: "天选" },
-  { code: "DXIP", emoji: "⚔️", title: "孤独的直觉反骨战士", level: "逆命" },
-  { code: "FSGE", emoji: "🤖", title: "格物派人肉客服", level: "观命" },
-]
-
 export default function AM16Showcase() {
-  const { t, localeHref } = useLanguage()
+  const { t, locale, localeHref } = useLanguage()
+
+  const EXAMPLE_TYPES = [
+    { code: "DXIE", emoji: "🔥", titleKey: "am16.DXIE.title", level: locale === "zh" ? "天选" : "Chosen" },
+    { code: "DSIE", emoji: "⚡", titleKey: "am16.DSIE.title", level: locale === "zh" ? "天选" : "Chosen" },
+    { code: "DXIP", emoji: "⚔️", titleKey: "am16.DXIP.title", level: locale === "zh" ? "逆命" : "Rebel" },
+    { code: "FSGE", emoji: "🤖", titleKey: "am16.FSGE.title", level: locale === "zh" ? "观命" : "Seer" },
+  ]
 
   return (
     <section className="py-24 px-4">
@@ -40,7 +40,7 @@ export default function AM16Showcase() {
               <div className="card-glass p-5 text-center group hover:border-gold/20 transition-all duration-300">
                 <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">{type.emoji}</div>
                 <div className="text-gold font-bold text-xl mb-1 font-serif">{type.code}</div>
-                <div className="text-white/60 text-xs mb-2 line-clamp-2">{type.title}</div>
+                <div className="text-white/60 text-xs mb-2 line-clamp-2">{t(type.titleKey)}</div>
                 <div className="inline-flex items-center gap-1 bg-gold/10 rounded-full px-2 py-0.5">
                   <span className="text-gold text-[10px]">{type.level}</span>
                 </div>

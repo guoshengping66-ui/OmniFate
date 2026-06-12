@@ -5,29 +5,35 @@ import { AlertTriangle, Lightbulb, TrendingUp, Lock } from "lucide-react"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { useLanguage } from "@/contexts/LanguageContext"
 
-const REPORT_SECTIONS = [
-  {
-    key: "problems",
-    icon: AlertTriangle,
-    color: "#C1121F",
-    items: ["事业瓶颈期", "感情迷茫", "健康隐患"],
-  },
-  {
-    key: "advice",
-    icon: Lightbulb,
-    color: "#C9A84C",
-    items: ["佩戴黄水晶增强财运", "每周三冥想提升直觉", "避免东南方重大决策"],
-  },
-  {
-    key: "trends",
-    icon: TrendingUp,
-    color: "#2D6A4F",
-    items: ["2026上半年事业上升", "下半年感情转机", "年底有贵人相助"],
-  },
-]
-
 export default function ReportContent() {
-  const { t, localeHref } = useLanguage()
+  const { t, locale, localeHref } = useLanguage()
+
+  const REPORT_SECTIONS = [
+    {
+      key: "problems",
+      icon: AlertTriangle,
+      color: "#C1121F",
+      items: locale === "zh"
+        ? ["事业瓶颈期", "感情迷茫", "健康隐患"]
+        : ["Career bottleneck", "Relationship confusion", "Health concerns"],
+    },
+    {
+      key: "advice",
+      icon: Lightbulb,
+      color: "#C9A84C",
+      items: locale === "zh"
+        ? ["佩戴黄水晶增强财运", "每周三冥想提升直觉", "避免东南方重大决策"]
+        : ["Wear citrine to boost wealth", "Meditate Wednesdays for intuition", "Avoid major SE decisions"],
+    },
+    {
+      key: "trends",
+      icon: TrendingUp,
+      color: "#2D6A4F",
+      items: locale === "zh"
+        ? ["2026上半年事业上升", "下半年感情转机", "年底有贵人相助"]
+        : ["Career rises H1 2026", "Romance turns H2 2026", "Noble person helps year-end"],
+    },
+  ]
 
   return (
     <section className="py-24 px-4">
