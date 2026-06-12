@@ -264,20 +264,29 @@ export default function CheckoutPage() {
           </p>
         </div>
 
-        {/* Terms acceptance */}
+        {/* Terms acceptance — mandatory custom agreement */}
         <label className="flex items-start gap-3 cursor-pointer mb-4">
           <input
             type="checkbox"
             checked={termsAccepted}
             onChange={e => setTermsAccepted(e.target.checked)}
-            className="mt-0.5 h-4 w-4 rounded border-white/20 bg-white/5 text-gold focus:ring-gold/40"
+            className="mt-0.5 h-4 w-4 rounded border-white/20 bg-white/5 text-gold focus:ring-gold/40 shrink-0"
           />
-          <span className="text-white/50 text-xs leading-relaxed">
-            {t("checkout.terms")}
-            <a href={localeHref("/terms")} target="_blank" className="text-gold hover:underline">{t("checkout.termsOfService")}</a>
-            {t("checkout.and")}
-            <a href={localeHref("/refund")} target="_blank" className="text-gold hover:underline">{t("checkout.refundPolicy")}</a>
-          </span>
+          <div className="text-white/50 text-xs leading-relaxed">
+            <p className="font-medium text-gold/80 mb-1.5">⚠️ {t("checkout.customAgreementTitle")}</p>
+            <p className="mb-2">{t("checkout.customAgreementDesc")}</p>
+            <ul className="space-y-1 mb-2 pl-0">
+              <li className="flex items-start gap-1.5">
+                <span className="text-gold shrink-0">•</span>
+                <span><strong>{t("checkout.customAgreementWorkTime")}</strong>{t("checkout.customAgreementWorkTimeDesc")}</span>
+              </li>
+              <li className="flex items-start gap-1.5">
+                <span className="text-gold shrink-0">•</span>
+                <span><strong>{t("checkout.customAgreementRefund")}</strong>{t("checkout.customAgreementRefundDesc")}</span>
+              </li>
+            </ul>
+            <p className="text-orange-400/80 font-medium">🛑 {t("checkout.customAgreementConfirm")}</p>
+          </div>
         </label>
         <button
           onClick={handleCheckout}
