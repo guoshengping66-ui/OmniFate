@@ -62,27 +62,16 @@ export default function MembershipSection() {
                 </div>
               </div>
 
-              <div className="flex flex-col justify-center">
-                <div className="bg-white/[0.03] rounded-2xl p-6 border border-white/[0.06]">
-                  <div className="text-center mb-6">
-                    <div className="text-gold text-3xl font-bold mb-1">¥99</div>
-                    <div className="text-white/40 text-sm">{t("homepage.membership.price")}</div>
-                  </div>
-
-                  <MagneticButton>
-                    <Link
-                      href={localeHref("/pricing")}
-                      className="btn-gold w-full inline-flex items-center justify-center gap-2 py-3 text-base group"
-                    >
-                      {t("homepage.membership.cta")}
-                      <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                  </MagneticButton>
-
-                  <p className="text-white/30 text-[11px] text-center mt-3">
-                    {t("homepage.membership.note")}
-                  </p>
-                </div>
+              <div className="flex flex-col justify-center items-center">
+                <MagneticButton>
+                  <Link
+                    href={localeHref("/pricing")}
+                    className="btn-gold inline-flex items-center justify-center gap-2 px-8 py-3 text-base group"
+                  >
+                    {t("homepage.membership.cta")}
+                    <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </MagneticButton>
               </div>
             </div>
           </div>
