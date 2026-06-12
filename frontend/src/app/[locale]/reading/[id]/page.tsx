@@ -240,7 +240,7 @@ function extractQuickInsights(summary: string): string[] {
     for (const line of lines) {
       const trimmed = line.trim()
       if (keywords.test(trimmed) && trimmed.length >= 8) {
-        const s = trimmed.replace(/^[🔴🟡🟢⚠️✨🔥💎⏰💪❤️💚\s●◆■]+/, "").split(/[。！？.!?]/)[0].trim()
+        const s = trimmed.replace(/^[🔴🟡🟢⚠️✨🔥💎⏰💪❤️💚\s●◆■]+/, "").split(/[。！？.!?\n]/)[0].trim()
         if (s.length >= 8) return s.slice(0, 60)
       }
     }
@@ -281,7 +281,7 @@ function extractQuickInsights(summary: string): string[] {
     for (const line of lines) {
       const trimmed = line.trim()
       if (trimmed.length >= 10 && !/^[【\[（(]/.test(trimmed) && !insights.some(i => trimmed.includes(i) || i.includes(trimmed))) {
-        const s = trimmed.replace(/^[🔴🟡🟢⚠️✨🔥💎⏰💪❤️💚\s]+/, "").split(/[。！？]/)[0].trim()
+        const s = trimmed.replace(/^[🔴🟡🟢⚠️✨🔥💎⏰💪❤️💚\s]+/, "").split(/[。！？.!?\n]/)[0].trim()
         if (s.length >= 8) insights.push(s.slice(0, 60))
         if (insights.length >= 3) break
       }

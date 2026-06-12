@@ -31,9 +31,16 @@ export function ChatBox({ sessionId, availableAgents = [] }: Props) {
   const [input, setInput]       = useState("")
   const [loading, setLoading]   = useState(false)
   const bottomRef               = useRef<HTMLDivElement>(null)
+  const containerRef            = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" })
+    // Scroll only the chat container, not the whole page
+    if (containerRef.current) {
+      containerRef.current.scrollTo({
+        top: containerRef.current.scrollHeight,
+        behavior: "smooth",
+      })
+    }
   }, [messages])
 
   const isPremium = !!user?.is_premium
@@ -109,7 +116,7 @@ export function ChatBox({ sessionId, availableAgents = [] }: Props) {
       ]
 
   return (
-    <div className="card-glass flex flex-col h-[520px]">
+    <div className="card-glass flex flex-col h-[420px] sm:h-[520px]">
       {/* Header */}
       <div className="flex items-center gap-2.5 px-5 py-3.5 border-b border-white/10">
         <Bot size={18} className="text-gold" />
@@ -129,7 +136,7 @@ export function ChatBox({ sessionId, availableAgents = [] }: Props) {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+      <div ref={containerRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
         {messages.map((m, i) => (
           <div key={i} className={`flex gap-3 ${m.role === "user" ? "flex-row-reverse" : ""}`}>
             {/* Avatar */}
