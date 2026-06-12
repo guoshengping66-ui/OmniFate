@@ -4,6 +4,7 @@ import { Hand, Loader2, CheckCircle, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { useUserStore } from "@/stores/useUserStore"
 import { analyzePalmImage } from "@/lib/api"
+import { compressImage } from "@/lib/imageUtils"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { TargetSelector } from "@/components/dashboard/TargetSelector"
 
@@ -26,7 +27,7 @@ export default function PalmTestPage() {
   const ref = useRef<HTMLInputElement>(null)
   const isEn = locale === "en"
 
-  const handlePick = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePick = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]
     if (!f) return
     if (preview) URL.revokeObjectURL(preview)
@@ -35,9 +36,15 @@ export default function PalmTestPage() {
     setFeatures(null)
     setError(false)
     setScanning(true)
-    analyzePalmImage(f)
-      .then(res => { setFeatures(res.features); setScanning(false) })
-      .catch(() => { setError(true); setScanning(false) })
+    try {
+      const compressed = await compressImage(f)
+      const res = await analyzePalmImage(compressed)
+      setFeatures(res.features)
+    } catch {
+      setError(true)
+    } finally {
+      setScanning(false)
+    }
   }
 
   return (

@@ -10,6 +10,7 @@ import {
   Loader2, Sparkles, Star, CheckCircle, AlertCircle, Trash2,
 } from "lucide-react"
 import { runAnalysisStream, AnalysisRequest, analyzeFaceImage, analyzePalmImage } from "@/lib/api"
+import { compressImage } from "@/lib/imageUtils"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { addReadingToHistory } from "@/lib/readingHistory"
@@ -390,20 +391,20 @@ export default function NewReadingPage() {
     setFaceFeatures(null)
   }
 
-  const handleFaceScanComplete = () => {
+  const handleFaceScanComplete = async () => {
     setFaceScanDone(true)
     setIsFaceScanning(false)
     if (faceFile) {
-      analyzeFaceImage(faceFile)
-        .then(res => {
-          setFaceText(res.face_text)
-          setFaceFeatures(res.features)
-          toast.success(t("new.faceDoneToast"))
-        })
-        .catch(() => {
-          setFaceV2TError(true)
-          toast.error(t("new.faceErrorToast"))
-        })
+      try {
+        const compressed = await compressImage(faceFile)
+        const res = await analyzeFaceImage(compressed)
+        setFaceText(res.face_text)
+        setFaceFeatures(res.features)
+        toast.success(t("new.faceDoneToast"))
+      } catch {
+        setFaceV2TError(true)
+        toast.error(t("new.faceErrorToast"))
+      }
     }
   }
 
@@ -430,20 +431,20 @@ export default function NewReadingPage() {
     setPalmFeatures(null)
   }
 
-  const handlePalmScanComplete = () => {
+  const handlePalmScanComplete = async () => {
     setPalmScanDone(true)
     setIsPalmScanning(false)
     if (palmFile) {
-      analyzePalmImage(palmFile)
-        .then(res => {
-          setPalmText(res.palm_text)
-          setPalmFeatures(res.features)
-          toast.success(t("new.palmDoneToast"))
-        })
-        .catch(() => {
-          setPalmV2TError(true)
-          toast.error(t("new.palmErrorToast"))
-        })
+      try {
+        const compressed = await compressImage(palmFile)
+        const res = await analyzePalmImage(compressed)
+        setPalmText(res.palm_text)
+        setPalmFeatures(res.features)
+        toast.success(t("new.palmDoneToast"))
+      } catch {
+        setPalmV2TError(true)
+        toast.error(t("new.palmErrorToast"))
+      }
     }
   }
 
@@ -471,20 +472,20 @@ export default function NewReadingPage() {
     setPartnerFaceFeatures(null)
   }
 
-  const handlePartnerFaceScanComplete = () => {
+  const handlePartnerFaceScanComplete = async () => {
     setPartnerFaceScanDone(true)
     setPartnerIsFaceScanning(false)
     if (partnerFaceFile) {
-      analyzeFaceImage(partnerFaceFile)
-        .then(res => {
-          setPartnerFaceText(res.face_text)
-          setPartnerFaceFeatures(res.features)
-          toast.success(t("new.partnerFaceDoneToast"))
-        })
-        .catch(() => {
-          setPartnerFaceV2TError(true)
-          toast.error(t("new.partnerFaceErrorToast"))
-        })
+      try {
+        const compressed = await compressImage(partnerFaceFile)
+        const res = await analyzeFaceImage(compressed)
+        setPartnerFaceText(res.face_text)
+        setPartnerFaceFeatures(res.features)
+        toast.success(t("new.partnerFaceDoneToast"))
+      } catch {
+        setPartnerFaceV2TError(true)
+        toast.error(t("new.partnerFaceErrorToast"))
+      }
     }
   }
 
@@ -511,20 +512,20 @@ export default function NewReadingPage() {
     setPartnerPalmFeatures(null)
   }
 
-  const handlePartnerPalmScanComplete = () => {
+  const handlePartnerPalmScanComplete = async () => {
     setPartnerPalmScanDone(true)
     setPartnerIsPalmScanning(false)
     if (partnerPalmFile) {
-      analyzePalmImage(partnerPalmFile)
-        .then(res => {
-          setPartnerPalmText(res.palm_text)
-          setPartnerPalmFeatures(res.features)
-          toast.success(t("new.partnerPalmDoneToast"))
-        })
-        .catch(() => {
-          setPartnerPalmV2TError(true)
-          toast.error(t("new.partnerPalmErrorToast"))
-        })
+      try {
+        const compressed = await compressImage(partnerPalmFile)
+        const res = await analyzePalmImage(compressed)
+        setPartnerPalmText(res.palm_text)
+        setPartnerPalmFeatures(res.features)
+        toast.success(t("new.partnerPalmDoneToast"))
+      } catch {
+        setPartnerPalmV2TError(true)
+        toast.error(t("new.partnerPalmErrorToast"))
+      }
     }
   }
 

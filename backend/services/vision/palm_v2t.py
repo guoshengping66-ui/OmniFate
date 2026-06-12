@@ -149,10 +149,14 @@ class PalmV2T:
     def analyze_bytes(self, image_bytes: bytes) -> Optional[PalmV2TResult]:
         try:
             import cv2
+            from services.vision.image_utils import fix_exif_orientation, resize_for_analysis
             arr = np.frombuffer(image_bytes, np.uint8)
             img = cv2.imdecode(arr, cv2.IMREAD_COLOR)
             if img is None:
                 return None
+            # Fix mobile EXIF rotation and resize large images
+            img = fix_exif_orientation(img, image_bytes)
+            img = resize_for_analysis(img, max_dim=1024)
             return self._analyze(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), img, img.shape)
         except RuntimeError:
             raise  # Let module-not-found errors propagate

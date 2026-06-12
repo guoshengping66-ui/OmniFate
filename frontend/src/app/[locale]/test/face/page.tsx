@@ -4,6 +4,7 @@ import { Camera, Loader2, CheckCircle, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { useUserStore } from "@/stores/useUserStore"
 import { analyzeFaceImage } from "@/lib/api"
+import { compressImage } from "@/lib/imageUtils"
 import { TargetSelector } from "@/components/dashboard/TargetSelector"
 
 const FACE_KEY_FEATURES = [
@@ -26,7 +27,7 @@ export default function FaceTestPage() {
   const [error, setError] = useState(false)
   const ref = useRef<HTMLInputElement>(null)
 
-  const handlePick = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePick = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]
     if (!f) return
     if (preview) URL.revokeObjectURL(preview)
@@ -35,9 +36,15 @@ export default function FaceTestPage() {
     setFeatures(null)
     setError(false)
     setScanning(true)
-    analyzeFaceImage(f)
-      .then(res => { setFeatures(res.features); setScanning(false) })
-      .catch(() => { setError(true); setScanning(false) })
+    try {
+      const compressed = await compressImage(f)
+      const res = await analyzeFaceImage(compressed)
+      setFeatures(res.features)
+    } catch {
+      setError(true)
+    } finally {
+      setScanning(false)
+    }
   }
 
   return (

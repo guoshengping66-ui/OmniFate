@@ -1343,7 +1343,7 @@ async def delete_reading(session_id: str, user: User = Depends(require_user)):
 MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10MB
 
 # ── SECURITY: File type validation constants ──────────────────────────────────
-ALLOWED_IMAGE_MIME_PREFIXES = ("image/jpeg", "image/png", "image/webp", "image/bmp")
+ALLOWED_IMAGE_MIME_PREFIXES = ("image/jpeg", "image/png", "image/webp", "image/bmp", "image/heic")
 # Magic bytes for common image formats
 IMAGE_MAGIC_BYTES = {
     b"\xff\xd8\xff": "image/jpeg",
@@ -1364,6 +1364,12 @@ def _validate_image_file(content: bytes, filename: str = "") -> None:
         if content[:len(magic)] == magic:
             detected_type = mime
             break
+
+    # HEIC detection: ISOBMFF format with "ftyp" at offset 4
+    if not detected_type and content[4:8] == b"ftyp":
+        brand = content[8:12]
+        if brand in (b"heic", b"heix", b"mif1", b"msf1", b"hevc"):
+            detected_type = "image/heic"
 
     if not detected_type:
         raise HTTPException(
