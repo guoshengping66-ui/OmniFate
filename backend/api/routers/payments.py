@@ -2203,20 +2203,24 @@ def _require_admin_auth(
 @router.get("/admin/shop-orders")
 async def list_shop_orders(
     status: Optional[str] = Query(None, description="按状态筛选"),
+    item_type: Optional[str] = Query(None, description="按类型筛选: shop|founder_lifetime|premium_monthly|premium_yearly|onetime_unlock"),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
     authorization: Optional[str] = Header(None),
     x_admin_key: Optional[str] = Header(None),
 ):
-    """管理员查看所有商城订单"""
+    """管理员查看所有订单（商城 + 会员）"""
     _require_admin_auth(authorization, x_admin_key)
 
     from sqlalchemy.orm import joinedload
 
+    # 默认显示所有类型，可按 item_type 筛选
+    base_filter = [Order.item_type != None] if not item_type else [Order.item_type == item_type]
+
     query = (
         select(Order)
-        .where(Order.item_type == "shop")
+        .where(*base_filter)
         .options(joinedload(Order.items), joinedload(Order.user))
     )
     if status:
@@ -2226,7 +2230,7 @@ async def list_shop_orders(
     # Count total
     count_result = await db.execute(
         select(func.count()).select_from(
-            select(Order.id).where(Order.item_type == "shop").subquery()
+            select(Order.id).where(*base_filter).subquery()
         )
     )
     total = count_result.scalar() or 0
@@ -2246,6 +2250,7 @@ async def list_shop_orders(
             "order_no": order.order_no,
             "status": order.status.value if order.status else "pending",
             "total_cny": float(order.total_cny) if order.total_cny else 0,
+            "item_type": order.item_type,
             "payment_method": order.payment_method,
             "recipient_name": order.recipient_name,
             "recipient_phone": order.recipient_phone,
