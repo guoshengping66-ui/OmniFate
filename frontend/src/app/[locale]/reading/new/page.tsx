@@ -1216,51 +1216,14 @@ export default function NewReadingPage() {
                 ))}
               </div>
 
-              {/* ── Tier Selection ───────────────────────── */}
+              {/* ── Unlock Report Button ───────────────────────── */}
               <div className="border-t border-white/10 pt-5">
-                <p className="text-white/50 text-xs mb-4">{t("new.selectDepth")}</p>
-                <div className="grid grid-cols-2 gap-3">
-                  {/* Free tier */}
-                  <div className="bg-white/5 border border-white/20 rounded-xl p-4 text-left hover:border-white/40 transition-all">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xl">🔍</span>
-                      <span className="text-white/80 font-medium text-sm">{t("new.freeTier")}</span>
-                    </div>
-                    <p className="text-white/40 text-xs leading-relaxed mb-3">
-                      {t("new.freeTierDesc")}
-                    </p>
-                    <button type="submit" disabled={loading}
-                      className="w-full py-2 rounded-full border border-gold/30 text-gold text-sm hover:bg-gold/10 transition-all">
-                      {loading
-                        ? <span className="flex items-center justify-center gap-1"><Loader2 size={14} className="animate-spin" /> {t("new.starting")}</span>
-                        : t("new.startFree")}
-                    </button>
-                  </div>
-
-                  {/* Paid tier */}
-                  <div className="relative bg-gold/5 border border-gold/40 rounded-xl p-4 text-left ring-1 ring-gold/20">
-                    <div className="absolute -top-2.5 right-3 bg-gold text-ink text-[10px] font-bold px-2 py-0.5 rounded-full">
-                      {t("new.firstOrderPrice")}
-                    </div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xl">👑</span>
-                      <span className="text-gold font-medium text-sm">{t("new.fullReport")}</span>
-                      <span className="text-gold/60 text-xs ml-auto">{t("new.fullReportPrice")}</span>
-                    </div>
-                    <p className="text-white/50 text-xs leading-relaxed mb-3">
-                      {t("new.fullReportDesc")}
-                    </p>
-                    <button type="submit" disabled={loading}
-                      className="w-full py-2 btn-gold text-sm">
-                      {loading
-                        ? <span className="flex items-center justify-center gap-1"><Loader2 size={14} className="animate-spin" /> {t("new.starting")}</span>
-                        : t("new.unlockFull")}
-                    </button>
-                  </div>
-                </div>
-                <p className="text-white/25 text-[10px] mt-3">
-                  {t("new.bothNote")}
-                </p>
+                <button type="submit" disabled={loading}
+                  className="w-full btn-gold py-3 text-sm">
+                  {loading
+                    ? <span className="flex items-center justify-center gap-1"><Loader2 size={14} className="animate-spin" /> {t("new.starting")}</span>
+                    : t("new.unlockFull")}
+                </button>
               </div>
             </div> {/* end card-glass */}
               </div>
