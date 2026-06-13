@@ -1362,7 +1362,7 @@ These situations are acceptable:
     id: "faq-ai-vs-traditional",
     title_zh: "AI 分析 vs 传统分析师：有什么区别？",
     title_en: "AI Profile Reading vs Traditional Masters: What's the Difference?",
-    summary_zh: "AI 五维合参和找分析师进行行为分析有什么不同？AI 更快更客观，但传统分析师有经验加持。本文从准确性、深度、价格、隐私等维度对比两种方式。",
+    summary_zh: "AI 五维合参和找分析师进行行为分析有什么不同？AI 更快更客观，但传统分析师有丰富经验。本文从准确性、深度、价格、隐私等维度对比两种方式。",
     summary_en: "How does AI 5-Dimension Analysis compare to visiting a traditional analyst? AI is faster and more objective, while traditional masters bring years of experience. This article compares both approaches across accuracy, depth, price, and privacy.",
     category: "faq",
     tags_zh: ["AI", "行为分析", "FAQ", "对比"],
@@ -1961,7 +1961,7 @@ Mole reading as part of traditional culture has reference value, but shouldn't b
 
 ### 帝星组
 - **图表星**：帝王之星，领导力强，自尊心高
-- **天府星**：财库之星，稳重务实，善于守财
+- **天府星**：稳定之星，稳重务实，善于积累
 
 ### 天象组
 - **太阳星**：光明之星，热情大方，博爱

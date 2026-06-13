@@ -1906,7 +1906,7 @@ export default {
   "am16.FXGE.title": "The Traditional Analytics Social Butterfly",
   "am16.FXGE.quote": "Unity of knowledge and action is true knowledge",
   "am16.FXGE.quoteExplain": "Even while lying down I socialize — the ultimate unity of thought and action",
-  "am16.FXGE.diagnosis": "A genius who reads friends' status by psychic transmission from bed. Replies to messages lying down, posts on social media lying down, reads birth charts lying down. Social energy transmitted entirely through horizontal position. Infinitely popular but actual outings are zero.",
+  "am16.FXGE.diagnosis": "A genius who reads friends' status by digital transmission from bed. Replies to messages lying down, posts on social media lying down, reads charts lying down. Social connection transmitted entirely through horizontal position. Infinitely popular but actual outings are zero.",
   "am16.FXGE.advice": "Invest in an extra-large bed for your online chart-reading business. Set up an auto-reply: Currently meditating. For urgent matters, please burn incense.",
   "am16.FXIP.title": "The Transforment Lying-Flat Hermit",
   "am16.FXIP.quote": "The original mind is beyond good and evil",
