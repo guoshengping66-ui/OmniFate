@@ -38,7 +38,7 @@ export default {
   "chat.quick.bazi1": "我的四柱格局是什么？",
   "chat.quick.bazi2": "五元素中哪个元素最弱？",
   "chat.quick.bazi3": "今年年度状态如何？",
-  "chat.quick.astro1": "我的太阳星座和上升星座分别是什么？",
+  "chat.quick.astro1": "我的太阳星盘和上升星盘分别是什么？",
   "chat.quick.astro2": "土星相位对事业有什么影响？",
   "chat.quick.astro3": "今年木星会给我带来什么好运？",
   "chat.quick.tarot1": "这次抽到的符号牌整体含义是什么？",
@@ -1090,7 +1090,7 @@ export default {
   "shengxiao.dog": "狗",
   "shengxiao.pig": "猪",
 
-  // ─── 星座 ───
+  // ─── 星盘 ───
   "constellation.aries": "白羊座",
   "constellation.taurus": "金牛座",
   "constellation.gemini": "双子座",
@@ -1244,7 +1244,7 @@ export default {
   "order.detail.refundSubmitted": "退款申请已提交",
   "order.detail.refundFail": "退款申请失败",
 
-  // ─── 抽签 ───
+  // ─── 分析 ───
   "divination.title": "每日签",
   "divination.subtitle": "每日首次免费，感受数据为你指引方向",
   "divination.rules": "每日签规则",
@@ -1254,13 +1254,13 @@ export default {
   "divination.rule2Desc": "会员每月自动注入点数",
   "divination.rule3Title": "AI 深度解读",
   "divination.rule3Desc": "结合你的档案给出个性化分析",
-  "divination.draw": "开始抽签",
+  "divination.draw": "开始分析",
   "divination.drawing": "抽取中...",
   "divination.freeRemaining": "今日剩余 {count} 次免费抽取",
   "divination.noFree": "今日免费次数已用完",
-  "divination.result": "抽签结果",
-  "divination.divineName": "神谕之名",
-  "divination.divinePoem": "神谕诗文",
+  "divination.result": "分析结果",
+  "divination.divineName": "洞察之名",
+  "divination.divinePoem": "洞察诗文",
   "divination.interpretation": "AI 解读",
   "divination.share": "分享",
   "divination.drawAgain": "再次抽取",
@@ -1341,21 +1341,21 @@ export default {
   "about.missionDesc1": "AI 行为分析镜致力于将传统分析学的精髓与 AI 技术深度结合。我们相信，每个人的生命轨迹都有其独特的规律和节奏——四柱、行为模式、面部特征、手部特征、符号分析都是从不同角度揭示这一规律的工具。",
   "about.missionDesc2": "我们的 AI 系统并非替代分析师，而是将五位「专家」的知识融合在一起，通过 Master Agent 进行综合分析，提供比单一维度更全面、更精准的行为解读。",
 
-  // ─── 抽签扩展 ───
+  // ─── 分析扩展 ───
   "divination.rule4Title": "分享签文得点数",
   "divination.rule4Desc": "每日最多分享 2 次，每次获得 5 点数",
-  "divination.founderUnlimited": "创始人会员无限抽签",
-  "divination.founderDesc": "创始席位享有无限免费抽签特权",
-  "divination.disclaimer": "抽签结果基于传统文化智慧与随机生成，仅供娱乐和自我反思。AI 行动指引由算法生成，不构成任何决策建议。",
+  "divination.founderUnlimited": "创始人会员无限分析",
+  "divination.founderDesc": "创始席位享有无限免费分析特权",
+  "divination.disclaimer": "分析结果基于传统文化智慧与随机生成，仅供娱乐和自我反思。AI 行动指引由算法生成，不构成任何决策建议。",
   "divination.motto": "命由己造，福自我求。",
-  "divination.loginFirst": "请先登录后再抽签",
-  "divination.drawFailed": "抽签失败",
+  "divination.loginFirst": "请先登录后再分析",
+  "divination.drawFailed": "分析失败",
   "divination.shareSuccess": "分享成功，获得 {count} 点数奖励",
   "divination.shareTitle": "星际分析",
   "divination.linkCopied": "链接已复制",
   "divination.shareFailed": "分享失败",
   "divination.clickToDraw": "点击摇签",
-  "divination.shakeHint": "手机摇一摇或点击上方开始抽签",
+  "divination.shakeHint": "手机摇一摇或点击上方开始分析",
   "divination.aligning": "星体排列中 · 星象校准...",
   "divination.sensingEnergy": "正在感应「{theme}」星宫数据",
   "divination.todayPalace": "今日星宫：",
@@ -1413,7 +1413,7 @@ export default {
   "home.product1.desc": "增强直觉力 · 提升专注",
   "home.product1.tag": "专注提升",
   "home.product2.name": "黄专注工具吉祥物",
-  "home.product2.desc": "招财纳福 · 资源积累",
+  "home.product2.desc": "资源积累 · 财务规划",
   "home.product2.tag": "资源积累",
   "home.product3.name": "绿幽灵吊坠",
   "home.product3.desc": "事业晋升 · 助力运",
@@ -1794,7 +1794,7 @@ export default {
   "new.backToChina": "← 选择中国地区",
   "new.customCityPlaceholder": "请输入城市名称（如 San Jose）",
 
-  // ─── AM16 天命测验 ───
+  // ─── AM16 行为测验 ───
   "am16.title": "AM16 行为模式测验",
   "am16.subtitle": "12 道沉浸式情景题，解锁你的行为模式密码",
   "am16.start": "开始测试",
@@ -1882,7 +1882,7 @@ export default {
   "am16.backToTop": "回到顶部",
   "am16.compatibleWith": "最佳匹配",
   "am16.clashWith": "避雷指南",
-  "am16.sharedResult": "的天命编码",
+  "am16.sharedResult": "的行为编码",
   "am16.takeQuiz": "我也要测",
   "am16.dimSubtitle": "顺天 · 心觉 · 渡人 · 稳如",
 
@@ -1900,7 +1900,7 @@ export default {
   "am16.FXIP.title": "高维冥想隐世咸鱼",
   "am16.FXIP.quote": "无善无恶心之体",
   "am16.FXIP.quoteExplain": "没有善恶，没有行动，没有社交，只有躺",
-  "am16.FXIP.diagnosis": "社交为零、行动为零、但灵性拉满。活在自己的量子场里，偶尔给宇宙发个信号确认自己还存在。人间最纯粹的旁观者，精神世界的隐居者。",
+  "am16.FXIP.diagnosis": "社交为零、行动为零、但专注力拉满。活在自己的量子场里，偶尔给宇宙发个信号确认自己还存在。人间最纯粹的旁观者，精神世界的隐居者。",
   "am16.FXIP.advice": "建议偶尔给外卖小哥说声谢谢，这是最低能耗的红尘修炼。如果实在不想说话，至少点个头。",
   "am16.FXIE.title": "躺平界的灵感型社交达人",
   "am16.FXIE.quote": "良知即是独知时",
@@ -2174,7 +2174,7 @@ export default {
   "founder.pricing.founderSeat": "创始席位 · 终身会员",
 
   // ─── 创始人投票功能 ───
-  "founder.vote.astro_trading": "星座交易信号",
+  "founder.vote.astro_trading": "星盘交易信号",
   "founder.vote.astro_trading_desc": "基于星象数据的交易时机建议",
   "founder.vote.feng_shui_scan": "AI 环境扫描",
   "founder.vote.feng_shui_scan_desc": "上传户型图，AI 分析环境格局",
@@ -2564,8 +2564,8 @@ export default {
   "nebulaUnlock.status7": "正在解读数据特征...",
   "nebulaUnlock.status8": "正在生成分析报告...",
 
-  // ─── 浮动神谕图标 ───
-  "floatingOracle.label": "每日抽签",
+  // ─── 浮动洞察图标 ───
+  "floatingOracle.label": "每日分析",
   "floatingOracle.freeToday": "今日免费",
   "floatingOracle.freeHint": "每日首次免费，获取个性化建议",
 
@@ -2590,15 +2590,15 @@ export default {
 
   // ─── SEO 页面 ───
   "seo.astrology.breadcrumb": "行为模式分析", "seo.astrology.title": "AI 行为模式分析", "seo.astrology.desc": "根据你的出生时间和地点，AI 为你绘制行为模式，深度解读行星落座与相位，呈现你独特的性格特征与行为模式。",
-  "seo.astrology.f1Title": "太阳星座", "seo.astrology.f1Desc": "核心人格、生命力与自我表达",
-  "seo.astrology.f2Title": "月亮星座", "seo.astrology.f2Desc": "内在情绪、潜意识与安全感需求",
-  "seo.astrology.f3Title": "上升星座", "seo.astrology.f3Desc": "外在表现、第一印象与人生面具",
+  "seo.astrology.f1Title": "太阳星盘", "seo.astrology.f1Desc": "核心人格、生命力与自我表达",
+  "seo.astrology.f2Title": "月亮星盘", "seo.astrology.f2Desc": "内在情绪、潜意识与安全感需求",
+  "seo.astrology.f3Title": "上升星盘", "seo.astrology.f3Desc": "外在表现、第一印象与人生面具",
   "seo.astrology.f4Title": "行星宫位", "seo.astrology.f4Desc": "十大行星在十二宫中的具体表现",
   "seo.astrology.f5Title": "相位分析", "seo.astrology.f5Desc": "行星间的角度关系，反映天赋与挑战",
   "seo.astrology.f6Title": "成长方向", "seo.astrology.f6Desc": "南北交点，探索个人的成长方向",
   "seo.astrology.whatTitle": "什么是行为模式分析？",
-  "seo.astrology.p1": "行为模式是根据出生瞬间行星位置绘制的图表，记录了十大行星在十二星座宫位的分布。",
-  "seo.astrology.p2": "通过分析「三大巨头」——太阳、月亮、上升星座，以及行星落座和相位，可以深入了解性格特质、情感模式、思维方式和行为倾向。",
+  "seo.astrology.p1": "行为模式是根据出生瞬间行星位置绘制的图表，记录了十大行星在十二星盘宫位的分布。",
+  "seo.astrology.p2": "通过分析「三大巨头」——太阳、月亮、上升星盘，以及行星落座和相位，可以深入了解性格特质、情感模式、思维方式和行为倾向。",
   "seo.astrology.p3": "AI 行为分析镜的行为模式系统计算行星位置与相位，结合现代心理学与传统行为模式智慧进行深度解读。",
   "seo.astrology.ctaTitle": "探索你的行为模式", "seo.astrology.ctaDesc": "免费体验 AI 行为模式分析，发现你独特的性格特征", "seo.astrology.ctaBtn": "开始分析",
 
@@ -2694,9 +2694,9 @@ export default {
   "trading.new.saveBtn": "保存并分析", "trading.new.enterPriceError": "请输入入场价格",
   "trading.new.saved": "交易记录已保存", "trading.new.saveFailed": "保存失败",
 
-  // ─── 抽签分享 ───
+  // ─── 分析分享 ───
   "divination.share.notFound": "未找到该报告",
-  "divination.share.appName": "AI 行为分析镜 · 每日抽签",
+  "divination.share.appName": "AI 行为分析镜 · 每日分析",
   "divination.share.aiAction": "AI 行动指南",
   "divination.share.founderSeat": "创始人席位 #{seatNo} 专属数据卡",
   "divination.share.seatLabel": "创始人席位 #{seatNo}",

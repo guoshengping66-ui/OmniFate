@@ -10,7 +10,7 @@
       "GI": {
         "descA": "Enthusiastically reading charts for everyone online for free",
         "descB": "Don't touch me — you're disturbing my profile's cleanliness",
-        "nameA": "Worldly Healer",
+        "nameA": "Worldly Nurturer",
         "nameB": "Hermit Cultivator"
       },
       "PE": {
@@ -21,7 +21,7 @@
       },
       "XS": {
         "descA": "Unstoppable intuition, quantum entanglement",
-        "descB": "Calculate exact astrological degrees, run Excel spreadsheets to divine pattern",
+        "descB": "Calculate exact stellar degrees, run Excel spreadsheets to insight pattern",
         "nameA": "Intuition Mystic",
         "nameB": "Data Analyst"
       }
@@ -56,7 +56,7 @@
     },
     "DXGE": {
       "advice": "Save yourself before saving others — check your empty wallet and stardust balance first. Before redeeming anyone else, redeem your credit card debt.",
-      "diagnosis": "Extremely passionate. Not only defies pattern personally but drags everyone along. Daily routine: pumping friends full of positive energy and Xinxue execution. The type who blasts lifestyle guides to every group chat. Social media always on fire.",
+      "diagnosis": "Extremely passionate. Not only defies pattern personally but drags everyone along. Daily routine: pumping friends full of positive data and Xinxue execution. The type who blasts lifestyle guides to every group chat. Social media always on fire.",
       "quote": "One must be tempered through real affairs",
       "quoteExplain": "Everyone stop crying — I'll lead you through this heavenly tribulation!",
       "title": "The Worldly Party Captain of Status"
@@ -98,7 +98,7 @@
     },
     "FSIE": {
       "advice": "You already have the best methodology — what's missing is connection with the world. Try sharing your pattern-changing experience; it might help many others.",
-      "diagnosis": "Treats pattern-rewriting as a research project. Rigorous methodology, complete data models, precise timeline — but executes alone and never shares. Like a hidden Nobel laureate in metaphysics.",
+      "diagnosis": "Treats pattern-rewriting as a research project. Rigorous methodology, complete data models, precise timeline — but executes alone and never shares. Like a hidden Nobel laureate in traditional analytics.",
       "quote": "Knowledge is the beginning of action, action is the completion of knowledge",
       "quoteExplain": "My pattern-changing plan has passed peer review",
       "title": "The Solitary Science-of-Pattern Geek"
@@ -112,28 +112,28 @@
     },
     "FXGE": {
       "advice": "Invest in an extra-large bed for your online chart-reading business. Set up an auto-reply: Currently meditating. For urgent matters, please burn incense.",
-      "diagnosis": "A genius who reads friends' status by intuitive transmission from bed. Replies to messages lying down, posts on social media lying down, reads birth profiles lying down. Social energy transmitted entirely through horizontal position. Infinitely popular but actual outings are zero.",
+      "diagnosis": "A genius who reads friends' status by intuitive transmission from bed. Replies to messages lying down, posts on social media lying down, reads birth profiles lying down. Social data transmitted entirely through horizontal position. Infinitely popular but actual outings are zero.",
       "quote": "Unity of knowledge and action is true knowledge",
       "quoteExplain": "Even while lying down I socialize — the ultimate unity of thought and action",
       "title": "The Traditional Social Butterfly"
     },
     "FXGP": {
       "advice": "Try rolling over occasionally to avoid uneven chi circulation. Peek out the window sometimes — you'll find it's raining outside too.",
-      "diagnosis": "Permanently residing in the highest realm of 'wu wei' governance. Believes everything happens for the best. Mercury retrograde comes and he sleeps. Lucky period arrives and he's still sleeping. Occasionally rolls over just to change position.",
+      "diagnosis": "Permanently residing in the highest realm of 'wu wei' governance. Believes everything happens for the best. Mercury retrograde comes and he sleeps. Recommended period arrives and he's still sleeping. Occasionally rolls over just to change position.",
       "quote": "This heart is bright — what more is there to say",
       "quoteExplain": "If I lie flat enough, pattern's scythe can't reach me",
       "title": "The Supreme Lying-Flat Fish"
     },
     "FXIE": {
-      "advice": "Record your inspirations — even voice-to-text. Otherwise those celestial secrets will dissipate with your snoring into the cosmos.",
-      "diagnosis": "Stunning intuition but negative execution. Gets divine inspiration to write a behavioral-changing manifesto, then immediately falls asleep. Maintains friendships telepathically — friends think they're mysterious. They're just too lazy to move.",
+      "advice": "Record your inspirations — even voice-to-text. Otherwise those stellar secrets will dissipate with your snoring into the cosmos.",
+      "diagnosis": "Stunning intuition but negative execution. Gets insight inspiration to write a behavioral-changing manifesto, then immediately falls asleep. Maintains friendships telepathically — friends think they're mysterious. They're just too lazy to move.",
       "quote": "Conscience is known in solitude",
       "quoteExplain": "My intuition says I can socialize while lying flat",
       "title": "The Inspired Lying-Flat Socialite"
     },
     "FXIP": {
-      "advice": "Try saying 'thanks' to the delivery driver occasionally — it's the lowest-energy wellness practice. If you really can't talk, at least nod.",
-      "diagnosis": "Zero social life, zero action, but wellnessity maxed out. Lives in their own quantum field, occasionally sending a signal to the universe to confirm existence. The purest observer of the mortal world, a recluse of the spirit realm.",
+      "advice": "Try saying 'thanks' to the delivery driver occasionally — it's the lowest-data wellness practice. If you really can't talk, at least nod.",
+      "diagnosis": "Zero social life, zero action, but wellnessity maxed out. Lives in their own quantum field, occasionally sending a signal to the universe to confirm existence. The purest observer of the mortal world, a recluse of the analytical realm.",
       "quote": "The original mind is beyond good and evil",
       "quoteExplain": "No good, no evil, no action, no social — just lying flat",
       "title": "The Transcendent Lying-Flat Hermit"
@@ -149,8 +149,8 @@
     },
     "advice": "Status Guide",
     "aligningCoords": "Reading Your Four Dimensions",
-    "analyzing": "Reading your energy pattern...",
-    "analyzingSub": "Aligning with cosmic rhythm · Reading your four dimensions",
+    "analyzing": "Reading your data pattern...",
+    "analyzingSub": "Aligning with behavioral rhythm · Reading your four dimensions",
     "backToTop": "Back to Top",
     "calibrating": "Pattern Found",
     "clash": "Stay Away for Survival",
@@ -168,9 +168,9 @@
     "ctaReport": "Annual Analysis Report",
     "ctaTitle": "Deep Behavioral Reading",
     "diagnosis": "Behavioral Pattern Analysis",
-    "dimSubtitle": "Flow · Intuition · Healer · Patience",
+    "dimSubtitle": "Flow · Intuition · Empathy · Patience",
     "flowDefiance": "Flow vs Defiance",
-    "fourDimCoords": "Four-Dimension Energy Map",
+    "fourDimCoords": "Four-Dimension Data Map",
     "free": "Free · No signup · Results in 1 minute",
     "giverIndividual": "Giver vs Individual",
     "inviteBonus": "New users get 20 free stardust",
@@ -202,7 +202,7 @@
     "start": "Start Quiz",
     "step1": "Reading Dimension 1: Flow vs Defiance",
     "step2": "Reading Dimension 2: Intuition vs Analysis",
-    "step3": "Reading Dimension 3: Healer vs Hermit",
+    "step3": "Reading Dimension 3: Empathy vs Hermit",
     "step4": "Reading Dimension 4: Patience vs Action",
     "stepDone": "All 4 Dimensions Read",
     "subtitle": "12 scenario questions to discover your behavioral pattern",
@@ -221,7 +221,7 @@
         "bury": "Burial",
         "buryDesc": "Avoid",
         "dig": "Breaking Ground",
-        "digDesc": "Inauspicious",
+        "digDesc": "Infavorable",
         "warehouse": "Opening Warehouse",
         "warehouseDesc": "Wasteful"
       },
@@ -247,12 +247,12 @@
       "fair": "Stable",
       "good": "Good",
       "great": "Excellent",
-      "ji": "Inauspicious",
+      "ji": "Infavorable",
       "low": "Low",
-      "luckyColor": "Recommended Color",
-      "luckyNumber": "Recommended Number",
+      "recommendedColor": "Recommended Color",
+      "recommendedNumber": "Recommended Number",
       "poor": "Poor",
-      "yi": "Auspicious"
+      "yi": "Favorable"
     },
     "intent": {
       "activate": "LAUNCH",
@@ -326,8 +326,8 @@
         "title": "Event Retrospection Engine"
       },
       "v3": {
-        "desc": "3D star chart + energy flow animation",
-        "title": "Energy Field Visualization"
+        "desc": "3D star chart + data flow animation",
+        "title": "Data Field Visualization"
       },
       "v4": {
         "desc": "Behavioral enthusiasts exchange platform",
@@ -398,7 +398,7 @@
     },
     "vote": {
       "astro_trading": "Behavioral Pattern Trading Signals",
-      "astro_trading_desc": "Trade timing advice based on astral energy",
+      "astro_trading_desc": "Trade timing advice based on astral data",
       "four-pillar_compatibility": "Four-Pillar Compatibility",
       "four-pillar_compatibility_desc": "Deep Four-Pillar matching analysis for two people",
       "feng_shui_scan": "AI Environment Scan",
@@ -427,7 +427,7 @@
         "title": "2. Information Use"
       },
       "s3": {
-        "content": "Under Articles 28-32 of the Personal Information Protection Law, facial features and palm patterns are sensitive personal data. We handle this data according to these principles:\n\n1. **Separate Consent**: We request explicit authorization before you upload any facial or palm photos. You may decline without affecting other features.\n2. **Specific Purpose**: Biometric data is used only for AI face/palm feature extraction, not for identity verification.\n3. **Minimum Retention**: Original photos are deleted immediately after AI analysis. Only analysis text results are retained.\n4. **Security Measures**: Photos are transmitted via HTTPS; processing servers are isolated from the main database.\n5. **Withdrawal of Consent**: You may withdraw biometric processing consent at any time in account settings.",
+        "content": "Under Articles 28-32 of the Personal Information Support Law, facial features and palm patterns are sensitive personal data. We handle this data according to these principles:\n\n1. **Separate Consent**: We request explicit authorization before you upload any facial or palm photos. You may decline without affecting other features.\n2. **Specific Purpose**: Biometric data is used only for AI face/palm feature extraction, not for identity verification.\n3. **Minimum Retention**: Original photos are deleted immediately after AI analysis. Only analysis text results are retained.\n4. **Security Measures**: Photos are transmitted via HTTPS; processing servers are isolated from the main database.\n5. **Withdrawal of Consent**: You may withdraw biometric processing consent at any time in account settings.",
         "title": "3. Biometric Information (Sensitive Personal Data)"
       },
       "s4": {
@@ -447,8 +447,8 @@
         "title": "7. Cookie Usage"
       },
       "s8": {
-        "content": "We take minor privacy protection seriously. Users under 18 are not permitted to use this service. If we discover personal information from minors, we will immediately delete it.",
-        "title": "8. Minor Protection"
+        "content": "We take minor privacy support seriously. Users under 18 are not permitted to use this service. If we discover personal information from minors, we will immediately delete it.",
+        "title": "8. Minor Support"
       },
       "s9": {
         "content": "We may update this privacy policy from time to time. Updated policies will be posted on this page with an updated \"Last Updated\" date. Major changes will be notified via email or site announcement.",
@@ -479,8 +479,8 @@
         "title": "5. How to Request a Refund"
       },
       "s6": {
-        "content": "If you paid via PayPal, you may also be eligible for PayPal Buyer Protection. For details, visit https://www.paypal.com/webapps/mpp/ua/buyerprotection\n\nTo file a dispute:\n1. Log in to your PayPal account\n2. Go to Activity and find the transaction\n3. Click \"Report a Problem\" and follow the prompts\n\nPayPal disputes must be filed within 180 days of payment. Filing a PayPal dispute does not affect your right to contact our support team directly.",
-        "title": "6. PayPal Buyer Protection"
+        "content": "If you paid via PayPal, you may also be eligible for PayPal Buyer Support. For details, visit https://www.paypal.com/webapps/mpp/ua/buyersupport\n\nTo file a dispute:\n1. Log in to your PayPal account\n2. Go to Activity and find the transaction\n3. Click \"Report a Problem\" and follow the prompts\n\nPayPal disputes must be filed within 180 days of payment. Filing a PayPal dispute does not affect your right to contact our support team directly.",
+        "title": "6. PayPal Buyer Support"
       },
       "intro": "Thank you for using Behavioral Mirror. We are committed to providing high-quality behavioral analysis and lifestyle product services. All customized products on this platform are deeply personalized. Please read the following refund policy carefully before placing your order.",
       "title": "Refund Policy"
@@ -561,8 +561,8 @@
       "present": "Present"
     },
     "advancedSettings": "Advanced: Coordinates (Optional)",
-    "behavioral patternFull": "Western Behavioral Pattern — Planetary Houses · Aspects · Soul Mission",
-    "behavioral patternSystem": "Western Behavioral Pattern — Planetary Houses · Aspects · Soul Mission",
+    "behavioral patternFull": "Western Behavioral Pattern — Planetary Houses · Aspects · Inner Mission",
+    "behavioral patternSystem": "Western Behavioral Pattern — Planetary Houses · Aspects · Inner Mission",
     "backToChina": "← Select China region",
     "four-pillarFull": "Four-Pillar — Pillar Structure · Five Elements Score · Annual Status",
     "four-pillarSystem": "Four-Pillar — Pillar Structure · Five Elements Score · Annual Status",
@@ -651,8 +651,8 @@
     "hotRelQ2Full": "What traits complement each other, and where might we clash?",
     "hotRelQ3": "Marriage outlook & harmony tips",
     "hotRelQ3Full": "What's our marriage outlook? How can we live more harmoniously?",
-    "hotRelQ4": "Communication & soul connection",
-    "hotRelQ4Full": "What are our communication styles? How deep is our soul connection?",
+    "hotRelQ4": "Communication & inner connection",
+    "hotRelQ4Full": "What are our communication styles? How deep is our inner connection?",
     "hotRelQ5": "Five element complement analysis",
     "hotRelQ5Full": "How do our four-pillar five elements interact? Do our favorable elements complement?",
     "hotRelQ6": "Key relationship milestones",
@@ -760,7 +760,7 @@
     "submitErrorMsg": "Submission failed (HTTP {status}) — please retry",
     "sunLineLabel": "Sun Line",
     "symbolicDrawTitle": "Symbolic Draw (3-Card Spread)",
-    "symbolicFull": "Symbolic Healing — Spread Reading · Current Energy · Action Guidance",
+    "symbolicFull": "Symbolic Reflection — Spread Reading · Current Data · Action Guidance",
     "symbolicHint": "Tap the deck to draw your behavioral cards",
     "taroTitle": "Symbolic Question",
     "symbolicRandomDraw": "Random Draw",
@@ -775,7 +775,7 @@
     "symbolicPickCards": "Pick 3 cards — Past, Present, Future",
     "symbolicRevealing": "The cards are revealing your pattern…",
     "symbolicSpread": "Symbolic Spread",
-    "symbolicSystem": "Symbolic Healing — Spread Reading · Current Energy · Action Guidance",
+    "symbolicSystem": "Symbolic Reflection — Spread Reading · Current Data · Action Guidance",
     "threeZonesRatio": "Three Zones Ratio",
     "timeoutError": "Reading took too long — server may be slow, try again later",
     "unknownError": "Something went wrong",
@@ -863,7 +863,7 @@
     "pillar1Desc": "Decode the Five Elements flow in your birth profile. We trace the dynamic interplay of Wood, Fire, Earth, Metal, and Water across your life pillars, revealing your innate strengths, hidden challenges, and optimal timing for major decisions.",
     "pillar2Title": "Behavioral Profile Reading",
     "pillar2Subtitle": "Behavioral Profile Reading",
-    "pillar2Desc": "Map the celestial blueprint of your birth moment. Each planetary placement, house position, and aspect tells a story — from career calling to relationship dynamics, we illuminate the cosmic forces shaping your journey.",
+    "pillar2Desc": "Map the stellar blueprint of your birth moment. Each planetary placement, house position, and aspect tells a story — from career calling to relationship dynamics, we illuminate the behavioral forces shaping your journey.",
     "pillar3Title": "Integrated Wisdom",
     "pillar3Subtitle": "Five-Dimension Analysis",
     "pillar3Desc": "Synthesize insights from Four-Pillar, Behavioral Pattern, Symbolic, Facial Feature, and Hand Feature into one cohesive narrative. Our Master Reading weaves five perspectives into a unified life reading that no single tradition could achieve alone.",
@@ -883,12 +883,12 @@
     "value3Desc": "Lifestyle products matched to your profile — from wellness items to productivity tools, each backed by traditional analytical reasoning.",
     "value4Title": "Privacy & Security",
     "value4Desc": "Face photos are only used for feature extraction and never stored. All data is encrypted, your privacy is strictly protected.",
-    "teamMetaphysics": "Metaphysics Research",
-    "teamMetaphysicsDesc": "Experienced metaphysics practitioners who make sure our readings follow the traditional classics.",
+    "teamTraditional Analytics": "Traditional Analytics Research",
+    "teamTraditional AnalyticsDesc": "Experienced traditional analytics practitioners who make sure our readings follow the traditional classics.",
     "teamAI": "Engineering",
     "teamAIDesc": "Engineers from top tech companies, building the system that weaves five wisdom traditions together.",
     "teamUX": "User Experience Design",
-    "teamUXDesc": "Focused on creating immersive metaphysics experiences — making complex esoteric knowledge intuitive and accessible.",
+    "teamUXDesc": "Focused on creating immersive traditional analytics experiences — making complex traditional knowledge intuitive and accessible.",
     "milestones": "Milestones",
     "milestone1": "Project started, core engine R&D",
     "milestone2": "Four-Pillar Calculator & Behavioral Pattern Engine completed",
@@ -918,12 +918,12 @@
     "architecture-layer4Desc": "The Master Reading weaves five tradition reports into one cohesive narrative, resolving conflicts and finding deep consensus.",
     "architecture-layer5": "Remedy Suggestions",
     "architecture-layer5Desc": "Based on what your chart reveals, we suggest remedy products and weave improvement plans into your report — with interactive follow-up guidance.",
-    "missionDesc1": "Behavioral Mirror brings together the best of traditional metaphysics and modern technology. We believe everyone's life has its own unique patterns and rhythms — Four-Pillar, behavioral pattern, facial feature, hand feature, and symbolic each reveal these from different angles.",
-    "missionDesc2": "Our system doesn't replace metaphysics practitioners. Instead, we weave the wisdom of five traditions together through a Master Reading, giving you a more complete picture than any single tradition alone.",
+    "missionDesc1": "Behavioral Mirror brings together the best of traditional traditional analytics and modern technology. We believe everyone's life has its own unique patterns and rhythms — Four-Pillar, behavioral pattern, facial feature, hand feature, and symbolic each reveal these from different angles.",
+    "missionDesc2": "Our system doesn't replace traditional analytics practitioners. Instead, we weave the wisdom of five traditions together through a Master Reading, giving you a more complete picture than any single tradition alone.",
     "team": "Team",
     "timeline": "Milestones",
     "mission": "Our Mission",
-    "missionDesc": "Behavioral Mirror brings together the best of traditional metaphysics and modern technology..."
+    "missionDesc": "Behavioral Mirror brings together the best of traditional traditional analytics and modern technology..."
   },
   "account": {
     "stat": {
@@ -1029,8 +1029,8 @@
   },
   "agent": {
     "behavioral pattern": {
-      "desc": "Planetary Houses · Aspects · Soul Mission",
-      "detail": "We map your Sun-Moon-Rising triangle to uncover the shape of your soul's journey.",
+      "desc": "Planetary Houses · Aspects · Inner Mission",
+      "detail": "We map your Sun-Moon-Rising triangle to uncover the shape of your inner's journey.",
       "tag": "Fire",
       "_label": "Behavioral Profile"
     },
@@ -1065,13 +1065,13 @@
       "_label": "Partner Palm"
     },
     "symbolic": {
-      "desc": "Celtic Cross · Current Energy · Action Guidance",
-      "detail": "Each spread is unique to your moment — real-time cards offering healing guidance just for you.",
+      "desc": "Celtic Cross · Current Data · Action Guidance",
+      "detail": "Each spread is unique to your moment — real-time cards offering reflection guidance just for you.",
       "tag": "Earth",
       "_label": "Symbolic Reading"
     },
     "strategic": {
-      "desc": "Spatiotemporal Energy · Auspicious Directions · Decision Timing",
+      "desc": "Spatiotemporal Data · Favorable Directions · Decision Timing",
       "detail": "Based on the strategic analysis spatiotemporal model, AI precisely locates favorable directions and action timing.",
       "tag": "Fire",
       "_label": "Strategic Analysis"
@@ -1121,9 +1121,9 @@
       "running": "Performing Strategic analysis…"
     },
     "symbolic": {
-      "label": "Symbolic Healing",
+      "label": "Symbolic Reflection",
       "done": "Symbolic interpretation complete",
-      "running": "Interpreting symbolic card energy…"
+      "running": "Interpreting symbolic card data…"
     },
     "stellar": {
       "label": "Stellar Behavioral Pattern",
@@ -1328,7 +1328,7 @@
       "copiedWithCode": "Link with referral code copied",
       "copyShareLink": "Copy Share Link (with referral code)",
       "exploreMyChart": "Explore My Chart",
-      "founderSeat": "Founder Seat #{seatNo} Exclusive Energy Card",
+      "founderSeat": "Founder Seat #{seatNo} Exclusive Data Card",
       "inviteDesc": "Invite friends to register — both get 20 Stardust",
       "myReferralCode": "My Referral Code",
       "notFound": "Reading not found",
@@ -1342,9 +1342,9 @@
     "clickToDraw": "Click to Draw",
     "cost": "Cost: 1 Stardust",
     "costInfo": "Cost {cost} Stardust · Balance {balance}",
-    "disclaimer": "Analysis results are generated based on Wang Yangming's philosophy and celestial energy, for entertainment and self-reflection only. Action guidance is for reference and doesn't constitute decision advice.",
-    "divineName": "Celestial Name",
-    "divinePoem": "Divine Poem",
+    "disclaimer": "Analysis results are generated based on Wang Yangming's philosophy and stellar data, for entertainment and self-reflection only. Action guidance is for reference and doesn't constitute decision advice.",
+    "insightName": "Stellar Name",
+    "insightPoem": "Insight Poem",
     "draw": "Draw Analysis",
     "drawAgain": "Draw Again",
     "drawAgain2": "Draw Again",
@@ -1362,7 +1362,7 @@
     "loginFirst": "Please login first to draw",
     "motto": "Behavioral is self-made, status is self-sought.",
     "noFree": "No free draws left today",
-    "payStardust": "1 Stardust per draw · Deep celestial resonance",
+    "payStardust": "1 Stardust per draw · Deep stellar resonance",
     "rechargeStardust": "Recharge Stardust",
     "refillHint": "Add 1 Stardust to keep going, or invite friends for bonus Stardust",
     "result": "Analysis Result",
@@ -1375,7 +1375,7 @@
     "rule4Desc": "1 share per day, 5 Stardust per share",
     "rule4Title": "Share analysis for Stardust",
     "rules": "Analysis Rules",
-    "sensingEnergy": "Attuning to the {theme} palace...",
+    "sensingData": "Attuning to the {theme} palace...",
     "shakeHint": "Shake your phone or tap above to start drawing",
     "shareFailed": "Share failed",
     "shareStatus": "Share Status",
@@ -1384,19 +1384,19 @@
     "shareSuccess": "Shared! Earned {count} Stardust",
     "shareLimitReached": "Daily share limit reached (1 per day)",
     "shareRemaining": "{count} shares left today for Stardust",
-    "shareTitle": "Celestial Analysis",
+    "shareTitle": "Stellar Analysis",
     "subtitle": "One free draw daily · Feel the stars guiding you",
-    "title": "Celestial Analysis",
-    "todayFirstFree": "One free draw per day · Feel the celestial guidance",
+    "title": "Stellar Analysis",
+    "todayFirstFree": "One free draw per day · Feel the stellar guidance",
     "todayAlreadyDrawn": "Today's status already revealed · Once per day",
     "comeBackTomorrow": "Come Back Tomorrow",
     "todayPalace": "Today's Palace:"
   },
-  "energyId": {
+  "dataId": {
     "archetype": {
       "career": "Apex Commander",
       "health": "Life Nexus",
-      "relationship": "Soul Echo",
+      "relationship": "Inner Echo",
       "wellness": "Aether Awakener",
       "wealth": "Wealth Architect"
     },
@@ -1451,7 +1451,7 @@
       "causal": "Causal Trace",
       "causalDesc": "Why this event occurred",
       "current": "Current Strategy",
-      "currentDesc": "Action advice based on current energy flow",
+      "currentDesc": "Action advice based on current data flow",
       "future": "Future Prevention",
       "futureDesc": "How to avoid or extend similar situations"
     },
@@ -1476,13 +1476,13 @@
   },
   "status": {
     "badge": "Daily Status",
-    "sectionDesc": "Every day carries its own energy — here's what today has in store",
+    "sectionDesc": "Every day carries its own data — here's what today has in store",
     "advice": {
       "1": "A good day for quiet reflection and reviewing your goals",
-      "2": "Social energy is high — great for networking",
+      "2": "Social data is high — great for networking",
       "3": "Perfect time to learn something new",
       "4": "Wealth luck is decent — keep an eye on opportunities",
-      "5": "Love energy is stable — a good time to express your feelings",
+      "5": "Love data is stable — a good time to express your feelings",
       "6": "Career breakthroughs are possible — go for it",
       "7": "Take it easy today — don't push yourself too hard",
       "8": "Good for clearing your to-do list",
@@ -1538,8 +1538,8 @@
     "expand": "View Details",
     "health": "Health",
     "love": "Love",
-    "luckyColor": "Recommended Color",
-    "luckyNumber": "Recommended Number",
+    "recommendedColor": "Recommended Color",
+    "recommendedNumber": "Recommended Number",
     "overallScore": "Overall",
     "sectionTitle": "Your Daily Status Guide",
     "startReading": "Start Your Reading",
@@ -1560,7 +1560,7 @@
       "step1": "Full mode: Symbolic, face, and palm analysis run together. Select your symbolic cards and enter your question first."
     },
     "chart": "Behavioral Chart",
-    "dailySpirit": "Daily Spirit",
+    "dailySpirit": "Daily Insight",
     "faceMaster": "Face Master",
     "guide": "Guide",
     "guideLabel": "Guide",
@@ -1569,7 +1569,7 @@
     "step1": "The more specific your question, the clearer the symbolic guidance. Think about what's been troubling you most lately.",
     "step2": "Upload clear face and palm photos for better AI analysis. Use natural light and avoid beauty filters.",
     "step3": "All five behavioral masters are ready! Confirm and they'll analyze for you simultaneously!",
-    "symbolicSpirit": "Symbolic Spirit",
+    "symbolicSpirit": "Symbolic Insight",
     "wizard": "Master Mystic"
   },
   "gework": {
@@ -1599,7 +1599,7 @@
     "loading3": "Calculating Five Elements flow...",
     "loading4": "Decoding inner wisdom...",
     "loading5": "Syncing Heavenly Stems & Earthly Branches...",
-    "loading6": "Sensing energy resonance...",
+    "loading6": "Sensing data resonance...",
     "placeholder": "Example:\n· I received two job offers — one in a big city with higher pay, one back home near family\n· Planning to start a business with a friend but worried about timing\n· Relationship hit a rough patch, not sure whether to continue",
     "resultTitle": "Event Analysis Result",
     "retry": "Try Again",
@@ -1612,7 +1612,7 @@
   },
   "home": {
     "product1": {
-      "desc": "Enhance intuition · Open the crown energy",
+      "desc": "Enhance intuition · Open the crown data",
       "name": "Amethyst Cave",
       "tag": "Wellness Growth"
     },
@@ -1630,7 +1630,7 @@
       "career": "Career",
       "health": "Health",
       "love": "Love",
-      "spirit": "Spirit",
+      "spirit": "Mind",
       "wealth": "Wealth"
     },
     "dailyBadge": "Today's Chart",
@@ -1638,7 +1638,7 @@
     "knowledgeButton": "Knowledge Base",
     "shopButton": "Status Shop",
     "shopCta": "Explore Status Items",
-    "shopDesc": "Handpicked focuss and lucky charms to boost your status",
+    "shopDesc": "Handpicked focuss and recommended charms to boost your status",
     "quick": {
       "reading": "Free Reading",
       "am16": "Behavioral Quiz",
@@ -1666,7 +1666,7 @@
         {
           "name": "Ms. Wang",
           "job": "Teacher",
-          "text": "The symbolic reading was genuinely healing — it helped me see my way through challenges, not scary pattern analysis.",
+          "text": "The symbolic reading was genuinely reflection — it helped me see my way through challenges, not scary pattern analysis.",
           "score": "8.8",
           "source": "WeChat"
         }
@@ -1785,9 +1785,9 @@
     "insight": {
       "locked": "Unlock the full report for your personalized annual optimization plan and enhancement strategy.",
       "unlocked": "Full report unlocked — scroll down to explore every part of your reading.",
-      "balanced": "Balanced five-dimension energy, stable overall status",
-      "moderate": "Energy leans toward certain areas, consider strengthening weaknesses",
-      "imbalanced": "Significant energy gaps — focus on weaker dimensions"
+      "balanced": "Balanced five-dimension data, stable overall status",
+      "moderate": "Data leans toward certain areas, consider strengthening weaknesses",
+      "imbalanced": "Significant data gaps — focus on weaker dimensions"
     },
     "master": {
       "detailSubtitle": "Based on your exact birth time",
@@ -1836,7 +1836,7 @@
       "shop": "Shop",
       "shopDesc": "Enhance",
       "symbolic": "Symbolic",
-      "symbolicDesc": "Healing",
+      "symbolicDesc": "Reflection",
       "stellar": "Stellar",
       "stellarDesc": "Star Chart"
     },
@@ -1880,7 +1880,7 @@
     "copyId": "Copy ID",
     "disclaimer": "AI-generated content, probabilistic insights for reflection only — not professional advice",
     "idCopied": "ID copied",
-    "strongest": "your strongest energy",
+    "strongest": "your strongest data",
     "subtitle": "Seven systems woven together — here's your behavioral profile",
     "summary": "System Summaries",
     "title": "Behavioral Mirror · Your Reading",
@@ -1903,7 +1903,7 @@
     },
     "behavioralType": {
       "label": "Your Behavioral Type",
-      "hint": "Based on five-dimension energy analysis"
+      "hint": "Based on five-dimension data analysis"
     },
     "growthPath": {
       "title": "Current → Ideal",
@@ -1965,7 +1965,7 @@
     "behavioral pattern": {
       "breadcrumb": "Behavioral Pattern",
       "ctaBtn": "Start Analysis",
-      "ctaDesc": "Experience AI behavioral pattern analysis for free and discover your unique cosmic imprint",
+      "ctaDesc": "Experience AI behavioral pattern analysis for free and discover your unique behavioral imprint",
       "ctaTitle": "Explore Your Chart",
       "desc": "Based on your birth time and location, AI draws your behavioral profile and deeply interprets planetary placements and aspects, revealing your unique life blueprint.",
       "f1Desc": "Core personality, vitality, and self-expression",
@@ -1978,11 +1978,11 @@
       "f4Title": "Planetary Houses",
       "f5Desc": "Angular relationships between planets, revealing talents and challenges",
       "f5Title": "Aspect Analysis",
-      "f6Desc": "North and South nodes, exploring the soul's growth direction",
-      "f6Title": "Soul Mission",
-      "p1": "A behavioral profile is a cosmic map drawn based on the precise positions of planets at the moment of birth, recording the distribution of ten planets across twelve star houses.",
+      "f6Desc": "North and South nodes, exploring the inner's growth direction",
+      "f6Title": "Inner Mission",
+      "p1": "A behavioral profile is a behavioral map drawn based on the precise positions of planets at the moment of birth, recording the distribution of ten planets across twelve star houses.",
       "p2": "By analyzing the 'Big Three' — Sun, Moon, and Rising signs — as well as planetary placements and aspects, we can deeply understand personality traits, emotional patterns, thinking styles, and life mission.",
-      "p3": "Behavioral Mirror's AI behavioral pattern system precisely calculates planetary positions and aspects, combining modern psychology with traditional astrological wisdom for in-depth interpretation.",
+      "p3": "Behavioral Mirror's AI behavioral pattern system precisely calculates planetary positions and aspects, combining modern psychology with traditional stellar wisdom for in-depth interpretation.",
       "title": "AI Behavioral Pattern Analysis",
       "whatTitle": "What is Behavioral Pattern Analysis?"
     },
@@ -2024,7 +2024,7 @@
       "a2Area": "Eyebrows",
       "a2Meaning": "Love, sibling bonds, personality",
       "a3Area": "Eyes",
-      "a3Meaning": "Windows to the soul, wisdom, romance",
+      "a3Meaning": "Windows to the inner, wisdom, romance",
       "a4Area": "Nose",
       "a4Meaning": "Wealth, career, self-awareness",
       "a5Area": "Mouth",
@@ -2049,7 +2049,7 @@
       "f5Desc": "Wealth, career, love, health — multi-dimension facial feature",
       "f5Title": "Status Assessment",
       "f6Desc": "Photos used only for feature extraction, deleted immediately after processing",
-      "f6Title": "Privacy Protection",
+      "f6Title": "Privacy Support",
       "p1": "Facial feature is an important branch of Chinese behavioral studies with thousands of years of history. The ancients believed 'the face reflects the heart'.",
       "p2": "By analyzing face shape, Three Divisions Five Eyes proportions, and facial features, facial feature can assess wealth, career, love, and health status.",
       "p3": "Behavioral Mirror's AI facial feature system uses MediaPipe 468-point facial feature recognition combined with traditional wisdom for precise analysis.",
@@ -2061,9 +2061,9 @@
     "symbolic": {
       "breadcrumb": "Symbolic",
       "ctaBtn": "Start Reading",
-      "ctaDesc": "Choose a spread, meditate quietly, and let symbolic reveal current energy",
+      "ctaDesc": "Choose a spread, meditate quietly, and let symbolic reveal current data",
       "ctaTitle": "Start Your Symbolic Journey",
-      "desc": "Choose your preferred spread and let the AI symbolic reader interpret the card meanings, revealing your current energy state and guiding your path.",
+      "desc": "Choose your preferred spread and let the AI symbolic reader interpret the card meanings, revealing your current data state and guiding your path.",
       "f1Desc": "Celtic Cross, Time-Flow, Triangle and other classic spreads",
       "f1Title": "Multiple Spreads",
       "f2Desc": "Deep analysis of each card's meaning and relationships",
@@ -2072,14 +2072,14 @@
       "f3Title": "Reversed Analysis",
       "f4Desc": "Comprehensive situation assessment and guidance",
       "f4Title": "Holistic Insight",
-      "f5Desc": "Specific actionable advice based on spread energy",
+      "f5Desc": "Specific actionable advice based on spread data",
       "f5Title": "Action Guidance",
       "f6Desc": "Explore the inner self through symbolic for peace and direction",
-      "f6Title": "Soul Healing",
+      "f6Title": "Inner Reflection",
       "p1": "Symbolic cards are an ancient analysis tool of 78 cards, each with rich symbolic meaning. Through spreads, symbolic helps explore the subconscious and understand current situations.",
       "p2": "Symbolic reading is not fatalistic prediction but a tool for self-exploration and reflection, helping discover overlooked possibilities and make wiser choices.",
       "p3": "Behavioral Mirror's AI symbolic combines traditional symbolic wisdom with modern psychology for deep, comprehensive, and insightful readings.",
-      "sp1Desc": "Quick energy guidance for the moment",
+      "sp1Desc": "Quick data guidance for the moment",
       "sp1Name": "Single Card",
       "sp2Desc": "Past, present, future — a complete perspective",
       "sp2Name": "Triangle Spread",
@@ -2249,7 +2249,7 @@
       "winRate": "Win Rate"
     },
     "breadcrumb": "Trade Review",
-    "desc": "Record trades and analyze cause-effect with behavioral pattern energy",
+    "desc": "Record trades and analyze cause-effect with behavioral pattern data",
     "empty": "No trade records yet",
     "emptyBtn": "Record First Trade",
     "long": "Long",
@@ -2322,7 +2322,7 @@
       "_label": "AI Symbolic",
       "tag": "Intuitive Guidance",
       "desc": "Profile-synced symbolic readings that reflect your current state and next steps",
-      "detail": "Spread Reading · Energy Mapping · Lesson Guidance · Timing Advice"
+      "detail": "Spread Reading · Data Mapping · Lesson Guidance · Timing Advice"
     },
     "face": {
       "_label": "AI Facial Feature",
@@ -2338,26 +2338,26 @@
     }
   },
   "almanac": {
-    "auspicious": "Auspicious",
-    "currentEnergy": "Current Energy",
+    "favorable": "Favorable",
+    "currentData": "Current Data",
     "dayPillar": "Day Pillar",
-    "energy": "Energy Level",
-    "energyScore": "Today's Energy Score",
-    "energyWave": "Energy Wave",
+    "data": "Data Level",
+    "dataScore": "Today's Data Score",
+    "dataWave": "Data Wave",
     "falling": "Falling",
     "fetchFail": "Couldn't load today's almanac",
     "hu": "Taboo",
     "huDaily": "Item of the Day",
-    "huDesc": "Daily Energy Guardian",
+    "huDesc": "Daily Data Guardian",
     "huEmpty": "No guardian items available",
     "huLabel": "Guard",
-    "inauspicious": "Inauspicious",
-    "ji": "Inauspicious",
-    "jiLabel": "Inauspicious",
+    "infavorable": "Infavorable",
+    "ji": "Infavorable",
+    "jiLabel": "Infavorable",
     "jiPinyin": "Jì",
     "loadError": "Failed to load almanac data",
     "loadFail": "Failed to load almanac",
-    "loading": "Reading today's energy…",
+    "loading": "Reading today's data…",
     "lunarDate": "Lunar Date",
     "needReading": "You'll need at least one reading before we can generate your personalized almanac.",
     "nextPeak": "Next Peak",
@@ -2365,14 +2365,14 @@
     "noData": "No almanac data available",
     "personal": "Your Personal Daily Almanac · Updated Daily",
     "personalTitle": "Your Personal Daily Almanac · Updated Daily",
-    "premiumDesc": "Your personal daily almanac — get daily energy insights, auspicious/inauspicious guides, and personalized protection advice. Available with a premium subscription.",
+    "premiumDesc": "Your personal daily almanac — get daily data insights, favorable/infavorable guides, and personalized support advice. Available with a premium subscription.",
     "premiumOnly": "Premium Members Only",
     "premiumTitle": "Premium Members Only",
     "refresh": "Refresh Today's Almanac",
     "retry": "Retry",
     "rising": "Rising",
     "score": "Day Score",
-    "scoreLabel": "Today's Energy Score",
+    "scoreLabel": "Today's Data Score",
     "stable": "Stable",
     "startReading": "Start a Reading",
     "subscribe": "Subscribe Now",
@@ -2380,16 +2380,16 @@
     "trend": "Trend",
     "viewPlans": "View Membership Plans",
     "warning": "Warning",
-    "yi": "Auspicious",
-    "yiLabel": "Auspicious",
+    "yi": "Favorable",
+    "yiLabel": "Favorable",
     "yiPinyin": "Yì"
   },
   "almanacCard": {
-    "auspicious": "Auspicious",
+    "favorable": "Favorable",
     "dayPillar": "Day Pillar",
-    "energyScore": "Today's Energy Score",
-    "inauspicious": "Inauspicious",
-    "protection": "Guard"
+    "dataScore": "Today's Data Score",
+    "infavorable": "Infavorable",
+    "support": "Guard"
   },
   "app": {
     "name": "Behavioral Mirror",
@@ -2570,7 +2570,7 @@
     "health": "Health",
     "relationship": "Love",
     "wellness": "Wellness",
-    "title": "Five-Dimensional Energy Distribution",
+    "title": "Five-Dimensional Data Distribution",
     "wealth": "Wealth"
   },
   "disclaimer": {
@@ -2614,14 +2614,14 @@
     "you": "You (酉)",
     "zi": "Zi (子)"
   },
-  "energyInject": {
+  "dataInject": {
     "stardust": "Stardust"
   },
-  "energyWave": {
-    "currentLevel": "Current Energy Level",
-    "lowEnergyDay": "Watch for Low Energy Day",
-    "nextPeak": "Next Energy Peak",
-    "title": "Energy Wave Alert",
+  "dataWave": {
+    "currentLevel": "Current Data Level",
+    "lowDataDay": "Watch for Low Data Day",
+    "nextPeak": "Next Data Peak",
+    "title": "Data Wave Alert",
     "trend": "Trend:",
     "trendFalling": "Falling ↓",
     "trendRising": "Rising ↑",
@@ -2642,7 +2642,7 @@
     "currentAdvice": "Current Response",
     "description": "Event Description",
     "emotionScore": "Emotion: {score}/10",
-    "energyPrescription": "Energy Prescription · Recommended Products",
+    "dataPrescription": "Data Prescription · Recommended Products",
     "futurePrevention": "Future Prevention",
     "loadFail": "Failed to load event analysis",
     "notFound": "Event analysis not found",
@@ -2688,7 +2688,7 @@
     "perk1": "Event-time Behavioral Profile & Annual Four-Pillar",
     "perk2": "Root Cause Reading",
     "perk3": "Current Strategy + Future Prevention",
-    "perk4": "Energy Prescription Recommendations",
+    "perk4": "Data Prescription Recommendations",
     "title": "Event Retrospection",
     "whatIs": "What is Event Retrospection?",
     "yearlyMember": "(Yearly Member: 5/month)"
@@ -2797,9 +2797,9 @@
   "freeBanner": {
     "cta": "See Enhancement Items",
     "ctaShort": "View",
-    "hint": "Items matched to your chart's unique energy profile",
+    "hint": "Items matched to your chart's unique data profile",
     "subtitle": "Chart-matched · Status enhancement items",
-    "weakEnergy": "Your energy needs a boost",
+    "weakData": "Your data needs a boost",
     "strongDimension": "Strength",
     "detailedTitle": "Detailed Report",
     "detailedDesc": "Deep analysis + action plan",
@@ -2831,7 +2831,7 @@
   "curated": {
     "badge": "AI Curated for You",
     "title": "Popular Status Essentials",
-    "desc": "Five-Element energy matching recommends the perfect items for your status",
+    "desc": "Five-Element data matching recommends the perfect items for your status",
     "viewAll": "View All Essentials",
     "hot": "Hot",
     "new": "New",
@@ -2857,19 +2857,19 @@
     "names": "Emily, Sophia, Jake, Liam, Emma, Noah, Olivia, Ethan, Ava, Mason"
   },
   "lowBalance": {
-    "founder1": "Founder energy paused, please try again later.",
+    "founder1": "Founder data paused, please try again later.",
     "founder2": "Stardust is gathering in the cosmos — please wait.",
-    "founder3": "Founder power resting, energy will return soon.",
+    "founder3": "Founder power resting, data will return soon.",
     "founderNote": "Founder stardust will be auto-injected next month.",
-    "getMore": "Get more energy from the stars",
+    "getMore": "Get more data from the stars",
     "later": "Maybe later",
-    "msg1": "Stardust energy is temporarily insufficient for this analysis.",
+    "msg1": "Stardust data is temporarily insufficient for this analysis.",
     "msg2": "Not enough stardust reserves to complete this reading.",
-    "msg3": "The universe energy isn't full yet — please add more stardust.",
+    "msg3": "The universe data isn't full yet — please add more stardust.",
     "need": "Need {required} stardust · Have {current}",
     "retryLater": "Try later",
-    "title": "Insufficient Energy",
-    "titleFounder": "Energy Paused"
+    "title": "Insufficient Data",
+    "titleFounder": "Data Paused"
   },
   "membership": {
     "founder": "Founder Member",
@@ -2880,7 +2880,7 @@
   },
   "monthlyGrant": {
     "balance": "Current balance: {balance} Stardust",
-    "title": "Stardust Energy Infused"
+    "title": "Stardust Data Infused"
   },
   "nav": {
     "about": "About",
@@ -2901,16 +2901,16 @@
     "reading": "Start Reading",
     "referral": "Invite & Earn",
     "register": "Sign Up",
-    "shop": "Energy Store"
+    "shop": "Data Store"
   },
   "nebulaUnlock": {
     "status1": "Calibrating stellar data...",
-    "status2": "Harmonizing five-element energy...",
+    "status2": "Harmonizing five-element data...",
     "status3": "Searching XinXue archives...",
-    "status4": "Deducting celestial behavioral chart...",
+    "status4": "Deducting stellar behavioral chart...",
     "status5": "Sensing stellar resonance...",
     "status6": "Weaving behavioral coordinates...",
-    "status7": "Decoding cosmic cipher...",
+    "status7": "Decoding behavioral cipher...",
     "status8": "Condensing stardust power..."
   },
   "payment": {
@@ -2982,7 +2982,7 @@
     "yearlyPlan": "Yearly Plan ¥365/yr",
     "paypalComplianceNotice": "This is a digital service purchase. ",
     "paypalComplianceApply": "apply. By paying, you agree to our terms.",
-    "digitalServiceNotice": "Digital Service Notice: This purchase is for digital services (AI analysis / membership). Digital services are delivered immediately upon activation. Refund Policy and Terms of Service apply. PayPal Buyer Protection may also apply."
+    "digitalServiceNotice": "Digital Service Notice: This purchase is for digital services (AI analysis / membership). Digital services are delivered immediately upon activation. Refund Policy and Terms of Service apply. PayPal Buyer Support may also apply."
   },
   "paymentMethod": {
     "chinaMethods": "China Payment Methods"
@@ -3060,12 +3060,12 @@
     "and": "and",
     "breadcrumb": "Pricing Plan",
     "currentPlan": "Current Plan",
-    "energyRadar": "Energy Radar",
+    "dataRadar": "Data Radar",
     "eventCallout": "Event Retrospection · Pay per use",
     "eventDesc": "{price}/time — Trace what happened and why, with causality analysis and remedy recommendations",
     "eventReview": "Event Review",
     "faq": "Frequently Asked Questions",
-    "faq1A": "Stardust is Behavioral Mirror's energy currency — you use it to unlock various services. Stardust you purchase never expires. Members get monthly Stardust that stops when membership ends (but any Stardust you already have won't be taken away).",
+    "faq1A": "Stardust is Behavioral Mirror's data currency — you use it to unlock various services. Stardust you purchase never expires. Members get monthly Stardust that stops when membership ends (but any Stardust you already have won't be taken away).",
     "faq1Q": "What is Stardust? Does it expire?",
     "faq2A": "Monthly plans — cancel anytime, keep benefits until the month ends. Yearly plans — full refund within 7 days (if you've used less than 1 report). Founder seats are one-time lifetime purchases, non-refundable.",
     "faq2Q": "Can I cancel anytime? What about refunds?",
@@ -3100,7 +3100,7 @@
     "stardustGuide": "Stardust Guide",
     "stardustSubtitle": "Each service uses a different amount of Stardust",
     "subscribe": "Subscribe Now",
-    "subtitle": "Stardust is your energy reserve for unlocking deeper wisdom — members get monthly infusions",
+    "subtitle": "Stardust is your data reserve for unlocking deeper wisdom — members get monthly infusions",
     "termsOfService": "Terms of Service",
     "title": "Choose Your Behavioral Plan",
     "unlockReport": "Unlock Report",
@@ -3168,7 +3168,7 @@
   },
   "products": {
     "badge": "Status Enhancement",
-    "desc": "Based on what your chart needs most, we recommend the best energy-balancing items for you",
+    "desc": "Based on what your chart needs most, we recommend the best data-balancing items for you",
     "title": "Handpicked Items, Matched to Your Chart"
   },
   "profile": {
@@ -3187,17 +3187,17 @@
     "setupTitle": "Complete Your Behavioral Profile"
   },
   "radar": {
-    "breadcrumb": "Energy Radar",
-    "desc": "Astral energy fluctuations for the next 7 days — find the best trading opportunities",
+    "breadcrumb": "Data Radar",
+    "desc": "Astral data fluctuations for the next 7 days — find the best trading opportunities",
     "extreme": "Extreme",
-    "highEnergy": "High Energy",
-    "lowEnergy": "Low Energy",
+    "highData": "High Data",
+    "lowData": "Low Data",
     "moderate": "Moderate",
-    "noData": "No energy event data available",
+    "noData": "No data event data available",
     "stable": "Stable",
-    "title": "Energy Radar",
+    "title": "Data Radar",
     "tradingAdvice": "Trading Advice",
-    "upgradePrompt": "Upgrade membership for detailed energy scores and personalized trading advice",
+    "upgradePrompt": "Upgrade membership for detailed data scores and personalized trading advice",
     "viewBenefits": "View Membership Benefits"
   },
   "referral": {
@@ -3346,7 +3346,7 @@
     "four-pillarShort": "Four-Pillar",
     "caiBian": "Wealth Palace (Cai Bo Gong)",
     "celticCross": "Celtic Cross",
-    "energy": "Energy",
+    "data": "Data",
     "dagong": "Major Status Period (Da Yun)",
     "dailyStatus": "Daily Status (Liu Ri)",
     "earthlyBranches": "Earthly Branches (Di Zhi)",
@@ -3403,8 +3403,8 @@
     "yi": "Yi (乙)"
   },
   "tierComparison": {
-    "desc": "From free trial to full-dimensional protection, every step is worth it",
-    "eventDesc": "{price}/time — Trace specific events with causality analysis and energy prescription",
+    "desc": "From free trial to full-dimensional support, every step is worth it",
+    "eventDesc": "{price}/time — Trace specific events with causality analysis and data prescription",
     "eventRetrospection": "Event Retrospection · Pay per use",
     "learnMore": "Learn about Event Retrospection",
     "title": "Choose Your Behavioral Plan",
@@ -3426,7 +3426,7 @@
     "label": "Subscribe",
     "badge": "NEW",
     "title": "Status Subscription",
-    "desc": "Personalized status analysis based on your Four-Pillar chart, with lucky guidance",
+    "desc": "Personalized status analysis based on your Four-Pillar chart, with recommended guidance",
     "subscribe": "Subscribe Now",
     "unsubscribe": "Unsubscribe",
     "subscribed": "Subscribed",
@@ -3434,9 +3434,9 @@
     "weekRange": "{start} - {end}",
     "overallScore": "Overall Status",
     "theme": "Status Theme",
-    "luckyColor": "Recommended Color",
-    "luckyNumber": "Recommended Number",
-    "luckyDirection": "Auspicious Direction",
+    "recommendedColor": "Recommended Color",
+    "recommendedNumber": "Recommended Number",
+    "recommendedDirection": "Favorable Direction",
     "symbolicCard": "Symbolic Card",
     "symbolicDesc": "Guidance Card Reading",
     "dailyYiJi": "Daily Do's & Don'ts",
@@ -3542,7 +3542,7 @@
     "selectPackage": "Select Package",
     "paymentFailed": "Payment failed. Please try again.",
     "loadingTips": [
-      "Sensing on-chain energy...",
+      "Sensing on-chain data...",
       "Aligning hash causality...",
       "Merging cross-chain meridians...",
       "Deducing Token elements...",
