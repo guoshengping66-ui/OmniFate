@@ -1,7 +1,7 @@
 /**
  * Fate OS Internationalization Dictionary
  * ========================================
- * Premium cyberpunk-style translations for Traditional Chinese Metaphysics.
+ * Premium cyberpunk-style translations for Traditional Chinese Analytics.
  * Target audience: Global Web3 traders, hackers, and tech-savvy users.
  *
  * Style: Technical, gamified, geek-culture vibe.
@@ -56,8 +56,8 @@ export const YI_JI = {
   宜学习成长: { en: "Evolution Protocol", tactical: "Accelerate personal development" },
   宜稳健积累: { en: "Steady Accumulation", tactical: "Build compound advantages" },
   诸事皆宜: { en: "All Vectors Green", tactical: "System-wide optimal alignment" },
-  安床: { en: "Grounding Ritual", tactical: "Establish stable foundation" },
-  祈福: { en: "Energy Realignment", tactical: "Recalibrate spiritual frequencies" },
+  安床: { en: "Grounding Protocol", tactical: "Establish stable foundation" },
+  祈福: { en: "Energy Realignment", tactical: "Recalibrate data frequencies" },
   嫁娶: { en: "Union Protocol", tactical: "Form permanent bond alliance" },
   开市: { en: "Market Launch", tactical: "Activate commerce operations" },
   交易: { en: "Exchange Execution", tactical: "Process transaction sequences" },
@@ -87,8 +87,8 @@ export const YI_JI = {
   诉讼: { en: "Legal Conflict Zone", tactical: "Steer clear of disputes" },
 } as const
 
-// ─── Fortune Levels (运势等级) ──────────────────────────────────────────────
-export const FORTUNE_LEVELS = {
+// ─── Status Levels (运势等级) ──────────────────────────────────────────────
+export const STATUS_LEVELS = {
   大吉: { en: "Supreme Alignment", level: 7, color: "gold" },
   中吉: { en: "Strong Resonance", level: 6, color: "green" },
   小吉: { en: "Positive Signal", level: 5, color: "blue" },
@@ -228,7 +228,7 @@ export function getTacticalAction(chinese: string): string {
  * Get fortune level info
  */
 export function getFortuneLevel(chinese: string) {
-  return FORTUNE_LEVELS[chinese as keyof typeof FORTUNE_LEVELS] || {
+  return STATUS_LEVELS[chinese as keyof typeof STATUS_LEVELS] || {
     en: chinese,
     level: 3,
     color: "gray",
