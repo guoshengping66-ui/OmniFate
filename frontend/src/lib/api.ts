@@ -398,7 +398,7 @@ export async function runAnalysis(data: AnalysisRequest): Promise<AnalysisRespon
       return poll.data
     }
   }
-  throw new Error("分析超时，请稍后在「我的命盘」中查看结果")
+  throw new Error("分析超时，请稍后在「我的档案」中查看结果")
 }
 
 // ── Reading cache (browser sessionStorage) ──────────────────────────────────
@@ -948,12 +948,12 @@ export async function createCheckoutUrl(
   // 根据支付方式调用不同接口 — 金额由服务端决定
   if (paymentMethod === "alipay") {
     const res = await apiDirect.post(`/api/payments/alipay/create`, null, {
-      params: { item_type: itemType, subject: "命盘智镜", reading_id: readingId }
+      params: { item_type: itemType, subject: "行为分析镜", reading_id: readingId }
     })
     return { pay_url: res.data.pay_url, payment_method: "alipay", message: res.data.message }
   } else if (paymentMethod === "wechat_pay") {
     const res = await apiDirect.post(`/api/payments/wechat/create`, null, {
-      params: { item_type: itemType, description: "命盘智镜", reading_id: readingId }
+      params: { item_type: itemType, description: "行为分析镜", reading_id: readingId }
     })
     return { code_url: res.data.code_url, payment_method: "wechat_pay", message: res.data.message }
   } else if (paymentMethod === "paypal") {
@@ -990,16 +990,16 @@ export async function payEvent(
 }
 
 export const AGENT_LABELS: Record<string, { icon: string; label: string; color: string }> = {
-  astrology: { icon: "✦", label: "西方星盘",  color: "text-purple-400" },
-  tarot:     { icon: "🃏", label: "塔罗疗愈",  color: "text-jade-light" },
-  bazi:      { icon: "☯", label: "周易八字",  color: "text-gold" },
-  qimen:     { icon: "🎯", label: "奇门遁甲",  color: "text-amber-400" },
-  ziwei:     { icon: "⭐", label: "紫微斗数",  color: "text-purple-400" },
-  face:      { icon: "👁", label: "AI 面相",   color: "text-rose-400" },
-  palm:      { icon: "🤚", label: "手相解读",  color: "text-amber-400" },
-  partner_face: { icon: "👁", label: "对方面相", color: "text-rose-400" },
-  partner_palm: { icon: "🤚", label: "对方手相", color: "text-amber-400" },
-  master:    { icon: "🌟", label: "命盘总览",  color: "text-gold" },
+  astrology: { icon: "✦", label: "图表分析",  color: "text-purple-400" },
+  tarot:     { icon: "🃏", label: "符号反思",  color: "text-jade-light" },
+  bazi:      { icon: "☯", label: "四柱分析",  color: "text-gold" },
+  qimen:     { icon: "🎯", label: "策略分析",  color: "text-amber-400" },
+  ziwei:     { icon: "⭐", label: "图表系统",  color: "text-purple-400" },
+  face:      { icon: "👁", label: "面部特征",   color: "text-rose-400" },
+  palm:      { icon: "🤚", label: "手部特征",  color: "text-amber-400" },
+  partner_face: { icon: "👁", label: "对方面部", color: "text-rose-400" },
+  partner_palm: { icon: "🤚", label: "对方手部", color: "text-amber-400" },
+  master:    { icon: "🌟", label: "档案总览",  color: "text-gold" },
 }
 
 // ── Event Analyzer (事件复盘) ────────────────────────────────────────────────

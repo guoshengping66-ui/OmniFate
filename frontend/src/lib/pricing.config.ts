@@ -15,7 +15,7 @@ export const STARDUST_COST = {
   FOLLOW_UP: 10,          // AI 追问/对话 (每轮)
   /** 低能消耗 */
   ENERGY_RADAR: 5,        // 今日能量雷达 (会员免费)
-  EXTRA_DIVINATION: 1,    // 额外抽签
+  EXTRA_DIVINATION: 1,    // 额外分析
 } as const
 
 // ── 定价数据 ──────────────────────────────────────────────────────────────────
@@ -49,7 +49,7 @@ export const PLANS: PlanConfig[] = [
   {
     id: "premium_monthly",
     name: "Fate OS 月度",
-    subtitle: "全维度命理操作系统",
+    subtitle: "全维度行为分析操作系统",
     priceCny: 59,
     priceUsd: 14.99,
     monthlyStardustGrant: 100,
@@ -72,7 +72,7 @@ export const PLANS: PlanConfig[] = [
   {
     id: "premium_yearly",
     name: "Fate OS 年度",
-    subtitle: "最划算的年度守护",
+    subtitle: "最划算的年度方案",
     priceCny: 365,
     priceUsd: 99.00,
     monthlyStardustGrant: 150,
@@ -87,9 +87,9 @@ export const PLANS: PlanConfig[] = [
       "事件复盘 5次/月免费",
       "每月注入 150 星尘",
       "星尘消耗享 8.8 折",
-      "年度命盘回顾报告",
+      "年度档案回顾报告",
       "专属水晶定制服务 1次/年",
-      "生日特别推命仪式",
+      "生日特别分析仪式",
       "新功能优先体验",
     ],
     cta: "订阅年度",

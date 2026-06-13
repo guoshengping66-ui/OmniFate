@@ -18,7 +18,7 @@ const MarketingBelowFold = dynamic(() => import("@/components/MarketingBelowFold
   loading: () => <div className="py-20 text-center"><div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin mx-auto" /></div>,
 })
 
-/** 五大命理系统 — Hero 下方快速入口 */
+/** 五大分析系统 — Hero 下方快速入口 */
 const SYSTEMS = [
   { key: "bazi", icon: "☯", color: "#2D6A4F" },
   { key: "astrology", icon: "✦", color: "#C1121F" },

@@ -16,7 +16,7 @@ export default function TarotTestPage() {
 
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-serif font-bold text-gold">塔罗解析</h1>
+            <h1 className="text-2xl font-serif font-bold text-gold">符号解析</h1>
             <p className="text-white/40 text-sm mt-1">选择牌阵，获取当下的能量指引</p>
           </div>
           <TargetSelector />
@@ -30,7 +30,7 @@ export default function TarotTestPage() {
 
         <div className="card-glass p-8 text-center">
           <span className="text-4xl mb-4 block">🃏</span>
-          <p className="text-white/40 text-sm">塔罗牌阵选择器即将上线</p>
+          <p className="text-white/40 text-sm">符号选择器即将上线</p>
           <p className="text-white/20 text-xs mt-1">敬请期待</p>
         </div>
       </div>

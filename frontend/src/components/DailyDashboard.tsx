@@ -431,7 +431,7 @@ export function DailyDashboard() {
           <span className="text-xl flex-shrink-0">🤖</span>
           <p className="text-white/50 text-sm leading-relaxed">
             {locale === "zh"
-              ? `大盘今日${almanac.ji.length > 0 ? "虽忌" + almanac.ji[0].label : "运势平稳"}，但你的${fortune.career_fortune >= 7 ? "事业运逆势高达 " + fortune.career_fortune + "/10，事上磨练" : "整体运势" + fortune.overall_score + "/10，宜稳中求进"}。${fortune.advice}`
+              ? `大盘今日${almanac.ji.length > 0 ? "虽忌" + almanac.ji[0].label : "状态平稳"}，但你的${fortune.career_fortune >= 7 ? "事业状态逆势高达 " + fortune.career_fortune + "/10，事上磨练" : "整体状态" + fortune.overall_score + "/10，宜稳中求进"}。${fortune.advice}`
               : `The day's almanac${almanac.ji.length > 0 ? " warns against " + translateYiJi(almanac.ji[0].label) : " is neutral"}, but your personal fortune scores ${fortune.overall_score}/10. ${fortune.advice}`
             }
           </p>

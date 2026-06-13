@@ -1,12 +1,12 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "FAQ - Destiny Mirror",
-  description: "Frequently asked questions about Destiny Mirror AI destiny analysis platform, including features, privacy, and pricing.",
-  keywords: ["FAQ", "destiny analysis", "privacy", "pricing"],
+  title: "FAQ - Profile Mirror",
+  description: "Frequently asked questions about Profile Mirror AI behavioral analysis platform, including features, privacy, and pricing.",
+  keywords: ["FAQ", "behavioral analysis", "privacy", "pricing"],
   openGraph: {
-    title: "FAQ - Destiny Mirror",
-    description: "Frequently asked questions about Destiny Mirror",
+    title: "FAQ - Profile Mirror",
+    description: "Frequently asked questions about Profile Mirror",
     type: "website",
   },
 }

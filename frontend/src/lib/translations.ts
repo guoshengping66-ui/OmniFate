@@ -2,7 +2,7 @@
  * Cultural Terminology Translation Dictionaries
  * 五行 (Wu Xing) & 八卦 (Ba Gua)
  *
- * Western Web3 convention: Pinyin as proper noun (mystique) + English translation (clarity)
+ * Convention: Pinyin as proper noun + English translation (clarity)
  */
 
 // ── 五行 (The Five Elements / Wu Xing) ──────────────────────────

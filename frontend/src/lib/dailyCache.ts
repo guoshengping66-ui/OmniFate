@@ -1,5 +1,5 @@
 /**
- * Date-keyed localStorage cache for daily fortune & almanac data.
+ * Date-keyed localStorage cache for daily status & almanac data.
  * Auto-expires at midnight (new day = new data).
  */
 

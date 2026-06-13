@@ -16,7 +16,7 @@ interface GeneratePdfOptions {
 
 export async function generateReadingPdf({
   element,
-  filename = "destiny-mirror-report",
+  filename = "profile-mirror-report",
   orientation = "portrait",
 }: GeneratePdfOptions): Promise<void> {
   // Capture the element as a high-res canvas

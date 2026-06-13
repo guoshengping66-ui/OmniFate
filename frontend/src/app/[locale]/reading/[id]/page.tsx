@@ -78,7 +78,7 @@ const DIM_DESCRIPTIONS: Record<string, string> = {
   career: "事业腾飞力",
   relationship: "情感和谐度",
   health: "身心平衡值",
-  spiritual: "灵性觉醒度",
+  spiritual: "专注觉醒度",
 }
 
 const I18N_DIM_KEYS: Record<string, { label: string; desc: string }> = {
@@ -808,7 +808,7 @@ export default function ReadingPage() {
                       const scores = Object.values(data.dimension_scores || {})
                       const avg = scores.reduce((a, b) => a + b, 0) / scores.length
                       const balance = Math.max(...scores) - Math.min(...scores)
-                      if (balance <= 1.5) return t("reading.insight.balanced") || "五维能量均衡，整体运势稳定"
+                      if (balance <= 1.5) return t("reading.insight.balanced") || "五维能量均衡，整体状态稳定"
                       if (balance <= 3) return t("reading.insight.moderate") || "能量分布有侧重，注意补强短板"
                       return t("reading.insight.imbalanced") || "能量差异较大，建议重点关注弱势维度"
                     })()}
@@ -984,7 +984,7 @@ export default function ReadingPage() {
                   const isGreen = point.startsWith("🟢")
                   const cleanText = stripMarkdown(point.slice(2).trim())
                   // Generate consequence warning for red pain points
-                  const consequence = isRed ? t("reading.painPoints.consequence") || "如不调整，可能影响下半年运势" : null
+                  const consequence = isRed ? t("reading.painPoints.consequence") || "如不调整，可能影响下半年状态" : null
                   return (
                     <div key={i} className={`p-3 rounded-xl transition-all duration-300
                       ${isRed ? "bg-red-500/[0.06] border border-red-400/15" :
@@ -1156,7 +1156,7 @@ export default function ReadingPage() {
                     ? t("reading.testimonials.list", { returnObjects: true }) as Array<{name: string; text: string; score: string}>
                     : [
                       { name: "用户A", text: "分析非常准确，帮我理解了自己的优势和不足", score: "9.2" },
-                      { name: "用户B", text: "改运建议很实用，按照建议调整后运势明显好转", score: "8.8" },
+                      { name: "用户B", text: "优化建议很实用，按照建议调整后状态明显好转", score: "8.8" },
                       { name: "用户C", text: "比其他平台的分析更深入，值得解锁完整报告", score: "9.5" },
                     ]
                   ).map((item, i) => (

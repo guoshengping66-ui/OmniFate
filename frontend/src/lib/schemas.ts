@@ -98,7 +98,7 @@ export type SafeAnalysisResponse = z.infer<typeof AnalysisResponseSchema>
 export const DailyFortuneResponseSchema = z
   .object({
     date: z.string().catch(() => new Date().toISOString().slice(0, 10)),
-    greeting: z.string().catch("愿今日的能量与你同在"),
+    greeting: z.string().catch("愿今日的状态与你同在"),
     overall_score: z.number().transform(clampScore).catch(50),
     wealth_fortune: z.number().transform(clampScore).catch(50),
     career_fortune: z.number().transform(clampScore).catch(50),
@@ -164,7 +164,7 @@ export function safeParseAnalysis(data: unknown): SafeAnalysisResponse {
 }
 
 /**
- * 安全解析每日运势 — 失败时返回带默认值的完整对象
+ * 安全解析每日状态 — 失败时返回带默认值的完整对象
  */
 export function safeParseDailyFortune(data: unknown): SafeDailyFortune {
   try {
@@ -175,7 +175,7 @@ export function safeParseDailyFortune(data: unknown): SafeDailyFortune {
 }
 
 /**
- * 安全解析个性化运势 — 失败时返回带默认值的完整对象
+ * 安全解析个性化状态 — 失败时返回带默认值的完整对象
  */
 export function safeParsePersonalizedFortune(
   data: unknown

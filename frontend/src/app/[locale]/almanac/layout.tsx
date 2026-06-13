@@ -1,12 +1,12 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Daily Almanac - Destiny Mirror",
-  description: "Personalized daily almanac based on your destiny chart, including energy index, do's and don'ts, and protection guidance.",
+  title: "Daily Almanac - Profile Mirror",
+  description: "Personalized daily almanac based on your profile chart, including energy index, do's and don'ts, and protection guidance.",
   keywords: ["daily almanac", "energy index", "daily fortune", "calendar"],
   openGraph: {
-    title: "Daily Almanac - Destiny Mirror",
-    description: "Personalized daily almanac based on your destiny chart",
+    title: "Daily Almanac - Profile Mirror",
+    description: "Personalized daily almanac based on your profile chart",
     type: "website",
   },
 }

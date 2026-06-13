@@ -82,8 +82,8 @@ export const useWizardStore = create<WizardStore>((set, get) => ({
         latitude: profile.latitude ?? undefined,
         longitude: profile.longitude ?? undefined,
       },
-      // FULL_MULTIMODAL: skip birth info, go to tarot (step 1)
-      // GENERAL_DAILY: skip birth info, go to tarot (step 1)
+      // FULL_MULTIMODAL: skip birth info, go to symbol (step 1)
+      // GENERAL_DAILY: skip birth info, go to symbol (step 1)
       // SPECIFIC_EVENT: skip everything, go to confirm (step 3)
       // RELATIONSHIP: start at birth info (step 0) — need user's own info
       startStep:

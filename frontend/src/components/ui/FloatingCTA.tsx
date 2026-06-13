@@ -32,7 +32,7 @@ export function FloatingCTA() {
           className="btn-gold flex items-center justify-center gap-2 w-full py-3 text-sm"
         >
           <ShoppingBag size={16} />
-          {t("floatingCta.shopText") || "查看改运好物"}
+          {t("floatingCta.shopText") || "查看优化好物"}
         </Link>
       </div>
     </div>

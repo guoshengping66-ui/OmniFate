@@ -87,7 +87,7 @@ export const YI_JI = {
   诉讼: { en: "Legal Conflict Zone", tactical: "Steer clear of disputes" },
 } as const
 
-// ─── Status Levels (运势等级) ──────────────────────────────────────────────
+// ─── Status Levels (状态等级) ──────────────────────────────────────────────
 export const STATUS_LEVELS = {
   大吉: { en: "Supreme Alignment", level: 7, color: "gold" },
   中吉: { en: "Strong Resonance", level: 6, color: "green" },
@@ -176,7 +176,7 @@ export const SPECIAL_CONCEPTS = {
   亥时: { en: "Pig Hour", attribute: "Night Rest / System Sleep" },
 } as const
 
-// ─── Body Features (面相手相特征) ──────────────────────────────────────────
+// ─── Body Features (面部手部特征) ──────────────────────────────────────────
 export const BODY_FEATURES = {
   // 面型
   方脸: { en: "Square Face", attribute: "Determined / Methodical" },

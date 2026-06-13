@@ -34,10 +34,10 @@ export function Navbar() {
   // Core links — always visible (product-oriented nav)
   const coreLinks = [
     { href: localeHref("/"), label: t("nav.home") },
-    { href: localeHref("/am16"), label: t("nav.am16") || "天命测验" },
-    { href: localeHref("/divination"), label: t("nav.divination") || "星际抽签" },
+    { href: localeHref("/am16"), label: t("nav.am16") || "行为测验" },
+    { href: localeHref("/divination"), label: t("nav.divination") || "星际分析" },
     { href: localeHref("/shop"), label: t("nav.shop"), highlight: true },
-    { href: localeHref("/reading/new"), label: t("nav.reading") || "推命体验" },
+    { href: localeHref("/reading/new"), label: t("nav.reading") || "分析体验" },
     { href: localeHref("/pricing"), label: t("nav.pricing") },
   ]
 

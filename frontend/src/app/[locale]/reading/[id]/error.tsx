@@ -4,8 +4,8 @@ import { useEffect, useMemo } from "react"
 import { useChunkLoadRecovery } from "@/lib/chunk-load-recovery"
 
 const TRANSLATIONS: Record<string, { title: string; desc: string; errorMsg: string; reload: string; refreshing: string }> = {
-  zh: { title: "系统异常", desc: "命盘数据读取失败，可能是量子态发生了不可预测的坍缩...", errorMsg: "未知错误", reload: "重新加载", refreshing: "检测到页面资源已更新，正在自动刷新..." },
-  en: { title: "System Error", desc: "Failed to load destiny data — an unpredictable quantum collapse may have occurred...", errorMsg: "Unknown error", reload: "Reload", refreshing: "Page resources updated, auto-refreshing..." },
+  zh: { title: "系统异常", desc: "档案数据读取失败，可能是量子态发生了不可预测的坍缩...", errorMsg: "未知错误", reload: "重新加载", refreshing: "检测到页面资源已更新，正在自动刷新..." },
+  en: { title: "System Error", desc: "Failed to load profile data — an unpredictable quantum collapse may have occurred...", errorMsg: "Unknown error", reload: "Reload", refreshing: "Page resources updated, auto-refreshing..." },
 }
 
 export default function ReadingError({

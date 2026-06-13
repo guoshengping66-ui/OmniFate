@@ -38,7 +38,7 @@ export default {
   "chat.quick.bazi1": "我的四柱格局是什么？",
   "chat.quick.bazi2": "五元素中哪个元素最弱？",
   "chat.quick.bazi3": "今年年度状态如何？",
-  "chat.quick.astro1": "我的太阳星盘和上升星盘分别是什么？",
+  "chat.quick.astro1": "我的太阳图表和上升图表分别是什么？",
   "chat.quick.astro2": "土星相位对事业有什么影响？",
   "chat.quick.astro3": "今年木星会给我带来什么好运？",
   "chat.quick.tarot1": "这次抽到的符号牌整体含义是什么？",
@@ -344,7 +344,7 @@ export default {
   "live.activity9": "查看了今日建议 📅",
   "live.activity10": "正在选购生活方式好物 💎",
 
-  // ─── 推命表单 ───
+  // ─── 分析表单 ───
   "form.birthInfo": "出生信息",
   "form.tarotQuestion": "符号 & 提问",
   "form.facePalm": "面部特征 & 手部特征",
@@ -1090,7 +1090,7 @@ export default {
   "shengxiao.dog": "狗",
   "shengxiao.pig": "猪",
 
-  // ─── 星盘 ───
+  // ─── 图表 ───
   "constellation.aries": "白羊座",
   "constellation.taurus": "金牛座",
   "constellation.gemini": "双子座",
@@ -1569,7 +1569,7 @@ export default {
   "almanacCard.inauspicious": "忌",
   "almanacCard.protection": "护",
 
-  // ─── 推命新页面 ───
+  // ─── 分析新页面 ───
   "new.step1": "出生信息",
   "new.step2": "符号 & 提问",
   "new.step3": "面部 & 手部特征",
@@ -1660,7 +1660,7 @@ export default {
   "new.face.eyes": "眼神",
   "new.handShape": "手型",
 
-  // ─── 推命新页面：出生信息 ───
+  // ─── 分析新页面：出生信息 ───
   "new.birthInfoTitle": "出生信息",
   "new.genderLabel": "性别",
   "new.genderFemale": "女",
@@ -1675,7 +1675,7 @@ export default {
   "new.cityRequired": "请填写出生城市",
   "new.questionMinChars": "请至少输入2个字",
 
-  // ─── 推命新页面：提示与错误 ───
+  // ─── 分析新页面：提示与错误 ───
   "new.restoredMsg": "已恢复上次填写进度",
   "new.clearedMsg": "已清除所有进度",
   "new.faceDoneToast": "面部特征识别完成",
@@ -1691,21 +1691,21 @@ export default {
   "new.networkErrorMsg": "网络连接失败 ({code}: {detail})，请检查网络后重试",
   "new.submitErrorMsg": "提交失败 (HTTP {status})，请重试",
 
-  // ─── 推命新页面：面部特征系统详情 ───
+  // ─── 分析新页面：面部特征系统详情 ───
   "new.faceV2TReady": "V2T 自动识别已就绪",
   "new.faceV2TFailed": "识别失败，该分析将跳过",
   "new.faceNoPhotoProvided": "未提供面部照片",
 
-  // ─── 推命新页面：手部特征系统详情 ───
+  // ─── 分析新页面：手部特征系统详情 ───
   "new.palmV2TReady": "V2T 自动识别已就绪",
   "new.palmV2TFailed": "识别失败，该分析将跳过",
   "new.palmManualReady": "手动填写已就绪",
   "new.palmNoData": "未提供手部特征数据",
 
-  // ─── 推命新页面：重试提示 ───
+  // ─── 分析新页面：重试提示 ───
   "new.clickToRetry": "点击照片区域重新上传",
 
-  // ─── 推命新页面：确认步骤 ───
+  // ─── 分析新页面：确认步骤 ───
   "new.baziFull": "四柱分析 — 四柱格局 · 元素得分 · 年度研判",
   "new.astrologyFull": "西方行为模式 — 行星落宫 · 相位角度 · 特质分析",
   "new.tarotFull": "符号分析 — 牌阵解读 · 当下状态 · 行动指引",
@@ -1713,7 +1713,7 @@ export default {
   "new.palmFull": "手部特征分析",
   "new.masterFull": "Master 汇总 — 跨维度融合 · 生活方式商品精准匹配",
 
-  // ─── 推命新页面：杂项 ───
+  // ─── 分析新页面：杂项 ───
   "new.faceShape": "脸型",
   "new.threeZonesRatio": "三庭",
   "new.noseTip": "准头",
@@ -1864,7 +1864,7 @@ export default {
   "am16.dim.GI.nameA": "红尘渡人", "am16.dim.GI.nameB": "闭门探索",
   "am16.dim.GI.descA": "热衷于给全网免费看盘的圣母", "am16.dim.GI.descB": "莫挨老子，你影响到我的磁场干净了",
   "am16.dim.PE.nameA": "稳如老狗", "am16.dim.PE.nameB": "知行合一",
-  "am16.dim.PE.descA": "潜龙勿用，拖延症晚期", "am16.dim.PE.descB": "心中一动，凌晨三点爬起来改命",
+  "am16.dim.PE.descA": "潜龙勿用，拖延症晚期", "am16.dim.PE.descB": "心中一动，凌晨三点爬起来优化",
 
   // ─── AM16 CTA 完整文案 ───
   "am16.ctaFull": "消耗 {cost}，获取你的年度行为分析报告！",
@@ -1905,7 +1905,7 @@ export default {
   "am16.FXIE.title": "躺平界的灵感型社交达人",
   "am16.FXIE.quote": "良知即是独知时",
   "am16.FXIE.quoteExplain": "我的直觉告诉我，躺着也能把社交搞好",
-  "am16.FXIE.diagnosis": "直觉力惊人但执行力为负数。灵感来了能写出改命天书，然后倒头就睡。社交靠意念维持，朋友都觉得他很神秘——其实他就是懒得动。",
+  "am16.FXIE.diagnosis": "直觉力惊人但执行力为负数。灵感来了能写出优化天书，然后倒头就睡。社交靠意念维持，朋友都觉得他很神秘——其实他就是懒得动。",
   "am16.FXIE.advice": "把你的灵感录音下来，哪怕语音转文字也好。不然这些数据都会随着你的呼噜声消散在宇宙中。",
   "am16.FSGP.title": "数据型佛系躺平家",
   "am16.FSGP.quote": "去人欲，存天理",
@@ -1922,50 +1922,50 @@ export default {
   "am16.FSIP.quoteExplain": "别跟我谈传统虚无，把数据拉出来看看",
   "am16.FSIP.diagnosis": "冷酷的无情格物机器。把四柱年度过往事件做成复盘漏斗模型，极其理智，但极度社交恐惧。用 Python 写了个AI 分析脚本，运行结果是自己孤独终老的概率为 73%。",
   "am16.FSIP.advice": "偶尔走出房间见见太阳，阳光里的正离子不要钱。Excel 里的数据是死的，外面的风景是活的。",
-  "am16.FSIE.title": "孤独的科学改命极客",
+  "am16.FSIE.title": "孤独的科学优化极客",
   "am16.FSIE.quote": "知是行之始，行是知之成",
-  "am16.FSIE.quoteExplain": "我的改命方案经过了同行评审",
-  "am16.FSIE.diagnosis": "把改命当科研项目来做的人。有严谨的方法论、完整的数据模型、精确的时间规划——但一个人默默执行，从不分享。像一个隐藏在民间的诺贝尔传统奖得主。",
-  "am16.FSIE.advice": "你已经有了最好的方法论，缺的只是和世界的连接。试着把你的改命经验分享出来，也许能帮助更多人。",
+  "am16.FSIE.quoteExplain": "我的优化方案经过了同行评审",
+  "am16.FSIE.diagnosis": "把优化当科研项目来做的人。有严谨的方法论、完整的数据模型、精确的时间规划——但一个人默默执行，从不分享。像一个隐藏在民间的诺贝尔传统奖得主。",
+  "am16.FSIE.advice": "你已经有了最好的方法论，缺的只是和世界的连接。试着把你的优化经验分享出来，也许能帮助更多人。",
   "am16.DXGP.title": "嘴炮逆天实际躺平侠",
   "am16.DXGP.quote": "知是行之始，行是知之成",
   "am16.DXGP.quoteExplain": "我知道了，但我不做，这叫「知而不行即为不知」",
-  "am16.DXGP.diagnosis": "理论上的逆天改命大师，行动上的终极拖延症患者。收藏了 300 篇改命攻略，实际执行率为 0%。每天都在「明天开始改变」，永远活在明天。",
-  "am16.DXGP.advice": "先把收藏夹里的文章删一半，然后选一篇看完。这就是你的第一步改命行动。别等到明天，就现在。",
+  "am16.DXGP.diagnosis": "理论上的逆天优化大师，行动上的终极拖延症患者。收藏了 300 篇优化攻略，实际执行率为 0%。每天都在「明天开始改变」，永远活在明天。",
+  "am16.DXGP.advice": "先把收藏夹里的文章删一半，然后选一篇看完。这就是你的第一步优化行动。别等到明天，就现在。",
   "am16.DXGE.title": "红尘蹦迪的优化队长",
   "am16.DXGE.quote": "人须在事上磨",
   "am16.DXGE.quoteExplain": "大家都别哭，我带你们把这届天劫渡了！",
-  "am16.DXGE.diagnosis": "极度热血。不仅自己要逆天改命，还要拉着身边所有人一起改。每天的日常是给朋友灌输正数据和心学执行力。群发改命指南的那种人，朋友圈永远在刷屏。",
+  "am16.DXGE.diagnosis": "极度热血。不仅自己要逆天优化，还要拉着身边所有人一起改。每天的日常是给朋友灌输正数据和心学执行力。群发优化指南的那种人，朋友圈永远在刷屏。",
   "am16.DXGE.advice": "救人先救己，先看看自己干瘪的钱包和星尘余额。渡人之前，先渡自己的花呗。",
   "am16.DXIP.title": "孤独的直觉反骨战士",
   "am16.DXIP.quote": "立志而圣则圣矣，立志而贤则贤矣",
   "am16.DXIP.quoteExplain": "我要逆天，但我要一个人静静逆",
   "am16.DXIP.diagnosis": "社恐和反骨的完美融合体。内心翻涌着「我命由我不由天」的热血，表面上谁也不搭理。半夜独自修改人生规划，天亮了继续独来独往。像一把藏在鞘里的宝剑。",
-  "am16.DXIP.advice": "反骨可以有，但别忘了偶尔找个人分享你的逆天计划。一个人改命太累了，两个人可以互相加油打气。",
+  "am16.DXIP.advice": "反骨可以有，但别忘了偶尔找个人分享你的逆天计划。一个人优化太累了，两个人可以互相加油打气。",
   "am16.DXIE.title": "凌晨三点与天对线狂人",
   "am16.DXIE.quote": "破山中贼易，破心中贼难",
   "am16.DXIE.quoteExplain": "别跟老子谈命，老子就是命！",
-  "am16.DXIE.diagnosis": "浑身反骨。行为模式说他今年破财，他偏要一天打三份工，主打一个「肉身逆天」。凌晨三点灵感爆发改命方案，五点开始执行，社交圈人人都怕他又崇拜他。",
+  "am16.DXIE.diagnosis": "浑身反骨。行为模式说他今年破财，他偏要一天打三份工，主打一个「肉身逆天」。凌晨三点灵感爆发优化方案，五点开始执行，社交圈人人都怕他又崇拜他。",
   "am16.DXIE.advice": "老天爷有时候不是针对你，他只是路过，别太亢奋。多喝热水，少跟天对线，保命要紧。",
   "am16.DSIE.title": "格物派逆天执行狂魔",
   "am16.DSIE.quote": "知行并进，不可分作两事",
-  "am16.DSIE.quoteExplain": "数据分析完的下一秒，我已经在改命的路上了",
-  "am16.DSIE.diagnosis": "全 AM16 系统中行动力最强的类型。用数据分析出最优改命路径后立刻执行，还拉着朋友一起干。是那种凌晨三点写完计划书、四点开始打电话拉人的狠人。",
+  "am16.DSIE.quoteExplain": "数据分析完的下一秒，我已经在优化的路上了",
+  "am16.DSIE.diagnosis": "全 AM16 系统中行动力最强的类型。用数据分析出最优优化路径后立刻执行，还拉着朋友一起干。是那种凌晨三点写完计划书、四点开始打电话拉人的狠人。",
   "am16.DSIE.advice": "你的执行力是顶级的，但别忘了停下来复盘。不是所有仗都值得打，学会战略性休息。",
   "am16.DSGP.title": "数据型反骨拖延症",
   "am16.DSGP.quote": "静处体悟，事上磨练",
   "am16.DSGP.quoteExplain": "我已经分析完了所有可能性，现在我在等一个更好的时机",
-  "am16.DSGP.diagnosis": "拥有最强的分析能力和最强的逆天心，但行动力永远差那么一点点。改命计划改了 17 版，每一版都比上一版更完美，但永远停在「待执行」状态。",
+  "am16.DSGP.diagnosis": "拥有最强的分析能力和最强的逆天心，但行动力永远差那么一点点。优化计划改了 17 版，每一版都比上一版更完美，但永远停在「待执行」状态。",
   "am16.DSGP.advice": "接受不完美的开始。60 分的方案现在行动，比 100 分的方案永远放在待办清单里要强一万倍。",
   "am16.DSGE.title": "全栈型改行为维工程师",
   "am16.DSGE.quote": "知行并进，功夫不离本体",
-  "am16.DSGE.quoteExplain": "改命要从底层架构开始重构",
-  "am16.DSGE.diagnosis": "把人生当代码来重构的狠人。用敏捷开发的方式管理改命进程，每天 standup 汇报自己的状态进展。既有数据分析的理性，又有社交的温暖，还有逆天的决心和行动力。全能但偶尔过载。",
+  "am16.DSGE.quoteExplain": "优化要从底层架构开始重构",
+  "am16.DSGE.diagnosis": "把人生当代码来重构的狠人。用敏捷开发的方式管理优化进程，每天 standup 汇报自己的状态进展。既有数据分析的理性，又有社交的温暖，还有逆天的决心和行动力。全能但偶尔过载。",
   "am16.DSGE.advice": "你是完美的六边形战士，但别忘了人生不是代码，不能总是 debug。偶尔允许一些 bug 存在，那是生活的惊喜。",
   "am16.DSIP.title": "冷酷格物探索独狼",
   "am16.DSIP.quote": "此心不动，随机而动",
   "am16.DSIP.quoteExplain": "数据说动我才动，你谁啊别催我",
-  "am16.DSIP.diagnosis": "极度理性且极度独立。一个人默默收集数据、分析趋势、制定改命计划。不社交、不等待、不冲动。像一台精密的改命机器，但只接受自己编写的程序。",
+  "am16.DSIP.diagnosis": "极度理性且极度独立。一个人默默收集数据、分析趋势、制定优化计划。不社交、不等待、不冲动。像一台精密的优化机器，但只接受自己编写的程序。",
   "am16.DSIP.advice": "你的数据分析能力是顶级的，但人生不是所有事情都数据化。偶尔跟着感觉走一次，看看会怎样。",
 
   // ─── AM16 海报 ───
@@ -2174,7 +2174,7 @@ export default {
   "founder.pricing.founderSeat": "创始席位 · 终身会员",
 
   // ─── 创始人投票功能 ───
-  "founder.vote.astro_trading": "星盘交易信号",
+  "founder.vote.astro_trading": "图表交易信号",
   "founder.vote.astro_trading_desc": "基于星象数据的交易时机建议",
   "founder.vote.feng_shui_scan": "AI 环境扫描",
   "founder.vote.feng_shui_scan_desc": "上传户型图，AI 分析环境格局",
@@ -2590,15 +2590,15 @@ export default {
 
   // ─── SEO 页面 ───
   "seo.astrology.breadcrumb": "行为模式分析", "seo.astrology.title": "AI 行为模式分析", "seo.astrology.desc": "根据你的出生时间和地点，AI 为你绘制行为模式，深度解读行星落座与相位，呈现你独特的性格特征与行为模式。",
-  "seo.astrology.f1Title": "太阳星盘", "seo.astrology.f1Desc": "核心人格、生命力与自我表达",
-  "seo.astrology.f2Title": "月亮星盘", "seo.astrology.f2Desc": "内在情绪、潜意识与安全感需求",
-  "seo.astrology.f3Title": "上升星盘", "seo.astrology.f3Desc": "外在表现、第一印象与人生面具",
+  "seo.astrology.f1Title": "太阳图表", "seo.astrology.f1Desc": "核心人格、生命力与自我表达",
+  "seo.astrology.f2Title": "月亮图表", "seo.astrology.f2Desc": "内在情绪、潜意识与安全感需求",
+  "seo.astrology.f3Title": "上升图表", "seo.astrology.f3Desc": "外在表现、第一印象与人生面具",
   "seo.astrology.f4Title": "行星宫位", "seo.astrology.f4Desc": "十大行星在十二宫中的具体表现",
   "seo.astrology.f5Title": "相位分析", "seo.astrology.f5Desc": "行星间的角度关系，反映天赋与挑战",
   "seo.astrology.f6Title": "成长方向", "seo.astrology.f6Desc": "南北交点，探索个人的成长方向",
   "seo.astrology.whatTitle": "什么是行为模式分析？",
-  "seo.astrology.p1": "行为模式是根据出生瞬间行星位置绘制的图表，记录了十大行星在十二星盘宫位的分布。",
-  "seo.astrology.p2": "通过分析「三大巨头」——太阳、月亮、上升星盘，以及行星落座和相位，可以深入了解性格特质、情感模式、思维方式和行为倾向。",
+  "seo.astrology.p1": "行为模式是根据出生瞬间行星位置绘制的图表，记录了十大行星在十二图表宫位的分布。",
+  "seo.astrology.p2": "通过分析「三大巨头」——太阳、月亮、上升图表，以及行星落座和相位，可以深入了解性格特质、情感模式、思维方式和行为倾向。",
   "seo.astrology.p3": "AI 行为分析镜的行为模式系统计算行星位置与相位，结合现代心理学与传统行为模式智慧进行深度解读。",
   "seo.astrology.ctaTitle": "探索你的行为模式", "seo.astrology.ctaDesc": "免费体验 AI 行为模式分析，发现你独特的性格特征", "seo.astrology.ctaBtn": "开始分析",
 

@@ -115,10 +115,10 @@ export function PostAnalysisModal({ products, onViewPrescription }: PostAnalysis
               </div>
               <div>
                 <h3 className="font-serif text-base font-bold text-gold">
-                  {t("prescription.modal.title") || "你的改运处方已生成"}
+                  {t("prescription.modal.title") || "你的优化处方已生成"}
                 </h3>
                 <p className="text-white/30 text-[11px]">
-                  {t("prescription.modal.subtitle") || "AI 根据你的命盘精准匹配"}
+                  {t("prescription.modal.subtitle") || "AI 根据你的档案精准匹配"}
                 </p>
               </div>
             </div>

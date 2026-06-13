@@ -33,27 +33,27 @@ export async function generateMetadata({
   const baseUrl = "https://www.khanfate.com"
 
   return {
-    title: isZh ? "命盘智镜 · 全维度命理分析" : "Destiny Mirror · Multi-Dimension Destiny Analysis",
+    title: isZh ? "行为分析镜 · 全维度行为分析" : "Behavioral Mirror · Multi-Dimension Behavioral Analysis",
     description: isZh
-      ? "融合八字、星盘、塔罗、面相、手相五大 AI 命理系统，为你提供精准的命运解读与改运方案。"
-      : "AI-powered destiny analysis combining Bazi, Western astrology, Tarot, face reading, and palmistry. Discover your life blueprint and personalized fortune guidance.",
+      ? "融合四柱分析、图表分析、符号分析、面部特征、手部特征五大 AI 分析系统，为你提供精准的行为解读与优化方案。"
+      : "AI-powered behavioral analysis combining Four-Pillar, Stellar Profile, Symbolic, Facial Feature, and Hand Feature. Discover your behavioral pattern and personalized optimization guidance.",
     keywords: isZh
-      ? "八字,星盘,塔罗,面相,手相,命理,AI分析,运势,命运,改运"
-      : "bazi,astrology,tarot,face reading,palmistry,destiny,fortune,AI analysis",
-    authors: [{ name: "Destiny Mirror" }],
+      ? "四柱分析,图表分析,符号分析,面部特征,手部特征,AI分析,行为分析,数据分析"
+      : "four-pillar,stellar profile,symbolic,facial feature,hand feature,AI analysis,behavioral analysis,data analysis",
+    authors: [{ name: "Behavioral Mirror" }],
     openGraph: {
-      title: isZh ? "命盘智镜 · 全维度命理分析" : "Destiny Mirror · Multi-Dimension Destiny Analysis",
+      title: isZh ? "行为分析镜 · 全维度行为分析" : "Behavioral Mirror · Multi-Dimension Behavioral Analysis",
       description: isZh
-        ? "融合八字、星盘、塔罗、面相、手相五大 AI 命理系统，为你提供精准的命运解读与改运方案。"
-        : "AI-powered destiny analysis combining Bazi, Western astrology, Tarot, face reading, and palmistry.",
+        ? "融合四柱分析、图表分析、符号分析、面部特征、手部特征五大 AI 分析系统，为你提供精准的行为解读与优化方案。"
+        : "AI-powered behavioral analysis combining Four-Pillar, Stellar Profile, Symbolic, Facial Feature, and Hand Feature.",
       url: `${baseUrl}/${locale}`,
-      siteName: "Destiny Mirror",
+      siteName: "Behavioral Mirror",
       images: [
         {
           url: `${baseUrl}/og-image.svg`,
           width: 1200,
           height: 630,
-          alt: isZh ? "命盘智镜" : "Destiny Mirror",
+          alt: isZh ? "行为分析镜" : "Behavioral Mirror",
         },
       ],
       locale: isZh ? "zh_CN" : "en_US",
@@ -61,10 +61,10 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: isZh ? "命盘智镜 · 全维度命理分析" : "Destiny Mirror",
+      title: isZh ? "行为分析镜 · 全维度行为分析" : "Behavioral Mirror",
       description: isZh
-        ? "AI 全维度命理分析平台"
-        : "AI-powered multi-dimension destiny analysis",
+        ? "AI 全维度行为分析平台"
+        : "AI-powered multi-dimension behavioral analysis",
       images: [`${baseUrl}/og-image.svg`],
     },
     alternates: {
@@ -172,7 +172,7 @@ try{
           dangerouslySetInnerHTML={{
             __html: `(function(){
 try{
-  var S="sessionStorage",K="_destiny_cr",B="_destiny_bid";
+  var S="sessionStorage",K="_profile_cr",B="_profile_bid";
   var s=window[S];
   if(!s)return;
   var attempts=parseInt(s.getItem(K)||"0",10);
@@ -234,13 +234,13 @@ try{
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "WebApplication",
-              name: validLocale === "zh" ? "命盘智镜" : "Destiny Mirror",
-              url: `https://www.khanfate.com/${validLocale}`,
+              name: validLocale === "zh" ? "行为分析镜" : "Behavioral Mirror",
+              url: `https://www.khanpattern.com/${validLocale}`,
               applicationCategory: "LifestyleApplication",
               operatingSystem: "Web",
               description: validLocale === "zh"
-                ? "融合八字、星盘、塔罗、面相、手相五大 AI 命理系统"
-                : "AI-powered destiny analysis combining Bazi, Western astrology, Tarot, face reading, and palmistry",
+                ? "融合四柱分析、图表分析、符号分析、面部特征、手部特征五大 AI 分析系统"
+                : "AI-powered behavioral analysis combining Four-Pillar, Stellar Profile, Symbolic, Facial Feature, and Hand Feature",
               offers: {
                 "@type": "Offer",
                 price: "0",
@@ -248,7 +248,7 @@ try{
               },
               author: {
                 "@type": "Organization",
-                name: "Destiny Mirror",
+                name: "Profile Mirror",
                 url: "https://www.khanfate.com",
               },
               inLanguage: validLocale === "zh" ? "zh-CN" : "en",

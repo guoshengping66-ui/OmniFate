@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "My Account - Destiny Mirror",
+  title: "My Account - Profile Mirror",
   description: "Manage your account, view membership status, and order history.",
 }
 

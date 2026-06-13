@@ -1,12 +1,12 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Destiny Blog - Destiny Mirror",
-  description: "Explore Bazi, astrology, tarot, face reading, and palmistry knowledge with AI-powered insights.",
-  keywords: ["destiny blog", "bazi tutorial", "astrology guide", "tarot reading", "face reading"],
+  title: "Behavioral Blog - Profile Mirror",
+  description: "Explore Bazi, chart analysis, symbol, face reading, and hand analysis knowledge with AI-powered insights.",
+  keywords: ["behavioral blog", "bazi tutorial", "chart analysis guide", "symbol reading", "face reading"],
   openGraph: {
-    title: "Destiny Blog - Destiny Mirror",
-    description: "Explore destiny analysis knowledge and AI insights",
+    title: "Behavioral Blog - Profile Mirror",
+    description: "Explore behavioral analysis knowledge and AI insights",
     type: "website",
   },
 }

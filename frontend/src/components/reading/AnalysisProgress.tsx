@@ -24,19 +24,19 @@ const AGENT_I18N: Record<string, { label: string; running: string; done: string 
 
 // ── Wisdom quotes shown during analysis ────────────────────────────────────
 const WISDOM_QUOTES_ZH = [
-  "80% 的爆仓发生在枭神夺食日 — 了解你的命盘，远离冲动交易。",
-  "命由天定，运由己生 — 每一次复盘都是在改写命运的代码。",
-  "知己知彼，百战不殆 — 了解自己的五行格局，才能驾驭市场的波动。",
-  "财为养命之源 — 但只有理解自己的财运周期，才能真正守住财富。",
-  "官杀混杂者，决策易乱 — 清晰的认知是行动的前提。",
-  "食神制杀，以柔克刚 — 最好的交易策略往往是等待。",
+  "80% 的爆仓发生在冲动决策日 — 了解你的行为模式，远离冲动交易。",
+  "行为塑造未来 — 每一次复盘都是在改写人生的数据。",
+  "知己知彼，百战不殆 — 了解自己的数据格局，才能驾驭市场的波动。",
+  "数据为决策之源 — 但只有理解自己的状态周期，才能真正守住财富。",
+  "信息过载时，决策易乱 — 清晰的认知是行动的前提。",
+  "以柔克刚 — 最好的交易策略往往是等待。",
 ]
 const WISDOM_QUOTES_EN = [
-  "80% of liquidations happen on days of Clash energy — know your chart, avoid impulsive trades.",
-  "Destiny sets the path, but wisdom lights the way — every review rewrites your code.",
-  "Know yourself before the market — understand your elemental balance to master volatility.",
-  "Wealth sustains life — but only understanding your fortune cycles truly preserves it.",
-  "When conflicting stars clash, decisions scatter — clarity is the prerequisite for action.",
+  "80% of liquidations happen on impulsive decision days — know your pattern, avoid impulsive trades.",
+  "Behavior shapes the future — every review rewrites your data code.",
+  "Know yourself before the market — understand your data balance to master volatility.",
+  "Data sustains decisions — but only understanding your status cycles truly preserves wealth.",
+  "When information overloads, decisions scatter — clarity is the prerequisite for action.",
   "Softness overcomes hardness — the best trading strategy is often patience.",
 ]
 
@@ -61,38 +61,38 @@ interface AnalysisProgressProps {
 // ── Data Stream Console Animation ──────────────────────────────────────────
 
 const STREAM_LINES_ZH = [
-  ">> 星盘数据库连接中...",
+  ">> 行为数据库连接中...",
   ">> 加载天干地支映射表...",
-  ">> 读取二十八星宿坐标...",
-  ">> 八字排盘引擎初始化...",
-  ">> 五行生克关系矩阵构建...",
-  ">> 紫微斗数星曜排列...",
-  ">> 奇门遁甲八门推演...",
-  ">> 占星宫位计算中...",
-  ">> 塔罗牌能量场检测...",
-  ">> AI 宗师模型加载...",
-  ">> 心魔识别算法启动...",
-  ">> 命运雷达图渲染引擎...",
-  ">> 五维运势能量捕捉...",
-  ">> 流年大运数据同步...",
+  ">> 读取图表坐标数据...",
+  ">> 四柱分析引擎初始化...",
+  ">> 数据关系矩阵构建...",
+  ">> 图表分析系统启动...",
+  ">> 策略分析推演引擎...",
+  ">> 图表宫位计算中...",
+  ">> 符号分析系统检测...",
+  ">> AI 分析模型加载...",
+  ">> 行为模式识别算法启动...",
+  ">> 行为雷达图渲染引擎...",
+  ">> 五维数据捕捉...",
+  ">> 周期数据同步...",
   ">> 交叉验证矩阵运算...",
   ">> 高维数据整合中...",
 ]
 const STREAM_LINES_EN = [
-  ">> Connecting to star chart database...",
-  ">> Loading Heavenly Stems & Earthly Branches map...",
-  ">> Reading 28 Lunar Mansions coordinates...",
-  ">> BaZi pillar calculation engine init...",
-  ">> Wu Xing generation/overcome matrix building...",
-  ">> Ziwei Doushu star arrangement...",
-  ">> Qimen Dunjia Eight Gates derivation...",
-  ">> Astrology house calculation...",
-  ">> Tarot energy field detection...",
-  ">> AI Master model loading...",
-  ">> Inner demon recognition algorithm starting...",
-  ">> Destiny radar chart rendering engine...",
-  ">> Five-dimension fortune energy capture...",
-  ">> Transit & major cycle data sync...",
+  ">> Connecting to behavioral database...",
+  ">> Loading Stem-Branch mapping table...",
+  ">> Reading stellar chart coordinates...",
+  ">> Four-Pillar analysis engine init...",
+  ">> Five Elements relationship matrix building...",
+  ">> Stellar Profile analysis system starting...",
+  ">> Strategic Analysis derivation engine...",
+  ">> Stellar chart house calculation...",
+  ">> Symbolic analysis system detection...",
+  ">> AI Analysis model loading...",
+  ">> Behavioral pattern recognition algorithm starting...",
+  ">> Behavioral radar chart rendering engine...",
+  ">> Five-dimension data capture...",
+  ">> Cycle data sync...",
   ">> Cross-validation matrix computation...",
   ">> High-dimension data integration...",
 ]
@@ -146,7 +146,7 @@ const DataStream = React.memo(function DataStream({ isComplete, locale }: { isCo
           <div className="w-2 h-2 rounded-full bg-green-400/60" />
         </div>
         <span className="text-[10px] text-white/30 font-mono ml-1">
-          {locale === "zh" ? "命盘智镜 · 计算终端" : "Destiny Mirror · Compute Terminal"}
+          {locale === "zh" ? "行为分析镜 · 计算终端" : "Behavioral Mirror · Compute Terminal"}
         </span>
         {!isComplete && (
           <span className="ml-auto text-[10px] text-gold/50 font-mono animate-pulse">

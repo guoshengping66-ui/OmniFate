@@ -1,12 +1,12 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "AI Destiny Reading - Destiny Mirror",
-  description: "Enter birth information for AI-powered five-dimension destiny analysis: Bazi, astrology, tarot, face reading, and palmistry.",
-  keywords: ["AI destiny reading", "bazi chart", "astrology", "tarot reading", "face reading"],
+  title: "AI Profile Reading - Profile Mirror",
+  description: "Enter birth information for AI-powered five-dimension behavioral analysis: Bazi, chart analysis, symbol, face reading, and hand analysis.",
+  keywords: ["AI destiny reading", "bazi chart", "chart analysis", "symbol reading", "face reading"],
   openGraph: {
-    title: "AI Destiny Reading - Destiny Mirror",
-    description: "Five-dimension AI destiny analysis for your life blueprint",
+    title: "AI Profile Reading - Profile Mirror",
+    description: "Five-dimension AI behavioral analysis for your life blueprint",
     type: "website",
   },
 }

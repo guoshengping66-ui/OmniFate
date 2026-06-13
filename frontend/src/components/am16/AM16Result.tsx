@@ -375,7 +375,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
 
       <div className="gold-divider" />
 
-      {/* ═══ 精神状态诊断 + 改运指南 并排 ═══ */}
+      {/* ═══ 精神状态诊断 + 优化指南 并排 ═══ */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div
           className="card-glass p-6 anim-slide-up"

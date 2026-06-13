@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════════════
-// AM16 — 12 道爆笑玄学情景题库
+// AM16 — 12 道爆笑行为分析情景题库
 // ═══════════════════════════════════════════════════════════════════════════
 
 export interface QuestionOption {
@@ -39,7 +39,7 @@ export const QUESTIONS: Question[] = [
     emoji: "💦",
     options: [
       {
-        text: "药丸！今天绝对冲煞！立刻打开 AlphaMirror 看看是哪个星盘相位在整我",
+        text: "药丸！今天绝对冲煞！立刻打开 AlphaMirror 看看是哪个图表相位在整我",
         dimension: "F",
         points: 1,
       },
@@ -58,11 +58,11 @@ export const QUESTIONS: Question[] = [
   },
   {
     id: 2,
-    scenario: "命理 App 说你本月不宜出门",
+    scenario: "分析 App 说你本月不宜出门",
     emoji: "📱",
     options: [
       {
-        text: "好的好的，在家躺着，外卖就是我的天命",
+        text: "好的好的，在家躺着，外卖就是我的归宿",
         dimension: "F",
         points: 1,
       },
@@ -108,16 +108,16 @@ export const QUESTIONS: Question[] = [
   // ══════════════════════════════════════════════════════════════
   {
     id: 4,
-    scenario: "你的好朋友最近运势不好",
+    scenario: "你的好朋友最近状态不好",
     emoji: "🫂",
     options: [
       {
-        text: "把八字发我！我有强烈的直觉感应，量子层面我已经看到了问题",
+        text: "把四柱发我！我有强烈的直觉感应，量子层面我已经看到了问题",
         dimension: "X",
         points: 1,
       },
       {
-        text: "先拉个 Excel 表对比流年大运，看看具体哪个五行出了问题",
+        text: "先拉个 Excel 表对比周期数据，看看具体哪个维度出了问题",
         dimension: "S",
         points: 1,
       },
@@ -145,7 +145,7 @@ export const QUESTIONS: Question[] = [
         points: 1,
       },
       {
-        text: "简单看看面相聊几句，不必太较真",
+        text: "简单看看面部聊几句，不必太较真",
         dimension: "X",
         points: 0.5,
         altDimension: "S",
@@ -154,16 +154,16 @@ export const QUESTIONS: Question[] = [
   },
   {
     id: 6,
-    scenario: "有人质疑玄学不科学",
+    scenario: "有人质疑传统分析不科学",
     emoji: "🤔",
     options: [
       {
-        text: "科学的尽头是玄学，薛定谔的猫都没意见你急什么",
+        text: "科学的尽头是传统分析，薛定谔的猫都没意见你急什么",
         dimension: "X",
         points: 1,
       },
       {
-        text: "那我们来做个双盲实验，用数据证明命理的统计学显著性",
+        text: "那我们来做个双盲实验，用数据证明行为分析的统计学显著性",
         dimension: "S",
         points: 1,
       },
@@ -185,7 +185,7 @@ export const QUESTIONS: Question[] = [
     emoji: "💕",
     options: [
       {
-        text: "把八字发我！我连夜用五维算法帮你们合一下，不合赶紧分！",
+        text: "把四柱发我！我连夜用五维算法帮你们合一下，不合赶紧分！",
         dimension: "G",
         points: 1,
       },
@@ -208,7 +208,7 @@ export const QUESTIONS: Question[] = [
     emoji: "👨‍👩‍👧",
     options: [
       {
-        text: "立刻转发 300 字辟谣长文 + 紫微斗数论证 + 风水化解方案",
+        text: "立刻转发 300 字辟谣长文 + 图表系统论证 + 环境优化方案",
         dimension: "G",
         points: 1,
       },
@@ -231,7 +231,7 @@ export const QUESTIONS: Question[] = [
     emoji: "🔋",
     options: [
       {
-        text: "再撑一下！还有三个朋友等着我帮他们看流年呢，渡人即渡己",
+        text: "再撑一下！还有三个朋友等着我帮他们看周期呢，渡人即渡己",
         dimension: "G",
         points: 1,
       },
@@ -277,7 +277,7 @@ export const QUESTIONS: Question[] = [
   },
   {
     id: 11,
-    scenario: "你的流年运势显示下半年有大机遇",
+    scenario: "你的周期状态显示下半年有大机遇",
     emoji: "📈",
     options: [
       {
@@ -300,7 +300,7 @@ export const QUESTIONS: Question[] = [
   },
   {
     id: 12,
-    scenario: "塔罗牌告诉你：改变即将发生",
+    scenario: "符号分析告诉你：改变即将发生",
     emoji: "🃏",
     options: [
       {

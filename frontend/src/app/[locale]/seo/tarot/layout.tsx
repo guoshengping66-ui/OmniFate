@@ -1,20 +1,20 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Tarot Reading - AI Tarot Card Interpretation | Destiny Mirror",
-  description: "Online tarot reading with AI interpretation. Multiple spread options available, revealing current energy state with action guidance and advice.",
-  keywords: ["tarot reading", "tarot cards", "online tarot", "tarot spread", "AI tarot", "tarot interpretation"],
+  title: "Symbol Reading - AI Symbol Card Interpretation | Profile Mirror",
+  description: "Online symbol reading with AI interpretation. Multiple spread options available, revealing current energy state with action guidance and advice.",
+  keywords: ["symbol reading", "symbol cards", "online symbol", "symbol spread", "AI symbol", "symbol interpretation"],
   openGraph: {
-    title: "Tarot Reading - AI Tarot Card Interpretation",
-    description: "AI-powered tarot reading revealing current energy state and guidance",
+    title: "Symbol Reading - AI Symbol Card Interpretation",
+    description: "AI-powered symbol reading revealing current energy state and guidance",
     type: "website",
     locale: "en_US",
   },
   alternates: {
-    canonical: "https://destinymirror.com/seo/tarot",
+    canonical: "https://destinymirror.com/seo/symbol",
   },
 }
 
-export default function TarotLayout({ children }: { children: React.ReactNode }) {
+export default function SymbolLayout({ children }: { children: React.ReactNode }) {
   return children
 }

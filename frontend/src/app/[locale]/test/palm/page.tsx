@@ -13,7 +13,7 @@ const PALM_KEY_FEATURES = [
   { key: "life_line", label_zh: "生命线", label_en: "Life Line" },
   { key: "head_line", label_zh: "智慧线", label_en: "Head Line" },
   { key: "heart_line", label_zh: "感情线", label_en: "Heart Line" },
-  { key: "fate_line", label_zh: "命运线", label_en: "Fate Line" },
+  { key: "fate_line", label_zh: "命运线", label_en: "Pattern Line" },
 ]
 
 export default function PalmTestPage() {
@@ -56,8 +56,8 @@ export default function PalmTestPage() {
 
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-serif font-bold text-gold">{isEn ? "Palm Reading" : "手相解读"}</h1>
-            <p className="text-white/40 text-sm mt-1">{isEn ? "Upload a palm photo for AI-powered palmistry analysis" : "上传手掌照片，AI 分析掌纹特征"}</p>
+            <h1 className="text-2xl font-serif font-bold text-gold">{isEn ? "Hand Feature Analysis" : "手部特征分析"}</h1>
+            <p className="text-white/40 text-sm mt-1">{isEn ? "Upload a palm photo for AI-powered hand feature analysis" : "上传手掌照片，AI 分析掌纹特征"}</p>
           </div>
           <TargetSelector />
         </div>
@@ -106,7 +106,7 @@ export default function PalmTestPage() {
 
         {features && (
           <div className="mt-6 card-glass p-5 anim-slide-up">
-            <h3 className="text-gold text-sm font-medium mb-3">{isEn ? "Palm Analysis Results" : "手相识别结果"}</h3>
+            <h3 className="text-gold text-sm font-medium mb-3">{isEn ? "Hand Analysis Results" : "手部识别结果"}</h3>
             <div className="flex flex-wrap gap-2">
               {PALM_KEY_FEATURES.filter(f => features[f.key]).map(f => (
                 <span key={f.key} className="text-xs px-2.5 py-1 bg-white/5 rounded-full text-white/60 border border-white/10">

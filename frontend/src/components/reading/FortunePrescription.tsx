@@ -16,7 +16,7 @@ interface FortunePrescriptionProps {
 }
 
 /**
- * 改运处方 — A prominent, immersive product recommendation card
+ * 优化处方 — A prominent, immersive product recommendation card
  * shown after analysis completes. Combines the reading insight
  * with personalized product recommendations.
  */

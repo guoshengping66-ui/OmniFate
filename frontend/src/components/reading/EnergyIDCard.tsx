@@ -62,25 +62,25 @@ function generateSignature(scores: Record<string, number>): string {
 // ── Prophecy Lines ──────────────────────────────────────────────────────────
 
 const PROPHECIES_ZH = [
-  "星辰低语：你的财富之路在于稳健积累，切忌急功近利。",
-  "命运指引：真正的力量藏在你的耐心之中，等待是最大的智慧。",
-  "宇宙回响：当你放下执念，意想不到的机遇将会出现。",
-  "天机暗示：今年是你蜕变的关键之年，勇敢迈出那一步。",
-  "五行共鸣：水生木，你的创造力将在秋天达到巅峰。",
-  "星盘启示：一次偶然的相遇将改变你的人生轨迹。",
-  "命理昭示：坚守本心，贵人自会在最需要时出现。",
-  "紫微高照：事业宫大旺，把握住每一次展示自己的机会。",
+  "数据洞察：你的财富之路在于稳健积累，切忌急功近利。",
+  "行为指引：真正的力量藏在你的耐心之中，等待是最大的智慧。",
+  "分析回响：当你放下执念，意想不到的机遇将会出现。",
+  "模式暗示：今年是你蜕变的关键之年，勇敢迈出那一步。",
+  "数据共鸣：水生木，你的创造力将在秋天达到巅峰。",
+  "图表启示：一次偶然的相遇将改变你的人生轨迹。",
+  "分析昭示：坚守本心，贵人自会在最需要时出现。",
+  "图表高照：事业宫大旺，把握住每一次展示自己的机会。",
 ]
 
 const PROPHECIES_EN = [
-  "The stars whisper: Your path to wealth lies in disciplined patience.",
-  "Destiny reveals: True power hides in your patience — waiting is the greatest wisdom.",
-  "The universe echoes: Release your grip, and unexpected doors will open.",
-  "Celestial hint: This is your year of metamorphosis — take the leap.",
+  "Data insight: Your path to wealth lies in disciplined patience.",
+  "Behavioral pattern: True power hides in your patience — waiting is the greatest wisdom.",
+  "Analysis echo: Release your grip, and unexpected doors will open.",
+  "Pattern hint: This is your year of metamorphosis — take the leap.",
   "Five Elements resonate: Water feeds Wood — your creativity peaks in autumn.",
-  "Astrology foretells: A chance encounter will reshape your life's trajectory.",
-  "Fate declares: Stay true — your guardian will appear when needed most.",
-  "Purple Star shines: Career fortune is blazing — seize every moment.",
+  "Stellar Profile foretells: A chance encounter will reshape your life's trajectory.",
+  "Analysis declares: Stay true — your support will appear when needed most.",
+  "Stellar Profile shines: Career status is blazing — seize every moment.",
 ]
 
 function getProphecy(sessionId: string, locale: string): string {

@@ -126,7 +126,7 @@ export default {
   // ─── Discovery (What People Found) ───
   "discovery.badge": "What People Discovered",
   "discovery.title": "Real Questions, Real Answers",
-  "discovery.desc": "These aren't fortune-telling predictions — they're behavioral patterns in your chart that explain why your life unfolds the way it does.",
+  "discovery.desc": "These aren't status prediction predictions — they're behavioral patterns in your chart that explain why your life unfolds the way it does.",
   "discovery.items.sabotage.title": "Why I sabotage good relationships",
   "discovery.items.sabotage.desc": "Your chart reveals a deep pattern around trust and vulnerability that has been running since childhood.",
   "discovery.items.money.title": "Why money comes in waves",
@@ -302,7 +302,7 @@ export default {
   "gework.loading2": "Tracing causal chains...",
   "gework.loading3": "Calculating Five Elements flow...",
   "gework.loading4": "Decoding inner wisdom...",
-  "gework.loading5": "Syncing Heavenly Stems & Earthly Branches...",
+  "gework.loading5": "Syncing Stems & Earthly Branches...",
   "gework.loading6": "Sensing energy resonance...",
   "gework.resultTitle": "Event Analysis Result",
   "gework.retry": "Try Again",
@@ -626,7 +626,7 @@ export default {
   "about.philosophy": "Core Philosophy",
   "about.philosophySubtitle": "Five Wisdom Traditions, One Unified Vision",
   "about.pillar1Title": "Four-Pillar Analysis",
-  "about.pillar1Subtitle": "四柱八字",
+  "about.pillar1Subtitle": "四柱分析",
   "about.pillar1Desc": "Decode the Five Elements flow in your birth chart. We trace the dynamic interplay of Wood, Fire, Earth, Metal, and Water across your life pillars, revealing your innate strengths, hidden challenges, and optimal timing for major decisions.",
   "about.pillar2Title": "Behavioral Profile Reading",
   "about.pillar2Subtitle": "Stellar Chart Reading",
@@ -828,8 +828,8 @@ export default {
   "status.career": "Career",
   "status.love": "Love",
   "status.health": "Health",
-  "status.luckyColor": "Recommended Color",
-  "status.luckyNumber": "Recommended Number",
+  "status.favorableColor": "Recommended Color",
+  "status.favorableNumber": "Recommended Number",
   "status.advice": "Advice",
   "status.warning": "Caution",
   "status.expand": "View Details",
@@ -1055,7 +1055,7 @@ export default {
   "wuxing.fire": "Fire (Huo)",
   "wuxing.earth": "Earth (Tu)",
 
-  // ─── Heavenly Stems ───
+  // ─── Stems ───
   "tiangan.jia": "Jia (甲)",
   "tiangan.yi": "Yi (乙)",
   "tiangan.bing": "Bing (丙)",
@@ -1120,7 +1120,7 @@ export default {
   "term.ziwei": "Stellar Profile System",
   "term.fiveElements": "Five Elements (Wu Xing)",
   "term.tenGods": "Ten Gods (Shi Shen)",
-  "term.heavenlyStems": "Heavenly Stems (Tian Gan)",
+  "term.heavenlyStems": "Stems (Tian Gan)",
   "term.earthlyBranches": "Earthly Branches (Di Zhi)",
   "term.annualStatus": "Annual Status (Liu Nian)",
   "term.monthlyStatus": "Monthly Status (Liu Yue)",
@@ -1136,7 +1136,7 @@ export default {
   "term.lifePath": "Life Path Number",
   "term.karma": "Cause-Effect",
   "term.chakra": "Energy Center",
-  "term.aura": "Profile",
+  "term.profile": "Profile",
   "term.yinYang": "Yin-Yang",
   "term.gua": "Gua (Trigram)",
   "term.hexagram": "64 Patterns",
@@ -1249,7 +1249,7 @@ export default {
   "order.detail.refundSubmitted": "Refund request submitted",
   "order.detail.refundFail": "Refund request failed",
 
-  // ─── Divination ───
+  // ─── Analysis ───
   "divination.title": "Stellar Analysis",
   "divination.subtitle": "First draw free daily · Feel the stars guiding you",
   "divination.rules": "Analysis Rules",
@@ -1346,7 +1346,7 @@ export default {
   "about.missionDesc1": "Behavioral Mirror brings together the best of traditional traditional analytics and modern technology. We believe everyone's life has its own unique patterns and rhythms — Four-Pillar, stellar profile, facial feature, hand feature, and symbolic each reveal these from different angles.",
   "about.missionDesc2": "Our system doesn't replace traditional analytics practitioners. Instead, we weave the wisdom of five traditions together through a Master Reading, giving you a more complete picture than any single tradition alone.",
 
-  // ─── Divination Extended ───
+  // ─── Analysis Extended ───
   "divination.rule4Title": "Share analysis for Stardust",
   "divination.rule4Desc": "Up to 2 shares per day, 5 Stardust per share",
   "divination.founderUnlimited": "Founder Members unlimited analyses",
@@ -1413,7 +1413,7 @@ export default {
   "home.radar.love": "Love",
   "home.radar.career": "Career",
   "home.radar.health": "Health",
-  "home.radar.spirit": "Mind",
+  "home.radar.mind": "Mind",
   "home.product1.name": "Amethyst Cave",
   "home.product1.desc": "Enhance intuition · Open the crown energy center",
   "home.product1.tag": "Wellness Growth",
@@ -1557,8 +1557,8 @@ export default {
   "dash.status.fair": "Stable",
   "dash.status.low": "Low",
   "dash.status.poor": "Poor",
-  "dash.status.luckyColor": "Recommended Color",
-  "dash.status.luckyNumber": "Recommended Number",
+  "dash.status.favorableColor": "Recommended Color",
+  "dash.status.favorableNumber": "Recommended Number",
   "dash.status.almanacTitle": "Daily Almanac",
   "dash.status.dayPillar": "Day Pillar",
   "dash.status.yi": "Favorable",
@@ -1741,7 +1741,7 @@ export default {
   "new.hotQ1Full": "What's my career direction? Is this year good for changing jobs?",
   "new.hotQ2Full": "How will my love life go in the next 3 months?",
   "new.hotQ3Full": "Wealth analysis — what should I watch in investing?",
-  "new.hotQ4Full": "Overall status and lucky directions for the next 6 months",
+  "new.hotQ4Full": "Overall status and favorable directions for the next 6 months",
   "new.hotQ5Full": "Am I cut out for entrepreneurship? When's the best time?",
   "new.hotQ6Full": "Family relationships — how's my behavioral with family and how to get along?",
   "new.hotQuestionsHint": "Or type your own question below",
@@ -1854,7 +1854,7 @@ export default {
   // ─── AM16 Radar Chart ───
   "am16.radarDefiance": "Defy ↑",
   "am16.radarXinxue": "Analyze →",
-  "am16.radarGiver": "Transcend ↓",
+  "am16.radarGiver": "Transform ↓",
   "am16.radarPatience": "Rest ←",
 
   // ─── AM16 Misc ───
@@ -1864,7 +1864,7 @@ export default {
   // ─── AM16 Dimension Names/Descriptions ───
   "am16.dim.FD.nameA": "Go with Flow", "am16.dim.FD.nameB": "Defy Pattern",
   "am16.dim.FD.descA": "What's meant to be will be — otherwise I'm going back to sleep", "am16.dim.FD.descB": "The universe is picking on me? Then I'm fighting back",
-  "am16.dim.XS.nameA": "Intuition Mystic", "am16.dim.XS.nameB": "Data Analyst",
+  "am16.dim.XS.nameA": "Intuition Analyst", "am16.dim.XS.nameB": "Data Analyst",
   "am16.dim.XS.descA": "Unstoppable intuition, quantum entanglement", "am16.dim.XS.descB": "Calculate exact stellar degrees, run Excel spreadsheets to insight pattern",
   "am16.dim.GI.nameA": "Worldly Nurturer", "am16.dim.GI.nameB": "Hermit Cultivator",
   "am16.dim.GI.descA": "Enthusiastically reading charts for everyone online for free", "am16.dim.GI.descB": "Don't touch me — you're disturbing my space's cleanliness",
@@ -1902,7 +1902,7 @@ export default {
   "am16.FXGE.quoteExplain": "Even while lying down I socialize — the ultimate unity of thought and action",
   "am16.FXGE.diagnosis": "A genius who reads friends' status by psychic transmission from bed. Replies to messages lying down, posts on social media lying down, reads birth charts lying down. Social energy transmitted entirely through horizontal position. Infinitely popular but actual outings are zero.",
   "am16.FXGE.advice": "Invest in an extra-large bed for your online chart-reading business. Set up an auto-reply: Currently meditating. For urgent matters, please burn incense.",
-  "am16.FXIP.title": "The Transcendent Lying-Flat Hermit",
+  "am16.FXIP.title": "The Transforment Lying-Flat Hermit",
   "am16.FXIP.quote": "The original mind is beyond good and evil",
   "am16.FXIP.quoteExplain": "No good, no evil, no action, no social — just lying flat",
   "am16.FXIP.diagnosis": "Zero social life, zero action, but wellnessity maxed out. Lives in their own quantum field, occasionally sending a signal to the universe to confirm existence. The purest observer of the mortal world, a recluse of the analytical realm.",
@@ -1945,7 +1945,7 @@ export default {
   "am16.DXIP.title": "The Solitary Intuitive Rebel Warrior",
   "am16.DXIP.quote": "Set your will on sainthood and you shall be a saint",
   "am16.DXIP.quoteExplain": "I want to defy pattern, but I want to do it alone in silence",
-  "am16.DXIP.diagnosis": "A perfect fusion of social anxiety and rebellious spirit. Inside burns the fire of 'my pattern is mine to command' while appearing utterly indifferent. Rewrites life plans alone at 3 AM, then continues as a lone wolf at dawn. A sword hidden in its sheath.",
+  "am16.DXIP.diagnosis": "A perfect fusion of social anxiety and rebellious mind. Inside burns the fire of 'my pattern is mine to command' while appearing utterly indifferent. Rewrites life plans alone at 3 AM, then continues as a lone wolf at dawn. A sword hidden in its sheath.",
   "am16.DXIP.advice": "Rebellion is fine, but don't forget to share your pattern-defying plans with someone. Changing pattern alone is exhausting — two people can encourage each other.",
   "am16.DXIE.title": "The 3 AM Behavioral-Confronting Maniac",
   "am16.DXIE.quote": "It's easy to defeat external thieves, hard to defeat the thief within",
@@ -1960,7 +1960,7 @@ export default {
   "am16.DSGP.title": "The Data-Driven Rebel Procrastinator",
   "am16.DSGP.quote": "Quiet contemplation, tempered through affairs",
   "am16.DSGP.quoteExplain": "I've analyzed all possibilities — now I'm waiting for a better moment",
-  "am16.DSGP.diagnosis": "Strongest analytical ability AND strongest rebellious spirit, but execution is perpetually one step behind. The pattern-changing plan has been revised 17 times, each version more perfect than the last, but always stuck at 'pending execution'.",
+  "am16.DSGP.diagnosis": "Strongest analytical ability AND strongest rebellious mind, but execution is perpetually one step behind. The pattern-changing plan has been revised 17 times, each version more perfect than the last, but always stuck at 'pending execution'.",
   "am16.DSGP.advice": "Accept an imperfect start. A 60-point plan executed now beats a 100-point plan that lives forever on your to-do list.",
   "am16.DSGE.title": "The Full-Stack Behavioral DevOps Engineer",
   "am16.DSGE.quote": "Knowledge and action advance together — mastery springs from the source",
@@ -2413,7 +2413,7 @@ export default {
   "status.basedOnChart": "Based on your chart data",
 
   // ─── Status Guide ───
-  "statusGuide.wizard": "Master Mystic",
+  "statusGuide.wizard": "Master Analyst",
   "statusGuide.symbolicSpirit": "Symbolic Insight",
   "statusGuide.faceMaster": "Face Master",
   "statusGuide.chart": "Behavioral Chart",
@@ -2567,10 +2567,10 @@ export default {
   "nebulaUnlock.status7": "Decoding behavioral cipher...",
   "nebulaUnlock.status8": "Condensing stardust power...",
 
-  // ─── Floating Oracle Icon ───
-  "floatingOracle.label": "Stellar Draw",
-  "floatingOracle.freeToday": "Free Today",
-  "floatingOracle.freeHint": "First draw free daily, feel the stars guide you",
+  // ─── Floating Analysis Icon ───
+  "floatingAnalysis.label": "Stellar Draw",
+  "floatingAnalysis.freeToday": "Free Today",
+  "floatingAnalysis.freeHint": "First draw free daily, feel the stars guide you",
 
   // ─── Event Input ───
   "eventInput.title": "Event Review",
@@ -2617,7 +2617,7 @@ export default {
   "seo.bazi.s2Title": "AI Auto-Chart", "seo.bazi.s2Desc": "System automatically completes Four Pillars and Five Elements calculation",
   "seo.bazi.s3Title": "View Analysis", "seo.bazi.s3Desc": "Get complete Four-Pillar behavioral interpretation report",
   "seo.bazi.whatTitle": "What is Four-Pillar Charting?",
-  "seo.bazi.p1": "Four-Pillar charting converts a person's birth year, month, day, and hour into Heavenly Stems and Earthly Branches combinations, forming eight characters — the so-called 'birth chart'.",
+  "seo.bazi.p1": "Four-Pillar charting converts a person's birth year, month, day, and hour into Stems and Earthly Branches combinations, forming eight characters — the so-called 'birth chart'.",
   "seo.bazi.p2": "By analyzing Five Elements relationships, Ten Gods configurations, and pattern levels, a behavioral analyst can deduce personality, career, wealth, marriage, health, and other life aspects.",
   "seo.bazi.p3": "Behavioral Mirror's AI Four-Pillar system combines traditional behavioral studies with modern AI technology for more comprehensive and precise behavioral interpretation.",
   "seo.bazi.ctaTitle": "Start Your Four-Pillar Reading", "seo.bazi.ctaDesc": "Experience AI Four-Pillar analysis for free and discover your innate strengths", "seo.bazi.ctaBtn": "Free Chart", "seo.bazi.ctaNote": "No registration needed · 40-second results",
@@ -2697,9 +2697,9 @@ export default {
   "trading.new.saveBtn": "Save & Analyze", "trading.new.enterPriceError": "Please enter entry price",
   "trading.new.saved": "Trade record saved", "trading.new.saveFailed": "Save failed",
 
-  // ─── Divination Share ───
+  // ─── Analysis Share ───
   "divination.share.notFound": "Reading not found",
-  "divination.share.appName": "Behavioral Mirror · Stellar Oracle",
+  "divination.share.appName": "Behavioral Mirror · Stellar Analysis",
   "divination.share.aiAction": "AI Action Guide",
   "divination.share.founderSeat": "Founder Seat #{seatNo} Exclusive Energy Card",
   "divination.share.seatLabel": "Founder Seat #{seatNo}",
@@ -2734,7 +2734,7 @@ export default {
   // ─── Weekly Status Subscription ───
   "statusSub.label": "Subscribe",
   "statusSub.badge": "NEW",
-  "statusSub.title": "Weekly Status & Lucky Guide",
+  "statusSub.title": "Weekly Status & Favorable Guide",
   "statusSub.desc": "Personalized status analysis based on your Four-Pillar chart, delivered every Monday",
   "statusSub.subscribe": "Subscribe Now",
   "statusSub.unsubscribe": "Unsubscribe",
@@ -2742,9 +2742,9 @@ export default {
   "statusSub.weekRange": "{start} - {end}",
   "statusSub.overallScore": "Overall Status",
   "statusSub.theme": "Weekly Theme",
-  "statusSub.luckyColor": "Lucky Color",
-  "statusSub.luckyNumber": "Lucky Number",
-  "statusSub.luckyDirection": "Favorable Direction",
+  "statusSub.favorableColor": "Favorable Color",
+  "statusSub.favorableNumber": "Favorable Number",
+  "statusSub.favorableDirection": "Favorable Direction",
   "statusSub.symbolicCard": "Symbolic of the Week",
   "statusSub.symbolicDesc": "Weekly guidance card reading",
   "statusSub.dailyYiJi": "Daily Do's & Don'ts",
@@ -2808,7 +2808,7 @@ export default {
     "Merging cross-chain meridians...",
     "Deducing Token elements...",
     "Verifying address feng shui...",
-    "Sensing aura resonance...",
+    "Sensing profile resonance...",
     "Parsing block imprints...",
   ],
 } as const

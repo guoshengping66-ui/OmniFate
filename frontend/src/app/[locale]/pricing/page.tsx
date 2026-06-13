@@ -202,7 +202,7 @@ export default function PricingPage() {
           </div>
         </ScrollReveal>
 
-        {/* ══════════ Channel Comparison (一键推命 vs 完整推命) ══════════ */}
+        {/* ══════════ Channel Comparison (一键分析 vs 完整分析) ══════════ */}
         <ScrollReveal delay={0.1}>
           <div className="mb-12">
             <div className="text-center mb-6">
@@ -211,7 +211,7 @@ export default function PricingPage() {
             </div>
 
             <div className="grid md:grid-cols-2 gap-4">
-              {/* ⚡ 一键推命 */}
+              {/* ⚡ 一键分析 */}
               <div className="relative card-glass p-5 border-blue-500/20 hover:border-blue-400/30 transition-all duration-300">
                 <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl bg-gradient-to-r from-blue-500/40 to-purple-500/40" />
                 <div className="flex items-center gap-3 mb-3">
@@ -230,7 +230,7 @@ export default function PricingPage() {
                 </div>
               </div>
 
-              {/* 🔱 完整推命 */}
+              {/* 🔱 完整分析 */}
               <div className="relative card-glass p-5 border-gold/20 hover:border-gold/30 transition-all duration-300">
                 <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl bg-gradient-to-r from-gold/40 to-amber-500/40" />
                 <div className="flex items-center gap-3 mb-3">

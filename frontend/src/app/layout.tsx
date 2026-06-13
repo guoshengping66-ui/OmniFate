@@ -5,16 +5,16 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: "Destiny Mirror · Multi-Dimension Destiny Analysis",
+  title: "Profile Mirror · Multi-Dimension Behavioral Analysis",
   description:
-    "AI-powered destiny analysis combining Bazi, Western astrology, Tarot, face reading, and palmistry. Discover your life blueprint and personalized fortune guidance.",
-  keywords: ["bazi", "astrology", "tarot", "face reading", "destiny", "fortune"],
+    "AI-powered behavioral analysis combining Bazi, Western chart analysis, Symbol analysis, face reading, and hand analysis. Discover your behavioral blueprint and personalized status guidance.",
+  keywords: ["bazi", "chart analysis", "symbol", "face reading", "profile", "status"],
   icons: { icon: "/logo.png" },
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Destiny Mirror",
+    title: "Profile Mirror",
   },
 }
 

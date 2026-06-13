@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Checkout - Destiny Mirror",
+  title: "Checkout - Profile Mirror",
   description: "Confirm your order and choose a payment method to complete your purchase.",
 }
 

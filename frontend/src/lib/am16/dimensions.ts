@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════════════
-// 双层标签映射系统 — 玄学内核 + 当代青年精神状态大白话
+// 双层标签映射系统 — 传统分析内核 + 当代青年精神状态大白话
 // 与 miniprogram/src/constants/dimensions.ts 保持一致
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -36,7 +36,7 @@ export const DIMENSIONS_MAP: Record<string, DimensionConfig> = {
       descEn: 'Never fight the tide. Go with the cosmic flow and vibe with the transits.',
     },
     poleB: {
-      nameCn: '逆天改命',
+      nameCn: '逆天优化',
       nameEn: 'Fate Defiance',
       tagCn: '反骨破局手',
       tagEn: 'Matrix Overrider',

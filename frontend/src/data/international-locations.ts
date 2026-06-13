@@ -1,5 +1,5 @@
 // 全球主要国家、州/省、城市数据
-// 用于八字命盘出生地选择
+// 用于档案出生地选择
 
 export interface IntlCity {
   name: string       // 英文名

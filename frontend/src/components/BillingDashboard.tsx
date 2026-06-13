@@ -16,22 +16,22 @@ import {
 const PayPalPayment = lazy(() => import("@/components/payment/PayPalPayment").then(m => ({ default: m.PayPalPayment })))
 
 const CRYPTO_LOADING_TIPS_EN = [
-  "Sensing on-chain energy...",
+  "Sensing on-chain data...",
   "Aligning hash causality...",
-  "Merging cross-chain meridians...",
+  "Merging cross-chain pathways...",
   "Deducing Token elements...",
-  "Verifying address feng shui...",
-  "Sensing aura resonance...",
+  "Verifying address data...",
+  "Sensing data resonance...",
   "Parsing block imprints...",
 ]
 const CRYPTO_LOADING_TIPS_ZH = [
-  "正在感应链上灵气…",
+  "正在感应链上数据…",
   "正在对齐哈希因果…",
-  "正在合参跨链脉络…",
-  "正在推演 Token 生克…",
-  "正在验证地址风水…",
-  "正在感应气场共振…",
-  "正在解析区块心印…",
+  "正在合并跨链数据…",
+  "正在验证 Token 数据…",
+  "正在验证地址数据…",
+  "正在感应数据共振…",
+  "正在解析区块数据…",
 ]
 
 function SkeletonScreen() {
