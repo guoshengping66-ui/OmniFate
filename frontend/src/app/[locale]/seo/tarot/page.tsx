@@ -36,7 +36,7 @@ export default function TarotSEOPage() {
             "@type": "WebApplication",
             "name": t("seo.tarot.title"),
             "description": t("seo.tarot.desc"),
-            "url": "https://destinymirror.com/seo/tarot",
+            "url": "https://khanfate.com/seo/tarot",
             "applicationCategory": "LifestyleApplication",
           })}}
         />

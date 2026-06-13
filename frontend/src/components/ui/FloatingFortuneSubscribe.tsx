@@ -37,7 +37,7 @@ export function FloatingFortuneSubscribe() {
   const yiLabel = isZH ? "宜" : "Do"
   const jiLabel = isZH ? "忌" : "Don't"
 
-  // Load subscription status and fortune on mount; re-fetch when locale changes
+  // Load subscription status and daily profile on mount; re-fetch when locale changes
   useEffect(() => {
     if (!open) return
     loadData()
@@ -51,7 +51,7 @@ export function FloatingFortuneSubscribe() {
         setFreq(sub.frequency)
         setIsSubscribed(sub.is_active && sub.frequency !== "off")
       }
-      // Load both weekly and daily fortune so preview switches instantly on frequency change
+      // Load both weekly and daily profile so preview switches instantly on frequency change
       const [w, d] = await Promise.all([
         getWeeklyFortune(locale).catch(() => null),
         getFortuneDaily(locale).catch(() => null),
@@ -59,7 +59,7 @@ export function FloatingFortuneSubscribe() {
       setFortune(w)
       setDailyFortune(d)
     } catch (err) {
-      console.error("Failed to load fortune:", err)
+      console.error("Failed to load profile:", err)
     } finally {
       setLoading(false)
     }
@@ -171,7 +171,7 @@ export function FloatingFortuneSubscribe() {
               </div>
             )}
 
-            {/* Fortune Preview */}
+            {/* Profile Preview */}
             {!loading && (fortune || dailyFortune) && freq !== "off" && (
               <>
                 <div className="bg-white/[0.03] rounded-2xl p-5 space-y-4 border border-white/[0.06]">
@@ -261,7 +261,7 @@ export function FloatingFortuneSubscribe() {
               </>
             )}
 
-            {/* No data state - show generic fortune or prompt to set birth info */}
+            {/* No data state - show generic profile or prompt to set birth info */}
             {!loading && !fortune && !dailyFortune && (
               <div className="text-center py-6">
                 <p className="text-white/30 text-sm mb-3">

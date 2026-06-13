@@ -3,7 +3,7 @@
  * Stores reading session IDs in localStorage so users can view past readings.
  */
 
-const HISTORY_KEY = "destiny_reading_history"
+const HISTORY_KEY = "profile_reading_history"
 const MAX_HISTORY = 20 // Maximum number of readings to store
 
 export interface ReadingHistoryItem {

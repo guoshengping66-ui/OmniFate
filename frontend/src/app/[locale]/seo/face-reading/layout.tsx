@@ -1,17 +1,17 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "AI Face Reading - Intelligent Face Analysis | Profile Mirror",
-  description: "Upload a photo for AI-powered face reading. Analyzes face shape, features, Three Divisions Five Eyes, and decodes behavioral patterns.",
-  keywords: ["face reading", "AI face reading", "face analysis", "facial features", "status reading", "online face reading"],
+  title: "AI Face Analysis - Intelligent Face Feature Analysis | Profile Mirror",
+  description: "Upload a photo for AI-powered face analysis. Analyzes face shape, features, Three Divisions Five Eyes, and decodes behavioral patterns.",
+  keywords: ["face analysis", "AI face analysis", "face feature", "facial features", "status analysis", "online face analysis"],
   openGraph: {
-    title: "AI Face Reading - Intelligent Face Analysis",
-    description: "Upload a photo for AI face reading and behavioral analysis",
+    title: "AI Face Analysis - Intelligent Face Feature Analysis",
+    description: "Upload a photo for AI face analysis and behavioral analysis",
     type: "website",
     locale: "en_US",
   },
   alternates: {
-    canonical: "https://destinymirror.com/seo/face-reading",
+    canonical: "https://khanfate.com/seo/face-reading",
   },
 }
 

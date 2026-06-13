@@ -8,7 +8,7 @@ export default function DisclaimerPage() {
   const { t } = useLanguage()
 
   useEffect(() => {
-    document.title = t("disclaimer.title") + " - Destiny Mirror"
+    document.title = t("disclaimer.title") + " - Profile Mirror"
   }, [t])
 
   return (

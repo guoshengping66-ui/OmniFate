@@ -22,7 +22,7 @@ const LanguageContext = createContext<LanguageState>({
   preloadLocale: () => {},
 })
 
-const LANG_KEY = "destiny_mirror_lang"
+const LANG_KEY = "profile_mirror_lang"
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const locale = useLocale() as Locale

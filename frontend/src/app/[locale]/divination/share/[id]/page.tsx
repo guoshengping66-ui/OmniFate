@@ -30,19 +30,19 @@ const FORTUNE_COLORS: Record<string, string> = {
   "凶": "from-orange-500 to-red-400",
   "大凶": "from-red-500 to-rose-400",
   "Great Blessing": "from-gold to-[#E8CB7A]",
-  "Good Fortune": "from-green-400 to-emerald-300",
-  "Mild Fortune": "from-blue-400 to-cyan-300",
+  "Good Rating": "from-green-400 to-emerald-300",
+  "Mild Rating": "from-blue-400 to-cyan-300",
   "Auspicious": "from-teal-400 to-cyan-400",
   "Moderate": "from-yellow-500 to-amber-400",
   "Inauspicious": "from-orange-500 to-red-400",
-  "Great Misfortune": "from-red-500 to-rose-400",
+  "Great Unfavorable": "from-red-500 to-rose-400",
 }
 
 const FORTUNE_EMOJI: Record<string, string> = {
   "大吉": "✨", "中吉": "🌟", "小吉": "⭐",
   "吉": "🌤", "末吉": "🌙", "凶": "🌑", "大凶": "⛈",
-  "Great Blessing": "✨", "Good Fortune": "🌟", "Mild Fortune": "⭐",
-  "Auspicious": "🌤", "Moderate": "🌙", "Inauspicious": "🌑", "Great Misfortune": "⛈",
+  "Great Blessing": "✨", "Good Rating": "🌟", "Mild Rating": "⭐",
+  "Auspicious": "🌤", "Moderate": "🌙", "Inauspicious": "🌑", "Great Unfavorable": "⛈",
 }
 
 const THEME_BG: Record<string, string> = {
@@ -115,7 +115,7 @@ export default function DivinationSharePage() {
 
   const bgTheme = THEME_BG[data.theme] || "from-[#1a1510] via-[#0d0b08] to-[#1a1510]"
   const totemIcon = THEME_TOTEM[data.theme] || "✧"
-  const isHighFortune = data.fortune_level >= 5
+  const isHighRating = data.fortune_level >= 5
 
   const dateStr = data.created_at
     ? new Date(data.created_at).toLocaleDateString(undefined, { month: "long", day: "numeric" })
@@ -128,7 +128,7 @@ export default function DivinationSharePage() {
           <div className={`absolute inset-0 bg-gradient-to-b ${bgTheme}`} />
           <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-gold to-transparent" />
 
-          {isHighFortune && (
+          {isHighRating && (
             <div className="absolute inset-0 pointer-events-none overflow-hidden">
               {Array.from({ length: 12 }).map((_, i) => (
                 <div
@@ -178,7 +178,7 @@ export default function DivinationSharePage() {
             <div className="mb-6 anim-slide-up anim-delay-2" style={{ animation: "slideUp 0.5s cubic-bezier(0.32, 0.72, 0, 1) 0.2s forwards", opacity: 0 }}>
               <div className={`inline-flex items-center gap-2 px-8 py-4 rounded-full
                             bg-gradient-to-r ${FORTUNE_COLORS[data.fortune] || "from-gold to-[#E8CB7A]"}
-                            text-ink font-bold text-3xl ${isHighFortune ? "shadow-lg shadow-gold/20" : ""}`}>
+                            text-ink font-bold text-3xl ${isHighRating ? "shadow-lg shadow-gold/20" : ""}`}>
                 <span>{FORTUNE_EMOJI[data.fortune] || "✨"}</span>
                 <span>{data.fortune}</span>
               </div>

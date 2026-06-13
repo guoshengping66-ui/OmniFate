@@ -25,7 +25,7 @@ const DateSelector = lazy(() => import("@/components/reading/DateSelector").then
 const HotQuestions = lazy(() => import("@/components/reading/HotQuestions").then(m => ({ default: m.HotQuestions })))
 const FortuneGuide = lazy(() => import("@/components/reading/FortuneGuide").then(m => ({ default: m.FortuneGuide })))
 
-const STORAGE_KEY = "destiny_reading_progress"
+const STORAGE_KEY = "profile_reading_progress"
 
 interface SavedProgress {
   step: number

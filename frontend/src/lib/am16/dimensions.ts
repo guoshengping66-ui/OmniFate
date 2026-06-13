@@ -41,7 +41,7 @@ export const DIMENSIONS_MAP: Record<string, DimensionConfig> = {
       tagCn: '反骨破局手',
       tagEn: 'Matrix Overrider',
       descCn: '不信邪不认命，浑身长满反骨，坚信人定胜天、强行破局。',
-      descEn: 'Zero tolerance for fixed destiny. Born to hack the simulation and rewrite the code.',
+      descEn: 'Zero tolerance for fixed paths. Born to hack the simulation and rewrite the code.',
     },
   },
   XS: {

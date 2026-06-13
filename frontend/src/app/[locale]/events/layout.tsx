@@ -2,11 +2,11 @@ import type { Metadata } from "next"
 
 export const metadata: Metadata = {
   title: "Event Review - Profile Mirror",
-  description: "Enter key events with time and description. AI analyzes causes, impacts, and future trends from a destiny perspective.",
+  description: "Enter key events with time and description. AI analyzes causes, impacts, and future trends from a personal growth perspective.",
   keywords: ["event review", "behavioral analysis", "status analysis", "key events"],
   openGraph: {
     title: "Event Review - Profile Mirror",
-    description: "AI analysis of key events from a destiny perspective",
+    description: "AI analysis of key events from a personal growth perspective",
     type: "website",
   },
 }

@@ -74,7 +74,7 @@ const DIM_EMOJI: Record<string, string> = {
 }
 
 const DIM_DESCRIPTIONS: Record<string, string> = {
-  wealth: "财运能量场",
+  wealth: "财务分析指数",
   career: "事业腾飞力",
   relationship: "情感和谐度",
   health: "身心平衡值",
@@ -1045,17 +1045,17 @@ export default function ReadingPage() {
               </div>
             )}
 
-            {/* ── 5b. Destiny Type (命格类型) ── */}
+            {/* ── 5b. Profile Type ── */}
             {data.computed_tags.length > 0 && (
               <div className="card-glass p-5 md:p-6 text-center">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-gold/10 to-purple-500/10 border border-gold/20">
                   <Sparkles size={14} className="text-gold" />
-                  <span className="text-xs text-white/50">{t("reading.destinyType.label") || "你的命格类型"}</span>
+                  <span className="text-xs text-white/50">{t("reading.destinyType.label") || "你的行为类型"}</span>
                   <span className="text-sm font-serif font-bold text-gold">
                     {data.computed_tags[0].replace(/^严重⚠️\s*/, "").replace(/\(待验证\)$/, "").trim()}
                   </span>
                 </div>
-                <p className="mt-2 text-white/30 text-[11px]">{t("reading.destinyType.hint") || "基于五维能量场综合分析"}</p>
+                <p className="mt-2 text-white/30 text-[11px]">{t("reading.destinyType.hint") || "基于五维数据综合分析"}</p>
               </div>
             )}
 
@@ -1175,7 +1175,7 @@ export default function ReadingPage() {
               </div>
             )}
 
-            {/* ── 8. Fortune Prescription ── */}
+            {/* ── 8. Profile Prescription ── */}
             {data.recommended_products && data.recommended_products.length > 0 && (
               <Suspense fallback={<div className="card-glass p-4 h-32 animate-pulse" />}>
                 <FortunePrescription

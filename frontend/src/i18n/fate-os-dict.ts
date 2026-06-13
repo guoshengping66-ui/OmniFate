@@ -5,10 +5,10 @@
  * Target audience: Global Web3 traders, hackers, and tech-savvy users.
  *
  * Style: Technical, gamified, geek-culture vibe.
- * NO archaic fortune-telling words. Use system/energy/tactical jargon.
+ * NO archaic analysis words. Use system/energy/tactical jargon.
  */
 
-// ─── Five Elements (五行) ───────────────────────────────────────────────────
+// ─── Five Elements (五素) ───────────────────────────────────────────────────
 export const ELEMENTS = {
   木: { en: "Wood", tag: "Vitality / Growth", icon: "🌿" },
   火: { en: "Fire", tag: "Entropy / Acceleration", icon: "🔥" },
@@ -109,7 +109,7 @@ export const DIMENSIONS = {
   出行: { en: "Travel", icon: "✈️", tactical: "Field Operations" },
 } as const
 
-// ─── Heavenly Stems & Earthly Branches (天干地支) ───────────────────────────
+// ─── Stems & Branches (天干地支) ───────────────────────────
 export const TIANGAN = {
   甲: { en: "Jia", element: "Wood", attribute: "Pioneer / Initiator" },
   乙: { en: "Yi", element: "Wood", attribute: "Adaptability / Growth" },
@@ -140,7 +140,7 @@ export const DIZHI = {
 
 // ─── Special Concepts (特殊概念) ────────────────────────────────────────────
 export const SPECIAL_CONCEPTS = {
-  // 纳音五行
+  // 纳音五素
   天河水: { en: "Celestial River Current", attribute: "Flowing Wisdom / Infinite Depth" },
   路旁土: { en: "Roadside Earth", attribute: "Grounded Stability / Steady Path" },
   壁上土: { en: "Wall Earth", attribute: "Protective Foundation / Structural Integrity" },
@@ -184,7 +184,7 @@ export const BODY_FEATURES = {
   长脸: { en: "Oval Face", attribute: "Analytical / Strategic" },
   瓜子脸: { en: "Heart-Shaped Face", attribute: "Creative / Intuitive" },
 
-  // 五行面型
+  // 五素面型
   金形面: { en: "Metal Face", attribute: "Structured / Disciplined" },
   木形面: { en: "Wood Face", attribute: "Growth-Oriented / Ambitious" },
   水形面: { en: "Water Face", attribute: "Fluid / Communicative" },
@@ -225,9 +225,9 @@ export function getTacticalAction(chinese: string): string {
 }
 
 /**
- * Get fortune level info
+ * Get status level info
  */
-export function getFortuneLevel(chinese: string) {
+export function getStatusLevel(chinese: string) {
   return STATUS_LEVELS[chinese as keyof typeof STATUS_LEVELS] || {
     en: chinese,
     level: 3,

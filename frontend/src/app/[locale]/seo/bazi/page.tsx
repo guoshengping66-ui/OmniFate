@@ -36,7 +36,7 @@ export default function BaziSEOPage() {
             "@type": "WebApplication",
             "name": t("seo.bazi.title"),
             "description": t("seo.bazi.desc"),
-            "url": "https://destinymirror.com/seo/bazi",
+            "url": "https://khanfate.com/seo/bazi",
             "applicationCategory": "LifestyleApplication",
             "operatingSystem": "Web",
             "offers": {

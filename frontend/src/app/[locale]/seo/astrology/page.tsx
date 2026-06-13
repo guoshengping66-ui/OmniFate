@@ -29,7 +29,7 @@ export default function AstrologySEOPage() {
             "@type": "WebApplication",
             "name": t("seo.astrology.title"),
             "description": t("seo.astrology.desc"),
-            "url": "https://destinymirror.com/seo/astrology",
+            "url": "https://khanfate.com/seo/astrology",
             "applicationCategory": "LifestyleApplication",
             "operatingSystem": "Web",
           })}}

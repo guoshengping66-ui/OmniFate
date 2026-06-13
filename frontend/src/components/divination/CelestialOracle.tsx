@@ -30,12 +30,12 @@ const FORTUNE_COLORS: Record<string, string> = {
   "凶": "from-orange-500 to-red-400",
   "大凶": "from-red-500 to-rose-400",
   "Great Blessing": "from-gold to-[#E8CB7A]",
-  "Good Fortune": "from-green-400 to-emerald-300",
-  "Mild Fortune": "from-blue-400 to-cyan-300",
+  "Good Rating": "from-green-400 to-emerald-300",
+  "Mild Rating": "from-blue-400 to-cyan-300",
   "Auspicious": "from-teal-400 to-cyan-400",
   "Moderate": "from-yellow-500 to-amber-400",
   "Inauspicious": "from-orange-500 to-red-400",
-  "Great Misfortune": "from-red-500 to-rose-400",
+  "Great Unfavorable": "from-red-500 to-rose-400",
 }
 
 const FORTUNE_EMOJI: Record<string, string> = {
@@ -47,12 +47,12 @@ const FORTUNE_EMOJI: Record<string, string> = {
   "凶": "🌑",
   "大凶": "⛈",
   "Great Blessing": "✨",
-  "Good Fortune": "🌟",
-  "Mild Fortune": "⭐",
+  "Good Rating": "🌟",
+  "Mild Rating": "⭐",
   "Auspicious": "🌤",
   "Moderate": "🌙",
   "Inauspicious": "🌑",
-  "Great Misfortune": "⛈",
+  "Great Unfavorable": "⛈",
 }
 
 // Theme energy totem
@@ -73,8 +73,8 @@ const THEME_TOTEM: Record<string, { icon: string; color: string; bg: string }> =
   "Travel": { icon: "✈", color: "text-sky-400",     bg: "from-sky-500/10 to-cyan-500/5" },
 }
 
-// Fortune stars display
-function FortuneStars({ level }: { level: number }) {
+// Rating stars display
+function RatingStars({ level }: { level: number }) {
   return (
     <div className="flex items-center justify-center gap-1 mt-2">
       {Array.from({ length: 7 }).map((_, i) => (
@@ -171,9 +171,9 @@ function StarAxis({ spinning, theme }: { spinning: boolean; theme?: string }) {
   )
 }
 
-// Fortune badge with gold particles + mist
-function FortuneBadge({ fortune, level }: { fortune: string; level: number }) {
-  const isHighFortune = level >= 5
+// Rating badge with gold particles + mist
+function RatingBadge({ fortune, level }: { fortune: string; level: number }) {
+  const isHighRating = level >= 5
   return (
     <motion.div
       className="text-center mb-6 relative"
@@ -181,7 +181,7 @@ function FortuneBadge({ fortune, level }: { fortune: string; level: number }) {
       animate={{ opacity: 1, scale: 1, rotateZ: 0 }}
       transition={{ type: "spring", damping: 12, stiffness: 150 }}
     >
-      {isHighFortune && (
+      {isHighRating && (
         <div className="absolute inset-0 pointer-events-none overflow-visible">
           {Array.from({ length: 8 }).map((_, i) => (
             <motion.div
@@ -214,13 +214,13 @@ function FortuneBadge({ fortune, level }: { fortune: string; level: number }) {
       <div className={`relative inline-flex items-center gap-2 px-6 py-3 rounded-full
                 bg-gradient-to-r ${FORTUNE_COLORS[fortune] || "from-gold to-[#E8CB7A]"}
                 text-ink font-bold text-2xl shadow-lg ${
-                  isHighFortune ? "shadow-gold/30" : ""
+                  isHighRating ? "shadow-gold/30" : ""
                 }`}>
         <span className="text-xl">{FORTUNE_EMOJI[fortune] || "✨"}</span>
         <span>{fortune}</span>
       </div>
 
-      <FortuneStars level={level} />
+      <RatingStars level={level} />
     </motion.div>
   )
 }
@@ -312,7 +312,7 @@ export function CelestialOracle() {
       if (total > threshold && Date.now() - lastShake > 2000) {
         lastShake = Date.now()
         triggerHaptic("heavy")
-        handleDivine()
+        handleDraw()
       }
     }
 
@@ -322,7 +322,7 @@ export function CelestialOracle() {
     }
   }, [phase, todayFree])
 
-  const handleDivine = useCallback(async () => {
+  const handleDraw = useCallback(async () => {
     if (phase === "spinning") return
     if (!user) {
       toast.error(t("divination.loginFirst"))
@@ -439,7 +439,7 @@ export function CelestialOracle() {
               className="text-center"
             >
               <button
-                onClick={handleDivine}
+                onClick={handleDraw}
                 className="relative group"
               >
                 <div className="absolute -inset-2 rounded-full bg-gold/10 animate-pulse pointer-events-none" />
@@ -500,7 +500,7 @@ export function CelestialOracle() {
               exit={{ opacity: 0 }}
               transition={{ type: "spring", damping: 15 }}
             >
-              <FortuneBadge fortune={result.fortune} level={result.fortune_level} />
+              <RatingBadge fortune={result.fortune} level={result.fortune_level} />
 
               {themeTotem && (
                 <motion.div
@@ -616,7 +616,7 @@ export function CelestialOracle() {
                   {t("divination.shareFortune")}
                 </button>
                 <button
-                  onClick={handleDivine}
+                  onClick={handleDraw}
                   disabled={phase === "spinning"}
                   className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm transition-all
                     ${todayFree

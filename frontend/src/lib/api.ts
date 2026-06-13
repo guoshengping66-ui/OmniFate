@@ -81,7 +81,7 @@ const addLangInterceptor = (client: typeof api) => {
     }
     try {
       if (!config.params?.lang) {
-        const lang = localStorage.getItem("destiny_mirror_lang") || (navigator.language.startsWith("zh") ? "zh" : "en")
+        const lang = localStorage.getItem("profile_mirror_lang") || (navigator.language.startsWith("zh") ? "zh" : "en")
         config.params = { ...config.params, lang }
       }
     } catch {}
@@ -174,7 +174,7 @@ apiAuth.interceptors.request.use((config) => {
     config.headers = { ...config.headers, ...CSRF_HEADER }
   }
   try {
-    const lang = localStorage.getItem("destiny_mirror_lang") || (navigator.language.startsWith("zh") ? "zh" : "en")
+    const lang = localStorage.getItem("profile_mirror_lang") || (navigator.language.startsWith("zh") ? "zh" : "en")
     config.params = { ...config.params, lang }
   } catch {}
   return config
@@ -958,7 +958,7 @@ export async function createCheckoutUrl(
     return { code_url: res.data.code_url, payment_method: "wechat_pay", message: res.data.message }
   } else if (paymentMethod === "paypal") {
     const res = await apiDirect.post(`/api/payments/paypal/create`, null, {
-      params: { item_type: itemType, description: "Destiny Mirror", reading_id: readingId }
+      params: { item_type: itemType, description: "Profile Mirror", reading_id: readingId }
     })
     return { approve_url: res.data.approve_url, payment_method: "paypal", message: res.data.message }
   } else {

@@ -38,7 +38,7 @@ export default function FaceReadingSEOPage() {
             "@type": "WebApplication",
             "name": t("seo.face.title"),
             "description": t("seo.face.desc"),
-            "url": "https://destinymirror.com/seo/face-reading",
+            "url": "https://khanfate.com/seo/face-reading",
             "applicationCategory": "LifestyleApplication",
           })}}
         />

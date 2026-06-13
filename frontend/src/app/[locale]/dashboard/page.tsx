@@ -31,7 +31,7 @@ export default function DashboardPage() {
         </Suspense>
       </section>
 
-      {/* Daily fortune section */}
+      {/* Daily status section */}
       <section className="py-16 px-4 bg-white/[0.015] relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gold/[0.02] to-transparent pointer-events-none" />
         <div className="max-w-5xl mx-auto relative">

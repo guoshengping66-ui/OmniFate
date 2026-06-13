@@ -25,7 +25,7 @@ export default function DivinationPage() {
           <CelestialOracle />
         </Suspense>
 
-        {/* Divination Rules */}
+        {/* Analysis Rules */}
         <div
           className="mt-8 space-y-4 animate-[fadeIn_0.3s_ease-out_0.3s_both]"
         >

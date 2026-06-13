@@ -29,7 +29,7 @@ export async function GET(request: Request) {
       port: parseInt(process.env.DB_PORT || "5432"),
       user: process.env.DB_USER,
       password: process.env.DB_PASS,
-      database: process.env.DB_NAME || "destiny",
+      database: process.env.DB_NAME || "destiny", // DB name is backend-only, not user-facing
     })
 
     await client.connect()

@@ -32,7 +32,7 @@ interface PersonalizedFortune {
   personalized?: boolean
 }
 
-// Client-side pseudo-random fortune (for non-logged-in users)
+// Client-side pseudo-random daily status (for non-logged-in users)
 function generateFortune(): FortuneData {
   const today = new Date()
   const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate()

@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     locale: "en_US",
   },
   alternates: {
-    canonical: "https://destinymirror.com/seo/bazi",
+    canonical: "https://khanfate.com/seo/bazi",
   },
 }
 

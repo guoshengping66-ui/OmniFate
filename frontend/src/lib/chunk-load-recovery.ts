@@ -19,7 +19,7 @@
 
 import { useEffect, useRef, useState } from "react"
 
-const STORAGE_KEY = "destiny_chunk_reload_attempted"
+const STORAGE_KEY = "profile_chunk_reload_attempted"
 
 function isChunkLoadError(error: Error): boolean {
   const msg = (error.message || "").toLowerCase()

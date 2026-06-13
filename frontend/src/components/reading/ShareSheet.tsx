@@ -66,7 +66,7 @@ export function ShareSheet({ sessionId }: Props) {
       }
       await generateReadingPdf({
         element: reportEl,
-        filename: `destiny-mirror-report-${sessionId.slice(0, 8)}`,
+        filename: `profile-mirror-report-${sessionId.slice(0, 8)}`,
       })
       toast.success(t("share.pdfDownloaded"))
     } catch (err) {
@@ -137,7 +137,7 @@ export function ShareSheet({ sessionId }: Props) {
     ctx.fillText("destiny-platform.com", 375, 1190)
 
     const link = document.createElement("a")
-    link.download = `destiny-mirror-share-${Date.now()}.png`
+    link.download = `profile-mirror-share-${Date.now()}.png`
     link.href = canvas.toDataURL("image/png")
     link.click()
     toast.success(t("share.cardDownloaded"))

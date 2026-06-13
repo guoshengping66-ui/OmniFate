@@ -1,11 +1,11 @@
 /**
  * Cultural Terminology Translation Dictionaries
- * 五行 (Wu Xing) & 八卦 (Ba Gua)
+ * 五素 (Wu Xing) & 八卦 (Ba Gua)
  *
  * Convention: Pinyin as proper noun + English translation (clarity)
  */
 
-// ── 五行 (The Five Elements / Wu Xing) ──────────────────────────
+// ── 五素 (The Five Elements / Wu Xing) ──────────────────────────
 export const WUXING_TRANSLATION: Record<string, { en: string; pinyin: string; desc: string; descEn: string }> = {
   '金': { en: 'Metal', pinyin: 'Jin', desc: '代表专注、收敛、肃杀', descEn: 'Represents focus, rigor, and precision.' },
   '木': { en: 'Wood', pinyin: 'Mu', desc: '代表生长、扩展、生机', descEn: 'Represents growth, flexibility, and expansion.' },
@@ -28,7 +28,7 @@ export const BAGUA_TRANSLATION: Record<string, {
   '坤': { en: 'Earth', pinyin: 'Kun', symbol: '☷', core: '顺', coreEn: 'Receptive / Nurturing' },
 }
 
-// ── 天干 (Heavenly Stems) ───────────────────────────────────────
+// ── 天干 (Stems) ───────────────────────────────────────
 export const TIANGAN_TRANSLATION: Record<string, string> = {
   '甲': 'Jia (Yang Wood)',
   '乙': 'Yi (Yin Wood)',
@@ -74,11 +74,11 @@ export const YI_TRANSLATION: Record<string, string> = {
   '栽种': 'Planting & Cultivation',
   '纳采': 'Proposals & Courtship',
   '会友': 'Networking & Socializing',
-  '求医': 'Health & Healing',
+  '求医': 'Health & Optimization',
   '学习': 'Study & Learning',
   '开工': 'Starting Work',
   '开仓': 'Opening Positions',
-  '祭祀': 'Spiritual Practice',
+  '祭祀': 'Mindful Practice',
   '解除': 'Clearing & Release',
   '沐浴': 'Cleansing & Purification',
   '扫舍': 'Decluttering & Fresh Start',
@@ -114,7 +114,7 @@ export const JI_TRANSLATION: Record<string, string> = {
   '学习': 'Avoid Starting Studies',
   '开工': 'Avoid Starting Work',
   '出行': 'Avoid Travel',
-  '祈福': 'Avoid Spiritual Rituals',
+  '祈福': 'Avoid Mindful Practices',
   '安床': 'Avoid Bed Setup',
   '解除': 'Avoid Clearing',
   '沐浴': 'Avoid Cleansing',

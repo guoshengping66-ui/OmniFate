@@ -3,7 +3,7 @@
 import { useEffect } from "react"
 
 const CHECK_INTERVAL_MS = 5 * 60 * 1000 // 5 minutes
-const VERSION_KEY = "destiny_build_id"
+const VERSION_KEY = "profile_build_id"
 
 /**
  * Proactive build version check.

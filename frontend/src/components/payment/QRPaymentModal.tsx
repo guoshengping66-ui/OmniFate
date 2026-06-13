@@ -286,8 +286,8 @@ export function QRPaymentModal({
         amount: tierInfo.amountCny,
         currency: method === "alipay" ? "CNY_ALIPAY" : "CNY_WECHAT",
         description: isReportUnlock
-          ? `Destiny Mirror - Unlock Report - ${readingId}`
-          : `Destiny Mirror - ${tierLabel} - ${tier}`,
+          ? `Profile Mirror - Unlock Report - ${readingId}`
+          : `Profile Mirror - ${tierLabel} - ${tier}`,
         reading_id: readingId || "",
       })
       setOrderNo(res.data.order_no)

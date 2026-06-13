@@ -1,6 +1,6 @@
 "use client"
 
-export default function DivinationLoading() {
+export default function AnalysisLoading() {
   return (
     <div className="min-h-screen pt-24 pb-16 px-4">
       <div className="max-w-lg mx-auto space-y-6">

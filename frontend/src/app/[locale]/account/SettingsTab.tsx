@@ -13,8 +13,8 @@ import { clearReadingHistory } from "@/lib/readingHistory"
 import type { Locale } from "@/i18n/config"
 
 // ── LocalStorage Keys ──────────────────────────────────────────────────────
-const BIRTH_DATA_KEY = "destiny_mirror_birth_data"
-const NOTIF_KEY = "destiny_mirror_notifications"
+const BIRTH_DATA_KEY = "profile_mirror_birth_data"
+const NOTIF_KEY = "profile_mirror_notifications"
 
 interface BirthData {
   gender: string
@@ -26,7 +26,7 @@ interface BirthData {
 
 interface NotifPrefs {
   reportReady: boolean
-  weeklyFortune: boolean
+  weeklyStatus: boolean
   promotions: boolean
 }
 
@@ -44,8 +44,8 @@ function saveBirthData(data: BirthData) {
 function loadNotifPrefs(): NotifPrefs {
   try {
     const raw = localStorage.getItem(NOTIF_KEY)
-    return raw ? JSON.parse(raw) : { reportReady: true, weeklyFortune: true, promotions: false }
-  } catch { return { reportReady: true, weeklyFortune: true, promotions: false } }
+    return raw ? JSON.parse(raw) : { reportReady: true, weeklyStatus: true, promotions: false }
+  } catch { return { reportReady: true, weeklyStatus: true, promotions: false } }
 }
 
 function saveNotifPrefs(prefs: NotifPrefs) {
@@ -96,7 +96,7 @@ export default function SettingsTab({ user, refreshUser, t }: { user: AuthUser; 
   const [birthForm, setBirthForm] = useState<BirthData>({ gender: "male", birth_year: 1990, birth_month: 1, birth_day: 1, birth_hour: 12 })
 
   // Notification prefs
-  const [notifPrefs, setNotifPrefs] = useState<NotifPrefs>({ reportReady: true, weeklyFortune: true, promotions: false })
+  const [notifPrefs, setNotifPrefs] = useState<NotifPrefs>({ reportReady: true, weeklyStatus: true, promotions: false })
 
   // Local history cleared flag
   const [historyCleared, setHistoryCleared] = useState(false)
@@ -400,7 +400,7 @@ export default function SettingsTab({ user, refreshUser, t }: { user: AuthUser; 
         <div className="space-y-4">
           {([
             { key: "reportReady" as const, label: t("account.notifyReportReady"), desc: t("account.notifyReportReadyDesc") },
-            { key: "weeklyFortune" as const, label: t("account.notifyWeeklyFortune"), desc: t("account.notifyWeeklyFortuneDesc") },
+            { key: "weeklyStatus" as const, label: t("account.notifyWeeklyFortune"), desc: t("account.notifyWeeklyFortuneDesc") },
             { key: "promotions" as const, label: t("account.notifyPromotions"), desc: t("account.notifyPromotionsDesc") },
           ]).map(item => (
             <div key={item.key} className="flex items-center justify-between">

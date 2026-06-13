@@ -414,7 +414,7 @@ const EnergyIDCardInner = ({ sessionId, dimensionScores, generatedAt, ..._rest }
                     <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: `${archetype.color}20` }}>
                       <span className="text-[8px] font-bold" style={{ color: archetype.color }}>{locale === "zh" ? "命" : "✦"}</span>
                     </div>
-                    <span className="text-white/20 text-[9px] tracking-wider">DESTINY MIRROR</span>
+                    <span className="text-white/20 text-[9px] tracking-wider">PROFILE MIRROR</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-white/15 text-[9px]">{formatDate(generatedAt)}</span>

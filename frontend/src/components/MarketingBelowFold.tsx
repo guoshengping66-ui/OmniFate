@@ -153,7 +153,7 @@ export function MarketingBelowFold() {
         </div>
       </section>
 
-      {/* ══════════ DAILY FORTUNE ══════════ */}
+      {/* ══════════ DAILY STATUS ══════════ */}
       <section className="py-28 px-4">
         <div className="max-w-5xl mx-auto">
           <SectionHeader

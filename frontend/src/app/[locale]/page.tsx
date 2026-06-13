@@ -13,7 +13,7 @@ const MarketingPage = dynamic(() => import("@/components/MarketingPage"), {
     <div className="min-h-screen flex items-center justify-center">
       <div className="flex flex-col items-center gap-4">
         <div className="w-8 h-8 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
-        <p className="text-gold/50 text-sm font-serif tracking-wider">DESTINY MIRROR</p>
+        <p className="text-gold/50 text-sm font-serif tracking-wider">PROFILE MIRROR</p>
       </div>
     </div>
   ),

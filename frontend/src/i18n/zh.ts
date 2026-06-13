@@ -29,7 +29,7 @@ export default {
 
   // ─── 追问专家 ───
   "chat.experts": "追问专家",
-  "chat.autoRoute": "AI 自动路由到对应命师",
+  "chat.autoRoute": "AI 自动路由到对应专家",
   "chat.expertsOnline": "位专家在线",
   "chat.expert": "专家",
   "chat.sendFail": "追问失败，请稍后重试",
@@ -1356,7 +1356,7 @@ export default {
   "divination.shareFailed": "分享失败",
   "divination.clickToDraw": "点击摇签",
   "divination.shakeHint": "手机摇一摇或点击上方开始分析",
-  "divination.aligning": "星体排列中 · 星象校准...",
+  "divination.aligning": "数据排列中 · 图表校准...",
   "divination.sensingEnergy": "正在感应「{theme}」星宫数据",
   "divination.todayPalace": "今日星宫：",
   "divination.aiGuide": "AI 行动指引",
@@ -1372,7 +1372,7 @@ export default {
   "divination.todayFirstFree": "每日免费一签 · 感应星辰指引",
   "divination.todayAlreadyDrawn": "今日签文已感应 · 每日仅一次",
   "divination.comeBackTomorrow": "明日再来",
-  "divination.payStardust": "消耗 1 点数 · 与星象深度感应",
+  "divination.payStardust": "消耗 1 点数 · 与图表深度感应",
 
   // ─── 定价页扩展 ───
   "pricing.regionDomestic": "国内 (CNY)",
@@ -1868,7 +1868,7 @@ export default {
 
   // ─── AM16 CTA 完整文案 ───
   "am16.ctaFull": "消耗 {cost}，获取你的年度行为分析报告！",
-  "am16.poster.defaultInvite": "DESTINY",
+  "am16.poster.defaultInvite": "PROFILE",
 
   // ─── AM16 分析步骤 ───
   "am16.step1": "解析第一维：顺天 vs 逆天",
@@ -1974,7 +1974,7 @@ export default {
   "am16.poster.guide": "🧭 个性化建议",
   "am16.poster.scan": "🔮 扫码测试你的行为模式",
   "am16.poster.stardust": "免费 20 点数 · 邀请码：",
-  "am16.poster.brand": "Destiny Mirror · AI 行为分析",
+  "am16.poster.brand": "Profile Mirror · AI 行为分析",
 
   // ─── AM16 错误信息 ───
   "am16.copyFailed": "复制失败",
@@ -2175,7 +2175,7 @@ export default {
 
   // ─── 创始人投票功能 ───
   "founder.vote.astro_trading": "图表交易信号",
-  "founder.vote.astro_trading_desc": "基于星象数据的交易时机建议",
+  "founder.vote.astro_trading_desc": "基于图表数据的交易时机建议",
   "founder.vote.feng_shui_scan": "AI 环境扫描",
   "founder.vote.feng_shui_scan_desc": "上传户型图，AI 分析环境格局",
   "founder.vote.bazi_compatibility": "四柱合婚",
@@ -2185,7 +2185,7 @@ export default {
 
   // ─── 数据雷达 ───
   "radar.title": "数据雷达",
-  "radar.desc": "未来 7 天星象数据波动，把握最佳交易时机",
+  "radar.desc": "未来 7 天图表数据波动，把握最佳交易时机",
   "radar.breadcrumb": "数据雷达",
   "radar.lowEnergy": "低数据",
   "radar.stable": "平稳",
@@ -2291,7 +2291,7 @@ export default {
   // ─── 服务条款弹窗 ───
   "serviceTerms.title": "服务条款与免责声明",
   "serviceTerms.s1.title": "1. 服务性质",
-  "serviceTerms.s1.desc": "AI 行为分析镜（Destiny Mirror）提供的所有行为分析、建议分析、数据诊断等功能，均基于算法辅助的行为建模与文化参考，仅供用户娱乐和自我反思使用。",
+  "serviceTerms.s1.desc": "AI 行为分析镜（Profile Mirror）提供的所有行为分析、建议分析、数据诊断等功能，均基于算法辅助的行为建模与文化参考，仅供用户娱乐和自我反思使用。",
   "serviceTerms.s2.title": "2. 免责声明",
   "serviceTerms.s2.desc": "本平台提供的内容不构成任何投资建议、法律建议、医疗建议或重大决策依据。用户因参考本平台内容而做出的任何决策，均由用户自行承担责任。",
   "serviceTerms.s3.title": "3. 点数道具说明",

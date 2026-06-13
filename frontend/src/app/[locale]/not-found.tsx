@@ -10,7 +10,7 @@ const MESSAGES: Record<string, { title: string; desc: string; home: string }> = 
 export default function NotFound() {
   const lang = useMemo(() => {
     try {
-      const stored = localStorage.getItem("destiny_mirror_lang")
+      const stored = localStorage.getItem("profile_mirror_lang")
       if (stored === "en" || stored === "zh") return stored
     } catch {}
     return navigator.language.startsWith("zh") ? "zh" : "en"
