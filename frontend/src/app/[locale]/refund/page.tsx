@@ -5,7 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext"
 
 const SECTION_KEYS = [
   "legal.refund.s1", "legal.refund.s2", "legal.refund.s3",
-  "legal.refund.s4", "legal.refund.s5",
+  "legal.refund.s4", "legal.refund.s5", "legal.refund.s6",
 ]
 
 export default function RefundPage() {

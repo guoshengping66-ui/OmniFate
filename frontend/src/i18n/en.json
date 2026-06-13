@@ -478,6 +478,10 @@
         "content": "To request a refund or exchange, contact us:\n\n- WeChat Customer Service: khan18553325258 (please add a note with \"refund\" + order number)\n- Email: guoshengping66@gmail.com\n- Subject format: [Refund Request] Order Number/Subscription Type\n- Please provide: Registration email, order number, refund reason\n\nFor spiritual artifact products, please include photos of the issue to expedite review.\nWe will review and respond within 1-3 business days.",
         "title": "5. How to Request a Refund"
       },
+      "s6": {
+        "content": "If you paid via PayPal, you may also be eligible for PayPal Buyer Protection. For details, visit https://www.paypal.com/webapps/mpp/ua/buyerprotection\n\nTo file a dispute:\n1. Log in to your PayPal account\n2. Go to Activity and find the transaction\n3. Click \"Report a Problem\" and follow the prompts\n\nPayPal disputes must be filed within 180 days of payment. Filing a PayPal dispute does not affect your right to contact our support team directly.",
+        "title": "6. PayPal Buyer Protection"
+      },
       "intro": "Thank you for using Destiny Mirror. We are committed to providing high-quality destiny analysis and spiritual artifact services. All spiritual artifacts on this platform are deeply personalized custom products. Please read the following refund policy carefully before placing your order.",
       "title": "Refund Policy"
     },
@@ -2974,7 +2978,10 @@
     "wechatQR": "WeChat QR Code",
     "wechatSteps": "WeChat Payment Steps",
     "yearly": "Yearly",
-    "yearlyPlan": "Yearly Plan ¥365/yr"
+    "yearlyPlan": "Yearly Plan ¥365/yr",
+    "paypalComplianceNotice": "This is a digital service purchase. ",
+    "paypalComplianceApply": "apply. By paying, you agree to our terms.",
+    "digitalServiceNotice": "Digital Service Notice: This purchase is for digital services (AI analysis / membership). Digital services are delivered immediately upon activation. Refund Policy and Terms of Service apply. PayPal Buyer Protection may also apply."
   },
   "paymentMethod": {
     "chinaMethods": "China Payment Methods"
@@ -3542,5 +3549,176 @@
       "Sensing aura resonance...",
       "Parsing block imprints..."
     ]
+  },
+  "aiProfiling": {
+    "hero": {
+      "badge": "AI Behavioral Analysis",
+      "title1": "Understand How You Think,",
+      "title2": "Decide, and Respond",
+      "subtitle": "AI generates structured behavioral insights based on questionnaire responses and cognitive modeling — no guesswork, just data-driven understanding.",
+      "cta1": "Start Free Analysis",
+      "cta2": "Get Full Report",
+      "trust": "Trusted by professionals worldwide",
+      "stat1": "50,000+ profiles generated",
+      "stat2": "97.3% user satisfaction",
+      "stat3": "Based on peer-reviewed research"
+    },
+    "value": {
+      "badge": "The Problem",
+      "title": "Why People Misunderstand Their Own Behavior Patterns",
+      "subtitle": "Traditional self-awareness falls short. Here's why.",
+      "items": [
+        {
+          "icon": "AlertTriangle",
+          "title": "Pressure Changes Everything",
+          "desc": "People behave differently under pressure than they expect. Without structured analysis, these patterns remain invisible."
+        },
+        {
+          "icon": "Brain",
+          "title": "Unconscious Decision Patterns",
+          "desc": "Most decision-making happens below conscious awareness. Only systematic profiling can surface these hidden tendencies."
+        },
+        {
+          "icon": "BarChart3",
+          "title": "Surface-Level Tests Fall Short",
+          "desc": "Traditional personality tests capture self-image, not actual behavioral patterns. AI modeling goes deeper."
+        }
+      ]
+    },
+    "product": {
+      "badge": "How It Works",
+      "title": "AI Behavioral Modeling System",
+      "subtitle": "A rigorous, data-driven approach to understanding human behavior",
+      "desc1": "Our system analyzes structured questionnaire responses to generate behavioral and cognitive profiles using probabilistic modeling techniques.",
+      "desc2": "Each profile is built from multiple behavioral dimensions — thinking style, decision-making patterns, stress responses, and execution tendencies — creating a comprehensive behavioral map.",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Structured Assessment",
+          "desc": "Answer carefully designed questions that reveal behavioral tendencies across multiple dimensions."
+        },
+        {
+          "num": "02",
+          "title": "AI Pattern Analysis",
+          "desc": "Our model processes responses through probabilistic algorithms to identify behavioral patterns and cognitive styles."
+        },
+        {
+          "num": "03",
+          "title": "Behavioral Profile Generation",
+          "desc": "Receive a comprehensive profile with actionable insights about your thinking, deciding, and responding patterns."
+        }
+      ]
+    },
+    "report": {
+      "badge": "Report Preview",
+      "title": "Your Behavioral Profile Includes",
+      "subtitle": "A comprehensive analysis across five key behavioral dimensions",
+      "items": [
+        {
+          "title": "Thinking Style",
+          "desc": "Whether you lean analytical, intuitive, or balanced in your cognitive processing",
+          "tag": "Cognitive"
+        },
+        {
+          "title": "Decision-Making Pattern",
+          "desc": "How you weigh options, manage uncertainty, and commit to choices",
+          "tag": "Behavioral"
+        },
+        {
+          "title": "Behavioral Stability Index",
+          "desc": "Your consistency across different situations and emotional states",
+          "tag": "Stability"
+        },
+        {
+          "title": "Stress Response Pattern",
+          "desc": "How you respond under pressure, deadlines, and high-stakes situations",
+          "tag": "Resilience"
+        },
+        {
+          "title": "Execution Style",
+          "desc": "Whether you plan meticulously or adapt on the fly — your action tendencies",
+          "tag": "Action"
+        }
+      ]
+    },
+    "insights": {
+      "badge": "Sample Insights",
+      "title": "Behavioral Insights You May Not Expect",
+      "subtitle": "These are model-based behavioral simulations — patterns our AI has identified from your profile data",
+      "disclaimer": "* Insights are based on behavioral modeling and should be considered as参考 for self-reflection, not definitive conclusions.",
+      "items": [
+        {
+          "title": "Structured Environments Boost Performance",
+          "desc": "Your profile suggests you tend to perform better in environments with clear structure and defined roles."
+        },
+        {
+          "title": "Intuitive Decisions Under Uncertainty",
+          "desc": "When facing ambiguity, your model indicates an increase in intuitive decision-making — a pattern worth understanding."
+        },
+        {
+          "title": "Goal Clarity Improves Long-Term Output",
+          "desc": "Your behavioral profile shows that clearly defined goals significantly improve your sustained performance over time."
+        }
+      ]
+    },
+    "pricing": {
+      "badge": "Pricing",
+      "title": "Choose Your Analysis Plan",
+      "subtitle": "Start free, upgrade when you need deeper insights",
+      "plans": [
+        {
+          "name": "Free",
+          "price": "$0",
+          "period": "forever",
+          "features": [
+            "Basic behavioral summary",
+            "Thinking style overview",
+            "Single assessment",
+            "Community access"
+          ],
+          "cta": "Start Free"
+        },
+        {
+          "name": "Pro",
+          "price": "$19",
+          "period": "/month",
+          "badge": "Most Popular",
+          "features": [
+            "Full behavioral report",
+            "All 5 profile dimensions",
+            "Decision-making analysis",
+            "Stress response patterns",
+            "PDF export",
+            "Monthly re-assessment"
+          ],
+          "cta": "Get Pro"
+        },
+        {
+          "name": "Premium",
+          "price": "$49",
+          "period": "/month",
+          "features": [
+            "Everything in Pro",
+            "Deep cognitive analysis",
+            "Behavioral trend tracking",
+            "Custom report templates",
+            "Priority support",
+            "API access",
+            "Team insights dashboard"
+          ],
+          "cta": "Go Premium"
+        }
+      ]
+    },
+    "disclaimer": {
+      "title": "Legal Disclaimer",
+      "content": "This product provides AI-generated behavioral insights for informational and self-reflection purposes only.\n\nIt does not provide:\n• Medical advice\n• Psychological diagnosis\n• Financial advice\n• Predictive claims\n• Guaranteed outcomes\n\nAll behavioral profiles and insights are generated through probabilistic modeling and should be considered as reference for personal understanding, not as professional recommendations.",
+      "cta": "I Understand — Start Analysis"
+    },
+    "finalCta": {
+      "title": "Ready to Understand Your Behavioral Patterns?",
+      "subtitle": "Join thousands who have gained data-driven self-awareness through AI behavioral analysis.",
+      "cta": "Start Your Free Analysis"
+    }
   }
 }

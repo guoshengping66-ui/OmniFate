@@ -1012,12 +1012,12 @@ async def create_paypal_order(
 
     # 合规化包装: 面向 PayPal 风控的商品描述（与命理世界观隔离）
     subject_map = {
-        "premium_monthly": "AlphaMirror AI Computing Monthly",
-        "premium_yearly": "AlphaMirror AI Computing Yearly",
-        "unlock_report": "AlphaMirror AI Computing Service",
-        "founder_lifetime": "AlphaMirror AI Computing Lifetime",
+        "premium_monthly": "Destiny Mirror - AI Analysis Monthly Subscription",
+        "premium_yearly": "Destiny Mirror - AI Analysis Yearly Subscription",
+        "unlock_report": "Destiny Mirror - AI Analysis Report",
+        "founder_lifetime": "Destiny Mirror - Founder Lifetime Membership",
     }
-    paypal_description = subject_map.get(item_type, "AlphaMirror AI Computing Service")
+    paypal_description = subject_map.get(item_type, "Destiny Mirror - AI Analysis Service")
 
     order_no = f"PP{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{secrets.randbelow(90000) + 10000}"
 
@@ -1093,7 +1093,7 @@ async def create_shop_paypal_order(
 
     paypal = PayPalPay()
     result = await paypal.create_order(
-        order_no, amount_usd, "AlphaMirror AI Shop Order", custom_id=current_user.id
+        order_no, amount_usd, "Destiny Mirror - Digital Products", custom_id=current_user.id
     )
 
     # 更新订单支付方式
@@ -1131,12 +1131,12 @@ async def paypal_checkout_url(
     amount_cny = price_info["cny"]
 
     subject_map = {
-        "premium_monthly": "AlphaMirror AI Computing Monthly",
-        "premium_yearly": "AlphaMirror AI Computing Yearly",
-        "unlock_report": "AlphaMirror AI Computing Service",
-        "founder_lifetime": "AlphaMirror AI Computing Lifetime",
+        "premium_monthly": "Destiny Mirror - AI Analysis Monthly Subscription",
+        "premium_yearly": "Destiny Mirror - AI Analysis Yearly Subscription",
+        "unlock_report": "Destiny Mirror - AI Analysis Report",
+        "founder_lifetime": "Destiny Mirror - Founder Lifetime Membership",
     }
-    paypal_description = subject_map.get(item_type, "AlphaMirror AI Computing Service")
+    paypal_description = subject_map.get(item_type, "Destiny Mirror - AI Analysis Service")
 
     order_no = f"PP{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{secrets.randbelow(90000) + 10000}"
 
