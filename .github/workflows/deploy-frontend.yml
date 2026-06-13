@@ -161,26 +161,32 @@ jobs:
               # ⚠️ 必须先 rm -rf 再 mkdir + cp，否则 cp -r 会合并而非替换
               echo "📋 复制静态文件到 standalone 目录..."
               echo "   当前目录: $(pwd)"
-              echo "   检查 .next/static 是否存在..."
-              ls -la .next/static/ 2>/dev/null || echo "   ⚠️ .next/static 不存在!"
-              ls -la .next/static/chunks/ 2>/dev/null | head -5 || echo "   ⚠️ .next/static/chunks 不存在!"
+
+              # 详细检查源目录
+              echo "   === 源目录 .next/static/ 内容 ==="
+              find .next/static/ -type f -name "*.js" 2>/dev/null | wc -l | xargs echo "   JS 文件总数:"
+              find .next/static/chunks/ -type f 2>/dev/null | wc -l | xargs echo "   chunks 目录文件总数:"
+
+              # 清理目标目录
               sudo rm -rf "$STANDALONE_DIR/.next/static" 2>/dev/null || true
               sudo mkdir -p "$STANDALONE_DIR/.next/static"
-              sudo cp -r .next/static/* "$STANDALONE_DIR/.next/static/" || {
-                echo "❌ cp 失败! 尝试逐个复制..."
-                for f in .next/static/*; do
-                  if [ -d "$f" ]; then
-                    sudo cp -r "$f" "$STANDALONE_DIR/.next/static/" || echo "   ⚠️ 复制目录失败: $f"
-                  elif [ -f "$f" ]; then
-                    sudo cp "$f" "$STANDALONE_DIR/.next/static/" || echo "   ⚠️ 复制文件失败: $f"
-                  fi
-                done
-              }
+
+              # 复制并记录结果
+              echo "   === 执行复制 ==="
+              sudo cp -rv .next/static/* "$STANDALONE_DIR/.next/static/" 2>&1 | tail -20
+              CP_EXIT=$?
+              echo "   cp 退出码: $CP_EXIT"
+
+              # 复制 public
               sudo rm -rf "$STANDALONE_DIR/public" 2>/dev/null || true
               sudo cp -r public "$STANDALONE_DIR/public" 2>/dev/null || true
               sudo chown -R $(whoami) /opt/OmniFate/frontend 2>/dev/null || true
-              echo "   复制完成，验证结果..."
-              ls -la "$STANDALONE_DIR/.next/static/" 2>/dev/null | head -10
+
+              # 详细检查目标目录
+              echo "   === 目标目录 $STANDALONE_DIR/.next/static/ 内容 ==="
+              find "$STANDALONE_DIR/.next/static/" -type f -name "*.js" 2>/dev/null | wc -l | xargs echo "   JS 文件总数:"
+              find "$STANDALONE_DIR/.next/static/chunks/" -type f 2>/dev/null | wc -l | xargs echo "   chunks 目录文件总数:"
+              ls -la "$STANDALONE_DIR/.next/static/" 2>/dev/null
 
               # ⚠️ 验证: standalone 目录必须包含 chunks，否则部署会白跑
               CHUNK_COUNT=$(find "$STANDALONE_DIR/.next/static/chunks" -name "*.js" 2>/dev/null | wc -l)
