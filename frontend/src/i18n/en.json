@@ -1259,7 +1259,7 @@
     "quick": {
       "astro1": "What are my Sun and Rising signs?",
       "astro2": "How does Saturn's transit affect my career?",
-      "astro3": "What kind of luck will Jupiter bring me this year?",
+      "astro3": "What trends might Jupiter influence this year?",
       "four-pillar1": "What's the pattern in my Four-Pillar chart?",
       "four-pillar2": "Which element is the weakest in my chart?",
       "four-pillar3": "How's my status looking this year?",
@@ -1490,13 +1490,13 @@
       "1": "A good day for quiet reflection and reviewing your goals",
       "2": "Social data is high — great for networking",
       "3": "Perfect time to learn something new",
-      "4": "Wealth luck is decent — keep an eye on opportunities",
+      "4": "Financial momentum is decent — keep an eye on opportunities",
       "5": "Love data is stable — a good time to express your feelings",
       "6": "Career breakthroughs are possible — go for it",
       "7": "Take it easy today — don't push yourself too hard",
       "8": "Good for clearing your to-do list",
       "9": "Creative inspiration is flowing — great for art and writing",
-      "10": "Travel luck is strong — perfect for a day trip",
+      "10": "Travel prospects are strong — perfect for a day trip",
       "_label": "Daily Advice"
     },
     "color": {
@@ -1647,7 +1647,7 @@
     "knowledgeButton": "Knowledge Base",
     "shopButton": "Status Shop",
     "shopCta": "Explore Status Items",
-    "shopDesc": "Handpicked focuss and recommended charms to boost your status",
+    "shopDesc": "Handpicked items and recommended accessories to enhance your personal style",
     "quick": {
       "reading": "Free Reading",
       "am16": "Behavioral Quiz",
@@ -1979,7 +1979,7 @@
       "desc": "Based on your birth time and location, AI draws your behavioral profile and deeply interprets planetary placements and aspects, revealing your unique life blueprint.",
       "f1Desc": "Core personality, vitality, and self-expression",
       "f1Title": "Sun Sign",
-      "f2Desc": "Inner emotions, subconscious, and security needs",
+      "f2Desc": "Inner emotions, deeper awareness, and security needs",
       "f2Title": "Moon Sign",
       "f3Desc": "Outer presentation, first impressions, and life mask",
       "f3Title": "Rising Sign",
@@ -2039,7 +2039,7 @@
       "a5Area": "Mouth",
       "a5Meaning": "Status, eloquence, enjoyment",
       "a6Area": "Chin",
-      "a6Meaning": "Late status, children luck",
+      "a6Meaning": "Later life, family dynamics",
       "areasTitle": "Facial Feature Areas",
       "breadcrumb": "AI Facial Feature",
       "ctaBtn": "Upload Photo",
@@ -2085,7 +2085,7 @@
       "f5Title": "Action Guidance",
       "f6Desc": "Explore the inner self through symbolic for peace and direction",
       "f6Title": "Inner Reflection",
-      "p1": "Symbolic cards are an ancient analysis tool of 78 cards, each with rich symbolic meaning. Through spreads, symbolic helps explore the subconscious and understand current situations.",
+      "p1": "Symbolic cards are an ancient analysis tool of 78 cards, each with rich symbolic meaning. Through spreads, symbolic helps explore deeper awareness and understand current situations.",
       "p2": "Symbolic reading is not fatalistic prediction but a tool for self-exploration and reflection, helping discover overlooked possibilities and make wiser choices.",
       "p3": "Behavioral Mirror's AI symbolic combines traditional symbolic wisdom with modern psychology for deep, comprehensive, and insightful readings.",
       "sp1Desc": "Quick data guidance for the moment",
@@ -2319,7 +2319,7 @@
       "_label": "Four-Pillar (Four Pillars)",
       "tag": "Eastern Analysis",
       "desc": "Decode your behavioral path through the Tian Gan and Di Zhi of your birth profile",
-      "detail": "Four Pillars · Ten Gods · Luck Cycles · Five Element Balance"
+      "detail": "Four Pillars · Ten Gods · Growth Cycles · Five Element Balance"
     },
     "behavioral pattern": {
       "_label": "Western Behavioral Pattern",
