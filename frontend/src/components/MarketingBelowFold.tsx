@@ -235,7 +235,7 @@ export function MarketingBelowFold() {
             <div className="card-glass-elevated p-10 md:p-14 relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-gold/5 via-transparent to-jade/5 pointer-events-none" />
               <div className="relative">
-                <div className="text-4xl mb-5 animate-float">🔮</div>
+                <div className="text-4xl mb-5 animate-float">✨</div>
                 <h2 className="text-2xl md:text-3xl font-serif font-bold text-white mb-3">{t("cta.title")}</h2>
                 <p className="text-white/45 mb-8 max-w-md mx-auto text-sm">{t("cta.desc")}</p>
                 <MagneticButton>

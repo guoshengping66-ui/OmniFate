@@ -159,7 +159,7 @@ export default function AboutPage() {
         {/* ══════════ CTA ══════════ */}
         <ScrollReveal delay={0.16}>
           <div className="text-center card-glass p-8 md:p-10">
-            <div className="text-3xl mb-4">🔮</div>
+            <div className="text-3xl mb-4">✨</div>
             <h2 className="text-xl md:text-2xl font-serif font-bold text-white mb-3">{t("about.ctaTitle")}</h2>
             <p className="text-white/40 text-sm mb-6 max-w-md mx-auto">{t("about.ctaDesc")}</p>
             <Link
