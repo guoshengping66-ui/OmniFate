@@ -265,7 +265,7 @@ export default function CheckoutPage() {
         {/* Processing time disclaimer */}
         <div className="bg-gold/5 border border-gold/20 rounded-xl p-4 mb-4">
           <p className="text-white/50 text-xs leading-relaxed">
-            {t("checkout.processingNote") || "由于每一件能量法器均需在东方古寺/道场进行特定磁场调频与手工定制，您的订单将在 3-5 个工作日内发出，全球专线预计 7-14 天送达。"}
+            {t("checkout.processingNote") || "由于每一件精选饰品均需经过严格品质检验与手工包装，您的订单将在 3-5 个工作日内发出，全球专线预计 7-14 天送达。"}
           </p>
         </div>
 

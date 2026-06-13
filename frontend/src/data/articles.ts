@@ -426,8 +426,8 @@ Your birth time determines the starting point of the houses (the Ascendant sign)
     id: "chart analysis-aspects",
     title_zh: "行星相位：合相、对冲、三分相…它们在说什么？",
     title_en: "Planetary Aspects: Conjunctions, Oppositions, Trines & What They Mean",
-    summary_zh: "相位是行星之间的角度关系，决定了行星能量如何互动。合相是融合，对冲是张力，三分相是和谐。理解相位，就读懂了图表的动力系统。",
-    summary_en: "Aspects are angular relationships between planets that determine how their energies interact. Conjunctions merge, oppositions create tension, trines flow harmoniously. Understanding aspects unlocks your chart's dynamic engine.",
+    summary_zh: "相位是行星之间的角度关系，决定了行星互动模式。合相是融合，对冲是张力，三分相是和谐。理解相位，就读懂了图表的动力系统。",
+    summary_en: "Aspects are angular relationships between planets that determine how they interact. Conjunctions merge, oppositions create tension, trines flow harmoniously. Understanding aspects unlocks your chart's dynamic engine.",
     category: "chart analysis",
     tags_zh: ["图表", "相位", "进阶"],
     tags_en: ["Natal Chart", "Aspects", "Advanced"],
@@ -437,18 +437,18 @@ Your birth time determines the starting point of the houses (the Ascendant sign)
     content_zh: `
 ## 什么是相位？
 
-相位是图表中行星之间形成的角度。不同的角度代表不同的能量互动模式。主要相位有五种：
+相位是图表中行星之间形成的角度。不同的角度代表不同的互动模式。主要相位有五种：
 
 ## 五大主要相位
 
 ### 合相（0°）— 融合
-两颗行星紧密结合，能量叠加。如同两个人合为一体，力量倍增但也可能失衡。
+两颗行星紧密结合，力量叠加。如同两个人合为一体，力量倍增但也可能失衡。
 
 ### 对冲（180°）— 张力
 两颗行星遥遥相对，形成拉扯。这是最具挑战性的相位，但也带来最大的成长动力。
 
 ### 三分相（120°）— 和谐
-两颗行星互相支持，能量流通顺畅。这是最轻松的相位，代表天赋和好运。
+两颗行星互相支持，互动顺畅。这是最轻松的相位，代表天赋和好运。
 
 ### 四分相（90°）— 摩擦
 两颗行星互相阻碍，需要努力调和。虽然带来压力，但也催生行动力和突破。
@@ -548,7 +548,7 @@ Two planets assist each other gently, offering mild support. It represents oppor
 
 ## 如何使用大阿尔卡纳？
 
-每张牌都有正位和逆位两种解读。正位代表牌面能量的正面表达，逆位则代表阻碍或内在课题。抽牌时的直觉反应往往是最准确的指引。
+每张牌都有正位和逆位两种解读。正位代表牌面的正面表达，逆位则代表阻碍或内在课题。抽牌时的直觉反应往往是最准确的指引。
 
 → 试试 AI 符号解析，获取你的专属牌阵解读
     `,
@@ -760,10 +760,10 @@ Only by analyzing all three lines together can you fully understand a person's c
   // ────────────────────────────────────────────────────
   {
     id: "crystal-guide",
-    title_zh: "水晶优化指南：不同水晶对应的五素能量",
-    title_en: "Crystal Status Guide: Five Element Energy of Each Crystal",
-    summary_zh: "黄水晶招财、粉水晶招感情、紫水晶增强直觉…每种水晶都对应不同的五素属性和脉轮。选对水晶，优化效果翻倍。",
-    summary_en: "Citrine attracts wealth, Rose Quartz draws love, Amethyst enhances intuition — each crystal corresponds to specific Five Elements and data points. Choose the right crystal to double your status effects.",
+    title_zh: "水晶优化指南：不同水晶对应的五素特质",
+    title_en: "Crystal Status Guide: Five Element Qualities of Each Crystal",
+    summary_zh: "黄水晶促进积极心态、粉水晶增进人缘、紫水晶增强直觉…每种水晶都对应不同的五素属性。选对水晶，优化效果翻倍。",
+    summary_en: "Citrine promotes positive mindset, Rose Quartz enhances social presence, Amethyst boosts awareness — each crystal corresponds to specific Five Elements. Choose the right crystal to double your status effects.",
     category: "lifestyle",
     tags_zh: ["水晶", "优化", "五素"],
     tags_en: ["Crystals", "Status", "Five Elements"],
@@ -773,7 +773,7 @@ Only by analyzing all three lines together can you fully understand a person's c
     content_zh: `
 ## 水晶与五素
 
-每种天然水晶都带有特定的五素属性，可以用来补充或调和你档案中的五素能量。
+每种天然水晶都带有特定的五素属性，可以用来补充或调和你档案中的五素特质。
 
 ## 常见水晶五素对照
 
@@ -785,34 +785,34 @@ Only by analyzing all three lines together can you fully understand a person's c
 ### 火属性水晶
 - **红玛瑙**：勇气、行动力
 - **红发晶**：热情、动力
-- **石榴石**：生命力、女性能量
+- **石榴石**：生命力、温暖
 
 ### 土属性水晶
-- **黄水晶**：偏财运、投资运
+- **黄水晶**：积极心态、投资决策
 - **虎眼石**：自信、决断力
-- **琥珀**：安神、优化
+- **琥珀**：平静、优化
 
 ### 金属性水晶
-- **白水晶**：净化、清晰思维
+- **白水晶**：清晰、清晰思维
 - **银发晶**：果断、执行力
 - **月光石**：直觉、情感平衡
 
 ### 水属性水晶
-- **黑曜石**：辟邪、吸收负能量
+- **黑曜石**：防护、吸收负面特质
 - **海蓝宝**：沟通、表达
-- **蓝纹玛瑙**：平静、冥想
+- **蓝纹玛瑙**：平静、静心
 
 ## 如何选择适合自己的水晶？
 
 1. **先了解你的喜用神**：喜用神是五素中你最需要的元素
 2. **选择对应五素的水晶**：比如喜用神是火，就选火属性水晶
-3. **佩戴位置有讲究**：左手吸收能量，右手释放能量
-4. **定期净化**：水晶需要定期消磁净化，保持能量纯净
+3. **佩戴位置有讲究**：左手吸收特质，右手释放特质
+4. **定期净化**：水晶需要定期清洁保养，保持特质纯净
 
-## 招感情特别推荐
+## 增进人际关系特别推荐
 
-- **粉水晶**：温和招感情，增强人缘
-- **草莓晶**：激发爱情能量，促进姻缘
+- **粉水晶**：温和增人缘，增强人缘
+- **草莓晶**：激发积极社交特质，促进人际和谐
 - **红纹石**：增进感情，修复关系
 
 → 查看你的档案弱点，AI 将推荐最适合你的水晶
@@ -871,10 +871,10 @@ Every natural crystal carries a specific Five Element attribute, which can be us
   // ────────────────────────────────────────────────────
   {
     id: "fengshui-desk",
-    title_zh: "办公桌环境优化布局：提升事业运的小技巧",
-    title_en: "Desk Feng Shui: Small Tweaks to Boost Your Career Luck",
-    summary_zh: "桌面左侧放绿植旺贵人运，右侧放水晶球增决策力，背后有靠山…简单的办公桌调整就能改善你的事业能量场。",
-    summary_en: "Place green plants on the left for benefactor luck, a crystal sphere on the right for decision-making, and ensure support behind you — simple desk adjustments can transform your career energy field.",
+    title_zh: "办公桌环境优化布局：提升事业的小技巧",
+    title_en: "Desk Layout Optimization: Small Tweaks to Boost Your Career",
+    summary_zh: "桌面左侧放绿植旺人缘，右侧放水晶球增决策力，背后有靠山…简单的办公桌调整就能改善你的事业环境。",
+    summary_en: "Place green plants on the left for social connections, a crystal sphere on the right for decision-making, and ensure support behind you — simple desk adjustments can transform your career environment.",
     category: "lifestyle",
     tags_zh: ["环境优化", "事业", "办公"],
     tags_en: ["Feng Shui", "Career", "Office"],
@@ -1278,7 +1278,7 @@ Our 5-Dimension system lets you:
     summary_zh: "很多人抽到不满意的牌就想再抽一次。但符号牌真的能「重考」吗？反复解读会带来什么影响？本文解答符号解析中「重复提问」的核心原则。",
     summary_en: "Many people want to re-draw when they get an unsatisfying card. But can symbol really be 'retaken'? What impact does repeated analysis have? This article addresses the core principles of repeated questioning in symbol.",
     category: "symbol",
-    tags_zh: ["符号", "能量解读", "FAQ", "入门"],
+    tags_zh: ["符号", "数据解读", "FAQ", "入门"],
     tags_en: ["Symbol", "Analysis", "FAQ", "Beginner"],
     read_time: 4,
     cover_emoji: "🃏",

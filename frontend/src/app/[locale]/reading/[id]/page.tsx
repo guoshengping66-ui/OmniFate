@@ -808,9 +808,9 @@ export default function ReadingPage() {
                       const scores = Object.values(data.dimension_scores || {})
                       const avg = scores.reduce((a, b) => a + b, 0) / scores.length
                       const balance = Math.max(...scores) - Math.min(...scores)
-                      if (balance <= 1.5) return t("reading.insight.balanced") || "五维能量均衡，整体状态稳定"
-                      if (balance <= 3) return t("reading.insight.moderate") || "能量分布有侧重，注意补强短板"
-                      return t("reading.insight.imbalanced") || "能量差异较大，建议重点关注弱势维度"
+                      if (balance <= 1.5) return t("reading.insight.balanced") || "五维数据均衡，整体状态稳定"
+                      if (balance <= 3) return t("reading.insight.moderate") || "数据分布有侧重，注意补强短板"
+                      return t("reading.insight.imbalanced") || "数据差异较大，建议重点关注弱势维度"
                     })()}
                   </p>
                 </div>
