@@ -1040,6 +1040,15 @@
       "tag": "Wood",
       "_label": "Four-Pillar (Four Pillars of Behavioral)"
     },
+    "bazi": {
+      "_label": "Four-Pillar Analysis"
+    },
+    "astrology": {
+      "_label": "Star Chart Analysis"
+    },
+    "tarot": {
+      "_label": "Symbolic Card Analysis"
+    },
     "face": {
       "desc": "468 Feature Points · Region Mapping · Trait Analysis",
       "detail": "Your nose tip, mountain root, jawline, and forehead — each feature reveals aspects of your behavioral profile.",
@@ -2756,7 +2765,8 @@
     "subscribeError": "Subscription failed, please try again later",
     "systems": "Analysis Systems",
     "terms": "Terms of Service",
-    "wechatHint": "Click to copy WeChat ID"
+    "wechatHint": "Click to copy WeChat ID",
+    "entertainmentDisclaimer": "All analysis results are provided for entertainment and self-reflection purposes only. They do not constitute professional advice of any kind. Please use your own judgment when making decisions."
   },
   "forgotPassword": {
     "changeEmail": "← Change email",
