@@ -1397,14 +1397,14 @@
       "career": "巅峰指挥官",
       "health": "生命枢纽",
       "relationship": "情感回响",
-      "spiritual": "数据洞察者",
+      "mindfulness": "数据洞察者",
       "wealth": "财富架构师"
     },
     "tier": {
       "career": "铁血",
       "health": "翡翠",
       "relationship": "玫瑰",
-      "spiritual": "紫罗兰",
+      "mindfulness": "紫罗兰",
       "wealth": "金色"
     },
     "brand": "AI 行为分析镜",
@@ -1749,7 +1749,7 @@
       "career": "事业",
       "health": "健康",
       "relationship": "感情",
-      "spiritual": "精神",
+      "mindfulness": "心智",
       "wealth": "财富",
       "beat": "击败了"
     },
@@ -1757,7 +1757,7 @@
       "career": "事业腾飞力",
       "health": "身心平衡值",
       "relationship": "情感和谐度",
-      "spiritual": "专注觉醒度",
+      "mindfulness": "专注觉醒度",
       "wealth": "财运数据场"
     },
     "error": {
@@ -1937,7 +1937,7 @@
       "career": "事业",
       "health": "健康",
       "relationship": "感情",
-      "spiritual": "精神",
+      "mindfulness": "心智",
       "wealth": "财富"
     },
     "confirmDelete": "确定要删除这条分析记录吗？",
@@ -2568,7 +2568,7 @@
     "career": "事业",
     "health": "健康",
     "relationship": "感情",
-    "spiritual": "精神",
+    "mindfulness": "心智",
     "title": "五维数据分布",
     "wealth": "财运"
   },
@@ -3243,7 +3243,7 @@
     "fiveElements": "五素",
     "health": "健康",
     "relationship": "感情",
-    "spiritual": "精神",
+    "mindfulness": "心智",
     "tenGods": "十维",
     "title": "你的专属合参报告",
     "wealth": "财运"

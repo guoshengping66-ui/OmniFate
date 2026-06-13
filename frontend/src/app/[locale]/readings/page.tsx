@@ -41,7 +41,7 @@ export default function ReadingsPage() {
   const DIM_LABELS: Record<string, string> = {
     wealth: t("readings.dim.wealth"), career: t("readings.dim.career"),
     relationship: t("readings.dim.relationship"), health: t("readings.dim.health"),
-    spiritual: t("readings.dim.spiritual"),
+    mindfulness: t("readings.dim.mindfulness"),
   }
 
   const getWeakest = (scores: Record<string, number>): string => {

@@ -66,11 +66,11 @@ function stripMarkdown(text: string): string {
 
 const DIM_LABELS: Record<string, string> = {
   wealth: "财富", career: "事业", relationship: "感情",
-  health: "健康", spiritual: "精神",
+  health: "健康", mindfulness: "心智",
 }
 
 const DIM_EMOJI: Record<string, string> = {
-  wealth: "💰", career: "💼", relationship: "💕", health: "🏥", spiritual: "🧘",
+  wealth: "💰", career: "💼", relationship: "💕", health: "🏥", mindfulness: "🧘",
 }
 
 const DIM_DESCRIPTIONS: Record<string, string> = {
@@ -78,7 +78,7 @@ const DIM_DESCRIPTIONS: Record<string, string> = {
   career: "事业腾飞力",
   relationship: "情感和谐度",
   health: "身心平衡值",
-  spiritual: "专注觉醒度",
+  mindfulness: "专注觉醒度",
 }
 
 const I18N_DIM_KEYS: Record<string, { label: string; desc: string }> = {
@@ -86,7 +86,7 @@ const I18N_DIM_KEYS: Record<string, { label: string; desc: string }> = {
   career: { label: "reading.dim.career", desc: "reading.dimDesc.career" },
   relationship: { label: "reading.dim.relationship", desc: "reading.dimDesc.relationship" },
   health: { label: "reading.dim.health", desc: "reading.dimDesc.health" },
-  spiritual: { label: "reading.dim.spiritual", desc: "reading.dimDesc.spiritual" },
+  mindfulness: { label: "reading.dim.mindfulness", desc: "reading.dimDesc.mindfulness" },
 }
 
 const I18N_NAV_CORE = [
@@ -960,7 +960,7 @@ export default function ReadingPage() {
                 <Suspense fallback={<div className="h-64" />}>
                   <DestinyRadar
                     scores={data.dimension_scores}
-                    labels={["wealth", "relationship", "career", "health", "spiritual"].map(k => t(I18N_DIM_KEYS[k]?.label || `reading.dim.${k}`))}
+                    labels={["wealth", "relationship", "career", "health", "mindfulness"].map(k => t(I18N_DIM_KEYS[k]?.label || `reading.dim.${k}`))}
                   />
                 </Suspense>
               </div>

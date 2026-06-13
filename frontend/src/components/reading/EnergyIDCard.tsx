@@ -27,13 +27,13 @@ const ARCHETYPES: Record<string, Archetype> = {
   career:     { code: "APEX",     labelKey: "energyId.archetype.career",     tierKey: "energyId.tier.career",     color: "#3B82F6", glow: "rgba(59,130,246,0.4)" },
   relationship:{ code: "ECHO",    labelKey: "energyId.archetype.relationship",tierKey: "energyId.tier.relationship",color: "#EC4899", glow: "rgba(236,72,153,0.4)" },
   health:     { code: "NEXUS",    labelKey: "energyId.archetype.health",     tierKey: "energyId.tier.health",     color: "#10B981", glow: "rgba(16,185,129,0.4)" },
-  spiritual:  { code: "AETHER",   labelKey: "energyId.archetype.spiritual",  tierKey: "energyId.tier.spiritual",  color: "#A855F7", glow: "rgba(168,85,247,0.4)" },
+  mindfulness:  { code: "AETHER",   labelKey: "energyId.archetype.mindfulness",  tierKey: "energyId.tier.mindfulness",  color: "#A855F7", glow: "rgba(168,85,247,0.4)" },
 }
 
 function getArchetype(scores: Record<string, number>): Archetype {
   const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1])
-  const topDim = sorted[0]?.[0] ?? "spiritual"
-  return ARCHETYPES[topDim] ?? ARCHETYPES.spiritual
+  const topDim = sorted[0]?.[0] ?? "mindfulness"
+  return ARCHETYPES[topDim] ?? ARCHETYPES.mindfulness
 }
 
 function getEnergyDensity(scores: Record<string, number>): string {
@@ -246,7 +246,7 @@ const EnergyIDCardInner = ({ sessionId, dimensionScores, generatedAt, ..._rest }
   const [flipped, setFlipped] = useState(false)
   const [shimmerActive, setShimmerActive] = useState(false)
 
-  const scores = dimensionScores || { wealth: 5, career: 5, relationship: 5, health: 5, spiritual: 5 }
+  const scores = dimensionScores || { wealth: 5, career: 5, relationship: 5, health: 5, mindfulness: 5 }
   const archetype = getArchetype(scores)
   const signature = generateSignature(scores)
   const prophecy = getProphecy(sessionId, locale)
@@ -274,7 +274,7 @@ const EnergyIDCardInner = ({ sessionId, dimensionScores, generatedAt, ..._rest }
     return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`
   }
 
-  const DIM_LABELS: Record<string, string> = { wealth: "💰", career: "💼", relationship: "💕", health: "🏥", spiritual: "🧘" }
+  const DIM_LABELS: Record<string, string> = { wealth: "💰", career: "💼", relationship: "💕", health: "🏥", mindfulness: "🧘" }
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}

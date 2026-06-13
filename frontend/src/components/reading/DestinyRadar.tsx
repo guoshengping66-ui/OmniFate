@@ -26,7 +26,7 @@ export function DestinyRadar({ scores, labels, size = 280 }: Props) {
     t("destinyRadar.relationship"),
     t("destinyRadar.career"),
     t("destinyRadar.health"),
-    t("destinyRadar.spiritual"),
+    t("destinyRadar.mindfulness"),
   ]
 
   const displayLabels = labels || DEFAULT_LABELS
@@ -38,7 +38,7 @@ export function DestinyRadar({ scores, labels, size = 280 }: Props) {
   }, [])
 
   // Get the 5 dimension values in fixed order
-  const dims = ["wealth", "relationship", "career", "health", "spiritual"]
+  const dims = ["wealth", "relationship", "career", "health", "mindfulness"]
   const values = dims.map(d => scores[d] ?? 5)
 
   // Compute pentagon vertex positions
