@@ -143,26 +143,31 @@ export default {
   "agents.desc": "五位 AI 分析专家同步工作，从不同维度交叉验证你的档案",
 
   "agent.bazi": "四柱分析",
+  "agent.bazi._label": "四柱分析",
   "agent.bazi.tag": "木",
   "agent.bazi.desc": "四柱分析·元素平衡·动态分析",
   "agent.bazi.detail": "基于传统分析框架，AI 映射你的行为模式与发展周期。",
 
   "agent.astrology": "行为模式分析",
+  "agent.astrology._label": "星图分析",
   "agent.astrology.tag": "火",
   "agent.astrology.desc": "行星落宫·相位角度·特质分析",
   "agent.astrology.detail": "精密计算太阳-月亮-上升人格三角，解读你的行为特征。",
 
   "agent.tarot": "符号分析",
+  "agent.tarot._label": "象征牌分析",
   "agent.tarot.tag": "土",
   "agent.tarot.desc": "象征体系·当下状态·行动参考",
   "agent.tarot.detail": "每次解读独一无二，AI 实时生成分析与反思指引。",
 
   "agent.face": "面部特征分析",
+  "agent.face._label": "面部特征分析",
   "agent.face.tag": "金",
   "agent.face.desc": "468 特征点·区域量化·特质分析",
   "agent.face.detail": "MediaPipe 高精度面部特征提取，面部特征一目了然。",
 
   "agent.palm": "手部特征分析",
+  "agent.palm._label": "手掌特征分析",
   "agent.palm.tag": "水",
   "agent.palm.desc": "三大主线·纹路模式·区域评估",
   "agent.palm.detail": "AI 识别手型分类与纹路走势，结合传统分析深度解读。",

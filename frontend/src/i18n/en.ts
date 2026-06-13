@@ -143,26 +143,31 @@ export default {
   "agents.desc": "Five analytical frameworks each examine your profile from a different angle — then we integrate them into one comprehensive analysis.",
 
   "agent.bazi": "Four-Pillar Analysis",
+  "agent.bazi._label": "Four-Pillar Analysis",
   "agent.bazi.tag": "Wood",
   "agent.bazi.desc": "Stem-Branch Chart · Five Elements Flow · Ten Gods Dynamics",
   "agent.bazi.detail": "Rooted in the classics of 'Di Tian Sui' and 'San Ming Tong Hui', we trace your behavioral pattern and status cycles through the Four Pillars.",
 
   "agent.stellar profile": "Behavioral Profile",
+  "agent.astrology._label": "Star Chart Analysis",
   "agent.stellar profile.tag": "Fire",
   "agent.stellar profile.desc": "Planetary Houses · Aspects · Inner Mission",
   "agent.stellar profile.detail": "We map your Sun-Moon-Rising triangle to uncover the shape of your soul's journey.",
 
   "agent.symbolic": "Symbolic Reading",
+  "agent.tarot._label": "Symbolic Card Analysis",
   "agent.symbolic.tag": "Earth",
   "agent.symbolic.desc": "Celtic Cross · Current Energy · Action Guidance",
   "agent.symbolic.detail": "Each spread is unique to your moment — real-time cards offering reflection guidance just for you.",
 
   "agent.face": "Facial Feature",
+  "agent.face._label": "Facial Profile Analysis",
   "agent.face.tag": "Metal",
   "agent.face.desc": "468 Feature Points · Palace Mapping · Status Reading",
   "agent.face.detail": "Your nose tip, mountain root, jawline, and forehead — each one tells a chapter of your behavioral story.",
 
   "agent.palm": "Hand Feature",
+  "agent.palm._label": "Palm Profile Analysis",
   "agent.palm.tag": "Water",
   "agent.palm.desc": "Three Main Lines · Special Patterns · Mounts Evaluation",
   "agent.palm.detail": "The shape of your hand and the lines on your palm carry centuries of hand feature wisdom — we read them for you.",
