@@ -94,7 +94,7 @@
       "diagnosis": "Uses the most rational data analysis to reach the most zen conclusion. Created a 200-page PPT proving the validity of lying flat — impeccable data, beautiful charts, touching conclusion: life is short, sleep more.",
       "quote": "Eliminate desire, preserve natural order",
       "quoteExplain": "Ran the Excel analysis — conclusion: lying flat is optimal",
-      "title": "The Data-Driven Lying-Flat Buddhist"
+      "title": "The Data-Driven Lying-Flat Meditator"
     },
     "FSIE": {
       "advice": "You already have the best methodology — what's missing is connection with the world. Try sharing your pattern-changing experience; it might help many others.",
@@ -136,7 +136,7 @@
       "diagnosis": "Zero social life, zero action, but wellnessity maxed out. Lives in their own quantum field, occasionally sending a signal to the universe to confirm existence. The purest observer of the mortal world, a recluse of the analytical realm.",
       "quote": "The original mind is beyond good and evil",
       "quoteExplain": "No good, no evil, no action, no social — just lying flat",
-      "title": "The Transcendent Lying-Flat Analyst"
+      "title": "The Elevated Lying-Flat Analyst"
     },
     "poster": {
       "brand": "Behavioral Mirror · Behavioral Insights",
@@ -1598,7 +1598,7 @@
     "loading2": "Tracing causal chains...",
     "loading3": "Calculating Five Elements flow...",
     "loading4": "Decoding inner wisdom...",
-    "loading5": "Syncing Heavenly Stems & Earthly Branches...",
+    "loading5": "Syncing Tian Gan & Di Zhi...",
     "loading6": "Sensing data resonance...",
     "placeholder": "Example:\n· I received two job offers — one in a big city with higher pay, one back home near family\n· Planning to start a business with a friend but worried about timing\n· Relationship hit a rough patch, not sure whether to continue",
     "resultTitle": "Event Analysis Result",
@@ -2005,7 +2005,7 @@
       "f5Title": "Favorable Guidance",
       "f6Desc": "Multi-dimension cross-validation, more comprehensive than traditional charts",
       "f6Title": "AI Interpretation",
-      "p1": "Four-Pillar charting converts a person's birth year, month, day, and hour into Heavenly Stems and Earthly Branches combinations, forming eight characters — the so-called 'birth profile'.",
+      "p1": "Four-Pillar charting converts a person's birth year, month, day, and hour into Tian Gan and Di Zhi combinations, forming eight characters — the so-called 'birth profile'.",
       "p2": "By analyzing Five Elements relationships, Ten Gods configurations, and pattern levels, a behavioral analyst can deduce personality, career, wealth, marriage, health, and other life aspects.",
       "p3": "Behavioral Mirror's AI Four-Pillar system combines traditional behavioral studies with modern AI technology for more comprehensive and precise behavioral interpretation.",
       "s1Desc": "Enter year, month, day, hour and birth city",
@@ -2309,7 +2309,7 @@
     "four-pillar": {
       "_label": "Four-Pillar (Four Pillars)",
       "tag": "Eastern Analysis",
-      "desc": "Decode your behavioral path through the Heavenly Stems and Earthly Branches of your birth profile",
+      "desc": "Decode your behavioral path through the Tian Gan and Di Zhi of your birth profile",
       "detail": "Four Pillars · Ten Gods · Luck Cycles · Five Element Balance"
     },
     "behavioral pattern": {
@@ -3356,7 +3356,7 @@
     "fuQi": "Spouse Palace (Fu Qi Gong)",
     "gua": "Gua (Trigram)",
     "guanLu": "Career Palace (Guan Lu Gong)",
-    "heavenlyStems": "Heavenly Stems (Tian Gan)",
+    "heavenlyStems": "Tian Gan (Stems)",
     "pattern": "64 Patterns",
     "houses": "Houses",
     "jianKang": "Health Palace (Jian Kang Gong)",

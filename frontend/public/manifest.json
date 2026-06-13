@@ -1,7 +1,7 @@
 {
-  "name": "命盘智镜 - AI命理分析平台",
-  "short_name": "命盘智镜",
-  "description": "融合周易八字、西方星盘、塔罗解析与AI面相，为你揭示命运密码",
+  "name": "Profile Mirror - AI个人分析平台",
+  "short_name": "Profile Mirror",
+  "description": "融合四柱、星图、象征牌与AI面部/手掌分析，为你揭示个人特质",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0512",

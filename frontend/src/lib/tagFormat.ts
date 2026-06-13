@@ -47,7 +47,7 @@ const TAG_MAP: Record<string, TagStyle> = {
   "财多身弱":         { label: "Wealth Overwhelms Self", labelCn: "财多身弱",    color: "text-amber-400",  bg: "bg-amber-500/10",  border: "border-amber-500/20",  icon: "💸" },
   "食神泄秀":         { label: "Eating God Expression",  labelCn: "食神泄秀",    color: "text-emerald-400",bg: "bg-emerald-500/10",border: "border-emerald-500/20",icon: "✨" },
   "杀旺攻身":         { label: "Killer Attacks Self",    labelCn: "杀旺攻身",    color: "text-red-400",    bg: "bg-red-500/10",    border: "border-red-500/20",    icon: "⚔️" },
-  "桃花旺盛":         { label: "Romance Strong",   labelCn: "感情旺盛",    color: "text-pink-400",   bg: "bg-pink-500/10",   border: "border-pink-500/20",   icon: "🌸" },
+  "桃花旺盛":         { label: "Romance Strong",   labelCn: "感情活跃",    color: "text-pink-400",   bg: "bg-pink-500/10",   border: "border-pink-500/20",   icon: "🌸" },
   "驿马星动":         { label: "Travel Star Active",     labelCn: "驿马星动",    color: "text-cyan-400",   bg: "bg-cyan-500/10",   border: "border-cyan-500/20",   icon: "🐴" },
   "天乙贵人":         { label: "Noble Person Helper",    labelCn: "天乙贵人",    color: "text-emerald-400",bg: "bg-emerald-500/10",border: "border-emerald-500/20",icon: "🤝" },
   "华盖星":           { label: "Scholar Star",           labelCn: "华盖星",      color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20", icon: "🎓" },
