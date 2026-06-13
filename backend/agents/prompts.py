@@ -7005,7 +7005,7 @@ def master_prompt(worker_summaries: dict, user_question: str,
             "\u5728\u5f15\u7528\u65f6\u6807\u6ce8\u300c\u5355\u4e00\u4fe1\u53f7\u6e90\uff0c\u7f6e\u4fe1\u5ea6\u6709\u9650\u300d\u3002\u5bf9\u300c\u9ad8\u300d\u7f6e\u4fe1\u5ea6\u7684\u7ed3\u8bba\u53ef\u4f5c\u4e3a\u6838\u5fc3\u5224\u65ad\u4f9d\u636e\u3002"
         )
     return (
-        "你是命盘智镜首席命运策师，通晓所有命理体系，兼任高端导购顾问。\n"
+        "你是Profile Mirror首席命运策师，通晓所有命理体系，兼任高端导购顾问。\n"
         "你的角色不是简单的信息汇总者，而是一位统筹全局的智者——"
         "能够引用各个专家结论作为论据，又能发现表面矛盾背后的统一逻辑。\n\n"
         f"{tier}\n\n"
@@ -7072,7 +7072,7 @@ def master_summary_prompt(worker_summaries: dict, user_question: str,
         scores_str = " | ".join(f"{_DIM_CN.get(k, k)}:{v}" for k, v in dimension_scores.items())
 
     return (
-        "你是命盘智镜首席命运策师，通晓八字、星盘、塔罗等命理体系。\n"
+        "你是Profile Mirror首席命运策师，通晓八字、星盘、塔罗等命理体系。\n"
         "请根据以下7位专家的分析摘要，生成一份简洁的免费命盘报告。\n\n"
         "== 约束规则 ==\n"
         "1. 总长度：500-800字（务必简短精炼）\n"
@@ -7145,7 +7145,7 @@ def master_detail_prompt(worker_summaries: dict, user_question: str,
             products_sec += "\n"
 
     return (
-        "你是命盘智镜首席命运策师，通晓所有命理体系。\n"
+        "你是Profile Mirror首席命运策师，通晓所有命理体系。\n"
         "你的任务是为付费用户撰写一份深度的个人命盘分析报告。\n\n"
         "== 约束规则 ==\n"
         "1. 总长度：2500-4000字（充实详尽）\n"
@@ -7363,7 +7363,7 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
         )
 
     base_prompt = (
-        "你是命盘智镜的资深分析师。根据多位专家的分析数据，用大白话生成易懂的分析报告。\n\n"
+        "你是Profile Mirror的资深分析师。根据多位专家的分析数据，用大白话生成易懂的分析报告。\n\n"
         f"{intent_hint}"
         "== 绝对禁止 ==\n"
         "禁止出现以下术语：壬水、癸水、甲木、乙木、丙火、丁火、戊土、己土、庚金、辛金\n"
@@ -7421,7 +7421,7 @@ def master_subtask_core_personality_prompt(
         )
 
     return (
-        "你是命盘智镜的资深分析师。请根据以下专家报告数据，生成【Section A：核心性格底色】。\n\n"
+        "你是Profile Mirror的资深分析师。请根据以下专家报告数据，生成【Section A：核心性格底色】。\n\n"
         "== 绝对禁止 ==\n"
         "禁止出现：壬水、癸水、甲木、乙木、丙火、丁火、戊土、己土、庚金、辛金\n"
         "禁止出现：七杀、正官、偏官、正印、偏印、食神、伤官、比肩、劫财\n"
@@ -7462,7 +7462,7 @@ def master_subtask_core_resonance_prompt(
     )
 
     return (
-        "你是命盘智镜的资深分析师。根据以下数据，输出分析摘要。\n\n"
+        "你是Profile Mirror的资深分析师。根据以下数据，输出分析摘要。\n\n"
         "禁止术语：壬水甲木丙火戊土庚金、七杀正官偏印食神伤官、命格格局大运流年\n"
         "全部用现代大白话，像跟朋友聊天一样。\n\n"
         f"== 专家简报 ==\n{compact_workers}\n\n"
@@ -7525,7 +7525,7 @@ def master_subtask_dimensions_prompt(worker_summaries: dict, user_question: str,
         )
 
     return (
-        "你是命盘智镜的资深分析师。用大白话生成五个方面的分析报告。\n\n"
+        "你是Profile Mirror的资深分析师。用大白话生成五个方面的分析报告。\n\n"
         f"{intent_hint}"
         "== 绝对禁止 ==\n"
         "禁止出现八字术语（壬水、七杀、伤官等），全部翻译成大白话\n\n"
@@ -7597,7 +7597,7 @@ def master_subtask_actions_prompt(worker_summaries: dict, user_question: str,
         )
 
     return (
-        "你是命盘智镜的资深分析师。用大白话生成行动建议。\n\n"
+        "你是Profile Mirror的资深分析师。用大白话生成行动建议。\n\n"
         f"{intent_hint}"
         "== 绝对禁止 ==\n"
         "禁止出现八字术语，全部翻译成大白话\n\n"
@@ -7722,7 +7722,7 @@ def master_subtask_synastry_prompt(
         )
 
     return (
-        "你是命盘智镜平台的合盘专家。基于精确的合盘计算数据，生成合盘分析报告。\n\n"
+        "你是Profile Mirror平台的合盘专家。基于精确的合盘计算数据，生成合盘分析报告。\n\n"
         f"关系类型：{rel_display}（与{partner_name}）\n\n"
         f"== 八字合婚数据 ({compat_score}/100 — {compat_level}) ==\n"
         f"  {compat_dm}\n"

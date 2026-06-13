@@ -568,7 +568,7 @@ class ProductMatcher:
             summary_excerpt = master_summary[:300] if master_summary else "（无详细命盘数据）"
 
             system = SystemMessage(content=(
-                "你是命盘智镜平台的资深命理推荐师。你的任务是为改运商品撰写个性化的「处方级」推荐语。\n"
+                "你是Profile Mirror平台的资深命理推荐师。你的任务是为改运商品撰写个性化的「处方级」推荐语。\n"
                 "规则：\n"
                 "1. 必须结合用户的命盘信息（如下）来解释为什么这个商品对他特别有效\n"
                 "2. 语言风格：权威、温暖、精准，像中医开药方一样有说服力\n"

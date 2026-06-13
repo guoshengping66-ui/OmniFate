@@ -190,7 +190,7 @@ FIXED_STAR_MEANINGS = {
     "Regulus": "王者之星，权力与毁灭的双刃剑，高处不胜寒",
     "Spica": "幸运之星，金星+木星性质，才华与丰收的守护",
     "Antares": "火星+木星性质，勇猛果断，竞争意识极强",
-    "Fomalhaut": "金星+水星性质，灵性守护，艺术与神秘的融合",
+    "Fomalhaut": "金星+水星性质，内在守护，艺术与深度的融合",
     "Sirius": "火木性质，王者气度，显赫但需警惕自满",
     "Vega": "金水性质，艺术天赋，浪漫理想主义",
     "Capella": "火土性质，行动力强，务实而进取",
@@ -200,7 +200,7 @@ FIXED_STAR_MEANINGS = {
     "Betelgeuse": "火水性质，行动受情绪驱动，需培养定力",
     "Procyon": "水星性质，聪明机敏，善变而灵活",
     "Altair": "火水性质，志向高远，追求卓越",
-    "Deneb": "水星+金星性质，艺术视野，灵性高度",
+    "Deneb": "水星+金星性质，艺术视野，精神高度",
 }
 
 # House classification for accidental dignity
@@ -1120,7 +1120,7 @@ class AstrologyCalculator:
                             "apex": apex,
                             "description": f"上帝手指(Yod)：{base1}与{base2}呈{base_asp['aspect']}，"
                                            f"各与{apex}呈150°梅花相。{apex}为命运焦点，"
-                                           f"承载着灵性使命般的驱动力",
+                                           f"承载着深层使命般的驱动力",
                         })
 
         # Kite (风筝): Grand Trine + one planet opposite a vertex

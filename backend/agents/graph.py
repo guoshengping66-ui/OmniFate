@@ -416,7 +416,7 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
         if is_en:
             lines.append("Based on your chart analysis, your unique strengths are:")
         else:
-            lines.append("根据命盘分析，你拥有以下独特优势：")
+            lines.append("根据分析，你拥有以下独特优势：")
         lines.append(unique_strengths)
 
     # Section G: Premium Preview
@@ -433,17 +433,17 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
     lines.append("")
     lines.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     if is_en:
-        lines.append("🔓 Your full destiny blueprint is ready — unlock it now:")
+        lines.append("🔓 Your complete analysis report is ready — unlock it now:")
         lines.append("")
         lines.append("• Complete 5-dimension diagnosis with confidence ratings")
         lines.append("• Cross-dimension contradiction analysis")
-        lines.append("• Your next 12 months: key turning points & lucky windows")
+        lines.append("• Your next 12 months: key turning points & optimal timing windows")
         lines.append("• Deep-dive answer to your specific question")
         lines.append("• Energy harmonization plan + product recommendations")
         lines.append("")
         lines.append("💡 First-time unlock: 100 Stardust FREE!")
     else:
-        lines.append("🔓 你的完整命盘蓝图已就绪，立即解锁：")
+        lines.append("🔓 你的完整分析报告已就绪，立即解锁：")
         lines.append("")
         lines.append("• 五维详细诊断（财富/感情/事业/健康/精神）+ 置信度评分")
         lines.append("• 跨维度矛盾解释 — 哪些体系一致、哪些存在分歧")
@@ -488,7 +488,7 @@ async def run_full_analysis(state: SystemState) -> SystemState:
 
     # ── Phase 1b: Partner calculations (RELATIONSHIP intent) ──
     if state.intent == "RELATIONSHIP" and state.partner_birth_info:
-        state.progress_message = "Calculating partner's chart…" if is_en else "正在计算对方命盘…"
+        state.progress_message = "Calculating partner's chart…" if is_en else "正在计算对方数据…"
         try:
             import asyncio as _aio
             pi = state.partner_birth_info
@@ -521,7 +521,7 @@ async def run_full_analysis(state: SystemState) -> SystemState:
 
     state.phase = "parallel"
     state.progress_pct = 5
-    state.progress_message = "Loading destiny data…" if is_en else "正在调取命理数据…"
+    state.progress_message = "Loading analysis data…" if is_en else "正在调取分析数据…"
     for aid in _WORKER_IDS:
         if aid == "qimen_ziwei":
             # Merged worker: set individual sub-worker statuses the frontend expects

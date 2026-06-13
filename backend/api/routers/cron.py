@@ -207,7 +207,7 @@ async def expiry_reminder(
 
 如需续费，请登录后访问 pricing 页面。
 
-—— 命盘智镜团队""",
+—— Profile Mirror团队""",
             )
             reminded_count += 1
         except Exception as e:

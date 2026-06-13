@@ -45,11 +45,11 @@ def send_verification_email(to_email: str, code: str) -> bool:
             print(f"[EMAIL] Verification code for {to_email}: {code}")
         return False
 
-    subject = "命盘智镜 - 邮箱验证码"
+    subject = "Profile Mirror - 邮箱验证码"
     html_content = f"""
     <div style="max-width:400px;margin:0 auto;font-family:Arial,sans-serif;color:#333;">
       <div style="background:linear-gradient(135deg,#2D1B4E,#1a0f2e);padding:30px;text-align:center;border-radius:12px 12px 0 0;">
-        <h2 style="color:#C9A84C;margin:0;">✦ 命盘智镜</h2>
+        <h2 style="color:#C9A84C;margin:0;">✦ Profile Mirror</h2>
       </div>
       <div style="background:#f9f9f9;padding:30px;border-radius:0 0 12px 12px;">
         <p style="font-size:15px;">您好，</p>
@@ -61,8 +61,8 @@ def send_verification_email(to_email: str, code: str) -> bool:
         <p style="font-size:13px;color:#888;">如果这不是您的操作，请忽略此邮件。</p>
       </div>
       <div style="text-align:center;padding:15px;font-size:11px;color:#aaa;">
-        命盘智镜 · 全维度命理分析平台<br/>
-        运营者：命盘智镜运营团队 | 如非本人操作请忽略此邮件<br/>
+        Profile Mirror · 全维度个人分析平台<br/>
+        运营者：Profile Mirror 运营团队 | 如非本人操作请忽略此邮件<br/>
         <a href="https://www.khanfate.com/privacy" style="color:#aaa;">隐私政策</a> ·
         <a href="https://www.khanfate.com/terms" style="color:#aaa;">服务条款</a>
       </div>
@@ -81,11 +81,11 @@ def send_password_reset_email(to_email: str, code: str) -> bool:
             print(f"[EMAIL] Password reset code for {to_email}: {code}")
         return False
 
-    subject = "命盘智镜 - 密码重置验证码"
+    subject = "Profile Mirror - 密码重置验证码"
     html_content = f"""
     <div style="max-width:400px;margin:0 auto;font-family:Arial,sans-serif;color:#333;">
       <div style="background:linear-gradient(135deg,#2D1B4E,#1a0f2e);padding:30px;text-align:center;border-radius:12px 12px 0 0;">
-        <h2 style="color:#C9A84C;margin:0;">✦ 命盘智镜</h2>
+        <h2 style="color:#C9A84C;margin:0;">✦ Profile Mirror</h2>
       </div>
       <div style="background:#f9f9f9;padding:30px;border-radius:0 0 12px 12px;">
         <p style="font-size:15px;">您好，</p>
@@ -97,8 +97,8 @@ def send_password_reset_email(to_email: str, code: str) -> bool:
         <p style="font-size:13px;color:#888;">如果这不是您的操作，请立即修改密码并联系客服。</p>
       </div>
       <div style="text-align:center;padding:15px;font-size:11px;color:#aaa;">
-        命盘智镜 · 全维度命理分析平台<br/>
-        运营者：命盘智镜运营团队 | 如非本人操作请立即联系客服<br/>
+        Profile Mirror · 全维度个人分析平台<br/>
+        运营者：Profile Mirror运营团队 | 如非本人操作请立即联系客服<br/>
         <a href="https://www.khanfate.com/privacy" style="color:#aaa;">隐私政策</a> ·
         <a href="https://www.khanfate.com/terms" style="color:#aaa;">服务条款</a>
       </div>
@@ -137,7 +137,7 @@ def _send_email(to_email: str, subject: str, html_body: str) -> bool:
 def send_fortune_email(to_email: str, fortune: dict, locale: str = "zh") -> bool:
     """Send a weekly fortune email with rich HTML template."""
     is_zh = locale == "zh"
-    subject = "命盘智镜 - 本周运势" if is_zh else "Destiny Mirror - Weekly Fortune"
+    subject = "Profile Mirror - 本周分析" if is_zh else "Profile Mirror - Weekly Analysis"
     score = fortune.get("score", 6)
     score_color = "#4ade80" if score >= 8 else "#C9A84C" if score >= 6 else "#fb923c" if score >= 4 else "#f87171"
     yi_label = "宜" if is_zh else "Do"
@@ -156,7 +156,7 @@ def send_fortune_email(to_email: str, fortune: dict, locale: str = "zh") -> bool
     html_content = f"""
     <div style="max-width:480px;margin:0 auto;font-family:Arial,sans-serif;color:#333;">
       <div style="background:linear-gradient(135deg,#2D1B4E,#1a0f2e);padding:30px;text-align:center;border-radius:12px 12px 0 0;">
-        <h2 style="color:#C9A84C;margin:0 0 8px;">✦ {'本周运势' if is_zh else 'Weekly Fortune'}</h2>
+        <h2 style="color:#C9A84C;margin:0 0 8px;">✦ {'本周分析' if is_zh else 'Weekly Analysis'}</h2>
         <p style="color:rgba(255,255,255,0.5);font-size:13px;margin:0;">{html_mod.escape(str(fortune.get('week_start','')))} ~ {html_mod.escape(str(fortune.get('week_end','')))}</p>
       </div>
       <div style="background:#f9f9f9;padding:24px;">
@@ -168,7 +168,7 @@ def send_fortune_email(to_email: str, fortune: dict, locale: str = "zh") -> bool
           </div>
         </div>
         <div style="background:#fff;border-radius:8px;padding:14px;margin-bottom:14px;">
-          <p style="font-size:13px;color:#555;margin:0 0 8px;">✨ {'幸运要素' if is_zh else 'Lucky Items'}</p>
+          <p style="font-size:13px;color:#555;margin:0 0 8px;">✨ {'幸运要素' if is_zh else 'Recommended Items'}</p>
           <table style="width:100%;font-size:12px;"><tr>
             <td style="padding:4px;">🎨 {'幸运色' if is_zh else 'Color'}: <b style="color:#4ade80;">{html_mod.escape(str(fortune.get('lucky_color','')))}</b></td>
             <td style="padding:4px;">🔢 {'幸运数' if is_zh else 'Number'}: <b style="color:#C9A84C;">{html_mod.escape(str(fortune.get('lucky_number','')))}</b></td>
@@ -190,7 +190,7 @@ def send_fortune_email(to_email: str, fortune: dict, locale: str = "zh") -> bool
         </div>
       </div>
       <div style="text-align:center;padding:15px;font-size:11px;color:#aaa;">
-        命盘智镜 · 全维度命理分析平台<br/>
+        Profile Mirror · 全维度个人分析平台<br/>
         <a href="https://www.khanfate.com/settings" style="color:#aaa;">管理订阅</a> ·
         <a href="https://www.khanfate.com/privacy" style="color:#aaa;">隐私政策</a>
       </div>
@@ -202,34 +202,34 @@ def send_fortune_email(to_email: str, fortune: dict, locale: str = "zh") -> bool
 def send_analysis_complete_email(to_email: str, session_id: str, locale: str = "zh") -> bool:
     """Send notification when analysis is complete."""
     is_zh = locale == "zh"
-    subject = "命盘智镜 - 你的命理分析已完成" if is_zh else "Destiny Mirror - Your Analysis is Ready"
+    subject = "Profile Mirror - 你的分析已完成" if is_zh else "Profile Mirror - Your Analysis is Ready"
     view_url = f"https://www.khanfate.com/{locale}/reading/{session_id}"
 
     if is_zh:
         html_content = f"""
         <div style="max-width:480px;margin:0 auto;font-family:'PingFang SC','Microsoft YaHei',Arial,sans-serif;color:#333;">
           <div style="background:linear-gradient(135deg,#2D1B4E,#1a0f2e);padding:30px;text-align:center;border-radius:12px 12px 0 0;">
-            <h2 style="color:#C9A84C;margin:0 0 8px;">✦ 命理分析已完成</h2>
+            <h2 style="color:#C9A84C;margin:0 0 8px;">✦ 分析已完成</h2>
             <p style="color:rgba(255,255,255,0.5);font-size:13px;margin:0;">AI 全维度分析报告已就绪</p>
           </div>
           <div style="background:#f9f9f9;padding:30px;border-radius:0 0 12px 12px;">
             <p style="font-size:15px;margin:0 0 16px;">您好，</p>
-            <p style="font-size:14px;color:#555;margin:0 0 20px;">你的全维度命理分析已完成！包含八字、星盘、塔罗、面相、手相五大维度的 AI 深度解析。</p>
+            <p style="font-size:14px;color:#555;margin:0 0 20px;">你的全维度分析已完成！包含四柱、星图、象征牌、面部、手掌五大维度的 AI 深度解析。</p>
             <div style="text-align:center;margin:24px 0;">
               <a href="{html_mod.escape(str(view_url))}" style="display:inline-block;padding:12px 32px;background:linear-gradient(135deg,#C9A84C,#b8943f);color:#1a0f2e;text-decoration:none;border-radius:24px;font-weight:bold;font-size:15px;">查看完整报告</a>
             </div>
             <p style="font-size:13px;color:#888;margin:0 0 8px;">报告包含：</p>
             <ul style="font-size:13px;color:#666;padding-left:20px;margin:0 0 16px;">
-              <li>八字命盘解析</li>
-              <li>西方星盘分析</li>
-              <li>塔罗牌指引</li>
-              <li>面相运势解读</li>
-              <li>手相生命密码</li>
+              <li>四柱格局解析</li>
+              <li>星图分析</li>
+              <li>象征牌指引</li>
+              <li>面部状态解读</li>
+              <li>手掌纹理分析</li>
             </ul>
-            <p style="font-size:12px;color:#aaa;margin:0;">使用 100 星尘即可解锁完整报告，包含年度规划和改运建议。</p>
+            <p style="font-size:12px;color:#aaa;margin:0;">使用 100 星尘即可解锁完整报告，包含年度规划和优化建议。</p>
           </div>
           <div style="text-align:center;padding:15px;font-size:11px;color:#aaa;">
-            命盘智镜 · 全维度命理分析平台<br/>
+            Profile Mirror · 全维度个人分析平台<br/>
             <a href="https://www.khanfate.com/privacy" style="color:#aaa;">隐私政策</a> ·
             <a href="https://www.khanfate.com/unsubscribe" style="color:#aaa;">取消订阅</a>
           </div>
@@ -240,26 +240,26 @@ def send_analysis_complete_email(to_email: str, session_id: str, locale: str = "
         <div style="max-width:480px;margin:0 auto;font-family:Arial,sans-serif;color:#333;">
           <div style="background:linear-gradient(135deg,#2D1B4E,#1a0f2e);padding:30px;text-align:center;border-radius:12px 12px 0 0;">
             <h2 style="color:#C9A84C;margin:0 0 8px;">✦ Analysis Complete</h2>
-            <p style="color:rgba(255,255,255,0.5);font-size:13px;margin:0;">Your AI destiny analysis report is ready</p>
+            <p style="color:rgba(255,255,255,0.5);font-size:13px;margin:0;">Your AI analysis report is ready</p>
           </div>
           <div style="background:#f9f9f9;padding:30px;border-radius:0 0 12px 12px;">
             <p style="font-size:15px;margin:0 0 16px;">Hello,</p>
-            <p style="font-size:14px;color:#555;margin:0 0 20px;">Your full-dimension destiny analysis is complete! It includes AI-powered insights across Bazi, Western Astrology, Tarot, Face Reading, and Palmistry.</p>
+            <p style="font-size:14px;color:#555;margin:0 0 20px;">Your full-dimension analysis is complete! It includes AI-powered insights across Four Pillars, Star Chart, Symbolic Cards, Facial Profile, and Palm Profile.</p>
             <div style="text-align:center;margin:24px 0;">
               <a href="{html_mod.escape(str(view_url))}" style="display:inline-block;padding:12px 32px;background:linear-gradient(135deg,#C9A84C,#b8943f);color:#1a0f2e;text-decoration:none;border-radius:24px;font-weight:bold;font-size:15px;">View Full Report</a>
             </div>
             <p style="font-size:13px;color:#888;margin:0 0 8px;">Report includes:</p>
             <ul style="font-size:13px;color:#666;padding-left:20px;margin:0 0 16px;">
-              <li>Bazi (Four Pillars) Analysis</li>
-              <li>Western Astrology Chart</li>
-              <li>Tarot Card Guidance</li>
-              <li>Face Reading Insights</li>
-              <li>Palmistry Life Code</li>
+              <li>Four Pillars Pattern Analysis</li>
+              <li>Star Chart Analysis</li>
+              <li>Symbolic Card Guidance</li>
+              <li>Facial Profile Insights</li>
+              <li>Palm Profile Analysis</li>
             </ul>
-            <p style="font-size:12px;color:#aaa;margin:0;">Unlock the full report with 100 Stardust for annual planning and fortune guidance.</p>
+            <p style="font-size:12px;color:#aaa;margin:0;">Unlock the full report with 100 Stardust for annual planning and optimization guidance.</p>
           </div>
           <div style="text-align:center;padding:15px;font-size:11px;color:#aaa;">
-            Destiny Mirror · Multi-Dimension Destiny Analysis<br/>
+            Profile Mirror · Multi-Dimension Personal Analysis<br/>
             <a href="https://www.khanfate.com/privacy" style="color:#aaa;">Privacy</a> ·
             <a href="https://www.khanfate.com/unsubscribe" style="color:#aaa;">Unsubscribe</a>
           </div>
@@ -272,7 +272,7 @@ def send_analysis_complete_email(to_email: str, session_id: str, locale: str = "
 def send_daily_fortune_email(to_email: str, fortune: dict, locale: str = "zh") -> bool:
     """Send a daily fortune email with rich HTML template."""
     is_zh = locale == "zh"
-    subject = "命盘智镜 - 今日运势" if is_zh else "Destiny Mirror - Daily Fortune"
+    subject = "Profile Mirror - 今日分析" if is_zh else "Profile Mirror - Daily Analysis"
     score = fortune.get("score", 6)
     score_color = "#4ade80" if score >= 8 else "#C9A84C" if score >= 6 else "#fb923c" if score >= 4 else "#f87171"
     yi_label = "宜" if is_zh else "Do"
@@ -284,7 +284,7 @@ def send_daily_fortune_email(to_email: str, fortune: dict, locale: str = "zh") -
     html_content = f"""
     <div style="max-width:480px;margin:0 auto;font-family:Arial,sans-serif;color:#333;">
       <div style="background:linear-gradient(135deg,#1a2744,#0f1a2e);padding:30px;text-align:center;border-radius:12px 12px 0 0;">
-        <h2 style="color:#60a5fa;margin:0 0 8px;">✦ {'今日运势' if is_zh else 'Daily Fortune'}</h2>
+        <h2 style="color:#60a5fa;margin:0 0 8px;">✦ {'今日分析' if is_zh else 'Daily Analysis'}</h2>
         <p style="color:rgba(255,255,255,0.5);font-size:13px;margin:0;">{html_mod.escape(str(fortune.get('date','')))}</p>
       </div>
       <div style="background:#f9f9f9;padding:24px;">
@@ -296,7 +296,7 @@ def send_daily_fortune_email(to_email: str, fortune: dict, locale: str = "zh") -
           </div>
         </div>
         <div style="background:#fff;border-radius:8px;padding:14px;margin-bottom:14px;">
-          <p style="font-size:13px;color:#555;margin:0 0 8px;">✨ {'今日幸运' if is_zh else "Today's Lucky Items"}</p>
+          <p style="font-size:13px;color:#555;margin:0 0 8px;">✨ {'今日幸运' if is_zh else "Today's Recommended Items"}</p>
           <table style="width:100%;font-size:12px;"><tr>
             <td style="padding:4px;">🎨 {'颜色' if is_zh else 'Color'}: <b style="color:#4ade80;">{html_mod.escape(str(fortune.get('lucky_color','')))}</b></td>
             <td style="padding:4px;">🔢 {'数字' if is_zh else 'Number'}: <b style="color:#C9A84C;">{html_mod.escape(str(fortune.get('lucky_number','')))}</b></td>
@@ -324,7 +324,7 @@ def send_daily_fortune_email(to_email: str, fortune: dict, locale: str = "zh") -
         </div>
       </div>
       <div style="text-align:center;padding:15px;font-size:11px;color:#aaa;">
-        命盘智镜 · 全维度命理分析平台<br/>
+        Profile Mirror · 全维度个人分析平台<br/>
         <a href="https://www.khanfate.com/settings" style="color:#aaa;">管理订阅</a> ·
         <a href="https://www.khanfate.com/privacy" style="color:#aaa;">隐私政策</a>
       </div>
@@ -397,7 +397,7 @@ def send_payment_notification_email(
         </p>
       </div>
       <div style="text-align:center;padding:12px;font-size:11px;color:#aaa;">
-        命盘智镜 · 支付管理系统
+        Profile Mirror · 支付管理系统
       </div>
     </div>
     """
@@ -461,7 +461,7 @@ def send_qr_confirm_email(to_email: str, order_no: str, amount_cny: float, token
         <p style="font-size:11px;color:#aaa;margin:16px 0 0;text-align:center;">此确认链接 30 分钟内有效</p>
       </div>
       <div style="text-align:center;padding:15px;font-size:11px;color:#aaa;">
-        命盘智镜 · 全维度命理分析平台<br/>
+        Profile Mirror · 全维度个人分析平台<br/>
         <a href="https://www.khanfate.com/privacy" style="color:#aaa;">隐私政策</a> ·
         <a href="https://www.khanfate.com/terms" style="color:#aaa;">服务条款</a>
       </div>
@@ -525,7 +525,7 @@ def send_admin_payment_confirm_email(
         <p style="font-size:11px;color:#aaa;margin:8px 0 0;text-align:center;">此确认链接 24 小时内有效</p>
       </div>
       <div style="text-align:center;padding:15px;font-size:11px;color:#aaa;">
-        命盘智镜 · 管理后台<br/>
+        Profile Mirror · 管理后台<br/>
         <a href="https://www.khanfate.com/admin/orders" style="color:#aaa;">查看订单管理</a>
       </div>
     </div>
@@ -656,7 +656,7 @@ def send_refund_approved_notification(
         </p>
       </div>
       <div style="text-align:center;padding:12px;font-size:11px;color:#aaa;">
-        命盘智镜 · 全维度命理分析平台
+        Profile Mirror · 全维度个人分析平台
       </div>
     </div>
     """
@@ -685,7 +685,7 @@ def send_refund_rejected_notification(
         </p>
       </div>
       <div style="text-align:center;padding:12px;font-size:11px;color:#aaa;">
-        命盘智镜 · 全维度命理分析平台
+        Profile Mirror · 全维度个人分析平台
       </div>
     </div>
     """

@@ -13,7 +13,7 @@ class Settings(BaseSettings):
         case_sensitive=False,
     )
 
-    APP_NAME: str = "命盘智镜"
+    APP_NAME: str = "Profile Mirror"
     DEBUG: bool = False
     SECRET_KEY: str = ""
     ALLOWED_ORIGINS: list[str] = [
@@ -82,7 +82,7 @@ class Settings(BaseSettings):
     SMTP_USER: str = ""
     SMTP_PASS: str = ""
     SMTP_FROM: str = ""
-    SMTP_FROM_NAME: str = "命盘智镜"
+    SMTP_FROM_NAME: str = "Profile Mirror"
 
     # ── Cron / 定时任务 ──
     CRON_SECRET: str = ""

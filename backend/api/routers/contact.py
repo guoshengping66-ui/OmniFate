@@ -68,7 +68,7 @@ async def submit_contact(req: ContactRequest, request: Request):
     email_html = f"""
     <div style="max-width:500px;margin:0 auto;font-family:Arial,sans-serif;color:#333;">
       <div style="background:linear-gradient(135deg,#2D1B4E,#1a0f2e);padding:20px;text-align:center;border-radius:12px 12px 0 0;">
-        <h2 style="color:#C9A84C;margin:0;">✦ 命盘智镜 — 用户留言</h2>
+        <h2 style="color:#C9A84C;margin:0;">✦ Profile Mirror — 用户留言</h2>
       </div>
       <div style="background:#f9f9f9;padding:24px;border-radius:0 0 12px 12px;">
         <p><strong>主题：</strong>{subject_label}</p>
@@ -78,7 +78,7 @@ async def submit_contact(req: ContactRequest, request: Request):
         <p style="white-space:pre-wrap;line-height:1.6;">{safe_message}</p>
       </div>
       <div style="text-align:center;padding:12px;font-size:11px;color:#aaa;">
-        此邮件由命盘智镜联系表单自动发送
+        此邮件由Profile Mirror联系表单自动发送
       </div>
     </div>
     """
@@ -86,7 +86,7 @@ async def submit_contact(req: ContactRequest, request: Request):
     to_email = settings.SMTP_FROM or "guoshengping66@gmail.com"
     # Sanitize name to prevent email header injection
     safe_name = req.name.replace('\r', '').replace('\n', '').strip()[:50]
-    ok = _send_email(to_email, f"[命盘智镜] 联系表单 - {subject_label} - {safe_name}", email_html)
+    ok = _send_email(to_email, f"[Profile Mirror] 联系表单 - {subject_label} - {safe_name}", email_html)
 
     if not ok:
         # Still return success to user — don't expose email failures
@@ -125,7 +125,7 @@ async def subscribe_newsletter(req: NewsletterRequest, request: Request):
     html = f"""
     <div style="max-width:400px;margin:0 auto;font-family:Arial,sans-serif;color:#333;">
       <div style="background:linear-gradient(135deg,#2D1B4E,#1a0f2e);padding:20px;text-align:center;border-radius:12px 12px 0 0;">
-        <h2 style="color:#C9A84C;margin:0;">✦ 命盘智镜 — 新订阅</h2>
+        <h2 style="color:#C9A84C;margin:0;">✦ Profile Mirror — 新订阅</h2>
       </div>
       <div style="background:#f9f9f9;padding:24px;border-radius:0 0 12px 12px;">
         <p>新用户订阅了每周运势推送：</p>
@@ -136,6 +136,6 @@ async def subscribe_newsletter(req: NewsletterRequest, request: Request):
     """
 
     to_email = settings.SMTP_FROM or "guoshengping66@gmail.com"
-    _send_email(to_email, f"[命盘智镜] 新订阅 - {email}", html)
+    _send_email(to_email, f"[Profile Mirror] 新订阅 - {email}", html)
 
     return {"success": True, "message": "订阅成功，每周将收到五行运势推送"}

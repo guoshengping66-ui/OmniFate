@@ -48,7 +48,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title=settings.APP_NAME,
-    description="全维度命理分析平台 API",
+    description="全维度个人分析平台 API",
     version="1.0.0",
     lifespan=lifespan,
     redirect_slashes=False,
@@ -141,9 +141,9 @@ RATE_LIMIT_MAX = 60     # requests per window (global)
 
 # Endpoint-specific rate limits (requests per minute)
 ENDPOINT_LIMITS = {
-    "/api/readings": 5,           # 排盘分析 - 最贵的 API，严格限制
-    "/api/readings/chat": 10,     # 推命问答
-    "/api/divination": 10,        # 推命
+    "/api/readings": 5,           # 分析报告 - 最贵的 API，严格限制
+    "/api/readings/chat": 10,     # 追问问答
+    "/api/divination": 10,        # 每日分析
     "/api/auth/login": 5,         # 登录
     "/api/auth/register": 3,      # 注册
     "/api/auth/send-code": 2,     # 验证码
@@ -163,7 +163,7 @@ from services.cache import cache_get_json, cache_set_json
 CACHE_ENDPOINTS = {
     "/api/products": 300,          # 商品列表 - 5 min
     "/api/products/match": 0,      # 商品匹配 - 不缓存 (POST)
-    "/api/fortune/daily": 3600,    # 每日运势 - 1 hour
+    "/api/fortune/daily": 3600,    # 每日分析 - 1 hour
 }
 
 

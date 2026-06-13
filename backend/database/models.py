@@ -159,7 +159,7 @@ class BirthProfile(Base):
 # ─── Reading ─────────────────────────────────────────────────────────────────
 
 class Reading(Base):
-    """一次完整的全维度命理分析报告"""
+    """一次完整的全维度个人分析报告"""
     __tablename__ = "readings"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
@@ -214,7 +214,7 @@ class Reading(Base):
 # ─── Product ─────────────────────────────────────────────────────────────────
 
 class Product(Base):
-    """改运商品/服务目录"""
+    """推荐商品/服务目录"""
     __tablename__ = "products"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
@@ -232,7 +232,7 @@ class Product(Base):
     image_url: Mapped[Optional[str]] = mapped_column(String(500))
     detail_images: Mapped[Optional[list]] = mapped_column(JSON)
 
-    # 命理匹配标签
+    # 匹配标签
     wuxing_tags: Mapped[Optional[list]] = mapped_column(JSON)   # ["fire", "earth"]
     astro_tags: Mapped[Optional[list]] = mapped_column(JSON)    # ["saturn", "mercury"]
     keyword_tags: Mapped[Optional[list]] = mapped_column(JSON)  # ["缺火", "财库空亡"]
@@ -499,7 +499,7 @@ class ReferralReward(Base):
 # ─── DivinationRecord ─────────────────────────────────────────────────────────
 
 class DivinationRecord(Base):
-    """星际抽签记录"""
+    """每日分析记录"""
     __tablename__ = "divination_records"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
@@ -558,7 +558,7 @@ class CryptoOrder(Base):
 # ─── FortuneSubscription ────────────────────────────────────────────────────
 
 class FortuneSubscription(Base):
-    """用户每周运势订阅偏好"""
+    """用户每周分析订阅偏好"""
     __tablename__ = "fortune_subscriptions"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
@@ -578,7 +578,7 @@ class FortuneSubscription(Base):
 # ─── WeeklyFortune ──────────────────────────────────────────────────────────
 
 class WeeklyFortune(Base):
-    """每周运势生成记录"""
+    """每周分析生成记录"""
     __tablename__ = "weekly_fortunes"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
@@ -607,7 +607,7 @@ class WeeklyFortune(Base):
 # ─── DailyFortune ─────────────────────────────────────────────────────────
 
 class DailyFortune(Base):
-    """每日运势生成记录"""
+    """每日分析生成记录"""
     __tablename__ = "daily_fortunes"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))

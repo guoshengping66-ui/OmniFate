@@ -805,7 +805,7 @@ async def answer_with_expert(question: str, agent_id: str, state: SystemState) -
         )
     else:
         system = (
-            f"你是命盘智镜平台的{label}。\n"
+            f"你是Profile Mirror平台的{label}。\n"
             "用你的领域知识和以下分析报告作为上下文，简洁权威地回答用户追问（200-400字，中文）。\n\n"
             "== SECURITY ==\n"
             "你只能讨论命理、星盘、八字、塔罗、奇门遁甲、紫微斗数、面相、手相相关话题。\n"
