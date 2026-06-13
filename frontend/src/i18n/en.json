@@ -139,13 +139,13 @@
       "title": "The Transcendent Lying-Flat Hermit"
     },
     "poster": {
-      "brand": "Destiny Mirror · Ancient Wisdom, Modern Insight",
+      "brand": "Destiny Mirror · Behavioral Insights",
       "defaultInvite": "DESTINY",
-      "diagnosis": "🧠 Mental State Diagnosis",
-      "guide": "🧭 Fortune Guide",
-      "scan": "🔮 Scan to try your destiny",
+      "diagnosis": "🧠 Behavioral Pattern Analysis",
+      "guide": "🧭 Insight Guide",
+      "scan": "🔮 Scan to explore your patterns",
       "stardust": "Free 20 stardust · Code: ",
-      "title": "✦ AM16 Destiny Code ✦"
+      "title": "✦ AM16 Behavioral Code ✦"
     },
     "advice": "Fortune Guide",
     "aligningCoords": "Reading Your Four Dimensions",
@@ -161,13 +161,13 @@
     "copyFailed": "Copy failed",
     "copyInviteLink": "Copy Invite Link",
     "copyLink": "Copy Link",
-    "ctaAction": "Unlock Destiny Reading",
+    "ctaAction": "Unlock Behavioral Reading",
     "ctaCost": "100 Stardust",
-    "ctaDesc": "Your pattern shows a period of energetic tension in the 2026 cycle.",
-    "ctaFull": "Spend {cost} to unlock your Annual Fortune Report!",
-    "ctaReport": "Annual Fortune Report",
-    "ctaTitle": "Deep Destiny Reading",
-    "diagnosis": "Mental State Diagnosis",
+    "ctaDesc": "Your pattern shows a period of transition in the current cycle.",
+    "ctaFull": "Spend {cost} to unlock your Annual Analysis Report!",
+    "ctaReport": "Annual Analysis Report",
+    "ctaTitle": "Deep Behavioral Reading",
+    "diagnosis": "Behavioral Pattern Analysis",
     "dimSubtitle": "Flow · Intuition · Healer · Patience",
     "flowDefiance": "Flow vs Defiance",
     "fourDimCoords": "Four-Dimension Energy Map",
@@ -196,7 +196,7 @@
     "share": "Share",
     "sharedResult": "'s Destiny Code",
     "sharePreview": "Share Preview",
-    "sharePreviewText": "Check out my destiny code",
+    "sharePreviewText": "Check out my behavioral code",
     "shareSuccess": "Invite link copied! You and your friend both earn 20 stardust",
     "shareTitle": "Share Destiny Code",
     "start": "Start Quiz",
@@ -205,9 +205,9 @@
     "step3": "Reading Dimension 3: Healer vs Hermit",
     "step4": "Reading Dimension 4: Patience vs Action",
     "stepDone": "All 4 Dimensions Read",
-    "subtitle": "12 scenario questions to unlock your destiny pattern",
+    "subtitle": "12 scenario questions to discover your behavioral pattern",
     "takeQuiz": "Take the Quiz Too",
-    "title": "AM16 Destiny Level Quiz",
+    "title": "AM16 Behavioral Pattern Quiz",
     "viewAll": "View All 16 Personalities",
     "wechat": "WeChat",
     "xinxueQuote": "Xinxue Wisdom Quote",
@@ -294,25 +294,25 @@
   "discovery": {
     "items": {
       "disconnected": {
-        "desc": "Your Five Elements chart reveals a missing element that affects how you connect with people around you.",
+        "desc": "Your profile suggests a pattern that may affect how you connect with people around you.",
         "title": "Why I feel disconnected from others"
       },
       "empathy": {
-        "desc": "Your chart shows strong Water and Yin energy — you were born with heightened intuitive sensitivity.",
+        "desc": "Your profile suggests heightened intuitive sensitivity and empathetic tendencies.",
         "title": "Why I can sense people's emotions"
       },
       "money": {
-        "desc": "Your wealth palace shows a cyclical flow pattern — understanding it helps you ride the highs and prepare for the lows.",
+        "desc": "Your profile suggests a cyclical pattern in resource accumulation — understanding it helps you plan ahead.",
         "title": "Why money comes in waves"
       },
       "sabotage": {
-        "desc": "Your chart reveals a deep pattern around trust and vulnerability that has been running since childhood.",
+        "desc": "Your profile suggests a pattern around trust and vulnerability that has been running since childhood.",
         "title": "Why I sabotage good relationships"
       }
     },
     "badge": "What People Discovered",
-    "cta": "Discover Your Pattern →",
-    "desc": "These aren't fortune-telling predictions — they're patterns in your chart that explain why your life unfolds the way it does.",
+    "cta": "Explore Your Behavioral Patterns →",
+    "desc": "These aren't predictions — they're behavioral patterns that help explain your tendencies and decision-making style.",
     "title": "Real Questions, Real Answers"
   },
   "founder": {
@@ -423,7 +423,7 @@
         "title": "11. Operator Information"
       },
       "s2": {
-        "content": "Your information is used only for:\n\n1. **Destiny Analysis**: Generating personalized chart reports via AI.\n2. **Service Improvement**: Anonymized data improves algorithm accuracy.\n3. **Product Recommendations**: Suggesting fortune-enhancing items based on your chart.\n4. **Customer Service**: Responding to your inquiries and feedback.",
+        "content": "Your information is used only for:\n\n1. **Behavioral Analysis**: Generating personalized profile reports via AI.\n2. **Service Improvement**: Anonymized data improves algorithm accuracy.\n3. **Product Recommendations**: Suggesting lifestyle items based on your profile.\n4. **Customer Service**: Responding to your inquiries and feedback.",
         "title": "2. Information Use"
       },
       "s3": {
@@ -435,7 +435,7 @@
         "title": "4. Data Storage & Security"
       },
       "s5": {
-        "content": "For AI analysis, we send your birth information to:\n\n1. **DeepSeek API**: For AI destiny analysis (data processing agreement in place).\n2. **Skyfield Library**: For local natal chart calculation (no data export).\n3. **Payment Providers**: Alipay, WeChat Pay, PayPal (used only when you initiate payment).\n\nWe do not sell or share your personal information with any other third parties.",
+        "content": "For AI analysis, we send your birth information to:\n\n1. **DeepSeek API**: For AI behavioral analysis (data processing agreement in place).\n2. **Skyfield Library**: For local natal chart calculation (no data export).\n3. **Payment Providers**: Alipay, WeChat Pay, PayPal (used only when you initiate payment).\n\nWe do not sell or share your personal information with any other third parties.",
         "title": "5. Third-Party Services"
       },
       "s6": {
@@ -459,7 +459,7 @@
     },
     "refund": {
       "s1": {
-        "content": "1. AI destiny analysis reports are personalized virtual services and are generally non-refundable once generated.\n2. If a report fails to generate due to system errors, we will provide a full refund after verification.\n3. If you cancel within 10 minutes of payment and analysis has not started, you may request a refund.",
+        "content": "1. AI behavioral analysis reports are personalized virtual services and are generally non-refundable once generated.\n2. If a report fails to generate due to system errors, we will provide a full refund after verification.\n3. If you cancel within 10 minutes of payment and analysis has not started, you may request a refund.",
         "title": "1. Virtual Services (Analysis Reports)"
       },
       "s2": {
@@ -467,7 +467,7 @@
         "title": "2. Membership Subscriptions"
       },
       "s3": {
-        "content": "All spiritual artifacts on this platform (energy talismans, amulets, jewelry, etc.) are deeply personalized custom products — not mass-produced industrial items.\n\n【Customization Process】\nAfter placing your order, we will arrange for a partnering master to select an auspicious date for a one-on-one personalized consecration, blessing, and prayer based on the name, birth date, and wishes you provide. Once the blessing is complete, your item will be shipped to you as soon as possible.\n\n【Refund Policy】\n1. Once placed, the master immediately begins dedicating their energy to your blessing. Therefore, this product does not support mid-process refunds or no-reason returns.\n2. Returns or exchanges are only accepted for quality issues (e.g., damage, defects) with the product itself.\n3. Return/exchange process: Contact support → Provide order number, photos of the issue, and description → Approved → Ship back → Processed within 3-5 business days of receipt.\n4. The consecration and blessing process is rigorous and takes time. Please make your decision carefully before placing your order.",
+        "content": "All customized products on this platform (lifestyle items, wellness accessories, jewelry, etc.) are deeply personalized — not mass-produced industrial items.\n\n【Customization Process】\nAfter placing your order, we will arrange for quality inspection and personalization based on the information you provide. Once preparation is complete, your item will be shipped to you as soon as possible.\n\n【Refund Policy】\n1. Once placed, the customization process begins immediately. Therefore, this product does not support mid-process refunds or no-reason returns.\n2. Returns or exchanges are only accepted for quality issues (e.g., damage, defects) with the product itself.\n3. Return/exchange process: Contact support → Provide order number, photos of the issue, and description → Approved → Ship back → Processed within 3-5 business days of receipt.\n4. The quality inspection and preparation process is rigorous and takes time. Please make your decision carefully before placing your order.",
         "title": "3. Spiritual Artifacts (Custom Products)"
       },
       "s4": {
@@ -482,12 +482,12 @@
         "content": "If you paid via PayPal, you may also be eligible for PayPal Buyer Protection. For details, visit https://www.paypal.com/webapps/mpp/ua/buyerprotection\n\nTo file a dispute:\n1. Log in to your PayPal account\n2. Go to Activity and find the transaction\n3. Click \"Report a Problem\" and follow the prompts\n\nPayPal disputes must be filed within 180 days of payment. Filing a PayPal dispute does not affect your right to contact our support team directly.",
         "title": "6. PayPal Buyer Protection"
       },
-      "intro": "Thank you for using Destiny Mirror. We are committed to providing high-quality destiny analysis and spiritual artifact services. All spiritual artifacts on this platform are deeply personalized custom products. Please read the following refund policy carefully before placing your order.",
+      "intro": "Thank you for using Destiny Mirror. We are committed to providing high-quality behavioral analysis and lifestyle product services. All customized products on this platform are deeply personalized. Please read the following refund policy carefully before placing your order.",
       "title": "Refund Policy"
     },
     "terms": {
       "s1": {
-        "content": "Destiny Mirror is an AI-powered multi-dimensional destiny analysis platform providing:\n\n1. BaZi, natal chart, Qi Men Dun Jia, and Zi Wei Dou Shu analysis based on birth information\n2. Tarot card readings\n3. AI face and palm analysis\n4. Comprehensive destiny reports with personalized recommendations\n5. Fortune-enhancing product recommendations and purchases\n6. Event retrospection and daily fortune\n\nThis service is for personal entertainment and reference only and does not constitute professional advice of any kind.",
+        "content": "Destiny Mirror is an AI-powered multi-dimensional behavioral analysis platform providing:\n\n1. BaZi, natal chart, Qi Men Dun Jia, and Zi Wei Dou Shu analysis based on birth information\n2. Tarot card readings\n3. AI face and palm analysis\n4. Comprehensive behavioral reports with personalized recommendations\n5. Lifestyle product recommendations and purchases\n6. Event retrospection and daily insights\n\nThis service is for personal entertainment and reference only and does not constitute professional advice of any kind.",
         "title": "1. Service Description"
       },
       "s2": {
@@ -503,7 +503,7 @@
         "title": "4. Paid Services"
       },
       "s5": {
-        "content": "1. Destiny analysis is based on AI algorithms and traditional destiny knowledge, for personal entertainment and reference only. It does not constitute professional advice (including medical, legal, financial, investment, or counseling advice).\n2. Destiny studies belong to traditional cultural domains, not modern science. Analysis results are not scientifically verified. Users should view results rationally and not rely solely on them for major life decisions.\n3. Fortune-enhancing products are cultural creative items; efficacy descriptions are based on traditional destiny concepts, not scientific claims.\n4. We are not liable for service interruptions caused by force majeure (natural disasters, policy changes, third-party service disruptions).\n5. We are not liable for account security issues caused by your own actions.\n6. Users bear full responsibility for decisions made based on platform analysis results.\n7. See our Disclaimer page for detailed disclaimers.",
+        "content": "1. Behavioral analysis is based on AI algorithms and traditional analytical knowledge, for personal entertainment and reference only. It does not constitute professional advice (including medical, legal, financial, investment, or counseling advice).\n2. Analytical studies belong to traditional cultural domains, not modern science. Analysis results are not scientifically verified. Users should view results rationally and not rely solely on them for major life decisions.\n3. Lifestyle products are curated items; descriptions are based on traditional cultural concepts, not scientific claims.\n4. We are not liable for service interruptions caused by force majeure (natural disasters, policy changes, third-party service disruptions).\n5. We are not liable for account security issues caused by your own actions.\n6. Users bear full responsibility for decisions made based on platform analysis results.\n7. See our Disclaimer page for detailed disclaimers.",
         "title": "5. Disclaimers"
       },
       "s6": {
@@ -589,8 +589,8 @@
     "customCityPlaceholder": "Enter city name (e.g. San Jose)",
     "day": "Day",
     "daySuffix": "",
-    "defaultQuestion": "Give me a full destiny reading",
-    "disclaimer": "Destiny analysis is for reference and entertainment only — not professional advice.",
+    "defaultQuestion": "Give me a full behavioral analysis",
+    "disclaimer": "Behavioral analysis is for reference and entertainment only — not professional advice.",
     "eyes": "Eyes",
     "faceAutoScan": "Face reading starts right after upload",
     "faceClickUpload": "Tap to upload a front photo",
@@ -711,7 +711,7 @@
     "questionMinChars": "Please enter at least 2 characters",
     "questionPlaceholder": "e.g., What's my career path? How's my love life? Good time to start a business?",
     "rateLimitError": "Too many requests — try again later",
-    "readingStarted": "Reading started! Taking you to your report…",
+    "readingStarted": "Analysis started! Taking you to your report…",
     "restoredMsg": "Previous progress restored",
     "restoredProgress": "Previous progress restored",
     "searchCountry": "Search country...",
@@ -725,8 +725,8 @@
     "serverBusy": "Server is temporarily unavailable — try again later",
     "startFree": "Start Free",
     "starting": "Reading…",
-    "startSubtitle": "BaZi · Astrology · Tarot · Face · Palm · Five-Path Reading",
-    "startTitle": "Start Reading",
+    "startSubtitle": "BaZi · Astrology · Tarot · Face · Palm · Five-Path Analysis",
+    "startTitle": "Start Analysis",
     "step1": "Birth Info",
     "step2": "Tarot & Question",
     "step3": "Face & Palm",
@@ -825,25 +825,25 @@
     "addedToCart": "Added \"{name}\" to cart",
     "addToCart": "Add to Cart",
     "buyNow": "Grab Now",
-    "aiRecommend": "Items ranked by your chart's needs",
+    "aiRecommend": "Personalized recommendations",
     "clearFilter": "Clear Filters",
-    "desc": "Every item handpicked to match your chart — thoughtfully ranked to fit your unique needs",
-    "disclaimer": "Products are cultural creative items. Descriptions are based on traditional destiny culture, not scientifically verified.",
+    "desc": "Curated lifestyle and productivity tools — thoughtfully selected to support your goals",
+    "disclaimer": "Products are lifestyle and wellness items. Descriptions reflect cultural traditions, not scientific claims.",
     "disclaimerLink": "View Details",
     "noMatch": "No matching products found",
     "noProducts": "No products available",
     "search": "Search products...",
-    "title": "Fortune Enhancement Shop",
+    "title": "Lifestyle & Wellness Shop",
     "resultCount": "{count} items found",
     "scenario": {
       "cta": "Get personalized picks via reading",
-      "wealth": "Wealth & Prosperity",
-      "career": "Career Success",
-      "love": "Love & Romance",
-      "health": "Health & Wellness"
+      "wealth": "Productivity & Focus",
+      "career": "Career & Organization",
+      "love": "Mindfulness & Relaxation",
+      "health": "Daily Wellness"
     },
     "sort": {
-      "match": "Chart match",
+      "match": "Best match",
       "rating": "Top rated",
       "priceAsc": "Price: low→high",
       "priceDesc": "Price: high→low"
@@ -851,11 +851,11 @@
   },
   "about": {
     "title": "About AlphaMirror",
-    "heroDesc": "3,000 Years of Eastern Wisdom Meets Modern AI Technology",
+    "heroDesc": "AI-Powered Behavioral Analysis Meets Eastern Wisdom",
     "origin": "Our Origin & Mission",
-    "originP1": "AlphaMirror was born at the intersection of ancient Eastern metaphysics and cutting-edge artificial intelligence. For millennia, BaZi, Western Astrology, Tarot, Face Reading, and Palmistry have helped people understand their life patterns — yet these wisdom traditions have remained fragmented, subjective, and inaccessible to most.",
-    "originP2": "Our mission is to weave these five profound traditions into a single, comprehensive life reading. By combining the analytical precision of AI with the timeless insights of Eastern and Western metaphysics, we provide everyone with a deeper understanding of their destiny, personality, and life path.",
-    "originP3": "But our vision extends far beyond a single reading. We believe that when ancient wisdom is made accessible through modern technology, it can illuminate the path forward for anyone seeking clarity in an increasingly complex world.",
+    "originP1": "Destiny Mirror was born at the intersection of traditional Eastern wisdom and modern AI technology. For millennia, BaZi, Western Astrology, Tarot, Face Reading, and Palmistry have helped people understand their behavioral patterns — yet these analytical traditions have remained fragmented, subjective, and inaccessible to most.",
+    "originP2": "Our mission is to synthesize multiple analytical traditions into one comprehensive behavioral profile. By combining the analytical precision of AI with the timeless insights of Eastern and Western traditions, we provide everyone with a deeper understanding of their behavioral tendencies, personality patterns, and cognitive style.",
+    "originP3": "But our vision extends far beyond a single reading. We believe that when traditional analytical wisdom is made accessible through modern technology, it can illuminate the path forward for anyone seeking clarity in an increasingly complex world.",
     "philosophy": "Core Philosophy",
     "philosophySubtitle": "Five Wisdom Traditions, One Unified Vision",
     "pillar1Title": "BaZi Analysis",
@@ -876,11 +876,11 @@
     "ctaButton": "Start Free Reading",
     "values": "Core Values",
     "value1Title": "East Meets West",
-    "value1Desc": "We bring together BaZi, Western Astrology, Tarot, Face Reading, and Palmistry — the best of Eastern and Western metaphysics in one place.",
+    "value1Desc": "We bring together BaZi, Western Astrology, Tarot, Face Reading, and Palmistry — the best of Eastern and Western analytical traditions in one place.",
     "value2Title": "Wisdom-Powered",
     "value2Desc": "Five wisdom traditions looked at together, then woven into one reading by our Master.",
     "value3Title": "Tailored Remedies",
-    "value3Desc": "Remedy products matched to what your chart needs — from crystals to talismans, each backed by metaphysical reasoning.",
+    "value3Desc": "Lifestyle products matched to your profile — from wellness items to productivity tools, each backed by traditional analytical reasoning.",
     "value4Title": "Privacy & Security",
     "value4Desc": "Face photos are only used for feature extraction and never stored. All data is encrypted, your privacy is strictly protected.",
     "teamMetaphysics": "Metaphysics Research",
@@ -1035,20 +1035,20 @@
       "_label": "Natal Chart"
     },
     "bazi": {
-      "desc": "Stem-Branch Chart · Five Elements Flow · Ten Gods Dynamics",
-      "detail": "Rooted in the classics of 'Di Tian Sui' and 'San Ming Tong Hui', we trace your destiny pattern and fortune cycles through the Four Pillars.",
+      "desc": "Four Pillar Chart · Element Balance · Dynamic Analysis",
+      "detail": "Rooted in classical analytical traditions, we map your behavioral patterns and developmental cycles through the Four Pillars.",
       "tag": "Wood",
       "_label": "Bazi (Four Pillars of Destiny)"
     },
     "face": {
-      "desc": "468 Feature Points · Palace Mapping · Fortune Reading",
-      "detail": "Your nose tip, mountain root, jawline, and forehead — each one tells a chapter of your destiny story.",
+      "desc": "468 Feature Points · Region Mapping · Trait Analysis",
+      "detail": "Your nose tip, mountain root, jawline, and forehead — each feature reveals aspects of your behavioral profile.",
       "tag": "Metal",
       "_label": "Face Reading"
     },
     "palm": {
-      "desc": "Three Main Lines · Special Patterns · Mounts Evaluation",
-      "detail": "The shape of your hand and the lines on your palm carry centuries of palmistry wisdom — we read them for you.",
+      "desc": "Three Primary Lines · Pattern Analysis · Region Evaluation",
+      "detail": "The shape of your hand and the lines on your palm carry centuries of analytical wisdom — we read them for you.",
       "tag": "Water",
       "_label": "Palm Reading"
     },
@@ -1467,11 +1467,11 @@
     "noHistory": "No reviews yet — start your first analysis",
     "placeholder": "Describe what happened...\nExample: Disagreed with my manager about project direction today.",
     "pleaseDescribe": "Please describe your event",
-    "prescription": "Energy Prescription for This Event",
-    "prescriptionDesc": "Every event is energy in motion. These products are matched to your destiny chart and this event's energy resonance.",
+    "prescription": "Recommended Products for This Event",
+    "prescriptionDesc": "Every event carries behavioral significance. These products are matched to your profile and this event's context.",
     "remedyTags": "Remedy Tags",
     "startAnalysis": "Start Review Analysis",
-    "subtitle": "Describe recent events — AI analyzes them with your destiny chart",
+    "subtitle": "Describe recent events — AI analyzes them with your profile",
     "title": "Event Review"
   },
   "fortune": {
@@ -1743,7 +1743,7 @@
     "loading": "Loading…",
     "cta": {
       "perks": "Unlock to get $20 coupon + 50 Stardust + 3-day membership",
-      "unlockBtn": "Join Membership to Unlock"
+      "unlockBtn": "Subscribe for Full Access"
     },
     "dim": {
       "career": "Career",
@@ -1780,7 +1780,7 @@
       "ready": "Your personalized reading is ready"
     },
     "hero": {
-      "badge": "Five-Dimension Destiny Analysis · AI Precision"
+      "badge": "Five-Dimension Behavioral Analysis"
     },
     "insight": {
       "locked": "Unlock the full report for your personalized annual fortune plan and enhancement strategy.",
@@ -1792,7 +1792,7 @@
     "master": {
       "detailSubtitle": "Based on your exact birth time",
       "detailTitle": "Deep Chart Reading · Just for You",
-      "disclaimer": "⚠ This report is for reference and entertainment only. It's not professional advice — please read it with an open mind.",
+      "disclaimer": "⚠ This report is for reference and entertainment only. Insights are probabilistic and for reflection purposes only — not professional advice.",
       "free": "Free",
       "loading": "Loading your full reading…",
       "prescription": "Your Personalized Guidance",
@@ -1804,7 +1804,7 @@
     "painPoints": {
       "title": "Key Pain Points",
       "subtitle": "Top 3 areas that need your attention",
-      "consequence": "If unaddressed, may affect your fortune in the coming months"
+      "consequence": "If unaddressed, may affect your outcomes in the coming months"
     },
     "reminder": {
       "title": "Upcoming Key Reminder",
@@ -1848,13 +1848,13 @@
     },
     "shop": {
       "aiWill": "AI will analyze your destiny chart",
-      "desc": "AI deeply analyzes your destiny chart energy gaps and precisely matches from hundreds of fortune items",
+      "desc": "AI deeply analyzes your profile gaps and precisely matches from hundreds of lifestyle items",
       "matchFailed": "Product matching failed — please try again later",
-      "matchForYou": "and precisely match the best fortune items for you",
+      "matchForYou": "and precisely match the best lifestyle items for you",
       "matching": "AI matching...",
-      "noMatch": "No matching fortune items found",
-      "recommendBtn": "Recommend fortune items based on my chart",
-      "title": "Personalized Destiny Enhancement",
+      "noMatch": "No matching lifestyle items found",
+      "recommendBtn": "Recommend lifestyle items based on my profile",
+      "title": "Personalized Lifestyle Recommendations",
       "tryLater": "Please try again later",
       "matched": "{count} items matched for you"
     },
@@ -1873,19 +1873,19 @@
       "insightCount": "{count} insights",
       "unlockHint": "Unlock for detailed analysis"
     },
-    "badge": "Five-Path Destiny Report · Crafted with Care",
+    "badge": "Five-Path Analysis Report · Crafted with Care",
     "clickToView": "Tap to see full reading",
     "copied": "Copied",
     "copyFailed": "Copy failed",
     "copyId": "Copy ID",
-    "disclaimer": "AI-generated content, for reference only — not professional advice",
+    "disclaimer": "AI-generated content, probabilistic insights for reflection only — not professional advice",
     "idCopied": "ID copied",
     "strongest": "your strongest energy",
-    "subtitle": "Seven systems woven together — here's your destiny in full clarity",
+    "subtitle": "Seven systems woven together — here's your behavioral profile",
     "summary": "System Summaries",
     "title": "Destiny Mirror · Your Reading",
-    "unlock": "Unlock Full Report",
-    "unlockPerk1": "Get your complete annual destiny plan",
+    "unlock": "Get Deeper Insights",
+    "unlockPerk1": "Get your complete annual analysis plan",
     "unlockPerk2": "Plus 50 Stardust + $20 coupon",
     "unlockPerk3": "Auto-activate 3-day membership trial",
     "unlockPrice": "¥19.9",
@@ -2097,7 +2097,7 @@
       "note": "If you have any questions, please contact our support team. Continued use means you have read and agree to the above terms."
     },
     "s1": {
-      "desc": "All destiny readings, fortune analysis, and energy diagnostics provided by Destiny Mirror (AlphaMirror) are algorithm-assisted psychological suggestions and cultural references, intended solely for user entertainment and self-reflection.",
+      "desc": "All behavioral analysis, pattern assessment, and cognitive profiling provided by Destiny Mirror are algorithm-assisted behavioral modeling and cultural references, intended solely for user entertainment and self-reflection.",
       "title": "1. Nature of Service"
     },
     "s2": {
@@ -2168,21 +2168,21 @@
       "billing": "One-time payment"
     },
     "premium_monthly": {
-      "name": "Fate OS Monthly",
-      "subtitle": "Full-dimension destiny OS",
-      "feat0": "Unlimited report unlocks",
+      "name": "Behavioral Analysis Monthly",
+      "subtitle": "Full-spectrum behavioral insights",
+      "feat0": "Unlimited analysis reports",
       "feat1": "2 event reviews/month",
       "feat2": "Full daily almanac access",
       "feat3": "Unlimited follow-ups",
       "feat4": "12% shop discount",
       "feat5": "100 stardust/month",
-      "feat6": "Energy alerts",
+      "feat6": "Pattern alerts",
       "feat7": "Priority support",
-      "cta": "Subscribe Monthly",
+      "cta": "Start Monthly Plan",
       "billing": "Auto-renew monthly, cancel anytime"
     },
     "premium_yearly": {
-      "name": "Fate OS Yearly",
+      "name": "Behavioral Analysis Yearly",
       "subtitle": "Best value annual plan",
       "feat0": "All monthly features",
       "feat1": "Only ¥1/day",
@@ -2190,10 +2190,10 @@
       "feat3": "150 stardust/month",
       "feat4": "12% stardust discount",
       "feat5": "Yearly chart review",
-      "feat6": "Crystal customization 1/year",
-      "feat7": "Birthday reading ritual",
+      "feat6": "Personalized annual review",
+      "feat7": "Birthday behavioral snapshot",
       "feat8": "Early access to new features",
-      "cta": "Subscribe Yearly",
+      "cta": "Start Yearly Plan",
       "badge": "Best Value",
       "billing": "Auto-renew yearly, cancel anytime"
     },
@@ -2208,7 +2208,7 @@
       "feat5": "Early access to new features",
       "feat6": "Dedicated support",
       "feat7": "Crystal customization 1/year",
-      "cta": "Lock Your Seat",
+      "cta": "Join Founders",
       "badge": "Limited Seats",
       "billing": "One-time lifetime"
     }
@@ -2304,35 +2304,35 @@
   },
   "agents": {
     "badge": "The Five Wisdom Council",
-    "desc": "Five ancient traditions each look at your chart from a different angle — then we weave them all together into one reading.",
+    "desc": "Five analytical traditions each examine your profile from a different angle — then we weave them all together into one reading.",
     "title": "Five Paths, One Reading",
     "bazi": {
       "_label": "Bazi (Four Pillars)",
-      "tag": "Eastern Destiny",
-      "desc": "Decode your life path through the Heavenly Stems and Earthly Branches of your birth chart",
+      "tag": "Eastern Analysis",
+      "desc": "Decode your behavioral path through the Heavenly Stems and Earthly Branches of your birth chart",
       "detail": "Four Pillars · Ten Gods · Luck Cycles · Five Element Balance"
     },
     "astrology": {
       "_label": "Western Astrology",
       "tag": "Western Charts",
-      "desc": "Reveal your deeper personality patterns and soul lessons through planetary placements",
+      "desc": "Reveal your deeper personality patterns and behavioral lessons through planetary placements",
       "detail": "House Placements · Aspect Analysis · Node Axis · Transit Forecast"
     },
     "tarot": {
       "_label": "AI Tarot",
       "tag": "Intuitive Guidance",
-      "desc": "Chart-synced tarot readings that reflect your current energy state and next steps",
+      "desc": "Profile-synced tarot readings that reflect your current state and next steps",
       "detail": "Spread Reading · Energy Mapping · Lesson Guidance · Timing Advice"
     },
     "face": {
       "_label": "AI Face Reading",
       "tag": "Facial Analysis",
-      "desc": "Analyze your personality traits and fortune trends through facial features and structure",
-      "detail": "Feature Analysis · Face Shape · Complexion Reading · Fortune Forecast"
+      "desc": "Analyze your personality traits and behavioral tendencies through facial features and structure",
+      "detail": "Feature Analysis · Face Shape · Complexion Reading · Trait Forecast"
     },
     "palm": {
       "_label": "AI Palm Reading",
-      "tag": "Palm Diagnosis",
+      "tag": "Palm Analysis",
       "desc": "Decode your life, heart, and head lines to reveal career, relationship, and health insights",
       "detail": "Palm Line Analysis · Hand Shape · Career & Love · Health Indicators"
     }
@@ -2483,13 +2483,13 @@
     "empty": "Your cart is empty",
     "free": "Free",
     "freeShippingHint": "Free shipping on orders over $79",
-    "processingNote": "Due to the magnetic field tuning and handcrafted customization required at ancient Eastern temples/Daoist venues for each energy artifact, your order will be shipped within 3-5 business days. Global express delivery takes approximately 7-14 days.",
-    "customAgreementTitle": "Blessing Notice & Customization Agreement (Please Read Carefully)",
-    "customAgreementDesc": "All spiritual artifacts on this site are not mass-produced industrial products. After you place your order, we will arrange for a partnering master to select an auspicious date for a one-on-one personalized consecration, blessing, and prayer based on the name, birth date, and wishes you provide.",
+    "processingNote": "Due to the quality inspection and customization required for each item, your order will be shipped within 3-5 business days. Global express delivery takes approximately 7-14 days.",
+    "customAgreementTitle": "Quality Notice & Customization Agreement (Please Read Carefully)",
+    "customAgreementDesc": "All customized products on this site are not mass-produced industrial items. After you place your order, we will arrange for quality inspection and personalization based on the information you provide.",
     "customAgreementWorkTime": "Regarding Production Time: ",
-    "customAgreementWorkTimeDesc": "The consecration and blessing process is rigorous and takes time to complete. Once the blessing is finished, your item will be shipped to you as soon as possible. Please wait patiently.",
+    "customAgreementWorkTimeDesc": "The quality inspection and preparation process is rigorous and takes time to complete. Once preparation is finished, your item will be shipped to you as soon as possible. Please wait patiently.",
     "customAgreementRefund": "Regarding Returns & Refunds: ",
-    "customAgreementRefundDesc": "This product is a deeply personalized custom order. Once placed, the master immediately begins dedicating their energy to your blessing. Therefore, this product does not support mid-process refunds or no-reason returns (except for quality issues with the product itself).",
+    "customAgreementRefundDesc": "This product is a deeply personalized custom order. Once placed, the customization process begins immediately. Therefore, this product does not support mid-process refunds or no-reason returns (except for quality issues with the product itself).",
     "customAgreementConfirm": "Please make your decision carefully before placing your order. Clicking to place your order means you have fully understood and agreed to this customization agreement.",
     "goShop": "Browse Shop",
     "loginFirst": "Please login first",
@@ -2517,7 +2517,8 @@
     "step1": "Confirm Payment",
     "step2": "Complete Payment",
     "step3": "View Orders",
-    "viewOrders": "View My Orders"
+    "viewOrders": "View My Orders",
+    "trustNotice": "This is an informational and reflective tool, not a deterministic system. Results are based on AI behavioral modeling and traditional analytical frameworks. By proceeding, you acknowledge this is for personal reflection only."
   },
   "common": {
     "back": "Back",
@@ -2574,17 +2575,17 @@
   },
   "disclaimer": {
     "backHome": "← Back to Home",
-    "importantNotice": "Important: All destiny analysis results are for entertainment and reference only. They do not constitute any professional advice.",
+    "importantNotice": "Important: All analysis results are for entertainment and reference only. They do not constitute any professional advice.",
     "intro": "Destiny Mirror requests that you carefully read the following disclaimer before using our services. Using this platform means you have read and understood the full content.",
     "operatorEmail": "Contact: legal@khanfate.com",
     "operatorName": "Destiny Mirror Operations Team",
     "operatorTitle": "Operator Information",
     "operatorUrl": "Website: https://www.khanfate.com",
-    "s1Content": "All destiny analysis services are generated based on AI algorithms and traditional destiny knowledge, intended solely for personal entertainment and reference. Results do not constitute professional advice including medical, legal, financial, or life decisions.",
+    "s1Content": "All behavioral analysis services are generated based on AI algorithms and traditional analytical knowledge, intended solely for personal entertainment and reference. Results do not constitute professional advice including medical, legal, financial, or life decisions.",
     "s1Title": "1. Nature of Destiny Analysis",
-    "s2Content": "AI models may have biases or errors. Destiny studies belong to traditional culture, not modern science. Different schools may have varying perspectives. AI cannot replace experienced analysts. View results rationally as auxiliary tools.",
+    "s2Content": "AI models may have biases or errors. Analytical studies belong to traditional culture, not modern science. Different schools may have varying perspectives. AI cannot replace experienced analysts. View results rationally as auxiliary tools.",
     "s2Title": "2. Limitations of AI Analysis",
-    "s3Content": "Fortune items are cultural creative products. Efficacy descriptions are based on traditional destiny culture and folk beliefs, not scientifically verified claims.",
+    "s3Content": "Lifestyle products are cultural creative products. Descriptions are based on traditional cultural wellness practices, not scientifically verified claims.",
     "s3Title": "3. Fortune Item Description",
     "s4Content": "Use services rationally. Users bear responsibility for decisions made based on analysis results. Comply with local laws.",
     "s4Title": "4. User Responsibility",
@@ -2671,15 +2672,15 @@
     "afterComplete": "After your reading, we'll suggest matching remedy products you can add with one tap",
     "analysisFail": "Reading failed — try again later",
     "createFail": "Failed to create event",
-    "desc": "Trace the Stars · Find the Cause · Get the Remedy",
+    "desc": "Trace the Pattern · Find the Cause · Get the Insight",
     "disclaimer": "Event retrospection is for reference and entertainment only, not professional advice.",
     "disclaimerDetail": "View Details",
-    "explanation": "Tell us when something happened — we'll look at the natal chart and Bazi from that moment to explain why it happened and what to do next.",
+    "explanation": "Tell us when something happened — we'll look at the natal chart and Bazi from that moment to explain potential contributing factors and what to do next.",
     "freeUserNote": "Free users: ¥19.9/time · Subscribe for 2-5 free/month",
-    "inputDesc": "Tell us about an event you want to understand — we'll look at the natal chart and Bazi from that moment to trace the cause.",
+    "inputDesc": "Tell us about an event you want to understand — we'll look at the natal chart and Bazi from that moment to trace potential causes.",
     "memberQuota": "Members only: {count} free retrospections left this month",
     "monthlyMember": "(Monthly Member: 2/month)",
-    "payDesc": "We'll look at the natal chart and annual Bazi at the time of the event, explain why it happened, and suggest remedies.",
+    "payDesc": "We'll look at the natal chart and annual Bazi at the time of the event, explain potential contributing factors, and suggest insights.",
     "payError": "Payment failed",
     "payFail": "Payment verification failed",
     "paySuccess": "Payment successful",

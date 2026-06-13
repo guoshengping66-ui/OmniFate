@@ -293,6 +293,14 @@ export default function CheckoutPage() {
             <p className="text-orange-400/80 font-medium">🛑 {t("checkout.customAgreementConfirm")}</p>
           </div>
         </label>
+
+        {/* Trust / Disclaimer Banner */}
+        <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-3 mb-4">
+          <p className="text-white/30 text-[11px] leading-relaxed text-center">
+            {t("checkout.trustNotice") || "This is an informational and reflective tool, not a deterministic system. Results are based on AI behavioral modeling and traditional analytical frameworks. By proceeding, you acknowledge this is for personal reflection only."}
+          </p>
+        </div>
+
         <button
           onClick={handleCheckout}
           disabled={loading || !termsAccepted}

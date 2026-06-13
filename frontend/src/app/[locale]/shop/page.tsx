@@ -127,7 +127,7 @@ function ShopContent() {
         <ScrollReveal>
           <div className="mb-6 p-3 rounded-xl border border-amber-500/20 bg-amber-500/5 text-center">
             <p className="text-amber-200/70 text-xs leading-relaxed">
-              {t("shop.disclaimer") || "Products are cultural creative items. Descriptions are based on traditional destiny culture, not scientifically verified."}
+              {t("shop.disclaimer") || "Products are lifestyle and wellness items. Descriptions reflect cultural traditions, not scientific claims."}
               <a href={localeHref("/disclaimer")} className="text-gold/60 hover:text-gold ml-1 underline">{t("shop.disclaimerLink") || "View Details"}</a>
             </p>
           </div>
@@ -167,7 +167,7 @@ function ShopContent() {
                 >
                   <span className="text-xl mb-2 block">{scenario.emoji}</span>
                   <p className="text-white/70 text-xs font-medium">{t(`shop.scenario.${scenario.key}`)}</p>
-                  <p className="text-white/30 text-[10px] mt-1">{t("shop.scenario.cta") || "推命获取专属推荐"}</p>
+                  <p className="text-white/30 text-[10px] mt-1">{t("shop.scenario.cta") || "分析获取专属推荐"}</p>
                   <ArrowRight size={12} className="absolute top-3 right-3 text-white/20 group-hover:text-white/50 group-hover:translate-x-0.5 transition-all" />
                 </a>
               ))}
@@ -203,7 +203,7 @@ function ShopContent() {
             <div className="flex items-center gap-2">
               <select value={sortBy} onChange={handleSortChange}
                 className="bg-white/[0.04] border border-white/[0.08] rounded-full px-3 py-1.5 text-xs text-white/50 focus:border-gold/30 focus:outline-none appearance-none cursor-pointer">
-                <option value="match">{t("shop.sort.match") || "命盘匹配"}</option>
+                <option value="match">{t("shop.sort.match") || "档案匹配"}</option>
                 <option value="rating">{t("shop.sort.rating") || "评分最高"}</option>
                 <option value="price_asc">{t("shop.sort.priceAsc") || "价格低→高"}</option>
                 <option value="price_desc">{t("shop.sort.priceDesc") || "价格高→低"}</option>
