@@ -3,7 +3,7 @@ import type { Metadata } from "next"
 export const metadata: Metadata = {
   title: "Daily Almanac - Profile Mirror",
   description: "Personalized daily almanac based on your profile chart, including energy index, do's and don'ts, and protection guidance.",
-  keywords: ["daily almanac", "energy index", "daily fortune", "calendar"],
+  keywords: ["daily almanac", "energy index", "daily analysis", "calendar"],
   openGraph: {
     title: "Daily Almanac - Profile Mirror",
     description: "Personalized daily almanac based on your profile chart",
