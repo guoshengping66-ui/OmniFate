@@ -487,7 +487,7 @@
     },
     "terms": {
       "s1": {
-        "content": "Behavioral Mirror is an AI-powered multi-dimensional behavioral analysis platform providing:\n\n1. Four-Pillar, behavioral profile, Qi Men Dun Jia, and Zi Wei Dou Shu analysis based on birth information\n2. Symbolic card readings\n3. AI face and palm analysis\n4. Comprehensive behavioral reports with personalized recommendations\n5. Lifestyle product recommendations and purchases\n6. Event retrospection and daily insights\n\nThis service is for personal entertainment and reference only and does not constitute professional advice of any kind.",
+        "content": "Behavioral Mirror is an AI-powered multi-dimensional behavioral analysis platform providing:\n\n1. Four-Pillar, behavioral profile, strategic analysis, and stellar profile analysis based on birth information\n2. Symbolic card readings\n3. AI face and palm analysis\n4. Comprehensive behavioral reports with personalized recommendations\n5. Lifestyle product recommendations and purchases\n6. Event retrospection and daily insights\n\nThis service is for personal entertainment and reference only and does not constitute professional advice of any kind.",
         "title": "1. Service Description"
       },
       "s2": {
@@ -1072,15 +1072,15 @@
     },
     "strategic": {
       "desc": "Spatiotemporal Energy · Auspicious Directions · Decision Timing",
-      "detail": "Based on the Strategic Dunjia spatiotemporal model, AI precisely locates favorable directions and action timing.",
+      "detail": "Based on the strategic analysis spatiotemporal model, AI precisely locates favorable directions and action timing.",
       "tag": "Fire",
-      "_label": "Qi Men Dun Jia"
+      "_label": "Strategic Analysis"
     },
     "stellar": {
       "desc": "Star Distribution · Palace Analysis · Life Pattern",
-      "detail": "Purple Star Behavioral Pattern — 14 main stars palace analysis revealing life trajectory and status trends.",
+      "detail": "Stellar Profile System — 14 main stars palace analysis revealing life trajectory and status trends.",
       "tag": "Water",
-      "_label": "Purple Star Behavioral Pattern"
+      "_label": "Stellar Profile System"
     },
     "master": "AI Cross-Dimensional Verification"
   },
@@ -1260,12 +1260,12 @@
       "palm1": "What should I watch for with a broken life line?",
       "palm2": "What does a clear career line mean?",
       "palm3": "What does a forked heart line mean?",
-      "strategic1": "What direction is lucky for me in Qi Men Dun Jia?",
+      "strategic1": "What direction is favorable for me in strategic analysis?",
       "strategic2": "What decisions should I make soon?",
       "symbolic1": "What's the overall message of this symbolic spread?",
       "symbolic2": "Which card matters most in this spread?",
       "symbolic3": "What should I actually do based on this symbolic reading?",
-      "stellar1": "What's my Life Palace star in Zi Wei Dou Shu?",
+      "stellar1": "What's my dominant trait in the stellar profile system?",
       "stellar2": "Which palaces should I watch this year?"
     },
     "autoRoute": "Your question will find the right wisdom path",
@@ -2847,7 +2847,7 @@
     "activity3": "unlocked their annual status report 📖",
     "activity4": "got a personalized optimization plan 🎁",
     "activity5": "asking about love status 💕",
-    "activity6": "unlocking Zi Wei Dou Shu ⭐",
+    "activity6": "unlocking Stellar Profile System ⭐",
     "activity7": "generating a palm reading report 🤚",
     "activity8": "completed facial feature 👁",
     "activity9": "checking today's almanac 📅",
@@ -3376,7 +3376,7 @@
     "physiognomy": "Physiognomy (Facial Feature)",
     "planets": "Planets",
     "qianYi": "Travel Palace (Qian Yi Gong)",
-    "strategic": "Qi Men Dun Jia",
+    "strategic": "Strategic Analysis",
     "ri": "Day Pillar",
     "rizhu": "Day Master (Ri Zhu)",
     "shi": "Hour Pillar",
@@ -3388,7 +3388,7 @@
     "yinYang": "Yin-Yang",
     "yue": "Month Pillar",
     "ziNu": "Children Palace (Zi Nu Gong)",
-    "stellar": "Zi Wei Dou Shu (Purple Star)"
+    "stellar": "Stellar Profile System"
   },
   "tiangan": {
     "bing": "Bing (丙)",
