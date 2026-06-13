@@ -5,7 +5,7 @@
         "descA": "What's meant to be will be — otherwise I'm going back to sleep",
         "descB": "The universe is picking on me? Then I'm fighting back",
         "nameA": "Go with Flow",
-        "nameB": "Defy Fate"
+        "nameB": "Defy Pattern"
       },
       "GI": {
         "descA": "Enthusiastically reading charts for everyone online for free",
@@ -15,76 +15,76 @@
       },
       "PE": {
         "descA": "The hidden dragon stays still, chronic procrastinator",
-        "descB": "A sudden impulse — up at 3 AM to rewrite destiny",
+        "descB": "A sudden impulse — up at 3 AM to rewrite behavioral",
         "nameA": "Patiently Lazy",
         "nameB": "Instant Action"
       },
       "XS": {
         "descA": "Unstoppable intuition, quantum entanglement",
-        "descB": "Calculate exact astrological degrees, run Excel spreadsheets to divine fate",
+        "descB": "Calculate exact astrological degrees, run Excel spreadsheets to divine pattern",
         "nameA": "Intuition Mystic",
         "nameB": "Data Analyst"
       }
     },
     "DSGE": {
       "advice": "You're the perfect hexagonal warrior, but remember — life isn't code, you can't always debug. Occasionally let some bugs exist; they're life's pleasant surprises.",
-      "diagnosis": "Treats life like code to refactor. Manages fate-changing with agile methodology, daily standups on fortune progress. Combines data-driven rationality, social warmth, rebellious determination, and action power. Omnipotent but occasionally overloaded.",
+      "diagnosis": "Treats life like code to refactor. Manages pattern-changing with agile methodology, daily standups on status progress. Combines data-driven rationality, social warmth, rebellious determination, and action power. Omnipotent but occasionally overloaded.",
       "quote": "Knowledge and action advance together — mastery springs from the source",
-      "quoteExplain": "Fate-changing starts with refactoring the underlying architecture",
-      "title": "The Full-Stack Destiny DevOps Engineer"
+      "quoteExplain": "Pattern-changing starts with refactoring the underlying architecture",
+      "title": "The Full-Stack Behavioral DevOps Engineer"
     },
     "DSGP": {
       "advice": "Accept an imperfect start. A 60-point plan executed now beats a 100-point plan that lives forever on your to-do list.",
-      "diagnosis": "Strongest analytical ability AND strongest rebellious spirit, but execution is perpetually one step behind. The fate-changing plan has been revised 17 times, each version more perfect than the last, but always stuck at 'pending execution'.",
+      "diagnosis": "Strongest analytical ability AND strongest rebellious spirit, but execution is perpetually one step behind. The pattern-changing plan has been revised 17 times, each version more perfect than the last, but always stuck at 'pending execution'.",
       "quote": "Quiet contemplation, tempered through affairs",
       "quoteExplain": "I've analyzed all possibilities — now I'm waiting for a better moment",
       "title": "The Data-Driven Rebel Procrastinator"
     },
     "DSIE": {
       "advice": "Your execution is top-tier, but remember to stop and review. Not every battle is worth fighting — learn strategic rest.",
-      "diagnosis": "The most action-oriented type in the entire AM16 system. Analyzes the optimal fate-changing path with data, then executes immediately while dragging friends along. The kind of person who finishes a plan at 3 AM and starts calling people at 4.",
+      "diagnosis": "The most action-oriented type in the entire AM16 system. Analyzes the optimal pattern-changing path with data, then executes immediately while dragging friends along. The kind of person who finishes a plan at 3 AM and starts calling people at 4.",
       "quote": "Knowledge and action advance together — they cannot be separated",
-      "quoteExplain": "The second the data analysis finishes, I'm already on the road to changing fate",
-      "title": "The Analytical Fate-Defying Execution Machine"
+      "quoteExplain": "The second the data analysis finishes, I'm already on the road to changing pattern",
+      "title": "The Analytical Pattern-Defying Execution Machine"
     },
     "DSIP": {
       "advice": "Your data analysis is top-tier, but not everything in life can be quantified. Follow your gut once in a while and see what happens.",
-      "diagnosis": "Extremely rational and extremely independent. Silently collects data, analyzes trends, and crafts fate-changing plans. No socializing, no waiting, no impulsiveness. Like a precision fate-changing machine that only accepts its own programming.",
+      "diagnosis": "Extremely rational and extremely independent. Silently collects data, analyzes trends, and crafts pattern-changing plans. No socializing, no waiting, no impulsiveness. Like a precision pattern-changing machine that only accepts its own programming.",
       "quote": "This heart stays still, moves only when conditions arise",
       "quoteExplain": "I move when the data says move — who are you to rush me",
       "title": "The Cold Analytical Lone Wolf Cultivator"
     },
     "DXGE": {
       "advice": "Save yourself before saving others — check your empty wallet and stardust balance first. Before redeeming anyone else, redeem your credit card debt.",
-      "diagnosis": "Extremely passionate. Not only defies fate personally but drags everyone along. Daily routine: pumping friends full of positive energy and Xinxue execution. The type who blasts fortune guides to every group chat. Social media always on fire.",
+      "diagnosis": "Extremely passionate. Not only defies pattern personally but drags everyone along. Daily routine: pumping friends full of positive energy and Xinxue execution. The type who blasts lifestyle guides to every group chat. Social media always on fire.",
       "quote": "One must be tempered through real affairs",
       "quoteExplain": "Everyone stop crying — I'll lead you through this heavenly tribulation!",
-      "title": "The Worldly Party Captain of Fortune"
+      "title": "The Worldly Party Captain of Status"
     },
     "DXGP": {
-      "advice": "Delete half your bookmarked articles, then read one to completion. That's your first fate-changing action. Not tomorrow — right now.",
-      "diagnosis": "A theoretical fate-defying master, an ultimate procrastinator in practice. Bookmarked 300 fate-changing guides. Actual execution rate: 0%. Every day it's 'I'll start changing tomorrow' — living permanently in tomorrow.",
+      "advice": "Delete half your bookmarked articles, then read one to completion. That's your first pattern-changing action. Not tomorrow — right now.",
+      "diagnosis": "A theoretical pattern-defying master, an ultimate procrastinator in practice. Bookmarked 300 pattern-changing guides. Actual execution rate: 0%. Every day it's 'I'll start changing tomorrow' — living permanently in tomorrow.",
       "quote": "Knowledge is the beginning of action, action is the completion of knowledge",
       "quoteExplain": "I know, but I don't do — 'knowing without doing is not knowing'",
       "title": "The All-Talk No-Action Lying-Flat Rebel"
     },
     "DXIE": {
       "advice": "The universe isn't always targeting you — sometimes it's just passing by. Don't be so hyped. Drink more hot water, argue less with heaven, and stay alive.",
-      "diagnosis": "Rebellious to the core. Horoscope says he'll lose money this year? He takes three jobs a day just to spite it. 3 AM inspiration sparks a fate-changing plan, 5 AM execution begins. Everyone in his social circle fears and admires him.",
+      "diagnosis": "Rebellious to the core. Horoscope says he'll lose money this year? He takes three jobs a day just to spite it. 3 AM inspiration sparks a pattern-changing plan, 5 AM execution begins. Everyone in his social circle fears and admires him.",
       "quote": "It's easy to defeat external thieves, hard to defeat the thief within",
-      "quoteExplain": "Don't talk fate with me — I AM fate!",
-      "title": "The 3 AM Destiny-Confronting Maniac"
+      "quoteExplain": "Don't talk pattern with me — I AM pattern!",
+      "title": "The 3 AM Behavioral-Confronting Maniac"
     },
     "DXIP": {
-      "advice": "Rebellion is fine, but don't forget to share your fate-defying plans with someone. Changing fate alone is exhausting — two people can encourage each other.",
-      "diagnosis": "A perfect fusion of social anxiety and rebellious spirit. Inside burns the fire of 'my fate is mine to command' while appearing utterly indifferent. Rewrites life plans alone at 3 AM, then continues as a lone wolf at dawn. A sword hidden in its sheath.",
+      "advice": "Rebellion is fine, but don't forget to share your pattern-defying plans with someone. Changing pattern alone is exhausting — two people can encourage each other.",
+      "diagnosis": "A perfect fusion of social anxiety and rebellious spirit. Inside burns the fire of 'my pattern is mine to command' while appearing utterly indifferent. Rewrites life plans alone at 3 AM, then continues as a lone wolf at dawn. A sword hidden in its sheath.",
       "quote": "Set your will on sainthood and you shall be a saint",
-      "quoteExplain": "I want to defy fate, but I want to do it alone in silence",
+      "quoteExplain": "I want to defy pattern, but I want to do it alone in silence",
       "title": "The Solitary Intuitive Rebel Warrior"
     },
     "FSGE": {
-      "advice": "You've helped so many people — time to help yourself. Take the fortune-improvement plan you gave others and execute it first.",
-      "diagnosis": "Built fortune-tracking spreadsheets for every friend, regularly pushes personalized fortune improvement advice. Full marks on service awareness but never acts for self. Like a super-intelligent robot that needs charging — and can never find the cable.",
+      "advice": "You've helped so many people — time to help yourself. Take the status-improvement plan you gave others and execute it first.",
+      "diagnosis": "Built status-tracking spreadsheets for every friend, regularly pushes personalized status improvement advice. Full marks on service awareness but never acts for self. Like a super-intelligent robot that needs charging — and can never find the cable.",
       "quote": "Extend conscience to all things",
       "quoteExplain": "Uses scientific methodology to serve everyone, but won't lift a finger for self",
       "title": "The Human Customer Service Bot"
@@ -97,57 +97,57 @@
       "title": "The Data-Driven Lying-Flat Buddhist"
     },
     "FSIE": {
-      "advice": "You already have the best methodology — what's missing is connection with the world. Try sharing your fate-changing experience; it might help many others.",
-      "diagnosis": "Treats fate-rewriting as a research project. Rigorous methodology, complete data models, precise timeline — but executes alone and never shares. Like a hidden Nobel laureate in metaphysics.",
+      "advice": "You already have the best methodology — what's missing is connection with the world. Try sharing your pattern-changing experience; it might help many others.",
+      "diagnosis": "Treats pattern-rewriting as a research project. Rigorous methodology, complete data models, precise timeline — but executes alone and never shares. Like a hidden Nobel laureate in metaphysics.",
       "quote": "Knowledge is the beginning of action, action is the completion of knowledge",
-      "quoteExplain": "My fate-changing plan has passed peer review",
-      "title": "The Solitary Science-of-Fate Geek"
+      "quoteExplain": "My pattern-changing plan has passed peer review",
+      "title": "The Solitary Science-of-Pattern Geek"
     },
     "FSIP": {
       "advice": "Step outside for some sunshine occasionally — positive ions are free. The data in Excel is dead; the scenery outside is alive.",
-      "diagnosis": "A cold, ruthless analytical machine. Turned birth charts, annual cycles, and past events into a review funnel model. Extremely rational but pathologically shy. Wrote a Python fortune-telling script — result: 73% probability of dying alone.",
+      "diagnosis": "A cold, ruthless analytical machine. Turned birth charts, annual cycles, and past events into a review funnel model. Extremely rational but pathologically shy. Wrote a Python pattern analysis script — result: 73% probability of dying alone.",
       "quote": "The mind made straight is the Way",
-      "quoteExplain": "Don't talk metaphysical nonsense — pull up the data",
-      "title": "The Excel Fortune-Telling Hermit"
+      "quoteExplain": "Don't talk traditional nonsense — pull up the data",
+      "title": "The Excel Status-Telling Hermit"
     },
     "FXGE": {
       "advice": "Invest in an extra-large bed for your online chart-reading business. Set up an auto-reply: Currently meditating. For urgent matters, please burn incense.",
-      "diagnosis": "A genius who reads friends' fortune by psychic transmission from bed. Replies to messages lying down, posts on social media lying down, reads birth charts lying down. Social energy transmitted entirely through horizontal position. Infinitely popular but actual outings are zero.",
+      "diagnosis": "A genius who reads friends' status by psychic transmission from bed. Replies to messages lying down, posts on social media lying down, reads birth charts lying down. Social energy transmitted entirely through horizontal position. Infinitely popular but actual outings are zero.",
       "quote": "Unity of knowledge and action is true knowledge",
       "quoteExplain": "Even while lying down I socialize — the ultimate unity of thought and action",
-      "title": "The Metaphysical Social Butterfly"
+      "title": "The Traditional Social Butterfly"
     },
     "FXGP": {
       "advice": "Try rolling over occasionally to avoid uneven chi circulation. Peek out the window sometimes — you'll find it's raining outside too.",
       "diagnosis": "Permanently residing in the highest realm of 'wu wei' governance. Believes everything happens for the best. Mercury retrograde comes and he sleeps. Lucky period arrives and he's still sleeping. Occasionally rolls over just to change position.",
       "quote": "This heart is bright — what more is there to say",
-      "quoteExplain": "If I lie flat enough, fate's scythe can't reach me",
+      "quoteExplain": "If I lie flat enough, pattern's scythe can't reach me",
       "title": "The Supreme Lying-Flat Fish"
     },
     "FXIE": {
       "advice": "Record your inspirations — even voice-to-text. Otherwise those celestial secrets will dissipate with your snoring into the cosmos.",
-      "diagnosis": "Stunning intuition but negative execution. Gets divine inspiration to write a destiny-changing manifesto, then immediately falls asleep. Maintains friendships telepathically — friends think they're mysterious. They're just too lazy to move.",
+      "diagnosis": "Stunning intuition but negative execution. Gets divine inspiration to write a behavioral-changing manifesto, then immediately falls asleep. Maintains friendships telepathically — friends think they're mysterious. They're just too lazy to move.",
       "quote": "Conscience is known in solitude",
       "quoteExplain": "My intuition says I can socialize while lying flat",
       "title": "The Inspired Lying-Flat Socialite"
     },
     "FXIP": {
-      "advice": "Try saying 'thanks' to the delivery driver occasionally — it's the lowest-energy spiritual practice. If you really can't talk, at least nod.",
-      "diagnosis": "Zero social life, zero action, but spirituality maxed out. Lives in their own quantum field, occasionally sending a signal to the universe to confirm existence. The purest observer of the mortal world, a recluse of the spirit realm.",
+      "advice": "Try saying 'thanks' to the delivery driver occasionally — it's the lowest-energy wellness practice. If you really can't talk, at least nod.",
+      "diagnosis": "Zero social life, zero action, but wellnessity maxed out. Lives in their own quantum field, occasionally sending a signal to the universe to confirm existence. The purest observer of the mortal world, a recluse of the spirit realm.",
       "quote": "The original mind is beyond good and evil",
       "quoteExplain": "No good, no evil, no action, no social — just lying flat",
       "title": "The Transcendent Lying-Flat Hermit"
     },
     "poster": {
-      "brand": "Destiny Mirror · Behavioral Insights",
-      "defaultInvite": "DESTINY",
+      "brand": "Behavioral Mirror · Behavioral Insights",
+      "defaultInvite": "BEHAVIORAL",
       "diagnosis": "🧠 Behavioral Pattern Analysis",
       "guide": "🧭 Insight Guide",
       "scan": "🔮 Scan to explore your patterns",
       "stardust": "Free 20 stardust · Code: ",
       "title": "✦ AM16 Behavioral Code ✦"
     },
-    "advice": "Fortune Guide",
+    "advice": "Status Guide",
     "aligningCoords": "Reading Your Four Dimensions",
     "analyzing": "Reading your energy pattern...",
     "analyzingSub": "Aligning with cosmic rhythm · Reading your four dimensions",
@@ -194,11 +194,11 @@
     "saveImage": "Save Image",
     "saving": "Saving...",
     "share": "Share",
-    "sharedResult": "'s Destiny Code",
+    "sharedResult": "'s Behavioral Code",
     "sharePreview": "Share Preview",
     "sharePreviewText": "Check out my behavioral code",
     "shareSuccess": "Invite link copied! You and your friend both earn 20 stardust",
-    "shareTitle": "Share Destiny Code",
+    "shareTitle": "Share Behavioral Code",
     "start": "Start Quiz",
     "step1": "Reading Dimension 1: Flow vs Defiance",
     "step2": "Reading Dimension 2: Intuition vs Analysis",
@@ -212,7 +212,7 @@
     "wechat": "WeChat",
     "xinxueQuote": "Xinxue Wisdom Quote",
     "xinxueShiwu": "Xinxue vs Shiwu",
-    "yourCode": "✦ Your Destiny Pattern ✦",
+    "yourCode": "✦ Your Behavioral Pattern ✦",
     "yourFirstReaction": "What's your first reaction?"
   },
   "dash": {
@@ -237,11 +237,11 @@
       "colors": "Gold,Red,Blue,Green,Purple,White,Pink,Orange",
       "dayNames": "1st,2nd,3rd,4th,5th,6th,7th,8th,9th,10th,11th,12th,13th,14th,15th,16th,17th,18th,19th,20th,21st,22nd,23rd,24th,25th,26th,27th,28th,29th,30th",
       "ganZhi": "Jia-Zi,Yi-Chou,Bing-Yin,Ding-Mao,Wu-Chen,Ji-Si,Geng-Wu,Xin-Wei,Ren-Shen,Gui-You",
-      "greeting": "Today's Fortune Overview",
+      "greeting": "Today's Status Overview",
       "lunarMonths": "1st Moon,2nd Moon,3rd Moon,4th Moon,5th Moon,6th Moon,7th Moon,8th Moon,9th Moon,10th Moon,Winter Moon,Year-End Moon",
       "warning": "Avoid important decisions when emotional."
     },
-    "fortune": {
+    "status": {
       "almanacTitle": "Daily Almanac",
       "dayPillar": "Day Pillar",
       "fair": "Stable",
@@ -263,7 +263,7 @@
       "friendDesc": "Inject heterogeneous profiles to analyze interpersonal resonance",
       "friendEn": "COLLECTIVE VIBE",
       "full": "Deep Resonance",
-      "fullDesc": "Multi-modal AI analysis integrating biometrics (face/palm) & natal astrology",
+      "fullDesc": "Multi-modal AI analysis integrating biometrics (face/palm) & natal behavioral pattern",
       "fullEn": "DEEP RESONANCE",
       "quick": "Instant Insight",
       "quickDesc": "Random decision anchor based on current timestamp",
@@ -273,7 +273,7 @@
       "dateFormat": "{y}y {M}m {d}d {h}:{m}",
       "nickname": "Nickname",
       "notSet": "Not set",
-      "title": "Destiny Profile",
+      "title": "Behavioral Profile",
       "zodiacYear": " sign"
     },
     "recent": {
@@ -318,11 +318,11 @@
   "founder": {
     "roadmap": {
       "v1": {
-        "desc": "Personalized AI conversation based on BaZi chart data",
-        "title": "AI BaZi Deep Dialogue"
+        "desc": "Personalized AI conversation based on Four-Pillar chart data",
+        "title": "AI Four-Pillar Deep Dialogue"
       },
       "v2": {
-        "desc": "Input life events, auto-match BaZi trends",
+        "desc": "Input life events, auto-match Four-Pillar trends",
         "title": "Event Retrospection Engine"
       },
       "v3": {
@@ -330,7 +330,7 @@
         "title": "Energy Field Visualization"
       },
       "v4": {
-        "desc": "Destiny enthusiasts exchange platform",
+        "desc": "Behavioral enthusiasts exchange platform",
         "title": "Community Star Alliance"
       }
     },
@@ -363,7 +363,7 @@
       "backToPricing": "Back to Pricing",
       "benefits": "Founder Seat Benefits",
       "createOrderFail": "Failed to create order. Please try again.",
-      "desc": "Limited to 200 seats (100 Domestic + 100 Overseas), lock in permanent full-feature access, grow with Destiny Mirror",
+      "desc": "Limited to 200 seats (100 Domestic + 100 Overseas), lock in permanent full-feature access, grow with Behavioral Mirror",
       "domestic": "Domestic",
       "domesticSeats": "Domestic Seats",
       "founderSeat": "Founder Seat · Lifetime",
@@ -378,7 +378,7 @@
       "roadmapVoteDesc": "Vote for the next feature you're most excited about — your voice shapes the product direction",
       "seatNo": "Seat #",
       "seatWall": "Seat Wall",
-      "seatWallDesc": "Every seat has a unique number, symbolizing the commitment to grow with Destiny Mirror",
+      "seatWallDesc": "Every seat has a unique number, symbolizing the commitment to grow with Behavioral Mirror",
       "sold": "{sold} / {total} seats sold",
       "subtitle": "Lifetime Membership",
       "title": "Founder Seat",
@@ -397,12 +397,12 @@
       "feedbackEmpty": "Please enter your feedback"
     },
     "vote": {
-      "astro_trading": "Astrology Trading Signals",
+      "astro_trading": "Behavioral Pattern Trading Signals",
       "astro_trading_desc": "Trade timing advice based on astral energy",
-      "bazi_compatibility": "BaZi Compatibility",
-      "bazi_compatibility_desc": "Deep BaZi matching analysis for two people",
-      "feng_shui_scan": "AI Feng Shui Scan",
-      "feng_shui_scan_desc": "Upload floor plans, AI analyzes feng shui layout",
+      "four-pillar_compatibility": "Four-Pillar Compatibility",
+      "four-pillar_compatibility_desc": "Deep Four-Pillar matching analysis for two people",
+      "feng_shui_scan": "AI Environment Scan",
+      "feng_shui_scan_desc": "Upload floor plans, AI analyzes environment layout",
       "mobile_app": "Native App",
       "mobile_app_desc": "iOS/Android native application"
     },
@@ -411,15 +411,15 @@
   "legal": {
     "privacy": {
       "s1": {
-        "content": "We collect the following information to provide destiny analysis services:\n\n1. **Account Information**: Email address and display name provided during registration.\n2. **Birth Information**: Date of birth, time, birth city, and coordinates for chart generation.\n3. **Face/Palm Data**: Facial or palm photos you upload, used only for AI feature extraction. Original images are deleted immediately after analysis.\n4. **User Questions**: Questions you ask during analysis, used for personalized interpretations.\n5. **Payment Information**: Processed through third-party payment platforms (Alipay, WeChat Pay, PayPal). We do not store your bank card details.",
+        "content": "We collect the following information to provide behavioral analysis services:\n\n1. **Account Information**: Email address and display name provided during registration.\n2. **Birth Information**: Date of birth, time, birth city, and coordinates for chart generation.\n3. **Face/Palm Data**: Facial or palm photos you upload, used only for AI feature extraction. Original images are deleted immediately after analysis.\n4. **User Questions**: Questions you ask during analysis, used for personalized interpretations.\n5. **Payment Information**: Processed through third-party payment platforms (Alipay, WeChat Pay, PayPal). We do not store your bank card details.",
         "title": "1. Information Collection"
       },
       "s10": {
-        "content": "For questions about this privacy policy:\n\n- Email: privacy@khanfate.com\n- Website: https://www.khanfate.com/about",
+        "content": "For questions about this privacy policy:\n\n- Email: privacy@khanpattern.com\n- Website: https://www.khanpattern.com/about",
         "title": "10. Contact Us"
       },
       "s11": {
-        "content": "Operator: Destiny Mirror Operations Team\nEmail: privacy@khanfate.com\nWebsite: https://www.khanfate.com",
+        "content": "Operator: Behavioral Mirror Operations Team\nEmail: privacy@khanpattern.com\nWebsite: https://www.khanpattern.com",
         "title": "11. Operator Information"
       },
       "s2": {
@@ -439,7 +439,7 @@
         "title": "5. Third-Party Services"
       },
       "s6": {
-        "content": "You have the following rights:\n\n1. **Access**: View your personal information and analysis history in \"My Account\".\n2. **Deletion**: Request deletion of your account and all data:\n   - Click \"Delete Account\" in \"My Account\" for immediate processing.\n   - Or email privacy@khanfate.com with your email and deletion request (processed within 7 business days).\n3. **Data Export**: Request your analysis report data by emailing privacy@khanfate.com.\n4. **Withdraw Consent**: Withdraw privacy policy consent at any time (does not affect prior processing).",
+        "content": "You have the following rights:\n\n1. **Access**: View your personal information and analysis history in \"My Account\".\n2. **Deletion**: Request deletion of your account and all data:\n   - Click \"Delete Account\" in \"My Account\" for immediate processing.\n   - Or email privacy@khanpattern.com with your email and deletion request (processed within 7 business days).\n3. **Data Export**: Request your analysis report data by emailing privacy@khanpattern.com.\n4. **Withdraw Consent**: Withdraw privacy policy consent at any time (does not affect prior processing).",
         "title": "6. Your Rights"
       },
       "s7": {
@@ -454,7 +454,7 @@
         "content": "We may update this privacy policy from time to time. Updated policies will be posted on this page with an updated \"Last Updated\" date. Major changes will be notified via email or site announcement.",
         "title": "9. Policy Updates"
       },
-      "intro": "Destiny Mirror (\"we\") understands the importance of your personal information. We protect your data and privacy in accordance with applicable laws and regulations. Please read this privacy policy carefully before using our services.",
+      "intro": "Behavioral Mirror (\"we\") understands the importance of your personal information. We protect your data and privacy in accordance with applicable laws and regulations. Please read this privacy policy carefully before using our services.",
       "title": "Privacy Policy"
     },
     "refund": {
@@ -468,26 +468,26 @@
       },
       "s3": {
         "content": "All customized products on this platform (lifestyle items, wellness accessories, jewelry, etc.) are deeply personalized — not mass-produced industrial items.\n\n【Customization Process】\nAfter placing your order, we will arrange for quality inspection and personalization based on the information you provide. Once preparation is complete, your item will be shipped to you as soon as possible.\n\n【Refund Policy】\n1. Once placed, the customization process begins immediately. Therefore, this product does not support mid-process refunds or no-reason returns.\n2. Returns or exchanges are only accepted for quality issues (e.g., damage, defects) with the product itself.\n3. Return/exchange process: Contact support → Provide order number, photos of the issue, and description → Approved → Ship back → Processed within 3-5 business days of receipt.\n4. The quality inspection and preparation process is rigorous and takes time. Please make your decision carefully before placing your order.",
-        "title": "3. Spiritual Artifacts (Custom Products)"
+        "title": "3. Wellness Artifacts (Custom Products)"
       },
       "s4": {
         "content": "1. Coupons used for payment are not refunded.\n2. Coupons obtained through \"Chart Unlock\" promotions will be revoked upon refund.",
         "title": "4. Coupons & Discounts"
       },
       "s5": {
-        "content": "To request a refund or exchange, contact us:\n\n- WeChat Customer Service: khan18553325258 (please add a note with \"refund\" + order number)\n- Email: guoshengping66@gmail.com\n- Subject format: [Refund Request] Order Number/Subscription Type\n- Please provide: Registration email, order number, refund reason\n\nFor spiritual artifact products, please include photos of the issue to expedite review.\nWe will review and respond within 1-3 business days.",
+        "content": "To request a refund or exchange, contact us:\n\n- WeChat Customer Service: khan18553325258 (please add a note with \"refund\" + order number)\n- Email: guoshengping66@gmail.com\n- Subject format: [Refund Request] Order Number/Subscription Type\n- Please provide: Registration email, order number, refund reason\n\nFor wellness artifact products, please include photos of the issue to expedite review.\nWe will review and respond within 1-3 business days.",
         "title": "5. How to Request a Refund"
       },
       "s6": {
         "content": "If you paid via PayPal, you may also be eligible for PayPal Buyer Protection. For details, visit https://www.paypal.com/webapps/mpp/ua/buyerprotection\n\nTo file a dispute:\n1. Log in to your PayPal account\n2. Go to Activity and find the transaction\n3. Click \"Report a Problem\" and follow the prompts\n\nPayPal disputes must be filed within 180 days of payment. Filing a PayPal dispute does not affect your right to contact our support team directly.",
         "title": "6. PayPal Buyer Protection"
       },
-      "intro": "Thank you for using Destiny Mirror. We are committed to providing high-quality behavioral analysis and lifestyle product services. All customized products on this platform are deeply personalized. Please read the following refund policy carefully before placing your order.",
+      "intro": "Thank you for using Behavioral Mirror. We are committed to providing high-quality behavioral analysis and lifestyle product services. All customized products on this platform are deeply personalized. Please read the following refund policy carefully before placing your order.",
       "title": "Refund Policy"
     },
     "terms": {
       "s1": {
-        "content": "Destiny Mirror is an AI-powered multi-dimensional behavioral analysis platform providing:\n\n1. BaZi, natal chart, Qi Men Dun Jia, and Zi Wei Dou Shu analysis based on birth information\n2. Tarot card readings\n3. AI face and palm analysis\n4. Comprehensive behavioral reports with personalized recommendations\n5. Lifestyle product recommendations and purchases\n6. Event retrospection and daily insights\n\nThis service is for personal entertainment and reference only and does not constitute professional advice of any kind.",
+        "content": "Behavioral Mirror is an AI-powered multi-dimensional behavioral analysis platform providing:\n\n1. Four-Pillar, natal chart, Qi Men Dun Jia, and Zi Wei Dou Shu analysis based on birth information\n2. Symbolic card readings\n3. AI face and palm analysis\n4. Comprehensive behavioral reports with personalized recommendations\n5. Lifestyle product recommendations and purchases\n6. Event retrospection and daily insights\n\nThis service is for personal entertainment and reference only and does not constitute professional advice of any kind.",
         "title": "1. Service Description"
       },
       "s2": {
@@ -495,7 +495,7 @@
         "title": "2. User Responsibilities"
       },
       "s3": {
-        "content": "1. All Platform content (text, icons, design, code) is the intellectual property of Destiny Mirror.\n2. AI-generated analysis reports are for personal use only; commercial use requires authorization.\n3. You retain copyright on uploaded photos; we use them only temporarily during analysis.",
+        "content": "1. All Platform content (text, icons, design, code) is the intellectual property of Behavioral Mirror.\n2. AI-generated analysis reports are for personal use only; commercial use requires authorization.\n3. You retain copyright on uploaded photos; we use them only temporarily during analysis.",
         "title": "3. Intellectual Property"
       },
       "s4": {
@@ -515,14 +515,14 @@
         "title": "7. Terms Updates"
       },
       "s8": {
-        "content": "For questions about these terms:\n\n- Email: guoshengping66@gmail.com\n- Website: https://www.khanfate.com/about",
+        "content": "For questions about these terms:\n\n- Email: guoshengping66@gmail.com\n- Website: https://www.khanpattern.com/about",
         "title": "8. Contact"
       },
       "s9": {
-        "content": "Operator: Destiny Mirror Operations Team\nEmail: guoshengping66@gmail.com\nWebsite: https://www.khanfate.com",
+        "content": "Operator: Behavioral Mirror Operations Team\nEmail: guoshengping66@gmail.com\nWebsite: https://www.khanpattern.com",
         "title": "9. Operator Information"
       },
-      "intro": "Welcome to Destiny Mirror (\"the Platform\"). Please read and understand the following terms of service before using our services. Registering or using the Platform constitutes your agreement to comply with these terms.",
+      "intro": "Welcome to Behavioral Mirror (\"the Platform\"). Please read and understand the following terms of service before using our services. Registering or using the Platform constitutes your agreement to comply with these terms.",
       "title": "Terms of Service"
     },
     "backHome": "← Back to Home",
@@ -531,14 +531,14 @@
   "new": {
     "palm": {
       "placeholder": {
-        "fateLine": "e.g., Clear line from palm base to middle finger",
+        "patternLine": "e.g., Clear line from palm base to middle finger",
         "headLine": "e.g., Straight extension to mid-palm",
         "heartLine": "e.g., Curved upward, starting below index finger",
         "lifeLine": "e.g., Long arc shape, no breaks",
         "marriageLine": "e.g., Two lines, one deeper",
         "sunLine": "e.g., Faint and short, below ring finger"
       },
-      "fateLine": "Fate Line",
+      "patternLine": "Pattern Line",
       "headLine": "Head Line",
       "heartLine": "Heart Line",
       "lifeLine": "Life Line",
@@ -555,17 +555,17 @@
       "noseTip": "Nose Tip",
       "threeZones": "Three Zones"
     },
-    "tarot": {
+    "symbolic": {
       "future": "Future",
       "past": "Past",
       "present": "Present"
     },
     "advancedSettings": "Advanced: Coordinates (Optional)",
-    "astrologyFull": "Western Astrology — Planetary Houses · Aspects · Soul Mission",
-    "astrologySystem": "Western Astrology — Planetary Houses · Aspects · Soul Mission",
+    "behavioral patternFull": "Western Behavioral Pattern — Planetary Houses · Aspects · Soul Mission",
+    "behavioral patternSystem": "Western Behavioral Pattern — Planetary Houses · Aspects · Soul Mission",
     "backToChina": "← Select China region",
-    "baziFull": "BaZi — Pillar Structure · Five Elements Score · Annual Fortune",
-    "baziSystem": "BaZi — Pillar Structure · Five Elements Score · Annual Fortune",
+    "four-pillarFull": "Four-Pillar — Pillar Structure · Five Elements Score · Annual Status",
+    "four-pillarSystem": "Four-Pillar — Pillar Structure · Five Elements Score · Annual Status",
     "birthCity": "Birth City",
     "birthDate": "Birth Date",
     "birthInfoTitle": "Birth Info",
@@ -592,12 +592,12 @@
     "defaultQuestion": "Give me a full behavioral analysis",
     "disclaimer": "Behavioral analysis is for reference and entertainment only — not professional advice.",
     "eyes": "Eyes",
-    "faceAutoScan": "Face reading starts right after upload",
+    "faceAutoScan": "Facial feature starts right after upload",
     "faceClickUpload": "Tap to upload a front photo",
     "faceDesc": "We'll map 468 points on your face to read your nose, jawline, forehead, and more",
     "faceDoneToast": "Face recognition complete",
     "faceErrorToast": "Face recognition failed — try again later",
-    "faceFull": "Face Reading",
+    "faceFull": "Facial Feature",
     "faceGuide": "Getting ready — face the camera with good lighting…",
     "faceNoPhoto": "No face photo provided",
     "faceNoPhotoProvided": "No face photo provided",
@@ -609,10 +609,10 @@
     "faceScanFailedToast": "Face scan failed — try again later",
     "faceScanTitle": "Add Face Photo",
     "faceShape": "Face Shape",
-    "faceSystem": "Face Reading",
+    "faceSystem": "Facial Feature",
     "faceV2TFailed": "Recognition failed, analysis will be skipped",
     "faceV2TReady": "Auto-recognition ready",
-    "fateLineLabel": "Fate Line",
+    "patternLineLabel": "Pattern Line",
     "firstOrderPrice": "First order ¥29.9",
     "forehead": "Forehead",
     "freeTier": "Free Preview",
@@ -635,18 +635,18 @@
     "heartLineLabel": "Heart Line",
     "hotQ1": "Career direction & job change",
     "hotQ1Full": "What's my career direction? Is this year good for changing jobs?",
-    "hotQ2": "Romance & love fortune",
+    "hotQ2": "Romance & love status",
     "hotQ2Full": "How will my love life go in the next 3 months?",
     "hotQ3": "Wealth & investment advice",
     "hotQ3Full": "Wealth analysis — what should I watch in investing?",
-    "hotQ4": "Overall fortune for next 6 months",
-    "hotQ4Full": "Overall fortune and lucky directions for the next 6 months",
+    "hotQ4": "Overall status for next 6 months",
+    "hotQ4Full": "Overall status and lucky directions for the next 6 months",
     "hotQ5": "Entrepreneurship timing & fields",
     "hotQ5Full": "Am I cut out for entrepreneurship? When's the best time?",
     "hotQ6": "Family relationships & harmony",
-    "hotQ6Full": "Family relationships — how's my destiny with family and how to get along?",
+    "hotQ6Full": "Family relationships — how's my behavioral with family and how to get along?",
     "hotRelQ1": "Are we compatible?",
-    "hotRelQ1Full": "Based on bazi and astrology, are we compatible? How deep is our connection?",
+    "hotRelQ1Full": "Based on four-pillar and behavioral pattern, are we compatible? How deep is our connection?",
     "hotRelQ2": "Complementary & conflicting traits",
     "hotRelQ2Full": "What traits complement each other, and where might we clash?",
     "hotRelQ3": "Marriage outlook & harmony tips",
@@ -654,7 +654,7 @@
     "hotRelQ4": "Communication & soul connection",
     "hotRelQ4Full": "What are our communication styles? How deep is our soul connection?",
     "hotRelQ5": "Five element complement analysis",
-    "hotRelQ5Full": "How do our bazi five elements interact? Do our favorable elements complement?",
+    "hotRelQ5Full": "How do our four-pillar five elements interact? Do our favorable elements complement?",
     "hotRelQ6": "Key relationship milestones",
     "hotRelQ6Full": "What are the key milestones and important phases in our relationship?",
     "hotQuestionsHint": "Or type your own question below",
@@ -690,7 +690,7 @@
     "palmManualReady": "Manual entry ready",
     "palmManualTitle": "Manual Palm Entry",
     "palmNoData": "No palm data provided",
-    "palmPlaceholderFateLine": "e.g., Clear line from palm base to middle finger",
+    "palmPlaceholderPatternLine": "e.g., Clear line from palm base to middle finger",
     "palmPlaceholderHeadLine": "e.g., Straight extension to mid-palm",
     "palmPlaceholderHeartLine": "e.g., Curved upward, starting below index finger",
     "palmPlaceholderLifeLine": "e.g., Long arc shape, no breaks",
@@ -725,10 +725,10 @@
     "serverBusy": "Server is temporarily unavailable — try again later",
     "startFree": "Start Free",
     "starting": "Reading…",
-    "startSubtitle": "BaZi · Astrology · Tarot · Face · Palm · Five-Path Analysis",
+    "startSubtitle": "Four-Pillar · Behavioral Pattern · Symbolic · Face · Palm · Five-Path Analysis",
     "startTitle": "Start Analysis",
     "step1": "Birth Info",
-    "step2": "Tarot & Question",
+    "step2": "Symbolic & Question",
     "step3": "Face & Palm",
     "step4": "Confirm Reading",
     "stepPartner": "Partner Info",
@@ -746,7 +746,7 @@
     "partnerBirthHour": "Partner's Birth Hour",
     "partnerBirthCity": "Partner's Birth City",
     "partnerCityPlaceholder": "e.g. New York",
-    "partnerFaceTitle": "Partner's Face Reading",
+    "partnerFaceTitle": "Partner's Facial Feature",
     "partnerFaceDesc": "Upload a front-facing photo — AI will analyze facial features automatically",
     "partnerFaceClickUpload": "Click to upload partner's face photo",
     "partnerFaceDoneToast": "Partner face analysis complete",
@@ -759,23 +759,23 @@
     "submitError": "Submission failed (HTTP {status}) — please retry",
     "submitErrorMsg": "Submission failed (HTTP {status}) — please retry",
     "sunLineLabel": "Sun Line",
-    "tarotDrawTitle": "Tarot Draw (3-Card Spread)",
-    "tarotFull": "Tarot Healing — Spread Reading · Current Energy · Action Guidance",
-    "tarotHint": "Tap the deck to draw your destiny cards",
-    "taroTitle": "Tarot Question",
-    "tarotRandomDraw": "Random Draw",
-    "tarotRedraw": "Redraw",
-    "tarotReversed": "Reversed",
-    "tarotShuffling": "Shuffling…",
-    "tarotTapDeck": "Tap the deck to draw your destiny cards",
-    "tarotTapHint": "Tap to draw",
-    "tarotDraw1": "Draw the second card — Present",
-    "tarotDraw2": "Draw the final card — Future",
-    "tarotComplete": "Your three destiny cards are revealed",
-    "tarotPickCards": "Pick 3 cards — Past, Present, Future",
-    "tarotRevealing": "The cards are revealing your fate…",
-    "tarotSpread": "Tarot Spread",
-    "tarotSystem": "Tarot Healing — Spread Reading · Current Energy · Action Guidance",
+    "symbolicDrawTitle": "Symbolic Draw (3-Card Spread)",
+    "symbolicFull": "Symbolic Healing — Spread Reading · Current Energy · Action Guidance",
+    "symbolicHint": "Tap the deck to draw your behavioral cards",
+    "taroTitle": "Symbolic Question",
+    "symbolicRandomDraw": "Random Draw",
+    "symbolicRedraw": "Redraw",
+    "symbolicReversed": "Reversed",
+    "symbolicShuffling": "Shuffling…",
+    "symbolicTapDeck": "Tap the deck to draw your behavioral cards",
+    "symbolicTapHint": "Tap to draw",
+    "symbolicDraw1": "Draw the second card — Present",
+    "symbolicDraw2": "Draw the final card — Future",
+    "symbolicComplete": "Your three behavioral cards are revealed",
+    "symbolicPickCards": "Pick 3 cards — Past, Present, Future",
+    "symbolicRevealing": "The cards are revealing your pattern…",
+    "symbolicSpread": "Symbolic Spread",
+    "symbolicSystem": "Symbolic Healing — Spread Reading · Current Energy · Action Guidance",
     "threeZonesRatio": "Three Zones Ratio",
     "timeoutError": "Reading took too long — server may be slow, try again later",
     "unknownError": "Something went wrong",
@@ -800,7 +800,7 @@
       "freeShipping": "Free Shipping",
       "material": "Material: {material}",
       "notFound": "Product not found",
-      "readingReport": "Destiny Analysis Report",
+      "readingReport": "Behavioral Analysis Report",
       "relatedReadings": "Related to Your Chart",
       "sales": "{count} sold"
     },
@@ -814,7 +814,7 @@
     "category": {
       "all": "All",
       "book": "Books",
-      "crystal": "Crystal",
+      "focus": "Focus",
       "incense": "Incense",
       "jewelry": "Jewelry",
       "other": "Other",
@@ -853,12 +853,12 @@
     "title": "About AlphaMirror",
     "heroDesc": "AI-Powered Behavioral Analysis Meets Eastern Wisdom",
     "origin": "Our Origin & Mission",
-    "originP1": "Destiny Mirror was born at the intersection of traditional Eastern wisdom and modern AI technology. For millennia, BaZi, Western Astrology, Tarot, Face Reading, and Palmistry have helped people understand their behavioral patterns — yet these analytical traditions have remained fragmented, subjective, and inaccessible to most.",
+    "originP1": "Behavioral Mirror was born at the intersection of traditional Eastern wisdom and modern AI technology. For millennia, Four-Pillar, Western Behavioral Pattern, Symbolic, Facial Feature, and Hand Feature have helped people understand their behavioral patterns — yet these analytical traditions have remained fragmented, subjective, and inaccessible to most.",
     "originP2": "Our mission is to synthesize multiple analytical traditions into one comprehensive behavioral profile. By combining the analytical precision of AI with the timeless insights of Eastern and Western traditions, we provide everyone with a deeper understanding of their behavioral tendencies, personality patterns, and cognitive style.",
     "originP3": "But our vision extends far beyond a single reading. We believe that when traditional analytical wisdom is made accessible through modern technology, it can illuminate the path forward for anyone seeking clarity in an increasingly complex world.",
     "philosophy": "Core Philosophy",
     "philosophySubtitle": "Five Wisdom Traditions, One Unified Vision",
-    "pillar1Title": "BaZi Analysis",
+    "pillar1Title": "Four-Pillar Analysis",
     "pillar1Subtitle": "Four Pillars & Eight Characters",
     "pillar1Desc": "Decode the Five Elements flow in your birth chart. We trace the dynamic interplay of Wood, Fire, Earth, Metal, and Water across your life pillars, revealing your innate strengths, hidden challenges, and optimal timing for major decisions.",
     "pillar2Title": "Natal Chart Reading",
@@ -866,7 +866,7 @@
     "pillar2Desc": "Map the celestial blueprint of your birth moment. Each planetary placement, house position, and aspect tells a story — from career calling to relationship dynamics, we illuminate the cosmic forces shaping your journey.",
     "pillar3Title": "Integrated Wisdom",
     "pillar3Subtitle": "Five-Dimension Analysis",
-    "pillar3Desc": "Synthesize insights from BaZi, Astrology, Tarot, Face Reading, and Palmistry into one cohesive narrative. Our Master Reading weaves five perspectives into a unified life reading that no single tradition could achieve alone.",
+    "pillar3Desc": "Synthesize insights from Four-Pillar, Behavioral Pattern, Symbolic, Facial Feature, and Hand Feature into one cohesive narrative. Our Master Reading weaves five perspectives into a unified life reading that no single tradition could achieve alone.",
     "privacy": "Your Privacy, Our Priority",
     "privacySubtitle": "Complete Control Over Your Personal Data",
     "privacyP1": "Zero Data Retention: Your birth information, photos, and reading results are processed securely and never stored beyond the session. We have no access to your personal data after your reading is complete.",
@@ -876,7 +876,7 @@
     "ctaButton": "Start Free Reading",
     "values": "Core Values",
     "value1Title": "East Meets West",
-    "value1Desc": "We bring together BaZi, Western Astrology, Tarot, Face Reading, and Palmistry — the best of Eastern and Western analytical traditions in one place.",
+    "value1Desc": "We bring together Four-Pillar, Western Behavioral Pattern, Symbolic, Facial Feature, and Hand Feature — the best of Eastern and Western analytical traditions in one place.",
     "value2Title": "Wisdom-Powered",
     "value2Desc": "Five wisdom traditions looked at together, then woven into one reading by our Master.",
     "value3Title": "Tailored Remedies",
@@ -891,39 +891,39 @@
     "teamUXDesc": "Focused on creating immersive metaphysics experiences — making complex esoteric knowledge intuitive and accessible.",
     "milestones": "Milestones",
     "milestone1": "Project started, core engine R&D",
-    "milestone2": "BaZi Calculator & Astrology Engine completed",
+    "milestone2": "Four-Pillar Calculator & Behavioral Pattern Engine completed",
     "milestone3": "Multi-system reading online, Face/Palm recognition integrated",
     "milestone4": "Public beta launch, remedy shop & payment system online",
     "milestone5": "Privacy compliance upgrade, legal pages finalized",
     "architecture": {
       "_original": "How It Works",
       "layer1": "Your Input",
-      "layer1Desc": "You share your birth information (date, time, and city), face photo, palm photo, and a tarot question — each piece adds depth to your reading.",
+      "layer1Desc": "You share your birth information (date, time, and city), face photo, palm photo, and a symbolic question — each piece adds depth to your reading.",
       "layer2": "Path Selection",
       "layer2Desc": "The Master Reading picks the right wisdom paths based on your needs, activating all five traditions at once.",
       "layer3": "Deep Reading",
-      "layer3Desc": "Bazi traces the Five Elements flow, Astrology interprets houses and aspects, Tarot maps the current moment, Face and Palm reveal hidden patterns.",
+      "layer3Desc": "Four-Pillar traces the Five Elements flow, Behavioral Pattern interprets houses and aspects, Symbolic maps the current moment, Face and Palm reveal hidden patterns.",
       "layer4": "Master Weave",
       "layer4Desc": "The Master Reading weaves five tradition reports into one cohesive narrative, resolving conflicts and finding deep consensus.",
       "layer5": "Remedy Suggestions",
       "layer5Desc": "Based on what your chart reveals, we suggest remedy products and weave improvement plans into your report — with interactive follow-up guidance."
     },
     "architecture-layer1": "Your Input",
-    "architecture-layer1Desc": "You share your birth information (date, time, and city), face photo, palm photo, and a tarot question — each piece adds depth to your reading.",
+    "architecture-layer1Desc": "You share your birth information (date, time, and city), face photo, palm photo, and a symbolic question — each piece adds depth to your reading.",
     "architecture-layer2": "Path Selection",
     "architecture-layer2Desc": "The Master Reading picks the right wisdom paths based on your needs, activating all five traditions at once.",
     "architecture-layer3": "Deep Reading",
-    "architecture-layer3Desc": "Bazi traces the Five Elements flow, Astrology interprets houses and aspects, Tarot maps the current moment, Face and Palm reveal hidden patterns.",
+    "architecture-layer3Desc": "Four-Pillar traces the Five Elements flow, Behavioral Pattern interprets houses and aspects, Symbolic maps the current moment, Face and Palm reveal hidden patterns.",
     "architecture-layer4": "Master Weave",
     "architecture-layer4Desc": "The Master Reading weaves five tradition reports into one cohesive narrative, resolving conflicts and finding deep consensus.",
     "architecture-layer5": "Remedy Suggestions",
     "architecture-layer5Desc": "Based on what your chart reveals, we suggest remedy products and weave improvement plans into your report — with interactive follow-up guidance.",
-    "missionDesc1": "Destiny Mirror brings together the best of traditional metaphysics and modern technology. We believe everyone's life has its own unique patterns and rhythms — BaZi, astrology, face reading, palmistry, and tarot each reveal these from different angles.",
+    "missionDesc1": "Behavioral Mirror brings together the best of traditional metaphysics and modern technology. We believe everyone's life has its own unique patterns and rhythms — Four-Pillar, behavioral pattern, facial feature, hand feature, and symbolic each reveal these from different angles.",
     "missionDesc2": "Our system doesn't replace metaphysics practitioners. Instead, we weave the wisdom of five traditions together through a Master Reading, giving you a more complete picture than any single tradition alone.",
     "team": "Team",
     "timeline": "Milestones",
     "mission": "Our Mission",
-    "missionDesc": "Destiny Mirror brings together the best of traditional metaphysics and modern technology..."
+    "missionDesc": "Behavioral Mirror brings together the best of traditional metaphysics and modern technology..."
   },
   "account": {
     "stat": {
@@ -933,8 +933,8 @@
       "reports": "Reports"
     },
     "accountReadings": "Account Readings",
-    "analysis": "My Destiny Reading",
-    "annualPlan": "Complete annual destiny plan",
+    "analysis": "My Behavioral Reading",
+    "annualPlan": "Complete annual behavioral plan",
     "browseShop": "Browse Shop",
     "browseShopAlt": "Browse Shop",
     "changePassword": "Change Password",
@@ -956,9 +956,9 @@
     "emailLabel": "Email",
     "expired": "Expired",
     "expiresAt": "Expires",
-    "fateOSMember": "Premium Member",
+    "patternOSMember": "Premium Member",
     "fillPasswords": "Please fill in all password fields",
-    "fortunePlan": "Personalized fortune plan",
+    "statusPlan": "Personalized optimization plan",
     "founderLifetime": "Founder Lifetime Member — never expires",
     "itemsUnit": "items",
     "localReadings": "Local History",
@@ -996,7 +996,7 @@
     "language": "Language",
     "languageDesc": "Choose your preferred display language",
     "birthInfo": "Birth Information",
-    "birthInfoDesc": "Birth data used for destiny analysis",
+    "birthInfoDesc": "Birth data used for behavioral analysis",
     "gender": "Gender",
     "genderMale": "Male",
     "genderFemale": "Female",
@@ -1011,9 +1011,9 @@
     "notifications": "Notifications",
     "notificationsDesc": "Manage notification and push settings",
     "notifyReportReady": "Report Ready",
-    "notifyReportReadyDesc": "Notify when your destiny reading report is generated",
-    "notifyWeeklyFortune": "Weekly Fortune",
-    "notifyWeeklyFortuneDesc": "Receive a weekly fortune overview every Monday",
+    "notifyReportReadyDesc": "Notify when your behavioral reading report is generated",
+    "notifyWeeklyStatus": "Weekly Status",
+    "notifyWeeklyStatusDesc": "Receive a weekly status overview every Monday",
     "notifyPromotions": "Promotions",
     "notifyPromotionsDesc": "Receive member discounts and limited-time offers",
     "dataPrivacy": "Data & Privacy",
@@ -1028,23 +1028,23 @@
     "dataRetentionDesc": "Your reports and account data are securely stored on our servers and only accessible by you. Deleting your account permanently removes all data."
   },
   "agent": {
-    "astrology": {
+    "behavioral pattern": {
       "desc": "Planetary Houses · Aspects · Soul Mission",
       "detail": "We map your Sun-Moon-Rising triangle to uncover the shape of your soul's journey.",
       "tag": "Fire",
       "_label": "Natal Chart"
     },
-    "bazi": {
+    "four-pillar": {
       "desc": "Four Pillar Chart · Element Balance · Dynamic Analysis",
       "detail": "Rooted in classical analytical traditions, we map your behavioral patterns and developmental cycles through the Four Pillars.",
       "tag": "Wood",
-      "_label": "Bazi (Four Pillars of Destiny)"
+      "_label": "Four-Pillar (Four Pillars of Behavioral)"
     },
     "face": {
       "desc": "468 Feature Points · Region Mapping · Trait Analysis",
       "detail": "Your nose tip, mountain root, jawline, and forehead — each feature reveals aspects of your behavioral profile.",
       "tag": "Metal",
-      "_label": "Face Reading"
+      "_label": "Facial Feature"
     },
     "palm": {
       "desc": "Three Primary Lines · Pattern Analysis · Region Evaluation",
@@ -1064,45 +1064,45 @@
       "tag": "Water",
       "_label": "Partner Palm"
     },
-    "tarot": {
+    "symbolic": {
       "desc": "Celtic Cross · Current Energy · Action Guidance",
       "detail": "Each spread is unique to your moment — real-time cards offering healing guidance just for you.",
       "tag": "Earth",
-      "_label": "Tarot Reading"
+      "_label": "Symbolic Reading"
     },
-    "qimen": {
+    "strategic": {
       "desc": "Spatiotemporal Energy · Auspicious Directions · Decision Timing",
-      "detail": "Based on the Qimen Dunjia spatiotemporal model, AI precisely locates favorable directions and action timing.",
+      "detail": "Based on the Strategic Dunjia spatiotemporal model, AI precisely locates favorable directions and action timing.",
       "tag": "Fire",
       "_label": "Qi Men Dun Jia"
     },
-    "ziwei": {
+    "stellar": {
       "desc": "Star Distribution · Palace Analysis · Life Pattern",
-      "detail": "Purple Star Astrology — 14 main stars palace analysis revealing life trajectory and fortune trends.",
+      "detail": "Purple Star Behavioral Pattern — 14 main stars palace analysis revealing life trajectory and status trends.",
       "tag": "Water",
-      "_label": "Purple Star Astrology"
+      "_label": "Purple Star Behavioral Pattern"
     },
     "master": "AI Cross-Dimensional Verification"
   },
   "analysis": {
-    "astrology": {
-      "label": "Western Astrology",
-      "done": "Astrology calculation complete",
+    "behavioral pattern": {
+      "label": "Western Behavioral Pattern",
+      "done": "Behavioral Pattern calculation complete",
       "running": "Calculating planetary orbits…"
     },
-    "bazi": {
-      "label": "Four Pillars Bazi",
-      "done": "Bazi calculation complete",
-      "running": "Calculating Four Pillars Bazi…"
+    "four-pillar": {
+      "label": "Four Pillars Four-Pillar",
+      "done": "Four-Pillar calculation complete",
+      "running": "Calculating Four Pillars Four-Pillar…"
     },
     "face": {
-      "label": "AI Face Reading",
-      "done": "Face reading complete",
+      "label": "AI Facial Feature",
+      "done": "Facial feature complete",
       "running": "Analyzing facial features…"
     },
     "partnerFace": {
       "label": "Partner Face",
-      "done": "Partner face reading complete",
+      "done": "Partner facial feature complete",
       "running": "Analyzing partner's facial features…"
     },
     "partnerPalm": {
@@ -1115,20 +1115,20 @@
       "done": "Palm reading complete",
       "running": "Interpreting palm lines…"
     },
-    "qimen": {
-      "label": "Qimen Divination",
-      "done": "Qimen divination complete",
-      "running": "Performing Qimen divination…"
+    "strategic": {
+      "label": "Strategic Divination",
+      "done": "Strategic divination complete",
+      "running": "Performing Strategic divination…"
     },
-    "tarot": {
-      "label": "Tarot Healing",
-      "done": "Tarot interpretation complete",
-      "running": "Interpreting tarot card energy…"
+    "symbolic": {
+      "label": "Symbolic Healing",
+      "done": "Symbolic interpretation complete",
+      "running": "Interpreting symbolic card energy…"
     },
-    "ziwei": {
-      "label": "Ziwei Astrology",
-      "done": "Ziwei chart complete",
-      "running": "Arranging Ziwei star chart…"
+    "stellar": {
+      "label": "Stellar Behavioral Pattern",
+      "done": "Stellar chart complete",
+      "running": "Arranging Stellar star chart…"
     },
     "crossValidate": "AI performing cross-dimension verification…",
     "done": "Analysis complete",
@@ -1142,7 +1142,7 @@
     "stuckMessage": "The background analysis may have been interrupted. You can wait or restart the analysis.",
     "stuckRetry": "Restart analysis",
     "stuckTitle": "Analysis seems to have encountered an issue",
-    "title": "Destiny Mirror · Deep Analysis"
+    "title": "Behavioral Mirror · Deep Analysis"
   },
   "auth": {
     "birth": {
@@ -1155,10 +1155,10 @@
       "nextStep": "Next Step",
       "other": "Other",
       "prevStep": "Back",
-      "securityNote": "Birth information is securely encrypted and used only for destiny analysis",
+      "securityNote": "Birth information is securely encrypted and used only for behavioral analysis",
       "skip": "Skip, fill later",
-      "subtitle": "Fill in your birth information to unlock personalized destiny analysis",
-      "title": "Complete Your Destiny Profile"
+      "subtitle": "Fill in your birth information to unlock personalized behavioral analysis",
+      "title": "Complete Your Behavioral Profile"
     },
     "acceptPrivacy": "Please read and accept the Privacy Policy and Terms of Service",
     "loginRequired": "Please log in first",
@@ -1186,7 +1186,7 @@
     "login": "Login",
     "loginFail": "Login failed — check your email and password",
     "loginNow": "Login Now",
-    "loginSubtitle": "Sign in to your Destiny Mirror account",
+    "loginSubtitle": "Sign in to your Behavioral Mirror account",
     "loginSuccess": "Login successful",
     "loginTitle": "Login",
     "nameOptional": "Display Name",
@@ -1211,7 +1211,7 @@
     "registerFail": "Registration failed — try again later",
     "registering": "Creating account...",
     "registerNow": "Sign Up Now",
-    "registerSubtitle": "Create your Destiny Mirror account",
+    "registerSubtitle": "Create your Behavioral Mirror account",
     "registerSuccess": "Registration successful",
     "registerSuccessMsg": "Registration successful — check your email for the verification code",
     "registerSuccessWithBirth": "Registration successful! Birth info saved. Please check your email for verification code",
@@ -1251,32 +1251,32 @@
       "astro1": "What are my Sun and Rising signs?",
       "astro2": "How does Saturn's transit affect my career?",
       "astro3": "What kind of luck will Jupiter bring me this year?",
-      "bazi1": "What's the pattern in my Bazi chart?",
-      "bazi2": "Which element is the weakest in my chart?",
-      "bazi3": "How's my fortune looking this year?",
-      "face1": "What does a rounded nose tip mean in face reading?",
+      "four-pillar1": "What's the pattern in my Four-Pillar chart?",
+      "four-pillar2": "Which element is the weakest in my chart?",
+      "four-pillar3": "How's my status looking this year?",
+      "face1": "What does a rounded nose tip mean in facial feature?",
       "face2": "What do my forehead lines say about me?",
-      "face3": "How's my wealth fortune from my face reading?",
+      "face3": "How's my wealth status from my facial feature?",
       "palm1": "What should I watch for with a broken life line?",
       "palm2": "What does a clear career line mean?",
       "palm3": "What does a forked heart line mean?",
-      "qimen1": "What direction is lucky for me in Qi Men Dun Jia?",
-      "qimen2": "What decisions should I make soon?",
-      "tarot1": "What's the overall message of this tarot spread?",
-      "tarot2": "Which card matters most in this spread?",
-      "tarot3": "What should I actually do based on this tarot reading?",
-      "ziwei1": "What's my Life Palace star in Zi Wei Dou Shu?",
-      "ziwei2": "Which palaces should I watch this year?"
+      "strategic1": "What direction is lucky for me in Qi Men Dun Jia?",
+      "strategic2": "What decisions should I make soon?",
+      "symbolic1": "What's the overall message of this symbolic spread?",
+      "symbolic2": "Which card matters most in this spread?",
+      "symbolic3": "What should I actually do based on this symbolic reading?",
+      "stellar1": "What's my Life Palace star in Zi Wei Dou Shu?",
+      "stellar2": "Which palaces should I watch this year?"
     },
     "autoRoute": "Your question will find the right wisdom path",
     "defaultError": "Sorry, I can't answer that right now. Try again later.",
     "expert": "Expert",
     "experts": "Ask Experts",
     "expertsOnline": "experts online",
-    "fallback1": "Which element is missing in my Bazi chart?",
-    "fallback2": "What does this tarot card mean?",
+    "fallback1": "Which element is missing in my Four-Pillar chart?",
+    "fallback2": "What does this symbolic card mean?",
     "fallback3": "How does Saturn's transit affect my career?",
-    "fallback4": "What does a rounded nose tip mean in face reading?",
+    "fallback4": "What does a rounded nose tip mean in facial feature?",
     "fallback5": "What should I watch for with a broken life line?",
     "placeholder2": "Keep asking... (Enter to send, Shift+Enter for new line)",
     "sendFail": "Couldn't send — try again in a moment",
@@ -1324,7 +1324,7 @@
   "divination": {
     "share": {
       "aiAction": "AI Action Guide",
-      "appName": "Destiny Mirror · Stellar Oracle",
+      "appName": "Behavioral Mirror · Stellar Oracle",
       "copiedWithCode": "Link with referral code copied",
       "copyShareLink": "Copy Share Link (with referral code)",
       "exploreMyChart": "Explore My Chart",
@@ -1360,7 +1360,7 @@
     "limitReached": "Today's draws are used up — your star track needs a recharge",
     "linkCopied": "Share link copied",
     "loginFirst": "Please login first to draw",
-    "motto": "Destiny is self-made, fortune is self-sought.",
+    "motto": "Behavioral is self-made, status is self-sought.",
     "noFree": "No free draws left today",
     "payStardust": "1 Stardust per draw · Deep celestial resonance",
     "rechargeStardust": "Recharge Stardust",
@@ -1378,7 +1378,7 @@
     "sensingEnergy": "Attuning to the {theme} palace...",
     "shakeHint": "Shake your phone or tap above to start drawing",
     "shareFailed": "Share failed",
-    "shareFortune": "Share Fortune",
+    "shareStatus": "Share Status",
     "sharePlus5": "Share +5 Stardust",
     "shareReward": "Share reward +{count} Stardust",
     "shareSuccess": "Shared! Earned {count} Stardust",
@@ -1388,7 +1388,7 @@
     "subtitle": "One free draw daily · Feel the stars guiding you",
     "title": "Celestial Divination",
     "todayFirstFree": "One free draw per day · Feel the celestial guidance",
-    "todayAlreadyDrawn": "Today's fortune already revealed · Once per day",
+    "todayAlreadyDrawn": "Today's status already revealed · Once per day",
     "comeBackTomorrow": "Come Back Tomorrow",
     "todayPalace": "Today's Palace:"
   },
@@ -1397,27 +1397,27 @@
       "career": "Apex Commander",
       "health": "Life Nexus",
       "relationship": "Soul Echo",
-      "spiritual": "Aether Awakener",
+      "wellness": "Aether Awakener",
       "wealth": "Wealth Architect"
     },
     "tier": {
       "career": "Iron",
       "health": "Emerald",
       "relationship": "Rose",
-      "spiritual": "Violet",
+      "wellness": "Violet",
       "wealth": "Golden"
     },
-    "brand": "Destiny Mirror",
+    "brand": "Behavioral Mirror",
     "certLabel": "Five-Path Certified",
     "copied": "Share text copied to clipboard",
     "coreArchetype": "Core Archetype",
     "digitalSig": "Digital Signature",
     "flipBack": "Flip Back",
-    "label": "Destiny Profile Card",
+    "label": "Behavioral Profile Card",
     "scanHint": "Scan to view report",
     "shareBtn": "Share",
-    "shareText": "I got my exclusive Destiny Profile Card at Destiny Mirror",
-    "shareTitle": "Destiny Mirror · Destiny Profile Card"
+    "shareText": "I got my exclusive Behavioral Profile Card at Behavioral Mirror",
+    "shareTitle": "Behavioral Mirror · Behavioral Profile Card"
   },
   "event": {
     "emotion": {
@@ -1474,8 +1474,8 @@
     "subtitle": "Describe recent events — AI analyzes them with your profile",
     "title": "Event Review"
   },
-  "fortune": {
-    "badge": "Daily Fortune",
+  "status": {
+    "badge": "Daily Status",
     "sectionDesc": "Every day carries its own energy — here's what today has in store",
     "advice": {
       "1": "A good day for quiet reflection and reviewing your goals",
@@ -1541,35 +1541,35 @@
     "luckyColor": "Lucky Color",
     "luckyNumber": "Lucky Number",
     "overallScore": "Overall",
-    "sectionTitle": "Your Daily Fortune Guide",
+    "sectionTitle": "Your Daily Status Guide",
     "startReading": "Start Your Reading",
-    "title": "Today's Fortune",
+    "title": "Today's Status",
     "todayLevel": "Today's Level",
     "wealth": "Wealth",
     "weekdays": "Sun,Mon,Tue,Wed,Thu,Fri,Sat"
   },
-  "fortuneGuide": {
+  "statusGuide": {
     "daily": {
-      "step1": "Daily mode: Enter your current question and tarot will guide you.",
-      "step3": "Daily mode combines your destiny chart with tarot for quick today guidance."
+      "step1": "Daily mode: Enter your current question and symbolic will guide you.",
+      "step3": "Daily mode combines your behavioral chart with symbolic for quick today guidance."
     },
     "event": {
-      "step3": "Event review mode: AI combines your destiny chart for in-depth analysis."
+      "step3": "Event review mode: AI combines your behavioral chart for in-depth analysis."
     },
     "full": {
-      "step1": "Full mode: Tarot, face, and palm analysis run together. Select your tarot cards and enter your question first."
+      "step1": "Full mode: Symbolic, face, and palm analysis run together. Select your symbolic cards and enter your question first."
     },
-    "chart": "Destiny Chart",
+    "chart": "Behavioral Chart",
     "dailySpirit": "Daily Spirit",
     "faceMaster": "Face Master",
     "guide": "Guide",
     "guideLabel": "Guide",
     "investigator": "Investigator",
     "step0": "Birth time is the foundation of your chart — be as accurate as possible. If unsure, choose \"Zi Hour\" (11PM-1AM) as reference.",
-    "step1": "The more specific your question, the clearer the tarot guidance. Think about what's been troubling you most lately.",
+    "step1": "The more specific your question, the clearer the symbolic guidance. Think about what's been troubling you most lately.",
     "step2": "Upload clear face and palm photos for better AI analysis. Use natural light and avoid beauty filters.",
-    "step3": "All five destiny masters are ready! Confirm and they'll analyze for you simultaneously!",
-    "tarotSpirit": "Tarot Spirit",
+    "step3": "All five behavioral masters are ready! Confirm and they'll analyze for you simultaneously!",
+    "symbolicSpirit": "Symbolic Spirit",
     "wizard": "Master Mystic"
   },
   "gework": {
@@ -1606,7 +1606,7 @@
     "retryBtn": "Analyze Again",
     "submit": "Analyze Event",
     "submitBtn": "Start Analysis",
-    "submitHint": "Skips tarot & face reading, generates report based on your birth chart",
+    "submitHint": "Skips symbolic & facial feature, generates report based on your birth chart",
     "subtitle": "Specific event · AI deep review",
     "title": "Event Analysis"
   },
@@ -1614,7 +1614,7 @@
     "product1": {
       "desc": "Enhance intuition · Open the crown chakra",
       "name": "Amethyst Cave",
-      "tag": "Spiritual Growth"
+      "tag": "Wellness Growth"
     },
     "product2": {
       "desc": "Attract wealth · Legitimate & windfall",
@@ -1634,16 +1634,16 @@
       "wealth": "Wealth"
     },
     "dailyBadge": "Today's Chart",
-    "dailyTitle": "Today's Fortune & Almanac",
+    "dailyTitle": "Today's Status & Almanac",
     "knowledgeButton": "Knowledge Base",
-    "shopButton": "Fortune Shop",
-    "shopCta": "Explore Fortune Items",
-    "shopDesc": "Handpicked crystals and lucky charms to boost your fortune",
+    "shopButton": "Status Shop",
+    "shopCta": "Explore Status Items",
+    "shopDesc": "Handpicked focuss and lucky charms to boost your status",
     "quick": {
       "reading": "Free Reading",
-      "am16": "Destiny Quiz",
+      "am16": "Behavioral Quiz",
       "almanac": "Daily Almanac",
-      "shop": "Fortune Shop",
+      "shop": "Status Shop",
       "chat": "Stellar Oracle"
     },
     "testimonials": {
@@ -1652,7 +1652,7 @@
         {
           "name": "Ms. Lin",
           "job": "Entrepreneur",
-          "text": "Bazi said I lack Metal, recommended citrine — business actually improved! Three months later, the key timing window the report predicted turned out to be real.",
+          "text": "Four-Pillar said I lack Metal, recommended citrine — business actually improved! Three months later, the key timing window the report predicted turned out to be real.",
           "score": "9.2",
           "source": "Xiaohongshu"
         },
@@ -1666,7 +1666,7 @@
         {
           "name": "Ms. Wang",
           "job": "Teacher",
-          "text": "The tarot reading was genuinely healing — it helped me see my way through challenges, not scary fortune-telling.",
+          "text": "The symbolic reading was genuinely healing — it helped me see my way through challenges, not scary pattern analysis.",
           "score": "8.8",
           "source": "WeChat"
         }
@@ -1734,11 +1734,11 @@
   },
   "reading": {
     "chat": {
-      "desc": "AI automatically routes to the corresponding destiny expert for you",
+      "desc": "AI automatically routes to the corresponding behavioral expert for you",
       "placeholder": "Ask anything — your question will be answered",
       "send": "Send",
       "title": "Continue the Conversation",
-      "welcome": "Your reading is done! Feel free to ask me anything about Bazi, Astrology, Tarot, Face Reading, or Palmistry."
+      "welcome": "Your reading is done! Feel free to ask me anything about Four-Pillar, Behavioral Pattern, Symbolic, Facial Feature, or Hand Feature."
     },
     "loading": "Loading…",
     "cta": {
@@ -1749,7 +1749,7 @@
       "career": "Career",
       "health": "Health",
       "relationship": "Love",
-      "spiritual": "Spiritual",
+      "wellness": "Wellness",
       "wealth": "Wealth",
       "beat": "Beats"
     },
@@ -1757,7 +1757,7 @@
       "career": "Career Momentum",
       "health": "Body & Mind Balance",
       "relationship": "Relationship Harmony",
-      "spiritual": "Inner Growth",
+      "wellness": "Inner Growth",
       "wealth": "Wealth Flow"
     },
     "error": {
@@ -1783,9 +1783,9 @@
       "badge": "Five-Dimension Behavioral Analysis"
     },
     "insight": {
-      "locked": "Unlock the full report for your personalized annual fortune plan and enhancement strategy.",
+      "locked": "Unlock the full report for your personalized annual optimization plan and enhancement strategy.",
       "unlocked": "Full report unlocked — scroll down to explore every part of your reading.",
-      "balanced": "Balanced five-dimension energy, stable overall fortune",
+      "balanced": "Balanced five-dimension energy, stable overall status",
       "moderate": "Energy leans toward certain areas, consider strengthening weaknesses",
       "imbalanced": "Significant energy gaps — focus on weaker dimensions"
     },
@@ -1813,32 +1813,32 @@
     "nav": {
       "almanac": "Almanac",
       "almanacDesc": "Daily Guide",
-      "astrology": "Astrology",
-      "astrologyDesc": "Western",
-      "bazi": "Bazi",
-      "baziDesc": "Four Pillars",
+      "behavioral pattern": "Behavioral Pattern",
+      "behavioral patternDesc": "Western",
+      "four-pillar": "Four-Pillar",
+      "four-pillarDesc": "Four Pillars",
       "chat": "Chat",
       "chatDesc": "Ask an Expert",
       "event": "Events",
       "eventDesc": "Retrospect",
       "face": "Face",
-      "faceDesc": "Face Reading",
+      "faceDesc": "Facial Feature",
       "partnerFace": "Partner Face",
       "partnerFaceDesc": "Partner Reading",
       "partnerPalm": "Partner Palm",
-      "partnerPalmDesc": "Partner Palmistry",
+      "partnerPalmDesc": "Partner Hand Feature",
       "overview": "Overview",
       "overviewDesc": "Full Chart",
       "palm": "Palm",
-      "palmDesc": "Palmistry",
-      "qimen": "Qimen",
-      "qimenDesc": "Time-Space",
+      "palmDesc": "Hand Feature",
+      "strategic": "Strategic",
+      "strategicDesc": "Time-Space",
       "shop": "Shop",
       "shopDesc": "Enhance",
-      "tarot": "Tarot",
-      "tarotDesc": "Healing",
-      "ziwei": "Ziwei",
-      "ziweiDesc": "Star Chart"
+      "symbolic": "Symbolic",
+      "symbolicDesc": "Healing",
+      "stellar": "Stellar",
+      "stellarDesc": "Star Chart"
     },
     "progress": {
       "analyzing": "Reading…",
@@ -1847,7 +1847,7 @@
       "synthesizing": "Weaving…"
     },
     "shop": {
-      "aiWill": "AI will analyze your destiny chart",
+      "aiWill": "AI will analyze your behavioral chart",
       "desc": "AI deeply analyzes your profile gaps and precisely matches from hundreds of lifestyle items",
       "matchFailed": "Product matching failed — please try again later",
       "matchForYou": "and precisely match the best lifestyle items for you",
@@ -1862,10 +1862,10 @@
       "title": "Reading Tags"
     },
     "worker": {
-      "lockedDesc": "Unlock to access in-depth analysis of this destiny dimension, including expert interpretation, key findings, and action recommendations",
+      "lockedDesc": "Unlock to access in-depth analysis of this behavioral dimension, including expert interpretation, key findings, and action recommendations",
       "lockedPreview": "🔒 Unlock to view full analysis",
       "lockedTitle": "This dimension requires unlocking",
-      "unlockDesc": "Unlock the full report to see every destiny system in detail",
+      "unlockDesc": "Unlock the full report to see every behavioral system in detail",
       "unlockFull": "Unlock Full Analysis",
       "unlockTitle": "Full Reading",
       "orUseStardust": "or use Stardust to unlock",
@@ -1883,7 +1883,7 @@
     "strongest": "your strongest energy",
     "subtitle": "Seven systems woven together — here's your behavioral profile",
     "summary": "System Summaries",
-    "title": "Destiny Mirror · Your Reading",
+    "title": "Behavioral Mirror · Your Reading",
     "unlock": "Get Deeper Insights",
     "unlockPerk1": "Get your complete annual analysis plan",
     "unlockPerk2": "Plus 50 Stardust + $20 coupon",
@@ -1901,8 +1901,8 @@
       "strength": "Top Strength",
       "timing": "Key Timing"
     },
-    "destinyType": {
-      "label": "Your Destiny Type",
+    "behavioralType": {
+      "label": "Your Behavioral Type",
       "hint": "Based on five-dimension energy analysis"
     },
     "growthPath": {
@@ -1919,7 +1919,7 @@
         },
         {
           "name": "Sarah",
-          "text": "Practical advice that actually improved my fortune after following it",
+          "text": "Practical advice that actually improved my status after following it",
           "score": "8.8"
         },
         {
@@ -1937,7 +1937,7 @@
       "career": "Career",
       "health": "Health",
       "relationship": "Love",
-      "spiritual": "Spiritual",
+      "wellness": "Wellness",
       "wealth": "Wealth"
     },
     "confirmDelete": "Are you sure you want to delete this reading?",
@@ -1953,19 +1953,19 @@
     "loginRequired": "Please login first",
     "minutesAgo": "min ago",
     "newReading": "New Reading",
-    "reportTitle": "Destiny Reading",
-    "startFirst": "Start your first five-path destiny reading",
+    "reportTitle": "Behavioral Reading",
+    "startFirst": "Start your first five-path behavioral reading",
     "startReading": "Start Reading",
-    "subtitle": "All your destiny readings in one place",
+    "subtitle": "All your behavioral readings in one place",
     "title": "My Reports",
     "unlocked": "Unlocked",
     "weakest": "To Strengthen"
   },
   "seo": {
-    "astrology": {
-      "breadcrumb": "Astrology",
+    "behavioral pattern": {
+      "breadcrumb": "Behavioral Pattern",
       "ctaBtn": "Start Analysis",
-      "ctaDesc": "Experience AI astrology analysis for free and discover your unique cosmic imprint",
+      "ctaDesc": "Experience AI behavioral pattern analysis for free and discover your unique cosmic imprint",
       "ctaTitle": "Explore Your Chart",
       "desc": "Based on your birth time and location, AI draws your natal chart and deeply interprets planetary placements and aspects, revealing your unique life blueprint.",
       "f1Desc": "Core personality, vitality, and self-expression",
@@ -1982,17 +1982,17 @@
       "f6Title": "Soul Mission",
       "p1": "A natal chart is a cosmic map drawn based on the precise positions of planets at the moment of birth, recording the distribution of ten planets across twelve zodiac houses.",
       "p2": "By analyzing the 'Big Three' — Sun, Moon, and Rising signs — as well as planetary placements and aspects, we can deeply understand personality traits, emotional patterns, thinking styles, and life mission.",
-      "p3": "Destiny Mirror's AI astrology system precisely calculates planetary positions and aspects, combining modern psychology with traditional astrological wisdom for in-depth interpretation.",
-      "title": "AI Astrology Analysis",
-      "whatTitle": "What is Astrology Analysis?"
+      "p3": "Behavioral Mirror's AI behavioral pattern system precisely calculates planetary positions and aspects, combining modern psychology with traditional astrological wisdom for in-depth interpretation.",
+      "title": "AI Behavioral Pattern Analysis",
+      "whatTitle": "What is Behavioral Pattern Analysis?"
     },
-    "bazi": {
-      "breadcrumb": "Bazi",
+    "four-pillar": {
+      "breadcrumb": "Four-Pillar",
       "ctaBtn": "Free Chart",
-      "ctaDesc": "Experience AI Bazi analysis for free and discover your innate strengths",
+      "ctaDesc": "Experience AI Four-Pillar analysis for free and discover your innate strengths",
       "ctaNote": "No registration needed · 40-second results",
-      "ctaTitle": "Start Your Bazi Reading",
-      "desc": "Enter your birth time and AI will automatically complete Four Pillars arrangement, Five Elements analysis, and Ten Gods pattern judgment, revealing the innate code in your destiny.",
+      "ctaTitle": "Start Your Four-Pillar Reading",
+      "desc": "Enter your birth time and AI will automatically complete Four Pillars arrangement, Five Elements analysis, and Ten Gods pattern judgment, revealing the innate code in your behavioral.",
       "f1Desc": "Precise year-month-day-hour arrangement with true solar time correction",
       "f1Title": "Four Pillars Chart",
       "f2Desc": "Metal, Wood, Water, Fire, Earth strength scoring to identify favorable elements",
@@ -2000,27 +2000,27 @@
       "f3Desc": "Analysis of Official, Wealth, Food God and other Ten Gods relationships",
       "f3Title": "Ten Gods Pattern",
       "f4Desc": "Year-by-year Da Yun analysis to grasp key life junctures",
-      "f4Title": "Annual Fortune",
+      "f4Title": "Annual Status",
       "f5Desc": "Color, direction, and career suggestions based on Five Elements preferences",
       "f5Title": "Favorable Guidance",
       "f6Desc": "Multi-dimension cross-validation, more comprehensive than traditional charts",
       "f6Title": "AI Interpretation",
-      "p1": "Bazi charting converts a person's birth year, month, day, and hour into Heavenly Stems and Earthly Branches combinations, forming eight characters — the so-called 'birth chart'.",
-      "p2": "By analyzing Five Elements relationships, Ten Gods configurations, and pattern levels, a destiny analyst can deduce personality, career, wealth, marriage, health, and other life aspects.",
-      "p3": "Destiny Mirror's AI Bazi system combines traditional destiny studies with modern AI technology for more comprehensive and precise destiny interpretation.",
+      "p1": "Four-Pillar charting converts a person's birth year, month, day, and hour into Heavenly Stems and Earthly Branches combinations, forming eight characters — the so-called 'birth chart'.",
+      "p2": "By analyzing Five Elements relationships, Ten Gods configurations, and pattern levels, a behavioral analyst can deduce personality, career, wealth, marriage, health, and other life aspects.",
+      "p3": "Behavioral Mirror's AI Four-Pillar system combines traditional behavioral studies with modern AI technology for more comprehensive and precise behavioral interpretation.",
       "s1Desc": "Enter year, month, day, hour and birth city",
       "s1Title": "Enter Birth Info",
       "s2Desc": "System automatically completes Four Pillars and Five Elements calculation",
       "s2Title": "AI Auto-Chart",
-      "s3Desc": "Get complete Bazi destiny interpretation report",
+      "s3Desc": "Get complete Four-Pillar behavioral interpretation report",
       "s3Title": "View Analysis",
       "stepsTitle": "Three Steps to Complete",
-      "title": "AI Bazi Chart",
-      "whatTitle": "What is Bazi Charting?"
+      "title": "AI Four-Pillar Chart",
+      "whatTitle": "What is Four-Pillar Charting?"
     },
     "face": {
       "a1Area": "Forehead",
-      "a1Meaning": "Wisdom, career, early fortune",
+      "a1Meaning": "Wisdom, career, early status",
       "a2Area": "Eyebrows",
       "a2Meaning": "Love, sibling bonds, personality",
       "a3Area": "Eyes",
@@ -2028,42 +2028,42 @@
       "a4Area": "Nose",
       "a4Meaning": "Wealth, career, self-awareness",
       "a5Area": "Mouth",
-      "a5Meaning": "Fortune, eloquence, enjoyment",
+      "a5Meaning": "Status, eloquence, enjoyment",
       "a6Area": "Chin",
-      "a6Meaning": "Late fortune, children luck",
-      "areasTitle": "Face Reading Areas",
-      "breadcrumb": "AI Face Reading",
+      "a6Meaning": "Late status, children luck",
+      "areasTitle": "Facial Feature Areas",
+      "breadcrumb": "AI Facial Feature",
       "ctaBtn": "Upload Photo",
-      "ctaDesc": "Upload a front photo and let AI decode the destiny code in your face",
+      "ctaDesc": "Upload a front photo and let AI decode the behavioral code in your face",
       "ctaNote": "Photos deleted immediately after processing",
-      "ctaTitle": "Start Face Reading",
-      "desc": "Upload a front photo and AI will automatically identify facial features, interpreting destiny information from traditional face reading perspectives.",
+      "ctaTitle": "Start Facial Feature",
+      "desc": "Upload a front photo and AI will automatically identify facial features, interpreting behavioral information from traditional facial feature perspectives.",
       "f1Desc": "Upload a front photo, AI automatically identifies 468 facial feature points",
       "f1Title": "AI Photo Recognition",
       "f2Desc": "Identifying face shapes to interpret personality characteristics",
       "f2Title": "Face Shape Analysis",
-      "f3Desc": "Analyzing facial proportions to determine fortune patterns and life stages",
+      "f3Desc": "Analyzing facial proportions to determine status patterns and life stages",
       "f3Title": "Three Divisions Five Eyes",
       "f4Desc": "Forehead, eyebrows, eyes, nose, mouth — each interpreted individually",
       "f4Title": "Feature Details",
-      "f5Desc": "Wealth, career, love, health — multi-dimension face reading",
-      "f5Title": "Fortune Assessment",
+      "f5Desc": "Wealth, career, love, health — multi-dimension facial feature",
+      "f5Title": "Status Assessment",
       "f6Desc": "Photos used only for feature extraction, deleted immediately after processing",
       "f6Title": "Privacy Protection",
-      "p1": "Face reading is an important branch of Chinese destiny studies with thousands of years of history. The ancients believed 'the face reflects the heart'.",
-      "p2": "By analyzing face shape, Three Divisions Five Eyes proportions, and facial features, face reading can assess wealth, career, love, and health fortune.",
-      "p3": "Destiny Mirror's AI face reading system uses MediaPipe 468-point facial feature recognition combined with traditional wisdom for precise analysis.",
+      "p1": "Facial feature is an important branch of Chinese behavioral studies with thousands of years of history. The ancients believed 'the face reflects the heart'.",
+      "p2": "By analyzing face shape, Three Divisions Five Eyes proportions, and facial features, facial feature can assess wealth, career, love, and health status.",
+      "p3": "Behavioral Mirror's AI facial feature system uses MediaPipe 468-point facial feature recognition combined with traditional wisdom for precise analysis.",
       "privacyDesc": "Photos are used only for AI feature extraction and deleted immediately after processing.",
       "privacyTitle": "Privacy Guarantee",
-      "title": "AI Face Reading Analysis",
-      "whatTitle": "What is Face Reading?"
+      "title": "AI Facial Feature Analysis",
+      "whatTitle": "What is Facial Feature?"
     },
-    "tarot": {
-      "breadcrumb": "Tarot",
+    "symbolic": {
+      "breadcrumb": "Symbolic",
       "ctaBtn": "Start Reading",
-      "ctaDesc": "Choose a spread, meditate quietly, and let tarot reveal current energy",
-      "ctaTitle": "Start Your Tarot Journey",
-      "desc": "Choose your preferred spread and let the AI tarot reader interpret the card meanings, revealing your current energy state and guiding your path.",
+      "ctaDesc": "Choose a spread, meditate quietly, and let symbolic reveal current energy",
+      "ctaTitle": "Start Your Symbolic Journey",
+      "desc": "Choose your preferred spread and let the AI symbolic reader interpret the card meanings, revealing your current energy state and guiding your path.",
       "f1Desc": "Celtic Cross, Time-Flow, Triangle and other classic spreads",
       "f1Title": "Multiple Spreads",
       "f2Desc": "Deep analysis of each card's meaning and relationships",
@@ -2074,11 +2074,11 @@
       "f4Title": "Holistic Insight",
       "f5Desc": "Specific actionable advice based on spread energy",
       "f5Title": "Action Guidance",
-      "f6Desc": "Explore the inner self through tarot for peace and direction",
+      "f6Desc": "Explore the inner self through symbolic for peace and direction",
       "f6Title": "Soul Healing",
-      "p1": "Tarot cards are an ancient divination tool of 78 cards, each with rich symbolic meaning. Through spreads, tarot helps explore the subconscious and understand current situations.",
-      "p2": "Tarot reading is not fatalistic prediction but a tool for self-exploration and reflection, helping discover overlooked possibilities and make wiser choices.",
-      "p3": "Destiny Mirror's AI tarot combines traditional symbolic wisdom with modern psychology for deep, comprehensive, and insightful readings.",
+      "p1": "Symbolic cards are an ancient divination tool of 78 cards, each with rich symbolic meaning. Through spreads, symbolic helps explore the subconscious and understand current situations.",
+      "p2": "Symbolic reading is not fatalistic prediction but a tool for self-exploration and reflection, helping discover overlooked possibilities and make wiser choices.",
+      "p3": "Behavioral Mirror's AI symbolic combines traditional symbolic wisdom with modern psychology for deep, comprehensive, and insightful readings.",
       "sp1Desc": "Quick energy guidance for the moment",
       "sp1Name": "Single Card",
       "sp2Desc": "Past, present, future — a complete perspective",
@@ -2088,8 +2088,8 @@
       "sp4Desc": "The most comprehensive in-depth spread",
       "sp4Name": "Celtic Cross",
       "spreadsTitle": "Available Spreads",
-      "title": "AI Tarot Reading",
-      "whatTitle": "What is Tarot Reading?"
+      "title": "AI Symbolic Reading",
+      "whatTitle": "What is Symbolic Reading?"
     }
   },
   "serviceTerms": {
@@ -2097,7 +2097,7 @@
       "note": "If you have any questions, please contact our support team. Continued use means you have read and agree to the above terms."
     },
     "s1": {
-      "desc": "All behavioral analysis, pattern assessment, and cognitive profiling provided by Destiny Mirror are algorithm-assisted behavioral modeling and cultural references, intended solely for user entertainment and self-reflection.",
+      "desc": "All behavioral analysis, pattern assessment, and cognitive profiling provided by Behavioral Mirror are algorithm-assisted behavioral modeling and cultural references, intended solely for user entertainment and self-reflection.",
       "title": "1. Nature of Service"
     },
     "s2": {
@@ -2121,16 +2121,16 @@
   },
   "skeleton": {
     "agent": {
-      "astrology": "Astrology",
-      "astrologyDesc": "Analyzing planetary aspects…",
-      "bazi": "Bazi",
-      "baziDesc": "Calculating Four Pillars…",
-      "face": "AI Face Reading",
+      "behavioral pattern": "Behavioral Pattern",
+      "behavioral patternDesc": "Analyzing planetary aspects…",
+      "four-pillar": "Four-Pillar",
+      "four-pillarDesc": "Calculating Four Pillars…",
+      "face": "AI Facial Feature",
       "faceDesc": "Identifying facial features…",
       "palm": "Palm Reading",
       "palmDesc": "Analyzing palm lines…",
-      "tarot": "Tarot",
-      "tarotDesc": "Drawing destiny cards…"
+      "symbolic": "Symbolic",
+      "symbolicDesc": "Drawing behavioral cards…"
     },
     "error": {
       "desc": "The report may not have finished generating, or the session may have expired",
@@ -2145,9 +2145,9 @@
     "free": {
       "name": "Free",
       "subtitle": "Basic chart reading",
-      "feat0": "Bazi Four Pillars analysis",
-      "feat1": "Western astrology house reading",
-      "feat2": "One tarot spread",
+      "feat0": "Four-Pillar Four Pillars analysis",
+      "feat1": "Western behavioral pattern house reading",
+      "feat2": "One symbolic spread",
       "feat3": "Chart overview (limited preview)",
       "feat4": "Shop browsing",
       "cta": "Start Free",
@@ -2207,7 +2207,7 @@
       "feat4": "Exclusive black-gold theme",
       "feat5": "Early access to new features",
       "feat6": "Dedicated support",
-      "feat7": "Crystal customization 1/year",
+      "feat7": "Focus customization 1/year",
       "cta": "Join Founders",
       "badge": "Limited Seats",
       "billing": "One-time lifetime"
@@ -2249,7 +2249,7 @@
       "winRate": "Win Rate"
     },
     "breadcrumb": "Trade Review",
-    "desc": "Record trades and analyze cause-effect with astrology energy",
+    "desc": "Record trades and analyze cause-effect with behavioral pattern energy",
     "empty": "No trade records yet",
     "emptyBtn": "Record First Trade",
     "long": "Long",
@@ -2306,26 +2306,26 @@
     "badge": "The Five Wisdom Council",
     "desc": "Five analytical traditions each examine your profile from a different angle — then we weave them all together into one reading.",
     "title": "Five Paths, One Reading",
-    "bazi": {
-      "_label": "Bazi (Four Pillars)",
+    "four-pillar": {
+      "_label": "Four-Pillar (Four Pillars)",
       "tag": "Eastern Analysis",
       "desc": "Decode your behavioral path through the Heavenly Stems and Earthly Branches of your birth chart",
       "detail": "Four Pillars · Ten Gods · Luck Cycles · Five Element Balance"
     },
-    "astrology": {
-      "_label": "Western Astrology",
+    "behavioral pattern": {
+      "_label": "Western Behavioral Pattern",
       "tag": "Western Charts",
       "desc": "Reveal your deeper personality patterns and behavioral lessons through planetary placements",
       "detail": "House Placements · Aspect Analysis · Node Axis · Transit Forecast"
     },
-    "tarot": {
-      "_label": "AI Tarot",
+    "symbolic": {
+      "_label": "AI Symbolic",
       "tag": "Intuitive Guidance",
-      "desc": "Profile-synced tarot readings that reflect your current state and next steps",
+      "desc": "Profile-synced symbolic readings that reflect your current state and next steps",
       "detail": "Spread Reading · Energy Mapping · Lesson Guidance · Timing Advice"
     },
     "face": {
-      "_label": "AI Face Reading",
+      "_label": "AI Facial Feature",
       "tag": "Facial Analysis",
       "desc": "Analyze your personality traits and behavioral tendencies through facial features and structure",
       "detail": "Feature Analysis · Face Shape · Complexion Reading · Trait Forecast"
@@ -2392,13 +2392,13 @@
     "protection": "Guard"
   },
   "app": {
-    "name": "Destiny Mirror",
-    "slogan": "Insight into Destiny"
+    "name": "Behavioral Mirror",
+    "slogan": "Insight into Behavioral"
   },
   "blog": {
     "backToBlog": "Back to Knowledge Base",
     "ctaButton": "Start Free Reading",
-    "ctaQuestion": "Curious about your Five Element destiny chart?",
+    "ctaQuestion": "Curious about your Five Element behavioral chart?",
     "loadingContent": "This article is being prepared. Check back soon.",
     "loadingTitle": "Loading article…",
     "minRead": "min read",
@@ -2406,8 +2406,8 @@
     "readMore": "Read More",
     "related": "Related Articles",
     "share": "Share",
-    "subtitle": "From beginner to expert — your guide to destiny wisdom",
-    "title": "Destiny Knowledge Base"
+    "subtitle": "From beginner to expert — your guide to behavioral wisdom",
+    "title": "Behavioral Knowledge Base"
   },
   "breadcrumb": {
     "home": "Home"
@@ -2561,32 +2561,32 @@
   },
   "cta": {
     "button": "Start Reading (Free)",
-    "desc": "Just 3 minutes to unlock a full five-path reading and your personal fortune plan",
+    "desc": "Just 3 minutes to unlock a full five-path reading and your personal optimization plan",
     "note": "No Registration · Instant · Private",
     "title": "Your Reading Is Ready"
   },
-  "destinyRadar": {
+  "behavioralRadar": {
     "career": "Career",
     "health": "Health",
     "relationship": "Love",
-    "spiritual": "Spiritual",
+    "wellness": "Wellness",
     "title": "Five-Dimensional Energy Distribution",
     "wealth": "Wealth"
   },
   "disclaimer": {
     "backHome": "← Back to Home",
     "importantNotice": "Important: All analysis results are for entertainment and reference only. They do not constitute any professional advice.",
-    "intro": "Destiny Mirror requests that you carefully read the following disclaimer before using our services. Using this platform means you have read and understood the full content.",
-    "operatorEmail": "Contact: legal@khanfate.com",
-    "operatorName": "Destiny Mirror Operations Team",
+    "intro": "Behavioral Mirror requests that you carefully read the following disclaimer before using our services. Using this platform means you have read and understood the full content.",
+    "operatorEmail": "Contact: legal@khanpattern.com",
+    "operatorName": "Behavioral Mirror Operations Team",
     "operatorTitle": "Operator Information",
-    "operatorUrl": "Website: https://www.khanfate.com",
+    "operatorUrl": "Website: https://www.khanpattern.com",
     "s1Content": "All behavioral analysis services are generated based on AI algorithms and traditional analytical knowledge, intended solely for personal entertainment and reference. Results do not constitute professional advice including medical, legal, financial, or life decisions.",
-    "s1Title": "1. Nature of Destiny Analysis",
+    "s1Title": "1. Nature of Behavioral Analysis",
     "s2Content": "AI models may have biases or errors. Analytical studies belong to traditional culture, not modern science. Different schools may have varying perspectives. AI cannot replace experienced analysts. View results rationally as auxiliary tools.",
     "s2Title": "2. Limitations of AI Analysis",
     "s3Content": "Lifestyle products are cultural creative products. Descriptions are based on traditional cultural wellness practices, not scientifically verified claims.",
-    "s3Title": "3. Fortune Item Description",
+    "s3Title": "3. Status Item Description",
     "s4Content": "Use services rationally. Users bear responsibility for decisions made based on analysis results. Comply with local laws.",
     "s4Title": "4. User Responsibility",
     "s5Content": "Services may be temporarily unavailable for maintenance. We reserve the right to modify or terminate services.",
@@ -2595,7 +2595,7 @@
     "s6Title": "6. Third-Party Links",
     "s7Content": "Governed by PRC law. Disputes submitted to courts with jurisdiction.",
     "s7Title": "7. Governing Law",
-    "s8Content": "Email: legal@khanfate.com | Website: https://www.khanfate.com/about",
+    "s8Content": "Email: legal@khanpattern.com | Website: https://www.khanpattern.com/about",
     "s8Title": "8. Contact",
     "title": "Disclaimer",
     "updated": "Last updated: May 8, 2026"
@@ -2652,7 +2652,7 @@
   "eventInput": {
     "analyzing": "Analyzing...",
     "approxTime": "Approximate Time",
-    "desc": "Describe an event you want to understand deeply. AI will analyze the causal chain from transit chart and BaZi perspectives, and provide current response strategies.",
+    "desc": "Describe an event you want to understand deeply. AI will analyze the causal chain from transit chart and Four-Pillar perspectives, and provide current response strategies.",
     "emotion1": "Extremely Negative",
     "emotion3": "Rather Negative",
     "emotion5": "Neutral",
@@ -2675,17 +2675,17 @@
     "desc": "Trace the Pattern · Find the Cause · Get the Insight",
     "disclaimer": "Event retrospection is for reference and entertainment only, not professional advice.",
     "disclaimerDetail": "View Details",
-    "explanation": "Tell us when something happened — we'll look at the natal chart and Bazi from that moment to explain potential contributing factors and what to do next.",
+    "explanation": "Tell us when something happened — we'll look at the natal chart and Four-Pillar from that moment to explain potential contributing factors and what to do next.",
     "freeUserNote": "Free users: ¥19.9/time · Subscribe for 2-5 free/month",
-    "inputDesc": "Tell us about an event you want to understand — we'll look at the natal chart and Bazi from that moment to trace potential causes.",
+    "inputDesc": "Tell us about an event you want to understand — we'll look at the natal chart and Four-Pillar from that moment to trace potential causes.",
     "memberQuota": "Members only: {count} free retrospections left this month",
     "monthlyMember": "(Monthly Member: 2/month)",
-    "payDesc": "We'll look at the natal chart and annual Bazi at the time of the event, explain potential contributing factors, and suggest insights.",
+    "payDesc": "We'll look at the natal chart and annual Four-Pillar at the time of the event, explain potential contributing factors, and suggest insights.",
     "payError": "Payment failed",
     "payFail": "Payment verification failed",
     "paySuccess": "Payment successful",
     "payTitle": "Pay for Event Retrospection",
-    "perk1": "Event-time Natal Chart & Annual Bazi",
+    "perk1": "Event-time Natal Chart & Annual Four-Pillar",
     "perk2": "Root Cause Reading",
     "perk3": "Current Strategy + Future Prevention",
     "perk4": "Energy Prescription Recommendations",
@@ -2705,18 +2705,18 @@
     "scanning": "Scanning facial features..."
   },
   "faq": {
-    "a1": "Destiny Mirror brings together Bazi (Four Pillars), Western Astrology, Tarot, Face Reading, and Palmistry. We blend ancient wisdom with modern technology to give you a deep and complete destiny reading.",
-    "a2": "We look at your chart from five different wisdom traditions to give you a well-rounded reading. That said, destiny readings are for reference and fun — they're not professional advice and can't replace an experienced practitioner. Think of it as a mirror for self-understanding.",
+    "a1": "Behavioral Mirror brings together Four-Pillar (Four Pillars), Western Behavioral Pattern, Symbolic, Facial Feature, and Hand Feature. We blend ancient wisdom with modern technology to give you a deep and complete behavioral reading.",
+    "a2": "We look at your chart from five different wisdom traditions to give you a well-rounded reading. That said, behavioral readings are for reference and fun — they're not professional advice and can't replace an experienced practitioner. Think of it as a mirror for self-understanding.",
     "a3": "Totally. Everything is encrypted with SSL. Your face and palm photos are never stored after processing — we keep only the analysis results. Your personal info is strictly protected and never used for anything else.",
-    "a4": "The free version gives you a basic chart overview. The paid version (¥19.9) unlocks the complete report: detailed annual fortune planning, personalized remedy suggestions, ¥50 shop coupons, and a 3-day membership trial. Members also get 12% off in the shop and multiple free readings per month.",
+    "a4": "The free version gives you a basic chart overview. The paid version (¥19.9) unlocks the complete report: detailed annual optimization planning, personalized remedy suggestions, ¥50 shop coupons, and a 3-day membership trial. Members also get 12% off in the shop and multiple free readings per month.",
     "a5": "Just three easy steps: 1) Enter your birth date, time, and city; 2) Optionally add face and palm photos; 3) Hit Start Reading — your personalized five-path report is ready in about 40 seconds. No sign-up needed to try the free version.",
     "badge": "FAQ",
     "breadcrumb": "FAQ",
     "contactDesc": "If you have other questions, feel free to contact us",
-    "contactTeamDesc": "Our team is ready to help with destiny analysis, membership services, and more.",
+    "contactTeamDesc": "Our team is ready to help with behavioral analysis, membership services, and more.",
     "contactUs": "Contact Us",
     "moreQuestions": "Still have questions?",
-    "q1": "What is Destiny Mirror?",
+    "q1": "What is Behavioral Mirror?",
     "q2": "How accurate are the reports?",
     "q3": "Is my data safe?",
     "q4": "What's the difference between free and paid?",
@@ -2733,7 +2733,7 @@
   },
   "floatingCta": {
     "text": "Free Reading · 5D Analysis",
-    "shopText": "Shop Fortune Items"
+    "shopText": "Shop Status Items"
   },
   "floatingOracle": {
     "freeHint": "First draw free daily, feel the stars guide you",
@@ -2742,14 +2742,14 @@
   },
   "footer": {
     "contactUs": "Contact Us",
-    "copyright": "© 2025-2026 Destiny Mirror · For reference only, not professional advice",
+    "copyright": "© 2025-2026 Behavioral Mirror · For reference only, not professional advice",
     "desc": "3,000 years of Eastern wisdom meets modern technology —\neveryone gets a unique life reading.",
     "disclaimer": "Disclaimer",
     "faq": "FAQ",
     "icp": "ICP Filing",
     "nav": "Navigation",
     "newsletter": "Stay in Tune",
-    "newsletterDesc": "Weekly Five Element fortune & guidance",
+    "newsletterDesc": "Weekly Five Element status & guidance",
     "privacy": "Privacy Policy",
     "refund": "Refund Policy",
     "subscribed": "Subscribed",
@@ -2788,7 +2788,7 @@
     "province": "Select Province",
     "question": "What would you like to know?",
     "submit": "Start Reading",
-    "tarotQuestion": "Tarot & Question",
+    "symbolicQuestion": "Symbolic & Question",
     "year": "Year"
   },
   "founderBadge": {
@@ -2798,7 +2798,7 @@
     "cta": "See Enhancement Items",
     "ctaShort": "View",
     "hint": "Items matched to your chart's unique energy profile",
-    "subtitle": "Chart-matched · Fortune enhancement items",
+    "subtitle": "Chart-matched · Status enhancement items",
     "weakEnergy": "Your energy needs a boost",
     "strongDimension": "Strength",
     "detailedTitle": "Detailed Report",
@@ -2814,24 +2814,24 @@
     "title": "Something went wrong"
   },
   "hero": {
-    "badge": "128,000+ users have found their destiny answers",
+    "badge": "128,000+ users have found their behavioral answers",
     "badgePeople": "",
     "cta1": "Free Reading",
-    "cta2": "Browse Fortune Shop",
-    "desc": "Bazi · Astrology · Tarot · Face Reading · Palmistry — Five systems, one AI-powered reading\n40-second personalized chart report with fortune enhancement matching.",
+    "cta2": "Browse Status Shop",
+    "desc": "Four-Pillar · Behavioral Pattern · Symbolic · Facial Feature · Hand Feature — Five systems, one AI-powered reading\n40-second personalized chart report with lifestyle enhancement matching.",
     "stat1": "Readings",
     "stat2": "Satisfaction",
     "stat3": "Dimensions",
     "stat4": "Sec Report",
     "statPeople": "",
-    "title1": "Your Destiny Code,",
+    "title1": "Your Behavioral Code,",
     "title2": "Decoded by AI",
     "trust": "128,000+ users · 4.9/5 rating · 40-second reports"
   },
   "curated": {
     "badge": "AI Curated for You",
-    "title": "Popular Fortune Essentials",
-    "desc": "Five-Element energy matching recommends the perfect items for your fortune",
+    "title": "Popular Status Essentials",
+    "desc": "Five-Element energy matching recommends the perfect items for your status",
     "viewAll": "View All Essentials",
     "hot": "Hot",
     "new": "New",
@@ -2842,14 +2842,14 @@
   },
   "live": {
     "activity1": "just finished a full reading ✨",
-    "activity10": "browsing fortune crystals 💎",
-    "activity2": "looking at their Bazi analysis ☯",
-    "activity3": "unlocked their annual fortune report 📖",
-    "activity4": "got a personalized fortune plan 🎁",
-    "activity5": "asking about love fortune 💕",
+    "activity10": "browsing status focuss 💎",
+    "activity2": "looking at their Four-Pillar analysis ☯",
+    "activity3": "unlocked their annual status report 📖",
+    "activity4": "got a personalized optimization plan 🎁",
+    "activity5": "asking about love status 💕",
     "activity6": "unlocking Zi Wei Dou Shu ⭐",
     "activity7": "generating a palm reading report 🤚",
-    "activity8": "completed face reading 👁",
+    "activity8": "completed facial feature 👁",
     "activity9": "checking today's almanac 📅",
     "people": "analyzing"
   },
@@ -2886,7 +2886,7 @@
     "about": "About",
     "account": "Account",
     "almanac": "Daily Almanac",
-    "am16": "Destiny Quiz",
+    "am16": "Behavioral Quiz",
     "blog": "Insights",
     "cart": "Cart",
     "dashboard": "My Chart",
@@ -2907,9 +2907,9 @@
     "status1": "Calibrating stellar data...",
     "status2": "Harmonizing five-element energy...",
     "status3": "Searching XinXue archives...",
-    "status4": "Deducting celestial destiny chart...",
+    "status4": "Deducting celestial behavioral chart...",
     "status5": "Sensing stellar resonance...",
-    "status6": "Weaving destiny coordinates...",
+    "status6": "Weaving behavioral coordinates...",
     "status7": "Decoding cosmic cipher...",
     "status8": "Condensing stardust power..."
   },
@@ -2968,7 +2968,7 @@
     "step4": "4. Confirm payment",
     "step5": "5. Click the button below after payment",
     "success": "Payment Successful!",
-    "successDesc": "Membership activated — start exploring your destiny!",
+    "successDesc": "Membership activated — start exploring your behavioral!",
     "successTitle": "Payment Successful!",
     "onetimeUnlock": "One-Time Unlock $9.9",
     "unlockReport": "Unlock Report ¥19.9",
@@ -3014,8 +3014,8 @@
     "youWillGet": "What you'll get",
     "valueList": [
       "Full five-dimension depth diagnosis",
-      "Detailed analysis of 7 destiny systems",
-      "Personalized fortune prescription & action plan",
+      "Detailed analysis of 7 behavioral systems",
+      "Personalized status prescription & action plan",
       "Curated product recommendations"
     ],
     "detailedFeatures": [
@@ -3048,9 +3048,9 @@
     "indication": "INDICATIONS",
     "matchScore": "Chart match score",
     "primary": "Featured",
-    "title": "Prescription · Personalized Fortune Items",
+    "title": "Prescription · Personalized Status Items",
     "modal": {
-      "title": "Your fortune prescription is ready",
+      "title": "Your status prescription is ready",
       "subtitle": "AI-matched items based on your chart",
       "cta": "View full prescription"
     }
@@ -3065,18 +3065,18 @@
     "eventDesc": "{price}/time — Trace what happened and why, with causality analysis and remedy recommendations",
     "eventReview": "Event Review",
     "faq": "Frequently Asked Questions",
-    "faq1A": "Stardust is Destiny Mirror's energy currency — you use it to unlock various services. Stardust you purchase never expires. Members get monthly Stardust that stops when membership ends (but any Stardust you already have won't be taken away).",
+    "faq1A": "Stardust is Behavioral Mirror's energy currency — you use it to unlock various services. Stardust you purchase never expires. Members get monthly Stardust that stops when membership ends (but any Stardust you already have won't be taken away).",
     "faq1Q": "What is Stardust? Does it expire?",
     "faq2A": "Monthly plans — cancel anytime, keep benefits until the month ends. Yearly plans — full refund within 7 days (if you've used less than 1 report). Founder seats are one-time lifetime purchases, non-refundable.",
     "faq2Q": "Can I cancel anytime? What about refunds?",
     "faq3A": "Only 100 Founder Seats worldwide, first come first served. Once they're gone, they're gone. Founder members get permanent perks: 500 monthly Stardust, feature voting rights, and an exclusive black-gold theme.",
     "faq3Q": "What does the limited Founder Seat mean?",
-    "faq4A": "Free reports give you a basic chart overview (with some limitations). Full reports unlock the complete BaZi pillars, natal chart placements, Ten Gods system, annual planning, and in-depth readings — plus 10 follow-up questions and a 3-day membership trial.",
+    "faq4A": "Free reports give you a basic chart overview (with some limitations). Full reports unlock the complete Four-Pillar pillars, natal chart placements, Ten Gods system, annual planning, and in-depth readings — plus 10 follow-up questions and a 3-day membership trial.",
     "faq4Q": "What's the difference between Full Report and Free Report?",
     "faq5A": "Yearly members get 12% off when spending Stardust. For example, a report that normally costs 100 Stardust only costs 88 for you. The discount applies automatically.",
     "faq5Q": "What does the 12% Stardust discount mean?",
     "founderCommunity": "Founder Community",
-    "founderDesc": "An exclusive circle for founders — explore destiny's mysteries with fellow star envoys",
+    "founderDesc": "An exclusive circle for founders — explore behavioral's mysteries with fellow star envoys",
     "free": "Free",
     "learnFounder": "Learn about Founder Seat",
     "learnMore": "Learn about Event Retrospection",
@@ -3102,7 +3102,7 @@
     "subscribe": "Subscribe Now",
     "subtitle": "Stardust is your energy reserve for unlocking deeper wisdom — members get monthly infusions",
     "termsOfService": "Terms of Service",
-    "title": "Choose Your Destiny Plan",
+    "title": "Choose Your Behavioral Plan",
     "unlockReport": "Unlock Report",
     "yearly": "Yearly",
     "channel": {
@@ -3112,17 +3112,17 @@
         "badge": "⚡ Quick",
         "name": "Instant Insight",
         "tagline": "Instant Decision Anchor",
-        "audience": "Perfect for quick daily decisions — receive a random destiny anchor",
-        "tech": "Based on your Bazi and astrology chart, AI randomly extracts a current destiny tip",
-        "output": "A precise current fortune tip and action advice"
+        "audience": "Perfect for quick daily decisions — receive a random behavioral anchor",
+        "tech": "Based on your Four-Pillar and behavioral pattern chart, AI randomly extracts a current behavioral tip",
+        "output": "A precise current status tip and action advice"
       },
       "full": {
         "badge": "🔮 Deep",
         "name": "Deep Resonance",
-        "tagline": "Full-Dimension Destiny Simulation",
-        "audience": "For major life decisions — combines face reading + palmistry + astrology",
-        "tech": "Multi-modal AI fuses biometric data (face + palm) with natal chart for deep destiny analysis",
-        "output": "A comprehensive report covering Five Elements, astrology, face reading, and palmistry"
+        "tagline": "Full-Dimension Behavioral Simulation",
+        "audience": "For major life decisions — combines facial feature + hand feature + behavioral pattern",
+        "tech": "Multi-modal AI fuses biometric data (face + palm) with natal chart for deep behavioral analysis",
+        "output": "A comprehensive report covering Five Elements, behavioral pattern, facial feature, and hand feature"
       },
       "price": "Cost",
       "priceValue": "Stardust-based"
@@ -3151,7 +3151,7 @@
       "feat5": "Stardust Discount",
       "feat6": "Monthly Stardust",
       "feat7": "Yearly Review",
-      "feat8": "Crystal Customization"
+      "feat8": "Focus Customization"
     }
   },
   "pricingCard": {
@@ -3167,7 +3167,7 @@
     "stardustUnit": "Stardust"
   },
   "products": {
-    "badge": "Fortune Enhancement",
+    "badge": "Status Enhancement",
     "desc": "Based on what your chart needs most, we recommend the best energy-balancing items for you",
     "title": "Handpicked Items, Matched to Your Chart"
   },
@@ -3184,7 +3184,7 @@
     "saving": "Saving...",
     "selfName": "Self",
     "setupDesc": "Enter your birth info to unlock personalized analysis",
-    "setupTitle": "Complete Your Destiny Profile"
+    "setupTitle": "Complete Your Behavioral Profile"
   },
   "radar": {
     "breadcrumb": "Energy Radar",
@@ -3212,7 +3212,7 @@
     "copied": "Copied to clipboard",
     "copiedLink": "Invite Link Copied",
     "copyLink": "Copy Invite Link",
-    "desc": "Invite friends to join Destiny Mirror — both get 20 Stardust!",
+    "desc": "Invite friends to join Behavioral Mirror — both get 20 Stardust!",
     "invitedCount": "People Invited",
     "moments": "Moments",
     "momentsToast": "Link copied! Open Moments and paste to share",
@@ -3220,8 +3220,8 @@
     "myCode": "My Referral Code",
     "rewardItem": "Invited friend +{amount} Stardust",
     "rewards": "Reward History",
-    "shareText": "I found an accurate AI destiny analysis platform! Use my code to get 20 free Stardust!",
-    "shareTitle": "Destiny Mirror - AI Destiny Analysis",
+    "shareText": "I found an accurate AI behavioral analysis platform! Use my code to get 20 free Stardust!",
+    "shareTitle": "Behavioral Mirror - AI Behavioral Analysis",
     "shareToast": "Link copied! Paste on any social platform to share",
     "title": "Star Alliance Invitations",
     "totalStardust": "Total Stardust Earned",
@@ -3230,7 +3230,7 @@
   },
   "report": {
     "aiCert": "Checked & Verified",
-    "annual": "Annual Fortune",
+    "annual": "Annual Status",
     "badge": "Here's What You'll Get",
     "card": "Full Chart Overview",
     "career": "Career",
@@ -3243,7 +3243,7 @@
     "fiveElements": "Five Elements",
     "health": "Health",
     "relationship": "Love",
-    "spiritual": "Spiritual",
+    "wellness": "Wellness",
     "tenGods": "Ten Gods",
     "title": "Your Personalized Reading",
     "wealth": "Wealth"
@@ -3263,10 +3263,10 @@
   "share": {
     "canvasCTA": "Scan to View My Chart →",
     "canvasDesc": "Five-System AI Deep Analysis",
-    "canvasFooter": "Destiny Mirror · AI-Powered Ancient Wisdom",
-    "canvasSubtitle": "Full-Dimension Destiny Report",
-    "canvasSystems": "Bazi · Astrology · Tarot · Face · Palm",
-    "canvasTitle": "Destiny Mirror",
+    "canvasFooter": "Behavioral Mirror · AI-Powered Ancient Wisdom",
+    "canvasSubtitle": "Full-Dimension Behavioral Report",
+    "canvasSystems": "Four-Pillar · Behavioral Pattern · Symbolic · Face · Palm",
+    "canvasTitle": "Behavioral Mirror",
     "cardDownloaded": "Share card downloaded",
     "copied": "Copied",
     "copyFail": "Copy failed",
@@ -3277,12 +3277,12 @@
     "inviteFriend": "Invite Friends, Earn Coupons",
     "linkCopied": "Link copied",
     "moreShare": "More Share",
-    "previewDesc": "Bazi · Astrology · Tarot · Face · Palm — Five Systems Combined",
-    "previewText": "Check out my full-dimension destiny analysis 🔮",
+    "previewDesc": "Four-Pillar · Behavioral Pattern · Symbolic · Face · Palm — Five Systems Combined",
+    "previewText": "Check out my full-dimension behavioral analysis 🔮",
     "previewTitle": "Share Preview",
     "referralCopied": "Referral link copied! You and your friend each get ¥10 coupon",
-    "shareText": "Check out my full-dimension destiny analysis! Bazi · Astrology · Tarot · Face · Palm — five systems combined",
-    "shareTitle": "My Destiny Report — Destiny Mirror",
+    "shareText": "Check out my full-dimension behavioral analysis! Four-Pillar · Behavioral Pattern · Symbolic · Face · Palm — five systems combined",
+    "shareTitle": "My Behavioral Report — Behavioral Mirror",
     "title": "Share Report",
     "wechat": "WeChat",
     "downloadPdf": "PDF Report",
@@ -3339,19 +3339,19 @@
     "selfLabel": "Self: "
   },
   "term": {
-    "annualFortune": "Annual Fortune (Liu Nian)",
+    "annualStatus": "Annual Status (Liu Nian)",
     "aspects": "Aspects",
     "aura": "Aura",
-    "bazi": "Bazi (Four Pillars of Destiny)",
-    "baziShort": "Bazi",
+    "four-pillar": "Four-Pillar (Four Pillars of Behavioral)",
+    "four-pillarShort": "Four-Pillar",
     "caiBian": "Wealth Palace (Cai Bo Gong)",
     "celticCross": "Celtic Cross",
     "chakra": "Chakra",
-    "dagong": "Major Fortune Period (Da Yun)",
-    "dailyFortune": "Daily Fortune (Liu Ri)",
+    "dagong": "Major Status Period (Da Yun)",
+    "dailyStatus": "Daily Status (Liu Ri)",
     "earthlyBranches": "Earthly Branches (Di Zhi)",
     "fiveElements": "Five Elements (Wu Xing)",
-    "fuDe": "Fortune Palace (Fu De Gong)",
+    "fuDe": "Status Palace (Fu De Gong)",
     "fuMu": "Parents Palace (Fu Mu Gong)",
     "fuQi": "Spouse Palace (Fu Qi Gong)",
     "gua": "Gua (Trigram)",
@@ -3364,23 +3364,23 @@
     "jieQi": "Solar Terms (Jie Qi)",
     "karma": "Karma",
     "lifePath": "Life Path Number",
-    "liuNian": "Annual Fortune (Liu Nian)",
+    "liuNian": "Annual Status (Liu Nian)",
     "majorArcana": "Major Arcana",
     "mingGong": "Life Palace (Ming Gong)",
     "minorArcana": "Minor Arcana",
-    "monthlyFortune": "Monthly Fortune (Liu Yue)",
+    "monthlyStatus": "Monthly Status (Liu Yue)",
     "natal": "Natal",
-    "natalChart": "Natal Chart (Astrology)",
+    "natalChart": "Natal Chart (Behavioral Pattern)",
     "nian": "Year Pillar",
-    "palmistry": "Palmistry (Palm Reading)",
-    "physiognomy": "Physiognomy (Face Reading)",
+    "hand feature": "Hand Feature (Palm Reading)",
+    "physiognomy": "Physiognomy (Facial Feature)",
     "planets": "Planets",
     "qianYi": "Travel Palace (Qian Yi Gong)",
-    "qimen": "Qi Men Dun Jia",
+    "strategic": "Qi Men Dun Jia",
     "ri": "Day Pillar",
     "rizhu": "Day Master (Ri Zhu)",
     "shi": "Hour Pillar",
-    "tarot": "Tarot (Divination)",
+    "symbolic": "Symbolic (Divination)",
     "tenGods": "Ten Gods (Shi Shen)",
     "tianZhai": "Property Palace (Tian Zhai Gong)",
     "transit": "Transit",
@@ -3388,7 +3388,7 @@
     "yinYang": "Yin-Yang",
     "yue": "Month Pillar",
     "ziNu": "Children Palace (Zi Nu Gong)",
-    "ziwei": "Zi Wei Dou Shu (Purple Star)"
+    "stellar": "Zi Wei Dou Shu (Purple Star)"
   },
   "tiangan": {
     "bing": "Bing (丙)",
@@ -3407,7 +3407,7 @@
     "eventDesc": "{price}/time — Trace specific events with causality analysis and energy prescription",
     "eventRetrospection": "Event Retrospection · Pay per use",
     "learnMore": "Learn about Event Retrospection",
-    "title": "Choose Your Destiny Plan",
+    "title": "Choose Your Behavioral Plan",
     "onetimeUnlock": "One-Time Unlock · Permanent Report",
     "onetimeUnlockDesc": "$9.9 permanently unlock one full report, one per account",
     "onetimeUnlockGift1": "50 Stardust + $20 coupon",
@@ -3422,38 +3422,38 @@
     "wood": "Wood (Mu)"
   },
   "coupon可用于": "Can be used for any item in the shop",
-  "fortuneSub": {
+  "statusSub": {
     "label": "Subscribe",
     "badge": "NEW",
-    "title": "Fortune Subscription",
-    "desc": "Personalized fortune analysis based on your BaZi chart, with lucky guidance",
+    "title": "Status Subscription",
+    "desc": "Personalized status analysis based on your Four-Pillar chart, with lucky guidance",
     "subscribe": "Subscribe Now",
     "unsubscribe": "Unsubscribe",
     "subscribed": "Subscribed",
     "unsubscribed": "Unsubscribed",
     "weekRange": "{start} - {end}",
-    "overallScore": "Overall Fortune",
-    "theme": "Fortune Theme",
+    "overallScore": "Overall Status",
+    "theme": "Status Theme",
     "luckyColor": "Lucky Color",
     "luckyNumber": "Lucky Number",
     "luckyDirection": "Auspicious Direction",
-    "tarotCard": "Tarot Card",
-    "tarotDesc": "Guidance Card Reading",
+    "symbolicCard": "Symbolic Card",
+    "symbolicDesc": "Guidance Card Reading",
     "dailyYiJi": "Daily Do's & Don'ts",
     "aiInsight": "AI Fusion Insight",
     "frequency": "Push Frequency",
     "freqWeekly": "Weekly",
     "freqDaily": "Daily",
     "freqOff": "Off",
-    "weeklyPreview": "Weekly Fortune Preview",
-    "dailyPreview": "Today's Fortune Preview",
-    "previewHint": "Fortune Preview",
-    "noData": "No fortune data yet. Complete a reading first.",
+    "weeklyPreview": "Weekly Status Preview",
+    "dailyPreview": "Today's Status Preview",
+    "previewHint": "Status Preview",
+    "noData": "No status data yet. Complete a reading first.",
     "goReading": "Start Reading",
     "success": "Subscription preferences saved",
-    "tooltip": "View your fortune",
-    "generating": "Generating your fortune...",
-    "loginRequired": "Login to see your personalized fortune"
+    "tooltip": "View your status",
+    "generating": "Generating your status...",
+    "loginRequired": "Login to see your personalized status"
   },
   "admin": {
     "title": "Admin Dashboard",
@@ -3485,15 +3485,15 @@
     "avgOrderValue": "Avg Order Value"
   },
   "onboarding": {
-    "step1Title": "Welcome to Destiny Mirror",
-    "step1Desc": "AI-powered multi-dimension destiny analysis. You've received 100 Stardust — enough to unlock your first full report!",
+    "step1Title": "Welcome to Behavioral Mirror",
+    "step1Desc": "AI-powered multi-dimension behavioral analysis. You've received 100 Stardust — enough to unlock your first full report!",
     "step2Title": "Fill in Your Birth Info",
-    "step2Desc": "Enter your birth date, time, and location. This is the foundation for all destiny calculations.",
+    "step2Desc": "Enter your birth date, time, and location. This is the foundation for all behavioral calculations.",
     "step2Link": "Start Now",
     "step3Title": "5 AI Analysis Dimensions",
-    "step3Desc": "Bazi, Western Astrology, Tarot, Face Reading, and Palmistry — all powered by AI for comprehensive insights.",
-    "step4Title": "Discover Destiny Products",
-    "step4Desc": "Based on your reading, we recommend crystals, talismans, and services tailored to your destiny blueprint.",
+    "step3Desc": "Four-Pillar, Western Behavioral Pattern, Symbolic, Facial Feature, and Hand Feature — all powered by AI for comprehensive insights.",
+    "step4Title": "Discover Behavioral Products",
+    "step4Desc": "Based on your reading, we recommend focuss, talismans, and services tailored to your behavioral blueprint.",
     "step4Link": "Explore Shop"
   },
   "billing": {
@@ -3505,7 +3505,7 @@
     "enterCode": "Please enter a redemption code",
     "redeemFail": "Invalid or expired redemption code",
     "sponsor": "Support Us",
-    "sponsorDesc": "Your support helps us continuously improve the destiny analysis engine",
+    "sponsorDesc": "Your support helps us continuously improve the behavioral analysis engine",
     "goSponsor": "Go to Sponsor",
     "redeemTitle": "Redemption Code",
     "redeemDesc": "Enter your redemption code to activate stardust",
@@ -3546,7 +3546,7 @@
       "Aligning hash causality...",
       "Merging cross-chain meridians...",
       "Deducing Token elements...",
-      "Verifying address feng shui...",
+      "Verifying address environment...",
       "Sensing aura resonance...",
       "Parsing block imprints..."
     ]
