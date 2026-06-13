@@ -9,7 +9,7 @@
       },
       "GI": {
         "descA": "Enthusiastically reading charts for everyone online for free",
-        "descB": "Don't touch me — you're disturbing my aura's cleanliness",
+        "descB": "Don't touch me — you're disturbing my profile's cleanliness",
         "nameA": "Worldly Healer",
         "nameB": "Hermit Cultivator"
       },
@@ -70,7 +70,7 @@
     },
     "DXIE": {
       "advice": "The universe isn't always targeting you — sometimes it's just passing by. Don't be so hyped. Drink more hot water, argue less with heaven, and stay alive.",
-      "diagnosis": "Rebellious to the core. Horoscope says he'll lose money this year? He takes three jobs a day just to spite it. 3 AM inspiration sparks a pattern-changing plan, 5 AM execution begins. Everyone in his social circle fears and admires him.",
+      "diagnosis": "Rebellious to the core. Analysis says he'll lose money this year? He takes three jobs a day just to spite it. 3 AM inspiration sparks a pattern-changing plan, 5 AM execution begins. Everyone in his social circle fears and admires him.",
       "quote": "It's easy to defeat external thieves, hard to defeat the thief within",
       "quoteExplain": "Don't talk pattern with me — I AM pattern!",
       "title": "The 3 AM Behavioral-Confronting Maniac"
@@ -105,14 +105,14 @@
     },
     "FSIP": {
       "advice": "Step outside for some sunshine occasionally — positive ions are free. The data in Excel is dead; the scenery outside is alive.",
-      "diagnosis": "A cold, ruthless analytical machine. Turned birth charts, annual cycles, and past events into a review funnel model. Extremely rational but pathologically shy. Wrote a Python pattern analysis script — result: 73% probability of dying alone.",
+      "diagnosis": "A cold, ruthless analytical machine. Turned birth profiles, annual cycles, and past events into a review funnel model. Extremely rational but pathologically shy. Wrote a Python pattern analysis script — result: 73% probability of dying alone.",
       "quote": "The mind made straight is the Way",
       "quoteExplain": "Don't talk traditional nonsense — pull up the data",
       "title": "The Excel Status-Telling Hermit"
     },
     "FXGE": {
       "advice": "Invest in an extra-large bed for your online chart-reading business. Set up an auto-reply: Currently meditating. For urgent matters, please burn incense.",
-      "diagnosis": "A genius who reads friends' status by psychic transmission from bed. Replies to messages lying down, posts on social media lying down, reads birth charts lying down. Social energy transmitted entirely through horizontal position. Infinitely popular but actual outings are zero.",
+      "diagnosis": "A genius who reads friends' status by intuitive transmission from bed. Replies to messages lying down, posts on social media lying down, reads birth profiles lying down. Social energy transmitted entirely through horizontal position. Infinitely popular but actual outings are zero.",
       "quote": "Unity of knowledge and action is true knowledge",
       "quoteExplain": "Even while lying down I socialize — the ultimate unity of thought and action",
       "title": "The Traditional Social Butterfly"
@@ -249,8 +249,8 @@
       "great": "Excellent",
       "ji": "Inauspicious",
       "low": "Low",
-      "luckyColor": "Lucky Color",
-      "luckyNumber": "Lucky Number",
+      "luckyColor": "Recommended Color",
+      "luckyNumber": "Recommended Number",
       "poor": "Poor",
       "yi": "Auspicious"
     },
@@ -274,7 +274,7 @@
       "nickname": "Nickname",
       "notSet": "Not set",
       "title": "Behavioral Profile",
-      "zodiacYear": " sign"
+      "starYear": " sign"
     },
     "recent": {
       "analyzing": "Analyzing...",
@@ -435,7 +435,7 @@
         "title": "4. Data Storage & Security"
       },
       "s5": {
-        "content": "For AI analysis, we send your birth information to:\n\n1. **DeepSeek API**: For AI behavioral analysis (data processing agreement in place).\n2. **Skyfield Library**: For local natal chart calculation (no data export).\n3. **Payment Providers**: Alipay, WeChat Pay, PayPal (used only when you initiate payment).\n\nWe do not sell or share your personal information with any other third parties.",
+        "content": "For AI analysis, we send your birth information to:\n\n1. **DeepSeek API**: For AI behavioral analysis (data processing agreement in place).\n2. **Skyfield Library**: For local behavioral profile calculation (no data export).\n3. **Payment Providers**: Alipay, WeChat Pay, PayPal (used only when you initiate payment).\n\nWe do not sell or share your personal information with any other third parties.",
         "title": "5. Third-Party Services"
       },
       "s6": {
@@ -487,7 +487,7 @@
     },
     "terms": {
       "s1": {
-        "content": "Behavioral Mirror is an AI-powered multi-dimensional behavioral analysis platform providing:\n\n1. Four-Pillar, natal chart, Qi Men Dun Jia, and Zi Wei Dou Shu analysis based on birth information\n2. Symbolic card readings\n3. AI face and palm analysis\n4. Comprehensive behavioral reports with personalized recommendations\n5. Lifestyle product recommendations and purchases\n6. Event retrospection and daily insights\n\nThis service is for personal entertainment and reference only and does not constitute professional advice of any kind.",
+        "content": "Behavioral Mirror is an AI-powered multi-dimensional behavioral analysis platform providing:\n\n1. Four-Pillar, behavioral profile, Qi Men Dun Jia, and Zi Wei Dou Shu analysis based on birth information\n2. Symbolic card readings\n3. AI face and palm analysis\n4. Comprehensive behavioral reports with personalized recommendations\n5. Lifestyle product recommendations and purchases\n6. Event retrospection and daily insights\n\nThis service is for personal entertainment and reference only and does not constitute professional advice of any kind.",
         "title": "1. Service Description"
       },
       "s2": {
@@ -640,7 +640,7 @@
     "hotQ3": "Wealth & investment advice",
     "hotQ3Full": "Wealth analysis — what should I watch in investing?",
     "hotQ4": "Overall status for next 6 months",
-    "hotQ4Full": "Overall status and lucky directions for the next 6 months",
+    "hotQ4Full": "Overall status and recommended directions for the next 6 months",
     "hotQ5": "Entrepreneurship timing & fields",
     "hotQ5Full": "Am I cut out for entrepreneurship? When's the best time?",
     "hotQ6": "Family relationships & harmony",
@@ -819,7 +819,7 @@
       "jewelry": "Jewelry",
       "other": "Other",
       "service": "Service",
-      "talisman": "Talisman"
+      "talisman": "Accessory"
     },
     "added": "Added",
     "addedToCart": "Added \"{name}\" to cart",
@@ -860,9 +860,9 @@
     "philosophySubtitle": "Five Wisdom Traditions, One Unified Vision",
     "pillar1Title": "Four-Pillar Analysis",
     "pillar1Subtitle": "Four Pillars & Eight Characters",
-    "pillar1Desc": "Decode the Five Elements flow in your birth chart. We trace the dynamic interplay of Wood, Fire, Earth, Metal, and Water across your life pillars, revealing your innate strengths, hidden challenges, and optimal timing for major decisions.",
-    "pillar2Title": "Natal Chart Reading",
-    "pillar2Subtitle": "Natal Chart Reading",
+    "pillar1Desc": "Decode the Five Elements flow in your birth profile. We trace the dynamic interplay of Wood, Fire, Earth, Metal, and Water across your life pillars, revealing your innate strengths, hidden challenges, and optimal timing for major decisions.",
+    "pillar2Title": "Behavioral Profile Reading",
+    "pillar2Subtitle": "Behavioral Profile Reading",
     "pillar2Desc": "Map the celestial blueprint of your birth moment. Each planetary placement, house position, and aspect tells a story — from career calling to relationship dynamics, we illuminate the cosmic forces shaping your journey.",
     "pillar3Title": "Integrated Wisdom",
     "pillar3Subtitle": "Five-Dimension Analysis",
@@ -1032,7 +1032,7 @@
       "desc": "Planetary Houses · Aspects · Soul Mission",
       "detail": "We map your Sun-Moon-Rising triangle to uncover the shape of your soul's journey.",
       "tag": "Fire",
-      "_label": "Natal Chart"
+      "_label": "Behavioral Profile"
     },
     "four-pillar": {
       "desc": "Four Pillar Chart · Element Balance · Dynamic Analysis",
@@ -1116,9 +1116,9 @@
       "running": "Interpreting palm lines…"
     },
     "strategic": {
-      "label": "Strategic Divination",
-      "done": "Strategic divination complete",
-      "running": "Performing Strategic divination…"
+      "label": "Strategic Analysis",
+      "done": "Strategic analysis complete",
+      "running": "Performing Strategic analysis…"
     },
     "symbolic": {
       "label": "Symbolic Healing",
@@ -1321,10 +1321,10 @@
     "wechat": "WeChat Support",
     "wechatHint": "Weekdays 9:00 - 18:00"
   },
-  "divination": {
+  "analysis": {
     "share": {
       "aiAction": "AI Action Guide",
-      "appName": "Behavioral Mirror · Stellar Oracle",
+      "appName": "Behavioral Mirror · Stellar Insight",
       "copiedWithCode": "Link with referral code copied",
       "copyShareLink": "Copy Share Link (with referral code)",
       "exploreMyChart": "Explore My Chart",
@@ -1342,10 +1342,10 @@
     "clickToDraw": "Click to Draw",
     "cost": "Cost: 1 Stardust",
     "costInfo": "Cost {cost} Stardust · Balance {balance}",
-    "disclaimer": "Divination results are generated based on Wang Yangming's philosophy and celestial energy, for entertainment and self-reflection only. Action guidance is for reference and doesn't constitute decision advice.",
+    "disclaimer": "Analysis results are generated based on Wang Yangming's philosophy and celestial energy, for entertainment and self-reflection only. Action guidance is for reference and doesn't constitute decision advice.",
     "divineName": "Celestial Name",
     "divinePoem": "Divine Poem",
-    "draw": "Draw Divination",
+    "draw": "Draw Analysis",
     "drawAgain": "Draw Again",
     "drawAgain2": "Draw Again",
     "drawAgainPaid": "Spend {cost} Stardust to draw again",
@@ -1365,16 +1365,16 @@
     "payStardust": "1 Stardust per draw · Deep celestial resonance",
     "rechargeStardust": "Recharge Stardust",
     "refillHint": "Add 1 Stardust to keep going, or invite friends for bonus Stardust",
-    "result": "Divination Result",
+    "result": "Analysis Result",
     "rule1Desc": "Refreshes at midnight — same user, same result all day",
     "rule1Title": "First draw free daily",
     "rule2Desc": "Members get monthly Stardust grants",
     "rule2Title": "Each additional draw costs 1 Stardust",
-    "rule3Desc": "Combined with your natal chart for a personalized take",
+    "rule3Desc": "Combined with your behavioral profile for a personalized take",
     "rule3Title": "Deep interpretation",
     "rule4Desc": "1 share per day, 5 Stardust per share",
-    "rule4Title": "Share divination for Stardust",
-    "rules": "Divination Rules",
+    "rule4Title": "Share analysis for Stardust",
+    "rules": "Analysis Rules",
     "sensingEnergy": "Attuning to the {theme} palace...",
     "shakeHint": "Shake your phone or tap above to start drawing",
     "shareFailed": "Share failed",
@@ -1384,9 +1384,9 @@
     "shareSuccess": "Shared! Earned {count} Stardust",
     "shareLimitReached": "Daily share limit reached (1 per day)",
     "shareRemaining": "{count} shares left today for Stardust",
-    "shareTitle": "Celestial Divination",
+    "shareTitle": "Celestial Analysis",
     "subtitle": "One free draw daily · Feel the stars guiding you",
-    "title": "Celestial Divination",
+    "title": "Celestial Analysis",
     "todayFirstFree": "One free draw per day · Feel the celestial guidance",
     "todayAlreadyDrawn": "Today's status already revealed · Once per day",
     "comeBackTomorrow": "Come Back Tomorrow",
@@ -1538,8 +1538,8 @@
     "expand": "View Details",
     "health": "Health",
     "love": "Love",
-    "luckyColor": "Lucky Color",
-    "luckyNumber": "Lucky Number",
+    "luckyColor": "Recommended Color",
+    "luckyNumber": "Recommended Number",
     "overallScore": "Overall",
     "sectionTitle": "Your Daily Status Guide",
     "startReading": "Start Your Reading",
@@ -1580,7 +1580,7 @@
       "prevent": "Future Prevention"
     },
     "close": "Close",
-    "desc": "Write your current concern or upcoming major event. AI will combine your birth chart for a deep analysis.",
+    "desc": "Write your current concern or upcoming major event. AI will combine your birth profile for a deep analysis.",
     "emotion": "Emotional State",
     "emotion1": "Very Negative",
     "emotion2": "Negative",
@@ -1606,13 +1606,13 @@
     "retryBtn": "Analyze Again",
     "submit": "Analyze Event",
     "submitBtn": "Start Analysis",
-    "submitHint": "Skips symbolic & facial feature, generates report based on your birth chart",
+    "submitHint": "Skips symbolic & facial feature, generates report based on your birth profile",
     "subtitle": "Specific event · AI deep review",
     "title": "Event Analysis"
   },
   "home": {
     "product1": {
-      "desc": "Enhance intuition · Open the crown chakra",
+      "desc": "Enhance intuition · Open the crown energy",
       "name": "Amethyst Cave",
       "tag": "Wellness Growth"
     },
@@ -1644,7 +1644,7 @@
       "am16": "Behavioral Quiz",
       "almanac": "Daily Almanac",
       "shop": "Status Shop",
-      "chat": "Stellar Oracle"
+      "chat": "Stellar Insight"
     },
     "testimonials": {
       "title": "Real User Reviews",
@@ -1659,7 +1659,7 @@
         {
           "name": "Mr. Chen",
           "job": "Engineer",
-          "text": "The natal chart nailed my Saturn lessons and relationship patterns perfectly! More accurate than any master I've visited.",
+          "text": "The behavioral profile nailed my Saturn lessons and relationship patterns perfectly! More accurate than any master I've visited.",
           "score": "9.5",
           "source": "Zhihu"
         },
@@ -1967,7 +1967,7 @@
       "ctaBtn": "Start Analysis",
       "ctaDesc": "Experience AI behavioral pattern analysis for free and discover your unique cosmic imprint",
       "ctaTitle": "Explore Your Chart",
-      "desc": "Based on your birth time and location, AI draws your natal chart and deeply interprets planetary placements and aspects, revealing your unique life blueprint.",
+      "desc": "Based on your birth time and location, AI draws your behavioral profile and deeply interprets planetary placements and aspects, revealing your unique life blueprint.",
       "f1Desc": "Core personality, vitality, and self-expression",
       "f1Title": "Sun Sign",
       "f2Desc": "Inner emotions, subconscious, and security needs",
@@ -1980,7 +1980,7 @@
       "f5Title": "Aspect Analysis",
       "f6Desc": "North and South nodes, exploring the soul's growth direction",
       "f6Title": "Soul Mission",
-      "p1": "A natal chart is a cosmic map drawn based on the precise positions of planets at the moment of birth, recording the distribution of ten planets across twelve zodiac houses.",
+      "p1": "A behavioral profile is a cosmic map drawn based on the precise positions of planets at the moment of birth, recording the distribution of ten planets across twelve star houses.",
       "p2": "By analyzing the 'Big Three' — Sun, Moon, and Rising signs — as well as planetary placements and aspects, we can deeply understand personality traits, emotional patterns, thinking styles, and life mission.",
       "p3": "Behavioral Mirror's AI behavioral pattern system precisely calculates planetary positions and aspects, combining modern psychology with traditional astrological wisdom for in-depth interpretation.",
       "title": "AI Behavioral Pattern Analysis",
@@ -2005,7 +2005,7 @@
       "f5Title": "Favorable Guidance",
       "f6Desc": "Multi-dimension cross-validation, more comprehensive than traditional charts",
       "f6Title": "AI Interpretation",
-      "p1": "Four-Pillar charting converts a person's birth year, month, day, and hour into Heavenly Stems and Earthly Branches combinations, forming eight characters — the so-called 'birth chart'.",
+      "p1": "Four-Pillar charting converts a person's birth year, month, day, and hour into Heavenly Stems and Earthly Branches combinations, forming eight characters — the so-called 'birth profile'.",
       "p2": "By analyzing Five Elements relationships, Ten Gods configurations, and pattern levels, a behavioral analyst can deduce personality, career, wealth, marriage, health, and other life aspects.",
       "p3": "Behavioral Mirror's AI Four-Pillar system combines traditional behavioral studies with modern AI technology for more comprehensive and precise behavioral interpretation.",
       "s1Desc": "Enter year, month, day, hour and birth city",
@@ -2076,7 +2076,7 @@
       "f5Title": "Action Guidance",
       "f6Desc": "Explore the inner self through symbolic for peace and direction",
       "f6Title": "Soul Healing",
-      "p1": "Symbolic cards are an ancient divination tool of 78 cards, each with rich symbolic meaning. Through spreads, symbolic helps explore the subconscious and understand current situations.",
+      "p1": "Symbolic cards are an ancient analysis tool of 78 cards, each with rich symbolic meaning. Through spreads, symbolic helps explore the subconscious and understand current situations.",
       "p2": "Symbolic reading is not fatalistic prediction but a tool for self-exploration and reflection, helping discover overlooked possibilities and make wiser choices.",
       "p3": "Behavioral Mirror's AI symbolic combines traditional symbolic wisdom with modern psychology for deep, comprehensive, and insightful readings.",
       "sp1Desc": "Quick energy guidance for the moment",
@@ -2309,7 +2309,7 @@
     "four-pillar": {
       "_label": "Four-Pillar (Four Pillars)",
       "tag": "Eastern Analysis",
-      "desc": "Decode your behavioral path through the Heavenly Stems and Earthly Branches of your birth chart",
+      "desc": "Decode your behavioral path through the Heavenly Stems and Earthly Branches of your birth profile",
       "detail": "Four Pillars · Ten Gods · Luck Cycles · Five Element Balance"
     },
     "behavioral pattern": {
@@ -2675,17 +2675,17 @@
     "desc": "Trace the Pattern · Find the Cause · Get the Insight",
     "disclaimer": "Event retrospection is for reference and entertainment only, not professional advice.",
     "disclaimerDetail": "View Details",
-    "explanation": "Tell us when something happened — we'll look at the natal chart and Four-Pillar from that moment to explain potential contributing factors and what to do next.",
+    "explanation": "Tell us when something happened — we'll look at the behavioral profile and Four-Pillar from that moment to explain potential contributing factors and what to do next.",
     "freeUserNote": "Free users: ¥19.9/time · Subscribe for 2-5 free/month",
-    "inputDesc": "Tell us about an event you want to understand — we'll look at the natal chart and Four-Pillar from that moment to trace potential causes.",
+    "inputDesc": "Tell us about an event you want to understand — we'll look at the behavioral profile and Four-Pillar from that moment to trace potential causes.",
     "memberQuota": "Members only: {count} free retrospections left this month",
     "monthlyMember": "(Monthly Member: 2/month)",
-    "payDesc": "We'll look at the natal chart and annual Four-Pillar at the time of the event, explain potential contributing factors, and suggest insights.",
+    "payDesc": "We'll look at the behavioral profile and annual Four-Pillar at the time of the event, explain potential contributing factors, and suggest insights.",
     "payError": "Payment failed",
     "payFail": "Payment verification failed",
     "paySuccess": "Payment successful",
     "payTitle": "Pay for Event Retrospection",
-    "perk1": "Event-time Natal Chart & Annual Four-Pillar",
+    "perk1": "Event-time Behavioral Profile & Annual Four-Pillar",
     "perk2": "Root Cause Reading",
     "perk3": "Current Strategy + Future Prevention",
     "perk4": "Energy Prescription Recommendations",
@@ -2735,7 +2735,7 @@
     "text": "Free Reading · 5D Analysis",
     "shopText": "Shop Status Items"
   },
-  "floatingOracle": {
+  "floatingInsight": {
     "freeHint": "First draw free daily, feel the stars guide you",
     "freeToday": "Free Today",
     "label": "Stellar Draw"
@@ -2754,7 +2754,7 @@
     "refund": "Refund Policy",
     "subscribed": "Subscribed",
     "subscribeError": "Subscription failed, please try again later",
-    "systems": "Divination Systems",
+    "systems": "Analysis Systems",
     "terms": "Terms of Service",
     "wechatHint": "Click to copy WeChat ID"
   },
@@ -2890,7 +2890,7 @@
     "blog": "Insights",
     "cart": "Cart",
     "dashboard": "My Chart",
-    "divination": "Quantum Oracle",
+    "analysis": "Quantum Insight",
     "events": "Event Analysis",
     "home": "Home",
     "login": "Login",
@@ -3071,7 +3071,7 @@
     "faq2Q": "Can I cancel anytime? What about refunds?",
     "faq3A": "Only 100 Founder Seats worldwide, first come first served. Once they're gone, they're gone. Founder members get permanent perks: 500 monthly Stardust, feature voting rights, and an exclusive black-gold theme.",
     "faq3Q": "What does the limited Founder Seat mean?",
-    "faq4A": "Free reports give you a basic chart overview (with some limitations). Full reports unlock the complete Four-Pillar pillars, natal chart placements, Ten Gods system, annual planning, and in-depth readings — plus 10 follow-up questions and a 3-day membership trial.",
+    "faq4A": "Free reports give you a basic chart overview (with some limitations). Full reports unlock the complete Four-Pillar pillars, behavioral profile placements, Ten Gods system, annual planning, and in-depth readings — plus 10 follow-up questions and a 3-day membership trial.",
     "faq4Q": "What's the difference between Full Report and Free Report?",
     "faq5A": "Yearly members get 12% off when spending Stardust. For example, a report that normally costs 100 Stardust only costs 88 for you. The discount applies automatically.",
     "faq5Q": "What does the 12% Stardust discount mean?",
@@ -3107,7 +3107,7 @@
     "yearly": "Yearly",
     "channel": {
       "title": "Analysis Channels",
-      "subtitle": "Choose the divination method that suits you",
+      "subtitle": "Choose the analysis method that suits you",
       "quick": {
         "badge": "⚡ Quick",
         "name": "Instant Insight",
@@ -3121,7 +3121,7 @@
         "name": "Deep Resonance",
         "tagline": "Full-Dimension Behavioral Simulation",
         "audience": "For major life decisions — combines facial feature + hand feature + behavioral pattern",
-        "tech": "Multi-modal AI fuses biometric data (face + palm) with natal chart for deep behavioral analysis",
+        "tech": "Multi-modal AI fuses biometric data (face + palm) with behavioral profile for deep behavioral analysis",
         "output": "A comprehensive report covering Five Elements, behavioral pattern, facial feature, and hand feature"
       },
       "price": "Cost",
@@ -3341,12 +3341,12 @@
   "term": {
     "annualStatus": "Annual Status (Liu Nian)",
     "aspects": "Aspects",
-    "aura": "Aura",
+    "profile": "Profile",
     "four-pillar": "Four-Pillar (Four Pillars of Behavioral)",
     "four-pillarShort": "Four-Pillar",
     "caiBian": "Wealth Palace (Cai Bo Gong)",
     "celticCross": "Celtic Cross",
-    "chakra": "Chakra",
+    "energy": "Energy",
     "dagong": "Major Status Period (Da Yun)",
     "dailyStatus": "Daily Status (Liu Ri)",
     "earthlyBranches": "Earthly Branches (Di Zhi)",
@@ -3357,12 +3357,12 @@
     "gua": "Gua (Trigram)",
     "guanLu": "Career Palace (Guan Lu Gong)",
     "heavenlyStems": "Heavenly Stems (Tian Gan)",
-    "hexagram": "64 Hexagrams",
+    "pattern": "64 Patterns",
     "houses": "Houses",
     "jianKang": "Health Palace (Jian Kang Gong)",
     "jiaoYou": "Friends Palace (Jiao You Gong)",
     "jieQi": "Solar Terms (Jie Qi)",
-    "karma": "Karma",
+    "cause": "Cause",
     "lifePath": "Life Path Number",
     "liuNian": "Annual Status (Liu Nian)",
     "majorArcana": "Major Arcana",
@@ -3370,7 +3370,7 @@
     "minorArcana": "Minor Arcana",
     "monthlyStatus": "Monthly Status (Liu Yue)",
     "natal": "Natal",
-    "natalChart": "Natal Chart (Behavioral Pattern)",
+    "natalChart": "Behavioral Profile (Behavioral Pattern)",
     "nian": "Year Pillar",
     "hand feature": "Hand Feature (Palm Reading)",
     "physiognomy": "Physiognomy (Facial Feature)",
@@ -3380,7 +3380,7 @@
     "ri": "Day Pillar",
     "rizhu": "Day Master (Ri Zhu)",
     "shi": "Hour Pillar",
-    "symbolic": "Symbolic (Divination)",
+    "symbolic": "Symbolic (Analysis)",
     "tenGods": "Ten Gods (Shi Shen)",
     "tianZhai": "Property Palace (Tian Zhai Gong)",
     "transit": "Transit",
@@ -3434,8 +3434,8 @@
     "weekRange": "{start} - {end}",
     "overallScore": "Overall Status",
     "theme": "Status Theme",
-    "luckyColor": "Lucky Color",
-    "luckyNumber": "Lucky Number",
+    "luckyColor": "Recommended Color",
+    "luckyNumber": "Recommended Number",
     "luckyDirection": "Auspicious Direction",
     "symbolicCard": "Symbolic Card",
     "symbolicDesc": "Guidance Card Reading",
@@ -3493,7 +3493,7 @@
     "step3Title": "5 AI Analysis Dimensions",
     "step3Desc": "Four-Pillar, Western Behavioral Pattern, Symbolic, Facial Feature, and Hand Feature — all powered by AI for comprehensive insights.",
     "step4Title": "Discover Behavioral Products",
-    "step4Desc": "Based on your reading, we recommend focuss, talismans, and services tailored to your behavioral blueprint.",
+    "step4Desc": "Based on your reading, we recommend focuss, accessories, and services tailored to your behavioral blueprint.",
     "step4Link": "Explore Shop"
   },
   "billing": {
@@ -3547,7 +3547,7 @@
       "Merging cross-chain meridians...",
       "Deducing Token elements...",
       "Verifying address environment...",
-      "Sensing aura resonance...",
+      "Sensing profile resonance...",
       "Parsing block imprints..."
     ]
   },
