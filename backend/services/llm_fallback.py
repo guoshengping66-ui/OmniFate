@@ -10,8 +10,10 @@ from config import get_settings
 logger = logging.getLogger("llm_fallback")
 settings = get_settings()
 
-# 备用模型列表（按优先级排序）
+# 备用模型列表（按优先级排序）— 多层容灾：DeepSeek → OpenAI → 更小模型
 FALLBACK_MODELS = [
+    {"provider": "openai", "model": "gpt-4o-mini", "base_url": "https://api.openai.com/v1",
+     "env_key": "OPENAI_FALLBACK_API_KEY"},  # 可选：独立 key
     {"provider": "deepseek", "model": "deepseek-v4-flash", "base_url": "https://api.deepseek.com"},
 ]
 
@@ -45,13 +47,19 @@ def _record_success(model_key: str):
     _circuit_breaker.pop(model_key, None)
 
 
-def _get_api_key(provider: str) -> Optional[str]:
+def _get_api_key(provider: str, model_cfg: Optional[dict] = None) -> Optional[str]:
+    # Check for model-specific env key first (e.g., OPENAI_FALLBACK_API_KEY)
+    if model_cfg and model_cfg.get("env_key"):
+        import os
+        specific_key = os.environ.get(model_cfg["env_key"], "")
+        if specific_key:
+            return specific_key
     if provider == "deepseek":
         return settings.OPENAI_API_KEY
     elif provider == "openai":
-        return settings.OPENAI_API_KEY  # 可替换为独立 key
+        return settings.OPENAI_API_KEY
     elif provider == "anthropic":
-        return settings.OPENAI_API_KEY  # 可替换为独立 key
+        return settings.OPENAI_API_KEY
     return None
 
 
@@ -91,7 +99,7 @@ async def generate_with_fallback(
             logger.info(f"[FALLBACK] 跳过熔断模型: {model_key}")
             continue
 
-        api_key = _get_api_key(model_cfg["provider"])
+        api_key = _get_api_key(model_cfg["provider"], model_cfg)
         if not api_key:
             continue
 

@@ -55,6 +55,7 @@ async def _get_session_redis():
 # ── In-memory fallback ───────────────────────────────────────────────────────
 _memory_sessions: dict[str, tuple[float, object]] = {}  # key -> (expire_ts, pickled_obj)
 _last_cleanup: float = 0.0
+_MEMORY_MAX_SESSIONS = 100  # Max cached sessions in memory mode
 
 
 async def get_session(key: str) -> Optional[object]:
@@ -104,11 +105,15 @@ async def set_session(key: str, obj: object, ttl: int = SESSION_TTL) -> None:
     # In-memory fallback
     global _last_cleanup
     now = time.time()
-    if now - _last_cleanup > 300:
+    if now - _last_cleanup > 120:  # Cleanup every 2 min (was 5 min)
         expired = [k for k, v in _memory_sessions.items() if v[0] <= now]
         for k in expired:
             del _memory_sessions[k]
         _last_cleanup = now
+    # Evict oldest if at capacity
+    if len(_memory_sessions) >= _MEMORY_MAX_SESSIONS:
+        oldest_key = min(_memory_sessions, key=lambda k: _memory_sessions[k][0])
+        del _memory_sessions[oldest_key]
     _memory_sessions[key] = (now + ttl, obj)
 
 

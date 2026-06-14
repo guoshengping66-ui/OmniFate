@@ -896,6 +896,8 @@ async def run_subtask_core(state: SystemState, prep: dict) -> str:
     """Run core synthesis sub-task (Sub-task A). Returns result text.
     For free users: two separate LLM calls (A+B) to avoid truncation.
     For premium users: single call (only A is needed in summary)."""
+    import time as _time
+    _t0 = _time.monotonic()
     llm_model = settings.PREMIUM_MODEL if state.is_premium else settings.MASTER_FAST_MODEL
     # Use higher token limit for master fast model (English mode needs more tokens)
     llm_max_tokens = None if state.is_premium else settings.MASTER_FAST_MODEL_MAX_TOKENS
@@ -951,12 +953,16 @@ async def run_subtask_core(state: SystemState, prep: dict) -> str:
 
         result = f"{part_a}\n\n{part_b}"
 
+    _elapsed = _time.monotonic() - _t0
+    print(f"[MASTER] subtask_core done in {_elapsed:.1f}s (model={llm_model}, premium={state.is_premium})")
     state.master_subtask_core = result
     return result
 
 
 async def run_subtask_dims(state: SystemState, prep: dict) -> str:
     """Run dimension analysis sub-task (Sub-task B). Returns result text."""
+    import time as _time
+    _t0 = _time.monotonic()
     llm_model = settings.PREMIUM_MODEL if state.is_premium else settings.MASTER_FAST_MODEL
     llm_max_tokens = None if state.is_premium else settings.MASTER_FAST_MODEL_MAX_TOKENS
     system = master_subtask_dimensions_prompt(
@@ -969,12 +975,16 @@ async def run_subtask_dims(state: SystemState, prep: dict) -> str:
     )
     result = await _call(system, "请生成五维诊断报告。" if state.language == "zh" else "Generate the five-dimension diagnosis report.", model=llm_model, language=state.language,
                         max_tokens=llm_max_tokens)
+    _elapsed = _time.monotonic() - _t0
+    print(f"[MASTER] subtask_dims done in {_elapsed:.1f}s (model={llm_model})")
     state.master_subtask_dimensions = result
     return result
 
 
 async def run_subtask_actions(state: SystemState, prep: dict) -> str:
     """Run action plan sub-task (Sub-task C). Returns result text."""
+    import time as _time
+    _t0 = _time.monotonic()
     llm_model = settings.PREMIUM_MODEL if state.is_premium else settings.MASTER_FAST_MODEL
     llm_max_tokens = None if state.is_premium else settings.MASTER_FAST_MODEL_MAX_TOKENS
     system = master_subtask_actions_prompt(
@@ -988,6 +998,8 @@ async def run_subtask_actions(state: SystemState, prep: dict) -> str:
     )
     result = await _call(system, "请生成行动建议报告。" if state.language == "zh" else "Generate the action plan report.", model=llm_model, language=state.language,
                         max_tokens=llm_max_tokens)
+    _elapsed = _time.monotonic() - _t0
+    print(f"[MASTER] subtask_actions done in {_elapsed:.1f}s (model={llm_model})")
     state.master_subtask_actions = result
     return result
 

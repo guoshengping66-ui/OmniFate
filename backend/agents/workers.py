@@ -168,23 +168,53 @@ def _llm(temperature: float = 0.35, model: str | None = None, max_tokens: int | 
 
 # Common Chinese命理 terms → English mapping for post-processing cleanup
 _ZH_EN_MAP = {
+    # 八字核心术语
     "日主": "Core Profile", "月令": "Seasonal Influence", "用神": "Strength Pattern",
     "忌神": "Growth Area", "喜神": "Support Pattern", "闲神": "Neutral Pattern",
     "正官": "Structured Trait", "七杀": "Challenge Pattern", "正印": "Support Pattern",
     "偏印": "Indirect Support", "食神": "Creative Expression", "伤官": "Independent Thinking",
     "正财": "Steady Earnings", "偏财": "Variable Income", "比肩": "Peer Trait",
     "劫财": "Competitive Trait", "天干": "Upper Cycle", "地支": "Lower Cycle",
+    # 命宫系统
     "命宫": "Foundation Profile", "财帛宫": "Financial Pattern", "官禄宫": "Career Trajectory",
     "疾厄宫": "Health Pattern", "迁移宫": "Travel Tendency", "田宅宫": "Property Trend",
     "夫妻宫": "Relationship Pattern", "子女宫": "Family Dynamics", "兄弟宫": "Social Network",
     "父母宫": "Heritage Influence", "交友宫": "Community Circle",
+    # 五行
     "金": "Metal", "木": "Wood", "水": "Water", "火": "Fire", "土": "Earth",
+    # 身强身弱
     "身旺": "strong core profile", "身弱": "developing core profile",
     "调候": "climate adjustment", "通关": "bridging element",
+    # 神煞
     "桃花": "Social Charm", "驿马": "Mobility Pattern", "华盖": "Scholarly Pattern",
     "天乙贵人": "Support Network", "文昌贵人": "Learning Pattern",
     "羊刃": "Intensity Pattern", "空亡": "Not Applicable",
+    "天德贵人": "Heavenly Virtue", "月德贵人": "Monthly Virtue",
+    "将星": "Leadership Pattern", "红鸾": "Romance Star", "天喜": "Joy Star",
+    "孤辰": "Solitude Pattern", "寡宿": "Independence Pattern",
+    "劫煞": "Obstacle Pattern", "亡神": "Loss Pattern", "咸池": "Passion Pattern",
+    # 运势
     "大运": "Development Phase", "流年": "Annual Trend", "流月": "Monthly Trend",
+    "流日": "Daily Trend", "转运": "Phase Transition",
+    # 星盘术语
+    "上升星座": "Ascendant Sign", "太阳星座": "Sun Sign", "月亮星座": "Moon Sign",
+    "金星": "Venus", "火星": "Mars", "木星": "Jupiter", "土星": "Saturn",
+    "天王星": "Uranus", "海王星": "Neptune", "冥王星": "Pluto",
+    "水星": "Mercury", "北交点": "North Node", "南交点": "South Node",
+    "合相": "Conjunction", "对冲": "Opposition", "三分相": "Trine",
+    "四分相": "Square", "六分相": "Sextile",
+    # 紫微斗数
+    "紫微": "Emperor Star", "天府": "Treasury Star", "太阴": "Moon Star",
+    "贪狼": "Desire Star", "巨门": "Gateway Star", "天相": "Minister Star",
+    "天梁": "Pillar Star", "破军星": "Pioneer Star",
+    # 奇门遁甲
+    "值符": "Ruling Star", "值使": "Ruling Gate",
+    "天心": "Heart Gate", "天英": "Fire Gate",
+    # 通用命理
+    "命格": "Chart Pattern", "命局": "Chart Structure", "格局": "Pattern Type",
+    "刑冲合害": "Interaction Pattern", "三合三会": "Triple Combination",
+    "相生": "Supportive", "相克": "Challenging", "相合": "Harmonious",
+    "相冲": "Conflicting", "相刑": "Tension", "相害": "Friction",
 }
 
 

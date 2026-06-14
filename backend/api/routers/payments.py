@@ -542,7 +542,7 @@ class WeChatPay:
         root = ET.fromstring(xml_str)
         return {child.tag: child.text for child in root}
 
-    async def create_order(self, order_no: str, amount_cny: float, description: str) -> dict:
+    async def create_order(self, order_no: str, amount_cny: float, description: str, client_ip: str = "127.0.0.1") -> dict:
         """创建微信支付订单，返回二维码 URL"""
         amount_fen = int(amount_cny * 100)  # 转为分
 
@@ -553,7 +553,7 @@ class WeChatPay:
             "body": description,
             "out_trade_no": order_no,
             "total_fee": str(amount_fen),
-            "spbill_create_ip": "127.0.0.1",  # TODO: Use actual client IP from request.headers.get("x-real-ip") or request.client.host
+            "spbill_create_ip": client_ip,
             "notify_url": self.notify_url,
             "trade_type": "NATIVE",
         }
@@ -622,7 +622,14 @@ async def create_wechat_order(
     await db.commit()
 
     wechat = WeChatPay()
-    result = await wechat.create_order(order_no, amount, wechat_subject)
+    # Extract client IP for WeChat compliance
+    client_ip = "127.0.0.1"
+    real_ip = request.headers.get("x-real-ip")
+    if real_ip:
+        client_ip = real_ip.split(",")[0].strip()
+    elif request.client:
+        client_ip = request.client.host
+    result = await wechat.create_order(order_no, amount, wechat_subject, client_ip=client_ip)
 
     return {
         "order_no": order_no,

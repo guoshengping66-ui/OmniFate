@@ -76,26 +76,107 @@ def _estimate_utc_offset(longitude: float | None, latitude: float | None) -> flo
     if longitude is None:
         return 8.0  # default CST for China
 
-    # China: entire country uses UTC+8 regardless of longitude
-    # Rough bounding box: 73°E-135°E, 18°N-54°N
-    if latitude is not None and 18 <= latitude <= 54 and 73 <= longitude <= 135:
+    lat = latitude if latitude is not None else 0
+
+    # ── Asia ──
+    # China: entire country uses UTC+8
+    if 18 <= lat <= 54 and 73 <= longitude <= 135:
         return 8.0
-
-    # India: UTC+5:30 (unique 30-min offset)
-    if latitude is not None and 6 <= latitude <= 37 and 68 <= longitude <= 98:
+    # Japan: UTC+9
+    if 24 <= lat <= 46 and 122 <= longitude <= 146:
+        return 9.0
+    # Korea: UTC+9
+    if 33 <= lat <= 43 and 124 <= longitude <= 132:
+        return 9.0
+    # India: UTC+5:30
+    if 6 <= lat <= 37 and 68 <= longitude <= 98:
         return 5.5
-
-    # Iran: UTC+3:30
-    if latitude is not None and 25 <= latitude <= 40 and 44 <= longitude <= 64:
-        return 3.5
-
-    # Myanmar: UTC+6:30
-    if latitude is not None and 9 <= latitude <= 29 and 92 <= longitude <= 102:
-        return 6.5
-
     # Nepal: UTC+5:45
-    if latitude is not None and 26 <= latitude <= 31 and 80 <= longitude <= 89:
+    if 26 <= lat <= 31 and 80 <= longitude <= 89:
         return 5.75
+    # Myanmar: UTC+6:30
+    if 9 <= lat <= 29 and 92 <= longitude <= 102:
+        return 6.5
+    # Thailand/Vietnam/Cambodia/Laos: UTC+7
+    if 5 <= lat <= 24 and 98 <= longitude <= 110:
+        return 7.0
+    # Indonesia (Western): UTC+7
+    if -8 <= lat <= 6 and 95 <= longitude <= 115:
+        return 7.0
+    # Indonesia (Central): UTC+8
+    if -8 <= lat <= 2 and 115 <= longitude <= 125:
+        return 8.0
+    # Philippines: UTC+8
+    if 4 <= lat <= 21 and 116 <= longitude <= 127:
+        return 8.0
+    # Malaysia/Singapore: UTC+8
+    if -1 <= lat <= 7 and 99 <= longitude <= 119:
+        return 8.0
+    # Iran: UTC+3:30
+    if 25 <= lat <= 40 and 44 <= longitude <= 64:
+        return 3.5
+    # Saudi Arabia/Gulf: UTC+3
+    if 12 <= lat <= 32 and 35 <= longitude <= 60:
+        return 3.0
+    # Turkey: UTC+3
+    if 36 <= lat <= 42 and 26 <= longitude <= 45:
+        return 3.0
+
+    # ── Europe ──
+    # UK/Ireland: UTC+0 (UTC+1 summer)
+    if 49 <= lat <= 61 and -11 <= longitude <= 2:
+        return 0.0
+    # Western Europe (France, Spain, etc.): UTC+1
+    if 36 <= lat <= 51 and -10 <= longitude <= 15:
+        return 1.0
+    # Central Europe (Germany, Italy, etc.): UTC+1
+    if 42 <= lat <= 56 and 5 <= longitude <= 18:
+        return 1.0
+    # Eastern Europe: UTC+2
+    if 42 <= lat <= 58 and 18 <= longitude <= 32:
+        return 2.0
+    # Russia (European): UTC+3
+    if 45 <= lat <= 70 and 28 <= longitude <= 45:
+        return 3.0
+
+    # ── Americas ──
+    # US East Coast: UTC-5
+    if 24 <= lat <= 50 and -82 <= longitude <= -67:
+        return -5.0
+    # US Central: UTC-6
+    if 25 <= lat <= 49 and -105 <= longitude <= -82:
+        return -6.0
+    # US Mountain: UTC-7
+    if 31 <= lat <= 49 and -115 <= longitude <= -105:
+        return -7.0
+    # US Pacific: UTC-8
+    if 32 <= lat <= 49 and -125 <= longitude <= -115:
+        return -8.0
+    # Mexico: UTC-6 (most)
+    if 14 <= lat <= 33 and -118 <= longitude <= -86:
+        return -6.0
+    # Brazil (most): UTC-3
+    if -34 <= lat <= 5 and -74 <= longitude <= -35:
+        return -3.0
+    # Argentina: UTC-3
+    if -55 <= lat <= -22 and -74 <= longitude <= -54:
+        return -3.0
+
+    # ── Oceania ──
+    # Australia East: UTC+10
+    if -44 <= lat <= -10 and 112 <= longitude <= 155:
+        return 10.0
+    # New Zealand: UTC+12
+    if -48 <= lat <= -34 and 166 <= longitude <= 179:
+        return 12.0
+
+    # ── Africa ──
+    # South Africa: UTC+2
+    if -35 <= lat <= -22 and 16 <= longitude <= 33:
+        return 2.0
+    # West Africa (Nigeria etc.): UTC+1
+    if 0 <= lat <= 15 and -18 <= longitude <= 16:
+        return 1.0
 
     # Default: solar time approximation
     return round(longitude / 15.0)
@@ -258,15 +339,38 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
 
     # ── Extract Section A: Personality (full, no truncation) ──
     personality = ""
-    for marker in ["【A·", "【命盘底色】"]:
+    for marker in ["【A·", "【A ·", "【命盘底色】"]:
         section = _extract_section(core_result, marker)
         if section and len(section) > 50:
             personality = section  # Keep full section
             break
 
+    # ── Extract behavioral patterns and growth edge from personality ──
+    behavioral_patterns = ""
+    growth_edge = ""
+    if personality:
+        # Try to extract "关键行为模式" / "Key Behavioral Patterns"
+        bp_patterns = [
+            r'(?:关键行为模式|Key Behavioral Patterns)[：:]\s*(.+?)(?=\n\n|成长建议|Growth Edge|$)',
+        ]
+        for pattern in bp_patterns:
+            m = _re.search(pattern, personality, _re.DOTALL)
+            if m:
+                behavioral_patterns = m.group(1).strip()
+                break
+        # Try to extract "成长建议" / "Growth Edge"
+        ge_patterns = [
+            r'(?:成长建议|Growth Edge)[：:]\s*(.+?)(?:\n\n|$)',
+        ]
+        for pattern in ge_patterns:
+            m = _re.search(pattern, personality, _re.DOTALL)
+            if m:
+                growth_edge = m.group(1).strip()
+                break
+
     # ── Extract Section B: Cross-dimension Resonance (full, no truncation) ──
     resonance = ""
-    for marker in ["【B·", "【跨维度共鸣】"]:
+    for marker in ["【B·", "【B ·", "【跨维度共鸣】"]:
         section = _extract_section(core_result, marker)
         if section and len(section) > 50:
             resonance = section  # Keep full section
@@ -274,7 +378,7 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
 
     # ── Extract Section D: Near-term Alerts ──
     near_term = ""
-    for marker in ["【D·", "【近期关键提醒】"]:
+    for marker in ["【D·", "【D ·", "【近期关键提醒】"]:
         section = _extract_section(core_result, marker)
         if section and len(section) > 20:
             near_term = section
@@ -282,7 +386,7 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
 
     # ── Extract Section E: Action Suggestions ──
     action_tips = ""
-    for marker in ["【E·", "【行动建议速览】"]:
+    for marker in ["【E·", "【E ·", "【行动建议速览】"]:
         section = _extract_section(core_result, marker)
         if section and len(section) > 20:
             action_tips = section
@@ -291,20 +395,28 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
     # ── Build Section F: Unique Strengths (from personality section) ──
     unique_strengths = ""
     if personality:
-        # Extract strength-related sentences from personality
-        strength_patterns = [
-            r'优势[：:](.+?)(?:\n|$)',
-            r'擅长[：:](.+?)(?:\n|$)',
-            r'天赋[：:](.+?)(?:\n|$)',
-            r'特点是?(.+?)(?:[。，]|$)',
-        ]
+        # Multi-strategy extraction: try structured fields first, then regex fallback
         strengths = []
-        for pattern in strength_patterns:
-            matches = _re.findall(pattern, personality)
-            for m in matches[:2]:
-                cleaned = m.strip().rstrip("。，")
-                if len(cleaned) > 10:
+        # Strategy 1: Look for explicit strength mentions in behavioral patterns
+        if behavioral_patterns:
+            bp_items = _re.findall(r'[•·\-\d]+[、.．]?\s*(.+?)(?:\n|$)', behavioral_patterns)
+            for item in bp_items[:2]:
+                cleaned = item.strip().rstrip("。，")
+                if len(cleaned) > 8:
                     strengths.append(f"• {cleaned}")
+        # Strategy 2: Regex fallback on personality text
+        if not strengths:
+            strength_patterns = [
+                r'(?:优势|strength|擅长|擅长)[：:](.+?)(?:\n|$)',
+                r'(?:天赋|gift|天赋)[：:](.+?)(?:\n|$)',
+                r'(?:核心特质|Core Trait)[：:](.+?)(?:\n|$)',
+            ]
+            for pattern in strength_patterns:
+                matches = _re.findall(pattern, personality, _re.IGNORECASE)
+                for m in matches[:2]:
+                    cleaned = m.strip().rstrip("。，")
+                    if len(cleaned) > 8:
+                        strengths.append(f"• {cleaned}")
         if strengths:
             unique_strengths = "\n".join(strengths[:3])
 
@@ -323,7 +435,7 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
                 break
 
     # ── Apply total length cap ──
-    TOTAL_MAX = 4500
+    TOTAL_MAX = 5500  # Increased to accommodate behavioral patterns + growth edge + insights
     combined_sections = personality + resonance + near_term + action_tips
     if len(combined_sections) > TOTAL_MAX:
         # Prioritize: personality > resonance > action_tips > near_term
@@ -356,7 +468,7 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
             lines.append("【B · 跨维度共鸣（现状痛点）】")
         lines.append(resonance)
 
-    # ── Dimension scores (visual) ──
+    # ── Dimension scores (visual + personalized insights) ──
     scores = state.dimension_scores or {}
     if scores and state.intent != "RELATIONSHIP":
         dim_names = (
@@ -366,6 +478,23 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
             {"wealth": "财运", "relationship": "感情", "career": "事业",
              "health": "健康", "spiritual": "精神"}
         )
+        # Personalized insights per score range (zero LLM cost)
+        _INSIGHTS_EN = {
+            (9.0, 10.01): "Clear breakthrough opportunity ahead — take initiative",
+            (7.5, 9.0): "Solid foundation — maintain momentum for steady growth",
+            (6.0, 7.5): "Stable but lacking highlights — consider targeted investment",
+            (4.0, 6.0): "Volatile — prepare a contingency plan",
+            (0.0, 4.0): "Biggest weak point — prioritize focused improvement",
+        }
+        _INSIGHTS_ZH = {
+            (9.0, 10.01): "近期有明显突破机会，建议主动出击",
+            (7.5, 9.0): "基础扎实，保持节奏即可稳步提升",
+            (6.0, 7.5): "平稳但缺少亮点，可适当投入精力突破",
+            (4.0, 6.0): "需要重点关注意外波动，建议制定应对计划",
+            (0.0, 4.0): "当前最大短板，建议优先投入资源改善",
+        }
+        _insights = _INSIGHTS_EN if is_en else _INSIGHTS_ZH
+
         lines.append("")
         if is_en:
             lines.append("【C · Five-Dimension Energy Overview】")
@@ -385,7 +514,16 @@ def _build_free_summary(core_result: str, state: SystemState) -> str:
             else:
                 bar = "▓" * bar_len + "░" * (10 - bar_len)
                 indicator = "📊"
-            score_lines.append(f"{indicator} {name}: {bar} {val}/10")
+            # Find insight for score range
+            insight = ""
+            for (lo, hi), text in _insights.items():
+                if lo <= val < hi:
+                    insight = text
+                    break
+            score_line = f"{indicator} {name}: {bar} {val}/10"
+            if insight:
+                score_line += f" → {insight}"
+            score_lines.append(score_line)
         lines.append("\n".join(score_lines))
 
     # Section D: Near-term Alerts
@@ -675,35 +813,38 @@ async def run_full_analysis(state: SystemState) -> SystemState:
         """Compute synastry data (astrology aspects + bazi compatibility) in background."""
         if state.intent != "RELATIONSHIP":
             return
-        session_results = _astro_results.get(state.session_id, {})
-        astro_self = session_results.get("self")
-        astro_partner = session_results.get("partner")
+        try:
+            session_results = _astro_results.get(state.session_id, {})
+            astro_self = session_results.get("self")
+            astro_partner = session_results.get("partner")
 
-        if astro_self and astro_partner:
-            try:
-                synastry = _astro_calc.calculate_synastry(astro_self, astro_partner)
-                state.synastry_aspects = synastry.get("aspects", [])
-                composite = _astro_calc.calculate_composite(astro_self, astro_partner)
-                state.composite_chart = composite
-                print(f"[SYNASTRY] {len(state.synastry_aspects)} cross-aspects computed")
-                print(f"[COMPOSITE] ASC={composite.get('ascendant', {}).get('sign_cn', '?')}")
-            except Exception as e:
-                state.errors.append(f"synastry_error: {e}")
-                print(f"[SYNASTRY] Error: {e}")
+            if astro_self and astro_partner:
+                try:
+                    synastry = _astro_calc.calculate_synastry(astro_self, astro_partner)
+                    state.synastry_aspects = synastry.get("aspects", [])
+                    composite = _astro_calc.calculate_composite(astro_self, astro_partner)
+                    state.composite_chart = composite
+                    print(f"[SYNASTRY] {len(state.synastry_aspects)} cross-aspects computed")
+                    print(f"[COMPOSITE] ASC={composite.get('ascendant', {}).get('sign_cn', '?')}")
+                except Exception as e:
+                    state.errors.append(f"synastry_error: {e}")
+                    print(f"[SYNASTRY] Error: {e}")
 
-        if state.bazi_raw and state.partner_bazi_raw:
-            try:
-                from calculators.bazi_calculator import BaziCalculator
-                bazi_compat = BaziCalculator.calculate_compatibility(
-                    state.bazi_raw, state.partner_bazi_raw,
-                )
-                state.bazi_compatibility = bazi_compat
-                print(f"[BAZI_COMPAT] Score: {bazi_compat.get('score', 0)}/100")
-            except Exception as e:
-                state.errors.append(f"bazi_compat_error: {e}")
-                print(f"[BAZI_COMPAT] Error: {e}")
-
-        _astro_results.pop(state.session_id, None)
+            if state.bazi_raw and state.partner_bazi_raw:
+                try:
+                    from calculators.bazi_calculator import BaziCalculator
+                    bazi_compat = BaziCalculator.calculate_compatibility(
+                        state.bazi_raw, state.partner_bazi_raw,
+                    )
+                    state.bazi_compatibility = bazi_compat
+                    print(f"[BAZI_COMPAT] Score: {bazi_compat.get('score', 0)}/100")
+                except Exception as e:
+                    state.errors.append(f"bazi_compat_error: {e}")
+                    print(f"[BAZI_COMPAT] Error: {e}")
+        finally:
+            # Always clean up global state to prevent memory leak
+            _astro_results.pop(state.session_id, None)
+            _bazi_results.pop(state.session_id, None)
 
     synastry_task = asyncio.create_task(_compute_synastry())
 

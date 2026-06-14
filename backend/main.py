@@ -52,6 +52,8 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
     redirect_slashes=False,
+    docs_url=None if not settings.DEBUG else "/docs",
+    redoc_url=None if not settings.DEBUG else "/redoc",
 )
 
 app.add_middleware(
@@ -198,10 +200,25 @@ async def rate_limit_middleware(request: Request, call_next):
         client_ip = _get_client_ip(request)
         path = request.url.path
 
+        # For authenticated users, use user_id + IP for more precise rate limiting
+        # This prevents one user's abuse from affecting others
+        user_id = ""
+        auth_header = request.headers.get("authorization", "")
+        if auth_header.startswith("Bearer "):
+            try:
+                from auth.jwt import verify_token as _verify_token
+                token = auth_header[7:]
+                payload = _verify_token(token)
+                if payload and payload.get("sub"):
+                    user_id = payload["sub"]
+            except Exception:
+                pass
+        rate_key_prefix = f"user:{user_id}" if user_id else f"ip:{client_ip}"
+
         # Check endpoint-specific limits first (higher priority)
         limit = ENDPOINT_LIMITS.get(path)
         if limit:
-            if await check_rate_limit(f"ep:{client_ip}:{path}", limit, RATE_LIMIT_WINDOW):
+            if await check_rate_limit(f"ep:{rate_key_prefix}:{path}", limit, RATE_LIMIT_WINDOW):
                 return JSONResponse(
                     status_code=429,
                     content=json.loads(RATE_LIMIT_MESSAGE),
@@ -209,7 +226,7 @@ async def rate_limit_middleware(request: Request, call_next):
                 )
 
         # Global rate limit
-        if await check_rate_limit(f"global:{client_ip}", RATE_LIMIT_MAX, RATE_LIMIT_WINDOW):
+        if await check_rate_limit(f"global:{rate_key_prefix}", RATE_LIMIT_MAX, RATE_LIMIT_WINDOW):
             lang = _get_lang_from_request(request)
             return JSONResponse(
                 status_code=429,
@@ -425,3 +442,51 @@ app.include_router(_fate_compat, prefix="/api/fate", tags=["Fate-Compat"])
 async def health():
     """Health check endpoint"""
     return {"status": "ok", "app": settings.APP_NAME, "version": "2.2.0", "build": "20260604"}
+
+
+@app.get("/health/detailed")
+async def health_detailed():
+    """Deep health check — verifies DB, Redis, and LLM connectivity."""
+    checks = {"status": "ok", "checks": {}}
+
+    # Database check
+    try:
+        from database.session import engine
+        import sqlalchemy as _sa
+        async with engine.begin() as conn:
+            await conn.execute(_sa.text("SELECT 1"))
+        checks["checks"]["database"] = "ok"
+    except Exception as e:
+        checks["checks"]["database"] = f"error: {str(e)[:100]}"
+        checks["status"] = "degraded"
+
+    # Redis check
+    try:
+        from services.redis_client import _get_redis
+        r = await _get_redis()
+        if r:
+            await r.ping()
+            checks["checks"]["redis"] = "ok"
+        else:
+            checks["checks"]["redis"] = "not_configured"
+    except Exception as e:
+        checks["checks"]["redis"] = f"error: {str(e)[:100]}"
+        checks["status"] = "degraded"
+
+    # LLM API check (lightweight)
+    try:
+        if settings.OPENAI_API_KEY:
+            import httpx
+            async with httpx.AsyncClient(timeout=5) as client:
+                resp = await client.get(
+                    f"{settings.OPENAI_BASE_URL}/models",
+                    headers={"Authorization": f"Bearer {settings.OPENAI_API_KEY}"},
+                )
+                checks["checks"]["llm_api"] = "ok" if resp.status_code < 500 else f"error: {resp.status_code}"
+        else:
+            checks["checks"]["llm_api"] = "not_configured"
+    except Exception as e:
+        checks["checks"]["llm_api"] = f"error: {str(e)[:100]}"
+        checks["status"] = "degraded"
+
+    return checks
