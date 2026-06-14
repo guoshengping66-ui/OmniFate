@@ -200,24 +200,25 @@ async def rate_limit_middleware(request: Request, call_next):
         client_ip = _get_client_ip(request)
         path = request.url.path
 
-        # For authenticated users, use user_id + IP for more precise rate limiting
-        # This prevents one user's abuse from affecting others
-        user_id = ""
-        auth_header = request.headers.get("authorization", "")
-        if auth_header.startswith("Bearer "):
-            try:
-                from auth.jwt import verify_token as _verify_token
-                token = auth_header[7:]
-                payload = _verify_token(token)
-                if payload and payload.get("sub"):
-                    user_id = payload["sub"]
-            except Exception:
-                pass
-        rate_key_prefix = f"user:{user_id}" if user_id else f"ip:{client_ip}"
+        # Determine rate limit key — use user_id for authenticated requests
+        # to prevent one user's abuse from affecting others.
+        # Only verify JWT for endpoint-specific limits to avoid double verification.
+        rate_key_prefix = f"ip:{client_ip}"
 
         # Check endpoint-specific limits first (higher priority)
         limit = ENDPOINT_LIMITS.get(path)
         if limit:
+            # Verify JWT only when we have an endpoint-specific limit
+            auth_header = request.headers.get("authorization", "")
+            if auth_header.startswith("Bearer "):
+                try:
+                    from auth.jwt import verify_token as _verify_token
+                    payload = _verify_token(auth_header[7:])
+                    if payload and payload.get("sub"):
+                        rate_key_prefix = f"user:{payload['sub']}"
+                except Exception:
+                    pass
+
             if await check_rate_limit(f"ep:{rate_key_prefix}:{path}", limit, RATE_LIMIT_WINDOW):
                 return JSONResponse(
                     status_code=429,
@@ -446,7 +447,11 @@ async def health():
 
 @app.get("/health/detailed")
 async def health_detailed():
-    """Deep health check — verifies DB, Redis, and LLM connectivity."""
+    """Deep health check — verifies DB, Redis, and LLM connectivity.
+    Only available in DEBUG mode to prevent infrastructure fingerprinting."""
+    if not settings.DEBUG:
+        return {"status": "ok", "message": "Detailed health check available in debug mode only"}
+
     checks = {"status": "ok", "checks": {}}
 
     # Database check

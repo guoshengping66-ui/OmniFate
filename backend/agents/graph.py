@@ -141,13 +141,13 @@ def _estimate_utc_offset(longitude: float | None, latitude: float | None) -> flo
 
     # ── Americas ──
     # US East Coast: UTC-5
-    if 24 <= lat <= 50 and -82 <= longitude <= -67:
+    if 24 <= lat <= 50 and -82 < longitude <= -67:
         return -5.0
     # US Central: UTC-6
-    if 25 <= lat <= 49 and -105 <= longitude <= -82:
+    if 25 <= lat <= 49 and -105 < longitude <= -82:
         return -6.0
     # US Mountain: UTC-7
-    if 31 <= lat <= 49 and -115 <= longitude <= -105:
+    if 31 <= lat <= 49 and -115 < longitude <= -105:
         return -7.0
     # US Pacific: UTC-8
     if 32 <= lat <= 49 and -125 <= longitude <= -115:
@@ -163,8 +163,8 @@ def _estimate_utc_offset(longitude: float | None, latitude: float | None) -> flo
         return -3.0
 
     # ── Oceania ──
-    # Australia East: UTC+10
-    if -44 <= lat <= -10 and 112 <= longitude <= 155:
+    # Australia East: UTC+10 (east of Papua to avoid Indonesia overlap)
+    if -44 <= lat <= -10 and 140 <= longitude <= 155:
         return 10.0
     # New Zealand: UTC+12
     if -48 <= lat <= -34 and 166 <= longitude <= 179:

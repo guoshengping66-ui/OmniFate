@@ -8,7 +8,7 @@ Upgraded with:
 - 5-dimension scoring system
 """
 from __future__ import annotations
-import asyncio, re, json
+import asyncio, re, json, time as _time
 from typing import Optional
 
 from langchain_openai import ChatOpenAI
@@ -896,7 +896,6 @@ async def run_subtask_core(state: SystemState, prep: dict) -> str:
     """Run core synthesis sub-task (Sub-task A). Returns result text.
     For free users: two separate LLM calls (A+B) to avoid truncation.
     For premium users: single call (only A is needed in summary)."""
-    import time as _time
     _t0 = _time.monotonic()
     llm_model = settings.PREMIUM_MODEL if state.is_premium else settings.MASTER_FAST_MODEL
     # Use higher token limit for master fast model (English mode needs more tokens)
@@ -961,7 +960,6 @@ async def run_subtask_core(state: SystemState, prep: dict) -> str:
 
 async def run_subtask_dims(state: SystemState, prep: dict) -> str:
     """Run dimension analysis sub-task (Sub-task B). Returns result text."""
-    import time as _time
     _t0 = _time.monotonic()
     llm_model = settings.PREMIUM_MODEL if state.is_premium else settings.MASTER_FAST_MODEL
     llm_max_tokens = None if state.is_premium else settings.MASTER_FAST_MODEL_MAX_TOKENS
@@ -983,7 +981,6 @@ async def run_subtask_dims(state: SystemState, prep: dict) -> str:
 
 async def run_subtask_actions(state: SystemState, prep: dict) -> str:
     """Run action plan sub-task (Sub-task C). Returns result text."""
-    import time as _time
     _t0 = _time.monotonic()
     llm_model = settings.PREMIUM_MODEL if state.is_premium else settings.MASTER_FAST_MODEL
     llm_max_tokens = None if state.is_premium else settings.MASTER_FAST_MODEL_MAX_TOKENS
@@ -1109,14 +1106,14 @@ def _format_dimension_summaries(scores: dict[str, float], language: str = "zh") 
         "spiritual":    ("🧘", "精神", "Spiritual"),
     }
     _STATUS_ZH = {
-        (9.0, 10.0): "状态极佳，把握机遇",
+        (9.0, 10.01): "状态极佳，把握机遇",
         (7.5, 9.0):  "运势不错，稳中求进",
         (6.0, 7.5):  "中规中矩，注意细节",
         (4.0, 6.0):  "偏弱，需要重点关注",
         (0.0, 4.0):  "较弱，建议重点调理",
     }
     _STATUS_EN = {
-        (9.0, 10.0): "Excellent — seize opportunities",
+        (9.0, 10.01): "Excellent — seize opportunities",
         (7.5, 9.0):  "Good — steady progress",
         (6.0, 7.5):  "Average — watch details",
         (4.0, 6.0):  "Below average — needs attention",
@@ -1124,14 +1121,14 @@ def _format_dimension_summaries(scores: dict[str, float], language: str = "zh") 
     }
     # Personalized 1-line insights per dimension per score range
     _INSIGHTS_ZH = {
-        (9.0, 10.0): "近期有明显突破机会，建议主动出击",
+        (9.0, 10.01): "近期有明显突破机会，建议主动出击",
         (7.5, 9.0):  "基础扎实，保持节奏即可稳步提升",
         (6.0, 7.5):  "平稳但缺少亮点，可适当投入精力突破",
         (4.0, 6.0):  "需要重点关注意外波动，建议制定应对计划",
         (0.0, 4.0):  "当前最大短板，建议优先投入资源改善",
     }
     _INSIGHTS_EN = {
-        (9.0, 10.0): "Clear breakthrough opportunity ahead — take initiative",
+        (9.0, 10.01): "Clear breakthrough opportunity ahead — take initiative",
         (7.5, 9.0):  "Solid foundation — maintain momentum for steady growth",
         (6.0, 7.5):  "Stable but lacking highlights — consider targeted investment",
         (4.0, 6.0):  "Volatile — prepare a contingency plan",
@@ -1153,8 +1150,8 @@ def _format_dimension_summaries(scores: dict[str, float], language: str = "zh") 
                 insight = insight_map.get((lo, hi), "")
                 break
         if not status:
-            status = status_map.get((9.0, 10.0), "")
-            insight = insight_map.get((9.0, 10.0), "")
+            status = status_map.get((9.0, 10.01), "")
+            insight = insight_map.get((9.0, 10.01), "")
         lines.append(f"{emoji} {label} {score:.1f} — {status}")
         if insight:
             lines.append(f"   → {insight}")

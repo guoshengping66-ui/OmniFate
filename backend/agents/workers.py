@@ -219,14 +219,22 @@ _ZH_EN_MAP = {
 
 
 def _clean_english(text: str) -> str:
-    """Replace common Chinese命理 terms with English equivalents in English output."""
+    """Replace common Chinese命理 terms with English equivalents in English output.
+
+    Strategy: process multi-char terms first (longer matches first to avoid
+    partial replacements like "金" inside "庚金"), then strip remaining CJK.
+    """
     if not text:
         return text
-    for zh, en in _ZH_EN_MAP.items():
+    # Replace multi-character terms first (longer = higher priority)
+    for zh, en in sorted(
+        ((k, v) for k, v in _ZH_EN_MAP.items() if len(k) > 1),
+        key=lambda x: -len(x[0]),
+    ):
         text = text.replace(zh, en)
     # Remove any remaining CJK characters (Chinese/Japanese/Korean)
-    # But keep punctuation and numbers
-    text = re.sub(r'[一-鿿㐀-䶿]+', '', text)
+    # Covers CJK Unified Ideographs, Extension A, Extension B, and Compatibility
+    text = re.sub(r'[一-鿿㐀-䶿\U00020000-\U0002a6df豈-﫿]+', '', text)
     # Clean up double spaces left by removal
     text = re.sub(r'  +', ' ', text)
     return text.strip()

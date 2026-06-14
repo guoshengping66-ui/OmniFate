@@ -112,8 +112,11 @@ async def set_session(key: str, obj: object, ttl: int = SESSION_TTL) -> None:
         _last_cleanup = now
     # Evict oldest if at capacity
     if len(_memory_sessions) >= _MEMORY_MAX_SESSIONS:
-        oldest_key = min(_memory_sessions, key=lambda k: _memory_sessions[k][0])
-        del _memory_sessions[oldest_key]
+        try:
+            oldest_key = min(_memory_sessions, key=lambda k: _memory_sessions[k][0])
+            del _memory_sessions[oldest_key]
+        except (ValueError, KeyError):
+            pass  # Session was already evicted
     _memory_sessions[key] = (now + ttl, obj)
 
 
