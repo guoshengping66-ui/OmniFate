@@ -241,16 +241,16 @@
       "lunarMonths": "1st Moon,2nd Moon,3rd Moon,4th Moon,5th Moon,6th Moon,7th Moon,8th Moon,9th Moon,10th Moon,Winter Moon,Year-End Moon",
       "warning": "Avoid important decisions when emotional."
     },
-    "status": {
+    "fortune": {
       "almanacTitle": "Daily Almanac",
       "dayPillar": "Day Pillar",
       "fair": "Stable",
       "good": "Good",
       "great": "Excellent",
-      "ji": "Infavorable",
+      "ji": "Unfavorable",
       "low": "Low",
-      "recommendedColor": "Recommended Color",
-      "recommendedNumber": "Recommended Number",
+      "luckyColor": "Recommended Color",
+      "luckyNumber": "Recommended Number",
       "poor": "Poor",
       "yi": "Favorable"
     },
@@ -274,7 +274,7 @@
       "nickname": "Nickname",
       "notSet": "Not set",
       "title": "Behavioral Profile",
-      "starYear": " sign"
+      "zodiacYear": " sign"
     },
     "recent": {
       "analyzing": "Analyzing...",

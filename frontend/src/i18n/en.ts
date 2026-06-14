@@ -1533,7 +1533,7 @@ export default {
   "dash.profile.nickname": "Nickname",
   "dash.profile.notSet": "Not set",
   "dash.profile.dateFormat": "{y}y {M}m {d}d {h}:{m}",
-  "dash.profile.starYear": " sign",
+  "dash.profile.zodiacYear": " sign",
 
   // ─── Dashboard: Intent Buttons ───
   "dash.intent.quick": "Instant Insight",
@@ -1558,17 +1558,17 @@ export default {
   "dash.recent.emptyDesc": "Choose a reading method above to start your first analysis",
 
   // ─── Daily Dashboard: Status ───
-  "dash.status.great": "Excellent",
-  "dash.status.good": "Good",
-  "dash.status.fair": "Stable",
-  "dash.status.low": "Low",
-  "dash.status.poor": "Poor",
-  "dash.status.favorableColor": "Recommended Color",
-  "dash.status.favorableNumber": "Recommended Number",
-  "dash.status.almanacTitle": "Daily Almanac",
-  "dash.status.dayPillar": "Day Pillar",
-  "dash.status.yi": "Favorable",
-  "dash.status.ji": "Unfavorable",
+  "dash.fortune.great": "Excellent",
+  "dash.fortune.good": "Good",
+  "dash.fortune.fair": "Stable",
+  "dash.fortune.low": "Low",
+  "dash.fortune.poor": "Poor",
+  "dash.fortune.luckyColor": "Recommended Color",
+  "dash.fortune.luckyNumber": "Recommended Number",
+  "dash.fortune.almanacTitle": "Daily Almanac",
+  "dash.fortune.dayPillar": "Day Pillar",
+  "dash.fortune.yi": "Favorable",
+  "dash.fortune.ji": "Unfavorable",
 
   // ─── Reading New Page ───
   "new.step1": "Birth Info",
