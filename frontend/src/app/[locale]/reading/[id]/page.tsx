@@ -254,17 +254,17 @@ function extractQuickInsights(summary: string): string[] {
     return ""
   }
 
-  // 1. Pain point from Section B — look for problem indicators
-  const sectionB = findSectionContent("痛点诊断", "B")
+  // 1. Pain point from Section B — look for problem indicators (try CN then EN markers)
+  const sectionB = findSectionContent("痛点诊断", "B") || findSectionContent("Key Challenges", "B")
   if (sectionB) {
     const s = bestSentence(sectionB, PAIN_KEYWORDS)
       || firstSentence(sectionB)
     if (s) insights.push(s)
   }
 
-  // 2. Strength from Section A — look for positive traits
+  // 2. Strength from Section A — look for positive traits (try CN then EN markers)
   if (insights.length < 2) {
-    const sectionA = findSectionContent("核心性格底色", "A") || findSectionContent("综合总论")
+    const sectionA = findSectionContent("核心性格底色", "A") || findSectionContent("Core Personality Blueprint", "A") || findSectionContent("综合总论")
     if (sectionA) {
       const s = bestSentence(sectionA, STRENGTH_KEYWORDS)
         || firstSentence(sectionA)
@@ -272,9 +272,9 @@ function extractQuickInsights(summary: string): string[] {
     }
   }
 
-  // 3. Timing from Section D — look for actionable timing advice
+  // 3. Timing from Section D — look for actionable timing advice (try CN then EN markers)
   if (insights.length < 3) {
-    const sectionD = findSectionContent("近期关键提醒", "D")
+    const sectionD = findSectionContent("近期关键提醒", "D") || findSectionContent("Near-Term Alert", "D")
     if (sectionD) {
       const s = bestSentence(sectionD, TIMING_KEYWORDS)
         || firstSentence(sectionD)

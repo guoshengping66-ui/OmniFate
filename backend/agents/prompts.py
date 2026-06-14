@@ -7213,7 +7213,8 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
                                 intent: str = "",
                                 partner_data: dict | None = None,
                                 is_premium: bool = False,
-                                evidence_chains: str = "") -> str:
+                                evidence_chains: str = "",
+                                language: str = "zh") -> str:
     """Sub-task A: 核心综合 — 命盘底色 + 跨维度共鸣 + 核心矛盾 + 置信度表"""
     workers_str = "\n\n".join(
         f"[{k.upper()}]\n{v[:600]}" for k, v in worker_summaries.items() if v
@@ -7401,8 +7402,9 @@ def master_subtask_core_personality_prompt(
         dimension_scores: dict | None = None,
         confidence_text: str = "",
         intent: str = "",
-        partner_data: dict | None = None) -> str:
-    """Free-user only: generate ONLY Section A (核心性格底色).
+        partner_data: dict | None = None,
+        language: str = "zh") -> str:
+    """Free-user only: generate ONLY Section A (核心性格底色 / Core Personality Blueprint).
     Separate call to avoid truncation within 4096 tokens."""
     workers_str = "\n\n".join(
         f"[{k.upper()}]\n{v[:500]}" for k, v in worker_summaries.items() if v
@@ -7410,14 +7412,49 @@ def master_subtask_core_personality_prompt(
     # ... partner data (reuse from core_prompt) ...
     partner_section = ""
     if intent == "RELATIONSHIP" and partner_data:
-        partner_name = partner_data.get("partner_name", "对方")
+        partner_name = partner_data.get("partner_name", "对方" if language == "zh" else "partner")
         bazi_compat = partner_data.get("bazi_compatibility", {})
         compat_level = bazi_compat.get("level", "?")
-        partner_section = (
-            f"\n\n== 合盘数据（简要）==\n"
-            f"关系类型：{partner_data.get('relationship_type', '')}\n"
-            f"对方昵称：{partner_name}\n"
-            f"八字合婚：{compat_level}\n"
+        if language == "en":
+            partner_section = (
+                f"\n\n== Partner Data (Brief) ==\n"
+                f"Relationship type: {partner_data.get('relationship_type', '')}\n"
+                f"Partner name: {partner_name}\n"
+                f"Compatibility level: {compat_level}\n"
+            )
+        else:
+            partner_section = (
+                f"\n\n== 合盘数据（简要）==\n"
+                f"关系类型：{partner_data.get('relationship_type', '')}\n"
+                f"对方昵称：{partner_name}\n"
+                f"八字合婚：{compat_level}\n"
+            )
+
+    if language == "en":
+        return (
+            "You are a senior analyst at Profile Mirror. Based on the expert reports below, "
+            "generate ONLY Section A: Core Personality Blueprint.\n\n"
+            "== STRICT RULES ==\n"
+            "DO NOT output any Chinese characters. Use ONLY English.\n"
+            "Translate all Chinese analytical terms to behavioral equivalents:\n"
+            "  日主→Core Profile, 用神→Strength Pattern, 忌神→Growth Area\n"
+            "  正官→Structured Trait, 七杀→Challenge Pattern, 正印→Support Pattern\n"
+            "  食神→Creative Expression, 伤官→Independent Thinking\n"
+            "  正财→Steady Earnings, 偏财→Variable Income\n"
+            "  命宫→Foundation Profile, 财帛宫→Financial Pattern\n"
+            "Section markers MUST use English format: 【A · Core Personality Blueprint】\n"
+            "Do NOT use Chinese section markers like 【A·核心性格底色】.\n\n"
+            f"== Expert Reports ==\n{workers_str}\n\n"
+            f"== User Question ==\n{user_question}\n\n"
+            f"{partner_section}\n"
+            f"{confidence_text}\n\n"
+            "== Output Requirements ==\n"
+            "Output ONLY the 【A · Core Personality Blueprint】 section. Do NOT output Section B or C.\n"
+            "Format:\n"
+            "Core Trait: One sentence (max 15 words) capturing the essence\n"
+            "Personality Analysis: 120-200 words analyzing strengths and hidden vulnerabilities\n\n"
+            "CRITICAL: Complete ALL content. Do NOT truncate mid-sentence. "
+            "End with a complete sentence."
         )
 
     return (
@@ -7447,19 +7484,63 @@ def master_subtask_core_resonance_prompt(
         dimension_scores: dict | None = None,
         confidence_text: str = "",
         intent: str = "",
-        partner_data: dict | None = None) -> str:
-    """Free-user only: generate Section B (痛点诊断) + Section D (近期关键提醒).
+        partner_data: dict | None = None,
+        language: str = "zh") -> str:
+    """Free-user only: generate Section B (痛点诊断/Key Challenges) + Section D (近期关键提醒/Near-Term Alert).
     The five-dimension summaries (Section C) are formatted deterministically from scores
     in master.py — no LLM call needed for those."""
     scores_str = ""
     if dimension_scores:
-        _DIM_CN = {"wealth": "财富", "relationship": "感情", "career": "事业",
-                   "health": "健康", "spiritual": "精神"}
-        scores_str = " | ".join(f"{_DIM_CN.get(k, k)}:{v}" for k, v in dimension_scores.items())
+        if language == "en":
+            _DIM_EN = {"wealth": "Wealth", "relationship": "Relationship", "career": "Career",
+                       "health": "Health", "spiritual": "Mindset"}
+            scores_str = " | ".join(f"{_DIM_EN.get(k, k)}:{v}" for k, v in dimension_scores.items())
+        else:
+            _DIM_CN = {"wealth": "财富", "relationship": "感情", "career": "事业",
+                       "health": "健康", "spiritual": "精神"}
+            scores_str = " | ".join(f"{_DIM_CN.get(k, k)}:{v}" for k, v in dimension_scores.items())
 
     compact_workers = "\n".join(
         f"[{k.upper()}]{v[:500]}" for k, v in worker_summaries.items() if v
     )
+
+    if language == "en":
+        return (
+            "You are a senior analyst at Profile Mirror. Based on the data below, generate the analysis summary.\n\n"
+            "DO NOT output any Chinese characters. Use ONLY English.\n"
+            "Translate all Chinese analytical terms to behavioral equivalents.\n"
+            "Section markers MUST use English format: 【B · Key Challenges】, 【D · Near-Term Alert】, 【E · Action Items】\n"
+            "Do NOT use Chinese section markers.\n\n"
+            f"== Expert Briefing ==\n{compact_workers}\n\n"
+            f"== Resonance/Conflicts ==\n{resonance_text or 'None'}\n{conflicts_text or 'None'}\n\n"
+            f"== Scores == {scores_str}\n\n"
+            "== Output Format (STRICT) ==\n"
+            "Output the following three sections, each starting with a header line:\n\n"
+            "【B · Key Challenges】\n"
+            "List 3 items the user needs to address most urgently, each 20-40 words.\n"
+            "Format:\n"
+            "🔴 [Domain] — [Specific challenge, be direct and actionable]\n"
+            "🟡 [Domain] — [Specific challenge]\n"
+            "🟢 [Domain] — [Something working well or minor concern]\n\n"
+            "Requirements:\n"
+            "- The first item MUST be the lowest-scoring dimension\n"
+            "- Use 🔴🟡🟢 severity markers\n"
+            "- Be specific, not vague\n"
+            "- Write like advising a close friend — direct and honest\n\n"
+            "【D · Near-Term Alert】\n"
+            "Based on expert data, provide 1 key alert for the next 1-3 months (50-80 words).\n"
+            "Format: ⚠️ [Time range]: [Specific alert content]\n"
+            "If no clear near-term signal exists, provide a practical general recommendation.\n\n"
+            "【E · Action Items】\n"
+            "Based on the 🔴 items in Key Challenges, provide 2-3 specific actionable suggestions (15-25 words each).\n"
+            "Format:\n"
+            "✅ [Specific suggestion 1]\n"
+            "✅ [Specific suggestion 2]\n"
+            "✅ [Specific suggestion 3]\n\n"
+            "Requirements: suggestions must be practical and executable, not generic advice.\n\n"
+            "CRITICAL: Complete ALL content. Do NOT truncate mid-sentence. "
+            "End each section with a complete sentence."
+        )
 
     return (
         "你是Profile Mirror的资深分析师。根据以下数据，输出分析摘要。\n\n"

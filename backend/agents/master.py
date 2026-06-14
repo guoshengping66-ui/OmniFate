@@ -134,6 +134,12 @@ async def _call(system: str, user: str, model: str | None = None, language: str 
             "  夫妻宫→Relationship Pattern, 子女宫→Family Dynamics, 兄弟宫→Social Network\n"
             "  父母宫→Heritage Influence, 交友宫→Community Circle\n"
             "  空亡→Not Applicable, 大运→Development Phase, 流年→Annual Trend\n"
+            "Section markers MUST use English format:\n"
+            "  【A · Core Personality Blueprint】 not 【A·核心性格底色】\n"
+            "  【B · Key Challenges】 not 【B·痛点诊断】\n"
+            "  【C · Five-Dimension Overview】 not 【C·五维速览】\n"
+            "  【D · Near-Term Alert】 not 【D·近期关键提醒】\n"
+            "  【E · Action Items】 not 【E·行动建议速览】\n"
             "Do NOT output any Chinese characters. Use behavioral/personality language.\n"
             "Do NOT use fortune-telling, metaphysical, or spiritual terminology."
         )
@@ -919,14 +925,14 @@ async def run_subtask_core(state: SystemState, prep: dict) -> str:
 
     if state.is_premium:
         # Premium: single call (A+B+C, full report goes to master_detail)
-        system = master_subtask_core_prompt(**common_args, is_premium=True)
-        result = await _call(system, "请生成核心综合报告。", model=llm_model, language=state.language,
-                            max_tokens=llm_max_tokens)
+        system = master_subtask_core_prompt(**common_args, is_premium=True, language=state.language)
+        result = await _call(system, "请生成核心综合报告。" if state.language == "zh" else "Generate the core synthesis report.",
+                            model=llm_model, language=state.language, max_tokens=llm_max_tokens)
     elif state.intent == "RELATIONSHIP":
         # RELATIONSHIP free users: single call (different output structure A-E)
-        system = master_subtask_core_prompt(**common_args, is_premium=False)
-        result = await _call(system, "请生成核心综合报告。", model=llm_model, language=state.language,
-                            max_tokens=llm_max_tokens)
+        system = master_subtask_core_prompt(**common_args, is_premium=False, language=state.language)
+        result = await _call(system, "请生成核心综合报告。" if state.language == "zh" else "Generate the core synthesis report.",
+                            model=llm_model, language=state.language, max_tokens=llm_max_tokens)
     else:
         # Free users (non-RELATIONSHIP): two separate LLM calls to avoid
         # truncation. Each section gets its own full token budget.
@@ -934,14 +940,14 @@ async def run_subtask_core(state: SystemState, prep: dict) -> str:
         no_chain_args = {k: v for k, v in common_args.items() if k != "evidence_chains"}
 
         # Call 1: Section A (personality)
-        sys_a = master_subtask_core_personality_prompt(**no_chain_args)
-        part_a = await _call(sys_a, "请生成核心性格底色分析。", model=llm_model, language=state.language,
-                            max_tokens=llm_max_tokens)
+        sys_a = master_subtask_core_personality_prompt(**no_chain_args, language=state.language)
+        part_a = await _call(sys_a, "请生成核心性格底色分析。" if state.language == "zh" else "Generate core personality analysis.",
+                            model=llm_model, language=state.language, max_tokens=llm_max_tokens)
 
         # Call 2: Section B (cross-dimension resonance)
-        sys_b = master_subtask_core_resonance_prompt(**no_chain_args)
-        part_b = await _call(sys_b, "请生成跨维度共鸣分析。", model=llm_model, language=state.language,
-                            max_tokens=llm_max_tokens)
+        sys_b = master_subtask_core_resonance_prompt(**no_chain_args, language=state.language)
+        part_b = await _call(sys_b, "请生成跨维度共鸣分析。" if state.language == "zh" else "Generate cross-dimension resonance analysis.",
+                            model=llm_model, language=state.language, max_tokens=llm_max_tokens)
 
         result = f"{part_a}\n\n{part_b}"
 
