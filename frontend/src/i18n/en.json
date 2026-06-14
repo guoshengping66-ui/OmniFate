@@ -1094,19 +1094,29 @@
     "master": "AI Cross-Dimensional Verification"
   },
   "analysis": {
-    "behavioral pattern": {
-      "label": "Western Behavioral Pattern",
-      "done": "Behavioral Pattern calculation complete",
+    "astrology": {
+      "label": "Western Chart",
+      "done": "Chart calculation complete",
       "running": "Calculating planetary orbits…"
     },
+    "behavioral pattern": {
+      "label": "Western Chart",
+      "done": "Chart calculation complete",
+      "running": "Calculating planetary orbits…"
+    },
+    "bazi": {
+      "label": "Four Pillars",
+      "done": "Four Pillars analysis complete",
+      "running": "Analyzing Four Pillars…"
+    },
     "four-pillar": {
-      "label": "Four Pillars Four-Pillar",
-      "done": "Four-Pillar calculation complete",
-      "running": "Calculating Four Pillars Four-Pillar…"
+      "label": "Four Pillars",
+      "done": "Four Pillars analysis complete",
+      "running": "Analyzing Four Pillars…"
     },
     "face": {
       "label": "AI Facial Feature",
-      "done": "Facial feature complete",
+      "done": "Facial feature analysis complete",
       "running": "Analyzing facial features…"
     },
     "partnerFace": {
@@ -1124,20 +1134,35 @@
       "done": "Palm reading complete",
       "running": "Interpreting palm lines…"
     },
+    "qimen": {
+      "label": "Strategic Analysis",
+      "done": "Strategic analysis complete",
+      "running": "Performing strategic analysis…"
+    },
     "strategic": {
       "label": "Strategic Analysis",
       "done": "Strategic analysis complete",
-      "running": "Performing Strategic analysis…"
+      "running": "Performing strategic analysis…"
+    },
+    "tarot": {
+      "label": "Symbolic Reflection",
+      "done": "Symbolic interpretation complete",
+      "running": "Interpreting symbolic card data…"
     },
     "symbolic": {
       "label": "Symbolic Reflection",
       "done": "Symbolic interpretation complete",
       "running": "Interpreting symbolic card data…"
     },
+    "ziwei": {
+      "label": "Stellar Chart",
+      "done": "Stellar chart analysis complete",
+      "running": "Arranging stellar star chart…"
+    },
     "stellar": {
-      "label": "Stellar Behavioral Pattern",
+      "label": "Stellar Chart",
       "done": "Stellar chart complete",
-      "running": "Arranging Stellar star chart…"
+      "running": "Arranging stellar star chart…"
     },
     "crossValidate": "AI performing cross-dimension verification…",
     "done": "Analysis complete",
