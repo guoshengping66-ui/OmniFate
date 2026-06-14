@@ -235,7 +235,7 @@ try{
               "@context": "https://schema.org",
               "@type": "WebApplication",
               name: validLocale === "zh" ? "行为分析镜" : "Behavioral Mirror",
-              url: `https://www.khanpattern.com/${validLocale}`,
+              url: `https://www.khanfate.com/${validLocale}`,
               applicationCategory: "LifestyleApplication",
               operatingSystem: "Web",
               description: validLocale === "zh"

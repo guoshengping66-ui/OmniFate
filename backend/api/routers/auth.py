@@ -660,7 +660,7 @@ async def logout(
     if token:
         try:
             from jose import jwt as _jwt
-            payload = _jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[ALGORITHM])
+            payload = _jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[ALGORITHM], options={"verify_exp": False})
             if payload.get("type") == "refresh":
                 jti = payload.get("jti")
                 if jti:
@@ -711,12 +711,12 @@ async def refresh_token(req: RefreshRequest, request: Request, db: AsyncSession 
         if not user.is_verified:
             raise HTTPException(status_code=403, detail="请先验证邮箱后再使用")
 
-    access = create_access_token(user_id)
-    refresh = create_refresh_token(user_id)
-
-    # Blacklist old refresh token to prevent reuse after rotation
+    # Blacklist old refresh token FIRST to prevent concurrent reuse
     if old_jti:
         await blacklist_token(old_jti)
+
+    access = create_access_token(user_id)
+    refresh = create_refresh_token(user_id)
 
     resp = JSONResponse(content={"access_token": access, "refresh_token": refresh, "token_type": "bearer"})
     _set_auth_cookies(resp, access, refresh)
@@ -806,6 +806,13 @@ async def reset_password(req: ResetPasswordRequest, request: Request, db: AsyncS
     user.verification_code = None
     user.verification_expires_at = None
     await db.commit()
+
+    # Invalidate all existing tokens for this user to prevent stolen token reuse
+    try:
+        from auth.jwt import blacklist_all_user_tokens
+        await blacklist_all_user_tokens(str(user.id))
+    except Exception:
+        pass  # Best-effort: password is changed even if token blacklisting fails
 
     return {"message": "密码重置成功，请用新密码登录"}
 

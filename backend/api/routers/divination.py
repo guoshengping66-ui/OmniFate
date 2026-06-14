@@ -323,18 +323,14 @@ async def get_share(
     if not record:
         raise HTTPException(status_code=404, detail="签文不存在")
 
-    # 获取用户信息
+    # 获取用户信息 (only public fields — no PII like seat_no or referral_code)
     user_name = None
-    seat_no = None
-    referral_code = None
     is_founder = False
     if record.user_id:
         user_result = await db.execute(select(User).where(User.id == record.user_id))
         user = user_result.scalar_one_or_none()
         if user:
             user_name = user.display_name or user.email.split("@")[0]
-            seat_no = user.founder_seat_no
-            referral_code = user.referral_code
             is_founder = user.is_founder
 
     fortune_data = next((f for f in FORTUNES if f["fortune"] == record.fortune), FORTUNES[3])
@@ -349,9 +345,7 @@ async def get_share(
         "theme": _translate_theme(record.theme, lang),
         "ai_insight": _translate_insight(fortune_data["level"], record.theme, lang),
         "user_name": user_name,
-        "seat_no": seat_no,
         "is_founder": is_founder,
-        "referral_code": referral_code,
         "created_at": record.created_at.isoformat() if record.created_at else None,
     }
 
@@ -587,7 +581,12 @@ async def share(
     if not record:
         raise HTTPException(status_code=404, detail="签文不存在")
 
-    # ── 1. 先统计今日已分享次数（不含本次），再决定是否奖励 ──
+    # ── 1. 先锁用户行，再统计今日已分享次数，确保 check+grant 原子 ──
+    user_result = await db.execute(
+        select(User).where(User.id == current_user.id).with_for_update()
+    )
+    user = user_result.scalar_one()
+
     today = datetime.now(timezone.utc).date()
     share_count_result = await db.execute(
         select(func.count(DivinationRecord.id)).where(
@@ -600,12 +599,8 @@ async def share(
 
     share_reward = 0
     if already_shared_today < 1:
-        # 在限额内，奖励 5 颗星尘（行级锁防并发）
+        # 在限额内，奖励 5 颗星尘（行级锁已在上面获取，防并发）
         share_reward = 5
-        user_result = await db.execute(
-            select(User).where(User.id == current_user.id).with_for_update()
-        )
-        user = user_result.scalar_one()
         user.stardust_balance += share_reward
         user.stardust_lifetime_earned += share_reward
 

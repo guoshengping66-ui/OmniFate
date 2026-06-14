@@ -59,20 +59,40 @@ async def blacklist_token(jti: str) -> None:
         _mem.popitem(last=False)  # Evict oldest
 
 
+async def blacklist_all_user_tokens(user_id: str) -> None:
+    """Invalidate all tokens for a user by recording a reset timestamp in Redis.
+
+    After password reset, verify_token checks this timestamp against the
+    token's `iat` claim to reject tokens issued before the reset.
+    """
+    import time as _time
+    from services.redis_client import _get_redis
+    r = await _get_redis()
+    if r:
+        now_ts = int(_time.time())
+        await r.setex(f"bl:pw_reset:{user_id}", _BLACKLIST_TTL_DAYS * 86400, str(now_ts))
+    # In-memory: no efficient way to check, but password change means
+    # the bcrypt hash is different so login with old password fails anyway.
+
+
 def create_access_token(user_id: str, expires_delta: Optional[timedelta] = None) -> str:
     """Create a JWT access token for a user with jti for blacklist support."""
-    expire = datetime.now(timezone.utc) + (
+    now = datetime.now(timezone.utc)
+    expire = now + (
         expires_delta or timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     )
-    to_encode = {"sub": user_id, "exp": expire, "type": "access", "jti": str(uuid.uuid4())}
+    to_encode = {"sub": user_id, "exp": expire, "iat": int(now.timestamp()),
+                 "type": "access", "jti": str(uuid.uuid4())}
     return jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=ALGORITHM)
 
 
 def create_refresh_token(user_id: str) -> str:
     """Create a long-lived refresh token with unique ID for blacklist support."""
+    now = datetime.now(timezone.utc)
     token_id = str(uuid.uuid4())
-    expire = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
-    to_encode = {"sub": user_id, "exp": expire, "type": "refresh", "jti": token_id}
+    expire = now + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+    to_encode = {"sub": user_id, "exp": expire, "iat": int(now.timestamp()),
+                 "type": "refresh", "jti": token_id}
     return jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=ALGORITHM)
 
 
@@ -87,6 +107,15 @@ async def verify_token(token: str) -> Optional[str]:
         jti = payload.get("jti")
         if jti and await is_token_blacklisted(jti):
             return None
+        # Check if all tokens for this user were invalidated (e.g., password reset)
+        from services.redis_client import _get_redis
+        r = await _get_redis()
+        if r:
+            reset_ts = await r.get(f"bl:pw_reset:{user_id}")
+            if reset_ts:
+                token_iat = payload.get("iat", 0)
+                if token_iat < int(reset_ts):
+                    return None
         return user_id
     except JWTError:
         return None

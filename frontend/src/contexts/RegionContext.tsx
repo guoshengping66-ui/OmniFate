@@ -70,7 +70,8 @@ function setLocalStorage(key: string, value: string) {
 }
 
 function setRegionCookie(region: Region) {
-  document.cookie = `region=${region}; max-age=2592000; path=/; SameSite=lax`
+  // Don't set cookie client-side — middleware sets it securely with httpOnly/secure flags.
+  // Client-side cookie would overwrite the secure server cookie with an insecure version.
 }
 
 // ── Provider ──

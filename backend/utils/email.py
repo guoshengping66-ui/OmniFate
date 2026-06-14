@@ -109,7 +109,7 @@ def send_password_reset_email(to_email: str, code: str) -> bool:
 
 
 def _send_email(to_email: str, subject: str, html_body: str) -> bool:
-    """Send an HTML email via SMTP."""
+    """Send an HTML email via SMTP (synchronous — call via asyncio.to_thread)."""
     config = _get_smtp_config()
     try:
         msg = MIMEMultipart("alternative")
@@ -132,6 +132,12 @@ def _send_email(to_email: str, subject: str, html_body: str) -> bool:
     except Exception as e:
         logger.warning(f"[EMAIL] Failed to send to {to_email}: {type(e).__name__}")
         return False
+
+
+async def send_email_async(to_email: str, subject: str, html_body: str) -> bool:
+    """Async wrapper for _send_email — runs blocking SMTP in a thread."""
+    import asyncio
+    return await asyncio.to_thread(_send_email, to_email, subject, html_body)
 
 
 def send_fortune_email(to_email: str, fortune: dict, locale: str = "zh") -> bool:

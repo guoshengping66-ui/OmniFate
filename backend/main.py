@@ -169,20 +169,23 @@ CACHE_ENDPOINTS = {
 
 
 def _get_client_ip(request: Request) -> str:
-    """Get client IP from trusted sources only."""
-    # When behind Nginx reverse proxy, Nginx sets X-Real-IP
-    # Only trust this if we're behind our known proxy
-    real_ip = request.headers.get("x-real-ip")
-    if real_ip:
-        # Validate it looks like an IP (basic sanity check)
-        try:
-            ipaddress.ip_address(real_ip.split(",")[0].strip())
-            return real_ip.split(",")[0].strip()
-        except ValueError:
-            pass
+    """Get client IP from trusted sources only.
 
-    # Fallback to direct client connection
-    return request.client.host if request.client else "unknown"
+    Only trusts X-Real-IP when the direct connection is from localhost
+    (i.e., we're behind our Nginx proxy). This prevents attackers from
+    spoofing IP addresses to bypass rate limits.
+    """
+    client_host = request.client.host if request.client else "unknown"
+    # Only trust proxy headers when connected from localhost (Nginx reverse proxy)
+    if client_host in ("127.0.0.1", "::1", "localhost"):
+        real_ip = request.headers.get("x-real-ip")
+        if real_ip:
+            try:
+                ipaddress.ip_address(real_ip.split(",")[0].strip())
+                return real_ip.split(",")[0].strip()
+            except ValueError:
+                pass
+    return client_host
 
 # Cyberpunk-style rate limit error message
 RATE_LIMIT_MESSAGE_ENDPOINT = json.dumps({
@@ -225,9 +228,9 @@ async def rate_limit_middleware(request: Request, call_next):
             if auth_header.startswith("Bearer "):
                 try:
                     from auth.jwt import verify_token as _verify_token
-                    payload = _verify_token(auth_header[7:])
-                    if payload and payload.get("sub"):
-                        rate_key_prefix = f"user:{payload['sub']}"
+                    user_id = await _verify_token(auth_header[7:])
+                    if user_id:
+                        rate_key_prefix = f"user:{user_id}"
                 except Exception:
                     pass
 

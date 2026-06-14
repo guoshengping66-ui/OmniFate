@@ -7,6 +7,7 @@ api/routers/billing.py — 全渠道动态定价与星尘充值引擎
 """
 from __future__ import annotations
 
+import ipaddress
 import logging
 import time
 from datetime import datetime, timezone
@@ -46,6 +47,20 @@ PAYPAL_IP_PREFIXES = [
     "173.0.88.", "173.0.89.", "173.0.90.", "173.0.91.",
     "173.0.92.", "173.0.93.", "173.0.94.", "173.0.95.",
 ]
+
+def _paypal_ip_allowed(ip_str: str) -> bool:
+    """Check if IP is in PayPal's whitelist, handling IPv6-mapped addresses."""
+    if not ip_str:
+        return False
+    try:
+        addr = ipaddress.ip_address(ip_str)
+        # Handle IPv6-mapped IPv4 addresses (::ffff:1.2.3.4 → 1.2.3.4)
+        if isinstance(addr, ipaddress.IPv6Address) and addr.ipv4_mapped:
+            addr = addr.ipv4_mapped
+            ip_str = str(addr)
+    except ValueError:
+        pass
+    return any(ip_str.startswith(prefix) for prefix in PAYPAL_IP_PREFIXES)
 
 # ── Redeem Code Rate Limiting ────────────────────────────────────────────────
 from collections import defaultdict
@@ -676,13 +691,13 @@ async def paypal_webhook(
     """
     # ── SECURITY: Verify source IP against PayPal's known ranges ──
     client_ip = request.client.host if request.client else ""
-    ip_allowed = any(client_ip.startswith(prefix) for prefix in PAYPAL_IP_PREFIXES)
+    ip_allowed = _paypal_ip_allowed(client_ip)
     if not ip_allowed:
         # Also check X-Forwarded-For (for proxy setups)
         forwarded = request.headers.get("x-forwarded-for", "")
         if forwarded:
             first_ip = forwarded.split(",")[0].strip()
-            ip_allowed = any(first_ip.startswith(prefix) for prefix in PAYPAL_IP_PREFIXES)
+            ip_allowed = _paypal_ip_allowed(first_ip)
     if not ip_allowed:
         logger.warning(f"[SECURITY] PayPal webhook from non-whitelisted IP: {client_ip}")
         # Return 200 to prevent PayPal infinite retries (PayPal requires 200 for all events)

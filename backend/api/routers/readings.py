@@ -724,7 +724,8 @@ async def chat_followup(
     ]
     for pattern in injection_patterns:
         if _re.search(pattern, question, _re.IGNORECASE):
-            question = "请围绕命理主题提问。" if _get_lang_from_request_state(request) != "en" else "Please ask questions related to destiny analysis."
+            lang = getattr(payload, 'lang', 'zh')
+            question = "请围绕命理主题提问。" if lang != "en" else "Please ask questions related to destiny analysis."
             break
 
     # ── 星尘扣费（会员免费 + 新用户首次免费） ──
@@ -762,7 +763,7 @@ async def chat_followup(
                 balance_after=user.stardust_balance,
                 reason="follow_up",
                 reference_id=payload.session_id,
-                status="confirmed",
+                status="pending",
             )
             db.add(tx)
             await db.commit()
@@ -774,6 +775,16 @@ async def chat_followup(
         answer, agent_id, updated_state = await run_chat(question, state)
         await _set_session(payload.session_id, updated_state)
 
+        # 两阶段提交：LLM 成功后确认星尘扣费
+        if deducted and tx_id:
+            confirm_result = await db.execute(
+                select(CreditTransaction).where(CreditTransaction.id == tx_id)
+            )
+            pending_tx = confirm_result.scalar_one_or_none()
+            if pending_tx:
+                pending_tx.status = "confirmed"
+                await db.commit()
+
         return ChatResponse(
             answer=answer,
             routed_to=agent_id,
@@ -783,9 +794,17 @@ async def chat_followup(
             has_used_free_followup=followup_count > 0 if not current_user.is_premium else False,
         )
     except Exception:
-        # LLM 失败 → 退款
+        # LLM 失败 → 退款并取消 pending 扣费记录
         if deducted and tx_id:
             try:
+                # 取消原始 pending 交易
+                cancel_result = await db.execute(
+                    select(CreditTransaction).where(CreditTransaction.id == tx_id)
+                )
+                orig_tx = cancel_result.scalar_one_or_none()
+                if orig_tx:
+                    orig_tx.status = "cancelled"
+
                 refund_result = await db.execute(
                     select(User).where(User.id == current_user.id).with_for_update()
                 )

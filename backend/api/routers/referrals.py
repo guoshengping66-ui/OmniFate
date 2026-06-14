@@ -21,6 +21,20 @@ MAX_REFERRALS = 50    # 每人最多邀请 50 人
 # ── 防刷: 内存限流 (IP + 设备指纹) ────────────────────────────────────────────
 _apply_cooldown: dict[str, float] = {}  # key → last_apply_timestamp
 COOLDOWN_HOURS = 24
+_last_cleanup: float = 0.0  # timestamp of last cleanup
+
+
+def _cleanup_cooldown() -> None:
+    """Periodically remove expired entries to prevent unbounded memory growth."""
+    global _last_cleanup
+    now = time.time()
+    # Only clean up at most once per hour
+    if now - _last_cleanup < 3600:
+        return
+    _last_cleanup = now
+    expired_keys = [k for k, ts in _apply_cooldown.items() if now - ts > COOLDOWN_HOURS * 3600]
+    for k in expired_keys:
+        del _apply_cooldown[k]
 
 
 def _generate_referral_code() -> str:
@@ -93,6 +107,8 @@ async def apply_referral_code(
     - 同一 IP 24h 内仅能被邀请一次
     - 同一设备指纹 24h 内仅能被邀请一次
     """
+    _cleanup_cooldown()
+
     # ── 防刷: IP 限流 ──
     client_ip = request.client.host if request.client else "unknown"
     ip_key = f"ip:{client_ip}"

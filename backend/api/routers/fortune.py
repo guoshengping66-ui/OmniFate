@@ -456,6 +456,7 @@ async def generate_all_weekly_fortunes(
         all_users.extend(result.scalars().unique().all())
 
     sub_map = active_subs
+    processed_count = 0
 
     for user in all_users:
         sub = sub_map.get(user.id)
@@ -567,6 +568,11 @@ async def generate_all_weekly_fortunes(
         except Exception as e:
             logger.warning(f"[FORTUNE-GEN] Failed for user {user.id}: {e}")
             errors.append(str(user.id))
+
+        processed_count += 1
+        # Intermediate commit every 50 users to avoid huge single-transaction
+        if processed_count % 50 == 0:
+            await db.commit()
 
     await db.commit()
 

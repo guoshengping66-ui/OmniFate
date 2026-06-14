@@ -2677,6 +2677,13 @@ async def confirm_email_payment(
     order.notes = (order.notes or "") + f"\n[QR-EMAIL] 邮件确认付款 {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M')}"
     await db.commit()
 
+    # Activate purchased product
+    try:
+        from api.routers.personal_payments import _activate_order
+        await _activate_order(db, order)
+    except Exception as e:
+        logger.warning(f"[QR-EMAIL] Failed to activate order {order.order_no}: {e}")
+
     return RedirectResponse(
         url=f"https://www.khanfate.com/zh/account/orders/{order.order_no}?payment=confirmed",
         status_code=302,
@@ -2722,6 +2729,13 @@ async def admin_confirm_email_payment(
     order.admin_confirm_token = None
     order.notes = (order.notes or "") + f"\n[QR-ADMIN] 管理员确认收款 {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M')}"
     await db.commit()
+
+    # Activate purchased product
+    try:
+        from api.routers.personal_payments import _activate_order
+        await _activate_order(db, order)
+    except Exception as e:
+        logger.warning(f"[QR-ADMIN] Failed to activate order {order.order_no}: {e}")
 
     # Notify user that payment is confirmed
     try:

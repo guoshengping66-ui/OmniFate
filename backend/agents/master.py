@@ -162,7 +162,7 @@ async def _call(system: str, user: str, model: str | None = None, language: str 
         resp = await asyncio.wait_for(llm.ainvoke(msgs), timeout=180)
     except asyncio.TimeoutError:
         print(f"[_call] LLM timed out after 180s (model={model})")
-        return ""
+        raise TimeoutError(f"LLM timed out after 180s (model={model})")
     result = resp.content
 
     # Detect truncation (finish_reason == "length")

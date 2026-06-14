@@ -1,5 +1,6 @@
 """api/routers/products.py"""
 import json
+import time
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -14,12 +15,17 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from services.product_matcher import ProductMatcher
-from database.session import AsyncSessionLocal
+from database.session import AsyncSessionLocal, get_db
 from database.models import User, Product, ProductReview
 from auth.dependencies import require_user
 
 router = APIRouter()
 _matcher = ProductMatcher()
+
+# ── Per-user review rate limiting (max 3 reviews per hour) ──────────────────
+_review_rate_store: dict[str, list[float]] = {}
+_REVIEW_RATE_LIMIT = 3
+_REVIEW_RATE_WINDOW = 3600  # 1 hour in seconds
 
 PRODUCTS_PATH = Path(__file__).parent.parent.parent / "data" / "products.json"
 PRODUCTS_EN_PATH = Path(__file__).parent.parent.parent / "data" / "products_en.json"
@@ -174,33 +180,44 @@ async def create_review(
     product_id: str,
     payload: ReviewRequest,
     user: User = Depends(require_user),
+    db: AsyncSession = Depends(get_db),
 ):
     products = _load_products()
     product_exists = any(str(p.get("id")) == product_id for p in products)
     if not product_exists:
         raise HTTPException(status_code=404, detail="商品不存在")
 
-    async with AsyncSessionLocal() as db:
-        review = ProductReview(
-            product_id=product_id,
-            user_id=user.id,
-            user_name=user.display_name or user.email.split("@")[0],
-            rating=payload.rating,
-            content=payload.content,
-            tags=payload.tags if payload.tags else None,
-        )
-        db.add(review)
-        await db.commit()
-        await db.refresh(review)
-        return {
-            "id": str(review.id),
-            "product_id": str(review.product_id),
-            "user_name": review.user_name,
-            "rating": review.rating,
-            "content": review.content,
-            "tags": review.tags or [],
-            "created_at": review.created_at.isoformat() if review.created_at else "",
-        }
+    # ── Rate limit: max 3 reviews per hour per user ──
+    user_key = str(user.id)
+    now = time.time()
+    timestamps = _review_rate_store.get(user_key, [])
+    # Prune old timestamps
+    timestamps = [t for t in timestamps if now - t < _REVIEW_RATE_WINDOW]
+    if len(timestamps) >= _REVIEW_RATE_LIMIT:
+        raise HTTPException(status_code=429, detail="评论过于频繁，请稍后再试")
+    timestamps.append(now)
+    _review_rate_store[user_key] = timestamps
+
+    review = ProductReview(
+        product_id=product_id,
+        user_id=user.id,
+        user_name=user.display_name or user.email.split("@")[0],
+        rating=payload.rating,
+        content=payload.content,
+        tags=payload.tags if payload.tags else None,
+    )
+    db.add(review)
+    await db.commit()
+    await db.refresh(review)
+    return {
+        "id": str(review.id),
+        "product_id": str(review.product_id),
+        "user_name": review.user_name,
+        "rating": review.rating,
+        "content": review.content,
+        "tags": review.tags or [],
+        "created_at": review.created_at.isoformat() if review.created_at else "",
+    }
 
 
 # ── Match ───────────────────────────────────────────────────────────────────

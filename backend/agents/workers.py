@@ -280,7 +280,7 @@ async def _call(system: str, user: str, append_json_format: bool = True, model: 
         resp = await asyncio.wait_for(llm.ainvoke(msgs), timeout=90)
     except asyncio.TimeoutError:
         print(f"[_call] Worker LLM timed out after 90s")
-        return ""
+        raise TimeoutError("Worker LLM timed out after 90s")
     result = resp.content
     # Detect truncation
     resp_meta = getattr(resp, "response_metadata", {}) or {}
@@ -1083,7 +1083,7 @@ async def run_qimen_ziwei(state: SystemState) -> list[WorkerOutput]:
             print(f"[QIMEN_ZIWEI] LLM response received, length={len(report.content)}", flush=True)
         except asyncio.TimeoutError:
             print("[QIMEN_ZIWEI] LLM timed out after 80s", flush=True)
-            report = type('obj', (object,), {'content': '{"error":"timeout"}'})()
+            report = type('obj', (object,), {'content': '{"error":"timeout"}', 'response_metadata': {}})()
         full_text = report.content
         # Post-process: clean residual Chinese in English output
         if state.language == "en":

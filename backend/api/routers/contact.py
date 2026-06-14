@@ -122,7 +122,7 @@ async def subscribe_newsletter(req: NewsletterRequest, request: Request):
     print(f"[NEWSLETTER] New subscriber: {email} (total: {len(_newsletter_subscribers)})")
 
     # Send notification to admin
-    html = f"""
+    email_html = f"""
     <div style="max-width:400px;margin:0 auto;font-family:Arial,sans-serif;color:#333;">
       <div style="background:linear-gradient(135deg,#2D1B4E,#1a0f2e);padding:20px;text-align:center;border-radius:12px 12px 0 0;">
         <h2 style="color:#C9A84C;margin:0;">✦ Profile Mirror — 新订阅</h2>
@@ -136,6 +136,6 @@ async def subscribe_newsletter(req: NewsletterRequest, request: Request):
     """
 
     to_email = settings.SMTP_FROM or "guoshengping66@gmail.com"
-    _send_email(to_email, f"[Profile Mirror] 新订阅 - {email}", html)
+    _send_email(to_email, f"[Profile Mirror] 新订阅 - {email}", email_html)
 
     return {"success": True, "message": "订阅成功，每周将收到五行运势推送"}

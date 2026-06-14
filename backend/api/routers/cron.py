@@ -233,9 +233,12 @@ async def cleanup_old_readings(
 
     cutoff = datetime.now(timezone.utc) - timedelta(days=7)
 
-    # 删除旧推命记录
+    # 删除旧推命记录（排除已付费/已解锁的报告）
     result = await db.execute(
-        delete(Reading).where(Reading.created_at < cutoff)
+        delete(Reading).where(
+            Reading.created_at < cutoff,
+            Reading.is_detail_unlocked == False,  # 保留用户付费解锁的报告
+        )
     )
     deleted_count = result.rowcount
     await db.commit()

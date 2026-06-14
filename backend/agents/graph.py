@@ -648,9 +648,12 @@ async def run_full_analysis(state: SystemState) -> SystemState:
             from calculators.bazi_calculator import BaziCalculator
             pi = state.partner_birth_info
             bazi_calc = BaziCalculator()
-            partner_bazi_result = bazi_calc.calculate(
-                year=pi.year, month=pi.month, day=pi.day,
-                hour=pi.hour, minute=pi.minute, gender=pi.gender,
+            loop = asyncio.get_event_loop()
+            partner_bazi_result = await loop.run_in_executor(
+                None, lambda: bazi_calc.calculate(
+                    year=pi.year, month=pi.month, day=pi.day,
+                    hour=pi.hour, minute=pi.minute, gender=pi.gender,
+                )
             )
             state.partner_bazi_raw = partner_bazi_result.to_dict()
             # Store BaziResult for compatibility calculation
@@ -844,13 +847,17 @@ async def run_full_analysis(state: SystemState) -> SystemState:
             if state.bazi_raw and state.partner_bazi_raw:
                 try:
                     from calculators.bazi_calculator import BaziCalculator
-                    bazi_compat = BaziCalculator.calculate_compatibility(
-                        state.bazi_raw, state.partner_bazi_raw,
+                    loop = asyncio.get_event_loop()
+                    bazi_compat = await loop.run_in_executor(
+                        None, lambda: BaziCalculator.calculate_compatibility(
+                            state.bazi_raw, state.partner_bazi_raw,
+                        )
                     )
                     state.bazi_compatibility = bazi_compat
                     print(f"[BAZI_COMPAT] Score: {bazi_compat.get('score', 0)}/100")
                 except Exception as e:
                     state.errors.append(f"bazi_compat_error: {e}")
+                    state.bazi_compatibility = {}
                     print(f"[BAZI_COMPAT] Error: {e}")
         finally:
             # Always clean up global state to prevent memory leak
