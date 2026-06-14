@@ -44,7 +44,15 @@ def _record_failure(model_key: str):
 
 
 def _record_success(model_key: str):
-    _circuit_breaker.pop(model_key, None)
+    state = _circuit_breaker.get(model_key)
+    if state and state.get("opened_at"):
+        # Half-open recovery: keep failure count near threshold so
+        # one more failure re-trips the circuit immediately
+        state["failures"] = FAILURE_THRESHOLD - 1
+        state.pop("opened_at", None)
+        _circuit_breaker[model_key] = state
+    else:
+        _circuit_breaker.pop(model_key, None)
 
 
 def _get_api_key(provider: str, model_cfg: Optional[dict] = None) -> Optional[str]:

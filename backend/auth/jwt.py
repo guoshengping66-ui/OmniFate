@@ -24,7 +24,7 @@ if not settings.REDIS_URL:
 _memory_blacklist: set[str] = set()
 _MEMORY_BLACKLIST_MAX = 10000
 
-_BLACKLIST_TTL_DAYS = 31  # refresh tokens expire in 30 days, blacklist for 31
+_BLACKLIST_TTL_DAYS = settings.REFRESH_TOKEN_EXPIRE_DAYS + 1  # blacklist 1 day longer than token expiry
 
 
 async def is_token_blacklisted(jti: str) -> bool:
@@ -71,7 +71,7 @@ def create_access_token(user_id: str, expires_delta: Optional[timedelta] = None)
 def create_refresh_token(user_id: str) -> str:
     """Create a long-lived refresh token with unique ID for blacklist support."""
     token_id = str(uuid.uuid4())
-    expire = datetime.now(timezone.utc) + timedelta(days=30)
+    expire = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
     to_encode = {"sub": user_id, "exp": expire, "type": "refresh", "jti": token_id}
     return jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=ALGORITHM)
 

@@ -156,6 +156,8 @@ export function middleware(request: NextRequest) {
     maxAge: 30 * 24 * 60 * 60, // 30 days
     path: "/",
     sameSite: "lax",
+    httpOnly: true,
+    secure: true,
   })
 
   // Inject region header for server components and API routes

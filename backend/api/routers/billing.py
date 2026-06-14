@@ -712,7 +712,7 @@ async def paypal_webhook(
         select(CreditTransaction).where(
             CreditTransaction.reason == "paypal_recharge",
             CreditTransaction.reference_id == sale_id,
-        )
+        ).with_for_update()
     )
     if existing.scalar_one_or_none():
         return {"status": "already_processed", "sale_id": sale_id}

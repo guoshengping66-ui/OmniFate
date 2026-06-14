@@ -44,6 +44,7 @@ class Settings(BaseSettings):
 
     JWT_SECRET_KEY: str = ""  # 空字符串，必须配置
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 30
 
     # ── 微信支付 ──
     WECHAT_PAY_ENABLED: bool = False
@@ -134,7 +135,7 @@ def get_settings() -> Settings:
     if not s.SECRET_KEY or s.SECRET_KEY in _default_secrets or s.SECRET_KEY.startswith("change-me"):
         s.SECRET_KEY = secrets.token_hex(32)
         print("[SECURITY] ⚠️ SECRET_KEY 未设置，已自动生成随机密钥。请在 .env 中设置固定密钥以避免重启后 session 失效。")
-    if s.JWT_SECRET_KEY in _default_secrets or s.JWT_SECRET_KEY.startswith("change-me"):
+    if not s.JWT_SECRET_KEY or s.JWT_SECRET_KEY in _default_secrets or s.JWT_SECRET_KEY.startswith("change-me"):
         # SECURITY NOTE: The JWT secret is persisted to .jwt_secret so that backend
         # restarts (PM2, Vercel deployments) don't invalidate all user sessions.
         # Trade-off: if an attacker gains read access to the filesystem, they can

@@ -218,7 +218,9 @@ async def confirm_deduct(
 
     # Auto-refund if pending transaction has expired (30 min timeout)
     if tx.created_at:
-        age = datetime.utcnow() - tx.created_at.replace(tzinfo=None)
+        now_utc = datetime.now(timezone.utc)
+        created_at = tx.created_at if tx.created_at.tzinfo else tx.created_at.replace(tzinfo=timezone.utc)
+        age = now_utc - created_at
         if age > timedelta(minutes=30):
             user_result = await db.execute(
                 select(User).where(User.id == current_user.id).with_for_update()

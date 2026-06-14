@@ -19,13 +19,20 @@ settings = get_settings()
 # ── Redis connection (lazy, shared) ──────────────────────────────────────────
 _redis_client = None
 _redis_available: Optional[bool] = None  # None = not checked yet
+_last_reconnect_attempt: float = 0.0
+_RECONNECT_INTERVAL = 300  # Retry connection every 5 minutes if previously failed
 
 
 async def _get_redis():
     """Return an async Redis client if REDIS_URL is configured and reachable."""
-    global _redis_client, _redis_available
+    global _redis_client, _redis_available, _last_reconnect_attempt
     if _redis_available is False:
-        return None
+        # Periodically retry connection after initial failure
+        now = time.time()
+        if now - _last_reconnect_attempt < _RECONNECT_INTERVAL:
+            return None
+        _last_reconnect_attempt = now
+        _redis_available = None  # Fall through to attempt reconnection
     if _redis_client is not None:
         return _redis_client
     if not settings.REDIS_URL:

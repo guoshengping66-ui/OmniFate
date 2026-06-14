@@ -32,6 +32,7 @@ _astro_calc = AstrologyCalculator(house_system="Equal")
 # Store AstrologyResult objects for synastry calculation (keyed by session_id)
 _astro_results: dict[str, dict] = {}  # session_id -> {"self": AstrologyResult, "partner": AstrologyResult}
 _bazi_results: dict[str, dict] = {}   # session_id -> {"self": BaziResult, "partner": BaziResult}
+_worker_count_lock = asyncio.Lock()
 
 
 # ─── Node functions ──────────────────────────────────────────────────────
@@ -732,7 +733,8 @@ async def run_full_analysis(state: SystemState) -> SystemState:
                     setattr(state, f"{r.agent_id}_output", r)
                     # Update agent status for each sub-worker
                     state.agent_status[r.agent_id] = "error" if r.error else "done"
-                    _completed_workers += 1
+                    async with _worker_count_lock:
+                        _completed_workers += 1
             # Remove stale merged-worker key so frontend completedCount is correct
             state.agent_status.pop("qimen_ziwei", None)
         else:
@@ -740,7 +742,8 @@ async def run_full_analysis(state: SystemState) -> SystemState:
             attr = f"{agent_id}_output"
             if hasattr(state, attr):
                 setattr(state, attr, result)
-            _completed_workers += 1
+            async with _worker_count_lock:
+                _completed_workers += 1
             state.agent_status[agent_id] = "error" if result.error else "done"
 
         # Mark the merged worker event too
@@ -796,6 +799,14 @@ async def run_full_analysis(state: SystemState) -> SystemState:
             )
         except asyncio.TimeoutError:
             pass  # proceed with whatever is available
+
+        # If bazi data is still missing, wait a bit more
+        if not state.bazi_raw and not (state.bazi_output and state.bazi_output.report):
+            print("[SPECULATIVE] Warning: bazi data not available, waiting 10s more...")
+            try:
+                await asyncio.wait_for(worker_events.get("bazi", asyncio.Event()).wait(), timeout=10)
+            except (asyncio.TimeoutError, KeyError):
+                pass
 
         state.phase = "master"
         state.progress_pct = 70
@@ -927,6 +938,11 @@ async def run_full_analysis(state: SystemState) -> SystemState:
     state.progress_pct = 100
     state.progress_message = "Analysis complete" if is_en else "分析完成"
     state.phase = "done"
+
+    # Clean up global dicts to prevent memory leak
+    _astro_results.pop(state.session_id, None)
+    _bazi_results.pop(state.session_id, None)
+
     return state
 
 

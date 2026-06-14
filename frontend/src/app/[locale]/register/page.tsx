@@ -143,9 +143,8 @@ export default function RegisterPage() {
     }
     setVerifyLoading(true)
     try {
-      const res = await verifyEmail(email, verifyCode)
-      localStorage.setItem("access_token", res.access_token)
-      localStorage.setItem("refresh_token", res.refresh_token)
+      await verifyEmail(email, verifyCode)
+      // Tokens are set as httpOnly cookies by the backend — no localStorage needed
       toast.success(t("auth.loginSuccess"))
       router.replace("/dashboard")
     } catch (err: any) {

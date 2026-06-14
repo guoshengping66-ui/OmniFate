@@ -192,9 +192,7 @@ function GoogleLoginButton() {
         credential: response.credential,
       })
 
-      // Store tokens
-      localStorage.setItem("access_token", result.data.access_token)
-      localStorage.setItem("refresh_token", result.data.refresh_token)
+      // Tokens are set as httpOnly cookies by the backend — no localStorage needed
 
       toast.success(t("auth.loginSuccess"))
       window.location.href = localeHref("/")

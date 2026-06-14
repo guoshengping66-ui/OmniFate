@@ -243,6 +243,9 @@ def _verify_admin_token(order_no: str, action: str, token: str) -> bool:
 
 async def _activate_order(db: AsyncSession, order) -> None:
     """激活订单（解锁报告 + 激活订阅）"""
+    # Idempotency: skip if already activated
+    if order.status == OrderStatus.paid:
+        return
     order.status = OrderStatus.paid
     order.paid_at = datetime.now(timezone.utc)
 
@@ -268,8 +271,9 @@ async def _activate_order(db: AsyncSession, order) -> None:
                             from api.routers.payments import GRANT_ON_REPORT_UNLOCK
                             user.stardust_balance += GRANT_ON_REPORT_UNLOCK
                             user.stardust_lifetime_earned += GRANT_ON_REPORT_UNLOCK
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"[ACTIVATE] FAILED for order: {e}")
+        raise
 
     # 激活订阅
     if order.item_type != "shop":
@@ -297,8 +301,9 @@ async def _activate_order(db: AsyncSession, order) -> None:
                         await _activate_subscription(sub_user, activated_tier, db)
                     elif activated_tier == "onetime_unlock":
                         await _handle_onetime_unlock_activation(sub_user, order, db)
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"[ACTIVATE] FAILED for order: {e}")
+            raise
 
 
 @router.post("/verify")

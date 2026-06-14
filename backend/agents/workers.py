@@ -9,6 +9,7 @@ import asyncio
 import time
 import json
 import re
+from collections import OrderedDict
 from typing import Optional
 
 from langchain_openai import ChatOpenAI
@@ -145,7 +146,8 @@ _JSON_OUTPUT_INSTRUCTION_COMPACT_EN = (
 
 
 # ─── LLM Connection Pool (reuse across calls) ────────────────────────────
-_llm_cache: dict[str, ChatOpenAI] = {}
+_llm_cache: OrderedDict[str, ChatOpenAI] = OrderedDict()
+_MAX_LLM_CACHE = 10
 
 
 def _llm(temperature: float = 0.35, model: str | None = None, max_tokens: int | None = None):
@@ -163,6 +165,8 @@ def _llm(temperature: float = 0.35, model: str | None = None, max_tokens: int | 
         if settings.OPENAI_BASE_URL:
             kwargs["base_url"] = settings.OPENAI_BASE_URL
         _llm_cache[cache_key] = ChatOpenAI(**kwargs)
+        while len(_llm_cache) > _MAX_LLM_CACHE:
+            _llm_cache.popitem(last=False)
     return _llm_cache[cache_key]
 
 

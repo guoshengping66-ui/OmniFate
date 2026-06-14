@@ -9,6 +9,7 @@ Upgraded with:
 """
 from __future__ import annotations
 import asyncio, re, json, time as _time
+from collections import OrderedDict
 from typing import Optional
 
 from langchain_openai import ChatOpenAI
@@ -63,7 +64,8 @@ _SENTIMENT_KW = {
 
 # ─── LLM helpers ──────────────────────────────────────────────────────────
 
-_llm_cache: dict[str, ChatOpenAI] = {}
+_llm_cache: OrderedDict[str, ChatOpenAI] = OrderedDict()
+_MAX_LLM_CACHE = 10
 
 
 def _llm(temperature: float = 0.3, model: str | None = None, max_tokens: int | None = None) -> ChatOpenAI:
@@ -80,6 +82,8 @@ def _llm(temperature: float = 0.3, model: str | None = None, max_tokens: int | N
         if settings.OPENAI_BASE_URL:
             kwargs["base_url"] = settings.OPENAI_BASE_URL
         _llm_cache[cache_key] = ChatOpenAI(**kwargs)
+        while len(_llm_cache) > _MAX_LLM_CACHE:
+            _llm_cache.popitem(last=False)
     return _llm_cache[cache_key]
 
 
@@ -102,6 +106,8 @@ def _free_llm(temperature: float = 0.3) -> ChatOpenAI:
         if base_url:
             kwargs["base_url"] = base_url
         _llm_cache[cache_key] = ChatOpenAI(**kwargs)
+        while len(_llm_cache) > _MAX_LLM_CACHE:
+            _llm_cache.popitem(last=False)
     return _llm_cache[cache_key]
 
 
@@ -112,7 +118,7 @@ def _use_mock() -> bool:
 async def _call(system: str, user: str, model: str | None = None, language: str = "zh",
                 use_free: bool = False, max_tokens: int | None = None) -> str:
     if _use_mock():
-        return f"[MOCK] {user[:80]}\n\nSet OPENAI_API_KEY to enable real AI responses."
+        return "[MOCK] System in demo mode. Configure OPENAI_API_KEY for real analysis."
     if use_free and (settings.FREE_MODEL_API_KEY or settings.OPENAI_API_KEY):
         llm = _free_llm()
     else:

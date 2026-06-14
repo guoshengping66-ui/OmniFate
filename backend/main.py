@@ -108,10 +108,6 @@ async def csrf_protection(request: Request, call_next):
         if any(path.startswith(exempt) for exempt in CSRF_EXEMPT_PATHS):
             return await call_next(request)
 
-        # Skip CORS preflight (OPTIONS)
-        if request.method == "OPTIONS":
-            return await call_next(request)
-
         # Check for X-Requested-With header (must be "XMLHttpRequest" or "fetch")
         x_requested_with = request.headers.get("x-requested-with", "")
         if x_requested_with not in ("XMLHttpRequest", "fetch", "nextjs-action"):
@@ -387,6 +383,11 @@ async def cache_middleware(request: Request, call_next):
 
     # Execute request
     response = await call_next(request)
+
+    # Never cache streaming responses
+    content_type = response.headers.get("content-type", "")
+    if "text/event-stream" in content_type:
+        return response
 
     # Cache successful JSON responses only (skip if body > 256KB to avoid memory bloat)
     MAX_CACHE_BODY = 256 * 1024  # 256KB

@@ -169,7 +169,7 @@ class Reading(Base):
     birth_profile_id: Mapped[Optional[str]] = mapped_column(
         ForeignKey("birth_profiles.id", ondelete="SET NULL"), nullable=True
     )
-    status: Mapped[ReadingStatus] = mapped_column(Enum(ReadingStatus), default=ReadingStatus.pending)
+    status: Mapped[ReadingStatus] = mapped_column(Enum(ReadingStatus), default=ReadingStatus.pending, index=True)
 
     # Raw calculation data
     bazi_raw: Mapped[Optional[dict]] = mapped_column(JSON)
@@ -445,8 +445,8 @@ class CreditTransaction(Base):
     # reason 枚举: report_unlock, event_retro, follow_up, energy_radar, divination,
     #              monthly_grant, register_bonus, referral, refund, founder_grant
     reference_id: Mapped[Optional[str]] = mapped_column(String(36))  # 关联 reading/event ID
-    status: Mapped[str] = mapped_column(String(20), default="confirmed")  # pending|confirmed|refunded
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    status: Mapped[str] = mapped_column(String(20), default="confirmed", index=True)  # pending|confirmed|refunded
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), index=True)
 
 
 # ─── FounderVote ──────────────────────────────────────────────────────────────
@@ -513,8 +513,8 @@ class DivinationRecord(Base):
     is_free: Mapped[bool] = mapped_column(Boolean, default=True)
     stardust_cost: Mapped[int] = mapped_column(Integer, default=0)
     ai_insight: Mapped[Optional[str]] = mapped_column(Text)            # AI 深度解析（50字行动指引）
-    shared: Mapped[bool] = mapped_column(Boolean, default=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    shared: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), index=True)
 
 
 # ─── RedeemCode ──────────────────────────────────────────────────────────────

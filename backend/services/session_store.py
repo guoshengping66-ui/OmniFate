@@ -22,13 +22,20 @@ SESSION_TTL = 3600 * 2  # 2 hours
 # ── Redis client ─────────────────────────────────────────────────────────────
 _session_redis = None
 _session_redis_available: Optional[bool] = None  # None = not checked yet
+_last_reconnect_attempt: float = 0.0
+_RECONNECT_INTERVAL = 300  # Retry every 5 minutes if previously failed
 
 
 async def _get_session_redis():
     """Return a Redis client with decode_responses=True for JSON string data."""
-    global _session_redis, _session_redis_available
+    global _session_redis, _session_redis_available, _last_reconnect_attempt
     if _session_redis_available is False:
-        return None
+        # Periodically retry connection
+        now = time.time()
+        if now - _last_reconnect_attempt < _RECONNECT_INTERVAL:
+            return None
+        _last_reconnect_attempt = now
+        _session_redis_available = None  # Fall through to attempt reconnection
     if _session_redis is not None:
         return _session_redis
     settings = get_settings()
@@ -58,6 +65,14 @@ _last_cleanup: float = 0.0
 _MEMORY_MAX_SESSIONS = 100  # Max cached sessions in memory mode
 
 
+async def _memory_cleanup():
+    """Proactively evict expired entries from in-memory store."""
+    now = time.time()
+    expired = [k for k, v in list(_memory_sessions.items()) if v[0] <= now]
+    for k in expired:
+        _memory_sessions.pop(k, None)
+
+
 async def get_session(key: str) -> Optional[object]:
     """Get a session by key. Returns None if not found or expired."""
     r = await _get_session_redis()
@@ -76,7 +91,8 @@ async def get_session(key: str) -> Optional[object]:
                 return None
         return None
 
-    # In-memory fallback
+    # In-memory fallback — proactively clean expired entries
+    await _memory_cleanup()
     entry = _memory_sessions.get(key)
     if entry:
         expire_ts, obj = entry

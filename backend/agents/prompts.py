@@ -2,7 +2,17 @@
 from __future__ import annotations
 import json
 import os
+import re as _re_prompt
 from pathlib import Path
+
+
+def _sanitize_user_text(text: str, max_len: int = 200) -> str:
+    """Sanitize user-provided text before LLM prompt injection."""
+    if not text:
+        return ""
+    # Strip control characters
+    text = _re_prompt.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f]', '', text)
+    return text[:max_len]
 
 TAG_FORMAT = (
     "\n== TAG RULES ==\n"
@@ -2352,7 +2362,7 @@ Ten (10) — 循环/转变。一个周期的结束，新周期的预备
         "  第五维：整体故事(将所有牌串联为一个完整的叙事) -> 确定核心信息和行动方向\n"
         "  确定性分级：每个结论标注 确定(多张牌印证)/很可能(位置+元素支撑)/可能(单一牌意)/待验证\n"
         "  交叉验证提示：塔罗结论建议与八字/星盘(如有)对照验证，但塔罗更侧重当下能量和短期建议\n\n"
-        f"问题: {user_question}\n牌阵: {spread_name}\n{cards_str}\n\n"
+        f"问题: {_sanitize_user_text(user_question)}\n牌阵: {spread_name}\n{cards_str}\n\n"
         "== 卡牌意参考（基于塔罗知识库） ==\n"
         f"{card_meanings_str}\n\n"
         f"{struct_block}\n\n"
@@ -6461,7 +6471,7 @@ def bazi_prompt(
 
     # ── Build input data section ──
     face_sec = f"\n【面相补充数据（仅作八字佐证）】\n{face_supplement}" if face_supplement else ""
-    city_sec = f"出生地：{birth_city}" if birth_city else ""
+    city_sec = f"出生地：{_sanitize_user_text(birth_city)}" if birth_city else ""
     shensha_sec = f"\n【神煞数据】\n{shensha_str}" if shensha_str else ""
     chang_sheng_sec = f"\n【十二长生】\n{shi_er_chang_sheng}" if shi_er_chang_sheng else ""
     nayin_sec = f"\n【年柱纳音】\n{nayin_year}" if nayin_year else ""
@@ -7015,7 +7025,7 @@ def master_prompt(worker_summaries: dict, user_question: str,
         f"== 七位专家报告 ==\n{workers_str}"
         f"{resonance_sec}{conflict_sec}\n\n"
         f"== 改运商品库 ==\n{products_preview}\n\n"
-        f"== 用户问题 ==\n{user_question}{chat_sec}{harm_sec}\n\n"
+        f"== 用户问题 ==\n{_sanitize_user_text(user_question)}{chat_sec}{harm_sec}\n\n"
         "== 输出结构（严格按此顺序） ==\n"
         "【A·命盘底色】200字以内，核心格局总结\n"
         "  引入跨体系命格定性：如「八字身强财旺+星盘日狮10宫+手相太阳线清晰」则事业命格高置信度验证\n\n"
@@ -7089,7 +7099,7 @@ def master_summary_prompt(worker_summaries: dict, user_question: str,
         f"== 跨维度共鸣 ==\n{resonance_text or '无特殊共鸣'}\n\n"
         f"== 跨维度冲突 ==\n{conflicts_text or '无重大冲突'}\n\n"
         f"== 专家摘要 ==\n{workers_str}\n\n"
-        f"== 用户问题 ==\n{user_question}\n\n"
+        f"== 用户问题 ==\n{_sanitize_user_text(user_question)}\n\n"
         f"{confidence_text}\n\n"
         "请立即生成免费简洁报告。"
     )
@@ -7196,7 +7206,7 @@ def master_detail_prompt(worker_summaries: dict, user_question: str,
         f"== 跨维度共鸣 ==\n{resonance_text or '无'}\n\n"
         f"== 跨维度冲突 ==\n{conflicts_text or '无'}\n\n"
         f"== 七位专家报告 ==\n{workers_str}\n\n"
-        f"== 用户的具体问题（必须详细回答）==\n{user_question}\n\n"
+        f"== 用户的具体问题（必须详细回答）==\n{_sanitize_user_text(user_question)}\n\n"
         f"== 推荐商品数据 ==\n{products_sec}\n\n"
         f"{harm_hint}\n"
         f"{confidence_text}\n\n"
@@ -7254,7 +7264,7 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
         partner_section = (
             f"\n\n== 合盘数据 ==\n"
             f"关系类型：{rel_type_display}\n"
-            f"对方昵称：{partner_name}\n\n"
+            f"对方昵称：{_sanitize_user_text(partner_name)}\n\n"
             f"[八字合婚评分] {compat_score}/100 — {compat_level}\n"
             f"  {compat_dm}\n"
             f"  {compat_yong}\n"
@@ -7447,7 +7457,7 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
             f"== Cross-Dimension Resonance ==\n{resonance_text or 'None'}\n\n"
             f"== Cross-Dimension Conflicts ==\n{conflicts_text or 'None'}\n\n"
             f"== Expert Reports ==\n{workers_str}\n\n"
-            f"== User Question ==\n{user_question}\n\n"
+            f"== User Question ==\n{_sanitize_user_text(user_question)}\n\n"
             f"{partner_section}\n"
             f"== Cross-System Evidence Chain ==\n{evidence_chains or 'No additional cross-validation evidence'}\n\n"
             f"{confidence_text}\n\n"
@@ -7473,7 +7483,7 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
             f"== 跨维度共鸣 ==\n{resonance_text or '无'}\n\n"
             f"== 跨维度冲突 ==\n{conflicts_text or '无'}\n\n"
         f"== 专家报告 ==\n{workers_str}\n\n"
-        f"== 用户问题 ==\n{user_question}\n\n"
+        f"== 用户问题 ==\n{_sanitize_user_text(user_question)}\n\n"
         f"{partner_section}\n"
         f"== 跨体系证据链 ==\n{evidence_chains or '无额外交叉验证证据'}\n\n"
         f"{confidence_text}\n\n"
@@ -7531,14 +7541,14 @@ def master_subtask_core_personality_prompt(
             partner_section = (
                 f"\n\n== Partner Data (Brief) ==\n"
                 f"Relationship type: {partner_data.get('relationship_type', '')}\n"
-                f"Partner name: {partner_name}\n"
+                f"Partner name: {_sanitize_user_text(partner_name)}\n"
                 f"Compatibility level: {compat_level}\n"
             )
         else:
             partner_section = (
                 f"\n\n== 合盘数据（简要）==\n"
                 f"关系类型：{partner_data.get('relationship_type', '')}\n"
-                f"对方昵称：{partner_name}\n"
+                f"对方昵称：{_sanitize_user_text(partner_name)}\n"
                 f"八字合婚：{compat_level}\n"
             )
 
@@ -7557,7 +7567,7 @@ def master_subtask_core_personality_prompt(
             "Section markers MUST use English format: 【A · Core Personality Blueprint】\n"
             "Do NOT use Chinese section markers like 【A·核心性格底色】.\n\n"
             f"== Expert Reports ==\n{workers_str}\n\n"
-            f"== User Question ==\n{user_question}\n\n"
+            f"== User Question ==\n{_sanitize_user_text(user_question)}\n\n"
             f"{partner_section}\n"
             f"{confidence_text}\n\n"
             "== Output Requirements ==\n"
@@ -7585,7 +7595,7 @@ def master_subtask_core_personality_prompt(
         "禁止出现：命格、命局、格局、大运、流年、刑冲合害、天机、磁场、能量场\n"
         "以上术语全部翻译成现代大白话\n\n"
         f"== 专家报告 ==\n{workers_str}\n\n"
-        f"== 用户问题 ==\n{user_question}\n\n"
+        f"== 用户问题 ==\n{_sanitize_user_text(user_question)}\n\n"
         f"{partner_section}\n"
         f"{confidence_text}\n\n"
         "== 输出要求 ==\n"
@@ -7790,7 +7800,7 @@ def master_subtask_dimensions_prompt(worker_summaries: dict, user_question: str,
             "5. Every conclusion must cite at least one piece of evidence from the expert reports\n\n"
             f"== Scores == {scores_str}\n\n"
             f"== Expert Reports ==\n{workers_str}\n\n"
-            f"== User Question ==\n{user_question}\n\n"
+            f"== User Question ==\n{_sanitize_user_text(user_question)}\n\n"
             f"{confidence_text}\n\n"
             "Generate the diagnosis report in plain, direct English."
         )
@@ -7827,7 +7837,7 @@ def master_subtask_dimensions_prompt(worker_summaries: dict, user_question: str,
         "5. 每条结论必须引用至少一条专家报告中的具体依据\n\n"
         f"== 五维评分 ==\n{scores_str}\n\n"
         f"== 专家报告 ==\n{workers_str}\n\n"
-        f"== 用户问题 ==\n{user_question}\n\n"
+        f"== 用户问题 ==\n{_sanitize_user_text(user_question)}\n\n"
         f"{confidence_text}\n\n"
         "请用大白话生成分析报告。"
     )
@@ -7936,7 +7946,7 @@ def master_subtask_actions_prompt(worker_summaries: dict, user_question: str,
             "3. When multiple suggestions address the same trait, vary the approach\n\n"
             f"== Scores == {scores_str}\n\n"
             f"== Expert Reports ==\n{workers_str}\n\n"
-            f"== User Question ==\n{user_question}\n\n"
+            f"== User Question ==\n{_sanitize_user_text(user_question)}\n\n"
             f"== Recommended Products ==\n{products_sec}\n\n"
             f"{harm_hint}\n\n"
             "Generate actionable recommendations in plain, direct English."
@@ -7972,7 +7982,7 @@ def master_subtask_actions_prompt(worker_summaries: dict, user_question: str,
         "【H·避坑指南】1-2条明确的\"不要做\"清单\n\n"
         f"== 五维评分 ==\n{scores_str}\n\n"
         f"== 专家报告 ==\n{workers_str}\n\n"
-        f"== 用户问题 ==\n{user_question}\n\n"
+        f"== 用户问题 ==\n{_sanitize_user_text(user_question)}\n\n"
         f"== 推荐商品 ==\n{products_sec}\n\n"
         f"{harm_hint}\n\n"
         "请用大白话生成行动建议。"
@@ -8051,7 +8061,7 @@ def master_subtask_synastry_prompt(
         return (
             "You are a synastry specialist for a multi-dimensional fortune platform.\n"
             "Generate a synastry analysis report based on the provided data.\n\n"
-            f"Relationship type: {rel_display} with {partner_name}\n\n"
+            f"Relationship type: {rel_display} with {_sanitize_user_text(partner_name)}\n\n"
             f"== Bazi Compatibility ({compat_score}/100 - {compat_level}) ==\n"
             f"  {compat_dm}\n  {compat_yong}\n  {compat_day}\n  {compat_supply}\n\n"
             f"== Synastry Aspects (Strongest Connections) ==\n{synastry_text}\n\n"
@@ -8073,7 +8083,7 @@ def master_subtask_synastry_prompt(
 
     return (
         "你是Profile Mirror平台的合盘专家。基于精确的合盘计算数据，生成合盘分析报告。\n\n"
-        f"关系类型：{rel_display}（与{partner_name}）\n\n"
+        f"关系类型：{rel_display}（与{_sanitize_user_text(partner_name)}）\n\n"
         f"== 八字合婚数据 ({compat_score}/100 — {compat_level}) ==\n"
         f"  {compat_dm}\n"
         f"  {compat_yong}\n"

@@ -582,6 +582,9 @@ async def login(req: LoginRequest, request: Request, db: AsyncSession = Depends(
     result = await db.execute(select(User).where(User.email == req.email))
     user = result.scalar_one_or_none()
     if not user or not user.hashed_password:
+        # Run bcrypt even for non-existent users to equalize timing
+        if not user:
+            verify_password(req.password, "$2b$12$LJ3m4ys3Lk0TSwMCPNEPluIMSGVN2m9lCcK7k9OJB9wGt4uVxMzHu")
         await _record_failed_login(req.email)
         raise HTTPException(status_code=401, detail="邮箱或密码错误")
     if not verify_password(req.password, user.hashed_password):
@@ -628,13 +631,31 @@ async def logout(
     current_user: User = Depends(require_user),
     authorization: Optional[str] = Header(None),
 ):
-    """Logout — blacklist the current refresh token and clear auth cookies."""
-    # Try to get refresh token from cookie or Authorization header
-    token = None
+    """Logout — blacklist both access and refresh tokens, then clear cookies."""
+    # Blacklist the access token (from Authorization header)
     if authorization:
+        access_tok = authorization.replace("Bearer ", "").strip()
+        if access_tok:
+            try:
+                payload = jwt.decode(access_tok, settings.JWT_SECRET_KEY,
+                                    algorithms=[ALGORITHM], options={"verify_exp": False})
+                if payload.get("jti"):
+                    await blacklist_token(payload["jti"])
+            except Exception:
+                pass
+
+    # Blacklist the refresh token (from cookie or header)
+    token = request.cookies.get("refresh_token")
+    if not token and authorization:
         token = authorization.replace("Bearer ", "").strip()
-    if not token:
-        token = request.cookies.get("refresh_token")
+        # Only use as refresh token if it's actually a refresh token
+        try:
+            payload = jwt.decode(token, settings.JWT_SECRET_KEY,
+                                algorithms=[ALGORITHM], options={"verify_exp": False})
+            if payload.get("type") != "refresh":
+                token = None
+        except Exception:
+            token = None
 
     if token:
         try:
@@ -661,14 +682,24 @@ async def refresh_token(req: RefreshRequest, request: Request, db: AsyncSession 
     if not refresh_tok:
         raise HTTPException(status_code=401, detail="无效的 refresh token")
 
-    user_id = await verify_token(refresh_tok)
-    if user_id is None:
-        raise HTTPException(status_code=401, detail="无效的 refresh token")
-
-    # Rate limit refresh attempts
+    # Rate limit FIRST (before expensive token verification)
     client_ip = _get_client_ip(request)
     if await _check_rate_limit(f"refresh:{client_ip}", max_per_window=10):
         raise HTTPException(status_code=429, detail="请求过于频繁，请稍后再试")
+
+    # Decode old token to get its jti BEFORE verifying (for blacklisting)
+    old_jti = None
+    try:
+        from jose import jwt as _jwt
+        old_payload = _jwt.decode(refresh_tok, settings.JWT_SECRET_KEY,
+                                  algorithms=[ALGORITHM], options={"verify_exp": False})
+        old_jti = old_payload.get("jti")
+    except Exception:
+        pass
+
+    user_id = await verify_token(refresh_tok)
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="无效的 refresh token")
 
     # Verify user still exists and is active
     if db:
@@ -682,6 +713,10 @@ async def refresh_token(req: RefreshRequest, request: Request, db: AsyncSession 
 
     access = create_access_token(user_id)
     refresh = create_refresh_token(user_id)
+
+    # Blacklist old refresh token to prevent reuse after rotation
+    if old_jti:
+        await blacklist_token(old_jti)
 
     resp = JSONResponse(content={"access_token": access, "refresh_token": refresh, "token_type": "bearer"})
     _set_auth_cookies(resp, access, refresh)
@@ -756,7 +791,8 @@ async def reset_password(req: ResetPasswordRequest, request: Request, db: AsyncS
     result = await db.execute(select(User).where(User.email == req.email))
     user = result.scalar_one_or_none()
     if not user:
-        raise HTTPException(status_code=404, detail="用户不存在")
+        # Don't leak user existence — use same error as wrong code
+        raise HTTPException(status_code=400, detail="验证码错误")
 
     # Check expiration first (before code comparison)
     if user.verification_expires_at and datetime.now(timezone.utc) > _ensure_aware(user.verification_expires_at):

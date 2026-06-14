@@ -663,6 +663,10 @@ async def wechat_notify(request: Request, db: AsyncSession = Depends(get_db)):
     # 查找订单并验证金额（行锁防止并发回调双重激活）
     order_result = await db.execute(select(Order).where(Order.order_no == order_no).with_for_update())
     order = order_result.scalar_one_or_none()
+    if not order:
+        print(f"[PAYMENT] CRITICAL: Order not found for notification! out_trade_no={order_no}")
+        # Still return success to prevent retries that will never succeed
+        return "<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>"
     if order:
         # 幂等保护：如果订单已支付，直接返回成功（避免重复激活）
         if order.status == OrderStatus.paid:
@@ -874,6 +878,10 @@ async def alipay_notify(request: Request, db: AsyncSession = Depends(get_db)):
     # 查找订单并验证金额（行锁防止并发回调双重激活）
     order_result = await db.execute(select(Order).where(Order.order_no == order_no).with_for_update())
     order = order_result.scalar_one_or_none()
+    if not order:
+        print(f"[PAYMENT] CRITICAL: Order not found for notification! out_trade_no={order_no}")
+        # Still return success to prevent retries that will never succeed
+        return "success"
     if order:
         # 幂等保护：如果订单已支付，直接返回成功（避免重复激活）
         if order.status == OrderStatus.paid:
@@ -1543,7 +1551,7 @@ async def pay_event(
         raise HTTPException(status_code=404, detail="事件不存在")
 
     # Verify event belongs to current user
-    if hasattr(event, "user_id") and event.user_id and event.user_id != current_user.id:
+    if not event.user_id or event.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="无权操作此事件")
 
     if getattr(event, "is_paid", False):

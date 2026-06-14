@@ -71,21 +71,27 @@ async def _do_db_check():
     _db_available = True
 
 
+_migrate_lock = asyncio.Lock()
+
+
 async def _ensure_tables():
     """Create all tables if they don't exist (safe for SQLite on Vercel)."""
     global _tables_created
     if _tables_created:
         return
-    try:
-        from database.models import Base
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-        _tables_created = True
-        print("[DB] Tables ensured")
-        # Auto-migrate: add missing columns to users & readings tables
-        await _migrate_readings_columns()
-    except Exception as e:
-        print(f"[DB] Failed to ensure tables: {e}")
+    async with _migrate_lock:
+        if _tables_created:  # Double-check after acquiring lock
+            return
+        try:
+            from database.models import Base
+            async with engine.begin() as conn:
+                await conn.run_sync(Base.metadata.create_all)
+            _tables_created = True
+            print("[DB] Tables ensured")
+            # Auto-migrate: add missing columns to users & readings tables
+            await _migrate_readings_columns()
+        except Exception as e:
+            print(f"[DB] Failed to ensure tables: {e}")
 
 
 async def _migrate_readings_columns():

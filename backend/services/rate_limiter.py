@@ -16,6 +16,7 @@ from services.redis_client import _get_redis
 _memory_store: dict[str, list[float]] = defaultdict(list)
 _last_cleanup: float = 0.0
 CLEANUP_INTERVAL = 600  # purge stale entries every 10 min
+_MEMORY_MAX_ENTRIES = 10000
 
 
 async def check_rate_limit(
@@ -57,6 +58,12 @@ def _check_memory(key: str, limit: int, window: int) -> bool:
     """In-memory sliding window with periodic cleanup."""
     global _last_cleanup
     now = time.time()
+
+    # Aggressive cleanup when approaching capacity
+    if len(_memory_store) > _MEMORY_MAX_ENTRIES * 0.9:
+        stale = [k for k, v in _memory_store.items() if not v or v[-1] <= now - window]
+        for k in stale:
+            del _memory_store[k]
 
     # Periodic cleanup
     if now - _last_cleanup > CLEANUP_INTERVAL:

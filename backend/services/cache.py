@@ -21,7 +21,23 @@ _memory_cache: OrderedDict[str, tuple[float, str]] = OrderedDict()
 _MEMORY_MAX = 500  # max entries
 
 
+_last_memory_cleanup: float = 0.0
+
+
+def _memory_cleanup():
+    """Proactively remove expired entries (runs at most once per 60s)."""
+    global _last_memory_cleanup
+    now = time.time()
+    if now - _last_memory_cleanup < 60:
+        return
+    _last_memory_cleanup = now
+    expired = [k for k, v in list(_memory_cache.items()) if v[0] <= now]
+    for k in expired:
+        _memory_cache.pop(k, None)
+
+
 def _memory_get(key: str) -> Optional[str]:
+    _memory_cleanup()
     entry = _memory_cache.get(key)
     if entry is None:
         return None

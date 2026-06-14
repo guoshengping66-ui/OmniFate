@@ -88,13 +88,15 @@ def _get_reading_cache(session_id: str) -> Optional[AnalysisResponse]:
 
 
 def _estimate_cache_size(resp: AnalysisResponse) -> int:
-    """Estimate memory size of a cached response in bytes."""
-    import sys
-    size = sys.getsizeof(resp.master_summary) + sys.getsizeof(resp.master_detail)
+    """Estimate memory size of a cached response in bytes (UTF-8 encoded)."""
+    size = 0
+    # Use len(s.encode('utf-8')) for accurate string size (UTF-8 chars ≠ code points)
+    for s in (resp.master_summary or "", resp.master_detail or ""):
+        size += len(s.encode("utf-8"))
     for key in _WORKER_REPORT_KEYS:
         wo = getattr(resp, key, None)
-        if wo:
-            size += sys.getsizeof(wo.report)
+        if wo and wo.report:
+            size += len(wo.report.encode("utf-8"))
     return size
 
 
