@@ -1557,6 +1557,30 @@
     "wealth": "Wealth",
     "weekdays": "Sun,Mon,Tue,Wed,Thu,Fri,Sat"
   },
+  "fortuneGuide": {
+    "daily": {
+      "step1": "Daily mode: Enter your current question and symbolic will guide you.",
+      "step3": "Daily mode combines your behavioral chart with symbolic for quick today guidance."
+    },
+    "event": {
+      "step3": "Event review mode: AI combines your behavioral chart for in-depth analysis."
+    },
+    "full": {
+      "step1": "Full mode: Symbolic, face, and palm analysis run together. Select your symbolic cards and enter your question first."
+    },
+    "chart": "Behavioral Chart",
+    "dailySpirit": "Daily Insight",
+    "faceMaster": "Face Master",
+    "guide": "Guide",
+    "guideLabel": "Guide",
+    "investigator": "Investigator",
+    "step0": "Birth time is the foundation of your chart — be as accurate as possible. If unsure, choose \"Zi Hour\" (11PM-1AM) as reference.",
+    "step1": "The more specific your question, the clearer the symbolic guidance. Think about what's been troubling you most lately.",
+    "step2": "Upload clear face and palm photos for better AI analysis. Use natural light and avoid beauty filters.",
+    "step3": "All five behavioral masters are ready! Confirm and they'll analyze for you simultaneously!",
+    "tarotSpirit": "Symbolic Insight",
+    "wizard": "Master Analyst"
+  },
   "statusGuide": {
     "daily": {
       "step1": "Daily mode: Enter your current question and symbolic will guide you.",
@@ -2573,6 +2597,123 @@
     "desc": "Just 3 minutes to unlock a full five-path reading and your personal optimization plan",
     "note": "No Registration · Instant · Private",
     "title": "Your Reading Is Ready"
+  },
+  "destinyRadar": {
+    "career": "Career",
+    "health": "Health",
+    "relationship": "Love",
+    "mindfulness": "Mindfulness",
+    "title": "Five-Dimensional Data Distribution",
+    "wealth": "Wealth"
+  },
+  "energyId": {
+    "archetype": {
+      "career": "Peak Commander",
+      "health": "Life Hub",
+      "relationship": "Emotional Echo",
+      "mindfulness": "Data Insight",
+      "wealth": "Wealth Architect"
+    },
+    "tier": {
+      "career": "Iron",
+      "health": "Jade",
+      "relationship": "Rose",
+      "mindfulness": "Violet",
+      "wealth": "Gold"
+    },
+    "brand": "Behavioral Mirror",
+    "certLabel": "AI Five-Dimensional Certification",
+    "copied": "Share text copied to clipboard",
+    "coreArchetype": "Core Archetype",
+    "digitalSig": "Digital Signature",
+    "flipBack": "Flip Back",
+    "label": "Digital ID Card",
+    "scanHint": "Scan to view report",
+    "shareBtn": "Share",
+    "shareText": "I got my exclusive Digital ID from Behavioral Mirror",
+    "shareTitle": "Behavioral Mirror · Digital ID"
+  },
+  "energyInject": {
+    "stardust": "stardust"
+  },
+  "floatingOracle": {
+    "freeHint": "First draw free daily — feel the data guidance",
+    "freeToday": "Free Today",
+    "label": "Daily Insight"
+  },
+  "fortune": {
+    "badge": "Daily Draw",
+    "sectionDesc": "Every day has a unique data field — check today's status guide",
+    "advice": {
+      "1": "Good day for quiet reflection and planning your goals",
+      "2": "Strong social energy — great for expanding your network",
+      "3": "Ideal for learning a new skill or reading",
+      "4": "Financial outlook is positive — consider opportunities",
+      "5": "Emotional balance is steady — express your feelings",
+      "6": "Career breakthrough opportunity — seize the moment",
+      "7": "Health needs attention — rest and avoid overwork",
+      "8": "Good for clearing backlogs and organizing tasks",
+      "9": "Rich in creative inspiration — great for art",
+      "10": "Travel energy is strong — ideal for short trips",
+      "_label": "Today's Advice"
+    },
+    "color": {
+      "black": "Black",
+      "blue": "Blue",
+      "gold": "Gold",
+      "green": "Green",
+      "orange": "Orange",
+      "pink": "Pink",
+      "purple": "Purple",
+      "red": "Red",
+      "white": "White"
+    },
+    "score": {
+      "excellent": "Excellent",
+      "good": "Good",
+      "low": "Low",
+      "neutral": "Neutral",
+      "poor": "Poor"
+    },
+    "warning": {
+      "1": "Avoid impulse purchases — shop rationally",
+      "2": "Watch your words to avoid unnecessary arguments",
+      "3": "Don't stay up late — ensure adequate sleep",
+      "4": "Be cautious signing important documents",
+      "5": "Pay attention to travel safety",
+      "6": "Avoid direct confrontations",
+      "7": "Don't make major decisions — think twice",
+      "8": "Watch your diet and food hygiene",
+      "9": "Control your emotions — avoid anxiety",
+      "10": "Avoid lending money or acting as guarantor",
+      "_label": "Things to Watch"
+    },
+    "weekday": {
+      "friday": "Friday",
+      "monday": "Monday",
+      "saturday": "Saturday",
+      "sunday": "Sunday",
+      "thursday": "Thursday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday"
+    },
+    "basedOnChart": "Based on your profile data",
+    "career": "Career",
+    "collapse": "Collapse",
+    "dateFmt": "{month}/{day} {weekday}",
+    "dateSuffix": "{month}/{day}",
+    "expand": "View Details",
+    "health": "Health",
+    "love": "Love",
+    "luckyColor": "Recommended Color",
+    "luckyNumber": "Recommended Number",
+    "overallScore": "Overall Status",
+    "sectionTitle": "Today's Status Guide",
+    "startReading": "Start Your Reading",
+    "title": "Today's Status",
+    "todayLevel": "Today's Level",
+    "wealth": "Wealth",
+    "weekdays": "Sun,Mon,Tue,Wed,Thu,Fri,Sat"
   },
   "behavioralRadar": {
     "career": "Career",
