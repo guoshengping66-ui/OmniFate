@@ -7292,106 +7292,214 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
     # ── Intent-adaptive instructions ──
     intent_hint = ""
     if intent == "GENERAL_DAILY":
-        intent_hint = (
-            "\n== 推命通道：一键推命 ==\n"
-            "用户选择了快捷通道，未提供精确出生时辰和面相/手相数据。\n"
-            "报告重心：\n"
-            "1. 聚焦当下状态与近期趋势\n"
-            "2. 不要提及面相、手相相关内容（用户未上传）\n"
-            "3. 如果出生信息不完整，说明基于粗略推算\n\n"
-        )
+        if language == "en":
+            intent_hint = (
+                "\n== Channel: Quick Profile ==\n"
+                "User chose the quick path — no precise birth time, no facial/palm photos.\n"
+                "Report focus:\n"
+                "1. Current state and near-term trends\n"
+                "2. Do NOT mention facial or palm analysis (user didn't upload)\n"
+                "3. If birth info is incomplete, note it's based on rough estimation\n\n"
+            )
+        else:
+            intent_hint = (
+                "\n== 推命通道：一键推命 ==\n"
+                "用户选择了快捷通道，未提供精确出生时辰和面相/手相数据。\n"
+                "报告重心：\n"
+                "1. 聚焦当下状态与近期趋势\n"
+                "2. 不要提及面相、手相相关内容（用户未上传）\n"
+                "3. 如果出生信息不完整，说明基于粗略推算\n\n"
+            )
     elif intent == "FULL_MULTIMODAL":
-        intent_hint = (
-            "\n== 推命通道：完整推命 ==\n"
-            "用户选择了全景通道，已上传面相/手相/精确出生信息。\n"
-            "报告重心：\n"
-            "1. 融合面相和手相的分析结论\n"
-            "2. 结合多个体系交叉验证\n"
-            "3. 让用户感受到上传的信息被充分分析\n\n"
-        )
+        if language == "en":
+            intent_hint = (
+                "\n== Channel: Full Profile ==\n"
+                "User chose the full path — facial/palm photos and precise birth info uploaded.\n"
+                "Report focus:\n"
+                "1. Integrate facial and palm analysis conclusions\n"
+                "2. Cross-validate across multiple analysis systems\n"
+                "3. Make the user feel their uploaded data was thoroughly analyzed\n\n"
+            )
+        else:
+            intent_hint = (
+                "\n== 推命通道：完整推命 ==\n"
+                "用户选择了全景通道，已上传面相/手相/精确出生信息。\n"
+                "报告重心：\n"
+                "1. 融合面相和手相的分析结论\n"
+                "2. 结合多个体系交叉验证\n"
+                "3. 让用户感受到上传的信息被充分分析\n\n"
+            )
     elif intent == "RELATIONSHIP":
-        intent_hint = (
-            "\n== 推命通道：双人合盘分析 ==\n"
-            "用户想了解两个人是否合适，已提供双方出生信息并完成合盘计算。\n\n"
-            "报告要求：\n"
-            "1. 全部用大白话写，禁止出现任何八字术语（如壬水、七杀、伤官、印星等）\n"
-            "2. 把命理术语翻译成现代人听得懂的话：性格特质、行为心理、能量波动、磁场互补\n"
-            "3. 不要输出能量卡、数字评分图表，纯文字分析\n"
-            "4. 结构像互联网大厂的分析报告：清晰醒目，短句为主\n"
-            "5. 先给结论，再展开分析，最后给建议\n\n"
-            "输出结构（严格按此格式）：\n\n"
-            "【A·两个磁场的碰撞】\n"
-            '用户（你）的底色：用一句话白话概括，如"心思细腻、极富创造力但容易焦虑的谋士"\n'
-            '对方（Ta）的底色：用一句话白话概括，如"目标明确、执行力极强但略显固执的开拓者"\n'
-            '磁场吸引力：用一句话点出两人的天然吸引力，如"一刚一柔，在能量上形成了极强的天然互补与吸引"\n\n'
-            "【B·深度共鸣与卡点】\n"
-            '完美互补点：描述两人最合拍的地方，如"Ta能给你的焦虑托底，你能为Ta的盲目提供策略"\n'
-            '潜在冲突源：描述两人会吵架的地方，但话不说满，如"两人容易在做重大决定时因沟通不畅产生压迫感"\n\n'
-            "【C·感情走向预判】\n"
-            "如果是恋人：感情基础、婚姻前景、需要注意的阶段\n"
-            "如果是朋友：友谊深度、共同成长点、可能疏远的情况\n"
-            "如果是同事：合作默契度、利益协调、沟通方式\n"
-            "如果是家人：家庭和谐度、代际影响、相处之道\n\n"
-            "【D·五行能量互动】\n"
-            "用大白话说清楚两人五行是怎么互相影响的\n"
-            '例如："你像火一样热情直接，Ta像水一样深沉内敛，水克火意味着你在这段关系里会感觉自己的热情有时被浇灭"\n'
-            '不要用"相生""相克""用神""日主"这类术语\n\n'
-            "【E·相处指南】\n"
-            "3-5条具体可操作的建议，要接地气\n"
-            '例如："有分歧当天说开，别冷战""每周安排一次只属于两个人的时间"\n\n'
-            "风格：大白话、直接、实用，像给好朋友建议一样\n"
-            "根据关系类型调整侧重点：\n"
-            "  恋人：感情、婚姻、亲密关系\n"
-            "  朋友：性格互补、共同成长\n"
-            "  同事：合作、沟通、利益协调\n"
-            "  家人：家庭和谐、代际影响\n\n"
-        )
+        if language == "en":
+            intent_hint = (
+                "\n== Channel: Compatibility Analysis ==\n"
+                "User wants to understand if two people are compatible. Both birth info provided, synastry computed.\n\n"
+                "Report Requirements:\n"
+                "1. Plain English only — no mystical or fortune-telling language\n"
+                "2. Translate all chart terms to behavioral/personality equivalents\n"
+                "3. Text analysis only — no charts, score cards, or visual elements\n"
+                "4. Clear structure like a professional analysis report — short sentences\n"
+                "5. Lead with conclusion, then analysis, then recommendations\n\n"
+                "Output Structure (follow strictly):\n\n"
+                "【A · The Magnetic Collision】\n"
+                "Your core profile: One sentence summarizing your behavioral essence\n"
+                "Their core profile: One sentence summarizing their behavioral essence\n"
+                "Magnetic attraction: One sentence on what naturally draws you together\n\n"
+                "【B · Deep Resonance & Friction Points】\n"
+                "Perfect complement: Where you two are most in sync\n"
+                "Potential friction: Where conflicts may arise (be measured, not absolute)\n\n"
+                "【C · Relationship Trajectory】\n"
+                "Romantic: relationship foundation, long-term prospects, key phases to watch\n"
+                "Friendship: depth, mutual growth potential, risks of drifting apart\n"
+                "Work: collaboration chemistry, interest alignment, communication style\n"
+                "Family: household harmony, generational influence, how to get along\n\n"
+                "【D · Elemental Interaction】\n"
+                "Explain in plain language how your behavioral patterns interact\n"
+                "Do NOT use terms like 'generation', 'overcoming', 'support pattern', etc.\n\n"
+                "【E · Getting Along Better】\n"
+                "3-5 specific, practical tips for making the relationship work\n\n"
+                "Style: Direct, practical, like giving advice to a close friend.\n"
+                "Adjust focus based on relationship type.\n\n"
+            )
+        else:
+            intent_hint = (
+                "\n== 推命通道：双人合盘分析 ==\n"
+                "用户想了解两个人是否合适，已提供双方出生信息并完成合盘计算。\n\n"
+                "报告要求：\n"
+                "1. 全部用大白话写，禁止出现任何八字术语（如壬水、七杀、伤官、印星等）\n"
+                "2. 把命理术语翻译成现代人听得懂的话：性格特质、行为心理、能量波动、磁场互补\n"
+                "3. 不要输出能量卡、数字评分图表，纯文字分析\n"
+                "4. 结构像互联网大厂的分析报告：清晰醒目，短句为主\n"
+                "5. 先给结论，再展开分析，最后给建议\n\n"
+                "输出结构（严格按此格式）：\n\n"
+                "【A·两个磁场的碰撞】\n"
+                '用户（你）的底色：用一句话白话概括，如"心思细腻、极富创造力但容易焦虑的谋士"\n'
+                '对方（Ta）的底色：用一句话白话概括，如"目标明确、执行力极强但略显固执的开拓者"\n'
+                '磁场吸引力：用一句话点出两人的天然吸引力，如"一刚一柔，在能量上形成了极强的天然互补与吸引"\n\n'
+                "【B·深度共鸣与卡点】\n"
+                '完美互补点：描述两人最合拍的地方，如"Ta能给你的焦虑托底，你能为Ta的盲目提供策略"\n'
+                '潜在冲突源：描述两人会吵架的地方，但话不说满，如"两人容易在做重大决定时因沟通不畅产生压迫感"\n\n'
+                "【C·感情走向预判】\n"
+                "如果是恋人：感情基础、婚姻前景、需要注意的阶段\n"
+                "如果是朋友：友谊深度、共同成长点、可能疏远的情况\n"
+                "如果是同事：合作默契度、利益协调、沟通方式\n"
+                "如果是家人：家庭和谐度、代际影响、相处之道\n\n"
+                "【D·五行能量互动】\n"
+                "用大白话说清楚两人五行是怎么互相影响的\n"
+                '例如："你像火一样热情直接，Ta像水一样深沉内敛，水克火意味着你在这段关系里会感觉自己的热情有时被浇灭"\n'
+                '不要用"相生""相克""用神""日主"这类术语\n\n'
+                "【E·相处指南】\n"
+                "3-5条具体可操作的建议，要接地气\n"
+                '例如："有分歧当天说开，别冷战""每周安排一次只属于两个人的时间"\n\n'
+                "风格：大白话、直接、实用，像给好朋友建议一样\n"
+                "根据关系类型调整侧重点：\n"
+                "  恋人：感情、婚姻、亲密关系\n"
+                "  朋友：性格互补、共同成长\n"
+                "  同事：合作、沟通、利益协调\n"
+                "  家人：家庭和谐、代际影响\n\n"
+            )
 
     # Output structure: skip for RELATIONSHIP (intent_hint already has its own structure)
     output_structure = ""
     if intent != "RELATIONSHIP":
-        output_structure = (
-            "== 输出结构 ==\n"
-            "【A·核心性格底色】\n"
-            '核心特质：用20字以内大白话抓住用户本质，如"外表坚强独立，内心极度缺乏安全感的幕后军师型人格"\n'
-            "性格解析：用100字以内现代大白话，分析性格优势与隐藏软肋\n\n"
-            "【B·跨维度共鸣（现状痛点）】\n"
-            "财富与事业现状：用现代行为学话术，指出当前可能遇到的瓶颈\n"
-            '例如："近期想法很多但落地困难，容易陷入精神内耗或盲目投资"\n'
-            "感情与人际关系现状：同上风格\n"
-            "健康与精神状态：同上风格\n\n"
-            f"== 五维评分 ==\n{scores_str}\n\n"
-        )
+        if language == "en":
+            output_structure = (
+                "== Output Structure ==\n"
+                "【A · Core Personality Blueprint】\n"
+                "Core Trait: One sentence (max 15 words) capturing the user's essence\n"
+                "Personality Analysis: 100+ words analyzing strengths and hidden vulnerabilities\n\n"
+                "【B · Cross-Dimension Resonance (Current Challenges)】\n"
+                "Wealth & Career: Use behavioral language, identify current bottlenecks\n"
+                "Relationship & Social: Same style\n"
+                "Health & Mindset: Same style\n\n"
+                f"== Scores == {scores_str}\n\n"
+            )
+        else:
+            output_structure = (
+                "== 输出结构 ==\n"
+                "【A·核心性格底色】\n"
+                '核心特质：用20字以内大白话抓住用户本质，如"外表坚强独立，内心极度缺乏安全感的幕后军师型人格"\n'
+                "性格解析：用100字以内现代大白话，分析性格优势与隐藏软肋\n\n"
+                "【B·跨维度共鸣（现状痛点）】\n"
+                "财富与事业现状：用现代行为学话术，指出当前可能遇到的瓶颈\n"
+                '例如："近期想法很多但落地困难，容易陷入精神内耗或盲目投资"\n'
+                "感情与人际关系现状：同上风格\n"
+                "健康与精神状态：同上风格\n\n"
+                f"== 五维评分 ==\n{scores_str}\n\n"
+            )
 
-    base_prompt = (
-        "你是Profile Mirror的资深分析师。根据多位专家的分析数据，用大白话生成易懂的分析报告。\n\n"
-        f"{intent_hint}"
-        "== 绝对禁止 ==\n"
-        "禁止出现以下术语：壬水、癸水、甲木、乙木、丙火、丁火、戊土、己土、庚金、辛金\n"
-        "禁止出现：七杀、正官、偏官、正印、偏印、食神、伤官、比肩、劫财、正财、偏财\n"
-        "禁止出现：命格、命局、格局、大运、流年、刑冲合害、三合三会\n"
-        "禁止出现：天机、磁场、能量场、灵修、开悟等玄乎词汇\n"
-        "以上术语全部翻译成现代大白话：性格特质、行为模式、心理倾向、能量状态\n\n"
-        f"{output_structure}"
-        f"== 跨维度共鸣 ==\n{resonance_text or '无'}\n\n"
-        f"== 跨维度冲突 ==\n{conflicts_text or '无'}\n\n"
+    base_prompt = ""
+    if language == "en":
+        base_prompt = (
+            "You are a senior analyst at Profile Mirror. Generate a clear, easy-to-understand analysis report.\n\n"
+            "DO NOT output any Chinese characters. Use ONLY English.\n"
+            "Translate all Chinese analytical terms to behavioral/personality equivalents.\n\n"
+            f"{intent_hint}"
+            "=== FORBIDDEN TERMS ===\n"
+            "No metaphysical jargon: no element stems (壬水, 甲木, etc.), no role labels (七杀, 正官, etc.),\n"
+            "no chart jargon (命格, 大运, 流年, etc.), no mystical language (energy fields, chakras, etc.)\n"
+            "Replace ALL with: personality traits, behavioral patterns, psychological tendencies\n\n"
+            f"{output_structure}"
+            f"== Cross-Dimension Resonance ==\n{resonance_text or 'None'}\n\n"
+            f"== Cross-Dimension Conflicts ==\n{conflicts_text or 'None'}\n\n"
+            f"== Expert Reports ==\n{workers_str}\n\n"
+            f"== User Question ==\n{user_question}\n\n"
+            f"{partner_section}\n"
+            f"== Cross-System Evidence Chain ==\n{evidence_chains or 'No additional cross-validation evidence'}\n\n"
+            f"{confidence_text}\n\n"
+            "=== ACCURACY REQUIREMENTS ===\n"
+            "1. Every conclusion must cite at least one specific piece of evidence from the expert reports\n"
+            "2. When expert reports conflict, explicitly note the disagreement rather than forcing consensus\n"
+            "3. Mark uncertain conclusions as 'speculation' and confirmed ones as 'validated'\n"
+            "4. Every recommendation must link to a specific trait or finding — no generic disconnected advice\n"
+            "5. If multiple analysis systems agree on a finding, note it as 'cross-validated, high confidence'\n\n"
+            "Generate the analysis report in plain, direct English."
+        )
+    else:
+        base_prompt = (
+            "你是Profile Mirror的资深分析师。根据多位专家的分析数据，用大白话生成易懂的分析报告。\n\n"
+            f"{intent_hint}"
+            "== 绝对禁止 ==\n"
+            "禁止出现以下术语：壬水、癸水、甲木、乙木、丙火、丁火、戊土、己土、庚金、辛金\n"
+            "禁止出现：七杀、正官、偏官、正印、偏印、食神、伤官、比肩、劫财、正财、偏财\n"
+            "禁止出现：命格、命局、格局、大运、流年、刑冲合害、三合三会\n"
+            "禁止出现：天机、磁场、能量场、灵修、开悟等玄乎词汇\n"
+            "以上术语全部翻译成现代大白话：性格特质、行为模式、心理倾向、能量状态\n\n"
+            f"{output_structure}"
+            f"== 跨维度共鸣 ==\n{resonance_text or '无'}\n\n"
+            f"== 跨维度冲突 ==\n{conflicts_text or '无'}\n\n"
         f"== 专家报告 ==\n{workers_str}\n\n"
         f"== 用户问题 ==\n{user_question}\n\n"
         f"{partner_section}\n"
         f"== 跨体系证据链 ==\n{evidence_chains or '无额外交叉验证证据'}\n\n"
         f"{confidence_text}\n\n"
+        "== 准确性保障要求 ==\n"
+        "1. 每条结论必须至少有一个具体证据支撑\n"
+        "2. 当专家报告之间存在矛盾时，明确指出分歧而非强行统一\n"
+        "3. 不确定的结论标注为[推测]，确定的结论标注为[印证]\n"
+        "4. 每条建议必须链接到具体的性格特征或分析结论，不要给出与分析脱节的泛泛建议\n"
+        "5. 如果多个体系对同一发现一致，标注[多体系印证，置信度高]\n\n"
         "请用大白话生成分析报告。"
     )
 
     # For free users, add length guidance since master_summary is no longer truncated.
     # Free users see this as their ONLY report, so it must be complete and self-contained.
     if not is_premium:
-        base_prompt += (
-            "\n\n== 报告长度要求（免费用户唯一报告）==\n"
-            "总长度：1000-2000字。每个部分必须完整输出，不要截断或省略。\n"
-            "这是用户能看到的唯一报告，必须包含完整的分析和实用建议。\n"
-            "结尾加一句引导语：提示用户解锁深度报告可获取五维诊断、年度转折点、行动方案和专属处方。\n"
-        )
+        if language == "en":
+            base_prompt += (
+                "\n\n== Free Report Length Requirements ==\n"
+                "Total length: 1000-2000 words. Complete every section — do NOT truncate or skip.\n"
+                "This is the ONLY report the user will see, so it must be comprehensive and actionable.\n"
+                "End with a teaser: mention that unlocking the deep report provides five-dimension diagnosis, "
+                "yearly turning points, action plans, and personalized recommendations.\n"
+            )
+        else:
+            base_prompt += (
+                "\n\n== 报告长度要求（免费用户唯一报告）==\n"
+                "总长度：1000-2000字。每个部分必须完整输出，不要截断或省略。\n"
+                "这是用户能看到的唯一报告，必须包含完整的分析和实用建议。\n"
+                "结尾加一句引导语：提示用户解锁深度报告可获取五维诊断、年度转折点、行动方案和专属处方。\n"
+            )
 
     return base_prompt
 
@@ -7451,8 +7559,16 @@ def master_subtask_core_personality_prompt(
             "== Output Requirements ==\n"
             "Output ONLY the 【A · Core Personality Blueprint】 section. Do NOT output Section B or C.\n"
             "Format:\n"
-            "Core Trait: One sentence (max 15 words) capturing the essence\n"
-            "Personality Analysis: 120-200 words analyzing strengths and hidden vulnerabilities\n\n"
+            "Core Trait: One sentence (max 12 words) capturing the essence of this person\n"
+            "Personality Analysis: 150-250 words analyzing strengths and hidden vulnerabilities. "
+            "Cite specific evidence from expert reports (e.g., 'your strong creative expression pattern...').\n"
+            "Key Behavioral Patterns: List 2-3 specific behavioral tendencies with concrete examples "
+            "(e.g., 'Under pressure, tends to internalize rather than seek help').\n"
+            "Growth Edge: One sentence on the most valuable personal development direction.\n\n"
+            "ACCURACY RULES:\n"
+            "- Every trait description must link to at least one expert report finding\n"
+            "- Do NOT make up traits not supported by the data\n"
+            "- When expert reports disagree, note the tension rather than forcing consensus\n\n"
             "CRITICAL: Complete ALL content. Do NOT truncate mid-sentence. "
             "End with a complete sentence."
         )
@@ -7471,8 +7587,15 @@ def master_subtask_core_personality_prompt(
         "== 输出要求 ==\n"
         "只输出【A·核心性格底色】部分，不要输出B或C部分。\n"
         "格式：\n"
-        '核心特质：用20字以内大白话抓住本质\n'
-        "性格解析：用120-200字分析性格优势与隐藏软肋\n\n"
+        '核心特质：用15字以内大白话抓住本质\n'
+        "性格解析：用150-250字分析性格优势与隐藏软肋，必须引用专家报告中的具体依据\n"
+        "关键行为模式：列出2-3个具体行为倾向，附带生活场景举例\n"
+        '（如"遇到压力时倾向于独自消化而不是找人倾诉"）\n'
+        "成长建议：用一句话点出最值得发展的方向\n\n"
+        "准确性规则：\n"
+        "- 每条特质描述必须关联到至少一条专家报告依据\n"
+        "- 不要编造专家报告中没有支撑的特质\n"
+        "- 当专家报告之间存在矛盾时，如实说明分歧\n\n"
         "CRITICAL: Complete ALL content. Do NOT truncate mid-sentence. "
         "End with a complete sentence. If you need to stop early, summarize briefly."
     )
@@ -7517,27 +7640,30 @@ def master_subtask_core_resonance_prompt(
             "== Output Format (STRICT) ==\n"
             "Output the following three sections, each starting with a header line:\n\n"
             "【B · Key Challenges】\n"
-            "List 3 items the user needs to address most urgently, each 20-40 words.\n"
+            "List 3 items the user needs to address most urgently, each 30-50 words.\n"
             "Format:\n"
-            "🔴 [Domain] — [Specific challenge, be direct and actionable]\n"
-            "🟡 [Domain] — [Specific challenge]\n"
+            "🔴 [Domain] — [Specific challenge, cite score if available, be direct]\n"
+            "🟡 [Domain] — [Specific challenge with evidence from expert reports]\n"
             "🟢 [Domain] — [Something working well or minor concern]\n\n"
             "Requirements:\n"
             "- The first item MUST be the lowest-scoring dimension\n"
-            "- Use 🔴🟡🟢 severity markers\n"
-            "- Be specific, not vague\n"
+            "- Reference the actual dimension score in each item (e.g., 'score 3.2')\n"
+            "- Each challenge must cite WHY it's a challenge — link to expert report findings\n"
             "- Write like advising a close friend — direct and honest\n\n"
             "【D · Near-Term Alert】\n"
-            "Based on expert data, provide 1 key alert for the next 1-3 months (50-80 words).\n"
-            "Format: ⚠️ [Time range]: [Specific alert content]\n"
-            "If no clear near-term signal exists, provide a practical general recommendation.\n\n"
+            "Based on expert data, provide 1 key alert for the next 1-3 months (60-100 words).\n"
+            "Format: ⚠️ [Time range] [Which dimension]: [Specific alert with evidence]\n"
+            "Must include: which dimension is affected, what might happen, and what to watch for.\n"
+            "If no clear near-term signal exists, provide the most actionable general recommendation.\n\n"
             "【E · Action Items】\n"
-            "Based on the 🔴 items in Key Challenges, provide 2-3 specific actionable suggestions (15-25 words each).\n"
+            "Based on the 🔴 items in Key Challenges, provide 2-3 specific actionable suggestions (20-30 words each).\n"
             "Format:\n"
-            "✅ [Specific suggestion 1]\n"
-            "✅ [Specific suggestion 2]\n"
-            "✅ [Specific suggestion 3]\n\n"
-            "Requirements: suggestions must be practical and executable, not generic advice.\n\n"
+            "✅ [Specific suggestion 1] — Because [link to the 🔴 challenge it addresses]\n"
+            "✅ [Specific suggestion 2] — Because [link to specific finding]\n"
+            "✅ [Specific suggestion 3] — Because [link to specific finding]\n\n"
+            "Requirements:\n"
+            "- Each suggestion MUST link back to a specific challenge or finding\n"
+            "- Suggestions must be concrete and startable today, not vague\n\n"
             "CRITICAL: Complete ALL content. Do NOT truncate mid-sentence. "
             "End each section with a complete sentence."
         )
@@ -7552,27 +7678,30 @@ def master_subtask_core_resonance_prompt(
         "== 输出格式（严格遵守）==\n"
         "请按以下三个部分输出，每部分用标题行开头：\n\n"
         "【B·痛点诊断】\n"
-        "用3个要点指出当前最需要关注的问题，每个要点20-40字。\n"
+        "用3个要点指出当前最需要关注的问题，每个要点30-50字。\n"
         "格式：\n"
-        "🔴 [领域名] — [具体痛点描述，要直击要害]\n"
-        "🟡 [领域名] — [具体痛点描述]\n"
+        "🔴 [领域名] — [具体痛点描述，引用评分数据]\n"
+        "🟡 [领域名] — [具体痛点描述，引用专家报告依据]\n"
         "🟢 [领域名] — [做得好的地方或需要注意的小问题]\n\n"
         "要求：\n"
         "- 第1个痛点必须是评分最低的维度\n"
-        "- 用🔴🟡🟢三色标记严重程度\n"
-        "- 描述要具体，不要泛泛而谈\n"
+        '- 每个痛点必须引用对应的维度评分（如"评分仅3.2"）\n'
+        "- 每个痛点必须说明为什么是个问题——关联到专家报告中的具体发现\n"
         "- 像给好朋友提醒一样，直接说问题\n\n"
         "【D·近期关键提醒】\n"
-        "根据专家数据，给出未来1-3个月最重要的1个提醒（50-80字）。\n"
-        "格式：⚠️ [时间范围]：[具体提醒内容]\n"
-        "如果没有明确的近期信号，可以写一个通用但实用的建议。\n\n"
+        "根据专家数据，给出未来1-3个月最重要的1个提醒（60-100字）。\n"
+        "格式：⚠️ [时间范围] [涉及维度]：[具体提醒+依据]\n"
+        "必须包含：涉及哪个维度、可能发生什么、需要关注什么信号。\n"
+        "如果没有明确的近期信号，写一个最实用的通用建议。\n\n"
         "【E·行动建议速览】\n"
-        "针对痛点诊断中🔴标记的问题，给出2-3条具体可操作的建议（每条15-25字）。\n"
+        "针对痛点诊断中🔴标记的问题，给出2-3条具体可操作的建议（每条20-30字）。\n"
         "格式：\n"
-        "✅ [具体建议1]\n"
-        "✅ [具体建议2]\n"
-        "✅ [具体建议3]\n\n"
-        "要求：建议要接地气、可执行，不要空泛的鸡汤。\n\n"
+        "✅ [具体建议1] — 因为[链接到🔴痛点]\n"
+        "✅ [具体建议2] — 因为[链接到具体发现]\n"
+        "✅ [具体建议3] — 因为[链接到具体发现]\n\n"
+        "要求：\n"
+        "- 每条建议必须链接到具体的痛点或发现\n"
+        "- 建议要具体到今天就能开始做，不要空泛的鸡汤\n\n"
         "CRITICAL: Complete ALL content. Do NOT truncate mid-sentence. "
         "End each section with a complete sentence."
     )
@@ -7581,28 +7710,85 @@ def master_subtask_core_resonance_prompt(
 def master_subtask_dimensions_prompt(worker_summaries: dict, user_question: str,
                                       dimension_scores: dict | None = None,
                                       confidence_text: str = "",
-                                      intent: str = "") -> str:
+                                      intent: str = "",
+                                      language: str = "zh") -> str:
     """Sub-task B: 五维诊断 — 财富/感情/事业/健康/精神 + 年度转折点 + 发展轨迹"""
     workers_str = "\n\n".join(
         f"[{k.upper()}]\n{v[:600]}" for k, v in worker_summaries.items() if v
     )
     scores_str = ""
     if dimension_scores:
-        _DIM_CN = {"wealth": "财富", "relationship": "感情", "career": "事业",
-                   "health": "健康", "spiritual": "精神"}
-        scores_str = " | ".join(f"{_DIM_CN.get(k, k)}:{v}" for k, v in dimension_scores.items())
+        if language == "en":
+            _DIM_EN = {"wealth": "Wealth", "relationship": "Relationship", "career": "Career",
+                       "health": "Health", "spiritual": "Mindset"}
+            scores_str = " | ".join(f"{_DIM_EN.get(k, k)}:{v}" for k, v in dimension_scores.items())
+        else:
+            _DIM_CN = {"wealth": "财富", "relationship": "感情", "career": "事业",
+                       "health": "健康", "spiritual": "精神"}
+            scores_str = " | ".join(f"{_DIM_CN.get(k, k)}:{v}" for k, v in dimension_scores.items())
 
     intent_hint = ""
     if intent == "GENERAL_DAILY":
-        intent_hint = (
-            "\n== 推命通道：一键推命 ==\n"
-            "侧重近期趋势，给出未来7-30天的建议。\n"
-            "不要引用面相或手相数据。\n\n"
-        )
+        if language == "en":
+            intent_hint = (
+                "\n== Channel: Quick Profile ==\n"
+                "Focus on near-term trends, give 7-30 day guidance.\n"
+                "Do NOT reference facial or palm data.\n\n"
+            )
+        else:
+            intent_hint = (
+                "\n== 推命通道：一键推命 ==\n"
+                "侧重近期趋势，给出未来7-30天的建议。\n"
+                "不要引用面相或手相数据。\n\n"
+            )
     elif intent == "FULL_MULTIMODAL":
-        intent_hint = (
-            "\n== 推命通道：完整推命 ==\n"
-            "融合面相和手相的分析结论。\n\n"
+        if language == "en":
+            intent_hint = (
+                "\n== Channel: Full Profile ==\n"
+                "Integrate facial and palm analysis conclusions.\n\n"
+            )
+        else:
+            intent_hint = (
+                "\n== 推命通道：完整推命 ==\n"
+                "融合面相和手相的分析结论。\n\n"
+            )
+
+    if language == "en":
+        return (
+            "You are a senior analyst at Profile Mirror. Generate a five-dimension diagnosis report.\n\n"
+            "DO NOT output any Chinese characters. Use ONLY English.\n"
+            "Translate all Chinese analytical terms to behavioral equivalents.\n\n"
+            f"{intent_hint}"
+            "== Diagnostic Depth Requirements ==\n"
+            "Each dimension MUST include four layers of analysis:\n"
+            "1. Current State: Where the user stands now in this area (specific description, not a score)\n"
+            "2. Root Cause: The underlying reason behind this state (link to specific chart traits in plain language)\n"
+            "3. Manifestation: How this shows up in daily life (1-2 concrete life scenarios)\n"
+            "4. Improvement Direction: What specific actions can improve or mitigate this (actionable, behavioral)\n\n"
+            "== Timeline Requirements ==\n"
+            "Each dimension's analysis should cover three time windows:\n"
+            "- Near-term (1-3 months): What's coming immediately, what needs attention now\n"
+            "- Mid-term (~6 months): Direction of trend, what to prepare for\n"
+            "- Long-term (1-3 years): Major opportunities and challenges on the horizon\n"
+            "Not every dimension needs all three windows, but near-term must be covered.\n\n"
+            "== Output Structure ==\n"
+            "【C · Five-Dimension Diagnosis】 Cover three areas in plain language:\n"
+            "Wealth & Career: four-layer analysis + timeline\n"
+            "Relationship & Social: four-layer analysis + timeline\n"
+            "Health & Mindset: four-layer analysis + timeline\n"
+            "Each area: 100-180 words with concrete scenarios and behavioral suggestions\n\n"
+            "【D · Near-Term Key Window】 Key time points in the next 1-3 months — what may happen and how to respond.\n\n"
+            "== ACCURACY REQUIREMENTS ==\n"
+            "1. 'Root Cause' must reference specific expert analysis data, not vague statements\n"
+            "2. 'Manifestation' must describe real, relatable life scenarios — no abstract descriptions\n"
+            "3. 'Improvement Direction' must be specific actions startable today — not 'watch your health'\n"
+            "4. When giving timelines, ground predictions in the current month and specific chart characteristics\n"
+            "5. Every conclusion must cite at least one piece of evidence from the expert reports\n\n"
+            f"== Scores == {scores_str}\n\n"
+            f"== Expert Reports ==\n{workers_str}\n\n"
+            f"== User Question ==\n{user_question}\n\n"
+            f"{confidence_text}\n\n"
+            "Generate the diagnosis report in plain, direct English."
         )
 
     return (
@@ -7629,6 +7815,12 @@ def master_subtask_dimensions_prompt(worker_summaries: dict, user_question: str,
         "健康与精神：四层分析 + 时间线\n"
         "每个方面80-150字，要有具体场景和行为建议\n\n"
         "【D·近期关键节点】未来1-3个月需要注意的时间点，说明具体会发生什么以及怎么应对\n\n"
+        "== 诊断准确性要求 ==\n"
+        '1. 每个维度的"问题根源"必须关联到具体的专家分析数据\n'
+        '2. "具体表现"必须是真实可感知的生活场景，不要抽象描述\n'
+        '3. "改善方向"必须是具体到今天就能开始做的行为，不要"注意身体健康"这种空话\n'
+        "4. 给出时间线时，必须结合当前月份和用户命理特征给出合理判断，不要泛泛而谈\n"
+        "5. 每条结论必须引用至少一条专家报告中的具体依据\n\n"
         f"== 五维评分 ==\n{scores_str}\n\n"
         f"== 专家报告 ==\n{workers_str}\n\n"
         f"== 用户问题 ==\n{user_question}\n\n"
@@ -7641,40 +7833,109 @@ def master_subtask_actions_prompt(worker_summaries: dict, user_question: str,
                                    products_with_reasons: list,
                                    harm_hint: str = "",
                                    dimension_scores: dict | None = None,
-                                   intent: str = "") -> str:
+                                   intent: str = "",
+                                   language: str = "zh") -> str:
     """Sub-task C: 行动建议 — 用户问题专项分析 + 能量处方 + 商品推荐"""
     workers_str = "\n\n".join(
         f"[{k.upper()}]\n{v[:500]}" for k, v in worker_summaries.items() if v
     )
     scores_str = ""
     if dimension_scores:
-        _DIM_CN = {"wealth": "财富", "relationship": "感情", "career": "事业",
-                   "health": "健康", "spiritual": "精神"}
-        scores_str = " | ".join(f"{_DIM_CN.get(k, k)}:{v}" for k, v in dimension_scores.items())
+        if language == "en":
+            _DIM_EN = {"wealth": "Wealth", "relationship": "Relationship", "career": "Career",
+                       "health": "Health", "spiritual": "Mindset"}
+            scores_str = " | ".join(f"{_DIM_EN.get(k, k)}:{v}" for k, v in dimension_scores.items())
+        else:
+            _DIM_CN = {"wealth": "财富", "relationship": "感情", "career": "事业",
+                       "health": "健康", "spiritual": "精神"}
+            scores_str = " | ".join(f"{_DIM_CN.get(k, k)}:{v}" for k, v in dimension_scores.items())
 
     products_sec = ""
     if products_with_reasons:
-        products_sec = "【推荐商品清单】\n"
-        for p in products_with_reasons:
-            name = p.get("product_name", p.get("name", "商品"))
-            price = p.get("price_cny", p.get("price", "?"))
-            reasons = p.get("match_reasons", [])
-            rec = p.get("recommendation_text", "")
-            products_sec += f"  - {name} ¥{price} | 匹配原因：{'；'.join(reasons[:3])}"
-            if rec:
-                products_sec += f" | 推荐语：{rec[:200]}"
-            products_sec += "\n"
+        if language == "en":
+            products_sec = "【Recommended Products】\n"
+            for p in products_with_reasons:
+                name = p.get("product_name", p.get("name", "Product"))
+                price = p.get("price_cny", p.get("price", "?"))
+                reasons = p.get("match_reasons", [])
+                rec = p.get("recommendation_text", "")
+                products_sec += f"  - {name} CNY{price} | Match: {'; '.join(reasons[:3])}"
+                if rec:
+                    products_sec += f" | Note: {rec[:200]}"
+                products_sec += "\n"
+        else:
+            products_sec = "【推荐商品清单】\n"
+            for p in products_with_reasons:
+                name = p.get("product_name", p.get("name", "商品"))
+                price = p.get("price_cny", p.get("price", "?"))
+                reasons = p.get("match_reasons", [])
+                rec = p.get("recommendation_text", "")
+                products_sec += f"  - {name} ¥{price} | 匹配原因：{'；'.join(reasons[:3])}"
+                if rec:
+                    products_sec += f" | 推荐语：{rec[:200]}"
+                products_sec += "\n"
 
     intent_hint = ""
     if intent == "GENERAL_DAILY":
-        intent_hint = (
-            "\n== 推命通道：一键推命 ==\n"
-            "给出3条以内最核心的行动建议。\n\n"
-        )
+        if language == "en":
+            intent_hint = (
+                "\n== Channel: Quick Profile ==\n"
+                "Provide up to 3 core action items only.\n\n"
+            )
+        else:
+            intent_hint = (
+                "\n== 推命通道：一键推命 ==\n"
+                "给出3条以内最核心的行动建议。\n\n"
+            )
     elif intent == "FULL_MULTIMODAL":
-        intent_hint = (
-            "\n== 推命通道：完整推命 ==\n"
-            "给出分阶段的行动建议。\n\n"
+        if language == "en":
+            intent_hint = (
+                "\n== Channel: Full Profile ==\n"
+                "Provide phased action recommendations.\n\n"
+            )
+        else:
+            intent_hint = (
+                "\n== 推命通道：完整推命 ==\n"
+                "给出分阶段的行动建议。\n\n"
+            )
+
+    if language == "en":
+        return (
+            "You are a senior analyst at Profile Mirror. Generate actionable recommendations.\n\n"
+            "DO NOT output any Chinese characters. Use ONLY English.\n"
+            "Translate all Chinese analytical terms to behavioral equivalents.\n\n"
+            f"{intent_hint}"
+            "=== FORBIDDEN ===\n"
+            "No jargon, no mystical terms. Plain behavioral language only.\n\n"
+            "=== Recommendation Quality Rules ===\n"
+            "1. Evidence-Linked: Every recommendation must state WHY, format: 'Because of your [specific trait],建议...'\n"
+            "   Users need to know why this advice fits THEM, not generic advice\n"
+            "2. Priority Markers:\n"
+            "   🔴 High Priority: Will cause clear negative impact if ignored\n"
+            "   🟡 Medium Priority: Will clearly boost results if done\n"
+            "   🟢 Long-term: Habit-building, gradual improvement\n"
+            "3. Avoid-Pitfall Guide: Explicitly tell users what NOT to do\n"
+            "   At least 1-2 'absolutely don't' items (e.g., 'Don't make major decisions when emotional')\n"
+            "4. Executability Check: Every suggestion must be specific enough to start TODAY\n"
+            "   BAD: 'Watch your health' (too vague)\n"
+            "   GOOD: 'Walk 20 minutes after dinner every day' (specific and actionable)\n\n"
+            "=== Output Structure ===\n"
+            "【F · Your Question Answered】Directly answer the user's question, each suggestion linked to evidence\n\n"
+            "【G · Daily Adjustments】4-6 specific suggestions ranked by priority\n"
+            "Format: [Priority marker] Suggestion — Because of your [specific trait]\n"
+            "Example: 🔴 Because your career stress is high, schedule 2x 30-min exercise sessions per week\n"
+            "Example: 🟡 Because you tend to hesitate in relationships, set a 48-hour decision deadline next time\n\n"
+            "【H · What NOT to Do】1-2 explicit 'avoid' items\n\n"
+            "=== ACCURACY RULES ===\n"
+            "1. Every suggestion must cite at least one finding from the expert reports\n"
+            "2. Do NOT give advice unrelated to the analysis\n"
+            "3. When multiple suggestions address the same trait, vary the approach\n\n"
+            f"== Scores == {scores_str}\n\n"
+            f"== Expert Reports ==\n{workers_str}\n\n"
+            f"== User Question ==\n{user_question}\n\n"
+            f"== Recommended Products ==\n{products_sec}\n\n"
+            f"{harm_hint}\n\n"
+            "Generate actionable recommendations in plain, direct English."
         )
 
     return (
@@ -7694,6 +7955,10 @@ def master_subtask_actions_prompt(worker_summaries: dict, user_question: str,
         "4. 可执行性检查：每条建议必须具体到可以今天就开始做\n"
         "   禁止：\"注意身体健康\"（太笼统）\n"
         "   要求：\"每天晚饭后散步20分钟\"（具体可执行）\n\n"
+        "=== 准确性规则 ===\n"
+        "1. 每条建议必须引用至少一条专家报告中的具体发现\n"
+        "2. 不要给出与分析脱节的泛泛建议\n"
+        "3. 当多条建议针对同一特质时，要变换切入角度\n\n"
         "== 输出结构 ==\n"
         "【F·针对你问题的分析】直接回答用户提问，每条建议带原因链接\n\n"
         "【G·日常调整建议】按优先级排列4-6条具体建议\n"

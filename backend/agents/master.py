@@ -965,8 +965,9 @@ async def run_subtask_dims(state: SystemState, prep: dict) -> str:
         dimension_scores=state.dimension_scores,
         confidence_text=prep["confidence_text"],
         intent=state.intent,
+        language=state.language,
     )
-    result = await _call(system, "请生成五维诊断报告。", model=llm_model, language=state.language,
+    result = await _call(system, "请生成五维诊断报告。" if state.language == "zh" else "Generate the five-dimension diagnosis report.", model=llm_model, language=state.language,
                         max_tokens=llm_max_tokens)
     state.master_subtask_dimensions = result
     return result
@@ -983,8 +984,9 @@ async def run_subtask_actions(state: SystemState, prep: dict) -> str:
         harm_hint=prep["harm_text"],
         dimension_scores=state.dimension_scores,
         intent=state.intent,
+        language=state.language,
     )
-    result = await _call(system, "请生成行动建议报告。", model=llm_model, language=state.language,
+    result = await _call(system, "请生成行动建议报告。" if state.language == "zh" else "Generate the action plan report.", model=llm_model, language=state.language,
                         max_tokens=llm_max_tokens)
     state.master_subtask_actions = result
     return result
@@ -1084,7 +1086,7 @@ async def run_master(state: SystemState) -> SystemState:
 
 def _format_dimension_summaries(scores: dict[str, float], language: str = "zh") -> str:
     """Format five-dimension summaries from scores deterministically.
-    Returns Section C with emoji + score + 1-sentence status per dimension."""
+    Returns Section C with emoji + score + status + personalized insight per dimension."""
     if not scores:
         return ""
     _DIM_CONFIG = {
@@ -1108,20 +1110,42 @@ def _format_dimension_summaries(scores: dict[str, float], language: str = "zh") 
         (4.0, 6.0):  "Below average — needs attention",
         (0.0, 4.0):  "Weak — recommend focused improvement",
     }
+    # Personalized 1-line insights per dimension per score range
+    _INSIGHTS_ZH = {
+        (9.0, 10.0): "近期有明显突破机会，建议主动出击",
+        (7.5, 9.0):  "基础扎实，保持节奏即可稳步提升",
+        (6.0, 7.5):  "平稳但缺少亮点，可适当投入精力突破",
+        (4.0, 6.0):  "需要重点关注意外波动，建议制定应对计划",
+        (0.0, 4.0):  "当前最大短板，建议优先投入资源改善",
+    }
+    _INSIGHTS_EN = {
+        (9.0, 10.0): "Clear breakthrough opportunity ahead — take initiative",
+        (7.5, 9.0):  "Solid foundation — maintain momentum for steady growth",
+        (6.0, 7.5):  "Stable but lacking highlights — consider targeted investment",
+        (4.0, 6.0):  "Volatile — prepare a contingency plan",
+        (0.0, 4.0):  "Biggest weak point — prioritize focused improvement",
+    }
     status_map = _STATUS_ZH if language == "zh" else _STATUS_EN
-    lines = ["【C·五维速览】"]
+    insight_map = _INSIGHTS_ZH if language == "zh" else _INSIGHTS_EN
+    section_title = "【C·五维速览】" if language == "zh" else "【C · Five-Dimension Overview】"
+    lines = [section_title]
     for key in ["wealth", "career", "relationship", "health", "spiritual"]:
         emoji, cn, en = _DIM_CONFIG.get(key, ("❓", key, key))
         score = scores.get(key, 5.0)
         label = cn if language == "zh" else en
         status = ""
+        insight = ""
         for (lo, hi), s in status_map.items():
             if lo <= score < hi:
                 status = s
+                insight = insight_map.get((lo, hi), "")
                 break
         if not status:
             status = status_map.get((9.0, 10.0), "")
+            insight = insight_map.get((9.0, 10.0), "")
         lines.append(f"{emoji} {label} {score:.1f} — {status}")
+        if insight:
+            lines.append(f"   → {insight}")
     return "\n".join(lines)
 
 
