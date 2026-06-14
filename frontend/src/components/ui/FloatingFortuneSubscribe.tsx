@@ -17,6 +17,108 @@ import {
 // ── Locale-aware data ────────────────────────────────────────────────────
 const DAY_LABELS = { zh: ["周一", "周二", "周三", "周四", "周五", "周六", "周日"], en: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] }
 
+// ── ZH→EN translation maps (fallback when backend returns Chinese) ──────
+const ZH_EN: Record<string, string> = {
+  // Themes (daily)
+  "宜静不宜动": "Stay calm, act less", "行动力满满": "Day of action",
+  "灵感涌现日": "Inspiration day", "稳扎稳打": "Steady and solid",
+  "贵人临门": "Helpful people arrive", "桃花悄然至": "Romance sneaks in",
+  "财运小高峰": "Financial peak", "适合独处充电": "Great day to recharge",
+  "社交好日子": "Good social day", "事业突破口": "Career breakthrough",
+  "学习黄金期": "Learning day", "家庭和睦": "Family harmony",
+  // Themes (weekly)
+  "贵人相助，主动出击": "Seek allies, take initiative",
+  "稳中求进，蓄势待发": "Steady progress, build momentum",
+  "感情升温，关系深化": "Romance blooms, relationships deepen",
+  "财运亨通，把握时机": "Financial flow, seize the moment",
+  "注意健康，劳逸结合": "Mind your health, balance rest",
+  "学习充电，厚积薄发": "Learn & grow, invest in yourself",
+  "创新突破，勇往直前": "Innovate and break through",
+  "人际关系和谐，合作顺利": "Harmonious relationships, smooth cooperation",
+  // Colors
+  "翠绿": "Emerald", "金色": "Gold", "红色": "Red", "蓝色": "Blue",
+  "紫色": "Purple", "粉色": "Pink", "橙色": "Orange", "银色": "Silver",
+  // Directions
+  "正东方": "East", "正南方": "South", "正西方": "West", "正北方": "North",
+  "东南方": "Southeast", "西北方": "Northwest", "东北方": "Northeast", "西南方": "Southwest",
+  // Daily tarot names
+  "正位愚者": "Fool (Upright)", "正位魔术师": "Magician (Upright)",
+  "正位女祭司": "High Priestess (Upright)", "正位皇后": "Empress (Upright)",
+  "正位皇帝": "Emperor (Upright)", "正位教皇": "Hierophant (Upright)",
+  "正位恋人": "Lovers (Upright)", "正位战车": "Chariot (Upright)",
+  "正位力量": "Strength (Upright)", "正位隐者": "Hermit (Upright)",
+  "正位命运之轮": "Wheel of Fortune (Upright)", "正位正义": "Justice (Upright)",
+  // Weekly tarot names
+  "正位太阳": "Sun (Upright)", "正位星辰": "Star (Upright)",
+  "正位世界": "World (Upright)",
+  // Daily tarot descs
+  "新的开始，勇敢迈出第一步": "A fresh start — take the first brave step",
+  "创造力爆棚，今天适合展示才华": "Creativity peaks — show your talents today",
+  "直觉敏锐，倾听内心的声音": "Sharp intuition — listen to your inner voice",
+  "温柔而有力量的一天，适合照顾他人": "Gentle strength — a day for caring for others",
+  "权威与掌控，今天适合做重要决定": "Authority and control — make important decisions",
+  "智慧指引方向，跟随经验前行": "Wisdom guides — follow your experience",
+  "心与心的连接，今天适合表达感情": "Heart-to-heart connection — express your feelings",
+  "意志力强大，克服障碍的最佳时机": "Strong willpower — perfect time to overcome obstacles",
+  "内在力量充沛，相信自己能做到": "Inner strength overflows — believe in yourself",
+  "独处思考，今天适合沉淀和复盘": "Solitude for reflection — review and recalibrate",
+  "命运之轮转动，变化即将到来": "The wheel turns — change is coming",
+  "公平与公正，今天适合处理法律事务": "Fairness and justice — handle legal matters today",
+  // Weekly tarot descs
+  "光明与活力的一周，保持积极心态将迎来好运": "A week of light and vitality — stay positive and good fortune will follow",
+  "丰盛与创造的一周，适合开展新计划": "A week of abundance and creation — ideal for launching new plans",
+  "灵活应变的一周，你的才华将被看见": "A week of adaptability — your talents will be recognized",
+  "内在力量的一周，坚定信念克服困难": "A week of inner strength — stay firm and overcome challenges",
+  "希望与灵感的一周，跟随直觉前进": "A week of hope and inspiration — follow your intuition",
+  "圆满与成就的一周，收获即将到来": "A week of fulfillment — rewards are on their way",
+  "爱情与选择的一周，听从内心": "A week of love and choices — listen to your heart",
+  "勇往直前的一周，行动力是关键": "A week of bold action — momentum is your ally",
+  // Yi items
+  "出行": "Travel", "签约": "Sign contracts", "求财": "Seek wealth",
+  "会友": "Meet friends", "学习": "Study", "祈福": "Pray",
+  "开工": "Start work", "面试": "Interview",
+  // Ji items
+  "动土": "Groundbreaking", "远行": "Long travel", "争吵": "Arguments",
+  "熬夜": "Stay up late", "冒险": "Take risks", "搬迁": "Move house",
+  "借贷": "Lend money", "高风险投资": "High-risk investment",
+  // Insight sentence fragments
+  "今日": "Today ", "运势旺盛": "fortune is strong",
+  "方面需谨慎": " area needs caution", "之事暂缓": " matters — wait",
+  "方面要留心": " area needs attention", "避免冲动": "avoid impulsiveness",
+  "方面按计划进行即可": " area — proceed as planned",
+  "保持内心平静": "stay calm",
+  "把握上午黄金时段": "seize the morning prime time",
+  "午后稍作休息": "Rest in the afternoon",
+  "晚间宜与家人相聚": "gather with family in the evening",
+  "注意控制情绪": "Control emotions",
+  "适合推进搁置已久的计划": "ideal for reviving stalled plans",
+  "方向有意外惊喜": " direction holds surprises",
+  "保持谦虚态度": "Stay humble",
+  "整体运势平稳": "overall fortune is steady",
+  "今日整体运势平稳": "Steady day overall",
+  "相关事务进展顺利": "matters progress smoothly",
+  "今日贵人运强": "Strong ally luck",
+  "今日五行木气旺盛": "Wood element dominates today",
+  "今日{yi}运势旺盛": "Today's {yi} fortune is strong",
+  "今日{yi}运极佳": "Excellent {yi} luck today",
+  "今日贵人运强，{yi}方向有意外惊喜。保持谦虚态度，{ji}之事暂缓。":
+    "Strong ally luck — the {yi} direction holds surprises. Stay humble, postpone {ji} matters.",
+}
+/** Translate a value or, for long insight sentences, do phrase-level replacement */
+const tr = (val: string, toEn: boolean) => {
+  if (!val || !toEn) return val
+  // Full sentence match first
+  if (ZH_EN[val]) return ZH_EN[val]
+  // For insight sentences: replace known Chinese words/phrases left-to-right
+  let out = val
+  // Sort keys longest-first so "高风险投资" matches before "投资"
+  const sortedKeys = Object.keys(ZH_EN).sort((a, b) => b.length - a.length)
+  for (const zh of sortedKeys) {
+    if (out.includes(zh)) out = out.replaceAll(zh, ZH_EN[zh])
+  }
+  return out
+}
+
 // ── Main Component ──────────────────────────────────────────────────────
 export function FloatingFortuneSubscribe() {
   const [open, setOpen] = useState(false)
@@ -196,7 +298,7 @@ export function FloatingFortuneSubscribe() {
                     </div>
                     <div className="flex-1">
                       <p className="text-white/50 text-[10px] mb-0.5">{t("fortuneSub.overallScore")}</p>
-                      <p className="text-gold text-sm font-medium">{freq === "daily" ? dailyFortune?.theme : fortune?.theme}</p>
+                      <p className="text-gold text-sm font-medium">{freq === "daily" ? tr(dailyFortune?.theme ?? "", !isZH) : tr(fortune?.theme ?? "", !isZH)}</p>
                     </div>
                   </div>
 
@@ -204,7 +306,7 @@ export function FloatingFortuneSubscribe() {
                   <div className="grid grid-cols-2 gap-3 text-xs">
                     <div className="flex items-center gap-2">
                       <span className="text-white/30">{t("fortuneSub.luckyColor")}:</span>
-                      <span className="text-green-400/80 font-medium">{freq === "daily" ? dailyFortune?.lucky_color : fortune?.lucky_color}</span>
+                      <span className="text-green-400/80 font-medium">{freq === "daily" ? tr(dailyFortune?.lucky_color ?? "", !isZH) : tr(fortune?.lucky_color ?? "", !isZH)}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-white/30">{t("fortuneSub.luckyNumber")}:</span>
@@ -212,17 +314,17 @@ export function FloatingFortuneSubscribe() {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-white/30">{t("fortuneSub.luckyDirection")}:</span>
-                      <span className="text-blue-400/80 font-medium">{freq === "daily" ? dailyFortune?.lucky_direction : fortune?.lucky_direction}</span>
+                      <span className="text-blue-400/80 font-medium">{freq === "daily" ? tr(dailyFortune?.lucky_direction ?? "", !isZH) : tr(fortune?.lucky_direction ?? "", !isZH)}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-white/30">{t("fortuneSub.tarotCard")}:</span>
-                      <span className="text-purple-400/80 font-medium">{freq === "daily" ? dailyFortune?.tarot_card : fortune?.tarot_card}</span>
+                      <span className="text-purple-400/80 font-medium">{freq === "daily" ? tr(dailyFortune?.tarot_card ?? "", !isZH) : tr(fortune?.tarot_card ?? "", !isZH)}</span>
                     </div>
                   </div>
 
                   {/* Tarot description */}
                   <div className="bg-purple-500/5 border border-purple-500/15 rounded-xl p-3">
-                    <p className="text-purple-300/70 text-xs leading-relaxed">{freq === "daily" ? dailyFortune?.tarot_desc : fortune?.tarot_desc}</p>
+                    <p className="text-purple-300/70 text-xs leading-relaxed">{freq === "daily" ? tr(dailyFortune?.tarot_desc ?? "", !isZH) : tr(fortune?.tarot_desc ?? "", !isZH)}</p>
                   </div>
 
                   {/* Daily Yi Ji - weekly shows 3-day preview, daily shows today's yi/ji */}
@@ -232,11 +334,11 @@ export function FloatingFortuneSubscribe() {
                       <div className="flex gap-3">
                         <div className="flex-1 bg-green-500/5 border border-green-500/15 rounded-lg p-2 text-center">
                           <p className="text-green-400/70 text-[10px] mb-1">{yiLabel}</p>
-                          <p className="text-white/60 text-xs">{dailyFortune.yi.join("、")}</p>
+                          <p className="text-white/60 text-xs">{dailyFortune.yi.map(v => tr(v, !isZH)).join(" · ")}</p>
                         </div>
                         <div className="flex-1 bg-red-500/5 border border-red-500/15 rounded-lg p-2 text-center">
                           <p className="text-red-400/50 text-[10px] mb-1">{jiLabel}</p>
-                          <p className="text-white/60 text-xs">{dailyFortune.ji.join("、")}</p>
+                          <p className="text-white/60 text-xs">{dailyFortune.ji.map(v => tr(v, !isZH)).join(" · ")}</p>
                         </div>
                       </div>
                     ) : fortune?.daily_yi_ji ? (
@@ -244,8 +346,8 @@ export function FloatingFortuneSubscribe() {
                         {fortune.daily_yi_ji.slice(0, 3).map((d, i) => (
                           <div key={i} className="bg-white/[0.03] rounded-lg p-2 text-center">
                             <p className="text-white/40 text-[10px] mb-1">{dayLabels[i]}</p>
-                            <p className="text-green-400/70 text-[10px]">{yiLabel} {d.yi}</p>
-                            <p className="text-red-400/50 text-[10px]">{jiLabel} {d.ji}</p>
+                            <p className="text-green-400/70 text-[10px]">{yiLabel} {tr(d.yi, !isZH)}</p>
+                            <p className="text-red-400/50 text-[10px]">{jiLabel} {tr(d.ji, !isZH)}</p>
                           </div>
                         ))}
                       </div>
@@ -256,7 +358,7 @@ export function FloatingFortuneSubscribe() {
                 {/* AI Insight */}
                 <div className="card-glass p-4 flex items-start gap-3">
                   <span className="text-base flex-shrink-0">🤖</span>
-                  <p className="text-white/40 text-xs leading-relaxed">{freq === "daily" ? dailyFortune?.ai_insight : fortune?.ai_insight}</p>
+                  <p className="text-white/40 text-xs leading-relaxed">{freq === "daily" ? tr(dailyFortune?.ai_insight ?? "", !isZH) : tr(fortune?.ai_insight ?? "", !isZH)}</p>
                 </div>
               </>
             )}
