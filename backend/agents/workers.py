@@ -168,23 +168,23 @@ def _llm(temperature: float = 0.35, model: str | None = None, max_tokens: int | 
 
 # Common Chinese命理 terms → English mapping for post-processing cleanup
 _ZH_EN_MAP = {
-    "日主": "Day Master", "月令": "Month Command", "用神": "Favorable God",
-    "忌神": "Unfavorable God", "喜神": "Joy God", "闲神": "Idle God",
-    "正官": "Officer", "七杀": "Seven Killings", "正印": "Seal",
-    "偏印": "Indirect Seal", "食神": "Eating God", "伤官": "Hurting Officer",
-    "正财": "Direct Wealth", "偏财": "Indirect Wealth", "比肩": "Shoulder",
-    "劫财": "Rob Wealth", "天干": "Heavenly Stem", "地支": "Earthly Branch",
-    "命宫": "Life Palace", "财帛宫": "Wealth Palace", "官禄宫": "Career Palace",
-    "疾厄宫": "Health Palace", "迁移宫": "Travel Palace", "田宅宫": "Property Palace",
-    "夫妻宫": "Spouse Palace", "子女宫": "Children Palace", "兄弟宫": "Siblings Palace",
-    "父母宫": "Parents Palace", "交友宫": "Friends Palace",
+    "日主": "Core Profile", "月令": "Seasonal Influence", "用神": "Strength Pattern",
+    "忌神": "Growth Area", "喜神": "Support Pattern", "闲神": "Neutral Pattern",
+    "正官": "Structured Trait", "七杀": "Challenge Pattern", "正印": "Support Pattern",
+    "偏印": "Indirect Support", "食神": "Creative Expression", "伤官": "Independent Thinking",
+    "正财": "Steady Earnings", "偏财": "Variable Income", "比肩": "Peer Trait",
+    "劫财": "Competitive Trait", "天干": "Upper Cycle", "地支": "Lower Cycle",
+    "命宫": "Foundation Profile", "财帛宫": "Financial Pattern", "官禄宫": "Career Trajectory",
+    "疾厄宫": "Health Pattern", "迁移宫": "Travel Tendency", "田宅宫": "Property Trend",
+    "夫妻宫": "Relationship Pattern", "子女宫": "Family Dynamics", "兄弟宫": "Social Network",
+    "父母宫": "Heritage Influence", "交友宫": "Community Circle",
     "金": "Metal", "木": "Wood", "水": "Water", "火": "Fire", "土": "Earth",
-    "身旺": "strong Day Master", "身弱": "weak Day Master",
+    "身旺": "strong core profile", "身弱": "developing core profile",
     "调候": "climate adjustment", "通关": "bridging element",
-    "桃花": "Peach Blossom", "驿马": "Travel Star", "华盖": "Scholar Star",
-    "天乙贵人": "Noble Helper", "文昌贵人": "Literary Star",
-    "羊刃": "Blade Star", "空亡": "Void Emptiness",
-    "大运": "Major Luck", "流年": "Annual Luck", "流月": "Monthly Luck",
+    "桃花": "Social Charm", "驿马": "Mobility Pattern", "华盖": "Scholarly Pattern",
+    "天乙贵人": "Support Network", "文昌贵人": "Learning Pattern",
+    "羊刃": "Intensity Pattern", "空亡": "Not Applicable",
+    "大运": "Development Phase", "流年": "Annual Trend", "流月": "Monthly Trend",
 }
 
 
@@ -212,15 +212,16 @@ async def _call(system: str, user: str, append_json_format: bool = True, model: 
         lang_instruction = (
             "\n\n== STRICT LANGUAGE REQUIREMENT ==\n"
             "CRITICAL: Output the ENTIRE analysis in English. ZERO Chinese characters allowed.\n"
-            "Translate ALL Chinese命理 terms to English equivalents:\n"
-            "  日主→Day Master, 月令→Month Command, 用神→Favorable God, 忌神→Unfavorable God\n"
-            "  正官→Officer, 七杀→Seven Killings, 正印→Seal, 偏印→Indirect Seal\n"
-            "  食神→Eating God, 伤官→Hurting Officer, 正财→Direct Wealth, 偏财→Indirect Wealth\n"
-            "  比肩→Shoulder, 劫财→Rob Wealth, 天干→Heavenly Stem, 地支→Earthly Branch\n"
+            "Translate ALL Chinese terms to behavioral/psychological English equivalents:\n"
+            "  日主→Day Core Profile, 月令→Seasonal Pattern, 用神→Supporting Element, 忌神→Conflicting Element\n"
+            "  正官→Structured Pattern, 七杀→Challenge Pattern, 正印→Resource Pattern, 偏印→Alternative Resource\n"
+            "  食神→Creative Expression, 伤官→Independent Thinking, 正财→Direct Wealth, 偏财→Indirect Wealth\n"
+            "  比肩→Peer Pattern, 劫财→Competitive Pattern, 天干→Core Trait, 地支→Hidden Trait\n"
             "  五行→Five Elements, 金→Metal, 木→Wood, 水→Water, 火→Fire, 土→Earth\n"
             "  子→Zi(Rat), 丑→Chou(Ox), 寅→Yin(Tiger), 卯→Mao(Rabbit), 辰→Chen(Dragon)\n"
             "  巳→Si(Snake), 午→Wu(Horse), 未→Wei(Goat), 申→Shen(Monkey), 酉→You(Rooster)\n"
             "  戌→Xu(Dog), 亥→Hai(Pig)\n"
+            "Do NOT use fortune-telling, metaphysical, or spiritual terminology.\n"
             "Do NOT output any Chinese characters. If unsure, use pinyin transliteration."
         )
     else:

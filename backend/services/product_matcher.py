@@ -117,7 +117,7 @@ class ProductMatcher:
         "#桃花劫": "#troubled_love",
         "#红鸾星动": "#romance",
         "#天喜星动": "#romance",
-        "#华盖星": "#metaphysical_connection",
+        "#华盖星": "#focused_creativity",
         "#天乙贵人": "#noble_people",
         "#文昌星": "#academic_plateau",
         "#武曲星": "#career",
@@ -307,9 +307,9 @@ class ProductMatcher:
                 score += 2.0
                 if element_zh not in {r.split("」")[0].split("「")[-1] for r in reasons if "「" in r}:
                     if lang == "en":
-                        reasons.append(f"Five-element \"{element_en}\" deficiency needs supplement")
+                        reasons.append(f"Element balance opportunity: \"{element_en}\" recommended")
                     else:
-                        reasons.append(f"五行缺失「{element_zh}」需补充")
+                        reasons.append(f"元素平衡建议：「{element_zh}」推荐补充")
 
         for tag in astro_tags:
             if tag in p_astro or tag in p_keywords or tag in p_keywords_en:

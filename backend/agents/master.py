@@ -124,16 +124,18 @@ async def _call(system: str, user: str, model: str | None = None, language: str 
         lang_hint = (
             "\n\n== STRICT LANGUAGE REQUIREMENT ==\n"
             "CRITICAL: Output the ENTIRE analysis in English. ZERO Chinese characters allowed.\n"
-            "Translate ALL Chinese命理 terms to English equivalents:\n"
-            "  日主→Day Master, 用神→Favorable God, 忌神→Unfavorable God\n"
-            "  正官→Officer, 七杀→Seven Killings, 正印→Seal, 食神→Eating God\n"
-            "  伤官→Hurting Officer, 正财→Direct Wealth, 偏财→Indirect Wealth\n"
-            "  五行→Five Elements, 金→Metal, 木→Wood, 水→Water, 火→Fire, 土→Earth\n"
-            "  命宫→Life Palace, 财帛宫→Wealth Palace, 官禄宫→Career Palace\n"
-            "  疾厄宫→Health Palace, 迁移宫→Travel Palace, 田宅宫→Property Palace\n"
-            "  夫妻宫→Spouse Palace, 子女宫→Children Palace, 兄弟宫→Siblings Palace\n"
-            "  父母宫→Parents Palace, 交友宫→Friends Palace\n"
-            "Do NOT output any Chinese characters. Use pinyin or English equivalents."
+            "Translate ALL Chinese analytical terms to behavioral/personality equivalents:\n"
+            "  日主→Core Profile, 用神→Strength Pattern, 忌神→Growth Area\n"
+            "  正官→Structured Trait, 七杀→Challenge Pattern, 正印→Support Pattern, 食神→Creative Expression\n"
+            "  伤官→Independent Thinking, 正财→Steady Earnings, 偏财→Variable Income\n"
+            "  五行→Behavioral Dimensions, 金→Metal, 木→Wood, 水→Water, 火→Fire, 土→Earth\n"
+            "  命宫→Foundation Profile, 财帛宫→Financial Pattern, 官禄宫→Career Trajectory\n"
+            "  疾厄宫→Health Pattern, 迁移宫→Travel Tendency, 田宅宫→Property Trend\n"
+            "  夫妻宫→Relationship Pattern, 子女宫→Family Dynamics, 兄弟宫→Social Network\n"
+            "  父母宫→Heritage Influence, 交友宫→Community Circle\n"
+            "  空亡→Not Applicable, 大运→Development Phase, 流年→Annual Trend\n"
+            "Do NOT output any Chinese characters. Use behavioral/personality language.\n"
+            "Do NOT use fortune-telling, metaphysical, or spiritual terminology."
         )
     else:
         lang_hint = (
