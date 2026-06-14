@@ -4,6 +4,9 @@ import os
 import json
 import re
 import traceback
+# Ensure backend/ is on sys.path so absolute imports work when uvicorn
+# is launched from a parent directory (e.g. `uvicorn backend.main:app`).
+# Can be removed once the project uses a proper package structure (pyproject.toml).
 sys.path.insert(0, os.path.dirname(__file__))
 
 import ipaddress
@@ -186,11 +189,24 @@ def _get_client_ip(request: Request) -> str:
     return request.client.host if request.client else "unknown"
 
 # Cyberpunk-style rate limit error message
-RATE_LIMIT_MESSAGE = json.dumps({
+RATE_LIMIT_MESSAGE_ENDPOINT = json.dumps({
     "detail": "System Core Overheated. Please align your temporal node or upgrade to Premium Access.",
     "error_code": "RATE_LIMIT_EXCEEDED",
     "retry_after_seconds": 60,
 })
+
+
+def _rate_limit_response(lang: str, retry_after: int = 60) -> JSONResponse:
+    """Return a rate limit response with proper i18n."""
+    if lang == "en":
+        detail = "Too many requests. Please try again later."
+    else:
+        detail = "请求过于频繁，请稍后再试"
+    return JSONResponse(
+        status_code=429,
+        content={"detail": detail},
+        headers={"Retry-After": str(retry_after)},
+    )
 
 
 @app.middleware("http")
@@ -220,19 +236,11 @@ async def rate_limit_middleware(request: Request, call_next):
                     pass
 
             if await check_rate_limit(f"ep:{rate_key_prefix}:{path}", limit, RATE_LIMIT_WINDOW):
-                return JSONResponse(
-                    status_code=429,
-                    content=json.loads(RATE_LIMIT_MESSAGE),
-                    headers={"Retry-After": "60"},
-                )
+                return _rate_limit_response(_get_lang_from_request(request))
 
         # Global rate limit
         if await check_rate_limit(f"global:{rate_key_prefix}", RATE_LIMIT_MAX, RATE_LIMIT_WINDOW):
-            lang = _get_lang_from_request(request)
-            return JSONResponse(
-                status_code=429,
-                content={"detail": "Too many requests. Please try again later." if lang == "en" else "请求过于频繁，请稍后再试"},
-            )
+            return _rate_limit_response(_get_lang_from_request(request))
 
     return await call_next(request)
 

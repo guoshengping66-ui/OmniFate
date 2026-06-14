@@ -27,6 +27,11 @@ from config import get_settings
 router = APIRouter()
 settings = get_settings()
 
+# ── Admin email cache (parsed once at module load, avoids re-splitting on every request) ──
+_ADMIN_EMAILS: frozenset[str] = frozenset(
+    e.strip().lower() for e in settings.ADMIN_EMAILS.split(",") if e.strip()
+)
+
 # ── Rate limiting (Redis-backed with in-memory fallback) ─────────────────────
 from services.rate_limiter import check_rate_limit as _redis_check_rate_limit
 
@@ -98,7 +103,23 @@ def _get_client_ip(request: Request) -> str:
 # Uses Redis when available, otherwise in-memory fallback.
 FAILED_LOGIN_MAX = 5          # max failed attempts before lockout
 LOCKOUT_DURATION = 900        # 15 minutes lockout
+_LOCKOUT_MEMORY_MAX = 1000    # cap in-memory store to prevent unbounded growth
 _lockout_memory_store: dict[str, dict] = {}  # in-memory fallback
+
+
+def _evict_lockout_store() -> None:
+    """Evict expired entries and cap total size to prevent memory exhaustion."""
+    now = time.time()
+    # Remove expired entries
+    expired = [k for k, v in _lockout_memory_store.items()
+               if v.get("locked_until") and now >= v["locked_until"]]
+    for k in expired:
+        del _lockout_memory_store[k]
+    # Cap total entries — drop oldest by locked_until timestamp
+    if len(_lockout_memory_store) > _LOCKOUT_MEMORY_MAX:
+        sorted_keys = sorted(_lockout_memory_store, key=lambda k: _lockout_memory_store[k].get("locked_until", 0))
+        for k in sorted_keys[:len(_lockout_memory_store) - _LOCKOUT_MEMORY_MAX]:
+            del _lockout_memory_store[k]
 
 
 async def _check_lockout(email: str) -> None:
@@ -149,6 +170,7 @@ async def _record_failed_login(email: str) -> None:
             await r.delete(count_key)
     else:
         # In-memory fallback
+        _evict_lockout_store()  # periodic cleanup to prevent unbounded growth
         now = time.time()
         if email not in _lockout_memory_store:
             _lockout_memory_store[email] = {"count": 0, "locked_until": None}
@@ -303,10 +325,7 @@ class DeleteAccountRequest(BaseModel):
 
 def _user_dict(user: User) -> dict:
     # ── Admin 自动升级：匹配 ADMIN_EMAILS 的用户自动获得创始会员权限 ──
-    from config import get_settings
-    _settings = get_settings()
-    admin_emails = [e.strip().lower() for e in _settings.ADMIN_EMAILS.split(",") if e.strip()]
-    is_admin = user.email.lower() in admin_emails
+    is_admin = user.email.lower() in _ADMIN_EMAILS
 
     return {
         "id": str(user.id),
@@ -799,12 +818,13 @@ async def _get_google_keys() -> dict:
     if _google_keys_cache["keys"] and now < _google_keys_cache["expires_at"]:
         return _google_keys_cache["keys"]
 
-    # Fetch fresh keys
-    import requests as _requests
+    # Fetch fresh keys (async — avoid blocking the event loop)
+    import httpx as _httpx
     google_keys_url = "https://www.googleapis.com/oauth2/v3/certs"
-    keys_resp = _requests.get(google_keys_url, timeout=10)
-    keys_resp.raise_for_status()
-    google_keys = keys_resp.json()
+    async with _httpx.AsyncClient(timeout=10) as _client:
+        keys_resp = await _client.get(google_keys_url)
+        keys_resp.raise_for_status()
+        google_keys = keys_resp.json()
 
     # Cache the keys
     _google_keys_cache["keys"] = google_keys

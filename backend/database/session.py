@@ -24,6 +24,12 @@ if _is_sqlite:
 else:
     _kw["pool_pre_ping"] = True
     _kw["pool_timeout"] = 10
+    # ── PostgreSQL pool tuning ──
+    # pool_size=20: handles ~20 concurrent requests. Vercel serverless instances
+    # each get their own pool, so 20 is generous for a single worker.
+    # max_overflow=10: allows burst up to 30 connections for LLM-heavy endpoints.
+    # pool_recycle=3600: prevents stale connections from PgBouncer/CloudSQL timeouts.
+    # If you see "connection pool exhausted", increase pool_size or reduce LLM timeouts.
     _kw["pool_size"] = 20          # Persistent connections
     _kw["max_overflow"] = 10       # Temporary overflow connections
     _kw["pool_recycle"] = 3600     # Recycle connections after 1 hour

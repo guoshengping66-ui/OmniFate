@@ -135,6 +135,13 @@ def get_settings() -> Settings:
         s.SECRET_KEY = secrets.token_hex(32)
         print("[SECURITY] ⚠️ SECRET_KEY 未设置，已自动生成随机密钥。请在 .env 中设置固定密钥以避免重启后 session 失效。")
     if s.JWT_SECRET_KEY in _default_secrets or s.JWT_SECRET_KEY.startswith("change-me"):
+        # SECURITY NOTE: The JWT secret is persisted to .jwt_secret so that backend
+        # restarts (PM2, Vercel deployments) don't invalidate all user sessions.
+        # Trade-off: if an attacker gains read access to the filesystem, they can
+        # forge JWTs. Mitigations:
+        #   1. File is chmod 0o600 (owner-only read/write)
+        #   2. .jwt_secret is in .gitignore and never committed
+        #   3. For production, set JWT_SECRET_KEY in .env to avoid file-based storage entirely
         # Auto-generate a random secret and PERSIST it to a file so that
         # backend restarts (PM2, deploy) don't invalidate all existing tokens.
         _jwt_key_file = Path(__file__).parent / ".jwt_secret"

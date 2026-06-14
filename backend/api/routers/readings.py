@@ -271,11 +271,13 @@ def _apply_content_lock(resp: AnalysisResponse, current_user: Optional[User], re
     SECURITY: Anonymous reports show minimal data only.
     """
     _lock_msg = "Login to view full analysis" if lang == "en" else "登录后查看完整分析"
-    is_full_unlocked = False
-    is_detailed_unlocked = False
+
+    # ── Determine unlock tier ──
+    # "full" = everything, "detailed" = master_detail only, "free" = summary only
+    tier = "free"
 
     if reading:
-        # Case 0: Anonymous report — strip all personal data
+        # Anonymous report — strip all personal data
         if not reading.user_id:
             resp.master_summary = _lock_msg
             resp.master_detail = ""
@@ -286,49 +288,53 @@ def _apply_content_lock(resp: AnalysisResponse, current_user: Optional[User], re
                 if wo:
                     wo.report = ""
             return resp
-        # Case 1: user owns this reading — check tiers
+        # User owns this reading — check tier from DB flags
         if current_user and str(reading.user_id) == str(current_user.id):
             if reading.is_detail_unlocked:
-                is_full_unlocked = True
+                tier = "full"
             elif getattr(reading, "is_detailed_unlocked", False):
-                is_detailed_unlocked = True
-        # Case 2: user has an active premium subscription → full unlock
-        elif current_user and current_user.is_premium and current_user.premium_expires_at and current_user.premium_expires_at > datetime.now(timezone.utc):
-            is_full_unlocked = True
+                tier = "detailed"
     else:
-        # In-memory session
+        # Redis / in-memory session — check resp flags.
+        # NOTE: Content lock for Redis sessions relies on resp flags (is_detail_unlocked,
+        # is_detailed_unlocked) which are set at creation time. If a session is loaded
+        # from Redis by a different user (after session ownership check passes),
+        # the flags reflect the ORIGINAL owner's unlock status. This is acceptable
+        # because the session ownership check at the chat endpoint prevents cross-user
+        # access entirely.
         if current_user and getattr(resp, "is_detail_unlocked", False):
-            is_full_unlocked = True
+            tier = "full"
         elif current_user and getattr(resp, "is_detailed_unlocked", False):
-            is_detailed_unlocked = True
-        elif current_user and current_user.is_premium and current_user.premium_expires_at and current_user.premium_expires_at > datetime.now(timezone.utc):
-            is_full_unlocked = True
+            tier = "detailed"
 
-    if is_full_unlocked:
-        # 全维 — show everything
-        pass
-    elif is_detailed_unlocked:
-        # 精读 — show master_detail, hide worker reports
+    # Active premium subscription overrides to full unlock
+    if tier != "full" and current_user and current_user.is_premium and current_user.premium_expires_at and current_user.premium_expires_at > datetime.now(timezone.utc):
+        tier = "full"
+
+    # ── Apply tier restrictions ──
+    if tier == "full":
+        pass  # 全维 — show everything
+    elif tier == "detailed":
         resp.is_detail_unlocked = False
         resp.is_detailed_unlocked = True
-        for key in _WORKER_REPORT_KEYS:
-            wo = getattr(resp, key, None)
-            if wo:
-                wo.report = ""
-                wo.tags = []
-                wo.error = None
+        _hide_worker_reports(resp)
     else:
-        # Free — hide master_detail and worker reports
         resp.master_detail = ""
         resp.is_detail_unlocked = False
         resp.is_detailed_unlocked = False
-        for key in _WORKER_REPORT_KEYS:
-            wo = getattr(resp, key, None)
-            if wo:
-                wo.report = ""
-                wo.tags = []
-                wo.error = None
+        _hide_worker_reports(resp)
+
     return resp
+
+
+def _hide_worker_reports(resp: AnalysisResponse) -> None:
+    """Clear all worker report content (used by content lock)."""
+    for key in _WORKER_REPORT_KEYS:
+        wo = getattr(resp, key, None)
+        if wo:
+            wo.report = ""
+            wo.tags = []
+            wo.error = None
 
 
 # ─── Endpoints ───────────────────────────────────────────────────────────
@@ -677,9 +683,12 @@ async def chat_followup(
         await _set_session(payload.session_id, state)
         print(f"[CHAT] Reconstructed session {payload.session_id} from DB for user {current_user.id}")
 
-    # 验证 session 归属
+    # 验证 session 归属 (Redis path — DB path already filters by user_id)
     if state.user_id and str(state.user_id) != str(current_user.id):
         raise HTTPException(status_code=403, detail="无权访问此 session")
+    if not state.user_id and current_user:
+        # Anonymous session in Redis — don't let authenticated users hijack it
+        raise HTTPException(status_code=403, detail="此 session 不属于当前用户")
 
     # ── SECURITY: Sanitize user input to prevent prompt injection ──
     question = payload.question[:2000] if payload.question else ""
@@ -701,10 +710,19 @@ async def chat_followup(
         r"unlock\s+all", r"reveal.*prompt", r"show.*system\s*prompt",
         r"what\s+is\s+your\s+system\s*prompt", r"repeat.*above",
         r"translate.*to.*chinese", r"decode.*base64", r"exec.*code",
+        # English — data exfil / encoding tricks
+        r"output.*your.*instructions", r"print.*your.*rules",
+        r"respond\s+in\s+(spanish|japanese|korean|french|arabic)",
+        r"from\s+now\s+on.*you\s+(will|must|should)",
+        r"you\s+are\s+no\s+longer", r"enter\s+debug\s+mode",
+        # Multi-language: universal injection patterns
+        r"\{\{.*\}\}",             # Template injection {{system}}
+        r"<\s*(system|assistant|user)\s*>",  # XML tag injection
+        r"^\s*/\s*nofilter",       # /nofilter bypass
     ]
     for pattern in injection_patterns:
         if _re.search(pattern, question, _re.IGNORECASE):
-            question = "请围绕命理主题提问。"
+            question = "请围绕命理主题提问。" if _get_lang_from_request_state(request) != "en" else "Please ask questions related to destiny analysis."
             break
 
     # ── 星尘扣费（会员免费 + 新用户首次免费） ──
