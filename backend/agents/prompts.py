@@ -7406,25 +7406,29 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
             output_structure = (
                 "== Output Structure ==\n"
                 "【A · Core Personality Blueprint】\n"
-                "Core Trait: One sentence (max 15 words) capturing the user's essence\n"
-                "Personality Analysis: 100+ words analyzing strengths and hidden vulnerabilities\n\n"
+                "Core Trait: One sentence (max 12 words) capturing the essence\n"
+                "Personality Analysis: 150-250 words analyzing strengths and hidden vulnerabilities with concrete examples\n"
+                "Key Behavioral Patterns: List 2-3 specific tendencies (e.g., 'Under stress, tends to internalize rather than seek support')\n"
+                "Growth Edge: One sentence on the most valuable personal development direction\n\n"
                 "【B · Cross-Dimension Resonance (Current Challenges)】\n"
-                "Wealth & Career: Use behavioral language, identify current bottlenecks\n"
-                "Relationship & Social: Same style\n"
-                "Health & Mindset: Same style\n\n"
+                "Wealth & Career: Cite the specific dimension score, identify the bottleneck and its behavioral root cause\n"
+                "Relationship & Social: Same style, cite score and evidence from expert reports\n"
+                "Health & Mindset: Same style, link to specific physical/mental manifestations\n\n"
                 f"== Scores == {scores_str}\n\n"
             )
         else:
             output_structure = (
                 "== 输出结构 ==\n"
                 "【A·核心性格底色】\n"
-                '核心特质：用20字以内大白话抓住用户本质，如"外表坚强独立，内心极度缺乏安全感的幕后军师型人格"\n'
-                "性格解析：用100字以内现代大白话，分析性格优势与隐藏软肋\n\n"
+                "核心特质：用15字以内大白话抓住本质\n"
+                "性格解析：用150-250字深入分析性格优势与隐藏软肋，要有血有肉\n"
+                '关键行为模式：列出2-3个具体的行为倾向（如"遇到压力时倾向于独自消化而不是找人倾诉"）\n'
+                "成长建议：用一句话点出最值得发展的方向\n\n"
                 "【B·跨维度共鸣（现状痛点）】\n"
-                "财富与事业现状：用现代行为学话术，指出当前可能遇到的瓶颈\n"
-                '例如："近期想法很多但落地困难，容易陷入精神内耗或盲目投资"\n'
-                "感情与人际关系现状：同上风格\n"
-                "健康与精神状态：同上风格\n\n"
+                "财富与事业现状：引用具体维度评分，指出当前瓶颈和背后的性格原因\n"
+                '例如："财富评分7.4，能力在但存钱有挑战，因为你的XX特点导致XX"\n'
+                "感情与人际关系现状：同上风格，引用评分和专家报告依据\n"
+                "健康与精神状态：同上风格，关联到具体的身心表现\n\n"
                 f"== 五维评分 ==\n{scores_str}\n\n"
             )
 
