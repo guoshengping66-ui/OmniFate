@@ -81,7 +81,7 @@ const ZH_EN: Record<string, string> = {
   "动土": "Groundbreaking", "远行": "Long travel", "争吵": "Arguments",
   "熬夜": "Stay up late", "冒险": "Take risks", "搬迁": "Move house",
   "借贷": "Lend money", "高风险投资": "High-risk investment",
-  // Insight sentence fragments
+  // Insight sentence fragments (daily)
   "今日": "Today ", "运势旺盛": "fortune is strong",
   "方面需谨慎": " area needs caution", "之事暂缓": " matters — wait",
   "方面要留心": " area needs attention", "避免冲动": "avoid impulsiveness",
@@ -103,6 +103,22 @@ const ZH_EN: Record<string, string> = {
   "今日{yi}运极佳": "Excellent {yi} luck today",
   "今日贵人运强，{yi}方向有意外惊喜。保持谦虚态度，{ji}之事暂缓。":
     "Strong ally luck — the {yi} direction holds surprises. Stay humble, postpone {ji} matters.",
+  // Insight sentence fragments (weekly)
+  "本周": "This week's ",
+  "运势平稳": "outlook is steady", "整体协调": "overall balanced",
+  "适合按部就班推进计划": "ideal for sticking to your plan",
+  "注意周五可能有小波折": "Watch out for minor setbacks on Friday",
+  "周末宜休整，为下周蓄力": "Rest on the weekend to recharge for next week",
+  "需谨慎": "needs caution", "运强劲": "energy is strong",
+  "可主动出击": "take initiative",
+  "保持心态平和，好运自来": "Stay calm and good things will come naturally",
+  "整体流向对你有利": "The overall flow favors you",
+  "方向有贵人出现": "direction holds allies",
+  "建议多社交，拓展人脉": "Expand your network",
+  "需注意": "Watch out for",
+  "整体运势向好": "overall outlook is positive",
+  "保持耐心，好事多磨": "Patience is key — good things take time",
+  "周五": "Friday", "小波折": "minor setbacks",
 }
 /** Translate a value or, for long insight sentences, do phrase-level replacement */
 const tr = (val: string, toEn: boolean) => {
