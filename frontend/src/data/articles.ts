@@ -17,7 +17,7 @@ export interface Article {
 export const CATEGORIES = [
   { key: "", label_zh: "全部", label_en: "All" },
   { key: "wuxing", label_zh: "五素入门", label_en: "Five Elements" },
-  { key: "bazi", label_zh: "四柱分析", label_en: "Four-Pillar Analysis" },
+  { key: "four-pillar", label_zh: "四柱分析", label_en: "Four-Pillar Analysis" },
   { key: "chart analysis", label_zh: "西方图表", label_en: "Western Chart" },
   { key: "symbol", label_zh: "符号指南", label_en: "Symbol Guide" },
   { key: "face", label_zh: "面部手部特征", label_en: "Face & Hand" },
@@ -102,7 +102,7 @@ Do you know your Day Master Stem? The Day Master is the character in your Four-P
     title_en: "The Day Master: Your Core Profile Code",
     summary_zh: "日主天干（日元）是四柱中最关键的一个字，它代表你自己。甲木人如参天大树，丙火人如太阳般温暖。看看你属于哪种类型？",
     summary_en: "The Day Master (Ri Yuan) is the most crucial character in your Four-Pillar chart — it represents you. Jia Wood people are like towering trees, Bing Fire people shine like the sun. Find out which type you are.",
-    category: "bazi",
+    category: "four-pillar",
     tags_zh: ["四柱", "日主", "天干"],
     tags_en: ["Four-Pillar", "Day Master", "Stems"],
     read_time: 8,
@@ -201,7 +201,7 @@ Use our AI analysis tool — enter your birth date and time, and the system will
     title_en: "Must You Supplement Whatever Your Four-Pillar Lacks?",
     summary_zh: "很多人一听「四柱缺金」就急着戴金饰。但行为分析学的逻辑远比「缺啥补啥」复杂。本文解析五素喜忌的正确理解方式。",
     summary_en: "Many people rush to wear gold jewelry when told their Four-Pillar lacks Metal. But behavioral analysis is far more nuanced than 'supplement what's missing.' This article explains the correct approach to Five Element favorability.",
-    category: "bazi",
+    category: "four-pillar",
     tags_zh: ["四柱", "五素", "喜忌"],
     tags_en: ["Four-Pillar", "Five Elements", "Favorability"],
     read_time: 6,
@@ -266,7 +266,7 @@ Only when the missing element happens to be your Favorable Element does it need 
     title_en: "The Ten Gods Explained: What Do Direct Wealth, Seven Killings & Eating God Really Mean?",
     summary_zh: "十维是四柱中描述人际关系和命运走向的核心系统。正官代表约束与责任，偏财代表意外之财。搞懂十维，就读懂了档案的语言。",
     summary_en: "The Ten Gods system is the core framework in Four-Pillar for describing relationships and behavioral patterns. Direct Officer represents discipline, Indirect Wealth represents unexpected gains. Understanding the Ten Gods means speaking the language of your chart.",
-    category: "bazi",
+    category: "four-pillar",
     tags_zh: ["四柱", "十维", "进阶"],
     tags_en: ["Four-Pillar", "Ten Gods", "Advanced"],
     read_time: 10,
@@ -352,12 +352,12 @@ The Ten Gods are ten designations used in Four-Pillar to describe the relationsh
   {
     id: "chart analysis-houses",
     title_zh: "十二宫位入门：你的图表地图",
-    title_en: "The Twelve Houses: Your Natal Chart Map",
+    title_en: "The Twelve Houses: Your Behavioral Profile Map",
     summary_zh: "图表的十二宫位就像人生的十二个舞台。太阳落在第十宫的人天生就是事业狂，月亮在第四宫的人最重视家庭。来认识你的图表地图。",
-    summary_en: "The twelve houses of the natal chart are like twelve stages of life. Sun in the 10th House makes you career-driven; Moon in the 4th House values family above all. Discover your chart map.",
+    summary_en: "The twelve houses of the behavioral profile are like twelve stages of life. Sun in the 10th House makes you career-driven; Moon in the 4th House values family above all. Discover your chart map.",
     category: "chart analysis",
     tags_zh: ["图表", "宫位", "入门"],
-    tags_en: ["Natal Chart", "Houses", "Beginner"],
+    tags_en: ["Behavioral Profile", "Houses", "Beginner"],
     read_time: 7,
     cover_emoji: "✦",
     created_at: "2025-03-05",
@@ -392,7 +392,7 @@ The Ten Gods are ten designations used in Four-Pillar to describe the relationsh
     content_en: `
 ## What Are the Houses?
 
-In Western chart analysis, the natal chart is divided into twelve houses, each representing a different area of life. Houses are like twelve stages where planets act out your life's script.
+In Western chart analysis, the behavioral profile is divided into twelve houses, each representing a different area of life. Houses are like twelve stages where planets act out your life's script.
 
 ## The Twelve Houses at a Glance
 
@@ -413,7 +413,7 @@ In Western chart analysis, the natal chart is divided into twelve houses, each r
 
 ## How to Read Your Houses?
 
-Your birth time determines the starting point of the houses (the Ascendant sign). Each house begins with a different star sign sign, and planets fall into different houses — creating your unique natal chart map.
+Your birth time determines the starting point of the houses (the Ascendant sign). Each house begins with a different star sign sign, and planets fall into different houses — creating your unique behavioral profile map.
 
 → Enter your birth information and AI will generate your complete house analysis
     `,
@@ -430,7 +430,7 @@ Your birth time determines the starting point of the houses (the Ascendant sign)
     summary_en: "Aspects are angular relationships between planets that determine how they interact. Conjunctions merge, oppositions create tension, trines flow harmoniously. Understanding aspects unlocks your chart's dynamic engine.",
     category: "chart analysis",
     tags_zh: ["图表", "相位", "进阶"],
-    tags_en: ["Natal Chart", "Aspects", "Advanced"],
+    tags_en: ["Behavioral Profile", "Aspects", "Advanced"],
     read_time: 8,
     cover_emoji: "📐",
     created_at: "2025-03-10",
@@ -467,7 +467,7 @@ Your birth time determines the starting point of the houses (the Ascendant sign)
     content_en: `
 ## What Are Aspects?
 
-Aspects are angular relationships between planets in the natal chart. Different angles represent different patterns of energy interaction. There are five major aspects:
+Aspects are angular relationships between planets in the behavioral profile. Different angles represent different patterns of energy interaction. There are five major aspects:
 
 ## The Five Major Aspects
 
@@ -492,7 +492,7 @@ Two planets assist each other gently, offering mild support. It represents oppor
 2. **Check the houses**: The houses involved determine which life domains are affected.
 3. **Check the orb**: The tighter the aspect, the stronger its influence.
 
-→ Our AI natal chart analysis automatically interprets all your major aspects
+→ Our AI behavioral profile analysis automatically interprets all your major aspects
     `,
   },
 
@@ -870,14 +870,14 @@ Every natural crystal carries a specific Five Element attribute, which can be us
   // 11. 办公桌环境优化
   // ────────────────────────────────────────────────────
   {
-    id: "fengshui-desk",
+    id: "env-desk",
     title_zh: "办公桌环境优化布局：提升事业的小技巧",
     title_en: "Desk Layout Optimization: Small Tweaks to Boost Your Career",
     summary_zh: "桌面左侧放绿植旺人缘，右侧放水晶球增决策力，背后有靠山…简单的办公桌调整就能改善你的事业环境。",
     summary_en: "Place green plants on the left for social connections, a crystal sphere on the right for decision-making, and ensure support behind you — simple desk adjustments can transform your career environment.",
     category: "lifestyle",
     tags_zh: ["环境优化", "事业", "办公"],
-    tags_en: ["Feng Shui", "Career", "Office"],
+    tags_en: ["Environment Optimization", "Career", "Office"],
     read_time: 4,
     cover_emoji: "🏢",
     created_at: "2025-05-01",
@@ -916,9 +916,9 @@ Every natural crystal carries a specific Five Element attribute, which can be us
 → 查看你的五素喜忌，获取专属环境优化建议
     `,
     content_en: `
-## Why Does Desk Feng Shui Matter?
+## Why Does Desk Environment Optimization Matter?
 
-You spend at least 8 hours a day at your desk. Its layout directly affects your work efficiency, relationships, and career status. Good desk Feng Shui helps you accomplish more with less effort.
+You spend at least 8 hours a day at your desk. Its layout directly affects your work efficiency, relationships, and career status. Good desk Environment Optimization helps you accomplish more with less effort.
 
 ## Five Key Layout Principles
 
@@ -926,7 +926,7 @@ You spend at least 8 hours a day at your desk. Its layout directly affects your 
 Your chair should face a solid wall or tall cabinet, representing a "mountain" of support. Sitting with no backing behind you can create insecurity and lack of career support.
 
 ### 2. High on the Left, Low on the Right (Azure Dragon > White Tiger)
-Place taller items on the left side of your desk (file organizers, plants) and shorter items on the right. This follows the Feng Shui principle of "the Azure Dragon should be higher than the White Tiger," benefiting career and benefactor luck.
+Place taller items on the left side of your desk (file organizers, plants) and shorter items on the right. This follows the Environment Optimization principle of "the Azure Dragon should be higher than the White Tiger," benefiting career and benefactor luck.
 
 ### 3. Keep the Front Open
 Keep the space in front of your desk clear of clutter. An open "bright hall" represents a bright future and clear thinking.
@@ -947,7 +947,7 @@ Place a green plant on the left side of your desk (like pothos or favorable bamb
 - **Lacking Metal**: Use white and silver
 - **Lacking Water**: Use black and dark blue
 
-→ Check your Five Element favorability for personalized Feng Shui advice
+→ Check your Five Element favorability for personalized Environment Optimization advice
     `,
   },
 
@@ -1073,7 +1073,7 @@ Interestingly, the four Western elements have subtle correspondences with the Ch
     title_en: "Four-Pillar Marriage Compatibility: Five Element Pairing & Relationship Profile",
     summary_zh: "你和另一半的五素是相生还是相克？四柱合婚不只是看属相，更要看日主配合、十维互补。本文教你用行为分析的视角理解婚恋关系。",
     summary_en: "Are you and your partner in a generating or overcoming cycle? Four-Pillar marriage compatibility goes beyond star sign animals — it examines Day Master harmony and Ten God complementarity. Learn to understand relationships through behavioral analysis.",
-    category: "bazi",
+    category: "four-pillar",
     tags_zh: ["四柱", "合婚", "感情", "婚姻"],
     tags_en: ["Four-Pillar", "Compatibility", "Relationship", "Marriage"],
     read_time: 8,
@@ -1459,7 +1459,7 @@ AI doesn't replace traditional behavioral analysis — it makes behavioral wisdo
     title_en: "Annual Cycle Basics: How to Read Your Yearly Luck",
     summary_zh: "四柱档案是固定的，但周期状态每年都在变。2025年乙巳蛇年，你该注意什么？本文教你理解周期天干地支如何影响你的状态。",
     summary_en: "Your Four-Pillar chart is fixed, but annual cycle cycles change every year. What should you watch for in 2025 (Yi Si Snake Year)? Learn how the yearly Stem-Branch combination influences your status.",
-    category: "bazi",
+    category: "four-pillar",
     tags_zh: ["四柱", "周期", "状态", "2025"],
     tags_en: ["Four-Pillar", "Annual Cycle", "Luck Cycle", "2025"],
     read_time: 7,
@@ -1664,7 +1664,7 @@ Mentally very compatible, but may need extra patience in practical daily life.
 2. **Respect individual differences**: Two people of the same sign can be vastly different
 3. **Communication and acceptance**: No pairing is perfect — nurturing matters more than choosing
 
-→ AI Natal Chart Analysis: go beyond Sun signs to map your complete emotional landscape
+→ AI Behavioral Profile Analysis: go beyond Sun signs to map your complete emotional landscape
     `,
   },
 
@@ -1785,7 +1785,7 @@ AI analysis is based on precise astronomical calculations and traditional behavi
 Yes. Multiple generations on the same day produce consistent results. Different dates may show subtle differences due to changing annual/monthly status cycles.
 
 **Q: Does the report expire?**
-Your basic chart (Four-Pillar, Natal Chart) doesn't change, but status analysis (annual, monthly cycles) updates over time.
+Your basic chart (Four-Pillar, Behavioral Profile) doesn't change, but status analysis (annual, monthly cycles) updates over time.
 
 → Haven't received a report yet? Try AI 5-Dimension Analysis now
     `,
@@ -1925,7 +1925,7 @@ Mole reading as part of traditional culture has reference value, but shouldn't b
     title_en: "Zi Wei Dou Shu: Your Twelve-Palace Profile Map",
     summary_zh: "图表系统是中国行为分析学的另一大体系，与四柱并称「行为分析双璧」。它用十四颗主星分布在十二宫中，描绘你人生的全景地图。",
     summary_en: "Zi Wei Dou Shu is another major Chinese behavioral system, often called the 'twin star' alongside Four-Pillar. It uses fourteen major stars distributed across twelve palaces to map your complete life blueprint.",
-    category: "bazi",
+    category: "four-pillar",
     tags_zh: ["图表系统", "入门", "档案"],
     tags_en: ["Zi Wei Dou Shu", "Beginner", "Chart"],
     read_time: 7,
