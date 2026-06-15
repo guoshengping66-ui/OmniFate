@@ -190,24 +190,25 @@ async def expiry_reminder(
     reminded_count = 0
     for user in users_to_remind:
         try:
-            from api.routers.auth import _send_email
+            from utils.email import send_email_async
             days_left = (user.premium_expires_at - now).days
             tier_label = "年度" if user.subscription_tier == "premium_yearly" else "月度"
-            await _send_email(
+            html_body = f"""
+            <div style="max-width:480px;margin:0 auto;font-family:Arial,sans-serif;color:#333;">
+              <div style="background:linear-gradient(135deg,#2D1B4E,#1a0f2e);padding:24px;text-align:center;border-radius:12px 12px 0 0;">
+                <h2 style="color:#C9A84C;margin:0 0 8px;">会员到期提醒</h2>
+              </div>
+              <div style="background:#f9f9f9;padding:24px;border-radius:0 0 12px 12px;">
+                <p>您的 Fate OS {tier_label}会员将于 {user.premium_expires_at.strftime('%Y年%m月%d日')} 到期（剩余 {days_left} 天）。</p>
+                <p>到期后推命报告将恢复为免费版预览，每日黄历将显示基础信息。</p>
+                <p>如需续费，请登录后访问 pricing 页面。</p>
+              </div>
+            </div>
+            """
+            await send_email_async(
                 to_email=user.email,
                 subject=f"您的 Fate OS {tier_label}会员将在 {days_left} 天后到期",
-                body=f"""尊敬的用户：
-
-您的 Fate OS {tier_label}会员将于 {user.premium_expires_at.strftime('%Y年%m月%d日')} 到期。
-
-到期后，以下权益将受到影响：
-- 推命报告将恢复为免费版预览
-- 每日黄历将显示基础信息
-- 事件复盘将按 ¥19.9/次 计费
-
-如需续费，请登录后访问 pricing 页面。
-
-—— Profile Mirror团队""",
+                html_body=html_body,
             )
             reminded_count += 1
         except Exception as e:

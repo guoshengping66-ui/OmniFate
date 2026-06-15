@@ -532,6 +532,7 @@ export function streamSession(
               master_summary: data.master_summary || "",
               master_detail: data.master_detail || "",
               is_detail_unlocked: false,
+              is_detailed_unlocked: false,
               astrology: { agent_id: "astrology", report: "", tags: [] },
               tarot: { agent_id: "tarot", report: "", tags: [] },
               bazi: { agent_id: "bazi", report: "", tags: [] },

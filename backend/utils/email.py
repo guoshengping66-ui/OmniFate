@@ -345,7 +345,6 @@ def send_payment_notification_email(
 ) -> bool:
     """Send admin payment notification with one-click confirm/reject links."""
     config = _get_smtp_config()
-    print(f"[EMAIL-DEBUG] SMTP host={config['host']}, user={config['user']}, admin_emails={settings.ADMIN_EMAILS}")
     if not config["host"] or not config["user"]:
         logger.warning("[EMAIL] SMTP not configured, skipping payment notification")
         return False

@@ -638,7 +638,7 @@ async def verify_crypto_tx(
 #  Module 3.2: PayPal Webhook — 接收 PAYMENT.SALE.COMPLETED
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def _verify_paypal_webhook_signature(body: bytes, headers: dict) -> bool:
+async def _verify_paypal_webhook_signature(body: bytes, headers: dict) -> bool:
     """
     Verify PayPal webhook signature using PayPal's verify API.
     Returns True only if PayPal confirms the signature is valid.
@@ -668,13 +668,13 @@ def _verify_paypal_webhook_signature(body: bytes, headers: dict) -> bool:
             "request_body": body.decode("utf-8"),
         }
         base_url = "https://api-m.sandbox.paypal.com" if settings.PAYPAL_MODE == "sandbox" else "https://api-m.paypal.com"
-        resp = httpx.post(
-            f"{base_url}/v1/notifications/verify-webhook-signature",
-            json=payload,
-            auth=(settings.PAYPAL_CLIENT_ID, settings.PAYPAL_SECRET),
-            timeout=10,
-        )
-        return resp.status_code == 200 and resp.json().get("verification_status") == "SUCCESS"
+        async with httpx.AsyncClient(timeout=10) as client:
+            resp = await client.post(
+                f"{base_url}/v1/notifications/verify-webhook-signature",
+                json=payload,
+                auth=(settings.PAYPAL_CLIENT_ID, settings.PAYPAL_SECRET),
+            )
+            return resp.status_code == 200 and resp.json().get("verification_status") == "SUCCESS"
     except Exception as e:
         logger.error(f"[SECURITY] PayPal webhook verification error: {e}")
         return False
@@ -714,7 +714,7 @@ async def paypal_webhook(
 
     # Signature verification — always verify, both sandbox and live
     headers_dict = dict(request.headers)
-    if not _verify_paypal_webhook_signature(body, headers_dict):
+    if not await _verify_paypal_webhook_signature(body, headers_dict):
         logger.warning("[SECURITY] PayPal webhook signature verification failed")
         raise HTTPException(status_code=403, detail="Webhook signature verification failed")
 

@@ -561,9 +561,10 @@ async def create_birth_profile(
     """创建新出生档案"""
     async with AsyncSessionLocal() as db:
         # Limit: max 10 profiles per user
-        count_stmt = select(BirthProfile).where(BirthProfile.user_id == user.id)
+        from sqlalchemy import func
+        count_stmt = select(func.count()).select_from(BirthProfile).where(BirthProfile.user_id == user.id)
         count_result = await db.execute(count_stmt)
-        existing = len(count_result.scalars().all())
+        existing = count_result.scalar() or 0
         if existing >= 10:
             raise HTTPException(status_code=400, detail="最多保存 10 个出生档案")
 
