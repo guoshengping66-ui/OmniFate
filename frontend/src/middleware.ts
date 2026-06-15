@@ -137,7 +137,12 @@ export function middleware(request: NextRequest) {
   if (pathname.startsWith("/reading") && !pathname.match(/^\/(en|zh)\//)) {
     const locale = request.cookies.get("NEXT_LOCALE")?.value || "zh"
     const url = request.nextUrl.clone()
-    url.pathname = `/${locale}${pathname}`
+    // Redirect /reading (exact) to /readings (list page)
+    if (pathname === "/reading") {
+      url.pathname = `/${locale}/readings`
+    } else {
+      url.pathname = `/${locale}${pathname}`
+    }
     return fixLocalhostRedirects(NextResponse.redirect(url), request)
   }
 
