@@ -2689,7 +2689,7 @@ async def get_daily_almanac(
             product=p,
             weakness_tags=all_weakness,
             boost_elements=almanac_data.get("boost_elements", []),
-            lang=payload.lang,
+            lang=lang,
         )
 
     hu_items = [
