@@ -725,9 +725,28 @@ def _build_compact_report(data: dict) -> str:
     dims = data.get("dimensions", {})
     dim_parts = []
     for dim in ["wealth", "relationship", "career", "health", "spiritual"]:
-        text = dims.get(dim, "")
-        if text:
-            dim_parts.append(f"【{dim}】{text}")
+        dim_data = dims.get(dim, "")
+        if not dim_data:
+            continue
+        # 处理新的结构化格式（对象）和旧的纯文本格式（字符串）
+        if isinstance(dim_data, dict):
+            score = dim_data.get("score", "")
+            label = dim_data.get("label", dim)
+            # 提取关键信息用于 master report
+            summary_parts = [f"{label}能级: {score}/10"]
+            # 如果有冲突天平，提取核心冲突点
+            cb = dim_data.get("conflictBalance", {})
+            if cb and cb.get("conflictPoint"):
+                summary_parts.append(f"核心冲突: {cb['conflictPoint']}")
+            # 如果有能量条，提取关键状态
+            bars = dim_data.get("energyBars", [])
+            for bar in bars[:2]:  # 最多取2个
+                summary_parts.append(f"{bar.get('label', '')}: {bar.get('value', '')}/10 ({bar.get('status', '')})")
+            dim_parts.append(f"【{dim}】{' | '.join(summary_parts)}")
+        else:
+            # 旧格式：直接是字符串
+            dim_parts.append(f"【{dim}】{dim_data}")
+
     if dim_parts:
         parts.append("\n".join(dim_parts))
 
