@@ -18,17 +18,25 @@ npm run build
 echo "[3/5] Preparing standalone directory..."
 STANDALONE=".next/standalone/frontend"
 
-# Ensure standalone .next directory exists
+# Remove old .next in standalone and recreate
+rm -rf "$STANDALONE/.next"
 mkdir -p "$STANDALONE/.next"
 
 # Copy all .next files except standalone itself
-echo "  Copying .next files..."
-for item in .next/*; do
-  basename=$(basename "$item")
-  if [ "$basename" != "standalone" ]; then
-    cp -r "$item" "$STANDALONE/.next/"
-  fi
-done
+echo "  Copying static files..."
+cp -r .next/static "$STANDALONE/.next/"
+
+echo "  Copying server files..."
+cp -r .next/server "$STANDALONE/.next/"
+
+echo "  Copying manifest files..."
+cp .next/BUILD_ID "$STANDALONE/.next/"
+cp .next/build-manifest.json "$STANDALONE/.next/"
+cp .next/prerender-manifest.json "$STANDALONE/.next/"
+cp .next/routes-manifest.json "$STANDALONE/.next/"
+cp .next/react-loadable-manifest.json "$STANDALONE/.next/"
+cp .next/app-build-manifest.json "$STANDALONE/.next/"
+cp .next/app-path-routes-manifest.json "$STANDALONE/.next/"
 
 # Step 4: Copy public directory
 echo "[4/5] Copying public directory..."
