@@ -38,6 +38,7 @@ cp -f .next/routes-manifest.json "$STANDALONE/.next/"
 cp -f .next/react-loadable-manifest.json "$STANDALONE/.next/"
 cp -f .next/app-build-manifest.json "$STANDALONE/.next/"
 cp -f .next/app-path-routes-manifest.json "$STANDALONE/.next/"
+cp -f .next/required-server-files.json "$STANDALONE/.next/"
 
 # Step 4: Copy public directory
 echo "[4/5] Copying public directory..."
