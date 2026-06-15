@@ -1425,6 +1425,22 @@ export default {
   "home.product3.desc": "事业晋升 · 助力运",
   "home.product3.tag": "事业发展",
 
+  // ─── 五维概览 ───
+  "fiveDim.badge": "五维合参",
+  "fiveDim.title": "你的专属五维能量图谱",
+  "fiveDim.desc": "五大维度交叉验证，全面洞察你的行为模式与内在特质",
+  "fiveDim.wealthDesc": "洞察财务行为模式与资源分配倾向",
+  "fiveDim.relationshipDesc": "解读人际互动中的情感流动与连接方式",
+  "fiveDim.careerDesc": "分析决策风格与职业发展路径",
+  "fiveDim.healthDesc": "评估身心能量状态与生活习惯影响",
+  "fiveDim.spiritualDesc": "探索内在驱动力与心理韧性来源",
+
+  // ─── 生活方式好物 ───
+  "lifestyle.badge": "甄选好物",
+  "lifestyle.title": "热门生活方式好物",
+  "lifestyle.desc": "根据分析数据，为你精选提升生活品质的工具",
+  "lifestyle.viewAll": "探索更多",
+
   // ─── 数据波动扩展 ───
   "energyWave.title": "数据波动预警",
   "energyWave.currentLevel": "当前数据水平",

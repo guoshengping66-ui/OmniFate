@@ -8,11 +8,10 @@ import { useUserStore } from "@/stores/useUserStore"
 
 // ── Lazy-loaded cinematic marketing page ─────────────────────────────────
 const CinematicHero = dynamic(() => import("@/components/destiny/CinematicHero"), { ssr: false })
-const Archetypes = dynamic(() => import("@/components/destiny/Archetypes"), { ssr: false })
-const SkillTree = dynamic(() => import("@/components/destiny/SkillTree"), { ssr: false })
+const FiveDimensionsOverview = dynamic(() => import("@/components/destiny/FiveDimensionsOverview"), { ssr: false })
 const Timeline = dynamic(() => import("@/components/destiny/Timeline"), { ssr: false })
-const DestinyEngines = dynamic(() => import("@/components/destiny/DestinyEngines"), { ssr: false })
 const ReportPreview = dynamic(() => import("@/components/destiny/ReportPreview"), { ssr: false })
+const LifestyleShowcase = dynamic(() => import("@/components/destiny/LifestyleShowcase"), { ssr: false })
 const CaseStudy = dynamic(() => import("@/components/destiny/CaseStudy"), { ssr: false })
 const FinalCTA = dynamic(() => import("@/components/destiny/FinalCTA"), { ssr: false })
 
@@ -105,11 +104,10 @@ export default function HomePage() {
   return (
     <div className="min-h-screen" style={{ background: "#080808" }}>
       <CinematicHero />
-      <Archetypes />
-      <SkillTree />
+      <FiveDimensionsOverview />
       <Timeline />
-      <DestinyEngines />
       <ReportPreview />
+      <LifestyleShowcase />
       <CaseStudy />
       <FinalCTA />
     </div>

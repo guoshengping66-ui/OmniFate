@@ -1430,6 +1430,22 @@ export default {
   "home.product3.desc": "Career advancement · Noble helpers",
   "home.product3.tag": "Career Boost",
 
+  // ─── Five Dimensions Overview ───
+  "fiveDim.badge": "Five Dimensions",
+  "fiveDim.title": "Your Five-Dimensional Energy Profile",
+  "fiveDim.desc": "Five dimensions cross-validated for a complete behavioral and inner trait insight",
+  "fiveDim.wealthDesc": "Insight into financial behavior and resource allocation patterns",
+  "fiveDim.relationshipDesc": "Understanding emotional flow and connection patterns in relationships",
+  "fiveDim.careerDesc": "Analyzing decision-making style and career development path",
+  "fiveDim.healthDesc": "Assessing mind-body energy state and lifestyle impact",
+  "fiveDim.spiritualDesc": "Exploring inner drive and psychological resilience sources",
+
+  // ─── Lifestyle Showcase ───
+  "lifestyle.badge": "Curated Picks",
+  "lifestyle.title": "Popular Lifestyle Picks",
+  "lifestyle.desc": "Curated tools to elevate your lifestyle, based on analysis data",
+  "lifestyle.viewAll": "Explore More",
+
   // ─── Energy Wave Extended ───
   "energyWave.title": "Energy Wave Alert",
   "energyWave.currentLevel": "Current Energy Level",
