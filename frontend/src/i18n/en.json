@@ -3433,6 +3433,7 @@
     "risk": "Risk Tolerance",
     "intuition": "Intuition",
     "spirit": "Spirit",
+    "spiritual": "Spiritual",
     "growth": "Growth"
   },
   "reviews": {
@@ -3908,5 +3909,21 @@
       "subtitle": "Join thousands who have gained data-driven self-awareness through AI behavioral analysis.",
       "cta": "Start Your Free Analysis"
     }
+  },
+  "fiveDim": {
+    "badge": "Five Dimensions",
+    "title": "Your Five-Dimensional Energy Profile",
+    "desc": "Five dimensions cross-validated for a complete behavioral and inner trait insight",
+    "wealthDesc": "Insight into financial behavior and resource allocation patterns",
+    "relationshipDesc": "Understanding emotional flow and connection patterns in relationships",
+    "careerDesc": "Analyzing decision-making style and career development path",
+    "healthDesc": "Assessing mind-body energy state and lifestyle impact",
+    "spiritualDesc": "Exploring inner drive and psychological resilience sources"
+  },
+  "lifestyle": {
+    "badge": "Curated Picks",
+    "title": "Popular Lifestyle Picks",
+    "desc": "Curated tools to elevate your lifestyle, based on analysis data",
+    "viewAll": "Explore More"
   }
 }

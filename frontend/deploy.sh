@@ -22,30 +22,30 @@ STANDALONE=".next/standalone/frontend"
 rm -rf "$STANDALONE/.next"
 mkdir -p "$STANDALONE/.next"
 
-# Copy all .next files except standalone itself
-echo "  Copying static files..."
-cp -r .next/static "$STANDALONE/.next/"
+# Use rsync to sync files (avoids cp interactive prompts on some systems)
+echo "  Syncing static files..."
+rsync -a --delete .next/static/ "$STANDALONE/.next/static/"
 
-echo "  Copying server files..."
-cp -r .next/server "$STANDALONE/.next/"
+echo "  Syncing server files..."
+rsync -a --delete .next/server/ "$STANDALONE/.next/server/"
 
+# Copy individual manifest/build files
 echo "  Copying manifest files..."
-cp .next/BUILD_ID "$STANDALONE/.next/"
-cp .next/build-manifest.json "$STANDALONE/.next/"
-cp .next/prerender-manifest.json "$STANDALONE/.next/"
-cp .next/routes-manifest.json "$STANDALONE/.next/"
-cp .next/react-loadable-manifest.json "$STANDALONE/.next/"
-cp .next/app-build-manifest.json "$STANDALONE/.next/"
-cp .next/app-path-routes-manifest.json "$STANDALONE/.next/"
+cp -f .next/BUILD_ID "$STANDALONE/.next/"
+cp -f .next/build-manifest.json "$STANDALONE/.next/"
+cp -f .next/prerender-manifest.json "$STANDALONE/.next/"
+cp -f .next/routes-manifest.json "$STANDALONE/.next/"
+cp -f .next/react-loadable-manifest.json "$STANDALONE/.next/"
+cp -f .next/app-build-manifest.json "$STANDALONE/.next/"
+cp -f .next/app-path-routes-manifest.json "$STANDALONE/.next/"
 
 # Step 4: Copy public directory
 echo "[4/5] Copying public directory..."
-rm -rf "$STANDALONE/public"
-cp -r public "$STANDALONE/"
+rsync -a --delete public/ "$STANDALONE/public/"
 
 # Step 5: Restart PM2
 echo "[5/5] Restarting PM2..."
-su - admin -c "pm2 restart frontend"
+pm2 restart frontend || su - admin -c "pm2 restart frontend"
 
 echo "=== Deployment Complete ==="
 echo "Frontend: https://khanfate.com"

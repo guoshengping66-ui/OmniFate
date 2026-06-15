@@ -3256,6 +3256,7 @@
     "risk": "风险承受",
     "intuition": "直觉力",
     "spirit": "灵性",
+    "spiritual": "精神",
     "growth": "成长力"
   },
   "reviews": {
@@ -3731,5 +3732,21 @@
       "subtitle": "加入数千名通过 AI 行为分析获得数据驱动自我认知的用户。",
       "cta": "开始免费分析"
     }
+  },
+  "fiveDim": {
+    "badge": "五维合参",
+    "title": "你的专属五维能量图谱",
+    "desc": "五大维度交叉验证，全面洞察你的行为模式与内在特质",
+    "wealthDesc": "洞察财务行为模式与资源分配倾向",
+    "relationshipDesc": "解读人际互动中的情感流动与连接方式",
+    "careerDesc": "分析决策风格与职业发展路径",
+    "healthDesc": "评估身心能量状态与生活习惯影响",
+    "spiritualDesc": "探索内在驱动力与心理韧性来源"
+  },
+  "lifestyle": {
+    "badge": "甄选好物",
+    "title": "热门生活方式好物",
+    "desc": "根据分析数据，为你精选提升生活品质的工具",
+    "viewAll": "探索更多"
   }
 }
