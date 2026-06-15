@@ -35,53 +35,185 @@ settings = get_settings()
 # ─── LLM factory ──────────────────────────────────────────────────────────
 
 _JSON_OUTPUT_INSTRUCTION = (
-    "\n\n== CRITICAL: OUTPUT FORMAT ==\n"
+    "\n\n== CRITICAL: OUTPUT FORMAT (结构化元数据版) ==\n"
     "你必须以严格的JSON格式输出分析结果，不要输出任何其他文本。\n"
     "所有文字值必须使用纯中文，不要中英文混杂。\n"
+    "使用现代行为心理学和量化黑话，禁止出现任何玄学术语（如官杀、桃花、驿马等）。\n"
     "```json\n"
     '{\n'
-    '  "summary": "200字核心结论，概括命格特质和关键发现",\n'
+    '  "summary": "50字核心结论（用互联网黑话包装，如：能量场、阻尼点、破局点）",\n'
     '  "dimensions": {\n'
-    '    "wealth": "80-120字财运分析",\n'
-    '    "relationship": "80-120字感情分析",\n'
-    '    "career": "80-120字事业分析",\n'
-    '    "health": "80-120字健康分析",\n'
-    '    "spiritual": "80-120字精神/灵性分析"\n'
+    '    "wealth": {\n'
+    '      "score": 7.5,\n'
+    '      "label": "财富能级",\n'
+    '      "conflictBalance": {\n'
+    '        "left": { "tag": "倾向A描述", "weight": 45 },\n'
+    '        "right": { "tag": "倾向B描述", "weight": 55 },\n'
+    '        "conflictPoint": "核心冲突对撞点描述"\n'
+    '      },\n'
+    '      "negativeTags": ["负面阻尼点1", "负面阻尼点2"],\n'
+    '      "positiveTags": ["破局能量点1", "破局能量点2"],\n'
+    '      "actionCommands": [\n'
+    '        { "period": "短期（1-3个月）", "command": "具体行动指令" },\n'
+    '        { "period": "中期（半年）", "command": "具体行动指令" }\n'
+    '      ]\n'
+    '    },\n'
+    '    "relationship": {\n'
+    '      "score": 6.2,\n'
+    '      "label": "感情能级",\n'
+    '      "energyBars": [\n'
+    '        { "label": "责任担当能级", "value": 8.8, "status": "过度代偿", "statusType": "warning" },\n'
+    '        { "label": "情绪滋养能级", "value": 3.2, "status": "极度干涸", "statusType": "critical" }\n'
+    '      ],\n'
+    '      "interactionMirror": {\n'
+    '        "behaviorPattern": "隐性行为模式描述",\n'
+    '        "painReflection": "痛点折射描述"\n'
+    '      },\n'
+    '      "resolution": "一句话高优先解决方案"\n'
+    '    },\n'
+    '    "career": {\n'
+    '      "score": 7.0,\n'
+    '      "label": "事业能级",\n'
+    '      "conflictBalance": {\n'
+    '        "left": { "tag": "倾向A描述", "weight": 45 },\n'
+    '        "right": { "tag": "倾向B描述", "weight": 55 },\n'
+    '        "conflictPoint": "核心冲突对撞点描述"\n'
+    '      },\n'
+    '      "negativeTags": ["负面阻尼点1", "负面阻尼点2"],\n'
+    '      "positiveTags": ["破局能量点1", "破局能量点2"],\n'
+    '      "actionCommands": [\n'
+    '        { "period": "短期（1-3个月）", "command": "具体行动指令" },\n'
+    '        { "period": "中期（半年）", "command": "具体行动指令" }\n'
+    '      ]\n'
+    '    },\n'
+    '    "health": {\n'
+    '      "score": 6.8,\n'
+    '      "label": "健康能级",\n'
+    '      "radarChart": {\n'
+    '        "physicalHardware": { "value": 8.5, "label": "体质能扛度" },\n'
+    '        "mentalSoftware": { "value": 9.5, "label": "神经紧绷度", "riskLevel": "极高风险" },\n'
+    '        "conclusion": "核心结论（身体代偿机制描述）"\n'
+    '      }\n'
+    '    },\n'
+    '    "spiritual": {\n'
+    '      "score": 5.5,\n'
+    '      "label": "精神能级",\n'
+    '      "creativeFilter": {\n'
+    '        "mechanism": "创造力审查机制描述"\n'
+    '      },\n'
+    '      "resetActions": [\n'
+    '        "执行动作1描述",\n'
+    '        "执行动作2描述"\n'
+    '      ]\n'
+    '    }\n'
     '  },\n'
     '  "key_findings": ["发现1(含置信度)", "发现2", "发现3"],\n'
-    '  "weakness_tags": ["#缺火", "#官杀混杂"],\n'
-    '  "strength_tags": ["#领导力强"],\n'
+    '  "weakness_tags": ["#标签1", "#标签2"],\n'
+    '  "strength_tags": ["#标签1", "#标签2"],\n'
     '  "boost_elements": ["火", "水"],\n'
     '  "conflict_warnings": ["矛盾信号1"]\n'
     '}\n'
     "```\n"
-    "规则：summary必填；dimensions中无数据的维度填空字符串""；key_findings 3-5条。\n"
-    "注意：boost_elements必须使用中文五行名称（火、水、木、金、土），不要使用英文。\n"
+    "规则：\n"
+    "1. summary必填，50字以内，用互联网黑话包装\n"
+    "2. dimensions中每个维度必须包含score（1-10分）和label\n"
+    "3. 财富/事业维度：必须包含conflictBalance、negativeTags、positiveTags、actionCommands\n"
+    "4. 感情维度：必须包含energyBars、interactionMirror、resolution\n"
+    "5. 健康维度：必须包含radarChart\n"
+    "6. 精神维度：必须包含creativeFilter、resetActions\n"
+    "7. 所有描述禁止使用玄学术语，必须转化为现代行为心理学语言\n"
+    "8. boost_elements必须使用中文五行名称（火、水、木、金、土）\n"
 )
 
 _JSON_OUTPUT_INSTRUCTION_EN = (
-    "\n\n== CRITICAL: OUTPUT FORMAT ==\n"
+    "\n\n== CRITICAL: OUTPUT FORMAT (Structured Metadata) ==\n"
     "You MUST output the analysis in strict JSON format. Do NOT output any other text.\n"
     "ALL text values MUST be in English. Do NOT mix Chinese and English.\n"
+    "Use modern behavioral psychology and internet jargon. NO mystical/metaphysical terms.\n"
     "```json\n"
     '{\n'
-    '  "summary": "200-word core conclusion summarizing chart traits and key findings",\n'
+    '  "summary": "50-word core conclusion (use internet jargon like: energy field, friction point, breakthrough)",\n'
     '  "dimensions": {\n'
-    '    "wealth": "80-120 word wealth analysis",\n'
-    '    "relationship": "80-120 word love/relationship analysis",\n'
-    '    "career": "80-120 word career analysis",\n'
-    '    "health": "80-120 word health analysis",\n'
-    '    "spiritual": "80-120 word spiritual analysis"\n'
+    '    "wealth": {\n'
+    '      "score": 7.5,\n'
+    '      "label": "Wealth Energy Level",\n'
+    '      "conflictBalance": {\n'
+    '        "left": { "tag": "Tendency A description", "weight": 45 },\n'
+    '        "right": { "tag": "Tendency B description", "weight": 55 },\n'
+    '        "conflictPoint": "Core conflict collision point"\n'
+    '      },\n'
+    '      "negativeTags": ["Friction point 1", "Friction point 2"],\n'
+    '      "positiveTags": ["Breakthrough energy 1", "Breakthrough energy 2"],\n'
+    '      "actionCommands": [\n'
+    '        { "period": "Short-term (1-3 months)", "command": "Specific action command" },\n'
+    '        { "period": "Mid-term (6 months)", "command": "Specific action command" }\n'
+    '      ]\n'
+    '    },\n'
+    '    "relationship": {\n'
+    '      "score": 6.2,\n'
+    '      "label": "Relationship Energy Level",\n'
+    '      "energyBars": [\n'
+    '        { "label": "Responsibility Energy", "value": 8.8, "status": "Over-compensating", "statusType": "warning" },\n'
+    '        { "label": "Emotional Nourishment", "value": 3.2, "status": "Severely Depleted", "statusType": "critical" }\n'
+    '      ],\n'
+    '      "interactionMirror": {\n'
+    '        "behaviorPattern": "Hidden behavior pattern description",\n'
+    '        "painReflection": "Pain point reflection description"\n'
+    '      },\n'
+    '      "resolution": "One-sentence high-priority solution"\n'
+    '    },\n'
+    '    "career": {\n'
+    '      "score": 7.0,\n'
+    '      "label": "Career Energy Level",\n'
+    '      "conflictBalance": {\n'
+    '        "left": { "tag": "Tendency A description", "weight": 45 },\n'
+    '        "right": { "tag": "Tendency B description", "weight": 55 },\n'
+    '        "conflictPoint": "Core conflict collision point"\n'
+    '      },\n'
+    '      "negativeTags": ["Friction point 1", "Friction point 2"],\n'
+    '      "positiveTags": ["Breakthrough energy 1", "Breakthrough energy 2"],\n'
+    '      "actionCommands": [\n'
+    '        { "period": "Short-term (1-3 months)", "command": "Specific action command" },\n'
+    '        { "period": "Mid-term (6 months)", "command": "Specific action command" }\n'
+    '      ]\n'
+    '    },\n'
+    '    "health": {\n'
+    '      "score": 6.8,\n'
+    '      "label": "Health Energy Level",\n'
+    '      "radarChart": {\n'
+    '        "physicalHardware": { "value": 8.5, "label": "Physical Resilience" },\n'
+    '        "mentalSoftware": { "value": 9.5, "label": "Mental Tension", "riskLevel": "High Risk" },\n'
+    '        "conclusion": "Core conclusion (body compensation mechanism)"\n'
+    '      }\n'
+    '    },\n'
+    '    "spiritual": {\n'
+    '      "score": 5.5,\n'
+    '      "label": "Spiritual Energy Level",\n'
+    '      "creativeFilter": {\n'
+    '        "mechanism": "Creative filter mechanism description"\n'
+    '      },\n'
+    '      "resetActions": [\n'
+    '        "Action 1 description",\n'
+    '        "Action 2 description"\n'
+    '      ]\n'
+    '    }\n'
     '  },\n'
     '  "key_findings": ["finding 1 (with confidence)", "finding 2", "finding 3"],\n'
-    '  "weakness_tags": ["#weakness1", "#weakness2"],\n'
-    '  "strength_tags": ["#strength1"],\n'
+    '  "weakness_tags": ["#tag1", "#tag2"],\n'
+    '  "strength_tags": ["#tag1", "#tag2"],\n'
     '  "boost_elements": ["fire", "water"],\n'
     '  "conflict_warnings": ["conflict signal 1"]\n'
     '}\n'
     "```\n"
-    "Rules: summary is required; leave empty string for dimensions without data; 3-5 key_findings.\n"
-    "IMPORTANT: ALL text values in the JSON MUST be in English. Do NOT mix languages.\n"
+    "Rules:\n"
+    "1. summary required, max 50 words, use internet jargon\n"
+    "2. Each dimension must include score (1-10) and label\n"
+    "3. Wealth/Career: must include conflictBalance, negativeTags, positiveTags, actionCommands\n"
+    "4. Relationship: must include energyBars, interactionMirror, resolution\n"
+    "5. Health: must include radarChart\n"
+    "6. Spiritual: must include creativeFilter, resetActions\n"
+    "7. NO mystical terms - use modern behavioral psychology language\n"
+    "8. ALL text values in the JSON MUST be in English. Do NOT mix languages.\n"
 )
 
 
@@ -93,55 +225,167 @@ def _get_json_instruction(language: str = "zh", is_premium: bool = False) -> str
     return _JSON_OUTPUT_INSTRUCTION_COMPACT_EN if language == "en" else _JSON_OUTPUT_INSTRUCTION_COMPACT
 
 
-# Compact JSON format for free users: reduces output tokens by ~40%
+# Compact JSON format for free users: 结构化元数据精简版
 _JSON_OUTPUT_INSTRUCTION_COMPACT = (
-    "\n\n== CRITICAL: OUTPUT FORMAT ==\n"
+    "\n\n== CRITICAL: OUTPUT FORMAT (结构化精简版) ==\n"
     "你必须以严格的JSON格式输出分析结果，不要输出任何其他文本。\n"
     "所有文字值必须使用纯中文，不要中英文混杂。\n"
+    "使用现代行为心理学和量化黑话，禁止出现任何玄学术语。\n"
     "```json\n"
     '{\n'
-    '  "summary": "150字核心结论，概括命格特质和关键发现",\n'
+    '  "summary": "50字核心结论（互联网黑话包装）",\n'
     '  "dimensions": {\n'
-    '    "wealth": "100字财运分析",\n'
-    '    "relationship": "100字感情分析",\n'
-    '    "career": "100字事业分析",\n'
-    '    "health": "100字健康分析",\n'
-    '    "spiritual": "100字精神/灵性分析"\n'
+    '    "wealth": {\n'
+    '      "score": 7.5,\n'
+    '      "label": "财富能级",\n'
+    '      "conflictBalance": {\n'
+    '        "left": { "tag": "倾向A", "weight": 45 },\n'
+    '        "right": { "tag": "倾向B", "weight": 55 },\n'
+    '        "conflictPoint": "核心冲突点"\n'
+    '      },\n'
+    '      "negativeTags": ["阻尼点1", "阻尼点2"],\n'
+    '      "positiveTags": ["破局点1", "破局点2"],\n'
+    '      "actionCommands": [\n'
+    '        { "period": "短期", "command": "行动指令" },\n'
+    '        { "period": "中期", "command": "行动指令" }\n'
+    '      ]\n'
+    '    },\n'
+    '    "relationship": {\n'
+    '      "score": 6.2,\n'
+    '      "label": "感情能级",\n'
+    '      "energyBars": [\n'
+    '        { "label": "责任担当", "value": 8.8, "status": "过度代偿", "statusType": "warning" },\n'
+    '        { "label": "情绪滋养", "value": 3.2, "status": "极度干涸", "statusType": "critical" }\n'
+    '      ],\n'
+    '      "interactionMirror": {\n'
+    '        "behaviorPattern": "行为模式",\n'
+    '        "painReflection": "痛点折射"\n'
+    '      },\n'
+    '      "resolution": "解决方案"\n'
+    '    },\n'
+    '    "career": {\n'
+    '      "score": 7.0,\n'
+    '      "label": "事业能级",\n'
+    '      "conflictBalance": {\n'
+    '        "left": { "tag": "倾向A", "weight": 45 },\n'
+    '        "right": { "tag": "倾向B", "weight": 55 },\n'
+    '        "conflictPoint": "核心冲突点"\n'
+    '      },\n'
+    '      "negativeTags": ["阻尼点1", "阻尼点2"],\n'
+    '      "positiveTags": ["破局点1", "破局点2"],\n'
+    '      "actionCommands": [\n'
+    '        { "period": "短期", "command": "行动指令" },\n'
+    '        { "period": "中期", "command": "行动指令" }\n'
+    '      ]\n'
+    '    },\n'
+    '    "health": {\n'
+    '      "score": 6.8,\n'
+    '      "label": "健康能级",\n'
+    '      "radarChart": {\n'
+    '        "physicalHardware": { "value": 8.5, "label": "体质能扛度" },\n'
+    '        "mentalSoftware": { "value": 9.5, "label": "神经紧绷度", "riskLevel": "极高风险" },\n'
+    '        "conclusion": "核心结论"\n'
+    '      }\n'
+    '    },\n'
+    '    "spiritual": {\n'
+    '      "score": 5.5,\n'
+    '      "label": "精神能级",\n'
+    '      "creativeFilter": {\n'
+    '        "mechanism": "创造力审查机制"\n'
+    '      },\n'
+    '      "resetActions": ["动作1", "动作2"]\n'
+    '    }\n'
     '  },\n'
-    '  "key_findings": ["发现1(含置信度)", "发现2", "发现3"],\n'
-    '  "weakness_tags": ["#缺火", "#官杀混杂"],\n'
-    '  "strength_tags": ["#领导力强"],\n'
+    '  "key_findings": ["发现1", "发现2", "发现3"],\n'
+    '  "weakness_tags": ["#标签1", "#标签2"],\n'
+    '  "strength_tags": ["#标签1", "#标签2"],\n'
     '  "boost_elements": ["火", "水"],\n'
-    '  "conflict_warnings": ["矛盾信号1"]\n'
+    '  "conflict_warnings": ["矛盾信号"]\n'
     '}\n'
     "```\n"
-    "规则：summary必填；dimensions五个维度都要输出，每个100字左右；"
-    "key_findings 3-5条；boost_elements必须使用中文五行名称。\n"
+    "规则：summary必填（50字内）；五个维度都要输出，每个维度必须包含score和label；"
+    "key_findings 3-5条；禁止玄学术语，使用互联网黑话。\n"
 )
 
 _JSON_OUTPUT_INSTRUCTION_COMPACT_EN = (
-    "\n\n== CRITICAL: OUTPUT FORMAT ==\n"
+    "\n\n== CRITICAL: OUTPUT FORMAT (Structured Compact) ==\n"
     "You MUST output the analysis in strict JSON format. Do NOT output any other text.\n"
     "ALL text values MUST be in English. Do NOT mix Chinese and English.\n"
+    "Use modern behavioral psychology and internet jargon. NO mystical terms.\n"
     "```json\n"
     '{\n'
-    '  "summary": "150-word core conclusion summarizing chart traits and key findings",\n'
+    '  "summary": "50-word core conclusion (internet jargon)",\n'
     '  "dimensions": {\n'
-    '    "wealth": "100-word wealth analysis",\n'
-    '    "relationship": "100-word love/relationship analysis",\n'
-    '    "career": "100-word career analysis",\n'
-    '    "health": "100-word health analysis",\n'
-    '    "spiritual": "100-word spiritual/inner growth analysis"\n'
+    '    "wealth": {\n'
+    '      "score": 7.5,\n'
+    '      "label": "Wealth Energy Level",\n'
+    '      "conflictBalance": {\n'
+    '        "left": { "tag": "Tendency A", "weight": 45 },\n'
+    '        "right": { "tag": "Tendency B", "weight": 55 },\n'
+    '        "conflictPoint": "Core conflict point"\n'
+    '      },\n'
+    '      "negativeTags": ["Friction 1", "Friction 2"],\n'
+    '      "positiveTags": ["Breakthrough 1", "Breakthrough 2"],\n'
+    '      "actionCommands": [\n'
+    '        { "period": "Short-term", "command": "Action command" },\n'
+    '        { "period": "Mid-term", "command": "Action command" }\n'
+    '      ]\n'
+    '    },\n'
+    '    "relationship": {\n'
+    '      "score": 6.2,\n'
+    '      "label": "Relationship Energy Level",\n'
+    '      "energyBars": [\n'
+    '        { "label": "Responsibility", "value": 8.8, "status": "Over-compensating", "statusType": "warning" },\n'
+    '        { "label": "Emotional Nourishment", "value": 3.2, "status": "Depleted", "statusType": "critical" }\n'
+    '      ],\n'
+    '      "interactionMirror": {\n'
+    '        "behaviorPattern": "Behavior pattern",\n'
+    '        "painReflection": "Pain reflection"\n'
+    '      },\n'
+    '      "resolution": "Solution"\n'
+    '    },\n'
+    '    "career": {\n'
+    '      "score": 7.0,\n'
+    '      "label": "Career Energy Level",\n'
+    '      "conflictBalance": {\n'
+    '        "left": { "tag": "Tendency A", "weight": 45 },\n'
+    '        "right": { "tag": "Tendency B", "weight": 55 },\n'
+    '        "conflictPoint": "Core conflict point"\n'
+    '      },\n'
+    '      "negativeTags": ["Friction 1", "Friction 2"],\n'
+    '      "positiveTags": ["Breakthrough 1", "Breakthrough 2"],\n'
+    '      "actionCommands": [\n'
+    '        { "period": "Short-term", "command": "Action command" },\n'
+    '        { "period": "Mid-term", "command": "Action command" }\n'
+    '      ]\n'
+    '    },\n'
+    '    "health": {\n'
+    '      "score": 6.8,\n'
+    '      "label": "Health Energy Level",\n'
+    '      "radarChart": {\n'
+    '        "physicalHardware": { "value": 8.5, "label": "Physical Resilience" },\n'
+    '        "mentalSoftware": { "value": 9.5, "label": "Mental Tension", "riskLevel": "High Risk" },\n'
+    '        "conclusion": "Core conclusion"\n'
+    '      }\n'
+    '    },\n'
+    '    "spiritual": {\n'
+    '      "score": 5.5,\n'
+    '      "label": "Spiritual Energy Level",\n'
+    '      "creativeFilter": {\n'
+    '        "mechanism": "Creative filter mechanism"\n'
+    '      },\n'
+    '      "resetActions": ["Action 1", "Action 2"]\n'
+    '    }\n'
     '  },\n'
-    '  "key_findings": ["finding 1 (with confidence)", "finding 2", "finding 3"],\n'
-    '  "weakness_tags": ["#weakness1", "#weakness2"],\n'
-    '  "strength_tags": ["#strength1"],\n'
+    '  "key_findings": ["finding 1", "finding 2", "finding 3"],\n'
+    '  "weakness_tags": ["#tag1", "#tag2"],\n'
+    '  "strength_tags": ["#tag1", "#tag2"],\n'
     '  "boost_elements": ["fire", "water"],\n'
-    '  "conflict_warnings": ["conflict signal 1"]\n'
+    '  "conflict_warnings": ["conflict signal"]\n'
     '}\n'
     "```\n"
-    "Rules: summary required; all 5 dimensions must be included; "
-    "3-5 key_findings; ALL text values in English.\n"
+    "Rules: summary required (max 50 words); all 5 dimensions with score and label; "
+    "3-5 key_findings; NO mystical terms - use internet jargon; ALL text in English.\n"
 )
 
 

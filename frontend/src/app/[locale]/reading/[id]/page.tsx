@@ -27,6 +27,25 @@ import { ReadingSkeleton } from "@/components/reading/ReadingSkeleton"
 import { TagBadge } from "@/components/ui/TagBadge"
 import { useRegion } from "@/hooks/useRegion"
 import { getProductPrice } from "@/lib/regionPrice"
+import type { StructuredReport } from "@/types/report"
+
+/**
+ * 检测内容是否为结构化JSON格式
+ */
+function parseStructuredContent(content: string): StructuredReport | null {
+  if (!content) return null
+  let jsonStr = content
+  const jsonMatch = content.match(/```json\s*([\s\S]*?)```/)
+  if (jsonMatch) jsonStr = jsonMatch[1]
+  try {
+    const parsed = JSON.parse(jsonStr)
+    if (parsed.summary && parsed.dimensions && typeof parsed.dimensions === "object" &&
+        (parsed.dimensions.wealth || parsed.dimensions.relationship || parsed.dimensions.health)) {
+      return parsed as StructuredReport
+    }
+  } catch { /* not JSON */ }
+  return null
+}
 
 // Lazy-loaded heavy/conditional components (reduces initial bundle ~150KB)
 const ProductCard = lazy(() => import("@/components/reading/ProductCard").then(m => ({ default: m.ProductCard })))
@@ -41,6 +60,7 @@ const PrescriptionCard = lazy(() => import("@/components/reading/PrescriptionCar
 const EnergyIDCard = lazy(() => import("@/components/reading/EnergyIDCard").then(m => ({ default: m.EnergyIDCard })))
 const FortunePrescription = lazy(() => import("@/components/reading/FortunePrescription").then(m => ({ default: m.FortunePrescription })))
 const PostAnalysisModal = lazy(() => import("@/components/reading/PostAnalysisModal").then(m => ({ default: m.PostAnalysisModal })))
+const StructuredReportComponent = lazy(() => import("@/components/reading/StructuredReport").then(m => ({ default: m.StructuredReport })))
 
 const WORKER_ORDER = ["bazi", "qimen", "ziwei", "astrology", "tarot", "face", "palm"] as const
 
@@ -897,10 +917,24 @@ export default function ReadingPage() {
           const summary = data.master_summary || ""
           const parsed = parseFreeReportSections(summary)
 
+          // 检测是否为结构化JSON格式
+          const structuredData = parseStructuredContent(summary)
+          const isStructured = structuredData !== null
+
           return (
           <div className="space-y-6">
             {/* ── 1. Core Summary (Section A) ── */}
-            {(parsed.sectionA || summary) && (
+            {isStructured && structuredData ? (
+              // 结构化报告渲染
+              <Suspense fallback={
+                <div className="card-glass p-6 md:p-8 flex items-center justify-center">
+                  <Loader2 size={24} className="text-gold animate-spin" />
+                </div>
+              }>
+                <StructuredReportComponent data={structuredData} />
+              </Suspense>
+            ) : (parsed.sectionA || summary) && (
+            // 传统文本渲染
             <div className="card-glass p-6 md:p-8 group hover:border-white/[0.15] transition-all duration-500">
               <div className="flex items-center gap-2.5 mb-5">
                 <div className="w-10 h-10 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center">
@@ -923,8 +957,8 @@ export default function ReadingPage() {
             </div>
             )}
 
-            {/* ── 1b. Quick Insights (三句话速览) ── */}
-            {(() => {
+            {/* ── 1b. Quick Insights (三句话速览) — 结构化模式下跳过 ── */}
+            {!isStructured && (() => {
               const insights = quickInsights
               if (insights.length === 0) return null
               const icons = ["🔥", "💎", "⏰"]
@@ -966,8 +1000,8 @@ export default function ReadingPage() {
               </div>
             )}
 
-            {/* ── 3. Pain Points (Section B) with consequence warnings ── */}
-            {parsed.sectionB && !isUnlocked && (
+            {/* ── 3. Pain Points (Section B) — 结构化模式下跳过 ── */}
+            {!isStructured && parsed.sectionB && !isUnlocked && (
             <div className="card-glass p-6 md:p-8 border-l-2 border-l-amber-400/40 hover:border-l-amber-400/60 transition-all duration-500">
               <div className="flex items-center gap-2.5 mb-4">
                 <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-400/20 flex items-center justify-center">
@@ -1007,8 +1041,8 @@ export default function ReadingPage() {
             </div>
             )}
 
-            {/* ── 4. Key Reminders (Section D) with time urgency ── */}
-            {parsed.sectionD && !isUnlocked && (
+            {/* ── 4. Key Reminders (Section D) — 结构化模式下跳过 ── */}
+            {!isStructured && parsed.sectionD && !isUnlocked && (
             <div className="card-glass p-5 md:p-6 border-l-2 border-l-cyan-400/40 bg-gradient-to-r from-cyan-500/[0.04] to-transparent">
               <div className="flex items-start gap-3">
                 <span className="text-xl flex-shrink-0">⏰</span>
