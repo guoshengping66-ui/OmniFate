@@ -79,8 +79,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       if (targetLocale === locale) return
       const currentPath = window.location.pathname
       const stripped = currentPath.replace(/^\/(en|zh)(\/|$)/, "/")
-      const targetPath = `/${targetLocale}${stripped.startsWith("/") ? stripped : `/${stripped}`}`
-      // Prefetch the target page
+      // next-intl router auto-prefixes locale, so pass path WITHOUT locale
+      const targetPath = stripped.startsWith("/") ? stripped : `/${stripped}`
       router.prefetch(targetPath)
     },
     [locale, router],
