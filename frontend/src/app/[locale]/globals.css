@@ -16,11 +16,11 @@
 @layer base {
   :root {
     --gold: #C9A84C;
-    --ink: #1A0F2E;
+    --ink: #080808;
   }
   body {
     @apply bg-ink text-white font-sans leading-relaxed;
-    background: linear-gradient(180deg, #1e1233 0%, #1A0F2E 30%, #150c24 100%);
+    background: #080808;
     min-height: 100vh;
   }
   h1,h2,h3 { @apply font-serif; }
