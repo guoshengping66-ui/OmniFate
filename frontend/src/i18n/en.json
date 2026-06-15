@@ -1041,12 +1041,21 @@
       "_label": "Four-Pillar (Four Pillars of Behavioral)"
     },
     "bazi": {
+      "desc": "Four Pillar Chart · Element Balance · Dynamic Analysis",
+      "detail": "Rooted in classical analytical traditions, we map your behavioral patterns and developmental cycles through the Four Pillars.",
+      "tag": "Wood",
       "_label": "Four-Pillar Analysis"
     },
     "astrology": {
+      "desc": "Planetary Houses · Aspects · Inner Mission",
+      "detail": "We map your Sun-Moon-Rising triangle to uncover the shape of your inner's journey.",
+      "tag": "Fire",
       "_label": "Star Chart Analysis"
     },
     "tarot": {
+      "desc": "Celtic Cross · Current Data · Action Guidance",
+      "detail": "Every reading is unique — AI generates real-time spreads and reflective guidance.",
+      "tag": "Earth",
       "_label": "Symbolic Card Analysis"
     },
     "face": {
@@ -2183,6 +2192,12 @@
       "behavioral patternDesc": "Analyzing planetary aspects…",
       "four-pillar": "Four-Pillar",
       "four-pillarDesc": "Calculating Four Pillars…",
+      "bazi": "Four-Pillar",
+      "baziDesc": "Calculating Four Pillars…",
+      "astrology": "Star Chart",
+      "astrologyDesc": "Analyzing planetary aspects…",
+      "tarot": "Symbolic",
+      "tarotDesc": "Drawing behavioral cards…",
       "face": "AI Facial Feature",
       "faceDesc": "Identifying facial features…",
       "palm": "Palm Reading",
