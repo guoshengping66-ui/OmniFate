@@ -32,7 +32,8 @@ PRODUCTS_EN_PATH = Path(__file__).parent.parent.parent / "data" / "products_en.j
 
 
 # ── Cached product loader (avoids re-reading JSON on every request) ────────
-_product_cache: dict[str, tuple[float, list[dict]]] = {}
+from collections import OrderedDict
+_product_cache: OrderedDict[str, tuple[float, list[dict]]] = OrderedDict()
 _PRODUCT_CACHE_TTL = 300  # 5 minutes
 
 
@@ -49,10 +50,11 @@ def _load_products(lang: str = "zh") -> list[dict]:
     now = time.time()
     cache_key = lang
 
-    # Return cached if fresh
+    # Return cached if fresh (move to end for LRU)
     if cache_key in _product_cache:
         ts, cached = _product_cache[cache_key]
         if now - ts < _PRODUCT_CACHE_TTL:
+            _product_cache.move_to_end(cache_key)
             return cached
 
     try:
@@ -97,12 +99,12 @@ def _load_products(lang: str = "zh") -> list[dict]:
         except (FileNotFoundError, json.JSONDecodeError):
             pass
 
-    # Cache the result
+    # Cache the result (LRU: move to end)
     _product_cache[cache_key] = (now, products)
-    # Evict old entries
-    if len(_product_cache) > 10:
-        oldest = min(_product_cache, key=lambda k: _product_cache[k][0])
-        del _product_cache[oldest]
+    _product_cache.move_to_end(cache_key)
+    # Evict oldest entries if over capacity
+    while len(_product_cache) > 10:
+        _product_cache.popitem(last=False)
 
     return products
 

@@ -72,6 +72,13 @@ def _check_memory(key: str, limit: int, window: int) -> bool:
             del _memory_store[k]
         _last_cleanup = now
 
+    # Hard limit: evict oldest keys if still over capacity
+    if len(_memory_store) >= _MEMORY_MAX_ENTRIES:
+        to_evict = len(_memory_store) - _MEMORY_MAX_ENTRIES + 100
+        oldest_keys = sorted(_memory_store, key=lambda k: _memory_store[k][-1] if _memory_store[k] else 0)[:to_evict]
+        for k in oldest_keys:
+            _memory_store.pop(k, None)
+
     # Clean old entries for this key
     _memory_store[key] = [t for t in _memory_store[key] if t > now - window]
     if len(_memory_store[key]) >= limit:

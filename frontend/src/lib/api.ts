@@ -32,7 +32,7 @@ const CRITICAL_PATHS = [
 ]
 
 function _isCriticalPath(url: string): boolean {
-  return CRITICAL_PATHS.some(p => url.includes(p))
+  return CRITICAL_PATHS.some(p => url.startsWith(p) || url.includes(p + "?") || url.includes(p + "/"))
 }
 
 function _getCooldownRemaining(): number {

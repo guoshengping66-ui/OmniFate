@@ -13,7 +13,10 @@ import json
 import time
 from typing import Optional
 
-import redis.asyncio as aioredis
+try:
+    import redis.asyncio as aioredis
+except ImportError:
+    aioredis = None  # type: ignore
 
 from config import get_settings
 
@@ -39,6 +42,9 @@ async def _get_session_redis():
     if _session_redis is not None:
         return _session_redis
     settings = get_settings()
+    if aioredis is None:
+        _session_redis_available = False
+        return None
     if not settings.REDIS_URL:
         _session_redis_available = False
         return None
