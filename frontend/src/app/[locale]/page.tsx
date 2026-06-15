@@ -6,18 +6,15 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import { useAuth } from "@/contexts/AuthContext"
 import { useUserStore } from "@/stores/useUserStore"
 
-// ── Lazy-loaded marketing page ─────────────────────────────────────────────
-const MarketingPage = dynamic(() => import("@/components/MarketingPage"), {
-  ssr: true,
-  loading: () => (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="flex flex-col items-center gap-4">
-        <div className="w-8 h-8 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
-        <p className="text-gold/50 text-sm font-serif tracking-wider">PROFILE MIRROR</p>
-      </div>
-    </div>
-  ),
-})
+// ── Lazy-loaded cinematic marketing page ─────────────────────────────────
+const CinematicHero = dynamic(() => import("@/components/destiny/CinematicHero"), { ssr: false })
+const Archetypes = dynamic(() => import("@/components/destiny/Archetypes"), { ssr: false })
+const SkillTree = dynamic(() => import("@/components/destiny/SkillTree"), { ssr: false })
+const Timeline = dynamic(() => import("@/components/destiny/Timeline"), { ssr: false })
+const DestinyEngines = dynamic(() => import("@/components/destiny/DestinyEngines"), { ssr: false })
+const ReportPreview = dynamic(() => import("@/components/destiny/ReportPreview"), { ssr: false })
+const CaseStudy = dynamic(() => import("@/components/destiny/CaseStudy"), { ssr: false })
+const FinalCTA = dynamic(() => import("@/components/destiny/FinalCTA"), { ssr: false })
 
 // ── Lazy-loaded below-the-fold sections ──────────────────────────
 const UserDashboard = dynamic(() => import("@/components/dashboard/UserDashboard").then(m => m.UserDashboard), {
@@ -105,5 +102,16 @@ export default function HomePage() {
     )
   }
 
-  return <MarketingPage />
+  return (
+    <div className="min-h-screen" style={{ background: "#080808" }}>
+      <CinematicHero />
+      <Archetypes />
+      <SkillTree />
+      <Timeline />
+      <DestinyEngines />
+      <ReportPreview />
+      <CaseStudy />
+      <FinalCTA />
+    </div>
+  )
 }
