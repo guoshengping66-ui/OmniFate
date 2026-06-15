@@ -2738,7 +2738,10 @@
     "title": "Today's Status",
     "todayLevel": "Today's Level",
     "wealth": "Wealth",
-    "weekdays": "Sun,Mon,Tue,Wed,Thu,Fri,Sat"
+    "weekdays": "Sun,Mon,Tue,Wed,Thu,Fri,Sat",
+    "opportunity": "Opportunity Window",
+    "transformation": "Transformation Phase",
+    "breakthrough": "Breakthrough Moment"
   },
   "behavioralRadar": {
     "career": "Career",
@@ -3423,7 +3426,14 @@
     "wellness": "Wellness",
     "tenGods": "Ten Gods",
     "title": "Your Personalized Reading",
-    "wealth": "Wealth"
+    "wealth": "Wealth",
+    "execution": "Execution",
+    "creativity": "Creativity",
+    "strategy": "Strategy",
+    "risk": "Risk Tolerance",
+    "intuition": "Intuition",
+    "spirit": "Spirit",
+    "growth": "Growth"
   },
   "reviews": {
     "badge": "Testimonials",

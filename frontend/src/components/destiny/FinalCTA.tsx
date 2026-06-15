@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 export default function FinalCTA() {
-  const { t, localeHref } = useLanguage()
+  const { t, locale, localeHref } = useLanguage()
   const containerRef = useRef<HTMLDivElement>(null)
   const [isVisible, setIsVisible] = useState(false)
   const [agreed, setAgreed] = useState(false)

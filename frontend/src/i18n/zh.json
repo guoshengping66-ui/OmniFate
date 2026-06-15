@@ -1546,7 +1546,10 @@
     "title": "今日状态",
     "todayLevel": "今日等级",
     "wealth": "财运",
-    "weekdays": "日,一,二,三,四,五,六"
+    "weekdays": "日,一,二,三,四,五,六",
+    "opportunity": "机遇窗口",
+    "transformation": "蜕变阶段",
+    "breakthrough": "突破时刻"
   },
   "fortuneGuide": {
     "daily": {
@@ -3246,7 +3249,14 @@
     "mindfulness": "心智",
     "tenGods": "十维",
     "title": "你的专属合参报告",
-    "wealth": "财运"
+    "wealth": "财运",
+    "execution": "执行力",
+    "creativity": "创造力",
+    "strategy": "策略力",
+    "risk": "风险承受",
+    "intuition": "直觉力",
+    "spirit": "灵性",
+    "growth": "成长力"
   },
   "reviews": {
     "badge": "来访者反馈",
