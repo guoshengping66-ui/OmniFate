@@ -145,9 +145,9 @@ async def apply_referral_code(
     if user.referred_by:
         raise HTTPException(status_code=400, detail="您已经使用过邀请码")
 
-    # 查找邀请人
+    # 查找邀请人 (lock row early to prevent TOCTOU race)
     referrer_result = await db.execute(
-        select(User).where(User.referral_code == req.code.upper())
+        select(User).where(User.referral_code == req.code.upper()).with_for_update()
     )
     referrer = referrer_result.scalar_one_or_none()
     if not referrer:
@@ -156,7 +156,7 @@ async def apply_referral_code(
     if referrer.id == user.id:
         raise HTTPException(status_code=400, detail="不能使用自己的邀请码")
 
-    # 检查邀请人数上限
+    # 检查邀请人数上限 (referrer row is already locked)
     ref_count_result = await db.execute(
         select(func.count(User.id)).where(User.referred_by == referrer.id)
     )
@@ -179,16 +179,12 @@ async def apply_referral_code(
     )
     db.add(tx_referred)
 
-    # 给邀请者加星尘
-    referrer_result2 = await db.execute(
-        select(User).where(User.id == referrer.id).with_for_update()
-    )
-    referrer_user = referrer_result2.scalar_one()
-    referrer_user.stardust_balance += REFERRAL_REWARD
+    # 给邀请者加星尘 (referrer already locked from earlier query)
+    referrer.stardust_balance += REFERRAL_REWARD
     tx_referrer = CreditTransaction(
-        user_id=referrer_user.id,
+        user_id=referrer.id,
         amount=REFERRAL_REWARD,
-        balance_after=referrer_user.stardust_balance,
+        balance_after=referrer.stardust_balance,
         reason="referral",
         reference_id=user.id,
         status="confirmed",

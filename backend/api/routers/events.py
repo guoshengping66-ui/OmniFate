@@ -229,8 +229,19 @@ async def energy_radar(
         await db.flush()
 
     # 4. 计算能量事件
+    birth_info = {}
+    if reading.birth_profile_id:
+        bp_result = await db.execute(
+            select(BirthProfile).where(BirthProfile.id == reading.birth_profile_id)
+        )
+        bp = bp_result.scalar_one_or_none()
+        if bp:
+            birth_info = {
+                "year": bp.birth_year, "month": bp.birth_month,
+                "day": bp.birth_day, "hour": bp.birth_hour,
+            }
     events = _calc_energy_events(
-        {},
+        birth_info,
         reading.astrology_raw or {},
     )
 

@@ -1,6 +1,7 @@
 ﻿"""database/session.py — 兼容 SQLite 开发模式 & PostgreSQL 生产模式"""
 import asyncio
 import os
+from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import StaticPool, NullPool
@@ -241,8 +242,7 @@ async def _migrate_readings_columns():
 
 async def get_db():
     if not await _check_db_available():
-        yield None
-        return
+        raise HTTPException(status_code=503, detail="Database temporarily unavailable")
     await _ensure_tables()
     async with AsyncSessionLocal() as session:
         try:

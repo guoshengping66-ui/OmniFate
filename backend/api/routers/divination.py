@@ -2,7 +2,7 @@
 import hashlib
 import random
 import uuid
-from datetime import datetime, timezone, date
+from datetime import datetime, timezone, date, time as dt_time, timedelta
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -360,7 +360,8 @@ async def today_status(
     result = await db.execute(
         select(func.count(DivinationRecord.id)).where(
             DivinationRecord.user_id == current_user.id,
-            func.date(DivinationRecord.created_at) == today,
+            DivinationRecord.created_at >= datetime.combine(today, dt_time.min, tzinfo=timezone.utc),
+            DivinationRecord.created_at < datetime.combine(today + timedelta(days=1), dt_time.min, tzinfo=timezone.utc),
         )
     )
     count = result.scalar() or 0
@@ -378,7 +379,8 @@ async def today_result(
     result = await db.execute(
         select(DivinationRecord).where(
             DivinationRecord.user_id == current_user.id,
-            func.date(DivinationRecord.created_at) == today,
+            DivinationRecord.created_at >= datetime.combine(today, dt_time.min, tzinfo=timezone.utc),
+            DivinationRecord.created_at < datetime.combine(today + timedelta(days=1), dt_time.min, tzinfo=timezone.utc),
         ).order_by(DivinationRecord.created_at.desc())
     )
     record = result.scalars().first()
@@ -425,7 +427,8 @@ async def draw(
     existing_result = await db.execute(
         select(DivinationRecord).where(
             DivinationRecord.user_id == current_user.id,
-            func.date(DivinationRecord.created_at) == today,
+            DivinationRecord.created_at >= datetime.combine(today, dt_time.min, tzinfo=timezone.utc),
+            DivinationRecord.created_at < datetime.combine(today + timedelta(days=1), dt_time.min, tzinfo=timezone.utc),
         ).order_by(DivinationRecord.created_at.desc())
     )
     existing = existing_result.scalars().first()
@@ -482,7 +485,8 @@ async def draw(
         today_count_result = await db.execute(
             select(func.count(DivinationRecord.id)).where(
                 DivinationRecord.user_id == current_user.id,
-                func.date(DivinationRecord.created_at) == today,
+                DivinationRecord.created_at >= datetime.combine(today, dt_time.min, tzinfo=timezone.utc),
+            DivinationRecord.created_at < datetime.combine(today + timedelta(days=1), dt_time.min, tzinfo=timezone.utc),
             )
         )
         today_count = today_count_result.scalar() or 0
@@ -592,7 +596,8 @@ async def share(
         select(func.count(DivinationRecord.id)).where(
             DivinationRecord.user_id == current_user.id,
             DivinationRecord.shared == True,
-            func.date(DivinationRecord.created_at) == today,
+            DivinationRecord.created_at >= datetime.combine(today, dt_time.min, tzinfo=timezone.utc),
+            DivinationRecord.created_at < datetime.combine(today + timedelta(days=1), dt_time.min, tzinfo=timezone.utc),
         )
     )
     already_shared_today = share_count_result.scalar() or 0

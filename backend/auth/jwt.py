@@ -107,15 +107,16 @@ async def verify_token(token: str) -> Optional[str]:
         jti = payload.get("jti")
         if jti and await is_token_blacklisted(jti):
             return None
-        # Check if all tokens for this user were invalidated (e.g., password reset)
-        from services.redis_client import _get_redis
-        r = await _get_redis()
-        if r:
-            reset_ts = await r.get(f"bl:pw_reset:{user_id}")
-            if reset_ts:
-                token_iat = payload.get("iat", 0)
-                if token_iat < int(reset_ts):
-                    return None
+        # Only check password-reset blacklist for refresh tokens (rare, avoids Redis I/O on every request)
+        if payload.get("type") == "refresh":
+            from services.redis_client import _get_redis
+            r = await _get_redis()
+            if r:
+                reset_ts = await r.get(f"bl:pw_reset:{user_id}")
+                if reset_ts:
+                    token_iat = payload.get("iat", 0)
+                    if token_iat < int(reset_ts):
+                        return None
         return user_id
     except JWTError:
         return None

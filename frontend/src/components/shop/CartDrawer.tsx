@@ -17,7 +17,7 @@ interface CartDrawerProps {
 
 export function CartDrawer({ open, onClose }: CartDrawerProps) {
   const { items, removeItem, updateQuantity, totalCny, totalWithDiscount, itemCount, isMember, symbol } = useCart()
-  const { t } = useLanguage()
+  const { t, localeHref } = useLanguage()
   const router = useRouter()
   const { region } = useRegion()
 
@@ -82,7 +82,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
             <div className="text-center py-12">
               <ShoppingBag size={48} className="text-white/10 mx-auto mb-4" />
               <p className="text-white/40 text-sm">{t("cart.empty")}</p>
-              <button onClick={() => { onClose(); router.push("/shop") }}
+              <button onClick={() => { onClose(); router.push(localeHref("/shop")) }}
                 className="text-gold text-sm mt-2 hover:underline">
                 {t("cart.goShop")}
               </button>
@@ -154,7 +154,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
             </div>
 
             <button
-              onClick={() => { onClose(); router.push("/checkout") }}
+              onClick={() => { onClose(); router.push(localeHref("/checkout")) }}
               className="btn-gold w-full py-3 flex items-center justify-center gap-2"
             >
               <ShoppingBag size={16} />

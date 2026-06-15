@@ -173,6 +173,17 @@ export default function NewReadingPage() {
   const [partnerPalmText, setPartnerPalmText] = useState<string>("")
   const [partnerPalmV2TError, setPartnerPalmV2TError] = useState(false)
   const [partnerPalmFeatures, setPartnerPalmFeatures] = useState<Record<string, string> | null>(null)
+
+  // Refs to track latest preview URLs for cleanup (avoids stale closure in unmount effect)
+  const facePreviewRef = useRef(facePreview)
+  facePreviewRef.current = facePreview
+  const palmPreviewRef = useRef(palmPreview)
+  palmPreviewRef.current = palmPreview
+  const partnerFacePreviewRef = useRef(partnerFacePreview)
+  partnerFacePreviewRef.current = partnerFacePreview
+  const partnerPalmPreviewRef = useRef(partnerPalmPreview)
+  partnerPalmPreviewRef.current = partnerPalmPreview
+
   // Other state
   const [tarotCards, setTarotCards]   = useState<{ position: string; card: string; reversed: boolean }[]>([])
   const [palmData, setPalmData]       = useState<Record<string, string>>({})
@@ -191,10 +202,10 @@ export default function NewReadingPage() {
   // Revoke blob URLs on unmount to prevent memory leak
   useEffect(() => {
     return () => {
-      if (facePreview) URL.revokeObjectURL(facePreview)
-      if (palmPreview) URL.revokeObjectURL(palmPreview)
-      if (partnerFacePreview) URL.revokeObjectURL(partnerFacePreview)
-      if (partnerPalmPreview) URL.revokeObjectURL(partnerPalmPreview)
+      if (facePreviewRef.current) URL.revokeObjectURL(facePreviewRef.current)
+      if (palmPreviewRef.current) URL.revokeObjectURL(palmPreviewRef.current)
+      if (partnerFacePreviewRef.current) URL.revokeObjectURL(partnerFacePreviewRef.current)
+      if (partnerPalmPreviewRef.current) URL.revokeObjectURL(partnerPalmPreviewRef.current)
       // Reset wizard store when leaving
       resetWizard()
     }

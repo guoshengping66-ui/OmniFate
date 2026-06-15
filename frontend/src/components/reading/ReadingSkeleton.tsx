@@ -16,7 +16,7 @@ const AGENT_KEYS = [
 ]
 
 export function ReadingSkeleton({ phase }: Props) {
-  const { t } = useLanguage()
+  const { t, localeHref } = useLanguage()
 
   if (phase === "error") {
     return (
@@ -26,7 +26,7 @@ export function ReadingSkeleton({ phase }: Props) {
         <p className="text-white/40 text-sm mb-6">
           {t("skeleton.error.desc")}
         </p>
-        <Link href="/reading/new" className="btn-gold inline-block">
+        <Link href={localeHref("/reading/new")} className="btn-gold inline-block">
           {t("skeleton.error.retry")}
         </Link>
       </div>
@@ -71,7 +71,7 @@ export function ReadingSkeleton({ phase }: Props) {
                   className="h-full rounded-full progress-animate"
                   style={{
                     background: `linear-gradient(90deg, ${agent.glow.replace("0.15", "0.6")}, ${agent.color.replace("border-l-", "")})`,
-                    width: `${40 + Math.random() * 50}%`,
+                    width: `${40 + ((i * 13) % 50)}%`,
                     animationDelay: `${i * 0.5}s`,
                   }}
                 />

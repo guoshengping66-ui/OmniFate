@@ -27,14 +27,7 @@ const LANG_KEY = "profile_mirror_lang"
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const locale = useLocale() as Locale
 
-  let tFn: ReturnType<typeof useTranslations>
-  try {
-    tFn = useTranslations()
-  } catch {
-    // If useTranslations() fails (e.g. messages not loaded yet),
-    // provide a fallback that returns the key
-    tFn = ((key: string) => key) as ReturnType<typeof useTranslations>
-  }
+  const tFn = useTranslations()
   const router = useRouter()
 
   // Wrap tFn in a ref so the `t` function identity is stable across renders.

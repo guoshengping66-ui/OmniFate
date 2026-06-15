@@ -17,6 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import get_db
 from database.models import User, CreditTransaction
+from jose import jwt
 from auth.jwt import (
     create_access_token, create_refresh_token, verify_token,
     hash_password, verify_password, blacklist_token, ALGORITHM,
@@ -632,23 +633,30 @@ async def logout(
     authorization: Optional[str] = Header(None),
 ):
     """Logout — blacklist both access and refresh tokens, then clear cookies."""
-    # Blacklist the access token (from Authorization header)
+    # Blacklist the access token (from Authorization header or cookie)
+    access_toks = []
     if authorization:
         access_tok = authorization.replace("Bearer ", "").strip()
         if access_tok:
-            try:
-                payload = jwt.decode(access_tok, settings.JWT_SECRET_KEY,
-                                    algorithms=[ALGORITHM], options={"verify_exp": False})
-                if payload.get("jti"):
-                    await blacklist_token(payload["jti"])
-            except Exception:
-                pass
+            access_toks.append(access_tok)
+    # Also try to extract from cookie
+    access_tok_from_cookie = request.cookies.get(ACCESS_TOKEN_COOKIE)
+    if access_tok_from_cookie:
+        access_toks.append(access_tok_from_cookie)
+
+    for access_tok in access_toks:
+        try:
+            payload = jwt.decode(access_tok, settings.JWT_SECRET_KEY,
+                                algorithms=[ALGORITHM], options={"verify_exp": False})
+            if payload.get("jti"):
+                await blacklist_token(payload["jti"])
+        except Exception:
+            pass
 
     # Blacklist the refresh token (from cookie or header)
     token = request.cookies.get("refresh_token")
     if not token and authorization:
         token = authorization.replace("Bearer ", "").strip()
-        # Only use as refresh token if it's actually a refresh token
         try:
             payload = jwt.decode(token, settings.JWT_SECRET_KEY,
                                 algorithms=[ALGORITHM], options={"verify_exp": False})
@@ -659,8 +667,7 @@ async def logout(
 
     if token:
         try:
-            from jose import jwt as _jwt
-            payload = _jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[ALGORITHM], options={"verify_exp": False})
+            payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[ALGORITHM], options={"verify_exp": False})
             if payload.get("type") == "refresh":
                 jti = payload.get("jti")
                 if jti:

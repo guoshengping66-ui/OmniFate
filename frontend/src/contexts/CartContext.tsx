@@ -44,19 +44,23 @@ const MEMBER_DISCOUNT = 0.88
 
 export function CartProvider({ children, isMember = false, region = "domestic" }: { children: ReactNode; isMember?: boolean; region?: Region }) {
   const [items, setItems] = useState<CartItem[]>([])
+  const [isLoaded, setIsLoaded] = useState(false)
 
-  // Load from localStorage
+  // Load from localStorage (client-only)
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY)
       if (stored) setItems(JSON.parse(stored))
     } catch { /* ignore */ }
+    setIsLoaded(true)
   }, [])
 
-  // Save to localStorage
+  // Save to localStorage (only after loaded to avoid overwriting with empty array)
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(items))
-  }, [items])
+    if (isLoaded) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items))
+    }
+  }, [items, isLoaded])
 
   const addItem = useCallback((product: Product, quantity = 1) => {
     setItems(prev => {

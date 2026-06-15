@@ -58,7 +58,7 @@ async def submit_contact(req: ContactRequest, request: Request):
         "feedback": "用户反馈",
         "other": "其他",
     }
-    subject_label = subject_map.get(req.subject, req.subject or "未分类")
+    subject_label = html.escape(subject_map.get(req.subject, req.subject or "未分类"))
 
     # HTML-escape all user input to prevent email XSS
     safe_name = html.escape(req.name)

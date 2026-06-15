@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import {
   solarToLunar,
@@ -49,6 +49,12 @@ export function DateSelector({
   const [lunarDay, setLunarDay] = useState(0)
   const [isLeapMonth, setIsLeapMonth] = useState(false)
 
+  // Refs to capture latest values for effects (avoid stale closures)
+  const solarRef = useRef({ year, month, day })
+  solarRef.current = { year, month, day }
+  const lunarRef = useRef({ lunarYear, lunarMonth, lunarDay, isLeapMonth })
+  lunarRef.current = { lunarYear, lunarMonth, lunarDay, isLeapMonth }
+
   const currentYear = new Date().getFullYear()
   const years = Array.from({ length: currentYear - 1920 + 1 }, (_, i) => currentYear - i)
 
@@ -64,8 +70,9 @@ export function DateSelector({
 
   // ── Sync: solar → lunar when switching to lunar ──
   useEffect(() => {
-    if (calendarType === "lunar" && year > 0 && month > 0 && day > 0) {
-      const lunar = solarToLunar(year, month, day)
+    if (calendarType === "lunar" && solarRef.current.year > 0 && solarRef.current.month > 0 && solarRef.current.day > 0) {
+      const { year: y, month: m, day: d } = solarRef.current
+      const lunar = solarToLunar(y, m, d)
       setLunarYear(lunar.lunarYear)
       setLunarMonth(lunar.lunarMonth)
       setLunarDay(lunar.lunarDay)
@@ -75,9 +82,10 @@ export function DateSelector({
 
   // ── Sync: lunar → solar when switching to solar ──
   useEffect(() => {
-    if (calendarType === "solar" && lunarYear > 0 && lunarMonth > 0 && lunarDay > 0) {
+    if (calendarType === "solar" && lunarRef.current.lunarYear > 0 && lunarRef.current.lunarMonth > 0 && lunarRef.current.lunarDay > 0) {
       try {
-        const solar = lunarToSolar(lunarYear, lunarMonth, lunarDay, isLeapMonth)
+        const { lunarYear: ly, lunarMonth: lm, lunarDay: ld, isLeapMonth: leap } = lunarRef.current
+        const solar = lunarToSolar(ly, lm, ld, leap)
         onYearChange(solar.year)
         onMonthChange(solar.month)
         onDayChange(solar.day)

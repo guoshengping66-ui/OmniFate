@@ -1196,6 +1196,10 @@ async def stream_session(
         if current_user and state.user_id and state.user_id != str(current_user.id):
             yield f"data: {json.dumps({'type': 'error', 'message': '无权访问此报告'})}\n\n"
             return
+        # Reject authenticated users from accessing anonymous sessions
+        if current_user and not state.user_id:
+            yield f"data: {json.dumps({'type': 'error', 'message': '无权访问此匿名报告'})}\n\n"
+            return
 
         last_phase = ""
         streamed_workers: set[str] = set()
@@ -1437,7 +1441,16 @@ async def upload_face_image(
     """
     # Verify session ownership
     state = await _get_session(session_id)
-    if state and current_user and state.user_id and state.user_id != str(current_user.id):
+    if state is None:
+        # Session expired from Redis — verify ownership from DB
+        from sqlalchemy import select as _sel
+        reading_result = await db.execute(
+            _sel(Reading).where(Reading.session_id == session_id)
+        )
+        reading = reading_result.scalar_one_or_none()
+        if not reading or not current_user or str(reading.user_id) != str(current_user.id):
+            raise HTTPException(status_code=403, detail="无权访问此报告")
+    elif current_user and state.user_id and state.user_id != str(current_user.id):
         raise HTTPException(status_code=403, detail="无权访问此报告")
     from services.vision.face_v2t import FaceV2T
     face_v2t = FaceV2T()

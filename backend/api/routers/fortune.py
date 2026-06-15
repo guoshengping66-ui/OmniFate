@@ -444,130 +444,129 @@ async def generate_all_weekly_fortunes(
     if not active_subs:
         return {"status": "ok", "emails_sent": 0, "message": "No active subscribers"}
 
-    # Load users in batches to avoid memory issues
+    # Load users in batches and process each batch immediately (no accumulation)
     BATCH_SIZE = 100
     user_ids = list(active_subs.keys())
-    all_users = []
+    sub_map = active_subs
+    processed_count = 0
+
     for i in range(0, len(user_ids), BATCH_SIZE):
         batch_ids = user_ids[i:i + BATCH_SIZE]
         result = await db.execute(
             select(User).where(User.id.in_(batch_ids)).options(selectinload(User.birth_profiles))
         )
-        all_users.extend(result.scalars().unique().all())
+        batch_users = result.scalars().unique().all()
 
-    sub_map = active_subs
-    processed_count = 0
-
-    for user in all_users:
-        sub = sub_map.get(user.id)
-        if not sub or not sub.is_active or sub.frequency == "off":
-            continue
-
-        try:
-            birth = None
-            if user.birth_profiles:
-                bp = user.birth_profiles[0]
-                birth = {
-                    "birth_year": bp.birth_year,
-                    "birth_month": bp.birth_month,
-                    "birth_day": bp.birth_day,
-                    "birth_hour": bp.birth_hour,
-                    "gender": bp.gender.value if bp.gender else None,
-                }
-
-            if not birth:
+        for user in batch_users:
+            sub = sub_map.get(user.id)
+            if not sub or not sub.is_active or sub.frequency == "off":
                 continue
 
-            if sub.frequency == "daily":
-                # ── Daily fortune ──
-                existing = await db.execute(
-                    select(DailyFortune).where(
-                        and_(
-                            DailyFortune.user_id == user.id,
-                            DailyFortune.fortune_date == day_str,
-                        )
-                    )
-                )
-                if existing.scalars().first():
+            try:
+                birth = None
+                if user.birth_profiles:
+                    bp = user.birth_profiles[0]
+                    birth = {
+                        "birth_year": bp.birth_year,
+                        "birth_month": bp.birth_month,
+                        "birth_day": bp.birth_day,
+                        "birth_hour": bp.birth_hour,
+                        "gender": bp.gender.value if bp.gender else None,
+                    }
+
+                if not birth:
                     continue
 
-                fortune_data = generate_daily_fortune(
-                    user_id=user.id,
-                    date_str=day_str,
-                    locale="zh",
-                    **birth,
-                )
-
-                df = DailyFortune(
-                    user_id=user.id,
-                    fortune_date=day_str,
-                    score=fortune_data["score"],
-                    theme=fortune_data["theme"],
-                    lucky_color=fortune_data["lucky_color"],
-                    lucky_number=fortune_data["lucky_number"],
-                    lucky_direction=fortune_data["lucky_direction"],
-                    tarot_card=fortune_data["tarot_card"],
-                    tarot_desc=fortune_data["tarot_desc"],
-                    ai_insight=fortune_data["ai_insight"],
-                    yi=fortune_data["yi"],
-                    ji=fortune_data["ji"],
-                )
-                db.add(df)
-                generated_daily += 1
-
-                # Send daily email
-                if user.email:
-                    fortune_data["date"] = day_str
-                    if send_daily_fortune_email(user.email, fortune_data, locale="zh"):
-                        emails_sent += 1
-
-            elif sub.frequency == "weekly":
-                # ── Weekly fortune ──
-                existing = await db.execute(
-                    select(WeeklyFortune).where(
-                        and_(
-                            WeeklyFortune.user_id == user.id,
-                            WeeklyFortune.week_start == week_start,
+                if sub.frequency == "daily":
+                    # ── Daily fortune ──
+                    existing = await db.execute(
+                        select(DailyFortune).where(
+                            and_(
+                                DailyFortune.user_id == user.id,
+                                DailyFortune.fortune_date == day_str,
+                            )
                         )
                     )
-                )
-                if existing.scalars().first():
-                    continue
+                    if existing.scalars().first():
+                        continue
 
-                fortune_data = generate_weekly_fortune(
-                    user_id=user.id,
-                    week_start=week_start,
-                    locale="zh",
-                    **birth,
-                )
+                    fortune_data = generate_daily_fortune(
+                        user_id=user.id,
+                        date_str=day_str,
+                        locale="zh",
+                        **birth,
+                    )
 
-                wf = WeeklyFortune(
-                    user_id=user.id,
-                    week_start=week_start,
-                    week_end=week_end,
-                    score=fortune_data["score"],
-                    theme=fortune_data["theme"],
-                    lucky_color=fortune_data["lucky_color"],
-                    lucky_number=fortune_data["lucky_number"],
-                    lucky_direction=fortune_data["lucky_direction"],
-                    tarot_card=fortune_data["tarot_card"],
-                    tarot_desc=fortune_data["tarot_desc"],
-                    ai_insight=fortune_data["ai_insight"],
-                    daily_yi_ji=fortune_data["daily_yi_ji"],
-                )
-                db.add(wf)
-                generated_weekly += 1
+                    df = DailyFortune(
+                        user_id=user.id,
+                        fortune_date=day_str,
+                        score=fortune_data["score"],
+                        theme=fortune_data["theme"],
+                        lucky_color=fortune_data["lucky_color"],
+                        lucky_number=fortune_data["lucky_number"],
+                        lucky_direction=fortune_data["lucky_direction"],
+                        tarot_card=fortune_data["tarot_card"],
+                        tarot_desc=fortune_data["tarot_desc"],
+                        ai_insight=fortune_data["ai_insight"],
+                        yi=fortune_data["yi"],
+                        ji=fortune_data["ji"],
+                    )
+                    db.add(df)
+                    generated_daily += 1
 
-                # Send weekly email
-                if user.email:
-                    fortune_data["week_start"] = week_start
-                    fortune_data["week_end"] = week_end
-                    if send_fortune_email(user.email, fortune_data, locale="zh"):
-                        emails_sent += 1
+                    # Send daily email
+                    if user.email:
+                        fortune_data["date"] = day_str
+                        if send_daily_fortune_email(user.email, fortune_data, locale="zh"):
+                            emails_sent += 1
 
-        except Exception as e:
-            logger.warning(f"[FORTUNE-GEN] Failed for user {user.id}: {e}")
-            errors.append(str(user.id))
+                elif sub.frequency == "weekly":
+                    # ── Weekly fortune ──
+                    existing = await db.execute(
+                        select(WeeklyFortune).where(
+                            and_(
+                                WeeklyFortune.user_id == user.id,
+                                WeeklyFortune.week_start == week_start,
+                            )
+                        )
+                    )
+                    if existing.scalars().first():
+                        continue
+
+                    fortune_data = generate_weekly_fortune(
+                        user_id=user.id,
+                        week_start=week_start,
+                        locale="zh",
+                        **birth,
+                    )
+
+                    wf = WeeklyFortune(
+                        user_id=user.id,
+                        week_start=week_start,
+                        week_end=week_end,
+                        score=fortune_data["score"],
+                        theme=fortune_data["theme"],
+                        lucky_color=fortune_data["lucky_color"],
+                        lucky_number=fortune_data["lucky_number"],
+                        lucky_direction=fortune_data["lucky_direction"],
+                        tarot_card=fortune_data["tarot_card"],
+                        tarot_desc=fortune_data["tarot_desc"],
+                        ai_insight=fortune_data["ai_insight"],
+                        daily_yi_ji=fortune_data["daily_yi_ji"],
+                    )
+                    db.add(wf)
+                    generated_weekly += 1
+
+                    # Send weekly email
+                    if user.email:
+                        fortune_data["week_start"] = week_start
+                        fortune_data["week_end"] = week_end
+                        if send_fortune_email(user.email, fortune_data, locale="zh"):
+                            emails_sent += 1
+
+            except Exception as e:
+                logger.warning(f"[FORTUNE-GEN] Failed for user {user.id}: {e}")
+                errors.append(str(user.id))
 
         processed_count += 1
         # Intermediate commit every 50 users to avoid huge single-transaction

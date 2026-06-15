@@ -80,24 +80,25 @@ def _estimate_utc_offset(longitude: float | None, latitude: float | None) -> flo
     lat = latitude if latitude is not None else 0
 
     # ── Asia ──
-    # China: entire country uses UTC+8
-    if 18 <= lat <= 54 and 73 <= longitude <= 135:
-        return 8.0
-    # Japan: UTC+9
-    if 24 <= lat <= 46 and 122 <= longitude <= 146:
-        return 9.0
-    # Korea: UTC+9
-    if 33 <= lat <= 43 and 124 <= longitude <= 132:
-        return 9.0
+    # Check specific regions BEFORE broader ones to avoid overlap
+    # Nepal: UTC+5:45 (must be before India)
+    if 26 <= lat <= 31 and 80 <= longitude <= 89:
+        return 5.75
+    # Myanmar: UTC+6:30 (must be before India)
+    if 9 <= lat <= 29 and 92 <= longitude <= 102:
+        return 6.5
     # India: UTC+5:30
     if 6 <= lat <= 37 and 68 <= longitude <= 98:
         return 5.5
-    # Nepal: UTC+5:45
-    if 26 <= lat <= 31 and 80 <= longitude <= 89:
-        return 5.75
-    # Myanmar: UTC+6:30
-    if 9 <= lat <= 29 and 92 <= longitude <= 102:
-        return 6.5
+    # Japan: UTC+9 (must be before China)
+    if 24 <= lat <= 46 and 122 <= longitude <= 146:
+        return 9.0
+    # Korea: UTC+9 (must be before China)
+    if 33 <= lat <= 43 and 124 <= longitude <= 132:
+        return 9.0
+    # China: entire country uses UTC+8
+    if 18 <= lat <= 54 and 73 <= longitude <= 135:
+        return 8.0
     # Thailand/Vietnam/Cambodia/Laos: UTC+7
     if 5 <= lat <= 24 and 98 <= longitude <= 110:
         return 7.0
@@ -619,336 +620,338 @@ async def run_full_analysis(state: SystemState) -> SystemState:
         _WORKER_TIMEOUTS,
     )
 
-    # ── Phase 1: Init ──
-    state.phase = "init"
-    state = await node_init(state)
-
-    is_en = state.language == "en"
-
-    # ── Phase 1b: Partner calculations (RELATIONSHIP intent) ──
-    if state.intent == "RELATIONSHIP" and state.partner_birth_info:
-        state.progress_message = "Calculating partner's chart…" if is_en else "正在计算对方数据…"
-        try:
-            import asyncio as _aio
-            pi = state.partner_birth_info
-            partner_astro, partner_astro_obj = await _aio.wait_for(
-                _aio.get_event_loop().run_in_executor(None, _calculate_astrology, pi),
-                timeout=30,
-            )
-            state.partner_astrology_raw = partner_astro
-            # Store partner AstrologyResult for synastry calculation (no global needed)
-            if partner_astro_obj is not None:
-                _astro_results.setdefault(state.session_id, {})["partner"] = partner_astro_obj
-        except Exception as e:
-            state.partner_astrology_raw = _stub_astrology(state.partner_birth_info)
-            state.errors.append(f"partner_astrology_fallback: {e}")
-
-        # Partner bazi calculation
-        try:
-            from calculators.bazi_calculator import BaziCalculator
-            pi = state.partner_birth_info
-            bazi_calc = BaziCalculator()
-            loop = asyncio.get_event_loop()
-            partner_bazi_result = await loop.run_in_executor(
-                None, lambda: bazi_calc.calculate(
-                    year=pi.year, month=pi.month, day=pi.day,
-                    hour=pi.hour, minute=pi.minute, gender=pi.gender,
-                )
-            )
-            state.partner_bazi_raw = partner_bazi_result.to_dict()
-            # Store BaziResult for compatibility calculation
-            _bazi_results.setdefault(state.session_id, {})["partner"] = partner_bazi_result
-        except Exception as e:
-            state.errors.append(f"partner_bazi_error: {e}")
-
-    state.phase = "parallel"
-    state.progress_pct = 5
-    state.progress_message = "Loading analysis data…" if is_en else "正在调取分析数据…"
-    for aid in _WORKER_IDS:
-        if aid == "qimen_ziwei":
-            # Merged worker: set individual sub-worker statuses the frontend expects
-            state.agent_status["qimen"] = "running"
-            state.agent_status["ziwei"] = "running"
-        else:
-            state.agent_status[aid] = "running"
-
-    # ── Launch all workers as background tasks ──
-    worker_events = {aid: asyncio.Event() for aid in _WORKER_IDS}
-    worker_outputs: dict[str, Any] = {}
-    _completed_workers = 0
-    _total_workers = len(_WORKER_IDS)
-
-    # Runners: qimen_ziwei is a merged worker returning list[WorkerOutput]
-    # Conditionally add partner face/palm workers for RELATIONSHIP intent
-    _runners = [run_astrology, run_tarot, run_bazi, run_qimen_ziwei, run_face, run_palm]
-    _runner_ids = list(_WORKER_IDS)
-    _runner_timeouts = list(_WORKER_TIMEOUTS)
-
-    if state.intent == "RELATIONSHIP":
-        if state.partner_face_features:
-            _runners.append(run_partner_face)
-            _runner_ids.append("partner_face")
-            _runner_timeouts.append(25)
-            state.agent_status["partner_face"] = "running"
-            worker_events["partner_face"] = asyncio.Event()
-            _total_workers += 1
-        if state.partner_palm_features:
-            _runners.append(run_partner_palm)
-            _runner_ids.append("partner_palm")
-            _runner_timeouts.append(25)
-            state.agent_status["partner_palm"] = "running"
-            worker_events["partner_palm"] = asyncio.Event()
-            _total_workers += 1
-
-    # Stagger face/palm worker start to avoid concurrent LLM API rate limits
-    _START_DELAYS = {
-        "face": 1,
-        "palm": 2,
-        "partner_face": 3,
-        "partner_palm": 4,
-    }
-
-    async def _run_one(runner, agent_id: str, timeout: int):
-        nonlocal _completed_workers
-        delay = _START_DELAYS.get(agent_id, 0)
-        if delay:
-            await asyncio.sleep(delay)
-        try:
-            result = await asyncio.wait_for(runner(state), timeout=timeout)
-        except Exception as e:
-            from agents.state import WorkerOutput
-            if agent_id == "qimen_ziwei":
-                # Merged worker error: create individual error outputs for each sub-worker
-                result = [
-                    WorkerOutput(agent_id="qimen", error=str(e)),
-                    WorkerOutput(agent_id="ziwei", error=str(e)),
-                ]
-            else:
-                result = WorkerOutput(agent_id=agent_id, error=str(e))
-
-        # Handle merged workers that return lists of WorkerOutput
-        if isinstance(result, list):
-            # Merged worker: extract individual outputs
-            from agents.state import WorkerOutput as WO
-            for r in result:
-                if isinstance(r, WO):
-                    worker_outputs[r.agent_id] = r
-                    setattr(state, f"{r.agent_id}_output", r)
-                    # Update agent status for each sub-worker
-                    state.agent_status[r.agent_id] = "error" if r.error else "done"
-                    async with _worker_count_lock:
-                        _completed_workers += 1
-            # Remove stale merged-worker key so frontend completedCount is correct
-            state.agent_status.pop("qimen_ziwei", None)
-        else:
-            worker_outputs[agent_id] = result
-            attr = f"{agent_id}_output"
-            if hasattr(state, attr):
-                setattr(state, attr, result)
-            async with _worker_count_lock:
-                _completed_workers += 1
-            state.agent_status[agent_id] = "error" if result.error else "done"
-
-        # Mark the merged worker event too
-        worker_events[agent_id].set()
-        state.progress_pct = 5 + int(60 * _completed_workers / _total_workers)
-        state.progress_message = f"Completed {_completed_workers}/{_total_workers} analyses…" if is_en else f"已完成 {_completed_workers}/{_total_workers} 项分析…"
-        return result
-
-    worker_tasks = [
-        asyncio.create_task(_run_one(r, aid, t))
-        for r, aid, t in zip(_runners, _runner_ids, _runner_timeouts)
-    ]
-
-    # ── Continuous progress updater: interpolates between discrete worker completions ──
-    # Without this, progress jumps abruptly (e.g., 5% → 14% → 28%) and stays
-    # flat for 15-30s between completions, making the bar look stuck.
-    _worker_start_time = asyncio.get_event_loop().time()
-    _WORKER_PHASE_DURATION = 120  # expected total time for all workers in seconds (qimen_ziwei can take ~100s)
-
-    async def _continuous_progress():
-        """Smoothly advance progress_pct between worker completions using time interpolation."""
-        _last_msg_time = asyncio.get_event_loop().time()
-        while state.phase == "parallel":
-            await asyncio.sleep(1)
-            if state.phase != "parallel":
-                break
-            elapsed = asyncio.get_event_loop().time() - _worker_start_time
-            # Time-based progress: linearly interpolate from 5% to 65% over expected duration
-            time_pct = 5 + int(60 * min(elapsed / _WORKER_PHASE_DURATION, 0.95))
-            # Use max of time-based and actual worker-completion progress
-            actual_pct = 5 + int(60 * _completed_workers / _total_workers)
-            blended = max(time_pct, actual_pct)
-            if blended > state.progress_pct:
-                state.progress_pct = blended
-                # Throttle message updates to max once per 5s to avoid SSE re-render storms
-                now = asyncio.get_event_loop().time()
-                if now - _last_msg_time >= 5:
-                    _last_msg_time = now
-                    state.progress_message = (
-                        f"Completed {_completed_workers}/{_total_workers} analyses…"
-                        if is_en else f"已完成 {_completed_workers}/{_total_workers} 项分析…"
-                    )
-
-    progress_updater = asyncio.create_task(_continuous_progress())
-
-    # ── Speculative Master: start core when Bazi completes (fastest worker) ──
-    async def _speculative_core():
-        """Wait for Bazi (typically fastest ~20-30s), then run preprocessing + core sub-task."""
-        try:
-            await asyncio.wait_for(
-                worker_events["bazi"].wait(),
-                timeout=120,
-            )
-        except asyncio.TimeoutError:
-            pass  # proceed with whatever is available
-
-        # If bazi data is still missing, wait a bit more
-        if not state.bazi_raw and not (state.bazi_output and state.bazi_output.report):
-            print("[SPECULATIVE] Warning: bazi data not available, waiting 10s more...")
-            try:
-                await asyncio.wait_for(worker_events.get("bazi", asyncio.Event()).wait(), timeout=10)
-            except (asyncio.TimeoutError, KeyError):
-                pass
-
-        state.phase = "master"
-        state.progress_pct = 70
-        state.progress_message = "Cross-validating across dimensions…" if is_en else "正在进行跨维度交叉验证…"
-        prep = run_master_preprocessing(state)
-        result = await run_subtask_core(state, prep)
-        state.progress_pct = 75
-        state.progress_message = "Core synthesis done, generating dimension analysis…" if is_en else "核心综合完成，生成维度分析…"
-        return result
-
-    core_task = asyncio.create_task(_speculative_core())
-
-    # ── Synastry computation: run IN PARALLEL with workers (RELATIONSHIP only) ──
-    async def _compute_synastry():
-        """Compute synastry data (astrology aspects + bazi compatibility) in background."""
-        if state.intent != "RELATIONSHIP":
-            return
-        try:
-            session_results = _astro_results.get(state.session_id, {})
-            astro_self = session_results.get("self")
-            astro_partner = session_results.get("partner")
-
-            if astro_self and astro_partner:
-                try:
-                    synastry = _astro_calc.calculate_synastry(astro_self, astro_partner)
-                    state.synastry_aspects = synastry.get("aspects", [])
-                    composite = _astro_calc.calculate_composite(astro_self, astro_partner)
-                    state.composite_chart = composite
-                    print(f"[SYNASTRY] {len(state.synastry_aspects)} cross-aspects computed")
-                    print(f"[COMPOSITE] ASC={composite.get('ascendant', {}).get('sign_cn', '?')}")
-                except Exception as e:
-                    state.errors.append(f"synastry_error: {e}")
-                    print(f"[SYNASTRY] Error: {e}")
-
-            if state.bazi_raw and state.partner_bazi_raw:
-                try:
-                    from calculators.bazi_calculator import BaziCalculator
-                    loop = asyncio.get_event_loop()
-                    bazi_compat = await loop.run_in_executor(
-                        None, lambda: BaziCalculator.calculate_compatibility(
-                            state.bazi_raw, state.partner_bazi_raw,
-                        )
-                    )
-                    state.bazi_compatibility = bazi_compat
-                    print(f"[BAZI_COMPAT] Score: {bazi_compat.get('score', 0)}/100")
-                except Exception as e:
-                    state.errors.append(f"bazi_compat_error: {e}")
-                    state.bazi_compatibility = {}
-                    print(f"[BAZI_COMPAT] Error: {e}")
-        finally:
-            # Always clean up global state to prevent memory leak
-            _astro_results.pop(state.session_id, None)
-            _bazi_results.pop(state.session_id, None)
-
-    synastry_task = asyncio.create_task(_compute_synastry())
-
-    # ── Wait for ALL workers to finish ──
-    await asyncio.gather(*worker_tasks)
-
-    # Stop continuous progress updater — workers are all done
-    progress_updater.cancel()
     try:
-        await progress_updater
-    except asyncio.CancelledError:
-        pass
+         # ── Phase 1: Init ──
+        state.phase = "init"
+        state = await node_init(state)
 
-    # ── Wait for synastry computation to finish (if RELATIONSHIP) ──
-    if state.intent == "RELATIONSHIP":
+        is_en = state.language == "en"
+
+        # ── Phase 1b: Partner calculations (RELATIONSHIP intent) ──
+        if state.intent == "RELATIONSHIP" and state.partner_birth_info:
+            state.progress_message = "Calculating partner's chart…" if is_en else "正在计算对方数据…"
+            try:
+                import asyncio as _aio
+                pi = state.partner_birth_info
+                partner_astro, partner_astro_obj = await _aio.wait_for(
+                    _aio.get_event_loop().run_in_executor(None, _calculate_astrology, pi),
+                    timeout=30,
+                )
+                state.partner_astrology_raw = partner_astro
+                # Store partner AstrologyResult for synastry calculation (no global needed)
+                if partner_astro_obj is not None:
+                    _astro_results.setdefault(state.session_id, {})["partner"] = partner_astro_obj
+            except Exception as e:
+                state.partner_astrology_raw = _stub_astrology(state.partner_birth_info)
+                state.errors.append(f"partner_astrology_fallback: {e}")
+
+            # Partner bazi calculation
+            try:
+                from calculators.bazi_calculator import BaziCalculator
+                pi = state.partner_birth_info
+                bazi_calc = BaziCalculator()
+                loop = asyncio.get_event_loop()
+                partner_bazi_result = await loop.run_in_executor(
+                    None, lambda: bazi_calc.calculate(
+                        year=pi.year, month=pi.month, day=pi.day,
+                        hour=pi.hour, minute=pi.minute, gender=pi.gender,
+                    )
+                )
+                state.partner_bazi_raw = partner_bazi_result.to_dict()
+                # Store BaziResult for compatibility calculation
+                _bazi_results.setdefault(state.session_id, {})["partner"] = partner_bazi_result
+            except Exception as e:
+                state.errors.append(f"partner_bazi_error: {e}")
+
+        state.phase = "parallel"
+        state.progress_pct = 5
+        state.progress_message = "Loading analysis data…" if is_en else "正在调取分析数据…"
+        for aid in _WORKER_IDS:
+            if aid == "qimen_ziwei":
+                # Merged worker: set individual sub-worker statuses the frontend expects
+                state.agent_status["qimen"] = "running"
+                state.agent_status["ziwei"] = "running"
+            else:
+                state.agent_status[aid] = "running"
+
+        # ── Launch all workers as background tasks ──
+        worker_events = {aid: asyncio.Event() for aid in _WORKER_IDS}
+        worker_outputs: dict[str, Any] = {}
+        _completed_workers = 0
+        _total_workers = len(_WORKER_IDS)
+
+        # Runners: qimen_ziwei is a merged worker returning list[WorkerOutput]
+        # Conditionally add partner face/palm workers for RELATIONSHIP intent
+        _runners = [run_astrology, run_tarot, run_bazi, run_qimen_ziwei, run_face, run_palm]
+        _runner_ids = list(_WORKER_IDS)
+        _runner_timeouts = list(_WORKER_TIMEOUTS)
+
+        if state.intent == "RELATIONSHIP":
+            if state.partner_face_features:
+                _runners.append(run_partner_face)
+                _runner_ids.append("partner_face")
+                _runner_timeouts.append(25)
+                state.agent_status["partner_face"] = "running"
+                worker_events["partner_face"] = asyncio.Event()
+                _total_workers += 1
+            if state.partner_palm_features:
+                _runners.append(run_partner_palm)
+                _runner_ids.append("partner_palm")
+                _runner_timeouts.append(25)
+                state.agent_status["partner_palm"] = "running"
+                worker_events["partner_palm"] = asyncio.Event()
+                _total_workers += 1
+
+        # Stagger face/palm worker start to avoid concurrent LLM API rate limits
+        _START_DELAYS = {
+            "face": 1,
+            "palm": 2,
+            "partner_face": 3,
+            "partner_palm": 4,
+        }
+
+        async def _run_one(runner, agent_id: str, timeout: int):
+            nonlocal _completed_workers
+            delay = _START_DELAYS.get(agent_id, 0)
+            if delay:
+                await asyncio.sleep(delay)
+            try:
+                result = await asyncio.wait_for(runner(state), timeout=timeout)
+            except Exception as e:
+                from agents.state import WorkerOutput
+                if agent_id == "qimen_ziwei":
+                    # Merged worker error: create individual error outputs for each sub-worker
+                    result = [
+                        WorkerOutput(agent_id="qimen", error=str(e)),
+                        WorkerOutput(agent_id="ziwei", error=str(e)),
+                    ]
+                else:
+                    result = WorkerOutput(agent_id=agent_id, error=str(e))
+
+            # Handle merged workers that return lists of WorkerOutput
+            if isinstance(result, list):
+                # Merged worker: extract individual outputs
+                from agents.state import WorkerOutput as WO
+                for r in result:
+                    if isinstance(r, WO):
+                        worker_outputs[r.agent_id] = r
+                        setattr(state, f"{r.agent_id}_output", r)
+                        # Update agent status for each sub-worker
+                        state.agent_status[r.agent_id] = "error" if r.error else "done"
+                        async with _worker_count_lock:
+                            _completed_workers += 1
+                # Remove stale merged-worker key so frontend completedCount is correct
+                state.agent_status.pop("qimen_ziwei", None)
+            else:
+                worker_outputs[agent_id] = result
+                attr = f"{agent_id}_output"
+                if hasattr(state, attr):
+                    setattr(state, attr, result)
+                async with _worker_count_lock:
+                    _completed_workers += 1
+                state.agent_status[agent_id] = "error" if result.error else "done"
+
+            # Mark the merged worker event too
+            worker_events[agent_id].set()
+            state.progress_pct = 5 + int(60 * _completed_workers / _total_workers)
+            state.progress_message = f"Completed {_completed_workers}/{_total_workers} analyses…" if is_en else f"已完成 {_completed_workers}/{_total_workers} 项分析…"
+            return result
+
+        worker_tasks = [
+            asyncio.create_task(_run_one(r, aid, t))
+            for r, aid, t in zip(_runners, _runner_ids, _runner_timeouts)
+        ]
+
+        # ── Continuous progress updater: interpolates between discrete worker completions ──
+        # Without this, progress jumps abruptly (e.g., 5% → 14% → 28%) and stays
+        # flat for 15-30s between completions, making the bar look stuck.
+        _worker_start_time = asyncio.get_event_loop().time()
+        _WORKER_PHASE_DURATION = 120  # expected total time for all workers in seconds (qimen_ziwei can take ~100s)
+
+        async def _continuous_progress():
+            """Smoothly advance progress_pct between worker completions using time interpolation."""
+            _last_msg_time = asyncio.get_event_loop().time()
+            while state.phase == "parallel":
+                await asyncio.sleep(1)
+                if state.phase != "parallel":
+                    break
+                elapsed = asyncio.get_event_loop().time() - _worker_start_time
+                # Time-based progress: linearly interpolate from 5% to 65% over expected duration
+                time_pct = 5 + int(60 * min(elapsed / _WORKER_PHASE_DURATION, 0.95))
+                # Use max of time-based and actual worker-completion progress
+                actual_pct = 5 + int(60 * _completed_workers / _total_workers)
+                blended = max(time_pct, actual_pct)
+                if blended > state.progress_pct:
+                    state.progress_pct = blended
+                    # Throttle message updates to max once per 5s to avoid SSE re-render storms
+                    now = asyncio.get_event_loop().time()
+                    if now - _last_msg_time >= 5:
+                        _last_msg_time = now
+                        state.progress_message = (
+                            f"Completed {_completed_workers}/{_total_workers} analyses…"
+                            if is_en else f"已完成 {_completed_workers}/{_total_workers} 项分析…"
+                        )
+
+        progress_updater = asyncio.create_task(_continuous_progress())
+
+        # ── Speculative Master: start core when Bazi completes (fastest worker) ──
+        async def _speculative_core():
+            """Wait for Bazi (typically fastest ~20-30s), then run preprocessing + core sub-task."""
+            try:
+                await asyncio.wait_for(
+                    worker_events["bazi"].wait(),
+                    timeout=120,
+                )
+            except asyncio.TimeoutError:
+                pass  # proceed with whatever is available
+
+            # If bazi data is still missing, wait a bit more
+            if not state.bazi_raw and not (state.bazi_output and state.bazi_output.report):
+                print("[SPECULATIVE] Warning: bazi data not available, waiting 10s more...")
+                try:
+                    await asyncio.wait_for(worker_events.get("bazi", asyncio.Event()).wait(), timeout=10)
+                except (asyncio.TimeoutError, KeyError):
+                    pass
+
+            state.phase = "master"
+            state.progress_pct = 70
+            state.progress_message = "Cross-validating across dimensions…" if is_en else "正在进行跨维度交叉验证…"
+            prep = run_master_preprocessing(state)
+            result = await run_subtask_core(state, prep)
+            state.progress_pct = 75
+            state.progress_message = "Core synthesis done, generating dimension analysis…" if is_en else "核心综合完成，生成维度分析…"
+            return result
+
+        core_task = asyncio.create_task(_speculative_core())
+
+        # ── Synastry computation: run IN PARALLEL with workers (RELATIONSHIP only) ──
+        async def _compute_synastry():
+            """Compute synastry data (astrology aspects + bazi compatibility) in background."""
+            if state.intent != "RELATIONSHIP":
+                return
+            try:
+                session_results = _astro_results.get(state.session_id, {})
+                astro_self = session_results.get("self")
+                astro_partner = session_results.get("partner")
+
+                if astro_self and astro_partner:
+                    try:
+                        synastry = _astro_calc.calculate_synastry(astro_self, astro_partner)
+                        state.synastry_aspects = synastry.get("aspects", [])
+                        composite = _astro_calc.calculate_composite(astro_self, astro_partner)
+                        state.composite_chart = composite
+                        print(f"[SYNASTRY] {len(state.synastry_aspects)} cross-aspects computed")
+                        print(f"[COMPOSITE] ASC={composite.get('ascendant', {}).get('sign_cn', '?')}")
+                    except Exception as e:
+                        state.errors.append(f"synastry_error: {e}")
+                        print(f"[SYNASTRY] Error: {e}")
+
+                if state.bazi_raw and state.partner_bazi_raw:
+                    try:
+                        from calculators.bazi_calculator import BaziCalculator
+                        loop = asyncio.get_event_loop()
+                        bazi_compat = await loop.run_in_executor(
+                            None, lambda: BaziCalculator.calculate_compatibility(
+                                state.bazi_raw, state.partner_bazi_raw,
+                            )
+                        )
+                        state.bazi_compatibility = bazi_compat
+                        print(f"[BAZI_COMPAT] Score: {bazi_compat.get('score', 0)}/100")
+                    except Exception as e:
+                        state.errors.append(f"bazi_compat_error: {e}")
+                        state.bazi_compatibility = {}
+                        print(f"[BAZI_COMPAT] Error: {e}")
+            finally:
+                # Always clean up global state to prevent memory leak
+                _astro_results.pop(state.session_id, None)
+                _bazi_results.pop(state.session_id, None)
+
+        synastry_task = asyncio.create_task(_compute_synastry())
+
+        # ── Wait for ALL workers to finish ──
+        await asyncio.gather(*worker_tasks)
+
+        # Stop continuous progress updater — workers are all done
+        progress_updater.cancel()
         try:
-            await asyncio.wait_for(synastry_task, timeout=15)
-        except asyncio.TimeoutError:
+            await progress_updater
+        except asyncio.CancelledError:
             pass
 
-    # Merge tags
-    all_tags: list[str] = []
-    for r in worker_outputs.values():
-        all_tags.extend(r.tags)
-        if r.error:
-            state.errors.append(f"{r.agent_id}: {r.error}")
-    state.computed_tags = list(set(all_tags))
+        # ── Wait for synastry computation to finish (if RELATIONSHIP) ──
+        if state.intent == "RELATIONSHIP":
+            try:
+                await asyncio.wait_for(synastry_task, timeout=15)
+            except asyncio.TimeoutError:
+                pass
 
-    # ── Wait for speculative core to finish (may already be done) ──
-    core_result = await core_task
+        # Merge tags
+        all_tags: list[str] = []
+        for r in worker_outputs.values():
+            all_tags.extend(r.tags)
+            if r.error:
+                state.errors.append(f"{r.agent_id}: {r.error}")
+        state.computed_tags = list(set(all_tags))
 
-    # ── Run remaining sub-tasks (dims + actions) with full worker data ──
-    state.phase = "master"
-    state.progress_pct = 80
+        # ── Wait for speculative core to finish (may already be done) ──
+        core_result = await core_task
 
-    is_relationship = state.intent == "RELATIONSHIP"
+        # ── Run remaining sub-tasks (dims + actions) with full worker data ──
+        state.phase = "master"
+        state.progress_pct = 80
 
-    # Free users: skip dims + actions sub-tasks (saves 2 LLM calls)
-    if state.is_premium:
-        state.progress_message = "AI generating 5-dimension diagnosis & action plan…" if is_en else "AI 正在生成五维诊断与行动建议…"
-        prep = run_master_preprocessing(state)  # re-run with complete data
-        state.progress_pct = 85
-        state.progress_message = "Generating dimension analysis…" if is_en else "正在生成维度分析…"
-        tasks = [
-            run_subtask_dims(state, prep),
-            run_subtask_actions(state, prep),
-        ]
-        if is_relationship:
-            from agents.master import run_subtask_synastry
-            tasks.append(run_subtask_synastry(state))
+        is_relationship = state.intent == "RELATIONSHIP"
 
-        results = await asyncio.gather(*tasks)
-        dims_result = results[0]
-        actions_result = results[1]
-        synastry_result = results[2] if is_relationship else ""
+        # Free users: skip dims + actions sub-tasks (saves 2 LLM calls)
+        if state.is_premium:
+            state.progress_message = "AI generating 5-dimension diagnosis & action plan…" if is_en else "AI 正在生成五维诊断与行动建议…"
+            prep = run_master_preprocessing(state)  # re-run with complete data
+            state.progress_pct = 85
+            state.progress_message = "Generating dimension analysis…" if is_en else "正在生成维度分析…"
+            tasks = [
+                run_subtask_dims(state, prep),
+                run_subtask_actions(state, prep),
+            ]
+            if is_relationship:
+                from agents.master import run_subtask_synastry
+                tasks.append(run_subtask_synastry(state))
 
-        state.progress_pct = 90
-        state.progress_message = "Generating action plan…" if is_en else "正在生成行动建议…"
-        state.master_summary = core_result[:500]
-        parts = [core_result]
-        if synastry_result:
-            parts.append(synastry_result)
-        parts.append(dims_result)
-        parts.append(actions_result)
-        state.master_detail = "\n\n".join(parts)
-    else:
-        state.progress_pct = 85
-        state.progress_message = "Core synthesis done, finalizing…" if is_en else "核心综合完成，收尾中…"
-        # Free version: complete teaser that answers user question and creates upgrade desire
-        state.master_summary = _build_free_summary(core_result, state)
+            results = await asyncio.gather(*tasks)
+            dims_result = results[0]
+            actions_result = results[1]
+            synastry_result = results[2] if is_relationship else ""
 
-        # Free users don't need synastry subtask — it's behind paywall
-        # This avoids the extra LLM call that causes 80% hang
-        state.master_detail = ""
+            state.progress_pct = 90
+            state.progress_message = "Generating action plan…" if is_en else "正在生成行动建议…"
+            state.master_summary = core_result[:500]
+            parts = [core_result]
+            if synastry_result:
+                parts.append(synastry_result)
+            parts.append(dims_result)
+            parts.append(actions_result)
+            state.master_detail = "\n\n".join(parts)
+        else:
+            state.progress_pct = 85
+            state.progress_message = "Core synthesis done, finalizing…" if is_en else "核心综合完成，收尾中…"
+            # Free version: complete teaser that answers user question and creates upgrade desire
+            state.master_summary = _build_free_summary(core_result, state)
 
-    state.progress_pct = 95
-    state.progress_message = "Finalizing report…" if is_en else "正在整理报告…"
-    await asyncio.sleep(0.5)  # Brief pause so user sees 95%
+            # Free users don't need synastry subtask — it's behind paywall
+            # This avoids the extra LLM call that causes 80% hang
+            state.master_detail = ""
 
-    state.progress_pct = 100
-    state.progress_message = "Analysis complete" if is_en else "分析完成"
-    state.phase = "done"
+        state.progress_pct = 95
+        state.progress_message = "Finalizing report…" if is_en else "正在整理报告…"
+        await asyncio.sleep(0.5)  # Brief pause so user sees 95%
 
-    # Clean up global dicts to prevent memory leak
-    _astro_results.pop(state.session_id, None)
-    _bazi_results.pop(state.session_id, None)
+        state.progress_pct = 100
+        state.progress_message = "Analysis complete" if is_en else "分析完成"
+        state.phase = "done"
+
+    finally:
+        # Clean up global dicts to prevent memory leak on exception
+        _astro_results.pop(state.session_id, None)
+        _bazi_results.pop(state.session_id, None)
 
     return state
 

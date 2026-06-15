@@ -18,6 +18,7 @@ export function FaceScanAnimation({ imageUrl, isScanning, onComplete }: Props) {
   const [phase, setPhase] = useState<"scanning" | "highlight" | "done">("scanning")
   const scanPos = useRef(0)
   const animFrame = useRef(0)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     if (!isScanning || !canvasRef.current) return
@@ -126,7 +127,7 @@ export function FaceScanAnimation({ imageUrl, isScanning, onComplete }: Props) {
           ctx.clearRect(0, 0, canvas.width, canvas.height)
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
 
-          setTimeout(() => {
+          timerRef.current = setTimeout(() => {
             setVisible(false)
             onComplete?.()
           }, 400)
@@ -136,7 +137,10 @@ export function FaceScanAnimation({ imageUrl, isScanning, onComplete }: Props) {
       animFrame.current = requestAnimationFrame(drawScan)
     }
 
-    return () => cancelAnimationFrame(animFrame.current)
+    return () => {
+      cancelAnimationFrame(animFrame.current)
+      if (timerRef.current) clearTimeout(timerRef.current)
+    }
   }, [isScanning, imageUrl, onComplete, t])
 
   if (!visible) return null

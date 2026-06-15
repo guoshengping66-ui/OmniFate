@@ -1221,7 +1221,10 @@ async def paypal_return(
     if result.get("status") == "COMPLETED":
         # Activate subscription/unlock
         order_result = await db.execute(
-            select(Order).where(Order.order_no == order_no).with_for_update()
+            select(Order).where(
+                Order.order_no == order_no,
+                Order.user_id == str(current_user.id),
+            ).with_for_update()
         )
         order = order_result.scalar_one_or_none()
         if order and order.status != OrderStatus.paid:
@@ -1292,7 +1295,10 @@ async def capture_paypal_order(
         order_no = purchase_units[0].get("reference_id", "") if purchase_units else ""
         if order_no:
             order_result = await db.execute(
-                select(Order).where(Order.order_no == order_no).with_for_update()
+                select(Order).where(
+                    Order.order_no == order_no,
+                    Order.user_id == str(current_user.id),
+                ).with_for_update()
             )
             order = order_result.scalar_one_or_none()
             if order:

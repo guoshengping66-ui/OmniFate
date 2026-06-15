@@ -236,6 +236,10 @@ def _clean_english(text: str) -> str:
         key=lambda x: -len(x[0]),
     ):
         text = text.replace(zh, en)
+    # Replace single-character terms (金木水火土 etc.)
+    for zh, en in _ZH_EN_MAP.items():
+        if len(zh) == 1:
+            text = text.replace(zh, en)
     # Remove any remaining CJK characters (Chinese/Japanese/Korean)
     # Covers CJK Unified Ideographs, Extension A, Extension B, and Compatibility
     text = re.sub(r'[一-鿿㐀-䶿\U00020000-\U0002a6df豈-﫿]+', '', text)
