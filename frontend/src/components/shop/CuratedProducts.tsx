@@ -79,28 +79,28 @@ export function CuratedProducts() {
     <section className="py-16 px-4 relative overflow-hidden">
       {/* Subtle background accent */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] rounded-full bg-gold/[0.03] blur-[120px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] rounded-full bg-gold/[0.02] blur-[100px]" />
       </div>
 
       <div className="max-w-6xl mx-auto relative">
         {/* Section header */}
         <ScrollReveal>
           <div className="text-center mb-10">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold/10 border border-gold/25 text-gold text-sm mb-4">
-              <Sparkles size={14} className="fill-gold/30" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gold/[0.06] border border-gold/20 text-gold/80 text-xs mb-4">
+              <Sparkles size={12} className="text-gold/60" />
               {t("curated.badge")}
             </div>
-            <h2 className="text-3xl md:text-4xl font-serif font-bold text-gold mb-3">
+            <h2 className="text-2xl md:text-3xl font-serif font-bold text-white/90 mb-2">
               {t("curated.title")}
             </h2>
-            <p className="text-white/40 text-sm max-w-lg mx-auto">
+            <p className="text-white/35 text-sm max-w-md mx-auto">
               {t("curated.desc")}
             </p>
           </div>
         </ScrollReveal>
 
         {/* Product grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
           {products.map((product, i) => {
             const badge = getBadge(product)
             const badgeStyle = badge ? BADGE_STYLES[badge] : null
@@ -110,17 +110,17 @@ export function CuratedProducts() {
               <ScrollReveal key={product.id} delay={i * 0.08}>
                 <Link
                   href={`/shop/${product.id}`}
-                  className="block group card-glow p-4 relative overflow-hidden hover:border-gold/40 transition-all duration-300"
+                  className="block group card-glow p-3 relative overflow-hidden transition-all duration-300"
                 >
                   {/* Badge */}
                   {badge && badgeStyle && (
-                    <div className={`absolute top-3 left-3 z-10 px-2 py-0.5 rounded-full text-[10px] font-bold ${badgeStyle.bg} ${badgeStyle.text} border ${badgeStyle.border}`}>
+                    <div className={`absolute top-2.5 left-2.5 z-10 px-2 py-0.5 rounded-full text-[9px] font-medium ${badgeStyle.bg} ${badgeStyle.text} border ${badgeStyle.border}`}>
                       {t(`curated.${badge}`)}
                     </div>
                   )}
 
                   {/* Image */}
-                  <div className="mb-3 flex justify-center">
+                  <div className="mb-3 flex justify-center py-2">
                     <ProductImage
                       src={product.image_url}
                       alt={product.name}
@@ -131,8 +131,8 @@ export function CuratedProducts() {
                   </div>
 
                   {/* Info */}
-                  <div className="space-y-2">
-                    <h3 className="font-medium text-white text-sm leading-tight line-clamp-2 group-hover:text-gold transition-colors">
+                  <div className="space-y-1.5">
+                    <h3 className="font-medium text-white/80 text-xs leading-tight line-clamp-2 group-hover:text-gold/80 transition-colors">
                       {product.name}
                     </h3>
 
@@ -140,18 +140,18 @@ export function CuratedProducts() {
                     <div className="flex items-center gap-2">
                       {product.rating && (
                         <div className="flex items-center gap-0.5">
-                          <Star size={10} className="text-gold fill-gold" />
-                          <span className="text-xs text-gold">{product.rating}</span>
+                          <Star size={9} className="text-gold/60 fill-gold/60" />
+                          <span className="text-[10px] text-gold/60">{product.rating}</span>
                         </div>
                       )}
-                      <span className="text-[10px] text-white/25">
+                      <span className="text-[9px] text-white/20">
                         {t("curated.bestSeller").replace("{count}", String(Math.floor(Math.random() * 500 + 100)))}
                       </span>
                     </div>
 
                     {/* Price + CTA */}
                     <div className="flex items-center justify-between pt-1">
-                      <span className="text-gold font-bold text-base">
+                      <span className="text-gold/90 font-semibold text-sm">
                         {getProductPrice(product, region).symbol}{getProductPrice(product, region).price.toFixed(0)}
                       </span>
                       <button
@@ -161,16 +161,16 @@ export function CuratedProducts() {
                           handleAdd(product)
                         }}
                         disabled={isAdded}
-                        className={`flex items-center gap-1 text-xs px-3 py-1.5 rounded-full transition-all duration-300 ${
+                        className={`flex items-center gap-1 text-[10px] px-2.5 py-1 rounded-lg transition-all duration-300 ${
                           isAdded
-                            ? "bg-green-500/20 border border-green-500/40 text-green-400"
-                            : "bg-gold/15 border border-gold/30 text-gold hover:bg-gold/25 hover:shadow-[0_0_15px_rgba(201,168,76,0.2)]"
+                            ? "bg-green-500/15 border border-green-500/30 text-green-400"
+                            : "bg-gold/10 border border-gold/20 text-gold/80 hover:bg-gold/15"
                         }`}
                       >
                         {isAdded ? (
-                          <><Check size={11} /> {t("curated.added")}</>
+                          <><Check size={10} /> {t("curated.added")}</>
                         ) : (
-                          <><ShoppingCart size={11} /> {t("curated.addToCart")}</>
+                          <><ShoppingCart size={10} /> {t("curated.addToCart")}</>
                         )}
                       </button>
                     </div>
@@ -187,10 +187,10 @@ export function CuratedProducts() {
             <MagneticButton>
               <Link
                 href="/shop"
-                className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-gold/10 border border-gold/30 text-gold hover:bg-gold/20 hover:border-gold/50 transition-all duration-300 text-sm font-medium group"
+                className="inline-flex items-center gap-2 px-7 py-2.5 rounded-xl bg-gold/[0.08] border border-gold/25 text-gold/80 hover:bg-gold/15 hover:border-gold/40 transition-all duration-300 text-sm font-medium group"
               >
                 {t("curated.viewAll")}
-                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
               </Link>
             </MagneticButton>
           </div>

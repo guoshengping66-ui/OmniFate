@@ -20,7 +20,7 @@
   }
   body {
     @apply bg-ink text-white font-sans leading-relaxed;
-    background: radial-gradient(ellipse at 50% 0%, #2D1B4E 0%, #1A0F2E 60%, #0D0715 100%);
+    background: linear-gradient(180deg, #1e1233 0%, #1A0F2E 30%, #150c24 100%);
     min-height: 100vh;
   }
   h1,h2,h3 { @apply font-serif; }
@@ -29,81 +29,58 @@
 
 @layer components {
   .btn-gold {
-    @apply relative px-8 py-3 rounded-full font-semibold text-ink
-           bg-gold-shine bg-[length:200%_100%] transition-all duration-300
-           hover:scale-105 hover:shadow-[0_0_30px_rgba(201,168,76,0.5)]
-           active:scale-95 overflow-hidden;
-  }
-  .btn-gold::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      105deg,
-      transparent 40%,
-      rgba(255,255,255,0.3) 45%,
-      rgba(255,255,255,0.3) 55%,
-      transparent 60%
-    );
-    background-size: 200% 100%;
-    background-position: 200% 0;
-    transition: background-position 0.6s ease;
-    pointer-events: none;
-  }
-  .btn-gold:hover::after {
-    background-position: -200% 0;
+    @apply relative px-8 py-3 rounded-xl font-semibold text-ink
+           bg-gold transition-all duration-300
+           hover:scale-[1.02] hover:shadow-[0_8px_30px_rgba(201,168,76,0.3)]
+           active:scale-[0.98];
   }
   .btn-gold-outline {
-    @apply relative px-6 py-2 rounded-full font-medium text-gold
-           border border-gold/40 transition-all duration-300
-           hover:bg-gold/10 hover:border-gold
-           active:scale-95;
+    @apply relative px-6 py-2.5 rounded-xl font-medium text-gold
+           border border-gold/30 transition-all duration-300
+           hover:bg-gold/10 hover:border-gold/50
+           active:scale-[0.98];
   }
   .card-glass {
-    @apply bg-white/5 backdrop-blur-md border border-white/10
-           rounded-2xl shadow-xl;
+    @apply bg-white/[0.04] backdrop-blur-sm border border-white/[0.08]
+           rounded-2xl;
   }
   .card-glow {
-    @apply card-glass hover:border-gold/40
-           transition-all duration-300 hover:shadow-[0_0_40px_rgba(201,168,76,0.15)];
+    @apply card-glass hover:border-gold/30
+           transition-all duration-300 hover:bg-white/[0.06];
   }
   .card-glass-elevated {
-    @apply bg-white/[0.07] backdrop-blur-xl border border-white/15
+    @apply bg-white/[0.06] backdrop-blur-md border border-white/[0.1]
            rounded-2xl;
     box-shadow:
-      0 0 0 1px rgba(255,255,255,0.05),
-      0 8px 32px rgba(0,0,0,0.3),
-      0 0 80px rgba(201,168,76,0.05);
+      0 4px 24px rgba(0,0,0,0.2),
+      0 0 0 1px rgba(255,255,255,0.03);
   }
   .card-interactive {
     @apply transition-all duration-300 ease-out;
   }
   .card-interactive:hover {
-    @apply -translate-y-1;
-    box-shadow:
-      0 20px 40px rgba(0,0,0,0.3),
-      0 0 60px rgba(201,168,76,0.08);
+    @apply -translate-y-0.5;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.25);
   }
   .section-title {
-    @apply text-3xl md:text-4xl font-serif font-bold text-center;
-    background: linear-gradient(135deg, #C9A84C 0%, #E8CB7A 40%, #C9A84C 80%);
+    @apply text-2xl md:text-3xl font-serif font-bold text-center;
+    background: linear-gradient(135deg, #C9A84C 0%, #E8CB7A 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 0 20px rgba(201, 168, 76, 0.15));
   }
   .input-field {
-    @apply w-full bg-white/5 border border-white/20 rounded-xl px-4 py-3
+    @apply w-full bg-white/[0.04] border border-white/[0.1] rounded-xl px-4 py-3
            text-white placeholder-white/30 focus:outline-none
-           focus:border-gold/60 focus:ring-1 focus:ring-gold/30
+           focus:border-gold/40 focus:bg-white/[0.06]
            transition-all duration-200;
   }
-  .label { @apply block text-sm text-white/70 mb-1.5 font-medium; }
+  .label { @apply block text-sm text-white/60 mb-1.5 font-medium; }
   .star-divider {
     @apply flex items-center gap-3 my-8;
   }
   .star-divider::before, .star-divider::after {
     content: "";
-    @apply flex-1 h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent;
+    @apply flex-1 h-px bg-white/[0.06];
   }
 
   /* 维度卡片 — 金色竖线装饰 */
@@ -112,18 +89,17 @@
   }
   .dimension-card::before {
     content: "";
-    @apply absolute top-3 bottom-0 left-0 w-[3px] rounded-full;
-    background: linear-gradient(to bottom, rgba(201,168,76,0.5), rgba(201,168,76,0.1));
+    @apply absolute top-3 bottom-0 left-0 w-[2px] rounded-full;
+    background: linear-gradient(to bottom, rgba(201,168,76,0.4), rgba(201,168,76,0.1));
   }
   .dimension-card:hover {
-    @apply border-white/15;
-    box-shadow: 0 0 0 1px rgba(255,255,255,0.05), 0 8px 32px rgba(0,0,0,0.3), 0 0 60px rgba(201,168,76,0.08);
+    @apply border-white/[0.12];
   }
 
   /* 金色渐变分割线 */
   .gold-divider {
     @apply my-8 h-px;
-    background: linear-gradient(to right, transparent, rgba(201,168,76,0.3), transparent);
+    background: linear-gradient(to right, transparent, rgba(201,168,76,0.2), transparent);
   }
 
   /* section 标题统一 */
@@ -131,10 +107,10 @@
     @apply flex items-center gap-2 px-1 mb-4;
   }
   .section-heading .bar {
-    @apply w-1 h-6 rounded-full bg-gold;
+    @apply w-1 h-5 rounded-full bg-gold/60;
   }
   .section-heading .text {
-    @apply text-white/75 text-sm font-medium;
+    @apply text-white/60 text-sm font-medium;
   }
 }
 
