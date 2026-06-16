@@ -129,8 +129,10 @@ jobs:
 
               echo "🔨 构建生产版本 (standalone)..."
               NODE_ENV=production npm run build
-              # ⚠️ 关键: build 过程中会以 root 创建 .next/types/ 等目录，必须在 build 后 chown
+              # ⚠️ 关键: build 过程中会以 root 创建 .next/types/ 和 .next/standalone/ 等目录
+              # 必须在 build 后 chown，否则下次构建会因 EACCES 失败
               sudo chown -R $(whoami) .next 2>/dev/null || true
+              sudo chown -R $(whoami) /opt/OmniFate/frontend 2>/dev/null || true
 
               # ── Verify build output ──
               echo "🔍 验证构建产物..."
