@@ -118,7 +118,7 @@ export default function FiveDimensionsOverview() {
   return (
     <section
       ref={containerRef}
-      className="relative py-32 px-4"
+      className="relative py-16 md:py-32 px-4"
       style={{ background: "#080808" }}
     >
       {/* Background glow */}
@@ -146,7 +146,7 @@ export default function FiveDimensionsOverview() {
 
         {/* Content: Radar + Dimension Cards */}
         <div
-          className="grid md:grid-cols-2 gap-12 items-center transition-all duration-1000 delay-300"
+          className="grid md:grid-cols-2 gap-6 md:gap-12 items-center transition-all duration-1000 delay-300"
           style={{ opacity: isVisible ? 1 : 0, transform: isVisible ? "translateY(0)" : "translateY(20px)" }}
         >
           {/* Left: Radar chart */}
@@ -196,7 +196,7 @@ export default function FiveDimensionsOverview() {
                 <div className="flex items-start gap-4 pl-3">
                   {/* Icon */}
                   <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-500 group-hover:scale-110"
+                    className="w-8 h-8 md:w-10 md:h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-500 group-hover:scale-110"
                     style={{
                       background: `${dim.color}12`,
                       border: `1px solid ${dim.color}25`,

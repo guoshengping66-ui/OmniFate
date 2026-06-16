@@ -53,7 +53,7 @@ export default function ReportPreview() {
   return (
     <section
       ref={containerRef}
-      className="relative py-32 px-4"
+      className="relative py-16 md:py-32 px-4"
       style={{ background: "#080808" }}
     >
       {/* Subtle glow */}

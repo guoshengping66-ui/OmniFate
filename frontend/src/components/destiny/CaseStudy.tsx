@@ -49,7 +49,7 @@ export default function CaseStudy() {
   return (
     <section
       ref={containerRef}
-      className="relative py-32 px-4"
+      className="relative py-16 md:py-32 px-4"
       style={{ background: "#080808" }}
     >
       <div className="max-w-5xl mx-auto">

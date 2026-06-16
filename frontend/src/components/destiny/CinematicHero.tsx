@@ -25,7 +25,7 @@ export default function CinematicHero() {
   return (
     <section
       ref={sectionRef}
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      className="relative min-h-[85vh] md:min-h-screen flex items-center justify-center overflow-hidden"
       style={{ background: "#080808" }}
     >
       {/* Starfield background */}
@@ -68,7 +68,7 @@ export default function CinematicHero() {
         </div>
 
         {/* Title */}
-        <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif font-bold tracking-[0.08em] uppercase mb-6 leading-[1.1]">
+        <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-serif font-bold tracking-[0.08em] uppercase mb-6 leading-[1.1]">
           <span
             className="block bg-clip-text text-transparent"
             style={{
@@ -92,7 +92,7 @@ export default function CinematicHero() {
         {/* CTA Button - Vision Pro glassmorphism style */}
         <a
           href="#archetypes"
-          className="group relative inline-flex items-center gap-3 px-10 py-4 rounded-2xl font-medium text-sm tracking-widest uppercase transition-all duration-500"
+          className="group relative inline-flex items-center gap-3 px-6 sm:px-10 py-3 sm:py-4 rounded-2xl font-medium text-xs sm:text-sm tracking-widest uppercase transition-all duration-500"
           style={{
             background: "linear-gradient(135deg, rgba(197,168,128,0.12) 0%, rgba(197,168,128,0.04) 100%)",
             border: "1px solid rgba(197,168,128,0.2)",
@@ -117,7 +117,7 @@ export default function CinematicHero() {
         </a>
 
         {/* Stats bar */}
-        <div className="flex items-center justify-center gap-6 mt-12 text-white/20 text-xs tracking-widest">
+        <div className="flex items-center justify-center gap-4 sm:gap-6 mt-8 sm:mt-12 text-white/20 text-[10px] sm:text-xs tracking-widest">
           <span>{t("hero.stat1")}</span>
           <span className="w-px h-3 bg-white/10" />
           <span>4.9 ★</span>

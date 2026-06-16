@@ -21,7 +21,7 @@ export default function FinalCTA() {
   return (
     <section
       ref={containerRef}
-      className="relative min-h-screen flex items-center justify-center py-32 px-4"
+      className="relative min-h-[85vh] md:min-h-screen flex items-center justify-center py-16 md:py-32 px-4"
       style={{ background: "#080808" }}
     >
       {/* Background glow */}
@@ -65,7 +65,7 @@ export default function FinalCTA() {
         {/* CTA Button */}
         <Link
           href={localeHref("/reading/new")}
-          className="group relative inline-flex items-center gap-3 px-12 py-4 rounded-2xl font-medium text-sm tracking-widest uppercase transition-all duration-500 mb-6"
+          className="group relative inline-flex items-center gap-3 px-8 sm:px-12 py-3 sm:py-4 rounded-2xl font-medium text-xs sm:text-sm tracking-widest uppercase transition-all duration-500 mb-6"
           style={{
             background: "linear-gradient(135deg, rgba(197,168,128,0.15), rgba(197,168,128,0.06))",
             border: "1px solid rgba(197,168,128,0.3)",

@@ -42,7 +42,7 @@ export default function LifestyleShowcase() {
   return (
     <section
       ref={containerRef}
-      className="relative py-32 px-4"
+      className="relative py-16 md:py-32 px-4"
       style={{ background: "#080808" }}
     >
       {/* Subtle background accent */}
@@ -69,7 +69,7 @@ export default function LifestyleShowcase() {
 
         {/* Product cards */}
         {loading ? (
-          <div className="grid md:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
             {[1, 2, 3].map(i => (
               <div key={i} className="rounded-3xl p-6 animate-pulse"
                 style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
@@ -81,7 +81,7 @@ export default function LifestyleShowcase() {
           </div>
         ) : products.length > 0 ? (
           <div
-            className="grid md:grid-cols-3 gap-5 transition-all duration-1000 delay-300"
+            className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 transition-all duration-1000 delay-300"
             style={{ opacity: isVisible ? 1 : 0, transform: isVisible ? "translateY(0)" : "translateY(20px)" }}
           >
             {products.map((product, i) => {
