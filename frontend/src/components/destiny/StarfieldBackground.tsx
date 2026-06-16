@@ -23,7 +23,7 @@ export default function StarfieldBackground() {
     const ctx = canvas.getContext("2d")
     if (!ctx) return
 
-    if (typeof window === "undefined") return
+    if (typeof window === "undefined" || !document.documentElement) return
 
     let animId: number
     let w = 0, h = 0
@@ -34,9 +34,10 @@ export default function StarfieldBackground() {
     const BAGUA = ["☰", "☱", "☲", "☳", "☴", "☵", "☶", "☷"]
 
     function resize() {
+      if (!document.documentElement) return
       const dpr = Math.min(window.devicePixelRatio, 2)
       w = window.innerWidth
-      h = window.documentElement.scrollHeight
+      h = document.documentElement.scrollHeight
       canvas!.width = w * dpr
       canvas!.height = h * dpr
       canvas!.style.width = w + "px"
