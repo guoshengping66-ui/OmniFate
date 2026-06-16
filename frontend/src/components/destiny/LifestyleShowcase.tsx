@@ -33,7 +33,9 @@ export default function LifestyleShowcase() {
           .slice(0, 3)
         setProducts(sorted)
       })
-      .catch(() => {})
+      .catch((err) => {
+        console.error("[LifestyleShowcase] Failed to load products:", err)
+      })
       .finally(() => setLoading(false))
   }, [locale])
 

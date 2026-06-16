@@ -29,16 +29,16 @@ rsync -a --delete .next/static/ "$STANDALONE/.next/static/"
 echo "  Syncing server files..."
 rsync -a --delete .next/server/ "$STANDALONE/.next/server/"
 
-# Copy individual manifest/build files
+# Copy individual manifest/build files (use rsync to avoid root alias cp='cp -i')
 echo "  Copying manifest files..."
-cp -f .next/BUILD_ID "$STANDALONE/.next/"
-cp -f .next/build-manifest.json "$STANDALONE/.next/"
-cp -f .next/prerender-manifest.json "$STANDALONE/.next/"
-cp -f .next/routes-manifest.json "$STANDALONE/.next/"
-cp -f .next/react-loadable-manifest.json "$STANDALONE/.next/"
-cp -f .next/app-build-manifest.json "$STANDALONE/.next/"
-cp -f .next/app-path-routes-manifest.json "$STANDALONE/.next/"
-cp -f .next/required-server-files.json "$STANDALONE/.next/"
+rsync -a .next/BUILD_ID "$STANDALONE/.next/"
+rsync -a .next/build-manifest.json "$STANDALONE/.next/"
+rsync -a .next/prerender-manifest.json "$STANDALONE/.next/"
+rsync -a .next/routes-manifest.json "$STANDALONE/.next/"
+rsync -a .next/react-loadable-manifest.json "$STANDALONE/.next/"
+rsync -a .next/app-build-manifest.json "$STANDALONE/.next/"
+rsync -a .next/app-path-routes-manifest.json "$STANDALONE/.next/"
+rsync -a .next/required-server-files.json "$STANDALONE/.next/"
 
 # Step 4: Copy public directory
 echo "[4/5] Copying public directory..."

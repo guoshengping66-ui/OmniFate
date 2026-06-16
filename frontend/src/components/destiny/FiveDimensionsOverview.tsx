@@ -141,6 +141,7 @@ export default function FiveDimensionsOverview() {
             </span>
           </h2>
           <p className="text-white/30 text-sm max-w-lg mx-auto">{t("fiveDim.desc")}</p>
+          <p className="text-white/20 text-[11px] mt-2 italic">* Demo data — your actual scores will appear after analysis</p>
         </div>
 
         {/* Content: Radar + Dimension Cards */}

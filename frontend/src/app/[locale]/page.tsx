@@ -7,13 +7,13 @@ import { useAuth } from "@/contexts/AuthContext"
 import { useUserStore } from "@/stores/useUserStore"
 
 // ── Lazy-loaded cinematic marketing page ─────────────────────────────────
-const CinematicHero = dynamic(() => import("@/components/destiny/CinematicHero"), { ssr: false })
+const CinematicHero = dynamic(() => import("@/components/destiny/CinematicHero"), { ssr: true })
 const FiveDimensionsOverview = dynamic(() => import("@/components/destiny/FiveDimensionsOverview"), { ssr: false })
 const Timeline = dynamic(() => import("@/components/destiny/Timeline"), { ssr: false })
 const ReportPreview = dynamic(() => import("@/components/destiny/ReportPreview"), { ssr: false })
 const LifestyleShowcase = dynamic(() => import("@/components/destiny/LifestyleShowcase"), { ssr: false })
 const CaseStudy = dynamic(() => import("@/components/destiny/CaseStudy"), { ssr: false })
-const FinalCTA = dynamic(() => import("@/components/destiny/FinalCTA"), { ssr: false })
+const FinalCTA = dynamic(() => import("@/components/destiny/FinalCTA"), { ssr: true })
 
 // ── Lazy-loaded below-the-fold sections ──────────────────────────
 const UserDashboard = dynamic(() => import("@/components/dashboard/UserDashboard").then(m => m.UserDashboard), {
