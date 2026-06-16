@@ -9,7 +9,7 @@ import { useUserStore } from "@/stores/useUserStore"
 // ── Lazy-loaded cinematic marketing page ─────────────────────────────────
 const CinematicHero = dynamic(() => import("@/components/destiny/CinematicHero"), { ssr: true })
 const FiveDimensionsOverview = dynamic(() => import("@/components/destiny/FiveDimensionsOverview"), { ssr: false })
-const Timeline = dynamic(() => import("@/components/destiny/Timeline"), { ssr: false })
+const ServicesShowcase = dynamic(() => import("@/components/destiny/ServicesShowcase"), { ssr: false })
 const ReportPreview = dynamic(() => import("@/components/destiny/ReportPreview"), { ssr: false })
 const LifestyleShowcase = dynamic(() => import("@/components/destiny/LifestyleShowcase"), { ssr: false })
 const CaseStudy = dynamic(() => import("@/components/destiny/CaseStudy"), { ssr: false })
@@ -105,7 +105,7 @@ export default function HomePage() {
     <div className="min-h-screen" style={{ background: "#080808" }}>
       <CinematicHero />
       <FiveDimensionsOverview />
-      <Timeline />
+      <ServicesShowcase />
       <ReportPreview />
       <LifestyleShowcase />
       <CaseStudy />

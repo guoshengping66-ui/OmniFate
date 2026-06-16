@@ -80,6 +80,10 @@ export default function NewReadingPage() {
         quick: "GENERAL_DAILY",
         full: "FULL_MULTIMODAL",
         relationship: "RELATIONSHIP",
+        BAZI: "BAZI",
+        ASTROLOGY: "ASTROLOGY",
+        TAROT: "TAROT",
+        FACE_HAND: "FACE_HAND",
       }
       const mapped = INTENT_MAP[intentParam]
       if (mapped) {
@@ -213,8 +217,14 @@ export default function NewReadingPage() {
     if (currentIntent === "SPECIFIC_EVENT") {
       return [t("new.step4")] // Only confirm
     }
-    if (currentIntent === "GENERAL_DAILY") {
+    if (currentIntent === "GENERAL_DAILY" || currentIntent === "TAROT") {
       return [t("new.step2"), t("new.step4")] // Tarot + confirm
+    }
+    if (currentIntent === "BAZI" || currentIntent === "ASTROLOGY") {
+      return [t("new.step1"), t("new.step4")] // Birth info + confirm
+    }
+    if (currentIntent === "FACE_HAND") {
+      return [t("new.step3"), t("new.step4")] // Face/Palm + confirm
     }
     if (currentIntent === "RELATIONSHIP") {
       return [t("new.step1"), t("new.stepPartner"), t("new.step2"), t("new.step4")] // Birth info + Partner + Tarot + confirm
@@ -1203,18 +1213,31 @@ export default function NewReadingPage() {
                 {t("new.confirmDesc2")} <span className="text-gold font-semibold">{t("new.confirmDesc3")}</span> {t("new.confirmDesc4")}
               </p>
               <div className="card-glass p-4 text-left space-y-2">
-                {[
-                  ["☯", t("new.baziFull")],
-                  ["✦", t("new.astrologyFull")],
-                  ["🃏", t("new.tarotFull")],
-                  ["👁", `${t("new.faceSystem")} — ${faceText ? t("new.faceV2TReady") : facePreview ? t("new.faceV2TFailed") : t("new.faceNoPhotoProvided")}`],
-                  ["🤚", `${t("new.palmSystem")} — ${palmText ? t("new.palmV2TReady") : palmPreview ? t("new.palmV2TFailed") : t("new.palmNoData")}`],
-                  ["🌟", t("new.masterFull")],
-                ].map(([icon, text]) => (
-                  <div key={text} className="flex items-center gap-2 text-sm text-white/70">
-                    <span className="flex-shrink-0">{icon}</span> {text}
-                  </div>
-                ))}
+                {(() => {
+                  // Show relevant analysis items based on intent
+                  const items: [string, string][] = []
+                  if (!currentIntent || currentIntent === "FULL_MULTIMODAL" || currentIntent === "RELATIONSHIP" || currentIntent === "BAZI") {
+                    items.push(["☯", t("new.baziFull")])
+                  }
+                  if (!currentIntent || currentIntent === "FULL_MULTIMODAL" || currentIntent === "RELATIONSHIP" || currentIntent === "ASTROLOGY") {
+                    items.push(["✦", t("new.astrologyFull")])
+                  }
+                  if (!currentIntent || currentIntent === "FULL_MULTIMODAL" || currentIntent === "GENERAL_DAILY" || currentIntent === "RELATIONSHIP" || currentIntent === "TAROT") {
+                    items.push(["🃏", t("new.tarotFull")])
+                  }
+                  if (!currentIntent || currentIntent === "FULL_MULTIMODAL" || currentIntent === "RELATIONSHIP" || currentIntent === "FACE_HAND") {
+                    items.push(["👁", `${t("new.faceSystem")} — ${faceText ? t("new.faceV2TReady") : facePreview ? t("new.faceV2TFailed") : t("new.faceNoPhotoProvided")}`])
+                    items.push(["🤚", `${t("new.palmSystem")} — ${palmText ? t("new.palmV2TReady") : palmPreview ? t("new.palmV2TFailed") : t("new.palmNoData")}`])
+                  }
+                  if (!currentIntent || currentIntent === "FULL_MULTIMODAL" || currentIntent === "RELATIONSHIP") {
+                    items.push(["🌟", t("new.masterFull")])
+                  }
+                  return items.map(([icon, text]) => (
+                    <div key={text} className="flex items-center gap-2 text-sm text-white/70">
+                      <span className="flex-shrink-0">{icon}</span> {text}
+                    </div>
+                  ))
+                })()}
               </div>
 
               {/* ── Unlock Report Button ───────────────────────── */}

@@ -2,7 +2,7 @@ import { create } from "zustand"
 import type { BirthProfile } from "@/lib/birth-profile-api"
 import type { Gender } from "@/lib/api"
 
-export type Intent = "GENERAL_DAILY" | "SPECIFIC_EVENT" | "FULL_MULTIMODAL" | "RELATIONSHIP"
+export type Intent = "GENERAL_DAILY" | "SPECIFIC_EVENT" | "FULL_MULTIMODAL" | "RELATIONSHIP" | "BAZI" | "ASTROLOGY" | "TAROT" | "FACE_HAND"
 
 export interface WizardFormData {
   gender: Gender
@@ -86,12 +86,17 @@ export const useWizardStore = create<WizardStore>((set, get) => ({
       // GENERAL_DAILY: skip birth info, go to symbol (step 1)
       // SPECIFIC_EVENT: skip everything, go to confirm (step 3)
       // RELATIONSHIP: start at birth info (step 0) — need user's own info
+      // BAZI / ASTROLOGY: start at birth info (step 0)
+      // TAROT: skip birth info, go to tarot (step 0 in tarot-only flow)
+      // FACE_HAND: skip birth info, go to face/palm (step 0 in face-hand flow)
       startStep:
         intent === "SPECIFIC_EVENT"
           ? 3
-          : intent === "GENERAL_DAILY"
+          : intent === "GENERAL_DAILY" || intent === "TAROT"
             ? 1
-            : 0, // FULL_MULTIMODAL and RELATIONSHIP start at birth info
+            : intent === "FACE_HAND"
+              ? 2
+              : 0, // FULL_MULTIMODAL, RELATIONSHIP, BAZI, ASTROLOGY start at birth info
     })
   },
 

@@ -3925,5 +3925,31 @@
     "title": "Popular Lifestyle Picks",
     "desc": "Curated tools to elevate your lifestyle, based on analysis data",
     "viewAll": "Explore More"
+  },
+  "services": {
+    "badge": "Individual Services",
+    "title": "Choose Your Analysis",
+    "desc": "Each service works independently — no full reading required",
+    "start": "Start Analysis",
+    "bazi": {
+      "title": "Bazi Analysis",
+      "desc": "Four Pillars · Destiny Chart · Five Elements",
+      "tag": "Birth Info"
+    },
+    "astrology": {
+      "title": "Astrology Reading",
+      "desc": "Natal Chart · Planet Positions · Star Patterns",
+      "tag": "Birth Info"
+    },
+    "tarot": {
+      "title": "Tarot Divination",
+      "desc": "Tarot Cards · Intuition Guide · Symbolic Reading",
+      "tag": "Pick Cards"
+    },
+    "faceHand": {
+      "title": "Face & Palm Reading",
+      "desc": "AI Face Scan · Palm Analysis · Physiognomy",
+      "tag": "Upload Photo"
+    }
   }
 }
