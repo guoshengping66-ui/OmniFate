@@ -10,11 +10,12 @@ export const STARDUST_COST = {
   /** 高能消耗 */
   FULL_REPORT: 100,       // 解锁全维报告（完整工人报告+追问资格）
   DETAILED_REPORT: 30,    // 解锁精读报告（深度分析文本）
-  EVENT_RETRO: 30,        // 生命事件复盘
+  EVENT_RETRO: 50,        // 事件分析
+  SYNASTRY_REPORT: 200,   // 合盘报告（双人关系分析）
   /** 中能消耗 */
   FOLLOW_UP: 10,          // AI 追问/对话 (每轮)
   /** 低能消耗 */
-  ENERGY_RADAR: 5,        // 今日能量雷达 (会员免费)
+  ENERGY_RADAR: 0,        // 今日能量雷达 (免费)
   EXTRA_DIVINATION: 1,    // 额外分析
 } as const
 
@@ -126,11 +127,11 @@ export const PLANS: PlanConfig[] = [
     id: "onetime_unlock",
     name: "一次性解锁",
     subtitle: "永久解锁一份全维报告",
-    priceCny: 19.9,
-    priceUsd: 9.9,
+    priceCny: 9.9,
+    priceUsd: 5.9,
     monthlyStardustGrant: 0,
-    displayCny: "¥19.9",
-    displayUsd: "$9.9",
+    displayCny: "¥9.9",
+    displayUsd: "$5.9",
     features: [
       "永久解锁一份全维报告",
       "赠送 50 星尘（追问5次）",
@@ -156,17 +157,22 @@ export const FOUNDER_CONFIG = {
 
 // ── 首单优惠 ──────────────────────────────────────────────────────────────────
 export const FIRST_ORDER_DISCOUNT = 30  // 首单立减 ¥30
-export const ONETIME_UNLOCK_CNY = 19.9
-export const ONETIME_UNLOCK_USD = 9.9
+export const ONETIME_UNLOCK_CNY = 9.9
+export const ONETIME_UNLOCK_USD = 5.9
+
+// ── 合盘报告定价 ──────────────────────────────────────────────────────────────
+export const SYNASTRY_REPORT_CNY = 29.9
+export const SYNASTRY_REPORT_USD = 19.9
+export const SYNASTRY_REPORT_STARDUST = 200
 
 // ── 星尘注入文案 ──────────────────────────────────────────────────────────────
 export const STARDUST_MESSAGES = {
   lowBalance: "星辰能量暂不足以支撑此次推演，是否向星空索取更多能量？",
   insufficientForReport: "推演全维报告需要 100 颗星尘，当前能量储备不足",
   insufficientForDetailed: "精读报告需要 30 颗星尘，当前能量储备不足",
-  insufficientForRetro: "事件复盘需要 30 颗星尘，当前能量储备不足",
+  insufficientForRetro: "事件分析需要 50 颗星尘，当前能量储备不足",
   insufficientForFollowUp: "每次追问需要 10 颗星尘，当前能量储备不足",
-  insufficientForRadar: "能量雷达需要 5 颗星尘，当前能量储备不足",
+  insufficientForRadar: "能量雷达当前免费使用",
   deductSuccess: "能量注入成功",
   refundSuccess: "能量已返还",
   monthlyGrant: "本月星尘能量已注入",

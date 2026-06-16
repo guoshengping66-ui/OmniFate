@@ -663,7 +663,7 @@ export default {
   "events.memberQuota": "Members only: {count} free retrospections left this month",
   "events.yearlyMember": "(Yearly Member: 5/month)",
   "events.monthlyMember": "(Monthly Member: 2/month)",
-  "events.freeUserNote": "Free users: ¥19.9/time · Subscribe for 2-5 free/month",
+  "events.freeUserNote": "Free users: ¥9.9/time · Subscribe for 2-5 free/month",
   "events.afterComplete": "After your reading, we'll suggest matching remedy products you can add with one tap",
   "events.createFail": "Failed to create event",
   "events.payFail": "Payment verification failed",
@@ -2598,7 +2598,7 @@ export default {
   "eventInput.title": "Event Review",
   "eventInput.freeRemaining": "{count} free reviews remaining this month",
   "eventInput.desc": "Describe an event you want to understand deeply. AI will analyze the causal chain from transit chart and Four-Pillar perspectives, and provide current response strategies.",
-  "eventInput.price": "¥19.9/time",
+  "eventInput.price": "¥9.9/time",
   "eventInput.eventDesc": "Event Description",
   "eventInput.eventDescPlaceholder": "Describe what happened — the more detailed, the more precise the AI analysis...",
   "eventInput.eventDate": "Event Date",
@@ -2611,7 +2611,7 @@ export default {
   "eventInput.emotion9": "Extremely Positive",
   "eventInput.analyzing": "Analyzing...",
   "eventInput.freeReview": "Free Review",
-  "eventInput.startReview": "¥19.9 Start Review",
+  "eventInput.startReview": "¥9.9 Start Review",
 
   // ─── SEO Pages ───
   "seo.stellar profile.breadcrumb": "Stellar Profile", "seo.stellar profile.title": "AI Stellar Profile Analysis", "seo.stellar profile.desc": "Based on your birth time and location, AI draws your behavioral profile and deeply interprets planetary placements and aspects, revealing your unique life blueprint.",

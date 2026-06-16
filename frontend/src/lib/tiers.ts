@@ -26,7 +26,7 @@ export interface PricingTier {
 export const PRICING_DATA = {
   domestic: {
     currency: "¥",
-    single_report: { price: 19.9, stardust: 50, label: "全维全景报告" },
+    single_report: { price: 9.9, stardust: 50, label: "全维全景报告" },
     onetime_unlock: { price: 19.9, stardust_grant: 50, label: "一次性解锁", tag: "每个账户限一次" },
     monthly: { price: 59, stardust_grant: 100, label: "Fate OS 月度订阅" },
     yearly: { price: 365, stardust_grant: 150, label: "Fate OS 年度订阅", tag: "每天仅需 1 元" },
@@ -34,7 +34,7 @@ export const PRICING_DATA = {
   },
   overseas: {
     currency: "$",
-    single_report: { price: 9.9, stardust: 50, label: "Full-Dimension Report" },
+    single_report: { price: 5.9, stardust: 50, label: "Full-Dimension Report" },
     onetime_unlock: { price: 9.9, stardust_grant: 50, label: "One-Time Unlock", tag: "One per account" },
     monthly: { price: 14.99, stardust_grant: 100, label: "Fate OS Monthly" },
     yearly: { price: 99.00, stardust_grant: 150, label: "Fate OS Yearly", tag: "Best Value" },
@@ -115,13 +115,13 @@ export const TIERS: PricingTier[] = [
   },
   {
     id: "event_retro",
-    name: "事件复盘",
+    name: "事件分析",
     subtitle: "单次事件溯源诊断",
-    priceCny: 19.9,
-    priceUsd: 4.99,
-    stardust: 30,
-    priceDisplay: "¥19.9/次",
-    priceDisplayUsd: "$4.99/time",
+    priceCny: 9.9,
+    priceUsd: 5.9,
+    stardust: 50,
+    priceDisplay: "¥9.9/次",
+    priceDisplayUsd: "$5.9/time",
     features: [
       "事件时刻流时图表",
       "因果链 AI 溯源分析",
@@ -138,12 +138,12 @@ export const TIERS: PricingTier[] = [
     id: "onetime_unlock",
     name: "一次性解锁",
     subtitle: "永久解锁一份全维报告",
-    priceCny: 19.9,
-    priceUsd: 9.9,
+    priceCny: 9.9,
+    priceUsd: 5.9,
     stardust: 0,
     stardustGrant: 50,
-    priceDisplay: "¥19.9",
-    priceDisplayUsd: "$9.9",
+    priceDisplay: "¥9.9",
+    priceDisplayUsd: "$5.9",
     features: [
       "永久解锁一份全维报告",
       "赠送 50 星尘（追问5次）",
@@ -186,11 +186,11 @@ export const TIER_MAP: Record<string, PricingTier> = Object.fromEntries(
   TIERS.map(t => [t.id, t])
 )
 
-export const FULL_REPORT_PRICE = 19.9
-export const FULL_REPORT_PRICE_USD = 9.9
+export const FULL_REPORT_PRICE = 9.9
+export const FULL_REPORT_PRICE_USD = 5.9
 export const FIRST_REPORT_PRICE = 29.9
-export const EVENT_RETRO_PRICE = 19.9
-export const EVENT_RETRO_PRICE_USD = 4.99
+export const EVENT_RETRO_PRICE = 9.9
+export const EVENT_RETRO_PRICE_USD = 5.9
 export const PREMIUM_MONTHLY = 59
 export const PREMIUM_MONTHLY_USD = 14.99
 export const PREMIUM_YEARLY = 365
@@ -201,5 +201,5 @@ export const MEMBER_DISCOUNT = 0.88
 export const FOUNDER_PRICE = 1688
 export const FOUNDER_PRICE_USD = 499
 export const FOUNDER_MAX_SEATS = 200
-export const ONETIME_UNLOCK_PRICE = 19.9
-export const ONETIME_UNLOCK_PRICE_USD = 9.9
+export const ONETIME_UNLOCK_PRICE = 9.9
+export const ONETIME_UNLOCK_PRICE_USD = 5.9
