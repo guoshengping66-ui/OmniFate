@@ -10,7 +10,7 @@ const StarfieldBackground = dynamic(() => import("@/components/destiny/Starfield
 
 // ── Lazy-loaded cinematic marketing page ─────────────────────────────
 const CinematicHero = dynamic(() => import("@/components/destiny/CinematicHero"), { ssr: true })
-const HowItWorks = dynamic(() => import("@/components/destiny/HowItWorks"), { ssr: false })
+const UniqueCapabilities = dynamic(() => import("@/components/destiny/UniqueCapabilities"), { ssr: false })
 const ServicesShowcase = dynamic(() => import("@/components/destiny/ServicesShowcase"), { ssr: false })
 const ReportPreview = dynamic(() => import("@/components/destiny/ReportPreview"), { ssr: false })
 const LifestyleShowcase = dynamic(() => import("@/components/destiny/LifestyleShowcase"), { ssr: false })
@@ -103,7 +103,7 @@ export default function HomePage() {
       <StarfieldBackground />
       <div className="relative z-10 min-h-screen">
         <CinematicHero />
-        <HowItWorks />
+        <UniqueCapabilities />
         <ServicesShowcase />
         <ReportPreview />
         <LifestyleShowcase />

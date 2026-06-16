@@ -2993,18 +2993,18 @@
     "title": "Something went wrong"
   },
   "hero": {
-    "badge": "128,000+ users have found their behavioral answers",
+    "badge": "AI Behavioral Analysis Engine",
     "badgePeople": "",
-    "cta1": "Free Reading",
-    "cta2": "Browse Status Shop",
-    "desc": "Four-Pillar · Behavioral Pattern · Symbolic · Facial Feature · Hand Feature — Five systems, one AI-powered reading\n40-second personalized chart report with lifestyle enhancement matching.",
+    "cta1": "Start Analysis",
+    "cta2": "Explore Capabilities",
+    "desc": "Fusing ancient wisdom with machine learning across five analysis systems\n40-second personalized behavioral report with lifestyle optimization matching",
     "stat1": "Readings",
     "stat2": "Satisfaction",
     "stat3": "Dimensions",
     "stat4": "Sec Report",
     "statPeople": "",
-    "title1": "Your Behavioral Code,",
-    "title2": "Decoded by AI",
+    "title1": "Behavioral Mirror",
+    "title2": "AI-Powered Behavioral Decoding",
     "trust": "128,000+ users · 4.9/5 rating · 40-second reports"
   },
   "curated": {
@@ -3935,6 +3935,20 @@
     "analyzeDesc": "Our AI engine cross-references ancient systems with modern data models",
     "discoverTitle": "Unlock Insights",
     "discoverDesc": "Receive your personalized destiny blueprint with actionable guidance"
+  },
+  "capabilities": {
+    "title": "Five Unique Capabilities",
+    "desc": "Not fortune telling — AI-powered behavioral science",
+    "am16Title": "AM16 Behavioral Model",
+    "am16Desc": "Proprietary 16-type behavioral personality model that maps your patterns and inner drive",
+    "fiveDimTitle": "5-Dimension Cross-Validation",
+    "fiveDimDesc": "Wealth, Career, Health, Relationship, Spiritual — five dimensions cross-referenced for complete insight",
+    "multiModalTitle": "Multi-Modal AI Fusion",
+    "multiModalDesc": "Face + Palm + Birth Chart — multiple analysis dimensions cross-validated for maximum accuracy",
+    "speedTitle": "40-Second Report",
+    "speedDesc": "AI engine processes in real-time — from input to full report in just 40 seconds",
+    "eventReviewTitle": "Event Retrospection",
+    "eventReviewDesc": "Analyze specific life events with transit charts, tracing causal chains and optimization paths"
   },
   "services": {
     "badge": "Individual Services",

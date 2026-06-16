@@ -6,7 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext"
 const FateOrb = dynamic(() => import("./FateOrb"), { ssr: false })
 
 export default function CinematicHero() {
-  const { t, localeHref } = useLanguage()
+  const { t, locale, localeHref } = useLanguage()
   const sectionRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
@@ -39,7 +39,7 @@ export default function CinematicHero() {
 
           {/* Left: Text content */}
           <div className="flex-1 text-center lg:text-left lg:max-w-xl">
-            {/* Badge */}
+            {/* Badge — unique platform positioning */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#C5A880]/20 bg-[#C5A880]/[0.05] backdrop-blur-sm mb-6 lg:mb-8">
               <span className="w-1.5 h-1.5 rounded-full bg-[#C5A880] animate-pulse" />
               <span className="text-[#C5A880]/70 text-xs tracking-[0.3em] uppercase font-medium">
@@ -47,7 +47,7 @@ export default function CinematicHero() {
               </span>
             </div>
 
-            {/* Title */}
+            {/* Title — 三行式: 品牌定位 + 产品名 + 系统名 */}
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-serif font-bold tracking-[0.06em] uppercase mb-6 leading-[1.05]">
               <span
                 className="block bg-clip-text text-transparent"
@@ -62,14 +62,14 @@ export default function CinematicHero() {
               </span>
             </h1>
 
-            {/* Subtitle */}
+            {/* Subtitle — AI+行为分析 unique positioning */}
             <p className="text-white/35 text-sm md:text-base max-w-lg mx-auto lg:mx-0 mb-8 lg:mb-10 leading-relaxed tracking-wide">
               {t("hero.desc").split("\n")[0]}
               <br />
               <span className="text-[#C5A880]/50">{t("hero.desc").split("\n")[1]}</span>
             </p>
 
-            {/* CTA Buttons */}
+            {/* CTA Buttons — two clear actions */}
             <div className="flex flex-col sm:flex-row items-center gap-4 lg:justify-start justify-center">
               <a
                 href={localeHref("/reading/new")}
@@ -98,18 +98,18 @@ export default function CinematicHero() {
               </a>
 
               <a
-                href="#services"
+                href="#capabilities"
                 className="group inline-flex items-center gap-2 px-6 py-3 rounded-2xl font-medium text-xs sm:text-sm tracking-wider transition-all duration-500 text-white/30 hover:text-white/60"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z" />
                 </svg>
-                {localeHref ? "Explore" : "探索"}
+                {locale === "zh" ? "探索能力" : "Explore"}
               </a>
             </div>
 
-            {/* Stats bar */}
+            {/* Stats bar — subtle social proof */}
             <div className="flex items-center gap-4 sm:gap-6 mt-10 lg:mt-14 lg:justify-start justify-center text-white/15 text-[10px] sm:text-xs tracking-widest">
               <span>{t("hero.stat1")}</span>
               <span className="w-px h-3 bg-white/10" />
@@ -119,7 +119,7 @@ export default function CinematicHero() {
             </div>
           </div>
 
-          {/* Right: 3D Fate Orb */}
+          {/* Right: 3D Fate Orb — the AI engine visual */}
           <div className="flex-1 flex items-center justify-center w-full lg:w-auto h-[300px] sm:h-[400px] lg:h-[500px] relative">
             {/* Orb glow backdrop */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
