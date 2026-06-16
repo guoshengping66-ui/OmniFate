@@ -17,7 +17,7 @@ interface Star {
   x: number; y: number; r: number; a: number; speed: number; twinklePhase: number; twinkleSpeed: number
 }
 interface Nebula {
-  x: number; y: number; rx: number; ry: number; color: string; opacity: number; driftX: number; driftY: number
+  x: number; y: number; rx: number; ry: number; color: string; driftX: number; driftY: number
 }
 interface ShootingStar {
   x: number; y: number; angle: number; speed: number; length: number; life: number; maxLife: number
@@ -52,6 +52,8 @@ export default function StarfieldBackground() {
     let lastShootingStar = 0
     let constellationCache: { i: number; j: number; alpha: number }[] = []
     let constellationFrame = 0
+    let bgGradient: CanvasGradient | null = null
+    let glowSprite: HTMLCanvasElement | null = null
 
     // I Ching + Tarot symbol pool
     const SYMBOLS = [
@@ -80,12 +82,33 @@ export default function StarfieldBackground() {
       canvas!.style.height = h + "px"
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0)
 
+      // Cache background gradient (same every frame, only changes on height change)
+      bgGradient = ctx!.createLinearGradient(0, 0, 0, h)
+      bgGradient.addColorStop(0, "#050510")
+      bgGradient.addColorStop(0.3, "#080812")
+      bgGradient.addColorStop(0.6, "#0a0a14")
+      bgGradient.addColorStop(1, "#080810")
+
+      // Create glow sprite once (replaces per-frame radialGradient for star glow)
+      if (!glowSprite) {
+        glowSprite = document.createElement("canvas")
+        glowSprite.width = 14; glowSprite.height = 14
+        const gCtx = glowSprite.getContext("2d")!
+        const gGrad = gCtx.createRadialGradient(7, 7, 0, 7, 7, 7)
+        gGrad.addColorStop(0, "rgba(197,168,128,0.15)")
+        gGrad.addColorStop(1, "rgba(197,168,128,0)")
+        gCtx.fillStyle = gGrad
+        gCtx.fillRect(0, 0, 14, 14)
+      }
+
       if (oldW > 0 && oldH > 0) {
         // Scale existing objects proportionally instead of reinitializing
         const sx = w / oldW, sy = h / oldH
         for (const s of stars) { s.x *= sx; s.y *= sy }
         for (const n of nebulae) { n.x *= sx; n.y *= sy }
         for (const sym of floatingSymbols) { sym.x *= sx; sym.y *= sy }
+        // Invalidate constellation cache after positions change
+        constellationCache = []
       } else {
         initStars()
         initNebulae()
@@ -119,7 +142,6 @@ export default function StarfieldBackground() {
         rx: Math.random() * 400 + 200,
         ry: Math.random() * 300 + 150,
         color: palette[i % palette.length],
-        opacity: 1,
         driftX: (Math.random() - 0.5) * 0.15,
         driftY: (Math.random() - 0.5) * 0.1,
       }))
@@ -186,14 +208,11 @@ export default function StarfieldBackground() {
         }
         ctx!.fill()
 
-        if (s.r > 1.2) {
-          ctx!.beginPath()
-          ctx!.arc(s.x, s.y, s.r * 3, 0, Math.PI * 2)
-          const grad = ctx!.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r * 3)
-          grad.addColorStop(0, `rgba(197,168,128,${alpha * 0.15})`)
-          grad.addColorStop(1, "rgba(197,168,128,0)")
-          ctx!.fillStyle = grad
-          ctx!.fill()
+        if (s.r > 1.2 && glowSprite) {
+          const spriteSize = s.r * 6
+          ctx!.globalAlpha = alpha
+          ctx!.drawImage(glowSprite, s.x - spriteSize / 2, s.y - spriteSize / 2, spriteSize, spriteSize)
+          ctx!.globalAlpha = 1
         }
       }
     }
@@ -332,12 +351,7 @@ export default function StarfieldBackground() {
     function frame(time: number) {
       ctx!.clearRect(0, 0, w, h)
 
-      const bgGrad = ctx!.createLinearGradient(0, 0, 0, h)
-      bgGrad.addColorStop(0, "#050510")
-      bgGrad.addColorStop(0.3, "#080812")
-      bgGrad.addColorStop(0.6, "#0a0a14")
-      bgGrad.addColorStop(1, "#080810")
-      ctx!.fillStyle = bgGrad
+      ctx!.fillStyle = bgGradient!
       ctx!.fillRect(0, 0, w, h)
 
       drawNebulae(time)

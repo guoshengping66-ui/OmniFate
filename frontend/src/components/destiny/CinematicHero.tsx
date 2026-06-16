@@ -8,6 +8,7 @@ const FateOrb = dynamic(() => import("./FateOrb"), { ssr: false })
 export default function CinematicHero() {
   const { t, locale, localeHref } = useLanguage()
   const sectionRef = useRef<HTMLElement>(null)
+  const descLines = t("hero.desc").split("\n")
 
   useEffect(() => {
     const handleScroll = () => {
@@ -64,21 +65,13 @@ export default function CinematicHero() {
 
             {/* Subtitle — AI+行为分析 unique positioning */}
             <p className="text-white/35 text-sm md:text-base max-w-lg mx-auto lg:mx-0 mb-8 lg:mb-10 leading-relaxed tracking-wide">
-              {(() => {
-                const desc = t("hero.desc")
-                const lines = desc.split("\n")
-                return (
-                  <>
-                    {lines[0]}
-                    {lines.length > 1 && (
-                      <>
-                        <br />
-                        <span className="text-[#C5A880]/50">{lines[1]}</span>
-                      </>
-                    )}
-                  </>
-                )
-              })()}
+              {descLines[0]}
+              {descLines.length > 1 && (
+                <>
+                  <br />
+                  <span className="text-[#C5A880]/50">{descLines[1]}</span>
+                </>
+              )}
             </p>
 
             {/* CTA Buttons — two clear actions */}
