@@ -171,32 +171,30 @@ jobs:
               sudo rm -rf "$STANDALONE_DIR/.next/static" 2>/dev/null || true
               sudo mkdir -p "$STANDALONE_DIR/.next/static"
 
-              # 复制并记录结果
+              # 复制静态文件 (不用 -v 避免 SSH 日志缓冲区溢出)
               echo "   === 执行复制 ==="
-              sudo cp -rv .next/static/* "$STANDALONE_DIR/.next/static/" 2>&1 | tail -20
-              CP_EXIT=$?
-              echo "   cp 退出码: $CP_EXIT"
+              sudo cp -r .next/static/* "$STANDALONE_DIR/.next/static/" || { echo "❌ cp static 失败"; exit 1; }
+              echo "   cp static 完成"
 
               # 复制 public
               sudo rm -rf "$STANDALONE_DIR/public" 2>/dev/null || true
               sudo cp -r public "$STANDALONE_DIR/public" 2>/dev/null || true
               sudo chown -R $(whoami) /opt/OmniFate/frontend 2>/dev/null || true
 
-              # 详细检查目标目录
-              echo "   === 目标目录 $STANDALONE_DIR/.next/static/ 内容 ==="
-              find "$STANDALONE_DIR/.next/static/" -type f -name "*.js" 2>/dev/null | wc -l | xargs echo "   JS 文件总数:"
-              find "$STANDALONE_DIR/.next/static/chunks/" -type f 2>/dev/null | wc -l | xargs echo "   chunks 目录文件总数:"
-              ls -la "$STANDALONE_DIR/.next/static/" 2>/dev/null
+              # 验证目标目录 (用 || true 防止 set -e 误退出)
+              JS_COUNT=$(find "$STANDALONE_DIR/.next/static/" -type f -name "*.js" 2>/dev/null | wc -l || echo 0)
+              CHUNK_COUNT_L=$(find "$STANDALONE_DIR/.next/static/chunks/" -type f 2>/dev/null | wc -l || echo 0)
+              echo "   JS 文件总数: $JS_COUNT, chunks 文件总数: $CHUNK_COUNT_L"
 
               # ⚠️ 验证: standalone 目录必须包含 chunks，否则部署会白跑
-              CHUNK_COUNT=$(find "$STANDALONE_DIR/.next/static/chunks" -name "*.js" 2>/dev/null | wc -l)
+              CHUNK_COUNT=$(find "$STANDALONE_DIR/.next/static/chunks" -name "*.js" 2>/dev/null | wc -l || echo 0)
               if [ "$CHUNK_COUNT" -lt 10 ]; then
                 echo "❌ 验证失败: standalone 目录只有 $CHUNK_COUNT 个 chunk 文件（预期 >10）"
                 exit 1
               fi
 
               # ⚠️ 验证: 检测嵌套路径错误 (static/static/chunks)
-              NESTED_COUNT=$(find "$STANDALONE_DIR/.next/static/static" -name "*.js" 2>/dev/null | wc -l)
+              NESTED_COUNT=$(find "$STANDALONE_DIR/.next/static/static" -name "*.js" 2>/dev/null | wc -l || echo 0)
               if [ "$NESTED_COUNT" -gt 0 ]; then
                 echo "❌ 检测到嵌套目录错误: static/static/ (共 $NESTED_COUNT 个文件)"
                 echo "   修复中: 移动文件到正确位置..."
