@@ -27,6 +27,17 @@
   p { @apply text-white/70 leading-relaxed; }
 }
 
+/* Scrollbar hide utilities */
+.scrollbar-hide,
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar,
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
 @layer components {
   .btn-gold {
     @apply relative px-8 py-3 rounded-xl font-semibold text-ink

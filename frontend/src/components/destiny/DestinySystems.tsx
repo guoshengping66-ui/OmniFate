@@ -84,8 +84,7 @@ export default function DestinySystems() {
           <div className="absolute right-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-l from-[#0A1235] to-transparent z-10 pointer-events-none" />
 
           {/* Scrollable container */}
-          <div className="flex gap-4 sm:gap-6 overflow-x-auto pb-6 snap-x snap-mandatory scrollbar-hide"
-            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          <div className="flex gap-4 sm:gap-6 overflow-x-auto pb-6 snap-x snap-mandatory scrollbar-hide min-w-0"
           >
             {systems.map((system) => (
               <div
