@@ -69,6 +69,8 @@ export default function UniqueCapabilities() {
     <section
       ref={containerRef}
       id="capabilities"
+      role="region"
+      aria-labelledby="capabilities-title"
       className="relative py-16 md:py-28 px-4"
     >
       {/* Background glow */}
@@ -85,7 +87,7 @@ export default function UniqueCapabilities() {
           <span className="text-[#C5A880]/40 text-[10px] tracking-[0.5em] uppercase font-medium">
             {locale === "zh" ? "核心能力" : "CAPABILITIES"}
           </span>
-          <h2 className="text-2xl md:text-4xl font-serif font-bold mt-3 mb-3 tracking-wide">
+          <h2 id="capabilities-title" className="text-2xl md:text-4xl font-serif font-bold mt-3 mb-3 tracking-wide">
             <span className="bg-clip-text text-transparent" style={{ backgroundImage: "linear-gradient(135deg, #C5A880, #E8D5B7)" }}>
               {t("capabilities.title")}
             </span>

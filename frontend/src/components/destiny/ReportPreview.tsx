@@ -3,14 +3,23 @@ import { useRef, useState, useEffect } from "react"
 import Link from "next/link"
 import { useLanguage } from "@/contexts/LanguageContext"
 
-// ── Five real dimensions from 五维合参 ──
+// ── Five real dimensions from 五维合参 (randomized per page load to avoid implying fixed scores) ──
 const DIMENSIONS = [
-  { key: "wealth",  color: "#C5A880", value: 82 },
-  { key: "career",  color: "#C1121F", value: 76 },
-  { key: "health",  color: "#2D6A4F", value: 88 },
-  { key: "relationship", color: "#9B59B6", value: 71 },
-  { key: "spiritual", color: "#5B9BD5", value: 79 },
+  { key: "wealth",  color: "#C5A880", value: 75 + Math.floor(Math.random() * 20) },
+  { key: "career",  color: "#C1121F", value: 70 + Math.floor(Math.random() * 20) },
+  { key: "health",  color: "#2D6A4F", value: 78 + Math.floor(Math.random() * 18) },
+  { key: "relationship", color: "#9B59B6", value: 68 + Math.floor(Math.random() * 22) },
+  { key: "spiritual", color: "#5B9BD5", value: 72 + Math.floor(Math.random() * 20) },
 ]
+
+const DEMO_TYPES = [
+  { zh: "格物派逆天执行狂魔", en: "Analytical Pattern-Defying Executor" },
+  { zh: "全栈型行为维工程师", en: "Full-Stack Behavioral Engineer" },
+  { zh: "凌晨三点与天对线狂人", en: "3AM Destiny-Challenging Maverick" },
+  { zh: "红尘蹦迪的优化队长", en: "Cosmic Optimization Captain" },
+]
+const DEMO_TYPE = DEMO_TYPES[Math.floor(Math.random() * DEMO_TYPES.length)]
+const DEMO_SCORE = 72 + Math.floor(Math.random() * 24)
 
 function CircularProgress({ value, max = 100, color, size = 72 }: { value: number; max?: number; color: string; size?: number }) {
   const [progress, setProgress] = useState(0)
@@ -63,6 +72,9 @@ export default function ReportPreview() {
   return (
     <section
       ref={containerRef}
+      id="report-preview"
+      role="region"
+      aria-labelledby="report-preview-title"
       className="relative py-16 md:py-32 px-4"
     >
       {/* Subtle backdrop for readability */}
@@ -82,7 +94,7 @@ export default function ReportPreview() {
           <span className="text-[#C5A880]/50 text-xs tracking-[0.4em] uppercase font-medium">
             {t("report.badge")}
           </span>
-          <h2 className="text-3xl md:text-5xl font-serif font-bold mt-4 mb-4 tracking-wide">
+          <h2 id="report-preview-title" className="text-3xl md:text-5xl font-serif font-bold mt-4 mb-4 tracking-wide">
             <span className="bg-clip-text text-transparent" style={{ backgroundImage: "linear-gradient(135deg, #C5A880, #E8D5B7)" }}>
               {t("report.title")}
             </span>
@@ -120,7 +132,7 @@ export default function ReportPreview() {
                   {/* Progress bar */}
                   <div className="w-16 h-1 rounded-full bg-white/[0.06] overflow-hidden">
                     <div
-                      className="h-full rounded-full transition-all duration-[2s] ease-out"
+                      className="h-full rounded-full transition-all duration-[2s] ease-out motion-reduce:transition-none"
                       style={{
                         width: isVisible ? `${dim.value}%` : "0%",
                         background: dim.color,
@@ -153,7 +165,7 @@ export default function ReportPreview() {
             </div>
             <div className="flex flex-col items-center justify-center py-2">
               {/* Circular score */}
-              <CircularProgress value={86} color="#C9A84C" size={90} />
+              <CircularProgress value={DEMO_SCORE} color="#C9A84C" size={90} />
               {/* AM16 type badge */}
               <div
                 className="mt-3 px-4 py-1.5 rounded-full text-xs font-bold tracking-widest"
@@ -163,7 +175,7 @@ export default function ReportPreview() {
                   color: "#C9A84C",
                 }}
               >
-                {locale === "zh" ? "格物派逆天执行狂魔" : "Analytical Pattern-Defying Executor"}
+                {locale === "zh" ? DEMO_TYPE.zh : DEMO_TYPE.en}
               </div>
             </div>
             <div className="text-center mt-2">

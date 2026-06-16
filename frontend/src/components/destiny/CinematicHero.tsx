@@ -64,9 +64,21 @@ export default function CinematicHero() {
 
             {/* Subtitle — AI+行为分析 unique positioning */}
             <p className="text-white/35 text-sm md:text-base max-w-lg mx-auto lg:mx-0 mb-8 lg:mb-10 leading-relaxed tracking-wide">
-              {t("hero.desc").split("\n")[0]}
-              <br />
-              <span className="text-[#C5A880]/50">{t("hero.desc").split("\n")[1]}</span>
+              {(() => {
+                const desc = t("hero.desc")
+                const lines = desc.split("\n")
+                return (
+                  <>
+                    {lines[0]}
+                    {lines.length > 1 && (
+                      <>
+                        <br />
+                        <span className="text-[#C5A880]/50">{lines[1]}</span>
+                      </>
+                    )}
+                  </>
+                )
+              })()}
             </p>
 
             {/* CTA Buttons — two clear actions */}

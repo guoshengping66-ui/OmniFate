@@ -35,12 +35,6 @@ export default function StarfieldBackground() {
     nebulaCount: 5,
     symbolCount: 30,
     shootingStarInterval: 4000,
-    colors: {
-      gold: "rgba(197,168,128,",
-      white: "rgba(255,255,255,",
-      blue: "rgba(120,140,200,",
-      purple: "rgba(160,120,200,",
-    },
   }), [])
 
   useEffect(() => {
@@ -56,6 +50,8 @@ export default function StarfieldBackground() {
     let shootingStars: ShootingStar[] = []
     let floatingSymbols: FloatingSymbol[] = []
     let lastShootingStar = 0
+    let constellationCache: { i: number; j: number; alpha: number }[] = []
+    let constellationFrame = 0
 
     // I Ching + Tarot symbol pool
     const SYMBOLS = [
@@ -75,6 +71,7 @@ export default function StarfieldBackground() {
 
     function resize() {
       const dpr = Math.min(window.devicePixelRatio, 2)
+      const oldW = w, oldH = h
       w = window.innerWidth
       h = document.documentElement.scrollHeight
       canvas!.width = w * dpr
@@ -82,9 +79,18 @@ export default function StarfieldBackground() {
       canvas!.style.width = w + "px"
       canvas!.style.height = h + "px"
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0)
-      initStars()
-      initNebulae()
-      initSymbols()
+
+      if (oldW > 0 && oldH > 0) {
+        // Scale existing objects proportionally instead of reinitializing
+        const sx = w / oldW, sy = h / oldH
+        for (const s of stars) { s.x *= sx; s.y *= sy }
+        for (const n of nebulae) { n.x *= sx; n.y *= sy }
+        for (const sym of floatingSymbols) { sym.x *= sx; sym.y *= sy }
+      } else {
+        initStars()
+        initNebulae()
+        initSymbols()
+      }
     }
 
     function initStars() {
@@ -267,7 +273,7 @@ export default function StarfieldBackground() {
           sym.x = Math.random() * w
         }
 
-        // Breathing alpha: 0.08 ~ 0.22 (much more visible)
+        // Breathing alpha: 0.08 ~ 0.22
         sym.alpha = 0.08 + 0.14 * (0.5 + 0.5 * Math.sin(sym.alphaPhase))
 
         ctx!.save()
@@ -277,43 +283,49 @@ export default function StarfieldBackground() {
         ctx!.textAlign = "center"
         ctx!.textBaseline = "middle"
 
-        // Outer glow ring — makes symbols pop from the dark background
-        ctx!.shadowColor = sym.color + "0.5)"
-        ctx!.shadowBlur = 20
-        ctx!.fillStyle = `${sym.color}${sym.alpha * 0.5})`
-        ctx!.fillText(sym.char, 0, 0)
-
-        // Inner crisp symbol
-        ctx!.shadowBlur = 10
+        // Single draw with moderate shadow (replaces 2-pass double-draw)
+        ctx!.shadowColor = sym.color + "0.4)"
+        ctx!.shadowBlur = 14
         ctx!.fillStyle = `${sym.color}${sym.alpha})`
         ctx!.fillText(sym.char, 0, 0)
-
         ctx!.shadowBlur = 0
+
         ctx!.restore()
       }
     }
 
-    function drawConstellations(time: number) {
+    function rebuildConstellationCache() {
+      constellationCache = []
       const maxDist = 120
-      const maxConnections = 40
-      let count = 0
-
-      for (let i = 0; i < stars.length && count < maxConnections; i++) {
-        for (let j = i + 1; j < stars.length && count < maxConnections; j++) {
+      for (let i = 0; i < stars.length; i++) {
+        if (stars[i].r <= 0.8) continue
+        for (let j = i + 1; j < stars.length; j++) {
+          if (stars[j].r <= 0.8) continue
           const dx = stars[i].x - stars[j].x
           const dy = stars[i].y - stars[j].y
-          const dist = Math.sqrt(dx * dx + dy * dy)
-          if (dist < maxDist && stars[i].r > 0.8 && stars[j].r > 0.8) {
-            const alpha = (1 - dist / maxDist) * 0.04
-            ctx!.beginPath()
-            ctx!.moveTo(stars[i].x, stars[i].y)
-            ctx!.lineTo(stars[j].x, stars[j].y)
-            ctx!.strokeStyle = `rgba(197,168,128,${alpha})`
-            ctx!.lineWidth = 0.5
-            ctx!.stroke()
-            count++
+          if (dx * dx + dy * dy < maxDist * maxDist) {
+            constellationCache.push({
+              i, j,
+              alpha: (1 - Math.sqrt(dx * dx + dy * dy) / maxDist) * 0.04,
+            })
+            if (constellationCache.length >= 40) return
           }
         }
+      }
+    }
+
+    function drawConstellations(time: number) {
+      // Recompute every 10 frames instead of every frame (O(n²) → amortized)
+      constellationFrame++
+      if (constellationFrame % 10 === 0) rebuildConstellationCache()
+
+      ctx!.lineWidth = 0.5
+      for (const conn of constellationCache) {
+        ctx!.beginPath()
+        ctx!.moveTo(stars[conn.i].x, stars[conn.i].y)
+        ctx!.lineTo(stars[conn.j].x, stars[conn.j].y)
+        ctx!.strokeStyle = `rgba(197,168,128,${conn.alpha})`
+        ctx!.stroke()
       }
     }
 
