@@ -140,60 +140,78 @@ export default function CinematicHero() {
           </div>
 
           {/* Right: 3D Fate Orb — the AI engine visual */}
-          <div className="flex-1 flex items-center justify-center w-full lg:w-auto h-[300px] sm:h-[400px] lg:h-[500px] relative">
+          <div className="flex-1 flex items-center justify-center w-full lg:w-auto h-[420px] sm:h-[520px] lg:h-[620px] relative">
             {/* Orb glow backdrop */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-[300px] h-[300px] lg:w-[400px] lg:h-[400px] rounded-full bg-[#C5A880]/[0.03] blur-[100px]" />
+              <div className="w-[400px] h-[400px] lg:w-[550px] lg:h-[550px] rounded-full bg-[#C5A880]/[0.04] blur-[120px]" />
             </div>
             <FateOrb />
 
-            {/* Result preview card — bottom right */}
-            <div className="absolute bottom-4 right-0 sm:right-4 lg:right-0 w-[220px] sm:w-[260px] p-4 rounded-2xl bg-[#0A1235]/80 border border-[#C5A880]/10 backdrop-blur-md">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-6 h-6 rounded-full bg-[#C5A880]/20 flex items-center justify-center">
-                  <span className="text-[#C5A880] text-xs">✦</span>
+            {/* Destiny archive preview card — bottom right */}
+            <div className="absolute bottom-6 right-0 sm:right-4 lg:right-0 w-[230px] sm:w-[270px] p-4 sm:p-5 rounded-2xl bg-[#0A1235]/85 border border-[#C5A880]/15 backdrop-blur-md">
+              {/* Header */}
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#D4AF37]/30 to-[#C5A880]/10 flex items-center justify-center">
+                  <span className="text-[#D4AF37] text-sm">✦</span>
                 </div>
-                <span className="text-[#C5A880]/70 text-[10px] tracking-wider uppercase">
-                  {locale === "zh" ? "命运档案预览" : "Destiny Preview"}
+                <div>
+                  <span className="text-[#C5A880]/80 text-[10px] tracking-wider uppercase block">
+                    {locale === "zh" ? "命运档案" : "Destiny Profile"}
+                  </span>
+                  <span className="text-white/25 text-[8px]">
+                    {locale === "zh" ? "AI 多系统交叉分析" : "AI Cross-System Analysis"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Life stage tag */}
+              <div className="flex items-center gap-2 mb-3.5">
+                <div className="px-2.5 py-1 rounded-full bg-[#C5A880]/[0.08] border border-[#C5A880]/15">
+                  <span className="text-[#C5A880] text-[9px] font-medium tracking-wide">
+                    {locale === "zh" ? "人生阶段" : "Life Stage"}
+                  </span>
+                </div>
+                <span className="text-[#D4AF37] text-[10px] font-medium">
+                  {locale === "zh" ? "成长期" : "Growth Phase"}
                 </span>
               </div>
 
-              {/* Progress bars */}
-              <div className="space-y-2.5">
+              {/* Dimension indicators */}
+              <div className="space-y-3">
                 <div>
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-white/50 text-[10px]">{locale === "zh" ? "财富潜力" : "Wealth"}</span>
+                    <span className="text-white/50 text-[10px]">{locale === "zh" ? "财富成长指数" : "Wealth Growth"}</span>
                     <span className="text-[#C5A880] text-[10px] font-medium">82%</span>
                   </div>
-                  <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                  <div className="h-[5px] bg-white/[0.04] rounded-full overflow-hidden">
                     <div className="h-full bg-gradient-to-r from-[#C5A880] to-[#D4AF37] rounded-full" style={{ width: "82%" }} />
                   </div>
                 </div>
 
                 <div>
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-white/50 text-[10px]">{locale === "zh" ? "事业天赋" : "Career"}</span>
+                    <span className="text-white/50 text-[10px]">{locale === "zh" ? "事业发展潜力" : "Career Potential"}</span>
                     <span className="text-[#C5A880] text-[10px] font-medium">91%</span>
                   </div>
-                  <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                  <div className="h-[5px] bg-white/[0.04] rounded-full overflow-hidden">
                     <div className="h-full bg-gradient-to-r from-[#C5A880] to-[#D4AF37] rounded-full" style={{ width: "91%" }} />
                   </div>
                 </div>
 
                 <div>
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-white/50 text-[10px]">{locale === "zh" ? "感情模式" : "Love"}</span>
+                    <span className="text-white/50 text-[10px]">{locale === "zh" ? "关系连接能力" : "Relationships"}</span>
                     <span className="text-[#C5A880] text-[10px] font-medium">73%</span>
                   </div>
-                  <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                  <div className="h-[5px] bg-white/[0.04] rounded-full overflow-hidden">
                     <div className="h-full bg-gradient-to-r from-[#C5A880] to-[#D4AF37] rounded-full" style={{ width: "73%" }} />
                   </div>
                 </div>
               </div>
 
-              <div className="mt-3 pt-2 border-t border-white/5">
+              <div className="mt-3.5 pt-2.5 border-t border-white/[0.04]">
                 <span className="text-white/20 text-[9px]">
-                  {locale === "zh" ? "生成你的专属档案 →" : "Generate your profile →"}
+                  {locale === "zh" ? "生成你的专属命运档案 →" : "Generate your destiny profile →"}
                 </span>
               </div>
             </div>

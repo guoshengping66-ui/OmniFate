@@ -33,7 +33,7 @@ export default function FateOrb() {
       }}
     >
       {/* Container for all layers */}
-      <div className="relative w-[400px] h-[400px] md:w-[500px] md:h-[500px]">
+      <div className="relative w-[520px] h-[520px] md:w-[620px] md:h-[620px]">
         {/* Layer 1: Outermost - Star nodes */}
         <div
           className="absolute inset-0"
@@ -118,41 +118,87 @@ export default function FateOrb() {
           style={{ animation: "spin 40s linear infinite" }}
         />
 
-        {/* Layer 5: Destiny core - glowing disc */}
-        <div className="absolute inset-[42%] rounded-full overflow-hidden">
-          {/* Main disc */}
+        {/* Layer 5: Particle convergence ring */}
+        <div
+          className="absolute inset-[35%] pointer-events-none"
+          style={{ animation: "spin 20s linear infinite" }}
+        >
+          {Array.from({ length: 16 }).map((_, i) => {
+            const angle = (i / 16) * 360
+            return (
+              <div
+                key={`particle-${i}`}
+                className="absolute w-[3px] h-[3px] rounded-full"
+                style={{
+                  left: "50%",
+                  top: "50%",
+                  transform: `rotate(${angle}deg) translateY(-${30 + (i % 3) * 8}px)`,
+                  background: "radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(212,175,55,0.6) 50%, transparent 100%)",
+                  boxShadow: "0 0 8px rgba(212,175,55,0.6)",
+                  animation: `particlePulse 2s ease-in-out infinite ${i * 0.15}s`,
+                }}
+              />
+            )
+          })}
+        </div>
+
+        {/* Layer 6: Destiny core - golden layered disc */}
+        <div className="absolute inset-[40%] rounded-full overflow-hidden">
+          {/* Outer halo ring */}
+          <div
+            className="absolute inset-[-10%] rounded-full"
+            style={{
+              background: "conic-gradient(from 0deg, transparent 0%, rgba(197,168,128,0.15) 25%, transparent 50%, rgba(212,175,55,0.1) 75%, transparent 100%)",
+              animation: "spin 15s linear infinite",
+            }}
+          />
+          {/* Main golden disc */}
           <div
             className="absolute inset-0 rounded-full"
             style={{
-              background: "radial-gradient(circle, rgba(197,168,128,0.4) 0%, rgba(197,168,128,0.1) 50%, transparent 70%)",
-              animation: "breathe 4s ease-in-out infinite",
+              background: "radial-gradient(circle, rgba(212,175,55,0.5) 0%, rgba(197,168,128,0.2) 40%, rgba(197,168,128,0.05) 65%, transparent 80%)",
+              animation: "breathe 6s ease-in-out infinite",
             }}
           />
-          {/* Center glow */}
+          {/* Mid ring */}
+          <div
+            className="absolute inset-[15%] rounded-full border border-[#D4AF37]/20"
+            style={{ animation: "spin-reverse 25s linear infinite" }}
+          />
+          {/* Inner glow */}
           <div
             className="absolute inset-[20%] rounded-full"
             style={{
-              background: "radial-gradient(circle, rgba(197,168,128,0.8) 0%, rgba(197,168,128,0.2) 50%, transparent 70%)",
-              animation: "breathe 4s ease-in-out infinite 0.5s",
+              background: "radial-gradient(circle, rgba(197,168,128,0.9) 0%, rgba(212,175,55,0.4) 45%, transparent 70%)",
+              animation: "breathe 5s ease-in-out infinite 0.5s",
             }}
           />
-          {/* Inner bright core */}
+          {/* Bright core */}
           <div
             className="absolute inset-[35%] rounded-full"
             style={{
-              background: "radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(197,168,128,0.6) 40%, transparent 70%)",
-              animation: "breathe 4s ease-in-out infinite 1s",
+              background: "radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(232,213,183,0.7) 30%, rgba(212,175,55,0.5) 55%, transparent 75%)",
+              animation: "corePulse 3s ease-in-out infinite",
+            }}
+          />
+          {/* Hot center point */}
+          <div
+            className="absolute inset-[44%] rounded-full"
+            style={{
+              background: "radial-gradient(circle, #fff 0%, rgba(255,255,255,0.8) 20%, rgba(212,175,55,0.6) 50%, transparent 80%)",
+              animation: "corePulse 3s ease-in-out infinite 0.3s",
+              boxShadow: "0 0 30px rgba(212,175,55,0.4), 0 0 60px rgba(197,168,128,0.2)",
             }}
           />
         </div>
 
-        {/* Glow effects */}
+        {/* Layer 7: Outer glow aura */}
         <div
-          className="absolute inset-[30%] rounded-full pointer-events-none"
+          className="absolute inset-[25%] rounded-full pointer-events-none"
           style={{
-            background: "radial-gradient(circle, rgba(197,168,128,0.15) 0%, transparent 70%)",
-            animation: "breathe 4s ease-in-out infinite",
-            filter: "blur(20px)",
+            background: "radial-gradient(circle, rgba(212,175,55,0.12) 0%, rgba(197,168,128,0.06) 40%, transparent 70%)",
+            animation: "breathe 6s ease-in-out infinite",
+            filter: "blur(30px)",
           }}
         />
       </div>
@@ -169,6 +215,14 @@ export default function FateOrb() {
         @keyframes breathe {
           0%, 100% { opacity: 0.6; transform: scale(1); }
           50% { opacity: 1; transform: scale(1.05); }
+        }
+        @keyframes corePulse {
+          0%, 100% { opacity: 0.85; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.08); }
+        }
+        @keyframes particlePulse {
+          0%, 100% { opacity: 0.4; transform: rotate(var(--angle, 0deg)) translateY(-30px) scale(0.8); }
+          50% { opacity: 1; transform: rotate(var(--angle, 0deg)) translateY(-30px) scale(1.2); }
         }
       `}</style>
     </div>
