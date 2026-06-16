@@ -23,6 +23,8 @@ export default function StarfieldBackground() {
     const ctx = canvas.getContext("2d")
     if (!ctx) return
 
+    if (typeof window === "undefined") return
+
     let animId: number
     let w = 0, h = 0
     let particles: Particle[] = []
@@ -216,7 +218,7 @@ export default function StarfieldBackground() {
       clearTimeout(resizeTimer)
       resizeTimer = setTimeout(resize, 300)
     })
-    resizeObserver.observe(document.body)
+    if (document.body) resizeObserver.observe(document.body)
 
     return () => {
       cancelAnimationFrame(animId)
