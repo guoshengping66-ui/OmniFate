@@ -8,11 +8,9 @@ import { useUserStore } from "@/stores/useUserStore"
 
 // ── Lazy-loaded cinematic marketing page ─────────────────────────────────
 const CinematicHero = dynamic(() => import("@/components/destiny/CinematicHero"), { ssr: true })
-const FiveDimensionsOverview = dynamic(() => import("@/components/destiny/FiveDimensionsOverview"), { ssr: false })
 const ServicesShowcase = dynamic(() => import("@/components/destiny/ServicesShowcase"), { ssr: false })
 const ReportPreview = dynamic(() => import("@/components/destiny/ReportPreview"), { ssr: false })
 const LifestyleShowcase = dynamic(() => import("@/components/destiny/LifestyleShowcase"), { ssr: false })
-const CaseStudy = dynamic(() => import("@/components/destiny/CaseStudy"), { ssr: false })
 const FinalCTA = dynamic(() => import("@/components/destiny/FinalCTA"), { ssr: true })
 
 // ── Lazy-loaded below-the-fold sections ──────────────────────────
@@ -67,7 +65,7 @@ export default function HomePage() {
 
   if (hasProfile) {
     return (
-      <div className="min-h-screen">
+      <div className="min-h-screen" style={{ background: "#080808" }}>
         <section className="pt-24 pb-10 px-4">
           <UserDashboard />
         </section>
@@ -82,19 +80,9 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="py-16 px-4">
-          <div className="max-w-3xl mx-auto">
-            <div className="card-glass p-8 text-center">
-              <div className="text-3xl mb-4">🛍️</div>
-              <h3 className="font-serif text-lg text-gold mb-2">{t("home.shopCta")}</h3>
-              <p className="text-white/40 text-sm mb-5">{t("home.shopDesc")}</p>
-              <div className="flex justify-center gap-4">
-                <Link href={localeHref("/shop")} className="btn-gold text-sm px-6 py-2">{t("home.shopButton")}</Link>
-                <Link href={localeHref("/blog")} className="border border-white/20 text-white/60 hover:text-gold hover:border-gold/30 rounded-full text-sm px-6 py-2 transition-all">{t("home.knowledgeButton")}</Link>
-              </div>
-            </div>
-          </div>
-        </section>
+        <ServicesShowcase />
+
+        <LifestyleShowcase />
 
         <FloatingFortuneSubscribe />
       </div>
@@ -104,11 +92,9 @@ export default function HomePage() {
   return (
     <div className="min-h-screen" style={{ background: "#080808" }}>
       <CinematicHero />
-      <FiveDimensionsOverview />
       <ServicesShowcase />
       <ReportPreview />
       <LifestyleShowcase />
-      <CaseStudy />
       <FinalCTA />
     </div>
   )
