@@ -33,7 +33,7 @@ export default function StarfieldBackground() {
   const config = useMemo(() => ({
     starCount: 280,
     nebulaCount: 5,
-    symbolCount: 22,
+    symbolCount: 30,
     shootingStarInterval: 4000,
     colors: {
       gold: "rgba(197,168,128,",
@@ -122,23 +122,29 @@ export default function StarfieldBackground() {
     function initSymbols() {
       const symbolColors = [
         "rgba(197,168,128,",  // gold — primary
+        "rgba(200,180,100,",  // warm gold
         "rgba(160,180,220,",  // cool blue
-        "rgba(200,170,100,",  // warm gold
-        "rgba(140,130,180,",  // purple-grey
+        "rgba(180,150,210,",  // purple
       ]
-      floatingSymbols = Array.from({ length: config.symbolCount }, () => ({
-        char: SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)],
-        x: Math.random() * w,
-        y: Math.random() * h,
-        size: Math.random() * 14 + 10,
-        alpha: 0,
-        rotation: Math.random() * Math.PI * 2,
-        driftY: -(Math.random() * 0.15 + 0.05), // float upward
-        rotSpeed: (Math.random() - 0.5) * 0.003,
-        alphaPhase: Math.random() * Math.PI * 2,
-        alphaSpeed: Math.random() * 0.003 + 0.001,
-        color: symbolColors[Math.floor(Math.random() * symbolColors.length)],
-      }))
+      floatingSymbols = Array.from({ length: config.symbolCount }, (_, i) => {
+        // 5 "focal" symbols are bigger and brighter
+        const isFocal = i < 5
+        return {
+          char: isFocal
+            ? ["☯", "☰", "☱", "☲", "☳"][i]
+            : SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)],
+          x: Math.random() * w,
+          y: Math.random() * h,
+          size: isFocal ? Math.random() * 12 + 32 : Math.random() * 14 + 16,
+          alpha: 0,
+          rotation: Math.random() * Math.PI * 2,
+          driftY: -(Math.random() * 0.2 + 0.05),
+          rotSpeed: (Math.random() - 0.5) * 0.004,
+          alphaPhase: Math.random() * Math.PI * 2,
+          alphaSpeed: Math.random() * 0.004 + 0.001,
+          color: isFocal ? "rgba(197,168,128," : symbolColors[Math.floor(Math.random() * symbolColors.length)],
+        }
+      })
     }
 
     function spawnShootingStar(time: number) {
@@ -256,13 +262,13 @@ export default function StarfieldBackground() {
         sym.alphaPhase += sym.alphaSpeed
 
         // Wrap vertically
-        if (sym.y < -40) {
-          sym.y = h + 40
+        if (sym.y < -50) {
+          sym.y = h + 50
           sym.x = Math.random() * w
         }
 
-        // Gentle breathing alpha: 0.03 ~ 0.08
-        sym.alpha = 0.03 + 0.05 * (0.5 + 0.5 * Math.sin(sym.alphaPhase))
+        // Breathing alpha: 0.08 ~ 0.22 (much more visible)
+        sym.alpha = 0.08 + 0.14 * (0.5 + 0.5 * Math.sin(sym.alphaPhase))
 
         ctx!.save()
         ctx!.translate(sym.x, sym.y)
@@ -270,12 +276,18 @@ export default function StarfieldBackground() {
         ctx!.font = `${sym.size}px serif`
         ctx!.textAlign = "center"
         ctx!.textBaseline = "middle"
-        ctx!.fillStyle = `${sym.color}${sym.alpha})`
 
-        // Subtle glow behind symbol
-        ctx!.shadowColor = `${sym.color}0.1)`
-        ctx!.shadowBlur = 8
+        // Outer glow ring — makes symbols pop from the dark background
+        ctx!.shadowColor = sym.color + "0.5)"
+        ctx!.shadowBlur = 20
+        ctx!.fillStyle = `${sym.color}${sym.alpha * 0.5})`
         ctx!.fillText(sym.char, 0, 0)
+
+        // Inner crisp symbol
+        ctx!.shadowBlur = 10
+        ctx!.fillStyle = `${sym.color}${sym.alpha})`
+        ctx!.fillText(sym.char, 0, 0)
+
         ctx!.shadowBlur = 0
         ctx!.restore()
       }
