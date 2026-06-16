@@ -1094,89 +1094,75 @@
     "master": "AI Cross-Dimensional Verification"
   },
   "analysis": {
-    "astrology": {
-      "label": "Western Chart",
-      "done": "Chart calculation complete",
-      "running": "Calculating planetary orbits…"
+    "share": {
+      "aiAction": "AI Action Guide",
+      "appName": "Behavioral Mirror · Stellar Insight",
+      "copiedWithCode": "Link with referral code copied",
+      "copyShareLink": "Copy Share Link (with referral code)",
+      "exploreMyChart": "Explore My Chart",
+      "founderSeat": "Founder Seat #{seatNo} Exclusive Data Card",
+      "inviteDesc": "Invite friends to register — both get 20 Stardust",
+      "myReferralCode": "My Referral Code",
+      "notFound": "Reading not found",
+      "seatLabel": "Founder Seat #{seatNo}",
+      "shareForStardust": "Share for Stardust",
+      "userReading": "{name}'s Reading",
+      "_label": "Share"
     },
-    "behavioral pattern": {
-      "label": "Western Chart",
-      "done": "Chart calculation complete",
-      "running": "Calculating planetary orbits…"
-    },
-    "bazi": {
-      "label": "Four Pillars",
-      "done": "Four Pillars analysis complete",
-      "running": "Analyzing Four Pillars…"
-    },
-    "four-pillar": {
-      "label": "Four Pillars",
-      "done": "Four Pillars analysis complete",
-      "running": "Analyzing Four Pillars…"
-    },
-    "face": {
-      "label": "AI Facial Feature",
-      "done": "Facial feature analysis complete",
-      "running": "Analyzing facial features…"
-    },
-    "partnerFace": {
-      "label": "Partner Face",
-      "done": "Partner facial feature complete",
-      "running": "Analyzing partner's facial features…"
-    },
-    "partnerPalm": {
-      "label": "Partner Palm",
-      "done": "Partner palm reading complete",
-      "running": "Interpreting partner's palm lines…"
-    },
-    "palm": {
-      "label": "Palm Reading",
-      "done": "Palm reading complete",
-      "running": "Interpreting palm lines…"
-    },
-    "qimen": {
-      "label": "Strategic Analysis",
-      "done": "Strategic analysis complete",
-      "running": "Performing strategic analysis…"
-    },
-    "strategic": {
-      "label": "Strategic Analysis",
-      "done": "Strategic analysis complete",
-      "running": "Performing strategic analysis…"
-    },
-    "tarot": {
-      "label": "Symbolic Reflection",
-      "done": "Symbolic interpretation complete",
-      "running": "Interpreting symbolic card data…"
-    },
-    "symbolic": {
-      "label": "Symbolic Reflection",
-      "done": "Symbolic interpretation complete",
-      "running": "Interpreting symbolic card data…"
-    },
-    "ziwei": {
-      "label": "Stellar Chart",
-      "done": "Stellar chart analysis complete",
-      "running": "Arranging stellar star chart…"
-    },
-    "stellar": {
-      "label": "Stellar Chart",
-      "done": "Stellar chart complete",
-      "running": "Arranging stellar star chart…"
-    },
-    "crossValidate": "AI performing cross-dimension verification…",
-    "done": "Analysis complete",
-    "init": "Initializing chart data",
-    "master": "AI cross-dimension verification",
-    "parallel": "Multi-dimension parallel analysis",
-    "preparing": "Preparing…",
-    "preview": "Analysis preview generated",
-    "stalled": "AI performing final high-dimension data integration…",
-    "stuckContinue": "Keep waiting",
-    "stuckMessage": "The background analysis may have been interrupted. You can wait or restart the analysis.",
-    "stuckRetry": "Restart analysis",
-    "stuckTitle": "Analysis seems to have encountered an issue",
-    "title": "Behavioral Mirror · Deep Analysis"
+    "aiGuide": "Action Guidance",
+    "aligning": "Aligning with the stars...",
+    "clickToDraw": "Click to Draw",
+    "cost": "Cost: 1 Stardust",
+    "costInfo": "Cost {cost} Stardust · Balance {balance}",
+    "disclaimer": "Analysis results are generated based on Wang Yangming's philosophy and behavioral data, for entertainment and self-reflection only. Action guidance is for reference and doesn't constitute decision advice.",
+    "insightName": "Stellar Name",
+    "insightPoem": "Insight Poem",
+    "draw": "Draw Analysis",
+    "drawAgain": "Draw Again",
+    "drawAgain2": "Draw Again",
+    "drawAgainPaid": "Spend {cost} Stardust to draw again",
+    "drawFailed": "Draw failed",
+    "drawing": "Drawing...",
+    "founderDesc": "Founder seats enjoy unlimited free draws",
+    "founderUnlimited": "Founder Members unlimited draws",
+    "freeRemaining": "{count} free draws left today",
+    "insufficientStardust": "Not enough Stardust",
+    "interpretation": "Interpretation",
+    "inviteFriends": "Invite Friends",
+    "limitReached": "Today's draws are used up — your star track needs a recharge",
+    "linkCopied": "Share link copied",
+    "loginFirst": "Please login first to draw",
+    "motto": "Behavioral is self-made, status is self-sought.",
+    "noFree": "No free draws left today",
+    "payStardust": "1 Stardust per draw · Deep behavioral resonance",
+    "rechargeStardust": "Recharge Stardust",
+    "refillHint": "Add 1 Stardust to keep going, or invite friends for bonus Stardust",
+    "result": "Analysis Result",
+    "rule1Desc": "Refreshes at midnight — same user, same result all day",
+    "rule1Title": "First draw free daily",
+    "rule2Desc": "Members get monthly Stardust grants",
+    "rule2Title": "Each additional draw costs 1 Stardust",
+    "rule3Desc": "Combined with your behavioral profile for a personalized take",
+    "rule3Title": "Deep interpretation",
+    "rule4Desc": "1 share per day, 5 Stardust per share",
+    "rule4Title": "Share analysis for Stardust",
+    "rules": "Analysis Rules",
+    "sensingData": "Attuning to the {theme} pattern...",
+    "shakeHint": "Shake your phone or tap above to start drawing",
+    "shareFailed": "Share failed",
+    "shareStatus": "Share Status",
+    "sharePlus5": "Share +5 Stardust",
+    "shareReward": "Share reward +{count} Stardust",
+    "shareSuccess": "Shared! Earned {count} Stardust",
+    "shareLimitReached": "Daily share limit reached (1 per day)",
+    "shareRemaining": "{count} shares left today for Stardust",
+    "shareTitle": "Stellar Analysis",
+    "subtitle": "One free draw daily · Feel the patterns guiding you",
+    "title": "Stellar Analysis",
+    "todayFirstFree": "One free draw per day · Feel the behavioral guidance",
+    "todayAlreadyDrawn": "Today's status already revealed · Once per day",
+    "comeBackTomorrow": "Come Back Tomorrow",
+    "todayPalace": "Today's Profile:"
   },
   "auth": {
     "birth": {
@@ -1278,7 +1264,12 @@
     "verifying": "Verifying...",
     "verifySentTo": "Verification code sent to",
     "verifyTitle": "Email Verification",
-    "or": "or"
+    "or": "or",
+    "loginFeatures": {
+      "speed": "40-second personalized reports",
+      "dimensions": "Five-Dimension Synthesis · Multi-Modal AI",
+      "knowledge": "AI + Traditional Metaphysics Knowledge"
+    }
   },
   "chat": {
     "quick": {
@@ -1354,77 +1345,6 @@
     "title": "Contact Us",
     "wechat": "WeChat Support",
     "wechatHint": "Weekdays 9:00 - 18:00"
-  },
-  "analysis": {
-    "share": {
-      "aiAction": "AI Action Guide",
-      "appName": "Behavioral Mirror · Stellar Insight",
-      "copiedWithCode": "Link with referral code copied",
-      "copyShareLink": "Copy Share Link (with referral code)",
-      "exploreMyChart": "Explore My Chart",
-      "founderSeat": "Founder Seat #{seatNo} Exclusive Data Card",
-      "inviteDesc": "Invite friends to register — both get 20 Stardust",
-      "myReferralCode": "My Referral Code",
-      "notFound": "Reading not found",
-      "seatLabel": "Founder Seat #{seatNo}",
-      "shareForStardust": "Share for Stardust",
-      "userReading": "{name}'s Reading",
-      "_label": "Share"
-    },
-    "aiGuide": "Action Guidance",
-    "aligning": "Aligning with the stars...",
-    "clickToDraw": "Click to Draw",
-    "cost": "Cost: 1 Stardust",
-    "costInfo": "Cost {cost} Stardust · Balance {balance}",
-    "disclaimer": "Analysis results are generated based on Wang Yangming's philosophy and behavioral data, for entertainment and self-reflection only. Action guidance is for reference and doesn't constitute decision advice.",
-    "insightName": "Stellar Name",
-    "insightPoem": "Insight Poem",
-    "draw": "Draw Analysis",
-    "drawAgain": "Draw Again",
-    "drawAgain2": "Draw Again",
-    "drawAgainPaid": "Spend {cost} Stardust to draw again",
-    "drawFailed": "Draw failed",
-    "drawing": "Drawing...",
-    "founderDesc": "Founder seats enjoy unlimited free draws",
-    "founderUnlimited": "Founder Members unlimited draws",
-    "freeRemaining": "{count} free draws left today",
-    "insufficientStardust": "Not enough Stardust",
-    "interpretation": "Interpretation",
-    "inviteFriends": "Invite Friends",
-    "limitReached": "Today's draws are used up — your star track needs a recharge",
-    "linkCopied": "Share link copied",
-    "loginFirst": "Please login first to draw",
-    "motto": "Behavioral is self-made, status is self-sought.",
-    "noFree": "No free draws left today",
-    "payStardust": "1 Stardust per draw · Deep behavioral resonance",
-    "rechargeStardust": "Recharge Stardust",
-    "refillHint": "Add 1 Stardust to keep going, or invite friends for bonus Stardust",
-    "result": "Analysis Result",
-    "rule1Desc": "Refreshes at midnight — same user, same result all day",
-    "rule1Title": "First draw free daily",
-    "rule2Desc": "Members get monthly Stardust grants",
-    "rule2Title": "Each additional draw costs 1 Stardust",
-    "rule3Desc": "Combined with your behavioral profile for a personalized take",
-    "rule3Title": "Deep interpretation",
-    "rule4Desc": "1 share per day, 5 Stardust per share",
-    "rule4Title": "Share analysis for Stardust",
-    "rules": "Analysis Rules",
-    "sensingData": "Attuning to the {theme} pattern...",
-    "shakeHint": "Shake your phone or tap above to start drawing",
-    "shareFailed": "Share failed",
-    "shareStatus": "Share Status",
-    "sharePlus5": "Share +5 Stardust",
-    "shareReward": "Share reward +{count} Stardust",
-    "shareSuccess": "Shared! Earned {count} Stardust",
-    "shareLimitReached": "Daily share limit reached (1 per day)",
-    "shareRemaining": "{count} shares left today for Stardust",
-    "shareTitle": "Stellar Analysis",
-    "subtitle": "One free draw daily · Feel the patterns guiding you",
-    "title": "Stellar Analysis",
-    "todayFirstFree": "One free draw per day · Feel the behavioral guidance",
-    "todayAlreadyDrawn": "Today's status already revealed · Once per day",
-    "comeBackTomorrow": "Come Back Tomorrow",
-    "todayPalace": "Today's Profile:"
   },
   "dataId": {
     "archetype": {
@@ -2621,7 +2541,8 @@
     "button": "Start Reading (Free)",
     "desc": "Just 3 minutes to unlock a full five-path reading and your personal optimization plan",
     "note": "No Registration · Instant · Private",
-    "title": "Your Reading Is Ready"
+    "title": "Your Reading Is Ready",
+    "disclaimer": "Analysis is generated by AI algorithms and traditional metaphysics knowledge, for personal reference only"
   },
   "destinyRadar": {
     "career": "Career",
@@ -3975,5 +3896,37 @@
       "desc": "AI Face Scan · Palm Analysis · Physiognomy",
       "tag": "Upload Photo"
     }
+  },
+  "timeline": {
+    "badge": "Destiny Timeline",
+    "title": "Your Life Path Unfolds",
+    "subtitle": "Every soul carries a blueprint of key turning points — your personal destiny timeline reveals when transformation arrives",
+    "milestones": {
+      "awakening": {
+        "year": "2026",
+        "title": "The Awakening",
+        "desc": "A pivotal year where dormant talents surface. Trust your intuition — the universe is aligning new opportunities that match your soul purpose.",
+        "icon": "☀"
+      },
+      "eclipse": {
+        "year": "2028",
+        "title": "The Eclipse",
+        "desc": "A transformative period that challenges old patterns. What feels like disruption is actually cosmic realignment toward your true path.",
+        "icon": "◐"
+      },
+      "zenith": {
+        "year": "2031",
+        "title": "The Zenith",
+        "desc": "Your breakthrough moment arrives. The seeds planted years ago bloom into tangible success — career, relationships, and purpose converge.",
+        "icon": "✦"
+      }
+    },
+    "scrollHint": "Scroll to explore your destiny timeline",
+    "cta": "Discover Your Personal Timeline",
+    "ctaDesc": "Get a detailed analysis of your key life milestones",
+    "lockedYear": "?????",
+    "lockedTitle": "Full life trajectory locked",
+    "lockedCta": "Unlock Full Destiny Archive",
+    "lockedHint": "View full analysis →"
   }
 }

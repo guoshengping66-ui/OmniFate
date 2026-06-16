@@ -80,47 +80,62 @@ export default function CinematicHero() {
                 href={localeHref("/reading/new")}
                 className="group relative inline-flex items-center gap-3 px-8 sm:px-10 py-3.5 sm:py-4 rounded-2xl font-medium text-xs sm:text-sm tracking-widest uppercase transition-all duration-500"
                 style={{
-                  background: "linear-gradient(135deg, rgba(197,168,128,0.15) 0%, rgba(197,168,128,0.05) 100%)",
-                  border: "1px solid rgba(197,168,128,0.3)",
-                  backdropFilter: "blur(20px)",
-                  color: "#C5A880",
+                  background: "linear-gradient(135deg, #D4AF37 0%, #C5A880 100%)",
+                  border: "none",
+                  color: "#050816",
+                  boxShadow: "0 0 30px rgba(212,175,55,0.3)",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "linear-gradient(135deg, rgba(197,168,128,0.25) 0%, rgba(197,168,128,0.1) 100%)"
-                  e.currentTarget.style.borderColor = "rgba(197,168,128,0.5)"
-                  e.currentTarget.style.boxShadow = "0 0 50px rgba(197,168,128,0.15)"
+                  e.currentTarget.style.boxShadow = "0 0 50px rgba(212,175,55,0.5)"
+                  e.currentTarget.style.transform = "translateY(-2px)"
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "linear-gradient(135deg, rgba(197,168,128,0.15) 0%, rgba(197,168,128,0.05) 100%)"
-                  e.currentTarget.style.borderColor = "rgba(197,168,128,0.3)"
-                  e.currentTarget.style.boxShadow = "none"
+                  e.currentTarget.style.boxShadow = "0 0 30px rgba(212,175,55,0.3)"
+                  e.currentTarget.style.transform = "translateY(0)"
                 }}
               >
-                {t("hero.cta1")}
+                {locale === "zh" ? "开始推命" : "Start Reading"}
                 <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </a>
 
               <a
-                href="#capabilities"
-                className="group inline-flex items-center gap-2 px-6 py-3 rounded-2xl font-medium text-xs sm:text-sm tracking-wider transition-all duration-500 text-white/30 hover:text-white/60"
+                href={localeHref("/readings")}
+                className="group inline-flex items-center gap-2 px-6 py-3 rounded-2xl font-medium text-xs sm:text-sm tracking-wider transition-all duration-500"
+                style={{
+                  background: "transparent",
+                  border: "1px solid rgba(212,175,55,0.5)",
+                  color: "#D4AF37",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "rgba(212,175,55,0.1)"
+                  e.currentTarget.style.borderColor = "rgba(212,175,55,0.8)"
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "transparent"
+                  e.currentTarget.style.borderColor = "rgba(212,175,55,0.5)"
+                }}
               >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z" />
-                </svg>
-                {locale === "zh" ? "探索能力" : "Explore"}
+                {locale === "zh" ? "查看案例" : "View Examples"}
               </a>
             </div>
 
-            {/* Stats bar — subtle social proof */}
-            <div className="flex items-center gap-4 sm:gap-6 mt-10 lg:mt-14 lg:justify-start justify-center text-white/15 text-[10px] sm:text-xs tracking-widest">
-              <span>{t("hero.stat1")}</span>
-              <span className="w-px h-3 bg-white/10" />
-              <span>4.9 ★</span>
-              <span className="w-px h-3 bg-white/10" />
-              <span>{t("hero.stat3")}</span>
+            {/* Trust indicators — essential for high-skepticism industry */}
+            <div className="flex items-center gap-3 sm:gap-4 mt-8 lg:mt-10 lg:justify-start justify-center">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.06]">
+                <span className="text-[#C5A880] text-xs font-medium">128,000+</span>
+                <span className="text-white/30 text-[10px]">{locale === "zh" ? "已生成档案" : "Generated"}</span>
+              </div>
+              <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.06]">
+                <span className="text-[#D4AF37] text-xs">★</span>
+                <span className="text-[#C5A880] text-xs font-medium">4.9</span>
+                <span className="text-white/30 text-[10px]">{locale === "zh" ? "用户评分" : "Rating"}</span>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.06]">
+                <span className="text-[#C5A880] text-xs font-medium">5</span>
+                <span className="text-white/30 text-[10px]">{locale === "zh" ? "大系统交叉验证" : "Systems"}</span>
+              </div>
             </div>
           </div>
 
@@ -131,15 +146,68 @@ export default function CinematicHero() {
               <div className="w-[300px] h-[300px] lg:w-[400px] lg:h-[400px] rounded-full bg-[#C5A880]/[0.03] blur-[100px]" />
             </div>
             <FateOrb />
+
+            {/* Result preview card — bottom right */}
+            <div className="absolute bottom-4 right-0 sm:right-4 lg:right-0 w-[220px] sm:w-[260px] p-4 rounded-2xl bg-[#0A1235]/80 border border-[#C5A880]/10 backdrop-blur-md">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-6 h-6 rounded-full bg-[#C5A880]/20 flex items-center justify-center">
+                  <span className="text-[#C5A880] text-xs">✦</span>
+                </div>
+                <span className="text-[#C5A880]/70 text-[10px] tracking-wider uppercase">
+                  {locale === "zh" ? "命运档案预览" : "Destiny Preview"}
+                </span>
+              </div>
+
+              {/* Progress bars */}
+              <div className="space-y-2.5">
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-white/50 text-[10px]">{locale === "zh" ? "财富潜力" : "Wealth"}</span>
+                    <span className="text-[#C5A880] text-[10px] font-medium">82%</span>
+                  </div>
+                  <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-[#C5A880] to-[#D4AF37] rounded-full" style={{ width: "82%" }} />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-white/50 text-[10px]">{locale === "zh" ? "事业天赋" : "Career"}</span>
+                    <span className="text-[#C5A880] text-[10px] font-medium">91%</span>
+                  </div>
+                  <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-[#C5A880] to-[#D4AF37] rounded-full" style={{ width: "91%" }} />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-white/50 text-[10px]">{locale === "zh" ? "感情模式" : "Love"}</span>
+                    <span className="text-[#C5A880] text-[10px] font-medium">73%</span>
+                  </div>
+                  <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-[#C5A880] to-[#D4AF37] rounded-full" style={{ width: "73%" }} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-3 pt-2 border-t border-white/5">
+                <span className="text-white/20 text-[9px]">
+                  {locale === "zh" ? "生成你的专属档案 →" : "Generate your profile →"}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2">
-        <span className="text-white/15 text-[10px] tracking-[0.3em] uppercase">Scroll</span>
-        <div className="w-5 h-8 rounded-full border border-white/10 flex justify-center pt-1.5">
-          <div className="w-1 h-2 rounded-full bg-[#C5A880]/30 animate-bounce" />
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 animate-bounce">
+        <span className="text-[#C5A880]/40 text-[10px] tracking-[0.2em]">
+          {locale === "zh" ? "↓ 探索你的命运档案" : "↓ Explore Your Destiny"}
+        </span>
+        <div className="w-5 h-8 rounded-full border border-[#C5A880]/20 flex justify-center pt-1.5">
+          <div className="w-1 h-2 rounded-full bg-[#C5A880]/40 animate-pulse" />
         </div>
       </div>
     </section>

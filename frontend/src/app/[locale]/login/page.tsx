@@ -2,13 +2,19 @@
 import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Sparkles, Loader2, Eye, EyeOff } from "lucide-react"
+import { Sparkles, Loader2, Eye, EyeOff, Zap, Layers, Brain } from "lucide-react"
 import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 // Google Client ID — replace with your actual Client ID from Google Cloud Console
 const GOOGLE_CLIENT_ID = ""  // TODO: Set this in env or hardcode here
+
+const FEATURES = [
+  { icon: Zap, color: "#C5A880", key: "speed" },
+  { icon: Layers, color: "#5B9BD5", key: "dimensions" },
+  { icon: Brain, color: "#9B59B6", key: "knowledge" },
+]
 
 export default function LoginPage() {
   const router = useRouter()
@@ -62,86 +68,179 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen pt-24 pb-16 px-4 flex items-center justify-center">
-      <div className="w-full max-w-md">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <Sparkles className="text-gold mx-auto mb-3" size={28} />
-          <h1 className="text-2xl font-serif font-bold text-gold">{t("auth.loginTitle")}</h1>
-          <p className="text-white/40 text-sm mt-1">{t("auth.loginSubtitle")}</p>
+    <div className="min-h-screen flex flex-col lg:flex-row">
+      {/* ── Left: Brand area (desktop: full height, mobile: compact header) ── */}
+      <div className="relative lg:flex-1 lg:flex lg:items-center lg:justify-center overflow-hidden">
+        {/* Background glow */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-[#C5A880]/[0.03] blur-[180px]" />
+          <div className="absolute top-1/3 left-1/4 w-[300px] h-[300px] rounded-full bg-blue-500/[0.01] blur-[140px]" />
         </div>
 
-        <form onSubmit={handleSubmit} className="card-glass p-6 md:p-8 space-y-5">
-          <div>
-            <label className="label">{t("auth.email")}</label>
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder="your@email.com"
-              className="input-field"
-              autoComplete="email"
-            />
+        {/* Mobile: compact brand bar */}
+        <div className="lg:hidden pt-24 pb-6 px-6 text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#C5A880]/20 bg-[#C5A880]/[0.05] backdrop-blur-sm mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#C5A880] animate-pulse" />
+            <span className="text-[#C5A880]/70 text-xs tracking-[0.3em] uppercase font-medium">
+              AI Behavioral Mirror
+            </span>
           </div>
+          <h1 className="text-xl font-serif font-bold">
+            <span className="bg-clip-text text-transparent" style={{ backgroundImage: "linear-gradient(135deg, #C5A880, #E8D5B7)" }}>
+              {t("auth.loginTitle")}
+            </span>
+          </h1>
+          <p className="text-white/30 text-xs mt-1">{t("auth.loginSubtitle")}</p>
+        </div>
 
-          <div>
-            <label className="label">{t("auth.password")}</label>
-            <div className="relative">
-              <input
-                type={showPw ? "text" : "password"}
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder={t("auth.passwordPlaceholder")}
-                className="input-field pr-10"
-                autoComplete="current-password"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPw(!showPw)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60"
-              >
-                {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
+        {/* Desktop: full brand showcase */}
+        <div className="hidden lg:block relative z-10 max-w-lg px-12">
+          {/* Logo */}
+          <div className="mb-8">
+            <div
+              className="w-16 h-16 rounded-2xl flex items-center justify-center"
+              style={{
+                background: "linear-gradient(135deg, rgba(197,168,128,0.12), rgba(197,168,128,0.04))",
+                border: "1px solid rgba(197,168,128,0.2)",
+              }}
+            >
+              <Sparkles className="text-[#C5A880]" size={28} />
             </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn-gold w-full flex items-center justify-center gap-2 py-3"
-          >
-            {loading ? <><Loader2 size={18} className="animate-spin" /> {t("auth.loggingIn")}</> : t("auth.login")}
-          </button>
-
-          {/* Divider */}
-          <div className="flex items-center gap-3 my-2">
-            <div className="flex-1 h-px bg-white/10" />
-            <span className="text-white/30 text-xs">{t("auth.or")}</span>
-            <div className="flex-1 h-px bg-white/10" />
-          </div>
-
-          {/* Google Login Button */}
-          <GoogleLoginButton />
-
-          <div className="flex items-center justify-between text-sm">
-            <Link href={localeHref("/forgot-password")} className="text-gold/60 hover:text-gold">
-              {t("auth.forgotPassword")}
-            </Link>
-            <p className="text-white/40">
-              {t("auth.noAccount")}{" "}
-              <Link href={localeHref("/register")} className="text-gold hover:underline">
-                {t("auth.registerNow")}
-              </Link>
-            </p>
-          </div>
-
-          <p className="text-center text-white/25 text-[10px] mt-2">
-            {t("auth.agreeTo")}{" "}
-            <a href={localeHref("/privacy")} className="text-gold/50 hover:text-gold underline">{t("auth.privacyPolicy")}</a>
-            {" "}{t("auth.and")}{" "}
-            <a href={localeHref("/terms")} className="text-gold/50 hover:text-gold underline">{t("auth.termsOfService")}</a>
+          {/* Title */}
+          <h1 className="text-3xl xl:text-4xl font-serif font-bold mb-3 tracking-wide">
+            <span className="bg-clip-text text-transparent" style={{ backgroundImage: "linear-gradient(135deg, #C5A880, #E8D5B7)" }}>
+              AI 行为分析镜
+            </span>
+          </h1>
+          <p className="text-white/30 text-sm mb-10 leading-relaxed">
+            {t("auth.loginSubtitle")}
           </p>
-        </form>
+
+          {/* Feature bullet points */}
+          <div className="space-y-5">
+            {FEATURES.map((feat) => {
+              const Icon = feat.icon
+              return (
+                <div key={feat.key} className="flex items-start gap-4">
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                    style={{
+                      background: `linear-gradient(135deg, ${feat.color}15, ${feat.color}08)`,
+                      border: `1px solid ${feat.color}25`,
+                    }}
+                  >
+                    <Icon size={18} style={{ color: feat.color }} />
+                  </div>
+                  <div>
+                    <div className="text-white/60 text-sm font-medium">
+                      {t(`auth.loginFeatures.${feat.key}`)}
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Decorative glyphs */}
+          <div className="absolute -bottom-10 -right-10 text-8xl font-serif text-[#C5A880]/[0.03] select-none">☯</div>
+          <div className="absolute top-10 -right-16 text-6xl font-serif text-[#C5A880]/[0.02] select-none">☰</div>
+        </div>
+      </div>
+
+      {/* ── Right: Login form ── */}
+      <div className="flex-1 lg:max-w-md xl:max-w-lg flex items-center justify-center px-4 py-8 lg:py-0">
+        <div className="w-full max-w-sm">
+          {/* Mobile: skip extra header (already shown above) */}
+          {/* Desktop: show header inside form area */}
+          <div className="hidden lg:block text-center mb-8">
+            <h2 className="text-2xl font-serif font-bold text-gold">{t("auth.loginTitle")}</h2>
+            <p className="text-white/40 text-sm mt-1">{t("auth.loginSubtitle")}</p>
+          </div>
+
+          <form
+            onSubmit={handleSubmit}
+            className="rounded-3xl p-6 md:p-8"
+            style={{
+              background: "rgba(255,255,255,0.03)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              backdropFilter: "blur(20px)",
+            }}
+          >
+            <div className="space-y-5">
+              <div>
+                <label className="label">{t("auth.email")}</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  className="input-field"
+                  autoComplete="email"
+                />
+              </div>
+
+              <div>
+                <label className="label">{t("auth.password")}</label>
+                <div className="relative">
+                  <input
+                    type={showPw ? "text" : "password"}
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    placeholder={t("auth.passwordPlaceholder")}
+                    className="input-field pr-10"
+                    autoComplete="current-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPw(!showPw)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60"
+                  >
+                    {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn-gold w-full flex items-center justify-center gap-2 py-3"
+              >
+                {loading ? <><Loader2 size={18} className="animate-spin" /> {t("auth.loggingIn")}</> : t("auth.login")}
+              </button>
+
+              {/* Divider */}
+              <div className="flex items-center gap-3 my-2">
+                <div className="flex-1 h-px bg-white/10" />
+                <span className="text-white/30 text-xs">{t("auth.or")}</span>
+                <div className="flex-1 h-px bg-white/10" />
+              </div>
+
+              {/* Google Login Button */}
+              <GoogleLoginButton />
+
+              <div className="flex items-center justify-between text-sm">
+                <Link href={localeHref("/forgot-password")} className="text-gold/60 hover:text-gold">
+                  {t("auth.forgotPassword")}
+                </Link>
+                <p className="text-white/40">
+                  {t("auth.noAccount")}{" "}
+                  <Link href={localeHref("/register")} className="text-gold hover:underline">
+                    {t("auth.registerNow")}
+                  </Link>
+                </p>
+              </div>
+            </div>
+
+            <p className="text-center text-white/25 text-[10px] mt-4">
+              {t("auth.agreeTo")}{" "}
+              <a href={localeHref("/privacy")} className="text-gold/50 hover:text-gold underline">{t("auth.privacyPolicy")}</a>
+              {" "}{t("auth.and")}{" "}
+              <a href={localeHref("/terms")} className="text-gold/50 hover:text-gold underline">{t("auth.termsOfService")}</a>
+            </p>
+          </form>
+        </div>
       </div>
     </div>
   )

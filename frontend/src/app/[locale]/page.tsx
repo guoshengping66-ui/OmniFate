@@ -10,9 +10,12 @@ const StarfieldBackground = dynamic(() => import("@/components/destiny/Starfield
 
 // ── Lazy-loaded cinematic marketing page ─────────────────────────────
 const CinematicHero = dynamic(() => import("@/components/destiny/CinematicHero"), { ssr: true })
+const DestinySystems = dynamic(() => import("@/components/destiny/DestinySystems"), { ssr: false })
+const LifeTrendTimeline = dynamic(() => import("@/components/destiny/LifeTrendTimeline"), { ssr: false })
 const UniqueCapabilities = dynamic(() => import("@/components/destiny/UniqueCapabilities"), { ssr: false })
 const ServicesShowcase = dynamic(() => import("@/components/destiny/ServicesShowcase"), { ssr: false })
 const ReportPreview = dynamic(() => import("@/components/destiny/ReportPreview"), { ssr: false })
+const SocialProof = dynamic(() => import("@/components/destiny/SocialProof"), { ssr: false })
 const LifestyleShowcase = dynamic(() => import("@/components/destiny/LifestyleShowcase"), { ssr: false })
 const FinalCTA = dynamic(() => import("@/components/destiny/FinalCTA"), { ssr: true })
 
@@ -103,9 +106,12 @@ export default function HomePage() {
       <StarfieldBackground />
       <div className="relative z-10 min-h-screen">
         <CinematicHero />
+        <DestinySystems />
+        <LifeTrendTimeline />
         <UniqueCapabilities />
         <ServicesShowcase />
         <ReportPreview />
+        <SocialProof />
         <LifestyleShowcase />
         <FinalCTA />
       </div>
