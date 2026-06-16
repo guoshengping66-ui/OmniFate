@@ -22,7 +22,6 @@ export default function FinalCTA() {
     <section
       ref={containerRef}
       className="relative min-h-[85vh] md:min-h-screen flex items-center justify-center py-16 md:py-32 px-4"
-      style={{ background: "#080808" }}
     >
       {/* Background glow */}
       <div className="absolute inset-0 pointer-events-none">

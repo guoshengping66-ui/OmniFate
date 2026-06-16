@@ -3749,6 +3749,16 @@
     "desc": "根据分析数据，为你精选提升生活品质的工具",
     "viewAll": "探索更多"
   },
+  "howItWorks": {
+    "title": "三步解锁命运蓝图",
+    "desc": "简单三步，开启你的专属命理分析",
+    "inputTitle": "输入信息",
+    "inputDesc": "填写出生信息或上传照片，所有数据严格保密",
+    "analyzeTitle": "AI 深度分析",
+    "analyzeDesc": "AI 引擎交叉验证古代命理体系与现代数据模型",
+    "discoverTitle": "获取洞察",
+    "discoverDesc": "获得专属命运蓝图与可执行的行动指南"
+  },
   "services": {
     "badge": "独立服务",
     "title": "选择你的分析方式",

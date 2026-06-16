@@ -25,111 +25,116 @@ export default function CinematicHero() {
   return (
     <section
       ref={sectionRef}
-      className="relative min-h-[85vh] md:min-h-screen flex items-center justify-center overflow-hidden"
-      style={{ background: "#080808" }}
+      className="relative min-h-[90vh] md:min-h-screen flex items-center overflow-hidden"
     >
-      {/* Starfield background */}
-      <div className="absolute inset-0">
-        <div className="stars-container absolute inset-0" />
-        {Array.from({ length: 80 }).map((_, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full"
-            style={{
-              width: `${Math.random() * 2 + 1}px`,
-              height: `${Math.random() * 2 + 1}px`,
-              background: `rgba(197, 168, 128, ${Math.random() * 0.4 + 0.1})`,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animation: `twinkle ${3 + Math.random() * 4}s ease-in-out ${Math.random() * 3}s infinite`,
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Radial glow */}
+      {/* Radial glow - center */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-[#C5A880]/[0.03] blur-[150px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] rounded-full bg-[#C5A880]/[0.025] blur-[200px]" />
+        <div className="absolute top-1/3 left-1/3 w-[500px] h-[500px] rounded-full bg-blue-500/[0.01] blur-[180px]" />
       </div>
 
-      {/* 3D Fate Orb */}
-      <div className="absolute inset-0 z-0">
-        <FateOrb />
-      </div>
+      {/* Split layout: text left, orb right on desktop; stacked on mobile */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col-reverse lg:flex-row items-center justify-between gap-8 lg:gap-12">
 
-      {/* Content overlay */}
-      <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-        {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#C5A880]/20 bg-[#C5A880]/[0.05] backdrop-blur-sm mb-8">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#C5A880] animate-pulse" />
-          <span className="text-[#C5A880]/70 text-xs tracking-[0.3em] uppercase font-medium">
-            {t("hero.badge")}
-          </span>
-        </div>
+          {/* Left: Text content */}
+          <div className="flex-1 text-center lg:text-left lg:max-w-xl">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#C5A880]/20 bg-[#C5A880]/[0.05] backdrop-blur-sm mb-6 lg:mb-8">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#C5A880] animate-pulse" />
+              <span className="text-[#C5A880]/70 text-xs tracking-[0.3em] uppercase font-medium">
+                {t("hero.badge")}
+              </span>
+            </div>
 
-        {/* Title */}
-        <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-serif font-bold tracking-[0.08em] uppercase mb-6 leading-[1.1]">
-          <span
-            className="block bg-clip-text text-transparent"
-            style={{
-              backgroundImage: "linear-gradient(135deg, #C5A880 0%, #E8D5B7 40%, #C5A880 80%)",
-            }}
-          >
-            {t("hero.title1")}
-          </span>
-          <span className="block text-white/90 text-3xl md:text-4xl lg:text-5xl mt-4 tracking-[0.15em] font-light">
-            {t("hero.title2")}
-          </span>
-        </h1>
+            {/* Title */}
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-serif font-bold tracking-[0.06em] uppercase mb-6 leading-[1.05]">
+              <span
+                className="block bg-clip-text text-transparent"
+                style={{
+                  backgroundImage: "linear-gradient(135deg, #C5A880 0%, #E8D5B7 40%, #C5A880 80%)",
+                }}
+              >
+                {t("hero.title1")}
+              </span>
+              <span className="block text-white/80 text-2xl sm:text-3xl md:text-4xl lg:text-5xl mt-3 lg:mt-4 tracking-[0.12em] font-light">
+                {t("hero.title2")}
+              </span>
+            </h1>
 
-        {/* Subtitle */}
-        <p className="text-white/40 text-base md:text-lg max-w-xl mx-auto mb-12 leading-relaxed tracking-wide">
-          {t("hero.desc").split("\n")[0]}
-          <br />
-          <span className="text-[#C5A880]/60">{t("hero.desc").split("\n")[1]}</span>
-        </p>
+            {/* Subtitle */}
+            <p className="text-white/35 text-sm md:text-base max-w-lg mx-auto lg:mx-0 mb-8 lg:mb-10 leading-relaxed tracking-wide">
+              {t("hero.desc").split("\n")[0]}
+              <br />
+              <span className="text-[#C5A880]/50">{t("hero.desc").split("\n")[1]}</span>
+            </p>
 
-        {/* CTA Button - Vision Pro glassmorphism style */}
-        <a
-          href="#archetypes"
-          className="group relative inline-flex items-center gap-3 px-6 sm:px-10 py-3 sm:py-4 rounded-2xl font-medium text-xs sm:text-sm tracking-widest uppercase transition-all duration-500"
-          style={{
-            background: "linear-gradient(135deg, rgba(197,168,128,0.12) 0%, rgba(197,168,128,0.04) 100%)",
-            border: "1px solid rgba(197,168,128,0.2)",
-            backdropFilter: "blur(20px)",
-            color: "#C5A880",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "linear-gradient(135deg, rgba(197,168,128,0.2) 0%, rgba(197,168,128,0.08) 100%)"
-            e.currentTarget.style.borderColor = "rgba(197,168,128,0.4)"
-            e.currentTarget.style.boxShadow = "0 0 40px rgba(197,168,128,0.15)"
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "linear-gradient(135deg, rgba(197,168,128,0.12) 0%, rgba(197,168,128,0.04) 100%)"
-            e.currentTarget.style.borderColor = "rgba(197,168,128,0.2)"
-            e.currentTarget.style.boxShadow = "none"
-          }}
-        >
-          {t("hero.cta1")}
-          <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-          </svg>
-        </a>
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row items-center gap-4 lg:justify-start justify-center">
+              <a
+                href={localeHref("/reading/new")}
+                className="group relative inline-flex items-center gap-3 px-8 sm:px-10 py-3.5 sm:py-4 rounded-2xl font-medium text-xs sm:text-sm tracking-widest uppercase transition-all duration-500"
+                style={{
+                  background: "linear-gradient(135deg, rgba(197,168,128,0.15) 0%, rgba(197,168,128,0.05) 100%)",
+                  border: "1px solid rgba(197,168,128,0.3)",
+                  backdropFilter: "blur(20px)",
+                  color: "#C5A880",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "linear-gradient(135deg, rgba(197,168,128,0.25) 0%, rgba(197,168,128,0.1) 100%)"
+                  e.currentTarget.style.borderColor = "rgba(197,168,128,0.5)"
+                  e.currentTarget.style.boxShadow = "0 0 50px rgba(197,168,128,0.15)"
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "linear-gradient(135deg, rgba(197,168,128,0.15) 0%, rgba(197,168,128,0.05) 100%)"
+                  e.currentTarget.style.borderColor = "rgba(197,168,128,0.3)"
+                  e.currentTarget.style.boxShadow = "none"
+                }}
+              >
+                {t("hero.cta1")}
+                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </a>
 
-        {/* Stats bar */}
-        <div className="flex items-center justify-center gap-4 sm:gap-6 mt-8 sm:mt-12 text-white/20 text-[10px] sm:text-xs tracking-widest">
-          <span>{t("hero.stat1")}</span>
-          <span className="w-px h-3 bg-white/10" />
-          <span>4.9 ★</span>
-          <span className="w-px h-3 bg-white/10" />
-          <span>{t("hero.stat3")}</span>
+              <a
+                href="#services"
+                className="group inline-flex items-center gap-2 px-6 py-3 rounded-2xl font-medium text-xs sm:text-sm tracking-wider transition-all duration-500 text-white/30 hover:text-white/60"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z" />
+                </svg>
+                {localeHref ? "Explore" : "探索"}
+              </a>
+            </div>
+
+            {/* Stats bar */}
+            <div className="flex items-center gap-4 sm:gap-6 mt-10 lg:mt-14 lg:justify-start justify-center text-white/15 text-[10px] sm:text-xs tracking-widest">
+              <span>{t("hero.stat1")}</span>
+              <span className="w-px h-3 bg-white/10" />
+              <span>4.9 ★</span>
+              <span className="w-px h-3 bg-white/10" />
+              <span>{t("hero.stat3")}</span>
+            </div>
+          </div>
+
+          {/* Right: 3D Fate Orb */}
+          <div className="flex-1 flex items-center justify-center w-full lg:w-auto h-[300px] sm:h-[400px] lg:h-[500px] relative">
+            {/* Orb glow backdrop */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="w-[300px] h-[300px] lg:w-[400px] lg:h-[400px] rounded-full bg-[#C5A880]/[0.03] blur-[100px]" />
+            </div>
+            <FateOrb />
+          </div>
         </div>
       </div>
 
       {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
-        <div className="w-5 h-8 rounded-full border border-white/15 flex justify-center pt-1.5">
-          <div className="w-1 h-2 rounded-full bg-[#C5A880]/40 animate-bounce" />
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2">
+        <span className="text-white/15 text-[10px] tracking-[0.3em] uppercase">Scroll</span>
+        <div className="w-5 h-8 rounded-full border border-white/10 flex justify-center pt-1.5">
+          <div className="w-1 h-2 rounded-full bg-[#C5A880]/30 animate-bounce" />
         </div>
       </div>
     </section>

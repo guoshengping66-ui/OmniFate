@@ -1,13 +1,16 @@
 "use client"
 import { useEffect } from "react"
 import dynamic from "next/dynamic"
-import Link from "next/link"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useAuth } from "@/contexts/AuthContext"
 import { useUserStore } from "@/stores/useUserStore"
 
-// ── Lazy-loaded cinematic marketing page ─────────────────────────────────
+// ── Global starfield background ──────────────────────────────────────
+const StarfieldBackground = dynamic(() => import("@/components/destiny/StarfieldBackground"), { ssr: false })
+
+// ── Lazy-loaded cinematic marketing page ─────────────────────────────
 const CinematicHero = dynamic(() => import("@/components/destiny/CinematicHero"), { ssr: true })
+const HowItWorks = dynamic(() => import("@/components/destiny/HowItWorks"), { ssr: false })
 const ServicesShowcase = dynamic(() => import("@/components/destiny/ServicesShowcase"), { ssr: false })
 const ReportPreview = dynamic(() => import("@/components/destiny/ReportPreview"), { ssr: false })
 const LifestyleShowcase = dynamic(() => import("@/components/destiny/LifestyleShowcase"), { ssr: false })
@@ -42,60 +45,70 @@ export default function HomePage() {
 
   if (profileStillLoading) {
     return (
-      <div className="min-h-screen pt-24 pb-16 px-4">
-        <div className="max-w-5xl mx-auto space-y-8">
-          <div className="card-glass p-8 space-y-4">
-            <div className="h-6 bg-white/5 rounded w-1/3 animate-pulse" />
-            <div className="h-4 bg-white/5 rounded w-2/3 animate-pulse" />
-            <div className="flex gap-4 mt-6">
-              <div className="h-10 bg-white/5 rounded-full w-32 animate-pulse" />
-              <div className="h-10 bg-white/5 rounded-full w-32 animate-pulse" />
+      <>
+        <StarfieldBackground />
+        <div className="relative z-10 min-h-screen pt-24 pb-16 px-4">
+          <div className="max-w-5xl mx-auto space-y-8">
+            <div className="card-glass p-8 space-y-4">
+              <div className="h-6 bg-white/5 rounded w-1/3 animate-pulse" />
+              <div className="h-4 bg-white/5 rounded w-2/3 animate-pulse" />
+              <div className="flex gap-4 mt-6">
+                <div className="h-10 bg-white/5 rounded-full w-32 animate-pulse" />
+                <div className="h-10 bg-white/5 rounded-full w-32 animate-pulse" />
+              </div>
             </div>
-          </div>
-          <div className="card-glass p-8 space-y-4">
-            <div className="h-5 bg-white/5 rounded w-1/4 animate-pulse" />
-            <div className="grid grid-cols-3 gap-4">
-              {[1,2,3].map(i => <div key={i} className="h-20 bg-white/5 rounded animate-pulse" />)}
+            <div className="card-glass p-8 space-y-4">
+              <div className="h-5 bg-white/5 rounded w-1/4 animate-pulse" />
+              <div className="grid grid-cols-3 gap-4">
+                {[1,2,3].map(i => <div key={i} className="h-20 bg-white/5 rounded animate-pulse" />)}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </>
     )
   }
 
   if (hasProfile) {
     return (
-      <div className="min-h-screen" style={{ background: "#080808" }}>
-        <section className="pt-24 pb-10 px-4">
-          <UserDashboard />
-        </section>
+      <>
+        <StarfieldBackground />
+        <div className="relative z-10 min-h-screen">
+          <section className="pt-24 pb-10 px-4">
+            <UserDashboard />
+          </section>
 
-        <section className="py-12 px-4 bg-white/[0.015]">
-          <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-8">
-              <span className="text-gold/60 text-sm tracking-[0.2em] uppercase">{t("home.dailyBadge")}</span>
-              <h2 className="font-serif text-2xl font-bold text-gold mt-2">{t("home.dailyTitle")}</h2>
+          <section className="py-12 px-4">
+            <div className="max-w-5xl mx-auto">
+              <div className="text-center mb-8">
+                <span className="text-gold/60 text-sm tracking-[0.2em] uppercase">{t("home.dailyBadge")}</span>
+                <h2 className="font-serif text-2xl font-bold text-gold mt-2">{t("home.dailyTitle")}</h2>
+              </div>
+              <DailyDashboard />
             </div>
-            <DailyDashboard />
-          </div>
-        </section>
+          </section>
 
-        <ServicesShowcase />
+          <ServicesShowcase />
 
-        <LifestyleShowcase />
+          <LifestyleShowcase />
 
-        <FloatingFortuneSubscribe />
-      </div>
+          <FloatingFortuneSubscribe />
+        </div>
+      </>
     )
   }
 
   return (
-    <div className="min-h-screen" style={{ background: "#080808" }}>
-      <CinematicHero />
-      <ServicesShowcase />
-      <ReportPreview />
-      <LifestyleShowcase />
-      <FinalCTA />
-    </div>
+    <>
+      <StarfieldBackground />
+      <div className="relative z-10 min-h-screen">
+        <CinematicHero />
+        <HowItWorks />
+        <ServicesShowcase />
+        <ReportPreview />
+        <LifestyleShowcase />
+        <FinalCTA />
+      </div>
+    </>
   )
 }

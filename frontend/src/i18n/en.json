@@ -3926,6 +3926,16 @@
     "desc": "Curated tools to elevate your lifestyle, based on analysis data",
     "viewAll": "Explore More"
   },
+  "howItWorks": {
+    "title": "How It Works",
+    "desc": "Three simple steps to unlock your destiny blueprint",
+    "inputTitle": "Enter Your Info",
+    "inputDesc": "Provide your birth details or upload a photo — everything stays private",
+    "analyzeTitle": "AI Deep Analysis",
+    "analyzeDesc": "Our AI engine cross-references ancient systems with modern data models",
+    "discoverTitle": "Unlock Insights",
+    "discoverDesc": "Receive your personalized destiny blueprint with actionable guidance"
+  },
   "services": {
     "badge": "Individual Services",
     "title": "Choose Your Analysis",

@@ -43,8 +43,10 @@ export default function LifestyleShowcase() {
     <section
       ref={containerRef}
       className="relative py-16 md:py-32 px-4"
-      style={{ background: "#080808" }}
     >
+      {/* Subtle backdrop for readability */}
+      <div className="absolute inset-0 bg-[#080808]/50 pointer-events-none" />
+
       {/* Subtle background accent */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] rounded-full bg-[#C5A880]/[0.02] blur-[100px]" />
