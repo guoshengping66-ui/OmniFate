@@ -1,8 +1,18 @@
 "use client"
 import { useRef, useState, useEffect } from "react"
+import Link from "next/link"
 import { useLanguage } from "@/contexts/LanguageContext"
 
-function CircularProgress({ value, max = 100, color, size = 80 }: { value: number; max?: number; color: string; size?: number }) {
+// ── Five real dimensions from 五维合参 ──
+const DIMENSIONS = [
+  { key: "wealth",  color: "#C5A880", value: 82 },
+  { key: "career",  color: "#C1121F", value: 76 },
+  { key: "health",  color: "#2D6A4F", value: 88 },
+  { key: "relationship", color: "#9B59B6", value: 71 },
+  { key: "spiritual", color: "#5B9BD5", value: 79 },
+]
+
+function CircularProgress({ value, max = 100, color, size = 72 }: { value: number; max?: number; color: string; size?: number }) {
   const [progress, setProgress] = useState(0)
   const radius = (size - 8) / 2
   const circumference = 2 * Math.PI * radius
@@ -15,29 +25,29 @@ function CircularProgress({ value, max = 100, color, size = 80 }: { value: numbe
   return (
     <div className="relative" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="3" />
+        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="2.5" />
         <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
           fill="none"
           stroke={color}
-          strokeWidth="3"
+          strokeWidth="2.5"
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={circumference * (1 - progress)}
-          style={{ transition: "stroke-dashoffset 1.5s cubic-bezier(0.16, 1, 0.3, 1)" }}
+          style={{ transition: "stroke-dashoffset 1.8s cubic-bezier(0.16, 1, 0.3, 1)" }}
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-lg font-bold" style={{ color }}>{value}</span>
+        <span className="text-sm font-bold" style={{ color }}>{value}</span>
       </div>
     </div>
   )
 }
 
 export default function ReportPreview() {
-  const { t, locale } = useLanguage()
+  const { t, locale, localeHref } = useLanguage()
   const containerRef = useRef<HTMLDivElement>(null)
   const [isVisible, setIsVisible] = useState(false)
 
@@ -80,12 +90,12 @@ export default function ReportPreview() {
           <p className="text-white/30 text-sm max-w-lg mx-auto">{t("report.desc")}</p>
         </div>
 
-        {/* Report cards grid */}
+        {/* Report cards — real 五维合参 content */}
         <div
           className="grid md:grid-cols-3 gap-5 transition-all duration-1000 delay-300"
           style={{ opacity: isVisible ? 1 : 0, transform: isVisible ? "translateY(0)" : "translateY(20px)" }}
         >
-          {/* Card A: Wealth Potential */}
+          {/* Card A: 五维数据雷达 — shows real dimension scores */}
           <div
             className="rounded-3xl p-6 transition-all duration-300 hover:border-[#C5A880]/25"
             style={{
@@ -97,94 +107,155 @@ export default function ReportPreview() {
             <div className="flex items-center gap-2 mb-4">
               <div className="w-1 h-4 rounded-full bg-[#C5A880]" />
               <span className="text-[10px] text-white/30 tracking-widest uppercase">
-                {t("report.wealth")}
-              </span>
-            </div>
-            <div className="flex items-center justify-center mb-4">
-              <CircularProgress value={85} color="#C5A880" size={100} />
-            </div>
-            <div className="text-center">
-              <div className="text-[#C5A880] text-xs tracking-wider">
-                {locale === "zh" ? "财富潜力指数" : "Wealth Potential Index"}
-              </div>
-            </div>
-          </div>
-
-          {/* Card B: Personality Rank */}
-          <div
-            className="rounded-3xl p-6 transition-all duration-300 hover:border-[#C5A880]/25"
-            style={{
-              background: "rgba(255,255,255,0.02)",
-              border: "1px solid rgba(255,255,255,0.06)",
-              backdropFilter: "blur(10px)",
-            }}
-          >
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-1 h-4 rounded-full bg-[#C1121F]" />
-              <span className="text-[10px] text-white/30 tracking-widest uppercase">
-                {t("report.career")}
-              </span>
-            </div>
-            <div className="flex items-center justify-center mb-4">
-              <div
-                className="px-6 py-3 rounded-2xl text-2xl font-serif font-bold"
-                style={{
-                  background: "linear-gradient(135deg, rgba(193,18,31,0.15), rgba(193,18,31,0.05))",
-                  border: "1px solid rgba(193,18,31,0.3)",
-                  color: "#C1121F",
-                }}
-              >
-                SS
-              </div>
-            </div>
-            <div className="text-center">
-              <div className="text-[#C1121F] text-xs tracking-wider">
-                {locale === "zh" ? "人格等级" : "Personality Rank"}
-              </div>
-            </div>
-          </div>
-
-          {/* Card C: Life Vector Paths */}
-          <div
-            className="rounded-3xl p-6 transition-all duration-300 hover:border-[#C5A880]/25"
-            style={{
-              background: "rgba(255,255,255,0.02)",
-              border: "1px solid rgba(255,255,255,0.06)",
-              backdropFilter: "blur(10px)",
-            }}
-          >
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-1 h-4 rounded-full bg-[#2D6A4F]" />
-              <span className="text-[10px] text-white/30 tracking-widest uppercase">
-                {locale === "zh" ? "人生矢量路径" : "Life Vector Paths"}
+                {locale === "zh" ? "五维数据" : "Five Dimensions"}
               </span>
             </div>
             <div className="space-y-3">
-              {[
-                { label: locale === "zh" ? "创业" : "Founder", color: "#C5A880", active: true },
-                { label: locale === "zh" ? "投资" : "Investor", color: "#2D6A4F", active: true },
-                { label: locale === "zh" ? "创造" : "Creator", color: "#C1121F", active: false },
-              ].map((path, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <div
-                    className="w-2 h-2 rounded-full"
-                    style={{ background: path.active ? path.color : "rgba(255,255,255,0.1)" }}
-                  />
-                  <span
-                    className="text-xs"
-                    style={{ color: path.active ? path.color : "rgba(255,255,255,0.2)" }}
-                  >
-                    {path.label}
+              {DIMENSIONS.map((dim) => (
+                <div key={dim.key} className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full" style={{ background: dim.color }} />
+                  <span className="text-[11px] text-white/40 flex-1">
+                    {t(`report.${dim.key}`)}
                   </span>
-                  {i < 2 && (
-                    <svg className="w-3 h-3 text-white/10 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  )}
+                  {/* Progress bar */}
+                  <div className="w-16 h-1 rounded-full bg-white/[0.06] overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-[2s] ease-out"
+                      style={{
+                        width: isVisible ? `${dim.value}%` : "0%",
+                        background: dim.color,
+                        transitionDelay: "0.5s",
+                      }}
+                    />
+                  </div>
+                  <span className="text-[11px] font-medium" style={{ color: dim.color }}>
+                    {dim.value}
+                  </span>
                 </div>
               ))}
             </div>
           </div>
+
+          {/* Card B: AM16 行为人格 — shows the unique 16-type system */}
+          <div
+            className="rounded-3xl p-6 transition-all duration-300 hover:border-[#C5A880]/25"
+            style={{
+              background: "rgba(255,255,255,0.02)",
+              border: "1px solid rgba(255,255,255,0.06)",
+              backdropFilter: "blur(10px)",
+            }}
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-1 h-4 rounded-full bg-[#C9A84C]" />
+              <span className="text-[10px] text-white/30 tracking-widest uppercase">
+                {locale === "zh" ? "行为人格" : "AM16 Type"}
+              </span>
+            </div>
+            <div className="flex flex-col items-center justify-center py-2">
+              {/* Circular score */}
+              <CircularProgress value={86} color="#C9A84C" size={90} />
+              {/* AM16 type badge */}
+              <div
+                className="mt-3 px-4 py-1.5 rounded-full text-xs font-bold tracking-widest"
+                style={{
+                  background: "linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.05))",
+                  border: "1px solid rgba(201,168,76,0.3)",
+                  color: "#C9A84C",
+                }}
+              >
+                {locale === "zh" ? "格物派逆天执行狂魔" : "Analytical Pattern-Defying Executor"}
+              </div>
+            </div>
+            <div className="text-center mt-2">
+              <div className="text-[#C9A84C]/60 text-[10px] tracking-wider">
+                {locale === "zh" ? "AM16 行为分类系统" : "AM16 Behavioral Classification"}
+              </div>
+            </div>
+          </div>
+
+          {/* Card C: 合参维度 — shows multi-modal cross-validation */}
+          <div
+            className="rounded-3xl p-6 transition-all duration-300 hover:border-[#C5A880]/25"
+            style={{
+              background: "rgba(255,255,255,0.02)",
+              border: "1px solid rgba(255,255,255,0.06)",
+              backdropFilter: "blur(10px)",
+            }}
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-1 h-4 rounded-full bg-[#7B93C9]" />
+              <span className="text-[10px] text-white/30 tracking-widest uppercase">
+                {locale === "zh" ? "合参维度" : "Cross-Validation"}
+              </span>
+            </div>
+            <div className="space-y-3">
+              {[
+                { label: locale === "zh" ? "四柱八字" : "Four Pillars", icon: "☯", color: "#C5A880", active: true },
+                { label: locale === "zh" ? "面相分析" : "Face Reading", icon: "👁", color: "#2D6A4F", active: true },
+                { label: locale === "zh" ? "手相分析" : "Palm Reading", icon: "✋", color: "#9B59B6", active: true },
+                { label: locale === "zh" ? "流时复盘" : "Event Transit", icon: "⏱", color: "#5B9BD5", active: true },
+                { label: locale === "zh" ? "五维合参" : "5D Synthesis", icon: "◆", color: "#C9A84C", active: true },
+              ].map((dim, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <span className="text-sm w-5 text-center">{dim.icon}</span>
+                  <span
+                    className="text-xs flex-1"
+                    style={{ color: dim.active ? `${dim.color}cc` : "rgba(255,255,255,0.2)" }}
+                  >
+                    {dim.label}
+                  </span>
+                  {/* Checkmark */}
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke={dim.active ? dim.color : "rgba(255,255,255,0.1)"} strokeWidth="1.5" fill="none" opacity={dim.active ? 0.3 : 0.1} />
+                    {dim.active && (
+                      <path d="M8 12.5l2.5 2.5 5.5-5.5" stroke={dim.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    )}
+                  </svg>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Disclaimer note */}
+        <div
+          className="text-center mt-10 transition-all duration-1000 delay-700"
+          style={{ opacity: isVisible ? 1 : 0 }}
+        >
+          <p className="text-white/15 text-[10px] tracking-wider">
+            {t("report.confidence")}
+          </p>
+        </div>
+
+        {/* CTA — go to actual reading */}
+        <div
+          className="text-center mt-8 transition-all duration-1000 delay-500"
+          style={{ opacity: isVisible ? 1 : 0 }}
+        >
+          <Link
+            href={localeHref("/reading/new")}
+            className="group inline-flex items-center gap-2 px-8 py-3 rounded-2xl font-medium text-sm tracking-wider transition-all duration-500"
+            style={{
+              background: "linear-gradient(135deg, rgba(197,168,128,0.1), rgba(197,168,128,0.03))",
+              border: "1px solid rgba(197,168,128,0.2)",
+              color: "#C5A880",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "linear-gradient(135deg, rgba(197,168,128,0.18), rgba(197,168,128,0.06))"
+              e.currentTarget.style.borderColor = "rgba(197,168,128,0.4)"
+              e.currentTarget.style.boxShadow = "0 0 30px rgba(197,168,128,0.1)"
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "linear-gradient(135deg, rgba(197,168,128,0.1), rgba(197,168,128,0.03))"
+              e.currentTarget.style.borderColor = "rgba(197,168,128,0.2)"
+              e.currentTarget.style.boxShadow = "none"
+            }}
+          >
+            {t("report.expand")}
+            <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </Link>
         </div>
       </div>
     </section>

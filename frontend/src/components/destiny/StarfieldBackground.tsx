@@ -8,6 +8,7 @@ import { useEffect, useRef, useMemo } from "react"
  *  - Nebula clouds (soft colour blobs)
  *  - Shooting stars (occasional streaks)
  *  - Constellation lines (faint connections)
+ *  - Floating I Ching trigrams & tarot symbols (subtle mystic atmosphere)
  *
  * Performance: single <canvas>, requestAnimationFrame loop, no React re-renders.
  */
@@ -21,6 +22,10 @@ interface Nebula {
 interface ShootingStar {
   x: number; y: number; angle: number; speed: number; length: number; life: number; maxLife: number
 }
+interface FloatingSymbol {
+  char: string; x: number; y: number; size: number; alpha: number; rotation: number
+  driftY: number; rotSpeed: number; alphaPhase: number; alphaSpeed: number; color: string
+}
 
 export default function StarfieldBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -28,7 +33,8 @@ export default function StarfieldBackground() {
   const config = useMemo(() => ({
     starCount: 280,
     nebulaCount: 5,
-    shootingStarInterval: 4000, // ms between shooting stars
+    symbolCount: 22,
+    shootingStarInterval: 4000,
     colors: {
       gold: "rgba(197,168,128,",
       white: "rgba(255,255,255,",
@@ -48,7 +54,24 @@ export default function StarfieldBackground() {
     let stars: Star[] = []
     let nebulae: Nebula[] = []
     let shootingStars: ShootingStar[] = []
+    let floatingSymbols: FloatingSymbol[] = []
     let lastShootingStar = 0
+
+    // I Ching + Tarot symbol pool
+    const SYMBOLS = [
+      // 八卦 trigrams
+      "☰", "☱", "☲", "☳", "☴", "☵", "☶", "☷",
+      // 五行 elements
+      "金", "木", "水", "火", "土",
+      // 核心符号
+      "☯",
+      // Tarot / cosmic
+      "★", "✦", "◇", "✧",
+      // 天干地支 hints
+      "甲", "癸",
+      // 经典符号
+      "☰", "☯",
+    ]
 
     function resize() {
       const dpr = Math.min(window.devicePixelRatio, 2)
@@ -61,6 +84,7 @@ export default function StarfieldBackground() {
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0)
       initStars()
       initNebulae()
+      initSymbols()
     }
 
     function initStars() {
@@ -95,10 +119,32 @@ export default function StarfieldBackground() {
       }))
     }
 
+    function initSymbols() {
+      const symbolColors = [
+        "rgba(197,168,128,",  // gold — primary
+        "rgba(160,180,220,",  // cool blue
+        "rgba(200,170,100,",  // warm gold
+        "rgba(140,130,180,",  // purple-grey
+      ]
+      floatingSymbols = Array.from({ length: config.symbolCount }, () => ({
+        char: SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)],
+        x: Math.random() * w,
+        y: Math.random() * h,
+        size: Math.random() * 14 + 10,
+        alpha: 0,
+        rotation: Math.random() * Math.PI * 2,
+        driftY: -(Math.random() * 0.15 + 0.05), // float upward
+        rotSpeed: (Math.random() - 0.5) * 0.003,
+        alphaPhase: Math.random() * Math.PI * 2,
+        alphaSpeed: Math.random() * 0.003 + 0.001,
+        color: symbolColors[Math.floor(Math.random() * symbolColors.length)],
+      }))
+    }
+
     function spawnShootingStar(time: number) {
       if (time - lastShootingStar < config.shootingStarInterval) return
       lastShootingStar = time
-      const angle = Math.random() * 0.4 + 0.3 // roughly 15-40 degrees
+      const angle = Math.random() * 0.4 + 0.3
       shootingStars.push({
         x: Math.random() * w * 0.8,
         y: Math.random() * h * 0.3,
@@ -119,7 +165,6 @@ export default function StarfieldBackground() {
         ctx!.beginPath()
         ctx!.arc(s.x, s.y, s.r, 0, Math.PI * 2)
 
-        // Vary star color: mostly white/gold, some blue
         if (s.r > 1.3) {
           ctx!.fillStyle = `rgba(197,168,128,${alpha})`
         } else if (s.r < 0.6) {
@@ -129,7 +174,6 @@ export default function StarfieldBackground() {
         }
         ctx!.fill()
 
-        // Glow for larger stars
         if (s.r > 1.2) {
           ctx!.beginPath()
           ctx!.arc(s.x, s.y, s.r * 3, 0, Math.PI * 2)
@@ -146,7 +190,6 @@ export default function StarfieldBackground() {
       for (const n of nebulae) {
         n.x += n.driftX
         n.y += n.driftY
-        // Wrap around
         if (n.x < -n.rx) n.x = w + n.rx
         if (n.x > w + n.rx) n.x = -n.rx
         if (n.y < -n.ry) n.y = h + n.ry
@@ -196,7 +239,6 @@ export default function StarfieldBackground() {
         ctx!.lineWidth = 1.5
         ctx!.stroke()
 
-        // Head glow
         ctx!.beginPath()
         ctx!.arc(ss.x, ss.y, 2, 0, Math.PI * 2)
         ctx!.fillStyle = `rgba(255,255,255,${alpha * 0.9})`
@@ -206,8 +248,40 @@ export default function StarfieldBackground() {
       })
     }
 
+    function drawFloatingSymbols(time: number) {
+      for (const sym of floatingSymbols) {
+        // Update position — float upward slowly
+        sym.y += sym.driftY
+        sym.rotation += sym.rotSpeed
+        sym.alphaPhase += sym.alphaSpeed
+
+        // Wrap vertically
+        if (sym.y < -40) {
+          sym.y = h + 40
+          sym.x = Math.random() * w
+        }
+
+        // Gentle breathing alpha: 0.03 ~ 0.08
+        sym.alpha = 0.03 + 0.05 * (0.5 + 0.5 * Math.sin(sym.alphaPhase))
+
+        ctx!.save()
+        ctx!.translate(sym.x, sym.y)
+        ctx!.rotate(sym.rotation)
+        ctx!.font = `${sym.size}px serif`
+        ctx!.textAlign = "center"
+        ctx!.textBaseline = "middle"
+        ctx!.fillStyle = `${sym.color}${sym.alpha})`
+
+        // Subtle glow behind symbol
+        ctx!.shadowColor = `${sym.color}0.1)`
+        ctx!.shadowBlur = 8
+        ctx!.fillText(sym.char, 0, 0)
+        ctx!.shadowBlur = 0
+        ctx!.restore()
+      }
+    }
+
     function drawConstellations(time: number) {
-      // Connect nearby stars with faint lines
       const maxDist = 120
       const maxConnections = 40
       let count = 0
@@ -234,7 +308,6 @@ export default function StarfieldBackground() {
     function frame(time: number) {
       ctx!.clearRect(0, 0, w, h)
 
-      // Deep space gradient base
       const bgGrad = ctx!.createLinearGradient(0, 0, 0, h)
       bgGrad.addColorStop(0, "#050510")
       bgGrad.addColorStop(0.3, "#080812")
@@ -246,6 +319,7 @@ export default function StarfieldBackground() {
       drawNebulae(time)
       drawConstellations(time)
       drawStars(time)
+      drawFloatingSymbols(time)
       drawShootingStars(time)
 
       animId = requestAnimationFrame(frame)
@@ -254,7 +328,6 @@ export default function StarfieldBackground() {
     resize()
     animId = requestAnimationFrame(frame)
 
-    // Debounced resize
     let resizeTimer: ReturnType<typeof setTimeout>
     const onResize = () => {
       clearTimeout(resizeTimer)
@@ -262,7 +335,6 @@ export default function StarfieldBackground() {
     }
     window.addEventListener("resize", onResize)
 
-    // Also re-measure height when content changes
     const resizeObserver = new ResizeObserver(() => {
       clearTimeout(resizeTimer)
       resizeTimer = setTimeout(resize, 300)
