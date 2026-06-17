@@ -112,7 +112,7 @@ export const QUESTIONS: Question[] = [
     emoji: "🫂",
     options: [
       {
-        text: "把四柱发我！我有强烈的直觉感应，量子层面我已经看到了问题",
+        text: "把八字发我！我有强烈的直觉感应，量子层面我已经看到了问题",
         dimension: "X",
         points: 1,
       },
@@ -185,7 +185,7 @@ export const QUESTIONS: Question[] = [
     emoji: "💕",
     options: [
       {
-        text: "把四柱发我！我连夜用五维算法帮你们合一下，不合赶紧分！",
+        text: "把八字发我！我连夜用五维算法帮你们合一下，不合赶紧分！",
         dimension: "G",
         points: 1,
       },
