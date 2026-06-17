@@ -70,7 +70,7 @@ export default function AnalysisSession({ sessionId, initialData, onComplete }: 
   const [progressPct, setProgressPct] = useState(() => {
     if (initialData.progress_pct && initialData.progress_pct > 0) return initialData.progress_pct
     if (initialData.status !== "done" && initialData.status !== "completed" &&
-        initialData.status !== "chat" && initialData.status !== "failed") return 1
+        initialData.status !== "chat" && initialData.status !== "failed") return 2
     return 0
   })
   const [progressMessage, setProgressMessage] = useState(() => {
@@ -98,8 +98,37 @@ export default function AnalysisSession({ sessionId, initialData, onComplete }: 
   // Once onComplete fires with terminal data, no further calls are made.
   const completionCalledRef = useRef(false)
 
+  // ── Time-based progress fallback ────────────────────────────────────────
+  // Ensures the progress bar advances even if SSE/polling events are delayed.
+  // The backend typically reaches 5% within 5s, 65% by ~120s, and 100% by ~180s.
+  // This fallback guarantees minimum progress based on elapsed time.
   useEffect(() => {
     if (!sessionId) return
+    let cancelled = false
+    const timer = setInterval(() => {
+      if (cancelled) return
+      const elapsed = (Date.now() - sseStartTime.current) / 1000
+      // Minimum progress based on elapsed time (conservative curve)
+      let minPct = 2  // baseline
+      if (elapsed > 5)  minPct = 5
+      if (elapsed > 15) minPct = 10
+      if (elapsed > 30) minPct = 20
+      if (elapsed > 60) minPct = 35
+      if (elapsed > 90) minPct = 50
+      if (elapsed > 120) minPct = 65
+      if (elapsed > 150) minPct = 75
+      if (elapsed > 180) minPct = 85
+      if (elapsed > 210) minPct = 90
+      if (elapsed > 240) minPct = 95
+      setProgressPct(prev => {
+        if (prev < minPct) return minPct
+        return prev
+      })
+    }, 3000)
+    return () => { cancelled = true; clearInterval(timer) }
+  }, [sessionId])
+
+  useEffect(() => {
     let cancelled = false
     let pollDone = false
     let pollInterval: ReturnType<typeof setInterval> | null = null
