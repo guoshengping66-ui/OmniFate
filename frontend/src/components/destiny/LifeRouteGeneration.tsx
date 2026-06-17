@@ -1,7 +1,7 @@
 "use client"
 import React, { useRef, useState, useEffect, useCallback, useMemo } from "react"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { DESTINY_STARS as STARS } from "@/data/destinyStars"
+import { DESTINY_STARS as STARS, OPPORTUNITY_ZONES } from "@/data/destinyStars"
 
 /* ═══════════════════════════════════════════════════════════════════
    银河航线 — Galaxy Route
@@ -193,6 +193,72 @@ function DustParticles() {
 }
 
 /* ── 命运恒星节点 ── */
+
+/* ── 命运窗口（机会区间星云） ── */
+
+function OpportunityZones({ animStep, locale }: { animStep: number; locale: string }) {
+  const isVisible = animStep >= 1
+  return (
+    <>
+      {OPPORTUNITY_ZONES.map((zone, i) => (
+        <div
+          key={zone.id}
+          className="absolute transition-all duration-[1.5s]"
+          style={{
+            left: `${zone.x - zone.width / 2}%`,
+            top: `${zone.y - zone.height / 2}%`,
+            width: `${zone.width}%`,
+            height: `${zone.height}%`,
+            opacity: isVisible ? 1 : 0,
+            transitionDelay: `${1.8 + i * 0.3}s`,
+          }}
+        >
+          {/* 星云渐变 */}
+          <div
+            className="absolute inset-0 rounded-full"
+            style={{
+              background: `radial-gradient(ellipse at center, ${zone.color}12 0%, ${zone.color}06 40%, transparent 70%)`,
+              filter: "blur(20px)",
+            }}
+          />
+          {/* 内层光核 */}
+          <div
+            className="absolute rounded-full"
+            style={{
+              left: "30%",
+              top: "30%",
+              width: "40%",
+              height: "40%",
+              background: `radial-gradient(circle, ${zone.color}18 0%, ${zone.color}08 50%, transparent 80%)`,
+              filter: "blur(12px)",
+            }}
+          />
+          {/* 窗口标签 */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center whitespace-nowrap">
+            <div
+              className="text-[10px] sm:text-[11px] font-serif font-bold tracking-[0.08em]"
+              style={{ color: `${zone.color}60` }}
+            >
+              {locale === "zh" ? zone.labelZh : zone.labelEn}
+            </div>
+            <div
+              className="text-[8px] sm:text-[9px] tracking-[0.06em] mt-0.5"
+              style={{ color: `${zone.color}35` }}
+            >
+              {locale === "zh" ? zone.yearRange.zh : zone.yearRange.en}
+            </div>
+            <div
+              className="text-[7px] sm:text-[8px] mt-0.5"
+              style={{ color: `${zone.color}28` }}
+            >
+              {locale === "zh" ? zone.descZh : zone.descEn}
+            </div>
+          </div>
+        </div>
+      ))}
+    </>
+  )
+}
 
 function DestinyStar({
   star,
@@ -522,6 +588,9 @@ export default function LifeRouteGeneration() {
 
           {/* 星尘粒子 */}
           <DustParticles />
+
+          {/* 命运窗口（机会区间星云） */}
+          <OpportunityZones animStep={animStep} locale={locale} />
 
           {/* 航线（带路径动画） */}
           <RoutePath animStep={animStep} idPrefix={idPrefix} />

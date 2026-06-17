@@ -27,6 +27,62 @@ export interface DestinyStar {
   aiEn: string
 }
 
+/* ── 命运窗口：机会区间 ── */
+
+export interface OpportunityZone {
+  id: string
+  labelZh: string
+  labelEn: string
+  /** Center position percentage within the star map */
+  x: number
+  y: number
+  /** Nebula dimensions (percentage) */
+  width: number
+  height: number
+  color: string
+  /** Year range text */
+  yearRange: { zh: string; en: string }
+  /** Description of this opportunity window */
+  descZh: string
+  descEn: string
+}
+
+export const OPPORTUNITY_ZONES: OpportunityZone[] = [
+  {
+    id: "growth",
+    labelZh: "成长窗口",
+    labelEn: "Growth Window",
+    x: 17, y: 30,
+    width: 22, height: 35,
+    color: "#C5A880",
+    yearRange: { zh: "2025–2027", en: "2025–2027" },
+    descZh: "能力跃迁 → 事业突破",
+    descEn: "Capability Leap → Career Breakthrough",
+  },
+  {
+    id: "wealth",
+    labelZh: "财富窗口",
+    labelEn: "Wealth Window",
+    x: 34, y: 18,
+    width: 20, height: 30,
+    color: "#D4AF37",
+    yearRange: { zh: "2027–2029", en: "2027–2029" },
+    descZh: "事业突破 → 财富积累",
+    descEn: "Career Breakthrough → Wealth Accumulation",
+  },
+  {
+    id: "transform",
+    labelZh: "转型窗口",
+    labelEn: "Transformation Window",
+    x: 67, y: 46,
+    width: 22, height: 32,
+    color: "#A882FF",
+    yearRange: { zh: "2031–2033", en: "2031–2033" },
+    descZh: "关系深化 → 人生转型",
+    descEn: "Bond Deepening → Life Transformation",
+  },
+]
+
 export const DESTINY_STARS: DestinyStar[] = [
   {
     id: 1, year: "2025",
