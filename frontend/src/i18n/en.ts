@@ -113,7 +113,7 @@ export default {
   "hero.badge": "AI Behavioral Analysis Mirror",
   "hero.badgePeople": "",
   "hero.title1": "Behavioral Analysis Mirror",
-  "hero.title2": "Bazi · Astrology · Face · Palm · Tarot",
+  "hero.title2": "Four-Pillar · Star Chart · Symbolic Cards · Facial Profile · Palm Profile",
   "hero.desc": "AI cross-analyzes five traditional cultural systems\nGenerate your exclusive behavioral profile in 40 seconds\nExplore growth tendencies and life development insights",
   "hero.cta1": "Start Analysis",
   "hero.cta2": "View Examples",
