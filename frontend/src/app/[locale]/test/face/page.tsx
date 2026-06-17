@@ -56,8 +56,8 @@ export default function FaceTestPage() {
 
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-serif font-bold text-gold">AI 面部特征分析</h1>
-            <p className="text-white/40 text-sm mt-1">上传正面照片，AI 将自动识别面部特征</p>
+            <h1 className="text-2xl font-serif font-bold text-gold">AI 面相分析</h1>
+            <p className="text-white/40 text-sm mt-1">上传正面照片，AI 将自动识别面相</p>
           </div>
           <TargetSelector />
         </div>
@@ -94,7 +94,7 @@ export default function FaceTestPage() {
         {scanning && (
           <div className="mt-4 card-glass p-4 text-center">
             <Loader2 size={20} className="text-gold animate-spin mx-auto mb-2" />
-            <p className="text-white/50 text-sm">AI 面部特征识别中...</p>
+            <p className="text-white/50 text-sm">AI 面相识别中...</p>
           </div>
         )}
 
@@ -106,7 +106,7 @@ export default function FaceTestPage() {
 
         {features && (
           <div className="mt-6 card-glass p-5 anim-slide-up">
-            <h3 className="text-gold text-sm font-medium mb-3">面部特征识别结果</h3>
+            <h3 className="text-gold text-sm font-medium mb-3">面相识别结果</h3>
             <div className="flex flex-wrap gap-2">
               {FACE_KEY_FEATURES.filter(f => features[f.key]).map(f => (
                 <span key={f.key} className="text-xs px-2.5 py-1 bg-white/5 rounded-full text-white/60 border border-white/10">

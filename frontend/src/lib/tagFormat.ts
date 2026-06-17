@@ -37,7 +37,7 @@ const TAG_MAP: Record<string, TagStyle> = {
   health_boost:       { label: "Vitality High",     labelCn: "精力充沛",      color: "text-emerald-400",bg: "bg-emerald-500/10",border: "border-emerald-500/20",icon: "💪" },
   spiritual_boost:    { label: "Focus Rising",     labelCn: "专注提升",      color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20", icon: "🔮" },
 
-  // ── Chinese tags (from current workers) — 四柱 ──
+  // ── Chinese tags (from current workers) — 八字 ──
   "官杀混杂":         { label: "Mixed Challenge Pattern",    labelCn: "官杀混杂",    color: "text-red-400",    bg: "bg-red-500/10",    border: "border-red-500/20",    icon: "⚠️" },
   "食神受伤":         { label: "Creative Flow Reduced",  labelCn: "食神受伤",    color: "text-orange-400", bg: "bg-orange-500/10", border: "border-orange-500/20", icon: "🍽️" },
   "财星微弱":         { label: "Financial Flow Reduced", labelCn: "财星微弱",    color: "text-amber-400",  bg: "bg-amber-500/10",  border: "border-amber-500/20",  icon: "💰" },
@@ -65,7 +65,7 @@ const TAG_MAP: Record<string, TagStyle> = {
   "九地保守":         { label: "Grounded Pattern",           labelCn: "九地保守",    color: "text-yellow-400", bg: "bg-yellow-500/10", border: "border-yellow-500/20", icon: "🏔️" },
   "值符吉庆":         { label: "Core Pattern Positive",  labelCn: "值符吉庆",    color: "text-emerald-400",bg: "bg-emerald-500/10",border: "border-emerald-500/20",icon: "🌟" },
 
-  // ── Chinese tags — 图表系统 ──
+  // ── Chinese tags — 星盘系统 ──
   "命宫空亡":         { label: "Foundation Profile Gap",  labelCn: "命宫空亡",    color: "text-gray-400",   bg: "bg-gray-500/10",   border: "border-gray-500/20",   icon: "🌀" },
   "天同化忌":         { label: "Harmony Pattern Restrained",   labelCn: "天同化忌",    color: "text-blue-400",   bg: "bg-blue-500/10",   border: "border-blue-500/20",   icon: "❄️" },
   "武曲化忌":         { label: "Financial Pattern Restricted",       labelCn: "武曲化忌",    color: "text-amber-400",  bg: "bg-amber-500/10",  border: "border-amber-500/20",  icon: "💰" },
@@ -77,7 +77,7 @@ const TAG_MAP: Record<string, TagStyle> = {
   "太阳化权":         { label: "Sun Empowered",          labelCn: "太阳化权",    color: "text-amber-400",  bg: "bg-amber-500/10",  border: "border-amber-500/20",  icon: "☀️" },
   "太阴化科":         { label: "Moon Scholarly",         labelCn: "太阴化科",    color: "text-blue-400",   bg: "bg-blue-500/10",   border: "border-blue-500/20",   icon: "🌙" },
 
-  // ── Chinese tags — 图表分析 ──
+  // ── Chinese tags — 星盘分析 ──
   "水星逆行":         { label: "Mercury Retrograde",     labelCn: "水星逆行",    color: "text-gray-400",   bg: "bg-gray-500/10",   border: "border-gray-500/20",   icon: "🔄" },
   "土星刑克":         { label: "Saturn Square",          labelCn: "土星刑克",    color: "text-yellow-400", bg: "bg-yellow-500/10", border: "border-yellow-500/20", icon: "🪐" },
   "天王突变":         { label: "Uranus Disruption",      labelCn: "天王突变",    color: "text-cyan-400",   bg: "bg-cyan-500/10",   border: "border-cyan-500/20",   icon: "⚡" },
@@ -87,7 +87,7 @@ const TAG_MAP: Record<string, TagStyle> = {
   "金星和谐":         { label: "Venus Harmonious",       labelCn: "金星和谐",    color: "text-pink-400",   bg: "bg-pink-500/10",   border: "border-pink-500/20",   icon: "💕" },
   "木星扩展":         { label: "Jupiter Expansive",      labelCn: "木星扩展",    color: "text-emerald-400",bg: "bg-emerald-500/10",border: "border-emerald-500/20",icon: "🌟" },
 
-  // ── Chinese tags — 通用/符号/面部/手部 ──
+  // ── Chinese tags — 通用/塔罗/面相/手相 ──
   "脾胃虚弱":         { label: "Spleen Weak",            labelCn: "脾胃虚弱",    color: "text-yellow-400", bg: "bg-yellow-500/10", border: "border-yellow-500/20", icon: "🫁" },
   "肝胆不适":         { label: "Liver Attention",        labelCn: "肝胆不适",    color: "text-green-400",  bg: "bg-green-500/10",  border: "border-green-500/20",  icon: "💚" },
   "心脏压力":         { label: "Heart Pressure",         labelCn: "心脏压力",    color: "text-red-400",    bg: "bg-red-500/10",    border: "border-red-500/20",    icon: "❤️" },

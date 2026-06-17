@@ -29,8 +29,8 @@ export function MarketingBelowFold() {
     ? (t("home.testimonials.list", { returnObjects: true }) as Array<{ name: string; job: string; text: string; score: string; source: string }>)
     : [
       { name: "林小姐", job: "创业者", text: "分析说我需要提升专注力，推荐了桌面摆件，生意确实好转了。", score: "9.2", source: "小红书" },
-      { name: "陈先生", job: "工程师", text: "图表分析把我的行为模式说得一清二楚，感情模式完全对上了。", score: "9.5", source: "知乎" },
-      { name: "王女士", job: "教师", text: "符号分析的反思感很强，不是吓人的预测，是真的帮我看清了困境和出路。", score: "8.8", source: "微信" },
+      { name: "陈先生", job: "工程师", text: "星盘分析把我的行为模式说得一清二楚，感情模式完全对上了。", score: "9.5", source: "知乎" },
+      { name: "王女士", job: "教师", text: "塔罗分析的反思感很强，不是吓人的预测，是真的帮我看清了困境和出路。", score: "8.8", source: "微信" },
     ]
 
   return (

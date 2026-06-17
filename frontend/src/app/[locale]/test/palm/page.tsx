@@ -56,7 +56,7 @@ export default function PalmTestPage() {
 
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-serif font-bold text-gold">{isEn ? "Hand Feature Analysis" : "手部特征分析"}</h1>
+            <h1 className="text-2xl font-serif font-bold text-gold">{isEn ? "Palm Reading" : "手相分析"}</h1>
             <p className="text-white/40 text-sm mt-1">{isEn ? "Upload a palm photo for AI-powered hand feature analysis" : "上传手掌照片，AI 分析掌纹特征"}</p>
           </div>
           <TargetSelector />

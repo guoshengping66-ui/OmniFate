@@ -176,7 +176,7 @@ export const SPECIAL_CONCEPTS = {
   亥时: { en: "Pig Hour", attribute: "Night Rest / System Sleep" },
 } as const
 
-// ─── Body Features (面部手部特征) ──────────────────────────────────────────
+// ─── Body Features (面相手相) ──────────────────────────────────────────
 export const BODY_FEATURES = {
   // 面型
   方脸: { en: "Square Face", attribute: "Determined / Methodical" },

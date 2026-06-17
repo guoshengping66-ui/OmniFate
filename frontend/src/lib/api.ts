@@ -991,11 +991,11 @@ export async function payEvent(
 }
 
 export const AGENT_LABELS: Record<string, { icon: string; label: string; color: string }> = {
-  astrology: { icon: "✦", label: "图表分析",  color: "text-purple-400" },
-  tarot:     { icon: "🃏", label: "符号反思",  color: "text-jade-light" },
+  astrology: { icon: "✦", label: "星盘分析",  color: "text-purple-400" },
+  tarot:     { icon: "🃏", label: "塔罗反思",  color: "text-jade-light" },
   bazi:      { icon: "☯", label: "八字分析",  color: "text-gold" },
   qimen:     { icon: "🎯", label: "策略分析",  color: "text-amber-400" },
-  ziwei:     { icon: "⭐", label: "图表系统",  color: "text-purple-400" },
+  ziwei:     { icon: "⭐", label: "星盘系统",  color: "text-purple-400" },
   face:      { icon: "👁", label: "面相",   color: "text-rose-400" },
   palm:      { icon: "🤚", label: "手相",  color: "text-amber-400" },
   partner_face: { icon: "👁", label: "对方面部", color: "text-rose-400" },

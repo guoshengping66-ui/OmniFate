@@ -39,7 +39,7 @@ export const QUESTIONS: Question[] = [
     emoji: "💦",
     options: [
       {
-        text: "药丸！今天绝对冲煞！立刻打开 AlphaMirror 看看是哪个图表相位在整我",
+        text: "药丸！今天绝对冲煞！立刻打开 AlphaMirror 看看是哪个星盘相位在整我",
         dimension: "F",
         points: 1,
       },
@@ -208,7 +208,7 @@ export const QUESTIONS: Question[] = [
     emoji: "👨‍👩‍👧",
     options: [
       {
-        text: "立刻转发 300 字辟谣长文 + 图表系统论证 + 环境优化方案",
+        text: "立刻转发 300 字辟谣长文 + 星盘系统论证 + 环境优化方案",
         dimension: "G",
         points: 1,
       },
@@ -300,7 +300,7 @@ export const QUESTIONS: Question[] = [
   },
   {
     id: 12,
-    scenario: "符号分析告诉你：改变即将发生",
+    scenario: "塔罗分析告诉你：改变即将发生",
     emoji: "🃏",
     options: [
       {

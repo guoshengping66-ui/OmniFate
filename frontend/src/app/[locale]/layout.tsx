@@ -35,17 +35,17 @@ export async function generateMetadata({
   return {
     title: isZh ? "行为分析镜 · 全维度行为分析" : "Behavioral Mirror · Multi-Dimension Behavioral Analysis",
     description: isZh
-      ? "融合四柱分析、图表分析、符号分析、面部特征、手部特征五大 AI 分析系统，为你提供精准的行为解读与优化方案。"
-      : "AI-powered behavioral analysis combining Four-Pillar, Stellar Profile, Symbolic, Facial Feature, and Hand Feature. Discover your behavioral pattern and personalized optimization guidance.",
+      ? "融合八字分析、星盘分析、塔罗分析、面相、手相五大 AI 分析系统，为你提供精准的行为解读与优化方案。"
+      : "AI-powered behavioral analysis combining Bazi, Astrology, Tarot, Face Reading, and Palm Reading. Discover your behavioral pattern and personalized optimization guidance.",
     keywords: isZh
-      ? "四柱分析,图表分析,符号分析,面部特征,手部特征,AI分析,行为分析,数据分析"
-      : "four-pillar,stellar profile,symbolic,facial feature,hand feature,AI analysis,behavioral analysis,data analysis",
+      ? "八字分析,星盘分析,塔罗分析,面相,手相,AI分析,行为分析,数据分析"
+      : "bazi,astrology,tarot,face reading,palm reading,AI analysis,behavioral analysis,data analysis",
     authors: [{ name: "Behavioral Mirror" }],
     openGraph: {
       title: isZh ? "行为分析镜 · 全维度行为分析" : "Behavioral Mirror · Multi-Dimension Behavioral Analysis",
       description: isZh
-        ? "融合四柱分析、图表分析、符号分析、面部特征、手部特征五大 AI 分析系统，为你提供精准的行为解读与优化方案。"
-        : "AI-powered behavioral analysis combining Four-Pillar, Stellar Profile, Symbolic, Facial Feature, and Hand Feature.",
+        ? "融合八字分析、星盘分析、塔罗分析、面相、手相五大 AI 分析系统，为你提供精准的行为解读与优化方案。"
+        : "AI-powered behavioral analysis combining Bazi, Astrology, Tarot, Face Reading, and Palm Reading.",
       url: `${baseUrl}/${locale}`,
       siteName: "Behavioral Mirror",
       images: [
@@ -239,8 +239,8 @@ try{
               applicationCategory: "LifestyleApplication",
               operatingSystem: "Web",
               description: validLocale === "zh"
-                ? "融合四柱分析、图表分析、符号分析、面部特征、手部特征五大 AI 分析系统"
-                : "AI-powered behavioral analysis combining Four-Pillar, Stellar Profile, Symbolic, Facial Feature, and Hand Feature",
+                ? "融合八字分析、星盘分析、塔罗分析、面相、手相五大 AI 分析系统"
+                : "AI-powered behavioral analysis combining Bazi, Astrology, Tarot, Face Reading, and Palm Reading",
               offers: {
                 "@type": "Offer",
                 price: "0",

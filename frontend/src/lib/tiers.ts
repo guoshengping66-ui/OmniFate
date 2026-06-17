@@ -52,9 +52,9 @@ export const TIERS: PricingTier[] = [
     priceDisplay: "免费",
     priceDisplayUsd: "Free",
     features: [
-      "四柱格局分析",
-      "图表落宫解读",
-      "符号分析一次",
+      "八字格局分析",
+      "星盘落宫解读",
+      "塔罗分析一次",
       "档案总览摘要（限制预览）",
       "优化商城浏览",
     ],
@@ -123,7 +123,7 @@ export const TIERS: PricingTier[] = [
     priceDisplay: "¥9.9/次",
     priceDisplayUsd: "$5.9/time",
     features: [
-      "事件时刻流时图表",
+      "事件时刻流时星盘",
       "因果链 AI 溯源分析",
       "当下应对策略建议",
       "未来预防方案",
