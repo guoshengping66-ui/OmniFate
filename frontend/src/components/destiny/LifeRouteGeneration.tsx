@@ -188,7 +188,7 @@ function RoutePath({ animStep, idPrefix }: { animStep: number; idPrefix: string 
 
 /* ── 命运窗口（金色星云区域） ── */
 
-function DestinyWindows({ animStep, idPrefix }: { animStep: number; idPrefix: string }) {
+function DestinyWindows({ animStep, idPrefix, locale }: { animStep: number; idPrefix: string; locale: string }) {
   return (
     <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
       <defs>
@@ -241,7 +241,7 @@ function DestinyWindows({ animStep, idPrefix }: { animStep: number; idPrefix: st
                 transition: `opacity 0.6s ease ${1 + i * 0.15}s`,
               }}
             >
-              {w.labelZh}
+              {locale === "zh" ? w.labelZh : w.labelEn}
             </text>
           </g>
         )
@@ -435,11 +435,11 @@ function DestinyStar({
 
       {/* 星名标签 */}
       <div className="absolute top-full mt-3 left-1/2 -translate-x-1/2 whitespace-nowrap text-center">
-        <div className="text-[11px] sm:text-xs font-serif font-semibold transition-colors duration-500"
+        <div className="text-[11px] sm:text-xs font-serif font-semibold tracking-[0.02em] transition-colors duration-500"
           style={{ color: isActive ? star.color : `${star.color}70` }}>
           {locale === "zh" ? star.labelZh : star.labelEn}
         </div>
-        <div className="text-white/15 text-[9px] tracking-wider mt-0.5">{star.year}</div>
+        <div className="text-white/15 text-[9px] tracking-[0.08em] mt-0.5">{star.year}</div>
       </div>
     </div>
   )
@@ -624,7 +624,7 @@ export default function LifeRouteGeneration() {
           <RoutePath animStep={animStep} idPrefix={idPrefix} />
 
           {/* 命运窗口（金色星云覆盖） */}
-          <DestinyWindows animStep={animStep} idPrefix={idPrefix} />
+          <DestinyWindows animStep={animStep} idPrefix={idPrefix} locale={locale} />
 
           {/* 命运恒星节点 */}
           {STARS.map((star, i) => (
@@ -653,7 +653,7 @@ export default function LifeRouteGeneration() {
               <div className="font-serif text-lg sm:text-xl text-white/15 tracking-wider mb-1" style={{ fontStyle: "italic" }}>
                 {locale === "zh" ? "未来仍在书写" : "The Journey Continues"}
               </div>
-              <div className="text-[10px] text-white/8 tracking-[0.2em] uppercase">
+              <div className="text-[10px] text-white/8 tracking-[0.12em] uppercase">
                 {locale === "zh" ? "航线向宇宙深处延伸" : "Route extends into the cosmos"}
               </div>
             </div>
