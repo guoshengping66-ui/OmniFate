@@ -1996,7 +1996,7 @@ export default {
   "am16.poster.guide": "🧭 个性化建议",
   "am16.poster.scan": "🔮 扫码测试你的行为模式",
   "am16.poster.stardust": "免费 20 点数 · 邀请码：",
-  "am16.poster.brand": "Profile Mirror · AI 行为分析",
+  "am16.poster.brand": "行为分析镜 · AI 行为分析",
 
   // ─── AM16 错误信息 ───
   "am16.copyFailed": "复制失败",
