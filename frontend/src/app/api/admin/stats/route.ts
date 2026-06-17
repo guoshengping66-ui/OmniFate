@@ -11,6 +11,22 @@ function verifyAdminKey(provided: string | null): boolean {
   }
 }
 
+// Reuse a connection pool across requests instead of creating a new Client each time
+let _pool: any = null
+function getPool() {
+  if (_pool) return _pool
+  const { Pool } = require("pg")
+  _pool = new Pool({
+    host: process.env.DB_HOST,
+    port: parseInt(process.env.DB_PORT || "5432"),
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME || "destiny",
+    max: 5,
+  })
+  return _pool
+}
+
 export async function GET(request: Request) {
   const key = request.headers.get("x-admin-key")
 
@@ -23,16 +39,8 @@ export async function GET(request: Request) {
   }
 
   try {
-    const { Client } = await import("pg")
-    const client = new Client({
-      host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT || "5432"),
-      user: process.env.DB_USER,
-      password: process.env.DB_PASS,
-      database: process.env.DB_NAME || "destiny", // DB name is backend-only, not user-facing
-    })
-
-    await client.connect()
+    const pool = getPool()
+    const client = await pool.connect()
     try {
       const [usersResult, readingsResult, ordersResult, paidResult, revenueResult, recentResult, recentOrdersResult] =
         await Promise.all([
@@ -55,7 +63,7 @@ export async function GET(request: Request) {
         recentOrders: recentOrdersResult.rows,
       })
     } finally {
-      await client.end()
+      client.release()
     }
   } catch {
     return NextResponse.json({ error: "Failed to fetch stats" }, { status: 500 })

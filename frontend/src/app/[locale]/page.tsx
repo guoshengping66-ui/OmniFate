@@ -41,7 +41,7 @@ export default function HomePage() {
       const timer = setTimeout(() => fetchBirthProfiles(), 200)
       return () => clearTimeout(timer)
     }
-  }, [user])
+  }, [user, fetchBirthProfiles])
 
   const hasProfile = !!user && !!userProfile
   const profileStillLoading = !!user && profileLoading && !userProfile

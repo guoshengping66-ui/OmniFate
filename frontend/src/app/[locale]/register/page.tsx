@@ -427,7 +427,7 @@ export default function RegisterPage() {
             />
             <span className="text-white/50 text-xs leading-relaxed">
               {t("auth.agreePolicy")}{" "}
-              <a href={localeHref("/privacy")} target="_blank" className="text-gold hover:underline">{t("auth.privacyPolicyLink")}</a>
+              <a href={localeHref("/privacy")} target="_blank" rel="noopener noreferrer" className="text-gold hover:underline">{t("auth.privacyPolicyLink")}</a>
               {" "}{t("auth.and")}{" "}
               <button type="button" onClick={() => setShowTerms(true)} className="text-gold hover:underline">
                 {t("auth.termsLink")}

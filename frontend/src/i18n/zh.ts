@@ -167,7 +167,7 @@ export default {
   "agent.face.detail": "MediaPipe 高精度面相提取，面相一目了然。",
 
   "agent.palm": "手相分析",
-  "agent.palm._label": "手掌特征分析",
+  "agent.palm._label": "手相分析",
   "agent.palm.tag": "水",
   "agent.palm.desc": "三大主线·纹路模式·区域评估",
   "agent.palm.detail": "AI 识别手型分类与纹路走势，结合传统分析深度解读。",

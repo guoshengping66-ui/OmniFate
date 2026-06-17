@@ -186,20 +186,27 @@ export const TIER_MAP: Record<string, PricingTier> = Object.fromEntries(
   TIERS.map(t => [t.id, t])
 )
 
-export const FULL_REPORT_PRICE = 9.9
-export const FULL_REPORT_PRICE_USD = 5.9
+// ── Convenience constants (keep in sync with TIERS above and pricing.config.ts) ──
+const _event = TIER_MAP.event_retro
+const _monthly = TIER_MAP.premium_monthly
+const _yearly = TIER_MAP.premium_yearly
+const _founder = TIER_MAP.founder_lifetime
+const _unlock = TIER_MAP.onetime_unlock
+
+export const FULL_REPORT_PRICE = _unlock?.priceCny ?? 9.9
+export const FULL_REPORT_PRICE_USD = _unlock?.priceUsd ?? 5.9
 export const FIRST_REPORT_PRICE = 29.9
-export const EVENT_RETRO_PRICE = 9.9
-export const EVENT_RETRO_PRICE_USD = 5.9
-export const PREMIUM_MONTHLY = 59
-export const PREMIUM_MONTHLY_USD = 14.99
-export const PREMIUM_YEARLY = 365
-export const PREMIUM_YEARLY_USD = 99
+export const EVENT_RETRO_PRICE = _event?.priceCny ?? 9.9
+export const EVENT_RETRO_PRICE_USD = _event?.priceUsd ?? 5.9
+export const PREMIUM_MONTHLY = _monthly?.priceCny ?? 59
+export const PREMIUM_MONTHLY_USD = _monthly?.priceUsd ?? 14.99
+export const PREMIUM_YEARLY = _yearly?.priceCny ?? 365
+export const PREMIUM_YEARLY_USD = _yearly?.priceUsd ?? 99
 export const SHOP_COUPON_AMOUNT = 50
 export const TRIAL_DAYS = 3
 export const MEMBER_DISCOUNT = 0.88
-export const FOUNDER_PRICE = 1688
-export const FOUNDER_PRICE_USD = 499
+export const FOUNDER_PRICE = _founder?.priceCny ?? 1688
+export const FOUNDER_PRICE_USD = _founder?.priceUsd ?? 499
 export const FOUNDER_MAX_SEATS = 200
-export const ONETIME_UNLOCK_PRICE = 9.9
+export const ONETIME_UNLOCK_PRICE = _unlock?.priceCny ?? 9.9
 export const ONETIME_UNLOCK_PRICE_USD = 5.9

@@ -296,9 +296,9 @@ export function PayPalPayment({
         {/* Compliance disclosure */}
         <p className="text-white/25 text-[11px] text-center leading-relaxed">
           {t("payment.paypalComplianceNotice") || "This is a digital service purchase. "}
-          <a href={localeHref("/refund")} target="_blank" className="text-gold/40 hover:text-gold/60 underline">{t("legal.refund.title") || "Refund Policy"}</a>
+          <a href={localeHref("/refund")} target="_blank" rel="noopener noreferrer" className="text-gold/40 hover:text-gold/60 underline">{t("legal.refund.title") || "Refund Policy"}</a>
           {" "}{t("common.and") || "and"}{" "}
-          <a href={localeHref("/terms")} target="_blank" className="text-gold/40 hover:text-gold/60 underline">{t("pricing.termsOfService") || "Terms of Service"}</a>
+          <a href={localeHref("/terms")} target="_blank" rel="noopener noreferrer" className="text-gold/40 hover:text-gold/60 underline">{t("pricing.termsOfService") || "Terms of Service"}</a>
           {" "}{t("payment.paypalComplianceApply") || "apply. By paying, you agree to our terms."}
         </p>
       </div>

@@ -16,7 +16,8 @@ export function formatPrice(price: number, symbol: string) {
 // Coupon balance is stored as CNY in the backend. For overseas display,
 // we convert to USD using the fixed exchange rate.
 
-export const CNY_TO_USD_RATE = 7.2 // 1 USD ≈ 7.2 CNY
+// 1 USD ≈ 7.2 CNY — LAST UPDATED: 2025-06. Update periodically or fetch from API.
+export const CNY_TO_USD_RATE = 7.2
 
 /**
  * Format coupon balance for display based on region.

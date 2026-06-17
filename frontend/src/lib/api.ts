@@ -9,10 +9,11 @@ import axios from "axios"
 // through any proxy untouched.  The server-side JSON decoder understands
 // \uXXXX natively so no changes are needed on the backend.
 function escapeUnicode(str: string): string {
-  // Preserve already-escaped sequences, convert raw non-ASCII chars
-  return str.replace(/[-￿]/g, (ch) =>
-    "\\u" + ch.charCodeAt(0).toString(16).padStart(4, "0")
-  )
+  // Preserve already-escaped \uXXXX sequences, then convert raw non-ASCII chars
+  return str.replace(/\\u[0-9a-f]{4}/gi, (m) => m)
+    .replace(/[^\0-\x7F]/g, (ch) =>
+      "\\u" + ch.charCodeAt(0).toString(16).padStart(4, "0")
+    )
 }
 
 // ── Global 429 Rate-Limit Cooldown ─────────────────────────────────────────
@@ -53,7 +54,7 @@ const isProduction = !isLocalhost
 
 // In production: calls go to /api/proxy/* (Next.js server-side proxy → localhost:8002)
 // In local dev: calls go directly to the backend
-const PROD_BACKEND = "https://api.khanfate.com"
+const PROD_BACKEND = process.env.NEXT_PUBLIC_API_URL || "https://api.khanfate.com"
 const BACKEND_URL = isLocalhost
   ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8002")
   : PROD_BACKEND

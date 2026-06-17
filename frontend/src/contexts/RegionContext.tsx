@@ -69,10 +69,10 @@ function setLocalStorage(key: string, value: string) {
   } catch {}
 }
 
-function setRegionCookie(region: Region) {
-  // Don't set cookie client-side — middleware sets it securely with httpOnly/secure flags.
-  // Client-side cookie would overwrite the secure server cookie with an insecure version.
-}
+// No-op: region cookie is set securely by middleware (httpOnly, secure, SameSite=lax).
+// Client-side cookie setting is intentionally omitted to avoid overwriting the server cookie.
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+function setRegionCookie(_region: Region) {}
 
 // ── Provider ──
 
