@@ -1,6 +1,7 @@
 "use client"
-import { useRef, useState, useEffect, useCallback, useMemo } from "react"
+import React, { useRef, useState, useEffect, useCallback, useMemo } from "react"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { DESTINY_STARS as STARS } from "@/data/destinyStars"
 
 /* ═══════════════════════════════════════════════════════════════════
    银河航线 — Galaxy Route
@@ -11,77 +12,6 @@ import { useLanguage } from "@/contexts/LanguageContext"
    - 三步入场动画：航线绘制 → 节点点亮 → 金色流光
    - 航线向宇宙深处无限延伸
    ═══════════════════════════════════════════════════════════════════ */
-
-/* ── 恒星数据 ── */
-
-const STARS = [
-  {
-    id: 1, year: "2025",
-    labelZh: "能力跃迁期", labelEn: "Capability Leap",
-    x: 8, y: 38, magnitude: 4, color: "#C5A880",
-    growthZh: 5, growthEn: 5,
-    opportunityZh: 4, opportunityEn: 4,
-    challengeZh: 3, challengeEn: 3,
-    keywords: { zh: ["学习", "创业", "转型", "领导力"], en: ["Learning", "Startup", "Transition", "Leadership"] },
-    aiZh: "这一阶段更适合集中资源完成能力升级与职业突破。命盘显示开创力与直觉同步上升，是建立核心竞争力的最佳时机。",
-    aiEn: "This phase favors consolidating resources for capability upgrades. Initiative and intuition rise in sync — the best time to build core competencies.",
-  },
-  {
-    id: 2, year: "2027",
-    labelZh: "事业突破阶段", labelEn: "Career Breakthrough",
-    x: 25, y: 20, magnitude: 5, color: "#A882FF",
-    growthZh: 4, growthEn: 4,
-    opportunityZh: 5, opportunityEn: 5,
-    challengeZh: 4, challengeEn: 4,
-    keywords: { zh: ["决断", "破局", "整合", "升级"], en: ["Decisiveness", "Breakthrough", "Integration", "Upgrade"] },
-    aiZh: "能力跃迁期积累的势能在此刻释放。事业能量场达到峰值，大胆决策将带来超额回报——但需要承受更高的不确定性。",
-    aiEn: "Potential from the capability leap releases now. Career energy peaks — bold decisions yield outsized returns, but higher uncertainty comes with it.",
-  },
-  {
-    id: 3, year: "2029",
-    labelZh: "财富积累窗口", labelEn: "Wealth Accumulation",
-    x: 42, y: 12, magnitude: 5, color: "#D4AF37",
-    growthZh: 3, growthEn: 3,
-    opportunityZh: 5, opportunityEn: 5,
-    challengeZh: 2, challengeEn: 2,
-    keywords: { zh: ["财富", "复利", "投资", "格局"], en: ["Wealth", "Compound", "Investment", "Vision"] },
-    aiZh: "事业突破带来的资源在此阶段开始产生复利效应。财富窗口正式开启，资产配置能力将成为关键——守住比进攻更重要。",
-    aiEn: "Resources from the career breakthrough begin compounding. The wealth window opens — preserving assets matters more than aggressive expansion.",
-  },
-  {
-    id: 4, year: "2031",
-    labelZh: "关系深化阶段", labelEn: "Bond Deepening",
-    x: 58, y: 38, magnitude: 4, color: "#EC78A0",
-    growthZh: 4, growthEn: 4,
-    opportunityZh: 3, opportunityEn: 3,
-    challengeZh: 5, challengeEn: 5,
-    keywords: { zh: ["情感", "家庭", "和谐", "内在"], en: ["Bond", "Family", "Harmony", "Inner"] },
-    aiZh: "外在成就趋于稳定后，命盘能量转向内在维度。关系深化是这一阶段的核心课题——家庭和谐与人际信任将决定后续的人生质量。",
-    aiEn: "After external achievements stabilize, energy shifts inward. Bond deepening is the core theme — harmony and trust determine future quality of life.",
-  },
-  {
-    id: 5, year: "2033",
-    labelZh: "人生转型节点", labelEn: "Life Transformation",
-    x: 75, y: 55, magnitude: 5, color: "#5B9BD5",
-    growthZh: 5, growthEn: 5,
-    opportunityZh: 4, opportunityEn: 4,
-    challengeZh: 5, challengeEn: 5,
-    keywords: { zh: ["蜕变", "重生", "新身份", "命运"], en: ["Transform", "Rebirth", "New Self", "Destiny"] },
-    aiZh: "关系深化带来的内在觉醒触发人生重大转型。旧模式瓦解、新身份诞生——这是命运齿轮转动的关键时刻，风险与机遇并存。",
-    aiEn: "Inner awakening triggers major transformation. Old patterns dissolve, new identity emerges — risk and opportunity coexist at destiny's turning point.",
-  },
-  {
-    id: 6, year: "2035+",
-    labelZh: "长期成果兑现期", labelEn: "Legacy Harvest",
-    x: 90, y: 28, magnitude: 5, color: "#2D6A4F",
-    growthZh: 4, growthEn: 4,
-    opportunityZh: 5, opportunityEn: 5,
-    challengeZh: 2, challengeEn: 2,
-    keywords: { zh: ["传承", "收获", "进化", "永恒"], en: ["Legacy", "Harvest", "Evolve", "Eternal"] },
-    aiZh: "所有前期积累在此刻汇聚。领导力全面觉醒，人生进入收获与传承的新阶段——你将成为自己命运的定义者。",
-    aiEn: "All prior accumulation converges. Leadership fully awakens — life enters a new era of harvest and legacy.",
-  },
-]
 
 /* ── 命运窗口（机会区间） ── */
 
@@ -116,21 +46,7 @@ const DESTINY_WINDOWS = [
   },
 ]
 
-/* ── 贝塞尔工具 ── */
-
-function cubicBezierPoint(
-  p0: { x: number; y: number },
-  p1: { x: number; y: number },
-  p2: { x: number; y: number },
-  p3: { x: number; y: number },
-  t: number,
-) {
-  const u = 1 - t
-  return {
-    x: u * u * u * p0.x + 3 * u * u * t * p1.x + 3 * u * t * t * p2.x + t * t * t * p3.x,
-    y: u * u * u * p0.y + 3 * u * u * t * p1.y + 3 * u * t * t * p2.y + t * t * t * p3.y,
-  }
-}
+/* ── 路径工具 ── */
 
 function getSegmentPath(a: { x: number; y: number }, b: { x: number; y: number }) {
   const cp1x = a.x + (b.x - a.x) * 0.3
@@ -150,7 +66,7 @@ function getFullRoutePath() {
 
 /* ── 绘制航线 SVG（带路径动画） ── */
 
-function RoutePath({ animStep }: { animStep: number }) {
+function RoutePath({ animStep, idPrefix }: { animStep: number; idPrefix: string }) {
   const routePath = useMemo(() => getFullRoutePath(), [])
 
   // 延伸段：最后一个节点向右延伸并消失
@@ -164,19 +80,19 @@ function RoutePath({ animStep }: { animStep: number }) {
   return (
     <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
       <defs>
-        <linearGradient id="routeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <linearGradient id={`${idPrefix}-routeGrad`} x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" stopColor="rgba(197,168,128,0.05)" />
           <stop offset="30%" stopColor="rgba(197,168,128,0.25)" />
           <stop offset="60%" stopColor="rgba(212,175,55,0.3)" />
           <stop offset="100%" stopColor="rgba(197,168,128,0.15)" />
         </linearGradient>
-        <linearGradient id="routeGlowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <linearGradient id={`${idPrefix}-routeGlowGrad`} x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" stopColor="rgba(197,168,128,0.02)" />
           <stop offset="40%" stopColor="rgba(212,175,55,0.1)" />
           <stop offset="80%" stopColor="rgba(212,175,55,0.06)" />
           <stop offset="100%" stopColor="rgba(45,106,79,0.03)" />
         </linearGradient>
-        <filter id="routeGlow">
+        <filter id={`${idPrefix}-routeGlow`}>
           <feGaussianBlur stdDeviation="0.6" result="blur" />
           <feMerge>
             <feMergeNode in="blur" />
@@ -184,13 +100,13 @@ function RoutePath({ animStep }: { animStep: number }) {
           </feMerge>
         </filter>
         {/* 金色流光渐变 */}
-        <linearGradient id="shimmerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <linearGradient id={`${idPrefix}-shimmerGrad`} x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" stopColor="rgba(212,175,55,0)" />
           <stop offset="40%" stopColor="rgba(212,175,55,0.4)" />
           <stop offset="60%" stopColor="rgba(212,175,55,0.4)" />
           <stop offset="100%" stopColor="rgba(212,175,55,0)" />
         </linearGradient>
-        <clipPath id="routeClip">
+        <clipPath id={`${idPrefix}-routeClip`}>
           <path d={routePath} />
         </clipPath>
       </defs>
@@ -202,7 +118,7 @@ function RoutePath({ animStep }: { animStep: number }) {
         stroke="rgba(212,175,55,0.06)"
         strokeWidth="1.5"
         strokeLinecap="round"
-        filter="url(#routeGlow)"
+        filter={`url(#${idPrefix}-routeGlow)`}
         strokeDasharray={totalLength}
         strokeDashoffset={animStep >= 0 ? 0 : totalLength}
         style={{ transition: "stroke-dashoffset 0.8s ease-out" }}
@@ -212,7 +128,7 @@ function RoutePath({ animStep }: { animStep: number }) {
       <path
         d={routePath}
         fill="none"
-        stroke="url(#routeGrad)"
+        stroke={`url(#${idPrefix}-routeGrad)`}
         strokeWidth="0.4"
         strokeLinecap="round"
         strokeDasharray={totalLength}
@@ -249,7 +165,7 @@ function RoutePath({ animStep }: { animStep: number }) {
         stroke="rgba(45,106,79,0.04)"
         strokeWidth="0.8"
         strokeLinecap="round"
-        filter="url(#routeGlow)"
+        filter={`url(#${idPrefix}-routeGlow)`}
         opacity={animStep >= 1 ? 0.4 : 0}
         style={{ transition: "opacity 1.2s ease 2s" }}
       />
@@ -258,8 +174,8 @@ function RoutePath({ animStep }: { animStep: number }) {
       {animStep >= 2 && (
         <rect
           x="0" y="0" width="100%" height="100%"
-          fill="url(#shimmerGrad)"
-          clipPath="url(#routeClip)"
+          fill={`url(#${idPrefix}-shimmerGrad)`}
+          clipPath={`url(#${idPrefix}-routeClip)`}
           opacity="0"
           style={{
             animation: "goldenSweep 0.4s ease-out forwards",
@@ -272,7 +188,7 @@ function RoutePath({ animStep }: { animStep: number }) {
 
 /* ── 命运窗口（金色星云区域） ── */
 
-function DestinyWindows({ animStep }: { animStep: number }) {
+function DestinyWindows({ animStep, idPrefix }: { animStep: number; idPrefix: string }) {
   return (
     <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
       <defs>
@@ -280,7 +196,7 @@ function DestinyWindows({ animStep }: { animStep: number }) {
           const cx = (w.x1 + w.x2) / 2
           const cy = (w.y1 + w.y2) / 2
           return (
-            <radialGradient key={`wg-${w.id}`} id={`wg-${w.id}`} cx="50%" cy="50%" r="50%">
+            <radialGradient key={`${idPrefix}-wg-${w.id}`} id={`${idPrefix}-wg-${w.id}`} cx="50%" cy="50%" r="50%">
               <stop offset="0%" stopColor={w.color} stopOpacity="0.08" />
               <stop offset="50%" stopColor={w.color} stopOpacity="0.03" />
               <stop offset="100%" stopColor={w.color} stopOpacity="0" />
@@ -303,7 +219,7 @@ function DestinyWindows({ animStep }: { animStep: number }) {
               cy={cy}
               rx={rx}
               ry={ry}
-              fill={`url(#wg-${w.id})`}
+              fill={`url(#${idPrefix}-wg-${w.id})`}
               opacity={animStep >= 1 ? 1 : 0}
               style={{
                 transition: `opacity 0.8s ease ${0.8 + i * 0.15}s`,
@@ -400,6 +316,10 @@ function DestinyStar({
   return (
     <div
       className="absolute cursor-pointer"
+      role="button"
+      tabIndex={0}
+      aria-label={`${locale === "zh" ? star.labelZh : star.labelEn} ${star.year}`}
+      aria-expanded={isActive}
       style={{
         left: `${star.x}%`,
         top: `${star.y}%`,
@@ -409,6 +329,7 @@ function DestinyStar({
         transition: `opacity 0.5s ease ${litDelay}s`,
       }}
       onClick={onClick}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick() } }}
     >
       {/* ── Hover 展开卡片 ── */}
       {isActive && (
@@ -603,30 +524,46 @@ export default function LifeRouteGeneration() {
   const sectionRef = useRef<HTMLElement>(null)
   const [isVisible, setIsVisible] = useState(false)
   const [activeId, setActiveId] = useState<number | null>(null)
+  const idPrefix = React.useId()
 
   // 动画步骤：0 = 未开始，1 = 航线绘制完成+节点点亮，2 = 金色流光
   const [animStep, setAnimStep] = useState(-1)
+  const animStepRef = useRef(animStep)
+  animStepRef.current = animStep
+
+  // 背景星点（memoized to avoid re-randomization on re-render）
+  const bgStars = useMemo(() => (
+    Array.from({ length: 40 }, (_, i) => ({
+      key: `bg-star-${i}`,
+      left: 5 + Math.random() * 90,
+      top: 5 + Math.random() * 90,
+      size: 0.5 + Math.random() * 1.5,
+      opacity: 0.04 + Math.random() * 0.08,
+      twinkleDur: 2 + Math.random() * 4,
+      twinkleDelay: Math.random() * 5,
+    }))
+  ), [])
 
   useEffect(() => {
+    let timers: ReturnType<typeof setTimeout>[] = []
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && animStep === -1) {
+        if (entry.isIntersecting && animStepRef.current === -1) {
           setIsVisible(true)
-          // 三步动画序列
-          // Step 1: 航线绘制 (0.8s)
-          // Step 2: 节点依次点亮 (0.8s)
-          // Step 3: 金色流光 (0.4s)
-          // 总计 2s
-          setTimeout(() => setAnimStep(0), 100)   // 开始 Step 1
-          setTimeout(() => setAnimStep(1), 900)   // Step 2: 节点点亮 (0.8s 后)
-          setTimeout(() => setAnimStep(2), 1700)  // Step 3: 金色流光 (0.8s 后)
+          // 三步动画序列 (总计 ~2s)
+          timers.push(setTimeout(() => setAnimStep(0), 100))
+          timers.push(setTimeout(() => setAnimStep(1), 900))
+          timers.push(setTimeout(() => setAnimStep(2), 1700))
         }
       },
       { threshold: 0.15 },
     )
     if (sectionRef.current) observer.observe(sectionRef.current)
-    return () => observer.disconnect()
-  }, [animStep])
+    return () => {
+      observer.disconnect()
+      timers.forEach(clearTimeout)
+    }
+  }, [])
 
   const handleStarClick = useCallback((id: number) => {
     setActiveId((prev) => (prev === id ? null : id))
@@ -668,15 +605,15 @@ export default function LifeRouteGeneration() {
           style={{ opacity: isVisible ? 1 : 0 }}>
 
           {/* 背景微小星点 */}
-          {isVisible && Array.from({ length: 40 }).map((_, i) => (
-            <div key={`bg-star-${i}`} className="absolute rounded-full bg-white"
+          {isVisible && bgStars.map((s) => (
+            <div key={s.key} className="absolute rounded-full bg-white"
               style={{
-                left: `${5 + Math.random() * 90}%`,
-                top: `${5 + Math.random() * 90}%`,
-                width: `${0.5 + Math.random() * 1.5}px`,
-                height: `${0.5 + Math.random() * 1.5}px`,
-                opacity: 0.04 + Math.random() * 0.08,
-                animation: `twinkle ${2 + Math.random() * 4}s ease-in-out infinite ${Math.random() * 5}s`,
+                left: `${s.left}%`,
+                top: `${s.top}%`,
+                width: `${s.size}px`,
+                height: `${s.size}px`,
+                opacity: s.opacity,
+                animation: `twinkle ${s.twinkleDur}s ease-in-out infinite ${s.twinkleDelay}s`,
               }} />
           ))}
 
@@ -684,10 +621,10 @@ export default function LifeRouteGeneration() {
           <DustParticles />
 
           {/* 航线（带路径动画） */}
-          <RoutePath animStep={animStep} />
+          <RoutePath animStep={animStep} idPrefix={idPrefix} />
 
           {/* 命运窗口（金色星云覆盖） */}
-          <DestinyWindows animStep={animStep} />
+          <DestinyWindows animStep={animStep} idPrefix={idPrefix} />
 
           {/* 命运恒星节点 */}
           {STARS.map((star, i) => (

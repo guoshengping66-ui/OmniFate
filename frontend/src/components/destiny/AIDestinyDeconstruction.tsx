@@ -18,19 +18,6 @@ const AI_INSIGHTS = [
   { zh: "人生节奏同步校准", en: "Life Rhythm Synchronization" },
 ]
 
-function DataStream({ delay, color }: { delay: number; color: string }) {
-  return (
-    <div
-      className="absolute w-[2px] rounded-full opacity-0"
-      style={{
-        height: "60px",
-        background: `linear-gradient(to bottom, transparent, ${color}80, transparent)`,
-        animation: `dataStream 2s ease-in-out infinite ${delay}s`,
-      }}
-    />
-  )
-}
-
 export default function AIDestinyDeconstruction() {
   const { locale } = useLanguage()
   const sectionRef = useRef<HTMLElement>(null)

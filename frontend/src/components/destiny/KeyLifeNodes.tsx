@@ -1,6 +1,7 @@
 "use client"
 import { useRef, useState, useEffect } from "react"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { DESTINY_STARS as NODES } from "@/data/destinyStars"
 
 /* ═══════════════════════════════════════════════════════════════════
    关键人生节点 — Key Life Nodes (命运恒星卡片)
@@ -9,74 +10,6 @@ import { useLanguage } from "@/contexts/LanguageContext"
    - 航线组件展示星图全景 + 成长逻辑链
    - 本组件展示每颗恒星的详细卡片（三维指数 + AI 推演）
    ═══════════════════════════════════════════════════════════════════ */
-
-const NODES = [
-  {
-    id: 1,
-    year: 2025,
-    labelZh: "能力跃迁期",
-    labelEn: "Capability Leap",
-    color: "#C5A880",
-    growthZh: 5, growthEn: 5,
-    opportunityZh: 4, opportunityEn: 4,
-    challengeZh: 3, challengeEn: 3,
-    keywords: { zh: ["学习", "创业", "转型", "领导力"], en: ["Learning", "Startup", "Transition", "Leadership"] },
-    aiZh: "这一阶段更适合集中资源完成能力升级与职业突破。命盘显示开创力与直觉同步上升，是建立核心竞争力的最佳时机。",
-    aiEn: "This phase favors consolidating resources for capability upgrades and career breakthroughs. Initiative and intuition rise in sync — the best time to build core competencies.",
-  },
-  {
-    id: 2,
-    year: 2027,
-    labelZh: "事业突破阶段",
-    labelEn: "Career Breakthrough",
-    color: "#A882FF",
-    growthZh: 4, growthEn: 4,
-    opportunityZh: 5, opportunityEn: 5,
-    challengeZh: 4, challengeEn: 4,
-    keywords: { zh: ["决断", "破局", "整合", "升级"], en: ["Decisiveness", "Breakthrough", "Integration", "Upgrade"] },
-    aiZh: "能力跃迁期积累的势能在此刻释放。事业能量场达到峰值，大胆决策将带来超额回报——但需要承受更高的不确定性。",
-    aiEn: "Potential from the capability leap releases now. Career energy peaks — bold decisions yield outsized returns, but higher uncertainty comes with it.",
-  },
-  {
-    id: 3,
-    year: 2029,
-    labelZh: "财富积累窗口",
-    labelEn: "Wealth Accumulation",
-    color: "#D4AF37",
-    growthZh: 3, growthEn: 3,
-    opportunityZh: 5, opportunityEn: 5,
-    challengeZh: 2, challengeEn: 2,
-    keywords: { zh: ["财富", "复利", "投资", "格局"], en: ["Wealth", "Compound", "Investment", "Vision"] },
-    aiZh: "事业突破带来的资源在此阶段开始产生复利效应。财富窗口正式开启，资产配置能力将成为关键——守住比进攻更重要。",
-    aiEn: "Resources from the career breakthrough begin compounding. The wealth window opens — preserving assets matters more than aggressive expansion.",
-  },
-  {
-    id: 4,
-    year: 2031,
-    labelZh: "关系深化阶段",
-    labelEn: "Bond Deepening",
-    color: "#EC78A0",
-    growthZh: 4, growthEn: 4,
-    opportunityZh: 3, opportunityEn: 3,
-    challengeZh: 5, challengeEn: 5,
-    keywords: { zh: ["情感", "家庭", "和谐", "内在"], en: ["Bond", "Family", "Harmony", "Inner"] },
-    aiZh: "外在成就趋于稳定后，命盘能量转向内在维度。关系深化是这一阶段的核心课题——家庭和谐与人际信任将决定后续的人生质量。",
-    aiEn: "After external achievements stabilize, energy shifts inward. Bond deepening is the core theme — family harmony and trust determine future quality of life.",
-  },
-  {
-    id: 5,
-    year: 2033,
-    labelZh: "人生转型节点",
-    labelEn: "Life Transformation",
-    color: "#5B9BD5",
-    growthZh: 5, growthEn: 5,
-    opportunityZh: 4, opportunityEn: 4,
-    challengeZh: 5, challengeEn: 5,
-    keywords: { zh: ["蜕变", "重生", "新身份", "命运"], en: ["Transform", "Rebirth", "New Self", "Destiny"] },
-    aiZh: "关系深化带来的内在觉醒触发人生重大转型。旧模式瓦解、新身份诞生——这是命运齿轮转动的关键时刻，风险与机遇并存。",
-    aiEn: "Inner awakening from bond deepening triggers a major transformation. Old patterns dissolve, new identity emerges — risk and opportunity coexist.",
-  },
-]
 
 /* ── 恒星指数条 ── */
 
