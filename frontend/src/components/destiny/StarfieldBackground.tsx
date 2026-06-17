@@ -29,6 +29,7 @@ export default function StarfieldBackground() {
     let w = 0, h = 0
     let particles: Particle[] = []
     let bgGradient: CanvasGradient | null = null
+    let paused = false
 
     // 八卦符号
     const BAGUA = ["☰", "☱", "☲", "☳", "☴", "☵", "☶", "☷"]
@@ -37,7 +38,7 @@ export default function StarfieldBackground() {
       if (!document.documentElement) return
       const dpr = Math.min(window.devicePixelRatio, 2)
       w = window.innerWidth
-      h = document.documentElement.scrollHeight
+      h = window.innerHeight
       canvas!.width = w * dpr
       canvas!.height = h * dpr
       canvas!.style.width = w + "px"
@@ -194,6 +195,10 @@ export default function StarfieldBackground() {
     }
 
     function frame(time: number) {
+      if (paused) {
+        animId = requestAnimationFrame(frame)
+        return
+      }
       ctx!.clearRect(0, 0, w, h)
 
       drawLayer1()
@@ -205,6 +210,10 @@ export default function StarfieldBackground() {
       animId = requestAnimationFrame(frame)
     }
 
+    function onVisibilityChange() {
+      paused = document.hidden
+    }
+
     resize()
     animId = requestAnimationFrame(frame)
 
@@ -214,17 +223,12 @@ export default function StarfieldBackground() {
       resizeTimer = setTimeout(resize, 200)
     }
     window.addEventListener("resize", onResize)
-
-    const resizeObserver = new ResizeObserver(() => {
-      clearTimeout(resizeTimer)
-      resizeTimer = setTimeout(resize, 300)
-    })
-    if (document.body) resizeObserver.observe(document.body)
+    document.addEventListener("visibilitychange", onVisibilityChange)
 
     return () => {
       cancelAnimationFrame(animId)
       window.removeEventListener("resize", onResize)
-      resizeObserver.disconnect()
+      document.removeEventListener("visibilitychange", onVisibilityChange)
     }
   }, [])
 
