@@ -72,7 +72,7 @@ export default function AIDestinyDeconstruction() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#C5A880]/20 bg-[#C5A880]/[0.05] mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-[#C5A880] animate-pulse" />
-            <span className="text-[#C5A880]/70 text-xs tracking-[0.3em] uppercase">
+            <span className="text-[#C5A880]/70 text-xs tracking-[0.15em] uppercase">
               {locale === "zh" ? "AI 解构" : "AI Deconstruction"}
             </span>
           </div>

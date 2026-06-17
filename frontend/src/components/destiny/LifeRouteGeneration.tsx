@@ -530,7 +530,7 @@ function StarRating({ label, value, color }: { label: string; value: number; col
   return (
     <div className="flex items-center gap-2 mb-1.5">
       <span className="text-white/30 text-[10px] w-16 flex-shrink-0">{label}</span>
-      <span className="text-[11px] tracking-[2px]" style={{ color }}>
+      <span className="text-[11px] tracking-[1px]" style={{ color }}>
         {"★".repeat(value)}<span style={{ opacity: 0.15 }}>{"★".repeat(5 - value)}</span>
       </span>
     </div>
@@ -555,7 +555,7 @@ function GrowthLogicChain({ animStep, locale }: { animStep: number; locale: stri
     <div className="mt-12 sm:mt-16 transition-all duration-1000"
       style={{ opacity: isLit ? 1 : 0, transform: isLit ? "translateY(0)" : "translateY(30px)", transitionDelay: "1.5s" }}>
       <div className="text-center mb-6">
-        <span className="text-white/20 text-[10px] tracking-[0.3em] uppercase">
+        <span className="text-white/20 text-[10px] tracking-[0.15em] uppercase">
           {locale === "zh" ? "成长逻辑链 · 因果推演" : "Growth Logic Chain · Causal Projection"}
         </span>
       </div>
@@ -647,7 +647,7 @@ export default function LifeRouteGeneration() {
           style={{ opacity: isVisible ? 1 : 0, transform: isVisible ? "translateY(0)" : "translateY(40px)" }}>
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#C5A880]/20 bg-[#C5A880]/[0.05] mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-[#C5A880] animate-pulse" />
-            <span className="text-[#C5A880]/70 text-xs tracking-[0.3em] uppercase">
+            <span className="text-[#C5A880]/70 text-xs tracking-[0.15em] uppercase">
               {locale === "zh" ? "银河航线" : "Galaxy Route"}
             </span>
           </div>
@@ -716,7 +716,7 @@ export default function LifeRouteGeneration() {
               <div className="font-serif text-lg sm:text-xl text-white/15 tracking-wider mb-1" style={{ fontStyle: "italic" }}>
                 {locale === "zh" ? "未来仍在书写" : "The Journey Continues"}
               </div>
-              <div className="text-[10px] text-white/8 tracking-[0.4em] uppercase">
+              <div className="text-[10px] text-white/8 tracking-[0.2em] uppercase">
                 {locale === "zh" ? "航线向宇宙深处延伸" : "Route extends into the cosmos"}
               </div>
             </div>

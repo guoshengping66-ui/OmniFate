@@ -84,7 +84,7 @@ function StarRating({ label, value, color }: { label: string; value: number; col
   return (
     <div className="flex items-center gap-2 mb-1">
       <span className="text-white/30 text-[10px] w-14 sm:w-16 flex-shrink-0">{label}</span>
-      <span className="text-[11px] tracking-[2px]" style={{ color }}>
+      <span className="text-[11px] tracking-[1px]" style={{ color }}>
         {"★".repeat(value)}<span style={{ opacity: 0.15 }}>{"★".repeat(5 - value)}</span>
       </span>
     </div>
@@ -284,7 +284,7 @@ export default function KeyLifeNodes() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#C5A880]/20 bg-[#C5A880]/[0.05] mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-[#C5A880] animate-pulse" />
-            <span className="text-[#C5A880]/70 text-xs tracking-[0.3em] uppercase">
+            <span className="text-[#C5A880]/70 text-xs tracking-[0.15em] uppercase">
               {locale === "zh" ? "命运恒星" : "Destiny Stars"}
             </span>
           </div>

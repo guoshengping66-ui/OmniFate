@@ -231,7 +231,7 @@ export default function DestinyCollectionGallery() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#C5A880]/20 bg-[#C5A880]/[0.05] mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-[#C5A880] animate-pulse" />
-            <span className="text-[#C5A880]/70 text-xs tracking-[0.3em] uppercase">
+            <span className="text-[#C5A880]/70 text-xs tracking-[0.15em] uppercase">
               {locale === "zh" ? "命运藏品阁" : "Destiny Gallery"}
             </span>
           </div>
@@ -265,7 +265,7 @@ export default function DestinyCollectionGallery() {
         {/* Divider */}
         <div className="flex items-center justify-center gap-4 mb-16 sm:mb-20">
           <div className="h-[1px] flex-1 max-w-[120px] bg-gradient-to-r from-transparent to-[#C5A880]/15" />
-          <span className="text-[#C5A880]/20 text-xs tracking-[0.3em] uppercase">
+          <span className="text-[#C5A880]/20 text-xs tracking-[0.15em] uppercase">
             {locale === "zh" ? "真实反馈" : "Reviews"}
           </span>
           <div className="h-[1px] flex-1 max-w-[120px] bg-gradient-to-l from-transparent to-[#C5A880]/15" />
