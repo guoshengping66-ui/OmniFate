@@ -95,7 +95,7 @@ export const PLANS: PlanConfig[] = [
     ],
     cta: "订阅年度",
     highlight: true,
-    badge: "推荐 · 每天仅需 1 元",
+    badge: "推荐 · 每天仅需 ¥1",
     billingLabel: "每年自动续费，随时取消",
   },
   {

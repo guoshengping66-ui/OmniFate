@@ -1522,7 +1522,7 @@ export default {
   "tier.premium_yearly.feat7": "生日特别分析仪式",
   "tier.premium_yearly.feat8": "新功能优先体验",
   "tier.premium_yearly.cta": "订阅年度",
-  "tier.premium_yearly.badge": "推荐 · 每天仅需 1 元",
+  "tier.premium_yearly.badge": "推荐 · 每天仅需 ¥1",
   "tier.premium_yearly.billing": "每年自动续费，随时取消",
 
   "tier.founder_lifetime.name": "创始席位",
