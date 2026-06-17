@@ -209,4 +209,4 @@ export const FOUNDER_PRICE = _founder?.priceCny ?? 1688
 export const FOUNDER_PRICE_USD = _founder?.priceUsd ?? 499
 export const FOUNDER_MAX_SEATS = 200
 export const ONETIME_UNLOCK_PRICE = _unlock?.priceCny ?? 9.9
-export const ONETIME_UNLOCK_PRICE_USD = 5.9
+export const ONETIME_UNLOCK_PRICE_USD = _unlock?.priceUsd ?? 5.9
