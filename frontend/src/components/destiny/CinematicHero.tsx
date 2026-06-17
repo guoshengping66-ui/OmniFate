@@ -2,6 +2,7 @@
 import { useEffect, useRef } from "react"
 import dynamic from "next/dynamic"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { useScrollProgress } from "@/hooks/useScrollProgress"
 
 const FateOrb = dynamic(() => import("./FateOrb"), { ssr: false })
 
@@ -9,6 +10,7 @@ export default function CinematicHero() {
   const { t, locale, localeHref } = useLanguage()
   const sectionRef = useRef<HTMLElement>(null)
   const descLines = t("hero.desc").split("\n")
+  const scrollProgress = useScrollProgress(sectionRef)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -145,7 +147,7 @@ export default function CinematicHero() {
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="w-[400px] h-[400px] lg:w-[550px] lg:h-[550px] rounded-full bg-[#C5A880]/[0.04] blur-[120px]" />
             </div>
-            <FateOrb />
+            <FateOrb scrollProgress={scrollProgress} />
 
             {/* Destiny archive preview card — bottom right */}
             <div className="absolute bottom-6 right-0 sm:right-4 lg:right-0 w-[230px] sm:w-[270px] p-4 sm:p-5 rounded-2xl bg-[#0A1235]/85 border border-[#C5A880]/15 backdrop-blur-md">

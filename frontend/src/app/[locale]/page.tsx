@@ -10,14 +10,14 @@ const StarfieldBackground = dynamic(() => import("@/components/destiny/Starfield
 
 // ── Lazy-loaded cinematic marketing page ─────────────────────────────
 const CinematicHero = dynamic(() => import("@/components/destiny/CinematicHero"), { ssr: true })
-const DestinySystems = dynamic(() => import("@/components/destiny/DestinySystems"), { ssr: false })
-const LifeTrendTimeline = dynamic(() => import("@/components/destiny/LifeTrendTimeline"), { ssr: false })
-const UniqueCapabilities = dynamic(() => import("@/components/destiny/UniqueCapabilities"), { ssr: false })
+const EnergyBridge = dynamic(() => import("@/components/destiny/EnergyBridge"), { ssr: false })
+const AIDestinyDeconstruction = dynamic(() => import("@/components/destiny/AIDestinyDeconstruction"), { ssr: false })
+const LifeRouteGeneration = dynamic(() => import("@/components/destiny/LifeRouteGeneration"), { ssr: false })
+const KeyLifeNodes = dynamic(() => import("@/components/destiny/KeyLifeNodes"), { ssr: false })
+const FutureStillWriting = dynamic(() => import("@/components/destiny/FutureStillWriting"), { ssr: false })
+const DestinyCollectionGallery = dynamic(() => import("@/components/destiny/DestinyCollectionGallery"), { ssr: false })
 const ServicesShowcase = dynamic(() => import("@/components/destiny/ServicesShowcase"), { ssr: false })
-const ReportPreview = dynamic(() => import("@/components/destiny/ReportPreview"), { ssr: false })
-const SocialProof = dynamic(() => import("@/components/destiny/SocialProof"), { ssr: false })
 const LifestyleShowcase = dynamic(() => import("@/components/destiny/LifestyleShowcase"), { ssr: false })
-const FinalCTA = dynamic(() => import("@/components/destiny/FinalCTA"), { ssr: true })
 
 // ── Lazy-loaded below-the-fold sections ──────────────────────────
 const UserDashboard = dynamic(() => import("@/components/dashboard/UserDashboard").then(m => m.UserDashboard), {
@@ -105,15 +105,24 @@ export default function HomePage() {
     <>
       <StarfieldBackground />
       <div className="relative z-10 min-h-screen">
+        {/* SECTION 01: 命运引擎 Hero */}
         <CinematicHero />
-        <DestinySystems />
-        <LifeTrendTimeline />
-        <UniqueCapabilities />
+        {/* SECTION 02: 能量桥梁 */}
+        <EnergyBridge />
+        {/* SECTION 03: AI 解构命盘 */}
+        <AIDestinyDeconstruction />
+        {/* SECTION 04: 银河航线生成 */}
+        <LifeRouteGeneration />
+        {/* SECTION 05: 关键人生节点 */}
+        <KeyLifeNodes />
+        {/* SECTION 06: 未来仍在书写 */}
+        <FutureStillWriting />
+        {/* SECTION 07: 命运藏品阁 */}
+        <DestinyCollectionGallery />
+        {/* SECTION 08: 服务展示 */}
         <ServicesShowcase />
-        <ReportPreview />
-        <SocialProof />
+        {/* SECTION 09: 生活方式 */}
         <LifestyleShowcase />
-        <FinalCTA />
       </div>
     </>
   )
