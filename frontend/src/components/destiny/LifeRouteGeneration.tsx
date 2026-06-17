@@ -13,39 +13,6 @@ import { DESTINY_STARS as STARS } from "@/data/destinyStars"
    - 航线向宇宙深处无限延伸
    ═══════════════════════════════════════════════════════════════════ */
 
-/* ── 命运窗口（机会区间） ── */
-
-const DESTINY_WINDOWS = [
-  {
-    id: "w1",
-    labelZh: "成长窗口", labelEn: "Growth Window",
-    descZh: "能力与资源双重积累期", descEn: "Dual accumulation of capability and resources",
-    color: "#C5A880",
-    x1: 8, y1: 38, x2: 25, y2: 20,
-  },
-  {
-    id: "w2",
-    labelZh: "财富窗口", labelEn: "Wealth Window",
-    descZh: "事业势能转化为财富", descEn: "Career momentum converts to wealth",
-    color: "#D4AF37",
-    x1: 25, y1: 20, x2: 42, y2: 12,
-  },
-  {
-    id: "w3",
-    labelZh: "转型窗口", labelEn: "Transformation Window",
-    descZh: "外在成就转向内在探索", descEn: "External achievement shifts to inner exploration",
-    color: "#A882FF",
-    x1: 58, y1: 38, x2: 75, y2: 55,
-  },
-  {
-    id: "w4",
-    labelZh: "成果窗口", labelEn: "Harvest Window",
-    descZh: "全部积累进入兑现期", descEn: "All accumulation enters realization phase",
-    color: "#2D6A4F",
-    x1: 75, y1: 55, x2: 90, y2: 28,
-  },
-]
-
 /* ── 路径工具 ── */
 
 function getSegmentPath(a: { x: number; y: number }, b: { x: number; y: number }) {
@@ -182,70 +149,6 @@ function RoutePath({ animStep, idPrefix }: { animStep: number; idPrefix: string 
           }}
         />
       )}
-    </svg>
-  )
-}
-
-/* ── 命运窗口（金色星云区域） ── */
-
-function DestinyWindows({ animStep, idPrefix, locale }: { animStep: number; idPrefix: string; locale: string }) {
-  return (
-    <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
-      <defs>
-        {DESTINY_WINDOWS.map((w) => {
-          const cx = (w.x1 + w.x2) / 2
-          const cy = (w.y1 + w.y2) / 2
-          return (
-            <radialGradient key={`${idPrefix}-wg-${w.id}`} id={`${idPrefix}-wg-${w.id}`} cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor={w.color} stopOpacity="0.08" />
-              <stop offset="50%" stopColor={w.color} stopOpacity="0.03" />
-              <stop offset="100%" stopColor={w.color} stopOpacity="0" />
-            </radialGradient>
-          )
-        })}
-      </defs>
-
-      {DESTINY_WINDOWS.map((w, i) => {
-        const cx = (w.x1 + w.x2) / 2
-        const cy = (w.y1 + w.y2) / 2
-        const rx = Math.abs(w.x2 - w.x1) / 2 + 4
-        const ry = Math.abs(w.y2 - w.y1) / 2 + 6
-
-        return (
-          <g key={w.id}>
-            {/* 星云椭圆 */}
-            <ellipse
-              cx={cx}
-              cy={cy}
-              rx={rx}
-              ry={ry}
-              fill={`url(#${idPrefix}-wg-${w.id})`}
-              opacity={animStep >= 1 ? 1 : 0}
-              style={{
-                transition: `opacity 0.8s ease ${0.8 + i * 0.15}s`,
-                transformOrigin: `${cx}% ${cy}%`,
-              }}
-            />
-
-            {/* 窗口标签（小字） */}
-            <text
-              x={cx}
-              y={cy - ry - 1.2}
-              textAnchor="middle"
-              fill={w.color}
-              opacity={animStep >= 1 ? 0.45 : 0}
-              style={{
-                fontSize: "1.6px",
-                fontFamily: "serif",
-                letterSpacing: "0.08em",
-                transition: `opacity 0.6s ease ${1 + i * 0.15}s`,
-              }}
-            >
-              {locale === "zh" ? w.labelZh : w.labelEn}
-            </text>
-          </g>
-        )
-      })}
     </svg>
   )
 }
@@ -622,9 +525,6 @@ export default function LifeRouteGeneration() {
 
           {/* 航线（带路径动画） */}
           <RoutePath animStep={animStep} idPrefix={idPrefix} />
-
-          {/* 命运窗口（金色星云覆盖） */}
-          <DestinyWindows animStep={animStep} idPrefix={idPrefix} locale={locale} />
 
           {/* 命运恒星节点 */}
           {STARS.map((star, i) => (
