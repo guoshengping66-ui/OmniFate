@@ -116,7 +116,7 @@ export function AIRecommendHero({ products }: { products: Product[] }) {
               {addedIds.has(product.id) ? (
                 <><Check size={14} /> {t("treasureHall.collected")}</>
               ) : (
-                <><Zap size={14} /> {t("shop.buyNow") || "收入囊中"}</>
+                <><Zap size={14} /> {t("treasureHall.collect")}</>
               )}
             </button>
           </div>

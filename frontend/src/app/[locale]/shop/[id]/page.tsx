@@ -56,6 +56,12 @@ export default function ProductDetailPage() {
   const [added, setAdded] = useState(false)
   const [relatedReadings, setRelatedReadings] = useState<ReadingListItem[]>([])
 
+  useEffect(() => {
+    if (!added) return
+    const timer = setTimeout(() => setAdded(false), 1500)
+    return () => clearTimeout(timer)
+  }, [added])
+
   const CATEGORY_LABELS: Record<string, string> = {
     crystal: t("treasureHall.series.crystal"), jewelry: t("treasureHall.series.jewelry"),
     incense: t("treasureHall.series.incense"), talisman: t("treasureHall.series.talisman"),
@@ -93,7 +99,6 @@ export default function ProductDetailPage() {
     addItem(product)
     setAdded(true)
     toast.success(t("shop.addedToCart").replace("{name}", product.name))
-    setTimeout(() => setAdded(false), 1500)
   }
 
   if (loading) {

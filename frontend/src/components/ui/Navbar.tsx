@@ -32,11 +32,11 @@ export function Navbar() {
   }, [])
 
   // Core links — always visible (product-oriented nav)
-  const coreLinks = [
+  const coreLinks: Array<{ href: string; label: string; highlight?: boolean }> = [
     { href: localeHref("/"), label: t("nav.home") },
     { href: localeHref("/am16"), label: t("nav.am16") || "行为测验" },
     { href: localeHref("/divination"), label: t("nav.divination") || "星际分析" },
-    { href: localeHref("/shop"), label: t("nav.shop"), highlight: true },
+    { href: localeHref("/shop"), label: t("treasureHall.hero.title"), highlight: true },
     { href: localeHref("/reading/new"), label: t("nav.reading") || "分析体验" },
     { href: localeHref("/pricing"), label: t("nav.pricing") },
   ]
@@ -76,7 +76,7 @@ export function Navbar() {
             {coreLinks.map(l => (
               <Link key={l.href} href={l.href} prefetch={true}
                 className={`text-sm transition-colors duration-200 ${
-                  (l as any).highlight
+                  l.highlight
                     ? "text-gold font-medium hover:text-gold-light"
                     : "text-white/70 hover:text-gold"
                 }`}>
@@ -97,7 +97,7 @@ export function Navbar() {
             {coreLinks.map(l => (
               <Link key={l.href} href={l.href} prefetch={true}
                 className={`text-sm transition-colors duration-200 ${
-                  (l as any).highlight
+                  l.highlight
                     ? "text-gold font-medium hover:text-gold-light"
                     : "text-white/70 hover:text-gold"
                 }`}>
@@ -258,7 +258,7 @@ export function Navbar() {
           <div className="lg:hidden bg-ink/95 border-t border-white/10 px-4 py-4 flex flex-col gap-1">
             {coreLinks.map(l => (
               <Link key={l.href} href={l.href} onClick={() => setOpen(false)}
-                className={`py-2.5 ${(l as any).highlight ? "text-gold font-medium" : "text-white/80 hover:text-gold"}`}>
+                className={`py-2.5 ${l.highlight ? "text-gold font-medium" : "text-white/80 hover:text-gold"}`}>
                 {l.label}
               </Link>
             ))}

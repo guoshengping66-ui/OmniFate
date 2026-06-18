@@ -1,4 +1,4 @@
-import { useState, memo, useCallback, useMemo } from "react"
+import { useState, useEffect, memo, useCallback, useMemo } from "react"
 import { Star, ShoppingBag, Sparkles, Check, Zap } from "lucide-react"
 import { Link } from "@/i18n/navigation"
 import type { Product } from "@/lib/api"
@@ -33,13 +33,18 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
   const glowClass = useMemo(() => getGlowClass(product.match_score), [product.match_score])
   const matchPct = useMemo(() => getMatchPercentage(product.match_score), [product.match_score])
 
+  useEffect(() => {
+    if (!added) return
+    const timer = setTimeout(() => setAdded(false), 1500)
+    return () => clearTimeout(timer)
+  }, [added])
+
   const handleAddToCart = useCallback((e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     addItem(product)
     setAdded(true)
     toast.success(t("shop.addedToCart").replace("{name}", product.name))
-    setTimeout(() => setAdded(false), 1500)
   }, [addItem, product, t])
 
   return (
@@ -133,7 +138,7 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
                 : "bg-gold/10 border border-gold/20 text-gold/80 hover:bg-gold/15 hover:shadow-[0_0_15px_rgba(201,168,76,0.1)]"}`}
           >
             {added ? <Check size={12} /> : <ShoppingBag size={12} />}
-            {added ? t("treasureHall.collected") : (t("shop.buyNow") || "收入囊中")}
+            {added ? t("treasureHall.collected") : t("treasureHall.collect")}
           </button>
         </div>
       </div>

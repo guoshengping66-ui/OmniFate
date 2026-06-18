@@ -40,10 +40,20 @@ function ShopContent() {
   const [activeSeries, setActiveSeries] = useState("")
   const heroRef = useRef<HTMLDivElement>(null)
   const [heroVisible, setHeroVisible] = useState(false)
+  const [particles, setParticles] = useState<{ x: number; y: number; dur: number; delay: number }[]>([])
 
   useEffect(() => {
     const timer = setTimeout(() => setHeroVisible(true), 200)
     return () => clearTimeout(timer)
+  }, [])
+
+  useEffect(() => {
+    setParticles(Array.from({ length: 20 }, () => ({
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      dur: 3 + Math.random() * 4,
+      delay: Math.random() * 3,
+    })))
   }, [])
 
   const SERIES = useMemo(() => [
@@ -95,15 +105,15 @@ function ShopContent() {
       <div ref={heroRef} className={`treasure-hero transition-all duration-1000 ${heroVisible ? "opacity-100" : "opacity-0"}`}>
         {/* Floating particles */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          {Array.from({ length: 20 }).map((_, i) => (
+          {particles.map((p, i) => (
             <div
               key={i}
               className="absolute w-1 h-1 rounded-full bg-gold/20"
               style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animation: `particleFloat ${3 + Math.random() * 4}s ease-in-out infinite`,
-                animationDelay: `${Math.random() * 3}s`,
+                left: `${p.x}%`,
+                top: `${p.y}%`,
+                animation: `particleFloat ${p.dur}s ease-in-out infinite`,
+                animationDelay: `${p.delay}s`,
               }}
             />
           ))}

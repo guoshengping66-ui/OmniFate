@@ -21,6 +21,12 @@ export function CuratedProducts() {
   const [addedIds, setAddedIds] = useState<Set<string>>(new Set())
 
   useEffect(() => {
+    if (addedIds.size === 0) return
+    const timer = setTimeout(() => setAddedIds(new Set()), 2000)
+    return () => clearTimeout(timer)
+  }, [addedIds])
+
+  useEffect(() => {
     listProducts(undefined, locale)
       .then(all => {
         const sorted = [...all]
@@ -36,11 +42,6 @@ export function CuratedProducts() {
     addItem(product)
     setAddedIds(prev => new Set(prev).add(product.id))
     toast.success(t("shop.addedToCart").replace("{name}", product.name))
-    setTimeout(() => setAddedIds(prev => {
-      const next = new Set(prev)
-      next.delete(product.id)
-      return next
-    }), 2000)
   }
 
   if (loading) {
@@ -135,7 +136,7 @@ export function CuratedProducts() {
                         {isAdded ? (
                           <><Check size={10} /> {t("treasureHall.collected")}</>
                         ) : (
-                          <><Sparkles size={10} /> {t("shop.buyNow")}</>
+                          <><Sparkles size={10} /> {t("treasureHall.collect")}</>
                         )}
                       </button>
                     </div>

@@ -7,8 +7,7 @@ import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 
-// Google Client ID — replace with your actual Client ID from Google Cloud Console
-const GOOGLE_CLIENT_ID = ""  // TODO: Set this in env or hardcode here
+const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""
 
 const FEATURES = [
   { icon: Zap, color: "#C5A880", key: "speed" },
