@@ -59,8 +59,6 @@ const nextConfig = {
       "date-fns-tz",
       "nanoid",
       "framer-motion",
-      "three",
-      "@react-three/fiber",
       "swr",
     ],
   },
