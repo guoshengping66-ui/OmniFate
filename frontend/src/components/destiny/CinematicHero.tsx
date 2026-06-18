@@ -13,13 +13,19 @@ export default function CinematicHero() {
   const scrollProgress = useScrollProgress(sectionRef)
 
   useEffect(() => {
+    let ticking = false
     const handleScroll = () => {
-      if (!sectionRef.current) return
-      const scrollY = window.scrollY
-      const opacity = 1 - Math.min(scrollY / 600, 1)
-      const translateY = scrollY * 0.3
-      sectionRef.current.style.opacity = String(opacity)
-      sectionRef.current.style.transform = `translateY(${translateY}px)`
+      if (ticking) return
+      ticking = true
+      requestAnimationFrame(() => {
+        if (!sectionRef.current) { ticking = false; return }
+        const scrollY = window.scrollY
+        const opacity = 1 - Math.min(scrollY / 600, 1)
+        const translateY = scrollY * 0.3
+        sectionRef.current.style.opacity = String(opacity)
+        sectionRef.current.style.transform = `translateY(${translateY}px)`
+        ticking = false
+      })
     }
     window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)

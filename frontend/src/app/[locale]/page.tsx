@@ -5,8 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import { useAuth } from "@/contexts/AuthContext"
 import { useUserStore } from "@/stores/useUserStore"
 
-// ── Global starfield background ──────────────────────────────────────
-const StarfieldBackground = dynamic(() => import("@/components/destiny/StarfieldBackground"), { ssr: false })
+// ── Global background removed — AnimatedBackground in layout.tsx already provides nebula + stars ──
 
 // ── Lazy-loaded cinematic marketing page ─────────────────────────────
 const CinematicHero = dynamic(() => import("@/components/destiny/CinematicHero"), { ssr: true })
@@ -45,9 +44,7 @@ export default function HomePage() {
 
   if (profileStillLoading) {
     return (
-      <>
-        <StarfieldBackground />
-        <div className="relative z-10 min-h-screen pt-24 pb-16 px-4">
+      <div className="relative z-10 min-h-screen pt-24 pb-16 px-4">
           <div className="max-w-5xl mx-auto space-y-8">
             <div className="card-glass p-8 space-y-4">
               <div className="h-6 bg-white/5 rounded w-1/3 animate-pulse" />
@@ -64,16 +61,13 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-        </div>
-      </>
+      </div>
     )
   }
 
   if (hasProfile) {
     return (
-      <>
-        <StarfieldBackground />
-        <div className="relative z-10 min-h-screen">
+      <div className="relative z-10 min-h-screen">
           <section className="pt-24 pb-10 px-4">
             <UserDashboard />
           </section>
@@ -94,14 +88,11 @@ export default function HomePage() {
 
           <FloatingFortuneSubscribe />
         </div>
-      </>
     )
   }
 
   return (
-    <>
-      <StarfieldBackground />
-      <div className="relative z-10 min-h-screen">
+    <div className="relative z-10 min-h-screen">
         {/* SECTION 01: Hero */}
         <CinematicHero />
         {/* SECTION 02: How It Works — AI cross-validation */}
@@ -117,6 +108,5 @@ export default function HomePage() {
         {/* SECTION 06: Lifestyle */}
         <LifestyleShowcase />
       </div>
-    </>
   )
 }

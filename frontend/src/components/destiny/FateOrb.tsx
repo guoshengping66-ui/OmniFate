@@ -43,33 +43,11 @@ export default function FateOrb({ scrollProgress = 0 }: Props) {
   const p4 = phase(sp, 0.6, 0.8)    // energy flow down
   const p5 = phase(sp, 0.8, 1.0)    // route line
 
-  // Neural network SVG lines between particle positions
-  const neuralLines = useMemo(() => {
-    const lines: { x1: number; y1: number; x2: number; y2: number }[] = []
-    const particles = Array.from({ length: 12 }, (_, i) => {
-      const angle = (i / 12) * Math.PI * 2
-      const r = 90 + (i % 3) * 15
-      return { x: 260 + Math.cos(angle) * r, y: 260 + Math.sin(angle) * r }
-    })
-    // Connect nearby particles
-    for (let i = 0; i < particles.length; i++) {
-      for (let j = i + 1; j < particles.length; j++) {
-        const dx = particles[i].x - particles[j].x
-        const dy = particles[i].y - particles[j].y
-        const dist = Math.sqrt(dx * dx + dy * dy)
-        if (dist < 120) {
-          lines.push({ x1: particles[i].x, y1: particles[i].y, x2: particles[j].x, y2: particles[j].y })
-        }
-      }
-    }
-    return lines
-  }, [])
-
-  // Energy flow-down particles
+  // Energy flow-down particles (reduced from 20 to 8)
   const flowParticles = useMemo(() => {
-    return Array.from({ length: 20 }, (_, i) => ({
+    return Array.from({ length: 8 }, (_, i) => ({
       x: 240 + (Math.random() - 0.5) * 80,
-      delay: i * 0.08,
+      delay: i * 0.12,
       speed: 0.6 + Math.random() * 0.4,
       size: 2 + Math.random() * 3,
     }))
@@ -84,7 +62,7 @@ export default function FateOrb({ scrollProgress = 0 }: Props) {
         transition: "transform 0.3s ease-out",
       }}
     >
-      <div className="relative w-[520px] h-[520px] md:w-[620px] md:h-[620px]">
+      <div className="relative w-[520px] h-[520px] md:w-[620px] md:h-[620px]" style={{ willChange: "transform" }}>
 
         {/* Layer 1: Outermost star nodes — fade out in phase 3 */}
         <div
@@ -92,10 +70,11 @@ export default function FateOrb({ scrollProgress = 0 }: Props) {
           style={{
             animation: "spin 120s linear infinite",
             opacity: 1 - p3 * 0.6,
+            willChange: "transform",
           }}
         >
-          {Array.from({ length: 24 }).map((_, i) => {
-            const angle = (i / 24) * 360
+          {Array.from({ length: 12 }).map((_, i) => {
+            const angle = (i / 12) * 360
             const radius = 48
             return (
               <div
@@ -197,8 +176,8 @@ export default function FateOrb({ scrollProgress = 0 }: Props) {
           className="absolute inset-[35%] pointer-events-none"
           style={{ animation: "spin 20s linear infinite" }}
         >
-          {Array.from({ length: 16 }).map((_, i) => {
-            const angle = (i / 16) * 360
+          {Array.from({ length: 8 }).map((_, i) => {
+            const angle = (i / 8) * 360
             const baseR = 30 + (i % 3) * 8
             const pulseR = baseR + p1 * 5
             return (
@@ -218,54 +197,16 @@ export default function FateOrb({ scrollProgress = 0 }: Props) {
           })}
         </div>
 
-        {/* Phase 2: Neural network SVG overlay */}
+        {/* Phase 2: Simple glow ring (replaced heavy SVG neural network) */}
         <div
-          className="absolute inset-0 pointer-events-none"
-          style={{ opacity: p2, transition: "opacity 0.1s" }}
-        >
-          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 520 520">
-            <defs>
-              <linearGradient id="neuralGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="rgba(212,175,55,0.6)" />
-                <stop offset="50%" stopColor="rgba(197,168,128,0.8)" />
-                <stop offset="100%" stopColor="rgba(212,175,55,0.6)" />
-              </linearGradient>
-            </defs>
-            {neuralLines.map((line, i) => (
-              <line
-                key={i}
-                x1={line.x1}
-                y1={line.y1}
-                x2={line.x2}
-                y2={line.y2}
-                stroke="url(#neuralGrad)"
-                strokeWidth="0.8"
-                opacity={0.5 + Math.sin(Date.now() * 0.001 + i) * 0.3}
-                style={{
-                  filter: "blur(0.3px)",
-                }}
-              />
-            ))}
-            {/* Neural nodes */}
-            {Array.from({ length: 12 }, (_, i) => {
-              const angle = (i / 12) * Math.PI * 2
-              const r = 90 + (i % 3) * 15
-              return (
-                <circle
-                  key={`node-${i}`}
-                  cx={260 + Math.cos(angle) * r}
-                  cy={260 + Math.sin(angle) * r}
-                  r={2 + p2 * 2}
-                  fill="rgba(212,175,55,0.9)"
-                  style={{
-                    filter: `blur(0.5px)`,
-                    boxShadow: `0 0 ${6 + p2 * 8}px rgba(212,175,55,0.8)`,
-                  }}
-                />
-              )
-            })}
-          </svg>
-        </div>
+          className="absolute inset-[20%] rounded-full pointer-events-none"
+          style={{
+            opacity: p2,
+            border: `1px solid rgba(212,175,55,${0.15 + p2 * 0.3})`,
+            boxShadow: `0 0 ${20 + p2 * 30}px rgba(212,175,55,${0.1 + p2 * 0.2}), inset 0 0 ${15 + p2 * 20}px rgba(212,175,55,${0.05 + p2 * 0.1})`,
+            transition: "opacity 0.3s",
+          }}
+        />
 
         {/* Layer 6: Destiny core — brighten in phase 1 */}
         <div className="absolute inset-[40%] rounded-full overflow-hidden">

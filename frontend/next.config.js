@@ -58,6 +58,10 @@ const nextConfig = {
       "@mui/icons-material",
       "date-fns-tz",
       "nanoid",
+      "framer-motion",
+      "three",
+      "@react-three/fiber",
+      "swr",
     ],
   },
   async headers() {

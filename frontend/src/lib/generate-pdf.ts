@@ -1,9 +1,8 @@
 /**
  * Generate a PDF report from a reading.
  * Uses html2canvas to capture a styled DOM node, then jsPDF to build the PDF.
+ * Heavy libs are dynamically imported to keep them out of the main bundle.
  */
-import html2canvas from "html2canvas"
-import jsPDF from "jspdf"
 
 interface GeneratePdfOptions {
   /** The DOM element to capture */
@@ -19,6 +18,14 @@ export async function generateReadingPdf({
   filename = "profile-mirror-report",
   orientation = "portrait",
 }: GeneratePdfOptions): Promise<void> {
+  // Lazy-load heavy dependencies (~400KB combined)
+  const [html2canvasModule, jsPDFModule] = await Promise.all([
+    import("html2canvas"),
+    import("jspdf"),
+  ])
+  const html2canvas = html2canvasModule.default
+  const jsPDF = jsPDFModule.default
+
   // Capture the element as a high-res canvas
   const canvas = await html2canvas(element, {
     scale: 2,
