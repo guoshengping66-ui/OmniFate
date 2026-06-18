@@ -1,11 +1,11 @@
 "use client"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { Link } from "@/i18n/navigation"
 import {
-  Loader2, ArrowLeft, ShoppingCart, Check, Star, Heart,
-  Sparkles, Tag, Package, Shield, ChevronRight,
-  BookOpen, AlertTriangle, Zap, ClipboardList, ShoppingBag,
+  Loader2, ArrowLeft, Check, Star,
+  Sparkles, Package, Shield, ChevronRight,
+  BookOpen, Gem, ClipboardList, ShoppingBag,
 } from "lucide-react"
 import { ProductImage } from "@/components/shop/ProductImage"
 import toast from "react-hot-toast"
@@ -17,7 +17,32 @@ import { useRegion } from "@/contexts/RegionContext"
 import { getProductPrice } from "@/lib/regionPrice"
 import { ProductReviews } from "@/components/shop/ProductReviews"
 import { FavoriteButton } from "@/components/shop/FavoriteButton"
-import { useState as useStateLocal } from "react"
+import { ScrollReveal } from "@/components/ui/ScrollReveal"
+
+function useScrollReveal(threshold = 0.15) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [visible, setVisible] = useState(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisible(true) },
+      { threshold }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [threshold])
+  return { ref, visible }
+}
+
+function NarrativeSection({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  const { ref, visible } = useScrollReveal()
+  return (
+    <div ref={ref} className={`story-section ${visible ? "revealed" : ""} ${className}`}>
+      {children}
+    </div>
+  )
+}
 
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -32,9 +57,9 @@ export default function ProductDetailPage() {
   const [relatedReadings, setRelatedReadings] = useState<ReadingListItem[]>([])
 
   const CATEGORY_LABELS: Record<string, string> = {
-    crystal: t("shop.category.crystal"), jewelry: t("shop.category.jewelry"),
-    incense: t("shop.category.incense"), talisman: t("shop.category.talisman"),
-    book: t("shop.category.book"), service: t("shop.category.service"),
+    crystal: t("treasureHall.series.crystal"), jewelry: t("treasureHall.series.jewelry"),
+    incense: t("treasureHall.series.incense"), talisman: t("treasureHall.series.talisman"),
+    book: t("treasureHall.series.book"), service: t("treasureHall.series.service"),
     other: t("shop.category.other"),
   }
 
@@ -46,12 +71,10 @@ export default function ProductDetailPage() {
       .finally(() => setLoading(false))
   }, [id, locale])
 
-  // Load user's readings to show "related readings" for this product
   useEffect(() => {
     if (!user || !product) return
     listMyReadings()
       .then(readings => {
-        // Filter readings whose tags match the product's tags
         const productTags = new Set([
           ...(product.keyword_tags || []),
           ...(product.wuxing_tags || []),
@@ -85,165 +108,228 @@ export default function ProductDetailPage() {
     return (
       <div className="min-h-screen pt-24 pb-16 px-4 text-center">
         <p className="text-white/40">{t("shop.detail.notFound")}</p>
-        <Link href="/shop" className="text-gold text-sm mt-2 hover:underline">{t("shop.detail.backToShop")}</Link>
+        <Link href="/shop" className="text-gold text-sm mt-2 hover:underline">{t("treasureHall.backToHall")}</Link>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen pt-24 pb-20 px-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Back */}
-        <button onClick={() => router.back()}
-          className="flex items-center gap-1.5 text-white/40 hover:text-gold text-sm mb-6 transition-colors">
-          <ArrowLeft size={14} /> {t("shop.detail.back")}
-        </button>
+    <div className="min-h-screen pb-24">
+      {/* ═══ Section 1: Full-screen Product Visual ═══ */}
+      <div className="detail-hero-section pt-20 pb-12 px-4">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full bg-gold/[0.03] blur-[100px]" />
+        </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
-          {/* Left: Product image */}
-          <div className="card-glass p-8 flex flex-col items-center justify-center">
-            <ProductImage
-              src={product.image_url}
-              alt={product.name}
-              category={product.category}
-              size="lg"
-            />
-            {/* Category badge */}
-            <div className="mt-4 flex items-center gap-2">
-              <span className="text-xs px-2.5 py-1 bg-gold/10 text-gold/70 rounded-full border border-gold/20">
+        <div className="relative z-10 max-w-4xl mx-auto">
+          {/* Back button */}
+          <button onClick={() => router.back()}
+            className="flex items-center gap-1.5 text-white/30 hover:text-gold text-sm mb-8 transition-colors">
+            <ArrowLeft size={14} /> {t("treasureHall.backToHall")}
+          </button>
+
+          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
+            {/* Large product image */}
+            <div className="w-full md:w-1/2 flex justify-center">
+              <div className="relative">
+                <ProductImage
+                  src={product.image_url}
+                  alt={product.name}
+                  category={product.category}
+                  size="lg"
+                />
+                {/* Subtle glow behind image */}
+                <div className="absolute inset-0 -z-10 rounded-full bg-gold/[0.05] blur-[40px] scale-75" />
+              </div>
+            </div>
+
+            {/* Product name + price + CTA */}
+            <div className="flex-1 text-center md:text-left">
+              <span className="inline-block text-xs px-3 py-1 bg-gold/8 text-gold/60 rounded-full border border-gold/15 mb-4">
                 {CATEGORY_LABELS[product.category] || product.category}
               </span>
-              <FavoriteButton productId={product.id} />
+
+              <h1 className="text-3xl md:text-4xl font-serif font-bold text-gold mb-3 leading-tight">
+                {product.name}
+              </h1>
+
+              {product.rating && (
+                <div className="flex items-center gap-1.5 justify-center md:justify-start mb-4">
+                  <Star size={14} className="text-gold fill-gold" />
+                  <span className="text-gold text-sm">{product.rating}</span>
+                </div>
+              )}
+
+              <div className="flex items-baseline gap-2 justify-center md:justify-start mb-6">
+                {(() => {
+                  const pp = getProductPrice(product, region)
+                  return (
+                    <>
+                      <span className="text-3xl font-bold text-gold">{pp.symbol}{pp.price}</span>
+                      {region === "domestic" && product.price_usd && (
+                        <span className="text-white/25 text-sm">≈ ${product.price_usd}</span>
+                      )}
+                      {region === "overseas" && (
+                        <span className="text-white/25 text-sm">≈ ¥{product.price_cny}</span>
+                      )}
+                    </>
+                  )
+                })()}
+              </div>
+
+              {product.short_pitch && (
+                <div className="flex items-center gap-2 p-3 bg-gold/5 border border-gold/10 rounded-xl mb-6 justify-center md:justify-start">
+                  <Sparkles size={14} className="text-gold/60 flex-shrink-0" />
+                  <p className="text-gold/70 text-sm">{product.short_pitch}</p>
+                </div>
+              )}
+
+              <div className="flex items-center gap-3 justify-center md:justify-start">
+                <button
+                  onClick={handleAddToCart}
+                  className={`flex items-center justify-center gap-2 px-8 py-3 rounded-xl text-sm font-medium transition-all
+                    ${added
+                      ? "bg-green-500/15 border border-green-500/30 text-green-400"
+                      : "btn-gold hover:shadow-[0_0_20px_rgba(201,168,76,0.3)]"}`}
+                >
+                  {added ? <><Check size={16} /> {t("treasureHall.collected")}</> : <><ShoppingBag size={16} /> {t("treasureHall.collect")}</>}
+                </button>
+                <FavoriteButton productId={product.id} />
+              </div>
+
+              <div className="flex items-center gap-4 mt-4 text-white/15 text-[10px] justify-center md:justify-start">
+                <span className="flex items-center gap-1"><Shield size={10} /> {t("shop.detail.authentic")}</span>
+                <span className="flex items-center gap-1"><Package size={10} /> {t("shop.detail.freeShipping")}</span>
+              </div>
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* Right: Product info */}
-          <div className="flex flex-col">
-            <h1 className="text-2xl font-serif font-bold text-gold mb-2">{product.name}</h1>
+      <div className="max-w-3xl mx-auto px-4">
 
-            {/* Rating */}
-            {product.rating && (
-              <div className="flex items-center gap-1 mb-4">
-                <Star size={14} className="text-gold fill-gold" />
-                <span className="text-gold text-sm">{product.rating}</span>
-              </div>
-            )}
-
-            {/* Price */}
-            <div className="flex items-baseline gap-2 mb-6">
-              {(() => {
-                const pp = getProductPrice(product, region)
-                return (
-                  <>
-                    <span className="text-3xl font-bold text-gold">{pp.symbol}{pp.price}</span>
-                    {region === "domestic" && product.price_usd && (
-                      <span className="text-white/30 text-sm">≈ ${product.price_usd}</span>
-                    )}
-                    {region === "overseas" && (
-                      <span className="text-white/30 text-sm">≈ ¥{product.price_cny}</span>
-                    )}
-                  </>
-                )
-              })()}
+        {/* ═══ Section 2: Story Narrative ═══ */}
+        {product.description && (
+          <NarrativeSection className="narrative-block">
+            <div className="flex items-center gap-2 mb-4">
+              <BookOpen size={16} className="text-gold/60" />
+              <h2 className="text-lg font-serif text-gold/80">{t("treasureHall.story")}</h2>
             </div>
+            <p className="text-white/50 text-base leading-relaxed whitespace-pre-line">{product.description}</p>
+          </NarrativeSection>
+        )}
 
-            {/* Short pitch */}
-            {product.short_pitch && (
-              <div className="flex items-center gap-2 p-3 bg-gold/5 border border-gold/15 rounded-xl mb-4">
-                <Sparkles size={14} className="text-gold flex-shrink-0" />
-                <p className="text-gold/80 text-sm">{product.short_pitch}</p>
-              </div>
-            )}
+        {/* ═══ Section 3: Cultural Meaning ═══ */}
+        {product.efficacy && (
+          <NarrativeSection className="narrative-block">
+            <div className="flex items-center gap-2 mb-4">
+              <Gem size={16} className="text-gold/60" />
+              <h2 className="text-lg font-serif text-gold/80">{t("treasureHall.meaning")}</h2>
+            </div>
+            <p className="text-white/50 text-base leading-relaxed whitespace-pre-line">{product.efficacy}</p>
 
-            {/* Description */}
-            <p className="text-white/60 text-sm leading-relaxed mb-6">{product.description}</p>
-
-            {/* Material */}
-            {product.material && (
-              <div className="flex items-center gap-2 mb-3">
-                <Package size={14} className="text-white/30" />
-                <span className="text-white/50 text-sm">{t("shop.detail.material").replace("{material}", product.material)}</span>
-              </div>
-            )}
-
-            {/* Tags */}
-            {product.keyword_tags && product.keyword_tags.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mb-6">
-                {product.keyword_tags.map(tag => (
-                  <span key={tag} className="text-xs px-2 py-1 bg-white/[0.04] border border-white/[0.08] rounded-full text-white/40">
+            {/* Wuxing tags */}
+            {product.wuxing_tags && product.wuxing_tags.length > 0 && (
+              <div className="flex gap-2 flex-wrap mt-4">
+                {product.wuxing_tags.map(tag => (
+                  <span key={tag} className="text-xs px-2.5 py-1 bg-gold/8 text-gold/60 rounded-full border border-gold/15">
                     {tag}
                   </span>
                 ))}
               </div>
             )}
-
-            {/* Add to cart */}
-            <div className="flex gap-3 mt-auto">
-              <button
-                onClick={handleAddToCart}
-                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-medium transition-all
-                  ${added
-                    ? "bg-green-500/15 border border-green-500/30 text-green-400"
-                    : "btn-gold hover:shadow-[0_0_20px_rgba(201,168,76,0.3)]"}`}
-              >
-                {added ? <><Check size={16} /> {t("shop.detail.addedToCart2")}</> : <><ShoppingBag size={16} /> {t("shop.buyNow") || "立即抢购"}</>}
-              </button>
-            </div>
-
-            {/* Trust badges */}
-            <div className="flex items-center gap-4 mt-4 text-white/20 text-[10px]">
-              <span className="flex items-center gap-1"><Shield size={10} /> {t("shop.detail.authentic")}</span>
-              <span className="flex items-center gap-1"><Package size={10} /> {t("shop.detail.freeShipping")}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* ── Detailed Content Tabs ── */}
-        {(product.efficacy || product.usage || product.precautions || product.specifications) && (
-          <div className="mt-12">
-            <ProductDetailTabs product={product} t={t as unknown as (key: string) => string} />
-          </div>
+          </NarrativeSection>
         )}
 
-        {/* Related Readings */}
+        {/* ═══ Section 4: Usage Guide ═══ */}
+        {(product.usage || product.precautions) && (
+          <NarrativeSection className="narrative-block">
+            <div className="flex items-center gap-2 mb-4">
+              <BookOpen size={16} className="text-gold/60" />
+              <h2 className="text-lg font-serif text-gold/80">{t("treasureHall.usageGuide")}</h2>
+            </div>
+            {product.usage && (
+              <p className="text-white/50 text-sm leading-relaxed whitespace-pre-line mb-4">{product.usage}</p>
+            )}
+            {product.precautions && (
+              <div className="mt-4 p-3 bg-white/[0.02] border border-white/[0.06] rounded-xl">
+                <p className="text-white/30 text-xs leading-relaxed whitespace-pre-line">{product.precautions}</p>
+              </div>
+            )}
+          </NarrativeSection>
+        )}
+
+        {/* ═══ Section 5: Specifications ═══ */}
+        {product.specifications && Object.keys(product.specifications).length > 0 && (
+          <NarrativeSection className="narrative-block">
+            <div className="flex items-center gap-2 mb-4">
+              <ClipboardList size={16} className="text-gold/60" />
+              <h2 className="text-lg font-serif text-gold/80">{t("shop.detail.tab.specs")}</h2>
+            </div>
+            <div className="space-y-0">
+              {Object.entries(product.specifications).map(([key, value], i, arr) => (
+                <div key={key} className={`flex items-center justify-between py-3 ${i < arr.length - 1 ? "border-b border-white/[0.04]" : ""}`}>
+                  <span className="text-white/35 text-sm">{key}</span>
+                  <span className="text-white/60 text-sm">{value}</span>
+                </div>
+              ))}
+            </div>
+          </NarrativeSection>
+        )}
+
+        {/* ═══ Material + Tags ═══ */}
+        {(product.material || (product.keyword_tags && product.keyword_tags.length > 0)) && (
+          <NarrativeSection className="narrative-block">
+            {product.material && (
+              <div className="flex items-center gap-2 mb-3">
+                <Package size={14} className="text-white/25" />
+                <span className="text-white/40 text-sm">{t("shop.detail.material").replace("{material}", product.material)}</span>
+              </div>
+            )}
+            {product.keyword_tags && product.keyword_tags.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mt-3">
+                {product.keyword_tags.map(tag => (
+                  <span key={tag} className="text-xs px-2 py-1 bg-white/[0.03] border border-white/[0.06] rounded-full text-white/35">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </NarrativeSection>
+        )}
+
+        {/* ═══ Related Readings ═══ */}
         {relatedReadings.length > 0 && (
-          <div className="mt-12">
-            <h2 className="font-serif text-lg text-gold mb-4">{t("shop.detail.relatedReadings")}</h2>
+          <NarrativeSection className="narrative-block">
+            <h2 className="font-serif text-lg text-gold/80 mb-4">{t("shop.detail.relatedReadings")}</h2>
             <div className="space-y-3">
               {relatedReadings.map(r => (
                 <Link key={r.id} href={`/reading/${r.id}`}
                   className="block card-glass p-4 hover:border-gold/30 transition-all group">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-white/70 text-sm">{t("shop.detail.readingReport")}</p>
-                      <p className="text-white/30 text-xs">{new Date(r.created_at).toLocaleDateString("zh-CN")}</p>
+                      <p className="text-white/60 text-sm">{t("shop.detail.readingReport")}</p>
+                      <p className="text-white/25 text-xs">{new Date(r.created_at).toLocaleDateString("zh-CN")}</p>
                     </div>
-                    <ChevronRight size={14} className="text-white/20 group-hover:text-gold transition-colors" />
+                    <ChevronRight size={14} className="text-white/15 group-hover:text-gold transition-colors" />
                   </div>
                 </Link>
               ))}
             </div>
-          </div>
+          </NarrativeSection>
         )}
 
-        {/* Reviews */}
-        <div className="mt-12 pb-20">
+        {/* ═══ Reviews ═══ */}
+        <div className="mt-8 pb-8">
           <ProductReviews productId={product.id} />
         </div>
       </div>
 
-      {/* Sticky bottom CTA bar (mobile) */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-ink/95 backdrop-blur-xl border-t border-white/10 px-4 py-3" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom, 0.75rem))" }}>
+      {/* ═══ Sticky bottom CTA bar (mobile) ═══ */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-ink/95 backdrop-blur-xl border-t border-white/[0.08] px-4 py-3" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom, 0.75rem))" }}>
         <div className="max-w-4xl mx-auto flex items-center gap-3">
           <div className="flex-1 min-w-0">
             <p className="text-gold font-bold text-lg truncate">{getProductPrice(product, region).symbol}{getProductPrice(product, region).price}</p>
-            {product.rating && (
-              <div className="flex items-center gap-0.5">
-                <Star size={10} className="text-gold fill-gold" />
-                <span className="text-gold text-[10px]">{product.rating}</span>
-                <span className="text-white/20 text-[10px] ml-1">{t("shop.detail.sales")?.replace("{count}", String(Math.floor(Math.random() * 500 + 100)))}</span>
-              </div>
-            )}
           </div>
           <button
             onClick={handleAddToCart}
@@ -253,99 +339,9 @@ export default function ProductDetailPage() {
                 : "btn-gold"
             }`}
           >
-            {added ? <><Check size={14} /></> : <><ShoppingBag size={14} /> {t("shop.buyNow") || "立即抢购"}</>}
+            {added ? <><Check size={14} /></> : <><ShoppingBag size={14} /> {t("treasureHall.collect")}</>}
           </button>
         </div>
-      </div>
-    </div>
-  )
-}
-
-// ── Product Detail Tabs ──────────────────────────────────────────────────
-
-type DetailTab = "efficacy" | "usage" | "precautions" | "specs"
-
-function ProductDetailTabs({ product, t }: { product: Product; t: (key: string) => string }) {
-  const [activeTab, setActiveTab] = useStateLocal<DetailTab>("efficacy")
-
-  const tabs: { key: DetailTab; icon: React.ReactNode; label: string; show: boolean }[] = [
-    { key: "efficacy", icon: <Zap size={14} />, label: t("shop.detail.tab.efficacy"), show: !!product.efficacy },
-    { key: "usage", icon: <BookOpen size={14} />, label: t("shop.detail.tab.usage"), show: !!product.usage },
-    { key: "precautions", icon: <AlertTriangle size={14} />, label: t("shop.detail.tab.precautions"), show: !!product.precautions },
-    { key: "specs", icon: <ClipboardList size={14} />, label: t("shop.detail.tab.specs"), show: !!product.specifications },
-  ]
-
-  const visibleTabs = tabs.filter(tab => tab.show)
-  if (visibleTabs.length === 0) return null
-
-  return (
-    <div className="card-glass p-6">
-      {/* Tab headers */}
-      <div className="flex gap-1 overflow-x-auto scrollbar-none mb-5 border-b border-white/10 pb-3">
-        {visibleTabs.map(tab => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
-              activeTab === tab.key
-                ? "bg-gold/15 text-gold border border-gold/30"
-                : "text-white/40 hover:text-white/60"
-            }`}
-          >
-            {tab.icon}
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Tab content */}
-      <div className="min-h-[120px]">
-        {activeTab === "efficacy" && product.efficacy && (
-          <div>
-            <h3 className="text-white/80 text-sm font-medium mb-3 flex items-center gap-2">
-              <Zap size={14} className="text-gold" />
-              {t("shop.detail.tab.efficacy")}
-            </h3>
-            <p className="text-white/60 text-sm leading-relaxed whitespace-pre-line">{product.efficacy}</p>
-          </div>
-        )}
-
-        {activeTab === "usage" && product.usage && (
-          <div>
-            <h3 className="text-white/80 text-sm font-medium mb-3 flex items-center gap-2">
-              <BookOpen size={14} className="text-gold" />
-              {t("shop.detail.tab.usage")}
-            </h3>
-            <p className="text-white/60 text-sm leading-relaxed whitespace-pre-line">{product.usage}</p>
-          </div>
-        )}
-
-        {activeTab === "precautions" && product.precautions && (
-          <div>
-            <h3 className="text-white/80 text-sm font-medium mb-3 flex items-center gap-2">
-              <AlertTriangle size={14} className="text-gold" />
-              {t("shop.detail.tab.precautions")}
-            </h3>
-            <p className="text-white/60 text-sm leading-relaxed whitespace-pre-line">{product.precautions}</p>
-          </div>
-        )}
-
-        {activeTab === "specs" && product.specifications && (
-          <div>
-            <h3 className="text-white/80 text-sm font-medium mb-3 flex items-center gap-2">
-              <ClipboardList size={14} className="text-gold" />
-              {t("shop.detail.tab.specs")}
-            </h3>
-            <div className="space-y-2">
-              {Object.entries(product.specifications).map(([key, value]) => (
-                <div key={key} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
-                  <span className="text-white/40 text-xs">{key}</span>
-                  <span className="text-white/70 text-xs">{value}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   )
