@@ -11,8 +11,9 @@ import AnimatedBackground from "@/components/ui/AnimatedBackground"
 import { AppProviders } from "@/components/ui/AppProviders"
 import { RouteProgress } from "@/components/ui/RouteProgress"
 import { ServiceWorkerRegistration } from "@/components/ui/ServiceWorkerRegistration"
+import { MonthlyGrantToast } from "@/components/ui/MonthlyGrantToast"
+import { OnboardingGuide } from "@/components/ui/OnboardingGuide"
 import { ChunkRecovery } from "@/components/ui/ChunkRecovery"
-import { DeferredComponents } from "@/components/ui/DeferredComponents"
 
 export const viewport: Viewport = {
   themeColor: "#C9A84C",
@@ -265,7 +266,8 @@ try{
         <ChunkRecovery />
         <AppProviders messages={messages} locale={validLocale} initialRegion={initialRegion}>
           <ServiceWorkerRegistration />
-          <DeferredComponents />
+          <MonthlyGrantToast />
+          <OnboardingGuide />
           <RouteProgress />
           <AnimatedBackground />
           <Navbar />
