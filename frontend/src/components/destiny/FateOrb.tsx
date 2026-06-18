@@ -43,6 +43,21 @@ export default function FateOrb({ scrollProgress = 0 }: Props) {
   const p4 = phase(sp, 0.6, 0.8)    // energy flow down
   const p5 = phase(sp, 0.8, 1.0)    // route line
 
+  // Simplified neural network — 8 nodes, nearest-neighbor connections only
+  const neuralData = useMemo(() => {
+    const nodes = Array.from({ length: 8 }, (_, i) => {
+      const angle = (i / 8) * Math.PI * 2
+      const r = 90 + (i % 2) * 15
+      return { x: 260 + Math.cos(angle) * r, y: 260 + Math.sin(angle) * r }
+    })
+    const lines: { x1: number; y1: number; x2: number; y2: number }[] = []
+    for (let i = 0; i < nodes.length; i++) {
+      const next = (i + 1) % nodes.length
+      lines.push({ x1: nodes[i].x, y1: nodes[i].y, x2: nodes[next].x, y2: nodes[next].y })
+    }
+    return { nodes, lines }
+  }, [])
+
   // Energy flow-down particles (reduced from 20 to 8)
   const flowParticles = useMemo(() => {
     return Array.from({ length: 8 }, (_, i) => ({
@@ -197,16 +212,30 @@ export default function FateOrb({ scrollProgress = 0 }: Props) {
           })}
         </div>
 
-        {/* Phase 2: Simple glow ring (replaced heavy SVG neural network) */}
+        {/* Phase 2: Simplified neural network (8 nodes, ring connections) */}
         <div
-          className="absolute inset-[20%] rounded-full pointer-events-none"
-          style={{
-            opacity: p2,
-            border: `1px solid rgba(212,175,55,${0.15 + p2 * 0.3})`,
-            boxShadow: `0 0 ${20 + p2 * 30}px rgba(212,175,55,${0.1 + p2 * 0.2}), inset 0 0 ${15 + p2 * 20}px rgba(212,175,55,${0.05 + p2 * 0.1})`,
-            transition: "opacity 0.3s",
-          }}
-        />
+          className="absolute inset-0 pointer-events-none"
+          style={{ opacity: p2, transition: "opacity 0.3s" }}
+        >
+          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 520 520">
+            {neuralData.lines.map((line, i) => (
+              <line
+                key={i}
+                x1={line.x1} y1={line.y1} x2={line.x2} y2={line.y2}
+                stroke="rgba(212,175,55,0.5)"
+                strokeWidth="0.8"
+              />
+            ))}
+            {neuralData.nodes.map((node, i) => (
+              <circle
+                key={i}
+                cx={node.x} cy={node.y}
+                r={2 + p2 * 1.5}
+                fill="rgba(212,175,55,0.9)"
+              />
+            ))}
+          </svg>
+        </div>
 
         {/* Layer 6: Destiny core — brighten in phase 1 */}
         <div className="absolute inset-[40%] rounded-full overflow-hidden">
