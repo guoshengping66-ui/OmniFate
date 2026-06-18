@@ -1,7 +1,7 @@
 "use client"
 import Link from "next/link"
 import { useState, useRef, useEffect, lazy, Suspense } from "react"
-import { Menu, X, Sparkles, User, LogOut, ChevronDown, Crown, ShoppingBag } from "lucide-react"
+import { Menu, X, Sparkles, User, LogOut, ChevronDown, ShoppingBag } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import { useCart } from "@/contexts/CartContext"
 import { useLanguage } from "@/contexts/LanguageContext"

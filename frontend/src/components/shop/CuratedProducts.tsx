@@ -22,7 +22,14 @@ export function CuratedProducts() {
 
   useEffect(() => {
     if (addedIds.size === 0) return
-    const timer = setTimeout(() => setAddedIds(new Set()), 2000)
+    const ids = Array.from(addedIds)
+    const timer = setTimeout(() => {
+      setAddedIds(prev => {
+        const next = new Set(prev)
+        ids.forEach(id => next.delete(id))
+        return next
+      })
+    }, 2000)
     return () => clearTimeout(timer)
   }, [addedIds])
 

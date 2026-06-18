@@ -129,7 +129,10 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
         )}
 
         <div className="flex items-center justify-between pt-2">
-          <span className="text-gold/90 font-bold">{getProductPrice(product, region).symbol}{getProductPrice(product, region).price.toFixed(0)}</span>
+          {(() => {
+            const pp = getProductPrice(product, region)
+            return <span className="text-gold/90 font-bold">{pp.symbol}{pp.price.toFixed(0)}</span>
+          })()}
           <button
             onClick={handleAddToCart}
             className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full transition-all

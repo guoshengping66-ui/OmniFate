@@ -516,7 +516,7 @@ export default {
   "report.collapse": "Collapse",
 
   // ─── Shop ───
-  "shop.title": "Status Enhancement Shop",
+  "shop.title": "Destiny Treasury",
   "shop.desc": "Every item handpicked to match your chart — thoughtfully ranked to fit your unique needs",
   "shop.aiRecommend": "Items ranked by your chart's needs",
   "shop.disclaimer": "Products are cultural creative items. Descriptions are based on traditional behavioral culture, not scientifically verified.",
@@ -1436,7 +1436,7 @@ export default {
   "home.dailyTitle": "Today's Status & Almanac",
   "home.shopCta": "Explore Status Items",
   "home.shopDesc": "Handpicked focus and lifestyle accessories to enhance your daily experience",
-  "home.shopButton": "Status Shop",
+  "home.shopButton": "Destiny Treasury",
   "home.knowledgeButton": "Knowledge Base",
   "home.radar.wealth": "Wealth",
   "home.radar.love": "Love",

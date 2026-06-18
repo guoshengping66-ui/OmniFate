@@ -1,5 +1,5 @@
 "use client"
-import { Suspense, useEffect, useState, useMemo, useCallback, useRef, lazy } from "react"
+import { Suspense, useEffect, useState, useMemo, useCallback, lazy } from "react"
 import { useSearchParams } from "next/navigation"
 import { Loader2, Sparkles, Gem } from "lucide-react"
 import { listProducts, matchProducts, Product } from "@/lib/api"
@@ -38,7 +38,6 @@ function ShopContent() {
   const [loading, setLoading] = useState(true)
   const [isPersonalized, setIsPersonalized] = useState(false)
   const [activeSeries, setActiveSeries] = useState("")
-  const heroRef = useRef<HTMLDivElement>(null)
   const [heroVisible, setHeroVisible] = useState(false)
   const [particles, setParticles] = useState<{ x: number; y: number; dur: number; delay: number }[]>([])
 
@@ -102,7 +101,7 @@ function ShopContent() {
   return (
     <div className="min-h-screen">
       {/* ═══ Hero Section — full-screen immersive ═══ */}
-      <div ref={heroRef} className={`treasure-hero transition-all duration-1000 ${heroVisible ? "opacity-100" : "opacity-0"}`}>
+      <div className={`treasure-hero transition-all duration-1000 ${heroVisible ? "opacity-100" : "opacity-0"}`}>
         {/* Floating particles */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           {particles.map((p, i) => (

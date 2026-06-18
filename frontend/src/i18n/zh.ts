@@ -516,7 +516,7 @@ export default {
   "report.collapse": "收起",
 
   // ─── 商城 ───
-  "shop.title": "生活方式商城",
+  "shop.title": "命运藏宝阁",
   "shop.desc": "每件商品均与分析结果精准对应，由 AI 推荐引擎智能匹配",
   "shop.aiRecommend": "AI 已根据您的分析结果智能排序",
   "shop.disclaimer": "商城商品为生活方式产品，描述基于文化传统概念，并非科学验证的功效声明。",
@@ -1431,7 +1431,7 @@ export default {
   "home.dailyTitle": "今日建议与红尘黄历",
   "home.shopCta": "探索推荐好物",
   "home.shopDesc": "精选生活方式产品与实用工具，助力状态提升",
-  "home.shopButton": "生活方式商城",
+  "home.shopButton": "命运藏宝阁",
   "home.knowledgeButton": "知识库",
   "home.radar.wealth": "财务",
   "home.radar.love": "感情",
@@ -1503,7 +1503,7 @@ export default {
   "tier.free.feat1": "西方行为模式落宫解读",
   "tier.free.feat2": "塔罗分析一次",
   "tier.free.feat3": "档案总览摘要（限制预览）",
-  "tier.free.feat4": "生活方式商城浏览",
+  "tier.free.feat4": "命运藏宝阁浏览",
   "tier.free.cta": "免费开始",
   "tier.free.billing": "永久免费",
 
