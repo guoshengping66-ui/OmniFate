@@ -81,7 +81,7 @@ export default function LoginPage() {
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#C5A880]/20 bg-[#C5A880]/[0.05] backdrop-blur-sm mb-4">
             <span className="w-1.5 h-1.5 rounded-full bg-[#C5A880] animate-pulse" />
             <span className="text-[#C5A880]/70 text-xs tracking-[0.3em] uppercase font-medium">
-              AI Behavioral Mirror
+              Destiny Engine
             </span>
           </div>
           <h1 className="text-xl font-serif font-bold">
@@ -110,7 +110,7 @@ export default function LoginPage() {
           {/* Title */}
           <h1 className="text-3xl xl:text-4xl font-serif font-bold mb-3 tracking-wide">
             <span className="bg-clip-text text-transparent" style={{ backgroundImage: "linear-gradient(135deg, #C5A880, #E8D5B7)" }}>
-              AI 行为分析镜
+              命运引擎
             </span>
           </h1>
           <p className="text-white/30 text-sm mb-10 leading-relaxed">

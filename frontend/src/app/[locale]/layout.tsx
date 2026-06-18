@@ -33,27 +33,27 @@ export async function generateMetadata({
   const baseUrl = "https://www.khanfate.com"
 
   return {
-    title: isZh ? "行为分析镜 · 全维度行为分析" : "Behavioral Mirror · Multi-Dimension Behavioral Analysis",
+    title: isZh ? "命运引擎 · 读懂你自己" : "Destiny Engine — Not Fortune-Telling, Self-Understanding",
     description: isZh
-      ? "融合八字分析、星盘分析、塔罗分析、面相、手相五大 AI 分析系统，为你提供精准的行为解读与优化方案。"
-      : "AI-powered behavioral analysis combining Bazi, Astrology, Tarot, Face Reading, and Palm Reading. Discover your behavioral pattern and personalized optimization guidance.",
+      ? "融合八字、星盘、塔罗、面相、手相五大古老系统，AI 交叉验证，为你生成专属人生蓝图。不是算命，是一面照见你人生的镜子。"
+      : "Five ancient systems — Bazi, Astrology, Tarot, Face Reading, Palm Reading — cross-validated by AI. Not fortune-telling. A mirror for your life.",
     keywords: isZh
-      ? "八字分析,星盘分析,塔罗分析,面相,手相,AI分析,行为分析,数据分析"
-      : "bazi,astrology,tarot,face reading,palm reading,AI analysis,behavioral analysis,data analysis",
-    authors: [{ name: "Behavioral Mirror" }],
+      ? "八字,星盘,塔罗,面相,手相,AI分析,命运,自我认知,性格分析"
+      : "bazi,astrology,tarot,face reading,palm reading,AI,destiny,self-understanding,personality",
+    authors: [{ name: "Destiny Engine" }],
     openGraph: {
-      title: isZh ? "行为分析镜 · 全维度行为分析" : "Behavioral Mirror · Multi-Dimension Behavioral Analysis",
+      title: isZh ? "命运引擎 — 不是算命，是读懂你自己" : "Destiny Engine — Not Fortune-Telling, Self-Understanding",
       description: isZh
-        ? "融合八字分析、星盘分析、塔罗分析、面相、手相五大 AI 分析系统，为你提供精准的行为解读与优化方案。"
-        : "AI-powered behavioral analysis combining Bazi, Astrology, Tarot, Face Reading, and Palm Reading.",
+        ? "融合五大古老系统，AI 交叉验证，生成专属人生蓝图。"
+        : "Five ancient systems, one AI engine. Your personal blueprint.",
       url: `${baseUrl}/${locale}`,
-      siteName: "Behavioral Mirror",
+      siteName: "Destiny Engine",
       images: [
         {
           url: `${baseUrl}/og-image.svg`,
           width: 1200,
           height: 630,
-          alt: isZh ? "行为分析镜" : "Behavioral Mirror",
+          alt: isZh ? "命运引擎" : "Destiny Engine",
         },
       ],
       locale: isZh ? "zh_CN" : "en_US",
@@ -61,10 +61,10 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: isZh ? "行为分析镜 · 全维度行为分析" : "Behavioral Mirror",
+      title: isZh ? "命运引擎 — 读懂你自己" : "Destiny Engine",
       description: isZh
-        ? "AI 全维度行为分析平台"
-        : "AI-powered multi-dimension behavioral analysis",
+        ? "五大古老系统 × AI 交叉验证 = 你的人生蓝图"
+        : "Five ancient systems × AI cross-validation = your life blueprint",
       images: [`${baseUrl}/og-image.svg`],
     },
     alternates: {
@@ -234,13 +234,13 @@ try{
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "WebApplication",
-              name: validLocale === "zh" ? "行为分析镜" : "Behavioral Mirror",
+              name: validLocale === "zh" ? "命运引擎" : "Destiny Engine",
               url: `https://www.khanfate.com/${validLocale}`,
               applicationCategory: "LifestyleApplication",
               operatingSystem: "Web",
               description: validLocale === "zh"
-                ? "融合八字分析、星盘分析、塔罗分析、面相、手相五大 AI 分析系统"
-                : "AI-powered behavioral analysis combining Bazi, Astrology, Tarot, Face Reading, and Palm Reading",
+                ? "融合八字、星盘、塔罗、面相、手相五大古老系统，AI 交叉验证，生成专属人生蓝图"
+                : "Five ancient systems — Bazi, Astrology, Tarot, Face Reading, Palm Reading — cross-validated by AI to generate your personal blueprint",
               offers: {
                 "@type": "Offer",
                 price: "0",
@@ -248,7 +248,7 @@ try{
               },
               author: {
                 "@type": "Organization",
-                name: "Profile Mirror",
+                name: "Destiny Engine",
                 url: "https://www.khanfate.com",
               },
               inLanguage: validLocale === "zh" ? "zh-CN" : "en",

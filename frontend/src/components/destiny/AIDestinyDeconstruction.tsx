@@ -11,11 +11,11 @@ const SYSTEMS = [
 ]
 
 const AI_INSIGHTS = [
-  { zh: "五行能量场共振分析", en: "Five-Element Energy Resonance" },
-  { zh: "灵魂成长轨迹解码", en: "Soul Growth Trajectory Decode" },
-  { zh: "行为模式深层映射", en: "Behavioral Pattern Deep Mapping" },
-  { zh: "天赋潜能激活指数", en: "Talent Activation Index" },
-  { zh: "人生节奏同步校准", en: "Life Rhythm Synchronization" },
+  { zh: "你的五行能量是如何流动的", en: "How your five elements flow together" },
+  { zh: "你的性格模式从何而来", en: "Where your behavioral patterns come from" },
+  { zh: "你天生擅长什么、容易忽略什么", en: "What you're naturally gifted at — and what you overlook" },
+  { zh: "当前处于人生的什么阶段", en: "What life phase you're currently in" },
+  { zh: "未来 12 个月的关键转折点", en: "Key turning points in the next 12 months" },
 ]
 
 export default function AIDestinyDeconstruction() {
@@ -60,20 +60,20 @@ export default function AIDestinyDeconstruction() {
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#C5A880]/20 bg-[#C5A880]/[0.05] mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-[#C5A880] animate-pulse" />
             <span className="text-[#C5A880]/70 text-xs tracking-[0.15em] uppercase">
-              {locale === "zh" ? "AI 解构" : "AI Deconstruction"}
+              {locale === "zh" ? "工作原理" : "How It Works"}
             </span>
           </div>
 
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold tracking-wide mb-5">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#C5A880] via-[#E8D5B7] to-[#C5A880]">
-              {locale === "zh" ? "AI 解构你的命盘" : "AI Deconstructs Your Chart"}
+              {locale === "zh" ? "五个视角，一个你" : "Five Lenses, One You"}
             </span>
           </h2>
 
           <p className="text-white/30 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
             {locale === "zh"
-              ? "五大命理体系的数据汇入 AI 引擎，交叉验证后生成你独有的人生底层代码"
-              : "Data from five destiny systems flows into the AI engine, cross-validated to generate your unique life code"}
+              ? "八字、星盘、塔罗、面相、手相——五大古老体系从不同角度描述同一个人。AI 的工作是交叉验证，找到它们共同指向的真相。"
+              : "Bazi, Astrology, Tarot, Face & Palm Reading — five ancient systems that each describe the same person from a different angle. AI cross-validates them to find the truth they all point to."}
           </p>
         </div>
 
@@ -227,7 +227,7 @@ export default function AIDestinyDeconstruction() {
             <div className="mt-8 p-4 rounded-2xl" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-white/30 text-[10px] tracking-wider uppercase">
-                  {locale === "zh" ? "交叉验证置信度" : "Cross-Validation Confidence"}
+                  {locale === "zh" ? "五大系统一致性" : "System Agreement Score"}
                 </span>
                 <span className="text-[#C5A880] text-xs font-bold">97.3%</span>
               </div>

@@ -1,7 +1,7 @@
 export default {
   // ─── 通用 ───
-  "app.name": "AI 行为分析镜",
-  "app.slogan": "洞见行为模式",
+  "app.name": "命运引擎",
+  "app.slogan": "不是算命 — 是读懂你自己",
   "nav.home": "首页",
   "nav.dashboard": "我的档案",
   "nav.reading": "开始分析",
@@ -565,9 +565,9 @@ export default {
   "productCard.aiRecommended": "AI 甄选",
 
   // ─── 命运藏宝阁 ───
-  "treasureHall.hero.title": "命运藏宝阁",
-  "treasureHall.hero.subtitle": "东方智慧凝萃，每一件藏品皆是命运的馈赠",
-  "treasureHall.hero.personalized": "命运为你甄选",
+  "treasureHall.hero.title": "藏宝阁",
+  "treasureHall.hero.subtitle": "你的命盘选中的物品——每一件都有它的意义",
+  "treasureHall.hero.personalized": "AI 为你匹配",
   "treasureHall.series.all": "全部藏品",
   "treasureHall.series.crystal": "灵石",
   "treasureHall.series.jewelry": "饰蕴",
@@ -575,8 +575,8 @@ export default {
   "treasureHall.series.talisman": "符韵",
   "treasureHall.series.book": "典籍",
   "treasureHall.series.service": "仪式",
-  "treasureHall.curator.title": "策展人甄选",
-  "treasureHall.curator.subtitle": "AI 深度分析你的能量档案，为你甄选最契合的藏品",
+  "treasureHall.curator.title": "AI 为你匹配",
+  "treasureHall.curator.subtitle": "基于你的命盘分析，这些物品与你当前的能量状态最契合",
   "treasureHall.story": "藏品故事",
   "treasureHall.meaning": "文化寓意",
   "treasureHall.usageGuide": "使用建议",

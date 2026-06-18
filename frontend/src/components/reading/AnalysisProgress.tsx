@@ -146,7 +146,7 @@ const DataStream = React.memo(function DataStream({ isComplete, locale }: { isCo
           <div className="w-2 h-2 rounded-full bg-green-400/60" />
         </div>
         <span className="text-[10px] text-white/30 font-mono ml-1">
-          {locale === "zh" ? "行为分析镜 · 计算终端" : "Behavioral Mirror · Compute Terminal"}
+          {locale === "zh" ? "命运引擎 · 分析终端" : "Destiny Engine · Analysis Terminal"}
         </span>
         {!isComplete && (
           <span className="ml-auto text-[10px] text-gold/50 font-mono animate-pulse">

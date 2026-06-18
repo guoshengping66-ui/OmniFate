@@ -76,7 +76,7 @@ export default function CinematicHero() {
               )}
             </p>
 
-            {/* CTA Buttons — two clear actions */}
+            {/* CTA Buttons — single primary + secondary */}
             <div className="flex flex-col sm:flex-row items-center gap-4 lg:justify-start justify-center">
               <a
                 href={localeHref("/reading/new")}
@@ -96,14 +96,14 @@ export default function CinematicHero() {
                   e.currentTarget.style.transform = "translateY(0)"
                 }}
               >
-                {locale === "zh" ? "开始推命" : "Start Reading"}
+                {t("hero.cta1")}
                 <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </a>
 
               <a
-                href={localeHref("/readings")}
+                href="#how-it-works"
                 className="group inline-flex items-center gap-2 px-6 py-3 rounded-2xl font-medium text-xs sm:text-sm tracking-wider transition-all duration-500"
                 style={{
                   background: "transparent",
@@ -119,24 +119,24 @@ export default function CinematicHero() {
                   e.currentTarget.style.borderColor = "rgba(212,175,55,0.5)"
                 }}
               >
-                {locale === "zh" ? "查看案例" : "View Examples"}
+                {t("hero.cta2")}
               </a>
             </div>
 
-            {/* Trust indicators — essential for high-skepticism industry */}
+            {/* Trust indicators — clean, minimal */}
             <div className="flex items-center gap-3 sm:gap-4 mt-8 lg:mt-10 lg:justify-start justify-center">
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.06]">
                 <span className="text-[#C5A880] text-xs font-medium">128,000+</span>
-                <span className="text-white/30 text-[10px]">{locale === "zh" ? "已生成档案" : "Generated"}</span>
+                <span className="text-white/30 text-[10px]">{t("hero.stat1")}</span>
               </div>
               <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.06]">
                 <span className="text-[#D4AF37] text-xs">★</span>
                 <span className="text-[#C5A880] text-xs font-medium">4.9</span>
-                <span className="text-white/30 text-[10px]">{locale === "zh" ? "用户评分" : "Rating"}</span>
+                <span className="text-white/30 text-[10px]">{t("hero.stat2")}</span>
               </div>
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.06]">
                 <span className="text-[#C5A880] text-xs font-medium">5</span>
-                <span className="text-white/30 text-[10px]">{locale === "zh" ? "大系统交叉验证" : "Systems"}</span>
+                <span className="text-white/30 text-[10px]">{t("hero.stat3")}</span>
               </div>
             </div>
           </div>
@@ -161,7 +161,7 @@ export default function CinematicHero() {
                     {locale === "zh" ? "命运档案" : "Destiny Profile"}
                   </span>
                   <span className="text-white/25 text-[8px]">
-                    {locale === "zh" ? "AI 多系统交叉分析" : "AI Cross-System Analysis"}
+                    {locale === "zh" ? "五系统交叉验证" : "5-System Cross-Validation"}
                   </span>
                 </div>
               </div>
@@ -182,7 +182,7 @@ export default function CinematicHero() {
               <div className="space-y-3">
                 <div>
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-white/50 text-[10px]">{locale === "zh" ? "财富成长指数" : "Wealth Growth"}</span>
+                    <span className="text-white/50 text-[10px]">{locale === "zh" ? "财富成长" : "Wealth Growth"}</span>
                     <span className="text-[#C5A880] text-[10px] font-medium">82%</span>
                   </div>
                   <div className="h-[5px] bg-white/[0.04] rounded-full overflow-hidden">
@@ -192,7 +192,7 @@ export default function CinematicHero() {
 
                 <div>
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-white/50 text-[10px]">{locale === "zh" ? "事业发展潜力" : "Career Potential"}</span>
+                    <span className="text-white/50 text-[10px]">{locale === "zh" ? "事业发展" : "Career Potential"}</span>
                     <span className="text-[#C5A880] text-[10px] font-medium">91%</span>
                   </div>
                   <div className="h-[5px] bg-white/[0.04] rounded-full overflow-hidden">
@@ -202,7 +202,7 @@ export default function CinematicHero() {
 
                 <div>
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-white/50 text-[10px]">{locale === "zh" ? "关系连接能力" : "Relationships"}</span>
+                    <span className="text-white/50 text-[10px]">{locale === "zh" ? "关系连接" : "Relationships"}</span>
                     <span className="text-[#C5A880] text-[10px] font-medium">73%</span>
                   </div>
                   <div className="h-[5px] bg-white/[0.04] rounded-full overflow-hidden">
@@ -224,7 +224,7 @@ export default function CinematicHero() {
       {/* Scroll indicator */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 animate-bounce">
         <span className="text-[#C5A880]/40 text-[10px] tracking-[0.2em]">
-          {locale === "zh" ? "↓ 探索你的命运档案" : "↓ Explore Your Destiny"}
+          {locale === "zh" ? "↓ 向下探索" : "↓ Scroll to Explore"}
         </span>
         <div className="w-5 h-8 rounded-full border border-[#C5A880]/20 flex justify-center pt-1.5">
           <div className="w-1 h-2 rounded-full bg-[#C5A880]/40 animate-pulse" />

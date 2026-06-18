@@ -1,7 +1,7 @@
 export default {
   // ─── Common ───
-  "app.name": "Behavioral Mirror",
-  "app.slogan": "Behavioral Intelligence",
+  "app.name": "Destiny Engine",
+  "app.slogan": "Not Fortune-Telling — Self-Understanding",
   "nav.home": "Home",
   "nav.dashboard": "My Chart",
   "nav.reading": "Start Reading",
@@ -571,9 +571,9 @@ export default {
   "productCard.aiRecommended": "AI Curated",
 
   // ─── Treasure Hall ───
-  "treasureHall.hero.title": "Destiny Treasury",
-  "treasureHall.hero.subtitle": "Curated with Eastern wisdom — each piece, a gift from destiny",
-  "treasureHall.hero.personalized": "Destiny Has Chosen for You",
+  "treasureHall.hero.title": "The Vault",
+  "treasureHall.hero.subtitle": "Objects chosen by your chart — each one carries meaning",
+  "treasureHall.hero.personalized": "AI Matched for You",
   "treasureHall.series.all": "All Treasures",
   "treasureHall.series.crystal": "Crystals",
   "treasureHall.series.jewelry": "Adornments",
@@ -581,8 +581,8 @@ export default {
   "treasureHall.series.talisman": "Talismans",
   "treasureHall.series.book": "Scriptures",
   "treasureHall.series.service": "Rituals",
-  "treasureHall.curator.title": "Curator's Selection",
-  "treasureHall.curator.subtitle": "AI analyzes your energy profile to find the treasures that resonate with you",
+  "treasureHall.curator.title": "AI Matched",
+  "treasureHall.curator.subtitle": "Based on your chart analysis, these objects resonate with your current energy",
   "treasureHall.story": "Treasure Story",
   "treasureHall.meaning": "Cultural Significance",
   "treasureHall.usageGuide": "Usage Guide",

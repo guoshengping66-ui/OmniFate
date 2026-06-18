@@ -10,12 +10,9 @@ const StarfieldBackground = dynamic(() => import("@/components/destiny/Starfield
 
 // ── Lazy-loaded cinematic marketing page ─────────────────────────────
 const CinematicHero = dynamic(() => import("@/components/destiny/CinematicHero"), { ssr: true })
-const EnergyBridge = dynamic(() => import("@/components/destiny/EnergyBridge"), { ssr: false })
 const AIDestinyDeconstruction = dynamic(() => import("@/components/destiny/AIDestinyDeconstruction"), { ssr: false })
 const LifeRouteGeneration = dynamic(() => import("@/components/destiny/LifeRouteGeneration"), { ssr: false })
 const KeyLifeNodes = dynamic(() => import("@/components/destiny/KeyLifeNodes"), { ssr: false })
-const FutureStillWriting = dynamic(() => import("@/components/destiny/FutureStillWriting"), { ssr: false })
-const DestinyCollectionGallery = dynamic(() => import("@/components/destiny/DestinyCollectionGallery"), { ssr: false })
 const ServicesShowcase = dynamic(() => import("@/components/destiny/ServicesShowcase"), { ssr: false })
 const LifestyleShowcase = dynamic(() => import("@/components/destiny/LifestyleShowcase"), { ssr: false })
 
@@ -105,23 +102,19 @@ export default function HomePage() {
     <>
       <StarfieldBackground />
       <div className="relative z-10 min-h-screen">
-        {/* SECTION 01: 命运引擎 Hero */}
+        {/* SECTION 01: Hero */}
         <CinematicHero />
-        {/* SECTION 02: 能量桥梁 */}
-        <EnergyBridge />
-        {/* SECTION 03: AI 解构命盘 */}
-        <AIDestinyDeconstruction />
-        {/* SECTION 04: 银河航线生成 */}
+        {/* SECTION 02: How It Works — AI cross-validation */}
+        <div id="how-it-works">
+          <AIDestinyDeconstruction />
+        </div>
+        {/* SECTION 03: Life Route — your journey map */}
         <LifeRouteGeneration />
-        {/* SECTION 05: 关键人生节点 */}
+        {/* SECTION 04: Key Life Nodes — deep dive */}
         <KeyLifeNodes />
-        {/* SECTION 06: 未来仍在书写 */}
-        <FutureStillWriting />
-        {/* SECTION 07: 命运藏品阁 */}
-        <DestinyCollectionGallery />
-        {/* SECTION 08: 服务展示 */}
+        {/* SECTION 05: Services */}
         <ServicesShowcase />
-        {/* SECTION 09: 生活方式 */}
+        {/* SECTION 06: Lifestyle */}
         <LifestyleShowcase />
       </div>
     </>

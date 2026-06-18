@@ -34,15 +34,15 @@ export function Navbar() {
   // Core links — always visible (product-oriented nav)
   const coreLinks: Array<{ href: string; label: string; highlight?: boolean }> = [
     { href: localeHref("/"), label: t("nav.home") },
-    { href: localeHref("/am16"), label: t("nav.am16") || "行为测验" },
-    { href: localeHref("/divination"), label: t("nav.divination") || "星际分析" },
+    { href: localeHref("/reading/new"), label: t("nav.reading") || "开始分析" },
     { href: localeHref("/shop"), label: t("treasureHall.hero.title"), highlight: true },
-    { href: localeHref("/reading/new"), label: t("nav.reading") || "分析体验" },
     { href: localeHref("/pricing"), label: t("nav.pricing") },
   ]
 
   // Extra links — visible on wide screens, collapsed on narrow
   const extraLinks = [
+    { href: localeHref("/am16"), label: t("nav.am16") || "行为测验" },
+    { href: localeHref("/divination"), label: t("nav.divination") || "星际分析" },
     { href: localeHref("/blog"), label: t("nav.blog") },
     { href: localeHref("/about"), label: t("nav.about") },
   ]

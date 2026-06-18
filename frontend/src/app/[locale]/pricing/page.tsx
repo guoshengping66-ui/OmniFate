@@ -98,7 +98,7 @@ export default function PricingPage() {
               <p className="text-gold text-xs mt-1 font-mono">khan18553325258</p>
             </div>
           ),
-          { duration: 10000, icon: "💬" }
+          { duration: 10000 }
         )
       }, 1500)
     } catch {
@@ -351,40 +351,6 @@ export default function PricingPage() {
                   defaultOpen={false}
                 />
               ))}
-            </div>
-          </div>
-        </ScrollReveal>
-
-        {/* ══════════ Founder Community Preview ══════════ */}
-        <ScrollReveal delay={0.1}>
-          <div className="mb-10 text-center">
-            <div className="card-glass p-5 max-w-md mx-auto border-gold/15">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <Crown size={14} className="text-gold/60" />
-                <span className="text-gold/60 text-xs tracking-wider uppercase">Founder Community</span>
-              </div>
-              <p className="text-white/40 text-sm mb-3">
-                {t("pricing.founderDesc")}
-              </p>
-              <div className="flex items-center justify-center -space-x-2 mb-3">
-                {[0, 1, 2, 3, 4].map(i => (
-                  <div
-                    key={i}
-                    className="w-7 h-7 rounded-full border-2 border-ink bg-gradient-to-br from-gold/40 to-gold/20"
-                    style={{ zIndex: 5 - i }}
-                  />
-                ))}
-                <div className="w-7 h-7 rounded-full border-2 border-ink bg-white/10 flex items-center justify-center text-[9px] text-white/40 font-bold z-0">
-                  +{Math.max(0, Math.round(founderSoldPercent * 2 / 100) - 5)}
-                </div>
-              </div>
-              <Link
-                href={localeHref("/pricing/founder")}
-                className="inline-flex items-center gap-2 text-gold/60 text-xs hover:text-gold transition-colors"
-              >
-                {t("pricing.learnFounder")}
-                <ArrowRight size={12} />
-              </Link>
             </div>
           </div>
         </ScrollReveal>
