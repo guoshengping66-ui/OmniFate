@@ -236,20 +236,20 @@ function OpportunityZones({ animStep, locale }: { animStep: number; locale: stri
           {/* 窗口标签 */}
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center whitespace-nowrap">
             <div
-              className="text-[10px] sm:text-[11px] font-serif font-bold tracking-[0.08em]"
-              style={{ color: `${zone.color}60` }}
+              className="text-[11px] sm:text-xs font-serif font-bold tracking-[0.08em]"
+              style={{ color: `${zone.color}80` }}
             >
               {locale === "zh" ? zone.labelZh : zone.labelEn}
             </div>
             <div
-              className="text-[8px] sm:text-[9px] tracking-[0.06em] mt-0.5"
-              style={{ color: `${zone.color}35` }}
+              className="text-[9px] sm:text-[10px] tracking-[0.06em] mt-0.5"
+              style={{ color: `${zone.color}50` }}
             >
               {locale === "zh" ? zone.yearRange.zh : zone.yearRange.en}
             </div>
             <div
-              className="text-[7px] sm:text-[8px] mt-0.5"
-              style={{ color: `${zone.color}28` }}
+              className="text-[8px] sm:text-[9px] mt-0.5"
+              style={{ color: `${zone.color}40` }}
             >
               {locale === "zh" ? zone.descZh : zone.descEn}
             </div>
@@ -404,11 +404,11 @@ function DestinyStar({
 
       {/* 星名标签 */}
       <div className="absolute top-full mt-3 left-1/2 -translate-x-1/2 whitespace-nowrap text-center">
-        <div className="text-[11px] sm:text-xs font-serif font-semibold tracking-[0.02em] transition-colors duration-500"
-          style={{ color: isActive ? star.color : `${star.color}70` }}>
+        <div className="text-xs sm:text-sm font-serif font-semibold tracking-[0.02em] transition-colors duration-500"
+          style={{ color: isActive ? star.color : `${star.color}90` }}>
           {locale === "zh" ? star.labelZh : star.labelEn}
         </div>
-        <div className="text-white/15 text-[9px] tracking-[0.08em] mt-0.5">{star.year}</div>
+        <div className="text-white/25 text-[10px] sm:text-[11px] tracking-[0.06em] mt-0.5">{star.year}</div>
       </div>
     </div>
   )
@@ -554,18 +554,18 @@ export default function LifeRouteGeneration() {
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#C5A880]/20 bg-[#C5A880]/[0.05] mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-[#C5A880] animate-pulse" />
             <span className="text-[#C5A880]/70 text-xs tracking-[0.15em] uppercase">
-              {locale === "zh" ? "银河航线" : "Galaxy Route"}
+              {locale === "zh" ? "人生路线图" : "Life Roadmap"}
             </span>
           </div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold tracking-wide mb-5">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#C5A880] via-[#E8D5B7] to-[#C5A880]">
-              {locale === "zh" ? "AI 正在为你绘制人生航线" : "AI Is Drawing Your Life Route"}
+              {locale === "zh" ? "你的人生转折点，全部预测出来了" : "Your Life's Turning Points, All Predicted"}
             </span>
           </h2>
           <p className="text-white/30 text-sm sm:text-base leading-relaxed">
             {locale === "zh"
-              ? "基于你的命盘数据，AI 推演出人生关键转折点与机会窗口，生成专属银河航线"
-              : "Based on your chart data, AI projects turning points and opportunity windows — generating your galaxy route"}
+              ? "基于八字、星盘、塔罗、面相、手相五大系统交叉验证，AI 标出你人生中的关键年份和机会窗口"
+              : "Cross-validated by Bazi, Astrology, Tarot, Face & Palm Reading — AI marks key years and opportunity windows in your life"}
           </p>
         </div>
 
