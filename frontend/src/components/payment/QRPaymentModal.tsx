@@ -500,8 +500,8 @@ export function QRPaymentModal({
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 anim-fade-in">
-      <div className="card-glass p-6 max-w-md w-full relative anim-scale-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 anim-fade-in overflow-y-auto">
+      <div className="card-glass p-6 max-w-md w-full relative anim-scale-in my-8 max-h-[90vh] overflow-y-auto">
         <button onClick={onClose} className="absolute top-4 right-4 text-white/30 hover:text-white/60">
           <X size={20} />
         </button>
