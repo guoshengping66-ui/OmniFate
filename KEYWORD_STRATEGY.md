@@ -374,11 +374,41 @@
 | 268 | bazi lucky colors | Informational | Easy | 2K+ | /blog |
 | 269 | bazi lucky numbers | Informational | Easy | 2K+ | /blog |
 | 270 | bazi lucky directions | Informational | Easy | 1K+ | /blog |
+| 271 | bazi 10 gods explained | Informational | Easy | 1.5K+ | /blog |
+| 272 | bazi wealth star | Informational | Easy | 1K+ | /blog |
+| 273 | bazi career star | Informational | Easy | 1K+ | /blog |
+| 274 | bazi peach blossom | Informational | Easy | 1.5K+ | /blog |
+| 275 | bazi travel horse | Informational | Easy | 1K+ | /blog |
+| 276 | bazi heavenly stem meanings | Informational | Easy | 1.5K+ | /blog |
+| 277 | bazi earthly branch meanings | Informational | Easy | 1.5K+ | /blog |
+| 278 | bazi hidden stems | Informational | Easy | 1K+ | /blog |
+| 279 | bazi clash and combination | Informational | Easy | 1.5K+ | /blog |
+| 280 | bazi punishment relationships | Informational | Easy | 1K+ | /blog |
+| 281 | bazi nobleman star | Informational | Easy | 1K+ | /blog |
+| 282 | bazi academic star | Informational | Easy | 1K+ | /blog |
+| 283 | bazi healthcare star | Informational | Easy | 1K+ | /blog |
+| 284 | bazi evil star | Informational | Easy | 1K+ | /blog |
+| 285 | bazi year pillar meaning | Informational | Easy | 1.5K+ | /blog |
+| 286 | bazi month pillar meaning | Informational | Easy | 1.5K+ | /blog |
+| 287 | bazi day pillar meaning | Informational | Easy | 1.5K+ | /blog |
+| 288 | bazi hour pillar meaning | Informational | Easy | 1.5K+ | /blog |
+| 289 | bazi reading for relationships | Commercial | Easy | 2K+ | /bazi/calculator |
+| 290 | bazi reading for business | Commercial | Easy | 1.5K+ | /bazi/calculator |
+| 291 | bazi reading for investment | Commercial | Easy | 1K+ | /bazi/calculator |
+| 292 | bazi reading for travel | Commercial | Easy | 1K+ | /bazi/calculator |
+| 293 | bazi favorable directions | Informational | Easy | 1.5K+ | /blog |
+| 294 | bazi favorable career | Informational | Easy | 1.5K+ | /blog |
+| 295 | bazi favorable industries | Informational | Easy | 1.5K+ | /blog |
+| 296 | bazi color recommendations | Informational | Easy | 1.5K+ | /blog |
+| 297 | bazi number recommendations | Informational | Easy | 1.5K+ | /blog |
+| 298 | bazi elemental balance | Informational | Easy | 1.5K+ | /blog |
+| 299 | bazi day master personality | Informational | Easy | 2K+ | /blog |
+| 300 | bazi career compatibility | Commercial | Easy | 2K+ | /bazi/compatibility |
 
 ---
 
 # ══════════════════════════════════════════════════════════════
-# PART 3: TAROT (塔罗牌) — 200 Keywords
+# PART 3: TAROT (塔罗牌) — 230 Keywords
 # ══════════════════════════════════════════════════════════════
 
 ## 3.1 Core Tarot Keywords (核心关键词)
@@ -540,11 +570,41 @@
 | 398 | tarot reading for psychic | Commercial | Easy | 1K+ | /tarot/draw |
 | 399 | tarot reading for spiritual | Commercial | Easy | 2K+ | /tarot/draw |
 | 400 | tarot reading for divine | Commercial | Easy | 1K+ | /tarot/draw |
+| 401 | tarot yes or no reading | Transactional | Medium | 8K+ | /tarot/draw |
+| 402 | tarot reading for anxiety | Informational | Easy | 3K+ | /blog |
+| 403 | tarot reading for stress | Informational | Easy | 2K+ | /blog |
+| 404 | tarot reading for healing | Informational | Easy | 2K+ | /blog |
+| 405 | tarot reading for growth | Informational | Easy | 2K+ | /blog |
+| 406 | tarot reading for change | Informational | Easy | 2K+ | /blog |
+| 407 | tarot reading for transition | Informational | Easy | 1.5K+ | /blog |
+| 408 | tarot reading for clarity | Informational | Easy | 2K+ | /blog |
+| 409 | tarot reading for direction | Informational | Easy | 2K+ | /blog |
+| 410 | tarot reading for purpose | Informational | Easy | 1.5K+ | /blog |
+| 411 | tarot reading for destiny | Informational | Easy | 2K+ | /blog |
+| 412 | tarot reading for soulmate | Commercial | Easy | 3K+ | /tarot/draw |
+| 413 | tarot reading for twin flame | Commercial | Easy | 5K+ | /tarot/draw |
+| 414 | tarot reading for new love | Commercial | Easy | 3K+ | /tarot/draw |
+| 415 | tarot reading for breakup | Informational | Easy | 4K+ | /blog |
+| 416 | tarot reading for ex | Informational | Easy | 3K+ | /blog |
+| 417 | tarot reading for reconciliation | Informational | Easy | 2K+ | /blog |
+| 418 | tarot reading for closure | Informational | Easy | 2K+ | /blog |
+| 419 | tarot reading for clarity | Informational | Easy | 2K+ | /blog |
+| 420 | tarot reading for guidance | Informational | Easy | 2K+ | /blog |
+| 421 | tarot reading for protection | Informational | Easy | 1.5K+ | /blog |
+| 422 | tarot reading for intuition | Informational | Easy | 2K+ | /blog |
+| 423 | tarot reading for spiritual | Informational | Easy | 2K+ | /blog |
+| 424 | tarot reading for meditation | Informational | Easy | 1.5K+ | /blog |
+| 425 | tarot reading for manifestation | Informational | Easy | 2K+ | /blog |
+| 426 | tarot reading for abundance | Informational | Easy | 1.5K+ | /blog |
+| 427 | tarot reading for wealth | Informational | Easy | 2K+ | /blog |
+| 428 | tarot reading for career | Informational | Easy | 3K+ | /blog |
+| 429 | tarot reading for business | Informational | Easy | 2K+ | /blog |
+| 430 | tarot reading for travel | Informational | Easy | 1.5K+ | /blog |
 
 ---
 
 # ══════════════════════════════════════════════════════════════
-# PART 4: PALM READING (手相) — 180 Keywords
+# PART 4: PALM READING (手相) — 200 Keywords
 # ══════════════════════════════════════════════════════════════
 
 ## 4.1 Core Palm Reading Keywords (核心关键词)
@@ -661,11 +721,31 @@
 | 478 | palm reading for males vs females | Informational | Easy | 2K+ | /blog |
 | 479 | palm reading accuracy | Informational | Easy | 3K+ | /blog |
 | 480 | how accurate is palm reading | Informational | Easy | 4K+ | /blog |
+| 481 | palm reading for twins | Informational | Easy | 2K+ | /blog |
+| 482 | palm reading for athletes | Informational | Easy | 1.5K+ | /blog |
+| 483 | palm reading for musicians | Informational | Easy | 1.5K+ | /blog |
+| 484 | palm reading for artists | Informational | Easy | 1.5K+ | /blog |
+| 485 | palm reading for writers | Informational | Easy | 1.5K+ | /blog |
+| 486 | palm reading for leaders | Informational | Easy | 1.5K+ | /blog |
+| 487 | palm reading for entrepreneurs | Informational | Easy | 1.5K+ | /blog |
+| 488 | palm reading for healers | Informational | Easy | 1K+ | /blog |
+| 489 | palm reading for teachers | Informational | Easy | 1K+ | /blog |
+| 490 | palm reading for scientists | Informational | Easy | 1K+ | /blog |
+| 491 | palm reading for engineers | Informational | Easy | 1K+ | /blog |
+| 492 | palm reading for doctors | Informational | Easy | 1K+ | /blog |
+| 493 | palm reading for lawyers | Informational | Easy | 1K+ | /blog |
+| 494 | palm reading for politicians | Informational | Easy | 1K+ | /blog |
+| 495 | palm reading for celebrities | Informational | Easy | 2K+ | /blog |
+| 496 | palm reading for athletes | Informational | Easy | 1.5K+ | /blog |
+| 497 | palm reading for gamers | Informational | Easy | 1K+ | /blog |
+| 498 | palm reading for students | Informational | Easy | 2K+ | /blog |
+| 499 | palm reading for parents | Informational | Easy | 1.5K+ | /blog |
+| 500 | palm reading for couples | Informational | Easy | 2K+ | /blog |
 
 ---
 
 # ══════════════════════════════════════════════════════════════
-# PART 5: FACE READING (面相) — 170 Keywords
+# PART 5: FACE READING (面相) — 190 Keywords
 # ══════════════════════════════════════════════════════════════
 
 ## 5.1 Core Face Reading Keywords (核心关键词)
@@ -983,6 +1063,36 @@
 | 698 | birthday number meaning | Informational | Easy | 3K+ | /blog |
 | 699 | numerology compatibility | Commercial | Medium | 5K+ | /destiny/numerology |
 | 700 | name compatibility test | Transactional | Medium | 6K+ | /destiny/name-analysis |
+| 701 | destiny reading for family | Informational | Easy | 2K+ | /blog |
+| 702 | destiny reading for relationships | Informational | Easy | 2K+ | /blog |
+| 703 | destiny reading for career | Informational | Easy | 2K+ | /blog |
+| 704 | destiny reading for wealth | Informational | Easy | 2K+ | /blog |
+| 705 | destiny reading for health | Informational | Easy | 1.5K+ | /blog |
+| 706 | destiny reading for education | Informational | Easy | 1.5K+ | /blog |
+| 707 | destiny reading for travel | Informational | Easy | 1.5K+ | /blog |
+| 708 | destiny reading for love | Informational | Easy | 2K+ | /blog |
+| 709 | destiny reading for marriage | Informational | Easy | 2K+ | /blog |
+| 710 | destiny reading for children | Informational | Easy | 1.5K+ | /blog |
+| 711 | destiny reading for parents | Informational | Easy | 1.5K+ | /blog |
+| 712 | destiny reading for friends | Informational | Easy | 1.5K+ | /blog |
+| 713 | destiny reading for business | Informational | Easy | 1.5K+ | /blog |
+| 714 | destiny reading for investment | Informational | Easy | 1K+ | /blog |
+| 715 | destiny reading for creativity | Informational | Easy | 1K+ | /blog |
+| 716 | destiny reading for intuition | Informational | Easy | 1K+ | /blog |
+| 717 | destiny reading for spirituality | Informational | Easy | 1K+ | /blog |
+| 718 | destiny reading for healing | Informational | Easy | 1K+ | /blog |
+| 719 | destiny reading for protection | Informational | Easy | 1K+ | /blog |
+| 720 | destiny reading for guidance | Informational | Easy | 1K+ | /blog |
+| 721 | destiny reading for clarity | Informational | Easy | 1K+ | /blog |
+| 722 | destiny reading for direction | Informational | Easy | 1K+ | /blog |
+| 723 | destiny reading for purpose | Informational | Easy | 1.5K+ | /blog |
+| 724 | destiny reading for growth | Informational | Easy | 1K+ | /blog |
+| 725 | destiny reading for change | Informational | Easy | 1K+ | /blog |
+| 726 | destiny reading for transition | Informational | Easy | 1K+ | /blog |
+| 727 | destiny reading for transformation | Informational | Easy | 1K+ | /blog |
+| 728 | destiny reading for awakening | Informational | Easy | 1K+ | /blog |
+| 729 | destiny reading for enlightenment | Informational | Easy | 1K+ | /blog |
+| 730 | destiny reading for inner peace | Informational | Easy | 1K+ | /blog |
 
 ---
 
@@ -1168,6 +1278,36 @@
 | 833 | customized fortune analysis | Commercial | Easy | 2K+ | /reading/new |
 | 834 | accurate life path reading | Commercial | Easy | 2K+ | /destiny/life-path |
 | 835 | destiny mirror reading free | Transactional | Easy | 1K+ | /reading/new |
+| 836 | tarot reading for anxiety relief | Informational | Easy | 2K+ | /blog |
+| 837 | tarot reading for stress management | Informational | Easy | 1.5K+ | /blog |
+| 838 | tarot reading for emotional healing | Informational | Easy | 1.5K+ | /blog |
+| 839 | tarot reading for self discovery | Informational | Easy | 2K+ | /blog |
+| 840 | tarot reading for personal growth | Informational | Easy | 1.5K+ | /blog |
+| 841 | tarot reading for life changes | Informational | Easy | 1.5K+ | /blog |
+| 842 | tarot reading for career transition | Informational | Easy | 2K+ | /blog |
+| 843 | tarot reading for relationship advice | Informational | Easy | 2K+ | /blog |
+| 844 | tarot reading for love guidance | Informational | Easy | 2K+ | /blog |
+| 845 | tarot reading for spiritual growth | Informational | Easy | 1.5K+ | /blog |
+| 846 | palm reading for life purpose | Informational | Easy | 2K+ | /blog |
+| 847 | palm reading for career path | Informational | Easy | 2K+ | /blog |
+| 848 | palm reading for love life | Informational | Easy | 2K+ | /blog |
+| 849 | palm reading for health insights | Informational | Easy | 1.5K+ | /blog |
+| 850 | palm reading for wealth potential | Informational | Easy | 1.5K+ | /blog |
+| 851 | face reading for personality traits | Informational | Easy | 3K+ | /blog |
+| 852 | face reading for love compatibility | Informational | Easy | 2K+ | /blog |
+| 853 | face reading for career success | Informational | Easy | 2K+ | /blog |
+| 854 | face reading for health signs | Informational | Easy | 1.5K+ | /blog |
+| 855 | face reading for wealth indicators | Informational | Easy | 1.5K+ | /blog |
+| 856 | bazi reading for life purpose | Informational | Easy | 2K+ | /blog |
+| 857 | bazi reading for career guidance | Informational | Easy | 2K+ | /blog |
+| 858 | bazi reading for love compatibility | Informational | Easy | 2K+ | /blog |
+| 859 | bazi reading for health insights | Informational | Easy | 1.5K+ | /blog |
+| 860 | bazi reading for wealth potential | Informational | Easy | 1.5K+ | /blog |
+| 861 | five elements for personality | Informational | Easy | 3K+ | /blog |
+| 862 | five elements for love | Informational | Easy | 2K+ | /blog |
+| 863 | five elements for career | Informational | Easy | 2K+ | /blog |
+| 864 | five elements for health | Informational | Easy | 1.5K+ | /blog |
+| 865 | five elements for wealth | Informational | Easy | 1.5K+ | /blog |
 
 ---
 
