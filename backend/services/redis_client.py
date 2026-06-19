@@ -8,12 +8,14 @@ with per-process isolation.
 from __future__ import annotations
 
 import asyncio
+import logging
 import time
 from collections import defaultdict
 from typing import Optional
 
 from config import get_settings
 
+logger = logging.getLogger(__name__)
 settings = get_settings()
 
 # ── Redis connection (lazy, shared) ──────────────────────────────────────────
@@ -37,7 +39,7 @@ async def _get_redis():
         return _redis_client
     if not settings.REDIS_URL:
         _redis_available = False
-        print("[REDIS] No REDIS_URL configured — using in-memory fallback")
+        logger.info("No REDIS_URL configured — using in-memory fallback")
         return None
     try:
         import redis.asyncio as aioredis
@@ -50,12 +52,12 @@ async def _get_redis():
         # Quick connectivity check
         await asyncio.wait_for(_redis_client.ping(), timeout=3)
         _redis_available = True
-        print(f"[REDIS] Connected to {settings.REDIS_URL.split('@')[-1]}")
+        logger.info("Connected to %s", settings.REDIS_URL.split('@')[-1])
         return _redis_client
     except Exception as e:
         _redis_available = False
         _redis_client = None
-        print(f"[REDIS] Connection failed: {e} — using in-memory fallback")
+        logger.warning("Redis connection failed: %s — using in-memory fallback", e)
         return None
 
 

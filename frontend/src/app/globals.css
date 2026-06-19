@@ -392,8 +392,8 @@ select.input-field option:checked {
   50% { transform: translate(20px, -30px) scale(1.2); }
 }
 @keyframes symbolFloat {
-  0%, 100% { transform: translateY(0); opacity: 0.03; }
-  50% { transform: translateY(-15px); opacity: 0.08; }
+  0%, 100% { transform: translateY(0); opacity: 0.15; }
+  50% { transform: translateY(-15px); opacity: 0.35; }
 }
 
 /* Star field constellation */

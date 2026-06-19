@@ -2,8 +2,11 @@
 import sys
 import os
 import json
+import logging
 import re
 import traceback
+
+logger = logging.getLogger(__name__)
 # Ensure backend/ is on sys.path so absolute imports work when uvicorn
 # is launched from a parent directory (e.g. `uvicorn backend.main:app`).
 # Can be removed once the project uses a proper package structure (pyproject.toml).
@@ -32,7 +35,7 @@ async def lifespan(app: FastAPI):
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
     except Exception as e:
-        print(f"[WARN] 数据库初始化失败: {e}")
+        logger.warning("Database init failed: %s", e)
 
     # Pre-download Skyfield ephemeris to /tmp so analysis doesn't block on first request
     import os
@@ -42,9 +45,9 @@ async def lifespan(app: FastAPI):
     try:
         from skyfield.api import load as sky_load
         sky_load("de421.bsp")
-        print(f"[OK] Skyfield ephemeris ready at {skyfield_dir}")
+        logger.info("Skyfield ephemeris ready at %s", skyfield_dir)
     except Exception as e:
-        print(f"[WARN] Skyfield ephemeris preload failed: {e}")
+        logger.warning("Skyfield ephemeris preload failed: %s", e)
 
     yield
 
@@ -124,7 +127,7 @@ async def csrf_protection(request: Request, call_next):
 async def global_exception_handler(request: Request, exc: Exception):
     """Log all unhandled exceptions to help debug Vercel 500 errors."""
     tb = traceback.format_exception(type(exc), exc, exc.__traceback__)
-    print(f"[ERROR] {request.method} {request.url.path}: {''.join(tb)}")
+    logger.error("%s %s: %s", request.method, request.url.path, ''.join(tb))
     # Never expose internal error details to clients — use a generic message
     lang = _get_lang_from_request(request)
     detail = "Internal server error. Please try again later." if lang == "en" else "服务器内部错误，请稍后重试"

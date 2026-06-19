@@ -7,6 +7,7 @@ import { SEOFaq } from "@/components/ui/SEOFaq"
 import { RelatedServices } from "@/components/ui/RelatedServices"
 import { useMemo } from "react"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { safeJsonLd } from "@/utils/safeJsonLd"
 
 export default function AstrologySEOPage() {
   const { t, localeHref, locale } = useLanguage()
@@ -39,7 +40,7 @@ export default function AstrologySEOPage() {
 
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          dangerouslySetInnerHTML={{ __html: safeJsonLd({
             "@context": "https://schema.org",
             "@type": "WebApplication",
             "name": t("seo.astrology.title"),

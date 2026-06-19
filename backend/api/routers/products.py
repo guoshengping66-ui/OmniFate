@@ -6,9 +6,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 from pydantic import BaseModel, Field
-import sys
-import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from fastapi import APIRouter, Query, HTTPException, Depends
 from sqlalchemy import select

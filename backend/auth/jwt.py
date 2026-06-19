@@ -4,6 +4,7 @@ Uses python-jose for token creation/verification and bcrypt for password hashing
 
 Token blacklist: Redis-backed when REDIS_URL is configured, otherwise in-memory.
 """
+import logging
 import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Optional
@@ -12,12 +13,13 @@ import bcrypt
 
 from config import get_settings
 
+logger = logging.getLogger(__name__)
 settings = get_settings()
 
 ALGORITHM = "HS256"
 
 if not settings.REDIS_URL:
-    print("[JWT] ⚠️ REDIS_URL 未设置，token 黑名单将使用内存存储（重启后丢失）。")
+    logger.warning("REDIS_URL not set — token blacklist uses in-memory storage (lost on restart).")
 
 # ── Token blacklist (auto-selects Redis or in-memory) ────────────────────────
 

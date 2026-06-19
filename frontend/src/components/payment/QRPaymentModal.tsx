@@ -141,32 +141,23 @@ export function QRPaymentModal({
     }
   }, [preOrderNo, shopOrderNo, status, method])
 
-  // Auto-create PayPal order when credit_card is pre-selected for shop orders
+  // Auto-create PayPal order for shop orders (credit_card or paypal_embedded)
   useEffect(() => {
-    if (status === "loading" && method === "credit_card" && isShopPayment && shopOrderNo) {
-      apiDirect.post(`/api/payments/paypal/create-shop-order?order_no=${shopOrderNo}`)
-        .then(res => {
-          setPaypalOrderId(res.data.paypal_order_id)
-          setStatus("card_embedded")
-        })
-        .catch(err => {
-          setError(err?.response?.data?.detail || t("payment.createOrderFailed"))
-          setStatus("failed")
-        })
-    }
-  }, [status, method, isShopPayment, shopOrderNo])
+    if (!isShopPayment || !shopOrderNo) return
+    const needCardOrder = status === "loading" && method === "credit_card"
+    const needWalletOrder = status === "paypal_embedded" && !paypalOrderId
+    if (!needCardOrder && !needWalletOrder) return
 
-  // Auto-create PayPal order when paypal_embedded for shop orders (no paypalOrderId yet)
-  useEffect(() => {
-    if (status === "paypal_embedded" && isShopPayment && shopOrderNo && !paypalOrderId) {
-      apiDirect.post(`/api/payments/paypal/create-shop-order?order_no=${shopOrderNo}`)
-        .then(res => setPaypalOrderId(res.data.paypal_order_id))
-        .catch(err => {
-          setError(err?.response?.data?.detail || t("payment.createOrderFailed"))
-          setStatus("failed")
-        })
-    }
-  }, [status, isShopPayment, shopOrderNo, paypalOrderId])
+    apiDirect.post(`/api/payments/paypal/create-shop-order?order_no=${shopOrderNo}`)
+      .then(res => {
+        setPaypalOrderId(res.data.paypal_order_id)
+        if (needCardOrder) setStatus("card_embedded")
+      })
+      .catch(err => {
+        setError(err?.response?.data?.detail || t("payment.createOrderFailed"))
+        setStatus("failed")
+      })
+  }, [status, method, isShopPayment, shopOrderNo, paypalOrderId])
 
   // Handle user switching payment method within the modal
   const prevMethodRef = useRef(method)
@@ -179,33 +170,11 @@ export function QRPaymentModal({
     if (method === "paypal" || method === "credit_card") {
       setStatus("loading")
     } else if (method === "alipay" || method === "wechat") {
-      // Switch to QR code display for alipay/wechat
       if (isShopPayment) {
         setStatus("showing_qr")
       }
     }
   }, [method])
-
-  // Preload PayPal config + SDK script as soon as modal opens for overseas users
-  useEffect(() => {
-    if (!open) return
-    if (!isOverseas && method !== "credit_card") return
-
-    // Pre-fetch config (cached after first call)
-    getPayPalConfig().then(cfg => {
-      if (cfg?.client_id) {
-        // Preload the PayPal SDK script so it's ready when PayPalPayment mounts
-        const sdkUrl = `https://www.paypal.com/sdk/js?client-id=${cfg.client_id}&currency=USD&intent=capture&components=buttons,card-fields`
-        const existing = document.querySelector(`script[src*="paypal.com/sdk/js"]`)
-        if (!existing) {
-          const script = document.createElement("script")
-          script.src = sdkUrl
-          script.async = true
-          document.head.appendChild(script)
-        }
-      }
-    }).catch(() => {})
-  }, [open, isOverseas, method])
 
   // When modal opens with shop order, force correct status based on method
   useEffect(() => {
@@ -217,6 +186,26 @@ export function QRPaymentModal({
       }
     }
   }, [open, isShopPayment, shopOrderNo, method])
+
+  // Preload PayPal config + SDK script as soon as modal opens for overseas users
+  useEffect(() => {
+    if (!open) return
+    if (!isOverseas && method !== "credit_card") return
+
+    // Pre-fetch config (cached after first call)
+    getPayPalConfig().then(cfg => {
+      if (cfg?.client_id) {
+        const sdkUrl = `https://www.paypal.com/sdk/js?client-id=${cfg.client_id}&currency=USD&intent=capture&components=buttons,card-fields`
+        const existing = document.querySelector(`script[src*="paypal.com/sdk/js"]`)
+        if (!existing) {
+          const script = document.createElement("script")
+          script.src = sdkUrl
+          script.async = true
+          document.head.appendChild(script)
+        }
+      }
+    }).catch(() => {})
+  }, [open, isOverseas, method])
 
   const createOrder = async () => {
     setStatus("loading")

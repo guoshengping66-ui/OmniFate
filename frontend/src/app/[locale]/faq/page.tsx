@@ -72,7 +72,7 @@ export default function FAQPage() {
       <div className="max-w-3xl mx-auto">
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: safeJsonLd(faqJsonLd) }}
         />
         <Breadcrumbs items={[{ label: t("faq.breadcrumb") }]} currentPath={`/${locale}/faq`} />
 

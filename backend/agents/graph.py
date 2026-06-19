@@ -13,6 +13,9 @@ Optimizations applied:
 """
 from __future__ import annotations
 import asyncio
+import logging
+
+logger = logging.getLogger(__name__)
 import uuid
 from typing import Any
 
@@ -805,7 +808,7 @@ async def run_full_analysis(state: SystemState) -> SystemState:
 
         # If bazi data is still missing, wait a bit more
         if not state.bazi_raw and not (state.bazi_output and state.bazi_output.report):
-            print("[SPECULATIVE] Warning: bazi data not available, waiting 10s more...")
+            logger.warning("Bazi data not available, waiting 10s more...")
             try:
                 await asyncio.wait_for(worker_events.get("bazi", asyncio.Event()).wait(), timeout=10)
             except (asyncio.TimeoutError, KeyError):
@@ -838,11 +841,11 @@ async def run_full_analysis(state: SystemState) -> SystemState:
                     state.synastry_aspects = synastry.get("aspects", [])
                     composite = _astro_calc.calculate_composite(astro_self, astro_partner)
                     state.composite_chart = composite
-                    print(f"[SYNASTRY] {len(state.synastry_aspects)} cross-aspects computed")
-                    print(f"[COMPOSITE] ASC={composite.get('ascendant', {}).get('sign_cn', '?')}")
+                    logger.info("Synastry: %d cross-aspects computed", len(state.synastry_aspects))
+                    logger.info("Composite ASC=%s", composite.get('ascendant', {}).get('sign_cn', '?'))
                 except Exception as e:
                     state.errors.append(f"synastry_error: {e}")
-                    print(f"[SYNASTRY] Error: {e}")
+                    logger.error("Synastry error: %s", e)
 
             if state.bazi_raw and state.partner_bazi_raw:
                 try:
@@ -854,11 +857,11 @@ async def run_full_analysis(state: SystemState) -> SystemState:
                         )
                     )
                     state.bazi_compatibility = bazi_compat
-                    print(f"[BAZI_COMPAT] Score: {bazi_compat.get('score', 0)}/100")
+                    logger.info("Bazi compat score: %d/100", bazi_compat.get('score', 0))
                 except Exception as e:
                     state.errors.append(f"bazi_compat_error: {e}")
                     state.bazi_compatibility = {}
-                    print(f"[BAZI_COMPAT] Error: {e}")
+                    logger.error("Bazi compat error: %s", e)
         finally:
             # Always clean up global state to prevent memory leak
             _astro_results.pop(state.session_id, None)

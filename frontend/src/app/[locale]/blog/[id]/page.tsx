@@ -257,7 +257,7 @@ export default function BlogArticlePage() {
     <div className="min-h-screen pt-24 pb-20 px-4" ref={contentRef}>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(articleJsonLd) }}
       />
       {/* 阅读进度条 */}
       <div className="fixed top-0 left-0 right-0 z-50 h-0.5 bg-white/[0.05]">

@@ -2,8 +2,11 @@
 Contact form & newsletter endpoints — sends user messages to support email.
 """
 import html
+import logging
 import time
 from collections import defaultdict
+
+logger = logging.getLogger(__name__)
 
 from fastapi import APIRouter, Request
 from pydantic import BaseModel, EmailStr
@@ -90,7 +93,7 @@ async def submit_contact(req: ContactRequest, request: Request):
 
     if not ok:
         # Still return success to user — don't expose email failures
-        print(f"[CONTACT] Email send failed, message from {req.email}: {req.message[:100]}")
+        logger.warning("Contact email send failed, message from %s: %s", req.email, req.message[:100])
 
     return {"success": True, "message": "留言已发送，我们会尽快回复您"}
 
@@ -119,7 +122,7 @@ async def subscribe_newsletter(req: NewsletterRequest, request: Request):
 
     # Add to subscribers
     _newsletter_subscribers.add(email)
-    print(f"[NEWSLETTER] New subscriber: {email} (total: {len(_newsletter_subscribers)})")
+    logger.info("Newsletter new subscriber: %s (total: %d)", email, len(_newsletter_subscribers))
 
     # Send notification to admin
     email_html = f"""

@@ -664,7 +664,7 @@ async def wechat_notify(request: Request, db: AsyncSession = Depends(get_db)):
     order_result = await db.execute(select(Order).where(Order.order_no == order_no).with_for_update())
     order = order_result.scalar_one_or_none()
     if not order:
-        print(f"[PAYMENT] CRITICAL: Order not found for notification! out_trade_no={order_no}")
+        logger.critical("Order not found for notification! out_trade_no=%s", order_no)
         # Still return success to prevent retries that will never succeed
         return "<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>"
     if order:
@@ -879,7 +879,7 @@ async def alipay_notify(request: Request, db: AsyncSession = Depends(get_db)):
     order_result = await db.execute(select(Order).where(Order.order_no == order_no).with_for_update())
     order = order_result.scalar_one_or_none()
     if not order:
-        print(f"[PAYMENT] CRITICAL: Order not found for notification! out_trade_no={order_no}")
+        logger.critical("Order not found for notification! out_trade_no=%s", order_no)
         # Still return success to prevent retries that will never succeed
         return "success"
     if order:
@@ -2600,8 +2600,8 @@ async def confirm_shop_qr_payment(
     # Send confirmation email to admin
     admin_emails_str = settings.ADMIN_EMAILS
     logger.info(f"[QR-ADMIN] Order {order_no}: admin_confirm_token generated, ADMIN_EMAILS={'configured' if admin_emails_str else 'NOT configured'}")
-    logger.info(f"[QR-ADMIN] Confirm URL: https://api.khanfate.com/api/payments/admin-confirm-email?token={admin_token}")
-    logger.info(f"[QR-ADMIN] Reject URL: https://api.khanfate.com/api/payments/admin-reject-email?token={admin_token}")
+    logger.info(f"[QR-ADMIN] Confirm URL: {settings.BASE_URL}/api/payments/admin-confirm-email?token={admin_token}")
+    logger.info(f"[QR-ADMIN] Reject URL: {settings.BASE_URL}/api/payments/admin-reject-email?token={admin_token}")
     if admin_emails_str:
         import asyncio
         from utils.email import send_admin_payment_confirm_email as _send_admin
@@ -2627,7 +2627,7 @@ async def confirm_shop_qr_payment(
             except Exception as e:
                 logger.warning(f"[EMAIL] Failed to send admin confirm email to {admin_email}: {e}")
     else:
-        logger.warning(f"[QR-ADMIN] ADMIN_EMAILS not configured! Cannot send email. Admin confirm URL: https://api.khanfate.com/api/payments/admin-confirm-email?token={admin_token}")
+        logger.warning(f"[QR-ADMIN] ADMIN_EMAILS not configured! Cannot send email. Admin confirm URL: {settings.BASE_URL}/api/payments/admin-confirm-email?token={admin_token}")
 
     return {
         "success": True,

@@ -52,7 +52,7 @@ export function Breadcrumbs({ items, currentPath }: BreadcrumbsProps) {
       {jsonLd && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }}
         />
       )}
       <nav className="flex items-center gap-1.5 text-xs text-white/30 mb-6 overflow-x-auto scrollbar-none">

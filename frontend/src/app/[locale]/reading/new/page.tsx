@@ -1,5 +1,5 @@
 "use client"
-import { useState, useRef, useEffect, useMemo, Suspense, lazy } from "react"
+import { useState, useRef, useEffect, useMemo, useCallback, Suspense, lazy } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -24,6 +24,82 @@ const LocationSelector = lazy(() => import("@/components/reading/LocationSelecto
 const DateSelector = lazy(() => import("@/components/reading/DateSelector").then(m => ({ default: m.DateSelector })))
 const HotQuestions = lazy(() => import("@/components/reading/HotQuestions").then(m => ({ default: m.HotQuestions })))
 const FortuneGuide = lazy(() => import("@/components/reading/FortuneGuide").then(m => ({ default: m.FortuneGuide })))
+
+// ── Scan state hook (face / palm / partner face / partner palm) ──
+interface ScanState {
+  file: File | null
+  preview: string | null
+  isScanning: boolean
+  scanDone: boolean
+  text: string
+  v2TError: boolean
+  features: Record<string, string> | null
+}
+
+function useScanState(
+  analyzeFn: (file: File) => Promise<{ face_text?: string; palm_text?: string; features: Record<string, string> }>,
+  doneToast: string,
+  errorToast: string,
+) {
+  const [state, setState] = useState<ScanState>({
+    file: null, preview: null, isScanning: false, scanDone: false,
+    text: "", v2TError: false, features: null,
+  })
+  const fileRef = useRef<File | null>(null)
+  const previewRef = useRef<string | null>(null)
+
+  // Cleanup blob URLs on unmount
+  useEffect(() => {
+    return () => {
+      if (previewRef.current) URL.revokeObjectURL(previewRef.current)
+    }
+  }, [])
+
+  const pick = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0]
+    if (!f) return
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/heic']
+    if (!allowedTypes.includes(f.type)) {
+      toast.error(t('reading.invalidImageType') || 'Please upload a JPG, PNG, or WebP image')
+      return
+    }
+    if (f.size > 10 * 1024 * 1024) {
+      toast.error(t('reading.imageTooLarge') || 'Image must be under 10MB')
+      return
+    }
+    if (previewRef.current) URL.revokeObjectURL(previewRef.current)
+    const url = URL.createObjectURL(f)
+    previewRef.current = url
+    fileRef.current = f
+    setState({ file: f, preview: url, isScanning: true, scanDone: false, text: "", v2TError: false, features: null })
+  }, [])
+
+  const scanComplete = useCallback(async () => {
+    setState(s => ({ ...s, scanDone: true, isScanning: false }))
+    const f = fileRef.current
+    if (f) {
+      try {
+        const compressed = await compressImage(f)
+        const res = await analyzeFn(compressed)
+        const txt = (res as any).face_text || (res as any).palm_text || ""
+        setState(s => ({ ...s, text: txt, features: res.features || null }))
+        toast.success(doneToast)
+      } catch {
+        setState(s => ({ ...s, v2TError: true }))
+        toast.error(errorToast)
+      }
+    }
+  }, [analyzeFn, doneToast, errorToast])
+
+  const reset = useCallback(() => {
+    if (previewRef.current) URL.revokeObjectURL(previewRef.current)
+    previewRef.current = null
+    fileRef.current = null
+    setState({ file: null, preview: null, isScanning: false, scanDone: false, text: "", v2TError: false, features: null })
+  }, [])
+
+  return { ...state, pick, scanComplete, reset }
+}
 
 const STORAGE_KEY = "profile_reading_progress"
 
@@ -145,38 +221,11 @@ export default function NewReadingPage() {
 
   const [step, setStep]           = useState(0)
   const [loading, setLoading]     = useState(false)
-  // Face state
-  const [faceFile, setFaceFile]   = useState<File | null>(null)
-  const [facePreview, setFacePreview] = useState<string | null>(null)
-  const [isFaceScanning, setIsFaceScanning] = useState(false)
-  const [faceScanDone, setFaceScanDone] = useState(false)
-  const [faceText, setFaceText]   = useState<string>("")
-  const [faceV2TError, setFaceV2TError] = useState(false)
-  const [faceFeatures, setFaceFeatures] = useState<Record<string, string> | null>(null)
-  // Palm state
-  const [palmFile, setPalmFile]   = useState<File | null>(null)
-  const [palmPreview, setPalmPreview] = useState<string | null>(null)
-  const [isPalmScanning, setIsPalmScanning] = useState(false)
-  const [palmScanDone, setPalmScanDone] = useState(false)
-  const [palmText, setPalmText]   = useState<string>("")
-  const [palmV2TError, setPalmV2TError] = useState(false)
-  const [palmFeatures, setPalmFeatures] = useState<Record<string, string> | null>(null)
-  // Partner face state
-  const [partnerFaceFile, setPartnerFaceFile] = useState<File | null>(null)
-  const [partnerFacePreview, setPartnerFacePreview] = useState<string | null>(null)
-  const [partnerIsFaceScanning, setPartnerIsFaceScanning] = useState(false)
-  const [partnerFaceScanDone, setPartnerFaceScanDone] = useState(false)
-  const [partnerFaceText, setPartnerFaceText] = useState<string>("")
-  const [partnerFaceV2TError, setPartnerFaceV2TError] = useState(false)
-  const [partnerFaceFeatures, setPartnerFaceFeatures] = useState<Record<string, string> | null>(null)
-  // Partner palm state
-  const [partnerPalmFile, setPartnerPalmFile] = useState<File | null>(null)
-  const [partnerPalmPreview, setPartnerPalmPreview] = useState<string | null>(null)
-  const [partnerIsPalmScanning, setPartnerIsPalmScanning] = useState(false)
-  const [partnerPalmScanDone, setPartnerPalmScanDone] = useState(false)
-  const [partnerPalmText, setPartnerPalmText] = useState<string>("")
-  const [partnerPalmV2TError, setPartnerPalmV2TError] = useState(false)
-  const [partnerPalmFeatures, setPartnerPalmFeatures] = useState<Record<string, string> | null>(null)
+  // Scan states (face / palm / partner face / partner palm)
+  const faceScan = useScanState(analyzeFaceImage, t("new.faceDoneToast"), t("new.faceErrorToast"))
+  const palmScan = useScanState(analyzePalmImage, t("new.palmDoneToast"), t("new.palmErrorToast"))
+  const partnerFaceScan = useScanState(analyzeFaceImage, t("new.partnerFaceDoneToast"), t("new.partnerFaceErrorToast"))
+  const partnerPalmScan = useScanState(analyzePalmImage, t("new.partnerPalmDoneToast"), t("new.partnerPalmErrorToast"))
   // Other state
   const [tarotCards, setTarotCards]   = useState<{ position: string; card: string; reversed: boolean }[]>([])
   const [palmData, setPalmData]       = useState<Record<string, string>>({})
@@ -192,16 +241,9 @@ export default function NewReadingPage() {
   const isFirstRenderRef = useRef(true)
   const prefilledFromProfile = useRef(false)
 
-  // Revoke blob URLs on unmount to prevent memory leak
+  // Reset wizard store when leaving
   useEffect(() => {
-    return () => {
-      if (facePreview) URL.revokeObjectURL(facePreview)
-      if (palmPreview) URL.revokeObjectURL(palmPreview)
-      if (partnerFacePreview) URL.revokeObjectURL(partnerFacePreview)
-      if (partnerPalmPreview) URL.revokeObjectURL(partnerPalmPreview)
-      // Reset wizard store when leaving
-      resetWizard()
-    }
+    return () => { resetWizard() }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<FormValues>({
@@ -363,188 +405,27 @@ export default function NewReadingPage() {
 
   // ── Face guide timing ──────────────────────────────────────
   useEffect(() => {
-    if (facePreview && !faceScanDone) {
+    if (faceScan.preview && !faceScan.scanDone) {
       setShowFaceGuide(true)
       const timeout = setTimeout(() => setShowFaceGuide(false), 3000)
       return () => clearTimeout(timeout)
     }
-  }, [facePreview, faceScanDone])
+  }, [faceScan.preview, faceScan.scanDone])
 
   useEffect(() => {
-    if (palmPreview && !palmScanDone) {
+    if (palmScan.preview && !palmScan.scanDone) {
       setShowPalmGuide(true)
       const timeout = setTimeout(() => setShowPalmGuide(false), 3000)
       return () => clearTimeout(timeout)
     }
-  }, [palmPreview, palmScanDone])
-
-  const handleFacePick = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0]
-    if (!f) return
-    // Validate file type and size
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/heic']
-    if (!allowedTypes.includes(f.type)) {
-      toast.error(t('reading.invalidImageType') || 'Please upload a JPG, PNG, or WebP image')
-      return
-    }
-    if (f.size > 10 * 1024 * 1024) { // 10MB limit
-      toast.error(t('reading.imageTooLarge') || 'Image must be under 10MB')
-      return
-    }
-    if (facePreview) URL.revokeObjectURL(facePreview)
-    setFaceFile(f)
-    const url = URL.createObjectURL(f)
-    setFacePreview(url)
-    setIsFaceScanning(true)
-    setFaceScanDone(false)
-    setFaceV2TError(false)
-    setFaceFeatures(null)
-  }
-
-  const handleFaceScanComplete = async () => {
-    setFaceScanDone(true)
-    setIsFaceScanning(false)
-    if (faceFile) {
-      try {
-        const compressed = await compressImage(faceFile)
-        const res = await analyzeFaceImage(compressed)
-        setFaceText(res.face_text)
-        setFaceFeatures(res.features)
-        toast.success(t("new.faceDoneToast"))
-      } catch {
-        setFaceV2TError(true)
-        toast.error(t("new.faceErrorToast"))
-      }
-    }
-  }
-
-  const handlePalmPick = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0]
-    if (!f) return
-    // Validate file type and size
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/heic']
-    if (!allowedTypes.includes(f.type)) {
-      toast.error(t('reading.invalidImageType') || 'Please upload a JPG, PNG, or WebP image')
-      return
-    }
-    if (f.size > 10 * 1024 * 1024) { // 10MB limit
-      toast.error(t('reading.imageTooLarge') || 'Image must be under 10MB')
-      return
-    }
-    if (palmPreview) URL.revokeObjectURL(palmPreview)
-    setPalmFile(f)
-    const url = URL.createObjectURL(f)
-    setPalmPreview(url)
-    setIsPalmScanning(true)
-    setPalmScanDone(false)
-    setPalmV2TError(false)
-    setPalmFeatures(null)
-  }
-
-  const handlePalmScanComplete = async () => {
-    setPalmScanDone(true)
-    setIsPalmScanning(false)
-    if (palmFile) {
-      try {
-        const compressed = await compressImage(palmFile)
-        const res = await analyzePalmImage(compressed)
-        setPalmText(res.palm_text)
-        setPalmFeatures(res.features)
-        toast.success(t("new.palmDoneToast"))
-      } catch {
-        setPalmV2TError(true)
-        toast.error(t("new.palmErrorToast"))
-      }
-    }
-  }
-
-  // ── Partner face/palm handlers ──────────────────────────────
-  const handlePartnerFacePick = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0]
-    if (!f) return
-    // Validate file type and size
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/heic']
-    if (!allowedTypes.includes(f.type)) {
-      toast.error(t('reading.invalidImageType') || 'Please upload a JPG, PNG, or WebP image')
-      return
-    }
-    if (f.size > 10 * 1024 * 1024) {
-      toast.error(t('reading.imageTooLarge') || 'Image must be under 10MB')
-      return
-    }
-    if (partnerFacePreview) URL.revokeObjectURL(partnerFacePreview)
-    setPartnerFaceFile(f)
-    const url = URL.createObjectURL(f)
-    setPartnerFacePreview(url)
-    setPartnerIsFaceScanning(true)
-    setPartnerFaceScanDone(false)
-    setPartnerFaceV2TError(false)
-    setPartnerFaceFeatures(null)
-  }
-
-  const handlePartnerFaceScanComplete = async () => {
-    setPartnerFaceScanDone(true)
-    setPartnerIsFaceScanning(false)
-    if (partnerFaceFile) {
-      try {
-        const compressed = await compressImage(partnerFaceFile)
-        const res = await analyzeFaceImage(compressed)
-        setPartnerFaceText(res.face_text)
-        setPartnerFaceFeatures(res.features)
-        toast.success(t("new.partnerFaceDoneToast"))
-      } catch {
-        setPartnerFaceV2TError(true)
-        toast.error(t("new.partnerFaceErrorToast"))
-      }
-    }
-  }
-
-  const handlePartnerPalmPick = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0]
-    if (!f) return
-    // Validate file type and size
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/heic']
-    if (!allowedTypes.includes(f.type)) {
-      toast.error(t('reading.invalidImageType') || 'Please upload a JPG, PNG, or WebP image')
-      return
-    }
-    if (f.size > 10 * 1024 * 1024) {
-      toast.error(t('reading.imageTooLarge') || 'Image must be under 10MB')
-      return
-    }
-    if (partnerPalmPreview) URL.revokeObjectURL(partnerPalmPreview)
-    setPartnerPalmFile(f)
-    const url = URL.createObjectURL(f)
-    setPartnerPalmPreview(url)
-    setPartnerIsPalmScanning(true)
-    setPartnerPalmScanDone(false)
-    setPartnerPalmV2TError(false)
-    setPartnerPalmFeatures(null)
-  }
-
-  const handlePartnerPalmScanComplete = async () => {
-    setPartnerPalmScanDone(true)
-    setPartnerIsPalmScanning(false)
-    if (partnerPalmFile) {
-      try {
-        const compressed = await compressImage(partnerPalmFile)
-        const res = await analyzePalmImage(compressed)
-        setPartnerPalmText(res.palm_text)
-        setPartnerPalmFeatures(res.features)
-        toast.success(t("new.partnerPalmDoneToast"))
-      } catch {
-        setPartnerPalmV2TError(true)
-        toast.error(t("new.partnerPalmErrorToast"))
-      }
-    }
-  }
+  }, [palmScan.preview, palmScan.scanDone])
 
   const onSubmit = async (values: FormValues) => {
     setLoading(true)
     try {
-      const finalFaceText = faceText
+      const finalFaceText = faceScan.text
 
-      const finalPalmText = palmText
+      const finalPalmText = palmScan.text
 
       const lat = typeof values.latitude === "number" ? values.latitude : undefined
       const lng = typeof values.longitude === "number" ? values.longitude : undefined
@@ -570,8 +451,8 @@ export default function NewReadingPage() {
         partner_birth_city: values.partner_birth_city || "",
         partner_latitude: typeof values.partner_latitude === "number" ? values.partner_latitude : undefined,
         partner_longitude: typeof values.partner_longitude === "number" ? values.partner_longitude : undefined,
-        partner_face_raw_text: partnerFaceText || undefined,
-        partner_palm_raw_text: partnerPalmText || undefined,
+        partner_face_raw_text: partnerFaceScan.text || undefined,
+        partner_palm_raw_text: partnerPalmScan.text || undefined,
         relationship_type: values.relationship_type || "",
       }
 
@@ -917,25 +798,25 @@ export default function NewReadingPage() {
                   </div>
                   <p className="text-white/40 text-xs mb-4">{t("new.partnerFaceDesc")}</p>
 
-                  {partnerIsFaceScanning && partnerFacePreview ? (
+                  {partnerFaceScan.isScanning && partnerFaceScan.preview ? (
                     <FaceScanAnimation
-                      imageUrl={partnerFacePreview}
+                      imageUrl={partnerFaceScan.preview}
                       isScanning={true}
-                      onComplete={handlePartnerFaceScanComplete}
+                      onComplete={partnerFaceScan.scanComplete}
                     />
                   ) : (
                     <div onClick={() => partnerFaceRef.current?.click()}
                       className="border-2 border-dashed border-white/20 hover:border-gold/40 rounded-2xl p-6 md:p-8 text-center cursor-pointer transition-all group">
-                      {partnerFacePreview ? (
+                      {partnerFaceScan.preview ? (
                         <div className="relative inline-block">
-                          <img src={partnerFacePreview} alt="partner face preview"
+                          <img src={partnerFaceScan.preview} alt="partner face preview"
                             className="w-28 h-28 md:w-32 md:h-32 object-cover rounded-full mx-auto border-2 border-gold/40" />
-                          {partnerFaceText && (
+                          {partnerFaceScan.text && (
                             <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1">
                               <CheckCircle size={14} className="text-white" />
                             </div>
                           )}
-                          {partnerFaceV2TError && (
+                          {partnerFaceScan.v2TError && (
                             <div className="mt-2 space-y-1">
                               <p className="text-amber-400 text-xs">{t("new.faceScanFail")}</p>
                               <p className="text-white/30 text-[10px]">{t("new.clickToRetry")}</p>
@@ -951,9 +832,9 @@ export default function NewReadingPage() {
                       )}
                     </div>
                   )}
-                  <input ref={partnerFaceRef} type="file" accept="image/*" className="sr-only" onChange={handlePartnerFacePick} />
+                  <input ref={partnerFaceRef} type="file" accept="image/*" className="sr-only" onChange={partnerFaceScan.pick} />
 
-                  {partnerFaceFeatures && !partnerIsFaceScanning && (
+                  {partnerFaceScan.features && !partnerFaceScan.isScanning && (
                     <div className="mt-4 flex items-center gap-2 text-green-400/80 text-xs">
                       <CheckCircle size={14} />
                       <span>{t("new.faceScanComplete")}</span>
@@ -970,25 +851,25 @@ export default function NewReadingPage() {
                   </div>
                   <p className="text-white/40 text-xs mb-4">{t("new.partnerPalmDesc")}</p>
 
-                  {partnerIsPalmScanning && partnerPalmPreview ? (
+                  {partnerPalmScan.isScanning && partnerPalmScan.preview ? (
                     <FaceScanAnimation
-                      imageUrl={partnerPalmPreview}
+                      imageUrl={partnerPalmScan.preview}
                       isScanning={true}
-                      onComplete={handlePartnerPalmScanComplete}
+                      onComplete={partnerPalmScan.scanComplete}
                     />
                   ) : (
                     <div onClick={() => partnerPalmRef.current?.click()}
                       className="border-2 border-dashed border-white/20 hover:border-gold/40 rounded-2xl p-6 md:p-8 text-center cursor-pointer transition-all group">
-                      {partnerPalmPreview ? (
+                      {partnerPalmScan.preview ? (
                         <div className="relative inline-block">
-                          <img src={partnerPalmPreview} alt="partner palm preview"
+                          <img src={partnerPalmScan.preview} alt="partner palm preview"
                             className="w-32 h-32 md:w-36 md:h-36 object-contain rounded-xl mx-auto border-2 border-gold/40" />
-                          {partnerPalmText && (
+                          {partnerPalmScan.text && (
                             <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1">
                               <CheckCircle size={14} className="text-white" />
                             </div>
                           )}
-                          {partnerPalmV2TError && (
+                          {partnerPalmScan.v2TError && (
                             <div className="mt-2 space-y-1">
                               <p className="text-amber-400 text-xs">{t("new.palmScanFail")}</p>
                               <p className="text-white/30 text-[10px]">{t("new.clickToRetry")}</p>
@@ -1004,9 +885,9 @@ export default function NewReadingPage() {
                       )}
                     </div>
                   )}
-                  <input ref={partnerPalmRef} type="file" accept="image/*" className="sr-only" onChange={handlePartnerPalmPick} />
+                  <input ref={partnerPalmRef} type="file" accept="image/*" className="sr-only" onChange={partnerPalmScan.pick} />
 
-                  {partnerPalmFeatures && !partnerIsPalmScanning && (
+                  {partnerPalmScan.features && !partnerPalmScan.isScanning && (
                     <div className="mt-4 flex items-center gap-2 text-green-400/80 text-xs">
                       <CheckCircle size={14} />
                       <span>{t("new.palmScanComplete")}</span>
@@ -1070,32 +951,32 @@ export default function NewReadingPage() {
                 <p className="text-white/40 text-xs mb-4">{t("new.faceDesc")}</p>
 
                 {/* Pre-scan guide overlay */}
-                {showFaceGuide && facePreview && !isFaceScanning && !faceScanDone && (
+                {showFaceGuide && faceScan.preview && !faceScan.isScanning && !faceScan.scanDone && (
                   <div className="bg-gold/10 border border-gold/30 rounded-xl p-3 mb-4 text-sm text-gold/80 flex items-center gap-2 animate-pulse-slow">
                     <AlertCircle size={14} />
                     {t("new.faceGuide")}
                   </div>
                 )}
 
-                {isFaceScanning && facePreview ? (
+                {faceScan.isScanning && faceScan.preview ? (
                   <FaceScanAnimation
-                    imageUrl={facePreview}
+                    imageUrl={faceScan.preview}
                     isScanning={true}
-                    onComplete={handleFaceScanComplete}
+                    onComplete={faceScan.scanComplete}
                   />
                 ) : (
                   <div onClick={() => faceRef.current?.click()}
  className="border-2 border-dashed border-white/20 hover:border-gold/40 rounded-2xl p-6 md:p-8 text-center cursor-pointer transition-all group">
-                    {facePreview ? (
+                    {faceScan.preview ? (
                       <div className="relative inline-block">
-                        <img src={facePreview} alt="preview"
+                        <img src={faceScan.preview} alt="preview"
                           className="w-28 h-28 md:w-32 md:h-32 object-cover rounded-full mx-auto border-2 border-gold/40" />
-                        {faceText && (
+                        {faceScan.text && (
                           <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1">
                             <CheckCircle size={14} className="text-white" />
                           </div>
                         )}
-                        {faceV2TError && (
+                        {faceScan.v2TError && (
                           <div className="mt-2 space-y-1">
                             <p className="text-amber-400 text-xs">{t("new.faceScanFail")}</p>
                             <p className="text-white/30 text-[10px]">{t("new.clickToRetry")}</p>
@@ -1111,10 +992,10 @@ export default function NewReadingPage() {
                     )}
                   </div>
                 )}
-                <input ref={faceRef} type="file" accept="image/*" className="sr-only" onChange={handleFacePick} />
+                <input ref={faceRef} type="file" accept="image/*" className="sr-only" onChange={faceScan.pick} />
 
                 {/* Face scan success indicator — results only shown in final report */}
-                {faceFeatures && !isFaceScanning && (
+                {faceScan.features && !faceScan.isScanning && (
                   <div className="mt-4 flex items-center gap-2 text-green-400/80 text-xs">
                     <CheckCircle size={14} />
                     <span>{t("new.faceScanComplete")}</span>
@@ -1132,32 +1013,32 @@ export default function NewReadingPage() {
                 <p className="text-white/40 text-xs mb-4">{t("new.palmDesc")}</p>
 
                 {/* Pre-scan guide overlay */}
-                {showPalmGuide && palmPreview && !isPalmScanning && !palmScanDone && (
+                {showPalmGuide && palmScan.preview && !palmScan.isScanning && !palmScan.scanDone && (
                   <div className="bg-gold/10 border border-gold/30 rounded-xl p-3 mb-4 text-sm text-gold/80 flex items-center gap-2 animate-pulse-slow">
                     <AlertCircle size={14} />
                     {t("new.palmGuide")}
                   </div>
                 )}
 
-                {isPalmScanning && palmPreview ? (
+                {palmScan.isScanning && palmScan.preview ? (
                   <FaceScanAnimation
-                    imageUrl={palmPreview}
+                    imageUrl={palmScan.preview}
                     isScanning={true}
-                    onComplete={handlePalmScanComplete}
+                    onComplete={palmScan.scanComplete}
                   />
                 ) : (
                   <div onClick={() => palmRef.current?.click()}
  className="border-2 border-dashed border-white/20 hover:border-gold/40 rounded-2xl p-6 md:p-8 text-center cursor-pointer transition-all group">
-                    {palmPreview ? (
+                    {palmScan.preview ? (
                       <div className="relative inline-block">
-                        <img src={palmPreview} alt="palm preview"
+                        <img src={palmScan.preview} alt="palm preview"
                           className="w-32 h-32 md:w-36 md:h-36 object-contain rounded-xl mx-auto border-2 border-gold/40" />
-                        {palmText && (
+                        {palmScan.text && (
                           <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1">
                             <CheckCircle size={14} className="text-white" />
                           </div>
                         )}
-                        {palmV2TError && (
+                        {palmScan.v2TError && (
                           <div className="mt-2 space-y-1">
                             <p className="text-amber-400 text-xs">{t("new.palmScanFail")}</p>
                             <p className="text-white/30 text-[10px]">{t("new.clickToRetry")}</p>
@@ -1173,10 +1054,10 @@ export default function NewReadingPage() {
                     )}
                   </div>
                 )}
-                <input ref={palmRef} type="file" accept="image/*" className="sr-only" onChange={handlePalmPick} />
+                <input ref={palmRef} type="file" accept="image/*" className="sr-only" onChange={palmScan.pick} />
 
                 {/* Palm scan success indicator — results only shown in final report */}
-                {palmFeatures && !isPalmScanning && (
+                {palmScan.features && !palmScan.isScanning && (
                   <div className="mt-4 flex items-center gap-2 text-green-400/80 text-xs">
                     <CheckCircle size={14} />
                     <span>{t("new.palmScanComplete")}</span>
@@ -1226,8 +1107,8 @@ export default function NewReadingPage() {
                     items.push(["🃏", t("new.tarotFull")])
                   }
                   if (!currentIntent || currentIntent === "FULL_MULTIMODAL" || currentIntent === "RELATIONSHIP" || currentIntent === "FACE_HAND") {
-                    items.push(["👁", `${t("new.faceSystem")} — ${faceText ? t("new.faceV2TReady") : facePreview ? t("new.faceV2TFailed") : t("new.faceNoPhotoProvided")}`])
-                    items.push(["🤚", `${t("new.palmSystem")} — ${palmText ? t("new.palmV2TReady") : palmPreview ? t("new.palmV2TFailed") : t("new.palmNoData")}`])
+                    items.push(["👁", `${t("new.faceSystem")} — ${faceScan.text ? t("new.faceV2TReady") : faceScan.preview ? t("new.faceV2TFailed") : t("new.faceNoPhotoProvided")}`])
+                    items.push(["🤚", `${t("new.palmSystem")} — ${palmScan.text ? t("new.palmV2TReady") : palmScan.preview ? t("new.palmV2TFailed") : t("new.palmNoData")}`])
                   }
                   if (!currentIntent || currentIntent === "FULL_MULTIMODAL" || currentIntent === "RELATIONSHIP") {
                     items.push(["🌟", t("new.masterFull")])

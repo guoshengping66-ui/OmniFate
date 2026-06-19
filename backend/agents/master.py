@@ -8,9 +8,11 @@ Upgraded with:
 - 5-dimension scoring system
 """
 from __future__ import annotations
-import asyncio, re, json, time as _time
+import asyncio, logging, re, json, time as _time
 from collections import OrderedDict
 from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage
@@ -161,7 +163,7 @@ async def _call(system: str, user: str, model: str | None = None, language: str 
     try:
         resp = await asyncio.wait_for(llm.ainvoke(msgs), timeout=180)
     except asyncio.TimeoutError:
-        print(f"[_call] LLM timed out after 180s (model={model})")
+        logger.warning("LLM timed out after 180s (model=%s)", model)
         raise TimeoutError(f"LLM timed out after 180s (model={model})")
     result = resp.content
 
@@ -169,8 +171,8 @@ async def _call(system: str, user: str, model: str | None = None, language: str 
     resp_meta = getattr(resp, "response_metadata", {}) or {}
     finish_reason = resp_meta.get("finish_reason", "")
     if finish_reason == "length":
-        print(f"[_call] ⚠️  OUTPUT TRUNCATED (finish_reason=length, model={model or settings.OPENAI_MODEL})")
-        print(f"[_call]    Output length: {len(result)} chars, ~{len(result)//2} tokens est.")
+        logger.warning("OUTPUT TRUNCATED (finish_reason=length, model=%s)", model or settings.OPENAI_MODEL)
+        logger.warning("Output length: %d chars, ~%d tokens est.", len(result), len(result)//2)
     # Post-process: clean residual Chinese in English output
     if language == "en":
         from agents.workers import _clean_english
@@ -874,7 +876,7 @@ def run_master_preprocessing(state: SystemState) -> dict:
     conflicts_text = _conflicts_to_text(state.conflicts)
     _refine_tags(state)
     state.dimension_scores = _compute_dimension_scores(state)
-    print(f"[PREPROCESS] dimension_scores: {state.dimension_scores}")
+    logger.info("Preprocess dimension_scores: %s", state.dimension_scores)
     confidence_text, sum_lengths = _compute_confidence(state)
 
     matched_products, products_preview, products_with_reasons = _build_product_preview(state)
@@ -959,7 +961,7 @@ async def run_subtask_core(state: SystemState, prep: dict) -> str:
         result = f"{part_a}\n\n{part_b}"
 
     _elapsed = _time.monotonic() - _t0
-    print(f"[MASTER] subtask_core done in {_elapsed:.1f}s (model={llm_model}, premium={state.is_premium})")
+    logger.info("subtask_core done in %.1fs (model=%s, premium=%s)", _elapsed, llm_model, state.is_premium)
     state.master_subtask_core = result
     return result
 
@@ -980,7 +982,7 @@ async def run_subtask_dims(state: SystemState, prep: dict) -> str:
     result = await _call(system, "请生成五维诊断报告。" if state.language == "zh" else "Generate the five-dimension diagnosis report.", model=llm_model, language=state.language,
                         max_tokens=llm_max_tokens)
     _elapsed = _time.monotonic() - _t0
-    print(f"[MASTER] subtask_dims done in {_elapsed:.1f}s (model={llm_model})")
+    logger.info("subtask_dims done in %.1fs (model=%s)", _elapsed, llm_model)
     state.master_subtask_dimensions = result
     return result
 
@@ -1002,7 +1004,7 @@ async def run_subtask_actions(state: SystemState, prep: dict) -> str:
     result = await _call(system, "请生成行动建议报告。" if state.language == "zh" else "Generate the action plan report.", model=llm_model, language=state.language,
                         max_tokens=llm_max_tokens)
     _elapsed = _time.monotonic() - _t0
-    print(f"[MASTER] subtask_actions done in {_elapsed:.1f}s (model={llm_model})")
+    logger.info("subtask_actions done in %.1fs (model=%s)", _elapsed, llm_model)
     state.master_subtask_actions = result
     return result
 

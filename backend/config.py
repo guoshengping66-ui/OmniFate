@@ -1,8 +1,11 @@
 ﻿"""config.py — 项目全局配置"""
+import logging
 import secrets
 from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from functools import lru_cache
+
+logger = logging.getLogger(__name__)
 
 
 class Settings(BaseSettings):
@@ -16,6 +19,7 @@ class Settings(BaseSettings):
     APP_NAME: str = "Profile Mirror"
     DEBUG: bool = False
     SECRET_KEY: str = ""
+    BASE_URL: str = "https://api.khanfate.com"
     ALLOWED_ORIGINS: list[str] = [
         "http://localhost:3000", "http://localhost:3001",
         "https://khanfate.com", "https://www.khanfate.com",
@@ -134,7 +138,7 @@ def get_settings() -> Settings:
     }
     if not s.SECRET_KEY or s.SECRET_KEY in _default_secrets or s.SECRET_KEY.startswith("change-me"):
         s.SECRET_KEY = secrets.token_hex(32)
-        print("[SECURITY] ⚠️ SECRET_KEY 未设置，已自动生成随机密钥。请在 .env 中设置固定密钥以避免重启后 session 失效。")
+        logger.warning("SECRET_KEY not set — auto-generated. Set in .env to avoid session loss on restart.")
     if not s.JWT_SECRET_KEY or s.JWT_SECRET_KEY in _default_secrets or s.JWT_SECRET_KEY.startswith("change-me"):
         # SECURITY NOTE: The JWT secret is persisted to .jwt_secret so that backend
         # restarts (PM2, Vercel deployments) don't invalidate all user sessions.
@@ -149,15 +153,15 @@ def get_settings() -> Settings:
         try:
             if _jwt_key_file.exists():
                 s.JWT_SECRET_KEY = _jwt_key_file.read_text().strip()
-                print("[SECURITY] JWT_SECRET_KEY 已从 .jwt_secret 文件加载（跨重启持久化）")
+                logger.info("JWT_SECRET_KEY loaded from .jwt_secret (persistent across restarts)")
             else:
                 s.JWT_SECRET_KEY = secrets.token_hex(32)
                 _jwt_key_file.write_text(s.JWT_SECRET_KEY)
                 _jwt_key_file.chmod(0o600)  # owner-only read/write
-                print("[SECURITY] ⚠️ JWT_SECRET_KEY 已自动生成并保存到 .jwt_secret，重启后不会失效。")
+                logger.info("JWT_SECRET_KEY auto-generated and saved to .jwt_secret")
         except Exception as e:
             s.JWT_SECRET_KEY = secrets.token_hex(32)
-            print(f"[SECURITY] ⚠️ JWT_SECRET_KEY 生成成功但保存到文件失败 ({e})，重启后会失效。")
+            logger.warning("JWT_SECRET_KEY generated but failed to save to file (%s) — will reset on restart", e)
     if s.DEBUG:
-        print("[SECURITY] WARNING: DEBUG mode is ON -- do not use in production.")
+        logger.warning("DEBUG mode is ON — do not use in production.")
     return s

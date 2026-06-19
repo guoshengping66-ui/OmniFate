@@ -1,11 +1,13 @@
 ﻿"""database/session.py — 兼容 SQLite 开发模式 & PostgreSQL 生产模式"""
 import asyncio
+import logging
 import os
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import StaticPool, NullPool
 from config import get_settings
 
+logger = logging.getLogger(__name__)
 settings = get_settings()
 _database_url = settings.DATABASE_URL
 
@@ -59,7 +61,7 @@ async def _check_db_available() -> bool:
         )
     except Exception as ex:
         _db_available = False
-        print(f"[DB] Database not available: {ex}, running in stateless mode")
+        logger.warning("Database not available: %s, running in stateless mode", ex)
     _db_last_check = now
     return _db_available
 
@@ -87,11 +89,11 @@ async def _ensure_tables():
             async with engine.begin() as conn:
                 await conn.run_sync(Base.metadata.create_all)
             _tables_created = True
-            print("[DB] Tables ensured")
+            logger.info("Tables ensured")
             # Auto-migrate: add missing columns to users & readings tables
             await _migrate_readings_columns()
         except Exception as e:
-            print(f"[DB] Failed to ensure tables: {e}")
+            logger.error("Failed to ensure tables: %s", e)
 
 
 async def _migrate_readings_columns():
@@ -174,9 +176,9 @@ async def _migrate_readings_columns():
                 except Exception:
                     pass
             await db.commit()
-            print("[DB] Migration: ensured user, reading & order columns")
+            logger.info("Migration: ensured user, reading & order columns")
     except Exception as e:
-        print(f"[DB] Migration warning: {e}")
+        logger.warning("Migration warning: %s", e)
 
     # ── SQLite fallback: add columns one by one (no IF NOT EXISTS) ──
     if _is_sqlite:
@@ -189,7 +191,7 @@ async def _migrate_readings_columns():
                         await db.execute(text(
                             f"ALTER TABLE users ADD COLUMN {col_name} {col_type}"
                         ))
-                        print(f"[DB] Added column users.{col_name}")
+                        logger.info("Added column users.%s", col_name)
                     except Exception:
                         pass
                 for col_name, col_type in all_reading_cols:
@@ -197,7 +199,7 @@ async def _migrate_readings_columns():
                         await db.execute(text(
                             f"ALTER TABLE readings ADD COLUMN {col_name} {col_type}"
                         ))
-                        print(f"[DB] Added column readings.{col_name}")
+                        logger.info("Added column readings.%s", col_name)
                     except Exception:
                         pass
                 for col_name, col_type in divination_columns:
@@ -205,7 +207,7 @@ async def _migrate_readings_columns():
                         await db.execute(text(
                             f"ALTER TABLE divination_records ADD COLUMN {col_name} {col_type}"
                         ))
-                        print(f"[DB] Added column divination_records.{col_name}")
+                        logger.info("Added column divination_records.%s", col_name)
                     except Exception:
                         pass
                 for col_name, col_type in order_columns:
@@ -213,12 +215,12 @@ async def _migrate_readings_columns():
                         await db.execute(text(
                             f"ALTER TABLE orders ADD COLUMN {col_name} {col_type}"
                         ))
-                        print(f"[DB] Added column orders.{col_name}")
+                        logger.info("Added column orders.%s", col_name)
                     except Exception:
                         pass
                 await db.commit()
         except Exception as e:
-            print(f"[DB] SQLite migration warning: {e}")
+            logger.warning("SQLite migration warning: %s", e)
 
     # Clean up test founder data: reset is_founder for users without seat_no
     # (real activate always sets founder_seat_no + founder_activated_at)
@@ -232,7 +234,7 @@ async def _migrate_readings_columns():
                 "AND (founder_seat_no IS NULL OR founder_activated_at IS NULL)"
             ))
             if result.rowcount > 0:
-                print(f"[DB] Cleaned up {result.rowcount} test founder records")
+                logger.info("Cleaned up %d test founder records", result.rowcount)
             await db.commit()
     except Exception:
         pass  # Table might not exist yet or no rows to update

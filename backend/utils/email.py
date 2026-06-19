@@ -39,10 +39,9 @@ def send_verification_email(to_email: str, code: str) -> bool:
     """Send a 6-digit verification code email. Returns True if sent successfully."""
     config = _get_smtp_config()
     if not config["host"] or not config["user"]:
-        print("[EMAIL] SMTP not configured, skipping email send")
-        # Only log code in debug mode, never in production
+        logger.warning("SMTP not configured, skipping email send")
         if settings.DEBUG:
-            print(f"[EMAIL] Verification code for {to_email}: {code}")
+            logger.debug("Verification code for %s: %s", to_email, code)
         return False
 
     subject = "Profile Mirror - 邮箱验证码"
@@ -76,9 +75,9 @@ def send_password_reset_email(to_email: str, code: str) -> bool:
     """Send a password reset verification code email."""
     config = _get_smtp_config()
     if not config["host"] or not config["user"]:
-        print("[EMAIL] SMTP not configured, skipping email send")
+        logger.warning("SMTP not configured, skipping email send")
         if settings.DEBUG:
-            print(f"[EMAIL] Password reset code for {to_email}: {code}")
+            logger.debug("Password reset code for %s: %s", to_email, code)
         return False
 
     subject = "Profile Mirror - 密码重置验证码"
@@ -127,7 +126,7 @@ def _send_email(to_email: str, subject: str, html_body: str) -> bool:
         server.login(config["user"], config["password"])
         server.sendmail(config["from_email"], [to_email], msg.as_string())
         server.quit()
-        print(f"[EMAIL] Sent to {to_email}: {subject}")
+        logger.info("Email sent to %s: %s", to_email, subject)
         return True
     except Exception as e:
         logger.warning(f"[EMAIL] Failed to send to {to_email}: {type(e).__name__}")
@@ -345,7 +344,7 @@ def send_payment_notification_email(
 ) -> bool:
     """Send admin payment notification with one-click confirm/reject links."""
     config = _get_smtp_config()
-    print(f"[EMAIL-DEBUG] SMTP host={config['host']}, user={config['user']}, admin_emails={settings.ADMIN_EMAILS}")
+    logger.debug("SMTP host=%s, user=%s, admin_emails=%s", config['host'], config['user'], settings.ADMIN_EMAILS)
     if not config["host"] or not config["user"]:
         logger.warning("[EMAIL] SMTP not configured, skipping payment notification")
         return False
@@ -436,12 +435,12 @@ def send_qr_confirm_email(to_email: str, order_no: str, amount_cny: float, token
     """Send QR payment confirmation email — user must click link to confirm payment."""
     config = _get_smtp_config()
     if not config["host"] or not config["user"]:
-        print("[EMAIL] SMTP not configured, skipping QR confirm email")
+        logger.warning("SMTP not configured, skipping QR confirm email")
         if settings.DEBUG:
-            print(f"[EMAIL] QR confirm link for {to_email}: https://api.khanfate.com/api/payments/confirm-email?token={token}")
+            logger.debug("QR confirm link for %s: %s/api/payments/confirm-email?token=%s", to_email, settings.BASE_URL, token)
         return False
 
-    confirm_url = f"https://api.khanfate.com/api/payments/confirm-email?token={token}"
+    confirm_url = f"{settings.BASE_URL}/api/payments/confirm-email?token={token}"
 
     subject = f"确认付款 ¥{amount_cny} - 订单 {order_no}"
     html_content = f"""
@@ -483,13 +482,13 @@ def send_admin_payment_confirm_email(
     """Send payment confirmation email to admin — admin clicks link to confirm payment."""
     config = _get_smtp_config()
     if not config["host"] or not config["user"]:
-        print("[EMAIL] SMTP not configured, skipping admin confirm email")
+        logger.warning("SMTP not configured, skipping admin confirm email")
         if settings.DEBUG:
-            print(f"[EMAIL] Admin confirm link: https://api.khanfate.com/api/payments/admin-confirm-email?token={token}")
+            logger.debug("Admin confirm link: %s/api/payments/admin-confirm-email?token=%s", settings.BASE_URL, token)
         return False
 
-    confirm_url = f"https://api.khanfate.com/api/payments/admin-confirm-email?token={token}"
-    reject_url = f"https://api.khanfate.com/api/payments/admin-reject-email?token={token}"
+    confirm_url = f"{settings.BASE_URL}/api/payments/admin-confirm-email?token={token}"
+    reject_url = f"{settings.BASE_URL}/api/payments/admin-reject-email?token={token}"
 
     subject = f"🔔 新订单待确认 ¥{amount_cny} - {order_no}"
     html_content = f"""

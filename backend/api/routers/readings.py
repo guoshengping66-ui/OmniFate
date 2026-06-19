@@ -10,16 +10,12 @@ from collections import OrderedDict
 from datetime import datetime, date, timezone
 from typing import Optional
 import json
-
+import logging
 from fastapi import APIRouter, HTTPException, UploadFile, File, BackgroundTasks, Query, Depends
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import select, delete, func, and_
 from sqlalchemy.ext.asyncio import AsyncSession
-
-import sys
-import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from agents.state import (
     SystemState, BirthInfo, FaceFeatures, PalmFeatures, ChatMessage,
@@ -38,6 +34,7 @@ from calculators.bazi_calculator import BaziCalculator
 from config import get_settings
 
 settings = get_settings()
+logger = logging.getLogger(__name__)
 
 # ── Stardust costs ────────────────────────────────────────────────────────
 STARDUST_COST_FOLLOW_UP = 10  # AI 追问每次消耗
@@ -415,7 +412,7 @@ async def create_analysis(
             timeout=5,
         )
     except (asyncio.TimeoutError, Exception) as e:
-        print(f"[WARN] Failed to create reading in DB: {e}")
+        logger.warning("Failed to create reading in DB: %s", e)
 
     # Store in Redis (or in-memory fallback) for fast access
     await _set_session(state.session_id, state)
@@ -478,7 +475,7 @@ async def _persist_session(session_id: str, user_id: Optional[str] = None, langu
                 await db.commit()
                 return  # Success
         except Exception as e:
-            print(f"[WARN] _persist_session attempt {attempt + 1}/3 failed: {e}")
+            logger.warning("_persist_session attempt %d/3 failed: %s", attempt + 1, e)
             if attempt < 2:
                 await asyncio.sleep(1)
 
@@ -488,7 +485,7 @@ async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
     SECURITY: Includes timeout protection to prevent infinite-running tasks.
     """
     ANALYSIS_TIMEOUT_SECONDS = 600  # 10 minutes max
-    print(f"[BG] Starting analysis for {state.session_id}")
+    logger.info("Starting analysis for %s", state.session_id)
     # Update status to processing
     try:
         async with AsyncSessionLocal() as db:
@@ -498,8 +495,8 @@ async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
             if reading:
                 reading.status = ReadingStatus.processing
                 await db.commit()
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug("Failed to update reading status to processing: %s", e)
 
     # Periodically persist state to Redis so SSE stream can see live updates
     _persist_done = asyncio.Event()
@@ -508,8 +505,8 @@ async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
         while not _persist_done.is_set():
             try:
                 await _set_session(state.session_id, state)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug("Failed to persist session to Redis: %s", e)
             await asyncio.sleep(3)  # persist every 3 seconds
 
     persist_task = asyncio.create_task(_periodic_persist())
@@ -517,20 +514,20 @@ async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
     try:
         # Lazy imports to avoid cold-start cost
         from agents.graph import run_full_analysis
-        print(f"[BG] Running full analysis pipeline for {state.session_id}")
+        logger.info("Running full analysis pipeline for %s", state.session_id)
         state = await asyncio.wait_for(
             run_full_analysis(state),
             timeout=ANALYSIS_TIMEOUT_SECONDS,
         )
-        print(f"[BG] Analysis completed for {state.session_id}, phase={state.phase}")
+        logger.info("Analysis completed for %s, phase=%s", state.session_id, state.phase)
     except asyncio.TimeoutError:
         state.errors.append("分析超时，部分结果可能不完整")
         state.phase = "done"
-        print(f"[TIMEOUT] Analysis timed out for {state.session_id} after {ANALYSIS_TIMEOUT_SECONDS}s")
+        logger.error("Analysis timed out for %s after %ds", state.session_id, ANALYSIS_TIMEOUT_SECONDS)
     except Exception as e:
         state.errors.append(str(e))
         state.phase = "done"
-        print(f"[BG] Analysis failed for {state.session_id}: {e}")
+        logger.error("Analysis failed for %s: %s", state.session_id, e)
     finally:
         _persist_done.set()
         persist_task.cancel()
@@ -543,19 +540,19 @@ async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
     try:
         await _set_session(state.session_id, state)
     except Exception as e:
-        print(f"[BG] Failed to persist session to Redis: {e}")
+        logger.error("Failed to persist session to Redis: %s", e)
 
     # Safety net: recompute dimension_scores if still at defaults
     default_scores = {"wealth": 5.0, "relationship": 5.0, "career": 5.0, "health": 5.0, "spiritual": 5.0}
     if state.dimension_scores == default_scores:
-        print(f"[BG] WARNING: dimension_scores still at defaults, recomputing...")
+        logger.warning("dimension_scores still at defaults, recomputing...")
         try:
             from agents.master import _compute_dimension_scores
             state.dimension_scores = _compute_dimension_scores(state)
-            print(f"[BG] Recomputed dimension_scores: {state.dimension_scores}")
+            logger.info("Recomputed dimension_scores: %s", state.dimension_scores)
             await _set_session(state.session_id, state)
         except Exception as e:
-            print(f"[BG] Failed to recompute dimension_scores: {e}")
+            logger.error("Failed to recompute dimension_scores: %s", e)
 
     # Persist final results to database (with retry for transient failures)
     for _persist_attempt in range(3):
@@ -567,7 +564,7 @@ async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
 
                 # Safety net: if reading doesn't exist (initial persist failed), create it
                 if not reading:
-                    print(f"[BG] Reading {state.session_id} not in DB — creating (safety net)")
+                    logger.info("Reading %s not in DB — creating (safety net)", state.session_id)
                     reading = Reading(
                         id=state.session_id,
                         user_id=user_id,
@@ -593,12 +590,12 @@ async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
                     reading.partner_face_report = state.partner_face_output.report if state.partner_face_output and state.partner_face_output.report else None
                     reading.partner_palm_report = state.partner_palm_output.report if state.partner_palm_output and state.partner_palm_output.report else None
                     reading.dimension_scores = dict(state.dimension_scores) if state.dimension_scores else None
-                    print(f"[BG] Persisting dimension_scores to DB: {state.dimension_scores}")
+                    logger.info("Persisting dimension_scores to DB: %s", state.dimension_scores)
                     reading.computed_tags = list(state.computed_tags) if state.computed_tags else None
                     reading.recommended_product_ids = list(state.recommended_product_ids) if state.recommended_product_ids else None
                     reading.completed_at = datetime.now(timezone.utc)
                     await db.commit()
-                    print(f"[BG] Persisted reading {state.session_id} to DB (attempt {_persist_attempt + 1})")
+                    logger.info("Persisted reading %s to DB (attempt %d)", state.session_id, _persist_attempt + 1)
 
                 # Send completion notification email
                 try:
@@ -610,12 +607,12 @@ async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
                         if user and user.email:
                             reading_lang = reading.language or "zh"
                             send_analysis_complete_email(user.email, state.session_id, locale=reading_lang)
-                            print(f"[BG] Sent completion email to {user.email}")
+                            logger.info("Sent completion email to %s", user.email)
                 except Exception as email_err:
-                    print(f"[WARN] Failed to send completion email: {email_err}")
+                    logger.warning("Failed to send completion email: %s", email_err)
                 break  # Success — exit retry loop
         except Exception as e:
-            print(f"[WARN] Failed to persist reading to DB (attempt {_persist_attempt + 1}/3): {e}")
+            logger.warning("Failed to persist reading to DB (attempt %d/3): %s", _persist_attempt + 1, e)
             if _persist_attempt < 2:
                 await asyncio.sleep(2)  # Wait before retry
 
@@ -683,7 +680,7 @@ async def chat_followup(
         state.astrology_output = WorkerOutput(agent_id="astrology", report=reading.astrology_report or "")
         # 重建后存回 Redis，后续追问不再需要查库
         await _set_session(payload.session_id, state)
-        print(f"[CHAT] Reconstructed session {payload.session_id} from DB for user {current_user.id}")
+        logger.info("Reconstructed session %s from DB for user %s", payload.session_id, current_user.id)
 
     # 验证 session 归属 (Redis path — DB path already filters by user_id)
     if state.user_id and str(state.user_id) != str(current_user.id):
@@ -820,8 +817,8 @@ async def chat_followup(
                 )
                 db.add(refund_tx)
                 await db.commit()
-            except Exception:
-                pass  # 退款失败不阻塞用户
+            except Exception as e:
+                logger.warning("Failed to process refund for failed analysis: %s", e)
         raise
 
 
@@ -833,7 +830,7 @@ async def _run_analysis_inline(state: SystemState) -> SystemState:
     except Exception as e:
         state.errors.append(str(e))
         state.phase = "done"
-        print(f"[LAZY] Analysis failed for {state.session_id}: {e}")
+        logger.error("Analysis failed for %s: %s", state.session_id, e)
 
     # Persist final results to database
     try:
@@ -860,7 +857,7 @@ async def _run_analysis_inline(state: SystemState) -> SystemState:
                 reading.completed_at = datetime.now(timezone.utc)
                 await db.commit()
     except Exception as e:
-        print(f"[WARN] Failed to persist reading to DB: {e}")
+        logger.warning("Failed to persist reading to DB: %s", e)
 
     return state
 
@@ -893,8 +890,9 @@ async def get_session(
                         raise HTTPException(status_code=403, detail="无权访问此报告")
             except HTTPException:
                 raise
-            except Exception:
+            except Exception as e:
                 # DB check failed — do not serve cached data without ownership verification
+                logger.warning("DB ownership check failed: %s", e)
                 raise HTTPException(status_code=503, detail="Service temporarily unavailable")
         # Apply content lock before returning
         return _apply_content_lock(cached, current_user, None, lang=lang or "zh")
@@ -919,8 +917,8 @@ async def get_session(
                         resp.is_detailed_unlocked = getattr(reading, "is_detailed_unlocked", False)
                         if reading.master_detail:
                             resp.master_detail = reading.master_detail
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug("Failed to load reading details from DB: %s", e)
         return _apply_content_lock(resp, current_user, None, lang=lang or "zh")
 
     # Slow path: read from DATABASE
@@ -948,7 +946,7 @@ async def get_session(
                     or reading.tarot_report
                 )
                 if has_results:
-                    print(f"[WARN] Session {session_id} has results but status={reading.status} — fixing to completed")
+                    logger.warning("Session %s has results but status=%s — fixing to completed", session_id, reading.status)
                     reading.status = ReadingStatus.completed
                     await db.commit()
                     # Fall through to the "completed" path below
@@ -964,7 +962,7 @@ async def get_session(
                     # No active in-memory session AND no results = orphaned session
                     # (server crashed/restarted during analysis). Fail immediately.
                     session_age = datetime.now(timezone.utc) - reading.created_at.replace(tzinfo=timezone.utc)
-                    print(f"[WARN] Orphaned session {session_id}: status={reading.status}, age={session_age}s, no active session — marking as failed")
+                    logger.warning("Orphaned session %s: status=%s, age=%ss, no active session — marking as failed", session_id, reading.status, session_age)
                     reading.status = ReadingStatus.failed
                     reading.error_message = "Analysis did not complete — background task may have crashed"
                     await db.commit()
@@ -1156,7 +1154,7 @@ async def _translate_text(text: str, target_lang: str) -> str:
                 _translate_cache.popitem(last=False)
             return result
     except Exception as e:
-        print(f"[WARN] Translation failed: {e}")
+        logger.warning("Translation failed: %s", e)
 
     return text  # Fallback to original
 
@@ -1183,12 +1181,12 @@ async def stream_session(
                     result = await db.execute(stmt)
                     reading = result.scalar_one_or_none()
                     if reading and reading.status in (ReadingStatus.pending, ReadingStatus.processing):
-                        print(f"[SSE] Session {session_id} not in memory but status={reading.status} — marking as failed")
+                        logger.warning("Session %s not in memory but status=%s — marking as failed", session_id, reading.status)
                         reading.status = ReadingStatus.failed
                         reading.error_message = "Analysis did not complete — background task may have crashed"
                         await db.commit()
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug("Failed to update failed session status: %s", e)
             yield f"data: {json.dumps({'type': 'error', 'message': 'Session not found'})}\n\n"
             return
 
@@ -1218,7 +1216,7 @@ async def stream_session(
 
             # Stuck detection: if phase hasn't changed for 180s, mark as failed
             if time.time() - phase_changed_at > 180:
-                print(f"[WARN] SSE stuck detection: session {session_id} stuck in phase={state.phase} for >180s")
+                logger.warning("SSE stuck detection: session %s stuck in phase=%s for >180s", session_id, state.phase)
                 # NOTE: Do NOT mutate shared `state` object (race with background task).
                 # Just persist failure to DB and send error event. The frontend's own
                 # stuck timer (120s) will show the retry UI independently.
@@ -1231,8 +1229,8 @@ async def stream_session(
                             reading.status = ReadingStatus.failed
                             reading.error_message = "Analysis timed out — stuck in phase for too long"
                             await db.commit()
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug("Failed to update stuck session status: %s", e)
                 yield f"data: {json.dumps({'type': 'error', 'message': 'Analysis timed out'})}\n\n"
                 return
 
@@ -1892,9 +1890,7 @@ async def analyze_event(
     except HTTPException:
         raise
     except Exception as exc:
-        import traceback
-        traceback.print_exc()
-        print(f"[EVENT] analyze_event crashed for user {current_user.id}: {exc}")
+        logger.exception("analyze_event crashed for user %s", current_user.id)
         raise HTTPException(
             status_code=500,
             detail="Event analysis failed. Please try again.",
@@ -1969,7 +1965,7 @@ async def _analyze_event_inner(
         # No birth info available (e.g. Reading without birth_profile_id).
         # Proceed with empty transit data — LLM can still analyze based on
         # master_summary + computed_tags.
-        print(f"[EVENT] No birth_info for user {current_user.id}, proceeding without transit data")
+        logger.info("No birth_info for user %s, proceeding without transit data", current_user.id)
         state.birth_info = None
 
     bi = state.birth_info
@@ -2078,8 +2074,8 @@ async def _analyze_event_inner(
         from database.models import Base
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug("Table creation check failed: %s", e)
 
     event_id = str(uuid.uuid4())
     try:
@@ -2115,9 +2111,7 @@ async def _analyze_event_inner(
             await db.commit()
     except Exception as db_err:
         # Log but don't fail the response
-        import traceback
-        traceback.print_exc()
-        print(f"[EventLog] Save error: {db_err}")
+        logger.warning("EventLog save error: %s", db_err)
         state.errors.append(f"EventLog save error: {str(db_err)}")
 
     return AnalyzeEventResponse(
@@ -2339,8 +2333,8 @@ async def get_daily_fortune(
                 overall = min(10, overall + 1)
                 health = min(10, health + 1)
 
-        except Exception:
-            pass  # 降级为通用运势
+        except Exception as e:
+            logger.debug("Fortune score calculation failed: %s", e)
 
     # 幸运色 — 基于日主五行
     WUXING_COLORS = {
@@ -2356,7 +2350,8 @@ async def get_daily_fortune(
             dm = calc.calculate().day_master_element
             colors = WUXING_COLORS.get(dm, [("金色", "#C9A84C")])
             lucky_color_name, lucky_color_hex = colors[int(_hash(100) * len(colors))]
-        except Exception:
+        except Exception as e:
+            logger.debug("Lucky color calculation failed: %s", e)
             lucky_color_name, lucky_color_hex = "金色", "#C9A84C"
     else:
         all_colors = [
@@ -2555,15 +2550,15 @@ async def get_daily_almanac(
                 longitude=bi.longitude or 0.0,
             )
             natal_planets = natal_chart.planets
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug("Natal chart calculation failed: %s", e)
 
         # 2. Compute today's transits
         try:
             today_dt = datetime(today.year, today.month, today.day, 12, 0, tzinfo=timezone.utc)
             transit = astro_calc.calculate_transit_for_date(today_dt, natal_planets)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug("Transit calculation failed: %s", e)
 
     # 3. Compute today's bazi pillars + lunar date
     from calculators.bazi_calculator import BaziCalculator
@@ -2585,8 +2580,8 @@ async def get_daily_almanac(
                 bazi_day_pillar_str = f"{g_en}-{z_en}"
             else:
                 bazi_day_pillar_str = raw_gz
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug("Bazi day pillar calculation failed: %s", e)
     try:
         from lunar_python import Solar
         today_lunar = Solar.fromYmd(today.year, today.month, today.day).getLunar()
@@ -2655,8 +2650,8 @@ async def get_daily_almanac(
                 f"{_month_gz}({_month_animal})月 "
                 f"{_day_gz}({_day_animal})日"
             )
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug("Lunar date calculation failed: %s", e)
 
     # 4. Compute energy score
     energy_score = _compute_energy_score(
@@ -2783,13 +2778,13 @@ async def get_personalized_almanac(payload: PersonalizedAlmanacRequest):
             latitude=bi.latitude or 0.0, longitude=bi.longitude or 0.0,
         )
         natal_planets = natal_chart.planets
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug("Natal chart calculation failed: %s", e)
     try:
         today_dt = datetime(today.year, today.month, today.day, 12, 0, tzinfo=timezone.utc)
         transit = astro_calc.calculate_transit_for_date(today_dt, natal_planets)
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug("Transit calculation failed: %s", e)
 
     # Compute today's bazi + lunar
     today_bazi = None
@@ -2814,8 +2809,8 @@ async def get_personalized_almanac(payload: PersonalizedAlmanacRequest):
                 bazi_day_pillar_str = f"{g_en} ({raw_gz[0]}) · {z_en} ({raw_gz[1]})"
             else:
                 bazi_day_pillar_str = raw_gz
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug("Bazi day pillar calculation failed: %s", e)
     try:
         from lunar_python import Solar
         today_lunar = Solar.fromYmd(today.year, today.month, today.day).getLunar()
@@ -2858,8 +2853,8 @@ async def get_personalized_almanac(payload: PersonalizedAlmanacRequest):
                 f"{_month_gz}({_month_animal})月 "
                 f"{_day_gz}({_day_animal})日"
             )
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug("Lunar date calculation failed: %s", e)
 
     energy_score = _compute_energy_score({}, None)
 
@@ -3019,8 +3014,8 @@ async def _generate_almanac(
                 if _has_english:
                     result = _rule_based_almanac(state, today, transit_bazi, transit_astro, energy_score)
             return result
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug("LLM almanac generation failed, using rule-based: %s", e)
 
     data = _rule_based_almanac(state, today, transit_bazi, transit_astro, energy_score)
     if lang == "en":

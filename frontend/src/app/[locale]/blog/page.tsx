@@ -91,7 +91,7 @@ export default function BlogPage() {
       <div className="max-w-5xl mx-auto">
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(blogJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: safeJsonLd(blogJsonLd) }}
         />
         <Breadcrumbs items={[{ label: t("nav.blog") }]} currentPath={`/${locale}/blog`} />
 

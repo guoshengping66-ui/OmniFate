@@ -24,7 +24,7 @@ def _calc_energy_events(birth_chart: dict, transits: dict) -> list[dict]:
     """根据出生盘 + 当前流年计算能量雷达事件"""
     events = []
     now = datetime.now(timezone.utc)
-    event_id_base = hashlib.md5(f"radar_{now.strftime('%Y%m%d')}".encode()).hexdigest()[:8]
+    event_id_base = hashlib.sha256(f"radar_{now.strftime('%Y%m%d')}".encode()).hexdigest()[:8]
 
     # 获取流年行星位置
     transit_planets = transits.get("transit_planets", {})

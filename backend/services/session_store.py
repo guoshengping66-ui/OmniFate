@@ -10,12 +10,15 @@ NOTE: Session data is stored as JSON (not pickle) for security.
 from __future__ import annotations
 
 import json
+import logging
 import time
 from typing import Optional
 
 import redis.asyncio as aioredis
 
 from config import get_settings
+
+logger = logging.getLogger(__name__)
 
 SESSION_TTL = 3600 * 2  # 2 hours
 
@@ -55,7 +58,7 @@ async def _get_session_redis():
     except Exception as e:
         _session_redis_available = False
         _session_redis = None
-        print(f"[SESSION-REDIS] Connection failed: {e}")
+        logger.warning("Session Redis connection failed: %s", e)
         return None
 
 
@@ -115,7 +118,7 @@ async def set_session(key: str, obj: object, ttl: int = SESSION_TTL) -> None:
                 data = json.dumps(obj, ensure_ascii=False, default=str)
             await r.setex(f"sess:{key}", ttl, data)
         except Exception as e:
-            print(f"[SESSION-REDIS] Failed to store session {key}: {e}")
+            logger.warning("Failed to store session %s: %s", key, e)
         return
 
     # In-memory fallback

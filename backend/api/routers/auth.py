@@ -3,7 +3,10 @@ Auth endpoints: register (with email verification), login, forgot/reset password
 """
 import hmac
 import ipaddress
+import logging
 import re
+
+logger = logging.getLogger(__name__)
 from typing import Optional
 import time
 import secrets
@@ -430,7 +433,7 @@ async def register(req: RegisterRequest, request: Request, db: AsyncSession = De
     if not email_sent:
         if _s.DEBUG:
             # Dev convenience: log code instead of exposing in response
-            print(f"[DEV] Registration verification code for {req.email}: {code}")
+            logger.debug("Registration verification code for %s: %s", req.email, code)
             return {
                 "message": "注册成功，请查收邮箱验证码完成验证",
                 "email": req.email,
@@ -447,7 +450,7 @@ async def register(req: RegisterRequest, request: Request, db: AsyncSession = De
 
     resp = {"message": "注册成功，请查收邮箱验证码完成验证", "email": req.email}
     if _s.DEBUG:
-        print(f"[DEV] Registration verification code for {req.email}: {code}")
+        logger.debug("Registration verification code for %s: %s", req.email, code)
     return resp
 
 
@@ -484,7 +487,7 @@ async def send_code(req: SendCodeRequest, request: Request, db: AsyncSession = D
         user.verification_expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
         await db.commit()
         if _s3.DEBUG:
-            print(f"[DEV] Send-code verification code for {req.email}: {code}")
+            logger.debug("Send-code verification code for %s: %s", req.email, code)
         # Email failed — return success to prevent email enumeration
         return {"message": "验证码已发送"}
 
@@ -756,7 +759,7 @@ async def forgot_password(req: SendCodeRequest, request: Request, db: AsyncSessi
         user.verification_expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
         await db.commit()
         if _s2.DEBUG:
-            print(f"[DEV] Password reset code for {req.email}: {code}")
+            logger.debug("Password reset code for %s: %s", req.email, code)
         # Return success to prevent email enumeration (even when SMTP is down)
         return {"message": "验证码已发送到您的邮箱"}
 
@@ -769,7 +772,7 @@ async def forgot_password(req: SendCodeRequest, request: Request, db: AsyncSessi
     _s4 = _gs4()
     resp = {"message": "验证码已发送到您的邮箱"}
     if _s4.DEBUG:
-        print(f"[DEV] Forgot-password code for {req.email}: {code}")
+        logger.debug("Forgot-password code for %s: %s", req.email, code)
     return resp
 
 
@@ -943,7 +946,7 @@ async def google_login(req: GoogleLoginRequest, request: Request, db: AsyncSessi
     except HTTPException:
         raise
     except Exception as e:
-        print(f"[AUTH] Google token verification failed: {e}")
+        logger.warning("Google token verification failed: %s", e)
         raise HTTPException(status_code=400, detail="Google 登录验证失败")
 
     # Find or create user
@@ -983,7 +986,7 @@ async def google_login(req: GoogleLoginRequest, request: Request, db: AsyncSessi
         )
         db.add(tx)
         await db.commit()
-        print(f"[AUTH] Created new Google user: {google_email}")
+        logger.info("Created new Google user: %s", google_email)
     else:
         # Update existing user's Google info if needed
         if not user.oauth_provider:

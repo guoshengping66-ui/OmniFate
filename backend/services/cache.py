@@ -162,7 +162,7 @@ def cached(ttl: int = 300, key_prefix: str = ""):
                     continue
                 if isinstance(v, (str, int, float, bool)):
                     key_parts.append(f"{k}={v}")
-            cache_key = hashlib.md5(":".join(key_parts).encode()).hexdigest()
+            cache_key = hashlib.sha256(":".join(key_parts).encode()).hexdigest()
 
             # Try cache
             cached_val = await cache_get_json(cache_key)

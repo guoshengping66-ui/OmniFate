@@ -1,5 +1,4 @@
 """星尘积分系统 API — 支持预扣/确认/回滚原子操作 + 阈值监控"""
-import hmac
 import logging
 from datetime import datetime, timezone, date, timedelta
 from typing import Optional

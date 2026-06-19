@@ -6,9 +6,12 @@ All run in PARALLEL via asyncio.gather().
 """
 from __future__ import annotations
 import asyncio
+import logging
 import time
 import json
 import re
+
+logger = logging.getLogger(__name__)
 from collections import OrderedDict
 from typing import Optional
 
@@ -523,14 +526,14 @@ async def _call(system: str, user: str, append_json_format: bool = True, model: 
     try:
         resp = await asyncio.wait_for(llm.ainvoke(msgs), timeout=90)
     except asyncio.TimeoutError:
-        print(f"[_call] Worker LLM timed out after 90s")
+        logger.warning("Worker LLM timed out after 90s")
         raise TimeoutError("Worker LLM timed out after 90s")
     result = resp.content
     # Detect truncation
     resp_meta = getattr(resp, "response_metadata", {}) or {}
     finish_reason = resp_meta.get("finish_reason", "")
     if finish_reason == "length":
-        print(f"[_call] ⚠️  Worker output TRUNCATED (finish_reason=length)")
+        logger.warning("Worker output TRUNCATED (finish_reason=length)")
     # Post-process: clean residual Chinese in English output
     if language == "en":
         result = _clean_english(result)
@@ -590,18 +593,18 @@ def _validate_worker_output(data: dict, agent_id: str) -> bool:
 
     # Check 1: summary must exist and be substantial
     if len(summary) < 50:
-        print(f"[VALIDATE] {agent_id}: summary too short ({len(summary)} chars)")
+        logger.warning("[%s] summary too short (%d chars)", agent_id, len(summary))
         return False
 
     # Check 2: at least 2 dimensions must have content
     filled_dims = sum(1 for v in dims.values() if v and len(str(v)) > 10)
     if filled_dims < 2:
-        print(f"[VALIDATE] {agent_id}: only {filled_dims} dimensions filled")
+        logger.warning("[%s] only %d dimensions filled", agent_id, filled_dims)
         return False
 
     # Check 3: at least 2 tags
     if len(tags) < 2:
-        print(f"[VALIDATE] {agent_id}: only {len(tags)} tags")
+        logger.warning("[%s] only %d tags", agent_id, len(tags))
         return False
 
     return True
@@ -643,7 +646,7 @@ async def _call_and_parse(system: str, user_msg: str, agent_id: str, state: Syst
 
     # Validate quality — retry once if output is poor
     if not _use_mock() and not _validate_worker_output(data, agent_id):
-        print(f"[RETRY] {agent_id}: low quality output, retrying once...")
+        logger.info("[%s] low quality output, retrying once...", agent_id)
         report = await _call(
             system, user_msg, language=state.language, is_premium=state.is_premium, model=model,
         )
@@ -1234,9 +1237,9 @@ async def run_qimen_ziwei(state: SystemState) -> list[WorkerOutput]:
     """
     t0 = time.time()
     bi = state.birth_info
-    print(f"[QIMEN_ZIWEI] Worker started, birth_info={bi is not None}, mock={_use_mock()}", flush=True)
+    logger.info("QIMEN_ZIWEI started, birth_info=%s, mock=%s", bi is not None, _use_mock())
     if bi is None:
-        print("[QIMEN_ZIWEI] ERROR: birth_info is None, skipping", flush=True)
+        logger.error("QIMEN_ZIWEI: birth_info is None, skipping")
         return [
             WorkerOutput(agent_id="qimen", error="birth_info missing"),
             WorkerOutput(agent_id="ziwei", error="birth_info missing"),
@@ -1336,16 +1339,16 @@ async def run_qimen_ziwei(state: SystemState) -> list[WorkerOutput]:
     msgs = [SystemMessage(content=sys_content), HumanMessage(content=user_msg)]
 
     if _use_mock():
-        print("[QIMEN_ZIWEI] Using MOCK data (no API key)", flush=True)
+        logger.info("QIMEN_ZIWEI: Using MOCK data (no API key)")
         report_q = _mock("qimen", "merged qimen+ziwei")
         report_z = _mock("ziwei", "merged qimen+ziwei")
     else:
-        print(f"[QIMEN_ZIWEI] Calling LLM, model={settings.FREE_MODEL}, timeout=80s", flush=True)
+        logger.info("QIMEN_ZIWEI: Calling LLM, model=%s, timeout=80s", settings.FREE_MODEL)
         try:
             report = await asyncio.wait_for(llm.ainvoke(msgs), timeout=80)
-            print(f"[QIMEN_ZIWEI] LLM response received, length={len(report.content)}", flush=True)
+            logger.info("QIMEN_ZIWEI: LLM response received, length=%d", len(report.content))
         except asyncio.TimeoutError:
-            print("[QIMEN_ZIWEI] LLM timed out after 80s", flush=True)
+            logger.warning("QIMEN_ZIWEI: LLM timed out after 80s")
             report = type('obj', (object,), {'content': '{"error":"timeout"}', 'response_metadata': {}})()
         full_text = report.content
         # Post-process: clean residual Chinese in English output
@@ -1376,20 +1379,20 @@ async def run_qimen_ziwei(state: SystemState) -> list[WorkerOutput]:
         # Parse qimen output
         qimen_data = _parse_worker_report(qimen_text)
         if not _use_mock() and not _validate_worker_output(qimen_data, "qimen"):
-            print("[RETRY] qimen (combined): low quality, using raw text as summary")
+            logger.info("qimen (combined): low quality, using raw text as summary")
             qimen_data["summary"] = qimen_text[:500]
 
         # Parse ziwei output
         ziwei_data = _parse_worker_report(ziwei_text)
         if not _use_mock() and not _validate_worker_output(ziwei_data, "ziwei"):
-            print("[RETRY] ziwei (combined): low quality, using raw text as summary")
+            logger.info("ziwei (combined): low quality, using raw text as summary")
             ziwei_data["summary"] = ziwei_text[:500]
 
         report_q = _build_compact_report(qimen_data)
         report_z = _build_compact_report(ziwei_data)
 
     t_elapsed = (time.time() - t0) * 1000
-    print(f"[QIMEN_ZIWEI] Done in {t_elapsed:.0f}ms, qimen report={len(report_q)}chars, ziwei report={len(report_z)}chars", flush=True)
+    logger.info("QIMEN_ZIWEI done in %.0fms, qimen=%dchars, ziwei=%dchars", t_elapsed, len(report_q), len(report_z))
 
     # Return two separate WorkerOutput objects
     return [
@@ -1423,13 +1426,13 @@ async def run_face(state: SystemState) -> WorkerOutput:
     try:
         ff = state.face_features
         if ff is None:
-            print(f"[FACE] no face features, skipping")
+            logger.info("FACE: no face features, skipping")
             return WorkerOutput(agent_id=agent_id,
                                 report="No facial image provided. Face analysis skipped.",
                                 duration_ms=(time.time() - t0) * 1000)
 
         face_text = ff.to_prompt_text()
-        print(f"[FACE] starting LLM call, features length={len(face_text)}")
+        logger.info("FACE: starting LLM call, features length=%d", len(face_text))
 
         # Inject raw_metrics as supplementary numerical data (same pattern as run_palm)
         if ff.raw_metrics:
@@ -1459,13 +1462,13 @@ async def run_face(state: SystemState) -> WorkerOutput:
                 if report.strip():
                     break
                 if attempt < 2:
-                    print(f"[FACE] empty response on attempt {attempt+1}, retrying in 3s...")
+                    logger.info("FACE: empty response on attempt %d, retrying in 3s...", attempt+1)
                     await asyncio.sleep(3)
 
         data = _parse_worker_report(report)
         # Validate and retry once more if quality is low
         if not _use_mock() and not _validate_worker_output(data, agent_id):
-            print(f"[RETRY] {agent_id}: low quality output, retrying once...")
+            logger.info("[%s] low quality output, retrying once...", agent_id)
             report = await _call(system, user_msg, language=state.language, is_premium=state.is_premium)
             data = _parse_worker_report(report)
 
@@ -1478,10 +1481,10 @@ async def run_face(state: SystemState) -> WorkerOutput:
             conflict_warnings=data.get("conflict_warnings", []),
             duration_ms=(time.time() - t0) * 1000,
         )
-        print(f"[FACE] completed in {out.duration_ms:.0f}ms, report length={len(out.report)}")
+        logger.info("FACE completed in %.0fms, report length=%d", out.duration_ms, len(out.report))
         return out
     except Exception as e:
-        print(f"[FACE] ERROR: {e}")
+        logger.error("FACE error: %s", e)
         return WorkerOutput(agent_id=agent_id, error=str(e),
                             duration_ms=(time.time() - t0) * 1000)
 
@@ -1495,13 +1498,13 @@ async def run_palm(state: SystemState) -> WorkerOutput:
     try:
         pf = state.palm_features
         if pf is None:
-            print(f"[PALM] no palm features, skipping")
+            logger.info("PALM: no palm features, skipping")
             return WorkerOutput(agent_id=agent_id,
                                 report="No palm data provided. Palm analysis skipped.",
                                 duration_ms=(time.time() - t0) * 1000)
 
         palm_text = pf.to_prompt_text()
-        print(f"[PALM] starting LLM call, features length={len(palm_text)}")
+        logger.info("PALM: starting LLM call, features length=%d", len(palm_text))
         # Inject raw_metrics as supplementary numerical data
         if pf.raw_metrics:
             metrics_str = "\n".join(f"  {k}: {v}" for k, v in pf.raw_metrics.items())
@@ -1526,13 +1529,13 @@ async def run_palm(state: SystemState) -> WorkerOutput:
                 if report.strip():
                     break
                 if attempt < 2:
-                    print(f"[PALM] empty response on attempt {attempt+1}, retrying in 3s...")
+                    logger.info("PALM: empty response on attempt %d, retrying in 3s...", attempt+1)
                     await asyncio.sleep(3)
 
         data = _parse_worker_report(report)
         # Validate and retry once more if quality is low
         if not _use_mock() and not _validate_worker_output(data, agent_id):
-            print(f"[RETRY] {agent_id}: low quality output, retrying once...")
+            logger.info("[%s] low quality output, retrying once...", agent_id)
             report = await _call(system, user_msg, language=state.language, is_premium=state.is_premium)
             data = _parse_worker_report(report)
 
@@ -1545,10 +1548,10 @@ async def run_palm(state: SystemState) -> WorkerOutput:
             conflict_warnings=data.get("conflict_warnings", []),
             duration_ms=(time.time() - t0) * 1000,
         )
-        print(f"[PALM] completed in {out.duration_ms:.0f}ms, report length={len(out.report)}")
+        logger.info("PALM completed in %.0fms, report length=%d", out.duration_ms, len(out.report))
         return out
     except Exception as e:
-        print(f"[PALM] ERROR: {e}")
+        logger.error("PALM error: %s", e)
         return WorkerOutput(agent_id=agent_id, error=str(e),
                             duration_ms=(time.time() - t0) * 1000)
 
@@ -1596,12 +1599,12 @@ async def run_partner_face(state: SystemState) -> WorkerOutput:
                 if report.strip():
                     break
                 if attempt < 2:
-                    print(f"[PARTNER_FACE] empty response on attempt {attempt+1}, retrying in 3s...")
+                    logger.info("PARTNER_FACE: empty response on attempt %d, retrying in 3s...", attempt+1)
                     await asyncio.sleep(3)
 
         data = _parse_worker_report(report)
         if not _use_mock() and not _validate_worker_output(data, "face"):
-            print(f"[RETRY] {agent_id}: low quality output, retrying once...")
+            logger.info("[%s] low quality output, retrying once...", agent_id)
             report = await _call(system, user_msg, language=state.language, is_premium=state.is_premium)
             data = _parse_worker_report(report)
 
@@ -1657,12 +1660,12 @@ async def run_partner_palm(state: SystemState) -> WorkerOutput:
                 if report.strip():
                     break
                 if attempt < 2:
-                    print(f"[PARTNER_PALM] empty response on attempt {attempt+1}, retrying in 3s...")
+                    logger.info("PARTNER_PALM: empty response on attempt %d, retrying in 3s...", attempt+1)
                     await asyncio.sleep(3)
 
         data = _parse_worker_report(report)
         if not _use_mock() and not _validate_worker_output(data, "palm"):
-            print(f"[RETRY] {agent_id}: low quality output, retrying once...")
+            logger.info("[%s] low quality output, retrying once...", agent_id)
             report = await _call(system, user_msg, language=state.language, is_premium=state.is_premium)
             data = _parse_worker_report(report)
 

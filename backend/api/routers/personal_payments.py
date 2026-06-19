@@ -16,10 +16,6 @@ from pydantic import BaseModel
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-import sys
-import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
-
 logger = logging.getLogger(__name__)
 
 from database.session import get_db
@@ -28,8 +24,6 @@ from auth.dependencies import get_current_user, require_user
 from config import get_settings
 
 # Import activation functions from payments router
-import sys, os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 from api.routers.payments import _activate_subscription, _activate_founder_seat, _handle_onetime_unlock_activation, PRODUCT_PRICES
 
 router = APIRouter()
@@ -272,7 +266,7 @@ async def _activate_order(db: AsyncSession, order) -> None:
                             user.stardust_balance += GRANT_ON_REPORT_UNLOCK
                             user.stardust_lifetime_earned += GRANT_ON_REPORT_UNLOCK
     except Exception as e:
-        print(f"[ACTIVATE] FAILED for order: {e}")
+        logger.error("Activate FAILED for order: %s", e)
         raise
 
     # 激活订阅
@@ -302,7 +296,7 @@ async def _activate_order(db: AsyncSession, order) -> None:
                     elif activated_tier == "onetime_unlock":
                         await _handle_onetime_unlock_activation(sub_user, order, db)
         except Exception as e:
-            print(f"[ACTIVATE] FAILED for order: {e}")
+            logger.error("Activate FAILED for order: %s", e)
             raise
 
 
@@ -400,7 +394,7 @@ async def quick_confirm_payment(
     order.notes = f"{existing_notes}|accessed_via:GET|accessed_at:{datetime.now(timezone.utc).isoformat()}"
     await _activate_order(db, order)
     await db.commit()
-    print(f"[AUDIT] quick_confirm_payment accessed via GET for order {order_no}")
+    logger.warning("quick_confirm_payment accessed via GET for order %s", order_no)
 
     return HTMLResponse(f"""
     <html><body style="text-align:center;padding:50px;font-family:sans-serif;">
@@ -438,7 +432,7 @@ async def quick_reject_payment(
     existing_notes = order.notes or ""
     order.notes = f"{existing_notes}|accessed_via:GET|accessed_at:{datetime.now(timezone.utc).isoformat()}"
     await db.commit()
-    print(f"[AUDIT] quick_reject_payment accessed via GET for order {order_no}")
+    logger.warning("quick_reject_payment accessed via GET for order %s", order_no)
 
     return HTMLResponse(f"""
     <html><body style="text-align:center;padding:50px;font-family:sans-serif;">

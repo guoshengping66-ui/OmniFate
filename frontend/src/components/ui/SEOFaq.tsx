@@ -39,7 +39,7 @@ export function SEOFaq({ title, items }: SEOFaqProps) {
       <div className="card-glass p-8 md:p-10 mb-16">
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }}
         />
         <div className="flex items-center gap-3 mb-6">
           <HelpCircle size={22} className="text-gold" />

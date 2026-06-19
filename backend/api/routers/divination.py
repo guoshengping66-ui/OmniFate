@@ -489,7 +489,7 @@ async def draw(
 
         seed = _dynamic_seed(str(current_user.id), today)
         # 将今日抽签次数混入种子，使每次结果不同
-        extra_seed = hashlib.md5(f"{seed}_{today_count}".encode()).hexdigest()
+        extra_seed = hashlib.sha256(f"{seed}_{today_count}".encode()).hexdigest()
         fortune_data = _seeded_fortune(extra_seed)
         wisdom_data = _seeded_wisdom(extra_seed)
         theme = _seeded_theme(extra_seed)
