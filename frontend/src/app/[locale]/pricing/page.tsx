@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect, lazy, Suspense } from "react"
 import { useRouter } from "next/navigation"
-import { Crown, Zap, ArrowRight, Sparkles, HelpCircle, ShieldCheck, Clock, MessageCircle, ChevronRight } from "lucide-react"
+import { Crown, Zap, ArrowRight, Sparkles, HelpCircle, ShieldCheck, Clock, MessageCircle, ChevronRight, MapPin, Globe } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
@@ -21,7 +21,7 @@ export default function PricingPage() {
   const router = useRouter()
   const { user, refreshUser } = useAuth()
   const { locale, t, localeHref } = useLanguage()
-  const { region, isLoaded } = useRegion()
+  const { region, switchRegion, isLoaded } = useRegion()
   const [selectedTier, setSelectedTier] = useState<string | null>(null)
   const [founderSoldPercent, setFounderSoldPercent] = useState(67)
   const [showTerms, setShowTerms] = useState(false)
@@ -137,7 +137,34 @@ export default function PricingPage() {
           </div>
         </ScrollReveal>
 
-
+        {/* ══════════ Region Toggle ══════════ */}
+        <div className="flex items-center justify-center mb-10">
+          <div className="relative flex items-center bg-white/5 border border-white/10 rounded-full p-1">
+            <div
+              className="absolute top-1 bottom-1 rounded-full bg-gold/15 border border-gold/25 transition-all duration-300"
+              style={{
+                left: region === "domestic" ? "4px" : "50%",
+                width: "calc(50% - 4px)",
+              }}
+            />
+            <button
+              onClick={() => switchRegion("domestic")}
+              className={`relative z-10 px-5 py-2 rounded-full text-sm font-medium transition-colors duration-200 flex items-center gap-1.5
+                ${region === "domestic" ? "text-gold" : "text-white/40 hover:text-white/60"}`}
+            >
+              <MapPin size={14} />
+              {locale === "zh" ? "国内" : "Domestic"}
+            </button>
+            <button
+              onClick={() => switchRegion("overseas")}
+              className={`relative z-10 px-5 py-2 rounded-full text-sm font-medium transition-colors duration-200 flex items-center gap-1.5
+                ${region === "overseas" ? "text-gold" : "text-white/40 hover:text-white/60"}`}
+            >
+              <Globe size={14} />
+              {locale === "zh" ? "海外" : "Overseas"}
+            </button>
+          </div>
+        </div>
 
         {/* ══════════ Main Pricing Grid (2-Column) ══════════ */}
         <Suspense fallback={<div className="grid lg:grid-cols-2 gap-5 mb-10">{[1,2].map(i => <div key={i} className="h-64 bg-white/[0.03] rounded-2xl animate-pulse" />)}</div>}>

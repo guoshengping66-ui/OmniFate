@@ -9,7 +9,7 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import { useRegion } from "@/hooks/useRegion"
 import { api } from "@/lib/api"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
-import { TIER_MAP } from "@/lib/tiers"
+import { TIER_MAP, FOUNDER_PRICE, FOUNDER_PRICE_USD } from "@/lib/tiers"
 import { QRPaymentModal } from "@/components/payment/QRPaymentModal"
 
 interface FounderStatus {
@@ -456,7 +456,7 @@ export default function FounderPage() {
           open={showPayment}
           onClose={() => setShowPayment(false)}
           orderNo={isOverseas ? undefined : founderOrderNo}
-          amount={1688}
+          amount={isOverseas ? FOUNDER_PRICE_USD : FOUNDER_PRICE}
           label={t("founder.pricing.founderSeat")}
           postAction="founder"
           region={region}

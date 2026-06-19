@@ -105,9 +105,11 @@ export default async function LocaleLayout({
   const messages = await getMessages()
 
   // Read region cookie set by middleware (CF-IPCountry based)
+  // Default to "overseas" when cookie is missing — safer for international users
+  // who would otherwise see domestic Chinese pricing/payment methods
   const cookieStore = await cookies()
   const regionCookie = cookieStore.get("region")?.value
-  const initialRegion = regionCookie === "overseas" ? "overseas" : "domestic"
+  const initialRegion: "domestic" | "overseas" = regionCookie === "domestic" ? "domestic" : "overseas"
 
   return (
     <html lang={validLocale === "zh" ? "zh-CN" : "en"}>

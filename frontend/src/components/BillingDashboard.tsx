@@ -423,7 +423,7 @@ function GlobalPanel({
 }
 
 export function BillingDashboard() {
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
   const { user, refreshUser } = useAuth()
   const { region, switchRegion, isLoaded: regionLoaded } = useRegion()
 
@@ -514,7 +514,7 @@ export function BillingDashboard() {
               ${region === "domestic" ? "text-gold" : "text-white/40 hover:text-white/60"}`}
           >
             <MapPin size={14} />
-            {t("billing.domestic")}
+            {locale === "zh" ? "国内" : "Domestic"}
           </button>
           <button
             onClick={() => handleRegionSwitch("overseas")}
@@ -522,7 +522,7 @@ export function BillingDashboard() {
               ${region === "overseas" ? "text-gold" : "text-white/40 hover:text-white/60"}`}
           >
             <Globe size={14} />
-            {t("billing.overseas")}
+            {locale === "zh" ? "海外" : "Overseas"}
           </button>
         </div>
       </div>

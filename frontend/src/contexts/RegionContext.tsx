@@ -84,12 +84,12 @@ export function RegionProvider({ children, initialRegion }: { children: ReactNod
   useEffect(() => {
     // Detection priority:
     //   1. Middleware-set cookie (from CF-IPCountry — most reliable, server-side)
-    //   2. Browser timezone detection (fallback when no cookie)
-    //   3. Browser language (weak fallback)
+    //   2. Browser language (strong signal — zh = domestic)
+    //   3. Browser timezone (weak signal — Asia/* = domestic, but unreliable for VPN users)
     //
-    // IMPORTANT: We do NOT override the server's IP-based detection with timezone.
-    // The server (Cloudflare CF-IPCountry) is the authoritative source for region.
-    // Timezone is only used as a fallback when no cookie exists.
+    // IMPORTANT: Language is checked BEFORE timezone because many overseas Chinese
+    // users have Chinese timezone (from VPN or OS settings) which causes timezone
+    // to incorrectly detect them as domestic. Language is a more reliable signal.
 
     // 1. Read middleware-set cookie (set by server via CF-IPCountry)
     const cookieRegion = getCookie("region") as Region | null
@@ -101,22 +101,21 @@ export function RegionProvider({ children, initialRegion }: { children: ReactNod
       setDetectionSource("middleware")
       setLocalStorage("alpha_mirror_region", JSON.stringify({ region: cookieRegion, ts: Date.now() }))
     } else {
-      // No cookie — use timezone as fallback
-      const tzRegion = detectFromTimezone()
-      setRegion(tzRegion)
-      setDetectionSource("timezone")
-      setLocalStorage("alpha_mirror_region", JSON.stringify({ region: tzRegion, ts: Date.now() }))
-      setRegionCookie(tzRegion)
-
-      // Language fallback (only if timezone says overseas)
-      if (tzRegion === "overseas") {
-        const langRegion = detectFromLanguage()
-        if (langRegion === "domestic") {
-          setRegion("domestic")
-          setDetectionSource("language")
-          setLocalStorage("alpha_mirror_region", JSON.stringify({ region: "domestic", ts: Date.now() }))
-          setRegionCookie("domestic")
-        }
+      // No cookie — check language first (more reliable than timezone)
+      const langRegion = detectFromLanguage()
+      if (langRegion === "domestic") {
+        // Chinese browser language → almost certainly domestic
+        setRegion("domestic")
+        setDetectionSource("language")
+        setLocalStorage("alpha_mirror_region", JSON.stringify({ region: "domestic", ts: Date.now() }))
+        setRegionCookie("domestic")
+      } else {
+        // Non-Chinese language → check timezone as secondary signal
+        const tzRegion = detectFromTimezone()
+        setRegion(tzRegion)
+        setDetectionSource("timezone")
+        setLocalStorage("alpha_mirror_region", JSON.stringify({ region: tzRegion, ts: Date.now() }))
+        setRegionCookie(tzRegion)
       }
     }
 
