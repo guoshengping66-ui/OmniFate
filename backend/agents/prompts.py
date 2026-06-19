@@ -31,6 +31,19 @@ def _lang_instruction(language: str = "zh") -> str:
             "ALL text values, descriptions, and explanations MUST be in English. "
             "Keep Chinese terms in parentheses only when they are proper nouns "
             "from Chinese metaphysics (e.g. BaZi, Wu Xing, Ten Gods).\n"
+            "MANDATORY ENGLISH TERMINOLOGY — use these exact terms:\n"
+            "- energy field (not 能量场)\n"
+            "- resistance balance / dampening (not 阻尼)\n"
+            "- breakthrough activator (not 破局点)\n"
+            "- energy drain (not 耗能)\n"
+            "- compensation mirror (not 代偿镜)\n"
+            "- behavior pattern (not 行为模式)\n"
+            "- pain point refraction (not 痛点折射)\n"
+            "- creativity audit (not 创造力审查)\n"
+            "- decompression action (not 减压动作)\n"
+            "- scoring anchor: 8-10=Excellent, 6-7.9=Good, 4-5.9=Fair, 1-3.9=Weak\n"
+            "Forbid: 玄学, fortune-telling, destiny, fate-destined, predict, guaranteed results.\n"
+            "Frame as behavioral insight and personal reflection only.\n"
         )
     return "全中文输出。\n"
 
@@ -125,6 +138,99 @@ WORKER_JSON_FORMAT = (
     "6. 精神维度：必须包含creativeFilter（创造力审查）、resetActions（减压动作）\n"
     "7. 所有描述文字禁止使用玄学术语，必须转化为现代行为心理学语言\n"
     "8. tags格式同TAG_FORMAT，但内容必须是互联网黑话\n"
+)
+
+# ─── Worker JSON Output Format (English version) ──────────────────────────
+
+WORKER_JSON_FORMAT_EN = (
+    "\n== OUTPUT FORMAT (MANDATORY) ==\n"
+    "You MUST output analysis results in strict JSON format. No other text outside the JSON block.\n"
+    "Use modern behavioral psychology and quantitative tech jargon. Forbidden: mystical/astrology terms.\n"
+    "All analysis MUST be converted to: numerical scores, balance scales, tag sets, action commands.\n"
+    "```json\n"
+    '{\n'
+    '  "summary": "50-word core finding (use tech jargon like: energy field, resistance point, breakthrough)",\n'
+    '  "dimensions": {\n'
+    '    "wealth": {\n'
+    '      "score": 7.5,\n'
+    '      "label": "Wealth Energy Level",\n'
+    '      "conflictBalance": {\n'
+    '        "left": { "tag": "Tendency A description", "weight": 45 },\n'
+    '        "right": { "tag": "Tendency B description", "weight": 55 },\n'
+    '        "conflictPoint": "Core collision point description"\n'
+    '      },\n'
+    '      "negativeTags": ["Energy drain 1", "Energy drain 2"],\n'
+    '      "positiveTags": ["Breakthrough activator 1", "Breakthrough activator 2"],\n'
+    '      "actionCommands": [\n'
+    '        { "period": "Short-term (1-3 months)", "command": "Specific action directive" },\n'
+    '        { "period": "Mid-term (6 months)", "command": "Specific action directive" }\n'
+    '      ]\n'
+    '    },\n'
+    '    "relationship": {\n'
+    '      "score": 6.2,\n'
+    '      "label": "Relationship Energy Level",\n'
+    '      "energyBars": [\n'
+    '        { "label": "Responsibility Energy", "value": 8.8, "status": "Over-compensating", "statusType": "warning" },\n'
+    '        { "label": "Emotional Nourishment", "value": 3.2, "status": "Critically Depleted", "statusType": "critical" }\n'
+    '      ],\n'
+    '      "interactionMirror": {\n'
+    '        "behaviorPattern": "Hidden behavior pattern description",\n'
+    '        "painReflection": "Pain point refraction description"\n'
+    '      },\n'
+    '      "resolution": "One-line high-priority resolution"\n'
+    '    },\n'
+    '    "career": {\n'
+    '      "score": 7.0,\n'
+    '      "label": "Career Energy Level",\n'
+    '      "conflictBalance": {\n'
+    '        "left": { "tag": "Tendency A description", "weight": 45 },\n'
+    '        "right": { "tag": "Tendency B description", "weight": 55 },\n'
+    '        "conflictPoint": "Core collision point description"\n'
+    '      },\n'
+    '      "negativeTags": ["Energy drain 1", "Energy drain 2"],\n'
+    '      "positiveTags": ["Breakthrough activator 1", "Breakthrough activator 2"],\n'
+    '      "actionCommands": [\n'
+    '        { "period": "Short-term (1-3 months)", "command": "Specific action directive" },\n'
+    '        { "period": "Mid-term (6 months)", "command": "Specific action directive" }\n'
+    '      ]\n'
+    '    },\n'
+    '    "health": {\n'
+    '      "score": 6.8,\n'
+    '      "label": "Health Energy Level",\n'
+    '      "radarChart": {\n'
+    '        "physicalHardware": { "value": 8.5, "label": "Physical Resilience" },\n'
+    '        "mentalSoftware": { "value": 9.5, "label": "Neural Tension Level", "riskLevel": "High Risk" },\n'
+    '        "conclusion": "Core conclusion (body compensation mechanism description)"\n'
+    '      }\n'
+    '    },\n'
+    '    "spiritual": {\n'
+    '      "score": 5.5,\n'
+    '      "label": "Spiritual Energy Level",\n'
+    '      "creativeFilter": {\n'
+    '        "mechanism": "Creativity audit mechanism description"\n'
+    '      },\n'
+    '      "resetActions": [\n'
+    '        "Decompression action 1 description",\n'
+    '        "Decompression action 2 description"\n'
+    '      ]\n'
+    '    }\n'
+    '  },\n'
+    '  "key_findings": ["Finding 1 (with confidence level)", "Finding 2", "Finding 3"],\n'
+    '  "weakness_tags": ["#tag1", "#tag2"],\n'
+    '  "strength_tags": ["#tag1", "#tag2"],\n'
+    '  "boost_elements": ["Fire", "Water"],\n'
+    '  "conflict_warnings": ["Contradiction signal 1"]\n'
+    '}\n'
+    "```\n"
+    "Rules:\n"
+    "1. summary is required, under 50 words, use tech jargon framing\n"
+    "2. Each dimension in dimensions must include score (1-10) and label\n"
+    "3. Wealth/Career: must include conflictBalance, negativeTags, positiveTags, actionCommands\n"
+    "4. Relationship: must include energyBars, interactionMirror, resolution\n"
+    "5. Health: must include radarChart\n"
+    "6. Spiritual: must include creativeFilter, resetActions\n"
+    "7. ALL descriptions must use modern behavioral psychology language — NO mystical terms\n"
+    "8. Tags follow TAG_FORMAT rules but content must be tech jargon\n"
 )
 
 # ─── 主题检测（条件知识加载） ────────────────────────────────────────────────
@@ -7132,7 +7238,8 @@ def master_prompt(worker_summaries: dict, user_question: str,
 def master_summary_prompt(worker_summaries: dict, user_question: str,
                          resonance_text: str = "", conflicts_text: str = "",
                          dimension_scores: dict | None = None,
-                         confidence_text: str = "") -> str:
+                         confidence_text: str = "",
+                         language: str = "zh") -> str:
     """
     Prompt for generating the FREE concise master_summary.
     - Brief overview only (500-800 chars)
@@ -7147,22 +7254,58 @@ def master_summary_prompt(worker_summaries: dict, user_question: str,
     if dimension_scores:
         _DIM_CN = {"wealth": "财富", "relationship": "感情", "career": "事业",
                    "health": "健康", "spiritual": "精神"}
-        scores_str = " | ".join(f"{_DIM_CN.get(k, k)}:{v}" for k, v in dimension_scores.items())
+        _DIM_EN = {"wealth": "Wealth", "relationship": "Relationship", "career": "Career",
+                   "health": "Health", "spiritual": "Spiritual"}
+        dim_map = _DIM_EN if language == "en" else _DIM_CN
+        scores_str = " | ".join(f"{dim_map.get(k, k)}:{v}" for k, v in dimension_scores.items())
+
+    lang_inst = _lang_instruction(language)
+
+    if language == "en":
+        return (
+            "You are Profile Mirror's chief behavioral strategist, versed in BaZi, natal chart, "
+            "tarot, and all major analytical systems.\n"
+            "Generate a concise FREE behavioral profile report based on the 7 expert summaries below.\n\n"
+            "== CONSTRAINT RULES ==\n"
+            "1. Total length: 500-800 chars (keep it tight and punchy)\n"
+            "2. Output ONLY two sections: 【A·Profile Baseline】 and 【B·Core Findings】\n"
+            "3. 【A·Profile Baseline】: 2-3 sentences summarizing the user's core behavioral archetype\n"
+            "4. 【B·Core Findings】: List the top 2-3 cross-dimension findings (wealth/career/relationship/health), "
+            "each 1-2 sentences. Prefix each with 🔴(critical) 🟡(moderate) or 🟢(positive)\n"
+            "5. Each finding must include a confidence level (High/Medium/Low)\n"
+            "6. If user asked a specific question, briefly address it (1-2 sentences)\n"
+            "7. FORBIDDEN: product recommendations, purchase links, pricing, guaranteed results\n"
+            "8. FORBIDDEN: detailed annual plans, specific month windows\n"
+            "9. Tone: warm, authoritative, conversational — like a trusted advisor\n"
+            "10. CTA: end with a hint to 'unlock the full report' for deeper analysis\n\n"
+            f"{lang_inst}\n"
+            f"== SCORING ANCHORS ==\n"
+            "8-10=Excellent | 6-7.9=Good | 4-5.9=Fair | 1-3.9=Weak\n\n"
+            f"== FIVE-DIMENSION SCORES ==\n{scores_str}\n\n"
+            f"== CROSS-DIMENSION RESONANCE ==\n{resonance_text or 'No special resonance detected'}\n\n"
+            f"== CROSS-DIMENSION CONFLICTS ==\n{conflicts_text or 'No major conflicts detected'}\n\n"
+            f"== EXPERT SUMMARIES ==\n{workers_str}\n\n"
+            f"== USER QUESTION ==\n{_sanitize_user_text(user_question)}\n\n"
+            f"{confidence_text}\n\n"
+            "Generate the free concise report now."
+        )
 
     return (
         "你是Profile Mirror首席命运策师，通晓八字、星盘、塔罗等命理体系。\n"
         "请根据以下7位专家的分析摘要，生成一份简洁的免费命盘报告。\n\n"
         "== 约束规则 ==\n"
         "1. 总长度：500-800字（务必简短精炼）\n"
-        "2. 只输出【命盘底色】和【核心发现】两个部分\n"
-        "3. 【命盘底色】：2-3句话总结用户的核心命格特质\n"
-        "4. 【核心发现】：列出最重要的2-3个跨维度发现（财富/事业/感情/健康），每个1-2句话\n"
-        "5. 每个发现标注置信度（高/中/低）\n"
-        "6. 如果用户有具体问题，简要回应（1-2句话）\n"
-        "7. 禁止输出任何商品推荐、购买链接、价格信息\n"
-        "8. 禁止输出详细年度规划、月份窗口期\n"
-        "9. 语言风格：温暖、权威、像面对面对话\n"
-        "10. 结尾引导：提示用户「解锁深度报告」获取完整分析和商品推荐\n\n"
+        "2. 必须按以下格式输出（严格使用标记）：\n"
+        "   【A·命盘底色】2-3句话总结用户的核心命格特质\n"
+        "   【B·核心发现】列出最重要的2-3个跨维度发现（财富/事业/感情/健康），每个1-2句话\n"
+        "   每个发现前缀用🔴（高危）🟡（中等）🟢（积极）标注\n"
+        "3. 每个发现标注置信度（高/中/低）\n"
+        "4. 如果用户有具体问题，简要回应（1-2句话）\n"
+        "5. 禁止输出任何商品推荐、购买链接、价格信息\n"
+        "6. 禁止输出详细年度规划、月份窗口期\n"
+        "7. 语言风格：温暖、权威、像面对面对话\n"
+        "8. 结尾引导：提示用户「解锁深度报告」获取完整分析\n\n"
+        f"{lang_inst}\n"
         f"== 五维评分 ==\n{scores_str}\n\n"
         f"== 跨维度共鸣 ==\n{resonance_text or '无特殊共鸣'}\n\n"
         f"== 跨维度冲突 ==\n{conflicts_text or '无重大冲突'}\n\n"
@@ -7178,7 +7321,8 @@ def master_detail_prompt(worker_summaries: dict, user_question: str,
                          conflicts_text: str = "", chat_context: str = "",
                          resonance_text: str = "", harm_hint: str = "",
                          dimension_scores: dict | None = None,
-                         confidence_text: str = "") -> str:
+                         confidence_text: str = "",
+                         language: str = "zh") -> str:
     """
     Prompt for generating the PAID detailed master_detail.
     - Full deep analysis (2500-4000 chars)
@@ -7204,23 +7348,42 @@ def master_detail_prompt(worker_summaries: dict, user_question: str,
 
     _DIM_CN = {"wealth": "财富", "relationship": "感情", "career": "事业",
                "health": "健康", "spiritual": "精神"}
+    _DIM_EN = {"wealth": "Wealth", "relationship": "Relationship", "career": "Career",
+               "health": "Health", "spiritual": "Spiritual"}
+    dim_map = _DIM_EN if language == "en" else _DIM_CN
     scores_sec = ""
     if dimension_scores:
-        scores_sec = " | ".join(f"{_DIM_CN.get(k, k)}:{v}" for k, v in dimension_scores.items())
+        scores_sec = " | ".join(f"{dim_map.get(k, k)}:{v}" for k, v in dimension_scores.items())
 
-    # Product section
+    lang_inst = _lang_instruction(language)
+
+    # Product section — informational, not salesy
     products_sec = ""
     if products_with_reasons:
-        products_sec = "【推荐商品清单】\n"
-        for p in products_with_reasons:
-            name = p.get("product_name", p.get("name", "商品"))
-            price = p.get("price_cny", p.get("price", "?"))
-            reasons = p.get("match_reasons", [])
-            rec = p.get("recommendation_text", "")
-            products_sec += f"  - {name} ¥{price} | 匹配原因：{'；'.join(reasons[:3])}"
-            if rec:
-                products_sec += f" | LLM推荐语：{rec[:200]}"
-            products_sec += "\n"
+        if language == "en":
+            products_sec = "【Chart-Matched Items】\n"
+            for p in products_with_reasons:
+                name = p.get("product_name", p.get("name", "Item"))
+                price = p.get("price_cny", p.get("price", "?"))
+                reasons = p.get("match_reasons", [])
+                products_sec += f"  - {name} ¥{price} | Match reason: {'; '.join(reasons[:3])}\n"
+            products_sec += (
+                "\nIMPORTANT: Present these as informational references only. "
+                "Do NOT use hard-sell language. Frame as 'if you're interested, here are items "
+                "that align with your chart's data profile.' One mention in Section J is sufficient."
+            )
+        else:
+            products_sec = "【推荐商品清单】\n"
+            for p in products_with_reasons:
+                name = p.get("product_name", p.get("name", "商品"))
+                price = p.get("price_cny", p.get("price", "?"))
+                reasons = p.get("match_reasons", [])
+                products_sec += f"  - {name} ¥{price} | 匹配原因：{'；'.join(reasons[:3])}\n"
+            products_sec += (
+                "\n重要提示：商品仅作为信息参考呈现，不要使用硬推销话术。"
+                "用「如果你感兴趣，以下是与你命盘数据画像匹配的物品」的语气。"
+                "正文[A]至[H]中不要插入inline产品暗示，只在J段集中呈现即可。"
+            )
 
     return (
         "你是Profile Mirror首席命运策师，通晓所有命理体系。\n"
@@ -7259,16 +7422,14 @@ def master_detail_prompt(worker_summaries: dict, user_question: str,
         "   从推荐商品数据中挑选最匹配的1-2个商品，按处方格式输出：\n"
         "     【商品名称】(¥价格) — 推荐理由[80-120字，引用具体命盘弱点+商品功效对应关系]\n"
         "     结尾加上「— 专属处方」标记\n"
-        "   语言风格：像中医开方一样精准权威，直接说明「你的命局X问题，此物Y属性可Z化解」\n\n"
-        "【重要·正文中的产品暗示】\n"
-        "   在报告正文[A]至[H]各段中，当提到用户的命盘弱点或能量缺陷时，\n"
-        "   在段落内自然插入1-2条括号书写的产品暗示（不要放在J段，要散布在正文中）：\n"
-        "   格式：（建议佩戴[name]以增强[benefit] 则）\n"
-        "   例如：（建议佩戴蓝晶石以增强直觉与决断力 则）\n"
-        "   这些inline链接应与所在段落的弱点直接相关，不突兀，如医生开药方般自然\n\n"
+        "   语气： informational and respectful, 如同朋友推荐而非硬推销\n\n"
         "4. 语言风格：如同一对一深度咨询，温暖、权威、洞察力强\n"
         "5. 所有结论必须标注置信度，不编造不存在的数据\n"
-        "6. 用户提问必须被充分回应，不要泛泛而谈\n\n"
+        "6. 用户提问必须被充分回应，不要泛泛而谈\n"
+        "7. 正文[A]至[H]中不要插入inline产品暗示，只在J段集中呈现\n\n"
+        f"{lang_inst}\n"
+        f"== SCORING ANCHORS ==\n"
+        "8-10=Excellent | 6-7.9=Good | 4-5.9=Fair | 1-3.9=Weak\n\n"
         f"{CROSS_DOMAIN}\n"
         f"== 五维评分 ==\n{scores_sec}\n\n"
         f"== 跨维度共鸣 ==\n{resonance_text or '无'}\n\n"

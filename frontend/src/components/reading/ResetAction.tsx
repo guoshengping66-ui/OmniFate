@@ -1,14 +1,17 @@
 "use client"
 
+import { useLanguage } from "@/contexts/LanguageContext"
 import type { ResetActionProps } from "@/types/report"
 
 export function ResetAction({ actions }: ResetActionProps) {
+  const { t } = useLanguage()
+
   return (
     <div className="space-y-2.5">
       {/* Section header */}
       <div className="flex items-center gap-2 text-[11px] text-white/40">
         <span className="w-1 h-1 rounded-full bg-teal-400/60" />
-        <span>精神减压阀动作</span>
+        <span>{t("report.resetAction.header")}</span>
       </div>
 
       {/* Action list */}

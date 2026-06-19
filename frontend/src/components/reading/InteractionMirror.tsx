@@ -1,8 +1,10 @@
 "use client"
 
+import { useLanguage } from "@/contexts/LanguageContext"
 import type { InteractionMirrorProps } from "@/types/report"
 
 export function InteractionMirror({ data }: InteractionMirrorProps) {
+  const { t } = useLanguage()
   const { behaviorPattern, painReflection } = data
 
   return (
@@ -10,7 +12,7 @@ export function InteractionMirror({ data }: InteractionMirrorProps) {
       {/* Section header */}
       <div className="flex items-center gap-2 text-[11px] text-white/40">
         <span className="w-1 h-1 rounded-full bg-indigo-400/60" />
-        <span>深度互动镜像模型</span>
+        <span>{t("report.interactionMirror.header")}</span>
       </div>
 
       {/* Mirror card */}
@@ -19,7 +21,7 @@ export function InteractionMirror({ data }: InteractionMirrorProps) {
         <div className="px-3.5 py-3">
           <div className="flex items-center gap-2 mb-1.5">
             <span className="w-1 h-1 rounded-full bg-indigo-400/50" />
-            <span className="text-[11px] text-indigo-400/60 font-medium">隐性行为模式</span>
+            <span className="text-[11px] text-indigo-400/60 font-medium">{t("report.interactionMirror.behavior")}</span>
           </div>
           <p className="text-white/55 text-xs leading-relaxed pl-2.5 border-l border-indigo-500/15">
             {behaviorPattern}
@@ -33,7 +35,7 @@ export function InteractionMirror({ data }: InteractionMirrorProps) {
         <div className="px-3.5 py-3">
           <div className="flex items-center gap-2 mb-1.5">
             <span className="w-1 h-1 rounded-full bg-rose-400/50" />
-            <span className="text-[11px] text-rose-400/60 font-medium">痛点折射</span>
+            <span className="text-[11px] text-rose-400/60 font-medium">{t("report.interactionMirror.pain")}</span>
           </div>
           <p className="text-white/55 text-xs leading-relaxed pl-2.5 border-l border-rose-500/15">
             {painReflection}

@@ -2,16 +2,18 @@
 
 import { useState } from "react"
 import { ChevronDown, ChevronUp } from "lucide-react"
+import { useLanguage } from "@/contexts/LanguageContext"
 import type { DimensionCardProps } from "@/types/report"
 
 export function DimensionCard({ title, icon, score, color, children }: DimensionCardProps) {
+  const { t } = useLanguage()
   const [expanded, setExpanded] = useState(true)
 
   const getScoreBadge = (score: number) => {
-    if (score >= 8) return { text: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20", label: "优" }
-    if (score >= 6) return { text: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20", label: "良" }
-    if (score >= 4) return { text: "text-orange-400", bg: "bg-orange-500/10", border: "border-orange-500/20", label: "中" }
-    return { text: "text-red-400", bg: "bg-red-500/10", border: "border-red-500/20", label: "弱" }
+    if (score >= 8) return { text: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20", label: t("report.dimension.excellent") }
+    if (score >= 6) return { text: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20", label: t("report.dimension.good") }
+    if (score >= 4) return { text: "text-orange-400", bg: "bg-orange-500/10", border: "border-orange-500/20", label: t("report.dimension.fair") }
+    return { text: "text-red-400", bg: "bg-red-500/10", border: "border-red-500/20", label: t("report.dimension.weak") }
   }
 
   const badge = getScoreBadge(score)

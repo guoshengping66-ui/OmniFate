@@ -1,8 +1,11 @@
 "use client"
 
+import { useLanguage } from "@/contexts/LanguageContext"
 import type { TagMatrixProps } from "@/types/report"
 
 export function TagMatrix({ negativeTags, positiveTags }: TagMatrixProps) {
+  const { t } = useLanguage()
+
   return (
     <div className="space-y-2.5">
       {/* Negative tags */}
@@ -10,7 +13,7 @@ export function TagMatrix({ negativeTags, positiveTags }: TagMatrixProps) {
         <div className="space-y-1.5">
           <div className="flex items-center gap-1.5 text-[11px] text-white/40">
             <span className="w-1 h-1 rounded-full bg-red-400/60" />
-            <span>负面耗能阻尼点</span>
+            <span>{t("report.tagMatrix.negative")}</span>
           </div>
           <div className="flex flex-wrap gap-1.5">
             {negativeTags.map((tag, i) => (
@@ -30,7 +33,7 @@ export function TagMatrix({ negativeTags, positiveTags }: TagMatrixProps) {
         <div className="space-y-1.5">
           <div className="flex items-center gap-1.5 text-[11px] text-white/40">
             <span className="w-1 h-1 rounded-full bg-emerald-400/60" />
-            <span>破局能量激活点</span>
+            <span>{t("report.tagMatrix.positive")}</span>
           </div>
           <div className="flex flex-wrap gap-1.5">
             {positiveTags.map((tag, i) => (

@@ -1,16 +1,18 @@
 "use client"
 
+import { useLanguage } from "@/contexts/LanguageContext"
 import type { EnergyBarProps } from "@/types/report"
 
 export function EnergyBar({ bars }: EnergyBarProps) {
+  const { t } = useLanguage()
   const getStatusStyle = (statusType: string) => {
     switch (statusType) {
       case "critical":
-        return { bar: "bg-red-500/60", text: "text-red-400", bg: "bg-red-500/10", label: "危" }
+        return { bar: "bg-red-500/60", text: "text-red-400", bg: "bg-red-500/10", label: t("report.energyBar.critical") }
       case "warning":
-        return { bar: "bg-amber-500/60", text: "text-amber-400", bg: "bg-amber-500/10", label: "警" }
+        return { bar: "bg-amber-500/60", text: "text-amber-400", bg: "bg-amber-500/10", label: t("report.energyBar.warning") }
       default:
-        return { bar: "bg-emerald-500/60", text: "text-emerald-400", bg: "bg-emerald-500/10", label: "安" }
+        return { bar: "bg-emerald-500/60", text: "text-emerald-400", bg: "bg-emerald-500/10", label: t("report.energyBar.safe") }
     }
   }
 
@@ -19,7 +21,7 @@ export function EnergyBar({ bars }: EnergyBarProps) {
       {/* Section header */}
       <div className="flex items-center gap-2 text-[11px] text-white/40">
         <span className="w-1 h-1 rounded-full bg-pink-400/60" />
-        <span>情感供需阻尼槽</span>
+        <span>{t("report.energyBar.header")}</span>
       </div>
 
       {/* Bars */}

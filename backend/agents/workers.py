@@ -132,10 +132,22 @@ _JSON_OUTPUT_INSTRUCTION_EN = (
     "\n\n== CRITICAL: OUTPUT FORMAT (Structured Metadata) ==\n"
     "You MUST output the analysis in strict JSON format. Do NOT output any other text.\n"
     "ALL text values MUST be in English. Do NOT mix Chinese and English.\n"
-    "Use modern behavioral psychology and internet jargon. NO mystical/metaphysical terms.\n"
+    "Use modern behavioral psychology and tech jargon. NO mystical/metaphysical terms.\n"
+    "MANDATORY TERMINOLOGY — use these exact terms:\n"
+    "- energy field (not energy场)\n"
+    "- resistance balance / dampening (not friction)\n"
+    "- breakthrough activator (not breakthrough energy)\n"
+    "- energy drain (not friction point)\n"
+    "- compensation mirror (not compensation mechanism)\n"
+    "- behavior pattern (not hidden behavior)\n"
+    "- pain point refraction (not pain reflection)\n"
+    "- creativity audit (not creative filter)\n"
+    "- decompression action (not action)\n"
+    "Scoring anchors: 8-10=Excellent, 6-7.9=Good, 4-5.9=Fair, 1-3.9=Weak\n"
+    "Forbid: fortune-telling, destiny, predict, guaranteed results. Frame as behavioral insight only.\n"
     "```json\n"
     '{\n'
-    '  "summary": "50-word core conclusion (use internet jargon like: energy field, friction point, breakthrough)",\n'
+    '  "summary": "50-word core finding (use tech jargon like: energy field, resistance balance, breakthrough activator)",\n'
     '  "dimensions": {\n'
     '    "wealth": {\n'
     '      "score": 7.5,\n'
@@ -143,13 +155,13 @@ _JSON_OUTPUT_INSTRUCTION_EN = (
     '      "conflictBalance": {\n'
     '        "left": { "tag": "Tendency A description", "weight": 45 },\n'
     '        "right": { "tag": "Tendency B description", "weight": 55 },\n'
-    '        "conflictPoint": "Core conflict collision point"\n'
+    '        "conflictPoint": "Core collision point description"\n'
     '      },\n'
-    '      "negativeTags": ["Friction point 1", "Friction point 2"],\n'
-    '      "positiveTags": ["Breakthrough energy 1", "Breakthrough energy 2"],\n'
+    '      "negativeTags": ["Energy drain 1", "Energy drain 2"],\n'
+    '      "positiveTags": ["Breakthrough activator 1", "Breakthrough activator 2"],\n'
     '      "actionCommands": [\n'
-    '        { "period": "Short-term (1-3 months)", "command": "Specific action command" },\n'
-    '        { "period": "Mid-term (6 months)", "command": "Specific action command" }\n'
+    '        { "period": "Short-term (1-3 months)", "command": "Specific action directive" },\n'
+    '        { "period": "Mid-term (6 months)", "command": "Specific action directive" }\n'
     '      ]\n'
     '    },\n'
     '    "relationship": {\n'
@@ -157,13 +169,13 @@ _JSON_OUTPUT_INSTRUCTION_EN = (
     '      "label": "Relationship Energy Level",\n'
     '      "energyBars": [\n'
     '        { "label": "Responsibility Energy", "value": 8.8, "status": "Over-compensating", "statusType": "warning" },\n'
-    '        { "label": "Emotional Nourishment", "value": 3.2, "status": "Severely Depleted", "statusType": "critical" }\n'
+    '        { "label": "Emotional Nourishment", "value": 3.2, "status": "Critically Depleted", "statusType": "critical" }\n'
     '      ],\n'
     '      "interactionMirror": {\n'
     '        "behaviorPattern": "Hidden behavior pattern description",\n'
-    '        "painReflection": "Pain point reflection description"\n'
+    '        "painReflection": "Pain point refraction description"\n'
     '      },\n'
-    '      "resolution": "One-sentence high-priority solution"\n'
+    '      "resolution": "One-line high-priority resolution"\n'
     '    },\n'
     '    "career": {\n'
     '      "score": 7.0,\n'
@@ -171,13 +183,13 @@ _JSON_OUTPUT_INSTRUCTION_EN = (
     '      "conflictBalance": {\n'
     '        "left": { "tag": "Tendency A description", "weight": 45 },\n'
     '        "right": { "tag": "Tendency B description", "weight": 55 },\n'
-    '        "conflictPoint": "Core conflict collision point"\n'
+    '        "conflictPoint": "Core collision point description"\n'
     '      },\n'
-    '      "negativeTags": ["Friction point 1", "Friction point 2"],\n'
-    '      "positiveTags": ["Breakthrough energy 1", "Breakthrough energy 2"],\n'
+    '      "negativeTags": ["Energy drain 1", "Energy drain 2"],\n'
+    '      "positiveTags": ["Breakthrough activator 1", "Breakthrough activator 2"],\n'
     '      "actionCommands": [\n'
-    '        { "period": "Short-term (1-3 months)", "command": "Specific action command" },\n'
-    '        { "period": "Mid-term (6 months)", "command": "Specific action command" }\n'
+    '        { "period": "Short-term (1-3 months)", "command": "Specific action directive" },\n'
+    '        { "period": "Mid-term (6 months)", "command": "Specific action directive" }\n'
     '      ]\n'
     '    },\n'
     '    "health": {\n'
@@ -185,37 +197,37 @@ _JSON_OUTPUT_INSTRUCTION_EN = (
     '      "label": "Health Energy Level",\n'
     '      "radarChart": {\n'
     '        "physicalHardware": { "value": 8.5, "label": "Physical Resilience" },\n'
-    '        "mentalSoftware": { "value": 9.5, "label": "Mental Tension", "riskLevel": "High Risk" },\n'
-    '        "conclusion": "Core conclusion (body compensation mechanism)"\n'
+    '        "mentalSoftware": { "value": 9.5, "label": "Neural Tension Level", "riskLevel": "High Risk" },\n'
+    '        "conclusion": "Core conclusion (body compensation mirror description)"\n'
     '      }\n'
     '    },\n'
     '    "spiritual": {\n'
     '      "score": 5.5,\n'
     '      "label": "Spiritual Energy Level",\n'
     '      "creativeFilter": {\n'
-    '        "mechanism": "Creative filter mechanism description"\n'
+    '        "mechanism": "Creativity audit mechanism description"\n'
     '      },\n'
     '      "resetActions": [\n'
-    '        "Action 1 description",\n'
-    '        "Action 2 description"\n'
+    '        "Decompression action 1 description",\n'
+    '        "Decompression action 2 description"\n'
     '      ]\n'
     '    }\n'
     '  },\n'
-    '  "key_findings": ["finding 1 (with confidence)", "finding 2", "finding 3"],\n'
+    '  "key_findings": ["Finding 1 (with confidence level)", "Finding 2", "Finding 3"],\n'
     '  "weakness_tags": ["#tag1", "#tag2"],\n'
     '  "strength_tags": ["#tag1", "#tag2"],\n'
     '  "boost_elements": ["fire", "water"],\n'
-    '  "conflict_warnings": ["conflict signal 1"]\n'
+    '  "conflict_warnings": ["Contradiction signal 1"]\n'
     '}\n'
     "```\n"
     "Rules:\n"
-    "1. summary required, max 50 words, use internet jargon\n"
+    "1. summary required, max 50 words, use tech jargon framing\n"
     "2. Each dimension must include score (1-10) and label\n"
     "3. Wealth/Career: must include conflictBalance, negativeTags, positiveTags, actionCommands\n"
     "4. Relationship: must include energyBars, interactionMirror, resolution\n"
     "5. Health: must include radarChart\n"
     "6. Spiritual: must include creativeFilter, resetActions\n"
-    "7. NO mystical terms - use modern behavioral psychology language\n"
+    "7. ALL descriptions must use modern behavioral psychology language — NO mystical terms\n"
     "8. ALL text values in the JSON MUST be in English. Do NOT mix languages.\n"
 )
 
@@ -314,10 +326,13 @@ _JSON_OUTPUT_INSTRUCTION_COMPACT_EN = (
     "\n\n== CRITICAL: OUTPUT FORMAT (Structured Compact) ==\n"
     "You MUST output the analysis in strict JSON format. Do NOT output any other text.\n"
     "ALL text values MUST be in English. Do NOT mix Chinese and English.\n"
-    "Use modern behavioral psychology and internet jargon. NO mystical terms.\n"
+    "Use modern behavioral psychology and tech jargon. NO mystical terms.\n"
+    "MANDATORY TERMINOLOGY: energy drain, breakthrough activator, resistance balance, "
+    "compensation mirror, behavior pattern, pain point refraction, creativity audit, decompression action.\n"
+    "Scoring: 8-10=Excellent, 6-7.9=Good, 4-5.9=Fair, 1-3.9=Weak.\n"
     "```json\n"
     '{\n'
-    '  "summary": "50-word core conclusion (internet jargon)",\n'
+    '  "summary": "50-word core finding (tech jargon framing)",\n'
     '  "dimensions": {\n'
     '    "wealth": {\n'
     '      "score": 7.5,\n'
@@ -325,27 +340,27 @@ _JSON_OUTPUT_INSTRUCTION_COMPACT_EN = (
     '      "conflictBalance": {\n'
     '        "left": { "tag": "Tendency A", "weight": 45 },\n'
     '        "right": { "tag": "Tendency B", "weight": 55 },\n'
-    '        "conflictPoint": "Core conflict point"\n'
+    '        "conflictPoint": "Core collision point"\n'
     '      },\n'
-    '      "negativeTags": ["Friction 1", "Friction 2"],\n'
-    '      "positiveTags": ["Breakthrough 1", "Breakthrough 2"],\n'
+    '      "negativeTags": ["Energy drain 1", "Energy drain 2"],\n'
+    '      "positiveTags": ["Breakthrough activator 1", "Breakthrough activator 2"],\n'
     '      "actionCommands": [\n'
-    '        { "period": "Short-term", "command": "Action command" },\n'
-    '        { "period": "Mid-term", "command": "Action command" }\n'
+    '        { "period": "Short-term", "command": "Action directive" },\n'
+    '        { "period": "Mid-term", "command": "Action directive" }\n'
     '      ]\n'
     '    },\n'
     '    "relationship": {\n'
     '      "score": 6.2,\n'
     '      "label": "Relationship Energy Level",\n'
     '      "energyBars": [\n'
-    '        { "label": "Responsibility", "value": 8.8, "status": "Over-compensating", "statusType": "warning" },\n'
-    '        { "label": "Emotional Nourishment", "value": 3.2, "status": "Depleted", "statusType": "critical" }\n'
+    '        { "label": "Responsibility Energy", "value": 8.8, "status": "Over-compensating", "statusType": "warning" },\n'
+    '        { "label": "Emotional Nourishment", "value": 3.2, "status": "Critically Depleted", "statusType": "critical" }\n'
     '      ],\n'
     '      "interactionMirror": {\n'
-    '        "behaviorPattern": "Behavior pattern",\n'
-    '        "painReflection": "Pain reflection"\n'
+    '        "behaviorPattern": "Hidden behavior pattern",\n'
+    '        "painReflection": "Pain point refraction"\n'
     '      },\n'
-    '      "resolution": "Solution"\n'
+    '      "resolution": "High-priority resolution"\n'
     '    },\n'
     '    "career": {\n'
     '      "score": 7.0,\n'
@@ -353,13 +368,13 @@ _JSON_OUTPUT_INSTRUCTION_COMPACT_EN = (
     '      "conflictBalance": {\n'
     '        "left": { "tag": "Tendency A", "weight": 45 },\n'
     '        "right": { "tag": "Tendency B", "weight": 55 },\n'
-    '        "conflictPoint": "Core conflict point"\n'
+    '        "conflictPoint": "Core collision point"\n'
     '      },\n'
-    '      "negativeTags": ["Friction 1", "Friction 2"],\n'
-    '      "positiveTags": ["Breakthrough 1", "Breakthrough 2"],\n'
+    '      "negativeTags": ["Energy drain 1", "Energy drain 2"],\n'
+    '      "positiveTags": ["Breakthrough activator 1", "Breakthrough activator 2"],\n'
     '      "actionCommands": [\n'
-    '        { "period": "Short-term", "command": "Action command" },\n'
-    '        { "period": "Mid-term", "command": "Action command" }\n'
+    '        { "period": "Short-term", "command": "Action directive" },\n'
+    '        { "period": "Mid-term", "command": "Action directive" }\n'
     '      ]\n'
     '    },\n'
     '    "health": {\n'
@@ -367,28 +382,28 @@ _JSON_OUTPUT_INSTRUCTION_COMPACT_EN = (
     '      "label": "Health Energy Level",\n'
     '      "radarChart": {\n'
     '        "physicalHardware": { "value": 8.5, "label": "Physical Resilience" },\n'
-    '        "mentalSoftware": { "value": 9.5, "label": "Mental Tension", "riskLevel": "High Risk" },\n'
-    '        "conclusion": "Core conclusion"\n'
+    '        "mentalSoftware": { "value": 9.5, "label": "Neural Tension Level", "riskLevel": "High Risk" },\n'
+    '        "conclusion": "Core conclusion (compensation mirror)"\n'
     '      }\n'
     '    },\n'
     '    "spiritual": {\n'
     '      "score": 5.5,\n'
     '      "label": "Spiritual Energy Level",\n'
     '      "creativeFilter": {\n'
-    '        "mechanism": "Creative filter mechanism"\n'
+    '        "mechanism": "Creativity audit mechanism"\n'
     '      },\n'
-    '      "resetActions": ["Action 1", "Action 2"]\n'
+    '      "resetActions": ["Decompression action 1", "Decompression action 2"]\n'
     '    }\n'
     '  },\n'
-    '  "key_findings": ["finding 1", "finding 2", "finding 3"],\n'
+    '  "key_findings": ["Finding 1", "Finding 2", "Finding 3"],\n'
     '  "weakness_tags": ["#tag1", "#tag2"],\n'
     '  "strength_tags": ["#tag1", "#tag2"],\n'
     '  "boost_elements": ["fire", "water"],\n'
-    '  "conflict_warnings": ["conflict signal"]\n'
+    '  "conflict_warnings": ["Contradiction signal"]\n'
     '}\n'
     "```\n"
     "Rules: summary required (max 50 words); all 5 dimensions with score and label; "
-    "3-5 key_findings; NO mystical terms - use internet jargon; ALL text in English.\n"
+    "3-5 key_findings; NO mystical terms - use tech jargon; ALL text in English.\n"
 )
 
 

@@ -3381,6 +3381,55 @@
       "cta": "查看完整处方"
     }
   },
+  "report": {
+    "summary": "核心结论",
+    "wealth": { "title": "财富与事业·量化能量场" },
+    "relationship": {
+      "title": "感情与人际·隐性权力场",
+      "priority": "关系高优先解",
+      "prescription": "独家处方"
+    },
+    "career": { "title": "事业进阶·赛道切换" },
+    "health": { "title": "精神与健康·内耗代偿镜" },
+    "spiritual": { "title": "精神能级·创造力审查" },
+    "conflictBalance": {
+      "header": "现状阻尼天平",
+      "coreConflict": "核心对撞点"
+    },
+    "tagMatrix": {
+      "negative": "负面耗能阻尼点",
+      "positive": "破局能量激活点"
+    },
+    "actionCommand": { "header": "阶段行动策略盒" },
+    "energyBar": {
+      "header": "情感供需阻尼槽",
+      "critical": "危",
+      "warning": "警",
+      "safe": "安"
+    },
+    "interactionMirror": {
+      "header": "深度互动镜像模型",
+      "behavior": "隐性行为模式",
+      "pain": "痛点折射"
+    },
+    "healthRadar": {
+      "header": "身心代偿雷达",
+      "physical": "物理硬件",
+      "mental": "精神软件",
+      "conclusion": "核心结论"
+    },
+    "creativeFilter": {
+      "header": "创造力审查阻尼",
+      "detail": "审查机制详情"
+    },
+    "resetAction": { "header": "精神减压阀动作" },
+    "dimension": {
+      "excellent": "优",
+      "good": "良",
+      "fair": "中",
+      "weak": "弱"
+    }
+  },
   "pricing": {
     "aiQuestion": "AI 追问",
     "and": "和",

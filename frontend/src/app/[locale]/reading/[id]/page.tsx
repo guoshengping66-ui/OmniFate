@@ -138,12 +138,28 @@ function parseFreeReportSections(summary: string): {
 
   // Match section markers: 【X·任意文本】 or [X·任意文本]
   // where X is a letter A-E, · may be surrounded by spaces
+  // Also match legacy format without letter prefix: 【命盘底色】, 【核心发现】
   const markerRe = /[【\[]([A-E])\s*·[^】\]]*[】\]]/g
-  // Store both idx (start of 【) and end (position after 】) for each marker
   const markers: { letter: string; idx: number; end: number }[] = []
   let m: RegExpExecArray | null
   while ((m = markerRe.exec(summary)) !== null) {
     markers.push({ letter: m[1], idx: m.index, end: m.index + m[0].length })
+  }
+
+  // Fallback: try legacy markers without letter prefix
+  if (markers.length === 0) {
+    const legacyRe = /[【\[]((?:命盘底色|核心发现|核心矛盾|置信度|五维诊断|年度转折|专项分析|发展轨迹|能量处方|处方笺))[^】\]]*[】\]]/g
+    const legacyMap: Record<string, string> = {
+      "命盘底色": "A", "核心发现": "B", "核心矛盾": "C",
+      "置信度": "D", "五维诊断": "E"
+    }
+    let lm: RegExpExecArray | null
+    while ((lm = legacyRe.exec(summary)) !== null) {
+      const letter = legacyMap[lm[1]]
+      if (letter) {
+        markers.push({ letter, idx: lm.index, end: lm.index + lm[0].length })
+      }
+    }
   }
 
   if (markers.length === 0) {
@@ -154,7 +170,6 @@ function parseFreeReportSections(summary: string): {
 
   for (let i = 0; i < markers.length; i++) {
     const contentStart = markers[i].end
-    // Content ends where the next marker's 【 begins — no fragile math needed
     const contentEnd = i + 1 < markers.length ? markers[i + 1].idx : summary.length
     const content = summary.slice(contentStart, contentEnd).trim()
     const letter = markers[i].letter
@@ -162,7 +177,15 @@ function parseFreeReportSections(summary: string): {
     if (letter === "A") result.sectionA = content
     else if (letter === "B") {
       result.sectionB = content
+      // Extract painPoints: prefer emoji-prefixed lines, fallback to bullet/numbered items
       result.painPoints = content.split("\n").filter(l => /^[🔴🟡🟢]/.test(l.trim())).map(l => l.trim())
+      if (result.painPoints.length === 0) {
+        // Fallback: extract bullet points or numbered items
+        result.painPoints = content.split("\n")
+          .filter(l => /^[\-•·*\d+[.、)】]/.test(l.trim()))
+          .map(l => l.trim().replace(/^[\-•·*\d+[.、)】]\s*/, ""))
+          .filter(l => l.length > 5)
+      }
     }
     else if (letter === "D") result.sectionD = content
   }

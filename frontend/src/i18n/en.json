@@ -3707,6 +3707,55 @@
       "cta": "View full prescription"
     }
   },
+  "report": {
+    "summary": "Core Findings",
+    "wealth": { "title": "Wealth & Career · Quantified Energy Field" },
+    "relationship": {
+      "title": "Love & Relationships · Hidden Power Dynamics",
+      "priority": "High-Priority Resolution",
+      "prescription": "Prescription"
+    },
+    "career": { "title": "Career Advancement · Track Switching" },
+    "health": { "title": "Mind & Health · Compensation Mirror" },
+    "spiritual": { "title": "Spiritual Energy · Creativity Audit" },
+    "conflictBalance": {
+      "header": "Current Resistance Balance",
+      "coreConflict": "Core Collision Point"
+    },
+    "tagMatrix": {
+      "negative": "Energy Drains",
+      "positive": "Breakthrough Activators"
+    },
+    "actionCommand": { "header": "Phase Action Strategy" },
+    "energyBar": {
+      "header": "Emotional Supply-Demand Dampening",
+      "critical": "Critical",
+      "warning": "Warning",
+      "safe": "Safe"
+    },
+    "interactionMirror": {
+      "header": "Deep Interaction Mirror",
+      "behavior": "Hidden Behavior Pattern",
+      "pain": "Pain Point Refraction"
+    },
+    "healthRadar": {
+      "header": "Body-Mind Compensation Radar",
+      "physical": "Physical Hardware",
+      "mental": "Mental Software",
+      "conclusion": "Core Conclusion"
+    },
+    "creativeFilter": {
+      "header": "Creativity Audit Dampening",
+      "detail": "Audit Mechanism Details"
+    },
+    "resetAction": { "header": "Mental Decompression Actions" },
+    "dimension": {
+      "excellent": "Excellent",
+      "good": "Good",
+      "fair": "Fair",
+      "weak": "Weak"
+    }
+  },
   "pricing": {
     "aiQuestion": "Expert Questions",
     "and": "and",
