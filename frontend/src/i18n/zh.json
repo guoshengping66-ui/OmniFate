@@ -3836,5 +3836,34 @@
     "lockedTitle": "完整人生趋势尚未解锁",
     "lockedCta": "解锁完整命运档案",
     "lockedHint": "查看完整分析 →"
+  },
+  "treasureHall": {
+    "hero": {
+      "title": "藏宝阁",
+      "subtitle": "你的命盘选中的物品——每一件都有它的意义",
+      "personalized": "AI 为你匹配"
+    },
+    "series": {
+      "all": "全部藏品",
+      "crystal": "灵石",
+      "jewelry": "饰蕴",
+      "incense": "香道",
+      "talisman": "符韵",
+      "book": "典籍",
+      "service": "仪式"
+    },
+    "curator": {
+      "title": "AI 为你匹配",
+      "subtitle": "基于你的命盘分析，这些物品与你当前的能量状态最契合"
+    },
+    "story": "藏品故事",
+    "meaning": "文化寓意",
+    "usageGuide": "使用建议",
+    "collect": "珍藏此物",
+    "collected": "已珍藏",
+    "backToHall": "返回藏宝阁",
+    "disclaimer": "藏品为文化创意产品，描述基于传统文化理念，非功效承诺。",
+    "noMatch": "暂无契合的藏品",
+    "resultCount": "共 {count} 件藏品"
   }
 }

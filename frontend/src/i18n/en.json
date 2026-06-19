@@ -3928,5 +3928,34 @@
     "lockedTitle": "Full life trajectory locked",
     "lockedCta": "Unlock Full Destiny Archive",
     "lockedHint": "View full analysis →"
+  },
+  "treasureHall": {
+    "hero": {
+      "title": "The Vault",
+      "subtitle": "Objects chosen by your chart — each one carries meaning",
+      "personalized": "AI Matched for You"
+    },
+    "series": {
+      "all": "All Treasures",
+      "crystal": "Crystals",
+      "jewelry": "Adornments",
+      "incense": "Incense",
+      "talisman": "Talismans",
+      "book": "Scriptures",
+      "service": "Rituals"
+    },
+    "curator": {
+      "title": "AI Matched",
+      "subtitle": "Based on your chart analysis, these objects resonate with your current energy"
+    },
+    "story": "Treasure Story",
+    "meaning": "Cultural Significance",
+    "usageGuide": "Usage Guide",
+    "collect": "Collect This",
+    "collected": "Collected",
+    "backToHall": "Back to Treasury",
+    "disclaimer": "Cultural creative products. Descriptions are based on traditional wisdom, not efficacy claims.",
+    "noMatch": "No matching treasures found",
+    "resultCount": "{count} treasures"
   }
 }
