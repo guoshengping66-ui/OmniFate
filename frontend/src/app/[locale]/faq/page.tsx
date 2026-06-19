@@ -6,7 +6,9 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import Link from "next/link"
-import { safeJsonLd } from "@/utils/safeJsonLd"
+function safeJsonLd(obj: object): string {
+  return JSON.stringify(obj).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026')
+}
 
 /** FAQ categories for filtering */
 const FAQ_CATEGORIES = [

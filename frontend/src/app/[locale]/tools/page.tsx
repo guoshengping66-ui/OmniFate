@@ -4,7 +4,9 @@ import { ArrowRight } from "lucide-react"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { safeJsonLd } from "@/utils/safeJsonLd"
+function safeJsonLd(obj: object): string {
+  return JSON.stringify(obj).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026')
+}
 
 const tools = [
   { icon: "☯", title: "Bazi Calculator", desc: "AI-powered Four Pillars chart generation with Five Elements analysis", href: "/bazi", color: "from-amber-500/10" },

@@ -3,7 +3,10 @@ import { useMemo } from "react"
 import { HelpCircle } from "lucide-react"
 import { AccordionItem } from "@/components/ui/AccordionItem"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
-import { safeJsonLd } from "@/utils/safeJsonLd"
+
+function safeJsonLd(obj: object): string {
+  return JSON.stringify(obj).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026')
+}
 
 interface FaqItem {
   question: string

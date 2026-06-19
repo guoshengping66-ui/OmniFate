@@ -7,7 +7,9 @@ import { SEOFaq } from "@/components/ui/SEOFaq"
 import { RelatedServices } from "@/components/ui/RelatedServices"
 import { useMemo } from "react"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { safeJsonLd } from "@/utils/safeJsonLd"
+function safeJsonLd(obj: object): string {
+  return JSON.stringify(obj).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026')
+}
 
 export default function AstrologySEOPage() {
   const { t, localeHref, locale } = useLanguage()

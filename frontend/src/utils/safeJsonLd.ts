@@ -1,5 +1,3 @@
-"use client"
-
 /**
  * safeJsonLd — Escape </script> in inline JSON-LD to prevent XSS.
  *

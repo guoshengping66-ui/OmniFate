@@ -3,7 +3,9 @@ import Link from "next/link"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { SEOFaq } from "@/components/ui/SEOFaq"
-import { safeJsonLd } from "@/utils/safeJsonLd"
+function safeJsonLd(obj: object): string {
+  return JSON.stringify(obj).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026')
+}
 import { useLanguage } from "@/contexts/LanguageContext"
 import type { PalmMount } from "@/data/programmatic/palm/mounts"
 import { PalmMounts } from "@/data/programmatic/palm/mounts"
