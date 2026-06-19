@@ -3,7 +3,7 @@ import { useParams } from "next/navigation"
 import Link from "next/link"
 import { useEffect, useState, useRef, type JSX } from "react"
 import { ArrowLeft, Clock, Share2, ChevronUp } from "lucide-react"
-import { ARTICLES } from "@/data/articles"
+import { ARTICLES, CATEGORIES } from "@/data/articles"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 /* ── Markdown 渲染器 ────────────────────────────────────────────── */
@@ -226,8 +226,39 @@ export default function BlogArticlePage() {
     }
   }
 
+  // JSON-LD structured data for article
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": title,
+    "description": isZh ? article.summary_zh : article.summary_en,
+    "author": {
+      "@type": "Organization",
+      "name": "Destiny Engine"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Destiny Engine",
+      "url": "https://www.khanfate.com"
+    },
+    "datePublished": article.created_at,
+    "url": `https://www.khanfate.com/blog/${article.id}`,
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": `https://www.khanfate.com/blog/${article.id}`
+    },
+    "keywords": (isZh ? article.tags_zh : article.tags_en).join(", "),
+    "articleSection": isZh
+      ? (CATEGORIES.find(c => c.key === article.category)?.label_zh || article.category)
+      : (CATEGORIES.find(c => c.key === article.category)?.label_en || article.category),
+  }
+
   return (
     <div className="min-h-screen pt-24 pb-20 px-4" ref={contentRef}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
       {/* 阅读进度条 */}
       <div className="fixed top-0 left-0 right-0 z-50 h-0.5 bg-white/[0.05]">
         <div

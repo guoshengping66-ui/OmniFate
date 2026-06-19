@@ -60,9 +60,39 @@ export default function BlogPage() {
     return counts
   }, [])
 
+  // JSON-LD structured data for blog list
+  const blogJsonLd = useMemo(() => ({
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": isZh ? "命运引擎博客 - 命理知识与AI解读" : "Destiny Engine Blog - Destiny Knowledge & AI Insights",
+    "description": isZh
+      ? "探索八字、星盘、塔罗、面相等命理知识，AI智能解读助您了解自我"
+      : "Explore Bazi, Astrology, Tarot, Face Reading and more. AI-powered insights for self-discovery",
+    "url": "https://www.khanfate.com/blog",
+    "publisher": {
+      "@type": "Organization",
+      "name": "Destiny Engine",
+      "url": "https://www.khanfate.com"
+    },
+    "mainEntity": {
+      "@type": "ItemList",
+      "numberOfItems": ARTICLES.length,
+      "itemListElement": ARTICLES.slice(0, 10).map((article, index) => ({
+        "@type": "ListItem",
+        "position": index + 1,
+        "url": `https://www.khanfate.com/blog/${article.id}`,
+        "name": isZh ? article.title_zh : article.title_en,
+      }))
+    }
+  }), [isZh])
+
   return (
     <div className="min-h-screen pt-24 pb-20 px-4">
       <div className="max-w-5xl mx-auto">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(blogJsonLd) }}
+        />
         <Breadcrumbs items={[{ label: t("nav.blog") }]} />
 
         {/* Header */}

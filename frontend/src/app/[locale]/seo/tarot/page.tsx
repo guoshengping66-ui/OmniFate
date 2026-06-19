@@ -3,10 +3,37 @@ import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
+import { SEOFaq } from "@/components/ui/SEOFaq"
+import { RelatedServices } from "@/components/ui/RelatedServices"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 export default function TarotSEOPage() {
-  const { t, localeHref } = useLanguage()
+  const { t, localeHref, locale } = useLanguage()
+  const isZh = locale === "zh"
+
+  const faqItems = isZh ? [
+    { question: "什么是塔罗分析？", answer: "塔罗牌是一种古老的分析工具，共 78 张牌，每张都蕴含丰富的象征意义。通过牌阵，塔罗帮助探索潜意识，理解当下处境，发现被忽视的可能性。" },
+    { question: "塔罗牌阵有哪些？", answer: "常见牌阵包括：单牌速占（快速指引）、三角阵（过去-现在-未来）、时间流（事件发展）和凯尔特十字（最全面的深度分析）。不同牌阵适合不同问题。" },
+    { question: "正位和逆位有什么区别？", answer: "正位代表牌的正面能量和显性含义；逆位则表示能量的阻滞、内在挑战或需要反思的方面。AI 会精准区分正逆位的不同解读。" },
+    { question: "塔罗分析是算命吗？", answer: "不是。塔罗分析是自我探索和反思的工具，帮助发现被忽视的可能性，做出更明智的选择。它不是宿命论的预言。" },
+  ] : [
+    { question: "What is tarot reading?", answer: "Tarot is an ancient analysis tool of 78 cards, each carrying rich symbolic meaning. Through spreads, tarot helps explore the subconscious, understand current situations, and discover overlooked possibilities." },
+    { question: "What tarot spreads are available?", answer: "Common spreads include: Single Card (quick guidance), Triangle (past-present-future), Time-Flow (event development), and Celtic Cross (most comprehensive deep analysis)." },
+    { question: "What's the difference between upright and reversed?", answer: "Upright represents the card's positive energy and manifest meaning. Reversed indicates energy blockage, inner challenges, or aspects needing reflection." },
+    { question: "Is tarot fortune-telling?", answer: "No. Tarot reading is a tool for self-exploration and reflection, helping discover overlooked possibilities and make wiser choices. It is not fatalistic prediction." },
+  ]
+
+  const relatedServices = isZh ? [
+    { icon: "⭐", title: "星盘分析", href: "/seo/astrology", desc: "行星落座与相位解读" },
+    { icon: "📊", title: "八字分析", href: "/seo/bazi", desc: "四柱排列与十维格局" },
+    { icon: "💕", title: "星座配对", href: "/seo/zodiac-compatibility", desc: "星座兼容性分析" },
+    { icon: "☯️", title: "五行分析", href: "/seo/five-elements", desc: "五行平衡与循环" },
+  ] : [
+    { icon: "⭐", title: "Natal Chart", href: "/seo/astrology", desc: "Planetary placements" },
+    { icon: "📊", title: "Bazi Chart", href: "/seo/bazi", desc: "Four Pillars & Ten Gods" },
+    { icon: "💕", title: "Zodiac Match", href: "/seo/zodiac-compatibility", desc: "Compatibility analysis" },
+    { icon: "☯️", title: "Five Elements", href: "/seo/five-elements", desc: "Elemental balance" },
+  ]
 
   const features = [
     { icon: "🃏", title: t("seo.tarot.f1Title"), desc: t("seo.tarot.f1Desc") },
@@ -36,7 +63,7 @@ export default function TarotSEOPage() {
             "@type": "WebApplication",
             "name": t("seo.tarot.title"),
             "description": t("seo.tarot.desc"),
-            "url": "https://khanfate.com/seo/tarot",
+            "url": "https://www.khanfate.com/seo/tarot",
             "applicationCategory": "LifestyleApplication",
           })}}
         />
@@ -99,6 +126,16 @@ export default function TarotSEOPage() {
             </div>
           </div>
         </ScrollReveal>
+
+        <SEOFaq
+          title={isZh ? "常见问题" : "Frequently Asked Questions"}
+          items={faqItems}
+        />
+
+        <RelatedServices
+          heading={isZh ? "探索更多分析" : "Explore More Analysis"}
+          services={relatedServices}
+        />
 
         <ScrollReveal delay={0.4}>
           <div className="text-center card-glass-elevated p-10 relative overflow-hidden">

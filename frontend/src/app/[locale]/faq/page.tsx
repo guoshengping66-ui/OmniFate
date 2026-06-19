@@ -53,9 +53,27 @@ export default function FAQPage() {
     return result
   }, [activeCategory, searchQuery, t])
 
+  // FAQPage JSON-LD for rich snippets
+  const faqJsonLd = useMemo(() => ({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": FAQ_DATA.map(item => ({
+      "@type": "Question",
+      "name": t(`faq.${item.key}`),
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": t(`faq.${item.aKey}`),
+      },
+    })),
+  }), [t])
+
   return (
     <div className="min-h-screen pt-24 pb-20 px-4">
       <div className="max-w-3xl mx-auto">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
         <Breadcrumbs items={[{ label: t("faq.breadcrumb") }]} />
 
         {/* Header */}

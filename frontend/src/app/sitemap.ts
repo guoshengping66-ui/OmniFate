@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next"
 import { locales } from "@/i18n/config"
 
-const BASE_URL = "https://khanfate.com"
+const BASE_URL = "https://www.khanfate.com"
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date()
@@ -18,6 +18,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/seo/astrology",
     "/seo/tarot",
     "/seo/face-reading",
+    "/seo/five-elements",
+    "/seo/ziwei",
+    "/seo/palm-reading",
+    "/seo/zodiac-compatibility",
     "/events",
     "/events/radar",
     "/divination",

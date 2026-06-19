@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Chart Analysis - AI Natal Chart Reading | Profile Mirror",
+  title: "Chart Analysis - AI Natal Chart Reading | Destiny Engine",
   description: "Enter birth information for AI-powered chart analysis. Planetary placements, aspect angles, and behavioral pattern interpretation.",
   keywords: ["chart analysis", "natal chart", "birth chart", "chart reading", "planet placement", "AI chart analysis", "online chart"],
   openGraph: {
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     locale: "en_US",
   },
   alternates: {
-    canonical: "https://khanfate.com/seo/astrology",
+    canonical: "https://www.khanfate.com/seo/astrology",
   },
 }
 

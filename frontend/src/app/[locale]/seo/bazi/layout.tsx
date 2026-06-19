@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Bazi Chart - AI Four Pillars Analysis | Profile Mirror",
+  title: "Bazi Chart - AI Four Pillars Analysis | Destiny Engine",
   description: "Enter birth time for AI-powered Bazi charting. Four Pillars arrangement, Five Elements analysis, Ten Dimensions pattern, and annual cycle forecast.",
   keywords: ["bazi chart", "bazi analysis", "four pillars", "birth chart", "five elements", "AI bazi", "online charting"],
   openGraph: {
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     locale: "en_US",
   },
   alternates: {
-    canonical: "https://khanfate.com/seo/bazi",
+    canonical: "https://www.khanfate.com/seo/bazi",
   },
 }
 

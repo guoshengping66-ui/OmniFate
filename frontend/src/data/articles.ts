@@ -2507,4 +2507,273 @@ Coupons are marketplace discount vouchers:
 → Register now and start your 5-Dimension behavioral exploration
     `,
   },
+
+  // ────────────────────────────────────────────────────
+  // 13. 五行缺水怎么补
+  // ────────────────────────────────────────────────────
+  {
+    id: "five-elements-water-deficiency",
+    title_zh: "五行缺水怎么补？5个实用方法帮你平衡水元素",
+    title_en: "How to Supplement Water Element: 5 Practical Ways to Balance Your Water Energy",
+    summary_zh: "五行缺水会影响智慧、事业和财运。本文从颜色、方位、饮食、职业、习惯五个方面，教你如何在生活中补充水元素能量。",
+    summary_en: "Water element deficiency affects wisdom, career, and wealth. This article teaches you 5 practical ways to supplement Water energy through color, direction, diet, career, and lifestyle habits.",
+    category: "wuxing",
+    tags_zh: ["五行", "缺水", "补水", "五行平衡"],
+    tags_en: ["Five Elements", "Water Deficiency", "Balance", "Remedy"],
+    read_time: 6,
+    cover_emoji: "💧",
+    created_at: "2025-06-01",
+    content_zh: `
+## 五行缺水的表现
+
+五行缺水的人通常表现出以下特征：思维不够灵活、决策犹豫、人际关系不够圆滑、财运波动较大。水代表智慧、流动和变化，缺水的人往往在需要灵活应变的场景中感到吃力。
+
+## 5个实用补水方法
+
+### 1. 颜色补水
+多穿黑色、深蓝色的衣服。家里可以增添深色系的装饰品。黑色和蓝色在五行中属水，是最直接的补水方式。
+
+### 2. 方位补水
+北方属水。睡觉时头朝北方，办公桌面向北方，都有助于吸收水元素能量。如果条件允许，选择北方的房间作为主要活动空间。
+
+### 3. 饮食补水
+多吃黑色食物：黑豆、黑芝麻、海带、紫菜。多吃海鲜和鱼类。多喝水，保持身体的水润状态。
+
+### 4. 职业补水
+与水相关的职业适合五行缺水的人：物流、旅游、餐饮、水产、传媒、IT行业。这些行业流动性强，与水的特性相符。
+
+### 5. 习惯补水
+养鱼或在家中摆放水景。游泳是最好的补水运动。保持灵活变通的心态，避免过于固执。
+
+## 注意事项
+
+补水不是越多越好。如果你的八字中水已经很旺，再补水反而会造成失衡。最重要的是先了解自己的「喜用神」——你命盘中最需要的元素。建议使用我们的 AI 八字分析工具，一键查看你的五行分布和喜用神。
+
+→ 试试 AI 八字分析，查看你的五行平衡报告
+    `,
+    content_en: `
+## Signs of Water Element Deficiency
+
+People with Water deficiency typically show these traits: inflexible thinking, indecisiveness, less smooth interpersonal relationships, and fluctuating finances. Water represents wisdom, flow, and change — those lacking it often struggle in situations requiring adaptability.
+
+## 5 Practical Ways to Supplement Water
+
+### 1. Color Remedies
+Wear more black and dark blue clothing. Add dark-colored decorations at home. Black and blue belong to Water in the Five Elements system — the most direct way to supplement Water energy.
+
+### 2. Direction Remedies
+North belongs to Water. Sleeping with your head toward North, or facing North at your desk, helps absorb Water energy. If possible, choose a North-facing room as your main activity space.
+
+### 3. Dietary Remedies
+Eat more black foods: black beans, black sesame, kelp, seaweed. Eat more seafood and fish. Stay well-hydrated to maintain your body's water balance.
+
+### 4. Career Remedies
+Water-related careers suit those with Water deficiency: logistics, travel, food service, aquaculture, media, and IT. These industries have strong flow characteristics matching Water's nature.
+
+### 5. Lifestyle Remedies
+Keep fish tanks or water features at home. Swimming is the best Water-supplementing exercise. Maintain a flexible, adaptable mindset and avoid being too rigid.
+
+## Important Notes
+
+Supplementing Water doesn't mean "the more the better." If your chart already has strong Water, adding more will create imbalance. The key is understanding your "Favorable Element" — what your chart truly needs. Try our AI Bazi analysis tool to instantly check your elemental distribution.
+
+→ Try AI Bazi analysis to see your Five Elements balance report
+    `,
+  },
+
+  // ────────────────────────────────────────────────────
+  // 14. 上升星座怎么看
+  // ────────────────────────────────────────────────────
+  {
+    id: "rising-sign-guide",
+    title_zh: "上升星座怎么看？3分钟教你读懂自己的上升星座",
+    title_en: "What Is My Rising Sign? A 3-Minute Guide to Understanding Your Ascendant",
+    summary_zh: "上升星座决定了你的第一印象和外在表现。本文教你如何查看自己的上升星座，以及太阳、月亮、上升三大巨头如何共同塑造你的性格。",
+    summary_en: "Your rising sign determines your first impression and outward presentation. Learn how to find your rising sign and how the Big Three — Sun, Moon, and Rising — shape your personality together.",
+    category: "chart analysis",
+    tags_zh: ["上升星座", "星盘", "三大巨头", "星座入门"],
+    tags_en: ["Rising Sign", "Ascendant", "Big Three", "Astrology Basics"],
+    read_time: 5,
+    cover_emoji: "🌅",
+    created_at: "2025-06-10",
+    content_zh: `
+## 什么是上升星座？
+
+上升星座（也叫上升星盘或命宫星盘）是你出生时东方地平线上正在升起的星座。它代表了你给外界的第一印象、你的外在表现方式，以及你面对新环境时的本能反应。
+
+## 如何查看上升星座？
+
+查看上升星座需要两个关键信息：
+1. **精确的出生时间**（精确到分钟最好）
+2. **出生地点**
+
+因为上升星座每约2小时变换一次，所以出生时间的准确性非常重要。如果你不知道精确时间，可以尝试我们的 AI 星盘分析工具，它会根据你的信息自动计算。
+
+## 太阳、月亮、上升：三大巨头
+
+### 太阳星座 — 你的核心
+代表你的核心人格、生命力和自我表达方式。这是我们最常提到的「你是什么星座」。
+
+### 月亮星座 — 你的内在
+代表你的情感需求、潜意识反应和安全感来源。月亮星座往往在亲密关系中才显露出来。
+
+### 上升星座 — 你的面具
+代表你展现给外界的样子、你的社交风格和第一印象。很多人说「我不像我的星座」，往往是因为忽略了上升星座的影响。
+
+## 举例说明
+
+假设一个人太阳在白羊座、月亮在巨蟹座、上升在天秤座：
+- **核心**：热情、直接、有冲劲（白羊太阳）
+- **内在**：敏感、重感情、需要安全感（巨蟹月亮）
+- **外在**：优雅、和谐、善于社交（天秤上升）
+
+这三种能量共同塑造了一个复杂而独特的个体。
+
+→ 试试 AI 星盘分析，查看你的三大巨头配置
+    `,
+    content_en: `
+## What Is a Rising Sign?
+
+The Rising Sign (also called Ascendant or Rising Chart) is the zodiac sign that was rising on the eastern horizon at the moment of your birth. It represents your first impression, outward presentation, and instinctive reactions to new situations.
+
+## How to Find Your Rising Sign?
+
+You need two key pieces of information:
+1. **Exact birth time** (to the minute if possible)
+2. **Birth location**
+
+Since the Rising Sign changes approximately every 2 hours, the accuracy of your birth time is crucial. If you don't know your exact time, try our AI Astrology analysis tool — it calculates automatically based on your information.
+
+## Sun, Moon, Rising: The Big Three
+
+### Sun Sign — Your Core
+Represents your core personality, vitality, and self-expression. This is the "what's your sign" we usually refer to.
+
+### Moon Sign — Your Inner World
+Represents your emotional needs, subconscious reactions, and sources of security. The Moon sign often only reveals itself in intimate relationships.
+
+### Rising Sign — Your Mask
+Represents how you present yourself to the world, your social style, and first impressions. Many people say "I don't match my zodiac sign" — often because they've overlooked the Rising sign's influence.
+
+## Example
+
+Consider someone with Sun in Aries, Moon in Cancer, and Rising in Libra:
+- **Core**: Passionate, direct, driven (Aries Sun)
+- **Inner**: Sensitive, emotionally deep, needs security (Cancer Moon)
+- **Outer**: Elegant, harmonious, socially skilled (Libra Rising)
+
+These three energies together create a complex and unique individual.
+
+→ Try AI Astrology analysis to see your Big Three configuration
+    `,
+  },
+
+  // ────────────────────────────────────────────────────
+  // 15. 塔罗牌正位逆位区别
+  // ────────────────────────────────────────────────────
+  {
+    id: "tarot-upright-reversed",
+    title_zh: "塔罗牌正位和逆位有什么区别？完整解读指南",
+    title_en: "Tarot Upright vs Reversed: Complete Guide to Understanding Card Positions",
+    summary_zh: "塔罗牌的正位和逆位代表完全不同的能量状态。本文详细解读正位和逆位的区别，帮助你更准确地理解塔罗牌的深层含义。",
+    summary_en: "Upright and reversed tarot cards represent completely different energy states. This guide explains the differences in detail, helping you understand the deeper meanings of tarot cards more accurately.",
+    category: "symbol",
+    tags_zh: ["塔罗", "正位", "逆位", "塔罗入门"],
+    tags_en: ["Tarot", "Upright", "Reversed", "Beginner Guide"],
+    read_time: 7,
+    cover_emoji: "🃏",
+    created_at: "2025-06-15",
+    content_zh: `
+## 什么是正位和逆位？
+
+当你抽塔罗牌时，牌面朝上为「正位」，牌面倒过来为「逆位」。同一张牌的正位和逆位代表着截然不同的能量状态和解读方向。
+
+## 正位的核心含义
+
+正位代表牌的正面能量、显性特质和外在表现。它是牌最直接、最顺畅的表达方式。
+
+例如：
+- **恋人正位**：和谐的关系、正确的选择、吸引力
+- **战车正位**：意志力、胜利、前进的动力
+- **星星正位**：希望、灵感、内在平静
+
+## 逆位的核心含义
+
+逆位代表能量的阻滞、内在挑战或需要反思的方面。它不是「坏」的意思，而是提示你需要关注的课题。
+
+例如：
+- **恋人逆位**：关系失衡、选择困难、价值观冲突
+- **战车逆位**：方向迷失、缺乏动力、失控感
+- **星星逆位**：失去信心、期望落空、需要重新调整
+
+## 逆位的三种解读方式
+
+### 1. 能量减弱
+逆位表示牌的能量被削弱或无法正常发挥。比如「力量」逆位可能表示自信不足。
+
+### 2. 能量相反
+逆位表示与正位相反的特质。比如「正义」逆位可能表示不公平或逃避责任。
+
+### 3. 内在化
+逆位表示能量转向内在。比如「世界」逆位可能表示内在的圆满但外在尚未显现。
+
+## AI 如何解读逆位
+
+AI 塔罗系统会综合考虑：
+- 牌面本身的核心含义
+- 逆位的具体表现方式
+- 牌在牌阵中的位置关系
+- 与其他牌的互动影响
+
+这种多维度分析比传统解读更全面、更精准。
+
+→ 试试 AI 塔罗分析，体验正逆位的深度解读
+    `,
+    content_en: `
+## What Are Upright and Reversed?
+
+When you draw tarot cards, face-up is "upright" and face-down is "reversed." The same card in upright and reversed positions represents completely different energy states and interpretations.
+
+## Core Meaning of Upright
+
+Upright represents the card's positive energy, manifest qualities, and outward expression. It's the card's most direct and fluid representation.
+
+For example:
+- **Lovers Upright**: Harmonious relationships, right choices, attraction
+- **Chariot Upright**: Willpower, victory, forward momentum
+- **Star Upright**: Hope, inspiration, inner peace
+
+## Core Meaning of Reversed
+
+Reversed represents energy blockage, inner challenges, or aspects needing reflection. It doesn't mean "bad" — it signals areas requiring attention.
+
+For example:
+- **Lovers Reversed**: Relationship imbalance, difficulty choosing, value conflicts
+- **Chariot Reversed**: Lost direction, lack of motivation, feeling out of control
+- **Star Reversed**: Lost confidence, unmet expectations, need to recalibrate
+
+## Three Ways to Interpret Reversed Cards
+
+### 1. Weakened Energy
+Reversed indicates the card's energy is diminished or unable to manifest properly. For example, Strength reversed may indicate lack of confidence.
+
+### 2. Opposite Energy
+Reversed represents traits opposite to the upright meaning. For example, Justice reversed may indicate unfairness or avoiding responsibility.
+
+### 3. Internalized Energy
+Reversed indicates energy turning inward. For example, The World reversed may indicate inner fulfillment that hasn't yet manifested externally.
+
+## How AI Interprets Reversed Cards
+
+The AI Tarot system considers:
+- The card's core meaning
+- How reversal specifically manifests
+- The card's position in the spread
+- Interaction effects with other cards
+
+This multi-dimension analysis provides more comprehensive and precise readings than traditional interpretation.
+
+→ Try AI Tarot analysis and experience deep upright/reversed readings
+    `,
+  },
 ]

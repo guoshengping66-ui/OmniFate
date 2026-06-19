@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Symbol Reading - AI Symbol Card Interpretation | Profile Mirror",
+  title: "Symbol Reading - AI Symbol Card Interpretation | Destiny Engine",
   description: "Online symbol reading with AI interpretation. Multiple spread options available, revealing current state with action guidance and advice.",
   keywords: ["symbol reading", "symbol cards", "online symbol", "symbol spread", "AI symbol", "symbol interpretation"],
   openGraph: {
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     locale: "en_US",
   },
   alternates: {
-    canonical: "https://khanfate.com/seo/symbol",
+    canonical: "https://www.khanfate.com/seo/symbol",
   },
 }
 

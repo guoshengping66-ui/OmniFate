@@ -1,4 +1,5 @@
 "use client"
+import { useMemo } from "react"
 import Link from "next/link"
 import { ChevronRight, Home } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
@@ -14,24 +15,62 @@ interface BreadcrumbsProps {
 
 export function Breadcrumbs({ items }: BreadcrumbsProps) {
   const { t } = useLanguage()
+
+  // BreadcrumbList JSON-LD for rich snippets
+  const jsonLd = useMemo(() => {
+    if (typeof window === "undefined") return null
+    const baseUrl = "https://www.khanfate.com"
+    const pathParts = window.location.pathname.split("/").filter(Boolean)
+    const locale = pathParts[0] || "en"
+
+    const listItems = [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: t("breadcrumb.home"),
+        item: `${baseUrl}/${locale}`,
+      },
+      ...items.map((item, i) => ({
+        "@type": "ListItem",
+        position: i + 2,
+        name: item.label,
+        item: item.href ? `${baseUrl}${item.href}` : undefined,
+      })),
+    ]
+
+    return {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: listItems,
+    }
+  }, [items, t])
+
   return (
-    <nav className="flex items-center gap-1.5 text-xs text-white/30 mb-6 overflow-x-auto scrollbar-none">
-      <Link href="/" className="flex items-center gap-1 hover:text-gold transition-colors whitespace-nowrap">
-        <Home size={12} />
-        <span>{t("breadcrumb.home")}</span>
-      </Link>
-      {items.map((item, i) => (
-        <span key={i} className="flex items-center gap-1.5 whitespace-nowrap">
-          <ChevronRight size={10} className="text-white/20" />
-          {item.href ? (
-            <Link href={item.href} className="hover:text-gold transition-colors">
-              {item.label}
-            </Link>
-          ) : (
-            <span className="text-white/60">{item.label}</span>
-          )}
-        </span>
-      ))}
-    </nav>
+    <>
+      {jsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      )}
+      <nav className="flex items-center gap-1.5 text-xs text-white/30 mb-6 overflow-x-auto scrollbar-none">
+        <Link href="/" className="flex items-center gap-1 hover:text-gold transition-colors whitespace-nowrap">
+          <Home size={12} />
+          <span>{t("breadcrumb.home")}</span>
+        </Link>
+        {items.map((item, i) => (
+          <span key={i} className="flex items-center gap-1.5 whitespace-nowrap">
+            <ChevronRight size={10} className="text-white/20" />
+            {item.href ? (
+              <Link href={item.href} className="hover:text-gold transition-colors">
+                {item.label}
+              </Link>
+            ) : (
+              <span className="text-white/60">{item.label}</span>
+            )}
+          </span>
+        ))}
+      </nav>
+    </>
   )
 }

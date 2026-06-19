@@ -1,7 +1,7 @@
 {
-  "name": "Profile Mirror - AI个人分析平台",
-  "short_name": "Profile Mirror",
-  "description": "融合四柱、星图、象征牌与AI面部/手掌分析，为你揭示个人特质",
+  "name": "命运引擎 - Destiny Engine",
+  "short_name": "Destiny Engine",
+  "description": "融合八字、星盘、塔罗、面相、手相五大系统，AI 交叉验证，为你生成专属人生蓝图",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0512",

@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "AI Face Analysis - Intelligent Face Feature Analysis | Profile Mirror",
+  title: "AI Face Analysis - Intelligent Face Feature Analysis | Destiny Engine",
   description: "Upload a photo for AI-powered face analysis. Analyzes face shape, features, Three Divisions Five Eyes, and decodes behavioral patterns.",
   keywords: ["face analysis", "AI face analysis", "face feature", "facial features", "status analysis", "online face analysis"],
   openGraph: {
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     locale: "en_US",
   },
   alternates: {
-    canonical: "https://khanfate.com/seo/face-reading",
+    canonical: "https://www.khanfate.com/seo/face-reading",
   },
 }
 
