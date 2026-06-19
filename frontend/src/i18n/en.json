@@ -4566,5 +4566,9 @@
     "disclaimer": "Cultural creative products. Descriptions are based on traditional wisdom, not efficacy claims.",
     "noMatch": "No matching treasures found",
     "resultCount": "{count} treasures"
+  },
+  "tools": {
+    "title": "Destiny Analysis Tools",
+    "desc": "AI-powered analysis tools to decode your destiny patterns"
   }
 }
