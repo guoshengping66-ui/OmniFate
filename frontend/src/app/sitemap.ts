@@ -15,14 +15,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/shop",
     "/blog",
     "/reading/new",
-    "/seo/bazi",
-    "/seo/astrology",
-    "/seo/tarot",
-    "/seo/face-reading",
-    "/seo/five-elements",
-    "/seo/ziwei",
-    "/seo/palm-reading",
-    "/seo/zodiac-compatibility",
+    "/bazi",
+    "/astrology",
+    "/astrology/zodiac-compatibility",
+    "/tarot",
+    "/face-reading",
+    "/five-elements",
+    "/ziwei",
+    "/palm-reading",
+    "/tools",
     "/events",
     "/events/radar",
     "/divination",
@@ -44,10 +45,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: now,
       changeFrequency: (path === "/" || path === "/shop" || path === "/blog"
         ? "weekly"
-        : path.startsWith("/seo") || path === "/pricing"
+        : ["/bazi","/astrology","/tarot","/face-reading","/five-elements","/ziwei","/palm-reading","/tools"].includes(path) || path === "/pricing"
           ? "monthly"
           : "yearly") as MetadataRoute.Sitemap[0]["changeFrequency"],
-      priority: path === "/" ? 1.0 : path.startsWith("/seo") ? 0.9 : 0.7,
+      priority: path === "/" ? 1.0 : ["/bazi","/astrology","/tarot","/face-reading","/five-elements","/ziwei","/palm-reading","/tools"].includes(path) ? 0.9 : 0.7,
       alternates: {
         languages: Object.fromEntries(
           locales.map((l) => [l, `${BASE_URL}/${l}${path === "/" ? "" : path}`]),

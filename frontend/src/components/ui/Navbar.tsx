@@ -41,8 +41,10 @@ export function Navbar() {
 
   // Extra links — visible on wide screens, collapsed on narrow
   const extraLinks = [
-    { href: localeHref("/am16"), label: t("nav.am16") || "行为测验" },
-    { href: localeHref("/divination"), label: t("nav.divination") || "星际分析" },
+    { href: localeHref("/tools"), label: t("nav.tools") || "Tools" },
+    { href: localeHref("/astrology"), label: t("nav.astrology") || "Astrology" },
+    { href: localeHref("/bazi"), label: t("nav.bazi") || "Bazi" },
+    { href: localeHref("/tarot"), label: t("nav.tarot") || "Tarot" },
     { href: localeHref("/blog"), label: t("nav.blog") },
     { href: localeHref("/about"), label: t("nav.about") },
   ]

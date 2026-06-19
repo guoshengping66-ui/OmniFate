@@ -4,7 +4,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale } = await params
   const isZh = locale === "zh"
   const base = "https://www.khanfate.com"
-  const path = `/${locale}/seo/tarot`
+  const path = `/${locale}/tarot`
 
   return {
     title: isZh ? "塔罗牌分析 — AI 塔罗牌解读与行动指引 | 命运引擎" : "Tarot Reading - AI Symbol Card Interpretation | Destiny Engine",
@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     },
     alternates: {
       canonical: `${base}${path}`,
-      languages: { en: `${base}/en/seo/tarot`, zh: `${base}/zh/seo/tarot`, "x-default": `${base}/en/seo/tarot` },
+      languages: { en: `${base}/en/tarot`, zh: `${base}/zh/tarot`, "x-default": `${base}/en/tarot` },
     },
   }
 }

@@ -4,7 +4,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale } = await params
   const isZh = locale === "zh"
   const base = "https://www.khanfate.com"
-  const path = `/${locale}/seo/five-elements`
+  const path = `/${locale}/five-elements`
 
   return {
     title: isZh ? "五行分析 — AI 金木水火土元素平衡 | 命运引擎" : "Five Elements Analysis - AI Metal Wood Water Fire Earth | Destiny Engine",
@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     },
     alternates: {
       canonical: `${base}${path}`,
-      languages: { en: `${base}/en/seo/five-elements`, zh: `${base}/zh/seo/five-elements`, "x-default": `${base}/en/seo/five-elements` },
+      languages: { en: `${base}/en/five-elements`, zh: `${base}/zh/five-elements`, "x-default": `${base}/en/five-elements` },
     },
   }
 }

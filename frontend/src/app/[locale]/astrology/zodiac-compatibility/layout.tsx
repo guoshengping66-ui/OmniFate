@@ -4,7 +4,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale } = await params
   const isZh = locale === "zh"
   const base = "https://www.khanfate.com"
-  const path = `/${locale}/seo/zodiac-compatibility`
+  const path = `/${locale}/astrology/zodiac-compatibility`
 
   return {
     title: isZh ? "星座配对 — AI 星座匹配分析与 compatibility | 命运引擎" : "Zodiac Compatibility - AI Star Sign Matching Analysis | Destiny Engine",
@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     },
     alternates: {
       canonical: `${base}${path}`,
-      languages: { en: `${base}/en/seo/zodiac-compatibility`, zh: `${base}/zh/seo/zodiac-compatibility`, "x-default": `${base}/en/seo/zodiac-compatibility` },
+      languages: { en: `${base}/en/astrology/zodiac-compatibility`, zh: `${base}/zh/astrology/zodiac-compatibility`, "x-default": `${base}/en/astrology/zodiac-compatibility` },
     },
   }
 }

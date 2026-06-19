@@ -20,7 +20,7 @@ export default function ZodiacCompatibilitySEOPage() {
   const relatedServices = useMemo(() => [1,2,3,4].map(i => ({
     icon: ["⭐","📊","🃏","☯️"][i - 1],
     title: t("seo.zodiac.r" + i + "Title"),
-    href: ["/seo/astrology","/seo/bazi","/seo/tarot","/seo/five-elements"][i - 1],
+    href: ["/astrology","/bazi","/tarot","/five-elements"][i - 1],
     desc: t("seo.zodiac.r" + i + "Desc"),
   })), [t])
 
@@ -51,7 +51,7 @@ export default function ZodiacCompatibilitySEOPage() {
   return (
     <div className="min-h-screen pt-24 pb-20 px-4">
       <div className="max-w-4xl mx-auto">
-        <Breadcrumbs items={[{ label: t("seo.zodiac.breadcrumb") }]} currentPath={`/${locale}/seo/zodiac-compatibility`} />
+        <Breadcrumbs items={[{ label: t("seo.zodiac.breadcrumb") }]} currentPath={`/${locale}/astrology/zodiac-compatibility`} />
 
         <script
           type="application/ld+json"
@@ -60,7 +60,7 @@ export default function ZodiacCompatibilitySEOPage() {
             "@type": "WebApplication",
             "name": t("seo.zodiac.title"),
             "description": t("seo.zodiac.desc"),
-            "url": "https://www.khanfate.com/seo/zodiac-compatibility",
+            "url": "https://www.khanfate.com/astrology/zodiac-compatibility",
             "applicationCategory": "LifestyleApplication",
           })}}
         />

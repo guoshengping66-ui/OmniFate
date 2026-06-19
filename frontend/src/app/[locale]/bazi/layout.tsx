@@ -4,7 +4,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale } = await params
   const isZh = locale === "zh"
   const base = "https://www.khanfate.com"
-  const path = `/${locale}/seo/bazi`
+  const path = `/${locale}/bazi`
 
   return {
     title: isZh ? "八字分析 — AI 四柱排盘与五行诊断 | 命运引擎" : "Bazi Chart - AI Four Pillars Analysis | Destiny Engine",
@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     },
     alternates: {
       canonical: `${base}${path}`,
-      languages: { en: `${base}/en/seo/bazi`, zh: `${base}/zh/seo/bazi`, "x-default": `${base}/en/seo/bazi` },
+      languages: { en: `${base}/en/bazi`, zh: `${base}/zh/bazi`, "x-default": `${base}/en/bazi` },
     },
   }
 }

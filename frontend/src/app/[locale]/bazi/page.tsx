@@ -7,6 +7,7 @@ import { SEOFaq } from "@/components/ui/SEOFaq"
 import { RelatedServices } from "@/components/ui/RelatedServices"
 import { useMemo } from "react"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { safeJsonLd } from "@/utils/safeJsonLd"
 
 export default function BaziSEOPage() {
   const { t, localeHref, locale } = useLanguage()
@@ -19,7 +20,7 @@ export default function BaziSEOPage() {
   const relatedServices = useMemo(() => [1,2,3,4].map(i => ({
     icon: ["☯️","⭐","🃏","⭐"][i - 1],
     title: t("seo.bazi.r" + i + "Title"),
-    href: ["/seo/five-elements","/seo/astrology","/seo/tarot","/seo/ziwei"][i - 1],
+    href: ["/five-elements","/astrology","/tarot","/ziwei"][i - 1],
     desc: t("seo.bazi.r" + i + "Desc"),
   })), [t])
 
@@ -41,7 +42,7 @@ export default function BaziSEOPage() {
   return (
     <div className="min-h-screen pt-24 pb-20 px-4">
       <div className="max-w-4xl mx-auto">
-        <Breadcrumbs items={[{ label: t("seo.bazi.breadcrumb") }]} currentPath={`/${locale}/seo/bazi`} />
+        <Breadcrumbs items={[{ label: t("seo.bazi.breadcrumb") }]} currentPath={`/${locale}/bazi`} />
 
         {/* JSON-LD Structured Data */}
         <script
@@ -51,7 +52,7 @@ export default function BaziSEOPage() {
             "@type": "WebApplication",
             "name": t("seo.bazi.title"),
             "description": t("seo.bazi.desc"),
-            "url": "https://www.khanfate.com/seo/bazi",
+            "url": "https://www.khanfate.com/bazi",
             "applicationCategory": "LifestyleApplication",
             "operatingSystem": "Web",
             "offers": {

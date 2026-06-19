@@ -127,6 +127,27 @@ export function middleware(request: NextRequest) {
     return new NextResponse("Page Not Found", { status: 404 })
   }
 
+  // SEO SILO redirects (301) — old /seo/* paths to new root-level paths
+  const seoRedirects: Record<string, string> = {
+    "/seo/bazi": "/bazi",
+    "/seo/astrology": "/astrology",
+    "/seo/tarot": "/tarot",
+    "/seo/face-reading": "/face-reading",
+    "/seo/five-elements": "/five-elements",
+    "/seo/ziwei": "/ziwei",
+    "/seo/palm-reading": "/palm-reading",
+    "/seo/zodiac-compatibility": "/astrology/zodiac-compatibility",
+  }
+  // Match with or without locale prefix (e.g. /en/seo/bazi or /seo/bazi)
+  for (const [oldPath, newPath] of Object.entries(seoRedirects)) {
+    if (pathname === oldPath || pathname.endsWith(oldPath)) {
+      const locale = pathname.match(/^\/(en|zh)/)?.[0] || ""
+      const url = request.nextUrl.clone()
+      url.pathname = `${locale}${newPath}`
+      return NextResponse.redirect(url, 301)
+    }
+  }
+
   // Redirect /reading/* to /{locale}/reading/* if locale is missing
   // Skip if path already has a locale prefix (e.g. /en/reading or /zh/reading)
   if (pathname.startsWith("/reading") && !pathname.match(/^\/(en|zh)\//)) {

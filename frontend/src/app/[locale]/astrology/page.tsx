@@ -20,7 +20,7 @@ export default function AstrologySEOPage() {
   const relatedServices = useMemo(() => [1,2,3,4].map(i => ({
     icon: ["📊","☯️","💕","⭐"][i - 1],
     title: t("seo.astrology.r" + i + "Title"),
-    href: ["/seo/bazi","/seo/five-elements","/seo/zodiac-compatibility","/seo/ziwei"][i - 1],
+    href: ["/bazi","/five-elements","/astrology/zodiac-compatibility","/ziwei"][i - 1],
     desc: t("seo.astrology.r" + i + "Desc"),
   })), [t])
 
@@ -36,7 +36,7 @@ export default function AstrologySEOPage() {
   return (
     <div className="min-h-screen pt-24 pb-20 px-4">
       <div className="max-w-4xl mx-auto">
-        <Breadcrumbs items={[{ label: t("seo.astrology.breadcrumb") }]} currentPath={`/${locale}/seo/astrology`} />
+        <Breadcrumbs items={[{ label: t("seo.astrology.breadcrumb") }]} currentPath={`/${locale}/astrology`} />
 
         <script
           type="application/ld+json"
@@ -45,7 +45,7 @@ export default function AstrologySEOPage() {
             "@type": "WebApplication",
             "name": t("seo.astrology.title"),
             "description": t("seo.astrology.desc"),
-            "url": "https://www.khanfate.com/seo/astrology",
+            "url": "https://www.khanfate.com/astrology",
             "applicationCategory": "LifestyleApplication",
             "operatingSystem": "Web",
           })}}

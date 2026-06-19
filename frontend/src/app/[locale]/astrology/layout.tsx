@@ -4,7 +4,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale } = await params
   const isZh = locale === "zh"
   const base = "https://www.khanfate.com"
-  const path = `/${locale}/seo/astrology`
+  const path = `/${locale}/astrology`
 
   return {
     title: isZh ? "星盘分析 — AI 本命星盘解读与相位诊断 | 命运引擎" : "Chart Analysis - AI Natal Chart Reading | Destiny Engine",
@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     },
     alternates: {
       canonical: `${base}${path}`,
-      languages: { en: `${base}/en/seo/astrology`, zh: `${base}/zh/seo/astrology`, "x-default": `${base}/en/seo/astrology` },
+      languages: { en: `${base}/en/astrology`, zh: `${base}/zh/astrology`, "x-default": `${base}/en/astrology` },
     },
   }
 }

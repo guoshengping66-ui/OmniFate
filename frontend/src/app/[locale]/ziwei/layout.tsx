@@ -4,7 +4,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale } = await params
   const isZh = locale === "zh"
   const base = "https://www.khanfate.com"
-  const path = `/${locale}/seo/ziwei`
+  const path = `/${locale}/ziwei`
 
   return {
     title: isZh ? "紫微斗数 — AI 紫微星盘分析与宫位解读 | 命运引擎" : "Purple Star Astrology - AI Zi Wei Dou Shu Analysis | Destiny Engine",
@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     },
     alternates: {
       canonical: `${base}${path}`,
-      languages: { en: `${base}/en/seo/ziwei`, zh: `${base}/zh/seo/ziwei`, "x-default": `${base}/en/seo/ziwei` },
+      languages: { en: `${base}/en/ziwei`, zh: `${base}/zh/ziwei`, "x-default": `${base}/en/ziwei` },
     },
   }
 }

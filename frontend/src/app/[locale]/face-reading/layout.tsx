@@ -4,7 +4,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale } = await params
   const isZh = locale === "zh"
   const base = "https://www.khanfate.com"
-  const path = `/${locale}/seo/face-reading`
+  const path = `/${locale}/face-reading`
 
   return {
     title: isZh ? "AI 面相分析 — 智能面部特征解读 | 命运引擎" : "AI Face Analysis - Intelligent Face Feature Analysis | Destiny Engine",
@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     },
     alternates: {
       canonical: `${base}${path}`,
-      languages: { en: `${base}/en/seo/face-reading`, zh: `${base}/zh/seo/face-reading`, "x-default": `${base}/en/seo/face-reading` },
+      languages: { en: `${base}/en/face-reading`, zh: `${base}/zh/face-reading`, "x-default": `${base}/en/face-reading` },
     },
   }
 }

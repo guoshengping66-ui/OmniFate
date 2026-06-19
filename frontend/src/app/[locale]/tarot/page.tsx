@@ -19,7 +19,7 @@ export default function TarotSEOPage() {
   const relatedServices = useMemo(() => [1,2,3,4].map(i => ({
     icon: ["⭐","📊","💕","☯️"][i - 1],
     title: t("seo.tarot.r" + i + "Title"),
-    href: ["/seo/astrology","/seo/bazi","/seo/zodiac-compatibility","/seo/five-elements"][i - 1],
+    href: ["/astrology","/bazi","/astrology/zodiac-compatibility","/five-elements"][i - 1],
     desc: t("seo.tarot.r" + i + "Desc"),
   })), [t])
 
@@ -42,7 +42,7 @@ export default function TarotSEOPage() {
   return (
     <div className="min-h-screen pt-24 pb-20 px-4">
       <div className="max-w-4xl mx-auto">
-        <Breadcrumbs items={[{ label: t("seo.tarot.breadcrumb") }]} currentPath={`/${locale}/seo/tarot`} />
+        <Breadcrumbs items={[{ label: t("seo.tarot.breadcrumb") }]} currentPath={`/${locale}/tarot`} />
 
         <script
           type="application/ld+json"
@@ -51,7 +51,7 @@ export default function TarotSEOPage() {
             "@type": "WebApplication",
             "name": t("seo.tarot.title"),
             "description": t("seo.tarot.desc"),
-            "url": "https://www.khanfate.com/seo/tarot",
+            "url": "https://www.khanfate.com/tarot",
             "applicationCategory": "LifestyleApplication",
           })}}
         />

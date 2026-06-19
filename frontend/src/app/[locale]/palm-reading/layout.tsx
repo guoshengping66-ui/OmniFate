@@ -4,7 +4,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale } = await params
   const isZh = locale === "zh"
   const base = "https://www.khanfate.com"
-  const path = `/${locale}/seo/palm-reading`
+  const path = `/${locale}/palm-reading`
 
   return {
     title: isZh ? "AI 手相分析 — 智能掌纹解读与行为模式 | 命运引擎" : "AI Palm Reading - Intelligent Palm Line Analysis | Destiny Engine",
@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     },
     alternates: {
       canonical: `${base}${path}`,
-      languages: { en: `${base}/en/seo/palm-reading`, zh: `${base}/zh/seo/palm-reading`, "x-default": `${base}/en/seo/palm-reading` },
+      languages: { en: `${base}/en/palm-reading`, zh: `${base}/zh/palm-reading`, "x-default": `${base}/en/palm-reading` },
     },
   }
 }
