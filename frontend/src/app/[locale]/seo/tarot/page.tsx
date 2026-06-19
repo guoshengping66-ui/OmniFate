@@ -54,7 +54,7 @@ export default function TarotSEOPage() {
   return (
     <div className="min-h-screen pt-24 pb-20 px-4">
       <div className="max-w-4xl mx-auto">
-        <Breadcrumbs items={[{ label: t("seo.tarot.breadcrumb") }]} />
+        <Breadcrumbs items={[{ label: t("seo.tarot.breadcrumb") }]} currentPath={`/${locale}/seo/tarot`} />
 
         <script
           type="application/ld+json"

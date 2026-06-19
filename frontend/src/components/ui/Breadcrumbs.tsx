@@ -11,16 +11,18 @@ interface BreadcrumbItem {
 
 interface BreadcrumbsProps {
   items: BreadcrumbItem[]
+  /** Optional current path for SSR-compatible JSON-LD (e.g. "/seo/bazi") */
+  currentPath?: string
 }
 
-export function Breadcrumbs({ items }: BreadcrumbsProps) {
-  const { t } = useLanguage()
+export function Breadcrumbs({ items, currentPath }: BreadcrumbsProps) {
+  const { t, localeHref } = useLanguage()
 
   // BreadcrumbList JSON-LD for rich snippets
   const jsonLd = useMemo(() => {
-    if (typeof window === "undefined") return null
     const baseUrl = "https://www.khanfate.com"
-    const pathParts = window.location.pathname.split("/").filter(Boolean)
+    const pathname = currentPath || (typeof window !== "undefined" ? window.location.pathname : "/")
+    const pathParts = pathname.split("/").filter(Boolean)
     const locale = pathParts[0] || "en"
 
     const listItems = [
@@ -43,7 +45,7 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
       "@type": "BreadcrumbList",
       itemListElement: listItems,
     }
-  }, [items, t])
+  }, [items, t, currentPath])
 
   return (
     <>
@@ -54,7 +56,7 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
         />
       )}
       <nav className="flex items-center gap-1.5 text-xs text-white/30 mb-6 overflow-x-auto scrollbar-none">
-        <Link href="/" className="flex items-center gap-1 hover:text-gold transition-colors whitespace-nowrap">
+        <Link href={localeHref("/")} className="flex items-center gap-1 hover:text-gold transition-colors whitespace-nowrap">
           <Home size={12} />
           <span>{t("breadcrumb.home")}</span>
         </Link>

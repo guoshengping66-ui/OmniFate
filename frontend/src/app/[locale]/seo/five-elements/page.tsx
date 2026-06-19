@@ -53,7 +53,7 @@ export default function FiveElementsSEOPage() {
   return (
     <div className="min-h-screen pt-24 pb-20 px-4">
       <div className="max-w-4xl mx-auto">
-        <Breadcrumbs items={[{ label: t("seo.fiveElements.breadcrumb") }]} />
+        <Breadcrumbs items={[{ label: t("seo.fiveElements.breadcrumb") }]} currentPath={`/${locale}/seo/five-elements`} />
 
         <script
           type="application/ld+json"

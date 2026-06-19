@@ -47,7 +47,7 @@ export default function AstrologySEOPage() {
   return (
     <div className="min-h-screen pt-24 pb-20 px-4">
       <div className="max-w-4xl mx-auto">
-        <Breadcrumbs items={[{ label: t("seo.astrology.breadcrumb") }]} />
+        <Breadcrumbs items={[{ label: t("seo.astrology.breadcrumb") }]} currentPath={`/${locale}/seo/astrology`} />
 
         <script
           type="application/ld+json"

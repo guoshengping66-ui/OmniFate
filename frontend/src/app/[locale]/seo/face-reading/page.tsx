@@ -56,7 +56,7 @@ export default function FaceReadingSEOPage() {
   return (
     <div className="min-h-screen pt-24 pb-20 px-4">
       <div className="max-w-4xl mx-auto">
-        <Breadcrumbs items={[{ label: t("seo.face.breadcrumb") }]} />
+        <Breadcrumbs items={[{ label: t("seo.face.breadcrumb") }]} currentPath={`/${locale}/seo/face-reading`} />
 
         <script
           type="application/ld+json"

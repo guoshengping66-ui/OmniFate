@@ -56,7 +56,7 @@ export default function ZiweiSEOPage() {
   return (
     <div className="min-h-screen pt-24 pb-20 px-4">
       <div className="max-w-4xl mx-auto">
-        <Breadcrumbs items={[{ label: t("seo.ziwei.breadcrumb") }]} />
+        <Breadcrumbs items={[{ label: t("seo.ziwei.breadcrumb") }]} currentPath={`/${locale}/seo/ziwei`} />
 
         <script
           type="application/ld+json"

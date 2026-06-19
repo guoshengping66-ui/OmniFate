@@ -68,7 +68,7 @@ export default function BlogPage() {
     "description": isZh
       ? "探索八字、星盘、塔罗、面相等命理知识，AI智能解读助您了解自我"
       : "Explore Bazi, Astrology, Tarot, Face Reading and more. AI-powered insights for self-discovery",
-    "url": "https://www.khanfate.com/blog",
+    "url": `https://www.khanfate.com/${locale}/blog`,
     "publisher": {
       "@type": "Organization",
       "name": "Destiny Engine",
@@ -80,7 +80,7 @@ export default function BlogPage() {
       "itemListElement": ARTICLES.slice(0, 10).map((article, index) => ({
         "@type": "ListItem",
         "position": index + 1,
-        "url": `https://www.khanfate.com/blog/${article.id}`,
+        "url": `https://www.khanfate.com/${locale}/blog/${article.id}`,
         "name": isZh ? article.title_zh : article.title_en,
       }))
     }
@@ -93,7 +93,7 @@ export default function BlogPage() {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(blogJsonLd) }}
         />
-        <Breadcrumbs items={[{ label: t("nav.blog") }]} />
+        <Breadcrumbs items={[{ label: t("nav.blog") }]} currentPath={`/${locale}/blog`} />
 
         {/* Header */}
         <ScrollReveal>

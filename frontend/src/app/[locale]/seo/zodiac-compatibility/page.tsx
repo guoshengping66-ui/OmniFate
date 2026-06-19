@@ -62,7 +62,7 @@ export default function ZodiacCompatibilitySEOPage() {
   return (
     <div className="min-h-screen pt-24 pb-20 px-4">
       <div className="max-w-4xl mx-auto">
-        <Breadcrumbs items={[{ label: t("seo.zodiac.breadcrumb") }]} />
+        <Breadcrumbs items={[{ label: t("seo.zodiac.breadcrumb") }]} currentPath={`/${locale}/seo/zodiac-compatibility`} />
 
         <script
           type="application/ld+json"

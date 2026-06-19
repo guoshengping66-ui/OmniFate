@@ -74,7 +74,7 @@ export default function FAQPage() {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
         />
-        <Breadcrumbs items={[{ label: t("faq.breadcrumb") }]} />
+        <Breadcrumbs items={[{ label: t("faq.breadcrumb") }]} currentPath={`/${locale}/faq`} />
 
         {/* Header */}
         <ScrollReveal>

@@ -242,10 +242,10 @@ export default function BlogArticlePage() {
       "url": "https://www.khanfate.com"
     },
     "datePublished": article.created_at,
-    "url": `https://www.khanfate.com/blog/${article.id}`,
+    "url": `https://www.khanfate.com/${locale}/blog/${article.id}`,
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": `https://www.khanfate.com/blog/${article.id}`
+      "@id": `https://www.khanfate.com/${locale}/blog/${article.id}`
     },
     "keywords": (isZh ? article.tags_zh : article.tags_en).join(", "),
     "articleSection": isZh

@@ -53,7 +53,7 @@ export default function BaziSEOPage() {
   return (
     <div className="min-h-screen pt-24 pb-20 px-4">
       <div className="max-w-4xl mx-auto">
-        <Breadcrumbs items={[{ label: t("seo.bazi.breadcrumb") }]} />
+        <Breadcrumbs items={[{ label: t("seo.bazi.breadcrumb") }]} currentPath={`/${locale}/seo/bazi`} />
 
         {/* JSON-LD Structured Data */}
         <script
