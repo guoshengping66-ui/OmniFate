@@ -111,9 +111,10 @@ async def csrf_protection(request: Request, call_next):
         if any(path.startswith(exempt) for exempt in CSRF_EXEMPT_PATHS):
             return await call_next(request)
 
-        # Check for X-Requested-With header (must be "XMLHttpRequest" or "fetch")
+        # Check for X-Requested-With header (must be "XMLHttpRequest" or "nextjs-action")
+        # "fetch" is excluded — it's trivially forgeable by attacker scripts
         x_requested_with = request.headers.get("x-requested-with", "")
-        if x_requested_with not in ("XMLHttpRequest", "fetch", "nextjs-action"):
+        if x_requested_with not in ("XMLHttpRequest", "nextjs-action"):
             from fastapi.responses import JSONResponse
             return JSONResponse(
                 status_code=403,
@@ -399,18 +400,12 @@ async def cache_middleware(request: Request, call_next):
     MAX_CACHE_BODY = 256 * 1024  # 256KB
     if response.status_code == 200:
         body = b""
-        total = 0
-        too_large = False
         async for chunk in response.body_iterator:
             if isinstance(chunk, str):
                 chunk = chunk.encode("utf-8")
-            total += len(chunk)
-            if total > MAX_CACHE_BODY:
-                too_large = True
-                break
             body += chunk
-        if too_large:
-            # Response too large to cache, return original
+        if len(body) > MAX_CACHE_BODY:
+            # Response too large to cache, return full body to client
             return Response(content=body, status_code=200, headers=dict(response.headers))
         try:
             data = json.loads(body)

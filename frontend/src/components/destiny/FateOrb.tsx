@@ -18,20 +18,31 @@ interface Props {
 export default function FateOrb({ scrollProgress = 0 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [mouse, setMouse] = useState({ x: 0, y: 0 })
+  const mouseRef = useRef({ x: 0, y: 0 })
 
   useEffect(() => {
+    let rafId: number | null = null
     const handleMouseMove = (e: MouseEvent) => {
       if (!containerRef.current) return
       const rect = containerRef.current.getBoundingClientRect()
       const centerX = rect.left + rect.width / 2
       const centerY = rect.top + rect.height / 2
-      setMouse({
-        x: (e.clientX - centerX) / rect.width * 10,
-        y: (e.clientY - centerY) / rect.height * 10,
+      const nx = (e.clientX - centerX) / rect.width * 10
+      const ny = (e.clientY - centerY) / rect.height * 10
+      // Skip negligible movements (< 0.5px)
+      if (Math.abs(nx - mouseRef.current.x) < 0.5 && Math.abs(ny - mouseRef.current.y) < 0.5) return
+      mouseRef.current = { x: nx, y: ny }
+      if (rafId) return
+      rafId = requestAnimationFrame(() => {
+        setMouse({ x: mouseRef.current.x, y: mouseRef.current.y })
+        rafId = null
       })
     }
     window.addEventListener("mousemove", handleMouseMove)
-    return () => window.removeEventListener("mousemove", handleMouseMove)
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove)
+      if (rafId) cancelAnimationFrame(rafId)
+    }
   }, [])
 
   const sp = scrollProgress

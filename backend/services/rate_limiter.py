@@ -35,22 +35,23 @@ async def check_rate_limit(
 
 
 async def _check_redis(r, key: str, limit: int, window: int) -> bool:
-    """Redis sliding window using sorted sets — count before adding for accuracy."""
+    """Redis sliding window using sorted sets — atomic add-then-count to prevent TOCTOU race."""
     now = time.time()
     redis_key = f"rl:{key}"
+    # Atomic: add the request first, then check count. If over limit, remove it.
     pipe = r.pipeline()
     pipe.zremrangebyscore(redis_key, 0, now - window)  # Remove expired entries
-    pipe.zcard(redis_key)                                # Count BEFORE adding
+    pipe.zadd(redis_key, {str(now): now})               # Add this request
+    pipe.zcard(redis_key)                                # Count AFTER adding
     pipe.expire(redis_key, window + 10)                  # Auto-cleanup
     results = await pipe.execute()
-    count = results[1]
-    if count >= limit:
-        return True  # Rate limit exceeded — don't add this request
-    # Only add if under limit
-    pipe2 = r.pipeline()
-    pipe2.zadd(redis_key, {str(now): now})
-    pipe2.expire(redis_key, window + 10)
-    await pipe2.execute()
+    count = results[2]  # count after adding
+    if count > limit:
+        # Over limit — remove the just-added entry
+        pipe2 = r.pipeline()
+        pipe2.zrem(redis_key, str(now))
+        await pipe2.execute()
+        return True
     return False
 
 
@@ -64,6 +65,10 @@ def _check_memory(key: str, limit: int, window: int) -> bool:
         stale = [k for k, v in _memory_store.items() if not v or v[-1] <= now - window]
         for k in stale:
             del _memory_store[k]
+
+    # Hard cap: reject new entries if at max capacity
+    if len(_memory_store) >= _MEMORY_MAX_ENTRIES and key not in _memory_store:
+        return True  # Rate limit to protect memory
 
     # Periodic cleanup
     if now - _last_cleanup > CLEANUP_INTERVAL:

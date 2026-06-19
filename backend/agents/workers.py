@@ -647,6 +647,7 @@ async def _call_and_parse(system: str, user_msg: str, agent_id: str, state: Syst
     # Validate quality — retry once if output is poor
     if not _use_mock() and not _validate_worker_output(data, agent_id):
         logger.info("[%s] low quality output, retrying once...", agent_id)
+        await asyncio.sleep(2)  # Brief backoff before retry
         report = await _call(
             system, user_msg, language=state.language, is_premium=state.is_premium, model=model,
         )
@@ -1463,7 +1464,7 @@ async def run_face(state: SystemState) -> WorkerOutput:
                     break
                 if attempt < 2:
                     logger.info("FACE: empty response on attempt %d, retrying in 3s...", attempt+1)
-                    await asyncio.sleep(3)
+                    await asyncio.sleep(2 ** (attempt + 1))  # Exponential backoff: 2s, 4s, 8s
 
         data = _parse_worker_report(report)
         # Validate and retry once more if quality is low
@@ -1530,7 +1531,7 @@ async def run_palm(state: SystemState) -> WorkerOutput:
                     break
                 if attempt < 2:
                     logger.info("PALM: empty response on attempt %d, retrying in 3s...", attempt+1)
-                    await asyncio.sleep(3)
+                    await asyncio.sleep(2 ** (attempt + 1))  # Exponential backoff: 2s, 4s, 8s
 
         data = _parse_worker_report(report)
         # Validate and retry once more if quality is low
@@ -1600,7 +1601,7 @@ async def run_partner_face(state: SystemState) -> WorkerOutput:
                     break
                 if attempt < 2:
                     logger.info("PARTNER_FACE: empty response on attempt %d, retrying in 3s...", attempt+1)
-                    await asyncio.sleep(3)
+                    await asyncio.sleep(2 ** (attempt + 1))  # Exponential backoff: 2s, 4s, 8s
 
         data = _parse_worker_report(report)
         if not _use_mock() and not _validate_worker_output(data, "face"):
@@ -1661,7 +1662,7 @@ async def run_partner_palm(state: SystemState) -> WorkerOutput:
                     break
                 if attempt < 2:
                     logger.info("PARTNER_PALM: empty response on attempt %d, retrying in 3s...", attempt+1)
-                    await asyncio.sleep(3)
+                    await asyncio.sleep(2 ** (attempt + 1))  # Exponential backoff: 2s, 4s, 8s
 
         data = _parse_worker_report(report)
         if not _use_mock() and not _validate_worker_output(data, "palm"):

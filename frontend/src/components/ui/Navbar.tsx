@@ -74,7 +74,7 @@ export function Navbar() {
           {/* Desktop nav — wide screens: all links visible */}
           <nav className="hidden lg:flex items-center gap-5">
             {coreLinks.map(l => (
-              <Link key={l.href} href={l.href} prefetch={true}
+              <Link key={l.href} href={l.href} prefetch={null}
                 className={`text-sm transition-colors duration-200 ${
                   l.highlight
                     ? "text-gold font-medium hover:text-gold-light"
@@ -85,7 +85,7 @@ export function Navbar() {
             ))}
             {/* Extra links visible on lg+ */}
             {extraLinks.map(l => (
-              <Link key={l.href} href={l.href} prefetch={true}
+              <Link key={l.href} href={l.href} prefetch={null}
                 className="text-sm text-white/50 hover:text-gold transition-colors duration-200">
                 {l.label}
               </Link>
@@ -95,7 +95,7 @@ export function Navbar() {
           {/* Medium screens: core links + hamburger for extras */}
           <nav className="hidden md:flex lg:hidden items-center gap-4">
             {coreLinks.map(l => (
-              <Link key={l.href} href={l.href} prefetch={true}
+              <Link key={l.href} href={l.href} prefetch={null}
                 className={`text-sm transition-colors duration-200 ${
                   l.highlight
                     ? "text-gold font-medium hover:text-gold-light"
@@ -108,6 +108,7 @@ export function Navbar() {
             <button
               onClick={() => setOpen(!open)}
               className="text-white/50 hover:text-gold transition-colors p-1"
+              aria-label="Toggle menu"
             >
               <Menu size={18} />
             </button>
@@ -116,7 +117,7 @@ export function Navbar() {
           {/* Mobile hamburger — visible below md */}
           <div className="flex items-center gap-3 md:hidden">
             {/* Cart icon mobile */}
-            <button onClick={() => setCartOpen(true)} className="relative text-white/60">
+            <button onClick={() => setCartOpen(true)} className="relative text-white/60" aria-label="Shopping cart">
               <ShoppingBag size={20} />
               {itemCount > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-gold text-ink text-[10px] font-bold rounded-full flex items-center justify-center">
@@ -125,7 +126,7 @@ export function Navbar() {
               )}
             </button>
             <LanguageSwitch />
-            <button onClick={() => setOpen(!open)} className="text-white/70">
+            <button onClick={() => setOpen(!open)} className="text-white/70" aria-label={open ? "Close menu" : "Open menu"}>
               {open ? <X size={22} /> : <Menu size={22} />}
             </button>
           </div>
@@ -136,6 +137,7 @@ export function Navbar() {
             <button
               onClick={() => setCartOpen(true)}
               className="relative text-white/60 hover:text-gold transition-colors hidden sm:block"
+              aria-label="Shopping cart"
             >
               <ShoppingBag size={20} />
               {itemCount > 0 && (

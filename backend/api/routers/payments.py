@@ -1224,6 +1224,9 @@ async def paypal_return(
             select(Order).where(Order.order_no == order_no).with_for_update()
         )
         order = order_result.scalar_one_or_none()
+        if order and order.user_id != current_user.id:
+            logger.warning("[PAYPAL-RETURN] 用户 %s 尝试激活不属于自己的订单 %s", current_user.id, order_no)
+            return RedirectResponse("https://khanfate.com/payment?paypal=unauthorized")
         if order and order.status != OrderStatus.paid:
             order.status = OrderStatus.paid
             order.paid_at = datetime.now(timezone.utc)

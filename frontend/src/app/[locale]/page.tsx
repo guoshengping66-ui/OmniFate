@@ -4,6 +4,7 @@ import dynamic from "next/dynamic"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useAuth } from "@/contexts/AuthContext"
 import { useUserStore } from "@/stores/useUserStore"
+import { ErrorBoundary } from "@/components/ui/ErrorBoundary"
 
 // ── Global background removed — AnimatedBackground in layout.tsx already provides nebula + stars ──
 
@@ -96,17 +97,27 @@ export default function HomePage() {
         {/* SECTION 01: Hero */}
         <CinematicHero />
         {/* SECTION 02: How It Works — AI cross-validation */}
-        <div id="how-it-works">
-          <AIDestinyDeconstruction />
-        </div>
+        <ErrorBoundary sectionName="AI Analysis">
+          <div id="how-it-works">
+            <AIDestinyDeconstruction />
+          </div>
+        </ErrorBoundary>
         {/* SECTION 03: Life Route — your journey map */}
-        <LifeRouteGeneration />
+        <ErrorBoundary sectionName="Life Route">
+          <LifeRouteGeneration />
+        </ErrorBoundary>
         {/* SECTION 04: Key Life Nodes — deep dive */}
-        <KeyLifeNodes />
+        <ErrorBoundary sectionName="Key Life Nodes">
+          <KeyLifeNodes />
+        </ErrorBoundary>
         {/* SECTION 05: Services */}
-        <ServicesShowcase />
+        <ErrorBoundary sectionName="Services">
+          <ServicesShowcase />
+        </ErrorBoundary>
         {/* SECTION 06: Lifestyle */}
-        <LifestyleShowcase />
+        <ErrorBoundary sectionName="Lifestyle">
+          <LifestyleShowcase />
+        </ErrorBoundary>
       </div>
   )
 }

@@ -3,6 +3,7 @@ import { useMemo } from "react"
 import { HelpCircle } from "lucide-react"
 import { AccordionItem } from "@/components/ui/AccordionItem"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
+import { safeJsonLd } from "@/utils/safeJsonLd"
 
 interface FaqItem {
   question: string

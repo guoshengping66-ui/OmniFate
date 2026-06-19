@@ -1,4 +1,5 @@
 "use client"
+import { useRef } from "react"
 import { X, Zap, ArrowRight, Crown } from "lucide-react"
 import { Link } from "@/i18n/navigation"
 import { useLanguage } from "@/contexts/LanguageContext"
@@ -25,10 +26,11 @@ const FOUNDER_BALANCE_KEYS = [
 
 export function LowBalanceModal({ open, onClose, required = 0, current = 0, isFounder = false }: LowBalanceModalProps) {
   const { t } = useLanguage()
+  const keys = isFounder ? FOUNDER_BALANCE_KEYS : LOW_BALANCE_KEYS
+  const messageKeyRef = useRef(keys[Math.floor(Math.random() * keys.length)])
   if (!open) return null
 
-  const keys = isFounder ? FOUNDER_BALANCE_KEYS : LOW_BALANCE_KEYS
-  const message = t(keys[Math.floor(Math.random() * keys.length)])
+  const message = t(messageKeyRef.current)
 
   return (
     <div

@@ -89,6 +89,10 @@ export function RegionProvider({ children, initialRegion }: { children: ReactNod
       })
   }, [])
 
+  const setRegionCookie = (region: Region) => {
+    document.cookie = `region=${region};path=/;max-age=31536000;SameSite=Lax`
+  }
+
   const switchRegion = (newRegion: Region) => {
     setRegion(newRegion)
     setLocalStorage("alpha_mirror_region", JSON.stringify({ region: newRegion, ts: Date.now() }))

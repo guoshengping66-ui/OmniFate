@@ -12,6 +12,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Header
+from api.routers.payments import get_client_region
 from pydantic import BaseModel
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -124,7 +125,8 @@ async def create_payment_order(
     返回支付宝/微信收款码URL，供前端展示
     """
     # 0. Region validation: QR code payments are domestic-only
-    region = request.cookies.get("region", "overseas")
+    # Use server-side detection (CF-IPCountry / Accept-Language / IP) instead of trusting client cookie
+    region = get_client_region(request)
     if region != "domestic":
         raise HTTPException(
             status_code=403,

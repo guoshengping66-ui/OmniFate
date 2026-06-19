@@ -14,6 +14,7 @@ import { ServiceWorkerRegistration } from "@/components/ui/ServiceWorkerRegistra
 import { MonthlyGrantToast } from "@/components/ui/MonthlyGrantToast"
 import { OnboardingGuide } from "@/components/ui/OnboardingGuide"
 import { ChunkRecovery } from "@/components/ui/ChunkRecovery"
+import { safeJsonLd } from "@/utils/safeJsonLd"
 
 export const viewport: Viewport = {
   themeColor: "#C9A84C",
@@ -233,7 +234,7 @@ try{
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
+            __html: safeJsonLd({
               "@context": "https://schema.org",
               "@type": "WebApplication",
               name: validLocale === "zh" ? "命运引擎" : "Destiny Engine",

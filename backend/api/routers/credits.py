@@ -207,7 +207,7 @@ async def confirm_deduct(
         select(CreditTransaction).where(
             CreditTransaction.id == transaction_id,
             CreditTransaction.user_id == current_user.id,
-        )
+        ).with_for_update()
     )
     tx = result.scalar_one_or_none()
     if not tx:
@@ -255,7 +255,7 @@ async def refund_deduct(
         select(CreditTransaction).where(
             CreditTransaction.id == req.transaction_id,
             CreditTransaction.user_id == current_user.id,
-        )
+        ).with_for_update()
     )
     tx = result.scalar_one_or_none()
     if not tx:

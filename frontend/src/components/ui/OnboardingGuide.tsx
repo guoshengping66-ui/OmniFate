@@ -21,7 +21,7 @@ interface Step {
 }
 
 export function OnboardingGuide() {
-  const { t, locale } = useLanguage()
+  const { t, locale, localeHref } = useLanguage()
   const { user } = useAuth()
   const { birthProfiles } = useUserStore()
   const router = useRouter()
@@ -125,7 +125,7 @@ export function OnboardingGuide() {
         {/* Link button if available */}
         {step.link && (
           <Link
-            href={step.link}
+            href={localeHref(step.link!)}
             onClick={finish}
             className="block w-full py-3 rounded-xl bg-gold/10 border border-gold/30 text-gold text-center text-sm font-medium mb-4 hover:bg-gold/20 transition-colors"
           >

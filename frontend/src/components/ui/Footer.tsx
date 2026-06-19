@@ -62,20 +62,20 @@ export function Footer() {
                 >
                   <MessageCircle size={14} />
                 </button>
-                <a
-                  href="#"
+                <button
                   className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/30 hover:text-gold hover:border-gold/30 hover:bg-gold/5 transition-all duration-300"
-                  title="Weibo"
+                  aria-label="Weibo (coming soon)"
+                  disabled
                 >
                   <Globe size={14} />
-                </a>
-                <a
-                  href="#"
+                </button>
+                <button
                   className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/30 hover:text-gold hover:border-gold/30 hover:bg-gold/5 transition-all duration-300"
-                  title="Xiaohongshu"
+                  aria-label="Xiaohongshu (coming soon)"
+                  disabled
                 >
                   <BookOpen size={14} />
-                </a>
+                </button>
               </div>
               <p className="text-white/30 text-[11px] mt-2 flex items-center gap-1">
                 <Copy size={10} /> {t("footer.wechatHint")}: {WECHAT_ID}

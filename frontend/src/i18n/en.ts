@@ -1465,9 +1465,9 @@ export default {
 
   // ─── Lifestyle Showcase ───
   "lifestyle.badge": "Curated Picks",
-  "lifestyle.title": "Popular Lifestyle Picks",
-  "lifestyle.desc": "Curated tools to elevate your lifestyle, based on analysis data",
-  "lifestyle.viewAll": "Explore More",
+  "lifestyle.title": "Vault Picks",
+  "lifestyle.desc": "Curated items to inspire your lifestyle choices",
+  "lifestyle.viewAll": "Explore The Vault",
 
   // ─── Energy Wave Extended ───
   "energyWave.title": "Energy Wave Alert",

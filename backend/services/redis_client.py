@@ -23,6 +23,7 @@ _redis_client = None
 _redis_available: Optional[bool] = None  # None = not checked yet
 _last_reconnect_attempt: float = 0.0
 _RECONNECT_INTERVAL = 300  # Retry connection every 5 minutes if previously failed
+_reconnect_lock = asyncio.Lock()
 
 
 async def _get_redis():
@@ -33,32 +34,43 @@ async def _get_redis():
         now = time.time()
         if now - _last_reconnect_attempt < _RECONNECT_INTERVAL:
             return None
-        _last_reconnect_attempt = now
-        _redis_available = None  # Fall through to attempt reconnection
+        # Fall through to attempt reconnection (lock prevents concurrent attempts)
     if _redis_client is not None:
         return _redis_client
     if not settings.REDIS_URL:
         _redis_available = False
         logger.info("No REDIS_URL configured — using in-memory fallback")
         return None
-    try:
-        import redis.asyncio as aioredis
-        _redis_client = aioredis.from_url(
-            settings.REDIS_URL,
-            decode_responses=True,
-            socket_connect_timeout=3,
-            socket_timeout=3,
-        )
-        # Quick connectivity check
-        await asyncio.wait_for(_redis_client.ping(), timeout=3)
-        _redis_available = True
-        logger.info("Connected to %s", settings.REDIS_URL.split('@')[-1])
-        return _redis_client
-    except Exception as e:
-        _redis_available = False
-        _redis_client = None
-        logger.warning("Redis connection failed: %s — using in-memory fallback", e)
-        return None
+    async with _reconnect_lock:
+        # Double-check after acquiring lock
+        if _redis_client is not None:
+            return _redis_client
+        _last_reconnect_attempt = time.time()
+        try:
+            import redis.asyncio as aioredis
+            client = aioredis.from_url(
+                settings.REDIS_URL,
+                decode_responses=True,
+                socket_connect_timeout=3,
+                socket_timeout=3,
+            )
+            # Quick connectivity check
+            await asyncio.wait_for(client.ping(), timeout=3)
+            _redis_client = client
+            _redis_available = True
+            logger.info("Connected to %s", settings.REDIS_URL.split('@')[-1])
+            return _redis_client
+        except Exception as e:
+            _redis_available = False
+            # Explicitly close leaked connection on failure
+            if 'client' in dir() and client is not None:
+                try:
+                    await client.close()
+                except Exception:
+                    pass
+            _redis_client = None
+            logger.warning("Redis connection failed: %s — using in-memory fallback", e)
+            return None
 
 
 async def redis_available() -> bool:
