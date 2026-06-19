@@ -118,6 +118,12 @@ export default async function LocaleLayout({
       <head>
         <link rel="preconnect" href="https://fonts.font.im" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://api.khanfate.com" />
+        {/* Preload critical font for LCP optimization */}
+        <link
+          rel="preload"
+          href="https://fonts.font.im/css2?family=Inter:wght@400;500;600&display=swap"
+          as="style"
+        />
         {/* No prefetch links — Cloudflare returns 503 for some pages, causing console errors */}
         {/* Async font loading: non-blocking, swap to system font until loaded */}
         <link

@@ -90,10 +90,19 @@ const nextConfig = {
         ],
       },
       {
+        // Programmatic SEO pages — cache 1 hour at CDN (Cloudflare)
+        // These are static SSG pages that rarely change
+        source: "/((?:zodiac|tarot|palm-reading|face-reading|bazi|five-elements|ziwei|astrology)/.*)",
+        headers: [
+          { key: "Cache-Control", value: "public, s-maxage=3600, stale-while-revalidate=86400" },
+          { key: "CDN-Cache-Control", value: "public, s-maxage=3600, stale-while-revalidate=86400" },
+        ],
+      },
+      {
         // HTML pages — never cache. After each deploy new chunk hashes are
         // generated; serving stale HTML causes ChunkLoadError (404 on old
         // chunk filenames).  CDN-Cache-Control is prioritized by Cloudflare.
-        source: "/((?!_next|api|favicon|logo|og|robots|manifest).*)",
+        source: "/((?!_next|api|favicon|logo|og|robots|manifest|zodiac|tarot|palm-reading|face-reading|bazi|five-elements|ziwei|astrology).*)",
         headers: [
           { key: "Cache-Control", value: "no-cache, no-store, must-revalidate" },
           { key: "Surrogate-Control", value: "no-store" },
@@ -126,9 +135,14 @@ const nextConfig = {
       { protocol: "https", hostname: "khanfate.com" },
       { protocol: "https", hostname: "www.khanfate.com" },
       { protocol: "https", hostname: "api.khanfate.com" },
-      { protocol: "https", hostname: "s3.amazonaws.com" },   // S3
-      { protocol: "https", hostname: "oss-cn-hangzhou.aliyuncs.com" },  // 阿里云 OSS
+      { protocol: "https", hostname: "s3.amazonaws.com" },
+      { protocol: "https", hostname: "oss-cn-hangzhou.aliyuncs.com" },
     ],
+    // Serve modern formats for better Core Web Vitals (LCP)
+    formats: ["image/avif", "image/webp"],
+    // Allow smaller images to be cached aggressively
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
 }
 
