@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next"
 import { locales } from "@/i18n/config"
+import { ARTICLES } from "@/data/articles"
 
 const BASE_URL = "https://www.khanfate.com"
 
@@ -37,7 +38,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   ]
 
   // Generate sitemap entries for all locales
-  return staticPaths.flatMap((path) =>
+  const staticEntries = staticPaths.flatMap((path) =>
     locales.map((locale) => ({
       url: `${BASE_URL}/${locale}${path === "/" ? "" : path}`,
       lastModified: now,
@@ -54,4 +55,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
       },
     })),
   )
+
+  // Dynamic blog article entries
+  const blogEntries = ARTICLES.flatMap((article) =>
+    locales.map((locale) => ({
+      url: `${BASE_URL}/${locale}/blog/${article.id}`,
+      lastModified: new Date(article.created_at),
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+      alternates: {
+        languages: Object.fromEntries(
+          locales.map((l) => [l, `${BASE_URL}/${l}/blog/${article.id}`]),
+        ),
+      },
+    })),
+  )
+
+  return [...staticEntries, ...blogEntries]
 }
