@@ -17,7 +17,7 @@ const RegionContext = createContext<RegionContextValue>({
   detectionSource: "middleware",
 })
 
-// ── Browser-based region detection ──
+// ── Browser-based region detection (fallback only) ──
 
 const DOMESTIC_TIMEZONES = [
   "Asia/Shanghai",
@@ -41,38 +41,11 @@ function detectFromTimezone(): Region {
   return "overseas"
 }
 
-function detectFromLanguage(): Region {
-  try {
-    const lang = navigator.language || ""
-    if (lang.startsWith("zh")) return "domestic"
-  } catch {}
-  return "overseas"
-}
-
-function getCookie(name: string): string | null {
-  if (typeof document === "undefined") return null
-  const match = document.cookie.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`))
-  return match ? decodeURIComponent(match[1]) : null
-}
-
-function getLocalStorage(key: string): string | null {
-  try {
-    return localStorage.getItem(key)
-  } catch {
-    return null
-  }
-}
-
 function setLocalStorage(key: string, value: string) {
   try {
     localStorage.setItem(key, value)
   } catch {}
 }
-
-// No-op: region cookie is set securely by middleware (httpOnly, secure, SameSite=lax).
-// Client-side cookie setting is intentionally omitted to avoid overwriting the server cookie.
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-function setRegionCookie(_region: Region) {}
 
 // ── Provider ──
 
@@ -84,42 +57,36 @@ export function RegionProvider({ children, initialRegion }: { children: ReactNod
   useEffect(() => {
     // Detection priority:
     //   1. Middleware-set cookie (from CF-IPCountry — most reliable, server-side)
-    //   2. Browser language (strong signal — zh = domestic)
-    //   3. Browser timezone (weak signal — Asia/* = domestic, but unreliable for VPN users)
+    //   2. API verification (ip-api.com — confirms IP-based region)
+    //   3. Browser timezone (weak fallback)
     //
-    // IMPORTANT: Language is checked BEFORE timezone because many overseas Chinese
-    // users have Chinese timezone (from VPN or OS settings) which causes timezone
-    // to incorrectly detect them as domestic. Language is a more reliable signal.
+    // IMPORTANT: The region cookie is httpOnly, so JavaScript CANNOT read it.
+    // We use the initialRegion from the server layout as the starting point,
+    // then verify via the /api/region endpoint which checks the IP server-side.
+    // This is the only reliable way to detect region on the client.
 
-    // 1. Read middleware-set cookie (set by server via CF-IPCountry)
-    const cookieRegion = getCookie("region") as Region | null
-    const hasCookie = cookieRegion === "domestic" || cookieRegion === "overseas"
+    // 1. Start with server-provided initialRegion (from cookie read in layout)
+    // This is already correct for the initial render
 
-    if (hasCookie) {
-      // Cookie exists from middleware — trust it (authoritative)
-      setRegion(cookieRegion)
-      setDetectionSource("middleware")
-      setLocalStorage("alpha_mirror_region", JSON.stringify({ region: cookieRegion, ts: Date.now() }))
-    } else {
-      // No cookie — check language first (more reliable than timezone)
-      const langRegion = detectFromLanguage()
-      if (langRegion === "domestic") {
-        // Chinese browser language → almost certainly domestic
-        setRegion("domestic")
-        setDetectionSource("language")
-        setLocalStorage("alpha_mirror_region", JSON.stringify({ region: "domestic", ts: Date.now() }))
-        setRegionCookie("domestic")
-      } else {
-        // Non-Chinese language → check timezone as secondary signal
+    // 2. Verify via API (ip-api.com from server side — accurate, independent of cookie)
+    fetch("/api/region", { cache: "no-store" })
+      .then(r => r.json())
+      .then(data => {
+        if (data.region === "domestic" || data.region === "overseas") {
+          setRegion(data.region)
+          setDetectionSource("api")
+          setLocalStorage("alpha_mirror_region", JSON.stringify({ region: data.region, ts: Date.now() }))
+        }
+        setIsLoaded(true)
+      })
+      .catch(() => {
+        // API failed — fall back to timezone detection
         const tzRegion = detectFromTimezone()
         setRegion(tzRegion)
         setDetectionSource("timezone")
         setLocalStorage("alpha_mirror_region", JSON.stringify({ region: tzRegion, ts: Date.now() }))
-        setRegionCookie(tzRegion)
-      }
-    }
-
-    setIsLoaded(true)
+        setIsLoaded(true)
+      })
   }, [])
 
   const switchRegion = (newRegion: Region) => {

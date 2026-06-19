@@ -80,13 +80,13 @@ const intlMiddleware = createMiddleware({
  * ALWAYS re-detects from CF-IPCountry on every request.
  * This ensures VPN/proxy IP changes are immediately reflected.
  *
- * Priority: CF-IPCountry (authoritative) > Accept-Language (only when CF-IPCountry missing) > default
+ * Priority: CF-IPCountry (authoritative) > default to overseas
  *
- * IMPORTANT: When CF-IPCountry is present but indicates a non-domestic country,
- * we MUST trust it and return "overseas". Accept-Language is only used as a
- * fallback when CF-IPCountry header is completely absent (e.g. non-Cloudflare setup).
- * Otherwise a Chinese user on a US VPN would be misclassified as domestic
- * because their browser language is "zh".
+ * IMPORTANT: Accept-Language is NOT used for region detection because it's
+ * unreliable — overseas Chinese users often have "zh" in their Accept-Language
+ * but should see overseas pricing. When CF-IPCountry is missing (e.g. non-Cloudflare
+ * setup), we default to "overseas" which is safer for international users.
+ * The client-side API verification provides an additional fallback.
  */
 function detectRegion(request: NextRequest): Region {
   // 1. Cloudflare IP country code (most accurate, always fresh)
@@ -96,13 +96,8 @@ function detectRegion(request: NextRequest): Region {
     return DOMESTIC_COUNTRY_CODES.has(cfCountry) ? "domestic" : "overseas"
   }
 
-  // 2. Accept-Language as weak fallback (ONLY when CF-IPCountry is missing)
-  const acceptLang = request.headers.get("accept-language") || ""
-  if (acceptLang.toLowerCase().includes("zh")) {
-    return "domestic"
-  }
-
-  // 3. Default to overseas
+  // 2. Default to overseas (safer for international users)
+  // Client-side API verification will correct if needed
   return "overseas"
 }
 
