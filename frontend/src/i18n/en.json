@@ -1191,7 +1191,52 @@
     "todayFirstFree": "One free draw per day · Feel the behavioral guidance",
     "todayAlreadyDrawn": "Today's status already revealed · Once per day",
     "comeBackTomorrow": "Come Back Tomorrow",
-    "todayPalace": "Today's Profile:"
+    "todayPalace": "Today's Profile:",
+    "bazi": {
+      "label": "BaZi (Four Pillars)",
+      "done": "BaZi analysis complete",
+      "running": "Analyzing BaZi destiny pillars..."
+    },
+    "astrology": {
+      "label": "Western Astrology",
+      "done": "Astrology calculation complete",
+      "running": "Calculating planetary orbits and houses..."
+    },
+    "tarot": {
+      "label": "Tarot Reflection",
+      "done": "Tarot reading complete",
+      "running": "Interpreting tarot spread data..."
+    },
+    "qimen": {
+      "label": "Strategic Analysis",
+      "done": "Strategic analysis complete",
+      "running": "Running strategic analysis..."
+    },
+    "ziwei": {
+      "label": "Purple Star Astrology",
+      "done": "Ziwei analysis complete",
+      "running": "Mapping behavioral patterns..."
+    },
+    "face": {
+      "label": "AI Face Reading",
+      "done": "Face reading complete",
+      "running": "Analyzing facial features..."
+    },
+    "palm": {
+      "label": "Palm Reading",
+      "done": "Palm reading complete",
+      "running": "Reading palm lines..."
+    },
+    "partnerFace": {
+      "label": "Partner Face Reading",
+      "done": "Partner face reading complete",
+      "running": "Analyzing partner facial features..."
+    },
+    "partnerPalm": {
+      "label": "Partner Palm Reading",
+      "done": "Partner palm reading complete",
+      "running": "Reading partner palm lines..."
+    }
   },
   "auth": {
     "birth": {
