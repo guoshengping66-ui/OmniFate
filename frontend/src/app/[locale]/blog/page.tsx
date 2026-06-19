@@ -7,6 +7,7 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { useState } from "react"
+import { safeJsonLd } from "@/utils/safeJsonLd"
 
 export default function BlogPage() {
   const { locale, t, localeHref } = useLanguage()

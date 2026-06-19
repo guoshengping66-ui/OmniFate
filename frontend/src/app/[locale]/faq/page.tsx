@@ -6,6 +6,7 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import Link from "next/link"
+import { safeJsonLd } from "@/utils/safeJsonLd"
 
 /** FAQ categories for filtering */
 const FAQ_CATEGORIES = [

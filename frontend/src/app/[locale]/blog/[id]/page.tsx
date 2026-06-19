@@ -5,6 +5,7 @@ import { useEffect, useState, useRef, type JSX } from "react"
 import { ArrowLeft, Clock, Share2, ChevronUp } from "lucide-react"
 import { ARTICLES, CATEGORIES } from "@/data/articles"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { safeJsonLd } from "@/utils/safeJsonLd"
 
 /* ── Markdown 渲染器 ────────────────────────────────────────────── */
 
