@@ -5,7 +5,7 @@ import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { ZodiacSigns } from "@/data/programmatic/zodiac/signs"
 import { useLanguage } from "@/contexts/LanguageContext"
 
-const TOPICS = ["love", "career", "health"] as const
+const TOPICS = ["love", "career", "health", "wealth", "study"] as const
 type Topic = (typeof TOPICS)[number]
 
 function safeJsonLd(obj: object): string {
@@ -36,6 +36,8 @@ export async function generateMetadata({ params }: PageProps) {
     love: { en: "Love & Relationships", zh: "爱情与人际关系" },
     career: { en: "Career & Finance", zh: "事业与财富" },
     health: { en: "Health & Wellness", zh: "健康与养生" },
+    wealth: { en: "Wealth & Money", zh: "财运与理财" },
+    study: { en: "Study & Learning", zh: "学习与成长" },
   }
   const label = topicLabels[topic]
 
@@ -81,6 +83,20 @@ export default async function ZodiacTopicPage({ params }: PageProps) {
       content_en: data.health_traits_en,
       content_zh: data.health_traits_zh,
       icon: "🏥",
+    },
+    wealth: {
+      title_en: `${data.name_en} Wealth & Money`,
+      title_zh: `${data.name_zh}财运与理财`,
+      content_en: `${data.name_en} individuals tend to ${data.element === "fire" ? "be bold investors who enjoy high-risk, high-reward opportunities" : data.element === "earth" ? "be conservative savers who prefer stable, long-term investments" : data.element === "air" ? "be strategic planners who diversify their portfolio wisely" : data.element === "water" ? "be intuitive investors who flow with market trends" : "be disciplined savers who build wealth gradually"}. Their ${data.element} nature gives them ${data.element === "fire" ? "courage to take financial risks" : data.element === "earth" ? "patience for steady growth" : data.element === "air" ? "analytical skills for smart decisions" : data.element === "water" ? "adaptability in changing markets" : "discipline for consistent saving"}.`,
+      content_zh: `${data.name_zh}的人通常${data.element === "fire" ? "敢于冒险投资，喜欢高风险高回报的机会" : data.element === "earth" ? "保守储蓄，偏好稳定长期的投资" : data.element === "air" ? "善于策略规划，明智地分散投资组合" : data.element === "water" ? "直觉敏锐，能顺应市场趋势" : "纪律严明，稳步积累财富"}。他们的${data.element === "fire" ? "火" : data.element === "earth" ? "土" : data.element === "air" ? "风" : data.element === "water" ? "水" : "木"}属性赋予他们${data.element === "fire" ? "承担财务风险的勇气" : data.element === "earth" ? "稳健增长的耐心" : data.element === "air" ? "明智决策的分析能力" : data.element === "water" ? "应对市场变化的适应力" : "持续储蓄的纪律性"}。`,
+      icon: "💰",
+    },
+    study: {
+      title_en: `${data.name_en} Study & Learning`,
+      title_zh: `${data.name_zh}学习与成长`,
+      content_en: `${data.name_en} learners are ${data.quality === "cardinal" ? "self-starters who thrive on new challenges and Initiating projects" : data.quality === "fixed" ? "persistent students who master subjects through dedication and depth" : "versatile learners who adapt quickly to new information and environments"}. They excel in ${data.element === "fire" ? "competitive, hands-on learning environments" : data.element === "earth" ? "practical, application-based studies" : data.element === "air" ? "discussion-based, intellectual exploration" : data.element === "water" ? "intuitive, creative learning" : "structured, methodical study"}.`,
+      content_zh: `${data.name_zh}的学习者是${data.quality === "cardinal" ? "自驱型学习者，在新挑战和启动项目中表现出色" : data.quality === "fixed" ? "坚持不懈的学生，通过专注和深度掌握学科" : "多才多艺的学习者，能快速适应新信息和环境"}。他们在${data.element === "fire" ? "竞争性、实践性的学习环境" : data.element === "earth" ? "实用型、应用型学习" : data.element === "air" ? "讨论式、知识性探索" : data.element === "water" ? "直觉型、创造性学习" : "结构化、系统性学习"}中表现突出。`,
+      icon: "📚",
     },
   }
 
@@ -137,7 +153,7 @@ export default async function ZodiacTopicPage({ params }: PageProps) {
                 href={`/zodiac/${data.id}/${t}`}
                 className="px-4 py-2 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white/50 text-sm hover:border-gold/30 hover:text-gold transition-all"
               >
-                {t === "love" ? (isZh ? "爱情" : "Love") : t === "career" ? (isZh ? "事业" : "Career") : (isZh ? "健康" : "Health")}
+                {t === "love" ? (isZh ? "爱情" : "Love") : t === "career" ? (isZh ? "事业" : "Career") : t === "health" ? (isZh ? "健康" : "Health") : t === "wealth" ? (isZh ? "财运" : "Wealth") : (isZh ? "学习" : "Study")}
               </Link>
             ))}
           </div>

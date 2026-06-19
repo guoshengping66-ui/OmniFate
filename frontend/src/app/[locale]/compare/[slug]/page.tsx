@@ -57,6 +57,33 @@ const COMPARISONS: Record<string, {
     content_zh: "手相和面相都是中国玄学的分支，通过身体特征揭示性格和命运。\n\n手相：分析线条、丘和手型。揭示性格倾向、人生挑战和潜力。手相会随时间缓慢变化。\n\n面相：检查五官和面部比例。揭示先天性格、福报潜力和人生轨迹。面相被认为更固定。\n\n主要区别：手相展示你如何应对人生（过程）。面相展示人生带给你什么（潜力）。\n\n最佳实践：结合两者以获得完整的图景——面相看命运潜力，手相看人生旅程。",
     icon_a: "✋", icon_b: "👁️",
   },
+  "ziwei-vs-bazi": {
+    title_en: "Ziwei Doushu vs Bazi: Which Chinese System to Choose?",
+    title_zh: "紫微斗数 vs 八字：该选哪个中式系统？",
+    meta_description_en: "Compare Ziwei Doushu (Purple Star Astrology) with Bazi (Four Pillars). Learn the strengths of each Chinese destiny system.",
+    meta_description_zh: "对比紫微斗数和八字命理。了解每个中式命运系统的优势。",
+    content_en: "Ziwei Doushu and Bazi are the two most prominent Chinese destiny analysis systems, each with unique strengths.\n\nZiwei Doushu: Uses 14 main stars mapped across 12 life palaces based on your birth data. Provides detailed analysis of specific life areas — career, relationships, wealth, health — through star interactions. More visual and intuitive.\n\nBazi: Uses Four Pillars (Year, Month, Day, Hour) with Ten Heavenly Stems and Twelve Earthly Branches. Focuses on elemental balance and timing cycles. Better for understanding overall life structure and strategic planning.\n\nKey Difference: Ziwei excels at detailed life area analysis. Bazi excels at timing and life phase understanding.\n\nBest Practice: Use Bazi for life strategy and Ziwei for specific life area insights.",
+    content_zh: "紫微斗数和八字是两个最著名的中式命运分析系统，各有独特优势。\n\n紫微斗数：基于出生数据，将14颗主星映射到12个宫位。通过星曜互动，详细分析人生各个领域——事业、感情、财富、健康。更直观、更具象。\n\n八字：使用四柱（年、月、日、时）配合天干地支。专注于五行平衡和时运周期。更适合理解整体人生结构和战略规划。\n\n主要区别：紫微擅长具体人生领域分析。八字擅长时运和人生阶段理解。\n\n最佳实践：用八字做人生战略，用紫微做具体领域洞察。",
+    icon_a: "🌟", icon_b: "☯",
+  },
+  "numerology-vs-bazi": {
+    title_en: "Numerology vs Bazi: Western vs Eastern Number Systems",
+    title_zh: "数字命理 vs 八字：西方与东方的数字系统",
+    meta_description_en: "Compare Western Numerology with Chinese Bazi. Understand how each system uses numbers to reveal destiny patterns.",
+    meta_description_zh: "对比西方数字命理和中国八字。了解每个系统如何用数字揭示命运模式。",
+    content_en: "Numerology and Bazi both use numbers derived from your birth data, but in fundamentally different ways.\n\nWestern Numerology: Calculates Life Path, Expression, and Soul Urge numbers from your birth date and name. Focuses on personal qualities, talents, and life purpose. Simple and accessible.\n\nChinese Bazi: Uses the Heavenly Stems and Earthly Branches (numbered 1-10 and 1-12) to create Four Pillars. Analyzes elemental balance, timing cycles, and destiny patterns. More complex and comprehensive.\n\nKey Difference: Numerology reveals personality and purpose. Bazi reveals life structure and timing.\n\nBest Approach: Use Numerology for quick self-understanding, Bazi for detailed life planning.",
+    content_zh: "数字命理和八字都使用从出生数据中提取的数字，但方式根本不同。\n\n西方数字命理：从出生日期和姓名计算生命道路、表达和灵魂冲动数字。专注于个人品质、才能和人生目标。简单易用。\n\n中国八字：使用天干地支（编号1-10和1-12）创建四柱。分析五行平衡、时运周期和命运模式。更复杂、更全面。\n\n主要区别：数字命理揭示性格和目的。八字揭示人生结构和时运。\n\n最佳方法：用数字命理做快速自我理解，用八字做详细人生规划。",
+    icon_a: "🔢", icon_b: "☯",
+  },
+  "tarot-vs-bazi": {
+    title_en: "Tarot vs Bazi: Divination Methods Compared",
+    title_zh: "塔罗牌 vs 八字：占卜方法对比",
+    meta_description_en: "Compare Tarot card reading with Bazi analysis. Learn when to use each system for guidance.",
+    meta_description_zh: "对比塔罗牌解读和八字分析。了解何时使用每个系统获取指引。",
+    content_en: "Tarot and Bazi represent two fundamentally different approaches to seeking guidance.\n\nTarot: A divination tool using 78 symbolic cards. Best for specific questions, current situations, and immediate guidance. Results can vary with each reading. Provides psychological insight and archetypal wisdom.\n\nBazi: A destiny analysis system using birth data. Best for understanding life patterns, long-term planning, and strategic decisions. Results are fixed based on birth time. Provides structural life analysis.\n\nKey Difference: Tarot answers specific questions. Bazi reveals life patterns.\n\nWhen to Use: Use Tarot for daily guidance and specific dilemmas. Use Bazi for major life decisions and understanding your destiny blueprint.",
+    content_zh: "塔罗牌和八字代表了寻求指引的两种根本不同的方法。\n\n塔罗牌：使用78张象征牌的占卜工具。最适合具体问题、当前状况和即时指引。每次解读结果可能不同。提供心理学洞察和原型智慧。\n\n八字：使用出生数据的命运分析系统。最适合理解人生模式、长期规划和战略决策。结果基于出生时间固定。提供结构性人生分析。\n\n主要区别：塔罗牌回答具体问题。八字揭示人生模式。\n\n何时使用：用塔罗牌做日常指引和具体困境。用八字做重大人生决策和理解命运蓝图。",
+    icon_a: "🃏", icon_b: "☯",
+  },
 }
 
 interface PageProps {
