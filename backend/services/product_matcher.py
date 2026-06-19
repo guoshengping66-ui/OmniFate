@@ -189,6 +189,17 @@ class ProductMatcher:
             self._products = []
             logger.warning("商品数据文件不存在或格式错误: %s", path)
 
+        # Load English product names for i18n support
+        en_path = str(Path(__file__).parent.parent / "data" / "products_en.json")
+        try:
+            with open(en_path, encoding="utf-8") as f:
+                en_products = json.load(f)
+            self._en_names: dict[str, str] = {
+                p["id"]: p.get("name_en", "") for p in en_products if p.get("name_en")
+            }
+        except (FileNotFoundError, json.JSONDecodeError):
+            self._en_names = {}
+
     def match(
         self,
         weakness_tags: list[str],
@@ -207,7 +218,14 @@ class ProductMatcher:
                 scored.append((score, product))
 
         scored.sort(key=lambda x: x[0], reverse=True)
-        return [p for _, p in scored[:top_k]]
+        results = []
+        for _, p in scored[:top_k]:
+            p = dict(p)
+            en_name = self._en_names.get(p["id"])
+            if en_name:
+                p["name_en"] = en_name
+            results.append(p)
+        return results
 
     def translate_tags_to_en(self, tags: list[str]) -> list[str]:
         """Translate Chinese tags to English equivalents."""
@@ -262,6 +280,10 @@ class ProductMatcher:
             p = dict(p)
             p["match_reasons"] = reasons
             p["match_score"] = round(_, 1)
+            # Attach English name for i18n — frontend uses name_en || name
+            en_name = self._en_names.get(p["id"])
+            if en_name:
+                p["name_en"] = en_name
             results.append(p)
         return results
 

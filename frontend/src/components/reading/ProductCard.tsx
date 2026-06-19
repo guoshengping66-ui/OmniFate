@@ -29,6 +29,7 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
   const [added, setAdded] = useState(false)
   const hasMatch = product.match_score != null && product.match_score > 0
   const isEn = locale === "en"
+  const productName = isEn ? (product.name_en || product.name) : product.name
   const hasChinese = (s: string) => /[一-鿿]/.test(s)
   const glowClass = useMemo(() => getGlowClass(product.match_score), [product.match_score])
   const matchPct = useMemo(() => getMatchPercentage(product.match_score), [product.match_score])
@@ -44,7 +45,7 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
     e.stopPropagation()
     addItem(product)
     setAdded(true)
-    toast.success(t("shop.addedToCart").replace("{name}", product.name))
+    toast.success(t("shop.addedToCart").replace("{name}", productName))
   }, [addItem, product, t])
 
   return (
@@ -61,7 +62,7 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
       <div className="mb-4 flex justify-center py-3">
         <ProductImage
           src={product.image_url}
-          alt={product.name}
+          alt={productName}
           category={product.category}
           size="md"
           className="transition-transform duration-500 group-hover:scale-105"
@@ -71,7 +72,7 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
       {/* Info */}
       <div className="relative z-10">
         <div className="flex items-start justify-between gap-2 mb-1.5">
-          <h3 className="font-serif font-medium text-white/90 text-sm leading-tight">{product.name}</h3>
+          <h3 className="font-serif font-medium text-white/90 text-sm leading-tight">{productName}</h3>
           {product.rating && (
             <div className="flex items-center gap-0.5 flex-shrink-0">
               <Star size={11} className="text-gold/60 fill-gold/60" />

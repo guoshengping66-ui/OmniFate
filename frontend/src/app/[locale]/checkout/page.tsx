@@ -17,7 +17,7 @@ export default function CheckoutPage() {
   const router = useRouter()
   const { items, totalCny, totalWithDiscount, isMember, clearCart, getItemPrice, symbol } = useCart()
   const { user, refreshUser } = useAuth()
-  const { t, localeHref } = useLanguage()
+  const { t, localeHref, locale } = useLanguage()
   const { region } = useRegion()
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
@@ -160,7 +160,7 @@ export default function CheckoutPage() {
                   🎁
                 </div>
                 <div>
-                  <p className="text-white/80 text-sm">{item.product.name}</p>
+                  <p className="text-white/80 text-sm">{locale === "en" ? (item.product.name_en || item.product.name) : item.product.name}</p>
                   <p className="text-white/30 text-xs">x{item.quantity}</p>
                 </div>
               </div>

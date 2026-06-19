@@ -19,7 +19,7 @@ interface PostAnalysisModalProps {
  * Auto-dismisses after 6 seconds to avoid blocking the user.
  */
 export function PostAnalysisModal({ products, onViewPrescription }: PostAnalysisModalProps) {
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
   const { addItem } = useCart()
   const { region } = useRegion()
   const [visible, setVisible] = useState(false)
@@ -134,13 +134,13 @@ export function PostAnalysisModal({ products, onViewPrescription }: PostAnalysis
                   >
                     <ProductImage
                       src={product.image_url}
-                      alt={product.name}
+                      alt={locale === "en" ? (product.name_en || product.name) : product.name}
                       category={product.category}
                       size="sm"
                       className="flex-shrink-0"
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="text-white/80 text-xs font-medium truncate">{product.name}</p>
+                      <p className="text-white/80 text-xs font-medium truncate">{locale === "en" ? (product.name_en || product.name) : product.name}</p>
                       <p className="text-gold text-xs font-bold">{getProductPrice(product, region).symbol}{getProductPrice(product, region).price.toFixed(0)}</p>
                     </div>
                     <button

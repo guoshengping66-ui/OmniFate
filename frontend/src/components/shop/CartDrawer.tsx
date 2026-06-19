@@ -17,7 +17,7 @@ interface CartDrawerProps {
 
 export function CartDrawer({ open, onClose }: CartDrawerProps) {
   const { items, removeItem, updateQuantity, totalCny, totalWithDiscount, itemCount, isMember, symbol } = useCart()
-  const { t, localeHref } = useLanguage()
+  const { t, localeHref, locale } = useLanguage()
   const router = useRouter()
   const { region } = useRegion()
 
@@ -93,7 +93,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                 {/* Product image */}
                 <ProductImage
                   src={item.product.image_url}
-                  alt={item.product.name}
+                  alt={locale === "en" ? (item.product.name_en || item.product.name) : item.product.name}
                   category={item.product.category}
                   size="sm"
                   className="flex-shrink-0"
@@ -101,7 +101,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-white/80 text-sm font-medium truncate">{item.product.name}</p>
+                  <p className="text-white/80 text-sm font-medium truncate">{locale === "en" ? (item.product.name_en || item.product.name) : item.product.name}</p>
                   <p className="text-gold text-sm">{getProductPrice(item.product, region).symbol}{getProductPrice(item.product, region).price}</p>
 
                   {/* Quantity controls */}
