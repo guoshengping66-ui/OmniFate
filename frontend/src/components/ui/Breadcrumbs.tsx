@@ -3,6 +3,7 @@ import { useMemo } from "react"
 import Link from "next/link"
 import { ChevronRight, Home } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { safeJsonLd } from "@/utils/safeJsonLd"
 
 interface BreadcrumbItem {
   label: string
