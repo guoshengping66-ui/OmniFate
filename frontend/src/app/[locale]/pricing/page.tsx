@@ -91,10 +91,10 @@ export default function PricingPage() {
       // Show WeChat group invite after a short delay
       setTimeout(() => {
         toast(
-          (t: any) => (
+          (toastT: any) => (
             <div className="text-sm">
-              <p className="font-medium text-gold mb-1">{t("pricing.wechatGroupTitle")}</p>
-              <p className="text-white/70 text-xs">{t("pricing.wechatGroupDesc")}</p>
+              <p className="font-medium text-gold mb-1">{toastT("pricing.wechatGroupTitle")}</p>
+              <p className="text-white/70 text-xs">{toastT("pricing.wechatGroupDesc")}</p>
               <p className="text-gold text-xs mt-1 font-mono">khan18553325258</p>
             </div>
           ),

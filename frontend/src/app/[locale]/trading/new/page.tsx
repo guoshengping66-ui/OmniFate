@@ -58,7 +58,7 @@ export default function NewTradePage() {
 
       const res = await api.post("/api/trading/entries", payload)
       toast.success(t("trading.new.saved"))
-      router.push(`/trading/${res.data.id}`)
+      router.push(localeHref(`/trading/${res.data.id}`))
     } catch (err: any) {
       toast.error(err.response?.data?.detail || t("trading.new.saveFailed"))
     } finally {

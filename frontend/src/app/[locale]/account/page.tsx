@@ -375,7 +375,7 @@ export default function AccountPage() {
                 ) : (
                   <div className="grid sm:grid-cols-2 gap-3">
                     {favorites.map(p => (
-                      <Link key={p.id} href={`/shop/${p.id}`}
+                      <Link key={p.id} href={localeHref(`/shop/${p.id}`)}
                         className="card-glass p-4 hover:border-gold/30 transition-all group">
                         <div className="flex items-center gap-3">
                           <div className="w-12 h-12 rounded-lg bg-gold/10 flex items-center justify-center text-xl flex-shrink-0">
@@ -559,7 +559,7 @@ function OrderList({ orders, statusLabels, t }: {
             return (
               <Link
                 key={o.id}
-                href={`/account/orders/${o.id}`}
+                href={localeHref(`/account/orders/${o.id}`)}
                 className="block card-glass p-4 hover:border-gold/30 transition-all group"
               >
                 <div className="flex items-center justify-between mb-2">

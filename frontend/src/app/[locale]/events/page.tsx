@@ -72,7 +72,7 @@ export default function EventsPage() {
       const result = await payEvent(pendingEventId, false)
       toast.success(result.message)
       setShowPayment(false)
-      router.push(`/events/${pendingEventId}`)
+      router.push(localeHref(`/events/${pendingEventId}`))
     } catch (err: any) {
       toast.error(err?.response?.data?.detail ?? t("events.payError"))
       throw err // re-throw so PaymentModal resets
@@ -89,7 +89,7 @@ export default function EventsPage() {
       toast.success(result.message || t("events.paySuccess"))
       refreshUser()
       setShowPayment(false)
-      router.push(`/events/${pendingEventId}`)
+      router.push(localeHref(`/events/${pendingEventId}`))
     } catch (err: any) {
       toast.error(err?.response?.data?.detail ?? t("events.payError"))
     } finally {

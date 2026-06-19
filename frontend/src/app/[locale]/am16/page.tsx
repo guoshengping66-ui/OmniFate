@@ -13,7 +13,7 @@ const RESULT_KEY = "am16_last_result"
 const PROGRESS_KEY = "am16_progress"
 
 function AM16PageInner() {
-  const { t } = useLanguage()
+  const { t, localeHref } = useLanguage()
   const searchParams = useSearchParams()
   const [answers, setAnswers] = useState<number[] | null>(null)
 
@@ -53,7 +53,7 @@ function AM16PageInner() {
     try {
       localStorage.removeItem(RESULT_KEY)
       localStorage.removeItem(PROGRESS_KEY)
-      window.history.replaceState({}, "", "/am16")
+      window.history.replaceState({}, "", localeHref("/am16"))
     } catch {}
   }
 

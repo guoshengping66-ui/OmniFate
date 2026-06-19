@@ -146,7 +146,7 @@ export default function RegisterPage() {
       await verifyEmail(email, verifyCode)
       // Tokens are set as httpOnly cookies by the backend — no localStorage needed
       toast.success(t("auth.loginSuccess"))
-      router.replace("/dashboard")
+      router.replace(localeHref("/dashboard"))
     } catch (err: any) {
       console.error("[Register] verify email error:", err)
       if (err.code === "ERR_NETWORK" || err.code === "ECONNABORTED" || err.message?.includes("Network Error")) {

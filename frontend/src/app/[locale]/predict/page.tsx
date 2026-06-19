@@ -16,7 +16,7 @@ function PredictRedirect() {
   const searchParams = useSearchParams()
   const intent = searchParams.get("intent")
   const router = useRouter()
-  const { t } = useLanguage()
+  const { t, localeHref } = useLanguage()
   const { setIntent, prefillFromProfile, reset } = useWizardStore()
   const { userProfile } = useUserStore()
 
@@ -30,7 +30,7 @@ function PredictRedirect() {
       }
     }
     // intent=friend 或 null → 不设 intent, 全步骤空白向导
-    router.replace("/reading/new")
+    router.replace(localeHref("/reading/new"))
   }, [intent]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (

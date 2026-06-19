@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { useParams } from "next/navigation"
 import { Loader2, Sparkles, Zap, Gift, Crown, Share2 } from "lucide-react"
 import Link from "next/link"
@@ -117,6 +117,15 @@ export default function DivinationSharePage() {
   const totemIcon = THEME_TOTEM[data.theme] || "✧"
   const isHighRating = data.fortune_level >= 5
 
+  // Stable random particle positions (generated once on client to avoid hydration mismatch)
+  const particles = useMemo(() =>
+    Array.from({ length: 12 }, () => ({
+      left: 10 + Math.random() * 80,
+      top: 10 + Math.random() * 80,
+      dur: 2 + Math.random() * 2,
+      delay: Math.random() * 2,
+    })), [])
+
   const dateStr = data.created_at
     ? new Date(data.created_at).toLocaleDateString(undefined, { month: "long", day: "numeric" })
     : ""
@@ -130,14 +139,14 @@ export default function DivinationSharePage() {
 
           {isHighRating && (
             <div className="absolute inset-0 pointer-events-none overflow-hidden">
-              {Array.from({ length: 12 }).map((_, i) => (
+              {particles.map((p, i) => (
                 <div
                   key={i}
                   className="absolute w-0.5 h-0.5 rounded-full bg-gold/60"
                   style={{
-                    left: `${10 + Math.random() * 80}%`,
-                    top: `${10 + Math.random() * 80}%`,
-                    animation: `star-particle ${2 + Math.random() * 2}s ease-in-out infinite ${Math.random() * 2}s`,
+                    left: `${p.left}%`,
+                    top: `${p.top}%`,
+                    animation: `star-particle ${p.dur}s ease-in-out infinite ${p.delay}s`,
                   }}
                 />
               ))}

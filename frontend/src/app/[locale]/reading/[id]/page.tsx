@@ -466,7 +466,7 @@ export default function ReadingPage() {
   const handleUnlock = useCallback(async (paymentMethod: string = "card") => {
     if (!id) return
     // 跳转到定价页面，用户选择会员方案
-    router.push(`/${locale}/pricing`)
+    router.push(localeHref("/pricing"))
   }, [id, router, locale])
 
   const handlePaymentSuccess = useCallback(async () => {
@@ -1148,7 +1148,7 @@ export default function ReadingPage() {
                 isUnlocked={isUnlocked || isDetailedUnlocked}
                 title={t("reading.master.detailTitle")}
                 description={t("reading.insight.locked")}
-                onUnlock={() => router.push(`/${locale}/pricing`)}
+                onUnlock={() => router.push(localeHref("/pricing"))}
                 loading={false}
                 previewLines={8}
                 stardustBalance={user?.stardust_balance || 0}
@@ -1314,7 +1314,7 @@ export default function ReadingPage() {
                     isUnlocked={isUnlocked}
                     title={`${t(AGENT_I18N[k] || `agent.${k}`)} ${t("reading.worker.unlockTitle")}`}
                     description={t("reading.worker.unlockDesc")}
-                    onUnlock={() => router.push(`/${locale}/pricing`)}
+                    onUnlock={() => router.push(localeHref("/pricing"))}
                     loading={false}
                     previewLines={5}
                     stardustBalance={user?.stardust_balance || 0}
@@ -1401,7 +1401,7 @@ export default function ReadingPage() {
                   </button>
                 ) : (
                   <button
-                    onClick={() => router.push(`/${locale}/pricing`)}
+                    onClick={() => router.push(localeHref("/pricing"))}
                     className="btn-gold flex items-center gap-2 mx-auto text-sm px-8 py-3"
                   >
                     <Crown size={16} />

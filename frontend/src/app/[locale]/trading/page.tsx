@@ -147,7 +147,7 @@ export default function TradingPage() {
             {filteredTrades.map((trade) => (
               <Link
                 key={trade.id}
-                href={`/trading/${trade.id}`}
+                href={localeHref(`/trading/${trade.id}`)}
                 className="card-glass p-4 flex items-center justify-between hover:border-gold/30 transition-all"
               >
                 <div className="flex items-center gap-4">

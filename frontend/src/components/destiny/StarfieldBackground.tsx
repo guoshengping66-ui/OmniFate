@@ -227,6 +227,7 @@ export default function StarfieldBackground() {
 
     return () => {
       cancelAnimationFrame(animId)
+      clearTimeout(resizeTimer)
       window.removeEventListener("resize", onResize)
       document.removeEventListener("visibilitychange", onVisibilityChange)
     }

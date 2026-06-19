@@ -477,7 +477,7 @@ export default function AdminOrdersPage() {
                                 type="text"
                                 placeholder={t("adminOrders.rejectReason")}
                                 autoFocus
-                                value=""
+                                value={rejectReasons[order.order_no] || ""}
                                 onChange={(e) => setRejectReasons(prev => ({ ...prev, [order.order_no]: e.target.value }))}
                                 className="w-full px-2 py-1 rounded bg-white/[0.06] border border-red-500/30 text-white text-xs placeholder-white/30 focus:outline-none focus:border-red-500/50"
                               />

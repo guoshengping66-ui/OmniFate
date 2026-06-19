@@ -306,10 +306,10 @@ export default function OrderDetailPage() {
             )}
             {tracking.trajectory.length > 0 ? (
               <div className="space-y-2">
-                {tracking.trajectory.map((t, i) => (
+                {tracking.trajectory.map((entry, i) => (
                   <div key={i} className="flex gap-3 text-xs">
-                    <span className="text-white/30 whitespace-nowrap">{t.time}</span>
-                    <span className="text-white/60">{t.description}</span>
+                    <span className="text-white/30 whitespace-nowrap">{entry.time}</span>
+                    <span className="text-white/60">{entry.description}</span>
                   </div>
                 ))}
               </div>

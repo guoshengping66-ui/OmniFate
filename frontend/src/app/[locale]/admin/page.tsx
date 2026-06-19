@@ -255,7 +255,7 @@ export default function AdminPage() {
                     {t("admin.recentOrders") || "Recent Orders"}
                   </h2>
                   <a
-                    href="/zh/admin/orders"
+                    href={localeHref("/admin/orders")}
                     className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs font-medium hover:bg-gold/20 transition-colors"
                   >
                     {t("admin.viewAllOrders") || "Manage Orders"} <ExternalLink size={12} />
