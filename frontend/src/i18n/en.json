@@ -3049,6 +3049,7 @@
     "trustNotice": "This is an informational and reflective tool, not a deterministic system. Results are based on AI behavioral modeling and traditional analytical frameworks. By proceeding, you acknowledge this is for personal reflection only."
   },
   "common": {
+    "and": "and",
     "back": "Back",
     "cancel": "Cancel",
     "close": "Close",

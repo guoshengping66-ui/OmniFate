@@ -2844,6 +2844,7 @@
     "viewOrders": "查看我的订单"
   },
   "common": {
+    "and": "和",
     "back": "返回",
     "cancel": "取消",
     "close": "关闭",

@@ -69,6 +69,7 @@ export default {
   "nav.events": "Event Analysis",
   "nav.am16": "Behavioral Quiz",
   "nav.referral": "Invite & Earn",
+  "common.and": "and",
   "common.loading": "Loading...",
   "common.submit": "Submit",
   "common.cancel": "Cancel",
