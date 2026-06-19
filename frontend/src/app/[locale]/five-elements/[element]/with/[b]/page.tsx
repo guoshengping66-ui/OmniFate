@@ -4,7 +4,6 @@ import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { SEOFaq } from "@/components/ui/SEOFaq"
 import { FiveElementCompatibilities } from "@/data/programmatic/five-elements/compatibility"
 import { FiveElements } from "@/data/programmatic/five-elements/elements"
-import { useMemo } from "react"
 
 function safeJsonLd(obj: object): string {
   return JSON.stringify(obj).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026')
@@ -15,16 +14,16 @@ const ELEMENT_EMOJI: Record<string, string> = {
 }
 
 interface PageProps {
-  params: Promise<{ locale: string; a: string; b: string }>
+  params: Promise<{ locale: string; element: string; b: string }>
 }
 
 export async function generateStaticParams() {
-  return FiveElementCompatibilities.map(c => ({ a: c.element_a, b: c.element_b }))
+  return FiveElementCompatibilities.map(c => ({ element: c.element_a, b: c.element_b }))
 }
 
 export async function generateMetadata({ params }: PageProps) {
-  const { locale, a, b } = await params
-  const pairKey = [a, b].sort().join("-")
+  const { locale, element, b } = await params
+  const pairKey = [element, b].sort().join("-")
   const data = FiveElementCompatibilities.find(c => c.id === pairKey)
   if (!data) return {}
 
@@ -35,19 +34,19 @@ export async function generateMetadata({ params }: PageProps) {
     description: isZh ? data.meta_description_zh : data.meta_description_en,
     keywords: isZh ? data.keywords_zh : data.keywords_en,
     alternates: {
-      canonical: `https://www.khanfate.com/${locale}/five-elements/${a}/with/${b}`,
+      canonical: `https://www.khanfate.com/${locale}/five-elements/${element}/with/${b}`,
       languages: {
-        en: `https://www.khanfate.com/en/five-elements/${a}/with/${b}`,
-        zh: `https://www.khanfate.com/zh/five-elements/${a}/with/${b}`,
-        "x-default": `https://www.khanfate.com/en/five-elements/${a}/with/${b}`,
+        en: `https://www.khanfate.com/en/five-elements/${element}/with/${b}`,
+        zh: `https://www.khanfate.com/zh/five-elements/${element}/with/${b}`,
+        "x-default": `https://www.khanfate.com/en/five-elements/${element}/with/${b}`,
       },
     },
   }
 }
 
 export default async function FiveElementCompatibilityPage({ params }: PageProps) {
-  const { locale, a, b } = await params
-  const pairKey = [a, b].sort().join("-")
+  const { locale, element, b } = await params
+  const pairKey = [element, b].sort().join("-")
   const data = FiveElementCompatibilities.find(c => c.id === pairKey)
   if (!data) notFound()
 
@@ -70,7 +69,7 @@ export default async function FiveElementCompatibilityPage({ params }: PageProps
             { label: isZh ? "五行" : "Five Elements", href: "/five-elements" },
             { label: isZh ? "配对" : "Compatibility" },
           ]}
-          currentPath={`/${locale}/five-elements/${a}/with/${b}`}
+          currentPath={`/${locale}/five-elements/${element}/with/${b}`}
         />
 
         <script
@@ -80,7 +79,7 @@ export default async function FiveElementCompatibilityPage({ params }: PageProps
             "@type": "Article",
             "headline": isZh ? data.title_zh : data.title_en,
             "description": isZh ? data.meta_description_zh : data.meta_description_en,
-            "url": `https://www.khanfate.com/${locale}/five-elements/${a}/with/${b}`,
+            "url": `https://www.khanfate.com/${locale}/five-elements/${element}/with/${b}`,
           })}}
         />
 
@@ -92,7 +91,7 @@ export default async function FiveElementCompatibilityPage({ params }: PageProps
               <span className="text-5xl">{ELEMENT_EMOJI[data.element_b]}</span>
             </div>
             <h1 className="text-3xl md:text-4xl font-serif font-bold text-white mb-2">
-              {isZh ? `${elA?.name_zh || a}与${elB?.name_zh || b} Compatibility` : `${elA?.name_en || a} and ${elB?.name_en || b} Compatibility`}
+              {isZh ? `${elA?.name_zh || element}与${elB?.name_zh || b} Compatibility` : `${elA?.name_en || element} and ${elB?.name_en || b} Compatibility`}
             </h1>
             <p className="text-white/40 text-sm">{isZh ? "五行 compatibility 分析" : "Five Elements Compatibility Analysis"}</p>
           </div>
