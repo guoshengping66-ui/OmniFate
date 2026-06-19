@@ -536,14 +536,16 @@
         "heartLine": "e.g., Curved upward, starting below index finger",
         "lifeLine": "e.g., Long arc shape, no breaks",
         "marriageLine": "e.g., Two lines, one deeper",
-        "sunLine": "e.g., Faint and short, below ring finger"
+        "sunLine": "e.g., Faint and short, below ring finger",
+        "fateLine": "e.g., Clear line from palm base to middle finger"
       },
       "patternLine": "Pattern Line",
       "headLine": "Head Line",
       "heartLine": "Heart Line",
       "lifeLine": "Life Line",
       "marriageLine": "Marriage Line",
-      "sunLine": "Sun Line"
+      "sunLine": "Sun Line",
+      "fateLine": "Pattern Line"
     },
     "face": {
       "cheekbones": "Cheekbones",
@@ -783,7 +785,34 @@
     "viewDetails": "View Details",
     "year": "Year",
     "yearSuffix": "",
-    "skipFacePalm": "Skip face & palm scan"
+    "skipFacePalm": "Skip face & palm scan",
+    "palmPlaceholderFateLine": "e.g., Clear line from palm base to middle finger",
+    "fateLineLabel": "Pattern Line",
+    "baziFull": "Western Behavioral Pattern — Planetary Houses · Aspects · Inner Mission",
+    "baziSystem": "Western Behavioral Pattern — Planetary Houses · Aspects · Inner Mission",
+    "astrologyFull": "Four-Pillar — Pillar Structure · Five Elements Score · Annual Status",
+    "astrologySystem": "Four-Pillar — Pillar Structure · Five Elements Score · Annual Status",
+    "tarotComplete": "Your three behavioral cards are revealed",
+    "tarotDraw1": "Draw the second card — Present",
+    "tarotDraw2": "Draw the final card — Future",
+    "tarotDrawTitle": "Symbolic Draw (3-Card Spread)",
+    "tarotFull": "Symbolic Reflection — Spread Reading · Current Data · Action Guidance",
+    "tarotHint": "Tap the deck to draw your behavioral cards",
+    "tarotPickCards": "Pick 3 cards — Past, Present, Future",
+    "tarotRandomDraw": "Random Draw",
+    "tarotRedraw": "Redraw",
+    "tarotRevealing": "The cards are revealing your pattern…",
+    "tarotReversed": "Reversed",
+    "tarotShuffling": "Shuffling…",
+    "tarotSpread": "Symbolic Spread",
+    "tarotSystem": "Symbolic Reflection — Spread Reading · Current Data · Action Guidance",
+    "tarotTapDeck": "Tap the deck to draw your behavioral cards",
+    "tarotTapHint": "Tap to draw",
+    "tarot": {
+      "past": "Past",
+      "present": "Present",
+      "future": "Future"
+    }
   },
   "shop": {
     "detail": {
