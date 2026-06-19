@@ -5,24 +5,23 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { SEOFaq } from "@/components/ui/SEOFaq"
 import { RelatedServices } from "@/components/ui/RelatedServices"
+import { useMemo } from "react"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 export default function ZiweiSEOPage() {
   const { t, localeHref, locale } = useLanguage()
 
-  const faqItems = [
-    { question: t("seo.ziwei.faqQ1"), answer: t("seo.ziwei.faqA1") },
-    { question: t("seo.ziwei.faqQ2"), answer: t("seo.ziwei.faqA2") },
-    { question: t("seo.ziwei.faqQ3"), answer: t("seo.ziwei.faqA3") },
-    { question: t("seo.ziwei.faqQ4"), answer: t("seo.ziwei.faqA4") },
-  ]
+  const faqItems = useMemo(() => [1,2,3,4].map(i => ({
+    question: t("seo.ziwei.faqQ" + i),
+    answer: t("seo.ziwei.faqA" + i),
+  })), [t])
 
-  const relatedServices = [
-    { icon: "📊", title: t("seo.ziwei.r1Title"), href: "/seo/bazi", desc: t("seo.ziwei.r1Desc") },
-    { icon: "☯️", title: t("seo.ziwei.r2Title"), href: "/seo/five-elements", desc: t("seo.ziwei.r2Desc") },
-    { icon: "⭐", title: t("seo.ziwei.r3Title"), href: "/seo/astrology", desc: t("seo.ziwei.r3Desc") },
-    { icon: "🃏", title: t("seo.ziwei.r4Title"), href: "/seo/tarot", desc: t("seo.ziwei.r4Desc") },
-  ]
+  const relatedServices = useMemo(() => [1,2,3,4].map(i => ({
+    icon: ["📊","☯️","⭐","🃏"][i - 1],
+    title: t("seo.ziwei.r" + i + "Title"),
+    href: ["/seo/bazi","/seo/five-elements","/seo/astrology","/seo/tarot"][i - 1],
+    desc: t("seo.ziwei.r" + i + "Desc"),
+  })), [t])
 
   const features = [
     { icon: "⭐", title: t("seo.ziwei.f1Title"), desc: t("seo.ziwei.f1Desc") },

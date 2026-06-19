@@ -5,24 +5,23 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { SEOFaq } from "@/components/ui/SEOFaq"
 import { RelatedServices } from "@/components/ui/RelatedServices"
+import { useMemo } from "react"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 export default function FiveElementsSEOPage() {
   const { t, localeHref, locale } = useLanguage()
 
-  const faqItems = [
-    { question: t("seo.fiveElements.faqQ1"), answer: t("seo.fiveElements.faqA1") },
-    { question: t("seo.fiveElements.faqQ2"), answer: t("seo.fiveElements.faqA2") },
-    { question: t("seo.fiveElements.faqQ3"), answer: t("seo.fiveElements.faqA3") },
-    { question: t("seo.fiveElements.faqQ4"), answer: t("seo.fiveElements.faqA4") },
-  ]
+  const faqItems = useMemo(() => [1,2,3,4].map(i => ({
+    question: t("seo.fiveElements.faqQ" + i),
+    answer: t("seo.fiveElements.faqA" + i),
+  })), [t])
 
-  const relatedServices = [
-    { icon: "📊", title: t("seo.fiveElements.r1Title"), href: "/seo/bazi", desc: t("seo.fiveElements.r1Desc") },
-    { icon: "⭐", title: t("seo.fiveElements.r2Title"), href: "/seo/astrology", desc: t("seo.fiveElements.r2Desc") },
-    { icon: "🃏", title: t("seo.fiveElements.r3Title"), href: "/seo/tarot", desc: t("seo.fiveElements.r3Desc") },
-    { icon: "👁️", title: t("seo.fiveElements.r4Title"), href: "/seo/face-reading", desc: t("seo.fiveElements.r4Desc") },
-  ]
+  const relatedServices = useMemo(() => [1,2,3,4].map(i => ({
+    icon: ["📊","⭐","🃏","👁️"][i - 1],
+    title: t("seo.fiveElements.r" + i + "Title"),
+    href: ["/seo/bazi","/seo/astrology","/seo/tarot","/seo/face-reading"][i - 1],
+    desc: t("seo.fiveElements.r" + i + "Desc"),
+  })), [t])
 
   const features = [
     { icon: "🌳", title: t("seo.fiveElements.f1Title"), desc: t("seo.fiveElements.f1Desc") },

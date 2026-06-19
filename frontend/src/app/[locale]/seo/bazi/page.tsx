@@ -5,24 +5,23 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { SEOFaq } from "@/components/ui/SEOFaq"
 import { RelatedServices } from "@/components/ui/RelatedServices"
+import { useMemo } from "react"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 export default function BaziSEOPage() {
   const { t, localeHref, locale } = useLanguage()
 
-  const faqItems = [
-    { question: t("seo.bazi.faqQ1"), answer: t("seo.bazi.faqA1") },
-    { question: t("seo.bazi.faqQ2"), answer: t("seo.bazi.faqA2") },
-    { question: t("seo.bazi.faqQ3"), answer: t("seo.bazi.faqA3") },
-    { question: t("seo.bazi.faqQ4"), answer: t("seo.bazi.faqA4") },
-  ]
+  const faqItems = useMemo(() => [1,2,3,4].map(i => ({
+    question: t("seo.bazi.faqQ" + i),
+    answer: t("seo.bazi.faqA" + i),
+  })), [t])
 
-  const relatedServices = [
-    { icon: "☯️", title: t("seo.bazi.r1Title"), href: "/seo/five-elements", desc: t("seo.bazi.r1Desc") },
-    { icon: "⭐", title: t("seo.bazi.r2Title"), href: "/seo/astrology", desc: t("seo.bazi.r2Desc") },
-    { icon: "🃏", title: t("seo.bazi.r3Title"), href: "/seo/tarot", desc: t("seo.bazi.r3Desc") },
-    { icon: "⭐", title: t("seo.bazi.r4Title"), href: "/seo/ziwei", desc: t("seo.bazi.r4Desc") },
-  ]
+  const relatedServices = useMemo(() => [1,2,3,4].map(i => ({
+    icon: ["☯️","⭐","🃏","⭐"][i - 1],
+    title: t("seo.bazi.r" + i + "Title"),
+    href: ["/seo/five-elements","/seo/astrology","/seo/tarot","/seo/ziwei"][i - 1],
+    desc: t("seo.bazi.r" + i + "Desc"),
+  })), [t])
 
   const features = [
     { icon: "☯", title: t("seo.bazi.f1Title"), desc: t("seo.bazi.f1Desc") },

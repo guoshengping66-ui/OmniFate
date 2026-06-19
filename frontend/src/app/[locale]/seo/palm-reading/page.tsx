@@ -5,24 +5,23 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { SEOFaq } from "@/components/ui/SEOFaq"
 import { RelatedServices } from "@/components/ui/RelatedServices"
+import { useMemo } from "react"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 export default function PalmReadingSEOPage() {
   const { t, localeHref, locale } = useLanguage()
 
-  const faqItems = [
-    { question: t("seo.palm.faqQ1"), answer: t("seo.palm.faqA1") },
-    { question: t("seo.palm.faqQ2"), answer: t("seo.palm.faqA2") },
-    { question: t("seo.palm.faqQ3"), answer: t("seo.palm.faqA3") },
-    { question: t("seo.palm.faqQ4"), answer: t("seo.palm.faqA4") },
-  ]
+  const faqItems = useMemo(() => [1,2,3,4].map(i => ({
+    question: t("seo.palm.faqQ" + i),
+    answer: t("seo.palm.faqA" + i),
+  })), [t])
 
-  const relatedServices = [
-    { icon: "👁️", title: t("seo.palm.r1Title"), href: "/seo/face-reading", desc: t("seo.palm.r1Desc") },
-    { icon: "📊", title: t("seo.palm.r2Title"), href: "/seo/bazi", desc: t("seo.palm.r2Desc") },
-    { icon: "⭐", title: t("seo.palm.r3Title"), href: "/seo/astrology", desc: t("seo.palm.r3Desc") },
-    { icon: "☯️", title: t("seo.palm.r4Title"), href: "/seo/five-elements", desc: t("seo.palm.r4Desc") },
-  ]
+  const relatedServices = useMemo(() => [1,2,3,4].map(i => ({
+    icon: ["👁️","📊","⭐","☯️"][i - 1],
+    title: t("seo.palm.r" + i + "Title"),
+    href: ["/seo/face-reading","/seo/bazi","/seo/astrology","/seo/five-elements"][i - 1],
+    desc: t("seo.palm.r" + i + "Desc"),
+  })), [t])
 
   const features = [
     { icon: "📸", title: t("seo.palm.f1Title"), desc: t("seo.palm.f1Desc") },

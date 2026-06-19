@@ -5,24 +5,23 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { SEOFaq } from "@/components/ui/SEOFaq"
 import { RelatedServices } from "@/components/ui/RelatedServices"
+import { useMemo } from "react"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 export default function ZodiacCompatibilitySEOPage() {
   const { t, localeHref, locale } = useLanguage()
 
-  const faqItems = [
-    { question: t("seo.zodiac.faqQ1"), answer: t("seo.zodiac.faqA1") },
-    { question: t("seo.zodiac.faqQ2"), answer: t("seo.zodiac.faqA2") },
-    { question: t("seo.zodiac.faqQ3"), answer: t("seo.zodiac.faqA3") },
-    { question: t("seo.zodiac.faqQ4"), answer: t("seo.zodiac.faqA4") },
-  ]
+  const faqItems = useMemo(() => [1,2,3,4].map(i => ({
+    question: t("seo.zodiac.faqQ" + i),
+    answer: t("seo.zodiac.faqA" + i),
+  })), [t])
 
-  const relatedServices = [
-    { icon: "⭐", title: t("seo.zodiac.r1Title"), href: "/seo/astrology", desc: t("seo.zodiac.r1Desc") },
-    { icon: "📊", title: t("seo.zodiac.r2Title"), href: "/seo/bazi", desc: t("seo.zodiac.r2Desc") },
-    { icon: "🃏", title: t("seo.zodiac.r3Title"), href: "/seo/tarot", desc: t("seo.zodiac.r3Desc") },
-    { icon: "☯️", title: t("seo.zodiac.r4Title"), href: "/seo/five-elements", desc: t("seo.zodiac.r4Desc") },
-  ]
+  const relatedServices = useMemo(() => [1,2,3,4].map(i => ({
+    icon: ["⭐","📊","🃏","☯️"][i - 1],
+    title: t("seo.zodiac.r" + i + "Title"),
+    href: ["/seo/astrology","/seo/bazi","/seo/tarot","/seo/five-elements"][i - 1],
+    desc: t("seo.zodiac.r" + i + "Desc"),
+  })), [t])
 
   const features = [
     { icon: "💕", title: t("seo.zodiac.f1Title"), desc: t("seo.zodiac.f1Desc") },
