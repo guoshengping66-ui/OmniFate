@@ -570,7 +570,7 @@ export default function LifeRouteGeneration() {
         </div>
 
         {/* ── 星图 ── */}
-        <div className="relative w-full h-[400px] sm:h-[500px] md:h-[600px] transition-all duration-1000 delay-300"
+        <div className="relative w-full h-[500px] sm:h-[600px] md:h-[700px] transition-all duration-1000 delay-300"
           style={{ opacity: isVisible ? 1 : 0 }}>
 
           {/* 背景微小星点 */}
@@ -639,10 +639,10 @@ export default function LifeRouteGeneration() {
             {locale === "zh" ? "航线参数：" : "Route Parameters:"}
           </span>
           {[
-            { zh: "八字周期", en: "Bazi Cycle", icon: "☯" },
-            { zh: "星盘推运", en: "Transit", icon: "✧" },
-            { zh: "行为轨迹", en: "Behavior Track", icon: "◉" },
-            { zh: "能量波动", en: "Energy Wave", icon: "◈" },
+            { zh: "八字", en: "Bazi", icon: "☯" },
+            { zh: "星盘", en: "Astrology", icon: "✧" },
+            { zh: "塔罗牌", en: "Tarot", icon: "◉" },
+            { zh: "面相·手相", en: "Face & Palm", icon: "◈" },
           ].map((tag) => (
             <div key={tag.zh} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.06]">
               <span className="text-[10px]">{tag.icon}</span>
