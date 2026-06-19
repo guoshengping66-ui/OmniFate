@@ -9,30 +9,19 @@ import { useLanguage } from "@/contexts/LanguageContext"
 
 export default function FaceReadingSEOPage() {
   const { t, localeHref, locale } = useLanguage()
-  const isZh = locale === "zh"
 
-  const faqItems = isZh ? [
-    { question: "什么是面相学？", answer: "面相学是中国传统分析学的重要分支，已有数千年历史。通过分析脸型、三停五眼比例和五官特征，可以评估财运、事业、感情和健康状态。古人认为「相由心生」。" },
-    { question: "AI 面相分析怎么工作？", answer: "AI 使用 MediaPipe 468 点面部识别技术，自动检测面部特征点，结合传统面相学智慧进行深度分析。整个过程仅需几秒钟。" },
-    { question: "需要什么样的照片？", answer: "需要一张正面、光线充足、无遮挡的面部照片。建议不要使用美颜或滤镜，以确保分析的准确性。" },
-    { question: "照片安全吗？", answer: "完全安全。照片仅用于 AI 特征提取，处理完成后立即删除，不会存储或分享任何个人信息。" },
-  ] : [
-    { question: "What is face reading?", answer: "Face reading (physiognomy) is an important branch of Chinese analysis with thousands of years of history. By analyzing face shape, proportions, and features, it assesses wealth, career, relationships, and health." },
-    { question: "How does AI face analysis work?", answer: "AI uses MediaPipe 468-point facial recognition to automatically detect facial feature points, combined with traditional face reading wisdom for deep analysis. The process takes just seconds." },
-    { question: "What kind of photo do I need?", answer: "You need a front-facing, well-lit photo without obstructions. Avoid beauty filters or effects for the most accurate analysis." },
-    { question: "Is my photo safe?", answer: "Absolutely. Photos are used only for AI feature extraction and deleted immediately after processing. No personal information is stored or shared." },
+  const faqItems = [
+    { question: t("seo.face.faqQ1"), answer: t("seo.face.faqA1") },
+    { question: t("seo.face.faqQ2"), answer: t("seo.face.faqA2") },
+    { question: t("seo.face.faqQ3"), answer: t("seo.face.faqA3") },
+    { question: t("seo.face.faqQ4"), answer: t("seo.face.faqA4") },
   ]
 
-  const relatedServices = isZh ? [
-    { icon: "✋", title: "手相分析", href: "/seo/palm-reading", desc: "AI 掌纹识别与解读" },
-    { icon: "📊", title: "八字分析", href: "/seo/bazi", desc: "四柱排列与十维格局" },
-    { icon: "⭐", title: "星盘分析", href: "/seo/astrology", desc: "行星落座与相位解读" },
-    { icon: "☯️", title: "五行分析", href: "/seo/five-elements", desc: "五行平衡与循环" },
-  ] : [
-    { icon: "✋", title: "Palm Reading", href: "/seo/palm-reading", desc: "AI palm line analysis" },
-    { icon: "📊", title: "Bazi Chart", href: "/seo/bazi", desc: "Four Pillars & Ten Gods" },
-    { icon: "⭐", title: "Natal Chart", href: "/seo/astrology", desc: "Planetary placements" },
-    { icon: "☯️", title: "Five Elements", href: "/seo/five-elements", desc: "Elemental balance" },
+  const relatedServices = [
+    { icon: "✋", title: t("seo.face.r1Title"), href: "/seo/palm-reading", desc: t("seo.face.r1Desc") },
+    { icon: "📊", title: t("seo.face.r2Title"), href: "/seo/bazi", desc: t("seo.face.r2Desc") },
+    { icon: "⭐", title: t("seo.face.r3Title"), href: "/seo/astrology", desc: t("seo.face.r3Desc") },
+    { icon: "☯️", title: t("seo.face.r4Title"), href: "/seo/five-elements", desc: t("seo.face.r4Desc") },
   ]
 
   const features = [
@@ -140,12 +129,12 @@ export default function FaceReadingSEOPage() {
         </ScrollReveal>
 
         <SEOFaq
-          title={isZh ? "常见问题" : "Frequently Asked Questions"}
+          title={t("seo.face.faqTitle")}
           items={faqItems}
         />
 
         <RelatedServices
-          heading={isZh ? "探索更多分析" : "Explore More Analysis"}
+          heading={t("seo.face.relatedTitle")}
           services={relatedServices}
         />
 

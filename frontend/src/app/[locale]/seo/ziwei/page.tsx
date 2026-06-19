@@ -9,30 +9,19 @@ import { useLanguage } from "@/contexts/LanguageContext"
 
 export default function ZiweiSEOPage() {
   const { t, localeHref, locale } = useLanguage()
-  const isZh = locale === "zh"
 
-  const faqItems = isZh ? [
-    { question: "什么是紫微斗数？", answer: "紫微斗数是中国最精密的命运分析系统之一，通过 100 多颗星曜分布在十二宫位，绘制完整的人生轨迹图。它能深入揭示性格、事业、财运、感情和健康等各方面信息。" },
-    { question: "紫微斗数和八字有什么区别？", answer: "八字以出生时间的天干地支为基础，注重五行平衡；紫微斗数则以星曜落宫为核心，更注重宫位之间的互动关系。两者可以互相补充，提供更全面的分析。" },
-    { question: "紫微命盘需要精确的出生时间吗？", answer: "是的，紫微斗数对出生时间非常敏感。出生时间的差异可能导致星曜落宫不同，从而影响命盘的准确性。建议尽量提供精确到分钟的出生时间。" },
-    { question: "十二宫位分别代表什么？", answer: "十二宫位涵盖人生的各个方面：命宫（核心自我）、财帛宫（财运）、夫妻宫（感情）、官禄宫（事业）、田宅宫（房产）、福德宫（精神）等，每个宫位都有独特的星曜组合。" },
-  ] : [
-    { question: "What is Purple Star Astrology?", answer: "Purple Star Astrology (Zi Wei Dou Shu) is one of the most sophisticated Chinese destiny analysis systems, using over 100 stars placed across 12 life palaces to map your complete life trajectory." },
-    { question: "How is it different from Bazi?", answer: "Bazi focuses on Five Elements balance from birth time, while Purple Star Astrology centers on star placements across 12 palaces. They complement each other for a more comprehensive reading." },
-    { question: "Do I need exact birth time?", answer: "Yes, Purple Star Astrology is highly sensitive to birth time. Even small differences can change star placements and palace assignments. Provide the most accurate time possible for best results." },
-    { question: "What do the 12 palaces mean?", answer: "The 12 palaces cover all life aspects: Life Palace (self), Wealth Palace (finances), Marriage Palace (relationships), Career Palace (profession), Property Palace (assets), Fortune Palace (luck), and more." },
+  const faqItems = [
+    { question: t("seo.ziwei.faqQ1"), answer: t("seo.ziwei.faqA1") },
+    { question: t("seo.ziwei.faqQ2"), answer: t("seo.ziwei.faqA2") },
+    { question: t("seo.ziwei.faqQ3"), answer: t("seo.ziwei.faqA3") },
+    { question: t("seo.ziwei.faqQ4"), answer: t("seo.ziwei.faqA4") },
   ]
 
-  const relatedServices = isZh ? [
-    { icon: "📊", title: "八字分析", href: "/seo/bazi", desc: "四柱排列与十维格局" },
-    { icon: "☯️", title: "五行分析", href: "/seo/five-elements", desc: "五行平衡与循环" },
-    { icon: "⭐", title: "星盘分析", href: "/seo/astrology", desc: "行星落座与相位解读" },
-    { icon: "🃏", title: "塔罗分析", href: "/seo/tarot", desc: "牌阵解读与行动指引" },
-  ] : [
-    { icon: "📊", title: "Bazi Chart", href: "/seo/bazi", desc: "Four Pillars & Ten Gods" },
-    { icon: "☯️", title: "Five Elements", href: "/seo/five-elements", desc: "Elemental balance" },
-    { icon: "⭐", title: "Natal Chart", href: "/seo/astrology", desc: "Planetary placements" },
-    { icon: "🃏", title: "Tarot Reading", href: "/seo/tarot", desc: "Spread interpretation" },
+  const relatedServices = [
+    { icon: "📊", title: t("seo.ziwei.r1Title"), href: "/seo/bazi", desc: t("seo.ziwei.r1Desc") },
+    { icon: "☯️", title: t("seo.ziwei.r2Title"), href: "/seo/five-elements", desc: t("seo.ziwei.r2Desc") },
+    { icon: "⭐", title: t("seo.ziwei.r3Title"), href: "/seo/astrology", desc: t("seo.ziwei.r3Desc") },
+    { icon: "🃏", title: t("seo.ziwei.r4Title"), href: "/seo/tarot", desc: t("seo.ziwei.r4Desc") },
   ]
 
   const features = [
@@ -140,12 +129,12 @@ export default function ZiweiSEOPage() {
         </ScrollReveal>
 
         <SEOFaq
-          title={isZh ? "常见问题" : "Frequently Asked Questions"}
+          title={t("seo.ziwei.faqTitle")}
           items={faqItems}
         />
 
         <RelatedServices
-          heading={isZh ? "探索更多分析" : "Explore More Analysis"}
+          heading={t("seo.ziwei.relatedTitle")}
           services={relatedServices}
         />
 

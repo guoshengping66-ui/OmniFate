@@ -9,30 +9,19 @@ import { useLanguage } from "@/contexts/LanguageContext"
 
 export default function PalmReadingSEOPage() {
   const { t, localeHref, locale } = useLanguage()
-  const isZh = locale === "zh"
 
-  const faqItems = isZh ? [
-    { question: "什么是手相学？", answer: "手相学是一门有数千年历史的古老分析体系，通过分析手掌的纹路、形状和丘位来了解一个人的性格、潜力和人生道路。古人认为手掌能反映内心世界。" },
-    { question: "感情线、智慧线、生命线分别代表什么？", answer: "感情线反映情感表达和恋爱倾向；智慧线体现思维模式和决策风格；生命线代表生命力和健康状况。每条线的长度、深度和弧度都有不同的含义。" },
-    { question: "掌纹会随着时间变化吗？", answer: "是的，掌纹会随着人生经历和身体状况的变化而微妙改变。这反映了人的成长和转变。AI 手相分析可以捕捉这些细微变化。" },
-    { question: "上传的照片安全吗？", answer: "完全安全。照片仅用于 AI 掌纹特征提取，处理完成后立即删除，不会存储或分享任何个人信息。所有数据传输均采用 SSL 加密。" },
-  ] : [
-    { question: "What is palm reading?", answer: "Palm reading (palmistry) is an ancient analysis system with thousands of years of history. By analyzing palm lines, shape, and mounts, it reveals character traits, potential, and life path patterns." },
-    { question: "What do the heart, head, and life lines mean?", answer: "The heart line reflects emotional expression and romantic tendencies. The head line shows thinking style and decision-making patterns. The life line indicates vitality and health trajectory." },
-    { question: "Can palm lines change over time?", answer: "Yes, palm lines can subtly change with life experiences and health conditions, reflecting personal growth and transformation. AI palm reading can capture these nuanced changes." },
-    { question: "Is my photo safe?", answer: "Absolutely. Photos are used only for AI line extraction and deleted immediately after processing. No personal information is stored or shared. All data transmission uses SSL encryption." },
+  const faqItems = [
+    { question: t("seo.palm.faqQ1"), answer: t("seo.palm.faqA1") },
+    { question: t("seo.palm.faqQ2"), answer: t("seo.palm.faqA2") },
+    { question: t("seo.palm.faqQ3"), answer: t("seo.palm.faqA3") },
+    { question: t("seo.palm.faqQ4"), answer: t("seo.palm.faqA4") },
   ]
 
-  const relatedServices = isZh ? [
-    { icon: "👁️", title: "面相分析", href: "/seo/face-reading", desc: "AI 面部特征识别" },
-    { icon: "📊", title: "八字分析", href: "/seo/bazi", desc: "四柱排列与十维格局" },
-    { icon: "⭐", title: "星盘分析", href: "/seo/astrology", desc: "行星落座与相位解读" },
-    { icon: "☯️", title: "五行分析", href: "/seo/five-elements", desc: "五行平衡与循环" },
-  ] : [
-    { icon: "👁️", title: "Face Analysis", href: "/seo/face-reading", desc: "AI facial recognition" },
-    { icon: "📊", title: "Bazi Chart", href: "/seo/bazi", desc: "Four Pillars & Ten Gods" },
-    { icon: "⭐", title: "Natal Chart", href: "/seo/astrology", desc: "Planetary placements" },
-    { icon: "☯️", title: "Five Elements", href: "/seo/five-elements", desc: "Elemental balance" },
+  const relatedServices = [
+    { icon: "👁️", title: t("seo.palm.r1Title"), href: "/seo/face-reading", desc: t("seo.palm.r1Desc") },
+    { icon: "📊", title: t("seo.palm.r2Title"), href: "/seo/bazi", desc: t("seo.palm.r2Desc") },
+    { icon: "⭐", title: t("seo.palm.r3Title"), href: "/seo/astrology", desc: t("seo.palm.r3Desc") },
+    { icon: "☯️", title: t("seo.palm.r4Title"), href: "/seo/five-elements", desc: t("seo.palm.r4Desc") },
   ]
 
   const features = [
@@ -140,12 +129,12 @@ export default function PalmReadingSEOPage() {
         </ScrollReveal>
 
         <SEOFaq
-          title={isZh ? "常见问题" : "Frequently Asked Questions"}
+          title={t("seo.palm.faqTitle")}
           items={faqItems}
         />
 
         <RelatedServices
-          heading={isZh ? "探索更多分析" : "Explore More Analysis"}
+          heading={t("seo.palm.relatedTitle")}
           services={relatedServices}
         />
 

@@ -9,30 +9,19 @@ import { useLanguage } from "@/contexts/LanguageContext"
 
 export default function FiveElementsSEOPage() {
   const { t, localeHref, locale } = useLanguage()
-  const isZh = locale === "zh"
 
-  const faqItems = isZh ? [
-    { question: "什么是五行？", answer: "五行——金、木、水、火、土——是中国传统分析学的基础框架。每个元素代表不同的能量特质：木代表生长与创造，火代表热情与变革，土代表稳定与滋养，金代表精准与纪律，水代表智慧与流动。" },
-    { question: "如何知道自己五行缺什么？", answer: "通过输入出生年月日时，AI 会自动计算你的八字命盘，分析五行的强弱分布，找出缺失或过旺的元素，并给出相应的平衡建议。" },
-    { question: "五行相生相克是什么意思？", answer: "相生：木生火、火生土、土生金、金生水、水生木。相克：木克土、土克水、水克火、火克金、金克木。这两个循环描述了五行之间相互促进和制约的关系。" },
-    { question: "五行分析能帮我做什么？", answer: "五行分析可以帮助你了解自己的性格特质、适合的职业方向、人际关系模式、健康倾向，以及如何通过调整生活方式来平衡五行能量。" },
-  ] : [
-    { question: "What are the Five Elements?", answer: "The Five Elements — Metal, Wood, Water, Fire, and Earth — form the foundation of Chinese analysis. Each represents distinct energy: Wood for growth, Fire for passion, Earth for stability, Metal for precision, and Water for wisdom." },
-    { question: "How do I know my dominant element?", answer: "By entering your birth date and time, AI automatically calculates your chart and analyzes the distribution of all five elements, identifying which are strong, weak, or missing in your profile." },
-    { question: "What is the generating cycle?", answer: "The generating (Sheng) cycle: Wood feeds Fire, Fire creates Earth, Earth bears Metal, Metal collects Water, Water nourishes Wood. This cycle describes how elements support and strengthen each other." },
-    { question: "How can Five Elements analysis help me?", answer: "Five Elements analysis reveals your personality traits, ideal career paths, relationship patterns, health tendencies, and how to balance your elemental energy through lifestyle adjustments." },
+  const faqItems = [
+    { question: t("seo.fiveElements.faqQ1"), answer: t("seo.fiveElements.faqA1") },
+    { question: t("seo.fiveElements.faqQ2"), answer: t("seo.fiveElements.faqA2") },
+    { question: t("seo.fiveElements.faqQ3"), answer: t("seo.fiveElements.faqA3") },
+    { question: t("seo.fiveElements.faqQ4"), answer: t("seo.fiveElements.faqA4") },
   ]
 
-  const relatedServices = isZh ? [
-    { icon: "📊", title: "八字分析", href: "/seo/bazi", desc: "四柱排列与十维格局" },
-    { icon: "⭐", title: "星盘分析", href: "/seo/astrology", desc: "行星落座与相位解读" },
-    { icon: "🃏", title: "塔罗分析", href: "/seo/tarot", desc: "牌阵解读与行动指引" },
-    { icon: "👁️", title: "面相分析", href: "/seo/face-reading", desc: "AI 面部特征识别" },
-  ] : [
-    { icon: "📊", title: "Bazi Chart", href: "/seo/bazi", desc: "Four Pillars & Ten Gods" },
-    { icon: "⭐", title: "Natal Chart", href: "/seo/astrology", desc: "Planetary placements" },
-    { icon: "🃏", title: "Tarot Reading", href: "/seo/tarot", desc: "Spread interpretation" },
-    { icon: "👁️", title: "Face Analysis", href: "/seo/face-reading", desc: "AI facial recognition" },
+  const relatedServices = [
+    { icon: "📊", title: t("seo.fiveElements.r1Title"), href: "/seo/bazi", desc: t("seo.fiveElements.r1Desc") },
+    { icon: "⭐", title: t("seo.fiveElements.r2Title"), href: "/seo/astrology", desc: t("seo.fiveElements.r2Desc") },
+    { icon: "🃏", title: t("seo.fiveElements.r3Title"), href: "/seo/tarot", desc: t("seo.fiveElements.r3Desc") },
+    { icon: "👁️", title: t("seo.fiveElements.r4Title"), href: "/seo/face-reading", desc: t("seo.fiveElements.r4Desc") },
   ]
 
   const features = [
@@ -135,12 +124,12 @@ export default function FiveElementsSEOPage() {
         </ScrollReveal>
 
         <SEOFaq
-          title={isZh ? "常见问题" : "Frequently Asked Questions"}
+          title={t("seo.fiveElements.faqTitle")}
           items={faqItems}
         />
 
         <RelatedServices
-          heading={isZh ? "探索更多分析" : "Explore More Analysis"}
+          heading={t("seo.fiveElements.relatedTitle")}
           services={relatedServices}
         />
 

@@ -9,30 +9,19 @@ import { useLanguage } from "@/contexts/LanguageContext"
 
 export default function BaziSEOPage() {
   const { t, localeHref, locale } = useLanguage()
-  const isZh = locale === "zh"
 
-  const faqItems = isZh ? [
-    { question: "什么是八字分析？", answer: "八字分析是将出生年、月、日、时转化为天干地支组合，形成八个字——即「生辰八字」。通过分析五行关系、十维配置和格局层次，可以推断性格、事业、财运、婚姻、健康等各方面。" },
-    { question: "八字分析需要什么信息？", answer: "需要提供出生的年、月、日、时（精确到小时），以及出生城市（用于真太阳时校正）。AI 会自动完成所有计算和分析。" },
-    { question: "什么是十维格局？", answer: "十维（十神）是八字分析中的核心概念，包括正官、偏官、正财、偏财、食神、伤官、比肩、劫财、正印、偏印，反映了人生各方面的关系模式。" },
-    { question: "八字分析准确吗？", answer: "AI 八字系统结合传统命理学与现代技术，提供多维度交叉验证。但命理分析仅供参考和娱乐，不能替代专业建议。" },
-  ] : [
-    { question: "What is Bazi analysis?", answer: "Bazi analysis converts your birth year, month, day, and hour into Heavenly Stems and Earthly Branches — the so-called 'Eight Characters'. It analyzes Five Elements, Ten Gods patterns, and chart levels to reveal personality, career, wealth, relationships, and health." },
-    { question: "What information do I need?", answer: "You need your birth year, month, day, and hour (down to the hour), plus your birth city (for true solar time correction). AI handles all calculations automatically." },
-    { question: "What are the Ten Gods?", answer: "The Ten Gods (Shi Shen) are the core concept in Bazi, including Officer, Wealth, Food God, and others. They reveal relationship patterns across all life aspects." },
-    { question: "How accurate is Bazi analysis?", answer: "The AI Bazi system combines traditional wisdom with modern technology for multi-dimension cross-validation. However, destiny analysis is for reference and entertainment only." },
+  const faqItems = [
+    { question: t("seo.bazi.faqQ1"), answer: t("seo.bazi.faqA1") },
+    { question: t("seo.bazi.faqQ2"), answer: t("seo.bazi.faqA2") },
+    { question: t("seo.bazi.faqQ3"), answer: t("seo.bazi.faqA3") },
+    { question: t("seo.bazi.faqQ4"), answer: t("seo.bazi.faqA4") },
   ]
 
-  const relatedServices = isZh ? [
-    { icon: "☯️", title: "五行分析", href: "/seo/five-elements", desc: "五行平衡与循环" },
-    { icon: "⭐", title: "星盘分析", href: "/seo/astrology", desc: "行星落座与相位解读" },
-    { icon: "🃏", title: "塔罗分析", href: "/seo/tarot", desc: "牌阵解读与行动指引" },
-    { icon: "⭐", title: "紫微斗数", href: "/seo/ziwei", desc: "十二宫位与星曜落点" },
-  ] : [
-    { icon: "☯️", title: "Five Elements", href: "/seo/five-elements", desc: "Elemental balance" },
-    { icon: "⭐", title: "Natal Chart", href: "/seo/astrology", desc: "Planetary placements" },
-    { icon: "🃏", title: "Tarot Reading", href: "/seo/tarot", desc: "Spread interpretation" },
-    { icon: "⭐", title: "Purple Star", href: "/seo/ziwei", desc: "12 life palaces" },
+  const relatedServices = [
+    { icon: "☯️", title: t("seo.bazi.r1Title"), href: "/seo/five-elements", desc: t("seo.bazi.r1Desc") },
+    { icon: "⭐", title: t("seo.bazi.r2Title"), href: "/seo/astrology", desc: t("seo.bazi.r2Desc") },
+    { icon: "🃏", title: t("seo.bazi.r3Title"), href: "/seo/tarot", desc: t("seo.bazi.r3Desc") },
+    { icon: "⭐", title: t("seo.bazi.r4Title"), href: "/seo/ziwei", desc: t("seo.bazi.r4Desc") },
   ]
 
   const features = [
@@ -136,12 +125,12 @@ export default function BaziSEOPage() {
         </ScrollReveal>
 
         <SEOFaq
-          title={isZh ? "常见问题" : "Frequently Asked Questions"}
+          title={t("seo.bazi.faqTitle")}
           items={faqItems}
         />
 
         <RelatedServices
-          heading={isZh ? "探索更多分析" : "Explore More Analysis"}
+          heading={t("seo.bazi.relatedTitle")}
           services={relatedServices}
         />
 
