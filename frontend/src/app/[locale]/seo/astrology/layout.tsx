@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     },
     alternates: {
       canonical: `${base}${path}`,
-      languages: { en: `${base}/en/seo/astrology`, zh: `${base}/zh/seo/astrology` },
+      languages: { en: `${base}/en/seo/astrology`, zh: `${base}/zh/seo/astrology`, "x-default": `${base}/en/seo/astrology` },
     },
   }
 }

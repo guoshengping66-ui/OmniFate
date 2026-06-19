@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     },
     alternates: {
       canonical: `${base}${path}`,
-      languages: { en: `${base}/en/seo/bazi`, zh: `${base}/zh/seo/bazi` },
+      languages: { en: `${base}/en/seo/bazi`, zh: `${base}/zh/seo/bazi`, "x-default": `${base}/en/seo/bazi` },
     },
   }
 }

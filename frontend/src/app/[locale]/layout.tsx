@@ -73,6 +73,7 @@ export async function generateMetadata({
       languages: {
         en: "/en",
         zh: "/zh",
+        "x-default": "/en",
       },
     },
     robots: {
@@ -253,6 +254,10 @@ try{
                 "@type": "Organization",
                 name: "Destiny Engine",
                 url: "https://www.khanfate.com",
+                logo: "https://www.khanfate.com/logo.png",
+                sameAs: [
+                  "https://github.com/guoshengping66-ui/OmniFate",
+                ],
               },
               inLanguage: validLocale === "zh" ? "zh-CN" : "en",
               potentialAction: {

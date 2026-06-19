@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     },
     alternates: {
       canonical: `${base}${path}`,
-      languages: { en: `${base}/en/seo/ziwei`, zh: `${base}/zh/seo/ziwei` },
+      languages: { en: `${base}/en/seo/ziwei`, zh: `${base}/zh/seo/ziwei`, "x-default": `${base}/en/seo/ziwei` },
     },
   }
 }

@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     },
     alternates: {
       canonical: `${base}${path}`,
-      languages: { en: `${base}/en/blog`, zh: `${base}/zh/blog` },
+      languages: { en: `${base}/en/blog`, zh: `${base}/zh/blog`, "x-default": `${base}/en/blog` },
     },
   }
 }

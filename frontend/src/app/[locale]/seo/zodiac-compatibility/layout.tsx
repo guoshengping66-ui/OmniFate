@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     },
     alternates: {
       canonical: `${base}${path}`,
-      languages: { en: `${base}/en/seo/zodiac-compatibility`, zh: `${base}/zh/seo/zodiac-compatibility` },
+      languages: { en: `${base}/en/seo/zodiac-compatibility`, zh: `${base}/zh/seo/zodiac-compatibility`, "x-default": `${base}/en/seo/zodiac-compatibility` },
     },
   }
 }

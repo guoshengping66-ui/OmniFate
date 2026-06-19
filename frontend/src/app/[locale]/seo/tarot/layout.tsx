@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     },
     alternates: {
       canonical: `${base}${path}`,
-      languages: { en: `${base}/en/seo/tarot`, zh: `${base}/zh/seo/tarot` },
+      languages: { en: `${base}/en/seo/tarot`, zh: `${base}/zh/seo/tarot`, "x-default": `${base}/en/seo/tarot` },
     },
   }
 }

@@ -31,6 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       locale: isZh ? "zh_CN" : "en_US",
       url: `${base}${path}`,
       publishedTime: article.created_at,
+      modifiedTime: article.created_at,
       tags,
     },
     alternates: {
@@ -38,6 +39,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       languages: {
         en: `${base}/en/blog/${id}`,
         zh: `${base}/zh/blog/${id}`,
+        "x-default": `${base}/en/blog/${id}`,
       },
     },
   }

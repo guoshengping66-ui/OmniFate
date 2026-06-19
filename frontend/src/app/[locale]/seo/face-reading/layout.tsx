@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     },
     alternates: {
       canonical: `${base}${path}`,
-      languages: { en: `${base}/en/seo/face-reading`, zh: `${base}/zh/seo/face-reading` },
+      languages: { en: `${base}/en/seo/face-reading`, zh: `${base}/zh/seo/face-reading`, "x-default": `${base}/en/seo/face-reading` },
     },
   }
 }

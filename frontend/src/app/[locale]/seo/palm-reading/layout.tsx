@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     },
     alternates: {
       canonical: `${base}${path}`,
-      languages: { en: `${base}/en/seo/palm-reading`, zh: `${base}/zh/seo/palm-reading` },
+      languages: { en: `${base}/en/seo/palm-reading`, zh: `${base}/zh/seo/palm-reading`, "x-default": `${base}/en/seo/palm-reading` },
     },
   }
 }

@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     },
     alternates: {
       canonical: `${base}${path}`,
-      languages: { en: `${base}/en/seo/five-elements`, zh: `${base}/zh/seo/five-elements` },
+      languages: { en: `${base}/en/seo/five-elements`, zh: `${base}/zh/seo/five-elements`, "x-default": `${base}/en/seo/five-elements` },
     },
   }
 }
