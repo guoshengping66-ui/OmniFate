@@ -13,6 +13,7 @@ import secrets
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Header
+from jose import jwt as _jwt
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, EmailStr, field_validator
 from sqlalchemy import select
@@ -640,7 +641,7 @@ async def logout(
         access_tok = authorization.replace("Bearer ", "").strip()
         if access_tok:
             try:
-                payload = jwt.decode(access_tok, settings.JWT_SECRET_KEY,
+                payload = _jwt.decode(access_tok, settings.JWT_SECRET_KEY,
                                     algorithms=[ALGORITHM], options={"verify_exp": False})
                 if payload.get("jti"):
                     await blacklist_token(payload["jti"])
@@ -653,7 +654,7 @@ async def logout(
         token = authorization.replace("Bearer ", "").strip()
         # Only use as refresh token if it's actually a refresh token
         try:
-            payload = jwt.decode(token, settings.JWT_SECRET_KEY,
+            payload = _jwt.decode(token, settings.JWT_SECRET_KEY,
                                 algorithms=[ALGORITHM], options={"verify_exp": False})
             if payload.get("type") != "refresh":
                 token = None

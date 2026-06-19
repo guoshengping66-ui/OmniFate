@@ -32,6 +32,7 @@ from auth.dependencies import get_current_user, require_user
 from calculators.astrology_calculator import AstrologyCalculator
 from calculators.bazi_calculator import BaziCalculator
 from config import get_settings
+from services.rate_limiter import check_rate_limit
 
 settings = get_settings()
 logger = logging.getLogger(__name__)
@@ -347,6 +348,10 @@ async def create_analysis(
     POST creates session and kicks off background analysis.
     Frontend polls GET /session/{id} until status == "done".
     """
+    # Rate limit: 3 analyses per hour per user (each spawns multiple LLM calls)
+    if current_user:
+        if await check_rate_limit(f"analysis:{current_user.id}", limit=3, window=3600):
+            raise HTTPException(status_code=429, detail="分析次数过于频繁，请稍后再试")
     bi = BirthInfo(
         year=payload.birth_year, month=payload.birth_month,
         day=payload.birth_day, hour=payload.birth_hour,
@@ -1201,6 +1206,7 @@ async def stream_session(
         last_pct = -1
         last_agent_status: dict[str, str] = {}
         phase_changed_at = time.time()
+        last_heartbeat_at = time.time()
 
         while state.phase != "done":
             # Re-read state from session store to get live updates from background task
@@ -1269,8 +1275,10 @@ async def stream_session(
             await asyncio.sleep(0.5)
 
             # ── SECURITY: Send heartbeat every 15s to prevent proxy timeout ──
-            if time.time() - phase_changed_at > 0 and int(time.time() - phase_changed_at) % 15 == 0:
+            now = time.time()
+            if now - last_heartbeat_at >= 15:
                 yield f"data: {json.dumps({'type': 'heartbeat'})}\n\n"
+                last_heartbeat_at = now
                 await asyncio.sleep(0.1)  # Ensure heartbeat is sent
 
         # Flush any remaining subtask events that completed at the same time as phase="done"
@@ -1498,12 +1506,16 @@ async def upload_face_image(
 
 
 @router.post("/analyze-face")
-async def analyze_face_image(file: UploadFile = File(...)):
+async def analyze_face_image(file: UploadFile = File(...), request: Request = None):
     """
     Stateless face V2T analysis.
     Upload a face image -> returns structured physiognomy text without creating a session.
     Frontend can call this during Step 2 to auto-analyze before submitting the full form.
     """
+    # Rate limit: 5 per minute per IP (CPU-intensive MediaPipe processing)
+    client_ip = request.client.host if request and request.client else "unknown"
+    if await check_rate_limit(f"face-upload:{client_ip}", limit=5, window=60):
+        raise HTTPException(status_code=429, detail="上传过于频繁，请稍后再试")
     from services.vision.face_v2t import FaceV2T
     face_v2t = FaceV2T()
 
@@ -1676,12 +1688,17 @@ async def upload_palm_image(
 
 
 @router.post("/analyze-palm")
-async def analyze_palm_image(file: UploadFile = File(...)):
+async def analyze_palm_image(file: UploadFile = File(...), request: Request = None):
     """
     Stateless palm V2T analysis.
     Upload a palm image -> returns structured palmistry text without creating a session.
     Frontend can call this during Step 2 to auto-analyze before submitting the full form.
     """
+    # Rate limit: 5 per minute per IP (CPU-intensive MediaPipe processing)
+    client_ip = request.client.host if request and request.client else "unknown"
+    if await check_rate_limit(f"palm-upload:{client_ip}", limit=5, window=60):
+        raise HTTPException(status_code=429, detail="上传过于频繁，请稍后再试")
+
     from services.vision.palm_v2t import PalmV2T
     palm_v2t = PalmV2T()
 

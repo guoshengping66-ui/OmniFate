@@ -17,10 +17,27 @@ from config import get_settings
 router = APIRouter()
 settings = get_settings()
 
-# ── Rate limiting ──────────────────────────────────────────────────────────
-_rate_store: dict[str, list[float]] = defaultdict(list)
+# ── Rate limiting (separate buckets for contact vs newsletter) ─────────────
+_rate_store_contact: dict[str, list[float]] = defaultdict(list)
+_rate_store_newsletter: dict[str, list[float]] = defaultdict(list)
 _RATE_WINDOW = 3600  # 1 hour
 _RATE_MAX = 5        # max 5 submissions per hour per IP
+_RATE_EVICT_MAX = 10000  # max tracked IPs before forced eviction
+
+
+def _check_and_add_rate(store: dict[str, list[float]], client_ip: str) -> bool:
+    """Check rate limit and add timestamp. Returns True if exceeded."""
+    now = time.time()
+    # Evict if store is too large
+    if len(store) > _RATE_EVICT_MAX:
+        stale = [k for k, v in store.items() if not v or v[-1] <= now - _RATE_WINDOW]
+        for k in stale:
+            del store[k]
+    store[client_ip] = [t for t in store[client_ip] if t > now - _RATE_WINDOW]
+    if len(store[client_ip]) >= _RATE_MAX:
+        return True
+    store[client_ip].append(now)
+    return False
 
 # ── Newsletter subscribers (in-memory, replace with DB in production) ──────
 _newsletter_subscribers: set[str] = set()
@@ -40,18 +57,14 @@ class NewsletterRequest(BaseModel):
 @router.post("")
 async def submit_contact(req: ContactRequest, request: Request):
     """Send contact form message to support email."""
-    # Rate limit
+    # Rate limit (contact-specific bucket)
     client_ip = request.client.host if request.client else "unknown"
-    now = time.time()
-    window_start = now - _RATE_WINDOW
-    _rate_store[client_ip] = [t for t in _rate_store[client_ip] if t > window_start]
-    if len(_rate_store[client_ip]) >= _RATE_MAX:
+    if _check_and_add_rate(_rate_store_contact, client_ip):
         from fastapi.responses import JSONResponse
         return JSONResponse(
             status_code=429,
             content={"detail": "提交过于频繁，请稍后再试"},
         )
-    _rate_store[client_ip].append(now)
 
     # Build email
     subject_map = {
@@ -101,18 +114,14 @@ async def submit_contact(req: ContactRequest, request: Request):
 @router.post("/newsletter")
 async def subscribe_newsletter(req: NewsletterRequest, request: Request):
     """Subscribe to weekly fortune newsletter."""
-    # Rate limit
+    # Rate limit (newsletter-specific bucket)
     client_ip = request.client.host if request.client else "unknown"
-    now = time.time()
-    window_start = now - _RATE_WINDOW
-    _rate_store[client_ip] = [t for t in _rate_store[client_ip] if t > window_start]
-    if len(_rate_store[client_ip]) >= _RATE_MAX:
+    if _check_and_add_rate(_rate_store_newsletter, client_ip):
         from fastapi.responses import JSONResponse
         return JSONResponse(
             status_code=429,
             content={"detail": "提交过于频繁，请稍后再试"},
         )
-    _rate_store[client_ip].append(now)
 
     email = req.email.lower().strip()
 

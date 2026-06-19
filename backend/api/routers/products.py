@@ -7,11 +7,12 @@ from pathlib import Path
 from typing import Optional
 from pydantic import BaseModel, Field
 
-from fastapi import APIRouter, Query, HTTPException, Depends
+from fastapi import APIRouter, Query, HTTPException, Depends, Request
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from services.product_matcher import ProductMatcher
+from services.rate_limiter import check_rate_limit
 from database.session import AsyncSessionLocal, get_db
 from database.models import User, Product, ProductReview
 from auth.dependencies import require_user
@@ -220,7 +221,12 @@ async def create_review(
 # ── Match ───────────────────────────────────────────────────────────────────
 
 @router.post("/match")
-async def match_products(payload: MatchRequest, lang: str = Query("zh")):
+async def match_products(payload: MatchRequest, lang: str = Query("zh"), request: Request = None):
+    # Rate limit: 10 per minute per IP (CPU-intensive product matching)
+    client_ip = request.client.host if request and request.client else "unknown"
+    if await check_rate_limit(f"product-match:{client_ip}", limit=10, window=60):
+        raise HTTPException(status_code=429, detail="请求过于频繁，请稍后再试")
+
     matched = _matcher.match_with_reasons(
         weakness_tags=payload.weakness_tags,
         boost_elements=payload.boost_elements,
