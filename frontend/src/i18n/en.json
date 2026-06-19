@@ -2105,7 +2105,25 @@
       "privacyDesc": "Photos are used only for AI feature extraction and deleted immediately after processing.",
       "privacyTitle": "Privacy Guarantee",
       "title": "AI Facial Feature Analysis",
-      "whatTitle": "What is Facial Feature?"
+      "whatTitle": "What is Facial Feature?",
+      "faqQ1": "What is face reading?",
+      "faqA1": "Face reading (physiognomy) is an important branch of Chinese analysis with thousands of years of history. By analyzing face shape, proportions, and features, it assesses wealth, career, relationships, and health.",
+      "faqQ2": "How does AI face analysis work?",
+      "faqA2": "AI uses MediaPipe 468-point facial recognition to automatically detect facial feature points, combined with traditional face reading wisdom for deep analysis. The process takes just seconds.",
+      "faqQ3": "What kind of photo do I need?",
+      "faqA3": "You need a front-facing, well-lit photo without obstructions. Avoid beauty filters or effects for the most accurate analysis.",
+      "faqQ4": "Is my photo safe?",
+      "faqA4": "Absolutely. Photos are used only for AI feature extraction and deleted immediately after processing. No personal information is stored or shared.",
+      "faqTitle": "Frequently Asked Questions",
+      "relatedTitle": "Explore More Analysis",
+      "r1Title": "Palm Reading",
+      "r1Desc": "AI palm line analysis",
+      "r2Title": "Bazi Chart",
+      "r2Desc": "Four Pillars and Ten Gods",
+      "r3Title": "Natal Chart",
+      "r3Desc": "Planetary placements",
+      "r4Title": "Five Elements",
+      "r4Desc": "Elemental balance"
     },
     "symbolic": {
       "breadcrumb": "Symbolic",
@@ -2375,7 +2393,8 @@
       "r3Title": "Tarot Reading",
       "r3Desc": "Relationship spreads",
       "r4Title": "Five Elements",
-      "r4Desc": "Elemental harmony"
+      "r4Desc": "Elemental harmony",
+      "ctaNote": "No registration needed"
     },
     "bazi": {
       "breadcrumb": "Bazi Chart",

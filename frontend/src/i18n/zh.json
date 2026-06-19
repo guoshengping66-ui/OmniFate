@@ -2010,7 +2010,10 @@
       "r3Title": "星座配对",
       "r3Desc": "星座兼容性分析",
       "r4Title": "紫微斗数",
-      "r4Desc": "十二宫位与星曜落点"
+      "r4Desc": "十二宫位与星曜落点",
+      "privacyTitle": "数据隐私",
+      "privacyDesc": "您的出生数据仅用于星盘计算，不会存储或分享任何个人信息。",
+      "ctaNote": "无需注册 · 40秒出结果"
     },
     "bazi": {
       "breadcrumb": "八字",
@@ -2060,7 +2063,9 @@
       "r3Title": "塔罗分析",
       "r3Desc": "牌阵解读与行动指引",
       "r4Title": "紫微斗数",
-      "r4Desc": "十二宫位与星曜落点"
+      "r4Desc": "十二宫位与星曜落点",
+      "privacyTitle": "数据隐私",
+      "privacyDesc": "您的出生数据仅用于命盘计算，不会存储或分享任何个人信息。"
     },
     "face": {
       "a1Area": "额头",
@@ -2169,7 +2174,8 @@
       "r3Title": "星座配对",
       "r3Desc": "星座兼容性分析",
       "r4Title": "五行分析",
-      "r4Desc": "五行平衡与循环"
+      "r4Desc": "五行平衡与循环",
+      "ctaNote": "无需注册 · 40秒出结果"
     },
     "fiveElements": {
       "breadcrumb": "五行分析",
@@ -2406,7 +2412,8 @@
       "r3Title": "塔罗分析",
       "r3Desc": "感情牌阵解读",
       "r4Title": "五行分析",
-      "r4Desc": "五行互补关系"
+      "r4Desc": "五行互补关系",
+      "ctaNote": "无需注册 · 40秒出结果"
     }
   },
   "serviceTerms": {
