@@ -43,7 +43,7 @@ function generateOverview(a: string, b: string, rel: { score: number; type: stri
   if (rel.type === "相生") {
     return {
       en: `${nA.en} generates ${nB.en} in the Five Elements cycle. This is a supportive relationship where ${nA.en} naturally nurtures and strengthens ${nB.en}. In compatibility, this creates a harmonious dynamic where both parties complement each other.`,
-      zh: `在五行相生循环中，${nA.zh}生${nB.zh}。这是一种支持性关系，${nA.zh}自然滋养和增强${nB.zh}。在 compatibility 中，这创造了和谐的互动，双方互补。`,
+      zh: `在五行相生循环中，${nA.zh}生${nB.zh}。这是一种支持性关系，${nA.zh}自然滋养和增强${nB.zh}。在这种关系中，这创造了和谐的互动，双方互补。`,
     }
   }
   if (rel.type === "相克") {
@@ -122,11 +122,11 @@ export const FiveElementCompatibilities: FiveElementCompatibility[] = (() => {
         element_b: b,
         score,
         title_en: `${nA.en} and ${nB.en} Compatibility | Five Elements Guide`,
-        title_zh: `${nA.zh}与${nB.zh}五行 compatibility 详解`,
+        title_zh: `${nA.zh}与${nB.zh}五行配对详解`,
         meta_description_en: `Discover ${nA.en} and ${nB.en} Five Elements compatibility. Learn how these elements interact in love, career, and relationships.`,
-        meta_description_zh: `探索${nA.zh}与${nB.zh}五行 compatibility。了解这些五行在爱情、事业和人际关系中的互动。`,
+        meta_description_zh: `探索${nA.zh}与${nB.zh}五行配对。了解这些五行在爱情、事业和人际关系中的互动。`,
         keywords_en: [`${nA.en.toLowerCase()} ${nB.en.toLowerCase()} compatibility`, `${nA.en.toLowerCase()} element`, `five elements ${nA.en.toLowerCase()}`],
-        keywords_zh: [`${nA.zh}${nB.zh} compatibility`, `${nA.zh}五行`, `五行 compatibility`],
+        keywords_zh: [`${nA.zh}${nB.zh}配对`, `${nA.zh}五行`, `五行配对`],
         overview_en: overview.en,
         overview_zh: overview.zh,
         love_en: love.en,
@@ -140,7 +140,7 @@ export const FiveElementCompatibilities: FiveElementCompatibility[] = (() => {
           { question: `What is the ${nA.en}-${nB.en} relationship in Five Elements?`, answer: `In the Five Elements cycle, ${nA.en} ${relA.type === "相生" ? "generates" : relA.type === "相克" ? "controls" : "matches"} ${nB.en}.` },
         ],
         faq_zh: [
-          { question: `${nA.zh}与${nB.zh} compatibility 吗？`, answer: `${nA.zh}与${nB.zh}的 compatibility 评分为${score}/100，属于${score >= 70 ? "良好" : score >= 50 ? "中等" : "挑战性"}关系。` },
+          { question: `${nA.zh}与${nB.zh}配对吗？`, answer: `${nA.zh}与${nB.zh}的配对评分为${score}/100，属于${score >= 70 ? "良好" : score >= 50 ? "中等" : "挑战性"}关系。` },
           { question: `五行中${nA.zh}与${nB.zh}是什么关系？`, answer: `在五行循环中，${nA.zh}${relA.type === "相生" ? "生" : relA.type === "相克" ? "克" : "比和"}${nB.zh}。` },
         ],
         canonical_path: `/five-elements/${a}/with/${b}`,

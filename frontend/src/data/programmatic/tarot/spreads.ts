@@ -41,7 +41,7 @@ export const TarotSpreads: TarotSpread[] = [
     keywords_en: ["celtic cross tarot", "celtic cross spread", "10 card tarot spread", "tarot reading layout"],
     keywords_zh: ["凯尔特十字塔罗牌", "凯尔特十字牌阵", "10张牌塔罗牌阵"],
     overview_en: "The Celtic Cross is the most iconic and widely used tarot spread. Created by Arthur Edward Waite, this 10-card layout provides a comprehensive view of your situation, including past influences, present circumstances, future possibilities, and underlying energies. It's the go-to spread for detailed life readings.",
-    overview_zh: "凯尔特十字是最具标志性和最广泛使用的塔罗牌阵。由Arthur Edward Waite创造，这个10张牌的布局提供了对您情况的全面视图，包括过去的影响、当前环境、未来的可能性和潜在能量。它是详细人生解读的首选牌阵。",
+    overview_zh: "凯尔特十字是最具标志性和最广泛使用的塔罗牌阵。由韦特创造，这个10张牌的布局提供了对您情况的全面视图，包括过去的影响、当前环境、未来的可能性和潜在能量。它是详细人生解读的首选牌阵。",
     positions_en: "Position 1: Present situation\nPosition 2: Challenge or crossing card\nPosition 3: Root cause or foundation\nPosition 4: Recent past\nPosition 5: Best outcome\nPosition 6: Near future\nPosition 7: Your attitude\nPosition 8: External influences\nPosition 9: Hopes and fears\nPosition 10: Final outcome",
     positions_zh: "位置1：现状\n位置2：挑战或交叉牌\n位置3：根本原因或基础\n位置4：近期过去\n位置5：最佳结果\n位置6：近期未来\n位置7：你的态度\n位置8：外部影响\n位置9：希望与恐惧\n位置10：最终结果",
     how_to_read_en: "Start with the central two cards (positions 1 and 2) to understand the core issue. Then examine the vertical line (positions 3, 10, 1) for the main story. The cross (positions 4, 5, 6, 7) shows the dynamics at play. Finally, the staff (positions 8, 9, 10) reveals external factors and the likely outcome.",

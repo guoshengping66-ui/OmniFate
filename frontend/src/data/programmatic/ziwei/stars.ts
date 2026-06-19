@@ -132,7 +132,7 @@ export const ZiweiStars: ZiweiStar[] = [
     keywords_zh: ["太阳星含义", "太阳星紫微斗数", "太阳星性格", "太阳星慷慨", "紫微斗数太阳"],
 
     overview_en: "Taiyang (太阳) is the Sun Star, representing radiance, generosity, and public service. It is the star of illumination and outreach, governing the ability to shine brightly and serve others with warmth and enthusiasm.",
-    overview_zh: "太阳是太阳星，代表光芒、慷慨和公共服务。它是照亮和 outreach 的星辰，掌管以温暖和热情闪耀和为他人服务的能力。",
+    overview_zh: "太阳是太阳星，代表光芒、慷慨和公共服务。它是照亮和传播的星辰，掌管以温暖和热情闪耀和为他人服务的能力。",
     personality_en: "People with Taiyang star influence are typically warm, generous, and publicly spirited. They have a radiant personality, natural charisma, and a strong desire to help others and contribute to society.",
     personality_zh: "太阳星影响的人通常温暖、慷慨、有公共精神。他们有光芒四射的性格、天生的魅力，有强烈的帮助他人和贡献社会的愿望。",
     career_en: "Taiyang individuals excel in public service, politics, education, social work, and leadership roles that benefit the community. Their generous nature and public spirit make them effective in service-oriented careers.",
