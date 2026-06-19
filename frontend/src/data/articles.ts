@@ -2776,4 +2776,1249 @@ This multi-dimension analysis provides more comprehensive and precise readings t
 → Try AI Tarot analysis and experience deep upright/reversed readings
     `,
   },
+
+  // ────────────────────────────────────────────────────
+  // Week 2: Long-tail keyword articles (8 new)
+  // ────────────────────────────────────────────────────
+
+  // 29. What is Bazi Reading
+  {
+    id: "what-is-bazi-reading",
+    title_zh: "什么是八字分析？入门完全指南",
+    title_en: "What Is Bazi Reading? A Complete Beginner's Guide",
+    summary_zh: "八字分析是中国古老的命理学体系，通过出生时间解读人生蓝图。本文将从零开始，带你了解八字分析的原理、方法和实际应用。",
+    summary_en: "Bazi (Four Pillar Analysis) is an ancient Chinese system that decodes your life blueprint through birth time. This complete beginner's guide explains the principles, methods, and practical applications from scratch.",
+    category: "four-pillar",
+    tags_zh: ["八字", "入门", "命理", "什么是八字"],
+    tags_en: ["Bazi", "Beginner", "Four Pillar", "What is Bazi"],
+    read_time: 12,
+    cover_emoji: "☯",
+    created_at: "2026-06-20",
+    content_zh: `## 八字分析是什么？
+
+八字分析（又称"四柱命理"或"Four Pillar Analysis"）是中国传统命理学的核心体系之一。它通过一个人出生的年、月、日、时四个时间节点，推算出对应的天干地支组合，形成所谓的"八字"，从而解读一个人的性格、命运和人生走向。
+
+## 八字的基本构成
+
+### 四柱
+
+八字由四柱组成，每柱包含一个天干和一个地支：
+
+- **年柱**：代表祖辈、童年环境
+- **月柱**：代表父母、青年时期
+- **日柱**：代表自己、中年时期（日柱天干即"日主"）
+- **时柱**：代表子女、晚年时期
+
+### 天干地支
+
+天干有十个：甲、乙、丙、丁、戊、己、庚、辛、壬、癸
+地支有十二个：子、丑、寅、卯、辰、巳、午、未、申、酉、戌、亥
+
+每个天干和地支都对应五行（金、木、水、火、土）和阴阳属性。
+
+## 八字分析的核心概念
+
+### 日主
+
+日主是日柱的天干，代表你自己。它是整个八字分析的核心，所有其他元素都围绕日主展开。
+
+### 五行得分
+
+通过计算八字中各五行的数量和强弱，得出五行得分。这能告诉你哪些元素旺盛，哪些元素缺失。
+
+### 喜用神
+
+喜用神是你八字中最需要的元素，不是简单地"缺什么补什么"。找到喜用神是八字分析的关键。
+
+### 十神关系
+
+十神描述了其他天干与日主的关系，包括正官、偏官、正财、偏财、食神、伤官等，揭示了你的人际关系和事业方向。
+
+## 八字分析的实际应用
+
+- **性格分析**：了解你的核心性格特征
+- **事业指导**：找到适合的职业方向
+- **感情 compatibility**：分析与他人的相处模式
+- **运势预测**：把握人生关键节点
+- **健康管理**：了解身体需要关注的方面
+
+## 如何开始你的八字分析
+
+你可以通过我们的 AI 八字分析工具，输入出生时间，一键生成完整的八字分析报告。报告包含五行得分、十神关系、喜用神等详细内容。
+
+→ 点击「开始分析」获取你的八字报告
+    `,
+    content_en: `## What Is Bazi Reading?
+
+Bazi Reading (also known as "Four Pillar Analysis") is one of the core systems in Chinese traditional fortune analysis. It uses four time nodes — year, month, day, and hour of birth — to derive the corresponding Heavenly Stems and Earthly Branches, forming the "Eight Characters" (Bazi), which reveals a person's personality, destiny, and life trajectory.
+
+## The Basic Structure of Bazi
+
+### Four Pillars
+
+Bazi consists of four pillars, each containing a Heavenly Stem and an Earthly Branch:
+
+- **Year Pillar**: Represents ancestors and childhood environment
+- **Month Pillar**: Represents parents and youth
+- **Day Pillar**: Represents yourself and middle age (the Day Stem is your "Day Master")
+- **Hour Pillar**: Represents children and later years
+
+### Heavenly Stems and Earthly Branches
+
+There are 10 Heavenly Stems: Jia, Yi, Bing, Ding, Wu, Ji, Geng, Xin, Ren, Gui
+There are 12 Earthly Branches: Zi, Chou, Yin, Mao, Chen, Si, Wu, Wei, Shen, You, Xu, Hai
+
+Each Stem and Branch corresponds to one of the Five Elements (Metal, Wood, Water, Fire, Earth) and has Yin or Yang polarity.
+
+## Core Concepts of Bazi Analysis
+
+### Day Master
+
+The Day Master is the Heavenly Stem of the Day Pillar — it represents you. It is the core of the entire Bazi analysis, with all other elements analyzed in relation to it.
+
+### Five Element Score
+
+By calculating the quantity and strength of each element in the chart, you get the Five Element Score. This reveals which elements are strong and which are lacking.
+
+### Favorable Element (Xi Yong Shen)
+
+The Favorable Element is what your chart most needs — it's NOT simply "supplement what's missing." Finding the Favorable Element is the key to Bazi analysis.
+
+### Ten Gods Relationships
+
+The Ten Gods describe how other Stems relate to your Day Master, including Direct Officer, Seven Killings, Direct Wealth, Indirect Wealth, Eating God, Hurting Officer, etc. They reveal your interpersonal patterns and career direction.
+
+## Practical Applications of Bazi
+
+- **Personality Analysis**: Understand your core character traits
+- **Career Guidance**: Find suitable career directions
+- **Relationship Compatibility**: Analyze how you interact with others
+- **Fortune Forecasting**: Grasp key life moments
+- **Health Management**: Identify areas needing attention
+
+## How to Start Your Bazi Reading
+
+You can use our AI Bazi analysis tool — simply enter your birth time to instantly generate a complete Bazi report including Five Element scores, Ten Gods relationships, Favorable Elements, and more.
+
+→ Click "Start Reading" to get your Bazi report
+    `,
+  },
+
+  // 30. Ziwei Doushu Explained
+  {
+    id: "ziwei-doushu-explained",
+    title_zh: "紫微斗数入门：解读你的星盘",
+    title_en: "Ziwei Doushu Explained: Reading Your Star Chart",
+    summary_zh: "紫微斗数是另一种中国传统命理学，通过星曜在十二宫位的分布来解读命运。本文介绍紫微斗数的基本原理和解读方法。",
+    summary_en: "Ziwei Doushu is another Chinese fortune analysis system that interprets destiny through star placements across twelve palaces. This article covers the basic principles and interpretation methods.",
+    category: "four-pillar",
+    tags_zh: ["紫微斗数", "入门", "星盘", "命理"],
+    tags_en: ["Ziwei Doushu", "Beginner", "Star Chart", "Fortune"],
+    read_time: 10,
+    cover_emoji: "⭐",
+    created_at: "2026-06-20",
+    content_zh: `## 紫微斗数简介
+
+紫微斗数是中国古代最精密的命理学体系之一，被誉为"天下第一神数"。它通过出生时间推算出星曜在十二宫位的分布，从而解读一个人的命运格局。
+
+## 基本构成
+
+### 十四主星
+
+紫微斗数有十四颗主星，每颗星都有独特的含义：
+
+- **紫微星**：帝王之星，代表领导力和尊贵
+- **天机星**：智慧之星，代表聪明和谋略
+- **太阳星**：光明之星，代表热情和奉献
+- **武曲星**：财富之星，代表果断和财运
+- **天同星**：福气之星，代表温和和享受
+- **廉贞星**：变化之星，代表感情和变化
+- **天府星**：库藏之星，代表稳定和积累
+- **太阴星**：月亮之星，代表细腻和内敛
+- **贪狼星**：欲望之星，代表多才和交际
+- **巨门星**：口舌之星，代表表达和争议
+- **天相星**：印星，代表贵人和协调
+- **天梁星**：荫星，代表庇佑和长寿
+- **七杀星**：将星，代表冲劲和变革
+- **破军星**：开创之星，代表突破和创新
+
+### 十二宫位
+
+十二宫位代表人生的不同领域：
+
+命宫、兄弟宫、夫妻宫、子女宫、财帛宫、疾厄宫、迁移宫、交友宫、官禄宫、田宅宫、福德宫、父母宫
+
+## 如何解读紫微命盘
+
+1. **看命宫主星**：命宫的主星决定了你的核心性格
+2. **看四化飞星**：化禄、化权、化科、化忌影响运势走向
+3. **看大限流年**：十年大运和每年运势的变化
+4. **看宫位互动**：不同宫位之间的相互影响
+
+## 紫微斗数与八字的区别
+
+- 八字侧重五行生克，紫微侧重星曜性质
+- 八字分析相对简洁，紫微分析更为精细
+- 两者可以互相补充，提供更全面的分析
+
+## 开始你的紫微分析
+
+通过我们的 AI 紫微斗数工具，输入出生时间即可生成完整的紫微命盘分析。
+
+→ 点击「开始分析」获取你的紫微命盘
+    `,
+    content_en: `## Introduction to Ziwei Doushu
+
+Ziwei Doushu (Purple Star Astrology) is one of the most precise fortune analysis systems in ancient China, often called "the most divine of all arts." It maps star placements across twelve palaces based on your birth time to decode your destiny pattern.
+
+## Basic Components
+
+### Fourteen Main Stars
+
+Ziwei Doushu has fourteen main stars, each with unique meanings:
+
+- **Ziwei Star**: The Emperor Star — represents leadership and prestige
+- **Tianji Star**: The Wisdom Star — represents intelligence and strategy
+- **Taiyang Star**: The Sun Star — represents passion and dedication
+- **Wuqu Star**: The Wealth Star — represents decisiveness and fortune
+- **Tianfu Star**: The Treasury Star — represents stability and accumulation
+- **Taiyin Star**: The Moon Star — represents sensitivity and introspection
+- **Tanlang Star**: The Desire Star — represents versatility and social skills
+- **Jumen Star**: The Gate Star — represents expression and debate
+- **Tianxiang Star**: The Seal Star — represents nobility and coordination
+- **Tianliang Star**: The Shade Star — represents protection and longevity
+- **Qisha Star**: The General Star — represents drive and transformation
+- **Po Jun Star**: The Pioneer Star — represents breakthrough and innovation
+
+### Twelve Palaces
+
+The twelve palaces represent different life domains:
+
+Life Palace, Siblings Palace, Spouse Palace, Children Palace, Wealth Palace, Health Palace, Travel Palace, Friends Palace, Career Palace, Property Palace, Fortune Palace, Parents Palace
+
+## How to Read a Ziwei Chart
+
+1. **Check the Life Palace star**: The main star in your Life Palace defines your core personality
+2. **Observe the Four Transformations**: Hua Lu, Hua Quan, Hua Ke, and Hua Ji influence fortune trends
+3. **Review major periods**: Ten-year cycles and annual fortune changes
+4. **Analyze palace interactions**: How different palaces influence each other
+
+## Ziwei Doushu vs Bazi
+
+- Bazi focuses on Five Element interactions; Ziwei focuses on star qualities
+- Bazi analysis is relatively concise; Ziwei analysis is more detailed
+- Both systems complement each other for comprehensive insights
+
+## Start Your Ziwei Analysis
+
+Use our AI Ziwei Doushu tool — enter your birth time to generate a complete Ziwei chart analysis.
+
+→ Click "Start Reading" to get your Ziwei chart
+    `,
+  },
+
+  // 31. Tarot Card Meanings Guide
+  {
+    id: "tarot-card-meanings-complete",
+    title_zh: "塔罗牌含义完全指南：78张牌详解",
+    title_en: "Complete Tarot Card Meanings Guide: All 78 Cards Explained",
+    summary_zh: "塔罗牌由78张牌组成，每张都有独特的含义。本文是史上最全的塔罗牌含义指南，帮助你理解每张牌的正位和逆位含义。",
+    summary_en: "The tarot deck contains 78 cards, each with unique meanings. This is the most comprehensive tarot meanings guide ever, helping you understand every card's upright and reversed meanings.",
+    category: "symbol",
+    tags_zh: ["塔罗牌", "牌义", "大阿尔卡纳", "小阿尔卡纳"],
+    tags_en: ["Tarot", "Card Meanings", "Major Arcana", "Minor Arcana"],
+    read_time: 20,
+    cover_emoji: "🃏",
+    created_at: "2026-06-20",
+    content_zh: `## 塔罗牌的构成
+
+塔罗牌由78张牌组成，分为两大部分：
+
+### 大阿尔卡纳（Major Arcana）22张
+
+代表人生的重大主题和灵魂课题：
+
+- **0 愚者**：新的开始、冒险、自由
+- **1 魔术师**：创造力、意志力、技能
+- **2 女祭司**：直觉、智慧、神秘
+- **3 女皇**：丰盛、母性、美
+- **4 皇帝**：权威、结构、稳定
+- **5 教皇**：传统、精神指导、信仰
+- **6 恋人**：爱情、选择、和谐
+- **7 战车**：意志力、胜利、决心
+- **8 力量**：勇气、耐心、内在力量
+- **9 隐士**：内省、独处、智慧
+- **10 命运之轮**：变化、循环、命运
+- **11 正义**：公平、真相、因果
+- **12 倒吊人**：牺牲、等待、新视角
+- **13 死神**：结束、转变、重生
+- **14 节制**：平衡、耐心、调和
+- **15 恶魔**：束缚、诱惑、阴影
+- **16 塔**：突变、破坏、觉醒
+- **17 星星**：希望、灵感、宁静
+- **18 月亮**：幻觉、潜意识、恐惧
+- **19 太阳**：成功、快乐、活力
+- **20 审判**：觉醒、重生、召唤
+- **21 世界**：完成、成就、圆满
+
+### 小阿尔卡纳（Minor Arcana）56张
+
+分为四个花色，代表日常生活：
+
+- **权杖（Wands）**：火元素，代表行动、创造、激情
+- **圣杯（Cups）**：水元素，代表情感、关系、直觉
+- **宝剑（Swords）**：风元素，代表思维、冲突、真相
+- **星币（Pentacles）**：土元素，代表物质、健康、实际
+
+## 如何理解塔罗牌
+
+1. **正位 vs 逆位**：正位代表牌义的正常表达，逆位可能表示阻碍、过度或缺失
+2. **牌阵位置**：同一张牌在不同位置有不同含义
+3. **牌与牌的互动**：相邻的牌会相互影响
+4. **直觉引导**：最终的解读需要结合你的直觉
+
+## 塔罗牌与AI解读
+
+AI塔罗可以：
+- 分析每张牌的核心含义
+- 考虑牌阵位置的影响
+- 结合多张牌的互动效应
+- 提供个性化的解读建议
+
+→ 使用AI塔罗工具，体验精准的牌义解读
+    `,
+    content_en: `## The Structure of Tarot
+
+The tarot deck consists of 78 cards, divided into two main sections:
+
+### Major Arcana (22 Cards)
+
+Represent major life themes and soul lessons:
+
+- **0 The Fool**: New beginnings, adventure, freedom
+- **1 The Magician**: Creativity, willpower, skill
+- **2 The High Priestess**: Intuition, wisdom, mystery
+- **3 The Empress**: Abundance, nurturing, beauty
+- **4 The Emperor**: Authority, structure, stability
+- **5 The Hierophant**: Tradition, spiritual guidance, faith
+- **6 The Lovers**: Love, choices, harmony
+- **7 The Chariot**: Willpower, victory, determination
+- **8 Strength**: Courage, patience, inner power
+- **9 The Hermit**: Introspection, solitude, wisdom
+- **10 Wheel of Fortune**: Change, cycles, destiny
+- **11 Justice**: Fairness, truth, karma
+- **12 The Hanged Man**: Sacrifice, waiting, new perspective
+- **13 Death**: Endings, transformation, rebirth
+- **14 Temperance**: Balance, patience, moderation
+- **15 The Devil**: Bondage, temptation, shadow
+- **16 The Tower**: Upheaval, destruction, awakening
+- **17 The Star**: Hope, inspiration, serenity
+- **18 The Moon**: Illusion, subconscious, fear
+- **19 The Sun**: Success, joy, vitality
+- **20 Judgement**: Awakening, rebirth, calling
+- **21 The World**: Completion, achievement, wholeness
+
+### Minor Arcana (56 Cards)
+
+Four suits representing daily life:
+
+- **Wands**: Fire element — action, creativity, passion
+- **Cups**: Water element — emotions, relationships, intuition
+- **Swords**: Air element — thoughts, conflict, truth
+- **Pentacles**: Earth element — material, health, practicality
+
+## How to Understand Tarot Cards
+
+1. **Upright vs Reversed**: Upright shows the card's normal expression; reversed may indicate blockage, excess, or absence
+2. **Position in Spread**: The same card means different things in different positions
+3. **Card Interactions**: Adjacent cards influence each other
+4. **Intuition**: Final interpretation requires combining your intuition
+
+## Tarot and AI Reading
+
+AI Tarot can:
+- Analyze each card's core meaning
+- Consider the influence of spread positions
+- Combine interaction effects of multiple cards
+- Provide personalized interpretation and advice
+
+→ Use our AI Tarot tool for precise card meaning readings
+    `,
+  },
+
+  // 32. Face Reading Personality
+  {
+    id: "face-reading-personality",
+    title_zh: "面相看性格：从五官读懂一个人",
+    title_en: "Face Reading for Personality: Understanding People Through Facial Features",
+    summary_zh: "面相学是中国古老的识人术，通过观察五官特征来了解一个人的性格。本文教你如何通过眼睛、鼻子、嘴巴等特征判断性格。",
+    summary_en: "Face reading is an ancient Chinese art of understanding people through facial features. Learn how to identify personality traits through eyes, nose, mouth, and other features.",
+    category: "face",
+    tags_zh: ["面相", "性格", "五官", "识人"],
+    tags_en: ["Face Reading", "Personality", "Features", "Character"],
+    read_time: 8,
+    cover_emoji: "👤",
+    created_at: "2026-06-20",
+    content_zh: `## 面相与性格的关系
+
+面相学认为，一个人的面部特征反映了他的性格和命运。这不是迷信，而是古人长期观察总结的经验。
+
+## 眼睛：心灵的窗户
+
+### 大眼睛
+性格开朗、善于表达、富有艺术感
+
+### 小眼睛
+心思细腻、善于观察、做事谨慎
+
+### 眼睛间距宽
+心胸开阔、包容力强、不拘小节
+
+### 眼睛间距窄
+心思缜密、专注力强、有时多疑
+
+## 鼻子：财运与意志
+
+### 高鼻梁
+自尊心强、有主见、事业心强
+
+### 圆鼻头
+性格温和、财运好、善理财
+
+### 鹰钩鼻
+精明能干、有谋略、有时过于算计
+
+## 嘴巴：表达与情感
+
+### 大嘴巴
+热情大方、善于交际、口才好
+
+### 小嘴巴
+心思细腻、言辞谨慎、内敛含蓄
+
+### 厚嘴唇
+重感情、有福气、物质欲望强
+
+### 薄嘴唇
+思维敏捷、表达能力强、有时尖刻
+
+## 额头：智慧与早运
+
+### 高额头
+智慧高、有远见、早年运势好
+
+### 宽额头
+心胸宽广、有领导力
+
+## 下巴：晚年与意志
+
+### 方下巴
+意志坚定、有毅力、晚年运势好
+
+### 尖下巴
+思维敏捷、审美感强、有时优柔寡断
+
+## AI面相分析
+
+我们的AI面相工具可以：
+- 分析你的面部特征
+- 解读性格特点
+- 提供人生建议
+
+→ 上传照片，获取你的面相分析
+    `,
+    content_en: `## The Connection Between Face and Personality
+
+Face reading (Mian Xiang) holds that facial features reflect personality and destiny. This isn't superstition — it's accumulated wisdom from centuries of observation.
+
+## Eyes: Windows to the Soul
+
+### Large Eyes
+Outgoing, expressive, artistic temperament
+
+### Small Eyes
+Detail-oriented, observant, cautious
+
+### Wide-Set Eyes
+Open-minded, tolerant, relaxed about details
+
+### Close-Set Eyes
+Meticulous, focused, sometimes suspicious
+
+## Nose: Wealth and Willpower
+
+### High Bridge
+Strong self-esteem, opinionated, ambitious
+
+### Round Tip
+Gentle personality, good financial luck, skilled with money
+
+### Hooked Nose
+Shrewd, strategic, sometimes calculating
+
+## Mouth: Expression and Emotion
+
+### Large Mouth
+Warm, generous, sociable, eloquent
+
+### Small Mouth
+Refined, careful with words, reserved
+
+### Full Lips
+Emotional, blessed, material desires
+
+### Thin Lips
+Quick-minded, articulate, sometimes sharp
+
+## Forehead: Wisdom and Early Fortune
+
+### High Forehead
+High intelligence, visionary, good early fortune
+
+### Wide Forehead
+Broad-minded, leadership qualities
+
+## Chin: Later Years and Will
+
+### Square Chin
+Strong willpower, persistent, good later fortune
+
+### Pointed Chin
+Quick-thinking, aesthetic sense, sometimes indecisive
+
+## AI Face Reading Analysis
+
+Our AI face reading tool can:
+- Analyze your facial features
+- Interpret personality traits
+- Provide life guidance
+
+→ Upload your photo for a face reading analysis
+    `,
+  },
+
+  // 33. Palm Reading Lines Guide
+  {
+    id: "palm-reading-lines-guide",
+    title_zh: "手相入门：三大主线完全解读",
+    title_en: "Palm Reading Guide: Complete Interpretation of the Three Main Lines",
+    summary_zh: "手相学通过手掌纹路解读命运。本文详细介绍生命线、智慧线、感情线三大主线的含义和判断方法。",
+    summary_en: "Palm reading interprets destiny through palm lines. This guide provides detailed explanations of the three main lines: Life Line, Head Line, and Heart Line.",
+    category: "face",
+    tags_zh: ["手相", "生命线", "智慧线", "感情线"],
+    tags_en: ["Palm Reading", "Life Line", "Head Line", "Heart Line"],
+    read_time: 10,
+    cover_emoji: "✋",
+    created_at: "2026-06-20",
+    content_zh: `## 手相学简介
+
+手相学（Palmistry）是通过观察手掌纹路、形状和特征来了解一个人的性格和命运的古老学问。
+
+## 三大主线
+
+### 生命线（Life Line）
+
+生命线从拇指与食指之间开始，向手腕方向延伸。
+
+**含义**：代表生命力、健康状况和生活态度
+
+- **长而清晰**：生命力旺盛，健康状况好
+- **短而浅**：需要注意健康保养
+- **弧度大**：性格开朗，活动力强
+- **弧度小**：性格谨慎，喜欢稳定
+
+### 智慧线（Head Line）
+
+智慧线从食指与拇指之间开始，横跨手掌。
+
+**含义**：代表思维方式、智慧和判断力
+
+- **长而直**：逻辑思维强，善于分析
+- **长而弯**：想象力丰富，有艺术天赋
+- **短而直**：行动力强，做事果断
+- **分叉**：多才多艺，兴趣广泛
+
+### 感情线（Heart Line）
+
+感情线从小指下方开始，向食指方向延伸。
+
+**含义**：代表感情态度、情感表达和恋爱方式
+
+- **长而上扬**：感情丰富，表达能力强
+- **短而平**：理性内敛，不善表达
+- **深而清晰**：感情专一，重情义
+- **浅而模糊**：感情淡薄，自我保护
+
+## 其他重要线条
+
+### 事业线
+从手掌底部向中指延伸，代表事业发展
+
+### 婚姻线
+在小指下方，代表婚姻状况
+
+### 健康线
+从手掌底部向小指延伸，代表健康状况
+
+## 左手还是右手？
+
+传统说法："男左女右"，但实际上两只手都要看：
+- **左手**：先天命运
+- **右手**：后天发展（成年后）
+
+## AI手相分析
+
+我们的AI手相工具可以：
+- 分析你的掌纹特征
+- 解读人生运势
+- 提供健康建议
+
+→ 上传手掌照片，获取你的手相分析
+    `,
+    content_en: `## Introduction to Palm Reading
+
+Palm reading (Palmistry) is an ancient practice of understanding personality and destiny by observing palm lines, shapes, and features.
+
+## The Three Main Lines
+
+### Life Line
+
+The Life Line runs from between the thumb and index finger toward the wrist.
+
+**Meaning**: Represents vitality, health, and attitude toward life
+
+- **Long and clear**: Strong vitality, good health
+- **Short and faint**: Needs health attention
+- **Wide arc**: Outgoing personality, active
+- **Narrow arc**: Cautious personality, prefers stability
+
+### Head Line
+
+The Head Line runs horizontally across the palm from between the index finger and thumb.
+
+**Meaning**: Represents thinking style, intelligence, and judgment
+
+- **Long and straight**: Strong logical thinking, analytical
+- **Long and curved**: Rich imagination, artistic talent
+- **Short and straight**: Strong action orientation, decisive
+- **Forked**: Multi-talented, wide interests
+
+### Heart Line
+
+The Heart Line runs from below the little finger toward the index finger.
+
+**Meaning**: Represents emotional attitude, expression, and romantic style
+
+- **Long and upward**: Emotionally expressive, articulate
+- **Short and flat**: Rational, reserved
+- **Deep and clear**: Devoted, values relationships
+- **Shallow and faint**: Emotionally guarded, self-protective
+
+## Other Important Lines
+
+### Fate Line
+Runs from the base of the palm toward the middle finger — represents career development
+
+### Marriage Line
+Located below the little finger — represents marital status
+
+### Health Line
+Runs from the base toward the little finger — represents health condition
+
+## Left Hand or Right Hand?
+
+Traditional rule: "Left for men, right for women." But actually, both hands should be read:
+- **Left hand**: Innate destiny
+- **Right hand**: Acquired development (after adulthood)
+
+## AI Palm Reading Analysis
+
+Our AI palm reading tool can:
+- Analyze your palm line features
+- Interpret life fortune
+- Provide health guidance
+
+→ Upload your palm photo for a palm reading analysis
+    `,
+  },
+
+  // 34. Bazi Compatibility Guide
+  {
+    id: "bazi-compatibility-guide",
+    title_zh: "八字合婚：如何用八字看感情 compatibility",
+    title_en: "Bazi Compatibility: How to Use Four Pillar Analysis for Love Matching",
+    summary_zh: "八字合婚是中国传统的感情匹配方法。本文教你如何通过八字分析判断两个人是否 compatible，以及如何改善相处模式。",
+    summary_en: "Bazi compatibility is a traditional Chinese method for matching partners. Learn how to use Four Pillar analysis to determine relationship compatibility and improve interaction patterns.",
+    category: "four-pillar",
+    tags_zh: ["八字", "合婚", "感情", "compatibility"],
+    tags_en: ["Bazi", "Compatibility", "Love", "Matching"],
+    read_time: 10,
+    cover_emoji: "💕",
+    created_at: "2026-06-20",
+    content_zh: `## 什么是八字合婚？
+
+八字合婚是通过比较两个人的八字，分析彼此的五行互补、十神配合等情况，来判断感情 compatibility 的方法。
+
+## 八字合婚的核心要素
+
+### 1. 日主五行互补
+
+最理想的组合是双方日主五行能够互补：
+- 甲木日主 vs 己土日主：甲己合化土，相吸
+- 丙火日主 vs 辛金日主：丙辛合化水，相吸
+- 戊土日主 vs 癸水日主：戊癸合化火，相吸
+
+### 2. 喜用神互补
+
+如果一方的喜用神恰好是另一方的旺神，这是非常好的组合。
+
+### 3. 十神配合
+
+- **正财/正官组合**：传统稳定的感情模式
+- **偏财/七杀组合**：激情但需要磨合
+- **食神/正印组合**：互相滋养成长
+
+### 4. 地支关系
+
+- **六合**：子丑合、寅亥合、卯戌合、辰酉合、巳申合、午未合
+- **三合**：申子辰合水、寅午戌合火、巳酉丑合金、亥卯未合木
+- **相冲**：子午冲、丑未冲、寅申冲、卯酉冲、辰戌冲、巳亥冲
+
+## 如何进行八字合婚
+
+1. **排盘**：分别排出双方的八字
+2. **分析日主**：看双方日主的五行属性
+3. **看喜用神**：分析双方的喜用神是否互补
+4. **看十神**：分析双方的十神配合
+5. **看大运**：分析双方大运是否同步
+
+## 不理想的组合如何改善
+
+- **五行相克**：通过生活习惯、居住环境来调和
+- **十神冲突**：通过沟通方式、相处模式来改善
+- **大运不同步**：理解对方的运势周期，给予支持
+
+## AI八字合婚
+
+我们的AI工具可以：
+- 自动分析双方八字
+- 计算compatibility得分
+- 提供改善建议
+
+→ 输入双方生日，获取八字合婚分析
+    `,
+    content_en: `## What Is Bazi Compatibility?
+
+Bazi compatibility analyzes two people's charts to determine relationship potential by examining Five Element complementarity, Ten Gods alignment, and other factors.
+
+## Core Elements of Bazi Compatibility
+
+### 1. Day Master Five Element Complementarity
+
+The ideal pairing is when both Day Masters complement each other:
+- Jia Wood + Ji Earth: Jia-Ji combination transforms to Earth — mutual attraction
+- Bing Fire + Xin Metal: Bing-Xin combination transforms to Water — mutual attraction
+- Wu Earth + Gui Water: Wu-Gui combination transforms to Fire — mutual attraction
+
+### 2. Favorable Element Complementarity
+
+If one person's Favorable Element happens to be the other person's dominant element, this is an excellent match.
+
+### 3. Ten Gods Harmony
+
+- **Direct Wealth + Direct Officer**: Traditional, stable relationship pattern
+- **Indirect Wealth + Seven Killings**: Passionate but requires adjustment
+- **Eating God + Direct Nurturing**: Mutually nurturing growth
+
+### 4. Earthly Branch Relationships
+
+- **Six Harmonies**: Zi-Chou, Yin-Hai, Mao-Xu, Chen-You, Si-Shen, Wu-Wei
+- **Three Harmonies**: Shen-Zi-Chen (Water), Yin-Wu-Xu (Fire), Si-You-Chou (Metal), Hai-Mao-Wei (Wood)
+- **Clashes**: Zi-Wu, Chou-Wei, Yin-Shen, Mao-You, Chen-Xu, Si-Hai
+
+## How to Do Bazi Compatibility
+
+1. **Chart Both People**: Generate Bazi charts for both individuals
+2. **Analyze Day Masters**: Check the Five Element attributes
+3. **Check Favorable Elements**: See if they complement each other
+4. **Examine Ten Gods**: Analyze the Ten Gods alignment
+5. **Review Major Cycles**: Check if life cycles are synchronized
+
+## Improving Challenging Matches
+
+- **Five Element Clash**: Adjust through habits and living environment
+- **Ten Gods Conflict**: Improve through communication and interaction styles
+- **Cycle Desynchronization**: Understand each other's fortune cycles and provide support
+
+## AI Bazi Compatibility
+
+Our AI tool can:
+- Automatically analyze both charts
+- Calculate compatibility scores
+- Provide improvement suggestions
+
+→ Enter both birthdays for a Bazi compatibility analysis
+    `,
+  },
+
+  // 35. Zodiac Love Compatibility 2026
+  {
+    id: "zodiac-love-compatibility-2026",
+    title_zh: "2026年星座爱情 compatibility 完全指南",
+    title_en: "2026 Zodiac Love Compatibility: The Complete Guide",
+    summary_zh: "2026年哪些星座组合最 compatible？本文从西方星座角度分析12星座的爱情 compatibility，帮你找到最佳配对。",
+    summary_en: "Which zodiac combinations are most compatible in 2026? This guide analyzes love compatibility for all 12 signs from a Western astrology perspective.",
+    category: "chart analysis",
+    tags_zh: ["星座", "爱情", "compatibility", "2026"],
+    tags_en: ["Zodiac", "Love", "Compatibility", "2026"],
+    read_time: 15,
+    cover_emoji: "💕",
+    created_at: "2026-06-20",
+    content_zh: `## 2026年星座爱情运势
+
+2026年是马年，木星的能量将影响所有星座的感情运势。让我们来看看12星座的爱情 compatibility。
+
+## 火象星座（白羊、狮子、射手）
+
+### 白羊座（3.21-4.19）
+- **最佳配对**：狮子座、射手座
+- **挑战配对**：巨蟹座、摩羯座
+- **2026爱情运**：桃花旺盛，主动出击
+
+### 狮子座（7.23-8.22）
+- **最佳配对**：白羊座、射手座
+- **挑战配对**：金牛座、天蝎座
+- **2026爱情运**：魅力四射，容易脱单
+
+### 射手座（11.22-12.21）
+- **最佳配对**：白羊座、狮子座
+- **挑战配对**：处女座、双鱼座
+- **2026爱情运**：浪漫机会多，注意承诺
+
+## 土象星座（金牛、处女、摩羯）
+
+### 金牛座（4.20-5.20）
+- **最佳配对**：处女座、摩羯座
+- **挑战配对**：狮子座、水瓶座
+- **2026爱情运**：稳定发展，适合长期关系
+
+### 处女座（8.23-9.22）
+- **最佳配对**：金牛座、摩羯座
+- **挑战配对**：射手座、双子座
+- **2026爱情运**：细节决定成败，注意沟通
+
+### 摩羯座（12.22-1.19）
+- **最佳配对**：金牛座、处女座
+- **挑战配对**：白羊座、天秤座
+- **2026爱情运**：事业爱情双丰收
+
+## 风象星座（双子、天秤、水瓶）
+
+### 双子座（5.21-6.21）
+- **最佳配对**：天秤座、水瓶座
+- **挑战配对**：处女座、双鱼座
+- **2026爱情运**：社交活跃，选择太多
+
+### 天秤座（9.23-10.23）
+- **最佳配对**：双子座、水瓶座
+- **挑战配对**：摩羯座、白羊座
+- **2026爱情运**：桃花运佳，注意选择
+
+### 水瓶座（1.20-2.18）
+- **最佳配对**：双子座、天秤座
+- **挑战配对**：金牛座、天蝎座
+- **2026爱情运**： unconventional 爱情观
+
+## 水象星座（巨蟹、天蝎、双鱼）
+
+### 巨蟹座（6.22-7.22）
+- **最佳配对**：天蝎座、双鱼座
+- **挑战配对**：白羊座、天秤座
+- **2026爱情运**：家庭运势强，适合结婚
+
+### 天蝎座（10.24-11.21）
+- **最佳配对**：巨蟹座、双鱼座
+- **挑战配对**：狮子座、水瓶座
+- **2026爱情运**：深度 connection 机会多
+
+### 双鱼座（2.19-3.20）
+- **最佳配对**：巨蟹座、天蝎座
+- **挑战配对**：射手座、双子座
+- **2026爱情运**：浪漫满溢，注意现实
+
+## 如何提升爱情运势
+
+1. 了解自己的星座特质
+2. 学习与不同星座相处
+3. 提升自我魅力
+4. 把握有利时机
+
+→ 使用AI星盘工具，获取你的2026爱情运势
+    `,
+    content_en: `## 2026 Zodiac Love Fortune
+
+2026 is the Year of the Horse, and Jupiter's energy will influence all signs' romantic fortunes. Let's explore love compatibility for all 12 zodiac signs.
+
+## Fire Signs (Aries, Leo, Sagittarius)
+
+### Aries (Mar 21 - Apr 19)
+- **Best Match**: Leo, Sagittarius
+- **Challenging Match**: Cancer, Capricorn
+- **2026 Love Fortune**: Strong romantic energy, be proactive
+
+### Leo (Jul 23 - Aug 22)
+- **Best Match**: Aries, Sagittarius
+- **Challenging Match**: Taurus, Scorpio
+- **2026 Love Fortune**: Magnetic charm, easy to find love
+
+### Sagittarius (Nov 22 - Dec 21)
+- **Best Match**: Aries, Leo
+- **Challenging Match**: Virgo, Pisces
+- **2026 Love Fortune**: Many romantic opportunities, watch commitments
+
+## Earth Signs (Taurus, Virgo, Capricorn)
+
+### Taurus (Apr 20 - May 20)
+- **Best Match**: Virgo, Capricorn
+- **Challenging Match**: Leo, Aquarius
+- **2026 Love Fortune**: Steady development, good for long-term
+
+### Virgo (Aug 23 - Sep 22)
+- **Best Match**: Taurus, Capricorn
+- **Challenging Match**: Sagittarius, Gemini
+- **2026 Love Fortune**: Details matter, focus on communication
+
+### Capricorn (Dec 22 - Jan 19)
+- **Best Match**: Taurus, Virgo
+- **Challenging Match**: Aries, Libra
+- **2026 Love Fortune**: Career and love both flourish
+
+## Air Signs (Gemini, Libra, Aquarius)
+
+### Gemini (May 21 - Jun 21)
+- **Best Match**: Libra, Aquarius
+- **Challenging Match**: Virgo, Pisces
+- **2026 Love Fortune**: Active social life, too many choices
+
+### Libra (Sep 23 - Oct 23)
+- **Best Match**: Gemini, Aquarius
+- **Challenging Match**: Capricorn, Aries
+- **2026 Love Fortune**: Strong romantic luck, choose carefully
+
+### Aquarius (Jan 20 - Feb 18)
+- **Best Match**: Gemini, Libra
+- **Challenging Match**: Taurus, Scorpio
+- **2026 Love Fortune**: Unconventional approach to love
+
+## Water Signs (Cancer, Scorpio, Pisces)
+
+### Cancer (Jun 22 - Jul 22)
+- **Best Match**: Scorpio, Pisces
+- **Challenging Match**: Aries, Libra
+- **2026 Love Fortune**: Strong family energy, good for marriage
+
+### Scorpio (Oct 24 - Nov 21)
+- **Best Match**: Cancer, Pisces
+- **Challenging Match**: Leo, Aquarius
+- **2026 Love Fortune**: Deep connections likely
+
+### Pisces (Feb 19 - Mar 20)
+- **Best Match**: Cancer, Scorpio
+- **Challenging Match**: Sagittarius, Gemini
+- **2026 Love Fortune**: Romantic overflow, stay grounded
+
+## How to Improve Love Fortune
+
+1. Understand your zodiac traits
+2. Learn to interact with different signs
+3. Enhance your personal charm
+4. Seize favorable timing
+
+→ Use our AI astrology tool for your 2026 love forecast
+    `,
+  },
+
+  // 36. Five Elements Personality Test
+  {
+    id: "five-elements-personality-test",
+    title_zh: "五行性格测试：你是金木水火土哪一种？",
+    title_en: "Five Elements Personality Test: Are You Metal, Wood, Water, Fire, or Earth?",
+    summary_zh: "通过简单的测试，了解你属于五行中的哪种性格类型。每种类型都有独特的优势和需要改进的地方。",
+    summary_en: "Take a simple test to discover which of the Five Elements personality type you are. Each type has unique strengths and areas for growth.",
+    category: "wuxing",
+    tags_zh: ["五行", "性格测试", "心理测试", "自我认知"],
+    tags_en: ["Five Elements", "Personality Test", "Psychology", "Self-Discovery"],
+    read_time: 6,
+    cover_emoji: "🌿",
+    created_at: "2026-06-20",
+    content_zh: `## 五行性格类型
+
+你是哪种五行性格？通过以下测试来发现吧！
+
+## 测试题目
+
+回答以下问题，选择最符合你的选项：
+
+### 1. 面对困难时，你通常会：
+A. 直接面对，不退缩（火）
+B. 仔细分析，找最佳方案（金）
+C. 灵活变通，找其他路径（水）
+D. 稳扎稳打，一步步解决（土）
+E. 寻求帮助，借力打力（木）
+
+### 2. 你的社交风格是：
+A. 热情主动，带动气氛（火）
+B. 有选择性，重质不重量（金）
+C. 善于倾听，理解他人（水）
+D. 稳定可靠，值得信赖（土）
+E. 乐于助人，善于合作（木）
+
+### 3. 你的决策方式是：
+A. 凭直觉和热情（火）
+B. 理性分析利弊（金）
+C. 综合考虑各方（水）
+D. 稳妥保守（土）
+E. 从长远角度考虑（木）
+
+## 五行性格解析
+
+### 木型人 🌳
+**特质**：正直、有担当、追求成长
+**优势**：领导力强、有远见、创新
+**需要改进**：固执、缺乏耐心
+**适合职业**：管理者、创业者、教育者
+
+### 火型人 🔥
+**特质**：热情、光明、感染力强
+**优势**：行动力强、有魅力、乐观
+**需要改进**：冲动、缺乏持久力
+**适合职业**：演员、销售、公关
+
+### 土型人 🏔️
+**特质**：稳重、可靠、包容
+**优势**：执行力强、值得信赖、务实
+**需要改进**：保守、缺乏变通
+**适合职业**：财务、行政、房产
+
+### 金型人 ⚔️
+**特质**：果断、刚毅、追求完美
+**优势**：执行力强、有原则、高效
+**需要改进**：过于直接、缺乏柔韧
+**适合职业**：法律、金融、技术
+
+### 水型人 💧
+**特质**：智慧、灵活、善于变通
+**优势**：适应力强、有洞察力、创意
+**需要改进**：优柔寡断、情绪化
+**适合职业**：咨询、艺术、传媒
+
+## 了解你的五行
+
+通过AI八字分析工具，可以准确计算你的五行得分，了解你真正的五行性格。
+
+→ 开始测试，获取你的五行分析
+    `,
+    content_en: `## Five Elements Personality Types
+
+Which Five Element personality type are you? Take this test to find out!
+
+## Test Questions
+
+Answer the following questions by choosing the option that best describes you:
+
+### 1. When facing difficulties, you typically:
+A. Face them directly without backing down (Fire)
+B. Analyze carefully to find the best solution (Metal)
+C. Adapt flexibly to find alternative paths (Water)
+D. Solve step by step with steady progress (Earth)
+E. Seek help and leverage external support (Wood)
+
+### 2. Your social style is:
+A. Enthusiastic and proactive, energizing others (Fire)
+B. Selective, valuing quality over quantity (Metal)
+C. A good listener, understanding others (Water)
+D. Stable and reliable, trustworthy (Earth)
+E. Helpful and collaborative (Wood)
+
+### 3. Your decision-making style is:
+A. Based on intuition and passion (Fire)
+B. Rational analysis of pros and cons (Metal)
+C. Comprehensive consideration of all factors (Water)
+D. Conservative and steady (Earth)
+E. Long-term perspective (Wood)
+
+## Five Elements Personality Analysis
+
+### Wood Personality 🌳
+**Traits**: Principled, responsible, growth-oriented
+**Strengths**: Leadership, vision, innovation
+**Growth Areas**: Stubbornness, impatience
+**Best Careers**: Manager, entrepreneur, educator
+
+### Fire Personality 🔥
+**Traits**: Passionate, radiant, infectious energy
+**Strengths**: Action-oriented, charming, optimistic
+**Growth Areas**: Impulsiveness, lack of endurance
+**Best Careers**: Performer, sales, public relations
+
+### Earth Personality 🏔️
+**Traits**: Stable, reliable, magnanimous
+**Strengths**: Execution, trustworthiness, pragmatism
+**Growth Areas**: Conservatism, inflexibility
+**Best Careers**: Finance, administration, real estate
+
+### Metal Personality ⚔️
+**Traits**: Decisive, resolute, perfectionist
+**Strengths**: Execution, principled, efficient
+**Growth Areas**: Bluntness, lack of flexibility
+**Best Careers**: Law, finance, technology
+
+### Water Personality 💧
+**Traits**: Wise, adaptable, resourceful
+**Strengths**: Adaptability, insight, creativity
+**Growth Areas**: Indecisiveness, emotional sensitivity
+**Best Careers**: Consulting, arts, media
+
+## Discover Your Five Elements
+
+Use our AI Bazi analysis tool to accurately calculate your Five Element scores and understand your true personality type.
+
+→ Start the test to get your Five Element analysis
+    `,
+  },
+
+  // 37. How to Read Bazi Chart
+  {
+    id: "how-to-read-bazi-chart",
+    title_zh: "如何看懂八字命盘？手把手教学",
+    title_en: "How to Read a Bazi Chart: Step-by-Step Tutorial",
+    summary_zh: "拿到八字命盘不知道怎么看？本文手把手教你如何解读八字命盘，从排盘到分析，让你轻松入门。",
+    summary_en: "Got a Bazi chart but don't know how to read it? This step-by-step tutorial teaches you how to interpret a Bazi chart from setup to analysis.",
+    category: "four-pillar",
+    tags_zh: ["八字", "命盘", "解读", "教程"],
+    tags_en: ["Bazi", "Chart", "Reading", "Tutorial"],
+    read_time: 12,
+    cover_emoji: "📖",
+    created_at: "2026-06-20",
+    content_zh: `## 八字命盘的基本结构
+
+一个标准的八字命盘包含以下信息：
+
+### 四柱八字
+
+    年柱    月柱    日柱    时柱
+    天干    天干    天干    天干
+    地支    地支    地支    地支
+
+### 示例
+
+    甲子    丙寅    戊午    壬戌
+    年柱    月柱    日柱    时柱
+
+## 第一步：找到日主
+
+日主是日柱的天干，代表你自己。在这个例子中，日主是**戊土**。
+
+## 第二步：分析五行
+
+计算八字中各五行的数量：
+
+- **木**：甲、乙、寅、卯
+- **火**：丙、丁、巳、午
+- **土**：戊、己、辰、戌、丑、未
+- **金**：庚、辛、申、酉
+- **水**：壬、癸、亥、子
+
+## 第三步：判断旺衰
+
+根据月令（月柱地支）判断日主的旺衰：
+- 月令生助日主 → 日主旺
+- 月令克制日主 → 日主弱
+
+## 第四步：找喜用神
+
+根据日主的旺衰，确定喜用神：
+- 日主旺 → 喜克泄耗（官杀、食伤、财星）
+- 日主弱 → 喜生扶（印星、比劫）
+
+## 第五步：分析十神
+
+十神描述了其他天干与日主的关系：
+- 生我者为印（正印、偏印）
+- 我生者为食伤（食神、伤官）
+- 克我者为官杀（正官、偏官）
+- 我克者为财（正财、偏财）
+- 同我者为比劫（比肩、劫财）
+
+## 第六步：看大运流年
+
+大运每十年一变，流年每年一变，影响运势走向。
+
+## AI八字分析
+
+手动分析八字需要专业知识。使用我们的AI工具，输入出生时间即可获得完整的八字分析报告。
+
+→ 开始你的八字分析
+    `,
+    content_en: `## Basic Structure of a Bazi Chart
+
+A standard Bazi chart contains the following information:
+
+### Four Pillars (Eight Characters)
+
+    Year     Month    Day      Hour
+    Stem     Stem     Stem     Stem
+    Branch   Branch   Branch   Branch
+
+### Example
+
+    Jia Zi   Bing Yin  Wu Wu    Ren Xu
+    Year     Month    Day      Hour
+
+## Step 1: Find Your Day Master
+
+The Day Master is the Stem of the Day Pillar — it represents you. In this example, the Day Master is **Wu Earth**.
+
+## Step 2: Analyze Five Elements
+
+Count the quantity of each element in the chart:
+
+- **Wood**: Jia, Yi, Yin, Mao
+- **Fire**: Bing, Ding, Si, Wu
+- **Earth**: Wu, Ji, Chen, Xu, Chou, Wei
+- **Metal**: Geng, Xin, Shen, You
+- **Water**: Ren, Gui, Hai, Zi
+
+## Step 3: Determine Strength
+
+Based on the Month Branch (the seasonal command), determine if the Day Master is strong or weak:
+- Month Branch supports Day Master → Strong
+- Month Branch weakens Day Master → Weak
+
+## Step 4: Find Favorable Elements
+
+Based on Day Master strength, determine favorable elements:
+- Strong Day Master → Favorable elements that weaken it (Officer/Killer, Output, Wealth)
+- Weak Day Master → Favorable elements that support it (Resource, Companion)
+
+## Step 5: Analyze Ten Gods
+
+Ten Gods describe how other Stems relate to your Day Master:
+- What generates me = Resource (Direct/Indirect)
+- What I generate = Output (Eating God/Hurting Officer)
+- What controls me = Authority (Direct Officer/Seven Killings)
+- What I control = Wealth (Direct/Indirect Wealth)
+- What's like me = Companion (Shoulder/Rob Wealth)
+
+## Step 6: Review Major Cycles
+
+Major cycles change every 10 years, annual cycles change yearly — both influence fortune trends.
+
+## AI Bazi Analysis
+
+Manual Bazi analysis requires professional knowledge. Use our AI tool — simply enter your birth time for a complete Bazi analysis report.
+
+→ Start your Bazi analysis
+    `,
+  },
 ]
