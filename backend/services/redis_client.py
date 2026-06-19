@@ -63,11 +63,10 @@ async def _get_redis():
         except Exception as e:
             _redis_available = False
             # Explicitly close leaked connection on failure
-            if 'client' in dir() and client is not None:
-                try:
-                    await client.close()
-                except Exception:
-                    pass
+            try:
+                await client.close()  # noqa: F821 — client may not be defined if from_url() failed
+            except Exception:
+                pass
             _redis_client = None
             logger.warning("Redis connection failed: %s — using in-memory fallback", e)
             return None

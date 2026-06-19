@@ -399,14 +399,18 @@ async def cache_middleware(request: Request, call_next):
     # Cache successful JSON responses only (skip if body > 256KB to avoid memory bloat)
     MAX_CACHE_BODY = 256 * 1024  # 256KB
     if response.status_code == 200:
+        # Fast path: use Content-Length header to skip buffering for obviously large responses
+        content_length = response.headers.get("content-length")
+        if content_length and int(content_length) > MAX_CACHE_BODY:
+            return response  # Stream directly without buffering
         body = b""
         async for chunk in response.body_iterator:
             if isinstance(chunk, str):
                 chunk = chunk.encode("utf-8")
             body += chunk
-        if len(body) > MAX_CACHE_BODY:
-            # Response too large to cache, return full body to client
-            return Response(content=body, status_code=200, headers=dict(response.headers))
+            # Incremental check: stop early if already over limit
+            if len(body) > MAX_CACHE_BODY:
+                return Response(content=body, status_code=200, headers=dict(response.headers))
         try:
             data = json.loads(body)
             await cache_set_json(cache_key, data, ttl=cache_ttl)
