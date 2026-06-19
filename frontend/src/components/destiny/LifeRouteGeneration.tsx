@@ -478,8 +478,8 @@ function GrowthLogicChain({ animStep, locale }: { animStep: number; locale: stri
       <div className="text-center mt-5">
         <p className="text-white/15 text-[10px] tracking-wider leading-relaxed max-w-md mx-auto">
           {locale === "zh"
-            ? "基于五大命理系统交叉验证，每个阶段都是前一个阶段的因果延伸"
-            : "Cross-validated by five systems — each stage follows from the previous"}
+            ? "以上逻辑链基于命盘五维合参推演，每一阶段都是前一阶段的因果延伸"
+            : "Logic chain derived from 5D chart synthesis — each stage is a causal extension of the previous one"}
         </p>
       </div>
     </div>
@@ -554,18 +554,18 @@ export default function LifeRouteGeneration() {
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#C5A880]/20 bg-[#C5A880]/[0.05] mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-[#C5A880] animate-pulse" />
             <span className="text-[#C5A880]/70 text-xs tracking-[0.15em] uppercase">
-              {locale === "zh" ? "人生蓝图" : "Life Blueprint"}
+              {locale === "zh" ? "银河航线" : "Galaxy Route"}
             </span>
           </div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold tracking-wide mb-5">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#C5A880] via-[#E8D5B7] to-[#C5A880]">
-              {locale === "zh" ? "你的人生关键节点，全部标出来了" : "Every Key Milestone in Your Life, Mapped Out"}
+              {locale === "zh" ? "AI 正在为你绘制人生航线" : "AI Is Drawing Your Life Route"}
             </span>
           </h2>
           <p className="text-white/30 text-sm sm:text-base leading-relaxed">
             {locale === "zh"
-              ? "基于八字、星盘、塔罗、面相、手相五大系统，AI 推演出你人生中的关键转折点和机会窗口"
-              : "Using Bazi, Astrology, Tarot, Face & Palm Reading — AI identifies your life's turning points and opportunity windows"}
+              ? "基于你的命盘数据，AI 推演出人生关键转折点与机会窗口，生成专属银河航线"
+              : "Based on your chart data, AI projects turning points and opportunity windows — generating your galaxy route"}
           </p>
         </div>
 
