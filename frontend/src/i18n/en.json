@@ -3712,6 +3712,7 @@
     "breadcrumb": "Pricing",
     "currentPlan": "Current Plan",
     "dataRadar": "Data Radar",
+    "energyRadar": "Energy Radar",
     "eventCallout": "Event Retrospection · Pay per use",
     "eventDesc": "{price}/time — Trace what happened and why, with causality analysis and remedy recommendations",
     "eventReview": "Event Review",
