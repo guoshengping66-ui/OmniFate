@@ -1170,7 +1170,7 @@ async def paypal_checkout_url(
 
     paypal = PayPalPay()
     # Override return/cancel URLs to include order_no for callback identification
-    base = "https://khanfate.com"
+    base = settings.BASE_URL
     result = await paypal.create_order(order_no, amount_usd, paypal_description, custom_id=current_user.id)
 
     # Build URLs with order_no embedded
@@ -1201,7 +1201,7 @@ async def paypal_return(
     from fastapi.responses import RedirectResponse
 
     if not token:
-        return RedirectResponse("https://khanfate.com/payment?error=no_token")
+        return RedirectResponse(f"{settings.BASE_URL}/payment?error=no_token")
 
     paypal = PayPalPay()
     access_token = await paypal._get_access_token()
@@ -1226,7 +1226,7 @@ async def paypal_return(
         order = order_result.scalar_one_or_none()
         if order and order.user_id != current_user.id:
             logger.warning("[PAYPAL-RETURN] 用户 %s 尝试激活不属于自己的订单 %s", current_user.id, order_no)
-            return RedirectResponse("https://khanfate.com/payment?paypal=unauthorized")
+            return RedirectResponse(f"{settings.BASE_URL}/payment?paypal=unauthorized")
         if order and order.status != OrderStatus.paid:
             order.status = OrderStatus.paid
             order.paid_at = datetime.now(timezone.utc)
@@ -1254,17 +1254,17 @@ async def paypal_return(
 
             await db.commit()
 
-        return RedirectResponse("https://khanfate.com/payment?paypal=success")
+        return RedirectResponse(f"{settings.BASE_URL}/payment?paypal=success")
     else:
         logger.error(f"[PAYPAL-RETURN] 捕获失败: {order_no}, {result}")
-        return RedirectResponse("https://khanfate.com/payment?paypal=failed")
+        return RedirectResponse(f"{settings.BASE_URL}/payment?paypal=failed")
 
 
 @router.get("/paypal/cancel/{order_no}")
 async def paypal_cancel(order_no: str):
     """PayPal redirect when user cancels payment."""
     from fastapi.responses import RedirectResponse
-    return RedirectResponse("https://khanfate.com/payment?paypal=cancelled")
+    return RedirectResponse(f"{settings.BASE_URL}/payment?paypal=cancelled")
 
 
 @router.post("/paypal/capture")
@@ -2220,7 +2220,7 @@ def _require_admin_auth(
         raise HTTPException(status_code=500, detail="CRON_SECRET not configured")
     # Try Bearer token first
     if authorization:
-        token = authorization.replace("Bearer ", "")
+        token = authorization.removeprefix("Bearer ").strip()
         if hmac.compare_digest(token, settings.CRON_SECRET):
             return
     # Try x-admin-key header (frontend admin panel)
@@ -2658,19 +2658,19 @@ async def confirm_email_payment(
     order = result.scalar_one_or_none()
     if not order:
         return RedirectResponse(
-            url="https://www.khanfate.com/zh/checkout?error=invalid_token",
+            url=f"{settings.BASE_URL}/zh/checkout?error=invalid_token",
             status_code=302,
         )
 
     if order.confirm_expires and order.confirm_expires < datetime.now(timezone.utc):
         return RedirectResponse(
-            url="https://www.khanfate.com/zh/checkout?error=token_expired",
+            url=f"{settings.BASE_URL}/zh/checkout?error=token_expired",
             status_code=302,
         )
 
     if order.status != OrderStatus.pending:
         return RedirectResponse(
-            url=f"https://www.khanfate.com/zh/account/orders/{order.order_no}",
+            url=f"{settings.BASE_URL}/zh/account/orders/{order.order_no}",
             status_code=302,
         )
 
@@ -2688,7 +2688,7 @@ async def confirm_email_payment(
         logger.warning(f"[QR-EMAIL] Failed to activate order {order.order_no}: {e}")
 
     return RedirectResponse(
-        url=f"https://www.khanfate.com/zh/account/orders/{order.order_no}?payment=confirmed",
+        url=f"{settings.BASE_URL}/zh/account/orders/{order.order_no}?payment=confirmed",
         status_code=302,
     )
 
@@ -2710,19 +2710,19 @@ async def admin_confirm_email_payment(
     order = result.scalar_one_or_none()
     if not order:
         return RedirectResponse(
-            url="https://www.khanfate.com/zh/admin/orders?error=invalid_token",
+            url=f"{settings.BASE_URL}/zh/admin/orders?error=invalid_token",
             status_code=302,
         )
 
     if order.admin_confirm_expires and order.admin_confirm_expires < datetime.now(timezone.utc):
         return RedirectResponse(
-            url="https://www.khanfate.com/zh/admin/orders?error=token_expired",
+            url=f"{settings.BASE_URL}/zh/admin/orders?error=token_expired",
             status_code=302,
         )
 
     if order.status != OrderStatus.pending:
         return RedirectResponse(
-            url=f"https://www.khanfate.com/zh/admin/orders",
+            url=f"{settings.BASE_URL}/zh/admin/orders",
             status_code=302,
         )
 
@@ -2759,7 +2759,7 @@ async def admin_confirm_email_payment(
         logger.warning(f"[EMAIL] Failed to notify user of payment confirmation: {e}")
 
     return RedirectResponse(
-        url=f"https://www.khanfate.com/zh/admin/orders?confirmed={order.order_no}",
+        url=f"{settings.BASE_URL}/zh/admin/orders?confirmed={order.order_no}",
         status_code=302,
     )
 
@@ -2780,14 +2780,14 @@ async def admin_reject_email_payment(
     order = result.scalar_one_or_none()
     if not order:
         return RedirectResponse(
-            url="https://www.khanfate.com/zh/admin/orders?error=invalid_token",
+            url=f"{settings.BASE_URL}/zh/admin/orders?error=invalid_token",
             status_code=302,
         )
 
     # Check token expiry
     if order.admin_confirm_expires and order.admin_confirm_expires < datetime.now(timezone.utc):
         return RedirectResponse(
-            url="https://www.khanfate.com/zh/admin/orders?error=token_expired",
+            url=f"{settings.BASE_URL}/zh/admin/orders?error=token_expired",
             status_code=302,
         )
 
@@ -2813,7 +2813,7 @@ async def admin_reject_email_payment(
         logger.warning(f"[EMAIL] Failed to notify user of payment rejection: {e}")
 
     return RedirectResponse(
-        url=f"https://www.khanfate.com/zh/admin/orders?rejected={order.order_no}",
+        url=f"{settings.BASE_URL}/zh/admin/orders?rejected={order.order_no}",
         status_code=302,
     )
 

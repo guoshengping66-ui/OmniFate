@@ -457,7 +457,7 @@ async def auto_confirm_expired_orders(
         raise HTTPException(status_code=500, detail="CRON_SECRET not configured")
     if not authorization:
         raise HTTPException(status_code=401, detail="Missing authorization")
-    token = authorization.replace("Bearer ", "")
+    token = authorization.removeprefix("Bearer ").strip()
     if not hmac.compare_digest(token, settings.CRON_SECRET):
         raise HTTPException(status_code=403, detail="Invalid token")
 
@@ -551,7 +551,7 @@ async def admin_confirm_payment(
         raise HTTPException(status_code=500, detail="CRON_SECRET not configured")
     if not authorization:
         raise HTTPException(status_code=401, detail="Missing authorization")
-    token = authorization.replace("Bearer ", "")
+    token = authorization.removeprefix("Bearer ").strip()
     if not hmac.compare_digest(token, settings.CRON_SECRET):
         raise HTTPException(status_code=403, detail="Invalid token")
 
@@ -676,7 +676,7 @@ async def admin_upgrade_user(
         raise HTTPException(status_code=500, detail="CRON_SECRET not configured")
     if not authorization:
         raise HTTPException(status_code=401, detail="Missing authorization")
-    token = authorization.replace("Bearer ", "")
+    token = authorization.removeprefix("Bearer ").strip()
     if not hmac.compare_digest(token, settings.CRON_SECRET):
         raise HTTPException(status_code=403, detail="Invalid token")
 
