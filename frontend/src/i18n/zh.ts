@@ -8,6 +8,7 @@ export default {
   "nav.pricing": "定价",
   "nav.shop": "命运藏宝阁",
   "nav.about": "关于我们",
+  "nav.knowledge": "知识库",
   "nav.login": "登录",
   "nav.register": "注册",
   "nav.logout": "退出登录",

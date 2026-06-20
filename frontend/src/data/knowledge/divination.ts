@@ -1,6 +1,7 @@
 import type { KnowledgeSubcategory } from "./categories"
 
 import { TarotCards } from "@/data/programmatic/tarot/cards"
+import { TarotSpreads } from "@/data/programmatic/tarot/spreads"
 
 export const DivinationItems: KnowledgeSubcategory[] = [
   {
@@ -19,5 +20,22 @@ export const DivinationItems: KnowledgeSubcategory[] = [
       source_path: c.canonical_path,
     })),
     canonical_path: "/knowledge/divination/tarot",
+  },
+  {
+    id: "tarot-spreads",
+    name_en: "Tarot Spreads",
+    name_zh: "塔罗牌阵",
+    description_en: "Tarot spreads are specific card layouts that guide your reading. From the simple Three-Card spread to the comprehensive Celtic Cross, each layout offers a different perspective on your question.",
+    description_zh: "塔罗牌阵是指导你解读的特定牌面布局。从简单的三张牌阵到全面的凯尔特十字牌阵，每种布局都为你的问题提供不同的视角。",
+    items: TarotSpreads.map((s) => ({
+      id: s.id,
+      name_en: s.name_en,
+      name_zh: s.name_zh,
+      emoji: s.emoji,
+      summary_en: s.overview_en.slice(0, 120) + "...",
+      summary_zh: s.overview_zh.slice(0, 120) + "...",
+      source_path: s.canonical_path,
+    })),
+    canonical_path: "/knowledge/divination/tarot-spreads",
   },
 ]

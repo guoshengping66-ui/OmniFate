@@ -8,6 +8,7 @@ export default {
   "nav.pricing": "Pricing",
   "nav.shop": "Treasury",
   "nav.about": "About",
+  "nav.knowledge": "Knowledge",
   "nav.login": "Login",
   "nav.register": "Sign Up",
   "nav.logout": "Log Out",
