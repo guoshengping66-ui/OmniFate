@@ -242,7 +242,7 @@ export default function ProductDetailPage() {
               <div className="flex gap-2 flex-wrap mt-4">
                 {product.wuxing_tags.map(tag => (
                   <span key={tag} className="text-xs px-2.5 py-1 bg-gold/8 text-gold/60 rounded-full border border-gold/15">
-                    {locale === "en" ? (product.keyword_tags_en?.[0] || tag) : tag}
+                    {tag}
                   </span>
                 ))}
               </div>
