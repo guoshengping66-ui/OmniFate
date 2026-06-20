@@ -41,6 +41,7 @@ export function Navbar() {
 
   // Extra links — visible on wide screens, collapsed on narrow
   const extraLinks = [
+    { href: localeHref("/knowledge"), label: t("nav.knowledge") || "Knowledge" },
     { href: localeHref("/tools"), label: t("nav.tools") || "Tools" },
     { href: localeHref("/astrology"), label: t("nav.astrology") || "Astrology" },
     { href: localeHref("/bazi"), label: t("nav.bazi") || "Bazi" },

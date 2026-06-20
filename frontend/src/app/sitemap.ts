@@ -17,6 +17,7 @@ import { ZiweiStars } from "@/data/programmatic/ziwei/stars"
 import { ZiweiPalaces } from "@/data/programmatic/ziwei/palaces"
 import { AstrologyPlanets } from "@/data/programmatic/astrology/planets"
 import { AstrologyHouses } from "@/data/programmatic/astrology/houses"
+import { KnowledgeCategories } from "@/data/knowledge"
 
 const BASE_URL = "https://www.khanfate.com"
 
@@ -59,6 +60,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/ziwei",
     "/palm-reading",
     "/tools",
+    "/knowledge",
     "/events",
     "/events/radar",
     "/divination",
@@ -178,6 +180,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
     locales.map((locale) => progEntry(`/${locale}/astrology/houses/${house.id}`, 0.8))
   ).flat()
 
+  // Knowledge base pages
+  const knowledgeEntries = KnowledgeCategories.flatMap((cat) => {
+    const catEntry = locales.map((locale) => progEntry(`/${locale}${cat.canonical_path}`, 0.8))
+    const subEntries = cat.subcategories.flatMap((sub) =>
+      locales.map((locale) => progEntry(`/${locale}${sub.canonical_path}`, 0.7))
+    )
+    return [...catEntry, ...subEntries]
+  })
+
   return [
     ...staticEntries,
     ...blogEntries,
@@ -195,5 +206,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...ziweiPalaceEntries,
     ...astrologyPlanetEntries,
     ...astrologyHouseEntries,
+    ...knowledgeEntries,
   ]
 }
