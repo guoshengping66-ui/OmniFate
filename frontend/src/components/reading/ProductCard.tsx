@@ -96,7 +96,7 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
 
         {product.short_pitch && (
           <p className="text-white/35 text-xs leading-relaxed line-clamp-2 mb-2">
-            {product.short_pitch}
+            {isEn ? (product.short_pitch_en || product.short_pitch) : product.short_pitch}
           </p>
         )}
 

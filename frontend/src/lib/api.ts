@@ -328,9 +328,13 @@ export interface Product {
   sales_count?: number
   /** 详细内容 */
   usage?: string
+  usage_en?: string
   precautions?: string
+  precautions_en?: string
   efficacy?: string
+  efficacy_en?: string
   specifications?: Record<string, string>
+  specifications_en?: Record<string, string>
   /** Present when returned from match endpoints */
   match_score?: number
   match_reasons?: string[]

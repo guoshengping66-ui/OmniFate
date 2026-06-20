@@ -155,7 +155,7 @@ export default function ProductDetailPage() {
               </span>
 
               <h1 className="text-3xl md:text-4xl font-serif font-bold text-gold mb-3 leading-tight">
-                {product.name}
+                {locale === "en" ? (product.name_en || product.name) : product.name}
               </h1>
 
               {product.rating && (
@@ -185,7 +185,7 @@ export default function ProductDetailPage() {
               {product.short_pitch && (
                 <div className="flex items-center gap-2 p-3 bg-gold/5 border border-gold/10 rounded-xl mb-6 justify-center md:justify-start">
                   <Sparkles size={14} className="text-gold/60 flex-shrink-0" />
-                  <p className="text-gold/70 text-sm">{product.short_pitch}</p>
+                  <p className="text-gold/70 text-sm">{locale === "en" ? (product.short_pitch_en || product.short_pitch) : product.short_pitch}</p>
                 </div>
               )}
 
@@ -220,7 +220,9 @@ export default function ProductDetailPage() {
               <BookOpen size={16} className="text-gold/60" />
               <h2 className="text-lg font-serif text-gold/80">{t("treasureHall.story")}</h2>
             </div>
-            <p className="text-white/50 text-base leading-relaxed whitespace-pre-line">{product.description}</p>
+            <p className="text-white/50 text-base leading-relaxed whitespace-pre-line">
+              {locale === "en" ? (product.description_en || product.description) : product.description}
+            </p>
           </NarrativeSection>
         )}
 
@@ -231,14 +233,16 @@ export default function ProductDetailPage() {
               <Gem size={16} className="text-gold/60" />
               <h2 className="text-lg font-serif text-gold/80">{t("treasureHall.meaning")}</h2>
             </div>
-            <p className="text-white/50 text-base leading-relaxed whitespace-pre-line">{product.efficacy}</p>
+            <p className="text-white/50 text-base leading-relaxed whitespace-pre-line">
+              {locale === "en" ? (product.efficacy_en || product.efficacy) : product.efficacy}
+            </p>
 
             {/* Wuxing tags */}
             {product.wuxing_tags && product.wuxing_tags.length > 0 && (
               <div className="flex gap-2 flex-wrap mt-4">
                 {product.wuxing_tags.map(tag => (
                   <span key={tag} className="text-xs px-2.5 py-1 bg-gold/8 text-gold/60 rounded-full border border-gold/15">
-                    {tag}
+                    {locale === "en" ? (product.keyword_tags_en?.[0] || tag) : tag}
                   </span>
                 ))}
               </div>
@@ -254,11 +258,15 @@ export default function ProductDetailPage() {
               <h2 className="text-lg font-serif text-gold/80">{t("treasureHall.usageGuide")}</h2>
             </div>
             {product.usage && (
-              <p className="text-white/50 text-sm leading-relaxed whitespace-pre-line mb-4">{product.usage}</p>
+              <p className="text-white/50 text-sm leading-relaxed whitespace-pre-line mb-4">
+                {locale === "en" ? (product.usage_en || product.usage) : product.usage}
+              </p>
             )}
             {product.precautions && (
               <div className="mt-4 p-3 bg-white/[0.02] border border-white/[0.06] rounded-xl">
-                <p className="text-white/30 text-xs leading-relaxed whitespace-pre-line">{product.precautions}</p>
+                <p className="text-white/30 text-xs leading-relaxed whitespace-pre-line">
+                  {locale === "en" ? (product.precautions_en || product.precautions) : product.precautions}
+                </p>
               </div>
             )}
           </NarrativeSection>
@@ -272,7 +280,7 @@ export default function ProductDetailPage() {
               <h2 className="text-lg font-serif text-gold/80">{t("shop.detail.tab.specs")}</h2>
             </div>
             <div className="space-y-0">
-              {Object.entries(product.specifications).map(([key, value], i, arr) => (
+              {Object.entries(locale === "en" ? (product.specifications_en || product.specifications) : product.specifications).map(([key, value], i, arr) => (
                 <div key={key} className={`flex items-center justify-between py-3 ${i < arr.length - 1 ? "border-b border-white/[0.04]" : ""}`}>
                   <span className="text-white/35 text-sm">{key}</span>
                   <span className="text-white/60 text-sm">{value}</span>
@@ -293,7 +301,7 @@ export default function ProductDetailPage() {
             )}
             {product.keyword_tags && product.keyword_tags.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mt-3">
-                {product.keyword_tags.map(tag => (
+                {(locale === "en" ? (product.keyword_tags_en || product.keyword_tags) : product.keyword_tags).map(tag => (
                   <span key={tag} className="text-xs px-2 py-1 bg-white/[0.03] border border-white/[0.06] rounded-full text-white/35">
                     {tag}
                   </span>
