@@ -8,6 +8,12 @@ export interface CartItem {
   quantity: number
 }
 
+/** Lightweight record persisted to localStorage (no long text fields) */
+interface CartPersistedItem {
+  productId: string
+  quantity: number
+}
+
 interface CartState {
   items: CartItem[]
   addItem: (product: Product, quantity?: number) => void
@@ -42,23 +48,80 @@ const CartContext = createContext<CartState>({
 const STORAGE_KEY = "alpha_mirror_cart"
 const MEMBER_DISCOUNT = 0.88
 
+/** Strip long text fields to reduce localStorage size */
+function toPersisted(item: CartItem): CartPersistedItem {
+  return { productId: item.product.id, quantity: item.quantity }
+}
+
 export function CartProvider({ children, isMember = false, region = "domestic" }: { children: ReactNode; isMember?: boolean; region?: Region }) {
   const [items, setItems] = useState<CartItem[]>([])
+  // In-memory product registry for restoring lightweight localStorage entries
+  const [productMap, setProductMap] = useState<Map<string, Product>>(new Map())
 
-  // Load from localStorage
+  /** Register products from API responses so cart can restore lightweight entries */
+  const registerProducts = useCallback((products: Product[]) => {
+    setProductMap(prev => {
+      const next = new Map(prev)
+      for (const p of products) next.set(p.id, p)
+      return next
+    })
+  }, [])
+
+  // Load from localStorage (lightweight format only)
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY)
-      if (stored) setItems(JSON.parse(stored))
+      if (!stored) return
+      const parsed = JSON.parse(stored)
+      // Migrate old format: if items have .product, it's the old full-object format
+      if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].product) {
+        const migrated: CartPersistedItem[] = parsed.map((i: any) => ({
+          productId: i.product.id,
+          quantity: i.quantity,
+        }))
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated))
+        // Items will be resolved once products are registered
+        return
+      }
+      // New lightweight format: store pending IDs until products are registered
+      if (Array.isArray(parsed)) {
+        setItems(parsed.map((i: CartPersistedItem) => ({
+          product: { id: i.productId, name: "", price_cny: 0 } as Product,
+          quantity: i.quantity,
+        })))
+      }
     } catch { /* ignore */ }
   }, [])
 
-  // Save to localStorage
+  // Resolve placeholder items once products are registered
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(items))
+    if (productMap.size === 0) return
+    setItems(prev => {
+      let changed = false
+      const resolved = prev.map(item => {
+        if (item.product.name === "" && productMap.has(item.product.id)) {
+          changed = true
+          return { ...item, product: productMap.get(item.product.id)! }
+        }
+        return item
+      })
+      return changed ? resolved : prev
+    })
+  }, [productMap])
+
+  // Save to localStorage (lightweight format — only productId + quantity)
+  useEffect(() => {
+    const persisted = items.map(toPersisted)
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(persisted))
   }, [items])
 
   const addItem = useCallback((product: Product, quantity = 1) => {
+    // Also register the product for future restoration
+    setProductMap(prev => {
+      const next = new Map(prev)
+      next.set(product.id, product)
+      return next
+    })
     setItems(prev => {
       const existing = prev.find(i => i.product.id === product.id)
       if (existing) {
@@ -101,9 +164,9 @@ export function CartProvider({ children, isMember = false, region = "domestic" }
 
   // Memoize context value to prevent unnecessary re-renders of consumers
   const value = useMemo(() => ({
-    items, addItem, removeItem, updateQuantity, clearCart,
+    items, addItem, removeItem, updateQuantity, clearCart, registerProducts,
     itemCount, totalCny, totalWithDiscount, isMember, getItemPrice, symbol,
-  }), [items, addItem, removeItem, updateQuantity, clearCart, itemCount, totalCny, totalWithDiscount, isMember, getItemPrice, symbol])
+  }), [items, addItem, removeItem, updateQuantity, clearCart, registerProducts, itemCount, totalCny, totalWithDiscount, isMember, getItemPrice, symbol])
 
   return (
     <CartContext.Provider value={value}>

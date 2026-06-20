@@ -1,4 +1,5 @@
 """api/routers/products.py"""
+import copy
 import json
 import time
 import uuid
@@ -59,6 +60,8 @@ def _load_products(lang: str = "zh") -> list[dict]:
         products = []
 
     if lang == "en":
+        # Deep copy to avoid mutating cached Chinese data when applying translations
+        products = copy.deepcopy(products)
         try:
             en_products = {
                 p["id"]: p for p in json.loads(PRODUCTS_EN_PATH.read_text(encoding="utf-8"))

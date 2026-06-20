@@ -59,13 +59,16 @@ async def get_current_user(
 
 
 async def require_user(
+    request: Request,
     user: Optional[User] = Depends(get_current_user),
 ) -> User:
     """Like get_current_user but raises 401 if not authenticated."""
     if user is None:
+        lang = request.query_params.get("lang", "zh")
+        msg = "Please log in first" if lang == "en" else "请先登录"
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="请先登录",
+            detail=msg,
             headers={"WWW-Authenticate": "Bearer"},
         )
     return user

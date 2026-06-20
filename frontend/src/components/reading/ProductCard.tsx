@@ -30,7 +30,7 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
   const hasMatch = product.match_score != null && product.match_score > 0
   const isEn = locale === "en"
   const productName = isEn ? (product.name_en || product.name) : product.name
-  const hasChinese = (s: string) => /[一-鿿]/.test(s)
+  const hasChinese = (s: string) => /[一-鿿㐀-䶿]/.test(s)
   const glowClass = useMemo(() => getGlowClass(product.match_score), [product.match_score])
   const matchPct = useMemo(() => getMatchPercentage(product.match_score), [product.match_score])
 
