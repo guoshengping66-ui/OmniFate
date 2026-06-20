@@ -78,7 +78,7 @@ const addLangInterceptor = (client: typeof api) => {
     // Add CSRF header to all state-changing requests
     const method = (config.method || "").toLowerCase()
     if (["post", "put", "patch", "delete"].includes(method)) {
-      config.headers = { ...config.headers, ...CSRF_HEADER }
+      config.headers.set("X-Requested-With", "XMLHttpRequest")
     }
     try {
       if (!config.params?.lang) {
@@ -131,7 +131,7 @@ export const apiDirect = axios.create({
 apiDirect.interceptors.request.use((config) => {
   const method = (config.method || "").toLowerCase()
   if (["post", "put", "patch", "delete"].includes(method)) {
-    config.headers = { ...config.headers, ...CSRF_HEADER }
+    config.headers.set("X-Requested-With", "XMLHttpRequest")
   }
   return config
 })
@@ -172,7 +172,7 @@ apiAuth.interceptors.request.use((config) => {
   // Add CSRF header to all state-changing requests
   const method = (config.method || "").toLowerCase()
   if (["post", "put", "patch", "delete"].includes(method)) {
-    config.headers = { ...config.headers, ...CSRF_HEADER }
+    config.headers.set("X-Requested-With", "XMLHttpRequest")
   }
   try {
     const lang = localStorage.getItem("profile_mirror_lang") || (navigator.language.startsWith("zh") ? "zh" : "en")
@@ -533,6 +533,7 @@ export function streamSession(
               master_summary: data.master_summary || "",
               master_detail: data.master_detail || "",
               is_detail_unlocked: false,
+              is_detailed_unlocked: false,
               astrology: { agent_id: "astrology", report: "", tags: [] },
               tarot: { agent_id: "tarot", report: "", tags: [] },
               bazi: { agent_id: "bazi", report: "", tags: [] },
@@ -1287,6 +1288,7 @@ export interface OrderDetail {
   tracking_number: string | null
   shipping_carrier: string | null
   notes: string | null
+  item_type?: string
   items: OrderItemDetail[]
   created_at: string
   paid_at: string | null

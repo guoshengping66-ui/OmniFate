@@ -284,7 +284,7 @@ export function DailyDashboard() {
         if (user) {
           try {
             // Use personalized fortune when user has birth data
-            if (birthYear) {
+            if (birthYear && birthMonth !== undefined && birthDay !== undefined && birthHour !== undefined) {
               const pf = await getPersonalizedFortune({
                 birth_year: birthYear,
                 birth_month: birthMonth,
@@ -365,7 +365,7 @@ export function DailyDashboard() {
       }
       // Fallback: try personalized endpoint (if user has birth profile)
       try {
-        if (birthYear) {
+        if (birthYear && birthMonth !== undefined && birthDay !== undefined && birthHour !== undefined) {
           const data = await getPersonalizedDailyAlmanac({
             birth_year: birthYear,
             birth_month: birthMonth,

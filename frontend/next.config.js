@@ -27,7 +27,7 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   // Use standalone output for better performance on self-hosted
   output: "standalone",

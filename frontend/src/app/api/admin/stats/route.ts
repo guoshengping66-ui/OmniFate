@@ -12,8 +12,9 @@ function verifyAdminKey(provided: string | null): boolean {
 }
 
 // Reuse a connection pool across requests instead of creating a new Client each time
-let _pool: any = null
-function getPool() {
+import type { Pool } from "pg"
+let _pool: Pool | null = null
+function getPool(): Pool {
   if (_pool) return _pool
   const { Pool } = require("pg")
   _pool = new Pool({
@@ -24,7 +25,7 @@ function getPool() {
     database: process.env.DB_NAME || "destiny",
     max: 5,
   })
-  return _pool
+  return _pool!
 }
 
 export async function GET(request: Request) {
