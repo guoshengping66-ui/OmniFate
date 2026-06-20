@@ -49,7 +49,16 @@
       "尺寸": "直径约5cm",
       "产地": "巴西",
       "包装": "锦盒+鉴定证书"
-    }
+    },
+    "name_en": "Natural Citrine Treasure Bowl",
+    "description_en": "Citrine symbolizes wealth and success. The treasure bowl shape amplifies prosperity energy. Ideal for those seeking financial renewal and stability, strengthening earth-metal elements to promote positive mindset.",
+    "short_pitch_en": "Tailored for financial renewal seekers",
+    "keyword_tags_en": [
+      "#StabilityNeeded",
+      "#FinancialRenewal",
+      "#PositiveMindset",
+      "#FinancialDownturn"
+    ]
   },
   {
     "id": "p2",
@@ -101,7 +110,16 @@
       "珠径": "8mm",
       "手围": "可调节16-20cm",
       "产地": "马达加斯加"
-    }
+    },
+    "name_en": "Natural Red Agate Bracelet",
+    "description_en": "Red agate carries strong fire energy that activates action and decisiveness. Beneficial for those needing warmth, career growth, or motivation boost.",
+    "short_pitch_en": "First choice for those seeking warmth",
+    "keyword_tags_en": [
+      "#WarmthNeeded",
+      "#Relationships",
+      "#MotivationBoost",
+      "#CareerChange"
+    ]
   },
   {
     "id": "p3",
@@ -153,7 +171,16 @@
       "直径": "约6cm",
       "产地": "非洲赞比亚",
       "包装": "木质底座+绒布盒"
-    }
+    },
+    "name_en": "Green Phantom Crystal Sphere",
+    "description_en": "Green phantom crystal embodies growth energy with its lush green mineral inclusions symbolizing career expansion and supporter convergence. Ideal for networking, partnership building, and leadership development.",
+    "short_pitch_en": "Career growth and supporter convergence",
+    "keyword_tags_en": [
+      "#GrowthNeeded",
+      "#SupportNetwork",
+      "#Career",
+      "#StrongLeadership"
+    ]
   },
   {
     "id": "p4",
@@ -208,7 +235,16 @@
       "尺寸": "约3.5×2.5cm",
       "材质": "天然黑曜石+红绳",
       "产地": "墨西哥"
-    }
+    },
+    "name_en": "Obsidian Pixiu Pendant",
+    "description_en": "Obsidian is a powerful water-element protector that absorbs negative energy. Pixiu, one of the dragon's nine sons, is a legendary wealth-guarding beast. Together they form an impenetrable shield against conflicts and interpersonal disputes.",
+    "short_pitch_en": "Wealth protection and conflict resolution",
+    "keyword_tags_en": [
+      "#ConflictPattern",
+      "#Protection",
+      "#ChallengingPhase",
+      "#Obstacles"
+    ]
   },
   {
     "id": "p5",
@@ -263,7 +299,16 @@
       "燃烧时间": "约35分钟/根",
       "产地": "越南芽庄",
       "包装": "密封防潮木盒"
-    }
+    },
+    "name_en": "Agarwood Incense Sticks (1-Year Supply)",
+    "description_en": "Agarwood belongs to the water element with a deep, lingering fragrance. Historically crowned as the finest of the four sacred scents. Its burning releases calming compounds that quiet the mind and enhance intuition.",
+    "short_pitch_en": "Sacred scent for deep contemplation",
+    "keyword_tags_en": [
+      "#NeedForCalm",
+      "#MentalPeace",
+      "#Awareness",
+      "#InnerGrowth"
+    ]
   },
   {
     "id": "p7",
@@ -318,7 +363,17 @@
     "specifications": {
       "材质": "朱砂黄纸（定制）",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Five Element Balance Pendant (Custom)",
+    "description_en": "Custom-crafted based on your personal birth chart to compensate for elemental deficiencies. The wood-fire-earth-metal-water cycle creates harmonious energy flow, balancing your aura and optimizing fortune.",
+    "short_pitch_en": "Personalized elemental harmony",
+    "keyword_tags_en": [
+      "#NeedForClarity",
+      "#GrowthNeeded",
+      "#NeedForCalm",
+      "#WarmthNeeded",
+      "#StabilityNeeded"
+    ]
   },
   {
     "id": "p8",
@@ -373,7 +428,16 @@
     "specifications": {
       "材质": "天然紫水晶",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Natural Amethyst Geode",
+    "description_en": "Amethyst geode resonates at high frequency in feng shui fire element, governing wisdom and spiritual growth. Its natural crystal cavern creates an energy field that purifies negativity and deepens meditation.",
+    "short_pitch_en": "Wisdom and spiritual transformation",
+    "keyword_tags_en": [
+      "#InnerGrowth",
+      "#Awareness",
+      "#PersonalTransformation",
+      "#EmotionalFatigue"
+    ]
   },
   {
     "id": "p9",
@@ -423,7 +487,16 @@
     "specifications": {
       "材质": "天然粉水晶",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Rose Quartz Charm Bracelet",
+    "description_en": "Rose quartz belongs to the fire element, corresponding to the heart chakra. Its gentle vibration softens interpersonal barriers, enhances charisma and approachability. Long-term wear attracts genuine connections.",
+    "short_pitch_en": "Heart chakra harmony and charm",
+    "keyword_tags_en": [
+      "#Relationships",
+      "#Romance",
+      "#RelationshipChallenge",
+      "#Marriage"
+    ]
   },
   {
     "id": "p10",
@@ -472,7 +545,15 @@
     "specifications": {
       "材质": "天然金发晶",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Golden Rutilated Quartz Bracelet",
+    "description_en": "Golden rutilated quartz contains needle-like golden inclusions, belonging to earth-metal elements and the solar plexus chakra. Known as the 'Stone of Wealth,' it strengthens personal aura and boosts decision confidence.",
+    "short_pitch_en": "The legendary stone of wealth",
+    "keyword_tags_en": [
+      "#FinancialRenewal",
+      "#PositiveMindset",
+      "#FinancialDownturn"
+    ]
   },
   {
     "id": "p11",
@@ -519,7 +600,15 @@
     "specifications": {
       "材质": "天然老山檀香粉",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Sandalwood Coil Incense Set",
+    "description_en": "Sandalwood belongs to the water element with a profound, grounding fragrance. Used since ancient times for scholarly refinement and spiritual practice. Its calming aroma eases anxiety and deepens contemplation.",
+    "short_pitch_en": "Ancient scholar's meditation companion",
+    "keyword_tags_en": [
+      "#GrowthNeeded",
+      "#MentalPeace",
+      "#StabilityNeeded"
+    ]
   },
   {
     "id": "p12",
@@ -570,7 +659,16 @@
     "specifications": {
       "材质": "纯银",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Sterling Silver Six-Syllable Mantra Bangle",
+    "description_en": "The Six-Syllable Mantra 'Om Mani Padme Hum' is Avalokiteshvara's heart mantra. Sterling silver carries the mantra's protective power, forming a guardian energy field. Silver belongs to the metal element with detoxifying properties.",
+    "short_pitch_en": "Sacred mantra protection",
+    "keyword_tags_en": [
+      "#ConflictPattern",
+      "#Protection",
+      "#PersonalState",
+      "#InterpersonalConflict"
+    ]
   },
   {
     "id": "p13",
@@ -620,7 +718,16 @@
     "specifications": {
       "材质": "天然拉长石",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Labradorite Pendant",
+    "description_en": "Labradorite belongs to the water element, resonating with the third eye and brow chakra. Known as the Aurora Stone in spiritual traditions, its iridescent flash symbolizes consciousness expansion and intuitive awakening.",
+    "short_pitch_en": "Awaken inner guidance",
+    "keyword_tags_en": [
+      "#Awareness",
+      "#InnerGrowth",
+      "#PersonalTransformation",
+      "#FeelingLost"
+    ]
   },
   {
     "id": "p14",
@@ -666,7 +773,16 @@
     "specifications": {
       "材质": "铜质",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Bagua Bronze Mirror (Space Harmony)",
+    "description_en": "The Bagua mirror integrates five-element theory and I Ching principles. The reflective surface deflects sha energy while the Bagua diagram harmonizes the space. Essential for doorway and window placement to repel negative forces.",
+    "short_pitch_en": "Traditional space harmonization",
+    "keyword_tags_en": [
+      "#Protection",
+      "#SpaceLayout",
+      "#HomeSpace",
+      "#ChallengingPhase"
+    ]
   },
   {
     "id": "p15",
@@ -722,7 +838,16 @@
     "specifications": {
       "材质": "天然西瓜碧玺",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Watermelon Tourmaline Pendant",
+    "description_en": "Tourmaline's colors correspond to different chakras. Watermelon tourmaline combines red and green, simultaneously activating the heart and root chakras. In energy healing, it balances emotion and action for interpersonal harmony.",
+    "short_pitch_en": "Emotional balance and harmony",
+    "keyword_tags_en": [
+      "#Romance",
+      "#Marriage",
+      "#Interpersonal",
+      "#Relationships"
+    ]
   },
   {
     "id": "p17",
@@ -776,7 +901,16 @@
     "specifications": {
       "材质": "天然海蓝宝",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Aquamarine Pendant (Moonlight Cut)",
+    "description_en": "Aquamarine belongs to the water element, corresponding to the throat chakra. Since ancient times regarded as the sailor's guardian stone. Its cooling energy soothes communication anxiety and strengthens expressive courage.",
+    "short_pitch_en": "Clear communication and courage",
+    "keyword_tags_en": [
+      "#ExpressionDifficulty",
+      "#Awareness",
+      "#InnerGrowth",
+      "#StressManagement"
+    ]
   },
   {
     "id": "p18",
@@ -830,7 +964,16 @@
     "specifications": {
       "材质": "天然虎眼石",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Tiger's Eye Bracelet (Wealth Edition)",
+    "description_en": "Tiger's eye gleams with feline sharpness, rich in earth-metal energy and the solar plexus chakra. In spiritual tradition it symbolizes courage and power, enhancing action and overcoming indecision.",
+    "short_pitch_en": "Courage and decisive action",
+    "keyword_tags_en": [
+      "#CareerChallenge",
+      "#DecisionDifficulty",
+      "#ActionThoughtConflict",
+      "#LackOfFlexibility"
+    ]
   },
   {
     "id": "p19",
@@ -882,7 +1025,16 @@
     "specifications": {
       "材质": "天然月光石",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Moonstone Necklace (Silver Moon)",
+    "description_en": "Moonstone belongs to the water element, corresponding to the crown and third eye chakras. Its soft glow, called the Moon Goddess's tears, governs intuition, dreams, and emotional healing in spiritual tradition.",
+    "short_pitch_en": "Intuition and emotional healing",
+    "keyword_tags_en": [
+      "#EmotionalFatigue",
+      "#StressManagement",
+      "#HighStress",
+      "#SubconsciousWork"
+    ]
   },
   {
     "id": "p20",
@@ -936,7 +1088,16 @@
     "specifications": {
       "材质": "天然青金石",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Lapis Lazuli Three-Hole Bead Set",
+    "description_en": "Lapis lazuli belongs to water-metal elements, corresponding to the brow chakra. Revered by Egyptian pharaohs as a sacred stone, its deep blue symbolizes wisdom and truth. Opens the third eye for enhanced insight.",
+    "short_pitch_en": "Stone of wisdom and truth",
+    "keyword_tags_en": [
+      "#LackOfFlexibility",
+      "#DecisionDifficulty",
+      "#InnerGrowth",
+      "#Inflexibility"
+    ]
   },
   {
     "id": "p21",
@@ -988,7 +1149,16 @@
     "specifications": {
       "材质": "天然红宝石",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Ruby Rough Pendant (Starfire)",
+    "description_en": "Ruby belongs to the fire element, corresponding to the root and heart chakras. In Indian spiritual tradition called the 'King of Gems,' its blazing energy activates life force, confidence, and leadership.",
+    "short_pitch_en": "Activate life force and vitality",
+    "keyword_tags_en": [
+      "#WarmthNeeded",
+      "#PersonalState",
+      "#HealthTrough",
+      "#HealthAlert"
+    ]
   },
   {
     "id": "p22",
@@ -1034,7 +1204,16 @@
     "specifications": {
       "材质": "天然和田玉",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Hetian Jade Peace Buckle Pendant",
+    "description_en": "Hetian jade belongs to the earth element, warm and sweet in traditional Chinese medicine. Its gentle energy nourishes the body and stabilizes vital energy. A symbol of noble character since ancient times.",
+    "short_pitch_en": "Noble character and vital stability",
+    "keyword_tags_en": [
+      "#HealthTrough",
+      "#HealthAlert",
+      "#PersonalState",
+      "#MentalPeace"
+    ]
   },
   {
     "id": "p23",
@@ -1084,7 +1263,16 @@
     "specifications": {
       "材质": "天然石榴石",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Garnet Anklet (Flame)",
+    "description_en": "Garnet, deep red as blood, belongs to fire-earth elements and the root chakra. Promotes blood circulation and metabolism. Ideal for those with cold constitution, weak vitality, or chronic fatigue.",
+    "short_pitch_en": "Warmth for cold constitutions",
+    "keyword_tags_en": [
+      "#WarmthNeeded",
+      "#PersonalState",
+      "#HealthTrough",
+      "#MotivationBoost"
+    ]
   },
   {
     "id": "p24",
@@ -1138,7 +1326,16 @@
     "specifications": {
       "材质": "天然波罗的海蜜蜡",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Amber Freeform Bracelet",
+    "description_en": "Amber is fossilized ancient tree resin, blending earth-fire elements. In Chinese medicine it calms the spirit, activates blood circulation, and resolves stasis. Its warm texture is perfect for close-body wear.",
+    "short_pitch_en": "Ancient warmth for modern healing",
+    "keyword_tags_en": [
+      "#ChallengingPhase",
+      "#PersonalTransformation",
+      "#Obstacles",
+      "#HighStress"
+    ]
   },
   {
     "id": "p25",
@@ -1188,7 +1385,16 @@
     "specifications": {
       "材质": "天然孔雀石",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Malachite Round Bead Necklace",
+    "description_en": "Malachite, rich in wood-element energy with emerald-green patterns, dissolves emotional blockages and old wounds. Ideal for those with relationship scars, emotional turbulence, or marital challenges.",
+    "short_pitch_en": "Emotional release and renewal",
+    "keyword_tags_en": [
+      "#EmotionalTrouble",
+      "#TurbulentLove",
+      "#RelationshipTurningPoint",
+      "#ComplexRelationship"
+    ]
   },
   {
     "id": "p26",
@@ -1240,7 +1446,16 @@
     "specifications": {
       "材质": "天然太阳石",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Sunstone Ring (Dawn)",
+    "description_en": "Sunstone shimmers with golden light, belonging to the fire element and solar plexus chakra. Its radiant energy banishes gloom and boosts confidence. The perfect light supplement for those lacking self-assurance.",
+    "short_pitch_en": "Radiance for confidence building",
+    "keyword_tags_en": [
+      "#FinancialDownturn",
+      "#CareerExploration",
+      "#CareerChallenge",
+      "#LackOfFlexibility"
+    ]
   },
   {
     "id": "p29",
@@ -1286,7 +1501,16 @@
     "specifications": {
       "材质": "高纯度朱砂",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Rose Quartz Charm Bracelet",
+    "description_en": "Rose quartz fosters genuine connections, enhancing popularity and relationship fortune. Its gentle energy warmly改善s cold or distant relationships. Venus energy加持 attracts true love and harmonious bonds.",
+    "short_pitch_en": "Genuine connections and love attraction",
+    "keyword_tags_en": [
+      "#ConflictPattern",
+      "#Protection",
+      "#PersonalState",
+      "#InterpersonalConflict"
+    ]
   },
   {
     "id": "p30",
@@ -1340,7 +1564,16 @@
     "specifications": {
       "材质": "琉璃",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Golden Rutilated Quartz Bracelet",
+    "description_en": "Golden rutilated quartz, hailed as the 'Stone of Wealth,' powerfully boosts positive mindset. Ideal for those in financial downturns or making frequent investment decisions.",
+    "short_pitch_en": "Prosperity and positive energy",
+    "keyword_tags_en": [
+      "#CareerExploration",
+      "#DecisionDifficulty",
+      "#FeelingLost",
+      "#Career"
+    ]
   },
   {
     "id": "p31",
@@ -1390,7 +1623,16 @@
     "specifications": {
       "材质": "天然老竹",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Sandalwood Coil Incense",
+    "description_en": "Sandalwood belongs to the water element with a deep, lingering fragrance. One of the four sacred scents since antiquity. Its calming aroma quiets the mind and enhances intuitive awareness.",
+    "short_pitch_en": "Sacred scent for deep stillness",
+    "keyword_tags_en": [
+      "#GrowthNeeded",
+      "#ExpressionDifficulty",
+      "#CareerChallenge",
+      "#HomeSpace"
+    ]
   },
   {
     "id": "p32",
@@ -1442,7 +1684,16 @@
     "specifications": {
       "材质": "喜马拉雅水晶盐",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Sterling Silver Six-Syllable Mantra Bangle",
+    "description_en": "Pure silver engraved with the Six-Syllable Mantra enhances confidence, resolves conflicts, and provides spiritual protection. Ideal for those easily influenced by external environments.",
+    "short_pitch_en": "Mantra-infused silver protection",
+    "keyword_tags_en": [
+      "#ChallengingPhase",
+      "#SpaceLayout",
+      "#HomeSpace",
+      "#MentalPeace"
+    ]
   },
   {
     "id": "p33",
@@ -1494,7 +1745,16 @@
     "specifications": {
       "材质": "铜锡合金手工锻打",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Bronze Singing Bowl Set (Body-Mind Harmony)",
+    "description_en": "Seven bronze singing bowls tuned to seven chakra frequencies. The resonant sound clears energy blockages, releases emotional tension, and facilitates deep meditation.",
+    "short_pitch_en": "Chakra tuning and emotional release",
+    "keyword_tags_en": [
+      "#HeightenedPerception",
+      "#EmotionalFatigue",
+      "#PersonalTransformation",
+      "#EmotionalTrouble"
+    ]
   },
   {
     "id": "p34",
@@ -1550,7 +1810,16 @@
     "specifications": {
       "材质": "桑蚕丝+草本香包",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Silk Eye Mask (Comfortable Sleep)",
+    "description_en": "Mulberry silk with herbal sachet — mugwort, lavender, silk tree flowers, cypress seeds. Silk nourishes yin, lavender calms the spirit, mugwort warms the meridians. Perfect for insomnia and anxiety.",
+    "short_pitch_en": "Herbal silk for restful sleep",
+    "keyword_tags_en": [
+      "#StressManagement",
+      "#EmotionalFatigue",
+      "#HighStress",
+      "#MentalPeace"
+    ]
   },
   {
     "id": "p35",
@@ -1602,7 +1871,16 @@
     "specifications": {
       "材质": "真丝刺绣+天然香料",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Hand-Embroidered Sachet (Blessings)",
+    "description_en": "Traditional hand-embroidered sachet with natural herbs and Five Emperor Coins. Worn daily it gathers prosperity energy, enhances popularity, and provides spiritual protection.",
+    "short_pitch_en": "Traditional charm for daily blessing",
+    "keyword_tags_en": [
+      "#PositiveMindset",
+      "#Interpersonal",
+      "#Relationships",
+      "#FinancialDownturn"
+    ]
   },
   {
     "id": "p36",
@@ -1650,7 +1928,16 @@
     "specifications": {
       "材质": "太行山崖柏粉",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Cliff Cypress Incense (Ancient Craft)",
+    "description_en": "Taihang Mountain cliff cypress, ancient wood with profound earth energy. Its burning aroma transports you to a thousand-year forest, instantly calming the mind. Perfect for meditation and contemplation.",
+    "short_pitch_en": "Ancient forest essence for stillness",
+    "keyword_tags_en": [
+      "#GrowthNeeded",
+      "#MentalPeace",
+      "#StressManagement",
+      "#InnerGrowth"
+    ]
   },
   {
     "id": "p39",
@@ -1698,7 +1985,16 @@
     "specifications": {
       "材质": "黄铜+循环水泵",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Copper Water Flow Sculpture (Wealth Flow)",
+    "description_en": "Copper water feature — water as guide, metal as vessel. Flowing water symbolizes continuous wealth. In feng shui, water governs finances; copper (metal) generates water, creating a prosperous金水相生 cycle.",
+    "short_pitch_en": "Feng shui wealth activation",
+    "keyword_tags_en": [
+      "#FinancialRenewal",
+      "#FinancialDownturn",
+      "#SpaceLayout",
+      "#HighStress"
+    ]
   },
   {
     "id": "p40",
@@ -1753,7 +2049,16 @@
     "specifications": {
       "材质": "黑檀木+白水晶",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Ebony文昌塔 + Brush Set",
+    "description_en": "文昌塔 carved from ebony (water element, governing wisdom) topped with white quartz (metal generates water). Paired with a calligraphy brush — a complete feng shui set for academic and career success.",
+    "short_pitch_en": "Academic success feng shui set",
+    "keyword_tags_en": [
+      "#AcademicPlateau",
+      "#CertificationExam",
+      "#AcademicSupport",
+      "#CareerExploration"
+    ]
   },
   {
     "id": "p41",
@@ -1810,7 +2115,16 @@
     "specifications": {
       "材质": "天然波罗的海蜜蜡+石榴石",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Amber & Garnet Bracelet (Abundance)",
+    "description_en": "Amber (earth-fire) paired with garnet (fire-earth) creates a complementary cycle. Together they warm the body, nourish blood, and symbolize family continuity — a traditional blessing for prosperity and fertility.",
+    "short_pitch_en": "Family blessing and abundance",
+    "keyword_tags_en": [
+      "#LimitedOffspring",
+      "#FertilityPrep",
+      "#CreativeBlock",
+      "#RestrainedTalent"
+    ]
   },
   {
     "id": "p42",
@@ -1863,7 +2177,16 @@
     "specifications": {
       "材质": "天然白水晶簇",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Natural White Quartz Cluster",
+    "description_en": "White quartz cluster is a natural energy amplifier. Multiple points radiate in all directions, purifying space negativity. In feng shui it belongs to metal, warding off evil. Perfect for office and living room purification.",
+    "short_pitch_en": "Natural energy purifier",
+    "keyword_tags_en": [
+      "#PartnershipIssues",
+      "#InterpersonalTension",
+      "#TeamAlignment",
+      "#BlockedInfluence"
+    ]
   },
   {
     "id": "p43",
@@ -1916,7 +2239,16 @@
     "specifications": {
       "材质": "天然白水晶+金刚结流苏",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "White Quartz平安Car Hanging (Journey Guardian)",
+    "description_en": "White quartz beads with Tibetan Buddhist vajra knot tassel. Crystal refracts rainbow light to cleanse the car's energy field while the sacred knot ensures safe travels. Ideal for frequent travelers.",
+    "short_pitch_en": "Sacred protection for journeys",
+    "keyword_tags_en": [
+      "#FrequentTravel",
+      "#TravelSafety",
+      "#FrequentChange",
+      "#Relocation"
+    ]
   },
   {
     "id": "p44",
@@ -1971,7 +2303,16 @@
     "specifications": {
       "材质": "天然紫锂辉石+925银针",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Kunzite Earrings (Soul Connection)",
+    "description_en": "Kunzite fades from pale purple to pink, bridging the crown and heart chakras. Containing lithium, it stabilizes emotions and alleviates loneliness. Perfect for independent spirits, artists, and unique aesthetes.",
+    "short_pitch_en": "Emotional balance and soul connection",
+    "keyword_tags_en": [
+      "#IndependentSpirit",
+      "#ExplorerSpirit",
+      "#UniqueAesthetics",
+      "#EmotionalConnection"
+    ]
   },
   {
     "id": "p45",
@@ -2028,7 +2369,16 @@
     "specifications": {
       "材质": "棉麻+陈艾绒+薰衣草+合欢花",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Mugwort & Lavender Sleep Pillow",
+    "description_en": "Three-year aged mugwort with lavender, silk tree flowers, and cypress seeds, hand-filled in cotton-linen. Mugwort warms meridians, lavender calms the mind, silk tree flowers relieve depression.",
+    "short_pitch_en": "Herbal remedy for deep sleep",
+    "keyword_tags_en": [
+      "#StressManagement",
+      "#EmotionalFatigue",
+      "#EnergyDepletion",
+      "#WeakConstitution"
+    ]
   },
   {
     "id": "p46",
@@ -2079,7 +2429,16 @@
     "specifications": {
       "材质": "铜鎏金",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Gilded Bronze Pixiu Sculpture (Prosperity)",
+    "description_en": "Gilded bronze pixiu in seated回首 posture — wide mouth swallows wealth, round rump guards it. Base inscribed with prosperity symbols. For business owners, investors, and entrepreneurs seeking wealth growth.",
+    "short_pitch_en": "Wealth magnet for business",
+    "keyword_tags_en": [
+      "#InsufficientGrowth",
+      "#InvestmentLoss",
+      "#StartupPhase",
+      "#FinancialDownturn"
+    ]
   },
   {
     "id": "p49",
@@ -2130,7 +2489,16 @@
     "specifications": {
       "材质": "天然绿檀木",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Shoushan Stone Fortune & Longevity Seal",
+    "description_en": "Shoushan stone (earth element) carved with bat and longevity motifs. Crane holding lingzhi mushroom symbolizes extended life. A scholarly seal stamp and auspicious display piece — perfect as an elder gift.",
+    "short_pitch_en": "Longevity blessing for elders",
+    "keyword_tags_en": [
+      "#QiBloodDeficiency",
+      "#LiverGallbladder",
+      "#DullSkin",
+      "#StressManagement"
+    ]
   },
   {
     "id": "p50",
@@ -2181,7 +2549,16 @@
     "specifications": {
       "材质": "黄铜+老铜钱",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "Garnet & Amber Bracelet (Multiple Blessings)",
+    "description_en": "Amber's golden warmth paired with garnet's deep crimson — earth and fire in harmony. Garnet nourishes the womb while amber represents continuity. For those seeking family blessings and creative inspiration.",
+    "short_pitch_en": "Family harmony and creativity",
+    "keyword_tags_en": [
+      "#MovingHome",
+      "#SpaceImbalance",
+      "#HomeSpace",
+      "#Obstacles"
+    ]
   },
   {
     "id": "p51",
@@ -2234,7 +2611,16 @@
     "specifications": {
       "材质": "寿山石（艾叶绿冻）",
       "包装": "精美礼盒"
-    }
+    },
+    "name_en": "White Crystal Peace Car Hanging",
+    "description_en": "White crystal beads with vajra knot tassel, hung from rearview mirror. Crystal refracts rainbow light cleansing the car environment while the sacred knot protects journeys. For frequent travelers and road warriors.",
+    "short_pitch_en": "Sacred light for safe travels",
+    "keyword_tags_en": [
+      "#ElderHealth",
+      "#FilialPiety",
+      "#AcademicSupport",
+      "#FamilyResponsibility"
+    ]
   },
   {
     "id": "p52",
@@ -2289,7 +2675,16 @@
       "尺寸": "约8×6×5cm",
       "产地": "马达加斯加",
       "包装": "绒布底座+锦盒"
-    }
+    },
+    "name_en": "Natural Rose Quartz Rough Stone (Charisma)",
+    "description_en": "Raw rose quartz preserves the purest natural energy, belonging to fire element and heart chakra. Long-term placement softens interpersonal barriers, enhances personal charm, and attracts genuine relationships.",
+    "short_pitch_en": "Pure heart energy for charisma",
+    "keyword_tags_en": [
+      "#Relationships",
+      "#Romance",
+      "#Popularity",
+      "#EmotionalBlockage"
+    ]
   },
   {
     "id": "p53",
@@ -2346,7 +2741,16 @@
       "直径": "约6.5cm",
       "产地": "巴西",
       "包装": "木质底座+绒布盒"
-    }
+    },
+    "name_en": "Natural Smoky Quartz Sphere (Grounding)",
+    "description_en": "Smoky quartz carries steady earth-water energy, corresponding to the root chakra. Saturn and Pluto's dual influence provides powerful grounding. Dispels anxiety, releases negative energy, and balances body-mind.",
+    "short_pitch_en": "Deep grounding and stability",
+    "keyword_tags_en": [
+      "#EmotionalFatigue",
+      "#StressManagement",
+      "#ChallengingPhase",
+      "#HighStress"
+    ]
   },
   {
     "id": "p54",
@@ -2403,7 +2807,16 @@
       "尺寸": "约10×8×6cm",
       "产地": "巴西",
       "包装": "木质底座+锦盒"
-    }
+    },
+    "name_en": "Black Tourmaline Raw Cluster (Powerful Protection)",
+    "description_en": "Black tourmaline, the strongest protective crystal, converts negative energy into neutral release. Saturn and Mars dual influence. Cluster formation radiates wide coverage — ideal for large space protection.",
+    "short_pitch_en": "Ultimate negative energy shield",
+    "keyword_tags_en": [
+      "#ConflictPattern",
+      "#Protection",
+      "#InterpersonalConflict",
+      "#ChallengingPhase"
+    ]
   },
   {
     "id": "p55",
@@ -2461,7 +2874,16 @@
       "手围": "可调节16-20cm",
       "产地": "巴西",
       "包装": "绒布袋+鉴定证书"
-    }
+    },
+    "name_en": "Natural Amazonite Bracelet (Communication Stone)",
+    "description_en": "Amazonite belongs to water-wood elements, corresponding to the throat chakra. Mercury and Neptune influence enhances communication and confidence. Dissolves communication barriers and improves social charm.",
+    "short_pitch_en": "Speak your truth with clarity",
+    "keyword_tags_en": [
+      "#ExpressionDifficulty",
+      "#CareerChallenge",
+      "#LackOfFlexibility",
+      "#SocialAnxiety"
+    ]
   },
   {
     "id": "p56",
@@ -2518,7 +2940,16 @@
       "尺寸": "约12×10×8cm",
       "产地": "马达加斯加",
       "包装": "木质底座+锦盒"
-    }
+    },
+    "name_en": "Natural Red Agate Geode (Creativity Source)",
+    "description_en": "Red agate geode belongs to fire-earth elements. Mars and太阳 dual influence, inner crystals form a natural warmth field. Activates creativity, enhances action, and promotes inspired thinking.",
+    "short_pitch_en": "Spark creativity and action",
+    "keyword_tags_en": [
+      "#CreativeBlock",
+      "#MotivationBoost",
+      "#WarmthNeeded",
+      "#RestrainedTalent"
+    ]
   },
   {
     "id": "p57",
@@ -2573,7 +3004,16 @@
       "长度": "约15cm",
       "产地": "摩洛哥",
       "包装": "绒布袋"
-    }
+    },
+    "name_en": "Natural Selenite Cleansing Wand (Light of Purification)",
+    "description_en": "Selenite belongs to metal-water elements, corresponding to the crown chakra. Moon influence makes it a natural high-frequency purifier. Cleanses other crystals, purifies space, and calms the mind.",
+    "short_pitch_en": "Sacred purification tool",
+    "keyword_tags_en": [
+      "#InnerGrowth",
+      "#SpacePurification",
+      "#MentalPeace",
+      "#StressManagement"
+    ]
   },
   {
     "id": "p58",
@@ -2630,7 +3070,16 @@
       "直径": "约6cm",
       "产地": "马达加斯加",
       "包装": "木质底座+绒布盒"
-    }
+    },
+    "name_en": "Labradorite Crystal Sphere (Aurora幻彩)",
+    "description_en": "Labradorite sphere belongs to water-metal elements. Uranus and Neptune dual influence, 360-degree uniform radiation. Aurora iridescence opens awareness, deepens meditation, and enhances intuitive perception.",
+    "short_pitch_en": "360-degree aurora awareness",
+    "keyword_tags_en": [
+      "#Awareness",
+      "#InnerGrowth",
+      "#PersonalTransformation",
+      "#FeelingLost"
+    ]
   },
   {
     "id": "p59",
@@ -2688,6 +3137,15 @@
       "材质": "天然黄水晶+红绳",
       "产地": "巴西",
       "包装": "绒布袋+鉴定证书"
-    }
+    },
+    "name_en": "Natural Citrine Six-Syllable Mantra Pendant",
+    "description_en": "Citrine belongs to earth-metal elements with Six-Syllable Mantra engraving. Sun and Jupiter influence boosts positive energy while the mantra provides spiritual protection — a complete shield of prosperity and safety.",
+    "short_pitch_en": "Prosperity meets protection",
+    "keyword_tags_en": [
+      "#PositiveMindset",
+      "#Protection",
+      "#FinancialDownturn",
+      "#ConflictPattern"
+    ]
   }
 ]

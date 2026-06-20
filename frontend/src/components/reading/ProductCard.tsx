@@ -121,7 +121,7 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
         {/* keyword tags */}
         {!hasMatch && product.keyword_tags && (
           <div className="flex gap-1 flex-wrap mb-3">
-            {product.keyword_tags.slice(0, 3).map(tag => (
+            {(isEn ? (product.keyword_tags_en || product.keyword_tags) : product.keyword_tags).slice(0, 3).map(tag => (
               <span key={tag} className="text-[10px] px-1.5 py-0.5 bg-white/[0.03] text-white/30 rounded-full">
                 {tag}
               </span>

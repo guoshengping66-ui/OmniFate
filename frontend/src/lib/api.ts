@@ -316,6 +316,7 @@ export interface Product {
   image_url?: string
   detail_images?: string[]
   keyword_tags?: string[]
+  keyword_tags_en?: string[]
   wuxing_tags?: string[]
   astro_tags?: string[]
   elements?: string[]
