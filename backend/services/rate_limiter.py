@@ -3,20 +3,26 @@ services/rate_limiter.py — Redis-backed sliding window rate limiter.
 
 Uses Redis sorted sets for precise sliding window counting.
 Falls back to in-memory dicts when Redis is unavailable.
+NOTE: In-memory fallback is PER-WORKER — limits are shared only with Redis.
 """
 from __future__ import annotations
 
+import logging
+import multiprocessing
 import time
 from collections import defaultdict
 from typing import Optional
 
 from services.redis_client import _get_redis
 
+logger = logging.getLogger(__name__)
+
 # ── In-memory fallback ───────────────────────────────────────────────────────
 _memory_store: dict[str, list[float]] = defaultdict(list)
 _last_cleanup: float = 0.0
 CLEANUP_INTERVAL = 600  # purge stale entries every 10 min
 _MEMORY_MAX_ENTRIES = 10000
+_warned_multi_worker = False
 
 
 async def check_rate_limit(
@@ -28,9 +34,20 @@ async def check_rate_limit(
     Check if `key` has exceeded `limit` requests within `window` seconds.
     Returns True if rate limit is EXCEEDED.
     """
+    global _warned_multi_worker
     r = await _get_redis()
     if r:
         return await _check_redis(r, key, limit, window)
+    # Warn once on first fallback if multiple workers detected
+    if not _warned_multi_worker:
+        workers = multiprocessing.cpu_count()
+        if workers > 1:
+            logger.warning(
+                "Rate limiter using in-memory fallback with %d CPU cores — "
+                "limits are PER-WORKER and will not be shared. Configure REDIS_URL for production.",
+                workers,
+            )
+        _warned_multi_worker = True
     return _check_memory(key, limit, window)
 
 

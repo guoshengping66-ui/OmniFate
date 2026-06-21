@@ -30,7 +30,7 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
   const hasMatch = product.match_score != null && product.match_score > 0
   const isEn = locale === "en"
   const productName = isEn ? (product.name_en || product.name) : product.name
-  const hasChinese = (s: string) => /[一-鿿]/.test(s)
+  const hasChinese = (s: string) => /[一-鿿㐀-䶿]/.test(s)
   const glowClass = useMemo(() => getGlowClass(product.match_score), [product.match_score])
   const matchPct = useMemo(() => getMatchPercentage(product.match_score), [product.match_score])
 
@@ -96,7 +96,7 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
 
         {product.short_pitch && (
           <p className="text-white/35 text-xs leading-relaxed line-clamp-2 mb-2">
-            {product.short_pitch}
+            {isEn ? (product.short_pitch_en || product.short_pitch) : product.short_pitch}
           </p>
         )}
 
@@ -121,7 +121,7 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
         {/* keyword tags */}
         {!hasMatch && product.keyword_tags && (
           <div className="flex gap-1 flex-wrap mb-3">
-            {product.keyword_tags.slice(0, 3).map(tag => (
+            {(isEn ? (product.keyword_tags_en || product.keyword_tags) : product.keyword_tags).slice(0, 3).map(tag => (
               <span key={tag} className="text-[10px] px-1.5 py-0.5 bg-white/[0.03] text-white/30 rounded-full">
                 {tag}
               </span>

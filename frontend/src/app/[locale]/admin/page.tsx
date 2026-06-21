@@ -23,7 +23,7 @@ interface AdminStats {
 type Tab = "overview" | "users" | "orders" | "revenue"
 
 export default function AdminPage() {
-  const { t } = useLanguage()
+  const { t, localeHref } = useLanguage()
   const [stats, setStats] = useState<AdminStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

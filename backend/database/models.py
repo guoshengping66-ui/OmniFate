@@ -119,7 +119,10 @@ class User(Base):
         back_populates="user", cascade="all, delete-orphan"
     )
 
-    __table_args__ = (UniqueConstraint("oauth_provider", "oauth_subject", name="uq_oauth"),)
+    __table_args__ = (
+        UniqueConstraint("oauth_provider", "oauth_subject", name="uq_oauth"),
+        UniqueConstraint("founder_region", "founder_seat_no", name="uq_founder_seat"),
+    )
 
 
 # ─── BirthProfile ────────────────────────────────────────────────────────────

@@ -93,8 +93,7 @@ def validate_payment_region(request: Request, payment_method: str):
     if payment_method not in allowed:
         raise HTTPException(
             status_code=403,
-            detail=f"Payment method '{payment_method}' is not available for your region ('{region}'). "
-                   f"Available methods: {', '.join(allowed)}",
+            detail="Payment method not available for your region",
         )
 
 
@@ -189,72 +188,73 @@ async def _activate_subscription(user: User, tier: str, db: AsyncSession) -> dic
 async def _activate_founder_seat(user: User, order_no: str, db: AsyncSession) -> dict:
     """
     激活创始席位 — 由 QR 支付确认和正式支付回调调用。
+    Uses retry loop with IntegrityError handling to prevent seat number collisions.
     """
+    from sqlalchemy.exc import IntegrityError
+
     now = datetime.now(timezone.utc)
-
-    # Count current founders to determine next seat number (with lock to prevent race condition)
-    domestic_count_result = await db.execute(
-        select(func.count()).select_from(User).where(
-            User.is_founder == True,
-            User.founder_region == "domestic",
-        ).with_for_update()
-    )
-    domestic_count = domestic_count_result.scalar() or 0
-
-    if domestic_count < FOUNDER_TOTAL_DOMESTIC:
-        region = "domestic"
-        seat_no = domestic_count + 1
-        # Double-check seat uniqueness to prevent TOCTOU race
-        existing = await db.execute(
-            select(User).where(User.founder_region == "domestic", User.founder_seat_no == seat_no)
-        )
-        if existing.scalar_one_or_none():
-            seat_no = domestic_count + 2  # Fallback to next seat
-    else:
-        overseas_count_result = await db.execute(
-            select(func.count()).select_from(User).where(
-                User.is_founder == True,
-                User.founder_region == "overseas",
-            ).with_for_update()
-        )
-        overseas_count = overseas_count_result.scalar() or 0
-        if overseas_count >= FOUNDER_TOTAL_OVERSEAS:
-            raise HTTPException(status_code=400, detail="创始席位已售罄")
-        region = "overseas"
-        seat_no = FOUNDER_TOTAL_DOMESTIC + overseas_count + 1
-        existing = await db.execute(
-            select(User).where(User.founder_region == "overseas", User.founder_seat_no == seat_no)
-        )
-        if existing.scalar_one_or_none():
-            seat_no = FOUNDER_TOTAL_DOMESTIC + overseas_count + 2
-
     grant_amount = SUBSCRIPTION_GRANTS["founder_lifetime"]
 
-    user.is_founder = True
-    user.founder_seat_no = seat_no
-    user.founder_region = region
-    user.founder_activated_at = now
-    user.subscription_tier = "founder_lifetime"
-    user.is_premium = True
-    user.premium_expires_at = None  # Lifetime
-    user.stardust_balance += grant_amount
-    user.stardust_lifetime_earned += grant_amount
+    MAX_RETRIES = 5
+    for attempt in range(MAX_RETRIES):
+        # Count current founders to determine next seat number
+        domestic_count_result = await db.execute(
+            select(func.count()).select_from(User).where(
+                User.is_founder == True,
+                User.founder_region == "domestic",
+            ).with_for_update()
+        )
+        domestic_count = domestic_count_result.scalar() or 0
 
-    tx = CreditTransaction(
-        user_id=user.id,
-        amount=grant_amount,
-        balance_after=user.stardust_balance,
-        reason="founder_grant",
-        reference_id=order_no,
-        status="confirmed",
-    )
-    db.add(tx)
+        if domestic_count < FOUNDER_TOTAL_DOMESTIC:
+            region = "domestic"
+            seat_no = domestic_count + 1
+        else:
+            overseas_count_result = await db.execute(
+                select(func.count()).select_from(User).where(
+                    User.is_founder == True,
+                    User.founder_region == "overseas",
+                ).with_for_update()
+            )
+            overseas_count = overseas_count_result.scalar() or 0
+            if overseas_count >= FOUNDER_TOTAL_OVERSEAS:
+                raise HTTPException(status_code=400, detail="创始席位已售罄")
+            region = "overseas"
+            seat_no = FOUNDER_TOTAL_DOMESTIC + overseas_count + 1
 
-    return {
-        "seat_no": seat_no,
-        "region": region,
-        "grant_amount": grant_amount,
-    }
+        user.is_founder = True
+        user.founder_seat_no = seat_no
+        user.founder_region = region
+        user.founder_activated_at = now
+        user.subscription_tier = "founder_lifetime"
+        user.is_premium = True
+        user.premium_expires_at = None  # Lifetime
+        user.stardust_balance += grant_amount
+        user.stardust_lifetime_earned += grant_amount
+
+        tx = CreditTransaction(
+            user_id=user.id,
+            amount=grant_amount,
+            balance_after=user.stardust_balance,
+            reason="founder_grant",
+            reference_id=order_no,
+            status="confirmed",
+        )
+        db.add(tx)
+
+        try:
+            await db.flush()
+            return {
+                "seat_no": seat_no,
+                "region": region,
+                "grant_amount": grant_amount,
+            }
+        except IntegrityError:
+            # Seat number collision — rollback and retry with fresh count
+            await db.rollback()
+            if attempt < MAX_RETRIES - 1:
+                continue
+            raise HTTPException(status_code=500, detail="Failed to assign founder seat after retries")
 
 
 async def _activate_onetime_unlock(user: User, reading_id: str, db: AsyncSession) -> dict:

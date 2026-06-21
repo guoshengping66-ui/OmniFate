@@ -7,9 +7,9 @@
     "name": "天然黄水晶聚宝盆",
     "name_en": "Natural Citrine Treasure Bowl",
     "description": "黄水晶是财富与成功的象征，聚宝盆造型更能聚集财气。适合财库空亡、财运不济的命格，补土金二气，招财纳福。",
-    "description_en": "Citrine is a symbol of wealth and prosperity. The treasure bowl shape amplifies its prosperity-enhancing qualities. Ideal for those with depleted wealth chambers or poor financial momentum — it supplements Earth and Metal qualities to attract positive outcomes.",
+    "description_en": "Citrine symbolizes wealth and success. The treasure bowl shape amplifies prosperity energy. Ideal for those seeking financial renewal and stability, strengthening earth-metal elements to promote positive mindset.",
     "short_pitch": "为财库空亡命格专属调配",
-    "short_pitch_en": "Specially formulated for depleted wealth chambers",
+    "short_pitch_en": "Tailored for financial renewal seekers",
     "category": "crystal",
     "price_cny": 388,
     "price_usd": 59,
@@ -29,10 +29,10 @@
       "#财运受损"
     ],
     "keyword_tags_en": [
-      "#stability_deficit",
-      "#financial_reset",
-      "#prosperity_mindset",
-      "#poor_potential"
+      "#StabilityNeeded",
+      "#FinancialRenewal",
+      "#PositiveMindset",
+      "#FinancialDownturn"
     ],
     "elements": [
       "土",
@@ -67,14 +67,14 @@
     ],
     "sales_count": 1280,
     "rating": 4.8,
-    "usage_en": "Place on your desk or in the wealth corner of your home (diagonal from the entrance). Wipe gently with clean water weekly. During quiet reflection, hold the crystal and visualize golden light filling your body.",
-    "precautions_en": "1. Avoid prolonged direct sunlight to prevent fading 2. Not recommended for bedroom nightstand 3. Remove during exercise and bathing 4. Cleanse under moonlight for 4 hours after purchase",
-    "efficacy_en": "Supports prosperity mindset and financial focus.",
+    "usage_en": "Each morning after waking, place the treasure bowl on the upper left corner of your desk or an auspicious home location (diagonal from the front door), facing inward. Wipe gently with clean water weekly to maintain crystal purity. During meditation, hold the bowl with both hands and visualize golden light filling your body.",
+    "precautions_en": "1. Avoid prolonged direct sunlight to prevent fading\n2. Not recommended on bedroom headboard — material properties may affect sleep\n3. Remove during exercise or bathing\n4. After purchase, cleanse under moonlight for 4 hours",
+    "efficacy_en": "Citrine governs wealth growth and confidence enhancement. The treasure bowl shape creates natural energy聚合. Earth-metal element, long-term wear strengthens decision-making, boosts financial trends, and stabilizes career foundations.",
     "specifications_en": {
-      "Weight": "approx. 85g",
-      "Size": "approx. 5cm diameter",
+      "Weight": "Approx. 85g",
+      "Size": "Diameter approx. 5cm",
       "Origin": "Brazil",
-      "Packaging": "Gift box + certificate"
+      "Packaging": "Silk box + certificate"
     }
   },
   {
@@ -85,9 +85,9 @@
     "name": "天然红玛瑙手链",
     "name_en": "Natural Red Agate Bracelet",
     "description": "红玛瑙火属性强烈，能激活个人行动力与决策力。对八字缺火、事业停滞、缺乏动力者有显著助益。",
-    "description_en": "Red agate carries a warm, activating quality that encourages personal initiative and decisiveness. Highly beneficial for those with low Fire element in their behavioral profile, experiencing career stagnation, or lacking motivation.",
+    "description_en": "Red agate carries strong fire energy that activates action and decisiveness. Beneficial for those needing warmth, career growth, or motivation boost.",
     "short_pitch": "八字缺火者首选",
-    "short_pitch_en": "Top choice for those with low Fire element",
+    "short_pitch_en": "First choice for those seeking warmth",
     "category": "jewelry",
     "price_cny": 268,
     "price_usd": 49,
@@ -108,10 +108,10 @@
       "#事业动荡"
     ],
     "keyword_tags_en": [
-      "#warmth_deficit",
-      "#relationships",
-      "#initiative",
-      "#career_instability"
+      "#WarmthNeeded",
+      "#Relationships",
+      "#MotivationBoost",
+      "#CareerChange"
     ],
     "elements": [
       "火"
@@ -144,15 +144,15 @@
     ],
     "sales_count": 2350,
     "rating": 4.9,
-    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Cleanse with sandalwood smoke on the 1st and 15th of each lunar month.",
-    "efficacy_en": "Supports relationship building and social presence.",
+    "usage_en": "Wear on the left wrist daily, close to skin for best effect. Remove during exercise. Cleanse with sandalwood smoke on the 1st and 15th of each lunar month.",
+    "efficacy_en": "Red agate belongs to the fire element, activating blood circulation and enhancing action and decisiveness. Beneficial for those needing warmth, career growth, or motivation. Courage energy加持 boosts bravery and execution.",
     "specifications_en": {
-      "Weight": "approx. 32g",
-      "Bead Diameter": "8mm",
-      "Wrist Size": "adjustable 16-20cm",
-      "Origin": "Madagascar"
+      "Weight": "Approx. 32g",
+      "Bead Size": "8mm",
+      "Material": "Natural red agate",
+      "Packaging": "Gift box"
     },
-    "precautions_en": "1. Red agate is hard but avoid impact 2. Avoid chemical cleaners 3. Those with cold constitutions may feel warmth initially - this is normal 4. Pregnant women should use with caution"
+    "precautions_en": "1. Red agate has high hardness but avoid impacts\n2. Avoid chemical cleaners\n3. Those with cold constitutions may feel warmth initially — this is normal\n4. Pregnant women should use with caution"
   },
   {
     "id": "p3",
@@ -160,11 +160,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "绿幽灵水晶球",
-    "name_en": "Green Phantom Quartz Sphere",
+    "name_en": "Green Phantom Crystal Sphere",
     "description": "绿幽灵对应心轮，主贵人运与事业成长。木气不足者佩戴可增强人际缘分，吸引正向合作伙伴。",
-    "description_en": "Green Phantom Quartz supports noble people tendency and career growth. Those lacking Wood quality can enhance interpersonal connections and attract positive partners by wearing it.",
+    "description_en": "Green phantom crystal embodies growth energy with its lush green mineral inclusions symbolizing career expansion and supporter convergence. Ideal for networking, partnership building, and leadership development.",
     "short_pitch": "木气不足者精准补充",
-    "short_pitch_en": "Precise supplementation for Wood deficiency",
+    "short_pitch_en": "Career growth and supporter convergence",
     "category": "crystal",
     "price_cny": 688,
     "price_usd": 199,
@@ -185,10 +185,10 @@
       "#领导力强"
     ],
     "keyword_tags_en": [
-      "#growth_deficit",
-      "#support_network",
-      "#career",
-      "#strong_leadership"
+      "#GrowthNeeded",
+      "#SupportNetwork",
+      "#Career",
+      "#StrongLeadership"
     ],
     "elements": [
       "木"
@@ -220,12 +220,14 @@
     ],
     "sales_count": 890,
     "rating": 4.7,
-    "usage_en": "Place on your desk or in the wealth corner of your home (diagonal from the entrance). Wipe gently with clean water weekly. During quiet reflection, hold the crystal and visualize golden light filling your body.",
-    "precautions_en": "1. Avoid prolonged direct sunlight to prevent fading 2. Not recommended for bedroom nightstand 3. Remove during exercise and bathing 4. Cleanse under moonlight for 4 hours after purchase",
-    "efficacy_en": "Supports career focus and clear decisions.",
+    "usage_en": "Place on the east side of your desk or bookshelf (wood position), at eye level. Alternatively, place in the southeast corner of the living room for network and career growth support. Cleanse regularly under running water.",
+    "precautions_en": "1. Green phantom contains mineral inclusions — a natural feature, not a flaw\n2. Avoid high temperatures\n3. Do not place in metal containers — interferes with growth energy\n4. Recommended alongside green plants",
+    "efficacy_en": "Green phantom crystal belongs to the wood element. Contains green volcanic mud mineral inclusions symbolizing career growth and supporter convergence. Growth energy加持 suits those needing to expand networks, attract partners, and enhance leadership.",
     "specifications_en": {
-      "Weight": "approx. 350g",
-      "Diameter": "approx. 6cm"
+      "Weight": "Approx. 450g",
+      "Size": "Diameter approx. 8cm",
+      "Material": "Natural green phantom quartz",
+      "Packaging": "Protective box"
     }
   },
   {
@@ -234,11 +236,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "黑曜石貔貅挂件",
-    "name_en": "Black Obsidian Pixiu Pendant",
+    "name_en": "Obsidian Pixiu Pendant",
     "description": "黑曜石强力辟邪化煞，貔貅招财镇宅。对官杀混杂、小人是非多、土星刑克严重者是最佳防护。",
-    "description_en": "Black Obsidian provides powerful protection against negative influences, while Pixiu attracts prosperity and supports household harmony. The ultimate shield for those with clashing conflict patterns, frequent gossip, or severe challenge periods.",
+    "description_en": "Obsidian is a powerful water-element protector that absorbs negative energy. Pixiu, one of the dragon's nine sons, is a legendary wealth-guarding beast. Together they form an impenetrable shield against conflicts and interpersonal disputes.",
     "short_pitch": "官杀混杂者强力防护",
-    "short_pitch_en": "Powerful protection for clashing conflict patterns",
+    "short_pitch_en": "Wealth protection and conflict resolution",
     "category": "jewelry",
     "price_cny": 188,
     "price_usd": 29,
@@ -260,10 +262,10 @@
       "#阻碍"
     ],
     "keyword_tags_en": [
-      "#conflict_pattern",
-      "#shielding",
-      "#challenge_period",
-      "#obstacles"
+      "#ConflictPattern",
+      "#Protection",
+      "#ChallengingPhase",
+      "#Obstacles"
     ],
     "elements": [
       "水",
@@ -299,12 +301,15 @@
     ],
     "sales_count": 4100,
     "rating": 4.9,
-    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Cleanse with sandalwood smoke on the 1st and 15th of each lunar month.",
-    "efficacy_en": "Provides reassurance and shields from negative influence.",
+    "usage_en": "Wear as pendant facing outward. For home protection, place Pixiu facing the main door. Cleanse monthly under running water for 5 minutes.",
+    "efficacy_en": "Obsidian belongs to the water element, powerfully absorbing and dissolving negative energy. Pixiu, one of the dragon's nine sons with mouth open and no anus — only wealth enters. Together they form an impenetrable shield of protection and prosperity, ideal for conflict resolution.",
     "specifications_en": {
-      "Weight": "approx. 18g"
+      "Material": "Natural obsidian + sterling silver",
+      "Pendant Size": "Approx. 3.5cm",
+      "Chain Length": "60cm adjustable",
+      "Packaging": "Gift box with cord"
     },
-    "precautions_en": "1. Pixiu is a traditional symbol - do not let others touch casually\n2. Remove when showering or swimming\n3. Obsidian is fragile - avoid dropping from heights\n4. Left in, right out: wear Pixiu pendant on left hand"
+    "precautions_en": "1. Avoid chemical contact\n2. Remove during bathing\n3. Do not share with others\n4. If broken, bury in soil — do not discard"
   },
   {
     "id": "p5",
@@ -314,9 +319,9 @@
     "name": "沉香线香（一年装）",
     "name_en": "Agarwood Incense Sticks (1-Year Supply)",
     "description": "沉香属水，气味沉静悠远，能安神定志、提升智慧与直觉。适合水气不足、心绪不宁、决策困难者。",
-    "description_en": "Agarwood belongs to Water element with a deep, calming fragrance that soothes the mind, enhances wisdom and intuition. Ideal for those lacking calming, flowing quality, feeling mentally unsettled, or facing decision difficulties.",
+    "description_en": "Agarwood belongs to the water element with a deep, lingering fragrance. Historically crowned as the finest of the four sacred scents. Its burning releases calming compounds that quiet the mind and enhance intuition.",
     "short_pitch": "水气不足者提升智慧与直觉",
-    "short_pitch_en": "Enhance wisdom and intuition for Water deficiency",
+    "short_pitch_en": "Sacred scent for deep contemplation",
     "category": "incense",
     "price_cny": 298,
     "price_usd": 49,
@@ -338,10 +343,10 @@
       "#灵性"
     ],
     "keyword_tags_en": [
-      "#calm_deficit",
-      "#mental_clarity",
-      "#intuition",
-      "#personality"
+      "#NeedForCalm",
+      "#MentalPeace",
+      "#Awareness",
+      "#InnerGrowth"
     ],
     "elements": [
       "水"
@@ -376,10 +381,15 @@
     ],
     "sales_count": 760,
     "rating": 4.6,
-    "usage_en": "Light in a well-ventilated area. Place on a heat-resistant surface. Use during quiet reflection or relaxation for best results.",
-    "precautions_en": "1. Use in well-ventilated areas only 2. Keep away from flammable materials 3. Do not leave burning unattended 4. Store in a cool, dry place",
-    "efficacy_en": "Supports physical and mental wellness.",
-    "specifications_en": {}
+    "usage_en": "Light the tip until flame appears, then blow out and place in incense holder. Use in well-ventilated spaces. Ideal during meditation, reading, or quiet reflection.",
+    "precautions_en": "1. Keep away from flammable materials\n2. Use on heat-resistant surface\n3. Store in cool, dry place\n4. Keep from children and pets",
+    "efficacy_en": "Agarwood belongs to the water element with a profound, lingering fragrance. Historically the finest of the four sacred scents. Burning releases calming compounds that quiet the mind, enhance intuition and awareness. Ideal for those with restless minds or needing deep contemplation.",
+    "specifications_en": {
+      "Length": "21cm per stick",
+      "Burn Time": "Approx. 45 minutes",
+      "Scent": "Pure agarwood",
+      "Packaging": "Vacuum-sealed tin"
+    }
   },
   {
     "id": "p7",
@@ -387,11 +397,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "五行开运符（个人定制）",
-    "name_en": "Five Element Balance Accessory (Custom)",
+    "name_en": "Five Element Balance Pendant (Custom)",
     "description": "由专业符师根据个人八字缺失量身绘制，针对性最强的开运方案。需提供详细出生信息。",
-    "description_en": "Hand-drawn by a professional accessory master based on your personal element imbalance — the most targeted balance enhancement solution. Requires detailed birth information.",
+    "description_en": "Custom-crafted based on your personal birth chart to compensate for elemental deficiencies. The wood-fire-earth-metal-water cycle creates harmonious energy flow, balancing your aura and optimizing fortune.",
     "short_pitch": "针对性最强的开运方案",
-    "short_pitch_en": "Most targeted balance enhancement solution",
+    "short_pitch_en": "Personalized elemental harmony",
     "category": "accessory",
     "price_cny": 468,
     "price_usd": 69,
@@ -415,11 +425,11 @@
       "#缺土"
     ],
     "keyword_tags_en": [
-      "#clarity_deficit",
-      "#growth_deficit",
-      "#calm_deficit",
-      "#warmth_deficit",
-      "#stability_deficit"
+      "#NeedForClarity",
+      "#GrowthNeeded",
+      "#NeedForCalm",
+      "#WarmthNeeded",
+      "#StabilityNeeded"
     ],
     "elements": [
       "金",
@@ -453,10 +463,15 @@
     ],
     "sales_count": 540,
     "rating": 4.7,
-    "usage_en": "Place in the appropriate environmental arrangement position according to your needs. Keep clean and treat with respect. Avoid placing in bathrooms or bedrooms.",
-    "precautions_en": "1. Handle with care and respect\n2. Do not place in bathroom or cluttered areas\n3. Keep away from moisture\n4. Refresh monthly with incense smoke",
-    "efficacy_en": "",
-    "specifications_en": {}
+    "usage_en": "Wear close to the body daily. The pendant is tuned to your specific birth data — keep it with you for continuous balance.",
+    "precautions_en": "1. Handle with care\n2. Avoid water exposure\n3. Store in provided pouch when not wearing\n4. Re-energize under moonlight monthly",
+    "efficacy_en": "Custom-crafted based on your personal birth chart to compensate for elemental deficiencies. The wood-fire-earth-metal-water cycle creates harmonious energy flow, balancing your aura and optimizing fortune. A personalized metaphysical remedy.",
+    "specifications_en": {
+      "Material": "Five element alloys",
+      "Size": "Custom to birth chart",
+      "Chain": "Adjustable silver",
+      "Packaging": "Personalized case"
+    }
   },
   {
     "id": "p8",
@@ -466,9 +481,9 @@
     "name": "紫水晶洞（天然）",
     "name_en": "Natural Amethyst Geode",
     "description": "天然紫水晶洞高频振动，助力灵性转化与深层疗愈。冥王星过境者、经历重大人生转变期的守护石。",
-    "description_en": "Natural Amethyst Geode vibrates at high frequency, supporting personal transformation and restorative practice. Guardian stone for those undergoing Pluto transits or major life transitions.",
+    "description_en": "Amethyst geode resonates at high frequency in feng shui fire element, governing wisdom and spiritual growth. Its natural crystal cavern creates an energy field that purifies negativity and deepens meditation.",
     "short_pitch": "冥王星过境者专属",
-    "short_pitch_en": "Exclusive for Pluto transits",
+    "short_pitch_en": "Wisdom and spiritual transformation",
     "category": "crystal",
     "price_cny": 1280,
     "price_usd": 1299,
@@ -491,10 +506,10 @@
       "#内耗"
     ],
     "keyword_tags_en": [
-      "#personality",
-      "#intuition",
-      "#personal_change",
-      "#emotional_fatigue"
+      "#InnerGrowth",
+      "#Awareness",
+      "#PersonalTransformation",
+      "#EmotionalFatigue"
     ],
     "elements": [
       "水",
@@ -533,11 +548,14 @@
     ],
     "sales_count": 210,
     "rating": 4.9,
-    "usage_en": "Place on your desk or in the wealth corner of your home (diagonal from the entrance). Wipe gently with clean water weekly. During quiet reflection, hold the crystal and visualize golden light filling your body.",
-    "precautions_en": "1. Avoid prolonged direct sunlight to prevent fading 2. Not recommended for bedroom nightstand 3. Remove during exercise and bathing 4. Cleanse under moonlight for 4 hours after purchase",
-    "efficacy_en": "",
+    "usage_en": "Place in the study or meditation space. Position with the opening facing inward to contain energy. Cleanse monthly under running water or moonlight.",
+    "precautions_en": "1. Handle carefully — natural geodes are fragile\n2. Avoid direct sunlight for extended periods\n3. Clean with soft brush only\n4. Place on stable surface",
+    "efficacy_en": "Amethyst geode resonates at high frequency in feng shui fire element, governing wisdom and spiritual growth. Its natural crystal cavern creates an energy field that purifies negativity and deepens meditation. A guardian stone for life transitions.",
     "specifications_en": {
-      "Material": "Natural Amethyst"
+      "Weight": "Approx. 1.2kg",
+      "Size": "15-20cm",
+      "Origin": "Brazil",
+      "Packaging": "Padded box"
     }
   },
   {
@@ -546,11 +564,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "粉水晶桃花手链",
-    "name_en": "Rose Quartz Romance Bracelet",
+    "name_en": "Rose Quartz Charm Bracelet",
     "description": "粉水晶招正桃花，增进人缘与感情运势。对感情线不佳、桃花运弱、金星受克者有温润改善作用。",
-    "description_en": "Rose Quartz attracts meaningful connections and enhances social presence. Gently improves relationship potential for those with weak romance lines, low romance potential, or Venus afflictions.",
+    "description_en": "Rose quartz belongs to the fire element, corresponding to the heart chakra. Its gentle vibration softens interpersonal barriers, enhances charisma and approachability. Long-term wear attracts genuine connections.",
     "short_pitch": "正缘桃花专属",
-    "short_pitch_en": "Exclusively for meaningful connections",
+    "short_pitch_en": "Heart chakra harmony and charm",
     "category": "jewelry",
     "price_cny": 238,
     "price_usd": 49,
@@ -571,10 +589,10 @@
       "#婚姻"
     ],
     "keyword_tags_en": [
-      "#relationships",
-      "#love",
-      "#venus_square",
-      "#marriage"
+      "#Relationships",
+      "#Romance",
+      "#RelationshipChallenge",
+      "#Marriage"
     ],
     "elements": [
       "土"
@@ -606,12 +624,15 @@
     ],
     "sales_count": 1860,
     "rating": 4.8,
-    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Cleanse with sandalwood smoke on the 1st and 15th of each lunar month.",
-    "efficacy_en": "Supports relationship building and social presence.",
+    "usage_en": "Wear on left wrist for receiving energy. For relationship enhancement, sleep with rose quartz under pillow. Cleanse under running water weekly.",
+    "efficacy_en": "Rose quartz belongs to the fire element, corresponding to the heart chakra. Its gentle vibration softens interpersonal barriers, enhances charisma and approachability. Venus energy加持 attracts genuine connections and harmonious relationships.",
     "specifications_en": {
-      "Material": "Natural Rose Quartz"
+      "Bead Size": "8mm",
+      "Wrist Fit": "15-18cm",
+      "Material": "Natural rose quartz",
+      "Packaging": "Satin pouch"
     },
-    "precautions_en": "1. Store properly 2. Avoid severe impact 3. Keep dry and clean"
+    "precautions_en": "1. Avoid prolonged sunlight — may fade color\n2. Remove during heavy physical activity\n3. Clean with mild soap and water\n4. Store separately from harder stones"
   },
   {
     "id": "p10",
@@ -621,9 +642,9 @@
     "name": "金发晶手串",
     "name_en": "Golden Rutilated Quartz Bracelet",
     "description": "金发晶被誉为「财富之石」，强力招正财偏财。适合财运不顺、投资决策频繁者佩戴。",
-    "description_en": "Golden Rutilated Quartz is known as the 'Clarity Stone', powerfully enhancing steady and unexpected gains. Ideal for those with poor financial momentum or frequent investment decisions.",
+    "description_en": "Golden rutilated quartz contains needle-like golden inclusions, belonging to earth-metal elements and the solar plexus chakra. Known as the 'Stone of Wealth,' it strengthens personal aura and boosts decision confidence.",
     "short_pitch": "招财利器，商界人士必备",
-    "short_pitch_en": "Prosperity companion — essential for business people",
+    "short_pitch_en": "The legendary stone of wealth",
     "category": "jewelry",
     "price_cny": 888,
     "price_usd": 199,
@@ -642,9 +663,9 @@
       "#财运受损"
     ],
     "keyword_tags_en": [
-      "#financial_reset",
-      "#prosperity_mindset",
-      "#poor_potential"
+      "#FinancialRenewal",
+      "#PositiveMindset",
+      "#FinancialDownturn"
     ],
     "elements": [
       "金",
@@ -679,12 +700,15 @@
     ],
     "sales_count": 920,
     "rating": 4.9,
-    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Cleanse with sandalwood smoke on the 1st and 15th of each lunar month.",
-    "efficacy_en": "Supports prosperity mindset and financial focus.",
+    "usage_en": "Wear on left wrist for wealth attraction. During important decisions, hold in left hand and set intention. Cleanse with sage smoke monthly.",
+    "efficacy_en": "Golden rutilated quartz, hailed as the 'Stone of Wealth,' belongs to earth-metal elements and the solar plexus chakra. Its golden needle-like inclusions strengthen personal aura, boost decision confidence, and support career and financial growth.",
     "specifications_en": {
-      "Material": "Natural Golden Rutilated Quartz"
+      "Bead Size": "10mm",
+      "Wrist Fit": "16-19cm",
+      "Material": "Natural golden rutilated quartz",
+      "Packaging": "Gift box"
     },
-    "precautions_en": "1. Store properly 2. Avoid severe impact 3. Keep dry and clean"
+    "precautions_en": "1. Avoid chemical exposure\n2. Remove during exercise\n3. Store in soft pouch\n4. Handle with care — rutile needles are delicate"
   },
   {
     "id": "p11",
@@ -694,9 +718,9 @@
     "name": "檀香盘香套装",
     "name_en": "Sandalwood Coil Incense Set",
     "description": "天然老山檀香，木质调深沉安稳，补木土二气。适合冥想、工作、阅读时使用，净化空间能量场。",
-    "description_en": "Natural Old Mountain Sandalwood with deep, grounding woody notes that supplement Wood and Earth quality. Perfect for mindfulness practice, work, and reading — cleanses the ambient atmosphere.",
+    "description_en": "Sandalwood belongs to the water element with a profound, grounding fragrance. Used since ancient times for scholarly refinement and spiritual practice. Its calming aroma eases anxiety and deepens contemplation.",
     "short_pitch": "净化空间，安稳心神",
-    "short_pitch_en": "Cleanse space, calm the mind",
+    "short_pitch_en": "Ancient scholar's meditation companion",
     "category": "incense",
     "price_cny": 168,
     "price_usd": 29,
@@ -715,9 +739,9 @@
       "#缺土"
     ],
     "keyword_tags_en": [
-      "#growth_deficit",
-      "#mental_clarity",
-      "#stability_deficit"
+      "#GrowthNeeded",
+      "#MentalPeace",
+      "#StabilityNeeded"
     ],
     "elements": [
       "木",
@@ -748,10 +772,15 @@
     ],
     "sales_count": 650,
     "rating": 4.5,
-    "usage_en": "Light in a well-ventilated area. Place on a heat-resistant surface. Use during quiet reflection or relaxation for best results.",
-    "precautions_en": "1. Use in well-ventilated areas only 2. Keep away from flammable materials 3. Do not leave burning unattended 4. Store in a cool, dry place",
-    "efficacy_en": "Supports physical and mental wellness.",
-    "specifications_en": {}
+    "usage_en": "Place coil in incense holder on non-flammable surface. Light outer tip, allow to catch, then blow out flame. One coil burns for approximately 2 hours.",
+    "precautions_en": "1. Use in well-ventilated area\n2. Keep away from flammable materials\n3. Place on heat-resistant surface\n4. Not recommended for those with respiratory sensitivities",
+    "efficacy_en": "Sandalwood belongs to the water element with a profound, grounding fragrance. One of the four sacred scents since antiquity. Its calming aroma quiets the mind, eases anxiety, and deepens contemplation. Ideal for meditation, reading, and spiritual practice.",
+    "specifications_en": {
+      "Coil Diameter": "8cm",
+      "Burn Time": "Approx. 2 hours",
+      "Scent": "Pure sandalwood",
+      "Packaging": "Wooden box"
+    }
   },
   {
     "id": "p12",
@@ -759,11 +788,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "纯银六字真言手镯",
-    "name_en": "Sterling Silver Om Mani Bracelet",
+    "name_en": "Sterling Silver Six-Syllable Mantra Bangle",
     "description": "纯银材质配六字真言刻文，防小人、挡是非、护身辟邪。适合官杀混杂、八字身弱易受外界干扰者。",
-    "description_en": "Sterling silver bracelet inscribed with the Om Mani mantra — supports confidence, helps navigate challenges, and provides reassurance. Ideal for those with clashing conflict patterns or weak Day Masters easily influenced by external influences.",
+    "description_en": "The Six-Syllable Mantra 'Om Mani Padme Hum' is Avalokiteshvara's heart mantra. Sterling silver carries the mantra's protective power, forming a guardian energy field. Silver belongs to the metal element with detoxifying properties.",
     "short_pitch": "防小人挡是非",
-    "short_pitch_en": "Support confidence, navigate challenges",
+    "short_pitch_en": "Sacred mantra protection",
     "category": "jewelry",
     "price_cny": 568,
     "price_usd": 79,
@@ -784,10 +813,10 @@
       "#小人是非"
     ],
     "keyword_tags_en": [
-      "#conflict_pattern",
-      "#shielding",
-      "#weak_body",
-      "#gossip"
+      "#ConflictPattern",
+      "#Protection",
+      "#PersonalState",
+      "#InterpersonalConflict"
     ],
     "elements": [
       "金"
@@ -821,12 +850,15 @@
     ],
     "sales_count": 780,
     "rating": 4.7,
-    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Cleanse with sandalwood smoke on the 1st and 15th of each lunar month.",
-    "efficacy_en": "Provides reassurance and shields from negative influence.",
+    "usage_en": "Wear on left wrist for protection. During meditation, hold the bangle and recite the mantra for enhanced spiritual connection.",
+    "efficacy_en": "The Six-Syllable Mantra 'Om Mani Padme Hum' is Avalokiteshvara's heart mantra. Sterling silver carries the mantra's protective power, forming a guardian energy field. Silver belongs to the metal element with detoxifying properties — combining spiritual and physical protection.",
     "specifications_en": {
-      "Material": "Sterling Silver"
+      "Material": "925 Sterling Silver",
+      "Size": "Adjustable 16-20cm",
+      "Engraving": "Six-Syllable Mantra",
+      "Packaging": "Velvet box"
     },
-    "precautions_en": "1. Store properly 2. Avoid severe impact 3. Keep dry and clean"
+    "precautions_en": "1. Silver may tarnish — polish with soft cloth\n2. Avoid contact with perfume or chemicals\n3. Remove during swimming\n4. Store in anti-tarnish pouch"
   },
   {
     "id": "p13",
@@ -836,9 +868,9 @@
     "name": "拉长石吊坠",
     "name_en": "Labradorite Pendant",
     "description": "拉长石激发潜能与直觉力，眉心轮活化宝石。适合太阳线不明显、对未来方向迷茫者。",
-    "description_en": "Labradorite activates hidden potential and intuition — the awareness-enhancing gemstone. Perfect for those with faint Sun Line or feeling lost about their future direction.",
+    "description_en": "Labradorite belongs to the water element, resonating with the third eye and brow chakra. Known as the Aurora Stone in spiritual traditions, its iridescent flash symbolizes consciousness expansion and intuitive awakening.",
     "short_pitch": "唤醒内在指引",
-    "short_pitch_en": "Encourage self-reflection",
+    "short_pitch_en": "Awaken inner guidance",
     "category": "jewelry",
     "price_cny": 458,
     "price_usd": 69,
@@ -859,10 +891,10 @@
       "#迷茫"
     ],
     "keyword_tags_en": [
-      "#intuition",
-      "#personality",
-      "#personal_change",
-      "#confusion"
+      "#Awareness",
+      "#InnerGrowth",
+      "#PersonalTransformation",
+      "#FeelingLost"
     ],
     "elements": [
       "水"
@@ -894,12 +926,15 @@
     ],
     "sales_count": 430,
     "rating": 4.6,
-    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Cleanse with sandalwood smoke on the 1st and 15th of each lunar month.",
-    "efficacy_en": "",
+    "usage_en": "Wear as pendant close to the heart or throat. During meditation, place on third eye area. Cleanse under full moon light monthly.",
+    "efficacy_en": "Labradorite belongs to the water element, resonating with the third eye and brow chakra. Known as the Aurora Stone in spiritual traditions, its iridescent flash symbolizes consciousness expansion and intuitive awakening. Ideal for meditation practitioners and creative workers.",
     "specifications_en": {
-      "Material": "Natural Labradorite"
+      "Material": "Natural labradorite",
+      "Pendant Size": "Approx. 2.5cm",
+      "Chain": "Sterling silver 45cm",
+      "Packaging": "Gift box"
     },
-    "precautions_en": "1. Store properly 2. Avoid severe impact 3. Keep dry and clean"
+    "precautions_en": "1. Labradorite is relatively soft — avoid impacts\n2. Clean with soft dry cloth\n3. Avoid harsh chemicals\n4. Store separately to prevent scratching"
   },
   {
     "id": "p14",
@@ -909,9 +944,9 @@
     "name": "八卦铜镜（居家镇宅）",
     "name_en": "Bagua Bronze Mirror (Space Harmony)",
     "description": "传统八卦铜镜，悬挂于大门或阳台化解外煞。适合房屋风水有缺陷、家居能量场紊乱者。",
-    "description_en": "Traditional Bagua Bronze Mirror — hang at the front door or balcony to dissolve external negative influence. Essential for homes with environmental harmony concerns or chaotic household ambient atmosphere.",
+    "description_en": "The Bagua mirror integrates five-element theory and I Ching principles. The reflective surface deflects sha energy while the Bagua diagram harmonizes the space. Essential for doorway and window placement to repel negative forces.",
     "short_pitch": "居家风水化煞必备",
-    "short_pitch_en": "Essential environmental harmony space support",
+    "short_pitch_en": "Traditional space harmonization",
     "category": "accessory",
     "price_cny": 368,
     "price_usd": 59,
@@ -930,10 +965,10 @@
       "#土星刑克"
     ],
     "keyword_tags_en": [
-      "#shielding",
-      "#space_harmony",
-      "#home",
-      "#challenge_period"
+      "#Protection",
+      "#SpaceLayout",
+      "#HomeSpace",
+      "#ChallengingPhase"
     ],
     "elements": [
       "金"
@@ -959,10 +994,15 @@
     ],
     "sales_count": 310,
     "rating": 4.5,
-    "usage_en": "Place in the appropriate environmental arrangement position according to your needs. Keep clean and treat with respect. Avoid placing in bathrooms or bedrooms.",
-    "precautions_en": "1. Handle with care and respect 2. Do not place in bathroom or cluttered areas 3. Keep away from moisture 4. Refresh monthly with incense smoke",
-    "efficacy_en": "Provides reassurance and shields from negative influence.",
-    "specifications_en": {}
+    "usage_en": "Hang on the exterior of the main door or facing outward from a window. The convex side faces outward to deflect sha energy. Do not hang facing inward.",
+    "precautions_en": "1. Do not hang facing bedroom or bathroom\n2. Not for internal room use\n3. Keep clean and unobstructed\n4. Replace if cracked or damaged",
+    "efficacy_en": "The Bagua mirror integrates five-element theory and I Ching principles. The reflective surface deflects sha energy while the Bagua diagram harmonizes the surrounding space. Essential feng shui tool for doorway and window placement to repel negative forces.",
+    "specifications_en": {
+      "Material": "Bronze mirror + wooden frame",
+      "Size": "15cm diameter",
+      "Weight": "Approx. 200g",
+      "Packaging": "Cotton pouch"
+    }
   },
   {
     "id": "p15",
@@ -972,9 +1012,9 @@
     "name": "西瓜碧玺吊坠",
     "name_en": "Watermelon Tourmaline Pendant",
     "description": "碧玺色彩丰富，能量全面，西瓜碧玺尤其能调和人际关系、增进感情和谐。对感情婚姻问题有综合调理作用。",
-    "description_en": "Tourmaline offers rich, multi-dimensional quality. Watermelon Tourmaline especially harmonizes relationships and enhances emotional balance. Provides comprehensive remedy for love and marriage issues.",
+    "description_en": "Tourmaline's colors correspond to different chakras. Watermelon tourmaline combines red and green, simultaneously activating the heart and root chakras. In energy healing, it balances emotion and action for interpersonal harmony.",
     "short_pitch": "综合调理感情与人际",
-    "short_pitch_en": "Comprehensive love and relationship remedy",
+    "short_pitch_en": "Emotional balance and harmony",
     "category": "jewelry",
     "price_cny": 1680,
     "price_usd": 289,
@@ -998,10 +1038,10 @@
       "#桃花运"
     ],
     "keyword_tags_en": [
-      "#love",
-      "#marriage",
-      "#relationships",
-      "#relationships"
+      "#Romance",
+      "#Marriage",
+      "#Interpersonal",
+      "#Relationships"
     ],
     "elements": [
       "火",
@@ -1040,12 +1080,15 @@
     ],
     "sales_count": 180,
     "rating": 4.9,
-    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Cleanse with sandalwood smoke on the 1st and 15th of each lunar month.",
-    "efficacy_en": "",
+    "usage_en": "Wear as pendant near the heart center. For emotional balance, hold during meditation and breathe deeply. Cleanse under running water weekly.",
+    "efficacy_en": "Tourmaline's colors correspond to different chakras. Watermelon tourmaline combines red and green, simultaneously activating the heart and root chakras. Balances emotion and action, promoting interpersonal harmony and inner stability.",
     "specifications_en": {
-      "Material": "Natural Watermelon Tourmaline"
+      "Material": "Natural watermelon tourmaline",
+      "Size": "Approx. 2cm",
+      "Setting": "Sterling silver",
+      "Packaging": "Gift box"
     },
-    "precautions_en": "1. Store properly 2. Avoid severe impact 3. Keep dry and clean"
+    "precautions_en": "1. Avoid sudden temperature changes\n2. Clean with mild soap and water\n3. Store in soft pouch\n4. Handle with care"
   },
   {
     "id": "p17",
@@ -1053,11 +1096,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "海蓝宝吊坠（月光面）",
-    "name_en": "Aquamarine Pendant (Moonlit)",
+    "name_en": "Aquamarine Pendant (Moonlight Cut)",
     "description": "海蓝宝对应喉轮，水性能量纯净通透，增强沟通表达能力与直觉力。特别适合水星逆行、沟通困难、需要提升公众表达者。",
-    "description_en": "Aquamarine resonates with the expression center with pure calming, flowing quality, enhancing communication and intuition. Especially beneficial during Mercury Retrograde, for communication difficulties, or when improving public expression.",
+    "description_en": "Aquamarine belongs to the water element, corresponding to the throat chakra. Since ancient times regarded as the sailor's guardian stone. Its cooling energy soothes communication anxiety and strengthens expressive courage.",
     "short_pitch": "沟通表达者的护身符",
-    "short_pitch_en": "Protective accessory for communicators",
+    "short_pitch_en": "Clear communication and courage",
     "category": "jewelry",
     "price_cny": 528,
     "price_usd": 79,
@@ -1080,10 +1123,10 @@
       "#焦虑过度"
     ],
     "keyword_tags_en": [
-      "#communication_block",
-      "#intuition",
-      "#personality",
-      "#anxiety"
+      "#ExpressionDifficulty",
+      "#Awareness",
+      "#InnerGrowth",
+      "#StressManagement"
     ],
     "elements": [
       "水"
@@ -1120,12 +1163,15 @@
     ],
     "sales_count": 340,
     "rating": 4.7,
-    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Cleanse with sandalwood smoke on the 1st and 15th of each lunar month.",
-    "efficacy_en": "Supports physical and mental wellness.",
+    "usage_en": "Wear as pendant close to the throat. Before important speeches, hold and set intention for clear expression. Cleanse under running water.",
+    "efficacy_en": "Aquamarine belongs to the water element, corresponding to the throat chakra. Since ancient times regarded as the sailor's guardian stone. Its cooling energy soothes communication anxiety, strengthens expressive courage. Ideal for public speaking and business negotiations.",
     "specifications_en": {
-      "Material": "Natural Aquamarine"
+      "Material": "Natural aquamarine",
+      "Cut": "Moonlight facet",
+      "Setting": "Sterling silver",
+      "Packaging": "Presentation box"
     },
-    "precautions_en": "1. Store properly 2. Avoid severe impact 3. Keep dry and clean"
+    "precautions_en": "1. Avoid prolonged sunlight\n2. Clean with lukewarm water and mild soap\n3. Store separately from harder gems\n4. Remove during chemical exposure"
   },
   {
     "id": "p18",
@@ -1133,11 +1179,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "虎眼石手串（金运版）",
-    "name_en": "Tiger Eye Bracelet (Wealth Edition)",
+    "name_en": "Tiger's Eye Bracelet (Wealth Edition)",
     "description": "虎眼石如虎眼般锐利，火土能量充沛，激发勇气与决断力。对事业阻隔、决策困难、行动力不足者有强力助推效果。",
-    "description_en": "Tiger Eye gleams like a tiger's gaze, rich in warm, activating and grounding, stable quality that ignites courage and decisiveness. Powerfully boosts those facing career barriers, decision difficulties, or lack of initiative.",
+    "description_en": "Tiger's eye gleams with feline sharpness, rich in earth-metal energy and the solar plexus chakra. In spiritual tradition it symbolizes courage and power, enhancing action and overcoming indecision.",
     "short_pitch": "决断力与勇气的能量石",
-    "short_pitch_en": "Quality stone for decisiveness and courage",
+    "short_pitch_en": "Courage and decisive action",
     "category": "jewelry",
     "price_cny": 328,
     "price_usd": 59,
@@ -1160,10 +1206,10 @@
       "#缺乏弹性"
     ],
     "keyword_tags_en": [
-      "#career_barrier",
-      "#decision_difficulty",
-      "#mind_action_conflict",
-      "#rigidity"
+      "#CareerChallenge",
+      "#DecisionDifficulty",
+      "#ActionThoughtConflict",
+      "#LackOfFlexibility"
     ],
     "elements": [
       "火",
@@ -1200,12 +1246,15 @@
     ],
     "sales_count": 890,
     "rating": 4.8,
-    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Cleanse with sandalwood smoke on the 1st and 15th of each lunar month.",
-    "efficacy_en": "",
+    "usage_en": "Wear on right hand for action energy. During decision-making, hold in palm and focus on your intention. Cleanse with sage smoke.",
+    "efficacy_en": "Tiger's eye gleams with feline sharpness, rich in earth-metal energy and the solar plexus chakra. Symbolizes courage and power in spiritual tradition, enhancing action and overcoming indecision. A powerful助推 stone for entrepreneurs.",
     "specifications_en": {
-      "Material": "Natural Tiger Eye"
+      "Bead Size": "10mm",
+      "Wrist Fit": "16-19cm",
+      "Material": "Natural tiger's eye",
+      "Packaging": "Gift box"
     },
-    "precautions_en": "1. Store properly 2. Avoid severe impact 3. Keep dry and clean"
+    "precautions_en": "1. Avoid impacts — can fracture along chatoyancy\n2. Clean with soft cloth\n3. Avoid prolonged sunlight\n4. Store in soft pouch"
   },
   {
     "id": "p19",
@@ -1215,9 +1264,9 @@
     "name": "月光石项链（银月款）",
     "name_en": "Moonstone Necklace (Silver Moon)",
     "description": "月光石散发柔和水性能量，连接月亮与潜意识，安抚情绪波动、改善睡眠。适合内耗严重、情绪敏感、水象能量紊乱者。",
-    "description_en": "Moonstone radiates gentle calming, flowing quality, connecting with the Moon and inner mind to soothe emotional fluctuations and improve sleep. Ideal for those with severe emotional fatigue, emotional sensitivity, or Water element imbalance.",
+    "description_en": "Moonstone belongs to the water element, corresponding to the crown and third eye chakras. Its soft glow, called the Moon Goddess's tears, governs intuition, dreams, and emotional healing in spiritual tradition.",
     "short_pitch": "情绪安抚与深度睡眠",
-    "short_pitch_en": "Emotional soothing and deep sleep",
+    "short_pitch_en": "Intuition and emotional healing",
     "category": "jewelry",
     "price_cny": 468,
     "price_usd": 89,
@@ -1239,10 +1288,10 @@
       "#潜意识课题"
     ],
     "keyword_tags_en": [
-      "#emotional_fatigue",
-      "#anxiety",
-      "#high_stress",
-      "#inner mind_issues"
+      "#EmotionalFatigue",
+      "#StressManagement",
+      "#HighStress",
+      "#SubconsciousWork"
     ],
     "elements": [
       "水"
@@ -1277,12 +1326,15 @@
     ],
     "sales_count": 560,
     "rating": 4.7,
-    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Cleanse with sandalwood smoke on the 1st and 15th of each lunar month.",
-    "efficacy_en": "",
+    "usage_en": "Wear as necklace close to the heart. During full moon, place on windowsill to recharge. Cleanse under running water.",
+    "efficacy_en": "Moonstone belongs to the water element, corresponding to the crown and third eye chakras. Its soft glow — called the Moon Goddess's tears — governs intuition, dreams, and emotional healing. Ideal for the emotionally sensitive and those seeking spiritual growth.",
     "specifications_en": {
-      "Material": "Natural Moonstone"
+      "Material": "Natural moonstone",
+      "Bead Size": "6mm",
+      "Chain": "Sterling silver 42cm",
+      "Packaging": "Velvet box"
     },
-    "precautions_en": "1. Store properly 2. Avoid severe impact 3. Keep dry and clean"
+    "precautions_en": "1. Moonstone is relatively soft — avoid scratches\n2. Avoid chemical exposure\n3. Clean with soft damp cloth\n4. Store in individual pouch"
   },
   {
     "id": "p20",
@@ -1290,11 +1342,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "青金石三通套链",
-    "name_en": "Lapis Lazuli Mala Necklace",
+    "name_en": "Lapis Lazuli Three-Hole Bead Set",
     "description": "青金石被誉为智慧之石，水金能量交融，开启第三眼与喉轮。适合智慧线过直缺乏弹性、思维僵化、需要提升洞察力者。",
-    "description_en": "Lapis Lazuli is the Clarity Stone with calming, flowing and structured, clarifying quality fusion that opens higher awareness and expression center. Perfect for those with rigid thinking, inflexible wisdom line, or needing enhanced insight.",
+    "description_en": "Lapis lazuli belongs to water-metal elements, corresponding to the brow chakra. Revered by Egyptian pharaohs as a sacred stone, its deep blue symbolizes wisdom and truth. Opens the third eye for enhanced insight.",
     "short_pitch": "智慧与洞察的灵性钥匙",
-    "short_pitch_en": "Personal development tool to wisdom and insight",
+    "short_pitch_en": "Stone of wisdom and truth",
     "category": "jewelry",
     "price_cny": 638,
     "price_usd": 79,
@@ -1317,10 +1369,10 @@
       "#缺乏变通"
     ],
     "keyword_tags_en": [
-      "#inflexibility",
-      "#decision_difficulty",
-      "#personality",
-      "#rigid_thinking"
+      "#LackOfFlexibility",
+      "#DecisionDifficulty",
+      "#InnerGrowth",
+      "#Inflexibility"
     ],
     "elements": [
       "水",
@@ -1357,12 +1409,15 @@
     ],
     "sales_count": 380,
     "rating": 4.6,
-    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Cleanse with sandalwood smoke on the 1st and 15th of each lunar month.",
-    "efficacy_en": "",
+    "usage_en": "Wear as mala beads during meditation. Place on brow during rest for third eye activation. Cleanse under moonlight.",
+    "efficacy_en": "Lapis lazuli belongs to water-metal elements, corresponding to the brow chakra. Revered by Egyptian pharaohs as a sacred stone, its deep blue symbolizes wisdom and truth. Opens the third eye for enhanced insight and deep thinking.",
     "specifications_en": {
-      "Material": "Natural Lapis Lazuli"
+      "Material": "Natural lapis lazuli",
+      "Bead Size": "8mm",
+      "Strand Length": "Adjustable",
+      "Packaging": "Cotton pouch"
     },
-    "precautions_en": "1. Store properly 2. Avoid severe impact 3. Keep dry and clean"
+    "precautions_en": "1. Avoid acid contact — lapis is sensitive to chemicals\n2. Clean with soft dry cloth\n3. Store away from heat\n4. Handle with care"
   },
   {
     "id": "p21",
@@ -1370,11 +1425,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "红宝石原石吊坠（星火）",
-    "name_en": "Raw Ruby Pendant (Starfire)",
+    "name_en": "Ruby Rough Pendant (Starfire)",
     "description": "红宝石火性能量极为炽烈，激活海底轮与生命力。适合日主弱、身弱、精力不济、生命线偏弱者的强力补火增元气之选。",
-    "description_en": "Raw Ruby radiates intense warm, activating quality, activating the grounding center and vital life force. A powerful vitality support for weak Day Masters, fragile health, or depleted vitality.",
+    "description_en": "Ruby belongs to the fire element, corresponding to the root and heart chakras. In Indian spiritual tradition called the 'King of Gems,' its blazing energy activates life force, confidence, and leadership.",
     "short_pitch": "补火增元气的能量核",
-    "short_pitch_en": "Vitality-boosting core for wellness",
+    "short_pitch_en": "Activate life force and vitality",
     "category": "jewelry",
     "price_cny": 1380,
     "price_usd": 289,
@@ -1396,10 +1451,10 @@
       "#健康警示"
     ],
     "keyword_tags_en": [
-      "#warmth_deficit",
-      "#weak_body",
-      "#health_low",
-      "#health_warning"
+      "#WarmthNeeded",
+      "#PersonalState",
+      "#HealthTrough",
+      "#HealthAlert"
     ],
     "elements": [
       "火"
@@ -1433,12 +1488,15 @@
     ],
     "sales_count": 120,
     "rating": 4.9,
-    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Cleanse with sandalwood smoke on the 1st and 15th of each lunar month.",
-    "efficacy_en": "",
+    "usage_en": "Wear on left hand for vitality enhancement. During meditation, hold and visualize red energy flowing through your body. Cleanse with running water.",
+    "efficacy_en": "Ruby belongs to the fire element, corresponding to the root and heart chakras. In Indian tradition called the 'King of Gems,' its blazing energy activates life force, confidence, and leadership. A powerful vitality booster.",
     "specifications_en": {
-      "Material": "Natural Ruby"
+      "Material": "Natural ruby rough",
+      "Size": "Approx. 1.5cm",
+      "Setting": "Sterling silver pendant",
+      "Packaging": "Gift box"
     },
-    "precautions_en": "1. Store properly 2. Avoid severe impact 3. Keep dry and clean"
+    "precautions_en": "1. Ruby is durable but avoid sharp impacts\n2. Clean with warm soapy water\n3. Avoid extreme temperature changes\n4. Store separately"
   },
   {
     "id": "p22",
@@ -1448,9 +1506,9 @@
     "name": "和田玉平安扣挂件",
     "name_en": "Hetian Jade Peace Buckle Pendant",
     "description": "和田玉温润厚实，土性能量沉稳，自古以来是君子配饰。对健康需要关注、生命线有岛纹、精力不济者有稳固元气的养护作用。",
-    "description_en": "Hetian Jade is warm and substantial with grounding, stable quality — the classic accessory since ancient times. Supports wellness for those with health concerns, island marks on life line, or depleted vitality.",
+    "description_en": "Hetian jade belongs to the earth element, warm and sweet in traditional Chinese medicine. Its gentle energy nourishes the body and stabilizes vital energy. A symbol of noble character since ancient times.",
     "short_pitch": "温润养人的传统护身玉",
-    "short_pitch_en": "Traditional warm jade for health nurturing",
+    "short_pitch_en": "Noble character and vital stability",
     "category": "jewelry",
     "price_cny": 888,
     "price_usd": 219,
@@ -1469,10 +1527,10 @@
       "#安神"
     ],
     "keyword_tags_en": [
-      "#health_low",
-      "#health_warning",
-      "#weak_body",
-      "#mental_clarity"
+      "#HealthTrough",
+      "#HealthAlert",
+      "#PersonalState",
+      "#MentalPeace"
     ],
     "elements": [
       "土"
@@ -1500,12 +1558,15 @@
     ],
     "sales_count": 620,
     "rating": 4.9,
-    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Cleanse with sandalwood smoke on the 1st and 15th of each lunar month.",
-    "efficacy_en": "Supports physical and mental wellness.",
+    "usage_en": "Wear close to the body daily for nourishment. For meditation, hold in palm and feel the warm energy. Cleanse under running water monthly.",
+    "efficacy_en": "Hetian jade belongs to the earth element, warm and nourishing in traditional Chinese medicine. Its gentle energy stabilizes vital energy and calms the spirit. A symbol of noble character since ancient times — the gentleman's stone.",
     "specifications_en": {
-      "Material": "Natural Hetian Jade"
+      "Material": "Natural Hetian jade",
+      "Size": "Diameter 3cm",
+      "Cord": "Adjustable silk",
+      "Packaging": "Silk box"
     },
-    "precautions_en": "1. Store properly 2. Avoid severe impact 3. Keep dry and clean"
+    "precautions_en": "1. Avoid impacts — jade can crack\n2. Clean with soft cloth and warm water\n3. Avoid chemicals and perfume\n4. Wear regularly — jade benefits from body warmth"
   },
   {
     "id": "p23",
@@ -1513,11 +1574,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "石榴石脚链（赤焰）",
-    "name_en": "Garnet Anklet (Crimson Flame)",
+    "name_en": "Garnet Anklet (Flame)",
     "description": "石榴石深红如血，火性能量深入海底轮，促进血液循环与新陈代谢。适合身弱体寒、生命线浅弱、长期疲劳者佩戴。",
-    "description_en": "Garnet's deep blood-red color channels warm, activating quality deep into the grounding center, promoting blood circulation and metabolism. Ideal for those with weak constitution, faint life line, or chronic fatigue.",
+    "description_en": "Garnet, deep red as blood, belongs to fire-earth elements and the root chakra. Promotes blood circulation and metabolism. Ideal for those with cold constitution, weak vitality, or chronic fatigue.",
     "short_pitch": "海底轮活化与元气补充",
-    "short_pitch_en": "Grounding center activation and vitality boost",
+    "short_pitch_en": "Warmth for cold constitutions",
     "category": "jewelry",
     "price_cny": 298,
     "price_usd": 59,
@@ -1538,10 +1599,10 @@
       "#行动力"
     ],
     "keyword_tags_en": [
-      "#warmth_deficit",
-      "#weak_body",
-      "#health_low",
-      "#initiative"
+      "#WarmthNeeded",
+      "#PersonalState",
+      "#HealthTrough",
+      "#MotivationBoost"
     ],
     "elements": [
       "火"
@@ -1573,12 +1634,15 @@
     ],
     "sales_count": 720,
     "rating": 4.7,
-    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Cleanse with sandalwood smoke on the 1st and 15th of each lunar month.",
-    "efficacy_en": "",
+    "usage_en": "Wear on ankle for grounding energy. For circulatory support, wear consistently for 30+ days. Cleanse under running water.",
+    "efficacy_en": "Garnet, deep red as blood, belongs to fire-earth elements and the root chakra. Promotes blood circulation and metabolism. Ideal for those with cold constitution, weak vitality, or chronic fatigue.",
     "specifications_en": {
-      "Material": "Natural Garnet"
+      "Bead Size": "4mm",
+      "Ankle Fit": "22-25cm adjustable",
+      "Material": "Natural garnet",
+      "Packaging": "Satin pouch"
     },
-    "precautions_en": "1. Store properly 2. Avoid severe impact 3. Keep dry and clean"
+    "precautions_en": "1. Avoid impacts\n2. Clean with mild soap and water\n3. Remove during swimming\n4. Store in soft pouch"
   },
   {
     "id": "p24",
@@ -1586,11 +1650,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "蜜蜡随形手串",
-    "name_en": "Amber Organic Bracelet",
+    "name_en": "Amber Freeform Bracelet",
     "description": "蜜蜡是远古树脂化石，土火能量交融，温暖如阳。适合土星回归、经历成长阵痛、需要温暖与安全感的身心过渡期。",
-    "description_en": "Amber is fossilized ancient resin blending grounding, stable and warm, activating quality, warm as sunshine. Ideal for Saturn returns, growth transitions, or periods requiring warmth and emotional security.",
+    "description_en": "Amber is fossilized ancient tree resin, blending earth-fire elements. In Chinese medicine it calms the spirit, activates blood circulation, and resolves stasis. Its warm texture is perfect for close-body wear.",
     "short_pitch": "身心过渡期的温暖陪伴",
-    "short_pitch_en": "Warm companion for life transitions",
+    "short_pitch_en": "Ancient warmth for modern healing",
     "category": "jewelry",
     "price_cny": 768,
     "price_usd": 189,
@@ -1613,10 +1677,10 @@
       "#压力大"
     ],
     "keyword_tags_en": [
-      "#challenge_period",
-      "#personal_change",
-      "#obstacles",
-      "#high_stress"
+      "#ChallengingPhase",
+      "#PersonalTransformation",
+      "#Obstacles",
+      "#HighStress"
     ],
     "elements": [
       "土",
@@ -1653,10 +1717,15 @@
     ],
     "sales_count": 280,
     "rating": 4.8,
-    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Cleanse with sandalwood smoke on the 1st and 15th of each lunar month.",
-    "efficacy_en": "",
-    "precautions_en": "1. Store properly 2. Avoid severe impact 3. Keep dry and clean",
-    "specifications_en": {}
+    "usage_en": "Wear on wrist daily. The warmth of your skin activates amber's healing properties. Cleanse with sage smoke monthly.",
+    "efficacy_en": "Amber is fossilized ancient tree resin, blending earth-fire elements. In Chinese medicine it calms the spirit, activates blood circulation, and resolves stasis. Its warm texture is ideal for close-body wear — ancient warmth for modern healing.",
+    "precautions_en": "1. Amber is soft — avoid scratches and impacts\n2. Avoid alcohol and chemicals\n3. Clean with soft dry cloth\n4. Store away from direct sunlight",
+    "specifications_en": {
+      "Bead Size": "Irregular freeform",
+      "Wrist Fit": "15-18cm",
+      "Material": "Natural amber",
+      "Packaging": "Linen pouch"
+    }
   },
   {
     "id": "p25",
@@ -1664,11 +1733,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "孔雀石圆珠项链",
-    "name_en": "Malachite Beaded Necklace",
+    "name_en": "Malachite Round Bead Necklace",
     "description": "孔雀石木性能量饱满，翠绿纹路对应心轮振动，化解感情心结与旧伤。适合感情线有岛纹、感情多磨、婚姻线紊乱者佩戴。",
-    "description_en": "Malachite carries rich growth-oriented quality with emerald veins resonating with the emotional center, dissolving emotional knots and old wounds. Ideal for those with island marks on love line, troubled relationships, or confused marriage lines.",
+    "description_en": "Malachite, rich in wood-element energy with emerald-green patterns, dissolves emotional blockages and old wounds. Ideal for those with relationship scars, emotional turbulence, or marital challenges.",
     "short_pitch": "心轮疗愈与感情修复",
-    "short_pitch_en": "Emotional center support and love repair",
+    "short_pitch_en": "Emotional release and renewal",
     "category": "jewelry",
     "price_cny": 598,
     "price_usd": 79,
@@ -1689,10 +1758,10 @@
       "#感情复杂"
     ],
     "keyword_tags_en": [
-      "#emotional_knots",
-      "#troubled_love",
-      "#love_turning_point",
-      "#complex_relationships"
+      "#EmotionalTrouble",
+      "#TurbulentLove",
+      "#RelationshipTurningPoint",
+      "#ComplexRelationship"
     ],
     "elements": [
       "木"
@@ -1724,12 +1793,15 @@
     ],
     "sales_count": 310,
     "rating": 4.7,
-    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Cleanse with sandalwood smoke on the 1st and 15th of each lunar month.",
-    "efficacy_en": "",
+    "usage_en": "Wear as pendant close to the heart. During emotional healing meditation, hold and breathe deeply. Cleanse under running water.",
+    "efficacy_en": "Malachite, rich in wood-element energy with emerald-green patterns, dissolves emotional blockages and old wounds. Ideal for those with relationship scars, emotional turbulence, or seeking emotional renewal.",
     "specifications_en": {
-      "Material": "Natural Malachite"
+      "Material": "Natural malachite",
+      "Bead Size": "6mm",
+      "Necklace Length": "45cm",
+      "Packaging": "Gift box"
     },
-    "precautions_en": "1. Store properly 2. Avoid severe impact 3. Keep dry and clean"
+    "precautions_en": "1. Malachite contains copper — wash hands after handling\n2. Avoid water exposure\n3. Clean with soft dry cloth\n4. Not for prolonged skin contact"
   },
   {
     "id": "p26",
@@ -1739,9 +1811,9 @@
     "name": "太阳石戒指（晨曦）",
     "name_en": "Sunstone Ring (Dawn)",
     "description": "太阳石闪耀金色光芒，太阳神经丛轮的激活密钥。对太阳线不明显、财运受损、自信心不足者是最佳的光芒补充。",
-    "description_en": "Sunstone gleams with golden radiance — the key to activating the personal confidence area. The best light supplement for those with faint Sun Line, damaged wealth tendency, or low self-confidence.",
+    "description_en": "Sunstone shimmers with golden light, belonging to the fire element and solar plexus chakra. Its radiant energy banishes gloom and boosts confidence. The perfect light supplement for those lacking self-assurance.",
     "short_pitch": "自信与成功的金色徽章",
-    "short_pitch_en": "Golden badge of confidence and success",
+    "short_pitch_en": "Radiance for confidence building",
     "category": "jewelry",
     "price_cny": 428,
     "price_usd": 69,
@@ -1763,10 +1835,10 @@
       "#缺乏弹性"
     ],
     "keyword_tags_en": [
-      "#poor_potential",
-      "#career_exploration",
-      "#career_barrier",
-      "#inflexibility"
+      "#FinancialDownturn",
+      "#CareerExploration",
+      "#CareerChallenge",
+      "#LackOfFlexibility"
     ],
     "elements": [
       "火",
@@ -1800,12 +1872,15 @@
     ],
     "sales_count": 470,
     "rating": 4.8,
-    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Cleanse with sandalwood smoke on the 1st and 15th of each lunar month.",
-    "efficacy_en": "Supports prosperity mindset and financial focus. Supports career focus and clear decisions.",
+    "usage_en": "Wear on right hand for confidence and action energy. Hold during morning meditation to set positive intentions. Cleanse under sunlight briefly.",
+    "efficacy_en": "Sunstone shimmers with golden light, belonging to the fire element and solar plexus chakra. Its radiant energy banishes gloom and boosts confidence. The perfect light supplement for those lacking self-assurance.",
     "specifications_en": {
-      "Material": "Natural Sunstone"
+      "Material": "Natural sunstone",
+      "Setting": "Sterling silver ring",
+      "Size": "Adjustable band",
+      "Packaging": "Ring box"
     },
-    "precautions_en": "1. Store properly 2. Avoid severe impact 3. Keep dry and clean"
+    "precautions_en": "1. Avoid prolonged intense sunlight\n2. Clean with warm soapy water\n3. Store separately from softer stones\n4. Handle with care"
   },
   {
     "id": "p27",
@@ -1944,11 +2019,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "朱砂平安牌（本命年款）",
-    "name_en": "Cinnabar Peace Accessory (Zodiac Year Edition)",
+    "name_en": "Rose Quartz Charm Bracelet",
     "description": "朱砂火性纯阳，辟邪第一圣品。对本命年值太岁、八字身弱、官杀混杂者提供至阳护盾，是传统中不可或缺的护身符。",
-    "description_en": "Cinnabar embodies pure Yang warm, activating quality — the foremost traditional item for shielding from negative influence. Provides a supreme shield for those in their Zodiac Year, weak Day Masters, or clashing conflict patterns. An indispensable traditional protective accessory.",
+    "description_en": "Rose quartz fosters genuine connections, enhancing popularity and relationship fortune. Its gentle energy warmly改善s cold or distant relationships. Venus energy加持 attracts true love and harmonious bonds.",
     "short_pitch": "纯阳辟邪的本命年守护",
-    "short_pitch_en": "Pure warmth shielding for your Zodiac Year",
+    "short_pitch_en": "Genuine connections and love attraction",
     "category": "accessory",
     "price_cny": 298,
     "price_usd": 169,
@@ -1967,10 +2042,10 @@
       "#小人是非"
     ],
     "keyword_tags_en": [
-      "#conflict_pattern",
-      "#shielding",
-      "#weak_body",
-      "#gossip"
+      "#ConflictPattern",
+      "#Protection",
+      "#PersonalState",
+      "#InterpersonalConflict"
     ],
     "elements": [
       "火"
@@ -1998,10 +2073,15 @@
     ],
     "sales_count": 2100,
     "rating": 4.9,
-    "usage_en": "Place in the appropriate environmental arrangement position according to your needs. Keep clean and treat with respect. Avoid placing in bathrooms or bedrooms.",
-    "precautions_en": "1. Handle with care and respect 2. Do not place in bathroom or cluttered areas 3. Keep away from moisture 4. Refresh monthly with incense smoke",
-    "efficacy_en": "Provides reassurance and shields from negative influence.",
-    "specifications_en": {}
+    "usage_en": "Wear close to the heart. Place under pillow for relationship enhancement. Cleanse under running water weekly.",
+    "precautions_en": "1. Rose quartz may fade in sunlight\n2. Clean with mild soap and water\n3. Store separately from harder stones\n4. Handle gently",
+    "efficacy_en": "Rose quartz fosters genuine connections, enhancing popularity and relationship fortune. Its gentle energy warmly改善s cold or distant relationships. Venus energy attracts true love and harmonious bonds.",
+    "specifications_en": {
+      "Material": "Natural rose quartz",
+      "Size": "Rough specimen 5-8cm",
+      "Display": "Wooden stand included",
+      "Packaging": "Protective box"
+    }
   },
   {
     "id": "p30",
@@ -2009,11 +2089,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "文昌塔琉璃笔筒",
-    "name_en": "Wenchang Tower Glazed Pen Holder",
+    "name_en": "Golden Rutilated Quartz Bracelet",
     "description": "文昌塔主文运官运，木火相生助学业事业。对命运线不明、事业探索期、决策困难者有开启智慧、明确方向的助益。",
-    "description_en": "The Wenchang Tower governs academic and career success, with Wood-Fire synergy enhancing study and professional growth. Opens clarity and clarifies direction for those with unclear destiny lines, career exploration phases, or decision difficulties.",
+    "description_en": "Golden rutilated quartz, hailed as the 'Stone of Wealth,' powerfully boosts positive mindset. Ideal for those in financial downturns or making frequent investment decisions.",
     "short_pitch": "开启文运与事业方向",
-    "short_pitch_en": "Unlock academic potential and career direction",
+    "short_pitch_en": "Prosperity and positive energy",
     "category": "accessory",
     "price_cny": 258,
     "price_usd": 159,
@@ -2036,10 +2116,10 @@
       "#事业"
     ],
     "keyword_tags_en": [
-      "#career_exploration",
-      "#decision_difficulty",
-      "#confusion",
-      "#career"
+      "#CareerExploration",
+      "#DecisionDifficulty",
+      "#FeelingLost",
+      "#Career"
     ],
     "elements": [
       "木",
@@ -2073,11 +2153,14 @@
     ],
     "sales_count": 490,
     "rating": 4.6,
-    "usage_en": "Place in the appropriate environmental arrangement position according to your needs. Keep clean and treat with respect. Avoid placing in bathrooms or bedrooms.",
-    "precautions_en": "1. Handle with care and respect 2. Do not place in bathroom or cluttered areas 3. Keep away from moisture 4. Refresh monthly with incense smoke",
-    "efficacy_en": "Supports career focus and clear decisions.",
+    "usage_en": "Wear on left wrist for wealth attraction. During financial decisions, hold and set clear intentions. Cleanse with sage smoke.",
+    "precautions_en": "1. Avoid chemical exposure\n2. Remove during exercise\n3. Store in soft pouch\n4. Handle with care — rutile is delicate",
+    "efficacy_en": "Golden rutilated quartz, hailed as the 'Stone of Wealth,' powerfully boosts positive mindset. Ideal for those in financial downturns or making frequent investment decisions. Earth-metal energy enhances prosperity.",
     "specifications_en": {
-      "Material": "Glazed glass"
+      "Bead Size": "10mm",
+      "Wrist Fit": "16-19cm",
+      "Material": "Natural golden rutilated quartz",
+      "Packaging": "Gift box"
     }
   },
   {
@@ -2086,11 +2169,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "竹节风铃（五音调频）",
-    "name_en": "Bamboo Wind Chime (Five-Tone Tuning)",
+    "name_en": "Sandalwood Coil Incense",
     "description": "天然竹节风铃，木形修长，风吹过时发出五行角音。能调和家居木气不足，净化空间能量，特别适合事业阻隔、沟通不畅的居家办公环境。",
-    "description_en": "Natural bamboo wind chime with slender Wood form that produces the Wood element's Jiao tone when wind passes through. Harmonizes homes lacking growth-oriented quality and cleanses space. Especially suitable for home offices with career barriers or communication difficulties.",
+    "description_en": "Sandalwood belongs to the water element with a deep, lingering fragrance. One of the four sacred scents since antiquity. Its calming aroma quiets the mind and enhances intuitive awareness.",
     "short_pitch": "木气流通的空间调频器",
-    "short_pitch_en": "Space tuner for circulating growth-oriented quality",
+    "short_pitch_en": "Sacred scent for deep stillness",
     "category": "incense",
     "price_cny": 188,
     "price_usd": 79,
@@ -2111,10 +2194,10 @@
       "#家居"
     ],
     "keyword_tags_en": [
-      "#growth_deficit",
-      "#communication_block",
-      "#career_barrier",
-      "#home"
+      "#GrowthNeeded",
+      "#ExpressionDifficulty",
+      "#CareerChallenge",
+      "#HomeSpace"
     ],
     "elements": [
       "木"
@@ -2144,10 +2227,15 @@
     ],
     "sales_count": 260,
     "rating": 4.5,
-    "usage_en": "Light in a well-ventilated area. Place on a heat-resistant surface. Use during quiet reflection or relaxation for best results.",
-    "precautions_en": "1. Use in well-ventilated areas only 2. Keep away from flammable materials 3. Do not leave burning unattended 4. Store in a cool, dry place",
-    "efficacy_en": "",
-    "specifications_en": {}
+    "usage_en": "Place coil in incense holder. Light outer tip, allow to catch, then blow out. One coil burns for approximately 2 hours.",
+    "precautions_en": "1. Use in well-ventilated area\n2. Keep away from flammable materials\n3. Place on heat-resistant surface\n4. Not for those with respiratory sensitivities",
+    "efficacy_en": "Sandalwood belongs to the water element with a deep, lingering fragrance. One of the four sacred scents since antiquity. Its calming aroma quiets the mind and enhances intuitive awareness.",
+    "specifications_en": {
+      "Coil Diameter": "8cm",
+      "Burn Time": "Approx. 2 hours",
+      "Material": "Pure sandalwood",
+      "Packaging": "Tin box"
+    }
   },
   {
     "id": "p32",
@@ -2155,11 +2243,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "喜马拉雅水晶盐灯",
-    "name_en": "Himalayan Crystal Salt Lamp",
+    "name_en": "Sterling Silver Six-Syllable Mantra Bangle",
     "description": "亿万年的岩盐结晶，通电后散发温暖橙红光，土火能量交融。净化空气的同时稳固家居能量场，适合土星刑克、家居能量紊乱者。",
-    "description_en": "Crystallized from ancient rock salt, emitting warm orange-red light when lit — a fusion of grounding, stable and warm, activating quality. Cleanses air while stabilizing household ambient field. Ideal for those with challenge periods or chaotic home quality.",
+    "description_en": "Pure silver engraved with the Six-Syllable Mantra enhances confidence, resolves conflicts, and provides spiritual protection. Ideal for those easily influenced by external environments.",
     "short_pitch": "温暖净化的能量灯塔",
-    "short_pitch_en": "Warm cleansing ambiance beacon",
+    "short_pitch_en": "Mantra-infused silver protection",
     "category": "crystal",
     "price_cny": 198,
     "price_usd": 129,
@@ -2181,10 +2269,10 @@
       "#安神"
     ],
     "keyword_tags_en": [
-      "#challenge_period",
-      "#space_harmony",
-      "#home",
-      "#mental_clarity"
+      "#ChallengingPhase",
+      "#SpaceLayout",
+      "#HomeSpace",
+      "#MentalPeace"
     ],
     "elements": [
       "土",
@@ -2218,10 +2306,15 @@
     ],
     "sales_count": 920,
     "rating": 4.7,
-    "usage_en": "Place on your desk or in the wealth corner of your home (diagonal from the entrance). Wipe gently with clean water weekly. During quiet reflection, hold the crystal and visualize golden light filling your body.",
-    "precautions_en": "1. Avoid prolonged direct sunlight to prevent fading 2. Not recommended for bedroom nightstand 3. Remove during exercise and bathing 4. Cleanse under moonlight for 4 hours after purchase",
-    "efficacy_en": "Supports physical and mental wellness.",
-    "specifications_en": {}
+    "usage_en": "Wear on left wrist daily. During meditation, hold the bangle for enhanced protection. Cleanse with silver polish cloth.",
+    "precautions_en": "1. Silver may tarnish — polish regularly\n2. Avoid perfume and chemicals\n3. Remove during swimming\n4. Store in anti-tarnish pouch",
+    "efficacy_en": "Pure silver engraved with the Six-Syllable Mantra enhances confidence, resolves conflicts, and provides spiritual protection. Ideal for those easily influenced by external environments.",
+    "specifications_en": {
+      "Material": "925 Sterling Silver",
+      "Size": "Adjustable 16-20cm",
+      "Engraving": "Six-Syllable Mantra",
+      "Packaging": "Velvet box"
+    }
   },
   {
     "id": "p33",
@@ -2229,11 +2322,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "铜钵音疗套装（七脉轮）",
-    "name_en": "Singing Bowl Sound Healing Set (Frequencies)",
+    "name_en": "Bronze Singing Bowl Set (Body-Mind Harmony)",
     "description": "七枚铜钵对应七大脉轮频率，金声玉振通经络。对灵性敏锐者做能量清理、感情心结释放、深层冥想有不可替代的作用。",
-    "description_en": "Seven singing bowls tuned to each of the seven major frequency ranges — resonant bronze tones that clear meridian pathways. Irreplaceable for personally sensitive individuals for quality clearing, releasing emotional knots, and quiet reflection.",
+    "description_en": "Seven bronze singing bowls tuned to seven chakra frequencies. The resonant sound clears energy blockages, releases emotional tension, and facilitates deep meditation.",
     "short_pitch": "七脉轮音声疗愈",
-    "short_pitch_en": "Seven-frequency sound healing",
+    "short_pitch_en": "Chakra tuning and emotional release",
     "category": "accessory",
     "price_cny": 2380,
     "price_usd": 899,
@@ -2255,10 +2348,10 @@
       "#感情心结"
     ],
     "keyword_tags_en": [
-      "#personally_sensitive",
-      "#emotional_fatigue",
-      "#personal_change",
-      "#emotional_knots"
+      "#HeightenedPerception",
+      "#EmotionalFatigue",
+      "#PersonalTransformation",
+      "#EmotionalTrouble"
     ],
     "elements": [
       "金"
@@ -2298,10 +2391,15 @@
     ],
     "sales_count": 85,
     "rating": 5.0,
-    "usage_en": "Place in the appropriate environmental arrangement position according to your needs. Keep clean and treat with respect. Avoid placing in bathrooms or bedrooms.",
-    "precautions_en": "1. Handle with care and respect\n2. Do not place in bathroom or cluttered areas\n3. Keep away from moisture\n4. Refresh monthly with incense smoke",
-    "efficacy_en": "",
-    "specifications_en": {}
+    "usage_en": "Strike gently with mallet and allow the sound to resonate. Move around the body to clear each chakra. Use during meditation or sound healing sessions.",
+    "precautions_en": "1. Handle bowls carefully — bronze can dent\n2. Clean with dry soft cloth\n3. Store in provided case\n4. Avoid dropping",
+    "efficacy_en": "Seven bronze singing bowls tuned to seven chakra frequencies. The resonant sound clears energy blockages, releases emotional tension, and facilitates deep meditation. An essential tool for body-mind harmony.",
+    "specifications_en": {
+      "Material": "Bronze alloy",
+      "Set": "7 bowls + mallet + cushion",
+      "Size Range": "6-15cm diameter",
+      "Packaging": "Carrying case"
+    }
   },
   {
     "id": "p34",
@@ -2309,11 +2407,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "真丝眼罩（五行安神）",
-    "name_en": "Silk Eye Mask (Five Element Calm)",
+    "name_en": "Silk Eye Mask (Comfortable Sleep)",
     "description": "桑蚕丝亲肤柔滑，内置五行草药香包（艾草、薰衣草、合欢花、柏子仁、琥珀粉）。适合焦虑过度、内耗严重、睡眠质量差者夜间佩戴。",
-    "description_en": "Silky-smooth mulberry silk lined with Five Element herbal sachet (Mugwort, Lavender, Albizia Flower, Biota Seed, Amber Powder). Ideal for those with severe anxiety, emotional fatigue, or poor sleep quality — wear nightly for restorative rest.",
+    "description_en": "Mulberry silk with herbal sachet — mugwort, lavender, silk tree flowers, cypress seeds. Silk nourishes yin, lavender calms the spirit, mugwort warms the meridians. Perfect for insomnia and anxiety.",
     "short_pitch": "深度睡眠的能量眼罩",
-    "short_pitch_en": "Quality eye mask for deep sleep",
+    "short_pitch_en": "Herbal silk for restful sleep",
     "category": "incense",
     "price_cny": 268,
     "price_usd": 59,
@@ -2337,10 +2435,10 @@
       "#安神"
     ],
     "keyword_tags_en": [
-      "#severe_anxiety",
-      "#emotional_fatigue",
-      "#high_stress",
-      "#mental_clarity"
+      "#StressManagement",
+      "#EmotionalFatigue",
+      "#HighStress",
+      "#MentalPeace"
     ],
     "elements": [
       "木",
@@ -2379,9 +2477,15 @@
     ],
     "sales_count": 670,
     "rating": 4.8,
-    "usage_en": "Light in a well-ventilated area. Place on a heat-resistant surface. Use during quiet reflection or relaxation for best results.",
-    "precautions_en": "1. Use in well-ventilated areas only 2. Keep away from flammable materials 3. Do not leave burning unattended 4. Store in a cool, dry place",
-    "specifications_en": {}
+    "usage_en": "Wear over eyes during sleep. The herbal sachet releases calming aromas throughout the night. Replace sachet every 3 months.",
+    "precautions_en": "1. Hand wash only — cold water\n2. Do not wring — lay flat to dry\n3. Keep sachet dry\n4. Replace herbs when scent fades",
+    "specifications_en": {
+      "Material": "Mulberry silk + herbal filling",
+      "Herbs": "Mugwort, lavender, silk tree, cypress",
+      "Size": "One size fits all",
+      "Packaging": "Linen pouch"
+    },
+    "efficacy_en": "Mulberry silk with herbal sachet — mugwort, lavender, silk tree flowers, cypress seeds. Silk nourishes yin, lavender calms the spirit, mugwort warms the meridians. Perfect for insomnia, anxiety, and eye fatigue."
   },
   {
     "id": "p35",
@@ -2389,11 +2493,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "手工刺绣香囊（招财进宝）",
-    "name_en": "Hand-Embroidered Sachet (Wealth Attraction)",
+    "name_en": "Hand-Embroidered Sachet (Blessings)",
     "description": "传统老绣娘手工刺绣，内置天然香料与五帝钱。随身佩戴可聚财气、增人缘、辟邪气，适合财运需关注、人际困扰者日常携带。",
-    "description_en": "Hand-embroidered by traditional master craftswomen, filled with natural fragrances and Five Emperor Coins. Carry daily to enhance prosperity mindset, build social presence, and shield from negative influence — perfect for those needing financial boost or interpersonal harmony.",
+    "description_en": "Traditional hand-embroidered sachet with natural herbs and Five Emperor Coins. Worn daily it gathers prosperity energy, enhances popularity, and provides spiritual protection.",
     "short_pitch": "随身携带的招财香囊",
-    "short_pitch_en": "Portable prosperity-enhancing sachet",
+    "short_pitch_en": "Traditional charm for daily blessing",
     "category": "jewelry",
     "price_cny": 168,
     "price_usd": 39,
@@ -2415,10 +2519,10 @@
       "#财运受损"
     ],
     "keyword_tags_en": [
-      "#prosperity_mindset",
-      "#relationships",
-      "#relationships",
-      "#poor_potential"
+      "#PositiveMindset",
+      "#Interpersonal",
+      "#Relationships",
+      "#FinancialDownturn"
     ],
     "elements": [
       "土",
@@ -2452,9 +2556,15 @@
     ],
     "sales_count": 1100,
     "rating": 4.7,
-    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Cleanse with sandalwood smoke on the 1st and 15th of each lunar month.",
-    "precautions_en": "1. Store properly 2. Avoid severe impact 3. Keep dry and clean",
-    "specifications_en": {}
+    "usage_en": "Carry in pocket or bag. The herbs release protective aromas. Hang in car or office for space cleansing.",
+    "precautions_en": "1. Keep dry — moisture degrades herbs\n2. Refresh by gently squeezing\n3. Replace herbs annually\n4. Do not wash — spot clean only",
+    "specifications_en": {
+      "Material": "Silk embroidery + herbs",
+      "Herbs": "Five-spice blend + Five Emperor Coins",
+      "Size": "8×10cm",
+      "Packaging": "Individual pouch"
+    },
+    "efficacy_en": "Traditional hand-embroidered sachet with natural herbs and Five Emperor Coins. Worn daily it gathers prosperity energy, enhances popularity, and provides spiritual protection. A traditional随身护佑 item."
   },
   {
     "id": "p36",
@@ -2462,11 +2572,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "崖柏线香（古法手工）",
-    "name_en": "Cliff Cypress Incense Sticks (Traditional Craft)",
+    "name_en": "Cliff Cypress Incense (Ancient Craft)",
     "description": "太行山崖柏老料，木土能量厚重沉稳。适合木气不足、思绪纷乱、冥想难以专注者。点燃后如置身千年古林，瞬间安稳心神。",
-    "description_en": "Aged Cliff Cypress from Taihang Mountain with rich, grounding Wood-Earth quality. Ideal for those lacking growth-oriented quality, scattered thoughts, or difficulty focusing during mindfulness practice. Lighting one transports you to an ancient forest, instantly calming the mind.",
+    "description_en": "Taihang Mountain cliff cypress, ancient wood with profound earth energy. Its burning aroma transports you to a thousand-year forest, instantly calming the mind. Perfect for meditation and contemplation.",
     "short_pitch": "古老森林的能量香",
-    "short_pitch_en": "Quality incense of the ancient forest",
+    "short_pitch_en": "Ancient forest essence for stillness",
     "category": "incense",
     "price_cny": 128,
     "price_usd": 129,
@@ -2486,10 +2596,10 @@
       "#灵性"
     ],
     "keyword_tags_en": [
-      "#growth_deficit",
-      "#mental_clarity",
-      "#severe_anxiety",
-      "#personality"
+      "#GrowthNeeded",
+      "#MentalPeace",
+      "#StressManagement",
+      "#InnerGrowth"
     ],
     "elements": [
       "木",
@@ -2520,10 +2630,15 @@
     ],
     "sales_count": 530,
     "rating": 4.6,
-    "usage_en": "Light in a well-ventilated area. Place on a heat-resistant surface. Use during quiet reflection or relaxation for best results.",
-    "precautions_en": "1. Use in well-ventilated areas only 2. Keep away from flammable materials 3. Do not leave burning unattended 4. Store in a cool, dry place",
-    "efficacy_en": "Supports physical and mental wellness.",
-    "specifications_en": {}
+    "usage_en": "Light the tip, allow to catch, then blow out. Place in incense holder. One stick burns for approximately 30 minutes.",
+    "precautions_en": "1. Use in well-ventilated space\n2. Keep away from flammable materials\n3. Place on heat-resistant surface\n4. Store in cool, dry place",
+    "efficacy_en": "Taihang Mountain cliff cypress, ancient wood with profound earth energy. Its burning aroma transports you to a thousand-year forest, instantly calming the mind. Ideal for meditation and deep contemplation.",
+    "specifications_en": {
+      "Length": "21cm per stick",
+      "Burn Time": "Approx. 30 minutes",
+      "Material": "Taihang cliff cypress",
+      "Packaging": "Paper box"
+    }
   },
   {
     "id": "p39",
@@ -2531,11 +2646,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "铜质风水轮摆件（流水生财）",
-    "name_en": "Brass Environmental Harmony Water Wheel (Flowing Wealth)",
+    "name_en": "Copper Water Flow Sculpture (Wealth Flow)",
     "description": "风水轮以水为引、以金为器，水金相生催旺财库。流水声舒缓减压，适合财运受损、财务需关注、压力大的居住或办公空间。",
-    "description_en": "The Environmental Harmony Water Wheel channels calming, flowing quality through Metal vessel — Water-Metal synergy amplifies wealth chambers. The soothing sound of flowing water reduces stress. Ideal for living or office spaces with damaged wealth tendency, financial concerns, or high stress.",
+    "description_en": "Copper water feature — water as guide, metal as vessel. Flowing water symbolizes continuous wealth. In feng shui, water governs finances; copper (metal) generates water, creating a prosperous金水相生 cycle.",
     "short_pitch": "流水生财的能量源泉",
-    "short_pitch_en": "Flowing quality for prosperity creation",
+    "short_pitch_en": "Feng shui wealth activation",
     "category": "accessory",
     "price_cny": 468,
     "price_usd": 499,
@@ -2555,10 +2670,10 @@
       "#压力大"
     ],
     "keyword_tags_en": [
-      "#financial_reset",
-      "#poor_potential",
-      "#space_harmony",
-      "#high_stress"
+      "#FinancialRenewal",
+      "#FinancialDownturn",
+      "#SpaceLayout",
+      "#HighStress"
     ],
     "elements": [
       "金",
@@ -2586,9 +2701,15 @@
     ],
     "sales_count": 440,
     "rating": 4.7,
-    "usage_en": "Place in the appropriate environmental arrangement position according to your needs. Keep clean and treat with respect. Avoid placing in bathrooms or bedrooms.",
-    "precautions_en": "1. Handle with care and respect 2. Do not place in bathroom or cluttered areas 3. Keep away from moisture 4. Refresh monthly with incense smoke",
-    "specifications_en": {}
+    "usage_en": "Place in the north sector of your living room or office (wealth corner). Ensure water flows inward. Add water weekly.",
+    "precautions_en": "1. Clean water basin regularly\n2. Use distilled water to prevent mineral buildup\n3. Keep away from electronics\n4. Do not place on wooden furniture directly",
+    "specifications_en": {
+      "Material": "Brushed copper",
+      "Size": "30cm tall",
+      "Weight": "Approx. 2kg",
+      "Packaging": "Styrofoam box"
+    },
+    "efficacy_en": "Copper water feature — water as guide, metal as vessel. Flowing water symbolizes continuous wealth. In feng shui, water governs finances; copper (metal) generates water, creating a prosperous金水相生 cycle."
   },
   {
     "id": "p40",
@@ -2596,11 +2717,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "黑檀木文昌塔+笔套装",
-    "name_en": "Ebony Wenchang Tower + Brush Set",
+    "name_en": "Ebony文昌塔 + Brush Set",
     "description": "文昌塔以黑檀木精雕七层，塔顶镶白水晶，配狼毫笔一支。文昌主文运官运，正印偏印皆宜。适合学业瓶颈、职称晋升、证书考试、需要印星助力者，置于书桌左上角效果最佳。",
-    "description_en": "A seven-tier Wenchang Tower hand-carved from Ebony with a White Quartz crown, paired with a wolf-hair calligraphy brush. Wenchang governs academic and career potential, beneficial for both Direct and Indirect Resource stars. Ideal for academic plateaus, professional certifications, or anyone needing Resource star support — place at the upper-left corner of your desk for best results.",
+    "description_en": "文昌塔 carved from ebony (water element, governing wisdom) topped with white quartz (metal generates water). Paired with a calligraphy brush — a complete feng shui set for academic and career success.",
     "short_pitch": "开启文运与印星护佑",
-    "short_pitch_en": "Unlock academic potential and Resource star support",
+    "short_pitch_en": "Academic success feng shui set",
     "category": "accessory",
     "price_cny": 368,
     "price_usd": 249,
@@ -2623,10 +2744,10 @@
       "#事业探索期"
     ],
     "keyword_tags_en": [
-      "#academic_plateau",
-      "#certification_exam",
-      "#weak_resource_star",
-      "#career_exploration"
+      "#AcademicPlateau",
+      "#CertificationExam",
+      "#AcademicSupport",
+      "#CareerExploration"
     ],
     "elements": [
       "木",
@@ -2662,9 +2783,15 @@
     ],
     "sales_count": 380,
     "rating": 4.8,
-    "usage_en": "Place in the appropriate environmental arrangement position according to your needs. Keep clean and treat with respect. Avoid placing in bathrooms or bedrooms.",
-    "precautions_en": "1. Handle with care and respect 2. Do not place in bathroom or cluttered areas 3. Keep away from moisture 4. Refresh monthly with incense smoke",
-    "specifications_en": {}
+    "usage_en": "Place on the left side of the desk (文昌位). The brush can be used for daily writing. Position facing the door.",
+    "precautions_en": "1. Dust regularly with soft cloth\n2. Avoid moisture\n3. Do not move frequently\n4. Keep upright at all times",
+    "specifications_en": {
+      "Material": "Ebony + white quartz",
+      "Height": "25cm",
+      "Brush": "Wolf hair calligraphy",
+      "Packaging": "Gift box"
+    },
+    "efficacy_en": "文昌塔 carved from ebony (water element, governing wisdom) topped with white quartz (metal generates water). Paired with a calligraphy brush — a complete feng shui set for academic and career success."
   },
   {
     "id": "p41",
@@ -2672,11 +2799,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "蜜蜡石榴石手串（多子多福）",
-    "name_en": "Amber & Garnet Bracelet (Abundant Wellness)",
+    "name_en": "Amber & Garnet Bracelet (Abundance)",
     "description": "蜜蜡金黄温暖配石榴石殷红，土火相生暖宫养身。石榴石对应海底轮与生殖系统，蜜蜡代表延续与传承。适合子女缘薄、备孕调理、创作灵感枯竭、食伤星弱需催旺才华者。",
-    "description_en": "Golden warm amber paired with deep crimson garnet — grounding, stable and warm, activating synergy that warms and nurtures the body. Garnet resonates with the grounding center and reproductive system, while Amber symbolizes continuation and legacy. Ideal for those with weak children tendency, preconception preparation, creative blocks, or creative expression needs activation.",
+    "description_en": "Amber (earth-fire) paired with garnet (fire-earth) creates a complementary cycle. Together they warm the body, nourish blood, and symbolize family continuity — a traditional blessing for prosperity and fertility.",
     "short_pitch": "暖宫养身与才华催旺",
-    "short_pitch_en": "Warmth support and talent activation",
+    "short_pitch_en": "Family blessing and abundance",
     "category": "jewelry",
     "price_cny": 528,
     "price_usd": 79,
@@ -2700,10 +2827,10 @@
       "#伤官受制"
     ],
     "keyword_tags_en": [
-      "#weak_children_tendency",
-      "#preconception",
-      "#creative_block",
-      "#weak_talent_star"
+      "#LimitedOffspring",
+      "#FertilityPrep",
+      "#CreativeBlock",
+      "#RestrainedTalent"
     ],
     "elements": [
       "土",
@@ -2744,9 +2871,15 @@
     ],
     "sales_count": 260,
     "rating": 4.7,
-    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Cleanse with sandalwood smoke on the 1st and 15th of each lunar month.",
-    "precautions_en": "1. Store properly 2. Avoid severe impact 3. Keep dry and clean",
-    "specifications_en": {}
+    "usage_en": "Wear on left wrist for warmth and abundance energy. During family rituals, hold and set intentions for family harmony.",
+    "precautions_en": "1. Amber is soft — avoid scratches\n2. Garnet is durable but avoid impacts\n3. Clean with soft damp cloth\n4. Store separately from other jewelry",
+    "specifications_en": {
+      "Bead Size": "6mm garnet + amber freeform",
+      "Wrist Fit": "15-18cm",
+      "Material": "Natural amber + garnet",
+      "Packaging": "Silk pouch"
+    },
+    "efficacy_en": "Amber (earth-fire) paired with garnet (fire-earth) creates a complementary cycle. Together they warm the body, nourish blood, and symbolize family continuity — a traditional blessing for prosperity and fertility."
   },
   {
     "id": "p42",
@@ -2754,11 +2887,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "天然白水晶簇摆件",
-    "name_en": "Natural White Quartz Cluster Display",
+    "name_en": "Natural White Quartz Cluster",
     "description": "白水晶簇是天然能量放大器，多尖朝向四面八方，象征团队协作与能量辐射。适合比劫为用神需旺合作运者、团队领导者、社交频繁者。同时净化空间磁场，是办公室与客厅的百搭能量摆件。",
-    "description_en": "White Quartz Cluster is a natural quality amplifier — multiple points radiating in all directions symbolizing teamwork and quality broadcast. Ideal for those who need to boost cooperation tendency (Competition stars as useful god), team leaders, or frequent socializers. Also cleanses space quality — a versatile display for offices and living rooms.",
+    "description_en": "White quartz cluster is a natural energy amplifier. Multiple points radiate in all directions, purifying space negativity. In feng shui it belongs to metal, warding off evil. Perfect for office and living room purification.",
     "short_pitch": "团队凝聚力与空间净化",
-    "short_pitch_en": "Team cohesion and space cleansing",
+    "short_pitch_en": "Natural energy purifier",
     "category": "crystal",
     "price_cny": 298,
     "price_usd": 199,
@@ -2780,10 +2913,10 @@
       "#能量阻滞"
     ],
     "keyword_tags_en": [
-      "#cooperation_issues",
-      "#relationship_tension",
-      "#team_friction",
-      "#vitality_blockage"
+      "#PartnershipIssues",
+      "#InterpersonalTension",
+      "#TeamAlignment",
+      "#BlockedInfluence"
     ],
     "elements": [
       "金",
@@ -2819,11 +2952,14 @@
     ],
     "sales_count": 520,
     "rating": 4.6,
-    "usage_en": "Place on your desk or in the wealth corner of your home (diagonal from the entrance). Wipe gently with clean water weekly. During quiet reflection, hold the crystal and visualize golden light filling your body.",
-    "precautions_en": "1. Avoid prolonged direct sunlight to prevent fading\n2. Not recommended for bedroom nightstand\n3. Remove during exercise and bathing\n4. Cleanse under moonlight for 4 hours after purchase",
-    "efficacy_en": "",
+    "usage_en": "Place in the center of a room or on a bookshelf. Position points outward to radiate energy. Cleanse monthly under running water.",
+    "precautions_en": "1. Handle carefully — crystal points are sharp\n2. Clean with soft brush\n3. Keep away from edges\n4. Place on stable surface",
+    "efficacy_en": "White quartz cluster is a natural energy amplifier. Multiple points radiate in all directions, purifying space negativity. In feng shui it belongs to metal, warding off evil. Perfect for office and living room purification.",
     "specifications_en": {
-      "Material": "Natural white quartz cluster"
+      "Material": "Natural white quartz cluster",
+      "Size": "15-20cm",
+      "Points": "Multiple radiating",
+      "Packaging": "Padded box"
     }
   },
   {
@@ -2832,11 +2968,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "白水晶平安车挂（驿马守护）",
-    "name_en": "White Quartz Travel Guardian Car Accessory",
+    "name_en": "White Quartz平安Car Hanging (Journey Guardian)",
     "description": "白水晶圆珠串配金刚结流苏，挂于车内后视镜。水晶折射七彩光净化车内磁场，金刚结护佑出行平安。适合命带驿马常出差者、频繁搬家变动者、长途驾驶者，以水晶至纯之光护佑一路顺遂。",
-    "description_en": "White Quartz bead strand with Vajra Knot tassel, hung from rearview mirror. Crystal refracts rainbow light to cleanse the car's ambient field, while the Vajra Knot ensures safe travels. Perfect for frequent travelers, frequent movers, or long-distance drivers — pure crystal light guards your journey.",
+    "description_en": "White quartz beads with Tibetan Buddhist vajra knot tassel. Crystal refracts rainbow light to cleanse the car's energy field while the sacred knot ensures safe travels. Ideal for frequent travelers.",
     "short_pitch": "出行平安与驿马守护",
-    "short_pitch_en": "Safe travels and Travel Star guardian",
+    "short_pitch_en": "Sacred protection for journeys",
     "category": "accessory",
     "price_cny": 188,
     "price_usd": 49,
@@ -2858,10 +2994,10 @@
       "#外地发展"
     ],
     "keyword_tags_en": [
-      "#travel_star",
-      "#travel_safety",
-      "#frequent_changes",
-      "#overseas_growth"
+      "#FrequentTravel",
+      "#TravelSafety",
+      "#FrequentChange",
+      "#Relocation"
     ],
     "elements": [
       "金",
@@ -2895,9 +3031,15 @@
     ],
     "sales_count": 890,
     "rating": 4.8,
-    "usage_en": "Place in the appropriate environmental arrangement position according to your needs. Keep clean and treat with respect. Avoid placing in bathrooms or bedrooms.",
-    "precautions_en": "1. Handle with care and respect\n2. Do not place in bathroom or cluttered areas\n3. Keep away from moisture\n4. Refresh monthly with incense smoke",
-    "specifications_en": {}
+    "usage_en": "Hang from rearview mirror or dashboard. Ensure it does not obstruct driver's view. The crystal naturally cleanses the car's energy.",
+    "precautions_en": "1. Ensure secure attachment\n2. Does not obstruct driving\n3. Clean with soft cloth\n4. Keep away from airbags",
+    "specifications_en": {
+      "Material": "White quartz + silk cord",
+      "Length": "15cm including tassel",
+      "Bead Size": "6mm",
+      "Packaging": "Organza pouch"
+    },
+    "efficacy_en": "White quartz beads with Tibetan Buddhist vajra knot tassel. Crystal refracts rainbow light to cleanse the car's energy field while the sacred knot ensures safe travels. Ideal for frequent travelers."
   },
   {
     "id": "p44",
@@ -2905,11 +3047,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "紫锂辉石耳坠（灵犀）",
-    "name_en": "Kunzite Earrings (Spirit Link)",
+    "name_en": "Kunzite Earrings (Soul Connection)",
     "description": "紫锂辉石淡紫至粉红的渐变，是心轮与顶轮的桥梁。锂辉石含锂元素，能稳定情绪、化解孤独感。适合华盖/孤辰/寡宿入命者、享受独处但渴望深度连接者、艺术创作者、审美品味独特者佩戴。",
-    "description_en": "Kunzite's gradient from pale purple to pink bridges the emotional and clarity centers. Containing lithium element, it stabilizes emotions and dissolves loneliness. Perfect for those with Huagai/Guchen/Guasu stars in chart, those who enjoy solitude yet crave deep connection, artistic creators, or those with unique aesthetic sensibility.",
+    "description_en": "Kunzite fades from pale purple to pink, bridging the crown and heart chakras. Containing lithium, it stabilizes emotions and alleviates loneliness. Perfect for independent spirits, artists, and unique aesthetes.",
     "short_pitch": "孤独转化与艺术灵感",
-    "short_pitch_en": "Solitude transformation into creative inspiration",
+    "short_pitch_en": "Emotional balance and soul connection",
     "category": "jewelry",
     "price_cny": 698,
     "price_usd": 79,
@@ -2932,10 +3074,10 @@
       "#情感连接"
     ],
     "keyword_tags_en": [
-      "#huagai_solitude",
-      "#focused_creativity",
-      "#unique_aesthetic",
-      "#emotional_connection"
+      "#IndependentSpirit",
+      "#ExplorerSpirit",
+      "#UniqueAesthetics",
+      "#EmotionalConnection"
     ],
     "elements": [
       "火",
@@ -2974,9 +3116,15 @@
     ],
     "sales_count": 140,
     "rating": 4.9,
-    "usage_en": "Wear on your left wrist, close to skin for best effect. Remove during exercise. Cleanse with sandalwood smoke on the 1st and 15th of each lunar month.",
-    "precautions_en": "1. Store properly 2. Avoid severe impact 3. Keep dry and clean",
-    "specifications_en": {}
+    "usage_en": "Wear close to the ears for emotional balance. During creative work, place on desk for inspiration. Cleanse under running water.",
+    "precautions_en": "1. Kunzite is sensitive to light — store in dark\n2. Handle gently — can cleave\n3. Clean with mild soap and water\n4. Store in opaque pouch",
+    "specifications_en": {
+      "Material": "Natural kunzite",
+      "Setting": "Sterling silver",
+      "Drop Size": "Approx. 1.5cm",
+      "Packaging": "Jewelry box"
+    },
+    "efficacy_en": "Kunzite fades from pale purple to pink, bridging the crown and heart chakras. Containing lithium, it stabilizes emotions and alleviates loneliness. Perfect for independent spirits, artists, and unique aesthetes."
   },
   {
     "id": "p45",
@@ -2986,9 +3134,9 @@
     "name": "艾草薰衣草助眠香枕",
     "name_en": "Mugwort & Lavender Sleep Pillow",
     "description": "三年陈艾绒配薰衣草干花、合欢花、柏子仁，纯手工填充棉麻枕。艾草温通经络，薰衣草安神定志，合欢花解郁除烦。适合掌色偏青(循环关注)、指甲软薄(体质偏弱)、无半月痕(精力透支)、睡眠质量差者。",
-    "description_en": "Three-year aged mugwort floss blended with dried lavender, Albizia flowers, and Biota seeds, hand-filled into a cotton-linen pillow. Mugwort warms and clears meridians, lavender calms the mind, and Albizia dissolves depression. Ideal for those with bluish palms (circulation concerns), soft thin nails (weak constitution), no half-moons on nails (depleted vitality), or poor sleep quality.",
+    "description_en": "Three-year aged mugwort with lavender, silk tree flowers, and cypress seeds, hand-filled in cotton-linen. Mugwort warms meridians, lavender calms the mind, silk tree flowers relieve depression.",
     "short_pitch": "本草安神与深度修复",
-    "short_pitch_en": "Herbal calm and deep restoration",
+    "short_pitch_en": "Herbal remedy for deep sleep",
     "category": "incense",
     "price_cny": 198,
     "price_usd": 69,
@@ -3012,10 +3160,10 @@
       "#体质偏弱"
     ],
     "keyword_tags_en": [
-      "#severe_anxiety",
-      "#emotional_fatigue",
-      "#vitality_depletion",
-      "#weak_constitution"
+      "#StressManagement",
+      "#EmotionalFatigue",
+      "#EnergyDepletion",
+      "#WeakConstitution"
     ],
     "elements": [
       "木",
@@ -3056,9 +3204,15 @@
     ],
     "sales_count": 720,
     "rating": 4.7,
-    "usage_en": "Light in a well-ventilated area. Place on a heat-resistant surface. Use during quiet reflection or relaxation for best results.",
-    "precautions_en": "1. Use in well-ventilated areas only 2. Keep away from flammable materials 3. Do not leave burning unattended 4. Store in a cool, dry place",
-    "specifications_en": {}
+    "usage_en": "Place under pillow or inside pillowcase. The herbs release calming aromas throughout the night. Replace every 6 months for best效果.",
+    "precautions_en": "1. Keep dry — moisture reduces effectiveness\n2. Sun-dry monthly for 2 hours\n3. Do not wash — spot clean only\n4. Replace when scent fades",
+    "specifications_en": {
+      "Material": "Cotton-linen + herbal filling",
+      "Herbs": "Mugwort, lavender, silk tree, cypress",
+      "Size": "40×60cm",
+      "Packaging": "Cotton bag"
+    },
+    "efficacy_en": "Three-year aged mugwort with lavender, silk tree flowers, and cypress seeds, hand-filled in cotton-linen. Mugwort warms meridians, lavender calms the mind, silk tree flowers relieve depression. A herbal remedy for deep sleep."
   },
   {
     "id": "p46",
@@ -3066,11 +3220,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "铜鎏金貔貅摆件（招偏财）",
-    "name_en": "Gilded Bronze Pixiu Statue (Windfall Wealth)",
+    "name_en": "Gilded Bronze Pixiu Sculpture (Prosperity)",
     "description": "铜鎏金貔貅呈蹲坐回首状，大口吞财、圆臀守财。底座刻五鬼运财符，专催偏财与投资运。适合偏财为用神者、股票基金投资者、创业者、经商人士，置于财位或收银台，以金气引动偏财星。",
-    "description_en": "Gilded bronze Pixiu in seated-turning-back pose — large mouth, rounded haunches guarding prosperity. Base engraved with Five Ghosts Wealth Carrying symbol, specifically activating windfall wealth and investment tendency. Ideal for those with Indirect Wealth as useful god, stock/fund investors, entrepreneurs, or business owners — place at wealth corner or cashier to trigger windfall star with structured, clarifying quality.",
+    "description_en": "Gilded bronze pixiu in seated回首 posture — wide mouth swallows wealth, round rump guards it. Base inscribed with prosperity symbols. For business owners, investors, and entrepreneurs seeking wealth growth.",
     "short_pitch": "偏财催旺与投资护佑",
-    "short_pitch_en": "Windfall wealth activation and investment protection",
+    "short_pitch_en": "Wealth magnet for business",
     "category": "accessory",
     "price_cny": 688,
     "price_usd": 189,
@@ -3091,10 +3245,10 @@
       "#财运受损"
     ],
     "keyword_tags_en": [
-      "#weak_windfall",
-      "#investment_loss",
-      "#startup_phase",
-      "#poor_potential"
+      "#InsufficientGrowth",
+      "#InvestmentLoss",
+      "#StartupPhase",
+      "#FinancialDownturn"
     ],
     "elements": [
       "金"
@@ -3126,11 +3280,14 @@
     ],
     "sales_count": 340,
     "rating": 4.8,
-    "usage_en": "Place in the appropriate environmental arrangement position according to your needs. Keep clean and treat with respect. Avoid placing in bathrooms or bedrooms.",
-    "precautions_en": "1. Handle with care and respect 2. Do not place in bathroom or cluttered areas 3. Keep away from moisture 4. Refresh monthly with incense smoke",
-    "efficacy_en": "Supports prosperity mindset and financial focus.",
+    "usage_en": "Place facing the main door or on the cash register. Ensure it faces outward to attract wealth. Do not place facing the bed.",
+    "precautions_en": "1. Dust regularly with soft cloth\n2. Do not touch the mouth frequently\n3. Keep on elevated surface\n4. Clean with dry cloth only",
+    "efficacy_en": "Gilded bronze pixiu in seated posture — wide mouth swallows wealth, round rump guards it. Base inscribed with prosperity symbols. For business owners, investors, and entrepreneurs seeking wealth growth.",
     "specifications_en": {
-      "Material": "Gilded bronze"
+      "Material": "Gilded bronze",
+      "Height": "15cm",
+      "Weight": "Approx. 1kg",
+      "Packaging": "Red silk box"
     }
   },
   {
@@ -3295,11 +3452,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "绿檀木花草按摩梳",
-    "name_en": "Green Sandalwood Herbal Massage Comb",
+    "name_en": "Shoushan Stone Fortune & Longevity Seal",
     "description": "绿檀木遇光渐变翠绿，天然木香清雅持久。梳齿圆润打磨，每日梳头百下按摩头部经络。绿檀木性温润，木气通肝。适合掌色偏黄(肝胆关注)、气血不足、皮肤暗沉、用脑过度者，晨起睡前梳头，养颜又安神。",
-    "description_en": "Green Sandalwood gradually turns emerald green in light, with a lasting, elegant natural fragrance. Smoothly rounded teeth massage head meridians with each stroke. Its warm growth-oriented quality connects to the Liver. Ideal for those with yellowish palms (liver concerns), blood Qi deficiency, dull skin, or mental overexertion — comb morning and night for beauty and calm.",
+    "description_en": "Shoushan stone (earth element) carved with bat and longevity motifs. Crane holding lingzhi mushroom symbolizes extended life. A scholarly seal stamp and auspicious display piece — perfect as an elder gift.",
     "short_pitch": "每日梳头养颜又安神",
-    "short_pitch_en": "Daily combing for beauty and calm",
+    "short_pitch_en": "Longevity blessing for elders",
     "category": "incense",
     "price_cny": 168,
     "price_usd": 49,
@@ -3320,10 +3477,10 @@
       "#焦虑过度"
     ],
     "keyword_tags_en": [
-      "#blood_qi_deficiency",
-      "#liver_concern",
-      "#dull_skin",
-      "#severe_anxiety"
+      "#QiBloodDeficiency",
+      "#LiverGallbladder",
+      "#DullSkin",
+      "#StressManagement"
     ],
     "elements": [
       "木"
@@ -3358,11 +3515,14 @@
     ],
     "sales_count": 1100,
     "rating": 4.6,
-    "usage_en": "Light in a well-ventilated area. Place on a heat-resistant surface. Use during quiet reflection or relaxation for best results.",
-    "precautions_en": "1. Use in well-ventilated areas only 2. Keep away from flammable materials 3. Do not leave burning unattended 4. Store in a cool, dry place",
-    "efficacy_en": "Supports physical and mental wellness.",
+    "usage_en": "Use as desk seal stamp or display piece. The carving brings longevity energy to the study or living room.",
+    "precautions_en": "1. Handle with care — stone can chip\n2. Clean with soft dry cloth\n3. Avoid dropping\n4. Store in provided box",
+    "efficacy_en": "Shoushan stone (earth element) carved with bat and longevity motifs. Crane holding lingzhi mushroom symbolizes extended life. A scholarly seal stamp and auspicious display piece — perfect as an elder gift.",
     "specifications_en": {
-      "Material": "Natural green sandalwood"
+      "Material": "Natural Shoushan stone",
+      "Size": "5×5×8cm",
+      "Carving": "Bat + crane + lingzhi",
+      "Packaging": "Silk-lined box"
     }
   },
   {
@@ -3371,11 +3531,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "铜制七星镇宅剑",
-    "name_en": "Brass Seven-Star Space Harmony Sword",
+    "name_en": "Garnet & Amber Bracelet (Multiple Blessings)",
     "description": "七星剑以黄铜铸就，剑身嵌七枚铜钱呈北斗七星状，剑鞘刻八卦符文。传统风水镇宅至宝，搬家入宅时悬于客厅镇煞纳吉，化五黄二黑等流年凶星。适合刚搬家、办公室乔迁、家居风水需调理者。",
-    "description_en": "A brass-cast Seven-Star Sword with seven coins embedded along the blade in the Big Dipper constellation pattern, scabbard inscribed with Bagua symbols. A supreme Environmental Harmony treasure for space support — hang in the living room when moving in to neutralize negative influence and invite positive quality. Dispels annual afflicted stars like Five Yellow and Two Black. Perfect for recent movers, office relocations, or homes needing Environmental Harmony adjustment.",
+    "description_en": "Amber's golden warmth paired with garnet's deep crimson — earth and fire in harmony. Garnet nourishes the womb while amber represents continuity. For those seeking family blessings and creative inspiration.",
     "short_pitch": "入宅镇煞与风水定鼎",
-    "short_pitch_en": "Move-in disruption clearing and Environmental Harmony anchoring",
+    "short_pitch_en": "Family harmony and creativity",
     "category": "accessory",
     "price_cny": 588,
     "price_usd": 899,
@@ -3396,10 +3556,10 @@
       "#阻碍"
     ],
     "keyword_tags_en": [
-      "#moving_in",
-      "#space_harmony",
-      "#home",
-      "#obstacles"
+      "#MovingHome",
+      "#SpaceImbalance",
+      "#HomeSpace",
+      "#Obstacles"
     ],
     "elements": [
       "金"
@@ -3431,9 +3591,15 @@
     ],
     "sales_count": 150,
     "rating": 4.7,
-    "usage_en": "Place in the appropriate environmental arrangement position according to your needs. Keep clean and treat with respect. Avoid placing in bathrooms or bedrooms.",
-    "precautions_en": "1. Handle with care and respect\n2. Do not place in bathroom or cluttered areas\n3. Keep away from moisture\n4. Refresh monthly with incense smoke",
-    "specifications_en": {}
+    "usage_en": "Wear on left wrist for family harmony energy. During creative blocks, hold and breathe deeply for inspiration.",
+    "precautions_en": "1. Amber is soft — avoid scratches\n2. Garnet is durable\n3. Clean with soft damp cloth\n4. Store separately",
+    "specifications_en": {
+      "Bead Size": "6mm garnet + amber",
+      "Wrist Fit": "15-18cm",
+      "Material": "Natural amber + garnet",
+      "Packaging": "Silk pouch"
+    },
+    "efficacy_en": "Amber's golden warmth paired with garnet's deep crimson — earth and fire in harmony. Garnet nourishes the womb while amber represents continuity. For those seeking family blessings and creative inspiration."
   },
   {
     "id": "p51",
@@ -3441,11 +3607,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "寿山石福寿印章",
-    "name_en": "Shounegative influencen Stone Longevity Seal",
+    "name_en": "White Crystal Peace Car Hanging",
     "description": "寿山石温润凝结，朱红艾叶绿冻石雕刻蝠纹寿字。印纽为仙鹤衔灵芝，寓意延年益寿。适合正印偏印为用需补长辈缘者、父母健康需关注者、孝亲敬老之礼。可作为书房印章实用，亦为客厅福寿摆件。",
-    "description_en": "Warm and lustrous Shoushan stone carved in vermilion and Ai-ye green frost varieties with bat and longevity patterns. Seal knob features a crane holding Lingzhi mushroom, symbolizing long life and positive outcomes. Ideal for those needing to strengthen Direct/Indirect Resource stars or elder connections, those with parental health concerns, or as a filial gift. Functional as a study seal and a prosperity display for the living room.",
+    "description_en": "White crystal beads with vajra knot tassel, hung from rearview mirror. Crystal refracts rainbow light cleansing the car environment while the sacred knot protects journeys. For frequent travelers and road warriors.",
     "short_pitch": "长辈健康与印星护佑",
-    "short_pitch_en": "Elder health and Resource star support",
+    "short_pitch_en": "Sacred light for safe travels",
     "category": "accessory",
     "price_cny": 398,
     "price_usd": 599,
@@ -3467,10 +3633,10 @@
       "#家庭责任"
     ],
     "keyword_tags_en": [
-      "#elder_health",
-      "#filial_piety",
-      "#weak_resource_star",
-      "#family_responsibility"
+      "#ElderHealth",
+      "#FilialPiety",
+      "#AcademicSupport",
+      "#FamilyResponsibility"
     ],
     "elements": [
       "土",
@@ -3506,10 +3672,15 @@
     ],
     "sales_count": 210,
     "rating": 4.8,
-    "usage_en": "Place in the appropriate environmental arrangement position according to your needs. Keep clean and treat with respect. Avoid placing in bathrooms or bedrooms.",
-    "precautions_en": "1. Handle with care and respect\n2. Do not place in bathroom or cluttered areas\n3. Keep away from moisture\n4. Refresh monthly with incense smoke",
-    "efficacy_en": "",
-    "specifications_en": {}
+    "usage_en": "Hang from rearview mirror. Ensure it does not obstruct driving view. The crystal naturally purifies the car's energy field.",
+    "precautions_en": "1. Ensure secure attachment\n2. Does not block driver's view\n3. Clean with soft cloth\n4. Keep away from airbag zones",
+    "efficacy_en": "White crystal beads with vajra knot tassel, hung from rearview mirror. Crystal refracts rainbow light cleansing the car environment while the sacred knot protects journeys. For frequent travelers.",
+    "specifications_en": {
+      "Material": "White quartz + silk cord",
+      "Length": "15cm",
+      "Bead Size": "6mm",
+      "Packaging": "Organza pouch"
+    }
   },
   {
     "id": "p52",
@@ -3517,11 +3688,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "天然粉水晶原石摆件（旺桃花）",
-    "name_en": "Natural Rose Quartz Raw Stone Display (Romance Potential)",
+    "name_en": "Natural Rose Quartz Rough Stone (Charisma)",
     "description": "天然粉水晶原石保留自然形态，散发柔和粉色光芒，对应心轮，招正桃花与好人缘。适合感情线不佳、桃花运弱、心轮堵塞、人际关系冷淡者摆放于卧室或客厅。",
-    "description_en": "Natural rose quartz in its raw form emits a soft pink glow, resonating with the emotional center to attract meaningful connections and positive relationships. Ideal for those with weak romance tendency, blocked emotional center, or cold interpersonal relationships — display in bedroom or living room.",
+    "description_en": "Raw rose quartz preserves the purest natural energy, belonging to fire element and heart chakra. Long-term placement softens interpersonal barriers, enhances personal charm, and attracts genuine relationships.",
     "short_pitch": "心轮激活与桃花催旺",
-    "short_pitch_en": "Emotional center activation and romance boost",
+    "short_pitch_en": "Pure heart energy for charisma",
     "category": "crystal",
     "price_cny": 358,
     "price_usd": 59,
@@ -3543,10 +3714,10 @@
       "#心轮堵塞"
     ],
     "keyword_tags_en": [
-      "#relationships",
-      "#connections",
-      "#presence",
-      "#emotional_blockage"
+      "#Relationships",
+      "#Romance",
+      "#Popularity",
+      "#EmotionalBlockage"
     ],
     "elements": [
       "土",
@@ -3582,10 +3753,15 @@
     ],
     "sales_count": 680,
     "rating": 4.8,
-    "usage_en": "Place on your bedroom vanity or nightstand, facing the door. Also suitable for the southwest corner of your living room. Cleanse under moonlight weekly.",
-    "precautions_en": "1. Natural cracks in raw stone are normal 2. Avoid prolonged direct sunlight to prevent fading 3. Not suitable for kitchen or bathroom 4. Pair with fresh pink flowers for enhanced effect",
-    "efficacy_en": "Raw rose quartz preserves the purest natural quality, resonating with the emotional center. Grounding, stable and warm, activating element with Venus influence. Long-term placement softens emotional blockages, boosts personal presence, and attracts meaningful connections.",
-    "specifications_en": {}
+    "usage_en": "Place in the southwest corner of your bedroom or living room. Hold during meditation for heart chakra activation.",
+    "precautions_en": "1. Handle carefully — raw edges\n2. Clean with soft brush\n3. Avoid prolonged sunlight\n4. Place on stable surface",
+    "efficacy_en": "Raw rose quartz preserves the purest natural energy, belonging to fire element and heart chakra. Long-term placement softens interpersonal barriers, enhances personal charm, and attracts genuine relationships.",
+    "specifications_en": {
+      "Material": "Natural rose quartz rough",
+      "Size": "5-10cm",
+      "Display": "Wooden stand included",
+      "Packaging": "Protective box"
+    }
   },
   {
     "id": "p53",
@@ -3593,11 +3769,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "天然茶晶球（接地稳固）",
-    "name_en": "Natural Smoky Quartz Sphere (Grounding & Stability)",
+    "name_en": "Natural Smoky Quartz Sphere (Grounding)",
     "description": "茶晶又名烟晶，能量沉稳厚重，强力对应海底轮，接地稳固能量场。适合土星刑克、内耗严重、焦虑过度、身心失衡者作为日常冥想与空间能量锚定点。",
-    "description_en": "Smoky Quartz, also known as smoke crystal, carries steady and heavy quality that strongly resonates with the grounding center for grounding and stabilizing the ambient field. Ideal for those with challenge periods, severe emotional fatigue, excessive anxiety, or mind-body imbalance — use as a daily mindfulness anchor and space quality stabilizer.",
+    "description_en": "Smoky quartz carries steady earth-water energy, corresponding to the root chakra. Saturn and Pluto's dual influence provides powerful grounding. Dispels anxiety, releases negative energy, and balances body-mind.",
     "short_pitch": "接地稳固与焦虑化解",
-    "short_pitch_en": "Grounding stability and anxiety relief",
+    "short_pitch_en": "Deep grounding and stability",
     "category": "crystal",
     "price_cny": 458,
     "price_usd": 69,
@@ -3620,10 +3796,10 @@
       "#压力大"
     ],
     "keyword_tags_en": [
-      "#emotional_fatigue",
-      "#severe_anxiety",
-      "#challenge_period",
-      "#high_stress"
+      "#EmotionalFatigue",
+      "#StressManagement",
+      "#ChallengingPhase",
+      "#HighStress"
     ],
     "elements": [
       "土",
@@ -3661,10 +3837,15 @@
     ],
     "sales_count": 420,
     "rating": 4.7,
-    "usage_en": "Place on your desk or in your study as a calming anchor. During quiet reflection, hold the sphere and visualize roots extending deep into the earth. Place by your pillow before sleep for deep rest.",
-    "precautions_en": "1. Natural color variations in smoky quartz are normal 2. Avoid high-temperature environments 3. Do not place next to other high-vibration items 4. Rinse under running water monthly for cleansing",
-    "efficacy_en": "Smoky Quartz carries steady, heavy quality resonating with the grounding center. Grounding, stable and calming, flowing element with Saturn and Pluto influence. Powerful grounding force that dissolves emotional fatigue and anxiety, releases negative quality, and restores mind-body balance.",
-    "specifications_en": {}
+    "usage_en": "Place in living room or office for grounding. Hold during meditation for anxiety relief.",
+    "precautions_en": "1. Avoid prolonged sunlight\n2. Clean with mild soap and water\n3. Handle with care\n4. Store in soft pouch",
+    "efficacy_en": "Smoky quartz carries steady earth-water energy, corresponding to the root chakra. Saturn and Pluto's dual influence provides powerful grounding. Dispels anxiety and balances body-mind.",
+    "specifications_en": {
+      "Material": "Natural smoky quartz",
+      "Size": "Diameter 8cm",
+      "Display": "Included stand",
+      "Packaging": "Padded box"
+    }
   },
   {
     "id": "p54",
@@ -3674,9 +3855,9 @@
     "name": "黑碧玺原石簇（强力辟邪）",
     "name_en": "Black Tourmaline Raw Cluster (Powerful Protection)",
     "description": "黑碧玺是公认最强辟邪水晶，能吸收转化一切负能量。原石簇形态能量辐射面广，适合官杀混杂、小人是非多、家居风水有缺陷者作为镇宅辟邪之用。",
-    "description_en": "Black Tourmaline is universally recognized as the most powerful protective crystal, capable of absorbing and transforming all negative quality. The raw cluster form radiates quality across a wide area — ideal for those with mixed Officer stars, frequent gossip and petty people, or homes with Environmental Harmony concerns. Use as a space harmony and negative-shielding display.",
+    "description_en": "Black tourmaline, the strongest protective crystal, converts negative energy into neutral release. Saturn and Mars dual influence. Cluster formation radiates wide coverage — ideal for large space protection.",
     "short_pitch": "最强辟邪与负能量转化",
-    "short_pitch_en": "Ultimate protection and negative quality transformation",
+    "short_pitch_en": "Ultimate negative energy shield",
     "category": "crystal",
     "price_cny": 388,
     "price_usd": 59,
@@ -3699,10 +3880,10 @@
       "#土星刑克"
     ],
     "keyword_tags_en": [
-      "#mixed_officer_stars",
-      "#shielding",
-      "#petty_people",
-      "#challenge_period"
+      "#ConflictPattern",
+      "#Protection",
+      "#InterpersonalConflict",
+      "#ChallengingPhase"
     ],
     "elements": [
       "水",
@@ -3740,10 +3921,15 @@
     ],
     "sales_count": 560,
     "rating": 4.8,
-    "usage_en": "Place at your front door entrance or beside windows to form a protective shield. Also suitable under your desk to block workplace negativity. Rinse under running water regularly to maintain protective power.",
-    "precautions_en": "1. Natural textures in raw stone are normal features\n2. Black tourmaline is relatively brittle — avoid drops\n3. Not recommended for bedroom — quality too strong for sleep\n4. Regular cleansing required — saturated crystals lose effectiveness",
-    "efficacy_en": "Black Tourmaline is calming, flowing and structured, clarifying element, universally the most powerful protective crystal. Converts negative quality into neutral quality. Saturn and Mars double positive influence. The raw cluster provides wide-area radiation, ideal for large-space quality protection.",
-    "specifications_en": {}
+    "usage_en": "Place at room entrances or windowsills for protection. For large spaces, position in corners. Cleanse monthly under running water.",
+    "precautions_en": "1. Handle carefully — cluster points\n2. Clean with soft brush\n3. Keep away from edges\n4. Place on stable surface",
+    "efficacy_en": "Black tourmaline, the strongest protective crystal, converts negative energy into neutral release. Saturn and Mars dual influence. Cluster formation radiates wide coverage — ideal for large space protection.",
+    "specifications_en": {
+      "Material": "Natural black tourmaline cluster",
+      "Size": "10-15cm",
+      "Points": "Multiple radiating",
+      "Packaging": "Padded box"
+    }
   },
   {
     "id": "p55",
@@ -3751,11 +3937,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "天然天河石手串（沟通之石）",
-    "name_en": "Natural Amazonite Bracelet (Stone of Communication)",
+    "name_en": "Natural Amazonite Bracelet (Communication Stone)",
     "description": "天河石又称亚马逊石，蓝绿色调清新通透，对应喉轮与心轮，增强沟通表达与自信心。适合水星逆行、沟通障碍、公众表达紧张、社交恐惧者日常佩戴。",
-    "description_en": "Amazonite, also known as the Stone of Communication, features refreshing blue-green tones that resonate with the expression and emotional centers, enhancing communication and confidence. Ideal for Mercury retrograde periods, communication barriers, public speaking anxiety, or social fears — wear daily for expressive freedom.",
+    "description_en": "Amazonite belongs to water-wood elements, corresponding to the throat chakra. Mercury and Neptune influence enhances communication and confidence. Dissolves communication barriers and improves social charm.",
     "short_pitch": "沟通表达与自信提升",
-    "short_pitch_en": "Communication enhancement and confidence boost",
+    "short_pitch_en": "Speak your truth with clarity",
     "category": "crystal",
     "price_cny": 328,
     "price_usd": 59,
@@ -3778,10 +3964,10 @@
       "#社交恐惧"
     ],
     "keyword_tags_en": [
-      "#communication_barrier",
-      "#career_block",
-      "#inflexibility",
-      "#social_anxiety"
+      "#ExpressionDifficulty",
+      "#CareerChallenge",
+      "#LackOfFlexibility",
+      "#SocialAnxiety"
     ],
     "elements": [
       "水",
@@ -3820,10 +4006,15 @@
     ],
     "sales_count": 380,
     "rating": 4.7,
-    "usage_en": "Wear on left wrist daily. Before important meetings or social events, hold the bracelet and practice quiet reflection for 3 minutes, visualizing blue-green light at your expression center. Rinse under running water monthly.",
-    "precautions_en": "1. Natural color variation in amazonite is normal 2. Avoid contact with chemical cleaners 3. Remove during exercise and bathing 4. Store separately from negative influencerp objects",
-    "efficacy_en": "Amazonite resonates with the expression and emotional centers, calming, flowing and growth-oriented element. Mercury and Neptune positive influence enhances communication, boosts social charisma, and improves interpersonal relationships with long-term wear.",
-    "specifications_en": {}
+    "usage_en": "Wear on left wrist for communication enhancement. Hold during important conversations for clarity. Cleanse under running water.",
+    "precautions_en": "1. Amazonite is relatively soft\n2. Avoid chemical exposure\n3. Clean with mild soap and water\n4. Store in soft pouch",
+    "efficacy_en": "Amazonite belongs to water-wood elements, corresponding to the throat chakra. Mercury and Neptune influence enhances communication and confidence. Dissolves communication barriers.",
+    "specifications_en": {
+      "Bead Size": "8mm",
+      "Wrist Fit": "15-18cm",
+      "Material": "Natural amazonite",
+      "Packaging": "Satin pouch"
+    }
   },
   {
     "id": "p56",
@@ -3831,11 +4022,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "天然红玛瑙晶洞（创造力之源）",
-    "name_en": "Natural Carnelian Geode (Source of Creativity)",
+    "name_en": "Natural Red Agate Geode (Creativity Source)",
     "description": "红玛瑙晶洞火性能量充沛，内壁结晶如火焰般炽烈，激活脐轮与创造力。适合食伤星弱、创作灵感枯竭、行动力不足、需要激情与动力者摆放于工作空间。",
-    "description_en": "Carnelian geode radiates abundant warm, activating quality — its inner crystalline walls blaze like flames, activating the creative center and creativity. Ideal for those with creative expression needs support, creative blocks, insufficient drive, or needing passion and motivation — display in your workspace.",
+    "description_en": "Red agate geode belongs to fire-earth elements. Mars and太阳 dual influence, inner crystals form a natural warmth field. Activates creativity, enhances action, and promotes inspired thinking.",
     "short_pitch": "创造力激活与激情点燃",
-    "short_pitch_en": "Creativity activation and passion ignition",
+    "short_pitch_en": "Spark creativity and action",
     "category": "crystal",
     "price_cny": 528,
     "price_usd": 1299,
@@ -3858,10 +4049,10 @@
       "#伤官受制"
     ],
     "keyword_tags_en": [
-      "#creative_block",
-      "#drive",
-      "#warmth_deficit",
-      "#weak_talent_star"
+      "#CreativeBlock",
+      "#MotivationBoost",
+      "#WarmthNeeded",
+      "#RestrainedTalent"
     ],
     "elements": [
       "火",
@@ -3900,10 +4091,15 @@
     ],
     "sales_count": 310,
     "rating": 4.8,
-    "usage_en": "Place in the south (warmth position) of your study or workspace, opening facing your work area. Before creating, place hands near the geode to feel the warm quality flow. Cleanse with sandalwood smoke weekly.",
-    "precautions_en": "1. Inner crystalline wall is natural — handle gently\n2. Avoid high temperatures and direct sunlight\n3. Support from the bottom when moving — do not grip edges\n4. Not recommended for bedroom — excessive warm quality disrupts sleep",
-    "efficacy_en": "Carnelian geode is warm, activating and grounding, stable element, resonating with the creative and personal confidence areas. Mars and Sun double positive influence. The inner crystalline walls form a natural warm quality field that activates creativity, boosts drive, and awakens talent.",
-    "specifications_en": {}
+    "usage_en": "Place in the south sector of your room (fire element position). The inner crystals radiate creative energy. Cleanse under running water.",
+    "precautions_en": "1. Handle with care — geode is fragile\n2. Clean with soft brush\n3. Avoid prolonged sunlight\n4. Place on stable surface",
+    "efficacy_en": "Red agate geode belongs to fire-earth elements. Mars and sun dual influence, inner crystals form a natural warmth field. Activates creativity, enhances action, and promotes inspired thinking.",
+    "specifications_en": {
+      "Material": "Natural red agate geode",
+      "Size": "12-18cm",
+      "Display": "Included stand",
+      "Packaging": "Padded box"
+    }
   },
   {
     "id": "p57",
@@ -3911,11 +4107,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "天然透石膏能量棒（净化之光）",
-    "name_en": "Natural Selenite Cleansing Wand (Light of Cleansing)",
+    "name_en": "Natural Selenite Cleansing Wand (Light of Purification)",
     "description": "透石膏又称月光石（非月光宝石），色白通透如月光，能量纯净高频，是天然的空间净化器。可为其他水晶消磁充电，适合灵性修行者、空间能量需定期清理者。",
-    "description_en": "Selenite, also known as Moon Stone (not moonstone gem), is pure white and translucent like moonlight — its quality is clean and high-frequency, making it a natural space cleanser. Can cleanse and recharge other crystals. Essential for personally developing practitioners and those needing regular space quality clearing.",
+    "description_en": "Selenite belongs to metal-water elements, corresponding to the crown chakra. Moon influence makes it a natural high-frequency purifier. Cleanses other crystals, purifies space, and calms the mind.",
     "short_pitch": "天然净化与水晶消磁",
-    "short_pitch_en": "Natural cleansing and crystal refresh",
+    "short_pitch_en": "Sacred purification tool",
     "category": "crystal",
     "price_cny": 198,
     "price_usd": 39,
@@ -3937,10 +4133,10 @@
       "#焦虑过度"
     ],
     "keyword_tags_en": [
-      "#personality",
-      "#cleanse_space",
-      "#mental_clarity",
-      "#severe_anxiety"
+      "#InnerGrowth",
+      "#SpacePurification",
+      "#MentalPeace",
+      "#StressManagement"
     ],
     "elements": [
       "金",
@@ -3977,10 +4173,15 @@
     ],
     "sales_count": 890,
     "rating": 4.6,
-    "usage_en": "Place other crystals next to the selenite wand for 6-12 hours to complete cleansing. Also place at bedside to cleanse sleep space quality. Hold the wand and slowly move along your body outline to clear your personal aura.",
-    "precautions_en": "1. Selenite is very soft (Mohs 2) — avoid collisions 2. Never wash with water — it will dissolve 3. Wipe gently with dry cloth only 4. Store separately from other crystals to prevent scratching",
-    "efficacy_en": "Selenite is structured, clarifying and calming, flowing element, resonating with the clarity and higher awareness centers. Moon positive influence makes it a natural high-frequency cleanser. Cleanses and recharges other crystals, cleanses space quality, and calms the mind. Essential tool for personally developing practitioners.",
-    "specifications_en": {}
+    "usage_en": "Wave over other crystals for cleansing. Place in room corners for space purification. Hold during meditation for clarity.",
+    "precautions_en": "1. Selenite is soft — avoid water\n2. Do not use to cleanse other selenite\n3. Handle gently\n4. Store in dry place",
+    "efficacy_en": "Selenite belongs to metal-water elements, corresponding to the crown chakra. Moon influence makes it a natural high-frequency purifier. Cleanses other crystals, purifies space, and calms the mind.",
+    "specifications_en": {
+      "Material": "Natural selenite",
+      "Length": "15cm",
+      "Shape": "Wand with pointed end",
+      "Packaging": "Linen pouch"
+    }
   },
   {
     "id": "p58",
@@ -3988,11 +4189,11 @@
     "cj_variant_id": "",
     "cj_product_id": "",
     "name": "拉长石水晶球（极光幻彩）",
-    "name_en": "Labradorite Crystal Sphere (Aurora Flash)",
+    "name_en": "Labradorite Crystal Sphere (Aurora幻彩)",
     "description": "拉长石水晶球在光线下呈现蓝绿极光般幻彩光芒，是第三眼活化的强力宝石。球形能量360度均匀辐射，适合灵性修行、冥想深化、直觉力提升。",
-    "description_en": "The Labradorite Crystal Sphere displays mesmerizing blue-green aurora-like flashes under light — a powerful higher awareness activator. The spherical shape radiates quality 360 degrees evenly, ideal for mindfulness practice, deep quiet reflection, and enhancing intuition.",
+    "description_en": "Labradorite sphere belongs to water-metal elements. Uranus and Neptune dual influence, 360-degree uniform radiation. Aurora iridescence opens awareness, deepens meditation, and enhances intuitive perception.",
     "short_pitch": "第三眼活化与极光冥想",
-    "short_pitch_en": "Higher awareness activation and aurora quiet reflection",
+    "short_pitch_en": "360-degree aurora awareness",
     "category": "crystal",
     "price_cny": 688,
     "price_usd": 189,
@@ -4015,10 +4216,10 @@
       "#迷茫"
     ],
     "keyword_tags_en": [
-      "#intuition",
-      "#personality",
-      "#personal_change",
-      "#confusion"
+      "#Awareness",
+      "#InnerGrowth",
+      "#PersonalTransformation",
+      "#FeelingLost"
     ],
     "elements": [
       "水",
@@ -4057,10 +4258,15 @@
     ],
     "sales_count": 260,
     "rating": 4.9,
-    "usage_en": "During quiet reflection, place the sphere about 30cm before your eyes and gaze into its aurora flashes for 10-15 minutes. Also suitable for your study or quiet reflection room as a space quality anchor.",
-    "precautions_en": "1. Aurora flashes are natural optical effects — varies by angle\n2. Avoid high-temperature environments\n3. Sphere is heavy — place on stable surface\n4. Cleanse with lavender oil for best results",
-    "efficacy_en": "Labradorite resonates with the higher awareness and clarity centers, calming, flowing and structured, clarifying element. Uranus and Neptune double positive influence. The spherical 360-degree radiation with mesmerizing aurora flashes awakens higher awareness, deepens quiet reflection, and enhances intuition and personal perception.",
-    "specifications_en": {}
+    "usage_en": "Place in meditation space or study. Hold during meditation for enhanced awareness. The sphere radiates energy in all directions.",
+    "precautions_en": "1. Handle with care — sphere can roll\n2. Clean with soft dry cloth\n3. Avoid impacts\n4. Place on included stand",
+    "efficacy_en": "Labradorite sphere belongs to water-metal elements. Uranus and Neptune dual influence, 360-degree uniform radiation. Aurora iridescence opens awareness, deepens meditation, and enhances intuitive perception.",
+    "specifications_en": {
+      "Material": "Natural labradorite",
+      "Size": "Diameter 6cm",
+      "Display": "Included stand",
+      "Packaging": "Padded box"
+    }
   },
   {
     "id": "p59",
@@ -4070,9 +4276,9 @@
     "name": "天然黄水晶六字真言吊坠",
     "name_en": "Natural Citrine Six-Syllable Mantra Pendant",
     "description": "天然黄水晶雕刻六字真言，金色光芒与佛音共振，兼具招财与护身双重功效。黄水晶主偏财，六字真言辟邪护身，适合财运需关注且希望随身护身者。",
-    "description_en": "Natural citrine carved with the Six-Syllable Mantra — golden light resonates with sacred sound, combining prosperity mindset and personal protection. Citrine governs windfall wealth while the mantra shields from negative influence. Ideal for those needing financial boost and daily personal protection.",
+    "description_en": "Citrine belongs to earth-metal elements with Six-Syllable Mantra engraving. Sun and Jupiter influence boosts positive energy while the mantra provides spiritual protection — a complete shield of prosperity and safety.",
     "short_pitch": "招财护身双重守护",
-    "short_pitch_en": "Prosperity and protection double support",
+    "short_pitch_en": "Prosperity meets protection",
     "category": "crystal",
     "price_cny": 268,
     "price_usd": 49,
@@ -4095,10 +4301,10 @@
       "#官杀混杂"
     ],
     "keyword_tags_en": [
-      "#prosperity_mindset",
-      "#shielding",
-      "#poor_potential",
-      "#mixed_officer_stars"
+      "#PositiveMindset",
+      "#Protection",
+      "#FinancialDownturn",
+      "#ConflictPattern"
     ],
     "elements": [
       "土",
@@ -4137,9 +4343,14 @@
     ],
     "sales_count": 450,
     "rating": 4.8,
-    "usage_en": "Wear daily at chest level, close to the heart for best effect. The Pixiu mouth should face outward (toward door or window). Refresh with sandalwood on the 1st and 15th of each lunar month.",
-    "precautions_en": "1. Avoid prolonged direct sunlight on citrine\n2. Avoid impact on the mantra carving\n3. Remove during shower or swimming\n4. Left hand for wealth, right hand for protection",
-    "efficacy_en": "Citrine is grounding, stable and structured, clarifying element, resonating with the personal confidence and grounding areas. Sun and Jupiter double positive influence. Citrine attracts windfall wealth while the Six-Syllable Mantra shields from negative influence. Combined, they form an supportive protective shield for those needing financial boost and personal protection.",
-    "specifications_en": {}
+    "usage_en": "Wear as pendant close to the heart. During meditation, hold and recite the mantra for enhanced protection.",
+    "precautions_en": "1. Avoid prolonged sunlight\n2. Clean with soft cloth\n3. Handle with care\n4. Store in provided box",
+    "efficacy_en": "Citrine belongs to earth-metal elements with Six-Syllable Mantra engraving. Sun and Jupiter influence boosts positive energy while the mantra provides spiritual protection — a complete shield of prosperity and safety.",
+    "specifications_en": {
+      "Material": "Natural citrine + sterling silver",
+      "Pendant Size": "Approx. 2cm",
+      "Chain": "Sterling silver 45cm",
+      "Packaging": "Gift box"
+    }
   }
 ]
