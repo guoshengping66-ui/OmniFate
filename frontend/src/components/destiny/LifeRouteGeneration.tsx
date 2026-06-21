@@ -88,7 +88,7 @@ function RoutePath({ animStep, idPrefix }: { animStep: number; idPrefix: string 
         filter={`url(#${idPrefix}-routeGlow)`}
         strokeDasharray={totalLength}
         strokeDashoffset={animStep >= 0 ? 0 : totalLength}
-        style={{ transition: "stroke-dashoffset 0.8s ease-out" }}
+        style={{ transition: "stroke-dashoffset 0.4s ease-out" }}
       />
 
       {/* 主航线 */}
@@ -100,7 +100,7 @@ function RoutePath({ animStep, idPrefix }: { animStep: number; idPrefix: string 
         strokeLinecap="round"
         strokeDasharray={totalLength}
         strokeDashoffset={animStep >= 0 ? 0 : totalLength}
-        style={{ transition: "stroke-dashoffset 0.8s ease-out" }}
+        style={{ transition: "stroke-dashoffset 0.4s ease-out" }}
       />
 
       {/* 星尘虚线 */}
@@ -112,7 +112,7 @@ function RoutePath({ animStep, idPrefix }: { animStep: number; idPrefix: string 
         strokeLinecap="round"
         strokeDasharray="1.5 2"
         opacity={animStep >= 0 ? 1 : 0}
-        style={{ transition: "opacity 0.6s ease 0.3s" }}
+        style={{ transition: "opacity 0.3s ease 0.15s" }}
       />
 
       {/* ── 延伸段：向宇宙深处 ── */}
@@ -124,7 +124,7 @@ function RoutePath({ animStep, idPrefix }: { animStep: number; idPrefix: string 
         strokeLinecap="round"
         strokeDasharray="1 3"
         opacity={animStep >= 1 ? 0.6 : 0}
-        style={{ transition: "opacity 1s ease 1.8s" }}
+        style={{ transition: "opacity 0.6s ease 0.6s" }}
       />
       <path
         d={extendPath}
@@ -134,7 +134,7 @@ function RoutePath({ animStep, idPrefix }: { animStep: number; idPrefix: string 
         strokeLinecap="round"
         filter={`url(#${idPrefix}-routeGlow)`}
         opacity={animStep >= 1 ? 0.4 : 0}
-        style={{ transition: "opacity 1.2s ease 2s" }}
+        style={{ transition: "opacity 0.8s ease 0.7s" }}
       />
 
       {/* ── 金色流光（Step 3） ── */}
@@ -210,7 +210,7 @@ function OpportunityZones({ animStep, locale }: { animStep: number; locale: stri
             width: `${zone.width}%`,
             height: `${zone.height}%`,
             opacity: isVisible ? 1 : 0,
-            transitionDelay: `${1.8 + i * 0.3}s`,
+            transitionDelay: `${0.8 + i * 0.12}s`,
           }}
         >
           {/* 星云渐变 */}
@@ -278,8 +278,8 @@ function DestinyStar({
   const baseSize = 64 + star.magnitude * 10
   const hoverScale = isActive ? 1.35 : 1
 
-  // 节点在 Step 2 时逐个点亮
-  const litDelay = 0.8 + index * 0.14 // 0.8s 开始，每个间隔 0.14s
+  // 节点在 Step 1 时逐个点亮
+  const litDelay = 0.3 + index * 0.06 // 0.3s 开始，每个间隔 0.06s
   const isLit = animStep >= 1
 
   return (
@@ -443,7 +443,7 @@ function GrowthLogicChain({ animStep, locale }: { animStep: number; locale: stri
   const isLit = animStep >= 1
   return (
     <div className="mt-12 sm:mt-16 transition-all duration-1000"
-      style={{ opacity: isLit ? 1 : 0, transform: isLit ? "translateY(0)" : "translateY(30px)", transitionDelay: "1.5s" }}>
+      style={{ opacity: isLit ? 1 : 0, transform: isLit ? "translateY(0)" : "translateY(30px)", transitionDelay: "0.6s" }}>
       <div className="text-center mb-6">
         <span className="text-white/20 text-[10px] tracking-[0.15em] uppercase">
           {locale === "zh" ? "成长逻辑链 · 因果推演" : "Growth Logic Chain · Causal Projection"}
@@ -459,13 +459,13 @@ function GrowthLogicChain({ animStep, locale }: { animStep: number; locale: stri
                 color: `${STARS[Math.min(i, STARS.length - 1)].color}cc`,
                 opacity: isLit ? 1 : 0,
                 transform: isLit ? "translateY(0)" : "translateY(10px)",
-                transitionDelay: `${1.6 + i * 0.1}s`,
+                transitionDelay: `${0.7 + i * 0.06}s`,
               }}>
               {locale === "zh" ? step.zh : step.en}
             </div>
             {i < LOGIC_CHAIN.length - 1 && (
               <div className="flex flex-col items-center my-1 transition-all duration-500"
-                style={{ opacity: isLit ? 1 : 0, transitionDelay: `${1.7 + i * 0.1}s` }}>
+                style={{ opacity: isLit ? 1 : 0, transitionDelay: `${0.75 + i * 0.06}s` }}>
                 <div className="w-[1px] h-4" style={{ background: `${STARS[Math.min(i, STARS.length - 1)].color}20` }} />
                 <svg width="8" height="6" viewBox="0 0 8 6" fill="none">
                   <path d="M1 1L4 4.5L7 1" stroke={STARS[Math.min(i, STARS.length - 1)].color} strokeWidth="1" strokeLinecap="round" opacity="0.35" />
@@ -519,10 +519,10 @@ export default function LifeRouteGeneration() {
       ([entry]) => {
         if (entry.isIntersecting && animStepRef.current === -1) {
           setIsVisible(true)
-          // 三步动画序列 (总计 ~2s)
-          timers.push(setTimeout(() => setAnimStep(0), 100))
-          timers.push(setTimeout(() => setAnimStep(1), 900))
-          timers.push(setTimeout(() => setAnimStep(2), 1700))
+          // 三步动画序列 (总计 ~1s)
+          timers.push(setTimeout(() => setAnimStep(0), 50))
+          timers.push(setTimeout(() => setAnimStep(1), 350))
+          timers.push(setTimeout(() => setAnimStep(2), 700))
         }
       },
       { threshold: 0.15 },
@@ -615,7 +615,7 @@ export default function LifeRouteGeneration() {
               right: "3%",
               top: "15%",
               opacity: animStep >= 1 ? 1 : 0,
-              transitionDelay: "2.2s",
+              transitionDelay: "1.0s",
             }}
           >
             <div className="text-right">
