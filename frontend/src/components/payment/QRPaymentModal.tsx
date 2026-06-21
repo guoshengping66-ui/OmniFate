@@ -290,7 +290,7 @@ export function QRPaymentModal({
   const handleConfirmPaid = async () => {
     const targetOrderNo = shopOrderNo || orderNo
     if (!targetOrderNo) {
-      toast.error("订单号不存在，请重试")
+      toast.error(t("payment.orderNotExist") || "订单号不存在，请重试")
       return
     }
     setStatus("verifying")
@@ -423,6 +423,8 @@ export function QRPaymentModal({
     pollTimerRef.current = setTimeout(poll, POLL_INTERVAL)
   }, [orderNo])
 
+  // NOTE: activateSubscription is intentionally excluded from deps —
+  // it only uses setStatus/onSuccess which are stable references.
   const startPaypalPolling = useCallback((_itemType: string) => {
     cancelPolling()
     pollActiveRef.current = true
@@ -470,9 +472,9 @@ export function QRPaymentModal({
       if (pollActiveRef.current && attempts < MAX_POLL_ATTEMPTS) {
         pollTimerRef.current = setTimeout(poll, POLL_INTERVAL)
       } else {
-        // Timeout: order was submitted, just close
-        setStatus("success")
-        onSuccess?.()
+        // Timeout: payment not confirmed yet — show waiting state, don't activate
+        setStatus("waiting")
+        toast.error(t("payment.pollTimeout") || "Payment verification timed out. Please check your email.")
       }
     }
     pollTimerRef.current = setTimeout(poll, POLL_INTERVAL)

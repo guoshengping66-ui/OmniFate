@@ -8,7 +8,7 @@
  *
  * SOLUTION: By proxying through Next.js Server-side, the browser sees
  * same-origin requests (no CORS needed), and the server-to-server
- * connection (localhost → localhost:8003) is不受 CORS restrictions.
+ * connection (localhost → localhost:8003) is not subject to CORS restrictions.
  *
  * PROXY CORRUPTION: Some client-side proxies (Clash/V2Ray) performing
  * HTTPS MITM intercept and corrupt POST request bodies. To survive this,
@@ -240,7 +240,7 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
     })
 
     // Ensure charset=utf-8 for JSON responses — Chinese mobile browsers
-    // default to GBK when charset is missing, causing garbled text (乱码)
+    // default to GBK when charset is missing, causing garbled text
     const ct = respHeaders.get("content-type") || ""
     if (ct.includes("application/json") && !ct.includes("charset")) {
       respHeaders.set("Content-Type", "application/json; charset=utf-8")
