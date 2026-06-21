@@ -190,11 +190,14 @@ export function PayPalPayment({
   // Note: applepay/googlepay removed from default — they add SDK load time and
   // require Advanced Card Fields enabled in PayPal dashboard. Add back if needed.
 
+  // Deduplicate components (e.g. if both push "buttons")
+  const uniqueComponents = [...new Set(sdkComponents)]
+
   const sdkOptions = {
     "client-id": config.clientId,
     currency: "USD",
     intent: "capture" as const,
-    components: sdkComponents,
+    components: uniqueComponents,
   }
 
   const style = {
