@@ -34,30 +34,30 @@ export default function CinematicHero() {
   return (
     <section
       ref={sectionRef}
-      className="relative min-h-[90vh] md:min-h-screen flex items-center overflow-hidden"
+      className="relative min-h-[85vh] md:min-h-screen flex items-center overflow-hidden"
     >
-      {/* Radial glow - center */}
+      {/* Radial glow - center — reduced blur on mobile for performance */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] rounded-full bg-[#C5A880]/[0.025] blur-[200px]" />
-        <div className="absolute top-1/3 left-1/3 w-[500px] h-[500px] rounded-full bg-blue-500/[0.01] blur-[180px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] sm:w-[900px] sm:h-[900px] rounded-full bg-[#C5A880]/[0.025] blur-[100px] sm:blur-[200px]" />
+        <div className="absolute top-1/3 left-1/3 w-[300px] h-[300px] sm:w-[500px] sm:h-[500px] rounded-full bg-blue-500/[0.01] blur-[80px] sm:blur-[180px]" />
       </div>
 
       {/* Split layout: text left, orb right on desktop; stacked on mobile */}
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col-reverse lg:flex-row items-center justify-between gap-8 lg:gap-12">
+        <div className="flex flex-col-reverse lg:flex-row items-center justify-between gap-6 lg:gap-12">
 
           {/* Left: Text content */}
           <div className="flex-1 text-center lg:text-left lg:max-w-xl">
             {/* Badge — unique platform positioning */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#C5A880]/20 bg-[#C5A880]/[0.05] backdrop-blur-sm mb-6 lg:mb-8">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#C5A880]/20 bg-[#C5A880]/[0.05] mb-5 lg:mb-8">
               <span className="w-1.5 h-1.5 rounded-full bg-[#C5A880] animate-pulse" />
-              <span className="text-[#C5A880]/70 text-xs tracking-[0.3em] uppercase font-medium">
+              <span className="text-[#C5A880]/70 text-[10px] sm:text-xs tracking-[0.2em] sm:tracking-[0.3em] uppercase font-medium">
                 {t("hero.badge")}
               </span>
             </div>
 
-            {/* Title — 三行式: 品牌定位 + 产品名 + 系统名 */}
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-serif font-bold tracking-[0.06em] uppercase mb-6 leading-[1.05]">
+            {/* Title — responsive sizes */}
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-serif font-bold tracking-[0.04em] sm:tracking-[0.06em] uppercase mb-5 sm:mb-6 leading-[1.1]">
               <span
                 className="block bg-clip-text text-transparent"
                 style={{
@@ -66,13 +66,13 @@ export default function CinematicHero() {
               >
                 {t("hero.title1")}
               </span>
-              <span className="block text-white/80 text-2xl sm:text-3xl md:text-4xl lg:text-5xl mt-3 lg:mt-4 tracking-[0.12em] font-light">
+              <span className="block text-white/80 text-xl sm:text-2xl md:text-3xl lg:text-4xl mt-2 sm:mt-3 lg:mt-4 tracking-[0.08em] sm:tracking-[0.12em] font-light">
                 {t("hero.title2")}
               </span>
             </h1>
 
             {/* Subtitle — AI+行为分析 unique positioning */}
-            <p className="text-white/35 text-sm md:text-base max-w-lg mx-auto lg:mx-0 mb-8 lg:mb-10 leading-relaxed tracking-wide">
+            <p className="text-white/35 text-xs sm:text-sm md:text-base max-w-lg mx-auto lg:mx-0 mb-6 sm:mb-8 lg:mb-10 leading-relaxed tracking-wide px-2 sm:px-0">
               {descLines[0]}
               {descLines.length > 1 && (
                 <>
@@ -82,11 +82,11 @@ export default function CinematicHero() {
               )}
             </p>
 
-            {/* CTA Buttons — single primary + secondary */}
-            <div className="flex flex-col sm:flex-row items-center gap-4 lg:justify-start justify-center">
+            {/* CTA Buttons — full-width on mobile */}
+            <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 lg:justify-start justify-center">
               <a
                 href={localeHref("/reading/new")}
-                className="group relative inline-flex items-center gap-3 px-8 sm:px-10 py-3.5 sm:py-4 rounded-2xl font-medium text-xs sm:text-sm tracking-widest uppercase transition-all duration-500"
+                className="group relative inline-flex items-center justify-center gap-3 w-full sm:w-auto px-8 sm:px-10 py-3.5 sm:py-4 rounded-2xl font-medium text-xs sm:text-sm tracking-widest uppercase transition-all duration-500"
                 style={{
                   background: "linear-gradient(135deg, #D4AF37 0%, #C5A880 100%)",
                   border: "none",

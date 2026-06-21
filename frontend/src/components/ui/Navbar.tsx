@@ -255,58 +255,58 @@ export function Navbar() {
 
         {/* Mobile & Medium hamburger dropdown — visible below lg */}
         {open && (
-          <div className="lg:hidden bg-ink/95 border-t border-white/10 px-4 py-4 flex flex-col gap-1">
+          <div className="lg:hidden bg-ink/95 border-t border-white/10 px-4 py-3 flex flex-col gap-0.5 max-h-[80vh] overflow-y-auto">
             {coreLinks.map(l => (
               <Link key={l.href} href={l.href} onClick={() => setOpen(false)}
-                className={`py-2.5 ${l.highlight ? "text-gold font-medium" : "text-white/80 hover:text-gold"}`}>
+                className={`py-3.5 px-2 rounded-lg ${l.highlight ? "text-gold font-medium" : "text-white/80 hover:text-gold hover:bg-white/5"}`}>
                 {l.label}
               </Link>
             ))}
-            <div className="border-t border-white/10 my-1" />
+            <div className="border-t border-white/10 my-1.5" />
             {extraLinks.map(l => (
               <Link key={l.href} href={l.href} onClick={() => setOpen(false)}
-                className="text-white/80 hover:text-gold py-2.5">
+                className="text-white/80 hover:text-gold py-3.5 px-2 rounded-lg hover:bg-white/5">
                 {l.label}
               </Link>
             ))}
-            <div className="border-t border-white/10 my-1" />
+            <div className="border-t border-white/10 my-1.5" />
             {/* Auth section for mobile */}
             {user ? (
               <>
-                <div className="flex items-center gap-2 py-2.5">
-                  <div className="w-7 h-7 rounded-full bg-gold/20 border border-gold/40 flex items-center justify-center">
-                    <User size={12} className="text-gold" />
+                <div className="flex items-center gap-2.5 py-3 px-2">
+                  <div className="w-8 h-8 rounded-full bg-gold/20 border border-gold/40 flex items-center justify-center">
+                    <User size={14} className="text-gold" />
                   </div>
-                  <span className="text-white/80 text-sm truncate">{user.display_name || user.email}</span>
+                  <span className="text-white/80 text-sm truncate flex-1">{user.display_name || user.email}</span>
                   <MembershipBadge tier={getUserTier(user)} size="sm" className="ml-auto" />
                 </div>
                 <Link href={localeHref("/dashboard")} onClick={() => setOpen(false)}
-                  className="text-white/60 hover:text-gold py-2 pl-4 text-sm">
+                  className="text-white/60 hover:text-gold py-3 pl-6 text-sm rounded-lg hover:bg-white/5">
                   {t("nav.dashboard")}
                 </Link>
                 <Link href={localeHref("/readings")} onClick={() => setOpen(false)}
-                  className="text-white/60 hover:text-gold py-2 pl-4 text-sm">
+                  className="text-white/60 hover:text-gold py-3 pl-6 text-sm rounded-lg hover:bg-white/5">
                   {t("nav.myReports")}
                 </Link>
                 <Link href={localeHref("/account")} onClick={() => setOpen(false)}
-                  className="text-white/60 hover:text-gold py-2 pl-4 text-sm">
+                  className="text-white/60 hover:text-gold py-3 pl-6 text-sm rounded-lg hover:bg-white/5">
                   {t("nav.account")}
                 </Link>
                 <button
                   onClick={() => { logout(); setOpen(false) }}
-                  className="flex items-center gap-2 text-white/50 hover:text-red-400 py-2.5 text-sm text-left"
+                  className="flex items-center gap-2 text-white/50 hover:text-red-400 py-3.5 px-2 text-sm text-left rounded-lg hover:bg-white/5"
                 >
                   <LogOut size={14} /> {t("nav.logout")}
                 </button>
               </>
             ) : (
-              <div className="flex items-center gap-3 py-2.5">
+              <div className="flex items-center gap-3 py-3 px-2">
                 <Link href={localeHref("/login")} onClick={() => setOpen(false)}
-                  className="text-sm text-white/60 hover:text-gold transition-colors">
+                  className="text-sm text-white/60 hover:text-gold transition-colors py-2 px-4">
                   {t("nav.login")}
                 </Link>
                 <Link href={localeHref("/register")} onClick={() => setOpen(false)}
-                  className="btn-gold text-sm py-2 px-6">
+                  className="btn-gold text-sm py-2.5 px-6 flex-1 text-center">
                   {t("nav.register")}
                 </Link>
               </div>

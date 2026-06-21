@@ -40,7 +40,7 @@ export function ZodiacPageTemplate({ data, locale }: ZodiacPageTemplateProps) {
   })
 
   return (
-    <div className="min-h-screen pt-24 pb-20 px-4">
+    <div className="min-h-screen pt-20 sm:pt-24 pb-16 sm:pb-20 px-4">
       <div className="max-w-4xl mx-auto">
         <Breadcrumbs
           items={[
@@ -67,16 +67,16 @@ export function ZodiacPageTemplate({ data, locale }: ZodiacPageTemplateProps) {
 
         {/* Hero Section */}
         <ScrollReveal>
-          <div className="text-center mb-16">
-            <div className="text-6xl mb-4">{data.symbol}</div>
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-white mb-4">
+          <div className="text-center mb-10 sm:mb-16">
+            <div className="text-5xl sm:text-6xl mb-3 sm:mb-4">{data.symbol}</div>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-white mb-3 sm:mb-4 break-words">
               {content.title}
             </h1>
-            <div className="flex items-center justify-center gap-4 text-sm text-white/40 mb-4">
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm text-white/40 mb-3 sm:mb-4">
               <span>{isZh ? "元素" : "Element"}: {data.element}</span>
-              <span>•</span>
+              <span className="hidden sm:inline">•</span>
               <span>{isZh ? "日期" : "Dates"}: {data.date_range}</span>
-              <span>•</span>
+              <span className="hidden sm:inline">•</span>
               <span>{isZh ? "守护星" : "Ruling Planet"}: {data.ruling_planet}</span>
             </div>
             <p className="text-white/40 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
@@ -87,11 +87,11 @@ export function ZodiacPageTemplate({ data, locale }: ZodiacPageTemplateProps) {
 
         {/* Content Sections */}
         <ScrollReveal delay={0.1}>
-          <div className="card-glass p-8 md:p-10 mb-8">
-            <h2 className="font-serif text-2xl text-gold mb-6">
+          <div className="card-glass p-5 sm:p-8 md:p-10 mb-6 sm:mb-8">
+            <h2 className="font-serif text-xl sm:text-2xl text-gold mb-4 sm:mb-6">
               {isZh ? "💕 爱情特质" : "💕 Love Traits"}
             </h2>
-            <p className="text-white/60 text-sm leading-relaxed">{content.love}</p>
+            <p className="text-white/60 text-sm leading-relaxed break-words">{content.love}</p>
             <div className="mt-4">
               <Link
                 href={localeHref(`/zodiac/${data.id}/love`)}
@@ -104,11 +104,11 @@ export function ZodiacPageTemplate({ data, locale }: ZodiacPageTemplateProps) {
         </ScrollReveal>
 
         <ScrollReveal delay={0.15}>
-          <div className="card-glass p-8 md:p-10 mb-8">
-            <h2 className="font-serif text-2xl text-gold mb-6">
+          <div className="card-glass p-5 sm:p-8 md:p-10 mb-6 sm:mb-8">
+            <h2 className="font-serif text-xl sm:text-2xl text-gold mb-4 sm:mb-6">
               {isZh ? "💼 事业特质" : "💼 Career Traits"}
             </h2>
-            <p className="text-white/60 text-sm leading-relaxed">{content.career}</p>
+            <p className="text-white/60 text-sm leading-relaxed break-words">{content.career}</p>
             <div className="mt-4">
               <Link
                 href={localeHref(`/zodiac/${data.id}/career`)}
@@ -121,36 +121,36 @@ export function ZodiacPageTemplate({ data, locale }: ZodiacPageTemplateProps) {
         </ScrollReveal>
 
         <ScrollReveal delay={0.2}>
-          <div className="card-glass p-8 md:p-10 mb-8">
-            <h2 className="font-serif text-2xl text-gold mb-6">
+          <div className="card-glass p-5 sm:p-8 md:p-10 mb-6 sm:mb-8">
+            <h2 className="font-serif text-xl sm:text-2xl text-gold mb-4 sm:mb-6">
               {isZh ? "🏥 健康指南" : "🏥 Health Guide"}
             </h2>
-            <p className="text-white/60 text-sm leading-relaxed">{content.health}</p>
+            <p className="text-white/60 text-sm leading-relaxed break-words">{content.health}</p>
           </div>
         </ScrollReveal>
 
         {/* Compatibility Links */}
         <ScrollReveal delay={0.25}>
-          <div className="card-glass p-8 md:p-10 mb-8">
-            <h2 className="font-serif text-2xl text-gold mb-6">
+          <div className="card-glass p-5 sm:p-8 md:p-10 mb-6 sm:mb-8">
+            <h2 className="font-serif text-xl sm:text-2xl text-gold mb-4 sm:mb-6">
               {isZh ? "💕 配对分析" : "💕 Compatibility"}
             </h2>
-            <p className="text-white/40 text-sm mb-4">
+            <p className="text-white/40 text-xs sm:text-sm mb-3 sm:mb-4 break-words">
               {isZh
                 ? `探索${content.title}与其他星座的配对分析`
                 : `Explore ${content.title} compatibility with other signs`}
             </p>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
               {data.related_signs.map(sign => {
                 const signData = ZodiacSigns.find(s => s.id === sign)
                 return (
                   <Link
                     key={sign}
                     href={localeHref(`/zodiac/${data.id}/compatibility/${sign}`)}
-                    className="card-glow p-3 text-center hover:border-gold/30 transition-all group"
+                    className="card-glow p-2.5 sm:p-3 text-center hover:border-gold/30 transition-all group"
                   >
-                    <div className="text-2xl mb-1">{signData?.symbol}</div>
-                    <div className="text-xs text-white/60 group-hover:text-gold transition-colors">
+                    <div className="text-xl sm:text-2xl mb-0.5 sm:mb-1">{signData?.symbol}</div>
+                    <div className="text-[10px] sm:text-xs text-white/60 group-hover:text-gold transition-colors">
                       {isZh ? signData?.name_zh : signData?.name_en}
                     </div>
                   </Link>

@@ -44,24 +44,35 @@
            bg-gold transition-all duration-300
            hover:scale-[1.02] hover:shadow-[0_8px_30px_rgba(201,168,76,0.3)]
            active:scale-[0.98];
+    min-height: 44px; /* iOS touch target */
   }
   .btn-gold-outline {
     @apply relative px-6 py-2.5 rounded-xl font-medium text-gold
            border border-gold/30 transition-all duration-300
            hover:bg-gold/10 hover:border-gold/50
            active:scale-[0.98];
+    min-height: 44px;
   }
   .card-glass {
-    @apply bg-white/[0.04] backdrop-blur-sm border border-white/[0.08]
-           rounded-2xl;
+    @apply bg-white/[0.04] border border-white/[0.08] rounded-2xl;
+    /* Disable expensive backdrop-blur on mobile for performance */
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+  @media (min-width: 640px) {
+    .card-glass {
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
   }
   .card-glow {
     @apply card-glass hover:border-gold/30
            transition-all duration-300 hover:bg-white/[0.06];
   }
   .card-glass-elevated {
-    @apply bg-white/[0.06] backdrop-blur-md border border-white/[0.1]
-           rounded-2xl;
+    @apply bg-white/[0.06] border border-white/[0.1] rounded-2xl;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     box-shadow:
       0 4px 24px rgba(0,0,0,0.2),
       0 0 0 1px rgba(255,255,255,0.03);
@@ -582,5 +593,40 @@ select.input-field option:checked {
   width: 40px;
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(201,168,76,0.4), transparent);
+}
+
+/* ═══ Mobile Optimizations ═══════════════════════════════════════════════ */
+
+/* Touch-friendly targets: ensure all interactive elements are >= 44px */
+@media (max-width: 640px) {
+  /* Larger touch targets for buttons and links */
+  a, button, [role="button"] {
+    touch-action: manipulation; /* Prevent 300ms delay on double-tap */
+  }
+
+  /* Reduce card padding on mobile */
+  .card-glass, .card-glow, .card-glass-elevated {
+    border-radius: 1rem;
+  }
+
+  /* Safe area padding for notched phones */
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .safe-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  /* Prevent horizontal overflow */
+  .overflow-x-hidden {
+    overflow-x: hidden;
+  }
+}
+
+/* Smooth scrolling for mobile */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
