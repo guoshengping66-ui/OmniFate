@@ -3,7 +3,6 @@ import { useState, useEffect, useCallback, lazy, Suspense } from "react"
 import {
   Coins, Copy, Check, Loader2, Zap, Gift, Link as LinkIcon,
   ExternalLink, ShieldCheck, AlertCircle, Sparkles, ChevronRight,
-  Globe, MapPin,
 } from "lucide-react"
 import toast from "react-hot-toast"
 import { useLanguage } from "@/contexts/LanguageContext"
@@ -425,7 +424,7 @@ function GlobalPanel({
 export function BillingDashboard() {
   const { t, locale } = useLanguage()
   const { user, refreshUser } = useAuth()
-  const { region, switchRegion, isLoaded: regionLoaded } = useRegion()
+  const { region, isLoaded: regionLoaded } = useRegion()
 
   const [config, setConfig] = useState<GeoConfig | null>(null)
   const [loading, setLoading] = useState(true)
@@ -470,14 +469,6 @@ export function BillingDashboard() {
     fetchBalance()
   }, [regionLoaded, fetchConfig, fetchBalance])
 
-  const handleRegionSwitch = async (newRegion: "domestic" | "overseas") => {
-    switchRegion(newRegion)
-    setLoading(true)
-    const override = newRegion === "overseas" ? "GLOBAL" : "CN"
-    await fetchConfig(override)
-    setLoading(false)
-  }
-
   const handleRefreshBalance = () => {
     fetchBalance()
     refreshUser()
@@ -498,34 +489,6 @@ export function BillingDashboard() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <BalanceCard balance={balance} />
-
-      <div className="flex items-center justify-center">
-        <div className="relative flex items-center bg-white/5 border border-white/10 rounded-full p-1">
-          <div
-            className="absolute top-1 bottom-1 rounded-full bg-gold/15 border border-gold/25 transition-all duration-300"
-            style={{
-              left: region === "domestic" ? "4px" : "50%",
-              width: "calc(50% - 4px)",
-            }}
-          />
-          <button
-            onClick={() => handleRegionSwitch("domestic")}
-            className={`relative z-10 px-5 py-2 rounded-full text-sm font-medium transition-colors duration-200 flex items-center gap-1.5
-              ${region === "domestic" ? "text-gold" : "text-white/40 hover:text-white/60"}`}
-          >
-            <MapPin size={14} />
-            {locale === "zh" ? "国内" : "Domestic"}
-          </button>
-          <button
-            onClick={() => handleRegionSwitch("overseas")}
-            className={`relative z-10 px-5 py-2 rounded-full text-sm font-medium transition-colors duration-200 flex items-center gap-1.5
-              ${region === "overseas" ? "text-gold" : "text-white/40 hover:text-white/60"}`}
-          >
-            <Globe size={14} />
-            {locale === "zh" ? "海外" : "Overseas"}
-          </button>
-        </div>
-      </div>
 
       <div>
         <div className="section-heading mb-4">
