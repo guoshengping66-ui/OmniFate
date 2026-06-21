@@ -50,6 +50,11 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30
 
+    # ── Account Lockout ──
+    FAILED_LOGIN_MAX: int = 5          # max failed attempts before lockout
+    LOCKOUT_DURATION: int = 900        # 15 minutes lockout (seconds)
+    LOCKOUT_MEMORY_MAX: int = 1000     # cap in-memory store to prevent unbounded growth
+
     # ── 微信支付 ──
     WECHAT_PAY_ENABLED: bool = False
     WECHAT_APPID: str = ""
@@ -157,7 +162,10 @@ def get_settings() -> Settings:
             else:
                 s.JWT_SECRET_KEY = secrets.token_hex(32)
                 _jwt_key_file.write_text(s.JWT_SECRET_KEY)
-                _jwt_key_file.chmod(0o600)  # owner-only read/write
+                # Set file permissions to owner-only (Unix only; Windows uses ACLs)
+                import platform
+                if platform.system() != "Windows":
+                    _jwt_key_file.chmod(0o600)
                 logger.info("JWT_SECRET_KEY auto-generated and saved to .jwt_secret")
         except Exception as e:
             s.JWT_SECRET_KEY = secrets.token_hex(32)

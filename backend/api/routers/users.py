@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 
 import json
 from pathlib import Path
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy import select
@@ -36,27 +36,26 @@ async def list_favorites(user: User = Depends(require_user)):
         stmt = (
             select(UserFavorite)
             .where(UserFavorite.user_id == user.id)
+            .options(selectinload(UserFavorite.product))
             .order_by(UserFavorite.created_at.desc())
         )
         result = await db.execute(stmt)
-        favs = result.scalars().all()
+        favs = result.scalars().unique().all()
         if not favs:
             return []
 
-        product_ids = [f.product_id for f in favs]
-
-        # Try DB products first, fall back to JSON
-        db_stmt = select(Product).where(Product.id.in_(product_ids))
-        db_result = await db.execute(db_stmt)
-        db_products = {str(p.id): p for p in db_result.scalars().all()}
-
-        if db_products:
-            return [_product_to_dict(db_products[str(pid)]) for pid in product_ids if str(pid) in db_products]
-
-        # Fallback: load from JSON
-        all_products = _load_products()
-        product_map = {p.get("id"): p for p in all_products}
-        return [product_map[str(pid)] for pid in product_ids if str(pid) in product_map]
+        # Products loaded via selectinload - no N+1 query
+        products = []
+        for fav in favs:
+            if fav.product:
+                products.append(_product_to_dict(fav.product))
+            else:
+                # Fallback: product was deleted from DB, try JSON
+                all_products = _load_products()
+                product_map = {p.get("id"): p for p in all_products}
+                if fav.product_id in product_map:
+                    products.append(product_map[fav.product_id])
+        return products
 
 
 @router.post("/favorites/{product_id}")
@@ -473,7 +472,7 @@ async def request_refund(
 class BirthProfileRequest(BaseModel):
     nickname: str = "本命"
     gender: str = "female"
-    birth_year: int  # validated below
+    birth_year: int
     birth_month: int
     birth_day: int
     birth_hour: int
@@ -482,7 +481,8 @@ class BirthProfileRequest(BaseModel):
     latitude: Optional[float] = None
     longitude: Optional[float] = None
 
-    def model_post_init(self, __context) -> None:
+    @model_validator(mode='after')
+    def validate_birth_data(self) -> "BirthProfileRequest":
         if not (1900 <= self.birth_year <= 2100):
             raise ValueError("birth_year must be between 1900 and 2100")
         if not (1 <= self.birth_month <= 12):
@@ -491,6 +491,7 @@ class BirthProfileRequest(BaseModel):
             raise ValueError("birth_day must be between 1 and 31")
         if not (0 <= self.birth_hour <= 23):
             raise ValueError("birth_hour must be between 0 and 23")
+        return self
 
 
 def _birth_profile_to_dict(bp: BirthProfile) -> dict:

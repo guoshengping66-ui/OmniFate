@@ -22,6 +22,7 @@
     @apply bg-ink text-white font-sans leading-relaxed;
     background: #080808;
     min-height: 100vh;
+    overflow-x: hidden;
   }
   h1,h2,h3 { @apply font-serif; }
   p { @apply text-white/70 leading-relaxed; }

@@ -86,20 +86,12 @@ export default function CinematicHero() {
             <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 lg:justify-start justify-center">
               <a
                 href={localeHref("/reading/new")}
-                className="group relative inline-flex items-center justify-center gap-3 w-full sm:w-auto px-8 sm:px-10 py-3.5 sm:py-4 rounded-2xl font-medium text-xs sm:text-sm tracking-widest uppercase transition-all duration-500"
+                className="group relative inline-flex items-center justify-center gap-3 w-full sm:w-auto px-8 sm:px-10 py-3.5 sm:py-4 rounded-2xl font-medium text-xs sm:text-sm tracking-widest uppercase transition-all duration-300 hover:shadow-[0_0_50px_rgba(212,175,55,0.5)] hover:-translate-y-0.5"
                 style={{
                   background: "linear-gradient(135deg, #D4AF37 0%, #C5A880 100%)",
                   border: "none",
                   color: "#050816",
                   boxShadow: "0 0 30px rgba(212,175,55,0.3)",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.boxShadow = "0 0 50px rgba(212,175,55,0.5)"
-                  e.currentTarget.style.transform = "translateY(-2px)"
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.boxShadow = "0 0 30px rgba(212,175,55,0.3)"
-                  e.currentTarget.style.transform = "translateY(0)"
                 }}
               >
                 {t("hero.cta1")}
@@ -110,19 +102,11 @@ export default function CinematicHero() {
 
               <a
                 href="#how-it-works"
-                className="group inline-flex items-center gap-2 px-6 py-3 rounded-2xl font-medium text-xs sm:text-sm tracking-wider transition-all duration-500"
+                className="group inline-flex items-center gap-2 px-6 py-3 rounded-2xl font-medium text-xs sm:text-sm tracking-wider transition-all duration-300 hover:bg-[rgba(212,175,55,0.1)] hover:border-[rgba(212,175,55,0.8)]"
                 style={{
                   background: "transparent",
                   border: "1px solid rgba(212,175,55,0.5)",
                   color: "#D4AF37",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "rgba(212,175,55,0.1)"
-                  e.currentTarget.style.borderColor = "rgba(212,175,55,0.8)"
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "transparent"
-                  e.currentTarget.style.borderColor = "rgba(212,175,55,0.5)"
                 }}
               >
                 {t("hero.cta2")}
@@ -148,15 +132,15 @@ export default function CinematicHero() {
           </div>
 
           {/* Right: 3D Fate Orb — the AI engine visual */}
-          <div className="flex-1 flex items-center justify-center w-full lg:w-auto h-[420px] sm:h-[520px] lg:h-[620px] relative">
+          <div className="flex-1 flex items-center justify-center w-full lg:w-auto h-[420px] sm:h-[520px] lg:h-[620px] relative overflow-hidden">
             {/* Orb glow backdrop */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="w-[400px] h-[400px] lg:w-[550px] lg:h-[550px] rounded-full bg-[#C5A880]/[0.04] blur-[120px]" />
             </div>
             <FateOrb scrollProgress={scrollProgress} />
 
-            {/* Destiny archive preview card — bottom right */}
-            <div className="absolute bottom-6 right-0 sm:right-4 lg:right-0 w-[230px] sm:w-[270px] p-4 sm:p-5 rounded-2xl bg-[#0A1235]/85 border border-[#C5A880]/15 backdrop-blur-md">
+            {/* Destiny archive preview card — bottom right (hidden on mobile to avoid overflow) */}
+            <div className="hidden sm:block absolute bottom-6 right-0 sm:right-4 lg:right-0 w-[230px] sm:w-[270px] p-4 sm:p-5 rounded-2xl bg-[#0A1235]/85 border border-[#C5A880]/15 backdrop-blur-md">
               {/* Header */}
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#D4AF37]/30 to-[#C5A880]/10 flex items-center justify-center">

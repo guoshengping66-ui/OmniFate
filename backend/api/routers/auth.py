@@ -105,9 +105,9 @@ def _get_client_ip(request: Request) -> str:
 # Tracks failed login attempts per email. After MAX_FAILED attempts,
 # account is locked for LOCKOUT_DURATION seconds.
 # Uses Redis when available, otherwise in-memory fallback.
-FAILED_LOGIN_MAX = 5          # max failed attempts before lockout
-LOCKOUT_DURATION = 900        # 15 minutes lockout
-_LOCKOUT_MEMORY_MAX = 1000    # cap in-memory store to prevent unbounded growth
+FAILED_LOGIN_MAX = settings.FAILED_LOGIN_MAX
+LOCKOUT_DURATION = settings.LOCKOUT_DURATION
+_LOCKOUT_MEMORY_MAX = settings.LOCKOUT_MEMORY_MAX
 _lockout_memory_store: dict[str, dict] = {}  # in-memory fallback
 
 

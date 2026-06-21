@@ -381,6 +381,8 @@ class UserFavorite(Base):
     )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
+    product: Mapped[Optional["Product"]] = relationship(lazy="select")
+
     __table_args__ = (UniqueConstraint("user_id", "product_id", name="uq_user_favorite_product"),)
 
 
