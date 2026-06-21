@@ -3562,7 +3562,8 @@
     "shop": "The Vault",
     "tarot": "Tarot",
     "tools": "Tools",
-    "ziwei": "Ziwei Doushu"
+    "ziwei": "Ziwei Doushu",
+    "zodiac": "Zodiac"
   },
   "nebulaUnlock": {
     "status1": "Calibrating behavioral data...",

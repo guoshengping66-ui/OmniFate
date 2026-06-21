@@ -3236,7 +3236,8 @@
     "shop": "藏宝阁",
     "tarot": "塔罗",
     "tools": "工具",
-    "ziwei": "紫微斗数"
+    "ziwei": "紫微斗数",
+    "zodiac": "星座"
   },
   "nebulaUnlock": {
     "status1": "正在校准星历数据...",
