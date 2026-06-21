@@ -88,7 +88,7 @@ export default function FateOrb({ scrollProgress = 0 }: Props) {
         transition: "transform 0.3s ease-out",
       }}
     >
-      <div className="relative w-[520px] h-[520px] md:w-[620px] md:h-[620px]" style={{ willChange: "transform" }}>
+      <div className="relative w-[85vw] h-[85vw] max-w-[520px] max-h-[520px] md:w-[620px] md:h-[620px]" style={{ willChange: "transform" }}>
 
         {/* Layer 1: Outermost star nodes — fade out in phase 3 */}
         <div
