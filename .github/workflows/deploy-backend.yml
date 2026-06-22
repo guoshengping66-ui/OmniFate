@@ -55,11 +55,29 @@ jobs:
             echo "📥 同步最新代码..."
             # 清理可能残留的 git lock 文件
             rm -f /opt/OmniFate/.git/index.lock 2>/dev/null || true
-            git fetch origin main
+
+            # 检查磁盘空间
+            AVAIL_KB=$(df /opt/OmniFate --output=avail | tail -1 | tr -d ' ')
+            echo "磁盘可用空间: ${AVAIL_KB}KB"
+            if [ "${AVAIL_KB:-0}" -lt 512000 ]; then
+              echo "⚠️ 磁盘空间不足 500MB，清理缓存..."
+              sudo apt-get clean 2>/dev/null || true
+              sudo journalctl --vacuum-size=50M 2>/dev/null || true
+              find /tmp -type f -mtime +1 -delete 2>/dev/null || true
+            fi
+
+            git fetch origin main || {
+              echo "⚠️ git fetch 失败，尝试修复..."
+              rm -f /opt/OmniFate/.git/index
+              git fetch origin main
+            }
+
             git clean -fd 2>/dev/null || true
             git reset --hard origin/main || {
-              echo "⚠️ git reset 失败，尝试修复权限后重试..."
-              chmod -R u+w frontend/ 2>/dev/null || true
+              echo "⚠️ git reset 失败，尝试修复 git index 后重试..."
+              chmod -R u+w /opt/OmniFate/ 2>/dev/null || true
+              rm -f /opt/OmniFate/.git/index /opt/OmniFate/.git/index.lock 2>/dev/null || true
+              git fetch origin main
               git reset --hard origin/main
             }
 
