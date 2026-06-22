@@ -15,7 +15,8 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 import defusedxml.ElementTree as ET
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Query, Header
+from fastapi import APIRouter, Depends, HTTPException, Request, Query
+from utils.cron_auth import verify_cron_secret
 from pydantic import BaseModel, Field
 from sqlalchemy import select, func
 from sqlalchemy.orm import selectinload
@@ -2134,11 +2135,9 @@ async def submit_founder_feedback(
 @router.get("/admin/stats")
 async def admin_stats(
     db: AsyncSession = Depends(get_db),
-    authorization: Optional[str] = Header(None),
-    x_admin_key: Optional[str] = Header(None),
+    _auth: str = Depends(verify_cron_secret),
 ):
     """管理员仪表盘统计 — 用户数、订单数、收入等"""
-    _require_admin_auth(authorization, x_admin_key)
 
     from sqlalchemy import func as sqlfunc
 
@@ -2211,24 +2210,6 @@ class AdminOrderStatusUpdate(BaseModel):
     tracking_number: Optional[str] = None
 
 
-def _require_admin_auth(
-    authorization: Optional[str] = Header(None),
-    x_admin_key: Optional[str] = Header(None),
-):
-    """验证管理员权限 — 支持 CRON_SECRET (Bearer) 或 x-admin-key"""
-    if not settings.CRON_SECRET:
-        raise HTTPException(status_code=500, detail="CRON_SECRET not configured")
-    # Try Bearer token first
-    if authorization:
-        token = authorization.removeprefix("Bearer ").strip()
-        if hmac.compare_digest(token, settings.CRON_SECRET):
-            return
-    # Try x-admin-key header (frontend admin panel)
-    if x_admin_key and hmac.compare_digest(x_admin_key, settings.CRON_SECRET):
-        return
-    raise HTTPException(status_code=401, detail="Unauthorized")
-
-
 @router.get("/admin/shop-orders")
 async def list_shop_orders(
     status: Optional[str] = Query(None, description="按状态筛选"),
@@ -2236,11 +2217,9 @@ async def list_shop_orders(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
-    authorization: Optional[str] = Header(None),
-    x_admin_key: Optional[str] = Header(None),
+    _auth: str = Depends(verify_cron_secret),
 ):
     """管理员查看所有订单（商城 + 会员）"""
-    _require_admin_auth(authorization, x_admin_key)
 
     from sqlalchemy.orm import joinedload
 
@@ -2321,11 +2300,9 @@ async def list_shop_orders(
 async def get_shop_order_detail(
     order_no: str,
     db: AsyncSession = Depends(get_db),
-    authorization: Optional[str] = Header(None),
-    x_admin_key: Optional[str] = Header(None),
+    _auth: str = Depends(verify_cron_secret),
 ):
     """管理员查看订单详情"""
-    _require_admin_auth(authorization, x_admin_key)
 
     from sqlalchemy.orm import joinedload
 
@@ -2381,11 +2358,9 @@ async def update_shop_order_status(
     order_no: str,
     payload: AdminOrderStatusUpdate,
     db: AsyncSession = Depends(get_db),
-    authorization: Optional[str] = Header(None),
-    x_admin_key: Optional[str] = Header(None),
+    _auth: str = Depends(verify_cron_secret),
 ):
     """管理员更新商城订单状态"""
-    _require_admin_auth(authorization, x_admin_key)
 
     valid_statuses = {"pending", "processing", "paid", "shipped", "delivered", "cancelled"}
     if payload.status not in valid_statuses:
@@ -2453,11 +2428,9 @@ async def approve_refund(
     order_no: str,
     req: ApproveRefundRequest,
     db: AsyncSession = Depends(get_db),
-    authorization: Optional[str] = Header(None),
-    x_admin_key: Optional[str] = Header(None),
+    _auth: str = Depends(verify_cron_secret),
 ):
     """管理员批准退款"""
-    _require_admin_auth(authorization, x_admin_key)
 
     result = await db.execute(
         select(Order).where(Order.order_no == order_no, Order.item_type == "shop")
@@ -2512,11 +2485,9 @@ async def reject_refund(
     order_no: str,
     req: RejectRefundRequest,
     db: AsyncSession = Depends(get_db),
-    authorization: Optional[str] = Header(None),
-    x_admin_key: Optional[str] = Header(None),
+    _auth: str = Depends(verify_cron_secret),
 ):
     """管理员拒绝退款"""
-    _require_admin_auth(authorization, x_admin_key)
 
     if not req.reason or not req.reason.strip():
         raise HTTPException(status_code=400, detail="请填写拒绝原因")
@@ -2855,11 +2826,9 @@ async def fulfill_via_cj(
     order_no: str,
     req: FulfillCJRequest,
     db: AsyncSession = Depends(get_db),
-    authorization: Optional[str] = Header(None),
-    x_admin_key: Optional[str] = Header(None),
+    _auth: str = Depends(verify_cron_secret),
 ):
     """Push a paid order to CJ Dropshipping for fulfillment."""
-    _require_admin_auth(authorization, x_admin_key)
 
     from services.cj_dropshipping import create_order as cj_create, is_enabled
     if not is_enabled():
@@ -2951,11 +2920,9 @@ async def fulfill_via_cj(
 async def sync_cj_tracking(
     order_no: str,
     db: AsyncSession = Depends(get_db),
-    authorization: Optional[str] = Header(None),
-    x_admin_key: Optional[str] = Header(None),
+    _auth: str = Depends(verify_cron_secret),
 ):
     """Sync tracking info from CJ for a pushed order."""
-    _require_admin_auth(authorization, x_admin_key)
 
     from services.cj_dropshipping import get_tracking, list_orders as cj_list_orders, is_enabled
     if not is_enabled():
@@ -3036,11 +3003,9 @@ async def sync_cj_tracking(
 async def cj_search_product(
     q: str = Query(..., description="Search keyword"),
     page: int = Query(1, ge=1),
-    authorization: Optional[str] = Header(None),
-    x_admin_key: Optional[str] = Header(None),
+    _auth: str = Depends(verify_cron_secret),
 ):
     """Search CJ product catalog."""
-    _require_admin_auth(authorization, x_admin_key)
 
     from services.cj_dropshipping import search_product, is_enabled
     if not is_enabled():

@@ -77,11 +77,17 @@ _bg_tasks: set = set()
 
 
 def _get_reading_cache(session_id: str) -> Optional[AnalysisResponse]:
-    """Return cached AnalysisResponse if fresh, else None."""
-    import time
+    """Return cached AnalysisResponse if fresh, else None.
+    Also performs lazy eviction of expired entries on each read."""
+    now = time.time()
     entry = _reading_cache.get(session_id)
-    if entry and (time.time() - entry[0]) < _READING_CACHE_TTL:
+    if entry and (now - entry[0]) < _READING_CACHE_TTL:
         return entry[1]
+    # Lazy eviction: remove expired entries (skip if cache is small)
+    if len(_reading_cache) > 20:
+        expired = [k for k, v in _reading_cache.items() if (now - v[0]) >= _READING_CACHE_TTL]
+        for k in expired:
+            del _reading_cache[k]
     return None
 
 

@@ -7,6 +7,7 @@ import uuid
 import time
 import hashlib
 import hmac
+import secrets
 import logging
 from datetime import datetime, timedelta, timezone
 from typing import Optional
@@ -62,9 +63,8 @@ def _generate_order_no(prefix: str = "P") -> str:
 
 
 def _generate_payment_token(order_no: str) -> str:
-    """生成支付验证token"""
-    secret = settings.SECRET_KEY[:16]
-    return hashlib.sha256(f"{secret}:{order_no}:{time.time()}".encode()).hexdigest()[:16]
+    """Generate a payment verification token using cryptographically secure random."""
+    return secrets.token_hex(8)
 
 
 # ─── 数据库操作 ─────────────────────────────────────────────────────────────────
