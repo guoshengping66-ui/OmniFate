@@ -26,7 +26,12 @@ from auth.dependencies import get_current_user, require_user
 from config import get_settings
 
 # Import activation functions from payments router
-from api.routers.payments import _activate_subscription, _activate_founder_seat, _handle_onetime_unlock_activation, PRODUCT_PRICES
+from api.routers.payments import (
+    activate_subscription as _activate_subscription,
+    activate_founder_seat_logic as _activate_founder_seat,
+    handle_onetime_unlock_activation as _handle_onetime_unlock_activation,
+    PRODUCT_PRICES,
+)
 
 router = APIRouter()
 settings = get_settings()
