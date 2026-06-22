@@ -34,7 +34,7 @@ export function StarField() {
       pointer-events: none;
       z-index: 1;
     `
-    document.body.appendChild(star)
+    ref.current.appendChild(star)
     shootingStarsRef.current.push(star)
 
     star.animate([
