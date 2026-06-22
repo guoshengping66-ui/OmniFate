@@ -230,7 +230,7 @@ async def confirm_shop_qr_payment(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """用户通过个人收款码付款后，点击"我已付款""""
+    """用户通过个人收款码付款后，点击「我已付款」"""
     result = await db.execute(
         select(Order).where(
             Order.order_no == order_no,
