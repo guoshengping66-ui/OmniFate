@@ -198,11 +198,14 @@ async def _activate_founder_seat(user: User, order_no: str, db: AsyncSession) ->
 
     MAX_RETRIES = 5
     for attempt in range(MAX_RETRIES):
-        # Count current founders to determine next seat number
+        # Count REAL founder seats — must have seat_no AND activated_at
+        # This matches get_founder_status counting and excludes incomplete activations
         domestic_count_result = await db.execute(
             select(func.count()).select_from(User).where(
                 User.is_founder == True,
                 User.founder_region == "domestic",
+                User.founder_seat_no.isnot(None),
+                User.founder_activated_at.isnot(None),
             ).with_for_update()
         )
         domestic_count = domestic_count_result.scalar() or 0
@@ -215,6 +218,8 @@ async def _activate_founder_seat(user: User, order_no: str, db: AsyncSession) ->
                 select(func.count()).select_from(User).where(
                     User.is_founder == True,
                     User.founder_region == "overseas",
+                    User.founder_seat_no.isnot(None),
+                    User.founder_activated_at.isnot(None),
                 ).with_for_update()
             )
             overseas_count = overseas_count_result.scalar() or 0
