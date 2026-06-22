@@ -13,7 +13,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Header
-from api.routers.payments import get_client_region
+from api.routers.payments.utils import get_client_region
 from pydantic import BaseModel
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -26,12 +26,10 @@ from auth.dependencies import get_current_user, require_user
 from config import get_settings
 
 # Import activation functions from payments router
-from api.routers.payments import (
-    activate_subscription as _activate_subscription,
-    activate_founder_seat_logic as _activate_founder_seat,
-    handle_onetime_unlock_activation as _handle_onetime_unlock_activation,
-    PRODUCT_PRICES,
-)
+from api.routers.payments.subscriptions import activate_subscription as _activate_subscription
+from api.routers.payments.founder import activate_founder_seat_logic as _activate_founder_seat
+from api.routers.payments.unlock import handle_onetime_unlock_activation as _handle_onetime_unlock_activation
+from api.routers.payments.constants import PRODUCT_PRICES
 
 router = APIRouter()
 settings = get_settings()
