@@ -165,3 +165,4 @@ def get_settings() -> Settings:
     if s.DEBUG:
         logger.warning("DEBUG mode is ON — do not use in production.")
     return s
+
