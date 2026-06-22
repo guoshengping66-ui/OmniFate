@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useMemo } from "react"
 import { motion } from "framer-motion"
 import { Share2, Copy, Check, ShieldCheck, Fingerprint, RotateCcw, QrCode } from "lucide-react"
+import { QRCodeSVG } from "qrcode.react"
 import toast from "react-hot-toast"
 import { useLanguage } from "@/contexts/LanguageContext"
 
@@ -93,42 +94,6 @@ function getProphecy(sessionId: string, locale: string): string {
 }
 
 // ── QR Code ─────────────────────────────────────────────────────────────────
-
-// TODO: Replace with real QR library (e.g., qrcode.react)
-// Current pattern is decorative only, not scannable
-function generateQRMatrix(text: string, size: number = 25): boolean[][] {
-  const matrix: boolean[][] = Array.from({ length: size }, () => Array(size).fill(false))
-  const drawFinder = (sx: number, sy: number) => {
-    for (let y = 0; y < 7; y++) for (let x = 0; x < 7; x++) {
-      const outer = x === 0 || x === 6 || y === 0 || y === 6
-      const inner = x >= 2 && x <= 4 && y >= 2 && y <= 4
-      if (outer || inner) matrix[sy + y][sx + x] = true
-    }
-  }
-  drawFinder(0, 0); drawFinder(size - 7, 0); drawFinder(0, size - 7)
-  for (let i = 8; i < size - 8; i++) { matrix[6][i] = i % 2 === 0; matrix[i][6] = i % 2 === 0 }
-  let h = 0
-  for (let i = 0; i < text.length; i++) h = ((h << 5) - h + text.charCodeAt(i)) | 0
-  for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
-    if (matrix[y][x] || (x < 9 && y < 9) || (x >= size - 8 && y < 9) || (x < 9 && y >= size - 8)) continue
-    h = ((h << 5) - h + (y * size + x)) | 0
-    matrix[y][x] = (h >>> 0) % 3 === 0
-  }
-  return matrix
-}
-
-function QRCodeSVG({ text, size = 100 }: { text: string; size?: number }) {
-  const matrix = useMemo(() => generateQRMatrix(text), [text])
-  const cell = size / matrix.length
-  return (
-    <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size}>
-      <rect width={size} height={size} fill="white" rx="3" />
-      {matrix.map((row, y) => row.map((c, x) =>
-        c ? <rect key={`${x}-${y}`} x={x * cell} y={y * cell} width={cell} height={cell} fill="#1a1030" rx={0.3} /> : null
-      ))}
-    </svg>
-  )
-}
 
 // ── Animated Radar ──────────────────────────────────────────────────────────
 
@@ -455,7 +420,7 @@ const EnergyIDCardInner = ({ sessionId, dimensionScores, generatedAt, ..._rest }
               <div className="relative p-6 flex flex-col items-center justify-center h-full min-h-[340px]">
                 <p className="text-white/20 text-[9px] tracking-[0.2em] uppercase mb-4">{t("energyId.scanHint")}</p>
                 <div className="bg-white rounded-xl p-3 mb-4" style={{ boxShadow: `0 0 30px ${archetype.glow}` }}>
-                  <QRCodeSVG text={shareUrl || signature} size={130} />
+                  <QRCodeSVG value={shareUrl || signature} size={130} bgColor="white" fgColor="#1a1030" level="M" />
                 </div>
                 <p className="font-mono text-xs tracking-wider mb-5" style={{ color: `${archetype.color}AA` }}>{signature}</p>
                 <div className="flex gap-3">
