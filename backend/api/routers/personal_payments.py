@@ -267,7 +267,7 @@ async def _activate_order(db: AsyncSession, order) -> None:
                         if user:
                             if (user.shop_coupon_balance or 0) == 0:
                                 user.shop_coupon_balance = 50
-                            from api.routers.payments import GRANT_ON_REPORT_UNLOCK
+                            from api.routers.payments.constants import GRANT_ON_REPORT_UNLOCK
                             user.stardust_balance += GRANT_ON_REPORT_UNLOCK
                             user.stardust_lifetime_earned += GRANT_ON_REPORT_UNLOCK
     except Exception as e:
