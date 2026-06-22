@@ -918,9 +918,16 @@ export interface PaymentMethodsResponse {
   count: number
 }
 
+let _paymentMethodsCache: PaymentMethod[] | null = null
+let _paymentMethodsPromise: Promise<PaymentMethod[]> | null = null
+
 export async function getPaymentMethods(): Promise<PaymentMethod[]> {
-  const res = await api.get<PaymentMethodsResponse>("/api/payments/payment-methods")
-  return res.data.methods
+  if (_paymentMethodsCache) return _paymentMethodsCache
+  if (_paymentMethodsPromise) return _paymentMethodsPromise
+  _paymentMethodsPromise = api.get<PaymentMethodsResponse>("/api/payments/payment-methods")
+    .then(res => { _paymentMethodsCache = res.data.methods; return res.data.methods })
+    .catch(e => { _paymentMethodsPromise = null; throw e })
+  return _paymentMethodsPromise
 }
 
 export interface PayPalConfig {
