@@ -8,7 +8,6 @@ import time
 import json
 import base64
 import logging
-import requests
 
 logger = logging.getLogger(__name__)
 from datetime import datetime, timedelta, timezone
