@@ -1,10 +1,7 @@
 import { notFound } from "next/navigation"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
-
-function safeJsonLd(obj: object): string {
-  return JSON.stringify(obj).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026')
-}
+import { safeJsonLd } from "@/utils/safeJsonLd"
 
 const COMPARISONS: Record<string, {
   title_en: string; title_zh: string;

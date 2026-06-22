@@ -3,12 +3,10 @@ import Link from "next/link"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { SEOFaq } from "@/components/ui/SEOFaq"
-function safeJsonLd(obj: object): string {
-  return JSON.stringify(obj).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026')
-}
 import { useLanguage } from "@/contexts/LanguageContext"
 import type { AstrologyHouse } from "@/data/programmatic/astrology/houses"
 import { AstrologyHouses } from "@/data/programmatic/astrology/houses"
+import { safeJsonLd } from "@/utils/safeJsonLd"
 
 interface AstrologyHouseTemplateProps {
   data: AstrologyHouse

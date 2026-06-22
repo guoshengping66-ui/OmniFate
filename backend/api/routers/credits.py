@@ -3,7 +3,7 @@ import logging
 from datetime import datetime, timezone, date, timedelta
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Header, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy import select, func, and_
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,6 +12,7 @@ from database.session import get_db
 from database.models import User, CreditTransaction
 from auth.dependencies import get_current_user, require_user
 from config import get_settings
+from utils.cron_auth import verify_cron_secret
 
 logger = logging.getLogger("credits")
 
@@ -296,21 +297,12 @@ async def refund_deduct(
 async def grant_stardust(
     req: GrantRequest,
     db: AsyncSession = Depends(get_db),
-    authorization: Optional[str] = Header(None),
+    _auth: str = Depends(verify_cron_secret),
 ):
     """
     赠送星尘 — 仅限管理员/系统调用（CRON_SECRET 鉴权）
     不再允许普通用户自行调用
     """
-    # 管理员鉴权
-    if not settings.CRON_SECRET:
-        raise HTTPException(status_code=500, detail="CRON_SECRET not configured")
-    if not authorization:
-        raise HTTPException(status_code=401, detail="Missing authorization")
-    token = authorization.replace("Bearer ", "").strip()
-    if not hmac.compare_digest(token, settings.CRON_SECRET):
-        raise HTTPException(status_code=403, detail="Invalid secret")
-
     if req.amount <= 0 or req.amount > 10000:
         raise HTTPException(status_code=400, detail="赠送数量必须在 1-10000 之间")
 
@@ -349,22 +341,13 @@ async def grant_stardust(
 @router.post("/monthly-grant")
 async def monthly_grant(
     db: AsyncSession = Depends(get_db),
-    authorization: Optional[str] = Header(None),
+    _auth: str = Depends(verify_cron_secret),
     user_id: Optional[str] = Query(None, description="目标用户 ID（管理员调用时指定）"),
 ):
     """
     月度星尘发放 — 仅限管理员/cron 调用（CRON_SECRET 鉴权）
     包含幂等性检查：同一用户同一月只发放一次
     """
-    # 管理员鉴权
-    if not settings.CRON_SECRET:
-        raise HTTPException(status_code=500, detail="CRON_SECRET not configured")
-    if not authorization:
-        raise HTTPException(status_code=401, detail="Missing authorization")
-    token = authorization.replace("Bearer ", "").strip()
-    if not hmac.compare_digest(token, settings.CRON_SECRET):
-        raise HTTPException(status_code=403, detail="Invalid secret")
-
     if not user_id:
         raise HTTPException(status_code=400, detail="需指定 user_id")
 
@@ -423,7 +406,7 @@ async def monthly_grant(
 
 @router.get("/admin/audit")
 async def admin_audit(
-    authorization: str = Header(None),
+    _auth: str = Depends(verify_cron_secret),
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -432,15 +415,6 @@ async def admin_audit(
     - 今日消耗总量
     - 异常消耗用户（今日消耗 > 200）
     """
-    # 鉴权：复用 CRON_SECRET
-    if not settings.CRON_SECRET:
-        raise HTTPException(status_code=500, detail="CRON_SECRET not configured")
-    if not authorization:
-        raise HTTPException(status_code=401, detail="Missing authorization")
-    token = authorization.replace("Bearer ", "").strip()
-    if not hmac.compare_digest(token, settings.CRON_SECRET):
-        raise HTTPException(status_code=403, detail="Invalid secret")
-
     # 全站总星尘存量
     total_balance_result = await db.execute(
         select(func.coalesce(func.sum(User.stardust_balance), 0))

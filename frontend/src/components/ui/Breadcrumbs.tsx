@@ -3,10 +3,7 @@ import { useMemo } from "react"
 import Link from "next/link"
 import { ChevronRight, Home } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
-
-function safeJsonLd(obj: object): string {
-  return JSON.stringify(obj).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026')
-}
+import { safeJsonLd } from "@/utils/safeJsonLd"
 
 interface BreadcrumbItem {
   label: string

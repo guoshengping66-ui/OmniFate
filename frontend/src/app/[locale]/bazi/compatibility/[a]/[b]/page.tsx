@@ -2,10 +2,7 @@ import { notFound } from "next/navigation"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { BaziDayMasters } from "@/data/programmatic/bazi/dayMasters"
-
-function safeJsonLd(obj: object): string {
-  return JSON.stringify(obj).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026')
-}
+import { safeJsonLd } from "@/utils/safeJsonLd"
 
 const ELEMENT_SCORES: Record<string, Record<string, number>> = {
   wood: { wood: 60, fire: 90, earth: 30, metal: 20, water: 80 },

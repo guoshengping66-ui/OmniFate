@@ -5,10 +5,7 @@ import { useEffect, useState, useRef, type JSX } from "react"
 import { ArrowLeft, Clock, Share2, ChevronUp } from "lucide-react"
 import { ARTICLES, CATEGORIES } from "@/data/articles"
 import { useLanguage } from "@/contexts/LanguageContext"
-function safeJsonLd(obj: object): string {
-  return JSON.stringify(obj).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026')
-}
-
+import { safeJsonLd } from "@/utils/safeJsonLd"
 /* ── Markdown 渲染器 ────────────────────────────────────────────── */
 
 function renderMarkdown(raw: string) {

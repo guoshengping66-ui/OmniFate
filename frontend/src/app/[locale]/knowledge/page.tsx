@@ -4,10 +4,7 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { KnowledgeCategories } from "@/data/knowledge"
-
-function safeJsonLd(obj: object): string {
-  return JSON.stringify(obj).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026')
-}
+import { safeJsonLd } from "@/utils/safeJsonLd"
 
 export default function KnowledgePage() {
   const { t, localeHref, locale } = useLanguage()

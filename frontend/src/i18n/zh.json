@@ -3285,6 +3285,7 @@
     "orderCancelled": "订单已取消",
     "orderExpired": "订单已过期，请重新下单",
     "orderNo": "订单号:",
+    "orderNotExist": "订单号不存在，请重试",
     "pleasePay": "请支付",
     "pleaseWait": "请稍候",
     "preparingQR": "准备收款码...",

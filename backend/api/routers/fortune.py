@@ -8,12 +8,11 @@ api/routers/fortune.py — 运势订阅 API
   GET  /api/fortune/daily        — 获取今日运势
   POST /api/fortune/generate-all — cron 触发，为所有订阅用户生成运势并发送邮件
 """
-import hmac
 import logging
 from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -29,6 +28,7 @@ from services.fortune_generator import (
     get_current_day_str,
 )
 from config import get_settings
+from utils.cron_auth import verify_cron_secret
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -402,20 +402,10 @@ def _daily_to_dict(f: DailyFortune, locale: str) -> dict:
 
 # ── Generate All (Cron) ─────────────────────────────────────────────────────
 
-def _verify_cron_secret(authorization: str = Header(None)):
-    """验证 CRON_SECRET"""
-    if not settings.CRON_SECRET:
-        raise HTTPException(status_code=500, detail="CRON_SECRET not configured")
-    if not authorization:
-        raise HTTPException(status_code=401, detail="Missing authorization")
-    token = authorization.removeprefix("Bearer ").strip()
-    if not hmac.compare_digest(token, settings.CRON_SECRET):
-        raise HTTPException(status_code=403, detail="Invalid cron secret")
-
 
 @router.post("/generate-all")
 async def generate_all_weekly_fortunes(
-    authorization: str = Header(None),
+    _auth: str = Depends(verify_cron_secret),
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -423,7 +413,6 @@ async def generate_all_weekly_fortunes(
     - 每周一: 为 weekly 订阅用户生成本周运势并发送邮件
     - 每天: 为 daily 订阅用户生成今日运势并发送邮件
     """
-    _verify_cron_secret(authorization)
 
     from sqlalchemy.orm import selectinload
     from utils.email import send_fortune_email, send_daily_fortune_email

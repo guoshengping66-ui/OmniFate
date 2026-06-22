@@ -7,10 +7,7 @@ import { SEOFaq } from "@/components/ui/SEOFaq"
 import { RelatedServices } from "@/components/ui/RelatedServices"
 import { useMemo } from "react"
 import { useLanguage } from "@/contexts/LanguageContext"
-function safeJsonLd(obj: object): string {
-  return JSON.stringify(obj).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026')
-}
-
+import { safeJsonLd } from "@/utils/safeJsonLd"
 export default function FiveElementsSEOPage() {
   const { t, localeHref, locale } = useLanguage()
 

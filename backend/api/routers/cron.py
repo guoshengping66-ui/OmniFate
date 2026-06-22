@@ -1,20 +1,18 @@
 """定时任务 API — 月度星尘发放 + 会员状态维护 + 到期提醒 + 推命清理 + 订单超时"""
-import hmac
 import logging
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi import APIRouter, Depends
 from sqlalchemy import select, func, and_, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.session import get_db
 from database.models import User, CreditTransaction, Reading, Order, OrderStatus
-from config import get_settings
+from utils.cron_auth import verify_cron_secret
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
-settings = get_settings()
 
 MONTHLY_GRANTS = {
     "premium_monthly": 100,
@@ -23,21 +21,9 @@ MONTHLY_GRANTS = {
 }
 
 
-def _verify_cron_secret(authorization: str = Header(None)):
-    """验证 CRON_SECRET 防止外部滥用"""
-    if not settings.CRON_SECRET:
-        raise HTTPException(status_code=500, detail="CRON_SECRET not configured")
-    if not authorization:
-        raise HTTPException(status_code=401, detail="Missing authorization")
-    # 支持 "Bearer <token>" 格式
-    token = authorization.split(" ", 1)[-1] if " " in authorization else authorization.strip()
-    if not hmac.compare_digest(token, settings.CRON_SECRET):
-        raise HTTPException(status_code=403, detail="Invalid cron secret")
-
-
 @router.post("/monthly-stardust")
 async def monthly_stardust_grant(
-    authorization: str = Header(None),
+    _auth: str = Depends(verify_cron_secret),
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -46,7 +32,6 @@ async def monthly_stardust_grant(
     - 按 tier 注入星尘
     - 检查并过期过期会员
     """
-    _verify_cron_secret(authorization)
 
     now = datetime.now(timezone.utc)
     granted_count = 0
@@ -130,11 +115,10 @@ async def monthly_stardust_grant(
 
 @router.post("/expire-check")
 async def expire_check(
-    authorization: str = Header(None),
+    _auth: str = Depends(verify_cron_secret),
     db: AsyncSession = Depends(get_db),
 ):
     """单独的会员过期检查（可由更频繁的 cron 调用）"""
-    _verify_cron_secret(authorization)
 
     now = datetime.now(timezone.utc)
     expired_count = 0
@@ -161,7 +145,7 @@ async def expire_check(
 
 @router.post("/expiry-reminder")
 async def expiry_reminder(
-    authorization: str = Header(None),
+    _auth: str = Depends(verify_cron_secret),
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -169,7 +153,6 @@ async def expiry_reminder(
     - 找出 3 天内到期的订阅用户
     - 发送到期提醒邮件
     """
-    _verify_cron_secret(authorization)
 
     now = datetime.now(timezone.utc)
     reminder_cutoff = now + timedelta(days=3)
@@ -222,14 +205,13 @@ async def expiry_reminder(
 
 @router.post("/cleanup-readings")
 async def cleanup_old_readings(
-    authorization: str = Header(None),
+    _auth: str = Depends(verify_cron_secret),
     db: AsyncSession = Depends(get_db),
 ):
     """
     清除超过 7 天的推命内容（由 cron 每天调用）
     删除 7 天前创建的 Reading 记录
     """
-    _verify_cron_secret(authorization)
 
     cutoff = datetime.now(timezone.utc) - timedelta(days=7)
 
@@ -249,14 +231,13 @@ async def cleanup_old_readings(
 
 @router.post("/cancel-expired-orders")
 async def cancel_expired_orders(
-    authorization: str = Header(None),
+    _auth: str = Depends(verify_cron_secret),
     db: AsyncSession = Depends(get_db),
 ):
     """
     取消超过 30 分钟未支付的订单（由 cron 每 5 分钟调用）
     将 pending 状态超过 30 分钟的订单标记为 cancelled
     """
-    _verify_cron_secret(authorization)
 
     cutoff = datetime.now(timezone.utc) - timedelta(minutes=30)
 
@@ -283,13 +264,12 @@ async def cancel_expired_orders(
 
 @router.post("/auto-confirm-orders")
 async def auto_confirm_expired_qr_orders(
-    authorization: str = Header(None),
+    _auth: str = Depends(verify_cron_secret),
     db: AsyncSession = Depends(get_db),
 ):
     """
     自动确认超时的收款码订单 — ¥50 以下超过 30 分钟的 processing 订单自动激活。
     """
-    _verify_cron_secret(authorization)
 
     from api.routers.personal_payments import _activate_order
 

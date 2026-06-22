@@ -15,15 +15,9 @@ import { MonthlyGrantToast } from "@/components/ui/MonthlyGrantToast"
 import { OnboardingGuide } from "@/components/ui/OnboardingGuide"
 import { ChunkRecovery } from "@/components/ui/ChunkRecovery"
 import { PayPalPreloader } from "@/components/ui/PayPalPreloader"
+import { safeJsonLd } from "@/utils/safeJsonLd"
 
 /** Inline safeJsonLd to avoid client-reference bundling issue in Server Components */
-function safeJsonLd(obj: object): string {
-  return JSON.stringify(obj)
-    .replace(/</g, '\\u003c')
-    .replace(/>/g, '\\u003e')
-    .replace(/&/g, '\\u0026')
-}
-
 export const viewport: Viewport = {
   themeColor: "#C9A84C",
 }

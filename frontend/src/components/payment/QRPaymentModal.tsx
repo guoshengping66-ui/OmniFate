@@ -290,7 +290,7 @@ export function QRPaymentModal({
   const handleConfirmPaid = async () => {
     const targetOrderNo = shopOrderNo || orderNo
     if (!targetOrderNo) {
-      toast.error(t("payment.orderNotExist") || "订单号不存在，请重试")
+      toast.error(t("payment.orderNotExist"))
       return
     }
     setStatus("verifying")
@@ -299,7 +299,7 @@ export function QRPaymentModal({
       // Shop order QR payment: notify admin, admin confirms payment
       try {
         await apiDirect.post(`/api/payments/shop-orders/${targetOrderNo}/confirm-qr-payment`)
-        toast.success(t("payment.adminNotified") || "已通知管理员核实收款")
+        toast.success(t("payment.adminNotified"))
         setStatus("check_email")
       } catch (err: any) {
         console.error("[QRPayment] confirm-qr-payment failed:", err)
@@ -396,7 +396,7 @@ export function QRPaymentModal({
       setStatus("waiting")
       setError(t("payment.networkError"))
     }
-  }, [orderNo, shopOrderNo, isShopPayment])
+  }, [orderNo, shopOrderNo, isShopPayment, cancelPolling, startShopOrderPolling, activateSubscription, startPollForStatus, onSuccess, t])
 
   const startPollForStatus = useCallback(() => {
     cancelPolling()
@@ -438,17 +438,20 @@ export function QRPaymentModal({
         const { apiAuth } = await import("@/lib/api")
         const userRes = await apiAuth.get("/api/auth/me")
         const user = userRes.data
-        if (user?.is_premium || user?.is_founder) { await activateSubscription(); return }
+        if (user?.is_premium || user?.is_founder) {
+          await activateSubscription()
+          return
+        }
       } catch {}
       if (pollActiveRef.current && attempts < MAX_POLL_ATTEMPTS) {
         pollTimerRef.current = setTimeout(poll, POLL_INTERVAL)
       } else {
         setStatus("waiting")
-        toast.error(t("payment.pollTimeout") || "Payment verification is taking longer than expected. Please check your email for updates.")
+        toast.error(t("payment.pollTimeout") || "Payment verification timed out. Please check your email.")
       }
     }
     pollTimerRef.current = setTimeout(poll, POLL_INTERVAL)
-  }, [])
+  }, [cancelPolling, activateSubscription, t])
 
   // Poll shop order payment status (for QR/WeChat/Alipay personal code payments)
   const startShopOrderPolling = useCallback(() => {
@@ -509,7 +512,7 @@ export function QRPaymentModal({
         </button>
 
         <h3 className="text-xl font-serif font-bold text-gold mb-2">
-          {status === "success" ? t("payment.success") : status === "waiting" ? t("payment.waitingConfirm") : status === "check_email" ? (t("payment.waitingAdminConfirm") || "等待管理员确认") : t("payment.scanToPay")}
+          {status === "success" ? t("payment.success") : status === "waiting" ? t("payment.waitingConfirm") : status === "check_email" ? t("payment.waitingAdminConfirm") : t("payment.scanToPay")}
         </h3>
         <p className="text-white/40 text-sm mb-6">{tierLabel}</p>
 
@@ -790,14 +793,14 @@ export function QRPaymentModal({
                   <polyline points="12,6 12,12 16,14" />
                 </svg>
               </div>
-              <h4 className="text-xl font-bold text-blue-400 mb-2">{t("payment.waitingAdminConfirm") || "等待管理员确认"}</h4>
-              <p className="text-white/50 text-sm mb-2">{t("payment.adminNotifyingDesc") || "管理员正在核实您的付款，确认后订单将自动完成"}</p>
-              <p className="text-white/30 text-xs mb-6">{t("payment.adminNotifyingHint") || "通常 1-24 小时内完成确认，请耐心等待"}</p>
+              <h4 className="text-xl font-bold text-blue-400 mb-2">{t("payment.waitingAdminConfirm")}</h4>
+              <p className="text-white/50 text-sm mb-2">{t("payment.adminNotifyingDesc")}</p>
+              <p className="text-white/30 text-xs mb-6">{t("payment.adminNotifyingHint")}</p>
               <div className="bg-white/5 rounded-xl p-4 mb-4">
                 <p className="text-white/40 text-xs">{t("payment.orderNo")}</p>
                 <p className="text-white/70 text-sm font-mono">{shopOrderNo || orderNo}</p>
               </div>
-              <button onClick={() => window.location.href = localeHref("/shop")} className="btn-secondary w-full">{t("payment.close") || "关闭"}</button>
+              <button onClick={() => window.location.href = localeHref("/shop")} className="btn-secondary w-full">{t("payment.close")}</button>
             </div>
           )}
 

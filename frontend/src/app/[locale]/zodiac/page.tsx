@@ -4,10 +4,7 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { ZodiacSigns } from "@/data/programmatic/zodiac/signs"
-
-function safeJsonLd(obj: object): string {
-  return JSON.stringify(obj).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026')
-}
+import { safeJsonLd } from "@/utils/safeJsonLd"
 
 const ELEMENTS = [
   { key: "fire", emoji: "🔥", zh: "火象星座", en: "Fire Signs" },

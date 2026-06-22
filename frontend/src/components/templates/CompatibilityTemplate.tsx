@@ -3,12 +3,10 @@ import Link from "next/link"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { SEOFaq } from "@/components/ui/SEOFaq"
-function safeJsonLd(obj: object): string {
-  return JSON.stringify(obj).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026')
-}
 import { useLanguage } from "@/contexts/LanguageContext"
 import type { CompatibilityPair } from "@/data/programmatic/zodiac/compatibility"
 import { ZodiacSigns } from "@/data/programmatic/zodiac/signs"
+import { safeJsonLd } from "@/utils/safeJsonLd"
 
 interface CompatibilityTemplateProps {
   data: CompatibilityPair

@@ -4,13 +4,10 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { ZodiacSigns } from "@/data/programmatic/zodiac/signs"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { safeJsonLd } from "@/utils/safeJsonLd"
 
 const TOPICS = ["love", "career", "health", "wealth", "study"] as const
 type Topic = (typeof TOPICS)[number]
-
-function safeJsonLd(obj: object): string {
-  return JSON.stringify(obj).replace(/</g, '\u003c').replace(/>/g, '\u003e').replace(/&/g, '\u0026')
-}
 
 interface PageProps {
   params: Promise<{ locale: string; sign: string; topic: Topic }>

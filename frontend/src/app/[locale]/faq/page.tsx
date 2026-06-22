@@ -6,10 +6,7 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import Link from "next/link"
-function safeJsonLd(obj: object): string {
-  return JSON.stringify(obj).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026')
-}
-
+import { safeJsonLd } from "@/utils/safeJsonLd"
 /** FAQ categories for filtering */
 const FAQ_CATEGORIES = [
   { key: "general", zhLabel: "基础了解", enLabel: "General" },

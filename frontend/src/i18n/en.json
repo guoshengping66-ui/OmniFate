@@ -3611,6 +3611,7 @@
     "orderCancelled": "Order cancelled",
     "orderExpired": "Order expired — try again",
     "orderNo": "Order No.",
+    "orderNotExist": "Order number not found, please try again",
     "pleasePay": "Please pay",
     "pleaseWait": "Please wait",
     "preparingQR": "Preparing QR code...",

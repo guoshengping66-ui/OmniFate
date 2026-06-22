@@ -3,6 +3,11 @@ import React, { useRef, useState, useEffect, useCallback, useMemo } from "react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { DESTINY_STARS as STARS, OPPORTUNITY_ZONES } from "@/data/destinyStars"
 
+/* ── Animation timing constants (ms) ── */
+const ANIM_STEP0_DELAY = 50   // Initial layout
+const ANIM_STEP1_DELAY = 350  // Stars light up
+const ANIM_STEP2_DELAY = 700  // Full reveal
+
 /* ═══════════════════════════════════════════════════════════════════
    银河航线 — Galaxy Route
 
@@ -519,10 +524,10 @@ export default function LifeRouteGeneration() {
       ([entry]) => {
         if (entry.isIntersecting && animStepRef.current === -1) {
           setIsVisible(true)
-          // 三步动画序列 (总计 ~1s)
-          timers.push(setTimeout(() => setAnimStep(0), 50))
-          timers.push(setTimeout(() => setAnimStep(1), 350))
-          timers.push(setTimeout(() => setAnimStep(2), 700))
+          // 三步动画序列 (总计 ~0.7s)
+          timers.push(setTimeout(() => setAnimStep(0), ANIM_STEP0_DELAY))
+          timers.push(setTimeout(() => setAnimStep(1), ANIM_STEP1_DELAY))
+          timers.push(setTimeout(() => setAnimStep(2), ANIM_STEP2_DELAY))
         }
       },
       { threshold: 0.15 },

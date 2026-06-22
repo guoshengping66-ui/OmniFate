@@ -4,10 +4,7 @@ import { ArrowRight } from "lucide-react"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { useLanguage } from "@/contexts/LanguageContext"
-function safeJsonLd(obj: object): string {
-  return JSON.stringify(obj).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026')
-}
-
+import { safeJsonLd } from "@/utils/safeJsonLd"
 const tools = [
   { icon: "☯", title: "Bazi Calculator", desc: "AI-powered Four Pillars chart generation with Five Elements analysis", href: "/bazi", color: "from-amber-500/10" },
   { icon: "✦", title: "Birth Chart", desc: "Natal chart analysis with planetary placements and aspect interpretation", href: "/astrology", color: "from-blue-500/10" },

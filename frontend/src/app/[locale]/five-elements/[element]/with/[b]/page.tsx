@@ -4,10 +4,7 @@ import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { SEOFaq } from "@/components/ui/SEOFaq"
 import { FiveElementCompatibilities } from "@/data/programmatic/five-elements/compatibility"
 import { FiveElements } from "@/data/programmatic/five-elements/elements"
-
-function safeJsonLd(obj: object): string {
-  return JSON.stringify(obj).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026')
-}
+import { safeJsonLd } from "@/utils/safeJsonLd"
 
 const ELEMENT_EMOJI: Record<string, string> = {
   wood: "🌳", fire: "🔥", earth: "🏔️", metal: "⚔️", water: "💧",

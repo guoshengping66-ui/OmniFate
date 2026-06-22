@@ -11,9 +11,9 @@
  * NOTE: Data passed to this function should be hardcoded or from trusted sources.
  * Never pass user-controlled input directly to JSON-LD without validation.
  */
-export function safeJsonLd(obj: object): string {
-  return JSON.stringify(obj)
-    .replace(/</g, '\\u003c')
-    .replace(/>/g, '\\u003e')
-    .replace(/&/g, '\\u0026');
+export function safeJsonLd(data: unknown): string {
+  return JSON.stringify(data)
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e")
+    .replace(/&/g, "\\u0026");
 }

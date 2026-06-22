@@ -20,14 +20,14 @@
   }
   /* Prevent horizontal overflow on mobile — fixes "right 1/3 black" layout issue */
   html {
-    overflow-x: hidden;
+    overflow-x: clip;
     max-width: 100vw;
   }
   body {
     @apply bg-ink text-white font-sans leading-relaxed;
     background: #050510;
     min-height: 100vh;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
   h1,h2,h3 { @apply font-serif; }
   p { @apply text-white/70 leading-relaxed; }
