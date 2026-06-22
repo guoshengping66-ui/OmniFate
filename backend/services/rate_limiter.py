@@ -42,9 +42,11 @@ async def check_rate_limit(
     if not _warned_multi_worker:
         workers = multiprocessing.cpu_count()
         if workers > 1:
-            logger.warning(
-                "Rate limiter using in-memory fallback with %d CPU cores — "
-                "limits are PER-WORKER and will not be shared. Configure REDIS_URL for production.",
+            logger.critical(
+                "SECURITY: Rate limiter using in-memory fallback with %d CPU cores — "
+                "limits are PER-WORKER and will NOT be shared across workers. "
+                "An attacker can bypass rate limits by hitting different workers. "
+                "Configure REDIS_URL immediately for production.",
                 workers,
             )
         _warned_multi_worker = True

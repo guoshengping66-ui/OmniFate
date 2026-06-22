@@ -261,7 +261,7 @@ class Order(Base):
         ForeignKey("users.id", ondelete="CASCADE"), nullable=True, index=True
     )
     order_no: Mapped[str] = mapped_column(String(64), unique=True, nullable=False, index=True)
-    status: Mapped[OrderStatus] = mapped_column(Enum(OrderStatus), default=OrderStatus.pending)
+    status: Mapped[OrderStatus] = mapped_column(Enum(OrderStatus), default=OrderStatus.pending, index=True)
 
     total_cny: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
     total_usd: Mapped[Optional[float]] = mapped_column(Numeric(10, 2))

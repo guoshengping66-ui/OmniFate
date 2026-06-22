@@ -1360,7 +1360,8 @@ async def capture_paypal_order(
                         logger.error(f"[PAYPAL-CAPTURE] {detail_msg}")
                         raise HTTPException(status_code=400, detail=detail_msg)
                     if expected_usd is None:
-                        logger.warning(f"[PAYPAL-CAPTURE] 未找到匹配的价格配置, order.total_cny={order.total_cny}")
+                        logger.error(f"[PAYPAL-CAPTURE] 无法验证金额, order.total_cny={order.total_cny}, item_type={order.item_type}, rejecting")
+                        raise HTTPException(status_code=400, detail="支付金额验证失败")
 
                 # 如果订单尚未被 webhook 标记为 paid，激活对应权益
                 already_paid = order.status == OrderStatus.paid
@@ -2618,6 +2619,7 @@ async def confirm_shop_qr_payment(
 
 @router.get("/confirm-email")
 async def confirm_email_payment(
+    request: Request,
     token: str,
     db: AsyncSession = Depends(get_db),
 ):
@@ -2627,6 +2629,12 @@ async def confirm_email_payment(
     保留用于兼容旧流程。
     """
     from fastapi.responses import RedirectResponse
+    from services.rate_limiter import check_rate_limit
+
+    # Rate limit: prevent token brute-force (5 attempts per minute per IP)
+    client_ip = request.client.host if request.client else "unknown"
+    if await check_rate_limit(f"confirm-email:{client_ip}", limit=5, window=60):
+        raise HTTPException(status_code=429, detail="请求过于频繁，请稍后再试")
 
     result = await db.execute(
         select(Order).where(Order.confirm_token == token).with_for_update()
@@ -3022,6 +3030,136 @@ async def cj_search_product(
     except Exception as e:
         logger.error(f"[CJ] Product search failed: {e}")
         raise HTTPException(status_code=502, detail=f"CJ 搜索失败: {str(e)}")
+
+
+# ── PayPal Webhook ──────────────────────────────────────────────────────────
+
+@router.post("/webhooks/paypal")
+async def paypal_webhook(request: Request, db: AsyncSession = Depends(get_db)):
+    """
+    Receive PayPal webhook notifications — server-side payment confirmation.
+    Handles PAYMENT.CAPTURE.COMPLETED as a fallback for client-side capture.
+    Configure in PayPal Dashboard → Webhooks → Add webhook:
+    URL: https://yourdomain.com/api/payments/webhooks/paypal
+    Event: PAYMENT.CAPTURE.COMPLETED
+    """
+    body = await request.json()
+    logger.info(f"[PAYPAL-WEBHOOK] Received: {json.dumps(body, ensure_ascii=False)[:500]}")
+
+    # Verify webhook ID matches configured value
+    webhook_id = request.headers.get("PayPal-Webhook-Id", "")
+    if settings.PAYPAL_WEBHOOK_ID and webhook_id != settings.PAYPAL_WEBHOOK_ID:
+        logger.warning(f"[PAYPAL-WEBHOOK] Webhook ID mismatch: got={webhook_id}")
+        raise HTTPException(status_code=403, detail="Invalid webhook ID")
+
+    # Verify signature using PayPal's verification API
+    if settings.PAYPAL_WEBHOOK_ID:
+        try:
+            paypal = PayPalPay()
+            access_token = await paypal._get_access_token()
+            import httpx
+            # Collect all PayPal headers for verification
+            paypal_headers = {k: v for k, v in request.headers.items() if k.lower().startswith("paypal-")}
+            verify_payload = {
+                "auth_algo": paypal_headers.get("paypal-auth-algo", ""),
+                "cert_url": paypal_headers.get("paypal-cert-url", ""),
+                "encoding": paypal_headers.get("paypal-encoding", ""),
+                "sig": paypal_headers.get("paypal-transmission-sig", ""),
+                "timestamp": paypal_headers.get("paypal-transmission-time", ""),
+                "webhook_id": settings.PAYPAL_WEBHOOK_ID,
+                "webhook_event": body,
+            }
+            async with httpx.AsyncClient(timeout=10) as client:
+                verify_resp = await client.post(
+                    f"{paypal.base_url}/v1/notifications/verify-webhook-signature",
+                    headers={"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"},
+                    json=verify_payload,
+                )
+            verify_result = verify_resp.json()
+            if verify_result.get("verification_status") != "SUCCESS":
+                logger.warning(f"[PAYPAL-WEBHOOK] Signature verification failed: {verify_result}")
+                raise HTTPException(status_code=403, detail="Signature verification failed")
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error(f"[PAYPAL-WEBHOOK] Signature verification error: {e}")
+            # Continue processing — don't reject based on verification network errors
+            # The webhook ID check above provides basic protection
+
+    event_type = body.get("event_type", "")
+    resource = body.get("resource", {})
+
+    # Handle PAYMENT.CAPTURE.COMPLETED — the main event for confirming payment
+    if event_type == "PAYMENT.CAPTURE.COMPLETED":
+        capture_id = resource.get("id", "")
+        custom_id = resource.get("custom_id", "")  # user_id passed during order creation
+        amount_value = resource.get("amount", {}).get("value", "0")
+        amount_currency = resource.get("amount", {}).get("currency_code", "USD")
+
+        logger.info(f"[PAYPAL-WEBHOOK] CAPTURE.COMPLETED: capture_id={capture_id}, custom_id={custom_id}, amount={amount_value} {amount_currency}")
+
+        # Find order by payment_ref (capture ID) or by PayPal order ID
+        order_no = resource.get("supplementary_data", {}).get("related_ids", {}).get("order_id", "")
+        if not order_no:
+            # Try to find by custom_id (user_id) and pending status
+            logger.warning(f"[PAYPAL-WEBHOOK] No order_id in resource, attempting lookup by capture_id")
+            result = await db.execute(
+                select(Order).where(
+                    Order.payment_ref == capture_id,
+                    Order.status == OrderStatus.pending,
+                ).with_for_update()
+            )
+        else:
+            result = await db.execute(
+                select(Order).where(
+                    Order.order_no == order_no,
+                    Order.status == OrderStatus.pending,
+                ).with_for_update()
+            )
+
+        order = result.scalar_one_or_none()
+        if not order:
+            # Check if already paid (idempotent)
+            if order_no:
+                result2 = await db.execute(select(Order).where(Order.order_no == order_no))
+                existing = result2.scalar_one_or_none()
+                if existing and existing.status == OrderStatus.paid:
+                    logger.info(f"[PAYPAL-WEBHOOK] Order {order_no} already paid — idempotent skip")
+                    return {"status": "already_processed"}
+            logger.warning(f"[PAYPAL-WEBHOOK] Order not found for capture {capture_id}, order_no={order_no}")
+            return {"status": "order_not_found"}
+
+        # Mark as paid
+        order.status = OrderStatus.paid
+        order.paid_at = datetime.now(timezone.utc)
+        order.payment_ref = capture_id
+        order.notes = (order.notes or "") + f"\n[WEBHOOK] PayPal capture confirmed {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M')}"
+
+        # Activate benefits
+        if order.user_id:
+            item_type = order.item_type or ""
+            user_result = await db.execute(
+                select(User).where(User.id == order.user_id).with_for_update()
+            )
+            user = user_result.scalar_one_or_none()
+            if user and item_type in ("premium_monthly", "premium_yearly"):
+                grant_info = await _activate_subscription(user, item_type, db)
+                logger.info(f"[PAYPAL-WEBHOOK] 激活订阅: 用户 {user.id}, {item_type}, 星尘 +{grant_info.get('grant_amount', 0)}")
+            elif user and item_type == "founder_lifetime":
+                grant_info = await _activate_founder_seat(user, order.order_no, db)
+                logger.info(f"[PAYPAL-WEBHOOK] 激活创始席位: 用户 {user.id}, 席位 #{grant_info.get('seat_no')}")
+            elif user and item_type == "onetime_unlock":
+                grant_info = await _handle_onetime_unlock_activation(user, order, db)
+                if not grant_info.get("already_activated"):
+                    logger.info(f"[PAYPAL-WEBHOOK] 激活一次性解锁: 用户 {user.id}")
+
+        await db.commit()
+        logger.info(f"[PAYPAL-WEBHOOK] Order {order.order_no} confirmed via webhook")
+        return {"status": "completed"}
+
+    # Log unhandled events
+    logger.info(f"[PAYPAL-WEBHOOK] Unhandled event type: {event_type}")
+    return {"status": "ignored"}
 
 
 # ── CJ Webhook ──────────────────────────────────────────────────────────────

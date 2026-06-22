@@ -80,6 +80,7 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
   const BLOCKED_PATHS = [
     "/api/cron/",
     "/api/webhooks/",          // Webhooks must hit backend directly
+    "/api/payments/webhooks/", // PayPal/CJ webhooks must hit backend directly
     "/api/credits/grant",      // Admin-only
     "/api/credits/monthly-grant",
     "/api/credits/admin/",     // Admin credit audit/management
