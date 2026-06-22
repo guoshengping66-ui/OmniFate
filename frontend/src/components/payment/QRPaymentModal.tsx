@@ -104,8 +104,8 @@ export function QRPaymentModal({
   const isPreOrder = !!preOrderNo
   const tierInfo = isShopPayment
     ? { amountCny: shopAmount || 0, amountUsd: shopAmount || 0, labelKey: "" }
-    : isPreOrder
-      ? { amountCny: preAmount || 0, amountUsd: preAmount || 0, labelKey: "" }
+    : preAmount
+      ? { amountCny: preAmount, amountUsd: preAmount, labelKey: "" }
       : isReportUnlock
         ? { amountCny: UNLOCK_PRICES.amountCny, amountUsd: UNLOCK_PRICES.amountUsd, labelKey: "payment.unlockReport" }
         : (TIER_PRICES[tier || "premium_monthly"] || TIER_PRICES.premium_monthly)
