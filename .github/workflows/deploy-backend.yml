@@ -53,7 +53,7 @@ jobs:
             echo "当前 commit: $CURRENT_COMMIT"
 
             echo "📥 同步最新代码..."
-            # 清理可能残留的 git lock 文件
+            # 清理可能残留的 git lock 文件（多处清理防止竞态）
             rm -f /opt/OmniFate/.git/index.lock 2>/dev/null || true
 
             # 检查磁盘空间
@@ -68,16 +68,19 @@ jobs:
 
             git fetch origin main || {
               echo "⚠️ git fetch 失败，尝试修复..."
-              rm -f /opt/OmniFate/.git/index
+              rm -f /opt/OmniFate/.git/index.lock /opt/OmniFate/.git/index 2>/dev/null || true
               git fetch origin main
             }
 
             git clean -fd 2>/dev/null || true
+            # 再次清理 lock 文件（fetch/clean 可能重建）
+            rm -f /opt/OmniFate/.git/index.lock 2>/dev/null || true
             git reset --hard origin/main || {
               echo "⚠️ git reset 失败，尝试修复 git index 后重试..."
+              rm -f /opt/OmniFate/.git/index.lock /opt/OmniFate/.git/index 2>/dev/null || true
               chmod -R u+w /opt/OmniFate/ 2>/dev/null || true
-              rm -f /opt/OmniFate/.git/index /opt/OmniFate/.git/index.lock 2>/dev/null || true
               git fetch origin main
+              rm -f /opt/OmniFate/.git/index.lock 2>/dev/null || true
               git reset --hard origin/main
             }
 
