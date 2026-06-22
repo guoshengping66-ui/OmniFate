@@ -71,15 +71,18 @@ jobs:
             echo "当前 commit: $CURRENT_COMMIT"
 
             echo "📥 同步最新代码..."
-            # 清理可能残留的 git lock 文件
+            # 清理可能残留的 git lock 文件（多处清理防止竞态）
             rm -f /opt/OmniFate/.git/index.lock 2>/dev/null || true
             # 清除过期的远程跟踪引用，防止快速连续推送导致 ref 冲突
             git remote prune origin 2>/dev/null || true
             git update-ref -d refs/remotes/origin/main 2>/dev/null || true
             git fetch origin main
             git clean -fd 2>/dev/null || true
+            # 再次清理 lock 文件（fetch/clean 可能重建）
+            rm -f /opt/OmniFate/.git/index.lock 2>/dev/null || true
             git reset --hard origin/main || {
               echo "⚠️ git reset 失败，尝试修复权限后重试..."
+              rm -f /opt/OmniFate/.git/index.lock 2>/dev/null || true
               chmod -R u+w frontend/ 2>/dev/null || true
               git reset --hard origin/main
             }
