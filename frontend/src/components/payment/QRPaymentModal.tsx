@@ -356,6 +356,61 @@ export function QRPaymentModal({
     pollActiveRef.current = false
   }, [])
 
+  const startPollForStatus = useCallback(() => {
+    cancelPolling()
+    pollActiveRef.current = true
+    let attempts = 0
+
+    const poll = async () => {
+      if (!pollActiveRef.current) return
+      attempts++
+      setPollAttempts(attempts)
+      try {
+        const statusRes = await apiDirect.get(`/api/personal-payments/status/${orderNo}`)
+        const orderStatus = statusRes.data.status
+        if (orderStatus === "paid") { await activateSubscription(); return }
+        if (orderStatus === "cancelled") { setStatus("failed"); setError(t("payment.orderCancelled")); return }
+      } catch {}
+      if (pollActiveRef.current && attempts < MAX_POLL_ATTEMPTS) {
+        pollTimerRef.current = setTimeout(poll, POLL_INTERVAL)
+      } else {
+        setStatus("waiting")
+        toast.error(t("payment.pollTimeout") || "Payment verification is taking longer than expected. Please check your email for updates.")
+      }
+    }
+    pollTimerRef.current = setTimeout(poll, POLL_INTERVAL)
+  }, [orderNo])
+
+  // Poll shop order payment status (for QR/WeChat/Alipay personal code payments)
+  const startShopOrderPolling = useCallback(() => {
+    cancelPolling()
+    pollActiveRef.current = true
+    let attempts = 0
+
+    const poll = async () => {
+      if (!pollActiveRef.current || !shopOrderNo) return
+      attempts++
+      setPollAttempts(attempts)
+      try {
+        const res = await apiDirect.get(`/api/payments/shop-orders/${shopOrderNo}/payment-status`)
+        const orderStatus = res.data.status
+        if (orderStatus === "paid") {
+          setStatus("success")
+          onSuccess?.()
+          return
+        }
+      } catch {}
+      if (pollActiveRef.current && attempts < MAX_POLL_ATTEMPTS) {
+        pollTimerRef.current = setTimeout(poll, POLL_INTERVAL)
+      } else {
+        // Timeout: payment not confirmed yet — show waiting state, don't activate
+        setStatus("waiting")
+        toast.error(t("payment.pollTimeout") || "Payment verification timed out. Please check your email.")
+      }
+    }
+    pollTimerRef.current = setTimeout(poll, POLL_INTERVAL)
+  }, [shopOrderNo])
+
   const handleRefreshStatus = useCallback(async () => {
     cancelPolling()
     setStatus("verifying")
@@ -398,31 +453,6 @@ export function QRPaymentModal({
     }
   }, [orderNo, shopOrderNo, isShopPayment, cancelPolling, startShopOrderPolling, activateSubscription, startPollForStatus, onSuccess, t])
 
-  const startPollForStatus = useCallback(() => {
-    cancelPolling()
-    pollActiveRef.current = true
-    let attempts = 0
-
-    const poll = async () => {
-      if (!pollActiveRef.current) return
-      attempts++
-      setPollAttempts(attempts)
-      try {
-        const statusRes = await apiDirect.get(`/api/personal-payments/status/${orderNo}`)
-        const orderStatus = statusRes.data.status
-        if (orderStatus === "paid") { await activateSubscription(); return }
-        if (orderStatus === "cancelled") { setStatus("failed"); setError(t("payment.orderCancelled")); return }
-      } catch {}
-      if (pollActiveRef.current && attempts < MAX_POLL_ATTEMPTS) {
-        pollTimerRef.current = setTimeout(poll, POLL_INTERVAL)
-      } else {
-        setStatus("waiting")
-        toast.error(t("payment.pollTimeout") || "Payment verification is taking longer than expected. Please check your email for updates.")
-      }
-    }
-    pollTimerRef.current = setTimeout(poll, POLL_INTERVAL)
-  }, [orderNo])
-
   // NOTE: activateSubscription is intentionally excluded from deps —
   // it only uses setStatus/onSuccess which are stable references.
   const startPaypalPolling = useCallback((_itemType: string) => {
@@ -452,36 +482,6 @@ export function QRPaymentModal({
     }
     pollTimerRef.current = setTimeout(poll, POLL_INTERVAL)
   }, [cancelPolling, activateSubscription, t])
-
-  // Poll shop order payment status (for QR/WeChat/Alipay personal code payments)
-  const startShopOrderPolling = useCallback(() => {
-    cancelPolling()
-    pollActiveRef.current = true
-    let attempts = 0
-
-    const poll = async () => {
-      if (!pollActiveRef.current || !shopOrderNo) return
-      attempts++
-      setPollAttempts(attempts)
-      try {
-        const res = await apiDirect.get(`/api/payments/shop-orders/${shopOrderNo}/payment-status`)
-        const orderStatus = res.data.status
-        if (orderStatus === "paid") {
-          setStatus("success")
-          onSuccess?.()
-          return
-        }
-      } catch {}
-      if (pollActiveRef.current && attempts < MAX_POLL_ATTEMPTS) {
-        pollTimerRef.current = setTimeout(poll, POLL_INTERVAL)
-      } else {
-        // Timeout: payment not confirmed yet — show waiting state, don't activate
-        setStatus("waiting")
-        toast.error(t("payment.pollTimeout") || "Payment verification timed out. Please check your email.")
-      }
-    }
-    pollTimerRef.current = setTimeout(poll, POLL_INTERVAL)
-  }, [shopOrderNo])
 
   useEffect(() => {
     return () => cancelPolling()
