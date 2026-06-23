@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.session import get_db
 from database.models import Reading, User, Order, OrderStatus
-from utils.cron_auth import verify_cron_secret
+from utils.cron_auth import require_admin
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -35,31 +35,36 @@ class RejectRefundRequest(BaseModel):
 @router.get("/admin/stats")
 async def admin_stats(
     db: AsyncSession = Depends(get_db),
-    _auth: str = Depends(verify_cron_secret),
+    _auth: str = Depends(require_admin),
 ):
     """管理员仪表盘统计"""
-    total_users = (await db.execute(select(func.count(User.id)))).scalar() or 0
-
-    paid_users = (await db.execute(
-        select(func.count(User.id)).where(User.is_premium == True)
-    )).scalar() or 0
-    founder_users = (await db.execute(
-        select(func.count(User.id)).where(User.is_founder == True)
-    )).scalar() or 0
+    # Optimized: single query for all user/order stats
+    stats_result = await db.execute(
+        select(
+            func.count(User.id).label("total_users"),
+            func.count().filter(User.is_premium == True).label("paid_users"),
+            func.count().filter(User.is_founder == True).label("founder_users"),
+        )
+    )
+    user_stats = stats_result.one()
+    total_users = user_stats.total_users or 0
+    paid_users = user_stats.paid_users or 0
+    founder_users = user_stats.founder_users or 0
 
     total_readings = (await db.execute(select(func.count(Reading.id)))).scalar() or 0
 
-    total_orders = (await db.execute(
-        select(func.count(Order.id)).where(Order.item_type == "shop")
-    )).scalar() or 0
-
-    revenue_result = await db.execute(
-        select(func.sum(Order.total_cny)).where(
-            Order.status == OrderStatus.paid,
-            Order.item_type == "shop",
+    # Single query for order stats
+    order_stats_result = await db.execute(
+        select(
+            func.count(Order.id).filter(Order.item_type == "shop").label("total_orders"),
+            func.coalesce(func.sum(Order.total_cny).filter(
+                Order.status == OrderStatus.paid, Order.item_type == "shop"
+            ), 0).label("total_revenue"),
         )
     )
-    total_revenue = float(revenue_result.scalar() or 0)
+    order_stats = order_stats_result.one()
+    total_orders = order_stats.total_orders or 0
+    total_revenue = float(order_stats.total_revenue or 0)
 
     recent_users_result = await db.execute(
         select(User).order_by(User.created_at.desc()).limit(20)
@@ -100,7 +105,7 @@ async def list_shop_orders(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
-    _auth: str = Depends(verify_cron_secret),
+    _auth: str = Depends(require_admin),
 ):
     """管理员查看所有订单"""
     base_filter = [Order.item_type != None] if not item_type else [Order.item_type == item_type]
@@ -177,7 +182,7 @@ async def list_shop_orders(
 async def get_shop_order_detail(
     order_no: str,
     db: AsyncSession = Depends(get_db),
-    _auth: str = Depends(verify_cron_secret),
+    _auth: str = Depends(require_admin),
 ):
     """管理员查看订单详情"""
     result = await db.execute(
@@ -232,7 +237,7 @@ async def update_shop_order_status(
     order_no: str,
     payload: AdminOrderStatusUpdate,
     db: AsyncSession = Depends(get_db),
-    _auth: str = Depends(verify_cron_secret),
+    _auth: str = Depends(require_admin),
 ):
     """管理员更新商城订单状态"""
     valid_statuses = {"pending", "processing", "paid", "shipped", "delivered", "cancelled"}
@@ -287,7 +292,7 @@ async def approve_refund(
     order_no: str,
     req: ApproveRefundRequest,
     db: AsyncSession = Depends(get_db),
-    _auth: str = Depends(verify_cron_secret),
+    _auth: str = Depends(require_admin),
 ):
     """管理员批准退款"""
     result = await db.execute(
@@ -341,7 +346,7 @@ async def reject_refund(
     order_no: str,
     req: RejectRefundRequest,
     db: AsyncSession = Depends(get_db),
-    _auth: str = Depends(verify_cron_secret),
+    _auth: str = Depends(require_admin),
 ):
     """管理员拒绝退款"""
     if not req.reason or not req.reason.strip():

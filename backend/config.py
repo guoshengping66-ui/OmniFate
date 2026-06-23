@@ -152,6 +152,13 @@ def get_settings() -> Settings:
         _jwt_key_file = Path(__file__).parent / ".jwt_secret"
         try:
             if _jwt_key_file.exists():
+                # SECURITY: Verify file permissions are secure (owner-only)
+                import os
+                file_stat = _jwt_key_file.stat()
+                file_mode = oct(file_stat.st_mode)[-3:]
+                if file_mode != "600":
+                    logger.warning(f".jwt_secret has insecure permissions ({file_mode}), fixing...")
+                    _jwt_key_file.chmod(0o600)
                 s.JWT_SECRET_KEY = _jwt_key_file.read_text().strip()
                 logger.info("JWT_SECRET_KEY loaded from .jwt_secret (persistent across restarts)")
             else:

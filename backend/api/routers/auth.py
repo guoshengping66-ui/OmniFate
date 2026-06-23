@@ -365,7 +365,7 @@ async def register(req: RegisterRequest, request: Request, db: AsyncSession = De
 
     # Rate limit (use real IP behind proxy)
     client_ip = _get_client_ip(request)
-    if await _check_rate_limit(f"register:{client_ip}") or await _check_rate_limit(f"register:{req.email}"):
+    if await _check_rate_limit(f"register:{client_ip}", max_per_window=5) or await _check_rate_limit(f"register:{req.email}", max_per_window=5):
         raise HTTPException(status_code=429, detail="注册请求过于频繁，请稍后再试")
 
     # Password strength check
@@ -797,6 +797,10 @@ async def reset_password(req: ResetPasswordRequest, request: Request, db: AsyncS
     if not user:
         # Don't leak user existence — use same error as wrong code
         raise HTTPException(status_code=400, detail="验证码错误")
+
+    # SECURITY: Block password reset for unverified accounts
+    if not user.is_verified:
+        raise HTTPException(status_code=400, detail="该账户未完成验证，无法重置密码")
 
     # Check expiration first (before code comparison)
     if user.verification_expires_at and datetime.now(timezone.utc) > _ensure_aware(user.verification_expires_at):

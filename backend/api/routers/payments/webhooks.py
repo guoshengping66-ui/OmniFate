@@ -31,6 +31,12 @@ async def paypal_webhook(request: Request, db: AsyncSession = Depends(get_db)):
     body = await request.json()
     logger.info(f"[PAYPAL-WEBHOOK] Received: {json.dumps(body, ensure_ascii=False)[:500]}")
 
+    # SECURITY: Reject webhooks when PAYPAL_WEBHOOK_ID is not configured
+    # to prevent unauthorized payment confirmations
+    if not settings.PAYPAL_WEBHOOK_ID:
+        logger.error("[PAYPAL-WEBHOOK] PAYPAL_WEBHOOK_ID not configured — rejecting for safety")
+        raise HTTPException(status_code=503, detail="Webhook not configured")
+
     webhook_id = request.headers.get("PayPal-Webhook-Id", "")
     if settings.PAYPAL_WEBHOOK_ID and webhook_id != settings.PAYPAL_WEBHOOK_ID:
         logger.warning(f"[PAYPAL-WEBHOOK] Webhook ID mismatch: got={webhook_id}")
