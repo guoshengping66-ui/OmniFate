@@ -60,6 +60,17 @@ jobs:
 
             echo "═══════ 开始部署前端 ═══════"
 
+            # 0. 预检: 磁盘空间 + 清理 lock 文件
+            echo "🔍 预检..."
+            DISK_USAGE=$(df -h / | awk 'NR==2{print $5}' | tr -d '%')
+            echo "   磁盘使用率: ${DISK_USAGE}%"
+            if [ "$DISK_USAGE" -gt 90 ]; then
+              echo "❌ 磁盘使用率超过 90%，清理空间..."
+              sudo journalctl --vacuum-size=50M 2>/dev/null || true
+              sudo apt-get clean 2>/dev/null || true
+              sudo rm -rf /tmp/webpack* /tmp/npm-* 2>/dev/null || true
+            fi
+
             # 1. 同步最新代码
             cd /opt/OmniFate
 
@@ -71,18 +82,24 @@ jobs:
             echo "当前 commit: $CURRENT_COMMIT"
 
             echo "📥 同步最新代码..."
-            # 清理可能残留的 git lock 文件（多处清理防止竞态）
+            # 彻底清理 git lock 文件（用 sudo 确保删除权限）
+            sudo rm -f /opt/OmniFate/.git/index.lock 2>/dev/null || true
             rm -f /opt/OmniFate/.git/index.lock 2>/dev/null || true
             # 清除过期的远程跟踪引用，防止快速连续推送导致 ref 冲突
             git remote prune origin 2>/dev/null || true
             git update-ref -d refs/remotes/origin/main 2>/dev/null || true
-            git fetch origin main
+            git fetch origin main || {
+              echo "⚠️ git fetch 失败，清理后重试..."
+              sudo rm -f /opt/OmniFate/.git/index.lock 2>/dev/null || true
+              sudo chown -R $(whoami) /opt/OmniFate/.git 2>/dev/null || true
+              git fetch origin main
+            }
             git clean -fd 2>/dev/null || true
-            # 再次清理 lock 文件（fetch/clean 可能重建）
-            rm -f /opt/OmniFate/.git/index.lock 2>/dev/null || true
+            sudo rm -f /opt/OmniFate/.git/index.lock 2>/dev/null || true
             git reset --hard origin/main || {
               echo "⚠️ git reset 失败，尝试修复权限后重试..."
-              rm -f /opt/OmniFate/.git/index.lock 2>/dev/null || true
+              sudo rm -f /opt/OmniFate/.git/index.lock 2>/dev/null || true
+              sudo chown -R $(whoami) /opt/OmniFate/.git 2>/dev/null || true
               chmod -R u+w frontend/ 2>/dev/null || true
               git reset --hard origin/main
             }
