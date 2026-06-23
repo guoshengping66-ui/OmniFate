@@ -92,6 +92,8 @@ export function QRPaymentModal({
   const [pollAttempts, setPollAttempts] = useState(0)
   const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pollActiveRef = useRef(false)
+  const openRef = useRef(open)
+  openRef.current = open
 
   // Sync method state with initialMethod prop (useState only initializes once)
   useEffect(() => {
@@ -362,7 +364,7 @@ export function QRPaymentModal({
     let attempts = 0
 
     const poll = async () => {
-      if (!pollActiveRef.current) return
+      if (!pollActiveRef.current || !openRef.current) return
       attempts++
       setPollAttempts(attempts)
       try {
@@ -388,7 +390,7 @@ export function QRPaymentModal({
     let attempts = 0
 
     const poll = async () => {
-      if (!pollActiveRef.current || !shopOrderNo) return
+      if (!pollActiveRef.current || !openRef.current || !shopOrderNo) return
       attempts++
       setPollAttempts(attempts)
       try {
@@ -461,7 +463,7 @@ export function QRPaymentModal({
     let attempts = 0
 
     const poll = async () => {
-      if (!pollActiveRef.current) return
+      if (!pollActiveRef.current || !openRef.current) return
       attempts++
       setPollAttempts(attempts)
       try {

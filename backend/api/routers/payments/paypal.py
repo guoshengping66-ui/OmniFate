@@ -312,6 +312,13 @@ async def create_shop_paypal_order(
         raise HTTPException(status_code=403, detail="无权操作此订单")
     if order.status != OrderStatus.pending:
         raise HTTPException(status_code=400, detail=f"订单状态为 {order.status.value}，无法支付")
+    if order.payment_ref and order.payment_ref != order.order_no:
+        # Already has a PayPal order — return existing instead of creating duplicate
+        return {
+            "paypal_order_id": order.payment_ref,
+            "order_no": order_no,
+            "total_usd": float(order.total_usd or 0),
+        }
 
     # 计算美元金额
     total_cny = float(order.total_cny or 0)
@@ -381,7 +388,11 @@ async def capture_shop_paypal_order(
                 "Content-Type": "application/json",
             },
         )
-    result = response.json()
+    try:
+        result = response.json()
+    except Exception:
+        logger.error(f"[PAYPAL-CAPTURE] PayPal 返回非 JSON 响应: status={response.status_code}")
+        raise HTTPException(status_code=502, detail="PayPal 返回了无效响应")
 
     if result.get("status") != "COMPLETED":
         logger.error(f"[PAYPAL-CAPTURE] 捕获失败: {paypal_order_id}, status={result.get('status')}")
