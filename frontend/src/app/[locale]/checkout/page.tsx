@@ -1,5 +1,5 @@
 "use client"
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { ShoppingBag, CheckCircle, Loader2, ArrowLeft, Ticket, Crown, CreditCard, MapPin } from "lucide-react"
 import toast from "react-hot-toast"
@@ -16,7 +16,7 @@ import { QRPaymentModal } from "@/components/payment/QRPaymentModal"
 export default function CheckoutPage() {
   const router = useRouter()
   const { items, totalCny, totalWithDiscount, isMember, clearCart, getItemPrice, symbol } = useCart()
-  const { user, refreshUser } = useAuth()
+  const { user, loading: authLoading, refreshUser } = useAuth()
   const { t, localeHref, locale } = useLanguage()
   const { region } = useRegion()
   const [loading, setLoading] = useState(false)
@@ -29,6 +29,15 @@ export default function CheckoutPage() {
   const [createdOrderNo, setCreatedOrderNo] = useState<string | null>(null)
   const [createdOrderTotal, setCreatedOrderTotal] = useState(0)
   const isSubmitting = useRef(false)
+
+  // Auth guard — redirect unauthenticated users to login instead of
+  // letting them reach checkout (which would trigger a 401 cascade in
+  // AddressForm → AuthContext → re-render storm → removeChild crash)
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.replace(localeHref("/login"))
+    }
+  }, [user, authLoading, router, localeHref])
 
   const couponBalanceCny = user?.shop_coupon_balance ?? 0
   const couponBalanceLocal = region === "overseas" ? couponBalanceCny / CNY_TO_USD_RATE : couponBalanceCny
@@ -46,11 +55,6 @@ export default function CheckoutPage() {
 
   const handleCheckout = async () => {
     if (isSubmitting.current) return
-    if (!user) {
-      toast.error(t("checkout.loginFirst"))
-      router.push(localeHref("/login"))
-      return
-    }
     if (!selectedAddress) {
       toast.error(t("checkout.selectAddress"))
       return
@@ -87,6 +91,15 @@ export default function CheckoutPage() {
     clearCart()
     refreshUser()
     setDone(true)
+  }
+
+  // Auth guard: show nothing while loading or redirecting to login
+  if (authLoading || !user) {
+    return (
+      <div className="min-h-screen pt-24 pb-16 flex justify-center items-center">
+        <Loader2 size={32} className="text-gold animate-spin" />
+      </div>
+    )
   }
 
   if (items.length === 0 && !done && !paymentOpen) {

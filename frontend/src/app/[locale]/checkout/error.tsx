@@ -1,9 +1,16 @@
 "use client"
 
 import { useEffect } from "react"
-import { useLanguage } from "@/contexts/LanguageContext"
 import { useChunkLoadRecovery } from "@/lib/chunk-load-recovery"
 
+/**
+ * Checkout error boundary.
+ *
+ * Deliberately avoids context-dependent hooks (useLanguage, useAuth, etc.)
+ * so the boundary itself never crashes — even when the main page tree is
+ * in an unstable state (e.g. during a re-render storm caused by 401 cascade
+ * or stale chunks).
+ */
 export default function CheckoutError({
   error,
   reset,
@@ -11,7 +18,6 @@ export default function CheckoutError({
   error: Error & { digest?: string }
   reset: () => void
 }) {
-  const { t, locale } = useLanguage()
   const { autoReloading } = useChunkLoadRecovery(error)
 
   useEffect(() => {
@@ -23,9 +29,9 @@ export default function CheckoutError({
       <div className="min-h-screen flex items-center justify-center bg-ink px-4">
         <div className="max-w-md w-full card-glass p-8 text-center">
           <div className="text-4xl mb-4">🔄</div>
-          <h2 className="font-serif text-xl text-gold mb-3">{t("error.title")}</h2>
-          <p className="text-white/50 text-sm mb-2">
-            {locale === "zh" ? "页面资源已更新，正在自动刷新..." : "Page resources updated, auto-refreshing..."}
+          <h2 className="font-serif text-xl text-gold mb-3">Loading...</h2>
+          <p className="text-white/50 text-sm">
+            Page resources updated, auto-refreshing...
           </p>
         </div>
       </div>
@@ -36,8 +42,10 @@ export default function CheckoutError({
     <div className="min-h-screen flex items-center justify-center bg-ink px-4">
       <div className="max-w-md w-full card-glass p-8 text-center">
         <div className="text-4xl mb-4">⚠️</div>
-        <h2 className="font-serif text-xl text-gold mb-3">{t("error.title")}</h2>
-        <p className="text-white/50 text-sm mb-2">{t("error.checkoutError")}</p>
+        <h2 className="font-serif text-xl text-gold mb-3">Something went wrong</h2>
+        <p className="text-white/50 text-sm mb-6">
+          The checkout page encountered an error. Please try again.
+        </p>
         {process.env.NODE_ENV === "development" && (
           <div className="bg-white/5 border border-white/10 rounded-lg p-4 mb-6 text-left overflow-auto max-h-48">
             <code className="text-red-400 text-xs whitespace-pre-wrap break-all">
@@ -46,9 +54,21 @@ export default function CheckoutError({
             </code>
           </div>
         )}
-        <button onClick={reset} className="btn-gold text-sm px-6 py-2">
-          {t("error.retry")}
-        </button>
+        <div className="flex gap-3 justify-center">
+          <button onClick={reset} className="btn-gold text-sm px-6 py-2">
+            Try again
+          </button>
+          <button
+            onClick={() => {
+              const url = new URL(window.location.href)
+              url.searchParams.set("_cb", Date.now().toString())
+              window.location.href = url.toString()
+            }}
+            className="px-6 py-2 rounded-full border border-white/20 text-white/60 hover:text-white/80 hover:border-white/40 text-sm transition-all"
+          >
+            Reload page
+          </button>
+        </div>
       </div>
     </div>
   )
