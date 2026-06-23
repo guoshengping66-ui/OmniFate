@@ -72,6 +72,7 @@ async def paypal_webhook(request: Request, db: AsyncSession = Depends(get_db)):
             raise
         except Exception as e:
             logger.error(f"[PAYPAL-WEBHOOK] Signature verification error: {e}")
+            raise HTTPException(status_code=403, detail="Signature verification failed")
 
     event_type = body.get("event_type", "")
     resource = body.get("resource", {})

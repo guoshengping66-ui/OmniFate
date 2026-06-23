@@ -267,7 +267,7 @@ class Order(Base):
     total_usd: Mapped[Optional[float]] = mapped_column(Numeric(10, 2))
 
     payment_method: Mapped[Optional[str]] = mapped_column(String(50))
-    payment_ref: Mapped[Optional[str]] = mapped_column(String(200))
+    payment_ref: Mapped[Optional[str]] = mapped_column(String(200), index=True)  # Indexed for webhook lookups
     item_type: Mapped[Optional[str]] = mapped_column(String(50), index=True)  # premium_monthly|premium_yearly|unlock_report|founder_lifetime|shop
 
     recipient_name: Mapped[Optional[str]] = mapped_column(String(100))

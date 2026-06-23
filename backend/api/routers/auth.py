@@ -427,12 +427,9 @@ async def register(req: RegisterRequest, request: Request, db: AsyncSession = De
     from utils.email import send_verification_email
     email_sent = send_verification_email(req.email, code)
 
-    from config import get_settings as _gs
-    _s = _gs()
-
     # Email failed to send: in DEBUG log code for testing, in production reject
     if not email_sent:
-        if _s.DEBUG:
+        if settings.DEBUG:
             # Dev convenience: log code instead of exposing in response
             logger.debug("Registration verification code for %s: %s", req.email, code)
             return {
@@ -450,7 +447,7 @@ async def register(req: RegisterRequest, request: Request, db: AsyncSession = De
         )
 
     resp = {"message": "注册成功，请查收邮箱验证码完成验证", "email": req.email}
-    if _s.DEBUG:
+    if settings.DEBUG:
         logger.debug("Registration verification code for %s: %s", req.email, code)
     return resp
 
@@ -481,13 +478,10 @@ async def send_code(req: SendCodeRequest, request: Request, db: AsyncSession = D
     email_sent = send_verification_email(req.email, code)
 
     if not email_sent:
-        from config import get_settings as _gs3
-        _s3 = _gs3()
-        # Always store code in DB so verify-email can check it
-        user.verification_code = _hash_code(code)  # Store hash, not plaintext
-        user.verification_expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
-        await db.commit()
-        if _s3.DEBUG:
+        # SECURITY: Do NOT store code when email fails — prevents email enumeration
+        # If attacker knows an email is registered, they could detect it by
+        # checking if the verification code was stored
+        if settings.DEBUG:
             logger.debug("Send-code verification code for %s: %s", req.email, code)
         # Email failed — return success to prevent email enumeration
         return {"message": "验证码已发送"}
@@ -753,13 +747,8 @@ async def forgot_password(req: SendCodeRequest, request: Request, db: AsyncSessi
     email_sent = send_password_reset_email(req.email, code)
 
     if not email_sent:
-        from config import get_settings as _gs2
-        _s2 = _gs2()
-        # Always store code in DB so reset-password can verify it
-        user.verification_code = _hash_code(code)  # Store hash, not plaintext
-        user.verification_expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
-        await db.commit()
-        if _s2.DEBUG:
+        # SECURITY: Do NOT store code when email fails — prevents email enumeration
+        if settings.DEBUG:
             logger.debug("Password reset code for %s: %s", req.email, code)
         # Return success to prevent email enumeration (even when SMTP is down)
         return {"message": "验证码已发送到您的邮箱"}
@@ -769,10 +758,8 @@ async def forgot_password(req: SendCodeRequest, request: Request, db: AsyncSessi
     user.verification_expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
     await db.commit()
 
-    from config import get_settings as _gs4
-    _s4 = _gs4()
     resp = {"message": "验证码已发送到您的邮箱"}
-    if _s4.DEBUG:
+    if settings.DEBUG:
         logger.debug("Forgot-password code for %s: %s", req.email, code)
     return resp
 

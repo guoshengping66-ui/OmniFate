@@ -5,6 +5,8 @@ Tests: auth → V2T analysis → reading creation → analysis completion → re
 import requests
 import time
 import sys
+import secrets
+import string
 import cv2
 import numpy as np
 import io
@@ -13,6 +15,12 @@ BASE = "http://127.0.0.1:8000"
 passed = 0
 failed = 0
 errors = []
+
+
+def generate_test_password():
+    """Generate a secure random password for testing."""
+    alphabet = string.ascii_letters + string.digits + "!@#$%"
+    return ''.join(secrets.choice(alphabet) for _ in range(16))
 
 def test(name, condition, detail=""):
     global passed, failed
@@ -71,7 +79,7 @@ test("Health check returns 200", r.status_code == 200)
 
 # 1.2 Register
 test_email = f"test_flow_{int(time.time())}@example.com"
-test_password = "Test123456!"
+test_password = generate_test_password()
 r = requests.post(f"{BASE}/api/auth/register", json={
     "email": test_email,
     "password": test_password,
