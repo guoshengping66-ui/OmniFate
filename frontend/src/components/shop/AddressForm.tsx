@@ -3,6 +3,7 @@ import { useState, useEffect } from "react"
 import { MapPin, X, Check, Loader2 } from "lucide-react"
 import toast from "react-hot-toast"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { useAuth } from "@/contexts/AuthContext"
 import {
   getAddresses, createAddress, updateAddress, deleteAddress, setDefaultAddress,
   type Address, type AddressFormData,
@@ -16,6 +17,7 @@ interface AddressFormProps {
 
 export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
   const { t, locale } = useLanguage()
+  const { user, loading: authLoading } = useAuth()
   const [addresses, setAddresses] = useState<Address[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -49,9 +51,12 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
         .find(c => c.name === city)?.children || []
     : []
 
+  // Only load addresses AFTER auth is confirmed (user is set and not loading).
+  // Prevents 401 cascade → AuthContext setUser(null) → re-render storm → removeChild crash.
   useEffect(() => {
+    if (authLoading || !user) return
     loadAddresses()
-  }, [])
+  }, [user, authLoading])
 
   // Reset city/district when province changes
   useEffect(() => { setCity(""); setDistrict("") }, [province])

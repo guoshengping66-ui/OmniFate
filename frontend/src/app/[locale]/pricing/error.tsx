@@ -1,9 +1,13 @@
 "use client"
 
 import { useEffect } from "react"
-import { useLanguage } from "@/contexts/LanguageContext"
 import { useChunkLoadRecovery } from "@/lib/chunk-load-recovery"
 
+/**
+ * Pricing error boundary.
+ * Avoids context-dependent hooks so the boundary never crashes
+ * when the main page tree is in an unstable state.
+ */
 export default function PricingError({
   error,
   reset,
@@ -11,7 +15,6 @@ export default function PricingError({
   error: Error & { digest?: string }
   reset: () => void
 }) {
-  const { t, locale } = useLanguage()
   const { autoReloading } = useChunkLoadRecovery(error)
 
   useEffect(() => {
@@ -23,9 +26,9 @@ export default function PricingError({
       <div className="min-h-screen flex items-center justify-center bg-ink px-4">
         <div className="max-w-md w-full card-glass p-8 text-center">
           <div className="text-4xl mb-4">🔄</div>
-          <h2 className="font-serif text-xl text-gold mb-3">{t("error.title")}</h2>
+          <h2 className="font-serif text-xl text-gold mb-3">Loading...</h2>
           <p className="text-white/50 text-sm mb-2">
-            {locale === "zh" ? "页面资源已更新，正在自动刷新..." : "Page resources updated, auto-refreshing..."}
+            Page resources updated, auto-refreshing...
           </p>
         </div>
       </div>
@@ -36,8 +39,8 @@ export default function PricingError({
     <div className="min-h-screen flex items-center justify-center bg-ink px-4">
       <div className="max-w-md w-full card-glass p-8 text-center">
         <div className="text-4xl mb-4">⚠️</div>
-        <h2 className="font-serif text-xl text-gold mb-3">{t("error.title")}</h2>
-        <p className="text-white/50 text-sm mb-2">{t("error.pricingError")}</p>
+        <h2 className="font-serif text-xl text-gold mb-3">Something went wrong</h2>
+        <p className="text-white/50 text-sm mb-2">The pricing page encountered an error.</p>
         {process.env.NODE_ENV === "development" && (
           <div className="bg-white/5 border border-white/10 rounded-lg p-4 mb-6 text-left overflow-auto max-h-48">
             <code className="text-red-400 text-xs whitespace-pre-wrap break-all">
@@ -47,7 +50,7 @@ export default function PricingError({
           </div>
         )}
         <button onClick={reset} className="btn-gold text-sm px-6 py-2">
-          {t("error.retry")}
+          Try again
         </button>
       </div>
     </div>
