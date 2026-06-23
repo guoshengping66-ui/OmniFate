@@ -268,11 +268,6 @@ export default function CheckoutPage() {
             onSelect={setPaymentMethod}
             region={region}
           />
-          {(paymentMethod === "paypal" || paymentMethod === "credit_card") && (
-            <p className="text-white/30 text-[11px] mt-3 leading-relaxed">
-              {t("payment.digitalServiceNotice") || "Digital Service Notice: This purchase is for digital services. Refund Policy and Terms of Service apply. PayPal Buyer Protection may also apply."}
-            </p>
-          )}
         </div>
 
         {/* Processing time disclaimer */}
