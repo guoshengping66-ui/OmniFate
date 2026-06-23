@@ -1120,6 +1120,18 @@
       "tag": "Water",
       "_label": "Stellar Profile System"
     },
+    "qimen": {
+      "desc": "Spatiotemporal Data · Favorable Directions · Decision Timing",
+      "detail": "Based on Qimen strategic analysis spatiotemporal model, AI precisely locates favorable directions and action timing.",
+      "tag": "Fire",
+      "_label": "Qimen Strategy"
+    },
+    "ziwei": {
+      "desc": "Star Distribution · Pattern Analysis · Life Profile",
+      "detail": "Ziwei Doushu system — 14 main stars pattern analysis revealing life trajectory and status trends.",
+      "tag": "Water",
+      "_label": "Ziwei System"
+    },
     "master": "AI Cross-Dimensional Verification"
   },
   "analysis": {
@@ -1874,6 +1886,7 @@
       "relationship": "Love",
       "wellness": "Wellness",
       "wealth": "Wealth",
+      "mindfulness": "Mindfulness",
       "beat": "Beats"
     },
     "dimDesc": {
@@ -1881,7 +1894,8 @@
       "health": "Body & Mind Balance",
       "relationship": "Relationship Harmony",
       "wellness": "Inner Growth",
-      "wealth": "Wealth Flow"
+      "wealth": "Wealth Flow",
+      "mindfulness": "Mindful Awareness"
     },
     "error": {
       "analysis": "Reading error",
@@ -1961,7 +1975,17 @@
       "symbolic": "Symbolic",
       "symbolicDesc": "Reflection",
       "stellar": "Stellar",
-      "stellarDesc": "Star Chart"
+      "stellarDesc": "Star Chart",
+      "astrology": "Astrology",
+      "astrologyDesc": "Western Astrology",
+      "bazi": "Bazi",
+      "baziDesc": "Bazi Analysis",
+      "qimen": "Qimen",
+      "qimenDesc": "Qimen Strategy",
+      "tarot": "Tarot",
+      "tarotDesc": "Tarot Reflection",
+      "ziwei": "Ziwei",
+      "ziweiDesc": "Ziwei Analysis"
     },
     "progress": {
       "analyzing": "Reading…",
@@ -2027,6 +2051,10 @@
     "behavioralType": {
       "label": "Your Behavioral Type",
       "hint": "Based on five-dimension data analysis"
+    },
+    "destinyType": {
+      "label": "Your Destiny Pattern",
+      "hint": "Based on comprehensive five-dimensional data analysis"
     },
     "growthPath": {
       "title": "Current → Ideal",
@@ -3451,6 +3479,7 @@
     "hint": "Items matched to your chart's unique data profile",
     "subtitle": "Chart-matched · Status enhancement items",
     "weakData": "Your data needs a boost",
+    "weakEnergy": "Your data needs activation",
     "strongDimension": "Strength",
     "detailedTitle": "Detailed Report",
     "detailedDesc": "Deep analysis + action plan",
