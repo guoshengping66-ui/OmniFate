@@ -187,6 +187,7 @@ async def paypal_config():
         "client_id": settings.PAYPAL_CLIENT_ID,
         "currency": "USD",
         "intent": "capture",
+        "mode": settings.PAYPAL_MODE,
     }
 
 

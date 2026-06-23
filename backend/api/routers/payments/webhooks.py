@@ -83,8 +83,8 @@ async def paypal_webhook(request: Request, db: AsyncSession = Depends(get_db)):
 
         logger.info(f"[PAYPAL-WEBHOOK] CAPTURE.COMPLETED: capture_id={capture_id}, custom_id={custom_id}")
 
-        order_no = resource.get("supplementary_data", {}).get("related_ids", {}).get("order_id", "")
-        if not order_no:
+        paypal_order_id = resource.get("supplementary_data", {}).get("related_ids", {}).get("order_id", "")
+        if not paypal_order_id:
             logger.warning(f"[PAYPAL-WEBHOOK] No order_id in resource, attempting lookup by capture_id")
             result = await db.execute(
                 select(Order).where(
@@ -93,27 +93,47 @@ async def paypal_webhook(request: Request, db: AsyncSession = Depends(get_db)):
                 ).with_for_update()
             )
         else:
+            # 1) Try by order_no first (subscription/unlock orders use order_no as PayPal reference)
             result = await db.execute(
                 select(Order).where(
-                    Order.order_no == order_no,
+                    Order.order_no == paypal_order_id,
                     Order.status == OrderStatus.pending,
                 ).with_for_update()
             )
+            order = result.scalar_one_or_none()
+            if not order:
+                # 2) Fallback: shop orders store PayPal order_id in payment_ref
+                result = await db.execute(
+                    select(Order).where(
+                        Order.payment_ref == paypal_order_id,
+                        Order.status == OrderStatus.pending,
+                    ).with_for_update()
+                )
 
         order = result.scalar_one_or_none()
         if not order:
-            if order_no:
-                result2 = await db.execute(select(Order).where(Order.order_no == order_no))
+            # Check if already processed (idempotent)
+            if paypal_order_id:
+                result2 = await db.execute(select(Order).where(Order.order_no == paypal_order_id))
                 existing = result2.scalar_one_or_none()
                 if existing and existing.status == OrderStatus.paid:
-                    logger.info(f"[PAYPAL-WEBHOOK] Order {order_no} already paid — idempotent skip")
+                    logger.info(f"[PAYPAL-WEBHOOK] Order {paypal_order_id} already paid — idempotent skip")
                     return {"status": "already_processed"}
-            logger.warning(f"[PAYPAL-WEBHOOK] Order not found for capture {capture_id}, order_no={order_no}")
+                # Also check by payment_ref
+                result3 = await db.execute(select(Order).where(Order.payment_ref == paypal_order_id))
+                existing3 = result3.scalar_one_or_none()
+                if existing3 and existing3.status == OrderStatus.paid:
+                    logger.info(f"[PAYPAL-WEBHOOK] Order {existing3.order_no} already paid — idempotent skip")
+                    return {"status": "already_processed"}
+            logger.warning(f"[PAYPAL-WEBHOOK] Order not found for capture {capture_id}, paypal_order_id={paypal_order_id}")
             return {"status": "order_not_found"}
 
         order.status = OrderStatus.paid
         order.paid_at = datetime.now(timezone.utc)
-        order.payment_ref = capture_id
+        # Don't overwrite payment_ref if it already stores a PayPal order ID
+        # (shop orders use payment_ref for lookups; only overwrite if empty/old format)
+        if not order.payment_ref or order.payment_ref == order.order_no:
+            order.payment_ref = capture_id
         order.notes = (order.notes or "") + f"\n[WEBHOOK] PayPal capture confirmed {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M')}"
 
         if order.user_id:
