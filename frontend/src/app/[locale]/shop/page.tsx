@@ -5,6 +5,7 @@ import { Loader2, Sparkles, Gem } from "lucide-react"
 import { listProducts, matchProducts, Product } from "@/lib/api"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useRegion } from "@/contexts/RegionContext"
+import { useCart } from "@/contexts/CartContext"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 
 const ProductCard = lazy(() => import("@/components/reading/ProductCard").then(m => ({ default: m.ProductCard })))
@@ -34,6 +35,7 @@ function ShopContent() {
   const sessionTags = searchParams.get("tags") ?? ""
   const { t, locale, localeHref } = useLanguage()
   const { region } = useRegion()
+  const { registerProducts } = useCart()
   const [allProducts, setAllProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [isPersonalized, setIsPersonalized] = useState(false)
@@ -97,6 +99,13 @@ function ShopContent() {
   }, [allProducts, activeSeries])
 
   const handleSeriesChange = useCallback((key: string) => setActiveSeries(key), [])
+
+  // Register loaded products with the cart so localStorage placeholders get real data
+  useEffect(() => {
+    if (allProducts.length > 0) {
+      registerProducts(allProducts)
+    }
+  }, [allProducts, registerProducts])
 
   return (
     <div className="min-h-screen">
