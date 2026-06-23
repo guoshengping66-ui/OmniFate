@@ -404,7 +404,9 @@
       "feng_shui_scan": "AI Environment Scan",
       "feng_shui_scan_desc": "Upload floor plans, AI analyzes environment layout",
       "mobile_app": "Native App",
-      "mobile_app_desc": "iOS/Android native application"
+      "mobile_app_desc": "iOS/Android native application",
+      "bazi_compatibility": "Bazi Compatibility",
+      "bazi_compatibility_desc": "Compare Bazi charts with potential partners"
     },
     "loginRequired": "Please login first"
   },
@@ -848,7 +850,8 @@
       "jewelry": "Jewelry",
       "other": "Other",
       "service": "Service",
-      "talisman": "Accessory"
+      "talisman": "Accessory",
+      "crystal": "Crystal"
     },
     "added": "Added",
     "addedToCart": "Added \"{name}\" to cart",
@@ -952,7 +955,9 @@
     "team": "Team",
     "timeline": "Milestones",
     "mission": "Our Mission",
-    "missionDesc": "Behavioral Mirror brings together the best of traditional traditional analytics and modern technology..."
+    "missionDesc": "Behavioral Mirror brings together the best of traditional traditional analytics and modern technology...",
+    "teamMetaphysics": "Metaphysics Team",
+    "teamMetaphysicsDesc": "Our team of certified metaphysics practitioners"
   },
   "account": {
     "stat": {
@@ -1054,29 +1059,30 @@
     "exportDataDesc": "Download a copy of your account data",
     "exportDataHint": "Coming soon",
     "dataRetention": "Data Retention",
-    "dataRetentionDesc": "Your reports and account data are securely stored on our servers and only accessible by you. Deleting your account permanently removes all data."
+    "dataRetentionDesc": "Your reports and account data are securely stored on our servers and only accessible by you. Deleting your account permanently removes all data.",
+    "fateOSMember": "Fate OS Member",
+    "fortunePlan": "Fortune Plan",
+    "notifyWeeklyFortune": "Weekly Fortune Notification",
+    "notifyWeeklyFortuneDesc": "Receive weekly fortune updates via email"
   },
   "agent": {
-    "behavioral pattern": {
-      "desc": "Planetary Houses · Aspects · Inner Mission",
-      "detail": "We map your Sun-Moon-Rising triangle to uncover the shape of your inner's journey.",
-      "tag": "Fire",
-      "_label": "Behavioral Profile"
-    },
-    "four-pillar": {
-      "desc": "Four Pillar Chart · Element Balance · Dynamic Analysis",
-      "detail": "Rooted in classical analytical traditions, we map your behavioral patterns and developmental cycles through the Four Pillars.",
-      "tag": "Wood",
-      "_label": "Four-Pillar (Four Pillars of Behavioral)"
-    },
     "bazi": {
-      "_label": "Four-Pillar Analysis"
+      "_label": "Four-Pillar Analysis",
+      "desc": "Four Pillars of Destiny analysis for understanding inherent traits and life cycles.",
+      "detail": "Traditional Chinese birth chart analysis using Heavenly Stems and Earthly Branches.",
+      "tag": "Traditional"
     },
     "astrology": {
-      "_label": "Star Chart Analysis"
+      "_label": "Star Chart Analysis",
+      "desc": "Western astrology chart analysis for understanding personality and life patterns.",
+      "detail": "Natal chart interpretation using planetary positions at birth time.",
+      "tag": "Western"
     },
     "tarot": {
-      "_label": "Symbolic Card Analysis"
+      "_label": "Symbolic Card Analysis",
+      "desc": "Tarot card reading for symbolic reflection and intuitive guidance.",
+      "detail": "Card-based divination providing symbolic insights into past, present, and future.",
+      "tag": "Symbolic"
     },
     "face": {
       "desc": "468 Feature Points · Region Mapping · Trait Analysis",
@@ -1102,34 +1108,16 @@
       "tag": "Water",
       "_label": "Partner Palm"
     },
-    "symbolic": {
-      "desc": "Celtic Cross · Current Data · Action Guidance",
-      "detail": "Each spread is unique to your moment — real-time cards offering reflection guidance just for you.",
-      "tag": "Earth",
-      "_label": "Symbolic Reading"
-    },
-    "strategic": {
-      "desc": "Spatiotemporal Data · Favorable Directions · Decision Timing",
-      "detail": "Based on the strategic analysis spatiotemporal model, AI precisely locates favorable directions and action timing.",
-      "tag": "Fire",
-      "_label": "Strategic Analysis"
-    },
-    "stellar": {
-      "desc": "Star Distribution · Pattern Analysis · Life Profile",
-      "detail": "Stellar Profile System — 14 main stars pattern analysis revealing life trajectory and status trends.",
-      "tag": "Water",
-      "_label": "Stellar Profile System"
-    },
     "qimen": {
-      "desc": "Spatiotemporal Data · Favorable Directions · Decision Timing",
-      "detail": "Based on Qimen strategic analysis spatiotemporal model, AI precisely locates favorable directions and action timing.",
-      "tag": "Fire",
+      "desc": "Time-space strategic analysis combining Qi Men Dun Jia ancient wisdom with modern behavioral science.",
+      "detail": "Qimen Dun Jia provides strategic insights into timing and spatial dynamics for decision-making.",
+      "tag": "Strategy",
       "_label": "Qimen Strategy"
     },
     "ziwei": {
-      "desc": "Star Distribution · Pattern Analysis · Life Profile",
-      "detail": "Ziwei Doushu system — 14 main stars pattern analysis revealing life trajectory and status trends.",
-      "tag": "Water",
+      "desc": "Ziwei Doushu star chart analysis for understanding behavioral patterns and life trajectory.",
+      "detail": "The Purple Star Astrology system maps stellar positions to reveal personality traits and destiny patterns.",
+      "tag": "Behavioral",
       "_label": "Ziwei System"
     },
     "master": "AI Cross-Dimensional Verification"
@@ -1248,7 +1236,19 @@
       "label": "Partner Palm Reading",
       "done": "Partner palm reading complete",
       "running": "Reading partner palm lines..."
-    }
+    },
+    "crossValidate": "Cross-Validation",
+    "done": "Analysis Complete",
+    "init": "Initializing",
+    "master": "Master Synthesis",
+    "parallel": "Parallel Analysis",
+    "preparing": "Preparing",
+    "preview": "Preview",
+    "stalled": "Analysis Stalled",
+    "stuckContinue": "Continue Analysis",
+    "stuckMessage": "The analysis seems to be taking longer than expected.",
+    "stuckRetry": "Retry Analysis",
+    "stuckTitle": "Analysis Delay"
   },
   "auth": {
     "birth": {
@@ -1377,7 +1377,17 @@
       "symbolic2": "Which card matters most in this spread?",
       "symbolic3": "What should I actually do based on this symbolic reading?",
       "stellar1": "What's my dominant trait in the stellar profile system?",
-      "stellar2": "Which patterns should I watch this year?"
+      "stellar2": "Which patterns should I watch this year?",
+      "bazi1": "What does my Bazi reveal?",
+      "bazi2": "Explain my elemental balance",
+      "bazi3": "What are my lucky elements?",
+      "qimen1": "What's the best timing for my goals?",
+      "qimen2": "Analyze my current direction",
+      "tarot1": "What energy surrounds me?",
+      "tarot2": "What should I focus on today?",
+      "tarot3": "What lesson is the universe teaching me?",
+      "ziwei1": "What are my core behavioral patterns?",
+      "ziwei2": "How do others perceive me?"
     },
     "autoRoute": "Your question will find the right wisdom path",
     "defaultError": "Sorry, I can't answer that right now. Try again later.",
@@ -1950,10 +1960,6 @@
     "nav": {
       "almanac": "Almanac",
       "almanacDesc": "Daily Guide",
-      "behavioral pattern": "Behavioral Pattern",
-      "behavioral patternDesc": "Western",
-      "four-pillar": "Four-Pillar",
-      "four-pillarDesc": "Four Pillars",
       "chat": "Chat",
       "chatDesc": "Ask an Expert",
       "event": "Events",
@@ -1968,24 +1974,18 @@
       "overviewDesc": "Full Chart",
       "palm": "Palm",
       "palmDesc": "Hand Feature",
-      "strategic": "Strategic",
-      "strategicDesc": "Time-Space",
       "shop": "Shop",
       "shopDesc": "Enhance",
-      "symbolic": "Symbolic",
-      "symbolicDesc": "Reflection",
-      "stellar": "Stellar",
-      "stellarDesc": "Star Chart",
       "astrology": "Astrology",
-      "astrologyDesc": "Western Astrology",
+      "astrologyDesc": "Western Analysis",
       "bazi": "Bazi",
-      "baziDesc": "Bazi Analysis",
-      "qimen": "Qimen",
-      "qimenDesc": "Qimen Strategy",
+      "baziDesc": "Four Pillars Analysis",
+      "qimen": "Strategy",
+      "qimenDesc": "Time-Space Analysis",
       "tarot": "Tarot",
-      "tarotDesc": "Tarot Reflection",
-      "ziwei": "Ziwei",
-      "ziweiDesc": "Ziwei Analysis"
+      "tarotDesc": "Symbolic Reflection",
+      "ziwei": "Behavioral",
+      "ziweiDesc": "Behavioral Analysis"
     },
     "progress": {
       "analyzing": "Reading…",
@@ -2053,8 +2053,8 @@
       "hint": "Based on five-dimension data analysis"
     },
     "destinyType": {
-      "label": "Your Destiny Pattern",
-      "hint": "Based on comprehensive five-dimensional data analysis"
+      "label": "Your Behavior Type",
+      "hint": "Based on five-dimensional data analysis"
     },
     "growthPath": {
       "title": "Current → Ideal",
@@ -2089,7 +2089,8 @@
       "health": "Health",
       "relationship": "Love",
       "wellness": "Wellness",
-      "wealth": "Wealth"
+      "wealth": "Wealth",
+      "mindfulness": "Mindfulness"
     },
     "confirmDelete": "Are you sure you want to delete this reading?",
     "daysAgo": "days ago",
@@ -2686,7 +2687,13 @@
       "palm": "Palm Reading",
       "palmDesc": "Analyzing palm lines…",
       "symbolic": "Symbolic",
-      "symbolicDesc": "Drawing behavioral cards…"
+      "symbolicDesc": "Drawing behavioral cards…",
+      "astrology": "Astrology",
+      "astrologyDesc": "Western chart analysis",
+      "bazi": "Bazi",
+      "baziDesc": "Four Pillars analysis",
+      "tarot": "Tarot",
+      "tarotDesc": "Symbolic reflection"
     },
     "error": {
       "desc": "The report may not have finished generating, or the session may have expired",
@@ -2891,6 +2898,24 @@
       "tag": "Palm Analysis",
       "desc": "Decode your life, heart, and head lines to reveal career, relationship, and health insights",
       "detail": "Palm Line Analysis · Hand Shape · Career & Love · Health Indicators"
+    },
+    "bazi": {
+      "_label": "Bazi Analysis",
+      "desc": "Four Pillars of Destiny analysis for understanding inherent traits and life cycles.",
+      "detail": "Traditional Chinese birth chart analysis using Heavenly Stems and Earthly Branches.",
+      "tag": "Traditional"
+    },
+    "astrology": {
+      "_label": "Astrology Analysis",
+      "desc": "Western astrology chart analysis for understanding personality and life patterns.",
+      "detail": "Natal chart interpretation using planetary positions at birth time.",
+      "tag": "Western"
+    },
+    "tarot": {
+      "_label": "Tarot Reading",
+      "desc": "Tarot card reading for symbolic reflection and intuitive guidance.",
+      "detail": "Card-based divination providing symbolic insights into past, present, and future.",
+      "tag": "Symbolic"
     }
   },
   "almanac": {
@@ -2938,14 +2963,24 @@
     "warning": "Warning",
     "yi": "Favorable",
     "yiLabel": "Favorable",
-    "yiPinyin": "Yì"
+    "yiPinyin": "Yì",
+    "auspicious": "Auspicious",
+    "currentEnergy": "Current Energy",
+    "energy": "Energy",
+    "energyScore": "Energy Score",
+    "energyWave": "Energy Wave",
+    "inauspicious": "Inauspicious"
   },
   "almanacCard": {
     "favorable": "Favorable",
     "dayPillar": "Day Pillar",
     "dataScore": "Today's Data Score",
     "infavorable": "Infavorable",
-    "support": "Guard"
+    "support": "Guard",
+    "auspicious": "Auspicious Activities",
+    "energyScore": "Energy Score",
+    "inauspicious": "Activities to Avoid",
+    "protection": "Protection"
   },
   "app": {
     "name": "Behavioral Mirror",
@@ -3325,7 +3360,8 @@
     "loadFail": "Failed to load event analysis",
     "notFound": "Event analysis not found",
     "remedyKeywords": "Remedy Keywords",
-    "title": "Event Retrospection Analysis"
+    "title": "Event Retrospection Analysis",
+    "energyPrescription": "Energy Prescription"
   },
   "eventInput": {
     "analyzing": "Analyzing...",
@@ -3468,7 +3504,8 @@
     "question": "What would you like to know?",
     "submit": "Start Reading",
     "symbolicQuestion": "Symbolic & Question",
-    "year": "Year"
+    "year": "Year",
+    "tarotQuestion": "Your Tarot Question"
   },
   "founderBadge": {
     "label": "Founder"
@@ -3478,7 +3515,6 @@
     "ctaShort": "View",
     "hint": "Items matched to your chart's unique data profile",
     "subtitle": "Chart-matched · Status enhancement items",
-    "weakData": "Your data needs a boost",
     "weakEnergy": "Your data needs activation",
     "strongDimension": "Strength",
     "detailedTitle": "Detailed Report",
@@ -3748,53 +3784,33 @@
     }
   },
   "report": {
-    "summary": "Core Findings",
-    "wealth": { "title": "Wealth & Career · Quantified Energy Field" },
-    "relationship": {
-      "title": "Love & Relationships · Hidden Power Dynamics",
-      "priority": "High-Priority Resolution",
-      "prescription": "Prescription"
-    },
-    "career": { "title": "Career Advancement · Track Switching" },
-    "health": { "title": "Mind & Health · Compensation Mirror" },
-    "spiritual": { "title": "Spiritual Energy · Creativity Audit" },
-    "conflictBalance": {
-      "header": "Current Resistance Balance",
-      "coreConflict": "Core Collision Point"
-    },
-    "tagMatrix": {
-      "negative": "Energy Drains",
-      "positive": "Breakthrough Activators"
-    },
-    "actionCommand": { "header": "Phase Action Strategy" },
-    "energyBar": {
-      "header": "Emotional Supply-Demand Dampening",
-      "critical": "Critical",
-      "warning": "Warning",
-      "safe": "Safe"
-    },
-    "interactionMirror": {
-      "header": "Deep Interaction Mirror",
-      "behavior": "Hidden Behavior Pattern",
-      "pain": "Pain Point Refraction"
-    },
-    "healthRadar": {
-      "header": "Body-Mind Compensation Radar",
-      "physical": "Physical Hardware",
-      "mental": "Mental Software",
-      "conclusion": "Core Conclusion"
-    },
-    "creativeFilter": {
-      "header": "Creativity Audit Dampening",
-      "detail": "Audit Mechanism Details"
-    },
-    "resetAction": { "header": "Mental Decompression Actions" },
-    "dimension": {
-      "excellent": "Excellent",
-      "good": "Good",
-      "fair": "Fair",
-      "weak": "Weak"
-    }
+    "aiCert": "Checked & Verified",
+    "annual": "Annual Status",
+    "badge": "Here's What You'll Get",
+    "card": "Full Chart Overview",
+    "career": "Career",
+    "collapse": "Collapse",
+    "confidence": "Five Wisdom Paths · For Insight, Not Prescription",
+    "dayMaster": "Day Master",
+    "desc": "Five wisdom traditions, woven together into a clear and practical guide for your life",
+    "expand": "View Full Reading",
+    "moreLines": "more",
+    "fiveElements": "Five Elements",
+    "health": "Health",
+    "relationship": "Love",
+    "wellness": "Wellness",
+    "tenGods": "Ten Gods",
+    "title": "Your Personalized Reading",
+    "wealth": "Wealth",
+    "execution": "Execution",
+    "creativity": "Creativity",
+    "strategy": "Strategy",
+    "risk": "Risk Tolerance",
+    "intuition": "Intuition",
+    "spirit": "Spirit",
+    "spiritual": "Spiritual",
+    "growth": "Growth",
+    "mindfulness": "Mindfulness Report"
   },
   "pricing": {
     "aiQuestion": "Expert Questions",
@@ -3940,7 +3956,9 @@
     "title": "Data Radar",
     "tradingAdvice": "Trading Advice",
     "upgradePrompt": "Upgrade membership for detailed data scores and personalized trading advice",
-    "viewBenefits": "View Membership Benefits"
+    "viewBenefits": "View Membership Benefits",
+    "highEnergy": "High Energy",
+    "lowEnergy": "Low Energy"
   },
   "referral": {
     "apply": "Apply",
@@ -3969,34 +3987,6 @@
     "totalStardust": "Total Stardust Earned",
     "wechatFriends": "WeChat",
     "wechatToast": "Link copied! Open WeChat and paste to send to friends"
-  },
-  "report": {
-    "aiCert": "Checked & Verified",
-    "annual": "Annual Status",
-    "badge": "Here's What You'll Get",
-    "card": "Full Chart Overview",
-    "career": "Career",
-    "collapse": "Collapse",
-    "confidence": "Five Wisdom Paths · For Insight, Not Prescription",
-    "dayMaster": "Day Master",
-    "desc": "Five wisdom traditions, woven together into a clear and practical guide for your life",
-    "expand": "View Full Reading",
-    "moreLines": "more",
-    "fiveElements": "Five Elements",
-    "health": "Health",
-    "relationship": "Love",
-    "wellness": "Wellness",
-    "tenGods": "Ten Gods",
-    "title": "Your Personalized Reading",
-    "wealth": "Wealth",
-    "execution": "Execution",
-    "creativity": "Creativity",
-    "strategy": "Strategy",
-    "risk": "Risk Tolerance",
-    "intuition": "Intuition",
-    "spirit": "Spirit",
-    "spiritual": "Spiritual",
-    "growth": "Growth"
   },
   "reviews": {
     "badge": "Testimonials",
@@ -4138,7 +4128,20 @@
     "yinYang": "Yin-Yang",
     "yue": "Month Pillar",
     "ziNu": "Offspring Pattern (Zi Nu Gong)",
-    "stellar": "Stellar Profile System"
+    "stellar": "Stellar Profile System",
+    "annualFortune": "Annual Fortune",
+    "aura": "Aura",
+    "bazi": "Bazi (Four Pillars of Destiny)",
+    "baziShort": "Bazi",
+    "chakra": "Chakra",
+    "dailyFortune": "Daily Fortune",
+    "hexagram": "Hexagram",
+    "karma": "Karma",
+    "monthlyFortune": "Monthly Fortune",
+    "palmistry": "Palmistry",
+    "qimen": "Qi Men Dun Jia",
+    "tarot": "Tarot",
+    "ziwei": "Ziwei Doushu"
   },
   "tiangan": {
     "bing": "Bing (丙)",
@@ -4602,5 +4605,15 @@
   "tools": {
     "title": "Destiny Analysis Tools",
     "desc": "AI-powered analysis tools to decode your destiny patterns"
+  },
+  "energyWave": {
+    "currentLevel": "Current Level",
+    "lowEnergyDay": "Low Energy Day",
+    "nextPeak": "Next Peak",
+    "title": "Energy Wave",
+    "trend": "Trend",
+    "trendFalling": "Falling",
+    "trendRising": "Rising",
+    "trendStable": "Stable"
   }
 }
