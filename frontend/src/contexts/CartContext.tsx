@@ -85,10 +85,24 @@ export function CartProvider({ children, isMember = false, region = "domestic" }
       }
       // New lightweight format: store pending IDs until products are registered
       if (Array.isArray(parsed)) {
+        const pendingIds = parsed.map((i: CartPersistedItem) => i.productId)
         setItems(parsed.map((i: CartPersistedItem) => ({
           product: { id: i.productId, name: "", price_cny: 0 } as Product,
           quantity: i.quantity,
         })))
+        // Auto-fetch product data so cart works on any page (not just /shop)
+        if (pendingIds.length > 0) {
+          import("@/lib/api").then(({ api }) => {
+            Promise.all(
+              pendingIds.map((id: string) =>
+                api.get<Product>(`/api/products/${id}`).then(r => r.data).catch(() => null)
+              )
+            ).then(products => {
+              const valid = products.filter(Boolean) as Product[]
+              if (valid.length > 0) registerProducts(valid)
+            })
+          })
+        }
       }
     } catch { /* ignore */ }
   }, [])
