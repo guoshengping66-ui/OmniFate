@@ -54,6 +54,8 @@ async def create_order(
             select(User).where(User.id == current_user.id).with_for_update()
         )
         user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=401, detail="请先登录后再下单")
 
     from api.routers.products import _load_products
     all_products = _load_products("zh")
@@ -249,10 +251,16 @@ async def confirm_shop_qr_payment(
     if order.status != OrderStatus.pending:
         raise HTTPException(status_code=400, detail=f"订单状态为 {order.status.value}，无法确认付款")
 
-    admin_token = secrets.token_urlsafe(32)
-    order.admin_confirm_token = admin_token
-    order.admin_confirm_expires = datetime.now(timezone.utc) + timedelta(hours=24)
-    order.notes = (order.notes or "") + f"\n[QR] 用户点击确认付款，等待管理员确认 {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M')}"
+    # Rate limit: reuse existing token if still valid (prevent email spam)
+    now = datetime.now(timezone.utc)
+    if order.admin_confirm_token and order.admin_confirm_expires and order.admin_confirm_expires > now:
+        admin_token = order.admin_confirm_token
+        logger.info(f"[QR-ADMIN] Order {order_no}: reusing existing token (expires {order.admin_confirm_expires})")
+    else:
+        admin_token = secrets.token_urlsafe(32)
+        order.admin_confirm_token = admin_token
+        order.admin_confirm_expires = now + timedelta(hours=24)
+    order.notes = (order.notes or "") + f"\n[QR] 用户点击确认付款，等待管理员确认 {now.strftime('%Y-%m-%d %H:%M')}"
     await db.commit()
 
     admin_emails_str = settings.ADMIN_EMAILS

@@ -105,6 +105,13 @@ async def activate_founder_seat_logic(user: User, order_no: str, db: AsyncSessio
         except IntegrityError:
             await db.rollback()
             if attempt < MAX_RETRIES - 1:
+                # Re-fetch user after rollback (detached object no longer tracked)
+                re_fetch = await db.execute(
+                    select(User).where(User.id == user.id).with_for_update()
+                )
+                user = re_fetch.scalar_one_or_none()
+                if not user:
+                    raise HTTPException(status_code=500, detail="User not found after rollback")
                 continue
             raise HTTPException(status_code=500, detail="Failed to assign founder seat after retries")
 
