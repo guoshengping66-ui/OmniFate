@@ -451,6 +451,11 @@ async def capture_shop_paypal_order(
         elif user and item_type == "founder_lifetime":
             await activate_founder_seat_logic(user, order.order_no, db)
             logger.info(f"[PAYPAL-CAPTURE] 激活创始席位: 用户 {user.id}")
+        elif user and item_type == "onetime_unlock":
+            from .unlock import handle_onetime_unlock_activation
+            grant_info = await handle_onetime_unlock_activation(user, order, db)
+            if not grant_info.get("already_activated"):
+                logger.info(f"[PAYPAL-CAPTURE] 激活一次性解锁: 用户 {user.id}")
 
     await db.commit()
     return {"status": "captured", "order_no": order.order_no}

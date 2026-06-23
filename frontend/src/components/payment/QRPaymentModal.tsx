@@ -92,6 +92,7 @@ export function QRPaymentModal({
   const [pollAttempts, setPollAttempts] = useState(0)
   const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pollActiveRef = useRef(false)
+  const creatingOrderRef = useRef(false)
   const openRef = useRef(open)
   openRef.current = open
 
@@ -210,6 +211,8 @@ export function QRPaymentModal({
   }, [open, isOverseas, method])
 
   const createOrder = async () => {
+    if (creatingOrderRef.current) return
+    creatingOrderRef.current = true
     setStatus("loading")
     setError("")
     setQrError(null)
@@ -491,6 +494,7 @@ export function QRPaymentModal({
 
   const reset = () => {
     cancelPolling()
+    creatingOrderRef.current = false
     setStatus("idle")
     setOrderNo(null)
     setPaypalOrderId(null)

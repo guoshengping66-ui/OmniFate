@@ -85,6 +85,9 @@ async def create_order(
         if balance <= 0:
             raise HTTPException(status_code=400, detail="没有可用的代金券余额")
         coupon_used = float(min(balance, final_total))
+        # NOTE: coupon deduction is in the same transaction as order creation.
+        # If commit fails, both roll back. If server crashes after commit,
+        # the order exists and coupon is correctly deducted.
         user.shop_coupon_balance = float(balance) - coupon_used
         final_total = round(final_total - coupon_used, 2)
 
@@ -209,14 +212,17 @@ async def get_tracking(
 async def get_shop_payment_status(
     order_no: str,
     db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
-    """获取商城订单支付状态"""
+    """获取商城订单支付状态（需要认证，只能查看自己的订单）"""
     result = await db.execute(
         select(Order).where(Order.order_no == order_no)
     )
     order = result.scalar_one_or_none()
     if not order:
         raise HTTPException(status_code=404, detail="订单不存在")
+    if order.user_id and str(order.user_id) != str(current_user.id):
+        raise HTTPException(status_code=403, detail="无权查看此订单")
 
     return {
         "order_no": order.order_no,
