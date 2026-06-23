@@ -1,6 +1,5 @@
 "use client"
 import { useState } from "react"
-import Image from "next/image"
 import { memo } from "react"
 
 const CATEGORY_ICONS: Record<string, { emoji: string; gradient: string }> = {
@@ -44,17 +43,13 @@ export const ProductImage = memo(function ProductImage({ src, alt, category, cla
       className={`relative flex items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br ${icon.gradient} border border-white/10 ${SIZE_CLASSES[size]} ${className}`}
     >
       {showImage ? (
-        <Image
+        <img
           src={src}
           alt={alt}
           width={px}
           height={px}
           loading="lazy"
-          quality={75}
-          placeholder="blur"
-          blurDataURL="data:image/webp;base64,UklGRh4AAABXRUJQVlA4TBEAAAAvAAAAAAfQ//73v/+BiVYtPQ=="
           className={`object-cover transition-opacity duration-300 ${imgLoaded ? "opacity-100" : "opacity-0"}`}
-          sizes={`(max-width: 640px) ${px}px, ${px}px`}
           onLoad={() => setImgLoaded(true)}
           onError={() => setImgError(true)}
         />
