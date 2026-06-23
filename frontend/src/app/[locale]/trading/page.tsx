@@ -137,7 +137,7 @@ export default function TradingPage() {
           <div className="card-glass p-12 text-center">
             <Calendar size={48} className="text-white/20 mx-auto mb-4" />
             <p className="text-white/40 mb-4">{t("trading.empty")}</p>
-            <Link href={localeHref("/trading/new")} className="btn-gold-outline inline-flex items-center gap-2">
+            <Link href="/trading/new" className="btn-gold-outline inline-flex items-center gap-2">
               <Plus size={16} />
               {t("trading.emptyBtn")}
             </Link>
@@ -147,7 +147,7 @@ export default function TradingPage() {
             {filteredTrades.map((trade) => (
               <Link
                 key={trade.id}
-                href={localeHref(`/trading/${trade.id}`)}
+                href={`/trading/${trade.id}`}
                 className="card-glass p-4 flex items-center justify-between hover:border-gold/30 transition-all"
               >
                 <div className="flex items-center gap-4">

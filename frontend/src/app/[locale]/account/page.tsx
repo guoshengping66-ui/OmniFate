@@ -171,12 +171,12 @@ export default function AccountPage() {
                   <div className="card-glass p-5">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="text-sm font-medium text-white/60">{t("account.recentReports")}</h3>
-                      <Link href={localeHref("/readings")} className="text-gold/60 text-xs hover:text-gold">
+                      <Link href="/readings" className="text-gold/60 text-xs hover:text-gold">
                         {t("account.viewAll")} <ChevronRight size={10} className="inline" />
                       </Link>
                     </div>
                     {readings.slice(0, 3).map(r => (
-                      <Link key={r.id} href={localeHref(`/reading/${r.id}`)}
+                      <Link key={r.id} href={`/reading/${r.id}`}
                         className="flex items-center gap-3 py-2 hover:bg-white/[0.03] rounded-lg px-2 -mx-2 transition-colors">
                         <span className="text-lg">🔮</span>
                         <div className="flex-1 min-w-0">
@@ -227,7 +227,7 @@ export default function AccountPage() {
                           : t("membership.free")}
                       </span>
                     </div>
-                    <Link href={localeHref("/pricing")} className="text-gold text-xs hover:underline">
+                    <Link href="/pricing" className="text-gold text-xs hover:underline">
                       {user.is_premium ? t("account.manageSub") : t("account.upgrade")}
                     </Link>
                   </div>
@@ -241,7 +241,7 @@ export default function AccountPage() {
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="font-serif text-lg text-gold">{t("account.myReports")}</h2>
-                  <Link href={localeHref("/reading/new")} className="btn-gold text-xs py-1.5 px-4">{t("account.newReading")}</Link>
+                  <Link href="/reading/new" className="btn-gold text-xs py-1.5 px-4">{t("account.newReading")}</Link>
                 </div>
 
                 {/* Logged-in readings */}
@@ -275,7 +275,7 @@ export default function AccountPage() {
                             >
                               ✕
                             </button>
-                            <Link href={localeHref(`/reading/${r.id}`)} className="flex-shrink-0">
+                            <Link href={`/reading/${r.id}`} className="flex-shrink-0">
                               <ChevronRight size={14} className="text-white/20 group-hover:text-gold" />
                             </Link>
                           </div>
@@ -326,7 +326,7 @@ export default function AccountPage() {
                             >
                               ✕
                             </button>
-                            <Link href={localeHref(`/reading/${r.sessionId}`)} className="flex-shrink-0">
+                            <Link href={`/reading/${r.sessionId}`} className="flex-shrink-0">
                               <ChevronRight size={14} className="text-white/20 group-hover:text-gold" />
                             </Link>
                           </div>
@@ -354,7 +354,7 @@ export default function AccountPage() {
                   <div className="card-glass p-12 text-center">
                     <ShoppingBag size={36} className="mx-auto mb-3 text-white/10" />
                     <p className="text-white/30 text-sm">{t("account.noOrders")}</p>
-                    <Link href={localeHref("/shop")} className="text-gold text-xs mt-2 hover:underline">{t("account.browseShop")}</Link>
+                    <Link href="/shop" className="text-gold text-xs mt-2 hover:underline">{t("account.browseShop")}</Link>
                   </div>
                 ) : (
                   <OrderList orders={orders} statusLabels={ORDER_STATUS_LABELS} t={t as unknown as (key: string) => string} />
@@ -370,12 +370,12 @@ export default function AccountPage() {
                   <div className="card-glass p-12 text-center">
                     <Heart size={36} className="mx-auto mb-3 text-white/10" />
                     <p className="text-white/30 text-sm">{t("account.noFavorites")}</p>
-                    <Link href={localeHref("/shop")} className="text-gold text-xs mt-2 hover:underline">{t("account.browseShopAlt")}</Link>
+                    <Link href="/shop" className="text-gold text-xs mt-2 hover:underline">{t("account.browseShopAlt")}</Link>
                   </div>
                 ) : (
                   <div className="grid sm:grid-cols-2 gap-3">
                     {favorites.map(p => (
-                      <Link key={p.id} href={localeHref(`/shop/${p.id}`)}
+                      <Link key={p.id} href={`/shop/${p.id}`}
                         className="card-glass p-4 hover:border-gold/30 transition-all group">
                         <div className="flex items-center gap-3">
                           <div className="w-12 h-12 rounded-lg bg-gold/10 flex items-center justify-center text-xl flex-shrink-0">
@@ -478,7 +478,7 @@ export default function AccountPage() {
                       <p className="flex items-center gap-2"><span className="text-gold">✓</span> {t("account.multiProfile")}</p>
                     </div>
 
-                    <Link href={localeHref("/pricing")} className="btn-gold inline-flex items-center gap-2 text-sm">
+                    <Link href="/pricing" className="btn-gold inline-flex items-center gap-2 text-sm">
                       {isPremium ? t("account.manageSub") : t("account.upgrade")}
                     </Link>
                   </div>
@@ -559,7 +559,7 @@ function OrderList({ orders, statusLabels, t }: {
             return (
               <Link
                 key={o.id}
-                href={localeHref(`/account/orders/${o.id}`)}
+                href={`/account/orders/${o.id}`}
                 className="block card-glass p-4 hover:border-gold/30 transition-all group"
               >
                 <div className="flex items-center justify-between mb-2">

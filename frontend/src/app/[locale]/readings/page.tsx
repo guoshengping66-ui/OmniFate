@@ -119,7 +119,7 @@ export default function ReadingsPage() {
             <ScrollText size={48} className="mx-auto mb-4 text-white/10" />
             <p className="text-white/40 text-sm mb-2">{t("readings.empty")}</p>
             <p className="text-white/20 text-xs mb-6">{t("readings.startFirst")}</p>
-            <Link href={localeHref("/reading/new")} className="btn-gold inline-flex items-center gap-2 text-sm">
+            <Link href="/reading/new" className="btn-gold inline-flex items-center gap-2 text-sm">
               {t("readings.startReading")} <ArrowRight size={14} />
             </Link>
           </div>
@@ -130,7 +130,7 @@ export default function ReadingsPage() {
               return (
                 <Link
                   key={r.id}
-                  href={localeHref(`/reading/${r.id}`)}
+                  href={`/reading/${r.id}`}
                   className="block card-glow p-5 hover:border-gold/30 transition-all duration-300 group"
                 >
                   <div className="flex items-start gap-4">

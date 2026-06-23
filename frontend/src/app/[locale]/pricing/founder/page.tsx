@@ -443,7 +443,7 @@ export default function FounderPage() {
         )}
 
         <div className="text-center mt-8">
-          <Link href={localeHref("/pricing")} className="text-white/40 hover:text-gold text-sm inline-flex items-center gap-1">
+          <Link href="/pricing" className="text-white/40 hover:text-gold text-sm inline-flex items-center gap-1">
             <ArrowLeft size={14} />
             {t("founder.pricing.backToPricing")}
           </Link>

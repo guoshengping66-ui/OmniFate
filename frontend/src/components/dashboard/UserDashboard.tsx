@@ -46,7 +46,7 @@ export function UserDashboard() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-serif text-lg text-white/70">{t("dash.recent.title")}</h2>
           {recentReadings.length > 0 && (
-            <Link href={localeHref("/readings")} className="text-gold/60 hover:text-gold text-xs">{t("dash.recent.viewAll")}</Link>
+            <Link href="/readings" className="text-gold/60 hover:text-gold text-xs">{t("dash.recent.viewAll")}</Link>
           )}
         </div>
 
@@ -59,7 +59,7 @@ export function UserDashboard() {
             {recentReadings.map(r => (
               <Link
                 key={r.id}
-                href={localeHref(`/reading/${r.id}`)}
+                href={`/reading/${r.id}`}
                 className="block card-glass p-4 hover:border-white/20 transition-all"
               >
                 <div className="flex items-center justify-between">

@@ -445,7 +445,7 @@ export default function RegisterPage() {
 
           <p className="text-center text-white/40 text-sm">
             {t("auth.hasAccount")}{" "}
-            <Link href={localeHref("/login")} className="text-gold hover:underline">
+            <Link href="/login" className="text-gold hover:underline">
               {t("auth.loginNow")}
             </Link>
           </p>

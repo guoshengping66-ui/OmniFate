@@ -233,12 +233,12 @@ export default function LoginPage() {
               <GoogleLoginButton />
 
               <div className="flex items-center justify-between text-sm">
-                <Link href={localeHref("/forgot-password")} className="text-gold/60 hover:text-gold">
+                <Link href="/forgot-password" className="text-gold/60 hover:text-gold">
                   {t("auth.forgotPassword")}
                 </Link>
                 <p className="text-white/40">
                   {t("auth.noAccount")}{" "}
-                  <Link href={localeHref("/register")} className="text-gold hover:underline">
+                  <Link href="/register" className="text-gold hover:underline">
                     {t("auth.registerNow")}
                   </Link>
                 </p>

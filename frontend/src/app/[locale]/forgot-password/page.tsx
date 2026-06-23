@@ -251,7 +251,7 @@ export default function ForgotPasswordPage() {
           </button>
 
           <p className="text-center text-white/40 text-sm">
-            <Link href={localeHref("/login")} className="text-gold hover:underline">{t("auth.backToLogin")}</Link>
+            <Link href="/login" className="text-gold hover:underline">{t("auth.backToLogin")}</Link>
           </p>
         </form>
       </div>

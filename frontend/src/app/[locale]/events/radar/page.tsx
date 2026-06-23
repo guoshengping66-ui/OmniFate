@@ -173,7 +173,7 @@ export default function EventsRadarPage() {
             <p className="text-white/60 mb-4">
               {t("radar.upgradePrompt")}
             </p>
-            <Link href={localeHref("/pricing")} className="btn-gold-outline inline-flex items-center gap-2">
+            <Link href="/pricing" className="btn-gold-outline inline-flex items-center gap-2">
               {t("radar.viewBenefits")}
               <ArrowRight size={14} />
             </Link>

@@ -82,7 +82,7 @@ export default function NewTradePage() {
         <Breadcrumbs items={[{ label: t("trading.breadcrumb"), href: "/trading" }, { label: t("trading.new.breadcrumb") }]} />
 
         <div className="mb-8">
-          <Link href={localeHref("/trading")} className="text-white/40 hover:text-gold text-sm inline-flex items-center gap-1 mb-4">
+          <Link href="/trading" className="text-white/40 hover:text-gold text-sm inline-flex items-center gap-1 mb-4">
             <ArrowLeft size={14} />
             {t("trading.new.back")}
           </Link>

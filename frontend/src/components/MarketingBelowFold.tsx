@@ -237,7 +237,7 @@ export function MarketingBelowFold() {
                 <h2 className="text-xl md:text-2xl font-serif font-bold text-white/90 mb-2">{t("cta.title")}</h2>
                 <p className="text-white/35 mb-6 max-w-md mx-auto text-sm">{t("cta.desc")}</p>
                 <MagneticButton>
-                  <Link href={localeHref("/reading/new")} className="btn-gold inline-flex items-center gap-2 text-base px-8 py-3 group">
+                  <Link href="/reading/new" className="btn-gold inline-flex items-center gap-2 text-base px-8 py-3 group">
                     {t("cta.button")}
                     <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                   </Link>
