@@ -11,7 +11,7 @@ from datetime import datetime, date, timezone
 from typing import Optional
 import json
 import logging
-from fastapi import APIRouter, HTTPException, UploadFile, File, BackgroundTasks, Query, Depends
+from fastapi import APIRouter, HTTPException, Request, UploadFile, File, BackgroundTasks, Query, Depends
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import select, delete, func, and_
@@ -347,6 +347,7 @@ def _hide_worker_reports(resp: AnalysisResponse) -> None:
 
 @router.post("", response_model=AnalysisResponse)
 async def create_analysis(
+    request: Request,
     payload: AnalysisRequest,
     current_user: Optional[User] = Depends(get_current_user),
 ):
@@ -354,10 +355,14 @@ async def create_analysis(
     POST creates session and kicks off background analysis.
     Frontend polls GET /session/{id} until status == "done".
     """
-    # Rate limit: 3 analyses per hour per user (each spawns multiple LLM calls)
+    # Rate limit: 3 analyses/hour for logged-in users, 1/hour for anonymous (by IP)
     if current_user:
         if await check_rate_limit(f"analysis:{current_user.id}", limit=3, window=3600):
             raise HTTPException(status_code=429, detail="分析次数过于频繁，请稍后再试")
+    else:
+        client_ip = request.client.host if request.client else "unknown"
+        if await check_rate_limit(f"analysis:anon:{client_ip}", limit=1, window=3600):
+            raise HTTPException(status_code=429, detail="匿名用户分析次数限制，请登录后使用")
     bi = BirthInfo(
         year=payload.birth_year, month=payload.birth_month,
         day=payload.birth_day, hour=payload.birth_hour,
@@ -888,32 +893,35 @@ async def get_session(
     # Fastest path: completed reading cache (skip DB entirely)
     cached = _get_reading_cache(session_id)
     if cached:
-        # ── SECURITY: Always verify ownership before returning cached data ──
-        if current_user:
-            # Must check actual ownership from DB for any cached response
-            try:
-                async with AsyncSessionLocal() as db:
-                    result = await db.execute(
-                        select(Reading).where(Reading.id == session_id)
-                    )
-                    reading = result.scalar_one_or_none()
-                    if reading and reading.user_id and str(reading.user_id) != str(current_user.id):
+        # ── SECURITY: Verify ownership — anonymous users cannot access user-owned sessions ──
+        try:
+            async with AsyncSessionLocal() as db:
+                result = await db.execute(
+                    select(Reading).where(Reading.id == session_id)
+                )
+                reading = result.scalar_one_or_none()
+                if reading and reading.user_id:
+                    if not current_user:
+                        raise HTTPException(status_code=401, detail="请登录后查看此报告")
+                    if str(reading.user_id) != str(current_user.id):
                         raise HTTPException(status_code=403, detail="无权访问此报告")
-            except HTTPException:
-                raise
-            except Exception as e:
-                # DB check failed — do not serve cached data without ownership verification
-                logger.warning("DB ownership check failed: %s", e)
-                raise HTTPException(status_code=503, detail="Service temporarily unavailable")
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.warning("DB ownership check failed: %s", e)
+            raise HTTPException(status_code=503, detail="Service temporarily unavailable")
         # Apply content lock before returning
         return _apply_content_lock(cached, current_user, None, lang=lang or "zh")
 
     # Fast path: in-memory cache
     state = await _get_session(session_id)
     if state:
-        # Verify ownership if user is logged in
-        if current_user and state.user_id and state.user_id != str(current_user.id):
-            raise HTTPException(status_code=403, detail="无权访问此报告")
+        # ── SECURITY: Deny anonymous access to user-owned sessions ──
+        if state.user_id:
+            if not current_user:
+                raise HTTPException(status_code=401, detail="请登录后查看此报告")
+            if state.user_id != str(current_user.id):
+                raise HTTPException(status_code=403, detail="无权访问此报告")
         resp = _state_to_response(state)
         # Merge DB fields: is_detail_unlocked, master_detail (skip if no user — defaults to false)
         if current_user:
@@ -1201,10 +1209,14 @@ async def stream_session(
             yield f"data: {json.dumps({'type': 'error', 'message': 'Session not found'})}\n\n"
             return
 
-        # Verify ownership if user is logged in
-        if current_user and state.user_id and state.user_id != str(current_user.id):
-            yield f"data: {json.dumps({'type': 'error', 'message': '无权访问此报告'})}\n\n"
-            return
+        # ── SECURITY: Deny anonymous access to user-owned sessions ──
+        if state.user_id:
+            if not current_user:
+                yield f"data: {json.dumps({'type': 'error', 'message': '请登录后查看此报告'})}\n\n"
+                return
+            if state.user_id != str(current_user.id):
+                yield f"data: {json.dumps({'type': 'error', 'message': '无权访问此报告'})}\n\n"
+                return
 
         last_phase = ""
         streamed_workers: set[str] = set()
@@ -1447,10 +1459,13 @@ async def upload_face_image(
     -> structured physiognomy text -> update session state.
     Uses the new FaceV2T engine for richer analysis.
     """
-    # Verify session ownership
+    # ── SECURITY: Verify session ownership — deny anonymous access to user-owned sessions ──
     state = await _get_session(session_id)
-    if state and current_user and state.user_id and state.user_id != str(current_user.id):
-        raise HTTPException(status_code=403, detail="无权访问此报告")
+    if state and state.user_id:
+        if not current_user:
+            raise HTTPException(status_code=401, detail="请登录后操作")
+        if state.user_id != str(current_user.id):
+            raise HTTPException(status_code=403, detail="无权访问此报告")
     from services.vision.face_v2t import FaceV2T
     face_v2t = FaceV2T()
 
@@ -1586,10 +1601,13 @@ async def upload_palm_description(
     """
     Accept palm feature descriptions (text-based fallback).
     """
-    # Verify session ownership
+    # ── SECURITY: Verify session ownership — deny anonymous access to user-owned sessions ──
     state = await _get_session(session_id)
-    if state and current_user and state.user_id and state.user_id != str(current_user.id):
-        raise HTTPException(status_code=403, detail="无权访问此报告")
+    if state and state.user_id:
+        if not current_user:
+            raise HTTPException(status_code=401, detail="请登录后操作")
+        if state.user_id != str(current_user.id):
+            raise HTTPException(status_code=403, detail="无权访问此报告")
     pf = PalmFeatures(
         hand_shape=hand_shape,
         life_line=life_line, head_line=head_line, heart_line=heart_line,
@@ -1618,10 +1636,13 @@ async def upload_palm_image(
     Upload a palm image -> V2T via MediaPipe Hands + OpenCV line detection
     -> structured palmistry text -> update session state.
     """
-    # Verify session ownership
+    # ── SECURITY: Verify session ownership — deny anonymous access to user-owned sessions ──
     state = await _get_session(session_id)
-    if state and current_user and state.user_id and state.user_id != str(current_user.id):
-        raise HTTPException(status_code=403, detail="无权访问此报告")
+    if state and state.user_id:
+        if not current_user:
+            raise HTTPException(status_code=401, detail="请登录后操作")
+        if state.user_id != str(current_user.id):
+            raise HTTPException(status_code=403, detail="无权访问此报告")
     from services.vision.palm_v2t import PalmV2T
     palm_v2t = PalmV2T()
 

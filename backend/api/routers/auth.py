@@ -3,6 +3,7 @@ Auth endpoints: register (with email verification), login, forgot/reset password
 """
 import hmac
 import ipaddress
+import json
 import logging
 import re
 
@@ -901,7 +902,7 @@ async def google_login(req: GoogleLoginRequest, request: Request, db: AsyncSessi
 
         # Decode header to get kid
         header_data = _b64.urlsafe_b64decode(parts[0] + "==")
-        header = __import__("json").loads(header_data)
+        header = json.loads(header_data)
         kid = header.get("kid")
 
         # Find the matching public key

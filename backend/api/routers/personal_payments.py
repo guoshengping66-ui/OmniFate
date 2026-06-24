@@ -215,16 +215,16 @@ async def get_qr_code(method: str):
 
 
 def _generate_admin_token(order_no: str, action: str) -> str:
-    """生成管理员确认/拒绝的 HMAC token"""
+    """生成管理员确认/拒绝的 HMAC token（标准用法：key=secret, msg=payload）"""
     secret = settings.SECRET_KEY
     expiry = int(time.time()) + 1800  # 30 分钟有效期
     payload_str = f"{order_no}:{action}:{expiry}"
-    sig = hmac.new(f"{secret}:{payload_str}".encode(), digestmod=hashlib.sha256).hexdigest()[:32]
+    sig = hmac.new(secret.encode(), payload_str.encode(), digestmod=hashlib.sha256).hexdigest()[:32]
     return f"{expiry}:{sig}"
 
 
 def _verify_admin_token(order_no: str, action: str, token: str) -> bool:
-    """验证管理员 token 是否有效"""
+    """验证管理员 token 是否有效（标准 HMAC：key=secret, msg=payload）"""
     try:
         parts = token.split(":")
         if len(parts) != 2:
@@ -234,7 +234,7 @@ def _verify_admin_token(order_no: str, action: str, token: str) -> bool:
             return False
         secret = settings.SECRET_KEY
         payload_str = f"{order_no}:{action}:{expiry}"
-        expected = hmac.new(f"{secret}:{payload_str}".encode(), digestmod=hashlib.sha256).hexdigest()[:32]
+        expected = hmac.new(secret.encode(), payload_str.encode(), digestmod=hashlib.sha256).hexdigest()[:32]
         return hmac.compare_digest(sig, expected)
     except Exception:
         return False

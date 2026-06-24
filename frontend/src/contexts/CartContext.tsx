@@ -29,6 +29,8 @@ interface CartState {
   getItemPrice: (product: Product) => number
   /** Currency symbol based on region */
   symbol: string
+  /** True while restoring products from API after page load */
+  isLoading: boolean
 }
 
 const CartContext = createContext<CartState>({
@@ -43,6 +45,7 @@ const CartContext = createContext<CartState>({
   isMember: false,
   getItemPrice: (p) => p.price_cny,
   symbol: "¥",
+  isLoading: false,
 })
 
 const STORAGE_KEY = "alpha_mirror_cart"
@@ -55,6 +58,7 @@ function toPersisted(item: CartItem): CartPersistedItem {
 
 export function CartProvider({ children, isMember = false, region = "domestic" }: { children: ReactNode; isMember?: boolean; region?: Region }) {
   const [items, setItems] = useState<CartItem[]>([])
+  const [isLoading, setIsLoading] = useState(false)
   // In-memory product registry for restoring lightweight localStorage entries
   const [productMap, setProductMap] = useState<Map<string, Product>>(new Map())
 
@@ -92,6 +96,7 @@ export function CartProvider({ children, isMember = false, region = "domestic" }
         })))
         // Auto-fetch product data so cart works on any page (not just /shop)
         if (pendingIds.length > 0) {
+          setIsLoading(true)
           import("@/lib/api").then(({ api }) => {
             Promise.all(
               pendingIds.map((id: string) =>
@@ -100,7 +105,8 @@ export function CartProvider({ children, isMember = false, region = "domestic" }
             ).then(products => {
               const valid = products.filter(Boolean) as Product[]
               if (valid.length > 0) registerProducts(valid)
-            })
+              setIsLoading(false)
+            }).catch(() => setIsLoading(false))
           })
         }
       }
@@ -179,8 +185,8 @@ export function CartProvider({ children, isMember = false, region = "domestic" }
   // Memoize context value to prevent unnecessary re-renders of consumers
   const value = useMemo(() => ({
     items, addItem, removeItem, updateQuantity, clearCart, registerProducts,
-    itemCount, totalCny, totalWithDiscount, isMember, getItemPrice, symbol,
-  }), [items, addItem, removeItem, updateQuantity, clearCart, registerProducts, itemCount, totalCny, totalWithDiscount, isMember, getItemPrice, symbol])
+    itemCount, totalCny, totalWithDiscount, isMember, getItemPrice, symbol, isLoading,
+  }), [items, addItem, removeItem, updateQuantity, clearCart, registerProducts, itemCount, totalCny, totalWithDiscount, isMember, getItemPrice, symbol, isLoading])
 
   return (
     <CartContext.Provider value={value}>

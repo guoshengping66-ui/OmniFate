@@ -38,17 +38,18 @@ export async function GET(request: Request, { params }: { params: Promise<{ path
 export async function POST(request: Request, { params }: { params: Promise<{ path: string[] }> }) {
   return proxy(request, params)
 }
-export async function PUT(request: Request, { params }: { params: Promise<{ path: string[] }> }) {
-  return proxy(request, params)
+// Only GET and POST are needed — block PUT/DELETE/PATCH to reduce attack surface
+export async function PUT() {
+  return new Response(JSON.stringify({ detail: "Method not allowed" }), { status: 405, headers: { "Content-Type": "application/json" } })
 }
-export async function DELETE(request: Request, { params }: { params: Promise<{ path: string[] }> }) {
-  return proxy(request, params)
+export async function DELETE() {
+  return new Response(JSON.stringify({ detail: "Method not allowed" }), { status: 405, headers: { "Content-Type": "application/json" } })
 }
-export async function PATCH(request: Request, { params }: { params: Promise<{ path: string[] }> }) {
-  return proxy(request, params)
+export async function PATCH() {
+  return new Response(JSON.stringify({ detail: "Method not allowed" }), { status: 405, headers: { "Content-Type": "application/json" } })
 }
-export async function OPTIONS(request: Request, { params }: { params: Promise<{ path: string[] }> }) {
-  return proxy(request, params)
+export async function OPTIONS() {
+  return new Response(null, { status: 204 })
 }
 
 async function proxy(request: Request, params: Promise<{ path: string[] }>) {
