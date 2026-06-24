@@ -1,5 +1,5 @@
 "use client"
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, lazy, Suspense } from "react"
 import { useRouter } from "next/navigation"
 import { ShoppingBag, CheckCircle, Loader2, ArrowLeft, Ticket, Crown, CreditCard, MapPin } from "lucide-react"
 import toast from "react-hot-toast"
@@ -9,9 +9,10 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import { useRegion } from "@/contexts/RegionContext"
 import { getProductPrice, formatCouponBalance, CNY_TO_USD_RATE } from "@/lib/regionPrice"
 import { createOrder, type Address } from "@/lib/api"
-import { PaymentMethodSelector } from "@/components/monetization/PaymentMethodSelector"
-import { AddressForm } from "@/components/shop/AddressForm"
-import { QRPaymentModal } from "@/components/payment/QRPaymentModal"
+
+const PaymentMethodSelector = lazy(() => import("@/components/monetization/PaymentMethodSelector").then(m => ({ default: m.PaymentMethodSelector })))
+const AddressForm = lazy(() => import("@/components/shop/AddressForm").then(m => ({ default: m.AddressForm })))
+const QRPaymentModal = lazy(() => import("@/components/payment/QRPaymentModal").then(m => ({ default: m.QRPaymentModal })))
 
 export default function CheckoutPage() {
   const router = useRouter()
@@ -251,10 +252,12 @@ export default function CheckoutPage() {
             <MapPin size={16} className="text-gold" />
             <span className="text-white/70 text-sm font-medium">{t("checkout.shippingAddress")}</span>
           </div>
-          <AddressForm
-            onSelect={setSelectedAddress}
-            selectedId={selectedAddress?.id}
-          />
+          <Suspense fallback={<Loader2 size={20} className="text-gold animate-spin mx-auto" />}>
+            <AddressForm
+              onSelect={setSelectedAddress}
+              selectedId={selectedAddress?.id}
+            />
+          </Suspense>
         </div>
 
         {/* Payment Method Selector */}
@@ -263,11 +266,13 @@ export default function CheckoutPage() {
             <CreditCard size={16} className="text-gold" />
             <span className="text-white/70 text-sm font-medium">{t("checkout.selectPayment")}</span>
           </div>
-          <PaymentMethodSelector
-            selected={paymentMethod}
-            onSelect={setPaymentMethod}
-            region={region}
-          />
+          <Suspense fallback={<Loader2 size={20} className="text-gold animate-spin mx-auto" />}>
+            <PaymentMethodSelector
+              selected={paymentMethod}
+              onSelect={setPaymentMethod}
+              region={region}
+            />
+          </Suspense>
         </div>
 
         {/* Processing time disclaimer */}
@@ -325,15 +330,17 @@ export default function CheckoutPage() {
       </div>
 
       {/* Payment Modal */}
-      <QRPaymentModal
-        open={paymentOpen}
-        onClose={() => setPaymentOpen(false)}
-        shopOrderNo={createdOrderNo || undefined}
-        shopAmount={createdOrderTotal}
-        region={region === "overseas" ? "overseas" : "domestic"}
-        initialMethod={(paymentMethod === "wechat_pay" ? "wechat" : paymentMethod) as "paypal" | "credit_card" | "alipay" | "wechat" | undefined}
-        onSuccess={handlePaymentSuccess}
-      />
+      <Suspense fallback={null}>
+        <QRPaymentModal
+          open={paymentOpen}
+          onClose={() => setPaymentOpen(false)}
+          shopOrderNo={createdOrderNo || undefined}
+          shopAmount={createdOrderTotal}
+          region={region === "overseas" ? "overseas" : "domestic"}
+          initialMethod={(paymentMethod === "wechat_pay" ? "wechat" : paymentMethod) as "paypal" | "credit_card" | "alipay" | "wechat" | undefined}
+          onSuccess={handlePaymentSuccess}
+        />
+      </Suspense>
     </div>
   )
 }
