@@ -773,9 +773,8 @@ async def chat_followup(
         return False
 
     if _is_injection(question):
-            lang = getattr(payload, 'lang', 'zh')
-            question = "请围绕命理主题提问。" if lang != "en" else "Please ask questions related to destiny analysis."
-            break
+        lang = getattr(payload, 'lang', 'zh')
+        question = "请围绕命理主题提问。" if lang != "en" else "Please ask questions related to destiny analysis."
 
     # ── 星尘扣费（会员免费 + 新用户首次免费） ──
     deducted = False
