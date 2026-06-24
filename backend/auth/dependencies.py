@@ -3,7 +3,6 @@ FastAPI dependency for extracting the current user from JWT.
 Supports both Bearer token (Authorization header) and httpOnly cookies.
 """
 
-import logging
 from typing import Optional
 
 from fastapi import Depends, HTTPException, Request, status
@@ -13,13 +12,6 @@ from sqlalchemy import select
 from auth.jwt import verify_token
 from database.session import AsyncSessionLocal, _db_available
 from database.models import User
-
-logger = logging.getLogger("auth")
-logger.setLevel(logging.INFO)
-if not logger.handlers:
-    _handler = logging.StreamHandler()
-    _handler.setFormatter(logging.Formatter("%(asctime)s [%(name)s] %(levelname)s: %(message)s"))
-    logger.addHandler(_handler)
 
 bearer_scheme = HTTPBearer(auto_error=False)
 
@@ -43,20 +35,7 @@ async def get_current_user(
     else:
         token = request.cookies.get(ACCESS_TOKEN_COOKIE)
 
-    # DEBUG: Log cookie state for auth diagnosis (temporary)
-    path = request.url.path
-    has_cookie = bool(request.cookies.get(ACCESS_TOKEN_COOKIE))
-    has_refresh = bool(request.cookies.get("refresh_token"))
-    cookie_names = list(request.cookies.keys())
-    logger.info(
-        "[AUTH] %s %s — has_access=%s has_refresh=%s cookie_names=%s token_source=%s",
-        request.method, path, has_cookie, has_refresh, cookie_names,
-        "header" if (credentials and credentials.credentials) else "cookie",
-    )
-
     if not token:
-        logger.warning("[AUTH] %s %s — NO TOKEN FOUND (cookie=%s, header=%s)",
-                       request.method, path, has_cookie, bool(credentials and credentials.credentials))
         return None
 
     # SECURITY: When DB is down, raise 503 so protected endpoints fail closed
@@ -67,7 +46,6 @@ async def get_current_user(
         )
     user_id = await verify_token(token)
     if user_id is None:
-        logger.warning("[AUTH] %s %s — TOKEN INVALID (user_id=None)", request.method, path)
         return None
     try:
         async with AsyncSessionLocal() as db:

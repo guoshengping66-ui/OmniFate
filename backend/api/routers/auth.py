@@ -8,11 +8,6 @@ import logging
 import re
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-if not logger.handlers:
-    _handler = logging.StreamHandler()
-    _handler.setFormatter(logging.Formatter("%(asctime)s [%(name)s] %(levelname)s: %(message)s"))
-    logger.addHandler(_handler)
 from typing import Optional
 import time
 import secrets
@@ -617,13 +612,6 @@ async def login(req: LoginRequest, request: Request, db: AsyncSession = Depends(
         user=_user_dict(user),
     ).model_dump())
     _set_auth_cookies(resp, access, refresh)
-    # DEBUG: Verify cookies are set on response (temporary)
-    set_cookie_headers = [v for k, v in resp.raw_headers if k.lower() == b'set-cookie']
-    logger.info(
-        "[LOGIN] user=%s cookies_set=%d cookie_names=%s",
-        user.id, len(set_cookie_headers),
-        [h.split("=")[0] for h in [x.decode() for x in set_cookie_headers]],
-    )
     return resp
 
 
@@ -687,20 +675,9 @@ async def logout(
 
 @router.post("/refresh")
 async def refresh_token(req: RefreshRequest, request: Request, db: AsyncSession = Depends(get_db)):
-    # DEBUG: Log cookie state for refresh diagnosis (temporary)
-    all_cookies = dict(request.cookies)
-    has_refresh_cookie = bool(request.cookies.get("refresh_token"))
-    logger.info(
-        "[REFRESH] cookies=%s has_refresh=%s body_token=%s client=%s",
-        list(all_cookies.keys()), has_refresh_cookie,
-        bool(req.refresh_token),
-        request.client.host if request.client else "unknown",
-    )
-
     # Try cookie first, then request body
     refresh_tok = req.refresh_token or request.cookies.get("refresh_token", "")
     if not refresh_tok:
-        logger.warning("[REFRESH] NO REFRESH TOKEN — cookies=%s", list(all_cookies.keys()))
         raise HTTPException(status_code=401, detail="无效的 refresh token")
 
     # Rate limit FIRST (before expensive token verification)

@@ -41,17 +41,35 @@ const AuthContext = createContext<AuthState>({
   refreshUser: async () => {},
 })
 
-const USER_CACHE_KEY = "alpha_mirror_user" // Cached user for instant restore after reload
+const USER_CACHE_KEY = "alpha_mirror_user"
+const ACCESS_TOKEN_KEY = "alpha_mirror_access_token"
+const REFRESH_TOKEN_KEY = "alpha_mirror_refresh_token"
+
+// ── Token helpers (sessionStorage) ────────────────────────────────────────
+function getAccessToken(): string | null {
+  try { return sessionStorage.getItem(ACCESS_TOKEN_KEY) } catch { return null }
+}
+function getRefreshToken(): string | null {
+  try { return sessionStorage.getItem(REFRESH_TOKEN_KEY) } catch { return null }
+}
+function storeTokens(access: string, refresh: string) {
+  try {
+    sessionStorage.setItem(ACCESS_TOKEN_KEY, access)
+    sessionStorage.setItem(REFRESH_TOKEN_KEY, refresh)
+  } catch { /* ignore */ }
+}
+function clearTokens() {
+  try {
+    sessionStorage.removeItem(ACCESS_TOKEN_KEY)
+    sessionStorage.removeItem(REFRESH_TOKEN_KEY)
+  } catch { /* ignore */ }
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  // IMPORTANT: Do NOT read sessionStorage in useState initializer.
-  // Server renders with user=null; if client reads sessionStorage here,
-  // the hydration HTML won't match → React error #418 → error #310 cascade.
-  // Instead, start with null and restore from cache in a useEffect (below).
   const [user, setUser] = useState<AuthUser | null>(null)
   const [loading, setLoading] = useState(true)
 
-  // Restore cached user AFTER hydration to avoid server/client mismatch
+  // Restore cached user AFTER hydration
   useEffect(() => {
     try {
       const cached = sessionStorage.getItem(USER_CACHE_KEY)
@@ -62,7 +80,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch { /* ignore */ }
   }, [])
 
-  // Helper: save user to cache
   const cacheUser = (u: AuthUser | null) => {
     try {
       if (u) {
@@ -70,71 +87,59 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         sessionStorage.removeItem(USER_CACHE_KEY)
       }
-    } catch { /* ignore quota errors */ }
+    } catch { /* ignore */ }
   }
 
-  // Helper: check if error is a definitive auth failure (should clear state)
   const isAuthFailure = (err: any): boolean => {
     const status = err?.response?.status
-    // 401/403 = token definitely invalid → clear
-    // Network errors / timeouts = keep cached user, retry later
     return status === 401 || status === 403
   }
 
-  // Helper: refresh token and fetch user data
+  // ── Refresh token and fetch user ─────────────────────────────────────────
   const refreshAndFetchUser = async (): Promise<boolean> => {
+    const refreshToken = getRefreshToken()
+    if (!refreshToken) return false
     try {
-      console.log("[Auth] refreshAndFetchUser: calling /api/auth/refresh...")
-      // Refresh via cookie — backend reads refresh_token cookie automatically
-      const r = await apiAuth.post("/api/auth/refresh", {})
-      console.log("[Auth] refreshAndFetchUser: refresh OK, now calling /api/auth/me...")
-      // New tokens are set as cookies by the backend
+      // Send refresh_token in body (backend reads from body OR cookie)
+      const r = await apiAuth.post("/api/auth/refresh", { refresh_token: refreshToken })
+      // Store new tokens
+      storeTokens(r.data.access_token, r.data.refresh_token)
+      // Fetch user with new access token
       const meRes = await apiAuth.get("/api/auth/me")
-      console.log("[Auth] refreshAndFetchUser: /api/auth/me OK, user:", meRes.data?.id)
       setUser(meRes.data)
       cacheUser(meRes.data)
       return true
-    } catch (err: any) {
-      console.log("[Auth] refreshAndFetchUser: FAILED", {
-        status: err?.response?.status,
-        detail: err?.response?.data?.detail,
-        message: err?.message,
-      })
+    } catch {
+      clearTokens()
       return false
     }
   }
 
-  // On mount, check if user is authenticated via cookie and fetch user data
+  // ── Init auth on mount ───────────────────────────────────────────────────
   useEffect(() => {
     const initAuth = async () => {
+      const accessToken = getAccessToken()
+      if (!accessToken) {
+        // No token — definitely logged out
+        setLoading(false)
+        return
+      }
       try {
-        console.log("[Auth] initAuth: calling /api/auth/me...")
         const res = await apiAuth.get("/api/auth/me")
-        console.log("[Auth] initAuth: /api/auth/me OK, user:", res.data?.id)
         setUser(res.data)
         cacheUser(res.data)
       } catch (err: any) {
         const isNetwork = err?.code === "ERR_NETWORK" || err?.code === "ECONNABORTED" || !err?.response
-        console.log("[Auth] initAuth: /api/auth/me FAILED", {
-          status: err?.response?.status,
-          isNetwork,
-          detail: err?.response?.data?.detail,
-          message: err?.message,
-        })
         if (!isNetwork && isAuthFailure(err)) {
-          // Try refresh if cookies exist
-          console.log("[Auth] initAuth: attempting refresh...")
+          // Access token expired — try refresh
           const ok = await refreshAndFetchUser()
-          console.log("[Auth] initAuth: refresh result:", ok)
           if (!ok) {
-            console.log("[Auth] initAuth: refresh failed, clearing user")
+            clearTokens()
             sessionStorage.removeItem(USER_CACHE_KEY)
             setUser(null)
           }
-        } else if (isNetwork) {
-          console.log("[Auth] initAuth: network error, keeping cached user")
         }
-        // Network errors: keep cached user
+        // Network errors: keep cached user, retry later
       } finally {
         setLoading(false)
       }
@@ -142,30 +147,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initAuth()
   }, [])
 
-  // Set up axios interceptors for 401 handling (auto-refresh via cookies)
+  // ── Axios interceptors: Bearer token + auto-refresh ──────────────────────
   useEffect(() => {
-    // Tag requests with source client for retry
-    const makeTagSource = (client: typeof api) => (config: any) => {
-      config._sourceClient = client
+    // Request interceptor: attach Bearer token to all requests
+    const requestInterceptor = (config: any) => {
+      const token = getAccessToken()
+      if (token) {
+        config.headers = config.headers || {}
+        config.headers.Authorization = `Bearer ${token}`
+      }
+      config._sourceClient = config._sourceClient || api
       return config
     }
 
-    // Response interceptor: handle 401 by refreshing token and retrying
+    // Response interceptor: handle 401 → refresh → retry
     let isRefreshing = false
     let failedQueue: Array<{ resolve: Function; reject: Function }> = []
 
     const processQueue = (error: any) => {
       failedQueue.forEach(prom => {
-        if (error) {
-          prom.reject(error)
-        } else {
-          prom.resolve()
-        }
+        if (error) prom.reject(error)
+        else prom.resolve()
       })
       failedQueue = []
     }
 
     const clearAuth = () => {
+      clearTokens()
       sessionStorage.removeItem(USER_CACHE_KEY)
       setUser(null)
     }
@@ -186,6 +194,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject })
         }).then(() => {
+          // Retry with new token (interceptor will attach it)
           return (originalRequest._sourceClient || api)(originalRequest)
         }).catch(err => {
           clearAuth()
@@ -197,9 +206,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isRefreshing = true
 
       try {
-        // Refresh via cookie — backend reads refresh_token cookie
-        await apiAuth.post("/api/auth/refresh", {})
+        const refreshToken = getRefreshToken()
+        if (!refreshToken) {
+          clearAuth()
+          return Promise.reject(error)
+        }
+        // Refresh via Bearer token in body
+        const r = await apiAuth.post("/api/auth/refresh", { refresh_token: refreshToken })
+        storeTokens(r.data.access_token, r.data.refresh_token)
         processQueue(null)
+        // Retry original request (interceptor will attach new access token)
         return (originalRequest._sourceClient || api)(originalRequest)
       } catch (refreshError) {
         processQueue(refreshError)
@@ -210,28 +226,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    const interceptor1 = api.interceptors.request.use(makeTagSource(api))
-    const interceptor2 = apiDirect.interceptors.request.use(makeTagSource(apiDirect))
-    const interceptor3 = apiAuth.interceptors.request.use(makeTagSource(apiAuth))
-    const responseInterceptor1 = api.interceptors.response.use(response => response, handle401)
-    const responseInterceptor2 = apiDirect.interceptors.response.use(response => response, handle401)
-    const responseInterceptor3 = apiAuth.interceptors.response.use(response => response, handle401)
+    const i1 = api.interceptors.request.use(requestInterceptor)
+    const i2 = apiDirect.interceptors.request.use(requestInterceptor)
+    const i3 = apiAuth.interceptors.request.use(requestInterceptor)
+    const r1 = api.interceptors.response.use(response => response, handle401)
+    const r2 = apiDirect.interceptors.response.use(response => response, handle401)
+    const r3 = apiAuth.interceptors.response.use(response => response, handle401)
     return () => {
-      api.interceptors.request.eject(interceptor1)
-      apiDirect.interceptors.request.eject(interceptor2)
-      apiAuth.interceptors.request.eject(interceptor3)
-      api.interceptors.response.eject(responseInterceptor1)
-      apiDirect.interceptors.response.eject(responseInterceptor2)
-      apiAuth.interceptors.response.eject(responseInterceptor3)
+      api.interceptors.request.eject(i1)
+      apiDirect.interceptors.request.eject(i2)
+      apiAuth.interceptors.request.eject(i3)
+      api.interceptors.response.eject(r1)
+      apiDirect.interceptors.response.eject(r2)
+      apiAuth.interceptors.response.eject(r3)
     }
   }, [])
 
+  // ── Login ────────────────────────────────────────────────────────────────
   const login = useCallback(async (email: string, password: string) => {
-    console.log("[Auth] login: calling /api/auth/login...")
     const res = await apiAuth.post("/api/auth/login", { email, password })
     const data = res.data
-    console.log("[Auth] login: SUCCESS, user:", data.user?.id, "cookies should be set")
-    // Tokens are set as httpOnly cookies by the backend
+    // Store tokens from response body (survives proxy/cookie issues)
+    if (data.access_token && data.refresh_token) {
+      storeTokens(data.access_token, data.refresh_token)
+    }
     setUser(data.user)
     cacheUser(data.user)
   }, [])
@@ -243,8 +261,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       display_name: displayName,
       birth_data: birthData || undefined,
     })
-    // Register endpoint returns { message, email } — no tokens yet.
-    // User must verify email first, then the verify-email endpoint returns tokens.
     return res.data
   }, [])
 
@@ -254,6 +270,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {
       // Ignore — clear local state regardless
     }
+    clearTokens()
     sessionStorage.removeItem(USER_CACHE_KEY)
     sessionStorage.removeItem("alpha_mirror_profiles")
     setUser(null)
@@ -269,8 +286,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  // Memoize context value — prevents unnecessary re-renders of ALL consumers
-  // (Navbar, CartProviderWithAuth, etc.) when only one field changes
   const value = useMemo(
     () => ({ user, loading, login, register, logout, refreshUser }),
     [user, loading, login, register, logout, refreshUser],
