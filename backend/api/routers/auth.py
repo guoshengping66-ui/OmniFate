@@ -606,6 +606,8 @@ async def login(req: LoginRequest, request: Request, db: AsyncSession = Depends(
 
     access = create_access_token(str(user.id))
     refresh = create_refresh_token(str(user.id))
+    logger.info("[Auth] Login tokens created: access_len=%d, refresh_len=%d, user=%s, secret_len=%d",
+                len(access), len(refresh), user.id, len(settings.JWT_SECRET_KEY))
     resp = JSONResponse(content=AuthResponse(
         access_token=access,
         refresh_token=refresh,
@@ -679,8 +681,10 @@ async def refresh_token(req: RefreshRequest, request: Request, db: AsyncSession 
     # Try body first, then cookie
     refresh_tok = req.refresh_token or request.cookies.get("refresh_token", "")
     if not refresh_tok:
-        logger.debug("Refresh rejected: no token in body or cookie")
+        logger.warning("[Auth] Refresh rejected: no token in body or cookie")
         raise HTTPException(status_code=401, detail="无效的 refresh token")
+
+    logger.info("[Auth] Refresh attempt: token_len=%d, token_prefix=%s", len(refresh_tok), refresh_tok[:20] if refresh_tok else "None")
 
     # Rate limit FIRST (before expensive token verification)
     client_ip = _get_client_ip(request)
@@ -693,12 +697,15 @@ async def refresh_token(req: RefreshRequest, request: Request, db: AsyncSession 
         old_payload = _jwt.decode(refresh_tok, settings.JWT_SECRET_KEY,
                                   algorithms=[ALGORITHM], options={"verify_exp": False})
         old_jti = old_payload.get("jti")
-    except Exception:
-        pass
+        logger.info("[Auth] Refresh pre-decode OK: jti=%s, sub=%s, type=%s, exp=%s", old_jti[:8] if old_jti else None, old_payload.get("sub"), old_payload.get("type"), old_payload.get("exp"))
+    except Exception as e:
+        logger.warning("[Auth] Refresh pre-decode FAILED: %s", e)
 
     user_id = await verify_token(refresh_tok)
     if user_id is None:
+        logger.warning("[Auth] Refresh rejected: verify_token returned None for token_len=%d", len(refresh_tok))
         raise HTTPException(status_code=401, detail="无效的 refresh token")
+    logger.info("[Auth] Refresh verified OK: user_id=%s", user_id)
 
     # Verify user still exists and is active
     if db:

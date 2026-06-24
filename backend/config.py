@@ -160,15 +160,17 @@ def get_settings() -> Settings:
                     logger.warning(f".jwt_secret has insecure permissions ({file_mode}), fixing...")
                     _jwt_key_file.chmod(0o600)
                 s.JWT_SECRET_KEY = _jwt_key_file.read_text().strip()
-                logger.info("JWT_SECRET_KEY loaded from .jwt_secret (persistent across restarts)")
+                logger.info("JWT_SECRET_KEY loaded from .jwt_secret (persistent across restarts, secret_len=%d)", len(s.JWT_SECRET_KEY))
             else:
                 s.JWT_SECRET_KEY = secrets.token_hex(32)
                 _jwt_key_file.write_text(s.JWT_SECRET_KEY)
                 _jwt_key_file.chmod(0o600)  # owner-only read/write
-                logger.info("JWT_SECRET_KEY auto-generated and saved to .jwt_secret")
+                logger.info("JWT_SECRET_KEY auto-generated and saved to .jwt_secret (secret_len=%d)", len(s.JWT_SECRET_KEY))
         except Exception as e:
             s.JWT_SECRET_KEY = secrets.token_hex(32)
-            logger.warning("JWT_SECRET_KEY generated but failed to save to file (%s) — will reset on restart", e)
+            logger.warning("JWT_SECRET_KEY generated but failed to save to file (%s) — will reset on restart (secret_len=%d)", e, len(s.JWT_SECRET_KEY))
+    else:
+        logger.info("JWT_SECRET_KEY loaded from .env (secret_len=%d)", len(s.JWT_SECRET_KEY))
     if s.DEBUG:
         logger.warning("DEBUG mode is ON — do not use in production.")
     return s

@@ -104,10 +104,12 @@ async def verify_token(token: str) -> Optional[str]:
         payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[ALGORITHM])
         user_id: str = payload.get("sub")
         if user_id is None:
+            logger.warning("[JWT] verify_token: no sub claim in token")
             return None
         # Check blacklist for ALL tokens (access + refresh)
         jti = payload.get("jti")
         if jti and await is_token_blacklisted(jti):
+            logger.warning("[JWT] verify_token: token %s is blacklisted (jti=%s)", payload.get("type"), jti[:8])
             return None
         # Check if all tokens for this user were invalidated (e.g., password reset)
         from services.redis_client import _get_redis
@@ -117,9 +119,11 @@ async def verify_token(token: str) -> Optional[str]:
             if reset_ts:
                 token_iat = payload.get("iat", 0)
                 if token_iat < int(reset_ts):
+                    logger.warning("[JWT] verify_token: token iat=%s < pw_reset_ts=%s for user=%s", token_iat, reset_ts, user_id)
                     return None
         return user_id
-    except JWTError:
+    except JWTError as e:
+        logger.warning("[JWT] verify_token: decode FAILED: %s (secret_len=%d, token_prefix=%s)", e, len(settings.JWT_SECRET_KEY), token[:20] if token else "None")
         return None
 
 
