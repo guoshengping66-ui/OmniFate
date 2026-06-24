@@ -111,7 +111,7 @@ async function tryRefreshToken(): Promise<boolean> {
     } catch (err: any) {
       const status = err?.response?.status
       const detail = err?.response?.data?.detail
-      _showDebug("refresh FAILED status=" + status + " detail=" + detail, "#f44")
+      _showDebug("refresh FAILED status=" + status + " detail=" + JSON.stringify(detail), "#f44")
       console.warn("[Auth] tryRefreshToken: FAILED — status:", status, "detail:", detail, "msg:", err?.message, "url:", err?.config?.url)
       // Only clear tokens on clear auth failures (401 = invalid refresh token)
       // On network errors (no response), keep tokens — might work next time

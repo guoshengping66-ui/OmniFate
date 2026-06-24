@@ -703,8 +703,34 @@ async def refresh_token(req: RefreshRequest, request: Request, db: AsyncSession 
 
     user_id = await verify_token(refresh_tok)
     if user_id is None:
-        logger.warning("[Auth] Refresh rejected: verify_token returned None for token_len=%d", len(refresh_tok))
-        raise HTTPException(status_code=401, detail="无效的 refresh token")
+        # Provide detailed diagnostic info for debugging
+        diag = {"token_len": len(refresh_tok), "prefix": refresh_tok[:20] if refresh_tok else "None"}
+        try:
+            payload = _jwt.decode(refresh_tok, settings.JWT_SECRET_KEY, algorithms=[ALGORITHM], options={"verify_exp": False})
+            diag["decoded"] = True
+            diag["sub"] = payload.get("sub")
+            diag["type"] = payload.get("type")
+            diag["exp"] = payload.get("exp")
+            diag["iat"] = payload.get("iat")
+            jti = payload.get("jti")
+            diag["jti"] = jti[:8] if jti else None
+            # Check blacklist
+            if jti and await is_token_blacklisted(jti):
+                diag["blacklisted"] = True
+            # Check password reset blacklist
+            from services.redis_client import _get_redis
+            r = await _get_redis()
+            if r:
+                reset_ts = await r.get(f"bl:pw_reset:{user_id}")
+                if reset_ts:
+                    diag["pw_reset_ts"] = int(reset_ts)
+                    diag["token_iat"] = payload.get("iat", 0)
+        except Exception as e:
+            diag["decoded"] = False
+            diag["decode_error"] = str(e)
+            diag["secret_len"] = len(settings.JWT_SECRET_KEY)
+        logger.warning("[Auth] Refresh rejected: verify_token returned None. diag=%s", diag)
+        raise HTTPException(status_code=401, detail=f"无效的 refresh token: {json.dumps(diag)}")
     logger.info("[Auth] Refresh verified OK: user_id=%s", user_id)
 
     # Verify user still exists and is active
