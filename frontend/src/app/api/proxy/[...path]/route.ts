@@ -253,6 +253,16 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
       console.log(`[Proxy] ${targetPath} → ${resp.status}`)
     }
 
+    // DEBUG: Log Set-Cookie headers for auth login/refresh (temporary)
+    if (targetPath.includes("/auth/login") || targetPath.includes("/auth/refresh")) {
+      const setCookies = respHeaders.getSetCookie?.() || []
+      console.log(`[Proxy-AUTH] ${targetPath} status=${resp.status} set-cookie-count=${setCookies.length} cookie-names=${setCookies.map(c => c.split("=")[0]).join(",")}`)
+      // Also log incoming cookie state
+      const reqCookies = request.headers.get("cookie") || ""
+      const reqCookieNames = reqCookies.split(";").map(c => c.trim().split("=")[0]).filter(Boolean)
+      console.log(`[Proxy-AUTH] incoming-cookies: ${reqCookieNames.join(", ")}`)
+    }
+
     return new Response(resp.body, {
       status: resp.status,
       statusText: resp.statusText,
