@@ -90,7 +90,8 @@ async def get_my_code(
         user.referral_code = code
         await db.commit()
 
-    referral_link = f"https://khanfate.com/register?ref={user.referral_code}"
+    from config import get_settings as _gs
+    referral_link = f"{_gs().FRONTEND_URL.rstrip('/')}/register?ref={user.referral_code}"
 
     return {"code": user.referral_code, "link": referral_link}
 

@@ -341,7 +341,6 @@ def _fortune_to_dict(f: WeeklyFortune, locale: str) -> dict:
         yi_en = [_safe_translate(y, YI_ITEMS_ZH, YI_ITEMS_EN) for y in (f.yi or [])]
         ji_en = [_safe_translate(j, JI_ITEMS_ZH, JI_ITEMS_EN) for j in (f.ji or [])]
         if yi_en or ji_en:
-            import hashlib as _hl
             seed = hash(f"{f.user_id}:{f.week_start}")
             template_idx = abs(seed) % len(AI_INSIGHTS_EN)
             d["ai_insight"] = AI_INSIGHTS_EN[template_idx].replace("{yi}", yi_en[0] if yi_en else "").replace("{ji}", ji_en[0] if ji_en else "")
@@ -393,7 +392,6 @@ def _daily_to_dict(f: DailyFortune, locale: str) -> dict:
         yi_en = [_safe_translate(y, YI_ITEMS_ZH, YI_ITEMS_EN) for y in (f.yi or [])]
         ji_en = [_safe_translate(j, JI_ITEMS_ZH, JI_ITEMS_EN) for j in (f.ji or [])]
         if yi_en or ji_en:
-            import hashlib as _hl
             seed = hash(f"{f.user_id}:{f.fortune_date}")
             template_idx = abs(seed) % len(DAILY_AI_INSIGHTS_EN)
             d["ai_insight"] = DAILY_AI_INSIGHTS_EN[template_idx].replace("{yi}", yi_en[0] if yi_en else "").replace("{ji}", ji_en[0] if ji_en else "")
