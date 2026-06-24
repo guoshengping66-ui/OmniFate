@@ -84,14 +84,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Helper: refresh token and fetch user data
   const refreshAndFetchUser = async (): Promise<boolean> => {
     try {
+      console.log("[Auth] refreshAndFetchUser: calling /api/auth/refresh...")
       // Refresh via cookie — backend reads refresh_token cookie automatically
       const r = await apiAuth.post("/api/auth/refresh", {})
+      console.log("[Auth] refreshAndFetchUser: refresh OK, now calling /api/auth/me...")
       // New tokens are set as cookies by the backend
       const meRes = await apiAuth.get("/api/auth/me")
+      console.log("[Auth] refreshAndFetchUser: /api/auth/me OK, user:", meRes.data?.id)
       setUser(meRes.data)
       cacheUser(meRes.data)
       return true
-    } catch {
+    } catch (err: any) {
+      console.log("[Auth] refreshAndFetchUser: FAILED", {
+        status: err?.response?.status,
+        detail: err?.response?.data?.detail,
+        message: err?.message,
+      })
       return false
     }
   }
@@ -100,18 +108,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const initAuth = async () => {
       try {
+        console.log("[Auth] initAuth: calling /api/auth/me...")
         const res = await apiAuth.get("/api/auth/me")
+        console.log("[Auth] initAuth: /api/auth/me OK, user:", res.data?.id)
         setUser(res.data)
         cacheUser(res.data)
       } catch (err: any) {
         const isNetwork = err?.code === "ERR_NETWORK" || err?.code === "ECONNABORTED" || !err?.response
+        console.log("[Auth] initAuth: /api/auth/me FAILED", {
+          status: err?.response?.status,
+          isNetwork,
+          detail: err?.response?.data?.detail,
+          message: err?.message,
+        })
         if (!isNetwork && isAuthFailure(err)) {
           // Try refresh if cookies exist
+          console.log("[Auth] initAuth: attempting refresh...")
           const ok = await refreshAndFetchUser()
+          console.log("[Auth] initAuth: refresh result:", ok)
           if (!ok) {
+            console.log("[Auth] initAuth: refresh failed, clearing user")
             sessionStorage.removeItem(USER_CACHE_KEY)
             setUser(null)
           }
+        } else if (isNetwork) {
+          console.log("[Auth] initAuth: network error, keeping cached user")
         }
         // Network errors: keep cached user
       } finally {
@@ -206,8 +227,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const login = useCallback(async (email: string, password: string) => {
+    console.log("[Auth] login: calling /api/auth/login...")
     const res = await apiAuth.post("/api/auth/login", { email, password })
     const data = res.data
+    console.log("[Auth] login: SUCCESS, user:", data.user?.id, "cookies should be set")
     // Tokens are set as httpOnly cookies by the backend
     setUser(data.user)
     cacheUser(data.user)
