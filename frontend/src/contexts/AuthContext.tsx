@@ -112,31 +112,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const initAuth = async () => {
       const accessToken = getAccessToken()
-      if (!accessToken) { setLoading(false); return }
+      if (!accessToken) {
+        console.log("[Auth] initAuth: no access token in sessionStorage")
+        setLoading(false); return
+      }
 
       try {
         // Try with current access token
+        console.log("[Auth] initAuth: calling /api/auth/me with access token")
         const res = await apiAuth.get("/api/auth/me")
+        console.log("[Auth] initAuth: /api/auth/me OK, user:", res.data?.email)
         setUser(res.data)
         cacheUser(res.data)
       } catch (err: any) {
         const status = err?.response?.status
+        console.warn("[Auth] initAuth: /api/auth/me failed, status:", status, "url:", err?.config?.url)
         if (status === 401 || status === 403) {
           // Access token expired — try refresh
+          console.log("[Auth] initAuth: attempting token refresh...")
           const ok = await tryRefreshToken()
+          console.log("[Auth] initAuth: refresh result:", ok)
           if (ok) {
+            // Refresh succeeded — new tokens are now in sessionStorage
+            // (stored by tryRefreshToken). Retry /me with the new token.
             try {
               const res = await apiAuth.get("/api/auth/me")
+              console.log("[Auth] initAuth: retry /me OK after refresh, user:", res.data?.email)
               setUser(res.data)
               cacheUser(res.data)
-            } catch {
+            } catch (retryErr: any) {
+              console.error("[Auth] initAuth: retry /me FAILED after refresh:", retryErr?.response?.status)
               clearAuth()
             }
           } else {
+            console.warn("[Auth] initAuth: refresh failed, clearing auth")
             clearAuth()
           }
         }
-        // Network errors: keep cached user
+        // Network errors: keep cached user (don't clear on transient failures)
       } finally {
         setLoading(false)
       }
@@ -163,7 +176,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return Promise.reject(error)
       }
 
-      // Skip refresh for auth endpoints
+      // Skip refresh for auth endpoints (login/register/refresh/verify)
       const skipPaths = ["/api/auth/login", "/api/auth/register", "/api/auth/refresh", "/api/auth/verify-email"]
       if (skipPaths.some(p => originalRequest.url?.includes(p))) {
         return Promise.reject(error)
@@ -173,9 +186,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const ok = await tryRefreshToken()
       if (ok) {
-        // Token refreshed — retry original request
-        // The reqInterceptor will attach the NEW token from sessionStorage
-        return (originalRequest._sourceClient || api)(originalRequest)
+        // Token refreshed — retry original request.
+        // The reqInterceptor will re-read the NEW token from sessionStorage.
+        // Use `api` client for retry (all clients share the same proxy baseURL
+        // in production, so any client works).
+        try {
+          return await api(originalRequest)
+        } catch (retryErr: any) {
+          // Retry failed (network error etc.) — propagate the original 401
+          console.warn("[Auth] Retry after refresh failed:", retryErr?.message)
+          return Promise.reject(error)
+        }
       }
 
       // Refresh failed — clear auth

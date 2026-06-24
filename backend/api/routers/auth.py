@@ -612,17 +612,7 @@ async def login(req: LoginRequest, request: Request, db: AsyncSession = Depends(
         user=_user_dict(user),
     ).model_dump())
     _set_auth_cookies(resp, access, refresh)
-    # DEBUG
-    import logging as _log
-    _l = _log.getLogger("auth.login")
-    _l.setLevel(_log.INFO)
-    if not _l.handlers:
-        import sys as _sys
-        _h = _log.StreamHandler(_sys.stderr)
-        _h.setFormatter(_log.Formatter("[LOGIN-DBG] %(message)s"))
-        _l.addHandler(_h)
-    _l.info("user=%s access_len=%d refresh_len=%d",
-            user.id, len(access), len(refresh))
+    logger.info("Login successful: user=%s", user.id)
     return resp
 
 
@@ -686,28 +676,10 @@ async def logout(
 
 @router.post("/refresh")
 async def refresh_token(req: RefreshRequest, request: Request, db: AsyncSession = Depends(get_db)):
-    # DEBUG: log what we receive
-    import logging
-    _dbg = logging.getLogger("auth.refresh")
-    _dbg.setLevel(logging.INFO)
-    if not _dbg.handlers:
-        import sys
-        _h = logging.StreamHandler(sys.stderr)
-        _h.setFormatter(logging.Formatter("[REFRESH-DBG] %(message)s"))
-        _dbg.addHandler(_h)
-    body_has_token = bool(req.refresh_token)
-    cookie_has_token = bool(request.cookies.get("refresh_token"))
-    auth_header = request.headers.get("authorization", "")
-    ct = request.headers.get("content-type", "")
-    _dbg.info("body_token=%s cookie_token=%s auth=%s ct=%s url=%s",
-              body_has_token, cookie_has_token,
-              auth_header[:30] + "..." if auth_header else "none",
-              ct, request.url)
-
-    # Try cookie first, then request body
+    # Try body first, then cookie
     refresh_tok = req.refresh_token or request.cookies.get("refresh_token", "")
     if not refresh_tok:
-        _dbg.info("REJECTED: no refresh token found")
+        logger.debug("Refresh rejected: no token in body or cookie")
         raise HTTPException(status_code=401, detail="无效的 refresh token")
 
     # Rate limit FIRST (before expensive token verification)
