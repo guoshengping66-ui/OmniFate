@@ -15,7 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.session import get_db
 from database.models import NewsletterSubscriber
-from utils.email import _send_email
+from utils.email import send_email_async
 from config import get_settings
 
 router = APIRouter()
@@ -103,7 +103,7 @@ async def submit_contact(req: ContactRequest, request: Request):
     to_email = settings.SMTP_FROM or "guoshengping66@gmail.com"
     # Sanitize name to prevent email header injection
     safe_name = req.name.replace('\r', '').replace('\n', '').strip()[:50]
-    ok = _send_email(to_email, f"[Profile Mirror] 联系表单 - {subject_label} - {safe_name}", email_html)
+    ok = await send_email_async(to_email, f"[Profile Mirror] 联系表单 - {subject_label} - {safe_name}", email_html)
 
     if not ok:
         # Still return success to user — don't expose email failures
@@ -164,6 +164,6 @@ async def subscribe_newsletter(
     """
 
     to_email = settings.SMTP_FROM or "guoshengping66@gmail.com"
-    _send_email(to_email, f"[Profile Mirror] 新订阅 - {email}", email_html)
+    await send_email_async(to_email, f"[Profile Mirror] 新订阅 - {email}", email_html)
 
     return {"success": True, "message": "订阅成功，每周将收到五行运势推送"}

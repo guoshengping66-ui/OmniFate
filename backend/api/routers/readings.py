@@ -1045,26 +1045,6 @@ async def get_session(
                         errors=["Analysis did not complete — please retry"],
                     )
 
-                # has_results=True path: status was fixed to completed above,
-                # fall through to the "Completed or failed — reconstruct from DB" path below
-                if not has_results:
-                    return AnalysisResponse(
-                        session_id=session_id,
-                        status=reading.status.value,
-                        master_summary="",
-                        astrology=_empty_worker("astrology"),
-                        tarot=_empty_worker("tarot"),
-                        bazi=_empty_worker("bazi"),
-                        qimen=_empty_worker("qimen"),
-                        ziwei=_empty_worker("ziwei"),
-                        face=_empty_worker("face"),
-                        palm=_empty_worker("palm"),
-                        recommended_product_ids=[],
-                        computed_tags=[],
-                        dimension_scores={},
-                        errors=[],
-                    )
-
             # Completed or failed — reconstruct from DB
             resp = AnalysisResponse(
                 session_id=session_id,
@@ -1113,8 +1093,8 @@ async def get_session(
                     _translate_text(resp.ziwei.report, target),
                     _translate_text(resp.face.report, target),
                     _translate_text(resp.palm.report, target),
-                    _translate_text(resp.partner_face.report, target) if resp.partner_face else None,
-                    _translate_text(resp.partner_palm.report, target) if resp.partner_palm else None,
+                    _translate_text(resp.partner_face.report, target) if resp.partner_face else "",
+                    _translate_text(resp.partner_palm.report, target) if resp.partner_palm else "",
                 )
                 resp.master_summary = translations[0]
                 resp.master_detail = translations[1]
