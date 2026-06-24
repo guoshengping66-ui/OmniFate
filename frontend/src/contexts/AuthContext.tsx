@@ -46,12 +46,19 @@ function getRefreshToken(): string | null {
   try { return sessionStorage.getItem(REFRESH_TOKEN_KEY) } catch { return null }
 }
 function storeTokens(access: string, refresh: string) {
+  console.log("[Auth] storeTokens: access_len=", access?.length, "refresh_len=", refresh?.length)
   try {
     sessionStorage.setItem(ACCESS_TOKEN_KEY, access)
     sessionStorage.setItem(REFRESH_TOKEN_KEY, refresh)
-  } catch {}
+    // Verify storage succeeded
+    const stored = sessionStorage.getItem(ACCESS_TOKEN_KEY)
+    console.log("[Auth] storeTokens: verify stored access_len=", stored?.length, "match=", stored === access)
+  } catch (e) {
+    console.error("[Auth] storeTokens: FAILED to store tokens:", e)
+  }
 }
 function clearTokens() {
+  console.log("[Auth] clearTokens called", new Error().stack?.split("\n").slice(1, 4).join(" <- "))
   try {
     sessionStorage.removeItem(ACCESS_TOKEN_KEY)
     sessionStorage.removeItem(REFRESH_TOKEN_KEY)
@@ -223,12 +230,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return Promise.reject(error)
         }
 
-        console.log("[Auth] interceptor: 401 on", originalRequest.url, "— attempting refresh")
+        console.log("[Auth] interceptor: 401 on", originalRequest.url, "— attempting refresh", "has_refresh_token:", !!getRefreshToken())
         originalRequest._retry = true
 
         const ok = await tryRefreshToken()
         if (ok) {
-          console.log("[Auth] interceptor: refresh OK, retrying", originalRequest.url)
+          console.log("[Auth] interceptor: refresh OK, retrying", originalRequest.url, "new_token_len:", getAccessToken()?.length)
           // Token refreshed — retry with the SAME client that made the original
           // request so its specific interceptors (CSRF, lang, etc.) are applied.
           // The reqInterceptor will re-read the NEW token from sessionStorage.
@@ -241,7 +248,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         }
 
-        console.warn("[Auth] interceptor: refresh FAILED — clearing auth")
+        console.warn("[Auth] interceptor: refresh FAILED — clearing auth. refresh_token_exists:", !!getRefreshToken(), "access_token_exists:", !!getAccessToken())
         // Refresh failed — clear auth
         clearAuth()
         return Promise.reject(error)
@@ -269,11 +276,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (email: string, password: string) => {
     const res = await apiAuth.post("/api/auth/login", { email, password })
     const data = res.data
+    console.log("[Auth] login response keys:", Object.keys(data || {}), "has_access:", !!data.access_token, "has_refresh:", !!data.refresh_token, "has_user:", !!data.user)
     if (data.access_token && data.refresh_token) {
       storeTokens(data.access_token, data.refresh_token)
+      console.log("[Auth] login: tokens stored in sessionStorage, access_len=", data.access_token.length)
+    } else {
+      console.warn("[Auth] login: NO tokens in response body! Keys:", Object.keys(data || {}))
     }
-    setUser(data.user)
-    cacheUser(data.user)
+    if (data.user) {
+      setUser(data.user)
+      cacheUser(data.user)
+    }
   }, [])
 
   const register = useCallback(async (email: string, password: string, displayName?: string, birthData?: RegisterBirthData) => {
