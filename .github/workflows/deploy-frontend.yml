@@ -200,8 +200,12 @@ jobs:
               sudo mkdir -p "$STANDALONE_DIR/.next/static"
 
               # 复制静态文件
+              # ⚠️ CRITICAL: Do NOT use `cp -r .next/static/*` — bash glob expansion
+              # interprets `[locale]` directory name as a character class `[cl oe]`,
+              # causing the entire app/ subtree (including checkout chunks) to be skipped.
+              # Use `find` to list top-level items (bypasses glob expansion entirely).
               echo "   === 执行复制 ==="
-              sudo cp -r .next/static/* "$STANDALONE_DIR/.next/static/" || { echo "❌ cp static 失败"; exit 1; }
+              find .next/static -mindepth 1 -maxdepth 1 -exec sudo cp -r {} "$STANDALONE_DIR/.next/static/" \; || { echo "❌ cp static 失败"; exit 1; }
               echo "   cp static 完成"
 
               # 复制 public
