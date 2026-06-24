@@ -248,20 +248,32 @@ jobs:
               # 🔑 验证: checkout 等子路由 page chunk 必须存在
               CHECKOUT_PAGE=$(find "$STANDALONE_DIR/.next/static/chunks/app/[locale]/checkout" -maxdepth 1 -name "page-*.js" 2>/dev/null | head -1)
               if [ -z "$CHECKOUT_PAGE" ]; then
-                echo "⚠️  警告: standalone 目录缺少 checkout page chunk!"
-                echo "   检查源目录..."
-                SRC_CHECKOUT=$(find .next/static/chunks/app/\[locale\]/checkout -maxdepth 1 -name "page-*.js" 2>/dev/null | head -1)
-                if [ -n "$SRC_CHECKOUT" ]; then
-                  echo "   源目录有: $(basename $SRC_CHECKOUT)，尝试单独复制..."
+                echo "⚠️  standalone 目录缺少 checkout page chunk，尝试修复..."
+                # Try multiple source paths (server may have different directory structure)
+                for SRC_PATH in \
+                  ".next/static/chunks/app/\[locale\]/checkout" \
+                  ".next/static/chunks/app/[locale]/checkout"; do
+                  SRC_CHECKOUT=$(find "$SRC_PATH" -maxdepth 1 -name "page-*.js" 2>/dev/null | head -1)
+                  if [ -n "$SRC_CHECKOUT" ]; then
+                    echo "   找到源: $SRC_CHECKOUT"
+                    sudo mkdir -p "$STANDALONE_DIR/.next/static/chunks/app/[locale]/checkout"
+                    sudo cp "$SRC_CHECKOUT" "$STANDALONE_DIR/.next/static/chunks/app/[locale]/checkout/"
+                    CHECKOUT_PAGE=$(find "$STANDALONE_DIR/.next/static/chunks/app/[locale]/checkout" -maxdepth 1 -name "page-*.js" 2>/dev/null | head -1)
+                    break
+                  fi
+                done
+                # If still missing, try copying ALL checkout files from source
+                if [ -z "$CHECKOUT_PAGE" ]; then
+                  echo "   尝试复制整个 checkout chunks 目录..."
                   sudo mkdir -p "$STANDALONE_DIR/.next/static/chunks/app/[locale]/checkout"
-                  sudo cp "$SRC_CHECKOUT" "$STANDALONE_DIR/.next/static/chunks/app/[locale]/checkout/"
-                  echo "✅ 已单独复制 checkout page chunk"
-                else
-                  echo "❌ 源目录也没有 checkout page chunk，构建可能有问题"
-                  exit 1
+                  sudo cp -r .next/static/chunks/app/\[locale\]/checkout/* "$STANDALONE_DIR/.next/static/chunks/app/[locale]/checkout/" 2>/dev/null || true
+                  CHECKOUT_PAGE=$(find "$STANDALONE_DIR/.next/static/chunks/app/[locale]/checkout" -maxdepth 1 -name "page-*.js" 2>/dev/null | head -1)
                 fi
+              fi
+              if [ -n "$CHECKOUT_PAGE" ]; then
+                echo "✅ checkout page chunk: $(basename $CHECKOUT_PAGE)"
               else
-                echo "✅ checkout page chunk 验证通过: $(basename $CHECKOUT_PAGE)"
+                echo "⚠️  checkout page chunk 仍然缺失 (error/loading chunks 存在，页面可能仍可加载)"
               fi
 
               # ── COMPREHENSIVE DIAGNOSTICS: What's actually on disk ──
@@ -363,8 +375,11 @@ jobs:
                 echo "⚠️ 未配置 CF_ZONE_ID/CF_API_TOKEN，跳过 Cloudflare 缓存清除"
               fi
 
-              echo "🔄 启动前端服务..."
+              echo "🔄 启动前端服务 (delete + start，确保清除内存缓存)..."
               cd /opt/OmniFate
+              # ⚠️ 必须用 delete + start，不能用 restart！
+              # restart 会复用旧进程的内存缓存，导致 RSC manifest 中的 chunk hash 是旧的
+              pm2 delete frontend 2>/dev/null || true
               pm2 start ecosystem.config.js --only frontend
               pm2 save
 
@@ -380,7 +395,7 @@ jobs:
               PM2_STATUS=$(pm2 jlist 2>/dev/null | python3 -c "import sys,json;d=json.load(sys.stdin);print(d[0]['pm2_env']['status'] if d else 'stopped')" 2>/dev/null || echo "unknown")
               echo "   PM2 frontend status: $PM2_STATUS"
               if [ "$PM2_STATUS" != "online" ]; then
-                echo "❌ PM2 frontend 不在线！尝试重启..."
+                echo "❌ PM2 frontend 不在线！尝试 delete + start..."
                 cd /opt/OmniFate
                 pm2 delete frontend 2>/dev/null || true
                 pm2 start ecosystem.config.js --only frontend
@@ -436,7 +451,7 @@ jobs:
                 fi
               fi
 
-              # 5. Verify checkout page HTML references match
+              # 5. Verify checkout page HTML references match (critical: stale RSC manifest → ChunkLoadError)
               echo "   [checkout page verification]"
               CHECKOUT_RESPONSE=$(curl -s http://127.0.0.1:3000/zh/checkout 2>/dev/null)
               CHECKOUT_PAGE_REF=$(echo "$CHECKOUT_RESPONSE" | grep -oE 'checkout/page-[a-f0-9]+\.js' | head -1)
@@ -447,9 +462,26 @@ jobs:
                 if [ -n "$CHECKOUT_FOUND" ]; then
                   echo "   ✅ checkout chunk exists: $CHECKOUT_CHUNK_NAME"
                 else
-                  echo "   ❌ checkout chunk MISSING: $CHECKOUT_CHUNK_NAME"
+                  echo "   ❌ checkout chunk MISSING: $CHECKOUT_CHUNK_NAME (stale RSC manifest in memory!)"
                   echo "   Available checkout chunks:"
                   find "$STANDALONE_DIR/.next/static/chunks/app/[locale]/checkout" -name "page-*.js" 2>/dev/null | while read f; do echo "     $(basename $f)"; done
+                  echo "   🔧 强制 delete + start PM2 以清除内存缓存..."
+                  cd /opt/OmniFate
+                  pm2 delete frontend 2>/dev/null || true
+                  pm2 start ecosystem.config.js --only frontend
+                  pm2 save
+                  sleep 5
+                  # Re-verify after restart
+                  cd /opt/OmniFate/frontend
+                  CHECKOUT_RESPONSE2=$(curl -s http://127.0.0.1:3000/zh/checkout 2>/dev/null)
+                  CHECKOUT_PAGE_REF2=$(echo "$CHECKOUT_RESPONSE2" | grep -oE 'checkout/page-[a-f0-9]+\.js' | head -1)
+                  CHECKOUT_CHUNK_NAME2=$(basename "$CHECKOUT_PAGE_REF2" 2>/dev/null)
+                  CHECKOUT_FOUND2=$(find "$STANDALONE_DIR/.next/static/chunks" -name "$CHECKOUT_CHUNK_NAME2" 2>/dev/null | head -1)
+                  if [ -n "$CHECKOUT_FOUND2" ]; then
+                    echo "   ✅ 重启后修复成功: $CHECKOUT_CHUNK_NAME2"
+                  else
+                    echo "   ⚠️  重启后仍然不匹配: $CHECKOUT_PAGE_REF2"
+                  fi
                 fi
               else
                 echo "   ⚠️  Could not extract checkout page chunk ref from HTML"
@@ -465,6 +497,11 @@ jobs:
               echo "✅ 前端健康检查通过 (HTTP $HTTP_CODE)"
             else
               echo "⚠️ 前端健康检查返回 HTTP $HTTP_CODE，可能需要手动检查"
+            fi
+
+            # 清除 nginx proxy_cache (防止旧 HTML 被缓存)
+            if [ -d /var/cache/nginx/html ]; then
+              sudo rm -rf /var/cache/nginx/html/* 2>/dev/null && echo "✅ nginx 缓存已清除" || echo "⚠️ nginx 缓存清除失败"
             fi
 
             NEW_COMMIT=$(git rev-parse HEAD)
