@@ -39,25 +39,6 @@ const USER_CACHE_KEY = "alpha_mirror_user"
 const ACCESS_TOKEN_KEY = "alpha_mirror_access_token"
 const REFRESH_TOKEN_KEY = "alpha_mirror_refresh_token"
 
-// ── Visual debug overlay (survives page reload) ────────────────────────────
-let _debugEl: HTMLDivElement | null = null
-function _showDebug(msg: string, color = "#ff0") {
-  try {
-    if (typeof document === "undefined") return
-    if (!_debugEl) {
-      _debugEl = document.createElement("div")
-      _debugEl.id = "__auth_debug"
-      _debugEl.style.cssText = "position:fixed;bottom:0;left:0;right:0;z-index:99999;font:11px monospace;padding:4px 8px;color:#fff;pointer-events:none;max-height:150px;overflow:auto;background:rgba(0,0,0,0.9)"
-      document.body.appendChild(_debugEl)
-    }
-    const line = document.createElement("div")
-    line.style.color = color
-    line.textContent = `${new Date().toLocaleTimeString()} ${msg}`
-    _debugEl.appendChild(line)
-    _debugEl.scrollTop = _debugEl.scrollHeight
-  } catch {}
-}
-
 function getAccessToken(): string | null {
   try { return sessionStorage.getItem(ACCESS_TOKEN_KEY) } catch { return null }
 }
@@ -65,22 +46,14 @@ function getRefreshToken(): string | null {
   try { return sessionStorage.getItem(REFRESH_TOKEN_KEY) } catch { return null }
 }
 function storeTokens(access: string, refresh: string) {
-  _showDebug("storeTokens: access_len=" + access?.length + " refresh_len=" + refresh?.length)
-  console.log("[Auth] storeTokens: access_len=", access?.length, "refresh_len=", refresh?.length)
   try {
     sessionStorage.setItem(ACCESS_TOKEN_KEY, access)
     sessionStorage.setItem(REFRESH_TOKEN_KEY, refresh)
-    // Verify storage succeeded
-    const stored = sessionStorage.getItem(ACCESS_TOKEN_KEY)
-    _showDebug("storeTokens: verified stored_len=" + stored?.length + " match=" + (stored === access), stored === access ? "#0f0" : "#f44")
-    console.log("[Auth] storeTokens: verify stored access_len=", stored?.length, "match=", stored === access)
   } catch (e) {
-    _showDebug("storeTokens: FAILED " + e, "#f00")
-    console.error("[Auth] storeTokens: FAILED to store tokens:", e)
+    console.error("[Auth] storeTokens failed:", e)
   }
 }
 function clearTokens() {
-  console.log("[Auth] clearTokens called", new Error().stack?.split("\n").slice(1, 4).join(" <- "))
   try {
     sessionStorage.removeItem(ACCESS_TOKEN_KEY)
     sessionStorage.removeItem(REFRESH_TOKEN_KEY)
@@ -91,36 +64,20 @@ function clearTokens() {
 let _refreshPromise: Promise<boolean> | null = null
 
 async function tryRefreshToken(): Promise<boolean> {
-  // If a refresh is already in-flight, wait for it
   if (_refreshPromise) return _refreshPromise
 
   _refreshPromise = (async () => {
     try {
       const refreshToken = getRefreshToken()
-      if (!refreshToken) {
-        console.warn("[Auth] tryRefreshToken: no refresh token in sessionStorage — CANNOT REFRESH")
-        return false
-      }
-      _showDebug("refresh: calling /api/auth/refresh ...")
-      console.log("[Auth] tryRefreshToken: calling /api/auth/refresh, refresh_token_len:", refreshToken.length)
+      if (!refreshToken) return false
       const r = await apiAuth.post("/api/auth/refresh", { refresh_token: refreshToken })
-      _showDebug("refresh OK new_access_len=" + r.data?.access_token?.length, "#0f0")
-      console.log("[Auth] tryRefreshToken: refresh OK — new access_len:", r.data?.access_token?.length, "new refresh_len:", r.data?.refresh_token?.length)
       storeTokens(r.data.access_token, r.data.refresh_token)
       return true
     } catch (err: any) {
       const status = err?.response?.status
-      const detail = err?.response?.data?.detail
-      _showDebug("refresh FAILED status=" + status + " detail=" + JSON.stringify(detail), "#f44")
-      console.warn("[Auth] tryRefreshToken: FAILED — status:", status, "detail:", detail, "msg:", err?.message, "url:", err?.config?.url)
-      // Only clear tokens on clear auth failures (401 = invalid refresh token)
-      // On network errors (no response), keep tokens — might work next time
       if (status === 401 || status === 403) {
-        _showDebug("clearing tokens (401/403)", "#f00")
-        console.warn("[Auth] tryRefreshToken: clearing tokens due to auth failure")
         clearTokens()
       }
-      // Network errors: don't clear tokens (transient failure)
       return false
     } finally {
       _refreshPromise = null
@@ -150,7 +107,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const clearAuth = useCallback(() => {
-    _showDebug("clearAuth called!", "#f00")
     clearTokens()
     sessionStorage.removeItem(USER_CACHE_KEY)
     setUser(null)
@@ -160,78 +116,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const initAuth = async () => {
       const accessToken = getAccessToken()
-      const refreshToken = getRefreshToken()
-      const hasCachedUser = !!sessionStorage.getItem(USER_CACHE_KEY)
-
-      _showDebug(`initAuth: access=${!!accessToken}(${accessToken?.length || 0}) refresh=${!!refreshToken}(${refreshToken?.length || 0}) cached=${hasCachedUser}`)
-      console.log("[Auth] initAuth: START — access_token exists:", !!accessToken, "access_len:", accessToken?.length, "refresh_token exists:", !!refreshToken, "refresh_len:", refreshToken?.length, "has_cached_user:", hasCachedUser)
 
       if (!accessToken) {
-        _showDebug("NO ACCESS TOKEN — keeping cached user: " + hasCachedUser, "#f80")
-        console.log("[Auth] initAuth: no access token in sessionStorage — keeping cached user:", hasCachedUser)
         setLoading(false)
         return
       }
 
       try {
-        _showDebug("calling /api/auth/me ...")
-        console.log("[Auth] initAuth: calling /api/auth/me, token_len=", accessToken.length)
         const res = await apiAuth.get("/api/auth/me")
-        _showDebug("/me OK user=" + res.data?.email, "#0f0")
-        console.log("[Auth] initAuth: /api/auth/me OK, user:", res.data?.email, "user_id:", res.data?.id)
         setUser(res.data)
         cacheUser(res.data)
       } catch (err: any) {
         const status = err?.response?.status
         const isNetworkError = !err?.response && !!err?.code
-        const errorMsg = err?.message || "unknown"
-        const responseDetail = err?.response?.data?.detail
-        _showDebug("/me FAILED " + status + " detail=" + responseDetail + " retry=" + err?.config?._retry, "#f44")
-        console.warn("[Auth] initAuth: /api/auth/me FAILED:", { status, errorMsg, responseDetail, url: err?.config?.url, hasCachedUser, retry: err?.config?._retry })
 
         if (status === 401 || status === 403) {
-          // Check if the interceptor already attempted a refresh+retry.
           if (err?.config?._retry) {
-            // Interceptor already tried refresh + retry and it failed.
-            // The interceptor may have already called clearAuth().
-            // Only clear if tokens are still present (interceptor didn't clear).
             const stillHasTokens = !!getAccessToken()
-            console.warn("[Auth] initAuth: interceptor already retried, still_has_tokens:", stillHasTokens)
             if (stillHasTokens) {
               clearAuth()
             }
-            // If interceptor already cleared auth, don't clear again.
           } else {
-            // Interceptor didn't handle it (e.g. skipPaths matched) — try manually
-            _showDebug("attempting manual refresh...")
-            console.log("[Auth] initAuth: attempting manual token refresh...")
             const ok = await tryRefreshToken()
-            _showDebug("manual refresh result: " + ok, ok ? "#0f0" : "#f44")
-            console.log("[Auth] initAuth: manual refresh result:", ok)
             if (ok) {
               try {
                 const retryRes = await apiAuth.get("/api/auth/me")
-                console.log("[Auth] initAuth: retry /me OK after refresh, user:", retryRes.data?.email)
                 setUser(retryRes.data)
                 cacheUser(retryRes.data)
-              } catch (retryErr: any) {
-                console.error("[Auth] initAuth: retry /me FAILED after refresh:", retryErr?.response?.status)
+              } catch {
                 clearAuth()
               }
             } else {
-              console.warn("[Auth] initAuth: refresh failed, clearing auth")
               clearAuth()
             }
           }
-        } else if (isNetworkError) {
-          // Network error — keep cached user, just stop loading
-          console.warn("[Auth] initAuth: network error, keeping cached user")
-        } else if (status === 500 || status === 502 || status === 503) {
-          // Server error — keep cached user (don't clear on server issues)
-          console.warn("[Auth] initAuth: server error", status, "— keeping cached user")
-        } else {
-          // Unexpected error — keep cached user
-          console.warn("[Auth] initAuth: unexpected error", status, "— keeping cached user")
+        } else if (isNetworkError || (status && status >= 500)) {
+          // Network or server error — keep cached user
         }
       } finally {
         setLoading(false)
@@ -242,7 +162,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // ── Axios interceptors: attach Bearer token + auto-refresh on 401 ───────
   useEffect(() => {
-    // Request interceptor: always attach fresh token
     const reqInterceptor = (config: any) => {
       const token = getAccessToken()
       if (token) {
@@ -252,9 +171,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return config
     }
 
-    // Response interceptor: catch 401 → refresh → retry ONCE
-    // Each client gets its own interceptor so the retry uses the SAME client
-    // that made the original request (preserving its interceptors/config).
     function makeResInterceptor(client: typeof api) {
       return async (error: any) => {
         const originalRequest = error?.config
@@ -262,34 +178,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return Promise.reject(error)
         }
 
-        // Skip refresh for auth endpoints (login/register/refresh/verify)
         const skipPaths = ["/api/auth/login", "/api/auth/register", "/api/auth/refresh", "/api/auth/verify-email"]
         if (skipPaths.some(p => originalRequest.url?.includes(p))) {
           return Promise.reject(error)
         }
 
-        _showDebug("interceptor: 401 on " + originalRequest.url?.split("?")[0])
-        console.log("[Auth] interceptor: 401 on", originalRequest.url, "— attempting refresh", "has_refresh_token:", !!getRefreshToken(), "refresh_len:", getRefreshToken()?.length)
         originalRequest._retry = true
 
         const ok = await tryRefreshToken()
         if (ok) {
-          _showDebug("interceptor: refresh OK, retrying...", "#0f0")
-          console.log("[Auth] interceptor: refresh OK, new access_len:", getAccessToken()?.length, "new refresh_len:", getRefreshToken()?.length, "retrying:", originalRequest.url)
-          // Token refreshed — retry with the SAME client that made the original
-          // request so its specific interceptors (CSRF, lang, etc.) are applied.
-          // The reqInterceptor will re-read the NEW token from sessionStorage.
           try {
             return await client(originalRequest)
-          } catch (retryErr: any) {
-            // Retry failed (network error etc.) — propagate the original 401
-            console.warn("[Auth] interceptor: retry after refresh FAILED:", retryErr?.message, retryErr?.response?.status)
+          } catch {
             return Promise.reject(error)
           }
         }
 
-        console.warn("[Auth] interceptor: refresh FAILED — clearing auth. refresh_token_exists:", !!getRefreshToken(), "access_token_exists:", !!getAccessToken())
-        // Refresh failed — clear auth
         clearAuth()
         return Promise.reject(error)
       }
@@ -314,25 +218,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // ── Login ────────────────────────────────────────────────────────────────
   const login = useCallback(async (email: string, password: string) => {
-    _showDebug("login: calling /api/auth/login ...")
     const res = await apiAuth.post("/api/auth/login", { email, password })
     const data = res.data
-    _showDebug("login: response has_access=" + !!data.access_token + " has_refresh=" + !!data.refresh_token + " access_len=" + (data.access_token?.length || 0))
-    console.log("[Auth] login response keys:", Object.keys(data || {}), "has_access:", !!data.access_token, "has_refresh:", !!data.refresh_token, "has_user:", !!data.user)
     if (data.access_token && data.refresh_token) {
       storeTokens(data.access_token, data.refresh_token)
-      console.log("[Auth] login: tokens stored in sessionStorage, access_len=", data.access_token.length)
-      // Decode the token to log its expiry for debugging
-      try {
-        const payload = JSON.parse(atob(data.access_token.split(".")[1]))
-        console.log("[Auth] login: access_token exp:", new Date(payload.exp * 1000).toISOString(), "sub:", payload.sub)
-      } catch {}
-      try {
-        const payload = JSON.parse(atob(data.refresh_token.split(".")[1]))
-        console.log("[Auth] login: refresh_token exp:", new Date(payload.exp * 1000).toISOString(), "sub:", payload.sub)
-      } catch {}
-    } else {
-      console.warn("[Auth] login: NO tokens in response body! Keys:", Object.keys(data || {}))
     }
     if (data.user) {
       setUser(data.user)

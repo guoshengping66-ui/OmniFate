@@ -606,8 +606,6 @@ async def login(req: LoginRequest, request: Request, db: AsyncSession = Depends(
 
     access = create_access_token(str(user.id))
     refresh = create_refresh_token(str(user.id))
-    logger.info("[Auth] Login tokens created: access_len=%d, refresh_len=%d, user=%s, secret_len=%d",
-                len(access), len(refresh), user.id, len(settings.JWT_SECRET_KEY))
     resp = JSONResponse(content=AuthResponse(
         access_token=access,
         refresh_token=refresh,
@@ -684,7 +682,7 @@ async def refresh_token(req: RefreshRequest, request: Request, db: AsyncSession 
         logger.warning("[Auth] Refresh rejected: no token in body or cookie")
         raise HTTPException(status_code=401, detail="无效的 refresh token")
 
-    logger.info("[Auth] Refresh attempt: token_len=%d, token_prefix=%s", len(refresh_tok), refresh_tok[:20] if refresh_tok else "None")
+    logger.info("Refresh attempt: token_len=%d", len(refresh_tok))
 
     # Rate limit FIRST (before expensive token verification)
     client_ip = _get_client_ip(request)
@@ -697,41 +695,12 @@ async def refresh_token(req: RefreshRequest, request: Request, db: AsyncSession 
         old_payload = _jwt.decode(refresh_tok, settings.JWT_SECRET_KEY,
                                   algorithms=[ALGORITHM], options={"verify_exp": False})
         old_jti = old_payload.get("jti")
-        logger.info("[Auth] Refresh pre-decode OK: jti=%s, sub=%s, type=%s, exp=%s", old_jti[:8] if old_jti else None, old_payload.get("sub"), old_payload.get("type"), old_payload.get("exp"))
-    except Exception as e:
-        logger.warning("[Auth] Refresh pre-decode FAILED: %s", e)
+    except Exception:
+        pass
 
     user_id = await verify_token(refresh_tok)
     if user_id is None:
-        # Provide detailed diagnostic info for debugging
-        diag = {"token_len": len(refresh_tok), "prefix": refresh_tok[:20] if refresh_tok else "None"}
-        try:
-            payload = _jwt.decode(refresh_tok, settings.JWT_SECRET_KEY, algorithms=[ALGORITHM], options={"verify_exp": False})
-            diag["decoded"] = True
-            diag["sub"] = payload.get("sub")
-            diag["type"] = payload.get("type")
-            diag["exp"] = payload.get("exp")
-            diag["iat"] = payload.get("iat")
-            jti = payload.get("jti")
-            diag["jti"] = jti[:8] if jti else None
-            # Check blacklist
-            if jti and await is_token_blacklisted(jti):
-                diag["blacklisted"] = True
-            # Check password reset blacklist
-            from services.redis_client import _get_redis
-            r = await _get_redis()
-            if r:
-                reset_ts = await r.get(f"bl:pw_reset:{user_id}")
-                if reset_ts:
-                    diag["pw_reset_ts"] = int(reset_ts)
-                    diag["token_iat"] = payload.get("iat", 0)
-        except Exception as e:
-            diag["decoded"] = False
-            diag["decode_error"] = str(e)
-            diag["secret_len"] = len(settings.JWT_SECRET_KEY)
-        logger.warning("[Auth] Refresh rejected: verify_token returned None. diag=%s", diag)
-        raise HTTPException(status_code=401, detail=f"无效的 refresh token: {json.dumps(diag)}")
-    logger.info("[Auth] Refresh verified OK: user_id=%s", user_id)
+        raise HTTPException(status_code=401, detail="无效的 refresh token")
 
     # Verify user still exists and is active
     if db:
