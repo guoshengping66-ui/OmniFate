@@ -68,12 +68,24 @@ async function tryRefreshToken(): Promise<boolean> {
   _refreshPromise = (async () => {
     try {
       const refreshToken = getRefreshToken()
-      if (!refreshToken) return false
+      if (!refreshToken) {
+        console.warn("[Auth] tryRefreshToken: no refresh token in sessionStorage")
+        return false
+      }
+      console.log("[Auth] tryRefreshToken: calling /api/auth/refresh")
       const r = await apiAuth.post("/api/auth/refresh", { refresh_token: refreshToken })
+      console.log("[Auth] tryRefreshToken: refresh OK, storing new tokens")
       storeTokens(r.data.access_token, r.data.refresh_token)
       return true
-    } catch {
-      clearTokens()
+    } catch (err: any) {
+      const status = err?.response?.status
+      console.warn("[Auth] tryRefreshToken: FAILED, status:", status, "msg:", err?.message)
+      // Only clear tokens on clear auth failures (401 = invalid refresh token)
+      // On network errors (no response), keep tokens — might work next time
+      if (status === 401 || status === 403) {
+        clearTokens()
+      }
+      // Network errors: don't clear tokens (transient failure)
       return false
     } finally {
       _refreshPromise = null
@@ -112,40 +124,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const initAuth = async () => {
       const accessToken = getAccessToken()
+      const hasCachedUser = !!sessionStorage.getItem(USER_CACHE_KEY)
+
       if (!accessToken) {
         console.log("[Auth] initAuth: no access token in sessionStorage")
-        setLoading(false); return
+        // If we have a cached user but no token, keep the cached user
+        // (token may have been cleared by a transient error)
+        setLoading(false)
+        return
       }
 
       try {
-        // Try with current access token
-        console.log("[Auth] initAuth: calling /api/auth/me with access token")
+        console.log("[Auth] initAuth: calling /api/auth/me, token_len=", accessToken.length)
         const res = await apiAuth.get("/api/auth/me")
         console.log("[Auth] initAuth: /api/auth/me OK, user:", res.data?.email)
         setUser(res.data)
         cacheUser(res.data)
       } catch (err: any) {
         const status = err?.response?.status
-        console.warn("[Auth] initAuth: /api/auth/me failed, status:", status, "url:", err?.config?.url)
+        const isNetworkError = !err?.response && !!err?.code
+        const errorMsg = err?.message || "unknown"
+        console.warn("[Auth] initAuth: /api/auth/me failed:", { status, errorMsg, url: err?.config?.url, hasCachedUser })
+
         if (status === 401 || status === 403) {
           // Check if the interceptor already attempted a refresh+retry.
-          // The interceptor sets _retry=true on the original request config
-          // before retrying. If it did, the refresh already failed — don't
-          // retry again (old refresh token is blacklisted, would fail).
           if (err?.config?._retry) {
-            console.warn("[Auth] initAuth: interceptor already retried after refresh — clearing auth")
-            clearAuth()
+            // Interceptor already tried refresh + retry and it failed.
+            // The interceptor may have already called clearAuth().
+            // Only clear if tokens are still present (interceptor didn't clear).
+            const stillHasTokens = !!getAccessToken()
+            console.warn("[Auth] initAuth: interceptor already retried, still_has_tokens:", stillHasTokens)
+            if (stillHasTokens) {
+              clearAuth()
+            }
+            // If interceptor already cleared auth, don't clear again.
           } else {
             // Interceptor didn't handle it (e.g. skipPaths matched) — try manually
-            console.log("[Auth] initAuth: attempting token refresh...")
+            console.log("[Auth] initAuth: attempting manual token refresh...")
             const ok = await tryRefreshToken()
-            console.log("[Auth] initAuth: refresh result:", ok)
+            console.log("[Auth] initAuth: manual refresh result:", ok)
             if (ok) {
               try {
-                const res = await apiAuth.get("/api/auth/me")
-                console.log("[Auth] initAuth: retry /me OK after refresh, user:", res.data?.email)
-                setUser(res.data)
-                cacheUser(res.data)
+                const retryRes = await apiAuth.get("/api/auth/me")
+                console.log("[Auth] initAuth: retry /me OK after refresh, user:", retryRes.data?.email)
+                setUser(retryRes.data)
+                cacheUser(retryRes.data)
               } catch (retryErr: any) {
                 console.error("[Auth] initAuth: retry /me FAILED after refresh:", retryErr?.response?.status)
                 clearAuth()
@@ -155,8 +178,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               clearAuth()
             }
           }
+        } else if (isNetworkError) {
+          // Network error — keep cached user, just stop loading
+          console.warn("[Auth] initAuth: network error, keeping cached user")
+        } else if (status === 500 || status === 502 || status === 503) {
+          // Server error — keep cached user (don't clear on server issues)
+          console.warn("[Auth] initAuth: server error", status, "— keeping cached user")
+        } else {
+          // Unexpected error — keep cached user
+          console.warn("[Auth] initAuth: unexpected error", status, "— keeping cached user")
         }
-        // Network errors: keep cached user (don't clear on transient failures)
       } finally {
         setLoading(false)
       }
@@ -192,10 +223,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return Promise.reject(error)
         }
 
+        console.log("[Auth] interceptor: 401 on", originalRequest.url, "— attempting refresh")
         originalRequest._retry = true
 
         const ok = await tryRefreshToken()
         if (ok) {
+          console.log("[Auth] interceptor: refresh OK, retrying", originalRequest.url)
           // Token refreshed — retry with the SAME client that made the original
           // request so its specific interceptors (CSRF, lang, etc.) are applied.
           // The reqInterceptor will re-read the NEW token from sessionStorage.
@@ -203,11 +236,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             return await client(originalRequest)
           } catch (retryErr: any) {
             // Retry failed (network error etc.) — propagate the original 401
-            console.warn("[Auth] Retry after refresh failed:", retryErr?.message)
+            console.warn("[Auth] interceptor: retry after refresh FAILED:", retryErr?.message, retryErr?.response?.status)
             return Promise.reject(error)
           }
         }
 
+        console.warn("[Auth] interceptor: refresh FAILED — clearing auth")
         // Refresh failed — clear auth
         clearAuth()
         return Promise.reject(error)
