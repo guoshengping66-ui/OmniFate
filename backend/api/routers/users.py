@@ -19,7 +19,7 @@ from auth.jwt import verify_password, hash_password
 router = APIRouter()
 
 PRODUCTS_PATH = Path(__file__).parent.parent.parent / "data" / "products.json"
-_products_cache: tuple[float, list[dict]] | None = None
+_products_cache: Optional[tuple[float, list[dict]]] = None
 
 
 def _load_products() -> list[dict]:
