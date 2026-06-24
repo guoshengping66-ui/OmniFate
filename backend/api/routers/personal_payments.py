@@ -9,6 +9,7 @@ import hashlib
 import hmac
 import secrets
 import logging
+import html as html_mod
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
@@ -371,16 +372,55 @@ async def verify_payment(
     }
 
 
+class AdminActionRequest(BaseModel):
+    """管理员确认/拒绝操作的请求体"""
+    token: str  # 格式: order_no:admin_token
+
+
+def _auto_submit_form(target_url: str, token: str, title: str, button_text: str, color: str) -> "HTMLResponse":
+    """Render an auto-submitting HTML form for email click-to-action links.
+    This prevents CSRF by ensuring the action goes through a POST request,
+    while keeping clickable links in emails."""
+    from fastapi.responses import HTMLResponse
+    escaped_url = html_mod.escape(target_url)
+    escaped_token = html_mod.escape(token)
+    return HTMLResponse(f"""<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>{title}</title></head>
+<body style="display:flex;align-items:center;justify-content:center;height:100vh;margin:0;font-family:sans-serif;background:#f5f5f5;">
+  <form id="actionForm" method="POST" action="{escaped_url}">
+    <input type="hidden" name="token" value="{escaped_token}" />
+    <div style="text-align:center;background:white;padding:40px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+      <h2>{title}</h2>
+      <p style="color:#666;">正在处理中...</p>
+      <button type="submit" style="padding:12px 32px;background:{color};color:white;border:none;border-radius:24px;font-size:15px;font-weight:bold;cursor:pointer;">{button_text}</button>
+    </div>
+  </form>
+  <script>document.getElementById('actionForm').submit();</script>
+</body></html>""", headers={
+        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+        "Pragma": "no-cache",
+    })
+
+
 @router.get("/admin/quick-confirm")
-async def quick_confirm_payment(
+async def quick_confirm_form(
     token: str = Query(...),
+):
+    """渲染确认收款的自动提交表单（GET → POST 安全转换）"""
+    target = "https://www.khanfate.com/api/personal-payments/admin/quick-confirm"
+    return _auto_submit_form(target, token, "确认收款", "✅ 确认", "#16a34a")
+
+
+@router.post("/admin/quick-confirm")
+async def quick_confirm_payment(
+    req: AdminActionRequest,
     db: AsyncSession = Depends(get_db),
 ):
-    """管理员一键确认收款 — 无需登录，通过 token 验证"""
+    """管理员一键确认收款 — 无需登录，通过 token 验证（POST 方法防止日志/历史泄露）"""
     from fastapi.responses import HTMLResponse
 
     try:
-        order_no, admin_token = token.split(":", 1)
+        order_no, admin_token = req.token.split(":", 1)
     except ValueError:
         return HTMLResponse("<html><body><h2>❌ 无效链接</h2></body></html>", status_code=400)
 
@@ -395,12 +435,12 @@ async def quick_confirm_payment(
     if not order:
         return HTMLResponse("<html><body><h2>⚠️ 订单不存在或已处理</h2></body></html>")
 
-    # 激活订单（审计：记录通过 GET 链接访问，便于追踪 CSRF / 泄露风险）
+    # 激活订单（审计：记录通过 POST 请求访问）
     existing_notes = order.notes or ""
-    order.notes = f"{existing_notes}|accessed_via:GET|accessed_at:{datetime.now(timezone.utc).isoformat()}"
+    order.notes = f"{existing_notes}|accessed_via:POST|accessed_at:{datetime.now(timezone.utc).isoformat()}"
     await _activate_order(db, order)
     await db.commit()
-    logger.warning("quick_confirm_payment accessed via GET for order %s", order_no)
+    logger.warning("quick_confirm_payment accessed via POST for order %s", order_no)
 
     return HTMLResponse(f"""
     <html><body style="text-align:center;padding:50px;font-family:sans-serif;">
@@ -414,15 +454,24 @@ async def quick_confirm_payment(
 
 
 @router.get("/admin/quick-reject")
-async def quick_reject_payment(
+async def quick_reject_form(
     token: str = Query(...),
+):
+    """渲染拒绝收款的自动提交表单（GET → POST 安全转换）"""
+    target = "https://www.khanfate.com/api/personal-payments/admin/quick-reject"
+    return _auto_submit_form(target, token, "拒绝收款", "❌ 确认拒绝", "#dc2626")
+
+
+@router.post("/admin/quick-reject")
+async def quick_reject_payment(
+    req: AdminActionRequest,
     db: AsyncSession = Depends(get_db),
 ):
-    """管理员一键拒绝 — 无需登录，通过 token 验证"""
+    """管理员一键拒绝 — 无需登录，通过 token 验证（POST 方法防止日志/历史泄露）"""
     from fastapi.responses import HTMLResponse
 
     try:
-        order_no, admin_token = token.split(":", 1)
+        order_no, admin_token = req.token.split(":", 1)
     except ValueError:
         return HTMLResponse("<html><body><h2>❌ 无效链接</h2></body></html>", status_code=400)
 
@@ -437,11 +486,11 @@ async def quick_reject_payment(
         return HTMLResponse("<html><body><h2>⚠️ 订单不存在或已处理</h2></body></html>")
 
     order.status = OrderStatus.cancelled
-    # 审计：记录通过 GET 链接访问，便于追踪 CSRF / 泄露风险
+    # 审计：记录通过 POST 请求访问
     existing_notes = order.notes or ""
-    order.notes = f"{existing_notes}|accessed_via:GET|accessed_at:{datetime.now(timezone.utc).isoformat()}"
+    order.notes = f"{existing_notes}|accessed_via:POST|accessed_at:{datetime.now(timezone.utc).isoformat()}"
     await db.commit()
-    logger.warning("quick_reject_payment accessed via GET for order %s", order_no)
+    logger.warning("quick_reject_payment accessed via POST for order %s", order_no)
 
     return HTMLResponse(f"""
     <html><body style="text-align:center;padding:50px;font-family:sans-serif;">

@@ -113,6 +113,13 @@ def _set_reading_cache(session_id: str, resp: AnalysisResponse):
     if resp_size > 200 * 1024:
         return
 
+    # Aggressively prune expired entries on every write (prevents memory leak
+    # when traffic is low and lazy eviction on reads doesn't trigger)
+    now = time.time()
+    expired = [k for k, v in _reading_cache.items() if (now - v[0]) >= _READING_CACHE_TTL]
+    for k in expired:
+        del _reading_cache[k]
+
     # Evict until under size limit and max count
     total_size = sum(entry[2] for entry in _reading_cache.values())
     while total_size > _READING_CACHE_MAX_BYTES or len(_reading_cache) >= _READING_CACHE_MAX:
@@ -314,7 +321,12 @@ def _apply_content_lock(resp: AnalysisResponse, current_user: Optional[User], re
             tier = "detailed"
 
     # Active premium subscription overrides to full unlock
-    if tier != "full" and current_user and current_user.is_premium and current_user.premium_expires_at and current_user.premium_expires_at > datetime.now(timezone.utc):
+    # Ensure timezone-aware comparison (SQLite may store naive datetimes)
+    _now_utc = datetime.now(timezone.utc)
+    _expires = current_user.premium_expires_at
+    if _expires and _expires.tzinfo is None:
+        _expires = _expires.replace(tzinfo=timezone.utc)
+    if tier != "full" and current_user and current_user.is_premium and _expires and _expires > _now_utc:
         tier = "full"
 
     # ── Apply tier restrictions ──
@@ -707,9 +719,15 @@ async def chat_followup(
 
     # ── SECURITY: Sanitize user input to prevent prompt injection ──
     question = payload.question[:2000] if payload.question else ""
-    # Normalize Unicode to strip homoglyphs and zero-width characters
+    # Normalize Unicode: NFKC collapses Cyrillic/Latin homoglyphs
+    # (e.g. Cyrillic "і" → Latin "i", fullwidth "Ａ" → "A")
     import unicodedata
+    import base64 as _b64mod
     question = unicodedata.normalize("NFKC", question)
+
+    # Strip zero-width characters (U+200B, U+200C, U+200D, U+FEFF, etc.)
+    question = _re.sub(r'[​-‏ - ⁠-⁩﻿]', '', question)
+
     injection_patterns = [
         # Chinese
         r"忽略.*指令", r"忽略.*规则", r"无视.*规则", r"你是.*助手",
@@ -735,8 +753,26 @@ async def chat_followup(
         r"<\s*(system|assistant|user)\s*>",  # XML tag injection
         r"^\s*/\s*nofilter",       # /nofilter bypass
     ]
-    for pattern in injection_patterns:
-        if _re.search(pattern, question, _re.IGNORECASE):
+
+    def _is_injection(q: str) -> bool:
+        """Check if question matches known injection patterns."""
+        for pattern in injection_patterns:
+            if _re.search(pattern, q, _re.IGNORECASE):
+                return True
+        # Base64-encoded injection detection (catch encoded payloads)
+        # Look for base64 strings > 20 chars that decode to English injection phrases
+        b64_matches = _re.findall(r'[A-Za-z0-9+/]{20,}={0,2}', q)
+        for b64 in b64_matches:
+            try:
+                decoded = _b64mod.b64decode(b64).decode("utf-8", errors="ignore").lower()
+                decoded = unicodedata.normalize("NFKC", decoded)
+                if any(_re.search(p, decoded, _re.IGNORECASE) for p in injection_patterns):
+                    return True
+            except Exception:
+                pass
+        return False
+
+    if _is_injection(question):
             lang = getattr(payload, 'lang', 'zh')
             question = "请围绕命理主题提问。" if lang != "en" else "Please ask questions related to destiny analysis."
             break

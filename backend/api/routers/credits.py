@@ -53,6 +53,10 @@ class RefundRequest(BaseModel):
     reason: Optional[str] = None
 
 
+class ConfirmRequest(BaseModel):
+    transaction_id: str
+
+
 class GrantRequest(BaseModel):
     amount: int
     reason: str  # monthly_grant|register_bonus|referral|manual
@@ -199,11 +203,12 @@ async def deduct_stardust(
 
 @router.post("/confirm")
 async def confirm_deduct(
-    transaction_id: str,
+    req: ConfirmRequest,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_user),
 ):
     """确认扣费（AI 推演成功后调用）"""
+    transaction_id = req.transaction_id
     result = await db.execute(
         select(CreditTransaction).where(
             CreditTransaction.id == transaction_id,

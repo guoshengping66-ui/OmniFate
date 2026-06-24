@@ -1442,8 +1442,8 @@ export async function deductStardust(
 }
 
 export async function confirmStardustDeduction(transactionId: string): Promise<{ status: string }> {
-  const res = await api.post("/api/credits/confirm", null, {
-    params: { transaction_id: transactionId },
+  const res = await api.post("/api/credits/confirm", safeJson({ transaction_id: transactionId }), {
+    headers: { "Content-Type": "application/json" },
   })
   return res.data
 }
