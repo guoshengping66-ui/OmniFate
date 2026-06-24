@@ -170,14 +170,17 @@ async def cj_webhook(request: Request, db: AsyncSession = Depends(get_db)):
     body = await request.json()
     logger.info(f"[CJ Webhook] Received: {json.dumps(body, ensure_ascii=False)[:500]}")
 
-    if settings.CJ_WEBHOOK_SECRET:
-        signature = request.headers.get("X-CJ-Signature", "")
-        expected = hashlib.sha256(
-            (json.dumps(body, separators=(",", ":")) + settings.CJ_WEBHOOK_SECRET).encode()
-        ).hexdigest()
-        if not hmac.compare_digest(signature, expected):
-            logger.warning("[CJ Webhook] Invalid signature")
-            raise HTTPException(status_code=403, detail="Invalid signature")
+    if not settings.CJ_WEBHOOK_SECRET:
+        logger.error("[CJ Webhook] CJ_WEBHOOK_SECRET not configured — rejecting for safety")
+        raise HTTPException(status_code=503, detail="Webhook not configured")
+
+    signature = request.headers.get("X-CJ-Signature", "")
+    expected = hashlib.sha256(
+        (json.dumps(body, separators=(",", ":")) + settings.CJ_WEBHOOK_SECRET).encode()
+    ).hexdigest()
+    if not hmac.compare_digest(signature, expected):
+        logger.warning("[CJ Webhook] Invalid signature")
+        raise HTTPException(status_code=403, detail="Invalid signature")
 
     cj_order_number = body.get("orderId") or body.get("orderNumber") or body.get("cjOrderNumber")
     tracking_number = body.get("trackingNumber") or body.get("trackingNumber1")

@@ -566,7 +566,7 @@ export function streamSession(
           retryCount++
           // Try to get the actual HTTP status for a better error message
           try {
-            const resp = await fetch(url, { method: "HEAD" })
+            const resp = await fetch(url, { method: "GET" })
             if (resp.status === 401 || resp.status === 403) {
               settled = true
               reject(new Error(resp.status === 401 ? "认证已过期，请重新登录" : "无权访问"))

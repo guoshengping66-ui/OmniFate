@@ -226,7 +226,9 @@ async def confirm_deduct(
                 select(User).where(User.id == current_user.id).with_for_update()
             )
             user = user_result.scalar_one()
-            user.stardust_balance -= tx.amount  # tx.amount is negative, so -= negative = add back
+            # Use balance_after as base: restore to pre-deduction balance
+            # balance_after is the balance AFTER the original deduction
+            user.stardust_balance = tx.balance_after - tx.amount
             tx.status = "refunded"
             refund_tx = CreditTransaction(
                 user_id=user.id,

@@ -658,7 +658,6 @@ async def logout(
 
     if token:
         try:
-            from jose import jwt as _jwt
             payload = _jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[ALGORITHM], options={"verify_exp": False})
             if payload.get("type") == "refresh":
                 jti = payload.get("jti")
@@ -689,7 +688,6 @@ async def refresh_token(req: RefreshRequest, request: Request, db: AsyncSession 
     # Decode old token to get its jti BEFORE verifying (for blacklisting)
     old_jti = None
     try:
-        from jose import jwt as _jwt
         old_payload = _jwt.decode(refresh_tok, settings.JWT_SECRET_KEY,
                                   algorithms=[ALGORITHM], options={"verify_exp": False})
         old_jti = old_payload.get("jti")
@@ -829,6 +827,13 @@ async def delete_account(
     if not current_user.hashed_password or not verify_password(req.password, current_user.hashed_password):
         raise HTTPException(status_code=401, detail="密码错误，无法删除账户")
 
+    # Invalidate all existing tokens to prevent stale token usage after deletion
+    try:
+        from auth.jwt import blacklist_all_user_tokens
+        await blacklist_all_user_tokens(str(current_user.id))
+    except Exception:
+        pass  # Best-effort: proceed with deletion even if blacklisting fails
+
     # Delete user — cascade will remove all associated data
     # (readings, orders, birth_profiles, event_logs, favorites, reviews)
     await db.delete(current_user)
@@ -892,7 +897,6 @@ async def google_login(req: GoogleLoginRequest, request: Request, db: AsyncSessi
         google_keys = await _get_google_keys()
 
         # Decode the JWT header to get the key ID
-        from jose import jwt as _jwt
         import base64 as _b64
 
         # Split the token

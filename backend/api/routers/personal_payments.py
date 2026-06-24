@@ -253,7 +253,8 @@ async def _activate_order(db: AsyncSession, order) -> None:
         notes = order.notes or ""
         if "reading_id:" in notes:
             reading_id = notes.split("reading_id:")[1].split("|")[0]
-            if reading_id:
+            # Validate reading_id format (UUID-like, max 50 chars)
+            if reading_id and len(reading_id) <= 50:
                 reading_result = await db.execute(select(Reading).where(Reading.id == reading_id))
                 reading = reading_result.scalar_one_or_none()
                 if reading:
@@ -406,7 +407,10 @@ async def quick_confirm_payment(
       <h2>✅ 已确认收款 ¥{order.total_cny}</h2>
       <p>订单 {order_no} 已激活</p>
     </body></html>
-    """)
+    """, headers={
+        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+        "Pragma": "no-cache",
+    })
 
 
 @router.get("/admin/quick-reject")
@@ -444,7 +448,10 @@ async def quick_reject_payment(
       <h2>❌ 已拒绝 ¥{order.total_cny}</h2>
       <p>订单 {order_no} 已取消</p>
     </body></html>
-    """)
+    """, headers={
+        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+        "Pragma": "no-cache",
+    })
 
 
 @router.post("/admin/auto-confirm-expired")

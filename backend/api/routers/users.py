@@ -7,7 +7,7 @@ from pathlib import Path
 from pydantic import BaseModel, Field
 
 from fastapi import APIRouter, HTTPException, Depends
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -19,12 +19,19 @@ from auth.jwt import verify_password, hash_password
 router = APIRouter()
 
 PRODUCTS_PATH = Path(__file__).parent.parent.parent / "data" / "products.json"
+_products_cache: tuple[float, list[dict]] | None = None
 
 
 def _load_products() -> list[dict]:
+    global _products_cache
     try:
-        return json.loads(PRODUCTS_PATH.read_text(encoding="utf-8"))
-    except (FileNotFoundError, json.JSONDecodeError):
+        mtime = PRODUCTS_PATH.stat().st_mtime
+        if _products_cache and _products_cache[0] == mtime:
+            return _products_cache[1]
+        data = json.loads(PRODUCTS_PATH.read_text(encoding="utf-8"))
+        _products_cache = (mtime, data)
+        return data
+    except (FileNotFoundError, json.JSONDecodeError, OSError):
         return []
 
 
@@ -558,9 +565,10 @@ async def create_birth_profile(
     """创建新出生档案"""
     async with AsyncSessionLocal() as db:
         # Limit: max 10 profiles per user
-        count_stmt = select(BirthProfile).where(BirthProfile.user_id == user.id)
-        count_result = await db.execute(count_stmt)
-        existing = len(count_result.scalars().all())
+        count_result = await db.execute(
+            select(func.count()).select_from(BirthProfile).where(BirthProfile.user_id == user.id)
+        )
+        existing = count_result.scalar()
         if existing >= 10:
             raise HTTPException(status_code=400, detail="最多保存 10 个出生档案")
 
