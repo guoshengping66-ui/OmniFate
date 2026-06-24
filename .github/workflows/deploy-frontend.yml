@@ -199,10 +199,10 @@ jobs:
               sudo rm -rf "$STANDALONE_DIR/.next/static" 2>/dev/null || true
               sudo mkdir -p "$STANDALONE_DIR/.next/static"
 
-              # 复制静态文件 — 用 cp -a 复制目录本身，避免 * glob 将 [locale] 解释为字符类
+              # 复制静态文件 — 用 tar 管道复制，避免 * glob 将 [locale] 解释为字符类
               echo "   === 执行复制 ==="
-              sudo cp -a .next/static/. "$STANDALONE_DIR/.next/static/" || { echo "❌ cp static 失败"; exit 1; }
-              echo "   cp static 完成"
+              sudo tar cf - -C .next/static . | sudo tar xf - -C "$STANDALONE_DIR/.next/static/"
+              echo "   复制完成"
 
               # 复制 public
               sudo rm -rf "$STANDALONE_DIR/public" 2>/dev/null || true
