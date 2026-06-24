@@ -143,10 +143,22 @@ export default function RegisterPage() {
     }
     setVerifyLoading(true)
     try {
-      await verifyEmail(email, verifyCode)
-      // Tokens are set as httpOnly cookies by the backend — no localStorage needed
+      const authRes = await verifyEmail(email, verifyCode)
+      // Store tokens in sessionStorage so AuthContext can find them on page load
+      // (httpOnly cookies alone are not read by initAuth)
+      if (authRes.access_token && authRes.refresh_token) {
+        try {
+          sessionStorage.setItem("alpha_mirror_access_token", authRes.access_token)
+          sessionStorage.setItem("alpha_mirror_refresh_token", authRes.refresh_token)
+        } catch {}
+      }
+      if (authRes.user) {
+        try {
+          sessionStorage.setItem("alpha_mirror_user", JSON.stringify(authRes.user))
+        } catch {}
+      }
       toast.success(t("auth.loginSuccess"))
-      router.replace(localeHref("/dashboard"))
+      window.location.href = localeHref("/")
     } catch (err: any) {
       console.error("[Register] verify email error:", err)
       if (err.code === "ERR_NETWORK" || err.code === "ECONNABORTED" || err.message?.includes("Network Error")) {

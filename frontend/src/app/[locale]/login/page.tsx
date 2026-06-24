@@ -47,9 +47,10 @@ export default function LoginPage() {
     try {
       await login(email, password)
       toast.success(t("auth.loginSuccess"))
-      // Use window.location for instant full-page reload instead of client-side navigation
-      // This avoids the slow RSC payload fetch and re-render cycle
-      window.location.href = localeHref("/")
+      // Use router.replace for client-side navigation (preserves React/AuthContext state)
+      // window.location.href causes a full page reload which re-initializes AuthProvider
+      // and can lose auth state during the hydration race
+      router.replace(localeHref("/"))
     } catch (err: any) {
       console.error("[Login] error:", err)
       if (err.code === "ERR_NETWORK" || err.code === "ECONNABORTED" || err.message?.includes("Network Error")) {
@@ -259,6 +260,7 @@ export default function LoginPage() {
 }
 
 function GoogleLoginButton() {
+  const router = useRouter()
   const { t, localeHref } = useLanguage()
   const googleBtnRef = useRef<HTMLDivElement>(null)
   const [googleLoaded, setGoogleLoaded] = useState(false)
@@ -303,10 +305,22 @@ function GoogleLoginButton() {
         credential: response.credential,
       })
 
-      // Tokens are set as httpOnly cookies by the backend — no localStorage needed
+      // Store tokens in sessionStorage so AuthContext can find them on page load
+      const data = result.data
+      if (data.access_token && data.refresh_token) {
+        try {
+          sessionStorage.setItem("alpha_mirror_access_token", data.access_token)
+          sessionStorage.setItem("alpha_mirror_refresh_token", data.refresh_token)
+        } catch {}
+      }
+      if (data.user) {
+        try {
+          sessionStorage.setItem("alpha_mirror_user", JSON.stringify(data.user))
+        } catch {}
+      }
 
       toast.success(t("auth.loginSuccess"))
-      window.location.href = localeHref("/")
+      router.replace(localeHref("/"))
     } catch (err: any) {
       console.error("[Google Login] error:", err)
       toast.error(err?.response?.data?.detail ?? t("auth.loginFail"))
