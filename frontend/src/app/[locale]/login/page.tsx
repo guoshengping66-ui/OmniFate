@@ -47,10 +47,7 @@ export default function LoginPage() {
     try {
       await login(email, password)
       toast.success(t("auth.loginSuccess"))
-      // Use router.replace for client-side navigation (preserves React/AuthContext state)
-      // window.location.href causes a full page reload which re-initializes AuthProvider
-      // and can lose auth state during the hydration race
-      router.replace(localeHref("/"))
+      window.location.href = localeHref("/")
     } catch (err: any) {
       console.error("[Login] error:", err)
       if (err.code === "ERR_NETWORK" || err.code === "ECONNABORTED" || err.message?.includes("Network Error")) {
@@ -260,7 +257,6 @@ export default function LoginPage() {
 }
 
 function GoogleLoginButton() {
-  const router = useRouter()
   const { t, localeHref } = useLanguage()
   const googleBtnRef = useRef<HTMLDivElement>(null)
   const [googleLoaded, setGoogleLoaded] = useState(false)
@@ -320,7 +316,7 @@ function GoogleLoginButton() {
       }
 
       toast.success(t("auth.loginSuccess"))
-      router.replace(localeHref("/"))
+      window.location.href = localeHref("/")
     } catch (err: any) {
       console.error("[Google Login] error:", err)
       toast.error(err?.response?.data?.detail ?? t("auth.loginFail"))
