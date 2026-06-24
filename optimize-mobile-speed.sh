@@ -83,8 +83,8 @@ fi
 
 # ── 4. 设置 cron 保持服务器温热 ──
 echo "[3/4] 设置 cron 任务保持服务器温热..."
-CRON_LINE="*/5 * * * * curl -s -o /dev/null http://127.0.0.1:3000/zh"
-(crontab -l 2>/dev/null | grep -v "curl.*127.0.0.1:3000"; echo "$CRON_LINE") | crontab -
+CRON_LINE="*/5 * * * * curl -s -o /dev/null http://127.0.0.1/zh"
+(crontab -l 2>/dev/null | grep -v "curl.*127.0.0.1"; echo "$CRON_LINE") | crontab -
 echo "  → Cron 任务已添加: 每 5 分钟 ping 前端"
 
 # ── 5. 重载 nginx ──
