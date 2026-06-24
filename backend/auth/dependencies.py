@@ -15,6 +15,11 @@ from database.session import AsyncSessionLocal, _db_available
 from database.models import User
 
 logger = logging.getLogger("auth")
+logger.setLevel(logging.INFO)
+if not logger.handlers:
+    _handler = logging.StreamHandler()
+    _handler.setFormatter(logging.Formatter("%(asctime)s [%(name)s] %(levelname)s: %(message)s"))
+    logger.addHandler(_handler)
 
 bearer_scheme = HTTPBearer(auto_error=False)
 

@@ -8,6 +8,11 @@ import logging
 import re
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+if not logger.handlers:
+    _handler = logging.StreamHandler()
+    _handler.setFormatter(logging.Formatter("%(asctime)s [%(name)s] %(levelname)s: %(message)s"))
+    logger.addHandler(_handler)
 from typing import Optional
 import time
 import secrets
