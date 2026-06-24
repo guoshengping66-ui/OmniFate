@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && (rsync -a .next/static/ .next/standalone/frontend/.next/static/ 2>/dev/null || cp -r .next/static/. .next/standalone/frontend/.next/static/)",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
