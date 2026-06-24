@@ -203,9 +203,9 @@ jobs:
               # ⚠️ CRITICAL: Do NOT use `cp -r .next/static/*` — bash glob expansion
               # interprets `[locale]` directory name as a character class `[cl oe]`,
               # causing the entire app/ subtree (including checkout chunks) to be skipped.
-              # Use `find` to list top-level items (bypasses glob expansion entirely).
+              # Use tar pipe to copy contents — bypasses glob expansion entirely.
               echo "   === 执行复制 ==="
-              find .next/static -mindepth 1 -maxdepth 1 -exec sudo cp -r {} "$STANDALONE_DIR/.next/static/" \; || { echo "❌ cp static 失败"; exit 1; }
+              sudo tar cf - -C .next/static . | sudo tar xf - -C "$STANDALONE_DIR/.next/static/" || { echo "❌ cp static 失败"; exit 1; }
               echo "   cp static 完成"
 
               # 复制 public
