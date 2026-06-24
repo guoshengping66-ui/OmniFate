@@ -11,12 +11,12 @@ set -e
 echo "=== 移动端加载速度优化 ==="
 
 # ── 1. 创建 nginx 缓存目录 ──
-echo "[1/4] 创建 nginx 缓存目录..."
+echo "[1/5] 创建 nginx 缓存目录..."
 sudo mkdir -p /var/cache/nginx/html
 sudo chown nginx:nginx /var/cache/nginx/html 2>/dev/null || true
 
 # ── 2. 创建 nginx 缓存配置 ──
-echo "[2/4] 配置 nginx HTML 缓存..."
+echo "[2/5] 配置 nginx HTML 缓存..."
 sudo tee /etc/nginx/conf.d/html-cache.conf > /dev/null << 'NGINX_CONF'
 # HTML 页面缓存 — 解决 Next.js 冷启动 5-10s 问题
 # 缓存 10 秒，期间重复请求直接返回缓存，不等后端
@@ -35,12 +35,20 @@ fi
 
 # 检查是否已有缓存配置
 if grep -q "proxy_cache html_cache" "$FRONTEND_CONF" 2>/dev/null; then
-    echo "  → 缓存配置已存在，跳过"
+    echo "  → 缓存配置已存在，检查 proxy_ignore_headers..."
+
+    # 确保 proxy_ignore_headers 存在（修复 Next.js no-store 问题）
+    if ! grep -q "proxy_ignore_headers" "$FRONTEND_CONF" 2>/dev/null; then
+        echo "  → 添加 proxy_ignore_headers（修复 Next.js no-store 问题）"
+        sudo sed -i '/proxy_cache html_cache;/i\
+    # 忽略后端 no-store — 强制 nginx 缓存 HTML 页面\
+    proxy_ignore_headers Cache-Control Set-Cookie Expires;\
+    proxy_hide_header Set-Cookie;' "$FRONTEND_CONF"
+    fi
 else
     echo "  → 添加缓存配置到 $FRONTEND_CONF"
 
     # 在 server 块中找到 location / 并添加缓存
-    # 如果没有 location /，在 server 块末尾添加
     if sudo grep -q "location /" "$FRONTEND_CONF"; then
         # 替换已有的 location / 块
         sudo sed -i '/location \/ {/,/}/c\
@@ -53,6 +61,9 @@ location / {\
     proxy_set_header X-Real-IP $remote_addr;\
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\
     proxy_set_header X-Forwarded-Proto $scheme;\
+    # 忽略后端 no-store — 强制 nginx 缓存 HTML 页面\
+    proxy_ignore_headers Cache-Control Set-Cookie Expires;\
+    proxy_hide_header Set-Cookie;\
     proxy_cache html_cache;\
     proxy_cache_valid 200 10s;\
     proxy_cache_valid 404 1m;\
@@ -72,6 +83,9 @@ location / {\
     proxy_set_header X-Real-IP $remote_addr;\
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\
     proxy_set_header X-Forwarded-Proto $scheme;\
+    # 忽略后端 no-store — 强制 nginx 缓存 HTML 页面\
+    proxy_ignore_headers Cache-Control Set-Cookie Expires;\
+    proxy_hide_header Set-Cookie;\
     proxy_cache html_cache;\
     proxy_cache_valid 200 10s;\
     proxy_cache_valid 404 1m;\
@@ -82,17 +96,33 @@ location / {\
 fi
 
 # ── 4. 设置 cron 保持服务器温热 ──
-echo "[3/4] 设置 cron 任务保持服务器温热..."
-CRON_LINE="*/5 * * * * curl -s -o /dev/null http://127.0.0.1/zh"
+echo "[3/5] 设置 cron 任务保持服务器温热..."
+CRON_LINE="*/5 * * * * curl -sk -o /dev/null https://127.0.0.1/zh"
 (crontab -l 2>/dev/null | grep -v "curl.*127.0.0.1"; echo "$CRON_LINE") | crontab -
 echo "  → Cron 任务已添加: 每 5 分钟 ping 前端"
 
-# ── 5. 重载 nginx ──
-echo "[4/4] 重载 nginx..."
+# ── 5. 清空缓存并重载 nginx ──
+echo "[4/5] 清空缓存并重载 nginx..."
+sudo rm -rf /var/cache/nginx/html/*
 sudo nginx -t && sudo systemctl reload nginx
 
+# ── 6. 验证 ──
+echo "[5/5] 验证缓存..."
 echo ""
-echo "=== 优化完成 ==="
+MISS=$(curl -skI https://127.0.0.1/zh 2>/dev/null | grep -i "x-cache-status" | awk '{print $2}' | tr -d '\r')
+HIT=$(curl -skI https://127.0.0.1/zh 2>/dev/null | grep -i "x-cache-status" | awk '{print $2}' | tr -d '\r')
+
+echo "  第一次请求: $MISS"
+echo "  第二次请求: $HIT"
+
+if [ "$MISS" = "MISS" ] && [ "$HIT" = "HIT" ]; then
+    echo ""
+    echo "=== ✅ 优化完成 — 缓存已生效 ==="
+else
+    echo ""
+    echo "=== ⚠️ 缓存可能未生效，请检查 ==="
+fi
+
 echo ""
 echo "效果："
 echo "  - HTML 页面缓存 10 秒，重复请求 < 0.1s"
