@@ -80,6 +80,7 @@ jobs:
 
             CURRENT_COMMIT=$(git rev-parse HEAD)
             echo "当前 commit: $CURRENT_COMMIT"
+            echo "当前 commit message: $(git log -1 --format='%s')"
 
             echo "📥 同步最新代码..."
             # 彻底清理 git lock 文件（用 sudo 确保删除权限）
@@ -263,6 +264,65 @@ jobs:
                 echo "✅ checkout page chunk 验证通过: $(basename $CHECKOUT_PAGE)"
               fi
 
+              # ── COMPREHENSIVE DIAGNOSTICS: What's actually on disk ──
+              echo ""
+              echo "═══════════ 部署诊断 ═══════════"
+              # 1. BUILD_ID
+              DISK_BUILD_ID=$(cat "$STANDALONE_DIR/.next/BUILD_ID" 2>/dev/null || echo "MISSING")
+              echo "   [BUILD_ID on disk] $DISK_BUILD_ID"
+
+              # 2. All checkout-related files in standalone
+              echo "   [checkout chunks in standalone]"
+              find "$STANDALONE_DIR/.next/static/chunks/app/[locale]/checkout" -type f 2>/dev/null | while read f; do echo "     $(basename $f)"; done
+              if [ -z "$(find "$STANDALONE_DIR/.next/static/chunks/app/[locale]/checkout" -type f 2>/dev/null)" ]; then
+                echo "     (EMPTY — no files!)"
+              fi
+
+              # 3. All checkout-related files in source .next/static
+              echo "   [checkout chunks in source .next/static]"
+              find .next/static/chunks/app/\[locale\]/checkout -type f 2>/dev/null | while read f; do echo "     $(basename $f)"; done
+              if [ -z "$(find .next/static/chunks/app/\[locale\]/checkout -type f 2>/dev/null)" ]; then
+                echo "     (EMPTY — no files!)"
+              fi
+
+              # 4. All page-*.js in [locale] directory (standalone)
+              echo "   [all page chunks under [locale] in standalone]"
+              find "$STANDALONE_DIR/.next/static/chunks/app/[locale]" -name "page-*.js" 2>/dev/null | while read f; do
+                REL=${f#*$STANDALONE_DIR/.next/static/chunks/app/[locale]/}
+                echo "     $REL"
+              done
+
+              # 5. Pre-rendered HTML for checkout — what chunk hash does it reference?
+              echo "   [pre-rendered HTML chunk references]"
+              # Check standalone server output
+              CHECKOUT_HTML=$(find "$STANDALONE_DIR" -path "*/server/app/*/checkout/index.html" -o -path "*/server/app/*/checkout.html" 2>/dev/null | head -1)
+              if [ -n "$CHECKOUT_HTML" ]; then
+                echo "     HTML file: $CHECKOUT_HTML"
+                grep -oE 'page-[a-f0-9]+\.js' "$CHECKOUT_HTML" 2>/dev/null | sort -u | while read chunk; do
+                  echo "       references: $chunk"
+                  # Check if this chunk exists in static
+                  FOUND=$(find "$STANDALONE_DIR/.next/static/chunks" -name "$chunk" 2>/dev/null | head -1)
+                  if [ -n "$FOUND" ]; then
+                    echo "       ✅ EXISTS in static"
+                  else
+                    echo "       ❌ NOT FOUND in static — THIS IS THE BUG!"
+                  fi
+                done
+              else
+                echo "     No pre-rendered checkout HTML found in standalone"
+                # Try source .next/server
+                SRC_HTML=$(find .next/server/app -path "*checkout/index.html" -o -path "*checkout.html" 2>/dev/null | head -1)
+                if [ -n "$SRC_HTML" ]; then
+                  echo "     Source HTML: $SRC_HTML"
+                  grep -oE 'page-[a-f0-9]+\.js' "$SRC_HTML" 2>/dev/null | sort -u | while read chunk; do echo "       references: $chunk"; done
+                fi
+              fi
+
+              # 6. Check the running server's actual BUILD_ID
+              RUNNING_BUILD_ID=$(curl -s http://127.0.0.1:3000/api/version 2>/dev/null | python3 -c "import sys,json;print(json.load(sys.stdin).get('buildId',''))" 2>/dev/null || echo "N/A")
+              echo "   [RUNNING server BUILD_ID] $RUNNING_BUILD_ID"
+              echo "════════════════════════════════════"
+
               # 🔑 验证: webpack chunk 必须存在，否则整个 JS 无法加载
               WEBPACK_CHUNK=$(find "$STANDALONE_DIR/.next/static/chunks" -name "webpack-*.js" 2>/dev/null | head -1)
               if [ -z "$WEBPACK_CHUNK" ]; then
@@ -374,6 +434,26 @@ jobs:
                     echo "   Cloudflare CDN 缓存可能需要手动清除"
                   fi
                 fi
+              fi
+
+              # 5. Verify checkout page HTML references match
+              echo "   [checkout page verification]"
+              CHECKOUT_RESPONSE=$(curl -s http://127.0.0.1:3000/zh/checkout 2>/dev/null)
+              CHECKOUT_PAGE_REF=$(echo "$CHECKOUT_RESPONSE" | grep -oE 'checkout/page-[a-f0-9]+\.js' | head -1)
+              echo "   checkout page chunk ref: $CHECKOUT_PAGE_REF"
+              if [ -n "$CHECKOUT_PAGE_REF" ]; then
+                CHECKOUT_CHUNK_NAME=$(basename "$CHECKOUT_PAGE_REF")
+                CHECKOUT_FOUND=$(find "$STANDALONE_DIR/.next/static/chunks" -name "$CHECKOUT_CHUNK_NAME" 2>/dev/null | head -1)
+                if [ -n "$CHECKOUT_FOUND" ]; then
+                  echo "   ✅ checkout chunk exists: $CHECKOUT_CHUNK_NAME"
+                else
+                  echo "   ❌ checkout chunk MISSING: $CHECKOUT_CHUNK_NAME"
+                  echo "   Available checkout chunks:"
+                  find "$STANDALONE_DIR/.next/static/chunks/app/[locale]/checkout" -name "page-*.js" 2>/dev/null | while read f; do echo "     $(basename $f)"; done
+                fi
+              else
+                echo "   ⚠️  Could not extract checkout page chunk ref from HTML"
+                echo "   HTML length: ${#CHECKOUT_RESPONSE}"
               fi
             fi
 
