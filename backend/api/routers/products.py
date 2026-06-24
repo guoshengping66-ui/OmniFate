@@ -25,6 +25,7 @@ _matcher = ProductMatcher()
 _review_rate_store: dict[str, list[float]] = {}
 _REVIEW_RATE_LIMIT = 3
 _REVIEW_RATE_WINDOW = 3600  # 1 hour in seconds
+_REVIEW_RATE_EVICT_MAX = 10000
 
 PRODUCTS_PATH = Path(__file__).parent.parent.parent / "data" / "products.json"
 PRODUCTS_EN_PATH = Path(__file__).parent.parent.parent / "data" / "products_en.json"
@@ -191,6 +192,11 @@ async def create_review(
     # ── Rate limit: max 3 reviews per hour per user ──
     user_key = str(user.id)
     now = time.time()
+    # Evict stale entries if store grows too large
+    if len(_review_rate_store) > _REVIEW_RATE_EVICT_MAX:
+        stale = [k for k, v in _review_rate_store.items() if not v or v[-1] <= now - _REVIEW_RATE_WINDOW]
+        for k in stale:
+            del _review_rate_store[k]
     timestamps = _review_rate_store.get(user_key, [])
     # Prune old timestamps
     timestamps = [t for t in timestamps if now - t < _REVIEW_RATE_WINDOW]

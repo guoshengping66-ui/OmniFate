@@ -8,9 +8,13 @@ from collections import defaultdict
 
 logger = logging.getLogger(__name__)
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel, EmailStr
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from database.session import get_db
+from database.models import NewsletterSubscriber
 from utils.email import _send_email
 from config import get_settings
 
@@ -38,9 +42,6 @@ def _check_and_add_rate(store: dict[str, list[float]], client_ip: str) -> bool:
         return True
     store[client_ip].append(now)
     return False
-
-# ── Newsletter subscribers (in-memory, replace with DB in production) ──────
-_newsletter_subscribers: set[str] = set()
 
 
 class ContactRequest(BaseModel):
@@ -112,7 +113,11 @@ async def submit_contact(req: ContactRequest, request: Request):
 
 
 @router.post("/newsletter")
-async def subscribe_newsletter(req: NewsletterRequest, request: Request):
+async def subscribe_newsletter(
+    req: NewsletterRequest,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
     """Subscribe to weekly fortune newsletter."""
     # Rate limit (newsletter-specific bucket)
     client_ip = request.client.host if request.client else "unknown"
@@ -125,13 +130,24 @@ async def subscribe_newsletter(req: NewsletterRequest, request: Request):
 
     email = req.email.lower().strip()
 
-    # Check if already subscribed
-    if email in _newsletter_subscribers:
-        return {"success": True, "message": "您已订阅成功", "already_subscribed": True}
+    # Check if already subscribed (DB-backed)
+    result = await db.execute(
+        select(NewsletterSubscriber).where(NewsletterSubscriber.email == email)
+    )
+    existing = result.scalar_one_or_none()
+    if existing:
+        if existing.is_active:
+            return {"success": True, "message": "您已订阅成功", "already_subscribed": True}
+        # Re-activate if previously unsubscribed
+        existing.is_active = True
+        await db.commit()
+        return {"success": True, "message": "订阅已恢复"}
 
     # Add to subscribers
-    _newsletter_subscribers.add(email)
-    logger.info("Newsletter new subscriber: %s (total: %d)", email, len(_newsletter_subscribers))
+    sub = NewsletterSubscriber(email=email)
+    db.add(sub)
+    await db.commit()
+    logger.info("Newsletter new subscriber: %s", email)
 
     # Send notification to admin
     email_html = f"""

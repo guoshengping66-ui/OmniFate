@@ -407,7 +407,7 @@ async def quick_confirm_form(
     token: str = Query(...),
 ):
     """渲染确认收款的自动提交表单（GET → POST 安全转换）"""
-    target = "https://www.khanfate.com/api/personal-payments/admin/quick-confirm"
+    target = f"{settings.FRONTEND_URL.rstrip('/')}/api/personal-payments/admin/quick-confirm"
     return _auto_submit_form(target, token, "确认收款", "✅ 确认", "#16a34a")
 
 
@@ -458,7 +458,7 @@ async def quick_reject_form(
     token: str = Query(...),
 ):
     """渲染拒绝收款的自动提交表单（GET → POST 安全转换）"""
-    target = "https://www.khanfate.com/api/personal-payments/admin/quick-reject"
+    target = f"{settings.FRONTEND_URL.rstrip('/')}/api/personal-payments/admin/quick-reject"
     return _auto_submit_form(target, token, "拒绝收款", "❌ 确认拒绝", "#dc2626")
 
 

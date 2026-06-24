@@ -634,3 +634,15 @@ class DailyFortune(Base):
     user: Mapped["User"] = relationship()
 
     __table_args__ = (UniqueConstraint("user_id", "fortune_date", name="uq_user_day"),)
+
+
+# ─── NewsletterSubscriber ────────────────────────────────────────────────
+
+class NewsletterSubscriber(Base):
+    """Newsletter 订阅者"""
+    __tablename__ = "newsletter_subscribers"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

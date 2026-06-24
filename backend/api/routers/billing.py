@@ -65,6 +65,9 @@ def _paypal_ip_allowed(ip_str: str) -> bool:
 # ── Redeem Code Rate Limiting ────────────────────────────────────────────────
 from collections import defaultdict
 _redeem_rate_store: dict[str, list[float]] = defaultdict(list)
+_REDEEM_RATE_WINDOW = 60  # 1 minute
+_REDEEM_RATE_MAX = 5
+_REDEEM_RATE_EVICT_MAX = 10000
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -224,10 +227,14 @@ async def redeem_code(
     # ── SECURITY: Rate limit redeem attempts per user ──
     import time as _time
     now = _time.time()
-    window = 60  # 1 minute
     rate_key = f"redeem:{current_user.id}"
-    _redeem_rate_store[rate_key] = [t for t in _redeem_rate_store[rate_key] if t > now - window]
-    if len(_redeem_rate_store[rate_key]) >= 5:
+    # Evict stale entries if store grows too large
+    if len(_redeem_rate_store) > _REDEEM_RATE_EVICT_MAX:
+        stale = [k for k, v in _redeem_rate_store.items() if not v or v[-1] <= now - _REDEEM_RATE_WINDOW]
+        for k in stale:
+            del _redeem_rate_store[k]
+    _redeem_rate_store[rate_key] = [t for t in _redeem_rate_store[rate_key] if t > now - _REDEEM_RATE_WINDOW]
+    if len(_redeem_rate_store[rate_key]) >= _REDEEM_RATE_MAX:
         raise HTTPException(status_code=429, detail="兑换尝试过于频繁，请稍后再试")
     _redeem_rate_store[rate_key].append(now)
 
@@ -668,13 +675,13 @@ def _verify_paypal_webhook_signature(body: bytes, headers: dict) -> bool:
             "request_body": body.decode("utf-8"),
         }
         base_url = "https://api-m.sandbox.paypal.com" if settings.PAYPAL_MODE == "sandbox" else "https://api-m.paypal.com"
-        resp = httpx.post(
-            f"{base_url}/v1/notifications/verify-webhook-signature",
-            json=payload,
-            auth=(settings.PAYPAL_CLIENT_ID, settings.PAYPAL_SECRET),
-            timeout=10,
-        )
-        return resp.status_code == 200 and resp.json().get("verification_status") == "SUCCESS"
+        async with httpx.AsyncClient(timeout=10) as client:
+            resp = await client.post(
+                f"{base_url}/v1/notifications/verify-webhook-signature",
+                json=payload,
+                auth=(settings.PAYPAL_CLIENT_ID, settings.PAYPAL_SECRET),
+            )
+            return resp.status_code == 200 and resp.json().get("verification_status") == "SUCCESS"
     except Exception as e:
         logger.error(f"[SECURITY] PayPal webhook verification error: {e}")
         return False
