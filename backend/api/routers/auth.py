@@ -475,7 +475,11 @@ async def send_code(req: SendCodeRequest, request: Request, db: AsyncSession = D
 
     # Email sent (or SMTP configured) — now store code in DB
     user.verification_code = _hash_code(code)  # Store hash, not plaintext
-    user.verification_expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
+    # Only reset expiry if current one has expired or doesn't exist
+    # (prevents attackers from extending the verification window by repeatedly requesting codes)
+    now_utc = datetime.now(timezone.utc)
+    if not user.verification_expires_at or now_utc > _ensure_aware(user.verification_expires_at):
+        user.verification_expires_at = now_utc + timedelta(minutes=15)
     await db.commit()
 
     return {"message": "验证码已发送"}
@@ -598,7 +602,7 @@ async def login(req: LoginRequest, request: Request, db: AsyncSession = Depends(
         user=_user_dict(user),
     ).model_dump())
     _set_auth_cookies(resp, access, refresh)
-    logger.info("Login successful: user=%s", user.id)
+    logger.info("Login successful: %s", user.email if settings.DEBUG else user.id[:8])
     return resp
 
 
@@ -744,7 +748,10 @@ async def forgot_password(req: SendCodeRequest, request: Request, db: AsyncSessi
 
     # Email sent (or SMTP configured) — now store code in DB
     user.verification_code = _hash_code(code)  # Store hash, not plaintext
-    user.verification_expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
+    # Only reset expiry if current one has expired or doesn't exist
+    now_utc = datetime.now(timezone.utc)
+    if not user.verification_expires_at or now_utc > _ensure_aware(user.verification_expires_at):
+        user.verification_expires_at = now_utc + timedelta(minutes=15)
     await db.commit()
 
     resp = {"message": "验证码已发送到您的邮箱"}
@@ -836,6 +843,7 @@ async def delete_account(
 
 class GoogleLoginRequest(BaseModel):
     credential: str  # Google ID token from frontend
+    nonce: Optional[str] = None  # CSRF nonce (optional for backward compat)
 
 
 # ── Google OAuth public key cache ─────────────────────────────────────────
@@ -929,6 +937,15 @@ async def google_login(req: GoogleLoginRequest, request: Request, db: AsyncSessi
 
         if not google_email:
             raise HTTPException(status_code=400, detail="Google token missing email")
+
+        # Verify nonce (if provided) to prevent token replay attacks
+        token_nonce = payload.get("nonce")
+        if req.nonce:
+            if not token_nonce or not hmac.compare_digest(req.nonce, token_nonce):
+                raise HTTPException(status_code=400, detail="Invalid nonce")
+        elif token_nonce:
+            # Token has nonce but request didn't send one — reject for safety
+            raise HTTPException(status_code=400, detail="Nonce required")
 
     except HTTPException:
         raise

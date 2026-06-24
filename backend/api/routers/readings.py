@@ -67,7 +67,7 @@ async def readings_ping():
     return {"status": "ok", "router": "readings"}
 
 # ── LRU cache for completed readings (avoids repeated DB queries) ──────────
-_reading_cache: dict[str, tuple[float, AnalysisResponse, int]] = {}  # (time, response, size_bytes)
+_reading_cache: OrderedDict[str, tuple[float, AnalysisResponse, int]] = OrderedDict()  # (time, response, size_bytes)
 _READING_CACHE_TTL = 600  # 10 minutes
 _READING_CACHE_MAX = 200  # max cached readings
 _READING_CACHE_MAX_BYTES = 50 * 1024 * 1024  # 50MB total cache limit
@@ -78,10 +78,12 @@ _bg_tasks: set = set()
 
 def _get_reading_cache(session_id: str) -> Optional[AnalysisResponse]:
     """Return cached AnalysisResponse if fresh, else None.
-    Also performs lazy eviction of expired entries on each read."""
+    Moves hit to end (most-recently-used) for LRU eviction."""
     now = time.time()
     entry = _reading_cache.get(session_id)
     if entry and (now - entry[0]) < _READING_CACHE_TTL:
+        # Move to end (MRU position) for LRU
+        _reading_cache.move_to_end(session_id)
         return entry[1]
     # Lazy eviction: remove expired entries (skip if cache is small)
     if len(_reading_cache) > 20:
@@ -92,20 +94,27 @@ def _get_reading_cache(session_id: str) -> Optional[AnalysisResponse]:
 
 
 def _estimate_cache_size(resp: AnalysisResponse) -> int:
-    """Estimate memory size of a cached response in bytes (UTF-8 encoded)."""
+    """Estimate memory size of a cached response in bytes (UTF-8 encoded).
+    Includes ALL text fields: master summary/detail + all worker reports."""
     size = 0
-    # Use len(s.encode('utf-8')) for accurate string size (UTF-8 chars ≠ code points)
+    # Master fields
     for s in (resp.master_summary or "", resp.master_detail or ""):
         size += len(s.encode("utf-8"))
+    # Worker report fields (bazi, astrology, tarot, qimen, ziwei, palm, etc.)
     for key in _WORKER_REPORT_KEYS:
         wo = getattr(resp, key, None)
         if wo and wo.report:
             size += len(wo.report.encode("utf-8"))
+    # Dimension scores and tags (small but count them)
+    if resp.dimension_scores:
+        size += len(str(resp.dimension_scores).encode("utf-8"))
+    if resp.computed_tags:
+        size += len(str(resp.computed_tags).encode("utf-8"))
     return size
 
 
 def _set_reading_cache(session_id: str, resp: AnalysisResponse):
-    """Cache an AnalysisResponse with size tracking and limits."""
+    """Cache an AnalysisResponse with LRU eviction and size limits."""
     import time
     resp_size = _estimate_cache_size(resp)
 
@@ -120,14 +129,13 @@ def _set_reading_cache(session_id: str, resp: AnalysisResponse):
     for k in expired:
         del _reading_cache[k]
 
-    # Evict until under size limit and max count
+    # LRU eviction: pop oldest (first) items until under limits
     total_size = sum(entry[2] for entry in _reading_cache.values())
     while total_size > _READING_CACHE_MAX_BYTES or len(_reading_cache) >= _READING_CACHE_MAX:
         if not _reading_cache:
             break
-        oldest_key = min(_reading_cache, key=lambda k: _reading_cache[k][0])
-        total_size -= _reading_cache[oldest_key][2]
-        del _reading_cache[oldest_key]
+        _oldest_key, (_ts, _resp, _size) = _reading_cache.popitem(last=False)
+        total_size -= _size
 
     _reading_cache[session_id] = (time.time(), resp, resp_size)
 

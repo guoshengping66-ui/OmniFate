@@ -260,9 +260,15 @@ function GoogleLoginButton() {
   const { t, localeHref } = useLanguage()
   const googleBtnRef = useRef<HTMLDivElement>(null)
   const [googleLoaded, setGoogleLoaded] = useState(false)
+  const nonceRef = useRef<string>("")
 
   useEffect(() => {
     if (!GOOGLE_CLIENT_ID) return
+
+    // Generate CSRF nonce for Google OAuth
+    const nonce = crypto.randomUUID()
+    nonceRef.current = nonce
+    sessionStorage.setItem("google_oauth_nonce", nonce)
 
     // Load Google Identity Services script
     const script = document.createElement("script")
@@ -273,6 +279,7 @@ function GoogleLoginButton() {
         window.google.accounts.id.initialize({
           client_id: GOOGLE_CLIENT_ID,
           callback: handleGoogleResponse,
+          nonce,
         })
         if (googleBtnRef.current) {
           window.google.accounts.id.renderButton(googleBtnRef.current, {
@@ -297,8 +304,10 @@ function GoogleLoginButton() {
   const handleGoogleResponse = async (response: any) => {
     try {
       const { api } = await import("@/lib/api")
+      const nonce = sessionStorage.getItem("google_oauth_nonce") || nonceRef.current
       const result = await api.post("/api/auth/google", {
         credential: response.credential,
+        nonce: nonce || undefined,
       })
 
       // Store tokens in sessionStorage so AuthContext can find them on page load

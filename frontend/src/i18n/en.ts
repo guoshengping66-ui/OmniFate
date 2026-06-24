@@ -618,6 +618,7 @@ export default {
   "checkout.free": "Free",
   "checkout.freeShippingHint": "Free shipping on orders over $79",
   "checkout.processingNote": "Due to the energy calibration and handcrafted customization required for each energy artifact, your order will be shipped within 3-5 business days. Global express delivery takes approximately 7-14 days.",
+  "checkout.trustNotice": "This platform is an informational and reflective tool, not a deterministic system. Analysis results are based on AI behavioral modeling and traditional analytical frameworks, intended for personal reflection only.",
   "checkout.total": "Total",
   "checkout.success": "Order Successful!",
   "checkout.empty": "Your cart is empty",

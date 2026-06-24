@@ -17,24 +17,44 @@ router = APIRouter()
 
 REFERRAL_REWARD = 20  # 邀请奖励星尘
 MAX_REFERRALS = 50    # 每人最多邀请 50 人
-
-# ── 防刷: 内存限流 (IP + 设备指纹) ────────────────────────────────────────────
-_apply_cooldown: dict[str, float] = {}  # key → last_apply_timestamp
 COOLDOWN_HOURS = 24
-_last_cleanup: float = 0.0  # timestamp of last cleanup
+
+# ── 防刷: Redis 优先，内存 fallback ──────────────────────────────────────────
+_apply_cooldown: dict[str, float] = {}  # 内存 fallback
+_last_cleanup: float = 0.0
 
 
-def _cleanup_cooldown() -> None:
-    """Periodically remove expired entries to prevent unbounded memory growth."""
+async def _check_cooldown(key: str) -> int:
+    """检查冷却时间。返回剩余秒数（0=可申请）。"""
+    from services.redis_client import _get_redis
+    r = await _get_redis()
+    if r:
+        ttl = await r.ttl(f"ref_cooldown:{key}")
+        return max(0, ttl)
+    # 内存 fallback
+    now = time.time()
+    ts = _apply_cooldown.get(key)
+    if ts and (now - ts) < COOLDOWN_HOURS * 3600:
+        return int((COOLDOWN_HOURS * 3600) - (now - ts))
+    return 0
+
+
+async def _set_cooldown(key: str) -> None:
+    """设置冷却时间（24h）。"""
+    from services.redis_client import _get_redis
+    r = await _get_redis()
+    if r:
+        await r.setex(f"ref_cooldown:{key}", COOLDOWN_HOURS * 3600, "1")
+        return
+    # 内存 fallback
     global _last_cleanup
     now = time.time()
-    # Only clean up at most once per hour
-    if now - _last_cleanup < 3600:
-        return
-    _last_cleanup = now
-    expired_keys = [k for k, ts in _apply_cooldown.items() if now - ts > COOLDOWN_HOURS * 3600]
-    for k in expired_keys:
-        del _apply_cooldown[k]
+    if now - _last_cleanup > 3600:
+        expired = [k for k, ts in _apply_cooldown.items() if now - ts > COOLDOWN_HOURS * 3600]
+        for k in expired:
+            del _apply_cooldown[k]
+        _last_cleanup = now
+    _apply_cooldown[key] = now
 
 
 def _generate_referral_code() -> str:
@@ -107,32 +127,25 @@ async def apply_referral_code(
     - 同一 IP 24h 内仅能被邀请一次
     - 同一设备指纹 24h 内仅能被邀请一次
     """
-    _cleanup_cooldown()
-
     # ── 防刷: IP 限流 ──
     client_ip = request.client.host if request.client else "unknown"
     ip_key = f"ip:{client_ip}"
-    now = time.time()
-    if ip_key in _apply_cooldown:
-        elapsed_hours = (now - _apply_cooldown[ip_key]) / 3600
-        if elapsed_hours < COOLDOWN_HOURS:
-            remaining = int((COOLDOWN_HOURS - elapsed_hours) * 60)
-            raise HTTPException(
-                status_code=429,
-                detail=f"邀请码使用过于频繁，请 {remaining} 分钟后重试"
-            )
+    ip_remaining = await _check_cooldown(ip_key)
+    if ip_remaining > 0:
+        raise HTTPException(
+            status_code=429,
+            detail=f"邀请码使用过于频繁，请 {ip_remaining // 60} 分钟后重试"
+        )
 
     # ── 防刷: 设备指纹限流 ──
     if req.device_fingerprint:
         fp_key = f"fp:{req.device_fingerprint}"
-        if fp_key in _apply_cooldown:
-            elapsed_hours = (now - _apply_cooldown[fp_key]) / 3600
-            if elapsed_hours < COOLDOWN_HOURS:
-                remaining = int((COOLDOWN_HOURS - elapsed_hours) * 60)
-                raise HTTPException(
-                    status_code=429,
-                    detail=f"该设备已使用过邀请码，请 {remaining} 分钟后重试"
-                )
+        fp_remaining = await _check_cooldown(fp_key)
+        if fp_remaining > 0:
+            raise HTTPException(
+                status_code=429,
+                detail=f"该设备已使用过邀请码，请 {fp_remaining // 60} 分钟后重试"
+            )
 
     # 检查是否已经被邀请过
     result = await db.execute(
@@ -204,9 +217,9 @@ async def apply_referral_code(
     db.add(reward)
 
     # 更新冷却时间
-    _apply_cooldown[ip_key] = now
+    await _set_cooldown(ip_key)
     if req.device_fingerprint:
-        _apply_cooldown[f"fp:{req.device_fingerprint}"] = now
+        await _set_cooldown(f"fp:{req.device_fingerprint}")
 
     await db.commit()
 

@@ -96,9 +96,20 @@ async def _ensure_tables():
             logger.error("Failed to ensure tables: %s", e)
 
 
+async def _add_columns(db, table: str, columns: list[tuple[str, str]]) -> None:
+    """Add columns to a table. PostgreSQL uses IF NOT EXISTS; SQLite catches duplicates."""
+    for col_name, col_type in columns:
+        try:
+            if _is_sqlite:
+                await db.execute(text(f"ALTER TABLE {table} ADD COLUMN {col_name} {col_type}"))
+            else:
+                await db.execute(text(f"ALTER TABLE {table} ADD COLUMN IF NOT EXISTS {col_name} {col_type}"))
+        except Exception:
+            pass  # Column already exists
+
+
 async def _migrate_readings_columns():
-    """Add missing columns to users & readings tables (SQLite + PostgreSQL)."""
-    # ── Users table: founder, stardust, referral columns ──
+    """Add missing columns to users, readings, divination_records & orders tables."""
     user_columns = [
         ("is_founder", "BOOLEAN DEFAULT FALSE"),
         ("founder_seat_no", "INTEGER"),
@@ -109,7 +120,6 @@ async def _migrate_readings_columns():
         ("referral_code", "VARCHAR(8)"),
         ("referred_by", "VARCHAR(36)"),
     ]
-    # ── Readings table: report + dimension columns ──
     reading_columns = [
         ("qimen_report", "TEXT"),
         ("ziwei_report", "TEXT"),
@@ -122,11 +132,9 @@ async def _migrate_readings_columns():
         ("partner_palm_report", "TEXT"),
         ("is_detailed_unlocked", "BOOLEAN DEFAULT FALSE"),
     ]
-    # ── Divination records: AI insight column ──
     divination_columns = [
         ("ai_insight", "TEXT"),
     ]
-    # ── Orders table: item_type, refund, CJ, confirm columns ──
     order_columns = [
         ("item_type", "VARCHAR(50)"),
         ("refund_reason", "TEXT"),
@@ -147,83 +155,16 @@ async def _migrate_readings_columns():
 
     try:
         async with AsyncSessionLocal() as db:
-            for col_name, col_type in user_columns:
-                try:
-                    await db.execute(text(
-                        f"ALTER TABLE users ADD COLUMN IF NOT EXISTS {col_name} {col_type}"
-                    ))
-                except Exception:
-                    pass  # SQLite doesn't support IF NOT EXISTS, fallback
-            for col_name, col_type in reading_columns:
-                try:
-                    await db.execute(text(
-                        f"ALTER TABLE readings ADD COLUMN IF NOT EXISTS {col_name} {col_type}"
-                    ))
-                except Exception:
-                    pass
-            for col_name, col_type in divination_columns:
-                try:
-                    await db.execute(text(
-                        f"ALTER TABLE divination_records ADD COLUMN IF NOT EXISTS {col_name} {col_type}"
-                    ))
-                except Exception:
-                    pass
-            for col_name, col_type in order_columns:
-                try:
-                    await db.execute(text(
-                        f"ALTER TABLE orders ADD COLUMN IF NOT EXISTS {col_name} {col_type}"
-                    ))
-                except Exception:
-                    pass
+            await _add_columns(db, "users", user_columns)
+            await _add_columns(db, "readings", reading_columns)
+            await _add_columns(db, "divination_records", divination_columns)
+            await _add_columns(db, "orders", order_columns)
             await db.commit()
             logger.info("Migration: ensured user, reading & order columns")
     except Exception as e:
         logger.warning("Migration warning: %s", e)
 
-    # ── SQLite fallback: add columns one by one (no IF NOT EXISTS) ──
-    if _is_sqlite:
-        all_user_cols = user_columns
-        all_reading_cols = reading_columns
-        try:
-            async with AsyncSessionLocal() as db:
-                for col_name, col_type in all_user_cols:
-                    try:
-                        await db.execute(text(
-                            f"ALTER TABLE users ADD COLUMN {col_name} {col_type}"
-                        ))
-                        logger.info("Added column users.%s", col_name)
-                    except Exception:
-                        pass
-                for col_name, col_type in all_reading_cols:
-                    try:
-                        await db.execute(text(
-                            f"ALTER TABLE readings ADD COLUMN {col_name} {col_type}"
-                        ))
-                        logger.info("Added column readings.%s", col_name)
-                    except Exception:
-                        pass
-                for col_name, col_type in divination_columns:
-                    try:
-                        await db.execute(text(
-                            f"ALTER TABLE divination_records ADD COLUMN {col_name} {col_type}"
-                        ))
-                        logger.info("Added column divination_records.%s", col_name)
-                    except Exception:
-                        pass
-                for col_name, col_type in order_columns:
-                    try:
-                        await db.execute(text(
-                            f"ALTER TABLE orders ADD COLUMN {col_name} {col_type}"
-                        ))
-                        logger.info("Added column orders.%s", col_name)
-                    except Exception:
-                        pass
-                await db.commit()
-        except Exception as e:
-            logger.warning("SQLite migration warning: %s", e)
-
     # Clean up test founder data: reset is_founder for users without seat_no
-    # (real activate always sets founder_seat_no + founder_activated_at)
     global _founder_reset_done
     if _founder_reset_done:
         return
@@ -237,14 +178,14 @@ async def _migrate_readings_columns():
                 logger.info("Cleaned up %d test founder records", result.rowcount)
             await db.commit()
     except Exception:
-        pass  # Table might not exist yet or no rows to update
+        pass
     _founder_reset_done = True
 
 
 async def get_db():
     if not await _check_db_available():
-        yield None
-        return
+        from fastapi import HTTPException
+        raise HTTPException(status_code=503, detail="数据库暂不可用，请稍后再试")
     await _ensure_tables()
     async with AsyncSessionLocal() as session:
         try:

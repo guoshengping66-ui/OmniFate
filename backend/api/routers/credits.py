@@ -236,9 +236,16 @@ async def confirm_deduct(
                 select(User).where(User.id == current_user.id).with_for_update()
             )
             user = user_result.scalar_one()
-            # Use balance_after as base: restore to pre-deduction balance
-            # balance_after is the balance AFTER the original deduction
-            user.stardust_balance = tx.balance_after - tx.amount
+            # Restore: add back the deducted amount (tx.amount is negative, so -= means +)
+            restored = user.stardust_balance - tx.amount
+            # Sanity check: restored balance should never be negative
+            if restored < 0:
+                logger.error(
+                    f"[CREDITS] Negative balance on refund: user={user.id}, "
+                    f"current={user.stardust_balance}, amount={tx.amount}, restored={restored}"
+                )
+                restored = max(0, user.stardust_balance + abs(tx.amount))
+            user.stardust_balance = restored
             tx.status = "refunded"
             refund_tx = CreditTransaction(
                 user_id=user.id,

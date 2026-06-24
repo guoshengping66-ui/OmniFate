@@ -236,7 +236,7 @@ export default function CheckoutPage() {
           </div>
           {region === "overseas" && shippingFee > 0 && (
             <p className="text-white/30 text-[11px] text-right -mt-1">
-              {t("checkout.freeShippingHint") || `满$${FREE_SHIPPING_THRESHOLD}免运费`}
+              {t("checkout.freeShippingHint")}
             </p>
           )}
           <div className="border-t border-white/10 pt-3 flex justify-between">
@@ -273,7 +273,7 @@ export default function CheckoutPage() {
         {/* Processing time disclaimer */}
         <div className="bg-gold/5 border border-gold/20 rounded-xl p-4 mb-4">
           <p className="text-white/50 text-xs leading-relaxed">
-            {t("checkout.processingNote") || "由于每一件精选饰品均需经过严格品质检验与手工包装，您的订单将在 3-5 个工作日内发出，全球专线预计 7-14 天送达。"}
+            {t("checkout.processingNote")}
           </p>
         </div>
 
@@ -305,7 +305,7 @@ export default function CheckoutPage() {
         {/* Trust / Disclaimer Banner */}
         <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-3 mb-4">
           <p className="text-white/30 text-[11px] leading-relaxed text-center">
-            {t("checkout.trustNotice") || "This is an informational and reflective tool, not a deterministic system. Results are based on AI behavioral modeling and traditional analytical frameworks. By proceeding, you acknowledge this is for personal reflection only."}
+            {t("checkout.trustNotice")}
           </p>
         </div>
 
