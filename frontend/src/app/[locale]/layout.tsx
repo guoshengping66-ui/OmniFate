@@ -185,6 +185,13 @@ try{
   if(attempts>=3)return;
   s.setItem(K,String(attempts+1));
 
+  // ── AUTH GUARD: Skip version check if user is logged in ──
+  // When auth tokens exist, the React AuthProvider handles validation.
+  // The inline version check runs BEFORE React mounts — if it triggers a
+  // reload, AuthProvider never gets to restore the cached user from
+  // sessionStorage, causing a flash of the logged-out state.
+  var hasAuth=!!s.getItem("alpha_mirror_access_token");
+
   function reloadWithCacheBust(){
     var url=new URL(window.location.href);
     url.searchParams.set("_cb",Date.now().toString());
@@ -200,29 +207,35 @@ try{
   },true);
 
   // ── Layer 2: IMMEDIATE version check (0ms) ──
-  // Fetch /api/version immediately and compare with stored build ID.
-  // If different → new deploy happened → reload with cache-bust instantly.
-  fetch("/api/version?_cb="+Date.now(),{cache:"no-store"}).then(function(r){
-    return r.json();
-  }).then(function(d){
-    var serverBid=d&&d.buildId;
-    if(!serverBid||serverBid==="unknown")return;
-    var embedded=s.getItem(B);
-    if(!embedded){
-      s.setItem(B,serverBid);
-      return;
-    }
-    if(serverBid!==embedded){
-      reloadWithCacheBust();
-    }
-  }).catch(function(){});
+  // Skip if user is logged in — React's AuthProvider + useVersionCheck
+  // will handle version sync after mounting (avoids pre-React reload
+  // that causes auth state flash).
+  if(!hasAuth){
+    fetch("/api/version?_cb="+Date.now(),{cache:"no-store"}).then(function(r){
+      return r.json();
+    }).then(function(d){
+      var serverBid=d&&d.buildId;
+      if(!serverBid||serverBid==="unknown")return;
+      var embedded=s.getItem(B);
+      if(!embedded){
+        s.setItem(B,serverBid);
+        return;
+      }
+      if(serverBid!==embedded){
+        reloadWithCacheBust();
+      }
+    }).catch(function(){});
+  }
 
   // ── Layer 3: If a script/link failed, reload after 500ms ──
-  setTimeout(function(){
-    if(s.getItem(K+"_fail")==="1"){
-      reloadWithCacheBust();
-    }
-  },500);
+  // Also skip if logged in — same reason as above
+  if(!hasAuth){
+    setTimeout(function(){
+      if(s.getItem(K+"_fail")==="1"){
+        reloadWithCacheBust();
+      }
+    },500);
+  }
 
   // ── Cleanup after 60s ──
   setTimeout(function(){
