@@ -15,6 +15,7 @@ from config import get_settings
 logger = logging.getLogger(__name__)
 
 settings = get_settings()
+_SITE_URL = settings.FRONTEND_URL.rstrip("/")
 
 
 def _get_smtp_config() -> dict:
@@ -62,8 +63,8 @@ def send_verification_email(to_email: str, code: str) -> bool:
       <div style="text-align:center;padding:15px;font-size:11px;color:#aaa;">
         Profile Mirror · 全维度个人分析平台<br/>
         运营者：Profile Mirror 运营团队 | 如非本人操作请忽略此邮件<br/>
-        <a href="https://www.khanfate.com/privacy" style="color:#aaa;">隐私政策</a> ·
-        <a href="https://www.khanfate.com/terms" style="color:#aaa;">服务条款</a>
+        <a href="{_SITE_URL}/privacy" style="color:#aaa;">隐私政策</a> ·
+        <a href="{_SITE_URL}/terms" style="color:#aaa;">服务条款</a>
       </div>
     </div>
     """
@@ -98,8 +99,8 @@ def send_password_reset_email(to_email: str, code: str) -> bool:
       <div style="text-align:center;padding:15px;font-size:11px;color:#aaa;">
         Profile Mirror · 全维度个人分析平台<br/>
         运营者：Profile Mirror运营团队 | 如非本人操作请立即联系客服<br/>
-        <a href="https://www.khanfate.com/privacy" style="color:#aaa;">隐私政策</a> ·
-        <a href="https://www.khanfate.com/terms" style="color:#aaa;">服务条款</a>
+        <a href="{_SITE_URL}/privacy" style="color:#aaa;">隐私政策</a> ·
+        <a href="{_SITE_URL}/terms" style="color:#aaa;">服务条款</a>
       </div>
     </div>
     """
@@ -196,8 +197,8 @@ def send_fortune_email(to_email: str, fortune: dict, locale: str = "zh") -> bool
       </div>
       <div style="text-align:center;padding:15px;font-size:11px;color:#aaa;">
         Profile Mirror · 全维度个人分析平台<br/>
-        <a href="https://www.khanfate.com/settings" style="color:#aaa;">管理订阅</a> ·
-        <a href="https://www.khanfate.com/privacy" style="color:#aaa;">隐私政策</a>
+        <a href="{_SITE_URL}/settings" style="color:#aaa;">管理订阅</a> ·
+        <a href="{_SITE_URL}/privacy" style="color:#aaa;">隐私政策</a>
       </div>
     </div>
     """
@@ -208,7 +209,7 @@ def send_analysis_complete_email(to_email: str, session_id: str, locale: str = "
     """Send notification when analysis is complete."""
     is_zh = locale == "zh"
     subject = "Profile Mirror - 你的分析已完成" if is_zh else "Profile Mirror - Your Analysis is Ready"
-    view_url = f"https://www.khanfate.com/{locale}/reading/{session_id}"
+    view_url = f"{_SITE_URL}/{locale}/reading/{session_id}"
 
     if is_zh:
         html_content = f"""
@@ -235,8 +236,8 @@ def send_analysis_complete_email(to_email: str, session_id: str, locale: str = "
           </div>
           <div style="text-align:center;padding:15px;font-size:11px;color:#aaa;">
             Profile Mirror · 全维度个人分析平台<br/>
-            <a href="https://www.khanfate.com/privacy" style="color:#aaa;">隐私政策</a> ·
-            <a href="https://www.khanfate.com/unsubscribe" style="color:#aaa;">取消订阅</a>
+            <a href="{_SITE_URL}/privacy" style="color:#aaa;">隐私政策</a> ·
+            <a href="{_SITE_URL}/unsubscribe" style="color:#aaa;">取消订阅</a>
           </div>
         </div>
         """
@@ -265,8 +266,8 @@ def send_analysis_complete_email(to_email: str, session_id: str, locale: str = "
           </div>
           <div style="text-align:center;padding:15px;font-size:11px;color:#aaa;">
             Profile Mirror · Multi-Dimension Personal Analysis<br/>
-            <a href="https://www.khanfate.com/privacy" style="color:#aaa;">Privacy</a> ·
-            <a href="https://www.khanfate.com/unsubscribe" style="color:#aaa;">Unsubscribe</a>
+            <a href="{_SITE_URL}/privacy" style="color:#aaa;">Privacy</a> ·
+            <a href="{_SITE_URL}/unsubscribe" style="color:#aaa;">Unsubscribe</a>
           </div>
         </div>
         """
@@ -330,8 +331,8 @@ def send_daily_fortune_email(to_email: str, fortune: dict, locale: str = "zh") -
       </div>
       <div style="text-align:center;padding:15px;font-size:11px;color:#aaa;">
         Profile Mirror · 全维度个人分析平台<br/>
-        <a href="https://www.khanfate.com/settings" style="color:#aaa;">管理订阅</a> ·
-        <a href="https://www.khanfate.com/privacy" style="color:#aaa;">隐私政策</a>
+        <a href="{_SITE_URL}/settings" style="color:#aaa;">管理订阅</a> ·
+        <a href="{_SITE_URL}/privacy" style="color:#aaa;">隐私政策</a>
       </div>
     </div>
     """
@@ -358,7 +359,7 @@ def send_payment_notification_email(
     if not admin_emails:
         return False
 
-    base_url = "https://www.khanfate.com"
+    base_url = _SITE_URL
     confirm_url = f"{base_url}/api/personal-payments/admin/quick-confirm?token={confirm_token}"
     reject_url = f"{base_url}/api/personal-payments/admin/quick-reject?token={reject_token}"
 
@@ -467,8 +468,8 @@ def send_qr_confirm_email(to_email: str, order_no: str, amount_cny: float, token
       </div>
       <div style="text-align:center;padding:15px;font-size:11px;color:#aaa;">
         Profile Mirror · 全维度个人分析平台<br/>
-        <a href="https://www.khanfate.com/privacy" style="color:#aaa;">隐私政策</a> ·
-        <a href="https://www.khanfate.com/terms" style="color:#aaa;">服务条款</a>
+        <a href="{_SITE_URL}/privacy" style="color:#aaa;">隐私政策</a> ·
+        <a href="{_SITE_URL}/terms" style="color:#aaa;">服务条款</a>
       </div>
     </div>
     """
@@ -531,7 +532,7 @@ def send_admin_payment_confirm_email(
       </div>
       <div style="text-align:center;padding:15px;font-size:11px;color:#aaa;">
         Profile Mirror · 管理后台<br/>
-        <a href="https://www.khanfate.com/admin/orders" style="color:#aaa;">查看订单管理</a>
+        <a href="{_SITE_URL}/admin/orders" style="color:#aaa;">查看订单管理</a>
       </div>
     </div>
     """
@@ -562,7 +563,7 @@ def send_admin_payment_reject_email(
           <li>如需帮助请联系客服</li>
         </ul>
         <div style="text-align:center;">
-          <a href="https://www.khanfate.com/zh/account/orders/{html_mod.escape(order_no)}" style="display:inline-block;padding:12px 32px;background:linear-gradient(135deg,#C9A84C,#b8943f);color:#1a0f2e;text-decoration:none;border-radius:20px;font-weight:bold;">查看订单</a>
+          <a href="{_SITE_URL}/zh/account/orders/{html_mod.escape(order_no)}" style="display:inline-block;padding:12px 32px;background:linear-gradient(135deg,#C9A84C,#b8943f);color:#1a0f2e;text-decoration:none;border-radius:20px;font-weight:bold;">查看订单</a>
         </div>
       </div>
     </div>
@@ -611,7 +612,7 @@ def send_refund_request_notification(
           请登录管理后台审核退款申请
         </p>
         <div style="text-align:center;margin:16px 0;">
-          <a href="https://www.khanfate.com/zh/admin/orders" style="display:inline-block;padding:12px 32px;background:#b45309;color:white;text-decoration:none;border-radius:24px;font-weight:bold;font-size:15px;">前往审核</a>
+          <a href="{_SITE_URL}/zh/admin/orders" style="display:inline-block;padding:12px 32px;background:#b45309;color:white;text-decoration:none;border-radius:24px;font-weight:bold;font-size:15px;">前往审核</a>
         </div>
       </div>
     </div>

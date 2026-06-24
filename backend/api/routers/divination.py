@@ -13,8 +13,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from database.session import get_db
 from database.models import User, DivinationRecord, CreditTransaction
 from auth.dependencies import get_current_user, require_user
+from config import get_settings
 
 router = APIRouter()
+settings = get_settings()
 
 # ── 签文数据库 ──────────────────────────────────────────────────────────────
 
@@ -618,7 +620,7 @@ async def share(
     record.shared = True
     await db.commit()
 
-    share_url = f"https://khanfate.com/divination/share/{record.id}"
+    share_url = f"{settings.FRONTEND_URL.rstrip('/')}/divination/share/{record.id}"
 
     # 重新读取用户余额以返回准确值
     refreshed = await db.execute(select(User).where(User.id == current_user.id))

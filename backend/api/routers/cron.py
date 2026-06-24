@@ -173,13 +173,13 @@ async def expiry_reminder(
     reminded_count = 0
     for user in users_to_remind:
         try:
-            from api.routers.auth import _send_email
+            from utils.email import send_email_async
             days_left = (user.premium_expires_at - now).days
             tier_label = "年度" if user.subscription_tier == "premium_yearly" else "月度"
-            await _send_email(
+            await send_email_async(
                 to_email=user.email,
                 subject=f"您的 Fate OS {tier_label}会员将在 {days_left} 天后到期",
-                body=f"""尊敬的用户：
+                html_body=f"""尊敬的用户：
 
 您的 Fate OS {tier_label}会员将于 {user.premium_expires_at.strftime('%Y年%m月%d日')} 到期。
 
