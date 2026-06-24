@@ -334,19 +334,20 @@ async def error_translation_middleware(request: Request, call_next):
             data = json.loads(body)
             if "detail" in data:
                 data["detail"] = _translate_error_detail(data["detail"])
-            new_body = json.dumps(data, ensure_ascii=False).encode("utf-8")
+            # Create fresh JSONResponse — do NOT copy headers from the old response
+            # because Content-Length/Content-Type from the old body would mismatch.
             return JSONResponse(
                 status_code=response.status_code,
                 content=data,
-                headers=dict(response.headers),
             )
         except (json.JSONDecodeError, UnicodeDecodeError):
             pass
 
+        # Fallback: return body as-is (no header copy to avoid Content-Length mismatch)
         return Response(
             content=body,
             status_code=response.status_code,
-            headers=dict(response.headers),
+            media_type="application/json",
         )
 
     return response
