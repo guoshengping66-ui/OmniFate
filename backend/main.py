@@ -140,6 +140,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 # ── Enhanced rate limiter with endpoint-specific limits ──────────────────────
 # Uses Redis when REDIS_URL is configured, otherwise in-memory per-process.
 from services.rate_limiter import check_rate_limit
+from utils.network import get_client_ip as _get_client_ip
 
 RATE_LIMIT_WINDOW = 60  # seconds
 RATE_LIMIT_MAX = 60     # requests per window (global)
@@ -171,25 +172,6 @@ CACHE_ENDPOINTS = {
     "/api/fortune/daily": 3600,    # 每日分析 - 1 hour
 }
 
-
-def _get_client_ip(request: Request) -> str:
-    """Get client IP from trusted sources only.
-
-    Only trusts X-Real-IP when the direct connection is from localhost
-    (i.e., we're behind our Nginx proxy). This prevents attackers from
-    spoofing IP addresses to bypass rate limits.
-    """
-    client_host = request.client.host if request.client else "unknown"
-    # Only trust proxy headers when connected from localhost (Nginx reverse proxy)
-    if client_host in ("127.0.0.1", "::1", "localhost"):
-        real_ip = request.headers.get("x-real-ip")
-        if real_ip:
-            try:
-                ipaddress.ip_address(real_ip.split(",")[0].strip())
-                return real_ip.split(",")[0].strip()
-            except ValueError:
-                pass
-    return client_host
 
 # Cyberpunk-style rate limit error message
 RATE_LIMIT_MESSAGE_ENDPOINT = json.dumps({

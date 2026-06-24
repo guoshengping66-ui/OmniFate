@@ -80,15 +80,16 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
   // ── SECURITY: Block sensitive admin/cron/webhook endpoints from proxy ──
   const BLOCKED_PATHS = [
     "/api/cron/",
-    "/api/webhooks/",          // Webhooks must hit backend directly
-    "/api/payments/webhooks/", // PayPal/CJ webhooks must hit backend directly
-    "/api/credits/grant",      // Admin-only
-    "/api/credits/monthly-grant",
-    "/api/credits/admin/",     // Admin credit audit/management
-    "/api/admin/",             // All admin endpoints
+    "/api/webhooks/",              // Webhooks must hit backend directly
+    "/api/payments/webhooks/",     // PayPal/CJ webhooks must hit backend directly
+    "/api/credits/grant",          // Admin-only: grant stardust
+    "/api/credits/monthly-grant",  // Admin-only: monthly grant
+    "/api/credits/admin/",         // Admin credit audit/management
+    "/api/admin/",                 // All admin endpoints
     "/api/personal-payments/admin/",  // Admin personal payment management
-    "/api/referrals/admin",    // Admin referral management
-    "/api/users/admin",        // Admin user management
+    "/api/referrals/admin",        // Admin referral management
+    "/api/users/admin",            // Admin user management
+    "/api/payments/admin/",        // Admin payment management
   ]
   if (BLOCKED_PATHS.some(p => targetPath.startsWith(p))) {
     return new Response(

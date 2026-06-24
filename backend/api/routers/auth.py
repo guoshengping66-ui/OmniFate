@@ -28,6 +28,7 @@ from auth.jwt import (
 )
 from auth.dependencies import get_current_user, require_user, ACCESS_TOKEN_COOKIE
 from config import get_settings
+from utils.network import get_client_ip as _get_client_ip
 
 router = APIRouter()
 settings = get_settings()
@@ -85,21 +86,6 @@ _RATE_WINDOW = 60  # seconds
 async def _check_rate_limit(key: str, max_per_window: int = 20) -> bool:
     """Check rate limit using Redis (or in-memory fallback). Returns True if blocked."""
     return await _redis_check_rate_limit(key, max_per_window, _RATE_WINDOW)
-
-
-def _get_client_ip(request: Request) -> str:
-    """Get client IP — only trust X-Real-IP from the local reverse proxy."""
-    client_host = request.client.host if request.client else "unknown"
-    # Only trust X-Real-IP if the connection comes from the local reverse proxy
-    if client_host in ("127.0.0.1", "::1", "localhost"):
-        real_ip = request.headers.get("x-real-ip")
-        if real_ip:
-            try:
-                ipaddress.ip_address(real_ip.split(",")[0].strip())
-                return real_ip.split(",")[0].strip()
-            except ValueError:
-                pass
-    return client_host
 
 
 # ── Account lockout ────────────────────────────────────────────────────────

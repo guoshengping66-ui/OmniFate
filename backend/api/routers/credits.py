@@ -14,6 +14,11 @@ from auth.dependencies import get_current_user, require_user
 from config import get_settings
 from utils.cron_auth import verify_cron_secret
 
+# ── Admin email cache (parsed once at module load) ──
+_ADMIN_EMAILS: frozenset[str] = frozenset(
+    e.strip().lower() for e in get_settings().ADMIN_EMAILS.split(",") if e.strip()
+)
+
 logger = logging.getLogger("credits")
 
 router = APIRouter()
@@ -305,11 +310,14 @@ async def grant_stardust(
     req: GrantRequest,
     db: AsyncSession = Depends(get_db),
     _auth: str = Depends(verify_cron_secret),
+    current_user: User = Depends(require_user),
 ):
     """
-    赠送星尘 — 仅限管理员/系统调用（CRON_SECRET 鉴权）
-    不再允许普通用户自行调用
+    赠送星尘 — 仅限管理员调用（CRON_SECRET + admin email 双重鉴权）
     """
+    if current_user.email.lower() not in _ADMIN_EMAILS:
+        raise HTTPException(status_code=403, detail="仅管理员可操作")
+
     if req.amount <= 0 or req.amount > 10000:
         raise HTTPException(status_code=400, detail="赠送数量必须在 1-10000 之间")
 
@@ -349,12 +357,16 @@ async def grant_stardust(
 async def monthly_grant(
     db: AsyncSession = Depends(get_db),
     _auth: str = Depends(verify_cron_secret),
+    current_user: User = Depends(require_user),
     user_id: Optional[str] = Query(None, description="目标用户 ID（管理员调用时指定）"),
 ):
     """
-    月度星尘发放 — 仅限管理员/cron 调用（CRON_SECRET 鉴权）
+    月度星尘发放 — 仅限管理员调用（CRON_SECRET + admin email 双重鉴权）
     包含幂等性检查：同一用户同一月只发放一次
     """
+    if current_user.email.lower() not in _ADMIN_EMAILS:
+        raise HTTPException(status_code=403, detail="仅管理员可操作")
+
     if not user_id:
         raise HTTPException(status_code=400, detail="需指定 user_id")
 
@@ -415,13 +427,17 @@ async def monthly_grant(
 async def admin_audit(
     _auth: str = Depends(verify_cron_secret),
     db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_user),
 ):
     """
-    管理侧审计聚合（CRON_SECRET 鉴权）：
+    管理侧审计聚合（CRON_SECRET + admin email 双重鉴权）：
     - 全站总星尘存量
     - 今日消耗总量
     - 异常消耗用户（今日消耗 > 200）
     """
+    if current_user.email.lower() not in _ADMIN_EMAILS:
+        raise HTTPException(status_code=403, detail="仅管理员可操作")
+
     # 全站总星尘存量
     total_balance_result = await db.execute(
         select(func.coalesce(func.sum(User.stardust_balance), 0))

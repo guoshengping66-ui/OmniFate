@@ -257,14 +257,21 @@ async def unlock_report(
 
     if source == "stardust":
         cost = 30 if tier == "detailed" else 100
-        if current_user.stardust_balance < cost:
+
+        # Pessimistic lock: prevent concurrent double-spend
+        user_result = await db.execute(
+            select(User).where(User.id == current_user.id).with_for_update()
+        )
+        user = user_result.scalar_one()
+
+        if user.stardust_balance < cost:
             raise HTTPException(status_code=400, detail=f"星尘不足，需要 {cost} 星尘")
 
-        current_user.stardust_balance -= cost
+        user.stardust_balance -= cost
         tx = CreditTransaction(
-            user_id=current_user.id,
+            user_id=user.id,
             amount=-cost,
-            balance_after=current_user.stardust_balance,
+            balance_after=user.stardust_balance,
             reason="report_unlock_stardust",
             reference_id=reading_id,
             status="confirmed",

@@ -9,7 +9,10 @@ import axios from "axios"
 // through any proxy untouched.  The server-side JSON decoder understands
 // \uXXXX natively so no changes are needed on the backend.
 function escapeUnicode(str: string): string {
-  // Preserve already-escaped \uXXXX sequences, then convert raw non-ASCII chars
+  // Two-step approach prevents double-escaping:
+  // 1) First replace is a no-op identity that marks existing \uXXXX as already handled
+  // 2) Second replace only converts raw (unescaped) non-ASCII chars to \uXXXX
+  // Without step 1, a char like U+4E2D that's already "中" would become "\\\\u4e2d"
   return str.replace(/\\u[0-9a-f]{4}/gi, (m) => m)
     .replace(/[^\0-\x7F]/g, (ch) =>
       "\\u" + ch.charCodeAt(0).toString(16).padStart(4, "0")
