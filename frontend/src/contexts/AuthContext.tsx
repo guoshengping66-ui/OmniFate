@@ -128,25 +128,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const status = err?.response?.status
         console.warn("[Auth] initAuth: /api/auth/me failed, status:", status, "url:", err?.config?.url)
         if (status === 401 || status === 403) {
-          // Access token expired — try refresh
-          console.log("[Auth] initAuth: attempting token refresh...")
-          const ok = await tryRefreshToken()
-          console.log("[Auth] initAuth: refresh result:", ok)
-          if (ok) {
-            // Refresh succeeded — new tokens are now in sessionStorage
-            // (stored by tryRefreshToken). Retry /me with the new token.
-            try {
-              const res = await apiAuth.get("/api/auth/me")
-              console.log("[Auth] initAuth: retry /me OK after refresh, user:", res.data?.email)
-              setUser(res.data)
-              cacheUser(res.data)
-            } catch (retryErr: any) {
-              console.error("[Auth] initAuth: retry /me FAILED after refresh:", retryErr?.response?.status)
+          // Check if the interceptor already attempted a refresh+retry.
+          // The interceptor sets _retry=true on the original request config
+          // before retrying. If it did, the refresh already failed — don't
+          // retry again (old refresh token is blacklisted, would fail).
+          if (err?.config?._retry) {
+            console.warn("[Auth] initAuth: interceptor already retried after refresh — clearing auth")
+            clearAuth()
+          } else {
+            // Interceptor didn't handle it (e.g. skipPaths matched) — try manually
+            console.log("[Auth] initAuth: attempting token refresh...")
+            const ok = await tryRefreshToken()
+            console.log("[Auth] initAuth: refresh result:", ok)
+            if (ok) {
+              try {
+                const res = await apiAuth.get("/api/auth/me")
+                console.log("[Auth] initAuth: retry /me OK after refresh, user:", res.data?.email)
+                setUser(res.data)
+                cacheUser(res.data)
+              } catch (retryErr: any) {
+                console.error("[Auth] initAuth: retry /me FAILED after refresh:", retryErr?.response?.status)
+                clearAuth()
+              }
+            } else {
+              console.warn("[Auth] initAuth: refresh failed, clearing auth")
               clearAuth()
             }
-          } else {
-            console.warn("[Auth] initAuth: refresh failed, clearing auth")
-            clearAuth()
           }
         }
         // Network errors: keep cached user (don't clear on transient failures)
@@ -170,46 +177,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     // Response interceptor: catch 401 → refresh → retry ONCE
-    const resInterceptor = async (error: any) => {
-      const originalRequest = error?.config
-      if (!originalRequest || error.response?.status !== 401 || originalRequest._retry) {
-        return Promise.reject(error)
-      }
-
-      // Skip refresh for auth endpoints (login/register/refresh/verify)
-      const skipPaths = ["/api/auth/login", "/api/auth/register", "/api/auth/refresh", "/api/auth/verify-email"]
-      if (skipPaths.some(p => originalRequest.url?.includes(p))) {
-        return Promise.reject(error)
-      }
-
-      originalRequest._retry = true
-
-      const ok = await tryRefreshToken()
-      if (ok) {
-        // Token refreshed — retry original request.
-        // The reqInterceptor will re-read the NEW token from sessionStorage.
-        // Use `api` client for retry (all clients share the same proxy baseURL
-        // in production, so any client works).
-        try {
-          return await api(originalRequest)
-        } catch (retryErr: any) {
-          // Retry failed (network error etc.) — propagate the original 401
-          console.warn("[Auth] Retry after refresh failed:", retryErr?.message)
+    // Each client gets its own interceptor so the retry uses the SAME client
+    // that made the original request (preserving its interceptors/config).
+    function makeResInterceptor(client: typeof api) {
+      return async (error: any) => {
+        const originalRequest = error?.config
+        if (!originalRequest || error.response?.status !== 401 || originalRequest._retry) {
           return Promise.reject(error)
         }
-      }
 
-      // Refresh failed — clear auth
-      clearAuth()
-      return Promise.reject(error)
+        // Skip refresh for auth endpoints (login/register/refresh/verify)
+        const skipPaths = ["/api/auth/login", "/api/auth/register", "/api/auth/refresh", "/api/auth/verify-email"]
+        if (skipPaths.some(p => originalRequest.url?.includes(p))) {
+          return Promise.reject(error)
+        }
+
+        originalRequest._retry = true
+
+        const ok = await tryRefreshToken()
+        if (ok) {
+          // Token refreshed — retry with the SAME client that made the original
+          // request so its specific interceptors (CSRF, lang, etc.) are applied.
+          // The reqInterceptor will re-read the NEW token from sessionStorage.
+          try {
+            return await client(originalRequest)
+          } catch (retryErr: any) {
+            // Retry failed (network error etc.) — propagate the original 401
+            console.warn("[Auth] Retry after refresh failed:", retryErr?.message)
+            return Promise.reject(error)
+          }
+        }
+
+        // Refresh failed — clear auth
+        clearAuth()
+        return Promise.reject(error)
+      }
     }
 
     const i1 = api.interceptors.request.use(reqInterceptor)
     const i2 = apiDirect.interceptors.request.use(reqInterceptor)
     const i3 = apiAuth.interceptors.request.use(reqInterceptor)
-    const r1 = api.interceptors.response.use(r => r, resInterceptor)
-    const r2 = apiDirect.interceptors.response.use(r => r, resInterceptor)
-    const r3 = apiAuth.interceptors.response.use(r => r, resInterceptor)
+    const r1 = api.interceptors.response.use(r => r, makeResInterceptor(api))
+    const r2 = apiDirect.interceptors.response.use(r => r, makeResInterceptor(apiDirect))
+    const r3 = apiAuth.interceptors.response.use(r => r, makeResInterceptor(apiAuth))
 
     return () => {
       api.interceptors.request.eject(i1)
