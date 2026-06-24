@@ -135,8 +135,13 @@ jobs:
               sudo rm -rf /opt/OmniFate/frontend/.next
               sudo rm -rf /opt/OmniFate/frontend/node_modules
               sudo rm -rf /opt/OmniFate/frontend/.turbo
+              # ⚠️ 关键: 清除 webpack 持久化缓存，否则旧模块会被复用
               sudo rm -rf /tmp/webpack* 2>/dev/null || true
               sudo rm -rf /root/.cache/webpack* 2>/dev/null || true
+              sudo rm -rf /tmp/turbopack* 2>/dev/null || true
+              sudo rm -rf /root/.cache/turbopack* 2>/dev/null || true
+              # 清除 npm 缓存中的旧包
+              sudo npm cache clean --force 2>/dev/null || true
 
               cd /opt/OmniFate/frontend
               sudo chown -R $(whoami) . 2>/dev/null || true
@@ -148,7 +153,8 @@ jobs:
               sudo chown -R $(whoami) /opt/OmniFate/frontend 2>/dev/null || true
 
               echo "🔨 构建生产版本 (standalone)..."
-              NODE_ENV=production npm run build
+              # ⚠️ 禁用 webpack 缓存，确保每次构建都是全新的
+              NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 npm run build
               # ⚠️ 关键: build 过程中会以 root 创建 .next/types/ 和 .next/standalone/ 等目录
               # 必须在 build 后 chown，否则下次构建会因 EACCES 失败
               sudo chown -R $(whoami) .next 2>/dev/null || true
