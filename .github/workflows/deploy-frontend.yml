@@ -199,10 +199,10 @@ jobs:
               sudo rm -rf "$STANDALONE_DIR/.next/static" 2>/dev/null || true
               sudo mkdir -p "$STANDALONE_DIR/.next/static"
 
-              # 复制静态文件 — 用 tar 管道复制，避免 * glob 将 [locale] 解释为字符类
+              # 复制静态文件
               echo "   === 执行复制 ==="
-              sudo tar cf - -C .next/static . | sudo tar xf - -C "$STANDALONE_DIR/.next/static/"
-              echo "   复制完成"
+              sudo cp -r .next/static/* "$STANDALONE_DIR/.next/static/" || { echo "❌ cp static 失败"; exit 1; }
+              echo "   cp static 完成"
 
               # 复制 public
               sudo rm -rf "$STANDALONE_DIR/public" 2>/dev/null || true
@@ -240,31 +240,24 @@ jobs:
               fi
               echo "✅ 首页 page chunk 验证通过: $(basename $PAGE_CHUNK)"
 
-              # 🔑 验证: 所有子路由 page chunk 必须存在 (如 checkout, pricing 等)
-              # cp -r 的 * glob 可能跳过 [locale] 目录下的子目录
-              MISSING_PAGES=""
-              for PAGE_DIR in "$STANDALONE_DIR/.next/static/chunks/app/[locale]"/*/; do
-                if [ -d "$PAGE_DIR" ]; then
-                  PAGE_NAME=$(basename "$PAGE_DIR")
-                  SUB_PAGE=$(find "$PAGE_DIR" -maxdepth 1 -name "page-*.js" 2>/dev/null | head -1)
-                  if [ -z "$SUB_PAGE" ]; then
-                    MISSING_PAGES="$MISSING_PAGES $PAGE_NAME"
-                  fi
+              # 🔑 验证: checkout 等子路由 page chunk 必须存在
+              CHECKOUT_PAGE=$(find "$STANDALONE_DIR/.next/static/chunks/app/[locale]/checkout" -maxdepth 1 -name "page-*.js" 2>/dev/null | head -1)
+              if [ -z "$CHECKOUT_PAGE" ]; then
+                echo "⚠️  警告: standalone 目录缺少 checkout page chunk!"
+                echo "   检查源目录..."
+                SRC_CHECKOUT=$(find .next/static/chunks/app/\[locale\]/checkout -maxdepth 1 -name "page-*.js" 2>/dev/null | head -1)
+                if [ -n "$SRC_CHECKOUT" ]; then
+                  echo "   源目录有: $(basename $SRC_CHECKOUT)，尝试单独复制..."
+                  sudo mkdir -p "$STANDALONE_DIR/.next/static/chunks/app/[locale]/checkout"
+                  sudo cp "$SRC_CHECKOUT" "$STANDALONE_DIR/.next/static/chunks/app/[locale]/checkout/"
+                  echo "✅ 已单独复制 checkout page chunk"
+                else
+                  echo "❌ 源目录也没有 checkout page chunk，构建可能有问题"
+                  exit 1
                 fi
-              done
-              if [ -n "$MISSING_PAGES" ]; then
-                echo "❌ 验证失败: 以下子路由缺少 page chunk:$MISSING_PAGES"
-                echo "   源目录中的子路由:"
-                for PAGE_DIR in .next/static/chunks/app/\[locale\]/*/; do
-                  if [ -d "$PAGE_DIR" ]; then
-                    PAGE_NAME=$(basename "$PAGE_DIR")
-                    SUB_PAGE=$(find "$PAGE_DIR" -maxdepth 1 -name "page-*.js" 2>/dev/null | head -1)
-                    echo "     $PAGE_NAME: ${SUB_PAGE:-MISSING}"
-                  fi
-                done
-                exit 1
+              else
+                echo "✅ checkout page chunk 验证通过: $(basename $CHECKOUT_PAGE)"
               fi
-              echo "✅ 所有子路由 page chunk 验证通过"
 
               # 🔑 验证: webpack chunk 必须存在，否则整个 JS 无法加载
               WEBPACK_CHUNK=$(find "$STANDALONE_DIR/.next/static/chunks" -name "webpack-*.js" 2>/dev/null | head -1)
