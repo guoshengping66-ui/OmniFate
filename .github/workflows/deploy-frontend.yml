@@ -199,10 +199,11 @@ jobs:
               sudo rm -rf "$STANDALONE_DIR/.next/static" 2>/dev/null || true
               sudo mkdir -p "$STANDALONE_DIR/.next/static"
 
-              # 复制静态文件 (不用 -v 避免 SSH 日志缓冲区溢出)
-              echo "   === 执行复制 ==="
-              sudo cp -r .next/static/* "$STANDALONE_DIR/.next/static/" || { echo "❌ cp static 失败"; exit 1; }
-              echo "   cp static 完成"
+              # 复制静态文件 — 使用 rsync 而非 cp -r，因为 cp 的 * glob 在 bash 中
+              # 会将 [locale] 目录名解释为字符类模式 [cl oe]，导致该目录被跳过
+              echo "   === 执行复制 (rsync) ==="
+              sudo rsync -a --delete .next/static/ "$STANDALONE_DIR/.next/static/" || { echo "❌ rsync static 失败"; exit 1; }
+              echo "   rsync static 完成"
 
               # 复制 public
               sudo rm -rf "$STANDALONE_DIR/public" 2>/dev/null || true
@@ -239,6 +240,32 @@ jobs:
                 exit 1
               fi
               echo "✅ 首页 page chunk 验证通过: $(basename $PAGE_CHUNK)"
+
+              # 🔑 验证: 所有子路由 page chunk 必须存在 (如 checkout, pricing 等)
+              # cp -r 的 * glob 可能跳过 [locale] 目录下的子目录
+              MISSING_PAGES=""
+              for PAGE_DIR in "$STANDALONE_DIR/.next/static/chunks/app/[locale]"/*/; do
+                if [ -d "$PAGE_DIR" ]; then
+                  PAGE_NAME=$(basename "$PAGE_DIR")
+                  SUB_PAGE=$(find "$PAGE_DIR" -maxdepth 1 -name "page-*.js" 2>/dev/null | head -1)
+                  if [ -z "$SUB_PAGE" ]; then
+                    MISSING_PAGES="$MISSING_PAGES $PAGE_NAME"
+                  fi
+                fi
+              done
+              if [ -n "$MISSING_PAGES" ]; then
+                echo "❌ 验证失败: 以下子路由缺少 page chunk:$MISSING_PAGES"
+                echo "   源目录中的子路由:"
+                for PAGE_DIR in .next/static/chunks/app/\[locale\]/*/; do
+                  if [ -d "$PAGE_DIR" ]; then
+                    PAGE_NAME=$(basename "$PAGE_DIR")
+                    SUB_PAGE=$(find "$PAGE_DIR" -maxdepth 1 -name "page-*.js" 2>/dev/null | head -1)
+                    echo "     $PAGE_NAME: ${SUB_PAGE:-MISSING}"
+                  fi
+                done
+                exit 1
+              fi
+              echo "✅ 所有子路由 page chunk 验证通过"
 
               # 🔑 验证: webpack chunk 必须存在，否则整个 JS 无法加载
               WEBPACK_CHUNK=$(find "$STANDALONE_DIR/.next/static/chunks" -name "webpack-*.js" 2>/dev/null | head -1)

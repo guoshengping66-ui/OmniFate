@@ -3,7 +3,6 @@ const createNextIntlPlugin = require("next-intl/plugin")
 const withNextIntl = createNextIntlPlugin()
 
 /** @type {import("next").NextConfig} */
-// Force fresh build to resolve checkout page ChunkLoadError
 
 // Production backend URL — .env files are gitignored and not deployed to Vercel,
 // so we hardcode the default here. Local dev overrides via .env.local.
