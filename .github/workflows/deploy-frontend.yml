@@ -199,11 +199,10 @@ jobs:
               sudo rm -rf "$STANDALONE_DIR/.next/static" 2>/dev/null || true
               sudo mkdir -p "$STANDALONE_DIR/.next/static"
 
-              # 复制静态文件 — 使用 rsync 而非 cp -r，因为 cp 的 * glob 在 bash 中
-              # 会将 [locale] 目录名解释为字符类模式 [cl oe]，导致该目录被跳过
-              echo "   === 执行复制 (rsync) ==="
-              sudo rsync -a --delete .next/static/ "$STANDALONE_DIR/.next/static/" || { echo "❌ rsync static 失败"; exit 1; }
-              echo "   rsync static 完成"
+              # 复制静态文件 — 用 cp -a 复制目录本身，避免 * glob 将 [locale] 解释为字符类
+              echo "   === 执行复制 ==="
+              sudo cp -a .next/static/. "$STANDALONE_DIR/.next/static/" || { echo "❌ cp static 失败"; exit 1; }
+              echo "   cp static 完成"
 
               # 复制 public
               sudo rm -rf "$STANDALONE_DIR/public" 2>/dev/null || true
