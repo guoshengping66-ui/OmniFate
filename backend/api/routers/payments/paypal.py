@@ -322,9 +322,9 @@ async def create_shop_paypal_order(
 
     # 计算美元金额
     total_cny = float(order.total_cny or 0)
-    # 汇率: 1 USD ≈ 7.2 CNY
-    CNY_TO_USD_RATE = 7.2
-    amount_usd = round(total_cny / CNY_TO_USD_RATE, 2)
+    from config import settings
+    cny_to_usd_rate = settings.CNY_TO_USD_RATE or 7.0
+    amount_usd = round(total_cny / cny_to_usd_rate, 2)
     if amount_usd < 0.01:
         raise HTTPException(status_code=400, detail="订单金额异常")
 

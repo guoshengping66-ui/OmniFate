@@ -140,7 +140,7 @@ async def create_payment_order(
     if payload.amount <= 0:
         raise HTTPException(status_code=400, detail="金额必须大于0")
     valid_amounts = {
-        "report_unlock": PRODUCT_PRICES.get("report_unlock", {}).get("cny", 10),
+        "report_unlock": PRODUCT_PRICES.get("unlock_report", {}).get("cny", 19.9),
         "premium_monthly": PRODUCT_PRICES.get("premium_monthly", {}).get("cny", 59),
         "premium_yearly": PRODUCT_PRICES.get("premium_yearly", {}).get("cny", 365),
         "onetime_unlock": PRODUCT_PRICES.get("onetime_unlock", {}).get("cny", 19.9),

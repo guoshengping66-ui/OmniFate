@@ -40,6 +40,14 @@ class Settings(BaseSettings):
     WORKER_MAX_TOKENS: int = 1024   # 优化：从1536降至1024，worker分析素材不需要那么多
     ZIWEI_MODEL: str = ""            # 空=使用默认OPENAI_MODEL；可单独指定更快模型
 
+    # ── Worker timeouts (seconds) — can be overridden per environment ──
+    ASTROLOGY_WORKER_TIMEOUT: int = 120
+    TAROT_WORKER_TIMEOUT: int = 90
+    BAZI_WORKER_TIMEOUT: int = 90
+    QIMEN_ZIWEI_WORKER_TIMEOUT: int = 120
+    FACE_WORKER_TIMEOUT: int = 90
+    PALM_WORKER_TIMEOUT: int = 90
+
     # ── 免费模型（追问等低频场景使用）──
     FREE_MODEL_API_KEY: str = ""                 # 空则复用 OPENAI_API_KEY
     FREE_MODEL_BASE_URL: str = ""                # 空则复用 OPENAI_BASE_URL (DeepSeek)

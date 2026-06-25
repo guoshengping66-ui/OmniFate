@@ -1712,7 +1712,16 @@ async def run_partner_palm(state: SystemState) -> WorkerOutput:
 # Merged workers: qimen+ziwei combined into one LLM call
 _WORKER_IDS = ["astrology", "tarot", "bazi", "qimen_ziwei", "face", "palm"]
 _WORKER_RUNNERS = [run_astrology, run_tarot, run_bazi, run_qimen_ziwei, run_face, run_palm]
-_WORKER_TIMEOUTS = [120, 90, 90, 120, 90, 90]  # astrology 120s (prompt-heavy); tarot/bazi 90s (LLM can take 90s); qimen_ziwei 120s; face/palm 90s
+from config import get_settings
+_settings = get_settings()
+_WORKER_TIMEOUTS = [
+    _settings.ASTROLOGY_WORKER_TIMEOUT,
+    _settings.TAROT_WORKER_TIMEOUT,
+    _settings.BAZI_WORKER_TIMEOUT,
+    _settings.QIMEN_ZIWEI_WORKER_TIMEOUT,
+    _settings.FACE_WORKER_TIMEOUT,
+    _settings.PALM_WORKER_TIMEOUT,
+]
 # Which worker IDs are merged (return list of WorkerOutput instead of single)
 _MERGED_WORKERS = {"qimen_ziwei"}
 
