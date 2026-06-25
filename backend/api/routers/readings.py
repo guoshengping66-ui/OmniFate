@@ -1454,7 +1454,7 @@ async def list_my_readings(
                 items.append(ReadingListItem(
                     id=str(r.id),
                     session_id=str(r.id),
-                    status=r.status.value if r.status else "completed",
+                    status=(getattr(r.status, "value", r.status) if r.status else "completed"),
                     master_summary=(r.master_summary or "")[:200],
                     computed_tags=computed_tags,
                     dimension_scores=dimension_scores,
@@ -1465,6 +1465,7 @@ async def list_my_readings(
                 ))
             return items
     except Exception as exc:
+        logger.exception("list_my_readings failed for user %s: %s", user.id, exc)
         raise HTTPException(status_code=500, detail="获取报告列表失败，请稍后重试")
 
 
