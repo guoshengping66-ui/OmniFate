@@ -1,5 +1,5 @@
 "use client"
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import { Share2, Check, Copy, X, Download, Users, Gift, FileText } from "lucide-react"
 import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"
@@ -16,9 +16,8 @@ export function ShareSheet({ sessionId }: Props) {
   const { user } = useAuth()
   const { t } = useLanguage()
 
-  const shareUrl = typeof window !== "undefined"
-    ? `${window.location.origin}/reading/${sessionId}`
-    : ""
+  const [shareUrl, setShareUrl] = useState("")
+  useEffect(() => { setShareUrl(`${window.location.origin}/reading/${sessionId}`) }, [sessionId])
 
   const referralCode = user ? `DESTINY-${user.id.slice(0, 8).toUpperCase()}` : ""
 

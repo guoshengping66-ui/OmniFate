@@ -1,5 +1,5 @@
 "use client"
-import { useMemo } from "react"
+import { useMemo, useState, useEffect } from "react"
 import Link from "next/link"
 import { ChevronRight, Home } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
@@ -18,11 +18,13 @@ interface BreadcrumbsProps {
 
 export function Breadcrumbs({ items, currentPath }: BreadcrumbsProps) {
   const { t, localeHref } = useLanguage()
+  const [clientPath, setClientPath] = useState("")
+  useEffect(() => { setClientPath(window.location.pathname) }, [])
 
   // BreadcrumbList JSON-LD for rich snippets
   const jsonLd = useMemo(() => {
     const baseUrl = "https://www.khanfate.com"
-    const pathname = currentPath || (typeof window !== "undefined" ? window.location.pathname : "/")
+    const pathname = currentPath || clientPath || "/"
     const pathParts = pathname.split("/").filter(Boolean)
     const locale = pathParts[0] || "en"
 
@@ -46,7 +48,7 @@ export function Breadcrumbs({ items, currentPath }: BreadcrumbsProps) {
       "@type": "BreadcrumbList",
       itemListElement: listItems,
     }
-  }, [items, t, currentPath])
+  }, [items, t, currentPath, clientPath])
 
   return (
     <>

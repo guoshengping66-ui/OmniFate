@@ -215,7 +215,8 @@ const EnergyIDCardInner = ({ sessionId, dimensionScores, generatedAt, ..._rest }
   const archetype = getArchetype(scores)
   const signature = generateSignature(scores)
   const prophecy = getProphecy(sessionId, locale)
-  const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/reading/${sessionId}` : ""
+  const [shareUrl, setShareUrl] = useState("")
+  useEffect(() => { setShareUrl(`${window.location.origin}/reading/${sessionId}`) }, [sessionId])
 
   useEffect(() => { const t = setTimeout(() => setVisible(true), 400); return () => clearTimeout(t) }, [])
   useEffect(() => {

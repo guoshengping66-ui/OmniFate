@@ -67,7 +67,8 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
   }).filter(Boolean)
 
   // ── 分享面板操作 ──
-  const shareUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/am16?code=${code}`
+  const [shareUrl, setShareUrl] = useState("")
+  useEffect(() => { setShareUrl(`${window.location.origin}/am16?code=${code}`) }, [code])
 
   const handleCopyLink = async () => {
     try {
