@@ -8,6 +8,7 @@ api/routers/fortune.py — 运势订阅 API
   GET  /api/fortune/daily        — 获取今日运势
   POST /api/fortune/generate-all — cron 触发，为所有订阅用户生成运势并发送邮件
 """
+import asyncio
 import logging
 from datetime import datetime, timezone
 from typing import Optional
@@ -116,11 +117,13 @@ async def subscribe(
                     db.add(df)
                     await db.commit()
 
-                # Send email
+                # Send email (delegated to thread to avoid blocking event loop)
                 if user.email:
                     from utils.email import send_daily_fortune_email
                     fortune_data["date"] = day_str
-                    email_sent = send_daily_fortune_email(user.email, fortune_data, locale="zh")
+                    email_sent = await asyncio.to_thread(
+                        send_daily_fortune_email, user.email, fortune_data, locale="zh"
+                    )
             else:
                 # Generate weekly fortune
                 week_start, week_end = get_current_week_range()
@@ -158,12 +161,14 @@ async def subscribe(
                     db.add(wf)
                     await db.commit()
 
-                # Send email
+                # Send email (delegated to thread to avoid blocking event loop)
                 if user.email:
                     from utils.email import send_fortune_email
                     fortune_data["week_start"] = week_start
                     fortune_data["week_end"] = week_end
-                    email_sent = send_fortune_email(user.email, fortune_data, locale="zh")
+                    email_sent = await asyncio.to_thread(
+                        send_fortune_email, user.email, fortune_data, locale="zh"
+                    )
 
         except Exception as e:
             logger.warning(f"[FORTUNE-SUB] Generate/email failed for user {user.id}: {e}")

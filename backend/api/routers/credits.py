@@ -156,7 +156,9 @@ async def deduct_stardust(
     result = await db.execute(
         select(User).where(User.id == current_user.id).with_for_update()
     )
-    user = result.scalar_one()
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=403, detail="用户不存在或已被禁用")
 
     if user.stardust_balance < actual_cost:
         raise HTTPException(
@@ -235,17 +237,18 @@ async def confirm_deduct(
             user_result = await db.execute(
                 select(User).where(User.id == current_user.id).with_for_update()
             )
-            user = user_result.scalar_one()
-            # Restore: add back the deducted amount (tx.amount is negative, so -= means +)
-            restored = user.stardust_balance - tx.amount
-            # Sanity check: restored balance should never be negative
-            if restored < 0:
-                logger.error(
-                    f"[CREDITS] Negative balance on refund: user={user.id}, "
-                    f"current={user.stardust_balance}, amount={tx.amount}, restored={restored}"
-                )
-                restored = max(0, user.stardust_balance + abs(tx.amount))
-            user.stardust_balance = restored
+            user = user_result.scalar_one_or_none()
+            if user:
+                # Restore: add back the deducted amount (tx.amount is negative, so -= means +)
+                restored = user.stardust_balance - tx.amount
+                # Sanity check: restored balance should never be negative
+                if restored < 0:
+                    logger.error(
+                        f"[CREDITS] Negative balance on refund: user={user.id}, "
+                        f"current={user.stardust_balance}, amount={tx.amount}, restored={restored}"
+                    )
+                    restored = max(0, user.stardust_balance + abs(tx.amount))
+                user.stardust_balance = restored
             tx.status = "refunded"
             refund_tx = CreditTransaction(
                 user_id=user.id,
@@ -287,7 +290,11 @@ async def refund_deduct(
     user_result = await db.execute(
         select(User).where(User.id == current_user.id).with_for_update()
     )
-    user = user_result.scalar_one()
+    user = user_result.scalar_one_or_none()
+    if not user:
+        tx.status = "refunded"
+        await db.commit()
+        return {"refunded": True, "transaction_id": transaction_id, "note": "用户已删除"}
 
     user.stardust_balance -= tx.amount  # tx.amount 是负数，减去负数=加回
 

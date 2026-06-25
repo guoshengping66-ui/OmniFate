@@ -462,7 +462,9 @@ async def draw(
             user_result = await db.execute(
                 select(User).where(User.id == current_user.id).with_for_update()
             )
-            user = user_result.scalar_one()
+            user = user_result.scalar_one_or_none()
+            if not user:
+                raise HTTPException(status_code=403, detail="用户不存在或已被禁用")
             if user.stardust_balance < actual_cost:
                 raise HTTPException(
                     status_code=402,
@@ -587,7 +589,9 @@ async def share(
     user_result = await db.execute(
         select(User).where(User.id == current_user.id).with_for_update()
     )
-    user = user_result.scalar_one()
+    user = user_result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=403, detail="用户不存在或已被禁用")
 
     today = datetime.now(timezone.utc).date()
     share_count_result = await db.execute(
@@ -624,7 +628,9 @@ async def share(
 
     # 重新读取用户余额以返回准确值
     refreshed = await db.execute(select(User).where(User.id == current_user.id))
-    final_user = refreshed.scalar_one()
+    final_user = refreshed.scalar_one_or_none()
+    if not final_user:
+        raise HTTPException(status_code=403, detail="用户不存在或已被禁用")
 
     return {
         "share_url": share_url,

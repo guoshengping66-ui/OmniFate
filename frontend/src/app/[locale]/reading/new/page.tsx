@@ -60,11 +60,11 @@ function useScanState(
     if (!f) return
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/heic']
     if (!allowedTypes.includes(f.type)) {
-      toast.error(t('reading.invalidImageType') || 'Please upload a JPG, PNG, or WebP image')
+      toast.error('Please upload a JPG, PNG, or WebP image')
       return
     }
     if (f.size > 10 * 1024 * 1024) {
-      toast.error(t('reading.imageTooLarge') || 'Image must be under 10MB')
+      toast.error('Image must be under 10MB')
       return
     }
     if (previewRef.current) URL.revokeObjectURL(previewRef.current)

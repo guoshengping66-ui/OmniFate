@@ -336,11 +336,12 @@ def _apply_content_lock(resp: AnalysisResponse, current_user: Optional[User], re
     # Active premium subscription overrides to full unlock
     # Ensure timezone-aware comparison (SQLite may store naive datetimes)
     _now_utc = datetime.now(timezone.utc)
-    _expires = current_user.premium_expires_at
-    if _expires and _expires.tzinfo is None:
-        _expires = _expires.replace(tzinfo=timezone.utc)
-    if tier != "full" and current_user and current_user.is_premium and _expires and _expires > _now_utc:
-        tier = "full"
+    if current_user:
+        _expires = current_user.premium_expires_at
+        if _expires and _expires.tzinfo is None:
+            _expires = _expires.replace(tzinfo=timezone.utc)
+        if tier != "full" and current_user.is_premium and _expires and _expires > _now_utc:
+            tier = "full"
 
     # ── Apply tier restrictions ──
     if tier == "full":
@@ -834,7 +835,9 @@ async def chat_followup(
                 await db.execute(_sa_text("SET LOCAL lock_timeout = '30s'"))
             except Exception:
                 pass  # SQLite doesn't support lock_timeout — uses busy_timeout instead
-            user = user_result.scalar_one()
+            user = user_result.scalar_one_or_none()
+            if not user:
+                raise HTTPException(status_code=403, detail="用户不存在或已被禁用")
             if user.stardust_balance < STARDUST_COST_FOLLOW_UP:
                 raise HTTPException(
                     status_code=402,
@@ -892,18 +895,19 @@ async def chat_followup(
                 refund_result = await db.execute(
                     select(User).where(User.id == current_user.id).with_for_update()
                 )
-                refund_user = refund_result.scalar_one()
-                refund_user.stardust_balance += STARDUST_COST_FOLLOW_UP
-                refund_tx = CreditTransaction(
-                    user_id=refund_user.id,
-                    amount=STARDUST_COST_FOLLOW_UP,
-                    balance_after=refund_user.stardust_balance,
-                    reason="refund",
-                    reference_id=str(tx_id),
-                    status="confirmed",
-                )
-                db.add(refund_tx)
-                await db.commit()
+                refund_user = refund_result.scalar_one_or_none()
+                if refund_user:
+                    refund_user.stardust_balance += STARDUST_COST_FOLLOW_UP
+                    refund_tx = CreditTransaction(
+                        user_id=refund_user.id,
+                        amount=STARDUST_COST_FOLLOW_UP,
+                        balance_after=refund_user.stardust_balance,
+                        reason="refund",
+                        reference_id=str(tx_id),
+                        status="confirmed",
+                    )
+                    db.add(refund_tx)
+                    await db.commit()
             except Exception as e:
                 logger.warning("Failed to process refund for failed analysis: %s", e)
         raise

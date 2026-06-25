@@ -143,6 +143,10 @@ async def _migrate_readings_columns():
         ("referred_by", "VARCHAR(36)"),
         ("failed_login_attempts", "INTEGER DEFAULT 0"),
         ("locked_until", "TIMESTAMPTZ"),
+        ("is_verified", "BOOLEAN DEFAULT FALSE"),
+        ("verification_code", "VARCHAR(64)"),
+        ("verification_expires_at", "TIMESTAMPTZ"),
+        ("shop_coupon_balance", "NUMERIC(12,2) DEFAULT 0.0"),
     ]
     reading_columns = [
         ("qimen_report", "TEXT"),
@@ -155,11 +159,14 @@ async def _migrate_readings_columns():
         ("partner_face_report", "TEXT"),
         ("partner_palm_report", "TEXT"),
         ("is_detailed_unlocked", "BOOLEAN DEFAULT FALSE"),
+        ("is_detail_unlocked", "BOOLEAN DEFAULT FALSE"),
         ("worker_tags", "JSON"),
         ("worker_errors", "JSON"),
+        ("language", "VARCHAR(5) DEFAULT 'zh'"),
     ]
     divination_columns = [
         ("ai_insight", "TEXT"),
+        ("shared", "BOOLEAN DEFAULT FALSE"),
     ]
     order_columns = [
         ("item_type", "VARCHAR(50)"),
@@ -177,6 +184,8 @@ async def _migrate_readings_columns():
         ("confirm_expires", "TIMESTAMPTZ"),
         ("admin_confirm_token", "VARCHAR(64)"),
         ("admin_confirm_expires", "TIMESTAMPTZ"),
+        ("payment_method", "VARCHAR(50)"),
+        ("payment_ref", "VARCHAR(200)"),
     ]
 
     try:

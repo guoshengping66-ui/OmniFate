@@ -186,13 +186,18 @@ async def get_tracking(
 
     if order.tracking_number and order.shipping_carrier:
         try:
+            from config import settings
+            kuaidi_key = settings.KUAI_DI100_API_KEY
+            if not kuaidi_key:
+                logger.warning("KUAI_DI100_API_KEY not configured — skipping tracking lookup")
+                raise ValueError("KUAI_DI100_API_KEY not set")
             kuaidi_url = "https://api.kuaidi100.com/query"
             import httpx
             async with httpx.AsyncClient(timeout=5) as client:
                 resp = await client.get(kuaidi_url, params={
                     "com": order.shipping_carrier,
                     "nu": order.tracking_number,
-                    "key": "",
+                    "key": kuaidi_key,
                 })
             if resp.status_code == 200:
                 data = resp.json()

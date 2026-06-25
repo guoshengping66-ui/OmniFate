@@ -87,6 +87,8 @@ class Settings(BaseSettings):
     SMTP_USER: str = ""
     SMTP_PASS: str = ""
     SMTP_FROM: str = ""
+    KUAI_DI100_API_KEY: str = ""
+    CNY_TO_USD_RATE: float = 7.0
     SMTP_FROM_NAME: str = "Profile Mirror"
 
     # ── Cron / 定时任务 ──

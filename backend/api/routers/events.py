@@ -208,7 +208,9 @@ async def energy_radar(
         user_result = await db.execute(
             select(User).where(User.id == current_user.id).with_for_update()
         )
-        user = user_result.scalar_one()
+        user = user_result.scalar_one_or_none()
+        if not user:
+            raise HTTPException(status_code=403, detail="用户不存在或已被禁用")
         if user.stardust_balance < STARDUST_COST_ENERGY_RADAR:
             raise HTTPException(
                 status_code=402,
