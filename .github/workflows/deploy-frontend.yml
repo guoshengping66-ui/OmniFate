@@ -60,15 +60,23 @@ jobs:
 
             echo "═══════ 开始部署前端 ═══════"
 
-            # 0. 预检: 磁盘空间 + 清理 lock 文件
+            # 0. 预检: 磁盘空间 + 环境信息 + 清理 lock 文件
             echo "🔍 预检..."
+            echo "   Node.js: $(node -v 2>/dev/null || echo 'NOT FOUND')"
+            echo "   npm: $(npm -v 2>/dev/null || echo 'NOT FOUND')"
+            echo "   whoami: $(whoami)"
+            echo "   磁盘: $(df -h / 2>/dev/null | tail -1)"
+            echo "   内存: $(free -m 2>/dev/null | grep Mem | awk '{print $2 "MB total, " $4 "MB free"}')"
             DISK_USAGE=$(df -h / | awk 'NR==2{print $5}' | tr -d '%')
             echo "   磁盘使用率: ${DISK_USAGE}%"
-            if [ "$DISK_USAGE" -gt 90 ]; then
-              echo "❌ 磁盘使用率超过 90%，清理空间..."
+            if [ "$DISK_USAGE" -gt 85 ]; then
+              echo "⚠️  磁盘使用率超过 85%，尝试清理空间..."
               sudo journalctl --vacuum-size=50M 2>/dev/null || true
               sudo apt-get clean 2>/dev/null || true
               sudo rm -rf /tmp/webpack* /tmp/npm-* 2>/dev/null || true
+              # Also clean npm cache which can grow large
+              sudo npm cache clean --force 2>/dev/null || true
+              echo "   清理后磁盘: $(df -h / 2>/dev/null | tail -1)"
             fi
 
             # 1. 同步最新代码
@@ -125,27 +133,20 @@ jobs:
             else
               echo "📦 使用 PM2 部署前端..."
 
-              # ⚠️ 关键: 先停服务再清理 .next，避免新旧 chunk 哈希冲突导致 404
-              echo "🛑 停止前端服务..."
-              cd /opt/OmniFate
-              pm2 delete frontend 2>/dev/null || true
+              # ⚠️ 先构建，成功后再停旧服务 — 防止构建失败导致网站下线
+              cd /opt/OmniFate/frontend
+              sudo chown -R $(whoami) . 2>/dev/null || true
 
-              # 用 sudo 运行整个构建流程，避免 root 权限问题
-              echo "🧹 彻底清理旧构建 + webpack 缓存..."
-              sudo chown -R $(whoami) /opt/OmniFate/frontend 2>/dev/null || true
+              echo "🧹 清理旧构建产物 + webpack 缓存..."
               sudo rm -rf /opt/OmniFate/frontend/.next 2>/dev/null || true
-              sudo rm -rf /opt/OmniFate/frontend/node_modules 2>/dev/null || true
               sudo rm -rf /opt/OmniFate/frontend/.turbo 2>/dev/null || true
-              # ⚠️ 关键: 清除 webpack 持久化缓存，否则旧模块会被复用
               sudo rm -rf /tmp/webpack* 2>/dev/null || true
               sudo rm -rf /root/.cache/webpack* 2>/dev/null || true
               sudo rm -rf /tmp/turbopack* 2>/dev/null || true
               sudo rm -rf /root/.cache/turbopack* 2>/dev/null || true
-              # 清除 npm 缓存中的旧包
-              sudo npm cache clean --force 2>/dev/null || true
+              echo "✅ 清理完成"
 
-              cd /opt/OmniFate/frontend
-              sudo chown -R $(whoami) . 2>/dev/null || true
+              echo "📥 安装依赖..."
               npm install --production=false
               sudo chown -R $(whoami) . 2>/dev/null || true
 
