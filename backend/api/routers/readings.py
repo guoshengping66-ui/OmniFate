@@ -381,13 +381,16 @@ async def create_analysis(
     POST creates session and kicks off background analysis.
     Frontend polls GET /session/{id} until status == "done".
     """
-    # Rate limit: 3 analyses/hour for logged-in users, 1/hour for anonymous (by IP)
+    # Rate limit: N analyses/hour for logged-in users, M/hour for anonymous (by IP)
+    from config import settings
+    _analysis_limit = getattr(settings, 'ANALYSIS_RATE_LIMIT_PER_HOUR', 15)
+    _analysis_anon_limit = getattr(settings, 'ANALYSIS_ANON_RATE_LIMIT_PER_HOUR', 3)
     if current_user:
-        if await check_rate_limit(f"analysis:{current_user.id}", limit=3, window=3600):
+        if await check_rate_limit(f"analysis:{current_user.id}", limit=_analysis_limit, window=3600):
             raise HTTPException(status_code=429, detail="分析次数过于频繁，请稍后再试")
     else:
         client_ip = request.client.host if request.client else "unknown"
-        if await check_rate_limit(f"analysis:anon:{client_ip}", limit=1, window=3600):
+        if await check_rate_limit(f"analysis:anon:{client_ip}", limit=_analysis_anon_limit, window=3600):
             raise HTTPException(status_code=429, detail="匿名用户分析次数限制，请登录后使用")
     bi = BirthInfo(
         year=payload.birth_year, month=payload.birth_month,
