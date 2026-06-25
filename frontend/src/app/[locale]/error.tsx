@@ -43,15 +43,8 @@ export default function GlobalError({
         <p className="text-white/50 text-sm mb-2">
           The page encountered an error. Please try again.
         </p>
-        {process.env.NODE_ENV === "development" && (
-          <div className="bg-white/5 border border-white/10 rounded-lg p-4 mb-6 text-left overflow-auto max-h-48">
-            <code className="text-red-400 text-xs whitespace-pre-wrap break-all">
-              {error.message}
-              {error.digest && `\n\nDigest: ${error.digest}`}
-              {error.stack && `\n\n${error.stack}`}
-            </code>
-          </div>
-        )}
+        {/* Error details are NOT shown in any environment to prevent info leakage.
+            Debug via server-side logs or the error digest in monitoring tools. */}
         <div className="flex gap-3 justify-center">
           <button onClick={reset} className="btn-gold text-sm px-6 py-2">
             Try again

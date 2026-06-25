@@ -41,14 +41,7 @@ export default function ReadingNewError({
         <div className="text-4xl mb-4">⚠️</div>
         <h2 className="font-serif text-xl text-gold mb-3">Something went wrong</h2>
         <p className="text-white/50 text-sm mb-2">The reading page encountered an error.</p>
-        {process.env.NODE_ENV === "development" && (
-          <div className="bg-white/5 border border-white/10 rounded-lg p-4 mb-6 text-left overflow-auto max-h-48">
-            <code className="text-red-400 text-xs whitespace-pre-wrap break-all">
-              {error.message}
-              {error.digest && `\n\nDigest: ${error.digest}`}
-            </code>
-          </div>
-        )}
+        {/* Error details hidden in all environments to prevent info leakage */}
         <button onClick={reset} className="btn-gold text-sm px-6 py-2">
           Try again
         </button>

@@ -659,14 +659,22 @@ async def _call_and_parse(system: str, user_msg: str, agent_id: str, state: Syst
     )
     data = _parse_worker_report(report)
 
-    # Validate quality — retry once if output is poor
+    # Validate quality — retry once if output is poor, with exponential backoff
     if not _use_mock() and not _validate_worker_output(data, agent_id):
-        logger.info("[%s] low quality output, retrying once...", agent_id)
-        await asyncio.sleep(2)  # Brief backoff before retry
-        report = await _call(
-            system, user_msg, language=state.language, is_premium=state.is_premium, model=model,
-        )
-        data = _parse_worker_report(report)
+        logger.warning("[%s] low quality output (validation failed), retrying once after backoff...", agent_id)
+        await asyncio.sleep(5)  # Longer backoff before retry (was 2s)
+        try:
+            report = await _call(
+                system, user_msg, language=state.language, is_premium=state.is_premium, model=model,
+            )
+            retry_data = _parse_worker_report(report)
+            # Only use retry output if it passes validation; otherwise keep original
+            if _validate_worker_output(retry_data, agent_id):
+                data = retry_data
+            else:
+                logger.warning("[%s] retry also failed validation, using original output", agent_id)
+        except Exception as e:
+            logger.error("[%s] retry failed with exception: %s, using original output", agent_id, e)
 
     return data
 

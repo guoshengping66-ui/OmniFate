@@ -227,8 +227,10 @@ async def paypal_sdk_proxy():
     async with httpx.AsyncClient(timeout=10) as client:
         response = await client.get(sdk_url)
 
-    # Don't cache error responses from PayPal
-    if response.status_code != 200:
+    # Don't cache error responses or non-JavaScript responses from PayPal
+    ct = response.headers.get("content-type", "").lower()
+    is_javascript = "javascript" in ct or "ecmascript" in ct
+    if response.status_code != 200 or not is_javascript:
         from fastapi.responses import Response
         return Response(
             content=response.content,

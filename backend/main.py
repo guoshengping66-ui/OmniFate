@@ -141,6 +141,33 @@ async def csrf_protection(request: Request, call_next):
                 content={"detail": "CSRF validation failed: missing X-Requested-With header"},
             )
 
+        # Defense-in-depth: Also validate Origin/Referer for browser-based requests.
+        # This catches scenarios where a compromised subdomain or misconfigured CORS
+        # allows cross-origin requests with the X-Requested-With header.
+        origin = request.headers.get("origin") or request.headers.get("referer", "")
+        if origin and settings.ALLOWED_ORIGINS:
+            # Only reject if Origin is present AND doesn't match any allowed origin
+            from urllib.parse import urlparse
+            origin_netloc = None
+            try:
+                origin_netloc = urlparse(origin).netloc
+            except Exception:
+                pass
+            if origin_netloc:
+                allowed_netlocs = set()
+                for ao in settings.ALLOWED_ORIGINS:
+                    try:
+                        allowed_netlocs.add(urlparse(ao).netloc)
+                    except Exception:
+                        pass
+                if origin_netloc not in allowed_netlocs:
+                    logger.warning("CSRF: Origin %s not in allowed origins", origin)
+                    from fastapi.responses import JSONResponse
+                    return JSONResponse(
+                        status_code=403,
+                        content={"detail": "CSRF validation failed: origin not allowed"},
+                    )
+
     return await call_next(request)
 
 
@@ -336,11 +363,19 @@ async def error_translation_middleware(request: Request, call_next):
             data = json.loads(body)
             if "detail" in data:
                 data["detail"] = _translate_error_detail(data["detail"])
-            # Create fresh JSONResponse — do NOT copy headers from the old response
-            # because Content-Length/Content-Type from the old body would mismatch.
+            # Create fresh JSONResponse.
+            # Copy headers from the original response EXCEPT Content-Length/Content-Type
+            # (which would mismatch the new body). Security headers (CORS, CSP, etc.)
+            # set by upstream middleware must be preserved.
+            safe_headers = {}
+            SKIP_HEADERS = {"content-length", "content-type", "transfer-encoding"}
+            for key, value in response.headers.items():
+                if key.lower() not in SKIP_HEADERS:
+                    safe_headers[key] = value
             return JSONResponse(
                 status_code=response.status_code,
                 content=data,
+                headers=safe_headers,
             )
         except (json.JSONDecodeError, UnicodeDecodeError):
             pass

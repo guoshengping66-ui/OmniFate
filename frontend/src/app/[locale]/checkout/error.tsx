@@ -46,14 +46,7 @@ export default function CheckoutError({
         <p className="text-white/50 text-sm mb-6">
           The checkout page encountered an error. Please try again.
         </p>
-        {process.env.NODE_ENV === "development" && (
-          <div className="bg-white/5 border border-white/10 rounded-lg p-4 mb-6 text-left overflow-auto max-h-48">
-            <code className="text-red-400 text-xs whitespace-pre-wrap break-all">
-              {error.message}
-              {error.digest && `\n\nDigest: ${error.digest}`}
-            </code>
-          </div>
-        )}
+        {/* Error details hidden in all environments to prevent info leakage */}
         <div className="flex gap-3 justify-center">
           <button onClick={reset} className="btn-gold text-sm px-6 py-2">
             Try again

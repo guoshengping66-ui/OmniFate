@@ -24,6 +24,7 @@ if _is_sqlite:
     # Use NullPool on Vercel to avoid StaticPool connection reuse issues
     _kw["poolclass"] = NullPool if _is_vercel else StaticPool
 else:
+    _kw["connect_timeout"] = 10  # Prevent indefinite TCP hang when DB is unreachable
     _kw["pool_pre_ping"] = True
     _kw["pool_timeout"] = 10
     # ── PostgreSQL pool tuning ──
@@ -104,8 +105,14 @@ async def _add_columns(db, table: str, columns: list[tuple[str, str]]) -> None:
                 await db.execute(text(f"ALTER TABLE {table} ADD COLUMN {col_name} {col_type}"))
             else:
                 await db.execute(text(f"ALTER TABLE {table} ADD COLUMN IF NOT EXISTS {col_name} {col_type}"))
-        except Exception:
-            pass  # Column already exists
+        except Exception as e:
+            # SQLite: "duplicate column name" error is expected and safe to ignore
+            # Other errors (permission denied, disk full, etc.) should be logged
+            err_msg = str(e).lower()
+            if _is_sqlite and ("duplicate" in err_msg or "already exists" in err_msg):
+                pass  # Expected: column already exists in SQLite
+            else:
+                logger.warning("Failed to add column %s.%s (%s): %s", table, col_name, col_type, e)
 
 
 async def _migrate_readings_columns():
@@ -188,7 +195,4 @@ async def get_db():
         raise HTTPException(status_code=503, detail="数据库暂不可用，请稍后再试")
     await _ensure_tables()
     async with AsyncSessionLocal() as session:
-        try:
-            yield session
-        finally:
-            await session.close()
+        yield session  # async with block handles session.close() automatically

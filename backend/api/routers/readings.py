@@ -563,11 +563,13 @@ async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
         logger.info("Analysis completed for %s, phase=%s", state.session_id, state.phase)
     except asyncio.TimeoutError:
         state.errors.append("分析超时，部分结果可能不完整")
-        state.phase = "done"
+        # Timeout with partial results → "done" (user may still see partial output)
+        state.phase = "done" if (state.master_summary or state.master_detail) else "failed"
         logger.error("Analysis timed out for %s after %ds", state.session_id, ANALYSIS_TIMEOUT_SECONDS)
     except Exception as e:
         state.errors.append(str(e))
-        state.phase = "done"
+        # Complete failure → "failed" so UI shows error state instead of empty "completed"
+        state.phase = "failed"
         logger.error("Analysis failed for %s: %s", state.session_id, e)
     finally:
         _persist_done.set()
@@ -1220,7 +1222,9 @@ async def _translate_text(text: str, target_lang: str) -> str:
         return text
 
     # Check cache (use first 200 chars as key to avoid huge keys)
-    cache_key = f"{hash(text[:200])}:{target_lang}"
+    # NOTE: Do NOT use hash() — Python's hash is salted per-process (PYTHONHASHSEED),
+    # making it unreliable for cache keys that need to survive within a single process.
+    cache_key = f"{text[:200]}:{target_lang}"
     if cache_key in _translate_cache:
         _translate_cache.move_to_end(cache_key)
         return _translate_cache[cache_key]
@@ -1478,6 +1482,16 @@ async def delete_reading(session_id: str, user: User = Depends(require_user)):
             if not reading:
                 raise HTTPException(status_code=404, detail="报告不存在")
             await db.delete(reading)
+            # Clean up orphaned OrderItem rows: items whose reading was deleted
+            # (FK ondelete="SET NULL" leaves rows with reading_id=NULL, product_id=NULL)
+            from database.models import OrderItem
+            from sqlalchemy import delete as sa_delete
+            await db.execute(
+                sa_delete(OrderItem).where(
+                    OrderItem.reading_id.is_(None),
+                    OrderItem.product_id.is_(None),
+                )
+            )
             await db.commit()
             # Also clean up session store
             await _delete_session(session_id)

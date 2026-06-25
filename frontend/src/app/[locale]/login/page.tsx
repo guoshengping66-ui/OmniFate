@@ -265,10 +265,10 @@ function GoogleLoginButton() {
   useEffect(() => {
     if (!GOOGLE_CLIENT_ID) return
 
-    // Generate CSRF nonce for Google OAuth
+    // Generate CSRF nonce for Google OAuth.
+    // Stored only in-memory (nonceRef) — NOT in sessionStorage to prevent XSS exfiltration.
     const nonce = crypto.randomUUID()
     nonceRef.current = nonce
-    sessionStorage.setItem("google_oauth_nonce", nonce)
 
     // Load Google Identity Services script
     const script = document.createElement("script")
@@ -304,7 +304,7 @@ function GoogleLoginButton() {
   const handleGoogleResponse = async (response: any) => {
     try {
       const { api } = await import("@/lib/api")
-      const nonce = sessionStorage.getItem("google_oauth_nonce") || nonceRef.current
+      const nonce = nonceRef.current  // In-memory only — NOT from sessionStorage
       const result = await api.post("/api/auth/google", {
         credential: response.credential,
         nonce: nonce || undefined,
