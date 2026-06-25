@@ -1432,6 +1432,19 @@ export default function ReadingPage() {
                   </button>
                 )}
               </div>
+            ) : (k === "face" || k === "palm" || k === "partner_face" || k === "partner_palm") ? (
+              /* ── Skipped worker (no image/provided) ── */
+              <div className="card-glass p-12 text-center">
+                <div className="w-16 h-16 rounded-full bg-white/[0.03] border border-white/[0.06] flex items-center justify-center mx-auto mb-4">
+                  <Eye size={28} className="text-white/20" />
+                </div>
+                <p className="text-white/30 text-sm">
+                  {t(AGENT_I18N[k] || `agent.${k}`)}
+                </p>
+                <p className="text-white/20 text-xs mt-1">
+                  {t("reading.worker.noImageHint") || "未上传对应图片，分析已跳过"}
+                </p>
+              </div>
             ) : (
               <div className="card-glass p-12 text-center">
                 <Eye size={32} className="text-white/10 mx-auto mb-3" />

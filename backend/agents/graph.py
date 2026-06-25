@@ -691,14 +691,14 @@ async def run_full_analysis(state: SystemState) -> SystemState:
         if state.partner_face_features:
             _runners.append(run_partner_face)
             _runner_ids.append("partner_face")
-            _runner_timeouts.append(25)
+            _runner_timeouts.append(60)
             state.agent_status["partner_face"] = "running"
             worker_events["partner_face"] = asyncio.Event()
             _total_workers += 1
         if state.partner_palm_features:
             _runners.append(run_partner_palm)
             _runner_ids.append("partner_palm")
-            _runner_timeouts.append(25)
+            _runner_timeouts.append(60)
             state.agent_status["partner_palm"] = "running"
             worker_events["partner_palm"] = asyncio.Event()
             _total_workers += 1
@@ -718,16 +718,28 @@ async def run_full_analysis(state: SystemState) -> SystemState:
             await asyncio.sleep(delay)
         try:
             result = await asyncio.wait_for(runner(state), timeout=timeout)
-        except Exception as e:
+        except asyncio.TimeoutError:
             from agents.state import WorkerOutput
+            err_msg = f"Analysis timed out after {timeout}s"
+            logger.warning("%s: %s", agent_id, err_msg)
             if agent_id == "qimen_ziwei":
-                # Merged worker error: create individual error outputs for each sub-worker
                 result = [
-                    WorkerOutput(agent_id="qimen", error=str(e)),
-                    WorkerOutput(agent_id="ziwei", error=str(e)),
+                    WorkerOutput(agent_id="qimen", error=err_msg),
+                    WorkerOutput(agent_id="ziwei", error=err_msg),
                 ]
             else:
-                result = WorkerOutput(agent_id=agent_id, error=str(e))
+                result = WorkerOutput(agent_id=agent_id, error=err_msg)
+        except Exception as e:
+            from agents.state import WorkerOutput
+            err_msg = str(e) or f"Unknown error in {agent_id}"
+            logger.error("%s error: %s", agent_id, err_msg)
+            if agent_id == "qimen_ziwei":
+                result = [
+                    WorkerOutput(agent_id="qimen", error=err_msg),
+                    WorkerOutput(agent_id="ziwei", error=err_msg),
+                ]
+            else:
+                result = WorkerOutput(agent_id=agent_id, error=err_msg)
 
         # Handle merged workers that return lists of WorkerOutput
         if isinstance(result, list):

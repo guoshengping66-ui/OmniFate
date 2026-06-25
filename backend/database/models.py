@@ -188,6 +188,10 @@ class Reading(Base):
     ziwei_report: Mapped[Optional[str]] = mapped_column(Text)
     palm_report: Mapped[Optional[str]] = mapped_column(Text)
 
+    # Worker metadata (tags + errors) — persisted as JSON keyed by agent_id
+    worker_tags: Mapped[Optional[dict]] = mapped_column(JSON)    # {"bazi": ["tag1","tag2"], "face": [...], ...}
+    worker_errors: Mapped[Optional[dict]] = mapped_column(JSON)  # {"qimen": "timeout", "ziwei": "timeout", ...}
+
     # Partner analysis outputs (RELATIONSHIP intent)
     partner_face_report: Mapped[Optional[str]] = mapped_column(Text)
     partner_palm_report: Mapped[Optional[str]] = mapped_column(Text)

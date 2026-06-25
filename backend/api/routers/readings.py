@@ -634,6 +634,20 @@ async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
                     logger.info("Persisting dimension_scores to DB: %s", state.dimension_scores)
                     reading.computed_tags = list(state.computed_tags) if state.computed_tags else None
                     reading.recommended_product_ids = list(state.recommended_product_ids) if state.recommended_product_ids else None
+                    # Persist worker tags and errors so they survive Redis expiry
+                    _wtags: dict[str, list[str]] = {}
+                    _werrs: dict[str, str] = {}
+                    for _attr in ("astrology_output", "tarot_output", "bazi_output",
+                                  "qimen_output", "ziwei_output", "face_output", "palm_output",
+                                  "partner_face_output", "partner_palm_output"):
+                        _wo = getattr(state, _attr, None)
+                        if _wo and _wo.agent_id:
+                            if _wo.tags:
+                                _wtags[_wo.agent_id] = _wo.tags
+                            if _wo.error:
+                                _werrs[_wo.agent_id] = _wo.error
+                    reading.worker_tags = _wtags if _wtags else None
+                    reading.worker_errors = _werrs if _werrs else None
                     reading.completed_at = datetime.now(timezone.utc)
                     await db.commit()
                     logger.info("Persisted reading %s to DB (attempt %d)", state.session_id, _persist_attempt + 1)
@@ -918,6 +932,20 @@ async def _run_analysis_inline(state: SystemState) -> SystemState:
                 reading.dimension_scores = dict(state.dimension_scores) if state.dimension_scores else None
                 reading.computed_tags = list(state.computed_tags) if state.computed_tags else None
                 reading.recommended_product_ids = list(state.recommended_product_ids) if state.recommended_product_ids else None
+                # Persist worker tags and errors so they survive Redis expiry
+                _wtags2: dict[str, list[str]] = {}
+                _werrs2: dict[str, str] = {}
+                for _attr2 in ("astrology_output", "tarot_output", "bazi_output",
+                              "qimen_output", "ziwei_output", "face_output", "palm_output",
+                              "partner_face_output", "partner_palm_output"):
+                    _wo2 = getattr(state, _attr2, None)
+                    if _wo2 and _wo2.agent_id:
+                        if _wo2.tags:
+                            _wtags2[_wo2.agent_id] = _wo2.tags
+                        if _wo2.error:
+                            _werrs2[_wo2.agent_id] = _wo2.error
+                reading.worker_tags = _wtags2 if _wtags2 else None
+                reading.worker_errors = _werrs2 if _werrs2 else None
                 reading.completed_at = datetime.now(timezone.utc)
                 await db.commit()
     except Exception as e:
@@ -1060,15 +1088,24 @@ async def get_session(
                 master_detail=reading.master_detail or "",
                 is_detail_unlocked=reading.is_detail_unlocked,
                 is_detailed_unlocked=getattr(reading, "is_detailed_unlocked", False),
-                astrology=_worker_from_report("astrology", reading.astrology_report),
-                tarot=_worker_from_report("tarot", reading.tarot_report),
-                bazi=_worker_from_report("bazi", reading.bazi_report),
-                qimen=_worker_from_report("qimen", reading.qimen_report),
-                ziwei=_worker_from_report("ziwei", reading.ziwei_report),
-                face=_worker_from_report("face", reading.face_analysis_text),
-                palm=_worker_from_report("palm", reading.palm_report),
-                partner_face=_worker_from_report("partner_face", reading.partner_face_report) if reading.partner_face_report else None,
-                partner_palm=_worker_from_report("partner_palm", reading.partner_palm_report) if reading.partner_palm_report else None,
+                astrology=_worker_from_report("astrology", reading.astrology_report,
+                    _wt(reading, "astrology"), _we(reading, "astrology")),
+                tarot=_worker_from_report("tarot", reading.tarot_report,
+                    _wt(reading, "tarot"), _we(reading, "tarot")),
+                bazi=_worker_from_report("bazi", reading.bazi_report,
+                    _wt(reading, "bazi"), _we(reading, "bazi")),
+                qimen=_worker_from_report("qimen", reading.qimen_report,
+                    _wt(reading, "qimen"), _we(reading, "qimen")),
+                ziwei=_worker_from_report("ziwei", reading.ziwei_report,
+                    _wt(reading, "ziwei"), _we(reading, "ziwei")),
+                face=_worker_from_report("face", reading.face_analysis_text,
+                    _wt(reading, "face"), _we(reading, "face")),
+                palm=_worker_from_report("palm", reading.palm_report,
+                    _wt(reading, "palm"), _we(reading, "palm")),
+                partner_face=_worker_from_report("partner_face", reading.partner_face_report,
+                    _wt(reading, "partner_face"), _we(reading, "partner_face")) if reading.partner_face_report else None,
+                partner_palm=_worker_from_report("partner_palm", reading.partner_palm_report,
+                    _wt(reading, "partner_palm"), _we(reading, "partner_palm")) if reading.partner_palm_report else None,
                 recommended_product_ids=reading.recommended_product_ids or [],
                 computed_tags=reading.computed_tags or [],
                 dimension_scores=reading.dimension_scores or {},
@@ -1126,12 +1163,25 @@ def _empty_worker(agent_id: str) -> WorkerReportOut:
     return WorkerReportOut(agent_id=agent_id, report="", tags=[], error=None, duration_ms=None)
 
 
-def _worker_from_report(agent_id: str, report: Optional[str]) -> WorkerReportOut:
+def _wt(reading, agent_id: str) -> Optional[list[str]]:
+    """Extract worker tags from reading's worker_tags JSON column."""
+    wtags = getattr(reading, "worker_tags", None) or {}
+    return wtags.get(agent_id)
+
+def _we(reading, agent_id: str) -> Optional[str]:
+    """Extract worker error from reading's worker_errors JSON column."""
+    werrs = getattr(reading, "worker_errors", None) or {}
+    return werrs.get(agent_id)
+
+
+def _worker_from_report(agent_id: str, report: Optional[str],
+                        tags: Optional[list[str]] = None,
+                        error: Optional[str] = None) -> WorkerReportOut:
     return WorkerReportOut(
         agent_id=agent_id,
         report=report or "",
-        tags=[],
-        error=None,
+        tags=list(tags) if tags else [],
+        error=error,
         duration_ms=None,
     )
 
