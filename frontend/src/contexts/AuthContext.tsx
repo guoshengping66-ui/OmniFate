@@ -54,17 +54,35 @@ function clearTokens() {
   // sessionStorage cleanup happens via clearAuth() → removeItem(USER_CACHE_KEY).
 }
 
-// ── Login grace period (shared across all instances) ─────────────────────
+// ── Login grace period (shared across all Webpack chunks via window) ───────
 // After a successful login, homepage components fire multiple API calls
 // simultaneously. If ANY of them returns 401 (e.g., due to cookie propagation
 // delay, Cloudflare caching, or proxy timing), the axios response interceptor
 // would call clearAuth() and destroy the login state.
 //
+// IMPORTANT: This MUST live on `window` (not a module-level `let`) because
+// Webpack code-splitting may duplicate AuthContext across multiple chunks
+// (shared chunk + page chunk), each with its own module scope. `window`
+// guarantees a single shared value across all chunks.
+//
 // This grace window (5s after login) prevents clearAuth() from being called
 // by the interceptor, giving cookies time to propagate and initial API calls
 // time to complete. After the grace period, normal 401 → clearAuth behavior
 // resumes.
-let _loginGraceUntil = 0
+const GRACE_MS = 5000
+const GRACE_KEY = "__loginGraceUntil"
+
+function getLoginGraceUntil(): number {
+  return (window as any)[GRACE_KEY] || 0
+}
+
+function setLoginGraceUntil(ts: number) {
+  ;(window as any)[GRACE_KEY] = ts
+}
+
+function isInLoginGracePeriod(): boolean {
+  return Date.now() < getLoginGraceUntil()
+}
 
 // ── Global token refresh (shared across all instances) ───────────────────
 let _refreshPromise: Promise<boolean> | null = null
@@ -154,13 +172,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 setUser(retryRes.data)
                 cacheUser(retryRes.data)
               } catch {
-                if (!signal.aborted && Date.now() >= _loginGraceUntil) clearAuth()
+                if (!signal.aborted && !isInLoginGracePeriod()) clearAuth()
               }
             } else {
-              if (!signal.aborted && Date.now() >= _loginGraceUntil) clearAuth()
+              if (!signal.aborted && !isInLoginGracePeriod()) clearAuth()
             }
           } else {
-            if (!signal.aborted && Date.now() >= _loginGraceUntil) clearAuth()
+            if (!signal.aborted && !isInLoginGracePeriod()) clearAuth()
           }
         } else if (isNetworkError || (status && status >= 500)) {
           if (signal.aborted) return
@@ -221,13 +239,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Homepage components fire multiple API calls simultaneously after
         // login — a single 401 during this window should not destroy the
         // login state. After the grace period (5s), normal behavior resumes.
-        if (Date.now() < _loginGraceUntil) {
+        if (isInLoginGracePeriod()) {
           const url = originalRequest.url || "unknown"
           console.warn(
             "[Auth] 401 during login grace period — NOT clearing auth:",
             url,
             "grace remaining:",
-            Math.round((_loginGraceUntil - Date.now()) / 1000),
+            Math.round((getLoginGraceUntil() - Date.now()) / 1000),
             "s",
           )
           return Promise.reject(error)
@@ -273,8 +291,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Start grace period: prevent 401 interceptor from calling clearAuth()
       // for 5s while homepage components fire their initial API calls.
       // Console log for diagnostic purposes — helps trace auto-logout root cause.
-      _loginGraceUntil = Date.now() + 5000
-      console.log("[Auth] Login grace period started until", new Date(_loginGraceUntil).toISOString())
+      setLoginGraceUntil(Date.now() + GRACE_MS)
+      console.log("[Auth] Login grace period started until", new Date(getLoginGraceUntil()).toISOString())
     }
   }, [])
 
