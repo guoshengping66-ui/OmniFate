@@ -1092,7 +1092,7 @@ export default function ReadingPage() {
             )}
 
             {/* ── 5. Tags ── */}
-            {data.computed_tags.length > 0 && (
+            {data.computed_tags?.length > 0 && (
               <div className="flex flex-wrap justify-center gap-2">
                 {data.computed_tags.slice(0, 10).map((tag, i) => (
                   <span key={tag} style={{ transitionDelay: `${i * 30}ms` }}>
@@ -1103,7 +1103,7 @@ export default function ReadingPage() {
             )}
 
             {/* ── 5b. Profile Type ── */}
-            {data.computed_tags.length > 0 && (
+            {data.computed_tags?.length > 0 && (
               <div className="card-glass p-5 md:p-6 text-center">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-gold/10 to-purple-500/10 border border-gold/20">
                   <Sparkles size={14} className="text-gold" />

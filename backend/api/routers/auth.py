@@ -771,8 +771,8 @@ async def refresh_token(req: RefreshRequest, request: Request, db: AsyncSession 
         old_payload = _jwt.decode(refresh_tok, settings.JWT_SECRET_KEY,
                                   algorithms=[ALGORITHM], options={"verify_exp": False})
         old_jti = old_payload.get("jti")
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning("Failed to decode old refresh token for JTI extraction: %s", e)
 
     user_id = await verify_token(refresh_tok)
     if user_id is None:

@@ -102,7 +102,7 @@ export default function AccountPage() {
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-gold/20 border-2 border-gold/40 flex items-center justify-center">
               <span className="text-gold text-2xl font-serif font-bold">
-                {(user.display_name || user.email)[0].toUpperCase()}
+                {(user.display_name || user.email || "?")[0].toUpperCase()}
               </span>
             </div>
             <div className="flex-1">

@@ -319,7 +319,7 @@ export default function AdminOrdersPage() {
                         </span>
                       </div>
                       <div className="flex items-center gap-4">
-                        <span className="text-gold font-bold">¥{order.total_cny.toFixed(2)}</span>
+                        <span className="text-gold font-bold">¥{(order.total_cny ?? 0).toFixed(2)}</span>
                         {isExpanded ? <ChevronUp size={16} className="text-white/40" /> : <ChevronDown size={16} className="text-white/40" />}
                       </div>
                     </div>
@@ -334,7 +334,7 @@ export default function AdminOrdersPage() {
                         {order.items.map((item, i) => (
                           <div key={i} className="flex justify-between text-sm py-1">
                             <span className="text-white/70">{item.product_name} x{item.quantity}</span>
-                            <span className="text-white/50">¥{item.subtotal_cny.toFixed(2)}</span>
+                            <span className="text-white/50">¥{(item.subtotal_cny ?? 0).toFixed(2)}</span>
                           </div>
                         ))}
                       </div>

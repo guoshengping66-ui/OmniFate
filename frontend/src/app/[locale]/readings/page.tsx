@@ -163,19 +163,19 @@ export default function ReadingsPage() {
                       )}
 
                       {/* Tags */}
-                      {r.computed_tags.length > 0 && (
+                      {r.computed_tags?.length > 0 && (
                         <div className="flex flex-wrap gap-1 mb-2">
                           {r.computed_tags.slice(0, 4).map(tag => (
                             <TagBadge key={tag} tag={tag} />
                           ))}
-                          {r.computed_tags.length > 4 && (
+                          {r.computed_tags?.length > 4 && (
                             <span className="text-[10px] text-white/20">+{r.computed_tags.length - 4}</span>
                           )}
                         </div>
                       )}
 
                       {/* Dimension mini scores */}
-                      {Object.keys(r.dimension_scores).length > 0 && (
+                      {Object.keys(r.dimension_scores || {}).length > 0 && (
                         <div className="flex items-center gap-3 text-[10px] text-white/30">
                           {Object.entries(DIM_LABELS).map(([key, label]) => {
                             const score = r.dimension_scores[key]

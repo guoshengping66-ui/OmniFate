@@ -99,7 +99,7 @@ export default function AdminPage() {
   ]
 
   const filteredUsers = stats?.recentUsers?.filter(u =>
-    !userSearch || u.email.toLowerCase().includes(userSearch.toLowerCase())
+    !userSearch || (u.email || "").toLowerCase().includes(userSearch.toLowerCase())
   ) || []
 
   return (
