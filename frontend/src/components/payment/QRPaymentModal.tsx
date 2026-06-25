@@ -2,36 +2,12 @@
 import { useState, useEffect, useRef, useCallback, lazy, Suspense } from "react"
 import { X, Clock, CheckCircle, Loader2, Copy, AlertCircle, RefreshCw, ExternalLink } from "lucide-react"
 import toast from "react-hot-toast"
-import { apiDirect, unlockReport, getPayPalConfig } from "@/lib/api"
+import { apiDirect, unlockReport } from "@/lib/api"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { getPayPalConfigCached, preloadPayPalSDK } from "@/lib/paypalPreload"
 
 // Lazy load PayPalPayment — avoids bundling PayPal SDK into the main chunk
 const PayPalPayment = lazy(() => import("./PayPalPayment").then(m => ({ default: m.PayPalPayment })))
-
-// ── PayPal config cache (shared across all instances) ──
-let _paypalConfigCache: { client_id: string; mode: string } | null = null
-let _paypalConfigPromise: Promise<{ client_id: string; mode: string }> | null = null
-
-function getPayPalConfigCached() {
-  if (_paypalConfigCache) return Promise.resolve(_paypalConfigCache)
-  if (_paypalConfigPromise) return _paypalConfigPromise
-  _paypalConfigPromise = getPayPalConfig().then(cfg => {
-    _paypalConfigCache = cfg
-    return cfg
-  }).catch(err => {
-    _paypalConfigPromise = null
-    throw err
-  })
-  return _paypalConfigPromise
-}
-
-function injectPayPalSDK(clientId: string) {
-  if (document.querySelector('script[src*="paypal.com/sdk/js"]')) return
-  const script = document.createElement("script")
-  script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=USD&intent=capture&components=buttons,card-fields`
-  script.async = true
-  document.head.appendChild(script)
-}
 
 interface QRPaymentModalProps {
   open: boolean
@@ -215,17 +191,12 @@ export function QRPaymentModal({
     }
   }, [open, isShopPayment, shopOrderNo, method])
 
-  // Preload PayPal config + SDK script as soon as modal opens for overseas users
-  // Uses module-level cache to avoid redundant API calls
+  // Preload PayPal SDK as soon as modal opens for overseas users
+  // Uses shared module-level cache — no-op if already preloaded by checkout page
   useEffect(() => {
     if (!open) return
     if (!isOverseas && method !== "credit_card") return
-
-    getPayPalConfigCached().then(cfg => {
-      if (cfg?.client_id) {
-        injectPayPalSDK(cfg.client_id)
-      }
-    }).catch(() => {})
+    preloadPayPalSDK()
   }, [open, isOverseas, method])
 
   const createOrder = async () => {

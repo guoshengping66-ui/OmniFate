@@ -10,26 +10,10 @@ import {
   type OnApproveActions,
 } from "@paypal/react-paypal-js"
 import { Loader2, CreditCard, CheckCircle, AlertCircle } from "lucide-react"
-import { getPayPalConfig, capturePayPalOrder } from "@/lib/api"
+import { capturePayPalOrder } from "@/lib/api"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useRegion } from "@/hooks/useRegion"
-
-// ── Config cache (shared across all instances, avoids redundant API calls) ──
-let _configCache: { clientId: string; mode: string } | null = null
-let _configPromise: Promise<{ clientId: string; mode: string }> | null = null
-
-function getPayPalConfigCached() {
-  if (_configCache) return Promise.resolve(_configCache)
-  if (_configPromise) return _configPromise
-  _configPromise = getPayPalConfig().then(c => {
-    _configCache = { clientId: c.client_id, mode: c.mode }
-    return _configCache
-  }).catch(e => {
-    _configPromise = null
-    throw e
-  })
-  return _configPromise
-}
+import { getPayPalConfigCached } from "@/lib/paypalPreload"
 
 type PayPalPaymentMode = "both" | "wallet" | "card"
 
@@ -109,7 +93,7 @@ export function PayPalPayment({
   useEffect(() => {
     getPayPalConfigCached()
       .then(c => {
-        setConfig({ clientId: c.clientId, mode: c.mode })
+        setConfig({ clientId: c.client_id, mode: c.mode })
       })
       .catch(e => {
         console.error("[PayPal] config error:", e)

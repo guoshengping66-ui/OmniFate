@@ -8,52 +8,18 @@ import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useRegion } from "@/contexts/RegionContext"
 import { getProductPrice, formatCouponBalance, CNY_TO_USD_RATE } from "@/lib/regionPrice"
-import { createOrder, getPayPalConfig, type Address } from "@/lib/api"
+import { createOrder, type Address } from "@/lib/api"
 import { PaymentMethodSelector } from "@/components/monetization/PaymentMethodSelector"
 import { AddressForm } from "@/components/shop/AddressForm"
 import { QRPaymentModal } from "@/components/payment/QRPaymentModal"
+import { preloadPayPalSDK } from "@/lib/paypalPreload"
 
-// ── PayPal SDK preloader (module-level cache, runs once per session) ──
-let _paypalConfigCache: { clientId: string; mode: string } | null = null
-let _paypalScriptLoading = false
-let _paypalScriptLoaded = false
-
-function preloadPayPalSDK() {
-  if (_paypalScriptLoading || _paypalScriptLoaded) return
-  _paypalScriptLoading = true
-
-  if (_paypalConfigCache) {
-    injectPayPalScript(_paypalConfigCache.clientId)
-    return
-  }
-
-  getPayPalConfig()
-    .then((cfg) => {
-      _paypalConfigCache = { clientId: cfg.client_id, mode: cfg.mode }
-      injectPayPalScript(cfg.client_id)
-    })
-    .catch(() => {
-      _paypalScriptLoading = false
-    })
-}
-
-function injectPayPalScript(clientId: string) {
-  if (document.querySelector('script[src*="paypal.com/sdk/js"]')) {
-    _paypalScriptLoaded = true
-    _paypalScriptLoading = false
-    return
-  }
-  const script = document.createElement("script")
-  script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=USD&intent=capture&components=buttons,card-fields`
-  script.async = true
-  script.onload = () => {
-    _paypalScriptLoaded = true
-    _paypalScriptLoading = false
-  }
-  script.onerror = () => {
-    _paypalScriptLoading = false
-  }
-  document.head.appendChild(script)
+type QrPaymentMethod = "paypal" | "credit_card" | "alipay" | "wechat" | undefined
+const payMethodToInitial: Record<string, QrPaymentMethod> = {
+  wechat_pay: "wechat",
+  alipay: "alipay",
+  paypal: "paypal",
+  credit_card: "credit_card",
 }
 
 export default function CheckoutPage() {
@@ -62,10 +28,11 @@ export default function CheckoutPage() {
   const { user, loading: authLoading, refreshUser } = useAuth()
   const { t, localeHref, locale } = useLanguage()
   const { region } = useRegion()
+  const isOverseas = region === "overseas"
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
   const [useCoupon, setUseCoupon] = useState(false)
-  const [paymentMethod, setPaymentMethod] = useState("credit_card")
+  const [paymentMethod, setPaymentMethod] = useState(isOverseas ? "paypal" : "alipay")
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null)
   const [paymentOpen, setPaymentOpen] = useState(false)
@@ -86,22 +53,22 @@ export default function CheckoutPage() {
   // Without this, the SDK (200KB+) starts downloading only when the payment
   // modal opens, causing a 3-5s visible delay before the user can pay.
   useEffect(() => {
-    if (region === "overseas") {
+    if (isOverseas) {
       preloadPayPalSDK()
     }
   }, [region])
 
   const couponBalanceCny = user?.shop_coupon_balance ?? 0
-  const couponBalanceLocal = region === "overseas" ? couponBalanceCny / CNY_TO_USD_RATE : couponBalanceCny
+  const couponBalanceLocal = isOverseas ? couponBalanceCny / CNY_TO_USD_RATE : couponBalanceCny
   const couponDiscount = useCoupon ? Math.min(couponBalanceLocal, totalWithDiscount) : 0
   // Shipping: free for domestic, free worldwide over $79, otherwise $8
   const FREE_SHIPPING_THRESHOLD = 79
   const SHIPPING_FEE = 8
-  const shippingFee = region === "domestic" ? 0 : (totalWithDiscount >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE)
+  const shippingFee = !isOverseas ? 0 : (totalWithDiscount >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE)
   const finalTotal = Math.max(0, totalWithDiscount - couponDiscount + shippingFee)
   const couponDisplay = formatCouponBalance(couponBalanceCny, region)
   const couponDiscountDisplay = formatCouponBalance(
-    region === "overseas" ? couponDiscount * CNY_TO_USD_RATE : couponDiscount,
+    isOverseas ? couponDiscount * CNY_TO_USD_RATE : couponDiscount,
     region
   )
 
@@ -249,7 +216,7 @@ export default function CheckoutPage() {
                 <span className="text-white/80 text-sm">{t("checkout.coupon")}</span>
                 <span className="text-white/40 text-xs ml-2">
                   {t("checkout.couponBalance")} {couponDisplay}，{t("checkout.couponDeduct")} {formatCouponBalance(
-                    region === "overseas"
+                    isOverseas
                       ? (couponDiscount || Math.min(couponBalanceLocal, totalWithDiscount)) * CNY_TO_USD_RATE
                       : (couponDiscount || Math.min(couponBalanceLocal, totalWithDiscount)),
                     region
@@ -286,7 +253,7 @@ export default function CheckoutPage() {
               <span className="text-green-400">{t("checkout.free")}</span>
             )}
           </div>
-          {region === "overseas" && shippingFee > 0 && (
+          {isOverseas && shippingFee > 0 && (
             <p className="text-white/30 text-[11px] text-right -mt-1">
               {t("checkout.freeShippingHint")}
             </p>
@@ -382,8 +349,8 @@ export default function CheckoutPage() {
         onClose={() => setPaymentOpen(false)}
         shopOrderNo={createdOrderNo || undefined}
         shopAmount={createdOrderTotal}
-        region={region === "overseas" ? "overseas" : "domestic"}
-        initialMethod={(paymentMethod === "wechat_pay" ? "wechat" : paymentMethod) as "paypal" | "credit_card" | "alipay" | "wechat" | undefined}
+        region={isOverseas ? "overseas" : "domestic"}
+        initialMethod={payMethodToInitial[paymentMethod]}
         onSuccess={handlePaymentSuccess}
       />
     </div>
