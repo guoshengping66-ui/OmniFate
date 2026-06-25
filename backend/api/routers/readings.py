@@ -297,15 +297,22 @@ def _apply_content_lock(resp: AnalysisResponse, current_user: Optional[User], re
     SECURITY: Anonymous reports show minimal data only.
     """
     _lock_msg = "Login to view full analysis" if lang == "en" else "登录后查看完整分析"
+    _summary_lock = (
+        "Log in and unlock to reveal your complete 15-dimension behavioral blueprint, "
+        "covering Bazi, Astrology, Tarot, Face & Palm analysis with personalized guidance."
+        if lang == "en"
+        else "登录后解锁完整15维度行为蓝图，涵盖八字、星盘、塔罗、面相手相分析，获取专属行为指引。"
+    )
 
     # ── Determine unlock tier ──
     # "full" = everything, "detailed" = master_detail only, "free" = summary only
     tier = "free"
 
     if reading:
-        # Anonymous report — strip all personal data
+        # Anonymous report — show teaser summary with unlock prompt
         if not reading.user_id:
-            resp.master_summary = _lock_msg
+            preview = (resp.master_summary or "")[:300]
+            resp.master_summary = (preview + "\n\n" + _summary_lock) if preview else _summary_lock
             resp.master_detail = ""
             resp.is_detail_unlocked = False
             resp.is_detailed_unlocked = False
@@ -351,6 +358,7 @@ def _apply_content_lock(resp: AnalysisResponse, current_user: Optional[User], re
         resp.is_detailed_unlocked = True
         _hide_worker_reports(resp)
     else:
+        # Free tier: keep full summary visible, clear paid content
         resp.master_detail = ""
         resp.is_detail_unlocked = False
         resp.is_detailed_unlocked = False
