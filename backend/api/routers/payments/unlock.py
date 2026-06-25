@@ -1,5 +1,7 @@
 """Report unlock endpoints and logic."""
 
+from __future__ import annotations
+
 import logging
 from datetime import datetime, timedelta, timezone
 
