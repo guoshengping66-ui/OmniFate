@@ -8,6 +8,31 @@ import { useLanguage } from "@/contexts/LanguageContext"
 // Lazy load PayPalPayment — avoids bundling PayPal SDK into the main chunk
 const PayPalPayment = lazy(() => import("./PayPalPayment").then(m => ({ default: m.PayPalPayment })))
 
+// ── PayPal config cache (shared across all instances) ──
+let _paypalConfigCache: { client_id: string; mode: string } | null = null
+let _paypalConfigPromise: Promise<{ client_id: string; mode: string }> | null = null
+
+function getPayPalConfigCached() {
+  if (_paypalConfigCache) return Promise.resolve(_paypalConfigCache)
+  if (_paypalConfigPromise) return _paypalConfigPromise
+  _paypalConfigPromise = getPayPalConfig().then(cfg => {
+    _paypalConfigCache = cfg
+    return cfg
+  }).catch(err => {
+    _paypalConfigPromise = null
+    throw err
+  })
+  return _paypalConfigPromise
+}
+
+function injectPayPalSDK(clientId: string) {
+  if (document.querySelector('script[src*="paypal.com/sdk/js"]')) return
+  const script = document.createElement("script")
+  script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=USD&intent=capture&components=buttons,card-fields`
+  script.async = true
+  document.head.appendChild(script)
+}
+
 interface QRPaymentModalProps {
   open: boolean
   onClose: () => void
@@ -191,21 +216,14 @@ export function QRPaymentModal({
   }, [open, isShopPayment, shopOrderNo, method])
 
   // Preload PayPal config + SDK script as soon as modal opens for overseas users
+  // Uses module-level cache to avoid redundant API calls
   useEffect(() => {
     if (!open) return
     if (!isOverseas && method !== "credit_card") return
 
-    // Pre-fetch config (cached after first call)
-    getPayPalConfig().then(cfg => {
+    getPayPalConfigCached().then(cfg => {
       if (cfg?.client_id) {
-        const sdkUrl = `https://www.paypal.com/sdk/js?client-id=${cfg.client_id}&currency=USD&intent=capture&components=buttons,card-fields`
-        const existing = document.querySelector(`script[src*="paypal.com/sdk/js"]`)
-        if (!existing) {
-          const script = document.createElement("script")
-          script.src = sdkUrl
-          script.async = true
-          document.head.appendChild(script)
-        }
+        injectPayPalSDK(cfg.client_id)
       }
     }).catch(() => {})
   }, [open, isOverseas, method])

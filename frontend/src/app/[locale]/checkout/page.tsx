@@ -8,10 +8,53 @@ import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useRegion } from "@/contexts/RegionContext"
 import { getProductPrice, formatCouponBalance, CNY_TO_USD_RATE } from "@/lib/regionPrice"
-import { createOrder, type Address } from "@/lib/api"
+import { createOrder, getPayPalConfig, type Address } from "@/lib/api"
 import { PaymentMethodSelector } from "@/components/monetization/PaymentMethodSelector"
 import { AddressForm } from "@/components/shop/AddressForm"
 import { QRPaymentModal } from "@/components/payment/QRPaymentModal"
+
+// ── PayPal SDK preloader (module-level cache, runs once per session) ──
+let _paypalConfigCache: { clientId: string; mode: string } | null = null
+let _paypalScriptLoading = false
+let _paypalScriptLoaded = false
+
+function preloadPayPalSDK() {
+  if (_paypalScriptLoading || _paypalScriptLoaded) return
+  _paypalScriptLoading = true
+
+  if (_paypalConfigCache) {
+    injectPayPalScript(_paypalConfigCache.clientId)
+    return
+  }
+
+  getPayPalConfig()
+    .then((cfg) => {
+      _paypalConfigCache = { clientId: cfg.client_id, mode: cfg.mode }
+      injectPayPalScript(cfg.client_id)
+    })
+    .catch(() => {
+      _paypalScriptLoading = false
+    })
+}
+
+function injectPayPalScript(clientId: string) {
+  if (document.querySelector('script[src*="paypal.com/sdk/js"]')) {
+    _paypalScriptLoaded = true
+    _paypalScriptLoading = false
+    return
+  }
+  const script = document.createElement("script")
+  script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=USD&intent=capture&components=buttons,card-fields`
+  script.async = true
+  script.onload = () => {
+    _paypalScriptLoaded = true
+    _paypalScriptLoading = false
+  }
+  script.onerror = () => {
+    _paypalScriptLoading = false
+  }
+  document.head.appendChild(script)
+}
 
 export default function CheckoutPage() {
   const router = useRouter()
@@ -38,6 +81,15 @@ export default function CheckoutPage() {
       router.replace(localeHref("/login"))
     }
   }, [user, authLoading, router, localeHref])
+
+  // ⚡ Preload PayPal SDK as soon as checkout page loads for overseas users.
+  // Without this, the SDK (200KB+) starts downloading only when the payment
+  // modal opens, causing a 3-5s visible delay before the user can pay.
+  useEffect(() => {
+    if (region === "overseas") {
+      preloadPayPalSDK()
+    }
+  }, [region])
 
   const couponBalanceCny = user?.shop_coupon_balance ?? 0
   const couponBalanceLocal = region === "overseas" ? couponBalanceCny / CNY_TO_USD_RATE : couponBalanceCny
