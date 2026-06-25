@@ -155,6 +155,8 @@ async def _migrate_readings_columns():
         ("partner_face_report", "TEXT"),
         ("partner_palm_report", "TEXT"),
         ("is_detailed_unlocked", "BOOLEAN DEFAULT FALSE"),
+        ("worker_tags", "JSON"),
+        ("worker_errors", "JSON"),
     ]
     divination_columns = [
         ("ai_insight", "TEXT"),

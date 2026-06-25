@@ -7,6 +7,7 @@ from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.session import get_db
@@ -281,7 +282,9 @@ async def unlock_report(
         user_result = await db.execute(
             select(User).where(User.id == current_user.id).with_for_update()
         )
-        user = user_result.scalar_one()
+        user = user_result.scalar_one_or_none()
+        if not user:
+            raise HTTPException(status_code=403, detail="用户不存在或已被禁用")
 
         if user.stardust_balance < cost:
             raise HTTPException(status_code=400, detail=f"星尘不足，需要 {cost} 星尘")
@@ -300,8 +303,13 @@ async def unlock_report(
         reading.is_detail_unlocked = True
         reading.payment_status = PaymentStatus.paid
 
-        await db.commit()
-        # Invalidate reading cache so next GET re-fetches with worker reports included
+        try:
+            await db.commit()
+        except IntegrityError:
+            await db.rollback()
+            _invalidate_reading_cache(reading_id)
+            return {"already_unlocked": True, "reading_id": reading_id}
+
         _invalidate_reading_cache(reading_id)
         return {
             "unlocked": True,
