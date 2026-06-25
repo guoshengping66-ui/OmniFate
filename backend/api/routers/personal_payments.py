@@ -261,6 +261,9 @@ async def _activate_order(db: AsyncSession, order) -> None:
                 if reading:
                     reading.is_detail_unlocked = True
                     reading.payment_status = PaymentStatus.paid
+                    # Invalidate reading cache so next GET re-fetches with worker reports
+                    from api.routers.readings import _invalidate_reading_cache
+                    _invalidate_reading_cache(reading_id)
                     if reading.user_id:
                         user_result = await db.execute(
                             select(User).where(User.id == reading.user_id).with_for_update()

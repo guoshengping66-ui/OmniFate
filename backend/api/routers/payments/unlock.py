@@ -12,6 +12,7 @@ from database.models import (
     Reading, User, Order, CreditTransaction, PaymentStatus, OrderStatus,
 )
 from auth.dependencies import require_user
+from api.routers.readings import _invalidate_reading_cache
 
 from .constants import (
     SHOP_COUPON_AMOUNT, TRIAL_DAYS, GRANT_ON_REPORT_UNLOCK,
@@ -127,6 +128,8 @@ async def _unlock_reading(reading_id: str, db: AsyncSession, skip_stardust_grant
             stardust_granted = GRANT_ON_REPORT_UNLOCK
 
     await db.commit()
+    # Invalidate reading cache so next GET re-fetches with worker reports included
+    _invalidate_reading_cache(reading_id)
     return {
         "unlocked": True,
         "reading_id": reading_id,
@@ -282,6 +285,8 @@ async def unlock_report(
         reading.payment_status = PaymentStatus.paid
 
         await db.commit()
+        # Invalidate reading cache so next GET re-fetches with worker reports included
+        _invalidate_reading_cache(reading_id)
         return {
             "unlocked": True,
             "reading_id": reading_id,

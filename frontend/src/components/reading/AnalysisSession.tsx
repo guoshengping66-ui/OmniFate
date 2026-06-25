@@ -27,8 +27,9 @@ const WORKER_FIELD_IDS: [string, string][] = [
   ["partner_face", "partner_face"], ["partner_palm", "partner_palm"],
 ]
 
-function deriveAgentStatus(data: AnalysisResponse): Record<string, AgentStatusValue> {
+function deriveAgentStatus(data: AnalysisResponse, phase?: string): Record<string, AgentStatusValue> {
   const out: Record<string, AgentStatusValue> = {}
+  const isParallel = phase === "parallel"
   for (const [field, agentId] of WORKER_FIELD_IDS) {
     const worker = (data as any)[field] as WorkerReport | undefined
     if (!worker) continue
@@ -38,9 +39,17 @@ function deriveAgentStatus(data: AnalysisResponse): Record<string, AgentStatusVa
       // Has a report but no duration_ms — treat as done (edge case: server
       // persisted the report but lost the timing metadata)
       out[agentId] = "done"
+    } else if (isParallel) {
+      // Worker exists (has an output slot) but has no duration_ms and no
+      // report yet — the backend is actively running this worker. Without
+      // SSE agent_status events, polling alone can't distinguish "running"
+      // from "pending", so use the parallel phase as a heuristic: during
+      // parallel execution ALL known workers are actively running.
+      out[agentId] = "running"
     }
-    // else: worker hasn't produced output yet → leave as pending/running
-    // (SSE agent_status events handle the running→done transition)
+    // else: worker hasn't produced output yet and we're not in parallel
+    // phase → leave as pending (SSE agent_status events will handle the
+    // running→done transition once the phase advances)
   }
   return out
 }
@@ -114,7 +123,7 @@ export default function AnalysisSession({ sessionId, initialData, onComplete }: 
     return ""
   })
   const [agentStatus, setAgentStatus] = useState<Record<string, AgentStatusValue>>(() =>
-    deriveAgentStatus(initialData)
+    deriveAgentStatus(initialData, initialData.status)
   )
   const [isStuck, setIsStuck] = useState(false)
 
@@ -222,7 +231,7 @@ export default function AnalysisSession({ sessionId, initialData, onComplete }: 
             lastDataRef.current = fresh
             // Derive agent status from worker data so the 8 agent grid nodes
             // update even when SSE agent_status events are not arriving.
-            const derived = deriveAgentStatus(fresh)
+            const derived = deriveAgentStatus(fresh, fresh.status)
             setAgentStatus(prev => {
               const merged = { ...prev }
               for (const [k, v] of Object.entries(derived)) {
@@ -323,20 +332,36 @@ export default function AnalysisSession({ sessionId, initialData, onComplete }: 
         if (stuckTimerRef.current) clearTimeout(stuckTimerRef.current)
         if (completionCalledRef.current) return
         completionCalledRef.current = true
-        // Use lastDataRef (from latest poll) instead of re-fetching.
-        // Re-fetching races with ReadingPage's initial fetch and causes
-        // duplicate onComplete calls with slightly different data → React #310.
-        const prev = lastDataRef.current
-        if (prev) {
+        // Fetch fresh data on complete so worker reports that completed
+        // just before the SSE "complete" event are included. Using
+        // lastDataRef (polling snapshot) would miss reports from workers
+        // that finished between the last poll cycle and the complete event.
+        // ReadingPage's handleAnalysisComplete deduplicates via JSON
+        // snapshot, so a brief race with its own getSession() is harmless.
+        getSession(sessionId, locale).then(fresh => {
+          if (cancelled) return
           const merged = {
-            ...prev,
+            ...fresh,
             status: "done" as const,
-            master_summary: event.master_summary || prev.master_summary,
-            master_detail: event.master_detail || prev.master_detail,
+            master_summary: event.master_summary || fresh.master_summary,
+            master_detail: event.master_detail || fresh.master_detail,
           }
           lastDataRef.current = merged
-          if (!cancelled) onComplete(merged)
-        }
+          onComplete(merged)
+        }).catch(() => {
+          // Fallback: use lastDataRef (polling snapshot) if fetch fails
+          const prev = lastDataRef.current
+          if (prev && !cancelled) {
+            const merged = {
+              ...prev,
+              status: "done" as const,
+              master_summary: event.master_summary || prev.master_summary,
+              master_detail: event.master_detail || prev.master_detail,
+            }
+            lastDataRef.current = merged
+            onComplete(merged)
+          }
+        })
       }
     }).catch(() => {})
 

@@ -76,6 +76,11 @@ _READING_CACHE_MAX_BYTES = 50 * 1024 * 1024  # 50MB total cache limit
 _bg_tasks: set = set()
 
 
+def _invalidate_reading_cache(session_id: str) -> None:
+    """Remove a cached reading response (called on unlock so next GET re-fetches)."""
+    _reading_cache.pop(session_id, None)
+
+
 def _get_reading_cache(session_id: str) -> Optional[AnalysisResponse]:
     """Return cached AnalysisResponse if fresh, else None.
     Moves hit to end (most-recently-used) for LRU eviction."""
