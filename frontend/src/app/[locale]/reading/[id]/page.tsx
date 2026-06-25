@@ -623,7 +623,7 @@ export default function ReadingPage() {
         {/* Ambient background glow */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div
-            className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full blur-[120px] opacity-20"
+            className="absolute top-0 left-1/2 -translate-x-1/2 w-[300px] sm:w-[450px] md:w-[600px] h-[200px] sm:h-[300px] md:h-[400px] rounded-full blur-[80px] sm:blur-[100px] md:blur-[120px] opacity-20"
             style={{
               background: "radial-gradient(circle, rgba(201,168,76,0.3) 0%, rgba(157,100,180,0.15) 40%, transparent 70%)",
               transition: "opacity 1.5s ease-out",
@@ -631,7 +631,7 @@ export default function ReadingPage() {
             }}
           />
           <div
-            className="absolute top-20 right-[10%] w-[300px] h-[300px] rounded-full blur-[100px] opacity-10"
+            className="absolute top-20 right-[10%] w-[150px] sm:w-[220px] md:w-[300px] h-[150px] sm:h-[220px] md:h-[300px] rounded-full blur-[60px] sm:blur-[80px] md:blur-[100px] opacity-10"
             style={{
               background: "radial-gradient(circle, rgba(82,183,136,0.25) 0%, transparent 70%)",
               animation: "float 8s ease-in-out infinite",
@@ -774,7 +774,7 @@ export default function ReadingPage() {
               {/* ── Dimension Score Compact Row (hidden for RELATIONSHIP) ── */}
               {data.dimension_scores && data.intent !== "RELATIONSHIP" && (
                 <div
-                  className="grid grid-cols-5 gap-2 md:gap-3 mb-8"
+                  className="grid grid-cols-3 sm:grid-cols-5 gap-2 md:gap-3 mb-8"
                   style={{
                     transition: "all 0.8s ease-out 0.75s",
                     opacity: heroVisible ? 1 : 0,
@@ -791,7 +791,7 @@ export default function ReadingPage() {
                     return (
                       <div
                         key={key}
-                        className={`relative rounded-xl p-2.5 md:p-3.5 text-center border transition-all duration-500
+                        className={`relative rounded-xl p-2 sm:p-2.5 md:p-3.5 text-center border transition-all duration-500
                           ${isStrongest
                             ? "bg-gold/10 border-gold/30"
                             : isWeakest
@@ -801,12 +801,12 @@ export default function ReadingPage() {
                       >
                         <span className="text-sm md:text-lg">{DIM_EMOJI[key]}</span>
                         <p
-                          className={`text-lg md:text-2xl font-bold font-serif mt-1
+                          className={`text-base sm:text-lg md:text-2xl font-bold font-serif mt-1
                             ${isStrongest ? "text-gold" : isWeakest ? "text-rose-400" : "text-white/60"}`}
                         >
                           {score.toFixed(1)}
                         </p>
-                        <p className="text-[10px] md:text-xs text-white/30 mt-0.5">{i18nKey ? t(i18nKey.label) : label}</p>
+                        <p className="text-[9px] sm:text-[10px] md:text-xs text-white/30 mt-0.5">{i18nKey ? t(i18nKey.label) : label}</p>
                         {/* Percentile bar */}
                         <div className="mt-1.5 h-1 rounded-full bg-white/[0.06] overflow-hidden">
                           <div
@@ -905,7 +905,7 @@ export default function ReadingPage() {
                   <button
                     key={item.id}
                     onClick={() => setActiveTab(item.id)}
-                    className={`flex items-center gap-1 px-2 py-1.5 sm:px-2.5 sm:py-2 rounded-lg text-[11px] sm:text-xs font-medium
+                    className={`flex items-center gap-1 px-1.5 sm:px-2.5 py-1.5 sm:py-2 rounded-lg text-[10px] sm:text-xs font-medium
                                 whitespace-nowrap transition-all duration-300 flex-shrink-0 group relative
                       ${activeTab === item.id
                         ? "bg-gold/15 text-gold shadow-[0_0_12px_rgba(201,168,76,0.12)]"
@@ -914,7 +914,7 @@ export default function ReadingPage() {
                           : "text-white/35 hover:text-white/60 hover:bg-white/[0.04]"}`}
                   >
                     <span className="text-xs sm:text-sm transition-transform group-hover:scale-110 duration-200">{item.icon}</span>
-                    <span className="hidden sm:inline">{t(item.labelKey)}</span>
+                    <span>{t(item.labelKey)}</span>
                     {hasReport && <span className="w-1.5 h-1.5 rounded-full bg-green-400/70 -ml-0.5" />}
                     {isLocked && !hasReport && <Lock size={9} className="text-white/15 -ml-0.5" />}
                     {activeTab === item.id && (

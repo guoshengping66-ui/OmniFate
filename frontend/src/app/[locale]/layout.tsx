@@ -19,6 +19,8 @@ import { safeJsonLd } from "@/utils/safeJsonLd"
 
 /** Inline safeJsonLd to avoid client-reference bundling issue in Server Components */
 export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
   themeColor: "#C9A84C",
 }
 

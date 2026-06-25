@@ -162,13 +162,13 @@ export function Footer() {
             </p>
           </div>
           <div className="border-t border-white/[0.04]">
-            <div className="max-w-7xl mx-auto px-6 py-5 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex flex-col md:flex-row justify-between items-center gap-4">
               <p className="text-white/25 text-xs">
                 {t("footer.copyright")}
                 <span className="mx-2">|</span>
                 <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" className="hover:text-gold/60 transition-colors">{t("footer.icp")}</a>
               </p>
-              <div className="flex gap-6 text-white/25 text-xs">
+              <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-white/25 text-xs">
                 <a href={localeHref("/faq")} className="hover:text-gold/60 transition-colors">{t("footer.faq")}</a>
                 <a href={localeHref("/contact")} className="hover:text-gold/60 transition-colors">{t("footer.contactUs")}</a>
                 <a href={localeHref("/privacy")} className="hover:text-gold/60 transition-colors">{t("footer.privacy")}</a>

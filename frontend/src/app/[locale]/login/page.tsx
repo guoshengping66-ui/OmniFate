@@ -83,8 +83,8 @@ export default function LoginPage() {
       <div className="relative lg:flex-1 lg:flex lg:items-center lg:justify-center overflow-hidden">
         {/* Background glow */}
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-[#C5A880]/[0.03] blur-[180px]" />
-          <div className="absolute top-1/3 left-1/4 w-[300px] h-[300px] rounded-full bg-blue-500/[0.01] blur-[140px]" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] sm:w-[450px] md:w-[600px] h-[300px] sm:h-[450px] md:h-[600px] rounded-full bg-[#C5A880]/[0.03] blur-[100px] sm:blur-[140px] md:blur-[180px]" />
+          <div className="absolute top-1/3 left-1/4 w-[150px] sm:w-[220px] md:w-[300px] h-[150px] sm:h-[220px] md:h-[300px] rounded-full bg-blue-500/[0.01] blur-[80px] sm:blur-[110px] md:blur-[140px]" />
         </div>
 
         {/* Mobile: compact brand bar */}
