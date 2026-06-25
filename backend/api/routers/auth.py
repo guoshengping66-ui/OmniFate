@@ -115,7 +115,11 @@ def _evict_lockout_store() -> None:
 
 
 async def _check_lockout(email: str) -> None:
-    """Raise 429 if account is locked due to too many failed attempts."""
+    """Raise 429 if account is locked due to too many failed attempts.
+
+    Checks Redis first (fast path), falls back to in-memory store,
+    then to DB as durable fallback (survives server restart).
+    """
     from services.redis_client import _get_redis
     r = await _get_redis()
 
@@ -145,9 +149,43 @@ async def _check_lockout(email: str) -> None:
             if info.get("locked_until") and now >= info["locked_until"]:
                 _lockout_memory_store.pop(email, None)
 
+    # DB fallback — survives Redis/memory restarts
+    try:
+        from database.session import AsyncSessionLocal
+        from sqlalchemy import select
+        async with AsyncSessionLocal() as db:
+            result = await db.execute(
+                select(User).where(User.email == email)
+            )
+            user = result.scalar_one_or_none()
+            if user and user.locked_until:
+                now_utc = datetime.now(timezone.utc)
+                # Ensure aware comparison
+                _locked = user.locked_until
+                if _locked.tzinfo is None:
+                    _locked = _locked.replace(tzinfo=timezone.utc)
+                if now_utc < _locked:
+                    remaining = int((_locked - now_utc).total_seconds())
+                    raise HTTPException(
+                        status_code=429,
+                        detail=f"登录尝试次数过多，请 {remaining} 秒后再试",
+                    )
+                else:
+                    # Lock expired — clear DB state
+                    user.failed_login_attempts = 0
+                    user.locked_until = None
+                    await db.commit()
+    except HTTPException:
+        raise
+    except Exception:
+        pass  # DB unavailable — rely on Redis/memory only
+
 
 async def _record_failed_login(email: str) -> None:
-    """Record a failed login attempt. Lock account if threshold exceeded."""
+    """Record a failed login attempt. Lock account if threshold exceeded.
+
+    Persists to Redis (fast path) AND database (durable fallback).
+    """
     from services.redis_client import _get_redis
     r = await _get_redis()
 
@@ -172,9 +210,27 @@ async def _record_failed_login(email: str) -> None:
             info["locked_until"] = now + LOCKOUT_DURATION
             info["count"] = 0
 
+    # DB fallback — persists lockout across server restarts
+    try:
+        from database.session import AsyncSessionLocal
+        from sqlalchemy import select
+        async with AsyncSessionLocal() as db:
+            result = await db.execute(
+                select(User).where(User.email == email)
+            )
+            user = result.scalar_one_or_none()
+            if user:
+                user.failed_login_attempts += 1
+                if user.failed_login_attempts >= FAILED_LOGIN_MAX:
+                    user.locked_until = datetime.now(timezone.utc) + timedelta(seconds=LOCKOUT_DURATION)
+                    user.failed_login_attempts = 0
+                await db.commit()
+    except Exception:
+        pass  # DB unavailable — rely on Redis/memory only
+
 
 async def _clear_failed_login(email: str) -> None:
-    """Clear failed login tracking on successful login."""
+    """Clear failed login tracking on successful login (Redis + DB)."""
     from services.redis_client import _get_redis
     r = await _get_redis()
 
@@ -182,6 +238,22 @@ async def _clear_failed_login(email: str) -> None:
         await r.delete(f"lockout:{email}", f"lockout_count:{email}")
     else:
         _lockout_memory_store.pop(email, None)
+
+    # Also clear DB state
+    try:
+        from database.session import AsyncSessionLocal
+        from sqlalchemy import select
+        async with AsyncSessionLocal() as db:
+            result = await db.execute(
+                select(User).where(User.email == email)
+            )
+            user = result.scalar_one_or_none()
+            if user and (user.failed_login_attempts > 0 or user.locked_until):
+                user.failed_login_attempts = 0
+                user.locked_until = None
+                await db.commit()
+    except Exception:
+        pass  # DB unavailable — rely on Redis/memory clearing
 
 
 def _generate_code() -> str:

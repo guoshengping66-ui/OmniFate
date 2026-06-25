@@ -151,7 +151,7 @@ export default function RegisterPage() {
         } catch {}
       }
       toast.success(t("auth.loginSuccess"))
-      window.location.href = localeHref("/")
+      router.push("/")
     } catch (err: any) {
       console.error("[Register] verify email error:", err)
       if (err.code === "ERR_NETWORK" || err.code === "ECONNABORTED" || err.message?.includes("Network Error")) {

@@ -97,9 +97,23 @@ async def _ensure_tables():
             logger.error("Failed to ensure tables: %s", e)
 
 
+def _sanitize_identifier(name: str) -> str:
+    """Validate SQL identifier contains only safe characters (alphanumeric + underscore).
+    Raises ValueError if the name contains potentially dangerous characters."""
+    if not name or not name.replace("_", "").isalnum():
+        raise ValueError(f"Invalid SQL identifier: {name!r}")
+    return name
+
+
 async def _add_columns(db, table: str, columns: list[tuple[str, str]]) -> None:
-    """Add columns to a table. PostgreSQL uses IF NOT EXISTS; SQLite catches duplicates."""
+    """Add columns to a table. PostgreSQL uses IF NOT EXISTS; SQLite catches duplicates.
+
+    SECURITY: Table and column names are validated to contain only safe characters
+    (alphanumeric + underscore) before interpolation into SQL strings.
+    """
+    _sanitize_identifier(table)
     for col_name, col_type in columns:
+        _sanitize_identifier(col_name)
         try:
             if _is_sqlite:
                 await db.execute(text(f"ALTER TABLE {table} ADD COLUMN {col_name} {col_type}"))
@@ -126,6 +140,8 @@ async def _migrate_readings_columns():
         ("stardust_lifetime_earned", "INTEGER DEFAULT 0"),
         ("referral_code", "VARCHAR(8)"),
         ("referred_by", "VARCHAR(36)"),
+        ("failed_login_attempts", "INTEGER DEFAULT 0"),
+        ("locked_until", "TIMESTAMPTZ"),
     ]
     reading_columns = [
         ("qimen_report", "TEXT"),

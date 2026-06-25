@@ -101,6 +101,10 @@ class User(Base):
     referral_code: Mapped[Optional[str]] = mapped_column(String(8), unique=True, index=True)
     referred_by: Mapped[Optional[str]] = mapped_column(String(36), nullable=True)
 
+    # Brute-force protection — persisted to DB so lockout survives server restart
+    failed_login_attempts: Mapped[int] = mapped_column(Integer, default=0)
+    locked_until: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
@@ -179,6 +183,18 @@ class Reading(Base):
     astrology_raw: Mapped[Optional[dict]] = mapped_column(JSON)
     tarot_raw: Mapped[Optional[dict]] = mapped_column(JSON)
     face_analysis_text: Mapped[Optional[str]] = mapped_column(Text)
+    # NOTE: face_analysis_text is the face reading report. The column is named
+    # inconsistently with other *_report columns for historical reasons.
+    # Use this property for consistent access:
+
+    @property
+    def face_report(self) -> Optional[str]:
+        """Alias for face_analysis_text — consistent with other *_report columns."""
+        return self.face_analysis_text
+
+    @face_report.setter
+    def face_report(self, value: Optional[str]) -> None:
+        self.face_analysis_text = value
 
     # Agent outputs
     bazi_report: Mapped[Optional[str]] = mapped_column(Text)
@@ -203,8 +219,11 @@ class Reading(Base):
     computed_tags: Mapped[Optional[list]] = mapped_column(JSON)
     dimension_scores: Mapped[Optional[dict]] = mapped_column(JSON)
 
-    is_detail_unlocked: Mapped[bool] = mapped_column(Boolean, default=False)   # 全维解锁 (100星尘)
-    is_detailed_unlocked: Mapped[bool] = mapped_column(Boolean, default=False) # 精读解锁 (30星尘)
+    # WARNING: Two similar column names — double-check which one you need!
+    # is_detail_unlocked:   Full report unlock (100 Stardust) — unlocks master_detail + all worker reports
+    # is_detailed_unlocked: Detailed reading unlock (30 Stardust) — unlocks master_detail text only
+    is_detail_unlocked: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_detailed_unlocked: Mapped[bool] = mapped_column(Boolean, default=False)
     language: Mapped[Optional[str]] = mapped_column(String(5), default="zh")  # "zh" or "en"
     payment_status: Mapped[PaymentStatus] = mapped_column(Enum(PaymentStatus), default=PaymentStatus.unpaid)
     stripe_payment_intent: Mapped[Optional[str]] = mapped_column(String(200))

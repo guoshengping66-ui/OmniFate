@@ -47,7 +47,7 @@ export default function LoginPage() {
     try {
       await login(email, password)
       toast.success(t("auth.loginSuccess"))
-      window.location.href = localeHref("/")
+      router.push("/")
     } catch (err: any) {
       console.error("[Login] error:", err)
       if (err.code === "ERR_NETWORK" || err.code === "ECONNABORTED" || err.message?.includes("Network Error")) {
@@ -320,7 +320,7 @@ function GoogleLoginButton() {
       }
 
       toast.success(t("auth.loginSuccess"))
-      window.location.href = localeHref("/")
+      router.push("/")
     } catch (err: any) {
       console.error("[Google Login] error:", err)
       toast.error(err?.response?.data?.detail ?? t("auth.loginFail"))
