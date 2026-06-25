@@ -543,8 +543,8 @@ async def auto_confirm_expired_orders(
         try:
             await _activate_order(db, order)
             activated_count += 1
-        except Exception:
-            pass
+        except Exception as e:
+            logger.error("Failed to activate order %s: %s", getattr(order, 'order_no', 'unknown'), e)
 
     await db.commit()
     return {"activated": activated_count}

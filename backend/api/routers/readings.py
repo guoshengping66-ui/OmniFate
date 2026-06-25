@@ -2139,6 +2139,7 @@ async def _analyze_event_inner(
                 natal_planets=natal_planets,
             )
         except Exception as exc:
+            logger.warning("Transit astrology calculation failed: %s", exc)
             transit_astro = {"transit_planets": {}, "transit_natal_aspects": []}
 
     # 2b. Compute transit bazi pillars

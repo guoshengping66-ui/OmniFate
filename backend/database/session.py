@@ -212,8 +212,8 @@ async def _migrate_readings_columns():
             if result.rowcount > 0:
                 logger.info("Cleaned up %d test founder records", result.rowcount)
             await db.commit()
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning("Founder cleanup failed: %s", e)
     _founder_reset_done = True
 
 

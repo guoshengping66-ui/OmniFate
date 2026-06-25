@@ -89,7 +89,10 @@ async def monthly_stardust_grant(
         user_result = await db.execute(
             select(User).where(User.id == user.id).with_for_update()
         )
-        locked_user = user_result.scalar_one()
+        locked_user = user_result.scalar_one_or_none()
+        if not locked_user:
+            logger.warning("User %s disappeared during monthly grant, skipping", user.id)
+            continue
         locked_user.stardust_balance += grant_amount
         locked_user.stardust_lifetime_earned += grant_amount
 

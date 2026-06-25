@@ -197,7 +197,9 @@ async def apply_referral_code(
     referrer_result2 = await db.execute(
         select(User).where(User.id == referrer.id).with_for_update()
     )
-    referrer_user = referrer_result2.scalar_one()
+    referrer_user = referrer_result2.scalar_one_or_none()
+    if not referrer_user:
+        raise HTTPException(status_code=500, detail="推荐人账户异常，请稍后重试")
     referrer_user.stardust_balance += REFERRAL_REWARD
     tx_referrer = CreditTransaction(
         user_id=referrer_user.id,

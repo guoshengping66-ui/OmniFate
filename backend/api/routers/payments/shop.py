@@ -186,7 +186,6 @@ async def get_tracking(
 
     if order.tracking_number and order.shipping_carrier:
         try:
-            from config import settings
             kuaidi_key = settings.KUAI_DI100_API_KEY
             if not kuaidi_key:
                 logger.warning("KUAI_DI100_API_KEY not configured — skipping tracking lookup")
@@ -209,8 +208,8 @@ async def get_tracking(
                         }
                         for item in data.get("data", [])
                     ]
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Tracking lookup failed for order %s: %s", order.order_no, e)
 
     return tracking_info
 
