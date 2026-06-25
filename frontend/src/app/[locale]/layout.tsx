@@ -118,7 +118,7 @@ export default async function LocaleLayout({
   const initialRegion: "domestic" | "overseas" = regionCookie === "domestic" ? "domestic" : "overseas"
 
   return (
-    <html lang={validLocale === "zh" ? "zh-CN" : "en"}>
+    <html lang={validLocale === "zh" ? "zh-CN" : "en"} translate="no">
       <head>
         <link rel="preconnect" href="https://fonts.font.im" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://api.khanfate.com" />
