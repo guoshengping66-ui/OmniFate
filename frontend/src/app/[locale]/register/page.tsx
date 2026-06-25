@@ -1,5 +1,6 @@
 "use client"
 import { useState, useRef, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Sparkles, Loader2, Eye, EyeOff, Mail, CheckCircle, ChevronLeft, ChevronRight } from "lucide-react"
 import toast from "react-hot-toast"
@@ -15,6 +16,7 @@ import { LocationSelector } from "@/components/reading/LocationSelector"
 type Step = "account" | "birth" | "verify"
 
 export default function RegisterPage() {
+  const router = useRouter()
   const { t, localeHref } = useLanguage()
 
   // Step 1: Account
@@ -149,7 +151,7 @@ export default function RegisterPage() {
         } catch {}
       }
       toast.success(t("auth.loginSuccess"))
-      window.location.href = "/"
+      router.push("/")
     } catch (err: any) {
       console.error("[Register] verify email error:", err)
       if (err.code === "ERR_NETWORK" || err.code === "ECONNABORTED" || err.message?.includes("Network Error")) {

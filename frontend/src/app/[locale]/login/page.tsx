@@ -1,5 +1,6 @@
 "use client"
 import { useState, useEffect, useRef } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Sparkles, Loader2, Eye, EyeOff, Zap, Layers, Brain } from "lucide-react"
 import toast from "react-hot-toast"
@@ -28,6 +29,7 @@ const FEATURES = [
 ]
 
 export default function LoginPage() {
+  const router = useRouter()
   const { login } = useAuth()
   const { t, localeHref } = useLanguage()
   const [email, setEmail] = useState("")
@@ -45,7 +47,7 @@ export default function LoginPage() {
     try {
       await login(email, password)
       toast.success(t("auth.loginSuccess"))
-      window.location.href = "/"
+      router.push("/")
     } catch (err: any) {
       console.error("[Login] error:", err)
       if (err.code === "ERR_NETWORK" || err.code === "ECONNABORTED" || err.message?.includes("Network Error")) {
@@ -318,7 +320,7 @@ function GoogleLoginButton() {
       }
 
       toast.success(t("auth.loginSuccess"))
-      window.location.href = "/"
+      router.push("/")
     } catch (err: any) {
       console.error("[Google Login] error:", err)
       toast.error(err?.response?.data?.detail ?? t("auth.loginFail"))

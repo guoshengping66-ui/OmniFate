@@ -1,5 +1,5 @@
 "use client"
-import { createContext, useContext, useState, useEffect, useCallback, useMemo, type ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef, type ReactNode } from "react"
 import { api, apiDirect, apiAuth, type RegisterBirthData } from "@/lib/api"
 
 export interface AuthUser {
@@ -85,6 +85,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null)
   const [loading, setLoading] = useState(true)
 
+  // AbortController ref to cancel initAuth when login() succeeds.
+  // Prevents a race where initAuth's clearAuth() overwrites login's setUser().
+  const initAbortRef = useRef<AbortController | null>(null)
+
   // Restore cached user AFTER hydration
   useEffect(() => {
     try {
@@ -111,33 +115,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Calls /api/auth/me to verify the session; cookies are sent automatically
   // via withCredentials: true on the axios instance.
   useEffect(() => {
+    const abortController = new AbortController()
+    initAbortRef.current = abortController
+    const { signal } = abortController
+
     const initAuth = async () => {
       try {
         const res = await apiAuth.get("/api/auth/me")
+        if (signal.aborted) return
         setUser(res.data)
         cacheUser(res.data)
       } catch (err: any) {
+        if (signal.aborted) return
+
         const status = err?.response?.status
         const isNetworkError = !err?.response && !!err?.code
 
         if (status === 401 || status === 403) {
           if (!err?.config?._retry) {
             const ok = await tryRefreshToken()
+            if (signal.aborted) return
             if (ok) {
               try {
                 const retryRes = await apiAuth.get("/api/auth/me")
+                if (signal.aborted) return
                 setUser(retryRes.data)
                 cacheUser(retryRes.data)
               } catch {
-                clearAuth()
+                if (!signal.aborted) clearAuth()
               }
             } else {
-              clearAuth()
+              if (!signal.aborted) clearAuth()
             }
           } else {
-            clearAuth()
+            if (!signal.aborted) clearAuth()
           }
         } else if (isNetworkError || (status && status >= 500)) {
+          if (signal.aborted) return
           // Network or server error — keep cached user if available
           const cached = sessionStorage.getItem(USER_CACHE_KEY)
           if (cached) {
@@ -145,10 +159,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         }
       } finally {
-        setLoading(false)
+        if (!signal.aborted) setLoading(false)
       }
     }
     initAuth()
+
+    return () => abortController.abort()
   }, [clearAuth])
 
   // ── Axios interceptors ───────────────────────────────────────────────────
@@ -212,6 +228,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // ── Login ────────────────────────────────────────────────────────────────
   const login = useCallback(async (email: string, password: string) => {
+    // Abort any running initAuth to prevent race:
+    // initAuth's get /api/auth/me → 401 → tryRefreshToken → clearAuth()
+    // could fire AFTER we setUser() below, destroying the login state.
+    initAbortRef.current?.abort()
+
     const res = await apiAuth.post("/api/auth/login", { email, password })
     const data = res.data
     if (data.access_token && data.refresh_token) {
