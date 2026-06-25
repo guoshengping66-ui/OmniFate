@@ -1367,12 +1367,12 @@ async def run_qimen_ziwei(state: SystemState) -> list[WorkerOutput]:
         report_q = _mock("qimen", "merged qimen+ziwei")
         report_z = _mock("ziwei", "merged qimen+ziwei")
     else:
-        logger.info("QIMEN_ZIWEI: Calling LLM, model=%s, timeout=80s", settings.FREE_MODEL)
+        logger.info("QIMEN_ZIWEI: Calling LLM, model=%s, timeout=180s", settings.FREE_MODEL)
         try:
-            report = await asyncio.wait_for(llm.ainvoke(msgs), timeout=80)
+            report = await asyncio.wait_for(llm.ainvoke(msgs), timeout=180)
             logger.info("QIMEN_ZIWEI: LLM response received, length=%d", len(report.content))
         except asyncio.TimeoutError:
-            logger.warning("QIMEN_ZIWEI: LLM timed out after 80s")
+            logger.warning("QIMEN_ZIWEI: LLM timed out after 180s")
             report = type('obj', (object,), {'content': '{"error":"timeout"}', 'response_metadata': {}})()
         full_text = report.content
         # Post-process: clean residual Chinese in English output

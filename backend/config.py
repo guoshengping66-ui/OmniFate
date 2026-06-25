@@ -42,11 +42,11 @@ class Settings(BaseSettings):
 
     # ── Worker timeouts (seconds) — can be overridden per environment ──
     ASTROLOGY_WORKER_TIMEOUT: int = 120
-    TAROT_WORKER_TIMEOUT: int = 90
-    BAZI_WORKER_TIMEOUT: int = 90
-    QIMEN_ZIWEI_WORKER_TIMEOUT: int = 120
-    FACE_WORKER_TIMEOUT: int = 90
-    PALM_WORKER_TIMEOUT: int = 90
+    TAROT_WORKER_TIMEOUT: int = 100
+    BAZI_WORKER_TIMEOUT: int = 100
+    QIMEN_ZIWEI_WORKER_TIMEOUT: int = 200
+    FACE_WORKER_TIMEOUT: int = 100
+    PALM_WORKER_TIMEOUT: int = 100
 
     # ── 免费模型（追问等低频场景使用）──
     FREE_MODEL_API_KEY: str = ""                 # 空则复用 OPENAI_API_KEY
