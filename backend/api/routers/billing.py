@@ -645,7 +645,7 @@ async def verify_crypto_tx(
 #  Module 3.2: PayPal Webhook — 接收 PAYMENT.SALE.COMPLETED
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def _verify_paypal_webhook_signature(body: bytes, headers: dict) -> bool:
+async def _verify_paypal_webhook_signature(body: bytes, headers: dict) -> bool:
     """
     Verify PayPal webhook signature using PayPal's verify API.
     Returns True only if PayPal confirms the signature is valid.
@@ -721,7 +721,7 @@ async def paypal_webhook(
 
     # Signature verification — always verify, both sandbox and live
     headers_dict = dict(request.headers)
-    if not _verify_paypal_webhook_signature(body, headers_dict):
+    if not await _verify_paypal_webhook_signature(body, headers_dict):
         logger.warning("[SECURITY] PayPal webhook signature verification failed")
         raise HTTPException(status_code=403, detail="Webhook signature verification failed")
 
