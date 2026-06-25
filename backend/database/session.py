@@ -24,7 +24,8 @@ if _is_sqlite:
     # Use NullPool on Vercel to avoid StaticPool connection reuse issues
     _kw["poolclass"] = NullPool if _is_vercel else StaticPool
 else:
-    _kw["connect_timeout"] = 10  # Prevent indefinite TCP hang when DB is unreachable
+    # asyncpg connection timeout — must be in connect_args, not a top-level kwarg
+    _kw["connect_args"] = {"timeout": 10}
     _kw["pool_pre_ping"] = True
     _kw["pool_timeout"] = 10
     # ── PostgreSQL pool tuning ──
