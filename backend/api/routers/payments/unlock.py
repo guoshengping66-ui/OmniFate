@@ -272,7 +272,10 @@ async def unlock_report(
     if reading.is_detail_unlocked:
         return {"already_unlocked": True, "reading_id": reading_id}
 
-    if reading.user_id != current_user.id:
+    if reading.user_id is None:
+        # Orphan reading — claim it for the current user
+        reading.user_id = current_user.id
+    elif reading.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="无权操作此报告")
 
     if source == "stardust":
