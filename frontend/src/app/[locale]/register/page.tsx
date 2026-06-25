@@ -7,6 +7,7 @@ import toast from "react-hot-toast"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { registerUser, sendVerificationCode, verifyEmail } from "@/lib/api"
+import { storeTokens } from "@/contexts/AuthContext"
 import type { RegisterBirthData } from "@/lib/api"
 import { ServiceTerms } from "@/components/ui/ServiceTerms"
 import { DateSelector } from "@/components/reading/DateSelector"
@@ -145,12 +146,16 @@ export default function RegisterPage() {
     setVerifyLoading(true)
     try {
       const authRes = await verifyEmail(email, verifyCode)
-      // Tokens are httpOnly cookies set by the backend — update AuthContext
-      // so the homepage sees the logged-in user (not null).
+      // Store tokens for Bearer header auth + update AuthContext state
       if (authRes.user) {
         try {
           sessionStorage.setItem("alpha_mirror_user", JSON.stringify(authRes.user))
         } catch {}
+        // Store access token in-memory so subsequent API calls include
+        // Bearer header (defense-in-depth: works even if cookies fail)
+        if (authRes.access_token) {
+          storeTokens(authRes.access_token, authRes.refresh_token || "")
+        }
         // Refresh AuthContext state so useAuth() returns the logged-in user
         // on the homepage without requiring a full page reload.
         refreshUser().catch(() => {})

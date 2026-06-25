@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Sparkles, Loader2, Eye, EyeOff, Zap, Layers, Brain } from "lucide-react"
 import toast from "react-hot-toast"
-import { useAuth } from "@/contexts/AuthContext"
+import { useAuth, storeTokens } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 declare global {
@@ -317,6 +317,10 @@ function GoogleLoginButton() {
         try {
           sessionStorage.setItem("alpha_mirror_user", JSON.stringify(data.user))
         } catch {}
+        // Store access token in-memory for Bearer header auth
+        if (data.access_token) {
+          storeTokens(data.access_token, data.refresh_token || "")
+        }
       }
 
       toast.success(t("auth.loginSuccess"))

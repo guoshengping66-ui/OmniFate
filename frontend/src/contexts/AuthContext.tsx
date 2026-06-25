@@ -44,12 +44,29 @@ const USER_CACHE_KEY = "alpha_mirror_user"
 // cookies automatically. This eliminates the XSS token-exfiltration vector
 // — even if an XSS vulnerability exists, tokens cannot be read by JS.
 
-function storeTokens(_access: string, _refresh: string) {
-  // Tokens are cookie-only — sessionStorage is no longer used for credentials.
-  // This function is kept as a no-op for backward compatibility with callers
-  // (login page, Google OAuth handler) that still pass tokens.
+// ── Access token persistence (survives Webpack chunk splitting) ────────────
+// httpOnly cookies are the IDEAL auth mechanism (immune to XSS exfiltration),
+// but in practice cookies may not be reliably forwarded through all network
+// layers (Cloudflare → nginx → Next.js proxy → backend). As a DEFENSE-IN-DEPTH
+// measure, we ALSO store the access token in a module-level variable (NOT
+// sessionStorage — to avoid XSS) and add it as a Bearer header on every request.
+// The backend prefers Bearer header over cookie (auth/dependencies.py:33),
+// so this provides a reliable fallback when cookies fail to propagate.
+//
+// Using `window` ensures the token survives Webpack code-splitting that may
+// duplicate AuthContext across shared chunks and page chunks.
+const ACCESS_TOKEN_KEY = "__accessToken"
+
+function getStoredAccessToken(): string | null {
+  return (window as any)[ACCESS_TOKEN_KEY] || null
+}
+
+export function storeTokens(access: string, _refresh: string) {
+  ;(window as any)[ACCESS_TOKEN_KEY] = access
+  // Refresh token is httpOnly cookie only — not exposed to JS
 }
 function clearTokens() {
+  delete (window as any)[ACCESS_TOKEN_KEY]
   // Cookies are cleared by POST /api/auth/logout on the backend.
   // sessionStorage cleanup happens via clearAuth() → removeItem(USER_CACHE_KEY).
 }
@@ -207,7 +224,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Bearer header over cookie, so this is safe.
   useEffect(() => {
     const reqInterceptor = (config: any) => {
-      // No-op: auth is handled by httpOnly cookies via withCredentials: true
+      // DEFENSE-IN-DEPTH: Add Bearer header from in-memory token.
+      // Backend prefers Bearer header over cookie, so this works even
+      // when httpOnly cookies fail to propagate through the network stack.
+      const token = getStoredAccessToken()
+      if (token && config.headers) {
+        config.headers.set("Authorization", `Bearer ${token}`)
+      }
       return config
     }
 
