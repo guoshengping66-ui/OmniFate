@@ -18,6 +18,7 @@ type Step = "account" | "birth" | "verify"
 export default function RegisterPage() {
   const router = useRouter()
   const { t, localeHref } = useLanguage()
+  const { refreshUser } = useAuth()
 
   // Step 1: Account
   const [step, setStep] = useState<Step>("account")
@@ -144,11 +145,15 @@ export default function RegisterPage() {
     setVerifyLoading(true)
     try {
       const authRes = await verifyEmail(email, verifyCode)
-      // Tokens are httpOnly cookies set by the backend — only cache user data
+      // Tokens are httpOnly cookies set by the backend — update AuthContext
+      // so the homepage sees the logged-in user (not null).
       if (authRes.user) {
         try {
           sessionStorage.setItem("alpha_mirror_user", JSON.stringify(authRes.user))
         } catch {}
+        // Refresh AuthContext state so useAuth() returns the logged-in user
+        // on the homepage without requiring a full page reload.
+        refreshUser().catch(() => {})
       }
       toast.success(t("auth.loginSuccess"))
       router.push("/")
