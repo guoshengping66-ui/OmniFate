@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useState, useRef, useCallback } from "react"
-import { getSession, streamSession, AnalysisResponse, SSEEvent, AgentStatusValue } from "@/lib/api"
+import { getSession, streamSession, AnalysisResponse, SSEEvent, AgentStatusValue, type WorkerReport } from "@/lib/api"
 import AnalysisProgress from "@/components/reading/AnalysisProgress"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { AlertCircle, RefreshCw } from "lucide-react"
@@ -11,6 +11,39 @@ import { useRegion } from "@/hooks/useRegion"
 // Pure comparison — no closures, safe at module level
 const WORKER_KEYS = ["bazi", "tarot", "qimen", "ziwei", "astrology", "face", "palm",
   "partner_face", "partner_palm"] as const
+
+/**
+ * Derive agent_status from worker data in an AnalysisResponse.
+ *
+ * SSE `agent_status` events are the primary source, but when the SSE connection
+ * is lost or the backend doesn't emit them reliably, the polling fallback must
+ * still drive agent node status changes.  Without this, the progress bar
+ * advances (time-based + polling) while the 8 agent grid nodes stay stuck in
+ * "pending" — they never turn green.
+ */
+const WORKER_FIELD_IDS: [string, string][] = [
+  ["bazi", "bazi"], ["astrology", "astrology"], ["tarot", "tarot"],
+  ["qimen", "qimen"], ["ziwei", "ziwei"], ["face", "face"], ["palm", "palm"],
+  ["partner_face", "partner_face"], ["partner_palm", "partner_palm"],
+]
+
+function deriveAgentStatus(data: AnalysisResponse): Record<string, AgentStatusValue> {
+  const out: Record<string, AgentStatusValue> = {}
+  for (const [field, agentId] of WORKER_FIELD_IDS) {
+    const worker = (data as any)[field] as WorkerReport | undefined
+    if (!worker) continue
+    if (worker.duration_ms !== undefined && worker.duration_ms !== null) {
+      out[agentId] = worker.error ? "error" : "done"
+    } else if (worker.report) {
+      // Has a report but no duration_ms — treat as done (edge case: server
+      // persisted the report but lost the timing metadata)
+      out[agentId] = "done"
+    }
+    // else: worker hasn't produced output yet → leave as pending/running
+    // (SSE agent_status events handle the running→done transition)
+  }
+  return out
+}
 
 function dataChanged(fresh: AnalysisResponse, prev: AnalysisResponse) {
   if (fresh.status !== prev.status) return true
@@ -80,7 +113,9 @@ export default function AnalysisSession({ sessionId, initialData, onComplete }: 
       return t("analysis.preparing")
     return ""
   })
-  const [agentStatus, setAgentStatus] = useState<Record<string, AgentStatusValue>>({})
+  const [agentStatus, setAgentStatus] = useState<Record<string, AgentStatusValue>>(() =>
+    deriveAgentStatus(initialData)
+  )
   const [isStuck, setIsStuck] = useState(false)
 
   const lastDataRef = useRef(initialData)
@@ -185,6 +220,20 @@ export default function AnalysisSession({ sessionId, initialData, onComplete }: 
           if (!prevData || dataChanged(fresh, prevData)) {
             setData(fresh)
             lastDataRef.current = fresh
+            // Derive agent status from worker data so the 8 agent grid nodes
+            // update even when SSE agent_status events are not arriving.
+            const derived = deriveAgentStatus(fresh)
+            setAgentStatus(prev => {
+              const merged = { ...prev }
+              for (const [k, v] of Object.entries(derived)) {
+                // "done"/"error" are terminal — always accept.  For other
+                // values only fill in keys that SSE hasn't covered yet.
+                if (v === "done" || v === "error" || !(k in merged) || merged[k] === "pending") {
+                  merged[k] = v
+                }
+              }
+              return merged
+            })
           }
           const now = Date.now()
           if (fresh.progress_pct !== undefined && fresh.progress_pct > 0 &&
