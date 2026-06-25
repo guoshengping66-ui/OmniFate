@@ -192,7 +192,8 @@ try{
   // The inline version check runs BEFORE React mounts — if it triggers a
   // reload, AuthProvider never gets to restore the cached user from
   // sessionStorage, causing a flash of the logged-out state.
-  var hasAuth=!!s.getItem("alpha_mirror_access_token");
+  // Auth tokens are now httpOnly cookies — check cached user instead
+  var hasAuth=!!s.getItem("alpha_mirror_user");
 
   function reloadWithCacheBust(){
     var url=new URL(window.location.href);

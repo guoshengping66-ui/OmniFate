@@ -144,14 +144,7 @@ export default function RegisterPage() {
     setVerifyLoading(true)
     try {
       const authRes = await verifyEmail(email, verifyCode)
-      // Store tokens in sessionStorage so AuthContext can find them on page load
-      // (httpOnly cookies alone are not read by initAuth)
-      if (authRes.access_token && authRes.refresh_token) {
-        try {
-          sessionStorage.setItem("alpha_mirror_access_token", authRes.access_token)
-          sessionStorage.setItem("alpha_mirror_refresh_token", authRes.refresh_token)
-        } catch {}
-      }
+      // Tokens are httpOnly cookies set by the backend — only cache user data
       if (authRes.user) {
         try {
           sessionStorage.setItem("alpha_mirror_user", JSON.stringify(authRes.user))

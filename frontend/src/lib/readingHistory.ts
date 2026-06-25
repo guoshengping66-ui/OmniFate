@@ -1,6 +1,6 @@
 /**
  * Reading history management for anonymous users.
- * Stores reading session IDs in localStorage so users can view past readings.
+ * Stores reading session IDs in sessionStorage so users can view past readings.
  */
 
 const HISTORY_KEY = "profile_reading_history"
@@ -14,11 +14,11 @@ export interface ReadingHistoryItem {
 }
 
 /**
- * Get reading history from localStorage
+ * Get reading history from sessionStorage
  */
 export function getReadingHistory(): ReadingHistoryItem[] {
   try {
-    const raw = localStorage.getItem(HISTORY_KEY)
+    const raw = sessionStorage.getItem(HISTORY_KEY)
     if (!raw) return []
     return JSON.parse(raw) as ReadingHistoryItem[]
   } catch {
@@ -56,7 +56,7 @@ export function addReadingToHistory(
     // Limit history size
     const trimmed = history.slice(0, MAX_HISTORY)
 
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(trimmed))
+    sessionStorage.setItem(HISTORY_KEY, JSON.stringify(trimmed))
   } catch {
     // Silently fail - history is optional
   }
@@ -71,7 +71,7 @@ export function updateReadingStatus(sessionId: string, status: string): void {
     const item = history.find(h => h.sessionId === sessionId)
     if (item) {
       item.status = status
-      localStorage.setItem(HISTORY_KEY, JSON.stringify(history))
+      sessionStorage.setItem(HISTORY_KEY, JSON.stringify(history))
     }
   } catch {
     // Silently fail
@@ -85,7 +85,7 @@ export function removeReadingFromHistory(sessionId: string): void {
   try {
     const history = getReadingHistory()
     const filtered = history.filter(h => h.sessionId !== sessionId)
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(filtered))
+    sessionStorage.setItem(HISTORY_KEY, JSON.stringify(filtered))
   } catch {
     // Silently fail
   }
@@ -96,7 +96,7 @@ export function removeReadingFromHistory(sessionId: string): void {
  */
 export function clearReadingHistory(): void {
   try {
-    localStorage.removeItem(HISTORY_KEY)
+    sessionStorage.removeItem(HISTORY_KEY)
   } catch {
     // Silently fail
   }

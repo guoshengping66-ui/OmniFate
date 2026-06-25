@@ -35,7 +35,9 @@ _astro_calc = AstrologyCalculator(house_system="Equal")
 # Store AstrologyResult objects for synastry calculation (keyed by session_id)
 _astro_results: dict[str, dict] = {}  # session_id -> {"self": AstrologyResult, "partner": AstrologyResult}
 _bazi_results: dict[str, dict] = {}   # session_id -> {"self": BaziResult, "partner": BaziResult}
-_worker_count_lock = asyncio.Lock()
+_astro_dict_lock = asyncio.Lock()      # Protects _astro_results from concurrent access
+_bazi_dict_lock = asyncio.Lock()       # Protects _bazi_results from concurrent access
+_worker_count_lock = asyncio.Lock()    # Protects _completed_workers counter
 
 
 # ─── Node functions ──────────────────────────────────────────────────────
@@ -57,7 +59,8 @@ async def node_init(state: SystemState) -> SystemState:
             state.astrology_raw = astro_dict
             # Store AstrologyResult for synastry calculation (no global needed)
             if astro_obj is not None:
-                _astro_results.setdefault(state.session_id, {})["self"] = astro_obj
+                async with _astro_dict_lock:
+                    _astro_results.setdefault(state.session_id, {})["self"] = astro_obj
         except Exception as e:
             # Fallback to stub if real calculation fails or times out
             state.astrology_raw = _stub_astrology(bi)
@@ -641,7 +644,8 @@ async def run_full_analysis(state: SystemState) -> SystemState:
             state.partner_astrology_raw = partner_astro
             # Store partner AstrologyResult for synastry calculation (no global needed)
             if partner_astro_obj is not None:
-                _astro_results.setdefault(state.session_id, {})["partner"] = partner_astro_obj
+                async with _astro_dict_lock:
+                    _astro_results.setdefault(state.session_id, {})["partner"] = partner_astro_obj
         except Exception as e:
             state.partner_astrology_raw = _stub_astrology(state.partner_birth_info)
             state.errors.append(f"partner_astrology_fallback: {e}")
@@ -660,7 +664,8 @@ async def run_full_analysis(state: SystemState) -> SystemState:
             )
             state.partner_bazi_raw = partner_bazi_result.to_dict()
             # Store BaziResult for compatibility calculation
-            _bazi_results.setdefault(state.session_id, {})["partner"] = partner_bazi_result
+            async with _bazi_dict_lock:
+                _bazi_results.setdefault(state.session_id, {})["partner"] = partner_bazi_result
         except Exception as e:
             state.errors.append(f"partner_bazi_error: {e}")
 
@@ -753,6 +758,8 @@ async def run_full_analysis(state: SystemState) -> SystemState:
                     state.agent_status[r.agent_id] = "error" if r.error else "done"
                     async with _worker_count_lock:
                         _completed_workers += 1
+                        state.progress_pct = 5 + int(60 * _completed_workers / _total_workers)
+                        state.progress_message = f"Completed {_completed_workers}/{_total_workers} analyses…" if is_en else f"已完成 {_completed_workers}/{_total_workers} 项分析…"
             # Remove stale merged-worker key so frontend completedCount is correct
             state.agent_status.pop("qimen_ziwei", None)
         else:
@@ -760,14 +767,14 @@ async def run_full_analysis(state: SystemState) -> SystemState:
             attr = f"{agent_id}_output"
             if hasattr(state, attr):
                 setattr(state, attr, result)
+            state.agent_status[agent_id] = "error" if result.error else "done"
             async with _worker_count_lock:
                 _completed_workers += 1
-            state.agent_status[agent_id] = "error" if result.error else "done"
+                state.progress_pct = 5 + int(60 * _completed_workers / _total_workers)
+                state.progress_message = f"Completed {_completed_workers}/{_total_workers} analyses…" if is_en else f"已完成 {_completed_workers}/{_total_workers} 项分析…"
 
         # Mark the merged worker event too
         worker_events[agent_id].set()
-        state.progress_pct = 5 + int(60 * _completed_workers / _total_workers)
-        state.progress_message = f"Completed {_completed_workers}/{_total_workers} analyses…" if is_en else f"已完成 {_completed_workers}/{_total_workers} 项分析…"
         return result
 
     worker_tasks = [
@@ -794,16 +801,17 @@ async def run_full_analysis(state: SystemState) -> SystemState:
             # Use max of time-based and actual worker-completion progress
             actual_pct = 5 + int(60 * _completed_workers / _total_workers)
             blended = max(time_pct, actual_pct)
-            if blended > state.progress_pct:
-                state.progress_pct = blended
-                # Throttle message updates to max once per 5s to avoid SSE re-render storms
-                now = asyncio.get_event_loop().time()
-                if now - _last_msg_time >= 5:
-                    _last_msg_time = now
-                    state.progress_message = (
-                        f"Completed {_completed_workers}/{_total_workers} analyses…"
-                        if is_en else f"已完成 {_completed_workers}/{_total_workers} 项分析…"
-                    )
+            async with _worker_count_lock:
+                if blended > state.progress_pct:
+                    state.progress_pct = blended
+                    # Throttle message updates to max once per 5s to avoid SSE re-render storms
+                    now = asyncio.get_event_loop().time()
+                    if now - _last_msg_time >= 5:
+                        _last_msg_time = now
+                        state.progress_message = (
+                            f"Completed {_completed_workers}/{_total_workers} analyses…"
+                            if is_en else f"已完成 {_completed_workers}/{_total_workers} 项分析…"
+                        )
 
     progress_updater = asyncio.create_task(_continuous_progress())
 
@@ -843,7 +851,8 @@ async def run_full_analysis(state: SystemState) -> SystemState:
         if state.intent != "RELATIONSHIP":
             return
         try:
-            session_results = _astro_results.get(state.session_id, {})
+            async with _astro_dict_lock:
+                session_results = _astro_results.get(state.session_id, {}).copy()
             astro_self = session_results.get("self")
             astro_partner = session_results.get("partner")
 
@@ -876,20 +885,23 @@ async def run_full_analysis(state: SystemState) -> SystemState:
                     logger.error("Bazi compat error: %s", e)
         finally:
             # Always clean up global state to prevent memory leak
-            _astro_results.pop(state.session_id, None)
-            _bazi_results.pop(state.session_id, None)
+            async with _astro_dict_lock:
+                _astro_results.pop(state.session_id, None)
+            async with _bazi_dict_lock:
+                _bazi_results.pop(state.session_id, None)
 
     synastry_task = asyncio.create_task(_compute_synastry())
 
     # ── Wait for ALL workers to finish ──
-    await asyncio.gather(*worker_tasks)
-
-    # Stop continuous progress updater — workers are all done
-    progress_updater.cancel()
     try:
-        await progress_updater
-    except asyncio.CancelledError:
-        pass
+        await asyncio.gather(*worker_tasks)
+    finally:
+        # Stop continuous progress updater — workers are all done (or errored)
+        progress_updater.cancel()
+        try:
+            await progress_updater
+        except asyncio.CancelledError:
+            pass
 
     # ── Wait for synastry computation to finish (if RELATIONSHIP) ──
     if state.intent == "RELATIONSHIP":
@@ -957,15 +969,20 @@ async def run_full_analysis(state: SystemState) -> SystemState:
     state.progress_message = "Finalizing report…" if is_en else "正在整理报告…"
     await asyncio.sleep(0.5)  # Brief pause so user sees 95%
 
-    state.progress_pct = 100
-    state.progress_message = "Analysis complete" if is_en else "分析完成"
-    state.phase = "done"
+    try:
+        state.progress_pct = 100
+        state.progress_message = "Analysis complete" if is_en else "分析完成"
+        state.phase = "done"
 
-    # Clean up global dicts to prevent memory leak
-    _astro_results.pop(state.session_id, None)
-    _bazi_results.pop(state.session_id, None)
-
-    return state
+        return state
+    finally:
+        # Clean up global dicts to prevent memory leak
+        # Protected by locks to prevent race with concurrent accesses
+        sid = state.session_id or ""
+        async with _astro_dict_lock:
+            _astro_results.pop(sid, None)
+        async with _bazi_dict_lock:
+            _bazi_results.pop(sid, None)
 
 
 async def run_chat(question: str, state: SystemState) -> tuple[str, str, SystemState]:

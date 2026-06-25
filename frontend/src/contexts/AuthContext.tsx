@@ -36,28 +36,22 @@ const AuthContext = createContext<AuthState>({
 })
 
 const USER_CACHE_KEY = "alpha_mirror_user"
-const ACCESS_TOKEN_KEY = "alpha_mirror_access_token"
-const REFRESH_TOKEN_KEY = "alpha_mirror_refresh_token"
 
-function getAccessToken(): string | null {
-  try { return sessionStorage.getItem(ACCESS_TOKEN_KEY) } catch { return null }
-}
-function getRefreshToken(): string | null {
-  try { return sessionStorage.getItem(REFRESH_TOKEN_KEY) } catch { return null }
-}
-function storeTokens(access: string, refresh: string) {
-  try {
-    sessionStorage.setItem(ACCESS_TOKEN_KEY, access)
-    sessionStorage.setItem(REFRESH_TOKEN_KEY, refresh)
-  } catch (e) {
-    console.error("[Auth] storeTokens failed:", e)
-  }
+// NOTE: Access and refresh tokens are NO LONGER stored in sessionStorage.
+// They are set by the backend as httpOnly, Secure, SameSite=Lax cookies
+// (see backend/api/routers/auth.py:_set_auth_cookies).
+// The frontend axios instances use `withCredentials: true` to send these
+// cookies automatically. This eliminates the XSS token-exfiltration vector
+// — even if an XSS vulnerability exists, tokens cannot be read by JS.
+
+function storeTokens(_access: string, _refresh: string) {
+  // Tokens are cookie-only — sessionStorage is no longer used for credentials.
+  // This function is kept as a no-op for backward compatibility with callers
+  // (login page, Google OAuth handler) that still pass tokens.
 }
 function clearTokens() {
-  try {
-    sessionStorage.removeItem(ACCESS_TOKEN_KEY)
-    sessionStorage.removeItem(REFRESH_TOKEN_KEY)
-  } catch {}
+  // Cookies are cleared by POST /api/auth/logout on the backend.
+  // sessionStorage cleanup happens via clearAuth() → removeItem(USER_CACHE_KEY).
 }
 
 // ── Global token refresh (shared across all instances) ───────────────────
@@ -68,10 +62,10 @@ async function tryRefreshToken(): Promise<boolean> {
 
   _refreshPromise = (async () => {
     try {
-      const refreshToken = getRefreshToken()
-      if (!refreshToken) return false
-      const r = await apiAuth.post("/api/auth/refresh", { refresh_token: refreshToken })
-      storeTokens(r.data.access_token, r.data.refresh_token)
+      // Refresh token is sent via httpOnly cookie (withCredentials: true)
+      // Backend reads refresh_token from cookie when body is empty
+      const r = await apiAuth.post("/api/auth/refresh", {})
+      // Backend sets new tokens as httpOnly cookies in the response
       return true
     } catch (err: any) {
       const status = err?.response?.status
@@ -113,15 +107,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   // ── Init auth on mount ───────────────────────────────────────────────────
+  // Uses httpOnly cookie-based auth — no tokens in sessionStorage.
+  // Calls /api/auth/me to verify the session; cookies are sent automatically
+  // via withCredentials: true on the axios instance.
   useEffect(() => {
     const initAuth = async () => {
-      const accessToken = getAccessToken()
-
-      if (!accessToken) {
-        setLoading(false)
-        return
-      }
-
       try {
         const res = await apiAuth.get("/api/auth/me")
         setUser(res.data)
@@ -131,12 +121,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const isNetworkError = !err?.response && !!err?.code
 
         if (status === 401 || status === 403) {
-          if (err?.config?._retry) {
-            const stillHasTokens = !!getAccessToken()
-            if (stillHasTokens) {
-              clearAuth()
-            }
-          } else {
+          if (!err?.config?._retry) {
             const ok = await tryRefreshToken()
             if (ok) {
               try {
@@ -149,9 +134,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             } else {
               clearAuth()
             }
+          } else {
+            clearAuth()
           }
         } else if (isNetworkError || (status && status >= 500)) {
-          // Network or server error — keep cached user
+          // Network or server error — keep cached user if available
+          const cached = sessionStorage.getItem(USER_CACHE_KEY)
+          if (cached) {
+            try { setUser(JSON.parse(cached) as AuthUser) } catch {}
+          }
         }
       } finally {
         setLoading(false)
@@ -160,14 +151,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initAuth()
   }, [clearAuth])
 
-  // ── Axios interceptors: attach Bearer token + auto-refresh on 401 ───────
+  // ── Axios interceptors ───────────────────────────────────────────────────
+  // NOTE: Authentication is cookie-based (httpOnly cookies set by backend).
+  // The `withCredentials: true` on all axios instances sends cookies
+  // automatically. No manual Authorization header is needed — the backend
+  // reads tokens from cookies when no Bearer header is present.
+  // We still set the interceptor as a no-op for backward compatibility
+  // with any code that manually sets Authorization. The backend prefers
+  // Bearer header over cookie, so this is safe.
   useEffect(() => {
     const reqInterceptor = (config: any) => {
-      const token = getAccessToken()
-      if (token) {
-        config.headers = config.headers || {}
-        config.headers.Authorization = `Bearer ${token}`
-      }
+      // No-op: auth is handled by httpOnly cookies via withCredentials: true
       return config
     }
 

@@ -116,7 +116,9 @@ function applySecurityHeaders(response: NextResponse) {
     )
   }
 
-  response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate")
+  // NOTE: Cache-Control is set per-route in next.config.js `headers()` —
+  // DO NOT set it here unconditionally, as it would override CDN-friendly
+  // cache rules for static assets, SEO pages, and public resources.
 }
 
 export function middleware(request: NextRequest) {

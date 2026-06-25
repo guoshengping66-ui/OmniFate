@@ -37,6 +37,20 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning("Database init failed: %s", e)
 
+    # ── Production safety: require Redis for rate limiting in multi-worker setup ──
+    if not settings.DEBUG and not settings.REDIS_URL:
+        import multiprocessing
+        # PM2 typically runs in cluster mode (multiple workers/cores)
+        # Without Redis, rate limits are per-worker and trivially bypassable
+        logger.critical(
+            "PRODUCTION WARNING: REDIS_URL is not set. Rate limiting uses "
+            "in-memory per-worker storage — an attacker can bypass all rate "
+            "limits by hitting different workers. Configure REDIS_URL for production."
+        )
+        # NOTE: We don't refuse to start — some deployments use single-worker
+        # PM2 or have external rate limiting (nginx/Cloudflare). The warning
+        # is logged at CRITICAL level so it's visible in monitoring.
+
     # Pre-download Skyfield ephemeris to /tmp so analysis doesn't block on first request
     import os
     skyfield_dir = "/tmp/skyfield" if os.path.exists("/tmp") else os.path.expanduser("~/.skyfield")
@@ -62,9 +76,15 @@ app = FastAPI(
     redoc_url=None if not settings.DEBUG else "/redoc",
 )
 
+# Build allowed origins — localhost only in DEBUG mode to prevent
+# local processes from making credentialed requests in production
+_ALLOWED_ORIGINS = list(settings.ALLOWED_ORIGINS)
+if settings.DEBUG:
+    _ALLOWED_ORIGINS.extend(["http://localhost:3000", "http://localhost:3001"])
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS,
+    allow_origins=_ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["Authorization", "Content-Type", "Accept", "X-Requested-With"],

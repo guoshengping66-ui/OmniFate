@@ -825,6 +825,13 @@ async def chat_followup(
             user_result = await db.execute(
                 select(User).where(User.id == current_user.id).with_for_update()
             )
+            # Set a statement-level lock timeout to prevent indefinite blocking
+            # (PostgreSQL only — SQLite uses its own busy_timeout)
+            try:
+                from sqlalchemy import text as _sa_text
+                await db.execute(_sa_text("SET LOCAL lock_timeout = '30s'"))
+            except Exception:
+                pass  # SQLite doesn't support lock_timeout — uses busy_timeout instead
             user = user_result.scalar_one()
             if user.stardust_balance < STARDUST_COST_FOLLOW_UP:
                 raise HTTPException(

@@ -18,8 +18,12 @@ const securityHeaders = [
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
-  // CSP is now handled by nginx (server block) to avoid Cloudflare override issues.
+  // CSP is primarily handled by nginx (server block) to avoid Cloudflare override issues.
   // See /etc/nginx/conf.d/frontend.conf for the Content-Security-Policy header.
+  // This Next.js header serves as a FALLBACK — browsers use the strictest policy
+  // when multiple CSP headers are present, so if nginx is misconfigured or
+  // Cloudflare strips it, this provides baseline XSS protection.
+  { key: "Content-Security-Policy", value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data: blob:; font-src 'self' https://fonts.font.im; connect-src 'self' https://api.khanfate.com https://www.paypal.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; frame-src 'self' https://accounts.google.com https://www.paypal.com" },
 ]
 
 const nextConfig = {

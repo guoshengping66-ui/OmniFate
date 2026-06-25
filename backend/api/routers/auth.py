@@ -1,6 +1,7 @@
 """
 Auth endpoints: register (with email verification), login, forgot/reset password, account deletion.
 """
+import asyncio
 import hmac
 import ipaddress
 import json
@@ -16,7 +17,7 @@ from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException, Request, Header
 from jose import jwt as _jwt
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, EmailStr, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -261,7 +262,7 @@ class RegisterRequest(BaseModel):
 
 
 class LoginRequest(BaseModel):
-    email: str
+    email: str = Field(..., max_length=255)
     password: str
 
 
@@ -312,7 +313,7 @@ class ResetPasswordRequest(BaseModel):
 
 
 class DeleteAccountRequest(BaseModel):
-    password: str
+    password: str = Field(..., max_length=4096)
 
 def _user_dict(user: User) -> dict:
     # ── Admin 自动升级：匹配 ADMIN_EMAILS 的用户自动获得创始会员权限 ──
@@ -412,7 +413,7 @@ async def register(req: RegisterRequest, request: Request, db: AsyncSession = De
 
     # Send verification email
     from utils.email import send_verification_email
-    email_sent = send_verification_email(req.email, code)
+    email_sent = await asyncio.to_thread(send_verification_email, req.email, code)
 
     # Email failed to send: in DEBUG log code for testing, in production reject
     if not email_sent:
@@ -462,7 +463,7 @@ async def send_code(req: SendCodeRequest, request: Request, db: AsyncSession = D
     code = _generate_code()
 
     # Try sending email first before storing code in DB
-    email_sent = send_verification_email(req.email, code)
+    email_sent = await asyncio.to_thread(send_verification_email, req.email, code)
 
     if not email_sent:
         # SECURITY: Do NOT store code when email fails — prevents email enumeration
@@ -501,7 +502,8 @@ async def verify_email(req: VerifyCodeRequest, request: Request, db: AsyncSessio
     result = await db.execute(select(User).where(User.email == req.email))
     user = result.scalar_one_or_none()
     if not user:
-        raise HTTPException(status_code=404, detail="用户不存在")
+        # Generic message to prevent email enumeration
+        raise HTTPException(status_code=400, detail="验证码错误或已过期")
 
     if user.is_verified:
         # User already verified — return tokens so they can log in
@@ -582,13 +584,20 @@ async def login(req: LoginRequest, request: Request, db: AsyncSession = Depends(
 
     # Check email verification — block unverified users from logging in
     if not user.is_verified:
+        # Rate-limit re-sending: only send a new code if the last one is > 2 min old
+        now_utc = datetime.now(timezone.utc)
+        last_expiry = _ensure_aware(user.verification_expires_at)
+        if last_expiry and (last_expiry - now_utc).total_seconds() > (13 * 60):
+            # Existing code still fresh (>13 min remaining of 15 min window) — don't resend
+            raise HTTPException(status_code=403, detail="请先验证邮箱后再登录，验证码已发送至您的邮箱")
+
         # Actually send a verification email so the user can verify and log in
         from utils.email import send_verification_email
         code = _generate_code()
         user.verification_code = _hash_code(code)  # Store hash, not plaintext
-        user.verification_expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
+        user.verification_expires_at = now_utc + timedelta(minutes=15)
         await db.commit()
-        send_verification_email(req.email, code)
+        await asyncio.to_thread(send_verification_email, req.email, code)
         raise HTTPException(status_code=403, detail="请先验证邮箱后再登录，验证码已发送至您的邮箱")
 
     # Login successful — clear failed attempts
@@ -622,6 +631,11 @@ async def logout(
     authorization: Optional[str] = Header(None),
 ):
     """Logout — blacklist both access and refresh tokens, then clear cookies."""
+    # Rate limit: prevent token-blacklist flooding
+    client_ip = _get_client_ip(request)
+    if await _check_rate_limit(f"logout:{client_ip}", max_per_window=30):
+        raise HTTPException(status_code=429, detail="请求过于频繁，请稍后再试")
+
     # Blacklist the access token (from Authorization header)
     if authorization:
         access_tok = authorization.replace("Bearer ", "").strip()
@@ -697,7 +711,8 @@ async def refresh_token(req: RefreshRequest, request: Request, db: AsyncSession 
         result = await db.execute(select(User).where(User.id == user_id))
         user = result.scalar_one_or_none()
         if not user:
-            raise HTTPException(status_code=401, detail="用户不存在")
+            # Use generic message to prevent leaking user existence
+            raise HTTPException(status_code=401, detail="无效的 refresh token")
         # Block unverified users from refreshing tokens
         if not user.is_verified:
             raise HTTPException(status_code=403, detail="请先验证邮箱后再使用")
@@ -737,7 +752,7 @@ async def forgot_password(req: SendCodeRequest, request: Request, db: AsyncSessi
     code = _generate_code()
 
     # Try sending email first before storing code in DB
-    email_sent = send_password_reset_email(req.email, code)
+    email_sent = await asyncio.to_thread(send_password_reset_email, req.email, code)
 
     if not email_sent:
         # SECURITY: Do NOT store code when email fails — prevents email enumeration
@@ -782,8 +797,9 @@ async def reset_password(req: ResetPasswordRequest, request: Request, db: AsyncS
         raise HTTPException(status_code=400, detail="验证码错误")
 
     # SECURITY: Block password reset for unverified accounts
+    # Use generic message to prevent leaking account verification status
     if not user.is_verified:
-        raise HTTPException(status_code=400, detail="该账户未完成验证，无法重置密码")
+        raise HTTPException(status_code=400, detail="验证码错误或已过期")
 
     # Check expiration first (before code comparison)
     if user.verification_expires_at and datetime.now(timezone.utc) > _ensure_aware(user.verification_expires_at):
@@ -813,12 +829,18 @@ async def reset_password(req: ResetPasswordRequest, request: Request, db: AsyncS
 @router.delete("/delete-account")
 async def delete_account(
     req: DeleteAccountRequest,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_user),
 ):
     """Delete user account and all associated data (GDPR Right to Erasure)."""
     if db is None:
         raise HTTPException(status_code=503, detail="数据库暂不可用，请稍后再试")
+
+    # Rate limit: only 3 deletion attempts per minute
+    client_ip = _get_client_ip(request)
+    if await _check_rate_limit(f"delete-account:{client_ip}", max_per_window=3):
+        raise HTTPException(status_code=429, detail="请求过于频繁，请稍后再试")
 
     # Verify password before deletion
     if not current_user.hashed_password or not verify_password(req.password, current_user.hashed_password):
@@ -843,7 +865,7 @@ async def delete_account(
 
 class GoogleLoginRequest(BaseModel):
     credential: str  # Google ID token from frontend
-    nonce: Optional[str] = None  # CSRF nonce (optional for backward compat)
+    nonce: str  # CSRF nonce (REQUIRED — prevents token replay attacks)
 
 
 # ── Google OAuth public key cache ─────────────────────────────────────────
@@ -938,14 +960,10 @@ async def google_login(req: GoogleLoginRequest, request: Request, db: AsyncSessi
         if not google_email:
             raise HTTPException(status_code=400, detail="Google token missing email")
 
-        # Verify nonce (if provided) to prevent token replay attacks
+        # Verify nonce to prevent token replay attacks — REQUIRED
         token_nonce = payload.get("nonce")
-        if req.nonce:
-            if not token_nonce or not hmac.compare_digest(req.nonce, token_nonce):
-                raise HTTPException(status_code=400, detail="Invalid nonce")
-        elif token_nonce:
-            # Token has nonce but request didn't send one — reject for safety
-            raise HTTPException(status_code=400, detail="Nonce required")
+        if not token_nonce or not hmac.compare_digest(req.nonce, token_nonce):
+            raise HTTPException(status_code=400, detail="Invalid nonce")
 
     except HTTPException:
         raise

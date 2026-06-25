@@ -32,7 +32,7 @@ async def activate_onetime_unlock(user: User, reading_id: str, db: AsyncSession)
             Order.user_id == user.id,
             Order.item_type == "onetime_unlock",
             Order.status == OrderStatus.paid,
-        )
+        ).with_for_update()
     )
     if existing.first():
         return {"coupon_granted": 0, "stardust_granted": 0, "reading_id": reading_id, "already_activated": True}
@@ -80,7 +80,9 @@ async def handle_onetime_unlock_activation(user, order, db) -> dict:
     notes = order.notes or ""
     reading_id = notes.split("reading_id:")[1].split("|")[0] if "reading_id:" in notes else ""
     if reading_id:
-        reading_result = await db.execute(select(Reading).where(Reading.id == reading_id))
+        reading_result = await db.execute(
+            select(Reading).where(Reading.id == reading_id).with_for_update()
+        )
         reading = reading_result.scalar_one_or_none()
         if reading and not reading.is_detail_unlocked:
             reading.is_detail_unlocked = True
@@ -89,12 +91,22 @@ async def handle_onetime_unlock_activation(user, order, db) -> dict:
     return await activate_onetime_unlock(user, reading_id or order.order_no, db)
 
 
-async def _unlock_reading(reading_id: str, db: AsyncSession, skip_stardust_grant: bool = False) -> dict:
-    """解锁报告"""
-    reading_result = await db.execute(select(Reading).where(Reading.id == reading_id))
+async def _unlock_reading(reading_id: str, db: AsyncSession, skip_stardust_grant: bool = False, requester_user_id: str | None = None) -> dict:
+    """解锁报告
+
+    Args:
+        requester_user_id: If provided, verifies the requester owns this reading.
+    """
+    reading_result = await db.execute(
+        select(Reading).where(Reading.id == reading_id).with_for_update()
+    )
     reading = reading_result.scalar_one_or_none()
     if not reading:
         return {"error": "报告不存在"}
+
+    # Ownership verification (defense-in-depth)
+    if requester_user_id and reading.user_id != requester_user_id:
+        return {"error": "无权操作此报告"}
 
     if reading.is_detail_unlocked:
         return {"already_unlocked": True, "reading_id": reading_id}
@@ -294,5 +306,5 @@ async def unlock_report(
             "tier": tier,
         }
     else:
-        result = await _unlock_reading(reading_id, db)
+        result = await _unlock_reading(reading_id, db, requester_user_id=current_user.id)
         return result

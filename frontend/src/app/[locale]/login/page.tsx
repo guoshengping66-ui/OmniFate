@@ -310,14 +310,9 @@ function GoogleLoginButton() {
         nonce: nonce || undefined,
       })
 
-      // Store tokens in sessionStorage so AuthContext can find them on page load
+      // Tokens are now httpOnly cookies set by the backend — no need for
+      // sessionStorage. Only cache user data for fast UI hydration.
       const data = result.data
-      if (data.access_token && data.refresh_token) {
-        try {
-          sessionStorage.setItem("alpha_mirror_access_token", data.access_token)
-          sessionStorage.setItem("alpha_mirror_refresh_token", data.refresh_token)
-        } catch {}
-      }
       if (data.user) {
         try {
           sessionStorage.setItem("alpha_mirror_user", JSON.stringify(data.user))

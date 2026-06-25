@@ -1,0 +1,215 @@
+diff --git a/backend/agents/graph.py b/backend/agents/graph.py
+index 2139a35..056042f 100644
+--- a/backend/agents/graph.py
++++ b/backend/agents/graph.py
+@@ -691,14 +691,14 @@ async def run_full_analysis(state: SystemState) -> SystemState:
+         if state.partner_face_features:
+             _runners.append(run_partner_face)
+             _runner_ids.append("partner_face")
+-            _runner_timeouts.append(25)
++            _runner_timeouts.append(60)
+             state.agent_status["partner_face"] = "running"
+             worker_events["partner_face"] = asyncio.Event()
+             _total_workers += 1
+         if state.partner_palm_features:
+             _runners.append(run_partner_palm)
+             _runner_ids.append("partner_palm")
+-            _runner_timeouts.append(25)
++            _runner_timeouts.append(60)
+             state.agent_status["partner_palm"] = "running"
+             worker_events["partner_palm"] = asyncio.Event()
+             _total_workers += 1
+@@ -718,16 +718,28 @@ async def run_full_analysis(state: SystemState) -> SystemState:
+             await asyncio.sleep(delay)
+         try:
+             result = await asyncio.wait_for(runner(state), timeout=timeout)
++        except asyncio.TimeoutError:
++            from agents.state import WorkerOutput
++            err_msg = f"Analysis timed out after {timeout}s"
++            logger.warning("%s: %s", agent_id, err_msg)
++            if agent_id == "qimen_ziwei":
++                result = [
++                    WorkerOutput(agent_id="qimen", error=err_msg),
++                    WorkerOutput(agent_id="ziwei", error=err_msg),
++                ]
++            else:
++                result = WorkerOutput(agent_id=agent_id, error=err_msg)
+         except Exception as e:
+             from agents.state import WorkerOutput
++            err_msg = str(e) or f"Unknown error in {agent_id}"
++            logger.error("%s error: %s", agent_id, err_msg)
+             if agent_id == "qimen_ziwei":
+-                # Merged worker error: create individual error outputs for each sub-worker
+                 result = [
+-                    WorkerOutput(agent_id="qimen", error=str(e)),
+-                    WorkerOutput(agent_id="ziwei", error=str(e)),
++                    WorkerOutput(agent_id="qimen", error=err_msg),
++                    WorkerOutput(agent_id="ziwei", error=err_msg),
+                 ]
+             else:
+-                result = WorkerOutput(agent_id=agent_id, error=str(e))
++                result = WorkerOutput(agent_id=agent_id, error=err_msg)
+ 
+         # Handle merged workers that return lists of WorkerOutput
+         if isinstance(result, list):
+diff --git a/backend/agents/workers.py b/backend/agents/workers.py
+index 9d95081..6157bf0 100644
+--- a/backend/agents/workers.py
++++ b/backend/agents/workers.py
+@@ -1704,7 +1704,7 @@ async def run_partner_palm(state: SystemState) -> WorkerOutput:
+ # Merged workers: qimen+ziwei combined into one LLM call
+ _WORKER_IDS = ["astrology", "tarot", "bazi", "qimen_ziwei", "face", "palm"]
+ _WORKER_RUNNERS = [run_astrology, run_tarot, run_bazi, run_qimen_ziwei, run_face, run_palm]
+-_WORKER_TIMEOUTS = [60, 45, 45, 120, 90, 90]  # qimen_ziwei 120s (calculators+LLM); face/palm 90s (LLM inner timeout)
++_WORKER_TIMEOUTS = [60, 60, 60, 120, 90, 90]  # qimen_ziwei 120s (calculators+LLM); face/palm 90s (LLM inner timeout)
+ # Which worker IDs are merged (return list of WorkerOutput instead of single)
+ _MERGED_WORKERS = {"qimen_ziwei"}
+ 
+diff --git a/backend/api/routers/readings.py b/backend/api/routers/readings.py
+index edacbfa..48edd51 100644
+--- a/backend/api/routers/readings.py
++++ b/backend/api/routers/readings.py
+@@ -634,6 +634,20 @@ async def _run_analysis_bg(state: SystemState, user_id: Optional[str] = None):
+                     logger.info("Persisting dimension_scores to DB: %s", state.dimension_scores)
+                     reading.computed_tags = list(state.computed_tags) if state.computed_tags else None
+                     reading.recommended_product_ids = list(state.recommended_product_ids) if state.recommended_product_ids else None
++                    # Persist worker tags and errors so they survive Redis expiry
++                    _wtags: dict[str, list[str]] = {}
++                    _werrs: dict[str, str] = {}
++                    for _attr in ("astrology_output", "tarot_output", "bazi_output",
++                                  "qimen_output", "ziwei_output", "face_output", "palm_output",
++                                  "partner_face_output", "partner_palm_output"):
++                        _wo = getattr(state, _attr, None)
++                        if _wo and _wo.agent_id:
++                            if _wo.tags:
++                                _wtags[_wo.agent_id] = _wo.tags
++                            if _wo.error:
++                                _werrs[_wo.agent_id] = _wo.error
++                    reading.worker_tags = _wtags if _wtags else None
++                    reading.worker_errors = _werrs if _werrs else None
+                     reading.completed_at = datetime.now(timezone.utc)
+                     await db.commit()
+                     logger.info("Persisted reading %s to DB (attempt %d)", state.session_id, _persist_attempt + 1)
+@@ -918,6 +932,20 @@ async def _run_analysis_inline(state: SystemState) -> SystemState:
+                 reading.dimension_scores = dict(state.dimension_scores) if state.dimension_scores else None
+                 reading.computed_tags = list(state.computed_tags) if state.computed_tags else None
+                 reading.recommended_product_ids = list(state.recommended_product_ids) if state.recommended_product_ids else None
++                # Persist worker tags and errors so they survive Redis expiry
++                _wtags2: dict[str, list[str]] = {}
++                _werrs2: dict[str, str] = {}
++                for _attr2 in ("astrology_output", "tarot_output", "bazi_output",
++                              "qimen_output", "ziwei_output", "face_output", "palm_output",
++                              "partner_face_output", "partner_palm_output"):
++                    _wo2 = getattr(state, _attr2, None)
++                    if _wo2 and _wo2.agent_id:
++                        if _wo2.tags:
++                            _wtags2[_wo2.agent_id] = _wo2.tags
++                        if _wo2.error:
++                            _werrs2[_wo2.agent_id] = _wo2.error
++                reading.worker_tags = _wtags2 if _wtags2 else None
++                reading.worker_errors = _werrs2 if _werrs2 else None
+                 reading.completed_at = datetime.now(timezone.utc)
+                 await db.commit()
+     except Exception as e:
+@@ -1060,15 +1088,24 @@ async def get_session(
+                 master_detail=reading.master_detail or "",
+                 is_detail_unlocked=reading.is_detail_unlocked,
+                 is_detailed_unlocked=getattr(reading, "is_detailed_unlocked", False),
+-                astrology=_worker_from_report("astrology", reading.astrology_report),
+-                tarot=_worker_from_report("tarot", reading.tarot_report),
+-                bazi=_worker_from_report("bazi", reading.bazi_report),
+-                qimen=_worker_from_report("qimen", reading.qimen_report),
+-                ziwei=_worker_from_report("ziwei", reading.ziwei_report),
+-                face=_worker_from_report("face", reading.face_analysis_text),
+-                palm=_worker_from_report("palm", reading.palm_report),
+-                partner_face=_worker_from_report("partner_face", reading.partner_face_report) if reading.partner_face_report else None,
+-                partner_palm=_worker_from_report("partner_palm", reading.partner_palm_report) if reading.partner_palm_report else None,
++                astrology=_worker_from_report("astrology", reading.astrology_report,
++                    _wt(reading, "astrology"), _we(reading, "astrology")),
++                tarot=_worker_from_report("tarot", reading.tarot_report,
++                    _wt(reading, "tarot"), _we(reading, "tarot")),
++                bazi=_worker_from_report("bazi", reading.bazi_report,
++                    _wt(reading, "bazi"), _we(reading, "bazi")),
++                qimen=_worker_from_report("qimen", reading.qimen_report,
++                    _wt(reading, "qimen"), _we(reading, "qimen")),
++                ziwei=_worker_from_report("ziwei", reading.ziwei_report,
++                    _wt(reading, "ziwei"), _we(reading, "ziwei")),
++                face=_worker_from_report("face", reading.face_analysis_text,
++                    _wt(reading, "face"), _we(reading, "face")),
++                palm=_worker_from_report("palm", reading.palm_report,
++                    _wt(reading, "palm"), _we(reading, "palm")),
++                partner_face=_worker_from_report("partner_face", reading.partner_face_report,
++                    _wt(reading, "partner_face"), _we(reading, "partner_face")) if reading.partner_face_report else None,
++                partner_palm=_worker_from_report("partner_palm", reading.partner_palm_report,
++                    _wt(reading, "partner_palm"), _we(reading, "partner_palm")) if reading.partner_palm_report else None,
+                 recommended_product_ids=reading.recommended_product_ids or [],
+                 computed_tags=reading.computed_tags or [],
+                 dimension_scores=reading.dimension_scores or {},
+@@ -1126,12 +1163,25 @@ def _empty_worker(agent_id: str) -> WorkerReportOut:
+     return WorkerReportOut(agent_id=agent_id, report="", tags=[], error=None, duration_ms=None)
+ 
+ 
+-def _worker_from_report(agent_id: str, report: Optional[str]) -> WorkerReportOut:
++def _wt(reading, agent_id: str) -> Optional[list[str]]:
++    """Extract worker tags from reading's worker_tags JSON column."""
++    wtags = getattr(reading, "worker_tags", None) or {}
++    return wtags.get(agent_id)
++
++def _we(reading, agent_id: str) -> Optional[str]:
++    """Extract worker error from reading's worker_errors JSON column."""
++    werrs = getattr(reading, "worker_errors", None) or {}
++    return werrs.get(agent_id)
++
++
++def _worker_from_report(agent_id: str, report: Optional[str],
++                        tags: Optional[list[str]] = None,
++                        error: Optional[str] = None) -> WorkerReportOut:
+     return WorkerReportOut(
+         agent_id=agent_id,
+         report=report or "",
+-        tags=[],
+-        error=None,
++        tags=list(tags) if tags else [],
++        error=error,
+         duration_ms=None,
+     )
+ 
+diff --git a/backend/database/models.py b/backend/database/models.py
+index 3eb9cbf..e53e90c 100644
+--- a/backend/database/models.py
++++ b/backend/database/models.py
+@@ -188,6 +188,10 @@ class Reading(Base):
+     ziwei_report: Mapped[Optional[str]] = mapped_column(Text)
+     palm_report: Mapped[Optional[str]] = mapped_column(Text)
+ 
++    # Worker metadata (tags + errors) — persisted as JSON keyed by agent_id
++    worker_tags: Mapped[Optional[dict]] = mapped_column(JSON)    # {"bazi": ["tag1","tag2"], "face": [...], ...}
++    worker_errors: Mapped[Optional[dict]] = mapped_column(JSON)  # {"qimen": "timeout", "ziwei": "timeout", ...}
++
+     # Partner analysis outputs (RELATIONSHIP intent)
+     partner_face_report: Mapped[Optional[str]] = mapped_column(Text)
+     partner_palm_report: Mapped[Optional[str]] = mapped_column(Text)
+diff --git a/frontend/src/app/[locale]/reading/[id]/page.tsx b/frontend/src/app/[locale]/reading/[id]/page.tsx
+index ee83147..44d697b 100644
+--- a/frontend/src/app/[locale]/reading/[id]/page.tsx
++++ b/frontend/src/app/[locale]/reading/[id]/page.tsx
+@@ -1432,6 +1432,19 @@ export default function ReadingPage() {
+                   </button>
+                 )}
+               </div>
++            ) : (k === "face" || k === "palm" || k === "partner_face" || k === "partner_palm") ? (
++              /* ── Skipped worker (no image/provided) ── */
++              <div className="card-glass p-12 text-center">
++                <div className="w-16 h-16 rounded-full bg-white/[0.03] border border-white/[0.06] flex items-center justify-center mx-auto mb-4">
++                  <Eye size={28} className="text-white/20" />
++                </div>
++                <p className="text-white/30 text-sm">
++                  {t(AGENT_I18N[k] || `agent.${k}`)}
++                </p>
++                <p className="text-white/20 text-xs mt-1">
++                  {t("reading.worker.noImageHint") || "未上传对应图片，分析已跳过"}
++                </p>
++              </div>
+             ) : (
+               <div className="card-glass p-12 text-center">
+                 <Eye size={32} className="text-white/10 mx-auto mb-3" />

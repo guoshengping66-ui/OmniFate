@@ -12,7 +12,7 @@ from typing import Optional
 
 from sqlalchemy import (
     BigInteger, Boolean, DateTime, Enum, Float, ForeignKey,
-    Integer, JSON, Numeric, String, Text, UniqueConstraint, func,
+    Index, Integer, JSON, Numeric, String, Text, UniqueConstraint, func,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -217,6 +217,10 @@ class Reading(Base):
     birth_profile: Mapped[Optional["BirthProfile"]] = relationship(back_populates="readings")
     order_items: Mapped[list["OrderItem"]] = relationship(back_populates="reading")
 
+    __table_args__ = (
+        Index("ix_readings_user_created", "user_id", "created_at"),
+    )
+
 
 # ─── Product ─────────────────────────────────────────────────────────────────
 
@@ -270,7 +274,7 @@ class Order(Base):
     total_cny: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
     total_usd: Mapped[Optional[float]] = mapped_column(Numeric(10, 2))
 
-    payment_method: Mapped[Optional[str]] = mapped_column(String(50))
+    payment_method: Mapped[Optional[str]] = mapped_column(String(50), index=True)
     payment_ref: Mapped[Optional[str]] = mapped_column(String(200), index=True)  # Indexed for webhook lookups
     item_type: Mapped[Optional[str]] = mapped_column(String(50), index=True)  # premium_monthly|premium_yearly|unlock_report|founder_lifetime|shop
 
@@ -310,6 +314,10 @@ class Order(Base):
     user: Mapped[Optional["User"]] = relationship(back_populates="orders")
     items: Mapped[list["OrderItem"]] = relationship(back_populates="order", cascade="all, delete-orphan")
 
+    __table_args__ = (
+        Index("ix_orders_user_created", "user_id", "created_at"),
+    )
+
 
 # ─── OrderItem ───────────────────────────────────────────────────────────────
 
@@ -317,12 +325,12 @@ class OrderItem(Base):
     __tablename__ = "order_items"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    order_id: Mapped[str] = mapped_column(ForeignKey("orders.id", ondelete="CASCADE"), nullable=False)
+    order_id: Mapped[str] = mapped_column(ForeignKey("orders.id", ondelete="CASCADE"), nullable=False, index=True)
     product_id: Mapped[Optional[str]] = mapped_column(
-        ForeignKey("products.id", ondelete="SET NULL"), nullable=True
+        ForeignKey("products.id", ondelete="SET NULL"), nullable=True, index=True
     )
     reading_id: Mapped[Optional[str]] = mapped_column(
-        ForeignKey("readings.id", ondelete="SET NULL"), nullable=True
+        ForeignKey("readings.id", ondelete="SET NULL"), nullable=True, index=True
     )
 
     product_name: Mapped[str] = mapped_column(String(200), nullable=False)
@@ -440,6 +448,7 @@ class CreditTransaction(Base):
     __tablename__ = "credit_transactions"
     __table_args__ = (
         UniqueConstraint('reason', 'reference_id', name='uq_credit_reason_ref'),
+        Index("ix_credit_user_reason", "user_id", "reason"),
     )
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))

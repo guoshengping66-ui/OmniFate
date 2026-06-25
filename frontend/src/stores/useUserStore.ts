@@ -15,17 +15,17 @@ let _fetching = false
 
 function loadCachedProfiles(): BirthProfile[] | null {
   try {
-    const raw = localStorage.getItem(PROFILES_CACHE_KEY)
+    const raw = sessionStorage.getItem(PROFILES_CACHE_KEY)
     return raw ? JSON.parse(raw) : null
   } catch { return null }
 }
 
 function saveCachedProfiles(profiles: BirthProfile[]) {
-  try { localStorage.setItem(PROFILES_CACHE_KEY, JSON.stringify(profiles)) } catch {}
+  try { sessionStorage.setItem(PROFILES_CACHE_KEY, JSON.stringify(profiles)) } catch {}
 }
 
 function clearCachedProfiles() {
-  try { localStorage.removeItem(PROFILES_CACHE_KEY) } catch {}
+  try { sessionStorage.removeItem(PROFILES_CACHE_KEY) } catch {}
 }
 
 interface UserStore {

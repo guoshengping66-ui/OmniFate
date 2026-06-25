@@ -21,8 +21,8 @@ class Settings(BaseSettings):
     SECRET_KEY: str = ""
     BASE_URL: str = "https://api.khanfate.com"
     ALLOWED_ORIGINS: list[str] = [
-        "http://localhost:3000", "http://localhost:3001",
         "https://khanfate.com", "https://www.khanfate.com",
+        # localhost origins are only used in DEBUG mode — overridden at startup
     ]
 
     DATABASE_URL: str = "sqlite+aiosqlite:///./destiny_dev.db"

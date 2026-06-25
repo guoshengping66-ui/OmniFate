@@ -256,7 +256,9 @@ async def _activate_order(db: AsyncSession, order) -> None:
             reading_id = notes.split("reading_id:")[1].split("|")[0]
             # Validate reading_id format (UUID-like, max 50 chars)
             if reading_id and len(reading_id) <= 50:
-                reading_result = await db.execute(select(Reading).where(Reading.id == reading_id))
+                reading_result = await db.execute(
+                    select(Reading).where(Reading.id == reading_id).with_for_update()
+                )
                 reading = reading_result.scalar_one_or_none()
                 if reading:
                     reading.is_detail_unlocked = True
@@ -387,15 +389,18 @@ def _auto_submit_form(target_url: str, token: str, title: str, button_text: str,
     from fastapi.responses import HTMLResponse
     escaped_url = html_mod.escape(target_url)
     escaped_token = html_mod.escape(token)
+    escaped_title = html_mod.escape(title)
+    escaped_button = html_mod.escape(button_text)
+    escaped_color = html_mod.escape(color)
     return HTMLResponse(f"""<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>{title}</title></head>
+<html><head><meta charset="utf-8"><title>{escaped_title}</title></head>
 <body style="display:flex;align-items:center;justify-content:center;height:100vh;margin:0;font-family:sans-serif;background:#f5f5f5;">
   <form id="actionForm" method="POST" action="{escaped_url}">
     <input type="hidden" name="token" value="{escaped_token}" />
     <div style="text-align:center;background:white;padding:40px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
-      <h2>{title}</h2>
+      <h2>{escaped_title}</h2>
       <p style="color:#666;">正在处理中...</p>
-      <button type="submit" style="padding:12px 32px;background:{color};color:white;border:none;border-radius:24px;font-size:15px;font-weight:bold;cursor:pointer;">{button_text}</button>
+      <button type="submit" style="padding:12px 32px;background:{escaped_color};color:white;border:none;border-radius:24px;font-size:15px;font-weight:bold;cursor:pointer;">{escaped_button}</button>
     </div>
   </form>
   <script>document.getElementById('actionForm').submit();</script>
@@ -430,9 +435,9 @@ async def quick_confirm_payment(
     if not _verify_admin_token(order_no, "confirm", admin_token):
         return HTMLResponse("<html><body><h2>❌ 链接已过期或无效</h2></body></html>", status_code=400)
 
-    # 查找 processing 状态的订单
+    # 查找 processing 状态的订单 — lock row to prevent race with cron auto-confirm
     result = await db.execute(
-        select(Order).where(Order.order_no == order_no, Order.status == OrderStatus.processing)
+        select(Order).where(Order.order_no == order_no, Order.status == OrderStatus.processing).with_for_update()
     )
     order = result.scalar_one_or_none()
     if not order:
@@ -482,7 +487,7 @@ async def quick_reject_payment(
         return HTMLResponse("<html><body><h2>❌ 链接已过期或无效</h2></body></html>", status_code=400)
 
     result = await db.execute(
-        select(Order).where(Order.order_no == order_no, Order.status == OrderStatus.processing)
+        select(Order).where(Order.order_no == order_no, Order.status == OrderStatus.processing).with_for_update()
     )
     order = result.scalar_one_or_none()
     if not order:
@@ -529,7 +534,7 @@ async def auto_confirm_expired_orders(
             Order.status == OrderStatus.processing,
             Order.created_at < cutoff,
             Order.total_cny <= 50.0,
-        )
+        ).with_for_update()
     )
     orders = result.scalars().all()
 
@@ -558,12 +563,12 @@ async def confirm_payment(
     # 1. 获取订单 — 必须是 pending 状态
     order = await _get_pending_order(db, order_no)
     if not order:
-        # 如果已经是 processing，说明已提交过
+        # 如果已经是 processing，说明已提交过 — lock to prevent race with cron
         result = await db.execute(
             select(Order).where(
                 Order.order_no == order_no,
                 Order.status == OrderStatus.processing,
-            )
+            ).with_for_update()
         )
         order = result.scalar_one_or_none()
         if order:
@@ -618,11 +623,12 @@ async def admin_confirm_payment(
         raise HTTPException(status_code=403, detail="Invalid token")
 
     # 2. 获取订单 — 必须是 processing 状态（用户已确认付款）
+    # Pessimistic lock to prevent concurrent admin confirm/reject race
     result = await db.execute(
         select(Order).where(
             Order.order_no == order_no,
             Order.status == OrderStatus.processing,
-        )
+        ).with_for_update()
     )
     order = result.scalar_one_or_none()
     if not order:
