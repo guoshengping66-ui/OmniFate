@@ -250,6 +250,7 @@ export function CelestialOracle() {
   const [todayFree, setTodayFree] = useState(true)
   const [shareReward, setShareReward] = useState(0)
   const [checking, setChecking] = useState(true)  // 正在检查今日是否已抽过
+  const [isDrawing, setIsDrawing] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -323,13 +324,14 @@ export function CelestialOracle() {
   }, [phase, todayFree])
 
   const handleDraw = useCallback(async () => {
-    if (phase === "spinning") return
+    if (isDrawing || phase === "spinning") return
     if (!user) {
       toast.error(t("divination.loginFirst"))
       return
     }
 
     triggerHaptic("medium")
+    setIsDrawing(true)
     setPhase("spinning")
 
     try {
@@ -354,8 +356,10 @@ export function CelestialOracle() {
     } catch (err: any) {
       toast.error(err.response?.data?.detail || t("divination.drawFailed"))
       setPhase("idle")
+    } finally {
+      setIsDrawing(false)
     }
-  }, [phase, todayFree, user, t, locale])
+  }, [isDrawing, phase, todayFree, user, t, locale])
 
   const handleShare = async () => {
     if (!result) return
@@ -617,14 +621,14 @@ export function CelestialOracle() {
                 </button>
                 <button
                   onClick={handleDraw}
-                  disabled={phase === "spinning"}
+                  disabled={isDrawing}
                   className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm transition-all
                     ${todayFree
                       ? "border border-gold/30 text-gold hover:bg-gold/10"
                       : "border border-purple-400/30 text-purple-300 hover:bg-purple-500/10"
                     }`}
                 >
-                  {phase === "spinning"
+                  {isDrawing
                     ? <Loader2 size={14} className="animate-spin" />
                     : <RotateCcw size={14} />}
                   {todayFree

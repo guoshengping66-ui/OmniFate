@@ -49,7 +49,7 @@ export function PricingCard({
   const originalPrice = isDomestic ? tier.originalPriceCny : tier.originalPriceUsd
   const isYearly = tier.id === "premium_yearly"
   const isFree = tier.id === "free"
-  const isReport = tier.id === "full_report"
+  const isReport = tier.id === "onetime_unlock"
   const founderLimit = 100
 
   if (isFounderCard) {

@@ -10,7 +10,7 @@ const TIPS: Record<number, { avatar: string; nameKey: string; textKey: string }>
 }
 
 // Intent-specific overrides
-const INTENT_TIPS: Record<Intent, Partial<Record<number, { avatar: string; nameKey: string; textKey: string }>>> = {
+const INTENT_TIPS: Partial<Record<Intent, Partial<Record<number, { avatar: string; nameKey: string; textKey: string }>>>> = {
   FULL_MULTIMODAL: {
     1: { avatar: "🔮", nameKey: "fortuneGuide.tarotSpirit", textKey: "fortuneGuide.full.step1" },
   },

@@ -1,4 +1,5 @@
 const createNextIntlPlugin = require("next-intl/plugin")
+const path = require("path")
 
 const withNextIntl = createNextIntlPlugin()
 
@@ -35,6 +36,7 @@ const nextConfig = {
   },
   // Use standalone output for better performance on self-hosted
   output: "standalone",
+  outputFileTracingRoot: path.join(__dirname),
 
   // ── Bundle optimization ──────────────────────────────────────────────
   modularizeImports: {

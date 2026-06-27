@@ -455,7 +455,7 @@ export default function FounderPage() {
         <QRPaymentModal
           open={showPayment}
           onClose={() => setShowPayment(false)}
-          orderNo={isOverseas ? undefined : founderOrderNo}
+          orderNo={isOverseas ? undefined : founderOrderNo ?? undefined}
           amount={isOverseas ? FOUNDER_PRICE_USD : FOUNDER_PRICE}
           label={t("founder.pricing.founderSeat")}
           postAction="founder"

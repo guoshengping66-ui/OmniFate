@@ -20,6 +20,7 @@ interface CartState {
   removeItem: (productId: string) => void
   updateQuantity: (productId: string, quantity: number) => void
   clearCart: () => void
+  registerProducts: (products: Product[]) => void
   itemCount: number
   totalCny: number
   /** Total after member discount (88折) */
@@ -39,6 +40,7 @@ const CartContext = createContext<CartState>({
   removeItem: () => {},
   updateQuantity: () => {},
   clearCart: () => {},
+  registerProducts: () => {},
   itemCount: 0,
   totalCny: 0,
   totalWithDiscount: 0,

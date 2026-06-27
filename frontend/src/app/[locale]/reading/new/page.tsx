@@ -40,6 +40,7 @@ function useScanState(
   analyzeFn: (file: File) => Promise<{ face_text?: string; palm_text?: string; features: Record<string, string> }>,
   doneToast: string,
   errorToast: string,
+  t: (key: string) => string,
 ) {
   const [state, setState] = useState<ScanState>({
     file: null, preview: null, isScanning: false, scanDone: false,
@@ -53,7 +54,7 @@ function useScanState(
     return () => {
       if (previewRef.current) URL.revokeObjectURL(previewRef.current)
     }
-  }, [])
+  }, [t])
 
   const pick = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]
@@ -222,10 +223,10 @@ export default function NewReadingPage() {
   const [step, setStep]           = useState(0)
   const [loading, setLoading]     = useState(false)
   // Scan states (face / palm / partner face / partner palm)
-  const faceScan = useScanState(analyzeFaceImage, t("new.faceDoneToast"), t("new.faceErrorToast"))
-  const palmScan = useScanState(analyzePalmImage, t("new.palmDoneToast"), t("new.palmErrorToast"))
-  const partnerFaceScan = useScanState(analyzeFaceImage, t("new.partnerFaceDoneToast"), t("new.partnerFaceErrorToast"))
-  const partnerPalmScan = useScanState(analyzePalmImage, t("new.partnerPalmDoneToast"), t("new.partnerPalmErrorToast"))
+  const faceScan = useScanState(analyzeFaceImage, t("new.faceDoneToast"), t("new.faceErrorToast"), t)
+  const palmScan = useScanState(analyzePalmImage, t("new.palmDoneToast"), t("new.palmErrorToast"), t)
+  const partnerFaceScan = useScanState(analyzeFaceImage, t("new.partnerFaceDoneToast"), t("new.partnerFaceErrorToast"), t)
+  const partnerPalmScan = useScanState(analyzePalmImage, t("new.partnerPalmDoneToast"), t("new.partnerPalmErrorToast"), t)
   // Other state
   const [tarotCards, setTarotCards]   = useState<{ position: string; card: string; reversed: boolean }[]>([])
   const [palmData, setPalmData]       = useState<Record<string, string>>({})

@@ -12,7 +12,7 @@ declare global {
     google?: {
       accounts: {
         id: {
-          initialize: (config: { client_id: string; callback: (response: { credential: string }) => void }) => void
+          initialize: (config: { client_id: string; callback: (response: { credential: string }) => void; nonce?: string }) => void
           renderButton: (element: HTMLElement, config: Record<string, unknown>) => void
         }
       }
@@ -324,7 +324,7 @@ function GoogleLoginButton() {
       }
 
       toast.success(t("auth.loginSuccess"))
-      router.push("/")
+      window.location.href = "/"
     } catch (err: any) {
       console.error("[Google Login] error:", err)
       toast.error(err?.response?.data?.detail ?? t("auth.loginFail"))

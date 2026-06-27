@@ -28,7 +28,7 @@ interface QRPaymentModalProps {
   initialMethod?: PaymentMethod
 }
 
-type PaymentMethod = "alipay" | "wechat" | "paypal" | "credit_card"
+type PaymentMethod = "alipay" | "wechat" | "wechat_pay" | "paypal" | "credit_card"
 type PaymentStatus =
   | "idle"
   | "loading"

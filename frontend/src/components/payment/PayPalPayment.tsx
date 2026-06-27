@@ -6,8 +6,6 @@ import {
   PayPalCardFieldsProvider,
   PayPalCardFieldsForm,
   usePayPalCardFields,
-  type CreateOrderActions,
-  type OnApproveActions,
 } from "@paypal/react-paypal-js"
 import { Loader2, CreditCard, CheckCircle, AlertCircle } from "lucide-react"
 import { capturePayPalOrder } from "@/lib/api"
@@ -102,7 +100,7 @@ export function PayPalPayment({
       .finally(() => setLoading(false))
   }, [])
 
-  const createOrder = async (_data: Record<string, unknown>, actions: CreateOrderActions) => {
+  const createOrder = async () => {
     // Use pre-created PayPal order (shop orders)
     if (preCreatedOrderId) {
       return preCreatedOrderId
@@ -119,7 +117,7 @@ export function PayPalPayment({
     }
   }
 
-  const handlePayPalApprove = async (data: Record<string, unknown>, actions?: OnApproveActions) => {
+  const handlePayPalApprove = async (data: Record<string, unknown>) => {
     setProcessing(true)
     try {
       const orderId = data.orderID as string
@@ -194,7 +192,7 @@ export function PayPalPayment({
   // Deduplicate components (e.g. if both push "buttons")
   const uniqueComponents = [...new Set(sdkComponents)]
 
-  const sdkOptions = {
+  const sdkOptions: any = {
     "client-id": config.clientId,
     currency: "USD",
     intent: "capture" as const,
@@ -228,8 +226,8 @@ export function PayPalPayment({
             <PayPalButtons
               style={style}
               fundingSource="paypal"
-              createOrder={createOrder}
-              onApprove={handlePayPalApprove}
+              createOrder={createOrder as any}
+              onApprove={handlePayPalApprove as any}
               onError={(err) => {
                 setError(String(err))
                 onError?.(String(err))
@@ -258,8 +256,8 @@ export function PayPalPayment({
               </span>
             </div>
             <PayPalCardFieldsProvider
-              createOrder={createOrder}
-              onApprove={handleCardApprove}
+              createOrder={createOrder as any}
+              onApprove={handleCardApprove as any}
               onError={(err) => {
                 setError(String(err))
                 onError?.(String(err))

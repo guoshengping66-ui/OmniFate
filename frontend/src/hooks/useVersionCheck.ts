@@ -71,7 +71,7 @@ export function useVersionCheck() {
  */
 function getEmbeddedBuildId(): string | null {
   try {
-    const nextData = (window as Record<string, unknown>).__NEXT_DATA__
+    const nextData = (window as unknown as Record<string, unknown>).__NEXT_DATA__
     if (nextData && typeof nextData === "object") {
       const buildId = (nextData as { buildId?: string }).buildId
       if (buildId) return buildId

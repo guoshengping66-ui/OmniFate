@@ -1171,6 +1171,7 @@ export default function ReadingPage() {
                 isUnlocked={isUnlocked || isDetailedUnlocked}
                 title={t("reading.master.detailTitle")}
                 description={t("reading.insight.locked")}
+                priceDisplay="19.9"
                 onUnlock={() => router.push(localeHref("/pricing"))}
                 loading={false}
                 previewLines={8}
@@ -1337,6 +1338,7 @@ export default function ReadingPage() {
                     isUnlocked={isUnlocked}
                     title={`${t(AGENT_I18N[k] || `agent.${k}`)} ${t("reading.worker.unlockTitle")}`}
                     description={t("reading.worker.unlockDesc")}
+                    priceDisplay="19.9"
                     onUnlock={() => router.push(localeHref("/pricing"))}
                     loading={false}
                     previewLines={5}
