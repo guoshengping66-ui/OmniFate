@@ -296,24 +296,23 @@ def _apply_content_lock(resp: AnalysisResponse, current_user: Optional[User], re
     - 全维 (100 stardust): everything (master_detail + all worker reports)
     SECURITY: Anonymous reports show minimal data only.
     """
-    _lock_prompt = (
-        "Login to unlock your complete 15-dimension behavioral blueprint, "
-        "covering Bazi, Astrology, Tarot, Face & Palm analysis with personalized guidance."
-        if lang == "en"
-        else "登录后解锁完整15维度行为蓝图，涵盖八字、星盘、塔罗、面相手相分析，获取专属行为指引。"
-    )
-
     # ── Determine unlock tier ──
     # "full" = everything, "detailed" = master_detail only, "free" = summary only
     tier = "free"
-    is_owner = False
 
     if reading:
+        # Anonymous report — strip paid content, keep summary as teaser
         if not reading.user_id:
-            # Anonymous report: add login prompt to summary, keep preview visible
-            is_owner = False
-        elif current_user and str(reading.user_id) == str(current_user.id):
-            is_owner = True
+            resp.master_detail = ""
+            resp.is_detail_unlocked = False
+            resp.is_detailed_unlocked = False
+            for key in _WORKER_REPORT_KEYS:
+                wo = getattr(resp, key, None)
+                if wo:
+                    wo.report = ""
+            return resp
+        # User owns this reading — check tier from DB flags
+        if current_user and str(reading.user_id) == str(current_user.id):
             if reading.is_detail_unlocked:
                 tier = "full"
             elif getattr(reading, "is_detailed_unlocked", False):
@@ -322,10 +321,8 @@ def _apply_content_lock(resp: AnalysisResponse, current_user: Optional[User], re
         # Redis / in-memory session — check resp flags
         if current_user and getattr(resp, "is_detail_unlocked", False):
             tier = "full"
-            is_owner = True
         elif current_user and getattr(resp, "is_detailed_unlocked", False):
             tier = "detailed"
-            is_owner = True
 
     # Active premium subscription overrides to full unlock
     # Ensure timezone-aware comparison (SQLite may store naive datetimes)
@@ -345,13 +342,10 @@ def _apply_content_lock(resp: AnalysisResponse, current_user: Optional[User], re
         resp.is_detailed_unlocked = True
         _hide_worker_reports(resp)
     else:
-        # Free tier: keep full master_summary visible, clear paid content
         resp.master_detail = ""
         resp.is_detail_unlocked = False
         resp.is_detailed_unlocked = False
         _hide_worker_reports(resp)
-        # Always append unlock prompt as CTA for free tier
-        resp.master_summary = (resp.master_summary or "") + "\n\n" + _lock_prompt
 
     return resp
 
