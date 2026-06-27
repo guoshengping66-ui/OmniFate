@@ -28,12 +28,6 @@ const securityHeaders = [
 ]
 
 const nextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   // Use standalone output for better performance on self-hosted
   output: "standalone",
   outputFileTracingRoot: path.join(__dirname),

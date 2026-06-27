@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { timingSafeEqual } from "crypto"
+import { Pool } from "pg"
 
 function verifyAdminKey(provided: string | null): boolean {
   const expected = process.env.ADMIN_STATS_KEY || ""
@@ -12,11 +13,9 @@ function verifyAdminKey(provided: string | null): boolean {
 }
 
 // Reuse a connection pool across requests instead of creating a new Client each time
-import type { Pool } from "pg"
 let _pool: Pool | null = null
 function getPool(): Pool {
   if (_pool) return _pool
-  const { Pool } = require("pg")
   _pool = new Pool({
     host: process.env.DB_HOST,
     port: parseInt(process.env.DB_PORT || "5432"),

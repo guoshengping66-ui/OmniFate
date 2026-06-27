@@ -77,6 +77,15 @@ export default function DivinationSharePage() {
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(false)
 
+  // Stable random particle positions (generated once on client to avoid hydration mismatch)
+  const particles = useMemo(() =>
+    Array.from({ length: 12 }, () => ({
+      left: 10 + Math.random() * 80,
+      top: 10 + Math.random() * 80,
+      dur: 2 + Math.random() * 2,
+      delay: Math.random() * 2,
+    })), [])
+
   useEffect(() => {
     api.get(`/api/divination/share/${id}`, { params: { lang: locale } })
       .then(r => setData(r.data))
@@ -116,15 +125,6 @@ export default function DivinationSharePage() {
   const bgTheme = THEME_BG[data.theme] || "from-[#1a1510] via-[#0d0b08] to-[#1a1510]"
   const totemIcon = THEME_TOTEM[data.theme] || "✧"
   const isHighRating = data.fortune_level >= 5
-
-  // Stable random particle positions (generated once on client to avoid hydration mismatch)
-  const particles = useMemo(() =>
-    Array.from({ length: 12 }, () => ({
-      left: 10 + Math.random() * 80,
-      top: 10 + Math.random() * 80,
-      dur: 2 + Math.random() * 2,
-      delay: Math.random() * 2,
-    })), [])
 
   const dateStr = data.created_at
     ? new Date(data.created_at).toLocaleDateString(undefined, { month: "long", day: "numeric" })

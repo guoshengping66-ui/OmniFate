@@ -113,7 +113,7 @@ function snakeToTitle(s: string): string {
 export function formatTag(raw: string, lang: string = "en"): TagStyle {
   // Strip backend modifiers: "(待验证)", "严重⚠️" — do not display to users
   let clean = raw.trim()
-  let badge = ""
+  const badge = ""
   if (clean.startsWith("严重⚠️")) {
     clean = clean.replace("严重⚠️", "").trim()
   }

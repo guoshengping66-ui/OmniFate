@@ -519,7 +519,7 @@ export default function LifeRouteGeneration() {
   ), [])
 
   useEffect(() => {
-    let timers: ReturnType<typeof setTimeout>[] = []
+    const timers: ReturnType<typeof setTimeout>[] = []
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && animStepRef.current === -1) {
