@@ -337,6 +337,11 @@ class LoginRequest(BaseModel):
     email: str = Field(..., max_length=255)
     password: str
 
+    @field_validator("email")
+    @classmethod
+    def normalize_email(cls, v: str) -> str:
+        return v.strip().lower()
+
 
 class AuthResponse(BaseModel):
     access_token: str
