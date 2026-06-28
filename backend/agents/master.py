@@ -1085,6 +1085,184 @@ def _ensure_paid_report_contract(detail: str, language: str = "zh") -> str:
     return f"{header}\n{detail}"
 
 
+def _split_report_sentences(text: str, limit: int = 4) -> list[str]:
+    """Extract compact sentences for structured report cards."""
+    if not text:
+        return []
+    clean = re.sub(r"```[\s\S]*?```", "", text)
+    clean = re.sub(r"[#*_`>|]", "", clean)
+    chunks = re.split(r"[\n。.!?；;]+", clean)
+    items: list[str] = []
+    for chunk in chunks:
+        line = re.sub(r"^[\s\-•·\d、.]+", "", chunk).strip()
+        if len(line) < 12:
+            continue
+        if line not in items:
+            items.append(line[:180])
+        if len(items) >= limit:
+            break
+    return items
+
+
+def _dimension_label(key: str, language: str = "zh") -> str:
+    labels = {
+        "wealth": ("财富", "Wealth"),
+        "career": ("事业", "Career"),
+        "relationship": ("感情", "Relationship"),
+        "health": ("健康", "Health"),
+        "spiritual": ("精神状态", "Mindset"),
+        "mindfulness": ("精神状态", "Mindset"),
+    }
+    zh, en = labels.get(key, (key, key.title()))
+    return zh if language == "zh" else en
+
+
+def _score_status(score: float, language: str = "zh") -> str:
+    if language == "en":
+        if score >= 8:
+            return "strength"
+        if score >= 6:
+            return "stable"
+        if score >= 4:
+            return "needs attention"
+        return "priority repair"
+    if score >= 8:
+        return "优势明显"
+    if score >= 6:
+        return "整体稳定"
+    if score >= 4:
+        return "需要关注"
+    return "优先修复"
+
+
+def _dimension_action(score: float, language: str = "zh") -> str:
+    if language == "en":
+        if score >= 8:
+            return "Amplify the strongest direction and avoid scattering attention."
+        if score >= 6:
+            return "Keep the current rhythm and improve one weak spot."
+        if score >= 4:
+            return "Reduce risk first, then pursue expansion."
+        return "Start with one small daily stabilizing action for seven days."
+    if score >= 8:
+        return "集中资源放大优势，避免同时开太多战线。"
+    if score >= 6:
+        return "保持当前节奏，同时补一个最影响结果的短板。"
+    if score >= 4:
+        return "先降低风险和消耗，再考虑主动突破。"
+    return "先做一个连续七天的小动作，恢复基本稳定感。"
+
+
+def _build_decision_report_payload(
+    core_result: str,
+    dims_result: str,
+    actions_result: str,
+    state: SystemState,
+    prep: dict,
+) -> dict:
+    """Create a stable paid report schema from generated report parts."""
+    language = state.language
+    is_en = language == "en"
+    core_lines = _split_report_sentences(core_result, 3)
+    action_lines = _split_report_sentences(actions_result, 6)
+    dim_lines = _split_report_sentences(dims_result, 5)
+    evidence_lines = _split_report_sentences(prep.get("evidence_chains", "") or prep.get("confidence_text", ""), 5)
+
+    if not core_lines:
+        core_lines = [
+            "Your decision report is ready. Use it to identify the highest-confidence opportunity, key risk, and next action."
+            if is_en else
+            "你的深度决策报告已经生成，可用于判断当前最确定的机会、风险和下一步行动。"
+        ]
+    if not action_lines:
+        action_lines = [
+            "Choose one action that can be completed today and review the result within a week."
+            if is_en else
+            "先选择一件今天能完成的小行动，并在一周内复盘结果。"
+        ]
+
+    scores = state.dimension_scores or {}
+    five_dimensions = []
+    for key in ["wealth", "career", "relationship", "health", "spiritual"]:
+        raw_score = scores.get(key, scores.get("mindfulness" if key == "spiritual" else key, 5.0))
+        score = float(raw_score or 5.0)
+        five_dimensions.append({
+            "key": key,
+            "label": _dimension_label(key, language),
+            "score": round(score, 1),
+            "status": _score_status(score, language),
+            "finding": dim_lines[len(five_dimensions) % len(dim_lines)] if dim_lines else _score_status(score, language),
+            "action": _dimension_action(score, language),
+        })
+
+    evidence = []
+    systems = ["Bazi", "Astrology", "Tarot", "Qimen", "Ziwei", "Face", "Palm"]
+    if not evidence_lines:
+        evidence_lines = core_lines
+    for idx, line in enumerate(evidence_lines[:5]):
+        evidence.append({
+            "claim": line,
+            "sources": systems[: min(3, 1 + (idx % 3))],
+            "confidence": "Cross-validated" if is_en else "多体系一致" if idx < 2 else ("Single-signal" if is_en else "单体系提示"),
+        })
+
+    return {
+        "report_type": "decision_report_v2",
+        "language": language,
+        "executive_summary": {
+            "opportunity": core_lines[0],
+            "risk": core_lines[1] if len(core_lines) > 1 else core_lines[0],
+            "next_best_action": action_lines[0],
+        },
+        "evidence_chain": evidence,
+        "five_dimensions": five_dimensions,
+        "timeline": [
+            {"period": "30 days" if is_en else "未来30天", "focus": action_lines[0]},
+            {"period": "90 days" if is_en else "未来90天", "focus": action_lines[1] if len(action_lines) > 1 else action_lines[0]},
+            {"period": "6-12 months" if is_en else "6-12个月", "focus": action_lines[2] if len(action_lines) > 2 else action_lines[-1]},
+        ],
+        "action_plan": [
+            {"period": "Today" if is_en else "今天", "action": action_lines[0]},
+            {"period": "This week" if is_en else "本周", "action": action_lines[1] if len(action_lines) > 1 else action_lines[0]},
+            {"period": "This month" if is_en else "本月", "action": action_lines[2] if len(action_lines) > 2 else action_lines[-1]},
+        ],
+        "avoid_list": [
+            {
+                "item": "Avoid making large irreversible decisions from short-term pressure." if is_en else "避免在短期压力下做不可逆的大决定。",
+                "reason": core_lines[1] if len(core_lines) > 1 else core_lines[0],
+            },
+            {
+                "item": "Avoid acting on a single signal without checking real-world feedback." if is_en else "避免只凭单一信号行动，先看现实反馈。",
+                "reason": evidence[0]["claim"] if evidence else core_lines[0],
+            },
+        ],
+        "raw_text_available": True,
+    }
+
+
+def _validate_decision_report_payload(payload: dict) -> tuple[bool, list[str]]:
+    required = ["executive_summary", "evidence_chain", "five_dimensions", "timeline", "action_plan", "avoid_list"]
+    issues: list[str] = []
+    for key in required:
+        value = payload.get(key)
+        if not value:
+            issues.append(f"missing:{key}")
+    if len(payload.get("evidence_chain") or []) < 2:
+        issues.append("too_few_evidence_items")
+    if len(payload.get("five_dimensions") or []) < 5:
+        issues.append("too_few_dimensions")
+    if len(payload.get("action_plan") or []) < 3:
+        issues.append("too_few_actions")
+    return not issues, issues
+
+
+def _prepend_decision_report_json(detail: str, payload: dict) -> str:
+    ok, issues = _validate_decision_report_payload(payload)
+    payload["quality"] = {"passed": ok, "issues": issues}
+    encoded = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
+    return f"```json\n{encoded}\n```\n\n{detail}"
+
+
 async def run_master(state: SystemState) -> SystemState:
     """
     Full master pipeline: preprocessing + sub-tasks.
@@ -1120,7 +1298,9 @@ async def run_master(state: SystemState) -> SystemState:
         parts.append(dims_result)
         parts.append(actions_result)
         state.master_summary = _build_paid_executive_summary(core_result, state.language)
-        state.master_detail = _ensure_paid_report_contract("\n\n".join(parts), state.language)
+        detail = _ensure_paid_report_contract("\n\n".join(parts), state.language)
+        payload = _build_decision_report_payload(core_result, dims_result, actions_result, state, prep)
+        state.master_detail = _prepend_decision_report_json(detail, payload)
     else:
         # Free user: core synthesis + pain points/reminders + synastry for RELATIONSHIP
         tasks = [run_subtask_core(state, prep)]

@@ -27,7 +27,7 @@ import { ReadingSkeleton } from "@/components/reading/ReadingSkeleton"
 import { TagBadge } from "@/components/ui/TagBadge"
 import { useRegion } from "@/hooks/useRegion"
 import { getProductPrice } from "@/lib/regionPrice"
-import type { StructuredReport } from "@/types/report"
+import type { DecisionReport, StructuredReport } from "@/types/report"
 
 /**
  * 检测内容是否为结构化JSON格式
@@ -61,6 +61,7 @@ const EnergyIDCard = lazy(() => import("@/components/reading/EnergyIDCard").then
 const FortunePrescription = lazy(() => import("@/components/reading/FortunePrescription").then(m => ({ default: m.FortunePrescription })))
 const PostAnalysisModal = lazy(() => import("@/components/reading/PostAnalysisModal").then(m => ({ default: m.PostAnalysisModal })))
 const StructuredReportComponent = lazy(() => import("@/components/reading/StructuredReport").then(m => ({ default: m.StructuredReport })))
+const DecisionReportComponent = lazy(() => import("@/components/reading/DecisionReport").then(m => ({ default: m.DecisionReport })))
 
 const WORKER_ORDER = ["bazi", "qimen", "ziwei", "astrology", "tarot", "face", "palm"] as const
 
@@ -82,6 +83,30 @@ function stripMarkdown(text: string): string {
     .replace(/^\s*[-*+]\s+(?=[#-])/gm, "")
     .replace(/\n{3,}/g, "\n\n")
     .trim()
+}
+
+function parseDecisionReportContent(content: string): DecisionReport | null {
+  if (!content) return null
+  const jsonBlocks = [...content.matchAll(/```json\s*([\s\S]*?)```/g)]
+  for (const block of jsonBlocks) {
+    try {
+      const parsed = JSON.parse(block[1])
+      if (
+        parsed?.report_type === "decision_report_v2" &&
+        parsed.executive_summary &&
+        Array.isArray(parsed.evidence_chain) &&
+        Array.isArray(parsed.five_dimensions) &&
+        Array.isArray(parsed.timeline) &&
+        Array.isArray(parsed.action_plan) &&
+        Array.isArray(parsed.avoid_list)
+      ) {
+        return parsed as DecisionReport
+      }
+    } catch {
+      // Ignore non-decision JSON blocks and fall back to text rendering.
+    }
+  }
+  return null
 }
 
 type TextSection = { title: string; body: string; id?: string }
@@ -119,6 +144,15 @@ function splitDecisionReport(text: string): TextSection[] {
 }
 
 function DecisionReportText({ content }: { content: string }) {
+  const decisionReport = parseDecisionReportContent(content)
+  if (decisionReport) {
+    return (
+      <Suspense fallback={<div className="h-48 rounded-xl bg-white/[0.03] animate-pulse" />}>
+        <DecisionReportComponent data={decisionReport} />
+      </Suspense>
+    )
+  }
+
   const sections = splitDecisionReport(content)
   if (sections.length === 0) {
     return <p className="text-white/50 text-sm leading-relaxed">Report content is still being generated.</p>

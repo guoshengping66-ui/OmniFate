@@ -115,6 +115,58 @@ export interface StructuredReport {
   conflict_warnings: string[];
 }
 
+export interface DecisionReportExecutiveSummary {
+  opportunity: string;
+  risk: string;
+  next_best_action: string;
+}
+
+export interface DecisionReportEvidenceItem {
+  claim: string;
+  sources: string[];
+  confidence: string;
+}
+
+export interface DecisionReportDimension {
+  key: string;
+  label: string;
+  score: number;
+  status: string;
+  finding: string;
+  action: string;
+}
+
+export interface DecisionReportTimelineItem {
+  period: string;
+  focus: string;
+}
+
+export interface DecisionReportActionItem {
+  period: string;
+  action: string;
+}
+
+export interface DecisionReportAvoidItem {
+  item: string;
+  reason: string;
+}
+
+export interface DecisionReport {
+  report_type: "decision_report_v2";
+  language?: string;
+  executive_summary: DecisionReportExecutiveSummary;
+  evidence_chain: DecisionReportEvidenceItem[];
+  five_dimensions: DecisionReportDimension[];
+  timeline: DecisionReportTimelineItem[];
+  action_plan: DecisionReportActionItem[];
+  avoid_list: DecisionReportAvoidItem[];
+  raw_text_available?: boolean;
+  quality?: {
+    passed: boolean;
+    issues: string[];
+  };
+}
+
 // ── 组件 Props 类型 ──────────────────────────────────────────────────────
 
 export interface ConflictBalanceProps {
