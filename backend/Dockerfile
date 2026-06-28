@@ -6,10 +6,10 @@ RUN useradd -m -s /bin/bash appuser
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY --chown=appuser:appuser . .
+COPY --chown=appuser:appuser backend ./backend
 
 USER appuser
 
