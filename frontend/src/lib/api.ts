@@ -724,9 +724,10 @@ export async function createCheckout(sessionId: string): Promise<{ checkout_url:
 }
 
 export interface UnlockResult {
-  unlocked: boolean
+  unlocked?: boolean
+  already_unlocked?: boolean
   reading_id: string
-  message: string
+  message?: string
   tier?: string
   is_detail_unlocked?: boolean
   is_detailed_unlocked?: boolean

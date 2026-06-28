@@ -691,7 +691,7 @@ export default function ReadingPage() {
     try {
       const { unlockReport } = await import("@/lib/api")
       const result = await unlockReport(id, "stardust", "full")
-      if (result.unlocked) {
+      if (result.unlocked || result.already_unlocked) {
         setIsUnlocked(true)
         setIsDetailedUnlocked(true)
         // Re-fetch session data so master_detail / worker reports are populated
@@ -724,7 +724,7 @@ export default function ReadingPage() {
     try {
       const { unlockReport } = await import("@/lib/api")
       const result = await unlockReport(id, "stardust", "detailed")
-      if (result.unlocked) {
+      if (result.unlocked || result.already_unlocked) {
         setIsDetailedUnlocked(true)
         const fresh = await getSession(id, locale)
         if (fresh) setData(fresh)

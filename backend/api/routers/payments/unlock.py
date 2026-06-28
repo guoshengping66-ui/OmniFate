@@ -112,7 +112,13 @@ async def _unlock_reading(reading_id: str, db: AsyncSession, skip_stardust_grant
         return {"error": "无权操作此报告"}
 
     if reading.is_detail_unlocked:
-        return {"already_unlocked": True, "reading_id": reading_id}
+        return {
+            "already_unlocked": True,
+            "reading_id": reading_id,
+            "tier": "full",
+            "is_detail_unlocked": True,
+            "is_detailed_unlocked": True,
+        }
 
     reading.is_detail_unlocked = True
     reading.payment_status = PaymentStatus.paid
@@ -149,6 +155,9 @@ async def _unlock_reading(reading_id: str, db: AsyncSession, skip_stardust_grant
         "unlocked": True,
         "reading_id": reading_id,
         "message": "报告已解锁",
+        "tier": "full",
+        "is_detail_unlocked": True,
+        "is_detailed_unlocked": True,
         "shop_coupon_issued": coupon_issued,
         "trial_activated": trial_activated,
         "stardust_granted": stardust_granted,
@@ -276,9 +285,21 @@ async def unlock_report(
         raise HTTPException(status_code=404, detail="报告不存在")
 
     if reading.is_detail_unlocked:
-        return {"already_unlocked": True, "reading_id": reading_id}
+        return {
+            "already_unlocked": True,
+            "reading_id": reading_id,
+            "tier": "full",
+            "is_detail_unlocked": True,
+            "is_detailed_unlocked": True,
+        }
     if tier == "detailed" and getattr(reading, "is_detailed_unlocked", False):
-        return {"already_unlocked": True, "reading_id": reading_id, "tier": "detailed"}
+        return {
+            "already_unlocked": True,
+            "reading_id": reading_id,
+            "tier": "detailed",
+            "is_detail_unlocked": False,
+            "is_detailed_unlocked": True,
+        }
 
     if reading.user_id is None:
         # Orphan reading — claim it for the current user
