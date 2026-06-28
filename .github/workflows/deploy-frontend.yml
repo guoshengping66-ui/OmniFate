@@ -56,7 +56,9 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           envs: CF_ZONE_ID,CF_API_TOKEN
+          timeout: 30s
           command_timeout: 40m
+          debug: true
           script: |
             set -euo pipefail
 
