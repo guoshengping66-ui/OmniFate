@@ -27,6 +27,7 @@ chroma_data/
 out/
 build/
 dist/
+*.tar.gz
 *.egg-info/
 
 # IDE and editor files

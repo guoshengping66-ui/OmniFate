@@ -7,6 +7,11 @@ import time
 import sys
 import secrets
 import string
+
+if "pytest" in sys.modules:
+    import pytest
+    pytest.skip("manual end-to-end script; requires running backend and cv2", allow_module_level=True)
+
 import cv2
 import numpy as np
 import io
