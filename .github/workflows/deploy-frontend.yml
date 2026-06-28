@@ -140,10 +140,14 @@ jobs:
               echo "🧹 清理旧构建产物 + webpack 缓存..."
               sudo rm -rf /opt/OmniFate/frontend/.next 2>/dev/null || true
               sudo rm -rf /opt/OmniFate/frontend/.turbo 2>/dev/null || true
+              sudo rm -rf /opt/OmniFate/frontend/node_modules/.cache 2>/dev/null || true
               sudo rm -rf /tmp/webpack* 2>/dev/null || true
               sudo rm -rf /root/.cache/webpack* 2>/dev/null || true
               sudo rm -rf /tmp/turbopack* 2>/dev/null || true
               sudo rm -rf /root/.cache/turbopack* 2>/dev/null || true
+              sudo rm -rf /tmp/next-* 2>/dev/null || true
+              # Clear any leftover Next.js trace files
+              sudo rm -f /opt/OmniFate/frontend/.next 2>/dev/null || true
               echo "✅ 清理完成"
 
               echo "📥 安装依赖..."
@@ -212,6 +216,24 @@ jobs:
               # 复制 public
               sudo rm -rf "$STANDALONE_DIR/public" 2>/dev/null || true
               sudo cp -r public "$STANDALONE_DIR/public" 2>/dev/null || true
+
+              # ⚠️ 关键: 同步 BUILD_ID 和 build manifest，确保 standalone 的 RSC manifest
+              # 与 static 文件中的 chunk hash 一致，防止服务器返回旧 chunk 引用
+              echo "   === 同步构建 manifest 到 standalone ==="
+              sudo cp -f .next/BUILD_ID "$STANDALONE_DIR/.next/BUILD_ID" 2>/dev/null || true
+              sudo cp -f .next/build-manifest.json "$STANDALONE_DIR/.next/build-manifest.json" 2>/dev/null || true
+              sudo cp -f .next/prerender-manifest.json "$STANDALONE_DIR/.next/prerender-manifest.json" 2>/dev/null || true
+              sudo cp -f .next/routes-manifest.json "$STANDALONE_DIR/.next/routes-manifest.json" 2>/dev/null || true
+              sudo cp -f .next/images-manifest.json "$STANDALONE_DIR/.next/images-manifest.json" 2>/dev/null || true
+              # Sync server manifests (contain chunk mappings used by RSC)
+              if [ -d ".next/server" ] && [ -d "$STANDALONE_DIR/.next/server" ]; then
+                sudo cp -f .next/server/middleware-manifest.json "$STANDALONE_DIR/.next/server/" 2>/dev/null || true
+                sudo cp -f .next/server/next-font-manifest.json "$STANDALONE_DIR/.next/server/" 2>/dev/null || true
+                sudo cp -f .next/server/pages-manifest.json "$STANDALONE_DIR/.next/server/" 2>/dev/null || true
+                sudo cp -f .next/server/app-paths-manifest.json "$STANDALONE_DIR/.next/server/" 2>/dev/null || true
+                sudo cp -f .next/server/server-reference-manifest.json "$STANDALONE_DIR/.next/server/" 2>/dev/null || true
+                echo "   ✅ server manifests 已同步"
+              fi
               sudo chown -R $(whoami) /opt/OmniFate/frontend 2>/dev/null || true
 
               # 验证目标目录 (用 || true 防止 set -e 误退出)
@@ -379,6 +401,18 @@ jobs:
               # ⚠️ 必须用 delete + start，不能用 restart！
               # restart 会复用旧进程的内存缓存，导致 RSC manifest 中的 chunk hash 是旧的
               pm2 delete frontend 2>/dev/null || true
+              # 确保端口 3000 释放 — 杀死任何残留进程
+              for i in 1 2 3 4 5; do
+                if fuser 3000/tcp >/dev/null 2>&1; then
+                  echo "⚠️ 端口 3000 仍被占用，第${i}次尝试释放..."
+                  fuser -k 3000/tcp 2>/dev/null || true
+                  sleep 2
+                else
+                  echo "✅ 端口 3000 已释放"
+                  break
+                fi
+              done
+              sleep 2
               pm2 start ecosystem.config.js --only frontend
               pm2 save
 
