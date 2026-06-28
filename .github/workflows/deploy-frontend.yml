@@ -19,7 +19,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: deploy-${{ github.workflow }}
+  group: deploy-frontend-v2
   cancel-in-progress: true
 
 jobs:
