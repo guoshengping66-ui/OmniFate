@@ -4,6 +4,7 @@
 # ══════════════════════════════════════════════════════════════════════════════
 #  用法: bash deploy-frontend.sh
 #  流程: git pull → npm install → npm run build → copy static → restart PM2
+#  Deploy trigger: server reboot recovery
 # ══════════════════════════════════════════════════════════════════════════════
 
 set -euo pipefail
