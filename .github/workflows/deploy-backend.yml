@@ -16,6 +16,7 @@ on:
     branches: [main]
     paths:
       - 'backend/**'
+      - '.github/workflows/deploy-backend.yml'
   workflow_dispatch:
 
 concurrency:
@@ -90,6 +91,21 @@ jobs:
             # 2. 检测部署方式: Docker 或 PM2
             if command -v docker >/dev/null 2>&1 && [ -f docker-compose.yml ]; then
               echo "🐳 检测到 Docker，使用 docker compose 重新构建并部署..."
+              echo "Stop any PM2/host backend that may still own port 8003..."
+              pm2 stop backend 2>/dev/null || true
+              pm2 delete backend 2>/dev/null || true
+              sudo pm2 delete backend 2>/dev/null || true
+              for i in 1 2 3 4 5; do
+                if fuser 8003/tcp >/dev/null 2>&1; then
+                  echo "Port 8003 is still busy, releasing it (attempt ${i})..."
+                  fuser -k 8003/tcp 2>/dev/null || true
+                  sudo fuser -k 8003/tcp 2>/dev/null || true
+                  sleep 2
+                else
+                  echo "Port 8003 is free"
+                  break
+                fi
+              done
               docker compose -f docker-compose.yml -f docker-compose.prod.yml build --no-cache backend
               docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --force-recreate --no-deps backend
               echo "⏳ 等待容器启动..."

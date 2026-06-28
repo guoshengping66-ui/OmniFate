@@ -500,7 +500,7 @@ async def health():
         "status": "ok",
         "app": settings.APP_NAME,
         "version": "2.2.0",
-        "build": "20260604",
+        "build": "20260629-authfix",
         "database": db_kind,
         "debug": settings.DEBUG,
     }
