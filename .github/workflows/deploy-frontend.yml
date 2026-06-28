@@ -401,11 +401,14 @@ jobs:
               # ⚠️ 必须用 delete + start，不能用 restart！
               # restart 会复用旧进程的内存缓存，导致 RSC manifest 中的 chunk hash 是旧的
               pm2 delete frontend 2>/dev/null || true
-              # 确保端口 3000 释放 — 杀死任何残留进程
+              # 同时停止 root 用户的 PM2 frontend（防止 root PM2 自动重启回旧代码）
+              sudo pm2 delete frontend 2>/dev/null || true
+              # 确保端口 3000 释放 — 杀死任何残留进程（包括 root 拥有的）
               for i in 1 2 3 4 5; do
                 if fuser 3000/tcp >/dev/null 2>&1; then
                   echo "⚠️ 端口 3000 仍被占用，第${i}次尝试释放..."
                   fuser -k 3000/tcp 2>/dev/null || true
+                  sudo fuser -k 3000/tcp 2>/dev/null || true
                   sleep 2
                 else
                   echo "✅ 端口 3000 已释放"
@@ -486,8 +489,9 @@ jobs:
                   echo "   尝试强制重启 PM2..."
                   cd /opt/OmniFate
                   pm2 delete frontend 2>/dev/null || true
-                  # Kill any remaining process on port 3000
+                  # Kill any remaining process on port 3000 (including root-owned)
                   fuser -k 3000/tcp 2>/dev/null || true
+                  sudo fuser -k 3000/tcp 2>/dev/null || true
                   sleep 3
                   pm2 start ecosystem.config.js --only frontend
                   pm2 save
