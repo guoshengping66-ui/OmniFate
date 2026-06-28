@@ -153,6 +153,10 @@ async def create_paypal_order(
 
     paypal = PayPalPay()
     result = await paypal.create_order(order_no, amount_usd, paypal_description, custom_id=current_user.id)
+    order.payment_ref = result["order_id"]
+    order.total_usd = amount_usd
+    order.notes = (order.notes or "") + f"\n[PAYPAL] PayPal order created: {result['order_id']}"
+    await db.commit()
 
     return {
         "order_no": order_no,
