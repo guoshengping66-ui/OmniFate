@@ -100,7 +100,7 @@ async def submit_contact(req: ContactRequest, request: Request):
     </div>
     """
 
-    to_email = settings.SMTP_FROM or "guoshengping66@gmail.com"
+    to_email = settings.SMTP_FROM or "support@khanfate.com"
     # Sanitize name to prevent email header injection
     safe_name = req.name.replace('\r', '').replace('\n', '').strip()[:50]
     ok = await send_email_async(to_email, f"[Profile Mirror] 联系表单 - {subject_label} - {safe_name}", email_html)
@@ -163,7 +163,7 @@ async def subscribe_newsletter(
     </div>
     """
 
-    to_email = settings.SMTP_FROM or "guoshengping66@gmail.com"
+    to_email = settings.SMTP_FROM or "support@khanfate.com"
     await send_email_async(to_email, f"[Profile Mirror] 新订阅 - {email}", email_html)
 
     return {"success": True, "message": "订阅成功，每周将收到五行运势推送"}

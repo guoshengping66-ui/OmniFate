@@ -240,7 +240,7 @@ export default {
   "footer.terms": "Terms of Service",
   "footer.refund": "Refund Policy",
   "footer.disclaimer": "Disclaimer",
-  "footer.icp": "ICP Filing",
+  "footer.icp": "ICP filing pending",
   "footer.entertainmentDisclaimer": "All analysis results are provided for entertainment and self-reflection purposes only. They do not constitute professional advice of any kind. Please use your own judgment when making decisions.",
   "breadcrumb.home": "Home",
   "floatingCta.text": "Free Reading · 5D Analysis",
@@ -2056,7 +2056,7 @@ export default {
   "legal.privacy.s5.title": "5. Third-Party Services",
   "legal.privacy.s5.content": "For AI analysis, we send your birth information to:\n\n1. **DeepSeek API**: For AI behavioral analysis (data processing agreement in place).\n2. **Skyfield Library**: For local behavioral profile calculation (no data export).\n3. **Payment Providers**: Alipay, WeChat Pay, PayPal (used only when you initiate payment).\n\nWe do not sell or share your personal information with any other third parties.",
   "legal.privacy.s6.title": "6. Your Rights",
-  "legal.privacy.s6.content": "You have the following rights:\n\n1. **Access**: View your personal information and analysis history in \"My Account\".\n2. **Deletion**: Request deletion of your account and all data:\n   - Click \"Delete Account\" in \"My Account\" for immediate processing.\n   - Or email privacy@khanpattern.com with your email and deletion request (processed within 7 business days).\n3. **Data Export**: Request your analysis report data by emailing privacy@khanpattern.com.\n4. **Withdraw Consent**: Withdraw privacy policy consent at any time (does not affect prior processing).",
+  "legal.privacy.s6.content": "You have the following rights:\n\n1. **Access**: View your personal information and analysis history in \"My Account\".\n2. **Deletion**: Request deletion of your account and all data:\n   - Click \"Delete Account\" in \"My Account\" for immediate processing.\n   - Or email support@khanfate.com with your email and deletion request (processed within 7 business days).\n3. **Data Export**: Request your analysis report data by emailing support@khanfate.com.\n4. **Withdraw Consent**: Withdraw privacy policy consent at any time (does not affect prior processing).",
   "legal.privacy.s7.title": "7. Cookie Usage",
   "legal.privacy.s7.content": "We use essential cookies to maintain your login state and site functionality. We do not use third-party tracking cookies or use cookies for advertising.\n\nYou can manage cookies through browser settings, but disabling essential cookies may affect site functionality.",
   "legal.privacy.s8.title": "8. Minor Protection",
@@ -2064,9 +2064,9 @@ export default {
   "legal.privacy.s9.title": "9. Policy Updates",
   "legal.privacy.s9.content": "We may update this privacy policy from time to time. Updated policies will be posted on this page with an updated \"Last Updated\" date. Major changes will be notified via email or site announcement.",
   "legal.privacy.s10.title": "10. Contact Us",
-  "legal.privacy.s10.content": "For questions about this privacy policy:\n\n- Email: privacy@khanpattern.com\n- Website: https://www.khanpattern.com/about",
+  "legal.privacy.s10.content": "For questions about this privacy policy:\n\n- Email: support@khanfate.com\n- Website: https://www.khanfate.com/about",
   "legal.privacy.s11.title": "11. Operator Information",
-  "legal.privacy.s11.content": "Operator: Behavioral Mirror Operations Team\nEmail: privacy@khanpattern.com\nWebsite: https://www.khanpattern.com",
+  "legal.privacy.s11.content": "Operator: Khan Fate Team\nEmail: support@khanfate.com\nWebsite: https://www.khanfate.com",
 
   // Terms of Service
   "legal.terms.title": "Terms of Service",
@@ -2086,9 +2086,9 @@ export default {
   "legal.terms.s7.title": "7. Terms Updates",
   "legal.terms.s7.content": "We reserve the right to modify these terms at any time. Updated terms will be posted on this page with an updated \"Last Updated\" date. Continued use constitutes acceptance of modified terms.",
   "legal.terms.s8.title": "8. Contact",
-  "legal.terms.s8.content": "For questions about these terms:\n\n- Email: guoshengping66@gmail.com\n- Website: https://www.khanpattern.com/about",
+  "legal.terms.s8.content": "For questions about these terms:\n\n- Email: support@khanfate.com\n- Website: https://www.khanfate.com/about",
   "legal.terms.s9.title": "9. Operator Information",
-  "legal.terms.s9.content": "Operator: Behavioral Mirror Operations Team\nEmail: guoshengping66@gmail.com\nWebsite: https://www.khanpattern.com",
+  "legal.terms.s9.content": "Operator: Khan Fate Team\nEmail: support@khanfate.com\nWebsite: https://www.khanfate.com",
 
   // Refund Policy
   "legal.refund.title": "Refund Policy",
@@ -2102,7 +2102,7 @@ export default {
   "legal.refund.s4.title": "4. Coupons & Discounts",
   "legal.refund.s4.content": "1. Coupons used for payment are not refunded.\n2. Coupons obtained through \"Chart Unlock\" promotions will be revoked upon refund.",
   "legal.refund.s5.title": "5. How to Request a Refund",
-  "legal.refund.s5.content": "To request a refund, contact us:\n\n- Email: guoshengping66@gmail.com\n- Subject format: [Refund Request] Order Number/Subscription Type\n- Please provide: Registration email, order number, refund reason\n\nWe will review and respond within 1-3 business days.",
+  "legal.refund.s5.content": "To request a refund, contact us:\n\n- Email: support@khanfate.com\n- Subject format: [Refund Request] Order Number/Subscription Type\n- Please provide: Registration email, order number, refund reason\n\nWe will review and respond within 1-3 business days.",
 
   // ─── Contact Page ───
   "contact.title": "Contact Us",
@@ -2131,10 +2131,10 @@ export default {
   "contact.form.message": "Message",
   "contact.form.messagePlaceholder": "Please describe your question or suggestion in detail...",
   "contact.form.send": "Send Message",
-  "contact.form.note": "After submitting, check your email for a reply, or email us at guoshengping66@gmail.com",
+  "contact.form.note": "After submitting, check your email for a reply, or email us at support@khanfate.com",
   "contact.form.fillAll": "Please fill in all required fields",
   "contact.form.sentSuccess": "Message sent! We'll reply soon.",
-  "contact.form.sendFailed": "Failed to send. Please try again or email us at guoshengping66@gmail.com",
+  "contact.form.sendFailed": "Failed to send. Please try again or email us at support@khanfate.com",
   "contact.form.sending": "Sending...",
 
   // ─── Referral Page ───
@@ -2735,11 +2735,11 @@ export default {
   "disclaimer.s5Title": "5. Service Availability", "disclaimer.s5Content": "Services may be temporarily unavailable for maintenance. We reserve the right to modify or terminate services.",
   "disclaimer.s6Title": "6. Third-Party Links", "disclaimer.s6Content": "Links to third-party sites are for convenience and do not represent endorsement. Access at your own risk.",
   "disclaimer.s7Title": "7. Governing Law", "disclaimer.s7Content": "Governed by PRC law. Disputes submitted to courts with jurisdiction.",
-  "disclaimer.s8Title": "8. Contact", "disclaimer.s8Content": "Email: legal@khanpattern.com | Website: https://www.khanpattern.com/about",
+  "disclaimer.s8Title": "8. Contact", "disclaimer.s8Content": "Email: support@khanfate.com | Website: https://www.khanfate.com/about",
   "disclaimer.operatorTitle": "Operator Information",
-  "disclaimer.operatorName": "Behavioral Mirror Operations Team",
-  "disclaimer.operatorEmail": "Contact: legal@khanpattern.com",
-  "disclaimer.operatorUrl": "Website: https://www.khanpattern.com",
+  "disclaimer.operatorName": "Khan Fate Team",
+  "disclaimer.operatorEmail": "Contact: support@khanfate.com",
+  "disclaimer.operatorUrl": "Website: https://www.khanfate.com",
   "disclaimer.backHome": "← Back to Home",
 
   // ─── Trading ───

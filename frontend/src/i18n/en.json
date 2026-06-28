@@ -417,11 +417,11 @@
         "title": "1. Information Collection"
       },
       "s10": {
-        "content": "For questions about this privacy policy:\n\n- Email: privacy@khanpattern.com\n- Website: https://www.khanpattern.com/about",
+        "content": "For questions about this privacy policy:\n\n- Email: support@khanfate.com\n- Website: https://www.khanfate.com/about",
         "title": "10. Contact Us"
       },
       "s11": {
-        "content": "Operator: Behavioral Mirror Operations Team\nEmail: privacy@khanpattern.com\nWebsite: https://www.khanpattern.com",
+        "content": "Operator: Khan Fate Team\nEmail: support@khanfate.com\nWebsite: https://www.khanfate.com",
         "title": "11. Operator Information"
       },
       "s2": {
@@ -441,7 +441,7 @@
         "title": "5. Third-Party Services"
       },
       "s6": {
-        "content": "You have the following rights:\n\n1. **Access**: View your personal information and analysis history in \"My Account\".\n2. **Deletion**: Request deletion of your account and all data:\n   - Click \"Delete Account\" in \"My Account\" for immediate processing.\n   - Or email privacy@khanpattern.com with your email and deletion request (processed within 7 business days).\n3. **Data Export**: Request your analysis report data by emailing privacy@khanpattern.com.\n4. **Withdraw Consent**: Withdraw privacy policy consent at any time (does not affect prior processing).",
+        "content": "You have the following rights:\n\n1. **Access**: View your personal information and analysis history in \"My Account\".\n2. **Deletion**: Request deletion of your account and all data:\n   - Click \"Delete Account\" in \"My Account\" for immediate processing.\n   - Or email support@khanfate.com with your email and deletion request (processed within 7 business days).\n3. **Data Export**: Request your analysis report data by emailing support@khanfate.com.\n4. **Withdraw Consent**: Withdraw privacy policy consent at any time (does not affect prior processing).",
         "title": "6. Your Rights"
       },
       "s7": {
@@ -477,7 +477,7 @@
         "title": "4. Coupons & Discounts"
       },
       "s5": {
-        "content": "To request a refund or exchange, contact us:\n\n- WeChat Customer Service: khan18553325258 (please add a note with \"refund\" + order number)\n- Email: guoshengping66@gmail.com\n- Subject format: [Refund Request] Order Number/Subscription Type\n- Please provide: Registration email, order number, refund reason\n\nFor wellness artifact products, please include photos of the issue to expedite review.\nWe will review and respond within 1-3 business days.",
+        "content": "To request a refund or exchange, contact us:\n\n- WeChat Customer Service: khan18553325258 (please add a note with \"refund\" + order number)\n- Email: support@khanfate.com\n- Subject format: [Refund Request] Order Number/Subscription Type\n- Please provide: Registration email, order number, refund reason\n\nFor wellness artifact products, please include photos of the issue to expedite review.\nWe will review and respond within 1-3 business days.",
         "title": "5. How to Request a Refund"
       },
       "s6": {
@@ -517,11 +517,11 @@
         "title": "7. Terms Updates"
       },
       "s8": {
-        "content": "For questions about these terms:\n\n- Email: guoshengping66@gmail.com\n- Website: https://www.khanpattern.com/about",
+        "content": "For questions about these terms:\n\n- Email: support@khanfate.com\n- Website: https://www.khanfate.com/about",
         "title": "8. Contact"
       },
       "s9": {
-        "content": "Operator: Behavioral Mirror Operations Team\nEmail: guoshengping66@gmail.com\nWebsite: https://www.khanpattern.com",
+        "content": "Operator: Khan Fate Team\nEmail: support@khanfate.com\nWebsite: https://www.khanfate.com",
         "title": "9. Operator Information"
       },
       "intro": "Welcome to Behavioral Mirror (\"the Platform\"). Please read and understand the following terms of service before using our services. Registering or using the Platform constitutes your agreement to comply with these terms.",
@@ -1418,10 +1418,10 @@
       "messagePlaceholder": "Please describe your question or suggestion in detail...",
       "name": "Name",
       "namePlaceholder": "Your name",
-      "note": "After submitting, check your email for a reply, or email us at guoshengping66@gmail.com",
+      "note": "After submitting, check your email for a reply, or email us at support@khanfate.com",
       "send": "Send Message",
       "sentSuccess": "Message sent! We'll reply soon.",
-      "sendFailed": "Failed to send. Please try again or email us at guoshengping66@gmail.com",
+      "sendFailed": "Failed to send. Please try again or email us at support@khanfate.com",
       "sending": "Sending...",
       "subject": "Subject",
       "subjectBilling": "Payment & Refunds",
@@ -3290,10 +3290,10 @@
     "backHome": "← Back to Home",
     "importantNotice": "Important: All analysis results are for entertainment and reference only. They do not constitute any professional advice.",
     "intro": "Behavioral Mirror requests that you carefully read the following disclaimer before using our services. Using this platform means you have read and understood the full content.",
-    "operatorEmail": "Contact: legal@khanpattern.com",
-    "operatorName": "Behavioral Mirror Operations Team",
+    "operatorEmail": "Contact: support@khanfate.com",
+    "operatorName": "Khan Fate Team",
     "operatorTitle": "Operator Information",
-    "operatorUrl": "Website: https://www.khanpattern.com",
+    "operatorUrl": "Website: https://www.khanfate.com",
     "s1Content": "All behavioral analysis services are generated based on AI algorithms and traditional analytical knowledge, intended solely for personal entertainment and reference. Results do not constitute professional advice including medical, legal, financial, or life decisions.",
     "s1Title": "1. Nature of Behavioral Analysis",
     "s2Content": "AI models may have biases or errors. Analytical studies belong to traditional culture, not modern science. Different schools may have varying perspectives. AI cannot replace experienced analysts. View results rationally as auxiliary tools.",
@@ -3308,7 +3308,7 @@
     "s6Title": "6. Third-Party Links",
     "s7Content": "Governed by PRC law. Disputes submitted to courts with jurisdiction.",
     "s7Title": "7. Governing Law",
-    "s8Content": "Email: legal@khanpattern.com | Website: https://www.khanpattern.com/about",
+    "s8Content": "Email: support@khanfate.com | Website: https://www.khanfate.com/about",
     "s8Title": "8. Contact",
     "title": "Disclaimer",
     "updated": "Last updated: May 8, 2026"

@@ -239,7 +239,7 @@ export default {
   "footer.terms": "服务条款",
   "footer.refund": "退款政策",
   "footer.disclaimer": "免责声明",
-  "footer.icp": "ICP备案中",
+  "footer.icp": "ICP备案号待补充",
   "footer.entertainmentDisclaimer": "所有分析结果仅供娱乐和自我反思参考，不构成任何专业建议。请在做决策时自行判断。",
   "breadcrumb.home": "首页",
   "floatingCta.text": "免费分析 · 五维分析",
@@ -2045,7 +2045,7 @@ export default {
   "legal.privacy.s5.title": "五、第三方服务",
   "legal.privacy.s5.content": "为提供 AI 分析服务，我们会将您的出生信息和分析请求发送至以下第三方服务：\n\n1. **DeepSeek API**：用于 AI 行为分析推理（已签署数据处理协议）。\n2. **Skyfield 天文计算库**：用于本地行为模式计算，不涉及数据外传。\n3. **支付服务商**：支付宝、微信支付、PayPal（仅在您发起支付时使用）。\n\n我们不会将您的个人信息出售或共享给其他任何第三方。",
   "legal.privacy.s6.title": "六、用户权利",
-  "legal.privacy.s6.content": "您享有以下权利：\n\n1. **查看权**：随时在「我的账户」中查看您的个人信息和分析历史。\n2. **删除权**：您有权要求删除您的账户及所有相关数据。具体操作方式：\n   - 登录后在「我的账户」页面点击「删除账户」按钮，系统将立即处理。\n   - 或发送邮件至 privacy@khanpattern.com，注明您的注册邮箱和删除请求，我们将在 7 个工作日内处理。\n   - 删除后，您的个人信息、分析报告、上传的照片将被永久删除，此操作不可撤销。\n3. **数据导出**：可申请导出您的分析报告数据，发送邮件至 privacy@khanpattern.com 即可。\n4. **撤回同意**：您可随时撤回对隐私政策的同意，但撤回不影响此前已进行的数据处理。",
+  "legal.privacy.s6.content": "您享有以下权利：\n\n1. **查看权**：随时在「我的账户」中查看您的个人信息和分析历史。\n2. **删除权**：您有权要求删除您的账户及所有相关数据。具体操作方式：\n   - 登录后在「我的账户」页面点击「删除账户」按钮，系统将立即处理。\n   - 或发送邮件至 support@khanfate.com，注明您的注册邮箱和删除请求，我们将在 7 个工作日内处理。\n   - 删除后，您的个人信息、分析报告、上传的照片将被永久删除，此操作不可撤销。\n3. **数据导出**：可申请导出您的分析报告数据，发送邮件至 support@khanfate.com 即可。\n4. **撤回同意**：您可随时撤回对隐私政策的同意，但撤回不影响此前已进行的数据处理。",
   "legal.privacy.s7.title": "七、Cookie 使用",
   "legal.privacy.s7.content": "我们使用必要的 Cookie 来维持您的登录状态和网站正常运行。我们不使用第三方追踪 Cookie，也不会利用 Cookie 进行广告投放。\n\n您可以通过浏览器设置管理 Cookie，但禁用必要 Cookie 可能影响网站功能。",
   "legal.privacy.s8.title": "八、未成年人保护",
@@ -2053,9 +2053,9 @@ export default {
   "legal.privacy.s9.title": "九、隐私政策更新",
   "legal.privacy.s9.content": "我们可能会不时更新本隐私政策。更新后的政策将在本页面发布，并更新顶部的「最后更新」日期。重大变更将通过电子邮件或网站公告通知您。",
   "legal.privacy.s10.title": "十、联系我们",
-  "legal.privacy.s10.content": "如果您对本隐私政策有任何疑问，请通过以下方式联系我们：\n\n- 电子邮件：privacy@khanpattern.com\n- 网站：https://www.khanpattern.com/about",
+  "legal.privacy.s10.content": "如果您对本隐私政策有任何疑问，请通过以下方式联系我们：\n\n- 电子邮件：support@khanfate.com\n- 网站：https://www.khanfate.com/about",
   "legal.privacy.s11.title": "十一、运营者信息",
-  "legal.privacy.s11.content": "运营者名称：AI 行为分析镜运营团队\n联系邮箱：privacy@khanpattern.com\n网站地址：https://www.khanpattern.com",
+  "legal.privacy.s11.content": "运营者名称：Khan Fate Team\n联系邮箱：support@khanfate.com\n网站地址：https://www.khanfate.com",
 
   // 服务条款
   "legal.terms.title": "服务条款",
@@ -2075,9 +2075,9 @@ export default {
   "legal.terms.s7.title": "七、条款更新",
   "legal.terms.s7.content": "我们保留随时修改本服务条款的权利。修改后的条款将在本页面发布，并更新顶部的「最后更新」日期。继续使用本服务即表示您接受修改后的条款。",
   "legal.terms.s8.title": "八、联系方式",
-  "legal.terms.s8.content": "如对本服务条款有任何疑问，请联系我们：\n\n- 电子邮件：guoshengping66@gmail.com\n- 网站：https://www.khanpattern.com/about",
+  "legal.terms.s8.content": "如对本服务条款有任何疑问，请联系我们：\n\n- 电子邮件：support@khanfate.com\n- 网站：https://www.khanfate.com/about",
   "legal.terms.s9.title": "九、运营者信息",
-  "legal.terms.s9.content": "运营者名称：AI 行为分析镜运营团队\n联系邮箱：guoshengping66@gmail.com\n网站地址：https://www.khanpattern.com",
+  "legal.terms.s9.content": "运营者名称：Khan Fate Team\n联系邮箱：support@khanfate.com\n网站地址：https://www.khanfate.com",
 
   // 退款政策
   "legal.refund.title": "退款政策",
@@ -2091,7 +2091,7 @@ export default {
   "legal.refund.s4.title": "四、优惠券与折扣",
   "legal.refund.s4.content": "1. 使用优惠券支付的部分，退款时优惠券不予退还。\n2. 通过「报告解锁」获得的商城优惠券，退款后优惠券将被回收。",
   "legal.refund.s5.title": "五、退款申请方式",
-  "legal.refund.s5.content": "如需申请退款，请通过以下方式联系我们：\n\n- 电子邮件：guoshengping66@gmail.com\n- 邮件标题格式：【退款申请】订单号/订阅类型\n- 请提供：注册邮箱、订单号、退款原因\n\n我们将在收到申请后 1-3 个工作日内审核并回复。",
+  "legal.refund.s5.content": "如需申请退款，请通过以下方式联系我们：\n\n- 电子邮件：support@khanfate.com\n- 邮件标题格式：【退款申请】订单号/订阅类型\n- 请提供：注册邮箱、订单号、退款原因\n\n我们将在收到申请后 1-3 个工作日内审核并回复。",
 
   // ─── 联系我们页面 ───
   "contact.title": "联系我们",
@@ -2120,10 +2120,10 @@ export default {
   "contact.form.message": "消息内容",
   "contact.form.messagePlaceholder": "请详细描述你的问题或建议...",
   "contact.form.send": "发送消息",
-  "contact.form.note": "提交后请留意邮箱回复，或直接发送邮件至 guoshengping66@gmail.com",
+  "contact.form.note": "提交后请留意邮箱回复，或直接发送邮件至 support@khanfate.com",
   "contact.form.fillAll": "请填写完整信息",
   "contact.form.sentSuccess": "消息已发送，我们会尽快回复！",
-  "contact.form.sendFailed": "发送失败，请稍后重试或直接发邮件至 guoshengping66@gmail.com",
+  "contact.form.sendFailed": "发送失败，请稍后重试或直接发邮件至 support@khanfate.com",
   "contact.form.sending": "发送中...",
 
   // ─── 邀请页面 ───
@@ -2726,11 +2726,11 @@ export default {
   "disclaimer.s5Title": "五、服务可用性", "disclaimer.s5Content": "服务可能因维护等原因暂时不可用。我们保留修改或终止服务的权利。",
   "disclaimer.s6Title": "六、第三方链接", "disclaimer.s6Content": "第三方网站链接仅供参考，不代表我们对其内容的认可或推荐。访问风险由用户自行承担。",
   "disclaimer.s7Title": "七、适用法律", "disclaimer.s7Content": "本声明受中华人民共和国法律管辖。争议提交有管辖权的法院处理。",
-  "disclaimer.s8Title": "八、联系我们", "disclaimer.s8Content": "邮箱：legal@khanpattern.com | 网站：https://www.khanpattern.com/about",
+  "disclaimer.s8Title": "八、联系我们", "disclaimer.s8Content": "邮箱：support@khanfate.com | 网站：https://www.khanfate.com/about",
   "disclaimer.operatorTitle": "运营主体信息",
-  "disclaimer.operatorName": "AI 行为分析镜运营团队",
-  "disclaimer.operatorEmail": "联系方式：legal@khanpattern.com",
-  "disclaimer.operatorUrl": "网站：https://www.khanpattern.com",
+  "disclaimer.operatorName": "Khan Fate Team",
+  "disclaimer.operatorEmail": "联系方式：support@khanfate.com",
+  "disclaimer.operatorUrl": "网站：https://www.khanfate.com",
   "disclaimer.backHome": "← 返回首页",
 
   // ─── 交易复盘 ───

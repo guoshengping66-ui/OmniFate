@@ -415,11 +415,11 @@
         "title": "一、信息收集"
       },
       "s10": {
-        "content": "如果您对本隐私政策有任何疑问，请通过以下方式联系我们：\n\n- 电子邮件：privacy@khanpattern.com\n- 网站：https://www.khanpattern.com/about",
+        "content": "如果您对本隐私政策有任何疑问，请通过以下方式联系我们：\n\n- 电子邮件：support@khanfate.com\n- 网站：https://www.khanfate.com/about",
         "title": "十、联系我们"
       },
       "s11": {
-        "content": "运营者名称：AI 行为分析镜运营团队\n联系邮箱：privacy@khanpattern.com\n网站地址：https://www.khanpattern.com",
+        "content": "运营者名称：Khan Fate Team\n联系邮箱：support@khanfate.com\n网站地址：https://www.khanfate.com",
         "title": "十一、运营者信息"
       },
       "s2": {
@@ -439,7 +439,7 @@
         "title": "五、第三方服务"
       },
       "s6": {
-        "content": "您享有以下权利：\n\n1. **查看权**：随时在「我的账户」中查看您的个人信息和分析历史。\n2. **删除权**：您有权要求删除您的账户及所有相关数据。具体操作方式：\n   - 登录后在「我的账户」页面点击「删除账户」按钮，系统将立即处理。\n   - 或发送邮件至 privacy@khanpattern.com，注明您的注册邮箱和删除请求，我们将在 7 个工作日内处理。\n   - 删除后，您的个人信息、分析报告、上传的照片将被永久删除，此操作不可撤销。\n3. **数据导出**：可申请导出您的分析报告数据，发送邮件至 privacy@khanpattern.com 即可。\n4. **撤回同意**：您可随时撤回对隐私政策的同意，但撤回不影响此前已进行的数据处理。",
+        "content": "您享有以下权利：\n\n1. **查看权**：随时在「我的账户」中查看您的个人信息和分析历史。\n2. **删除权**：您有权要求删除您的账户及所有相关数据。具体操作方式：\n   - 登录后在「我的账户」页面点击「删除账户」按钮，系统将立即处理。\n   - 或发送邮件至 support@khanfate.com，注明您的注册邮箱和删除请求，我们将在 7 个工作日内处理。\n   - 删除后，您的个人信息、分析报告、上传的照片将被永久删除，此操作不可撤销。\n3. **数据导出**：可申请导出您的分析报告数据，发送邮件至 support@khanfate.com 即可。\n4. **撤回同意**：您可随时撤回对隐私政策的同意，但撤回不影响此前已进行的数据处理。",
         "title": "六、用户权利"
       },
       "s7": {
@@ -475,7 +475,7 @@
         "title": "四、优惠券与折扣"
       },
       "s5": {
-        "content": "如需申请退款或退换货，请通过以下方式联系我们：\n\n- 微信客服：khan18553325258（添加时请备注「退款」+订单号）\n- 电子邮件：guoshengping66@gmail.com\n- 邮件标题格式：【退款申请】订单号/订阅类型\n- 请提供：注册邮箱、订单号、退款原因\n\n对于商品实物商品，请附上商品问题照片以便加快审核。\n我们将在收到申请后 1-3 个工作日内审核并回复。",
+        "content": "如需申请退款或退换货，请通过以下方式联系我们：\n\n- 微信客服：khan18553325258（添加时请备注「退款」+订单号）\n- 电子邮件：support@khanfate.com\n- 邮件标题格式：【退款申请】订单号/订阅类型\n- 请提供：注册邮箱、订单号、退款原因\n\n对于商品实物商品，请附上商品问题照片以便加快审核。\n我们将在收到申请后 1-3 个工作日内审核并回复。",
         "title": "五、退款申请方式"
       },
       "s6": {
@@ -515,11 +515,11 @@
         "title": "七、条款更新"
       },
       "s8": {
-        "content": "如对本服务条款有任何疑问，请联系我们：\n\n- 电子邮件：guoshengping66@gmail.com\n- 网站：https://www.khanpattern.com/about",
+        "content": "如对本服务条款有任何疑问，请联系我们：\n\n- 电子邮件：support@khanfate.com\n- 网站：https://www.khanfate.com/about",
         "title": "八、联系方式"
       },
       "s9": {
-        "content": "运营者名称：AI 行为分析镜运营团队\n联系邮箱：guoshengping66@gmail.com\n网站地址：https://www.khanpattern.com",
+        "content": "运营者名称：Khan Fate Team\n联系邮箱：support@khanfate.com\n网站地址：https://www.khanfate.com",
         "title": "九、运营者信息"
       },
       "intro": "欢迎使用AI 行为分析镜（以下简称「本平台」）。在使用本平台服务前，请仔细阅读并充分理解以下服务条款。注册或使用本平台服务即表示您同意遵守本条款。",
@@ -1302,10 +1302,10 @@
       "messagePlaceholder": "请详细描述你的问题或建议...",
       "name": "姓名",
       "namePlaceholder": "你的名字",
-      "note": "提交后请留意邮箱回复，或直接发送邮件至 guoshengping66@gmail.com",
+      "note": "提交后请留意邮箱回复，或直接发送邮件至 support@khanfate.com",
       "send": "发送消息",
       "sentSuccess": "消息已发送，我们会尽快回复！",
-      "sendFailed": "发送失败，请稍后重试或直接发邮件至 guoshengping66@gmail.com",
+      "sendFailed": "发送失败，请稍后重试或直接发邮件至 support@khanfate.com",
       "sending": "发送中...",
       "subject": "主题",
       "subjectBilling": "支付与退款",
@@ -2903,10 +2903,10 @@
     "backHome": "← 返回首页",
     "importantNotice": "重要提示：所有行为分析结果仅供娱乐和参考，不构成任何专业建议。",
     "intro": "AI 行为分析镜请您在使用服务前仔细阅读以下免责声明。使用本平台即表示您已阅读并理解全部内容。",
-    "operatorEmail": "联系方式：legal@khanpattern.com",
-    "operatorName": "AI 行为分析镜运营团队",
+    "operatorEmail": "联系方式：support@khanfate.com",
+    "operatorName": "Khan Fate Team",
     "operatorTitle": "运营主体信息",
-    "operatorUrl": "网站：https://www.khanpattern.com",
+    "operatorUrl": "网站：https://www.khanfate.com",
     "s1Content": "所有行为分析服务均基于 AI 算法和传统行为分析知识生成，仅用于个人娱乐和参考。分析结果不构成医疗、法律、财务或人生决策等专业建议。",
     "s1Title": "一、行为分析的性质",
     "s2Content": "AI 模型可能存在偏差或错误。行为分析学属于传统文化范畴，并非现代科学。不同流派可能有不同观点。AI 无法替代经验丰富的行为分析师。请理性看待分析结果，将其作为辅助参考工具。",
@@ -2921,7 +2921,7 @@
     "s6Title": "六、第三方链接",
     "s7Content": "本声明受中华人民共和国法律管辖。争议提交有管辖权的法院处理。",
     "s7Title": "七、适用法律",
-    "s8Content": "邮箱：legal@khanpattern.com | 网站：https://www.khanpattern.com/about",
+    "s8Content": "邮箱：support@khanfate.com | 网站：https://www.khanfate.com/about",
     "s8Title": "八、联系我们",
     "title": "免责声明",
     "updated": "最后更新：2026年5月8日"
@@ -3072,7 +3072,7 @@
     "desc": "融合三千年东方传统分析与现代AI技术，\n为每位来访者提供独一无二的生命解读。",
     "disclaimer": "免责声明",
     "faq": "常见问题",
-    "icp": "ICP备案中",
+    "icp": "ICP备案号待补充",
     "nav": "导航",
     "newsletter": "订阅状态",
     "newsletterDesc": "每周推送五素状态与提升指南",
