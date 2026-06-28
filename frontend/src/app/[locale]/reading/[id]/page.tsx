@@ -184,8 +184,8 @@ function DecisionReportText({ content }: { content: string }) {
   )
 }
 
-function buildExpertEvidenceSummary(workerMap: Record<string, { report?: string; tags?: string[] }>, t: (key: string) => string): TextSection[] {
-  return WORKER_ORDER_ALL
+function buildExpertEvidenceSummary(workerMap: Record<string, { report?: string; tags?: string[] }>, t: (key: string) => string, workerOrder: readonly string[]): TextSection[] {
+  return workerOrder
     .map((key) => {
       const worker = workerMap[key]
       if (!worker?.report) return null
@@ -1476,7 +1476,7 @@ export default function ReadingPage() {
             )}
 
             {isUnlocked && (() => {
-              const expertEvidence = buildExpertEvidenceSummary(workerMap, t)
+              const expertEvidence = buildExpertEvidenceSummary(workerMap, t, WORKER_ORDER_ALL)
               if (expertEvidence.length === 0) return null
               return (
                 <div className="card-glass p-5 md:p-6 border-gold/10">
