@@ -262,15 +262,23 @@ async def unlock_report(
     - tier=detailed (精读): 30 星尘，解锁 master_detail（深度分析文本）
     - tier=full (全维): 100 星尘，解锁 master_detail + 所有工人报告
     """
+    tier = (tier or "full").lower()
+    if tier not in {"detailed", "full"}:
+        raise HTTPException(status_code=400, detail="Invalid unlock tier")
+
     logger.info(f"[UNLOCK] reading_id={reading_id}, source={source}, tier={tier}, user={current_user.id}")
 
-    reading_result = await db.execute(select(Reading).where(Reading.id == reading_id))
+    reading_result = await db.execute(
+        select(Reading).where(Reading.id == reading_id).with_for_update()
+    )
     reading = reading_result.scalar_one_or_none()
     if not reading:
         raise HTTPException(status_code=404, detail="报告不存在")
 
     if reading.is_detail_unlocked:
         return {"already_unlocked": True, "reading_id": reading_id}
+    if tier == "detailed" and getattr(reading, "is_detailed_unlocked", False):
+        return {"already_unlocked": True, "reading_id": reading_id, "tier": "detailed"}
 
     if reading.user_id is None:
         # Orphan reading — claim it for the current user
@@ -303,7 +311,11 @@ async def unlock_report(
         )
         db.add(tx)
 
-        reading.is_detail_unlocked = True
+        if tier == "detailed":
+            reading.is_detailed_unlocked = True
+        else:
+            reading.is_detail_unlocked = True
+            reading.is_detailed_unlocked = True
         reading.payment_status = PaymentStatus.paid
 
         try:
@@ -319,6 +331,8 @@ async def unlock_report(
             "reading_id": reading_id,
             "stardust_spent": cost,
             "tier": tier,
+            "is_detail_unlocked": reading.is_detail_unlocked,
+            "is_detailed_unlocked": getattr(reading, "is_detailed_unlocked", False),
         }
     else:
         result = await _unlock_reading(reading_id, db, requester_user_id=current_user.id)

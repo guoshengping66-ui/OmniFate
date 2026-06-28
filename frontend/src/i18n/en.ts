@@ -2326,16 +2326,16 @@ export default {
   "paywall.unlockFull": "Full Report",
   "paywall.detailedIncludes": "DETAILED INCLUDES:",
   "paywall.detailedFeatures": [
-    "Core conclusions and pain-point diagnosis",
-    "Evidence-chain explanation and action suggestions"
+    "Core conclusions, pain-point diagnosis, and evidence chain",
+    "30/90-day trend alerts and practical action suggestions"
   ],
   "paywall.fullIncludes": "FULL INCLUDES:",
   "paywall.fullFeatures": [
     "Everything in the detailed report",
-    "Five-dimension diagnosis and timeline",
-    "Avoid list and action plan",
-    "AI follow-up chat",
-    "Curated product picks"
+    "Cross-validated expert evidence summary",
+    "Expandable original expert reports",
+    "Full avoid list, action plan, and AI follow-up chat",
+    "Curated product picks with reasoning"
   ],
   "paywall.stardustBalance": "Stardust Balance",
   "freeBanner.strongDimension": "Strength",

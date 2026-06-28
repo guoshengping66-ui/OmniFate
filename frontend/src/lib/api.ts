@@ -728,6 +728,9 @@ export interface UnlockResult {
   reading_id: string
   message: string
   tier?: string
+  is_detail_unlocked?: boolean
+  is_detailed_unlocked?: boolean
+  stardust_spent?: number
   stardust_deducted?: number
   balance_after?: number
   shop_coupon_issued?: number

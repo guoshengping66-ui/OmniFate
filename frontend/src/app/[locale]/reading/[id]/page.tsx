@@ -84,6 +84,83 @@ function stripMarkdown(text: string): string {
     .trim()
 }
 
+type TextSection = { title: string; body: string; id?: string }
+
+function splitDecisionReport(text: string): TextSection[] {
+  const clean = stripMarkdown(text)
+  if (!clean) return []
+
+  const headingRe = /^(?:【([^】]{2,40})】|\[([^\]]{2,40})\]|(?:\d+[.、]\s*)(.{2,40})|#{1,4}\s+(.{2,60}))\s*$/gm
+  const headings: Array<{ title: string; index: number; end: number }> = []
+  let match: RegExpExecArray | null
+  while ((match = headingRe.exec(clean)) !== null) {
+    const title = (match[1] || match[2] || match[3] || match[4] || "").trim()
+    if (title && !/^[A-E]\s*$/.test(title)) {
+      headings.push({ title, index: match.index, end: match.index + match[0].length })
+    }
+  }
+
+  if (headings.length === 0) {
+    return clean
+      .split(/\n{2,}/)
+      .map((body, index) => ({
+        title: index === 0 ? "核心结论" : `补充分析 ${index + 1}`,
+        body: body.trim(),
+      }))
+      .filter(section => section.body.length > 0)
+      .slice(0, 8)
+  }
+
+  return headings.map((heading, index) => {
+    const next = headings[index + 1]
+    const body = clean.slice(heading.end, next ? next.index : clean.length).trim()
+    return { title: heading.title, body }
+  }).filter(section => section.body.length > 0)
+}
+
+function DecisionReportText({ content }: { content: string }) {
+  const sections = splitDecisionReport(content)
+  if (sections.length === 0) {
+    return <p className="text-white/50 text-sm leading-relaxed">Report content is still being generated.</p>
+  }
+
+  return (
+    <div className="space-y-3">
+      {sections.map((section, index) => (
+        <section key={`${section.title}-${index}`} className="rounded-xl border border-white/[0.06] bg-white/[0.025] p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="w-5 h-5 rounded-full bg-gold/10 border border-gold/20 text-gold/70 text-[10px] flex items-center justify-center">
+              {index + 1}
+            </span>
+            <h3 className="text-sm font-semibold text-white/75">{section.title}</h3>
+          </div>
+          <p className="text-white/60 text-sm leading-relaxed whitespace-pre-line">{section.body}</p>
+        </section>
+      ))}
+    </div>
+  )
+}
+
+function buildExpertEvidenceSummary(workerMap: Record<string, { report?: string; tags?: string[] }>, t: (key: string) => string): TextSection[] {
+  return WORKER_ORDER_ALL
+    .map((key) => {
+      const worker = workerMap[key]
+      if (!worker?.report) return null
+      const body = stripMarkdown(worker.report)
+        .split(/\n{1,2}/)
+        .map(line => line.trim())
+        .filter(line => line.length > 12)
+        .slice(0, 2)
+        .join("\n")
+      return {
+        id: key,
+        title: t(AGENT_I18N[key] || `agent.${key}`),
+        body: body || (worker.tags || []).slice(0, 4).join(" / "),
+      }
+    })
+    .filter((section): section is TextSection => !!section && section.body.length > 0)
+}
+
 const DIM_LABELS: Record<string, string> = {
   wealth: "财富", career: "事业", relationship: "感情",
   health: "健康", mindfulness: "心智",
@@ -1195,12 +1272,38 @@ export default function ReadingPage() {
                       {t("reading.master.unlocked")}
                     </span>
                   </div>
-                  <div className="text-white/80 text-sm leading-relaxed whitespace-pre-line">
-                    {stripMarkdown(data.master_detail || t("reading.master.loading"))}
-                  </div>
+                  <DecisionReportText content={data.master_detail || t("reading.master.loading")} />
                 </div>
               </PaywallGate>
             </Suspense>
+
+            {isUnlocked && (() => {
+              const expertEvidence = buildExpertEvidenceSummary(workerMap, t)
+              if (expertEvidence.length === 0) return null
+              return (
+                <div className="card-glass p-5 md:p-6 border-gold/10">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Shield size={16} className="text-gold/70" />
+                    <div>
+                      <h3 className="text-sm font-semibold text-white/70">专家证据摘要</h3>
+                      <p className="text-white/25 text-xs">全维报告优先展示交叉验证摘要，原始专家报告仍可在下方展开查看。</p>
+                    </div>
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-3">
+                    {expertEvidence.map((section, index) => (
+                      <button
+                        key={`${section.title}-${index}`}
+                        onClick={() => section.id && setActiveTab(section.id)}
+                        className="p-3 rounded-xl bg-white/[0.025] border border-white/[0.06] text-left hover:border-gold/20 transition-colors"
+                      >
+                        <p className="text-gold/70 text-xs font-medium mb-1">{section.title}</p>
+                        <p className="text-white/48 text-xs leading-relaxed line-clamp-3">{section.body}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )
+            })()}
 
             {/* ── 7b. User Testimonials (social proof) ── */}
             {!isUnlocked && !isDetailedUnlocked && (

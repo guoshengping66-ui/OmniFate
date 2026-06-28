@@ -1026,6 +1026,65 @@ async def run_subtask_synastry(state: SystemState) -> str:
     return result
 
 
+def _first_meaningful_lines(text: str, limit: int = 3) -> list[str]:
+    """Pick concise, readable lines for an executive teaser."""
+    if not text:
+        return []
+    lines: list[str] = []
+    for raw in text.splitlines():
+        line = raw.strip()
+        if not line:
+            continue
+        line = re.sub(r"^[#*\-\d.\s、·]+", "", line).strip()
+        line = re.sub(r"^[【\[]?[A-Z0-9]\s*[·.、:-].*?[】\]]?", "", line).strip()
+        if len(line) < 12:
+            continue
+        if line in lines:
+            continue
+        lines.append(line[:180])
+        if len(lines) >= limit:
+            break
+    return lines
+
+
+def _build_paid_executive_summary(core_result: str, language: str = "zh") -> str:
+    """Build a stable paid-report teaser instead of truncating arbitrary text."""
+    lines = _first_meaningful_lines(core_result, 3)
+    if language == "en":
+        title = "[A · Executive Preview]"
+        fallback = [
+            "Your full decision report is ready. Unlock to view the evidence chain, timeline, avoid list, and action plan.",
+        ]
+        bullets = lines or fallback
+        return title + "\n" + "\n".join(f"- {line}" for line in bullets)
+
+    title = "【A·核心结论预览】"
+    fallback = [
+        "你的深度决策报告已经生成，解锁后可查看证据链、时间线、避坑清单和行动方案。",
+    ]
+    bullets = lines or fallback
+    return title + "\n" + "\n".join(f"- {line}" for line in bullets)
+
+
+def _ensure_paid_report_contract(detail: str, language: str = "zh") -> str:
+    """Add a lightweight section contract while preserving the generated report."""
+    if not detail:
+        return ""
+    if "证据链" in detail or "Evidence Chain" in detail:
+        return detail
+    if language == "en":
+        header = (
+            "[0 · Core Takeaways]\n"
+            "Read the following report as a decision brief: start with the key judgment, then verify it through the evidence, timing, actions, and avoid list.\n"
+        )
+    else:
+        header = (
+            "【0·核心结论】\n"
+            "请把以下内容作为个人决策报告阅读：先看核心判断，再看证据来源、时间线、行动方案和避坑清单。\n"
+        )
+    return f"{header}\n{detail}"
+
+
 async def run_master(state: SystemState) -> SystemState:
     """
     Full master pipeline: preprocessing + sub-tasks.
@@ -1055,13 +1114,13 @@ async def run_master(state: SystemState) -> SystemState:
         actions_result = results[2]
         synastry_result = results[3] if is_relationship else ""
 
-        state.master_summary = core_result[:500]
         parts = [core_result]
         if synastry_result:
             parts.append(synastry_result)
         parts.append(dims_result)
         parts.append(actions_result)
-        state.master_detail = "\n\n".join(parts)
+        state.master_summary = _build_paid_executive_summary(core_result, state.language)
+        state.master_detail = _ensure_paid_report_contract("\n\n".join(parts), state.language)
     else:
         # Free user: core synthesis + pain points/reminders + synastry for RELATIONSHIP
         tasks = [run_subtask_core(state, prep)]
