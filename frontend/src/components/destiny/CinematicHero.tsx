@@ -1,6 +1,7 @@
 "use client"
 import { useEffect, useRef } from "react"
 import dynamic from "next/dynamic"
+import { ArrowRight } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useScrollProgress } from "@/hooks/useScrollProgress"
 
@@ -103,9 +104,7 @@ export default function CinematicHero() {
                 }}
               >
                 {t("hero.cta1")}
-                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
+                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
               </a>
 
               <a
@@ -156,7 +155,7 @@ export default function CinematicHero() {
             <FateOrb scrollProgress={scrollProgress} />
 
             {/* Destiny archive preview card — bottom right */}
-            <div className="absolute bottom-6 right-0 sm:right-4 lg:right-0 w-[230px] sm:w-[270px] p-4 sm:p-5 rounded-2xl bg-[#0A1235]/85 border border-[#C5A880]/15 backdrop-blur-md">
+            <div className="hidden absolute bottom-6 right-0 sm:right-4 lg:right-0 w-[230px] sm:w-[270px] p-4 sm:p-5 rounded-2xl bg-[#0A1235]/85 border border-[#C5A880]/15 backdrop-blur-md">
               {/* Header */}
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#D4AF37]/30 to-[#C5A880]/10 flex items-center justify-center">

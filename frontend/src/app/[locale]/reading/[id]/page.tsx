@@ -186,7 +186,7 @@ function DecisionReportText({ content }: { content: string }) {
 
 function buildExpertEvidenceSummary(workerMap: Record<string, { report?: string; tags?: string[] }>, t: (key: string) => string, workerOrder: readonly string[]): TextSection[] {
   return workerOrder
-    .map((key) => {
+    .map((key): TextSection | null => {
       const worker = workerMap[key]
       if (!worker?.report) return null
       const body = stripMarkdown(worker.report)

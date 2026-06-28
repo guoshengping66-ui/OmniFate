@@ -31,15 +31,15 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
 
-  // Core links — always visible (product-oriented nav)
+  // Core links: keep the new-user path visible before secondary content.
   const coreLinks: Array<{ href: string; label: string; highlight?: boolean }> = [
-    { href: localeHref("/"), label: t("nav.home") },
-    { href: localeHref("/reading/new"), label: t("nav.reading") || "开始分析" },
-    { href: localeHref("/shop"), label: t("treasureHall.hero.title"), highlight: true },
+    { href: localeHref("/reading/new"), label: t("nav.reading") || "开始分析", highlight: true },
+    { href: localeHref("/almanac"), label: t("nav.almanac") || "每日状态" },
+    { href: localeHref("/shop"), label: t("nav.shop") || t("treasureHall.hero.title") },
     { href: localeHref("/pricing"), label: t("nav.pricing") },
   ]
 
-  // Extra links — visible on wide screens, collapsed on narrow
+  // Secondary trust/content links stay visible on wide screens and collapse on smaller ones.
   const extraLinks = [
     { href: localeHref("/knowledge"), label: t("nav.knowledge") || "Knowledge" },
     { href: localeHref("/about"), label: t("nav.about") },
