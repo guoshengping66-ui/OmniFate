@@ -1311,6 +1311,46 @@ export default function ReadingPage() {
               </PaywallGate>
             </Suspense>
 
+            {isDetailedUnlocked && !isUnlocked && (
+              <div className="card-glass p-5 md:p-6 border-gold/15 bg-gold/[0.03]">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <Crown size={16} className="text-gold/75" />
+                      <h3 className="text-sm font-semibold text-gold/80">
+                        {locale === "en" ? "Upgrade to the full-dimension report" : "升级为全维报告"}
+                      </h3>
+                    </div>
+                    <p className="text-white/45 text-xs leading-relaxed max-w-2xl">
+                      {locale === "en"
+                        ? "You have unlocked the detailed reading. Upgrade for the expert evidence summaries, original specialist reports, follow-up chat context, and all full-report modules."
+                        : "你已解锁精读报告。继续升级后，可查看专家证据摘要、各专家原始报告、追问上下文和全维报告全部模块。"}
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleStardustUnlock}
+                    disabled={(user?.stardust_balance || 0) < (STARDUST_COST.FULL_REPORT - STARDUST_COST.DETAILED_REPORT)}
+                    className={`flex items-center justify-center gap-2 px-5 py-3 rounded-xl border text-sm transition-all ${
+                      (user?.stardust_balance || 0) >= (STARDUST_COST.FULL_REPORT - STARDUST_COST.DETAILED_REPORT)
+                        ? "bg-gold/10 border-gold/30 text-gold hover:border-gold/50"
+                        : "bg-white/[0.02] border-white/10 text-white/30 cursor-not-allowed"
+                    }`}
+                  >
+                    <Sparkles size={15} />
+                    {locale === "en" ? "Upgrade" : "补差价升级"}
+                    <span className="text-gold/60">✦ {STARDUST_COST.FULL_REPORT - STARDUST_COST.DETAILED_REPORT}</span>
+                  </button>
+                </div>
+                {(user?.stardust_balance || 0) < (STARDUST_COST.FULL_REPORT - STARDUST_COST.DETAILED_REPORT) && (
+                  <p className="text-white/25 text-[11px] mt-3">
+                    {locale === "en"
+                      ? `Current Stardust: ${user?.stardust_balance || 0}. Top up to continue.`
+                      : `当前星辰：${user?.stardust_balance || 0}，余额不足时请先充值。`}
+                  </p>
+                )}
+              </div>
+            )}
+
             {isUnlocked && (() => {
               const expertEvidence = buildExpertEvidenceSummary(workerMap, t)
               if (expertEvidence.length === 0) return null

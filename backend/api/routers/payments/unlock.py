@@ -287,7 +287,12 @@ async def unlock_report(
         raise HTTPException(status_code=403, detail="无权操作此报告")
 
     if source == "stardust":
-        cost = 30 if tier == "detailed" else 100
+        detailed_cost = 30
+        full_cost = 100
+        already_detailed = bool(getattr(reading, "is_detailed_unlocked", False))
+        cost = detailed_cost if tier == "detailed" else full_cost
+        if tier == "full" and already_detailed:
+            cost = full_cost - detailed_cost
 
         # Pessimistic lock: prevent concurrent double-spend
         user_result = await db.execute(
@@ -331,6 +336,7 @@ async def unlock_report(
             "reading_id": reading_id,
             "stardust_spent": cost,
             "tier": tier,
+            "upgraded_from": "detailed" if tier == "full" and already_detailed else None,
             "is_detail_unlocked": reading.is_detail_unlocked,
             "is_detailed_unlocked": getattr(reading, "is_detailed_unlocked", False),
         }

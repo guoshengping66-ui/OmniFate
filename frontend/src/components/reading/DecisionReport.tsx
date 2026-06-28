@@ -1,6 +1,7 @@
 "use client"
 
 import { AlertTriangle, CheckCircle, Clock, Compass, ShieldCheck, Target, TrendingUp } from "lucide-react"
+import { useLanguage } from "@/contexts/LanguageContext"
 import type { DecisionReport as DecisionReportData } from "@/types/report"
 
 interface DecisionReportProps {
@@ -17,15 +18,36 @@ function ScoreBar({ score }: { score: number }) {
 }
 
 export function DecisionReport({ data }: DecisionReportProps) {
+  const { locale } = useLanguage()
+  const isEn = locale === "en" || data.language === "en"
   const executive = data.executive_summary
+  const copy = isEn ? {
+    opportunity: "Biggest opportunity",
+    risk: "Biggest risk",
+    nextAction: "Next best action",
+    evidence: "Evidence chain",
+    dimensions: "Five-dimension diagnosis",
+    timeline: "Timeline",
+    actionPlan: "Action plan",
+    avoidList: "Avoid list",
+  } : {
+    opportunity: "最大机会",
+    risk: "最大风险",
+    nextAction: "下一步行动",
+    evidence: "证据链矩阵",
+    dimensions: "五维深度诊断",
+    timeline: "时间线",
+    actionPlan: "行动方案",
+    avoidList: "避坑清单",
+  }
 
   return (
     <div className="space-y-4">
       <div className="grid md:grid-cols-3 gap-3">
         {[
-          { icon: TrendingUp, title: "最大机会", body: executive.opportunity },
-          { icon: AlertTriangle, title: "最大风险", body: executive.risk },
-          { icon: Target, title: "下一步行动", body: executive.next_best_action },
+          { icon: TrendingUp, title: copy.opportunity, body: executive.opportunity },
+          { icon: AlertTriangle, title: copy.risk, body: executive.risk },
+          { icon: Target, title: copy.nextAction, body: executive.next_best_action },
         ].map((item) => (
           <div key={item.title} className="rounded-xl border border-white/[0.06] bg-white/[0.025] p-4">
             <div className="flex items-center gap-2 mb-2">
@@ -40,7 +62,7 @@ export function DecisionReport({ data }: DecisionReportProps) {
       <section className="rounded-xl border border-white/[0.06] bg-white/[0.025] p-4">
         <div className="flex items-center gap-2 mb-3">
           <ShieldCheck size={16} className="text-gold/70" />
-          <h3 className="text-sm font-semibold text-white/75">证据链矩阵</h3>
+          <h3 className="text-sm font-semibold text-white/75">{copy.evidence}</h3>
         </div>
         <div className="space-y-2.5">
           {data.evidence_chain.map((item, index) => (
@@ -64,7 +86,7 @@ export function DecisionReport({ data }: DecisionReportProps) {
       <section className="rounded-xl border border-white/[0.06] bg-white/[0.025] p-4">
         <div className="flex items-center gap-2 mb-3">
           <Compass size={16} className="text-gold/70" />
-          <h3 className="text-sm font-semibold text-white/75">五维深度诊断</h3>
+          <h3 className="text-sm font-semibold text-white/75">{copy.dimensions}</h3>
         </div>
         <div className="grid md:grid-cols-2 gap-3">
           {data.five_dimensions.map((dim) => (
@@ -86,7 +108,7 @@ export function DecisionReport({ data }: DecisionReportProps) {
         <section className="rounded-xl border border-white/[0.06] bg-white/[0.025] p-4">
           <div className="flex items-center gap-2 mb-3">
             <Clock size={16} className="text-gold/70" />
-            <h3 className="text-sm font-semibold text-white/75">时间线</h3>
+            <h3 className="text-sm font-semibold text-white/75">{copy.timeline}</h3>
           </div>
           <div className="space-y-3">
             {data.timeline.map((item) => (
@@ -101,7 +123,7 @@ export function DecisionReport({ data }: DecisionReportProps) {
         <section className="rounded-xl border border-white/[0.06] bg-white/[0.025] p-4">
           <div className="flex items-center gap-2 mb-3">
             <CheckCircle size={16} className="text-gold/70" />
-            <h3 className="text-sm font-semibold text-white/75">行动方案</h3>
+            <h3 className="text-sm font-semibold text-white/75">{copy.actionPlan}</h3>
           </div>
           <div className="space-y-2.5">
             {data.action_plan.map((item) => (
@@ -117,7 +139,7 @@ export function DecisionReport({ data }: DecisionReportProps) {
       <section className="rounded-xl border border-amber-400/10 bg-amber-400/[0.03] p-4">
         <div className="flex items-center gap-2 mb-3">
           <AlertTriangle size={16} className="text-amber-300/70" />
-          <h3 className="text-sm font-semibold text-white/75">避坑清单</h3>
+          <h3 className="text-sm font-semibold text-white/75">{copy.avoidList}</h3>
         </div>
         <div className="space-y-2.5">
           {data.avoid_list.map((item, index) => (
