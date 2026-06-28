@@ -1102,69 +1102,51 @@ async def run_master(state: SystemState) -> SystemState:
 
 
 def _format_dimension_summaries(scores: dict[str, float], language: str = "zh") -> str:
-    """Format five-dimension summaries from scores deterministically.
-    Returns Section C with emoji + score + status + personalized insight per dimension."""
+    """Format five-dimension summaries from scores deterministically."""
     if not scores:
         return ""
-    _DIM_CONFIG = {
-        "wealth":       ("💰", "财富", "Wealth"),
-        "career":       ("💼", "事业", "Career"),
-        "relationship": ("💕", "感情", "Relationship"),
-        "health":       ("🏥", "健康", "Health"),
-        "spiritual":    ("🧘", "精神", "Spiritual"),
-    }
-    _STATUS_ZH = {
-        (9.0, 10.01): "状态极佳，把握机遇",
-        (7.5, 9.0):  "运势不错，稳中求进",
-        (6.0, 7.5):  "中规中矩，注意细节",
-        (4.0, 6.0):  "偏弱，需要重点关注",
-        (0.0, 4.0):  "较弱，建议重点调理",
-    }
-    _STATUS_EN = {
-        (9.0, 10.01): "Excellent — seize opportunities",
-        (7.5, 9.0):  "Good — steady progress",
-        (6.0, 7.5):  "Average — watch details",
-        (4.0, 6.0):  "Below average — needs attention",
-        (0.0, 4.0):  "Weak — recommend focused improvement",
-    }
-    # Personalized 1-line insights per dimension per score range
-    _INSIGHTS_ZH = {
-        (9.0, 10.01): "近期有明显突破机会，建议主动出击",
-        (7.5, 9.0):  "基础扎实，保持节奏即可稳步提升",
-        (6.0, 7.5):  "平稳但缺少亮点，可适当投入精力突破",
-        (4.0, 6.0):  "需要重点关注意外波动，建议制定应对计划",
-        (0.0, 4.0):  "当前最大短板，建议优先投入资源改善",
-    }
-    _INSIGHTS_EN = {
-        (9.0, 10.01): "Clear breakthrough opportunity ahead — take initiative",
-        (7.5, 9.0):  "Solid foundation — maintain momentum for steady growth",
-        (6.0, 7.5):  "Stable but lacking highlights — consider targeted investment",
-        (4.0, 6.0):  "Volatile — prepare a contingency plan",
-        (0.0, 4.0):  "Biggest weak point — prioritize focused improvement",
-    }
-    status_map = _STATUS_ZH if language == "zh" else _STATUS_EN
-    insight_map = _INSIGHTS_ZH if language == "zh" else _INSIGHTS_EN
-    section_title = "【C·五维速览】" if language == "zh" else "【C · Five-Dimension Overview】"
-    lines = [section_title]
-    for key in ["wealth", "career", "relationship", "health", "spiritual"]:
-        emoji, cn, en = _DIM_CONFIG.get(key, ("❓", key, key))
-        score = scores.get(key, 5.0)
-        label = cn if language == "zh" else en
-        status = ""
-        insight = ""
-        for (lo, hi), s in status_map.items():
-            if lo <= score < hi:
-                status = s
-                insight = insight_map.get((lo, hi), "")
-                break
-        if not status:
-            status = status_map.get((9.0, 10.01), "")
-            insight = insight_map.get((9.0, 10.01), "")
-        lines.append(f"{emoji} {label} {score:.1f} — {status}")
-        if insight:
-            lines.append(f"   → {insight}")
-    return "\n".join(lines)
 
+    dim_config = {
+        "wealth": ("财富", "Wealth"),
+        "career": ("事业", "Career"),
+        "relationship": ("感情", "Relationship"),
+        "health": ("健康", "Health"),
+        "spiritual": ("精神状态", "Mindset"),
+    }
+    status_zh = [
+        (9.0, 10.01, "优势明显，适合主动放大机会", "把资源集中在最有把握的方向，不要分散精力。"),
+        (7.5, 9.0, "基础不错，适合稳步推进", "保持当前节奏，同时补一个关键短板。"),
+        (6.0, 7.5, "整体平稳，但亮点不够突出", "选择一个具体目标做 30 天专项提升。"),
+        (4.0, 6.0, "波动偏大，需要重点照看", "先降低风险，再谈突破，避免同时处理太多问题。"),
+        (0.0, 4.0, "当前短板明显，建议优先修复", "先做最小可执行动作，连续一周建立基本稳定感。"),
+    ]
+    status_en = [
+        (9.0, 10.01, "Clear strength; amplify the opportunity", "Concentrate resources on the highest-confidence direction."),
+        (7.5, 9.0, "Solid foundation; move steadily", "Keep momentum and fix one key weak spot."),
+        (6.0, 7.5, "Stable, but not yet distinctive", "Pick one concrete goal for a 30-day improvement sprint."),
+        (4.0, 6.0, "Volatile; needs focused attention", "Reduce risk before pushing for a breakthrough."),
+        (0.0, 4.0, "Major weak point; repair first", "Start with the smallest daily action and stabilize for one week."),
+    ]
+
+    ranges = status_zh if language == "zh" else status_en
+    title = "【C·五维速览】" if language == "zh" else "【C · Five-Dimension Overview】"
+    lines = [title]
+    for key in ["wealth", "career", "relationship", "health", "spiritual"]:
+        cn, en = dim_config.get(key, (key, key))
+        label = cn if language == "zh" else en
+        score = float(scores.get(key, 5.0))
+        status = ranges[-1][2]
+        action = ranges[-1][3]
+        for lo, hi, candidate_status, candidate_action in ranges:
+            if lo <= score < hi:
+                status = candidate_status
+                action = candidate_action
+                break
+        if language == "zh":
+            lines.append(f"- {label}: {score:.1f}/10。{status}。建议：{action}")
+        else:
+            lines.append(f"- {label}: {score:.1f}/10. {status}. Action: {action}")
+    return "\n".join(lines)
 
 def _extract_key_reminder(text: str) -> str:
     """Extract the key reminder (Section D) from the resonance LLM output.

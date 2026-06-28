@@ -7445,6 +7445,74 @@ def master_detail_prompt(worker_summaries: dict, user_question: str,
 
 # ─── Master Sub-task Prompts (Parallel Synthesis) ────────────────────────
 
+def _report_quality_protocol(language: str = "zh", mode: str = "general") -> str:
+    """Product-level writing rules appended to master prompts."""
+    if language == "en":
+        return f"""
+
+=== PROFILE MIRROR REPORT QUALITY PROTOCOL ({mode}) ===
+Positioning: this is a personal decision report, not a mystical reading.
+
+Non-negotiable writing rules:
+1. Lead with the conclusion. The user should understand the key judgment in the first 3 lines.
+2. Use evidence chains. Important claims must include at least one source such as Bazi, astrology, tarot, qimen, ziwei, face, or palm findings.
+3. Separate confirmed signals from speculation: "Cross-validated", "Single-signal", or "Speculative".
+4. Explain causes in plain behavioral language: decision style, stress response, relationship pattern, motivation, risk tolerance, attention pattern.
+5. Every recommendation must follow: "Because [specific finding], do [specific action]."
+6. Include what not to do when relevant. Users value clear boundaries.
+7. Avoid filler, generic advice, exaggerated certainty, and metaphysical jargon.
+
+Preferred premium structure:
+【0 · Executive Takeaways】 core opportunity / core risk / next best action.
+【1 · Evidence Chain】 conclusion -> supporting systems -> confidence.
+【2 · Five-Dimension Diagnosis】 current state / root cause / daily manifestation / improvement action.
+【3 · Timeline】 next 30 days / next 90 days / 6-12 months.
+【4 · Action Plan】 today / this week / this month.
+【5 · Avoid List】 1-3 specific things the user should not do.
+
+Preferred free structure:
+【A · Core Personality Blueprint】
+【B · Key Challenges】
+【C · Five-Dimension Overview】
+【D · Near-Term Alert】
+【E · Action Items】
+
+Final quality check: Can the user act on this today? Does each key claim explain why it is true?
+"""
+
+    return f"""
+
+=== Profile Mirror 报告质量协议（{mode}）===
+定位：这是一份“个人决策报告”，不是玄学堆料。
+
+硬性写作规则：
+1. 先给结论。用户必须在前 3 行看懂最重要判断。
+2. 建立证据链。重要结论必须说明来自哪些体系支持：八字、星盘、塔罗、奇门、紫微、面相、手相等。
+3. 区分确定性：“多体系一致”“单体系提示”“推测性结论”。
+4. 用现代大白话解释原因：决策风格、压力反应、关系模式、动机结构、风险偏好、注意力模式。
+5. 每条建议必须采用这个逻辑：因为【具体发现】，所以建议【具体动作】。
+6. 必要时给“不要做什么”。用户很需要明确边界。
+7. 禁止空泛鸡汤、夸大确定性、术语堆砌、没有依据的商品推荐。
+
+付费报告优先结构：
+【0·核心结论】最大机会 / 最大风险 / 下一步最该做什么。
+【1·证据链】结论 -> 支持体系 -> 置信度。
+【2·五维深度诊断】当前状态 / 根本原因 / 日常表现 / 改善动作。
+【3·时间线】未来 30 天 / 未来 90 天 / 6-12 个月。
+【4·行动方案】今天能做什么 / 本周能做什么 / 本月能做什么。
+【5·避坑清单】1-3 条近期千万不要做的事，并说明原因。
+
+免费报告优先结构：
+【A·核心性格底色】
+【B·痛点诊断】
+【C·五维速览】
+【D·近期关键提醒】
+【E·行动建议速览】
+
+输出前自检：用户今天能不能照着做？每个关键判断有没有解释为什么？
+"""
+
+
 def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
                                 resonance_text: str = "", conflicts_text: str = "",
                                 dimension_scores: dict | None = None,
@@ -7744,7 +7812,8 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
                 "结尾加一句引导语：提示用户解锁深度报告可获取五维诊断、年度转折点、行动方案和专属处方。\n"
             )
 
-    return base_prompt
+    mode = "premium-core" if is_premium else "free-core"
+    return base_prompt + _report_quality_protocol(language, mode)
 
 
 def master_subtask_core_personality_prompt(
@@ -7814,7 +7883,7 @@ def master_subtask_core_personality_prompt(
             "- When expert reports disagree, note the tension rather than forcing consensus\n\n"
             "CRITICAL: Complete ALL content. Do NOT truncate mid-sentence. "
             "End with a complete sentence."
-        )
+        ) + _report_quality_protocol(language, "free-personality")
 
     return (
         "你是Profile Mirror的资深分析师。请根据以下专家报告数据，生成【Section A：核心性格底色】。\n\n"
@@ -7841,7 +7910,7 @@ def master_subtask_core_personality_prompt(
         "- 当专家报告之间存在矛盾时，如实说明分歧\n\n"
         "CRITICAL: Complete ALL content. Do NOT truncate mid-sentence. "
         "End with a complete sentence. If you need to stop early, summarize briefly."
-    )
+    ) + _report_quality_protocol(language, "free-personality")
 
 
 def master_subtask_core_resonance_prompt(
@@ -7909,7 +7978,7 @@ def master_subtask_core_resonance_prompt(
             "- Suggestions must be concrete and startable today, not vague\n\n"
             "CRITICAL: Complete ALL content. Do NOT truncate mid-sentence. "
             "End each section with a complete sentence."
-        )
+        ) + _report_quality_protocol(language, "free-challenges")
 
     return (
         "你是Profile Mirror的资深分析师。根据以下数据，输出分析摘要。\n\n"
@@ -7947,7 +8016,7 @@ def master_subtask_core_resonance_prompt(
         "- 建议要具体到今天就能开始做，不要空泛的鸡汤\n\n"
         "CRITICAL: Complete ALL content. Do NOT truncate mid-sentence. "
         "End each section with a complete sentence."
-    )
+    ) + _report_quality_protocol(language, "free-challenges")
 
 
 def master_subtask_dimensions_prompt(worker_summaries: dict, user_question: str,
@@ -8032,7 +8101,7 @@ def master_subtask_dimensions_prompt(worker_summaries: dict, user_question: str,
             f"== User Question ==\n{_sanitize_user_text(user_question)}\n\n"
             f"{confidence_text}\n\n"
             "Generate the diagnosis report in plain, direct English."
-        )
+        ) + _report_quality_protocol(language, "premium-dimensions")
 
     return (
         "你是Profile Mirror的资深分析师。用大白话生成五个方面的分析报告。\n\n"
@@ -8179,7 +8248,7 @@ def master_subtask_actions_prompt(worker_summaries: dict, user_question: str,
             f"== Recommended Products ==\n{products_sec}\n\n"
             f"{harm_hint}\n\n"
             "Generate actionable recommendations in plain, direct English."
-        )
+        ) + _report_quality_protocol(language, "premium-actions")
 
     return (
         "你是Profile Mirror的资深分析师。用大白话生成行动建议。\n\n"

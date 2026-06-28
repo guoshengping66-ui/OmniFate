@@ -423,15 +423,15 @@ export default {
   "reading.master.title": "Your Chart at a Glance",
   "reading.master.subtitle": "Here's the big picture of your chart",
   "reading.master.free": "Free",
-  "reading.master.detailTitle": "Deep Chart Reading · Just for You",
-  "reading.master.detailSubtitle": "Based on your exact birth time",
+  "reading.master.detailTitle": "Deep Decision Report · Evidence & Action Plan",
+  "reading.master.detailSubtitle": "Evidence chains, timeline, avoid list, and tailored guidance",
   "reading.master.unlocked": "Unlocked",
   "reading.master.loading": "Loading your full reading…",
   "reading.master.prescription": "Your Personalized Guidance",
   "reading.master.prescriptionDesc": "Made for what your chart needs most",
   "reading.master.disclaimer": "⚠ This report is for reference and entertainment only. It's not professional advice — please read it with an open mind.",
-  "reading.insight.unlocked": "Full report unlocked — scroll down to explore every part of your reading.",
-  "reading.insight.locked": "Unlock the full report for your personalized annual status plan and enhancement strategy.",
+  "reading.insight.unlocked": "Full report unlocked. Continue down for evidence chains, timeline, and action plan.",
+  "reading.insight.locked": "Unlock evidence chains, 30/90-day timeline, action plan, and avoid list.",
   "reading.cta.unlockBtn": "Join Membership to Unlock",
   "reading.cta.perks": "Membership unlocks unlimited reports + monthly stardust",
   "reading.progress.analyzing": "Reading…",
@@ -477,10 +477,11 @@ export default {
   "reading.insight.imbalanced": "Significant energy gaps — focus on weaker dimensions",
   "paywall.youWillGet": "What you'll get",
   "paywall.valueList": [
-    "Full five-dimension depth diagnosis",
-    "Detailed analysis of 7 behavioral systems",
-    "Personalized status prescription & action plan",
-    "Curated product recommendations"
+    "Cross-system evidence behind key conclusions",
+    "30/90-day and 6-12 month timeline",
+    "Five-dimension diagnosis: wealth, career, relationships, health, mindset",
+    "Action plan for today, this week, and this month",
+    "Avoid list and personalized harmonization guidance"
   ],
   "reading.clickToView": "Tap to see full reading",
   "reading.error.analysis": "Reading error",
@@ -2324,9 +2325,18 @@ export default {
   "paywall.unlockDetailed": "Detailed Report",
   "paywall.unlockFull": "Full Report",
   "paywall.detailedIncludes": "DETAILED INCLUDES:",
-  "paywall.detailedFeatures": ["In-depth summary", "Pain-point diagnosis & status plan"],
+  "paywall.detailedFeatures": [
+    "Core conclusions and pain-point diagnosis",
+    "Evidence-chain explanation and action suggestions"
+  ],
   "paywall.fullIncludes": "FULL INCLUDES:",
-  "paywall.fullFeatures": ["All detailed content", "Complete 7-dimension report", "AI follow-up chat", "Curated product picks"],
+  "paywall.fullFeatures": [
+    "Everything in the detailed report",
+    "Five-dimension diagnosis and timeline",
+    "Avoid list and action plan",
+    "AI follow-up chat",
+    "Curated product picks"
+  ],
   "paywall.stardustBalance": "Stardust Balance",
   "freeBanner.strongDimension": "Strength",
 
