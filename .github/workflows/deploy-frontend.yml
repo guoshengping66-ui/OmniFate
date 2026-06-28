@@ -172,12 +172,12 @@ jobs:
                 echo "⚠️  构建异常: 没有找到预渲染页面或 SSG 产物（非致命，继续部署）"
               fi
 
-              # Determine standalone path
+              # Determine standalone path — prioritize where server.js actually lives
               STANDALONE_DIR=""
-              if [ -d ".next/standalone/frontend" ]; then
-                STANDALONE_DIR=".next/standalone/frontend"
-              elif [ -f ".next/standalone/server.js" ]; then
+              if [ -f ".next/standalone/server.js" ]; then
                 STANDALONE_DIR=".next/standalone"
+              elif [ -d ".next/standalone/frontend" ] && [ -f ".next/standalone/frontend/server.js" ]; then
+                STANDALONE_DIR=".next/standalone/frontend"
               else
                 echo "❌ 未找到 standalone 目录"
                 ls -la .next/standalone/ 2>/dev/null || echo "   .next/standalone 不存在"
