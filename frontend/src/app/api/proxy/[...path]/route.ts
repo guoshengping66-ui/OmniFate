@@ -92,7 +92,6 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
     "/api/personal-payments/admin/",  // Admin personal payment management
     "/api/referrals/admin",        // Admin referral management
     "/api/users/admin",            // Admin user management
-    "/api/payments/admin/",        // Admin payment management
   ]
   if (BLOCKED_PATHS.some(p => targetPath.startsWith(p))) {
     return new Response(
@@ -141,6 +140,9 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
     }
     headers.set(key, value)
   })
+  if (request.method !== "GET" && request.method !== "HEAD" && !headers.get("x-requested-with")) {
+    headers.set("X-Requested-With", "XMLHttpRequest")
+  }
 
   // Read body — handle multipart (binary) vs JSON differently
   let body: string | ArrayBuffer | undefined

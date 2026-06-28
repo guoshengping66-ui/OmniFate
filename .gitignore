@@ -54,6 +54,8 @@ temp/
 tmp/
 *.tmp
 *.temp
+temp_*.js
+build_output.txt
 
 # OS generated files
 .DS_Store

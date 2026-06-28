@@ -294,7 +294,7 @@ async def refund_deduct(
     if not user:
         tx.status = "refunded"
         await db.commit()
-        return {"refunded": True, "transaction_id": transaction_id, "note": "用户已删除"}
+        return {"refunded": True, "transaction_id": req.transaction_id, "note": "用户已删除"}
 
     user.stardust_balance -= tx.amount  # tx.amount 是负数，减去负数=加回
 
