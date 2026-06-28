@@ -85,6 +85,15 @@ function stripMarkdown(text: string): string {
     .trim()
 }
 
+function cleanReportText(text: string): string {
+  return stripMarkdown(text)
+    .replace(/^\s*\*+\s*/gm, "")
+    .replace(/\s*\*+\s*$/gm, "")
+    .replace(/[ \t]{2,}/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim()
+}
+
 function parseDecisionReportContent(content: string): DecisionReport | null {
   if (!content) return null
   const jsonBlocks = [...content.matchAll(/```json\s*([\s\S]*?)```/g)]
@@ -306,6 +315,73 @@ function parseFreeReportSections(summary: string): {
 
 function getWeakestDimension(scores: Record<string, number>): string {
   return Object.entries(scores).sort((a, b) => a[1] - b[1])[0]?.[0] ?? "wealth"
+}
+
+type DisplayFreeReport = {
+  trait: string
+  profile: string
+  patterns: string[]
+  action: string
+}
+
+function parseDisplayFreeReport(summary: string): DisplayFreeReport {
+  const clean = cleanReportText(summary)
+  const report: DisplayFreeReport = { trait: "", profile: "", patterns: [], action: "" }
+  if (!clean) return report
+
+  const labels = [
+    "核心特质", "性格解析", "关键行为模式", "行为模式", "行动建议", "近期提醒",
+    "Profile Baseline", "Core Findings", "Key Challenges", "Action Items", "Near-Term Alert",
+  ]
+  const labelPattern = labels.map(label => label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")
+  const markerRe = new RegExp(`(?:^|\\n|\\s)(${labelPattern})\\s*[：:]\\s*`, "g")
+  const markers: Array<{ label: string; start: number; end: number }> = []
+  let match: RegExpExecArray | null
+  while ((match = markerRe.exec(clean)) !== null) {
+    markers.push({ label: match[1], start: match.index, end: markerRe.lastIndex })
+  }
+
+  markers.forEach((marker, index) => {
+    const next = markers[index + 1]
+    const body = cleanReportText(clean.slice(marker.end, next ? next.start : clean.length))
+    if (!body) return
+    if (["核心特质", "Profile Baseline"].includes(marker.label)) report.trait = body
+    else if (["性格解析", "Core Findings"].includes(marker.label)) report.profile = body
+    else if (["关键行为模式", "行为模式", "Key Challenges"].includes(marker.label)) report.patterns = splitDisplayBullets(body)
+    else if (["行动建议", "近期提醒", "Action Items", "Near-Term Alert"].includes(marker.label)) report.action = body
+  })
+
+  if (!report.trait) {
+    report.trait = clean.split(/[。.!?！？\n]/).map(cleanReportText).find(line => line.length > 8) || clean.slice(0, 80)
+  }
+  if (!report.profile) {
+    report.profile = cleanReportText(clean.replace(report.trait, "")).slice(0, 520)
+  }
+  if (report.patterns.length === 0) {
+    report.patterns = splitDisplayBullets(clean)
+      .filter(item => !report.trait.includes(item) && !report.profile.includes(item))
+      .slice(0, 3)
+  }
+  if (!report.action) {
+    report.action = report.patterns[0] || report.profile.split(/[。.!?！？]/).map(cleanReportText).find(line => line.length > 12) || ""
+  }
+
+  return report
+}
+
+function splitDisplayBullets(text: string): string[] {
+  const clean = cleanReportText(text)
+  const lines = clean
+    .split(/\n+/)
+    .map(line => cleanReportText(line.replace(/^[-•*·\d.、\s]+/, "")))
+    .filter(line => line.length > 12)
+  if (lines.length >= 2) return lines.slice(0, 4)
+
+  return clean
+    .split(/[。.!?！？；;]/)
+    .map(cleanReportText)
+    .filter(line => line.length > 18)
+    .slice(0, 4)
 }
 
 function getWeakestLabel(scores: Record<string, number>, t: (key: string) => string): string {
@@ -1050,6 +1126,7 @@ export default function ReadingPage() {
           // Parse master_summary into sections for free users
           const summary = data.master_summary || ""
           const parsed = parseFreeReportSections(summary)
+          const displayReport = parseDisplayFreeReport(summary)
 
           // 检测是否为结构化JSON格式
           const structuredData = parseStructuredContent(summary)
@@ -1082,8 +1159,55 @@ export default function ReadingPage() {
                   {t("reading.master.free")}
                 </span>
               </div>
-              <div className="text-white/75 text-sm leading-relaxed whitespace-pre-line">
-                {stripMarkdown(parsed.sectionA || summary || t("reading.progress.masterAgent"))}
+              <div className="space-y-4">
+                {displayReport.trait && (
+                  <div className="rounded-xl bg-gold/[0.05] border border-gold/10 p-4">
+                    <p className="text-[10px] uppercase tracking-wider text-gold/50 mb-1">
+                      {locale === "en" ? "Core Trait" : "核心特质"}
+                    </p>
+                    <p className="text-gold/90 text-sm md:text-base font-medium leading-relaxed">
+                      {displayReport.trait}
+                    </p>
+                  </div>
+                )}
+
+                {displayReport.profile && (
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-white/25 mb-2">
+                      {locale === "en" ? "Profile Reading" : "性格解析"}
+                    </p>
+                    <p className="text-white/72 text-sm leading-relaxed whitespace-pre-line">
+                      {displayReport.profile}
+                    </p>
+                  </div>
+                )}
+
+                {displayReport.patterns.length > 0 && (
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-white/25 mb-2">
+                      {locale === "en" ? "Key Patterns" : "关键行为模式"}
+                    </p>
+                    <div className="space-y-2">
+                      {displayReport.patterns.map((pattern, index) => (
+                        <div key={`${pattern}-${index}`} className="flex items-start gap-2.5 rounded-lg bg-white/[0.025] border border-white/[0.05] p-3">
+                          <span className="mt-0.5 h-5 w-5 rounded-full bg-white/[0.05] text-gold/70 text-[10px] flex items-center justify-center flex-shrink-0">
+                            {index + 1}
+                          </span>
+                          <p className="text-white/62 text-xs md:text-sm leading-relaxed">{pattern}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {displayReport.action && (
+                  <div className="rounded-xl bg-cyan-400/[0.04] border border-cyan-300/10 p-4">
+                    <p className="text-[10px] uppercase tracking-wider text-cyan-200/45 mb-1">
+                      {locale === "en" ? "What to do next" : "下一步建议"}
+                    </p>
+                    <p className="text-cyan-50/65 text-sm leading-relaxed">{displayReport.action}</p>
+                  </div>
+                )}
               </div>
               <p className="mt-4 pt-3 border-t border-white/[0.06] text-white/25 text-[11px] leading-relaxed">
                 {t("reading.master.disclaimer")}
