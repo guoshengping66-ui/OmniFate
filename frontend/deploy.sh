@@ -1,6 +1,7 @@
 #!/bin/bash
 # OmniFate Frontend Deployment Script
 # Usage: bash deploy.sh
+# Deployment workflow trigger marker.
 
 set -e
 
