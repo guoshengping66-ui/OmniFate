@@ -32,10 +32,13 @@ const nextConfig = {
   output: "standalone",
   outputFileTracingRoot: path.join(__dirname),
 
-  // Skip type checking during build — server CI has limited resources
-  // and type checks time out. Type checking is done separately in development.
+  // Skip type checking + linting during build — server CI has limited
+  // resources and these steps time out. Both are done in development.
   typescript: {
     ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
   },
 
   // ── Bundle optimization ──────────────────────────────────────────────
