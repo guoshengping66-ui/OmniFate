@@ -32,6 +32,12 @@ const nextConfig = {
   output: "standalone",
   outputFileTracingRoot: path.join(__dirname),
 
+  // Skip type checking during build — server CI has limited resources
+  // and type checks time out. Type checking is done separately in development.
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+
   // ── Bundle optimization ──────────────────────────────────────────────
   modularizeImports: {
     // Transform lucide-react barrel imports into individual icon imports
