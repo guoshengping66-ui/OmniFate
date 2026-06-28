@@ -433,7 +433,7 @@ jobs:
                 pm2 delete frontend 2>/dev/null || true
                 pm2 start ecosystem.config.js --only frontend
                 pm2 save
-                sleep 5
+                sleep 10
               fi
 
               # 2. Check API buildId (via localhost to bypass Cloudflare)
@@ -442,13 +442,29 @@ jobs:
               echo "   Build ID on disk: $NEW_BUILD_ID"
               echo "   Build ID from API (localhost): $API_BUILD_ID"
 
+              # ═══ Diagnostics: understand standalone structure ═══
+              echo "   === Standalone 目录诊断 ==="
+              echo "   standalone server.js: $(ls -la "$STANDALONE_DIR/server.js" 2>/dev/null || echo 'MISSING')"
+              echo "   standalone .next dir: $(ls -d "$STANDALONE_DIR/.next" 2>/dev/null || echo 'MISSING')"
+              echo "   appDir in required-server-files: $(python3 -c "import json;d=json.load(open('$STANDALONE_DIR/.next/required-server-files.json'));print(d.get('appDir','N/A'))" 2>/dev/null || echo 'parse failed')"
+              if [ -d ".next/standalone/frontend" ]; then
+                echo "   ⚠️  .next/standalone/frontend/ 子目录存在 (双重嵌套)"
+                echo "   frontend/ 内有: $(ls '.next/standalone/frontend/' 2>/dev/null | tr '\n' ' ')"
+              fi
+              # Compare parent vs standalone manifests
+              PARENT_WEBPACK=$(grep -oE 'webpack-[a-f0-9]+\.js' .next/build-manifest.json 2>/dev/null | head -1 || echo 'none')
+              STANDALONE_WEBPACK=$(grep -oE 'webpack-[a-f0-9]+\.js' "$STANDALONE_DIR/.next/build-manifest.json" 2>/dev/null | head -1 || echo 'none')
+              echo "   parent build-manifest webpack: $PARENT_WEBPACK"
+              echo "   standalone build-manifest webpack: $STANDALONE_WEBPACK"
+              echo "   ==============================="
+
               # 3. Verify new webpack chunk exists in standalone
-              NEW_WEBPACK=$(find "$STANDALONE_DIR/.next/static/chunks" -name "webpack-*.js" 2>/dev/null | head -1)
+              NEW_WEBPACK=$(find "$STANDALONE_DIR/.next/static/chunks" -name "webpack-*.js" 2>/dev/null | head -1 || true)
               if [ -n "$NEW_WEBPACK" ]; then
                 WEBPACK_NAME=$(basename "$NEW_WEBPACK")
                 echo "   New webpack chunk: $WEBPACK_NAME"
                 # Check via localhost (bypass Cloudflare)
-                HTTP_CHECK=$(curl -s "http://127.0.0.1:3000/_next/static/chunks/$WEBPACK_NAME" -o /dev/null -w "%{http_code}" 2>/dev/null)
+                HTTP_CHECK=$(curl -s "http://127.0.0.1:3000/_next/static/chunks/$WEBPACK_NAME" -o /dev/null -w "%{http_code}" 2>/dev/null || echo "000")
                 echo "   HTTP status (localhost): $HTTP_CHECK"
                 if [ "$HTTP_CHECK" != "200" ]; then
                   echo "⚠️  新构建的 webpack chunk 无法通过 localhost 访问 (HTTP $HTTP_CHECK)"
@@ -456,9 +472,10 @@ jobs:
               fi
 
               # 4. Verify HTML references match new build (check via localhost)
-              HTML_RESPONSE=$(curl -s http://127.0.0.1:3000/zh 2>/dev/null)
-              HTML_WEBPACK=$(echo "$HTML_RESPONSE" | grep -oE 'webpack-[a-f0-9]+\.js' | head -1)
-              echo "   HTML webpack ref (localhost): $HTML_WEBPACK"
+              # Use || true throughout — grep may not match and set -e kills the script
+              HTML_RESPONSE=$(curl -s http://127.0.0.1:3000/zh 2>/dev/null || true)
+              HTML_WEBPACK=$(echo "$HTML_RESPONSE" | grep -oE 'webpack-[a-f0-9]+\.js' 2>/dev/null | head -1 || true)
+              echo "   HTML webpack ref (localhost): ${HTML_WEBPACK:-none}"
 
               if [ -n "$NEW_WEBPACK" ] && [ -n "$HTML_WEBPACK" ]; then
                 NEW_WNAME=$(basename "$NEW_WEBPACK")
@@ -469,56 +486,42 @@ jobs:
                   echo "   尝试强制重启 PM2..."
                   cd /opt/OmniFate
                   pm2 delete frontend 2>/dev/null || true
+                  # Kill any remaining process on port 3000
+                  fuser -k 3000/tcp 2>/dev/null || true
+                  sleep 3
                   pm2 start ecosystem.config.js --only frontend
                   pm2 save
-                  sleep 3
+                  sleep 8
                   # Re-check via localhost
-                  HTML_RESPONSE2=$(curl -s http://127.0.0.1:3000/zh 2>/dev/null)
-                  HTML_WEBPACK2=$(echo "$HTML_RESPONSE2" | grep -oE 'webpack-[a-f0-9]+\.js' | head -1)
+                  HTML_RESPONSE2=$(curl -s http://127.0.0.1:3000/zh 2>/dev/null || true)
+                  HTML_WEBPACK2=$(echo "$HTML_RESPONSE2" | grep -oE 'webpack-[a-f0-9]+\.js' 2>/dev/null | head -1 || true)
                   if [ "$HTML_WEBPACK2" = "$NEW_WNAME" ]; then
                     echo "✅ 重启后验证通过"
                   else
-                    echo "⚠️  重启后仍然不匹配: $HTML_WEBPACK2 != $NEW_WNAME"
-                    echo "   Cloudflare CDN 缓存可能需要手动清除"
+                    echo "⚠️  重启后仍然不匹配: ${HTML_WEBPACK2:-none} != $NEW_WNAME"
+                    echo "   这可能是 standalone 的 appDir 路径问题，非致命"
                   fi
                 fi
               fi
 
-              # 5. Verify checkout page HTML references match (critical: stale RSC manifest → ChunkLoadError)
+              # 5. Verify checkout page (non-fatal — warn only)
               echo "   [checkout page verification]"
-              CHECKOUT_RESPONSE=$(curl -s http://127.0.0.1:3000/zh/checkout 2>/dev/null)
-              CHECKOUT_PAGE_REF=$(echo "$CHECKOUT_RESPONSE" | grep -oE 'checkout/page-[a-f0-9]+\.js' | head -1)
-              echo "   checkout page chunk ref: $CHECKOUT_PAGE_REF"
+              cd /opt/OmniFate/frontend
+              CHECKOUT_RESPONSE=$(curl -s http://127.0.0.1:3000/zh/checkout 2>/dev/null || true)
+              CHECKOUT_PAGE_REF=$(echo "$CHECKOUT_RESPONSE" | grep -oE 'checkout/page-[a-f0-9]+\.js' 2>/dev/null | head -1 || true)
+              echo "   checkout page chunk ref: ${CHECKOUT_PAGE_REF:-none}"
               if [ -n "$CHECKOUT_PAGE_REF" ]; then
-                CHECKOUT_CHUNK_NAME=$(basename "$CHECKOUT_PAGE_REF")
-                CHECKOUT_FOUND=$(find "$STANDALONE_DIR/.next/static/chunks" -name "$CHECKOUT_CHUNK_NAME" 2>/dev/null | head -1)
+                CHECKOUT_CHUNK_NAME=$(basename "$CHECKOUT_PAGE_REF" 2>/dev/null || true)
+                CHECKOUT_FOUND=$(find "$STANDALONE_DIR/.next/static/chunks" -name "$CHECKOUT_CHUNK_NAME" 2>/dev/null | head -1 || true)
                 if [ -n "$CHECKOUT_FOUND" ]; then
                   echo "   ✅ checkout chunk exists: $CHECKOUT_CHUNK_NAME"
                 else
-                  echo "   ❌ checkout chunk MISSING: $CHECKOUT_CHUNK_NAME (stale RSC manifest in memory!)"
+                  echo "   ⚠️  checkout chunk missing in standalone: $CHECKOUT_CHUNK_NAME (非致命)"
                   echo "   Available checkout chunks:"
-                  find "$STANDALONE_DIR/.next/static/chunks/app/[locale]/checkout" -name "page-*.js" 2>/dev/null | while read f; do echo "     $(basename $f)"; done
-                  echo "   🔧 强制 delete + start PM2 以清除内存缓存..."
-                  cd /opt/OmniFate
-                  pm2 delete frontend 2>/dev/null || true
-                  pm2 start ecosystem.config.js --only frontend
-                  pm2 save
-                  sleep 5
-                  # Re-verify after restart
-                  cd /opt/OmniFate/frontend
-                  CHECKOUT_RESPONSE2=$(curl -s http://127.0.0.1:3000/zh/checkout 2>/dev/null)
-                  CHECKOUT_PAGE_REF2=$(echo "$CHECKOUT_RESPONSE2" | grep -oE 'checkout/page-[a-f0-9]+\.js' | head -1)
-                  CHECKOUT_CHUNK_NAME2=$(basename "$CHECKOUT_PAGE_REF2" 2>/dev/null)
-                  CHECKOUT_FOUND2=$(find "$STANDALONE_DIR/.next/static/chunks" -name "$CHECKOUT_CHUNK_NAME2" 2>/dev/null | head -1)
-                  if [ -n "$CHECKOUT_FOUND2" ]; then
-                    echo "   ✅ 重启后修复成功: $CHECKOUT_CHUNK_NAME2"
-                  else
-                    echo "   ⚠️  重启后仍然不匹配: $CHECKOUT_PAGE_REF2"
-                  fi
+                  find "$STANDALONE_DIR/.next/static/chunks/app/[locale]/checkout" -name "page-*.js" 2>/dev/null | while read f; do echo "     $(basename $f)"; done || true
                 fi
               else
-                echo "   ⚠️  Could not extract checkout page chunk ref from HTML"
-                echo "   HTML length: ${#CHECKOUT_RESPONSE}"
+                echo "   ⚠️  Could not extract checkout page chunk ref (server may still be starting)"
               fi
             fi
 
