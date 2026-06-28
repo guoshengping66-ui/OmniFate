@@ -494,7 +494,16 @@ app.include_router(_fate_compat, prefix="/api/fate", tags=["Fate-Compat"])
 @app.get("/health")
 async def health():
     """Health check endpoint"""
-    return {"status": "ok", "app": settings.APP_NAME, "version": "2.2.0", "build": "20260604"}
+    db_url = settings.DATABASE_URL or ""
+    db_kind = "sqlite" if db_url.startswith("sqlite") else "postgresql" if db_url.startswith("postgres") else "other"
+    return {
+        "status": "ok",
+        "app": settings.APP_NAME,
+        "version": "2.2.0",
+        "build": "20260604",
+        "database": db_kind,
+        "debug": settings.DEBUG,
+    }
 
 
 @app.get("/health/detailed")
