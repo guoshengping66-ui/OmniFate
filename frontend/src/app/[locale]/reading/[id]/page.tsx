@@ -399,6 +399,162 @@ function getStrongestLabel(scores: Record<string, number>, t: (key: string) => s
 }
 
 /** Extract a life theme from master_summary — first sentence or first 30 chars */
+function getReportStage(scores?: Record<string, number>, locale = "zh") {
+  const values = Object.values(scores || {})
+  const avg = values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 5
+  const spread = values.length ? Math.max(...values) - Math.min(...values) : 0
+  const isEn = locale === "en"
+
+  if (spread >= 3.2 || avg < 5) {
+    return {
+      title: isEn ? "Repair Phase" : "回撤修复期",
+      headline: isEn
+        ? "Your next growth comes from stabilizing the base before adding pressure."
+        : "你当前最重要的不是继续加速，而是先修复底盘、稳定节奏。",
+    }
+  }
+  if (avg >= 7) {
+    return {
+      title: isEn ? "Breakout Setup" : "蓄势突破期",
+      headline: isEn
+        ? "Your structure already supports a focused offensive window."
+        : "你的整体结构已经具备进攻条件，接下来适合集中资源打一轮突破。",
+    }
+  }
+  return {
+    title: isEn ? "Accumulation Phase" : "横盘积累期",
+    headline: isEn
+      ? "The key is not switching directions, but turning scattered signals into repeatable rhythm."
+      : "真正的关键不是频繁换方向，而是把分散信号整理成可重复执行的节奏。",
+  }
+}
+
+function ReportOperatingBrief({
+  scores,
+  strongestLabel,
+  weakestLabel,
+  isUnlocked,
+  locale,
+  onUnlock,
+}: {
+  scores?: Record<string, number>
+  strongestLabel: string
+  weakestLabel: string
+  isUnlocked: boolean
+  locale: string
+  onUnlock: () => void
+}) {
+  const isEn = locale === "en"
+  const stage = getReportStage(scores, locale)
+  const cards = [
+    { label: isEn ? "Current stage" : "当前盘面", value: stage.title, helper: isEn ? "Where you are now" : "先判断你现在站在哪" },
+    { label: isEn ? "Primary leverage" : "主升来源", value: strongestLabel, helper: isEn ? "Use this as the main engine" : "最值得优先放大的方向" },
+    { label: isEn ? "Weak link" : "回撤风险", value: weakestLabel, helper: isEn ? "Protect this before scaling" : "这里不稳会拖慢整体趋势" },
+  ]
+
+  return (
+    <section className="relative overflow-hidden rounded-3xl border border-gold/15 bg-[#080b14] p-5 md:p-7 shadow-[0_22px_70px_rgba(0,0,0,0.28)]">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_18%,rgba(201,168,76,0.16),transparent_32%),radial-gradient(circle_at_88%_18%,rgba(34,211,238,0.10),transparent_30%)]" />
+      <div className="relative">
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-5 mb-6">
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/[0.06] px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-gold/70 mb-3">
+              <Compass size={12} />
+              {isEn ? "Life Operating Brief" : "人生盘面摘要"}
+            </div>
+            <h2 className="font-serif text-2xl md:text-4xl font-bold text-white/92 leading-tight">{stage.title}</h2>
+            <p className="mt-3 text-white/58 text-sm md:text-base leading-relaxed">{stage.headline}</p>
+          </div>
+          {!isUnlocked && (
+            <button onClick={onUnlock} className="btn-gold flex items-center justify-center gap-2 text-sm px-5 py-3 whitespace-nowrap">
+              <Crown size={15} />
+              {isEn ? "Unlock action plan" : "解锁行动方案"}
+            </button>
+          )}
+        </div>
+        <div className="grid md:grid-cols-3 gap-3">
+          {cards.map((card, index) => (
+            <div key={card.label} className="rounded-2xl border border-white/[0.07] bg-white/[0.035] p-4">
+              <div className="flex items-center justify-between gap-3 mb-3">
+                <span className="text-[10px] uppercase tracking-[0.14em] text-white/32">{card.label}</span>
+                <span className="font-mono text-[10px] text-gold/45">0{index + 1}</span>
+              </div>
+              <p className="font-serif text-lg text-gold/90 mb-1">{card.value}</p>
+              <p className="text-white/40 text-xs leading-relaxed">{card.helper}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function ActionRoadmap({ strongestLabel, weakestLabel, locale }: { strongestLabel: string; weakestLabel: string; locale: string }) {
+  const isEn = locale === "en"
+  const steps = isEn
+    ? [
+        { period: "Today", title: "Stop the leak", body: `Reduce pressure around ${weakestLabel}. Do not add new commitments before the base is stable.` },
+        { period: "Next 30 days", title: "Repair the rhythm", body: "Build one repeatable routine: sleep, execution, communication, or cash-flow review." },
+        { period: "Next 90 days", title: "Focus the attack", body: `Use ${strongestLabel} as the main lever and cut low-return distractions.` },
+        { period: "Next 180 days", title: "Build the second curve", body: "Turn the strongest pattern into a product, relationship asset, or long-term capability." },
+      ]
+    : [
+        { period: "今天", title: "先止损", body: `先降低「${weakestLabel}」相关消耗，不要在底盘不稳时继续加码。` },
+        { period: "未来30天", title: "修复节奏", body: "建立一个可重复的稳定动作：睡眠、执行、沟通或现金流复盘。只抓一个，不要贪多。" },
+        { period: "未来90天", title: "集中突破", body: `把「${strongestLabel}」作为主引擎，砍掉低回报分心项，集中打一轮结果。` },
+        { period: "未来180天", title: "形成第二曲线", body: "把当前最强模式沉淀成长期资产：产品、关系、能力或稳定收入结构。" },
+      ]
+
+  return (
+    <section className="card-glass p-5 md:p-7 border-cyan-300/10 bg-cyan-300/[0.025]">
+      <div className="flex items-center gap-2 mb-5">
+        <Clock size={16} className="text-cyan-200/70" />
+        <div>
+          <h3 className="text-sm font-semibold text-white/72">{isEn ? "30 / 90 / 180 Day Route" : "30 / 90 / 180 天行动路线"}</h3>
+          <p className="text-white/28 text-xs">{isEn ? "Turn the report into execution." : "把报告从“看懂”变成“能执行”。"}</p>
+        </div>
+      </div>
+      <div className="grid md:grid-cols-4 gap-3">
+        {steps.map((step, index) => (
+          <div key={step.period} className="relative rounded-2xl border border-white/[0.06] bg-black/10 p-4">
+            <span className="absolute -top-2 left-4 rounded-full border border-cyan-200/15 bg-[#09111a] px-2 py-0.5 text-[10px] text-cyan-100/60">{step.period}</span>
+            <p className="mt-2 text-sm font-semibold text-white/74">{step.title}</p>
+            <p className="mt-2 text-xs leading-relaxed text-white/45">{step.body}</p>
+            <div className="mt-4 h-1 rounded-full bg-white/[0.06] overflow-hidden">
+              <div className="h-full rounded-full bg-cyan-200/45" style={{ width: `${25 + index * 25}%` }} />
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function PrescriptionPreview({ hasProducts, weakestLabel, locale, onOpenShop }: { hasProducts: boolean; weakestLabel: string; locale: string; onOpenShop: () => void }) {
+  const isEn = locale === "en"
+  return (
+    <section className="card-glass p-5 md:p-6 border-gold/12 bg-gradient-to-br from-gold/[0.045] to-transparent">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-start gap-3">
+          <div className="w-11 h-11 rounded-2xl bg-gold/12 border border-gold/25 flex items-center justify-center flex-shrink-0">
+            <ShoppingBag size={18} className="text-gold/80" />
+          </div>
+          <div>
+            <h3 className="font-serif text-lg font-bold text-gold/90">{isEn ? "Personal Prescription Preview" : "专属状态处方预览"}</h3>
+            <p className="mt-1 text-white/45 text-sm leading-relaxed">
+              {isEn ? `Your support plan should first stabilize ${weakestLabel}, then amplify the strongest dimension.` : `你的处方逻辑是：先补稳「${weakestLabel}」，再放大优势维度。商品推荐跟随报告状态匹配，而不是随机展示。`}
+            </p>
+          </div>
+        </div>
+        <button onClick={onOpenShop} className="inline-flex items-center justify-center gap-2 rounded-xl border border-gold/25 bg-gold/10 px-5 py-3 text-sm text-gold hover:border-gold/45 transition-colors">
+          {hasProducts ? (isEn ? "View matched items" : "查看匹配好物") : (isEn ? "Open shop" : "进入商城")}
+          <ArrowRight size={14} />
+        </button>
+      </div>
+    </section>
+  )
+}
+
 function extractLifeTheme(summary: string): string {
   if (!summary) return ""
   // Try to find a theme-like sentence (often the first meaningful sentence)
@@ -1134,6 +1290,15 @@ export default function ReadingPage() {
 
           return (
           <div className="space-y-6">
+            <ReportOperatingBrief
+              scores={data.dimension_scores}
+              strongestLabel={strongestLabel}
+              weakestLabel={weakestLabel}
+              isUnlocked={isUnlocked || isDetailedUnlocked}
+              locale={locale}
+              onUnlock={() => router.push(localeHref("/pricing"))}
+            />
+
             {/* ── 1. Core Summary (Section A) ── */}
             {isStructured && structuredData ? (
               // 结构化报告渲染
@@ -1256,6 +1421,14 @@ export default function ReadingPage() {
                   isUnlocked={isUnlocked || isDetailedUnlocked}
                 />
               </Suspense>
+            )}
+
+            {data.dimension_scores && data.intent !== "RELATIONSHIP" && (
+              <ActionRoadmap
+                strongestLabel={strongestLabel}
+                weakestLabel={weakestLabel}
+                locale={locale}
+              />
             )}
 
             {/* ── 3. Pain Points (Section B) — 结构化模式下跳过 ── */}
@@ -1398,6 +1571,15 @@ export default function ReadingPage() {
                   {t("reading.growthPath.hint") || "解锁完整报告获取详细提升方案"}
                 </p>
               </div>
+            )}
+
+            {data.intent !== "RELATIONSHIP" && (
+              <PrescriptionPreview
+                hasProducts={!!data.recommended_products?.length}
+                weakestLabel={weakestLabel}
+                locale={locale}
+                onOpenShop={() => setActiveTab("shop")}
+              />
             )}
 
             {/* ── 7. Detailed Report (PaywallGate) ── */}
