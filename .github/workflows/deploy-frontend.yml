@@ -8,14 +8,6 @@
 name: Deploy Frontend
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'frontend/**'
-      - 'ecosystem.config.js'
-      - 'deploy-frontend.sh'
-      - 'nginx-khanfate.conf'
-      - '.github/workflows/deploy-frontend.yml'
   workflow_dispatch:
 
 concurrency:
