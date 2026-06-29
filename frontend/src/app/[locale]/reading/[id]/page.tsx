@@ -52,7 +52,7 @@ const ProductCard = lazy(() => import("@/components/reading/ProductCard").then(m
 const ChatBox = lazy(() => import("@/components/reading/ChatBox").then(m => ({ default: m.ChatBox })))
 const EventAnalyzer = lazy(() => import("@/components/reading/EventAnalyzer"))
 const DailyAlmanac = lazy(() => import("@/components/reading/DailyAlmanac"))
-const DestinyRadar = lazy(() => import("@/components/reading/DestinyRadar").then(m => ({ default: m.DestinyRadar })))
+const LifeKLineChart = lazy(() => import("@/components/reading/LifeKLineChart"))
 const ShareSheet = lazy(() => import("@/components/reading/ShareSheet").then(m => ({ default: m.ShareSheet })))
 const PaywallGate = lazy(() => import("@/components/monetization/PaywallGate").then(m => ({ default: m.PaywallGate })))
 const QRPaymentModal = lazy(() => import("@/components/payment/QRPaymentModal").then(m => ({ default: m.QRPaymentModal })))
@@ -1246,16 +1246,16 @@ export default function ReadingPage() {
               )
             })()}
 
-            {/* ── 2. Radar Chart (hidden for RELATIONSHIP) ── */}
+            {/* ── 2. Life trajectory K-line (hidden for RELATIONSHIP) ── */}
             {data.dimension_scores && data.intent !== "RELATIONSHIP" && (
-              <div className="flex justify-center">
-                <Suspense fallback={<div className="h-64" />}>
-                  <DestinyRadar
-                    scores={data.dimension_scores}
-                    labels={["wealth", "relationship", "career", "health", "mindfulness"].map(k => t(I18N_DIM_KEYS[k]?.label || `reading.dim.${k}`))}
-                  />
-                </Suspense>
-              </div>
+              <Suspense fallback={<div className="h-64 rounded-2xl bg-white/[0.03] animate-pulse" />}>
+                <LifeKLineChart
+                  scores={data.dimension_scores}
+                  strongestLabel={strongestLabel}
+                  weakestLabel={weakestLabel}
+                  isUnlocked={isUnlocked || isDetailedUnlocked}
+                />
+              </Suspense>
             )}
 
             {/* ── 3. Pain Points (Section B) — 结构化模式下跳过 ── */}
