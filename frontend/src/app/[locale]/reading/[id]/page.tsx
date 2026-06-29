@@ -119,6 +119,7 @@ function parseDecisionReportContent(content: string): DecisionReport | null {
 }
 
 type TextSection = { title: string; body: string; id?: string }
+type WorkerReportLike = { report?: string; tags?: string[]; error?: string }
 
 function splitDecisionReport(text: string): TextSection[] {
   const clean = stripMarkdown(text)
@@ -155,6 +156,15 @@ function splitDecisionReport(text: string): TextSection[] {
 function getSectionPreview(section: TextSection, maxLength = 150): string {
   const clean = cleanReportText(section.body)
   const sentence = clean.split(/[。！？.!?\n]/).map(item => item.trim()).find(item => item.length > 12) || clean
+  return sentence.length > maxLength ? `${sentence.slice(0, maxLength)}...` : sentence
+}
+
+function getReadableExcerpt(text = "", maxLength = 130): string {
+  const clean = cleanReportText(text)
+  const sentence = clean
+    .split(/[。！？.!?\n]/)
+    .map(item => item.trim())
+    .find(item => item.length > 12) || clean
   return sentence.length > maxLength ? `${sentence.slice(0, maxLength)}...` : sentence
 }
 
@@ -565,6 +575,66 @@ function ReportOperatingBrief({
   )
 }
 
+function ReportOperatingBriefV2({
+  scores,
+  strongestLabel,
+  weakestLabel,
+  isUnlocked,
+  locale,
+  onUnlock,
+}: {
+  scores?: Record<string, number>
+  strongestLabel: string
+  weakestLabel: string
+  isUnlocked: boolean
+  locale: string
+  onUnlock: () => void
+}) {
+  const isEn = locale === "en"
+  const stage = getReportStage(scores, locale)
+  const cards = [
+    { label: isEn ? "Current stage" : "当前阶段", value: stage.title, helper: isEn ? "Where you are now" : "先判断你现在站在哪个阶段" },
+    { label: isEn ? "Primary leverage" : "核心优势", value: strongestLabel, helper: isEn ? "Use this as the main engine" : "最值得优先放大的方向" },
+    { label: isEn ? "Needs care" : "需要照顾", value: weakestLabel, helper: isEn ? "Stabilize this before scaling" : "这里不稳会拖慢整体节奏" },
+  ]
+
+  return (
+    <section className="relative overflow-hidden rounded-3xl border border-gold/15 bg-[#080b14] p-5 md:p-7 shadow-[0_22px_70px_rgba(0,0,0,0.28)]">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_18%,rgba(201,168,76,0.16),transparent_32%),radial-gradient(circle_at_88%_18%,rgba(34,211,238,0.10),transparent_30%)]" />
+      <div className="relative">
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-5 mb-6">
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/[0.06] px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-gold/70 mb-3">
+              <Compass size={12} />
+              {isEn ? "Life Operating Brief" : "人生状态摘要"}
+            </div>
+            <h2 className="font-serif text-2xl md:text-4xl font-bold text-white/92 leading-tight">{stage.title}</h2>
+            <p className="mt-3 text-white/58 text-sm md:text-base leading-relaxed">{stage.headline}</p>
+          </div>
+          {!isUnlocked && (
+            <button onClick={onUnlock} className="btn-gold flex items-center justify-center gap-2 text-sm px-5 py-3 whitespace-nowrap">
+              <Crown size={15} />
+              {isEn ? "Unlock action plan" : "解锁行动方案"}
+            </button>
+          )}
+        </div>
+        <div className="grid md:grid-cols-3 gap-3">
+          {cards.map((card, index) => (
+            <div key={card.label} className="rounded-2xl border border-white/[0.07] bg-white/[0.035] p-4">
+              <div className="flex items-center justify-between gap-3 mb-3">
+                <span className="text-[10px] uppercase tracking-[0.14em] text-white/32">{card.label}</span>
+                <span className="font-mono text-[10px] text-gold/45">0{index + 1}</span>
+              </div>
+              <p className="font-serif text-lg text-gold/90 mb-1">{card.value}</p>
+              <p className="text-white/40 text-xs leading-relaxed">{card.helper}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
 function ActionRoadmap({ strongestLabel, weakestLabel, locale }: { strongestLabel: string; weakestLabel: string; locale: string }) {
   const isEn = locale === "en"
   const steps = isEn
@@ -627,6 +697,259 @@ function PrescriptionPreview({ hasProducts, weakestLabel, locale, onOpenShop }: 
           <ArrowRight size={14} />
         </button>
       </div>
+    </section>
+  )
+}
+
+function RelationshipReportBrief({
+  partnerName,
+  relationshipType,
+  summary,
+  workerMap,
+  workerOrder,
+  locale,
+  onOpenWorker,
+  onUnlock,
+  isUnlocked,
+}: {
+  partnerName?: string | null
+  relationshipType?: string | null
+  summary: string
+  workerMap: Record<string, WorkerReportLike>
+  workerOrder: readonly string[]
+  locale: string
+  onOpenWorker: (id: string) => void
+  onUnlock: () => void
+  isUnlocked: boolean
+}) {
+  const isEn = locale === "en"
+  const partner = partnerName || (isEn ? "Partner" : "对方")
+  const reportCount = workerOrder.filter(key => !!workerMap[key]?.report).length
+  const firstFinding = getReadableExcerpt(summary, 170) || (isEn
+    ? "Use this report as a relationship operating map: where you match, where friction appears, and what to do next."
+    : "这份合盘报告会把关系拆成：适配点、摩擦点、相处节奏和下一步行动。")
+  const typeLabel: Record<string, string> = {
+    lover: isEn ? "Romantic" : "恋爱/伴侣",
+    friend: isEn ? "Friendship" : "朋友",
+    colleague: isEn ? "Work" : "同事/合作",
+    family: isEn ? "Family" : "家人",
+  }
+  const cards = [
+    {
+      label: isEn ? "Relationship focus" : "关系重点",
+      value: typeLabel[relationshipType || ""] || relationshipType || (isEn ? "Relationship" : "关系合盘"),
+      body: isEn ? "Read the report by relationship scenario, not by generic compatibility." : "按真实关系场景解读，不只看泛泛的合不合。",
+    },
+    {
+      label: isEn ? "Evidence sources" : "证据来源",
+      value: `${reportCount}`,
+      body: isEn ? "Specialist reports are combined into one relationship map." : "多位专家报告会汇总成一张关系地图。",
+    },
+    {
+      label: isEn ? "Partner" : "分析对象",
+      value: partner,
+      body: isEn ? "Separate partner face/palm tabs appear when partner images are provided." : "如果上传对方面相/手相，会单独生成对方分析页。",
+    },
+  ]
+  const actions = isEn
+    ? [
+        "Look for recurring friction, not one-off events.",
+        "Compare your needs with the partner's pace before making a decision.",
+        "Turn the report into one concrete communication action this week.",
+      ]
+    : [
+        "先看反复出现的摩擦模式，不要只盯单次事件。",
+        "把你的需求和对方节奏放在一起看，再决定要不要推进。",
+        "本周只落地一个沟通动作，避免一次性谈太多。",
+      ]
+
+  return (
+    <section className="relative overflow-hidden rounded-3xl border border-rose-300/15 bg-[#100910] p-5 md:p-7 shadow-[0_22px_70px_rgba(0,0,0,0.28)]">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(251,113,133,0.16),transparent_32%),radial-gradient(circle_at_82%_20%,rgba(201,168,76,0.12),transparent_30%)]" />
+      <div className="relative">
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-5 mb-6">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 rounded-full border border-rose-300/20 bg-rose-300/[0.06] px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-rose-100/70 mb-3">
+              <MessageSquare size={12} />
+              {isEn ? "Relationship Operating Map" : "关系合盘地图"}
+            </div>
+            <h2 className="font-serif text-2xl md:text-4xl font-bold text-white/92 leading-tight">
+              {isEn ? `You and ${partner}` : `你和${partner}的关系结构`}
+            </h2>
+            <p className="mt-3 text-white/58 text-sm md:text-base leading-relaxed">{firstFinding}</p>
+          </div>
+          {!isUnlocked && (
+            <button onClick={onUnlock} className="btn-gold flex items-center justify-center gap-2 text-sm px-5 py-3 whitespace-nowrap">
+              <Crown size={15} />
+              {isEn ? "Unlock full map" : "解锁完整关系地图"}
+            </button>
+          )}
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-3 mb-4">
+          {cards.map((card, index) => (
+            <div key={card.label} className="rounded-2xl border border-white/[0.07] bg-white/[0.035] p-4">
+              <div className="flex items-center justify-between gap-3 mb-3">
+                <span className="text-[10px] uppercase tracking-[0.14em] text-white/32">{card.label}</span>
+                <span className="font-mono text-[10px] text-rose-100/45">0{index + 1}</span>
+              </div>
+              <p className="font-serif text-lg text-rose-100/90 mb-1">{card.value}</p>
+              <p className="text-white/42 text-xs leading-relaxed">{card.body}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-4">
+          <div className="rounded-2xl border border-white/[0.07] bg-black/15 p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <CheckCircle size={15} className="text-rose-100/70" />
+              <h3 className="text-sm font-semibold text-white/72">{isEn ? "How to use this report" : "这份合盘怎么用"}</h3>
+            </div>
+            <div className="space-y-2">
+              {actions.map((item, index) => (
+                <div key={item} className="flex items-start gap-2">
+                  <span className="mt-0.5 h-5 w-5 rounded-full bg-rose-300/10 border border-rose-300/15 text-rose-100/70 text-[10px] flex items-center justify-center flex-shrink-0">
+                    {index + 1}
+                  </span>
+                  <p className="text-white/50 text-xs leading-relaxed">{item}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Shield size={15} className="text-gold/65" />
+              <h3 className="text-sm font-semibold text-white/72">{isEn ? "Specialist evidence" : "专家证据入口"}</h3>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-2">
+              {workerOrder.filter(key => workerMap[key]?.report).slice(0, 6).map((key) => (
+                <button
+                  key={key}
+                  onClick={() => onOpenWorker(key)}
+                  className="rounded-xl border border-white/[0.06] bg-black/10 p-3 text-left hover:border-gold/20 transition-colors"
+                >
+                  <p className="text-gold/70 text-xs font-medium mb-1">{AGENT_LABELS[key]?.icon} {key}</p>
+                  <p className="text-white/42 text-[11px] leading-relaxed line-clamp-2">{getReadableExcerpt(workerMap[key]?.report, 90)}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function ExpertReportNavigator({
+  workerMap,
+  workerOrder,
+  locale,
+  onOpenWorker,
+}: {
+  workerMap: Record<string, WorkerReportLike>
+  workerOrder: readonly string[]
+  locale: string
+  onOpenWorker: (id: string) => void
+}) {
+  const isEn = locale === "en"
+  const entries = workerOrder
+    .map(key => ({ key, report: workerMap[key]?.report || "", tags: workerMap[key]?.tags || [] }))
+    .filter(item => item.report)
+
+  if (entries.length === 0) return null
+
+  return (
+    <section className="card-glass p-5 md:p-6 border-white/[0.08]">
+      <div className="flex items-center gap-2 mb-4">
+        <Compass size={16} className="text-gold/70" />
+        <div>
+          <h3 className="text-sm font-semibold text-white/72">{isEn ? "Specialist Reading Map" : "专家单项分析地图"}</h3>
+          <p className="text-white/28 text-xs">{isEn ? "Jump into the exact evidence behind the summary." : "从总览直接跳到对应证据，不再在长文里找重点。"}</p>
+        </div>
+      </div>
+      <div className="grid md:grid-cols-3 gap-3">
+        {entries.map((item) => (
+          <button
+            key={item.key}
+            onClick={() => onOpenWorker(item.key)}
+            className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-4 text-left hover:border-gold/20 transition-colors group"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-lg">{AGENT_LABELS[item.key]?.icon}</span>
+              <p className="text-sm font-semibold text-white/75 group-hover:text-gold transition-colors">{item.key}</p>
+              <ArrowRight size={13} className="ml-auto text-white/20 group-hover:text-gold/70" />
+            </div>
+            <p className="text-white/45 text-xs leading-relaxed line-clamp-3">{getReadableExcerpt(item.report, 115)}</p>
+            {item.tags.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {item.tags.slice(0, 3).map(tag => (
+                  <span key={tag} className="rounded-full bg-white/[0.05] px-2 py-0.5 text-[10px] text-white/35">{tag}</span>
+                ))}
+              </div>
+            )}
+          </button>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function WorkerInsightHeader({
+  workerKey,
+  report,
+  tags,
+  locale,
+}: {
+  workerKey: string
+  report: string
+  tags: string[]
+  locale: string
+}) {
+  const isEn = locale === "en"
+  const title = AGENT_LABELS[workerKey]?.icon ? `${AGENT_LABELS[workerKey].icon} ${workerKey}` : workerKey
+  const sections = splitDecisionReport(report)
+  const primary = sections[0] ? getSectionPreview(sections[0], 170) : getReadableExcerpt(report, 170)
+  const secondary = sections.slice(1, 4).map(section => ({
+    title: section.title,
+    body: getSectionPreview(section, 95),
+  }))
+
+  return (
+    <section className="card-glass p-5 md:p-6 border-gold/10 bg-gradient-to-br from-gold/[0.035] to-transparent">
+      <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-4">
+        <div>
+          <div className="inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/[0.06] px-3 py-1 text-[10px] uppercase tracking-[0.16em] text-gold/65 mb-3">
+            <ScrollText size={12} />
+            {isEn ? "Single Specialist View" : "单项专家视角"}
+          </div>
+          <h2 className="font-serif text-xl md:text-2xl font-bold text-gold/90">{title}</h2>
+          <p className="mt-2 text-white/55 text-sm leading-relaxed max-w-3xl">{primary}</p>
+        </div>
+        <div className="rounded-2xl border border-white/[0.07] bg-white/[0.03] p-3 min-w-[150px]">
+          <p className="text-[10px] uppercase tracking-[0.14em] text-white/28">{isEn ? "Report density" : "内容密度"}</p>
+          <p className="font-serif text-lg text-gold/80 mt-1">{Math.max(2, Math.min(9, Math.floor(report.length / 180)))}</p>
+          <p className="text-white/30 text-[11px]">{isEn ? "key blocks estimated" : "个重点块"}</p>
+        </div>
+      </div>
+      {secondary.length > 0 && (
+        <div className="grid md:grid-cols-3 gap-3">
+          {secondary.map((item, index) => (
+            <div key={`${item.title}-${index}`} className="rounded-2xl border border-white/[0.06] bg-black/10 p-3">
+              <span className="text-[10px] text-gold/45">FOCUS {index + 1}</span>
+              <p className="text-white/72 text-xs font-semibold mt-1 mb-1">{item.title}</p>
+              <p className="text-white/42 text-[11px] leading-relaxed">{item.body}</p>
+            </div>
+          ))}
+        </div>
+      )}
+      {tags.length > 0 && (
+        <div className="mt-4 flex flex-wrap gap-2">
+          {tags.slice(0, 8).map(tag => (
+            <span key={tag} className="rounded-full border border-white/[0.07] bg-white/[0.035] px-2.5 py-1 text-[10px] text-white/42">{tag}</span>
+          ))}
+        </div>
+      )}
     </section>
   )
 }
@@ -1367,14 +1690,28 @@ export default function ReadingPage() {
 
           return (
           <div className="space-y-6">
-            <ReportOperatingBrief
-              scores={displayDimensionScores}
-              strongestLabel={strongestLabel}
-              weakestLabel={weakestLabel}
-              isUnlocked={isUnlocked || isDetailedUnlocked}
-              locale={locale}
-              onUnlock={() => router.push(localeHref("/pricing"))}
-            />
+            {data.intent === "RELATIONSHIP" ? (
+              <RelationshipReportBrief
+                partnerName={data.partner_name}
+                relationshipType={data.relationship_type}
+                summary={summary}
+                workerMap={workerMap}
+                workerOrder={WORKER_ORDER_ALL}
+                locale={locale}
+                onOpenWorker={setActiveTab}
+                isUnlocked={isUnlocked || isDetailedUnlocked}
+                onUnlock={() => router.push(localeHref("/pricing"))}
+              />
+            ) : (
+              <ReportOperatingBriefV2
+                scores={displayDimensionScores}
+                strongestLabel={strongestLabel}
+                weakestLabel={weakestLabel}
+                isUnlocked={isUnlocked || isDetailedUnlocked}
+                locale={locale}
+                onUnlock={() => router.push(localeHref("/pricing"))}
+              />
+            )}
 
             {/* ── 1. Core Summary (Section A) ── */}
             {isStructured && structuredData ? (
@@ -1762,6 +2099,15 @@ export default function ReadingPage() {
               )
             })()}
 
+            {isUnlocked && (
+              <ExpertReportNavigator
+                workerMap={workerMap}
+                workerOrder={WORKER_ORDER_ALL}
+                locale={locale}
+                onOpenWorker={setActiveTab}
+              />
+            )}
+
             {/* ── 7b. User Testimonials (social proof) ── */}
             {!isUnlocked && !isDetailedUnlocked && (
               <div className="card-glass p-5 md:p-6">
@@ -1893,6 +2239,12 @@ export default function ReadingPage() {
               </div>
             ) : workerMap[k].report ? (
               <div className="space-y-4">
+                <WorkerInsightHeader
+                  workerKey={k}
+                  report={workerMap[k].report}
+                  tags={workerMap[k].tags || []}
+                  locale={locale}
+                />
                 <Suspense fallback={<div className="card-glass p-6 h-48" />}>
                   <PaywallGate
                     isUnlocked={isUnlocked}

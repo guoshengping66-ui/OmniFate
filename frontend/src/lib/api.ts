@@ -289,6 +289,8 @@ export interface AnalysisResponse {
   dimension_scores: Record<string, number>
   errors: string[]
   intent?: string
+  partner_name?: string
+  relationship_type?: string
 }
 
 export interface ChatRequest {
