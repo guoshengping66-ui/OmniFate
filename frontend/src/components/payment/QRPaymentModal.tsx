@@ -2,9 +2,8 @@
 import { useState, useEffect, useRef, useCallback, lazy, Suspense } from "react"
 import { X, Clock, CheckCircle, Loader2, Copy, AlertCircle, RefreshCw, ExternalLink } from "lucide-react"
 import toast from "react-hot-toast"
-import { apiDirect, unlockReport } from "@/lib/api"
+import { apiDirect, createStripeCheckout, unlockReport } from "@/lib/api"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { getPayPalConfigCached, preloadPayPalSDK } from "@/lib/paypalPreload"
 
 // Lazy load PayPalPayment — avoids bundling PayPal SDK into the main chunk
 const PayPalPayment = lazy(() => import("./PayPalPayment").then(m => ({ default: m.PayPalPayment })))
@@ -28,7 +27,7 @@ interface QRPaymentModalProps {
   initialMethod?: PaymentMethod
 }
 
-type PaymentMethod = "alipay" | "wechat" | "wechat_pay" | "paypal" | "credit_card"
+type PaymentMethod = "alipay" | "wechat" | "wechat_pay" | "paypal" | "credit_card" | "stripe"
 type PaymentStatus =
   | "idle"
   | "loading"
@@ -72,17 +71,10 @@ export function QRPaymentModal({
   const t = rawT as unknown as (key: string, vars?: Record<string, string | number>) => string
   const isOverseas = region === "overseas"
   const isShopPayment = !!shopOrderNo
-  const effectiveMethod = initialMethod || (isOverseas ? "paypal" : "alipay")
+  const effectiveMethod = "stripe"
   const [method, setMethod] = useState<PaymentMethod>(effectiveMethod)
   const [status, setStatus] = useState<PaymentStatus>(() => {
-    if (initialMethod === "credit_card" && isShopPayment) return "loading"
-    if (isShopPayment) {
-      // alipay/wechat → show QR directly; paypal → embed; credit_card → loading
-      if (initialMethod === "alipay" || initialMethod === "wechat") return "showing_qr"
-      return isOverseas ? "paypal_embedded" : "showing_qr"
-    }
-    if (preOrderNo) return "showing_qr"
-    return isOverseas ? "paypal_embedded" : "idle"
+    return "idle"
   })
   const [orderNo, setOrderNo] = useState<string | null>(shopOrderNo || preOrderNo || null)
   const [paypalOrderId, setPaypalOrderId] = useState<string | null>(null)
@@ -97,11 +89,9 @@ export function QRPaymentModal({
   const openRef = useRef(open)
   openRef.current = open
 
-  // Sync method state with initialMethod prop (useState only initializes once)
+  // Stripe is now the only checkout provider; ignore legacy initial methods.
   useEffect(() => {
-    if (initialMethod && initialMethod !== method) {
-      setMethod(initialMethod)
-    }
+    setMethod("stripe")
   }, [initialMethod])
 
   const isReportUnlock = !!readingId && tier !== "onetime_unlock"
@@ -191,20 +181,30 @@ export function QRPaymentModal({
     }
   }, [open, isShopPayment, shopOrderNo, method])
 
-  // Preload PayPal SDK as soon as modal opens for overseas users
-  // Uses shared module-level cache — no-op if already preloaded by checkout page
-  useEffect(() => {
-    if (!open) return
-    if (!isOverseas && method !== "credit_card") return
-    preloadPayPalSDK()
-  }, [open, isOverseas, method])
-
   const createOrder = async () => {
     if (creatingOrderRef.current) return
     creatingOrderRef.current = true
     setStatus("loading")
     setError("")
     setQrError(null)
+
+    if (method === "stripe") {
+      try {
+        if (isShopPayment && shopOrderNo) {
+          const { createShopStripeCheckout } = await import("@/lib/api")
+          const res = await createShopStripeCheckout(shopOrderNo)
+          window.location.href = res.checkout_url
+          return
+        }
+        const itemType = isPreOrder ? "founder_lifetime" : isReportUnlock ? "unlock_report" : (tier || "premium_monthly")
+        const res = await createStripeCheckout(itemType, readingId)
+        window.location.href = res.checkout_url
+      } catch (err: any) {
+        setError(err?.response?.data?.detail || t("payment.createOrderFailed"))
+        setStatus("failed")
+      }
+      return
+    }
 
     // Shop order + PayPal: create PayPal order for existing shop order
     if (isShopPayment && method === "paypal") {
@@ -525,37 +525,10 @@ export function QRPaymentModal({
               </div>
               <div className="mb-6">
                 <p className="text-white/50 text-xs mb-3">{t("payment.selectMethod")}</p>
-                {isOverseas ? (
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      onClick={() => setMethod("paypal")}
-                      className={`p-4 rounded-xl border transition-all ${method === "paypal" ? "bg-blue-600/10 border-blue-500/40" : "bg-white/[0.03] border-white/10 hover:border-white/20"}`}
-                    >
-                      <div className="text-blue-400 font-medium">PayPal</div>
-                      <div className="text-white/40 text-xs mt-1">PayPal Wallet</div>
-                    </button>
-                    <button
-                      onClick={() => setMethod("credit_card")}
-                      className={`p-4 rounded-xl border transition-all ${method === "credit_card" ? "bg-purple-500/10 border-purple-500/40" : "bg-white/[0.03] border-white/10 hover:border-white/20"}`}
-                    >
-                      <div className="text-purple-400 font-medium">{t("payment.creditCard") || "Credit Card"}</div>
-                      <div className="text-white/40 text-xs mt-1">Visa / MC / Apple Pay / Google Pay</div>
-                    </button>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 gap-3">
-                    <button onClick={() => setMethod("alipay")}
-                      className={`p-4 rounded-xl border transition-all ${method === "alipay" ? "bg-blue-500/10 border-blue-500/40" : "bg-white/[0.03] border-white/10 hover:border-white/20"}`}>
-                      <div className="text-blue-400 font-medium">Alipay</div>
-                      <div className="text-white/40 text-xs mt-1">Alipay</div>
-                    </button>
-                    <button onClick={() => setMethod("wechat")}
-                      className={`p-4 rounded-xl border transition-all ${method === "wechat" ? "bg-green-500/10 border-green-500/40" : "bg-white/[0.03] border-white/10 hover:border-white/20"}`}>
-                      <div className="text-green-400 font-medium">WeChat Pay</div>
-                      <div className="text-white/40 text-xs mt-1">WeChat Pay</div>
-                    </button>
-                  </div>
-                )}
+                <div className="rounded-xl border border-gold/40 bg-gold/10 p-4">
+                  <div className="text-gold font-medium">Stripe</div>
+                  <div className="text-white/40 text-xs mt-1">Cards, Apple Pay, Google Pay</div>
+                </div>
               </div>
               <button onClick={createOrder} className="btn-gold w-full py-3">
                 {t("payment.confirmPay")} {currencySymbol}{displayAmount}

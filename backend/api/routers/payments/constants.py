@@ -44,6 +44,6 @@ SUBSCRIPTION_GRANTS = {
 # Prevents cross-region price abuse: domestic users can only use Alipay/WeChat,
 # overseas users can only use PayPal. This is a defense-in-depth measure.
 ALLOWED_METHODS = {
-    "domestic": {"alipay", "wechat_pay"},
-    "overseas": {"paypal"},
+    "domestic": {"stripe"},
+    "overseas": {"stripe"},
 }

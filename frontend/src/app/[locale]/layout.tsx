@@ -14,7 +14,6 @@ import { ServiceWorkerRegistration } from "@/components/ui/ServiceWorkerRegistra
 import { MonthlyGrantToast } from "@/components/ui/MonthlyGrantToast"
 import { OnboardingGuide } from "@/components/ui/OnboardingGuide"
 import { ChunkRecovery } from "@/components/ui/ChunkRecovery"
-import { PayPalPreloader } from "@/components/ui/PayPalPreloader"
 import { safeJsonLd } from "@/utils/safeJsonLd"
 
 /** Inline safeJsonLd to avoid client-reference bundling issue in Server Components */
@@ -122,7 +121,7 @@ export default async function LocaleLayout({
       <head>
         <link rel="preconnect" href="https://fonts.font.im" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://api.khanfate.com" />
-        <link rel="preconnect" href="https://www.paypal.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://checkout.stripe.com" crossOrigin="anonymous" />
         {/* Async font loading: non-blocking via media swap trick */}
         <link
           rel="stylesheet"
@@ -292,7 +291,6 @@ try{
         <ChunkRecovery />
         <AppProviders messages={messages} locale={validLocale} initialRegion={initialRegion}>
           <ServiceWorkerRegistration />
-          <PayPalPreloader />
           <MonthlyGrantToast />
           <OnboardingGuide />
           <RouteProgress />

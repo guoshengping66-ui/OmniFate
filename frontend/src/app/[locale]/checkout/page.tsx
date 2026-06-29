@@ -7,12 +7,11 @@ import { useCart } from "@/contexts/CartContext"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useRegion } from "@/contexts/RegionContext"
-import { getProductPrice, formatCouponBalance, CNY_TO_USD_RATE } from "@/lib/regionPrice"
-import { createOrder, type Address } from "@/lib/api"
+import { formatCouponBalance, CNY_TO_USD_RATE } from "@/lib/regionPrice"
+import { createOrder, createShopStripeCheckout, type Address } from "@/lib/api"
 import { PaymentMethodSelector } from "@/components/monetization/PaymentMethodSelector"
 import { AddressForm } from "@/components/shop/AddressForm"
 import { QRPaymentModal } from "@/components/payment/QRPaymentModal"
-import { preloadPayPalSDK } from "@/lib/paypalPreload"
 
 type QrPaymentMethod = "paypal" | "credit_card" | "alipay" | "wechat" | undefined
 const payMethodToInitial: Record<string, QrPaymentMethod> = {
@@ -32,7 +31,7 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
   const [useCoupon, setUseCoupon] = useState(false)
-  const [paymentMethod, setPaymentMethod] = useState(isOverseas ? "paypal" : "alipay")
+  const [paymentMethod, setPaymentMethod] = useState("stripe")
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null)
   const [paymentOpen, setPaymentOpen] = useState(false)
@@ -48,15 +47,6 @@ export default function CheckoutPage() {
       router.replace(localeHref("/login"))
     }
   }, [user, authLoading, router, localeHref])
-
-  // ⚡ Preload PayPal SDK as soon as checkout page loads for overseas users.
-  // Without this, the SDK (200KB+) starts downloading only when the payment
-  // modal opens, causing a 3-5s visible delay before the user can pay.
-  useEffect(() => {
-    if (isOverseas) {
-      preloadPayPalSDK()
-    }
-  }, [region])
 
   const couponBalanceCny = user?.shop_coupon_balance ?? 0
   const couponBalanceLocal = isOverseas ? couponBalanceCny / CNY_TO_USD_RATE : couponBalanceCny
@@ -96,7 +86,8 @@ export default function CheckoutPage() {
       setCreatedOrderNo(result.order_no)
       // Use cart's total (in local currency) for display — products have independent USD/CNY prices
       setCreatedOrderTotal(finalTotal)
-      setPaymentOpen(true)
+      const checkout = await createShopStripeCheckout(result.order_no)
+      window.location.href = checkout.checkout_url
     } catch (err: any) {
       toast.error(err?.response?.data?.detail ?? t("checkout.orderFail"))
     } finally {

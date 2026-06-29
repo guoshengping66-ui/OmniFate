@@ -82,6 +82,13 @@ class Settings(BaseSettings):
     PAYPAL_CANCEL_URL: str = ""  # 必须配置: https://yourdomain.com/payment/cancel
     PAYPAL_WEBHOOK_ID: str = ""  # PayPal webhook ID for signature verification
 
+    # ── Stripe ──
+    STRIPE_ENABLED: bool = False
+    STRIPE_SECRET_KEY: str = ""
+    STRIPE_WEBHOOK_SECRET: str = ""
+    STRIPE_SUCCESS_URL: str = ""  # e.g. https://khanfate.com/payment?stripe=success
+    STRIPE_CANCEL_URL: str = ""   # e.g. https://khanfate.com/payment?stripe=cancelled
+
     S3_BUCKET: str = ""
     S3_REGION: str = "us-east-1"
     AWS_ACCESS_KEY_ID: str = ""

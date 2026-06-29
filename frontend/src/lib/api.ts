@@ -963,27 +963,35 @@ export async function capturePayPalOrder(paypalOrderId: string): Promise<{ statu
   return res.data
 }
 
+export async function createStripeCheckout(
+  itemType: string = "unlock_report",
+  readingId?: string,
+): Promise<{ checkout_url: string; session_id: string; order_no: string }> {
+  const res = await apiDirect.post("/api/payments/stripe/create", null, {
+    params: { item_type: itemType, reading_id: readingId || "" },
+  })
+  return res.data
+}
+
+export async function createShopStripeCheckout(
+  orderNo: string,
+): Promise<{ checkout_url: string; session_id: string; order_no: string }> {
+  const res = await apiDirect.post("/api/payments/stripe/create-shop-order", null, {
+    params: { order_no: orderNo },
+  })
+  return res.data
+}
+
 export async function createCheckoutUrl(
   readingId: string,
   paymentMethod: string,
   itemType: string = "unlock_report",
 ): Promise<{ checkout_url?: string; pay_url?: string; approve_url?: string; code_url?: string; payment_method: string; message: string }> {
-  // 根据支付方式调用不同接口 — 金额由服务端决定
-  if (paymentMethod === "alipay") {
-    const res = await apiDirect.post(`/api/payments/alipay/create`, null, {
-      params: { item_type: itemType, subject: "命运引擎", reading_id: readingId }
-    })
-    return { pay_url: res.data.pay_url, payment_method: "alipay", message: res.data.message }
-  } else if (paymentMethod === "wechat_pay") {
-    const res = await apiDirect.post(`/api/payments/wechat/create`, null, {
-      params: { item_type: itemType, description: "命运引擎", reading_id: readingId }
-    })
-    return { code_url: res.data.code_url, payment_method: "wechat_pay", message: res.data.message }
-  } else if (paymentMethod === "paypal") {
-    const res = await apiDirect.post(`/api/payments/paypal/create`, null, {
-      params: { item_type: itemType, description: "Profile Mirror", reading_id: readingId }
-    })
-    return { approve_url: res.data.approve_url, payment_method: "paypal", message: res.data.message }
+  // All regions now use Stripe Checkout; legacy method ids are accepted for callers
+  // that have not yet been updated.
+  if (["stripe", "alipay", "wechat_pay", "paypal", "credit_card"].includes(paymentMethod)) {
+    const res = await createStripeCheckout(itemType, readingId)
+    return { checkout_url: res.checkout_url, payment_method: "stripe", message: "Redirecting to Stripe Checkout" }
   } else {
     throw new Error("不支持的支付方式")
   }

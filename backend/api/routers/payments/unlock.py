@@ -166,49 +166,30 @@ async def _unlock_reading(reading_id: str, db: AsyncSession, skip_stardust_grant
 
 @router.get("/payment-methods")
 async def get_payment_methods():
-    """返回可用的支付方式列表"""
+    """Return available payment methods."""
     from config import get_settings
     settings = get_settings()
 
     methods = []
-
-    if settings.ALIPAY_PERSONAL_QR_URL or settings.ALIPAY_ENABLED:
-        methods.append({
-            "id": "alipay",
-            "name": "支付宝",
-            "name_en": "Alipay",
-            "icon": "alipay",
-            "category": "china",
-            "enabled": True,
-        })
-
-    if settings.WECHAT_PERSONAL_QR_URL or settings.WECHAT_PAY_ENABLED:
-        methods.append({
-            "id": "wechat_pay",
-            "name": "微信支付",
-            "name_en": "WeChat Pay",
-            "icon": "wechat",
-            "category": "china",
-            "enabled": True,
-        })
-
-    if settings.PAYPAL_ENABLED:
-        methods.append({
-            "id": "paypal",
-            "name": "PayPal",
-            "name_en": "PayPal",
-            "icon": "paypal",
-            "category": "global",
-            "enabled": True,
-        })
-        methods.append({
-            "id": "credit_card",
-            "name": "信用卡",
-            "name_en": "Credit Card",
-            "icon": "credit-card",
-            "category": "global",
-            "enabled": True,
-        })
+    if settings.STRIPE_ENABLED:
+        methods.extend([
+            {
+                "id": "stripe",
+                "name": "Stripe",
+                "name_en": "Stripe",
+                "icon": "credit-card",
+                "category": "china",
+                "enabled": True,
+            },
+            {
+                "id": "stripe",
+                "name": "Stripe",
+                "name_en": "Stripe",
+                "icon": "credit-card",
+                "category": "global",
+                "enabled": True,
+            },
+        ])
 
     return {"methods": methods}
 
