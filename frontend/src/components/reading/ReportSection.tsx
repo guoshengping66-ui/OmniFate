@@ -2,6 +2,7 @@
 import { useState, useMemo, lazy, Suspense } from "react"
 import { ChevronDown, ChevronUp } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { cleanVisibleReportText, firstReadableSentence, isLikelyGarbled } from "@/lib/reportTextQuality"
 import type { StructuredReport } from "@/types/report"
 
 const StructuredReportComponent = lazy(() =>
@@ -9,22 +10,7 @@ const StructuredReportComponent = lazy(() =>
 )
 
 function stripMarkdown(text: string): string {
-  return text
-    .replace(/```json\s*[\s\S]*?```/g, "")
-    .replace(/```\w*\s*[\s\S]*?```/g, "")
-    .replace(/\*\*(.+?)\*\*/g, "$1")
-    .replace(/\*(.+?)\*/g, "$1")
-    .replace(/^#{1,6}\s+/gm, "")
-    .replace(/^\s*[-*_]{3,}\s*$/gm, "")
-    .replace(/^>\s*/gm, "")
-    .replace(/`([^`]+)`/g, "$1")
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-    .replace(/!\[[^\]]*\]\([^)]+\)/g, "")
-    .replace(/#-+/g, "")
-    .replace(/^#+\s*$/gm, "")
-    .replace(/^\s*[-*+]\s+(?=[#-])/gm, "")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim()
+  return cleanVisibleReportText(text)
 }
 
 function parseStructuredContent(content: string): StructuredReport | null {
@@ -88,6 +74,7 @@ function parseLines(text: string): ParsedLine[] {
 
   for (const raw of rawLines) {
     const trimmed = raw.trim()
+    if (isLikelyGarbled(trimmed)) continue
     if (!trimmed) {
       if (result.length > 0 && result[result.length - 1].type === "empty") continue
       result.push({ type: "empty", content: "" })
@@ -162,7 +149,9 @@ function buildKeyTakeaways(lines: ParsedLine[]): string[] {
   return lines
     .filter(line => line.type !== "empty" && line.content.length > 18)
     .map(line => line.content.replace(/^[\-•\d.、\s]+/, "").trim())
+    .map(line => firstReadableSentence(line, 140))
     .filter(Boolean)
+    .filter(line => !isLikelyGarbled(line))
     .slice(0, 3)
 }
 

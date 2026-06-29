@@ -27,6 +27,7 @@ import { ReadingSkeleton } from "@/components/reading/ReadingSkeleton"
 import { TagBadge } from "@/components/ui/TagBadge"
 import { useRegion } from "@/hooks/useRegion"
 import { getProductPrice } from "@/lib/regionPrice"
+import { cleanVisibleReportText, firstReadableSentence, splitReadableParagraphs } from "@/lib/reportTextQuality"
 import type { DecisionReport, StructuredReport } from "@/types/report"
 
 /**
@@ -66,32 +67,11 @@ const DecisionReportComponent = lazy(() => import("@/components/reading/Decision
 const WORKER_ORDER = ["bazi", "qimen", "ziwei", "astrology", "tarot", "face", "palm"] as const
 
 function stripMarkdown(text: string): string {
-  return text
-    // Remove JSON code blocks that may have leaked into report text
-    .replace(/```json\s*[\s\S]*?```/g, "")
-    .replace(/```\w*\s*[\s\S]*?```/g, "")
-    .replace(/\*\*(.+?)\*\*/g, "$1")
-    .replace(/\*(.+?)\*\*/g, "$1")
-    .replace(/^#{1,6}\s+/gm, "")
-    .replace(/^\s*[-*_]{3,}\s*$/gm, "")
-    .replace(/^>\s*/gm, "")
-    .replace(/`([^`]+)`/g, "$1")
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-    .replace(/!\[[^\]]*\]\([^)]+\)/g, "")
-    .replace(/#-+/g, "")
-    .replace(/^#+\s*$/gm, "")
-    .replace(/^\s*[-*+]\s+(?=[#-])/gm, "")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim()
+  return cleanVisibleReportText(text)
 }
 
 function cleanReportText(text: string): string {
-  return stripMarkdown(text)
-    .replace(/^\s*\*+\s*/gm, "")
-    .replace(/\s*\*+\s*$/gm, "")
-    .replace(/[ \t]{2,}/g, " ")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim()
+  return cleanVisibleReportText(text)
 }
 
 function parseDecisionReportContent(content: string): DecisionReport | null {
@@ -122,7 +102,7 @@ type TextSection = { title: string; body: string; id?: string }
 type WorkerReportLike = { report?: string; tags?: string[]; error?: string }
 
 function splitDecisionReport(text: string): TextSection[] {
-  const clean = stripMarkdown(text)
+  const clean = cleanVisibleReportText(text)
   if (!clean) return []
 
   const headingRe = /^(?:【([^】]{2,40})】|\[([^\]]{2,40})\]|(?:\d+[.、]\s*)(.{2,40})|#{1,4}\s+(.{2,60}))\s*$/gm
@@ -136,14 +116,12 @@ function splitDecisionReport(text: string): TextSection[] {
   }
 
   if (headings.length === 0) {
-    return clean
-      .split(/\n{2,}/)
+    return splitReadableParagraphs(clean, 8)
       .map((body, index) => ({
         title: index === 0 ? "核心结论" : `补充分析 ${index + 1}`,
         body: body.trim(),
       }))
       .filter(section => section.body.length > 0)
-      .slice(0, 8)
   }
 
   return headings.map((heading, index) => {
@@ -154,18 +132,11 @@ function splitDecisionReport(text: string): TextSection[] {
 }
 
 function getSectionPreview(section: TextSection, maxLength = 150): string {
-  const clean = cleanReportText(section.body)
-  const sentence = clean.split(/[。！？.!?\n]/).map(item => item.trim()).find(item => item.length > 12) || clean
-  return sentence.length > maxLength ? `${sentence.slice(0, maxLength)}...` : sentence
+  return firstReadableSentence(section.body, maxLength)
 }
 
 function getReadableExcerpt(text = "", maxLength = 130): string {
-  const clean = cleanReportText(text)
-  const sentence = clean
-    .split(/[。！？.!?\n]/)
-    .map(item => item.trim())
-    .find(item => item.length > 12) || clean
-  return sentence.length > maxLength ? `${sentence.slice(0, maxLength)}...` : sentence
+  return firstReadableSentence(text, maxLength)
 }
 
 function DecisionReportText({ content }: { content: string }) {
