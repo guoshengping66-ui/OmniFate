@@ -10,6 +10,7 @@ const withNextIntl = createNextIntlPlugin()
 const PROD_BACKEND = "https://api.khanfate.com"
 const BACKEND_URL = process.env.BACKEND_URL || PROD_BACKEND
 const isProd = process.env.NODE_ENV === "production"
+const isLowMemoryBuild = process.env.NEXT_LOW_MEMORY_BUILD === "1"
 
 const securityHeaders = [
   { key: "X-DNS-Prefetch-Control", value: "on" },
@@ -54,22 +55,29 @@ const nextConfig = {
     "@react-three/fiber",
   ],
   experimental: {
-    // Optimize CSS to reduce render-blocking resources
-    optimizeCss: true,
-    // Tree-shake heavy packages more aggressively
-    optimizePackageImports: [
-      "lucide-react",
-      "date-fns",
-      "lodash",
-      "ramda",
-      "rxjs",
-      "@mui/material",
-      "@mui/icons-material",
-      "date-fns-tz",
-      "nanoid",
-      "framer-motion",
-      "swr",
-    ],
+    // Disable expensive build-time optimizations on the 2GB production server.
+    optimizeCss: !isLowMemoryBuild,
+    optimizePackageImports: isLowMemoryBuild
+      ? []
+      : [
+          "lucide-react",
+          "date-fns",
+          "lodash",
+          "ramda",
+          "rxjs",
+          "@mui/material",
+          "@mui/icons-material",
+          "date-fns-tz",
+          "nanoid",
+          "framer-motion",
+          "swr",
+        ],
+  },
+  webpack(config) {
+    if (isLowMemoryBuild) {
+      config.parallelism = 1
+    }
+    return config
   },
   async headers() {
     return [
