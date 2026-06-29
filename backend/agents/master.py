@@ -315,8 +315,12 @@ def _compute_dimension_scores(state: SystemState) -> dict[str, float]:
     Target distribution: most scores 5-9, average ~6.5-7.5
     """
     scores: dict[str, float] = {
-        "wealth": 7.0, "relationship": 7.0,
-        "career": 7.0, "health": 7.0, "spiritual": 7.0,
+        "wealth": 6.4, "relationship": 6.2,
+        "career": 6.7, "health": 6.1, "spiritual": 6.5,
+    }
+    spread_offsets: dict[str, float] = {
+        "wealth": -0.45, "relationship": 0.15,
+        "career": 0.55, "health": -0.35, "spiritual": 0.25,
     }
 
     # Dimension → keyword mapping (used for both tags and sentiment)
@@ -354,9 +358,14 @@ def _compute_dimension_scores(state: SystemState) -> dict[str, float]:
 
     for dim in dim_keywords:
         # -0.3 per unique worker with weakness tags (max ~7 workers × -0.3 = -2.1)
-        scores[dim] += -0.3 * len(weak_by_dim[dim])
+        scores[dim] += -0.42 * len(weak_by_dim[dim])
         # +0.5 per unique worker with strength tags (max ~7 workers × +0.5 = +3.5)
-        scores[dim] += 0.5 * len(strong_by_dim[dim])
+        scores[dim] += 0.58 * len(strong_by_dim[dim])
+        evidence_delta = len(strong_by_dim[dim]) - len(weak_by_dim[dim])
+        if evidence_delta >= 2:
+            scores[dim] += 0.25
+        elif evidence_delta <= -2:
+            scores[dim] -= 0.25
 
     # boost_elements: map to dimension (supports both English and Chinese element names)
     element_dim_map = {
@@ -401,6 +410,13 @@ def _compute_dimension_scores(state: SystemState) -> dict[str, float]:
                 scores[dim] = min(10.0, scores[dim] + 0.4)
             elif sent == "negative":
                 scores[dim] = max(0.0, scores[dim] - 0.2)
+
+    values = list(scores.values())
+    spread = max(values) - min(values)
+    if spread < 1.1:
+        # Keep sparse reports from collapsing into nearly identical 7.x values.
+        for dim, offset in spread_offsets.items():
+            scores[dim] += offset
 
     # Clamp to 1-10 (never show 0, minimum meaningful score is 1)
     for dim in scores:

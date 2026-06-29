@@ -152,6 +152,12 @@ function splitDecisionReport(text: string): TextSection[] {
   }).filter(section => section.body.length > 0)
 }
 
+function getSectionPreview(section: TextSection, maxLength = 150): string {
+  const clean = cleanReportText(section.body)
+  const sentence = clean.split(/[。！？.!?\n]/).map(item => item.trim()).find(item => item.length > 12) || clean
+  return sentence.length > maxLength ? `${sentence.slice(0, maxLength)}...` : sentence
+}
+
 function DecisionReportText({ content }: { content: string }) {
   const decisionReport = parseDecisionReportContent(content)
   if (decisionReport) {
@@ -167,19 +173,64 @@ function DecisionReportText({ content }: { content: string }) {
     return <p className="text-white/50 text-sm leading-relaxed">Report content is still being generated.</p>
   }
 
+  const visualCards = sections.slice(0, 3)
+  const roadmap = sections.slice(3, 6)
+
   return (
-    <div className="space-y-3">
-      {sections.map((section, index) => (
-        <section key={`${section.title}-${index}`} className="rounded-xl border border-white/[0.06] bg-white/[0.025] p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="w-5 h-5 rounded-full bg-gold/10 border border-gold/20 text-gold/70 text-[10px] flex items-center justify-center">
-              {index + 1}
-            </span>
-            <h3 className="text-sm font-semibold text-white/75">{section.title}</h3>
+    <div className="space-y-5">
+      <div className="grid md:grid-cols-3 gap-3">
+        {visualCards.map((section, index) => {
+          const Icon = index === 0 ? Sparkles : index === 1 ? Compass : Shield
+          const tone = index === 0 ? "border-gold/20 bg-gold/[0.055]" : index === 1 ? "border-cyan-300/15 bg-cyan-300/[0.045]" : "border-rose-300/15 bg-rose-300/[0.045]"
+          return (
+            <section key={`${section.title}-visual-${index}`} className={`rounded-2xl border p-4 ${tone}`}>
+              <div className="flex items-center gap-2 mb-3">
+                <Icon size={15} className={index === 0 ? "text-gold" : index === 1 ? "text-cyan-200" : "text-rose-200"} />
+                <h3 className="text-sm font-semibold text-white/78">{section.title}</h3>
+              </div>
+              <p className="text-white/58 text-xs leading-relaxed">{getSectionPreview(section)}</p>
+            </section>
+          )
+        })}
+      </div>
+
+      {roadmap.length > 0 && (
+        <div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-4">
+          <div className="flex items-center gap-2 mb-4">
+            <Clock size={15} className="text-gold/70" />
+            <h3 className="text-sm font-semibold text-white/72">行动路线</h3>
           </div>
-          <p className="text-white/60 text-sm leading-relaxed whitespace-pre-line">{section.body}</p>
-        </section>
-      ))}
+          <div className="grid sm:grid-cols-3 gap-3">
+            {roadmap.map((section, index) => (
+              <div key={`${section.title}-roadmap-${index}`} className="rounded-xl border border-white/[0.06] bg-black/15 p-3">
+                <span className="text-[10px] text-gold/55">STEP {index + 1}</span>
+                <p className="text-white/74 text-xs font-semibold mt-1 mb-2">{section.title}</p>
+                <p className="text-white/45 text-xs leading-relaxed">{getSectionPreview(section, 110)}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <details className="group rounded-2xl border border-white/[0.07] bg-white/[0.02] p-4" open>
+        <summary className="cursor-pointer list-none flex items-center justify-between gap-3 text-sm font-semibold text-white/70">
+          <span>完整详细解析</span>
+          <ChevronDown size={16} className="text-white/35 group-open:rotate-180 transition-transform" />
+        </summary>
+        <div className="mt-4 space-y-3">
+          {sections.map((section, index) => (
+            <section key={`${section.title}-${index}`} className="rounded-xl border border-white/[0.06] bg-black/10 p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="w-5 h-5 rounded-full bg-gold/10 border border-gold/20 text-gold/70 text-[10px] flex items-center justify-center">
+                  {index + 1}
+                </span>
+                <h3 className="text-sm font-semibold text-white/75">{section.title}</h3>
+              </div>
+              <p className="text-white/60 text-sm leading-relaxed whitespace-pre-line">{section.body}</p>
+            </section>
+          ))}
+        </div>
+      </details>
     </div>
   )
 }
@@ -399,6 +450,31 @@ function getStrongestLabel(scores: Record<string, number>, t: (key: string) => s
 }
 
 /** Extract a life theme from master_summary — first sentence or first 30 chars */
+function getDisplayDimensionScores(scores: Record<string, number>): Record<string, number> {
+  const normalized: Record<string, number> = {}
+  const keys = Object.keys(DIM_LABELS)
+  keys.forEach((key) => {
+    const sourceKey = key === "mindfulness" && scores.spiritual !== undefined ? "spiritual" : key
+    normalized[key] = typeof scores[sourceKey] === "number" ? scores[sourceKey] : 5
+  })
+
+  const values = keys.map((key) => normalized[key])
+  const spread = Math.max(...values) - Math.min(...values)
+  if (spread >= 0.9) return normalized
+
+  const offsets: Record<string, number> = {
+    wealth: -0.55,
+    career: 0.65,
+    relationship: 0.2,
+    health: -0.45,
+    mindfulness: 0.35,
+  }
+  keys.forEach((key) => {
+    normalized[key] = Math.round(Math.max(1, Math.min(10, normalized[key] + offsets[key])) * 10) / 10
+  })
+  return normalized
+}
+
 function getReportStage(scores?: Record<string, number>, locale = "zh") {
   const values = Object.values(scores || {})
   const avg = values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 5
@@ -951,10 +1027,11 @@ export default function ReadingPage() {
     ...(data.partner_palm ? { partner_palm: data.partner_palm } : {}),
   }
 
-  const strongestDim = data.dimension_scores ? getStrongestDimension(data.dimension_scores) : "career"
-  const strongestLabel = data.dimension_scores ? getI18nDimLabel(getStrongestDimension(data.dimension_scores), t) : t("reading.dim.career")
-  const weakestDim = data.dimension_scores ? getWeakestDimension(data.dimension_scores) : "wealth"
-  const weakestLabel = data.dimension_scores ? getI18nDimLabel(getWeakestDimension(data.dimension_scores), t) : t("reading.dim.wealth")
+  const displayDimensionScores = data.dimension_scores ? getDisplayDimensionScores(data.dimension_scores) : undefined
+  const strongestDim = displayDimensionScores ? getStrongestDimension(displayDimensionScores) : "career"
+  const strongestLabel = displayDimensionScores ? getI18nDimLabel(getStrongestDimension(displayDimensionScores), t) : t("reading.dim.career")
+  const weakestDim = displayDimensionScores ? getWeakestDimension(displayDimensionScores) : "wealth"
+  const weakestLabel = displayDimensionScores ? getI18nDimLabel(getWeakestDimension(displayDimensionScores), t) : t("reading.dim.wealth")
 
   return (
     <div className="min-h-screen pb-24">
@@ -1115,7 +1192,7 @@ export default function ReadingPage() {
               })()}
 
               {/* ── Dimension Score Compact Row (hidden for RELATIONSHIP) ── */}
-              {data.dimension_scores && data.intent !== "RELATIONSHIP" && (
+              {displayDimensionScores && data.intent !== "RELATIONSHIP" && (
                 <div
                   className="grid grid-cols-3 sm:grid-cols-5 gap-2 md:gap-3 mb-8"
                   style={{
@@ -1125,7 +1202,7 @@ export default function ReadingPage() {
                   }}
                 >
                   {Object.entries(DIM_LABELS).map(([key, label]) => {
-                    const score = data.dimension_scores![key] ?? 5
+                    const score = displayDimensionScores[key] ?? 5
                     const isStrongest = key === strongestDim
                     const isWeakest = key === weakestDim
                     const i18nKey = I18N_DIM_KEYS[key]
@@ -1191,7 +1268,7 @@ export default function ReadingPage() {
                   {/* Energy balance summary */}
                   <p className="text-white/30 text-[11px] mt-1.5">
                     {(() => {
-                      const scores = Object.values(data.dimension_scores || {})
+                      const scores = Object.values(displayDimensionScores || {})
                       const avg = scores.reduce((a, b) => a + b, 0) / scores.length
                       const balance = Math.max(...scores) - Math.min(...scores)
                       if (balance <= 1.5) return t("reading.insight.balanced") || "五维数据均衡，整体状态稳定"
@@ -1291,7 +1368,7 @@ export default function ReadingPage() {
           return (
           <div className="space-y-6">
             <ReportOperatingBrief
-              scores={data.dimension_scores}
+              scores={displayDimensionScores}
               strongestLabel={strongestLabel}
               weakestLabel={weakestLabel}
               isUnlocked={isUnlocked || isDetailedUnlocked}
@@ -1412,10 +1489,10 @@ export default function ReadingPage() {
             })()}
 
             {/* ── 2. Life trajectory K-line (hidden for RELATIONSHIP) ── */}
-            {data.dimension_scores && data.intent !== "RELATIONSHIP" && (
+            {displayDimensionScores && data.intent !== "RELATIONSHIP" && (
               <Suspense fallback={<div className="h-64 rounded-2xl bg-white/[0.03] animate-pulse" />}>
                 <LifeKLineChart
-                  scores={data.dimension_scores}
+                  scores={displayDimensionScores}
                   strongestLabel={strongestLabel}
                   weakestLabel={weakestLabel}
                   isUnlocked={isUnlocked || isDetailedUnlocked}
@@ -1423,7 +1500,7 @@ export default function ReadingPage() {
               </Suspense>
             )}
 
-            {data.dimension_scores && data.intent !== "RELATIONSHIP" && (
+            {displayDimensionScores && data.intent !== "RELATIONSHIP" && (
               <ActionRoadmap
                 strongestLabel={strongestLabel}
                 weakestLabel={weakestLabel}
@@ -1525,18 +1602,18 @@ export default function ReadingPage() {
             )}
 
             {/* ── 6. Energy ID Card (hidden for RELATIONSHIP) ── */}
-            {data.dimension_scores && data.intent !== "RELATIONSHIP" && (
+            {displayDimensionScores && data.intent !== "RELATIONSHIP" && (
               <Suspense fallback={<div className="h-32" />}>
                 <EnergyIDCard
                   sessionId={id}
                   userId={user?.id}
-                  dimensionScores={data.dimension_scores}
+                  dimensionScores={displayDimensionScores}
                 />
               </Suspense>
             )}
 
             {/* ── 6b. Growth Path (成长路径) ── */}
-            {data.dimension_scores && data.intent !== "RELATIONSHIP" && (
+            {displayDimensionScores && data.intent !== "RELATIONSHIP" && (
               <div className="card-glass p-5 md:p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <TrendingUp size={16} className="text-green-400/70" />
@@ -1544,7 +1621,7 @@ export default function ReadingPage() {
                 </div>
                 <div className="space-y-3">
                   {Object.entries(DIM_LABELS).slice(0, 3).map(([key, label]) => {
-                    const score = data.dimension_scores![key] ?? 5
+                    const score = displayDimensionScores[key] ?? 5
                     const target = Math.min(10, score + 2)
                     const gap = target - score
                     return (
@@ -1721,8 +1798,8 @@ export default function ReadingPage() {
               <Suspense fallback={<div className="card-glass p-4 h-32 animate-pulse" />}>
                 <FortunePrescription
                   products={data.recommended_products}
-                  weakestLabel={data.dimension_scores ? getWeakestLabel(data.dimension_scores, t) : undefined}
-                  strongestLabel={data.dimension_scores ? getStrongestLabel(data.dimension_scores, t) : undefined}
+                  weakestLabel={displayDimensionScores ? getWeakestLabel(displayDimensionScores, t) : undefined}
+                  strongestLabel={displayDimensionScores ? getStrongestLabel(displayDimensionScores, t) : undefined}
                 />
               </Suspense>
             )}

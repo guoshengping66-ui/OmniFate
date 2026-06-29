@@ -158,6 +158,41 @@ interface Props {
 
 const PREVIEW_LINES = 12
 
+function buildKeyTakeaways(lines: ParsedLine[]): string[] {
+  return lines
+    .filter(line => line.type !== "empty" && line.content.length > 18)
+    .map(line => line.content.replace(/^[\-•\d.、\s]+/, "").trim())
+    .filter(Boolean)
+    .slice(0, 3)
+}
+
+function buildReadableSections(lines: ParsedLine[]): Array<{ title: string; body: string }> {
+  const sections: Array<{ title: string; body: string }> = []
+  let currentTitle = "核心解析"
+  let currentBody: string[] = []
+
+  const flush = () => {
+    if (currentBody.length > 0) {
+      sections.push({ title: currentTitle, body: currentBody.join("\n") })
+      currentBody = []
+    }
+  }
+
+  lines.forEach((line) => {
+    if (line.type === "empty") return
+    if (line.type === "heading") {
+      flush()
+      currentTitle = line.content
+      return
+    }
+    currentBody.push(line.content)
+  })
+
+  flush()
+
+  return sections.filter(section => section.body.length > 20).slice(0, 4)
+}
+
 export function ReportSection({ icon, title, color, content }: Props) {
   const { t } = useLanguage()
   const [expanded, setExpanded] = useState(false)
@@ -166,6 +201,8 @@ export function ReportSection({ icon, title, color, content }: Props) {
   const isStructured = structuredData !== null
 
   const parsedLines = useMemo(() => isStructured ? [] : parseLines(content), [content, isStructured])
+  const keyTakeaways = useMemo(() => buildKeyTakeaways(parsedLines), [parsedLines])
+  const readableSections = useMemo(() => buildReadableSections(parsedLines), [parsedLines])
   const visibleLines = expanded ? parsedLines : parsedLines.slice(0, PREVIEW_LINES)
   const hasMore = parsedLines.length > PREVIEW_LINES
 
@@ -201,6 +238,35 @@ export function ReportSection({ icon, title, color, content }: Props) {
         <span className="text-lg">{icon}</span>
         <h2 className={`font-serif text-base font-bold ${color}`}>{title}</h2>
       </div>
+
+      {keyTakeaways.length > 0 && (
+        <div className="mb-4 grid sm:grid-cols-3 gap-2.5">
+          {keyTakeaways.map((item, index) => (
+            <div key={`${item}-${index}`} className="rounded-xl border border-gold/10 bg-gold/[0.035] p-3">
+              <span className="text-[9px] tracking-[0.14em] text-gold/45">KEY {index + 1}</span>
+              <p className="mt-1 text-white/64 text-xs leading-relaxed line-clamp-3">
+                <HighlightedText text={item} />
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {!expanded && readableSections.length > 1 && (
+        <div className="mb-4 rounded-2xl border border-white/[0.06] bg-black/10 p-3">
+          <p className="text-[10px] uppercase tracking-[0.16em] text-white/28 mb-2">Reading Map</p>
+          <div className="grid sm:grid-cols-2 gap-2">
+            {readableSections.map((section, index) => (
+              <div key={`${section.title}-${index}`} className="rounded-xl bg-white/[0.025] border border-white/[0.05] p-3">
+                <p className="text-white/72 text-xs font-semibold mb-1">{section.title}</p>
+                <p className="text-white/42 text-[11px] leading-relaxed line-clamp-2">
+                  <HighlightedText text={section.body.split("\n")[0] || section.body} />
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Content */}
       <div className="space-y-0.5">
