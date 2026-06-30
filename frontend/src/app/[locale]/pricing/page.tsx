@@ -146,7 +146,7 @@ export default function PricingPage() {
                 desc: locale === "zh" ? "整合多系统分析，形成你的长期人格与人生课题基线。" : "A long-term self-knowledge baseline across multiple systems.",
               },
               {
-                icon: TrendingUp,
+                icon: Zap,
                 title: locale === "zh" ? "每日趋势与今日签" : "Daily Trend + Oracle",
                 desc: locale === "zh" ? "每天给出趋势、风险提醒和一条可执行行动建议。" : "Daily trend, risk signal, and one practical action prompt.",
               },
