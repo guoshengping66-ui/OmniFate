@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Next.js API Proxy — routes all /api/proxy/* requests to the backend.
  *
  * WHY: The server's nginx (1.14.1) rejects certain POST request bodies
@@ -84,12 +84,11 @@ async function proxy(request: Request, params: Promise<{ path: string[] }>) {
   const BLOCKED_PATHS = [
     "/api/cron/",
     "/api/webhooks/",              // Webhooks must hit backend directly
-    "/api/payments/webhooks/",     // PayPal/CJ webhooks must hit backend directly
+    "/api/payments/webhooks/",     // Payment webhooks must hit backend directly
     "/api/credits/grant",          // Admin-only: grant stardust
     "/api/credits/monthly-grant",  // Admin-only: monthly grant
     "/api/credits/admin/",         // Admin credit audit/management
     "/api/admin/",                 // All admin endpoints
-    "/api/personal-payments/admin/",  // Admin personal payment management
     "/api/referrals/admin",        // Admin referral management
     "/api/users/admin",            // Admin user management
   ]

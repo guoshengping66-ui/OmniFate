@@ -1,4 +1,4 @@
-"""Report unlock endpoints and logic."""
+﻿"""Report unlock endpoints and logic."""
 
 from __future__ import annotations
 
@@ -78,7 +78,7 @@ async def activate_onetime_unlock(user: User, reading_id: str, db: AsyncSession)
 async def handle_onetime_unlock_activation(user, order, db) -> dict:
     """
     一次性解锁统一激活入口 — 解锁报告 + 赠送代金券/星尘。
-    供 WeChat/Alipay/PayPal/管理端等多处调用，消除重复代码。
+    Shared activation helper for Stripe webhook/return flows and admin tooling.
     """
     notes = order.notes or ""
     reading_id = notes.split("reading_id:")[1].split("|")[0] if "reading_id:" in notes else ""
@@ -166,17 +166,13 @@ async def _unlock_reading(reading_id: str, db: AsyncSession, skip_stardust_grant
 
 @router.get("/payment-methods")
 async def get_payment_methods():
-    """Return available payment methods."""
-    from config import get_settings
-    settings = get_settings()
-
-    methods = []
-    if settings.STRIPE_ENABLED:
-        methods.extend([
+    """Return the single supported payment method: Stripe."""
+    return {
+        "methods": [
             {
                 "id": "stripe",
-                "name": "银行卡 / 信用卡支付",
-                "name_en": "Card payment",
+                "name": "Stripe Card",
+                "name_en": "Credit or debit card",
                 "icon": "credit-card",
                 "category": "china",
                 "enabled": True,
@@ -189,81 +185,8 @@ async def get_payment_methods():
                 "category": "global",
                 "enabled": True,
             },
-        ])
-    if settings.ALIPAY_ENABLED:
-        methods.append({
-            "id": "alipay",
-            "name": "支付宝",
-            "name_en": "Alipay",
-            "icon": "alipay",
-            "category": "china",
-            "enabled": True,
-        })
-    if settings.WECHAT_PAY_ENABLED:
-        methods.append({
-            "id": "wechat_pay",
-            "name": "微信支付",
-            "name_en": "WeChat Pay",
-            "icon": "wechat",
-            "category": "china",
-            "enabled": True,
-        })
-    if settings.PAYPAL_ENABLED:
-        methods.append({
-            "id": "paypal",
-            "name": "PayPal",
-            "name_en": "PayPal",
-            "icon": "paypal",
-            "category": "global",
-            "enabled": True,
-        })
-
-    return {"methods": methods}
-
-
-@router.get("/paypal/config")
-async def paypal_config():
-    """返回 PayPal 客户端配置（用于前端 SDK 初始化）"""
-    from config import get_settings
-    settings = get_settings()
-    return {
-        "client_id": settings.PAYPAL_CLIENT_ID,
-        "currency": "USD",
-        "intent": "capture",
-        "mode": settings.PAYPAL_MODE,
+        ]
     }
-
-
-@router.get("/paypal/sdk")
-async def paypal_sdk_proxy():
-    """代理 PayPal SDK JS，避免前端直连 paypal.com"""
-    from config import get_settings
-    settings = get_settings()
-    import httpx
-
-    mode = settings.PAYPAL_MODE
-    sdk_url = f"https://www.paypal.com/sdk/js?client-id={settings.PAYPAL_CLIENT_ID}&currency=USD&intent=capture"
-
-    async with httpx.AsyncClient(timeout=10) as client:
-        response = await client.get(sdk_url)
-
-    # Don't cache error responses or non-JavaScript responses from PayPal
-    ct = response.headers.get("content-type", "").lower()
-    is_javascript = "javascript" in ct or "ecmascript" in ct
-    if response.status_code != 200 or not is_javascript:
-        from fastapi.responses import Response
-        return Response(
-            content=response.content,
-            status_code=response.status_code,
-            media_type="application/javascript",
-        )
-
-    from fastapi.responses import Response
-    return Response(
-        content=response.content,
-        media_type="application/javascript",
-        headers={"Cache-Control": "public, max-age=86400"},
-    )
 
 
 @router.post("/unlock/{reading_id}")

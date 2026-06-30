@@ -2,7 +2,6 @@
 import { useState } from "react"
 import { X, Sparkles, Shield, CreditCard, CheckCircle, Loader2 } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { useRegion } from "@/contexts/RegionContext"
 import { PaymentMethodSelector } from "./PaymentMethodSelector"
 
 interface PaymentModalProps {
@@ -31,9 +30,8 @@ export function PaymentModal({
   onStardustPayment,
 }: PaymentModalProps) {
   const { t } = useLanguage()
-  const { region } = useRegion()
   const [status, setStatus] = useState<"idle" | "processing" | "success">("idle")
-  const [paymentMethod, setPaymentMethod] = useState("card")
+  const [paymentMethod, setPaymentMethod] = useState("stripe")
 
   if (!open) return null
 
@@ -129,7 +127,6 @@ export function PaymentModal({
           <PaymentMethodSelector
             selected={paymentMethod}
             onSelect={setPaymentMethod}
-            region={region}
           />
         </div>
 
@@ -155,7 +152,7 @@ export function PaymentModal({
         </button>
 
         <p className="text-white/20 text-[11px] text-center mt-4">
-          {t("paymentModal.supportedMethods")}
+          Secure checkout powered by Stripe.
         </p>
       </div>
     </div>

@@ -13,7 +13,7 @@ TRIAL_DAYS = 3
 EVENT_RETRO_PRICE = 19.9
 
 # ── Server-side price list (clients CANNOT override these) ───────────────────
-# Prices in CNY for Alipay/WeChat, USD for PayPal
+# Prices in CNY for domestic Stripe Checkout, USD for overseas Stripe Checkout.
 PREMIUM_MONTHLY_CNY = 59.0
 PREMIUM_YEARLY_CNY = 365.0
 PREMIUM_MONTHLY_USD = 14.99
@@ -41,8 +41,7 @@ SUBSCRIPTION_GRANTS = {
 }
 
 # ── Region-to-payment-method validation ──────────────────────────────────────
-# Prevents cross-region price abuse: domestic users can only use Alipay/WeChat,
-# overseas users can only use PayPal. This is a defense-in-depth measure.
+# Prevents cross-region price abuse while keeping Stripe as the only processor.
 ALLOWED_METHODS = {
     "domestic": {"stripe"},
     "overseas": {"stripe"},

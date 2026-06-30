@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Loader2, Crown, Check, Users, ArrowLeft, MapPin, Star, MessageSquare } from "lucide-react"
@@ -83,22 +83,10 @@ export default function FounderPage() {
       .finally(() => setLoading(false))
   }, [user, authLoading, router])
 
-  const [founderOrderNo, setFounderOrderNo] = useState<string | null>(null)
-
   const handleActivate = async () => {
     setActivating(true)
     try {
-      if (isOverseas) {
-        // Overseas: skip pre-order creation, go directly to PayPal
-        setFounderOrderNo(null)
-        setShowPayment(true)
-      } else {
-        // Domestic: create pre-order for QR payment
-        const orderRes = await api.post("/api/payments/founder/purchase?method=personal")
-        const orderNo = orderRes.data.order_no
-        setFounderOrderNo(orderNo)
-        setShowPayment(true)
-      }
+      setShowPayment(true)
     } catch (err: any) {
       toast.error(err.response?.data?.detail || t("founder.pricing.createOrderFail"))
     } finally {
@@ -455,7 +443,6 @@ export default function FounderPage() {
         <QRPaymentModal
           open={showPayment}
           onClose={() => setShowPayment(false)}
-          orderNo={isOverseas ? undefined : founderOrderNo ?? undefined}
           amount={isOverseas ? FOUNDER_PRICE_USD : FOUNDER_PRICE}
           label={t("founder.pricing.founderSeat")}
           postAction="founder"

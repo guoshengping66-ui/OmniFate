@@ -411,7 +411,7 @@
   "legal": {
     "privacy": {
       "s1": {
-        "content": "我们收集以下信息以提供行为分析服务：\n\n1. **账户信息**：注册时提供的电子邮件地址和显示名称。\n2. **出生信息**：出生年月日、时辰、出生城市及经纬度，用于生成档案分析。\n3. **面相/手相数据**：您上传的面部或手掌照片，仅用于 AI 特征提取分析，原始图片在分析完成后立即删除，不做永久存储。\n4. **用户问题**：您在分析过程中提出的问题，用于提供个性化解读。\n5. **支付信息**：通过第三方支付平台（支付宝、微信支付、PayPal）处理，我们不存储您的银行卡号等敏感支付信息。",
+        "content": "我们收集以下信息以提供行为分析服务：\n\n1. **账户信息**：注册时提供的电子邮件地址和显示名称。\n2. **出生信息**：出生年月日、时辰、出生城市及经纬度，用于生成档案分析。\n3. **面相/手相数据**：您上传的面部或手掌照片，仅用于 AI 特征提取分析，原始图片在分析完成后立即删除，不做永久存储。\n4. **用户问题**：您在分析过程中提出的问题，用于提供个性化解读。\n5. **支付信息**：通过 Stripe 处理，我们不存储您的银行卡号等敏感支付信息。",
         "title": "一、信息收集"
       },
       "s10": {
@@ -435,7 +435,7 @@
         "title": "四、信息存储与安全"
       },
       "s5": {
-        "content": "为提供 AI 分析服务，我们会将您的出生信息和分析请求发送至以下第三方服务：\n\n1. **DeepSeek API**：用于 AI 行为分析推理（已签署数据处理协议）。\n2. **Skyfield 天文计算库**：用于本地星盘计算，不涉及数据外传。\n3. **支付服务商**：支付宝、微信支付、PayPal（仅在您发起支付时使用）。\n\n我们不会将您的个人信息出售或共享给其他任何第三方。",
+        "content": "为提供 AI 分析服务，我们会将您的出生信息和分析请求发送至以下第三方服务：\n\n1. **DeepSeek API**：用于 AI 行为分析推理（已签署数据处理协议）。\n2. **Skyfield 天文计算库**：用于本地星盘计算，不涉及数据外传。\n3. **支付服务商**：Stripe（仅在您发起支付时使用）。\n\n我们不会将您的个人信息出售或共享给其他任何第三方。",
         "title": "五、第三方服务"
       },
       "s6": {
@@ -479,8 +479,8 @@
         "title": "五、退款申请方式"
       },
       "s6": {
-        "content": "如果您通过 PayPal 付款，您可能有资格获得 PayPal 买家保护。详情请访问：https://www.paypal.com/webapps/mpp/ua/buyerprotection\n\n如需在 PayPal 提出争议：\n1. 登录您的 PayPal 账户\n2. 前往「活动」找到该笔交易\n3. 点击「报告问题」并按照提示操作\n\nPayPal 争议需在付款后 180 天内提出。提出 PayPal 争议不影响您直接联系我们的客服团队。",
-        "title": "六、PayPal 买家保护"
+        "content": "所有在线支付均通过 Stripe 处理。若您对 Stripe 交易有疑问，请优先联系我们的客服团队，我们会协助核对订单和处理退款请求。\n\n如需通过发卡行提出争议，请保留订单号、支付时间和邮箱信息，便于我们快速定位交易。提出支付争议不影响您直接联系我们的客服团队。",
+        "title": "六、Stripe 支付争议"
       },
       "intro": "感谢您使用AI 行为分析镜。我们致力于提供高质量的行为分析与商品服务。本平台所有商品均为深度个人专属定制产品，请在下单前仔细阅读以下退款政策。",
       "title": "退款政策"
@@ -2818,7 +2818,7 @@
     "goShop": "去商城逛逛",
     "loginFirst": "请先登录",
     "memberDiscount": "会员 88 折",
-    "mockNote": "支持支付宝、微信等支付方式",
+    "mockNote": "支持 Stripe 安全支付",
     "orderFail": "下单失败",
     "orderSuccessTitle": "下单成功！",
     "pay": "确认支付",
@@ -3256,8 +3256,6 @@
     "loading": "加载中...",
     "totalAmount": "总金额",
     "activationIssue": "会员激活遇到问题，请稍后刷新页面重试",
-    "alipayQR": "支付宝收款码",
-    "alipaySteps": "支付宝支付步骤",
     "amount": "支付金额",
     "cancel": "取消",
     "checkEmail": "请查收确认邮件",
@@ -3299,7 +3297,6 @@
     "scanToPay": "扫码支付",
     "selectMethod": "选择支付方式",
     "startUsing": "开始使用",
-    "step1Alipay": "1. 打开支付宝APP",
     "step1Wechat": "1. 打开微信APP",
     "step2": "2. 点击「扫一扫」扫描上方二维码",
     "step3": "3. 手动输入金额",
@@ -3314,13 +3311,8 @@
     "waitingDesc1": "您的支付已提交，正在等待管理员核实收款",
     "waitingDesc2": "核实通过后会员将自动激活，通常 1-24 小时内完成",
     "waitingTitle": "等待管理员确认",
-    "wechatQR": "微信收款码",
-    "wechatSteps": "微信支付步骤",
     "yearly": "年度会员",
-    "yearlyPlan": "年度会员 ¥365/年",
-    "paypalComplianceNotice": "本购买为数字服务。 ",
-    "paypalComplianceApply": "适用。支付即表示您同意我们的条款。",
-    "digitalServiceNotice": "数字服务声明：本购买为数字服务（AI分析/会员）。数字服务在激活后立即交付。退款政策和服务条款适用。PayPal 买家保护也可能适用。"
+    "yearlyPlan": "年度会员 ¥365/年"
   },
   "paymentMethod": {
     "chinaMethods": "中国支付方式"
@@ -3332,7 +3324,7 @@
     "paidDesc": "完整报告已解锁，¥50 代金券已发放到你的账户",
     "processing": "处理中…",
     "selectPayment": "选择支付方式",
-    "supportedMethods": "支持支付宝、微信、PayPal 等支付方式",
+    "supportedMethods": "支持 Stripe 安全支付",
     "viewReport": "查看完整报告",
     "useStardust": "使用点数支付",
     "or": "或"
@@ -3394,53 +3386,32 @@
     }
   },
   "report": {
-    "summary": "核心结论",
-    "wealth": { "title": "财富与事业·量化能量场" },
-    "relationship": {
-      "title": "感情与人际·隐性权力场",
-      "priority": "关系高优先解",
-      "prescription": "独家处方"
-    },
-    "career": { "title": "事业进阶·赛道切换" },
-    "health": { "title": "精神与健康·内耗代偿镜" },
-    "spiritual": { "title": "精神能级·创造力审查" },
-    "conflictBalance": {
-      "header": "现状阻尼天平",
-      "coreConflict": "核心对撞点"
-    },
-    "tagMatrix": {
-      "negative": "负面耗能阻尼点",
-      "positive": "破局能量激活点"
-    },
-    "actionCommand": { "header": "阶段行动策略盒" },
-    "energyBar": {
-      "header": "情感供需阻尼槽",
-      "critical": "危",
-      "warning": "警",
-      "safe": "安"
-    },
-    "interactionMirror": {
-      "header": "深度互动镜像模型",
-      "behavior": "隐性行为模式",
-      "pain": "痛点折射"
-    },
-    "healthRadar": {
-      "header": "身心代偿雷达",
-      "physical": "物理硬件",
-      "mental": "精神软件",
-      "conclusion": "核心结论"
-    },
-    "creativeFilter": {
-      "header": "创造力审查阻尼",
-      "detail": "审查机制详情"
-    },
-    "resetAction": { "header": "精神减压阀动作" },
-    "dimension": {
-      "excellent": "优",
-      "good": "良",
-      "fair": "中",
-      "weak": "弱"
-    }
+    "aiCert": "AI 合参认证",
+    "annual": "周期",
+    "badge": "价值锚点",
+    "card": "全维度档案总览",
+    "career": "事业",
+    "collapse": "收起",
+    "confidence": "五维数据交叉验证 · 仅供参考",
+    "dayMaster": "日主",
+    "desc": "五维数据交叉验证，输出一份可读、可感、可行动的行为分析报告",
+    "expand": "查看完整分析",
+    "moreLines": "更多内容",
+    "fiveElements": "五素",
+    "health": "健康",
+    "relationship": "感情",
+    "mindfulness": "心智",
+    "tenGods": "十维",
+    "title": "你的专属合参报告",
+    "wealth": "财运",
+    "execution": "执行力",
+    "creativity": "创造力",
+    "strategy": "策略力",
+    "risk": "风险承受",
+    "intuition": "直觉力",
+    "spirit": "灵性",
+    "spiritual": "精神",
+    "growth": "成长力"
   },
   "pricing": {
     "aiQuestion": "AI 追问",
@@ -3614,34 +3585,6 @@
     "totalStardust": "累计获得点数",
     "wechatFriends": "微信好友",
     "wechatToast": "链接已复制，打开微信粘贴发送给好友"
-  },
-  "report": {
-    "aiCert": "AI 合参认证",
-    "annual": "周期",
-    "badge": "价值锚点",
-    "card": "全维度档案总览",
-    "career": "事业",
-    "collapse": "收起",
-    "confidence": "五维数据交叉验证 · 仅供参考",
-    "dayMaster": "日主",
-    "desc": "五维数据交叉验证，输出一份可读、可感、可行动的行为分析报告",
-    "expand": "查看完整分析",
-    "moreLines": "更多内容",
-    "fiveElements": "五素",
-    "health": "健康",
-    "relationship": "感情",
-    "mindfulness": "心智",
-    "tenGods": "十维",
-    "title": "你的专属合参报告",
-    "wealth": "财运",
-    "execution": "执行力",
-    "creativity": "创造力",
-    "strategy": "策略力",
-    "risk": "风险承受",
-    "intuition": "直觉力",
-    "spirit": "灵性",
-    "spiritual": "精神",
-    "growth": "成长力"
   },
   "reviews": {
     "badge": "来访者反馈",
@@ -3909,19 +3852,12 @@
     "addressCopied": "钱包地址已复制",
     "enterTxHash": "请输入交易哈希",
     "verifyFail": "验证失败，请检查交易信息",
-    "paypalTitle": "在线充值",
-    "paypalDesc": "使用 PayPal 安全支付，即时到账",
     "topUpAmount": "充值金额",
     "stardustReceived": "获得点数",
     "selectPackageFirst": "请先选择充值套餐",
-    "paypalPay": "PayPal 支付",
     "cancel": "取消",
-    "cryptoTitle": "加密货币充值",
-    "cryptoDesc": "使用 USDT (TRC20/Arbitrum) 充值",
-    "cryptoRate": "当前汇率：",
     "trc20": "TRC20 (波场)",
     "walletAddress": "充值地址",
-    "networkWarning": "请确保使用 {network} 网络转账，其他网络将导致资产丢失",
     "noAddress": "暂无充值地址，请联系客服",
     "txHash": "交易哈希",
     "txPlaceholderTrc20": "输入 TRC20 交易哈希",

@@ -58,30 +58,6 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30
 
-    # ── 微信支付 ──
-    WECHAT_PAY_ENABLED: bool = False
-    WECHAT_APPID: str = ""
-    WECHAT_MCH_ID: str = ""
-    WECHAT_API_KEY: str = ""
-    WECHAT_NOTIFY_URL: str = ""  # 必须配置: https://yourdomain.com/api/payments/wechat/notify
-
-    # ── 支付宝 ──
-    ALIPAY_ENABLED: bool = False
-    ALIPAY_APP_ID: str = ""
-    ALIPAY_PRIVATE_KEY: str = ""
-    ALIPAY_PUBLIC_KEY: str = ""
-    ALIPAY_NOTIFY_URL: str = ""  # 必须配置: https://yourdomain.com/api/payments/alipay/notify
-    ALIPAY_RETURN_URL: str = ""  # 必须配置: https://yourdomain.com/payment/success
-
-    # ── PayPal ──
-    PAYPAL_ENABLED: bool = False
-    PAYPAL_CLIENT_ID: str = ""
-    PAYPAL_SECRET: str = ""
-    PAYPAL_MODE: str = "sandbox"  # sandbox 或 live
-    PAYPAL_RETURN_URL: str = ""  # 必须配置: https://yourdomain.com/payment/success
-    PAYPAL_CANCEL_URL: str = ""  # 必须配置: https://yourdomain.com/payment/cancel
-    PAYPAL_WEBHOOK_ID: str = ""  # PayPal webhook ID for signature verification
-
     # ── Stripe ──
     STRIPE_ENABLED: bool = False
     STRIPE_SECRET_KEY: str = ""
@@ -109,12 +85,6 @@ class Settings(BaseSettings):
     # ── Cron / 定时任务 ──
     CRON_SECRET: str = ""
 
-    # ── 个人收款码 ──
-    ALIPAY_PERSONAL_QR_URL: str = ""
-    WECHAT_PERSONAL_QR_URL: str = ""
-    PAYPAL_PERSONAL_QR_URL: str = ""
-    PAYPAL_PERSONAL_EMAIL: str = ""
-
     # ── Admin 管理员邮箱（自动获得创始会员权限，逗号分隔）──
     ADMIN_EMAILS: str = ""
 
@@ -124,15 +94,6 @@ class Settings(BaseSettings):
     CJ_API_EMAIL: str = ""
     CJ_API_PASSWORD: str = ""
     CJ_WEBHOOK_SECRET: str = ""
-
-    # ── 充值系统（星尘 Stardust）──
-    AIFADIAN_URL: str = ""             # 爱发电赞助链接
-    USDT_TRC20_ADDRESS: str = ""       # TRC20 收款地址 (波场)
-    USDT_ARBITRUM_ADDRESS: str = ""    # Arbitrum 收款地址 (EVM)
-    USDT_GRANT_RATE: int = 70          # 1 USDT = 70 星尘
-    PAYPAL_GRANT_RATE: float = 70.0    # 1 USD = 70 星尘
-    TRONGRID_API_KEY: str = ""         # TronGrid API Key (可选, 提高限额)
-    ARBITRUM_RPC_URL: str = ""         # Arbitrum RPC URL (必填, 用于 USDT 链上校验)
 
     # ── Redis (distributed state: rate limits, session store, token blacklist) ──
     REDIS_URL: str = ""                # e.g. "redis://localhost:6379/0" — empty = in-memory fallback

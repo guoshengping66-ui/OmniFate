@@ -58,8 +58,8 @@ _CATALOG: dict[str, dict[str, dict[str, Any]]] = {
 }
 
 ALLOWED_PAYMENT_METHODS: dict[Region, set[str]] = {
-    "domestic": {"stripe", "alipay", "wechat", "wechat_pay", "personal"},
-    "overseas": {"stripe", "paypal"},
+    "domestic": {"stripe"},
+    "overseas": {"stripe"},
 }
 
 OVERSEAS_FREE_SHIPPING_THRESHOLD_USD = 79.0

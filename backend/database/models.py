@@ -1,4 +1,4 @@
-"""
+﻿"""
 PostgreSQL ORM Models via SQLAlchemy 2.x
 Covers: users, readings (reports), products, orders
 """
@@ -605,28 +605,6 @@ class RedeemCode(Base):
     used_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     created_by: Mapped[Optional[str]] = mapped_column(String(36))
-
-
-# ─── CryptoOrder ─────────────────────────────────────────────────────────────
-
-class CryptoOrder(Base):
-    """USDT 链上充值记录 — 用于海外用户购买星尘"""
-    __tablename__ = "crypto_orders"
-
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    tx_id: Mapped[str] = mapped_column(String(128), unique=True, nullable=False, index=True)
-    user_id: Mapped[str] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
-    )
-    amount_usdt: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
-    network: Mapped[str] = mapped_column(String(20), nullable=False)  # "TRC20" | "ARBITRUM"
-    stardust_granted: Mapped[int] = mapped_column(Integer, default=0)
-    status: Mapped[str] = mapped_column(String(20), default="pending")  # pending|success|failed
-    verified_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-
-
-# ─── FortuneSubscription ────────────────────────────────────────────────────
 
 class FortuneSubscription(Base):
     """用户每周分析订阅偏好"""

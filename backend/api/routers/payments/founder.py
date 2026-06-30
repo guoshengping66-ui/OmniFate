@@ -1,12 +1,11 @@
-"""Founder seat endpoints and activation logic."""
+﻿"""Founder seat endpoints and activation logic."""
 
 from __future__ import annotations
 
-import secrets
 from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
@@ -16,7 +15,6 @@ from auth.dependencies import get_current_user, require_user
 from config import get_settings
 from database.models import CreditTransaction, FounderFeedback, FounderVote, Order, OrderStatus, User
 from database.session import get_db
-from services.pricing import get_price_quote, lock_user_region, resolve_pricing_region
 
 from .constants import SUBSCRIPTION_GRANTS
 from .utils import is_effective_founder
@@ -94,50 +92,6 @@ async def activate_founder_seat_logic(
                 raise HTTPException(status_code=500, detail="User not found after rollback")
 
     raise HTTPException(status_code=500, detail="Failed to assign founder seat")
-
-
-@router.post("/founder/purchase")
-async def create_founder_purchase(
-    request: Request,
-    method: str = Query("personal", description="payment method"),
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_user),
-):
-    if current_user.is_founder:
-        raise HTTPException(status_code=400, detail="You already have a founder seat")
-
-    region = resolve_pricing_region(request, current_user)
-    quote = get_price_quote("founder_lifetime", region)
-    lock_user_region(current_user, region)
-    if current_user.pricing_region == region and not current_user.pricing_region_locked_at:
-        current_user.pricing_region_locked_at = datetime.now(timezone.utc)
-
-    order_no = f"FO{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{secrets.randbelow(90000) + 10000}"
-    order = Order(
-        user_id=current_user.id,
-        order_no=order_no,
-        status=OrderStatus.pending,
-        total_cny=quote.cny_amount,
-        total_usd=quote.usd_amount,
-        pricing_region=quote.region,
-        currency=quote.currency.upper(),
-        amount_minor=quote.amount_minor,
-        price_snapshot=quote.snapshot(),
-        payment_method=f"founder_{method}",
-        payment_ref=order_no,
-        item_type="founder_lifetime",
-        notes=f"item_type:founder_lifetime|reading_id:|region:{quote.region}",
-    )
-    db.add(order)
-    await db.commit()
-    return {
-        "order_no": order_no,
-        "amount": quote.amount,
-        "currency": quote.currency.upper(),
-        "region": quote.region,
-        "message": "Founder purchase order created",
-    }
-
 
 @router.get("/founder/status")
 async def get_founder_status(

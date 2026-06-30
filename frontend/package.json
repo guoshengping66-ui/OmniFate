@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
-    "@paypal/react-paypal-js": "^9.2.0",
     "@react-three/fiber": "^9.6.1",
     "@types/pg": "^8.11.0",
     "@types/three": "^0.184.1",

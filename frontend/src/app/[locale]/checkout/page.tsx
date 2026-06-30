@@ -9,17 +9,7 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import { useRegion } from "@/contexts/RegionContext"
 import { formatCouponBalance } from "@/lib/regionPrice"
 import { createOrder, createShopStripeCheckout, type Address } from "@/lib/api"
-import { PaymentMethodSelector } from "@/components/monetization/PaymentMethodSelector"
 import { AddressForm } from "@/components/shop/AddressForm"
-import { QRPaymentModal } from "@/components/payment/QRPaymentModal"
-
-type QrPaymentMethod = "paypal" | "credit_card" | "alipay" | "wechat" | undefined
-const payMethodToInitial: Record<string, QrPaymentMethod> = {
-  wechat_pay: "wechat",
-  alipay: "alipay",
-  paypal: "paypal",
-  credit_card: "credit_card",
-}
 
 export default function CheckoutPage() {
   const router = useRouter()
@@ -31,12 +21,8 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
   const [useCoupon, setUseCoupon] = useState(false)
-  const [paymentMethod, setPaymentMethod] = useState("stripe")
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null)
-  const [paymentOpen, setPaymentOpen] = useState(false)
-  const [createdOrderNo, setCreatedOrderNo] = useState<string | null>(null)
-  const [createdOrderTotal, setCreatedOrderTotal] = useState(0)
   const isSubmitting = useRef(false)
 
   // Auth guard — redirect unauthenticated users to login instead of
@@ -80,30 +66,16 @@ export default function CheckoutPage() {
         region,
         use_coupon: couponEligible && useCoupon,
         address_id: selectedAddress.id,
-        payment_method: paymentMethod,
+        payment_method: "stripe",
       })
-      setCreatedOrderNo(result.order_no)
-      // Use cart's total (in local currency) for display — products have independent USD/CNY prices
-      setCreatedOrderTotal(result.final_total ?? finalTotal)
-      if (paymentMethod === "stripe" || paymentMethod === "credit_card") {
-        const checkout = await createShopStripeCheckout(result.order_no, region)
-        window.location.href = checkout.checkout_url
-      } else {
-        setPaymentOpen(true)
-      }
+      const checkout = await createShopStripeCheckout(result.order_no, region)
+      window.location.href = checkout.checkout_url
     } catch (err: any) {
       toast.error(err?.response?.data?.detail ?? t("checkout.orderFail"))
     } finally {
       setLoading(false)
       isSubmitting.current = false
     }
-  }
-
-  const handlePaymentSuccess = () => {
-    setPaymentOpen(false)
-    clearCart()
-    refreshUser()
-    setDone(true)
   }
 
   // Auth guard: show nothing while loading or redirecting to login
@@ -115,7 +87,7 @@ export default function CheckoutPage() {
     )
   }
 
-  if (items.length === 0 && !done && !paymentOpen) {
+  if (items.length === 0 && !done) {
     return (
       <div className="min-h-screen pt-24 pb-16 px-4 text-center">
         <ShoppingBag size={48} className="text-white/10 mx-auto mb-4" />
@@ -268,17 +240,16 @@ export default function CheckoutPage() {
           />
         </div>
 
-        {/* Payment Method Selector */}
+        {/* Stripe payment */}
         <div className="card-glass p-6 mb-4">
           <div className="flex items-center gap-2 mb-4">
             <CreditCard size={16} className="text-gold" />
-            <span className="text-white/70 text-sm font-medium">{t("checkout.selectPayment")}</span>
+            <span className="text-white/70 text-sm font-medium">Stripe</span>
           </div>
-          <PaymentMethodSelector
-            selected={paymentMethod}
-            onSelect={setPaymentMethod}
-            region={region}
-          />
+          <div className="rounded-xl border border-gold/30 bg-gold/10 p-4">
+            <p className="text-gold text-sm font-medium">Credit or debit card</p>
+            <p className="text-white/40 text-xs mt-1">Secure checkout powered by Stripe.</p>
+          </div>
         </div>
 
         {/* Processing time disclaimer */}
@@ -335,16 +306,6 @@ export default function CheckoutPage() {
         </p>
       </div>
 
-      {/* Payment Modal */}
-      <QRPaymentModal
-        open={paymentOpen}
-        onClose={() => setPaymentOpen(false)}
-        shopOrderNo={createdOrderNo || undefined}
-        shopAmount={createdOrderTotal}
-        region={isOverseas ? "overseas" : "domestic"}
-        initialMethod={payMethodToInitial[paymentMethod]}
-        onSuccess={handlePaymentSuccess}
-      />
     </div>
   )
 }

@@ -918,56 +918,6 @@ export async function createOrder(data: CreateOrderRequest): Promise<CreateOrder
 
 // ── Payment Methods ──────────────────────────────────────────────────────────
 
-export interface PaymentMethod {
-  id: string
-  name: string
-  name_en: string
-  icon: string
-  category: "china" | "global"
-  enabled: boolean
-}
-
-export interface PaymentMethodsResponse {
-  methods: PaymentMethod[]
-  count: number
-}
-
-let _paymentMethodsCache: PaymentMethod[] | null = null
-let _paymentMethodsPromise: Promise<PaymentMethod[]> | null = null
-
-export async function getPaymentMethods(): Promise<PaymentMethod[]> {
-  if (_paymentMethodsCache) return _paymentMethodsCache
-  if (_paymentMethodsPromise) return _paymentMethodsPromise
-  _paymentMethodsPromise = api.get<PaymentMethodsResponse>("/api/payments/payment-methods")
-    .then(res => { _paymentMethodsCache = res.data.methods; return res.data.methods })
-    .catch(e => { _paymentMethodsPromise = null; throw e })
-  return _paymentMethodsPromise
-}
-
-export interface PayPalConfig {
-  client_id: string
-  mode: "sandbox" | "live"
-}
-
-let _paypalConfigCache: PayPalConfig | null = null
-let _paypalConfigPromise: Promise<PayPalConfig> | null = null
-
-export async function getPayPalConfig(): Promise<PayPalConfig> {
-  if (_paypalConfigCache) return _paypalConfigCache
-  if (_paypalConfigPromise) return _paypalConfigPromise
-  _paypalConfigPromise = apiDirect.get<PayPalConfig>("/api/payments/paypal/config")
-    .then(res => { _paypalConfigCache = res.data; return res.data })
-    .catch(e => { _paypalConfigPromise = null; throw e })
-  return _paypalConfigPromise
-}
-
-export async function capturePayPalOrder(paypalOrderId: string): Promise<{ status: string }> {
-  const res = await apiDirect.post(`/api/payments/paypal/capture`, null, {
-    params: { paypal_order_id: paypalOrderId },
-  })
-  return res.data
-}
-
 export async function createStripeCheckout(
   itemType: string = "unlock_report",
   readingId?: string,
@@ -994,15 +944,13 @@ export async function createCheckoutUrl(
   paymentMethod: string,
   itemType: string = "unlock_report",
 ): Promise<{ checkout_url?: string; pay_url?: string; approve_url?: string; code_url?: string; payment_method: string; message: string }> {
-  // All regions now use Stripe Checkout; legacy method ids are accepted for callers
-  // that have not yet been updated.
-  if (["stripe", "alipay", "wechat_pay", "paypal", "credit_card"].includes(paymentMethod)) {
+  if (paymentMethod === "stripe") {
     const res = await createStripeCheckout(itemType, readingId)
     return { checkout_url: res.checkout_url, payment_method: "stripe", message: "Redirecting to Stripe Checkout" }
-  } else {
-    throw new Error("不支持的支付方式")
   }
+  throw new Error("Only Stripe payment is supported")
 }
+
 
 export interface PayEventResult {
   paid: boolean
@@ -1486,47 +1434,6 @@ export async function refundStardust(
 }
 
 // ── Billing / Geo Config ─────────────────────────────────────────────────
-
-export interface StardustPackage {
-  id: string
-  stardust: number
-  price: number
-  popular: boolean
-}
-
-export interface GeoConfig {
-  region: string
-  currency: string
-  symbol: string
-  packages: StardustPackage[]
-  channels: string[]
-  aifadian_url?: string
-  wallet_addresses?: Record<string, string>
-  crypto_rate?: Record<string, number>
-}
-
-export async function getGeoConfig(regionOverride?: string): Promise<GeoConfig> {
-  const params = regionOverride ? { region: regionOverride } : {}
-  const res = await api.get<GeoConfig>("/api/billing/geo-config", { params })
-  return res.data
-}
-
-export async function redeemCode(code: string): Promise<{ message: string; stardust_granted: number; balance_after: number }> {
-  const res = await api.post("/api/billing/redeem", safeJson({ code }), {
-    headers: { "Content-Type": "application/json" },
-  })
-  return res.data
-}
-
-export async function verifyTx(
-  tx_id: string,
-  network: "TRC20" | "ARBITRUM",
-): Promise<{ success: boolean; stardust_granted: number; balance_after: number; message: string }> {
-  const res = await api.post("/api/billing/verify-tx", safeJson({ tx_id, network }), {
-    headers: { "Content-Type": "application/json" },
-  })
-  return res.data
-}
 
 // ── Fortune Subscription ──────────────────────────────────────────────────
 

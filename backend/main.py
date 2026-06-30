@@ -1,4 +1,4 @@
-"""backend/main.py — FastAPI 应用入口"""
+﻿"""backend/main.py — FastAPI 应用入口"""
 import sys
 import os
 import json
@@ -21,7 +21,7 @@ from fastapi.responses import JSONResponse, Response
 from contextlib import asynccontextmanager
 
 from config import get_settings
-from api.routers import readings, users, products, payments, auth, blog, personal_payments, credits, divination, cron, referrals, billing, contact, fortune, events
+from api.routers import readings, users, products, payments, auth, blog, credits, divination, cron, referrals, contact, fortune, events
 
 settings = get_settings()
 
@@ -109,10 +109,8 @@ async def security_headers(request: Request, call_next):
 # This prevents CSRF attacks because:
 # 1. HTML forms cannot set custom headers (no preflight)
 # 2. CORS blocks cross-origin JS from sending this header without explicit allowlist
-# Exemptions: payment callbacks (WeChat/Alipay), webhooks, SSE — these use other auth.
+# Exemptions: webhooks, cron, auth bootstrapping, and SSE use other auth.
 CSRF_EXEMPT_PATHS = [
-    "/api/payments/wechat/notify",  # WeChat callback (XML signature verified)
-    "/api/payments/alipay/notify",  # Alipay callback (signature verified)
     "/api/webhooks/",               # Webhook endpoints (verify signature)
     "/api/cron/",                   # Cron jobs (secret key verified)
     "/api/auth/login",              # Login — password-protected, no CSRF risk
@@ -202,8 +200,6 @@ ENDPOINT_LIMITS = {
     "/api/auth/send-code": 2,     # 验证码
     "/api/payments": 20,          # 支付
     "/api/credits": 30,           # 星尘
-    "/api/billing/verify-tx": 5,  # USDT verification - prevent brute force
-    "/api/webhooks/paypal": 10,   # PayPal webhooks - prevent spam
     "/api/webhooks/cj": 10,       # CJ Dropshipping webhooks
 }
 
@@ -468,13 +464,10 @@ app.include_router(readings.router, prefix="/api/readings", tags=["Readings"])
 app.include_router(products.router, prefix="/api/products", tags=["Products"])
 app.include_router(payments.router, prefix="/api/payments", tags=["Payments"])
 app.include_router(blog.router,     prefix="/api/blog",     tags=["Blog"])
-app.include_router(personal_payments.router, prefix="/api/personal-payments", tags=["Personal Payments"])
 app.include_router(credits.router, prefix="/api/credits", tags=["Credits"])
 app.include_router(divination.router, prefix="/api/divination", tags=["Divination"])
 app.include_router(cron.router, prefix="/api/cron", tags=["Cron"])
 app.include_router(referrals.router, prefix="/api/referrals", tags=["Referrals"])
-app.include_router(billing.router, prefix="/api/billing", tags=["Billing"])
-app.include_router(billing.webhook_router, prefix="/api/webhooks", tags=["Webhooks"])
 app.include_router(contact.router, prefix="/api/contact", tags=["Contact"])
 app.include_router(fortune.router, prefix="/api/fortune", tags=["Fortune"])
 app.include_router(events.router, prefix="/api/events", tags=["Events"])
