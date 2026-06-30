@@ -62,6 +62,9 @@ ALLOWED_PAYMENT_METHODS: dict[Region, set[str]] = {
     "overseas": {"stripe", "paypal"},
 }
 
+OVERSEAS_FREE_SHIPPING_THRESHOLD_USD = 79.0
+OVERSEAS_SHIPPING_FEE_USD = 8.0
+
 
 def _minor_units(amount: float | Decimal) -> int:
     value = Decimal(str(amount)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
@@ -139,6 +142,41 @@ def quote_custom_amount(*, sku: str, region: Region, amount_cny: float, amount_u
         usd_amount=float(amount_usd),
         label=label,
     )
+
+
+def quote_shop_totals(
+    *,
+    region: Region,
+    subtotal_cny: float,
+    subtotal_usd: float,
+    coupon_cny: float = 0.0,
+) -> dict[str, Any]:
+    region = "domestic" if region == "domestic" else "overseas"
+    coupon_cny = float(coupon_cny or 0)
+    subtotal_cny = float(subtotal_cny or 0)
+    subtotal_usd = float(subtotal_usd or 0)
+    shipping_cny = 0.0
+    shipping_usd = 0.0
+    if region == "overseas" and subtotal_usd < OVERSEAS_FREE_SHIPPING_THRESHOLD_USD:
+        shipping_usd = OVERSEAS_SHIPPING_FEE_USD
+
+    total_cny = max(0.0, subtotal_cny - coupon_cny + shipping_cny)
+    total_usd = max(0.0, subtotal_usd + shipping_usd)
+    active_total = total_cny if region == "domestic" else total_usd
+    currency = "cny" if region == "domestic" else "usd"
+    return {
+        "region": region,
+        "currency": currency,
+        "subtotal_cny": round(subtotal_cny, 2),
+        "subtotal_usd": round(subtotal_usd, 2),
+        "coupon_cny": round(coupon_cny, 2),
+        "shipping_cny": round(shipping_cny, 2),
+        "shipping_usd": round(shipping_usd, 2),
+        "total_cny": round(total_cny, 2),
+        "total_usd": round(total_usd, 2),
+        "amount": round(active_total, 2),
+        "amount_minor": _minor_units(active_total),
+    }
 
 
 def validate_payment_method(region: Region, method: str) -> None:

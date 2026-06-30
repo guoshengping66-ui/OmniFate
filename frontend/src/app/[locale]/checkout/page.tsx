@@ -84,9 +84,13 @@ export default function CheckoutPage() {
       })
       setCreatedOrderNo(result.order_no)
       // Use cart's total (in local currency) for display — products have independent USD/CNY prices
-      setCreatedOrderTotal(finalTotal)
-      const checkout = await createShopStripeCheckout(result.order_no, region)
-      window.location.href = checkout.checkout_url
+      setCreatedOrderTotal(result.final_total ?? finalTotal)
+      if (paymentMethod === "stripe" || paymentMethod === "credit_card") {
+        const checkout = await createShopStripeCheckout(result.order_no, region)
+        window.location.href = checkout.checkout_url
+      } else {
+        setPaymentOpen(true)
+      }
     } catch (err: any) {
       toast.error(err?.response?.data?.detail ?? t("checkout.orderFail"))
     } finally {

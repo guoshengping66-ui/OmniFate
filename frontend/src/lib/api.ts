@@ -902,6 +902,7 @@ export interface CreateOrderResult {
   status: string
   original_total: number
   coupon_used: number
+  shipping_fee?: number
   final_total: number
   region?: "domestic" | "overseas"
   currency?: string

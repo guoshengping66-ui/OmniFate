@@ -18,6 +18,7 @@ from config import get_settings
 from database.models import Order, OrderItem, OrderStatus, User
 from database.session import get_db
 from services.pricing import get_price_quote, lock_user_region, resolve_pricing_region, validate_payment_method
+from services.payment_events import mark_payment_event_processed, record_payment_event
 
 from .founder import activate_founder_seat_logic
 from .subscriptions import activate_subscription
@@ -203,6 +204,17 @@ async def capture_paypal_order(
     result = await paypal.capture_order(paypal_order_id)
     if result.get("status") != "COMPLETED":
         raise HTTPException(status_code=400, detail="PayPal payment not completed")
+    event_id = result.get("id") or paypal_order_id
+    payment_event, is_new = await record_payment_event(
+        db,
+        provider="paypal",
+        event_id=event_id,
+        event_type="capture.completed",
+        payload=result,
+    )
+    if not is_new:
+        await db.commit()
+        return {"status": "duplicate"}
     order_result = await db.execute(
         select(Order).where(or_(Order.payment_ref == paypal_order_id, Order.order_no == paypal_order_id)).with_for_update()
     )
@@ -211,7 +223,9 @@ async def capture_paypal_order(
         raise HTTPException(status_code=404, detail="Order not found")
     if order.user_id and str(order.user_id) != str(current_user.id):
         raise HTTPException(status_code=403, detail="Unauthorized order")
+    payment_event.order_no = order.order_no
     await _activate_order(order, db)
+    mark_payment_event_processed(payment_event)
     await db.commit()
     return {"status": "completed"}
 

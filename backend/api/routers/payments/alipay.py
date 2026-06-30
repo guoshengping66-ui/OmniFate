@@ -15,8 +15,8 @@ from database.models import User, Order, OrderStatus
 from auth.dependencies import require_user
 from config import get_settings
 
-from .constants import PRODUCT_PRICES
-from .utils import validate_payment_region
+from services.pricing import get_price_quote, lock_user_region, resolve_pricing_region, validate_payment_method
+from services.payment_events import mark_payment_event_processed, record_payment_event
 from .subscriptions import activate_subscription
 from .founder import activate_founder_seat_logic
 
@@ -125,14 +125,16 @@ async def create_alipay_order(
     current_user: User = Depends(require_user),
 ):
     """创建支付宝订单 — 金额由服务端决定"""
-    validate_payment_region(request, "alipay")
     if not settings.ALIPAY_ENABLED:
-        raise HTTPException(status_code=400, detail="支付宝未启用")
+        raise HTTPException(status_code=400, detail="Alipay is not enabled")
 
-    price_info = PRODUCT_PRICES.get(item_type)
-    if not price_info or "cny" not in price_info:
-        raise HTTPException(status_code=400, detail="无效的商品类型")
-    amount = price_info["cny"]
+    region = resolve_pricing_region(request, current_user)
+    validate_payment_method(region, "alipay")
+    quote = get_price_quote(item_type, region)
+    amount = quote.cny_amount
+    lock_user_region(current_user, region)
+    if current_user.pricing_region == region and not current_user.pricing_region_locked_at:
+        current_user.pricing_region_locked_at = datetime.now(timezone.utc)
 
     subject_map = {
         "premium_monthly": "AlphaMirror AI算力月度套餐",
@@ -148,7 +150,12 @@ async def create_alipay_order(
     order = Order(
         order_no=order_no,
         status=OrderStatus.pending,
-        total_cny=amount,
+        total_cny=quote.cny_amount,
+        total_usd=quote.usd_amount,
+        pricing_region=quote.region,
+        currency=quote.currency.upper(),
+        amount_minor=quote.amount_minor,
+        price_snapshot=quote.snapshot(),
         payment_method="alipay",
         payment_ref=order_no,
         user_id=current_user.id,
@@ -182,14 +189,30 @@ async def alipay_notify(request: Request, db: AsyncSession = Depends(get_db)):
         return "fail"
 
     order_no = data.get("out_trade_no", "")
+    event_id = data.get("trade_no") or order_no
+    payment_event, is_new = await record_payment_event(
+        db,
+        provider="alipay",
+        event_id=event_id,
+        event_type=data.get("trade_status"),
+        order_no=order_no,
+        payload=data,
+    )
+    if not is_new:
+        await db.commit()
+        return "success"
 
     order_result = await db.execute(select(Order).where(Order.order_no == order_no).with_for_update())
     order = order_result.scalar_one_or_none()
     if not order:
         logger.critical("Order not found for notification! out_trade_no=%s", order_no)
+        mark_payment_event_processed(payment_event, "order_not_found")
+        await db.commit()
         return "success"
     if order:
         if order.status == OrderStatus.paid:
+            mark_payment_event_processed(payment_event, "already_paid")
+            await db.commit()
             return "success"
         paid_amount = float(data.get("total_amount", 0))
         if abs(paid_amount - order.total_cny) > 0.01:
@@ -218,5 +241,6 @@ async def alipay_notify(request: Request, db: AsyncSession = Depends(get_db)):
                 if not grant_info.get("already_activated"):
                     logger.info(f"[ALIPAY-NOTIFY] 激活一次性解锁: 用户 {user.id}")
 
+    mark_payment_event_processed(payment_event)
     await db.commit()
     return "success"

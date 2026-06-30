@@ -16,7 +16,7 @@ from database.models import (
 )
 from auth.dependencies import get_current_user
 from config import get_settings
-from services.pricing import lock_user_region, quote_custom_amount, resolve_pricing_region, validate_payment_method
+from services.pricing import lock_user_region, quote_custom_amount, quote_shop_totals, resolve_pricing_region, validate_payment_method
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -70,7 +70,8 @@ async def create_order(
     all_products = _load_products("zh")
     product_map = {p["id"]: p for p in all_products}
 
-    server_total = 0.0
+    server_subtotal_cny = 0.0
+    server_subtotal_usd = 0.0
     validated_items = []
     for item in req.items:
         if item.product_id:
@@ -81,8 +82,8 @@ async def create_order(
             server_price_usd = float(prod.get("price_usd") or 0)
             if region == "overseas" and server_price_usd <= 0:
                 raise HTTPException(status_code=400, detail=f"Product is not available in overseas pricing: {item.product_id}")
-            active_price = server_price_cny if region == "domestic" else server_price_usd
-            server_total += active_price * item.quantity
+            server_subtotal_cny += server_price_cny * item.quantity
+            server_subtotal_usd += server_price_usd * item.quantity
             validated_items.append({
                 "product_id": item.product_id,
                 "product_name": prod["name"],
@@ -93,7 +94,6 @@ async def create_order(
         else:
             raise HTTPException(status_code=400, detail=f"商品不存在: {item.product_id or item.product_name}，请通过正确渠道购买")
 
-    final_total = round(server_total, 2)
     coupon_used = 0.0
 
     if req.use_coupon and user:
@@ -102,16 +102,21 @@ async def create_order(
         balance = float(user.shop_coupon_balance or 0)
         if balance <= 0:
             raise HTTPException(status_code=400, detail="没有可用的代金券余额")
-        coupon_used = float(min(balance, final_total))
+        coupon_used = float(min(balance, server_subtotal_cny))
         # NOTE: coupon deduction is in the same transaction as order creation.
         # If commit fails, both roll back. If server crashes after commit,
         # the order exists and coupon is correctly deducted.
         user.shop_coupon_balance = float(balance) - coupon_used
-        final_total = round(final_total - coupon_used, 2)
 
     order_no = f"ORD{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{secrets.randbelow(90000) + 10000}"
-    total_cny = final_total if region == "domestic" else round(sum(i["unit_price_cny"] * i["quantity"] for i in validated_items), 2)
-    total_usd = final_total if region == "overseas" else round(sum(i["unit_price_usd"] * i["quantity"] for i in validated_items), 2)
+    totals = quote_shop_totals(
+        region=region,
+        subtotal_cny=server_subtotal_cny,
+        subtotal_usd=server_subtotal_usd,
+        coupon_cny=coupon_used,
+    )
+    total_cny = totals["total_cny"]
+    total_usd = totals["total_usd"]
     quote = quote_custom_amount(
         sku="shop",
         region=region,
@@ -158,6 +163,7 @@ async def create_order(
             **quote.snapshot(),
             "items": validated_items,
             "coupon_used": coupon_used,
+            "shop_totals": totals,
         },
         payment_method=req.payment_method or "pending",
         payment_ref=order_no,
@@ -191,9 +197,10 @@ async def create_order(
         "order_id": str(order.id),
         "order_no": order_no,
         "status": "pending",
-        "original_total": server_total,
+        "original_total": totals["subtotal_cny"] if region == "domestic" else totals["subtotal_usd"],
         "coupon_used": coupon_used,
-        "final_total": final_total,
+        "shipping_fee": totals["shipping_cny"] if region == "domestic" else totals["shipping_usd"],
+        "final_total": totals["amount"],
         "region": quote.region,
         "currency": quote.currency.upper(),
         "amount_minor": quote.amount_minor,

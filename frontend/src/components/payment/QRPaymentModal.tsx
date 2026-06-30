@@ -71,7 +71,7 @@ export function QRPaymentModal({
   const t = rawT as unknown as (key: string, vars?: Record<string, string | number>) => string
   const isOverseas = region === "overseas"
   const isShopPayment = !!shopOrderNo
-  const effectiveMethod = "stripe"
+  const effectiveMethod = initialMethod || (isOverseas ? "paypal" : "alipay")
   const [method, setMethod] = useState<PaymentMethod>(effectiveMethod)
   const [status, setStatus] = useState<PaymentStatus>(() => {
     return "idle"
@@ -89,10 +89,9 @@ export function QRPaymentModal({
   const openRef = useRef(open)
   openRef.current = open
 
-  // Stripe is now the only checkout provider; ignore legacy initial methods.
   useEffect(() => {
-    setMethod("stripe")
-  }, [initialMethod])
+    setMethod(initialMethod || (isOverseas ? "paypal" : "alipay"))
+  }, [initialMethod, isOverseas])
 
   const isReportUnlock = !!readingId && tier !== "onetime_unlock"
   const isPreOrder = !!preOrderNo
@@ -105,8 +104,8 @@ export function QRPaymentModal({
         : (TIER_PRICES[tier || "premium_monthly"] || TIER_PRICES.premium_monthly)
   const displayAmount = Math.round((isOverseas ? tierInfo.amountUsd : tierInfo.amountCny) * 100) / 100
   const currencySymbol = isOverseas ? "$" : "¥"
-  const paymentTitle = isOverseas ? "Credit or debit card" : "银行卡 / 信用卡支付"
-  const paymentDesc = isOverseas ? "Cards, Apple Pay, Google Pay via Stripe" : "支持银行卡及 Stripe 可用的钱包方式"
+  const paymentTitle = method === "paypal" ? "PayPal" : method === "credit_card" || method === "stripe" ? "Credit or debit card" : method === "wechat" || method === "wechat_pay" ? "WeChat Pay" : "Alipay"
+  const paymentDesc = method === "paypal" ? "Pay with PayPal wallet" : method === "credit_card" || method === "stripe" ? "Secure card checkout" : "Scan QR code and submit confirmation"
   const tierLabel = isPreOrder
     ? (preLabel || "Founder Seat")
     : tierInfo.labelKey

@@ -190,6 +190,33 @@ async def get_payment_methods():
                 "enabled": True,
             },
         ])
+    if settings.ALIPAY_ENABLED:
+        methods.append({
+            "id": "alipay",
+            "name": "支付宝",
+            "name_en": "Alipay",
+            "icon": "alipay",
+            "category": "china",
+            "enabled": True,
+        })
+    if settings.WECHAT_PAY_ENABLED:
+        methods.append({
+            "id": "wechat_pay",
+            "name": "微信支付",
+            "name_en": "WeChat Pay",
+            "icon": "wechat",
+            "category": "china",
+            "enabled": True,
+        })
+    if settings.PAYPAL_ENABLED:
+        methods.append({
+            "id": "paypal",
+            "name": "PayPal",
+            "name_en": "PayPal",
+            "icon": "paypal",
+            "category": "global",
+            "enabled": True,
+        })
 
     return {"methods": methods}
 

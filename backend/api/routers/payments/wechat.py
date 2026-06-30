@@ -17,8 +17,8 @@ from database.models import User, Order, OrderStatus
 from auth.dependencies import require_user
 from config import get_settings
 
-from .constants import PRODUCT_PRICES
-from .utils import validate_payment_region
+from services.pricing import get_price_quote, lock_user_region, resolve_pricing_region, validate_payment_method
+from services.payment_events import mark_payment_event_processed, record_payment_event
 from .subscriptions import activate_subscription
 from .founder import activate_founder_seat_logic
 
@@ -101,14 +101,16 @@ async def create_wechat_order(
     current_user: User = Depends(require_user),
 ):
     """创建微信支付订单 — 金额由服务端决定，客户端不可篡改"""
-    validate_payment_region(request, "wechat_pay")
     if not settings.WECHAT_PAY_ENABLED:
-        raise HTTPException(status_code=400, detail="微信支付未启用")
+        raise HTTPException(status_code=400, detail="WeChat Pay is not enabled")
 
-    price_info = PRODUCT_PRICES.get(item_type)
-    if not price_info or "cny" not in price_info:
-        raise HTTPException(status_code=400, detail="无效的商品类型")
-    amount = price_info["cny"]
+    region = resolve_pricing_region(request, current_user)
+    validate_payment_method(region, "wechat_pay")
+    quote = get_price_quote(item_type, region)
+    amount = quote.cny_amount
+    lock_user_region(current_user, region)
+    if current_user.pricing_region == region and not current_user.pricing_region_locked_at:
+        current_user.pricing_region_locked_at = datetime.now(timezone.utc)
 
     subject_map = {
         "premium_monthly": "AlphaMirror AI算力月度套餐",
@@ -124,7 +126,12 @@ async def create_wechat_order(
     order = Order(
         order_no=order_no,
         status=OrderStatus.pending,
-        total_cny=amount,
+        total_cny=quote.cny_amount,
+        total_usd=quote.usd_amount,
+        pricing_region=quote.region,
+        currency=quote.currency.upper(),
+        amount_minor=quote.amount_minor,
+        price_snapshot=quote.snapshot(),
         payment_method="wechat_pay",
         payment_ref=order_no,
         user_id=current_user.id,
@@ -168,14 +175,30 @@ async def wechat_notify(request: Request, db: AsyncSession = Depends(get_db)):
         return "<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[签名验证失败]]></return_msg></xml>"
 
     order_no = data.get("out_trade_no", "")
+    event_id = data.get("transaction_id") or order_no
+    payment_event, is_new = await record_payment_event(
+        db,
+        provider="wechat",
+        event_id=event_id,
+        event_type=data.get("trade_type") or "payment_success",
+        order_no=order_no,
+        payload=data,
+    )
+    if not is_new:
+        await db.commit()
+        return "<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>"
 
     order_result = await db.execute(select(Order).where(Order.order_no == order_no).with_for_update())
     order = order_result.scalar_one_or_none()
     if not order:
         logger.critical("Order not found for notification! out_trade_no=%s", order_no)
+        mark_payment_event_processed(payment_event, "order_not_found")
+        await db.commit()
         return "<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>"
     if order:
         if order.status == OrderStatus.paid:
+            mark_payment_event_processed(payment_event, "already_paid")
+            await db.commit()
             return "<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>"
         paid_fee = int(data.get("total_fee", 0))
         expected_fee = int(order.total_cny * 100)
@@ -205,5 +228,6 @@ async def wechat_notify(request: Request, db: AsyncSession = Depends(get_db)):
                 if not grant_info.get("already_activated"):
                     logger.info(f"[WECHAT-NOTIFY] 激活一次性解锁: 用户 {user.id}, 代金券 +{grant_info.get('coupon_granted', 0)}, 星尘 +{grant_info.get('stardust_granted', 0)}")
 
+    mark_payment_event_processed(payment_event)
     await db.commit()
     return "<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>"

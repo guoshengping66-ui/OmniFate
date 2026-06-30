@@ -383,6 +383,24 @@ class OrderItem(Base):
 
 # ─── EventLog ──────────────────────────────────────────────────────────────────
 
+class PaymentEvent(Base):
+    __tablename__ = "payment_events"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    provider: Mapped[str] = mapped_column(String(30), nullable=False, index=True)
+    event_id: Mapped[str] = mapped_column(String(200), nullable=False)
+    event_type: Mapped[Optional[str]] = mapped_column(String(100), index=True)
+    order_no: Mapped[Optional[str]] = mapped_column(String(64), index=True)
+    status: Mapped[str] = mapped_column(String(30), default="received", index=True)
+    raw_payload: Mapped[Optional[dict]] = mapped_column(JSON)
+    processed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    __table_args__ = (
+        UniqueConstraint("provider", "event_id", name="uq_payment_events_provider_event"),
+    )
+
+
 class EventLog(Base):
     """用户事件复盘记录"""
     __tablename__ = "event_logs"

@@ -25,6 +25,7 @@ from services.pricing import (
     resolve_pricing_region,
     validate_payment_method,
 )
+from services.payment_events import mark_payment_event_processed, record_payment_event
 
 from .founder import activate_founder_seat_logic
 from .subscriptions import activate_subscription
@@ -295,12 +296,47 @@ async def stripe_webhook(request: Request, db: AsyncSession = Depends(get_db)):
     if not _verify_webhook_signature(payload, request.headers.get("stripe-signature", "")):
         raise HTTPException(status_code=403, detail="Invalid Stripe signature")
     event = await request.json()
-    if event.get("type") != "checkout.session.completed":
-        return {"status": "ignored"}
+    event_id = event.get("id") or hashlib.sha256(payload).hexdigest()
+    event_type = event.get("type")
     session = event.get("data", {}).get("object", {})
-    if session.get("payment_status") != "paid":
-        return {"status": "ignored"}
     order_no = session.get("client_reference_id") or session.get("metadata", {}).get("order_no")
+    payment_event, is_new = await record_payment_event(
+        db,
+        provider="stripe",
+        event_id=event_id,
+        event_type=event_type,
+        order_no=order_no,
+        payload=event,
+    )
+    if not is_new:
+        await db.commit()
+        return {"status": "duplicate"}
+
+    if event_type in ("customer.subscription.updated", "customer.subscription.deleted"):
+        subscription = session
+        user_result = await db.execute(select(User).where(User.stripe_subscription_id == subscription.get("id")).with_for_update())
+        user = user_result.scalar_one_or_none()
+        if user:
+            user.subscription_status = subscription.get("status")
+            period_end = subscription.get("current_period_end")
+            if period_end:
+                user.subscription_current_period_end = datetime.fromtimestamp(int(period_end), tz=timezone.utc)
+            if subscription.get("status") in ("active", "trialing"):
+                user.is_premium = True
+            elif subscription.get("status") in ("canceled", "unpaid", "incomplete_expired", "incomplete"):
+                user.is_premium = False
+        mark_payment_event_processed(payment_event)
+        await db.commit()
+        return {"status": "subscription_synced"}
+
+    if event_type != "checkout.session.completed":
+        mark_payment_event_processed(payment_event, "ignored")
+        await db.commit()
+        return {"status": "ignored"}
+    if session.get("payment_status") != "paid":
+        mark_payment_event_processed(payment_event, "ignored")
+        await db.commit()
+        return {"status": "ignored"}
     session_id = session.get("id")
     result = await db.execute(
         select(Order).where(
@@ -310,6 +346,8 @@ async def stripe_webhook(request: Request, db: AsyncSession = Depends(get_db)):
     order = result.scalar_one_or_none()
     if not order:
         logger.warning("[STRIPE-WEBHOOK] Order not found for session=%s order_no=%s", session_id, order_no)
+        mark_payment_event_processed(payment_event, "order_not_found")
+        await db.commit()
         return {"status": "order_not_found"}
     order.payment_ref = session_id
     order.stripe_checkout_session_id = session_id
@@ -324,5 +362,6 @@ async def stripe_webhook(request: Request, db: AsyncSession = Depends(get_db)):
             if session.get("subscription"):
                 user.stripe_subscription_id = session.get("subscription")
                 user.subscription_status = "active"
+    mark_payment_event_processed(payment_event)
     await db.commit()
     return {"status": "completed"}
