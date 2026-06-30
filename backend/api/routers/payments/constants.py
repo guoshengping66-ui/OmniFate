@@ -28,7 +28,7 @@ PRODUCT_PRICES = {
     "premium_monthly": {"cny": PREMIUM_MONTHLY_CNY, "usd": PREMIUM_MONTHLY_USD},
     "premium_yearly": {"cny": PREMIUM_YEARLY_CNY, "usd": PREMIUM_YEARLY_USD},
     "unlock_report": {"cny": UNLOCK_PRICE_CNY, "usd": UNLOCK_PRICE_USD},
-    "founder_lifetime": {"cny": 1688, "usd": 499},
+    "founder_lifetime": {"cny": 1299, "usd": 299},
     "onetime_unlock": {"cny": ONETIME_UNLOCK_CNY, "usd": ONETIME_UNLOCK_USD},
 }
 

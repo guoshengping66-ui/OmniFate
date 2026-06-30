@@ -52,8 +52,8 @@ _CATALOG: dict[str, dict[str, dict[str, Any]]] = {
         "overseas": {"currency": "usd", "amount": 9.9, "label": "Profile Mirror One-time Unlock"},
     },
     "founder_lifetime": {
-        "domestic": {"currency": "cny", "amount": 1688.0, "label": "Profile Mirror Founder Lifetime Membership"},
-        "overseas": {"currency": "usd", "amount": 499.0, "label": "Profile Mirror Founder Lifetime Membership"},
+        "domestic": {"currency": "cny", "amount": 1299.0, "label": "Profile Mirror Founder Lifetime Membership"},
+        "overseas": {"currency": "usd", "amount": 299.0, "label": "Profile Mirror Founder Lifetime Membership"},
     },
 }
 
@@ -90,6 +90,10 @@ def resolve_pricing_region(request: Request | None = None, user: Any | None = No
         )
         if country:
             return _country_to_region(country)
+
+        query_region = request.query_params.get("region", "")
+        if query_region in ("domestic", "overseas"):
+            return query_region
 
         # Local/dev fallback: honor cookie only outside real edge geo headers.
         cookie_region = request.cookies.get("region", "")

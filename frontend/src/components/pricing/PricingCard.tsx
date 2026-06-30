@@ -88,7 +88,7 @@ export function PricingCard({
             </div>
 
             <div className="flex items-baseline gap-3 mb-4">
-              <span className="text-3xl font-bold text-gold">{isDomestic ? "¥1,688" : "$499"}</span>
+              <span className="text-3xl font-bold text-gold">{isDomestic ? tier.priceDisplay : tier.priceDisplayUsd}</span>
               <span className="text-gold/40 text-sm">{t("pricingCard.onceLifetime")}</span>
             </div>
 

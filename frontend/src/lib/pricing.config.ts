@@ -102,12 +102,12 @@ export const PLANS: PlanConfig[] = [
     id: "founder_lifetime",
     name: "创始席位",
     subtitle: "永久会员 · 限量席位",
-    priceCny: 1688,
-    priceUsd: 499,
+    priceCny: 1299,
+    priceUsd: 299,
     monthlyStardustGrant: 500,
     stardustDiscount: 0,
-    displayCny: "¥1,688",
-    displayUsd: "$499",
+    displayCny: "¥1,299",
+    displayUsd: "$299",
     features: [
       "永久全功能访问",
       "无限星尘额度",
@@ -150,8 +150,8 @@ export const FOUNDER_CONFIG = {
   /** 国内各限量 100 席 */
   domesticLimit: 100,
   overseasLimit: 100,
-  priceCny: 1688,
-  priceUsd: 499,
+  priceCny: 1299,
+  priceUsd: 299,
   monthlyStardustGrant: 500,
 } as const
 

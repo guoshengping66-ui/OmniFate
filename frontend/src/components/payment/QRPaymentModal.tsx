@@ -37,6 +37,7 @@ export function QRPaymentModal({
   orderNo: preOrderNo,
   amount: preAmount,
   label: preLabel,
+  postAction,
   region = "domestic",
   shopOrderNo,
   shopAmount,
@@ -48,7 +49,7 @@ export function QRPaymentModal({
   const isOverseas = region === "overseas"
   const isShopPayment = !!shopOrderNo
   const isReportUnlock = !!readingId && tier !== "onetime_unlock"
-  const isPreOrder = !!preOrderNo
+  const isFounderPayment = postAction === "founder" || !!preOrderNo
   const tierInfo = isShopPayment
     ? { amountCny: shopAmount || 0, amountUsd: shopAmount || 0, labelKey: "" }
     : preAmount
@@ -58,7 +59,7 @@ export function QRPaymentModal({
         : (TIER_PRICES[tier || "premium_monthly"] || TIER_PRICES.premium_monthly)
   const displayAmount = Math.round((isOverseas ? tierInfo.amountUsd : tierInfo.amountCny) * 100) / 100
   const currencySymbol = isOverseas ? "$" : "¥"
-  const tierLabel = isPreOrder
+  const tierLabel = isFounderPayment
     ? (preLabel || "Founder Seat")
     : tierInfo.labelKey
       ? t(tierInfo.labelKey)
@@ -73,7 +74,7 @@ export function QRPaymentModal({
         window.location.href = res.checkout_url
         return
       }
-      const itemType = isPreOrder ? "founder_lifetime" : isReportUnlock ? "unlock_report" : (tier || "premium_monthly")
+      const itemType = isFounderPayment ? "founder_lifetime" : isReportUnlock ? "unlock_report" : (tier || "premium_monthly")
       const res = await createStripeCheckout(itemType, readingId, region)
       window.location.href = res.checkout_url
     } catch (err: any) {
