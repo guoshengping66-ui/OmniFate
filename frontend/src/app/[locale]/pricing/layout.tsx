@@ -7,18 +7,18 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const path = `/${locale}/pricing`
 
   return {
-    title: isZh ? "会员方案 — 解锁深度分析 | 命运引擎" : "Membership Plans - Unlock Deep Analysis | Destiny Engine",
+    title: isZh ? "会员方案 — 解锁 AI 成长系统 | 观我" : "Pricing - Unlock Your AI Growth System | Guanwo AI",
     description: isZh
-      ? "选择适合你的会员方案。解锁多维度行为分析、每日运势、事件复盘等专属功能。"
-      : "Choose the right membership plan. Unlock multi-dimension behavioral analysis, daily almanac, event review, and exclusive features.",
+      ? "选择适合你的会员方案，解锁完整 AI 命运画像、每日趋势、今日签、人生趋势曲线和成长复盘档案。"
+      : "Choose the right membership plan. Unlock your AI destiny profile, daily trends, daily oracle, life growth curve, and reflection records.",
     keywords: isZh
-      ? "会员方案,定价,VIP,行为分析会员,命运引擎会员"
-      : ["membership", "pricing", "VIP", "behavioral membership", "destiny engine plans"],
+      ? "观我,会员方案,定价,AI命运画像,每日趋势,个人成长系统"
+      : ["Guanwo AI", "pricing", "AI destiny profile", "daily trend", "personal growth system"],
     openGraph: {
-      title: isZh ? "会员方案 — 命运引擎" : "Membership Plans - Destiny Engine",
+      title: isZh ? "会员方案 — 观我 AI 成长系统" : "Pricing - Guanwo AI Growth System",
       description: isZh
-        ? "解锁多维度行为分析与专属功能"
-        : "Unlock multi-dimension behavioral analysis and exclusive features",
+        ? "解锁完整 AI 命运画像、每日趋势与长期成长档案。"
+        : "Unlock your AI destiny profile, daily trends, and long-term growth archive.",
       type: "website",
       locale: isZh ? "zh_CN" : "en_US",
       url: `${base}${path}`,

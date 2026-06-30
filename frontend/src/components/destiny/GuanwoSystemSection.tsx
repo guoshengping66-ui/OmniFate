@@ -12,12 +12,12 @@ const COPY = {
     primary: "建立我的画像",
     secondary: "查看每日趋势",
     loopTitle: "核心闭环",
-    proofTitle: "已有图表不会删除，会升级成判断依据",
-    proofDesc: "人生 K 线、五行结构、事业/财富/关系趋势都会保留，并被包装成“趋势仪表盘”：先给结论，再给图表依据，最后给当天可执行动作。",
+    proofTitle: "现有图表会保留，但会升级成判断依据",
+    proofDesc: "人生趋势曲线、五行结构、事业/财富/关系趋势都会成为趋势仪表盘的一部分：先给结论，再给图表依据，最后给当天可执行动作。",
     items: [
-      { title: "AI 命运画像", desc: "整合八字、紫微、星盘、塔罗、面相与手相，生成长期人格基线。", icon: UserRoundSearch },
+      { title: "AI 命运画像", desc: "整合八字、紫微、星盘、塔罗、面相与手相，生成长期人格和行为基线。", icon: UserRoundSearch },
       { title: "每日趋势", desc: "每天输出事业、财富、关系、健康与心智状态，减少空泛运势。", icon: CalendarDays },
-      { title: "今日签", desc: "把抽签吉凶和当日能量合并，转化成一句明确行动建议。", icon: ScrollText },
+      { title: "今日一签", desc: "把抽签吉凶和当日趋势合并，转化成一句明确行动建议。", icon: ScrollText },
       { title: "成长复盘", desc: "记录今天发生了什么，AI 用反馈修正你的画像和下一步建议。", icon: BookOpenCheck },
       { title: "人生趋势曲线", desc: "保留人生 K 线，但改为解释高能期、调整期、转折期和稳定期。", icon: LineChart },
     ],
@@ -30,7 +30,7 @@ const COPY = {
     secondary: "View Daily Trend",
     loopTitle: "The core loop",
     proofTitle: "Existing charts stay. They become evidence.",
-    proofDesc: "Life K-line, Five Elements, career, wealth, and relationship charts remain, but become a trend dashboard: conclusion first, chart evidence second, action next.",
+    proofDesc: "Life growth curve, Five Elements, career, wealth, and relationship charts become a dashboard: conclusion first, evidence second, action next.",
     items: [
       { title: "AI Destiny Profile", desc: "Bazi, Ziwei, astrology, tarot, face, and palm signals form a long-term personality baseline.", icon: UserRoundSearch },
       { title: "Daily Trend", desc: "Career, wealth, relationship, health, and mindset are refreshed into practical daily guidance.", icon: CalendarDays },
@@ -46,24 +46,24 @@ export default function GuanwoSystemSection() {
   const copy = locale === "zh" ? COPY.zh : COPY.en
 
   return (
-    <section className="relative py-20 md:py-28 px-4 border-y border-white/[0.06] bg-[#080b12]/80">
-      <div className="max-w-6xl mx-auto">
-        <div className="grid lg:grid-cols-[0.86fr_1.14fr] gap-10 lg:gap-14 items-start">
+    <section className="relative border-y border-white/[0.06] bg-[#080b12]/80 px-4 py-20 md:py-28">
+      <div className="mx-auto max-w-6xl">
+        <div className="grid items-start gap-10 lg:grid-cols-[0.86fr_1.14fr] lg:gap-14">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-gold/20 bg-gold/[0.055] text-gold/70 text-xs tracking-[0.18em] uppercase mb-5">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/[0.055] px-3 py-1 text-xs uppercase tracking-[0.18em] text-gold/70">
               {copy.badge}
             </div>
-            <h2 className="font-serif text-3xl md:text-5xl font-bold text-white/92 leading-tight mb-5">
+            <h2 className="mb-5 font-serif text-3xl font-bold leading-tight text-white/92 md:text-5xl">
               {copy.title}
             </h2>
-            <p className="text-white/48 text-sm md:text-base leading-relaxed mb-8">
+            <p className="mb-8 text-sm leading-relaxed text-white/48 md:text-base">
               {copy.desc}
             </p>
-            <div className="rounded-2xl border border-gold/15 bg-gold/[0.04] p-5 mb-7">
-              <p className="text-gold/70 text-xs tracking-[0.14em] uppercase mb-2">{copy.proofTitle}</p>
-              <p className="text-white/50 text-sm leading-relaxed">{copy.proofDesc}</p>
+            <div className="mb-7 rounded-2xl border border-gold/15 bg-gold/[0.04] p-5">
+              <p className="mb-2 text-xs uppercase tracking-[0.14em] text-gold/70">{copy.proofTitle}</p>
+              <p className="text-sm leading-relaxed text-white/50">{copy.proofDesc}</p>
             </div>
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row">
               <Link href={localeHref("/reading/new")} className="btn-gold inline-flex items-center justify-center gap-2 text-sm">
                 {copy.primary}
                 <ArrowRight size={16} />
@@ -75,23 +75,20 @@ export default function GuanwoSystemSection() {
           </div>
 
           <div>
-            <p className="text-gold/70 text-xs tracking-[0.18em] uppercase mb-4">{copy.loopTitle}</p>
-            <div className="grid sm:grid-cols-2 gap-4">
+            <p className="mb-4 text-xs uppercase tracking-[0.18em] text-gold/70">{copy.loopTitle}</p>
+            <div className="grid gap-4 sm:grid-cols-2">
               {copy.items.map((item, index) => {
                 const Icon = item.icon
                 const wide = index === copy.items.length - 1
                 return (
-                  <article
-                    key={item.title}
-                    className={`rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5 ${wide ? "sm:col-span-2" : ""}`}
-                  >
+                  <article key={item.title} className={`rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5 ${wide ? "sm:col-span-2" : ""}`}>
                     <div className="flex items-start gap-4">
-                      <div className="w-11 h-11 rounded-xl border border-gold/20 bg-gold/[0.07] flex items-center justify-center flex-shrink-0">
+                      <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl border border-gold/20 bg-gold/[0.07]">
                         <Icon size={19} className="text-gold/75" />
                       </div>
                       <div>
-                        <h3 className="text-white/88 text-sm font-semibold mb-1.5">{item.title}</h3>
-                        <p className="text-white/42 text-xs leading-relaxed">{item.desc}</p>
+                        <h3 className="mb-1.5 text-sm font-semibold text-white/88">{item.title}</h3>
+                        <p className="text-xs leading-relaxed text-white/42">{item.desc}</p>
                       </div>
                     </div>
                   </article>

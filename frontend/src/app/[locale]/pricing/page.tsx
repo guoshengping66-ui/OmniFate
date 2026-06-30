@@ -1,21 +1,20 @@
 "use client"
-import { useState, useEffect, lazy, Suspense } from "react"
+
+import { lazy, Suspense, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Crown, Zap, ArrowRight, Sparkles, HelpCircle, ShieldCheck, Clock, MessageCircle, ChevronRight } from "lucide-react"
-import Link from "next/link"
-import { useAuth } from "@/contexts/AuthContext"
-import { useLanguage } from "@/contexts/LanguageContext"
+import { ArrowRight, BookOpenCheck, CalendarDays, ChevronRight, Clock, Crown, HelpCircle, LineChart, MessageCircle, ShieldCheck, Sparkles, UserRoundSearch, Zap } from "lucide-react"
+import toast from "react-hot-toast"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { AccordionItem } from "@/components/ui/AccordionItem"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
-import { TIERS, type Region } from "@/lib/tiers"
-import { useRegion } from "@/hooks/useRegion"
 import { ServiceTerms } from "@/components/ui/ServiceTerms"
-import toast from "react-hot-toast"
+import { useAuth } from "@/contexts/AuthContext"
+import { useLanguage } from "@/contexts/LanguageContext"
+import { useRegion } from "@/hooks/useRegion"
+import { TIERS } from "@/lib/tiers"
 
 const QRPaymentModal = lazy(() => import("@/components/payment/QRPaymentModal").then(m => ({ default: m.QRPaymentModal })))
 const PricingCard = lazy(() => import("@/components/pricing/PricingCard").then(m => ({ default: m.PricingCard })))
-
 
 export default function PricingPage() {
   const router = useRouter()
@@ -26,24 +25,6 @@ export default function PricingPage() {
   const [founderSoldPercent, setFounderSoldPercent] = useState(67)
   const [showTerms, setShowTerms] = useState(false)
 
-  // ── Stardust Legend 2x2 Grid (uses t()) ──
-  const STARDUST_COSTS = [
-    { icon: Sparkles, label: t("pricing.unlockReport"), cost: "100", color: "text-gold", bg: "bg-gold/8 border-gold/15" },
-    { icon: Clock,     label: t("pricing.eventReview"), cost: "30",  color: "text-amber-400", bg: "bg-amber-500/8 border-amber-500/15" },
-    { icon: MessageCircle, label: t("pricing.aiQuestion"), cost: "10",  color: "text-blue-400", bg: "bg-blue-500/8 border-blue-500/15" },
-    { icon: ShieldCheck,  label: t("pricing.energyRadar"), cost: "5",   color: "text-emerald-400", bg: "bg-emerald-500/8 border-emerald-500/15" },
-  ]
-
-  // ── FAQ Data (uses t()) ──
-  const FAQ_ITEMS = [
-    { q: t("pricing.faq1Q"), a: t("pricing.faq1A") },
-    { q: t("pricing.faq2Q"), a: t("pricing.faq2A") },
-    { q: t("pricing.faq3Q"), a: t("pricing.faq3A") },
-    { q: t("pricing.faq4Q"), a: t("pricing.faq4A") },
-    { q: t("pricing.faq5Q"), a: t("pricing.faq5A") },
-  ]
-
-  // Fetch founder seat status
   useEffect(() => {
     if (!user) return
     import("@/lib/api").then(({ api }) => {
@@ -88,143 +69,142 @@ export default function PricingPage() {
     try {
       await refreshUser()
       toast.success(t("pricing.membershipActivated"), { duration: 6000 })
-      // Show WeChat group invite after a short delay
-      setTimeout(() => {
-        toast(
-          (toastT: any) => (
-            <div className="text-sm">
-              <p className="font-medium text-gold mb-1">{toastT("pricing.wechatGroupTitle")}</p>
-              <p className="text-white/70 text-xs">{toastT("pricing.wechatGroupDesc")}</p>
-              <p className="text-gold text-xs mt-1 font-mono">khan18553325258</p>
-            </div>
-          ),
-          { duration: 10000 }
-        )
-      }, 1500)
     } catch {
       toast.success(t("pricing.paymentSuccess"), { duration: 6000 })
     }
     setSelectedTier(null)
   }
 
-  // ── Filter tiers for grid (Monthly, Yearly, Founder) ──
-  const monthlyTier = TIERS.find(t => t.id === "premium_monthly")!
-  const yearlyTier = TIERS.find(t => t.id === "premium_yearly")!
-  const founderTier = TIERS.find(t => t.id === "founder_lifetime")!
+  const monthlyTier = TIERS.find(tier => tier.id === "premium_monthly")!
+  const yearlyTier = TIERS.find(tier => tier.id === "premium_yearly")!
+  const founderTier = TIERS.find(tier => tier.id === "founder_lifetime")!
 
   if (!isLoaded) return null
 
+  const isZh = locale === "zh"
   const eventPrice = region === "domestic" ? "¥19.9" : "$4.99"
 
+  const valueCards = [
+    {
+      icon: UserRoundSearch,
+      title: isZh ? "完整 AI 命运画像" : "Full AI Destiny Profile",
+      desc: isZh ? "建立长期人格、决策方式与人生课题基线。" : "Build a long-term baseline for personality, decisions, and life themes.",
+    },
+    {
+      icon: CalendarDays,
+      title: isZh ? "每日趋势与今日签" : "Daily Trend + Oracle",
+      desc: isZh ? "每天给出趋势、风险提醒和一条可执行行动。" : "Daily trend, risk signal, and one practical action.",
+    },
+    {
+      icon: LineChart,
+      title: isZh ? "人生趋势曲线" : "Life Growth Curve",
+      desc: isZh ? "把人生 K 线升级成高能期、调整期、转折期判断。" : "Turn the life K-line into phase and timing guidance.",
+    },
+    {
+      icon: BookOpenCheck,
+      title: isZh ? "成长复盘档案" : "Growth Reflection Log",
+      desc: isZh ? "记录反馈，让 AI 画像持续贴近你的真实状态。" : "Reflection records keep your AI profile adapting to real behavior.",
+    },
+  ]
+
+  const comparisonRows = [
+    { label: t("pricing.tierCompare.feat1"), yearly: "∞", monthly: "∞" },
+    { label: t("pricing.tierCompare.feat2"), yearly: isZh ? "5次/月" : "5/mo", monthly: isZh ? "2次/月" : "2/mo" },
+    { label: t("pricing.tierCompare.feat3"), yearly: "✓", monthly: "✓" },
+    { label: t("pricing.tierCompare.feat4"), yearly: "∞", monthly: "∞" },
+    { label: t("pricing.tierCompare.feat5"), yearly: isZh ? "8.8折" : "12% off", monthly: "—" },
+    { label: t("pricing.tierCompare.feat6"), yearly: isZh ? "150/月" : "150/mo", monthly: isZh ? "100/月" : "100/mo" },
+    { label: t("pricing.tierCompare.feat7"), yearly: "✓", monthly: "—" },
+    { label: t("pricing.tierCompare.feat8"), yearly: "✓", monthly: "—" },
+  ]
+
+  const stardustCosts = [
+    { icon: Sparkles, label: t("pricing.unlockReport"), cost: "100", color: "text-gold", bg: "bg-gold/8 border-gold/15" },
+    { icon: Clock, label: t("pricing.eventReview"), cost: "30", color: "text-amber-400", bg: "bg-amber-500/8 border-amber-500/15" },
+    { icon: MessageCircle, label: t("pricing.aiQuestion"), cost: "10", color: "text-blue-400", bg: "bg-blue-500/8 border-blue-500/15" },
+    { icon: ShieldCheck, label: t("pricing.energyRadar"), cost: "5", color: "text-emerald-400", bg: "bg-emerald-500/8 border-emerald-500/15" },
+  ]
+
+  const faqItems = [
+    { q: t("pricing.faq1Q"), a: t("pricing.faq1A") },
+    { q: t("pricing.faq2Q"), a: t("pricing.faq2A") },
+    { q: t("pricing.faq3Q"), a: t("pricing.faq3A") },
+    { q: t("pricing.faq4Q"), a: t("pricing.faq4A") },
+    { q: t("pricing.faq5Q"), a: t("pricing.faq5A") },
+  ]
+
   return (
-    <div className="min-h-screen pt-24 pb-16 px-4">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen px-4 pb-16 pt-24">
+      <div className="mx-auto max-w-6xl">
         <Breadcrumbs items={[{ label: t("pricing.breadcrumb") }]} />
 
-        {/* ══════════ Header ══════════ */}
         <ScrollReveal>
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 text-[11px] tracking-[0.25em] uppercase text-gold/50 font-medium mb-4">
-              <span className="w-8 h-px bg-gradient-to-r from-transparent to-gold/30" />
+          <div className="mb-8 text-center">
+            <div className="mb-4 inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.25em] text-gold/50">
+              <span className="h-px w-8 bg-gradient-to-r from-transparent to-gold/30" />
               {t("pricing.breadcrumb")}
-              <span className="w-8 h-px bg-gradient-to-l from-transparent to-gold/30" />
+              <span className="h-px w-8 bg-gradient-to-l from-transparent to-gold/30" />
             </div>
-            <Crown className="text-gold mx-auto mb-3" size={28} />
-            <h2 className="text-2xl md:text-3xl font-serif font-bold text-white mb-2">{t("pricing.title")}</h2>
-            <p className="text-white/35 text-sm max-w-lg mx-auto">
+            <Crown className="mx-auto mb-3 text-gold" size={28} />
+            <h1 className="mb-2 font-serif text-2xl font-bold text-white md:text-4xl">
+              {t("pricing.title")}
+            </h1>
+            <p className="mx-auto max-w-2xl text-sm leading-relaxed text-white/38">
               {t("pricing.subtitle")}
             </p>
           </div>
         </ScrollReveal>
 
         <ScrollReveal delay={0.05}>
-          <div className="grid md:grid-cols-3 gap-4 mb-10">
-            {[
-              {
-                icon: Sparkles,
-                title: locale === "zh" ? "完整 AI 命运画像" : "Full AI Destiny Profile",
-                desc: locale === "zh" ? "整合多系统分析，形成你的长期人格与人生课题基线。" : "A long-term self-knowledge baseline across multiple systems.",
-              },
-              {
-                icon: Zap,
-                title: locale === "zh" ? "每日趋势与今日签" : "Daily Trend + Oracle",
-                desc: locale === "zh" ? "每天给出趋势、风险提醒和一条可执行行动建议。" : "Daily trend, risk signal, and one practical action prompt.",
-              },
-              {
-                icon: ShieldCheck,
-                title: locale === "zh" ? "人生趋势曲线" : "Life Growth Curve",
-                desc: locale === "zh" ? "保留人生 K 线，并升级为高能期、调整期、转折期判断。" : "Your life K-line becomes a dashboard for phases and timing.",
-              },
-            ].map((item) => {
+          <div className="mb-10 grid gap-4 md:grid-cols-4">
+            {valueCards.map((item) => {
               const Icon = item.icon
               return (
                 <div key={item.title} className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5">
-                  <div className="w-10 h-10 rounded-xl border border-gold/20 bg-gold/[0.07] flex items-center justify-center mb-4">
+                  <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl border border-gold/20 bg-gold/[0.07]">
                     <Icon size={18} className="text-gold/75" />
                   </div>
-                  <h3 className="text-white/85 text-sm font-semibold mb-1.5">{item.title}</h3>
-                  <p className="text-white/40 text-xs leading-relaxed">{item.desc}</p>
+                  <h2 className="mb-1.5 text-sm font-semibold text-white/85">{item.title}</h2>
+                  <p className="text-xs leading-relaxed text-white/40">{item.desc}</p>
                 </div>
               )
             })}
           </div>
         </ScrollReveal>
 
-        {/* ══════════ Main Pricing Grid (2-Column) ══════════ */}
-        <Suspense fallback={<div className="grid lg:grid-cols-2 gap-5 mb-10">{[1,2].map(i => <div key={i} className="h-64 bg-white/[0.03] rounded-2xl animate-pulse" />)}</div>}>
-          <div className="grid lg:grid-cols-2 gap-5 items-stretch mb-10 max-w-4xl mx-auto">
-            {/* Left: Yearly (Recommended) — taller card */}
+        <Suspense fallback={<div className="mb-10 grid gap-5 lg:grid-cols-2">{[1, 2].map(i => <div key={i} className="h-64 animate-pulse rounded-2xl bg-white/[0.03]" />)}</div>}>
+          <div className="mx-auto mb-10 grid max-w-4xl items-stretch gap-5 lg:grid-cols-2">
             <div className="lg:-mt-3 lg:mb-[-12px]">
-              <PricingCard
-                tier={yearlyTier}
-                region={region}
-                onSelect={handleSelect}
-              />
+              <PricingCard tier={yearlyTier} region={region} onSelect={handleSelect} />
             </div>
-
-            {/* Right: Monthly */}
-            <PricingCard
-              tier={monthlyTier}
-              region={region}
-              onSelect={handleSelect}
-            />
+            <PricingCard tier={monthlyTier} region={region} onSelect={handleSelect} />
           </div>
         </Suspense>
 
-        {/* ══════════ Feature Comparison Table ══════════ */}
         <ScrollReveal delay={0.1}>
           <div className="mb-12 overflow-x-auto">
-            <div className="text-center mb-6">
-              <h3 className="text-lg font-serif font-bold text-white/80">{t("pricing.tierCompare.title")}</h3>
-              <p className="text-white/30 text-xs mt-1">{t("pricing.tierCompare.subtitle")}</p>
+            <div className="mb-6 text-center">
+              <h2 className="font-serif text-lg font-bold text-white/80">{t("pricing.tierCompare.title")}</h2>
+              <p className="mt-1 text-xs text-white/30">{t("pricing.tierCompare.subtitle")}</p>
             </div>
             <div className="min-w-[600px]">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-white/10">
-                    <th className="text-left py-3 px-4 text-white/40 font-medium">{t("pricing.tierCompare.feature")}</th>
-                    <th className="text-center py-3 px-2 text-gold font-medium">
+                    <th className="px-4 py-3 text-left font-medium text-white/40">{t("pricing.tierCompare.feature")}</th>
+                    <th className="px-2 py-3 text-center font-medium text-gold">
                       {t("tier.premium_yearly.name")}
-                      <span className="block text-[10px] text-gold/50 font-normal mt-0.5">✓ {locale === "zh" ? "推荐" : "Recommended"}</span>
+                      <span className="mt-0.5 block text-[10px] font-normal text-gold/50">✓ {isZh ? "推荐" : "Recommended"}</span>
                     </th>
-                    <th className="text-center py-3 px-2 text-white/50 font-medium">{t("tier.premium_monthly.name")}</th>
+                    <th className="px-2 py-3 text-center font-medium text-white/50">{t("tier.premium_monthly.name")}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {[
-                    { label: t("pricing.tierCompare.feat1"), yearly: "∞", monthly: "∞" },
-                    { label: t("pricing.tierCompare.feat2"), yearly: locale === "zh" ? "5次/月" : "5/mo", monthly: locale === "zh" ? "2次/月" : "2/mo" },
-                    { label: t("pricing.tierCompare.feat3"), yearly: "✓", monthly: "✓" },
-                    { label: t("pricing.tierCompare.feat4"), yearly: "∞", monthly: "∞" },
-                    { label: t("pricing.tierCompare.feat5"), yearly: locale === "zh" ? "8.8折" : "12% off", monthly: "—" },
-                    { label: t("pricing.tierCompare.feat6"), yearly: locale === "zh" ? "150/月" : "150/mo", monthly: locale === "zh" ? "100/月" : "100/mo" },
-                    { label: t("pricing.tierCompare.feat7"), yearly: "✓", monthly: "—" },
-                    { label: t("pricing.tierCompare.feat8"), yearly: "✓", monthly: "—" },
-                  ].map((row, i) => (
-                    <tr key={i} className={`border-b border-white/5 ${i % 2 === 0 ? "bg-white/[0.02]" : ""}`}>
-                      <td className="py-2.5 px-4 text-white/50">{row.label}</td>
-                      <td className="py-2.5 px-2 text-center text-gold font-medium">{row.yearly}</td>
-                      <td className="py-2.5 px-2 text-center text-white/40">{row.monthly}</td>
+                  {comparisonRows.map((row, i) => (
+                    <tr key={row.label} className={`border-b border-white/5 ${i % 2 === 0 ? "bg-white/[0.02]" : ""}`}>
+                      <td className="px-4 py-2.5 text-white/50">{row.label}</td>
+                      <td className="px-2 py-2.5 text-center font-medium text-gold">{row.yearly}</td>
+                      <td className="px-2 py-2.5 text-center text-white/40">{row.monthly}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -233,128 +213,57 @@ export default function PricingPage() {
           </div>
         </ScrollReveal>
 
-        {/* ══════════ Channel Comparison (一键分析 vs 完整分析) ══════════ */}
         <ScrollReveal delay={0.1}>
           <div className="mb-12">
-            <div className="text-center mb-6">
-              <h3 className="text-lg font-serif font-bold text-white/80">{t("pricing.channel.title")}</h3>
-              <p className="text-white/30 text-xs mt-1">{t("pricing.channel.subtitle")}</p>
+            <div className="mb-5 flex items-center justify-center gap-3">
+              <div className="h-px max-w-[80px] flex-1 bg-gradient-to-r from-transparent to-gold/20" />
+              <span className="text-xs font-medium uppercase tracking-widest text-gold/40">Lifetime</span>
+              <div className="h-px max-w-[80px] flex-1 bg-gradient-to-l from-gold/20 to-transparent" />
             </div>
-
-            <div className="grid md:grid-cols-2 gap-4">
-              {/* ⚡ 一键分析 */}
-              <div className="relative card-glass p-5 border-blue-500/20 hover:border-blue-400/30 transition-all duration-300">
-                <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl bg-gradient-to-r from-blue-500/40 to-purple-500/40" />
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="text-xl">⚡</span>
-                  <div>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/25">
-                      {t("pricing.channel.quick.badge")}
-                    </span>
-                    <h4 className="text-white/90 font-serif font-bold text-base mt-1">{t("pricing.channel.quick.name")}</h4>
-                  </div>
-                </div>
-                <p className="text-blue-400/80 text-sm font-medium mb-2">{t("pricing.channel.quick.tagline")}</p>
-                <p className="text-white/40 text-xs mb-3 leading-relaxed">{t("pricing.channel.quick.audience")}</p>
-                <div className="bg-blue-500/5 border border-blue-500/15 rounded-xl p-3">
-                  <p className="text-white/50 text-[11px] leading-relaxed">{t("pricing.channel.quick.tech")}</p>
-                </div>
-              </div>
-
-              {/* 🔱 完整分析 */}
-              <div className="relative card-glass p-5 border-gold/20 hover:border-gold/30 transition-all duration-300">
-                <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl bg-gradient-to-r from-gold/40 to-amber-500/40" />
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="text-xl">🔱</span>
-                  <div>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-gold/15 text-gold border border-gold/25">
-                      {t("pricing.channel.full.badge")}
-                    </span>
-                    <h4 className="text-white/90 font-serif font-bold text-base mt-1">{t("pricing.channel.full.name")}</h4>
-                  </div>
-                </div>
-                <p className="text-gold/80 text-sm font-medium mb-2">{t("pricing.channel.full.tagline")}</p>
-                <p className="text-white/40 text-xs mb-3 leading-relaxed">{t("pricing.channel.full.audience")}</p>
-                <div className="bg-gold/5 border border-gold/15 rounded-xl p-3">
-                  <p className="text-white/50 text-[11px] leading-relaxed">{t("pricing.channel.full.tech")}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Shared price tag */}
-            <div className="text-center mt-4">
-              <span className="text-white/30 text-xs">{t("pricing.channel.price")}：</span>
-              <span className="text-gold text-sm font-medium">{t("pricing.channel.priceValue")}</span>
-            </div>
-          </div>
-        </ScrollReveal>
-
-        {/* ══════════ Founder Section (Full-Width Premium) ══════════ */}
-        <ScrollReveal delay={0.1}>
-          <div className="mb-12">
-            <div className="flex items-center justify-center gap-3 mb-5">
-              <div className="h-px flex-1 max-w-[80px] bg-gradient-to-r from-transparent to-gold/20" />
-              <span className="text-gold/40 text-xs tracking-widest uppercase font-medium">Premium</span>
-              <div className="h-px flex-1 max-w-[80px] bg-gradient-to-l from-transparent to-gold/20" />
-            </div>
-
             <PricingCard
               tier={founderTier}
               region={region}
               founderSoldPercent={founderSoldPercent}
-              isFounderCard={true}
+              isFounderCard
               onSelect={handleSelect}
             />
           </div>
         </ScrollReveal>
 
-        {/* ══════════ Event Retro + Stardust (merged compact section) ══════════ */}
         <ScrollReveal delay={0.1}>
           <div className="mb-12">
-            {/* Event Retro — compact inline link */}
-            <div className="card-glass p-4 flex items-center gap-4 mb-5 hover:border-gold/20 transition-all duration-300 hover:-translate-y-0.5">
-              <div className="w-10 h-10 rounded-full bg-gold/8 flex items-center justify-center flex-shrink-0">
+            <div className="card-glass mb-5 flex items-center gap-4 p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/20">
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gold/8">
                 <Zap size={18} className="text-gold" />
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-white/80 font-medium text-sm">{t("pricing.eventCallout")}</p>
-                <p className="text-white/35 text-xs">
-                  {t("pricing.eventDesc").replace("{price}", eventPrice)}
-                </p>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-white/80">{t("pricing.eventCallout")}</p>
+                <p className="text-xs text-white/35">{t("pricing.eventDesc").replace("{price}", eventPrice)}</p>
               </div>
-              <button
-                onClick={() => handleSelect("event_retro")}
-                className="flex items-center gap-1 text-gold/60 text-sm hover:text-gold transition-colors flex-shrink-0"
-              >
+              <button onClick={() => handleSelect("event_retro")} className="flex flex-shrink-0 items-center gap-1 text-sm text-gold/60 transition-colors hover:text-gold">
                 {t("pricing.learnMore")}
                 <ChevronRight size={14} />
               </button>
             </div>
 
-            {/* Stardust Legend */}
             <div>
-              <div className="text-center mb-5">
-                <h3 className="text-lg font-serif font-bold text-white/80">{t("pricing.stardustGuide")}</h3>
-                <p className="text-white/30 text-xs mt-1">{t("pricing.stardustSubtitle")}</p>
+              <div className="mb-5 text-center">
+                <h2 className="font-serif text-lg font-bold text-white/80">{t("pricing.stardustGuide")}</h2>
+                <p className="mt-1 text-xs text-white/30">{t("pricing.stardustSubtitle")}</p>
               </div>
-
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                {STARDUST_COSTS.map((item) => {
+              <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                {stardustCosts.map((item) => {
                   const Icon = item.icon
                   return (
-                    <div
-                      key={item.label}
-                      className={`flex flex-col items-center gap-2 p-4 rounded-xl border ${item.bg}
-                                 hover:shadow-lg hover:-translate-y-1 hover:scale-[1.03] transition-all duration-300 cursor-default`}
-                    >
-                      <div className="w-9 h-9 rounded-full flex items-center justify-center bg-white/5">
+                    <div key={item.label} className={`flex flex-col items-center gap-2 rounded-xl border p-4 ${item.bg}`}>
+                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5">
                         <Icon size={16} className={item.color} />
                       </div>
                       <div className="text-center">
-                        <p className="text-white/60 text-[11px] mb-0.5">{item.label}</p>
+                        <p className="mb-0.5 text-[11px] text-white/60">{item.label}</p>
                         <p className={`text-lg font-bold ${item.color}`}>
                           {item.cost}
-                          <span className="text-xs font-normal ml-0.5 opacity-60">✨</span>
+                          <span className="ml-0.5 text-xs font-normal opacity-60">{isZh ? "点" : "pts"}</span>
                         </p>
                       </div>
                     </div>
@@ -365,42 +274,33 @@ export default function PricingPage() {
           </div>
         </ScrollReveal>
 
-        {/* ══════════ FAQ Section ══════════ */}
         <ScrollReveal delay={0.1}>
-          <div className="mb-12 max-w-3xl mx-auto">
-            <div className="flex items-center justify-center gap-3 mb-6">
+          <div className="mx-auto mb-12 max-w-3xl">
+            <div className="mb-6 flex items-center justify-center gap-3">
               <HelpCircle size={18} className="text-gold/40" />
-              <h3 className="text-lg font-serif font-bold text-white/80">{t("pricing.faq")}</h3>
+              <h2 className="font-serif text-lg font-bold text-white/80">{t("pricing.faq")}</h2>
             </div>
-
             <div className="space-y-3">
-              {FAQ_ITEMS.map((item, i) => (
-                <AccordionItem
-                  key={i}
-                  question={item.q}
-                  answer={item.a}
-                  defaultOpen={false}
-                />
+              {faqItems.map((item) => (
+                <AccordionItem key={item.q} question={item.q} answer={item.a} defaultOpen={false} />
               ))}
             </div>
           </div>
         </ScrollReveal>
 
-        {/* ══════════ Footer Legal ══════════ */}
-        <p className="text-center text-white/20 text-[11px]">
+        <p className="text-center text-[11px] text-white/20">
           {t("pricing.legalText")}{" "}
-          <button onClick={() => setShowTerms(true)} className="text-gold/40 hover:text-gold underline">
+          <button onClick={() => setShowTerms(true)} className="text-gold/40 underline hover:text-gold">
             {t("pricing.termsOfService")}
           </button>
           {" "}{t("pricing.and")}{" "}
-          <a href={localeHref("/refund")} className="text-gold/40 hover:text-gold underline">{t("pricing.refundPolicy")}</a>
+          <a href={localeHref("/refund")} className="text-gold/40 underline hover:text-gold">{t("pricing.refundPolicy")}</a>
           。{t("pricing.legalNote")}
         </p>
 
         <ServiceTerms open={showTerms} onClose={() => setShowTerms(false)} />
       </div>
 
-      {/* Payment modal */}
       {selectedTier && (
         <Suspense fallback={null}>
           <QRPaymentModal
