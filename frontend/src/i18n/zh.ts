@@ -1,10 +1,10 @@
 export default {
   // ─── 通用 ───
-  "app.name": "命运引擎",
-  "app.slogan": "不是算命 — 是读懂你自己",
+  "app.name": "观我",
+  "app.slogan": "AI 自我画像与每日成长建议",
   "nav.home": "首页",
   "nav.dashboard": "我的档案",
-  "nav.reading": "开始分析",
+  "nav.reading": "建立画像",
   "nav.pricing": "定价",
   "nav.shop": "命运藏宝阁",
   "nav.about": "关于我们",
@@ -65,7 +65,7 @@ export default {
   "nav.blog": "知识库",
   "nav.myReports": "我的报告",
   "nav.account": "个人中心",
-  "nav.almanac": "每日黄历",
+  "nav.almanac": "每日趋势",
   "nav.divination": "星际分析",
   "nav.events": "事件复盘",
   "nav.am16": "行为模式测验",
@@ -2853,4 +2853,3 @@ export default {
     "正在解析区块信息…",
   ],
 } as const
-

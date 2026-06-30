@@ -137,6 +137,39 @@ export default function PricingPage() {
           </div>
         </ScrollReveal>
 
+        <ScrollReveal delay={0.05}>
+          <div className="grid md:grid-cols-3 gap-4 mb-10">
+            {[
+              {
+                icon: Sparkles,
+                title: locale === "zh" ? "完整 AI 命运画像" : "Full AI Destiny Profile",
+                desc: locale === "zh" ? "整合多系统分析，形成你的长期人格与人生课题基线。" : "A long-term self-knowledge baseline across multiple systems.",
+              },
+              {
+                icon: TrendingUp,
+                title: locale === "zh" ? "每日趋势与今日签" : "Daily Trend + Oracle",
+                desc: locale === "zh" ? "每天给出趋势、风险提醒和一条可执行行动建议。" : "Daily trend, risk signal, and one practical action prompt.",
+              },
+              {
+                icon: ShieldCheck,
+                title: locale === "zh" ? "人生趋势曲线" : "Life Growth Curve",
+                desc: locale === "zh" ? "保留人生 K 线，并升级为高能期、调整期、转折期判断。" : "Your life K-line becomes a dashboard for phases and timing.",
+              },
+            ].map((item) => {
+              const Icon = item.icon
+              return (
+                <div key={item.title} className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5">
+                  <div className="w-10 h-10 rounded-xl border border-gold/20 bg-gold/[0.07] flex items-center justify-center mb-4">
+                    <Icon size={18} className="text-gold/75" />
+                  </div>
+                  <h3 className="text-white/85 text-sm font-semibold mb-1.5">{item.title}</h3>
+                  <p className="text-white/40 text-xs leading-relaxed">{item.desc}</p>
+                </div>
+              )
+            })}
+          </div>
+        </ScrollReveal>
+
         {/* ══════════ Main Pricing Grid (2-Column) ══════════ */}
         <Suspense fallback={<div className="grid lg:grid-cols-2 gap-5 mb-10">{[1,2].map(i => <div key={i} className="h-64 bg-white/[0.03] rounded-2xl animate-pulse" />)}</div>}>
           <div className="grid lg:grid-cols-2 gap-5 items-stretch mb-10 max-w-4xl mx-auto">

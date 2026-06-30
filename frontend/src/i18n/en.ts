@@ -1,10 +1,10 @@
 export default {
   // ─── Common ───
-  "app.name": "Destiny Engine",
-  "app.slogan": "Not Fortune-Telling — Self-Understanding",
+  "app.name": "Guanwo AI",
+  "app.slogan": "AI self-knowledge and daily growth guidance",
   "nav.home": "Home",
-  "nav.dashboard": "My Chart",
-  "nav.reading": "Start Reading",
+  "nav.dashboard": "My Profile",
+  "nav.reading": "Build My Profile",
   "nav.pricing": "Pricing",
   "nav.shop": "Treasury",
   "nav.about": "About",
@@ -65,7 +65,7 @@ export default {
   "nav.blog": "Insights",
   "nav.myReports": "My Reports",
   "nav.account": "Account",
-  "nav.almanac": "Daily Almanac",
+  "nav.almanac": "Daily Trend",
   "nav.divination": "Astrology Analysis",
   "nav.events": "Event Analysis",
   "nav.am16": "Behavioral Quiz",
@@ -2862,4 +2862,3 @@ export default {
     "Parsing block imprints...",
   ],
 } as const
-

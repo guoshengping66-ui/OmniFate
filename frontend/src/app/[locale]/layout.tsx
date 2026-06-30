@@ -37,27 +37,27 @@ export async function generateMetadata({
   const baseUrl = "https://www.khanfate.com"
 
   return {
-    title: isZh ? "命运引擎 · 读懂你自己" : "Destiny Engine — Not Fortune-Telling, Self-Understanding",
+    title: isZh ? "观我 · AI 自我画像与每日成长系统" : "Guanwo AI — AI Self-Knowledge and Daily Growth",
     description: isZh
-      ? "融合八字、星盘、塔罗、面相、手相五大古老系统，AI 交叉验证，为你生成专属人生蓝图。不是算命，是一面照见你人生的镜子。"
-      : "Five ancient systems — Bazi, Astrology, Tarot, Face Reading, Palm Reading — cross-validated by AI. Not fortune-telling. A mirror for your life.",
+      ? "观我融合八字、紫微、星盘、塔罗、面相与手相，生成持续更新的 AI 命运画像、每日趋势、今日签和个人成长建议。"
+      : "Guanwo AI combines Bazi, Ziwei, astrology, tarot, face and palm signals into a living AI destiny profile with daily trends and growth guidance.",
     keywords: isZh
       ? "八字,星盘,塔罗,面相,手相,AI分析,命运,自我认知,性格分析"
       : "bazi,astrology,tarot,face reading,palm reading,AI,destiny,self-understanding,personality",
-    authors: [{ name: "Destiny Engine" }],
+    authors: [{ name: "Guanwo AI" }],
     openGraph: {
-      title: isZh ? "命运引擎 — 不是算命，是读懂你自己" : "Destiny Engine — Not Fortune-Telling, Self-Understanding",
+      title: isZh ? "观我 — AI 自我画像与每日成长系统" : "Guanwo AI — AI Self-Knowledge and Daily Growth",
       description: isZh
-        ? "融合五大古老系统，AI 交叉验证，生成专属人生蓝图。"
-        : "Five ancient systems, one AI engine. Your personal blueprint.",
+        ? "建立你的 AI 命运画像，每天获得趋势、今日签和行动建议。"
+        : "Build your AI destiny profile, then receive daily trends, an oracle prompt, and action guidance.",
       url: `${baseUrl}/${locale}`,
-      siteName: "Destiny Engine",
+      siteName: "Guanwo AI",
       images: [
         {
           url: `${baseUrl}/og-image.svg`,
           width: 1200,
           height: 630,
-          alt: isZh ? "命运引擎" : "Destiny Engine",
+          alt: isZh ? "观我" : "Guanwo AI",
         },
       ],
       locale: isZh ? "zh_CN" : "en_US",
@@ -65,10 +65,10 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: isZh ? "命运引擎 — 读懂你自己" : "Destiny Engine",
+      title: isZh ? "观我 — 读懂你自己" : "Guanwo AI",
       description: isZh
-        ? "五大古老系统 × AI 交叉验证 = 你的人生蓝图"
-        : "Five ancient systems × AI cross-validation = your life blueprint",
+        ? "AI 命运画像 × 每日趋势 × 个人成长建议"
+        : "AI destiny profile × daily trends × personal growth guidance",
       images: [`${baseUrl}/og-image.svg`],
     },
     alternates: {
@@ -255,7 +255,7 @@ try{
             __html: safeJsonLd({
               "@context": "https://schema.org",
               "@type": "WebApplication",
-              name: validLocale === "zh" ? "命运引擎" : "Destiny Engine",
+              name: validLocale === "zh" ? "观我" : "Guanwo AI",
               url: `https://www.khanfate.com/${validLocale}`,
               applicationCategory: "LifestyleApplication",
               operatingSystem: "Web",
@@ -269,7 +269,7 @@ try{
               },
               author: {
                 "@type": "Organization",
-                name: "Destiny Engine",
+                name: "Guanwo AI",
                 url: "https://www.khanfate.com",
                 logo: "https://www.khanfate.com/logo.png",
                 sameAs: [

@@ -10,6 +10,7 @@ import { ErrorBoundary } from "@/components/ui/ErrorBoundary"
 
 // ── Lazy-loaded cinematic marketing page ─────────────────────────────
 const CinematicHero = dynamic(() => import("@/components/destiny/CinematicHero"), { ssr: true })
+const GuanwoSystemSection = dynamic(() => import("@/components/destiny/GuanwoSystemSection"), { ssr: false })
 const GrowthLoopSection = dynamic(() => import("@/components/destiny/GrowthLoopSection"), { ssr: false })
 const AIDestinyDeconstruction = dynamic(() => import("@/components/destiny/AIDestinyDeconstruction"), { ssr: false })
 const LifeRouteGeneration = dynamic(() => import("@/components/destiny/LifeRouteGeneration"), { ssr: false })
@@ -97,6 +98,9 @@ export default function HomePage() {
     <div className="relative z-10 min-h-screen">
         {/* SECTION 01: Hero */}
         <CinematicHero />
+        <ErrorBoundary sectionName="Guanwo System">
+          <GuanwoSystemSection />
+        </ErrorBoundary>
         <ErrorBoundary sectionName="Growth Loop">
           <GrowthLoopSection />
         </ErrorBoundary>

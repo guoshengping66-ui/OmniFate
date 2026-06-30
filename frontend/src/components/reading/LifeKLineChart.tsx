@@ -174,7 +174,54 @@ function toneClass(tone: "gold" | "green" | "rose" | "cyan") {
 export default function LifeKLineChart({ scores, strongestLabel, weakestLabel, isUnlocked }: LifeKLineChartProps) {
   const { locale, localeHref } = useLanguage()
   const lang = locale === "zh" ? "zh" : "en"
-  const copy = COPY[lang]
+  const baseCopy = COPY[lang]
+  const copy = lang === "zh"
+    ? {
+        ...baseCopy,
+        badge: "Growth Curve",
+        title: "人生趋势曲线",
+        subtitle: "把人生 K 线升级成成长仪表盘：看清高能期、调整期、转折期和稳定期，再决定今天怎么行动。",
+        axis: "趋势能量",
+        currentStage: "当前阶段",
+        nextStage: "下一窗口",
+        bestDriver: "优先放大",
+        needsCare: "优先照顾",
+        lowPoint: "调整期",
+        pivotPoint: "转折期",
+        risePoint: "高能期",
+        steadyPoint: "稳定期",
+        lowDesc: "适合减负、修复作息和关系，不建议把所有压力都硬扛下来。",
+        pivotDesc: "适合换方法、换节奏、重新排序目标，用小决策带来方向变化。",
+        riseDesc: "适合集中资源做一件关键事，把优势维度转化为可见成果。",
+        steadyDesc: "不要频繁推翻计划，先守住身体、现金流和关键关系。",
+        rising: "上升推进期",
+        repairing: "修复调整期",
+        balancing: "平衡积累期",
+        readTitle: "如何使用这张图",
+        readRise: "不要同时优化所有事。先把优势维度变成主线，再修补短板。",
+        readRepair: "当前更需要稳住底盘。压力不是失败，而是在提醒你调整节奏。",
+        readBalance: "整体没有明显失速，真正的突破来自稳定执行，而不是频繁换方向。",
+        cta: "查看成长建议",
+        locked: "完整报告会继续拆解具体年份、月份节奏和可执行建议。",
+      }
+    : {
+        ...baseCopy,
+        badge: "Growth Curve",
+        title: "Life Growth Curve",
+        subtitle: "Your life K-line becomes a growth dashboard: high-energy phases, adjustment windows, pivot moments, and stable periods.",
+        axis: "Trend Energy",
+        currentStage: "Current Phase",
+        nextStage: "Next Window",
+        bestDriver: "Amplify First",
+        needsCare: "Care First",
+        lowPoint: "Adjustment",
+        pivotPoint: "Pivot",
+        risePoint: "High Energy",
+        steadyPoint: "Stable Phase",
+        readTitle: "How to use this chart",
+        cta: "View growth guidance",
+        locked: "The full report expands this into years, monthly rhythm, and concrete actions.",
+      }
   const points = buildRhythmPoints(scores)
   const stage = getStage(scores, lang)
   const width = 880
