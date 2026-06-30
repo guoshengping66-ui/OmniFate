@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Optional
+
 from fastapi import APIRouter, Depends, Request
 
 from auth.dependencies import get_current_user
@@ -14,7 +16,7 @@ router = APIRouter()
 @router.get("/pricing/catalog")
 async def get_pricing_catalog(
     request: Request,
-    current_user: User | None = Depends(get_current_user),
+    current_user: Optional[User] = Depends(get_current_user),
 ):
     region = resolve_pricing_region(request, current_user)
     return public_catalog(region)
