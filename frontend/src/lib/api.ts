@@ -966,18 +966,20 @@ export async function capturePayPalOrder(paypalOrderId: string): Promise<{ statu
 export async function createStripeCheckout(
   itemType: string = "unlock_report",
   readingId?: string,
+  region?: "domestic" | "overseas",
 ): Promise<{ checkout_url: string; session_id: string; order_no: string }> {
   const res = await apiDirect.post("/api/payments/stripe/create", null, {
-    params: { item_type: itemType, reading_id: readingId || "" },
+    params: { item_type: itemType, reading_id: readingId || "", region: region || "overseas" },
   })
   return res.data
 }
 
 export async function createShopStripeCheckout(
   orderNo: string,
+  region?: "domestic" | "overseas",
 ): Promise<{ checkout_url: string; session_id: string; order_no: string }> {
   const res = await apiDirect.post("/api/payments/stripe/create-shop-order", null, {
-    params: { order_no: orderNo },
+    params: { order_no: orderNo, region: region || "overseas" },
   })
   return res.data
 }

@@ -175,16 +175,16 @@ async def get_payment_methods():
         methods.extend([
             {
                 "id": "stripe",
-                "name": "Stripe",
-                "name_en": "Stripe",
+                "name": "银行卡 / 信用卡支付",
+                "name_en": "Card payment",
                 "icon": "credit-card",
                 "category": "china",
                 "enabled": True,
             },
             {
                 "id": "stripe",
-                "name": "Stripe",
-                "name_en": "Stripe",
+                "name": "Credit or debit card",
+                "name_en": "Credit or debit card",
                 "icon": "credit-card",
                 "category": "global",
                 "enabled": True,

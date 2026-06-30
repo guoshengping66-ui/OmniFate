@@ -105,6 +105,8 @@ export function QRPaymentModal({
         : (TIER_PRICES[tier || "premium_monthly"] || TIER_PRICES.premium_monthly)
   const displayAmount = Math.round((isOverseas ? tierInfo.amountUsd : tierInfo.amountCny) * 100) / 100
   const currencySymbol = isOverseas ? "$" : "¥"
+  const paymentTitle = isOverseas ? "Credit or debit card" : "银行卡 / 信用卡支付"
+  const paymentDesc = isOverseas ? "Cards, Apple Pay, Google Pay via Stripe" : "支持银行卡及 Stripe 可用的钱包方式"
   const tierLabel = isPreOrder
     ? (preLabel || "Founder Seat")
     : tierInfo.labelKey
@@ -192,12 +194,12 @@ export function QRPaymentModal({
       try {
         if (isShopPayment && shopOrderNo) {
           const { createShopStripeCheckout } = await import("@/lib/api")
-          const res = await createShopStripeCheckout(shopOrderNo)
+          const res = await createShopStripeCheckout(shopOrderNo, region)
           window.location.href = res.checkout_url
           return
         }
         const itemType = isPreOrder ? "founder_lifetime" : isReportUnlock ? "unlock_report" : (tier || "premium_monthly")
-        const res = await createStripeCheckout(itemType, readingId)
+        const res = await createStripeCheckout(itemType, readingId, region)
         window.location.href = res.checkout_url
       } catch (err: any) {
         setError(err?.response?.data?.detail || t("payment.createOrderFailed"))
@@ -526,8 +528,8 @@ export function QRPaymentModal({
               <div className="mb-6">
                 <p className="text-white/50 text-xs mb-3">{t("payment.selectMethod")}</p>
                 <div className="rounded-xl border border-gold/40 bg-gold/10 p-4">
-                  <div className="text-gold font-medium">Stripe</div>
-                  <div className="text-white/40 text-xs mt-1">Cards, Apple Pay, Google Pay</div>
+                  <div className="text-gold font-medium">{paymentTitle}</div>
+                  <div className="text-white/40 text-xs mt-1">{paymentDesc}</div>
                 </div>
               </div>
               <button onClick={createOrder} className="btn-gold w-full py-3">

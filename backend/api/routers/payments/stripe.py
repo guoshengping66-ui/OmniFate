@@ -48,6 +48,7 @@ async def _create_checkout_session(
     name: str,
     user: User,
     item_type: str,
+    region: str = "overseas",
     reading_id: str = "",
 ) -> dict:
     if not settings.STRIPE_ENABLED or not settings.STRIPE_SECRET_KEY:
@@ -58,6 +59,7 @@ async def _create_checkout_session(
         "order_no": order_no,
         "user_id": user.id,
         "item_type": item_type,
+        "region": region,
         "reading_id": reading_id or "",
     }
     data = {
@@ -69,10 +71,12 @@ async def _create_checkout_session(
         "metadata[order_no]": metadata["order_no"],
         "metadata[user_id]": metadata["user_id"],
         "metadata[item_type]": metadata["item_type"],
+        "metadata[region]": metadata["region"],
         "metadata[reading_id]": metadata["reading_id"],
         "payment_intent_data[metadata][order_no]": metadata["order_no"],
         "payment_intent_data[metadata][user_id]": metadata["user_id"],
         "payment_intent_data[metadata][item_type]": metadata["item_type"],
+        "payment_intent_data[metadata][region]": metadata["region"],
         "payment_intent_data[metadata][reading_id]": metadata["reading_id"],
         "line_items[0][quantity]": "1",
         "line_items[0][price_data][currency]": currency.lower(),
@@ -124,9 +128,11 @@ async def _activate_paid_order(order: Order, db: AsyncSession) -> None:
 async def create_stripe_checkout(
     item_type: str = Query("unlock_report"),
     reading_id: str = Query(""),
+    region: str = Query("overseas"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_user),
 ):
+    region = "domestic" if region == "domestic" else "overseas"
     price_info = PRODUCT_PRICES.get(item_type)
     if not price_info:
         raise HTTPException(status_code=400, detail="Invalid item type")
@@ -134,6 +140,8 @@ async def create_stripe_checkout(
     order_no = f"ST{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{secrets.randbelow(90000) + 10000}"
     amount_usd = float(price_info["usd"])
     amount_cny = float(price_info["cny"])
+    amount = amount_cny if region == "domestic" else amount_usd
+    currency = "cny" if region == "domestic" else "usd"
     name_map = {
         "premium_monthly": "Profile Mirror Monthly Membership",
         "premium_yearly": "Profile Mirror Yearly Membership",
@@ -150,18 +158,19 @@ async def create_stripe_checkout(
         payment_method="stripe",
         payment_ref=order_no,
         item_type=item_type,
-        notes=f"item_type:{item_type}|reading_id:{reading_id or ''}",
+        notes=f"item_type:{item_type}|reading_id:{reading_id or ''}|region:{region}",
     )
     db.add(order)
     await db.commit()
 
     session = await _create_checkout_session(
         order_no=order_no,
-        amount=amount_usd,
-        currency="usd",
+        amount=amount,
+        currency=currency,
         name=name_map.get(item_type, "Profile Mirror"),
         user=current_user,
         item_type=item_type,
+        region=region,
         reading_id=reading_id,
     )
     order.payment_ref = session["id"]
@@ -172,9 +181,11 @@ async def create_stripe_checkout(
 @router.post("/stripe/create-shop-order")
 async def create_shop_stripe_checkout(
     order_no: str = Query(...),
+    region: str = Query("overseas"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_user),
 ):
+    region = "domestic" if region == "domestic" else "overseas"
     result = await db.execute(select(Order).where(Order.order_no == order_no).with_for_update())
     order = result.scalar_one_or_none()
     if not order:
@@ -187,20 +198,28 @@ async def create_shop_stripe_checkout(
     item_result = await db.execute(select(OrderItem).where(OrderItem.order_id == order.id))
     items = item_result.scalars().all()
     name = ", ".join(f"{i.product_name} x{i.quantity}" for i in items) or "Profile Mirror Shop Order"
+    amount_cny = float(order.total_cny or 0)
     amount_usd = float(order.total_usd or 0)
-    if amount_usd <= 0:
-        amount_usd = round(float(order.total_cny or 0) / (settings.CNY_TO_USD_RATE or 7.0), 2)
-        order.total_usd = amount_usd
+    if region == "domestic":
+        amount = amount_cny
+        currency = "cny"
+    else:
+        if amount_usd <= 0:
+            amount_usd = round(amount_cny / (settings.CNY_TO_USD_RATE or 7.0), 2)
+            order.total_usd = amount_usd
+        amount = amount_usd
+        currency = "usd"
     order.payment_method = "stripe"
     await db.commit()
 
     session = await _create_checkout_session(
         order_no=order.order_no,
-        amount=amount_usd,
-        currency="usd",
+        amount=amount,
+        currency=currency,
         name=name,
         user=current_user,
         item_type="shop",
+        region=region,
     )
     order.payment_ref = session["id"]
     await db.commit()

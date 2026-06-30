@@ -43,8 +43,8 @@ export function PaymentMethodSelector({ selected, onSelect, className = "", regi
       .then(setMethods)
       .catch(() => {
         setMethods([
-          { id: "stripe", name: "Stripe", name_en: "Stripe", icon: "credit-card", category: "china", enabled: true },
-          { id: "stripe", name: "Stripe", name_en: "Stripe", icon: "credit-card", category: "global", enabled: true },
+          { id: "stripe", name: "银行卡 / 信用卡支付", name_en: "Card payment", icon: "credit-card", category: "china", enabled: true },
+          { id: "stripe", name: "Credit or debit card", name_en: "Credit or debit card", icon: "credit-card", category: "global", enabled: true },
         ])
       })
       .finally(() => setLoading(false))

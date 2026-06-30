@@ -127,11 +127,11 @@ export const PLANS: PlanConfig[] = [
     id: "onetime_unlock",
     name: "一次性解锁",
     subtitle: "永久解锁一份全维报告",
-    priceCny: 9.9,
-    priceUsd: 5.9,
+    priceCny: 19.9,
+    priceUsd: 9.9,
     monthlyStardustGrant: 0,
-    displayCny: "¥9.9",
-    displayUsd: "$5.9",
+    displayCny: "¥19.9",
+    displayUsd: "$9.9",
     features: [
       "永久解锁一份全维报告",
       "赠送 50 星尘（追问5次）",
@@ -157,8 +157,8 @@ export const FOUNDER_CONFIG = {
 
 // ── 首单优惠 ──────────────────────────────────────────────────────────────────
 export const FIRST_ORDER_DISCOUNT = 30  // 首单立减 ¥30
-export const ONETIME_UNLOCK_CNY = 9.9
-export const ONETIME_UNLOCK_USD = 5.9
+export const ONETIME_UNLOCK_CNY = 19.9
+export const ONETIME_UNLOCK_USD = 9.9
 
 // ── 合盘报告定价 ──────────────────────────────────────────────────────────────
 export const SYNASTRY_REPORT_CNY = 29.9

@@ -138,12 +138,12 @@ export const TIERS: PricingTier[] = [
     id: "onetime_unlock",
     name: "一次性解锁",
     subtitle: "永久解锁一份全维报告",
-    priceCny: 9.9,
-    priceUsd: 5.9,
+    priceCny: 19.9,
+    priceUsd: 9.9,
     stardust: 0,
     stardustGrant: 50,
-    priceDisplay: "¥9.9",
-    priceDisplayUsd: "$5.9",
+    priceDisplay: "¥19.9",
+    priceDisplayUsd: "$9.9",
     features: [
       "永久解锁一份全维报告",
       "赠送 50 星尘（追问5次）",
@@ -193,8 +193,8 @@ const _yearly = TIER_MAP.premium_yearly
 const _founder = TIER_MAP.founder_lifetime
 const _unlock = TIER_MAP.onetime_unlock
 
-export const FULL_REPORT_PRICE = _unlock?.priceCny ?? 9.9
-export const FULL_REPORT_PRICE_USD = _unlock?.priceUsd ?? 5.9
+export const FULL_REPORT_PRICE = _unlock?.priceCny ?? 19.9
+export const FULL_REPORT_PRICE_USD = _unlock?.priceUsd ?? 9.9
 export const FIRST_REPORT_PRICE = 29.9
 export const EVENT_RETRO_PRICE = _event?.priceCny ?? 9.9
 export const EVENT_RETRO_PRICE_USD = _event?.priceUsd ?? 5.9
@@ -208,5 +208,5 @@ export const MEMBER_DISCOUNT = 0.88
 export const FOUNDER_PRICE = _founder?.priceCny ?? 1688
 export const FOUNDER_PRICE_USD = _founder?.priceUsd ?? 499
 export const FOUNDER_MAX_SEATS = 200
-export const ONETIME_UNLOCK_PRICE = _unlock?.priceCny ?? 9.9
-export const ONETIME_UNLOCK_PRICE_USD = _unlock?.priceUsd ?? 5.9
+export const ONETIME_UNLOCK_PRICE = _unlock?.priceCny ?? 19.9
+export const ONETIME_UNLOCK_PRICE_USD = _unlock?.priceUsd ?? 9.9
