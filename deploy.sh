@@ -45,7 +45,11 @@ if [[ "$ACTION" == "frontend" || "$ACTION" == "all" ]]; then
     # PM2 CWD is /opt/OmniFate/frontend, but server.js is at
     # .next/standalone/frontend/server.js — so __dirname = .next/standalone/frontend/.
     # Create symlinks so the standalone server can find .next/static and .next/server.
-    STANDALONE_DIR="/opt/OmniFate/frontend/.next/standalone/frontend"
+    if [ -f /opt/OmniFate/frontend/.next/standalone/server.js ]; then
+        STANDALONE_DIR="/opt/OmniFate/frontend/.next/standalone"
+    else
+        STANDALONE_DIR="/opt/OmniFate/frontend/.next/standalone/frontend"
+    fi
     mkdir -p "$STANDALONE_DIR/.next"
     # Remove existing dirs/symlinks first (cp -r may have left real dirs)
     rm -rf "$STANDALONE_DIR/.next/static" "$STANDALONE_DIR/.next/server" "$STANDALONE_DIR/public"
