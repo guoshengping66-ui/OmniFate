@@ -1,5 +1,7 @@
 """Public pricing catalog endpoints."""
 
+from __future__ import annotations
+
 from fastapi import APIRouter, Depends, Request
 
 from auth.dependencies import get_current_user
