@@ -7,7 +7,7 @@ import { useCart } from "@/contexts/CartContext"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useRegion } from "@/contexts/RegionContext"
-import { formatCouponBalance, CNY_TO_USD_RATE } from "@/lib/regionPrice"
+import { formatCouponBalance } from "@/lib/regionPrice"
 import { createOrder, createShopStripeCheckout, type Address } from "@/lib/api"
 import { PaymentMethodSelector } from "@/components/monetization/PaymentMethodSelector"
 import { AddressForm } from "@/components/shop/AddressForm"
@@ -49,7 +49,8 @@ export default function CheckoutPage() {
   }, [user, authLoading, router, localeHref])
 
   const couponBalanceCny = user?.shop_coupon_balance ?? 0
-  const couponBalanceLocal = isOverseas ? couponBalanceCny / CNY_TO_USD_RATE : couponBalanceCny
+  const couponEligible = !isOverseas
+  const couponBalanceLocal = couponEligible ? couponBalanceCny : 0
   const couponDiscount = useCoupon ? Math.min(couponBalanceLocal, totalWithDiscount) : 0
   // Shipping: free for domestic, free worldwide over $79, otherwise $8
   const FREE_SHIPPING_THRESHOLD = 79
@@ -57,10 +58,7 @@ export default function CheckoutPage() {
   const shippingFee = !isOverseas ? 0 : (totalWithDiscount >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE)
   const finalTotal = Math.max(0, totalWithDiscount - couponDiscount + shippingFee)
   const couponDisplay = formatCouponBalance(couponBalanceCny, region)
-  const couponDiscountDisplay = formatCouponBalance(
-    isOverseas ? couponDiscount * CNY_TO_USD_RATE : couponDiscount,
-    region
-  )
+  const couponDiscountDisplay = formatCouponBalance(couponDiscount, region)
 
   const handleCheckout = async () => {
     if (isSubmitting.current) return
@@ -79,14 +77,15 @@ export default function CheckoutPage() {
           unit_price_cny: i.product.price_cny,
         })),
         total_cny: items.reduce((sum, i) => sum + i.product.price_cny * i.quantity, 0),
-        use_coupon: useCoupon,
+        region,
+        use_coupon: couponEligible && useCoupon,
         address_id: selectedAddress.id,
         payment_method: paymentMethod,
       })
       setCreatedOrderNo(result.order_no)
       // Use cart's total (in local currency) for display — products have independent USD/CNY prices
       setCreatedOrderTotal(finalTotal)
-      const checkout = await createShopStripeCheckout(result.order_no)
+      const checkout = await createShopStripeCheckout(result.order_no, region)
       window.location.href = checkout.checkout_url
     } catch (err: any) {
       toast.error(err?.response?.data?.detail ?? t("checkout.orderFail"))
@@ -193,7 +192,7 @@ export default function CheckoutPage() {
         </div>
 
         {/* Coupon section */}
-        {couponBalanceCny > 0 && (
+        {couponEligible && couponBalanceCny > 0 && (
           <div className="card-glass p-4 mb-4">
             <label className="flex items-center gap-3 cursor-pointer">
               <input
@@ -207,9 +206,7 @@ export default function CheckoutPage() {
                 <span className="text-white/80 text-sm">{t("checkout.coupon")}</span>
                 <span className="text-white/40 text-xs ml-2">
                   {t("checkout.couponBalance")} {couponDisplay}，{t("checkout.couponDeduct")} {formatCouponBalance(
-                    isOverseas
-                      ? (couponDiscount || Math.min(couponBalanceLocal, totalWithDiscount)) * CNY_TO_USD_RATE
-                      : (couponDiscount || Math.min(couponBalanceLocal, totalWithDiscount)),
+                    couponDiscount || Math.min(couponBalanceLocal, totalWithDiscount),
                     region
                   )}
                 </span>

@@ -147,6 +147,12 @@ async def _migrate_readings_columns():
         ("verification_code", "VARCHAR(64)"),
         ("verification_expires_at", "TIMESTAMPTZ"),
         ("shop_coupon_balance", "NUMERIC(12,2) DEFAULT 0.0"),
+        ("pricing_region", "VARCHAR(10)"),
+        ("pricing_region_locked_at", "TIMESTAMPTZ"),
+        ("stripe_customer_id", "VARCHAR(100)"),
+        ("stripe_subscription_id", "VARCHAR(100)"),
+        ("subscription_status", "VARCHAR(30)"),
+        ("subscription_current_period_end", "TIMESTAMPTZ"),
     ]
     reading_columns = [
         ("qimen_report", "TEXT"),
@@ -186,6 +192,20 @@ async def _migrate_readings_columns():
         ("admin_confirm_expires", "TIMESTAMPTZ"),
         ("payment_method", "VARCHAR(50)"),
         ("payment_ref", "VARCHAR(200)"),
+        ("pricing_region", "VARCHAR(10)"),
+        ("currency", "VARCHAR(3)"),
+        ("amount_minor", "INTEGER"),
+        ("price_snapshot", "JSON"),
+        ("stripe_checkout_session_id", "VARCHAR(200)"),
+        ("stripe_payment_intent_id", "VARCHAR(200)"),
+        ("stripe_subscription_id", "VARCHAR(200)"),
+    ]
+    order_item_columns = [
+        ("unit_price_usd", "NUMERIC(10,2)"),
+        ("subtotal_usd", "NUMERIC(10,2)"),
+        ("currency", "VARCHAR(3)"),
+        ("unit_amount_minor", "INTEGER"),
+        ("subtotal_amount_minor", "INTEGER"),
     ]
 
     try:
@@ -194,6 +214,7 @@ async def _migrate_readings_columns():
             await _add_columns(db, "readings", reading_columns)
             await _add_columns(db, "divination_records", divination_columns)
             await _add_columns(db, "orders", order_columns)
+            await _add_columns(db, "order_items", order_item_columns)
             await db.commit()
             logger.info("Migration: ensured user, reading & order columns")
     except Exception as e:

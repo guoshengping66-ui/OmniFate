@@ -16,6 +16,7 @@ from database.models import (
 )
 from auth.dependencies import get_current_user
 from config import get_settings
+from services.pricing import lock_user_region, quote_custom_amount, resolve_pricing_region, validate_payment_method
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -44,6 +45,7 @@ class CreateOrderRequest(BaseModel):
 @router.post("/create-order")
 async def create_order(
     req: CreateOrderRequest,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     current_user: Optional[User] = Depends(get_current_user),
 ):
@@ -57,6 +59,13 @@ async def create_order(
     if not user:
         raise HTTPException(status_code=401, detail="请先登录后再下单")
 
+    region = resolve_pricing_region(request, user)
+    if req.payment_method:
+        validate_payment_method(region, req.payment_method)
+    lock_user_region(user, region)
+    if user.pricing_region == region and not user.pricing_region_locked_at:
+        user.pricing_region_locked_at = datetime.now(timezone.utc)
+
     from api.routers.products import _load_products
     all_products = _load_products("zh")
     product_map = {p["id"]: p for p in all_products}
@@ -68,13 +77,18 @@ async def create_order(
             prod = product_map.get(item.product_id)
             if not prod:
                 raise HTTPException(status_code=400, detail=f"商品不存在: {item.product_id}")
-            server_price = prod["price_cny"]
-            server_total += server_price * item.quantity
+            server_price_cny = float(prod["price_cny"])
+            server_price_usd = float(prod.get("price_usd") or 0)
+            if region == "overseas" and server_price_usd <= 0:
+                raise HTTPException(status_code=400, detail=f"Product is not available in overseas pricing: {item.product_id}")
+            active_price = server_price_cny if region == "domestic" else server_price_usd
+            server_total += active_price * item.quantity
             validated_items.append({
                 "product_id": item.product_id,
                 "product_name": prod["name"],
                 "quantity": item.quantity,
-                "unit_price_cny": server_price,
+                "unit_price_cny": server_price_cny,
+                "unit_price_usd": server_price_usd,
             })
         else:
             raise HTTPException(status_code=400, detail=f"商品不存在: {item.product_id or item.product_name}，请通过正确渠道购买")
@@ -83,6 +97,8 @@ async def create_order(
     coupon_used = 0.0
 
     if req.use_coupon and user:
+        if region != "domestic":
+            raise HTTPException(status_code=400, detail="Coupons are only available for domestic CNY orders")
         balance = float(user.shop_coupon_balance or 0)
         if balance <= 0:
             raise HTTPException(status_code=400, detail="没有可用的代金券余额")
@@ -94,6 +110,15 @@ async def create_order(
         final_total = round(final_total - coupon_used, 2)
 
     order_no = f"ORD{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{secrets.randbelow(90000) + 10000}"
+    total_cny = final_total if region == "domestic" else round(sum(i["unit_price_cny"] * i["quantity"] for i in validated_items), 2)
+    total_usd = final_total if region == "overseas" else round(sum(i["unit_price_usd"] * i["quantity"] for i in validated_items), 2)
+    quote = quote_custom_amount(
+        sku="shop",
+        region=region,
+        amount_cny=total_cny,
+        amount_usd=total_usd,
+        label="Profile Mirror Shop Order",
+    )
 
     recipient_name = req.recipient_name
     recipient_phone = req.recipient_phone
@@ -124,7 +149,16 @@ async def create_order(
         user_id=user.id if user else None,
         order_no=order_no,
         status=OrderStatus.pending,
-        total_cny=final_total,
+        total_cny=total_cny,
+        total_usd=total_usd,
+        pricing_region=quote.region,
+        currency=quote.currency.upper(),
+        amount_minor=quote.amount_minor,
+        price_snapshot={
+            **quote.snapshot(),
+            "items": validated_items,
+            "coupon_used": coupon_used,
+        },
         payment_method=req.payment_method or "pending",
         payment_ref=order_no,
         item_type="shop",
@@ -144,6 +178,11 @@ async def create_order(
             quantity=item["quantity"],
             unit_price_cny=item["unit_price_cny"],
             subtotal_cny=round(item["unit_price_cny"] * item["quantity"], 2),
+            unit_price_usd=item["unit_price_usd"],
+            subtotal_usd=round(item["unit_price_usd"] * item["quantity"], 2),
+            currency=quote.currency.upper(),
+            unit_amount_minor=int(round((item["unit_price_cny"] if region == "domestic" else item["unit_price_usd"]) * 100)),
+            subtotal_amount_minor=int(round((item["unit_price_cny"] if region == "domestic" else item["unit_price_usd"]) * item["quantity"] * 100)),
         )
         db.add(oi)
 
@@ -155,6 +194,9 @@ async def create_order(
         "original_total": server_total,
         "coupon_used": coupon_used,
         "final_total": final_total,
+        "region": quote.region,
+        "currency": quote.currency.upper(),
+        "amount_minor": quote.amount_minor,
         "message": "订单已创建，请选择支付方式完成支付",
     }
 

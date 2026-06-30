@@ -96,6 +96,12 @@ class User(Base):
     founder_seat_no: Mapped[Optional[int]] = mapped_column(Integer)
     founder_region: Mapped[Optional[str]] = mapped_column(String(10))  # "domestic"|"overseas"
     founder_activated_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+    pricing_region: Mapped[Optional[str]] = mapped_column(String(10))  # "domestic"|"overseas"
+    pricing_region_locked_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+    stripe_customer_id: Mapped[Optional[str]] = mapped_column(String(100), index=True)
+    stripe_subscription_id: Mapped[Optional[str]] = mapped_column(String(100), index=True)
+    subscription_status: Mapped[Optional[str]] = mapped_column(String(30))
+    subscription_current_period_end: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
 
     # Referral
     referral_code: Mapped[Optional[str]] = mapped_column(String(8), unique=True, index=True)
@@ -292,10 +298,17 @@ class Order(Base):
 
     total_cny: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
     total_usd: Mapped[Optional[float]] = mapped_column(Numeric(10, 2))
+    pricing_region: Mapped[Optional[str]] = mapped_column(String(10), index=True)
+    currency: Mapped[Optional[str]] = mapped_column(String(3), index=True)
+    amount_minor: Mapped[Optional[int]] = mapped_column(Integer)
+    price_snapshot: Mapped[Optional[dict]] = mapped_column(JSON)
 
     payment_method: Mapped[Optional[str]] = mapped_column(String(50), index=True)
     payment_ref: Mapped[Optional[str]] = mapped_column(String(200), index=True)  # Indexed for webhook lookups
     item_type: Mapped[Optional[str]] = mapped_column(String(50), index=True)  # premium_monthly|premium_yearly|unlock_report|founder_lifetime|shop
+    stripe_checkout_session_id: Mapped[Optional[str]] = mapped_column(String(200), index=True)
+    stripe_payment_intent_id: Mapped[Optional[str]] = mapped_column(String(200), index=True)
+    stripe_subscription_id: Mapped[Optional[str]] = mapped_column(String(200), index=True)
 
     recipient_name: Mapped[Optional[str]] = mapped_column(String(100))
     recipient_phone: Mapped[Optional[str]] = mapped_column(String(30))
@@ -356,6 +369,11 @@ class OrderItem(Base):
     quantity: Mapped[int] = mapped_column(Integer, default=1)
     unit_price_cny: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
     subtotal_cny: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
+    unit_price_usd: Mapped[Optional[float]] = mapped_column(Numeric(10, 2))
+    subtotal_usd: Mapped[Optional[float]] = mapped_column(Numeric(10, 2))
+    currency: Mapped[Optional[str]] = mapped_column(String(3))
+    unit_amount_minor: Mapped[Optional[int]] = mapped_column(Integer)
+    subtotal_amount_minor: Mapped[Optional[int]] = mapped_column(Integer)
     recommendation_reason: Mapped[Optional[str]] = mapped_column(Text)
 
     order: Mapped["Order"] = relationship(back_populates="items")

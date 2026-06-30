@@ -1,29 +1,29 @@
-"""Founder seat endpoints and logic."""
+"""Founder seat endpoints and activation logic."""
+
+from __future__ import annotations
 
 import secrets
 from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel, Field
-from sqlalchemy import select, func
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.session import get_db
-from database.models import (
-    User, Order, FounderVote, FounderFeedback, OrderStatus,
-)
 from auth.dependencies import get_current_user, require_user
 from config import get_settings
+from database.models import CreditTransaction, FounderFeedback, FounderVote, Order, OrderStatus, User
+from database.session import get_db
+from services.pricing import get_price_quote, lock_user_region, resolve_pricing_region
 
-from .constants import PRODUCT_PRICES, SUBSCRIPTION_GRANTS
+from .constants import SUBSCRIPTION_GRANTS
 from .utils import is_effective_founder
 
 router = APIRouter()
 settings = get_settings()
 
-# Founder seat limits
 FOUNDER_TOTAL_DOMESTIC = 100
 FOUNDER_TOTAL_OVERSEAS = 100
 
@@ -36,119 +36,106 @@ class FounderFeedbackRequest(BaseModel):
     content: str = Field(..., min_length=1, max_length=2000)
 
 
-async def activate_founder_seat_logic(user: User, order_no: str, db: AsyncSession) -> dict:
-    """
-    激活创始席位 — 由 QR 支付确认和正式支付回调调用。
-    Uses retry loop with IntegrityError handling to prevent seat number collisions.
-    """
+async def activate_founder_seat_logic(
+    user: User,
+    order_no: str,
+    db: AsyncSession,
+    region: str | None = None,
+) -> dict:
+    """Activate a founder seat in the paid order's region."""
     now = datetime.now(timezone.utc)
     grant_amount = SUBSCRIPTION_GRANTS["founder_lifetime"]
+    seat_region = "domestic" if region == "domestic" else "overseas"
 
-    MAX_RETRIES = 5
-    for attempt in range(MAX_RETRIES):
-        # Count REAL founder seats — must have seat_no AND activated_at
-        domestic_count_result = await db.execute(
+    for attempt in range(5):
+        count_result = await db.execute(
             select(func.count()).select_from(User).where(
                 User.is_founder == True,
-                User.founder_region == "domestic",
+                User.founder_region == seat_region,
                 User.founder_seat_no.isnot(None),
                 User.founder_activated_at.isnot(None),
             ).with_for_update()
         )
-        domestic_count = domestic_count_result.scalar() or 0
+        sold_count = count_result.scalar() or 0
+        limit = FOUNDER_TOTAL_DOMESTIC if seat_region == "domestic" else FOUNDER_TOTAL_OVERSEAS
+        if sold_count >= limit:
+            raise HTTPException(status_code=400, detail="Founder seats for this region are sold out")
 
-        if domestic_count < FOUNDER_TOTAL_DOMESTIC:
-            region = "domestic"
-            seat_no = domestic_count + 1
-        else:
-            overseas_count_result = await db.execute(
-                select(func.count()).select_from(User).where(
-                    User.is_founder == True,
-                    User.founder_region == "overseas",
-                    User.founder_seat_no.isnot(None),
-                    User.founder_activated_at.isnot(None),
-                ).with_for_update()
-            )
-            overseas_count = overseas_count_result.scalar() or 0
-            if overseas_count >= FOUNDER_TOTAL_OVERSEAS:
-                raise HTTPException(status_code=400, detail="创始席位已售罄")
-            region = "overseas"
-            seat_no = FOUNDER_TOTAL_DOMESTIC + overseas_count + 1
-
+        seat_no = sold_count + 1 if seat_region == "domestic" else FOUNDER_TOTAL_DOMESTIC + sold_count + 1
         user.is_founder = True
         user.founder_seat_no = seat_no
-        user.founder_region = region
+        user.founder_region = seat_region
         user.founder_activated_at = now
         user.subscription_tier = "founder_lifetime"
         user.is_premium = True
-        user.premium_expires_at = None  # Lifetime
+        user.premium_expires_at = None
         user.stardust_balance += grant_amount
         user.stardust_lifetime_earned += grant_amount
 
-        tx = CreditTransaction(
+        db.add(CreditTransaction(
             user_id=user.id,
             amount=grant_amount,
             balance_after=user.stardust_balance,
             reason="founder_grant",
             reference_id=order_no,
             status="confirmed",
-        )
-        db.add(tx)
+        ))
 
         try:
             await db.flush()
-            return {
-                "seat_no": seat_no,
-                "region": region,
-                "grant_amount": grant_amount,
-            }
+            return {"seat_no": seat_no, "region": seat_region, "grant_amount": grant_amount}
         except IntegrityError:
             await db.rollback()
-            if attempt < MAX_RETRIES - 1:
-                # Re-fetch user after rollback (detached object no longer tracked)
-                re_fetch = await db.execute(
-                    select(User).where(User.id == user.id).with_for_update()
-                )
-                user = re_fetch.scalar_one_or_none()
-                if not user:
-                    raise HTTPException(status_code=500, detail="User not found after rollback")
-                continue
-            raise HTTPException(status_code=500, detail="Failed to assign founder seat after retries")
+            if attempt == 4:
+                raise HTTPException(status_code=500, detail="Failed to assign founder seat after retries")
+            re_fetch = await db.execute(select(User).where(User.id == user.id).with_for_update())
+            user = re_fetch.scalar_one_or_none()
+            if not user:
+                raise HTTPException(status_code=500, detail="User not found after rollback")
+
+    raise HTTPException(status_code=500, detail="Failed to assign founder seat")
 
 
 @router.post("/founder/purchase")
 async def create_founder_purchase(
-    method: str = Query("personal", description="支付方式: personal|alipay|wechat"),
+    request: Request,
+    method: str = Query("personal", description="payment method"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_user),
 ):
-    """创建创始席位购买订单 — 支付后调用 /founder/activate 激活"""
     if current_user.is_founder:
-        raise HTTPException(status_code=400, detail="您已拥有创始席位")
+        raise HTTPException(status_code=400, detail="You already have a founder seat")
 
-    price_info = PRODUCT_PRICES["founder_lifetime"]
-    amount = price_info["cny"]
+    region = resolve_pricing_region(request, current_user)
+    quote = get_price_quote("founder_lifetime", region)
+    lock_user_region(current_user, region)
+    if current_user.pricing_region == region and not current_user.pricing_region_locked_at:
+        current_user.pricing_region_locked_at = datetime.now(timezone.utc)
 
     order_no = f"FO{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{secrets.randbelow(90000) + 10000}"
-
     order = Order(
         user_id=current_user.id,
         order_no=order_no,
         status=OrderStatus.pending,
-        total_cny=amount,
+        total_cny=quote.cny_amount,
+        total_usd=quote.usd_amount,
+        pricing_region=quote.region,
+        currency=quote.currency.upper(),
+        amount_minor=quote.amount_minor,
+        price_snapshot=quote.snapshot(),
         payment_method=f"founder_{method}",
         payment_ref=order_no,
         item_type="founder_lifetime",
-        notes=f"item_type:founder_lifetime|reading_id:",
+        notes=f"item_type:founder_lifetime|reading_id:|region:{quote.region}",
     )
     db.add(order)
     await db.commit()
-
     return {
         "order_no": order_no,
-        "amount": amount,
-        "currency": "CNY",
-        "message": "创始席位购买订单已创建",
+        "amount": quote.amount,
+        "currency": quote.currency.upper(),
+        "region": quote.region,
+        "message": "Founder purchase order created",
     }
 
 
@@ -157,8 +144,6 @@ async def get_founder_status(
     db: AsyncSession = Depends(get_db),
     current_user: Optional[User] = Depends(get_current_user),
 ):
-    """获取创始席位状态 — 公开接口，登录用户额外返回个人席位信息"""
-
     domestic_result = await db.execute(
         select(func.count()).select_from(User).where(
             User.is_founder == True,
@@ -167,8 +152,6 @@ async def get_founder_status(
             User.founder_activated_at.isnot(None),
         )
     )
-    domestic_sold = domestic_result.scalar() or 0
-
     overseas_result = await db.execute(
         select(func.count()).select_from(User).where(
             User.is_founder == True,
@@ -177,16 +160,14 @@ async def get_founder_status(
             User.founder_activated_at.isnot(None),
         )
     )
+    domestic_sold = domestic_result.scalar() or 0
     overseas_sold = overseas_result.scalar() or 0
-
     total_seats = FOUNDER_TOTAL_DOMESTIC + FOUNDER_TOTAL_OVERSEAS
     sold_seats = domestic_sold + overseas_sold
-    remaining_seats = total_seats - sold_seats
-
     return {
         "total_seats": total_seats,
         "sold_seats": sold_seats,
-        "remaining_seats": remaining_seats,
+        "remaining_seats": total_seats - sold_seats,
         "domestic_total": FOUNDER_TOTAL_DOMESTIC,
         "domestic_sold": domestic_sold,
         "overseas_total": FOUNDER_TOTAL_OVERSEAS,
@@ -198,10 +179,7 @@ async def get_founder_status(
 
 
 @router.get("/founder/seats")
-async def list_founder_seats(
-    db: AsyncSession = Depends(get_db),
-):
-    """获取所有已占用的创始席位编号（用于展示席位墙）"""
+async def list_founder_seats(db: AsyncSession = Depends(get_db)):
     result = await db.execute(
         select(User.founder_seat_no, User.founder_region, User.display_name, User.created_at)
         .where(
@@ -211,61 +189,53 @@ async def list_founder_seats(
         )
         .order_by(User.founder_seat_no)
     )
-    seats = []
-    for row in result.all():
-        seats.append({
-            "seat_no": row[0],
-            "region": row[1],
-            "name": row[2] or "匿名",
-            "activated_at": row[3].isoformat() if row[3] else None,
-        })
-    return {"seats": seats}
+    return {
+        "seats": [
+            {
+                "seat_no": row[0],
+                "region": row[1],
+                "name": row[2] or "Anonymous",
+                "activated_at": row[3].isoformat() if row[3] else None,
+            }
+            for row in result.all()
+        ]
+    }
 
 
 @router.post("/founder/activate")
 async def activate_founder_seat(
-    order_no: str = Query(..., description="已支付的订单号"),
+    order_no: str = Query(..., description="paid order number"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_user),
 ):
-    """
-    激活创始席位 — 必须提供已支付的订单号。
-    生产环境不再允许无订单激活。
-    """
     if current_user.is_founder:
-        raise HTTPException(status_code=400, detail="您已拥有创始席位")
+        raise HTTPException(status_code=400, detail="You already have a founder seat")
 
+    order_region = current_user.pricing_region
     if not settings.DEBUG:
         order_result = await db.execute(
-            select(Order).where(
-                Order.order_no == order_no,
-                Order.user_id == current_user.id,
-            )
+            select(Order).where(Order.order_no == order_no, Order.user_id == current_user.id)
         )
         order = order_result.scalar_one_or_none()
         if not order:
-            raise HTTPException(status_code=404, detail="订单不存在")
+            raise HTTPException(status_code=404, detail="Order not found")
         if order.status != OrderStatus.paid:
-            raise HTTPException(status_code=400, detail="订单尚未支付")
-        if order.total_cny < 1688:
-            raise HTTPException(status_code=400, detail="订单金额不足，创始席位需支付 ¥1688")
+            raise HTTPException(status_code=400, detail="Order is not paid")
+        order_region = order.pricing_region
 
-    result = await db.execute(
-        select(User).where(User.id == current_user.id).with_for_update()
-    )
+    result = await db.execute(select(User).where(User.id == current_user.id).with_for_update())
     user = result.scalar_one_or_none()
     if not user:
-        raise HTTPException(status_code=404, detail="用户不存在")
+        raise HTTPException(status_code=404, detail="User not found")
 
-    info = await activate_founder_seat_logic(user, order_no or "mock", db)
+    info = await activate_founder_seat_logic(user, order_no, db, region=order_region)
     await db.commit()
-
     return {
         "status": "activated",
         "seat_no": info["seat_no"],
         "region": info["region"],
         "stardust_granted": info["grant_amount"],
-        "message": f"恭喜！您已锁定创始席位 #{info['seat_no']}",
+        "message": f"Founder seat #{info['seat_no']} activated",
     }
 
 
@@ -275,26 +245,16 @@ async def vote_feature(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_user),
 ):
-    """创始席位产品路线图投票"""
     if not is_effective_founder(current_user):
-        raise HTTPException(status_code=403, detail="仅创始会员可投票")
-
-    existing = await db.execute(
-        select(FounderVote).where(
-            FounderVote.user_id == current_user.id,
-            FounderVote.feature_id == req.feature_id,
-        )
-    )
+        raise HTTPException(status_code=403, detail="Founder membership required")
+    existing = await db.execute(select(FounderVote).where(
+        FounderVote.user_id == current_user.id,
+        FounderVote.feature_id == req.feature_id,
+    ))
     if existing.scalar_one_or_none():
-        raise HTTPException(status_code=400, detail="您已为该功能投过票")
-
-    vote = FounderVote(
-        user_id=current_user.id,
-        feature_id=req.feature_id,
-    )
-    db.add(vote)
+        raise HTTPException(status_code=400, detail="Already voted")
+    db.add(FounderVote(user_id=current_user.id, feature_id=req.feature_id))
     await db.commit()
-
     return {"status": "voted", "feature_id": req.feature_id}
 
 
@@ -304,15 +264,8 @@ async def submit_founder_feedback(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_user),
 ):
-    """创始席位用户反馈"""
     if not is_effective_founder(current_user):
-        raise HTTPException(status_code=403, detail="仅创始会员可提交反馈")
-
-    feedback = FounderFeedback(
-        user_id=current_user.id,
-        content=req.content,
-    )
-    db.add(feedback)
+        raise HTTPException(status_code=403, detail="Founder membership required")
+    db.add(FounderFeedback(user_id=current_user.id, content=req.content))
     await db.commit()
-
-    return {"status": "submitted", "message": "感谢您的反馈！"}
+    return {"status": "submitted", "message": "Thank you for the feedback"}

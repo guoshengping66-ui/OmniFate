@@ -27,6 +27,7 @@ from .stripe import router as stripe_router
 from .founder import router as founder_router
 from .admin import router as admin_router
 from .webhooks import router as webhooks_router
+from .pricing import router as pricing_router
 
 router = APIRouter()
 
@@ -39,3 +40,4 @@ router.include_router(stripe_router)
 router.include_router(founder_router)
 router.include_router(admin_router)
 router.include_router(webhooks_router)
+router.include_router(pricing_router)

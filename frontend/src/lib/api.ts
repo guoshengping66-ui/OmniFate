@@ -889,6 +889,7 @@ export async function cancelSubscription(): Promise<{ status: string; message: s
 export interface CreateOrderRequest {
   items: { product_id: string; product_name: string; quantity: number; unit_price_cny: number }[]
   total_cny: number
+  region?: "domestic" | "overseas"
   use_coupon?: boolean
   address_id?: string
   notes?: string
@@ -902,6 +903,9 @@ export interface CreateOrderResult {
   original_total: number
   coupon_used: number
   final_total: number
+  region?: "domestic" | "overseas"
+  currency?: string
+  amount_minor?: number
 }
 
 export async function createOrder(data: CreateOrderRequest): Promise<CreateOrderResult> {

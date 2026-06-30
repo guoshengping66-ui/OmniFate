@@ -17,8 +17,15 @@ from auth.dependencies import require_user
 from config import get_settings
 from database.models import Order, OrderItem, OrderStatus, User
 from database.session import get_db
+from services.pricing import (
+    PriceQuote,
+    get_price_quote,
+    lock_user_region,
+    quote_custom_amount,
+    resolve_pricing_region,
+    validate_payment_method,
+)
 
-from .constants import PRODUCT_PRICES
 from .founder import activate_founder_seat_logic
 from .subscriptions import activate_subscription
 
@@ -43,12 +50,10 @@ def _stripe_return_urls(order_no: str) -> tuple[str, str]:
 async def _create_checkout_session(
     *,
     order_no: str,
-    amount: float,
-    currency: str,
+    quote: PriceQuote,
     name: str,
     user: User,
     item_type: str,
-    region: str = "overseas",
     reading_id: str = "",
 ) -> dict:
     if not settings.STRIPE_ENABLED or not settings.STRIPE_SECRET_KEY:
@@ -59,11 +64,13 @@ async def _create_checkout_session(
         "order_no": order_no,
         "user_id": user.id,
         "item_type": item_type,
-        "region": region,
+        "region": quote.region,
+        "currency": quote.currency,
+        "amount_minor": str(quote.amount_minor),
         "reading_id": reading_id or "",
     }
     data = {
-        "mode": "payment",
+        "mode": quote.mode,
         "success_url": success_url,
         "cancel_url": cancel_url,
         "client_reference_id": order_no,
@@ -72,17 +79,32 @@ async def _create_checkout_session(
         "metadata[user_id]": metadata["user_id"],
         "metadata[item_type]": metadata["item_type"],
         "metadata[region]": metadata["region"],
+        "metadata[currency]": metadata["currency"],
+        "metadata[amount_minor]": metadata["amount_minor"],
         "metadata[reading_id]": metadata["reading_id"],
-        "payment_intent_data[metadata][order_no]": metadata["order_no"],
-        "payment_intent_data[metadata][user_id]": metadata["user_id"],
-        "payment_intent_data[metadata][item_type]": metadata["item_type"],
-        "payment_intent_data[metadata][region]": metadata["region"],
-        "payment_intent_data[metadata][reading_id]": metadata["reading_id"],
         "line_items[0][quantity]": "1",
-        "line_items[0][price_data][currency]": currency.lower(),
-        "line_items[0][price_data][unit_amount]": str(int(round(amount * 100))),
+        "line_items[0][price_data][currency]": quote.currency.lower(),
+        "line_items[0][price_data][unit_amount]": str(quote.amount_minor),
         "line_items[0][price_data][product_data][name]": name[:120],
     }
+    if quote.stripe_price_id:
+        data.pop("line_items[0][price_data][currency]", None)
+        data.pop("line_items[0][price_data][unit_amount]", None)
+        data.pop("line_items[0][price_data][product_data][name]", None)
+        data["line_items[0][price]"] = quote.stripe_price_id
+    if quote.mode == "subscription":
+        data["subscription_data[metadata][order_no]"] = metadata["order_no"]
+        data["subscription_data[metadata][user_id]"] = metadata["user_id"]
+        data["subscription_data[metadata][item_type]"] = metadata["item_type"]
+        data["subscription_data[metadata][region]"] = metadata["region"]
+        if quote.interval and not quote.stripe_price_id:
+            data["line_items[0][price_data][recurring][interval]"] = quote.interval
+    else:
+        data["payment_intent_data[metadata][order_no]"] = metadata["order_no"]
+        data["payment_intent_data[metadata][user_id]"] = metadata["user_id"]
+        data["payment_intent_data[metadata][item_type]"] = metadata["item_type"]
+        data["payment_intent_data[metadata][region]"] = metadata["region"]
+        data["payment_intent_data[metadata][reading_id]"] = metadata["reading_id"]
     async with httpx.AsyncClient(timeout=15) as client:
         response = await client.post(
             "https://api.stripe.com/v1/checkout/sessions",
@@ -118,7 +140,7 @@ async def _activate_paid_order(order: Order, db: AsyncSession) -> None:
     if item_type in ("premium_monthly", "premium_yearly"):
         await activate_subscription(user, item_type, db)
     elif item_type == "founder_lifetime":
-        await activate_founder_seat_logic(user, order.order_no, db)
+        await activate_founder_seat_logic(user, order.order_no, db, region=order.pricing_region)
     elif item_type == "onetime_unlock":
         from .unlock import handle_onetime_unlock_activation
         await handle_onetime_unlock_activation(user, order, db)
@@ -126,35 +148,30 @@ async def _activate_paid_order(order: Order, db: AsyncSession) -> None:
 
 @router.post("/stripe/create")
 async def create_stripe_checkout(
+    request: Request,
     item_type: str = Query("unlock_report"),
     reading_id: str = Query(""),
-    region: str = Query("overseas"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_user),
 ):
-    region = "domestic" if region == "domestic" else "overseas"
-    price_info = PRODUCT_PRICES.get(item_type)
-    if not price_info:
-        raise HTTPException(status_code=400, detail="Invalid item type")
+    region = resolve_pricing_region(request, current_user)
+    validate_payment_method(region, "stripe")
+    quote = get_price_quote(item_type, region)
 
     order_no = f"ST{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{secrets.randbelow(90000) + 10000}"
-    amount_usd = float(price_info["usd"])
-    amount_cny = float(price_info["cny"])
-    amount = amount_cny if region == "domestic" else amount_usd
-    currency = "cny" if region == "domestic" else "usd"
-    name_map = {
-        "premium_monthly": "Profile Mirror Monthly Membership",
-        "premium_yearly": "Profile Mirror Yearly Membership",
-        "unlock_report": "Profile Mirror Report Unlock",
-        "founder_lifetime": "Profile Mirror Founder Lifetime Membership",
-        "onetime_unlock": "Profile Mirror One-time Unlock",
-    }
+    lock_user_region(current_user, region)
+    if current_user.pricing_region == region and not current_user.pricing_region_locked_at:
+        current_user.pricing_region_locked_at = datetime.now(timezone.utc)
     order = Order(
         user_id=current_user.id,
         order_no=order_no,
         status=OrderStatus.pending,
-        total_cny=amount_cny,
-        total_usd=amount_usd,
+        total_cny=quote.cny_amount,
+        total_usd=quote.usd_amount,
+        pricing_region=quote.region,
+        currency=quote.currency.upper(),
+        amount_minor=quote.amount_minor,
+        price_snapshot=quote.snapshot(),
         payment_method="stripe",
         payment_ref=order_no,
         item_type=item_type,
@@ -165,27 +182,28 @@ async def create_stripe_checkout(
 
     session = await _create_checkout_session(
         order_no=order_no,
-        amount=amount,
-        currency=currency,
-        name=name_map.get(item_type, "Profile Mirror"),
+        quote=quote,
+        name=quote.label,
         user=current_user,
         item_type=item_type,
-        region=region,
         reading_id=reading_id,
     )
     order.payment_ref = session["id"]
+    order.stripe_checkout_session_id = session["id"]
+    order.stripe_subscription_id = session.get("subscription")
     await db.commit()
     return {"checkout_url": session["url"], "session_id": session["id"], "order_no": order_no}
 
 
 @router.post("/stripe/create-shop-order")
 async def create_shop_stripe_checkout(
+    request: Request,
     order_no: str = Query(...),
-    region: str = Query("overseas"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_user),
 ):
-    region = "domestic" if region == "domestic" else "overseas"
+    region = resolve_pricing_region(request, current_user)
+    validate_payment_method(region, "stripe")
     result = await db.execute(select(Order).where(Order.order_no == order_no).with_for_update())
     order = result.scalar_one_or_none()
     if not order:
@@ -200,28 +218,29 @@ async def create_shop_stripe_checkout(
     name = ", ".join(f"{i.product_name} x{i.quantity}" for i in items) or "Profile Mirror Shop Order"
     amount_cny = float(order.total_cny or 0)
     amount_usd = float(order.total_usd or 0)
-    if region == "domestic":
-        amount = amount_cny
-        currency = "cny"
-    else:
-        if amount_usd <= 0:
-            amount_usd = round(amount_cny / (settings.CNY_TO_USD_RATE or 7.0), 2)
-            order.total_usd = amount_usd
-        amount = amount_usd
-        currency = "usd"
+    quote = quote_custom_amount(
+        sku="shop",
+        region=order.pricing_region or region,
+        amount_cny=amount_cny,
+        amount_usd=amount_usd,
+        label=name,
+    )
     order.payment_method = "stripe"
+    order.pricing_region = quote.region
+    order.currency = quote.currency.upper()
+    order.amount_minor = quote.amount_minor
+    order.price_snapshot = quote.snapshot()
     await db.commit()
 
     session = await _create_checkout_session(
         order_no=order.order_no,
-        amount=amount,
-        currency=currency,
+        quote=quote,
         name=name,
         user=current_user,
         item_type="shop",
-        region=region,
     )
     order.payment_ref = session["id"]
+    order.stripe_checkout_session_id = session["id"]
     await db.commit()
     return {"checkout_url": session["url"], "session_id": session["id"], "order_no": order.order_no}
 
@@ -244,6 +263,8 @@ async def stripe_return(
         result = await db.execute(select(Order).where(Order.payment_ref == session_id).with_for_update())
         order = result.scalar_one_or_none()
         if order and str(order.user_id) == str(current_user.id):
+            order.stripe_payment_intent_id = session.get("payment_intent")
+            order.stripe_subscription_id = session.get("subscription")
             await _activate_paid_order(order, db)
             await db.commit()
             return RedirectResponse(_frontend_url(f"/payment?stripe=success&order_no={order.order_no}"))
@@ -291,6 +312,17 @@ async def stripe_webhook(request: Request, db: AsyncSession = Depends(get_db)):
         logger.warning("[STRIPE-WEBHOOK] Order not found for session=%s order_no=%s", session_id, order_no)
         return {"status": "order_not_found"}
     order.payment_ref = session_id
+    order.stripe_checkout_session_id = session_id
+    order.stripe_payment_intent_id = session.get("payment_intent")
+    order.stripe_subscription_id = session.get("subscription")
     await _activate_paid_order(order, db)
+    if order.user_id and session.get("customer"):
+        user_result = await db.execute(select(User).where(User.id == order.user_id).with_for_update())
+        user = user_result.scalar_one_or_none()
+        if user:
+            user.stripe_customer_id = session.get("customer")
+            if session.get("subscription"):
+                user.stripe_subscription_id = session.get("subscription")
+                user.subscription_status = "active"
     await db.commit()
     return {"status": "completed"}
