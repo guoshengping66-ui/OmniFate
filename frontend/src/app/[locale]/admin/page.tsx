@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { Users, FileText, ShoppingCart, TrendingUp, RefreshCw, Search, DollarSign, Activity, ExternalLink, Clock, CheckCircle, Truck, XCircle } from "lucide-react"
+import { Users, FileText, ShoppingCart, TrendingUp, RefreshCw, Search, DollarSign, Activity, ExternalLink } from "lucide-react"
 
 interface AdminStats {
   totalUsers: number
@@ -66,10 +66,13 @@ export default function AdminPage() {
   if (!authenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-ink px-4">
-        <div className="w-full max-w-sm p-8 rounded-2xl bg-white/[0.04] border border-white/10">
+        <div className="w-full max-w-md p-8 rounded-xl bg-white/[0.04] border border-white/10">
           <h1 className="text-2xl font-serif font-bold text-white mb-6 text-center">
             {t("admin.title") || "Admin Dashboard"}
           </h1>
+          <div className="mb-5 rounded-lg border border-gold/20 bg-gold/[0.06] p-4 text-xs leading-relaxed text-white/58">
+            {t("admin.loginHint") || "Use your website account first, then enter the admin key. The account email must be listed as an administrator."}
+          </div>
           <form onSubmit={handleLogin} className="space-y-4">
             <input
               type="password"
@@ -81,7 +84,7 @@ export default function AdminPage() {
             {error && <p className="text-red-400 text-sm">{error}</p>}
             <button
               type="submit"
-              className="w-full py-3 rounded-full bg-gold text-ink font-semibold hover:shadow-[0_0_24px_rgba(201,168,76,0.5)] transition-all"
+              className="w-full py-3 rounded-xl bg-gold text-ink font-semibold hover:shadow-[0_0_24px_rgba(201,168,76,0.35)] transition-all"
             >
               {t("admin.login") || "Login"}
             </button>
@@ -104,7 +107,7 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-ink px-4 py-12">
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-serif font-bold text-white">

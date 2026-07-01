@@ -1,7 +1,7 @@
 "use client"
 import { Suspense, useEffect, useState, useMemo, useCallback, lazy } from "react"
 import { useSearchParams } from "next/navigation"
-import { Loader2, Sparkles, Gem } from "lucide-react"
+import { Loader2, Sparkles, Gem, ClipboardCheck, ShieldCheck, Truck } from "lucide-react"
 import { listProducts, matchProducts, Product } from "@/lib/api"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useRegion } from "@/contexts/RegionContext"
@@ -119,6 +119,17 @@ function ShopContent() {
       : "These are curated picks. After your first AI profile, the system can generate a personal match order.",
     createProfile: isZh ? "\u5efa\u7acb\u6211\u7684\u753b\u50cf" : "Create my profile",
     signals: isZh ? ["\u753b\u50cf\u6807\u7b7e", "\u8fd1\u671f\u8d8b\u52bf", "\u6210\u957f\u8bfe\u9898"] : ["Profile tags", "Current trend", "Growth task"],
+    trustItems: isZh
+      ? [
+          { title: "\u62a5\u544a\u5339\u914d", desc: "\u6839\u636e\u753b\u50cf\u548c\u8d8b\u52bf\u6392\u5e8f" },
+          { title: "\u7406\u6027\u8d2d\u4e70", desc: "\u6587\u5316\u751f\u6d3b\u65b9\u5f0f\u5efa\u8bae" },
+          { title: "\u8ba2\u5355\u8ddf\u8e2a", desc: "\u652f\u4ed8\u540e\u53ef\u5728\u8ba2\u5355\u4e2d\u67e5\u770b\u8fdb\u5ea6" },
+        ]
+      : [
+          { title: "Profile matched", desc: "Ranked by your profile and trend" },
+          { title: "Practical purchase", desc: "Cultural lifestyle guidance" },
+          { title: "Order tracking", desc: "Follow status after checkout" },
+        ],
   }
 
   // Register loaded products with the cart so localStorage placeholders get real data
@@ -202,7 +213,7 @@ function ShopContent() {
       <div className="max-w-6xl mx-auto px-4 pb-20">
 
         <ScrollReveal>
-          <div className="mb-10 rounded-2xl border border-white/[0.07] bg-white/[0.025] p-5 md:p-6">
+          <div className="mb-10 rounded-xl border border-white/[0.07] bg-white/[0.025] p-5 md:p-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
                 <div className="mb-2 inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-gold/55">
@@ -219,6 +230,23 @@ function ShopContent() {
                 </a>
               )}
             </div>
+          </div>
+        </ScrollReveal>
+
+        <ScrollReveal>
+          <div className="mb-10 grid gap-3 md:grid-cols-3">
+            {[ClipboardCheck, ShieldCheck, Truck].map((Icon, index) => {
+              const item = copy.trustItems[index]
+              return (
+                <div key={item.title} className="rounded-xl border border-white/[0.07] bg-white/[0.025] p-4">
+                  <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg border border-gold/20 bg-gold/[0.07] text-gold">
+                    <Icon size={17} />
+                  </div>
+                  <h2 className="text-sm font-semibold text-white/82">{item.title}</h2>
+                  <p className="mt-1 text-xs leading-relaxed text-white/42">{item.desc}</p>
+                </div>
+              )
+            })}
           </div>
         </ScrollReveal>
 

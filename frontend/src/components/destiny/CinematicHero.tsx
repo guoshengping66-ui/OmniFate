@@ -46,6 +46,9 @@ const COPY = {
 export default function CinematicHero() {
   const { locale, localeHref } = useLanguage()
   const copy = locale === "zh" ? COPY.zh : COPY.en
+  const steps = locale === "zh"
+    ? ["1 分钟建立画像", "生成完整报告", "获得每日行动建议"]
+    : ["Build in 1 minute", "Generate full report", "Get daily actions"]
 
   return (
     <section className="relative min-h-[92vh] flex items-center overflow-hidden px-4 py-24">
@@ -68,9 +71,20 @@ export default function CinematicHero() {
             </span>
           </h1>
 
-          <p className="mx-auto mb-8 max-w-xl text-sm leading-relaxed text-white/48 sm:text-base lg:mx-0">
+          <p className="mx-auto mb-6 max-w-xl text-sm leading-relaxed text-white/58 sm:text-base lg:mx-0">
             {copy.desc}
           </p>
+
+          <div className="mx-auto mb-8 grid max-w-xl gap-2 sm:grid-cols-3 lg:mx-0">
+            {steps.map((step, index) => (
+              <div key={step} className="rounded-xl border border-white/[0.08] bg-white/[0.035] px-3 py-2 text-left">
+                <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.16em] text-gold/55">
+                  0{index + 1}
+                </span>
+                <span className="block text-xs leading-snug text-white/62">{step}</span>
+              </div>
+            ))}
+          </div>
 
           <div className="mb-9 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
             <Link href={localeHref("/reading/new")} className="btn-gold inline-flex items-center justify-center gap-2 px-7 py-3 text-sm">
@@ -84,7 +98,7 @@ export default function CinematicHero() {
 
           <div className="flex flex-wrap justify-center gap-2 lg:justify-start">
             {copy.trust.split(" · ").map((item) => (
-              <span key={item} className="rounded-full border border-white/[0.08] bg-white/[0.035] px-3 py-1.5 text-[11px] text-white/38">
+              <span key={item} className="rounded-full border border-white/[0.08] bg-white/[0.035] px-3 py-1.5 text-[11px] text-white/48">
                 {item}
               </span>
             ))}
