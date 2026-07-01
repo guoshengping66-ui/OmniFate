@@ -74,6 +74,17 @@ function cleanReportText(text: string): string {
   return cleanVisibleReportText(text)
 }
 
+function hasBrokenEncoding(text = ""): boolean {
+  return Array.from(text).some(char => {
+    const code = char.charCodeAt(0)
+    return code === 0xfffd || (code >= 0xe000 && code <= 0xf8ff)
+  })
+}
+
+function readableText(value: string, fallback: string): string {
+  return value && !hasBrokenEncoding(value) ? value : fallback
+}
+
 function parseDecisionReportContent(content: string): DecisionReport | null {
   if (!content) return null
   const jsonBlocks = [...content.matchAll(/```json\s*([\s\S]*?)```/g)]
@@ -1768,29 +1779,40 @@ export default function ReadingPage() {
             {/* ── 1b. Quick Insights (三句话速览) — 结构化模式下跳过 ── */}
             {!isStructured && (() => {
               const insights = quickInsights
+                .map(insight => stripMarkdown(insight))
+                .filter(insight => insight.length >= 8 && !hasBrokenEncoding(insight))
+                .slice(0, 3)
               if (insights.length === 0) return null
-              const icons = ["🔥", "💎", "⏰"]
+              const iconClasses = ["text-rose-300", "text-gold", "text-cyan-200"]
+              const IconForInsight = [AlertCircle, Star, Clock]
               const labels = [
-                t("reading.quickInsight.focus") || "最需关注",
-                t("reading.quickInsight.strength") || "最大优势",
-                t("reading.quickInsight.timing") || "近期时机",
+                readableText(t("reading.quickInsight.focus"), locale === "en" ? "Focus" : "\u6700\u9700\u5173\u6ce8"),
+                readableText(t("reading.quickInsight.strength"), locale === "en" ? "Strength" : "\u6700\u5927\u4f18\u52bf"),
+                readableText(t("reading.quickInsight.timing"), locale === "en" ? "Timing" : "\u8fd1\u671f\u65f6\u673a"),
               ]
               return (
                 <div className="card-glass p-5 md:p-6">
                   <div className="flex items-center gap-2 mb-4">
                     <Zap size={16} className="text-gold" />
-                    <h3 className="text-sm font-semibold text-white/70">{t("reading.quickInsight.title") || "三句话速览"}</h3>
+                    <h3 className="text-sm font-semibold text-white/70">
+                      {readableText(t("reading.quickInsight.title"), locale === "en" ? "Three-Sentence Brief" : "\u4e09\u53e5\u8bdd\u901f\u89c8")}
+                    </h3>
                   </div>
                   <div className="space-y-2.5">
-                    {insights.map((insight, i) => (
-                      <div key={i} className="flex items-start gap-2.5">
-                        <span className="text-sm flex-shrink-0">{icons[i] || "•"}</span>
+                    {insights.map((insight, i) => {
+                      const InsightIcon = IconForInsight[i] || Zap
+                      return (
+                      <div key={i} className="flex items-start gap-2.5 rounded-xl border border-white/[0.05] bg-white/[0.025] p-3">
+                        <span className={`mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center ${iconClasses[i] || "text-white/45"}`}>
+                          <InsightIcon size={15} />
+                        </span>
                         <div className="min-w-0">
                           <span className="text-[10px] text-white/30 uppercase tracking-wider">{labels[i]}</span>
-                          <p className="text-white/65 text-sm leading-relaxed">{stripMarkdown(insight)}</p>
+                          <p className="text-white/65 text-sm leading-relaxed">{insight}</p>
                         </div>
                       </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 </div>
               )
