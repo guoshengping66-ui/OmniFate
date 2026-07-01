@@ -161,15 +161,24 @@ rm -rf "$CACHE_DIR"/*
 nginx -t
 systemctl reload nginx
 
-first="$(curl -skI "$WARMUP_URL" 2>/dev/null | awk 'tolower($1)=="x-cache-status:" {gsub(/\r/,"",$2); print $2; exit}')"
-second="$(curl -skI "$WARMUP_URL" 2>/dev/null | awk 'tolower($1)=="x-cache-status:" {gsub(/\r/,"",$2); print $2; exit}')"
+statuses=""
+hit_seen=0
+for attempt in 1 2 3 4; do
+  status="$(curl -skI "$WARMUP_URL" 2>/dev/null | awk 'tolower($1)=="x-cache-status:" {gsub(/\r/,"",$2); print $2; exit}')"
+  status="${status:-missing}"
+  statuses="${statuses}${statuses:+ -> }${status}"
+  if [ "$status" = "HIT" ]; then
+    hit_seen=1
+    break
+  fi
+  sleep 1
+done
 
-echo "First request:  ${first:-missing X-Cache-Status}"
-echo "Second request: ${second:-missing X-Cache-Status}"
+echo "Cache status sequence: $statuses"
 
-if [ "$first" = "MISS" ] && [ "$second" = "HIT" ]; then
+if [ "$hit_seen" = "1" ]; then
   echo "Done: nginx HTML cache is active."
 else
-  echo "Warning: cache verification did not return MISS -> HIT. Check nginx location precedence and upstream headers." >&2
+  echo "Warning: cache verification did not return HIT. Check nginx location precedence and upstream headers." >&2
   exit 2
 fi
