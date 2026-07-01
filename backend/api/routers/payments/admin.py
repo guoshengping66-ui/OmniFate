@@ -21,6 +21,7 @@ router = APIRouter()
 class AdminOrderStatusUpdate(BaseModel):
     status: str
     tracking_number: Optional[str] = None
+    shipping_carrier: Optional[str] = None
 
 
 class ApproveRefundRequest(BaseModel):
@@ -146,6 +147,7 @@ async def list_shop_orders(
             "recipient_phone": order.recipient_phone,
             "shipping_address": order.shipping_address,
             "tracking_number": order.tracking_number,
+            "shipping_carrier": order.shipping_carrier,
             "notes": order.notes,
             "created_at": order.created_at.isoformat() if order.created_at else None,
             "paid_at": order.paid_at.isoformat() if order.paid_at else None,
@@ -207,6 +209,7 @@ async def get_shop_order_detail(
         "recipient_phone": order.recipient_phone,
         "shipping_address": order.shipping_address,
         "tracking_number": order.tracking_number,
+        "shipping_carrier": order.shipping_carrier,
         "notes": order.notes,
         "created_at": order.created_at.isoformat() if order.created_at else None,
         "paid_at": order.paid_at.isoformat() if order.paid_at else None,
@@ -272,8 +275,17 @@ async def update_shop_order_status(
     order.status = OrderStatus(payload.status)
     if payload.tracking_number is not None:
         order.tracking_number = payload.tracking_number
+    if payload.shipping_carrier is not None:
+        order.shipping_carrier = payload.shipping_carrier
     if payload.status == "paid" and not order.paid_at:
         order.paid_at = datetime.now(timezone.utc)
+    if payload.status == "shipped":
+        if not order.tracking_number:
+            raise HTTPException(status_code=400, detail="Tracking number is required before shipping")
+        if not order.shipping_carrier:
+            raise HTTPException(status_code=400, detail="Shipping carrier is required before shipping")
+        order.shipped_at = datetime.now(timezone.utc)
+        order.fulfilled_via = order.fulfilled_via or "manual"
 
     logger.info(f"[ADMIN] Order {order_no} status: {old_status} → {payload.status}")
 
@@ -284,6 +296,7 @@ async def update_shop_order_status(
         "order_no": order.order_no,
         "status": order.status.value,
         "tracking_number": order.tracking_number,
+        "shipping_carrier": order.shipping_carrier,
     }
 
 

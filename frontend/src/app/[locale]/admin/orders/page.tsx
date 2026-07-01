@@ -20,6 +20,7 @@ interface ShopOrder {
   recipient_phone: string
   shipping_address: Record<string, string> | null
   tracking_number: string | null
+  shipping_carrier: string | null
   notes: string | null
   created_at: string
   paid_at: string | null
@@ -51,6 +52,7 @@ export default function AdminOrdersPage() {
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null)
   const [updatingOrder, setUpdatingOrder] = useState<string | null>(null)
   const [trackingInput, setTrackingInput] = useState<Record<string, string>>({})
+  const [carrierInput, setCarrierInput] = useState<Record<string, string>>({})
   // Refund operation state
   const [refundAmounts, setRefundAmounts] = useState<Record<string, string>>({})
   const [refundNotes, setRefundNotes] = useState<Record<string, string>>({})
@@ -125,6 +127,7 @@ export default function AdminOrdersPage() {
     try {
       const body: Record<string, string> = { status: newStatus }
       if (trackingInput[orderNo]) body.tracking_number = trackingInput[orderNo]
+      if (carrierInput[orderNo]) body.shipping_carrier = carrierInput[orderNo]
       const res = await fetch(`/api/proxy/api/payments/admin/shop-orders/${orderNo}/status`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", "x-admin-key": adminKey },
@@ -134,6 +137,38 @@ export default function AdminOrdersPage() {
         const err = await res.json()
         throw new Error(err.detail || t("adminOrders.updateFailed"))
       }
+      fetchOrders()
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setUpdatingOrder(null)
+    }
+  }
+
+  const markManualShipped = async (order: ShopOrder) => {
+    const trackingNumber = (trackingInput[order.order_no] || order.tracking_number || "").trim()
+    const carrier = (carrierInput[order.order_no] || order.shipping_carrier || "").trim()
+    if (!carrier || !trackingNumber) {
+      setError("请先填写物流公司和物流单号")
+      return
+    }
+    setUpdatingOrder(order.order_no)
+    try {
+      const res = await fetch(`/api/proxy/api/payments/admin/shop-orders/${order.order_no}/status`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", "x-admin-key": adminKey },
+        body: JSON.stringify({
+          status: "shipped",
+          shipping_carrier: carrier,
+          tracking_number: trackingNumber,
+        }),
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.detail || t("adminOrders.updateFailed"))
+      }
+      setTrackingInput(prev => ({ ...prev, [order.order_no]: "" }))
+      setCarrierInput(prev => ({ ...prev, [order.order_no]: "" }))
       fetchOrders()
     } catch (err: any) {
       setError(err.message)
@@ -271,6 +306,20 @@ export default function AdminOrdersPage() {
           </button>
         </div>
 
+        <div className="grid md:grid-cols-4 gap-3 mb-6">
+          {[
+            ["待发货", orders.filter(o => o.status === "paid").length, "text-green-300"],
+            ["已发货", orders.filter(o => o.status === "shipped").length, "text-purple-300"],
+            ["退款中", orders.filter(o => o.status === "pending_refund").length, "text-orange-300"],
+            ["本页订单", orders.length, "text-gold"],
+          ].map(([label, count, color]) => (
+            <div key={label as string} className="rounded-xl border border-white/[0.07] bg-white/[0.025] p-3">
+              <p className="text-white/35 text-xs">{label}</p>
+              <p className={`text-xl font-semibold mt-1 ${color}`}>{count}</p>
+            </div>
+          ))}
+        </div>
+
         {/* Status filter */}
         <div className="flex gap-2 mb-6 flex-wrap">
           <button
@@ -314,6 +363,11 @@ export default function AdminOrdersPage() {
                           {statusInfo.icon} {statusInfo.label}
                         </span>
                         <span className="text-white/80 text-sm font-mono">{order.order_no}</span>
+                        {order.status === "paid" && (
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-gold/10 text-gold border border-gold/20">
+                            待发货
+                          </span>
+                        )}
                         <span className="text-white/40 text-xs">
                           {order.created_at ? new Date(order.created_at).toLocaleString() : ""}
                         </span>
@@ -344,6 +398,7 @@ export default function AdminOrdersPage() {
                         <div>
                           <p className="text-white/50 text-xs mb-1">{t("adminOrders.userInfo")}</p>
                           <p className="text-white/70 text-sm">{order.user.nickname || order.user.email}</p>
+                          <p className="text-white/40 text-xs">{order.user.email}</p>
                         </div>
                       )}
 
@@ -353,6 +408,7 @@ export default function AdminOrdersPage() {
                           <p className="text-white/50 text-xs mb-1">{t("adminOrders.shippingAddress")}</p>
                           <p className="text-white/70 text-sm">
                             {order.recipient_name} {order.recipient_phone}<br />
+                            {order.shipping_address.country && <>{order.shipping_address.country}<br /></>}
                             {order.shipping_address.province} {order.shipping_address.city} {order.shipping_address.district}<br />
                             {order.shipping_address.address_line1}
                             {order.shipping_address.address_line2 && <>, {order.shipping_address.address_line2}</>}
@@ -365,7 +421,43 @@ export default function AdminOrdersPage() {
                       {order.tracking_number && (
                         <div>
                           <p className="text-white/50 text-xs mb-1">{t("adminOrders.trackingNumber")}</p>
-                          <p className="text-white/70 text-sm font-mono">{order.tracking_number}</p>
+                          <p className="text-white/70 text-sm font-mono">
+                            {order.shipping_carrier && <span className="mr-2 text-white/45">{order.shipping_carrier}</span>}
+                            {order.tracking_number}
+                          </p>
+                        </div>
+                      )}
+
+                      {order.status === "paid" && (
+                        <div className="rounded-xl border border-gold/20 bg-gold/[0.05] p-3 space-y-3">
+                          <div className="flex items-center gap-2 text-gold text-sm font-medium">
+                            <Truck size={14} /> 手动发货
+                          </div>
+                          <div className="grid md:grid-cols-[1fr_1fr_auto] gap-2">
+                            <input
+                              type="text"
+                              placeholder="物流公司，例如 SF / YTO / USPS"
+                              value={carrierInput[order.order_no] ?? order.shipping_carrier ?? ""}
+                              onChange={(e) => setCarrierInput(prev => ({ ...prev, [order.order_no]: e.target.value }))}
+                              className="px-3 py-2 rounded-lg bg-white/[0.06] border border-white/10 text-white text-sm placeholder-white/30 focus:outline-none focus:border-gold/50"
+                            />
+                            <input
+                              type="text"
+                              placeholder="物流单号"
+                              value={trackingInput[order.order_no] ?? order.tracking_number ?? ""}
+                              onChange={(e) => setTrackingInput(prev => ({ ...prev, [order.order_no]: e.target.value }))}
+                              className="px-3 py-2 rounded-lg bg-white/[0.06] border border-white/10 text-white text-sm placeholder-white/30 focus:outline-none focus:border-gold/50"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => markManualShipped(order)}
+                              disabled={updatingOrder === order.order_no}
+                              className="px-4 py-2 rounded-lg bg-gold text-ink text-sm font-semibold hover:bg-gold/90 disabled:opacity-50 flex items-center justify-center gap-2"
+                            >
+                              <Truck size={14} />
+                              {updatingOrder === order.order_no ? "更新中" : "标记已发货"}
+                            </button>
+                          </div>
                         </div>
                       )}
 
