@@ -668,14 +668,14 @@ function PrescriptionPreview({ hasProducts, weakestLabel, locale, onOpenShop }: 
             <ShoppingBag size={18} className="text-gold/80" />
           </div>
           <div>
-            <h3 className="font-serif text-lg font-bold text-gold/90">{isEn ? "Personal Prescription Preview" : "专属状态处方预览"}</h3>
+            <h3 className="font-serif text-lg font-bold text-gold/90">{isEn ? "Profile-Matched Vault Preview" : "\u753b\u50cf\u5339\u914d\u597d\u7269\u9884\u89c8"}</h3>
             <p className="mt-1 text-white/45 text-sm leading-relaxed">
-              {isEn ? `Your support plan should first stabilize ${weakestLabel}, then amplify the strongest dimension.` : `你的处方逻辑是：先补稳「${weakestLabel}」，再放大优势维度。商品推荐跟随报告状态匹配，而不是随机展示。`}
+              {isEn ? `Your match logic first stabilizes ${weakestLabel}, then supports the strongest dimension. Items are ranked by your report state, not shown randomly.` : `\u5339\u914d\u903b\u8f91\u4f1a\u5148\u7a33\u4f4f\u300c${weakestLabel}\u300d\uff0c\u518d\u653e\u5927\u4f60\u7684\u4f18\u52bf\u7ef4\u5ea6\u3002\u597d\u7269\u63a8\u8350\u8ddf\u968f\u62a5\u544a\u72b6\u6001\u5339\u914d\uff0c\u800c\u4e0d\u662f\u968f\u673a\u5c55\u793a\u3002`}
             </p>
           </div>
         </div>
         <button onClick={onOpenShop} className="inline-flex items-center justify-center gap-2 rounded-xl border border-gold/25 bg-gold/10 px-5 py-3 text-sm text-gold hover:border-gold/45 transition-colors">
-          {hasProducts ? (isEn ? "View matched items" : "查看匹配好物") : (isEn ? "Open shop" : "进入商城")}
+          {hasProducts ? (isEn ? "View matched items" : "\u67e5\u770b\u5339\u914d\u597d\u7269") : (isEn ? "Open The Vault" : "\u8fdb\u5165\u85cf\u5b9d\u9601")}
           <ArrowRight size={14} />
         </button>
       </div>
@@ -2368,16 +2368,18 @@ export default function ReadingPage() {
               <div className="w-14 h-14 rounded-2xl bg-gold/10 border border-gold/25 flex items-center justify-center mb-4">
                 <ShoppingBag size={24} className="text-gold" />
               </div>
-              <h2 className="font-serif text-xl md:text-2xl font-bold text-gold mb-2">{t("reading.shop.title")}</h2>
+              <h2 className="font-serif text-xl md:text-2xl font-bold text-gold mb-2">{locale === "en" ? "Profile-Matched Vault" : "\u753b\u50cf\u5339\u914d\u85cf\u5b9d\u9601"}</h2>
               <p className="text-white/35 text-sm max-w-md">
-                {t("reading.shop.desc")}
+                {locale === "en"
+                  ? "Items are ranked by your AI profile, weaker dimensions, current trend, and growth task."
+                  : "\u6839\u636e\u4f60\u7684 AI \u753b\u50cf\u3001\u4e94\u7ef4\u5f31\u9879\u3001\u8fd1\u671f\u8d8b\u52bf\u548c\u6210\u957f\u8bfe\u9898\uff0c\u4e3a\u4f60\u5339\u914d\u9002\u5408\u5f53\u4e0b\u9636\u6bb5\u7684\u597d\u7269\u3002"}
               </p>
               {/* Personalized match indicator */}
               {products.length > 0 && (
                 <div className="mt-3 flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-400/20">
                   <CheckCircle size={12} className="text-green-400" />
                   <span className="text-[11px] text-green-300/70">
-                    {t("reading.shop.matched", { count: String(products.length) }) || `已为你匹配 ${products.length} 件专属好物`}
+                    {locale === "en" ? `${products.length} matched items` : `\u5df2\u4e3a\u4f60\u5339\u914d ${products.length} \u4ef6\u753b\u50cf\u597d\u7269`}
                   </span>
                 </div>
               )}

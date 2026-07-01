@@ -54,7 +54,7 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
       {hasMatch && (
         <div className="absolute top-3 left-3 z-10 flex items-center gap-1 px-2 py-0.5 rounded-full bg-gold/10 border border-gold/20 text-[10px] text-gold/80 font-medium">
           <Zap size={9} className="fill-gold/40" />
-          {t("productCard.aiRecommended")}
+          {isEn ? "Profile match" : "画像匹配"}
         </div>
       )}
 

@@ -10,6 +10,7 @@ import { ProductImage } from "@/components/shop/ProductImage"
 
 export default function LifestyleShowcase() {
   const { t, locale, localeHref } = useLanguage()
+  const isZh = locale === "zh"
   const { region } = useRegion()
   const containerRef = useRef<HTMLDivElement>(null)
   const [isVisible, setIsVisible] = useState(false)
@@ -59,14 +60,18 @@ export default function LifestyleShowcase() {
           style={{ opacity: isVisible ? 1 : 0, transform: isVisible ? "translateY(0)" : "translateY(30px)" }}
         >
           <span className="text-[#C5A880]/50 text-xs tracking-[0.4em] uppercase font-medium">
-            {t("lifestyle.badge")}
+            {isZh ? "PROFILE-MATCHED PICKS" : "PROFILE-MATCHED PICKS"}
           </span>
           <h2 className="text-3xl md:text-5xl font-serif font-bold mt-4 mb-4 tracking-wide">
             <span className="bg-clip-text text-transparent" style={{ backgroundImage: "linear-gradient(135deg, #C5A880, #E8D5B7)" }}>
-              {t("lifestyle.title")}
+              {isZh ? "\u85cf\u5b9d\u9601\u5339\u914d\u9884\u89c8" : "Vault Match Preview"}
             </span>
           </h2>
-          <p className="text-white/30 text-sm max-w-lg mx-auto">{t("lifestyle.desc")}</p>
+          <p className="text-white/30 text-sm max-w-lg mx-auto">
+            {isZh
+              ? "\u5546\u54c1\u4fdd\u7559\uff0c\u4f46\u4e0d\u505a\u666e\u901a\u5546\u57ce\u3002\u89c2\u6211\u4f1a\u628a\u4f60\u7684\u753b\u50cf\u3001\u8d8b\u52bf\u548c\u6210\u957f\u8bfe\u9898\u8f6c\u6210\u66f4\u5177\u4f53\u7684\u751f\u6d3b\u65b9\u5f0f\u5339\u914d\u5efa\u8bae\u3002"
+              : "The shop stays, but not as a generic storefront. Guanwo turns your profile, trend, and growth task into concrete lifestyle matches."}
+          </p>
         </div>
 
         {/* Product cards */}
@@ -169,7 +174,7 @@ export default function LifestyleShowcase() {
               e.currentTarget.style.boxShadow = "none"
             }}
           >
-            {t("lifestyle.viewAll")}
+            {isZh ? "\u67e5\u770b\u6211\u7684\u5339\u914d\u597d\u7269" : "View matched items"}
             <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>

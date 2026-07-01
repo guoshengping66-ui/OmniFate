@@ -7,18 +7,18 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const path = `/${locale}/shop`
 
   return {
-    title: isZh ? "命运藏宝阁 — AI 甄选能量藏品 | 命运引擎" : "Destiny Shop - AI-Curated Energy Items | Destiny Engine",
+    title: isZh ? "藏宝阁 - AI 画像匹配好物 | 观我" : "The Vault - AI-Matched Items | Guanwo AI",
     description: isZh
-      ? "东方智慧凝萃，AI 深度分析能量档案，为你甄选最契合的命运藏品。"
-      : "Eastern wisdom meets AI analysis. Discover crystals, talismans, and energy items curated for your destiny profile.",
+      ? "观我根据你的 AI 命运画像、五维状态和近期趋势，匹配适合当下阶段的生活方式好物、饰品、香道与服务。"
+      : "Guanwo matches lifestyle items, jewelry, incense, and services to your AI profile, five-dimension state, and current trend.",
     keywords: isZh
-      ? "命运藏宝阁,能量物品,水晶,护身符,AI推荐,命运藏品"
-      : ["destiny shop", "energy items", "crystals", "talisman", "AI recommendations", "destiny store"],
+      ? "观我,藏宝阁,AI画像匹配,生活方式好物,水晶,饰品,香道,个人成长"
+      : ["Guanwo", "AI profile match", "lifestyle items", "crystals", "jewelry", "incense", "personal growth"],
     openGraph: {
-      title: isZh ? "命运藏宝阁 — 命运引擎" : "Destiny Shop - Destiny Engine",
+      title: isZh ? "藏宝阁 - 观我 AI 画像匹配好物" : "The Vault - Guanwo AI-Matched Items",
       description: isZh
-        ? "AI 甄选能量藏品，每一件皆是命运的馈赠"
-        : "AI-curated energy items for your destiny profile",
+        ? "不是普通商城，而是基于你的画像、趋势和成长课题生成的匹配建议。"
+        : "Not a generic shop. These recommendations are matched to your profile, trend, and growth task.",
       type: "website",
       locale: isZh ? "zh_CN" : "en_US",
       url: `${base}${path}`,

@@ -50,6 +50,7 @@ export default function ProductDetailPage() {
   const { user } = useAuth()
   const { addItem } = useCart()
   const { t, locale } = useLanguage()
+  const isZh = locale === "zh"
   const { region } = useRegion()
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
@@ -188,6 +189,29 @@ export default function ProductDetailPage() {
                   <p className="text-gold/70 text-sm">{locale === "en" ? (product.short_pitch_en || product.short_pitch) : product.short_pitch}</p>
                 </div>
               )}
+
+              <div className="mb-6 rounded-2xl border border-white/[0.07] bg-white/[0.025] p-4 text-left">
+                <div className="mb-2 flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-gold/55">
+                  <Sparkles size={13} />
+                  {isZh ? "AI \u753b\u50cf\u5339\u914d" : "AI Profile Match"}
+                </div>
+                <p className="text-white/45 text-sm leading-relaxed">
+                  {isZh
+                    ? "\u9002\u5408\u628a\u62a5\u544a\u91cc\u7684\u8d8b\u52bf\u63d0\u9192\u8f6c\u5316\u4e3a\u5177\u4f53\u751f\u6d3b\u65b9\u5f0f\u52a8\u4f5c\u3002\u7cfb\u7edf\u4f1a\u7ed3\u5408\u4f60\u7684\u753b\u50cf\u6807\u7b7e\u3001\u4e94\u7ef4\u72b6\u6001\u548c\u8fd1\u671f\u8bfe\u9898\u5224\u65ad\u662f\u5426\u4f18\u5148\u63a8\u8350\u3002"
+                    : "Designed to turn profile insights into concrete lifestyle actions. Guanwo ranks items by your tags, five-dimension state, and current growth task."}
+                </p>
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {[
+                    ...(product.wuxing_tags || []),
+                    ...(product.keyword_tags || []),
+                    ...(product.astro_tags || []),
+                  ].slice(0, 5).map(tag => (
+                    <span key={tag} className="rounded-full border border-gold/15 bg-gold/[0.06] px-2 py-1 text-[10px] text-gold/62">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
 
               <div className="flex items-center gap-3 justify-center md:justify-start">
                 <button
