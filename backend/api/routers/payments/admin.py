@@ -54,12 +54,14 @@ async def admin_stats(
 
     total_readings = (await db.execute(select(func.count(Reading.id)))).scalar() or 0
 
+    revenue_statuses = [OrderStatus.paid, OrderStatus.shipped, OrderStatus.delivered]
+
     # Single query for order stats
     order_stats_result = await db.execute(
         select(
             func.count(Order.id).filter(Order.item_type == "shop").label("total_orders"),
             func.coalesce(func.sum(Order.total_cny).filter(
-                Order.status == OrderStatus.paid, Order.item_type == "shop"
+                Order.status.in_(revenue_statuses), Order.item_type == "shop"
             ), 0).label("total_revenue"),
         )
     )
@@ -109,20 +111,20 @@ async def list_shop_orders(
     _auth: str = Depends(require_admin),
 ):
     """管理员查看所有订单"""
-    base_filter = [Order.item_type != None] if not item_type else [Order.item_type == item_type]
+    filters = [Order.item_type != None] if not item_type else [Order.item_type == item_type]
+    if status:
+        filters.append(Order.status == status)
 
     query = (
         select(Order)
-        .where(*base_filter)
+        .where(*filters)
         .options(joinedload(Order.items), joinedload(Order.user))
     )
-    if status:
-        query = query.where(Order.status == status)
     query = query.order_by(Order.created_at.desc())
 
     count_result = await db.execute(
         select(func.count()).select_from(
-            select(Order.id).where(*base_filter).subquery()
+            select(Order.id).where(*filters).subquery()
         )
     )
     total = count_result.scalar() or 0
