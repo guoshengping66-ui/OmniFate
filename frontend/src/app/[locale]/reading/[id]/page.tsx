@@ -228,6 +228,13 @@ function DecisionReportText({ content }: { content: string }) {
 }
 
 function buildExpertEvidenceSummary(workerMap: Record<string, { report?: string; tags?: string[] }>, t: (key: string) => string, workerOrder: readonly string[]): TextSection[] {
+  // The specialist map below is the single entry point for worker evidence.
+  // Keeping this summary layer creates two adjacent cards with the same purpose.
+  void workerMap
+  void t
+  void workerOrder
+  return []
+/*
   return workerOrder
     .map((key): TextSection | null => {
       const worker = workerMap[key]
@@ -245,6 +252,7 @@ function buildExpertEvidenceSummary(workerMap: Record<string, { report?: string;
       }
     })
     .filter((section): section is TextSection => !!section && section.body.length > 0)
+*/
 }
 
 const DIM_LABELS: Record<string, string> = {
@@ -2144,6 +2152,7 @@ export default function ReadingPage() {
             )}
 
             {/* ── 9. Worker Dimension Previews ── */}
+            {!isUnlocked && (
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <Compass size={16} className="text-white/30" />
@@ -2207,6 +2216,7 @@ export default function ReadingPage() {
                 })}
               </div>
             </div>
+            )}
           </div>
         )})()}
 

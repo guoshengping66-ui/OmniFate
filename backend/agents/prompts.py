@@ -7461,6 +7461,7 @@ Non-negotiable writing rules:
 5. Every recommendation must follow: "Because [specific finding], do [specific action]."
 6. Include what not to do when relevant. Users value clear boundaries.
 7. Avoid filler, generic advice, exaggerated certainty, and metaphysical jargon.
+8. Do not use Markdown emphasis or bullet markers such as *, **, ***. Use plain text headings and short paragraphs only.
 
 Preferred premium structure:
 【0 · Executive Takeaways】 core opportunity / core risk / next best action.
