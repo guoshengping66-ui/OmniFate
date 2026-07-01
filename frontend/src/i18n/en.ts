@@ -83,6 +83,7 @@ export default {
   "common.edit": "Edit",
   "common.close": "Close",
   "common.error": "Error",
+  "admin.loginHint": "Use your website account first, then enter the admin key. The account email must be listed as an administrator.",
   "adminOrders.title": "Order Management",
   "adminOrders.enterKey": "Enter admin key",
   "adminOrders.login": "Login",

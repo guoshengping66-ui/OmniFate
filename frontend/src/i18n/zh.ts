@@ -82,6 +82,7 @@ export default {
   "common.edit": "编辑",
   "common.close": "关闭",
   "common.error": "出错了",
+  "admin.loginHint": "请先使用网站账号登录，再输入管理员密钥。该账号邮箱必须在管理员白名单中。",
   "adminOrders.title": "订单管理",
   "adminOrders.enterKey": "输入管理员密钥",
   "adminOrders.login": "登录",
