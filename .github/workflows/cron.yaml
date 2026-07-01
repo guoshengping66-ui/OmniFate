@@ -111,9 +111,9 @@ jobs:
     if: github.event.schedule == '0 19 * * *' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
-      - name: Cleanup Old Readings (7 days)
+      - name: Cleanup Expired Readings
         run: |
-          echo "🕐 $(date -u) — Cleaning up readings older than 7 days..."
+          echo "🕐 $(date -u) — Cleaning up expired readings by retention policy..."
           if [ -z "$CRON_SECRET" ] || [ -z "$API_BASE" ]; then
             echo "⚠️ Secrets CRON_SECRET or API_BASE not configured, skipping."
             exit 0

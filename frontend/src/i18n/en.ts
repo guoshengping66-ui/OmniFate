@@ -947,6 +947,7 @@ export default {
   // ─── My Reports ───
   "readings.title": "My Reports",
   "readings.subtitle": "All your behavioral readings in one place",
+  "readings.retentionHint": "Free signed-in reports are kept for 30 days. Unlocked reports stay saved unless you delete them.",
   "readings.newReading": "New Reading",
   "readings.empty": "No readings yet",
   "readings.startFirst": "Start your first five-path behavioral reading",

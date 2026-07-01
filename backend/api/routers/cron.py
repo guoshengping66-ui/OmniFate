@@ -3,11 +3,12 @@ import logging
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends
-from sqlalchemy import select, func, and_, delete
+from sqlalchemy import select, func, and_, delete, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.session import get_db
-from database.models import User, CreditTransaction, Reading, Order, OrderStatus
+from database.models import User, CreditTransaction, Reading, Order, OrderStatus, PaymentStatus
+from services.session_store import delete_session
 from utils.cron_auth import verify_cron_secret
 
 logger = logging.getLogger(__name__)
@@ -212,24 +213,85 @@ async def cleanup_old_readings(
     db: AsyncSession = Depends(get_db),
 ):
     """
-    清除超过 7 天的推命内容（由 cron 每天调用）
-    删除 7 天前创建的 Reading 记录
+    清理过期推命报告（由 cron 每天调用）
+
+    Retention policy:
+    - Anonymous/guest readings: delete after 3 days.
+    - Logged-in free readings: delete after 30 days.
+    - Paid / detailed / full unlocked readings: keep until the user deletes them.
     """
 
-    cutoff = datetime.now(timezone.utc) - timedelta(days=7)
+    now = datetime.now(timezone.utc)
+    guest_cutoff = now - timedelta(days=3)
+    free_user_cutoff = now - timedelta(days=30)
 
-    # 删除旧推命记录（排除已付费/已解锁的报告）
-    result = await db.execute(
-        delete(Reading).where(
-            Reading.created_at < cutoff,
-            Reading.is_detail_unlocked == False,  # 保留用户付费解锁的报告
+    protected_reading = or_(
+        Reading.is_detail_unlocked == True,
+        Reading.is_detailed_unlocked == True,
+        Reading.payment_status == PaymentStatus.paid,
+    )
+
+    guest_result = await db.execute(
+        select(Reading.id).where(
+            and_(
+                Reading.user_id.is_(None),
+                Reading.created_at < guest_cutoff,
+                ~protected_reading,
+            )
         )
     )
-    deleted_count = result.rowcount
+    guest_ids = list(guest_result.scalars().all())
+
+    free_user_result = await db.execute(
+        select(Reading.id).where(
+            and_(
+                Reading.user_id.is_not(None),
+                Reading.created_at < free_user_cutoff,
+                ~protected_reading,
+            )
+        )
+    )
+    free_user_ids = list(free_user_result.scalars().all())
+    reading_ids = guest_ids + free_user_ids
+
+    deleted_count = 0
+    if reading_ids:
+        delete_result = await db.execute(
+            delete(Reading).where(Reading.id.in_(reading_ids))
+        )
+        deleted_count = delete_result.rowcount or len(reading_ids)
+
     await db.commit()
 
-    logger.info(f"[CLEANUP-READINGS] Deleted {deleted_count} readings older than 7 days")
-    return {"status": "ok", "deleted_count": deleted_count}
+    # Clear matching Redis/in-memory analysis sessions after DB commit.
+    # This prevents stale session-store reads from reviving an expired report.
+    session_deleted_count = 0
+    for reading_id in reading_ids:
+        try:
+            await delete_session(reading_id)
+            session_deleted_count += 1
+        except Exception as exc:
+            logger.warning("[CLEANUP-READINGS] session cleanup failed for %s: %s", reading_id, exc)
+
+    logger.info(
+        "[CLEANUP-READINGS] deleted=%s guest=%s free_user=%s session=%s",
+        deleted_count,
+        len(guest_ids),
+        len(free_user_ids),
+        session_deleted_count,
+    )
+    return {
+        "status": "ok",
+        "deleted_count": deleted_count,
+        "guest_deleted_count": len(guest_ids),
+        "free_user_deleted_count": len(free_user_ids),
+        "session_deleted_count": session_deleted_count,
+        "retention_days": {
+            "guest": 3,
+            "logged_in_free": 30,
+            "paid_or_unlocked": None,
+        },
+    }
 
 
 @router.post("/cancel-expired-orders")

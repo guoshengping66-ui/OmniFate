@@ -940,6 +940,7 @@ export default {
   // ─── 我的报告 ───
   "readings.title": "我的报告",
   "readings.subtitle": "查看所有历史分析记录",
+  "readings.retentionHint": "免费登录报告保留 30 天；已解锁报告会长期保留，也可随时手动删除。",
   "readings.newReading": "新建分析",
   "readings.empty": "还没有分析记录",
   "readings.startFirst": "开始你的第一次五维行为分析",

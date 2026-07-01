@@ -11,22 +11,10 @@ import { listMyReadings, deleteReading, ReadingListItem } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { TagBadge } from "@/components/ui/TagBadge"
+import { cleanVisibleReportText } from "@/lib/reportTextQuality"
 
 function stripMarkdown(text: string): string {
-  return text
-    .replace(/\*\*(.+?)\*\*/g, "$1")
-    .replace(/\*(.+?)\*\*/g, "$1")
-    .replace(/^#{1,6}\s+/gm, "")
-    .replace(/^\s*[-*_]{3,}\s*$/gm, "")
-    .replace(/^>\s*/gm, "")
-    .replace(/`([^`]+)`/g, "$1")
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-    .replace(/!\[[^\]]*\]\([^)]+\)/g, "")
-    .replace(/#-+/g, "")
-    .replace(/^#+\s*$/gm, "")
-    .replace(/^\s*[-*+]\s+(?=[#-])/gm, "")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim()
+  return cleanVisibleReportText(text)
 }
 
 export default function ReadingsPage() {
@@ -105,6 +93,7 @@ export default function ReadingsPage() {
           <div>
             <h1 className="text-3xl font-serif font-bold text-gold mb-1">{t("readings.title")}</h1>
             <p className="text-white/40 text-sm">{t("readings.subtitle")}</p>
+            <p className="text-white/25 text-xs mt-1">{t("readings.retentionHint")}</p>
           </div>
           <Link
             href={localeHref("/reading/new")}
