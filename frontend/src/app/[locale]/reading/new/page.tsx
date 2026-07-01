@@ -48,6 +48,7 @@ function useScanState(
   })
   const fileRef = useRef<File | null>(null)
   const previewRef = useRef<string | null>(null)
+  const scanStartedRef = useRef(false)
 
   // Cleanup blob URLs on unmount
   useEffect(() => {
@@ -72,10 +73,13 @@ function useScanState(
     const url = URL.createObjectURL(f)
     previewRef.current = url
     fileRef.current = f
+    scanStartedRef.current = false
     setState({ file: f, preview: url, isScanning: true, scanDone: false, text: "", v2TError: false, features: null })
   }, [])
 
   const scanComplete = useCallback(async () => {
+    if (scanStartedRef.current) return
+    scanStartedRef.current = true
     setState(s => ({ ...s, scanDone: true, isScanning: false }))
     const f = fileRef.current
     if (f) {
@@ -92,10 +96,19 @@ function useScanState(
     }
   }, [analyzeFn, doneToast, errorToast])
 
+  useEffect(() => {
+    if (!state.isScanning || !state.preview) return
+    const timeout = setTimeout(() => {
+      scanComplete()
+    }, 4500)
+    return () => clearTimeout(timeout)
+  }, [state.isScanning, state.preview, scanComplete])
+
   const reset = useCallback(() => {
     if (previewRef.current) URL.revokeObjectURL(previewRef.current)
     previewRef.current = null
     fileRef.current = null
+    scanStartedRef.current = false
     setState({ file: null, preview: null, isScanning: false, scanDone: false, text: "", v2TError: false, features: null })
   }, [])
 

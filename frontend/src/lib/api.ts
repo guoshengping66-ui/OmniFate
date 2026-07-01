@@ -663,9 +663,7 @@ export async function uploadFaceImage(
 ): Promise<{ face_text: string; features: Record<string, string> }> {
   const form = new FormData()
   form.append("file", file)
-  const res = await api.post(`/api/readings/upload-face/${sessionId}`, form, {
-    headers: { "Content-Type": "multipart/form-data" },
-  })
+  const res = await apiDirect.post(`/api/readings/upload-face/${sessionId}`, form)
   return res.data
 }
 
@@ -674,9 +672,7 @@ export async function analyzeFaceImage(
 ): Promise<{ face_text: string; features: Record<string, string> }> {
   const form = new FormData()
   form.append("file", file)
-  const res = await api.post("/api/readings/analyze-face", form, {
-    headers: { "Content-Type": "multipart/form-data" },
-  })
+  const res = await apiDirect.post("/api/readings/analyze-face", form)
   return res.data
 }
 
@@ -685,9 +681,7 @@ export async function analyzePalmImage(
 ): Promise<{ palm_text: string; features: Record<string, string> }> {
   const form = new FormData()
   form.append("file", file)
-  const res = await api.post("/api/readings/analyze-palm", form, {
-    headers: { "Content-Type": "multipart/form-data" },
-  })
+  const res = await apiDirect.post("/api/readings/analyze-palm", form)
   return res.data
 }
 
@@ -697,9 +691,7 @@ export async function uploadPalmImage(
 ): Promise<{ palm_text: string; features: Record<string, string> }> {
   const form = new FormData()
   form.append("file", file)
-  const res = await api.post(`/api/readings/upload-palm-image/${sessionId}`, form, {
-    headers: { "Content-Type": "multipart/form-data" },
-  })
+  const res = await apiDirect.post(`/api/readings/upload-palm-image/${sessionId}`, form)
   return res.data
 }
 
