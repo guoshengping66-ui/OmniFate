@@ -1,5 +1,6 @@
 "use client"
-import { Loader2 } from "lucide-react"
+
+import { AlertCircle, BarChart3, CheckCircle2, FileText, Loader2, RotateCcw } from "lucide-react"
 import { Link } from "@/i18n/navigation"
 import { useLanguage } from "@/contexts/LanguageContext"
 
@@ -7,93 +8,134 @@ interface Props {
   phase: "loading" | "error" | "timeout"
 }
 
-const AGENT_KEYS = [
-  { emoji: "☯", nameKey: "skeleton.agent.bazi", color: "border-l-[#2D6A4F]", glow: "rgba(45,106,79,0.15)" },
-  { emoji: "✦", nameKey: "skeleton.agent.astrology", color: "border-l-[#C1121F]", glow: "rgba(193,18,31,0.15)" },
-  { emoji: "🃏", nameKey: "skeleton.agent.tarot", color: "border-l-[#C9A84C]", glow: "rgba(201,168,76,0.15)" },
-  { emoji: "👁", nameKey: "skeleton.agent.face", color: "border-l-[#E8D5B7]", glow: "rgba(232,213,183,0.15)" },
-  { emoji: "🤚", nameKey: "skeleton.agent.palm", color: "border-l-[#2980B9]", glow: "rgba(41,128,185,0.15)" },
-]
+const COPY = {
+  zh: {
+    loadingTitle: "正在读取报告",
+    loadingDesc: "如果报告仍在生成，页面会自动切换到实时进度。",
+    retry: "重新分析",
+    errorTitle: "报告加载失败",
+    errorDesc: "报告可能尚未生成完成，或该会话已经过期。",
+    timeoutTitle: "加载时间较长",
+    timeoutDesc: "服务仍可能在处理报告，你可以稍后从我的报告重新打开。",
+    steps: ["读取会话", "同步进度", "整理报告"],
+    master: "等待综合报告返回",
+  },
+  en: {
+    loadingTitle: "Loading report",
+    loadingDesc: "If generation is still running, this page will switch to live progress.",
+    retry: "Start new reading",
+    errorTitle: "Report loading failed",
+    errorDesc: "The report may still be generating, or the session may have expired.",
+    timeoutTitle: "Loading is taking longer",
+    timeoutDesc: "The service may still be processing. You can reopen it from My Reports later.",
+    steps: ["Read session", "Sync progress", "Prepare report"],
+    master: "Waiting for final synthesis",
+  },
+}
 
 export function ReadingSkeleton({ phase }: Props) {
-  const { t } = useLanguage()
+  const { locale } = useLanguage()
+  const copy = locale === "zh" ? COPY.zh : COPY.en
 
-  if (phase === "error") {
+  if (phase === "error" || phase === "timeout") {
+    const isTimeout = phase === "timeout"
     return (
-      <div className="min-h-screen pt-24 pb-16 px-4 flex flex-col items-center justify-center">
-        <div className="text-6xl mb-6">😔</div>
-        <h2 className="font-serif text-2xl text-white/80 mb-2">{t("skeleton.error.title")}</h2>
-        <p className="text-white/40 text-sm mb-6">
-          {t("skeleton.error.desc")}
-        </p>
-        <Link href="/reading/new" className="btn-gold inline-block">
-          {t("skeleton.error.retry")}
-        </Link>
+      <div className="min-h-screen pt-24 pb-16 px-4 flex items-center justify-center">
+        <div className="w-full max-w-md rounded-2xl border border-white/[0.08] bg-white/[0.035] p-6 text-center">
+          <div className="mx-auto mb-5 h-12 w-12 rounded-xl border border-amber-300/20 bg-amber-300/[0.08] flex items-center justify-center">
+            {isTimeout ? <Loader2 size={22} className="text-gold animate-spin" /> : <AlertCircle size={22} className="text-amber-200" />}
+          </div>
+          <h2 className="font-serif text-2xl text-white/82 mb-2">
+            {isTimeout ? copy.timeoutTitle : copy.errorTitle}
+          </h2>
+          <p className="text-white/48 text-sm leading-relaxed mb-6">
+            {isTimeout ? copy.timeoutDesc : copy.errorDesc}
+          </p>
+          <Link href="/reading/new" className="btn-gold inline-flex items-center justify-center gap-2">
+            <RotateCcw size={15} />
+            {copy.retry}
+          </Link>
+        </div>
       </div>
     )
   }
 
   return (
     <div className="min-h-screen pt-24 pb-16 px-4">
-      <div className="max-w-5xl mx-auto">
-
-        {/* Title shimmer */}
-        <div className="text-center mb-12">
-          <div className="h-6 w-48 bg-white/10 rounded-full mx-auto mb-4 shimmer-skeleton" />
-          <div className="h-8 w-64 bg-white/10 rounded-lg mx-auto shimmer-skeleton" style={{ animationDelay: "0.2s" }} />
-        </div>
-
-        {/* 5 agent cards */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-          {AGENT_KEYS.map((agent, i) => (
-            <div
-              key={agent.nameKey}
- className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-5 animate-pulse-slow"
-              style={{
-                borderLeftColor: agent.color.replace("border-l-", ""),
-                borderLeftWidth: "3px",
-                animationDelay: `${i * 0.3}s`,
-                boxShadow: `0 0 30px ${agent.glow}`,
-              }}
-            >
-              <div className="flex items-center gap-3 mb-4">
-                <span className="text-3xl">{agent.emoji}</span>
-                <div className="flex-1">
-                  <div className="h-4 w-20 bg-white/10 rounded shimmer-skeleton mb-2" />
-                  <div className="h-3 w-28 bg-white/5 rounded shimmer-skeleton" />
-                </div>
-                <Loader2 size={18} className="text-gold animate-spin" />
-              </div>
-
-              {/* Progress bar */}
-              <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-                <div
-                  className="h-full rounded-full progress-animate"
-                  style={{
-                    background: `linear-gradient(90deg, ${agent.glow.replace("0.15", "0.6")}, ${agent.color.replace("border-l-", "")})`,
-                    width: `${40 + Math.random() * 50}%`,
-                    animationDelay: `${i * 0.5}s`,
-                  }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Master synthesis */}
-        <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 text-center">
-          <div className="flex items-center justify-center gap-2 text-gold/60 text-sm mb-2">
-            <Loader2 size={14} className="animate-spin" />
-            <span>{t("skeleton.loading.master")}</span>
+      <div className="max-w-4xl mx-auto space-y-6">
+        <div className="text-center space-y-2">
+          <div className="mx-auto h-10 w-10 rounded-xl border border-gold/20 bg-gold/10 flex items-center justify-center">
+            <Loader2 size={19} className="text-gold animate-spin" />
           </div>
-          <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-            <div
-              className="h-full rounded-full progress-animate"
-              style={{
-                background: "linear-gradient(90deg, #C9A84C44, #C9A84C)",
-                animationDuration: "3s",
-              }}
-            />
+          <h1 className="text-xl font-serif font-semibold text-gold">{copy.loadingTitle}</h1>
+          <p className="text-sm text-white/42">{copy.loadingDesc}</p>
+        </div>
+
+        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-4 sm:p-5">
+          <div className="grid sm:grid-cols-3 gap-3">
+            {copy.steps.map((step, index) => (
+              <div key={step} className="rounded-xl border border-white/[0.06] bg-black/15 p-3 min-h-[84px]">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs text-white/58">{step}</span>
+                  {index === 0 ? <CheckCircle2 size={15} className="text-emerald-300" /> : <Loader2 size={15} className="text-gold animate-spin" />}
+                </div>
+                <div className="h-2 rounded-full bg-white/[0.08] overflow-hidden">
+                  <div
+                    className="h-full rounded-full progress-animate"
+                    style={{
+                      width: index === 0 ? "100%" : index === 1 ? "72%" : "48%",
+                      background: index === 0
+                        ? "linear-gradient(90deg, #10b981, #6ee7b7)"
+                        : "linear-gradient(90deg, #8B6914, #C9A84C)",
+                      animationDelay: `${index * 0.25}s`,
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-4 rounded-xl border border-white/[0.06] bg-black/15 p-4">
+            <div className="flex items-center gap-2 text-gold/75 text-sm mb-3">
+              <FileText size={15} />
+              <span>{copy.master}</span>
+            </div>
+            <div className="space-y-2">
+              <div className="h-3 w-full rounded bg-white/[0.08] shimmer-skeleton" />
+              <div className="h-3 w-10/12 rounded bg-white/[0.06] shimmer-skeleton" />
+              <div className="h-3 w-7/12 rounded bg-white/[0.05] shimmer-skeleton" />
+            </div>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-4">
+          <div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-4 min-h-[150px]">
+            <div className="flex items-center gap-2 mb-4 text-white/52 text-sm">
+              <BarChart3 size={15} />
+              <span>{locale === "zh" ? "维度摘要" : "Dimension summary"}</span>
+            </div>
+            <div className="space-y-3">
+              {[86, 68, 74].map((width, index) => (
+                <div key={width} className="space-y-1.5">
+                  <div className="h-2 w-24 rounded bg-white/[0.08]" />
+                  <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-gold/50 shimmer-skeleton"
+                      style={{ width: `${width}%`, animationDelay: `${index * 0.2}s` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-4 min-h-[150px]">
+            <div className="h-4 w-32 rounded bg-white/[0.08] mb-4" />
+            <div className="space-y-2">
+              <div className="h-3 w-full rounded bg-white/[0.08] shimmer-skeleton" />
+              <div className="h-3 w-11/12 rounded bg-white/[0.06] shimmer-skeleton" />
+              <div className="h-3 w-8/12 rounded bg-white/[0.05] shimmer-skeleton" />
+            </div>
           </div>
         </div>
       </div>

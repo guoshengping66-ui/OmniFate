@@ -1,53 +1,19 @@
 "use client"
 
-import React, { useEffect, useRef, useState, useMemo, useCallback, Suspense, lazy } from "react"
-import { AGENT_LABELS } from "@/lib/api"
+import React, { Suspense, lazy, useEffect, useMemo, useRef, useState } from "react"
+import {
+  AlertCircle,
+  CheckCircle2,
+  Circle,
+  Clock3,
+  Loader2,
+  Sparkles,
+} from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 const EnergyOrb = lazy(() => import("./EnergyOrb"))
 
 type AgentStatus = "pending" | "running" | "done" | "error" | "skipped"
-
-const AGENT_ORDER_BASE = ["bazi", "astrology", "tarot", "qimen", "ziwei", "face", "palm"] as const
-
-const AGENT_I18N: Record<string, { label: string; running: string; done: string }> = {
-  bazi:         { label: "analysis.bazi.label",         running: "analysis.bazi.running", done: "analysis.bazi.done" },
-  astrology:    { label: "analysis.astrology.label",    running: "analysis.astrology.running", done: "analysis.astrology.done" },
-  tarot:        { label: "analysis.tarot.label",        running: "analysis.tarot.running", done: "analysis.tarot.done" },
-  qimen:        { label: "analysis.qimen.label",        running: "analysis.qimen.running", done: "analysis.qimen.done" },
-  ziwei:        { label: "analysis.ziwei.label",        running: "analysis.ziwei.running", done: "analysis.ziwei.done" },
-  face:         { label: "analysis.face.label",         running: "analysis.face.running", done: "analysis.face.done" },
-  palm:         { label: "analysis.palm.label",         running: "analysis.palm.running", done: "analysis.palm.done" },
-  partner_face: { label: "analysis.partnerFace.label",  running: "analysis.partnerFace.running", done: "analysis.partnerFace.done" },
-  partner_palm: { label: "analysis.partnerPalm.label",  running: "analysis.partnerPalm.running", done: "analysis.partnerPalm.done" },
-}
-
-// ── Wisdom quotes shown during analysis ────────────────────────────────────
-const WISDOM_QUOTES_ZH = [
-  "80% 的爆仓发生在冲动决策日 — 了解你的行为模式，远离冲动交易。",
-  "行为塑造未来 — 每一次复盘都是在改写人生的数据。",
-  "知己知彼，百战不殆 — 了解自己的数据格局，才能驾驭市场的波动。",
-  "数据为决策之源 — 但只有理解自己的状态周期，才能真正守住财富。",
-  "信息过载时，决策易乱 — 清晰的认知是行动的前提。",
-  "以柔克刚 — 最好的交易策略往往是等待。",
-]
-const WISDOM_QUOTES_EN = [
-  "80% of liquidations happen on impulsive decision days — know your pattern, avoid impulsive trades.",
-  "Behavior shapes the future — every review rewrites your data code.",
-  "Know yourself before the market — understand your data balance to master volatility.",
-  "Data sustains decisions — but only understanding your status cycles truly preserves wealth.",
-  "When information overloads, decisions scatter — clarity is the prerequisite for action.",
-  "Softness overcomes hardness — the best trading strategy is often patience.",
-]
-
-/**
- * Return the target progress value directly.
- * Visual smoothness is handled by CSS `transition: width 0.8s ease-out`
- * on the progress bar element — no React state animation needed.
- */
-function useSmoothProgress(target: number, _startTime: number): number {
-  return target
-}
 
 interface AnalysisProgressProps {
   progressPct: number
@@ -58,181 +24,140 @@ interface AnalysisProgressProps {
   startTime: number
 }
 
-// ── Data Stream Console Animation ──────────────────────────────────────────
+const AGENT_ORDER_BASE = ["bazi", "astrology", "tarot", "qimen", "ziwei", "face", "palm"] as const
 
-const STREAM_LINES_ZH = [
-  ">> 行为数据库连接中...",
-  ">> 加载元素映射表...",
-  ">> 读取星盘坐标数据...",
-  ">> 行为档案引擎初始化...",
-  ">> 数据关系矩阵构建...",
-  ">> 星盘分析系统启动...",
-  ">> 策略分析推演引擎...",
-  ">> 模式分析计算中...",
-  ">> 塔罗分析系统检测...",
-  ">> AI 分析模型加载...",
-  ">> 行为模式识别算法启动...",
-  ">> 行为雷达图渲染引擎...",
-  ">> 五维数据捕捉...",
-  ">> 周期数据同步...",
-  ">> 交叉验证矩阵运算...",
-  ">> 高维数据整合中...",
-]
-const STREAM_LINES_EN = [
-  ">> Connecting to behavioral database...",
-  ">> Loading element mapping table...",
-  ">> Reading chart coordinates...",
-  ">> Behavioral profile engine init...",
-  ">> Element relationship matrix building...",
-  ">> Behavioral Profile analysis system starting...",
-  ">> Strategic Analysis derivation engine...",
-  ">> Pattern house calculation...",
-  ">> Symbolic analysis system detection...",
-  ">> AI Analysis model loading...",
-  ">> Behavioral pattern recognition algorithm starting...",
-  ">> Behavioral radar chart rendering engine...",
-  ">> Five-dimension data capture...",
-  ">> Cycle data sync...",
-  ">> Cross-validation matrix computation...",
-  ">> High-dimension data integration...",
-]
-
-const DataStream = React.memo(function DataStream({ isComplete, locale }: { isComplete: boolean; locale: string }) {
-  const [lines, setLines] = useState<string[]>([])
-  const containerRef = useRef<HTMLDivElement>(null)
-  const poolRef = useRef<string[]>([])
-  const intervalRef = useRef<NodeJS.Timeout | null>(null)
-
-  useEffect(() => {
-    const pool = locale === "zh" ? STREAM_LINES_ZH : STREAM_LINES_EN
-    poolRef.current = [...pool].sort(() => Math.random() - 0.5)
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
-  }, [locale])
-
-  useEffect(() => {
-    if (isComplete) {
-      if (intervalRef.current) clearInterval(intervalRef.current)
-      return
-    }
-    let idx = 0
-    intervalRef.current = setInterval(() => {
-      const pool = poolRef.current
-      const line = pool[idx % pool.length]
-      const ts = new Date().toLocaleTimeString(locale === "zh" ? "zh-CN" : "en-US", { hour12: false })
-      setLines(prev => {
-        const next = [...prev, `[${ts}] ${line}`]
-        return next.slice(-12) // keep last 12 lines
-      })
-      idx++
-    }, 800 + Math.random() * 600)
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
-  }, [isComplete, locale])
-
-  useEffect(() => {
-    if (containerRef.current) {
-      containerRef.current.scrollTop = containerRef.current.scrollHeight
-    }
-  }, [lines])
-
-  if (isComplete && lines.length === 0) return null
-
-  return (
-    <div className="relative rounded-xl overflow-hidden border border-white/[0.06]">
-      {/* Terminal header */}
-      <div className="flex items-center gap-2 px-3 py-1.5 bg-white/[0.03] border-b border-white/[0.06]">
-        <div className="flex gap-1">
-          <div className="w-2 h-2 rounded-full bg-red-400/60" />
-          <div className="w-2 h-2 rounded-full bg-yellow-400/60" />
-          <div className="w-2 h-2 rounded-full bg-green-400/60" />
-        </div>
-        <span className="text-[10px] text-white/30 font-mono ml-1">
-          {locale === "zh" ? "命运引擎 · 分析终端" : "Destiny Engine · Analysis Terminal"}
-        </span>
-        {!isComplete && (
-          <span className="ml-auto text-[10px] text-gold/50 font-mono animate-pulse">
-            {locale === "zh" ? "● LIVE" : "● LIVE"}
-          </span>
-        )}
-      </div>
-      {/* Scrollable lines */}
-      <div
-        ref={containerRef}
-        className="h-28 overflow-y-auto p-3 bg-black/40 font-mono text-[11px] leading-relaxed"
-        style={{ scrollBehavior: "smooth" }}
-      >
-        {lines.map((line, i) => (
-          <div
-            key={i}
-            className="text-green-400/60"
-            style={{ opacity: 0.4 + (i / lines.length) * 0.6 }}
-          >
-            {line}
-          </div>
-        ))}
-        {!isComplete && (
-          <span className="inline-block w-2 h-3.5 bg-gold/60 animate-pulse ml-0.5" />
-        )}
-      </div>
-    </div>
-  )
-})
-
-// ── Wisdom Quote ───────────────────────────────────────────────────────────
-
-const WisdomQuote = React.memo(function WisdomQuote({ locale }: { locale: string }) {
-  const [idx, setIdx] = useState(() => Math.floor(Math.random() * WISDOM_QUOTES_ZH.length))
-  const quotes = locale === "zh" ? WISDOM_QUOTES_ZH : WISDOM_QUOTES_EN
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setIdx(prev => (prev + 1) % quotes.length)
-    }, 8000)
-    return () => clearInterval(timer)
-  }, [quotes.length])
-
-  return (
-    <div key={idx} className="text-center px-4 anim-fade-in">
-      <p className="text-xs text-white/30 italic leading-relaxed">
-        &ldquo;{quotes[idx]}&rdquo;
-      </p>
-    </div>
-  )
-})
-
-// ── Completion Burst Animation ─────────────────────────────────────────────
-
-function CompletionBurst() {
-  return (
-    <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center anim-fade-in">
-      {/* Central burst */}
-      <div
-        className="w-40 h-40 rounded-full"
-        style={{
-          background: "radial-gradient(circle, rgba(201,168,76,0.4) 0%, transparent 70%)",
-          boxShadow: "0 0 80px rgba(201,168,76,0.3)",
-          animation: "burstExpand 1.2s ease-out forwards",
-        }}
-      />
-      {/* Expanding rings */}
-      {[0, 0.2, 0.4].map((delay, i) => (
-        <div
-          key={i}
-          className="absolute w-32 h-32 rounded-full border border-gold/40"
-          style={{
-            animation: `ringExpand 1.5s ease-out ${delay}s forwards`,
-          }}
-        />
-      ))}
-      {/* Flash */}
-      <div
-        className="absolute inset-0 bg-gold/10"
-        style={{ animation: "flashPulse 0.6s ease-out 0.3s forwards" }}
-      />
-    </div>
-  )
+const AGENT_I18N: Record<string, { label: string; running: string; done: string }> = {
+  bazi: { label: "analysis.bazi.label", running: "analysis.bazi.running", done: "analysis.bazi.done" },
+  astrology: { label: "analysis.astrology.label", running: "analysis.astrology.running", done: "analysis.astrology.done" },
+  tarot: { label: "analysis.tarot.label", running: "analysis.tarot.running", done: "analysis.tarot.done" },
+  qimen: { label: "analysis.qimen.label", running: "analysis.qimen.running", done: "analysis.qimen.done" },
+  ziwei: { label: "analysis.ziwei.label", running: "analysis.ziwei.running", done: "analysis.ziwei.done" },
+  face: { label: "analysis.face.label", running: "analysis.face.running", done: "analysis.face.done" },
+  palm: { label: "analysis.palm.label", running: "analysis.palm.running", done: "analysis.palm.done" },
+  partner_face: { label: "analysis.partnerFace.label", running: "analysis.partnerFace.running", done: "analysis.partnerFace.done" },
+  partner_palm: { label: "analysis.partnerPalm.label", running: "analysis.partnerPalm.running", done: "analysis.partnerPalm.done" },
 }
 
-// ── Main Component ─────────────────────────────────────────────────────────
+const FALLBACK_AGENT_LABELS: Record<string, { zh: string; en: string }> = {
+  bazi: { zh: "八字结构", en: "Bazi structure" },
+  astrology: { zh: "西方星盘", en: "Birth chart" },
+  tarot: { zh: "象征牌阵", en: "Symbol spread" },
+  qimen: { zh: "策略推演", en: "Strategy model" },
+  ziwei: { zh: "行为格局", en: "Pattern model" },
+  face: { zh: "面相识别", en: "Face reading" },
+  palm: { zh: "手相识别", en: "Palm reading" },
+  partner_face: { zh: "伴侣面相", en: "Partner face" },
+  partner_palm: { zh: "伴侣手相", en: "Partner palm" },
+  master: { zh: "综合报告", en: "Final synthesis" },
+}
+
+const STAGE_COPY = [
+  {
+    min: 0,
+    zh: { title: "初始化资料", detail: "正在校验出生信息、问题方向和输入素材。" },
+    en: { title: "Preparing inputs", detail: "Checking birth data, focus question, and uploaded material." },
+  },
+  {
+    min: 10,
+    zh: { title: "建立基础画像", detail: "正在生成基础命盘、行为底色和维度坐标。" },
+    en: { title: "Building profile", detail: "Creating the base chart, behavior profile, and dimension map." },
+  },
+  {
+    min: 35,
+    zh: { title: "专家单项分析", detail: "多个分析模块正在并行返回关键证据。" },
+    en: { title: "Specialist analysis", detail: "Specialist modules are returning evidence in parallel." },
+  },
+  {
+    min: 65,
+    zh: { title: "交叉校验", detail: "正在比对不同维度，过滤重复和矛盾结论。" },
+    en: { title: "Cross-checking", detail: "Comparing dimensions and removing duplicate or conflicting signals." },
+  },
+  {
+    min: 85,
+    zh: { title: "生成报告结构", detail: "正在整理摘要、行动建议和可读报告段落。" },
+    en: { title: "Writing report", detail: "Organizing the summary, actions, and readable report sections." },
+  },
+  {
+    min: 98,
+    zh: { title: "即将完成", detail: "正在保存报告，完成后会自动展示。" },
+    en: { title: "Almost ready", detail: "Saving the report. It will open automatically when complete." },
+  },
+]
+
+const STATUS_COPY = {
+  zh: {
+    complete: "报告已完成",
+    stalled: "最终整合通常会稍久，请保持页面打开。",
+    waiting: "正在等待专家模型返回结果。",
+    dimensions: "个维度完成",
+    elapsed: "已用时",
+    savedHint: "生成完成后会保存到我的报告。",
+    currentStage: "当前阶段",
+    progressLabel: "报告生成进度",
+    preview: "报告预览",
+    pending: "等待",
+    running: "进行中",
+    done: "完成",
+    error: "需复核",
+    skipped: "跳过",
+  },
+  en: {
+    complete: "Report complete",
+    stalled: "Final synthesis can take a little longer. Keep this page open.",
+    waiting: "Waiting for specialist model results.",
+    dimensions: "dimensions complete",
+    elapsed: "Elapsed",
+    savedHint: "The finished report will be saved to My Reports.",
+    currentStage: "Current stage",
+    progressLabel: "Report generation progress",
+    preview: "Report preview",
+    pending: "Queued",
+    running: "Running",
+    done: "Done",
+    error: "Review",
+    skipped: "Skipped",
+  },
+}
+
+function getStage(progressPct: number, phase: string, isZh: boolean) {
+  if (phase === "done") {
+    return isZh
+      ? { title: "分析完成", detail: "报告已生成，正在进入完整结果。" }
+      : { title: "Analysis complete", detail: "The report is ready and opening now." }
+  }
+  const stage = [...STAGE_COPY].reverse().find(item => progressPct >= item.min) || STAGE_COPY[0]
+  return isZh ? stage.zh : stage.en
+}
+
+function getSafeTranslation(t: (key: string) => string, key: string, fallback: string): string {
+  const value = t(key)
+  if (!value || value === key) return fallback
+  const hasBrokenChar = Array.from(value).some(char => {
+    const code = char.charCodeAt(0)
+    return code === 0xfffd || (code >= 0xe000 && code <= 0xf8ff) || code === 0x9205 || code === 0x9365
+  })
+  return hasBrokenChar ? fallback : value
+}
+
+function getAgentLabel(agentId: string, isZh: boolean, t: (key: string) => string): string {
+  const fallback = FALLBACK_AGENT_LABELS[agentId]?.[isZh ? "zh" : "en"] || agentId
+  const key = AGENT_I18N[agentId]?.label
+  return key ? getSafeTranslation(t, key, fallback) : fallback
+}
+
+function getElapsed(startTime: number): string {
+  const secs = Math.max(0, Math.floor((Date.now() - startTime) / 1000))
+  if (secs < 60) return `${secs}s`
+  return `${Math.floor(secs / 60)}m ${secs % 60}s`
+}
+
+function StatusIcon({ status, running }: { status: AgentStatus; running: boolean }) {
+  if (status === "done") return <CheckCircle2 size={15} className="text-emerald-300" />
+  if (status === "error") return <AlertCircle size={15} className="text-rose-300" />
+  if (running) return <Loader2 size={15} className="text-gold animate-spin" />
+  if (status === "skipped") return <Circle size={15} className="text-white/25" />
+  return <Clock3 size={15} className="text-white/30" />
+}
 
 function AnalysisProgressInner({
   progressPct,
@@ -243,323 +168,245 @@ function AnalysisProgressInner({
   startTime,
 }: AnalysisProgressProps) {
   const { locale, t } = useLanguage()
-  // Stabilize `t` via ref — prevents useMemo hooks below from recalculating
-  // when parent re-renders but the locale/translations haven't changed.
-  const tRef = useRef(t)
-  tRef.current = t
-  const stableT = useCallback((key: string) => tRef.current(key), [])
   const isZh = locale === "zh"
-  const displayPct = useSmoothProgress(progressPct, startTime)
-  const [previewText, setPreviewText] = useState("")
-  const [showPreview, setShowPreview] = useState(false)
-  const [isStalled, setIsStalled] = useState(false)
-  const [showBurst, setShowBurst] = useState(false)
-  const previewRef = useRef<HTMLDivElement>(null)
-  const stallTimerRef = useRef<NodeJS.Timeout | null>(null)
-  const burstShownRef = useRef(false)
-
+  const copy = isZh ? STATUS_COPY.zh : STATUS_COPY.en
+  const displayPct = Math.max(0, Math.min(100, progressPct || 0))
   const isComplete = phase === "done"
+  const [elapsedTick, setElapsedTick] = useState(0)
+  const [isStalled, setIsStalled] = useState(false)
+  const [previewText, setPreviewText] = useState("")
+  const stallTimerRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Dynamic agent order — include partner_face/partner_palm when they appear in agentStatus
-  const AGENT_ORDER: string[] = useMemo(() => {
+  const agentOrder = useMemo(() => {
     const base: string[] = [...AGENT_ORDER_BASE]
     if (agentStatus.partner_face) base.push("partner_face")
     if (agentStatus.partner_palm) base.push("partner_palm")
     return base
   }, [agentStatus])
 
-  const completedCount = useMemo(() =>
-    Object.values(agentStatus).filter((s) => s === "done" || s === "error").length,
-    [agentStatus]
+  const completedCount = useMemo(
+    () => Object.values(agentStatus).filter(status => status === "done" || status === "error" || status === "skipped").length,
+    [agentStatus],
   )
 
   const runningAgent = useMemo(() => {
-    const entry = Object.entries(agentStatus).find(([, s]) => s === "running")
+    const entry = Object.entries(agentStatus).find(([, status]) => status === "running")
     return entry ? entry[0] : null
   }, [agentStatus])
 
-  // Stall detection — uses phase-only dependency to avoid re-running on every displayPct change
-  const displayPctRef = useRef(displayPct)
-  displayPctRef.current = displayPct
+  const stage = useMemo(() => getStage(displayPct, phase, isZh), [displayPct, phase, isZh])
 
   useEffect(() => {
-    // Check stall condition using ref (avoids effect restart on displayPct change)
-    // IMPORTANT: only call setIsStalled when value actually changes — calling it
-    // every 2s even when unchanged triggers reconciliation cycles that can cascade
-    // with SSE state updates → React error #310.
-    const checkStall = () => {
-      if (displayPctRef.current >= 95 && phase !== "done") {
-        if (!stallTimerRef.current) stallTimerRef.current = setTimeout(() => setIsStalled(true), 5000)
-      } else {
-        if (stallTimerRef.current) { clearTimeout(stallTimerRef.current); stallTimerRef.current = null }
-        setIsStalled(prev => { if (prev) return false; return prev })
-      }
-    }
-    checkStall()
-    // Also check periodically in case displayPct crosses 95 between phase changes
-    const pollTimer = setInterval(checkStall, 2000)
-    return () => {
-      if (stallTimerRef.current) { clearTimeout(stallTimerRef.current); stallTimerRef.current = null }
-      clearInterval(pollTimer)
-    }
-  }, [phase])
-
-  // Completion burst
-  useEffect(() => {
-    if (isComplete && !burstShownRef.current) {
-      burstShownRef.current = true
-      setShowBurst(true)
-      setTimeout(() => setShowBurst(false), 2000)
-    }
+    if (isComplete) return
+    const timer = setInterval(() => setElapsedTick(value => value + 1), 5000)
+    return () => clearInterval(timer)
   }, [isComplete])
 
-  // Typewriter for master summary
+  useEffect(() => {
+    if (displayPct >= 95 && !isComplete) {
+      if (!stallTimerRef.current) {
+        stallTimerRef.current = setTimeout(() => setIsStalled(true), 5000)
+      }
+    } else {
+      if (stallTimerRef.current) {
+        clearTimeout(stallTimerRef.current)
+        stallTimerRef.current = null
+      }
+      setIsStalled(false)
+    }
+    return () => {
+      if (stallTimerRef.current) {
+        clearTimeout(stallTimerRef.current)
+        stallTimerRef.current = null
+      }
+    }
+  }, [displayPct, isComplete])
+
   useEffect(() => {
     if (!masterSummary || masterSummary.length < 20) return
-    setShowPreview(true)
-    const excerpt = masterSummary.slice(0, 200)
+    const excerpt = masterSummary.replace(/\s+/g, " ").trim().slice(0, 220)
     let idx = 0
     const timer = setInterval(() => {
-      idx += 2
+      idx += 3
       setPreviewText(excerpt.slice(0, idx))
       if (idx >= excerpt.length) clearInterval(timer)
-    }, 30)
+    }, 24)
     return () => clearInterval(timer)
   }, [masterSummary])
 
+  const elapsed = useMemo(() => getElapsed(startTime), [elapsedTick, startTime])
+
   const statusMessage = useMemo(() => {
-    if (isStalled) return stableT("analysis.stalled")
-    if (phase === "done") return stableT("analysis.done")
-    if (phase === "master") return stableT("analysis.crossValidate")
-    if (runningAgent) return AGENT_I18N[runningAgent] ? stableT(AGENT_I18N[runningAgent].running) : progressMessage
-    return progressMessage || stableT("analysis.preparing")
-  }, [isStalled, phase, runningAgent, progressMessage, stableT])
-
-  // Update elapsed time display periodically (every 5s)
-  const [elapsedTick, setElapsedTick] = useState(0)
-  useEffect(() => {
-    if (isComplete) return
-    const timer = setInterval(() => setElapsedTick(t => t + 1), 5000)
-    return () => clearInterval(timer)
-  }, [isComplete])
-  const elapsed = useMemo(() => {
-    const secs = Math.floor((Date.now() - startTime) / 1000)
-    if (secs < 60) return `${secs}s`
-    return `${Math.floor(secs / 60)}m ${secs % 60}s`
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [elapsedTick, startTime])
-
-  // Stage labels for dramatic display
-  const stageLabel = useMemo(() => {
-    if (isComplete) return isZh ? "分析完成" : "Analysis Complete"
-    if (phase === "master") return isZh ? "✦ AI 宗师交叉验证" : "✦ AI Master Cross-Validation"
+    if (isComplete) return copy.complete
+    if (isStalled) return copy.stalled
     if (runningAgent) {
-      const icons: Record<string, string> = { bazi: "☯", astrology: "🌌", tarot: "🃏", qimen: "🔮", ziwei: "⭐", face: "👤", palm: "✋", partner_face: "👥", partner_palm: "🤲" }
-      return `${icons[runningAgent] || "◆"} ${AGENT_I18N[runningAgent] ? stableT(AGENT_I18N[runningAgent].running) : ""}`
+      const label = getAgentLabel(runningAgent, isZh, t)
+      return isZh ? `${label}正在分析中` : `${label} is running`
     }
-    return isZh ? "◆ 系统初始化中..." : "◆ Initializing systems..."
-  }, [isComplete, phase, runningAgent, stableT, isZh])
+    return progressMessage || copy.waiting
+  }, [copy.complete, copy.stalled, copy.waiting, isComplete, isStalled, runningAgent, isZh, progressMessage, t])
+
+  const visibleAgents = useMemo(() => {
+    return agentOrder.map(agentId => {
+      const status = agentStatus[agentId] || "pending"
+      const skipped = (agentId === "face" || agentId === "palm") && status === "pending" && (phase === "master" || isComplete)
+      return {
+        id: agentId,
+        label: getAgentLabel(agentId, isZh, t),
+        status: skipped ? "skipped" as AgentStatus : status,
+      }
+    })
+  }, [agentOrder, agentStatus, phase, isComplete, isZh, t])
+
+  const masterStatus: AgentStatus = isComplete ? "done" : phase === "master" ? "running" : "pending"
 
   return (
-    <>
-      {showBurst && <CompletionBurst />}
-      <div className="w-full max-w-lg mx-auto space-y-5">
-        {/* Title */}
-        <div className="text-center space-y-1">
-          <h3 className="text-lg font-serif font-semibold text-gold tracking-wide">
-            {t("analysis.title")}
-          </h3>
-          <p className="text-sm text-white/50">
-            {completedCount}/{AGENT_ORDER.length} {isZh ? "维度完成" : "dimensions"} · {elapsed}
-          </p>
-        </div>
+    <div className="w-full max-w-3xl mx-auto space-y-5" aria-live="polite">
+      <div className="text-center space-y-2">
+        <h3 className="text-lg font-serif font-semibold text-gold">{t("analysis.title")}</h3>
+        <p className="text-sm text-white/50">
+          {completedCount}/{agentOrder.length} {copy.dimensions} · {copy.elapsed} {elapsed}
+        </p>
+        <p className="text-xs text-white/35">{copy.savedHint}</p>
+      </div>
 
-        {/* 3D Energy Orb */}
-        <div className="relative">
-          <Suspense fallback={
-            <div className="w-full aspect-square max-w-[320px] mx-auto flex items-center justify-center">
-              <div className="w-24 h-24 rounded-full bg-gold/20 animate-pulse" />
-            </div>
-          }>
+      <div className="grid lg:grid-cols-[260px_1fr] gap-5 items-center">
+        <div className="relative min-h-[220px]">
+          <Suspense fallback={<div className="h-[220px] rounded-full bg-gold/10 animate-pulse" />}>
             <EnergyOrb
               progressPct={displayPct}
               agentStatus={agentStatus}
               phase={phase}
               completedCount={completedCount}
-              totalAgents={AGENT_ORDER.length}
+              totalAgents={agentOrder.length}
             />
           </Suspense>
-          <div className="absolute bottom-0 left-0 right-0 text-center">
-            <p
-              className="text-sm text-gold/80 font-medium drop-shadow-lg anim-fade-in"
-            >
-              {statusMessage}
-            </p>
-          </div>
         </div>
 
-        {/* Data Stream Console */}
-        <DataStream isComplete={isComplete} locale={locale} />
-
-        {/* Agent Node Grid */}
-        <div className="grid grid-cols-4 gap-3">
-          {AGENT_ORDER.map((aid, idx) => {
-            const info = AGENT_LABELS[aid]
-            const status: AgentStatus = agentStatus[aid] || "pending"
-            const isSkipped = (aid === "face" || aid === "palm") && status === "pending" && phase === "master"
-            const isRunning = status === "running"
-
-            return (
-              <div
-                key={aid}
-                className={`
-                  flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all duration-500 anim-slide-up
-                  ${isRunning
-                    ? "border-gold/60 bg-gold/10 node-running"
-                    : status === "done"
-                    ? "border-green-500/40 bg-green-500/10 node-done"
-                    : status === "error"
-                    ? "border-red-400/40 bg-red-400/10"
-                    : isSkipped
-                    ? "border-white/10 bg-white/5 opacity-40"
-                    : "border-white/10 bg-white/5 node-pending"
-                  }
-                `}
-                style={{ animationDelay: `${idx * 0.08}s` }}
-              >
-                <span className="text-xl">{info.icon}</span>
-                <span className="text-[11px] text-white/70 text-center leading-tight">
-                  {AGENT_I18N[aid] ? t(AGENT_I18N[aid].label) : info.label}
-                </span>
-                <span className={`
-                  text-xs font-mono
-                  ${status === "done" ? "text-green-400" : ""}
-                  ${isRunning ? "text-gold" : ""}
-                  ${status === "error" ? "text-red-400" : ""}
-                  ${status === "pending" ? "text-white/30" : ""}
-                `}>
-                  {status === "done" ? "✓" : isRunning ? "◐" : status === "error" ? "✗" : isSkipped ? "—" : "○"}
-                </span>
-                {(isRunning || status === "done") && (
-                  <span className="text-[9px] text-white/40 text-center leading-tight mt-0.5">
-                    {isRunning ? (AGENT_I18N[aid] ? t(AGENT_I18N[aid].running) : "") : status === "done" ? (AGENT_I18N[aid] ? t(AGENT_I18N[aid].done) : "") : ""}
-                  </span>
-                )}
-              </div>
-            )
-          })}
-          {/* Master node */}
-          <div
-            className={`
-              flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all duration-500 anim-slide-up
-              ${phase === "master"
-                ? "border-gold/60 bg-gold/10 node-running"
-                : phase === "done"
-                ? "border-green-500/40 bg-green-500/10 node-done"
-                : "border-white/10 bg-white/5 node-pending"
-              }
-            `}
-            style={{ animationDelay: `${AGENT_ORDER.length * 0.08}s` }}
-          >
-            <span className="text-xl">{AGENT_LABELS.master.icon}</span>
-            <span className="text-[11px] text-white/70 text-center leading-tight">
-              {AGENT_LABELS.master.label}
-            </span>
-            <span className={`
-              text-xs font-mono
-              ${phase === "done" ? "text-green-400" : ""}
-              ${phase === "master" ? "text-gold" : ""}
-              ${phase !== "master" && phase !== "done" ? "text-white/30" : ""}
-            `}>
-              {phase === "done" ? "✓" : phase === "master" ? "◐" : "○"}
-            </span>
-          </div>
-        </div>
-
-        {/* Energy-Flow Progress Bar */}
-        <div className="space-y-2">
-          {/* Stage label */}
-          <div className="flex items-center justify-between">
-            <span
-              className="text-xs font-medium text-gold/70 anim-fade-in"
-            >
-              {stageLabel}
-            </span>
-            <span className="font-mono text-sm text-gold font-bold">{Math.round(displayPct)}%</span>
+        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-4 sm:p-5 space-y-4">
+          <div className="flex items-start gap-3">
+            <div className="mt-0.5 h-9 w-9 rounded-lg bg-gold/10 border border-gold/20 flex items-center justify-center">
+              {isComplete ? <CheckCircle2 size={18} className="text-emerald-300" /> : <Sparkles size={18} className="text-gold" />}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-[11px] uppercase tracking-[0.14em] text-white/35">{copy.currentStage}</p>
+              <h4 className="text-base font-semibold text-white/82 mt-1">{stage.title}</h4>
+              <p className="text-sm text-white/50 leading-relaxed mt-1">{stage.detail}</p>
+            </div>
           </div>
 
-          {/* Bar */}
-          <div className={`relative h-2.5 bg-white/[0.06] rounded-full overflow-hidden ${isStalled ? "progress-breathing" : ""}`}>
+          <div>
+            <div className="flex items-center justify-between gap-3 mb-2">
+              <span className="text-xs text-white/45">{copy.progressLabel}</span>
+              <span className="font-mono text-sm font-semibold text-gold">{Math.round(displayPct)}%</span>
+            </div>
             <div
-              className="h-full rounded-full energy-flow-bar"
-              style={{
-                width: `${Math.min(100, displayPct)}%`,
-                background: isComplete
-                  ? "linear-gradient(90deg, #22c55e, #4ade80)"
-                  : "linear-gradient(90deg, #8B6914, #C9A84C, #E8D5A0, #C9A84C, #8B6914)",
-                boxShadow: isComplete
-                  ? "0 0 16px rgba(34, 197, 94, 0.5)"
-                  : "0 0 16px rgba(201, 168, 76, 0.4), 0 0 4px rgba(201, 168, 76, 0.6)",
-                transition: "width 0.8s ease-out",
-              }}
-            />
-            {/* Glow pulse overlay */}
-            {!isComplete && (
+              className={`relative h-2.5 bg-white/[0.07] rounded-full overflow-hidden ${isStalled ? "progress-breathing" : ""}`}
+              role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={Math.round(displayPct)}
+              aria-label={copy.progressLabel}
+            >
               <div
-                className="absolute inset-0 rounded-full animate-pulse-slow"
+                className="h-full rounded-full"
                 style={{
-                  background: "linear-gradient(90deg, transparent 0%, rgba(201,168,76,0.15) 50%, transparent 100%)",
-                  animation: "shimmer 2s ease-in-out infinite",
+                  width: `${displayPct}%`,
+                  background: isComplete
+                    ? "linear-gradient(90deg, #10b981, #6ee7b7)"
+                    : "linear-gradient(90deg, #8B6914, #C9A84C, #E8D5A0)",
+                  boxShadow: isComplete
+                    ? "0 0 18px rgba(16, 185, 129, 0.45)"
+                    : "0 0 18px rgba(201, 168, 76, 0.35)",
+                  transition: "width 0.8s ease-out",
                 }}
               />
-            )}
+            </div>
           </div>
 
-          {/* Progress message */}
-          <div className="flex justify-between items-center text-xs text-white/50">
-            <span className="anim-fade-in">
-              {progressMessage || t("analysis.preparing")}
-            </span>
+          <div className={`rounded-xl border px-3 py-2 text-sm ${
+            isStalled
+              ? "border-amber-300/20 bg-amber-300/[0.06] text-amber-100/80"
+              : "border-white/[0.06] bg-black/15 text-white/58"
+          }`}>
+            {statusMessage}
           </div>
         </div>
+      </div>
 
-        {/* Wisdom Quote */}
-        {!isComplete && <WisdomQuote locale={locale} />}
-
-        {/* Preview */}
-        {showPreview && previewText && (
-          <div
-            ref={previewRef}
-            className="card-glass p-4 space-y-2 anim-slide-up"
-          >
-            <p className="text-xs text-gold/60 font-medium">{t("analysis.preview")}</p>
-            <p className="text-sm text-white/70 leading-relaxed whitespace-pre-line typewriter-cursor">
-              {previewText}
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2">
+        {visibleAgents.map(agent => {
+          const running = agent.status === "running"
+          return (
+            <div
+              key={agent.id}
+              className={`min-h-[58px] rounded-xl border px-3 py-2 flex items-center gap-2 transition-colors ${
+                running
+                  ? "border-gold/35 bg-gold/[0.08]"
+                  : agent.status === "done"
+                    ? "border-emerald-300/20 bg-emerald-300/[0.055]"
+                    : agent.status === "error"
+                      ? "border-rose-300/20 bg-rose-300/[0.055]"
+                      : "border-white/[0.07] bg-white/[0.025]"
+              }`}
+            >
+              <StatusIcon status={agent.status} running={running} />
+              <div className="min-w-0">
+                <p className="text-xs text-white/72 truncate">{agent.label}</p>
+                <p className="text-[11px] text-white/35">
+                  {agent.status === "done"
+                    ? copy.done
+                    : running
+                      ? copy.running
+                      : agent.status === "error"
+                        ? copy.error
+                        : agent.status === "skipped"
+                          ? copy.skipped
+                          : copy.pending}
+                </p>
+              </div>
+            </div>
+          )
+        })}
+        <div className={`min-h-[58px] rounded-xl border px-3 py-2 flex items-center gap-2 ${
+          masterStatus === "running"
+            ? "border-gold/35 bg-gold/[0.08]"
+            : masterStatus === "done"
+              ? "border-emerald-300/20 bg-emerald-300/[0.055]"
+              : "border-white/[0.07] bg-white/[0.025]"
+        }`}>
+          <StatusIcon status={masterStatus} running={masterStatus === "running"} />
+          <div className="min-w-0">
+            <p className="text-xs text-white/72 truncate">{FALLBACK_AGENT_LABELS.master[isZh ? "zh" : "en"]}</p>
+            <p className="text-[11px] text-white/35">
+              {masterStatus === "done" ? copy.done : masterStatus === "running" ? copy.running : copy.pending}
             </p>
           </div>
-        )}
+        </div>
       </div>
-    </>
+
+      {previewText && (
+        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-4">
+          <p className="text-xs text-gold/70 font-medium mb-2">{copy.preview}</p>
+          <p className="text-sm text-white/64 leading-relaxed">{previewText}</p>
+        </div>
+      )}
+    </div>
   )
 }
 
-/**
- * Deep-compare props to prevent re-renders when parent re-renders but values
- * are identical. The parent creates new object refs for agentStatus on every
- * SSE event (pickle deserialization), which breaks React.memo shallow comparison.
- */
 export default React.memo(AnalysisProgressInner, (prev, next) => {
   if (prev.progressPct !== next.progressPct) return false
   if (prev.progressMessage !== next.progressMessage) return false
   if (prev.phase !== next.phase) return false
   if (prev.startTime !== next.startTime) return false
   if (prev.masterSummary !== next.masterSummary) return false
-  // Deep-compare agentStatus — SSE creates new object refs with same values
+
   const prevKeys = Object.keys(prev.agentStatus)
   const nextKeys = Object.keys(next.agentStatus)
   if (prevKeys.length !== nextKeys.length) return false
-  for (const k of prevKeys) {
-    if (prev.agentStatus[k] !== next.agentStatus[k]) return false
+  for (const key of prevKeys) {
+    if (prev.agentStatus[key] !== next.agentStatus[key]) return false
   }
   return true
 })
