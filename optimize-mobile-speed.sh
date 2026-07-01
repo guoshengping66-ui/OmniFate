@@ -103,41 +103,51 @@ pattern = re.compile(
     rf"\n\s*{re.escape(marker_begin)}.*?{re.escape(marker_end)}\n",
     re.S,
 )
-if pattern.search(text):
-    text = pattern.sub("\n" + block + "\n", text)
+text = pattern.sub("\n", text)
+
+server_re = re.compile(r"server\s*\{")
+candidates = []
+for match in server_re.finditer(text):
+    depth = 0
+    end = None
+    for i in range(match.end() - 1, len(text)):
+        if text[i] == "{":
+            depth += 1
+        elif text[i] == "}":
+            depth -= 1
+            if depth == 0:
+                end = i
+                break
+    if end is None:
+        continue
+    body = text[match.start():end + 1]
+    score = 0
+    if upstream in body:
+        score += 10
+    if "server_name api." in body:
+        score -= 20
+    if "server_name" in body and "api." not in body:
+        score += 2
+    candidates.append((score, match.start(), end))
+
+if not candidates:
+    raise SystemExit("Could not find a complete server block")
+
+score, start, end = max(candidates, key=lambda item: item[0])
+if score < 1:
+    raise SystemExit("Could not identify the frontend server block")
+
+server_body = text[start:end + 1]
+generic_location = re.search(
+    r"\n\s*location\s+~\*\s+\^/\(\?![^{}]+?\)\.\*\$\s*\{",
+    server_body,
+)
+if generic_location:
+    insert_at = start + generic_location.start()
 else:
-    server_re = re.compile(r"server\s*\{")
-    candidates = []
-    for match in server_re.finditer(text):
-        depth = 0
-        end = None
-        for i in range(match.end() - 1, len(text)):
-            if text[i] == "{":
-                depth += 1
-            elif text[i] == "}":
-                depth -= 1
-                if depth == 0:
-                    end = i
-                    break
-        if end is None:
-            continue
-        body = text[match.start():end + 1]
-        score = 0
-        if upstream in body:
-            score += 10
-        if "server_name api." in body:
-            score -= 20
-        if "server_name" in body and "api." not in body:
-            score += 2
-        candidates.append((score, match.start(), end))
+    insert_at = end
 
-    if not candidates:
-        raise SystemExit("Could not find a complete server block")
-
-    score, _start, end = max(candidates, key=lambda item: item[0])
-    if score < 1:
-        raise SystemExit("Could not identify the frontend server block")
-    text = text[:end] + "\n" + block + text[end:]
+text = text[:insert_at] + "\n" + block + text[insert_at:]
 
 path.write_text(text)
 PY
