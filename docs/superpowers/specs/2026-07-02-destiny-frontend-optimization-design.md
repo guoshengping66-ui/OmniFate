@@ -29,6 +29,25 @@ Competitor and adjacent product patterns:
 
 Implication for this product: the breakthrough is not simply "we calculate five dimensions." The breakthrough is turning five dimensions into a daily growth operating system that users can return to.
 
+Additional Chinese-market competitor notes:
+
+- Qingnang-like products lean on "classical source + AI interpretation + traceable reasoning." Their trust mechanism is authority and provenance.
+- Chabazi and similar Bazi products compete on professional charting, true solar time correction, long reports, relationship matching, and dense visual data.
+- Lingyuan-style products lead with free charting, fast report generation, AI master framing, user trust counts, privacy, and immediate follow-up questions.
+- GuidingStar-style products combine Bazi, Ziwei, astrology, numerology, and MBTI, then frame the result as contextual next-step advice.
+- Miri-style products package the experience as multiple AI masters with different voices, reducing the feeling of a static report.
+
+Implication for this product: the market is already crowded around "AI fortune telling," "free charting," "long professional report," and "many systems combined." The page should not compete by claiming more systems or longer reports. It should compete by making the output more usable: cross-validated pattern, current timing, daily action, and reflection loop.
+
+Independent-site lessons:
+
+- Linear's homepage states a sharp product category and immediately shows a product standard, not a decorative story.
+- Raycast's site compresses the whole value proposition into one simple operating metaphor: a shortcut to everything.
+- Reflect sells AI through a concrete thinking workflow: improve writing, organize thoughts, and act as a thought partner.
+- Arc sells a product worldview: the browser anticipates needs and reshapes the internet experience around the user.
+
+Implication for this product: the page needs one operating metaphor. The strongest candidate is "growth command center for your destiny signals."
+
 ## Recommended Positioning
 
 Primary concept:
@@ -91,6 +110,18 @@ Cons:
 Use Approach B as the main direction, with selective emotional atmosphere from Approach A and credibility blocks from Approach C.
 
 The page should be redesigned as a product experience, not a marketing brochure.
+
+Final strategic decision:
+
+Do not lead with "AI fortune telling." Lead with "five-dimensional growth command center." Fortune-telling products answer "what will happen to me?" This product should answer "what pattern am I in, what should I adjust today, and how do I track whether I am changing?"
+
+This creates a clearer break from competitors:
+
+- More actionable than Qingnang-like provenance-first products.
+- More modern than professional charting-first Bazi products.
+- More trustworthy than fast free-report products.
+- More focused than multi-master chat products.
+- More habit-forming than one-time report products.
 
 ## Target Page Journey
 
