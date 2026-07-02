@@ -158,19 +158,6 @@ export default function NewReadingPage() {
   const { locale, t, localeHref } = useLanguage()
   const isEn = locale === "en"
   const { userProfile, activeTestTarget, fetchBirthProfiles } = useUserStore()
-  const entryCopy = isEn
-    ? {
-        title: "What are you trying to solve right now?",
-        desc: "Your reading becomes stronger when it starts with a real question. We turn your chart into a five-dimension growth route, not a one-time fortune answer.",
-        chips: ["Career blockage", "Relationship pattern", "Wealth anxiety", "Self direction"],
-        loop: ["Problem", "Five-dimension scan", "Growth route", "Weekly calibration"],
-      }
-    : {
-        title: "你现在最想解决什么？",
-        desc: "带着真实问题进入，分析才有方向。系统会把命盘转成五维成长路线，而不是停在一次性的命理结论。",
-        chips: ["事业卡点", "关系模式", "财富焦虑", "自我方向"],
-        loop: ["定位问题", "五维扫描", "成长路线", "每周校准"],
-      }
 
   // ── Wizard store: intent & prefill ──────────────────────────
   const { currentIntent, formData: wizardData, startStep: wizardStartStep, reset: resetWizard } = useWizardStore()
@@ -586,38 +573,6 @@ export default function NewReadingPage() {
         </div>
 
         {/* Step indicators — step is now a logical index */}
-        <div className="mb-8 rounded-2xl border border-gold/15 bg-gold/[0.045] p-5">
-          <div className="mb-4 flex items-start gap-3">
-            <div className="mt-0.5 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl border border-gold/20 bg-gold/[0.08]">
-              <Star size={17} className="text-gold/80" />
-            </div>
-            <div>
-              <h2 className="font-serif text-lg font-semibold text-gold">{entryCopy.title}</h2>
-              <p className="mt-1 text-xs leading-relaxed text-white/45">{entryCopy.desc}</p>
-            </div>
-          </div>
-          <div className="mb-4 flex flex-wrap gap-2">
-            {entryCopy.chips.map(chip => (
-              <button
-                key={chip}
-                type="button"
-                onClick={() => setValue("user_question", chip)}
-                className="rounded-full border border-white/[0.08] bg-white/[0.035] px-3 py-1.5 text-xs text-white/58 transition-colors hover:border-gold/30 hover:text-gold"
-              >
-                {chip}
-              </button>
-            ))}
-          </div>
-          <div className="grid gap-2 sm:grid-cols-4">
-            {entryCopy.loop.map((item, index) => (
-              <div key={item} className="rounded-xl border border-white/[0.06] bg-black/15 px-3 py-2">
-                <span className="mb-1 block text-[10px] font-semibold text-gold/55">0{index + 1}</span>
-                <span className="text-[11px] text-white/52">{item}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
         <div className="flex items-center justify-between mb-10 px-1">
           {STEPS.map((label, i) => {
             return (

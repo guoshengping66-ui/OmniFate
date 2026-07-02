@@ -19,7 +19,7 @@ interface PostAnalysisModalProps {
  * Auto-dismisses after 6 seconds to avoid blocking the user.
  */
 export function PostAnalysisModal({ products, onViewPrescription }: PostAnalysisModalProps) {
-  const { locale } = useLanguage()
+  const { t, locale } = useLanguage()
   const { addItem } = useCart()
   const { region } = useRegion()
   const [visible, setVisible] = useState(false)
@@ -60,17 +60,6 @@ export function PostAnalysisModal({ products, onViewPrescription }: PostAnalysis
   if (products.length === 0 || dismissed) return null
 
   const displayProducts = products.slice(0, 3)
-  const copy = locale === "zh"
-    ? {
-        title: "成长处方已生成",
-        subtitle: "这些物品只是辅助建议，核心路线在你的报告里",
-        cta: "查看完整成长处方",
-      }
-    : {
-        title: "Growth prescription generated",
-        subtitle: "These items are optional support. Your main route is in the report.",
-        cta: "View Full Growth Prescription",
-      }
 
   return (
     <>
@@ -126,10 +115,10 @@ export function PostAnalysisModal({ products, onViewPrescription }: PostAnalysis
               </div>
               <div>
                 <h3 className="font-serif text-base font-bold text-gold">
-                  {copy.title}
+                  {t("prescription.modal.title") || "你的优化处方已生成"}
                 </h3>
                 <p className="text-white/30 text-[11px]">
-                  {copy.subtitle}
+                  {t("prescription.modal.subtitle") || "AI 根据你的档案精准匹配"}
                 </p>
               </div>
             </div>
@@ -182,7 +171,7 @@ export function PostAnalysisModal({ products, onViewPrescription }: PostAnalysis
               }}
               className="relative w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gold/15 border border-gold/30 text-gold text-sm font-medium hover:bg-gold/25 transition-all group"
             >
-              {copy.cta}
+              {t("prescription.modal.cta") || "查看完整处方"}
               <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
             </button>
 

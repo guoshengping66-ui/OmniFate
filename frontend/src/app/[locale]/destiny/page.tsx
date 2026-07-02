@@ -2,7 +2,6 @@
 import dynamic from "next/dynamic"
 
 const CinematicHero = dynamic(() => import("@/components/destiny/CinematicHero"), { ssr: false })
-const FiveDimensionsOverview = dynamic(() => import("@/components/destiny/FiveDimensionsOverview"), { ssr: false })
 const Archetypes = dynamic(() => import("@/components/destiny/Archetypes"), { ssr: false })
 const SkillTree = dynamic(() => import("@/components/destiny/SkillTree"), { ssr: false })
 const Timeline = dynamic(() => import("@/components/destiny/Timeline"), { ssr: false })
@@ -16,9 +15,6 @@ export default function DestinyPage() {
     <div className="min-h-screen" style={{ background: "#080808" }}>
       {/* SCREEN 1: The Mirror of Destiny */}
       <CinematicHero />
-
-      {/* SCREEN 2: Five-Dimension Growth Chart */}
-      <FiveDimensionsOverview />
 
       {/* SCREEN 2: The 12 Archetypes */}
       <Archetypes />

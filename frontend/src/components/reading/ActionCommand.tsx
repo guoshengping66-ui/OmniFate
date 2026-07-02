@@ -4,7 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import type { ActionCommandProps } from "@/types/report"
 
 export function ActionCommand({ commands }: ActionCommandProps) {
-  const { t, locale } = useLanguage()
+  const { t } = useLanguage()
   const getPeriodStyle = (period: string) => {
     if (period.includes("短") || period.toLowerCase().includes("short")) {
       return { dot: "bg-amber-400", border: "border-l-amber-400/30", text: "text-amber-400/70" }
@@ -17,7 +17,7 @@ export function ActionCommand({ commands }: ActionCommandProps) {
       {/* Section header */}
       <div className="flex items-center gap-2 text-[11px] text-white/40">
         <span className="w-1 h-1 rounded-full bg-cyan-400/60" />
-        <span>{locale === "zh" ? "行动处方与时间路线" : t("report.actionCommand.header")}</span>
+        <span>{t("report.actionCommand.header")}</span>
       </div>
 
       {/* Timeline */}

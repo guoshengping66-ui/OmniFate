@@ -1,46 +1,23 @@
 "use client"
-
-import { useEffect, useRef, useState } from "react"
-import { Brain, Compass, Crosshair, Route, TimerReset } from "lucide-react"
+import { useRef, useState, useEffect } from "react"
 import { useLanguage } from "@/contexts/LanguageContext"
 
-const COPY = {
-  zh: {
-    badge: "Five-Dimension Growth Engine",
-    title: "五个维度，不是堆料，是交叉验证",
-    desc: "普通命理产品只给解释。成长命盘把稳定天赋、长期路径、当前卡点、行动时机和成长处方合成一个可执行系统。",
-    demo: "* 示例数据。真实分数会在分析完成后由你的档案生成。",
-    items: [
-      { key: "base", title: "天赋底盘", desc: "你天然如何驱动自己，适合用什么方式创造价值。", score: 86, color: "#C5A880", icon: Brain },
-      { key: "route", title: "人生主线", desc: "把长期方向从泛泛预测变成可选择的成长路径。", score: 82, color: "#2D6A4F", icon: Compass },
-      { key: "block", title: "当前卡点", desc: "识别最近反复消耗你的情绪、关系或事业模式。", score: 74, color: "#C1121F", icon: Crosshair },
-      { key: "timing", title: "行动时机", desc: "判断未来 7 天、30 天、90 天更适合推进还是调整。", score: 79, color: "#2980B9", icon: TimerReset },
-      { key: "prescription", title: "成长处方", desc: "输出本周行动、30 天路线和下一次复盘问题。", score: 91, color: "#9B59B6", icon: Route },
-    ],
-    validation: "系统会标注哪些结论被多个维度支持，哪些结论存在冲突，需要通过后续复盘校准。",
-  },
-  en: {
-    badge: "Five-Dimension Growth Engine",
-    title: "Five dimensions, cross-checked for action",
-    desc: "Most destiny tools explain. A growth chart combines stable talent, long-term direction, current blockage, timing, and prescription into an executable system.",
-    demo: "* Demo data. Your actual scores appear after analysis.",
-    items: [
-      { key: "base", title: "Talent Base", desc: "How you naturally move, decide, and create value.", score: 86, color: "#C5A880", icon: Brain },
-      { key: "route", title: "Life Direction", desc: "Turns broad prediction into a growth path you can choose.", score: 82, color: "#2D6A4F", icon: Compass },
-      { key: "block", title: "Current Blockage", desc: "Names the emotional, relational, or career pattern draining you now.", score: 74, color: "#C1121F", icon: Crosshair },
-      { key: "timing", title: "Timing", desc: "Shows when to push, pause, or recalibrate across 7, 30, and 90 days.", score: 79, color: "#2980B9", icon: TimerReset },
-      { key: "prescription", title: "Growth Prescription", desc: "Produces this week's action, a 30-day route, and reflection prompts.", score: 91, color: "#9B59B6", icon: Route },
-    ],
-    validation: "The system separates conclusions supported by multiple dimensions from conflicts that need later reflection.",
-  },
-} as const
+const DIMS = [
+  { key: "wealth", icon: "💰", color: "#C5A880", score: 82, descKey: "fiveDim.wealthDesc" },
+  { key: "relationship", icon: "💕", color: "#C1121F", score: 75, descKey: "fiveDim.relationshipDesc" },
+  { key: "career", icon: "💼", color: "#2D6A4F", score: 88, descKey: "fiveDim.careerDesc" },
+  { key: "health", icon: "🏥", color: "#2980B9", score: 70, descKey: "fiveDim.healthDesc" },
+  { key: "spiritual", icon: "✨", color: "#9B59B6", score: 79, descKey: "fiveDim.spiritualDesc" },
+]
 
-function PentagonRadar({ size = 280, scores, colors }: { size?: number; scores: number[]; colors: string[] }) {
+/* ── SVG Pentagon Radar Chart ─────────────────────────────────────── */
+function PentagonRadar({ size = 260 }: { size?: number }) {
   const [animate, setAnimate] = useState(false)
   const cx = size / 2
   const cy = size / 2
   const radius = size * 0.34
   const labelRadius = size * 0.46
+  const levels = 5
 
   useEffect(() => {
     const timer = setTimeout(() => setAnimate(true), 300)
@@ -59,55 +36,73 @@ function PentagonRadar({ size = 280, scores, colors }: { size?: number; scores: 
     }).join(" ")
   }
 
-  const values = scores.map(score => score / 100)
+  const values = DIMS.map(d => d.score / 100)
   const dataPoints = Array.from({ length: 5 }, (_, i) => {
     const v = vertex(i, radius * values[i])
     return `${v.x},${v.y}`
   }).join(" ")
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true">
-      {Array.from({ length: 5 }, (_, li) => {
-        const r = (radius * (li + 1)) / 5
-        return <polygon key={li} points={pentagon(r)} fill="none" stroke="#C5A880" strokeOpacity={0.04 + 0.04 * li} strokeWidth={0.5} />
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      {/* Grid pentagons */}
+      {Array.from({ length: levels }, (_, li) => {
+        const r = (radius * (li + 1)) / levels
+        return (
+          <polygon key={li} points={pentagon(r)} fill="none" stroke="#C5A880"
+            strokeOpacity={0.04 + 0.04 * li} strokeWidth={0.5} />
+        )
       })}
+      {/* Spokes */}
       {Array.from({ length: 5 }, (_, i) => {
         const v = vertex(i, radius)
-        return <line key={i} x1={cx} y1={cy} x2={v.x} y2={v.y} stroke="#C5A880" strokeOpacity={0.1} strokeWidth={0.5} />
+        return (
+          <line key={i} x1={cx} y1={cy} x2={v.x} y2={v.y}
+            stroke="#C5A880" strokeOpacity={0.1} strokeWidth={0.5} />
+        )
       })}
-      <polygon
-        points={dataPoints}
-        fill="rgba(197,168,128,0.12)"
-        stroke="#C5A880"
-        strokeWidth={1.5}
-        strokeOpacity={0.6}
+      {/* Data area */}
+      <polygon points={dataPoints} fill="rgba(197,168,128,0.12)" stroke="#C5A880"
+        strokeWidth={1.5} strokeOpacity={0.6}
         style={{
           transition: "all 1s ease-out",
           transformOrigin: `${cx}px ${cy}px`,
           transform: animate ? "scale(1)" : "scale(0)",
           opacity: animate ? 1 : 0,
-        }}
-      />
-      {scores.map((score, i) => {
+        }} />
+      {/* Data points */}
+      {Array.from({ length: 5 }, (_, i) => {
         const v = vertex(i, radius * values[i])
-        const label = vertex(i, labelRadius)
+        return (
+          <circle key={i} cx={v.x} cy={v.y} r={3} fill={DIMS[i].color}
+            style={{ transition: "all 1s ease-out 0.2s", opacity: animate ? 1 : 0 }} />
+        )
+      })}
+      {/* Labels */}
+      {Array.from({ length: 5 }, (_, i) => {
+        const v = vertex(i, labelRadius)
         return (
           <g key={i}>
-            <circle cx={v.x} cy={v.y} r={3} fill={colors[i]} style={{ transition: "all 1s ease-out 0.2s", opacity: animate ? 1 : 0 }} />
-            <text x={label.x} y={label.y + 4} textAnchor="middle" fill={colors[i]} fontSize={11} fontWeight="bold" fontFamily="sans-serif">
-              {score}
+            <text x={v.x} y={v.y - 8} textAnchor="middle" fill="white" fillOpacity={0.5}
+              fontSize={10} fontFamily="sans-serif">
+              {DIMS[i].icon}
+            </text>
+            <text x={v.x} y={v.y + 8} textAnchor="middle" fill={DIMS[i].color}
+              fontSize={11} fontWeight="bold" fontFamily="sans-serif"
+              style={{ transition: "all 1s ease-out 0.3s", opacity: animate ? 1 : 0 }}>
+              {DIMS[i].score}
             </text>
           </g>
         )
       })}
+      {/* Center dot */}
       <circle cx={cx} cy={cy} r={2} fill="#C5A880" fillOpacity={0.3} />
     </svg>
   )
 }
 
+/* ── Main Component ─────────────────────────────────────────────── */
 export default function FiveDimensionsOverview() {
-  const { locale } = useLanguage()
-  const copy = locale === "zh" ? COPY.zh : COPY.en
+  const { t } = useLanguage()
   const containerRef = useRef<HTMLDivElement>(null)
   const [isVisible, setIsVisible] = useState(false)
 
@@ -121,76 +116,123 @@ export default function FiveDimensionsOverview() {
   }, [])
 
   return (
-    <section ref={containerRef} className="relative px-4 py-16 md:py-32" style={{ background: "#080808" }}>
+    <section
+      ref={containerRef}
+      className="relative py-16 md:py-32 px-4"
+      style={{ background: "#080808" }}
+    >
+      {/* Background glow */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute left-1/2 top-1/2 h-[500px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#C5A880]/[0.02] blur-[120px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] rounded-full bg-[#C5A880]/[0.02] blur-[120px]" />
       </div>
 
-      <div className="relative mx-auto max-w-6xl">
+      <div className="max-w-6xl mx-auto relative">
+        {/* Section header */}
         <div
-          className="mb-16 text-center transition-all duration-1000"
+          className="text-center mb-16 transition-all duration-1000"
           style={{ opacity: isVisible ? 1 : 0, transform: isVisible ? "translateY(0)" : "translateY(30px)" }}
         >
-          <span className="text-xs font-medium uppercase tracking-[0.4em] text-[#C5A880]/50">{copy.badge}</span>
-          <h2 className="mb-4 mt-4 font-serif text-3xl font-bold tracking-normal md:text-5xl">
+          <span className="text-[#C5A880]/50 text-xs tracking-[0.4em] uppercase font-medium">
+            {t("fiveDim.badge")}
+          </span>
+          <h2 className="text-3xl md:text-5xl font-serif font-bold mt-4 mb-4 tracking-wide">
             <span className="bg-clip-text text-transparent" style={{ backgroundImage: "linear-gradient(135deg, #C5A880, #E8D5B7)" }}>
-              {copy.title}
+              {t("fiveDim.title")}
             </span>
           </h2>
-          <p className="mx-auto max-w-2xl text-sm leading-relaxed text-white/34">{copy.desc}</p>
-          <p className="mt-2 text-[11px] italic text-white/20">{copy.demo}</p>
+          <p className="text-white/30 text-sm max-w-lg mx-auto">{t("fiveDim.desc")}</p>
+          <p className="text-white/20 text-[11px] mt-2 italic">* Demo data — your actual scores will appear after analysis</p>
         </div>
 
+        {/* Content: Radar + Dimension Cards */}
         <div
-          className="grid items-center gap-6 transition-all delay-300 duration-1000 md:grid-cols-2 md:gap-12"
+          className="grid md:grid-cols-2 gap-6 md:gap-12 items-center transition-all duration-1000 delay-300"
           style={{ opacity: isVisible ? 1 : 0, transform: isVisible ? "translateY(0)" : "translateY(20px)" }}
         >
+          {/* Left: Radar chart */}
           <div className="flex justify-center">
-            <div className="rounded-3xl border border-white/[0.06] bg-white/[0.02] p-6 backdrop-blur">
-              <PentagonRadar scores={copy.items.map(item => item.score)} colors={copy.items.map(item => item.color)} />
-              <p className="mx-auto mt-2 max-w-xs text-center text-xs leading-relaxed text-white/34">{copy.validation}</p>
+            <div
+              className="rounded-3xl p-6"
+              style={{
+                background: "rgba(255,255,255,0.02)",
+                border: "1px solid rgba(255,255,255,0.06)",
+                backdropFilter: "blur(10px)",
+              }}
+            >
+              <PentagonRadar size={280} />
             </div>
           </div>
 
+          {/* Right: Dimension cards */}
           <div className="space-y-3">
-            {copy.items.map((dim, i) => {
-              const Icon = dim.icon
-              return (
+            {DIMS.map((dim, i) => (
+              <div
+                key={dim.key}
+                className="group relative rounded-2xl p-4 transition-all duration-500 cursor-default"
+                style={{
+                  background: "rgba(255,255,255,0.02)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  opacity: isVisible ? 1 : 0,
+                  transform: isVisible ? "translateX(0)" : "translateX(30px)",
+                  transitionDelay: `${0.4 + i * 0.1}s`,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = dim.color + "30"
+                  e.currentTarget.style.background = `linear-gradient(135deg, ${dim.color}08, transparent)`
+                  e.currentTarget.style.boxShadow = `0 0 30px ${dim.color}10`
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"
+                  e.currentTarget.style.background = "rgba(255,255,255,0.02)"
+                  e.currentTarget.style.boxShadow = "none"
+                }}
+              >
+                {/* Left accent bar */}
                 <div
-                  key={dim.key}
-                  className="group relative rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 transition-all duration-500"
-                  style={{
-                    opacity: isVisible ? 1 : 0,
-                    transform: isVisible ? "translateX(0)" : "translateX(30px)",
-                    transitionDelay: `${0.4 + i * 0.1}s`,
-                  }}
-                >
-                  <div className="absolute bottom-3 left-0 top-3 w-[2px] rounded-full transition-all duration-500" style={{ background: `${dim.color}60` }} />
-                  <div className="flex items-start gap-4 pl-3">
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl transition-all duration-500 group-hover:scale-105" style={{ background: `${dim.color}12`, border: `1px solid ${dim.color}25` }}>
-                      <Icon size={18} style={{ color: dim.color }} />
+                  className="absolute left-0 top-3 bottom-3 w-[2px] rounded-full transition-all duration-500"
+                  style={{ background: `${dim.color}60` }}
+                />
+
+                <div className="flex items-start gap-4 pl-3">
+                  {/* Icon */}
+                  <div
+                    className="w-8 h-8 md:w-10 md:h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-500 group-hover:scale-110"
+                    style={{
+                      background: `${dim.color}12`,
+                      border: `1px solid ${dim.color}25`,
+                    }}
+                  >
+                    <span className="text-lg">{dim.icon}</span>
+                  </div>
+
+                  {/* Text */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <h3 className="font-serif font-bold text-sm" style={{ color: dim.color }}>
+                        {t(`report.${dim.key}`)}
+                      </h3>
+                      <span className="text-xs font-mono font-bold" style={{ color: dim.color }}>
+                        {dim.score}/100
+                      </span>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="mb-1 flex items-center justify-between gap-3">
-                        <h3 className="font-serif text-sm font-bold" style={{ color: dim.color }}>{dim.title}</h3>
-                        <span className="font-mono text-xs font-bold" style={{ color: dim.color }}>{dim.score}/100</span>
-                      </div>
-                      <p className="text-[11px] leading-relaxed text-white/34">{dim.desc}</p>
-                      <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/[0.04]">
-                        <div
-                          className="h-full rounded-full transition-all delay-500 duration-1000"
-                          style={{
-                            width: isVisible ? `${dim.score}%` : "0%",
-                            background: `linear-gradient(90deg, ${dim.color}44, ${dim.color})`,
-                            transitionDelay: `${0.6 + i * 0.15}s`,
-                          }}
-                        />
-                      </div>
+                    <p className="text-white/30 text-[11px] leading-relaxed">
+                      {t(dim.descKey)}
+                    </p>
+                    {/* Score bar */}
+                    <div className="mt-2 h-1 bg-white/[0.04] rounded-full overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all duration-1000 delay-500"
+                        style={{
+                          width: isVisible ? `${dim.score}%` : "0%",
+                          background: `linear-gradient(90deg, ${dim.color}44, ${dim.color})`,
+                          transitionDelay: `${0.6 + i * 0.15}s`,
+                        }}
+                      />
                     </div>
                   </div>
                 </div>
-              )
-            })}
+              </div>
+            ))}
           </div>
         </div>
       </div>

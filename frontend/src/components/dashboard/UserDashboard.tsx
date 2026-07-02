@@ -1,7 +1,8 @@
 "use client"
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { ArrowRight, BookOpenCheck, CalendarCheck, Loader2, Route } from "lucide-react"
+import { ArrowRight, Loader2 } from "lucide-react"
+import { useUserStore } from "@/stores/useUserStore"
 import { listMyReadings, type ReadingListItem } from "@/lib/api"
 import { ProfileCard } from "./ProfileCard"
 import { IntentButtons } from "./IntentButtons"
@@ -11,7 +12,7 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import { useAuth } from "@/contexts/AuthContext"
 
 export function UserDashboard() {
-  const { t, locale } = useLanguage()
+  const { t, locale, localeHref } = useLanguage()
   const { user } = useAuth()
   const [recentReadings, setRecentReadings] = useState<ReadingListItem[]>([])
   const [loadingReadings, setLoadingReadings] = useState(true)
@@ -35,37 +36,6 @@ export function UserDashboard() {
     <div className="max-w-4xl mx-auto">
       <div className="mb-6 anim-slide-up anim-delay-1">
         <ProfileCard />
-      </div>
-
-      <div className="mb-6 grid gap-3 anim-slide-up anim-delay-2 md:grid-cols-3">
-        {[
-          {
-            icon: CalendarCheck,
-            title: locale === "zh" ? "今日行动" : "Today Action",
-            desc: locale === "zh" ? "先完成一件高确定性的推进动作。" : "Move one high-certainty task first.",
-          },
-          {
-            icon: BookOpenCheck,
-            title: locale === "zh" ? "本周复盘" : "Weekly Reflection",
-            desc: locale === "zh" ? "记录哪些建议有效，哪些需要校准。" : "Record what worked and what needs calibration.",
-          },
-          {
-            icon: Route,
-            title: locale === "zh" ? "30 天路线" : "30-Day Route",
-            desc: locale === "zh" ? "把卡点转成一个持续执行的主题。" : "Turn the blockage into one steady theme.",
-          },
-        ].map(item => {
-          const Icon = item.icon
-          return (
-            <div key={item.title} className="card-glass p-4">
-              <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg border border-gold/20 bg-gold/[0.07]">
-                <Icon size={16} className="text-gold/75" />
-              </div>
-              <h3 className="mb-1 text-sm font-semibold text-white/80">{item.title}</h3>
-              <p className="text-xs leading-relaxed text-white/38">{item.desc}</p>
-            </div>
-          )
-        })}
       </div>
 
       <div className="mb-10 anim-slide-up anim-delay-2">

@@ -124,17 +124,8 @@ function PulseRing() {
 export function IntentButtons({ onGework }: Props) {
   const router = useRouter()
   const { reset: resetWizard } = useWizardStore()
-  const { t, locale, localeHref } = useLanguage()
+  const { t, localeHref } = useLanguage()
   const [hoveredCard, setHoveredCard] = useState<string | null>(null)
-  const copy = locale === "zh"
-    ? {
-        title: "选择你的成长入口",
-        desc: "从当前问题进入，系统会把命理信号转成五维成长路线。",
-      }
-    : {
-        title: "Choose your growth entry",
-        desc: "Start with the current problem. The system turns chart signals into a five-dimension route.",
-      }
 
   const handleQuick = () => { resetWizard(); router.push(localeHref("/reading/new?intent=quick")) }
   const handleFull = () => { resetWizard(); router.push(localeHref("/reading/new?intent=full")) }
@@ -142,10 +133,6 @@ export function IntentButtons({ onGework }: Props) {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h2 className="font-serif text-lg text-gold">{copy.title}</h2>
-        <p className="mt-1 text-xs leading-relaxed text-white/38">{copy.desc}</p>
-      </div>
       {/* ═══ HERO CARD — DEEP RESONANCE ═══ */}
       <button
         onClick={handleFull}
