@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
-import { ArrowRight, Clock3, Loader2, ShieldCheck, Sparkles, TrendingUp } from "lucide-react"
+import { ArrowRight, CalendarClock, Loader2, ShieldCheck, Sparkles, TrendingUp } from "lucide-react"
 import { useUserStore } from "@/stores/useUserStore"
 import { listMyReadings, type ReadingListItem } from "@/lib/api"
 import { ProfileCard } from "./ProfileCard"
@@ -14,7 +14,7 @@ import { useAuth } from "@/contexts/AuthContext"
 
 const zhSignals = [
   { name: "八字底盘", value: 86, note: "结构稳定", color: "#C9A84C" },
-  { name: "紫微信号", value: 78, note: "关系宫位活跃", color: "#59B894" },
+  { name: "紫微信号", value: 78, note: "关系议题活跃", color: "#59B894" },
   { name: "星盘节律", value: 72, note: "适合复盘", color: "#74A7D8" },
   { name: "卜卦直觉", value: 64, note: "先观察再推进", color: "#D98C72" },
   { name: "今日时令", value: 81, note: "下午更顺", color: "#E0B56B" },
@@ -22,7 +22,7 @@ const zhSignals = [
 
 const enSignals = [
   { name: "Bazi Base", value: 86, note: "Stable structure", color: "#C9A84C" },
-  { name: "Zi Wei Signal", value: 78, note: "Relationship palace active", color: "#59B894" },
+  { name: "Zi Wei Signal", value: 78, note: "Relationship theme active", color: "#59B894" },
   { name: "Astro Rhythm", value: 72, note: "Good for review", color: "#74A7D8" },
   { name: "Oracle Intuition", value: 64, note: "Observe before pushing", color: "#D98C72" },
   { name: "Daily Timing", value: 81, note: "Afternoon is smoother", color: "#E0B56B" },
@@ -62,59 +62,68 @@ export function UserDashboard() {
   }, [locale])
 
   return (
-    <div className="mx-auto max-w-7xl">
-      <div className="mb-8 overflow-hidden border border-white/[0.08] bg-[#07110f]/90 p-5 shadow-[0_34px_120px_rgba(0,0,0,0.34)] md:p-7">
-        <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
-          <div className="max-w-3xl">
+    <div className="mx-auto max-w-7xl space-y-8">
+      <section className="overflow-hidden border border-white/[0.08] bg-[#07110f]/90 p-5 shadow-[0_34px_120px_rgba(0,0,0,0.34)] md:p-7">
+        <div className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
+          <div>
             <div className="mb-4 inline-flex items-center gap-2 border border-gold/20 bg-gold/[0.07] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-gold/70">
               <Sparkles size={14} />
-              {isZh ? "Today Growth Command" : "Today Growth Command"}
+              {isZh ? "今日成长指挥台" : "Daily Growth Command"}
             </div>
             <h1 className="font-serif text-3xl font-bold leading-tight text-white md:text-5xl">
-              {isZh ? `${activeName}的今日成长指挥台` : `${activeName}'s daily command center`}
+              {isZh ? `${activeName}，今天先抓住一件关键事` : `${activeName}, focus on one key move today`}
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-white/52">
               {isZh
-                ? "这里不是工具列表，而是把命盘底层、今日时机、关系信号和行动建议合在一起的个人工作台。"
-                : "This is not a tool list. It combines your base chart, daily timing, relationship signals, and next actions into one workspace."}
+                ? "首页只保留今天真正要用的内容：行动处方、命盘身份、五维摘要、分析入口和最近报告。完整每日运势放到独立页面。"
+                : "This dashboard keeps only what you need today: action prescription, profile, 5D summary, analysis entries, and recent reports."}
             </p>
           </div>
 
-          <div className="grid min-w-[260px] gap-3 sm:grid-cols-2 lg:grid-cols-1">
-            <div className="border border-white/[0.08] bg-white/[0.035] p-4">
-              <p className="text-[10px] uppercase tracking-[0.18em] text-white/35">{isZh ? "日期" : "Date"}</p>
-              <p className="mt-1 text-sm text-white/75">{today}</p>
-            </div>
-            <Link href={localeHref("/almanac")} className="group border border-gold/18 bg-gold/[0.07] p-4 transition-colors hover:bg-gold/[0.1]">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-[10px] uppercase tracking-[0.18em] text-gold/55">{isZh ? "今日建议" : "Today's action"}</p>
-                  <p className="mt-1 text-sm text-white/78">{isZh ? "先完成关键沟通，再做大额决策" : "Handle key communication before large decisions"}</p>
-                </div>
-                <ArrowRight size={16} className="text-gold transition-transform group-hover:translate-x-1" />
+          <Link href={localeHref("/almanac")} className="group border border-gold/18 bg-gold/[0.07] p-5 transition-colors hover:bg-gold/[0.1]">
+            <div className="mb-4 flex items-center justify-between gap-4">
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.18em] text-gold/55">{today}</p>
+                <h2 className="mt-2 text-xl font-semibold text-white">{isZh ? "今日行动处方" : "Today's action prescription"}</h2>
               </div>
-            </Link>
-          </div>
+              <ArrowRight size={18} className="text-gold transition-transform group-hover:translate-x-1" />
+            </div>
+            <div className="space-y-3 text-sm leading-6">
+              <p className="text-white/78">
+                {isZh ? "先完成一件高确定性的沟通或整理任务，再处理关系与金钱相关决策。" : "Start with one high-certainty communication or organization task before relationship or money decisions."}
+              </p>
+              <div className="grid gap-2 sm:grid-cols-2">
+                <div className="border border-white/[0.08] bg-black/15 p-3">
+                  <p className="text-xs text-white/36">{isZh ? "最佳时机" : "Best window"}</p>
+                  <p className="mt-1 font-medium text-white">14:00-17:00</p>
+                </div>
+                <div className="border border-white/[0.08] bg-black/15 p-3">
+                  <p className="text-xs text-white/36">{isZh ? "今日提醒" : "Caution"}</p>
+                  <p className="mt-1 font-medium text-white">{isZh ? "避免临时承诺" : "Avoid rushed promises"}</p>
+                </div>
+              </div>
+            </div>
+          </Link>
         </div>
-      </div>
+      </section>
 
-      <div className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
+      <section className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
         <ProfileCard />
 
         <div className="border border-white/[0.08] bg-[#08120f]/80 p-5">
           <div className="mb-5 flex items-center justify-between gap-4">
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-gold/55">
-                {isZh ? "Five-Dimension Signal" : "Five-Dimension Signal"}
+                {isZh ? "五维摘要" : "5D Summary"}
               </p>
-              <h2 className="mt-2 text-xl font-semibold text-white">{isZh ? "五维信号盘" : "5D signal board"}</h2>
+              <h2 className="mt-2 text-xl font-semibold text-white">{isZh ? "今天只看关键变化" : "Only the key shifts today"}</h2>
             </div>
             <TrendingUp size={20} className="text-gold" />
           </div>
 
           <div className="space-y-3">
             {signals.map(signal => (
-              <div key={signal.name} className="grid grid-cols-[104px_1fr_94px] items-center gap-3 text-sm">
+              <div key={signal.name} className="grid grid-cols-[104px_1fr_96px] items-center gap-3 text-sm">
                 <span className="text-white/60">{signal.name}</span>
                 <div className="h-2 overflow-hidden bg-white/[0.06]">
                   <div
@@ -127,31 +136,27 @@ export function UserDashboard() {
             ))}
           </div>
 
-          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
             <div className="border border-gold/15 bg-gold/[0.06] p-4">
               <ShieldCheck size={17} className="mb-2 text-gold" />
               <p className="text-xs text-white/45">{isZh ? "当前主线" : "Main theme"}</p>
               <p className="mt-1 text-sm font-medium text-white">{isZh ? "稳定推进，不急于证明" : "Steady progress, no need to prove"}</p>
             </div>
             <div className="border border-white/[0.08] bg-white/[0.035] p-4">
-              <Clock3 size={17} className="mb-2 text-[#74A7D8]" />
-              <p className="text-xs text-white/45">{isZh ? "时机窗口" : "Timing window"}</p>
-              <p className="mt-1 text-sm font-medium text-white">{isZh ? "14:00-17:00" : "2:00-5:00 PM"}</p>
-            </div>
-            <div className="border border-white/[0.08] bg-white/[0.035] p-4">
-              <Sparkles size={17} className="mb-2 text-[#D98C72]" />
-              <p className="text-xs text-white/45">{isZh ? "提醒" : "Caution"}</p>
-              <p className="mt-1 text-sm font-medium text-white">{isZh ? "避免临时承诺" : "Avoid rushed promises"}</p>
+              <CalendarClock size={17} className="mb-2 text-[#74A7D8]" />
+              <p className="text-xs text-white/45">{isZh ? "完整每日盘" : "Full daily board"}</p>
+              <Link href={localeHref("/almanac")} className="mt-1 inline-flex items-center gap-2 text-sm font-medium text-gold/80 hover:text-gold">
+                {isZh ? "查看每日时机" : "Open daily timing"}
+                <ArrowRight size={13} />
+              </Link>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="mt-8">
-        <IntentButtons onGework={() => setEventDrawerOpen(true)} />
-      </div>
+      <IntentButtons onGework={() => setEventDrawerOpen(true)} />
 
-      <div className="mt-10">
+      <section>
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-serif text-xl font-semibold text-white/80">{t("dash.recent.title")}</h2>
           {recentReadings.length > 0 && (
@@ -194,7 +199,7 @@ export function UserDashboard() {
             <p className="mt-1 text-xs text-white/24">{t("dash.recent.emptyDesc")}</p>
           </div>
         )}
-      </div>
+      </section>
 
       <GeworkDrawer open={eventDrawerOpen} onClose={() => setEventDrawerOpen(false)} />
     </div>

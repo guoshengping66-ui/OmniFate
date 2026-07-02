@@ -15,22 +15,12 @@ const SampleGrowthReport = dynamic(() => import("@/components/marketing-growth/S
 const GrowthServicePaths = dynamic(() => import("@/components/marketing-growth/GrowthServicePaths").then(m => m.GrowthServicePaths), { ssr: false })
 const MethodTrustSection = dynamic(() => import("@/components/marketing-growth/MethodTrustSection").then(m => m.MethodTrustSection), { ssr: false })
 const FinalGrowthCTA = dynamic(() => import("@/components/marketing-growth/FinalGrowthCTA").then(m => m.FinalGrowthCTA), { ssr: false })
-const ServicesShowcase = dynamic(() => import("@/components/destiny/ServicesShowcase"), { ssr: false })
-const LifestyleShowcase = dynamic(() => import("@/components/destiny/LifestyleShowcase"), { ssr: false })
-
 const UserDashboard = dynamic(() => import("@/components/dashboard/UserDashboard").then(m => m.UserDashboard), {
   ssr: false,
   loading: () => <div className="card-glass p-8"><div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin" /></div>,
 })
-const DailyDashboard = dynamic(() => import("@/components/DailyDashboard").then(m => m.DailyDashboard), {
-  ssr: false,
-  loading: () => <div className="card-glass p-8"><div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin" /></div>,
-})
-
-const FloatingFortuneSubscribe = dynamic(() => import("@/components/ui/FloatingFortuneSubscribe").then(m => m.FloatingFortuneSubscribe), { ssr: false })
 
 export default function HomePage() {
-  const { t } = useLanguage()
   const { user } = useAuth()
   const { userProfile, loading: profileLoading, fetchBirthProfiles } = useUserStore()
 
@@ -73,20 +63,6 @@ export default function HomePage() {
         <section className="px-4 pb-10 pt-24">
           <UserDashboard />
         </section>
-
-        <section className="px-4 py-12">
-          <div className="mx-auto max-w-5xl">
-            <div className="mb-8 text-center">
-              <span className="text-sm uppercase tracking-[0.2em] text-gold/60">{t("home.dailyBadge")}</span>
-              <h2 className="mt-2 font-serif text-2xl font-bold text-gold">{t("home.dailyTitle")}</h2>
-            </div>
-            <DailyDashboard />
-          </div>
-        </section>
-
-        <ServicesShowcase />
-        <LifestyleShowcase />
-        <FloatingFortuneSubscribe />
       </div>
     )
   }
