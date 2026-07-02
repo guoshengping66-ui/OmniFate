@@ -8,6 +8,10 @@ Redesign the `/[locale]/destiny` promotional page from a static presentation-sty
 
 The page should make the product feel useful before signup: a visitor should immediately understand that this is not another generic fortune-telling report, but a living AI growth profile built from five-dimensional cross-analysis.
 
+Scope update from homepage review:
+
+The first impression problem exists on the main homepage too. The unauthenticated homepage currently reuses `CinematicHero`, so the new first-screen system should be designed as a shared homepage/product hero, not as an isolated `/destiny` fix. When a new visitor opens the site, they should immediately see an attractive product surface and understand the analysis method, the major content, and the next action.
+
 ## Current Problems
 
 The current page reads like a sequence of presentation slides:
@@ -127,13 +131,17 @@ This creates a clearer break from competitors:
 
 ### 1. First Screen: Living Growth Chart
 
-Replace the current hero card layout with a full first-viewport product scene.
+Replace the current hero card layout with a full first-viewport product scene. This first screen should be used on the unauthenticated homepage and adapted for `/destiny`.
 
 Content:
-- Left side: direct promise and CTA.
+- Left side: direct promise, short method statement, and CTA.
 - Right side: an interactive-looking "Today Growth Chart" console.
 - The console shows five dimensions as a connected system, not five separate bars.
-- Include one daily recommendation and one current life-phase label.
+- Include one daily recommendation, one current life-phase label, and one visible example of the report contents.
+- The first viewport must answer three questions without scrolling:
+  - What do we analyze?
+  - How do we analyze it?
+  - What does the user get?
 
 Required feeling:
 - "This is a real thing I can use today."
@@ -146,6 +154,16 @@ Primary CTA:
 Secondary CTA:
 - Chinese meaning: `View sample report`
 - English: `View Sample Report`
+
+First-screen content hierarchy:
+
+- Product name or category: personal growth destiny chart.
+- Method strip: Bazi, Ziwei, astrology, tarot, face and palm signals, behavior context.
+- Synthesis claim: five-dimensional cross-analysis.
+- Output preview: today's pattern, blind spot, opportunity window, action recommendation.
+- CTA: generate my chart.
+
+The hero should not start with a large poetic headline alone. It should start with a product scene where the visitor can see the analysis method and result at the same time.
 
 ### 2. Five-Dimension Synthesis
 
