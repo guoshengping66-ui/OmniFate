@@ -23,7 +23,7 @@ interface AdminStats {
 type Tab = "overview" | "users" | "orders" | "revenue"
 
 export default function AdminPage() {
-  const { t, localeHref } = useLanguage()
+  const { t, locale, localeHref } = useLanguage()
   const [stats, setStats] = useState<AdminStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -63,6 +63,10 @@ export default function AdminPage() {
     fetchStats()
   }
 
+  const adminLoginHint = locale === "zh"
+    ? "请先使用网站账号登录，再输入管理员密钥。该账号邮箱必须在管理员白名单中。"
+    : "Use your website account first, then enter the admin key. The account email must be listed as an administrator."
+
   if (!authenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-ink px-4">
@@ -71,7 +75,7 @@ export default function AdminPage() {
             {t("admin.title") || "Admin Dashboard"}
           </h1>
           <div className="mb-5 rounded-lg border border-gold/20 bg-gold/[0.06] p-4 text-xs leading-relaxed text-white/58">
-            {t("admin.loginHint") || "Use your website account first, then enter the admin key. The account email must be listed as an administrator."}
+            {adminLoginHint}
           </div>
           <form onSubmit={handleLogin} className="space-y-4">
             <input
