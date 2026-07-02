@@ -1,57 +1,65 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowRight, CalendarDays, LineChart, Sparkles, UserRoundSearch } from "lucide-react"
+import { ArrowRight, CalendarDays, LineChart, Route, Sparkles, UserRoundSearch } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 const COPY = {
   zh: {
-    badge: "AI 命运画像 + 每日成长系统",
-    title1: "观我",
-    title2: "Guanwo AI",
-    desc: "把八字、紫微、星盘、塔罗、面相与手相信号整合成持续更新的 AI 自我画像。每天给你趋势、提醒和一条可执行行动。",
-    primary: "建立我的画像",
-    secondary: "查看今日趋势",
-    trust: "AI画像 · 每日趋势 · 人生趋势曲线",
-    panelTitle: "今日趋势",
-    panelSubtitle: "基于你的画像动态生成",
-    action: "今日行动",
-    actionText: "先处理一件高确定性的事，避免在情绪上头时做长期承诺。",
-    profile: "画像完整度",
-    trend: "趋势清晰度",
-    growth: "成长记录",
-    curve: "人生趋势曲线",
-    phase: "当前阶段：调整后上升期",
+    badge: "五维成长命盘 · AI 人生导航",
+    title1: "个人成长命盘",
+    title2: "把命理变成行动系统",
+    desc: "不只告诉你“是什么命”，而是用天赋底盘、人生主线、当前卡点、行动时机和成长处方五个维度，生成 7 天行动、30 天路线和 90 天成长主题。",
+    primary: "生成我的成长命盘",
+    secondary: "查看今日行动",
+    trust: ["五维交叉验证", "当前卡点识别", "行动处方复盘"],
+    panelTitle: "今日成长导航",
+    panelSubtitle: "基于五维命盘动态生成",
+    action: "今日行动处方",
+    actionText: "先完成一件高确定性的推进动作，再处理情绪型决策。今天的重点不是加速，而是把消耗收回来。",
+    profile: "命盘完整度",
+    trend: "行动清晰度",
+    growth: "复盘记录",
+    curve: "90 天成长曲线",
+    phase: "当前阶段：从内耗校准到稳定输出",
+    signal: "五维证据",
   },
   en: {
-    badge: "AI Destiny Profile + Daily Growth System",
-    title1: "Guanwo",
-    title2: "AI",
-    desc: "Bazi, Ziwei, astrology, tarot, face and palm signals become a living AI self-knowledge profile. Every day you get trend, warning, and one practical action.",
-    primary: "Build My Profile",
-    secondary: "View Today",
-    trust: "AI profile · daily trend · life growth curve",
-    panelTitle: "Today Trend",
-    panelSubtitle: "Generated from your living profile",
-    action: "Today Action",
-    actionText: "Move one high-certainty task first. Avoid long-term commitments while emotions are loud.",
-    profile: "Profile depth",
-    trend: "Trend clarity",
-    growth: "Growth log",
-    curve: "Life Growth Curve",
-    phase: "Current phase: rising after adjustment",
+    badge: "Five-Dimension Growth Chart · AI Life Navigation",
+    title1: "Personal Growth Chart",
+    title2: "Turn destiny into action",
+    desc: "Not just what your chart says. We cross-check talent base, life direction, current blockage, timing, and growth prescription to produce 7-day actions, a 30-day route, and a 90-day growth theme.",
+    primary: "Generate My Growth Chart",
+    secondary: "View Today's Action",
+    trust: ["Five-dimension validation", "Current blockage diagnosis", "Action and reflection loop"],
+    panelTitle: "Today Growth Navigation",
+    panelSubtitle: "Generated from your five-dimension chart",
+    action: "Today Prescription",
+    actionText: "Complete one high-certainty move before making emotional decisions. Today's work is to recover focus, not force speed.",
+    profile: "Chart depth",
+    trend: "Action clarity",
+    growth: "Reflections",
+    curve: "90-Day Growth Curve",
+    phase: "Current phase: from inner friction to steady output",
+    signal: "Evidence mix",
   },
+} as const
+
+const DIMENSION_LABELS = {
+  zh: ["天赋底盘", "人生主线", "当前卡点", "行动时机", "成长处方"],
+  en: ["Talent Base", "Life Direction", "Current Blockage", "Timing", "Prescription"],
 } as const
 
 export default function CinematicHero() {
   const { locale, localeHref } = useLanguage()
   const copy = locale === "zh" ? COPY.zh : COPY.en
+  const dimensions = locale === "zh" ? DIMENSION_LABELS.zh : DIMENSION_LABELS.en
   const steps = locale === "zh"
-    ? ["1 分钟建立画像", "生成完整报告", "获得每日行动建议"]
-    : ["Build in 1 minute", "Generate full report", "Get daily actions"]
+    ? ["定位当前问题", "五维交叉验证", "获得成长路线"]
+    : ["Name the current problem", "Cross-check five dimensions", "Get a growth route"]
 
   return (
-    <section className="relative min-h-[92vh] flex items-center overflow-hidden px-4 py-24">
+    <section className="relative flex min-h-[92vh] items-center overflow-hidden px-4 py-24">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute left-1/2 top-1/3 h-[720px] w-[720px] -translate-x-1/2 rounded-full bg-gold/[0.035] blur-[160px]" />
         <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
@@ -97,7 +105,7 @@ export default function CinematicHero() {
           </div>
 
           <div className="flex flex-wrap justify-center gap-2 lg:justify-start">
-            {copy.trust.split(" · ").map((item) => (
+            {copy.trust.map((item) => (
               <span key={item} className="rounded-full border border-white/[0.08] bg-white/[0.035] px-3 py-1.5 text-[11px] text-white/48">
                 {item}
               </span>
@@ -152,7 +160,7 @@ export default function CinematicHero() {
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-white/86">{copy.action}</p>
-                      <p className="text-[11px] text-white/32">AI profile signal</p>
+                      <p className="text-[11px] text-white/32">growth prescription</p>
                     </div>
                   </div>
                   <p className="text-sm leading-relaxed text-white/52">{copy.actionText}</p>
@@ -161,10 +169,10 @@ export default function CinematicHero() {
                 <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-5">
                   <div className="mb-4 flex items-center gap-2 text-gold/75">
                     <Sparkles size={17} />
-                    <span className="text-xs uppercase tracking-[0.16em]">Signal Mix</span>
+                    <span className="text-xs uppercase tracking-[0.16em]">{copy.signal}</span>
                   </div>
                   <div className="space-y-3">
-                    {["Bazi", "Ziwei", "Astrology", "Tarot", "Face/Palm"].map((label, index) => (
+                    {dimensions.map((label, index) => (
                       <div key={label}>
                         <div className="mb-1 flex justify-between text-[11px]">
                           <span className="text-white/42">{label}</span>
@@ -175,6 +183,17 @@ export default function CinematicHero() {
                         </div>
                       </div>
                     ))}
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-5">
+                  <div className="flex items-center gap-3">
+                    <Route size={18} className="text-gold/70" />
+                    <p className="text-xs leading-relaxed text-white/48">
+                      {locale === "zh"
+                        ? "报告会落到本周行动、30 天路线和下一次复盘，不停在一次性结论。"
+                        : "The report ends with this week's action, a 30-day route, and the next reflection point."}
+                    </p>
                   </div>
                 </div>
               </div>
