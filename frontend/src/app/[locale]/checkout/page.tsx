@@ -10,6 +10,7 @@ import { useRegion } from "@/contexts/RegionContext"
 import { formatCouponBalance } from "@/lib/regionPrice"
 import { createOrder, createShopStripeCheckout, type Address } from "@/lib/api"
 import { AddressForm } from "@/components/shop/AddressForm"
+import { ComplianceNotice } from "@/components/compliance/ComplianceNotice"
 
 export default function CheckoutPage() {
   const router = useRouter()
@@ -148,6 +149,8 @@ export default function CheckoutPage() {
         </button>
 
         <h1 className="text-2xl font-serif font-bold text-gold mb-8">{t("checkout.title")}</h1>
+
+        <ComplianceNotice className="mb-4" />
 
         {/* Order items */}
         <div className="card-glass p-6 mb-4 space-y-3">

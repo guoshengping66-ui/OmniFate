@@ -5,6 +5,7 @@ import { Sparkles, Send, MessageCircle, Globe, BookOpen, Loader2, Copy } from "l
 import { useLanguage } from "@/contexts/LanguageContext"
 import { api } from "@/lib/api"
 import toast from "react-hot-toast"
+import { ComplianceNotice } from "@/components/compliance/ComplianceNotice"
 
 const WECHAT_ID = "khan18553325258"
 
@@ -49,6 +50,7 @@ export function Footer() {
               <p className="text-white/40 text-sm leading-relaxed mb-6 max-w-sm">
                 {t("footer.desc")}
               </p>
+              <ComplianceNotice compact className="mb-5 max-w-md" />
 
               {/* Social icons */}
               <div className="flex gap-3">

@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation"
 import { CheckCircle, XCircle, Clock, CreditCard } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { ComplianceNotice } from "@/components/compliance/ComplianceNotice"
 
 function PaymentResultContent() {
   const searchParams = useSearchParams()
@@ -57,6 +58,7 @@ function PaymentResultContent() {
           </div>
           <p className="text-white/40 text-xs mt-1">If your access has not updated yet, refresh your account page in a few seconds.</p>
         </div>
+        <ComplianceNotice compact className="mb-6 text-left" />
         <div className="flex gap-3">
           <Link href={localeHref("/account")} className="btn-gold flex-1 py-3 text-sm">
             Account

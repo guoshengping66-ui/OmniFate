@@ -8,6 +8,7 @@ import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { AccordionItem } from "@/components/ui/AccordionItem"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { ServiceTerms } from "@/components/ui/ServiceTerms"
+import { ComplianceNotice } from "@/components/compliance/ComplianceNotice"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useRegion } from "@/hooks/useRegion"
@@ -170,6 +171,10 @@ export default function PricingPage() {
               )
             })}
           </div>
+        </ScrollReveal>
+
+        <ScrollReveal delay={0.08}>
+          <ComplianceNotice className="mx-auto mb-8 max-w-4xl" />
         </ScrollReveal>
 
         <Suspense fallback={<div className="mb-10 grid gap-5 lg:grid-cols-2">{[1, 2].map(i => <div key={i} className="h-64 animate-pulse rounded-2xl bg-white/[0.03]" />)}</div>}>
