@@ -1,337 +1,162 @@
 "use client"
+
 import { useRouter } from "next/navigation"
+import { ArrowRight, CalendarClock, Compass, FileText, HeartHandshake, Layers3, Radar } from "lucide-react"
 import { useWizardStore } from "@/stores/useWizardStore"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { useState } from "react"
 
 interface Props {
   onGework?: () => void
 }
 
-/* ── Futuristic geometric SVG icons ──────────────────────────────────── */
-
-function IconDeepResonance({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 48 48" fill="none" className={className}>
-      {/* Outer gyroscope ring */}
-      <ellipse cx="24" cy="24" rx="22" ry="8" stroke="currentColor" strokeWidth="1.2" opacity="0.4" />
-      <ellipse cx="24" cy="24" rx="22" ry="8" stroke="currentColor" strokeWidth="1.2" opacity="0.4"
-        transform="rotate(60 24 24)" />
-      <ellipse cx="24" cy="24" rx="22" ry="8" stroke="currentColor" strokeWidth="1.2" opacity="0.4"
-        transform="rotate(-60 24 24)" />
-      {/* Core nucleus */}
-      <circle cx="24" cy="24" r="6" stroke="currentColor" strokeWidth="1.5" />
-      <circle cx="24" cy="24" r="2.5" fill="currentColor" opacity="0.6" />
-      {/* Orbital dots */}
-      <circle cx="24" cy="16" r="1.5" fill="currentColor" opacity="0.8" />
-      <circle cx="31" cy="28" r="1.5" fill="currentColor" opacity="0.8" />
-      <circle cx="17" cy="28" r="1.5" fill="currentColor" opacity="0.8" />
-    </svg>
-  )
+type Entry = {
+  key: string
+  icon: typeof Compass
+  title: string
+  label: string
+  desc: string
+  output: string
+  tone: string
+  action: () => void
 }
-
-function IconInstantInsight({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 48 48" fill="none" className={className}>
-      {/* Radar sweep arcs */}
-      <circle cx="24" cy="24" r="18" stroke="currentColor" strokeWidth="0.8" opacity="0.2" />
-      <circle cx="24" cy="24" r="13" stroke="currentColor" strokeWidth="0.8" opacity="0.3" />
-      <circle cx="24" cy="24" r="8" stroke="currentColor" strokeWidth="0.8" opacity="0.4" />
-      {/* Sweep line */}
-      <line x1="24" y1="24" x2="24" y2="6" stroke="currentColor" strokeWidth="1.5" opacity="0.6" strokeLinecap="round" />
-      {/* Center pulse */}
-      <circle cx="24" cy="24" r="2.5" fill="currentColor" opacity="0.7" />
-      <circle cx="24" cy="24" r="4" stroke="currentColor" strokeWidth="0.8" opacity="0.3" />
-      {/* Data blips */}
-      <circle cx="30" cy="14" r="1.2" fill="currentColor" opacity="0.5" />
-      <circle cx="16" cy="20" r="1.2" fill="currentColor" opacity="0.5" />
-      <circle cx="28" cy="30" r="1.2" fill="currentColor" opacity="0.5" />
-    </svg>
-  )
-}
-
-function IconFlowAnalytics({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 48 48" fill="none" className={className}>
-      {/* Neural node network */}
-      <circle cx="24" cy="12" r="3" stroke="currentColor" strokeWidth="1.2" />
-      <circle cx="12" cy="28" r="3" stroke="currentColor" strokeWidth="1.2" />
-      <circle cx="36" cy="28" r="3" stroke="currentColor" strokeWidth="1.2" />
-      <circle cx="24" cy="38" r="3" stroke="currentColor" strokeWidth="1.2" />
-      {/* Connection lines */}
-      <line x1="24" y1="15" x2="12" y2="25" stroke="currentColor" strokeWidth="0.8" opacity="0.4" />
-      <line x1="24" y1="15" x2="36" y2="25" stroke="currentColor" strokeWidth="0.8" opacity="0.4" />
-      <line x1="12" y1="31" x2="24" y2="35" stroke="currentColor" strokeWidth="0.8" opacity="0.4" />
-      <line x1="36" y1="31" x2="24" y2="35" stroke="currentColor" strokeWidth="0.8" opacity="0.4" />
-      <line x1="15" y1="28" x2="33" y2="28" stroke="currentColor" strokeWidth="0.8" opacity="0.3" />
-      {/* Center hub */}
-      <circle cx="24" cy="24" r="4" stroke="currentColor" strokeWidth="1.5" />
-      <circle cx="24" cy="24" r="1.5" fill="currentColor" opacity="0.6" />
-      {/* Hub connections */}
-      <line x1="24" y1="20" x2="24" y2="15" stroke="currentColor" strokeWidth="1" opacity="0.5" />
-      <line x1="20" y1="26" x2="15" y2="28" stroke="currentColor" strokeWidth="1" opacity="0.5" />
-      <line x1="28" y1="26" x2="33" y2="28" stroke="currentColor" strokeWidth="1" opacity="0.5" />
-      <line x1="24" y1="28" x2="24" y2="35" stroke="currentColor" strokeWidth="1" opacity="0.5" />
-    </svg>
-  )
-}
-
-function IconCollectiveVibe({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 48 48" fill="none" className={className}>
-      {/* Quantum knot / interlocking rings */}
-      <circle cx="20" cy="20" r="10" stroke="currentColor" strokeWidth="1.2" opacity="0.5" />
-      <circle cx="28" cy="20" r="10" stroke="currentColor" strokeWidth="1.2" opacity="0.5" />
-      <circle cx="24" cy="28" r="10" stroke="currentColor" strokeWidth="1.2" opacity="0.5" />
-      {/* Center overlap glow */}
-      <circle cx="24" cy="22" r="3" fill="currentColor" opacity="0.3" />
-      {/* Node points */}
-      <circle cx="24" cy="12" r="2" fill="currentColor" opacity="0.6" />
-      <circle cx="14" cy="26" r="2" fill="currentColor" opacity="0.6" />
-      <circle cx="34" cy="26" r="2" fill="currentColor" opacity="0.6" />
-    </svg>
-  )
-}
-
-/* ── Animated scan line for hero card ────────────────────────────────── */
-
-function ScanLine() {
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-2xl">
-      <div
-        className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent"
-        style={{
-          animation: "scan-line 4s ease-in-out infinite",
-          top: "0%",
-        }}
-      />
-    </div>
-  )
-}
-
-/* ── Pulse ring animation for hero ───────────────────────────────────── */
-
-function PulseRing() {
-  return (
-    <div className="absolute -inset-1 rounded-2xl pointer-events-none">
-      <div className="absolute inset-0 rounded-2xl border border-gold/20 animate-ping opacity-20" />
-    </div>
-  )
-}
-
-/* ── Main Component ──────────────────────────────────────────────────── */
 
 export function IntentButtons({ onGework }: Props) {
   const router = useRouter()
   const { reset: resetWizard } = useWizardStore()
-  const { t, localeHref } = useLanguage()
-  const [hoveredCard, setHoveredCard] = useState<string | null>(null)
+  const { locale, localeHref } = useLanguage()
+  const isZh = locale === "zh"
 
-  const handleQuick = () => { resetWizard(); router.push(localeHref("/reading/new?intent=quick")) }
-  const handleFull = () => { resetWizard(); router.push(localeHref("/reading/new?intent=full")) }
-  const handleFriend = () => { resetWizard(); router.push(localeHref("/reading/new?intent=relationship")) }
+  const go = (href: string) => {
+    resetWizard()
+    router.push(localeHref(href))
+  }
+
+  const entries: Entry[] = [
+    {
+      key: "focus",
+      icon: Compass,
+      title: isZh ? "单主题分析" : "Focus Reading",
+      label: isZh ? "先解决一个具体问题" : "One concrete question",
+      desc: isZh
+        ? "事业、感情、财富、健康、今日决策，只输出所选主题的信号、结论和行动建议。"
+        : "Career, love, wealth, health, or today's decision, scoped to the chosen topic only.",
+      output: isZh ? "主题结论 + 时机窗口 + 行动处方" : "Topic answer + timing + actions",
+      tone: "#C9A84C",
+      action: () => go("/reading/new?intent=quick"),
+    },
+    {
+      key: "full",
+      icon: Layers3,
+      title: isZh ? "完整成长命盘" : "Full Growth Chart",
+      label: isZh ? "五维合参核心产品" : "Core 5D synthesis",
+      desc: isZh
+        ? "完整分析人格结构、关系模式、事业财富、能量状态和长期成长路径。"
+        : "A complete read on personality, relationships, career, wealth, energy, and long-term growth.",
+      output: isZh ? "完整报告 + 五维地图 + 成长路线" : "Full report + 5D map + growth path",
+      tone: "#59B894",
+      action: () => go("/reading/new?intent=full"),
+    },
+    {
+      key: "relationship",
+      icon: HeartHandshake,
+      title: isZh ? "关系合盘" : "Relationship Sync",
+      label: isZh ? "关系成长独立入口" : "Dedicated relationship flow",
+      desc: isZh
+        ? "恋爱、婚姻、复合、合作、亲子都走双人资料流程，单独生成关系图。"
+        : "A two-person flow for romance, marriage, reunion, collaboration, family, and communication.",
+      output: isZh ? "契合点 + 冲突来源 + 关系推进建议" : "Compatibility + conflict + next moves",
+      tone: "#D98C72",
+      action: () => go("/reading/new?intent=relationship"),
+    },
+    {
+      key: "event",
+      icon: Radar,
+      title: isZh ? "事件决策" : "Event Decision",
+      label: isZh ? "判断一件事值不值得做" : "Evaluate a specific event",
+      desc: isZh
+        ? "输入事件和时间，判断推进窗口、阻力来源、风险等级和替代方案。"
+        : "Enter an event and timing to evaluate opportunity, resistance, risk, and alternatives.",
+      output: isZh ? "推进建议 + 风险提醒 + 替代时机" : "Go/no-go + risk + alternate timing",
+      tone: "#9B8BE8",
+      action: () => onGework?.(),
+    },
+    {
+      key: "daily",
+      icon: CalendarClock,
+      title: isZh ? "今日时机" : "Daily Timing",
+      label: isZh ? "每天回来看的行动盘" : "Daily action board",
+      desc: isZh
+        ? "结合命盘底层和当日时令，查看今日主题、宜忌、能量和行动优先级。"
+        : "Check today's theme, almanac, energy, and action priorities from your chart and daily timing.",
+      output: isZh ? "今日主题 + 宜忌 + 行动优先级" : "Theme + almanac + priorities",
+      tone: "#74A7D8",
+      action: () => router.push(localeHref("/almanac")),
+    },
+    {
+      key: "reports",
+      icon: FileText,
+      title: isZh ? "历史报告" : "My Reports",
+      label: isZh ? "延续你的成长记录" : "Continue your growth record",
+      desc: isZh
+        ? "回看过去报告，比较主题变化，把一次分析沉淀成长期成长线索。"
+        : "Revisit past reports, compare themes, and turn one-off readings into a growth record.",
+      output: isZh ? "报告档案 + 主题变化 + 后续行动" : "Archive + theme shifts + follow-ups",
+      tone: "#E0B56B",
+      action: () => router.push(localeHref("/readings")),
+    },
+  ]
 
   return (
-    <div className="space-y-4">
-      {/* ═══ HERO CARD — DEEP RESONANCE ═══ */}
-      <button
-        onClick={handleFull}
-        onMouseEnter={() => setHoveredCard("full")}
-        onMouseLeave={() => setHoveredCard(null)}
-        className="relative w-full text-left group rounded-2xl overflow-hidden transition-all duration-500"
-      >
-        {/* Background layers */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1a0f2e]/80 via-[#0D0B18]/90 to-[#0a0618]/95" />
-        <div className="absolute inset-0 bg-gradient-to-r from-gold/5 via-purple-500/5 to-gold/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-
-        {/* Animated border glow */}
-        <div className={`absolute -inset-px rounded-2xl transition-all duration-700 ${
-          hoveredCard === "full"
-            ? "bg-gradient-to-br from-gold/40 via-purple-400/30 to-gold/40 shadow-[0_0_40px_rgba(201,168,76,0.15)]"
-            : "bg-gradient-to-br from-gold/15 via-purple-500/10 to-gold/15"
-        }`} />
-
-        {/* Inner content area */}
-        <div className="relative m-px rounded-2xl bg-[#0D0B18]/90 backdrop-blur-xl p-6 md:p-8">
-          <ScanLine />
-          {hoveredCard === "full" && <PulseRing />}
-
-          <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-5">
-            {/* Icon — large */}
-            <div className={`relative flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center transition-all duration-500 ${
-              hoveredCard === "full"
-                ? "bg-gold/15 shadow-[0_0_30px_rgba(201,168,76,0.2)]"
-                : "bg-gold/8"
-            }`}>
-              <IconDeepResonance className={`w-10 h-10 md:w-12 md:h-12 text-gold transition-all duration-500 ${
-                hoveredCard === "full" ? "scale-110" : ""
-              }`} />
-              {/* Corner accents */}
-              <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-gold/40 rounded-tl-2xl" />
-              <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-gold/40 rounded-br-2xl" />
-            </div>
-
-            {/* Text content */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-[10px] font-mono text-gold/50 tracking-[0.2em] uppercase">PRIMARY</span>
-                <div className="h-px flex-1 bg-gradient-to-r from-gold/20 to-transparent" />
-              </div>
-              <h3 className="text-xl md:text-2xl font-bold text-gold mb-1 tracking-wider" style={{ textShadow: "0 0 20px rgba(201,168,76,0.4)" }}>
-                {t("dash.intent.full")}
-              </h3>
-              <p className="text-xs md:text-sm text-gold/60 font-medium tracking-[0.15em] uppercase">
-                {t("dash.intent.fullEn")}
-              </p>
-              <p className="text-white/50 text-xs md:text-sm mt-2 leading-relaxed max-w-md">
-                {t("dash.intent.fullDesc")}
-              </p>
-            </div>
-
-            {/* Arrow / CTA */}
-            <div className={`hidden md:flex items-center gap-2 text-gold/40 group-hover:text-gold transition-all duration-300 ${
-              hoveredCard === "full" ? "translate-x-1" : ""
-            }`}>
-              <span className="text-[10px] font-mono tracking-widest uppercase">{t("dash.intent.activate")}</span>
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M7 4l6 6-6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </div>
-          </div>
-
-          {/* Bottom data strip */}
-          <div className="relative z-10 mt-4 pt-3 border-t border-white/5 flex items-center gap-4 text-[10px] text-white/20 font-mono">
-            <span>MODULE::DEEP_RESONANCE</span>
-            <span className="text-gold/30">|</span>
-            <span>MULTI_MODAL::ACTIVE</span>
-            <span className="text-gold/30">|</span>
-            <span className="text-gold/30">BIOMETRIC+ASTROLOGY</span>
-          </div>
+    <section className="space-y-5">
+      <div className="flex flex-col justify-between gap-3 md:flex-row md:items-end">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-gold/60">
+            {isZh ? "Analysis Matrix" : "Analysis Matrix"}
+          </p>
+          <h2 className="mt-2 font-serif text-2xl font-bold text-white">
+            {isZh ? "你现在想解决哪一类问题？" : "What do you want to solve now?"}
+          </h2>
         </div>
-      </button>
-
-      {/* ═══ SECONDARY ROW — 3 COLUMNS ═══ */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        {/* INSTANT INSIGHT */}
-        <button
-          onClick={handleQuick}
-          onMouseEnter={() => setHoveredCard("quick")}
-          onMouseLeave={() => setHoveredCard(null)}
-          className="relative text-left group rounded-xl overflow-hidden transition-all duration-500"
-        >
-          <div className="absolute inset-0 bg-[#0D0B18]/80" />
-          <div className={`absolute -inset-px rounded-xl transition-all duration-500 ${
-            hoveredCard === "quick"
-              ? "bg-gradient-to-br from-cyan-400/30 to-blue-500/20 shadow-[0_0_20px_rgba(34,211,238,0.1)]"
-              : "bg-gradient-to-br from-white/8 to-white/5"
-          }`} />
-          <div className="relative m-px rounded-xl bg-[#0D0B18]/90 backdrop-blur-xl p-4 md:p-5 h-full flex flex-col">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 transition-all duration-500 ${
-              hoveredCard === "quick" ? "bg-cyan-500/15" : "bg-white/5"
-            }`}>
-              <IconInstantInsight className={`w-6 h-6 transition-all duration-500 ${
-                hoveredCard === "quick" ? "text-cyan-400 scale-110" : "text-white/40"
-              }`} />
-            </div>
-            <div className="text-[9px] font-mono text-cyan-400/40 tracking-[0.15em] uppercase mb-1">QUICK</div>
-            <h4 className={`text-base md:text-lg font-bold mb-1 transition-colors duration-300 tracking-wide ${
-              hoveredCard === "quick" ? "text-cyan-300" : "text-white/80"
-            }`} style={{ textShadow: hoveredCard === "quick" ? "0 0 15px rgba(34,211,238,0.3)" : "none" }}>
-              {t("dash.intent.quick")}
-            </h4>
-            <p className="text-[10px] text-cyan-400/50 font-medium tracking-[0.15em] uppercase mb-1.5">{t("dash.intent.quickEn")}</p>
-            <p className="text-white/40 text-[11px] md:text-xs leading-relaxed flex-1">{t("dash.intent.quickDesc")}</p>
-            <div className={`mt-3 flex items-center gap-1.5 text-[10px] font-mono tracking-wider transition-all duration-300 ${
-              hoveredCard === "quick" ? "text-cyan-400" : "text-cyan-400/40"
-            }`}>
-              <span>{t("dash.intent.activate")}</span>
-              <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
-                <path d="M7 4l6 6-6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </div>
-          </div>
-        </button>
-
-        {/* FLOW ANALYTICS */}
-        <button
-          onClick={onGework}
-          onMouseEnter={() => setHoveredCard("event")}
-          onMouseLeave={() => setHoveredCard(null)}
-          className="relative text-left group rounded-xl overflow-hidden transition-all duration-500"
-        >
-          <div className="absolute inset-0 bg-[#0D0B18]/80" />
-          <div className={`absolute -inset-px rounded-xl transition-all duration-500 ${
-            hoveredCard === "event"
-              ? "bg-gradient-to-br from-purple-400/30 to-violet-500/20 shadow-[0_0_20px_rgba(168,85,247,0.1)]"
-              : "bg-gradient-to-br from-white/8 to-white/5"
-          }`} />
-          <div className="relative m-px rounded-xl bg-[#0D0B18]/90 backdrop-blur-xl p-4 md:p-5 h-full flex flex-col">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 transition-all duration-500 ${
-              hoveredCard === "event" ? "bg-purple-500/15" : "bg-white/5"
-            }`}>
-              <IconFlowAnalytics className={`w-6 h-6 transition-all duration-500 ${
-                hoveredCard === "event" ? "text-purple-400 scale-110" : "text-white/40"
-              }`} />
-            </div>
-            <div className="text-[9px] font-mono text-purple-400/40 tracking-[0.15em] uppercase mb-1">ANALYTICS</div>
-            <h4 className={`text-base md:text-lg font-bold mb-1 transition-colors duration-300 tracking-wide ${
-              hoveredCard === "event" ? "text-purple-300" : "text-white/80"
-            }`} style={{ textShadow: hoveredCard === "event" ? "0 0 15px rgba(168,85,247,0.3)" : "none" }}>
-              {t("dash.intent.event")}
-            </h4>
-            <p className="text-[10px] text-purple-400/50 font-medium tracking-[0.15em] uppercase mb-1.5">{t("dash.intent.eventEn")}</p>
-            <p className="text-white/40 text-[11px] md:text-xs leading-relaxed flex-1">{t("dash.intent.eventDesc")}</p>
-            <div className={`mt-3 flex items-center gap-1.5 text-[10px] font-mono tracking-wider transition-all duration-300 ${
-              hoveredCard === "event" ? "text-purple-400" : "text-purple-400/40"
-            }`}>
-              <span>{t("dash.intent.activate")}</span>
-              <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
-                <path d="M7 4l6 6-6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </div>
-          </div>
-        </button>
-
-        {/* COLLECTIVE VIBE */}
-        <button
-          onClick={handleFriend}
-          onMouseEnter={() => setHoveredCard("friend")}
-          onMouseLeave={() => setHoveredCard(null)}
-          className="relative text-left group rounded-xl overflow-hidden transition-all duration-500"
-        >
-          <div className="absolute inset-0 bg-[#0D0B18]/80" />
-          <div className={`absolute -inset-px rounded-xl transition-all duration-500 ${
-            hoveredCard === "friend"
-              ? "bg-gradient-to-br from-amber-400/30 to-orange-500/20 shadow-[0_0_20px_rgba(251,191,36,0.1)]"
-              : "bg-gradient-to-br from-white/8 to-white/5"
-          }`} />
-          <div className="relative m-px rounded-xl bg-[#0D0B18]/90 backdrop-blur-xl p-4 md:p-5 h-full flex flex-col">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 transition-all duration-500 ${
-              hoveredCard === "friend" ? "bg-amber-500/15" : "bg-white/5"
-            }`}>
-              <IconCollectiveVibe className={`w-6 h-6 transition-all duration-500 ${
-                hoveredCard === "friend" ? "text-amber-400 scale-110" : "text-white/40"
-              }`} />
-            </div>
-            <div className="text-[9px] font-mono text-amber-400/40 tracking-[0.15em] uppercase mb-1">COLLECTIVE</div>
-            <h4 className={`text-base md:text-lg font-bold mb-1 transition-colors duration-300 tracking-wide ${
-              hoveredCard === "friend" ? "text-amber-300" : "text-white/80"
-            }`} style={{ textShadow: hoveredCard === "friend" ? "0 0 15px rgba(251,191,36,0.3)" : "none" }}>
-              {t("dash.intent.friend")}
-            </h4>
-            <p className="text-[10px] text-amber-400/50 font-medium tracking-[0.15em] uppercase mb-1.5">{t("dash.intent.friendEn")}</p>
-            <p className="text-white/40 text-[11px] md:text-xs leading-relaxed flex-1">{t("dash.intent.friendDesc")}</p>
-            <div className={`mt-3 flex items-center gap-1.5 text-[10px] font-mono tracking-wider transition-all duration-300 ${
-              hoveredCard === "friend" ? "text-amber-400" : "text-amber-400/40"
-            }`}>
-              <span>{t("dash.intent.activate")}</span>
-              <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
-                <path d="M7 4l6 6-6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </div>
-          </div>
-        </button>
+        <p className="max-w-lg text-sm leading-6 text-white/45">
+          {isZh
+            ? "单主题只回答一个问题；完整命盘负责全局；合盘是关系成长的独立流程。"
+            : "Focus readings answer one topic. The full chart covers the whole system. Relationship sync has its own flow."}
+        </p>
       </div>
-    </div>
+
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        {entries.map(entry => {
+          const Icon = entry.icon
+          return (
+            <button
+              key={entry.key}
+              type="button"
+              onClick={entry.action}
+              className="group relative min-h-[220px] overflow-hidden border border-white/[0.08] bg-[#08120f]/80 p-5 text-left transition-all duration-300 hover:-translate-y-1 hover:border-gold/30 hover:bg-white/[0.045]"
+            >
+              <div
+                className="absolute inset-x-0 top-0 h-px opacity-70"
+                style={{ background: `linear-gradient(90deg, transparent, ${entry.tone}, transparent)` }}
+              />
+              <div className="mb-5 flex items-start justify-between gap-4">
+                <div
+                  className="flex h-11 w-11 items-center justify-center border"
+                  style={{ borderColor: `${entry.tone}55`, background: `${entry.tone}14`, color: entry.tone }}
+                >
+                  <Icon size={21} />
+                </div>
+                <ArrowRight size={17} className="text-white/22 transition-transform group-hover:translate-x-1 group-hover:text-gold" />
+              </div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/35">{entry.label}</p>
+              <h3 className="mt-2 text-lg font-semibold text-white">{entry.title}</h3>
+              <p className="mt-3 text-sm leading-6 text-white/48">{entry.desc}</p>
+              <div className="mt-5 border-t border-white/[0.06] pt-3 text-xs text-gold/65">
+                {entry.output}
+              </div>
+            </button>
+          )
+        })}
+      </div>
+    </section>
   )
 }

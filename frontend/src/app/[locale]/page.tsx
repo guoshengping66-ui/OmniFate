@@ -8,6 +8,7 @@ import { useUserStore } from "@/stores/useUserStore"
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary"
 
 const GrowthCommandHero = dynamic(() => import("@/components/marketing-growth/GrowthCommandHero").then(m => m.GrowthCommandHero), { ssr: true })
+const ProductPathMap = dynamic(() => import("@/components/marketing-growth/ProductPathMap").then(m => m.ProductPathMap), { ssr: false })
 const FiveDimensionCommandCenter = dynamic(() => import("@/components/marketing-growth/FiveDimensionCommandCenter").then(m => m.FiveDimensionCommandCenter), { ssr: false })
 const SignalToActionWorkflow = dynamic(() => import("@/components/marketing-growth/SignalToActionWorkflow").then(m => m.SignalToActionWorkflow), { ssr: false })
 const SampleGrowthReport = dynamic(() => import("@/components/marketing-growth/SampleGrowthReport").then(m => m.SampleGrowthReport), { ssr: false })
@@ -93,6 +94,9 @@ export default function HomePage() {
   return (
     <div className="relative z-10 min-h-screen bg-[#080808]">
       <GrowthCommandHero variant="home" />
+      <ErrorBoundary sectionName="Product Path Map">
+        <ProductPathMap />
+      </ErrorBoundary>
       <ErrorBoundary sectionName="Five Dimension Command Center">
         <FiveDimensionCommandCenter />
       </ErrorBoundary>
