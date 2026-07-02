@@ -1898,7 +1898,7 @@
     "price_usd": 69,
     "stock": 60,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/talisman/bagua-bronze-mirror.webp",
     "detail_images": [],
     "wuxing_tags": [
       "metal",
@@ -1964,7 +1964,7 @@
     "price_usd": 52,
     "stock": 100,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/talisman/copper-coin.webp",
     "detail_images": [],
     "wuxing_tags": [
       "metal"
@@ -3306,7 +3306,7 @@
     "price_usd": 219,
     "stock": 30,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/jewelry/bamboo-joint.webp",
     "detail_images": [],
     "wuxing_tags": [
       "wood",
@@ -3384,7 +3384,7 @@
     "price_usd": 66,
     "stock": 50,
     "is_active": true,
-    "image_url": "",
+    "image_url": "/products/talisman/thunder-struck-wood.webp",
     "detail_images": [],
     "wuxing_tags": [
       "fire",

@@ -31,11 +31,18 @@ const SIZE_CLASSES = {
 // Map size to pixel values for Next.js sizes attribute
 const SIZE_PX = { sm: 64, md: 80, lg: 256 }
 
+function normalizeImageSrc(src?: string): string {
+  if (!src) return ""
+  if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("/")) return src
+  return `/${src}`
+}
+
 export const ProductImage = memo(function ProductImage({ src, alt, category, className = "", size = "md" }: ProductImageProps) {
   const [imgError, setImgError] = useState(false)
   const [imgLoaded, setImgLoaded] = useState(false)
   const icon = CATEGORY_ICONS[category || ""] || DEFAULT_ICON
-  const showImage = !!src && !imgError
+  const imageSrc = normalizeImageSrc(src)
+  const showImage = !!imageSrc && !imgError
   const px = SIZE_PX[size]
 
   return (
@@ -44,12 +51,12 @@ export const ProductImage = memo(function ProductImage({ src, alt, category, cla
     >
       {showImage ? (
         <img
-          src={src}
+          src={imageSrc}
           alt={alt}
           width={px}
           height={px}
           loading="lazy"
-          className={`object-cover transition-opacity duration-300 ${imgLoaded ? "opacity-100" : "opacity-0"}`}
+          className={`h-full w-full object-cover transition-opacity duration-300 ${imgLoaded ? "opacity-100" : "opacity-0"}`}
           onLoad={() => setImgLoaded(true)}
           onError={() => setImgError(true)}
         />

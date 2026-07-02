@@ -2,9 +2,8 @@
 import { Suspense, useEffect, useState, useMemo, useCallback, lazy } from "react"
 import { useSearchParams } from "next/navigation"
 import { Loader2, Sparkles, Gem, ClipboardCheck, ShieldCheck, Truck } from "lucide-react"
-import { listProducts, matchProducts, Product } from "@/lib/api"
+import { listMyReadings, listProducts, matchProducts, Product } from "@/lib/api"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { useRegion } from "@/contexts/RegionContext"
 import { useCart } from "@/contexts/CartContext"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 
@@ -35,7 +34,6 @@ function ShopContent() {
   const sessionTags = searchParams.get("tags") ?? ""
   const { t, locale, localeHref } = useLanguage()
   const isZh = locale === "zh"
-  const { region } = useRegion()
   const { registerProducts } = useCart()
   const [allProducts, setAllProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
@@ -64,33 +62,59 @@ function ShopContent() {
   ], [t])
 
   useEffect(() => {
-    setLoading(true)
-    setIsPersonalized(false)
+    let cancelled = false
 
-    if (sessionTags.trim()) {
-      const weaknessTags = sessionTags.split(",").map(s => s.trim()).filter(Boolean)
-      matchProducts({
-        weakness_tags: weaknessTags,
-        top_k: 20,
-        include_explain: false,
-      }, locale)
-        .then(matched => {
+    async function loadProducts() {
+      setLoading(true)
+      setIsPersonalized(false)
+
+      const explicitTags = sessionTags.split(",").map(s => s.trim()).filter(Boolean)
+      let weaknessTags = explicitTags
+
+      if (weaknessTags.length === 0) {
+        try {
+          const readings = await listMyReadings()
+          const latest = readings.find(r =>
+            (r.status === "done" || r.status === "completed") &&
+            r.computed_tags &&
+            r.computed_tags.length > 0
+          )
+          weaknessTags = latest?.computed_tags ?? []
+        } catch {
+          weaknessTags = []
+        }
+      }
+
+      if (weaknessTags.length > 0) {
+        try {
+          const matched = await matchProducts({
+            weakness_tags: weaknessTags,
+            top_k: 20,
+            include_explain: false,
+          }, locale)
           matched.sort((a, b) => (b.match_score ?? 0) - (a.match_score ?? 0))
-          setAllProducts(matched)
-          setIsPersonalized(true)
-        })
-        .catch(() => {
-          return listProducts(undefined, locale).then(all => {
-            setAllProducts(all)
-            return all
-          })
-        })
-        .finally(() => setLoading(false))
-    } else {
-      listProducts(undefined, locale)
-        .then(all => setAllProducts(all))
-        .catch(() => setAllProducts([]))
-        .finally(() => setLoading(false))
+          if (!cancelled) {
+            setAllProducts(matched)
+            setIsPersonalized(true)
+          }
+          return
+        } catch {}
+      }
+
+      try {
+        const all = await listProducts(undefined, locale)
+        if (!cancelled) setAllProducts(all)
+      } catch {
+        if (!cancelled) setAllProducts([])
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+
+    loadProducts()
+
+    return () => {
+      cancelled = true
     }
   }, [sessionTags, locale])
 
