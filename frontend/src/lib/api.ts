@@ -1037,8 +1037,11 @@ export async function getEventDetail(eventId: string): Promise<AnalyzeEventRespo
   return res.data
 }
 
-export async function getDailyAlmanac(sessionId: string, lang: string = "zh"): Promise<DailyAlmanacResponse> {
-  const res = await api.get<DailyAlmanacResponse>("/api/readings/daily-almanac", { params: { session_id: sessionId, lang }, timeout: 30_000 })
+export async function getDailyAlmanac(sessionId: string, lang: string = "zh", fast: boolean = true): Promise<DailyAlmanacResponse> {
+  const res = await api.get<DailyAlmanacResponse>("/api/readings/daily-almanac", {
+    params: { session_id: sessionId, lang, fast },
+    timeout: 15_000,
+  })
   return res.data
 }
 
@@ -1061,7 +1064,7 @@ export async function getPersonalizedDailyAlmanac(
 ): Promise<DailyAlmanacResponse> {
   const res = await api.post<DailyAlmanacResponse>(
     "/api/readings/personalized-almanac",
-    safeJson({ ...params, birth_minute: params.birth_minute ?? 0, gender: params.gender ?? "male", lang }),
+    safeJson({ ...params, birth_minute: params.birth_minute ?? 0, gender: params.gender ?? "male", lang, fast }),
     { timeout: 30_000, headers: { "Content-Type": "application/json" } },
   )
   return res.data

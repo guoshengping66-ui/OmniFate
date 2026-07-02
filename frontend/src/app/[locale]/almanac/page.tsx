@@ -5,18 +5,21 @@ import { Sparkles, Crown, Loader2, AlertTriangle, RefreshCw } from "lucide-react
 import { AlmanacCard } from "@/components/almanac/AlmanacCard"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { getDailyAlmanac, listMyReadings, type DailyAlmanacResponse } from "@/lib/api"
+import { getDailyAlmanac, listMyReadings, type DailyAlmanacResponse, type ReadingListItem } from "@/lib/api"
+import { getCached, setCached } from "@/lib/dailyCache"
 
 export default function AlmanacPage() {
   const router = useRouter()
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const { t, locale, localeHref } = useLanguage()
-  const [data, setData] = useState<DailyAlmanacResponse | null>(null)
-  const [loading, setLoading] = useState(true)
+  const cacheKey = `almanac_full_${locale}`
+  const [data, setData] = useState<DailyAlmanacResponse | null>(() => getCached<DailyAlmanacResponse>(cacheKey))
+  const [loading, setLoading] = useState(() => !getCached<DailyAlmanacResponse>(cacheKey))
   const [noSession, setNoSession] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const fetchAlmanac = useCallback(async () => {
+    if (authLoading) return
     if (!user?.is_premium) {
       setLoading(false)
       return
@@ -24,13 +27,19 @@ export default function AlmanacPage() {
     setLoading(true)
     setError(null)
     setNoSession(false)
-    setData(null)
+    const cached = getCached<DailyAlmanacResponse>(cacheKey)
+    if (cached) {
+      setData(cached)
+      setLoading(false)
+    }
 
     try {
-      // Step 1: Get user's latest reading session
-      let readings
+      let readings = getCached<ReadingListItem[]>("readings_list")
       try {
-        readings = await listMyReadings()
+        if (!readings) {
+          readings = await listMyReadings()
+          if (readings.length > 0) setCached("readings_list", readings)
+        }
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : String(err)
         console.error("[almanac] listMyReadings failed:", msg)
@@ -43,10 +52,10 @@ export default function AlmanacPage() {
         return
       }
 
-      // Step 2: Fetch daily almanac using most recent reading's session_id
       const sessionId = readings[0].session_id
       try {
-        const almanac = await getDailyAlmanac(sessionId, locale)
+        const almanac = await getDailyAlmanac(sessionId, locale, true)
+        setCached(cacheKey, almanac)
         setData(almanac)
       } catch (err: unknown) {
         const axiosErr = err as { response?: { data?: { detail?: string } }; message?: string }
@@ -61,7 +70,7 @@ export default function AlmanacPage() {
     } finally {
       setLoading(false)
     }
-  }, [user, t, locale])
+  }, [authLoading, user, t, locale, cacheKey])
 
   useEffect(() => {
     fetchAlmanac()
@@ -87,7 +96,7 @@ export default function AlmanacPage() {
     )
   }
 
-  if (loading) return (
+  if (authLoading || loading) return (
     <div className="min-h-screen pt-24 pb-16 px-4 flex items-center justify-center">
       <div className="flex flex-col items-center gap-3">
         <Loader2 size={32} className="animate-spin text-gold" />

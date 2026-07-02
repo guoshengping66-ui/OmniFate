@@ -6,6 +6,7 @@ import toast from "react-hot-toast"
 import { AlmanacCard } from "@/components/almanac/AlmanacCard"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { getDailyAlmanac, type DailyAlmanacResponse } from "@/lib/api"
+import { getCached, setCached } from "@/lib/dailyCache"
 
 interface Props {
   sessionId: string
@@ -13,14 +14,16 @@ interface Props {
 
 export default function DailyAlmanac({ sessionId }: Props) {
   const { locale, t } = useLanguage()
-  const [data, setData] = useState<DailyAlmanacResponse | null>(null)
+  const cacheKey = `almanac_full_${locale}_${sessionId}`
+  const [data, setData] = useState<DailyAlmanacResponse | null>(() => getCached<DailyAlmanacResponse>(cacheKey))
   const [loading, setLoading] = useState(false)
-  const [loaded, setLoaded] = useState(false)
+  const [loaded, setLoaded] = useState(() => Boolean(getCached<DailyAlmanacResponse>(cacheKey)))
 
   const fetchAlmanac = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await getDailyAlmanac(sessionId, locale)
+      const res = await getDailyAlmanac(sessionId, locale, true)
+      setCached(cacheKey, res)
       setData(res)
       setLoaded(true)
     } catch (err: unknown) {
@@ -30,7 +33,7 @@ export default function DailyAlmanac({ sessionId }: Props) {
     } finally {
       setLoading(false)
     }
-  }, [sessionId, locale, t])
+  }, [sessionId, locale, t, cacheKey])
 
   useEffect(() => {
     fetchAlmanac()
