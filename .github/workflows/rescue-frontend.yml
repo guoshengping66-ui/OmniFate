@@ -1,0 +1,81 @@
+name: Rescue Frontend
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/rescue-frontend.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: rescue-frontend
+  cancel-in-progress: true
+
+jobs:
+  rescue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Rescue frontend service
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          timeout: 30s
+          command_timeout: 18m
+          script: |
+            set -euo pipefail
+
+            echo "== rescue: stop stuck frontend build processes =="
+            pkill -f "next build" 2>/dev/null || true
+            pkill -f "npm run build" 2>/dev/null || true
+
+            echo "== rescue: sync repository =="
+            cd /opt/OmniFate
+            sudo chown -R "$(whoami)" /opt/OmniFate 2>/dev/null || true
+            sudo rm -f .git/index.lock 2>/dev/null || true
+            git fetch origin main
+            git reset --hard origin/main
+
+            echo "== rescue: ensure frontend build exists =="
+            cd /opt/OmniFate/frontend
+            sudo chown -R "$(whoami)" /opt/OmniFate/frontend 2>/dev/null || true
+            if [ ! -f ".next/standalone/server.js" ] && [ ! -f ".next/standalone/frontend/server.js" ]; then
+              echo "No standalone server found; rebuilding frontend"
+              npm install --prefer-offline || npm install
+              NODE_OPTIONS="--max-old-space-size=1536" NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 NEXT_LOW_MEMORY_BUILD=1 npm run build
+              sudo chown -R "$(whoami)" /opt/OmniFate/frontend 2>/dev/null || true
+            fi
+
+            if [ -f ".next/standalone/server.js" ]; then
+              STANDALONE_DIR=".next/standalone"
+            elif [ -f ".next/standalone/frontend/server.js" ]; then
+              STANDALONE_DIR=".next/standalone/frontend"
+            else
+              echo "No standalone server.js after rebuild"
+              exit 1
+            fi
+
+            echo "== rescue: ensure static/public links =="
+            mkdir -p "$STANDALONE_DIR/.next"
+            rm -rf "$STANDALONE_DIR/.next/static" "$STANDALONE_DIR/public" 2>/dev/null || true
+            cp -r .next/static "$STANDALONE_DIR/.next/static"
+            cp -r public "$STANDALONE_DIR/public" 2>/dev/null || true
+
+            echo "== rescue: restart frontend PM2 =="
+            cd /opt/OmniFate
+            pm2 delete frontend 2>/dev/null || true
+            sudo pm2 delete frontend 2>/dev/null || true
+            pm2 start ecosystem.config.js --only frontend
+            pm2 save 2>/dev/null || true
+
+            echo "== rescue: reload nginx if available =="
+            sudo nginx -t && sudo systemctl reload nginx || true
+
+            echo "== rescue: local health checks =="
+            sleep 5
+            pm2 list
+            curl -I --max-time 10 http://127.0.0.1:3000/ || true
+            curl -I --max-time 10 http://127.0.0.1:3000/zh || true
