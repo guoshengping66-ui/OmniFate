@@ -2,27 +2,16 @@
 import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { Sparkles, Crown, Loader2, AlertTriangle, RefreshCw } from "lucide-react"
-import toast from "react-hot-toast"
 import { AlmanacCard } from "@/components/almanac/AlmanacCard"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { api, listMyReadings } from "@/lib/api"
-
-interface AlmanacData {
-  date: string
-  lunar_date: string
-  day_score: number
-  bazi_day_pillar: string
-  yi: { label: string; value: string; score: number }[]
-  ji: { label: string; value: string; score: number }[]
-  hu: { label: string; value: string; score: number }[]
-}
+import { getDailyAlmanac, listMyReadings, type DailyAlmanacResponse } from "@/lib/api"
 
 export default function AlmanacPage() {
   const router = useRouter()
   const { user } = useAuth()
   const { t, locale, localeHref } = useLanguage()
-  const [data, setData] = useState<AlmanacData | null>(null)
+  const [data, setData] = useState<DailyAlmanacResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [noSession, setNoSession] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -56,12 +45,9 @@ export default function AlmanacPage() {
 
       // Step 2: Fetch daily almanac using most recent reading's session_id
       const sessionId = readings[0].session_id
-      let res
       try {
-        res = await api.get("/api/readings/daily-almanac", {
-          params: { session_id: sessionId, lang: locale },
-          timeout: 60_000,
-        })
+        const almanac = await getDailyAlmanac(sessionId, locale)
+        setData(almanac)
       } catch (err: unknown) {
         const axiosErr = err as { response?: { data?: { detail?: string } }; message?: string }
         const detail = axiosErr?.response?.data?.detail || axiosErr?.message || "Unknown error"
@@ -69,45 +55,6 @@ export default function AlmanacPage() {
         setError(detail.slice(0, 200))
         return
       }
-
-      if (!res?.data) {
-        setError(t("almanac.noData"))
-        return
-      }
-
-      // Step 3: Adapt backend format to frontend format
-      const raw = res.data
-      const adaptYiJi = (items: unknown[]): { label: string; value: string; score: number }[] =>
-        Array.isArray(items)
-          ? items.map(item =>
-              typeof item === "string"
-                ? { label: item, value: "", score: 80 }
-                : { label: String((item as Record<string, unknown>).label ?? item), value: String((item as Record<string, unknown>).value ?? ""), score: Number((item as Record<string, unknown>).score) || 80 }
-            )
-          : []
-      const adaptHu = (items: unknown[]): { label: string; value: string; score: number }[] =>
-        Array.isArray(items)
-          ? items.map(item => {
-              if (typeof item === "object" && item !== null) {
-                const obj = item as Record<string, unknown>
-                const reason = String(obj.reason ?? "")
-                const product = obj.product as Record<string, unknown> | undefined
-                const name = String(product?.name ?? "")
-                return { label: reason || name, value: name, score: 80 }
-              }
-              return { label: String(item), value: "", score: 80 }
-            })
-          : []
-
-      setData({
-        date: raw.date ?? "",
-        day_score: raw.energy_score ?? raw.day_score ?? 0,
-        lunar_date: raw.lunar_date ?? "",
-        bazi_day_pillar: raw.bazi_day_pillar ?? "",
-        yi: adaptYiJi(raw.yi),
-        ji: adaptYiJi(raw.ji),
-        hu: adaptHu(raw.hu),
-      })
     } catch (err: unknown) {
       console.error("[almanac] Unexpected error:", err)
       setError(String(err).slice(0, 200))
@@ -198,15 +145,7 @@ export default function AlmanacPage() {
         </div>
 
         {/* Almanac Card */}
-        <AlmanacCard
-          date={data.date}
-          lunarDate={data.lunar_date}
-          yi={data.yi}
-          ji={data.ji}
-          hu={data.hu}
-          dayScore={data.day_score}
-          baziDayPillar={data.bazi_day_pillar}
-        />
+        <AlmanacCard data={data} />
       </div>
     </div>
   )

@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect } from "react"
-import { Wallet, Briefcase, Heart, Activity, Palette, Hash, AlertTriangle, TrendingUp } from "lucide-react"
+import { Wallet, Briefcase, Heart, Activity, Palette, Hash, AlertTriangle, TrendingUp, CalendarDays, CheckCircle2, XCircle } from "lucide-react"
 import { getDailyFortune, getPersonalizedFortune, listMyReadings, getPersonalizedDailyAlmanac, type DailyFortuneResponse } from "@/lib/api"
 import { api } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
@@ -8,6 +8,7 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import { useUserStore } from "@/stores/useUserStore"
 import { translateYiJi, translateGanZhi, cleanLunarDate } from "@/lib/translations"
 import { getCached, setCached } from "@/lib/dailyCache"
+import { buildDailyTrendViewModel } from "@/lib/dailyTrend"
 
 // ── Fallback data for non-logged-in users ─────────────────────────
 function generateFallbackFortune(t: (k: string) => string): DailyFortuneResponse {
@@ -210,13 +211,25 @@ function FortuneSection({ fortune, locale, t }: {
 function AlmanacSection({ almanac, locale, t }: {
   almanac: AlmanacData; locale: string; t: (k: string) => string
 }) {
-  const translateYiJiLocal = (label: string) => locale === "zh" ? label : translateYiJi(label)
+  const trend = buildDailyTrendViewModel({
+    date: new Date().toISOString().slice(0, 10),
+    lunar_date: almanac.lunar_date,
+    bazi_day_pillar: almanac.bazi_day_pillar,
+    energy_score: 55,
+    yi: almanac.yi,
+    ji: almanac.ji,
+  }, locale)
 
   return (
     <div className="card-glass p-6 space-y-4">
-      <div className="flex items-center gap-2 mb-1">
-        <span className="text-lg">📅</span>
-        <h3 className="font-serif text-gold font-medium">{t("dash.fortune.almanacTitle")}</h3>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <CalendarDays size={17} className="text-gold/75" />
+          <h3 className="font-serif text-gold font-medium">{t("dash.fortune.almanacTitle")}</h3>
+        </div>
+        <span className="rounded-full border border-gold/20 bg-gold/10 px-2.5 py-1 text-[11px] text-gold/80">
+          {trend.trendLabel}
+        </span>
       </div>
 
       <div className="space-y-1.5">
@@ -224,25 +237,32 @@ function AlmanacSection({ almanac, locale, t }: {
         <p className="text-white/40 text-xs">{t("dash.fortune.dayPillar")}: {locale === "zh" ? almanac.bazi_day_pillar : translateGanZhi(almanac.bazi_day_pillar)}</p>
       </div>
 
-      <div className="bg-green-500/5 border border-green-500/20 rounded-xl p-3">
-        <p className="text-green-400 text-xs font-medium mb-2">✅ {t("dash.fortune.yi")}</p>
-        <div className="flex flex-wrap gap-1.5">
-          {almanac.yi.map((item, i) => (
-            <span key={i} className="text-[11px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-400/80">
-              {translateYiJiLocal(item.label)}
-            </span>
-          ))}
-        </div>
+      <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-3">
+        <p className="mb-1 text-xs font-medium text-white/70">{locale === "zh" ? "今日重点" : "Focus"}</p>
+        <p className="text-sm leading-5 text-white/55">{trend.headline}</p>
       </div>
 
-      <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-3">
-        <p className="text-red-400 text-xs font-medium mb-2">❌ {t("dash.fortune.ji")}</p>
-        <div className="flex flex-wrap gap-1.5">
-          {almanac.ji.map((item, i) => (
-            <span key={i} className="text-[11px] px-2 py-0.5 rounded-full bg-red-500/10 text-red-400/80">
-              {translateYiJiLocal(item.label)}
-            </span>
-          ))}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="rounded-xl border border-emerald-400/15 bg-emerald-400/[0.045] p-3">
+          <p className="mb-2 flex items-center gap-1.5 text-xs font-medium text-emerald-200/80">
+            <CheckCircle2 size={13} />{t("dash.fortune.yi")}
+          </p>
+          <div className="space-y-1.5">
+            {trend.yi.slice(0, 3).map((item, i) => (
+              <p key={i} className="truncate text-[11px] text-white/55">{item.label}</p>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-rose-400/15 bg-rose-400/[0.04] p-3">
+          <p className="mb-2 flex items-center gap-1.5 text-xs font-medium text-rose-200/80">
+            <XCircle size={13} />{t("dash.fortune.ji")}
+          </p>
+          <div className="space-y-1.5">
+            {trend.ji.slice(0, 3).map((item, i) => (
+              <p key={i} className="truncate text-[11px] text-white/55">{item.label}</p>
+            ))}
+          </div>
         </div>
       </div>
     </div>
@@ -428,11 +448,11 @@ export function DailyDashboard() {
       {/* ── AI Fusion comment (only when both loaded) ─────── */}
       {fortune && almanac && (
         <div className="card-glass p-5 flex items-start gap-3">
-          <span className="text-xl flex-shrink-0">🤖</span>
+          <TrendingUp size={18} className="mt-0.5 flex-shrink-0 text-gold/70" />
           <p className="text-white/50 text-sm leading-relaxed">
             {locale === "zh"
-              ? `大盘今日${almanac.ji.length > 0 ? "虽忌" + almanac.ji[0].label : "状态平稳"}，但你的${fortune.career_fortune >= 7 ? "事业状态逆势高达 " + fortune.career_fortune + "/10，事上磨练" : "整体状态" + fortune.overall_score + "/10，宜稳中求进"}。${fortune.advice}`
-              : `The day's almanac${almanac.ji.length > 0 ? " warns against " + translateYiJi(almanac.ji[0].label) : " is neutral"}, but your personal status scores ${fortune.overall_score}/10. ${fortune.advice}`
+              ? `今日大盘${almanac.ji.length > 0 ? "提醒避开「" + almanac.ji[0].label + "」" : "整体平稳"}；你的整体状态为 ${fortune.overall_score}/10。${fortune.advice}`
+              : `The day${almanac.ji.length > 0 ? " warns against " + translateYiJi(almanac.ji[0].label) : " is neutral"}, while your personal status scores ${fortune.overall_score}/10. ${fortune.advice}`
             }
           </p>
         </div>

@@ -1,95 +1,237 @@
 "use client"
-import { Calendar, Check, X, Shield } from "lucide-react"
-import { useLanguage } from "@/contexts/LanguageContext"
-import { cleanLunarDate } from "@/lib/translations"
 
-interface AlmanacItem {
+import {
+  AlertTriangle,
+  CalendarDays,
+  CheckCircle2,
+  Clock3,
+  Compass,
+  Leaf,
+  ShieldCheck,
+  Sparkles,
+  Target,
+} from "lucide-react"
+import { useLanguage } from "@/contexts/LanguageContext"
+import { buildDailyTrendViewModel, type DailyTrendSource } from "@/lib/dailyTrend"
+import { cleanLunarDate, translateGanZhi } from "@/lib/translations"
+
+type LegacyAlmanacItem = {
   label: string
-  value: string
-  score: number  // 0-100
+  value?: string
+  score?: number
 }
 
 interface AlmanacCardProps {
-  date: string
-  lunarDate: string
-  yi: AlmanacItem[]   // Auspicious
-  ji: AlmanacItem[]    // Inauspicious
-  hu: AlmanacItem[]    // Guard (protection items)
-  dayScore: number     // overall day score
-  baziDayPillar: string
+  data?: DailyTrendSource
+  date?: string
+  lunarDate?: string
+  yi?: LegacyAlmanacItem[]
+  ji?: LegacyAlmanacItem[]
+  hu?: LegacyAlmanacItem[]
+  dayScore?: number
+  baziDayPillar?: string
+  compact?: boolean
 }
 
-export function AlmanacCard({ date, lunarDate, yi, ji, hu, dayScore, baziDayPillar }: AlmanacCardProps) {
-  const { t, locale } = useLanguage()
-  const scoreColor = dayScore >= 80 ? "text-green-400" : dayScore >= 50 ? "text-gold" : "text-red-400"
+function formatDate(date: string, locale: string) {
+  if (!date) return ""
+  const parsed = new Date(date)
+  if (Number.isNaN(parsed.getTime())) return date
+  return parsed.toLocaleDateString(locale === "zh" ? "zh-CN" : "en-US", {
+    month: "long",
+    day: "numeric",
+    weekday: "long",
+  })
+}
+
+function scoreTone(score: number) {
+  if (score >= 72) return "text-emerald-300 border-emerald-400/25 bg-emerald-400/10"
+  if (score >= 45) return "text-gold border-gold/25 bg-gold/10"
+  return "text-rose-300 border-rose-400/25 bg-rose-400/10"
+}
+
+function ProgressBar({ value }: { value: number }) {
+  return (
+    <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+      <div className="h-full rounded-full bg-gold/70" style={{ width: `${value}%` }} />
+    </div>
+  )
+}
+
+export function AlmanacCard(props: AlmanacCardProps) {
+  const { locale } = useLanguage()
+  const source: DailyTrendSource = props.data ?? {
+    date: props.date ?? "",
+    lunarDate: props.lunarDate ?? "",
+    baziDayPillar: props.baziDayPillar ?? "",
+    dayScore: props.dayScore ?? 50,
+    yi: props.yi ?? [],
+    ji: props.ji ?? [],
+    hu: props.hu ?? [],
+  }
+  const trend = buildDailyTrendViewModel(source, locale)
+  const isZh = locale === "zh"
+  const dateText = formatDate(trend.date, locale)
+  const pillarText = isZh ? trend.baziDayPillar : translateGanZhi(trend.baziDayPillar)
+  const tone = scoreTone(trend.score)
 
   return (
-    <div className="card-glass p-6 space-y-5">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            <Calendar size={18} className="text-gold" />
-            <h3 className="font-serif text-lg text-gold">{date}</h3>
+    <section className={`space-y-4 ${props.compact ? "" : "md:space-y-5"}`}>
+      <div className="card-glass overflow-hidden p-0">
+        <div className="border-b border-white/[0.08] bg-white/[0.025] px-5 py-4 md:px-7">
+          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div className="min-w-0">
+              <div className="mb-3 flex flex-wrap items-center gap-2 text-xs text-white/40">
+                <span className="inline-flex items-center gap-1.5">
+                  <CalendarDays size={14} className="text-gold/70" />
+                  {dateText || trend.date}
+                </span>
+                {trend.lunarDate && <span>{cleanLunarDate(trend.lunarDate, isZh)}</span>}
+                {pillarText && <span>{isZh ? "日柱" : "Day pillar"}: {pillarText}</span>}
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
+                <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${tone}`}>
+                  <Sparkles size={13} />
+                  {trend.trendLabel}
+                </span>
+                <span className="text-xs text-white/40">{isZh ? "今日重点" : "Focus"}: {trend.focusArea}</span>
+              </div>
+              <h2 className="mt-4 max-w-2xl font-serif text-2xl font-bold leading-tight text-white md:text-3xl">
+                {trend.headline}
+              </h2>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-white/60">{trend.summary}</p>
+            </div>
+
+            <div className="w-full rounded-xl border border-white/[0.08] bg-black/20 p-4 md:w-36">
+              <div className="flex items-end justify-between md:block">
+                <div>
+                  <p className="text-xs text-white/40">{isZh ? "趋势分" : "Trend score"}</p>
+                  <p className="mt-1 font-serif text-4xl font-bold text-gold">{trend.score}</p>
+                </div>
+                <p className="text-xs text-white/40 md:mt-1">/100</p>
+              </div>
+              <div className="mt-3">
+                <ProgressBar value={trend.score} />
+              </div>
+            </div>
           </div>
-          <p className="text-white/40 text-xs mt-0.5">{cleanLunarDate(lunarDate, locale === "zh")} · {t("almanacCard.dayPillar")}: {baziDayPillar}</p>
         </div>
-        <div className="text-center">
-          <div className={`text-2xl font-bold ${scoreColor}`}>{dayScore}</div>
-          <p className="text-white/30 text-[10px]">{t("almanacCard.energyScore")}</p>
+
+        <div className="grid gap-0 lg:grid-cols-[1.15fr_0.85fr]">
+          <div className="space-y-5 border-white/[0.08] p-5 md:p-7 lg:border-r">
+            <div>
+              <div className="mb-3 flex items-center gap-2">
+                <Target size={17} className="text-gold/75" />
+                <h3 className="text-sm font-semibold text-white/80">{isZh ? "今天就做这三件事" : "Three useful actions"}</h3>
+              </div>
+              <div className="space-y-2.5">
+                {trend.actions.map((action, index) => (
+                  <div key={action} className="flex gap-3 rounded-lg border border-white/[0.08] bg-white/[0.025] p-3">
+                    <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md bg-gold/10 text-xs font-semibold text-gold">
+                      {index + 1}
+                    </span>
+                    <p className="text-sm leading-5 text-white/70">{action}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-amber-300/20 bg-amber-300/[0.055] p-4">
+              <div className="mb-2 flex items-center gap-2 text-amber-200/80">
+                <AlertTriangle size={16} />
+                <h3 className="text-sm font-semibold">{isZh ? "风险提醒" : "Risk signal"}</h3>
+              </div>
+              <p className="text-sm leading-6 text-white/60">{trend.riskSignal}</p>
+            </div>
+
+            <div>
+              <div className="mb-3 flex items-center gap-2">
+                <Clock3 size={17} className="text-gold/70" />
+                <h3 className="text-sm font-semibold text-white/80">{isZh ? "时段建议" : "Daily rhythm"}</h3>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-3">
+                {trend.timeWindows.map((window) => (
+                  <div key={window.label} className="rounded-lg border border-white/[0.08] bg-white/[0.025] p-3">
+                    <p className="mb-1 text-xs font-medium text-gold/70">{window.label}</p>
+                    <p className="text-xs leading-5 text-white/50">{window.text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <aside className="space-y-5 p-5 md:p-7">
+            <div>
+              <div className="mb-3 flex items-center gap-2">
+                <Compass size={17} className="text-gold/70" />
+                <h3 className="text-sm font-semibold text-white/80">{isZh ? "四象限状态" : "Signal map"}</h3>
+              </div>
+              <div className="space-y-3">
+                {trend.dimensions.map((dimension) => (
+                  <div key={dimension.label}>
+                    <div className="mb-1.5 flex items-center justify-between gap-3 text-xs">
+                      <span className="text-white/60">{dimension.label}</span>
+                      <span className="text-white/40">{dimension.note} · {dimension.value}</span>
+                    </div>
+                    <ProgressBar value={dimension.value} />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+              <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/[0.045] p-4">
+                <div className="mb-2 flex items-center gap-2 text-emerald-200/80">
+                  <CheckCircle2 size={16} />
+                  <h3 className="text-sm font-semibold">{isZh ? "适合" : "Favorable"}</h3>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {trend.yi.length > 0 ? trend.yi.map((item) => (
+                    <span key={`${item.label}-${item.value}`} className="rounded-full bg-emerald-300/10 px-2.5 py-1 text-xs text-emerald-100/75">
+                      {item.label}
+                    </span>
+                  )) : <span className="text-xs text-white/40">{isZh ? "保持当前节奏" : "Keep the current rhythm"}</span>}
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-rose-400/20 bg-rose-400/[0.04] p-4">
+                <div className="mb-2 flex items-center gap-2 text-rose-200/80">
+                  <ShieldCheck size={16} />
+                  <h3 className="text-sm font-semibold">{isZh ? "避开" : "Avoid"}</h3>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {trend.ji.length > 0 ? trend.ji.map((item) => (
+                    <span key={`${item.label}-${item.value}`} className="rounded-full bg-rose-300/10 px-2.5 py-1 text-xs text-rose-100/70">
+                      {item.label}
+                    </span>
+                  )) : <span className="text-xs text-white/40">{isZh ? "暂无明显禁忌" : "No strong avoid signal"}</span>}
+                </div>
+              </div>
+            </div>
+
+            {(trend.wuxingAnalysis || trend.dailyQuote || trend.hu.length > 0) && (
+              <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-4">
+                <div className="mb-2 flex items-center gap-2">
+                  <Leaf size={16} className="text-gold/70" />
+                  <h3 className="text-sm font-semibold text-white/80">{isZh ? "依据与补充" : "Evidence"}</h3>
+                </div>
+                {trend.wuxingAnalysis && <p className="text-xs leading-5 text-white/50">{trend.wuxingAnalysis}</p>}
+                {trend.dailyQuote && <p className="mt-3 border-l border-gold/25 pl-3 font-serif text-sm italic leading-6 text-gold/70">{trend.dailyQuote}</p>}
+                {trend.hu.length > 0 && (
+                  <div className="mt-3 space-y-2">
+                    {trend.hu.map((item, index) => (
+                      <p key={`${item.label}-${index}`} className="text-xs leading-5 text-white/40">
+                        <span className="text-gold/60">{item.productName || item.value || (isZh ? "护持建议" : "Guard")}:</span>{" "}
+                        {item.reason || item.label}
+                      </p>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </aside>
         </div>
       </div>
-
-      {/* Three columns: Auspicious / Inauspicious / Guard */}
-      <div className="grid grid-cols-3 gap-3">
-        {/* Auspicious */}
-        <div className="bg-green-500/5 border border-green-500/20 rounded-xl p-3">
-          <div className="flex items-center gap-1 mb-2">
-            <Check size={12} className="text-green-400" />
-            <span className="text-xs text-green-400 font-medium">{t("almanacCard.auspicious")}</span>
-          </div>
-          <ul className="space-y-1.5">
-            {yi.map((item, i) => (
-              <li key={i} className="text-[11px] text-white/60">
-                <span className="text-green-400/60">{item.label}</span>
-                <span className="text-white/30 ml-1">{item.value}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Inauspicious */}
-        <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-3">
-          <div className="flex items-center gap-1 mb-2">
-            <X size={12} className="text-red-400" />
-            <span className="text-xs text-red-400 font-medium">{t("almanacCard.inauspicious")}</span>
-          </div>
-          <ul className="space-y-1.5">
-            {ji.map((item, i) => (
-              <li key={i} className="text-[11px] text-white/60">
-                <span className="text-red-400/60">{item.label}</span>
-                <span className="text-white/30 ml-1">{item.value}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Guard / Protection */}
-        <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-3">
-          <div className="flex items-center gap-1 mb-2">
-            <Shield size={12} className="text-blue-400" />
-            <span className="text-xs text-blue-400 font-medium">{t("almanacCard.protection")}</span>
-          </div>
-          <ul className="space-y-1.5">
-            {hu.map((item, i) => (
-              <li key={i} className="text-[11px] text-white/60">
-                <span className="text-blue-400/60">{item.label}</span>
-                <span className="text-white/30 ml-1">{item.value}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    </div>
+    </section>
   )
 }

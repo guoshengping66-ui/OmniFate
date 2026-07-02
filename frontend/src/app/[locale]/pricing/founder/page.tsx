@@ -96,7 +96,6 @@ export default function FounderPage() {
 
   const handlePaymentSuccess = async () => {
     setShowPayment(false)
-    setFounderOrderNo(null)
     toast.success(t("founder.pricing.orderSuccess"))
     await refreshUser()
     const [newStatus, newSeats] = await Promise.all([
