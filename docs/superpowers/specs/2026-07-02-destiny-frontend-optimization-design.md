@@ -12,6 +12,10 @@ Scope update from homepage review:
 
 The first impression problem exists on the main homepage too. The unauthenticated homepage currently reuses `CinematicHero`, so the new first-screen system should be designed as a shared homepage/product hero, not as an isolated `/destiny` fix. When a new visitor opens the site, they should immediately see an attractive product surface and understand the analysis method, the major content, and the next action.
 
+Final scope update:
+
+This is a full unauthenticated marketing-front-end reconstruction, not a one-section hero replacement. The homepage and `/destiny` page should be rebuilt as complete product journeys with consistent positioning, visuals, copy, interactive previews, trust sections, service paths, and conversion moments. Existing sections may be reused only if they support the new journey; otherwise they should be replaced or removed.
+
 ## Current Problems
 
 The current page reads like a sequence of presentation slides:
@@ -331,12 +335,13 @@ Success criteria:
 
 ## Implementation Scope
 
-This design is scoped to the `/[locale]/destiny` marketing/product page.
+This design is scoped to the unauthenticated marketing front end, with primary implementation on `/[locale]` and `/[locale]/destiny`.
 
 Included:
 
-- New page journey.
-- New or rewritten destiny page components.
+- New homepage journey for first-time visitors.
+- New `/destiny` product-detail journey.
+- New or rewritten shared marketing components.
 - Chinese and English copy updates.
 - Visual and responsive redesign.
 - Browser verification after implementation.
