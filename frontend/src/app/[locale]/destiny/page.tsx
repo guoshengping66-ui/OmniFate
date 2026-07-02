@@ -1,41 +1,38 @@
 "use client"
-import dynamic from "next/dynamic"
 
-const CinematicHero = dynamic(() => import("@/components/destiny/CinematicHero"), { ssr: false })
-const Archetypes = dynamic(() => import("@/components/destiny/Archetypes"), { ssr: false })
-const SkillTree = dynamic(() => import("@/components/destiny/SkillTree"), { ssr: false })
-const Timeline = dynamic(() => import("@/components/destiny/Timeline"), { ssr: false })
-const DestinyEngines = dynamic(() => import("@/components/destiny/DestinyEngines"), { ssr: false })
-const ReportPreview = dynamic(() => import("@/components/destiny/ReportPreview"), { ssr: false })
-const CaseStudy = dynamic(() => import("@/components/destiny/CaseStudy"), { ssr: false })
-const FinalCTA = dynamic(() => import("@/components/destiny/FinalCTA"), { ssr: false })
+import dynamic from "next/dynamic"
+import { ErrorBoundary } from "@/components/ui/ErrorBoundary"
+
+const GrowthCommandHero = dynamic(() => import("@/components/marketing-growth/GrowthCommandHero").then(m => m.GrowthCommandHero), { ssr: true })
+const FiveDimensionCommandCenter = dynamic(() => import("@/components/marketing-growth/FiveDimensionCommandCenter").then(m => m.FiveDimensionCommandCenter), { ssr: false })
+const SignalToActionWorkflow = dynamic(() => import("@/components/marketing-growth/SignalToActionWorkflow").then(m => m.SignalToActionWorkflow), { ssr: false })
+const SampleGrowthReport = dynamic(() => import("@/components/marketing-growth/SampleGrowthReport").then(m => m.SampleGrowthReport), { ssr: false })
+const MethodTrustSection = dynamic(() => import("@/components/marketing-growth/MethodTrustSection").then(m => m.MethodTrustSection), { ssr: false })
+const GrowthServicePaths = dynamic(() => import("@/components/marketing-growth/GrowthServicePaths").then(m => m.GrowthServicePaths), { ssr: false })
+const FinalGrowthCTA = dynamic(() => import("@/components/marketing-growth/FinalGrowthCTA").then(m => m.FinalGrowthCTA), { ssr: false })
 
 export default function DestinyPage() {
   return (
-    <div className="min-h-screen" style={{ background: "#080808" }}>
-      {/* SCREEN 1: The Mirror of Destiny */}
-      <CinematicHero />
-
-      {/* SCREEN 2: The 12 Archetypes */}
-      <Archetypes />
-
-      {/* SCREEN 3: Map of Destiny (Skill Tree) */}
-      <SkillTree />
-
-      {/* SCREEN 4: Timeline of Destiny */}
-      <Timeline />
-
-      {/* SCREEN 5: The Five Destiny Engines */}
-      <DestinyEngines />
-
-      {/* SCREEN 6: System Report Preview */}
-      <ReportPreview />
-
-      {/* SCREEN 7: Discovery Verification */}
-      <CaseStudy />
-
-      {/* SCREEN 8: The Secured Quantum Gateway */}
-      <FinalCTA />
+    <div className="relative z-10 min-h-screen bg-[#080808]">
+      <GrowthCommandHero variant="destiny" />
+      <ErrorBoundary sectionName="Five Dimension Command Center">
+        <FiveDimensionCommandCenter />
+      </ErrorBoundary>
+      <ErrorBoundary sectionName="Signal To Action Workflow">
+        <SignalToActionWorkflow />
+      </ErrorBoundary>
+      <ErrorBoundary sectionName="Sample Growth Report">
+        <SampleGrowthReport />
+      </ErrorBoundary>
+      <ErrorBoundary sectionName="Method Trust">
+        <MethodTrustSection />
+      </ErrorBoundary>
+      <ErrorBoundary sectionName="Growth Service Paths">
+        <GrowthServicePaths />
+      </ErrorBoundary>
+      <ErrorBoundary sectionName="Final Growth CTA">
+        <FinalGrowthCTA />
+      </ErrorBoundary>
     </div>
   )
 }

@@ -1,4 +1,5 @@
 "use client"
+
 import { useEffect } from "react"
 import dynamic from "next/dynamic"
 import { useLanguage } from "@/contexts/LanguageContext"
@@ -6,19 +7,16 @@ import { useAuth } from "@/contexts/AuthContext"
 import { useUserStore } from "@/stores/useUserStore"
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary"
 
-// ── Global background removed — AnimatedBackground in layout.tsx already provides nebula + stars ──
-
-// ── Lazy-loaded cinematic marketing page ─────────────────────────────
-const CinematicHero = dynamic(() => import("@/components/destiny/CinematicHero"), { ssr: true })
-const GuanwoSystemSection = dynamic(() => import("@/components/destiny/GuanwoSystemSection"), { ssr: false })
-const GrowthLoopSection = dynamic(() => import("@/components/destiny/GrowthLoopSection"), { ssr: false })
-const AIDestinyDeconstruction = dynamic(() => import("@/components/destiny/AIDestinyDeconstruction"), { ssr: false })
-const LifeRouteGeneration = dynamic(() => import("@/components/destiny/LifeRouteGeneration"), { ssr: false })
-const KeyLifeNodes = dynamic(() => import("@/components/destiny/KeyLifeNodes"), { ssr: false })
+const GrowthCommandHero = dynamic(() => import("@/components/marketing-growth/GrowthCommandHero").then(m => m.GrowthCommandHero), { ssr: true })
+const FiveDimensionCommandCenter = dynamic(() => import("@/components/marketing-growth/FiveDimensionCommandCenter").then(m => m.FiveDimensionCommandCenter), { ssr: false })
+const SignalToActionWorkflow = dynamic(() => import("@/components/marketing-growth/SignalToActionWorkflow").then(m => m.SignalToActionWorkflow), { ssr: false })
+const SampleGrowthReport = dynamic(() => import("@/components/marketing-growth/SampleGrowthReport").then(m => m.SampleGrowthReport), { ssr: false })
+const GrowthServicePaths = dynamic(() => import("@/components/marketing-growth/GrowthServicePaths").then(m => m.GrowthServicePaths), { ssr: false })
+const MethodTrustSection = dynamic(() => import("@/components/marketing-growth/MethodTrustSection").then(m => m.MethodTrustSection), { ssr: false })
+const FinalGrowthCTA = dynamic(() => import("@/components/marketing-growth/FinalGrowthCTA").then(m => m.FinalGrowthCTA), { ssr: false })
 const ServicesShowcase = dynamic(() => import("@/components/destiny/ServicesShowcase"), { ssr: false })
 const LifestyleShowcase = dynamic(() => import("@/components/destiny/LifestyleShowcase"), { ssr: false })
 
-// ── Lazy-loaded below-the-fold sections ──────────────────────────
 const UserDashboard = dynamic(() => import("@/components/dashboard/UserDashboard").then(m => m.UserDashboard), {
   ssr: false,
   loading: () => <div className="card-glass p-8"><div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin" /></div>,
@@ -31,7 +29,7 @@ const DailyDashboard = dynamic(() => import("@/components/DailyDashboard").then(
 const FloatingFortuneSubscribe = dynamic(() => import("@/components/ui/FloatingFortuneSubscribe").then(m => m.FloatingFortuneSubscribe), { ssr: false })
 
 export default function HomePage() {
-  const { t, localeHref } = useLanguage()
+  const { t } = useLanguage()
   const { user } = useAuth()
   const { userProfile, loading: profileLoading, fetchBirthProfiles } = useUserStore()
 
@@ -47,23 +45,23 @@ export default function HomePage() {
 
   if (profileStillLoading) {
     return (
-      <div className="relative z-10 min-h-screen pt-24 pb-16 px-4">
-          <div className="max-w-5xl mx-auto space-y-8">
-            <div className="card-glass p-8 space-y-4">
-              <div className="h-6 bg-white/5 rounded w-1/3 animate-pulse" />
-              <div className="h-4 bg-white/5 rounded w-2/3 animate-pulse" />
-              <div className="flex gap-4 mt-6">
-                <div className="h-10 bg-white/5 rounded-full w-32 animate-pulse" />
-                <div className="h-10 bg-white/5 rounded-full w-32 animate-pulse" />
-              </div>
-            </div>
-            <div className="card-glass p-8 space-y-4">
-              <div className="h-5 bg-white/5 rounded w-1/4 animate-pulse" />
-              <div className="grid grid-cols-3 gap-4">
-                {[1,2,3].map(i => <div key={i} className="h-20 bg-white/5 rounded animate-pulse" />)}
-              </div>
+      <div className="relative z-10 min-h-screen px-4 pb-16 pt-24">
+        <div className="mx-auto max-w-5xl space-y-8">
+          <div className="card-glass space-y-4 p-8">
+            <div className="h-6 w-1/3 animate-pulse rounded bg-white/5" />
+            <div className="h-4 w-2/3 animate-pulse rounded bg-white/5" />
+            <div className="mt-6 flex gap-4">
+              <div className="h-10 w-32 animate-pulse rounded-full bg-white/5" />
+              <div className="h-10 w-32 animate-pulse rounded-full bg-white/5" />
             </div>
           </div>
+          <div className="card-glass space-y-4 p-8">
+            <div className="h-5 w-1/4 animate-pulse rounded bg-white/5" />
+            <div className="grid grid-cols-3 gap-4">
+              {[1, 2, 3].map(i => <div key={i} className="h-20 animate-pulse rounded bg-white/5" />)}
+            </div>
+          </div>
+        </div>
       </div>
     )
   }
@@ -71,61 +69,48 @@ export default function HomePage() {
   if (hasProfile) {
     return (
       <div className="relative z-10 min-h-screen">
-          <section className="pt-24 pb-10 px-4">
-            <UserDashboard />
-          </section>
+        <section className="px-4 pb-10 pt-24">
+          <UserDashboard />
+        </section>
 
-          <section className="py-12 px-4">
-            <div className="max-w-5xl mx-auto">
-              <div className="text-center mb-8">
-                <span className="text-gold/60 text-sm tracking-[0.2em] uppercase">{t("home.dailyBadge")}</span>
-                <h2 className="font-serif text-2xl font-bold text-gold mt-2">{t("home.dailyTitle")}</h2>
-              </div>
-              <DailyDashboard />
+        <section className="px-4 py-12">
+          <div className="mx-auto max-w-5xl">
+            <div className="mb-8 text-center">
+              <span className="text-sm uppercase tracking-[0.2em] text-gold/60">{t("home.dailyBadge")}</span>
+              <h2 className="mt-2 font-serif text-2xl font-bold text-gold">{t("home.dailyTitle")}</h2>
             </div>
-          </section>
+            <DailyDashboard />
+          </div>
+        </section>
 
-          <ServicesShowcase />
-
-          <LifestyleShowcase />
-
-          <FloatingFortuneSubscribe />
-        </div>
+        <ServicesShowcase />
+        <LifestyleShowcase />
+        <FloatingFortuneSubscribe />
+      </div>
     )
   }
 
   return (
-    <div className="relative z-10 min-h-screen">
-        {/* SECTION 01: Hero */}
-        <CinematicHero />
-        <ErrorBoundary sectionName="Guanwo System">
-          <GuanwoSystemSection />
-        </ErrorBoundary>
-        <ErrorBoundary sectionName="Growth Loop">
-          <GrowthLoopSection />
-        </ErrorBoundary>
-        {/* SECTION 02: How It Works — AI cross-validation */}
-        <ErrorBoundary sectionName="AI Analysis">
-          <div id="how-it-works">
-            <AIDestinyDeconstruction />
-          </div>
-        </ErrorBoundary>
-        {/* SECTION 03: Life Route — your journey map */}
-        <ErrorBoundary sectionName="Life Route">
-          <LifeRouteGeneration />
-        </ErrorBoundary>
-        {/* SECTION 04: Key Life Nodes — deep dive */}
-        <ErrorBoundary sectionName="Key Life Nodes">
-          <KeyLifeNodes />
-        </ErrorBoundary>
-        {/* SECTION 05: Services */}
-        <ErrorBoundary sectionName="Services">
-          <ServicesShowcase />
-        </ErrorBoundary>
-        {/* SECTION 06: Lifestyle */}
-        <ErrorBoundary sectionName="Lifestyle">
-          <LifestyleShowcase />
-        </ErrorBoundary>
-      </div>
+    <div className="relative z-10 min-h-screen bg-[#080808]">
+      <GrowthCommandHero variant="home" />
+      <ErrorBoundary sectionName="Five Dimension Command Center">
+        <FiveDimensionCommandCenter />
+      </ErrorBoundary>
+      <ErrorBoundary sectionName="Signal To Action Workflow">
+        <SignalToActionWorkflow />
+      </ErrorBoundary>
+      <ErrorBoundary sectionName="Sample Growth Report">
+        <SampleGrowthReport />
+      </ErrorBoundary>
+      <ErrorBoundary sectionName="Growth Service Paths">
+        <GrowthServicePaths />
+      </ErrorBoundary>
+      <ErrorBoundary sectionName="Method Trust">
+        <MethodTrustSection />
+      </ErrorBoundary>
+      <ErrorBoundary sectionName="Final Growth CTA">
+        <FinalGrowthCTA />
+      </ErrorBoundary>
+    </div>
   )
 }
