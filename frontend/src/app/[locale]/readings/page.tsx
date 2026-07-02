@@ -119,7 +119,7 @@ export default function ReadingsPage() {
               return (
                 <Link
                   key={r.id}
-                  href={`/reading/${r.id}`}
+                  href={localeHref(`/reading/${r.id}`)}
                   className="block card-glow p-5 hover:border-gold/30 transition-all duration-300 group"
                 >
                   <div className="flex items-start gap-4">

@@ -89,7 +89,7 @@ export function UserDashboard() {
             {recentReadings.map(r => (
               <Link
                 key={r.id}
-                href={`/reading/${r.id}`}
+                href={`/${locale}/reading/${r.id}`}
                 className="block card-glass p-4 hover:border-white/20 transition-all"
               >
                 <div className="flex items-center justify-between">
