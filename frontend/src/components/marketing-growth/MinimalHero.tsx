@@ -204,8 +204,7 @@ export function MinimalHero() {
       </header>
 
       {/* ═══ Hero Content ═══ */}
-      <div className="relative z-[2] mx-auto flex max-w-[1340px] flex-col justify-end gap-[120px] pt-[160px] px-4
-        md:gap-[150px] md:pt-[190px] md:px-5">
+      <div className="relative z-[2] mx-auto flex max-w-[1340px] flex-col justify-end gap-[120px] pt-[160px] px-4 md:gap-[150px] md:pt-[190px] md:px-5">
 
         {/* Section 1: Feature Switcher + Status */}
         <div className="flex flex-col gap-7 md:flex-row">
@@ -243,8 +242,7 @@ export function MinimalHero() {
           {/* Giant name */}
           <div className="flex-[2]">
             <h1
-              className="font-display font-bold uppercase text-[clamp(68px,18vw,200px)] leading-[0.85] tracking-[-0.03em]
-                md:text-[130px] md:leading-[0.87] xl:text-[200px] xl:leading-[0.81]"
+              className="font-display font-bold uppercase text-[clamp(68px,18vw,200px)] leading-[0.85] tracking-[-0.03em] md:text-[130px] md:leading-[0.87] xl:text-[200px] xl:leading-[0.81]"
               style={{
                 opacity: revealed ? 1 : 0,
                 transform: revealed ? "translateY(0)" : "translateY(80px)",
@@ -278,9 +276,7 @@ export function MinimalHero() {
             >
               <Link
                 href={localeHref("/reading/new")}
-                className="btn-fill group relative mt-8 inline-flex items-center gap-2 overflow-hidden
-                  rounded-full border border-white/30 px-8 py-3 text-sm font-medium lowercase text-white
-                  transition-colors duration-500 hover:border-[#C9A84C] hover:text-black"
+                className="btn-fill group relative mt-8 inline-flex items-center gap-2 overflow-hidden rounded-full border border-white/30 px-8 py-3 text-sm font-medium lowercase text-white transition-colors duration-500 hover:border-[#C9A84C] hover:text-black"
               >
                 <span className="relative z-[1]">{copy.cta}</span>
                 <span className="relative z-[1] ml-1 transition-transform duration-300 group-hover:translate-x-1">→</span>
