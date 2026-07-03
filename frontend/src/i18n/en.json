@@ -2983,8 +2983,8 @@
     "protection": "Protection"
   },
   "app": {
-    "name": "Guanwo AI",
-    "slogan": "AI self-knowledge and daily growth guidance"
+    "name": "Guanwo Fate OS",
+    "slogan": "AI destiny action system"
   },
   "blog": {
     "backToBlog": "Back to Knowledge Base",
@@ -3456,14 +3456,14 @@
   },
   "footer": {
     "contactUs": "Contact Us",
-    "copyright": "© 2025-2026 Behavioral Mirror · For reference only, not professional advice",
-    "desc": "3,000 years of Eastern wisdom meets modern technology —\neveryone gets a unique life reading.",
+    "copyright": "© 2025-2026 Guanwo Fate OS · For reference only, not professional advice",
+    "desc": "Eastern metaphysics, Western astrology, and AI synthesis —\nturning destiny analysis into reviewable daily action.",
     "disclaimer": "Disclaimer",
     "faq": "FAQ",
     "icp": "ICP Filing",
     "nav": "Navigation",
     "newsletter": "Stay in Tune",
-    "newsletterDesc": "Weekly Five Element status & guidance",
+    "newsletterDesc": "Weekly destiny actions, relationship sync, and lifestyle prescriptions",
     "privacy": "Privacy Policy",
     "refund": "Refund Policy",
     "subscribed": "Subscribed",
@@ -3471,7 +3471,7 @@
     "systems": "Analysis Systems",
     "terms": "Terms of Service",
     "wechatHint": "Click to copy WeChat ID",
-    "entertainmentDisclaimer": "This platform provides AI-powered behavioral analysis for personal development purposes only. All results are for entertainment and self-reflection, not predictive or professional advice. Use your own judgment."
+    "entertainmentDisclaimer": "This platform provides AI-powered destiny profiles and action guidance for personal development, entertainment, and self-reflection only. It is not predictive or professional advice. Use your own judgment."
   },
   "forgotPassword": {
     "changeEmail": "← Change email",
@@ -3601,14 +3601,14 @@
   "nav": {
     "about": "About",
     "account": "Account",
-    "almanac": "Daily Trend",
+    "almanac": "Today Command",
     "knowledge": "Knowledge",
     "am16": "Personality Quiz",
     "astrology": "Astrology",
     "bazi": "Bazi",
     "blog": "Insights",
     "cart": "Cart",
-    "dashboard": "My Profile",
+    "dashboard": "Today Action Board",
     "analysis": "Quantum Insight",
     "divination": "Star Analysis",
     "events": "Event Analysis",
@@ -3619,7 +3619,7 @@
     "logout": "Log Out",
     "myReports": "My Reports",
     "palm-reading": "Palm Reading",
-    "pricing": "Pricing",
+    "pricing": "Plans",
     "profile": "Profile",
     "reading": "Build My Profile",
     "referral": "Invite & Earn",
@@ -4588,8 +4588,8 @@
     "resultCount": "{count} treasures"
   },
   "tools": {
-    "title": "Destiny Analysis Tools",
-    "desc": "AI-powered analysis tools to decode your destiny patterns"
+    "title": "Free Exploration Tools",
+    "desc": "Star Analysis, personality quizzes, and daily trends are low-friction entries that give you a first layer of feedback."
   },
   "energyWave": {
     "currentLevel": "Current Level",

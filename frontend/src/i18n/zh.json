@@ -2717,7 +2717,7 @@
   },
   "app": {
     "name": "观我",
-    "slogan": "AI 自我画像与每日成长建议"
+    "slogan": "AI 命运行动系统"
   },
   "blog": {
     "backToBlog": "返回知识库",
@@ -3068,14 +3068,14 @@
   },
   "footer": {
     "contactUs": "联系我们",
-    "copyright": "© 2025-2026 AI 行为分析镜 · 仅供参考，不构成专业建议",
-    "desc": "融合三千年东方传统分析与现代AI技术，\n为每位来访者提供独一无二的生命解读。",
+    "copyright": "© 2025-2026 观我 Fate OS · 仅供参考，不构成专业建议",
+    "desc": "融合东方五术、西方星盘与 AI 合参，\n把命运分析转成可复盘的今日行动。",
     "disclaimer": "免责声明",
     "faq": "常见问题",
     "icp": "ICP备案号待补充",
     "nav": "导航",
     "newsletter": "订阅状态",
-    "newsletterDesc": "每周推送五素状态与提升指南",
+    "newsletterDesc": "每周推送命运行动、关系合参和生活方式处方",
     "privacy": "隐私政策",
     "refund": "退款政策",
     "subscribed": "订阅成功",
@@ -3083,7 +3083,7 @@
     "systems": "分析体系",
     "terms": "服务条款",
     "wechatHint": "点击复制微信号",
-    "entertainmentDisclaimer": "本平台提供AI驱动的行为分析，仅用于个人发展目的。所有结果仅供娱乐和自我反思，不构成预测性或专业建议。请自行判断。"
+    "entertainmentDisclaimer": "本平台提供 AI 驱动的命运画像与行动建议，仅用于个人发展、娱乐和自我反思，不构成预测性或专业建议。请自行判断。"
   },
   "forgotPassword": {
     "changeEmail": "← 更换邮箱",
@@ -3212,15 +3212,15 @@
   "nav": {
     "about": "关于我们",
     "account": "个人中心",
-    "almanac": "每日趋势",
+    "almanac": "今日指令",
     "knowledge": "知识库",
     "am16": "性格测验",
     "astrology": "星盘",
     "bazi": "八字",
     "blog": "知识库",
     "cart": "购物车",
-    "dashboard": "我的档案",
-    "divination": "星盘分析",
+    "dashboard": "今日行动板",
+    "divination": "星际分析",
     "events": "事件复盘",
     "face-reading": "面相",
     "five-elements": "五行",
@@ -3229,7 +3229,7 @@
     "logout": "退出登录",
     "myReports": "我的报告",
     "palm-reading": "手相",
-    "pricing": "会员方案",
+    "pricing": "定价",
     "profile": "个人中心",
     "reading": "建立画像",
     "referral": "邀请好友",
@@ -4181,7 +4181,7 @@
     "resultCount": "共 {count} 件藏品"
   },
   "tools": {
-    "title": "命运分析工具",
-    "desc": "AI 驱动的分析工具，解码你的命运模式"
+    "title": "免费探索工具",
+    "desc": "星际分析、性格测验和今日趋势是低门槛入口，帮助你快速获得第一层反馈。"
   }
 }

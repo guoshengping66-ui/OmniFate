@@ -44,26 +44,26 @@ export type GrowthCopy = {
 const zh: GrowthCopy = {
   hero: {
     home: {
-      eyebrow: "五维合参 · 个人成长命盘",
-      title: "打开你的成长命盘指挥台",
-      subtitle: "把八字、紫微、星盘、塔罗、面相手相与行为上下文连成一张动态地图，生成今天能执行的成长建议。",
-      methodLabel: "分析方式",
-      primaryCta: "生成我的成长命盘",
+      eyebrow: "Fate OS · 东方五术 × 西方星盘 × AI 合参",
+      title: "把命运分析变成今天能执行的行动",
+      subtitle: "观我把八字、紫微、星盘、塔罗、面相手相与真实问题放进同一个上下文，输出当下模式、机会窗口、风险提醒和一条可复盘行动。",
+      methodLabel: "合参信号",
+      primaryCta: "生成我的命运行动图",
       secondaryCta: "查看样例报告",
     },
     destiny: {
-      eyebrow: "不是一次算命，是持续更新的成长系统",
-      title: "用五维合参看清当下模式",
-      subtitle: "系统交叉验证财富、事业、关系、健康与精神状态，输出当前阶段、盲点、机会窗口和行动建议。",
+      eyebrow: "不是一次算命，是持续更新的个人操作系统",
+      title: "看清你此刻的模式、盲点和机会窗口",
+      subtitle: "系统交叉验证财富、事业、关系、健康与心智状态，把复杂信号压缩成阶段判断、行动建议和后续复盘。",
       methodLabel: "合参信号",
       primaryCta: "开始生成命盘",
       secondaryCta: "先看完整样例",
     },
   },
-  methodStrip: ["八字", "紫微", "星盘", "塔罗", "面相/手相", "行为上下文"],
+  methodStrip: ["八字", "紫微", "星盘", "塔罗", "面相/手相", "真实问题"],
   commandCenter: {
-    title: "今日成长命盘",
-    description: "样例展示：真实结果会根据你的出生信息、当前问题和反馈记录动态生成。",
+    title: "今日命运行动板",
+    description: "样例展示：真实结果会根据你的出生信息、当前问题、报告档案和反馈记录动态生成。",
     todayPattern: "调整后上升期",
     blindSpot: "容易把短期情绪当成长期判断",
     opportunity: "适合推进已验证的计划，不适合临时更换方向",
@@ -108,8 +108,8 @@ const zh: GrowthCopy = {
     },
     {
       key: "spirit",
-      name: "精神",
-      label: "意义方向",
+      name: "心智",
+      label: "长期方向",
       color: "#9A78D6",
       signal: "自我信念与长期方向感",
       contribution: "校准短期行动和长期意义是否一致。",
@@ -119,18 +119,18 @@ const zh: GrowthCopy = {
   workflow: [
     {
       title: "输入信号",
-      body: "出生信息、当前问题、行为反馈进入同一个上下文。",
-      output: "得到一组可交叉验证的基础信号。",
+      body: "出生信息、当前问题、过往报告、工具反馈进入同一个上下文。",
+      output: "得到一组可交叉验证的命运信号。",
     },
     {
       title: "五维合参",
-      body: "系统把财富、事业、关系、健康、精神放在同一张图里比较。",
+      body: "系统把财富、事业、关系、健康、心智放在同一张图里比较。",
       output: "识别当前模式、主要矛盾和变化窗口。",
     },
     {
-      title: "转成行动",
-      body: "不是停在解释，而是把模式翻译成今日建议和本周实验。",
-      output: "获得一个能执行、能复盘的行动。",
+      title: "生成处方",
+      body: "不是停在解释，而是把模式翻译成今日行动、本周实验和藏宝阁处方。",
+      output: "获得一个能执行、能复盘、能延展到生活方式的行动闭环。",
     },
   ],
   reportTabs: [
@@ -157,54 +157,54 @@ const zh: GrowthCopy = {
     },
   ],
   services: [
-    { title: "成长命盘", body: "生成你的五维画像、当前阶段和行动建议。", href: "/reading/new" },
-    { title: "今日趋势", body: "查看当天节奏、风险提醒和适合推进的事。", href: "/almanac" },
-    { title: "知识地图", body: "理解八字、紫微、星盘等系统如何参与合参。", href: "/knowledge" },
+    { title: "命运行动图", body: "生成你的五维画像、当前阶段、机会窗口和下一步行动。", href: "/reading/new" },
+    { title: "今日行动板", body: "查看当天节奏、风险提醒和最适合推进的一件事。", href: "/almanac" },
+    { title: "藏宝阁处方", body: "把报告里的弱点、五行与阶段任务转成生活方式建议。", href: "/shop" },
   ],
   trust: [
     {
       title: "不把命理包装成绝对预测",
-      body: "系统用于模式识别、反思和决策辅助，不替代医疗、法律或财务建议。",
+      body: "观我用于模式识别、反思和决策辅助，不替代医疗、法律或财务建议。",
     },
-    { title: "不是越长越专业", body: "报告重点是结论、依据和行动，而不是堆砌术语。" },
+    { title: "不是工具越多越专业", body: "星际分析和性格测验保留为低门槛入口，主线始终回到报告、行动与复盘。" },
     {
       title: "五维交叉验证",
       body: "单一信号只做参考，最终建议来自多个维度之间的一致与冲突。",
     },
   ],
   finalCta: {
-    title: "从今天开始记录你的变化",
-    body: "生成一次命盘，获得今日行动，并在后续反馈中让画像持续更新。",
-    primary: "生成我的成长命盘",
-    secondary: "查看方法说明",
+    title: "从今天开始建立你的命运行动系统",
+    body: "先生成一次完整画像，再用每日行动板、关系合参和藏宝阁处方把洞察落到现实生活。",
+    primary: "生成我的命运行动图",
+    secondary: "查看样例输出",
   },
 }
 
 const en: GrowthCopy = {
   hero: {
     home: {
-      eyebrow: "Five-Dimensional Growth Chart",
-      title: "Open your growth command center",
+      eyebrow: "Fate OS · Eastern metaphysics × Western astrology × AI synthesis",
+      title: "Turn destiny analysis into action you can take today",
       subtitle:
-        "Bazi, Ziwei, astrology, tarot, face and palm signals, and behavior context become a living map with one practical action for today.",
-      methodLabel: "Analysis method",
-      primaryCta: "Generate My Growth Chart",
+        "Guanwo combines Bazi, Ziwei, astrology, tarot, face and palm signals, and your real question into one context, then returns your pattern, opportunity window, risk signal, and next action.",
+      methodLabel: "Synthesis signals",
+      primaryCta: "Generate My Fate OS",
       secondaryCta: "View Sample Report",
     },
     destiny: {
-      eyebrow: "Not a one-time reading. A living growth system.",
-      title: "Understand your current pattern through five dimensions",
+      eyebrow: "Not a one-time reading. A living personal operating system.",
+      title: "Understand your current pattern, blind spot, and timing",
       subtitle:
-        "We cross-check wealth, career, relationships, health, and spirit to surface your phase, blind spot, opportunity window, and next action.",
+        "We cross-check wealth, career, relationships, health, and mind to compress complex signals into phase, timing, action, and review.",
       methodLabel: "Signals",
       primaryCta: "Start My Chart",
       secondaryCta: "View Full Sample",
     },
   },
-  methodStrip: ["Bazi", "Ziwei", "Astrology", "Tarot", "Face/Palm", "Behavior Context"],
+  methodStrip: ["Bazi", "Ziwei", "Astrology", "Tarot", "Face/Palm", "Real Question"],
   commandCenter: {
-    title: "Today Growth Chart",
-    description: "Sample view: your real result is generated from your birth data, current question, and feedback history.",
+    title: "Today Fate Action Board",
+    description: "Sample view: your real result is generated from birth data, current question, report profile, and feedback history.",
     todayPattern: "Rising after adjustment",
     blindSpot: "Treating temporary emotion as long-term truth",
     opportunity: "Good for advancing validated plans, not sudden direction changes",
@@ -249,8 +249,8 @@ const en: GrowthCopy = {
     },
     {
       key: "spirit",
-      name: "Spirit",
-      label: "Meaning Direction",
+      name: "Mind",
+      label: "Long-Term Direction",
       color: "#9A78D6",
       signal: "Self-belief and long-cycle direction",
       contribution: "Checks whether short actions match long-term meaning.",
@@ -260,18 +260,18 @@ const en: GrowthCopy = {
   workflow: [
     {
       title: "Collect signals",
-      body: "Birth data, current question, and behavior feedback enter one context.",
-      output: "A base set of cross-checkable signals.",
+      body: "Birth data, current question, past reports, and tool feedback enter one context.",
+      output: "A base set of cross-checkable destiny signals.",
     },
     {
       title: "Synthesize dimensions",
-      body: "We compare wealth, career, relationships, health, and spirit in one map.",
+      body: "We compare wealth, career, relationships, health, and mind in one map.",
       output: "Your current pattern, core tension, and change window.",
     },
     {
-      title: "Translate to action",
-      body: "The system turns interpretation into one daily action and one weekly experiment.",
-      output: "A practical step you can execute and review.",
+      title: "Create a prescription",
+      body: "The system turns interpretation into a daily action, weekly experiment, and Treasure Hall prescription.",
+      output: "A practical loop you can execute, review, and extend into lifestyle choices.",
     },
   ],
   reportTabs: [
@@ -298,26 +298,29 @@ const en: GrowthCopy = {
     },
   ],
   services: [
-    { title: "Growth Chart", body: "Generate your five-dimensional profile, current phase, and action plan.", href: "/reading/new" },
-    { title: "Daily Trend", body: "See today's rhythm, risk reminders, and suitable moves.", href: "/almanac" },
-    { title: "Knowledge Map", body: "Learn how Bazi, Ziwei, astrology, and other systems join the synthesis.", href: "/knowledge" },
+    { title: "Fate Action Map", body: "Generate your five-dimensional profile, current phase, timing, and next move.", href: "/reading/new" },
+    { title: "Today Action Board", body: "See today's rhythm, risk reminders, and the one move worth making.", href: "/almanac" },
+    { title: "Treasure Prescription", body: "Turn weak signals, elements, and stage tasks into lifestyle recommendations.", href: "/shop" },
   ],
   trust: [
     {
       title: "Not absolute prediction",
-      body: "The system supports pattern recognition, reflection, and decisions. It does not replace medical, legal, or financial advice.",
+      body: "Guanwo supports pattern recognition, reflection, and decisions. It does not replace medical, legal, or financial advice.",
     },
-    { title: "Not longer for the sake of longer", body: "Reports prioritize conclusion, reasoning, and action over terminology." },
+    {
+      title: "Not more tools for the sake of tools",
+      body: "Star Analysis and personality quizzes stay as low-friction entry points. The core loop remains report, action, and review.",
+    },
     {
       title: "Cross-validated by five dimensions",
       body: "Single signals are reference points. Final guidance comes from agreements and conflicts across dimensions.",
     },
   ],
   finalCta: {
-    title: "Start tracking your change today",
-    body: "Generate your chart, receive today's action, and let your profile evolve through feedback.",
-    primary: "Generate My Growth Chart",
-    secondary: "Read Method",
+    title: "Build your Fate OS today",
+    body: "Generate a full profile, then use daily actions, relationship sync, and Treasure Hall prescriptions to bring insight into real life.",
+    primary: "Generate My Fate OS",
+    secondary: "View Sample Output",
   },
 }
 

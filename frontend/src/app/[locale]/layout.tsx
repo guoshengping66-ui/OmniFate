@@ -37,27 +37,27 @@ export async function generateMetadata({
   const baseUrl = "https://www.khanfate.com"
 
   return {
-    title: isZh ? "观我 · AI 自我画像与每日成长系统" : "Guanwo AI — AI Self-Knowledge and Daily Growth",
+    title: isZh ? "观我 Fate OS｜AI 命运行动系统" : "Guanwo Fate OS | AI Destiny Action System",
     description: isZh
-      ? "观我融合八字、紫微、星盘、塔罗、面相与手相，生成持续更新的 AI 命运画像、每日趋势、今日签和个人成长建议。"
-      : "Guanwo AI combines Bazi, Ziwei, astrology, tarot, face and palm signals into a living AI destiny profile with daily trends and growth guidance.",
+      ? "观我融合八字、紫微、星盘、塔罗、面相手相与真实问题，生成可复盘的命运画像、今日行动、关系合参和生活方式处方。"
+      : "Guanwo combines Bazi, Ziwei, astrology, tarot, face and palm signals, and real questions into a reviewable destiny profile, daily action board, relationship sync, and lifestyle prescription.",
     keywords: isZh
-      ? "八字,星盘,塔罗,面相,手相,AI分析,命运,自我认知,性格分析"
-      : "bazi,astrology,tarot,face reading,palm reading,AI,destiny,self-understanding,personality",
-    authors: [{ name: "Guanwo AI" }],
+      ? "八字,紫微斗数,星盘,塔罗,面相,手相,AI分析,命运行动系统,今日行动,关系合参,藏宝阁"
+      : "bazi,ziwei,astrology,tarot,face reading,palm reading,AI destiny,action system,relationship sync,lifestyle prescription",
+    authors: [{ name: "Guanwo Fate OS" }],
     openGraph: {
-      title: isZh ? "观我 — AI 自我画像与每日成长系统" : "Guanwo AI — AI Self-Knowledge and Daily Growth",
+      title: isZh ? "观我 Fate OS｜AI 命运行动系统" : "Guanwo Fate OS | AI Destiny Action System",
       description: isZh
-        ? "建立你的 AI 命运画像，每天获得趋势、今日签和行动建议。"
-        : "Build your AI destiny profile, then receive daily trends, an oracle prompt, and action guidance.",
+        ? "把命运分析变成今天能执行的行动：完整画像、今日行动板、关系合参和藏宝阁处方。"
+        : "Turn destiny analysis into action: profile, daily action board, relationship sync, and Treasure Hall prescriptions.",
       url: `${baseUrl}/${locale}`,
-      siteName: "Guanwo AI",
+      siteName: "Guanwo Fate OS",
       images: [
         {
           url: `${baseUrl}/og-image.svg`,
           width: 1200,
           height: 630,
-          alt: isZh ? "观我" : "Guanwo AI",
+          alt: isZh ? "观我 Fate OS" : "Guanwo Fate OS",
         },
       ],
       locale: isZh ? "zh_CN" : "en_US",
@@ -65,10 +65,10 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: isZh ? "观我 — 读懂你自己" : "Guanwo AI",
+      title: isZh ? "观我 Fate OS｜把命运分析变成行动" : "Guanwo Fate OS",
       description: isZh
-        ? "AI 命运画像 × 每日趋势 × 个人成长建议"
-        : "AI destiny profile × daily trends × personal growth guidance",
+        ? "AI 命运画像 × 今日行动板 × 关系合参 × 藏宝阁处方"
+        : "AI destiny profile × daily action board × relationship sync × Treasure prescriptions",
       images: [`${baseUrl}/og-image.svg`],
     },
     alternates: {
@@ -255,13 +255,13 @@ try{
             __html: safeJsonLd({
               "@context": "https://schema.org",
               "@type": "WebApplication",
-              name: validLocale === "zh" ? "观我" : "Guanwo AI",
+              name: validLocale === "zh" ? "观我 Fate OS" : "Guanwo Fate OS",
               url: `https://www.khanfate.com/${validLocale}`,
               applicationCategory: "LifestyleApplication",
               operatingSystem: "Web",
               description: validLocale === "zh"
-                ? "融合八字、星盘、塔罗、面相、手相五大古老系统，AI 交叉验证，生成专属人生蓝图"
-                : "Five ancient systems — Bazi, Astrology, Tarot, Face Reading, Palm Reading — cross-validated by AI to generate your personal blueprint",
+                ? "融合八字、紫微、星盘、塔罗、面相手相与真实问题，生成可复盘的命运画像、今日行动、关系合参和生活方式处方。"
+                : "Bazi, Ziwei, astrology, tarot, face and palm signals, and real questions become a reviewable destiny profile, daily action board, relationship sync, and lifestyle prescription.",
               offers: {
                 "@type": "Offer",
                 price: "0",
@@ -269,7 +269,7 @@ try{
               },
               author: {
                 "@type": "Organization",
-                name: "Guanwo AI",
+                name: "Guanwo Fate OS",
                 url: "https://www.khanfate.com",
                 logo: "https://www.khanfate.com/logo.png",
                 sameAs: [

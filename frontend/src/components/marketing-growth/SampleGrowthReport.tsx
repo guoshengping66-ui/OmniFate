@@ -23,7 +23,7 @@ export function SampleGrowthReport() {
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-gold/60">Sample Report</p>
             <h2 className="mt-4 font-serif text-3xl font-bold text-white sm:text-5xl">
-              {activeLocale === "zh" ? "不是长篇玄学解释，而是可复盘的输出" : "Not a long mystical essay. A reviewable output."}
+              {activeLocale === "zh" ? "不是玄学长文，而是可执行的命运行动图" : "Not a long mystical essay. An executable fate action map."}
             </h2>
           </div>
           <div className="flex border border-white/[0.08] bg-black/20 p-1">

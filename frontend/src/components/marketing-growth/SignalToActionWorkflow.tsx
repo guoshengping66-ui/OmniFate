@@ -19,7 +19,7 @@ export function SignalToActionWorkflow() {
         <div className="mb-10 max-w-2xl">
           <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-gold/60">Signal To Action</p>
           <h2 className="mt-4 font-serif text-3xl font-bold text-white sm:text-5xl">
-            {activeLocale === "zh" ? "从命理信号到今天能做的事" : "From destiny signals to today's action"}
+            {activeLocale === "zh" ? "从合参信号到行动处方" : "From synthesis signals to an action prescription"}
           </h2>
         </div>
 

@@ -1,45 +1,69 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowRight, CalendarClock, Compass, HeartHandshake, Layers3 } from "lucide-react"
+import { ArrowRight, CalendarClock, Compass, HeartHandshake, Layers3, ShoppingBag, Sparkles } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 const zhPaths = [
   {
+    icon: Sparkles,
+    title: "免费探索入口",
+    label: "Free Tools",
+    desc: "星际分析、性格测验和今日趋势保留为低门槛入口，用来快速产生兴趣、分享和第一层反馈。",
+    href: "/tools",
+    accent: "#B995FF",
+  },
+  {
     icon: Compass,
-    title: "单主题分析",
+    title: "单主题快问",
     label: "Focus Reading",
-    desc: "围绕事业、感情、财富、健康或某个具体问题，只输出这个主题的结论、时机和行动建议。",
+    desc: "围绕事业、感情、财富、健康或一个具体决策，只输出该主题的判断、时机和下一步动作。",
     href: "/reading/new?intent=quick",
     accent: "#C9A84C",
   },
   {
     icon: Layers3,
-    title: "完整成长命盘",
-    label: "Full Growth Chart",
-    desc: "五维合参生成完整个人结构，覆盖人格、事业财富、关系、能量状态和长期成长路径。",
+    title: "完整命运行动图",
+    label: "Fate Action Map",
+    desc: "把人格、事业、财富、关系、能量状态和长期路径放进同一张图，形成你的核心档案。",
     href: "/reading/new?intent=full",
     accent: "#59B894",
   },
   {
     icon: HeartHandshake,
-    title: "关系合盘",
+    title: "关系合参",
     label: "Relationship Sync",
-    desc: "为恋爱、婚姻、复合、合作和亲密关系建立双人关系图，拆解契合点与冲突来源。",
+    desc: "为恋爱、婚姻、复合、合作和亲密关系建立双人关系图，拆解契合点、冲突源和沟通动作。",
     href: "/reading/new?intent=relationship",
     accent: "#D98C72",
   },
   {
     icon: CalendarClock,
-    title: "每日成长指挥台",
+    title: "今日行动板",
     label: "Daily Command",
-    desc: "登录后每天根据命盘底层结构和当日时机，给出今日主题、行动处方和风险提醒。",
-    href: "/register",
+    desc: "每天根据底层档案和当日节奏，给出今日主题、风险提醒和最值得推进的一件事。",
+    href: "/almanac",
     accent: "#74A7D8",
+  },
+  {
+    icon: ShoppingBag,
+    title: "藏宝阁处方",
+    label: "Treasure Prescription",
+    desc: "把报告里的弱点、五行、星象和阶段任务转成可浏览、可解释、可理性选择的生活方式建议。",
+    href: "/shop",
+    accent: "#D7A35F",
   },
 ]
 
 const enPaths = [
+  {
+    icon: Sparkles,
+    title: "Free Entry Tools",
+    label: "Free Tools",
+    desc: "Star Analysis, personality quizzes, and daily trends stay as low-friction entry points for interest, sharing, and first feedback.",
+    href: "/tools",
+    accent: "#B995FF",
+  },
   {
     icon: Compass,
     title: "Focus Reading",
@@ -50,9 +74,9 @@ const enPaths = [
   },
   {
     icon: Layers3,
-    title: "Full Growth Chart",
-    label: "5D synthesis",
-    desc: "A complete profile across personality, work, wealth, relationships, energy, timing, and growth path.",
+    title: "Full Fate Action Map",
+    label: "Fate Action Map",
+    desc: "A complete profile across personality, work, wealth, relationships, energy, timing, and long-term path.",
     href: "/reading/new?intent=full",
     accent: "#59B894",
   },
@@ -66,11 +90,19 @@ const enPaths = [
   },
   {
     icon: CalendarClock,
-    title: "Daily Command",
+    title: "Today Action Board",
     label: "Logged-in dashboard",
-    desc: "A daily command center that turns your profile and today's timing into concrete action prescriptions.",
-    href: "/register",
+    desc: "A daily board that turns your base profile and today's rhythm into a theme, risk reminder, and best next move.",
+    href: "/almanac",
     accent: "#74A7D8",
+  },
+  {
+    icon: ShoppingBag,
+    title: "Treasure Prescription",
+    label: "Treasure Hall",
+    desc: "Turns weak signals, elements, astrological tags, and stage tasks into explainable lifestyle recommendations.",
+    href: "/shop",
+    accent: "#D7A35F",
   },
 ]
 
@@ -89,17 +121,17 @@ export function ProductPathMap() {
               {isZh ? "Product Map" : "Product Map"}
             </p>
             <h2 className="mt-3 font-serif text-3xl font-bold text-white md:text-5xl">
-              {isZh ? "先解决一个问题，再进入完整成长系统" : "Start with one question, then enter the full growth system"}
+              {isZh ? "免费入口负责破冰，核心产品负责长期留存" : "Free tools spark entry. Core products create the long-term loop."}
             </h2>
           </div>
           <p className="max-w-xl text-sm leading-7 text-white/50">
             {isZh
-              ? "单主题分析不是缩水版完整报告，而是一个主题切片；合盘是关系成长的独立产品；完整命盘和每日指挥台负责长期留存。"
-              : "Focus readings are not shortened full reports. They are topic slices. Relationship sync is a standalone relationship product, while the full chart and daily command center drive long-term use."}
+              ? "星际分析和性格测验需要保留，但要放在工具层；主线是完整画像、关系合参、今日行动板和藏宝阁处方形成闭环。"
+              : "Star Analysis and personality quizzes should stay, but in the tools layer. The core loop is profile, relationship sync, daily action, and Treasure prescription."}
           </p>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {paths.map((path, index) => {
             const Icon = path.icon
             return (
@@ -125,7 +157,7 @@ export function ProductPathMap() {
                 <h3 className="mt-2 text-xl font-semibold text-white">{path.title}</h3>
                 <p className="mt-4 text-sm leading-7 text-white/48">{path.desc}</p>
                 <div className="mt-6 inline-flex items-center gap-2 text-xs font-semibold text-gold/75">
-                  {isZh ? "进入分析" : "Open flow"}
+                  {isZh ? "进入路径" : "Open path"}
                   <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
                 </div>
               </Link>

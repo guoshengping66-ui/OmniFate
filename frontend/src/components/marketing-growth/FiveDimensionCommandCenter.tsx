@@ -19,7 +19,7 @@ export function FiveDimensionCommandCenter() {
       <div className="mx-auto max-w-7xl">
         <div className="mb-10 grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-gold/60">Five-Dimensional Synthesis</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-gold/60">Fate OS Signal Board</p>
             <h2 className="mt-4 font-serif text-3xl font-bold text-white sm:text-5xl">{copy.commandCenter.title}</h2>
           </div>
           <p className="max-w-2xl text-sm leading-7 text-white/55 lg:ml-auto">{copy.commandCenter.description}</p>
@@ -49,7 +49,7 @@ export function FiveDimensionCommandCenter() {
           </div>
 
           <div className="border border-gold/15 bg-[#0B1118] p-6 sm:p-8">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gold/60">Active Lens</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gold/60">Active Signal</p>
             <h3 className="mt-3 text-3xl font-semibold text-white" style={{ color: activeDimension.color }}>
               {activeDimension.name}
             </h3>

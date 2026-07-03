@@ -21,13 +21,13 @@ export function GrowthServicePaths() {
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-gold/60">Product Paths</p>
             <h2 className="mt-4 font-serif text-3xl font-bold text-white sm:text-5xl">
-              {activeLocale === "zh" ? "从一次生成，到每天使用" : "From one generation to daily use"}
+              {activeLocale === "zh" ? "从一次报告，到每天使用，再到生活方式处方" : "From one report to daily use and lifestyle prescriptions"}
             </h2>
           </div>
           <p className="max-w-2xl text-sm leading-7 text-white/55 lg:ml-auto">
             {activeLocale === "zh"
-              ? "首页不再只展示功能，而是让用户看到自己可以从哪里开始、接下来用什么。"
-              : "The homepage should not only list features. It should show where users start and what they use next."}
+              ? "首页不再罗列一堆工具，而是把用户带进清晰闭环：先建立画像，再执行今天，再把洞察转成现实选择。"
+              : "The homepage should not list disconnected tools. It should move users through a clear loop: build a profile, act today, then turn insight into real choices."}
           </p>
         </div>
 

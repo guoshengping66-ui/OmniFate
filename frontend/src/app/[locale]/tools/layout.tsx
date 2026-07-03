@@ -7,16 +7,16 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const path = `/${locale}/tools`
 
   return {
-    title: isZh ? "命运分析工具 — AI 八字/占星/塔罗/面相/手相 | 命运引擎" : "Destiny Analysis Tools - AI Bazi, Astrology, Tarot, Face & Palm Reading | Destiny Engine",
+    title: isZh ? "免费探索工具｜星际分析、性格测验与今日指令 | 观我 Fate OS" : "Free Exploration Tools | Star Analysis, Personality Quiz, Today Command | Guanwo Fate OS",
     description: isZh
-      ? "免费 AI 命运分析工具：八字排盘、星盘分析、紫微斗数、塔罗牌解读、面相分析、手相分析、五行查询。"
-      : "Free AI destiny analysis tools: Bazi chart, birth chart, Ziwei Doushu, tarot reading, face analysis, palm reading, and Five Elements.",
+      ? "星际分析、性格测验、八字、星盘、塔罗、面相、手相与五行查询，作为进入观我 Fate OS 的低门槛探索入口。"
+      : "Star Analysis, personality quizzes, Bazi, astrology, tarot, face reading, palm reading, and Five Elements as low-friction entry points into Guanwo Fate OS.",
     keywords: isZh
-      ? "命运分析,AI工具,八字,占星,塔罗,面相,手相,五行,紫微斗数"
-      : ["destiny analysis", "AI tools", "bazi", "astrology", "tarot", "face reading", "palm reading", "five elements"],
+      ? "免费探索工具,星际分析,性格测验,八字,星盘,塔罗,面相,手相,五行,观我"
+      : ["free exploration tools", "star analysis", "personality quiz", "bazi", "astrology", "tarot", "face reading", "palm reading", "five elements"],
     openGraph: {
-      title: isZh ? "命运分析工具 | 命运引擎" : "Destiny Analysis Tools | Destiny Engine",
-      description: isZh ? "免费 AI 命运分析工具合集" : "Free AI destiny analysis tools",
+      title: isZh ? "免费探索工具 | 观我 Fate OS" : "Free Exploration Tools | Guanwo Fate OS",
+      description: isZh ? "星际分析、性格测验和今日趋势是进入命运行动系统的低门槛入口。" : "Star Analysis, personality quizzes, and daily trends are low-friction entries into the destiny action system.",
       type: "website",
       locale: isZh ? "zh_CN" : "en_US",
       url: `${base}${path}`,
