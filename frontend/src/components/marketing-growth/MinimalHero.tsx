@@ -135,15 +135,12 @@ export function MinimalHero() {
               <Link
                 key={item.num}
                 href={localeHref(item.href)}
-                className="group flex items-baseline gap-1"
+                className="nav-link group flex items-baseline gap-1"
               >
                 <span className="text-[8px] leading-3 font-medium uppercase text-white/50">
                   {item.num}
                 </span>
-                <span className="text-xs leading-4 font-medium uppercase text-white/80
-                  relative after:absolute after:bottom-[-2px] after:left-0 after:h-[1px] after:w-full after:bg-white/40
-                  after:origin-right after:scale-x-0 group-hover:after:origin-left group-hover:after:scale-x-100
-                  after:transition-transform after:duration-300">
+                <span className="nav-link-label text-xs leading-4 font-medium uppercase text-white/80">
                   {item.label}
                 </span>
               </Link>
@@ -295,6 +292,27 @@ export function MinimalHero() {
 
       {/* ═══ Custom styles (scoped) ═══ */}
       <style jsx>{`
+        /* Nav link underline */
+        .nav-link-label {
+          position: relative;
+        }
+        .nav-link-label::after {
+          content: "";
+          position: absolute;
+          bottom: -2px;
+          left: 0;
+          height: 1px;
+          width: 100%;
+          background: rgba(255,255,255,0.4);
+          transform-origin: right;
+          transform: scaleX(0);
+          transition: transform 0.3s ease;
+        }
+        .nav-link:hover .nav-link-label::after {
+          transform-origin: left;
+          transform: scaleX(1);
+        }
+
         @keyframes dotPulse {
           0%, 100% { opacity: 1; transform: scale(1); }
           50% { opacity: 0.45; transform: scale(1.45); }
