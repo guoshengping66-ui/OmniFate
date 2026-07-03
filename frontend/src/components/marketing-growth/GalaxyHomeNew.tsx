@@ -13,8 +13,8 @@ export default function GalaxyHomeNew() {
       @keyframes gh-ring-slow { from { transform:rotate(0deg) } to { transform:rotate(360deg) } }
       @keyframes gh-ring-rev { from { transform:rotate(360deg) } to { transform:rotate(0deg) } }
       @keyframes gh-marquee { 0% { transform:translateX(0) } 100% { transform:translateX(-50%) } }
-      @keyframes gh-star { 0%,100% { opacity:0.4 } 50% { opacity:0.9 } }
-      @keyframes gh-qi { 0%,100% { opacity:0.3;transform:scale(0.7) } 50% { opacity:0.95;transform:scale(1.5) } }
+      @keyframes gh-star { 0%,100% { opacity:0.2 } 50% { opacity:0.5 } }
+      @keyframes gh-qi { 0%,100% { opacity:0.15;transform:scale(0.7) } 50% { opacity:0.6;transform:scale(1.5) } }
       @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none!important } }
     `
     document.head.appendChild(s)
@@ -33,10 +33,10 @@ export default function GalaxyHomeNew() {
       {/* Layer 1: Nebula glows — covers full scrollable page */}
       <div className="fixed inset-0 pointer-events-none z-0" aria-hidden="true" style={{
         background:
-          "radial-gradient(ellipse 80% 60% at 50% 30%, rgba(123,158,199,0.35) 0%, transparent 60%)," +
-          "radial-gradient(ellipse 50% 50% at 25% 55%, rgba(139,126,199,0.25) 0%, transparent 50%)," +
-          "radial-gradient(ellipse 40% 40% at 75% 45%, rgba(201,168,76,0.15) 0%, transparent 50%)," +
-          "radial-gradient(ellipse 60% 40% at 60% 60%, rgba(123,158,199,0.15) 0%, transparent 50%)",
+          "radial-gradient(ellipse 80% 60% at 50% 30%, rgba(123,158,199,0.12) 0%, transparent 60%)," +
+          "radial-gradient(ellipse 50% 50% at 25% 55%, rgba(139,126,199,0.08) 0%, transparent 50%)," +
+          "radial-gradient(ellipse 40% 40% at 75% 45%, rgba(201,168,76,0.05) 0%, transparent 50%)," +
+          "radial-gradient(ellipse 60% 40% at 60% 60%, rgba(123,158,199,0.06) 0%, transparent 50%)",
       }} />
 
       {/* Layer 2: Star field */}
@@ -46,9 +46,9 @@ export default function GalaxyHomeNew() {
             width: (i % 3) + 1, height: (i % 3) + 1,
             top: `${(i * 53 + 7) % 85 + 5}%`,
             left: `${(i * 37 + 11) % 100}%`,
-            background: i % 6 === 0 ? "rgba(201,168,76,0.8)" : "rgba(200,210,240,0.6)",
-            boxShadow: i % 6 === 0 ? "0 0 8px rgba(201,168,76,0.5)" : "0 0 5px rgba(200,210,240,0.35)",
-            opacity: 0.4,
+            background: i % 6 === 0 ? "rgba(201,168,76,0.4)" : "rgba(200,210,240,0.25)",
+            boxShadow: i % 6 === 0 ? "0 0 4px rgba(201,168,76,0.3)" : "0 0 2px rgba(200,210,240,0.15)",
+            opacity: 0.25,
             animation: `gh-star ${3 + (i % 4)}s ease-in-out ${(i * 0.4).toFixed(1)}s infinite`,
           }} />
         ))}
@@ -56,13 +56,13 @@ export default function GalaxyHomeNew() {
 
       {/* Layer 3: Galaxy river */}
       <div className="fixed inset-0 pointer-events-none z-0" aria-hidden="true" style={{
-        opacity: 0.6,
-        background: "linear-gradient(180deg, transparent 0%, rgba(123,158,199,0.15) 20%, rgba(139,126,199,0.18) 35%, rgba(201,168,76,0.08) 48%, rgba(123,158,199,0.12) 60%, rgba(139,126,199,0.08) 75%, transparent 100%)",
+        opacity: 0.35,
+        background: "linear-gradient(180deg, transparent 0%, rgba(123,158,199,0.08) 20%, rgba(139,126,199,0.10) 35%, rgba(201,168,76,0.04) 48%, rgba(123,158,199,0.06) 60%, rgba(139,126,199,0.04) 75%, transparent 100%)",
         transform: "skewY(-2deg)",
       }} />
 
       {/* Layer 4: Bagua */}
-      <div className="fixed inset-0 flex items-center justify-center overflow-hidden pointer-events-none z-0" aria-hidden="true" style={{ opacity: 0.55 }}>
+      <div className="fixed inset-0 flex items-center justify-center overflow-hidden pointer-events-none z-0" aria-hidden="true" style={{ opacity: 0.18 }}>
         <div className="relative" style={{ width: "min(82vw, 520px)", height: "min(82vw, 520px)" }}>
           <div className="absolute inset-0 rounded-full border border-white/[0.06]" style={ringSlow} />
           <div className="absolute inset-[5%]" style={ringSlow}>
