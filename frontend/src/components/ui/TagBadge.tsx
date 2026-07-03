@@ -12,7 +12,7 @@ export function TagBadge({ tag, size = "sm" }: Props) {
   const lang = (params?.locale as string) || "en"
   const s = formatTag(tag, lang)
   const sizeClasses = size === "sm"
-    ? "text-[10px] px-1.5 py-0.5"
+    ? "text-xs px-1.5 py-0.5"
     : "text-xs px-2.5 py-1"
 
   return (

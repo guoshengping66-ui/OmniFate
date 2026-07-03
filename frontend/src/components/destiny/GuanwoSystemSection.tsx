@@ -53,22 +53,22 @@ export default function GuanwoSystemSection() {
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/[0.055] px-3 py-1 text-xs uppercase tracking-[0.18em] text-gold/70">
               {copy.badge}
             </div>
-            <h2 className="mb-5 font-serif text-3xl font-bold leading-tight text-white/92 md:text-5xl">
+            <h2 className="mb-5 font-serif text-3xl font-bold leading-tight text-parchment-100 md:text-5xl">
               {copy.title}
             </h2>
-            <p className="mb-8 text-sm leading-relaxed text-white/48 md:text-base">
+            <p className="mb-8 text-sm leading-relaxed text-parchment-400 md:text-base">
               {copy.desc}
             </p>
             <div className="mb-7 rounded-2xl border border-gold/15 bg-gold/[0.04] p-5">
               <p className="mb-2 text-xs uppercase tracking-[0.14em] text-gold/70">{copy.proofTitle}</p>
-              <p className="text-sm leading-relaxed text-white/50">{copy.proofDesc}</p>
+              <p className="text-sm leading-relaxed text-parchment-400">{copy.proofDesc}</p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
-              <Link href={localeHref("/reading/new")} className="btn-gold inline-flex items-center justify-center gap-2 text-sm">
+              <Link href={localeHref("/reading/new")} className="btn-primary inline-flex items-center justify-center gap-2 text-sm">
                 {copy.primary}
                 <ArrowRight size={16} />
               </Link>
-              <Link href={localeHref("/almanac")} className="btn-gold-outline inline-flex items-center justify-center gap-2 text-sm">
+              <Link href={localeHref("/almanac")} className="btn-secondary inline-flex items-center justify-center gap-2 text-sm">
                 {copy.secondary}
               </Link>
             </div>
@@ -81,14 +81,14 @@ export default function GuanwoSystemSection() {
                 const Icon = item.icon
                 const wide = index === copy.items.length - 1
                 return (
-                  <article key={item.title} className={`rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5 ${wide ? "sm:col-span-2" : ""}`}>
+                  <article key={item.title} className={`rounded-2xl border border-white/[0.06] bg-white/[0.03] p-5 ${wide ? "sm:col-span-2" : ""}`}>
                     <div className="flex items-start gap-4">
                       <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl border border-gold/20 bg-gold/[0.07]">
                         <Icon size={19} className="text-gold/75" />
                       </div>
                       <div>
-                        <h3 className="mb-1.5 text-sm font-semibold text-white/88">{item.title}</h3>
-                        <p className="text-xs leading-relaxed text-white/42">{item.desc}</p>
+                        <h3 className="mb-1.5 text-sm font-semibold text-parchment-100">{item.title}</h3>
+                        <p className="text-xs leading-relaxed text-parchment-400">{item.desc}</p>
                       </div>
                     </div>
                   </article>

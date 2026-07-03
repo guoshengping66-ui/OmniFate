@@ -23,11 +23,11 @@ export default function PricingError({
 
   if (autoReloading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-ink px-4">
-        <div className="max-w-md w-full card-glass p-8 text-center">
+      <div className="min-h-screen flex items-center justify-center bg-cosmos-950 px-4">
+        <div className="max-w-md w-full card-solid p-8 text-center">
           <div className="text-4xl mb-4">🔄</div>
           <h2 className="font-serif text-xl text-gold mb-3">Loading...</h2>
-          <p className="text-white/50 text-sm mb-2">
+          <p className="text-parchment-400 text-sm mb-2">
             Page resources updated, auto-refreshing...
           </p>
         </div>
@@ -36,13 +36,13 @@ export default function PricingError({
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-ink px-4">
-      <div className="max-w-md w-full card-glass p-8 text-center">
+    <div className="min-h-screen flex items-center justify-center bg-cosmos-950 px-4">
+      <div className="max-w-md w-full card-solid p-8 text-center">
         <div className="text-4xl mb-4">⚠️</div>
         <h2 className="font-serif text-xl text-gold mb-3">Something went wrong</h2>
-        <p className="text-white/50 text-sm mb-2">The pricing page encountered an error.</p>
+        <p className="text-parchment-400 text-sm mb-2">The pricing page encountered an error.</p>
         {/* Error details hidden in all environments to prevent info leakage */}
-        <button onClick={reset} className="btn-gold text-sm px-6 py-2">
+        <button onClick={reset} className="btn-primary text-sm px-6 py-2">
           Try again
         </button>
       </div>

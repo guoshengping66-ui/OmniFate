@@ -11,7 +11,7 @@ export function LanguageSwitch() {
   const { locale, setLocale, preloadLocale } = useLanguage()
 
   return (
-    <div className="flex items-center gap-1 p-1 rounded-full bg-white/5 border border-white/10">
+    <div className="flex items-center gap-1 p-1 rounded-full bg-white/[0.04] border border-white/[0.06]">
       {LANGUAGES.map((lang) => (
         <button
           key={lang.locale}
@@ -20,7 +20,7 @@ export function LanguageSwitch() {
           className={`relative px-2.5 py-1 rounded-full text-xs font-medium transition-colors duration-200 ${
             locale === lang.locale
               ? "text-gold"
-              : "text-white/40 hover:text-white/60"
+              : "text-parchment-400 hover:text-parchment-400"
           }`}
         >
           {locale === lang.locale && (
@@ -32,7 +32,7 @@ export function LanguageSwitch() {
             />
           )}
           <span className="relative z-10 flex items-center gap-1">
-            <span className="text-[10px]">{lang.flag}</span>
+            <span className="text-xs">{lang.flag}</span>
             {lang.label}
           </span>
         </button>

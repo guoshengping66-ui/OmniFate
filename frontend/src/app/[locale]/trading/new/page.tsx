@@ -26,7 +26,7 @@ export default function NewTradePage() {
   const EMOTIONS = [
     { score: 1, label: t("trading.new.e1"), color: "text-red-400" },
     { score: 2, label: t("trading.new.e2"), color: "text-orange-400" },
-    { score: 3, label: t("trading.new.e3"), color: "text-white/50" },
+    { score: 3, label: t("trading.new.e3"), color: "text-parchment-400" },
     { score: 4, label: t("trading.new.e4"), color: "text-yellow-400" },
     { score: 5, label: t("trading.new.e5"), color: "text-green-400" },
   ]
@@ -82,7 +82,7 @@ export default function NewTradePage() {
         <Breadcrumbs items={[{ label: t("trading.breadcrumb"), href: "/trading" }, { label: t("trading.new.breadcrumb") }]} />
 
         <div className="mb-8">
-          <Link href="/trading" className="text-white/40 hover:text-gold text-sm inline-flex items-center gap-1 mb-4">
+          <Link href="/trading" className="text-parchment-400 hover:text-gold text-sm inline-flex items-center gap-1 mb-4">
             <ArrowLeft size={14} />
             {t("trading.new.back")}
           </Link>
@@ -91,7 +91,7 @@ export default function NewTradePage() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Symbol */}
-          <div className="card-glass p-6">
+          <div className="card-solid p-6">
             <label className="label">{t("trading.new.symbol")}</label>
             <div className="flex flex-wrap gap-2">
               {SYMBOLS.map((s) => (
@@ -101,8 +101,8 @@ export default function NewTradePage() {
                   onClick={() => setSymbol(s)}
                   className={`px-4 py-2 rounded-lg text-sm transition-all ${
                     symbol === s
-                      ? "bg-gold text-ink font-medium"
-                      : "bg-white/5 text-white/50 hover:bg-white/10"
+                      ? "bg-gold text-cosmos-950 font-medium"
+                      : "bg-white/[0.04] text-parchment-400 hover:bg-white/10"
                   }`}
                 >
                   {s}
@@ -112,7 +112,7 @@ export default function NewTradePage() {
           </div>
 
           {/* Direction */}
-          <div className="card-glass p-6">
+          <div className="card-solid p-6">
             <label className="label">{t("trading.new.direction")}</label>
             <div className="grid grid-cols-2 gap-4">
               <button
@@ -121,13 +121,13 @@ export default function NewTradePage() {
                 className={`p-4 rounded-xl border transition-all ${
                   direction === "long"
                     ? "border-green-400 bg-green-400/10"
-                    : "border-white/10 hover:border-white/20"
+                    : "border-white/[0.06] hover:border-white/20"
                 }`}
               >
-                <p className={`text-lg font-bold ${direction === "long" ? "text-green-400" : "text-white/50"}`}>
+                <p className={`text-lg font-bold ${direction === "long" ? "text-green-400" : "text-parchment-400"}`}>
                   {t("trading.new.long")}
                 </p>
-                <p className="text-white/30 text-xs mt-1">LONG</p>
+                <p className="text-parchment-400 text-xs mt-1">LONG</p>
               </button>
               <button
                 type="button"
@@ -135,19 +135,19 @@ export default function NewTradePage() {
                 className={`p-4 rounded-xl border transition-all ${
                   direction === "short"
                     ? "border-red-400 bg-red-400/10"
-                    : "border-white/10 hover:border-white/20"
+                    : "border-white/[0.06] hover:border-white/20"
                 }`}
               >
-                <p className={`text-lg font-bold ${direction === "short" ? "text-red-400" : "text-white/50"}`}>
+                <p className={`text-lg font-bold ${direction === "short" ? "text-red-400" : "text-parchment-400"}`}>
                   {t("trading.new.short")}
                 </p>
-                <p className="text-white/30 text-xs mt-1">SHORT</p>
+                <p className="text-parchment-400 text-xs mt-1">SHORT</p>
               </button>
             </div>
           </div>
 
           {/* Prices */}
-          <div className="card-glass p-6">
+          <div className="card-solid p-6">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="label">{t("trading.new.entryPrice")}</label>
@@ -176,7 +176,7 @@ export default function NewTradePage() {
           </div>
 
           {/* Emotion */}
-          <div className="card-glass p-6">
+          <div className="card-solid p-6">
             <label className="label">{t("trading.new.emotion")}</label>
             <div className="flex justify-between gap-2">
               {EMOTIONS.map((e) => (
@@ -187,10 +187,10 @@ export default function NewTradePage() {
                   className={`flex-1 p-3 rounded-xl border transition-all ${
                     emotionScore === e.score
                       ? "border-gold bg-gold/10"
-                      : "border-white/10 hover:border-white/20"
+                      : "border-white/[0.06] hover:border-white/20"
                   }`}
                 >
-                  <p className={`text-sm font-medium ${emotionScore === e.score ? e.color : "text-white/30"}`}>
+                  <p className={`text-sm font-medium ${emotionScore === e.score ? e.color : "text-parchment-400"}`}>
                     {e.label}
                   </p>
                 </button>
@@ -199,7 +199,7 @@ export default function NewTradePage() {
           </div>
 
           {/* Notes */}
-          <div className="card-glass p-6">
+          <div className="card-solid p-6">
             <label className="label">{t("trading.new.notes")}</label>
             <textarea
               value={notes}
@@ -214,7 +214,7 @@ export default function NewTradePage() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full btn-gold flex items-center justify-center gap-2"
+            className="w-full btn-primary flex items-center justify-center gap-2"
           >
             {submitting ? (
               <Loader2 size={16} className="animate-spin" />

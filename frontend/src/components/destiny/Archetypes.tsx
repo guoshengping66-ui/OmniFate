@@ -51,7 +51,7 @@ export default function Archetypes() {
               {t("agents.title")}
             </span>
           </h2>
-          <p className="text-white/30 text-sm max-w-lg mx-auto">{t("agents.desc")}</p>
+          <p className="text-parchment-400 text-sm max-w-lg mx-auto">{t("agents.desc")}</p>
         </div>
 
         {/* Archetype cards - horizontal scroll */}
@@ -108,7 +108,7 @@ export default function Archetypes() {
                         boxShadow: active === i ? `0 0 12px ${arch.accent}60` : "none",
                       }}
                     />
-                    <span className="text-[10px] font-medium text-white/25 tracking-widest uppercase">
+                    <span className="text-xs font-medium text-parchment-400 tracking-widest uppercase">
                       {t(`agent.${arch.key}.tag`)}
                     </span>
                   </div>
@@ -124,12 +124,12 @@ export default function Archetypes() {
                   </h3>
 
                   {/* Description */}
-                  <p className="text-white/30 text-xs leading-relaxed mb-3">
+                  <p className="text-parchment-400 text-xs leading-relaxed mb-3">
                     {t(`agent.${arch.key}.desc`)}
                   </p>
 
                   {/* Detail */}
-                  <p className="text-white/15 text-[11px] leading-relaxed">
+                  <p className="text-parchment-400 text-xs leading-relaxed">
                     {t(`agent.${arch.key}.detail`)}
                   </p>
 

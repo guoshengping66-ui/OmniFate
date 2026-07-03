@@ -115,14 +115,14 @@ export default function EventsPage() {
         {/* Header */}
         <ScrollReveal>
           <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 text-[11px] tracking-[0.25em] uppercase text-gold/50 font-medium mb-4">
+            <div className="inline-flex items-center gap-2 text-xs tracking-[0.25em] uppercase text-gold/50 font-medium mb-4">
               <span className="w-8 h-px bg-gradient-to-r from-transparent to-gold/30" />
               {t("events.title")}
               <span className="w-8 h-px bg-gradient-to-l from-transparent to-gold/30" />
             </div>
             <Sparkles className="text-gold mx-auto mb-3" size={28} />
             <h1 className="text-2xl md:text-3xl font-serif font-bold text-white mb-2">{t("events.title")}</h1>
-            <p className="text-white/40 text-sm max-w-md mx-auto">
+            <p className="text-parchment-400 text-sm max-w-md mx-auto">
               {t("events.desc")}
             </p>
           </div>
@@ -139,12 +139,12 @@ export default function EventsPage() {
 
         {/* Info card */}
         <ScrollReveal delay={0.12}>
-          <div className="card-glass p-5 mt-6">
+          <div className="card-solid p-5 mt-6">
             <div className="flex items-center gap-2 mb-3">
               <AlertCircle size={14} className="text-gold/50" />
-              <p className="text-white/60 text-xs font-medium">{t("events.whatIs")}</p>
+              <p className="text-parchment-400 text-xs font-medium">{t("events.whatIs")}</p>
             </div>
-            <p className="text-white/40 text-xs leading-relaxed mb-3">
+            <p className="text-parchment-400 text-xs leading-relaxed mb-3">
               {t("events.explanation")}
             </p>
             <div className="border-t border-white/[0.06] pt-3">
@@ -161,7 +161,7 @@ export default function EventsPage() {
                   {t("events.freeUserNote")}
                 </p>
               )}
-              <p className="text-white/25 text-[11px] mt-2">
+              <p className="text-parchment-400 text-xs mt-2">
                 {t("events.afterComplete")}
               </p>
             </div>

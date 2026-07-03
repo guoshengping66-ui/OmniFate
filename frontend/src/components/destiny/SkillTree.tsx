@@ -48,7 +48,7 @@ export default function SkillTree() {
               {t("report.title")}
             </span>
           </h2>
-          <p className="text-white/30 text-sm max-w-lg mx-auto">{t("report.desc")}</p>
+          <p className="text-parchment-400 text-sm max-w-lg mx-auto">{t("report.desc")}</p>
         </div>
 
         {/* Skill tree visualization */}
@@ -159,7 +159,7 @@ export default function SkillTree() {
                 </div>
                 {/* Label */}
                 <div className="absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap">
-                  <span className="text-[10px] text-white/40 tracking-wider uppercase">
+                  <span className="text-xs text-parchment-400 tracking-wider uppercase">
                     {t(`report.${node.label}`)}
                   </span>
                 </div>

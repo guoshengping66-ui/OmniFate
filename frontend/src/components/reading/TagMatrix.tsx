@@ -11,7 +11,7 @@ export function TagMatrix({ negativeTags, positiveTags }: TagMatrixProps) {
       {/* Negative tags */}
       {negativeTags.length > 0 && (
         <div className="space-y-1.5">
-          <div className="flex items-center gap-1.5 text-[11px] text-white/40">
+          <div className="flex items-center gap-1.5 text-xs text-parchment-400">
             <span className="w-1 h-1 rounded-full bg-red-400/60" />
             <span>{t("report.tagMatrix.negative")}</span>
           </div>
@@ -19,7 +19,7 @@ export function TagMatrix({ negativeTags, positiveTags }: TagMatrixProps) {
             {negativeTags.map((tag, i) => (
               <span
                 key={i}
-                className="inline-flex items-center px-2 py-0.5 rounded text-[11px] bg-red-500/8 text-red-400/70 border border-red-500/15"
+                className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-red-500/8 text-red-400/70 border border-red-500/15"
               >
                 {tag}
               </span>
@@ -31,7 +31,7 @@ export function TagMatrix({ negativeTags, positiveTags }: TagMatrixProps) {
       {/* Positive tags */}
       {positiveTags.length > 0 && (
         <div className="space-y-1.5">
-          <div className="flex items-center gap-1.5 text-[11px] text-white/40">
+          <div className="flex items-center gap-1.5 text-xs text-parchment-400">
             <span className="w-1 h-1 rounded-full bg-emerald-400/60" />
             <span>{t("report.tagMatrix.positive")}</span>
           </div>
@@ -39,7 +39,7 @@ export function TagMatrix({ negativeTags, positiveTags }: TagMatrixProps) {
             {positiveTags.map((tag, i) => (
               <span
                 key={i}
-                className="inline-flex items-center px-2 py-0.5 rounded text-[11px] bg-emerald-500/8 text-emerald-400/70 border border-emerald-500/15"
+                className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-emerald-500/8 text-emerald-400/70 border border-emerald-500/15"
               >
                 {tag}
               </span>

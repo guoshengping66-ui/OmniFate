@@ -37,7 +37,7 @@ export default function ZodiacHubPage() {
             <h1 className="text-3xl md:text-4xl font-serif font-bold text-white mb-4">
               {isZh ? "十二星座详解" : "Zodiac Signs Guide"}
             </h1>
-            <p className="text-white/40 text-sm max-w-2xl mx-auto">
+            <p className="text-parchment-400 text-sm max-w-2xl mx-auto">
               {isZh ? "探索每个星座的独特性格、爱情配对、事业优势和健康指南" : "Discover each sign's unique personality, love compatibility, career strengths and health insights"}
             </p>
           </div>
@@ -57,13 +57,13 @@ export default function ZodiacHubPage() {
                     <Link
                       key={sign.id}
                       href={localeHref(`/zodiac/${sign.id}`)}
-                      className="card-glow p-4 hover:border-gold/30 transition-all duration-300 group"
+                      className="card-interactive p-4 hover:border-gold/30 transition-all duration-300 group"
                     >
                       <div className="text-3xl mb-2 group-hover:scale-110 transition-transform">{sign.symbol}</div>
                       <h3 className="font-serif font-bold text-white text-sm group-hover:text-gold transition-colors">
                         {isZh ? sign.name_zh : sign.name_en}
                       </h3>
-                      <p className="text-white/30 text-xs mt-1">{sign.date_range}</p>
+                      <p className="text-parchment-400 text-xs mt-1">{sign.date_range}</p>
                     </Link>
                   ))}
                 </div>

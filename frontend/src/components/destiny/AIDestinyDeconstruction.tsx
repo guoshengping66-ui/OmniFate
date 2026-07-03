@@ -70,7 +70,7 @@ export default function AIDestinyDeconstruction() {
             </span>
           </h2>
 
-          <p className="text-white/30 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
+          <p className="text-parchment-400 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
             {locale === "zh"
               ? "八字、星盘、塔罗、面相、手相——五大古老体系从不同角度描述同一个人。AI 的工作是交叉验证，找到它们共同指向的真相。"
               : "Bazi, Astrology, Tarot, Face & Palm Reading — five ancient systems that each describe the same person from a different angle. AI cross-validates them to find the truth they all point to."}
@@ -131,7 +131,7 @@ export default function AIDestinyDeconstruction() {
                     }}
                   >
                     <span className="text-xl sm:text-2xl" style={{ color: sys.color }}>{sys.icon}</span>
-                    <span className="text-[9px] sm:text-[10px] font-medium" style={{ color: `${sys.color}aa` }}>
+                    <span className="text-[9px] sm:text-xs font-medium" style={{ color: `${sys.color}aa` }}>
                       {locale === "zh" ? sys.labelZh : sys.labelEn}
                     </span>
                   </div>
@@ -226,7 +226,7 @@ export default function AIDestinyDeconstruction() {
             {/* Confidence bar */}
             <div className="mt-8 p-4 rounded-2xl" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-white/30 text-[10px] tracking-wider uppercase">
+                <span className="text-parchment-400 text-xs tracking-wider uppercase">
                   {locale === "zh" ? "五大系统一致性" : "System Agreement Score"}
                 </span>
                 <span className="text-[#C5A880] text-xs font-bold">97.3%</span>

@@ -82,7 +82,7 @@ export default function Timeline() {
           </h2>
 
           <p
-            className="text-white/30 text-sm md:text-base max-w-2xl mx-auto leading-relaxed transition-all duration-700 delay-100"
+            className="text-parchment-400 text-sm md:text-base max-w-2xl mx-auto leading-relaxed transition-all duration-700 delay-100"
             style={{ opacity: scrollProgress > 0.1 ? 1 : 0, transform: `translateY(${scrollProgress > 0.1 ? 0 : 20}px)` }}
           >
             {t("timeline.subtitle")}
@@ -154,7 +154,7 @@ export default function Timeline() {
                     </h3>
 
                     {/* Description */}
-                    <p className="text-white/35 text-sm md:text-base leading-relaxed max-w-md">
+                    <p className="text-parchment-400 text-sm md:text-base leading-relaxed max-w-md">
                       {data.desc}
                     </p>
 
@@ -238,7 +238,7 @@ export default function Timeline() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
           </a>
-          <p className="text-white/20 text-xs mt-4 tracking-wide">
+          <p className="text-parchment-400 text-xs mt-4 tracking-wide">
             {t("timeline.ctaDesc")}
           </p>
         </div>

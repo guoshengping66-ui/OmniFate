@@ -110,14 +110,14 @@ export function IntentButtons({ onGework }: Props) {
     <section className="space-y-5">
       <div className="flex flex-col justify-between gap-3 md:flex-row md:items-end">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-gold/60">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-gold/60">
             {isZh ? "Analysis Matrix" : "Analysis Matrix"}
           </p>
           <h2 className="mt-2 font-serif text-2xl font-bold text-white">
             {isZh ? "你现在想解决哪一类问题？" : "What do you want to solve now?"}
           </h2>
         </div>
-        <p className="max-w-lg text-sm leading-6 text-white/45">
+        <p className="max-w-lg text-sm leading-6 text-parchment-400">
           {isZh
             ? "单主题只回答一个问题；完整命盘负责全局；合盘是关系成长的独立流程。"
             : "Focus readings answer one topic. The full chart covers the whole system. Relationship sync has its own flow."}
@@ -132,7 +132,7 @@ export function IntentButtons({ onGework }: Props) {
               key={entry.key}
               type="button"
               onClick={entry.action}
-              className="group relative min-h-[220px] overflow-hidden border border-white/[0.08] bg-[#08120f]/80 p-5 text-left transition-all duration-300 hover:-translate-y-1 hover:border-gold/30 hover:bg-white/[0.045]"
+              className="group relative min-h-[220px] overflow-hidden border border-white/[0.06] bg-[#08120f]/80 p-5 text-left transition-all duration-300 hover:-translate-y-1 hover:border-gold/30 hover:bg-white/[0.045]"
             >
               <div
                 className="absolute inset-x-0 top-0 h-px opacity-70"
@@ -145,11 +145,11 @@ export function IntentButtons({ onGework }: Props) {
                 >
                   <Icon size={21} />
                 </div>
-                <ArrowRight size={17} className="text-white/22 transition-transform group-hover:translate-x-1 group-hover:text-gold" />
+                <ArrowRight size={17} className="text-parchment-400 transition-transform group-hover:translate-x-1 group-hover:text-gold" />
               </div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/35">{entry.label}</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-parchment-400">{entry.label}</p>
               <h3 className="mt-2 text-lg font-semibold text-white">{entry.title}</h3>
-              <p className="mt-3 text-sm leading-6 text-white/48">{entry.desc}</p>
+              <p className="mt-3 text-sm leading-6 text-parchment-400">{entry.desc}</p>
               <div className="mt-5 border-t border-white/[0.06] pt-3 text-xs text-gold/65">
                 {entry.output}
               </div>

@@ -39,7 +39,7 @@ export default function BlogArticlePage() {
     return (
       <div className="min-h-screen pt-24 pb-20 px-4">
         <div className="max-w-3xl mx-auto text-center">
-          <p className="text-white/40">{t("blog.loadingContent")}</p>
+          <p className="text-parchment-400">{t("blog.loadingContent")}</p>
           <Link href="/blog" className="text-gold text-sm mt-4 inline-block">{t("blog.backToBlog")}</Link>
         </div>
       </div>
@@ -114,7 +114,7 @@ export default function BlogArticlePage() {
       <div className="max-w-3xl mx-auto">
         {/* 返回 */}
         <Link href="/blog"
-          className="flex items-center gap-1.5 text-white/40 hover:text-gold text-sm mb-8 transition-colors">
+          className="flex items-center gap-1.5 text-parchment-400 hover:text-gold text-sm mb-8 transition-colors">
           <ArrowLeft size={14} /> {t("blog.backToBlog")}
         </Link>
 
@@ -124,7 +124,7 @@ export default function BlogArticlePage() {
           <h1 className="text-3xl font-serif font-bold text-gold mb-3 leading-tight">
             {title}
           </h1>
-          <div className="flex items-center gap-3 text-white/30 text-xs flex-wrap">
+          <div className="flex items-center gap-3 text-parchment-400 text-xs flex-wrap">
             <span className="flex items-center gap-1"><Clock size={10} /> {article.read_time} {t("blog.minRead")}</span>
             <span>{article.created_at}</span>
             <button onClick={handleShare} className="flex items-center gap-1 hover:text-gold transition-colors ml-auto">
@@ -139,27 +139,27 @@ export default function BlogArticlePage() {
         </div>
 
         {/* 文章内容 */}
-        <div className="card-glass p-6 md:p-10">
+        <div className="card-solid p-6 md:p-10">
           {renderMarkdown(content)}
         </div>
 
         {/* 相关文章 */}
         {related.length > 0 && (
           <div className="mt-8">
-            <h3 className="text-white/40 text-sm mb-4">{t("blog.related") || "相关推荐"}</h3>
+            <h3 className="text-parchment-400 text-sm mb-4">{t("blog.related") || "相关推荐"}</h3>
             <div className="grid gap-3">
               {related.map(rel => (
                 <Link
                   key={rel.id}
                   href={`/blog/${rel.id}`}
-                  className="card-glow p-4 flex items-center gap-3 hover:border-gold/30 transition-all group"
+                  className="card-interactive p-4 flex items-center gap-3 hover:border-gold/30 transition-all group"
                 >
                   <span className="text-2xl">{rel.cover_emoji}</span>
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-medium text-white/70 group-hover:text-gold transition-colors truncate">
+                    <h4 className="text-sm font-medium text-parchment-300 group-hover:text-gold transition-colors truncate">
                       {isZh ? rel.title_zh : rel.title_en}
                     </h4>
-                    <p className="text-white/30 text-xs mt-0.5 truncate">
+                    <p className="text-parchment-400 text-xs mt-0.5 truncate">
                       {isZh ? rel.summary_zh : rel.summary_en}
                     </p>
                   </div>
@@ -170,9 +170,9 @@ export default function BlogArticlePage() {
         )}
 
         {/* CTA */}
-        <div className="mt-8 text-center card-glass p-8">
-          <p className="text-white/40 text-sm mb-4">{t("blog.ctaQuestion")}</p>
-          <Link href="/reading/new" className="btn-gold inline-flex items-center gap-2 text-sm">
+        <div className="mt-8 text-center card-solid p-8">
+          <p className="text-parchment-400 text-sm mb-4">{t("blog.ctaQuestion")}</p>
+          <Link href="/reading/new" className="btn-primary inline-flex items-center gap-2 text-sm">
             {t("blog.ctaButton")} 🔮
           </Link>
         </div>

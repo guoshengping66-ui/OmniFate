@@ -37,7 +37,7 @@ function PredictRedirect() {
     <div className="min-h-screen flex items-center justify-center">
       <div className="flex flex-col items-center gap-4">
         <Loader2 size={24} className="animate-spin text-gold" />
-        <p className="text-white/40 text-sm">{t("predict.preparing")}</p>
+        <p className="text-parchment-400 text-sm">{t("predict.preparing")}</p>
       </div>
     </div>
   )

@@ -31,7 +31,7 @@ export default function AiProfilingPage() {
         <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6">
           <div className="max-w-3xl">
             <ScrollReveal>
-              <div className="inline-flex items-center gap-2 bg-white/5 backdrop-blur-xl border border-blue-500/20 rounded-full px-4 py-1.5 text-blue-400 text-xs mb-5">
+              <div className="inline-flex items-center gap-2 bg-white/[0.04] backdrop-blur-xl border border-blue-500/20 rounded-full px-4 py-1.5 text-blue-400 text-xs mb-5">
                 <span className="relative flex h-1.5 w-1.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-400" />
@@ -53,7 +53,7 @@ export default function AiProfilingPage() {
             </ScrollReveal>
 
             <ScrollReveal delay={0.2}>
-              <p className="text-base md:text-lg text-white/50 max-w-xl leading-relaxed mb-8">
+              <p className="text-base md:text-lg text-parchment-400 max-w-xl leading-relaxed mb-8">
                 {p("hero.subtitle")}
               </p>
             </ScrollReveal>
@@ -63,7 +63,7 @@ export default function AiProfilingPage() {
                 <MagneticButton>
                   <Link
                     href={localeHref("/reading/new")}
-                    className="btn-gold text-base inline-flex items-center gap-2 px-10 py-3.5 group"
+                    className="btn-primary text-base inline-flex items-center gap-2 px-10 py-3.5 group"
                   >
                     {p("hero.cta1")}
                     <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
@@ -72,7 +72,7 @@ export default function AiProfilingPage() {
                 <MagneticButton>
                   <Link
                     href={localeHref("/pricing")}
-                    className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full border border-white/20 text-white/60 hover:border-blue-400/30 hover:text-blue-400 transition-all text-base backdrop-blur-sm"
+                    className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full border border-white/20 text-parchment-400 hover:border-blue-400/30 hover:text-blue-400 transition-all text-base backdrop-blur-sm"
                   >
                     <FileText size={16} />
                     {p("hero.cta2")}
@@ -83,9 +83,9 @@ export default function AiProfilingPage() {
 
             <ScrollReveal delay={0.4}>
               <div className="flex flex-wrap items-center gap-4 sm:gap-6 mt-8 pt-6 border-t border-white/[0.06]">
-                <p className="text-white/25 text-xs tracking-wide">{p("hero.trust")}</p>
+                <p className="text-parchment-400 text-xs tracking-wide">{p("hero.trust")}</p>
                 <span className="hidden sm:block w-px h-4 bg-white/10" />
-                <div className="flex items-center gap-4 text-white/35 text-xs">
+                <div className="flex items-center gap-4 text-parchment-400 text-xs">
                   <span className="flex items-center gap-1.5">
                     <Sparkles size={12} className="text-blue-400/50" />
                     {p("hero.stat1")}
@@ -117,12 +117,12 @@ export default function AiProfilingPage() {
               const Icon = VALUE_ICONS[i]
               return (
                 <ScrollReveal key={i} delay={i * 0.1}>
-                  <div className="card-glass p-6 h-full">
+                  <div className="card-solid p-6 h-full">
                     <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-4">
                       <Icon size={22} className="text-blue-400" />
                     </div>
                     <h3 className="text-white font-semibold text-lg mb-2">{t(`aiProfiling.value.items.${i}.title`)}</h3>
-                    <p className="text-white/45 text-sm leading-relaxed">{t(`aiProfiling.value.items.${i}.desc`)}</p>
+                    <p className="text-parchment-400 text-sm leading-relaxed">{t(`aiProfiling.value.items.${i}.desc`)}</p>
                   </div>
                 </ScrollReveal>
               )
@@ -141,21 +141,21 @@ export default function AiProfilingPage() {
           />
           <div className="mt-12 space-y-6">
             <ScrollReveal>
-              <div className="card-glass p-8">
-                <p className="text-white/60 text-base leading-relaxed mb-4">{p("product.desc1")}</p>
-                <p className="text-white/45 text-sm leading-relaxed">{p("product.desc2")}</p>
+              <div className="card-solid p-8">
+                <p className="text-parchment-400 text-base leading-relaxed mb-4">{p("product.desc1")}</p>
+                <p className="text-parchment-400 text-sm leading-relaxed">{p("product.desc2")}</p>
               </div>
             </ScrollReveal>
             <div className="grid md:grid-cols-3 gap-6 mt-8">
               {[0, 1, 2].map(i => (
                 <ScrollReveal key={i} delay={i * 0.15}>
-                  <div className="card-glass p-6 relative overflow-hidden">
+                  <div className="card-solid p-6 relative overflow-hidden">
                     <div className="absolute top-4 right-4 text-5xl font-bold text-white/[0.03] font-serif">
                       {t(`aiProfiling.product.steps.${i}.num`)}
                     </div>
                     <div className="relative">
                       <h3 className="text-white font-semibold mb-2">{t(`aiProfiling.product.steps.${i}.title`)}</h3>
-                      <p className="text-white/45 text-sm leading-relaxed">{t(`aiProfiling.product.steps.${i}.desc`)}</p>
+                      <p className="text-parchment-400 text-sm leading-relaxed">{t(`aiProfiling.product.steps.${i}.desc`)}</p>
                     </div>
                   </div>
                 </ScrollReveal>
@@ -179,17 +179,17 @@ export default function AiProfilingPage() {
               return (
                 <ScrollReveal key={i} delay={i * 0.08}>
                   <TiltCard className="h-full">
-                    <div className="card-glass p-6 h-full flex flex-col">
+                    <div className="card-solid p-6 h-full flex flex-col">
                       <div className="flex items-center justify-between mb-3">
                         <div className="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
                           <Icon size={18} className="text-blue-400" />
                         </div>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
                           {t(`aiProfiling.report.items.${i}.tag`)}
                         </span>
                       </div>
                       <h3 className="text-white font-semibold text-base mb-1.5">{t(`aiProfiling.report.items.${i}.title`)}</h3>
-                      <p className="text-white/40 text-sm leading-relaxed flex-1">{t(`aiProfiling.report.items.${i}.desc`)}</p>
+                      <p className="text-parchment-400 text-sm leading-relaxed flex-1">{t(`aiProfiling.report.items.${i}.desc`)}</p>
                     </div>
                   </TiltCard>
                 </ScrollReveal>
@@ -210,21 +210,21 @@ export default function AiProfilingPage() {
           <div className="grid md:grid-cols-3 gap-6 mt-12">
             {[0, 1, 2].map(i => (
               <ScrollReveal key={i} delay={i * 0.1}>
-                <div className="card-glow p-6 h-full">
+                <div className="card-interactive p-6 h-full">
                   <div className="flex items-center gap-2 mb-3">
                     <div className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center">
                       <Sparkles size={14} className="text-gold" />
                     </div>
-                    <span className="text-[10px] text-gold/60 tracking-wider uppercase font-medium">Model Simulation</span>
+                    <span className="text-xs text-gold/60 tracking-wider uppercase font-medium">Model Simulation</span>
                   </div>
                   <h3 className="text-white font-semibold text-base mb-2">{t(`aiProfiling.insights.items.${i}.title`)}</h3>
-                  <p className="text-white/45 text-sm leading-relaxed">{t(`aiProfiling.insights.items.${i}.desc`)}</p>
+                  <p className="text-parchment-400 text-sm leading-relaxed">{t(`aiProfiling.insights.items.${i}.desc`)}</p>
                 </div>
               </ScrollReveal>
             ))}
           </div>
           <ScrollReveal delay={0.3}>
-            <p className="text-white/25 text-[11px] text-center mt-8 leading-relaxed max-w-2xl mx-auto">
+            <p className="text-parchment-400 text-xs text-center mt-8 leading-relaxed max-w-2xl mx-auto">
               {p("insights.disclaimer")}
             </p>
           </ScrollReveal>
@@ -244,10 +244,10 @@ export default function AiProfilingPage() {
               const isPopular = i === 1
               return (
                 <ScrollReveal key={i} delay={i * 0.1}>
-                  <div className={`card-glass p-6 h-full flex flex-col ${isPopular ? "border-blue-500/30 shadow-[0_0_40px_rgba(59,130,246,0.1)]" : ""}`}>
+                  <div className={`card-solid p-6 h-full flex flex-col ${isPopular ? "border-blue-500/30 shadow-[0_0_40px_rgba(59,130,246,0.1)]" : ""}`}>
                     {isPopular && (
                       <div className="text-center mb-4">
-                        <span className="text-[10px] px-3 py-1 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/25 font-medium">
+                        <span className="text-xs px-3 py-1 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/25 font-medium">
                           {t(`aiProfiling.pricing.plans.${i}.badge`)}
                         </span>
                       </div>
@@ -258,7 +258,7 @@ export default function AiProfilingPage() {
                         <span className={`text-3xl font-bold ${isPopular ? "text-blue-400" : "text-white"}`}>
                           {t(`aiProfiling.pricing.plans.${i}.price`)}
                         </span>
-                        <span className="text-white/40 text-sm">{t(`aiProfiling.pricing.plans.${i}.period`)}</span>
+                        <span className="text-parchment-400 text-sm">{t(`aiProfiling.pricing.plans.${i}.period`)}</span>
                       </div>
                     </div>
                     <ul className="space-y-2.5 mb-6 flex-1">
@@ -266,7 +266,7 @@ export default function AiProfilingPage() {
                         const feature = t(`aiProfiling.pricing.plans.${i}.features.${j}`)
                         if (!feature || feature.startsWith("aiProfiling")) return null
                         return (
-                          <li key={j} className="flex items-start gap-2 text-sm text-white/50">
+                          <li key={j} className="flex items-start gap-2 text-sm text-parchment-400">
                             <Check size={14} className={`mt-0.5 flex-shrink-0 ${isPopular ? "text-blue-400" : "text-gold/60"}`} />
                             <span>{feature}</span>
                           </li>
@@ -278,7 +278,7 @@ export default function AiProfilingPage() {
                       className={`w-full py-3 rounded-xl text-center text-sm font-semibold transition-all ${
                         isPopular
                           ? "bg-blue-500 text-white hover:bg-blue-400 hover:shadow-[0_0_20px_rgba(59,130,246,0.4)]"
-                          : "border border-white/20 text-white/60 hover:border-gold/30 hover:text-gold"
+                          : "border border-white/20 text-parchment-400 hover:border-gold/30 hover:text-gold"
                       }`}
                     >
                       {t(`aiProfiling.pricing.plans.${i}.cta`)}
@@ -295,12 +295,12 @@ export default function AiProfilingPage() {
       <section className="py-16 px-4">
         <div className="max-w-3xl mx-auto">
           <ScrollReveal>
-            <div className="card-glass p-8 border-amber-500/20">
+            <div className="card-solid p-8 border-amber-500/20">
               <div className="flex items-center gap-3 mb-4">
                 <Shield size={20} className="text-amber-400" />
                 <h3 className="text-white font-semibold">{p("disclaimer.title")}</h3>
               </div>
-              <div className="text-white/40 text-sm leading-relaxed whitespace-pre-line">
+              <div className="text-parchment-400 text-sm leading-relaxed whitespace-pre-line">
                 {p("disclaimer.content")}
               </div>
               <div className="mt-6 text-center">
@@ -324,13 +324,13 @@ export default function AiProfilingPage() {
             <h2 className="text-2xl md:text-3xl font-serif font-bold text-white mb-4">
               {p("finalCta.title")}
             </h2>
-            <p className="text-white/40 text-sm md:text-base mb-8 max-w-lg mx-auto">
+            <p className="text-parchment-400 text-sm md:text-base mb-8 max-w-lg mx-auto">
               {p("finalCta.subtitle")}
             </p>
             <MagneticButton>
               <Link
                 href={localeHref("/reading/new")}
-                className="btn-gold inline-flex items-center gap-2 px-10 py-3.5 text-base group"
+                className="btn-primary inline-flex items-center gap-2 px-10 py-3.5 text-base group"
               >
                 {p("finalCta.cta")}
                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />

@@ -43,42 +43,42 @@ export default function ContactPage() {
         <div className="text-center mb-12">
           <Mail size={36} className="text-gold mx-auto mb-3" />
           <h1 className="text-4xl font-serif font-bold text-gold mb-2">{t("contact.title")}</h1>
-          <p className="text-white/50">{t("contact.subtitle")}</p>
+          <p className="text-parchment-400">{t("contact.subtitle")}</p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-8">
           {/* Contact Info */}
           <ScrollReveal>
             <div className="space-y-6">
-              <div className="card-glow p-6">
+              <div className="card-interactive p-6">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-10 h-10 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center">
                     <Mail size={18} className="text-gold" />
                   </div>
                   <div>
-                    <h3 className="text-white/80 font-medium text-sm">{t("contact.email")}</h3>
+                    <h3 className="text-parchment-200 font-medium text-sm">{t("contact.email")}</h3>
                     <p className="text-gold/70 text-sm">support@khanfate.com</p>
                   </div>
                 </div>
-                <p className="text-white/30 text-xs">{t("contact.emailHint")}</p>
+                <p className="text-parchment-400 text-xs">{t("contact.emailHint")}</p>
               </div>
 
-              <div className="card-glow p-6">
+              <div className="card-interactive p-6">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-10 h-10 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center">
                     <MessageCircle size={18} className="text-gold" />
                   </div>
                   <div>
-                    <h3 className="text-white/80 font-medium text-sm">{t("contact.wechat")}</h3>
+                    <h3 className="text-parchment-200 font-medium text-sm">{t("contact.wechat")}</h3>
                     <p className="text-gold/70 text-sm">khan18553325258</p>
                   </div>
                 </div>
-                <p className="text-white/30 text-xs">{t("contact.wechatHint")}</p>
+                <p className="text-parchment-400 text-xs">{t("contact.wechatHint")}</p>
               </div>
 
-              <div className="card-glow p-6">
-                <h3 className="text-white/80 font-medium text-sm mb-2">{t("contact.faq.title")}</h3>
-                <p className="text-white/30 text-xs leading-relaxed">
+              <div className="card-interactive p-6">
+                <h3 className="text-parchment-200 font-medium text-sm mb-2">{t("contact.faq.title")}</h3>
+                <p className="text-parchment-400 text-xs leading-relaxed">
                   {t("contact.faq.desc")}
                 </p>
                 <a href={localeHref("/faq")} className="text-gold/60 text-xs hover:text-gold mt-2 inline-block">
@@ -91,12 +91,12 @@ export default function ContactPage() {
           {/* Contact Form */}
           <ScrollReveal delay={0.15}>
             {submitted ? (
-              <div className="card-glass p-8 text-center h-full flex flex-col items-center justify-center">
+              <div className="card-solid p-8 text-center h-full flex flex-col items-center justify-center">
                 <div className="w-16 h-16 rounded-full bg-green-500/20 border border-green-500/40 flex items-center justify-center mx-auto mb-4">
                   <CheckCircle size={32} className="text-green-400" />
                 </div>
                 <h2 className="font-serif text-xl text-gold mb-2">{t("contact.sent")}</h2>
-                <p className="text-white/50 text-sm mb-6">
+                <p className="text-parchment-400 text-sm mb-6">
                   {t("contact.sentDesc")}
                 </p>
                 <button
@@ -107,7 +107,7 @@ export default function ContactPage() {
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="card-glass p-6 space-y-4">
+              <form onSubmit={handleSubmit} className="card-solid p-6 space-y-4">
                 <h2 className="font-serif text-lg text-gold mb-2">{t("contact.form.title")}</h2>
 
                 <div>
@@ -165,12 +165,12 @@ export default function ContactPage() {
                 <button
                   type="submit"
                   disabled={sending}
-                  className="btn-gold w-full py-3 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="btn-primary w-full py-3 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
                   {sending ? t("contact.form.sending") : t("contact.form.send")}
                 </button>
-                <p className="text-white/20 text-[10px] text-center">
+                <p className="text-parchment-400 text-xs text-center">
                   {t("contact.form.note")}
                 </p>
               </form>

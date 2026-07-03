@@ -11,7 +11,7 @@ import dynamic from "next/dynamic"
 
 const DailyDashboard = dynamic(() => import("@/components/DailyDashboard").then(m => m.DailyDashboard), {
   ssr: false,
-  loading: () => <div className="card-glass p-8"><div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin" /></div>,
+  loading: () => <div className="card-solid p-8"><div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin" /></div>,
 })
 
 const AGENTS = [
@@ -55,7 +55,7 @@ export function MarketingBelowFold() {
                     {/* Pulse dot */}
                     <div className="flex items-center gap-1.5 mb-2.5">
                       <span className="w-1 h-1 rounded-full" style={{ background: agent.accent, opacity: 0.5 }} />
-                      <span className="text-[9px] font-medium text-white/25 uppercase tracking-wider">
+                      <span className="text-[9px] font-medium text-parchment-400 uppercase tracking-wider">
                         {t(`agent.${agent.key}.tag`)}
                       </span>
                     </div>
@@ -66,11 +66,11 @@ export function MarketingBelowFold() {
                       {t(`agent.${agent.key}._label`)}
                     </h3>
 
-                    <p className="text-white/35 text-[11px] leading-relaxed mb-1.5">
+                    <p className="text-parchment-400 text-xs leading-relaxed mb-1.5">
                       {t(`agent.${agent.key}.desc`)}
                     </p>
 
-                    <p className="text-white/15 text-[10px] leading-relaxed">
+                    <p className="text-parchment-400 text-xs leading-relaxed">
                       {t(`agent.${agent.key}.detail`)}
                     </p>
                   </div>
@@ -91,7 +91,7 @@ export function MarketingBelowFold() {
           />
 
           <ScrollReveal delay={0.15}>
-            <div className="card-glass-elevated p-6 md:p-8 relative overflow-hidden">
+            <div className="card-solid-elevated p-6 md:p-8 relative overflow-hidden">
               <div className="grid md:grid-cols-2 gap-6 relative">
                 {/* Left: Report data */}
                 <div>
@@ -108,17 +108,17 @@ export function MarketingBelowFold() {
                     ].map((item) => (
                       <div key={item.label} className="flex items-center gap-2 bg-white/[0.02] rounded-lg p-2">
                         <span className="text-[9px] font-medium px-1.5 py-0.5 rounded flex-shrink-0" style={{ background: `${item.color}15`, color: `${item.color}cc` }}>{item.label}</span>
-                        <span className="text-white/50 text-[11px]">{item.value}</span>
+                        <span className="text-parchment-400 text-xs">{item.value}</span>
                       </div>
                     ))}
                   </div>
-                  <div className="inline-flex items-center gap-2 border border-white/[0.08] rounded-lg px-2.5 py-1.5">
+                  <div className="inline-flex items-center gap-2 border border-white/[0.06] rounded-lg px-2.5 py-1.5">
                     <div className="w-5 h-5 rounded bg-gold/10 flex items-center justify-center">
                       <span className="text-gold/70 text-[9px] font-serif font-bold">命</span>
                     </div>
                     <div>
-                      <div className="text-gold/70 text-[10px] font-medium">{t("report.aiCert")}</div>
-                      <div className="text-white/20 text-[8px]">{t("report.confidence")}</div>
+                      <div className="text-gold/70 text-xs font-medium">{t("report.aiCert")}</div>
+                      <div className="text-parchment-400 text-[8px]">{t("report.confidence")}</div>
                     </div>
                   </div>
                 </div>
@@ -137,11 +137,11 @@ export function MarketingBelowFold() {
                   <div className="w-full space-y-1.5">
                     {[[`💰 ${t("report.wealth")}`, 80, "#C9A84C"], [`💕 ${t("report.relationship")}`, 60, "#C1121F"], [`💼 ${t("report.career")}`, 90, "#2D6A4F"], [`🏥 ${t("report.health")}`, 70, "#2980B9"]].map(([label, score, color]) => (
                       <div key={String(label)} className="flex items-center gap-2">
-                        <span className="text-white/30 text-[10px] w-12">{String(label)}</span>
+                        <span className="text-parchment-400 text-xs w-12">{String(label)}</span>
                         <div className="flex-1 h-1 bg-white/[0.04] rounded-full overflow-hidden">
                           <div className="h-full rounded-full transition-all duration-1000 delay-300" style={{ width: `${score}%`, background: `linear-gradient(90deg, ${String(color)}44, ${String(color)}88)` }} />
                         </div>
-                        <span className="text-white/30 text-[10px] w-6 text-right">{String(score)}</span>
+                        <span className="text-parchment-400 text-xs w-6 text-right">{String(score)}</span>
                       </div>
                     ))}
                   </div>
@@ -179,27 +179,27 @@ export function MarketingBelowFold() {
             {testimonials.map((item, i) => (
               <ScrollReveal key={item.name} delay={i * 0.1} direction="up">
                 <TiltCard glare={false} rotateX={3} rotateY={3} scale={1.01}>
-                  <div className="card-glow p-4 h-full flex flex-col">
+                  <div className="card-interactive p-4 h-full flex flex-col">
                     {/* Stars */}
                     <div className="flex items-center justify-between mb-2.5">
                       <div className="flex gap-0.5">{[...Array(5)].map((_, si) => (<Star key={si} size={10} className="text-gold/60 fill-gold/60" />))}</div>
-                      <span className="text-gold/50 text-[10px] font-medium">★ {item.score}</span>
+                      <span className="text-gold/50 text-xs font-medium">★ {item.score}</span>
                     </div>
 
                     {/* Quote */}
-                    <p className="text-white/45 text-xs leading-relaxed mb-3 flex-1">&ldquo;{item.text}&rdquo;</p>
+                    <p className="text-parchment-400 text-xs leading-relaxed mb-3 flex-1">&ldquo;{item.text}&rdquo;</p>
 
                     {/* Author */}
                     <div className="border-t border-white/[0.05] pt-2.5 flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-gold/10 border border-white/[0.08] flex items-center justify-center text-gold/70 text-[10px] font-bold">{item.name[0]}</div>
+                        <div className="w-6 h-6 rounded-full bg-gold/10 border border-white/[0.06] flex items-center justify-center text-gold/70 text-xs font-bold">{item.name[0]}</div>
                         <div>
-                          <div className="text-white/70 text-[11px] font-medium">{item.name}</div>
-                          <div className="text-white/25 text-[9px]">{item.job}</div>
+                          <div className="text-parchment-300 text-xs font-medium">{item.name}</div>
+                          <div className="text-parchment-400 text-[9px]">{item.job}</div>
                         </div>
                       </div>
                       {item.source && (
-                        <span className="text-white/10 text-[8px] bg-white/[0.03] px-1.5 py-0.5 rounded">{item.source}</span>
+                        <span className="text-parchment-400 text-[8px] bg-white/[0.03] px-1.5 py-0.5 rounded">{item.source}</span>
                       )}
                     </div>
                   </div>
@@ -231,18 +231,18 @@ export function MarketingBelowFold() {
       <ScrollReveal>
         <section className="py-24 px-4 text-center">
           <div className="max-w-2xl mx-auto">
-            <div className="card-glass-elevated p-8 md:p-12 relative overflow-hidden">
+            <div className="card-solid-elevated p-8 md:p-12 relative overflow-hidden">
               <div className="relative">
                 <div className="text-3xl mb-4">✨</div>
-                <h2 className="text-xl md:text-2xl font-serif font-bold text-white/90 mb-2">{t("cta.title")}</h2>
-                <p className="text-white/35 mb-6 max-w-md mx-auto text-sm">{t("cta.desc")}</p>
+                <h2 className="text-xl md:text-2xl font-serif font-bold text-parchment-100 mb-2">{t("cta.title")}</h2>
+                <p className="text-parchment-400 mb-6 max-w-md mx-auto text-sm">{t("cta.desc")}</p>
                 <MagneticButton>
-                  <Link href="/reading/new" className="btn-gold inline-flex items-center gap-2 text-base px-8 py-3 group">
+                  <Link href="/reading/new" className="btn-primary inline-flex items-center gap-2 text-base px-8 py-3 group">
                     {t("cta.button")}
                     <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </MagneticButton>
-                <p className="text-white/15 text-[10px] mt-3">{t("cta.note")}</p>
+                <p className="text-parchment-400 text-xs mt-3">{t("cta.note")}</p>
               </div>
             </div>
           </div>

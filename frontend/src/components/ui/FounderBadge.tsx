@@ -16,7 +16,7 @@ export function FounderBadge({ seatNo, size = "sm" }: FounderBadgeProps) {
       className={`inline-flex items-center gap-1 rounded-full
         bg-gradient-to-r from-violet-500/20 to-purple-500/20
         border border-violet-400/30
-        ${isSmall ? "px-2 py-0.5 text-[10px]" : "px-3 py-1 text-xs"}`}
+        ${isSmall ? "px-2 py-0.5 text-xs" : "px-3 py-1 text-xs"}`}
       style={{ animation: "badgeIn 0.3s ease-out" }}
     >
       <span className="relative flex h-1.5 w-1.5">

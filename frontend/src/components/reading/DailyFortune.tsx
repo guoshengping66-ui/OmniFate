@@ -213,7 +213,7 @@ function GaugeRing({ score, size = 160 }: { score: number; size?: number }) {
       {/* Center content */}
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className={`text-4xl font-bold font-serif ${getScoreColor(score)}`}>{score}</span>
-        <span className="text-white/30 text-xs mt-0.5">/10</span>
+        <span className="text-parchment-400 text-xs mt-0.5">/10</span>
       </div>
     </div>
   )
@@ -229,7 +229,7 @@ function DimBar({
     <div className="flex items-center gap-3">
       <div className="flex items-center gap-2 w-20 md:w-24 flex-shrink-0">
         <span style={{ color }} className="opacity-70">{icon}</span>
-        <span className="text-white/60 text-sm">{label}</span>
+        <span className="text-parchment-400 text-sm">{label}</span>
       </div>
       <div className="flex-1 h-3 bg-white/[0.06] rounded-full overflow-hidden">
         <div
@@ -241,7 +241,7 @@ function DimBar({
           }}
         />
       </div>
-      <span className="text-white/40 text-xs w-8 text-right font-mono">{score}/10</span>
+      <span className="text-parchment-400 text-xs w-8 text-right font-mono">{score}/10</span>
     </div>
   )
 }
@@ -336,7 +336,7 @@ export function DailyFortune({ user }: DailyFortuneProps) {
   }
 
   return (
-    <div className="card-glass-elevated overflow-hidden">
+    <div className="card-solid-elevated overflow-hidden">
       {/* ─── Top Section: Gauge + Dimension Bars ─── */}
       <div className="p-6 md:p-8">
         <div className="grid md:grid-cols-2 gap-8 items-center">
@@ -347,9 +347,9 @@ export function DailyFortune({ user }: DailyFortuneProps) {
               <span className={`text-sm font-bold ${getScoreColor(fortune.overall)}`}>
                 {t("fortune.todayLevel")}: {t(getScoreLabelKey(fortune.overall))}
               </span>
-              <p className="text-white/25 text-xs mt-1">{dateStr}</p>
+              <p className="text-parchment-400 text-xs mt-1">{dateStr}</p>
               {fortune.personalized && (
-                <p className="text-gold/50 text-[10px] mt-1 flex items-center justify-center gap-1">
+                <p className="text-gold/50 text-xs mt-1 flex items-center justify-center gap-1">
                   <User size={10} />
                   {t("fortune.basedOnChart")}
                 </p>
@@ -359,7 +359,7 @@ export function DailyFortune({ user }: DailyFortuneProps) {
 
           {/* Right: Dimension bars */}
           <div className="space-y-4">
-            <p className="text-white/40 text-xs tracking-wider uppercase mb-1">{t("fortune.overallScore")}</p>
+            <p className="text-parchment-400 text-xs tracking-wider uppercase mb-1">{t("fortune.overallScore")}</p>
             {dims.map((d, i) => (
               <DimBar
                 key={d.key}
@@ -381,7 +381,7 @@ export function DailyFortune({ user }: DailyFortuneProps) {
           <div className="bg-white/[0.03] rounded-xl p-4 border border-white/[0.06]">
             <div className="flex items-center gap-2 mb-2">
               <Palette size={14} className="text-gold/60" />
-              <span className="text-white/40 text-xs">{t("fortune.luckyColor")}</span>
+              <span className="text-parchment-400 text-xs">{t("fortune.luckyColor")}</span>
             </div>
             <div className="flex items-center gap-2">
               <span
@@ -398,7 +398,7 @@ export function DailyFortune({ user }: DailyFortuneProps) {
           <div className="bg-white/[0.03] rounded-xl p-4 border border-white/[0.06]">
             <div className="flex items-center gap-2 mb-2">
               <Hash size={14} className="text-gold/60" />
-              <span className="text-white/40 text-xs">{t("fortune.luckyNumber")}</span>
+              <span className="text-parchment-400 text-xs">{t("fortune.luckyNumber")}</span>
             </div>
             <span className="text-gold font-serif font-bold text-2xl">{fortune.lucky_number}</span>
           </div>
@@ -414,7 +414,7 @@ export function DailyFortune({ user }: DailyFortuneProps) {
           </div>
           <div>
             <p className="text-gold/80 text-xs font-medium mb-0.5">{t("fortune.advice._label")}</p>
-            <p className="text-white/50 text-sm leading-relaxed">{adviceText}</p>
+            <p className="text-parchment-400 text-sm leading-relaxed">{adviceText}</p>
           </div>
         </div>
 
@@ -425,7 +425,7 @@ export function DailyFortune({ user }: DailyFortuneProps) {
           </div>
           <div>
             <p className="text-red-400/70 text-xs font-medium mb-0.5">{t("fortune.warning._label")}</p>
-            <p className="text-white/50 text-sm leading-relaxed">{warningText}</p>
+            <p className="text-parchment-400 text-sm leading-relaxed">{warningText}</p>
           </div>
         </div>
       </div>
@@ -434,7 +434,7 @@ export function DailyFortune({ user }: DailyFortuneProps) {
       <div className="px-6 pb-6 md:px-8 md:pb-8">
         <Link
           href="/reading/new"
-          className="btn-gold w-full flex items-center justify-center gap-2 text-sm py-3 group"
+          className="btn-primary w-full flex items-center justify-center gap-2 text-sm py-3 group"
         >
           {t("fortune.startReading")}
           <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />

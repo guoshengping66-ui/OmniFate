@@ -209,12 +209,12 @@ export default function RegisterPage() {
           <div className="text-center mb-8">
             <Mail className="text-gold mx-auto mb-3" size={28} />
             <h1 className="text-2xl font-serif font-bold text-gold">{t("auth.verifyTitle")}</h1>
-            <p className="text-white/40 text-sm mt-1">
-              {t("auth.verifySentTo")} <span className="text-white/60">{email}</span>
+            <p className="text-parchment-400 text-sm mt-1">
+              {t("auth.verifySentTo")} <span className="text-parchment-400">{email}</span>
             </p>
           </div>
 
-          <form onSubmit={handleVerify} className="card-glass p-6 md:p-8 space-y-5">
+          <form onSubmit={handleVerify} className="card-solid p-6 md:p-8 space-y-5">
             <div>
               <label className="label">{t("auth.verifyCodeLabel")}</label>
               <input
@@ -231,7 +231,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={verifyLoading || verifyCode.length !== 6}
-              className="btn-gold w-full flex items-center justify-center gap-2 py-3"
+              className="btn-primary w-full flex items-center justify-center gap-2 py-3"
             >
               {verifyLoading ? (
                 <><Loader2 size={18} className="animate-spin" /> {t("auth.verifying")}</>
@@ -251,7 +251,7 @@ export default function RegisterPage() {
               </button>
             </div>
 
-            <p className="text-center text-white/40 text-sm">
+            <p className="text-center text-parchment-400 text-sm">
               <button type="button" onClick={() => setStep("birth")} className="text-gold hover:underline">
                 ← {t("auth.birth.prevStep")}
               </button>
@@ -270,12 +270,12 @@ export default function RegisterPage() {
           <div className="text-center mb-8">
             <span className="text-4xl mb-3 block">🔮</span>
             <h1 className="text-2xl font-serif font-bold text-gold">{t("auth.birth.title")}</h1>
-            <p className="text-white/40 text-sm mt-1">
+            <p className="text-parchment-400 text-sm mt-1">
               {t("auth.birth.subtitle")}
             </p>
           </div>
 
-          <div className="card-glass p-6 md:p-8 space-y-5">
+          <div className="card-solid p-6 md:p-8 space-y-5">
             {/* Gender */}
             <div>
               <label className="label">{t("auth.birth.gender")}</label>
@@ -284,7 +284,7 @@ export default function RegisterPage() {
                   <label key={v} className="flex-1 cursor-pointer">
                     <input type="radio" value={v} checked={birthGender === v}
                       onChange={() => setBirthGender(v as any)} className="sr-only peer" />
-                    <div className="text-center py-2.5 rounded-xl border border-white/20 text-white/60 peer-checked:border-gold peer-checked:text-gold peer-checked:bg-gold/10 hover:border-white/40 transition-all text-sm">{l}</div>
+                    <div className="text-center py-2.5 rounded-xl border border-white/20 text-parchment-400 peer-checked:border-gold peer-checked:text-gold peer-checked:bg-gold/10 hover:border-white/40 transition-all text-sm">{l}</div>
                   </label>
                 ))}
               </div>
@@ -318,7 +318,7 @@ export default function RegisterPage() {
               <button
                 type="button"
                 onClick={() => setStep("account")}
-                className="flex items-center gap-1 px-4 py-2.5 rounded-full border border-white/20 text-white/60 hover:border-white/40 transition-all text-sm"
+                className="flex items-center gap-1 px-4 py-2.5 rounded-full border border-white/20 text-parchment-400 hover:border-white/40 transition-all text-sm"
               >
                 <ChevronLeft size={14} /> {t("auth.birth.prevStep")}
               </button>
@@ -327,7 +327,7 @@ export default function RegisterPage() {
                 type="button"
                 onClick={handleSkipBirth}
                 disabled={loading}
-                className="flex-1 py-2.5 rounded-full border border-white/20 text-white/40 hover:text-white/60 hover:border-white/40 transition-all text-sm"
+                className="flex-1 py-2.5 rounded-full border border-white/20 text-parchment-400 hover:text-parchment-400 hover:border-white/40 transition-all text-sm"
               >
                 {loading ? <Loader2 size={14} className="animate-spin mx-auto" /> : t("auth.birth.skip")}
               </button>
@@ -336,13 +336,13 @@ export default function RegisterPage() {
                 type="button"
                 onClick={handleBirthSubmit}
                 disabled={loading || !hasBirthData}
-                className="btn-gold flex items-center gap-1 text-sm disabled:opacity-40"
+                className="btn-primary flex items-center gap-1 text-sm disabled:opacity-40"
               >
                 {loading ? <Loader2 size={14} className="animate-spin" /> : <><CheckCircle size={14} /> {t("auth.birth.complete")}</>}
               </button>
             </div>
 
-            <p className="text-white/25 text-[10px] text-center">
+            <p className="text-parchment-400 text-xs text-center">
               {t("auth.birth.securityNote")}
             </p>
           </div>
@@ -358,10 +358,10 @@ export default function RegisterPage() {
         <div className="text-center mb-8">
           <Sparkles className="text-gold mx-auto mb-3" size={28} />
           <h1 className="text-2xl font-serif font-bold text-gold">{t("auth.registerTitle")}</h1>
-          <p className="text-white/40 text-sm mt-1">{t("auth.registerSubtitle")}</p>
+          <p className="text-parchment-400 text-sm mt-1">{t("auth.registerSubtitle")}</p>
         </div>
 
-        <form onSubmit={handleAccountSubmit} className="card-glass p-6 md:p-8 space-y-5">
+        <form onSubmit={handleAccountSubmit} className="card-solid p-6 md:p-8 space-y-5">
           <div>
             <label className="label">{t("auth.email")}</label>
             <input
@@ -375,7 +375,7 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label className="label">{t("auth.nameOptional")} <span className="text-white/20 text-xs">{t("auth.nameOptionalHint")}</span></label>
+            <label className="label">{t("auth.nameOptional")} <span className="text-parchment-400 text-xs">{t("auth.nameOptionalHint")}</span></label>
             <input
               type="text"
               value={displayName}
@@ -399,7 +399,7 @@ export default function RegisterPage() {
               <button
                 type="button"
                 onClick={() => setShowPw(!showPw)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-parchment-400 hover:text-parchment-400"
               >
                 {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
@@ -409,7 +409,7 @@ export default function RegisterPage() {
           {/* Referral code (optional) */}
           <div>
             <label className="label">
-              {t("auth.referralCode")} <span className="text-white/20 text-xs">{t("auth.referralHint")}</span>
+              {t("auth.referralCode")} <span className="text-parchment-400 text-xs">{t("auth.referralHint")}</span>
             </label>
             <input
               type="text"
@@ -426,9 +426,9 @@ export default function RegisterPage() {
               type="checkbox"
               checked={ageConfirmed}
               onChange={e => setAgeConfirmed(e.target.checked)}
-              className="mt-0.5 h-4 w-4 rounded border-white/20 bg-white/5 text-gold focus:ring-gold/40"
+              className="mt-0.5 h-4 w-4 rounded border-white/20 bg-white/[0.04] text-gold focus:ring-gold/40"
             />
-            <span className="text-white/50 text-xs leading-relaxed">
+            <span className="text-parchment-400 text-xs leading-relaxed">
               {t("auth.ageConfirm")}
             </span>
           </label>
@@ -438,9 +438,9 @@ export default function RegisterPage() {
               type="checkbox"
               checked={privacyAccepted}
               onChange={e => setPrivacyAccepted(e.target.checked)}
-              className="mt-0.5 h-4 w-4 rounded border-white/20 bg-white/5 text-gold focus:ring-gold/40"
+              className="mt-0.5 h-4 w-4 rounded border-white/20 bg-white/[0.04] text-gold focus:ring-gold/40"
             />
-            <span className="text-white/50 text-xs leading-relaxed">
+            <span className="text-parchment-400 text-xs leading-relaxed">
               {t("auth.agreePolicy")}{" "}
               <a href={localeHref("/privacy")} target="_blank" rel="noopener noreferrer" className="text-gold hover:underline">{t("auth.privacyPolicyLink")}</a>
               {" "}{t("auth.and")}{" "}
@@ -453,12 +453,12 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={!privacyAccepted}
-            className="btn-gold w-full flex items-center justify-center gap-2 py-3 disabled:opacity-40"
+            className="btn-primary w-full flex items-center justify-center gap-2 py-3 disabled:opacity-40"
           >
             {t("auth.birth.nextStep")} <ChevronRight size={16} />
           </button>
 
-          <p className="text-center text-white/40 text-sm">
+          <p className="text-center text-parchment-400 text-sm">
             {t("auth.hasAccount")}{" "}
             <Link href="/login" className="text-gold hover:underline">
               {t("auth.loginNow")}

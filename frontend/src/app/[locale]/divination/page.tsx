@@ -16,12 +16,12 @@ export default function DivinationPage() {
 
         <div className="text-center mb-8">
           <h1 className="text-3xl font-serif font-bold text-gold mb-2">{t("divination.title")}</h1>
-          <p className="text-white/40 text-sm">
+          <p className="text-parchment-400 text-sm">
             {t("divination.subtitle")}
           </p>
         </div>
 
-        <Suspense fallback={<div className="card-glass p-8 flex justify-center"><div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin" /></div>}>
+        <Suspense fallback={<div className="card-solid p-8 flex justify-center"><div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin" /></div>}>
           <CelestialOracle />
         </Suspense>
 
@@ -30,7 +30,7 @@ export default function DivinationPage() {
           className="mt-8 space-y-4 animate-[fadeIn_0.3s_ease-out_0.3s_both]"
         >
           {/* Rules Card */}
-          <div className="card-glass p-5">
+          <div className="card-solid p-5">
             <h3 className="text-gold/70 text-xs font-medium uppercase tracking-wider mb-3 flex items-center gap-1.5">
               <Sparkles size={12} />
               {t("divination.rules")}
@@ -41,8 +41,8 @@ export default function DivinationPage() {
                   <Clock size={12} className="text-gold/60" />
                 </div>
                 <div>
-                  <p className="text-white/50 text-xs">{t("divination.rule1Title")}</p>
-                  <p className="text-white/30 text-[11px]">{t("divination.rule1Desc")}</p>
+                  <p className="text-parchment-400 text-xs">{t("divination.rule1Title")}</p>
+                  <p className="text-parchment-400 text-xs">{t("divination.rule1Desc")}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -50,8 +50,8 @@ export default function DivinationPage() {
                   <Sparkles size={12} className="text-gold/60" />
                 </div>
                 <div>
-                  <p className="text-white/50 text-xs">{t("divination.rule2Title")}</p>
-                  <p className="text-white/30 text-[11px]">{t("divination.rule2Desc")}</p>
+                  <p className="text-parchment-400 text-xs">{t("divination.rule2Title")}</p>
+                  <p className="text-parchment-400 text-xs">{t("divination.rule2Desc")}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -59,8 +59,8 @@ export default function DivinationPage() {
                   <Gift size={12} className="text-gold/60" />
                 </div>
                 <div>
-                  <p className="text-white/50 text-xs">{t("divination.rule4Title")}</p>
-                  <p className="text-white/30 text-[11px]">{t("divination.rule4Desc")}</p>
+                  <p className="text-parchment-400 text-xs">{t("divination.rule4Title")}</p>
+                  <p className="text-parchment-400 text-xs">{t("divination.rule4Desc")}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -68,8 +68,8 @@ export default function DivinationPage() {
                   <Crown size={12} className="text-gold/60" />
                 </div>
                 <div>
-                  <p className="text-white/50 text-xs">{t("divination.founderUnlimited")}</p>
-                  <p className="text-white/30 text-[11px]">{t("divination.founderDesc")}</p>
+                  <p className="text-parchment-400 text-xs">{t("divination.founderUnlimited")}</p>
+                  <p className="text-parchment-400 text-xs">{t("divination.founderDesc")}</p>
                 </div>
               </div>
             </div>
@@ -77,7 +77,7 @@ export default function DivinationPage() {
 
           {/* Disclaimer */}
           <div className="text-center">
-            <p className="text-white/15 text-[11px] leading-relaxed max-w-md mx-auto">
+            <p className="text-parchment-400 text-xs leading-relaxed max-w-md mx-auto">
               {t("divination.disclaimer")}
               {t("divination.motto")}
             </p>

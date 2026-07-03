@@ -119,7 +119,7 @@ function HighlightedText({ text }: { text: string }) {
       {parts.map((part, i) => {
         if (/^[【「]/.test(part) && /[】」]/.test(part)) {
           return (
-            <span key={i} className="inline-block px-1.5 py-0.5 mx-0.5 bg-gold/10 border border-gold/20 rounded text-gold/80 text-[11px] font-medium">
+            <span key={i} className="inline-block px-1.5 py-0.5 mx-0.5 bg-gold/10 border border-gold/20 rounded text-gold/80 text-xs font-medium">
               {part.slice(1, -1)}
             </span>
           )
@@ -197,7 +197,7 @@ export function ReportSection({ icon, title, color, content }: Props) {
 
   if (isStructured && structuredData) {
     return (
-      <div className="rounded-xl border border-white/[0.08] bg-white/[0.03] p-4 md:p-5">
+      <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-4 md:p-5">
         {/* Header */}
         <div className="flex items-center gap-2.5 mb-4">
           <span className="w-1 h-5 rounded-full bg-gold/50" />
@@ -220,7 +220,7 @@ export function ReportSection({ icon, title, color, content }: Props) {
   }
 
   return (
-    <div className="rounded-xl border border-white/[0.08] bg-white/[0.03] p-4 md:p-5">
+    <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-4 md:p-5">
       {/* Header */}
       <div className="flex items-center gap-2.5 mb-4">
         <span className="w-1 h-5 rounded-full bg-gold/50" />
@@ -233,7 +233,7 @@ export function ReportSection({ icon, title, color, content }: Props) {
           {keyTakeaways.map((item, index) => (
             <div key={`${item}-${index}`} className="rounded-xl border border-gold/10 bg-gold/[0.035] p-3">
               <span className="text-[9px] tracking-[0.14em] text-gold/45">KEY {index + 1}</span>
-              <p className="mt-1 text-white/64 text-xs leading-relaxed line-clamp-3">
+              <p className="mt-1 text-parchment-300 text-xs leading-relaxed line-clamp-3">
                 <HighlightedText text={item} />
               </p>
             </div>
@@ -243,12 +243,12 @@ export function ReportSection({ icon, title, color, content }: Props) {
 
       {!expanded && readableSections.length > 1 && (
         <div className="mb-4 rounded-2xl border border-white/[0.06] bg-black/10 p-3">
-          <p className="text-[10px] uppercase tracking-[0.16em] text-white/28 mb-2">Reading Map</p>
+          <p className="text-xs uppercase tracking-[0.16em] text-parchment-400 mb-2">Reading Map</p>
           <div className="grid sm:grid-cols-2 gap-2">
             {readableSections.map((section, index) => (
               <div key={`${section.title}-${index}`} className="rounded-xl bg-white/[0.025] border border-white/[0.05] p-3">
-                <p className="text-white/72 text-xs font-semibold mb-1">{section.title}</p>
-                <p className="text-white/42 text-[11px] leading-relaxed line-clamp-2">
+                <p className="text-parchment-200 text-xs font-semibold mb-1">{section.title}</p>
+                <p className="text-parchment-400 text-xs leading-relaxed line-clamp-2">
                   <HighlightedText text={section.body.split("\n")[0] || section.body} />
                 </p>
               </div>
@@ -268,7 +268,7 @@ export function ReportSection({ icon, title, color, content }: Props) {
             return (
               <div key={i} className="flex items-start gap-2 mt-3 mb-1.5 first:mt-0">
                 <span className="w-1 h-4 rounded-full bg-gold/30 mt-1 flex-shrink-0" />
-                <h3 className="text-white/80 text-xs font-semibold leading-snug">
+                <h3 className="text-parchment-200 text-xs font-semibold leading-snug">
                   {line.content}
                 </h3>
               </div>
@@ -278,8 +278,8 @@ export function ReportSection({ icon, title, color, content }: Props) {
           if (line.type === "bullet") {
             return (
               <div key={i} className="flex items-start gap-2 py-0.5">
-                <span className="text-gold/40 text-[10px] mt-1 flex-shrink-0">◆</span>
-                <p className="text-white/60 text-xs leading-relaxed">
+                <span className="text-gold/40 text-xs mt-1 flex-shrink-0">◆</span>
+                <p className="text-parchment-400 text-xs leading-relaxed">
                   <HighlightedText text={line.content} />
                 </p>
               </div>
@@ -289,7 +289,7 @@ export function ReportSection({ icon, title, color, content }: Props) {
           if (line.type === "highlight") {
             return (
               <div key={i} className="py-0.5">
-                <p className="text-white/60 text-xs leading-relaxed">
+                <p className="text-parchment-400 text-xs leading-relaxed">
                   <HighlightedText text={line.content} />
                 </p>
               </div>
@@ -297,7 +297,7 @@ export function ReportSection({ icon, title, color, content }: Props) {
           }
 
           return (
-            <p key={i} className="text-white/50 text-xs leading-relaxed py-0.5">
+            <p key={i} className="text-parchment-400 text-xs leading-relaxed py-0.5">
               <HighlightedText text={line.content} />
             </p>
           )
@@ -319,7 +319,7 @@ export function ReportSection({ icon, title, color, content }: Props) {
             <>
               <ChevronDown size={14} className="group-hover:translate-y-0.5 transition-transform" />
               {t("report.expand")}
-              <span className="text-white/20 text-[10px] ml-1">
+              <span className="text-parchment-400 text-xs ml-1">
                 ({parsedLines.length - PREVIEW_LINES} {t("report.moreLines") || "more"})
               </span>
             </>

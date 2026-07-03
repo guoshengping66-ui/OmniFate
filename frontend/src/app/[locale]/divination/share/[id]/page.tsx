@@ -108,7 +108,7 @@ export default function DivinationSharePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-ink">
+      <div className="min-h-screen flex items-center justify-center bg-cosmos-950">
         <Loader2 size={32} className="text-gold animate-spin" />
       </div>
     )
@@ -116,8 +116,8 @@ export default function DivinationSharePage() {
 
   if (!data) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-ink">
-        <p className="text-white/40">{t("divination.share.notFound")}</p>
+      <div className="min-h-screen flex items-center justify-center bg-cosmos-950">
+        <p className="text-parchment-400">{t("divination.share.notFound")}</p>
       </div>
     )
   }
@@ -131,7 +131,7 @@ export default function DivinationSharePage() {
     : ""
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-ink px-4 py-12">
+    <div className="min-h-screen flex items-center justify-center bg-cosmos-950 px-4 py-12">
       <div className="w-full max-w-sm">
         <div className="relative rounded-2xl overflow-hidden anim-slide-up">
           <div className={`absolute inset-0 bg-gradient-to-b ${bgTheme}`} />
@@ -159,7 +159,7 @@ export default function DivinationSharePage() {
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full
                               bg-gold/10 border border-gold/25">
                   <Crown size={12} className="text-gold" />
-                  <span className="text-gold text-[11px] font-medium tracking-wide">
+                  <span className="text-gold text-xs font-medium tracking-wide">
                     {t("divination.share.founderSeat").replace("{seatNo}", String(data.seat_no))}
                   </span>
                 </div>
@@ -172,7 +172,7 @@ export default function DivinationSharePage() {
             </div>
 
             {data.theme && (
-              <div className="flex items-center justify-center gap-2 mb-4 text-white/30 text-xs">
+              <div className="flex items-center justify-center gap-2 mb-4 text-parchment-400 text-xs">
                 <span className="text-base">{totemIcon}</span>
                 <span>{data.theme}</span>
                 {dateStr && (
@@ -187,7 +187,7 @@ export default function DivinationSharePage() {
             <div className="mb-6 anim-slide-up anim-delay-2" style={{ animation: "slideUp 0.5s cubic-bezier(0.32, 0.72, 0, 1) 0.2s forwards", opacity: 0 }}>
               <div className={`inline-flex items-center gap-2 px-8 py-4 rounded-full
                             bg-gradient-to-r ${FORTUNE_COLORS[data.fortune] || "from-gold to-[#E8CB7A]"}
-                            text-ink font-bold text-3xl ${isHighRating ? "shadow-lg shadow-gold/20" : ""}`}>
+                            text-cosmos-950 font-bold text-3xl ${isHighRating ? "shadow-lg shadow-gold/20" : ""}`}>
                 <span>{FORTUNE_EMOJI[data.fortune] || "✨"}</span>
                 <span>{data.fortune}</span>
               </div>
@@ -210,7 +210,7 @@ export default function DivinationSharePage() {
             </div>
 
             <div className="mb-5">
-              <p className="text-white/70 text-sm leading-relaxed italic">
+              <p className="text-parchment-300 text-sm leading-relaxed italic">
                 &ldquo;{(data as any).wisdom_quote || (data as any).wisdom_quote_en}&rdquo;
               </p>
               <p className="text-gold/50 text-xs mt-3">—— {data.author}</p>
@@ -218,8 +218,8 @@ export default function DivinationSharePage() {
 
             {data.ai_insight && (
               <div className="bg-gold/5 rounded-xl p-4 mb-5 border border-gold/15 text-left anim-fade-in" style={{ animationDelay: "0.5s" }}>
-                <p className="text-gold/50 text-[10px] uppercase tracking-wider mb-1.5">{t("divination.share.aiAction")}</p>
-                <p className="text-white/60 text-xs leading-relaxed">{data.ai_insight}</p>
+                <p className="text-gold/50 text-xs uppercase tracking-wider mb-1.5">{t("divination.share.aiAction")}</p>
+                <p className="text-parchment-400 text-xs leading-relaxed">{data.ai_insight}</p>
               </div>
             )}
 
@@ -237,7 +237,7 @@ export default function DivinationSharePage() {
                 </div>
               )}
               {data.user_name && (
-                <p className="text-white/30 text-xs">{t("divination.share.userReading").replace("{name}", data.user_name)}</p>
+                <p className="text-parchment-400 text-xs">{t("divination.share.userReading").replace("{name}", data.user_name)}</p>
               )}
             </div>
 
@@ -246,11 +246,11 @@ export default function DivinationSharePage() {
                 <Gift size={14} className="text-gold" />
                 <p className="text-gold text-xs font-medium">{t("divination.share.shareForStardust")}</p>
               </div>
-              <p className="text-white/40 text-[11px] mb-3">{t("divination.share.inviteDesc")}</p>
+              <p className="text-parchment-400 text-xs mb-3">{t("divination.share.inviteDesc")}</p>
 
               {data.referral_code && (
-                <div className="bg-white/5 rounded-lg p-3 border border-white/10">
-                  <p className="text-white/30 text-[10px] mb-1.5">{t("divination.share.myReferralCode")}</p>
+                <div className="bg-white/[0.04] rounded-lg p-3 border border-white/[0.06]">
+                  <p className="text-parchment-400 text-xs mb-1.5">{t("divination.share.myReferralCode")}</p>
                   <div className="flex items-center justify-center gap-2">
                     <span className="font-mono text-gold text-lg tracking-widest">{data.referral_code}</span>
                   </div>
@@ -280,7 +280,7 @@ export default function DivinationSharePage() {
             <Link
               href="/"
               className="mt-4 inline-flex items-center gap-2 px-6 py-2.5 rounded-full
-                       bg-white/5 border border-white/10 text-white/40 text-sm
+                       bg-white/[0.04] border border-white/[0.06] text-parchment-400 text-sm
                        hover:bg-white/10 hover:text-gold transition-all"
             >
               <Sparkles size={14} />

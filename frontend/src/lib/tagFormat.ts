@@ -153,9 +153,9 @@ export function formatTag(raw: string, lang: string = "en"): TagStyle {
   return {
     label: (isZh ? clean : snakeToTitle(clean)) + badge,
     labelCn: clean,
-    color: "text-white/50",
-    bg: "bg-white/5",
-    border: "border-white/10",
+    color: "text-parchment-400",
+    bg: "bg-white/[0.04]",
+    border: "border-white/[0.06]",
     icon: "◇",
   }
 }

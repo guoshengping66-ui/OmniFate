@@ -68,7 +68,7 @@ export default function KnowledgePage() {
             const itemCount = cat.subcategories.reduce((s, sub) => s + sub.items.length, 0)
             return (
               <ScrollReveal key={cat.id} delay={0.05 * (idx + 1)}>
-                <Link href={localeHref(cat.canonical_path)} className="group ow-card block h-full p-6 transition hover:border-[var(--color-gold-soft)] md:p-8">
+                <Link href={localeHref(cat.canonical_path)} className="group card-solid block h-full p-6 transition hover:border-[var(--color-gold-soft)] md:p-8">
                   <div className="flex items-start gap-4">
                     <span className="grid h-12 w-12 flex-shrink-0 place-items-center rounded-2xl border border-[var(--color-gold-soft)] bg-[rgba(200,168,74,0.08)] text-2xl">
                       {cat.emoji}
@@ -85,9 +85,9 @@ export default function KnowledgePage() {
                       </p>
                       <div className="mt-4 flex flex-wrap gap-2">
                         {cat.subcategories.map(sub => (
-                          <span key={sub.id} className="rounded-full border border-white/[0.08] bg-white/[0.035] px-3 py-1 text-xs text-white/50">
+                          <span key={sub.id} className="rounded-full border border-white/[0.08] bg-white/[0.035] px-3 py-1 text-xs text-parchment-400">
                             {isZh ? sub.name_zh : sub.name_en}
-                            <span className="ml-1 text-white/30">({sub.items.length})</span>
+                            <span className="ml-1 text-parchment-400">({sub.items.length})</span>
                           </span>
                         ))}
                       </div>

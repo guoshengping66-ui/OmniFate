@@ -131,10 +131,10 @@ export function AM16Quiz({ onComplete }: Props) {
           <h1 className="text-3xl md:text-4xl font-serif font-bold text-gold mb-2">
             {t("am16.title")}
           </h1>
-          <p className="text-white/40 text-sm max-w-md mx-auto">
+          <p className="text-parchment-400 text-sm max-w-md mx-auto">
             {t("am16.subtitle")}
           </p>
-          <p className="text-white/25 text-xs mt-2">
+          <p className="text-parchment-400 text-xs mt-2">
             {t("am16.dimSubtitle")}
           </p>
         </div>
@@ -149,7 +149,7 @@ export function AM16Quiz({ onComplete }: Props) {
           ].map((d, i) => (
             <div
               key={d.label}
-              className="card-glass p-3 text-center anim-slide-up"
+              className="card-solid p-3 text-center anim-slide-up"
               style={{ animationDelay: `${0.3 + i * 0.1}s` }}
             >
               <div className="text-xl mb-1">{d.emoji}</div>
@@ -161,14 +161,14 @@ export function AM16Quiz({ onComplete }: Props) {
         <div className="inline-block pulse-ring">
           <button
             onClick={handleStart}
-            className="btn-gold inline-flex items-center gap-2 text-sm hover:scale-[1.05] active:scale-[0.95] transition-transform"
+            className="btn-primary inline-flex items-center gap-2 text-sm hover:scale-[1.05] active:scale-[0.95] transition-transform"
           >
             <Sparkles size={16} />
             {t("am16.start")}
           </button>
         </div>
 
-        <p className="text-white/20 text-[11px]">{t("am16.free")}</p>
+        <p className="text-parchment-400 text-xs">{t("am16.free")}</p>
       </div>
     )
   }
@@ -181,7 +181,7 @@ export function AM16Quiz({ onComplete }: Props) {
         <AnalysisOrbit />
 
         {/* 进度条 100% */}
-        <div className="w-full max-w-md mx-auto h-1.5 bg-white/5 rounded-full overflow-hidden">
+        <div className="w-full max-w-md mx-auto h-1.5 bg-white/[0.04] rounded-full overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-gold/60 to-gold rounded-full"
             style={{
@@ -195,7 +195,7 @@ export function AM16Quiz({ onComplete }: Props) {
           <p className="text-gold text-lg font-serif animate-pulse">
             {calibrated ? t("am16.calibrating") : t("am16.analyzing")}
           </p>
-          <p className="text-white/30 text-xs mt-2">
+          <p className="text-parchment-400 text-xs mt-2">
             {calibrated ? "✦" : t(`am16.step${analysisStep + 1}`)}
           </p>
         </div>
@@ -209,14 +209,14 @@ export function AM16Quiz({ onComplete }: Props) {
       {/* 顶部进度条 */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-white/30 text-xs">
+          <span className="text-parchment-400 text-xs">
             {currentQ + 1} {t("am16.questionOf").replace("{total}", String(total))}
           </span>
           <span className="text-gold/50 text-xs">
             {Math.round(progress)}%
           </span>
         </div>
-        <div className="relative w-full h-1.5 bg-white/5 rounded-full overflow-hidden" role="progressbar" aria-valuenow={Math.round(progress)} aria-valuemin={0} aria-valuemax={100} aria-label={t("am16.progress")}>
+        <div className="relative w-full h-1.5 bg-white/[0.04] rounded-full overflow-hidden" role="progressbar" aria-valuenow={Math.round(progress)} aria-valuemin={0} aria-valuemax={100} aria-label={t("am16.progress")}>
           <div
             className="h-full bg-gradient-to-r from-gold/40 to-gold rounded-full"
             style={{
@@ -244,10 +244,10 @@ export function AM16Quiz({ onComplete }: Props) {
             <div className="text-4xl sm:text-5xl mb-4 anim-scale-in">
               {question.emoji}
             </div>
-            <h2 className="text-xl md:text-2xl font-serif text-white/90 leading-relaxed">
+            <h2 className="text-xl md:text-2xl font-serif text-parchment-100 leading-relaxed">
               {lang === "zh" ? question.titleCn : question.titleEn}
             </h2>
-            <p className="text-white/30 text-xs mt-2">{t("am16.yourFirstReaction")}</p>
+            <p className="text-parchment-400 text-xs mt-2">{t("am16.yourFirstReaction")}</p>
           </div>
 
           {/* 选项 */}
@@ -266,14 +266,14 @@ export function AM16Quiz({ onComplete }: Props) {
                   className={`w-full text-left p-4 min-h-[52px] rounded-xl border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
                     isSelected
                       ? "border-gold/60 bg-gold/10 shadow-[0_0_24px_rgba(201,168,76,0.2)]"
-                      : "border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]"
+                      : "border-white/[0.06] bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]"
                   }`}
                 >
                   <div className="flex items-start gap-3">
                     <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold mt-0.5 transition-all duration-200 ${
                       isSelected
-                        ? "bg-gold text-ink shadow-[0_0_12px_rgba(201,168,76,0.4)]"
-                        : "bg-white/10 text-white/50"
+                        ? "bg-gold text-cosmos-950 shadow-[0_0_12px_rgba(201,168,76,0.4)]"
+                        : "bg-white/10 text-parchment-400"
                     }`}>
                       {isSelected ? (
                         <span className="anim-scale-in">✓</span>
@@ -282,7 +282,7 @@ export function AM16Quiz({ onComplete }: Props) {
                       )}
                     </span>
                     <span className={`text-sm leading-relaxed ${
-                      isSelected ? "text-white/90" : "text-white/60"
+                      isSelected ? "text-parchment-100" : "text-parchment-400"
                     }`}>
                       {optText}
                     </span>

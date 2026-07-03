@@ -47,7 +47,7 @@ export const ProductImage = memo(function ProductImage({ src, alt, category, cla
 
   return (
     <div
-      className={`relative flex items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br ${icon.gradient} border border-white/10 ${SIZE_CLASSES[size]} ${className}`}
+      className={`relative flex items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br ${icon.gradient} border border-white/[0.06] ${SIZE_CLASSES[size]} ${className}`}
     >
       {showImage ? (
         <img

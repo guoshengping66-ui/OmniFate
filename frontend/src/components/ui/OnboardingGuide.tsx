@@ -92,7 +92,7 @@ export function OnboardingGuide() {
         {/* Close button */}
         <button
           onClick={finish}
-          className="absolute top-4 right-4 text-white/30 hover:text-white/60 transition-colors"
+          className="absolute top-4 right-4 text-parchment-400 hover:text-parchment-400 transition-colors"
         >
           <X size={20} />
         </button>
@@ -118,7 +118,7 @@ export function OnboardingGuide() {
         <h2 className="text-xl font-serif font-bold text-white text-center mb-3">
           {isZh ? t(step.titleKey) : step.titleEn}
         </h2>
-        <p className="text-white/60 text-sm text-center leading-relaxed mb-8">
+        <p className="text-parchment-400 text-sm text-center leading-relaxed mb-8">
           {isZh ? t(step.descKey) : step.descEn}
         </p>
 
@@ -137,7 +137,7 @@ export function OnboardingGuide() {
         <div className="flex items-center justify-between">
           <button
             onClick={() => isFirst ? finish() : setCurrentStep(s => s - 1)}
-            className="flex items-center gap-1 text-white/40 hover:text-white/70 text-sm transition-colors"
+            className="flex items-center gap-1 text-parchment-400 hover:text-parchment-300 text-sm transition-colors"
           >
             {isFirst ? (isZh ? "跳过" : "Skip") : (
               <>
@@ -149,7 +149,7 @@ export function OnboardingGuide() {
 
           <button
             onClick={() => isLast ? finish() : setCurrentStep(s => s + 1)}
-            className="flex items-center gap-1 px-6 py-2.5 rounded-full bg-gold text-ink font-semibold text-sm hover:shadow-[0_0_20px_rgba(201,168,76,0.4)] transition-all"
+            className="flex items-center gap-1 px-6 py-2.5 rounded-full bg-gold text-cosmos-950 font-semibold text-sm hover:shadow-[0_0_20px_rgba(201,168,76,0.4)] transition-all"
           >
             {isLast ? (isZh ? "开始探索" : "Start Exploring") : (isZh ? "下一步" : "Next")}
             {!isLast && <ChevronRight size={16} />}

@@ -213,7 +213,7 @@ function RatingBadge({ fortune, level }: { fortune: string; level: number }) {
 
       <div className={`relative inline-flex items-center gap-2 px-6 py-3 rounded-full
                 bg-gradient-to-r ${FORTUNE_COLORS[fortune] || "from-gold to-[#E8CB7A]"}
-                text-ink font-bold text-2xl shadow-lg ${
+                text-cosmos-950 font-bold text-2xl shadow-lg ${
                   isHighRating ? "shadow-gold/30" : ""
                 }`}>
         <span className="text-xl">{FORTUNE_EMOJI[fortune] || "✨"}</span>
@@ -400,7 +400,7 @@ export function CelestialOracle() {
   const themeTotem = result?.theme ? THEME_TOTEM[result.theme] : null
 
   return (
-    <div className="card-glass p-8 relative overflow-hidden" ref={cardRef}>
+    <div className="card-solid p-8 relative overflow-hidden" ref={cardRef}>
       <StarAxis spinning={phase === "spinning"} theme={result?.theme} />
 
       <div className="relative z-10">
@@ -410,7 +410,7 @@ export function CelestialOracle() {
             <Sparkles size={24} className="text-gold" />
           </div>
           <h3 className="font-serif text-xl font-bold text-gold">{t("divination.title")}</h3>
-          <p className="text-white/40 text-sm mt-1">
+          <p className="text-parchment-400 text-sm mt-1">
             {phase === "result" && !todayFree
               ? t("divination.todayAlreadyDrawn")
               : t("divination.todayFirstFree")
@@ -429,7 +429,7 @@ export function CelestialOracle() {
               className="text-center py-12"
             >
               <div className="w-8 h-8 border-2 border-gold/30 border-t-gold rounded-full animate-spin mx-auto" />
-              <p className="text-white/30 text-xs mt-3">{t("divination.aligning")}</p>
+              <p className="text-parchment-400 text-xs mt-3">{t("divination.aligning")}</p>
             </motion.div>
           )}
 
@@ -457,7 +457,7 @@ export function CelestialOracle() {
                   </div>
                 </div>
               </button>
-              <p className="text-white/30 text-xs mt-4">
+              <p className="text-parchment-400 text-xs mt-4">
                 <Hand size={10} className="inline mr-1" />
                 {t("divination.shakeHint")}
               </p>
@@ -488,7 +488,7 @@ export function CelestialOracle() {
                 {t("divination.aligning")}
               </p>
               {result?.theme && (
-                <p className="text-white/20 text-xs mt-1">
+                <p className="text-parchment-400 text-xs mt-1">
                   {t("divination.sensingEnergy").replace("{theme}", result.theme)}
                 </p>
               )}
@@ -512,10 +512,10 @@ export function CelestialOracle() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
                   className={`text-center mb-4 inline-flex items-center gap-2 px-4 py-2 rounded-full
-                    bg-gradient-to-r ${themeTotem.bg} border border-white/10`}
+                    bg-gradient-to-r ${themeTotem.bg} border border-white/[0.06]`}
                 >
                   <span className={`text-lg ${themeTotem.color}`}>{themeTotem.icon}</span>
-                  <span className="text-white/60 text-xs">{t("divination.todayPalace")}</span>
+                  <span className="text-parchment-400 text-xs">{t("divination.todayPalace")}</span>
                   <span className={`text-xs font-medium ${themeTotem.color}`}>{result.theme}</span>
                 </motion.div>
               )}
@@ -525,9 +525,9 @@ export function CelestialOracle() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
-                className="bg-white/5 rounded-xl p-5 mb-4 border border-white/10"
+                className="bg-white/[0.04] rounded-xl p-5 mb-4 border border-white/[0.06]"
               >
-                <p className="text-white/80 text-sm leading-relaxed italic">
+                <p className="text-parchment-200 text-sm leading-relaxed italic">
                   &ldquo;{(result as any).wisdom_quote || (result as any).wisdom_quote_en}&rdquo;
                 </p>
                 <p className="text-gold/60 text-xs mt-3 text-right">
@@ -546,8 +546,8 @@ export function CelestialOracle() {
                   <div className="flex items-start gap-2">
                     <Sparkles size={14} className="text-gold/60 mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-gold/50 text-[10px] uppercase tracking-wider mb-1.5">{t("divination.aiGuide")}</p>
-                      <p className="text-white/70 text-xs leading-relaxed">{result.ai_insight}</p>
+                      <p className="text-gold/50 text-xs uppercase tracking-wider mb-1.5">{t("divination.aiGuide")}</p>
+                      <p className="text-parchment-300 text-xs leading-relaxed">{result.ai_insight}</p>
                     </div>
                   </div>
                 </motion.div>
@@ -555,7 +555,7 @@ export function CelestialOracle() {
 
               {/* Cost info */}
               {!result.is_free && (
-                <div className="flex items-center justify-center gap-2 text-xs text-white/30 mb-3">
+                <div className="flex items-center justify-center gap-2 text-xs text-parchment-400 mb-3">
                   <Zap size={12} className="text-gold/50" />
                   <span>{t("divination.costInfo").replace("{cost}", String(result.stardust_cost)).replace("{balance}", String(result.balance_after))}</span>
                 </div>
@@ -586,7 +586,7 @@ export function CelestialOracle() {
                   <p className="text-gold/80 text-xs font-medium mb-2">
                     {t("divination.limitReached")}
                   </p>
-                  <p className="text-white/30 text-[11px] mb-3 leading-relaxed">
+                  <p className="text-parchment-400 text-xs mb-3 leading-relaxed">
                     {t("divination.refillHint")}
                   </p>
                   <div className="flex gap-2">
@@ -599,7 +599,7 @@ export function CelestialOracle() {
                     </Link>
                     <Link
                       href="/referral"
-                      className="flex-1 text-center py-2 rounded-lg bg-white/5 border border-white/10 text-white/50 text-xs
+                      className="flex-1 text-center py-2 rounded-lg bg-white/[0.04] border border-white/[0.06] text-parchment-400 text-xs
                                hover:bg-white/10 hover:text-gold transition-all"
                     >
                       {t("divination.inviteFriends")}
@@ -613,7 +613,7 @@ export function CelestialOracle() {
                 <button
                   onClick={handleShare}
                   className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl
-                           bg-white/5 border border-white/10 text-white/60 text-sm
+                           bg-white/[0.04] border border-white/[0.06] text-parchment-400 text-sm
                            hover:bg-white/10 hover:text-gold transition-all"
                 >
                   <Share2 size={14} />

@@ -37,7 +37,7 @@ export function ProfileCard() {
             <Star size={18} />
           </div>
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-gold/55">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold/55">
               {isZh ? "Destiny Identity" : "Destiny Identity"}
             </p>
             <h2 className="mt-1 text-lg font-semibold text-white">{t("dash.profile.title")}</h2>
@@ -59,11 +59,11 @@ export function ProfileCard() {
 
       <div className="relative z-10 flex items-start justify-between gap-4">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-gold/55">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gold/55">
             {isZh ? "Destiny Identity" : "Destiny Identity"}
           </p>
           <h2 className="mt-2 font-serif text-2xl font-bold text-white">{profile.nickname}</h2>
-          <p className="mt-2 text-sm text-white/42">
+          <p className="mt-2 text-sm text-parchment-400">
             {activeTestTarget ? (isZh ? "当前查看对象" : "Active target") : (isZh ? "你的个人命盘档案" : "Your personal chart profile")}
           </p>
         </div>
@@ -72,11 +72,11 @@ export function ProfileCard() {
 
       <div className="relative z-10 mt-6 grid gap-3 sm:grid-cols-2">
         <div className="border border-white/[0.07] bg-white/[0.035] p-4">
-          <div className="mb-2 flex items-center gap-2 text-white/35">
+          <div className="mb-2 flex items-center gap-2 text-parchment-400">
             <Calendar size={14} />
-            <span className="text-[10px] uppercase tracking-[0.16em]">{isZh ? "出生时间" : "Birth Time"}</span>
+            <span className="text-xs uppercase tracking-[0.16em]">{isZh ? "出生时间" : "Birth Time"}</span>
           </div>
-          <p className="text-sm text-white/78">
+          <p className="text-sm text-parchment-200">
             {t("dash.profile.dateFormat")
               .replace("{y}", String(profile.birth_year))
               .replace("{M}", String(profile.birth_month))
@@ -87,11 +87,11 @@ export function ProfileCard() {
         </div>
 
         <div className="border border-white/[0.07] bg-white/[0.035] p-4">
-          <div className="mb-2 flex items-center gap-2 text-white/35">
+          <div className="mb-2 flex items-center gap-2 text-parchment-400">
             <MapPin size={14} />
-            <span className="text-[10px] uppercase tracking-[0.16em]">{isZh ? "出生地点" : "Birth Place"}</span>
+            <span className="text-xs uppercase tracking-[0.16em]">{isZh ? "出生地点" : "Birth Place"}</span>
           </div>
-          <p className="text-sm text-white/78">{profile.birth_city || t("dash.profile.notSet")}</p>
+          <p className="text-sm text-parchment-200">{profile.birth_city || t("dash.profile.notSet")}</p>
         </div>
       </div>
 
@@ -102,14 +102,14 @@ export function ProfileCard() {
         <span className="border border-jade/20 bg-jade/[0.08] px-3 py-1.5 text-xs text-jade-light">
           {constellation}
         </span>
-        <span className="border border-white/[0.08] bg-white/[0.035] px-3 py-1.5 text-xs text-white/55">
+        <span className="border border-white/[0.06] bg-white/[0.035] px-3 py-1.5 text-xs text-parchment-300">
           {isZh ? "命盘完整度" : "Profile"} {completeness}%
         </span>
       </div>
 
       <div className="relative z-10 mt-5 border-t border-white/[0.06] pt-4">
         <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2 text-sm text-white/55">
+          <div className="flex items-center gap-2 text-sm text-parchment-300">
             <ShieldCheck size={16} className="text-gold/75" />
             {isZh ? "已用于五维合参和每日指挥台" : "Used for 5D synthesis and daily command"}
           </div>

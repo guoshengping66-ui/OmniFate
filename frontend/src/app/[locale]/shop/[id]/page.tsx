@@ -115,7 +115,7 @@ export default function ProductDetailPage() {
   if (!product) {
     return (
       <div className="min-h-screen pt-24 pb-16 px-4 text-center">
-        <p className="text-white/40">{t("shop.detail.notFound")}</p>
+        <p className="text-parchment-400">{t("shop.detail.notFound")}</p>
         <Link href="/shop" className="text-gold text-sm mt-2 hover:underline">{t("treasureHall.backToHall")}</Link>
       </div>
     )
@@ -141,7 +141,7 @@ export default function ProductDetailPage() {
         <div className="relative z-10 max-w-4xl mx-auto">
           {/* Back button */}
           <button onClick={() => router.back()}
-            className="flex items-center gap-1.5 text-white/30 hover:text-gold text-sm mb-8 transition-colors">
+            className="flex items-center gap-1.5 text-parchment-400 hover:text-gold text-sm mb-8 transition-colors">
             <ArrowLeft size={14} /> {t("treasureHall.backToHall")}
           </button>
 
@@ -184,10 +184,10 @@ export default function ProductDetailPage() {
                     <>
                       <span className="text-3xl font-bold text-gold">{pp.symbol}{pp.price}</span>
                       {region === "domestic" && product.price_usd && (
-                        <span className="text-white/25 text-sm">≈ ${product.price_usd}</span>
+                        <span className="text-parchment-400 text-sm">≈ ${product.price_usd}</span>
                       )}
                       {region === "overseas" && (
-                        <span className="text-white/25 text-sm">≈ ¥{product.price_cny}</span>
+                        <span className="text-parchment-400 text-sm">≈ ¥{product.price_cny}</span>
                       )}
                     </>
                   )
@@ -202,11 +202,11 @@ export default function ProductDetailPage() {
               )}
 
               <div className="mb-6 rounded-2xl border border-white/[0.07] bg-white/[0.025] p-4 text-left">
-                <div className="mb-2 flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-gold/55">
+                <div className="mb-2 flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-gold/55">
                   <Sparkles size={13} />
                   {isZh ? "AI \u753b\u50cf\u5339\u914d" : "AI Profile Match"}
                 </div>
-                <p className="text-white/45 text-sm leading-relaxed">
+                <p className="text-parchment-400 text-sm leading-relaxed">
                   {isZh
                     ? "这件物品用于承接报告里的具体提醒：先看你当前最需要补强的生活场景，再结合五行、星盘和关键词标签判断是否优先推荐。"
                     : "This item translates your report into a specific daily support cue, ranked by your current need path, five-element tags, astrology signals, and profile keywords."}
@@ -217,7 +217,7 @@ export default function ProductDetailPage() {
                     ...(product.wuxing_tags || []),
                     ...(product.astro_tags || []),
                   ].slice(0, 6).map(tag => (
-                    <span key={tag} className="rounded-full border border-gold/15 bg-gold/[0.06] px-2 py-1 text-[10px] text-gold/62">
+                    <span key={tag} className="rounded-full border border-gold/15 bg-gold/[0.06] px-2 py-1 text-xs text-gold/62">
                       {tag}
                     </span>
                   ))}
@@ -230,14 +230,14 @@ export default function ProductDetailPage() {
                   className={`flex items-center justify-center gap-2 px-8 py-3 rounded-xl text-sm font-medium transition-all
                     ${added
                       ? "bg-green-500/15 border border-green-500/30 text-green-400"
-                      : "btn-gold hover:shadow-[0_0_20px_rgba(201,168,76,0.3)]"}`}
+                      : "btn-primary hover:shadow-[0_0_20px_rgba(201,168,76,0.3)]"}`}
                 >
                   {added ? <><Check size={16} /> {t("treasureHall.collected")}</> : <><ShoppingBag size={16} /> {t("treasureHall.collect")}</>}
                 </button>
                 <FavoriteButton productId={product.id} />
               </div>
 
-              <div className="flex items-center gap-4 mt-4 text-white/15 text-[10px] justify-center md:justify-start">
+              <div className="flex items-center gap-4 mt-4 text-parchment-400 text-xs justify-center md:justify-start">
                 <span className="flex items-center gap-1"><Shield size={10} /> {t("shop.detail.authentic")}</span>
                 <span className="flex items-center gap-1"><Package size={10} /> {t("shop.detail.freeShipping")}</span>
               </div>
@@ -255,7 +255,7 @@ export default function ProductDetailPage() {
               <BookOpen size={16} className="text-gold/60" />
               <h2 className="text-lg font-serif text-gold/80">{t("treasureHall.story")}</h2>
             </div>
-            <p className="text-white/50 text-base leading-relaxed whitespace-pre-line">
+            <p className="text-parchment-400 text-base leading-relaxed whitespace-pre-line">
               {description}
             </p>
           </NarrativeSection>
@@ -268,7 +268,7 @@ export default function ProductDetailPage() {
               <Gem size={16} className="text-gold/60" />
               <h2 className="text-lg font-serif text-gold/80">{t("treasureHall.meaning")}</h2>
             </div>
-            <p className="text-white/50 text-base leading-relaxed whitespace-pre-line">
+            <p className="text-parchment-400 text-base leading-relaxed whitespace-pre-line">
               {efficacy}
             </p>
 
@@ -293,13 +293,13 @@ export default function ProductDetailPage() {
               <h2 className="text-lg font-serif text-gold/80">{t("treasureHall.usageGuide")}</h2>
             </div>
             {usage && (
-              <p className="text-white/50 text-sm leading-relaxed whitespace-pre-line mb-4">
+              <p className="text-parchment-400 text-sm leading-relaxed whitespace-pre-line mb-4">
                 {usage}
               </p>
             )}
             {precautions && (
               <div className="mt-4 p-3 bg-white/[0.02] border border-white/[0.06] rounded-xl">
-                <p className="text-white/30 text-xs leading-relaxed whitespace-pre-line">
+                <p className="text-parchment-400 text-xs leading-relaxed whitespace-pre-line">
                   {precautions}
                 </p>
               </div>
@@ -317,8 +317,8 @@ export default function ProductDetailPage() {
             <div className="space-y-0">
               {Object.entries(locale === "en" ? (product.specifications_en || product.specifications) : product.specifications).map(([key, value], i, arr) => (
                 <div key={key} className={`flex items-center justify-between py-3 ${i < arr.length - 1 ? "border-b border-white/[0.04]" : ""}`}>
-                  <span className="text-white/35 text-sm">{key}</span>
-                  <span className="text-white/60 text-sm">{value}</span>
+                  <span className="text-parchment-400 text-sm">{key}</span>
+                  <span className="text-parchment-400 text-sm">{value}</span>
                 </div>
               ))}
             </div>
@@ -330,14 +330,14 @@ export default function ProductDetailPage() {
           <NarrativeSection className="narrative-block">
             {product.material && (
               <div className="flex items-center gap-2 mb-3">
-                <Package size={14} className="text-white/25" />
-                <span className="text-white/40 text-sm">{t("shop.detail.material").replace("{material}", product.material)}</span>
+                <Package size={14} className="text-parchment-400" />
+                <span className="text-parchment-400 text-sm">{t("shop.detail.material").replace("{material}", product.material)}</span>
               </div>
             )}
             {product.keyword_tags && product.keyword_tags.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mt-3">
                 {(locale === "en" ? (product.keyword_tags_en || product.keyword_tags) : product.keyword_tags).map(tag => (
-                  <span key={tag} className="text-xs px-2 py-1 bg-white/[0.03] border border-white/[0.06] rounded-full text-white/35">
+                  <span key={tag} className="text-xs px-2 py-1 bg-white/[0.03] border border-white/[0.06] rounded-full text-parchment-400">
                     {tag}
                   </span>
                 ))}
@@ -353,13 +353,13 @@ export default function ProductDetailPage() {
             <div className="space-y-3">
               {relatedReadings.map(r => (
                 <Link key={r.id} href={`/reading/${r.id}`}
-                  className="block card-glass p-4 hover:border-gold/30 transition-all group">
+                  className="block card-solid p-4 hover:border-gold/30 transition-all group">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-white/60 text-sm">{t("shop.detail.readingReport")}</p>
-                      <p className="text-white/25 text-xs">{new Date(r.created_at).toLocaleDateString("zh-CN")}</p>
+                      <p className="text-parchment-400 text-sm">{t("shop.detail.readingReport")}</p>
+                      <p className="text-parchment-400 text-xs">{new Date(r.created_at).toLocaleDateString("zh-CN")}</p>
                     </div>
-                    <ChevronRight size={14} className="text-white/15 group-hover:text-gold transition-colors" />
+                    <ChevronRight size={14} className="text-parchment-400 group-hover:text-gold transition-colors" />
                   </div>
                 </Link>
               ))}
@@ -389,7 +389,7 @@ export default function ProductDetailPage() {
             ).map(([title, body]) => (
               <div key={title} className="rounded-xl border border-white/[0.06] bg-white/[0.025] p-3">
                 <p className="mb-1 text-xs font-medium text-gold/65">{title}</p>
-                <p className="text-xs leading-relaxed text-white/36">{body}</p>
+                <p className="text-xs leading-relaxed text-parchment-400">{body}</p>
               </div>
             ))}
           </div>
@@ -402,7 +402,7 @@ export default function ProductDetailPage() {
       </div>
 
       {/* ═══ Sticky bottom CTA bar (mobile) ═══ */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-ink/95 backdrop-blur-xl border-t border-white/[0.08] px-4 py-3" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom, 0.75rem))" }}>
+      <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-cosmos-950/95 backdrop-blur-xl border-t border-white/[0.08] px-4 py-3" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom, 0.75rem))" }}>
         <div className="max-w-4xl mx-auto flex items-center gap-3">
           <div className="flex-1 min-w-0">
             <p className="text-gold font-bold text-lg truncate">{getProductPrice(product, region).symbol}{getProductPrice(product, region).price}</p>
@@ -412,7 +412,7 @@ export default function ProductDetailPage() {
             className={`flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-medium transition-all ${
               added
                 ? "bg-green-500/15 border border-green-500/30 text-green-400"
-                : "btn-gold"
+                : "btn-primary"
             }`}
           >
             {added ? <><Check size={14} /></> : <><ShoppingBag size={14} /> {t("treasureHall.collect")}</>}

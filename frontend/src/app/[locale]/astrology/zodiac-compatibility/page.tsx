@@ -66,7 +66,7 @@ export default function ZodiacCompatibilitySEOPage() {
 
         <ScrollReveal>
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 text-[11px] tracking-[0.25em] uppercase text-gold/50 font-medium mb-4">
+            <div className="inline-flex items-center gap-2 text-xs tracking-[0.25em] uppercase text-gold/50 font-medium mb-4">
               <span className="w-8 h-px bg-gradient-to-r from-transparent to-gold/30" />
               {t("seo.zodiac.breadcrumb")}
               <span className="w-8 h-px bg-gradient-to-l from-transparent to-gold/30" />
@@ -75,7 +75,7 @@ export default function ZodiacCompatibilitySEOPage() {
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-white mb-4">
               {t("seo.zodiac.title")}
             </h1>
-            <p className="text-white/40 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
+            <p className="text-parchment-400 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
               {t("seo.zodiac.desc")}
             </p>
           </div>
@@ -84,24 +84,24 @@ export default function ZodiacCompatibilitySEOPage() {
         <ScrollReveal delay={0.1}>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-16">
             {features.map((f) => (
-              <div key={f.title} className="card-glow p-5 hover:border-gold/30 transition-all duration-300">
+              <div key={f.title} className="card-interactive p-5 hover:border-gold/30 transition-all duration-300">
                 <div className="text-3xl mb-3">{f.icon}</div>
                 <h3 className="font-serif font-bold text-gold mb-2">{f.title}</h3>
-                <p className="text-white/40 text-sm leading-relaxed">{f.desc}</p>
+                <p className="text-parchment-400 text-sm leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
         </ScrollReveal>
 
         <ScrollReveal delay={0.2}>
-          <div className="card-glass p-8 md:p-10 mb-16">
+          <div className="card-solid p-8 md:p-10 mb-16">
             <h2 className="font-serif text-2xl text-gold mb-6">{t("seo.zodiac.signsTitle")}</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
               {signs.map((s) => (
-                <div key={s.name} className="text-center p-4 bg-white/[0.03] rounded-xl border border-white/10 hover:border-gold/20 transition-all">
+                <div key={s.name} className="text-center p-4 bg-white/[0.03] rounded-xl border border-white/[0.06] hover:border-gold/20 transition-all">
                   <div className="text-3xl mb-2">{s.icon}</div>
                   <h3 className="text-white font-medium text-xs">{s.name}</h3>
-                  <p className="text-white/40 text-[10px] mt-1">{s.trait}</p>
+                  <p className="text-parchment-400 text-xs mt-1">{s.trait}</p>
                 </div>
               ))}
             </div>
@@ -109,9 +109,9 @@ export default function ZodiacCompatibilitySEOPage() {
         </ScrollReveal>
 
         <ScrollReveal delay={0.3}>
-          <div className="card-glass p-8 md:p-10 mb-16">
+          <div className="card-solid p-8 md:p-10 mb-16">
             <h2 className="font-serif text-2xl text-gold mb-6">{t("seo.zodiac.whatTitle")}</h2>
-            <div className="space-y-4 text-white/60 text-sm leading-relaxed">
+            <div className="space-y-4 text-parchment-400 text-sm leading-relaxed">
               <p>{t("seo.zodiac.p1")}</p>
               <p>{t("seo.zodiac.p2")}</p>
               <p>{t("seo.zodiac.p3")}</p>
@@ -120,12 +120,12 @@ export default function ZodiacCompatibilitySEOPage() {
         </ScrollReveal>
 
         <ScrollReveal delay={0.4}>
-          <div className="card-glass p-8 mb-8">
+          <div className="card-solid p-8 mb-8">
             <div className="flex items-center gap-3 mb-4">
               <Shield size={20} className="text-green-400" />
               <h3 className="text-white font-medium">{t("seo.zodiac.privacyTitle")}</h3>
             </div>
-            <p className="text-white/40 text-sm leading-relaxed">
+            <p className="text-parchment-400 text-sm leading-relaxed">
               {t("seo.zodiac.privacyDesc")}
             </p>
           </div>
@@ -142,21 +142,21 @@ export default function ZodiacCompatibilitySEOPage() {
         />
 
         <ScrollReveal delay={0.5}>
-          <div className="text-center card-glass-elevated p-10 relative overflow-hidden">
+          <div className="text-center card-solid-elevated p-10 relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-pink-500/5 via-transparent to-gold/5 pointer-events-none" />
             <div className="relative">
               <div className="text-4xl mb-4">💕</div>
               <h2 className="font-serif text-2xl text-gold mb-4">{t("seo.zodiac.ctaTitle")}</h2>
-              <p className="text-white/50 mb-8 max-w-md mx-auto">
+              <p className="text-parchment-400 mb-8 max-w-md mx-auto">
                 {t("seo.zodiac.ctaDesc")}
               </p>
               <Link
                 href={localeHref("/reading/new")}
-                className="btn-gold inline-flex items-center gap-2 text-lg px-10 py-4"
+                className="btn-primary inline-flex items-center gap-2 text-lg px-10 py-4"
               >
                 {t("seo.zodiac.ctaBtn")} <ArrowRight size={20} />
               </Link>
-              <p className="text-white/20 text-xs mt-4">{t("seo.zodiac.ctaNote")}</p>
+              <p className="text-parchment-400 text-xs mt-4">{t("seo.zodiac.ctaNote")}</p>
             </div>
           </div>
         </ScrollReveal>

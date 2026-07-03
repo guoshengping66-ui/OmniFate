@@ -15,17 +15,17 @@ export function SectionHeader({ badge, title, subtitle, cta, align = "center", c
     <ScrollReveal>
       <div className={`${align === "center" ? "text-center" : ""} mb-10 md:mb-12 ${className}`}>
         {badge && (
-          <span className="inline-flex items-center gap-2 text-[10px] tracking-[0.2em] uppercase text-gold/40 font-medium mb-3">
+          <span className="inline-flex items-center gap-2 text-xs tracking-[0.2em] uppercase text-gold/40 font-medium mb-3">
             <span className="w-6 h-px bg-white/[0.08]" />
             {badge}
             <span className="w-6 h-px bg-white/[0.08]" />
           </span>
         )}
-        <h2 className="text-xl md:text-2xl lg:text-3xl font-serif font-bold text-white/90 mb-3 leading-tight">
+        <h2 className="text-xl md:text-2xl lg:text-3xl font-serif font-bold text-parchment-100 mb-3 leading-tight">
           {title}
         </h2>
         {subtitle && (
-          <p className="text-white/35 text-sm max-w-xl mx-auto leading-relaxed">
+          <p className="text-parchment-400 text-sm max-w-xl mx-auto leading-relaxed">
             {subtitle}
           </p>
         )}

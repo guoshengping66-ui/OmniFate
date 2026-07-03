@@ -35,7 +35,7 @@ export function KnowledgeCategoryClient({ data, locale }: { data: KnowledgeCateg
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-white mb-4">
               {isZh ? data.name_zh : data.name_en}
             </h1>
-            <p className="text-white/40 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
+            <p className="text-parchment-400 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
               {isZh ? data.description_zh : data.description_en}
             </p>
           </div>
@@ -46,17 +46,17 @@ export function KnowledgeCategoryClient({ data, locale }: { data: KnowledgeCateg
             <ScrollReveal key={sub.id} delay={0.05 * (idx + 1)}>
               <Link
                 href={localeHref(`${data.canonical_path}/${sub.id}`)}
-                className="card-glow p-6 md:p-8 hover:border-gold/30 transition-all duration-300 group block h-full"
+                className="card-interactive p-6 md:p-8 hover:border-gold/30 transition-all duration-300 group block h-full"
               >
                 <h2 className="font-serif text-xl font-bold text-white group-hover:text-gold transition-colors mb-2">
                   {isZh ? sub.name_zh : sub.name_en}
                 </h2>
-                <p className="text-white/40 text-sm leading-relaxed mb-4">
+                <p className="text-parchment-400 text-sm leading-relaxed mb-4">
                   {isZh ? sub.description_zh : sub.description_en}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {sub.items.slice(0, 8).map((item) => (
-                    <span key={item.id} className="text-xs bg-white/5 text-white/50 px-2.5 py-1 rounded-full">
+                    <span key={item.id} className="text-xs bg-white/[0.04] text-parchment-400 px-2.5 py-1 rounded-full">
                       {item.emoji} {isZh ? item.name_zh : item.name_en}
                     </span>
                   ))}

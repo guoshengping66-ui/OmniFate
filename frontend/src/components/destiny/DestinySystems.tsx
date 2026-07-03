@@ -70,7 +70,7 @@ export default function DestinySystems() {
             </span>
           </h2>
 
-          <p className="text-white/30 text-sm sm:text-base max-w-xl mx-auto">
+          <p className="text-parchment-400 text-sm sm:text-base max-w-xl mx-auto">
             {locale === "zh"
               ? "五大命理体系交叉验证，从不同维度解读你的人生密码"
               : "Five destiny systems cross-validated to decode your life pattern"}
@@ -103,7 +103,7 @@ export default function DestinySystems() {
                   </h3>
 
                   {/* Description */}
-                  <p className="text-white/40 text-sm leading-relaxed">
+                  <p className="text-parchment-400 text-sm leading-relaxed">
                     {locale === "zh" ? system.descZh : system.descEn}
                   </p>
 
@@ -117,7 +117,7 @@ export default function DestinySystems() {
 
         {/* Scroll hint */}
         <div className="flex justify-center mt-6">
-          <div className="flex items-center gap-2 text-white/20 text-xs">
+          <div className="flex items-center gap-2 text-parchment-400 text-xs">
             <svg className="w-4 h-4 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
             </svg>

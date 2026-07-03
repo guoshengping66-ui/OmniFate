@@ -86,22 +86,22 @@ export function PaywallGate({
         <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-ink/90 to-transparent" />
       </div>
 
-      <div className="card-glass p-8 text-center -mt-4 rounded-t-none border-t-0 rounded-2xl relative z-10">
+      <div className="card-solid p-8 text-center -mt-4 rounded-t-none border-t-0 rounded-2xl relative z-10">
         <div className="w-14 h-14 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center mx-auto mb-4">
           <Lock size={24} className="text-gold" />
         </div>
         <h3 className="text-xl font-serif font-bold text-gold mb-2">{title}</h3>
-        <p className="text-white/50 text-sm mb-4 max-w-md mx-auto">{description}</p>
+        <p className="text-parchment-400 text-sm mb-4 max-w-md mx-auto">{description}</p>
 
         {/* Value list — what you'll get */}
         <div className="max-w-sm mx-auto mb-5 text-left">
-          <p className="text-white/30 text-[10px] uppercase tracking-wider mb-2 text-center">{t("paywall.youWillGet")}</p>
+          <p className="text-parchment-400 text-xs uppercase tracking-wider mb-2 text-center">{t("paywall.youWillGet")}</p>
           <div className="space-y-1.5">
             {(Array.isArray(t("paywall.valueList", { returnObjects: true }))
               ? t("paywall.valueList", { returnObjects: true }) as string[]
               : []
             ).map((item: string, i: number) => (
-              <div key={i} className="flex items-center gap-2 text-white/50 text-xs">
+              <div key={i} className="flex items-center gap-2 text-parchment-400 text-xs">
                 <CheckCircle size={12} className="text-green-400/70 flex-shrink-0" />
                 <span>{item}</span>
               </div>
@@ -119,7 +119,7 @@ export function PaywallGate({
               className={`w-full flex items-center justify-between py-3.5 px-5 rounded-xl border transition-all duration-200 ${
                 canDetailed
                   ? 'bg-gradient-to-r from-violet-500/15 to-indigo-500/15 border-violet-400/30 hover:border-violet-400/50 text-violet-200'
-                  : 'bg-white/[0.02] border-white/10 text-white/30 cursor-not-allowed'
+                  : 'bg-white/[0.02] border-white/[0.06] text-parchment-400 cursor-not-allowed'
               }`}
             >
               <div className="flex items-center gap-2">
@@ -145,7 +145,7 @@ export function PaywallGate({
               className={`w-full flex items-center justify-between py-3.5 px-5 rounded-xl border transition-all duration-200 ${
                 canFull
                   ? 'bg-gradient-to-r from-gold/10 to-amber-500/10 border-gold/30 hover:border-gold/50 text-gold'
-                  : 'bg-white/[0.02] border-white/10 text-white/30 cursor-not-allowed'
+                  : 'bg-white/[0.02] border-white/[0.06] text-parchment-400 cursor-not-allowed'
               }`}
             >
               <div className="flex items-center gap-2">
@@ -166,14 +166,14 @@ export function PaywallGate({
 
             {/* ── 精读内容列表 ── */}
             <div className="rounded-xl bg-violet-500/[0.05] border border-violet-400/10 p-3 text-left">
-              <p className="text-violet-300/60 text-[10px] uppercase tracking-wider mb-2 font-medium">
+              <p className="text-violet-300/60 text-xs uppercase tracking-wider mb-2 font-medium">
                 {t("paywall.detailedIncludes")}
               </p>
               {(Array.isArray(t("paywall.detailedFeatures", { returnObjects: true }))
                 ? t("paywall.detailedFeatures", { returnObjects: true }) as string[]
                 : []
               ).map((item: string, i: number) => (
-                <div key={i} className="flex items-center gap-2 text-white/40 text-[11px] py-0.5">
+                <div key={i} className="flex items-center gap-2 text-parchment-400 text-xs py-0.5">
                   <CheckCircle size={10} className="text-violet-400/60 flex-shrink-0" />
                   <span>{item}</span>
                 </div>
@@ -182,14 +182,14 @@ export function PaywallGate({
 
             {/* ── 全维内容列表 ── */}
             <div className="rounded-xl bg-gold/[0.05] border border-gold/10 p-3 text-left">
-              <p className="text-gold/60 text-[10px] uppercase tracking-wider mb-2 font-medium">
+              <p className="text-gold/60 text-xs uppercase tracking-wider mb-2 font-medium">
                 {t("paywall.fullIncludes")}
               </p>
               {(Array.isArray(t("paywall.fullFeatures", { returnObjects: true }))
                 ? t("paywall.fullFeatures", { returnObjects: true }) as string[]
                 : []
               ).map((item: string, i: number) => (
-                <div key={i} className="flex items-center gap-2 text-white/40 text-[11px] py-0.5">
+                <div key={i} className="flex items-center gap-2 text-parchment-400 text-xs py-0.5">
                   <CheckCircle size={10} className="text-gold/60 flex-shrink-0" />
                   <span>{item}</span>
                 </div>
@@ -197,7 +197,7 @@ export function PaywallGate({
             </div>
 
             {/* 余额提示 */}
-            <p className="text-white/25 text-xs text-center">
+            <p className="text-parchment-400 text-xs text-center">
               {t("paywall.stardustBalance")} ✦ {stardustBalance}
             </p>
           </div>
@@ -225,7 +225,7 @@ export function PaywallGate({
 
             {/* Insufficient stardust hint */}
             {onStardustUnlock && !canFull && stardustBalance > 0 && (
-              <p className="text-white/25 text-xs mb-3">
+              <p className="text-parchment-400 text-xs mb-3">
                 {t("paywall.stardustInsufficient")}
               </p>
             )}
@@ -237,7 +237,7 @@ export function PaywallGate({
           <button
             onClick={onUnlock}
             disabled={loading}
-            className={`btn-gold flex items-center gap-2 mx-auto text-base px-10 py-3.5 ${(canDetailed || canFull || onOneTimeUnlock) ? 'text-sm px-8 py-3 opacity-80 hover:opacity-100' : ''}`}
+            className={`btn-primary flex items-center gap-2 mx-auto text-base px-10 py-3.5 ${(canDetailed || canFull || onOneTimeUnlock) ? 'text-sm px-8 py-3 opacity-80 hover:opacity-100' : ''}`}
           >
             {loading ? (
               <><span className="animate-spin inline-block">⏳</span> {t("paywall.processing")}</>
@@ -261,7 +261,7 @@ export function PaywallGate({
 
         {/* 赠品提示 — 仅首次解锁显示 */}
         {!isPremium && (
-          <p className="text-white/25 text-xs mt-4">
+          <p className="text-parchment-400 text-xs mt-4">
             {t("paywall.giftNote")}
           </p>
         )}

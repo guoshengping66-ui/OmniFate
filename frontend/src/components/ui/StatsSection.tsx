@@ -82,7 +82,7 @@ function StatCard({ end, suffix, prefix, label, delay, duration }: {
       <div className="text-2xl md:text-3xl font-bold bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">
         <CountUp end={end} duration={duration || 2.5} suffix={suffix} prefix={prefix} />
       </div>
-      <div className="text-[11px] md:text-xs text-white/40 mt-1.5 tracking-wider font-medium">{label}</div>
+      <div className="text-xs md:text-xs text-parchment-400 mt-1.5 tracking-wider font-medium">{label}</div>
       {/* Gold accent line */}
       <div
         className="w-8 h-0.5 bg-gold/30 rounded-full mx-auto mt-2 origin-center"

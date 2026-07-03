@@ -165,7 +165,7 @@ export function DateSelector({
           className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all ${
             calendarType === "solar"
               ? "bg-gold/20 text-gold border border-gold/40"
-              : "bg-white/5 text-white/40 border border-white/10 hover:border-white/20"
+              : "bg-white/[0.04] text-parchment-400 border border-white/[0.06] hover:border-white/20"
           }`}
         >
           ☀️ {isEn ? "Solar" : "阳历"}
@@ -176,7 +176,7 @@ export function DateSelector({
           className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all ${
             calendarType === "lunar"
               ? "bg-gold/20 text-gold border border-gold/40"
-              : "bg-white/5 text-white/40 border border-white/10 hover:border-white/20"
+              : "bg-white/[0.04] text-parchment-400 border border-white/[0.06] hover:border-white/20"
           }`}
         >
           🌙 {isEn ? "Lunar" : "农历"}
@@ -272,7 +272,7 @@ export function DateSelector({
 
       {/* Corresponding date hint */}
       {correspondingDate && (
-        <p className="text-white/30 text-[11px] mt-2 text-center">
+        <p className="text-parchment-400 text-xs mt-2 text-center">
           {isEn ? `Corresponding ${correspondingLabel}` : `对应${correspondingLabel}`}：{correspondingDate}
         </p>
       )}

@@ -39,16 +39,16 @@ function PaymentResultContent() {
 
   return (
     <div className="min-h-screen pt-24 pb-16 px-4 flex items-center justify-center">
-      <div className="card-glass max-w-md w-full p-8 text-center">
-        <div className="w-20 h-20 mx-auto rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-5">
+      <div className="card-solid max-w-md w-full p-8 text-center">
+        <div className="w-20 h-20 mx-auto rounded-2xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center mb-5">
           {icon}
         </div>
         <h1 className="text-2xl font-serif font-bold text-gold mb-3">{title}</h1>
-        <p className="text-white/50 text-sm leading-relaxed mb-5">{description}</p>
+        <p className="text-parchment-400 text-sm leading-relaxed mb-5">{description}</p>
         {orderNo && (
-          <div className="rounded-xl bg-white/5 border border-white/10 p-3 mb-6">
-            <p className="text-white/30 text-xs mb-1">Order number</p>
-            <p className="text-white/70 text-sm font-mono">{orderNo}</p>
+          <div className="rounded-xl bg-white/[0.04] border border-white/[0.06] p-3 mb-6">
+            <p className="text-parchment-400 text-xs mb-1">Order number</p>
+            <p className="text-parchment-300 text-sm font-mono">{orderNo}</p>
           </div>
         )}
         <div className="rounded-xl border border-gold/30 bg-gold/10 p-4 mb-6 text-left">
@@ -56,14 +56,14 @@ function PaymentResultContent() {
             <CreditCard size={18} />
             <span>Stripe Checkout</span>
           </div>
-          <p className="text-white/40 text-xs mt-1">If your access has not updated yet, refresh your account page in a few seconds.</p>
+          <p className="text-parchment-400 text-xs mt-1">If your access has not updated yet, refresh your account page in a few seconds.</p>
         </div>
         <ComplianceNotice compact className="mb-6 text-left" />
         <div className="flex gap-3">
-          <Link href={localeHref("/account")} className="btn-gold flex-1 py-3 text-sm">
+          <Link href={localeHref("/account")} className="btn-primary flex-1 py-3 text-sm">
             Account
           </Link>
-          <Link href={localeHref("/pricing")} className="btn-gold-outline flex-1 py-3 text-sm">
+          <Link href={localeHref("/pricing")} className="btn-secondary flex-1 py-3 text-sm">
             Pricing
           </Link>
         </div>
@@ -74,7 +74,7 @@ function PaymentResultContent() {
 
 export default function PaymentResultPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen pt-24 text-center text-white/50">Loading...</div>}>
+    <Suspense fallback={<div className="min-h-screen pt-24 text-center text-parchment-400">Loading...</div>}>
       <PaymentResultContent />
     </Suspense>
   )

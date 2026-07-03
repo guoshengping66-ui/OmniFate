@@ -23,11 +23,11 @@ export function ComplianceNotice({ compact = false, className = "" }: Compliance
         <ShieldCheck size={compact ? 15 : 18} className="mt-0.5 flex-shrink-0 text-gold/75" />
         <div>
           <p className={`${compact ? "text-xs" : "text-sm"} font-medium text-gold/85`}>{title}</p>
-          <p className={`${compact ? "mt-1 text-[11px] leading-5" : "mt-2 text-xs leading-6"} text-white/48`}>
+          <p className={`${compact ? "mt-1 text-xs leading-5" : "mt-2 text-xs leading-6"} text-parchment-400`}>
             {body}
           </p>
           {!compact && (
-            <div className="mt-3 flex flex-wrap gap-3 text-[11px] text-gold/65">
+            <div className="mt-3 flex flex-wrap gap-3 text-xs text-gold/65">
               <a href={localeHref("/terms")} className="hover:text-gold">{isZh ? "服务条款" : "Terms"}</a>
               <a href={localeHref("/disclaimer")} className="hover:text-gold">{isZh ? "免责声明" : "Disclaimer"}</a>
               <a href={localeHref("/refund")} className="hover:text-gold">{isZh ? "退款政策" : "Refund policy"}</a>

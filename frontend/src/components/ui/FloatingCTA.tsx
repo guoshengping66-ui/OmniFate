@@ -26,10 +26,10 @@ export function FloatingCTA() {
         pointerEvents: visible ? "auto" : "none",
       }}
     >
-      <div className="bg-ink/95 backdrop-blur-xl border-t border-gold/20 px-4 py-3" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom, 0.75rem))" }}>
+      <div className="bg-cosmos-950/95 backdrop-blur-xl border-t border-gold/20 px-4 py-3" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom, 0.75rem))" }}>
         <Link
           href={localeHref("/shop")}
-          className="btn-gold flex items-center justify-center gap-2 w-full py-3 text-sm"
+          className="btn-primary flex items-center justify-center gap-2 w-full py-3 text-sm"
         >
           <ShoppingBag size={16} />
           {t("floatingCta.shopText") || "查看优化好物"}

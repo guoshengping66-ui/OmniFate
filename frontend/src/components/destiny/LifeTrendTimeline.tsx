@@ -161,7 +161,7 @@ function EnergyBars({ energy, locale }: { energy: Record<string, string>; locale
           <span className="text-[9px] w-7 text-right shrink-0" style={{ color: ENERGY_LABELS[key].color, opacity: 0.6 }}>
             {locale === "zh" ? ENERGY_LABELS[key].zh : ENERGY_LABELS[key].en}
           </span>
-          <span className="font-mono text-[11px] tracking-wider" style={{ color: ENERGY_LABELS[key].color, opacity: 0.7 }}>
+          <span className="font-mono text-xs tracking-wider" style={{ color: ENERGY_LABELS[key].color, opacity: 0.7 }}>
             {energy[key]}
           </span>
         </div>
@@ -213,29 +213,29 @@ function ExpandCard({ node, locale }: { node: typeof timelineData[0]; locale: st
           <div className="text-[#C5A880] font-serif font-bold text-sm">
             {locale === "zh" ? node.labelZh : node.labelEn}
           </div>
-          <div className="text-white/30 text-[10px]">{node.year}</div>
+          <div className="text-parchment-400 text-xs">{node.year}</div>
         </div>
       </div>
 
       {/* Ratings */}
       <div className="grid grid-cols-2 gap-3 mb-3">
         <div>
-          <div className="text-white/40 text-[10px] mb-1">
+          <div className="text-parchment-400 text-xs mb-1">
             {locale === "zh" ? "机会指数" : "Opportunity"}
           </div>
           <div className="flex gap-0.5">
             {Array.from({ length: 5 }).map((_, i) => (
-              <span key={i} className={`text-[10px] ${i < node.stars ? "text-[#D4AF37]" : "text-white/10"}`}>★</span>
+              <span key={i} className={`text-xs ${i < node.stars ? "text-[#D4AF37]" : "text-parchment-400"}`}>★</span>
             ))}
           </div>
         </div>
         <div>
-          <div className="text-white/40 text-[10px] mb-1">
+          <div className="text-parchment-400 text-xs mb-1">
             {locale === "zh" ? "成长指数" : "Growth"}
           </div>
           <div className="flex gap-0.5">
             {Array.from({ length: 5 }).map((_, i) => (
-              <span key={i} className={`text-[10px] ${i < node.growth ? "text-[#C5A880]" : "text-white/10"}`}>★</span>
+              <span key={i} className={`text-xs ${i < node.growth ? "text-[#C5A880]" : "text-parchment-400"}`}>★</span>
             ))}
           </div>
         </div>
@@ -243,11 +243,11 @@ function ExpandCard({ node, locale }: { node: typeof timelineData[0]; locale: st
 
       {/* Suggestions */}
       <div className="space-y-1.5 mb-3">
-        <div className="text-white/30 text-[10px] uppercase tracking-wider">
+        <div className="text-parchment-400 text-xs uppercase tracking-wider">
           {locale === "zh" ? "适合" : "Suggested"}
         </div>
         {(locale === "zh" ? node.suggestionsZh : node.suggestionsEn).map((s, i) => (
-          <div key={i} className="flex items-center gap-2 text-white/50 text-xs">
+          <div key={i} className="flex items-center gap-2 text-parchment-400 text-xs">
             <span className="w-1 h-1 rounded-full" style={{ background: color.border }} />
             {s}
           </div>
@@ -256,7 +256,7 @@ function ExpandCard({ node, locale }: { node: typeof timelineData[0]; locale: st
 
       {/* CTA */}
       <div className="pt-2 border-t border-white/5">
-        <span className="text-[#C5A880]/60 text-[10px]">
+        <span className="text-[#C5A880]/60 text-xs">
           {locale === "zh" ? "AI趋势洞察 →" : "AI Trend Insight →"}
         </span>
       </div>
@@ -286,7 +286,7 @@ export default function LifeTrendTimeline() {
             </span>
           </h2>
 
-          <p className="text-white/30 text-sm sm:text-base leading-relaxed">
+          <p className="text-parchment-400 text-sm sm:text-base leading-relaxed">
             {locale === "zh"
               ? "AI 结合五大分析体系，推演不同人生阶段的能量变化趋势"
               : "AI combines five analysis systems to project energy shifts across life stages"}
@@ -330,10 +330,10 @@ export default function LifeTrendTimeline() {
                   <StarNode filled={isActive} />
                   {/* Label below node */}
                   <div className="absolute top-full mt-1 left-1/2 -translate-x-1/2 whitespace-nowrap text-center">
-                    <div className="text-[#C5A880] text-[10px] sm:text-xs font-medium">
+                    <div className="text-[#C5A880] text-xs sm:text-xs font-medium">
                       {locale === "zh" ? node.labelZh : node.labelEn}
                     </div>
-                    <div className="text-white/25 text-[9px]">{node.year}</div>
+                    <div className="text-parchment-400 text-[9px]">{node.year}</div>
                     {/* Energy bars below label */}
                     <EnergyBars energy={node.energy} locale={locale} />
                   </div>
@@ -344,14 +344,14 @@ export default function LifeTrendTimeline() {
 
           {/* Year markers at bottom */}
           <div className="absolute bottom-0 left-0 right-0 flex justify-between px-4">
-            <span className="text-white/15 text-xs">2025</span>
-            <span className="text-white/15 text-xs">2035</span>
+            <span className="text-parchment-400 text-xs">2025</span>
+            <span className="text-parchment-400 text-xs">2035</span>
           </div>
         </div>
 
         {/* Layer 4: AI Analysis Tags */}
         <div className="mt-12 sm:mt-16 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
-          <span className="text-white/25 text-xs mr-1">
+          <span className="text-parchment-400 text-xs mr-1">
             {locale === "zh" ? "AI 综合推演：" : "AI Analysis:"}
           </span>
           {[
@@ -365,8 +365,8 @@ export default function LifeTrendTimeline() {
               key={tag.zh}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.06]"
             >
-              <span className="text-emerald-400 text-[10px]">✓</span>
-              <span className="text-white/40 text-[11px]">
+              <span className="text-emerald-400 text-xs">✓</span>
+              <span className="text-parchment-400 text-xs">
                 {locale === "zh" ? tag.zh : tag.en}
               </span>
             </div>

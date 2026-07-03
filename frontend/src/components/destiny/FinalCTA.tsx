@@ -56,7 +56,7 @@ export default function FinalCTA() {
         </h2>
 
         {/* Description */}
-        <p className="text-white/30 text-sm max-w-md mx-auto mb-10 leading-relaxed">
+        <p className="text-parchment-400 text-sm max-w-md mx-auto mb-10 leading-relaxed">
           {t("cta.desc")}
         </p>
 
@@ -88,12 +88,12 @@ export default function FinalCTA() {
         </Link>
 
         {/* Disclaimer — clean i18n text */}
-        <p className="max-w-md mx-auto mt-8 text-white/15 text-[10px] leading-relaxed">
+        <p className="max-w-md mx-auto mt-8 text-parchment-400 text-xs leading-relaxed">
           {t("cta.disclaimer")}
         </p>
 
         {/* Note */}
-        <p className="text-white/15 text-[11px] mt-6">{t("cta.note")}</p>
+        <p className="text-parchment-400 text-xs mt-6">{t("cta.note")}</p>
       </div>
     </section>
   )

@@ -62,7 +62,7 @@ function AM16PageInner() {
       <div className="max-w-lg mx-auto">
         <Breadcrumbs items={[{ label: t("nav.am16"), href: "/am16" }]} />
 
-        <Suspense fallback={<div className="text-center text-white/30 text-sm py-8">Loading...</div>}>
+        <Suspense fallback={<div className="text-center text-parchment-400 text-sm py-8">Loading...</div>}>
           {answers === null ? (
             <AM16Quiz onComplete={handleComplete} />
           ) : (
@@ -76,7 +76,7 @@ function AM16PageInner() {
 
 export default function AM16Page() {
   return (
-    <Suspense fallback={<div className="min-h-screen pt-24 pb-16 px-4"><div className="max-w-lg mx-auto text-center text-white/30 text-sm">Loading...</div></div>}>
+    <Suspense fallback={<div className="min-h-screen pt-24 pb-16 px-4"><div className="max-w-lg mx-auto text-center text-parchment-400 text-sm">Loading...</div></div>}>
       <AM16PageInner />
     </Suspense>
   )

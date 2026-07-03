@@ -45,7 +45,7 @@ export default function DestinyEngines() {
               {t("curated.title")}
             </span>
           </h2>
-          <p className="text-white/30 text-sm max-w-lg mx-auto">{t("curated.desc")}</p>
+          <p className="text-parchment-400 text-sm max-w-lg mx-auto">{t("curated.desc")}</p>
         </div>
 
         {/* Engine modules - floating grid */}
@@ -92,7 +92,7 @@ export default function DestinyEngines() {
                 </div>
 
                 {/* Tag */}
-                <div className="text-[9px] font-medium text-white/20 tracking-[0.2em] uppercase mb-4">
+                <div className="text-[9px] font-medium text-parchment-400 tracking-[0.2em] uppercase mb-4">
                   {t(`agent.${engine.key}.tag`)}
                 </div>
 
@@ -107,7 +107,7 @@ export default function DestinyEngines() {
                 </h3>
 
                 {/* Description */}
-                <p className="text-white/25 text-[11px] leading-relaxed">
+                <p className="text-parchment-400 text-xs leading-relaxed">
                   {t(`agent.${engine.key}.desc`)}
                 </p>
 

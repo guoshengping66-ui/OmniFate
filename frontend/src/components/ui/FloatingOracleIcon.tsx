@@ -33,7 +33,7 @@ export function FloatingOracleIcon() {
           <Sparkles size={14} className="text-gold group-hover:animate-spin" />
           <span className="text-gold text-xs font-medium">{t("floatingOracle.label")}</span>
           {/* Free badge */}
-          <span className="px-1.5 py-0.5 rounded-full bg-green-500/20 border border-green-400/30 text-green-300 text-[10px] font-bold">
+          <span className="px-1.5 py-0.5 rounded-full bg-green-500/20 border border-green-400/30 text-green-300 text-xs font-bold">
             FREE
           </span>
         </div>
@@ -49,11 +49,11 @@ export function FloatingOracleIcon() {
           pointerEvents: showTooltip ? "auto" : "none",
         }}
       >
-        <div className="bg-ink/95 backdrop-blur-xl border border-gold/20 rounded-xl px-4 py-2.5 shadow-[0_8px_32px_rgba(0,0,0,0.4)] whitespace-nowrap">
+        <div className="bg-cosmos-950/95 backdrop-blur-xl border border-gold/20 rounded-xl px-4 py-2.5 shadow-[0_8px_32px_rgba(0,0,0,0.4)] whitespace-nowrap">
           <p className="text-gold text-xs font-medium">{t("floatingOracle.freeToday")}</p>
-          <p className="text-white/40 text-[11px] mt-0.5">{t("floatingOracle.freeHint")}</p>
+          <p className="text-parchment-400 text-xs mt-0.5">{t("floatingOracle.freeHint")}</p>
           {/* Arrow */}
-          <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-ink/95 border-l border-t border-gold/20 rotate-45" />
+          <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-cosmos-950/95 border-l border-t border-gold/20 rotate-45" />
         </div>
       </div>
     </div>

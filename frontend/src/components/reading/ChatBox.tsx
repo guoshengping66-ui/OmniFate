@@ -117,18 +117,18 @@ export function ChatBox({ sessionId, availableAgents = [] }: Props) {
       ]
 
   return (
-    <div className="card-glass flex flex-col h-[420px] sm:h-[520px]">
-      <div className="flex items-center gap-2.5 px-5 py-3.5 border-b border-white/10">
+    <div className="card-solid flex flex-col h-[420px] sm:h-[520px]">
+      <div className="flex items-center gap-2.5 px-5 py-3.5 border-b border-white/[0.06]">
         <Bot size={18} className="text-gold" />
         <span className="font-medium text-white text-sm">{t("chat.experts")}</span>
-        <span className="text-xs text-white/30 ml-1">{t("chat.autoRoute")}</span>
+        <span className="text-xs text-parchment-400 ml-1">{t("chat.autoRoute")}</span>
         {availableAgents.length > 0 && (
-          <span className="flex items-center gap-1 text-[10px] text-gold/50">
+          <span className="flex items-center gap-1 text-xs text-gold/50">
             <Sparkles size={8} /> {availableAgents.length} {t("chat.expertsOnline")}
           </span>
         )}
         {!isPremium && user && (
-          <span className="flex items-center gap-1 text-[10px] ml-auto text-gold/40">
+          <span className="flex items-center gap-1 text-xs ml-auto text-gold/40">
             <Sparkles size={8} /> {stardustBalance}
           </span>
         )}
@@ -138,7 +138,7 @@ export function ChatBox({ sessionId, availableAgents = [] }: Props) {
         {messages.map((m, i) => (
           <div key={i} className={`flex gap-3 ${m.role === "user" ? "flex-row-reverse" : ""}`}>
             <div className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold
-              ${m.role === "user" ? "bg-gold/20 text-gold" : "bg-white/10 text-white/60"}`}>
+              ${m.role === "user" ? "bg-gold/20 text-gold" : "bg-white/10 text-parchment-400"}`}>
               {m.role === "user"
                 ? <User size={14} />
                 : <span>{AGENT_LABELS[m.routed_to ?? "master"]?.icon ?? "✦"}</span>}
@@ -146,14 +146,14 @@ export function ChatBox({ sessionId, availableAgents = [] }: Props) {
 
             <div className={`max-w-[82%] ${m.role === "user" ? "items-end" : "items-start"} flex flex-col gap-1`}>
               {m.routed_to && m.role === "assistant" && (
-                <span className={`text-xs ${AGENT_LABELS[m.routed_to]?.color ?? "text-white/40"}`}>
+                <span className={`text-xs ${AGENT_LABELS[m.routed_to]?.color ?? "text-parchment-400"}`}>
                   {AGENT_LABELS[m.routed_to]?.label ?? m.routed_to} {t("chat.expert")}
                 </span>
               )}
               <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-line
                 ${m.role === "user"
                   ? "bg-gold/20 text-white rounded-tr-sm"
-                  : "bg-white/5 text-white/80 rounded-tl-sm border border-white/10"}`}>
+                  : "bg-white/[0.04] text-parchment-200 rounded-tl-sm border border-white/[0.06]"}`}>
                 {m.content}
               </div>
             </div>
@@ -165,7 +165,7 @@ export function ChatBox({ sessionId, availableAgents = [] }: Props) {
             <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center">
               <Loader2 size={14} className="text-gold animate-spin" />
             </div>
-            <div className="bg-white/5 border border-white/10 rounded-2xl rounded-tl-sm px-4 py-2.5">
+            <div className="bg-white/[0.04] border border-white/[0.06] rounded-2xl rounded-tl-sm px-4 py-2.5">
               <div className="flex gap-1.5">
                 {[0, 1, 2].map(i => (
                   <div key={i} className="w-1.5 h-1.5 rounded-full bg-gold/60 animate-bounce"
@@ -182,14 +182,14 @@ export function ChatBox({ sessionId, availableAgents = [] }: Props) {
         <div className="px-4 pb-2 flex gap-2 flex-wrap">
           {quickQuestions.map(q => (
             <button key={q} onClick={() => { setInput(q) }}
-              className="text-xs px-3 py-1 rounded-full border border-white/15 text-white/50 hover:border-gold/40 hover:text-gold transition-all">
+              className="text-xs px-3 py-1 rounded-full border border-white/15 text-parchment-400 hover:border-gold/40 hover:text-gold transition-all">
               {q}
             </button>
           ))}
         </div>
       )}
 
-      <div className="px-4 pb-4 pt-2 border-t border-white/10 flex gap-2">
+      <div className="px-4 pb-4 pt-2 border-t border-white/[0.06] flex gap-2">
         <textarea
           value={input}
           onChange={e => setInput(e.target.value)}

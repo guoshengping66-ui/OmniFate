@@ -29,7 +29,7 @@ export function ShichenSelector({ value, onChange }: Props) {
     <div>
       <label className="label">
         {t("new.birthTime")}
-        <span className="text-white/30 text-xs ml-2">{t("new.selectTime")}</span>
+        <span className="text-parchment-400 text-xs ml-2">{t("new.selectTime")}</span>
       </label>
       <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
         {SHICHEN.map(s => {
@@ -43,10 +43,10 @@ export function ShichenSelector({ value, onChange }: Props) {
               className={`py-2 rounded-xl border text-sm transition-all duration-200
                 ${active
                   ? "border-gold bg-gold/15 text-gold shadow-[0_0_12px_rgba(201,168,76,0.3)]"
-                  : "border-white/20 text-white/50 hover:border-white/40 hover:text-white/70 hover:bg-white/5"}`}
+                  : "border-white/20 text-parchment-400 hover:border-white/40 hover:text-parchment-300 hover:bg-white/[0.04]"}`}
             >
               <div className="font-bold text-lg leading-tight">{branchLabel}</div>
-              <div className="text-[10px] opacity-60 leading-tight mt-0.5">{s.range}</div>
+              <div className="text-xs opacity-60 leading-tight mt-0.5">{s.range}</div>
             </button>
           )
         })}

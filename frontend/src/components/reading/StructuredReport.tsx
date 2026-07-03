@@ -23,12 +23,12 @@ export function StructuredReport({ data }: StructuredReportProps) {
   return (
     <div className="space-y-4">
       {/* Summary card */}
-      <div className="rounded-xl border border-white/[0.08] bg-white/[0.03] p-4 md:p-5">
+      <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-4 md:p-5">
         <div className="flex items-center gap-2 mb-2.5">
           <span className="w-1 h-5 rounded-full bg-gold/60" />
-          <span className="text-xs text-white/50 font-medium">{t("report.summary")}</span>
+          <span className="text-xs text-parchment-400 font-medium">{t("report.summary")}</span>
         </div>
-        <p className="text-white/65 text-sm leading-relaxed">{summary}</p>
+        <p className="text-parchment-300 text-sm leading-relaxed">{summary}</p>
       </div>
 
       {/* Wealth dimension */}
@@ -61,16 +61,16 @@ export function StructuredReport({ data }: StructuredReportProps) {
 
           {/* Resolution */}
           <div className="space-y-2.5">
-            <div className="flex items-center gap-2 text-[11px] text-white/40">
+            <div className="flex items-center gap-2 text-xs text-parchment-400">
               <span className="w-1 h-1 rounded-full bg-pink-400/60" />
               <span>{t("report.relationship.priority")}</span>
             </div>
             <div className="px-3 py-2.5 rounded-lg bg-pink-500/[0.04] border border-pink-500/10">
               <div className="flex items-center gap-2 mb-1.5">
                 <span className="w-1 h-1 rounded-full bg-pink-400/50" />
-                <span className="text-[11px] text-pink-400/60 font-medium">{t("report.relationship.prescription")}</span>
+                <span className="text-xs text-pink-400/60 font-medium">{t("report.relationship.prescription")}</span>
               </div>
-              <p className="text-white/55 text-xs leading-relaxed">
+              <p className="text-parchment-300 text-xs leading-relaxed">
                 {dimensions.relationship.resolution}
               </p>
             </div>

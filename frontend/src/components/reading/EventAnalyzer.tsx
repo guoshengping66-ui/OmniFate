@@ -125,18 +125,18 @@ export default function EventAnalyzer({ sessionId }: Props) {
   return (
     <div className="space-y-6">
       {/* ── Input Form ──────────────────────────────────────── */}
-      <div className="card-glass p-6">
+      <div className="card-solid p-6">
         <div className="flex items-center gap-2 mb-4">
           <Sparkles size={18} className="text-gold" />
           <h3 className="font-serif text-lg font-bold text-gold">{t("event.title")}</h3>
-          <span className="text-xs text-white/30">{t("event.subtitle")}</span>
+          <span className="text-xs text-parchment-400">{t("event.subtitle")}</span>
         </div>
 
         {/* Quick event buttons */}
         <div className="flex flex-wrap gap-2 mb-4">
           {QUICK_EVENTS.map(qe => (
             <button key={qe.labelKey} onClick={() => handleQuickEvent(t(qe.descKey))}
- className="text-xs px-3 py-1.5 bg-white/5 border border-white/10 rounded-full text-white/50 hover:text-gold hover:border-gold/30 hover:bg-gold/5 transition-all whitespace-nowrap">
+ className="text-xs px-3 py-1.5 bg-white/[0.04] border border-white/[0.06] rounded-full text-parchment-400 hover:text-gold hover:border-gold/30 hover:bg-gold/5 transition-all whitespace-nowrap">
               {t(qe.labelKey)}
             </button>
           ))}
@@ -147,31 +147,31 @@ export default function EventAnalyzer({ sessionId }: Props) {
           value={description}
           onChange={e => setDescription(e.target.value)}
           placeholder={t("event.placeholder")}
- className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-white/80 placeholder-white/20 resize-none h-28 focus:outline-none focus:border-gold/40 focus:bg-white/[0.07]"
+ className="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl p-4 text-sm text-parchment-200 placeholder-white/20 resize-none h-28 focus:outline-none focus:border-gold/40 focus:bg-white/[0.07]"
         />
 
         <div className="grid sm:grid-cols-2 gap-4 mt-4">
           {/* Date/time picker */}
           <div>
-            <label className="block text-xs text-white/40 mb-1.5 flex items-center gap-1.5">
+            <label className="block text-xs text-parchment-400 mb-1.5 flex items-center gap-1.5">
               <Clock size={12} /> {t("event.datetime")}
             </label>
             <input type="datetime-local" value={eventDate}
               onChange={e => setEventDate(e.target.value)}
- className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white/70 focus:outline-none focus:border-gold/40"
+ className="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-parchment-300 focus:outline-none focus:border-gold/40"
             />
           </div>
 
           {/* Emotion score selector */}
           <div>
-            <label className="block text-xs text-white/40 mb-1.5">{t("event.emotionState")}</label>
+            <label className="block text-xs text-parchment-400 mb-1.5">{t("event.emotionState")}</label>
             <div className="flex flex-wrap gap-1.5">
               {EMOTION_OPTIONS.map(opt => (
                 <button key={opt.value} onClick={() => setEmotionScore(emotionScore === opt.value ? null : opt.value)}
                   className={`text-xs px-2 py-1.5 rounded-lg border transition-all
                     ${emotionScore === opt.value
                       ? "bg-gold/20 border-gold/40 text-gold"
-                      : "bg-white/5 border-white/10 text-white/40 hover:text-white/70"}`}
+                      : "bg-white/[0.04] border-white/[0.06] text-parchment-400 hover:text-parchment-300"}`}
                   title={t(opt.labelKey)}
                 >
                   {opt.emoji}
@@ -182,7 +182,7 @@ export default function EventAnalyzer({ sessionId }: Props) {
         </div>
 
         <button onClick={handleAnalyze} disabled={analyzing || !description.trim()}
-          className="btn-gold flex items-center gap-2 mt-4"
+          className="btn-primary flex items-center gap-2 mt-4"
         >
           {analyzing ? (
             <><Loader2 size={16} className="animate-spin" /> {t("event.analyzing")}</>
@@ -230,8 +230,8 @@ export default function EventAnalyzer({ sessionId }: Props) {
 
           {/* Remedy keywords */}
           {activeResult.remedy_keywords.length > 0 && (
-            <div className="card-glass p-4">
-              <p className="text-xs text-white/40 mb-2">{t("event.remedyTags")}</p>
+            <div className="card-solid p-4">
+              <p className="text-xs text-parchment-400 mb-2">{t("event.remedyTags")}</p>
               <div className="flex flex-wrap gap-2">
                 {activeResult.remedy_keywords.map(kw => (
                   <span key={kw}
@@ -250,7 +250,7 @@ export default function EventAnalyzer({ sessionId }: Props) {
                 <Shield size={16} className="text-gold" />
                 <h4 className="font-serif text-base font-bold text-gold">{t("event.prescription")}</h4>
               </div>
-              <p className="text-white/40 text-xs mb-4 leading-relaxed">
+              <p className="text-parchment-400 text-xs mb-4 leading-relaxed">
                 {t("event.prescriptionDesc")}
               </p>
               <div className="grid sm:grid-cols-2 gap-4">
@@ -265,25 +265,25 @@ export default function EventAnalyzer({ sessionId }: Props) {
 
       {/* ── Loading detail ────────────────────────────────────── */}
       {loadingDetail && (
-        <div className="card-glass p-10 text-center">
+        <div className="card-solid p-10 text-center">
           <Loader2 size={24} className="animate-spin text-gold mx-auto mb-3" />
-          <p className="text-white/40 text-sm">{t("event.loadingDetail")}</p>
+          <p className="text-parchment-400 text-sm">{t("event.loadingDetail")}</p>
         </div>
       )}
 
       {/* ── Event History ──────────────────────────────────────── */}
-      <div className="card-glass p-6">
+      <div className="card-solid p-6">
         <div className="flex items-center gap-2 mb-4">
-          <History size={16} className="text-white/40" />
-          <h3 className="text-sm font-medium text-white/60">{t("event.history")}</h3>
+          <History size={16} className="text-parchment-400" />
+          <h3 className="text-sm font-medium text-parchment-400">{t("event.history")}</h3>
         </div>
 
         {loadingEvents ? (
-          <div className="flex items-center gap-2 text-white/30 text-sm py-4">
+          <div className="flex items-center gap-2 text-parchment-400 text-sm py-4">
             <Loader2 size={14} className="animate-spin" /> {t("event.loading")}
           </div>
         ) : events.length === 0 ? (
-          <p className="text-white/20 text-sm py-4 text-center">
+          <p className="text-parchment-400 text-sm py-4 text-center">
             {t("event.noHistory")}
           </p>
         ) : (
@@ -296,13 +296,13 @@ export default function EventAnalyzer({ sessionId }: Props) {
                     : "bg-white/[0.03] border-white/5 hover:bg-white/[0.06] hover:border-white/20"}`}
               >
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-white/70 truncate">{evt.event_description}</p>
-                  <p className="text-xs text-white/30 mt-0.5">
+                  <p className="text-sm text-parchment-300 truncate">{evt.event_description}</p>
+                  <p className="text-xs text-parchment-400 mt-0.5">
                     {new Date(evt.event_datetime).toLocaleDateString("zh-CN")}
                     {evt.emotion_score && ` · ${t("event.emotion._label")} ${evt.emotion_score}/10`}
                   </p>
                 </div>
-                <ChevronRight size={16} className="text-white/20 flex-shrink-0" />
+                <ChevronRight size={16} className="text-parchment-400 flex-shrink-0" />
               </button>
             ))}
           </div>
@@ -340,13 +340,13 @@ function SectionBlock({
   }
 
   return (
-    <div className={`card-glass p-6 border-l-4 ${borderMap[color]}`}>
+    <div className={`card-solid p-6 border-l-4 ${borderMap[color]}`}>
       <div className="flex items-center gap-2 mb-1">
         <span className={textMap[color]}>{icon}</span>
         <h3 className={`font-serif font-bold ${textMap[color]}`}>{title}</h3>
-        <span className="text-xs text-white/30 ml-1">{subtitle}</span>
+        <span className="text-xs text-parchment-400 ml-1">{subtitle}</span>
       </div>
-      <div className="text-white/70 text-sm leading-relaxed whitespace-pre-line mt-3">
+      <div className="text-parchment-300 text-sm leading-relaxed whitespace-pre-line mt-3">
         {content}
       </div>
     </div>

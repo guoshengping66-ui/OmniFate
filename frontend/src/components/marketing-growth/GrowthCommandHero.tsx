@@ -25,7 +25,7 @@ export function GrowthCommandHero({ variant }: { variant: HeroVariant }) {
 
       <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[0.86fr_1.14fr]">
         <div className="max-w-2xl">
-          <div className="mb-5 inline-flex items-center gap-2 border border-gold/20 bg-gold/[0.07] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-gold/75">
+          <div className="mb-5 inline-flex items-center gap-2 border border-gold/20 bg-gold/[0.07] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-gold/75">
             <Sparkles size={14} />
             {hero.eyebrow}
           </div>
@@ -34,15 +34,15 @@ export function GrowthCommandHero({ variant }: { variant: HeroVariant }) {
             {hero.title}
           </h1>
 
-          <p className="mt-6 max-w-xl text-base leading-8 text-white/62">{hero.subtitle}</p>
+          <p className="mt-6 max-w-xl text-base leading-8 text-parchment-300">{hero.subtitle}</p>
 
           <div className="mt-7">
-            <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-gold/60">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-gold/60">
               {hero.methodLabel}
             </p>
             <div className="flex flex-wrap gap-2">
               {copy.methodStrip.map((item) => (
-                <span key={item} className="border border-white/[0.08] bg-white/[0.035] px-3 py-2 text-xs text-white/62">
+                <span key={item} className="border border-white/[0.06] bg-white/[0.035] px-3 py-2 text-xs text-parchment-300">
                   {item}
                 </span>
               ))}
@@ -50,23 +50,23 @@ export function GrowthCommandHero({ variant }: { variant: HeroVariant }) {
           </div>
 
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-            <Link href={localeHref("/reading/new")} className="btn-gold inline-flex items-center justify-center gap-2 px-7 py-3 text-sm">
+            <Link href={localeHref("/reading/new")} className="btn-primary inline-flex items-center justify-center gap-2 px-7 py-3 text-sm">
               {hero.primaryCta}
               <ArrowRight size={16} />
             </Link>
-            <a href="#sample-growth-report" className="btn-gold-outline inline-flex items-center justify-center gap-2 px-7 py-3 text-sm">
+            <a href="#sample-growth-report" className="btn-secondary inline-flex items-center justify-center gap-2 px-7 py-3 text-sm">
               {hero.secondaryCta}
             </a>
           </div>
         </div>
 
         <div className="relative">
-          <div className="border border-white/[0.08] bg-[#0A1118]/92 p-4 shadow-[0_40px_140px_rgba(0,0,0,0.48)] sm:p-5">
+          <div className="border border-white/[0.06] bg-[#0A1118]/92 p-4 shadow-[0_40px_140px_rgba(0,0,0,0.48)] sm:p-5">
             <div className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
               <div className="border border-gold/15 bg-gold/[0.045] p-5">
                 <div className="mb-5 flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gold/65">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold/65">
                       {copy.commandCenter.title}
                     </p>
                     <h2 className="mt-2 text-2xl font-semibold text-white">{copy.commandCenter.todayPattern}</h2>
@@ -79,7 +79,7 @@ export function GrowthCommandHero({ variant }: { variant: HeroVariant }) {
                   <div className="absolute inset-[27%] rounded-full border border-gold/[0.10]" />
                   <div className="absolute left-1/2 top-1/2 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center border border-gold/25 bg-black/25 text-center">
                     <Brain size={20} className="mb-1 text-gold" />
-                    <span className="text-[10px] uppercase tracking-[0.16em] text-white/45">5D Sync</span>
+                    <span className="text-xs uppercase tracking-[0.16em] text-parchment-400">5D Sync</span>
                   </div>
                   {copy.dimensions.map((dimension, index) => {
                     const positions = [
@@ -92,11 +92,11 @@ export function GrowthCommandHero({ variant }: { variant: HeroVariant }) {
                     return (
                       <div
                         key={dimension.key}
-                        className={`absolute ${positions[index]} w-28 border border-white/[0.08] bg-black/35 p-2 backdrop-blur`}
+                        className={`absolute ${positions[index]} w-28 border border-white/[0.06] bg-black/35 p-2 backdrop-blur`}
                       >
                         <div className="mb-1 h-1.5 w-8" style={{ backgroundColor: dimension.color }} />
-                        <p className="text-xs font-semibold text-white/85">{dimension.name}</p>
-                        <p className="mt-1 text-[10px] leading-snug text-white/42">{dimension.label}</p>
+                        <p className="text-xs font-semibold text-parchment-200">{dimension.name}</p>
+                        <p className="mt-1 text-xs leading-snug text-parchment-400">{dimension.label}</p>
                       </div>
                     )
                   })}
@@ -104,19 +104,19 @@ export function GrowthCommandHero({ variant }: { variant: HeroVariant }) {
               </div>
 
               <div className="grid gap-4">
-                <div className="border border-white/[0.08] bg-white/[0.035] p-5">
+                <div className="border border-white/[0.06] bg-white/[0.035] p-5">
                   <div className="mb-4 flex items-center gap-2 text-gold/75">
                     <GitBranch size={18} />
                     <p className="text-xs font-semibold uppercase tracking-[0.16em]">Output Preview</p>
                   </div>
                   <dl className="space-y-4">
                     <div>
-                      <dt className="text-[11px] uppercase tracking-[0.16em] text-white/35">Blind spot</dt>
-                      <dd className="mt-1 text-sm leading-6 text-white/78">{copy.commandCenter.blindSpot}</dd>
+                      <dt className="text-xs uppercase tracking-[0.16em] text-parchment-400">Blind spot</dt>
+                      <dd className="mt-1 text-sm leading-6 text-parchment-200">{copy.commandCenter.blindSpot}</dd>
                     </div>
                     <div>
-                      <dt className="text-[11px] uppercase tracking-[0.16em] text-white/35">Opportunity</dt>
-                      <dd className="mt-1 text-sm leading-6 text-white/78">{copy.commandCenter.opportunity}</dd>
+                      <dt className="text-xs uppercase tracking-[0.16em] text-parchment-400">Opportunity</dt>
+                      <dd className="mt-1 text-sm leading-6 text-parchment-200">{copy.commandCenter.opportunity}</dd>
                     </div>
                   </dl>
                 </div>
@@ -126,7 +126,7 @@ export function GrowthCommandHero({ variant }: { variant: HeroVariant }) {
                     <CheckCircle2 size={18} />
                     <p className="text-sm font-semibold">Today Action</p>
                   </div>
-                  <p className="text-sm leading-7 text-white/76">{copy.commandCenter.action}</p>
+                  <p className="text-sm leading-7 text-parchment-200">{copy.commandCenter.action}</p>
                 </div>
               </div>
             </div>

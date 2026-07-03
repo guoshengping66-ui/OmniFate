@@ -164,7 +164,7 @@ function CardFront({ arcana, reversed }: { arcana: typeof MAJOR_ARCANA[number]; 
 
       {/* Reversed indicator */}
       {reversed && (
-        <span className="text-white/40 text-[10px] mt-1 tracking-wider">
+        <span className="text-parchment-400 text-xs mt-1 tracking-wider">
           {locale === "zh" ? "逆位" : "Reversed"}
         </span>
       )}
@@ -309,7 +309,7 @@ export function TarotPicker({ onSelect }: Props) {
     <div className="space-y-2">
       {/* ── Header ── */}
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-white/70">
+        <h3 className="text-sm font-medium text-parchment-300">
           {t("new.tarotDrawTitle")}
         </h3>
         {phase === "complete" && (
@@ -329,7 +329,7 @@ export function TarotPicker({ onSelect }: Props) {
       <AnimatePresence mode="wait">
         {phase === "deck" && (
           <motion.p key="deck" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="text-center text-white/35 text-xs">
+            className="text-center text-parchment-400 text-xs">
             {t("new.tarotTapDeck") || "点击牌堆，抽取命运之牌"}
           </motion.p>
         )}
@@ -399,7 +399,7 @@ export function TarotPicker({ onSelect }: Props) {
                     transition={{ delay: 0.3, duration: 0.4, ease: "easeOut" }}
                     className="text-center mt-2.5"
                   >
-                    <span className="text-gold/80 text-[11px] font-medium tracking-wide">{card.position}</span>
+                    <span className="text-gold/80 text-xs font-medium tracking-wide">{card.position}</span>
                   </motion.div>
                 )}
               </motion.div>
@@ -456,7 +456,7 @@ export function TarotPicker({ onSelect }: Props) {
                   transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
                   className="absolute -top-6 left-0 right-0 text-center"
                 >
-                  <span className="text-gold/55 text-[10px] whitespace-nowrap font-medium">
+                  <span className="text-gold/55 text-xs whitespace-nowrap font-medium">
                     ✦ {t("new.tarotTapHint") || "点击抽取"} ✦
                   </span>
                 </motion.div>
@@ -512,13 +512,13 @@ export function TarotPicker({ onSelect }: Props) {
                   boxShadow: "0 0 20px rgba(201,168,76,0.08)",
                 }}
               >
-                <div className="text-[10px] text-white/35 mb-1.5 uppercase tracking-wider">{c.position}</div>
+                <div className="text-xs text-parchment-400 mb-1.5 uppercase tracking-wider">{c.position}</div>
                 <div className={`text-3xl mb-1.5 drop-shadow-[0_0_8px_rgba(201,168,76,0.25)] ${c.reversed ? "scale-y-[-1]" : ""}`}>
                   {c.arcana.emoji}
                 </div>
                 <div className="text-gold text-sm font-serif font-bold leading-tight">{c.card}</div>
                 {c.reversed && (
-                  <div className="text-white/30 text-[10px] mt-1 tracking-wider">
+                  <div className="text-parchment-400 text-xs mt-1 tracking-wider">
                     {locale === "zh" ? "逆位" : "Reversed"}
                   </div>
                 )}

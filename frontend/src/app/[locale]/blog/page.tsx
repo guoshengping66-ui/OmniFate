@@ -99,14 +99,14 @@ export default function BlogPage() {
         {/* Header */}
         <ScrollReveal>
           <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 text-[11px] tracking-[0.25em] uppercase text-gold/50 font-medium mb-4">
+            <div className="inline-flex items-center gap-2 text-xs tracking-[0.25em] uppercase text-gold/50 font-medium mb-4">
               <span className="w-8 h-px bg-gradient-to-r from-transparent to-gold/30" />
               {t("nav.blog")}
               <span className="w-8 h-px bg-gradient-to-l from-transparent to-gold/30" />
             </div>
             <BookOpen size={28} className="text-gold mx-auto mb-3" />
             <h1 className="text-2xl md:text-3xl font-serif font-bold text-white mb-2">{t("blog.title")}</h1>
-            <p className="text-white/40 text-sm max-w-lg mx-auto">{t("blog.subtitle")}</p>
+            <p className="text-parchment-400 text-sm max-w-lg mx-auto">{t("blog.subtitle")}</p>
           </div>
         </ScrollReveal>
 
@@ -114,18 +114,18 @@ export default function BlogPage() {
         <ScrollReveal delay={0.08}>
           <div className="max-w-md mx-auto mb-8">
             <div className="relative">
-              <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30" />
+              <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-parchment-400" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 placeholder={isZh ? "搜索文章标题、标签..." : "Search articles, tags..."}
-                className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl pl-10 pr-10 py-2.5 text-sm text-white/70 placeholder:text-white/25 focus:outline-none focus:border-gold/30 transition-colors"
+                className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl pl-10 pr-10 py-2.5 text-sm text-parchment-300 placeholder:text-parchment-400 focus:outline-none focus:border-gold/30 transition-colors"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery("")}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-parchment-400 hover:text-parchment-400"
                 >
                   <X size={14} />
                 </button>
@@ -144,11 +144,11 @@ export default function BlogPage() {
                 className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all
                   ${activeCategory === cat.key
                     ? "bg-gold/15 text-gold border border-gold/30"
-                    : "bg-white/[0.04] text-white/40 border border-white/[0.08] hover:text-white/60"
+                    : "bg-white/[0.04] text-parchment-400 border border-white/[0.08] hover:text-parchment-400"
                   }`}
               >
                 {isZh ? cat.label_zh : cat.label_en}
-                <span className="ml-1.5 text-[10px] opacity-50">{categoryCounts[cat.key] || 0}</span>
+                <span className="ml-1.5 text-xs opacity-50">{categoryCounts[cat.key] || 0}</span>
               </button>
             ))}
           </div>
@@ -156,7 +156,7 @@ export default function BlogPage() {
 
         {/* Search result count */}
         {searchQuery && (
-          <p className="text-white/30 text-xs text-center mb-6">
+          <p className="text-parchment-400 text-xs text-center mb-6">
             {isZh ? `找到 ${filteredArticles.length} 篇文章` : `Found ${filteredArticles.length} articles`}
           </p>
         )}
@@ -168,7 +168,7 @@ export default function BlogPage() {
               <ScrollReveal delay={0.12}>
                 <Link
                   href={localeHref(`/blog/${featuredArticle.id}`)}
-                  className="block card-glass p-6 md:p-8 mb-8 hover:border-gold/30 transition-all duration-300 group"
+                  className="block card-solid p-6 md:p-8 mb-8 hover:border-gold/30 transition-all duration-300 group"
                 >
                   <div className="flex flex-col md:flex-row gap-6">
                     {/* Left: Cover emoji large */}
@@ -181,16 +181,16 @@ export default function BlogPage() {
                     {/* Right: Content */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="text-[10px] px-2.5 py-0.5 bg-gold/15 text-gold border border-gold/25 rounded-full font-medium">
+                        <span className="text-xs px-2.5 py-0.5 bg-gold/15 text-gold border border-gold/25 rounded-full font-medium">
                           {isZh ? "精选" : "Featured"}
                         </span>
-                        <span className="text-[10px] px-2 py-0.5 bg-gold/10 text-gold/70 rounded-full border border-gold/20">
+                        <span className="text-xs px-2 py-0.5 bg-gold/10 text-gold/70 rounded-full border border-gold/20">
                           {isZh
                             ? (CATEGORIES.find(c => c.key === featuredArticle.category)?.label_zh || featuredArticle.category)
                             : (CATEGORIES.find(c => c.key === featuredArticle.category)?.label_en || featuredArticle.category)
                           }
                         </span>
-                        <span className="flex items-center gap-0.5 text-white/25 text-[10px]">
+                        <span className="flex items-center gap-0.5 text-parchment-400 text-xs">
                           <Clock size={8} /> {featuredArticle.read_time} {t("blog.minRead")}
                         </span>
                       </div>
@@ -199,7 +199,7 @@ export default function BlogPage() {
                         {isZh ? featuredArticle.title_zh : featuredArticle.title_en}
                       </h2>
 
-                      <p className="text-white/40 text-sm leading-relaxed mb-4 line-clamp-2">
+                      <p className="text-parchment-400 text-sm leading-relaxed mb-4 line-clamp-2">
                         {isZh ? featuredArticle.summary_zh : featuredArticle.summary_en}
                       </p>
 
@@ -219,7 +219,7 @@ export default function BlogPage() {
                 <ScrollReveal key={article.id} delay={0.05 * (i % 6)}>
                   <Link
                     href={localeHref(`/blog/${article.id}`)}
-                    className="block card-glow p-5 hover:border-gold/30 transition-all duration-300 group h-full"
+                    className="block card-interactive p-5 hover:border-gold/30 transition-all duration-300 group h-full"
                   >
                     {/* Cover emoji */}
                     <div className="text-3xl mb-3 group-hover:scale-110 transition-transform duration-300">
@@ -228,13 +228,13 @@ export default function BlogPage() {
 
                     {/* Category & read time */}
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-[10px] px-2 py-0.5 bg-gold/10 text-gold/70 rounded-full border border-gold/20">
+                      <span className="text-xs px-2 py-0.5 bg-gold/10 text-gold/70 rounded-full border border-gold/20">
                         {isZh
                           ? (CATEGORIES.find(c => c.key === article.category)?.label_zh || article.category)
                           : (CATEGORIES.find(c => c.key === article.category)?.label_en || article.category)
                         }
                       </span>
-                      <span className="flex items-center gap-0.5 text-white/20 text-[10px]">
+                      <span className="flex items-center gap-0.5 text-parchment-400 text-xs">
                         <Clock size={8} /> {article.read_time} {t("blog.minRead")}
                       </span>
                     </div>
@@ -245,14 +245,14 @@ export default function BlogPage() {
                     </h3>
 
                     {/* Summary */}
-                    <p className="text-white/35 text-xs leading-relaxed line-clamp-2 mb-3">
+                    <p className="text-parchment-400 text-xs leading-relaxed line-clamp-2 mb-3">
                       {isZh ? article.summary_zh : article.summary_en}
                     </p>
 
                     {/* Tags */}
                     <div className="flex flex-wrap gap-1 mb-3">
                       {(isZh ? article.tags_zh : article.tags_en).slice(0, 3).map(tag => (
-                        <span key={tag} className="text-[10px] px-1.5 py-0.5 bg-white/[0.04] rounded-full text-white/30">
+                        <span key={tag} className="text-xs px-1.5 py-0.5 bg-white/[0.04] rounded-full text-parchment-400">
                           {tag}
                         </span>
                       ))}
@@ -269,7 +269,7 @@ export default function BlogPage() {
           </>
         ) : (
           <div className="text-center py-16">
-            <p className="text-white/30 text-sm">{t("blog.noArticles")}</p>
+            <p className="text-parchment-400 text-sm">{t("blog.noArticles")}</p>
             {searchQuery && (
               <button
                 onClick={() => { setSearchQuery(""); setActiveCategory("") }}

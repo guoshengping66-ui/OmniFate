@@ -83,12 +83,12 @@ export function FortunePrescription({ products, weakestLabel, strongestLabel }: 
             <h3 className="font-serif text-lg md:text-xl font-bold text-gold">
               {t("reading.master.prescription")}
             </h3>
-            <p className="text-white/30 text-xs">
+            <p className="text-parchment-400 text-xs">
               {t("reading.master.prescriptionDesc")}
             </p>
           </div>
           <div className="ml-auto">
-            <span className="text-[10px] px-2 py-0.5 bg-gold/15 border border-gold/25 rounded-full text-gold/70 animate-pulse">
+            <span className="text-xs px-2 py-0.5 bg-gold/15 border border-gold/25 rounded-full text-gold/70 animate-pulse">
               {t("prescription.primary")}
             </span>
           </div>
@@ -97,15 +97,15 @@ export function FortunePrescription({ products, weakestLabel, strongestLabel }: 
         {/* Diagnosis strip */}
         <div className="flex items-center gap-2 mb-5 px-4 py-2.5 bg-white/[0.03] rounded-xl border border-white/[0.06]">
           <TrendingUp size={14} className="text-gold/60 flex-shrink-0" />
-          <p className="text-white/50 text-xs leading-relaxed">
+          <p className="text-parchment-400 text-xs leading-relaxed">
             {weakestLabel && (
               <>
-                <span className="text-white/30">{t("freeBanner.weakEnergy")}</span>{" "}
+                <span className="text-parchment-400">{t("freeBanner.weakEnergy")}</span>{" "}
                 <span className="text-gold font-semibold">{weakestLabel}</span>
                 {strongestLabel && (
                   <>
                     {" · "}
-                    <span className="text-white/30">{t("freeBanner.strongDimension")}</span>{" "}
+                    <span className="text-parchment-400">{t("freeBanner.strongDimension")}</span>{" "}
                     <span className="text-green-400/80 font-semibold">{strongestLabel}</span>
                   </>
                 )}
@@ -158,13 +158,13 @@ export function FortunePrescription({ products, weakestLabel, strongestLabel }: 
                     )}
                     <h4 className="font-medium text-white text-sm truncate">{isEn ? (product.name_en || product.name) : product.name}</h4>
                     {formattedSales && (
-                      <span className="text-[9px] text-white/25 flex-shrink-0">
+                      <span className="text-[9px] text-parchment-400 flex-shrink-0">
                         {formattedSales} {t("prescription.sold") || "已售"}
                       </span>
                     )}
                   </div>
                   {product.recommendation_text && !(isEn && hasChinese(product.recommendation_text)) && (
-                    <p className="text-white/35 text-[11px] leading-relaxed line-clamp-1 italic">
+                    <p className="text-parchment-400 text-xs leading-relaxed line-clamp-1 italic">
                       &ldquo;{product.recommendation_text}&rdquo;
                     </p>
                   )}
@@ -185,12 +185,12 @@ export function FortunePrescription({ products, weakestLabel, strongestLabel }: 
                   <button
                     onClick={() => handleAdd(product)}
                     disabled={isAdded}
-                    className={`flex items-center gap-1 text-[11px] px-3 py-1.5 rounded-full transition-all duration-300 ${
+                    className={`flex items-center gap-1 text-xs px-3 py-1.5 rounded-full transition-all duration-300 ${
                       isAdded
                         ? "bg-green-500/20 border border-green-500/40 text-green-400"
                         : isPrimary
                           ? "bg-gold/15 border border-gold/30 text-gold hover:bg-gold/25"
-                          : "bg-white/[0.04] border border-white/[0.1] text-white/60 hover:border-gold/30 hover:text-gold"
+                          : "bg-white/[0.04] border border-white/[0.06] text-parchment-400 hover:border-gold/30 hover:text-gold"
                     }`}
                   >
                     {isAdded ? (
@@ -207,7 +207,7 @@ export function FortunePrescription({ products, weakestLabel, strongestLabel }: 
 
         {/* View all CTA */}
         <div className="mt-5 pt-4 border-t border-white/[0.06] flex items-center justify-between">
-          <p className="text-white/20 text-[10px]">
+          <p className="text-parchment-400 text-xs">
             {t("prescription.footer")}
           </p>
           <Link

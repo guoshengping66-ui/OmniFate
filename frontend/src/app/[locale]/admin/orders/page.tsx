@@ -268,8 +268,8 @@ export default function AdminOrdersPage() {
 
   if (!authenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-ink px-4">
-        <div className="w-full max-w-sm p-8 rounded-2xl bg-white/[0.04] border border-white/10">
+      <div className="min-h-screen flex items-center justify-center bg-cosmos-950 px-4">
+        <div className="w-full max-w-sm p-8 rounded-2xl bg-white/[0.04] border border-white/[0.06]">
           <h1 className="text-2xl font-serif font-bold text-white mb-6 text-center">
             {t("adminOrders.title")}
           </h1>
@@ -279,12 +279,12 @@ export default function AdminOrdersPage() {
               value={adminKey}
               onChange={(e) => setAdminKey(e.target.value)}
               placeholder={t("adminOrders.enterKey")}
-              className="w-full px-4 py-3 rounded-xl bg-white/[0.06] border border-white/10 text-white placeholder-white/40 focus:outline-none focus:border-gold/50"
+              className="w-full px-4 py-3 rounded-xl bg-white/[0.06] border border-white/[0.06] text-white placeholder-white/40 focus:outline-none focus:border-gold/50"
             />
             {error && <p className="text-red-400 text-sm">{error}</p>}
             <button
               type="submit"
-              className="w-full py-3 rounded-full bg-gold text-ink font-semibold hover:shadow-[0_0_24px_rgba(201,168,76,0.5)] transition-all"
+              className="w-full py-3 rounded-full bg-gold text-cosmos-950 font-semibold hover:shadow-[0_0_24px_rgba(201,168,76,0.5)] transition-all"
             >
               {t("adminOrders.login")}
             </button>
@@ -314,7 +314,7 @@ export default function AdminOrdersPage() {
             ["本页订单", orders.length, "text-gold"],
           ].map(([label, count, color]) => (
             <div key={label as string} className="rounded-xl border border-white/[0.07] bg-white/[0.025] p-3">
-              <p className="text-white/35 text-xs">{label}</p>
+              <p className="text-parchment-400 text-xs">{label}</p>
               <p className={`text-xl font-semibold mt-1 ${color}`}>{count}</p>
             </div>
           ))}
@@ -324,7 +324,7 @@ export default function AdminOrdersPage() {
         <div className="flex gap-2 mb-6 flex-wrap">
           <button
             onClick={() => { setStatusFilter(""); setPage(1) }}
-            className={`px-3 py-1.5 rounded-lg text-xs transition-all ${!statusFilter ? "bg-gold/20 text-gold border border-gold/30" : "bg-white/5 text-white/50 border border-white/10 hover:border-white/20"}`}
+            className={`px-3 py-1.5 rounded-lg text-xs transition-all ${!statusFilter ? "bg-gold/20 text-gold border border-gold/30" : "bg-white/[0.04] text-parchment-400 border border-white/[0.06] hover:border-white/20"}`}
           >
             {t("adminOrders.all")} ({total})
           </button>
@@ -332,7 +332,7 @@ export default function AdminOrdersPage() {
             <button
               key={s}
               onClick={() => { setStatusFilter(s); setPage(1) }}
-              className={`px-3 py-1.5 rounded-lg text-xs transition-all ${statusFilter === s ? "bg-gold/20 text-gold border border-gold/30" : "bg-white/5 text-white/50 border border-white/10 hover:border-white/20"}`}
+              className={`px-3 py-1.5 rounded-lg text-xs transition-all ${statusFilter === s ? "bg-gold/20 text-gold border border-gold/30" : "bg-white/[0.04] text-parchment-400 border border-white/[0.06] hover:border-white/20"}`}
             >
               {getStatusInfo(s).label}
             </button>
@@ -342,16 +342,16 @@ export default function AdminOrdersPage() {
         {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
 
         {loading ? (
-          <div className="text-center py-12 text-white/40">{t("adminOrders.loading")}</div>
+          <div className="text-center py-12 text-parchment-400">{t("adminOrders.loading")}</div>
         ) : orders.length === 0 ? (
-          <div className="text-center py-12 text-white/40">{t("adminOrders.noOrders")}</div>
+          <div className="text-center py-12 text-parchment-400">{t("adminOrders.noOrders")}</div>
         ) : (
           <div className="space-y-3">
             {orders.map(order => {
               const statusInfo = getStatusInfo(order.status)
               const isExpanded = expandedOrder === order.order_no
               return (
-                <div key={order.order_no} className="card-glass overflow-hidden">
+                <div key={order.order_no} className="card-solid overflow-hidden">
                   {/* Order header */}
                   <div
                     className="p-4 cursor-pointer hover:bg-white/[0.02] transition-colors"
@@ -362,19 +362,19 @@ export default function AdminOrdersPage() {
                         <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs ${statusInfo.color}`}>
                           {statusInfo.icon} {statusInfo.label}
                         </span>
-                        <span className="text-white/80 text-sm font-mono">{order.order_no}</span>
+                        <span className="text-parchment-200 text-sm font-mono">{order.order_no}</span>
                         {order.status === "paid" && (
-                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-gold/10 text-gold border border-gold/20">
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-gold/10 text-gold border border-gold/20">
                             待发货
                           </span>
                         )}
-                        <span className="text-white/40 text-xs">
+                        <span className="text-parchment-400 text-xs">
                           {order.created_at ? new Date(order.created_at).toLocaleString() : ""}
                         </span>
                       </div>
                       <div className="flex items-center gap-4">
                         <span className="text-gold font-bold">¥{(order.total_cny ?? 0).toFixed(2)}</span>
-                        {isExpanded ? <ChevronUp size={16} className="text-white/40" /> : <ChevronDown size={16} className="text-white/40" />}
+                        {isExpanded ? <ChevronUp size={16} className="text-parchment-400" /> : <ChevronDown size={16} className="text-parchment-400" />}
                       </div>
                     </div>
                   </div>
@@ -384,11 +384,11 @@ export default function AdminOrdersPage() {
                     <div className="border-t border-white/5 p-4 space-y-4">
                       {/* Items */}
                       <div>
-                        <p className="text-white/50 text-xs mb-2">{t("adminOrders.items")}</p>
+                        <p className="text-parchment-400 text-xs mb-2">{t("adminOrders.items")}</p>
                         {order.items.map((item, i) => (
                           <div key={i} className="flex justify-between text-sm py-1">
-                            <span className="text-white/70">{item.product_name} x{item.quantity}</span>
-                            <span className="text-white/50">¥{(item.subtotal_cny ?? 0).toFixed(2)}</span>
+                            <span className="text-parchment-300">{item.product_name} x{item.quantity}</span>
+                            <span className="text-parchment-400">¥{(item.subtotal_cny ?? 0).toFixed(2)}</span>
                           </div>
                         ))}
                       </div>
@@ -396,17 +396,17 @@ export default function AdminOrdersPage() {
                       {/* User info */}
                       {order.user && (
                         <div>
-                          <p className="text-white/50 text-xs mb-1">{t("adminOrders.userInfo")}</p>
-                          <p className="text-white/70 text-sm">{order.user.nickname || order.user.email}</p>
-                          <p className="text-white/40 text-xs">{order.user.email}</p>
+                          <p className="text-parchment-400 text-xs mb-1">{t("adminOrders.userInfo")}</p>
+                          <p className="text-parchment-300 text-sm">{order.user.nickname || order.user.email}</p>
+                          <p className="text-parchment-400 text-xs">{order.user.email}</p>
                         </div>
                       )}
 
                       {/* Shipping address */}
                       {order.shipping_address && (
                         <div>
-                          <p className="text-white/50 text-xs mb-1">{t("adminOrders.shippingAddress")}</p>
-                          <p className="text-white/70 text-sm">
+                          <p className="text-parchment-400 text-xs mb-1">{t("adminOrders.shippingAddress")}</p>
+                          <p className="text-parchment-300 text-sm">
                             {order.recipient_name} {order.recipient_phone}<br />
                             {order.shipping_address.country && <>{order.shipping_address.country}<br /></>}
                             {order.shipping_address.province} {order.shipping_address.city} {order.shipping_address.district}<br />
@@ -420,9 +420,9 @@ export default function AdminOrdersPage() {
                       {/* Tracking number */}
                       {order.tracking_number && (
                         <div>
-                          <p className="text-white/50 text-xs mb-1">{t("adminOrders.trackingNumber")}</p>
-                          <p className="text-white/70 text-sm font-mono">
-                            {order.shipping_carrier && <span className="mr-2 text-white/45">{order.shipping_carrier}</span>}
+                          <p className="text-parchment-400 text-xs mb-1">{t("adminOrders.trackingNumber")}</p>
+                          <p className="text-parchment-300 text-sm font-mono">
+                            {order.shipping_carrier && <span className="mr-2 text-parchment-400">{order.shipping_carrier}</span>}
                             {order.tracking_number}
                           </p>
                         </div>
@@ -439,20 +439,20 @@ export default function AdminOrdersPage() {
                               placeholder="物流公司，例如 SF / YTO / USPS"
                               value={carrierInput[order.order_no] ?? order.shipping_carrier ?? ""}
                               onChange={(e) => setCarrierInput(prev => ({ ...prev, [order.order_no]: e.target.value }))}
-                              className="px-3 py-2 rounded-lg bg-white/[0.06] border border-white/10 text-white text-sm placeholder-white/30 focus:outline-none focus:border-gold/50"
+                              className="px-3 py-2 rounded-lg bg-white/[0.06] border border-white/[0.06] text-white text-sm placeholder-white/30 focus:outline-none focus:border-gold/50"
                             />
                             <input
                               type="text"
                               placeholder="物流单号"
                               value={trackingInput[order.order_no] ?? order.tracking_number ?? ""}
                               onChange={(e) => setTrackingInput(prev => ({ ...prev, [order.order_no]: e.target.value }))}
-                              className="px-3 py-2 rounded-lg bg-white/[0.06] border border-white/10 text-white text-sm placeholder-white/30 focus:outline-none focus:border-gold/50"
+                              className="px-3 py-2 rounded-lg bg-white/[0.06] border border-white/[0.06] text-white text-sm placeholder-white/30 focus:outline-none focus:border-gold/50"
                             />
                             <button
                               type="button"
                               onClick={() => markManualShipped(order)}
                               disabled={updatingOrder === order.order_no}
-                              className="px-4 py-2 rounded-lg bg-gold text-ink text-sm font-semibold hover:bg-gold/90 disabled:opacity-50 flex items-center justify-center gap-2"
+                              className="px-4 py-2 rounded-lg bg-gold text-cosmos-950 text-sm font-semibold hover:bg-gold/90 disabled:opacity-50 flex items-center justify-center gap-2"
                             >
                               <Truck size={14} />
                               {updatingOrder === order.order_no ? "更新中" : "标记已发货"}
@@ -469,25 +469,25 @@ export default function AdminOrdersPage() {
                           </p>
                           {order.cj_order_number && (
                             <div className="flex items-center gap-2 mb-1">
-                              <span className="text-white/40 text-[10px]">{t("adminOrders.cjOrderNo")}:</span>
-                              <span className="text-white/70 text-xs font-mono">{order.cj_order_number}</span>
+                              <span className="text-parchment-400 text-xs">{t("adminOrders.cjOrderNo")}:</span>
+                              <span className="text-parchment-300 text-xs font-mono">{order.cj_order_number}</span>
                             </div>
                           )}
                           {order.cj_order_status && (
                             <div className="flex items-center gap-2 mb-1">
-                              <span className="text-white/40 text-[10px]">{t("adminOrders.cjStatus")}:</span>
+                              <span className="text-parchment-400 text-xs">{t("adminOrders.cjStatus")}:</span>
                               <span className="text-blue-300 text-xs">{order.cj_order_status}</span>
                             </div>
                           )}
                           {order.cj_shipping_cost != null && (
-                            <p className="text-white/40 text-[10px]">
+                            <p className="text-parchment-400 text-xs">
                               {t("adminOrders.cjShippingCost")}: ${order.cj_shipping_cost.toFixed(2)}
                             </p>
                           )}
                           <button
                             onClick={() => handleSyncCJ(order.order_no)}
                             disabled={syncingCJ === order.order_no}
-                            className="mt-2 px-3 py-1 rounded-lg bg-blue-600/80 hover:bg-blue-500 text-white text-[11px] font-medium transition-colors disabled:opacity-50 flex items-center gap-1"
+                            className="mt-2 px-3 py-1 rounded-lg bg-blue-600/80 hover:bg-blue-500 text-white text-xs font-medium transition-colors disabled:opacity-50 flex items-center gap-1"
                           >
                             <RefreshCw size={10} className={syncingCJ === order.order_no ? "animate-spin" : ""} />
                             {t("adminOrders.syncCJTracking")}
@@ -513,18 +513,18 @@ export default function AdminOrdersPage() {
                           </p>
                           {order.refund_reason && (
                             <div className="mb-2">
-                              <p className="text-white/40 text-[10px] mb-0.5">{t("adminOrders.refundReason")}</p>
-                              <p className="text-white/70 text-sm">{order.refund_reason}</p>
+                              <p className="text-parchment-400 text-xs mb-0.5">{t("adminOrders.refundReason")}</p>
+                              <p className="text-parchment-300 text-sm">{order.refund_reason}</p>
                             </div>
                           )}
                           {order.refund_requested_at && (
-                            <p className="text-white/30 text-[10px]">
+                            <p className="text-parchment-400 text-xs">
                               {new Date(order.refund_requested_at).toLocaleString()}
                             </p>
                           )}
                           <div className="mt-3 space-y-2">
                             <div className="flex items-center gap-2">
-                              <label className="text-white/40 text-xs whitespace-nowrap">{t("adminOrders.refundAmount")}</label>
+                              <label className="text-parchment-400 text-xs whitespace-nowrap">{t("adminOrders.refundAmount")}</label>
                               <input
                                 type="number"
                                 step="0.01"
@@ -532,7 +532,7 @@ export default function AdminOrdersPage() {
                                 placeholder={`¥${order.total_cny.toFixed(2)}`}
                                 value={refundAmounts[order.order_no] || ""}
                                 onChange={(e) => setRefundAmounts(prev => ({ ...prev, [order.order_no]: e.target.value }))}
-                                className="flex-1 px-2 py-1 rounded bg-white/[0.06] border border-white/10 text-white text-xs focus:outline-none focus:border-gold/50"
+                                className="flex-1 px-2 py-1 rounded bg-white/[0.06] border border-white/[0.06] text-white text-xs focus:outline-none focus:border-gold/50"
                               />
                             </div>
                             <input
@@ -540,7 +540,7 @@ export default function AdminOrdersPage() {
                               placeholder={t("adminOrders.refundNote")}
                               value={refundNotes[order.order_no] || ""}
                               onChange={(e) => setRefundNotes(prev => ({ ...prev, [order.order_no]: e.target.value }))}
-                              className="w-full px-2 py-1 rounded bg-white/[0.06] border border-white/10 text-white text-xs placeholder-white/30 focus:outline-none focus:border-gold/50"
+                              className="w-full px-2 py-1 rounded bg-white/[0.06] border border-white/[0.06] text-white text-xs placeholder-white/30 focus:outline-none focus:border-gold/50"
                             />
                             <div className="flex gap-2">
                               <button
@@ -585,10 +585,10 @@ export default function AdminOrdersPage() {
                             <CheckCircle size={12} /> {t("adminOrders.status.refunded")}
                           </p>
                           {order.refund_amount != null && (
-                            <p className="text-white/70 text-sm">{t("adminOrders.refundAmount")}: ¥{order.refund_amount.toFixed(2)}</p>
+                            <p className="text-parchment-300 text-sm">{t("adminOrders.refundAmount")}: ¥{order.refund_amount.toFixed(2)}</p>
                           )}
                           {order.refund_processed_at && (
-                            <p className="text-white/30 text-[10px] mt-1">
+                            <p className="text-parchment-400 text-xs mt-1">
                               {t("adminOrders.refundNote")}: {order.refund_note || "—"}
                             </p>
                           )}
@@ -601,7 +601,7 @@ export default function AdminOrdersPage() {
                           value={order.status}
                           onChange={(e) => updateOrderStatus(order.order_no, e.target.value)}
                           disabled={updatingOrder === order.order_no}
-                          className="px-3 py-1.5 rounded-lg bg-white/[0.06] border border-white/10 text-white text-sm focus:outline-none focus:border-gold/50"
+                          className="px-3 py-1.5 rounded-lg bg-white/[0.06] border border-white/[0.06] text-white text-sm focus:outline-none focus:border-gold/50"
                         >
                           {STATUS_OPTIONS.map(s => (
                             <option key={s} value={s}>{getStatusInfo(s).label}</option>
@@ -613,11 +613,11 @@ export default function AdminOrdersPage() {
                             placeholder={t("adminOrders.trackingNumber")}
                             value={trackingInput[order.order_no] || ""}
                             onChange={(e) => setTrackingInput(prev => ({ ...prev, [order.order_no]: e.target.value }))}
-                            className="px-3 py-1.5 rounded-lg bg-white/[0.06] border border-white/10 text-white text-sm placeholder-white/30 focus:outline-none focus:border-gold/50"
+                            className="px-3 py-1.5 rounded-lg bg-white/[0.06] border border-white/[0.06] text-white text-sm placeholder-white/30 focus:outline-none focus:border-gold/50"
                           />
                         )}
                         {updatingOrder === order.order_no && (
-                          <span className="text-white/40 text-xs">{t("adminOrders.updating")}</span>
+                          <span className="text-parchment-400 text-xs">{t("adminOrders.updating")}</span>
                         )}
                       </div>
                     </div>
@@ -638,7 +638,7 @@ export default function AdminOrdersPage() {
             >
               {t("adminOrders.prevPage")}
             </button>
-            <span className="text-white/40 text-sm py-1">{t("adminOrders.page")} {page} / {Math.ceil(total / 20)}</span>
+            <span className="text-parchment-400 text-sm py-1">{t("adminOrders.page")} {page} / {Math.ceil(total / 20)}</span>
             <button
               onClick={() => setPage(p => p + 1)}
               disabled={page * 20 >= total}

@@ -37,7 +37,7 @@ export function SEOFaq({ title, items }: SEOFaqProps) {
 
   return (
     <ScrollReveal delay={0.3}>
-      <div className="card-glass p-8 md:p-10 mb-16">
+      <div className="card-solid p-8 md:p-10 mb-16">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }}

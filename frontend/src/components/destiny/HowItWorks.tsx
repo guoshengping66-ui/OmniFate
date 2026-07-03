@@ -62,7 +62,7 @@ export default function HowItWorks() {
           className="text-center mb-12 md:mb-16 transition-all duration-1000"
           style={{ opacity: isVisible ? 1 : 0, transform: isVisible ? "translateY(0)" : "translateY(30px)" }}
         >
-          <span className="text-[#C5A880]/40 text-[10px] tracking-[0.5em] uppercase font-medium">
+          <span className="text-[#C5A880]/40 text-xs tracking-[0.5em] uppercase font-medium">
             {locale === "zh" ? "流程" : "PROCESS"}
           </span>
           <h2 className="text-2xl md:text-4xl font-serif font-bold mt-3 mb-3 tracking-wide">
@@ -70,7 +70,7 @@ export default function HowItWorks() {
               {t("howItWorks.title")}
             </span>
           </h2>
-          <p className="text-white/25 text-xs md:text-sm max-w-md mx-auto">
+          <p className="text-parchment-400 text-xs md:text-sm max-w-md mx-auto">
             {t("howItWorks.desc")}
           </p>
         </div>
@@ -124,7 +124,7 @@ export default function HowItWorks() {
                 </div>
                 {/* Step number */}
                 <span
-                  className="absolute -top-1 -right-1 text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center"
+                  className="absolute -top-1 -right-1 text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center"
                   style={{
                     background: `${step.color}15`,
                     color: step.color,
@@ -141,7 +141,7 @@ export default function HowItWorks() {
               </h3>
 
               {/* Description */}
-              <p className="text-white/25 text-xs leading-relaxed max-w-[240px] mx-auto">
+              <p className="text-parchment-400 text-xs leading-relaxed max-w-[240px] mx-auto">
                 {t(`howItWorks.${step.key}Desc`)}
               </p>
             </div>

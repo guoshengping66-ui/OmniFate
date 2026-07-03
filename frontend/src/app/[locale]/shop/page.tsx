@@ -266,7 +266,7 @@ function ShopContent() {
 
         <div className="relative z-10 mx-auto max-w-2xl">
           <div className={`transition-all duration-1000 delay-200 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-            <div className="inline-flex items-center gap-2 text-[11px] tracking-[0.3em] uppercase text-gold/40 font-medium mb-6">
+            <div className="inline-flex items-center gap-2 text-xs tracking-[0.3em] uppercase text-gold/40 font-medium mb-6">
               <span className="w-10 h-px bg-gradient-to-r from-transparent to-gold/30" />
               <Gem size={12} className="text-gold/50" />
               <span>{copy.badge}</span>
@@ -283,13 +283,13 @@ function ShopContent() {
             {copy.title}
           </h1>
 
-          <p className={`mx-auto mb-5 max-w-lg text-sm leading-7 text-white/45 md:text-base transition-all duration-1000 delay-500 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+          <p className={`mx-auto mb-5 max-w-lg text-sm leading-7 text-parchment-400 md:text-base transition-all duration-1000 delay-500 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
             {copy.subtitle}
           </p>
 
           <div className={`mb-5 grid max-w-md grid-cols-3 gap-2 transition-all duration-1000 delay-600 sm:mx-auto ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
             {copy.signals.map(item => (
-              <div key={item} className="rounded-xl border border-white/[0.06] bg-white/[0.025] px-3 py-2 text-[11px] text-white/42">
+              <div key={item} className="rounded-xl border border-white/[0.06] bg-white/[0.025] px-3 py-2 text-xs text-parchment-400">
                 {item}
               </div>
             ))}
@@ -297,14 +297,14 @@ function ShopContent() {
 
           {/* Disclaimer */}
           <div className={`hidden transition-all duration-1000 delay-700 sm:block ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
-            <p className="text-white/20 text-xs leading-relaxed max-w-md mx-auto">
+            <p className="text-parchment-400 text-xs leading-relaxed max-w-md mx-auto">
               {copy.disclaimer}
             </p>
           </div>
 
           {/* Scroll indicator */}
           <div className={`mt-8 hidden transition-all duration-1000 delay-1000 md:block ${heroVisible ? "opacity-100" : "opacity-0"}`}>
-            <div className="w-5 h-8 rounded-full border border-white/10 mx-auto flex justify-center pt-1.5">
+            <div className="w-5 h-8 rounded-full border border-white/[0.06] mx-auto flex justify-center pt-1.5">
               <div className="w-1 h-2 rounded-full bg-gold/40 animate-bounce" />
             </div>
           </div>
@@ -318,16 +318,16 @@ function ShopContent() {
           <div className="mb-7 rounded-xl border border-white/[0.07] bg-white/[0.025] p-4 md:p-5">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <div className="mb-2 inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-gold/55">
+                <div className="mb-2 inline-flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-gold/55">
                   <Sparkles size={13} />
                   {isPersonalized ? copy.personalizedTitle : copy.defaultTitle}
                 </div>
-                <p className="max-w-2xl text-sm leading-relaxed text-white/42">
+                <p className="max-w-2xl text-sm leading-relaxed text-parchment-400">
                   {isPersonalized ? copy.personalizedDesc : copy.defaultDesc}
                 </p>
               </div>
               {!isPersonalized && (
-                <a href={localeHref("/reading/new")} className="btn-gold-outline inline-flex items-center justify-center px-5 py-2.5 text-sm">
+                <a href={localeHref("/reading/new")} className="btn-secondary inline-flex items-center justify-center px-5 py-2.5 text-sm">
                   {copy.createProfile}
                 </a>
               )}
@@ -344,8 +344,8 @@ function ShopContent() {
                   <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg border border-gold/20 bg-gold/[0.07] text-gold">
                     <Icon size={17} />
                   </div>
-                  <h2 className="text-sm font-semibold text-white/82">{item.title}</h2>
-                  <p className="mt-1 text-xs leading-relaxed text-white/42">{item.desc}</p>
+                  <h2 className="text-sm font-semibold text-parchment-200">{item.title}</h2>
+                  <p className="mt-1 text-xs leading-relaxed text-parchment-400">{item.desc}</p>
                 </div>
               )
             })}
@@ -363,7 +363,7 @@ function ShopContent() {
                 </div>
                 <div className="flex-1 h-px bg-gradient-to-r from-gold/15 to-transparent" />
               </div>
-              <p className="text-white/35 text-sm mb-6">{copy.prescriptionDesc}</p>
+              <p className="text-parchment-400 text-sm mb-6">{copy.prescriptionDesc}</p>
             </ScrollReveal>
             <Suspense fallback={null}>
               <AIRecommendHero products={products} />
@@ -377,14 +377,14 @@ function ShopContent() {
             <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
               <div>
                 <h2 className="font-serif text-xl text-gold">{copy.needTitle}</h2>
-                <p className="mt-1 text-sm leading-relaxed text-white/40">{copy.needDesc}</p>
+                <p className="mt-1 text-sm leading-relaxed text-parchment-400">{copy.needDesc}</p>
               </div>
             </div>
             <div className="flex gap-2 overflow-x-auto pb-2">
               <button
                 onClick={() => handleNeedChange("")}
                 className={`shrink-0 border px-4 py-2 text-xs transition-colors ${
-                  activeNeed === "" ? "border-gold/40 bg-gold/10 text-gold" : "border-white/10 bg-white/[0.025] text-white/45 hover:border-gold/25 hover:text-gold/80"
+                  activeNeed === "" ? "border-gold/40 bg-gold/10 text-gold" : "border-white/[0.06] bg-white/[0.025] text-parchment-400 hover:border-gold/25 hover:text-gold/80"
                 }`}
               >
                 {copy.allNeeds}
@@ -394,11 +394,11 @@ function ShopContent() {
                   key={need.key}
                   onClick={() => handleNeedChange(need.key)}
                   className={`shrink-0 border px-4 py-2 text-left transition-colors ${
-                    activeNeed === need.key ? "border-gold/40 bg-gold/10 text-gold" : "border-white/10 bg-white/[0.025] text-white/45 hover:border-gold/25 hover:text-gold/80"
+                    activeNeed === need.key ? "border-gold/40 bg-gold/10 text-gold" : "border-white/[0.06] bg-white/[0.025] text-parchment-400 hover:border-gold/25 hover:text-gold/80"
                   }`}
                 >
                   <span className="block text-xs font-medium">{need.label[isZh ? "zh" : "en"]}</span>
-                  <span className="mt-0.5 block max-w-[220px] text-[10px] leading-relaxed text-white/30">{need.description[isZh ? "zh" : "en"]}</span>
+                  <span className="mt-0.5 block max-w-[220px] text-xs leading-relaxed text-parchment-400">{need.description[isZh ? "zh" : "en"]}</span>
                 </button>
               ))}
             </div>
@@ -427,7 +427,7 @@ function ShopContent() {
 
         {/* Results count */}
         {!loading && products.length > 0 && (
-          <p className="text-white/15 text-xs mb-6">
+          <p className="text-parchment-400 text-xs mb-6">
             {t("treasureHall.resultCount").replace("{count}", String(products.length))}
           </p>
         )}
@@ -445,8 +445,8 @@ function ShopContent() {
           </div>
         ) : (
           <div className="text-center py-20">
-            <Gem size={40} className="mx-auto mb-4 text-white/10" />
-            <p className="text-white/30 text-sm">{allProducts.length > 0 ? t("treasureHall.noMatch") : t("shop.noProducts")}</p>
+            <Gem size={40} className="mx-auto mb-4 text-parchment-400" />
+            <p className="text-parchment-400 text-sm">{allProducts.length > 0 ? t("treasureHall.noMatch") : t("shop.noProducts")}</p>
           </div>
         )}
       </div>

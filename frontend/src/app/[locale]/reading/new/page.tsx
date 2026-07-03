@@ -572,7 +572,7 @@ export default function NewReadingPage() {
   return (
     <div className="min-h-screen pt-24 pb-16 px-4">
       {/* Progress bar */}
-      <div className="fixed top-16 left-0 right-0 z-30 h-1 bg-white/5">
+      <div className="fixed top-16 left-0 right-0 z-30 h-1 bg-white/[0.04]">
         <div
           className="h-full bg-gradient-to-r from-gold/60 via-gold to-gold-light transition-all duration-500 ease-out shadow-[0_0_12px_rgba(201,168,76,0.4)]"
           style={{
@@ -613,10 +613,10 @@ export default function NewReadingPage() {
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold
                     transition-all duration-300 flex-shrink-0
                     ${i < step
-                      ? "bg-gold text-ink shadow-[0_0_12px_rgba(201,168,76,0.5)]"
+                      ? "bg-gold text-cosmos-950 shadow-[0_0_12px_rgba(201,168,76,0.5)]"
                       : i === step
-                        ? "bg-gold text-ink shadow-[0_0_16px_rgba(201,168,76,0.6)] ring-2 ring-gold/30"
-                        : "bg-white/10 text-white/30"
+                        ? "bg-gold text-cosmos-950 shadow-[0_0_16px_rgba(201,168,76,0.6)] ring-2 ring-gold/30"
+                        : "bg-white/10 text-parchment-400"
                     }`}>
                     {i < step ? "✓" : i + 1}
                   </div>
@@ -627,8 +627,8 @@ export default function NewReadingPage() {
                     )}
                   </div>
                 </div>
-                <span className={`text-[10px] sm:text-xs transition-colors duration-200 whitespace-nowrap
-                  ${i <= step ? "text-gold/80" : "text-white/25"}`}>
+                <span className={`text-xs sm:text-xs transition-colors duration-200 whitespace-nowrap
+                  ${i <= step ? "text-gold/80" : "text-parchment-400"}`}>
                   {label}
                 </span>
               </div>
@@ -642,7 +642,7 @@ export default function NewReadingPage() {
             <button
               type="button"
               onClick={handleClearProgress}
-              className="flex items-center gap-1.5 text-xs text-white/30 hover:text-red-400 transition-colors"
+              className="flex items-center gap-1.5 text-xs text-parchment-400 hover:text-red-400 transition-colors"
             >
               <Trash2 size={12} /> {t("new.clearProgress")}
             </button>
@@ -674,7 +674,7 @@ export default function NewReadingPage() {
               <FortuneGuide step={0} intent={currentIntent} />
               <div
               >
-                <div className="card-glass p-6 md:p-8 space-y-6">
+                <div className="card-solid p-6 md:p-8 space-y-6">
                   <h2 className="font-serif text-xl text-gold">{t("new.birthInfoTitle")}</h2>
 
               <div>
@@ -683,13 +683,13 @@ export default function NewReadingPage() {
                   {([["female", t("new.genderFemale")], ["male", t("new.genderMale")], ["other", t("new.genderOther")]] as [string,string][]).map(([v,l]) => (
                     <label key={v} className="flex-1 cursor-pointer">
                       <input type="radio" value={v} {...register("gender")} className="sr-only peer" />
- <div className="text-center py-2.5 rounded-xl border border-white/20 text-white/60 peer-checked:border-gold peer-checked:text-gold peer-checked:bg-gold/10 hover:border-white/40 transition-all text-sm">{l}</div>
+ <div className="text-center py-2.5 rounded-xl border border-white/20 text-parchment-400 peer-checked:border-gold peer-checked:text-gold peer-checked:bg-gold/10 hover:border-white/40 transition-all text-sm">{l}</div>
                     </label>
                   ))}
                 </div>
               </div>
 
-              <Suspense fallback={<div className="h-10 bg-white/5 rounded animate-pulse" />}>
+              <Suspense fallback={<div className="h-10 bg-white/[0.04] rounded animate-pulse" />}>
                 <DateSelector
                   year={watch("birth_year") || 0}
                   month={watch("birth_month") || 0}
@@ -706,7 +706,7 @@ export default function NewReadingPage() {
               )}
 
               {/* Shichen selector replaces hour input */}
-              <Suspense fallback={<div className="h-10 bg-white/5 rounded animate-pulse" />}>
+              <Suspense fallback={<div className="h-10 bg-white/[0.04] rounded animate-pulse" />}>
                 <ShichenSelector
                   value={watchedHour ?? 0}
                   onChange={(h) => setValue("birth_hour", h)}
@@ -714,7 +714,7 @@ export default function NewReadingPage() {
               </Suspense>
               {errors.birth_hour && <p className="text-red-400 text-xs mt-1">{t("new.hourRequired")}</p>}
 
-              <Suspense fallback={<div className="h-10 bg-white/5 rounded animate-pulse" />}>
+              <Suspense fallback={<div className="h-10 bg-white/[0.04] rounded animate-pulse" />}>
                 <LocationSelector
                   value={watch("birth_city") || ""}
                   onChange={(v) => setValue("birth_city", v)}
@@ -725,32 +725,32 @@ export default function NewReadingPage() {
 
               {/* Advanced: coordinates */}
               <details className="group">
-                <summary className="text-xs text-white/30 cursor-pointer hover:text-white/50 transition-colors select-none">
+                <summary className="text-xs text-parchment-400 cursor-pointer hover:text-parchment-400 transition-colors select-none">
                   {t("new.advancedSettings")}
                 </summary>
                 <div className="grid grid-cols-2 gap-3 mt-3">
                   <div>
                     <label className="label text-xs">{t("new.longitude")}</label>
                     <input {...register("longitude")} type="number" step="any" placeholder="116.4" className="input-field text-sm" />
-                    <p className="text-white/20 text-[10px] mt-1">{t("new.lngHint")}</p>
+                    <p className="text-parchment-400 text-xs mt-1">{t("new.lngHint")}</p>
                   </div>
                   <div>
                     <label className="label text-xs">{t("new.latitude")}</label>
                     <input {...register("latitude")} type="number" step="any" placeholder="39.9" className="input-field text-sm" />
-                    <p className="text-white/20 text-[10px] mt-1">{t("new.latHint")}</p>
+                    <p className="text-parchment-400 text-xs mt-1">{t("new.latHint")}</p>
                   </div>
                 </div>
               </details>
-            </div> {/* end card-glass */}
+            </div> {/* end card-solid */}
               </div>
             </div>
 
           {/* ── Step 1b: Partner Info (RELATIONSHIP only) ────── */}
           {currentIntent === "RELATIONSHIP" && (
             <div className={STEPS[step] !== t("new.stepPartner") ? 'hidden' : ''}>
-              <div className="card-glass p-6 md:p-8 space-y-6">
+              <div className="card-solid p-6 md:p-8 space-y-6">
                 <h2 className="font-serif text-xl text-gold">{t("new.partnerTitle")}</h2>
-                <p className="text-white/40 text-sm">{t("new.partnerDesc")}</p>
+                <p className="text-parchment-400 text-sm">{t("new.partnerDesc")}</p>
 
                 {/* Relationship type */}
                 <div>
@@ -764,7 +764,7 @@ export default function NewReadingPage() {
                     ].map(([v, l]) => (
                       <label key={v} className="cursor-pointer">
                         <input type="radio" value={v} {...register("relationship_type")} className="sr-only peer" />
-                        <div className="text-center py-2.5 rounded-xl border border-white/20 text-white/60 peer-checked:border-gold peer-checked:text-gold peer-checked:bg-gold/10 hover:border-white/40 transition-all text-sm">{l}</div>
+                        <div className="text-center py-2.5 rounded-xl border border-white/20 text-parchment-400 peer-checked:border-gold peer-checked:text-gold peer-checked:bg-gold/10 hover:border-white/40 transition-all text-sm">{l}</div>
                       </label>
                     ))}
                   </div>
@@ -783,7 +783,7 @@ export default function NewReadingPage() {
                     {([["female", t("new.genderFemale")], ["male", t("new.genderMale")], ["other", t("new.genderOther")]] as [string,string][]).map(([v,l]) => (
                       <label key={v} className="flex-1 cursor-pointer">
                         <input type="radio" value={v} {...register("partner_gender")} className="sr-only peer" />
-                        <div className="text-center py-2.5 rounded-xl border border-white/20 text-white/60 peer-checked:border-gold peer-checked:text-gold peer-checked:bg-gold/10 hover:border-white/40 transition-all text-sm">{l}</div>
+                        <div className="text-center py-2.5 rounded-xl border border-white/20 text-parchment-400 peer-checked:border-gold peer-checked:text-gold peer-checked:bg-gold/10 hover:border-white/40 transition-all text-sm">{l}</div>
                       </label>
                     ))}
                   </div>
@@ -792,7 +792,7 @@ export default function NewReadingPage() {
                 {/* Partner birth date */}
                 <div>
                   <label className="label">{t("new.partnerBirthDate")}</label>
-                  <Suspense fallback={<div className="h-10 bg-white/5 rounded animate-pulse" />}>
+                  <Suspense fallback={<div className="h-10 bg-white/[0.04] rounded animate-pulse" />}>
                     <DateSelector
                       year={watch("partner_birth_year") || 0}
                       month={watch("partner_birth_month") || 0}
@@ -809,7 +809,7 @@ export default function NewReadingPage() {
                 {/* Partner birth hour */}
                 <div>
                   <label className="label">{t("new.partnerBirthHour")}</label>
-                  <Suspense fallback={<div className="h-10 bg-white/5 rounded animate-pulse" />}>
+                  <Suspense fallback={<div className="h-10 bg-white/[0.04] rounded animate-pulse" />}>
                     <ShichenSelector
                       value={watch("partner_birth_hour") ?? 0}
                       onChange={(h) => setValue("partner_birth_hour", h)}
@@ -820,7 +820,7 @@ export default function NewReadingPage() {
                 {/* Partner birth city */}
                 <div>
                   <label className="label">{t("new.partnerBirthCity")}</label>
-                  <Suspense fallback={<div className="h-10 bg-white/5 rounded animate-pulse" />}>
+                  <Suspense fallback={<div className="h-10 bg-white/[0.04] rounded animate-pulse" />}>
                     <LocationSelector
                       value={watch("partner_birth_city") || ""}
                       onChange={(v) => setValue("partner_birth_city", v)}
@@ -834,9 +834,9 @@ export default function NewReadingPage() {
                   <div className="flex items-center gap-2 mb-1">
                     <Camera size={18} className="text-gold" />
                     <h3 className="font-serif text-lg text-gold">{t("new.partnerFaceTitle")}</h3>
-                    <span className="text-white/30 text-sm font-sans">{t("new.faceRecommended")}</span>
+                    <span className="text-parchment-400 text-sm font-sans">{t("new.faceRecommended")}</span>
                   </div>
-                  <p className="text-white/40 text-xs mb-4">{t("new.partnerFaceDesc")}</p>
+                  <p className="text-parchment-400 text-xs mb-4">{t("new.partnerFaceDesc")}</p>
 
                   {partnerFaceScan.isScanning && partnerFaceScan.preview ? (
                     <FaceScanAnimation
@@ -859,15 +859,15 @@ export default function NewReadingPage() {
                           {partnerFaceScan.v2TError && (
                             <div className="mt-2 space-y-1">
                               <p className="text-amber-400 text-xs">{t("new.faceScanFail")}</p>
-                              <p className="text-white/30 text-[10px]">{t("new.clickToRetry")}</p>
+                              <p className="text-parchment-400 text-xs">{t("new.clickToRetry")}</p>
                             </div>
                           )}
                         </div>
                       ) : (
                         <div>
-                          <Camera size={36} className="mx-auto text-white/20 group-hover:text-gold/50 mb-2 transition-colors" />
-                          <p className="text-white/40 text-sm">{t("new.partnerFaceClickUpload")}</p>
-                          <p className="text-white/20 text-xs mt-1">{t("new.faceAutoScan")}</p>
+                          <Camera size={36} className="mx-auto text-parchment-400 group-hover:text-gold/50 mb-2 transition-colors" />
+                          <p className="text-parchment-400 text-sm">{t("new.partnerFaceClickUpload")}</p>
+                          <p className="text-parchment-400 text-xs mt-1">{t("new.faceAutoScan")}</p>
                         </div>
                       )}
                     </div>
@@ -887,9 +887,9 @@ export default function NewReadingPage() {
                   <div className="flex items-center gap-2 mb-1">
                     <Hand size={18} className="text-gold" />
                     <h3 className="font-serif text-lg text-gold">{t("new.partnerPalmTitle")}</h3>
-                    <span className="text-white/30 text-sm font-sans">{t("new.faceRecommended")}</span>
+                    <span className="text-parchment-400 text-sm font-sans">{t("new.faceRecommended")}</span>
                   </div>
-                  <p className="text-white/40 text-xs mb-4">{t("new.partnerPalmDesc")}</p>
+                  <p className="text-parchment-400 text-xs mb-4">{t("new.partnerPalmDesc")}</p>
 
                   {partnerPalmScan.isScanning && partnerPalmScan.preview ? (
                     <FaceScanAnimation
@@ -912,15 +912,15 @@ export default function NewReadingPage() {
                           {partnerPalmScan.v2TError && (
                             <div className="mt-2 space-y-1">
                               <p className="text-amber-400 text-xs">{t("new.palmScanFail")}</p>
-                              <p className="text-white/30 text-[10px]">{t("new.clickToRetry")}</p>
+                              <p className="text-parchment-400 text-xs">{t("new.clickToRetry")}</p>
                             </div>
                           )}
                         </div>
                       ) : (
                         <div>
-                          <Hand size={36} className="mx-auto text-white/20 group-hover:text-gold/50 mb-2 transition-colors" />
-                          <p className="text-white/40 text-sm">{t("new.partnerPalmClickUpload")}</p>
-                          <p className="text-white/20 text-xs mt-1">{t("new.palmAutoScan")}</p>
+                          <Hand size={36} className="mx-auto text-parchment-400 group-hover:text-gold/50 mb-2 transition-colors" />
+                          <p className="text-parchment-400 text-sm">{t("new.partnerPalmClickUpload")}</p>
+                          <p className="text-parchment-400 text-xs mt-1">{t("new.palmAutoScan")}</p>
                         </div>
                       )}
                     </div>
@@ -943,11 +943,11 @@ export default function NewReadingPage() {
             <FortuneGuide step={1} intent={currentIntent} />
             <div
             >
-              <div className="card-glass p-6 md:p-8 space-y-6">
+              <div className="card-solid p-6 md:p-8 space-y-6">
                 <h2 className="font-serif text-xl text-gold">{t("new.taroTitle")}</h2>
 
               {/* Hot question templates */}
-              <Suspense fallback={<div className="h-8 bg-white/5 rounded animate-pulse" />}>
+              <Suspense fallback={<div className="h-8 bg-white/[0.04] rounded animate-pulse" />}>
                 <HotQuestions
                   value={watchedQuestion}
                   onChange={(q) => setValue("user_question", q)}
@@ -968,10 +968,10 @@ export default function NewReadingPage() {
                 <span className="text-gold/40 text-xs tracking-widest">{t("new.tarotSpread")}</span>
               </div>
 
-              <Suspense fallback={<div className="h-40 bg-white/5 rounded-xl animate-pulse" />}>
+              <Suspense fallback={<div className="h-40 bg-white/[0.04] rounded-xl animate-pulse" />}>
                 <TarotPicker onSelect={setTarotCards} />
               </Suspense>
-            </div> {/* end card-glass */}
+            </div> {/* end card-solid */}
               </div>
             </div>
 
@@ -980,15 +980,15 @@ export default function NewReadingPage() {
             <FortuneGuide step={2} intent={currentIntent} />
             <div
             >
-              <div className="card-glass p-6 md:p-8 space-y-8">
+              <div className="card-solid p-6 md:p-8 space-y-8">
                 {/* ── Face Photo ───────────────────────────── */}
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <Camera size={18} className="text-gold" />
                   <h2 className="font-serif text-xl text-gold">{t("new.faceScanTitle")}</h2>
-                  <span className="text-white/30 text-sm font-sans">{t("new.faceRecommended")}</span>
+                  <span className="text-parchment-400 text-sm font-sans">{t("new.faceRecommended")}</span>
                 </div>
-                <p className="text-white/40 text-xs mb-4">{t("new.faceDesc")}</p>
+                <p className="text-parchment-400 text-xs mb-4">{t("new.faceDesc")}</p>
 
                 {/* Pre-scan guide overlay */}
                 {showFaceGuide && faceScan.preview && !faceScan.isScanning && !faceScan.scanDone && (
@@ -1019,15 +1019,15 @@ export default function NewReadingPage() {
                         {faceScan.v2TError && (
                           <div className="mt-2 space-y-1">
                             <p className="text-amber-400 text-xs">{t("new.faceScanFail")}</p>
-                            <p className="text-white/30 text-[10px]">{t("new.clickToRetry")}</p>
+                            <p className="text-parchment-400 text-xs">{t("new.clickToRetry")}</p>
                           </div>
                         )}
                       </div>
                     ) : (
                       <div>
-                        <Camera size={36} className="mx-auto text-white/20 group-hover:text-gold/50 mb-2 transition-colors" />
-                        <p className="text-white/40 text-sm">{t("new.faceClickUpload")}</p>
-                        <p className="text-white/20 text-xs mt-1">{t("new.faceAutoScan")}</p>
+                        <Camera size={36} className="mx-auto text-parchment-400 group-hover:text-gold/50 mb-2 transition-colors" />
+                        <p className="text-parchment-400 text-sm">{t("new.faceClickUpload")}</p>
+                        <p className="text-parchment-400 text-xs mt-1">{t("new.faceAutoScan")}</p>
                       </div>
                     )}
                   </div>
@@ -1048,9 +1048,9 @@ export default function NewReadingPage() {
                 <div className="flex items-center gap-2 mb-1">
                   <Hand size={18} className="text-gold" />
                   <h2 className="font-serif text-xl text-gold">{t("new.palmScanTitle")}</h2>
-                  <span className="text-white/30 text-sm font-sans">{t("new.faceRecommended")}</span>
+                  <span className="text-parchment-400 text-sm font-sans">{t("new.faceRecommended")}</span>
                 </div>
-                <p className="text-white/40 text-xs mb-4">{t("new.palmDesc")}</p>
+                <p className="text-parchment-400 text-xs mb-4">{t("new.palmDesc")}</p>
 
                 {/* Pre-scan guide overlay */}
                 {showPalmGuide && palmScan.preview && !palmScan.isScanning && !palmScan.scanDone && (
@@ -1081,15 +1081,15 @@ export default function NewReadingPage() {
                         {palmScan.v2TError && (
                           <div className="mt-2 space-y-1">
                             <p className="text-amber-400 text-xs">{t("new.palmScanFail")}</p>
-                            <p className="text-white/30 text-[10px]">{t("new.clickToRetry")}</p>
+                            <p className="text-parchment-400 text-xs">{t("new.clickToRetry")}</p>
                           </div>
                         )}
                       </div>
                     ) : (
                       <div>
-                        <Hand size={36} className="mx-auto text-white/20 group-hover:text-gold/50 mb-2 transition-colors" />
-                        <p className="text-white/40 text-sm">{t("new.palmClickUpload")}</p>
-                        <p className="text-white/20 text-xs mt-1">{t("new.palmAutoScan")}</p>
+                        <Hand size={36} className="mx-auto text-parchment-400 group-hover:text-gold/50 mb-2 transition-colors" />
+                        <p className="text-parchment-400 text-sm">{t("new.palmClickUpload")}</p>
+                        <p className="text-parchment-400 text-xs mt-1">{t("new.palmAutoScan")}</p>
                       </div>
                     )}
                   </div>
@@ -1112,12 +1112,12 @@ export default function NewReadingPage() {
                   onClick={() => {
                     if (step < STEPS.length - 1) setStep(step + 1)
                   }}
-                  className="text-white/30 text-xs hover:text-white/50 transition-colors underline underline-offset-2"
+                  className="text-parchment-400 text-xs hover:text-parchment-400 transition-colors underline underline-offset-2"
                 >
                   {t("new.skipFacePalm")}
                 </button>
               </div>
-            </div> {/* end card-glass */}
+            </div> {/* end card-solid */}
               </div>
             </div>
 
@@ -1126,14 +1126,14 @@ export default function NewReadingPage() {
             <FortuneGuide step={3} intent={currentIntent} />
             <div
             >
-              <div className="card-glass p-6 md:p-8 text-center space-y-6">
+              <div className="card-solid p-6 md:p-8 text-center space-y-6">
               <div className="text-6xl animate-float">🔮</div>
               <h2 className="font-serif text-2xl text-gold">{t("new.confirmTitle")}</h2>
-              <p className="text-white/50 text-sm leading-relaxed">
+              <p className="text-parchment-400 text-sm leading-relaxed">
                 {t("new.confirmDesc1")}<br />
                 {t("new.confirmDesc2")} <span className="text-gold font-semibold">{t("new.confirmDesc3")}</span> {t("new.confirmDesc4")}
               </p>
-              <div className="card-glass p-4 text-left space-y-2">
+              <div className="card-solid p-4 text-left space-y-2">
                 {(() => {
                   // Show relevant analysis items based on intent
                   const items: [string, string][] = []
@@ -1154,7 +1154,7 @@ export default function NewReadingPage() {
                     items.push(["🌟", t("new.masterFull")])
                   }
                   return items.map(([icon, text]) => (
-                    <div key={text} className="flex items-center gap-2 text-sm text-white/70">
+                    <div key={text} className="flex items-center gap-2 text-sm text-parchment-300">
                       <span className="flex-shrink-0">{icon}</span> {text}
                     </div>
                   ))
@@ -1162,29 +1162,29 @@ export default function NewReadingPage() {
               </div>
 
               {/* ── Unlock Report Button ───────────────────────── */}
-              <div className="border-t border-white/10 pt-5">
+              <div className="border-t border-white/[0.06] pt-5">
                 <button type="submit" disabled={loading}
-                  className="w-full btn-gold py-3 text-sm">
+                  className="w-full btn-primary py-3 text-sm">
                   {loading
                     ? <span className="flex items-center justify-center gap-1"><Loader2 size={14} className="animate-spin" /> {t("new.starting")}</span>
                     : t("new.unlockFull")}
                 </button>
               </div>
-            </div> {/* end card-glass */}
+            </div> {/* end card-solid */}
               </div>
             </div>
           </div>
           <div className="flex justify-between mt-8">
             {step > 0 && (
               <button type="button" onClick={() => setStep(step - 1)}
- className="flex items-center gap-2 px-6 py-2.5 rounded-full border border-white/20 text-white/60 hover:border-white/40 transition-all">
+ className="flex items-center gap-2 px-6 py-2.5 rounded-full border border-white/20 text-parchment-400 hover:border-white/40 transition-all">
                 <ChevronLeft size={16} /> {t("new.prevStep")}
               </button>
             )}
 
             {step < STEPS.length - 1 && (
               <button type="button" onClick={() => setStep(step + 1)}
-                className="btn-gold flex items-center gap-2">
+                className="btn-primary flex items-center gap-2">
                 {t("new.nextStep")} <ChevronRight size={16} />
               </button>
             )}

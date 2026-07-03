@@ -67,7 +67,7 @@ export default function LifestyleShowcase() {
               {isZh ? "\u85cf\u5b9d\u9601\u5339\u914d\u9884\u89c8" : "Vault Match Preview"}
             </span>
           </h2>
-          <p className="text-white/30 text-sm max-w-lg mx-auto">
+          <p className="text-parchment-400 text-sm max-w-lg mx-auto">
             {isZh
               ? "\u5546\u54c1\u4fdd\u7559\uff0c\u4f46\u4e0d\u505a\u666e\u901a\u5546\u57ce\u3002\u89c2\u6211\u4f1a\u628a\u4f60\u7684\u753b\u50cf\u3001\u8d8b\u52bf\u548c\u6210\u957f\u8bfe\u9898\u8f6c\u6210\u66f4\u5177\u4f53\u7684\u751f\u6d3b\u65b9\u5f0f\u5339\u914d\u5efa\u8bae\u3002"
               : "The shop stays, but not as a generic storefront. Guanwo turns your profile, trend, and growth task into concrete lifestyle matches."}
@@ -127,7 +127,7 @@ export default function LifestyleShowcase() {
 
                   {/* Product info */}
                   <div className="px-5 pb-5 space-y-2">
-                    <h3 className="font-serif font-bold text-sm text-white/70 group-hover:text-[#C5A880] transition-colors line-clamp-2">
+                    <h3 className="font-serif font-bold text-sm text-parchment-300 group-hover:text-[#C5A880] transition-colors line-clamp-2">
                       {product.name}
                     </h3>
 
@@ -135,7 +135,7 @@ export default function LifestyleShowcase() {
                     {product.rating && (
                       <div className="flex items-center gap-1.5">
                         <Star size={11} className="text-[#C5A880]/60 fill-[#C5A880]/60" />
-                        <span className="text-[11px] text-[#C5A880]/60">{product.rating}</span>
+                        <span className="text-xs text-[#C5A880]/60">{product.rating}</span>
                       </div>
                     )}
 

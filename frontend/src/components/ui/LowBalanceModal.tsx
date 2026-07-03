@@ -41,11 +41,11 @@ export function LowBalanceModal({ open, onClose, required = 0, current = 0, isFo
 
       <div
         onClick={e => e.stopPropagation()}
-        className="relative w-full max-w-sm card-glass p-6 rounded-2xl anim-scale-in"
+        className="relative w-full max-w-sm card-solid p-6 rounded-2xl anim-scale-in"
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-white/30 hover:text-white/60"
+          className="absolute top-4 right-4 text-parchment-400 hover:text-parchment-400"
         >
           <X size={18} />
         </button>
@@ -65,10 +65,10 @@ export function LowBalanceModal({ open, onClose, required = 0, current = 0, isFo
           {isFounder ? t("lowBalance.titleFounder") : t("lowBalance.title")}
         </h3>
 
-        <p className="text-center text-white/50 text-sm mb-6 leading-relaxed">
+        <p className="text-center text-parchment-400 text-sm mb-6 leading-relaxed">
           {message}
           {required > 0 && (
-            <span className="block mt-2 text-white/30 text-xs">
+            <span className="block mt-2 text-parchment-400 text-xs">
               {t("lowBalance.need").replace("{required}", String(required)).replace("{current}", String(current))}
             </span>
           )}
@@ -83,7 +83,7 @@ export function LowBalanceModal({ open, onClose, required = 0, current = 0, isFo
             <Link
               href="/pricing"
               onClick={onClose}
-              className="w-full btn-gold flex items-center justify-center gap-2 text-sm"
+              className="w-full btn-primary flex items-center justify-center gap-2 text-sm"
             >
               {t("lowBalance.getMore")}
               <ArrowRight size={14} />
@@ -91,7 +91,7 @@ export function LowBalanceModal({ open, onClose, required = 0, current = 0, isFo
           )}
           <button
             onClick={onClose}
-            className="w-full py-2.5 text-white/40 text-sm hover:text-white/60 transition-colors"
+            className="w-full py-2.5 text-parchment-400 text-sm hover:text-parchment-400 transition-colors"
           >
             {isFounder ? t("lowBalance.retryLater") : t("lowBalance.later")}
           </button>

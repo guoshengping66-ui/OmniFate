@@ -158,8 +158,8 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
   if (loading) {
     return (
       <div className="space-y-3">
-        <div className="h-20 bg-white/5 rounded-xl animate-pulse" />
-        <div className="h-20 bg-white/5 rounded-xl animate-pulse" />
+        <div className="h-20 bg-white/[0.04] rounded-xl animate-pulse" />
+        <div className="h-20 bg-white/[0.04] rounded-xl animate-pulse" />
       </div>
     )
   }
@@ -173,7 +173,7 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
             <div
               key={addr.id}
               onClick={() => onSelect?.(addr)}
-              className={`card-glass p-4 cursor-pointer transition-all ${
+              className={`card-solid p-4 cursor-pointer transition-all ${
                 selectedId === addr.id
                   ? "border-gold/40 bg-gold/5"
                   : "hover:border-white/20"
@@ -182,15 +182,15 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
               <div className="flex items-start justify-between">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-white/80 text-sm font-medium">{addr.recipient_name}</span>
-                    <span className="text-white/40 text-xs">{addr.phone}</span>
+                    <span className="text-parchment-200 text-sm font-medium">{addr.recipient_name}</span>
+                    <span className="text-parchment-400 text-xs">{addr.phone}</span>
                     {addr.is_default && (
-                      <span className="text-[10px] px-1.5 py-0.5 bg-gold/10 text-gold rounded border border-gold/20">
+                      <span className="text-xs px-1.5 py-0.5 bg-gold/10 text-gold rounded border border-gold/20">
                         {t("address.default")}
                       </span>
                     )}
                   </div>
-                  <p className="text-white/50 text-xs truncate">
+                  <p className="text-parchment-400 text-xs truncate">
                     {(addr.country === "中国" || addr.country === "China")
                       ? `${addr.province} ${addr.city} ${addr.district} ${addr.address_line1}`
                       : `${addr.country} ${addr.address_line1}`
@@ -208,20 +208,20 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
                 {!addr.is_default && (
                   <button
                     onClick={() => handleSetDefault(addr.id)}
-                    className="text-[10px] text-white/30 hover:text-gold transition-colors"
+                    className="text-xs text-parchment-400 hover:text-gold transition-colors"
                   >
                     {t("address.setDefault")}
                   </button>
                 )}
                 <button
                   onClick={() => startEdit(addr)}
-                  className="text-[10px] text-white/30 hover:text-gold transition-colors"
+                  className="text-xs text-parchment-400 hover:text-gold transition-colors"
                 >
                   {t("common.edit")}
                 </button>
                 <button
                   onClick={() => handleDelete(addr.id)}
-                  className="text-[10px] text-white/30 hover:text-red-400 transition-colors"
+                  className="text-xs text-parchment-400 hover:text-red-400 transition-colors"
                 >
                   {t("common.delete")}
                 </button>
@@ -235,29 +235,29 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
       {!showForm ? (
         <button
           onClick={() => { resetForm(); setShowForm(true) }}
-          className="w-full p-3 rounded-xl border border-dashed border-white/15 text-white/30 text-sm hover:border-gold/30 hover:text-gold/60 transition-all flex items-center justify-center gap-2"
+          className="w-full p-3 rounded-xl border border-dashed border-white/15 text-parchment-400 text-sm hover:border-gold/30 hover:text-gold/60 transition-all flex items-center justify-center gap-2"
         >
           <MapPin size={14} />
           {addresses.length > 0 ? t("address.addNew") : t("address.addFirst")}
         </button>
       ) : (
-        <div className="card-glass p-4 space-y-3">
+        <div className="card-solid p-4 space-y-3">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-white/70 text-sm font-medium">
+            <span className="text-parchment-300 text-sm font-medium">
               {editingId ? t("address.edit") : t("address.new")}
             </span>
-            <button onClick={() => { setShowForm(false); resetForm() }} className="text-white/30 hover:text-white/60">
+            <button onClick={() => { setShowForm(false); resetForm() }} className="text-parchment-400 hover:text-parchment-400">
               <X size={16} />
             </button>
           </div>
 
           {/* Country selector */}
           <div>
-            <label className="text-white/40 text-[10px] mb-1 block">{t("address.country")}</label>
+            <label className="text-parchment-400 text-xs mb-1 block">{t("address.country")}</label>
             <select
               value={country}
               onChange={e => setCountry(e.target.value)}
-              className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white/80 focus:border-gold/30 focus:outline-none"
+              className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-parchment-200 focus:border-gold/30 focus:outline-none"
             >
               <option value="中国" className="bg-[#0f0f1a] text-white">{CHINA_LABEL}</option>
               <option value="US" className="bg-[#0f0f1a] text-white">United States</option>
@@ -277,35 +277,35 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
           {isChina && (
             <div className="grid grid-cols-3 gap-2">
               <div>
-                <label className="text-white/40 text-[10px] mb-1 block">{t("address.province")}</label>
+                <label className="text-parchment-400 text-xs mb-1 block">{t("address.province")}</label>
                 <select
                   value={province}
                   onChange={e => setProvince(e.target.value)}
-                  className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-2 py-2 text-xs text-white/80 focus:border-gold/30 focus:outline-none"
+                  className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-2 py-2 text-xs text-parchment-200 focus:border-gold/30 focus:outline-none"
                 >
                   <option value="" className="bg-[#0f0f1a] text-white">{t("address.select")}</option>
                   {provinces.map(p => <option key={p} value={p} className="bg-[#0f0f1a] text-white">{p}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-white/40 text-[10px] mb-1 block">{t("address.city")}</label>
+                <label className="text-parchment-400 text-xs mb-1 block">{t("address.city")}</label>
                 <select
                   value={city}
                   onChange={e => setCity(e.target.value)}
                   disabled={!province}
-                  className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-2 py-2 text-xs text-white/80 focus:border-gold/30 focus:outline-none disabled:opacity-30"
+                  className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-2 py-2 text-xs text-parchment-200 focus:border-gold/30 focus:outline-none disabled:opacity-30"
                 >
                   <option value="" className="bg-[#0f0f1a] text-white">{t("address.select")}</option>
                   {cities.map(c => <option key={c} value={c} className="bg-[#0f0f1a] text-white">{c}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-white/40 text-[10px] mb-1 block">{t("address.district")}</label>
+                <label className="text-parchment-400 text-xs mb-1 block">{t("address.district")}</label>
                 <select
                   value={district}
                   onChange={e => setDistrict(e.target.value)}
                   disabled={!city}
-                  className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-2 py-2 text-xs text-white/80 focus:border-gold/30 focus:outline-none disabled:opacity-30"
+                  className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-2 py-2 text-xs text-parchment-200 focus:border-gold/30 focus:outline-none disabled:opacity-30"
                 >
                   <option value="" className="bg-[#0f0f1a] text-white">{t("address.select")}</option>
                   {districts.map(d => <option key={d.name} value={d.name} className="bg-[#0f0f1a] text-white">{d.name}</option>)}
@@ -317,20 +317,20 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
           {/* Name + Phone */}
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-white/40 text-[10px] mb-1 block">{t("address.name")}</label>
+              <label className="text-parchment-400 text-xs mb-1 block">{t("address.name")}</label>
               <input
                 value={recipientName}
                 onChange={e => setRecipientName(e.target.value)}
-                className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white/80 placeholder-white/20 focus:border-gold/30 focus:outline-none"
+                className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-parchment-200 placeholder-white/20 focus:border-gold/30 focus:outline-none"
                 placeholder={t("address.namePlaceholder")}
               />
             </div>
             <div>
-              <label className="text-white/40 text-[10px] mb-1 block">{t("address.phone")}</label>
+              <label className="text-parchment-400 text-xs mb-1 block">{t("address.phone")}</label>
               <input
                 value={phone}
                 onChange={e => setPhone(e.target.value)}
-                className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white/80 placeholder-white/20 focus:border-gold/30 focus:outline-none"
+                className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-parchment-200 placeholder-white/20 focus:border-gold/30 focus:outline-none"
                 placeholder={t("address.phonePlaceholder")}
               />
             </div>
@@ -338,11 +338,11 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
 
           {/* Address line 1 */}
           <div>
-            <label className="text-white/40 text-[10px] mb-1 block">{t("address.detail")}</label>
+            <label className="text-parchment-400 text-xs mb-1 block">{t("address.detail")}</label>
             <input
               value={addressLine1}
               onChange={e => setAddressLine1(e.target.value)}
-              className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white/80 placeholder-white/20 focus:border-gold/30 focus:outline-none"
+              className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-parchment-200 placeholder-white/20 focus:border-gold/30 focus:outline-none"
               placeholder={t("address.detailPlaceholder")}
             />
           </div>
@@ -350,20 +350,20 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
           {/* Address line 2 + Postal code */}
           <div className="grid grid-cols-3 gap-2">
             <div className="col-span-2">
-              <label className="text-white/40 text-[10px] mb-1 block">{t("address.detail2")}</label>
+              <label className="text-parchment-400 text-xs mb-1 block">{t("address.detail2")}</label>
               <input
                 value={addressLine2}
                 onChange={e => setAddressLine2(e.target.value)}
-                className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white/80 placeholder-white/20 focus:border-gold/30 focus:outline-none"
+                className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-parchment-200 placeholder-white/20 focus:border-gold/30 focus:outline-none"
                 placeholder={t("address.detail2Placeholder")}
               />
             </div>
             <div>
-              <label className="text-white/40 text-[10px] mb-1 block">{t("address.postalCode")}</label>
+              <label className="text-parchment-400 text-xs mb-1 block">{t("address.postalCode")}</label>
               <input
                 value={postalCode}
                 onChange={e => setPostalCode(e.target.value)}
-                className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white/80 placeholder-white/20 focus:border-gold/30 focus:outline-none"
+                className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg px-3 py-2 text-sm text-parchment-200 placeholder-white/20 focus:border-gold/30 focus:outline-none"
                 placeholder="100000"
               />
             </div>
@@ -377,14 +377,14 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
               onChange={e => setIsDefault(e.target.checked)}
               className="accent-gold w-3.5 h-3.5"
             />
-            <span className="text-white/50 text-xs">{t("address.setDefault")}</span>
+            <span className="text-parchment-400 text-xs">{t("address.setDefault")}</span>
           </label>
 
           {/* Save button */}
           <button
             onClick={handleSave}
             disabled={saving}
-            className="btn-gold w-full py-2.5 flex items-center justify-center gap-2 text-sm"
+            className="btn-primary w-full py-2.5 flex items-center justify-center gap-2 text-sm"
           >
             {saving ? (
               <><Loader2 size={14} className="animate-spin" /> {t("common.loading")}</>

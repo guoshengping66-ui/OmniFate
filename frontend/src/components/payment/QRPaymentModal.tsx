@@ -87,16 +87,16 @@ export function QRPaymentModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 anim-fade-in">
-      <div className="card-glass p-6 max-w-md w-full relative anim-scale-in">
-        <button onClick={onClose} className="absolute top-4 right-4 text-white/30 hover:text-white/60">
+      <div className="card-solid p-6 max-w-md w-full relative anim-scale-in">
+        <button onClick={onClose} className="absolute top-4 right-4 text-parchment-400 hover:text-parchment-400">
           <X size={20} />
         </button>
 
         <h3 className="text-xl font-serif font-bold text-gold mb-2">Stripe Checkout</h3>
-        <p className="text-white/40 text-sm mb-6">{tierLabel}</p>
+        <p className="text-parchment-400 text-sm mb-6">{tierLabel}</p>
 
-        <div className="bg-white/5 rounded-xl p-4 text-center mb-6">
-          <p className="text-white/40 text-xs mb-1">{t("payment.amount")}</p>
+        <div className="bg-white/[0.04] rounded-xl p-4 text-center mb-6">
+          <p className="text-parchment-400 text-xs mb-1">{t("payment.amount")}</p>
           <p className="text-3xl font-bold text-gold">{currencySymbol}{displayAmount}</p>
         </div>
 
@@ -105,7 +105,7 @@ export function QRPaymentModal({
             <CreditCard size={18} />
             <span>Credit or debit card</span>
           </div>
-          <p className="text-white/40 text-xs mt-1">Secure checkout powered by Stripe.</p>
+          <p className="text-parchment-400 text-xs mt-1">Secure checkout powered by Stripe.</p>
         </div>
 
         {error && (
@@ -115,7 +115,7 @@ export function QRPaymentModal({
           </div>
         )}
 
-        <button onClick={handleStripeCheckout} disabled={loading} className="btn-gold w-full py-3 flex items-center justify-center gap-2 disabled:opacity-40">
+        <button onClick={handleStripeCheckout} disabled={loading} className="btn-primary w-full py-3 flex items-center justify-center gap-2 disabled:opacity-40">
           {loading ? <><Loader2 size={18} className="animate-spin" /> Redirecting...</> : <>Continue to Stripe</>}
         </button>
       </div>

@@ -155,7 +155,7 @@ export default function EnergyBridge() {
         >
           <div className="inline-flex items-center gap-3">
             <div className="w-8 h-[1px] bg-gradient-to-r from-transparent to-[#D4AF37]/30" />
-            <span className="text-[#C5A880]/50 text-[11px] sm:text-xs tracking-[0.2em] uppercase font-medium">
+            <span className="text-[#C5A880]/50 text-xs sm:text-xs tracking-[0.2em] uppercase font-medium">
               {locale === "zh" ? "AI 正在构建你的命运星图" : "AI Is Constructing Your Star Chart"}
             </span>
             <div className="w-8 h-[1px] bg-gradient-to-l from-transparent to-[#D4AF37]/30" />

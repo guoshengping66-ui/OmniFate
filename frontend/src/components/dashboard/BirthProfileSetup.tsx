@@ -47,11 +47,11 @@ export function BirthProfileSetup() {
   }
 
   return (
-    <div className="card-glass p-6 anim-slide-up">
+    <div className="card-solid p-6 anim-slide-up">
       <div className="text-center mb-5">
         <Sparkles size={24} className="text-gold mx-auto mb-2" />
         <h2 className="font-serif text-lg text-gold">{t("profile.setupTitle")}</h2>
-        <p className="text-white/40 text-sm mt-1">{t("profile.setupDesc")}</p>
+        <p className="text-parchment-400 text-sm mt-1">{t("profile.setupDesc")}</p>
       </div>
 
       <div className="space-y-4">
@@ -62,7 +62,7 @@ export function BirthProfileSetup() {
               <label key={v} className="flex-1 cursor-pointer">
                 <input type="radio" value={v} checked={gender === v}
                   onChange={() => setGender(v as any)} className="sr-only peer" />
-                <div className="text-center py-2 rounded-xl border border-white/20 text-white/60 peer-checked:border-gold peer-checked:text-gold peer-checked:bg-gold/10 hover:border-white/40 transition-all text-sm">{l}</div>
+                <div className="text-center py-2 rounded-xl border border-white/20 text-parchment-400 peer-checked:border-gold peer-checked:text-gold peer-checked:bg-gold/10 hover:border-white/40 transition-all text-sm">{l}</div>
               </label>
             ))}
           </div>
@@ -93,7 +93,7 @@ export function BirthProfileSetup() {
         <button
           onClick={handleSubmit}
           disabled={loading || !hasData}
-          className="btn-gold w-full flex items-center justify-center gap-2 py-3 disabled:opacity-40"
+          className="btn-primary w-full flex items-center justify-center gap-2 py-3 disabled:opacity-40"
         >
           {loading ? (
             <><Loader2 size={16} className="animate-spin" /> {t("profile.saving")}</>
@@ -102,7 +102,7 @@ export function BirthProfileSetup() {
           )}
         </button>
 
-        <p className="text-white/25 text-[10px] text-center">
+        <p className="text-parchment-400 text-xs text-center">
           {t("profile.privacy")}
         </p>
       </div>

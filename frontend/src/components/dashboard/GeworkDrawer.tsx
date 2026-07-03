@@ -135,7 +135,7 @@ export function GeworkDrawer({ open, onClose }: Props) {
       if (block.startsWith("### ")) {
         return <h3 key={i} className="text-gold text-sm font-serif font-bold mt-4 mb-2">{block.slice(4)}</h3>
       }
-      return <p key={i} className="text-white/60 text-sm leading-relaxed whitespace-pre-line">{block}</p>
+      return <p key={i} className="text-parchment-400 text-sm leading-relaxed whitespace-pre-line">{block}</p>
     })
   }
 
@@ -148,7 +148,7 @@ export function GeworkDrawer({ open, onClose }: Props) {
         onClick={handleClose}
       />
 
-      <div className="fixed right-0 top-0 h-full w-full max-w-md bg-ink-light/95 backdrop-blur-xl border-l border-white/10 z-50 shadow-2xl anim-slide-in-right">
+      <div className="fixed right-0 top-0 h-full w-full max-w-md bg-cosmos-950-light/95 backdrop-blur-xl border-l border-white/[0.06] z-50 shadow-2xl anim-slide-in-right">
         <div className="h-full flex flex-col p-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
@@ -157,12 +157,12 @@ export function GeworkDrawer({ open, onClose }: Props) {
               </div>
               <div>
                 <h2 className="font-serif text-xl text-gold">{t("gework.title")}</h2>
-                <p className="text-white/30 text-xs">{t("gework.subtitle")}</p>
+                <p className="text-parchment-400 text-xs">{t("gework.subtitle")}</p>
               </div>
             </div>
             <button
               onClick={handleClose}
-              className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/40 hover:text-white/70 hover:bg-white/10 transition-all"
+              className="w-8 h-8 rounded-full bg-white/[0.04] flex items-center justify-center text-parchment-400 hover:text-parchment-300 hover:bg-white/10 transition-all"
             >
               <X size={16} />
             </button>
@@ -172,8 +172,8 @@ export function GeworkDrawer({ open, onClose }: Props) {
             {/* INPUT PHASE */}
             {phase === "input" && (
               <div className="flex-1 flex flex-col min-h-0 anim-fade-in">
-                <div className="bg-white/[0.03] border border-white/10 rounded-xl p-4 mb-4">
-                  <p className="text-white/50 text-sm leading-relaxed">{t("gework.desc")}</p>
+                <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-4 mb-4">
+                  <p className="text-parchment-400 text-sm leading-relaxed">{t("gework.desc")}</p>
                 </div>
 
                 {error && (
@@ -188,49 +188,49 @@ export function GeworkDrawer({ open, onClose }: Props) {
                   rows={6}
                   maxLength={500}
                   placeholder={t("gework.placeholder")}
-                  className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3 text-white/80 text-sm placeholder-white/20 focus:border-gold/40 focus:outline-none focus:ring-1 focus:ring-gold/20 resize-none transition-all flex-1 min-h-[120px]"
+                  className="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3 text-parchment-200 text-sm placeholder-white/20 focus:border-gold/40 focus:outline-none focus:ring-1 focus:ring-gold/20 resize-none transition-all flex-1 min-h-[120px]"
                 />
-                <p className="text-white/20 text-xs mt-2 text-right">{eventText.length}/500</p>
+                <p className="text-parchment-400 text-xs mt-2 text-right">{eventText.length}/500</p>
 
                 <button
                   type="button"
                   onClick={() => setShowAdvanced(!showAdvanced)}
-                  className="flex items-center gap-2 text-xs text-white/30 hover:text-white/50 transition-colors mt-3 select-none"
+                  className="flex items-center gap-2 text-xs text-parchment-400 hover:text-parchment-400 transition-colors mt-3 select-none"
                 >
                   <ChevronDown size={14} className={`transition-transform duration-200 ${showAdvanced ? "rotate-180" : ""}`} />
                   🛠️ {t("gework.expandAdvanced")}
                 </button>
 
                 {showAdvanced && (
-                  <div className="bg-white/[0.02] border border-white/10 rounded-xl p-4 mt-3 space-y-4 anim-slide-up">
+                  <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-4 mt-3 space-y-4 anim-slide-up">
                     <div>
-                      <label className="flex items-center gap-1.5 text-xs text-white/40 mb-1.5">
+                      <label className="flex items-center gap-1.5 text-xs text-parchment-400 mb-1.5">
                         <Calendar size={12} /> {t("gework.eventDate")}
                       </label>
                       <input
                         type="date"
                         value={eventDate}
                         onChange={(e) => setEventDate(e.target.value)}
-                        className="w-full bg-white/[0.03] border border-white/10 rounded-lg px-3 py-2 text-white/70 text-sm focus:border-gold/40 focus:outline-none transition-all"
+                        className="w-full bg-white/[0.03] border border-white/[0.06] rounded-lg px-3 py-2 text-parchment-300 text-sm focus:border-gold/40 focus:outline-none transition-all"
                       />
-                      <p className="text-white/20 text-[10px] mt-1">{t("gework.eventDateHint")}</p>
+                      <p className="text-parchment-400 text-xs mt-1">{t("gework.eventDateHint")}</p>
                     </div>
 
                     <div>
-                      <label className="flex items-center gap-1.5 text-xs text-white/40 mb-1.5">
+                      <label className="flex items-center gap-1.5 text-xs text-parchment-400 mb-1.5">
                         <Clock size={12} /> {t("gework.eventTime")}
                       </label>
                       <input
                         type="time"
                         value={eventTime}
                         onChange={(e) => setEventTime(e.target.value)}
-                        className="w-full bg-white/[0.03] border border-white/10 rounded-lg px-3 py-2 text-white/70 text-sm focus:border-gold/40 focus:outline-none transition-all"
+                        className="w-full bg-white/[0.03] border border-white/[0.06] rounded-lg px-3 py-2 text-parchment-300 text-sm focus:border-gold/40 focus:outline-none transition-all"
                       />
-                      <p className="text-white/20 text-[10px] mt-1">{t("gework.eventTimeHint")}</p>
+                      <p className="text-parchment-400 text-xs mt-1">{t("gework.eventTimeHint")}</p>
                     </div>
 
                     <div>
-                      <label className="flex items-center gap-1.5 text-xs text-white/40 mb-1.5">
+                      <label className="flex items-center gap-1.5 text-xs text-parchment-400 mb-1.5">
                         <Smile size={12} /> {t("gework.emotion")}
                       </label>
                       <div className="flex items-center gap-3">
@@ -241,7 +241,7 @@ export function GeworkDrawer({ open, onClose }: Props) {
                           onChange={(e) => setEmotionScore(Number(e.target.value))}
                           className="flex-1 accent-gold h-1"
                         />
-                        <span className="text-xs text-white/50 min-w-[90px] text-right">
+                        <span className="text-xs text-parchment-400 min-w-[90px] text-right">
                           {emotionScore} · {EMOTION_LABELS[emotionScore]}
                         </span>
                       </div>
@@ -265,7 +265,7 @@ export function GeworkDrawer({ open, onClose }: Props) {
                   {t(LOADING_KEYS[tipIndex])}
                 </p>
 
-                <p className="text-white/20 text-xs">{t("gework.eta")}</p>
+                <p className="text-parchment-400 text-xs">{t("gework.eta")}</p>
               </div>
             )}
 
@@ -278,7 +278,7 @@ export function GeworkDrawer({ open, onClose }: Props) {
                   </h3>
                   <button
                     onClick={handleReset}
-                    className="flex items-center gap-1 text-xs text-white/30 hover:text-white/50 transition-colors"
+                    className="flex items-center gap-1 text-xs text-parchment-400 hover:text-parchment-400 transition-colors"
                   >
                     <RotateCcw size={12} /> {t("gework.retry")}
                   </button>
@@ -296,12 +296,12 @@ export function GeworkDrawer({ open, onClose }: Props) {
               <button
                 onClick={handleSubmit}
                 disabled={!eventText.trim() || eventText.length > 500}
-                className="btn-gold w-full flex items-center justify-center gap-2 py-3 mt-4 disabled:opacity-40"
+                className="btn-primary w-full flex items-center justify-center gap-2 py-3 mt-4 disabled:opacity-40"
               >
                 <Send size={16} />
                 {t("gework.submitBtn")}
               </button>
-              <p className="text-white/20 text-[10px] text-center mt-3">
+              <p className="text-parchment-400 text-xs text-center mt-3">
                 {t("gework.submitHint")}
               </p>
             </>
@@ -311,13 +311,13 @@ export function GeworkDrawer({ open, onClose }: Props) {
             <div className="flex gap-3 mt-4">
               <button
                 onClick={handleReset}
-                className="flex-1 py-3 rounded-full border border-white/20 text-white/60 text-sm hover:border-white/40 transition-all"
+                className="flex-1 py-3 rounded-full border border-white/20 text-parchment-400 text-sm hover:border-white/40 transition-all"
               >
                 {t("gework.retryBtn")}
               </button>
               <button
                 onClick={handleClose}
-                className="flex-1 btn-gold py-3 text-sm"
+                className="flex-1 btn-primary py-3 text-sm"
               >
                 {t("gework.close")}
               </button>

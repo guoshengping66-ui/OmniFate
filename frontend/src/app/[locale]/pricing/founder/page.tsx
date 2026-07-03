@@ -161,24 +161,24 @@ export default function FounderPage() {
           </div>
           <h1 className="text-4xl font-serif font-bold mb-3">
             <span className="text-gold">{t("founder.pricing.title")}</span>
-            <span className="text-white/80 ml-2">{t("founder.pricing.subtitle")}</span>
+            <span className="text-parchment-200 ml-2">{t("founder.pricing.subtitle")}</span>
           </h1>
-          <p className="text-white/50 max-w-md mx-auto">
+          <p className="text-parchment-400 max-w-md mx-auto">
             {t("founder.pricing.desc")}
           </p>
         </div>
 
         {/* Founder status */}
         {isFounder && seatNo && (
-          <div className="card-glass p-6 mb-8 border-gold/30">
+          <div className="card-solid p-6 mb-8 border-gold/30">
             <div className="flex items-center justify-center gap-4">
               <Crown size={24} className="text-gold" />
               <div>
                 <p className="text-gold font-serif text-lg">{t("founder.pricing.yourSeat")}</p>
-                <p className="text-white/50 text-sm">
+                <p className="text-parchment-400 text-sm">
                   {t("founder.pricing.seatNo")}<span className="text-gold font-mono font-bold">#{String(seatNo).padStart(3, "0")}</span>
                   {status?.seat_region && (
-                    <span className="ml-2 text-white/30">
+                    <span className="ml-2 text-parchment-400">
                       ({status.seat_region === "domestic" ? t("founder.pricing.domestic") : t("founder.pricing.overseas")})
                     </span>
                   )}
@@ -191,28 +191,28 @@ export default function FounderPage() {
         {/* Pricing card */}
         <div className="grid md:grid-cols-2 gap-8 mb-10">
           {/* Benefits */}
-          <div className="card-glass p-6">
+          <div className="card-solid p-6">
             <h2 className="font-serif text-xl text-gold mb-6">{t("founder.pricing.benefits")}</h2>
             <div className="space-y-4">
               {founderTier?.features.map((feature, i) => (
                 <div key={i} className="flex items-start gap-3">
                   <Check size={18} className="text-gold mt-0.5 flex-shrink-0" />
-                  <span className="text-white/70 text-sm">{feature}</span>
+                  <span className="text-parchment-300 text-sm">{feature}</span>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Purchase */}
-          <div className="card-glass p-6 border-gold/20">
+          <div className="card-solid p-6 border-gold/20">
             <div className="text-center mb-6">
               <p className="text-5xl font-bold text-gold mb-2">{isOverseas ? founderTier.priceDisplayUsd : founderTier.priceDisplay}</p>
-              <p className="text-white/40 text-sm">{t("founder.pricing.oneTime")}</p>
+              <p className="text-parchment-400 text-sm">{t("founder.pricing.oneTime")}</p>
               {status && (
                 <div className="mt-4">
                   <div className="flex items-center justify-center gap-2 mb-2">
-                    <Users size={16} className="text-white/50" />
-                    <span className="text-white/50 text-sm">
+                    <Users size={16} className="text-parchment-400" />
+                    <span className="text-parchment-400 text-sm">
                       {t("founder.pricing.sold").replace("{sold}", String(status.sold_seats)).replace("{total}", String(status.total_seats))}
                     </span>
                   </div>
@@ -223,12 +223,12 @@ export default function FounderPage() {
                     />
                   </div>
 
-                  <div className="flex justify-between mt-3 text-[11px]">
-                    <span className="text-white/30">
+                  <div className="flex justify-between mt-3 text-xs">
+                    <span className="text-parchment-400">
                       <MapPin size={10} className="inline mr-0.5" />
                       {t("founder.pricing.domestic")} {status.domestic_sold}/{status.domestic_total}
                     </span>
-                    <span className="text-white/30">
+                    <span className="text-parchment-400">
                       <MapPin size={10} className="inline mr-0.5" />
                       {t("founder.pricing.overseas")} {status.overseas_sold}/{status.overseas_total}
                     </span>
@@ -243,13 +243,13 @@ export default function FounderPage() {
 
             {isFounder ? (
               <div className="text-center py-4">
-                <p className="text-white/50 text-sm">{t("founder.pricing.youOwn")}</p>
+                <p className="text-parchment-400 text-sm">{t("founder.pricing.youOwn")}</p>
               </div>
             ) : (
               <button
                 onClick={handleActivate}
                 disabled={activating || (status?.remaining_seats ?? 0) <= 0}
-                className="w-full btn-gold flex items-center justify-center gap-2"
+                className="w-full btn-primary flex items-center justify-center gap-2"
               >
                 {activating ? (
                   <Loader2 size={16} className="animate-spin" />
@@ -263,9 +263,9 @@ export default function FounderPage() {
 
         {/* Seat Wall */}
         {seats.length > 0 && (
-          <div className="card-glass p-6 mt-8">
+          <div className="card-solid p-6 mt-8">
             <h2 className="font-serif text-xl text-gold mb-2">{t("founder.pricing.seatWall")}</h2>
-            <p className="text-white/40 text-sm mb-6">
+            <p className="text-parchment-400 text-sm mb-6">
               {t("founder.pricing.seatWallDesc")}
             </p>
 
@@ -273,7 +273,7 @@ export default function FounderPage() {
             <div className="mb-6">
               <div className="flex items-center gap-2 mb-3">
                 <MapPin size={14} className="text-gold/60" />
-                <span className="text-white/50 text-xs tracking-wider uppercase">{t("founder.pricing.domesticSeats")}</span>
+                <span className="text-parchment-400 text-xs tracking-wider uppercase">{t("founder.pricing.domesticSeats")}</span>
                 <div className="flex-1 h-px bg-white/10" />
               </div>
               <div className="grid grid-cols-5 sm:grid-cols-10 gap-2">
@@ -290,8 +290,8 @@ export default function FounderPage() {
                         ${isUserSeat
                           ? "bg-gold/20 border-2 border-gold text-gold font-bold shadow-[0_0_12px_rgba(201,168,76,0.3)]"
                           : isOccupied
-                            ? "bg-white/5 border border-white/10 text-white/40"
-                            : "bg-transparent border border-white/[0.03] text-white/10"
+                            ? "bg-white/[0.04] border border-white/[0.06] text-parchment-400"
+                            : "bg-transparent border border-white/[0.03] text-parchment-400"
                         }
                       `}
                       title={seat ? `${seat.name} · #${String(seat.seat_no).padStart(3, "0")}` : `#${String(no).padStart(3, "0")}`}
@@ -313,7 +313,7 @@ export default function FounderPage() {
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <MapPin size={14} className="text-gold/60" />
-                <span className="text-white/50 text-xs tracking-wider uppercase">{t("founder.pricing.overseasSeats")}</span>
+                <span className="text-parchment-400 text-xs tracking-wider uppercase">{t("founder.pricing.overseasSeats")}</span>
                 <div className="flex-1 h-px bg-white/10" />
               </div>
               <div className="grid grid-cols-5 sm:grid-cols-10 gap-2">
@@ -330,8 +330,8 @@ export default function FounderPage() {
                         ${isUserSeat
                           ? "bg-gold/20 border-2 border-gold text-gold font-bold shadow-[0_0_12px_rgba(201,168,76,0.3)]"
                           : isOccupied
-                            ? "bg-white/5 border border-white/10 text-white/40"
-                            : "bg-transparent border border-white/[0.03] text-white/10"
+                            ? "bg-white/[0.04] border border-white/[0.06] text-parchment-400"
+                            : "bg-transparent border border-white/[0.03] text-parchment-400"
                         }
                       `}
                       title={seat ? `${seat.name} · #${String(seat.seat_no).padStart(3, "0")}` : `#${String(no).padStart(3, "0")}`}
@@ -350,7 +350,7 @@ export default function FounderPage() {
             </div>
 
             {/* Legend */}
-            <div className="flex items-center justify-center gap-6 mt-4 text-[10px] text-white/30">
+            <div className="flex items-center justify-center gap-6 mt-4 text-xs text-parchment-400">
               <span className="flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-gold/60" /> {t("founder.pricing.occupied")}
               </span>
@@ -368,9 +368,9 @@ export default function FounderPage() {
 
         {/* Founder voting */}
         {isFounder && (
-          <div className="card-glass p-6 mt-8">
+          <div className="card-solid p-6 mt-8">
             <h2 className="font-serif text-xl text-gold mb-4">{t("founder.pricing.roadmapVote")}</h2>
-            <p className="text-white/40 text-sm mb-6">
+            <p className="text-parchment-400 text-sm mb-6">
               {t("founder.pricing.roadmapVoteDesc")}
             </p>
             <div className="grid sm:grid-cols-2 gap-4">
@@ -384,10 +384,10 @@ export default function FounderPage() {
                   key={feature.id}
                   onClick={() => handleVote(feature.id)}
                   disabled={voting && selectedFeature === feature.id}
-                  className="text-left p-4 rounded-xl border border-white/10 hover:border-gold/40 transition-all hover:bg-white/5"
+                  className="text-left p-4 rounded-xl border border-white/[0.06] hover:border-gold/40 transition-all hover:bg-white/[0.04]"
                 >
                   <p className="text-white font-medium text-sm">{t(feature.labelKey)}</p>
-                  <p className="text-white/40 text-xs mt-1">{t(feature.descKey)}</p>
+                  <p className="text-parchment-400 text-xs mt-1">{t(feature.descKey)}</p>
                   {voting && selectedFeature === feature.id && (
                     <Loader2 size={14} className="text-gold animate-spin mt-2" />
                   )}
@@ -399,12 +399,12 @@ export default function FounderPage() {
 
         {/* Founder feedback */}
         {isFounder && (
-          <div className="card-glass p-6 mt-8">
+          <div className="card-solid p-6 mt-8">
             <div className="flex items-center gap-2 mb-2">
               <MessageSquare size={18} className="text-gold" />
               <h2 className="font-serif text-xl text-gold">{t("founder.pricing.feedbackTitle")}</h2>
             </div>
-            <p className="text-white/40 text-sm mb-4">
+            <p className="text-parchment-400 text-sm mb-4">
               {t("founder.pricing.feedbackDesc")}
             </p>
             <textarea
@@ -412,12 +412,12 @@ export default function FounderPage() {
               onChange={(e) => setFeedbackText(e.target.value)}
               placeholder={t("founder.pricing.feedbackPlaceholder")}
               rows={4}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white/80 text-sm placeholder:text-white/20 focus:outline-none focus:border-gold/40 resize-none"
+              className="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-3 text-parchment-200 text-sm placeholder:text-parchment-400 focus:outline-none focus:border-gold/40 resize-none"
             />
             <button
               onClick={handleSubmitFeedback}
               disabled={submittingFeedback || !feedbackText.trim()}
-              className="mt-3 btn-gold px-6 py-2 text-sm flex items-center gap-2 disabled:opacity-40"
+              className="mt-3 btn-primary px-6 py-2 text-sm flex items-center gap-2 disabled:opacity-40"
             >
               {submittingFeedback ? (
                 <Loader2 size={14} className="animate-spin" />
@@ -430,7 +430,7 @@ export default function FounderPage() {
         )}
 
         <div className="text-center mt-8">
-          <Link href="/pricing" className="text-white/40 hover:text-gold text-sm inline-flex items-center gap-1">
+          <Link href="/pricing" className="text-parchment-400 hover:text-gold text-sm inline-flex items-center gap-1">
             <ArrowLeft size={14} />
             {t("founder.pricing.backToPricing")}
           </Link>

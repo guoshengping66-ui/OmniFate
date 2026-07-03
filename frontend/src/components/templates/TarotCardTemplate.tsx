@@ -56,52 +56,52 @@ export function TarotCardTemplate({ data, locale }: TarotCardTemplateProps) {
         <ScrollReveal>
           <div className="text-center mb-16">
             <div className="text-6xl mb-4">{data.emoji}</div>
-            <div className="text-[11px] tracking-[0.25em] uppercase text-gold/50 font-medium mb-2">
+            <div className="text-xs tracking-[0.25em] uppercase text-gold/50 font-medium mb-2">
               {data.arcana === "major" ? (isZh ? "大阿卡纳" : "Major Arcana") : (isZh ? "小阿卡纳" : "Minor Arcana")}
               {data.suit && ` — ${isZh ? { wands: "权杖", cups: "圣杯", swords: "宝剑", pentacles: "星币" }[data.suit] : data.suit.charAt(0).toUpperCase() + data.suit.slice(1)}`}
             </div>
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-white mb-4">
               {isZh ? data.name_zh : data.name_en}
             </h1>
-            <p className="text-white/40 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
+            <p className="text-parchment-400 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
               {content.title}
             </p>
           </div>
         </ScrollReveal>
 
         <ScrollReveal delay={0.1}>
-          <div className="card-glass p-8 md:p-10 mb-8">
+          <div className="card-solid p-8 md:p-10 mb-8">
             <h2 className="font-serif text-2xl text-gold mb-4">{isZh ? "正位含义" : "Upright Meaning"}</h2>
-            <p className="text-white/60 text-sm leading-relaxed">{content.upright}</p>
+            <p className="text-parchment-400 text-sm leading-relaxed">{content.upright}</p>
           </div>
         </ScrollReveal>
 
         <ScrollReveal delay={0.15}>
-          <div className="card-glass p-8 md:p-10 mb-8">
+          <div className="card-solid p-8 md:p-10 mb-8">
             <h2 className="font-serif text-2xl text-gold mb-4">{isZh ? "逆位含义" : "Reversed Meaning"}</h2>
-            <p className="text-white/60 text-sm leading-relaxed">{content.reversed}</p>
+            <p className="text-parchment-400 text-sm leading-relaxed">{content.reversed}</p>
           </div>
         </ScrollReveal>
 
         <ScrollReveal delay={0.2}>
           <div className="grid md:grid-cols-2 gap-4 mb-8">
-            <div className="card-glow p-6">
+            <div className="card-interactive p-6">
               <div className="text-3xl mb-3">💕</div>
               <h3 className="font-serif font-bold text-gold mb-2">{isZh ? "爱情" : "Love"}</h3>
-              <p className="text-white/50 text-sm leading-relaxed">{content.love}</p>
+              <p className="text-parchment-400 text-sm leading-relaxed">{content.love}</p>
             </div>
-            <div className="card-glow p-6">
+            <div className="card-interactive p-6">
               <div className="text-3xl mb-3">💼</div>
               <h3 className="font-serif font-bold text-gold mb-2">{isZh ? "事业" : "Career"}</h3>
-              <p className="text-white/50 text-sm leading-relaxed">{content.career}</p>
+              <p className="text-parchment-400 text-sm leading-relaxed">{content.career}</p>
             </div>
           </div>
         </ScrollReveal>
 
         <ScrollReveal delay={0.25}>
-          <div className="card-glass p-8 md:p-10 mb-8">
+          <div className="card-solid p-8 md:p-10 mb-8">
             <h2 className="font-serif text-2xl text-gold mb-4">{isZh ? "建议" : "Advice"}</h2>
-            <p className="text-white/60 text-sm leading-relaxed">{content.advice}</p>
+            <p className="text-parchment-400 text-sm leading-relaxed">{content.advice}</p>
           </div>
         </ScrollReveal>
 
@@ -111,17 +111,17 @@ export function TarotCardTemplate({ data, locale }: TarotCardTemplateProps) {
 
         {relatedCards.length > 0 && (
           <ScrollReveal delay={0.3}>
-            <div className="card-glass p-8 md:p-10 mb-8">
+            <div className="card-solid p-8 md:p-10 mb-8">
               <h2 className="font-serif text-2xl text-gold mb-6">{isZh ? "相关牌面" : "Related Cards"}</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {relatedCards.map(card => (
                   <Link
                     key={card.id}
                     href={localeHref(`/tarot/cards/${card.id}`)}
-                    className="flex items-center gap-3 p-3 bg-white/[0.03] rounded-xl border border-white/10 hover:border-gold/30 transition-all"
+                    className="flex items-center gap-3 p-3 bg-white/[0.03] rounded-xl border border-white/[0.06] hover:border-gold/30 transition-all"
                   >
                     <span className="text-2xl">{card.emoji}</span>
-                    <span className="text-white/70 text-sm">{isZh ? card.name_zh : card.name_en}</span>
+                    <span className="text-parchment-300 text-sm">{isZh ? card.name_zh : card.name_en}</span>
                   </Link>
                 ))}
               </div>

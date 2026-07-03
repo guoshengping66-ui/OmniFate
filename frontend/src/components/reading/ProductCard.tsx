@@ -56,7 +56,7 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
   return (
     <Link href={`/shop/${product.id}`} className={`block treasure-card p-5 ${glowClass}`}>
       {hasMatch && (
-        <div className="absolute top-3 left-3 z-10 flex items-center gap-1 rounded-full border border-gold/20 bg-gold/10 px-2 py-0.5 text-[10px] font-medium text-gold/80">
+        <div className="absolute top-3 left-3 z-10 flex items-center gap-1 rounded-full border border-gold/20 bg-gold/10 px-2 py-0.5 text-xs font-medium text-gold/80">
           <Zap size={9} className="fill-gold/40" />
           {matchTier}
         </div>
@@ -74,7 +74,7 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
 
       <div className="relative z-10">
         <div className="mb-1.5 flex items-start justify-between gap-2">
-          <h3 className="font-serif text-sm font-medium leading-tight text-white/90">{productName}</h3>
+          <h3 className="font-serif text-sm font-medium leading-tight text-parchment-100">{productName}</h3>
           {product.rating && (
             <div className="flex flex-shrink-0 items-center gap-0.5">
               <Star size={11} className="fill-gold/60 text-gold/60" />
@@ -91,12 +91,12 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
                 style={{ width: `${matchPct}%` }}
               />
             </div>
-            <span className="text-[10px] font-medium tabular-nums text-gold/50">{matchPct}%</span>
+            <span className="text-xs font-medium tabular-nums text-gold/50">{matchPct}%</span>
           </div>
         )}
 
         {shortPitch && (
-          <p className="mb-2 line-clamp-2 text-xs leading-relaxed text-white/35">
+          <p className="mb-2 line-clamp-2 text-xs leading-relaxed text-parchment-400">
             {shortPitch}
           </p>
         )}
@@ -110,7 +110,7 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
         {matchReasons.length > 0 && (
           <div className="mb-2 flex flex-wrap gap-1">
             {matchReasons.map(reason => (
-              <span key={reason} className="rounded-full bg-gold/8 px-1.5 py-0.5 text-[10px] text-gold/50">
+              <span key={reason} className="rounded-full bg-gold/8 px-1.5 py-0.5 text-xs text-gold/50">
                 {reason}
               </span>
             ))}
@@ -120,7 +120,7 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
         {!hasMatch && needTags.length > 0 && (
           <div className="mb-3 flex flex-wrap gap-1">
             {needTags.map(tag => (
-              <span key={tag} className="rounded-full bg-white/[0.03] px-1.5 py-0.5 text-[10px] text-white/30">
+              <span key={tag} className="rounded-full bg-white/[0.03] px-1.5 py-0.5 text-xs text-parchment-400">
                 {tag}
               </span>
             ))}

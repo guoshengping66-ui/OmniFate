@@ -47,7 +47,7 @@ export function AIRecommendHero({ products }: { products: Product[] }) {
             {/* Rank badge */}
             <div className="flex items-center justify-between mb-4">
               <div
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold"
                 style={{
                   background: `${RANK_COLORS[i]}10`,
                   border: `1px solid ${RANK_COLORS[i]}30`,
@@ -75,13 +75,13 @@ export function AIRecommendHero({ products }: { products: Product[] }) {
                 className="flex-shrink-0"
               />
               <div className="flex-1 min-w-0">
-                <h3 className="font-serif font-bold text-white/90 text-base mb-1 truncate">{product.name}</h3>
+                <h3 className="font-serif font-bold text-parchment-100 text-base mb-1 truncate">{product.name}</h3>
                 <p className="text-gold/80 font-bold text-lg">{getProductPrice(product, region).symbol}{getProductPrice(product, region).price.toFixed(0)}</p>
               </div>
             </div>
 
             {product.recommendation_text && (
-              <p className="text-white/30 text-xs leading-relaxed mb-3 line-clamp-2 italic border-l-2 border-gold/15 pl-2">
+              <p className="text-parchment-400 text-xs leading-relaxed mb-3 line-clamp-2 italic border-l-2 border-gold/15 pl-2">
                 &ldquo;{product.recommendation_text}&rdquo;
               </p>
             )}
@@ -91,7 +91,7 @@ export function AIRecommendHero({ products }: { products: Product[] }) {
                 {product.match_reasons.slice(0, 3).map(r => (
                   <span
                     key={r}
-                    className="text-[10px] px-1.5 py-0.5 rounded-full"
+                    className="text-xs px-1.5 py-0.5 rounded-full"
                     style={{
                       background: `${RANK_COLORS[i]}08`,
                       color: `${RANK_COLORS[i]}aa`,

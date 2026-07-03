@@ -50,20 +50,20 @@ export default function FaceTestPage() {
   return (
     <div className="min-h-screen pt-24 pb-16 px-4">
       <div className="max-w-xl mx-auto">
-        <Link href="/" className="inline-flex items-center gap-1 text-white/40 hover:text-white/60 text-sm mb-6 transition-colors">
+        <Link href="/" className="inline-flex items-center gap-1 text-parchment-400 hover:text-parchment-400 text-sm mb-6 transition-colors">
           <ArrowLeft size={14} /> 返回首页
         </Link>
 
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-serif font-bold text-gold">AI 面相分析</h1>
-            <p className="text-white/40 text-sm mt-1">上传正面照片，AI 将自动识别面相</p>
+            <p className="text-parchment-400 text-sm mt-1">上传正面照片，AI 将自动识别面相</p>
           </div>
           <TargetSelector />
         </div>
 
         {activeTestTarget && (
-          <div className="card-glass p-3 mb-4 text-xs text-white/40">
+          <div className="card-solid p-3 mb-4 text-xs text-parchment-400">
             当前分析对象：<span className="text-gold">{activeTestTarget.nickname}</span>
           </div>
         )}
@@ -83,33 +83,33 @@ export default function FaceTestPage() {
             </div>
           ) : (
             <>
-              <Camera size={36} className="mx-auto text-white/20 group-hover:text-gold/50 mb-2 transition-colors" />
-              <p className="text-white/40 text-sm">点击上传正面照</p>
-              <p className="text-white/20 text-xs mt-1">支持 JPG/PNG，建议光线充足</p>
+              <Camera size={36} className="mx-auto text-parchment-400 group-hover:text-gold/50 mb-2 transition-colors" />
+              <p className="text-parchment-400 text-sm">点击上传正面照</p>
+              <p className="text-parchment-400 text-xs mt-1">支持 JPG/PNG，建议光线充足</p>
             </>
           )}
         </div>
         <input ref={ref} type="file" accept="image/*" className="sr-only" onChange={handlePick} />
 
         {scanning && (
-          <div className="mt-4 card-glass p-4 text-center">
+          <div className="mt-4 card-solid p-4 text-center">
             <Loader2 size={20} className="text-gold animate-spin mx-auto mb-2" />
-            <p className="text-white/50 text-sm">AI 面相识别中...</p>
+            <p className="text-parchment-400 text-sm">AI 面相识别中...</p>
           </div>
         )}
 
         {error && (
-          <div className="mt-4 card-glass p-4 text-center">
+          <div className="mt-4 card-solid p-4 text-center">
             <p className="text-amber-400 text-sm">识别失败，请确保照片清晰且正对镜头</p>
           </div>
         )}
 
         {features && (
-          <div className="mt-6 card-glass p-5 anim-slide-up">
+          <div className="mt-6 card-solid p-5 anim-slide-up">
             <h3 className="text-gold text-sm font-medium mb-3">面相识别结果</h3>
             <div className="flex flex-wrap gap-2">
               {FACE_KEY_FEATURES.filter(f => features[f.key]).map(f => (
-                <span key={f.key} className="text-xs px-2.5 py-1 bg-white/5 rounded-full text-white/60 border border-white/10">
+                <span key={f.key} className="text-xs px-2.5 py-1 bg-white/[0.04] rounded-full text-parchment-400 border border-white/[0.06]">
                   {f.label}: {features[f.key]}
                 </span>
               ))}

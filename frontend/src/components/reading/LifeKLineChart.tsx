@@ -255,22 +255,22 @@ export default function LifeKLineChart({ scores, strongestLabel, weakestLabel, i
   ]
 
   return (
-    <section className="card-glass overflow-hidden border-gold/10 bg-[#070910] shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
+    <section className="card-solid overflow-hidden border-gold/10 bg-[#070910] shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
       <div className="relative">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(201,168,76,0.14),transparent_30%),radial-gradient(circle_at_78%_24%,rgba(45,212,191,0.10),transparent_28%),linear-gradient(135deg,rgba(255,255,255,0.035),transparent_48%)]" />
         <div className="relative grid xl:grid-cols-[1.45fr_0.8fr]">
           <div className="p-5 md:p-7">
             <div className="flex flex-wrap items-start justify-between gap-4 mb-5">
               <div className="max-w-2xl">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-gold/20 bg-gold/[0.06] text-gold/75 text-[10px] tracking-[0.18em] uppercase mb-3">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-gold/20 bg-gold/[0.06] text-gold/75 text-xs tracking-[0.18em] uppercase mb-3">
                   <Route size={12} />
                   {copy.badge}
                 </div>
-                <h3 className="font-serif text-2xl md:text-4xl font-bold text-white/92 tracking-wide">{copy.title}</h3>
-                <p className="text-white/42 text-xs md:text-sm mt-2 leading-relaxed">{copy.subtitle}</p>
+                <h3 className="font-serif text-2xl md:text-4xl font-bold text-parchment-100 tracking-wide">{copy.title}</h3>
+                <p className="text-parchment-400 text-xs md:text-sm mt-2 leading-relaxed">{copy.subtitle}</p>
               </div>
               <div className={`rounded-2xl border px-4 py-3 text-right ${toneClass(stage.tone)}`}>
-                <p className="text-[10px] uppercase tracking-[0.16em] opacity-55">{copy.currentStage}</p>
+                <p className="text-xs uppercase tracking-[0.16em] opacity-55">{copy.currentStage}</p>
                 <p className="font-serif text-lg md:text-xl">{stage.label}</p>
               </div>
             </div>
@@ -327,7 +327,7 @@ export default function LifeKLineChart({ scores, strongestLabel, weakestLabel, i
           <aside className="border-t xl:border-t-0 xl:border-l border-white/[0.07] p-5 md:p-7 bg-black/20">
             <div className="flex items-center gap-2 mb-5">
               <Sparkles size={15} className="text-gold/70" />
-              <h4 className="text-sm font-semibold text-white/70">{copy.readTitle}</h4>
+              <h4 className="text-sm font-semibold text-parchment-300">{copy.readTitle}</h4>
             </div>
             <div className="grid grid-cols-2 gap-3 mb-4">
               {summaryCards.map((card) => (
@@ -338,13 +338,13 @@ export default function LifeKLineChart({ scores, strongestLabel, weakestLabel, i
               ))}
             </div>
             <div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-4 mb-4">
-              <p className="text-white/58 text-xs leading-relaxed">{stage.read}</p>
+              <p className="text-parchment-300 text-xs leading-relaxed">{stage.read}</p>
             </div>
             <div className="rounded-2xl border border-gold/15 bg-gold/[0.045] p-4">
               <div className="flex items-start gap-3">
                 <Mountain size={17} className="text-gold/75 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-white/42 text-xs leading-relaxed mb-3">{copy.locked}</p>
+                  <p className="text-parchment-400 text-xs leading-relaxed mb-3">{copy.locked}</p>
                   <Link href={localeHref(isUnlocked ? "/shop" : "/pricing")} className="inline-flex items-center gap-2 text-xs text-gold hover:text-gold-light transition-colors">
                     {copy.cta}
                     <ArrowRight size={13} />

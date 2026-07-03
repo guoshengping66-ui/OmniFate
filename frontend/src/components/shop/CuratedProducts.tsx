@@ -80,10 +80,10 @@ export function CuratedProducts() {
               <Gem size={12} className="text-gold/50" />
               {t("curated.badge")}
             </div>
-            <h2 className="text-2xl md:text-3xl font-serif font-bold text-white/90 mb-2">
+            <h2 className="text-2xl md:text-3xl font-serif font-bold text-parchment-100 mb-2">
               {t("curated.title")}
             </h2>
-            <p className="text-white/30 text-sm max-w-md mx-auto">
+            <p className="text-parchment-400 text-sm max-w-md mx-auto">
               {t("curated.desc")}
             </p>
           </div>
@@ -110,7 +110,7 @@ export function CuratedProducts() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <h3 className="font-serif font-medium text-white/80 text-xs leading-tight line-clamp-2 group-hover:text-gold/70 transition-colors">
+                    <h3 className="font-serif font-medium text-parchment-200 text-xs leading-tight line-clamp-2 group-hover:text-gold/70 transition-colors">
                       {product.name}
                     </h3>
 
@@ -118,7 +118,7 @@ export function CuratedProducts() {
                       {product.rating && (
                         <div className="flex items-center gap-0.5">
                           <Star size={9} className="text-gold/50 fill-gold/50" />
-                          <span className="text-[10px] text-gold/50">{product.rating}</span>
+                          <span className="text-xs text-gold/50">{product.rating}</span>
                         </div>
                       )}
                     </div>
@@ -134,7 +134,7 @@ export function CuratedProducts() {
                           handleAdd(product)
                         }}
                         disabled={isAdded}
-                        className={`flex items-center gap-1 text-[10px] px-2.5 py-1 rounded-lg transition-all duration-300 ${
+                        className={`flex items-center gap-1 text-xs px-2.5 py-1 rounded-lg transition-all duration-300 ${
                           isAdded
                             ? "bg-green-500/12 border border-green-500/25 text-green-400"
                             : "bg-gold/8 border border-gold/15 text-gold/70 hover:bg-gold/12"

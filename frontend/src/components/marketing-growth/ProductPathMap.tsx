@@ -117,14 +117,14 @@ export function ProductPathMap() {
       <div className="relative z-10 mx-auto max-w-7xl">
         <div className="mb-8 flex flex-col justify-between gap-5 md:flex-row md:items-end">
           <div className="max-w-2xl">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-gold/65">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-gold/65">
               {isZh ? "Product Map" : "Product Map"}
             </p>
             <h2 className="mt-3 font-serif text-3xl font-bold text-white md:text-5xl">
               {isZh ? "免费入口负责破冰，核心产品负责长期留存" : "Free tools spark entry. Core products create the long-term loop."}
             </h2>
           </div>
-          <p className="max-w-xl text-sm leading-7 text-white/50">
+          <p className="max-w-xl text-sm leading-7 text-parchment-400">
             {isZh
               ? "星际分析和性格测验需要保留，但要放在工具层；主线是完整画像、关系合参、今日行动板和藏宝阁处方形成闭环。"
               : "Star Analysis and personality quizzes should stay, but in the tools layer. The core loop is profile, relationship sync, daily action, and Treasure prescription."}
@@ -138,7 +138,7 @@ export function ProductPathMap() {
               <Link
                 key={path.title}
                 href={localeHref(path.href)}
-                className="group relative min-h-[250px] overflow-hidden border border-white/[0.08] bg-white/[0.035] p-5 transition-all duration-300 hover:-translate-y-1 hover:border-gold/30 hover:bg-white/[0.055]"
+                className="group relative min-h-[250px] overflow-hidden border border-white/[0.06] bg-white/[0.035] p-5 transition-all duration-300 hover:-translate-y-1 hover:border-gold/30 hover:bg-white/[0.055]"
               >
                 <div className="absolute right-4 top-4 text-5xl font-semibold text-white/[0.025]">
                   0{index + 1}
@@ -153,9 +153,9 @@ export function ProductPathMap() {
                 >
                   <Icon size={22} />
                 </div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/35">{path.label}</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-parchment-400">{path.label}</p>
                 <h3 className="mt-2 text-xl font-semibold text-white">{path.title}</h3>
-                <p className="mt-4 text-sm leading-7 text-white/48">{path.desc}</p>
+                <p className="mt-4 text-sm leading-7 text-parchment-400">{path.desc}</p>
                 <div className="mt-6 inline-flex items-center gap-2 text-xs font-semibold text-gold/75">
                   {isZh ? "进入路径" : "Open path"}
                   <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />

@@ -103,7 +103,7 @@ export function PostAnalysisModal({ products, onViewPrescription }: PostAnalysis
             {/* Close button */}
             <button
               onClick={dismiss}
-              className="absolute top-3 right-3 w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-white/80 hover:bg-white/10 transition-all z-10"
+              className="absolute top-3 right-3 w-7 h-7 rounded-full bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-parchment-400 hover:text-parchment-200 hover:bg-white/10 transition-all z-10"
             >
               <X size={12} />
             </button>
@@ -117,7 +117,7 @@ export function PostAnalysisModal({ products, onViewPrescription }: PostAnalysis
                 <h3 className="font-serif text-base font-bold text-gold">
                   {t("prescription.modal.title") || "你的优化处方已生成"}
                 </h3>
-                <p className="text-white/30 text-[11px]">
+                <p className="text-parchment-400 text-xs">
                   {t("prescription.modal.subtitle") || "AI 根据你的档案精准匹配"}
                 </p>
               </div>
@@ -140,13 +140,13 @@ export function PostAnalysisModal({ products, onViewPrescription }: PostAnalysis
                       className="flex-shrink-0"
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="text-white/80 text-xs font-medium truncate">{locale === "en" ? (product.name_en || product.name) : product.name}</p>
+                      <p className="text-parchment-200 text-xs font-medium truncate">{locale === "en" ? (product.name_en || product.name) : product.name}</p>
                       <p className="text-gold text-xs font-bold">{getProductPrice(product, region).symbol}{getProductPrice(product, region).price.toFixed(0)}</p>
                     </div>
                     <button
                       onClick={() => handleAdd(product)}
                       disabled={isAdded}
-                      className={`flex-shrink-0 flex items-center gap-1 text-[10px] px-2.5 py-1 rounded-full transition-all ${
+                      className={`flex-shrink-0 flex items-center gap-1 text-xs px-2.5 py-1 rounded-full transition-all ${
                         isAdded
                           ? "bg-green-500/20 border border-green-500/40 text-green-400"
                           : "bg-gold/15 border border-gold/30 text-gold hover:bg-gold/25"

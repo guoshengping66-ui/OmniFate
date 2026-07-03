@@ -39,37 +39,37 @@
 }
 
 @layer components {
-  .btn-gold {
+  .btn-primary {
     @apply relative px-8 py-3 rounded-xl font-semibold text-ink
            bg-gold transition-all duration-300
            hover:scale-[1.02] hover:shadow-[0_8px_30px_rgba(201,168,76,0.3)]
            active:scale-[0.98];
     min-height: 44px; /* iOS touch target */
   }
-  .btn-gold-outline {
+  .btn-secondary {
     @apply relative px-6 py-2.5 rounded-xl font-medium text-gold
            border border-gold/30 transition-all duration-300
            hover:bg-gold/10 hover:border-gold/50
            active:scale-[0.98];
     min-height: 44px;
   }
-  .card-glass {
+  .card-solid {
     @apply bg-white/[0.04] border border-white/[0.08] rounded-2xl;
     /* Disable expensive backdrop-blur on mobile for performance */
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
   }
   @media (min-width: 640px) {
-    .card-glass {
+    .card-solid {
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
     }
   }
-  .card-glow {
-    @apply card-glass hover:border-gold/30
+  .card-interactive {
+    @apply card-solid hover:border-gold/30
            transition-all duration-300 hover:bg-white/[0.06];
   }
-  .card-glass-elevated {
+  .card-solid-elevated {
     @apply bg-white/[0.06] border border-white/[0.1] rounded-2xl;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
@@ -107,7 +107,7 @@
 
   /* 维度卡片 — 金色竖线装饰 */
   .dimension-card {
-    @apply card-glass p-4 relative overflow-hidden transition-all duration-300;
+    @apply card-solid p-4 relative overflow-hidden transition-all duration-300;
   }
   .dimension-card::before {
     content: "";
@@ -613,7 +613,7 @@ select.input-field option:checked {
   }
 
   /* Reduce card padding on mobile */
-  .card-glass, .card-glow, .card-glass-elevated {
+  .card-solid, .card-interactive, .card-solid-elevated {
     border-radius: 1rem;
   }
 

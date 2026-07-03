@@ -140,8 +140,8 @@ export default function FiveDimensionsOverview() {
               {t("fiveDim.title")}
             </span>
           </h2>
-          <p className="text-white/30 text-sm max-w-lg mx-auto">{t("fiveDim.desc")}</p>
-          <p className="text-white/20 text-[11px] mt-2 italic">* Demo data — your actual scores will appear after analysis</p>
+          <p className="text-parchment-400 text-sm max-w-lg mx-auto">{t("fiveDim.desc")}</p>
+          <p className="text-parchment-400 text-xs mt-2 italic">* Demo data — your actual scores will appear after analysis</p>
         </div>
 
         {/* Content: Radar + Dimension Cards */}
@@ -215,7 +215,7 @@ export default function FiveDimensionsOverview() {
                         {dim.score}/100
                       </span>
                     </div>
-                    <p className="text-white/30 text-[11px] leading-relaxed">
+                    <p className="text-parchment-400 text-xs leading-relaxed">
                       {t(dim.descKey)}
                     </p>
                     {/* Score bar */}

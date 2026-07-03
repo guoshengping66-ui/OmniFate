@@ -28,8 +28,8 @@ const TIER_CONFIG: Record<MembershipTier, {
   free: {
     zh: "免费用户",
     en: "Free",
-    colors: "text-white/50 bg-white/5",
-    borderColor: "border-white/10",
+    colors: "text-parchment-400 bg-white/[0.04]",
+    borderColor: "border-white/[0.06]",
     icon: User,
   },
   trial: {
@@ -92,7 +92,7 @@ export default function MembershipBadge({
   const title = locale === "en" ? "Membership" : "会员等级"
 
   const sizeClasses = {
-    sm: "text-[10px] px-2 py-0.5 gap-1",
+    sm: "text-xs px-2 py-0.5 gap-1",
     md: "text-xs px-3 py-1 gap-1.5",
     lg: "text-sm px-4 py-2 gap-2",
   }
@@ -115,7 +115,7 @@ export default function MembershipBadge({
 
   return (
     <div className="inline-flex flex-col gap-1">
-      <span className="text-[10px] text-white/30 font-medium tracking-wider uppercase">
+      <span className="text-xs text-parchment-400 font-medium tracking-wider uppercase">
         {title}
       </span>
       {badge}

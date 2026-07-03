@@ -90,13 +90,13 @@ export default function FutureStillWriting() {
               {locale === "zh" ? "你的未来" : "Your Future"}
             </span>
             <br />
-            <span className="text-white/60 text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light tracking-[0.08em]">
+            <span className="text-parchment-400 text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light tracking-[0.08em]">
               {locale === "zh" ? "仍在书写" : "Is Still Being Written"}
             </span>
           </h2>
 
           {/* Poetic description */}
-          <p className="text-white/25 text-sm sm:text-base max-w-lg mx-auto leading-relaxed mb-4">
+          <p className="text-parchment-400 text-sm sm:text-base max-w-lg mx-auto leading-relaxed mb-4">
             {locale === "zh"
               ? "命盘是起点，不是终点。AI 能推演趋势，但每一个选择都在重新定义你的航线。"
               : "Your chart is a starting point, not a destination. AI projects trends, but every choice redefines your route."}
@@ -137,7 +137,7 @@ export default function FutureStillWriting() {
           </Link>
 
           {/* Subtle note */}
-          <p className="text-white/10 text-[10px] tracking-wider mt-8">
+          <p className="text-parchment-400 text-xs tracking-wider mt-8">
             {locale === "zh"
               ? "免费生成你的专属命盘 · 无需付费即可体验 AI 解读"
               : "Generate your chart for free · Experience AI insights without payment"}

@@ -117,7 +117,7 @@ export function LiveBar() {
         pointerEvents: visible ? "auto" : "none",
       }}
     >
-      <div className="relative overflow-hidden rounded-2xl bg-ink/80 backdrop-blur-xl border border-gold/20 shadow-[0_0_40px_rgba(201,168,76,0.08)]">
+      <div className="relative overflow-hidden rounded-2xl bg-cosmos-950/80 backdrop-blur-xl border border-gold/20 shadow-[0_0_40px_rgba(201,168,76,0.08)]">
         {/* Shimmer overlay */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div
@@ -144,7 +144,7 @@ export function LiveBar() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-60" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
                 </span>
-                <span className="text-white/50 text-xs whitespace-nowrap">
+                <span className="text-parchment-400 text-xs whitespace-nowrap">
                   <span className={`font-medium ${msg.isFounder ? "text-violet-300" : "text-gold"}`}>
                     {msg.name}
                   </span>
@@ -171,7 +171,7 @@ export function LiveBar() {
                 <span className="text-gold font-semibold">
                   <AnimatedCounter target={127} />
                 </span>
-                <span className="text-white/30 ml-0.5">{t("live.people")}</span>
+                <span className="text-parchment-400 ml-0.5">{t("live.people")}</span>
               </div>
             </div>
           </div>

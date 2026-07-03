@@ -54,7 +54,7 @@ export function DecisionReport({ data }: DecisionReportProps) {
               <item.icon size={15} className={item.tone === "rose" ? "text-rose-200/70" : item.tone === "cyan" ? "text-cyan-200/70" : "text-gold/70"} />
               <p className="text-xs font-medium text-gold/70">{item.title}</p>
             </div>
-            <p className="text-white/58 text-xs leading-relaxed">{item.body}</p>
+            <p className="text-parchment-300 text-xs leading-relaxed">{item.body}</p>
           </div>
         ))}
       </div>
@@ -62,22 +62,22 @@ export function DecisionReport({ data }: DecisionReportProps) {
       <section className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-4">
         <div className="flex items-center gap-2 mb-3">
           <ShieldCheck size={16} className="text-gold/70" />
-          <h3 className="text-sm font-semibold text-white/75">{copy.evidence}</h3>
+          <h3 className="text-sm font-semibold text-parchment-200">{copy.evidence}</h3>
         </div>
         <div className="space-y-2.5">
           {data.evidence_chain.map((item, index) => (
             <div key={`${item.claim}-${index}`} className="rounded-xl bg-black/10 border border-white/[0.04] p-3">
               <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-gold/10 text-gold/70 border border-gold/15">
+                <span className="text-xs px-2 py-0.5 rounded-full bg-gold/10 text-gold/70 border border-gold/15">
                   {item.confidence}
                 </span>
                 {item.sources.map(source => (
-                  <span key={source} className="text-[10px] px-2 py-0.5 rounded-full bg-white/[0.04] text-white/35">
+                  <span key={source} className="text-xs px-2 py-0.5 rounded-full bg-white/[0.04] text-parchment-400">
                     {source}
                   </span>
                 ))}
               </div>
-              <p className="text-white/58 text-xs leading-relaxed">{item.claim}</p>
+              <p className="text-parchment-300 text-xs leading-relaxed">{item.claim}</p>
             </div>
           ))}
         </div>
@@ -86,18 +86,18 @@ export function DecisionReport({ data }: DecisionReportProps) {
       <section className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-4">
         <div className="flex items-center gap-2 mb-3">
           <Compass size={16} className="text-gold/70" />
-          <h3 className="text-sm font-semibold text-white/75">{copy.dimensions}</h3>
+          <h3 className="text-sm font-semibold text-parchment-200">{copy.dimensions}</h3>
         </div>
         <div className="grid md:grid-cols-2 gap-3">
           {data.five_dimensions.map((dim) => (
             <div key={dim.key} className="rounded-xl bg-black/10 border border-white/[0.04] p-3">
               <div className="flex items-center justify-between gap-3 mb-2">
-                <p className="text-xs font-medium text-white/70">{dim.label}</p>
+                <p className="text-xs font-medium text-parchment-300">{dim.label}</p>
                 <span className="text-xs text-gold/70">{dim.score.toFixed(1)}/10</span>
               </div>
               <ScoreBar score={dim.score} />
-              <p className="mt-2 text-[11px] text-white/42">{dim.status}</p>
-              <p className="mt-1.5 text-white/55 text-xs leading-relaxed">{dim.finding}</p>
+              <p className="mt-2 text-xs text-parchment-400">{dim.status}</p>
+              <p className="mt-1.5 text-parchment-300 text-xs leading-relaxed">{dim.finding}</p>
               <p className="mt-2 text-gold/55 text-xs leading-relaxed">{dim.action}</p>
             </div>
           ))}
@@ -108,13 +108,13 @@ export function DecisionReport({ data }: DecisionReportProps) {
         <section className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-4">
           <div className="flex items-center gap-2 mb-3">
             <Clock size={16} className="text-gold/70" />
-            <h3 className="text-sm font-semibold text-white/75">{copy.timeline}</h3>
+            <h3 className="text-sm font-semibold text-parchment-200">{copy.timeline}</h3>
           </div>
           <div className="space-y-3">
             {data.timeline.map((item) => (
               <div key={item.period} className="border-l border-gold/20 pl-3">
                 <p className="text-xs text-gold/65 font-medium">{item.period}</p>
-                <p className="text-white/55 text-xs leading-relaxed mt-1">{item.focus}</p>
+                <p className="text-parchment-300 text-xs leading-relaxed mt-1">{item.focus}</p>
               </div>
             ))}
           </div>
@@ -123,13 +123,13 @@ export function DecisionReport({ data }: DecisionReportProps) {
         <section className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-4">
           <div className="flex items-center gap-2 mb-3">
             <CheckCircle size={16} className="text-gold/70" />
-            <h3 className="text-sm font-semibold text-white/75">{copy.actionPlan}</h3>
+            <h3 className="text-sm font-semibold text-parchment-200">{copy.actionPlan}</h3>
           </div>
           <div className="space-y-2.5">
             {data.action_plan.map((item) => (
               <div key={item.period} className="rounded-xl bg-white/[0.025] border border-white/[0.04] p-3">
                 <p className="text-xs text-gold/65 font-medium">{item.period}</p>
-                <p className="text-white/55 text-xs leading-relaxed mt-1">{item.action}</p>
+                <p className="text-parchment-300 text-xs leading-relaxed mt-1">{item.action}</p>
               </div>
             ))}
           </div>
@@ -139,13 +139,13 @@ export function DecisionReport({ data }: DecisionReportProps) {
       <section className="rounded-2xl border border-amber-400/10 bg-amber-400/[0.03] p-4">
         <div className="flex items-center gap-2 mb-3">
           <AlertTriangle size={16} className="text-amber-300/70" />
-          <h3 className="text-sm font-semibold text-white/75">{copy.avoidList}</h3>
+          <h3 className="text-sm font-semibold text-parchment-200">{copy.avoidList}</h3>
         </div>
         <div className="space-y-2.5">
           {data.avoid_list.map((item, index) => (
             <div key={`${item.item}-${index}`} className="rounded-xl bg-black/10 border border-amber-400/10 p-3">
               <p className="text-amber-100/70 text-xs font-medium">{item.item}</p>
-              <p className="text-white/45 text-xs leading-relaxed mt-1">{item.reason}</p>
+              <p className="text-parchment-400 text-xs leading-relaxed mt-1">{item.reason}</p>
             </div>
           ))}
         </div>

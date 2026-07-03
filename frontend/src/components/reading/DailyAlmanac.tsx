@@ -41,7 +41,7 @@ export default function DailyAlmanac({ sessionId }: Props) {
 
   if (loading && !loaded) {
     return (
-      <div className="card-glass p-10" aria-busy="true">
+      <div className="card-solid p-10" aria-busy="true">
         <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-xl border border-gold/20 bg-gold/10">
           <Loader2 size={24} className="animate-spin text-gold" />
         </div>
@@ -53,9 +53,9 @@ export default function DailyAlmanac({ sessionId }: Props) {
 
   if (!data) {
     return (
-      <div className="card-glass p-10 text-center">
-        <AlertTriangle size={32} className="mx-auto mb-3 text-white/20" />
-        <p className="text-sm text-white/40">{t("almanac.fetchFail")}</p>
+      <div className="card-solid p-10 text-center">
+        <AlertTriangle size={32} className="mx-auto mb-3 text-parchment-400" />
+        <p className="text-sm text-parchment-400">{t("almanac.fetchFail")}</p>
         <button onClick={fetchAlmanac} className="btn-ghost mt-4 inline-flex items-center gap-1.5 text-xs">
           <RefreshCw size={12} /> {t("almanac.retry")}
         </button>

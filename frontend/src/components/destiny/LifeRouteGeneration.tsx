@@ -241,13 +241,13 @@ function OpportunityZones({ animStep, locale }: { animStep: number; locale: stri
           {/* 窗口标签 */}
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center whitespace-nowrap">
             <div
-              className="text-[11px] sm:text-xs font-serif font-bold tracking-[0.08em]"
+              className="text-xs sm:text-xs font-serif font-bold tracking-[0.08em]"
               style={{ color: `${zone.color}80` }}
             >
               {locale === "zh" ? zone.labelZh : zone.labelEn}
             </div>
             <div
-              className="text-[9px] sm:text-[10px] tracking-[0.06em] mt-0.5"
+              className="text-[9px] sm:text-xs tracking-[0.06em] mt-0.5"
               style={{ color: `${zone.color}50` }}
             >
               {locale === "zh" ? zone.yearRange.zh : zone.yearRange.en}
@@ -323,7 +323,7 @@ function DestinyStar({
             <div className="font-serif font-bold text-base sm:text-lg" style={{ color: star.color }}>
               {locale === "zh" ? star.labelZh : star.labelEn}
             </div>
-            <div className="text-white/25 text-[11px] tracking-wider mt-1">{star.year}</div>
+            <div className="text-parchment-400 text-xs tracking-wider mt-1">{star.year}</div>
           </div>
 
           {/* 三维指数 */}
@@ -336,7 +336,7 @@ function DestinyStar({
           {/* 关键词 */}
           <div className="flex flex-wrap gap-1.5 mb-4">
             {(locale === "zh" ? star.keywords.zh : star.keywords.en).map((kw, i) => (
-              <span key={i} className="px-2.5 py-1 rounded-full text-[10px] font-medium"
+              <span key={i} className="px-2.5 py-1 rounded-full text-xs font-medium"
                 style={{ background: `${star.color}10`, border: `1px solid ${star.color}18`, color: `${star.color}bb` }}>
                 {kw}
               </span>
@@ -351,7 +351,7 @@ function DestinyStar({
               </span>
               <div className="flex-1 h-[1px]" style={{ background: `${star.color}15` }} />
             </div>
-            <p className="text-white/30 text-[11px] leading-relaxed">
+            <p className="text-parchment-400 text-xs leading-relaxed">
               {locale === "zh" ? star.aiZh : star.aiEn}
             </p>
           </div>
@@ -413,7 +413,7 @@ function DestinyStar({
           style={{ color: isActive ? star.color : `${star.color}90` }}>
           {locale === "zh" ? star.labelZh : star.labelEn}
         </div>
-        <div className="text-white/25 text-[10px] sm:text-[11px] tracking-[0.06em] mt-0.5">{star.year}</div>
+        <div className="text-parchment-400 text-xs sm:text-xs tracking-[0.06em] mt-0.5">{star.year}</div>
       </div>
     </div>
   )
@@ -424,8 +424,8 @@ function DestinyStar({
 function StarRating({ label, value, color }: { label: string; value: number; color: string }) {
   return (
     <div className="flex items-center gap-2 mb-1.5">
-      <span className="text-white/30 text-[10px] w-16 flex-shrink-0">{label}</span>
-      <span className="text-[11px] tracking-[1px]" style={{ color }}>
+      <span className="text-parchment-400 text-xs w-16 flex-shrink-0">{label}</span>
+      <span className="text-xs tracking-[1px]" style={{ color }}>
         {"★".repeat(value)}<span style={{ opacity: 0.15 }}>{"★".repeat(5 - value)}</span>
       </span>
     </div>
@@ -450,7 +450,7 @@ function GrowthLogicChain({ animStep, locale }: { animStep: number; locale: stri
     <div className="mt-12 sm:mt-16 transition-all duration-1000"
       style={{ opacity: isLit ? 1 : 0, transform: isLit ? "translateY(0)" : "translateY(30px)", transitionDelay: "0.6s" }}>
       <div className="text-center mb-6">
-        <span className="text-white/20 text-[10px] tracking-[0.15em] uppercase">
+        <span className="text-parchment-400 text-xs tracking-[0.15em] uppercase">
           {locale === "zh" ? "成长逻辑链 · 因果推演" : "Growth Logic Chain · Causal Projection"}
         </span>
       </div>
@@ -481,7 +481,7 @@ function GrowthLogicChain({ animStep, locale }: { animStep: number; locale: stri
         ))}
       </div>
       <div className="text-center mt-5">
-        <p className="text-white/15 text-[10px] tracking-wider leading-relaxed max-w-md mx-auto">
+        <p className="text-parchment-400 text-xs tracking-wider leading-relaxed max-w-md mx-auto">
           {locale === "zh"
             ? "以上逻辑链基于命盘五维合参推演，每一阶段都是前一阶段的因果延伸"
             : "Logic chain derived from 5D chart synthesis — each stage is a causal extension of the previous one"}
@@ -567,7 +567,7 @@ export default function LifeRouteGeneration() {
               {locale === "zh" ? "你的人生转折点，全部预测出来了" : "Your Life's Turning Points, All Predicted"}
             </span>
           </h2>
-          <p className="text-white/30 text-sm sm:text-base leading-relaxed">
+          <p className="text-parchment-400 text-sm sm:text-base leading-relaxed">
             {locale === "zh"
               ? "基于八字、星盘、塔罗、面相、手相五大系统交叉验证，AI 标出你人生中的关键年份和机会窗口"
               : "Cross-validated by Bazi, Astrology, Tarot, Face & Palm Reading — AI marks key years and opportunity windows in your life"}
@@ -624,10 +624,10 @@ export default function LifeRouteGeneration() {
             }}
           >
             <div className="text-right">
-              <div className="font-serif text-lg sm:text-xl text-white/15 tracking-wider mb-1" style={{ fontStyle: "italic" }}>
+              <div className="font-serif text-lg sm:text-xl text-parchment-400 tracking-wider mb-1" style={{ fontStyle: "italic" }}>
                 {locale === "zh" ? "未来仍在书写" : "The Journey Continues"}
               </div>
-              <div className="text-[10px] text-white/8 tracking-[0.12em] uppercase">
+              <div className="text-xs text-parchment-400 tracking-[0.12em] uppercase">
                 {locale === "zh" ? "航线向宇宙深处延伸" : "Route extends into the cosmos"}
               </div>
             </div>
@@ -640,7 +640,7 @@ export default function LifeRouteGeneration() {
         {/* ── 航线参数标签 ── */}
         <div className="mt-10 sm:mt-14 flex flex-wrap items-center justify-center gap-3 sm:gap-4 transition-all duration-1000 delay-500"
           style={{ opacity: isVisible ? 1 : 0 }}>
-          <span className="text-white/20 text-xs mr-1">
+          <span className="text-parchment-400 text-xs mr-1">
             {locale === "zh" ? "航线参数：" : "Route Parameters:"}
           </span>
           {[
@@ -650,8 +650,8 @@ export default function LifeRouteGeneration() {
             { zh: "面相·手相", en: "Face & Palm", icon: "◈" },
           ].map((tag) => (
             <div key={tag.zh} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.06]">
-              <span className="text-[10px]">{tag.icon}</span>
-              <span className="text-white/35 text-[11px]">{locale === "zh" ? tag.zh : tag.en}</span>
+              <span className="text-xs">{tag.icon}</span>
+              <span className="text-parchment-400 text-xs">{locale === "zh" ? tag.zh : tag.en}</span>
             </div>
           ))}
         </div>

@@ -84,7 +84,7 @@ export default function UniqueCapabilities() {
           className="text-center mb-12 md:mb-16 transition-all duration-1000"
           style={{ opacity: isVisible ? 1 : 0, transform: isVisible ? "translateY(0)" : "translateY(30px)" }}
         >
-          <span className="text-[#C5A880]/40 text-[10px] tracking-[0.5em] uppercase font-medium">
+          <span className="text-[#C5A880]/40 text-xs tracking-[0.5em] uppercase font-medium">
             {locale === "zh" ? "核心能力" : "CAPABILITIES"}
           </span>
           <h2 id="capabilities-title" className="text-2xl md:text-4xl font-serif font-bold mt-3 mb-3 tracking-wide">
@@ -92,7 +92,7 @@ export default function UniqueCapabilities() {
               {t("capabilities.title")}
             </span>
           </h2>
-          <p className="text-white/25 text-xs md:text-sm max-w-lg mx-auto">
+          <p className="text-parchment-400 text-xs md:text-sm max-w-lg mx-auto">
             {t("capabilities.desc")}
           </p>
         </div>
@@ -144,7 +144,7 @@ export default function UniqueCapabilities() {
               </h3>
 
               {/* Description */}
-              <p className="text-white/25 text-[11px] md:text-xs leading-relaxed">
+              <p className="text-parchment-400 text-xs md:text-xs leading-relaxed">
                 {t(`capabilities.${cap.key}Desc`)}
               </p>
             </div>

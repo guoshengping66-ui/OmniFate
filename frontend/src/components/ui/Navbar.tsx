@@ -61,13 +61,13 @@ export function Navbar() {
     <>
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-ink/90 backdrop-blur-xl border-b border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.3)]"
-          : "bg-ink/60 backdrop-blur-md border-b border-white/5"
+          ? "bg-cosmos-950/95 backdrop-blur-md border-b border-white/[0.06] shadow-[0_4px_20px_rgba(0,0,0,0.4)]"
+          : "bg-cosmos-950/80 border-b border-transparent"
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           {/* Logo */}
           <Link href={localeHref("/")} className="flex items-center group flex-shrink-0">
-            <span className="font-serif font-bold text-lg text-gold">{t("app.name")}</span>
+            <span className="font-display font-bold text-lg text-gold">{t("app.name")}</span>
           </Link>
 
           {/* Desktop nav — wide screens: all links visible */}
@@ -77,7 +77,7 @@ export function Navbar() {
                 className={`text-sm transition-colors duration-200 ${
                   l.highlight
                     ? "text-gold font-medium hover:text-gold-light"
-                    : "text-white/70 hover:text-gold"
+                    : "text-parchment-400 hover:text-parchment-200"
                 }`}>
                 {l.label}
               </Link>
@@ -85,7 +85,7 @@ export function Navbar() {
             {/* Extra links visible on lg+ */}
             {extraLinks.map(l => (
               <Link key={l.href} href={l.href} prefetch={null}
-                className="text-sm text-white/50 hover:text-gold transition-colors duration-200">
+                className="text-sm text-parchment-400 hover:text-parchment-200 transition-colors duration-200">
                 {l.label}
               </Link>
             ))}
@@ -98,7 +98,7 @@ export function Navbar() {
                 className={`text-sm transition-colors duration-200 ${
                   l.highlight
                     ? "text-gold font-medium hover:text-gold-light"
-                    : "text-white/70 hover:text-gold"
+                    : "text-parchment-400 hover:text-parchment-200"
                 }`}>
                 {l.label}
               </Link>
@@ -106,7 +106,7 @@ export function Navbar() {
             {/* Hamburger for extra links */}
             <button
               onClick={() => setOpen(!open)}
-              className="text-white/50 hover:text-gold transition-colors p-1"
+              className="text-parchment-400 hover:text-gold transition-colors p-1"
               aria-label="Toggle menu"
             >
               <Menu size={18} />
@@ -116,16 +116,16 @@ export function Navbar() {
           {/* Mobile hamburger — visible below md */}
           <div className="flex items-center gap-3 md:hidden">
             {/* Cart icon mobile */}
-            <button onClick={() => setCartOpen(true)} className="relative text-white/60" aria-label="Shopping cart">
+            <button onClick={() => setCartOpen(true)} className="relative text-parchment-400" aria-label="Shopping cart">
               <ShoppingBag size={20} />
               {itemCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-gold text-ink text-[10px] font-bold rounded-full flex items-center justify-center">
+                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-gold text-cosmos-950 text-xs font-bold rounded-full flex items-center justify-center">
                   {itemCount > 9 ? "9+" : itemCount}
                 </span>
               )}
             </button>
             <LanguageSwitch />
-            <button onClick={() => setOpen(!open)} className="text-white/70" aria-label={open ? "Close menu" : "Open menu"}>
+            <button onClick={() => setOpen(!open)} className="text-parchment-300" aria-label={open ? "Close menu" : "Open menu"}>
               {open ? <X size={22} /> : <Menu size={22} />}
             </button>
           </div>
@@ -135,12 +135,12 @@ export function Navbar() {
             {/* Cart icon */}
             <button
               onClick={() => setCartOpen(true)}
-              className="relative text-white/60 hover:text-gold transition-colors hidden sm:block"
+              className="relative text-parchment-400 hover:text-gold transition-colors hidden sm:block"
               aria-label="Shopping cart"
             >
               <ShoppingBag size={20} />
               {itemCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-gold text-ink text-[10px] font-bold rounded-full flex items-center justify-center">
+                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-gold text-cosmos-950 text-xs font-bold rounded-full flex items-center justify-center">
                   {itemCount > 9 ? "9+" : itemCount}
                 </span>
               )}
@@ -151,7 +151,7 @@ export function Navbar() {
 
             {/* Auth section */}
             {loading ? (
-              <div className="w-8 h-8 rounded-full bg-white/5 animate-pulse" />
+              <div className="w-8 h-8 rounded-full bg-white/[0.04] animate-pulse" />
             ) : user ? (
               <div ref={menuRef} className="relative flex items-center gap-2">
                 {/* Stardust Balance — left of avatar */}
@@ -161,7 +161,7 @@ export function Navbar() {
 
                 <button
                   onClick={() => setMenuOpen(!menuOpen)}
-                  className="flex items-center gap-2 text-sm text-white/80 hover:text-gold transition-colors"
+                  className="flex items-center gap-2 text-sm text-parchment-300 hover:text-gold transition-colors"
                 >
                   <div className="w-8 h-8 rounded-full bg-gold/20 border border-gold/40 flex items-center justify-center">
                     <User size={14} className="text-gold" />
@@ -171,15 +171,15 @@ export function Navbar() {
                 </button>
 
                 {menuOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-56 card-glass p-2 flex flex-col gap-1 z-50">
-                    <div className="px-3 py-2 border-b border-white/10 mb-1">
-                      <p className="text-white/80 text-sm font-medium truncate">{user.display_name || user.email}</p>
-                      <p className="text-white/40 text-xs truncate">{user.email}</p>
+                  <div className="absolute right-0 top-full mt-2 w-56 card-elevated p-2 flex flex-col gap-1 z-50">
+                    <div className="px-3 py-2 border-b border-white/[0.06] mb-1">
+                      <p className="text-parchment-200 text-sm font-medium truncate">{user.display_name || user.email}</p>
+                      <p className="text-parchment-400 text-xs truncate">{user.email}</p>
                       <div className="mt-1">
                         <MembershipBadge tier={getUserTier(user)} size="sm" />
                       </div>
                       {user.shop_coupon_balance > 0 && (
-                        <p className="text-gold/60 text-[10px] mt-0.5">
+                        <p className="text-gold/60 text-xs mt-0.5">
                           {t("coupon.balance")}: {formatCouponBalance(user.shop_coupon_balance, region)}
                         </p>
                       )}
@@ -187,54 +187,54 @@ export function Navbar() {
                     <Link
                       href={localeHref("/dashboard")}
                       onClick={() => setMenuOpen(false)}
-                      className="px-3 py-2 text-sm text-white/60 hover:text-gold hover:bg-white/5 rounded-lg transition-colors"
+                      className="px-3 py-2 text-sm text-parchment-400 hover:text-parchment-200 hover:bg-white/[0.04] rounded-lg transition-colors"
                     >
                       {t("nav.dashboard")}
                     </Link>
                     <Link
                       href={localeHref("/divination")}
                       onClick={() => setMenuOpen(false)}
-                      className="px-3 py-2 text-sm text-white/60 hover:text-gold hover:bg-white/5 rounded-lg transition-colors"
+                      className="px-3 py-2 text-sm text-parchment-400 hover:text-parchment-200 hover:bg-white/[0.04] rounded-lg transition-colors"
                     >
                       {t("nav.divination")}
                     </Link>
                     <Link
                       href={localeHref("/am16")}
                       onClick={() => setMenuOpen(false)}
-                      className="px-3 py-2 text-sm text-white/60 hover:text-gold hover:bg-white/5 rounded-lg transition-colors"
+                      className="px-3 py-2 text-sm text-parchment-400 hover:text-parchment-200 hover:bg-white/[0.04] rounded-lg transition-colors"
                     >
                       {t("nav.am16")}
                     </Link>
                     <Link
                       href={localeHref("/readings")}
                       onClick={() => setMenuOpen(false)}
-                      className="px-3 py-2 text-sm text-white/60 hover:text-gold hover:bg-white/5 rounded-lg transition-colors"
+                      className="px-3 py-2 text-sm text-parchment-400 hover:text-parchment-200 hover:bg-white/[0.04] rounded-lg transition-colors"
                     >
                       {t("nav.myReports")}
                     </Link>
                     <Link
                       href={localeHref("/account")}
                       onClick={() => setMenuOpen(false)}
-                      className="px-3 py-2 text-sm text-white/60 hover:text-gold hover:bg-white/5 rounded-lg transition-colors"
+                      className="px-3 py-2 text-sm text-parchment-400 hover:text-parchment-200 hover:bg-white/[0.04] rounded-lg transition-colors"
                     >
                       {t("nav.account")}
                     </Link>
                     <Link
                       href={localeHref("/referral")}
                       onClick={() => setMenuOpen(false)}
-                      className="px-3 py-2 text-sm text-white/60 hover:text-gold hover:bg-white/5 rounded-lg transition-colors"
+                      className="px-3 py-2 text-sm text-parchment-400 hover:text-parchment-200 hover:bg-white/[0.04] rounded-lg transition-colors"
                     >
                       {t("nav.referral")}
                     </Link>
                     <button
                       onClick={() => { setCartOpen(true); setMenuOpen(false) }}
-                      className="px-3 py-2 text-sm text-white/60 hover:text-gold hover:bg-white/5 rounded-lg transition-colors text-left"
+                      className="px-3 py-2 text-sm text-parchment-400 hover:text-parchment-200 hover:bg-white/[0.04] rounded-lg transition-colors text-left"
                     >
                       {t("nav.cart")} {itemCount > 0 && `(${itemCount})`}
                     </button>
                     <button
                       onClick={() => { logout(); setMenuOpen(false) }}
-                      className="flex items-center gap-2 px-3 py-2 text-sm text-white/60 hover:text-red-400 hover:bg-white/5 rounded-lg transition-colors"
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-parchment-400 hover:text-red-400 hover:bg-white/[0.04] rounded-lg transition-colors"
                     >
                       <LogOut size={14} /> {t("nav.logout")}
                     </button>
@@ -243,10 +243,10 @@ export function Navbar() {
               </div>
             ) : (
               <div className="flex items-center gap-3">
-                <Link href={localeHref("/login")} className="text-sm text-white/60 hover:text-gold transition-colors">
+                <Link href={localeHref("/login")} className="text-sm text-parchment-400 hover:text-parchment-200 transition-colors">
                   {t("nav.login")}
                 </Link>
-                <Link href={localeHref("/register")} className="btn-gold text-sm py-2 px-6">
+                <Link href={localeHref("/register")} className="btn-primary text-sm py-2 px-6">
                   {t("nav.register")}
                 </Link>
               </div>
@@ -256,21 +256,21 @@ export function Navbar() {
 
         {/* Mobile & Medium hamburger dropdown — visible below lg */}
         {open && (
-          <div className="lg:hidden bg-ink/95 border-t border-white/10 px-4 py-3 flex flex-col gap-0.5 max-h-[80vh] overflow-y-auto">
+          <div className="lg:hidden bg-cosmos-950/98 border-t border-white/[0.06] px-4 py-3 flex flex-col gap-0.5 max-h-[80vh] overflow-y-auto">
             {coreLinks.map(l => (
               <Link key={l.href} href={l.href} onClick={() => setOpen(false)}
-                className={`py-3.5 px-2 rounded-lg ${l.highlight ? "text-gold font-medium" : "text-white/80 hover:text-gold hover:bg-white/5"}`}>
+                className={`py-3.5 px-2 rounded-lg ${l.highlight ? "text-gold font-medium" : "text-parchment-300 hover:text-parchment-200 hover:bg-white/[0.04]"}`}>
                 {l.label}
               </Link>
             ))}
-            <div className="border-t border-white/10 my-1.5" />
+            <div className="border-t border-white/[0.06] my-1.5" />
             {extraLinks.map(l => (
               <Link key={l.href} href={l.href} onClick={() => setOpen(false)}
-                className="text-white/80 hover:text-gold py-3.5 px-2 rounded-lg hover:bg-white/5">
+                className="text-parchment-300 hover:text-parchment-200 py-3.5 px-2 rounded-lg hover:bg-white/[0.04]">
                 {l.label}
               </Link>
             ))}
-            <div className="border-t border-white/10 my-1.5" />
+            <div className="border-t border-white/[0.06] my-1.5" />
             {/* Auth section for mobile */}
             {user ? (
               <>
@@ -278,24 +278,24 @@ export function Navbar() {
                   <div className="w-8 h-8 rounded-full bg-gold/20 border border-gold/40 flex items-center justify-center">
                     <User size={14} className="text-gold" />
                   </div>
-                  <span className="text-white/80 text-sm truncate flex-1">{user.display_name || user.email}</span>
+                  <span className="text-parchment-300 text-sm truncate flex-1">{user.display_name || user.email}</span>
                   <MembershipBadge tier={getUserTier(user)} size="sm" className="ml-auto" />
                 </div>
                 <Link href={localeHref("/dashboard")} onClick={() => setOpen(false)}
-                  className="text-white/60 hover:text-gold py-3 pl-6 text-sm rounded-lg hover:bg-white/5">
+                  className="text-parchment-400 hover:text-parchment-200 py-3 pl-6 text-sm rounded-lg hover:bg-white/[0.04]">
                   {t("nav.dashboard")}
                 </Link>
                 <Link href={localeHref("/readings")} onClick={() => setOpen(false)}
-                  className="text-white/60 hover:text-gold py-3 pl-6 text-sm rounded-lg hover:bg-white/5">
+                  className="text-parchment-400 hover:text-parchment-200 py-3 pl-6 text-sm rounded-lg hover:bg-white/[0.04]">
                   {t("nav.myReports")}
                 </Link>
                 <Link href={localeHref("/account")} onClick={() => setOpen(false)}
-                  className="text-white/60 hover:text-gold py-3 pl-6 text-sm rounded-lg hover:bg-white/5">
+                  className="text-parchment-400 hover:text-parchment-200 py-3 pl-6 text-sm rounded-lg hover:bg-white/[0.04]">
                   {t("nav.account")}
                 </Link>
                 <button
                   onClick={() => { logout(); setOpen(false) }}
-                  className="flex items-center gap-2 text-white/50 hover:text-red-400 py-3.5 px-2 text-sm text-left rounded-lg hover:bg-white/5"
+                  className="flex items-center gap-2 text-parchment-400 hover:text-red-400 py-3.5 px-2 text-sm text-left rounded-lg hover:bg-white/[0.04]"
                 >
                   <LogOut size={14} /> {t("nav.logout")}
                 </button>
@@ -303,11 +303,11 @@ export function Navbar() {
             ) : (
               <div className="flex items-center gap-3 py-3 px-2">
                 <Link href={localeHref("/login")} onClick={() => setOpen(false)}
-                  className="text-sm text-white/60 hover:text-gold transition-colors py-2 px-4">
+                  className="text-sm text-parchment-400 hover:text-gold transition-colors py-2 px-4">
                   {t("nav.login")}
                 </Link>
                 <Link href={localeHref("/register")} onClick={() => setOpen(false)}
-                  className="btn-gold text-sm py-2.5 px-6 flex-1 text-center">
+                  className="btn-primary text-sm py-2.5 px-6 flex-1 text-center">
                   {t("nav.register")}
                 </Link>
               </div>

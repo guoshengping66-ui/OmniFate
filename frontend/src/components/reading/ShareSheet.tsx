@@ -147,7 +147,7 @@ export function ShareSheet({ sessionId }: Props) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/20 text-white/60 hover:border-gold/40 hover:text-gold transition-all text-sm"
+        className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/20 text-parchment-400 hover:border-gold/40 hover:text-gold transition-all text-sm"
       >
         <Share2 size={14} />
         {t("share.title")}
@@ -160,54 +160,54 @@ export function ShareSheet({ sessionId }: Props) {
             className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm anim-fade-in"
           />
 
-          <div className="fixed bottom-0 left-0 right-0 z-50 bg-ink border-t border-gold/20 rounded-t-3xl p-6 pb-10 max-w-lg mx-auto anim-slide-in-up">
+          <div className="fixed bottom-0 left-0 right-0 z-50 bg-cosmos-950 border-t border-gold/20 rounded-t-3xl p-6 pb-10 max-w-lg mx-auto anim-slide-in-up">
             <div className="flex items-center justify-between mb-6">
               <h3 className="font-serif text-lg text-gold">{t("share.title")}</h3>
-              <button onClick={() => setOpen(false)} className="text-white/40 hover:text-white transition-colors">
+              <button onClick={() => setOpen(false)} className="text-parchment-400 hover:text-white transition-colors">
                 <X size={20} />
               </button>
             </div>
 
             <div className="grid grid-cols-4 gap-4 mb-6">
               <button onClick={handleCopy}
-                className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 hover:bg-gold/10 border border-white/10 hover:border-gold/30 transition-all group">
+                className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/[0.04] hover:bg-gold/10 border border-white/[0.06] hover:border-gold/30 transition-all group">
                 <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
-                  {copied ? <Check size={18} className="text-green-400" /> : <Copy size={18} className="text-white/60" />}
+                  {copied ? <Check size={18} className="text-green-400" /> : <Copy size={18} className="text-parchment-400" />}
                 </div>
-                <span className="text-[10px] text-white/40">{copied ? t("share.copied") : t("share.copyLink")}</span>
+                <span className="text-xs text-parchment-400">{copied ? t("share.copied") : t("share.copyLink")}</span>
               </button>
 
               {typeof navigator !== "undefined" && !!navigator.share && (
                 <button onClick={handleShare}
-                  className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 hover:bg-gold/10 border border-white/10 hover:border-gold/30 transition-all group">
+                  className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/[0.04] hover:bg-gold/10 border border-white/[0.06] hover:border-gold/30 transition-all group">
                   <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
-                    <Share2 size={18} className="text-white/60" />
+                    <Share2 size={18} className="text-parchment-400" />
                   </div>
-                  <span className="text-[10px] text-white/40">{t("share.moreShare")}</span>
+                  <span className="text-xs text-parchment-400">{t("share.moreShare")}</span>
                 </button>
               )}
 
               <button onClick={handleDownloadPoster}
-                className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 hover:bg-gold/10 border border-white/10 hover:border-gold/30 transition-all group">
+                className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/[0.04] hover:bg-gold/10 border border-white/[0.06] hover:border-gold/30 transition-all group">
                 <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
-                  <Download size={18} className="text-white/60" />
+                  <Download size={18} className="text-parchment-400" />
                 </div>
-                <span className="text-[10px] text-white/40">{t("share.downloadCard")}</span>
+                <span className="text-xs text-parchment-400">{t("share.downloadCard")}</span>
               </button>
 
               <button onClick={handleDownloadPdf}
-                className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 hover:bg-gold/10 border border-white/10 hover:border-gold/30 transition-all group">
+                className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/[0.04] hover:bg-gold/10 border border-white/[0.06] hover:border-gold/30 transition-all group">
                 <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
-                  <FileText size={18} className="text-white/60" />
+                  <FileText size={18} className="text-parchment-400" />
                 </div>
-                <span className="text-[10px] text-white/40">{t("share.downloadPdf")}</span>
+                <span className="text-xs text-parchment-400">{t("share.downloadPdf")}</span>
               </button>
 
-              <div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 border border-white/10 transition-all group opacity-60 cursor-not-allowed">
+              <div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/[0.04] border border-white/[0.06] transition-all group opacity-60 cursor-not-allowed">
                 <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
                   <span className="text-sm">💚</span>
                 </div>
-                <span className="text-[10px] text-white/40">{t("share.wechat")}</span>
+                <span className="text-xs text-parchment-400">{t("share.wechat")}</span>
               </div>
             </div>
 
@@ -217,7 +217,7 @@ export function ShareSheet({ sessionId }: Props) {
                   <Gift size={16} className="text-gold" />
                   <span className="text-gold text-sm font-medium">{t("share.inviteFriend")}</span>
                 </div>
-                <p className="text-white/40 text-xs mb-3">{t("share.inviteDesc")}</p>
+                <p className="text-parchment-400 text-xs mb-3">{t("share.inviteDesc")}</p>
                 <button
                   onClick={handleCopyReferral}
                   className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-gold/10 border border-gold/30 text-gold text-xs hover:bg-gold/20 transition-all"
@@ -228,9 +228,9 @@ export function ShareSheet({ sessionId }: Props) {
             )}
 
             <div className="bg-gradient-to-br from-gold/10 via-ink-light to-ink rounded-xl p-4 border border-gold/20">
-              <p className="text-white/40 text-xs mb-1">{t("share.previewTitle")}</p>
+              <p className="text-parchment-400 text-xs mb-1">{t("share.previewTitle")}</p>
               <p className="text-gold text-sm font-medium">{t("share.previewText")}</p>
-              <p className="text-white/30 text-xs mt-1">{t("share.previewDesc")}</p>
+              <p className="text-parchment-400 text-xs mt-1">{t("share.previewDesc")}</p>
             </div>
           </div>
         </>

@@ -79,7 +79,7 @@ export default function ServicesShowcase() {
               {t("services.title")}
             </span>
           </h2>
-          <p className="text-white/30 text-sm max-w-lg mx-auto">{t("services.desc")}</p>
+          <p className="text-parchment-400 text-sm max-w-lg mx-auto">{t("services.desc")}</p>
         </div>
 
         {/* Service cards grid */}
@@ -128,7 +128,7 @@ export default function ServicesShowcase() {
 
               {/* Tag */}
               <span
-                className="inline-block text-[10px] tracking-wider uppercase px-2 py-0.5 rounded-full mb-3"
+                className="inline-block text-xs tracking-wider uppercase px-2 py-0.5 rounded-full mb-3"
                 style={{
                   background: `${service.color}12`,
                   color: `${service.color}99`,
@@ -139,7 +139,7 @@ export default function ServicesShowcase() {
               </span>
 
               {/* Description */}
-              <p className="text-white/30 text-xs leading-relaxed">
+              <p className="text-parchment-400 text-xs leading-relaxed">
                 {t(service.descKey)}
               </p>
 

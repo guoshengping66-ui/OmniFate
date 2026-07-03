@@ -59,13 +59,13 @@ export function PaymentModal({
   if (status === "success") {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-        <div className="card-glass p-8 text-center max-w-sm w-full animate-in zoom-in-95 duration-300">
+        <div className="card-solid p-8 text-center max-w-sm w-full animate-in zoom-in-95 duration-300">
           <div className="w-16 h-16 rounded-full bg-green-500/20 border border-green-500/40 flex items-center justify-center mx-auto mb-4">
             <CheckCircle size={32} className="text-green-400" />
           </div>
           <h3 className="text-xl font-serif font-bold text-gold mb-2">{t("paymentModal.paid")}</h3>
-          <p className="text-white/60 text-sm mb-6">{t("paymentModal.paidDesc")}</p>
-          <button onClick={onClose} className="btn-gold w-full">
+          <p className="text-parchment-400 text-sm mb-6">{t("paymentModal.paidDesc")}</p>
+          <button onClick={onClose} className="btn-primary w-full">
             {t("paymentModal.viewReport")}
           </button>
         </div>
@@ -75,22 +75,22 @@ export function PaymentModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="card-glass p-6 md:p-8 max-w-md w-full animate-in zoom-in-95 duration-300">
+      <div className="card-solid p-6 md:p-8 max-w-md w-full animate-in zoom-in-95 duration-300">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <Shield size={20} className="text-gold" />
             <h3 className="font-serif text-lg font-bold text-gold">{title}</h3>
           </div>
           <button onClick={onClose} disabled={status === "processing"}
-            className="text-white/30 hover:text-white/60 transition-colors">
+            className="text-parchment-400 hover:text-parchment-400 transition-colors">
             <X size={20} />
           </button>
         </div>
 
-        <p className="text-white/60 text-sm mb-6">{description}</p>
+        <p className="text-parchment-400 text-sm mb-6">{description}</p>
 
-        <div className="bg-white/5 rounded-xl p-5 mb-6 text-center">
-          <p className="text-white/40 text-xs mb-1">{t("paymentModal.amount")}</p>
+        <div className="bg-white/[0.04] rounded-xl p-5 mb-6 text-center">
+          <p className="text-parchment-400 text-xs mb-1">{t("paymentModal.amount")}</p>
           <p className="text-3xl font-bold text-gold">{priceDisplay}</p>
         </div>
 
@@ -113,7 +113,7 @@ export function PaymentModal({
             </button>
             <div className="flex items-center justify-center gap-2 my-3">
               <div className="flex-1 h-px bg-white/10" />
-              <span className="text-white/20 text-xs">{t("paymentModal.or")}</span>
+              <span className="text-parchment-400 text-xs">{t("paymentModal.or")}</span>
               <div className="flex-1 h-px bg-white/10" />
             </div>
           </div>
@@ -122,7 +122,7 @@ export function PaymentModal({
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-3">
             <CreditCard size={14} className="text-gold/60" />
-            <span className="text-white/50 text-xs font-medium">{t("paymentModal.selectPayment")}</span>
+            <span className="text-parchment-400 text-xs font-medium">{t("paymentModal.selectPayment")}</span>
           </div>
           <PaymentMethodSelector
             selected={paymentMethod}
@@ -133,7 +133,7 @@ export function PaymentModal({
         {perks.length > 0 && (
           <div className="mb-6 space-y-2">
             {perks.map((p, i) => (
-              <div key={i} className="flex items-center gap-2 text-sm text-white/60">
+              <div key={i} className="flex items-center gap-2 text-sm text-parchment-400">
                 <Sparkles size={12} className="text-gold flex-shrink-0" />
                 {p}
               </div>
@@ -144,14 +144,14 @@ export function PaymentModal({
         <button
           onClick={handlePay}
           disabled={status === "processing"}
-          className="btn-gold w-full flex items-center justify-center gap-2 py-3"
+          className="btn-primary w-full flex items-center justify-center gap-2 py-3"
         >
           {status === "processing"
             ? <><Loader2 size={18} className="animate-spin" /> {t("paymentModal.processing")}</>
             : <>{t("paymentModal.confirmPay")} {priceDisplay}</>}
         </button>
 
-        <p className="text-white/20 text-[11px] text-center mt-4">
+        <p className="text-parchment-400 text-xs text-center mt-4">
           Secure checkout powered by Stripe.
         </p>
       </div>

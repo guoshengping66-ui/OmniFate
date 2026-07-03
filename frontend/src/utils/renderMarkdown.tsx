@@ -14,7 +14,7 @@ function renderInline(text: string): JSX.Element[] {
       parts.push(<span key={key++}>{text.slice(lastIndex, match.index)}</span>)
     }
     if (match[2]) {
-      parts.push(<strong key={key++} className="text-white/80 font-medium">{match[2]}</strong>)
+      parts.push(<strong key={key++} className="text-parchment-200 font-medium">{match[2]}</strong>)
     } else if (match[3]) {
       parts.push(<code key={key++} className="px-1.5 py-0.5 bg-white/[0.06] rounded text-gold/70 text-xs">{match[3]}</code>)
     }
@@ -68,7 +68,7 @@ export function renderMarkdown(raw: string): JSX.Element[] {
                 <thead>
                   <tr>
                     {tableRows[0].map((cell, ci) => (
-                      <th key={ci} className="px-3 py-2 text-left text-gold/80 font-medium border-b border-white/10 bg-white/[0.03]">
+                      <th key={ci} className="px-3 py-2 text-left text-gold/80 font-medium border-b border-white/[0.06] bg-white/[0.03]">
                         {renderInline(cell)}
                       </th>
                     ))}
@@ -79,7 +79,7 @@ export function renderMarkdown(raw: string): JSX.Element[] {
                 {(isHeader ? tableRows.slice(1) : tableRows).map((row, ri) => (
                   <tr key={ri} className="border-b border-white/[0.05] hover:bg-white/[0.02]">
                     {row.map((cell, ci) => (
-                      <td key={ci} className="px-3 py-2 text-white/50">
+                      <td key={ci} className="px-3 py-2 text-parchment-400">
                         {renderInline(cell)}
                       </td>
                     ))}
@@ -114,7 +114,7 @@ export function renderMarkdown(raw: string): JSX.Element[] {
       elements.push(
         <ul key={key++} className="space-y-1.5 my-3 ml-4">
           {listItems.map((item, li) => (
-            <li key={li} className="text-sm text-white/60 leading-relaxed list-disc list-inside">
+            <li key={li} className="text-sm text-parchment-400 leading-relaxed list-disc list-inside">
               {renderInline(item)}
             </li>
           ))}
@@ -133,7 +133,7 @@ export function renderMarkdown(raw: string): JSX.Element[] {
       elements.push(
         <ol key={key++} className="space-y-1.5 my-3 ml-4">
           {listItems.map((item, li) => (
-            <li key={li} className="text-sm text-white/60 leading-relaxed list-decimal list-inside">
+            <li key={li} className="text-sm text-parchment-400 leading-relaxed list-decimal list-inside">
               {renderInline(item)}
             </li>
           ))}
@@ -153,7 +153,7 @@ export function renderMarkdown(raw: string): JSX.Element[] {
     }
 
     // 普通段落
-    elements.push(<p key={key++} className="text-sm text-white/60 leading-relaxed mb-3">{renderInline(trimmed)}</p>)
+    elements.push(<p key={key++} className="text-sm text-parchment-400 leading-relaxed mb-3">{renderInline(trimmed)}</p>)
     i++
   }
 

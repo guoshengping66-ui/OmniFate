@@ -84,52 +84,52 @@ export default async function FiveElementCompatibilityPage({ params }: PageProps
           <div className="text-center mb-16">
             <div className="flex items-center justify-center gap-4 mb-4">
               <span className="text-5xl">{ELEMENT_EMOJI[data.element_a]}</span>
-              <span className="text-white/30 text-2xl font-serif">+</span>
+              <span className="text-parchment-400 text-2xl font-serif">+</span>
               <span className="text-5xl">{ELEMENT_EMOJI[data.element_b]}</span>
             </div>
             <h1 className="text-3xl md:text-4xl font-serif font-bold text-white mb-2">
               {isZh ? `${elA?.name_zh || element}与${elB?.name_zh || b} Compatibility` : `${elA?.name_en || element} and ${elB?.name_en || b} Compatibility`}
             </h1>
-            <p className="text-white/40 text-sm">{isZh ? "五行 compatibility 分析" : "Five Elements Compatibility Analysis"}</p>
+            <p className="text-parchment-400 text-sm">{isZh ? "五行 compatibility 分析" : "Five Elements Compatibility Analysis"}</p>
           </div>
         </ScrollReveal>
 
         <ScrollReveal delay={0.1}>
-          <div className="card-glass p-8 md:p-10 mb-8 text-center">
+          <div className="card-solid p-8 md:p-10 mb-8 text-center">
             <div className="text-6xl font-serif font-bold text-gold mb-2">{data.score}</div>
-            <div className="text-white/50 text-sm mb-1">{isZh ? "综合 compatibility 评分" : "Overall Compatibility Score"}</div>
-            <div className={`text-lg font-medium ${data.score >= 60 ? "text-gold" : data.score >= 40 ? "text-white/60" : "text-red-400"}`}>
+            <div className="text-parchment-400 text-sm mb-1">{isZh ? "综合 compatibility 评分" : "Overall Compatibility Score"}</div>
+            <div className={`text-lg font-medium ${data.score >= 60 ? "text-gold" : data.score >= 40 ? "text-parchment-400" : "text-red-400"}`}>
               {getRelation(data.score)}
             </div>
           </div>
         </ScrollReveal>
 
         <ScrollReveal delay={0.15}>
-          <div className="card-glass p-8 md:p-10 mb-8">
+          <div className="card-solid p-8 md:p-10 mb-8">
             <h2 className="font-serif text-2xl text-gold mb-4">{isZh ? "五行关系" : "Element Relationship"}</h2>
-            <p className="text-white/60 text-sm leading-relaxed">{isZh ? data.overview_zh : data.overview_en}</p>
+            <p className="text-parchment-400 text-sm leading-relaxed">{isZh ? data.overview_zh : data.overview_en}</p>
           </div>
         </ScrollReveal>
 
         <ScrollReveal delay={0.2}>
           <div className="grid md:grid-cols-2 gap-4 mb-8">
-            <div className="card-glow p-6">
+            <div className="card-interactive p-6">
               <div className="text-3xl mb-3">💕</div>
               <h3 className="font-serif font-bold text-gold mb-2">{isZh ? "爱情" : "Love"}</h3>
-              <p className="text-white/50 text-sm leading-relaxed">{isZh ? data.love_zh : data.love_en}</p>
+              <p className="text-parchment-400 text-sm leading-relaxed">{isZh ? data.love_zh : data.love_en}</p>
             </div>
-            <div className="card-glow p-6">
+            <div className="card-interactive p-6">
               <div className="text-3xl mb-3">💼</div>
               <h3 className="font-serif font-bold text-gold mb-2">{isZh ? "事业" : "Career"}</h3>
-              <p className="text-white/50 text-sm leading-relaxed">{isZh ? data.career_zh : data.career_en}</p>
+              <p className="text-parchment-400 text-sm leading-relaxed">{isZh ? data.career_zh : data.career_en}</p>
             </div>
           </div>
         </ScrollReveal>
 
         <ScrollReveal delay={0.25}>
-          <div className="card-glass p-8 md:p-10 mb-8">
+          <div className="card-solid p-8 md:p-10 mb-8">
             <h2 className="font-serif text-2xl text-gold mb-4">{isZh ? "建议" : "Tips"}</h2>
-            <p className="text-white/60 text-sm leading-relaxed">{isZh ? data.tips_zh : data.tips_en}</p>
+            <p className="text-parchment-400 text-sm leading-relaxed">{isZh ? data.tips_zh : data.tips_en}</p>
           </div>
         </ScrollReveal>
 

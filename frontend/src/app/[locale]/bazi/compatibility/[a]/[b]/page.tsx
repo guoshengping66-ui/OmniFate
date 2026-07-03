@@ -124,43 +124,43 @@ export default async function BaziCompatibilityPage({ params }: PageProps) {
           <div className="text-center mb-16">
             <div className="flex items-center justify-center gap-4 mb-4">
               <span className="text-5xl">{dataA.emoji}</span>
-              <span className="text-white/30 text-2xl font-serif">+</span>
+              <span className="text-parchment-400 text-2xl font-serif">+</span>
               <span className="text-5xl">{dataB.emoji}</span>
             </div>
             <h1 className="text-3xl md:text-4xl font-serif font-bold text-white mb-2">
               {isZh ? `${dataA.name_zh} + ${dataB.name_zh}` : `${dataA.name_en} + ${dataB.name_en}`}
             </h1>
-            <p className="text-white/40 text-sm">
+            <p className="text-parchment-400 text-sm">
               {isZh ? "八字日主配对分析" : "Bazi Day Master Compatibility"}
             </p>
           </div>
         </ScrollReveal>
 
         <ScrollReveal delay={0.1}>
-          <div className="card-glass p-8 md:p-10 mb-8 text-center">
+          <div className="card-solid p-8 md:p-10 mb-8 text-center">
             <div className="text-6xl font-serif font-bold text-gold mb-2">{score}</div>
-            <div className="text-white/50 text-sm mb-1">{isZh ? "综合 compatibility 评分" : "Overall Compatibility Score"}</div>
-            <div className={`text-lg font-medium ${score >= 60 ? "text-gold" : score >= 40 ? "text-white/60" : "text-red-400"}`}>
+            <div className="text-parchment-400 text-sm mb-1">{isZh ? "综合 compatibility 评分" : "Overall Compatibility Score"}</div>
+            <div className={`text-lg font-medium ${score >= 60 ? "text-gold" : score >= 40 ? "text-parchment-400" : "text-red-400"}`}>
               {getRelation(score)}
             </div>
           </div>
         </ScrollReveal>
 
         <ScrollReveal delay={0.15}>
-          <div className="card-glass p-8 md:p-10 mb-8">
+          <div className="card-solid p-8 md:p-10 mb-8">
             <h2 className="font-serif text-2xl text-gold mb-4">{isZh ? "五行分析" : "Five Element Analysis"}</h2>
-            <p className="text-white/60 text-sm leading-relaxed">
+            <p className="text-parchment-400 text-sm leading-relaxed">
               {getRelationDesc(dataA.element, dataB.element, score)}
             </p>
             <div className="grid grid-cols-2 gap-4 mt-6">
-              <div className="p-4 bg-white/[0.03] rounded-xl border border-white/10 text-center">
+              <div className="p-4 bg-white/[0.03] rounded-xl border border-white/[0.06] text-center">
                 <div className="text-2xl mb-1">{dataA.emoji}</div>
-                <div className="text-white/70 text-sm">{isZh ? dataA.name_zh : dataA.name_en}</div>
+                <div className="text-parchment-300 text-sm">{isZh ? dataA.name_zh : dataA.name_en}</div>
                 <div className="text-gold/60 text-xs">{ELEMENT_DESC[dataA.element][isZh ? "zh" : "en"]}</div>
               </div>
-              <div className="p-4 bg-white/[0.03] rounded-xl border border-white/10 text-center">
+              <div className="p-4 bg-white/[0.03] rounded-xl border border-white/[0.06] text-center">
                 <div className="text-2xl mb-1">{dataB.emoji}</div>
-                <div className="text-white/70 text-sm">{isZh ? dataB.name_zh : dataB.name_en}</div>
+                <div className="text-parchment-300 text-sm">{isZh ? dataB.name_zh : dataB.name_en}</div>
                 <div className="text-gold/60 text-xs">{ELEMENT_DESC[dataB.element][isZh ? "zh" : "en"]}</div>
               </div>
             </div>

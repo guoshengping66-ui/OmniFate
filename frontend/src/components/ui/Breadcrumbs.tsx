@@ -56,20 +56,20 @@ export function Breadcrumbs({ items, currentPath }: BreadcrumbsProps) {
           dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }}
         />
       )}
-      <nav className="flex items-center gap-1.5 text-xs text-white/30 mb-6 overflow-x-auto scrollbar-none">
+      <nav className="flex items-center gap-1.5 text-xs text-parchment-400 mb-6 overflow-x-auto scrollbar-none">
         <Link href={localeHref("/")} className="flex items-center gap-1 hover:text-gold transition-colors whitespace-nowrap">
           <Home size={12} />
           <span>{t("breadcrumb.home")}</span>
         </Link>
         {items.map((item, i) => (
           <span key={i} className="flex items-center gap-1.5 whitespace-nowrap">
-            <ChevronRight size={10} className="text-white/20" />
+            <ChevronRight size={10} className="text-parchment-400" />
             {item.href ? (
               <Link href={item.href} className="hover:text-gold transition-colors">
                 {item.label}
               </Link>
             ) : (
-              <span className="text-white/60">{item.label}</span>
+              <span className="text-parchment-400">{item.label}</span>
             )}
           </span>
         ))}

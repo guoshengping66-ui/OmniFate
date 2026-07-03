@@ -294,7 +294,7 @@ const EnergyIDCardInner = ({ sessionId, dimensionScores, generatedAt, ..._rest }
                 <div className="flex items-start justify-between mb-6">
                   <div>
                     <motion.p
-                      className="text-[10px] tracking-[0.2em] uppercase mb-1"
+                      className="text-xs tracking-[0.2em] uppercase mb-1"
                       style={{ color: `${archetype.color}99` }}
                       initial={{ opacity: 0, x: -10 }}
                       animate={visible ? { opacity: 1, x: 0 } : {}}
@@ -316,7 +316,7 @@ const EnergyIDCardInner = ({ sessionId, dimensionScores, generatedAt, ..._rest }
                     </motion.h3>
                   </div>
                   <button onClick={(e) => { e.stopPropagation(); handleShare() }}
-                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-white/40 hover:text-gold hover:border-gold/30 transition-all text-[10px]">
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.04] border border-white/[0.06] text-parchment-400 hover:text-gold hover:border-gold/30 transition-all text-xs">
                     <Share2 size={10} /> {t("energyId.shareBtn")}
                   </button>
                 </div>
@@ -330,7 +330,7 @@ const EnergyIDCardInner = ({ sessionId, dimensionScores, generatedAt, ..._rest }
 
                 {/* ── Digital Signature ── */}
                 <div className="text-center mb-5">
-                  <p className="text-white/20 text-[8px] tracking-[0.25em] uppercase mb-2">{t("energyId.digitalSig")}</p>
+                  <p className="text-parchment-400 text-[8px] tracking-[0.25em] uppercase mb-2">{t("energyId.digitalSig")}</p>
                   <p className="shimmer-id-text font-mono text-lg font-bold tracking-[0.12em]"
                     style={{
                       backgroundImage: shimmerActive
@@ -354,7 +354,7 @@ const EnergyIDCardInner = ({ sessionId, dimensionScores, generatedAt, ..._rest }
                         boxShadow: `0 0 8px ${archetype.color}10`,
                       }}>
                       <span className="text-xs">{DIM_LABELS[key]}</span>
-                      <span className="text-[10px] font-mono font-bold" style={{ color: archetype.color }}>
+                      <span className="text-xs font-mono font-bold" style={{ color: archetype.color }}>
                         {val.toFixed(1)}
                       </span>
                     </div>
@@ -368,7 +368,7 @@ const EnergyIDCardInner = ({ sessionId, dimensionScores, generatedAt, ..._rest }
                   animate={visible ? { opacity: 1 } : {}}
                   transition={{ delay: 1.2, duration: 1 }}
                 >
-                  <p className="text-white/30 text-[11px] leading-relaxed italic">
+                  <p className="text-parchment-400 text-xs leading-relaxed italic">
                     &ldquo;{prophecy}&rdquo;
                   </p>
                 </motion.div>
@@ -379,21 +379,21 @@ const EnergyIDCardInner = ({ sessionId, dimensionScores, generatedAt, ..._rest }
                     <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: `${archetype.color}20` }}>
                       <span className="text-[8px] font-bold" style={{ color: archetype.color }}>{locale === "zh" ? "命" : "✦"}</span>
                     </div>
-                    <span className="text-white/20 text-[9px] tracking-wider">PROFILE MIRROR</span>
+                    <span className="text-parchment-400 text-[9px] tracking-wider">PROFILE MIRROR</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-white/15 text-[9px]">{formatDate(generatedAt)}</span>
+                    <span className="text-parchment-400 text-[9px]">{formatDate(generatedAt)}</span>
                     <div className="flex items-center gap-1">
                       <ShieldCheck size={10} style={{ color: archetype.color }} className="opacity-50" />
-                      <span className="text-white/25 text-[9px]">{t("energyId.certLabel")}</span>
+                      <span className="text-parchment-400 text-[9px]">{t("energyId.certLabel")}</span>
                     </div>
                     <button onClick={(e) => { e.stopPropagation(); handleCopy() }}
-                      className="flex items-center gap-1 text-white/30 hover:text-gold transition-colors">
+                      className="flex items-center gap-1 text-parchment-400 hover:text-gold transition-colors">
                       {copied ? <Check size={10} className="text-green-400" /> : <Copy size={10} />}
                       <span className="text-[9px]">{copied ? t("reading.copied") : t("reading.copyId")}</span>
                     </button>
                     <button onClick={(e) => { e.stopPropagation(); setFlipped(true) }}
-                      className="flex items-center gap-1 text-white/30 hover:text-gold transition-colors" title={t("energyId.scanHint")}>
+                      className="flex items-center gap-1 text-parchment-400 hover:text-gold transition-colors" title={t("energyId.scanHint")}>
                       <QrCode size={10} />
                     </button>
                   </div>
@@ -418,14 +418,14 @@ const EnergyIDCardInner = ({ sessionId, dimensionScores, generatedAt, ..._rest }
                 style={{ background: `radial-gradient(circle, ${archetype.glow}, transparent)` }} />
 
               <div className="relative p-6 flex flex-col items-center justify-center h-full min-h-[340px]">
-                <p className="text-white/20 text-[9px] tracking-[0.2em] uppercase mb-4">{t("energyId.scanHint")}</p>
+                <p className="text-parchment-400 text-[9px] tracking-[0.2em] uppercase mb-4">{t("energyId.scanHint")}</p>
                 <div className="bg-white rounded-xl p-3 mb-4" style={{ boxShadow: `0 0 30px ${archetype.glow}` }}>
                   <QRCodeSVG value={shareUrl || signature} size={130} bgColor="white" fgColor="#1a1030" level="M" />
                 </div>
                 <p className="font-mono text-xs tracking-wider mb-5" style={{ color: `${archetype.color}AA` }}>{signature}</p>
                 <div className="flex gap-3">
                   <button onClick={(e) => { e.stopPropagation(); setFlipped(false) }}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-gold hover:border-gold/30 transition-all text-xs">
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/[0.04] border border-white/[0.06] text-parchment-400 hover:text-gold hover:border-gold/30 transition-all text-xs">
                     <RotateCcw size={12} /> {t("energyId.flipBack")}
                   </button>
                   <button onClick={(e) => { e.stopPropagation(); handleShare() }}

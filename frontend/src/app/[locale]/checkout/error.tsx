@@ -26,11 +26,11 @@ export default function CheckoutError({
 
   if (autoReloading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-ink px-4">
-        <div className="max-w-md w-full card-glass p-8 text-center">
+      <div className="min-h-screen flex items-center justify-center bg-cosmos-950 px-4">
+        <div className="max-w-md w-full card-solid p-8 text-center">
           <div className="text-4xl mb-4">🔄</div>
           <h2 className="font-serif text-xl text-gold mb-3">Loading...</h2>
-          <p className="text-white/50 text-sm">
+          <p className="text-parchment-400 text-sm">
             Page resources updated, auto-refreshing...
           </p>
         </div>
@@ -39,16 +39,16 @@ export default function CheckoutError({
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-ink px-4">
-      <div className="max-w-md w-full card-glass p-8 text-center">
+    <div className="min-h-screen flex items-center justify-center bg-cosmos-950 px-4">
+      <div className="max-w-md w-full card-solid p-8 text-center">
         <div className="text-4xl mb-4">⚠️</div>
         <h2 className="font-serif text-xl text-gold mb-3">Something went wrong</h2>
-        <p className="text-white/50 text-sm mb-6">
+        <p className="text-parchment-400 text-sm mb-6">
           The checkout page encountered an error. Please try again.
         </p>
         {/* Error details hidden in all environments to prevent info leakage */}
         <div className="flex gap-3 justify-center">
-          <button onClick={reset} className="btn-gold text-sm px-6 py-2">
+          <button onClick={reset} className="btn-primary text-sm px-6 py-2">
             Try again
           </button>
           <button
@@ -57,7 +57,7 @@ export default function CheckoutError({
               url.searchParams.set("_cb", Date.now().toString())
               window.location.href = url.toString()
             }}
-            className="px-6 py-2 rounded-full border border-white/20 text-white/60 hover:text-white/80 hover:border-white/40 text-sm transition-all"
+            className="px-6 py-2 rounded-full border border-white/20 text-parchment-400 hover:text-parchment-200 hover:border-white/40 text-sm transition-all"
           >
             Reload page
           </button>

@@ -114,7 +114,7 @@ export function PricingCard({
                   style={{ width: `${founderSoldPercent}%` }}
                 />
               </div>
-              <p className="text-gold/40 text-[11px] mt-1.5 text-center">
+              <p className="text-gold/40 text-xs mt-1.5 text-center">
                 {t("pricingCard.seatsRemaining").replace("{count}", String(remaining))}
               </p>
             </div>
@@ -130,7 +130,7 @@ export function PricingCard({
               {tierT.cta || tier.cta}
             </button>
 
-            <p className="text-gold/30 text-[10px] text-center leading-relaxed">
+            <p className="text-gold/30 text-xs text-center leading-relaxed">
               {t("pricingCard.payToLock")}
             </p>
           </div>
@@ -146,7 +146,7 @@ export function PricingCard({
           ? "border-2 border-transparent bg-gradient-to-b from-[#1a1510] to-ink shadow-[0_0_40px_rgba(201,168,76,0.15)]"
           : isReport
             ? "bg-gradient-to-b from-white/[0.06] to-white/[0.02] border border-gold/20 hover:shadow-[0_0_20px_rgba(201,168,76,0.12)]"
-            : "bg-white/[0.04] border border-white/10 hover:border-gold/25 hover:shadow-[0_0_16px_rgba(201,168,76,0.08)]"
+            : "bg-white/[0.04] border border-white/[0.06] hover:border-gold/25 hover:shadow-[0_0_16px_rgba(201,168,76,0.08)]"
         }`}
     >
       {isYearly && (
@@ -159,14 +159,14 @@ export function PricingCard({
       <div className="relative p-6 flex flex-col h-full">
         {tier.badge && (
           <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-            <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-4 py-1.5 rounded-full whitespace-nowrap shadow-lg
+            <span className={`inline-flex items-center gap-1 text-xs font-bold px-4 py-1.5 rounded-full whitespace-nowrap shadow-lg
               ${isYearly
-                ? "bg-gradient-to-r from-gold to-[#E8CB7A] text-ink"
+                ? "bg-gradient-to-r from-gold to-[#E8CB7A] text-cosmos-950"
                 : isReport && isNewUser
-                  ? "bg-gradient-to-r from-gold to-[#E8CB7A] text-ink"
+                  ? "bg-gradient-to-r from-gold to-[#E8CB7A] text-cosmos-950"
                   : isReport
                     ? "bg-gold/20 text-gold border border-gold/30"
-                    : "bg-white/10 text-white/70 border border-white/20"
+                    : "bg-white/10 text-parchment-300 border border-white/20"
               }`}
             >
               {isYearly && <Sparkles size={11} />}
@@ -179,7 +179,7 @@ export function PricingCard({
           <h3 className={`text-xl font-serif font-bold ${isYearly ? "text-gold" : "text-white"}`}>
             {tierT.name}
           </h3>
-          <p className="text-white/35 text-xs mt-1">{tierT.subtitle || tier.subtitle}</p>
+          <p className="text-parchment-400 text-xs mt-1">{tierT.subtitle || tier.subtitle}</p>
         </div>
 
         {tier.stardustGrant && (
@@ -206,7 +206,7 @@ export function PricingCard({
 
         {tier.stardustDiscount !== undefined && tier.stardustDiscount < 1 && tier.stardustDiscount > 0 && (
           <div className="text-center mb-3">
-            <span className="inline-flex items-center gap-1 text-[11px] text-gold bg-gold/10 px-2.5 py-1 rounded-full border border-gold/15">
+            <span className="inline-flex items-center gap-1 text-xs text-gold bg-gold/10 px-2.5 py-1 rounded-full border border-gold/15">
               <Zap size={10} />
               {t("pricingCard.discount").replace("{discount}", String(Math.round(tier.stardustDiscount * 100)))}
             </span>
@@ -221,13 +221,13 @@ export function PricingCard({
           </div>
           {originalPrice && (
             <div className="mt-0.5">
-              <span className="text-white/20 text-xs line-through">
+              <span className="text-parchment-400 text-xs line-through">
                 {isDomestic ? `¥${originalPrice}` : `$${originalPrice}`}
               </span>
             </div>
           )}
           {tier.billingLabel && (
-            <p className="text-white/25 text-[11px] mt-1">{tierT.billingLabel || tier.billingLabel}</p>
+            <p className="text-parchment-400 text-xs mt-1">{tierT.billingLabel || tier.billingLabel}</p>
           )}
         </div>
 
@@ -241,9 +241,9 @@ export function PricingCard({
               <li key={i} className="flex items-start gap-2.5 text-sm">
                 <Check
                   size={14}
-                  className={`mt-0.5 flex-shrink-0 ${isYearly ? "text-gold/70" : isReport ? "text-gold/50" : "text-white/30"}`}
+                  className={`mt-0.5 flex-shrink-0 ${isYearly ? "text-gold/70" : isReport ? "text-gold/50" : "text-parchment-400"}`}
                 />
-                <span className={`${isYearly ? "text-white/70" : isReport ? "text-white/55" : "text-white/50"}`}>
+                <span className={`${isYearly ? "text-parchment-300" : isReport ? "text-parchment-300" : "text-parchment-400"}`}>
                   {f}
                   {isExclusive && (
                     <span className="ml-1.5 inline-flex items-center gap-0.5 text-[9px] font-bold text-gold bg-gold/15 px-1.5 py-0.5 rounded-full align-middle">
@@ -260,12 +260,12 @@ export function PricingCard({
           onClick={() => onSelect?.(tier.id)}
           className={`mt-auto w-full py-3 rounded-full font-semibold text-sm transition-all duration-300
             ${isYearly
-              ? "bg-gold text-ink hover:shadow-[0_0_24px_rgba(201,168,76,0.5)] hover:scale-[1.02]"
+              ? "bg-gold text-cosmos-950 hover:shadow-[0_0_24px_rgba(201,168,76,0.5)] hover:scale-[1.02]"
               : isReport
-                ? "bg-gradient-to-r from-gold to-[#E8CB7A] text-ink hover:shadow-[0_0_20px_rgba(201,168,76,0.4)]"
+                ? "bg-gradient-to-r from-gold to-[#E8CB7A] text-cosmos-950 hover:shadow-[0_0_20px_rgba(201,168,76,0.4)]"
                 : isFree
                   ? "border border-gold/30 text-gold hover:bg-gold/8"
-                  : "border border-white/15 text-white/55 hover:border-gold/30 hover:text-gold"
+                  : "border border-white/15 text-parchment-300 hover:border-gold/30 hover:text-gold"
             }
             active:scale-[0.97]`}
         >

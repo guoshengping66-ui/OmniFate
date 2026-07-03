@@ -58,15 +58,15 @@ export default function FounderLoungePage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-ink flex items-center justify-center">
-        <p className="text-white/40">{t("founder.loginRequired")}</p>
+      <div className="min-h-screen bg-cosmos-950 flex items-center justify-center">
+        <p className="text-parchment-400">{t("founder.loginRequired")}</p>
       </div>
     )
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-ink flex items-center justify-center">
+      <div className="min-h-screen bg-cosmos-950 flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
       </div>
     )
@@ -74,10 +74,10 @@ export default function FounderLoungePage() {
 
   if (!founderInfo?.is_founder) {
     return (
-      <div className="min-h-screen bg-ink flex items-center justify-center">
+      <div className="min-h-screen bg-cosmos-950 flex items-center justify-center">
         <div className="text-center">
           <Crown size={48} className="text-gold/30 mx-auto mb-4" />
-          <p className="text-white/40 text-lg">{t("founder.lounge.notFounder")}</p>
+          <p className="text-parchment-400 text-lg">{t("founder.lounge.notFounder")}</p>
           <a href={localeHref("/pricing/founder")} className="text-gold text-sm mt-2 inline-block hover:underline">
             {t("founder.lounge.learnMore")}
           </a>
@@ -87,7 +87,7 @@ export default function FounderLoungePage() {
   }
 
   return (
-    <div className="min-h-screen bg-ink">
+    <div className="min-h-screen bg-cosmos-950">
       <div className="max-w-3xl mx-auto px-4 py-12">
         <Breadcrumbs items={[{ label: t("founder.lounge.breadcrumb") }]} />
 
@@ -103,7 +103,7 @@ export default function FounderLoungePage() {
           <div className="relative z-10 p-8">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-14 h-14 rounded-full bg-gradient-to-br from-gold to-[#C4A44A] flex items-center justify-center">
-                <Crown size={24} className="text-ink" />
+                <Crown size={24} className="text-cosmos-950" />
               </div>
               <div>
                 <h1 className="text-gold font-serif text-2xl font-bold">{t("founder.lounge.title")}</h1>
@@ -112,26 +112,26 @@ export default function FounderLoungePage() {
             </div>
 
             <div className="grid grid-cols-3 gap-4">
-              <div className="bg-white/5 rounded-xl p-4 border border-gold/10">
+              <div className="bg-white/[0.04] rounded-xl p-4 border border-gold/10">
                 <div className="flex items-center gap-2 mb-1">
                   <MapPin size={14} className="text-gold/60" />
-                  <span className="text-white/40 text-xs">{t("founder.lounge.region")}</span>
+                  <span className="text-parchment-400 text-xs">{t("founder.lounge.region")}</span>
                 </div>
                 <span className="text-gold font-medium text-sm">
                   {founderInfo.region === "domestic" ? t("founder.lounge.domestic") : t("founder.lounge.overseas")}
                 </span>
               </div>
-              <div className="bg-white/5 rounded-xl p-4 border border-gold/10">
+              <div className="bg-white/[0.04] rounded-xl p-4 border border-gold/10">
                 <div className="flex items-center gap-2 mb-1">
                   <Star size={14} className="text-gold/60" />
-                  <span className="text-white/40 text-xs">{t("founder.lounge.stardust")}</span>
+                  <span className="text-parchment-400 text-xs">{t("founder.lounge.stardust")}</span>
                 </div>
                 <span className="text-gold font-medium text-sm">{t("founder.lounge.monthly500")}</span>
               </div>
-              <div className="bg-white/5 rounded-xl p-4 border border-gold/10">
+              <div className="bg-white/[0.04] rounded-xl p-4 border border-gold/10">
                 <div className="flex items-center gap-2 mb-1">
                   <Calendar size={14} className="text-gold/60" />
-                  <span className="text-white/40 text-xs">{t("founder.lounge.activated")}</span>
+                  <span className="text-parchment-400 text-xs">{t("founder.lounge.activated")}</span>
                 </div>
                 <span className="text-gold font-medium text-sm">
                   {founderInfo.activated_at
@@ -153,7 +153,7 @@ export default function FounderLoungePage() {
             <Vote size={18} className="text-gold" />
             <h2 className="text-gold font-serif text-lg font-bold">{t("founder.lounge.roadmapTitle")}</h2>
           </div>
-          <p className="text-white/30 text-sm mb-5">{t("founder.lounge.roadmapDesc")}</p>
+          <p className="text-parchment-400 text-sm mb-5">{t("founder.lounge.roadmapDesc")}</p>
 
           <div className="space-y-3">
             {ROADMAP_ITEMS.map((item, i) => {
@@ -161,13 +161,13 @@ export default function FounderLoungePage() {
               return (
                 <div
                   key={item.id}
-                  className="bg-white/5 border border-white/10 rounded-xl p-5 hover:border-gold/20 transition-all anim-slide-up"
+                  className="bg-white/[0.04] border border-white/[0.06] rounded-xl p-5 hover:border-gold/20 transition-all anim-slide-up"
                   style={{ animationDelay: `${0.15 + i * 0.05}s` }}
                 >
                   <div className="flex items-start justify-between">
                     <div>
-                      <h3 className="text-white/90 font-medium text-sm">{t(item.titleKey)}</h3>
-                      <p className="text-white/40 text-xs mt-1">{t(item.descKey)}</p>
+                      <h3 className="text-parchment-100 font-medium text-sm">{t(item.titleKey)}</h3>
+                      <p className="text-parchment-400 text-xs mt-1">{t(item.descKey)}</p>
                     </div>
                     <div className="flex gap-2 ml-4 shrink-0">
                       <button
@@ -175,7 +175,7 @@ export default function FounderLoungePage() {
                         className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                           vote?.user_voted === "for"
                             ? "bg-gold/20 text-gold border border-gold/30"
-                            : "bg-white/5 text-white/40 border border-white/10 hover:text-gold hover:border-gold/20"
+                            : "bg-white/[0.04] text-parchment-400 border border-white/[0.06] hover:text-gold hover:border-gold/20"
                         }`}
                       >
                         <span className="flex items-center gap-1">
@@ -188,7 +188,7 @@ export default function FounderLoungePage() {
                         className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                           vote?.user_voted === "against"
                             ? "bg-red-500/20 text-red-400 border border-red-500/30"
-                            : "bg-white/5 text-white/40 border border-white/10 hover:text-red-400 hover:border-red-500/20"
+                            : "bg-white/[0.04] text-parchment-400 border border-white/[0.06] hover:text-red-400 hover:border-red-500/20"
                         }`}
                       >
                         <span className="flex items-center gap-1">
@@ -199,7 +199,7 @@ export default function FounderLoungePage() {
                     </div>
                   </div>
 
-                  <div className="mt-3 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                  <div className="mt-3 h-1.5 bg-white/[0.04] rounded-full overflow-hidden">
                     <div
                       className="h-full bg-gradient-to-r from-gold/60 to-gold rounded-full transition-all duration-500"
                       style={{
@@ -213,7 +213,7 @@ export default function FounderLoungePage() {
           </div>
         </div>
 
-        <div className="mt-8 bg-white/5 border border-gold/10 rounded-xl p-6 anim-slide-up anim-delay-3">
+        <div className="mt-8 bg-white/[0.04] border border-gold/10 rounded-xl p-6 anim-slide-up anim-delay-3">
           <h3 className="text-gold font-medium text-sm mb-3">{t("founder.lounge.perksTitle")}</h3>
           <div className="space-y-2">
             {[
@@ -224,7 +224,7 @@ export default function FounderLoungePage() {
               "founder.lounge.perk5",
               "founder.lounge.perk6",
             ].map((key, i) => (
-              <div key={i} className="flex items-center gap-2 text-white/50 text-xs">
+              <div key={i} className="flex items-center gap-2 text-parchment-400 text-xs">
                 <div className="w-1 h-1 rounded-full bg-gold/60" />
                 {t(key)}
               </div>

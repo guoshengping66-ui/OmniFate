@@ -100,7 +100,7 @@ function GaugeRing({ score, size = 140 }: { score: number; size?: number }) {
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="text-3xl font-bold font-serif" style={{ color }}>{score}</span>
-        <span className="text-white/30 text-[10px] mt-0.5">{label}</span>
+        <span className="text-parchment-400 text-xs mt-0.5">{label}</span>
       </div>
     </div>
   )
@@ -111,7 +111,7 @@ function DimBar({ icon, label, score, color }: { icon: React.ReactNode; label: s
     <div className="flex items-center gap-3">
       <div className="flex items-center gap-2 w-16 flex-shrink-0">
         <span style={{ color }} className="opacity-70">{icon}</span>
-        <span className="text-white/60 text-xs">{label}</span>
+        <span className="text-parchment-400 text-xs">{label}</span>
       </div>
       <div className="flex-1 h-2.5 bg-white/[0.06] rounded-full overflow-hidden">
         <div className="h-full rounded-full" style={{
@@ -120,7 +120,7 @@ function DimBar({ icon, label, score, color }: { icon: React.ReactNode; label: s
           transition: "width 1s ease-out",
         }} />
       </div>
-      <span className="text-white/40 text-[11px] w-7 text-right font-mono">{score}</span>
+      <span className="text-parchment-400 text-xs w-7 text-right font-mono">{score}</span>
     </div>
   )
 }
@@ -128,7 +128,7 @@ function DimBar({ icon, label, score, color }: { icon: React.ReactNode; label: s
 // ── Skeleton loader for almanac ──────────────────────────────────
 function AlmanacSkeleton() {
   return (
-    <div className="card-glass p-6 space-y-4 animate-pulse">
+    <div className="card-solid p-6 space-y-4 animate-pulse">
       <div className="flex items-center gap-2 mb-1">
         <div className="w-6 h-6 rounded bg-white/10" />
         <div className="h-4 w-24 rounded bg-white/10" />
@@ -166,7 +166,7 @@ function FortuneSection({ fortune, locale, t }: {
   const translateColor = (color: string) => locale === "zh" ? color : (COLOR_NAME_EN[color] || color)
 
   return (
-    <div className="lg:col-span-2 card-glass p-6 space-y-6">
+    <div className="lg:col-span-2 card-solid p-6 space-y-6">
       <div className="flex items-center gap-8">
         <GaugeRing score={fortune.overall_score} />
         <div className="flex-1 space-y-2.5">
@@ -180,26 +180,26 @@ function FortuneSection({ fortune, locale, t }: {
       <div className="grid grid-cols-2 gap-4 pt-2 border-t border-white/[0.06]">
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-sm">
-            <Palette size={14} className="text-white/40" />
-            <span className="text-white/40">{t("dash.fortune.luckyColor")}</span>
-            <span className="text-white/70 font-medium" style={{ color: colorHex[fortune.lucky_color] || "#C9A84C" }}>
+            <Palette size={14} className="text-parchment-400" />
+            <span className="text-parchment-400">{t("dash.fortune.luckyColor")}</span>
+            <span className="text-parchment-300 font-medium" style={{ color: colorHex[fortune.lucky_color] || "#C9A84C" }}>
               {translateColor(fortune.lucky_color)}
             </span>
           </div>
           <div className="flex items-center gap-2 text-sm">
-            <Hash size={14} className="text-white/40" />
-            <span className="text-white/40">{t("dash.fortune.luckyNumber")}</span>
-            <span className="text-white/70 font-medium">{fortune.lucky_number}</span>
+            <Hash size={14} className="text-parchment-400" />
+            <span className="text-parchment-400">{t("dash.fortune.luckyNumber")}</span>
+            <span className="text-parchment-300 font-medium">{fortune.lucky_number}</span>
           </div>
         </div>
         <div className="space-y-2">
           <div className="flex items-start gap-2 text-sm">
             <TrendingUp size={14} className="text-green-400/60 mt-0.5 flex-shrink-0" />
-            <span className="text-white/50 leading-relaxed">{fortune.advice}</span>
+            <span className="text-parchment-400 leading-relaxed">{fortune.advice}</span>
           </div>
           <div className="flex items-start gap-2 text-sm">
             <AlertTriangle size={14} className="text-amber-400/60 mt-0.5 flex-shrink-0" />
-            <span className="text-white/50 leading-relaxed">{fortune.warning}</span>
+            <span className="text-parchment-400 leading-relaxed">{fortune.warning}</span>
           </div>
         </div>
       </div>
@@ -221,25 +221,25 @@ function AlmanacSection({ almanac, locale, t }: {
   }, locale)
 
   return (
-    <div className="card-glass p-6 space-y-4">
+    <div className="card-solid p-6 space-y-4">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <CalendarDays size={17} className="text-gold/75" />
           <h3 className="font-serif text-gold font-medium">{t("dash.fortune.almanacTitle")}</h3>
         </div>
-        <span className="rounded-full border border-gold/20 bg-gold/10 px-2.5 py-1 text-[11px] text-gold/80">
+        <span className="rounded-full border border-gold/20 bg-gold/10 px-2.5 py-1 text-xs text-gold/80">
           {trend.trendLabel}
         </span>
       </div>
 
       <div className="space-y-1.5">
-        <p className="text-white/60 text-sm">{cleanLunarDate(almanac.lunar_date, locale === "zh")}</p>
-        <p className="text-white/40 text-xs">{t("dash.fortune.dayPillar")}: {locale === "zh" ? almanac.bazi_day_pillar : translateGanZhi(almanac.bazi_day_pillar)}</p>
+        <p className="text-parchment-400 text-sm">{cleanLunarDate(almanac.lunar_date, locale === "zh")}</p>
+        <p className="text-parchment-400 text-xs">{t("dash.fortune.dayPillar")}: {locale === "zh" ? almanac.bazi_day_pillar : translateGanZhi(almanac.bazi_day_pillar)}</p>
       </div>
 
-      <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-3">
-        <p className="mb-1 text-xs font-medium text-white/70">{locale === "zh" ? "今日重点" : "Focus"}</p>
-        <p className="text-sm leading-5 text-white/55">{trend.headline}</p>
+      <div className="rounded-xl border border-white/[0.06] bg-white/[0.025] p-3">
+        <p className="mb-1 text-xs font-medium text-parchment-300">{locale === "zh" ? "今日重点" : "Focus"}</p>
+        <p className="text-sm leading-5 text-parchment-300">{trend.headline}</p>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
@@ -249,7 +249,7 @@ function AlmanacSection({ almanac, locale, t }: {
           </p>
           <div className="space-y-1.5">
             {trend.yi.slice(0, 3).map((item, i) => (
-              <p key={i} className="truncate text-[11px] text-white/55">{item.label}</p>
+              <p key={i} className="truncate text-xs text-parchment-300">{item.label}</p>
             ))}
           </div>
         </div>
@@ -260,7 +260,7 @@ function AlmanacSection({ almanac, locale, t }: {
           </p>
           <div className="space-y-1.5">
             {trend.ji.slice(0, 3).map((item, i) => (
-              <p key={i} className="truncate text-[11px] text-white/55">{item.label}</p>
+              <p key={i} className="truncate text-xs text-parchment-300">{item.label}</p>
             ))}
           </div>
         </div>
@@ -423,7 +423,7 @@ export function DailyDashboard() {
   // ── Loading state: only block if BOTH are missing ──────────────
   if (fortuneLoading && !fortune) {
     return (
-      <div className="card-glass p-8 text-center">
+      <div className="card-solid p-8 text-center">
         <div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin mx-auto" />
       </div>
     )
@@ -447,9 +447,9 @@ export function DailyDashboard() {
 
       {/* ── AI Fusion comment (only when both loaded) ─────── */}
       {fortune && almanac && (
-        <div className="card-glass p-5 flex items-start gap-3">
+        <div className="card-solid p-5 flex items-start gap-3">
           <TrendingUp size={18} className="mt-0.5 flex-shrink-0 text-gold/70" />
-          <p className="text-white/50 text-sm leading-relaxed">
+          <p className="text-parchment-400 text-sm leading-relaxed">
             {locale === "zh"
               ? `今日大盘${almanac.ji.length > 0 ? "提醒避开「" + almanac.ji[0].label + "」" : "整体平稳"}；你的整体状态为 ${fortune.overall_score}/10。${fortune.advice}`
               : `The day${almanac.ji.length > 0 ? " warns against " + translateYiJi(almanac.ji[0].label) : " is neutral"}, while your personal status scores ${fortune.overall_score}/10. ${fortune.advice}`

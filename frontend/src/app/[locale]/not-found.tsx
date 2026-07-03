@@ -24,8 +24,8 @@ export default function NotFound() {
       <div className="text-center">
         <p className="text-6xl mb-4">🌌</p>
         <h1 className="text-2xl font-serif font-bold text-gold mb-2">{m.title}</h1>
-        <p className="text-white/40 text-sm mb-6">{m.desc}</p>
-        <Link href={`/${validLang}`} className="btn-gold inline-block px-8 py-3">
+        <p className="text-parchment-400 text-sm mb-6">{m.desc}</p>
+        <Link href={`/${validLang}`} className="btn-primary inline-block px-8 py-3">
           {m.home}
         </Link>
       </div>

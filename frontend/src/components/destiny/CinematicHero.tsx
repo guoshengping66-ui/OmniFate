@@ -52,69 +52,71 @@ export default function CinematicHero() {
 
   return (
     <section className="relative min-h-[92vh] flex items-center overflow-hidden px-4 py-24">
+      {/* Background glow — subtle cosmos grad */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute left-1/2 top-1/3 h-[720px] w-[720px] -translate-x-1/2 rounded-full bg-gold/[0.035] blur-[160px]" />
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
+        <div className="absolute left-1/2 top-1/3 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-stellar-blue/[0.03] blur-[140px]" />
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-gold/15 to-transparent" />
       </div>
 
       <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-12 lg:grid-cols-[0.92fr_1.08fr]">
+        {/* Left: Text */}
         <div className="text-center lg:text-left">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/[0.06] px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.22em] text-gold/70">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-gold/15 bg-gold/[0.05] px-3 py-1.5 text-xs font-medium uppercase tracking-[0.18em] text-gold/80">
             <span className="h-1.5 w-1.5 rounded-full bg-gold" />
             {copy.badge}
           </div>
 
-          <h1 className="mb-6 font-serif text-5xl font-bold leading-[0.95] tracking-normal text-gold sm:text-6xl lg:text-7xl">
+          <h1 className="mb-6 font-display text-5xl font-bold leading-[0.95] text-parchment-100 sm:text-6xl lg:text-7xl">
             {copy.title1}
-            <span className="mt-4 block text-2xl font-light text-white/78 sm:text-3xl lg:text-4xl">
+            <span className="mt-4 block text-2xl font-light text-parchment-300 sm:text-3xl lg:text-4xl">
               {copy.title2}
             </span>
           </h1>
 
-          <p className="mx-auto mb-6 max-w-xl text-sm leading-relaxed text-white/58 sm:text-base lg:mx-0">
+          <p className="mx-auto mb-6 max-w-xl text-sm leading-relaxed text-parchment-400 sm:text-base lg:mx-0">
             {copy.desc}
           </p>
 
           <div className="mx-auto mb-8 grid max-w-xl gap-2 sm:grid-cols-3 lg:mx-0">
-            {steps.map((step, index) => (
-              <div key={step} className="rounded-xl border border-white/[0.08] bg-white/[0.035] px-3 py-2 text-left">
-                <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.16em] text-gold/55">
-                  0{index + 1}
+            {steps.map((step, i) => (
+              <div key={step} className="rounded-xl border border-white/[0.06] bg-cosmos-800 px-3 py-2 text-left">
+                <span className="mb-1 block text-xs font-semibold uppercase tracking-[0.14em] text-stellar-blue/60">
+                  0{i + 1}
                 </span>
-                <span className="block text-xs leading-snug text-white/62">{step}</span>
+                <span className="block text-xs leading-snug text-parchment-400">{step}</span>
               </div>
             ))}
           </div>
 
           <div className="mb-9 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
-            <Link href={localeHref("/reading/new")} className="btn-gold inline-flex items-center justify-center gap-2 px-7 py-3 text-sm">
+            <Link href={localeHref("/reading/new")} className="btn-primary text-sm">
               {copy.primary}
               <ArrowRight size={16} />
             </Link>
-            <Link href={localeHref("/almanac")} className="btn-gold-outline inline-flex items-center justify-center gap-2 px-7 py-3 text-sm">
+            <Link href={localeHref("/almanac")} className="btn-secondary text-sm">
               {copy.secondary}
             </Link>
           </div>
 
           <div className="flex flex-wrap justify-center gap-2 lg:justify-start">
             {copy.trust.split(" · ").map((item) => (
-              <span key={item} className="rounded-full border border-white/[0.08] bg-white/[0.035] px-3 py-1.5 text-[11px] text-white/48">
-                {item}
-              </span>
+              <span key={item} className="tag-chip">{item}</span>
             ))}
           </div>
         </div>
 
+        {/* Right: Preview panel */}
         <div className="relative mx-auto w-full max-w-2xl">
-          <div className="rounded-[28px] border border-white/[0.08] bg-[#07101d]/88 p-4 shadow-[0_30px_100px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:p-5">
+          <div className="rounded-[24px] border border-white/[0.06] bg-parchment-900 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.45)] sm:p-5">
             <div className="grid gap-4 md:grid-cols-[1fr_0.86fr]">
-              <div className="rounded-2xl border border-gold/15 bg-gold/[0.055] p-5">
+              {/* Main panel */}
+              <div className="rounded-2xl border border-gold/[0.08] bg-cosmos-900 p-5">
                 <div className="mb-5 flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-[11px] uppercase tracking-[0.18em] text-gold/60">{copy.panelTitle}</p>
-                    <h2 className="mt-1 text-xl font-semibold text-white/90">{copy.panelSubtitle}</h2>
+                    <p className="text-xs uppercase tracking-[0.16em] text-gold/60">{copy.panelTitle}</p>
+                    <h2 className="mt-1 text-xl font-semibold text-parchment-200">{copy.panelSubtitle}</h2>
                   </div>
-                  <CalendarDays className="text-gold/70" size={22} />
+                  <CalendarDays className="text-gold/60" size={20} />
                 </div>
 
                 <div className="mb-5 grid grid-cols-3 gap-2">
@@ -123,55 +125,56 @@ export default function CinematicHero() {
                     [copy.trend, "91%"],
                     [copy.growth, "12"],
                   ].map(([label, value]) => (
-                    <div key={label} className="rounded-xl border border-white/[0.08] bg-black/18 p-3">
-                      <p className="text-[10px] text-white/38">{label}</p>
+                    <div key={label} className="rounded-xl border border-white/[0.06] bg-cosmos-950 p-3">
+                      <p className="text-xs text-parchment-400">{label}</p>
                       <p className="mt-1 text-lg font-bold text-gold">{value}</p>
                     </div>
                   ))}
                 </div>
 
-                <div className="rounded-2xl border border-white/[0.08] bg-black/20 p-4">
+                <div className="rounded-2xl border border-white/[0.06] bg-cosmos-950 p-4">
                   <div className="mb-3 flex items-center justify-between">
-                    <p className="text-sm font-medium text-white/82">{copy.curve}</p>
-                    <LineChart size={17} className="text-gold/65" />
+                    <p className="text-sm font-medium text-parchment-300">{copy.curve}</p>
+                    <LineChart size={16} className="text-stellar-blue/60" />
                   </div>
                   <div className="flex h-24 items-end gap-2">
-                    {[34, 44, 39, 56, 51, 66, 72, 64, 79, 86].map((height, index) => (
-                      <div key={index} className="flex-1 rounded-t-md bg-gradient-to-t from-gold/25 to-gold/80" style={{ height: `${height}%` }} />
+                    {[34, 44, 39, 56, 51, 66, 72, 64, 79, 86].map((h, i) => (
+                      <div key={i} className="flex-1 rounded-t-md bg-gradient-to-t from-stellar-blue/30 to-stellar-blue/70" style={{ height: `${h}%` }} />
                     ))}
                   </div>
-                  <p className="mt-3 text-xs text-white/42">{copy.phase}</p>
+                  <p className="mt-3 text-xs text-parchment-400">{copy.phase}</p>
                 </div>
               </div>
 
+              {/* Side panel */}
               <div className="flex flex-col gap-4">
-                <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-5">
+                <div className="rounded-2xl border border-white/[0.06] bg-cosmos-900 p-5">
                   <div className="mb-4 flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-gold/20 bg-gold/[0.07]">
-                      <UserRoundSearch size={18} className="text-gold/75" />
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-gold/[0.15] bg-gold/[0.06]">
+                      <UserRoundSearch size={16} className="text-gold/70" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-white/86">{copy.action}</p>
-                      <p className="text-[11px] text-white/32">AI profile signal</p>
+                      <p className="text-sm font-semibold text-parchment-200">{copy.action}</p>
+                      <p className="text-xs text-parchment-400">AI profile signal</p>
                     </div>
                   </div>
-                  <p className="text-sm leading-relaxed text-white/52">{copy.actionText}</p>
+                  <p className="text-sm leading-relaxed text-parchment-400">{copy.actionText}</p>
                 </div>
 
-                <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-5">
-                  <div className="mb-4 flex items-center gap-2 text-gold/75">
-                    <Sparkles size={17} />
-                    <span className="text-xs uppercase tracking-[0.16em]">Signal Mix</span>
+                <div className="rounded-2xl border border-white/[0.06] bg-cosmos-900 p-5">
+                  <div className="mb-4 flex items-center gap-2 text-stellar-blue/60">
+                    <Sparkles size={16} />
+                    <span className="text-xs uppercase tracking-[0.14em]">Signal Mix</span>
                   </div>
                   <div className="space-y-3">
-                    {["Bazi", "Ziwei", "Astrology", "Tarot", "Face/Palm"].map((label, index) => (
+                    {["Bazi", "Ziwei", "Astrology", "Tarot", "Face/Palm"].map((label, i) => (
                       <div key={label}>
-                        <div className="mb-1 flex justify-between text-[11px]">
-                          <span className="text-white/42">{label}</span>
-                          <span className="text-gold/70">{82 + index * 3}%</span>
+                        <div className="mb-1 flex justify-between text-xs">
+                          <span className="text-parchment-400">{label}</span>
+                          <span className="text-stellar-blue/70">{82 + i * 3}%</span>
                         </div>
-                        <div className="h-1.5 rounded-full bg-white/[0.06]">
-                          <div className="h-full rounded-full bg-gold/70" style={{ width: `${82 + index * 3}%` }} />
+                        <div className="h-1.5 rounded-full bg-white/[0.05]">
+                          <div className="h-full rounded-full bg-stellar-blue/60" style={{ width: `${82 + i * 3}%` }} />
                         </div>
                       </div>
                     ))}

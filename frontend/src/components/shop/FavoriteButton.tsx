@@ -56,7 +56,7 @@ export function FavoriteButton({ productId, size = 16 }: Props) {
       className={`p-1.5 rounded-full transition-all ${
         isFav
           ? "text-rose-400 hover:text-rose-300"
-          : "text-white/20 hover:text-rose-400"
+          : "text-parchment-400 hover:text-rose-400"
       }`}
       title={isFav ? t("fav.remove") : t("fav.add")}
     >

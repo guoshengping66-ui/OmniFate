@@ -34,17 +34,17 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
       <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
       {/* Drawer */}
-      <div className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-md bg-ink border-l border-white/10 flex flex-col animate-in slide-in-from-right duration-300">
+      <div className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-md bg-cosmos-950 border-l border-white/[0.06] flex flex-col animate-in slide-in-from-right duration-300">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-white/10">
+        <div className="flex items-center justify-between p-4 border-b border-white/[0.06]">
           <div className="flex items-center gap-2">
             <ShoppingBag size={20} className="text-gold" />
             <h2 className="font-serif text-lg text-gold">{t("cart.title")}</h2>
             {itemCount > 0 && (
-              <span className="text-xs text-white/40">({itemCount} {t("cart.items")})</span>
+              <span className="text-xs text-parchment-400">({itemCount} {t("cart.items")})</span>
             )}
           </div>
-          <button onClick={onClose} className="text-white/30 hover:text-white/60">
+          <button onClick={onClose} className="text-parchment-400 hover:text-parchment-400">
             <X size={20} />
           </button>
         </div>
@@ -56,7 +56,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
               <div>
                 <div className="flex items-center gap-1.5 mb-1.5">
                   <Truck size={12} className="text-gold/60" />
-                  <p className="text-gold/70 text-[11px]">
+                  <p className="text-gold/70 text-xs">
                     {t("cart.freeShipping")?.replace("{amount}", `${symbol}${freeShippingRemaining.toFixed(0)}`) || `再买 ${symbol}${freeShippingRemaining.toFixed(0)} 免运费`}
                   </p>
                 </div>
@@ -70,7 +70,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
             ) : (
               <div className="flex items-center gap-1.5">
                 <Truck size={12} className="text-green-400/60" />
-                <p className="text-green-400/70 text-[11px]">{t("cart.freeShippingUnlocked") || "已享免运费"}</p>
+                <p className="text-green-400/70 text-xs">{t("cart.freeShippingUnlocked") || "已享免运费"}</p>
               </div>
             )}
           </div>
@@ -80,8 +80,8 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
           {items.length === 0 ? (
             <div className="text-center py-12">
-              <ShoppingBag size={48} className="text-white/10 mx-auto mb-4" />
-              <p className="text-white/40 text-sm">{t("cart.empty")}</p>
+              <ShoppingBag size={48} className="text-parchment-400 mx-auto mb-4" />
+              <p className="text-parchment-400 text-sm">{t("cart.empty")}</p>
               <button onClick={() => { onClose(); router.push(localeHref("/shop")) }}
                 className="text-gold text-sm mt-2 hover:underline">
                 {t("cart.goShop")}
@@ -89,7 +89,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
             </div>
           ) : (
             items.map(item => (
-              <div key={item.product.id} className="flex gap-3 card-glass p-3">
+              <div key={item.product.id} className="flex gap-3 card-solid p-3">
                 {/* Product image */}
                 <ProductImage
                   src={item.product.image_url}
@@ -101,7 +101,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-white/80 text-sm font-medium truncate">{locale === "en" ? (item.product.name_en || item.product.name) : item.product.name}</p>
+                  <p className="text-parchment-200 text-sm font-medium truncate">{locale === "en" ? (item.product.name_en || item.product.name) : item.product.name}</p>
                   {isLoading ? (
                     <p className="text-gold/40 text-sm animate-pulse">...</p>
                   ) : (
@@ -112,20 +112,20 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                   <div className="flex items-center gap-2 mt-2">
                     <button
                       onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                      className="w-6 h-6 rounded bg-white/10 flex items-center justify-center text-white/60 hover:bg-white/20"
+                      className="w-6 h-6 rounded bg-white/10 flex items-center justify-center text-parchment-400 hover:bg-white/20"
                     >
                       <Minus size={12} />
                     </button>
-                    <span className="text-white/80 text-sm w-6 text-center">{item.quantity}</span>
+                    <span className="text-parchment-200 text-sm w-6 text-center">{item.quantity}</span>
                     <button
                       onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                      className="w-6 h-6 rounded bg-white/10 flex items-center justify-center text-white/60 hover:bg-white/20"
+                      className="w-6 h-6 rounded bg-white/10 flex items-center justify-center text-parchment-400 hover:bg-white/20"
                     >
                       <Plus size={12} />
                     </button>
                     <button
                       onClick={() => removeItem(item.product.id)}
-                      className="ml-auto text-white/20 hover:text-red-400 transition-colors"
+                      className="ml-auto text-parchment-400 hover:text-red-400 transition-colors"
                     >
                       <Trash2 size={14} />
                     </button>
@@ -138,7 +138,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
 
         {/* Footer */}
         {items.length > 0 && (
-          <div className="border-t border-white/10 p-4 space-y-3">
+          <div className="border-t border-white/[0.06] p-4 space-y-3">
             {/* Member discount notice */}
             {isMember && totalCny !== totalWithDiscount && (
               <div className="flex items-center gap-1.5 text-xs text-green-400/80">
@@ -148,10 +148,10 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
             )}
 
             <div className="flex items-center justify-between">
-              <span className="text-white/60 text-sm">{t("cart.total")}</span>
+              <span className="text-parchment-400 text-sm">{t("cart.total")}</span>
               <div className="text-right">
                 {isMember && totalCny !== totalWithDiscount && (
-                  <span className="text-white/30 text-xs line-through mr-1">{symbol}{totalCny.toFixed(2)}</span>
+                  <span className="text-parchment-400 text-xs line-through mr-1">{symbol}{totalCny.toFixed(2)}</span>
                 )}
                 <span className="text-gold text-xl font-bold">{symbol}{totalWithDiscount.toFixed(2)}</span>
               </div>
@@ -159,7 +159,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
 
             <button
               onClick={() => { onClose(); router.push(localeHref("/checkout")) }}
-              className="btn-gold w-full py-3 flex items-center justify-center gap-2"
+              className="btn-primary w-full py-3 flex items-center justify-center gap-2"
             >
               <ShoppingBag size={16} />
               {t("cart.checkout")}

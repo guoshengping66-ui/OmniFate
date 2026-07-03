@@ -58,7 +58,7 @@ export default function SocialProof() {
           className="text-center mb-10 md:mb-14 transition-all duration-1000"
           style={{ opacity: isVisible ? 1 : 0, transform: isVisible ? "translateY(0)" : "translateY(30px)" }}
         >
-          <span className="text-[#C5A880]/40 text-[10px] tracking-[0.5em] uppercase font-medium">
+          <span className="text-[#C5A880]/40 text-xs tracking-[0.5em] uppercase font-medium">
             {locale === "zh" ? "真实反馈" : "TESTIMONIALS"}
           </span>
           <h2 id="social-proof-title" className="text-2xl md:text-4xl font-serif font-bold mt-3 mb-3 tracking-wide">
@@ -101,12 +101,12 @@ export default function SocialProof() {
                       {item.name.charAt(0)}
                     </div>
                     <div>
-                      <div className="text-white/70 text-xs font-medium">{item.name}</div>
-                      <div className="text-white/30 text-[10px]">{item.job}</div>
+                      <div className="text-parchment-300 text-xs font-medium">{item.name}</div>
+                      <div className="text-parchment-400 text-xs">{item.job}</div>
                     </div>
                   </div>
                   <div
-                    className="px-2 py-0.5 rounded-full text-[10px] font-bold"
+                    className="px-2 py-0.5 rounded-full text-xs font-bold"
                     style={{
                       background: "linear-gradient(135deg, rgba(197,168,128,0.15), rgba(197,168,128,0.05))",
                       border: "1px solid rgba(197,168,128,0.2)",
@@ -118,14 +118,14 @@ export default function SocialProof() {
                 </div>
 
                 {/* Review text */}
-                <p className="text-white/40 text-xs leading-relaxed mb-4">
+                <p className="text-parchment-400 text-xs leading-relaxed mb-4">
                   &ldquo;{item.text}&rdquo;
                 </p>
 
                 {/* Source tag */}
                 <div className="flex items-center gap-1.5">
                   <div className="w-1 h-1 rounded-full" style={{ background: sourceColor }} />
-                  <span className="text-[10px] tracking-wider" style={{ color: `${sourceColor}99` }}>
+                  <span className="text-xs tracking-wider" style={{ color: `${sourceColor}99` }}>
                     {item.source}
                   </span>
                 </div>
@@ -136,7 +136,7 @@ export default function SocialProof() {
 
         {/* Trust indicators */}
         <div
-          className="flex items-center justify-center gap-6 mt-8 md:mt-10 text-white/15 text-[10px] tracking-widest transition-all duration-1000 delay-700"
+          className="flex items-center justify-center gap-6 mt-8 md:mt-10 text-parchment-400 text-xs tracking-widest transition-all duration-1000 delay-700"
           style={{ opacity: isVisible ? 1 : 0 }}
         >
           <span>{locale === "zh" ? "数据来自真实用户" : "From Real Users"}</span>

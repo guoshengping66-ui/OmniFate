@@ -204,12 +204,12 @@ export default function SettingsTab({ user, refreshUser, t }: { user: AuthUser; 
       <h2 className="font-serif text-lg text-gold">{t("account.settings")}</h2>
 
       {/* ── Language Preference ─────────────────────────────────────────── */}
-      <div className="card-glass p-6">
+      <div className="card-solid p-6">
         <div className="flex items-center gap-2 mb-1">
           <Globe size={16} className="text-gold/60" />
-          <h3 className="text-sm font-medium text-white/60">{t("account.language")}</h3>
+          <h3 className="text-sm font-medium text-parchment-400">{t("account.language")}</h3>
         </div>
-        <p className="text-white/30 text-xs mb-4">{t("account.languageDesc")}</p>
+        <p className="text-parchment-400 text-xs mb-4">{t("account.languageDesc")}</p>
         <div className="flex gap-2">
           {LANGUAGES.map(l => (
             <button
@@ -218,7 +218,7 @@ export default function SettingsTab({ user, refreshUser, t }: { user: AuthUser; 
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm transition-all ${
                 locale === l.locale
                   ? "bg-gold/10 text-gold border border-gold/30"
-                  : "bg-white/[0.03] text-white/40 border border-white/[0.08] hover:text-white/60"
+                  : "bg-white/[0.03] text-parchment-400 border border-white/[0.08] hover:text-parchment-400"
               }`}
             >
               <span className="text-base">{l.flag}</span>
@@ -229,8 +229,8 @@ export default function SettingsTab({ user, refreshUser, t }: { user: AuthUser; 
       </div>
 
       {/* ── Edit Profile ───────────────────────────────────────────────── */}
-      <div className="card-glass p-6">
-        <h3 className="text-sm font-medium text-white/60 mb-4">{t("account.editProfile")}</h3>
+      <div className="card-solid p-6">
+        <h3 className="text-sm font-medium text-parchment-400 mb-4">{t("account.editProfile")}</h3>
         <div className="space-y-4">
           <div>
             <label className="label">{t("account.emailLabel")}</label>
@@ -249,7 +249,7 @@ export default function SettingsTab({ user, refreshUser, t }: { user: AuthUser; 
           <button
             onClick={handleSaveProfile}
             disabled={savingProfile}
-            className="btn-gold px-6 py-2 text-sm flex items-center gap-2"
+            className="btn-primary px-6 py-2 text-sm flex items-center gap-2"
           >
             {savingProfile ? <Loader2 size={16} className="animate-spin" /> : null}
             {t("account.saveProfile")}
@@ -258,41 +258,41 @@ export default function SettingsTab({ user, refreshUser, t }: { user: AuthUser; 
       </div>
 
       {/* ── Birth Info ─────────────────────────────────────────────────── */}
-      <div className="card-glass p-6">
+      <div className="card-solid p-6">
         <div className="flex items-center gap-2 mb-1">
           <Baby size={16} className="text-gold/60" />
-          <h3 className="text-sm font-medium text-white/60">{t("account.birthInfo")}</h3>
+          <h3 className="text-sm font-medium text-parchment-400">{t("account.birthInfo")}</h3>
         </div>
-        <p className="text-white/30 text-xs mb-4">{t("account.birthInfoDesc")}</p>
+        <p className="text-parchment-400 text-xs mb-4">{t("account.birthInfoDesc")}</p>
 
         {!editingBirth && birthData ? (
           <div className="space-y-3">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div className="bg-white/[0.03] rounded-lg p-3">
-                <p className="text-white/30 text-[10px] mb-1">{t("account.gender")}</p>
-                <p className="text-white/70 text-sm">{birthData.gender === "male" ? t("account.genderMale") : t("account.genderFemale")}</p>
+                <p className="text-parchment-400 text-xs mb-1">{t("account.gender")}</p>
+                <p className="text-parchment-300 text-sm">{birthData.gender === "male" ? t("account.genderMale") : t("account.genderFemale")}</p>
               </div>
               <div className="bg-white/[0.03] rounded-lg p-3">
-                <p className="text-white/30 text-[10px] mb-1">{t("account.birthYear")}</p>
-                <p className="text-white/70 text-sm">{birthData.birth_year}</p>
+                <p className="text-parchment-400 text-xs mb-1">{t("account.birthYear")}</p>
+                <p className="text-parchment-300 text-sm">{birthData.birth_year}</p>
               </div>
               <div className="bg-white/[0.03] rounded-lg p-3">
-                <p className="text-white/30 text-[10px] mb-1">{t("account.birthMonth")}</p>
-                <p className="text-white/70 text-sm">{birthData.birth_month}</p>
+                <p className="text-parchment-400 text-xs mb-1">{t("account.birthMonth")}</p>
+                <p className="text-parchment-300 text-sm">{birthData.birth_month}</p>
               </div>
               <div className="bg-white/[0.03] rounded-lg p-3">
-                <p className="text-white/30 text-[10px] mb-1">{t("account.birthDay")}</p>
-                <p className="text-white/70 text-sm">{birthData.birth_day}</p>
+                <p className="text-parchment-400 text-xs mb-1">{t("account.birthDay")}</p>
+                <p className="text-parchment-300 text-sm">{birthData.birth_day}</p>
               </div>
             </div>
             <div className="flex items-center justify-between">
               <div className="bg-white/[0.03] rounded-lg p-3 flex-1 mr-3">
-                <p className="text-white/30 text-[10px] mb-1">{t("account.birthHour")}</p>
-                <p className="text-white/70 text-sm">{birthData.birth_hour}:00</p>
+                <p className="text-parchment-400 text-xs mb-1">{t("account.birthHour")}</p>
+                <p className="text-parchment-300 text-sm">{birthData.birth_hour}:00</p>
               </div>
               <button
                 onClick={() => setEditingBirth(true)}
-                className="px-4 py-2.5 rounded-xl border border-white/15 text-white/50 text-sm hover:text-white/70 transition-colors"
+                className="px-4 py-2.5 rounded-xl border border-white/15 text-parchment-400 text-sm hover:text-parchment-300 transition-colors"
               >
                 {t("account.editProfile")}
               </button>
@@ -310,7 +310,7 @@ export default function SettingsTab({ user, refreshUser, t }: { user: AuthUser; 
                     className={`flex-1 py-2.5 rounded-xl text-sm transition-all ${
                       birthForm.gender === g
                         ? "bg-gold/10 text-gold border border-gold/30"
-                        : "bg-white/[0.03] text-white/40 border border-white/[0.08]"
+                        : "bg-white/[0.03] text-parchment-400 border border-white/[0.08]"
                     }`}
                   >
                     {g === "male" ? t("account.genderMale") : t("account.genderFemale")}
@@ -368,21 +368,21 @@ export default function SettingsTab({ user, refreshUser, t }: { user: AuthUser; 
             <div className="flex gap-3">
               <button
                 onClick={() => { setEditingBirth(false); if (birthData) setBirthForm(birthData) }}
-                className="flex-1 py-2.5 rounded-xl border border-white/15 text-white/50 text-sm hover:text-white/70 transition-colors"
+                className="flex-1 py-2.5 rounded-xl border border-white/15 text-parchment-400 text-sm hover:text-parchment-300 transition-colors"
               >
                 {t("common.cancel")}
               </button>
-              <button onClick={handleSaveBirth} className="btn-gold flex-1 py-2.5 text-sm">
+              <button onClick={handleSaveBirth} className="btn-primary flex-1 py-2.5 text-sm">
                 {t("account.saveProfile")}
               </button>
             </div>
           </div>
         ) : (
           <div className="text-center py-4">
-            <p className="text-white/30 text-sm mb-3">{t("account.noBirthInfo")}</p>
+            <p className="text-parchment-400 text-sm mb-3">{t("account.noBirthInfo")}</p>
             <button
               onClick={() => setEditingBirth(true)}
-              className="btn-gold px-6 py-2 text-sm"
+              className="btn-primary px-6 py-2 text-sm"
             >
               {t("account.birthInfoHint")}
             </button>
@@ -391,12 +391,12 @@ export default function SettingsTab({ user, refreshUser, t }: { user: AuthUser; 
       </div>
 
       {/* ── Notification Preferences ────────────────────────────────────── */}
-      <div className="card-glass p-6">
+      <div className="card-solid p-6">
         <div className="flex items-center gap-2 mb-1">
           <Bell size={16} className="text-gold/60" />
-          <h3 className="text-sm font-medium text-white/60">{t("account.notifications")}</h3>
+          <h3 className="text-sm font-medium text-parchment-400">{t("account.notifications")}</h3>
         </div>
-        <p className="text-white/30 text-xs mb-4">{t("account.notificationsDesc")}</p>
+        <p className="text-parchment-400 text-xs mb-4">{t("account.notificationsDesc")}</p>
         <div className="space-y-4">
           {([
             { key: "reportReady" as const, label: t("account.notifyReportReady"), desc: t("account.notifyReportReadyDesc") },
@@ -405,8 +405,8 @@ export default function SettingsTab({ user, refreshUser, t }: { user: AuthUser; 
           ]).map(item => (
             <div key={item.key} className="flex items-center justify-between">
               <div className="flex-1 mr-4">
-                <p className="text-white/60 text-sm">{item.label}</p>
-                <p className="text-white/25 text-xs">{item.desc}</p>
+                <p className="text-parchment-400 text-sm">{item.label}</p>
+                <p className="text-parchment-400 text-xs">{item.desc}</p>
               </div>
               <Toggle enabled={notifPrefs[item.key]} onToggle={() => handleNotifToggle(item.key)} />
             </div>
@@ -415,25 +415,25 @@ export default function SettingsTab({ user, refreshUser, t }: { user: AuthUser; 
       </div>
 
       {/* ── Data & Privacy ─────────────────────────────────────────────── */}
-      <div className="card-glass p-6">
+      <div className="card-solid p-6">
         <div className="flex items-center gap-2 mb-1">
           <Shield size={16} className="text-gold/60" />
-          <h3 className="text-sm font-medium text-white/60">{t("account.dataPrivacy")}</h3>
+          <h3 className="text-sm font-medium text-parchment-400">{t("account.dataPrivacy")}</h3>
         </div>
-        <p className="text-white/30 text-xs mb-4">{t("account.dataPrivacyDesc")}</p>
+        <p className="text-parchment-400 text-xs mb-4">{t("account.dataPrivacyDesc")}</p>
         <div className="space-y-4">
           {/* Clear local history */}
           <div className="flex items-center justify-between">
             <div className="flex-1 mr-4">
-              <p className="text-white/60 text-sm">{t("account.clearLocalHistory")}</p>
-              <p className="text-white/25 text-xs">{t("account.clearLocalHistoryDesc")}</p>
+              <p className="text-parchment-400 text-sm">{t("account.clearLocalHistory")}</p>
+              <p className="text-parchment-400 text-xs">{t("account.clearLocalHistoryDesc")}</p>
             </div>
             <button
               onClick={handleClearHistory}
               disabled={historyCleared}
               className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs transition-colors ${
                 historyCleared
-                  ? "text-white/20 border border-white/10 cursor-not-allowed"
+                  ? "text-parchment-400 border border-white/[0.06] cursor-not-allowed"
                   : "text-red-400/80 border border-red-500/20 hover:bg-red-500/10"
               }`}
             >
@@ -447,10 +447,10 @@ export default function SettingsTab({ user, refreshUser, t }: { user: AuthUser; 
           {/* Export data */}
           <div className="flex items-center justify-between">
             <div className="flex-1 mr-4">
-              <p className="text-white/60 text-sm">{t("account.exportData")}</p>
-              <p className="text-white/25 text-xs">{t("account.exportDataDesc")}</p>
+              <p className="text-parchment-400 text-sm">{t("account.exportData")}</p>
+              <p className="text-parchment-400 text-xs">{t("account.exportDataDesc")}</p>
             </div>
-            <span className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs text-white/20 border border-white/10">
+            <span className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs text-parchment-400 border border-white/[0.06]">
               <Download size={12} />
               {t("account.exportDataHint")}
             </span>
@@ -460,18 +460,18 @@ export default function SettingsTab({ user, refreshUser, t }: { user: AuthUser; 
 
           {/* Data retention */}
           <div className="flex items-start gap-2">
-            <Info size={14} className="text-white/20 mt-0.5 flex-shrink-0" />
+            <Info size={14} className="text-parchment-400 mt-0.5 flex-shrink-0" />
             <div>
-              <p className="text-white/40 text-xs">{t("account.dataRetention")}</p>
-              <p className="text-white/25 text-[11px] mt-1 leading-relaxed">{t("account.dataRetentionDesc")}</p>
+              <p className="text-parchment-400 text-xs">{t("account.dataRetention")}</p>
+              <p className="text-parchment-400 text-xs mt-1 leading-relaxed">{t("account.dataRetentionDesc")}</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* ── Change Password ─────────────────────────────────────────────── */}
-      <div className="card-glass p-6">
-        <h3 className="text-sm font-medium text-white/60 mb-4">{t("account.changePassword")}</h3>
+      <div className="card-solid p-6">
+        <h3 className="text-sm font-medium text-parchment-400 mb-4">{t("account.changePassword")}</h3>
         <div className="space-y-4">
           <div>
             <label className="label">{t("account.currentPassword")}</label>
@@ -498,7 +498,7 @@ export default function SettingsTab({ user, refreshUser, t }: { user: AuthUser; 
               <button
                 type="button"
                 onClick={() => setShowPw(!showPw)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-parchment-400 hover:text-parchment-400"
               >
                 {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
@@ -518,7 +518,7 @@ export default function SettingsTab({ user, refreshUser, t }: { user: AuthUser; 
           <button
             onClick={handleChangePassword}
             disabled={savingPw}
-            className="btn-gold px-6 py-2 text-sm flex items-center gap-2"
+            className="btn-primary px-6 py-2 text-sm flex items-center gap-2"
           >
             {savingPw ? <Loader2 size={16} className="animate-spin" /> : null}
             {t("account.changePassword")}
@@ -527,9 +527,9 @@ export default function SettingsTab({ user, refreshUser, t }: { user: AuthUser; 
       </div>
 
       {/* ── Delete Account ──────────────────────────────────────────────── */}
-      <div className="card-glass p-6 border border-red-500/10">
+      <div className="card-solid p-6 border border-red-500/10">
         <h3 className="text-sm font-medium text-red-400/80 mb-2">{t("account.deleteAccount")}</h3>
-        <p className="text-white/30 text-xs mb-4">{t("account.deleteAccountDesc")}</p>
+        <p className="text-parchment-400 text-xs mb-4">{t("account.deleteAccountDesc")}</p>
         <button
           onClick={() => setShowDeleteConfirm(true)}
           className="px-6 py-2 text-sm border border-red-500/30 text-red-400/80 rounded-xl hover:bg-red-500/10 transition-colors"
@@ -541,18 +541,18 @@ export default function SettingsTab({ user, refreshUser, t }: { user: AuthUser; 
       {/* ── Delete Confirmation Modal ──────────────────────────────────── */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="card-glass w-full max-w-md p-6 space-y-4">
+          <div className="card-solid w-full max-w-md p-6 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <AlertTriangle size={20} className="text-red-400" />
                 <h3 className="text-lg font-serif font-bold text-red-400">{t("account.deleteConfirmTitle")}</h3>
               </div>
               <button onClick={() => { setShowDeleteConfirm(false); setDeletePassword("") }}
-                className="text-white/30 hover:text-white/60">
+                className="text-parchment-400 hover:text-parchment-400">
                 <X size={18} />
               </button>
             </div>
-            <p className="text-white/50 text-sm leading-relaxed">{t("account.deleteConfirmDesc")}</p>
+            <p className="text-parchment-400 text-sm leading-relaxed">{t("account.deleteConfirmDesc")}</p>
             <div>
               <label className="label">{t("account.deleteConfirmPassword")}</label>
               <input
@@ -567,7 +567,7 @@ export default function SettingsTab({ user, refreshUser, t }: { user: AuthUser; 
             <div className="flex gap-3 pt-2">
               <button
                 onClick={() => { setShowDeleteConfirm(false); setDeletePassword("") }}
-                className="flex-1 py-2.5 rounded-xl border border-white/15 text-white/50 text-sm hover:text-white/70 transition-colors"
+                className="flex-1 py-2.5 rounded-xl border border-white/15 text-parchment-400 text-sm hover:text-parchment-300 transition-colors"
               >
                 {t("common.cancel")}
               </button>

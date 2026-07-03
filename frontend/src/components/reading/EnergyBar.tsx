@@ -19,7 +19,7 @@ export function EnergyBar({ bars }: EnergyBarProps) {
   return (
     <div className="space-y-2.5">
       {/* Section header */}
-      <div className="flex items-center gap-2 text-[11px] text-white/40">
+      <div className="flex items-center gap-2 text-xs text-parchment-400">
         <span className="w-1 h-1 rounded-full bg-pink-400/60" />
         <span>{t("report.energyBar.header")}</span>
       </div>
@@ -33,9 +33,9 @@ export function EnergyBar({ bars }: EnergyBarProps) {
           return (
             <div key={i} className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-white/55">{bar.label}</span>
+                <span className="text-xs text-parchment-300">{bar.label}</span>
                 <div className="flex items-center gap-1.5">
-                  <span className={`text-[11px] font-semibold ${style.text}`}>
+                  <span className={`text-xs font-semibold ${style.text}`}>
                     {bar.value.toFixed(1)}
                   </span>
                   <span className={`text-[9px] px-1 py-0.5 rounded ${style.bg} ${style.text}`}>
@@ -43,7 +43,7 @@ export function EnergyBar({ bars }: EnergyBarProps) {
                   </span>
                 </div>
               </div>
-              <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
+              <div className="h-1.5 rounded-full bg-white/[0.04] overflow-hidden">
                 <div
                   className={`h-full rounded-full ${style.bar} transition-all duration-700`}
                   style={{ width: `${percent}%` }}

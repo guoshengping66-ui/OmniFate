@@ -35,7 +35,7 @@ export function TargetSelector() {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border border-white/10 text-white/50 hover:border-gold/30 hover:text-gold transition-all"
+        className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border border-white/[0.06] text-parchment-400 hover:border-gold/30 hover:text-gold transition-all"
       >
         {isSelf ? <User size={12} /> : <Users size={12} />}
         <span className="max-w-[80px] truncate">{targetLabel}</span>
@@ -43,14 +43,14 @@ export function TargetSelector() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-1 w-48 bg-ink-light/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-xl z-50 overflow-hidden">
+        <div className="absolute right-0 top-full mt-1 w-48 bg-cosmos-950-light/95 backdrop-blur-xl border border-white/[0.06] rounded-xl shadow-xl z-50 overflow-hidden">
           {/* Self */}
           <button
             onClick={() => { resetToSelf(); setOpen(false) }}
-            className="w-full flex items-center gap-2 px-3 py-2.5 text-sm hover:bg-white/5 transition-colors"
+            className="w-full flex items-center gap-2 px-3 py-2.5 text-sm hover:bg-white/[0.04] transition-colors"
           >
-            <User size={14} className={isSelf ? "text-gold" : "text-white/30"} />
-            <span className={isSelf ? "text-gold" : "text-white/60"}>{t("target.selfLabel")}{userProfile.nickname}</span>
+            <User size={14} className={isSelf ? "text-gold" : "text-parchment-400"} />
+            <span className={isSelf ? "text-gold" : "text-parchment-400"}>{t("target.selfLabel")}{userProfile.nickname}</span>
             {isSelf && <Check size={12} className="text-gold ml-auto" />}
           </button>
 
@@ -59,21 +59,21 @@ export function TargetSelector() {
             <button
               key={p.id}
               onClick={() => { setActiveTestTarget(p); setOpen(false) }}
-              className="w-full flex items-center gap-2 px-3 py-2.5 text-sm hover:bg-white/5 transition-colors"
+              className="w-full flex items-center gap-2 px-3 py-2.5 text-sm hover:bg-white/[0.04] transition-colors"
             >
-              <Users size={14} className={activeTestTarget?.id === p.id ? "text-gold" : "text-white/30"} />
-              <span className={activeTestTarget?.id === p.id ? "text-gold" : "text-white/60"}>{p.nickname}</span>
+              <Users size={14} className={activeTestTarget?.id === p.id ? "text-gold" : "text-parchment-400"} />
+              <span className={activeTestTarget?.id === p.id ? "text-gold" : "text-parchment-400"}>{p.nickname}</span>
               {activeTestTarget?.id === p.id && <Check size={12} className="text-gold ml-auto" />}
             </button>
           ))}
 
           {/* Divider */}
-          <div className="border-t border-white/10" />
+          <div className="border-t border-white/[0.06]" />
 
           {/* Add new — uses portal to escape parent stacking context */}
           <button
             onClick={() => { setOpen(false); setShowAddDialog(true) }}
-            className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-white/40 hover:bg-white/5 hover:text-white/60 transition-colors"
+            className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-parchment-400 hover:bg-white/[0.04] hover:text-parchment-400 transition-colors"
           >
             <Plus size={14} />
             <span>{t("target.addFriend")}</span>
@@ -155,14 +155,14 @@ function AddFriendDialog({
       style={{ zIndex: 2147483647 }}>
       {/* Click backdrop to close */}
       <div className="absolute inset-0" onClick={onClose} />
-      <div className="relative bg-[#1a1430] border border-white/10 rounded-2xl w-full max-w-md max-h-[85vh] overflow-y-auto shadow-2xl">
+      <div className="relative bg-[#1a1430] border border-white/[0.06] rounded-2xl w-full max-w-md max-h-[85vh] overflow-y-auto shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-white/10 sticky top-0 bg-[#1a1430] z-10">
+        <div className="flex items-center justify-between p-5 border-b border-white/[0.06] sticky top-0 bg-[#1a1430] z-10">
           <div>
             <h3 className="font-serif text-lg text-gold">{t("target.addFriendTitle")}</h3>
-            <p className="text-white/40 text-xs mt-0.5">{t("target.addFriendDesc")}</p>
+            <p className="text-parchment-400 text-xs mt-0.5">{t("target.addFriendDesc")}</p>
           </div>
-          <button onClick={onClose} className="text-white/30 hover:text-white/60 transition-colors">
+          <button onClick={onClose} className="text-parchment-400 hover:text-parchment-400 transition-colors">
             <X size={20} />
           </button>
         </div>
@@ -195,7 +195,7 @@ function AddFriendDialog({
                     onChange={() => setGender(v as "male" | "female" | "other")}
                     className="sr-only peer"
                   />
-                  <div className="text-center py-2.5 rounded-xl border border-white/20 text-white/60 peer-checked:border-gold peer-checked:text-gold peer-checked:bg-gold/10 hover:border-white/40 transition-all text-sm">{l}</div>
+                  <div className="text-center py-2.5 rounded-xl border border-white/20 text-parchment-400 peer-checked:border-gold peer-checked:text-gold peer-checked:bg-gold/10 hover:border-white/40 transition-all text-sm">{l}</div>
                 </label>
               ))}
             </div>
@@ -204,7 +204,7 @@ function AddFriendDialog({
           {/* Birth Date */}
           <div>
             <label className="label">{t("new.partnerBirthDate")}</label>
-            <Suspense fallback={<div className="h-10 bg-white/5 rounded animate-pulse" />}>
+            <Suspense fallback={<div className="h-10 bg-white/[0.04] rounded animate-pulse" />}>
               <DateSelector
                 year={birthYear}
                 month={birthMonth}
@@ -219,7 +219,7 @@ function AddFriendDialog({
           {/* Birth Hour */}
           <div>
             <label className="label">{t("new.partnerBirthHour")}</label>
-            <Suspense fallback={<div className="h-10 bg-white/5 rounded animate-pulse" />}>
+            <Suspense fallback={<div className="h-10 bg-white/[0.04] rounded animate-pulse" />}>
               <ShichenSelector
                 value={birthHour}
                 onChange={(h) => setBirthHour(h)}
@@ -230,7 +230,7 @@ function AddFriendDialog({
           {/* Birth City */}
           <div>
             <label className="label">{t("new.partnerBirthCity")}</label>
-            <Suspense fallback={<div className="h-10 bg-white/5 rounded animate-pulse" />}>
+            <Suspense fallback={<div className="h-10 bg-white/[0.04] rounded animate-pulse" />}>
               <LocationSelector
                 value={birthCity}
                 onChange={setBirthCity}
@@ -241,18 +241,18 @@ function AddFriendDialog({
         </div>
 
         {/* Footer */}
-        <div className="flex gap-3 p-5 border-t border-white/10 sticky bottom-0 bg-[#1a1430]">
+        <div className="flex gap-3 p-5 border-t border-white/[0.06] sticky bottom-0 bg-[#1a1430]">
           <button
             onClick={onClose}
             disabled={saving}
-            className="flex-1 py-2.5 rounded-xl border border-white/20 text-white/60 hover:border-white/40 transition-all text-sm"
+            className="flex-1 py-2.5 rounded-xl border border-white/20 text-parchment-400 hover:border-white/40 transition-all text-sm"
           >
             {t("target.cancel")}
           </button>
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex-1 py-2.5 rounded-xl btn-gold text-sm flex items-center justify-center gap-2"
+            className="flex-1 py-2.5 rounded-xl btn-primary text-sm flex items-center justify-center gap-2"
           >
             {saving ? (
               <><Loader2 size={14} className="animate-spin" /> {t("target.saving")}</>

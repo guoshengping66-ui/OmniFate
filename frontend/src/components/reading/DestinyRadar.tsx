@@ -68,7 +68,7 @@ export function DestinyRadar({ scores, labels, size = 280 }: Props) {
   }
 
   return (
-    <div className="card-glass p-5 inline-flex flex-col items-center">
+    <div className="card-solid p-5 inline-flex flex-col items-center">
       <h3 className="font-serif text-gold text-sm mb-2">{t("destinyRadar.title")}</h3>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         {/* Grid pentagons */}

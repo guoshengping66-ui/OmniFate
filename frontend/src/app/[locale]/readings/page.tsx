@@ -92,23 +92,23 @@ export default function ReadingsPage() {
         <div className="flex items-center justify-between mb-10">
           <div>
             <h1 className="text-3xl font-serif font-bold text-gold mb-1">{t("readings.title")}</h1>
-            <p className="text-white/40 text-sm">{t("readings.subtitle")}</p>
-            <p className="text-white/25 text-xs mt-1">{t("readings.retentionHint")}</p>
+            <p className="text-parchment-400 text-sm">{t("readings.subtitle")}</p>
+            <p className="text-parchment-400 text-xs mt-1">{t("readings.retentionHint")}</p>
           </div>
           <Link
             href={localeHref("/reading/new")}
-            className="btn-gold flex items-center gap-2 text-sm py-2.5 px-5"
+            className="btn-primary flex items-center gap-2 text-sm py-2.5 px-5"
           >
             <Plus size={16} /> {t("readings.newReading")}
           </Link>
         </div>
 
         {readings.length === 0 ? (
-          <div className="card-glass p-16 text-center">
-            <ScrollText size={48} className="mx-auto mb-4 text-white/10" />
-            <p className="text-white/40 text-sm mb-2">{t("readings.empty")}</p>
-            <p className="text-white/20 text-xs mb-6">{t("readings.startFirst")}</p>
-            <Link href="/reading/new" className="btn-gold inline-flex items-center gap-2 text-sm">
+          <div className="card-solid p-16 text-center">
+            <ScrollText size={48} className="mx-auto mb-4 text-parchment-400" />
+            <p className="text-parchment-400 text-sm mb-2">{t("readings.empty")}</p>
+            <p className="text-parchment-400 text-xs mb-6">{t("readings.startFirst")}</p>
+            <Link href="/reading/new" className="btn-primary inline-flex items-center gap-2 text-sm">
               {t("readings.startReading")} <ArrowRight size={14} />
             </Link>
           </div>
@@ -120,7 +120,7 @@ export default function ReadingsPage() {
                 <Link
                   key={r.id}
                   href={localeHref(`/reading/${r.id}`)}
-                  className="block card-glow p-5 hover:border-gold/30 transition-all duration-300 group"
+                  className="block card-interactive p-5 hover:border-gold/30 transition-all duration-300 group"
                 >
                   <div className="flex items-start gap-4">
                     {/* Icon */}
@@ -135,18 +135,18 @@ export default function ReadingsPage() {
                           {t("readings.reportTitle")}
                         </h3>
                         {r.is_detail_unlocked ? (
-                          <span className="flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 bg-green-500/10 border border-green-500/20 rounded-full text-green-400">
+                          <span className="flex items-center gap-0.5 text-xs px-1.5 py-0.5 bg-green-500/10 border border-green-500/20 rounded-full text-green-400">
                             <Unlock size={8} /> {t("readings.unlocked")}
                           </span>
                         ) : (
-                          <span className="flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 bg-white/5 border border-white/10 rounded-full text-white/30">
+                          <span className="flex items-center gap-0.5 text-xs px-1.5 py-0.5 bg-white/[0.04] border border-white/[0.06] rounded-full text-parchment-400">
                             <Lock size={8} /> {t("readings.freeVersion")}
                           </span>
                         )}
                       </div>
 
                       {r.master_summary && (
-                        <p className="text-white/40 text-xs leading-relaxed line-clamp-2 mb-2">
+                        <p className="text-parchment-400 text-xs leading-relaxed line-clamp-2 mb-2">
                           {stripMarkdown(r.master_summary)}
                         </p>
                       )}
@@ -158,14 +158,14 @@ export default function ReadingsPage() {
                             <TagBadge key={tag} tag={tag} />
                           ))}
                           {r.computed_tags?.length > 4 && (
-                            <span className="text-[10px] text-white/20">+{r.computed_tags.length - 4}</span>
+                            <span className="text-xs text-parchment-400">+{r.computed_tags.length - 4}</span>
                           )}
                         </div>
                       )}
 
                       {/* Dimension mini scores */}
                       {Object.keys(r.dimension_scores || {}).length > 0 && (
-                        <div className="flex items-center gap-3 text-[10px] text-white/30">
+                        <div className="flex items-center gap-3 text-xs text-parchment-400">
                           {Object.entries(DIM_LABELS).map(([key, label]) => {
                             const score = r.dimension_scores[key]
                             if (score == null) return null
@@ -181,18 +181,18 @@ export default function ReadingsPage() {
 
                     {/* Meta */}
                     <div className="flex-shrink-0 text-right">
-                      <div className="flex items-center gap-1 text-white/30 text-[11px]">
+                      <div className="flex items-center gap-1 text-parchment-400 text-xs">
                         <Clock size={10} />
                         {formatDate(r.created_at)}
                       </div>
                       {weakest && (
-                        <p className="text-white/20 text-[10px] mt-1">
+                        <p className="text-parchment-400 text-xs mt-1">
                           {t("readings.weakest")}: {weakest}
                         </p>
                       )}
                       <button
                         onClick={(e) => handleDelete(e, r.id)}
-                        className="mt-2 flex items-center gap-1 text-[10px] text-white/20 hover:text-red-400 transition-colors"
+                        className="mt-2 flex items-center gap-1 text-xs text-parchment-400 hover:text-red-400 transition-colors"
                         title={t("readings.delete")}
                       >
                         <Trash2 size={10} />

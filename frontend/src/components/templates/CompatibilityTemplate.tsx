@@ -82,7 +82,7 @@ export function CompatibilityTemplate({ data, locale }: CompatibilityTemplatePro
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-white mb-4">
               {content.title}
             </h1>
-            <p className="text-white/40 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
+            <p className="text-parchment-400 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
               {content.overview}
             </p>
           </div>
@@ -90,7 +90,7 @@ export function CompatibilityTemplate({ data, locale }: CompatibilityTemplatePro
 
         {/* Compatibility Scores */}
         <ScrollReveal delay={0.1}>
-          <div className="card-glass p-8 md:p-10 mb-8">
+          <div className="card-solid p-8 md:p-10 mb-8">
             <h2 className="font-serif text-2xl text-gold mb-6 text-center">
               {isZh ? "配对分数" : "Compatibility Scores"}
             </h2>
@@ -99,25 +99,25 @@ export function CompatibilityTemplate({ data, locale }: CompatibilityTemplatePro
                 <div className={`text-3xl font-bold ${getScoreColor(data.overall_score)}`}>
                   {data.overall_score}%
                 </div>
-                <div className="text-xs text-white/40 mt-1">{isZh ? "总体" : "Overall"}</div>
+                <div className="text-xs text-parchment-400 mt-1">{isZh ? "总体" : "Overall"}</div>
               </div>
               <div className="text-center">
                 <div className={`text-3xl font-bold ${getScoreColor(data.love_score)}`}>
                   {data.love_score}%
                 </div>
-                <div className="text-xs text-white/40 mt-1">{isZh ? "爱情" : "Love"}</div>
+                <div className="text-xs text-parchment-400 mt-1">{isZh ? "爱情" : "Love"}</div>
               </div>
               <div className="text-center">
                 <div className={`text-3xl font-bold ${getScoreColor(data.friendship_score)}`}>
                   {data.friendship_score}%
                 </div>
-                <div className="text-xs text-white/40 mt-1">{isZh ? "友谊" : "Friendship"}</div>
+                <div className="text-xs text-parchment-400 mt-1">{isZh ? "友谊" : "Friendship"}</div>
               </div>
               <div className="text-center">
                 <div className={`text-3xl font-bold ${getScoreColor(data.work_score)}`}>
                   {data.work_score}%
                 </div>
-                <div className="text-xs text-white/40 mt-1">{isZh ? "工作" : "Work"}</div>
+                <div className="text-xs text-parchment-400 mt-1">{isZh ? "工作" : "Work"}</div>
               </div>
             </div>
           </div>
@@ -125,51 +125,51 @@ export function CompatibilityTemplate({ data, locale }: CompatibilityTemplatePro
 
         {/* Love Analysis */}
         <ScrollReveal delay={0.15}>
-          <div className="card-glass p-8 md:p-10 mb-8">
+          <div className="card-solid p-8 md:p-10 mb-8">
             <h2 className="font-serif text-2xl text-gold mb-6">
               {isZh ? "💕 爱情配对分析" : "💕 Love Compatibility"}
             </h2>
-            <p className="text-white/60 text-sm leading-relaxed">{content.love}</p>
+            <p className="text-parchment-400 text-sm leading-relaxed">{content.love}</p>
           </div>
         </ScrollReveal>
 
         {/* Friendship Analysis */}
         <ScrollReveal delay={0.2}>
-          <div className="card-glass p-8 md:p-10 mb-8">
+          <div className="card-solid p-8 md:p-10 mb-8">
             <h2 className="font-serif text-2xl text-gold mb-6">
               {isZh ? "👥 友谊配对分析" : "👥 Friendship Compatibility"}
             </h2>
-            <p className="text-white/60 text-sm leading-relaxed">{content.friendship}</p>
+            <p className="text-parchment-400 text-sm leading-relaxed">{content.friendship}</p>
           </div>
         </ScrollReveal>
 
         {/* Work Analysis */}
         <ScrollReveal delay={0.25}>
-          <div className="card-glass p-8 md:p-10 mb-8">
+          <div className="card-solid p-8 md:p-10 mb-8">
             <h2 className="font-serif text-2xl text-gold mb-6">
               {isZh ? "💼 工作配对分析" : "💼 Work Compatibility"}
             </h2>
-            <p className="text-white/60 text-sm leading-relaxed">{content.work}</p>
+            <p className="text-parchment-400 text-sm leading-relaxed">{content.work}</p>
           </div>
         </ScrollReveal>
 
         {/* Challenges */}
         <ScrollReveal delay={0.3}>
-          <div className="card-glass p-8 md:p-10 mb-8">
+          <div className="card-solid p-8 md:p-10 mb-8">
             <h2 className="font-serif text-2xl text-gold mb-6">
               {isZh ? "⚠️ 挑战与注意事项" : "⚠️ Challenges"}
             </h2>
-            <p className="text-white/60 text-sm leading-relaxed">{content.challenges}</p>
+            <p className="text-parchment-400 text-sm leading-relaxed">{content.challenges}</p>
           </div>
         </ScrollReveal>
 
         {/* Tips */}
         <ScrollReveal delay={0.35}>
-          <div className="card-glass p-8 md:p-10 mb-8">
+          <div className="card-solid p-8 md:p-10 mb-8">
             <h2 className="font-serif text-2xl text-gold mb-6">
               {isZh ? "💡 成功秘诀" : "💡 Tips for Success"}
             </h2>
-            <p className="text-white/60 text-sm leading-relaxed">{content.tips}</p>
+            <p className="text-parchment-400 text-sm leading-relaxed">{content.tips}</p>
           </div>
         </ScrollReveal>
 
@@ -178,7 +178,7 @@ export function CompatibilityTemplate({ data, locale }: CompatibilityTemplatePro
 
         {/* Related Compatibility */}
         <ScrollReveal delay={0.4}>
-          <div className="card-glass p-8 md:p-10 mb-8">
+          <div className="card-solid p-8 md:p-10 mb-8">
             <h2 className="font-serif text-2xl text-gold mb-6">
               {isZh ? "探索其他配对" : "Explore Other Compatibility"}
             </h2>
@@ -189,10 +189,10 @@ export function CompatibilityTemplate({ data, locale }: CompatibilityTemplatePro
                   <Link
                     key={sign}
                     href={localeHref(`/zodiac/${data.sign_a}/compatibility/${sign}`)}
-                    className="card-glow p-3 text-center hover:border-gold/30 transition-all group"
+                    className="card-interactive p-3 text-center hover:border-gold/30 transition-all group"
                   >
                     <div className="text-2xl mb-1">{relatedSign?.symbol}</div>
-                    <div className="text-xs text-white/60 group-hover:text-gold transition-colors">
+                    <div className="text-xs text-parchment-400 group-hover:text-gold transition-colors">
                       {isZh ? signA?.name_zh : signA?.name_en} + {isZh ? relatedSign?.name_zh : relatedSign?.name_en}
                     </div>
                   </Link>
@@ -204,21 +204,21 @@ export function CompatibilityTemplate({ data, locale }: CompatibilityTemplatePro
 
         {/* CTA */}
         <ScrollReveal delay={0.45}>
-          <div className="text-center card-glass-elevated p-10 relative overflow-hidden mt-8">
+          <div className="text-center card-solid-elevated p-10 relative overflow-hidden mt-8">
             <div className="absolute inset-0 bg-gradient-to-br from-gold/5 via-transparent to-jade/5 pointer-events-none" />
             <div className="relative">
               <div className="text-4xl mb-4 animate-float">🔮</div>
               <h2 className="font-serif text-2xl text-gold mb-4">
                 {isZh ? "获取你们的完整配对分析" : "Get Your Complete Pair Reading"}
               </h2>
-              <p className="text-white/50 mb-8 max-w-md mx-auto">
+              <p className="text-parchment-400 mb-8 max-w-md mx-auto">
                 {isZh
                   ? "获取 AI 生成的详细配对分析，包含双方的星盘解读"
                   : "Get an AI-generated detailed pair reading with both charts interpreted"}
               </p>
               <Link
                 href={localeHref("/reading/new")}
-                className="btn-gold inline-flex items-center gap-2 text-lg px-10 py-4"
+                className="btn-primary inline-flex items-center gap-2 text-lg px-10 py-4"
               >
                 {isZh ? "开始分析" : "Start Reading"} 🔮
               </Link>

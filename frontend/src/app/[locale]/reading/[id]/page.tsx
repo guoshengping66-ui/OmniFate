@@ -162,7 +162,7 @@ function DecisionReportText({ content }: { content: string }) {
 
   const sections = splitDecisionReport(content)
   if (sections.length === 0) {
-    return <p className="text-white/50 text-sm leading-relaxed">Report content is still being generated.</p>
+    return <p className="text-parchment-400 text-sm leading-relaxed">Report content is still being generated.</p>
   }
 
   const visualCards = sections.slice(0, 3)
@@ -178,9 +178,9 @@ function DecisionReportText({ content }: { content: string }) {
             <section key={`${section.title}-visual-${index}`} className={`rounded-2xl border p-4 ${tone}`}>
               <div className="flex items-center gap-2 mb-3">
                 <Icon size={15} className={index === 0 ? "text-gold" : index === 1 ? "text-cyan-200" : "text-rose-200"} />
-                <h3 className="text-sm font-semibold text-white/78">{section.title}</h3>
+                <h3 className="text-sm font-semibold text-parchment-200">{section.title}</h3>
               </div>
-              <p className="text-white/58 text-xs leading-relaxed">{getSectionPreview(section)}</p>
+              <p className="text-parchment-300 text-xs leading-relaxed">{getSectionPreview(section)}</p>
             </section>
           )
         })}
@@ -190,14 +190,14 @@ function DecisionReportText({ content }: { content: string }) {
         <div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-4">
           <div className="flex items-center gap-2 mb-4">
             <Clock size={15} className="text-gold/70" />
-            <h3 className="text-sm font-semibold text-white/72">行动路线</h3>
+            <h3 className="text-sm font-semibold text-parchment-200">行动路线</h3>
           </div>
           <div className="grid sm:grid-cols-3 gap-3">
             {roadmap.map((section, index) => (
               <div key={`${section.title}-roadmap-${index}`} className="rounded-xl border border-white/[0.06] bg-black/15 p-3">
-                <span className="text-[10px] text-gold/55">STEP {index + 1}</span>
-                <p className="text-white/74 text-xs font-semibold mt-1 mb-2">{section.title}</p>
-                <p className="text-white/45 text-xs leading-relaxed">{getSectionPreview(section, 110)}</p>
+                <span className="text-xs text-gold/55">STEP {index + 1}</span>
+                <p className="text-parchment-200 text-xs font-semibold mt-1 mb-2">{section.title}</p>
+                <p className="text-parchment-400 text-xs leading-relaxed">{getSectionPreview(section, 110)}</p>
               </div>
             ))}
           </div>
@@ -205,20 +205,20 @@ function DecisionReportText({ content }: { content: string }) {
       )}
 
       <details className="group rounded-2xl border border-white/[0.07] bg-white/[0.02] p-4" open>
-        <summary className="cursor-pointer list-none flex items-center justify-between gap-3 text-sm font-semibold text-white/70">
+        <summary className="cursor-pointer list-none flex items-center justify-between gap-3 text-sm font-semibold text-parchment-300">
           <span>完整详细解析</span>
-          <ChevronDown size={16} className="text-white/35 group-open:rotate-180 transition-transform" />
+          <ChevronDown size={16} className="text-parchment-400 group-open:rotate-180 transition-transform" />
         </summary>
         <div className="mt-4 space-y-3">
           {sections.map((section, index) => (
             <section key={`${section.title}-${index}`} className="rounded-xl border border-white/[0.06] bg-black/10 p-4">
               <div className="flex items-center gap-2 mb-2">
-                <span className="w-5 h-5 rounded-full bg-gold/10 border border-gold/20 text-gold/70 text-[10px] flex items-center justify-center">
+                <span className="w-5 h-5 rounded-full bg-gold/10 border border-gold/20 text-gold/70 text-xs flex items-center justify-center">
                   {index + 1}
                 </span>
-                <h3 className="text-sm font-semibold text-white/75">{section.title}</h3>
+                <h3 className="text-sm font-semibold text-parchment-200">{section.title}</h3>
               </div>
-              <p className="text-white/60 text-sm leading-relaxed whitespace-pre-line">{section.body}</p>
+              <p className="text-parchment-400 text-sm leading-relaxed whitespace-pre-line">{section.body}</p>
             </section>
           ))}
         </div>
@@ -534,15 +534,15 @@ function ReportOperatingBrief({
       <div className="relative">
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-5 mb-6">
           <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/[0.06] px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-gold/70 mb-3">
+            <div className="inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/[0.06] px-3 py-1 text-xs uppercase tracking-[0.18em] text-gold/70 mb-3">
               <Compass size={12} />
               {isEn ? "Life Operating Brief" : "人生盘面摘要"}
             </div>
-            <h2 className="font-serif text-2xl md:text-4xl font-bold text-white/92 leading-tight">{stage.title}</h2>
-            <p className="mt-3 text-white/58 text-sm md:text-base leading-relaxed">{stage.headline}</p>
+            <h2 className="font-serif text-2xl md:text-4xl font-bold text-parchment-100 leading-tight">{stage.title}</h2>
+            <p className="mt-3 text-parchment-300 text-sm md:text-base leading-relaxed">{stage.headline}</p>
           </div>
           {!isUnlocked && (
-            <button onClick={onUnlock} className="btn-gold flex items-center justify-center gap-2 text-sm px-5 py-3 whitespace-nowrap">
+            <button onClick={onUnlock} className="btn-primary flex items-center justify-center gap-2 text-sm px-5 py-3 whitespace-nowrap">
               <Crown size={15} />
               {isEn ? "Unlock action plan" : "解锁行动方案"}
             </button>
@@ -552,11 +552,11 @@ function ReportOperatingBrief({
           {cards.map((card, index) => (
             <div key={card.label} className="rounded-2xl border border-white/[0.07] bg-white/[0.035] p-4">
               <div className="flex items-center justify-between gap-3 mb-3">
-                <span className="text-[10px] uppercase tracking-[0.14em] text-white/32">{card.label}</span>
-                <span className="font-mono text-[10px] text-gold/45">0{index + 1}</span>
+                <span className="text-xs uppercase tracking-[0.14em] text-parchment-400">{card.label}</span>
+                <span className="font-mono text-xs text-gold/45">0{index + 1}</span>
               </div>
               <p className="font-serif text-lg text-gold/90 mb-1">{card.value}</p>
-              <p className="text-white/40 text-xs leading-relaxed">{card.helper}</p>
+              <p className="text-parchment-400 text-xs leading-relaxed">{card.helper}</p>
             </div>
           ))}
         </div>
@@ -594,15 +594,15 @@ function ReportOperatingBriefV2({
       <div className="relative">
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-5 mb-6">
           <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/[0.06] px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-gold/70 mb-3">
+            <div className="inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/[0.06] px-3 py-1 text-xs uppercase tracking-[0.18em] text-gold/70 mb-3">
               <Compass size={12} />
               {isEn ? "Life Operating Brief" : "人生状态摘要"}
             </div>
-            <h2 className="font-serif text-2xl md:text-4xl font-bold text-white/92 leading-tight">{stage.title}</h2>
-            <p className="mt-3 text-white/58 text-sm md:text-base leading-relaxed">{stage.headline}</p>
+            <h2 className="font-serif text-2xl md:text-4xl font-bold text-parchment-100 leading-tight">{stage.title}</h2>
+            <p className="mt-3 text-parchment-300 text-sm md:text-base leading-relaxed">{stage.headline}</p>
           </div>
           {!isUnlocked && (
-            <button onClick={onUnlock} className="btn-gold flex items-center justify-center gap-2 text-sm px-5 py-3 whitespace-nowrap">
+            <button onClick={onUnlock} className="btn-primary flex items-center justify-center gap-2 text-sm px-5 py-3 whitespace-nowrap">
               <Crown size={15} />
               {isEn ? "Unlock action plan" : "解锁行动方案"}
             </button>
@@ -612,11 +612,11 @@ function ReportOperatingBriefV2({
           {cards.map((card, index) => (
             <div key={card.label} className="rounded-2xl border border-white/[0.07] bg-white/[0.035] p-4">
               <div className="flex items-center justify-between gap-3 mb-3">
-                <span className="text-[10px] uppercase tracking-[0.14em] text-white/32">{card.label}</span>
-                <span className="font-mono text-[10px] text-gold/45">0{index + 1}</span>
+                <span className="text-xs uppercase tracking-[0.14em] text-parchment-400">{card.label}</span>
+                <span className="font-mono text-xs text-gold/45">0{index + 1}</span>
               </div>
               <p className="font-serif text-lg text-gold/90 mb-1">{card.value}</p>
-              <p className="text-white/40 text-xs leading-relaxed">{card.helper}</p>
+              <p className="text-parchment-400 text-xs leading-relaxed">{card.helper}</p>
             </div>
           ))}
         </div>
@@ -642,20 +642,20 @@ function ActionRoadmap({ strongestLabel, weakestLabel, locale }: { strongestLabe
       ]
 
   return (
-    <section className="card-glass p-5 md:p-7 border-cyan-300/10 bg-cyan-300/[0.025]">
+    <section className="card-solid p-5 md:p-7 border-cyan-300/10 bg-cyan-300/[0.025]">
       <div className="flex items-center gap-2 mb-5">
         <Clock size={16} className="text-cyan-200/70" />
         <div>
-          <h3 className="text-sm font-semibold text-white/72">{isEn ? "30 / 90 / 180 Day Route" : "30 / 90 / 180 天行动路线"}</h3>
-          <p className="text-white/28 text-xs">{isEn ? "Turn the report into execution." : "把报告从“看懂”变成“能执行”。"}</p>
+          <h3 className="text-sm font-semibold text-parchment-200">{isEn ? "30 / 90 / 180 Day Route" : "30 / 90 / 180 天行动路线"}</h3>
+          <p className="text-parchment-400 text-xs">{isEn ? "Turn the report into execution." : "把报告从“看懂”变成“能执行”。"}</p>
         </div>
       </div>
       <div className="grid md:grid-cols-4 gap-3">
         {steps.map((step, index) => (
           <div key={step.period} className="relative rounded-2xl border border-white/[0.06] bg-black/10 p-4">
-            <span className="absolute -top-2 left-4 rounded-full border border-cyan-200/15 bg-[#09111a] px-2 py-0.5 text-[10px] text-cyan-100/60">{step.period}</span>
-            <p className="mt-2 text-sm font-semibold text-white/74">{step.title}</p>
-            <p className="mt-2 text-xs leading-relaxed text-white/45">{step.body}</p>
+            <span className="absolute -top-2 left-4 rounded-full border border-cyan-200/15 bg-[#09111a] px-2 py-0.5 text-xs text-cyan-100/60">{step.period}</span>
+            <p className="mt-2 text-sm font-semibold text-parchment-200">{step.title}</p>
+            <p className="mt-2 text-xs leading-relaxed text-parchment-400">{step.body}</p>
             <div className="mt-4 h-1 rounded-full bg-white/[0.06] overflow-hidden">
               <div className="h-full rounded-full bg-cyan-200/45" style={{ width: `${25 + index * 25}%` }} />
             </div>
@@ -669,7 +669,7 @@ function ActionRoadmap({ strongestLabel, weakestLabel, locale }: { strongestLabe
 function PrescriptionPreview({ hasProducts, weakestLabel, locale, onOpenShop }: { hasProducts: boolean; weakestLabel: string; locale: string; onOpenShop: () => void }) {
   const isEn = locale === "en"
   return (
-    <section className="card-glass p-5 md:p-6 border-gold/12 bg-gradient-to-br from-gold/[0.045] to-transparent">
+    <section className="card-solid p-5 md:p-6 border-gold/12 bg-gradient-to-br from-gold/[0.045] to-transparent">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-start gap-3">
           <div className="w-11 h-11 rounded-2xl bg-gold/12 border border-gold/25 flex items-center justify-center flex-shrink-0">
@@ -677,7 +677,7 @@ function PrescriptionPreview({ hasProducts, weakestLabel, locale, onOpenShop }: 
           </div>
           <div>
             <h3 className="font-serif text-lg font-bold text-gold/90">{isEn ? "Profile-Matched Vault Preview" : "\u753b\u50cf\u5339\u914d\u597d\u7269\u9884\u89c8"}</h3>
-            <p className="mt-1 text-white/45 text-sm leading-relaxed">
+            <p className="mt-1 text-parchment-400 text-sm leading-relaxed">
               {isEn ? `Your match logic first stabilizes ${weakestLabel}, then supports the strongest dimension. Items are ranked by your report state, not shown randomly.` : `\u5339\u914d\u903b\u8f91\u4f1a\u5148\u7a33\u4f4f\u300c${weakestLabel}\u300d\uff0c\u518d\u653e\u5927\u4f60\u7684\u4f18\u52bf\u7ef4\u5ea6\u3002\u597d\u7269\u63a8\u8350\u8ddf\u968f\u62a5\u544a\u72b6\u6001\u5339\u914d\uff0c\u800c\u4e0d\u662f\u968f\u673a\u5c55\u793a\u3002`}
             </p>
           </div>
@@ -759,17 +759,17 @@ function RelationshipReportBrief({
       <div className="relative">
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-5 mb-6">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-rose-300/20 bg-rose-300/[0.06] px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-rose-100/70 mb-3">
+            <div className="inline-flex items-center gap-2 rounded-full border border-rose-300/20 bg-rose-300/[0.06] px-3 py-1 text-xs uppercase tracking-[0.18em] text-rose-100/70 mb-3">
               <MessageSquare size={12} />
               {isEn ? "Relationship Operating Map" : "关系合盘地图"}
             </div>
-            <h2 className="font-serif text-2xl md:text-4xl font-bold text-white/92 leading-tight">
+            <h2 className="font-serif text-2xl md:text-4xl font-bold text-parchment-100 leading-tight">
               {isEn ? `You and ${partner}` : `你和${partner}的关系结构`}
             </h2>
-            <p className="mt-3 text-white/58 text-sm md:text-base leading-relaxed">{firstFinding}</p>
+            <p className="mt-3 text-parchment-300 text-sm md:text-base leading-relaxed">{firstFinding}</p>
           </div>
           {!isUnlocked && (
-            <button onClick={onUnlock} className="btn-gold flex items-center justify-center gap-2 text-sm px-5 py-3 whitespace-nowrap">
+            <button onClick={onUnlock} className="btn-primary flex items-center justify-center gap-2 text-sm px-5 py-3 whitespace-nowrap">
               <Crown size={15} />
               {isEn ? "Unlock full map" : "解锁完整关系地图"}
             </button>
@@ -780,11 +780,11 @@ function RelationshipReportBrief({
           {cards.map((card, index) => (
             <div key={card.label} className="rounded-2xl border border-white/[0.07] bg-white/[0.035] p-4">
               <div className="flex items-center justify-between gap-3 mb-3">
-                <span className="text-[10px] uppercase tracking-[0.14em] text-white/32">{card.label}</span>
-                <span className="font-mono text-[10px] text-rose-100/45">0{index + 1}</span>
+                <span className="text-xs uppercase tracking-[0.14em] text-parchment-400">{card.label}</span>
+                <span className="font-mono text-xs text-rose-100/45">0{index + 1}</span>
               </div>
               <p className="font-serif text-lg text-rose-100/90 mb-1">{card.value}</p>
-              <p className="text-white/42 text-xs leading-relaxed">{card.body}</p>
+              <p className="text-parchment-400 text-xs leading-relaxed">{card.body}</p>
             </div>
           ))}
         </div>
@@ -793,15 +793,15 @@ function RelationshipReportBrief({
           <div className="rounded-2xl border border-white/[0.07] bg-black/15 p-4">
             <div className="flex items-center gap-2 mb-3">
               <CheckCircle size={15} className="text-rose-100/70" />
-              <h3 className="text-sm font-semibold text-white/72">{isEn ? "How to use this report" : "这份合盘怎么用"}</h3>
+              <h3 className="text-sm font-semibold text-parchment-200">{isEn ? "How to use this report" : "这份合盘怎么用"}</h3>
             </div>
             <div className="space-y-2">
               {actions.map((item, index) => (
                 <div key={item} className="flex items-start gap-2">
-                  <span className="mt-0.5 h-5 w-5 rounded-full bg-rose-300/10 border border-rose-300/15 text-rose-100/70 text-[10px] flex items-center justify-center flex-shrink-0">
+                  <span className="mt-0.5 h-5 w-5 rounded-full bg-rose-300/10 border border-rose-300/15 text-rose-100/70 text-xs flex items-center justify-center flex-shrink-0">
                     {index + 1}
                   </span>
-                  <p className="text-white/50 text-xs leading-relaxed">{item}</p>
+                  <p className="text-parchment-400 text-xs leading-relaxed">{item}</p>
                 </div>
               ))}
             </div>
@@ -810,7 +810,7 @@ function RelationshipReportBrief({
           <div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-4">
             <div className="flex items-center gap-2 mb-3">
               <Shield size={15} className="text-gold/65" />
-              <h3 className="text-sm font-semibold text-white/72">{isEn ? "Specialist evidence" : "专家证据入口"}</h3>
+              <h3 className="text-sm font-semibold text-parchment-200">{isEn ? "Specialist evidence" : "专家证据入口"}</h3>
             </div>
             <div className="grid sm:grid-cols-2 gap-2">
               {workerOrder.filter(key => workerMap[key]?.report).slice(0, 6).map((key) => (
@@ -820,7 +820,7 @@ function RelationshipReportBrief({
                   className="rounded-xl border border-white/[0.06] bg-black/10 p-3 text-left hover:border-gold/20 transition-colors"
                 >
                   <p className="text-gold/70 text-xs font-medium mb-1">{AGENT_LABELS[key]?.icon} {key}</p>
-                  <p className="text-white/42 text-[11px] leading-relaxed line-clamp-2">{getReadableExcerpt(workerMap[key]?.report, 90)}</p>
+                  <p className="text-parchment-400 text-xs leading-relaxed line-clamp-2">{getReadableExcerpt(workerMap[key]?.report, 90)}</p>
                 </button>
               ))}
             </div>
@@ -850,12 +850,12 @@ function ExpertReportNavigator({
   if (entries.length === 0) return null
 
   return (
-    <section className="card-glass p-5 md:p-6 border-white/[0.08]">
+    <section className="card-solid p-5 md:p-6 border-white/[0.08]">
       <div className="flex items-center gap-2 mb-4">
         <Compass size={16} className="text-gold/70" />
         <div>
-          <h3 className="text-sm font-semibold text-white/72">{isEn ? "Specialist Reading Map" : "专家单项分析地图"}</h3>
-          <p className="text-white/28 text-xs">{isEn ? "Jump into the exact evidence behind the summary." : "从总览直接跳到对应证据，不再在长文里找重点。"}</p>
+          <h3 className="text-sm font-semibold text-parchment-200">{isEn ? "Specialist Reading Map" : "专家单项分析地图"}</h3>
+          <p className="text-parchment-400 text-xs">{isEn ? "Jump into the exact evidence behind the summary." : "从总览直接跳到对应证据，不再在长文里找重点。"}</p>
         </div>
       </div>
       <div className="grid md:grid-cols-3 gap-3">
@@ -867,14 +867,14 @@ function ExpertReportNavigator({
           >
             <div className="flex items-center gap-2 mb-2">
               <span className="text-lg">{AGENT_LABELS[item.key]?.icon}</span>
-              <p className="text-sm font-semibold text-white/75 group-hover:text-gold transition-colors">{item.key}</p>
-              <ArrowRight size={13} className="ml-auto text-white/20 group-hover:text-gold/70" />
+              <p className="text-sm font-semibold text-parchment-200 group-hover:text-gold transition-colors">{item.key}</p>
+              <ArrowRight size={13} className="ml-auto text-parchment-400 group-hover:text-gold/70" />
             </div>
-            <p className="text-white/45 text-xs leading-relaxed line-clamp-3">{getReadableExcerpt(item.report, 115)}</p>
+            <p className="text-parchment-400 text-xs leading-relaxed line-clamp-3">{getReadableExcerpt(item.report, 115)}</p>
             {item.tags.length > 0 && (
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {item.tags.slice(0, 3).map(tag => (
-                  <span key={tag} className="rounded-full bg-white/[0.05] px-2 py-0.5 text-[10px] text-white/35">{tag}</span>
+                  <span key={tag} className="rounded-full bg-white/[0.05] px-2 py-0.5 text-xs text-parchment-400">{tag}</span>
                 ))}
               </div>
             )}
@@ -906,29 +906,29 @@ function WorkerInsightHeader({
   }))
 
   return (
-    <section className="card-glass p-5 md:p-6 border-gold/10 bg-gradient-to-br from-gold/[0.035] to-transparent">
+    <section className="card-solid p-5 md:p-6 border-gold/10 bg-gradient-to-br from-gold/[0.035] to-transparent">
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-4">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/[0.06] px-3 py-1 text-[10px] uppercase tracking-[0.16em] text-gold/65 mb-3">
+          <div className="inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/[0.06] px-3 py-1 text-xs uppercase tracking-[0.16em] text-gold/65 mb-3">
             <ScrollText size={12} />
             {isEn ? "Single Specialist View" : "单项专家视角"}
           </div>
           <h2 className="font-serif text-xl md:text-2xl font-bold text-gold/90">{title}</h2>
-          <p className="mt-2 text-white/55 text-sm leading-relaxed max-w-3xl">{primary}</p>
+          <p className="mt-2 text-parchment-300 text-sm leading-relaxed max-w-3xl">{primary}</p>
         </div>
         <div className="rounded-2xl border border-white/[0.07] bg-white/[0.03] p-3 min-w-[150px]">
-          <p className="text-[10px] uppercase tracking-[0.14em] text-white/28">{isEn ? "Report density" : "内容密度"}</p>
+          <p className="text-xs uppercase tracking-[0.14em] text-parchment-400">{isEn ? "Report density" : "内容密度"}</p>
           <p className="font-serif text-lg text-gold/80 mt-1">{Math.max(2, Math.min(9, Math.floor(report.length / 180)))}</p>
-          <p className="text-white/30 text-[11px]">{isEn ? "key blocks estimated" : "个重点块"}</p>
+          <p className="text-parchment-400 text-xs">{isEn ? "key blocks estimated" : "个重点块"}</p>
         </div>
       </div>
       {secondary.length > 0 && (
         <div className="grid md:grid-cols-3 gap-3">
           {secondary.map((item, index) => (
             <div key={`${item.title}-${index}`} className="rounded-2xl border border-white/[0.06] bg-black/10 p-3">
-              <span className="text-[10px] text-gold/45">FOCUS {index + 1}</span>
-              <p className="text-white/72 text-xs font-semibold mt-1 mb-1">{item.title}</p>
-              <p className="text-white/42 text-[11px] leading-relaxed">{item.body}</p>
+              <span className="text-xs text-gold/45">FOCUS {index + 1}</span>
+              <p className="text-parchment-200 text-xs font-semibold mt-1 mb-1">{item.title}</p>
+              <p className="text-parchment-400 text-xs leading-relaxed">{item.body}</p>
             </div>
           ))}
         </div>
@@ -936,7 +936,7 @@ function WorkerInsightHeader({
       {tags.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-2">
           {tags.slice(0, 8).map(tag => (
-            <span key={tag} className="rounded-full border border-white/[0.07] bg-white/[0.035] px-2.5 py-1 text-[10px] text-white/42">{tag}</span>
+            <span key={tag} className="rounded-full border border-white/[0.07] bg-white/[0.035] px-2.5 py-1 text-xs text-parchment-400">{tag}</span>
           ))}
         </div>
       )}
@@ -1398,7 +1398,7 @@ export default function ReadingPage() {
             </div>
             {/* Intent channel badge */}
             {data?.intent && (
-              <div className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-medium
+              <div className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium
                 ${data.intent === "FULL_MULTIMODAL"
                   ? "bg-gold/10 border border-gold/25 text-gold/80"
                   : data.intent === "GENERAL_DAILY"
@@ -1414,8 +1414,8 @@ export default function ReadingPage() {
                 }
               </div>
             )}
-            <div className="inline-flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full px-3 py-1">
-              <span className="text-white/30 text-[10px]">
+            <div className="inline-flex items-center gap-1.5 bg-white/[0.04] border border-white/[0.06] rounded-full px-3 py-1">
+              <span className="text-parchment-400 text-xs">
                 {t("reading.disclaimer")}
               </span>
             </div>
@@ -1476,7 +1476,7 @@ export default function ReadingPage() {
 
               {/* Subtitle */}
               <p
-                className="text-white/50 text-sm md:text-base max-w-2xl leading-relaxed mb-6"
+                className="text-parchment-400 text-sm md:text-base max-w-2xl leading-relaxed mb-6"
                 style={{
                   transition: "all 0.6s ease-out 0.6s",
                   opacity: heroVisible ? 1 : 0,
@@ -1531,17 +1531,17 @@ export default function ReadingPage() {
                             ? "bg-gold/10 border-gold/30"
                             : isWeakest
                               ? "bg-rose-500/5 border-rose-400/20"
-                              : "bg-white/[0.03] border-white/10 hover:border-white/20"
+                              : "bg-white/[0.03] border-white/[0.06] hover:border-white/20"
                           }`}
                       >
                         <span className="text-sm md:text-lg">{DIM_EMOJI[key]}</span>
                         <p
                           className={`text-base sm:text-lg md:text-2xl font-bold font-serif mt-1
-                            ${isStrongest ? "text-gold" : isWeakest ? "text-rose-400" : "text-white/60"}`}
+                            ${isStrongest ? "text-gold" : isWeakest ? "text-rose-400" : "text-parchment-400"}`}
                         >
                           {score.toFixed(1)}
                         </p>
-                        <p className="text-[9px] sm:text-[10px] md:text-xs text-white/30 mt-0.5">{i18nKey ? t(i18nKey.label) : label}</p>
+                        <p className="text-[9px] sm:text-xs md:text-xs text-parchment-400 mt-0.5">{i18nKey ? t(i18nKey.label) : label}</p>
                         {/* Percentile bar */}
                         <div className="mt-1.5 h-1 rounded-full bg-white/[0.06] overflow-hidden">
                           <div
@@ -1551,7 +1551,7 @@ export default function ReadingPage() {
                             style={{ width: `${percentile}%` }}
                           />
                         </div>
-                        <p className="text-[9px] md:text-[10px] text-white/25 mt-0.5">
+                        <p className="text-[9px] md:text-xs text-parchment-400 mt-0.5">
                           {score >= 7 ? "★★★" : score >= 4 ? "★★" : "★"}
                         </p>
                         {isWeakest && (
@@ -1573,7 +1573,7 @@ export default function ReadingPage() {
               >
                 <Sparkles size={18} className="text-gold flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-white/70 text-sm leading-relaxed">
+                  <p className="text-parchment-300 text-sm leading-relaxed">
                     {t("reading.strongest")}：<span className="text-gold font-semibold">{strongestLabel}</span>，
                     {t("reading.weakest")}：<span className="text-rose-400/80 font-semibold">{weakestLabel}</span>。
                     {isUnlocked
@@ -1581,7 +1581,7 @@ export default function ReadingPage() {
                       : t("reading.insight.locked")}
                   </p>
                   {/* Energy balance summary */}
-                  <p className="text-white/30 text-[11px] mt-1.5">
+                  <p className="text-parchment-400 text-xs mt-1.5">
                     {(() => {
                       const scores = Object.values(displayDimensionScores || {})
                       const avg = scores.reduce((a, b) => a + b, 0) / scores.length
@@ -1614,12 +1614,12 @@ export default function ReadingPage() {
                             whitespace-nowrap transition-all duration-300 group
                   ${activeTab === item.id
                     ? "bg-gold/15 text-gold shadow-[0_0_20px_rgba(201,168,76,0.15)]"
-                    : "text-white/50 hover:text-white/70 hover:bg-white/[0.04]"}`}
+                    : "text-parchment-400 hover:text-parchment-300 hover:bg-white/[0.04]"}`}
               >
                 <span className="text-sm sm:text-base transition-transform group-hover:scale-110 duration-200">{item.icon}</span>
                 <span>{t(item.labelKey)}</span>
                 {activeTab === item.id && (
-                  <span className="hidden lg:inline text-[10px] text-gold/50 ml-0.5">{t(item.descKey)}</span>
+                  <span className="hidden lg:inline text-xs text-gold/50 ml-0.5">{t(item.descKey)}</span>
                 )}
               </button>
             ))}
@@ -1640,20 +1640,20 @@ export default function ReadingPage() {
                   <button
                     key={item.id}
                     onClick={() => setActiveTab(item.id)}
-                    className={`flex items-center gap-1 px-1.5 sm:px-2.5 py-1.5 sm:py-2 rounded-lg text-[10px] sm:text-xs font-medium
+                    className={`flex items-center gap-1 px-1.5 sm:px-2.5 py-1.5 sm:py-2 rounded-lg text-xs sm:text-xs font-medium
                                 whitespace-nowrap transition-all duration-300 flex-shrink-0 group relative
                       ${activeTab === item.id
                         ? "bg-gold/15 text-gold shadow-[0_0_12px_rgba(201,168,76,0.12)]"
                         : isLocked
-                          ? "text-white/20 hover:text-white/40 hover:bg-white/[0.03]"
-                          : "text-white/35 hover:text-white/60 hover:bg-white/[0.04]"}`}
+                          ? "text-parchment-400 hover:text-parchment-400 hover:bg-white/[0.03]"
+                          : "text-parchment-400 hover:text-parchment-400 hover:bg-white/[0.04]"}`}
                   >
                     <span className="text-xs sm:text-sm transition-transform group-hover:scale-110 duration-200">{item.icon}</span>
                     <span>{t(item.labelKey)}</span>
                     {hasReport && <span className="w-1.5 h-1.5 rounded-full bg-green-400/70 -ml-0.5" />}
-                    {isLocked && !hasReport && <Lock size={9} className="text-white/15 -ml-0.5" />}
+                    {isLocked && !hasReport && <Lock size={9} className="text-parchment-400 -ml-0.5" />}
                     {activeTab === item.id && (
-                      <span className="hidden lg:inline text-[10px] text-gold/50 ml-0.5">{t(item.descKey)}</span>
+                      <span className="hidden lg:inline text-xs text-gold/50 ml-0.5">{t(item.descKey)}</span>
                     )}
                   </button>
                 )
@@ -1709,7 +1709,7 @@ export default function ReadingPage() {
             {isStructured && structuredData ? (
               // 结构化报告渲染
               <Suspense fallback={
-                <div className="card-glass p-6 md:p-8 flex items-center justify-center">
+                <div className="card-solid p-6 md:p-8 flex items-center justify-center">
                   <Loader2 size={24} className="text-gold animate-spin" />
                 </div>
               }>
@@ -1717,23 +1717,23 @@ export default function ReadingPage() {
               </Suspense>
             ) : (parsed.sectionA || summary) && (
             // 传统文本渲染
-            <div className="card-glass p-6 md:p-8 group hover:border-white/[0.15] transition-all duration-500">
+            <div className="card-solid p-6 md:p-8 group hover:border-white/[0.15] transition-all duration-500">
               <div className="flex items-center gap-2.5 mb-5">
                 <div className="w-10 h-10 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center">
                   <Sparkles size={20} className="text-gold" />
                 </div>
                 <div>
                   <h2 className="font-serif text-lg md:text-xl font-bold text-gold">{t("reading.master.title")}</h2>
-                  <p className="text-white/20 text-xs">{t("reading.master.subtitle")}</p>
+                  <p className="text-parchment-400 text-xs">{t("reading.master.subtitle")}</p>
                 </div>
-                <span className="ml-auto text-[10px] px-2 py-0.5 bg-green-500/10 border border-green-500/20 rounded-full text-green-400">
+                <span className="ml-auto text-xs px-2 py-0.5 bg-green-500/10 border border-green-500/20 rounded-full text-green-400">
                   {t("reading.master.free")}
                 </span>
               </div>
               <div className="space-y-4">
                 {displayReport.trait && (
                   <div className="rounded-xl bg-gold/[0.05] border border-gold/10 p-4">
-                    <p className="text-[10px] uppercase tracking-wider text-gold/50 mb-1">
+                    <p className="text-xs uppercase tracking-wider text-gold/50 mb-1">
                       {locale === "en" ? "Core Trait" : "核心特质"}
                     </p>
                     <p className="text-gold/90 text-sm md:text-base font-medium leading-relaxed">
@@ -1744,10 +1744,10 @@ export default function ReadingPage() {
 
                 {displayReport.profile && (
                   <div>
-                    <p className="text-[10px] uppercase tracking-wider text-white/25 mb-2">
+                    <p className="text-xs uppercase tracking-wider text-parchment-400 mb-2">
                       {locale === "en" ? "Profile Reading" : "性格解析"}
                     </p>
-                    <p className="text-white/72 text-sm leading-relaxed whitespace-pre-line">
+                    <p className="text-parchment-200 text-sm leading-relaxed whitespace-pre-line">
                       {displayReport.profile}
                     </p>
                   </div>
@@ -1755,16 +1755,16 @@ export default function ReadingPage() {
 
                 {displayReport.patterns.length > 0 && (
                   <div>
-                    <p className="text-[10px] uppercase tracking-wider text-white/25 mb-2">
+                    <p className="text-xs uppercase tracking-wider text-parchment-400 mb-2">
                       {locale === "en" ? "Key Patterns" : "关键行为模式"}
                     </p>
                     <div className="space-y-2">
                       {displayReport.patterns.map((pattern, index) => (
                         <div key={`${pattern}-${index}`} className="flex items-start gap-2.5 rounded-lg bg-white/[0.025] border border-white/[0.05] p-3">
-                          <span className="mt-0.5 h-5 w-5 rounded-full bg-white/[0.05] text-gold/70 text-[10px] flex items-center justify-center flex-shrink-0">
+                          <span className="mt-0.5 h-5 w-5 rounded-full bg-white/[0.05] text-gold/70 text-xs flex items-center justify-center flex-shrink-0">
                             {index + 1}
                           </span>
-                          <p className="text-white/62 text-xs md:text-sm leading-relaxed">{pattern}</p>
+                          <p className="text-parchment-300 text-xs md:text-sm leading-relaxed">{pattern}</p>
                         </div>
                       ))}
                     </div>
@@ -1773,14 +1773,14 @@ export default function ReadingPage() {
 
                 {displayReport.action && (
                   <div className="rounded-xl bg-cyan-400/[0.04] border border-cyan-300/10 p-4">
-                    <p className="text-[10px] uppercase tracking-wider text-cyan-200/45 mb-1">
+                    <p className="text-xs uppercase tracking-wider text-cyan-200/45 mb-1">
                       {locale === "en" ? "What to do next" : "下一步建议"}
                     </p>
                     <p className="text-cyan-50/65 text-sm leading-relaxed">{displayReport.action}</p>
                   </div>
                 )}
               </div>
-              <p className="mt-4 pt-3 border-t border-white/[0.06] text-white/25 text-[11px] leading-relaxed">
+              <p className="mt-4 pt-3 border-t border-white/[0.06] text-parchment-400 text-xs leading-relaxed">
                 {t("reading.master.disclaimer")}
               </p>
             </div>
@@ -1801,10 +1801,10 @@ export default function ReadingPage() {
                 readableText(t("reading.quickInsight.timing"), locale === "en" ? "Timing" : "\u8fd1\u671f\u65f6\u673a"),
               ]
               return (
-                <div className="card-glass p-5 md:p-6">
+                <div className="card-solid p-5 md:p-6">
                   <div className="flex items-center gap-2 mb-4">
                     <Zap size={16} className="text-gold" />
-                    <h3 className="text-sm font-semibold text-white/70">
+                    <h3 className="text-sm font-semibold text-parchment-300">
                       {readableText(t("reading.quickInsight.title"), locale === "en" ? "Three-Sentence Brief" : "\u4e09\u53e5\u8bdd\u901f\u89c8")}
                     </h3>
                   </div>
@@ -1813,12 +1813,12 @@ export default function ReadingPage() {
                       const InsightIcon = IconForInsight[i] || Zap
                       return (
                       <div key={i} className="flex items-start gap-2.5 rounded-xl border border-white/[0.05] bg-white/[0.025] p-3">
-                        <span className={`mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center ${iconClasses[i] || "text-white/45"}`}>
+                        <span className={`mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center ${iconClasses[i] || "text-parchment-400"}`}>
                           <InsightIcon size={15} />
                         </span>
                         <div className="min-w-0">
-                          <span className="text-[10px] text-white/30 uppercase tracking-wider">{labels[i]}</span>
-                          <p className="text-white/65 text-sm leading-relaxed">{insight}</p>
+                          <span className="text-xs text-parchment-400 uppercase tracking-wider">{labels[i]}</span>
+                          <p className="text-parchment-300 text-sm leading-relaxed">{insight}</p>
                         </div>
                       </div>
                       )
@@ -1850,14 +1850,14 @@ export default function ReadingPage() {
 
             {/* ── 3. Pain Points (Section B) — 结构化模式下跳过 ── */}
             {!isStructured && parsed.sectionB && !isUnlocked && (
-            <div className="card-glass p-6 md:p-8 border-l-2 border-l-amber-400/40 hover:border-l-amber-400/60 transition-all duration-500">
+            <div className="card-solid p-6 md:p-8 border-l-2 border-l-amber-400/40 hover:border-l-amber-400/60 transition-all duration-500">
               <div className="flex items-center gap-2.5 mb-4">
                 <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-400/20 flex items-center justify-center">
                   <span className="text-xl">🎯</span>
                 </div>
                 <div>
                   <h2 className="font-serif text-lg font-bold text-amber-300">{t("reading.painPoints.title") || "痛点诊断"}</h2>
-                  <p className="text-white/20 text-xs">{t("reading.painPoints.subtitle") || "当前最需要关注的3个问题"}</p>
+                  <p className="text-parchment-400 text-xs">{t("reading.painPoints.subtitle") || "当前最需要关注的3个问题"}</p>
                 </div>
               </div>
               <div className="space-y-3">
@@ -1874,10 +1874,10 @@ export default function ReadingPage() {
                         "bg-amber-500/[0.06] border border-amber-400/15"}`}>
                       <div className="flex items-start gap-3">
                         <span className="text-sm mt-0.5 flex-shrink-0">{point.slice(0, 2)}</span>
-                        <span className="text-white/70 text-sm leading-relaxed">{cleanText}</span>
+                        <span className="text-parchment-300 text-sm leading-relaxed">{cleanText}</span>
                       </div>
                       {consequence && (
-                        <p className="mt-2 ml-6 text-[11px] text-red-400/60 flex items-center gap-1">
+                        <p className="mt-2 ml-6 text-xs text-red-400/60 flex items-center gap-1">
                           <AlertCircle size={10} />
                           {consequence}
                         </p>
@@ -1891,20 +1891,20 @@ export default function ReadingPage() {
 
             {/* ── 4. Key Reminders (Section D) — 结构化模式下跳过 ── */}
             {!isStructured && parsed.sectionD && !isUnlocked && (
-            <div className="card-glass p-5 md:p-6 border-l-2 border-l-cyan-400/40 bg-gradient-to-r from-cyan-500/[0.04] to-transparent">
+            <div className="card-solid p-5 md:p-6 border-l-2 border-l-cyan-400/40 bg-gradient-to-r from-cyan-500/[0.04] to-transparent">
               <div className="flex items-start gap-3">
                 <span className="text-xl flex-shrink-0">⏰</span>
                 <div className="flex-1">
                   <h3 className="text-cyan-300 font-semibold text-sm mb-1">{t("reading.reminder.title") || "近期关键提醒"}</h3>
-                  <p className="text-white/65 text-sm leading-relaxed">{stripMarkdown(parsed.sectionD)}</p>
+                  <p className="text-parchment-300 text-sm leading-relaxed">{stripMarkdown(parsed.sectionD)}</p>
                 </div>
               </div>
               {/* Time urgency badge */}
               <div className="mt-3 ml-8 flex items-center gap-2">
                 <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-400/20">
                   <Clock size={10} className="text-cyan-400" />
-                  <span className="text-[10px] text-cyan-300/70">{t("reading.reminder.validity") || "有效期至"}</span>
-                  <span className="text-[10px] text-cyan-300 font-medium">
+                  <span className="text-xs text-cyan-300/70">{t("reading.reminder.validity") || "有效期至"}</span>
+                  <span className="text-xs text-cyan-300 font-medium">
                     {(() => {
                       const now = new Date()
                       const end = new Date(now.getFullYear(), now.getMonth() + 2, 0)
@@ -1929,15 +1929,15 @@ export default function ReadingPage() {
 
             {/* ── 5b. Profile Type ── */}
             {data.computed_tags?.length > 0 && (
-              <div className="card-glass p-5 md:p-6 text-center">
+              <div className="card-solid p-5 md:p-6 text-center">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-gold/10 to-purple-500/10 border border-gold/20">
                   <Sparkles size={14} className="text-gold" />
-                  <span className="text-xs text-white/50">{t("reading.destinyType.label") || "你的行为类型"}</span>
+                  <span className="text-xs text-parchment-400">{t("reading.destinyType.label") || "你的行为类型"}</span>
                   <span className="text-sm font-serif font-bold text-gold">
                     {data.computed_tags[0].replace(/^严重⚠️\s*/, "").replace(/\(待验证\)$/, "").trim()}
                   </span>
                 </div>
-                <p className="mt-2 text-white/30 text-[11px]">{t("reading.destinyType.hint") || "基于五维数据综合分析"}</p>
+                <p className="mt-2 text-parchment-400 text-xs">{t("reading.destinyType.hint") || "基于五维数据综合分析"}</p>
               </div>
             )}
 
@@ -1954,10 +1954,10 @@ export default function ReadingPage() {
 
             {/* ── 6b. Growth Path (成长路径) ── */}
             {displayDimensionScores && data.intent !== "RELATIONSHIP" && (
-              <div className="card-glass p-5 md:p-6">
+              <div className="card-solid p-5 md:p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <TrendingUp size={16} className="text-green-400/70" />
-                  <h3 className="text-sm font-semibold text-white/60">{t("reading.growthPath.title") || "从当前到理想"}</h3>
+                  <h3 className="text-sm font-semibold text-parchment-400">{t("reading.growthPath.title") || "从当前到理想"}</h3>
                 </div>
                 <div className="space-y-3">
                   {Object.entries(DIM_LABELS).slice(0, 3).map(([key, label]) => {
@@ -1966,7 +1966,7 @@ export default function ReadingPage() {
                     const gap = target - score
                     return (
                       <div key={key} className="flex items-center gap-3">
-                        <span className="text-xs text-white/40 w-12">{label}</span>
+                        <span className="text-xs text-parchment-400 w-12">{label}</span>
                         <div className="flex-1 h-2 rounded-full bg-white/[0.06] overflow-hidden relative">
                           <div
                             className="absolute h-full rounded-full bg-white/20"
@@ -1977,14 +1977,14 @@ export default function ReadingPage() {
                             style={{ width: `${target * 10}%`, opacity: 0.5 }}
                           />
                         </div>
-                        <span className="text-[10px] text-white/30 w-16 text-right">
+                        <span className="text-xs text-parchment-400 w-16 text-right">
                           {score.toFixed(1)} → {target.toFixed(1)}
                         </span>
                       </div>
                     )
                   })}
                 </div>
-                <p className="mt-3 text-center text-[11px] text-white/30">
+                <p className="mt-3 text-center text-xs text-parchment-400">
                   {t("reading.growthPath.hint") || "解锁完整报告获取详细提升方案"}
                 </p>
               </div>
@@ -2000,7 +2000,7 @@ export default function ReadingPage() {
             )}
 
             {/* ── 7. Detailed Report (PaywallGate) ── */}
-            <Suspense fallback={<div className="card-glass p-6 h-48" />}>
+            <Suspense fallback={<div className="card-solid p-6 h-48" />}>
               <PaywallGate
                 isUnlocked={isUnlocked || isDetailedUnlocked}
                 title={t("reading.master.detailTitle")}
@@ -2016,16 +2016,16 @@ export default function ReadingPage() {
                 onOneTimeUnlock={handleOneTimeUnlock}
                 isPremium={user?.is_premium}
               >
-                <div className="card-glass p-6 md:p-8 border-gold/20 bg-gradient-to-br from-gold/[0.03] to-transparent">
+                <div className="card-solid p-6 md:p-8 border-gold/20 bg-gradient-to-br from-gold/[0.03] to-transparent">
                   <div className="flex items-center gap-2.5 mb-5">
                     <div className="w-10 h-10 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center">
                       <Crown size={20} className="text-gold" />
                     </div>
                     <div>
                       <h2 className="font-serif text-lg md:text-xl font-bold text-gold">{t("reading.master.detailTitle")}</h2>
-                      <p className="text-white/20 text-xs">{t("reading.master.detailSubtitle")}</p>
+                      <p className="text-parchment-400 text-xs">{t("reading.master.detailSubtitle")}</p>
                     </div>
-                    <span className="ml-auto text-[10px] px-2 py-0.5 bg-gold/10 border border-gold/20 rounded-full text-gold/70">
+                    <span className="ml-auto text-xs px-2 py-0.5 bg-gold/10 border border-gold/20 rounded-full text-gold/70">
                       {t("reading.master.unlocked")}
                     </span>
                   </div>
@@ -2035,7 +2035,7 @@ export default function ReadingPage() {
             </Suspense>
 
             {isDetailedUnlocked && !isUnlocked && (
-              <div className="card-glass p-5 md:p-6 border-gold/15 bg-gold/[0.03]">
+              <div className="card-solid p-5 md:p-6 border-gold/15 bg-gold/[0.03]">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div>
                     <div className="flex items-center gap-2 mb-1.5">
@@ -2044,7 +2044,7 @@ export default function ReadingPage() {
                         {locale === "en" ? "Upgrade to the full-dimension report" : "升级为全维报告"}
                       </h3>
                     </div>
-                    <p className="text-white/45 text-xs leading-relaxed max-w-2xl">
+                    <p className="text-parchment-400 text-xs leading-relaxed max-w-2xl">
                       {locale === "en"
                         ? "You have unlocked the detailed reading. Upgrade for the expert evidence summaries, original specialist reports, follow-up chat context, and all full-report modules."
                         : "你已解锁精读报告。继续升级后，可查看专家证据摘要、各专家原始报告、追问上下文和全维报告全部模块。"}
@@ -2056,7 +2056,7 @@ export default function ReadingPage() {
                     className={`flex items-center justify-center gap-2 px-5 py-3 rounded-xl border text-sm transition-all ${
                       (user?.stardust_balance || 0) >= (STARDUST_COST.FULL_REPORT - STARDUST_COST.DETAILED_REPORT)
                         ? "bg-gold/10 border-gold/30 text-gold hover:border-gold/50"
-                        : "bg-white/[0.02] border-white/10 text-white/30 cursor-not-allowed"
+                        : "bg-white/[0.02] border-white/[0.06] text-parchment-400 cursor-not-allowed"
                     }`}
                   >
                     <Sparkles size={15} />
@@ -2065,7 +2065,7 @@ export default function ReadingPage() {
                   </button>
                 </div>
                 {(user?.stardust_balance || 0) < (STARDUST_COST.FULL_REPORT - STARDUST_COST.DETAILED_REPORT) && (
-                  <p className="text-white/25 text-[11px] mt-3">
+                  <p className="text-parchment-400 text-xs mt-3">
                     {locale === "en"
                       ? `Current Stardust: ${user?.stardust_balance || 0}. Top up to continue.`
                       : `当前星辰：${user?.stardust_balance || 0}，余额不足时请先充值。`}
@@ -2078,12 +2078,12 @@ export default function ReadingPage() {
               const expertEvidence = buildExpertEvidenceSummary(workerMap, t, WORKER_ORDER_ALL)
               if (expertEvidence.length === 0) return null
               return (
-                <div className="card-glass p-5 md:p-6 border-gold/10">
+                <div className="card-solid p-5 md:p-6 border-gold/10">
                   <div className="flex items-center gap-2 mb-4">
                     <Shield size={16} className="text-gold/70" />
                     <div>
-                      <h3 className="text-sm font-semibold text-white/70">专家证据摘要</h3>
-                      <p className="text-white/25 text-xs">全维报告优先展示交叉验证摘要，原始专家报告仍可在下方展开查看。</p>
+                      <h3 className="text-sm font-semibold text-parchment-300">专家证据摘要</h3>
+                      <p className="text-parchment-400 text-xs">全维报告优先展示交叉验证摘要，原始专家报告仍可在下方展开查看。</p>
                     </div>
                   </div>
                   <div className="grid md:grid-cols-2 gap-3">
@@ -2094,7 +2094,7 @@ export default function ReadingPage() {
                         className="p-3 rounded-xl bg-white/[0.025] border border-white/[0.06] text-left hover:border-gold/20 transition-colors"
                       >
                         <p className="text-gold/70 text-xs font-medium mb-1">{section.title}</p>
-                        <p className="text-white/48 text-xs leading-relaxed line-clamp-3">{section.body}</p>
+                        <p className="text-parchment-400 text-xs leading-relaxed line-clamp-3">{section.body}</p>
                       </button>
                     ))}
                   </div>
@@ -2113,10 +2113,10 @@ export default function ReadingPage() {
 
             {/* ── 7b. User Testimonials (social proof) ── */}
             {!isUnlocked && !isDetailedUnlocked && (
-              <div className="card-glass p-5 md:p-6">
+              <div className="card-solid p-5 md:p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <Star size={16} className="text-gold/60" />
-                  <h3 className="text-sm font-semibold text-white/60">{t("reading.testimonials.title") || "用户真实反馈"}</h3>
+                  <h3 className="text-sm font-semibold text-parchment-400">{t("reading.testimonials.title") || "用户真实反馈"}</h3>
                 </div>
                 <div className="grid sm:grid-cols-3 gap-3">
                   {(Array.isArray(t("reading.testimonials.list", { returnObjects: true }))
@@ -2129,13 +2129,13 @@ export default function ReadingPage() {
                   ).map((item, i) => (
                     <div key={i} className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
                       <div className="flex items-center gap-2 mb-2">
-                        <div className="w-6 h-6 rounded-full bg-gold/10 flex items-center justify-center text-[10px] text-gold/70">
+                        <div className="w-6 h-6 rounded-full bg-gold/10 flex items-center justify-center text-xs text-gold/70">
                           {item.name[0]}
                         </div>
-                        <span className="text-[10px] text-white/30">{item.name}</span>
-                        <span className="ml-auto text-[10px] text-gold/50">★ {item.score}</span>
+                        <span className="text-xs text-parchment-400">{item.name}</span>
+                        <span className="ml-auto text-xs text-gold/50">★ {item.score}</span>
                       </div>
-                      <p className="text-white/50 text-[11px] leading-relaxed">{item.text}</p>
+                      <p className="text-parchment-400 text-xs leading-relaxed">{item.text}</p>
                     </div>
                   ))}
                 </div>
@@ -2144,7 +2144,7 @@ export default function ReadingPage() {
 
             {/* ── 8. Profile Prescription ── */}
             {data.recommended_products && data.recommended_products.length > 0 && (
-              <Suspense fallback={<div className="card-glass p-4 h-32 animate-pulse" />}>
+              <Suspense fallback={<div className="card-solid p-4 h-32 animate-pulse" />}>
                 <FortunePrescription
                   products={data.recommended_products}
                   weakestLabel={displayDimensionScores ? getWeakestLabel(displayDimensionScores, t) : undefined}
@@ -2157,8 +2157,8 @@ export default function ReadingPage() {
             {!isUnlocked && (
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <Compass size={16} className="text-white/30" />
-                <h3 className="text-sm font-medium text-white/40">{t("reading.summary")}</h3>
+                <Compass size={16} className="text-parchment-400" />
+                <h3 className="text-sm font-medium text-parchment-400">{t("reading.summary")}</h3>
               </div>
               <div className="grid sm:grid-cols-2 gap-3">
                 {WORKER_ORDER_ALL.map((k: string) => {
@@ -2173,31 +2173,31 @@ export default function ReadingPage() {
                       onClick={() => setActiveTab(k)}
                       className={`p-4 text-left group cursor-pointer transition-all duration-300 ${
                         hasReport
-                          ? "card-glow hover:border-white/[0.15]"
-                          : "card-glass border-dashed border-white/[0.08] hover:border-white/[0.12]"
+                          ? "card-interactive hover:border-white/[0.15]"
+                          : "card-solid border-dashed border-white/[0.08] hover:border-white/[0.12]"
                       }`}
                     >
                       <div className="flex items-center gap-2 mb-2">
                         <span className="text-xl">{meta.icon}</span>
                         <span className={`font-medium text-sm ${meta.color}`}>{t(AGENT_I18N[k] || `agent.${k}`)}</span>
                         {!isUnlocked && !hasReport && (
-                          <Lock size={11} className="text-white/20 ml-auto" />
+                          <Lock size={11} className="text-parchment-400 ml-auto" />
                         )}
                         {hasReport && w.tags.length > 0 && (
-                          <Tags size={11} className="text-white/20 ml-auto" />
+                          <Tags size={11} className="text-parchment-400 ml-auto" />
                         )}
                       </div>
                       {hasReport ? (
                         <>
-                          <p className="text-white/40 text-xs leading-relaxed line-clamp-2">
+                          <p className="text-parchment-400 text-xs leading-relaxed line-clamp-2">
                             {stripMarkdown(w.report.slice(0, 100))}…
                           </p>
                           <div className="flex items-center justify-between mt-2">
-                            <p className="text-gold/40 text-[11px] group-hover:text-gold/80 transition-colors">
+                            <p className="text-gold/40 text-xs group-hover:text-gold/80 transition-colors">
                               {t("reading.clickToView")} →
                             </p>
                             {!isUnlocked && (
-                              <span className="text-[10px] text-white/20 bg-white/[0.04] px-1.5 py-0.5 rounded">
+                              <span className="text-xs text-parchment-400 bg-white/[0.04] px-1.5 py-0.5 rounded">
                                 {t("reading.worker.insightCount", { count: String(insightCount) }) || `${insightCount} 条洞察`}
                               </span>
                             )}
@@ -2205,10 +2205,10 @@ export default function ReadingPage() {
                         </>
                       ) : (
                         <div>
-                          <p className="text-white/25 text-xs leading-relaxed">
+                          <p className="text-parchment-400 text-xs leading-relaxed">
                             {t("reading.worker.lockedPreview")}
                           </p>
-                          <p className="text-[10px] text-white/15 mt-1">
+                          <p className="text-xs text-parchment-400 mt-1">
                             {t("reading.worker.unlockHint") || "解锁后可获得详细分析"}
                           </p>
                         </div>
@@ -2228,19 +2228,19 @@ export default function ReadingPage() {
             {/* Back to overview button */}
             <button
               onClick={() => setActiveTab("master")}
-              className="flex items-center gap-1.5 text-white/30 hover:text-white/60 text-xs mb-4 transition-colors group"
+              className="flex items-center gap-1.5 text-parchment-400 hover:text-parchment-400 text-xs mb-4 transition-colors group"
             >
               <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
               {t("reading.nav.overview")}
             </button>
 
             {workerMap[k].error ? (
-              <div className="card-glass p-10 text-center">
+              <div className="card-solid p-10 text-center">
                 <div className="w-16 h-16 rounded-full bg-red-500/10 border border-red-400/20 flex items-center justify-center mx-auto mb-4">
                   <AlertCircle size={28} className="text-red-400" />
                 </div>
-                <p className="text-white/50 text-sm">{t(AGENT_I18N[k] || `agent.${k}`)} {t("reading.error.analysis")}</p>
-                <p className="text-white/25 text-xs mt-2 font-mono">{workerMap[k].error}</p>
+                <p className="text-parchment-400 text-sm">{t(AGENT_I18N[k] || `agent.${k}`)} {t("reading.error.analysis")}</p>
+                <p className="text-parchment-400 text-xs mt-2 font-mono">{workerMap[k].error}</p>
               </div>
             ) : workerMap[k].report ? (
               <div className="space-y-4">
@@ -2250,7 +2250,7 @@ export default function ReadingPage() {
                   tags={workerMap[k].tags || []}
                   locale={locale}
                 />
-                <Suspense fallback={<div className="card-glass p-6 h-48" />}>
+                <Suspense fallback={<div className="card-solid p-6 h-48" />}>
                   <PaywallGate
                     isUnlocked={isUnlocked}
                     title={`${t(AGENT_I18N[k] || `agent.${k}`)} ${t("reading.worker.unlockTitle")}`}
@@ -2271,11 +2271,11 @@ export default function ReadingPage() {
                   </PaywallGate>
                 </Suspense>
                 {workerMap[k].tags.length > 0 && (
-                  <div className="card-glass p-5">
-                    <p className="text-white/30 text-xs mb-3">{t("reading.tags.title")}</p>
+                  <div className="card-solid p-5">
+                    <p className="text-parchment-400 text-xs mb-3">{t("reading.tags.title")}</p>
                     <div className="flex flex-wrap gap-2">
                       {workerMap[k].tags.map(tag => (
-                        <span key={tag} className="text-xs px-2.5 py-1 bg-white/[0.06] rounded-full text-white/50">
+                        <span key={tag} className="text-xs px-2.5 py-1 bg-white/[0.06] rounded-full text-parchment-400">
                           {tag}
                         </span>
                       ))}
@@ -2285,7 +2285,7 @@ export default function ReadingPage() {
 
                 {/* Inline product recommendations for this worker */}
                 {products.length > 0 && (
-                  <div className="card-glass p-4 border-gold/10">
+                  <div className="card-solid p-4 border-gold/10">
                     <div className="flex items-center gap-2 mb-3">
                       <ShoppingBag size={12} className="text-gold/50" />
                       <p className="text-gold/60 text-xs font-medium">{t("reading.worker.relatedGoods")}</p>
@@ -2305,7 +2305,7 @@ export default function ReadingPage() {
                             )}
                           </div>
                           <div className="min-w-0 flex-1">
-                            <p className="text-white/70 text-[11px] font-medium truncate group-hover:text-gold transition-colors">{p.name}</p>
+                            <p className="text-parchment-300 text-xs font-medium truncate group-hover:text-gold transition-colors">{p.name}</p>
                             <p className="text-gold text-xs font-bold">{getProductPrice(p, region).symbol}{getProductPrice(p, region).price.toFixed(0)}</p>
                           </div>
                         </a>
@@ -2316,20 +2316,20 @@ export default function ReadingPage() {
               </div>
             ) : !isUnlocked ? (
               /* ── Locked worker: show upgrade prompt ── */
-              <div className="card-glass p-10 md:p-14 text-center">
+              <div className="card-solid p-10 md:p-14 text-center">
                 <div className="w-20 h-20 rounded-full bg-gold/5 border border-gold/15 flex items-center justify-center mx-auto mb-6 relative">
                   <span className="text-4xl">{AGENT_LABELS[k].icon}</span>
-                  <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-ink border border-white/10 flex items-center justify-center">
-                    <Lock size={12} className="text-white/40" />
+                  <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-cosmos-950 border border-white/[0.06] flex items-center justify-center">
+                    <Lock size={12} className="text-parchment-400" />
                   </div>
                 </div>
                 <h3 className="font-serif text-xl font-bold text-gold mb-2">
                   {t(AGENT_I18N[k] || `agent.${k}`)}
                 </h3>
-                <p className="text-white/40 text-sm mb-2">
+                <p className="text-parchment-400 text-sm mb-2">
                   {t("reading.worker.lockedTitle")}
                 </p>
-                <p className="text-white/25 text-xs mb-6 max-w-sm mx-auto leading-relaxed">
+                <p className="text-parchment-400 text-xs mb-6 max-w-sm mx-auto leading-relaxed">
                   {t("reading.worker.lockedDesc")}
                 </p>
                 {(user?.stardust_balance || 0) >= STARDUST_COST.FULL_REPORT ? (
@@ -2344,7 +2344,7 @@ export default function ReadingPage() {
                 ) : (
                   <button
                     onClick={() => router.push(localeHref("/pricing"))}
-                    className="btn-gold flex items-center gap-2 mx-auto text-sm px-8 py-3"
+                    className="btn-primary flex items-center gap-2 mx-auto text-sm px-8 py-3"
                   >
                     <Crown size={16} />
                     {t("reading.worker.unlockFull")}
@@ -2353,21 +2353,21 @@ export default function ReadingPage() {
               </div>
             ) : (k === "face" || k === "palm" || k === "partner_face" || k === "partner_palm") ? (
               /* ── Skipped worker (no image/provided) ── */
-              <div className="card-glass p-12 text-center">
+              <div className="card-solid p-12 text-center">
                 <div className="w-16 h-16 rounded-full bg-white/[0.03] border border-white/[0.06] flex items-center justify-center mx-auto mb-4">
-                  <Eye size={28} className="text-white/20" />
+                  <Eye size={28} className="text-parchment-400" />
                 </div>
-                <p className="text-white/30 text-sm">
+                <p className="text-parchment-400 text-sm">
                   {t(AGENT_I18N[k] || `agent.${k}`)}
                 </p>
-                <p className="text-white/20 text-xs mt-1">
+                <p className="text-parchment-400 text-xs mt-1">
                   {t("reading.worker.noImageHint") || "未上传对应图片，分析已跳过"}
                 </p>
               </div>
             ) : (
-              <div className="card-glass p-12 text-center">
-                <Eye size={32} className="text-white/10 mx-auto mb-3" />
-                <p className="text-white/25 text-sm">{t("reading.error.noData")}</p>
+              <div className="card-solid p-12 text-center">
+                <Eye size={32} className="text-parchment-400 mx-auto mb-3" />
+                <p className="text-parchment-400 text-sm">{t("reading.error.noData")}</p>
               </div>
             )}
           </div>
@@ -2381,7 +2381,7 @@ export default function ReadingPage() {
                 <ShoppingBag size={24} className="text-gold" />
               </div>
               <h2 className="font-serif text-xl md:text-2xl font-bold text-gold mb-2">{locale === "en" ? "Profile-Matched Vault" : "\u753b\u50cf\u5339\u914d\u85cf\u5b9d\u9601"}</h2>
-              <p className="text-white/35 text-sm max-w-md">
+              <p className="text-parchment-400 text-sm max-w-md">
                 {locale === "en"
                   ? "Items are ranked by your AI profile, weaker dimensions, current trend, and growth task."
                   : "\u6839\u636e\u4f60\u7684 AI \u753b\u50cf\u3001\u4e94\u7ef4\u5f31\u9879\u3001\u8fd1\u671f\u8d8b\u52bf\u548c\u6210\u957f\u8bfe\u9898\uff0c\u4e3a\u4f60\u5339\u914d\u9002\u5408\u5f53\u4e0b\u9636\u6bb5\u7684\u597d\u7269\u3002"}
@@ -2390,7 +2390,7 @@ export default function ReadingPage() {
               {products.length > 0 && (
                 <div className="mt-3 flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-400/20">
                   <CheckCircle size={12} className="text-green-400" />
-                  <span className="text-[11px] text-green-300/70">
+                  <span className="text-xs text-green-300/70">
                     {locale === "en" ? `${products.length} matched items` : `\u5df2\u4e3a\u4f60\u5339\u914d ${products.length} \u4ef6\u753b\u50cf\u597d\u7269`}
                   </span>
                 </div>
@@ -2407,7 +2407,7 @@ export default function ReadingPage() {
             ) : products.length > 0 ? (
               <Suspense fallback={<div className="grid sm:grid-cols-2 gap-5">
                 {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="card-glass h-48 animate-pulse" />
+                  <div key={i} className="card-solid h-48 animate-pulse" />
                 ))}
               </div>}>
                 <div className="grid sm:grid-cols-2 gap-5">
@@ -2415,10 +2415,10 @@ export default function ReadingPage() {
                 </div>
               </Suspense>
             ) : (
-              <div className="card-glass p-12 text-center">
-                <ShoppingBag size={36} className="text-white/10 mx-auto mb-4" />
-                <p className="text-white/30 text-sm">{t("reading.shop.noMatch")}</p>
-                <p className="text-white/15 text-xs mt-1">{t("reading.shop.tryLater")}</p>
+              <div className="card-solid p-12 text-center">
+                <ShoppingBag size={36} className="text-parchment-400 mx-auto mb-4" />
+                <p className="text-parchment-400 text-sm">{t("reading.shop.noMatch")}</p>
+                <p className="text-parchment-400 text-xs mt-1">{t("reading.shop.tryLater")}</p>
               </div>
             )}
           </div>
@@ -2426,14 +2426,14 @@ export default function ReadingPage() {
 
         {/* ── Event Analyzer ─────────────────────────────── */}
         {activeTab === "event" && (
-          <Suspense fallback={<div className="card-glass p-10 text-center"><Loader2 size={24} className="animate-spin text-gold/40 mx-auto" /></div>}>
+          <Suspense fallback={<div className="card-solid p-10 text-center"><Loader2 size={24} className="animate-spin text-gold/40 mx-auto" /></div>}>
             <EventAnalyzer sessionId={id} />
           </Suspense>
         )}
 
         {/* ── Daily Almanac ──────────────────────────────── */}
         {activeTab === "almanac" && (
-          <Suspense fallback={<div className="card-glass p-10 text-center"><Loader2 size={24} className="animate-spin text-gold/40 mx-auto" /></div>}>
+          <Suspense fallback={<div className="card-solid p-10 text-center"><Loader2 size={24} className="animate-spin text-gold/40 mx-auto" /></div>}>
             <DailyAlmanac sessionId={id} />
           </Suspense>
         )}
@@ -2446,9 +2446,9 @@ export default function ReadingPage() {
                 <MessageSquare size={24} className="text-gold" />
               </div>
               <h2 className="font-serif text-xl font-bold text-gold mb-1">{t("reading.chat.title")}</h2>
-              <p className="text-white/30 text-xs">{t("reading.chat.desc")}</p>
+              <p className="text-parchment-400 text-xs">{t("reading.chat.desc")}</p>
             </div>
-            <Suspense fallback={<div className="card-glass p-10 text-center"><Loader2 size={24} className="animate-spin text-gold/40 mx-auto" /></div>}>
+            <Suspense fallback={<div className="card-solid p-10 text-center"><Loader2 size={24} className="animate-spin text-gold/40 mx-auto" /></div>}>
               <ChatBox
                 sessionId={id}
                 availableAgents={WORKER_ORDER_ALL.filter((k: string) => workerMap[k]?.report && !workerMap[k]?.error)}

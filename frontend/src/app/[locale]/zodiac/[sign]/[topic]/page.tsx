@@ -128,15 +128,15 @@ export default async function ZodiacTopicPage({ params }: PageProps) {
             <h1 className="text-3xl md:text-4xl font-serif font-bold text-white mb-4">
               {isZh ? tc.title_zh : tc.title_en}
             </h1>
-            <p className="text-white/40 text-sm max-w-2xl mx-auto">
+            <p className="text-parchment-400 text-sm max-w-2xl mx-auto">
               {isZh ? data.meta_description_zh : data.meta_description_en}
             </p>
           </div>
         </ScrollReveal>
 
         <ScrollReveal delay={0.1}>
-          <div className="card-glass p-8 md:p-10 mb-8">
-            <p className="text-white/60 text-sm leading-relaxed whitespace-pre-line">
+          <div className="card-solid p-8 md:p-10 mb-8">
+            <p className="text-parchment-400 text-sm leading-relaxed whitespace-pre-line">
               {isZh ? tc.content_zh : tc.content_en}
             </p>
           </div>
@@ -148,7 +148,7 @@ export default async function ZodiacTopicPage({ params }: PageProps) {
               <Link
                 key={t}
                 href={`/zodiac/${data.id}/${t}`}
-                className="px-4 py-2 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white/50 text-sm hover:border-gold/30 hover:text-gold transition-all"
+                className="px-4 py-2 bg-white/[0.04] border border-white/[0.08] rounded-xl text-parchment-400 text-sm hover:border-gold/30 hover:text-gold transition-all"
               >
                 {t === "love" ? (isZh ? "爱情" : "Love") : t === "career" ? (isZh ? "事业" : "Career") : t === "health" ? (isZh ? "健康" : "Health") : t === "wealth" ? (isZh ? "财运" : "Wealth") : (isZh ? "学习" : "Study")}
               </Link>

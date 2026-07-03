@@ -395,29 +395,29 @@ export default function AnalysisSession({ sessionId, initialData, onComplete }: 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       {data.status === "failed" ? (
-        <div className="card-glass p-8 max-w-md text-center">
+        <div className="card-solid p-8 max-w-md text-center">
           <AlertCircle size={48} className="mx-auto mb-4 text-red-400/80" />
           <h2 className="text-lg font-serif font-bold text-white mb-2">
             {t("analysis.stuckTitle") || "分析未能完成"}
           </h2>
-          <p className="text-white/40 text-sm mb-6 leading-relaxed">
+          <p className="text-parchment-400 text-sm mb-6 leading-relaxed">
             {t("analysis.stuckMessage") || "后台分析任务异常中断，请重新发起分析。"}
           </p>
           <button
             onClick={() => router.push(localeHref("/reading/new"))}
-            className="btn-gold inline-flex items-center gap-2 text-sm"
+            className="btn-primary inline-flex items-center gap-2 text-sm"
           >
             <RefreshCw size={14} />
             {t("analysis.stuckRetry") || "重新分析"}
           </button>
         </div>
       ) : isStuck ? (
-        <div className="card-glass p-8 max-w-md text-center">
+        <div className="card-solid p-8 max-w-md text-center">
           <AlertCircle size={48} className="mx-auto mb-4 text-amber-400/80" />
           <h2 className="text-lg font-serif font-bold text-white mb-2">
             {t("analysis.stuckTitle") || "分析似乎遇到了问题"}
           </h2>
-          <p className="text-white/40 text-sm mb-6 leading-relaxed">
+          <p className="text-parchment-400 text-sm mb-6 leading-relaxed">
             {t("analysis.stuckMessage") || "后台分析任务可能意外中断了。您可以重新发起分析。"}
           </p>
           <div className="flex gap-3 justify-center">
@@ -427,13 +427,13 @@ export default function AnalysisSession({ sessionId, initialData, onComplete }: 
                 stuckShownRef.current = false
                 stalePollCountRef.current = 0
               }}
-              className="btn-gold-outline flex items-center gap-2 text-sm"
+              className="btn-secondary flex items-center gap-2 text-sm"
             >
               {t("analysis.stuckContinue") || "继续等待"}
             </button>
             <button
               onClick={() => router.push(localeHref("/reading/new"))}
-              className="btn-gold flex items-center gap-2 text-sm"
+              className="btn-primary flex items-center gap-2 text-sm"
             >
               <RefreshCw size={14} />
               {t("analysis.stuckRetry") || "重新分析"}

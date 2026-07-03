@@ -26,17 +26,17 @@ export function RelatedServices({ heading, services }: RelatedServicesProps) {
   return (
     <ScrollReveal delay={0.4}>
       <div className="mb-16">
-        <h2 className="font-serif text-xl text-white/60 mb-4 text-center">{heading}</h2>
+        <h2 className="font-serif text-xl text-parchment-400 mb-4 text-center">{heading}</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {services.map((s) => (
             <Link
               key={s.href}
               href={localeHref(s.href)}
-              className="card-glow p-4 text-center hover:border-gold/30 transition-all duration-300 group"
+              className="card-interactive p-4 text-center hover:border-gold/30 transition-all duration-300 group"
             >
               <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">{s.icon}</div>
-              <h3 className="text-white/70 text-xs font-medium mb-1 group-hover:text-gold transition-colors">{s.title}</h3>
-              <p className="text-white/30 text-[10px] leading-relaxed">{s.desc}</p>
+              <h3 className="text-parchment-300 text-xs font-medium mb-1 group-hover:text-gold transition-colors">{s.title}</h3>
+              <p className="text-parchment-400 text-xs leading-relaxed">{s.desc}</p>
             </Link>
           ))}
         </div>

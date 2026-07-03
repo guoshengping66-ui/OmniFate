@@ -20,7 +20,7 @@ export function DimensionRadar({ data }: DimensionRadarProps) {
   return (
     <div className="space-y-2.5">
       {/* Section header */}
-      <div className="flex items-center gap-2 text-[11px] text-white/40">
+      <div className="flex items-center gap-2 text-xs text-parchment-400">
         <span className="w-1 h-1 rounded-full bg-orange-400/60" />
         <span>{t("report.healthRadar.header")}</span>
       </div>
@@ -29,12 +29,12 @@ export function DimensionRadar({ data }: DimensionRadarProps) {
       <div className="grid grid-cols-2 gap-2.5">
         {/* Physical */}
         <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.05]">
-          <div className="text-[11px] text-white/40 mb-1.5">{t("report.healthRadar.physical")}</div>
+          <div className="text-xs text-parchment-400 mb-1.5">{t("report.healthRadar.physical")}</div>
           <div className="flex items-baseline gap-1 mb-1">
-            <span className="text-xl font-bold text-white/75">{physicalHardware.value}</span>
-            <span className="text-[10px] text-white/25">/ 10</span>
+            <span className="text-xl font-bold text-parchment-200">{physicalHardware.value}</span>
+            <span className="text-xs text-parchment-400">/ 10</span>
           </div>
-          <div className="text-[10px] text-white/35">{physicalHardware.label}</div>
+          <div className="text-xs text-parchment-400">{physicalHardware.label}</div>
         </div>
 
         {/* Mental */}
@@ -42,13 +42,13 @@ export function DimensionRadar({ data }: DimensionRadarProps) {
           const risk = getRiskBadge(mentalSoftware.riskLevel)
           return (
             <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.05]">
-              <div className="text-[11px] text-white/40 mb-1.5">{t("report.healthRadar.mental")}</div>
+              <div className="text-xs text-parchment-400 mb-1.5">{t("report.healthRadar.mental")}</div>
               <div className="flex items-baseline gap-1 mb-1">
                 <span className={`text-xl font-bold ${risk.text}`}>{mentalSoftware.value}</span>
-                <span className="text-[10px] text-white/25">/ 10</span>
+                <span className="text-xs text-parchment-400">/ 10</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-[10px] text-white/35">{mentalSoftware.label}</span>
+                <span className="text-xs text-parchment-400">{mentalSoftware.label}</span>
                 {mentalSoftware.riskLevel && (
                   <span className={`text-[9px] px-1 py-0.5 rounded ${risk.bg} ${risk.text} border ${risk.border}`}>
                     {mentalSoftware.riskLevel}
@@ -62,7 +62,7 @@ export function DimensionRadar({ data }: DimensionRadarProps) {
 
       {/* Conclusion */}
       <div className="px-3 py-2 rounded-md bg-orange-500/[0.04] border border-orange-500/10">
-        <p className="text-white/45 text-[11px] leading-relaxed">
+        <p className="text-parchment-400 text-xs leading-relaxed">
           <span className="text-orange-400/60 font-medium">{t("report.healthRadar.conclusion")}：</span>
           {conclusion}
         </p>

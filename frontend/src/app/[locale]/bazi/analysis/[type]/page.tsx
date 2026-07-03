@@ -70,37 +70,37 @@ export default async function BaziAnalysisPage({ params }: PageProps) {
             <h1 className="text-3xl md:text-4xl font-serif font-bold text-white mb-4">
               {isZh ? data.title_zh : data.title_en}
             </h1>
-            <p className="text-white/40 text-sm max-w-2xl mx-auto">
+            <p className="text-parchment-400 text-sm max-w-2xl mx-auto">
               {isZh ? data.meta_description_zh : data.meta_description_en}
             </p>
           </div>
         </ScrollReveal>
 
         <ScrollReveal delay={0.1}>
-          <div className="card-glass p-8 md:p-10 mb-8">
+          <div className="card-solid p-8 md:p-10 mb-8">
             <h2 className="font-serif text-2xl text-gold mb-4">{isZh ? "概述" : "Overview"}</h2>
-            <p className="text-white/60 text-sm leading-relaxed">{isZh ? data.overview_zh : data.overview_en}</p>
+            <p className="text-parchment-400 text-sm leading-relaxed">{isZh ? data.overview_zh : data.overview_en}</p>
           </div>
         </ScrollReveal>
 
         <ScrollReveal delay={0.15}>
-          <div className="card-glass p-8 md:p-10 mb-8">
+          <div className="card-solid p-8 md:p-10 mb-8">
             <h2 className="font-serif text-2xl text-gold mb-4">{isZh ? "分析方法" : "Analysis Method"}</h2>
-            <p className="text-white/60 text-sm leading-relaxed">{isZh ? data.method_zh : data.method_en}</p>
+            <p className="text-parchment-400 text-sm leading-relaxed">{isZh ? data.method_zh : data.method_en}</p>
           </div>
         </ScrollReveal>
 
         <ScrollReveal delay={0.2}>
-          <div className="card-glass p-8 md:p-10 mb-8">
+          <div className="card-solid p-8 md:p-10 mb-8">
             <h2 className="font-serif text-2xl text-gold mb-4">{isZh ? "关键因素" : "Key Factors"}</h2>
-            <p className="text-white/60 text-sm leading-relaxed">{isZh ? data.factors_zh : data.factors_en}</p>
+            <p className="text-parchment-400 text-sm leading-relaxed">{isZh ? data.factors_zh : data.factors_en}</p>
           </div>
         </ScrollReveal>
 
         <ScrollReveal delay={0.25}>
-          <div className="card-glass p-8 md:p-10 mb-8">
+          <div className="card-solid p-8 md:p-10 mb-8">
             <h2 className="font-serif text-2xl text-gold mb-4">{isZh ? "解读" : "Interpretation"}</h2>
-            <p className="text-white/60 text-sm leading-relaxed">{isZh ? data.interpretation_zh : data.interpretation_en}</p>
+            <p className="text-parchment-400 text-sm leading-relaxed">{isZh ? data.interpretation_zh : data.interpretation_en}</p>
           </div>
         </ScrollReveal>
 

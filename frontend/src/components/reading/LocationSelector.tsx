@@ -272,7 +272,7 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
   const displayPreview = () => {
     if (!value) return null
     return (
-      <div className="text-xs text-white/40 mt-1">
+      <div className="text-xs text-parchment-400 mt-1">
         <span className="text-gold/60">{value}</span>
       </div>
     )
@@ -282,7 +282,7 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
     <div>
       <label className="label">
         {t("new.birthCity")}
-        <span className="text-white/30 text-xs ml-2">{t("new.selectRegion")}</span>
+        <span className="text-parchment-400 text-xs ml-2">{t("new.selectRegion")}</span>
       </label>
 
       {/* ── China Mode ── */}
@@ -355,25 +355,25 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
                 }}
                 className="input-field text-sm cursor-pointer flex items-center justify-between"
               >
-                <span className={currentCountry ? "text-white truncate" : "text-white/40"}>
+                <span className={currentCountry ? "text-white truncate" : "text-parchment-400"}>
                   {currentCountry ? `${currentCountry.nameZh}` : t("new.selectRegion")}
                 </span>
-                <ChevronDown className={`w-4 h-4 text-white/40 transition-transform flex-shrink-0 ${showCountryDropdown ? "rotate-180" : ""}`} />
+                <ChevronDown className={`w-4 h-4 text-parchment-400 transition-transform flex-shrink-0 ${showCountryDropdown ? "rotate-180" : ""}`} />
               </div>
 
               {showCountryDropdown && (
-                <div className="absolute z-50 mt-1 w-full bg-[#1a1a2e] border border-white/10 rounded-lg shadow-xl max-h-72 overflow-hidden">
+                <div className="absolute z-50 mt-1 w-full bg-[#1a1a2e] border border-white/[0.06] rounded-lg shadow-xl max-h-72 overflow-hidden">
                   {/* Search input */}
-                  <div className="sticky top-0 bg-[#1a1a2e] p-2 border-b border-white/10">
+                  <div className="sticky top-0 bg-[#1a1a2e] p-2 border-b border-white/[0.06]">
                     <div className="flex items-center gap-2 bg-[#0f0f1a] rounded-md px-2 py-1.5">
-                      <Search className="w-3.5 h-3.5 text-white/30" />
+                      <Search className="w-3.5 h-3.5 text-parchment-400" />
                       <input
                         ref={countrySearchRef}
                         type="text"
                         value={countrySearch}
                         onChange={e => setCountrySearch(e.target.value)}
                         placeholder={t("new.searchCountry")}
-                        className="bg-transparent text-sm text-white outline-none w-full placeholder:text-white/30"
+                        className="bg-transparent text-sm text-white outline-none w-full placeholder:text-parchment-400"
                       />
                     </div>
                   </div>
@@ -389,10 +389,10 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
                           className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
                             selectedCountry === c.name
                               ? "bg-gold/20 text-gold"
-                              : "text-white hover:bg-white/5"
+                              : "text-white hover:bg-white/[0.04]"
                           }`}
                         >
-                          {c.nameZh} <span className="text-white/40 ml-1">{c.name}</span>
+                          {c.nameZh} <span className="text-parchment-400 ml-1">{c.name}</span>
                         </button>
                       ))
                     ) : (
@@ -485,7 +485,7 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
                 </option>
               ))}
               {(hasStates ? selectedState : selectedCountry) && (
-                <option value={INTL_CUSTOM} className="bg-[#0f0f1a] text-white/50">
+                <option value={INTL_CUSTOM} className="bg-[#0f0f1a] text-parchment-400">
                   {t("new.customCity")}
                 </option>
               )}
@@ -509,7 +509,7 @@ export function LocationSelector({ value, onChange, placeholder }: Props) {
           <button
             type="button"
             onClick={handleBackToChina}
-            className="text-xs text-white/40 hover:text-gold/70 transition-colors flex items-center gap-1"
+            className="text-xs text-parchment-400 hover:text-gold/70 transition-colors flex items-center gap-1"
           >
             {t("new.backToChina")}
           </button>
@@ -536,7 +536,7 @@ function CountryGroup({
   if (countries.length === 0) return null
   return (
     <div className="mb-1">
-      <div className="px-3 py-1 text-[10px] text-white/25 uppercase tracking-wider font-medium">
+      <div className="px-3 py-1 text-xs text-parchment-400 uppercase tracking-wider font-medium">
         {label}
       </div>
       {countries.map(c => (
@@ -547,10 +547,10 @@ function CountryGroup({
           className={`w-full text-left px-3 py-1.5 rounded-md text-sm transition-colors ${
             selected === c.name
               ? "bg-gold/20 text-gold"
-              : "text-white hover:bg-white/5"
+              : "text-white hover:bg-white/[0.04]"
           }`}
         >
-          {c.nameZh} <span className="text-white/40 ml-1">{c.name}</span>
+          {c.nameZh} <span className="text-parchment-400 ml-1">{c.name}</span>
         </button>
       ))}
     </div>

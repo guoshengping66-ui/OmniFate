@@ -100,7 +100,7 @@ export default function LoginPage() {
 
         <section>
           <div className="mb-7 text-center lg:hidden">
-            <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-[var(--color-gold-soft)] bg-[rgba(200,168,74,0.08)] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--color-gold)]">
+            <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-[var(--color-gold-soft)] bg-[rgba(200,168,74,0.08)] px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-gold)]">
               <Sparkles size={13} />
               Guanwo
             </p>
@@ -142,7 +142,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setShowPw(!showPw)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/35 hover:text-white/70"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-parchment-400 hover:text-parchment-300"
                     aria-label={showPw ? "Hide password" : "Show password"}
                   >
                     {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -150,13 +150,13 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <button type="submit" disabled={loading} className="ow-gold-button w-full">
+              <button type="submit" disabled={loading} className="btn-primary w-full">
                 {loading ? <><Loader2 size={18} className="animate-spin" /> {t("auth.loggingIn")}</> : t("auth.login")}
               </button>
 
               <div className="flex items-center gap-3">
                 <div className="h-px flex-1 bg-white/10" />
-                <span className="text-xs text-white/35">{t("auth.or")}</span>
+                <span className="text-xs text-parchment-400">{t("auth.or")}</span>
                 <div className="h-px flex-1 bg-white/10" />
               </div>
 
@@ -166,7 +166,7 @@ export default function LoginPage() {
                 <Link href={localeHref("/forgot-password")} className="text-[var(--color-gold)] hover:underline">
                   {t("auth.forgotPassword")}
                 </Link>
-                <p className="text-white/45">
+                <p className="text-parchment-400">
                   {t("auth.noAccount")}{" "}
                   <Link href={localeHref("/register")} className="text-[var(--color-gold)] hover:underline">
                     {t("auth.registerNow")}
@@ -176,11 +176,11 @@ export default function LoginPage() {
             </form>
 
             <div className="mt-6 rounded-2xl border border-white/[0.08] bg-white/[0.035] p-4">
-              <p className="flex items-center gap-2 text-xs leading-6 text-white/45">
+              <p className="flex items-center gap-2 text-xs leading-6 text-parchment-400">
                 <Radar size={14} className="text-[var(--color-gold)]" />
                 {isZh ? "登录即表示你同意服务条款与隐私政策。" : "By signing in, you agree to the terms and privacy policy."}
               </p>
-              <p className="mt-2 text-xs text-white/35">
+              <p className="mt-2 text-xs text-parchment-400">
                 <a href={localeHref("/privacy")} className="text-[var(--color-gold)] hover:underline">{t("auth.privacyPolicy")}</a>
                 {" · "}
                 <a href={localeHref("/terms")} className="text-[var(--color-gold)] hover:underline">{t("auth.termsOfService")}</a>
@@ -268,7 +268,7 @@ function GoogleLoginButton() {
   return (
     <div ref={googleBtnRef} className="flex w-full justify-center" style={{ minHeight: 44 }}>
       {!googleLoaded && (
-        <div className="w-full rounded-full border border-white/10 bg-white/[0.045] py-3 text-center text-sm text-white/45">
+        <div className="w-full rounded-full border border-white/[0.06] bg-white/[0.045] py-3 text-center text-sm text-parchment-400">
           Google {t("auth.login")}
         </div>
       )}

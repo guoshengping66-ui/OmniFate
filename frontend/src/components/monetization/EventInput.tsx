@@ -38,18 +38,18 @@ export function EventInput({ onSubmit, loading, freeQuota = 0 }: EventInputProps
   }
 
   return (
-    <form onSubmit={handleSubmit} className="card-glass p-6 md:p-8 space-y-6">
+    <form onSubmit={handleSubmit} className="card-solid p-6 md:p-8 space-y-6">
       <div className="flex items-center gap-2 mb-2">
         <Zap size={20} className="text-gold" />
         <h2 className="font-serif text-xl text-gold">{t("eventInput.title")}</h2>
         {freeQuota > 0 && (
-          <span className="text-xs text-white/40 bg-white/5 px-2 py-0.5 rounded-full ml-auto">
+          <span className="text-xs text-parchment-400 bg-white/[0.04] px-2 py-0.5 rounded-full ml-auto">
             {t("eventInput.freeRemaining").replace("{count}", String(freeQuota))}
           </span>
         )}
       </div>
 
-      <p className="text-white/40 text-sm">
+      <p className="text-parchment-400 text-sm">
         {t("eventInput.desc")}
         {freeQuota === 0 && (
           <span className="text-gold/80 ml-1">{t("eventInput.price")}</span>
@@ -111,7 +111,7 @@ export function EventInput({ onSubmit, loading, freeQuota = 0 }: EventInputProps
             onChange={e => setEmotionScore(Number(e.target.value))}
             className="flex-1 accent-gold"
           />
-          <span className="text-sm text-white/60 min-w-[80px] text-right">
+          <span className="text-sm text-parchment-400 min-w-[80px] text-right">
             {emotionScore} · {EMOTION_LABELS[emotionScore] || t("eventInput.emotion5")}
           </span>
         </div>
@@ -121,7 +121,7 @@ export function EventInput({ onSubmit, loading, freeQuota = 0 }: EventInputProps
       <button
         type="submit"
         disabled={loading || !description || !eventDate}
-        className="btn-gold w-full flex items-center justify-center gap-2 py-3"
+        className="btn-primary w-full flex items-center justify-center gap-2 py-3"
       >
         {loading ? (
           <><span className="animate-spin inline-block">⏳</span> {t("eventInput.analyzing")}</>

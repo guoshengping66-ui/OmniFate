@@ -142,21 +142,21 @@ export default async function ComparePage({ params }: PageProps) {
           <div className="text-center mb-16">
             <div className="flex items-center justify-center gap-4 mb-4">
               <span className="text-5xl">{data.icon_a}</span>
-              <span className="text-white/30 text-2xl font-serif">VS</span>
+              <span className="text-parchment-400 text-2xl font-serif">VS</span>
               <span className="text-5xl">{data.icon_b}</span>
             </div>
             <h1 className="text-3xl md:text-4xl font-serif font-bold text-white mb-4">
               {isZh ? data.title_zh : data.title_en}
             </h1>
-            <p className="text-white/40 text-sm max-w-2xl mx-auto">
+            <p className="text-parchment-400 text-sm max-w-2xl mx-auto">
               {isZh ? data.meta_description_zh : data.meta_description_en}
             </p>
           </div>
         </ScrollReveal>
 
         <ScrollReveal delay={0.1}>
-          <div className="card-glass p-8 md:p-10 mb-8">
-            <div className="text-white/60 text-sm leading-relaxed whitespace-pre-line">
+          <div className="card-solid p-8 md:p-10 mb-8">
+            <div className="text-parchment-400 text-sm leading-relaxed whitespace-pre-line">
               {isZh ? data.content_zh : data.content_en}
             </div>
           </div>

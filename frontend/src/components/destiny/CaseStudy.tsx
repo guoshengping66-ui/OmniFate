@@ -66,7 +66,7 @@ export default function CaseStudy() {
               {t("reviews.title")}
             </span>
           </h2>
-          <p className="text-white/30 text-sm max-w-lg mx-auto">{t("pricing.reviewDisclaimer")}</p>
+          <p className="text-parchment-400 text-sm max-w-lg mx-auto">{t("pricing.reviewDisclaimer")}</p>
         </div>
 
         {/* Case study cards */}
@@ -97,8 +97,8 @@ export default function CaseStudy() {
                   {cs.role[0]}
                 </div>
                 <div>
-                  <div className="text-white/70 text-sm font-medium">{cs.role}</div>
-                  <div className="text-white/25 text-[10px]">Age {cs.age}</div>
+                  <div className="text-parchment-300 text-sm font-medium">{cs.role}</div>
+                  <div className="text-parchment-400 text-xs">Age {cs.age}</div>
                 </div>
               </div>
 
@@ -107,14 +107,14 @@ export default function CaseStudy() {
                 {cs.metrics.map((m, mi) => (
                   <div key={mi}>
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-[10px] text-white/30 tracking-wider uppercase">
+                      <span className="text-xs text-parchment-400 tracking-wider uppercase">
                         {t(`report.${m.label}`)}
                       </span>
                       <span className="text-xs font-bold" style={{ color: m.color }}>
                         {m.value}
                       </span>
                     </div>
-                    <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                    <div className="h-1 bg-white/[0.04] rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full transition-all duration-1000 delay-500"
                         style={{

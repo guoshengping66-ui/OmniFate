@@ -42,7 +42,7 @@ export default function MarketingPage() {
         <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6">
           <div className="max-w-3xl">
             <ScrollReveal>
-              <div className="inline-flex items-center gap-2 bg-white/5 backdrop-blur-xl border border-gold/20 rounded-full px-3 py-1 text-gold text-[11px] mb-4">
+              <div className="inline-flex items-center gap-2 bg-white/[0.04] backdrop-blur-xl border border-gold/20 rounded-full px-3 py-1 text-gold text-xs mb-4">
                 <span className="relative flex h-1.5 w-1.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold opacity-75" />
                   <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-gold" />
@@ -57,12 +57,12 @@ export default function MarketingPage() {
                   {t("hero.title1")}
                 </span>
                 <br />
-                <span className="text-white/90">{t("hero.title2")}</span>
+                <span className="text-parchment-100">{t("hero.title2")}</span>
               </h1>
             </ScrollReveal>
 
             <ScrollReveal delay={0.2}>
-              <p className="text-sm md:text-base text-white/45 max-w-xl leading-relaxed mb-6">
+              <p className="text-sm md:text-base text-parchment-400 max-w-xl leading-relaxed mb-6">
                 <span className="text-gold/70">{t("hero.desc").split("\n")[0]}</span>
                 <br />
                 {t("hero.desc").split("\n")[1]}
@@ -74,7 +74,7 @@ export default function MarketingPage() {
                 <MagneticButton>
                   <Link
                     href={localeHref("/reading/new")}
-                    className="btn-gold text-sm inline-flex items-center gap-2 px-8 py-3 group"
+                    className="btn-primary text-sm inline-flex items-center gap-2 px-8 py-3 group"
                   >
                     {t("hero.cta1")}
                     <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
@@ -83,7 +83,7 @@ export default function MarketingPage() {
                 <MagneticButton>
                   <Link
                     href={localeHref("/shop")}
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-white/15 text-white/50 hover:border-gold/30 hover:text-gold transition-all text-sm backdrop-blur-sm"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-white/15 text-parchment-400 hover:border-gold/30 hover:text-gold transition-all text-sm backdrop-blur-sm"
                   >
                     <ShoppingBag size={14} />
                     {t("hero.cta2")}
@@ -94,9 +94,9 @@ export default function MarketingPage() {
 
             <ScrollReveal delay={0.4}>
               <div className="flex flex-wrap items-center gap-4 mt-6 pt-5 border-t border-white/[0.05]">
-                <p className="text-white/20 text-[11px] tracking-wide">{t("hero.trust")}</p>
+                <p className="text-parchment-400 text-xs tracking-wide">{t("hero.trust")}</p>
                 <span className="hidden sm:block w-px h-3 bg-white/10" />
-                <div className="flex items-center gap-3 text-white/30 text-[11px]">
+                <div className="flex items-center gap-3 text-parchment-400 text-xs">
                   <span>{t("hero.stat1")}</span>
                   <span className="text-gold/60">★ 4.9</span>
                   <span className="hidden sm:inline">{t("hero.stat3")}</span>
@@ -119,7 +119,7 @@ export default function MarketingPage() {
                   className="flex flex-col items-center gap-1.5 bg-white/[0.03] border border-white/[0.06] rounded-xl px-2 py-3 hover:border-white/[0.12] hover:bg-white/[0.05] transition-all duration-300 group"
                 >
                   <span className="text-lg">{sys.icon}</span>
-                  <span className="text-white/50 text-[11px] font-medium group-hover:text-white/70 transition-colors text-center leading-tight">
+                  <span className="text-parchment-400 text-xs font-medium group-hover:text-parchment-300 transition-colors text-center leading-tight">
                     {t(`agent.${sys.key}._label`)}
                   </span>
                   <span

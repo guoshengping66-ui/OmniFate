@@ -39,7 +39,7 @@ export function AccordionItem({ question, answer, defaultOpen = false }: Accordi
       className={`border rounded-xl overflow-hidden transition-all duration-300
         ${isOpen
           ? "border-gold/25 bg-white/[0.03] shadow-[0_0_30px_rgba(201,168,76,0.05)]"
-          : "border-white/10 hover:border-gold/15 bg-transparent"
+          : "border-white/[0.06] hover:border-gold/15 bg-transparent"
         }`}
     >
       <button
@@ -47,7 +47,7 @@ export function AccordionItem({ question, answer, defaultOpen = false }: Accordi
         className="w-full flex items-center justify-between p-5 text-left hover:bg-white/[0.02] transition-colors duration-200"
       >
         <span className={`font-serif font-medium pr-4 transition-colors duration-200
-          ${isOpen ? "text-gold" : "text-white/80"}`}>
+          ${isOpen ? "text-gold" : "text-parchment-200"}`}>
           {question}
         </span>
         <div
@@ -71,7 +71,7 @@ export function AccordionItem({ question, answer, defaultOpen = false }: Accordi
           transition: "height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease",
         }}
       >
-        <div ref={contentRef} className="px-5 pb-5 text-white/45 text-sm leading-relaxed border-t border-white/[0.06] pt-4 mx-5">
+        <div ref={contentRef} className="px-5 pb-5 text-parchment-400 text-sm leading-relaxed border-t border-white/[0.06] pt-4 mx-5">
           {answer}
         </div>
       </div>

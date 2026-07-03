@@ -19,7 +19,7 @@ export function DimensionCard({ title, icon, score, color, children }: Dimension
   const badge = getScoreBadge(score)
 
   return (
-    <div className="rounded-xl border border-white/[0.08] bg-white/[0.03] overflow-hidden transition-all duration-300 hover:border-white/[0.12]">
+    <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] overflow-hidden transition-all duration-300 hover:border-white/[0.12]">
       {/* Header */}
       <button
         onClick={() => setExpanded(!expanded)}
@@ -28,18 +28,18 @@ export function DimensionCard({ title, icon, score, color, children }: Dimension
         <div className="flex items-center gap-2.5">
           <span className={`w-1 h-5 rounded-full ${color}`} />
           <span className="text-lg">{icon}</span>
-          <h3 className="text-white/85 text-sm font-semibold">{title}</h3>
+          <h3 className="text-parchment-200 text-sm font-semibold">{title}</h3>
         </div>
         <div className="flex items-center gap-2.5">
           <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md border ${badge.bg} ${badge.border}`}>
             <span className={`text-base font-bold ${badge.text}`}>{score}</span>
-            <span className="text-[10px] text-white/30">/10</span>
-            <span className={`text-[10px] font-medium ${badge.text}`}>{badge.label}</span>
+            <span className="text-xs text-parchment-400">/10</span>
+            <span className={`text-xs font-medium ${badge.text}`}>{badge.label}</span>
           </div>
           {expanded ? (
-            <ChevronUp size={14} className="text-white/30" />
+            <ChevronUp size={14} className="text-parchment-400" />
           ) : (
-            <ChevronDown size={14} className="text-white/30" />
+            <ChevronDown size={14} className="text-parchment-400" />
           )}
         </div>
       </button>

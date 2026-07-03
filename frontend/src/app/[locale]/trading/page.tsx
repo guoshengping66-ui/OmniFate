@@ -76,11 +76,11 @@ export default function TradingPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-serif font-bold text-gold mb-2">{t("trading.title")}</h1>
-            <p className="text-white/50 text-sm">{t("trading.desc")}</p>
+            <p className="text-parchment-400 text-sm">{t("trading.desc")}</p>
           </div>
           <Link
             href={localeHref("/trading/new")}
-            className="btn-gold flex items-center gap-2 text-sm"
+            className="btn-primary flex items-center gap-2 text-sm"
           >
             <Plus size={16} />
             {t("trading.newBtn")}
@@ -90,27 +90,27 @@ export default function TradingPage() {
         {/* Stats */}
         {stats && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div className="card-glass p-4 text-center">
+            <div className="card-solid p-4 text-center">
               <BarChart3 size={18} className="text-gold mx-auto mb-2" />
               <p className="text-2xl font-bold text-white">{stats.total_trades}</p>
-              <p className="text-white/30 text-xs">{t("trading.stats.total")}</p>
+              <p className="text-parchment-400 text-xs">{t("trading.stats.total")}</p>
             </div>
-            <div className="card-glass p-4 text-center">
+            <div className="card-solid p-4 text-center">
               <TrendingUp size={18} className="text-green-400 mx-auto mb-2" />
               <p className="text-2xl font-bold text-green-400">{stats.win_rate}%</p>
-              <p className="text-white/30 text-xs">{t("trading.stats.winRate")}</p>
+              <p className="text-parchment-400 text-xs">{t("trading.stats.winRate")}</p>
             </div>
-            <div className="card-glass p-4 text-center">
+            <div className="card-solid p-4 text-center">
               <p className={`text-2xl font-bold ${stats.total_pnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                 {stats.total_pnl >= 0 ? '+' : ''}{stats.total_pnl.toFixed(0)}
               </p>
-              <p className="text-white/30 text-xs">{t("trading.stats.totalPnl")}</p>
+              <p className="text-parchment-400 text-xs">{t("trading.stats.totalPnl")}</p>
             </div>
-            <div className="card-glass p-4 text-center">
+            <div className="card-solid p-4 text-center">
               <p className={`text-2xl font-bold ${stats.avg_pnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                 {stats.avg_pnl >= 0 ? '+' : ''}{stats.avg_pnl.toFixed(0)}
               </p>
-              <p className="text-white/30 text-xs">{t("trading.stats.avgPnl")}</p>
+              <p className="text-parchment-400 text-xs">{t("trading.stats.avgPnl")}</p>
             </div>
           </div>
         )}
@@ -123,8 +123,8 @@ export default function TradingPage() {
               onClick={() => setFilter(f)}
               className={`px-4 py-2 rounded-full text-sm transition-all ${
                 filter === f
-                  ? "bg-gold text-ink"
-                  : "bg-white/5 text-white/50 hover:bg-white/10"
+                  ? "bg-gold text-cosmos-950"
+                  : "bg-white/[0.04] text-parchment-400 hover:bg-white/10"
               }`}
             >
               {f === "all" ? t("trading.filter.all") : f === "win" ? t("trading.filter.win") : t("trading.filter.loss")}
@@ -134,10 +134,10 @@ export default function TradingPage() {
 
         {/* Trade entries */}
         {filteredTrades.length === 0 ? (
-          <div className="card-glass p-12 text-center">
-            <Calendar size={48} className="text-white/20 mx-auto mb-4" />
-            <p className="text-white/40 mb-4">{t("trading.empty")}</p>
-            <Link href="/trading/new" className="btn-gold-outline inline-flex items-center gap-2">
+          <div className="card-solid p-12 text-center">
+            <Calendar size={48} className="text-parchment-400 mx-auto mb-4" />
+            <p className="text-parchment-400 mb-4">{t("trading.empty")}</p>
+            <Link href="/trading/new" className="btn-secondary inline-flex items-center gap-2">
               <Plus size={16} />
               {t("trading.emptyBtn")}
             </Link>
@@ -148,7 +148,7 @@ export default function TradingPage() {
               <Link
                 key={trade.id}
                 href={`/trading/${trade.id}`}
-                className="card-glass p-4 flex items-center justify-between hover:border-gold/30 transition-all"
+                className="card-solid p-4 flex items-center justify-between hover:border-gold/30 transition-all"
               >
                 <div className="flex items-center gap-4">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
@@ -162,7 +162,7 @@ export default function TradingPage() {
                   </div>
                   <div>
                     <p className="text-white font-medium">{trade.trade_symbol}</p>
-                    <p className="text-white/40 text-xs">
+                    <p className="text-parchment-400 text-xs">
                       {trade.trade_direction === "long" ? t("trading.long") : t("trading.short")} · {trade.entry_price}
                       {trade.exit_price && ` → ${trade.exit_price}`}
                     </p>
@@ -174,7 +174,7 @@ export default function TradingPage() {
                       {trade.pnl_cny >= 0 ? '+' : ''}{trade.pnl_cny.toFixed(0)} CNY
                     </p>
                   )}
-                  <p className="text-white/30 text-xs">
+                  <p className="text-parchment-400 text-xs">
                     {new Date(trade.created_at).toLocaleDateString()}
                   </p>
                 </div>

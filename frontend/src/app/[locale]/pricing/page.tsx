@@ -175,7 +175,7 @@ export default function PricingPage() {
 
         <ScrollReveal>
           <div className="mb-8 text-center">
-            <div className="mb-4 inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.25em] text-gold/50">
+            <div className="mb-4 inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.25em] text-gold/50">
               <span className="h-px w-8 bg-gradient-to-r from-transparent to-gold/30" />
               {t("pricing.breadcrumb")}
               <span className="h-px w-8 bg-gradient-to-l from-transparent to-gold/30" />
@@ -184,7 +184,7 @@ export default function PricingPage() {
             <h1 className="mb-2 font-serif text-2xl font-bold text-white md:text-4xl">
               {isZh ? "选择适合你的观我分析方式" : "Choose the Guanwo analysis depth that fits you"}
             </h1>
-            <p className="mx-auto max-w-2xl text-sm leading-relaxed text-white/38">
+            <p className="mx-auto max-w-2xl text-sm leading-relaxed text-parchment-400">
               {isZh ? "从免费探索到完整档案，你可以按自己的问题深度选择。观我提供自我认知和生活决策参考，不承诺结果。" : "From free exploration to a complete dossier, choose by the depth of your question. Guanwo offers self-knowledge and decision support, not guaranteed outcomes."}
             </p>
           </div>
@@ -199,8 +199,8 @@ export default function PricingPage() {
                   <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl border border-gold/20 bg-gold/[0.07]">
                     <Icon size={18} className="text-gold/75" />
                   </div>
-                  <h2 className="mb-1.5 text-sm font-semibold text-white/85">{item.title}</h2>
-                  <p className="text-xs leading-relaxed text-white/40">{item.desc}</p>
+                  <h2 className="mb-1.5 text-sm font-semibold text-parchment-200">{item.title}</h2>
+                  <p className="text-xs leading-relaxed text-parchment-400">{item.desc}</p>
                 </div>
               )
             })}
@@ -223,27 +223,27 @@ export default function PricingPage() {
         <ScrollReveal delay={0.1}>
           <div className="mb-12 overflow-x-auto">
             <div className="mb-6 text-center">
-              <h2 className="font-serif text-lg font-bold text-white/80">{t("pricing.tierCompare.title")}</h2>
-              <p className="mt-1 text-xs text-white/30">{t("pricing.tierCompare.subtitle")}</p>
+              <h2 className="font-serif text-lg font-bold text-parchment-200">{t("pricing.tierCompare.title")}</h2>
+              <p className="mt-1 text-xs text-parchment-400">{t("pricing.tierCompare.subtitle")}</p>
             </div>
             <div className="min-w-[600px]">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-white/10">
-                    <th className="px-4 py-3 text-left font-medium text-white/40">{t("pricing.tierCompare.feature")}</th>
+                  <tr className="border-b border-white/[0.06]">
+                    <th className="px-4 py-3 text-left font-medium text-parchment-400">{t("pricing.tierCompare.feature")}</th>
                     <th className="px-2 py-3 text-center font-medium text-gold">
                       {t("tier.premium_yearly.name")}
-                      <span className="mt-0.5 block text-[10px] font-normal text-gold/50">✓ {isZh ? "推荐" : "Recommended"}</span>
+                      <span className="mt-0.5 block text-xs font-normal text-gold/50">✓ {isZh ? "推荐" : "Recommended"}</span>
                     </th>
-                    <th className="px-2 py-3 text-center font-medium text-white/50">{t("tier.premium_monthly.name")}</th>
+                    <th className="px-2 py-3 text-center font-medium text-parchment-400">{t("tier.premium_monthly.name")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {comparisonRows.map((row, i) => (
                     <tr key={row.label} className={`border-b border-white/5 ${i % 2 === 0 ? "bg-white/[0.02]" : ""}`}>
-                      <td className="px-4 py-2.5 text-white/50">{row.label}</td>
+                      <td className="px-4 py-2.5 text-parchment-400">{row.label}</td>
                       <td className="px-2 py-2.5 text-center font-medium text-gold">{row.yearly}</td>
-                      <td className="px-2 py-2.5 text-center text-white/40">{row.monthly}</td>
+                      <td className="px-2 py-2.5 text-center text-parchment-400">{row.monthly}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -271,13 +271,13 @@ export default function PricingPage() {
 
         <ScrollReveal delay={0.1}>
           <div className="mb-12">
-            <div className="card-glass mb-5 flex items-center gap-4 p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/20">
+            <div className="card-solid mb-5 flex items-center gap-4 p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/20">
               <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gold/8">
                 <Zap size={18} className="text-gold" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-white/80">{t("pricing.eventCallout")}</p>
-                <p className="text-xs text-white/35">{t("pricing.eventDesc").replace("{price}", eventPrice)}</p>
+                <p className="text-sm font-medium text-parchment-200">{t("pricing.eventCallout")}</p>
+                <p className="text-xs text-parchment-400">{t("pricing.eventDesc").replace("{price}", eventPrice)}</p>
               </div>
               <button onClick={() => handleSelect("event_retro")} className="flex flex-shrink-0 items-center gap-1 text-sm text-gold/60 transition-colors hover:text-gold">
                 {t("pricing.learnMore")}
@@ -287,19 +287,19 @@ export default function PricingPage() {
 
             <div>
               <div className="mb-5 text-center">
-                <h2 className="font-serif text-lg font-bold text-white/80">{t("pricing.stardustGuide")}</h2>
-                <p className="mt-1 text-xs text-white/30">{t("pricing.stardustSubtitle")}</p>
+                <h2 className="font-serif text-lg font-bold text-parchment-200">{t("pricing.stardustGuide")}</h2>
+                <p className="mt-1 text-xs text-parchment-400">{t("pricing.stardustSubtitle")}</p>
               </div>
               <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                 {stardustCosts.map((item) => {
                   const Icon = item.icon
                   return (
                     <div key={item.label} className={`flex flex-col items-center gap-2 rounded-xl border p-4 ${item.bg}`}>
-                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.04]">
                         <Icon size={16} className={item.color} />
                       </div>
                       <div className="text-center">
-                        <p className="mb-0.5 text-[11px] text-white/60">{item.label}</p>
+                        <p className="mb-0.5 text-xs text-parchment-400">{item.label}</p>
                         <p className={`text-lg font-bold ${item.color}`}>
                           {item.cost}
                           <span className="ml-0.5 text-xs font-normal opacity-60">{isZh ? "点" : "pts"}</span>
@@ -317,7 +317,7 @@ export default function PricingPage() {
           <div className="mx-auto mb-12 max-w-3xl">
             <div className="mb-6 flex items-center justify-center gap-3">
               <HelpCircle size={18} className="text-gold/40" />
-              <h2 className="font-serif text-lg font-bold text-white/80">{t("pricing.faq")}</h2>
+              <h2 className="font-serif text-lg font-bold text-parchment-200">{t("pricing.faq")}</h2>
             </div>
             <div className="space-y-3">
               {faqItems.map((item) => (
@@ -327,7 +327,7 @@ export default function PricingPage() {
           </div>
         </ScrollReveal>
 
-        <p className="text-center text-[11px] text-white/20">
+        <p className="text-center text-xs text-parchment-400">
           {t("pricing.legalText")}{" "}
           <button onClick={() => setShowTerms(true)} className="text-gold/40 underline hover:text-gold">
             {t("pricing.termsOfService")}

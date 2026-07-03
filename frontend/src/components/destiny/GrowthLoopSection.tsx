@@ -51,10 +51,10 @@ export default function GrowthLoopSection() {
               <Sparkles size={13} />
               {copy.badge}
             </div>
-            <h2 className="mb-5 font-serif text-3xl font-bold leading-tight text-white/90 md:text-5xl">
+            <h2 className="mb-5 font-serif text-3xl font-bold leading-tight text-parchment-100 md:text-5xl">
               {copy.title}
             </h2>
-            <p className="mb-8 text-sm leading-relaxed text-white/45 md:text-base">
+            <p className="mb-8 text-sm leading-relaxed text-parchment-400 md:text-base">
               {copy.desc}
             </p>
 
@@ -66,19 +66,19 @@ export default function GrowthLoopSection() {
                     <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg border border-gold/20 bg-gold/[0.07]">
                       <Icon size={18} className="text-gold/75" />
                     </div>
-                    <h3 className="mb-1 text-sm font-semibold text-white/85">{step.title}</h3>
-                    <p className="text-xs leading-relaxed text-white/38">{step.desc}</p>
+                    <h3 className="mb-1 text-sm font-semibold text-parchment-200">{step.title}</h3>
+                    <p className="text-xs leading-relaxed text-parchment-400">{step.desc}</p>
                   </div>
                 )
               })}
             </div>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link href={localeHref("/reading/new")} className="btn-gold inline-flex items-center justify-center gap-2 text-sm">
+              <Link href={localeHref("/reading/new")} className="btn-primary inline-flex items-center justify-center gap-2 text-sm">
                 {copy.primary}
                 <ArrowRight size={16} />
               </Link>
-              <Link href={localeHref("/shop")} className="btn-gold-outline inline-flex items-center justify-center gap-2 text-sm">
+              <Link href={localeHref("/shop")} className="btn-secondary inline-flex items-center justify-center gap-2 text-sm">
                 {copy.secondary}
               </Link>
             </div>
@@ -87,7 +87,7 @@ export default function GrowthLoopSection() {
           <div className="min-w-0">
             <div className="mb-4">
               <p className="mb-1 text-xs uppercase tracking-[0.18em] text-gold/70">{copy.dailyLabel}</p>
-              <p className="text-xs text-white/35">{copy.dailyDesc}</p>
+              <p className="text-xs text-parchment-400">{copy.dailyDesc}</p>
             </div>
             <DailyDashboard />
           </div>

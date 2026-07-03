@@ -58,7 +58,7 @@ export default function EventDetailPage() {
   if (!data) return (
     <div className="min-h-screen pt-24 pb-16 px-4 text-center">
       <AlertCircle size={32} className="text-red-400 mx-auto mb-3" />
-      <p className="text-white/60">{t("eventDetail.notFound")}</p>
+      <p className="text-parchment-400">{t("eventDetail.notFound")}</p>
     </div>
   )
 
@@ -66,45 +66,45 @@ export default function EventDetailPage() {
     <div className="min-h-screen pt-24 pb-16 px-4">
       <div className="max-w-4xl mx-auto">
         <button onClick={() => router.back()}
-          className="flex items-center gap-1.5 text-white/40 hover:text-gold text-sm mb-6 transition-colors">
+          className="flex items-center gap-1.5 text-parchment-400 hover:text-gold text-sm mb-6 transition-colors">
           <ArrowLeft size={14} /> {t("eventDetail.back")}
         </button>
 
         <div className="text-center mb-8">
           <Sparkles className="text-gold mx-auto mb-3" size={24} />
           <h1 className="text-2xl font-serif font-bold text-gold">{t("eventDetail.title")}</h1>
-          <p className="text-white/40 text-xs mt-1">
+          <p className="text-parchment-400 text-xs mt-1">
             {new Date(data.event_datetime).toLocaleString()}
           </p>
         </div>
 
-        <div className="card-glass p-6 mb-6">
-          <h2 className="text-white/50 text-xs uppercase tracking-wider mb-2">{t("eventDetail.description")}</h2>
-          <p className="text-white/80 text-sm">{data.event_description}</p>
+        <div className="card-solid p-6 mb-6">
+          <h2 className="text-parchment-400 text-xs uppercase tracking-wider mb-2">{t("eventDetail.description")}</h2>
+          <p className="text-parchment-200 text-sm">{data.event_description}</p>
           {data.emotion_score > 0 && (
-            <span className="inline-block mt-2 text-xs text-white/40 bg-white/5 px-2 py-0.5 rounded-full">
+            <span className="inline-block mt-2 text-xs text-parchment-400 bg-white/[0.04] px-2 py-0.5 rounded-full">
               {t("eventDetail.emotionScore").replace("{score}", String(data.emotion_score))}
             </span>
           )}
         </div>
 
-        <div className="card-glass p-6 mb-4">
+        <div className="card-solid p-6 mb-4">
           <h2 className="font-serif text-lg text-gold mb-3">🔍 {t("eventDetail.causalAnalysis")}</h2>
-          <div className="text-white/70 text-sm leading-relaxed whitespace-pre-line">
+          <div className="text-parchment-300 text-sm leading-relaxed whitespace-pre-line">
             {data.causal_analysis || t("eventDetail.analyzing")}
           </div>
         </div>
 
-        <div className="card-glass p-6 mb-4">
+        <div className="card-solid p-6 mb-4">
           <h2 className="font-serif text-lg text-gold mb-3">💡 {t("eventDetail.currentAdvice")}</h2>
-          <div className="text-white/70 text-sm leading-relaxed whitespace-pre-line">
+          <div className="text-parchment-300 text-sm leading-relaxed whitespace-pre-line">
             {data.current_advice || t("eventDetail.analyzing")}
           </div>
         </div>
 
-        <div className="card-glass p-6 mb-6">
+        <div className="card-solid p-6 mb-6">
           <h2 className="font-serif text-lg text-gold mb-3">🛡 {t("eventDetail.futurePrevention")}</h2>
-          <div className="text-white/70 text-sm leading-relaxed whitespace-pre-line">
+          <div className="text-parchment-300 text-sm leading-relaxed whitespace-pre-line">
             {data.future_prevention || t("eventDetail.analyzing")}
           </div>
         </div>
@@ -124,8 +124,8 @@ export default function EventDetailPage() {
         )}
 
         {data.remedy_keywords?.length > 0 && (
-          <div className="card-glass p-5 mt-6">
-            <p className="text-white/40 text-xs mb-3">{t("eventDetail.remedyKeywords")}</p>
+          <div className="card-solid p-5 mt-6">
+            <p className="text-parchment-400 text-xs mb-3">{t("eventDetail.remedyKeywords")}</p>
             <div className="flex flex-wrap gap-2">
               {data.remedy_keywords.map(k => (
                 <span key={k} className="text-xs px-2.5 py-1 bg-gold/10 border border-gold/20 rounded-full text-gold/80">

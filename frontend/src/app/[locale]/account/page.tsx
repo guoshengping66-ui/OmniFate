@@ -37,7 +37,7 @@ export default function AccountPage() {
     paid: { label: t("payment.success"), color: "text-green-400" },
     shipped: { label: t("checkout.processing"), color: "text-blue-400" },
     delivered: { label: t("checkout.success"), color: "text-green-400" },
-    cancelled: { label: t("common.cancel"), color: "text-white/30" },
+    cancelled: { label: t("common.cancel"), color: "text-parchment-400" },
     refunded: { label: t("checkout.processing"), color: "text-orange-400" },
   }
 
@@ -98,7 +98,7 @@ export default function AccountPage() {
       <div className="max-w-5xl mx-auto">
         {/* Profile header — only show if user is logged in */}
         {user && (
-        <div className="card-glass p-6 md:p-8 mb-8">
+        <div className="card-solid p-6 md:p-8 mb-8">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-gold/20 border-2 border-gold/40 flex items-center justify-center">
               <span className="text-gold text-2xl font-serif font-bold">
@@ -107,14 +107,14 @@ export default function AccountPage() {
             </div>
             <div className="flex-1">
               <h1 className="text-xl font-serif font-bold text-gold">{user.display_name || user.email}</h1>
-              <p className="text-white/40 text-sm">{user.email}</p>
+              <p className="text-parchment-400 text-sm">{user.email}</p>
               <div className="mt-2">
                 <MembershipBadge tier={getUserTier(user)} size="md" showLabel />
               </div>
             </div>
             <button
               onClick={() => { logout(); router.push(localeHref("/")); }}
-              className="flex items-center gap-1.5 text-white/30 hover:text-red-400 text-xs transition-colors"
+              className="flex items-center gap-1.5 text-parchment-400 hover:text-red-400 text-xs transition-colors"
             >
               <LogOut size={14} /> {t("account.logout")}
             </button>
@@ -132,26 +132,26 @@ export default function AccountPage() {
                 className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm transition-all
                   ${tab === t.id
                     ? "bg-gold/10 text-gold border border-gold/20"
-                    : "text-white/40 hover:text-white/60 hover:bg-white/[0.03]"
+                    : "text-parchment-400 hover:text-parchment-400 hover:bg-white/[0.03]"
                   }`}
               >
                 {t.icon}
                 <span className="flex-1 text-left">{t.label}</span>
                 {t.count != null && t.count > 0 && (
-                  <span className="text-[10px] px-1.5 py-0.5 bg-white/10 rounded-full">{t.count}</span>
+                  <span className="text-xs px-1.5 py-0.5 bg-white/10 rounded-full">{t.count}</span>
                 )}
               </button>
             ))}
           </div>
 
           {/* Mobile tab bar */}
-          <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-ink/95 border-t border-white/10 flex overflow-x-auto scrollbar-none">
+          <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-cosmos-950/95 border-t border-white/[0.06] flex overflow-x-auto scrollbar-none">
             {tabs.map(t => (
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
-                className={`flex flex-col items-center gap-1 px-4 py-3 text-[10px] min-w-[60px] transition-all
-                  ${tab === t.id ? "text-gold" : "text-white/30"}`}
+                className={`flex flex-col items-center gap-1 px-4 py-3 text-xs min-w-[60px] transition-all
+                  ${tab === t.id ? "text-gold" : "text-parchment-400"}`}
               >
                 {t.icon}
                 {t.label}
@@ -168,9 +168,9 @@ export default function AccountPage() {
 
                 {/* Recent readings */}
                 {readings.length > 0 && (
-                  <div className="card-glass p-5">
+                  <div className="card-solid p-5">
                     <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-sm font-medium text-white/60">{t("account.recentReports")}</h3>
+                      <h3 className="text-sm font-medium text-parchment-400">{t("account.recentReports")}</h3>
                       <Link href="/readings" className="text-gold/60 text-xs hover:text-gold">
                         {t("account.viewAll")} <ChevronRight size={10} className="inline" />
                       </Link>
@@ -180,10 +180,10 @@ export default function AccountPage() {
                         className="flex items-center gap-3 py-2 hover:bg-white/[0.03] rounded-lg px-2 -mx-2 transition-colors">
                         <span className="text-lg">🔮</span>
                         <div className="flex-1 min-w-0">
-                          <p className="text-white/60 text-sm truncate">{t("account.analysis")}</p>
-                          <p className="text-white/20 text-[10px]">{new Date(r.created_at).toLocaleDateString("zh-CN")}</p>
+                          <p className="text-parchment-400 text-sm truncate">{t("account.analysis")}</p>
+                          <p className="text-parchment-400 text-xs">{new Date(r.created_at).toLocaleDateString("zh-CN")}</p>
                         </div>
-                        <ChevronRight size={12} className="text-white/20" />
+                        <ChevronRight size={12} className="text-parchment-400" />
                       </Link>
                     ))}
                   </div>
@@ -191,23 +191,23 @@ export default function AccountPage() {
 
                 {/* Recent orders */}
                 {orders.length > 0 && (
-                  <div className="card-glass p-5">
+                  <div className="card-solid p-5">
                     <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-sm font-medium text-white/60">{t("account.recentOrders")}</h3>
+                      <h3 className="text-sm font-medium text-parchment-400">{t("account.recentOrders")}</h3>
                       <button onClick={() => setTab("orders")} className="text-gold/60 text-xs hover:text-gold">
                         {t("account.viewAll")} <ChevronRight size={10} className="inline" />
                       </button>
                     </div>
                     {orders.slice(0, 3).map(o => {
-                      const status = ORDER_STATUS_LABELS[o.status] || { label: o.status, color: "text-white/40" }
+                      const status = ORDER_STATUS_LABELS[o.status] || { label: o.status, color: "text-parchment-400" }
                       return (
                         <div key={o.id} className="flex items-center gap-3 py-2">
                           <span className="text-lg">📦</span>
                           <div className="flex-1 min-w-0">
-                            <p className="text-white/60 text-sm">{t("account.orderLabel")} {o.order_no}</p>
-                            <p className="text-white/20 text-[10px]">¥{o.total_cny} · {new Date(o.created_at).toLocaleDateString("zh-CN")}</p>
+                            <p className="text-parchment-400 text-sm">{t("account.orderLabel")} {o.order_no}</p>
+                            <p className="text-parchment-400 text-xs">¥{o.total_cny} · {new Date(o.created_at).toLocaleDateString("zh-CN")}</p>
                           </div>
-                          <span className={`text-[10px] ${status.color}`}>{status.label}</span>
+                          <span className={`text-xs ${status.color}`}>{status.label}</span>
                         </div>
                       )
                     })}
@@ -216,12 +216,12 @@ export default function AccountPage() {
 
                 {/* Subscription info */}
                 {user && (
-                <div className="card-glass p-5">
-                  <h3 className="text-sm font-medium text-white/60 mb-3">{t("account.subStatus")}</h3>
+                <div className="card-solid p-5">
+                  <h3 className="text-sm font-medium text-parchment-400 mb-3">{t("account.subStatus")}</h3>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Crown size={16} className={user.is_premium ? "text-gold" : "text-white/20"} />
-                      <span className="text-sm text-white/60">
+                      <Crown size={16} className={user.is_premium ? "text-gold" : "text-parchment-400"} />
+                      <span className="text-sm text-parchment-400">
                         {user.is_premium
                           ? `${user.subscription_tier === "premium_yearly" ? t("membership.yearly") : t("membership.monthly")}`
                           : t("membership.free")}
@@ -241,22 +241,22 @@ export default function AccountPage() {
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="font-serif text-lg text-gold">{t("account.myReports")}</h2>
-                  <Link href="/reading/new" className="btn-gold text-xs py-1.5 px-4">{t("account.newReading")}</Link>
+                  <Link href="/reading/new" className="btn-primary text-xs py-1.5 px-4">{t("account.newReading")}</Link>
                 </div>
 
                 {/* Logged-in readings */}
                 {readings.length > 0 && (
                   <div className="mb-6">
-                    <h3 className="text-white/50 text-xs mb-3 uppercase tracking-wider">{user ? t("account.accountReadings") : ""}</h3>
+                    <h3 className="text-parchment-400 text-xs mb-3 uppercase tracking-wider">{user ? t("account.accountReadings") : ""}</h3>
                     <div className="space-y-3">
                       {readings.map(r => (
                         <div key={r.id}
-                          className="block card-glass p-4 hover:border-gold/30 transition-all group">
+                          className="block card-solid p-4 hover:border-gold/30 transition-all group">
                           <div className="flex items-center gap-3">
                             <span className="text-xl">🔮</span>
                             <div className="flex-1 min-w-0">
-                              <p className="text-white/70 text-sm">{t("readings.reportTitle")}</p>
-                              <p className="text-white/20 text-[10px] mt-0.5">
+                              <p className="text-parchment-300 text-sm">{t("readings.reportTitle")}</p>
+                              <p className="text-parchment-400 text-xs mt-0.5">
                                 {new Date(r.created_at).toLocaleString("zh-CN")}
                               </p>
                             </div>
@@ -271,12 +271,12 @@ export default function AccountPage() {
                                   toast.error(t("common.deleteFailed"))
                                 }
                               }}
-                              className="w-6 h-6 rounded-full flex items-center justify-center text-white/15 hover:text-red-400 hover:bg-red-400/10 transition-all flex-shrink-0"
+                              className="w-6 h-6 rounded-full flex items-center justify-center text-parchment-400 hover:text-red-400 hover:bg-red-400/10 transition-all flex-shrink-0"
                             >
                               ✕
                             </button>
                             <Link href={`/reading/${r.id}`} className="flex-shrink-0">
-                              <ChevronRight size={14} className="text-white/20 group-hover:text-gold" />
+                              <ChevronRight size={14} className="text-parchment-400 group-hover:text-gold" />
                             </Link>
                           </div>
                         </div>
@@ -289,14 +289,14 @@ export default function AccountPage() {
                 {anonymousReadings.length > 0 && (
                   <div>
                     <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-white/50 text-xs uppercase tracking-wider">{t("account.localReadings")}</h3>
+                      <h3 className="text-parchment-400 text-xs uppercase tracking-wider">{t("account.localReadings")}</h3>
                       <button
                         onClick={() => {
                           clearReadingHistory()
                           setAnonymousReadings([])
                           toast.success(t("account.clearHistory") || "已清除本地历史记录")
                         }}
-                        className="text-white/20 text-[10px] hover:text-red-400 transition-colors"
+                        className="text-parchment-400 text-xs hover:text-red-400 transition-colors"
                       >
                         {t("account.clearHistory") || "清除"}
                       </button>
@@ -304,14 +304,14 @@ export default function AccountPage() {
                     <div className="space-y-3">
                       {anonymousReadings.map(r => (
                         <div key={r.sessionId}
-                          className="block card-glass p-4 hover:border-gold/30 transition-all group">
+                          className="block card-solid p-4 hover:border-gold/30 transition-all group">
                           <div className="flex items-center gap-3">
                             <span className="text-xl">📋</span>
                             <div className="flex-1 min-w-0">
-                              <p className="text-white/70 text-sm truncate">
+                              <p className="text-parchment-300 text-sm truncate">
                                 {r.userQuestion || t("readings.reportTitle")}
                               </p>
-                              <p className="text-white/20 text-[10px] mt-0.5">
+                              <p className="text-parchment-400 text-xs mt-0.5">
                                 {new Date(r.createdAt).toLocaleString("zh-CN")}
                               </p>
                             </div>
@@ -322,12 +322,12 @@ export default function AccountPage() {
                                 setAnonymousReadings(prev => prev.filter(x => x.sessionId !== r.sessionId))
                                 toast.success(t("common.deleted"))
                               }}
-                              className="w-6 h-6 rounded-full flex items-center justify-center text-white/15 hover:text-red-400 hover:bg-red-400/10 transition-all flex-shrink-0"
+                              className="w-6 h-6 rounded-full flex items-center justify-center text-parchment-400 hover:text-red-400 hover:bg-red-400/10 transition-all flex-shrink-0"
                             >
                               ✕
                             </button>
                             <Link href={`/reading/${r.sessionId}`} className="flex-shrink-0">
-                              <ChevronRight size={14} className="text-white/20 group-hover:text-gold" />
+                              <ChevronRight size={14} className="text-parchment-400 group-hover:text-gold" />
                             </Link>
                           </div>
                         </div>
@@ -338,9 +338,9 @@ export default function AccountPage() {
 
                 {/* Empty state */}
                 {readings.length === 0 && anonymousReadings.length === 0 && (
-                  <div className="card-glass p-12 text-center">
-                    <ScrollText size={36} className="mx-auto mb-3 text-white/10" />
-                    <p className="text-white/30 text-sm">{t("account.noReports")}</p>
+                  <div className="card-solid p-12 text-center">
+                    <ScrollText size={36} className="mx-auto mb-3 text-parchment-400" />
+                    <p className="text-parchment-400 text-sm">{t("account.noReports")}</p>
                   </div>
                 )}
               </div>
@@ -351,9 +351,9 @@ export default function AccountPage() {
               <div>
                 <h2 className="font-serif text-lg text-gold mb-4">{t("account.myOrders")}</h2>
                 {orders.length === 0 ? (
-                  <div className="card-glass p-12 text-center">
-                    <ShoppingBag size={36} className="mx-auto mb-3 text-white/10" />
-                    <p className="text-white/30 text-sm">{t("account.noOrders")}</p>
+                  <div className="card-solid p-12 text-center">
+                    <ShoppingBag size={36} className="mx-auto mb-3 text-parchment-400" />
+                    <p className="text-parchment-400 text-sm">{t("account.noOrders")}</p>
                     <Link href="/shop" className="text-gold text-xs mt-2 hover:underline">{t("account.browseShop")}</Link>
                   </div>
                 ) : (
@@ -367,22 +367,22 @@ export default function AccountPage() {
               <div>
                 <h2 className="font-serif text-lg text-gold mb-4">{t("account.myFavorites")}</h2>
                 {favorites.length === 0 ? (
-                  <div className="card-glass p-12 text-center">
-                    <Heart size={36} className="mx-auto mb-3 text-white/10" />
-                    <p className="text-white/30 text-sm">{t("account.noFavorites")}</p>
+                  <div className="card-solid p-12 text-center">
+                    <Heart size={36} className="mx-auto mb-3 text-parchment-400" />
+                    <p className="text-parchment-400 text-sm">{t("account.noFavorites")}</p>
                     <Link href="/shop" className="text-gold text-xs mt-2 hover:underline">{t("account.browseShopAlt")}</Link>
                   </div>
                 ) : (
                   <div className="grid sm:grid-cols-2 gap-3">
                     {favorites.map(p => (
                       <Link key={p.id} href={`/shop/${p.id}`}
-                        className="card-glass p-4 hover:border-gold/30 transition-all group">
+                        className="card-solid p-4 hover:border-gold/30 transition-all group">
                         <div className="flex items-center gap-3">
                           <div className="w-12 h-12 rounded-lg bg-gold/10 flex items-center justify-center text-xl flex-shrink-0">
                             🔮
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-white/70 text-sm truncate">{p.name}</p>
+                            <p className="text-parchment-300 text-sm truncate">{p.name}</p>
                             <p className="text-gold text-sm font-bold">{getProductPrice(p, region).symbol}{getProductPrice(p, region).price}</p>
                           </div>
                         </div>
@@ -408,7 +408,7 @@ export default function AccountPage() {
                 premium_yearly:   { label: t("membership.yearly"), color: "text-gold", bg: "bg-gold/10 border-gold/30" },
                 premium_monthly:  { label: t("membership.monthly"), color: "text-blue-400", bg: "bg-blue-400/10 border-blue-400/30" },
                 trial:            { label: t("membership.trial"), color: "text-purple-400", bg: "bg-purple-400/10 border-purple-400/30" },
-                free:             { label: t("membership.free"), color: "text-white/40", bg: "bg-white/5 border-white/10" },
+                free:             { label: t("membership.free"), color: "text-parchment-400", bg: "bg-white/[0.04] border-white/[0.06]" },
               }
               const tierInfo = TIER_LABELS[tier || "free"] || TIER_LABELS.free
 
@@ -417,12 +417,12 @@ export default function AccountPage() {
                   <h2 className="font-serif text-lg text-gold mb-4">{t("account.subManagement")}</h2>
 
                   {/* Current plan card */}
-                  <div className="card-glass p-6 mb-4">
+                  <div className="card-solid p-6 mb-4">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <Crown size={24} className={isPremium ? "text-gold" : "text-white/20"} />
+                        <Crown size={24} className={isPremium ? "text-gold" : "text-parchment-400"} />
                         <div>
-                          <p className="text-white/80 font-medium">{t("account.fateOSMember")}</p>
+                          <p className="text-parchment-200 font-medium">{t("account.fateOSMember")}</p>
                         </div>
                       </div>
                       <span className={`text-xs font-medium px-3 py-1 rounded-full border ${tierInfo.bg} ${tierInfo.color}`}>
@@ -434,7 +434,7 @@ export default function AccountPage() {
                     {isFounder ? (
                       <div className="bg-amber-400/5 border border-amber-400/20 rounded-xl p-3 mb-4">
                         <p className="text-amber-400 text-sm font-medium">{t("account.permanent")}</p>
-                        <p className="text-white/30 text-xs mt-1">{t("account.founderLifetime")}</p>
+                        <p className="text-parchment-400 text-xs mt-1">{t("account.founderLifetime")}</p>
                       </div>
                     ) : expiresAt ? (
                       <div className={`rounded-xl p-3 mb-4 ${
@@ -442,12 +442,12 @@ export default function AccountPage() {
                           ? "bg-red-500/5 border border-red-500/20"
                           : (daysLeft !== null && daysLeft <= 7)
                             ? "bg-orange-500/5 border border-orange-500/20"
-                            : "bg-white/5 border border-white/10"
+                            : "bg-white/[0.04] border border-white/[0.06]"
                       }`}>
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-white/60 text-xs">{t("account.expiresAt")}</p>
-                            <p className="text-white/80 text-sm mt-0.5">{expiresAt.toLocaleDateString("zh-CN")}</p>
+                            <p className="text-parchment-400 text-xs">{t("account.expiresAt")}</p>
+                            <p className="text-parchment-200 text-sm mt-0.5">{expiresAt.toLocaleDateString("zh-CN")}</p>
                           </div>
                           <div className="text-right">
                             {isExpired ? (
@@ -457,20 +457,20 @@ export default function AccountPage() {
                                 <p className={`text-2xl font-bold ${daysLeft !== null && daysLeft <= 7 ? "text-orange-400" : "text-gold"}`}>
                                   {daysLeft}
                                 </p>
-                                <p className="text-white/40 text-[10px]">{t("account.daysLeft")}</p>
+                                <p className="text-parchment-400 text-xs">{t("account.daysLeft")}</p>
                               </>
                             )}
                           </div>
                         </div>
                       </div>
                     ) : (
-                      <div className="bg-white/5 border border-white/10 rounded-xl p-3 mb-4">
-                        <p className="text-white/40 text-sm">{t("account.upgradeDesc")}</p>
+                      <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl p-3 mb-4">
+                        <p className="text-parchment-400 text-sm">{t("account.upgradeDesc")}</p>
                       </div>
                     )}
 
                     {/* Benefits */}
-                    <div className="space-y-2 text-sm text-white/50 mb-6">
+                    <div className="space-y-2 text-sm text-parchment-400 mb-6">
                       <p className="flex items-center gap-2"><span className="text-gold">✓</span> {t("account.unlimited")}</p>
                       <p className="flex items-center gap-2"><span className="text-gold">✓</span> {t("account.annualPlan")}</p>
                       <p className="flex items-center gap-2"><span className="text-gold">✓</span> {t("account.memberDiscount2")}</p>
@@ -478,20 +478,20 @@ export default function AccountPage() {
                       <p className="flex items-center gap-2"><span className="text-gold">✓</span> {t("account.multiProfile")}</p>
                     </div>
 
-                    <Link href="/pricing" className="btn-gold inline-flex items-center gap-2 text-sm">
+                    <Link href="/pricing" className="btn-primary inline-flex items-center gap-2 text-sm">
                       {isPremium ? t("account.manageSub") : t("account.upgrade")}
                     </Link>
                   </div>
 
                   {/* Coupon balance */}
                   {user.shop_coupon_balance > 0 && (
-                    <div className="card-glass p-5">
+                    <div className="card-solid p-5">
                       <div className="flex items-center gap-2 mb-2">
                         <Ticket size={16} className="text-gold" />
-                        <span className="text-white/60 text-sm">{t("account.couponBalance2")}</span>
+                        <span className="text-parchment-400 text-sm">{t("account.couponBalance2")}</span>
                       </div>
                       <p className="text-gold text-2xl font-bold">{formatCouponBalance(user.shop_coupon_balance, region)}</p>
-                      <p className="text-white/20 text-xs mt-1">{t("account.couponUseHint")}</p>
+                      <p className="text-parchment-400 text-xs mt-1">{t("account.couponUseHint")}</p>
                     </div>
                   )}
                 </div>
@@ -539,7 +539,7 @@ function OrderList({ orders, statusLabels, t }: {
             className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
               filter === f.key
                 ? "bg-gold/15 text-gold border border-gold/30"
-                : "bg-white/[0.04] text-white/40 border border-white/[0.08] hover:text-white/60"
+                : "bg-white/[0.04] text-parchment-400 border border-white/[0.08] hover:text-parchment-400"
             }`}
           >
             {f.label}
@@ -549,30 +549,30 @@ function OrderList({ orders, statusLabels, t }: {
 
       {/* Order list */}
       {filtered.length === 0 ? (
-        <div className="card-glass p-8 text-center">
-          <p className="text-white/30 text-sm">{t("account.noOrders")}</p>
+        <div className="card-solid p-8 text-center">
+          <p className="text-parchment-400 text-sm">{t("account.noOrders")}</p>
         </div>
       ) : (
         <div className="space-y-3">
           {filtered.map(o => {
-            const status = statusLabels[o.status] || { label: o.status, color: "text-white/40" }
+            const status = statusLabels[o.status] || { label: o.status, color: "text-parchment-400" }
             return (
               <Link
                 key={o.id}
                 href={`/account/orders/${o.id}`}
-                className="block card-glass p-4 hover:border-gold/30 transition-all group"
+                className="block card-solid p-4 hover:border-gold/30 transition-all group"
               >
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-white/50 text-xs font-mono">{o.order_no}</span>
+                  <span className="text-parchment-400 text-xs font-mono">{o.order_no}</span>
                   <span className={`text-xs font-medium ${status.color}`}>{status.label}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-white/40 text-xs">
+                  <span className="text-parchment-400 text-xs">
                     {o.item_count} {t("account.itemsUnit")} · {new Date(o.created_at).toLocaleDateString("zh-CN")}
                   </span>
                   <div className="flex items-center gap-2">
                     <span className="text-gold font-bold">¥{o.total_cny}</span>
-                    <ChevronRight size={14} className="text-white/20 group-hover:text-gold transition-colors" />
+                    <ChevronRight size={14} className="text-parchment-400 group-hover:text-gold transition-colors" />
                   </div>
                 </div>
               </Link>

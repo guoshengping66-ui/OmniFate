@@ -249,7 +249,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
     <div className="max-w-lg mx-auto space-y-8">
       {/* ═══ 主卡片 ═══ */}
       <div
-        className="card-glass-elevated p-8 text-center relative overflow-hidden anim-scale-in"
+        className="card-solid-elevated p-8 text-center relative overflow-hidden anim-scale-in"
         role="article"
         aria-label={`${code} — ${personality.title}`}
       >
@@ -285,7 +285,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
           </div>
 
           <p
-            className="text-white/85 text-xl font-serif mt-3 tracking-wide anim-slide-up"
+            className="text-parchment-200 text-xl font-serif mt-3 tracking-wide anim-slide-up"
             style={{ animationDelay: "0.4s" }}
           >
             {personality.emoji} {personality.title}
@@ -295,7 +295,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
 
       {/* ═══ 四维雷达图 ═══ */}
       <div
-        className="card-glass p-6 anim-slide-up"
+        className="card-solid p-6 anim-slide-up"
         style={{ animationDelay: "0.5s" }}
       >
         <div className="section-heading justify-center">
@@ -336,7 +336,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <span className="text-base">{dim.icon}</span>
-                    <span className="text-sm font-medium text-white/80">{axisName}</span>
+                    <span className="text-sm font-medium text-parchment-200">{axisName}</span>
                   </div>
                   <span className="text-sm font-bold text-gold">{val}%</span>
                 </div>
@@ -345,10 +345,10 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
                   <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-gold/10 text-gold border border-gold/25">
                     {tag}
                   </span>
-                  <span className="text-xs text-white/40">{poleName}</span>
+                  <span className="text-xs text-parchment-400">{poleName}</span>
                 </div>
                 {/* 描述 */}
-                <p className="text-[13px] text-white/60 leading-relaxed">{desc}</p>
+                <p className="text-[13px] text-parchment-400 leading-relaxed">{desc}</p>
               </div>
             </div>
           )
@@ -369,7 +369,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
         <p className="relative text-gold text-xl md:text-2xl font-serif italic leading-relaxed mb-2">
           &ldquo;{personality.quote}&rdquo;
         </p>
-        <p className="relative text-white/40 text-sm max-w-md mx-auto leading-relaxed">
+        <p className="relative text-parchment-400 text-sm max-w-md mx-auto leading-relaxed">
           —— {personality.quoteExplain}
         </p>
       </div>
@@ -379,25 +379,25 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
       {/* ═══ 精神状态诊断 + 优化指南 并排 ═══ */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div
-          className="card-glass p-6 anim-slide-up"
+          className="card-solid p-6 anim-slide-up"
           style={{ animationDelay: "0.7s" }}
         >
-          <h3 className="text-white/65 text-xs font-medium uppercase tracking-wider mb-3 flex items-center gap-1.5">
+          <h3 className="text-parchment-300 text-xs font-medium uppercase tracking-wider mb-3 flex items-center gap-1.5">
             🧠 {t("am16.diagnosis")}
           </h3>
-          <p className="text-white/70 text-[15px] leading-relaxed">
+          <p className="text-parchment-300 text-[15px] leading-relaxed">
             <HighlightCrazy text={personality.diagnosis} />
           </p>
         </div>
 
         <div
-          className="card-glass p-6 anim-slide-up"
+          className="card-solid p-6 anim-slide-up"
           style={{ animationDelay: "0.8s" }}
         >
-          <h3 className="text-white/65 text-xs font-medium uppercase tracking-wider mb-3 flex items-center gap-1.5">
+          <h3 className="text-parchment-300 text-xs font-medium uppercase tracking-wider mb-3 flex items-center gap-1.5">
             🧭 {t("am16.advice")}
           </h3>
-          <p className="text-white/70 text-[15px] leading-relaxed">
+          <p className="text-parchment-300 text-[15px] leading-relaxed">
             <HighlightCrazy text={personality.advice} />
           </p>
         </div>
@@ -409,7 +409,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
         style={{ animationDelay: "0.9s" }}
       >
         {/* Match 卡片 */}
-        <div className="card-glass border-emerald-500/20 p-4 hover:border-emerald-500/30 transition-all duration-300">
+        <div className="card-solid border-emerald-500/20 p-4 hover:border-emerald-500/30 transition-all duration-300">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-7 h-7 rounded-full bg-emerald-500/10 flex items-center justify-center">
               <Heart size={13} className="text-emerald-400" />
@@ -418,16 +418,16 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
           </div>
           <div className="space-y-1.5">
             {compatNames.map((item) => item && (
-              <div key={item.code} className="flex items-center gap-2 hover:bg-white/5 transition-colors rounded-lg px-2 py-1.5 -mx-2">
+              <div key={item.code} className="flex items-center gap-2 hover:bg-white/[0.04] transition-colors rounded-lg px-2 py-1.5 -mx-2">
                 <span className="text-sm">{item.emoji}</span>
-                <span className="text-white/70 text-xs leading-tight">{item.title}</span>
+                <span className="text-parchment-300 text-xs leading-tight">{item.title}</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Avoid 卡片 */}
-        <div className="card-glass border-red-500/20 p-4 hover:border-red-500/30 transition-all duration-300">
+        <div className="card-solid border-red-500/20 p-4 hover:border-red-500/30 transition-all duration-300">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-7 h-7 rounded-full bg-red-500/10 flex items-center justify-center">
               <Skull size={13} className="text-red-400" />
@@ -436,9 +436,9 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
           </div>
           <div className="space-y-1.5">
             {clashNames.map((item) => item && (
-              <div key={item.code} className="flex items-center gap-2 hover:bg-white/5 transition-colors rounded-lg px-2 py-1.5 -mx-2">
+              <div key={item.code} className="flex items-center gap-2 hover:bg-white/[0.04] transition-colors rounded-lg px-2 py-1.5 -mx-2">
                 <span className="text-sm">{item.emoji}</span>
-                <span className="text-white/70 text-xs leading-tight">{item.title}</span>
+                <span className="text-parchment-300 text-xs leading-tight">{item.title}</span>
               </div>
             ))}
           </div>
@@ -455,25 +455,25 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
           <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-gold/0 via-gold/40 to-gold/0 animate-[shimmer_3s_ease-in-out_infinite]" />
         </div>
 
-        <div className="relative card-glass-elevated p-6 m-[1px] rounded-2xl">
+        <div className="relative card-solid-elevated p-6 m-[1px] rounded-2xl">
           <div className="text-center mb-4">
             <div className="inline-flex items-center gap-2 text-gold/70 text-xs mb-2">
               <Wand2 size={14} />
               <span>{isZh ? "合并进完整画像" : "Merge into full profile"}</span>
             </div>
-            <p className="text-white/60 text-sm leading-relaxed mb-3">
+            <p className="text-parchment-400 text-sm leading-relaxed mb-3">
               {isZh
                 ? "AM16 只解释你的行为反应模式。完整报告会把它与八字、紫微、星盘和当下问题合并，输出更可执行的年度趋势与行动建议。"
                 : "AM16 explains your behavioral reaction pattern. The full report merges it with Bazi, Ziwei, astrology, and your current question for sharper timing and action guidance."}
             </p>
-            <p className="text-white/40 text-xs">
+            <p className="text-parchment-400 text-xs">
               {isZh ? "适合已经完成测验、想获得完整判断的人。" : "Best after the quiz, when you want a complete reading instead of a standalone type."}
             </p>
           </div>
 
           <Link href="/reading/new?source=am16&intent=full" className="block relative group">
             <button
-              className="w-full btn-gold text-sm flex items-center justify-center gap-2 relative z-10 hover:scale-[1.03] active:scale-[0.97] transition-transform"
+              className="w-full btn-primary text-sm flex items-center justify-center gap-2 relative z-10 hover:scale-[1.03] active:scale-[0.97] transition-transform"
             >
               🔮 {t("am16.ctaAction")}
               <span className="text-xs opacity-70">· 100 ✨</span>
@@ -501,13 +501,13 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
           <Download size={14} />
           {downloading ? t("am16.saving") : t("am16.saveImage")}
           {/* ✨ 动效提示 */}
-          <span className="absolute -top-1 -right-1 text-[10px] animate-[sparkle_2s_ease-in-out_infinite]">✨</span>
+          <span className="absolute -top-1 -right-1 text-xs animate-[sparkle_2s_ease-in-out_infinite]">✨</span>
         </button>
 
         {/* 分享按钮 */}
         <button
           onClick={() => setShareOpen(true)}
-          className="flex-1 btn-gold-outline text-sm flex items-center justify-center gap-2"
+          className="flex-1 btn-secondary text-sm flex items-center justify-center gap-2"
         >
           <Share2 size={14} />
           {t("am16.share")}
@@ -517,10 +517,10 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
       {/* 邀请码 */}
       {user && (
         <div className="text-center">
-          <p className="text-white/25 text-[11px]">
+          <p className="text-parchment-400 text-xs">
             {t("am16.inviteCode")}: <span className="text-gold/50">{user.referral_code}</span>
           </p>
-          <p className="text-white/20 text-[10px] mt-1">
+          <p className="text-parchment-400 text-xs mt-1">
             {t("am16.inviteBonus")}
           </p>
         </div>
@@ -530,7 +530,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
       <div className="text-center pt-2 space-y-3">
         <button
           onClick={onRestart}
-          className="text-white/30 text-xs hover:text-gold/60 transition-colors inline-flex items-center gap-1"
+          className="text-parchment-400 text-xs hover:text-gold/60 transition-colors inline-flex items-center gap-1"
         >
           <RefreshCw size={12} />
           {t("am16.restart")}
@@ -538,7 +538,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
         <div>
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="text-white/20 text-[11px] hover:text-gold/40 transition-colors"
+            className="text-parchment-400 text-xs hover:text-gold/40 transition-colors"
           >
             ↑ {t("am16.backToTop")}
           </button>
@@ -553,50 +553,50 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
             className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm anim-fade-in"
           />
           <div
-            className="fixed bottom-0 left-0 right-0 z-50 bg-ink border-t border-gold/20 rounded-t-3xl p-6 max-w-lg mx-auto anim-slide-in-up"
+            className="fixed bottom-0 left-0 right-0 z-50 bg-cosmos-950 border-t border-gold/20 rounded-t-3xl p-6 max-w-lg mx-auto anim-slide-in-up"
             style={{ paddingBottom: "max(2.5rem, env(safe-area-inset-bottom, 2.5rem))" }}
             role="dialog"
             aria-label={t("am16.shareTitle")}
           >
             <div className="flex items-center justify-between mb-6">
               <h3 className="font-serif text-lg text-gold">{t("am16.shareTitle")}</h3>
-              <button onClick={() => setShareOpen(false)} className="text-white/40 hover:text-white transition-colors">
+              <button onClick={() => setShareOpen(false)} className="text-parchment-400 hover:text-white transition-colors">
                 <X size={20} />
               </button>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
               <button onClick={handleCopyLink}
-                className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 hover:bg-gold/10 border border-white/10 hover:border-gold/30 transition-all group">
+                className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/[0.04] hover:bg-gold/10 border border-white/[0.06] hover:border-gold/30 transition-all group">
                 <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
-                  {copied ? <Check size={18} className="text-green-400" /> : <Copy size={18} className="text-white/60" />}
+                  {copied ? <Check size={18} className="text-green-400" /> : <Copy size={18} className="text-parchment-400" />}
                 </div>
-                <span className="text-[10px] text-white/40">{copied ? t("am16.copied") : t("am16.copyLink")}</span>
+                <span className="text-xs text-parchment-400">{copied ? t("am16.copied") : t("am16.copyLink")}</span>
               </button>
 
               {typeof navigator !== "undefined" && !!navigator.share && (
                 <button onClick={handleShare}
-                  className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 hover:bg-gold/10 border border-white/10 hover:border-gold/30 transition-all group">
+                  className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/[0.04] hover:bg-gold/10 border border-white/[0.06] hover:border-gold/30 transition-all group">
                   <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
-                    <Share2 size={18} className="text-white/60" />
+                    <Share2 size={18} className="text-parchment-400" />
                   </div>
-                  <span className="text-[10px] text-white/40">{t("am16.moreShare")}</span>
+                  <span className="text-xs text-parchment-400">{t("am16.moreShare")}</span>
                 </button>
               )}
 
               <button onClick={handleDownload}
-                className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 hover:bg-gold/10 border border-white/10 hover:border-gold/30 transition-all group">
+                className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/[0.04] hover:bg-gold/10 border border-white/[0.06] hover:border-gold/30 transition-all group">
                 <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
-                  <Download size={18} className="text-white/60" />
+                  <Download size={18} className="text-parchment-400" />
                 </div>
-                <span className="text-[10px] text-white/40">{t("am16.saveImage")}</span>
+                <span className="text-xs text-parchment-400">{t("am16.saveImage")}</span>
               </button>
 
-              <div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 border border-white/10 transition-all group opacity-60 cursor-not-allowed">
+              <div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/[0.04] border border-white/[0.06] transition-all group opacity-60 cursor-not-allowed">
                 <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
                   <span className="text-sm">💚</span>
                 </div>
-                <span className="text-[10px] text-white/40">{t("am16.wechat")}</span>
+                <span className="text-xs text-parchment-400">{t("am16.wechat")}</span>
               </div>
             </div>
 
@@ -607,7 +607,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
                   <Gift size={16} className="text-gold" />
                   <span className="text-gold text-sm font-medium">{t("am16.inviteFriends")}</span>
                 </div>
-                <p className="text-white/40 text-xs mb-3">{t("am16.inviteDesc")}</p>
+                <p className="text-parchment-400 text-xs mb-3">{t("am16.inviteDesc")}</p>
                 <button
                   onClick={handleCopyReferral}
                   className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-gold/10 border border-gold/30 text-gold text-xs hover:bg-gold/20 transition-all"
@@ -619,11 +619,11 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
 
             {/* 分享预览 */}
             <div className="bg-gradient-to-br from-gold/10 via-ink-light to-ink rounded-xl p-4 border border-gold/20">
-              <p className="text-white/40 text-xs mb-1">{t("am16.sharePreview")}</p>
+              <p className="text-parchment-400 text-xs mb-1">{t("am16.sharePreview")}</p>
               <p className="text-gold text-sm font-medium">
                 {personality.emoji} {code} — {personality.title}
               </p>
-              <p className="text-white/30 text-xs mt-1">
+              <p className="text-parchment-400 text-xs mt-1">
                 {t("am16.sharePreviewText")}
               </p>
             </div>

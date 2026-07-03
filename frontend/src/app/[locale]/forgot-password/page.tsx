@@ -113,10 +113,10 @@ export default function ForgotPasswordPage() {
         <div className="w-full max-w-md text-center">
           <CheckCircle className="text-green-400 mx-auto mb-4" size={48} />
           <h1 className="text-2xl font-serif font-bold text-gold mb-2">{t("auth.resetSuccess")}</h1>
-          <p className="text-white/40 text-sm mb-6">{t("auth.resetSuccessDesc")}</p>
+          <p className="text-parchment-400 text-sm mb-6">{t("auth.resetSuccessDesc")}</p>
           <button
             onClick={() => router.push(localeHref("/login"))}
-            className="btn-gold px-8 py-3"
+            className="btn-primary px-8 py-3"
           >
             {t("auth.goToLogin")}
           </button>
@@ -133,12 +133,12 @@ export default function ForgotPasswordPage() {
           <div className="text-center mb-8">
             <KeyRound className="text-gold mx-auto mb-3" size={28} />
             <h1 className="text-2xl font-serif font-bold text-gold">{t("auth.resetPassword")}</h1>
-            <p className="text-white/40 text-sm mt-1">
-              {t("forgotPassword.verifyCodeSent")} <span className="text-white/60">{email}</span>
+            <p className="text-parchment-400 text-sm mt-1">
+              {t("forgotPassword.verifyCodeSent")} <span className="text-parchment-400">{email}</span>
             </p>
           </div>
 
-          <form onSubmit={handleReset} className="card-glass p-6 md:p-8 space-y-5">
+          <form onSubmit={handleReset} className="card-solid p-6 md:p-8 space-y-5">
             <div>
               <label className="label">{t("forgotPassword.enterCode")}</label>
               <input
@@ -166,7 +166,7 @@ export default function ForgotPasswordPage() {
                 <button
                   type="button"
                   onClick={() => setShowPw(!showPw)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-parchment-400 hover:text-parchment-400"
                 >
                   {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -188,7 +188,7 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={resetLoading || code.length !== 6}
-              className="btn-gold w-full flex items-center justify-center gap-2 py-3"
+              className="btn-primary w-full flex items-center justify-center gap-2 py-3"
             >
               {resetLoading ? (
                 <><Loader2 size={18} className="animate-spin" /> {t("forgotPassword.resetting")}</>
@@ -208,7 +208,7 @@ export default function ForgotPasswordPage() {
               </button>
             </div>
 
-            <p className="text-center text-white/40 text-sm">
+            <p className="text-center text-parchment-400 text-sm">
               <button type="button" onClick={() => setStep("email")} className="text-gold hover:underline">
                 {t("forgotPassword.changeEmail")}
               </button>
@@ -226,10 +226,10 @@ export default function ForgotPasswordPage() {
         <div className="text-center mb-8">
           <Mail className="text-gold mx-auto mb-3" size={28} />
           <h1 className="text-2xl font-serif font-bold text-gold">{t("auth.forgotPassword")}</h1>
-          <p className="text-white/40 text-sm mt-1">{t("auth.forgotPasswordDesc")}</p>
+          <p className="text-parchment-400 text-sm mt-1">{t("auth.forgotPasswordDesc")}</p>
         </div>
 
-        <form onSubmit={handleSendCode} className="card-glass p-6 md:p-8 space-y-5">
+        <form onSubmit={handleSendCode} className="card-solid p-6 md:p-8 space-y-5">
           <div>
             <label className="label">{t("auth.email")}</label>
             <input
@@ -245,12 +245,12 @@ export default function ForgotPasswordPage() {
           <button
             type="submit"
             disabled={loading}
-            className="btn-gold w-full flex items-center justify-center gap-2 py-3"
+            className="btn-primary w-full flex items-center justify-center gap-2 py-3"
           >
             {loading ? <><Loader2 size={18} className="animate-spin" /> {t("auth.sending")}</> : t("forgotPassword.sendingCode")}
           </button>
 
-          <p className="text-center text-white/40 text-sm">
+          <p className="text-center text-parchment-400 text-sm">
             <Link href="/login" className="text-gold hover:underline">{t("auth.backToLogin")}</Link>
           </p>
         </form>

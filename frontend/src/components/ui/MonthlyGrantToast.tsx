@@ -43,7 +43,7 @@ export function MonthlyGrantToast() {
                   </div>
                   <div>
                     <p className="text-gold font-medium text-sm">{t("monthlyGrant.title")}</p>
-                    <p className="text-white/40 text-xs mt-0.5">
+                    <p className="text-parchment-400 text-xs mt-0.5">
                       {t("monthlyGrant.balance").replace("{balance}", String(balance))}
                     </p>
                   </div>

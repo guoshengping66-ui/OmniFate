@@ -99,7 +99,7 @@ export default function ReportPreview() {
               {t("report.title")}
             </span>
           </h2>
-          <p className="text-white/30 text-sm max-w-lg mx-auto">{t("report.desc")}</p>
+          <p className="text-parchment-400 text-sm max-w-lg mx-auto">{t("report.desc")}</p>
         </div>
 
         {/* Report cards — real 五维合参 content */}
@@ -118,7 +118,7 @@ export default function ReportPreview() {
           >
             <div className="flex items-center gap-2 mb-4">
               <div className="w-1 h-4 rounded-full bg-[#C5A880]" />
-              <span className="text-[10px] text-white/30 tracking-widest uppercase">
+              <span className="text-xs text-parchment-400 tracking-widest uppercase">
                 {locale === "zh" ? "五维数据" : "Five Dimensions"}
               </span>
             </div>
@@ -126,7 +126,7 @@ export default function ReportPreview() {
               {DIMENSIONS.map((dim) => (
                 <div key={dim.key} className="flex items-center gap-3">
                   <div className="w-2 h-2 rounded-full" style={{ background: dim.color }} />
-                  <span className="text-[11px] text-white/40 flex-1">
+                  <span className="text-xs text-parchment-400 flex-1">
                     {t(`report.${dim.key}`)}
                   </span>
                   {/* Progress bar */}
@@ -140,7 +140,7 @@ export default function ReportPreview() {
                       }}
                     />
                   </div>
-                  <span className="text-[11px] font-medium" style={{ color: dim.color }}>
+                  <span className="text-xs font-medium" style={{ color: dim.color }}>
                     {dim.value}
                   </span>
                 </div>
@@ -159,7 +159,7 @@ export default function ReportPreview() {
           >
             <div className="flex items-center gap-2 mb-4">
               <div className="w-1 h-4 rounded-full bg-[#C9A84C]" />
-              <span className="text-[10px] text-white/30 tracking-widest uppercase">
+              <span className="text-xs text-parchment-400 tracking-widest uppercase">
                 {locale === "zh" ? "行为人格" : "AM16 Type"}
               </span>
             </div>
@@ -179,7 +179,7 @@ export default function ReportPreview() {
               </div>
             </div>
             <div className="text-center mt-2">
-              <div className="text-[#C9A84C]/60 text-[10px] tracking-wider">
+              <div className="text-[#C9A84C]/60 text-xs tracking-wider">
                 {locale === "zh" ? "AM16 行为分类系统" : "AM16 Behavioral Classification"}
               </div>
             </div>
@@ -196,7 +196,7 @@ export default function ReportPreview() {
           >
             <div className="flex items-center gap-2 mb-4">
               <div className="w-1 h-4 rounded-full bg-[#7B93C9]" />
-              <span className="text-[10px] text-white/30 tracking-widest uppercase">
+              <span className="text-xs text-parchment-400 tracking-widest uppercase">
                 {locale === "zh" ? "合参维度" : "Cross-Validation"}
               </span>
             </div>
@@ -234,7 +234,7 @@ export default function ReportPreview() {
           className="text-center mt-10 transition-all duration-1000 delay-700"
           style={{ opacity: isVisible ? 1 : 0 }}
         >
-          <p className="text-white/15 text-[10px] tracking-wider">
+          <p className="text-parchment-400 text-xs tracking-wider">
             {t("report.confidence")}
           </p>
         </div>

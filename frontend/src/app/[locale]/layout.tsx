@@ -20,7 +20,7 @@ import { safeJsonLd } from "@/utils/safeJsonLd"
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#C9A84C",
+  themeColor: "#020617",
 }
 
 export async function generateStaticParams() {
@@ -119,9 +119,19 @@ export default async function LocaleLayout({
   return (
     <html lang={validLocale === "zh" ? "zh-CN" : "en"} translate="no">
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://fonts.font.im" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://api.khanfate.com" />
         <link rel="preconnect" href="https://checkout.stripe.com" crossOrigin="anonymous" />
+        {/* Serif display font for Chinese headings */}
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&display=swap"
+          media="print"
+        />
+        <noscript>
+          <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&display=swap" />
+        </noscript>
         {/* Async font loading: non-blocking via media swap trick */}
         <link
           rel="stylesheet"
@@ -301,7 +311,7 @@ try{
           <Toaster
             position="top-center"
             toastOptions={{
-              style: { background: "#2D1B4E", color: "#E8CB7A", border: "1px solid #C9A84C44" },
+              style: { background: "#1C1814", color: "#E8E3D4", border: "1px solid rgba(201,168,76,0.2)" },
             }}
           />
         </AppProviders>

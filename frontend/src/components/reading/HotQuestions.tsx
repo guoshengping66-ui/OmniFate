@@ -34,7 +34,7 @@ export function HotQuestions({ value, onChange, intent }: Props) {
 
   return (
     <div>
-      <label className="label text-sm text-white/50 mb-3">
+      <label className="label text-sm text-parchment-400 mb-3">
         {isRelationship ? t("new.hotQuestionsLabelRel") || t("new.hotQuestionsLabel") : t("new.hotQuestionsLabel")}
       </label>
       <div className="flex flex-wrap gap-2">
@@ -51,7 +51,7 @@ export function HotQuestions({ value, onChange, intent }: Props) {
               className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border transition-all
                 ${selected
                   ? "border-gold bg-gold/15 text-gold"
-                  : "border-white/15 text-white/40 hover:border-white/30 hover:text-white/60 hover:bg-white/5"}`}
+                  : "border-white/15 text-parchment-400 hover:border-white/30 hover:text-parchment-400 hover:bg-white/[0.04]"}`}
             >
               <span>{icon}</span>
               <span>{text}</span>
@@ -59,7 +59,7 @@ export function HotQuestions({ value, onChange, intent }: Props) {
           )
         })}
       </div>
-      <p className="text-white/20 text-xs mt-2">{t("new.hotQuestionsHint")}</p>
+      <p className="text-parchment-400 text-xs mt-2">{t("new.hotQuestionsHint")}</p>
     </div>
   )
 }

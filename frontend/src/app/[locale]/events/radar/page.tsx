@@ -73,42 +73,42 @@ export default function EventsRadarPage() {
 
         <div className="text-center mb-10">
           <h1 className="text-3xl font-serif font-bold text-gold mb-3">{t("radar.title")}</h1>
-          <p className="text-white/50 max-w-md mx-auto">
+          <p className="text-parchment-400 max-w-md mx-auto">
             {t("radar.desc")}
           </p>
         </div>
 
         {/* Energy Legend */}
-        <div className="card-glass p-4 mb-8">
+        <div className="card-solid p-4 mb-8">
           <div className="flex items-center justify-center gap-6 text-sm">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-blue-400" />
-              <span className="text-white/50">{t("radar.lowEnergy")}</span>
+              <span className="text-parchment-400">{t("radar.lowEnergy")}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-green-400" />
-              <span className="text-white/50">{t("radar.stable")}</span>
+              <span className="text-parchment-400">{t("radar.stable")}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-yellow-400" />
-              <span className="text-white/50">{t("radar.moderate")}</span>
+              <span className="text-parchment-400">{t("radar.moderate")}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-orange-400" />
-              <span className="text-white/50">{t("radar.highEnergy")}</span>
+              <span className="text-parchment-400">{t("radar.highEnergy")}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-red-400" />
-              <span className="text-white/50">{t("radar.extreme")}</span>
+              <span className="text-parchment-400">{t("radar.extreme")}</span>
             </div>
           </div>
         </div>
 
         {/* Events timeline */}
         {events.length === 0 ? (
-          <div className="card-glass p-12 text-center">
-            <Calendar size={48} className="text-white/20 mx-auto mb-4" />
-            <p className="text-white/40">{t("radar.noData")}</p>
+          <div className="card-solid p-12 text-center">
+            <Calendar size={48} className="text-parchment-400 mx-auto mb-4" />
+            <p className="text-parchment-400">{t("radar.noData")}</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -116,14 +116,14 @@ export default function EventsRadarPage() {
               <div
                 key={event.id}
                 onClick={() => setSelectedEvent(selectedEvent?.id === event.id ? null : event)}
-                className={`card-glass p-5 cursor-pointer transition-all hover:border-gold/30 ${
+                className={`card-solid p-5 cursor-pointer transition-all hover:border-gold/30 ${
                   selectedEvent?.id === event.id ? "border-gold/40" : ""
                 } ${event.is_dangerous ? "border-red-500/30" : ""}`}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-4">
                     <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                      event.is_dangerous ? "bg-red-500/20" : "bg-white/5"
+                      event.is_dangerous ? "bg-red-500/20" : "bg-white/[0.04]"
                     }`}>
                       {event.is_dangerous ? (
                         <AlertTriangle size={20} className="text-red-400" />
@@ -133,7 +133,7 @@ export default function EventsRadarPage() {
                     </div>
                     <div>
                       <p className="text-white font-medium">{event.title}</p>
-                      <p className="text-white/40 text-sm mt-1">
+                      <p className="text-parchment-400 text-sm mt-1">
                         {new Date(event.date).toLocaleDateString(undefined, {
                           month: "long",
                           day: "numeric",
@@ -147,18 +147,18 @@ export default function EventsRadarPage() {
                   </div>
                   <ArrowRight
                     size={16}
-                    className={`text-white/30 transition-transform ${
+                    className={`text-parchment-400 transition-transform ${
                       selectedEvent?.id === event.id ? "rotate-90" : ""
                     }`}
                   />
                 </div>
 
                 {selectedEvent?.id === event.id && (
-                  <div className="mt-4 pt-4 border-t border-white/10">
-                    <p className="text-white/60 text-sm mb-3">{event.description}</p>
-                    <div className="bg-white/5 rounded-lg p-3">
+                  <div className="mt-4 pt-4 border-t border-white/[0.06]">
+                    <p className="text-parchment-400 text-sm mb-3">{event.description}</p>
+                    <div className="bg-white/[0.04] rounded-lg p-3">
                       <p className="text-gold text-sm font-medium mb-1">{t("radar.tradingAdvice")}</p>
-                      <p className="text-white/50 text-sm">{event.trading_advice}</p>
+                      <p className="text-parchment-400 text-sm">{event.trading_advice}</p>
                     </div>
                   </div>
                 )}
@@ -169,11 +169,11 @@ export default function EventsRadarPage() {
 
         {/* CTA for non-premium */}
         {!user.is_premium && (
-          <div className="card-glass p-6 mt-8 text-center border-gold/20">
-            <p className="text-white/60 mb-4">
+          <div className="card-solid p-6 mt-8 text-center border-gold/20">
+            <p className="text-parchment-400 mb-4">
               {t("radar.upgradePrompt")}
             </p>
-            <Link href="/pricing" className="btn-gold-outline inline-flex items-center gap-2">
+            <Link href="/pricing" className="btn-secondary inline-flex items-center gap-2">
               {t("radar.viewBenefits")}
               <ArrowRight size={14} />
             </Link>

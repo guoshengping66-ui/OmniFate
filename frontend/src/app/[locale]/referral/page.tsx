@@ -98,30 +98,30 @@ export default function ReferralPage() {
 
         <div className="text-center mb-10">
           <h1 className="text-3xl font-serif font-bold text-gold mb-3">{t("referral.title")}</h1>
-          <p className="text-white/50 max-w-md mx-auto">
+          <p className="text-parchment-400 max-w-md mx-auto">
             {t("referral.desc")}
           </p>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-2 gap-4 mb-8">
-          <div className="card-glass p-4 text-center">
+          <div className="card-solid p-4 text-center">
             <Users size={20} className="text-gold mx-auto mb-2" />
             <p className="text-2xl font-bold text-white">{stats.invited_count}</p>
-            <p className="text-white/30 text-xs">{t("referral.invitedCount")}</p>
+            <p className="text-parchment-400 text-xs">{t("referral.invitedCount")}</p>
           </div>
-          <div className="card-glass p-4 text-center">
+          <div className="card-solid p-4 text-center">
             <Gift size={20} className="text-gold mx-auto mb-2" />
             <p className="text-2xl font-bold text-gold">{stats.rewards_earned}</p>
-            <p className="text-white/30 text-xs">{t("referral.totalStardust")}</p>
+            <p className="text-parchment-400 text-xs">{t("referral.totalStardust")}</p>
           </div>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
           {/* My Referral Code + Share */}
-          <div className="card-glass p-6">
+          <div className="card-solid p-6">
             <h2 className="font-serif text-lg text-gold mb-4">{t("referral.myCode")}</h2>
-            <div className="bg-white/5 rounded-xl p-4 mb-4">
+            <div className="bg-white/[0.04] rounded-xl p-4 mb-4">
               <p className="text-3xl font-mono font-bold text-center text-gold tracking-widest">
                 {code.code}
               </p>
@@ -130,7 +130,7 @@ export default function ReferralPage() {
             {/* Copy Link */}
             <button
               onClick={() => handleCopy(code.link)}
-              className="w-full btn-gold flex items-center justify-center gap-2 mb-3"
+              className="w-full btn-primary flex items-center justify-center gap-2 mb-3"
             >
               {copied ? <Check size={16} /> : <Copy size={16} />}
               {copied ? t("referral.copiedLink") : t("referral.copyLink")}
@@ -147,7 +147,7 @@ export default function ReferralPage() {
                 className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-green-500/10 border border-green-500/20 hover:bg-green-500/15 transition-all"
               >
                 <MessageCircle size={20} className="text-green-400" />
-                <span className="text-green-300 text-[10px]">{t("referral.wechatFriends")}</span>
+                <span className="text-green-300 text-xs">{t("referral.wechatFriends")}</span>
               </button>
 
               {/* WeChat Moments */}
@@ -159,7 +159,7 @@ export default function ReferralPage() {
                 className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-green-500/10 border border-green-500/20 hover:bg-green-500/15 transition-all"
               >
                 <Share2 size={20} className="text-green-400" />
-                <span className="text-green-300 text-[10px]">{t("referral.moments")}</span>
+                <span className="text-green-300 text-xs">{t("referral.moments")}</span>
               </button>
 
               {/* General Share / More */}
@@ -181,15 +181,15 @@ export default function ReferralPage() {
                 className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-gold/8 border border-gold/15 hover:bg-gold/12 transition-all"
               >
                 <ExternalLink size={20} className="text-gold" />
-                <span className="text-gold/70 text-[10px]">{t("referral.moreShare")}</span>
+                <span className="text-gold/70 text-xs">{t("referral.moreShare")}</span>
               </button>
             </div>
           </div>
 
           {/* Apply Referral Code */}
-          <div className="card-glass p-6">
+          <div className="card-solid p-6">
             <h2 className="font-serif text-lg text-gold mb-4">{t("referral.applyTitle")}</h2>
-            <p className="text-white/40 text-sm mb-4">
+            <p className="text-parchment-400 text-sm mb-4">
               {t("referral.applyDesc")}
             </p>
             <div className="flex gap-2">
@@ -204,7 +204,7 @@ export default function ReferralPage() {
               <button
                 onClick={handleApplyCode}
                 disabled={applying || !applyCode.trim()}
-                className="btn-gold-outline px-6"
+                className="btn-secondary px-6"
               >
                 {applying ? <Loader2 size={16} className="animate-spin" /> : t("referral.apply")}
               </button>
@@ -214,16 +214,16 @@ export default function ReferralPage() {
 
         {/* Rewards History */}
         {rewards.length > 0 && (
-          <div className="card-glass p-6 mt-6">
+          <div className="card-solid p-6 mt-6">
             <h2 className="font-serif text-lg text-gold mb-4">{t("referral.rewards")}</h2>
             <div className="space-y-3">
               {rewards.map((r) => (
                 <div key={r.id} className="flex items-center justify-between py-3 border-b border-white/5 last:border-0">
                   <div>
-                    <p className="text-white/60 text-sm">
+                    <p className="text-parchment-400 text-sm">
                       {t("referral.rewardItem").replace("{amount}", String(r.reward_amount))}
                     </p>
-                    <p className="text-white/20 text-xs mt-0.5">
+                    <p className="text-parchment-400 text-xs mt-0.5">
                       {new Date(r.created_at).toLocaleString("zh-CN")}
                     </p>
                   </div>

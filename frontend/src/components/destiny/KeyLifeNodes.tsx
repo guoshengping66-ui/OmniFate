@@ -19,7 +19,7 @@ function IndexBar({ label, value, maxVal, color }: { label: string; value: numbe
   const pct = (value / maxVal) * 100
   return (
     <div className="flex items-center gap-3 mb-2">
-      <span className="text-white/30 text-[10px] w-14 sm:w-16 flex-shrink-0 text-right">{label}</span>
+      <span className="text-parchment-400 text-xs w-14 sm:w-16 flex-shrink-0 text-right">{label}</span>
       <div className="flex-1 h-2 bg-white/[0.04] rounded-full overflow-hidden">
         <div
           className="h-full rounded-full transition-all duration-[1.5s] ease-out"
@@ -29,7 +29,7 @@ function IndexBar({ label, value, maxVal, color }: { label: string; value: numbe
           }}
         />
       </div>
-      <span className="text-[10px] font-mono w-6 text-right" style={{ color: `${color}aa` }}>
+      <span className="text-xs font-mono w-6 text-right" style={{ color: `${color}aa` }}>
         {value}
       </span>
     </div>
@@ -87,7 +87,7 @@ function NodeCard({
         >
           {/* 年份徽章 */}
           <div
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold tracking-wider mb-4"
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold tracking-wider mb-4"
             style={{
               background: `${node.color}12`,
               border: `1px solid ${node.color}22`,
@@ -106,7 +106,7 @@ function NodeCard({
           </h3>
 
           {/* 故事段落 */}
-          <p className="text-white/40 text-sm sm:text-[15px] leading-relaxed mb-5">
+          <p className="text-parchment-400 text-sm sm:text-[15px] leading-relaxed mb-5">
             {locale === "zh" ? node.aiZh : node.aiEn}
           </p>
 
@@ -143,7 +143,7 @@ function NodeCard({
             {(locale === "zh" ? node.keywords.zh : node.keywords.en).map((kw, i) => (
               <span
                 key={i}
-                className="px-3 py-1 rounded-full text-[10px] font-medium"
+                className="px-3 py-1 rounded-full text-xs font-medium"
                 style={{
                   background: `${node.color}10`,
                   border: `1px solid ${node.color}18`,
@@ -159,7 +159,7 @@ function NodeCard({
           <div className="pt-4 border-t border-white/5">
             <div className="flex items-start gap-2">
               <span className="text-lg leading-none mt-[-2px]" style={{ color: `${node.color}30` }}>"</span>
-              <p className="text-white/25 text-xs sm:text-[13px] leading-relaxed italic">
+              <p className="text-parchment-400 text-xs sm:text-[13px] leading-relaxed italic">
                 {locale === "zh"
                   ? `${node.labelZh}意味着命运齿轮的关键转向。三维指数显示此阶段${node.growthZh >= 4 ? "成长动能强劲" : "挑战与机遇并存"}，${node.opportunityZh >= 4 ? "机会窗口大开" : "需要耐心布局"}。`
                   : `${node.labelEn} marks a critical turn. Energy indices show ${node.growthEn >= 4 ? "strong growth momentum" : "balanced challenge and opportunity"} with ${node.opportunityEn >= 4 ? "wide-open opportunity windows" : "room for strategic planning"}.`}
@@ -242,7 +242,7 @@ export default function KeyLifeNodes() {
             </span>
           </h2>
 
-          <p className="text-white/30 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
+          <p className="text-parchment-400 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
             {locale === "zh"
               ? "每一个命运节点背后都有深层逻辑，以下是 AI 基于五维合参为你推演的关键转折"
               : "Each destiny node carries deep logic — below are AI-projected key turning points based on 5D synthesis"}
@@ -279,7 +279,7 @@ export default function KeyLifeNodes() {
           className="text-center mt-16 sm:mt-20 transition-all duration-1000 delay-500"
           style={{ opacity: isVisible ? 1 : 0 }}
         >
-          <p className="text-white/15 text-[11px] tracking-wider max-w-md mx-auto leading-relaxed">
+          <p className="text-parchment-400 text-xs tracking-wider max-w-md mx-auto leading-relaxed">
             {locale === "zh"
               ? "以上节点基于五维合参推演，实际人生轨迹受个人选择与环境影响"
               : "Waypoints derived from 5D synthesis — actual life trajectory influenced by personal choices and environment"}

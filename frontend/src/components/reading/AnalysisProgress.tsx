@@ -155,8 +155,8 @@ function StatusIcon({ status, running }: { status: AgentStatus; running: boolean
   if (status === "done") return <CheckCircle2 size={15} className="text-emerald-300" />
   if (status === "error") return <AlertCircle size={15} className="text-rose-300" />
   if (running) return <Loader2 size={15} className="text-gold animate-spin" />
-  if (status === "skipped") return <Circle size={15} className="text-white/25" />
-  return <Clock3 size={15} className="text-white/30" />
+  if (status === "skipped") return <Circle size={15} className="text-parchment-400" />
+  return <Clock3 size={15} className="text-parchment-400" />
 }
 
 function AnalysisProgressInner({
@@ -264,10 +264,10 @@ function AnalysisProgressInner({
     <div className="w-full max-w-3xl mx-auto space-y-5" aria-live="polite">
       <div className="text-center space-y-2">
         <h3 className="text-lg font-serif font-semibold text-gold">{t("analysis.title")}</h3>
-        <p className="text-sm text-white/50">
+        <p className="text-sm text-parchment-400">
           {completedCount}/{agentOrder.length} {copy.dimensions} · {copy.elapsed} {elapsed}
         </p>
-        <p className="text-xs text-white/35">{copy.savedHint}</p>
+        <p className="text-xs text-parchment-400">{copy.savedHint}</p>
       </div>
 
       <div className="grid lg:grid-cols-[260px_1fr] gap-5 items-center">
@@ -283,21 +283,21 @@ function AnalysisProgressInner({
           </Suspense>
         </div>
 
-        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-4 sm:p-5 space-y-4">
+        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.035] p-4 sm:p-5 space-y-4">
           <div className="flex items-start gap-3">
             <div className="mt-0.5 h-9 w-9 rounded-lg bg-gold/10 border border-gold/20 flex items-center justify-center">
               {isComplete ? <CheckCircle2 size={18} className="text-emerald-300" /> : <Sparkles size={18} className="text-gold" />}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-[11px] uppercase tracking-[0.14em] text-white/35">{copy.currentStage}</p>
-              <h4 className="text-base font-semibold text-white/82 mt-1">{stage.title}</h4>
-              <p className="text-sm text-white/50 leading-relaxed mt-1">{stage.detail}</p>
+              <p className="text-xs uppercase tracking-[0.14em] text-parchment-400">{copy.currentStage}</p>
+              <h4 className="text-base font-semibold text-parchment-200 mt-1">{stage.title}</h4>
+              <p className="text-sm text-parchment-400 leading-relaxed mt-1">{stage.detail}</p>
             </div>
           </div>
 
           <div>
             <div className="flex items-center justify-between gap-3 mb-2">
-              <span className="text-xs text-white/45">{copy.progressLabel}</span>
+              <span className="text-xs text-parchment-400">{copy.progressLabel}</span>
               <span className="font-mono text-sm font-semibold text-gold">{Math.round(displayPct)}%</span>
             </div>
             <div
@@ -327,7 +327,7 @@ function AnalysisProgressInner({
           <div className={`rounded-xl border px-3 py-2 text-sm ${
             isStalled
               ? "border-amber-300/20 bg-amber-300/[0.06] text-amber-100/80"
-              : "border-white/[0.06] bg-black/15 text-white/58"
+              : "border-white/[0.06] bg-black/15 text-parchment-300"
           }`}>
             {statusMessage}
           </div>
@@ -352,8 +352,8 @@ function AnalysisProgressInner({
             >
               <StatusIcon status={agent.status} running={running} />
               <div className="min-w-0">
-                <p className="text-xs text-white/72 truncate">{agent.label}</p>
-                <p className="text-[11px] text-white/35">
+                <p className="text-xs text-parchment-200 truncate">{agent.label}</p>
+                <p className="text-xs text-parchment-400">
                   {agent.status === "done"
                     ? copy.done
                     : running
@@ -377,8 +377,8 @@ function AnalysisProgressInner({
         }`}>
           <StatusIcon status={masterStatus} running={masterStatus === "running"} />
           <div className="min-w-0">
-            <p className="text-xs text-white/72 truncate">{FALLBACK_AGENT_LABELS.master[isZh ? "zh" : "en"]}</p>
-            <p className="text-[11px] text-white/35">
+            <p className="text-xs text-parchment-200 truncate">{FALLBACK_AGENT_LABELS.master[isZh ? "zh" : "en"]}</p>
+            <p className="text-xs text-parchment-400">
               {masterStatus === "done" ? copy.done : masterStatus === "running" ? copy.running : copy.pending}
             </p>
           </div>
@@ -386,9 +386,9 @@ function AnalysisProgressInner({
       </div>
 
       {previewText && (
-        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-4">
+        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.035] p-4">
           <p className="text-xs text-gold/70 font-medium mb-2">{copy.preview}</p>
-          <p className="text-sm text-white/64 leading-relaxed">{previewText}</p>
+          <p className="text-sm text-parchment-300 leading-relaxed">{previewText}</p>
         </div>
       )}
     </div>

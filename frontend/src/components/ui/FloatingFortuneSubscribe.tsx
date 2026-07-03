@@ -221,7 +221,7 @@ export function FloatingFortuneSubscribe() {
           <div className="relative flex items-center gap-2">
             <Sparkles size={14} className="text-gold group-hover:animate-spin" />
             <span className="text-gold text-xs font-medium">{t("fortuneSub.label")}</span>
-            <span className="px-1.5 py-0.5 rounded-full bg-green-500/20 border border-green-400/30 text-green-300 text-[10px] font-bold">
+            <span className="px-1.5 py-0.5 rounded-full bg-green-500/20 border border-green-400/30 text-green-300 text-xs font-bold">
               {t("fortuneSub.badge")}
             </span>
           </div>
@@ -238,7 +238,7 @@ export function FloatingFortuneSubscribe() {
           onClick={() => setOpen(false)}
         >
           <div
-            className="card-glass w-full sm:max-w-lg max-h-[90vh] overflow-y-auto rounded-t-3xl sm:rounded-2xl p-6 space-y-5"
+            className="card-solid w-full sm:max-w-lg max-h-[90vh] overflow-y-auto rounded-t-3xl sm:rounded-2xl p-6 space-y-5"
             style={{
               animation: "slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
             }}
@@ -250,15 +250,15 @@ export function FloatingFortuneSubscribe() {
                 <Sparkles size={18} className="text-gold" />
                 <h3 className="font-serif text-lg text-gold font-bold">{t("fortuneSub.title")}</h3>
               </div>
-              <button onClick={() => setOpen(false)} className="text-white/30 hover:text-white/60 transition-colors">
+              <button onClick={() => setOpen(false)} className="text-parchment-400 hover:text-parchment-400 transition-colors">
                 <X size={20} />
               </button>
             </div>
-            <p className="text-white/40 text-sm leading-relaxed">{t("fortuneSub.desc")}</p>
+            <p className="text-parchment-400 text-sm leading-relaxed">{t("fortuneSub.desc")}</p>
 
             {/* Frequency Selector */}
             <div className="space-y-2">
-              <p className="text-white/50 text-xs font-medium">{t("fortuneSub.frequency")}</p>
+              <p className="text-parchment-400 text-xs font-medium">{t("fortuneSub.frequency")}</p>
               <div className="flex gap-2">
                 {([
                   { key: "weekly", label: t("fortuneSub.freqWeekly") },
@@ -271,9 +271,9 @@ export function FloatingFortuneSubscribe() {
                     className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${
                       freq === o.key
                         ? o.key === "off"
-                          ? "bg-white/5 text-white/40 border border-white/10"
+                          ? "bg-white/[0.04] text-parchment-400 border border-white/[0.06]"
                           : "bg-gold/10 text-gold border border-gold/30"
-                        : "bg-white/[0.03] text-white/30 border border-white/[0.06] hover:text-white/50"
+                        : "bg-white/[0.03] text-parchment-400 border border-white/[0.06] hover:text-parchment-400"
                     }`}
                   >
                     {o.label}
@@ -295,7 +295,7 @@ export function FloatingFortuneSubscribe() {
                 <div className="bg-white/[0.03] rounded-2xl p-5 space-y-4 border border-white/[0.06]">
                   <div className="flex items-center gap-2">
                     {freq === "daily" ? <Calendar size={12} className="text-gold/50" /> : <Clock size={12} className="text-gold/50" />}
-                    <p className="text-white/30 text-[10px] uppercase tracking-wider">
+                    <p className="text-parchment-400 text-xs uppercase tracking-wider">
                       {freq === "daily" ? t("fortuneSub.dailyPreview") : t("fortuneSub.weeklyPreview")}
                     </p>
                   </div>
@@ -313,7 +313,7 @@ export function FloatingFortuneSubscribe() {
                       </div>
                     </div>
                     <div className="flex-1">
-                      <p className="text-white/50 text-[10px] mb-0.5">{t("fortuneSub.overallScore")}</p>
+                      <p className="text-parchment-400 text-xs mb-0.5">{t("fortuneSub.overallScore")}</p>
                       <p className="text-gold text-sm font-medium">{freq === "daily" ? tr(dailyFortune?.theme ?? "", !isZH) : tr(fortune?.theme ?? "", !isZH)}</p>
                     </div>
                   </div>
@@ -321,19 +321,19 @@ export function FloatingFortuneSubscribe() {
                   {/* Lucky items */}
                   <div className="grid grid-cols-2 gap-3 text-xs">
                     <div className="flex items-center gap-2">
-                      <span className="text-white/30">{t("fortuneSub.luckyColor")}:</span>
+                      <span className="text-parchment-400">{t("fortuneSub.luckyColor")}:</span>
                       <span className="text-green-400/80 font-medium">{freq === "daily" ? tr(dailyFortune?.lucky_color ?? "", !isZH) : tr(fortune?.lucky_color ?? "", !isZH)}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-white/30">{t("fortuneSub.luckyNumber")}:</span>
+                      <span className="text-parchment-400">{t("fortuneSub.luckyNumber")}:</span>
                       <span className="text-gold font-medium">{freq === "daily" ? dailyFortune?.lucky_number : fortune?.lucky_number}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-white/30">{t("fortuneSub.luckyDirection")}:</span>
+                      <span className="text-parchment-400">{t("fortuneSub.luckyDirection")}:</span>
                       <span className="text-blue-400/80 font-medium">{freq === "daily" ? tr(dailyFortune?.lucky_direction ?? "", !isZH) : tr(fortune?.lucky_direction ?? "", !isZH)}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-white/30">{t("fortuneSub.tarotCard")}:</span>
+                      <span className="text-parchment-400">{t("fortuneSub.tarotCard")}:</span>
                       <span className="text-purple-400/80 font-medium">{freq === "daily" ? tr(dailyFortune?.tarot_card ?? "", !isZH) : tr(fortune?.tarot_card ?? "", !isZH)}</span>
                     </div>
                   </div>
@@ -345,25 +345,25 @@ export function FloatingFortuneSubscribe() {
 
                   {/* Daily Yi Ji - weekly shows 3-day preview, daily shows today's yi/ji */}
                   <div>
-                    <p className="text-white/30 text-[10px] mb-2">{t("fortuneSub.dailyYiJi")}</p>
+                    <p className="text-parchment-400 text-xs mb-2">{t("fortuneSub.dailyYiJi")}</p>
                     {freq === "daily" && dailyFortune ? (
                       <div className="flex gap-3">
                         <div className="flex-1 bg-green-500/5 border border-green-500/15 rounded-lg p-2 text-center">
-                          <p className="text-green-400/70 text-[10px] mb-1">{yiLabel}</p>
-                          <p className="text-white/60 text-xs">{dailyFortune.yi.map(v => tr(v, !isZH)).join(" · ")}</p>
+                          <p className="text-green-400/70 text-xs mb-1">{yiLabel}</p>
+                          <p className="text-parchment-400 text-xs">{dailyFortune.yi.map(v => tr(v, !isZH)).join(" · ")}</p>
                         </div>
                         <div className="flex-1 bg-red-500/5 border border-red-500/15 rounded-lg p-2 text-center">
-                          <p className="text-red-400/50 text-[10px] mb-1">{jiLabel}</p>
-                          <p className="text-white/60 text-xs">{dailyFortune.ji.map(v => tr(v, !isZH)).join(" · ")}</p>
+                          <p className="text-red-400/50 text-xs mb-1">{jiLabel}</p>
+                          <p className="text-parchment-400 text-xs">{dailyFortune.ji.map(v => tr(v, !isZH)).join(" · ")}</p>
                         </div>
                       </div>
                     ) : fortune?.daily_yi_ji ? (
                       <div className="grid grid-cols-3 gap-2">
                         {fortune.daily_yi_ji.slice(0, 3).map((d, i) => (
                           <div key={i} className="bg-white/[0.03] rounded-lg p-2 text-center">
-                            <p className="text-white/40 text-[10px] mb-1">{dayLabels[i]}</p>
-                            <p className="text-green-400/70 text-[10px]">{yiLabel} {tr(d.yi, !isZH)}</p>
-                            <p className="text-red-400/50 text-[10px]">{jiLabel} {tr(d.ji, !isZH)}</p>
+                            <p className="text-parchment-400 text-xs mb-1">{dayLabels[i]}</p>
+                            <p className="text-green-400/70 text-xs">{yiLabel} {tr(d.yi, !isZH)}</p>
+                            <p className="text-red-400/50 text-xs">{jiLabel} {tr(d.ji, !isZH)}</p>
                           </div>
                         ))}
                       </div>
@@ -372,9 +372,9 @@ export function FloatingFortuneSubscribe() {
                 </div>
 
                 {/* AI Insight */}
-                <div className="card-glass p-4 flex items-start gap-3">
+                <div className="card-solid p-4 flex items-start gap-3">
                   <span className="text-base flex-shrink-0">🤖</span>
-                  <p className="text-white/40 text-xs leading-relaxed">{freq === "daily" ? tr(dailyFortune?.ai_insight ?? "", !isZH) : tr(fortune?.ai_insight ?? "", !isZH)}</p>
+                  <p className="text-parchment-400 text-xs leading-relaxed">{freq === "daily" ? tr(dailyFortune?.ai_insight ?? "", !isZH) : tr(fortune?.ai_insight ?? "", !isZH)}</p>
                 </div>
               </>
             )}
@@ -382,13 +382,13 @@ export function FloatingFortuneSubscribe() {
             {/* No data state - show generic profile or prompt to set birth info */}
             {!loading && !fortune && !dailyFortune && (
               <div className="text-center py-6">
-                <p className="text-white/30 text-sm mb-3">
+                <p className="text-parchment-400 text-sm mb-3">
                   {user ? t("fortuneSub.generating") : t("fortuneSub.loginRequired")}
                 </p>
                 {!user && (
                   <button
                     onClick={() => { setOpen(false); router.push(localeHref("/login")) }}
-                    className="btn-gold px-6 py-2 text-sm"
+                    className="btn-primary px-6 py-2 text-sm"
                   >
                     {t("nav.login")}
                   </button>
@@ -406,7 +406,7 @@ export function FloatingFortuneSubscribe() {
                     className={`flex-1 py-2.5 text-sm flex items-center justify-center gap-2 rounded-xl transition-all ${
                       isSubscribed && freq !== "off"
                         ? "bg-green-500/10 text-green-400 border border-green-500/30"
-                        : "btn-gold"
+                        : "btn-primary"
                     }`}
                   >
                     {saving ? (
@@ -421,7 +421,7 @@ export function FloatingFortuneSubscribe() {
                   <button
                     onClick={handleSave}
                     disabled={saving}
-                    className="flex-1 py-2.5 rounded-xl border border-white/15 text-white/50 text-sm hover:text-white/70 transition-colors"
+                    className="flex-1 py-2.5 rounded-xl border border-white/15 text-parchment-400 text-sm hover:text-parchment-300 transition-colors"
                   >
                     {saving ? (
                       <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mx-auto" />
@@ -431,7 +431,7 @@ export function FloatingFortuneSubscribe() {
               ) : (
                 <button
                   onClick={() => { setOpen(false); router.push(localeHref("/login")) }}
-                  className="flex-1 btn-gold py-2.5 text-sm flex items-center justify-center gap-2"
+                  className="flex-1 btn-primary py-2.5 text-sm flex items-center justify-center gap-2"
                 >
                   {t("nav.login")} <ChevronRight size={14} />
                 </button>

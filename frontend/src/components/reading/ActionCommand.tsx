@@ -15,7 +15,7 @@ export function ActionCommand({ commands }: ActionCommandProps) {
   return (
     <div className="space-y-2.5">
       {/* Section header */}
-      <div className="flex items-center gap-2 text-[11px] text-white/40">
+      <div className="flex items-center gap-2 text-xs text-parchment-400">
         <span className="w-1 h-1 rounded-full bg-cyan-400/60" />
         <span>{t("report.actionCommand.header")}</span>
       </div>
@@ -31,9 +31,9 @@ export function ActionCommand({ commands }: ActionCommandProps) {
             >
               <div className="flex items-center gap-2 mb-1">
                 <span className={`w-1.5 h-1.5 rounded-full ${style.dot}`} />
-                <span className={`text-[11px] font-medium ${style.text}`}>{cmd.period}</span>
+                <span className={`text-xs font-medium ${style.text}`}>{cmd.period}</span>
               </div>
-              <p className="text-white/60 text-xs leading-relaxed pl-3.5">
+              <p className="text-parchment-400 text-xs leading-relaxed pl-3.5">
                 {cmd.command}
               </p>
             </div>

@@ -66,7 +66,7 @@ export function UserDashboard() {
     <div className="mx-auto max-w-7xl space-y-8">
       <section className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
         <EasternCard className="p-6 md:p-8">
-          <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-[var(--color-gold-soft)] bg-[rgba(200,168,74,0.08)] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--color-gold)]">
+          <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-[var(--color-gold-soft)] bg-[rgba(200,168,74,0.08)] px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-gold)]">
             <Sparkles size={14} />
             {isZh ? "我的观我档案 · 今日行动中心" : "My Guanwo dossier · Daily action center"}
           </p>
@@ -79,12 +79,12 @@ export function UserDashboard() {
               : "This is your daily action center. Guanwo distills the one move worth advancing today from your dossier, five-source state, and recent questions."}
           </p>
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-3xl border border-white/[0.08] bg-white/[0.035] p-4">
-              <p className="text-xs text-white/42">{today}</p>
+            <div className="rounded-3xl border border-white/[0.06] bg-white/[0.035] p-4">
+              <p className="text-xs text-parchment-400">{today}</p>
               <p className="mt-1 font-semibold text-[var(--color-text-primary)]">{isZh ? "今日主题：稳步推进，不急于证明" : "Theme: steady progress, no need to prove"}</p>
             </div>
             <Link href={localeHref("/almanac")} className="group rounded-3xl border border-[var(--color-gold-soft)] bg-[rgba(200,168,74,0.08)] p-4">
-              <p className="text-xs text-white/42">{isZh ? "最佳推进时间" : "Best window"}</p>
+              <p className="text-xs text-parchment-400">{isZh ? "最佳推进时间" : "Best window"}</p>
               <p className="mt-1 flex items-center justify-between gap-3 font-semibold text-[var(--color-text-primary)]">
                 14:00 - 17:00
                 <ArrowRight size={16} className="text-[var(--color-gold)] transition group-hover:translate-x-1" />
@@ -112,7 +112,7 @@ export function UserDashboard() {
               {isZh ? "今日提醒：先把确定性的事完成，再处理不确定的人和钱。" : "Reminder: complete what is certain before handling uncertain people or money."}
             </p>
           </div>
-          <Link href={localeHref("/almanac")} className="ow-gold-button mt-7">
+          <Link href={localeHref("/almanac")} className="btn-primary mt-7">
             {isZh ? "查看今日完整行动板" : "Open full daily board"}
             <ArrowRight size={17} />
           </Link>
@@ -125,7 +125,7 @@ export function UserDashboard() {
         <EasternCard className="overflow-hidden p-5">
           <div className="mb-5 flex items-center justify-between gap-4">
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--color-gold)]">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-gold)]">
                 {isZh ? "今日五维状态" : "Five-source state"}
               </p>
               <h2 className="mt-2 text-xl font-semibold text-[var(--color-text-primary)]">{isZh ? "今日主线：稳步推进" : "Main line: steady progress"}</h2>
@@ -137,7 +137,7 @@ export function UserDashboard() {
             <FiveDimensionOrbit labels={signals.map(signal => signal.name)} center={isZh ? "今日主线" : "Today"} />
             <div className="grid content-center gap-3">
               {signals.map(signal => (
-                <div key={signal.name} className="rounded-3xl border border-white/[0.08] bg-white/[0.035] p-4">
+                <div key={signal.name} className="rounded-3xl border border-white/[0.06] bg-white/[0.035] p-4">
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-sm font-semibold text-[var(--color-text-primary)]">{signal.name}</p>
                     <span className="rounded-full bg-[rgba(200,168,74,0.12)] px-3 py-1 text-xs text-[var(--color-gold)]">{signal.value}</span>
@@ -162,7 +162,7 @@ export function UserDashboard() {
 
         {loadingReadings ? (
           <EasternCard className="p-8 text-center">
-            <Loader2 size={20} className="mx-auto animate-spin text-white/30" />
+            <Loader2 size={20} className="mx-auto animate-spin text-parchment-400" />
           </EasternCard>
         ) : recentReadings.length > 0 ? (
           <div className="grid gap-3 md:grid-cols-2">
@@ -170,16 +170,16 @@ export function UserDashboard() {
               <Link
                 key={r.id}
                 href={localeHref(`/reading/${r.id}`)}
-                className="group ow-card block p-4 transition-all hover:border-[var(--color-gold-soft)]"
+                className="group card-solid block p-4 transition-all hover:border-[var(--color-gold-soft)]"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0 flex-1">
                     <p className="line-clamp-2 text-sm leading-6 text-[var(--color-text-secondary)]">{r.master_summary || t("dash.recent.analyzing")}</p>
-                    <p className="mt-2 text-xs text-white/30">
+                    <p className="mt-2 text-xs text-parchment-400">
                       {new Date(r.created_at).toLocaleDateString(locale === "zh" ? "zh-CN" : "en-US")}
                     </p>
                   </div>
-                  <ArrowRight size={14} className="mt-1 text-white/20 transition-transform group-hover:translate-x-1 group-hover:text-[var(--color-gold)]" />
+                  <ArrowRight size={14} className="mt-1 text-parchment-400 transition-transform group-hover:translate-x-1 group-hover:text-[var(--color-gold)]" />
                 </div>
                 {r.computed_tags.length > 0 && (
                   <div className="mt-3 flex flex-wrap gap-2">
@@ -191,8 +191,8 @@ export function UserDashboard() {
           </div>
         ) : (
           <EasternCard className="p-8 text-center">
-            <p className="text-sm text-white/40">{t("dash.recent.empty")}</p>
-            <p className="mt-1 text-xs text-white/28">{t("dash.recent.emptyDesc")}</p>
+            <p className="text-sm text-parchment-400">{t("dash.recent.empty")}</p>
+            <p className="mt-1 text-xs text-parchment-400">{t("dash.recent.emptyDesc")}</p>
           </EasternCard>
         )}
       </section>

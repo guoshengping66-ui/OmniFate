@@ -26,7 +26,7 @@ export default function DashboardPage() {
         <LiveBar />
       </Suspense>
       <section className="pt-28 pb-16 px-4">
-        <Suspense fallback={<div className="max-w-4xl mx-auto space-y-4"><div className="h-8 bg-white/5 rounded w-1/3 animate-pulse" /><div className="card-glass p-6 h-48 bg-white/[0.03] animate-pulse rounded-2xl" /></div>}>
+        <Suspense fallback={<div className="max-w-4xl mx-auto space-y-4"><div className="h-8 bg-white/[0.04] rounded w-1/3 animate-pulse" /><div className="card-solid p-6 h-48 bg-white/[0.03] animate-pulse rounded-2xl" /></div>}>
           <UserDashboard />
         </Suspense>
       </section>

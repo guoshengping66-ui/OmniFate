@@ -70,14 +70,14 @@ export function ZodiacPageTemplate({ data, locale }: ZodiacPageTemplateProps) {
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-white mb-3 sm:mb-4 break-words">
               {content.title}
             </h1>
-            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm text-white/40 mb-3 sm:mb-4">
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm text-parchment-400 mb-3 sm:mb-4">
               <span>{isZh ? "元素" : "Element"}: {data.element}</span>
               <span className="hidden sm:inline">•</span>
               <span>{isZh ? "日期" : "Dates"}: {data.date_range}</span>
               <span className="hidden sm:inline">•</span>
               <span>{isZh ? "守护星" : "Ruling Planet"}: {data.ruling_planet}</span>
             </div>
-            <p className="text-white/40 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
+            <p className="text-parchment-400 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
               {content.personality}
             </p>
           </div>
@@ -85,11 +85,11 @@ export function ZodiacPageTemplate({ data, locale }: ZodiacPageTemplateProps) {
 
         {/* Content Sections */}
         <ScrollReveal delay={0.1}>
-          <div className="card-glass p-5 sm:p-8 md:p-10 mb-6 sm:mb-8">
+          <div className="card-solid p-5 sm:p-8 md:p-10 mb-6 sm:mb-8">
             <h2 className="font-serif text-xl sm:text-2xl text-gold mb-4 sm:mb-6">
               {isZh ? "💕 爱情特质" : "💕 Love Traits"}
             </h2>
-            <p className="text-white/60 text-sm leading-relaxed break-words">{content.love}</p>
+            <p className="text-parchment-400 text-sm leading-relaxed break-words">{content.love}</p>
             <div className="mt-4">
               <Link
                 href={localeHref(`/zodiac/${data.id}/love`)}
@@ -102,11 +102,11 @@ export function ZodiacPageTemplate({ data, locale }: ZodiacPageTemplateProps) {
         </ScrollReveal>
 
         <ScrollReveal delay={0.15}>
-          <div className="card-glass p-5 sm:p-8 md:p-10 mb-6 sm:mb-8">
+          <div className="card-solid p-5 sm:p-8 md:p-10 mb-6 sm:mb-8">
             <h2 className="font-serif text-xl sm:text-2xl text-gold mb-4 sm:mb-6">
               {isZh ? "💼 事业特质" : "💼 Career Traits"}
             </h2>
-            <p className="text-white/60 text-sm leading-relaxed break-words">{content.career}</p>
+            <p className="text-parchment-400 text-sm leading-relaxed break-words">{content.career}</p>
             <div className="mt-4">
               <Link
                 href={localeHref(`/zodiac/${data.id}/career`)}
@@ -119,21 +119,21 @@ export function ZodiacPageTemplate({ data, locale }: ZodiacPageTemplateProps) {
         </ScrollReveal>
 
         <ScrollReveal delay={0.2}>
-          <div className="card-glass p-5 sm:p-8 md:p-10 mb-6 sm:mb-8">
+          <div className="card-solid p-5 sm:p-8 md:p-10 mb-6 sm:mb-8">
             <h2 className="font-serif text-xl sm:text-2xl text-gold mb-4 sm:mb-6">
               {isZh ? "🏥 健康指南" : "🏥 Health Guide"}
             </h2>
-            <p className="text-white/60 text-sm leading-relaxed break-words">{content.health}</p>
+            <p className="text-parchment-400 text-sm leading-relaxed break-words">{content.health}</p>
           </div>
         </ScrollReveal>
 
         {/* Compatibility Links */}
         <ScrollReveal delay={0.25}>
-          <div className="card-glass p-5 sm:p-8 md:p-10 mb-6 sm:mb-8">
+          <div className="card-solid p-5 sm:p-8 md:p-10 mb-6 sm:mb-8">
             <h2 className="font-serif text-xl sm:text-2xl text-gold mb-4 sm:mb-6">
               {isZh ? "💕 配对分析" : "💕 Compatibility"}
             </h2>
-            <p className="text-white/40 text-xs sm:text-sm mb-3 sm:mb-4 break-words">
+            <p className="text-parchment-400 text-xs sm:text-sm mb-3 sm:mb-4 break-words">
               {isZh
                 ? `探索${content.title}与其他星座的配对分析`
                 : `Explore ${content.title} compatibility with other signs`}
@@ -145,10 +145,10 @@ export function ZodiacPageTemplate({ data, locale }: ZodiacPageTemplateProps) {
                   <Link
                     key={sign}
                     href={localeHref(`/zodiac/${data.id}/compatibility/${sign}`)}
-                    className="card-glow p-2.5 sm:p-3 text-center hover:border-gold/30 transition-all group"
+                    className="card-interactive p-2.5 sm:p-3 text-center hover:border-gold/30 transition-all group"
                   >
                     <div className="text-xl sm:text-2xl mb-0.5 sm:mb-1">{signData?.symbol}</div>
-                    <div className="text-[10px] sm:text-xs text-white/60 group-hover:text-gold transition-colors">
+                    <div className="text-xs sm:text-xs text-parchment-400 group-hover:text-gold transition-colors">
                       {isZh ? signData?.name_zh : signData?.name_en}
                     </div>
                   </Link>
@@ -169,21 +169,21 @@ export function ZodiacPageTemplate({ data, locale }: ZodiacPageTemplateProps) {
 
         {/* CTA */}
         <ScrollReveal delay={0.3}>
-          <div className="text-center card-glass-elevated p-10 relative overflow-hidden mt-8">
+          <div className="text-center card-solid-elevated p-10 relative overflow-hidden mt-8">
             <div className="absolute inset-0 bg-gradient-to-br from-gold/5 via-transparent to-jade/5 pointer-events-none" />
             <div className="relative">
               <div className="text-4xl mb-4 animate-float">🔮</div>
               <h2 className="font-serif text-2xl text-gold mb-4">
                 {isZh ? `了解你的完整${content.title}档案` : `Discover Your Full ${content.title} Profile`}
               </h2>
-              <p className="text-white/50 mb-8 max-w-md mx-auto">
+              <p className="text-parchment-400 mb-8 max-w-md mx-auto">
                 {isZh
                   ? "获取 AI 生成的详细占星分析，包含你的出生星盘解读"
                   : "Get an AI-generated detailed astrology reading with your birth chart interpretation"}
               </p>
               <Link
                 href={localeHref("/reading/new")}
-                className="btn-gold inline-flex items-center gap-2 text-lg px-10 py-4"
+                className="btn-primary inline-flex items-center gap-2 text-lg px-10 py-4"
               >
                 {isZh ? "开始分析" : "Start Reading"} 🔮
               </Link>

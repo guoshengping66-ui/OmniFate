@@ -79,14 +79,14 @@ export default function FAQPage() {
         {/* Header */}
         <ScrollReveal>
           <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 text-[11px] tracking-[0.25em] uppercase text-gold/50 font-medium mb-4">
+            <div className="inline-flex items-center gap-2 text-xs tracking-[0.25em] uppercase text-gold/50 font-medium mb-4">
               <span className="w-8 h-px bg-gradient-to-r from-transparent to-gold/30" />
               {t("faq.breadcrumb")}
               <span className="w-8 h-px bg-gradient-to-l from-transparent to-gold/30" />
             </div>
             <HelpCircle size={28} className="text-gold mx-auto mb-3" />
             <h1 className="text-2xl md:text-3xl font-serif font-bold text-white mb-2">{t("faq.title")}</h1>
-            <p className="text-white/40 text-sm">{t("faq.contactDesc")}</p>
+            <p className="text-parchment-400 text-sm">{t("faq.contactDesc")}</p>
           </div>
         </ScrollReveal>
 
@@ -94,18 +94,18 @@ export default function FAQPage() {
         <ScrollReveal delay={0.08}>
           <div className="max-w-md mx-auto mb-6">
             <div className="relative">
-              <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30" />
+              <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-parchment-400" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 placeholder={isZh ? "搜索问题..." : "Search questions..."}
-                className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl pl-10 pr-10 py-2.5 text-sm text-white/70 placeholder:text-white/25 focus:outline-none focus:border-gold/30 transition-colors"
+                className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl pl-10 pr-10 py-2.5 text-sm text-parchment-300 placeholder:text-parchment-400 focus:outline-none focus:border-gold/30 transition-colors"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery("")}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-parchment-400 hover:text-parchment-400"
                 >
                   <X size={14} />
                 </button>
@@ -124,7 +124,7 @@ export default function FAQPage() {
                 className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all
                   ${activeCategory === cat.key
                     ? "bg-gold/15 text-gold border border-gold/30"
-                    : "bg-white/[0.04] text-white/40 border border-white/[0.08] hover:text-white/60"
+                    : "bg-white/[0.04] text-parchment-400 border border-white/[0.08] hover:text-parchment-400"
                   }`}
               >
                 {isZh ? cat.zhLabel : cat.enLabel}
@@ -135,7 +135,7 @@ export default function FAQPage() {
 
         {/* Search result count */}
         {searchQuery && (
-          <p className="text-white/30 text-xs text-center mb-4">
+          <p className="text-parchment-400 text-xs text-center mb-4">
             {isZh ? `找到 ${filteredFaqs.length} 个问题` : `Found ${filteredFaqs.length} questions`}
           </p>
         )}
@@ -155,7 +155,7 @@ export default function FAQPage() {
           </div>
         ) : (
           <div className="text-center py-12 mb-16">
-            <p className="text-white/30 text-sm mb-2">{isZh ? "没有找到相关问题" : "No matching questions found"}</p>
+            <p className="text-parchment-400 text-sm mb-2">{isZh ? "没有找到相关问题" : "No matching questions found"}</p>
             {searchQuery && (
               <button
                 onClick={() => { setSearchQuery(""); setActiveCategory("") }}
@@ -169,15 +169,15 @@ export default function FAQPage() {
 
         {/* Contact CTA */}
         <ScrollReveal>
-          <div className="card-glass p-6 text-center">
+          <div className="card-solid p-6 text-center">
             <MessageCircle size={24} className="text-gold/50 mx-auto mb-3" />
-            <h2 className="font-serif text-lg text-white/80 mb-2">{t("faq.moreQuestions")}</h2>
-            <p className="text-white/35 text-sm mb-5">
+            <h2 className="font-serif text-lg text-parchment-200 mb-2">{t("faq.moreQuestions")}</h2>
+            <p className="text-parchment-400 text-sm mb-5">
               {t("faq.contactTeamDesc")}
             </p>
             <Link
               href={localeHref("/contact")}
-              className="btn-gold inline-flex items-center gap-2 px-7 py-2.5 text-sm"
+              className="btn-primary inline-flex items-center gap-2 px-7 py-2.5 text-sm"
             >
               {t("faq.contactUs")}
             </Link>

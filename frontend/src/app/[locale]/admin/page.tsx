@@ -69,12 +69,12 @@ export default function AdminPage() {
 
   if (!authenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-ink px-4">
-        <div className="w-full max-w-md p-8 rounded-xl bg-white/[0.04] border border-white/10">
+      <div className="min-h-screen flex items-center justify-center bg-cosmos-950 px-4">
+        <div className="w-full max-w-md p-8 rounded-xl bg-white/[0.04] border border-white/[0.06]">
           <h1 className="text-2xl font-serif font-bold text-white mb-6 text-center">
             {t("admin.title") || "Admin Dashboard"}
           </h1>
-          <div className="mb-5 rounded-lg border border-gold/20 bg-gold/[0.06] p-4 text-xs leading-relaxed text-white/58">
+          <div className="mb-5 rounded-lg border border-gold/20 bg-gold/[0.06] p-4 text-xs leading-relaxed text-parchment-300">
             {adminLoginHint}
           </div>
           <form onSubmit={handleLogin} className="space-y-4">
@@ -83,12 +83,12 @@ export default function AdminPage() {
               value={adminKey}
               onChange={(e) => setAdminKey(e.target.value)}
               placeholder={t("admin.enterKey") || "Enter admin key"}
-              className="w-full px-4 py-3 rounded-xl bg-white/[0.06] border border-white/10 text-white placeholder-white/40 focus:outline-none focus:border-gold/50"
+              className="w-full px-4 py-3 rounded-xl bg-white/[0.06] border border-white/[0.06] text-white placeholder-white/40 focus:outline-none focus:border-gold/50"
             />
             {error && <p className="text-red-400 text-sm">{error}</p>}
             <button
               type="submit"
-              className="w-full py-3 rounded-xl bg-gold text-ink font-semibold hover:shadow-[0_0_24px_rgba(201,168,76,0.35)] transition-all"
+              className="w-full py-3 rounded-xl bg-gold text-cosmos-950 font-semibold hover:shadow-[0_0_24px_rgba(201,168,76,0.35)] transition-all"
             >
               {t("admin.login") || "Login"}
             </button>
@@ -110,7 +110,7 @@ export default function AdminPage() {
   ) || []
 
   return (
-    <div className="min-h-screen bg-ink px-4 py-12">
+    <div className="min-h-screen bg-cosmos-950 px-4 py-12">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -120,7 +120,7 @@ export default function AdminPage() {
           <button
             onClick={fetchStats}
             disabled={loading}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.06] border border-white/10 text-white/70 hover:border-gold/30 transition-all disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.06] border border-white/[0.06] text-parchment-300 hover:border-gold/30 transition-all disabled:opacity-50"
           >
             <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
             {t("admin.refresh") || "Refresh"}
@@ -136,7 +136,7 @@ export default function AdminPage() {
               className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm transition-all whitespace-nowrap ${
                 activeTab === tab.key
                   ? "bg-gold/20 text-gold border border-gold/30"
-                  : "bg-white/[0.04] text-white/50 border border-white/10 hover:text-white/70"
+                  : "bg-white/[0.04] text-parchment-400 border border-white/[0.06] hover:text-parchment-300"
               }`}
             >
               {tab.icon}
@@ -146,7 +146,7 @@ export default function AdminPage() {
         </div>
 
         {loading && !stats ? (
-          <div className="text-center text-white/50 py-20">
+          <div className="text-center text-parchment-400 py-20">
             {t("admin.loading") || "Loading..."}
           </div>
         ) : stats ? (
@@ -178,18 +178,18 @@ export default function AdminPage() {
                 </div>
 
                 {/* Recent Users */}
-                <div className="rounded-2xl bg-white/[0.04] border border-white/10 p-6">
+                <div className="rounded-2xl bg-white/[0.04] border border-white/[0.06] p-6">
                   <h2 className="text-xl font-serif font-bold text-white mb-4">
                     {t("admin.recentUsers") || "Recent Users"}
                   </h2>
                   <div className="overflow-x-auto">
                     <table className="w-full text-left">
                       <thead>
-                        <tr className="border-b border-white/10">
-                          <th className="pb-3 text-white/50 font-normal text-sm">
+                        <tr className="border-b border-white/[0.06]">
+                          <th className="pb-3 text-parchment-400 font-normal text-sm">
                             {t("admin.email") || "Email"}
                           </th>
-                          <th className="pb-3 text-white/50 font-normal text-sm">
+                          <th className="pb-3 text-parchment-400 font-normal text-sm">
                             {t("admin.registeredAt") || "Registered At"}
                           </th>
                         </tr>
@@ -197,8 +197,8 @@ export default function AdminPage() {
                       <tbody>
                         {stats.recentUsers.map((user, i) => (
                           <tr key={i} className="border-b border-white/5">
-                            <td className="py-3 text-white/70">{user.email}</td>
-                            <td className="py-3 text-white/50 text-sm">
+                            <td className="py-3 text-parchment-300">{user.email}</td>
+                            <td className="py-3 text-parchment-400 text-sm">
                               {new Date(user.created_at).toLocaleDateString("zh-CN")}
                             </td>
                           </tr>
@@ -212,28 +212,28 @@ export default function AdminPage() {
 
             {/* Users Tab */}
             {activeTab === "users" && (
-              <div className="rounded-2xl bg-white/[0.04] border border-white/10 p-6">
+              <div className="rounded-2xl bg-white/[0.04] border border-white/[0.06] p-6">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="relative flex-1">
-                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-parchment-400" />
                     <input
                       type="text"
                       value={userSearch}
                       onChange={(e) => setUserSearch(e.target.value)}
                       placeholder={t("admin.searchUsers") || "Search by email..."}
-                      className="w-full pl-10 pr-4 py-2 rounded-xl bg-white/[0.06] border border-white/10 text-white placeholder-white/40 text-sm"
+                      className="w-full pl-10 pr-4 py-2 rounded-xl bg-white/[0.06] border border-white/[0.06] text-white placeholder-white/40 text-sm"
                     />
                   </div>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left">
                     <thead>
-                      <tr className="border-b border-white/10">
-                        <th className="pb-3 text-white/50 font-normal text-sm">#</th>
-                        <th className="pb-3 text-white/50 font-normal text-sm">
+                      <tr className="border-b border-white/[0.06]">
+                        <th className="pb-3 text-parchment-400 font-normal text-sm">#</th>
+                        <th className="pb-3 text-parchment-400 font-normal text-sm">
                           {t("admin.email") || "Email"}
                         </th>
-                        <th className="pb-3 text-white/50 font-normal text-sm">
+                        <th className="pb-3 text-parchment-400 font-normal text-sm">
                           {t("admin.registeredAt") || "Registered At"}
                         </th>
                       </tr>
@@ -241,9 +241,9 @@ export default function AdminPage() {
                     <tbody>
                       {filteredUsers.map((user, i) => (
                         <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02]">
-                          <td className="py-3 text-white/40 text-sm">{i + 1}</td>
-                          <td className="py-3 text-white/70">{user.email}</td>
-                          <td className="py-3 text-white/50 text-sm">
+                          <td className="py-3 text-parchment-400 text-sm">{i + 1}</td>
+                          <td className="py-3 text-parchment-300">{user.email}</td>
+                          <td className="py-3 text-parchment-400 text-sm">
                             {new Date(user.created_at).toLocaleDateString("zh-CN")}
                           </td>
                         </tr>
@@ -256,7 +256,7 @@ export default function AdminPage() {
 
             {/* Orders Tab */}
             {activeTab === "orders" && (
-              <div className="rounded-2xl bg-white/[0.04] border border-white/10 p-6">
+              <div className="rounded-2xl bg-white/[0.04] border border-white/[0.06] p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-serif font-bold text-white">
                     {t("admin.recentOrders") || "Recent Orders"}
@@ -272,15 +272,15 @@ export default function AdminPage() {
                   <div className="overflow-x-auto">
                     <table className="w-full text-left">
                       <thead>
-                        <tr className="border-b border-white/10">
-                          <th className="pb-3 text-white/50 font-normal text-sm">ID</th>
-                          <th className="pb-3 text-white/50 font-normal text-sm">
+                        <tr className="border-b border-white/[0.06]">
+                          <th className="pb-3 text-parchment-400 font-normal text-sm">ID</th>
+                          <th className="pb-3 text-parchment-400 font-normal text-sm">
                             {t("admin.amount") || "Amount"}
                           </th>
-                          <th className="pb-3 text-white/50 font-normal text-sm">
+                          <th className="pb-3 text-parchment-400 font-normal text-sm">
                             {t("admin.status") || "Status"}
                           </th>
-                          <th className="pb-3 text-white/50 font-normal text-sm">
+                          <th className="pb-3 text-parchment-400 font-normal text-sm">
                             {t("admin.createdAt") || "Created At"}
                           </th>
                         </tr>
@@ -309,14 +309,14 @@ export default function AdminPage() {
                           }
                           return (
                             <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02]">
-                              <td className="py-3 text-white/50 text-sm font-mono">{order.id.slice(0, 8)}...</td>
-                              <td className="py-3 text-white/70">¥{order.total_cny}</td>
+                              <td className="py-3 text-parchment-400 text-sm font-mono">{order.id.slice(0, 8)}...</td>
+                              <td className="py-3 text-parchment-300">¥{order.total_cny}</td>
                               <td className="py-3">
-                                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusStyles[order.status] || "bg-white/10 text-white/50"}`}>
+                                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusStyles[order.status] || "bg-white/10 text-parchment-400"}`}>
                                   {statusLabels[order.status] || order.status}
                                 </span>
                               </td>
-                              <td className="py-3 text-white/50 text-sm">
+                              <td className="py-3 text-parchment-400 text-sm">
                                 {new Date(order.created_at).toLocaleDateString("zh-CN")}
                               </td>
                             </tr>
@@ -326,30 +326,30 @@ export default function AdminPage() {
                     </table>
                   </div>
                 ) : (
-                  <p className="text-white/40 text-sm">{t("admin.noOrders") || "No orders yet"}</p>
+                  <p className="text-parchment-400 text-sm">{t("admin.noOrders") || "No orders yet"}</p>
                 )}
               </div>
             )}
 
             {/* Revenue Tab */}
             {activeTab === "revenue" && (
-              <div className="rounded-2xl bg-white/[0.04] border border-white/10 p-6">
+              <div className="rounded-2xl bg-white/[0.04] border border-white/[0.06] p-6">
                 <h2 className="text-xl font-serif font-bold text-white mb-4">
                   {t("admin.revenueStats") || "Revenue Statistics"}
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="p-4 rounded-xl bg-white/[0.04] border border-white/10">
-                    <p className="text-white/40 text-sm mb-1">{t("admin.totalRevenue") || "Total Revenue"}</p>
+                  <div className="p-4 rounded-xl bg-white/[0.04] border border-white/[0.06]">
+                    <p className="text-parchment-400 text-sm mb-1">{t("admin.totalRevenue") || "Total Revenue"}</p>
                     <p className="text-2xl font-bold text-gold">¥{stats.totalRevenue || 0}</p>
                   </div>
-                  <div className="p-4 rounded-xl bg-white/[0.04] border border-white/10">
-                    <p className="text-white/40 text-sm mb-1">{t("admin.conversionRate") || "Conversion Rate"}</p>
+                  <div className="p-4 rounded-xl bg-white/[0.04] border border-white/[0.06]">
+                    <p className="text-parchment-400 text-sm mb-1">{t("admin.conversionRate") || "Conversion Rate"}</p>
                     <p className="text-2xl font-bold text-gold">
                       {stats.totalUsers > 0 ? Math.round((stats.paidUsers / stats.totalUsers) * 100) : 0}%
                     </p>
                   </div>
-                  <div className="p-4 rounded-xl bg-white/[0.04] border border-white/10">
-                    <p className="text-white/40 text-sm mb-1">{t("admin.avgOrderValue") || "Avg Order Value"}</p>
+                  <div className="p-4 rounded-xl bg-white/[0.04] border border-white/[0.06]">
+                    <p className="text-parchment-400 text-sm mb-1">{t("admin.avgOrderValue") || "Avg Order Value"}</p>
                     <p className="text-2xl font-bold text-gold">
                       ¥{stats.totalOrders > 0 ? Math.round((stats.totalRevenue || 0) / stats.totalOrders) : 0}
                     </p>
@@ -374,14 +374,14 @@ function StatCard({
   value: number
 }) {
   return (
-    <div className="rounded-2xl bg-white/[0.04] border border-white/10 p-5">
+    <div className="rounded-2xl bg-white/[0.04] border border-white/[0.06] p-5">
       <div className="flex items-center gap-3 mb-3">
         <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center text-gold">
           {icon}
         </div>
       </div>
       <div className="text-3xl font-bold text-white mb-1">{value}</div>
-      <div className="text-white/40 text-sm">{label}</div>
+      <div className="text-parchment-400 text-sm">{label}</div>
     </div>
   )
 }

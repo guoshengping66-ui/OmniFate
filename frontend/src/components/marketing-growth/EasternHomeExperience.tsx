@@ -47,7 +47,7 @@ export function EasternHomeExperience() {
         <div>
           <div className="mb-5 flex flex-wrap gap-2">
             {copy.tags.map(tag => (
-              <span key={tag} className="rounded-full border border-white/[0.09] bg-white/[0.045] px-3 py-1.5 text-xs text-white/70">{tag}</span>
+              <span key={tag} className="rounded-full border border-white/[0.09] bg-white/[0.045] px-3 py-1.5 text-xs text-parchment-300">{tag}</span>
             ))}
           </div>
           <h1 className="max-w-2xl text-[clamp(2.25rem,5.6vw,5rem)] font-semibold leading-[1.02] tracking-0 text-[var(--color-text-primary)]">
@@ -55,8 +55,8 @@ export function EasternHomeExperience() {
           </h1>
           <p className="mt-6 max-w-xl text-sm leading-7 text-[var(--color-text-secondary)] md:text-base">{copy.heroDesc}</p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link href={localeHref("/reading/new")} className="ow-gold-button">{copy.primary}<ArrowRight size={17} /></Link>
-            <Link href="#sample-report" className="ow-ghost-button">{copy.secondary}<ArrowRight size={16} /></Link>
+            <Link href={localeHref("/reading/new")} className="btn-primary">{copy.primary}<ArrowRight size={17} /></Link>
+            <Link href="#sample-report" className="btn-secondary">{copy.secondary}<ArrowRight size={16} /></Link>
           </div>
         </div>
 
@@ -119,7 +119,7 @@ export function EasternHomeExperience() {
       <EasternSection eyebrow={copy.entryEyebrow} title={copy.entryTitle}>
         <div className="grid gap-5 lg:grid-cols-3">
           {copy.entries.map(entry => (
-            <Link key={entry.title} href={localeHref(entry.href)} className="group ow-card block p-7 transition hover:border-[var(--color-gold-soft)]">
+            <Link key={entry.title} href={localeHref(entry.href)} className="group card-solid block p-7 transition hover:border-[var(--color-gold-soft)]">
               <entry.icon className="text-[var(--color-gold)]" size={28} />
               <h3 className="mt-5 text-xl font-semibold text-[var(--color-text-primary)]">{entry.title}</h3>
               <p className="mt-3 min-h-[78px] text-sm leading-7 text-[var(--color-text-secondary)]">{entry.body}</p>
@@ -147,7 +147,7 @@ export function EasternHomeExperience() {
           <Sparkles className="mx-auto text-[var(--color-gold)]" size={32} />
           <h2 className="mt-5 text-3xl font-semibold leading-tight text-[var(--color-text-primary)] md:text-5xl">{copy.finalTitle}</h2>
           <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-[var(--color-text-secondary)]">{copy.finalDesc}</p>
-          <Link href={localeHref("/reading/new")} className="ow-gold-button mt-8">{copy.primary}<ArrowRight size={17} /></Link>
+          <Link href={localeHref("/reading/new")} className="btn-primary mt-8">{copy.primary}<ArrowRight size={17} /></Link>
         </EasternCard>
       </section>
     </EasternPageShell>

@@ -17,7 +17,7 @@ export function MethodTrustSection() {
     <section className="px-4 py-20 sm:py-28">
       <div className="mx-auto max-w-7xl">
         <div className="mb-10 max-w-3xl">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-gold/60">Method & Trust</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-gold/60">Method & Trust</p>
           <h2 className="mt-4 font-serif text-3xl font-bold text-white sm:text-5xl">
             {activeLocale === "zh" ? "我们不和别人拼更玄，而是拼更有用" : "We do not compete on being more mystical. We compete on usefulness."}
           </h2>
@@ -25,10 +25,10 @@ export function MethodTrustSection() {
 
         <div className="grid gap-4 md:grid-cols-3">
           {copy.trust.map((item) => (
-            <div key={item.title} className="border border-white/[0.08] bg-white/[0.025] p-6">
+            <div key={item.title} className="border border-white/[0.06] bg-white/[0.025] p-6">
               <ShieldCheck className="mb-5 text-gold" size={24} />
               <h3 className="text-lg font-semibold text-white">{item.title}</h3>
-              <p className="mt-3 text-sm leading-7 text-white/55">{item.body}</p>
+              <p className="mt-3 text-sm leading-7 text-parchment-300">{item.body}</p>
             </div>
           ))}
         </div>

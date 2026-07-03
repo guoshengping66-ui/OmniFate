@@ -128,7 +128,7 @@ function ArtifactCard({ artifact, index, isVisible, locale }: {
         </h3>
 
         {/* Description */}
-        <p className="text-white/30 text-xs sm:text-sm leading-relaxed">
+        <p className="text-parchment-400 text-xs sm:text-sm leading-relaxed">
           {locale === "zh" ? artifact.descZh : artifact.descEn}
         </p>
 
@@ -175,12 +175,12 @@ function TestimonialCard({ item, index, isVisible }: {
             {item.name.charAt(0)}
           </div>
           <div>
-            <div className="text-white/70 text-xs font-medium">{item.name}</div>
-            <div className="text-white/25 text-[10px]">{item.source}</div>
+            <div className="text-parchment-300 text-xs font-medium">{item.name}</div>
+            <div className="text-parchment-400 text-xs">{item.source}</div>
           </div>
         </div>
         <div
-          className="px-2 py-0.5 rounded-full text-[10px] font-bold"
+          className="px-2 py-0.5 rounded-full text-xs font-bold"
           style={{
             background: "linear-gradient(135deg, rgba(197,168,128,0.12), rgba(197,168,128,0.04))",
             border: "1px solid rgba(197,168,128,0.15)",
@@ -192,7 +192,7 @@ function TestimonialCard({ item, index, isVisible }: {
       </div>
 
       {/* Text */}
-      <p className="text-white/35 text-xs leading-relaxed">
+      <p className="text-parchment-400 text-xs leading-relaxed">
         &ldquo;{item.text}&rdquo;
       </p>
     </div>
@@ -242,7 +242,7 @@ export default function DestinyCollectionGallery() {
             </span>
           </h2>
 
-          <p className="text-white/30 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
+          <p className="text-parchment-400 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
             {locale === "zh"
               ? "每一份报告都是一件藏品，记录着你独一无二的命运密码"
               : "Every report is an artifact, encoding your unique destiny cipher"}
@@ -285,7 +285,7 @@ export default function DestinyCollectionGallery() {
 
         {/* Trust indicators */}
         <div
-          className="flex items-center justify-center gap-6 text-white/15 text-[10px] tracking-widest transition-all duration-1000 delay-700"
+          className="flex items-center justify-center gap-6 text-parchment-400 text-xs tracking-widest transition-all duration-1000 delay-700"
           style={{ opacity: isVisible ? 1 : 0 }}
         >
           <span>128,000+</span>
