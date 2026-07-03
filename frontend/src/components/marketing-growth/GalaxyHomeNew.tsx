@@ -45,7 +45,7 @@ export default function GalaxyHomeNew() {
   const qiAnim = (i: number) => ({ animation: `gh-qi ${2 + (i % 3) * 0.7}s ease-in-out ${i * 0.3}s infinite` })
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden text-white" style={{ background: "#020617" }}>
+    <div className="relative w-full text-white" style={{ background: "#020617" }}>
       {/* Layer 1: Nebula glows */}
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true" style={{
         background:

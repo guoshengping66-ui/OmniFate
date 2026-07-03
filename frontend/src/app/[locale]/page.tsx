@@ -71,10 +71,8 @@ export default function HomePage() {
   }
 
   return (
-    <div className="relative z-10 min-h-screen">
-      <ErrorBoundary sectionName="Guanwo Home Experience">
-        <GalaxyHomeNew />
-      </ErrorBoundary>
-    </div>
+    <ErrorBoundary sectionName="Guanwo Home Experience">
+      <GalaxyHomeNew />
+    </ErrorBoundary>
   )
 }
