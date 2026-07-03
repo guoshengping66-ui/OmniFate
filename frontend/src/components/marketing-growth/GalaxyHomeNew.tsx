@@ -4,24 +4,7 @@ import { useEffect } from "react"
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 
-const SYSTEMS = [
-  "八字","紫微斗数","星盘","塔罗","面相","手相",
-]
 const TRIGRAMS = ["☰乾","☱兑","☲离","☳震","☴巽","☵坎","☶艮","☷坤"]
-const FEATURES = [
-  { char: "命", title: "八字起盘", desc: "录入生辰，古法自动排四柱十神大运", href: "/bazi", free: true },
-  { char: "紫", title: "紫微排宫", desc: "十二宫主星四化，大限流年一目了然", href: "/ziwei", free: true },
-  { char: "星", title: "星盘推运", desc: "七政四余恒星制，二十八宿论先天命格", href: "/astrology", free: true },
-  { char: "占", title: "塔罗择问", desc: "三张牌阵 + AI 解读，聚焦当下选择压力", href: "/tarot", free: false },
-  { char: "面", title: "面相解读", desc: "五官十二宫 AI 分析，看禀赋与行为印象", href: "/face-reading", free: false },
-  { char: "合", title: "关系合参", desc: "两盘对照，交叉验证契合度与互补空间", href: "/bazi/compatibility", free: true },
-]
-const STATS = [
-  ["5+","命运系统"],["4","交互人格"],["50","星尘赠送"],["0","月费订阅"],
-]
-const MARQUEE_ITEMS = [
-  "八字起盘","紫微排宫","星盘推运","塔罗择问","面相解读","手相分析","六爻起卦","事件复盘","每日趋势","关系合参",
-]
 
 export default function GalaxyHomeNew() {
   useEffect(() => {
@@ -150,73 +133,109 @@ export default function GalaxyHomeNew() {
         </div>
       </section>
 
-      {/* ═══ Marquee ═══ */}
-      <section className="relative z-[2] border-y border-white/[0.03] py-7 overflow-hidden">
-        <p className="mb-3 text-center text-[11px] tracking-[0.35em] text-white/25">五维合参 · AI 交叉验证</p>
-        <div className="flex whitespace-nowrap text-[14px] text-white/30 font-serif" style={{ animation: "gh-marquee 80s linear infinite" }}>
-          {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((n, i) => (
-            <span key={i} className="mx-3">{n}<span className="mx-2 text-white/10">·</span></span>
-          ))}
-        </div>
-      </section>
-
-      {/* ═══ Stats ═══ */}
-      <section className="relative z-[2] mx-auto max-w-5xl px-6 pt-16">
-        <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/[0.04] md:grid-cols-4" style={{ background: "rgba(255,255,255,0.02)" }}>
-          {STATS.map(([n, l]) => (
-            <div key={l} className="flex flex-col items-center gap-2 px-4 py-7" style={{ background: "#030918" }}>
-              <span className="font-serif text-4xl" style={{ color: "#C9A84C" }}>{n}</span>
-              <span className="text-[11px] tracking-[0.15em] text-white/40">{l}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ═══ Features ═══ */}
-      <section className="relative z-[2] mx-auto max-w-5xl px-6 pt-20 pb-10">
-        <h2 className="text-center font-serif text-3xl text-white/75">命运画像系统</h2>
-        <div className="mx-auto mt-4 h-px w-32" style={{ background: "linear-gradient(90deg, transparent, rgba(201,168,76,0.2), transparent)" }} />
-        <p className="mt-4 text-center text-[13px] text-white/35">不是算命，是自我认知的工具——八字起盘、紫微排宫、星盘推运、塔罗择问、面相解读</p>
-
-        <div className="mt-12">
-          <Link href="/zh/reading/new" className="group flex flex-col gap-6 rounded-2xl border border-white/[0.05] p-8 transition-all hover:border-white/[0.15] md:flex-row md:items-center md:gap-8 md:p-10" style={{ background: "linear-gradient(135deg, #060E24, #030918)" }}>
-            <span className="self-start font-serif text-6xl md:self-center" style={{ color: "#C9A84C" }}>观</span>
-            <div className="flex-1 text-left">
-              <div className="flex flex-wrap items-center gap-3">
-                <h3 className="font-serif text-2xl text-white/80">完整命运画像</h3>
-                <span className="rounded-full px-3 py-0.5 text-[11px] tracking-[0.1em]" style={{ background: "rgba(201,168,76,0.12)", color: "#C9A84C" }}>五维合参 · 交叉验证</span>
+      {/* ═══ Section: 如何运作 ═══ */}
+      <section className="relative z-[2] mx-auto max-w-5xl px-6 pt-20">
+        <div className="border border-white/[0.05] rounded-2xl p-8 md:p-12" style={{ background: "linear-gradient(135deg, #060E24, #030918)" }}>
+          <p className="text-center text-[11px] tracking-[0.2em] text-white/25 uppercase mb-2">HOW IT WORKS</p>
+          <h2 className="text-center font-serif text-2xl md:text-3xl text-white/75">三步，生成你的专属命运画像</h2>
+          <div className="mt-10 grid gap-8 md:grid-cols-3">
+            {[
+              { step: "01", title: "录入信息", desc: "填写出生时间、地点，上传面相手相照片，选择当下关心的方向", icon: "✏️" },
+              { step: "02", title: "AI 五维合参", desc: "八字起盘 × 紫微排宫 × 星盘推运 × 塔罗择问 × 面相解读，交叉验证", icon: "⚡" },
+              { step: "03", title: "获取画像 + 行动", desc: "生成完整命运画像，输出今日行动建议——不是告诉你结局，是指出下一步", icon: "🎯" },
+            ].map((item, i) => (
+              <div key={i} className="flex flex-col items-center text-center gap-3">
+                <span className="text-2xl">{item.icon}</span>
+                <span className="text-[10px] tracking-[0.15em] text-white/20">{item.step}</span>
+                <h3 className="font-serif text-lg text-white/70">{item.title}</h3>
+                <p className="text-[13px] leading-relaxed text-white/35">{item.desc}</p>
               </div>
-              <p className="mt-3 max-w-xl text-[14px] leading-relaxed text-white/45">八字 × 紫微 × 星盘 × 塔罗 × 面相手相 — 五系统交叉验证，生成你的完整命运画像，输出今日行动</p>
-            </div>
-            <span className="flex items-center gap-2 text-sm text-white/40 transition-all group-hover:gap-3 group-hover:text-white/60">了解更多 →</span>
-          </Link>
+            ))}
+          </div>
+          <div className="mt-10 text-center">
+            <Link href="/zh/reading/new" className="inline-flex items-center gap-2 rounded-xl px-8 py-3.5 font-medium transition-all hover:scale-[1.02]" style={{ background: "#C9A84C", color: "#020617" }}>
+              开始建立画像 <ArrowRight size={16} />
+            </Link>
+          </div>
         </div>
+      </section>
 
-        <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {FEATURES.map(f => (
-            <Link key={f.title} href={`/zh${f.href}`} className="group relative flex flex-col rounded-2xl border border-white/[0.04] p-7 transition-all hover:border-white/[0.15] hover:-translate-y-0.5" style={{ background: "linear-gradient(135deg, #060E24, #030918)" }}>
-              {f.free && <span className="absolute right-4 top-4 rounded-full px-3 py-0.5 text-[11px]" style={{ background: "rgba(201,168,76,0.1)", color: "#C9A84C" }}>免费</span>}
-              <span className="self-start font-serif text-4xl" style={{ color: "#C9A84C", opacity: 0.75 }}>{f.char}</span>
-              <h3 className="mt-4 font-serif text-xl text-white/75">{f.title}</h3>
-              <p className="mt-2 flex-1 text-[13px] leading-relaxed text-white/40">{f.desc}</p>
-              <span className="mt-5 flex items-center gap-1.5 text-xs text-white/30 transition-colors group-hover:text-white/50">了解更多 <span className="transition-transform group-hover:translate-x-1">→</span></span>
+      {/* ═══ Section: 画像包含什么 ═══ */}
+      <section className="relative z-[2] mx-auto max-w-5xl px-6 pt-16">
+        <h2 className="text-center font-serif text-2xl md:text-3xl text-white/75">你的命运画像包含</h2>
+        <p className="mt-3 text-center text-[13px] text-white/35">五维交叉验证后，AI 生成一份结构化画像，分为五个模块</p>
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {[
+            { title: "性格结构", desc: "内在优势与摩擦点——你如何与世界互动", tag: "八字 + 星盘" },
+            { title: "事业方向", desc: "最佳发力领域与时机窗口——你的能量投向何处", tag: "八字 + 紫微" },
+            { title: "关系模式", desc: "吸引与长期契合——在关系中看见自己", tag: "星盘 + 面相" },
+            { title: "财富窗口", desc: "突破时机与节奏——不是数字，是流动感", tag: "八字 + 塔罗" },
+            { title: "今日行动", desc: "今天能做的一件事——把分析变执行", tag: "全系统" },
+            { title: "完整档案", desc: "自由追问、事件复盘、趋势追踪——画像持续生长", tag: "持续更新" },
+          ].map((m, i) => (
+            <div key={i} className="rounded-xl border border-white/[0.04] p-5 transition-all hover:border-white/[0.1]" style={{ background: "linear-gradient(135deg, #060E24, #030918)" }}>
+              <span className="text-[10px] tracking-[0.12em] text-white/20">{m.tag}</span>
+              <h3 className="mt-2 font-serif text-base text-white/70">{m.title}</h3>
+              <p className="mt-1.5 text-[12px] leading-relaxed text-white/35">{m.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ═══ Section: 命运系统 ═══ */}
+      <section className="relative z-[2] mx-auto max-w-5xl px-6 pt-16">
+        <h2 className="text-center font-serif text-2xl md:text-3xl text-white/75">五大命运分析系统</h2>
+        <p className="mt-3 text-center text-[13px] text-white/35">录入一份信息，AI 同步运行五个系统的交叉验证</p>
+        <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          {[
+            { name: "八字", sub: "命盘起运", href: "/zh/bazi", free: true },
+            { name: "紫微", sub: "十二宫排盘", href: "/zh/ziwei", free: true },
+            { name: "星盘", sub: "七政四余", href: "/zh/astrology", free: true },
+            { name: "塔罗", sub: "当下择问", href: "/zh/tarot", free: false },
+            { name: "面相", sub: "五官十二宫", href: "/zh/face-reading", free: false },
+          ].map((s, i) => (
+            <Link key={i} href={s.href} className="group flex flex-col items-center gap-2 rounded-xl border border-white/[0.04] p-5 text-center transition-all hover:border-white/[0.12] hover:-translate-y-0.5" style={{ background: "linear-gradient(180deg, #060E24, #030918)" }}>
+              {s.free && <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: "rgba(201,168,76,0.1)", color: "#C9A84C" }}>免费</span>}
+              <span className="font-serif text-2xl text-white/70">{s.name}</span>
+              <span className="text-[11px] text-white/30">{s.sub}</span>
             </Link>
           ))}
         </div>
       </section>
 
-      {/* ═══ Register CTA ═══ */}
-      <section className="relative z-[2] mx-auto max-w-2xl px-6 pb-16 pt-6 text-center">
-        <p className="font-serif text-3xl text-white/70">免费注册 · 赠 <span style={{ color: "#C9A84C" }}>50</span> 星尘</p>
-        <p className="mt-3 text-[14px] text-white/35">按次付费，无月费订阅，充值额外赠 15%</p>
-        <Link href="/zh/register" className="mt-10 inline-block rounded-xl px-14 py-4 font-medium transition-all hover:scale-[1.03]" style={{ background: "#C9A84C", color: "#020617" }}>免费注册</Link>
+      {/* ═══ Section: 三种入口 ═══ */}
+      <section className="relative z-[2] mx-auto max-w-5xl px-6 pt-16">
+        <div className="grid gap-4 md:grid-cols-3">
+          {[
+            { title: "完整画像", desc: "五维全开，深度分析 → 输出画像 + 行动建议", href: "/zh/reading/new", cta: "建立画像" },
+            { title: "单题快问", desc: "聚焦一个方向，短时高效获取 AI 解读", href: "/zh/reading/new?intent=quick", cta: "快速提问" },
+            { title: "关系合参", desc: "两人命盘对照，交叉验证契合度与互补空间", href: "/zh/bazi/compatibility", cta: "合参分析" },
+          ].map((p, i) => (
+            <Link key={i} href={p.href} className="group flex flex-col rounded-xl border border-white/[0.05] p-6 transition-all hover:border-white/[0.15]" style={{ background: "linear-gradient(135deg, #060E24, #030918)" }}>
+              <h3 className="font-serif text-lg text-white/75">{p.title}</h3>
+              <p className="mt-2 flex-1 text-[13px] leading-relaxed text-white/35">{p.desc}</p>
+              <span className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-medium transition-colors" style={{ color: "#C9A84C" }}>{p.cta} →</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* ═══ Section: Pricing + CTA ═══ */}
+      <section className="relative z-[2] mx-auto max-w-5xl px-6 pt-16 pb-10">
+        <div className="rounded-2xl border border-white/[0.06] p-8 md:p-12 text-center" style={{ background: "linear-gradient(135deg, #060E24, #030918)" }}>
+          <p className="text-[11px] tracking-[0.2em] text-white/25 uppercase">PRICING</p>
+          <h2 className="mt-3 font-serif text-3xl text-white/75">免费开始 · 按需付费</h2>
+          <p className="mt-3 text-[14px] text-white/35 max-w-lg mx-auto">注册即赠 50 星尘。免费用户可体验全部系统。深度报告按次付费，无月费订阅。</p>
+          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link href="/zh/register" className="rounded-xl px-12 py-4 font-medium transition-all hover:scale-[1.02]" style={{ background: "#C9A84C", color: "#020617" }}>免费注册</Link>
+            <Link href="/zh/pricing" className="rounded-xl border px-12 py-4 text-white/60 transition-all hover:text-white/80" style={{ borderColor: "rgba(255,255,255,0.15)" }}>查看定价</Link>
+          </div>
+        </div>
       </section>
 
       {/* ═══ PWA ═══ */}
       <section className="relative z-[2] mx-auto max-w-2xl px-6 pb-20 text-center">
-        <h2 className="font-serif text-2xl text-white/60">随时随地打开<span style={{ color: "#C9A84C" }}>观我</span></h2>
-        <p className="mt-3 max-w-sm mx-auto text-[13px] leading-relaxed text-white/25">添加到手机桌面，像原生 App 一样。无需下载，无需应用商店，一键直达</p>
-        <p className="mt-6 text-[11px] text-white/15">用手机浏览器访问 khanfate.com，即可添加到桌面</p>
+        <p className="text-[11px] text-white/15">添加到手机桌面，像 App 一样使用。用手机浏览器访问 khanfate.com 即可。</p>
       </section>
     </div>
   )
