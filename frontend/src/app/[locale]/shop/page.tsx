@@ -6,6 +6,7 @@ import { listMyReadings, listProducts, matchProducts, Product } from "@/lib/api"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useCart } from "@/contexts/CartContext"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
+import { NEED_PATHS, normalizeProductCategory, productMatchesNeed } from "@/lib/treasureHall"
 
 const ProductCard = lazy(() => import("@/components/reading/ProductCard").then(m => ({ default: m.ProductCard })))
 const AIRecommendHero = lazy(() => import("@/components/shop/AIRecommendHero").then(m => ({ default: m.AIRecommendHero })))
@@ -39,6 +40,7 @@ function ShopContent() {
   const [loading, setLoading] = useState(true)
   const [isPersonalized, setIsPersonalized] = useState(false)
   const [activeSeries, setActiveSeries] = useState("")
+  const [activeNeed, setActiveNeed] = useState("")
   const [heroVisible, setHeroVisible] = useState(false)
   const [particles, setParticles] = useState<{ x: number; y: number; dur: number; delay: number }[]>([])
 
@@ -90,7 +92,7 @@ function ShopContent() {
           const matched = await matchProducts({
             weakness_tags: weaknessTags,
             top_k: 20,
-            include_explain: false,
+            include_explain: true,
           }, locale)
           matched.sort((a, b) => (b.match_score ?? 0) - (a.match_score ?? 0))
           if (!cancelled) {
@@ -119,17 +121,21 @@ function ShopContent() {
   }, [sessionTags, locale])
 
   const products = useMemo(() => {
-    if (!activeSeries) return allProducts
-    return allProducts.filter(p => p.category === activeSeries)
-  }, [allProducts, activeSeries])
+    return allProducts.filter(p => {
+      const seriesMatch = !activeSeries || normalizeProductCategory(p.category) === activeSeries
+      const needMatch = !activeNeed || productMatchesNeed(p, activeNeed)
+      return seriesMatch && needMatch
+    })
+  }, [allProducts, activeSeries, activeNeed])
 
   const handleSeriesChange = useCallback((key: string) => setActiveSeries(key), [])
+  const handleNeedChange = useCallback((key: string) => setActiveNeed(key), [])
   const copy = {
     badge: "AI PROFILE MATCH",
     title: isZh ? "\u85cf\u5b9d\u9601" : "The Vault",
     subtitle: isZh
-      ? "\u8fd9\u91cc\u4e0d\u662f\u666e\u901a\u5546\u57ce\u3002\u89c2\u6211\u4f1a\u6839\u636e\u4f60\u7684 AI \u547d\u8fd0\u753b\u50cf\u3001\u4e94\u7ef4\u72b6\u6001\u548c\u8fd1\u671f\u8d8b\u52bf\uff0c\u5339\u914d\u9002\u5408\u5f53\u4e0b\u9636\u6bb5\u7684\u751f\u6d3b\u65b9\u5f0f\u597d\u7269\u3002"
-      : "This is not a generic shop. Guanwo matches items to your AI profile, five-dimension state, and current trend.",
+      ? "这里不是普通商城。观我会把你的报告标签、五维状态和近期趋势，转化为可执行的生活方式处方。"
+      : "This is not a generic shop. Guanwo turns your report tags, five-dimension state, and current trend into practical lifestyle prescriptions.",
     disclaimer: isZh
       ? "\u5546\u54c1\u4e3a\u6587\u5316\u521b\u610f\u4e0e\u751f\u6d3b\u65b9\u5f0f\u8f85\u52a9\u5efa\u8bae\uff0c\u4e0d\u627f\u8bfa\u529f\u6548\uff1b\u8bf7\u7ed3\u5408\u81ea\u8eab\u9700\u6c42\u7406\u6027\u9009\u62e9\u3002"
       : "Items are cultural and lifestyle recommendations, not guaranteed outcomes. Choose based on your own needs.",
@@ -143,6 +149,16 @@ function ShopContent() {
       : "These are curated picks. After your first AI profile, the system can generate a personal match order.",
     createProfile: isZh ? "\u5efa\u7acb\u6211\u7684\u753b\u50cf" : "Create my profile",
     signals: isZh ? ["\u753b\u50cf\u6807\u7b7e", "\u8fd1\u671f\u8d8b\u52bf", "\u6210\u957f\u8bfe\u9898"] : ["Profile tags", "Current trend", "Growth task"],
+    prescriptionTitle: isZh ? "你的当下处方" : "Your current prescription",
+    prescriptionDesc: isZh
+      ? "根据报告标签、五维弱项和近期趋势，把洞察转化为具体生活方式动作。"
+      : "Report tags, weaker dimensions, and current trends become concrete lifestyle actions.",
+    needTitle: isZh ? "按当前需求选择" : "Choose by current need",
+    needDesc: isZh
+      ? "没有报告也可以先按需求浏览；完成画像后，排序会更贴近你的状态。"
+      : "Browse by need before a report. After profiling, ranking becomes more personal.",
+    allNeeds: isZh ? "全部需求" : "All needs",
+    categoryTitle: isZh ? "按品类浏览" : "Browse by category",
     trustItems: isZh
       ? [
           { title: "\u62a5\u544a\u5339\u914d", desc: "\u6839\u636e\u753b\u50cf\u548c\u8d8b\u52bf\u6392\u5e8f" },
@@ -281,11 +297,11 @@ function ShopContent() {
               <div className="flex items-center gap-3 mb-6">
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gold/8 border border-gold/20">
                   <Sparkles size={14} className="text-gold/70" />
-                  <span className="text-gold/80 text-xs font-medium tracking-wide">{t("treasureHall.curator.title")}</span>
+                  <span className="text-gold/80 text-xs font-medium tracking-wide">{copy.prescriptionTitle}</span>
                 </div>
                 <div className="flex-1 h-px bg-gradient-to-r from-gold/15 to-transparent" />
               </div>
-              <p className="text-white/30 text-sm mb-6">{t("treasureHall.curator.subtitle")}</p>
+              <p className="text-white/35 text-sm mb-6">{copy.prescriptionDesc}</p>
             </ScrollReveal>
             <Suspense fallback={null}>
               <AIRecommendHero products={products} />
@@ -296,6 +312,43 @@ function ShopContent() {
         {/* Series Filter — horizontal scroll */}
         <ScrollReveal>
           <div className="mb-8">
+            <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+              <div>
+                <h2 className="font-serif text-xl text-gold">{copy.needTitle}</h2>
+                <p className="mt-1 text-sm leading-relaxed text-white/40">{copy.needDesc}</p>
+              </div>
+            </div>
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              <button
+                onClick={() => handleNeedChange("")}
+                className={`shrink-0 border px-4 py-2 text-xs transition-colors ${
+                  activeNeed === "" ? "border-gold/40 bg-gold/10 text-gold" : "border-white/10 bg-white/[0.025] text-white/45 hover:border-gold/25 hover:text-gold/80"
+                }`}
+              >
+                {copy.allNeeds}
+              </button>
+              {NEED_PATHS.map(need => (
+                <button
+                  key={need.key}
+                  onClick={() => handleNeedChange(need.key)}
+                  className={`shrink-0 border px-4 py-2 text-left transition-colors ${
+                    activeNeed === need.key ? "border-gold/40 bg-gold/10 text-gold" : "border-white/10 bg-white/[0.025] text-white/45 hover:border-gold/25 hover:text-gold/80"
+                  }`}
+                >
+                  <span className="block text-xs font-medium">{need.label[isZh ? "zh" : "en"]}</span>
+                  <span className="mt-0.5 block max-w-[220px] text-[10px] leading-relaxed text-white/30">{need.description[isZh ? "zh" : "en"]}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </ScrollReveal>
+
+        <ScrollReveal>
+          <div className="mb-8">
+            <div className="mb-3 flex items-center gap-3">
+              <h2 className="font-serif text-lg text-gold/85">{copy.categoryTitle}</h2>
+              <div className="h-px flex-1 bg-gradient-to-r from-gold/10 to-transparent" />
+            </div>
             <div className="series-scroll">
               {SERIES.map(s => (
                 <button
