@@ -4,22 +4,23 @@ import { useEffect } from "react"
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 
-const CLASSICS = [
-  "周易","滴天髓","三命通会","子平真诠","穷通宝鉴",
-  "渊海子平","紫微斗数全书","果老星宗","增删卜易",
-  "卜筮正宗","六壬大全","烟波钓叟歌",
+const SYSTEMS = [
+  "八字","紫微斗数","星盘","塔罗","面相","手相",
 ]
 const TRIGRAMS = ["☰乾","☱兑","☲离","☳震","☴巽","☵坎","☶艮","☷坤"]
 const FEATURES = [
-  { char: "命", title: "八字排盘", desc: "录入生辰，按古法自动起盘排柱", href: "/bazi", free: true },
-  { char: "紫", title: "紫微斗数", desc: "十二宫排盘，看主星四化与大限流年", href: "/ziwei", free: true },
-  { char: "卦", title: "六爻起卦", desc: "依《增删卜易》《卜筮正宗》参详卦象", href: "/divination", free: false },
-  { char: "星", title: "星盘解读", desc: "七政四余 · 恒星制，以二十八宿论命格", href: "/astrology", free: true },
-  { char: "缘", title: "八字合盘", desc: "两盘对照，参看缘分契合与互补", href: "/bazi/compatibility", free: true },
-  { char: "面", title: "面相分析", desc: "五官十二宫，看先天禀赋与后天运势", href: "/face-reading", free: false },
+  { char: "命", title: "八字起盘", desc: "录入生辰，古法自动排四柱十神大运", href: "/bazi", free: true },
+  { char: "紫", title: "紫微排宫", desc: "十二宫主星四化，大限流年一目了然", href: "/ziwei", free: true },
+  { char: "星", title: "星盘推运", desc: "七政四余恒星制，二十八宿论先天命格", href: "/astrology", free: true },
+  { char: "占", title: "塔罗择问", desc: "三张牌阵 + AI 解读，聚焦当下选择压力", href: "/tarot", free: false },
+  { char: "面", title: "面相解读", desc: "五官十二宫 AI 分析，看禀赋与行为印象", href: "/face-reading", free: false },
+  { char: "合", title: "关系合参", desc: "两盘对照，交叉验证契合度与互补空间", href: "/bazi/compatibility", free: true },
 ]
 const STATS = [
-  ["8+","大推演模块"],["4","维交互模式"],["50","注册即赠灵签"],["0","月费订阅"],
+  ["5+","命运系统"],["4","交互人格"],["50","星尘赠送"],["0","月费订阅"],
+]
+const MARQUEE_ITEMS = [
+  "八字起盘","紫微排宫","星盘推运","塔罗择问","面相解读","手相分析","六爻起卦","事件复盘","每日趋势","关系合参",
 ]
 
 export default function GalaxyHomeNew() {
@@ -125,21 +126,21 @@ export default function GalaxyHomeNew() {
             WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
             filter: "drop-shadow(0 0 40px rgba(201,168,76,0.25))",
           }}>观我</h1>
-          <p className="mt-4 text-[11px] tracking-[0.15em] text-white/30">AETHER POUCH</p>
+          <p className="mt-4 text-[11px] tracking-[0.15em] text-white/30">FATE OS</p>
         </div>
         <div className="mt-10">
-          <p className="font-serif text-xl text-white/60">古籍为根 · AI 参详</p>
+          <p className="font-serif text-xl text-white/60">看见内在结构 · 找到下一步</p>
           <div className="mx-auto mt-4 h-px w-48" style={{ background:"linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent)" }} />
           <p className="mx-auto mt-4 max-w-md text-[14px] leading-relaxed text-white/35">
-            《周易》《滴天髓》《三命通会》原文为根<br/>AI 逐句参详，专业克制，按次计费，不订阅
+            融合八字、紫微、星盘、塔罗、面相手相<br/>AI 五维交叉验证，生成你的完整命运画像
           </p>
         </div>
         <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row">
           <Link href="/zh/reading/new" className="group rounded-xl px-10 py-4 font-medium transition-all hover:scale-[1.03]" style={{ background: "#C9A84C", color: "#020617" }}>
-            <span className="flex items-center gap-2">开始排盘 <ArrowRight size={16} /></span>
+            <span className="flex items-center gap-2">建立我的画像 <ArrowRight size={16} /></span>
           </Link>
-          <Link href="/zh/divination" className="rounded-xl border px-10 py-4 text-white/75 transition-all hover:border-white/35" style={{ borderColor: "rgba(255,255,255,0.18)" }}>
-            <span className="flex items-center gap-2">六爻起卦 <ArrowRight size={15} /></span>
+          <Link href="/zh/almanac" className="rounded-xl border px-10 py-4 text-white/75 transition-all hover:border-white/35" style={{ borderColor: "rgba(255,255,255,0.18)" }}>
+            <span className="flex items-center gap-2">查看今日趋势 <ArrowRight size={15} /></span>
           </Link>
         </div>
         <div className="absolute bottom-8 opacity-40">
@@ -151,10 +152,10 @@ export default function GalaxyHomeNew() {
 
       {/* ═══ Marquee ═══ */}
       <section className="relative z-[2] border-y border-white/[0.03] py-7 overflow-hidden">
-        <p className="mb-3 text-center text-[11px] tracking-[0.35em] text-white/25">古籍为根 · 逐句可溯源</p>
+        <p className="mb-3 text-center text-[11px] tracking-[0.35em] text-white/25">五维合参 · AI 交叉验证</p>
         <div className="flex whitespace-nowrap text-[14px] text-white/30 font-serif" style={{ animation: "gh-marquee 80s linear infinite" }}>
-          {[...CLASSICS, ...CLASSICS].map((n, i) => (
-            <span key={i} className="mx-3">{`《${n}》`}<span className="mx-2 text-white/10">·</span></span>
+          {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((n, i) => (
+            <span key={i} className="mx-3">{n}<span className="mx-2 text-white/10">·</span></span>
           ))}
         </div>
       </section>
@@ -173,19 +174,19 @@ export default function GalaxyHomeNew() {
 
       {/* ═══ Features ═══ */}
       <section className="relative z-[2] mx-auto max-w-5xl px-6 pt-20 pb-10">
-        <h2 className="text-center font-serif text-3xl text-white/75">核心功能</h2>
+        <h2 className="text-center font-serif text-3xl text-white/75">命运画像系统</h2>
         <div className="mx-auto mt-4 h-px w-32" style={{ background: "linear-gradient(90deg, transparent, rgba(201,168,76,0.2), transparent)" }} />
-        <p className="mt-4 text-center text-[13px] text-white/35">每一句解读都引自古籍原文，可溯源、不空谈、千人千面</p>
+        <p className="mt-4 text-center text-[13px] text-white/35">不是算命，是自我认知的工具——八字起盘、紫微排宫、星盘推运、塔罗择问、面相解读</p>
 
         <div className="mt-12">
           <Link href="/zh/reading/new" className="group flex flex-col gap-6 rounded-2xl border border-white/[0.05] p-8 transition-all hover:border-white/[0.15] md:flex-row md:items-center md:gap-8 md:p-10" style={{ background: "linear-gradient(135deg, #060E24, #030918)" }}>
-            <span className="self-start font-serif text-6xl md:self-center" style={{ color: "#C9A84C" }}>参</span>
+            <span className="self-start font-serif text-6xl md:self-center" style={{ color: "#C9A84C" }}>观</span>
             <div className="flex-1 text-left">
               <div className="flex flex-wrap items-center gap-3">
-                <h3 className="font-serif text-2xl text-white/80">三术合参</h3>
-                <span className="rounded-full px-3 py-0.5 text-[11px] tracking-[0.1em]" style={{ background: "rgba(201,168,76,0.12)", color: "#C9A84C" }}>旗舰 · 三盘互证</span>
+                <h3 className="font-serif text-2xl text-white/80">完整命运画像</h3>
+                <span className="rounded-full px-3 py-0.5 text-[11px] tracking-[0.1em]" style={{ background: "rgba(201,168,76,0.12)", color: "#C9A84C" }}>五维合参 · 交叉验证</span>
               </div>
-              <p className="mt-3 max-w-xl text-[14px] leading-relaxed text-white/45">八字 × 紫微 × 七政三盘互证 — 信度分级的旗舰整合解读</p>
+              <p className="mt-3 max-w-xl text-[14px] leading-relaxed text-white/45">八字 × 紫微 × 星盘 × 塔罗 × 面相手相 — 五系统交叉验证，生成你的完整命运画像，输出今日行动</p>
             </div>
             <span className="flex items-center gap-2 text-sm text-white/40 transition-all group-hover:gap-3 group-hover:text-white/60">了解更多 →</span>
           </Link>
@@ -206,16 +207,16 @@ export default function GalaxyHomeNew() {
 
       {/* ═══ Register CTA ═══ */}
       <section className="relative z-[2] mx-auto max-w-2xl px-6 pb-16 pt-6 text-center">
-        <p className="font-serif text-3xl text-white/70">注册即赠 <span style={{ color: "#C9A84C" }}>50</span> 灵签</p>
-        <p className="mt-3 text-[14px] text-white/35">按次计费，无订阅，充值额外赠 15%</p>
+        <p className="font-serif text-3xl text-white/70">免费注册 · 赠 <span style={{ color: "#C9A84C" }}>50</span> 星尘</p>
+        <p className="mt-3 text-[14px] text-white/35">按次付费，无月费订阅，充值额外赠 15%</p>
         <Link href="/zh/register" className="mt-10 inline-block rounded-xl px-14 py-4 font-medium transition-all hover:scale-[1.03]" style={{ background: "#C9A84C", color: "#020617" }}>免费注册</Link>
       </section>
 
       {/* ═══ PWA ═══ */}
       <section className="relative z-[2] mx-auto max-w-2xl px-6 pb-20 text-center">
-        <h2 className="font-serif text-2xl text-white/60">随身携带你的<span style={{ color: "#C9A84C" }}>观我</span></h2>
-        <p className="mt-3 max-w-sm mx-auto text-[13px] leading-relaxed text-white/25">添加到手机桌面，像原生 App 一样随时打开。无需下载，无需应用商店，一键直达</p>
-        <p className="mt-6 text-[11px] text-white/15">使用手机浏览器访问本页，即可添加到桌面</p>
+        <h2 className="font-serif text-2xl text-white/60">随时随地打开<span style={{ color: "#C9A84C" }}>观我</span></h2>
+        <p className="mt-3 max-w-sm mx-auto text-[13px] leading-relaxed text-white/25">添加到手机桌面，像原生 App 一样。无需下载，无需应用商店，一键直达</p>
+        <p className="mt-6 text-[11px] text-white/15">用手机浏览器访问 khanfate.com，即可添加到桌面</p>
       </section>
     </div>
   )
