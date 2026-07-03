@@ -270,22 +270,31 @@
     --color-border-soft: rgba(34, 54, 48, 0.11);
   }
 
+  .gw-home-theme.gw-theme-day .gw-hero-section::after {
+    background:
+      linear-gradient(90deg, rgba(246, 239, 218, 0.88) 0%, rgba(246, 239, 218, 0.58) 42%, rgba(246, 239, 218, 0.12) 78%),
+      radial-gradient(ellipse at 16% 52%, rgba(246, 239, 218, 0.7), transparent 44%),
+      linear-gradient(180deg, rgba(255, 248, 223, 0.16), transparent 34%, rgba(134, 110, 50, 0.1));
+  }
+
   .gw-hero-section {
     position: relative;
     isolation: isolate;
+    overflow: hidden;
+    border-radius: 0;
   }
 
   .gw-hero-section::before {
     position: absolute;
     content: "";
-    inset: 20px -36px 42px;
-    z-index: -2;
-    border-radius: 44px;
+    inset: 0;
+    z-index: 0;
+    border-radius: 0;
     background:
-      radial-gradient(ellipse at 18% 8%, rgba(244, 239, 226, 0.16), transparent 30%),
-      radial-gradient(ellipse at 82% 18%, rgba(200, 168, 74, 0.14), transparent 28%),
-      linear-gradient(180deg, rgba(13, 40, 34, 0.62), rgba(3, 8, 7, 0.08) 72%);
-    filter: blur(0.2px);
+      radial-gradient(ellipse at 18% 10%, rgba(244, 239, 226, 0.12), transparent 30%),
+      radial-gradient(ellipse at 78% 18%, rgba(200, 168, 74, 0.18), transparent 32%),
+      radial-gradient(ellipse at 76% 72%, rgba(109, 93, 246, 0.12), transparent 34%),
+      linear-gradient(180deg, color-mix(in srgb, var(--gw-bg-1) 90%, black), color-mix(in srgb, var(--gw-bg-0) 88%, black));
   }
 
   .gw-sky-toggle {
@@ -311,15 +320,14 @@
   .gw-hero-section::after {
     position: absolute;
     content: "";
-    inset: auto -34px 18px -34px;
-    z-index: -1;
-    height: 190px;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
     background:
-      linear-gradient(165deg, transparent 0 43%, rgba(22, 70, 58, 0.34) 44% 56%, transparent 57%),
-      linear-gradient(24deg, transparent 0 48%, rgba(200, 168, 74, 0.16) 49%, transparent 61%),
-      radial-gradient(ellipse at 50% 100%, rgba(15, 55, 47, 0.62), transparent 68%);
-    opacity: 0.9;
-    mask-image: linear-gradient(to top, black 20%, transparent 100%);
+      linear-gradient(90deg, color-mix(in srgb, var(--gw-bg-0) 86%, black) 0%, color-mix(in srgb, var(--gw-bg-1) 66%, transparent) 42%, transparent 78%),
+      radial-gradient(ellipse at 16% 52%, color-mix(in srgb, var(--gw-bg-0) 82%, transparent), transparent 44%),
+      linear-gradient(180deg, rgba(0, 0, 0, 0.12), transparent 34%, rgba(0, 0, 0, 0.18));
+    opacity: 0.96;
   }
 
   .gw-hero-tag {
@@ -355,29 +363,27 @@
   }
 
   .gw-atlas-stage {
-    position: relative;
-    min-height: 540px;
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    min-height: 100%;
     overflow: hidden;
-    border-radius: 42px;
-    border: 1px solid var(--gw-line);
-    background:
-      radial-gradient(ellipse at 70% 16%, rgba(244, 239, 226, 0.12), transparent 28%),
-      radial-gradient(ellipse at 24% 26%, var(--gw-milky-3), transparent 36%),
-      linear-gradient(180deg, color-mix(in srgb, var(--gw-bg-1) 88%, black), color-mix(in srgb, var(--gw-bg-2) 92%, black));
-    box-shadow:
-      0 34px 120px rgba(0, 0, 0, 0.38),
-      inset 0 1px 0 rgba(244, 239, 226, 0.08);
+    border-radius: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    pointer-events: none;
   }
 
   .gw-atlas-stage::before {
     position: absolute;
     content: "";
-    inset: 0;
+    inset: -8%;
     background:
       radial-gradient(circle at 50% 50%, transparent 0 25%, rgba(214, 182, 90, 0.09) 25.3% 25.8%, transparent 26% 100%),
       repeating-conic-gradient(from 12deg at 50% 50%, transparent 0 23deg, rgba(214, 182, 90, 0.12) 23.4deg 23.8deg, transparent 24.2deg 45deg);
-    opacity: 0.42;
-    mask-image: radial-gradient(circle at 58% 48%, black 0 44%, transparent 70%);
+    opacity: 0.28;
+    mask-image: radial-gradient(circle at 72% 42%, black 0 36%, transparent 68%);
   }
 
   .gw-atlas-stars span {
@@ -400,29 +406,30 @@
 
   .gw-taiji-symbol {
     position: absolute;
-    right: 42px;
-    top: 46px;
-    width: min(360px, 58%);
+    right: 6%;
+    top: 8%;
+    width: min(560px, 52vw);
     aspect-ratio: 1;
     border-radius: 999px;
-    opacity: 0.18;
+    opacity: 0.16;
     background:
       radial-gradient(circle at 50% 25%, var(--gw-bg-0) 0 8%, transparent 8.5%),
       radial-gradient(circle at 50% 75%, var(--color-text-primary) 0 8%, transparent 8.5%),
       radial-gradient(circle at 50% 25%, var(--color-text-primary) 0 25%, transparent 25.5%),
       radial-gradient(circle at 50% 75%, var(--gw-bg-0) 0 25%, transparent 25.5%),
       linear-gradient(90deg, var(--color-text-primary) 0 50%, var(--gw-bg-0) 50% 100%);
-    box-shadow: 0 0 80px rgba(214, 182, 90, 0.18);
+    box-shadow: 0 0 120px rgba(214, 182, 90, 0.2);
   }
 
   .gw-bagua-orbit {
     position: absolute;
-    right: 70px;
-    top: 74px;
-    width: min(300px, 48%);
+    right: 11%;
+    top: 13%;
+    width: min(430px, 42vw);
     aspect-ratio: 1;
     border-radius: 999px;
-    border: 1px solid var(--gw-line);
+    border: 1px solid color-mix(in srgb, var(--gw-line) 82%, transparent);
+    box-shadow: 0 0 90px rgba(200, 168, 74, 0.1);
   }
 
   .gw-bagua-glyph {
@@ -451,17 +458,17 @@
 
   .gw-galaxy-band {
     position: absolute;
-    left: -24%;
-    right: -24%;
+    left: -38%;
+    right: -38%;
     z-index: 2;
-    height: 190px;
+    height: 220px;
     border-radius: 999px;
     transform: rotate(-13deg);
     filter: blur(0.4px);
   }
 
   .gw-galaxy-band-back {
-    top: 40%;
+    top: 44%;
     background:
       radial-gradient(ellipse at 22% 48%, var(--gw-milky-3), transparent 35%),
       linear-gradient(90deg, transparent 0 6%, var(--gw-milky-2) 22%, var(--gw-milky-1) 48%, rgba(244, 239, 226, 0.18) 52%, var(--gw-milky-2) 72%, transparent 94%);
@@ -469,8 +476,8 @@
   }
 
   .gw-galaxy-band-front {
-    top: 52%;
-    height: 130px;
+    top: 56%;
+    height: 150px;
     transform: rotate(-8deg);
     background:
       radial-gradient(ellipse at 54% 50%, rgba(244, 239, 226, 0.28), transparent 20%),
@@ -493,11 +500,11 @@
 
   .gw-atlas-moon {
     position: absolute;
-    right: 72px;
-    top: 56px;
+    right: 22%;
+    top: 16%;
     z-index: 2;
-    width: 132px;
-    height: 132px;
+    width: 150px;
+    height: 150px;
     border-radius: 999px;
     background:
       radial-gradient(circle at 38% 36%, rgba(244, 239, 226, 0.68), rgba(214, 182, 90, 0.16) 44%, transparent 64%);
@@ -507,10 +514,10 @@
 
   .gw-atlas-constellation {
     position: absolute;
-    left: 10%;
+    left: 8%;
     top: 12%;
     z-index: 4;
-    width: 58%;
+    width: 72%;
     height: 190px;
     opacity: 0.34;
     background:
@@ -520,6 +527,7 @@
   }
 
   .gw-atlas-scroll {
+    display: none;
     position: absolute;
     left: 50px;
     top: 74px;
@@ -576,6 +584,7 @@
   .gw-atlas-lines i:nth-child(3) { width: 48%; }
 
   .gw-atlas-sources {
+    display: none;
     position: absolute;
     left: 50px;
     bottom: 44px;
@@ -596,6 +605,7 @@
   }
 
   .gw-atlas-action {
+    display: none;
     position: absolute;
     right: 42px;
     top: 252px;
@@ -729,13 +739,20 @@
 
   @media (max-width: 640px) {
     .gw-hero-section {
-      min-height: auto;
+      min-height: 720px;
       padding-top: 24px;
+      border-radius: 0;
     }
 
     .gw-hero-section::before {
-      inset: 0 -16px 36px;
-      border-radius: 32px;
+      inset: 0;
+      border-radius: 0;
+    }
+
+    .gw-hero-section::after {
+      background:
+        linear-gradient(180deg, color-mix(in srgb, var(--gw-bg-0) 88%, black) 0%, color-mix(in srgb, var(--gw-bg-1) 58%, transparent) 50%, transparent 78%),
+        radial-gradient(ellipse at 36% 24%, color-mix(in srgb, var(--gw-bg-0) 78%, transparent), transparent 48%);
     }
 
     .gw-hero-brand {
@@ -747,20 +764,21 @@
     }
 
     .gw-atlas-stage {
-      min-height: 420px;
-      border-radius: 30px;
+      inset: 0;
+      min-height: 100%;
+      border-radius: 0;
     }
 
     .gw-taiji-symbol {
-      right: -14px;
-      top: 88px;
-      width: 260px;
+      right: 72px;
+      top: 280px;
+      width: 280px;
     }
 
     .gw-bagua-orbit {
-      right: 22px;
-      top: 112px;
-      width: 196px;
+      right: 104px;
+      top: 308px;
+      width: 220px;
       opacity: 0.72;
     }
 
@@ -776,50 +794,20 @@
     }
 
     .gw-galaxy-band-back {
-      top: 48%;
+      top: 62%;
       height: 136px;
     }
 
     .gw-galaxy-band-front {
-      top: 58%;
+      top: 70%;
       height: 100px;
     }
 
     .gw-atlas-moon {
-      right: 26px;
-      top: 34px;
+      right: 118px;
+      top: 250px;
       width: 92px;
       height: 92px;
-    }
-
-    .gw-atlas-scroll {
-      left: 22px;
-      top: 48px;
-      width: calc(100% - 44px);
-      padding: 20px;
-    }
-
-    .gw-atlas-scroll strong {
-      font-size: 22px;
-    }
-
-    .gw-atlas-action {
-      left: 22px;
-      right: auto;
-      top: 222px;
-      width: 210px;
-    }
-
-    .gw-atlas-sources {
-      left: 22px;
-      right: 22px;
-      bottom: 20px;
-      max-width: none;
-    }
-
-    .gw-atlas-sources span {
-      font-size: 11px;
-      padding: 7px 9px;
     }
 
     .ow-orbit {
