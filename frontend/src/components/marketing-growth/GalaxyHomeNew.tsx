@@ -136,7 +136,7 @@ export default function GalaxyHomeNew() {
       {/* ═══ L5: Tai Chi Bagua field — 520px formation disk ═══ */}
       <div className="fixed left-1/2 pointer-events-none" aria-hidden="true" style={{
         width: "min(520px, 90vw)", height: "min(520px, 90vw)",
-        top: "37%", transform: "translate(-50%,-50%) rotate(0deg)",
+        top: "44%", transform: "translate(-50%,-50%) rotate(0deg)",
         opacity: 0.22, zIndex: 5,
         animation: "taijiSpin 90s linear infinite",
         filter: "drop-shadow(0 0 40px rgba(218,180,74,0.16))",
@@ -156,7 +156,7 @@ export default function GalaxyHomeNew() {
       {/* ═══ L6: Text readable mask ═══ */}
       <div className="fixed left-1/2 pointer-events-none" aria-hidden="true" style={{
         width: "680px", maxWidth: "95vw", height: "520px",
-        top: "43%", transform: "translate(-50%,-50%)",
+        top: "48%", transform: "translate(-50%,-50%)",
         background: "radial-gradient(ellipse at center, rgba(2,5,12,0.36) 0%, rgba(2,5,12,0.20) 38%, transparent 74%)",
         zIndex: 6,
       }} />
