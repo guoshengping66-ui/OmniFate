@@ -55,14 +55,17 @@ export function MilkyWayBackground() {
         }}
       />
 
-      {/* Layer 5: Drifting light particles — CSS animation */}
+      {/* Layer 5: Drifting light particles — deterministic values to avoid hydration mismatch */}
       {Array.from({ length: 15 }).map((_, i) => {
+        // Use deterministic values based on index (no Math.random for SSR safety)
+        const seed = ((i * 137 + 53) % 100) / 100
         const isGold = i < 4
-        const top = 20 + Math.random() * 50
-        const delay = Math.random() * 8
-        const duration = 12 + Math.random() * 18
-        const size = isGold ? 2 + Math.random() * 2 : 1 + Math.random() * 2
-        const opacity = isGold ? 0.35 + Math.random() * 0.3 : 0.15 + Math.random() * 0.25
+        const top = 20 + seed * 45
+        const delay = (i * 0.7) % 8
+        const duration = 14 + (i % 6) * 3
+        const size = isGold ? 2 + (i % 3) : 1.5 + (i % 3) * 0.5
+        const opacity = isGold ? 0.4 + (i % 3) * 0.1 : 0.2 + (i % 5) * 0.05
+        const leftStart = (i * 7.3) % 100 - 5
 
         return (
           <div
@@ -72,7 +75,7 @@ export function MilkyWayBackground() {
               width: size,
               height: size,
               top: `${top}%`,
-              left: `${-5 + Math.random() * 110}%`,
+              left: `${leftStart}%`,
               background: isGold
                 ? "radial-gradient(circle, rgba(201,168,76,0.8) 0%, transparent 70%)"
                 : "radial-gradient(circle, rgba(200,200,255,0.6) 0%, transparent 70%)",
