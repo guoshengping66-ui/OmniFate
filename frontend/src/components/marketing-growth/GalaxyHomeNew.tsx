@@ -6,27 +6,13 @@ import { ArrowRight } from "lucide-react"
 
 const TRIGRAMS = ["乾","兑","离","震","巽","坎","艮","坤"]
 
-const RIDGES = [
-  { d:"M0,260 C180,190 280,310 430,230 C600,130 760,300 920,220 C1080,150 1240,280 1440,210 L1440,420 L0,420 Z", opacity:0.85, blur:0.3 },
-  { d:"M0,290 C200,340 320,240 480,300 C640,350 780,260 940,310 C1100,350 1260,270 1440,320 L1440,420 L0,420 Z", opacity:0.5, blur:0.7 },
-  { d:"M0,330 C160,280 300,360 460,320 C620,280 740,350 900,330 C1060,310 1220,360 1440,325 L1440,420 L0,420 Z", opacity:0.3, blur:1.2 },
-]
-
-const RIDGE_LINES = [
-  "M0,210 C180,190 280,310 430,230 C600,130 760,300 920,220 C1080,150 1240,280 1440,210",
-  "M0,290 C200,340 320,240 480,300 C640,350 780,260 940,310 C1100,350 1260,270 1440,320",
-  "M0,325 C160,280 300,360 460,320 C620,280 740,350 900,330 C1060,310 1220,360 1440,325",
-]
-
 export default function GalaxyHomeNew() {
   useEffect(() => {
     const s = document.createElement("style")
     s.textContent = `
       @keyframes taijiRotate { from { transform:translate(-50%,-50%) rotate(0deg) } to { transform:translate(-50%,-50%) rotate(360deg) } }
-      @keyframes ridgeFlow1 { from { stroke-dashoffset:0 } to { stroke-dashoffset:-220 } }
-      @keyframes ridgeFlow2 { from { stroke-dashoffset:0 } to { stroke-dashoffset:-180 } }
-      @keyframes ridgeFlow3 { from { stroke-dashoffset:0 } to { stroke-dashoffset:-140 } }
-      @media (prefers-reduced-motion:reduce) { .taiji-field, .ridge-line { animation:none!important } }
+      @keyframes goldFlow { 0% { transform:translateX(-5%) skewY(-4deg) } 50% { transform:translateX(5%) skewY(-4deg) } 100% { transform:translateX(-5%) skewY(-4deg) } }
+      @media (prefers-reduced-motion:reduce) { .taiji-field, .gold-dust-flow { animation:none!important } }
     `
     document.head.appendChild(s)
     return () => { document.head.removeChild(s) }
@@ -34,101 +20,177 @@ export default function GalaxyHomeNew() {
 
   return (
     <div className="w-full text-white" style={{ background: "#020617" }}>
-      {/* ══ Layer 1: Cosmic base ══ */}
+      {/* ═══════════════════════════════════════ */}
+      {/* Layer 1: Cosmic base */}
+      {/* ═══════════════════════════════════════ */}
       <div className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{
         background:
-          "radial-gradient(circle at 50% 35%, rgba(212,175,55,0.08), transparent 35%)," +
-          "radial-gradient(circle at 50% 60%, rgba(38,90,110,0.22), transparent 50%)," +
+          "radial-gradient(circle at 50% 35%, rgba(212,175,55,0.06), transparent 32%)," +
+          "radial-gradient(circle at 50% 58%, rgba(38,90,110,0.18), transparent 48%)," +
           "linear-gradient(180deg, #050914 0%, #07101d 45%, #02050c 100%)",
         zIndex: 0,
       }} />
 
-      {/* ══ Layer 2: Galaxy ridges ══ */}
+      {/* ═══════════════════════════════════════ */}
+      {/* Layer 2: Distant galaxy mist bands (depth, like Qingnang layers) */}
+      {/* ═══════════════════════════════════════ */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true" style={{ zIndex: 1 }}>
-        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 1440 420" preserveAspectRatio="none">
-          <defs>
-            <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="rgba(38,90,110,0.55)" />
-              <stop offset="40%" stopColor="rgba(20,50,70,0.3)" />
-              <stop offset="100%" stopColor="rgba(5,15,25,0)" />
-            </linearGradient>
-            <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="rgba(30,70,90,0.35)" />
-              <stop offset="50%" stopColor="rgba(15,40,55,0.18)" />
-              <stop offset="100%" stopColor="rgba(5,15,25,0)" />
-            </linearGradient>
-            <linearGradient id="g3" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="rgba(25,60,80,0.2)" />
-              <stop offset="100%" stopColor="rgba(5,15,25,0)" />
-            </linearGradient>
-            <pattern id="dust" patternUnits="userSpaceOnUse" width="120" height="80">
-              <circle cx="10" cy="15" r="1" fill="rgba(226,190,88,0.5)" />
-              <circle cx="45" cy="30" r="0.7" fill="rgba(255,255,255,0.25)" />
-              <circle cx="80" cy="10" r="0.8" fill="rgba(226,190,88,0.35)" />
-              <circle cx="110" cy="40" r="1.2" fill="rgba(200,200,220,0.2)" />
-              <circle cx="30" cy="55" r="0.6" fill="rgba(255,255,255,0.18)" />
-              <circle cx="70" cy="50" r="0.9" fill="rgba(226,190,88,0.3)" />
-              <circle cx="100" cy="20" r="0.5" fill="rgba(255,255,255,0.2)" />
-            </pattern>
-          </defs>
-          {RIDGES.map((r, i) => (
-            <g key={i}>
-              <path d={r.d} fill={`url(#g${i+1})`} style={{ filter:`blur(${r.blur}px)`, opacity:r.opacity }} />
-              <path d={r.d} fill="url(#dust)" style={{ opacity:0.22 }} />
-            </g>
-          ))}
-        </svg>
+        <div className="absolute" style={{
+          left:"-10%", width:"120%", height:220, top:"30%",
+          borderRadius:"50%",
+          background:
+            "radial-gradient(ellipse at center, rgba(70,150,160,0.08), transparent 65%)," +
+            "radial-gradient(ellipse at 45% 50%, rgba(218,180,74,0.06), transparent 50%)",
+          filter:"blur(34px)",
+          opacity:0.4,
+          transform:"rotate(2deg)",
+        }} />
+        <div className="absolute" style={{
+          left:"-10%", width:"120%", height:240, top:"52%",
+          borderRadius:"50%",
+          background:
+            "radial-gradient(ellipse at center, rgba(50,120,140,0.06), transparent 60%)," +
+            "radial-gradient(ellipse at 55% 50%, rgba(218,180,74,0.05), transparent 55%)",
+          filter:"blur(40px)",
+          opacity:0.3,
+          transform:"rotate(-3deg)",
+        }} />
       </div>
 
-      {/* ══ Layer 3: Gold ridge lines ══ */}
+      {/* ═══════════════════════════════════════ */}
+      {/* Layer 3: Main Milky Way band */}
+      {/* ═══════════════════════════════════════ */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true" style={{ zIndex: 2 }}>
-        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 1440 420" preserveAspectRatio="none">
-          {RIDGE_LINES.map((d, i) => (
-            <path key={i} className="ridge-line" d={d} fill="none"
-              stroke="rgba(218,180,74,0.5)"
-              strokeWidth={i===0?1:0.6}
-              strokeDasharray={i===0?"8 14":"5 20"}
-              style={{
-                filter:"drop-shadow(0 0 6px rgba(218,180,74,0.3))",
-                animation:`ridgeFlow${i+1} ${16+i*4}s linear infinite`,
-                opacity:1-i*0.2,
-              }}
-            />
-          ))}
-        </svg>
-      </div>
+        {/* Milky Way container — horizontal fog ellipse */}
+        <div className="milky-way-band" style={{
+          position:"absolute",
+          left:"-10%", top:"38%",
+          width:"120%", height:"340px",
+          transform:"rotate(-1.5deg)",
+          opacity:0.95,
+          maskImage:"radial-gradient(ellipse at center, black 0%, black 42%, transparent 76%)",
+          WebkitMaskImage:"radial-gradient(ellipse at center, black 0%, black 42%, transparent 76%)",
+        }}>
+          {/* Nebula core — the foggy glow */}
+          <div style={{
+            position:"absolute", inset:0,
+            background:
+              "radial-gradient(ellipse at 35% 48%, rgba(218,180,74,0.16), transparent 26%)," +
+              "radial-gradient(ellipse at 55% 52%, rgba(92,180,190,0.18), transparent 32%)," +
+              "radial-gradient(ellipse at 70% 46%, rgba(255,230,160,0.10), transparent 20%)," +
+              "linear-gradient(90deg," +
+              "  transparent 0%," +
+              "  rgba(38,92,105,0.10) 16%," +
+              "  rgba(116,138,118,0.18) 38%," +
+              "  rgba(218,180,74,0.14) 52%," +
+              "  rgba(43,116,130,0.14) 70%," +
+              "  transparent 100%" +
+              ")",
+            filter:"blur(24px)",
+          }} />
 
-      {/* ══ Layer 4: Tai Chi Bagua field ══ */}
-      <div className="taiji-field fixed left-1/2 pointer-events-none" aria-hidden="true" style={{
-        width:"min(380px, 80vw)", height:"min(380px, 80vw)",
-        top:"clamp(36%, 360px, 42%)",
-        transform:"translate(-50%, -50%)",
-        opacity:0.16,
-        zIndex:3,
-        animation:"taijiRotate 70s linear infinite",
-        filter:"drop-shadow(0 0 24px rgba(218,180,74,0.12))",
-      }}>
-        <div className="absolute inset-0 rounded-full border" style={{ borderColor:"rgba(218,180,74,0.22)", borderWidth:1 }} />
-        <div className="absolute inset-[10%] rounded-full border" style={{ borderColor:"rgba(218,180,74,0.12)", borderWidth:0.5 }} />
-        <div className="absolute inset-[22%] rounded-full border" style={{ borderColor:"rgba(218,180,74,0.08)", borderWidth:0.5 }} />
-        {TRIGRAMS.map((t, i) => {
-          const a = (i/8)*360+22.5
-          return <span key={i} className="absolute text-xs font-serif" style={{
-            left:"50%",top:"50%",
-            transform:`rotate(${a}deg) translateY(-46%) rotate(-${a}deg) translateX(-50%)`,
-            color:"rgba(218,180,74,0.5)",
-          }}>{t}</span>
-        })}
-        <div className="absolute inset-[6%] flex items-center justify-center">
-          <span className="select-none" style={{ fontSize:"clamp(50px, 9vw, 90px)", color:"rgba(218,180,74,0.35)" }}>☯</span>
+          {/* Star dust layer A — dense tiny dots */}
+          <div style={{
+            position:"absolute", inset:0,
+            backgroundImage:
+              "radial-gradient(circle, rgba(255,235,170,0.9) 0 1px, transparent 1.6px)," +
+              "radial-gradient(circle, rgba(255,255,255,0.5) 0 1px, transparent 1.5px)," +
+              "radial-gradient(circle, rgba(126,210,220,0.4) 0 1px, transparent 1.8px)",
+            backgroundSize:"38px 26px, 61px 41px, 97px 66px",
+            backgroundPosition:"0 0, 20px 12px, 44px 26px",
+            opacity:0.5,
+            filter:"blur(0.2px)",
+          }} />
+
+          {/* Star dust layer B — finer grain */}
+          <div style={{
+            position:"absolute", inset:0,
+            backgroundImage:
+              "radial-gradient(circle, rgba(255,218,105,0.7) 0 0.7px, transparent 1.3px)," +
+              "radial-gradient(circle, rgba(255,255,255,0.3) 0 0.6px, transparent 1.2px)",
+            backgroundSize:"18px 14px, 29px 22px",
+            opacity:0.25,
+            filter:"blur(0.6px)",
+          }} />
+
+          {/* Gold dust flow — soft bright band along the Milky Way */}
+          <div className="gold-dust-flow" style={{
+            position:"absolute", left:0, top:"44%",
+            width:"100%", height:"80px",
+            background:
+              "linear-gradient(90deg," +
+              "  transparent 0%," +
+              "  rgba(218,180,74,0.04) 18%," +
+              "  rgba(255,221,125,0.18) 42%," +
+              "  rgba(90,190,200,0.10) 60%," +
+              "  transparent 100%" +
+              ")",
+            filter:"blur(16px)",
+            transform:"skewY(-4deg)",
+            animation:"goldFlow 20s ease-in-out infinite",
+          }} />
         </div>
       </div>
 
-      {/* ══ Layer 5: Vignette ══ */}
+      {/* ═══════════════════════════════════════ */}
+      {/* Layer 4: Tai Chi Bagua — large energy field behind title */}
+      {/* ═══════════════════════════════════════ */}
+      <div className="taiji-field fixed left-1/2 pointer-events-none" aria-hidden="true" style={{
+        width:"min(420px, 84vw)", height:"min(420px, 84vw)",
+        top:"38%",
+        transform:"translate(-50%, -50%)",
+        opacity:0.2,
+        zIndex:3,
+        animation:"taijiRotate 80s linear infinite",
+        filter:"drop-shadow(0 0 32px rgba(218,180,74,0.18))",
+      }}>
+        {/* Outer ring with glow */}
+        <div style={{
+          position:"absolute", inset:0,
+          border:"1px solid rgba(218,180,74,0.3)",
+          borderRadius:"50%",
+          boxShadow:"0 0 40px rgba(218,180,74,0.10), inset 0 0 36px rgba(92,180,190,0.08)",
+        }} />
+        {/* Middle ring */}
+        <div style={{
+          position:"absolute", inset:"10%",
+          border:"0.5px solid rgba(218,180,74,0.15)",
+          borderRadius:"50%",
+        }} />
+        {/* Bagua marks on ring */}
+        {TRIGRAMS.map((t, i) => {
+          const a = (i/8)*360+22.5
+          return (
+            <span key={i} className="absolute font-serif" style={{
+              left:"50%",top:"50%",
+              transform:`rotate(${a}deg) translateY(-45%) rotate(-${a}deg) translateX(-50%)`,
+              color:"rgba(218,180,74,0.45)",
+              fontSize:"clamp(10px, 1.2vw, 13px)",
+            }}>{t}</span>
+          )
+        })}
+        {/* Inner ring */}
+        <div style={{
+          position:"absolute", inset:"24%",
+          border:"0.5px solid rgba(218,180,74,0.1)",
+          borderRadius:"50%",
+        }} />
+        {/* Tai Chi symbol */}
+        <div style={{
+          position:"absolute", inset:"8%",
+          display:"grid", placeItems:"center",
+          fontSize:"clamp(70px, 11vw, 120px)",
+          color:"rgba(218,180,74,0.38)",
+        }}>☯</div>
+      </div>
+
+      {/* ═══════════════════════════════════════ */}
+      {/* Layer 5: Vignette */}
+      {/* ═══════════════════════════════════════ */}
       <div className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{
         background:
-          "radial-gradient(circle at 50% 45%, transparent 0%, transparent 38%, rgba(0,0,0,0.25) 78%)," +
-          "linear-gradient(180deg, rgba(0,0,0,0.1), transparent 28%, transparent 62%, rgba(0,0,0,0.6))",
+          "radial-gradient(circle at 50% 45%, transparent 0%, transparent 36%, rgba(0,0,0,0.22) 76%)," +
+          "linear-gradient(180deg, rgba(0,0,0,0.08), transparent 26%, transparent 60%, rgba(0,0,0,0.55))",
         zIndex: 5,
       }} />
 
@@ -246,7 +308,7 @@ export default function GalaxyHomeNew() {
       </section>
 
       {/* ═══════════════════════════════════════ */}
-      {/* Section 3: 画像模块预览 */}
+      {/* Section 3-6: same as before */}
       {/* ═══════════════════════════════════════ */}
       <section className="relative mx-auto max-w-6xl px-6 pt-20" style={{ zIndex: 10 }}>
         <div className="mb-12">
@@ -275,9 +337,6 @@ export default function GalaxyHomeNew() {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════ */}
-      {/* Section 4: 三种入口 */}
-      {/* ═══════════════════════════════════════ */}
       <section className="relative mx-auto max-w-6xl px-6 pt-20" style={{ zIndex: 10 }}>
         <p className="text-[11px] tracking-[0.2em] text-white/20 uppercase mb-3">GET STARTED</p>
         <h2 className="font-serif text-3xl md:text-4xl text-white/80">选择你的入口</h2>
@@ -304,9 +363,6 @@ export default function GalaxyHomeNew() {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════ */}
-      {/* Section 5: 藏宝阁 + 信任 */}
-      {/* ═══════════════════════════════════════ */}
       <section className="relative mx-auto max-w-6xl px-6 pt-20" style={{ zIndex: 10 }}>
         <div className="grid gap-10 lg:grid-cols-2">
           <div className="rounded-2xl border border-white/[0.05] p-8" style={{ background:"linear-gradient(135deg, #060E24, #030918)" }}>
@@ -314,42 +370,36 @@ export default function GalaxyHomeNew() {
             <h3 className="font-serif text-2xl text-white/75 mb-2">命运藏宝阁</h3>
             <p className="text-[13px] text-white/35 mb-6">AI 根据你的画像匹配生活好物——不是随机推荐，每一步都有依据</p>
             <div className="grid grid-cols-3 gap-3">
-              {[["💎","灵石晶品","能量匹配"],["🎐","香道雅韵","情绪调节"],["📿","护符配饰","气场守护"],["📖","古籍典藏","自我研习"],["🕯️","仪式定制","关键节点"],["🌿","生活方式","日常节律"]].map(([icon, name, desc], i) => (
+              {[["💎","灵石晶品"],["🎐","香道雅韵"],["📿","护符配饰"],["📖","古籍典藏"],["🕯️","仪式定制"],["🌿","生活方式"]].map(([icon, name], i) => (
                 <Link key={i} href="/zh/shop" className="flex flex-col items-center gap-1.5 rounded-xl border border-white/[0.04] p-4 text-center transition-all hover:border-white/[0.1]" style={{ background:"rgba(255,255,255,0.015)" }}>
                   <span className="text-xl">{icon}</span>
                   <span className="text-[11px] text-white/55">{name}</span>
-                  <span className="text-[10px] text-white/20">{desc}</span>
                 </Link>
               ))}
             </div>
           </div>
-          <div className="flex flex-col justify-between gap-6">
-            <div className="rounded-2xl border border-white/[0.05] p-8 flex-1" style={{ background:"linear-gradient(135deg, #060E24, #030918)" }}>
-              <p className="text-[11px] tracking-[0.2em] text-white/20 uppercase mb-6">TRUST</p>
-              <div className="grid grid-cols-3 gap-4 mb-8">
-                {[["10,000+","用户"],["4.9","评分"],["50,000+","报告已生成"]].map(([n, l]) => (
-                  <div key={l} className="text-center">
-                    <div className="font-serif text-3xl" style={{ color:"#C9A84C" }}>{n}</div>
-                    <div className="text-[11px] text-white/25 mt-1">{l}</div>
-                  </div>
-                ))}
-              </div>
-              <div className="space-y-4">
-                {[["真正让我看清了自己的底层模式，不是告知结局，而是理解结构。","林小姐 · 96分"],["AI 交叉验证让各个系统的结论互相印证或反驳——这比单一系统靠谱得多。","陈先生 · 98分"]].map(([text, name], i) => (
-                  <div key={i} className="border-l-2 border-white/[0.06] pl-4">
-                    <p className="text-[13px] leading-relaxed text-white/45">&ldquo;{text}&rdquo;</p>
-                    <p className="text-[11px] text-white/20 mt-2">{name}</p>
-                  </div>
-                ))}
-              </div>
+          <div className="rounded-2xl border border-white/[0.05] p-8" style={{ background:"linear-gradient(135deg, #060E24, #030918)" }}>
+            <p className="text-[11px] tracking-[0.2em] text-white/20 uppercase mb-6">TRUST</p>
+            <div className="grid grid-cols-3 gap-4 mb-8">
+              {[["10,000+","用户"],["4.9","评分"],["50,000+","报告已生成"]].map(([n, l]) => (
+                <div key={l} className="text-center">
+                  <div className="font-serif text-3xl" style={{ color:"#C9A84C" }}>{n}</div>
+                  <div className="text-[11px] text-white/25 mt-1">{l}</div>
+                </div>
+              ))}
+            </div>
+            <div className="space-y-4">
+              {[["真正让我看清了自己的底层模式，不是告知结局，而是理解结构。","林小姐 · 96分"],["AI 交叉验证让各个系统的结论互相印证或反驳——这比单一系统靠谱得多。","陈先生 · 98分"]].map(([text, name], i) => (
+                <div key={i} className="border-l-2 border-white/[0.06] pl-4">
+                  <p className="text-[13px] leading-relaxed text-white/45">&ldquo;{text}&rdquo;</p>
+                  <p className="text-[11px] text-white/20 mt-2">{name}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════ */}
-      {/* Section 6: 定价 + CTA */}
-      {/* ═══════════════════════════════════════ */}
       <section className="relative mx-auto max-w-4xl px-6 pt-20 pb-20" style={{ zIndex: 10 }}>
         <div className="text-center mb-10">
           <p className="text-[11px] tracking-[0.2em] text-white/20 uppercase mb-3">PRICING</p>
