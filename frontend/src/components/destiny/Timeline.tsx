@@ -59,7 +59,7 @@ export default function Timeline() {
         {/* Section Header */}
         <div className="text-center mb-20 md:mb-32">
           <div
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#C5A880]/20 bg-[#C5A880]/[0.05] backdrop-blur-sm mb-6 transition-all duration-700"
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#C5A880]/20 bg-[#C5A880]/[0.05]  mb-6 transition-all duration-700"
             style={{ opacity: scrollProgress > 0.05 ? 1 : 0, transform: `translateY(${scrollProgress > 0.05 ? 0 : 20}px)` }}
           >
             <span className="w-1.5 h-1.5 rounded-full bg-[#C5A880] animate-pulse" />

@@ -138,7 +138,7 @@ export function ProductPathMap() {
               <Link
                 key={path.title}
                 href={localeHref(path.href)}
-                className="group relative min-h-[250px] overflow-hidden border border-white/[0.08] bg-white/[0.035] p-5 transition-all duration-300 hover:-translate-y-1 hover:border-gold/30 hover:bg-white/[0.055]"
+                className="group relative min-h-[250px] overflow-hidden border border-white/[0.08] bg-[#060E24] p-5 transition-all duration-300 hover:-translate-y-1 hover:border-gold/30 hover:bg-white/[0.055]"
               >
                 <div className="absolute right-4 top-4 text-5xl font-semibold text-white/[0.025]">
                   0{index + 1}

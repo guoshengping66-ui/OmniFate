@@ -266,7 +266,7 @@ export function AM16Quiz({ onComplete }: Props) {
                   className={`w-full text-left p-4 min-h-[52px] rounded-xl border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
                     isSelected
                       ? "border-gold/60 bg-gold/10 shadow-[0_0_24px_rgba(201,168,76,0.2)]"
-                      : "border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]"
+                      : "border-white/10 bg-[#030918] hover:border-white/20 hover:bg-white/[0.06]"
                   }`}
                 >
                   <div className="flex items-start gap-3">

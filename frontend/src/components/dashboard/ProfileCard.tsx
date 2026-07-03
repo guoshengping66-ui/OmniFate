@@ -71,7 +71,7 @@ export function ProfileCard() {
       </div>
 
       <div className="relative z-10 mt-6 grid gap-3 sm:grid-cols-2">
-        <div className="border border-white/[0.07] bg-white/[0.035] p-4">
+        <div className="border border-white/[0.07] bg-[#060E24] p-4">
           <div className="mb-2 flex items-center gap-2 text-white/35">
             <Calendar size={14} />
             <span className="text-[10px] uppercase tracking-[0.16em]">{isZh ? "出生时间" : "Birth Time"}</span>
@@ -86,7 +86,7 @@ export function ProfileCard() {
           </p>
         </div>
 
-        <div className="border border-white/[0.07] bg-white/[0.035] p-4">
+        <div className="border border-white/[0.07] bg-[#060E24] p-4">
           <div className="mb-2 flex items-center gap-2 text-white/35">
             <MapPin size={14} />
             <span className="text-[10px] uppercase tracking-[0.16em]">{isZh ? "出生地点" : "Birth Place"}</span>
@@ -102,7 +102,7 @@ export function ProfileCard() {
         <span className="border border-jade/20 bg-jade/[0.08] px-3 py-1.5 text-xs text-jade-light">
           {constellation}
         </span>
-        <span className="border border-white/[0.08] bg-white/[0.035] px-3 py-1.5 text-xs text-white/55">
+        <span className="border border-white/[0.08] bg-[#060E24] px-3 py-1.5 text-xs text-white/55">
           {isZh ? "命盘完整度" : "Profile"} {completeness}%
         </span>
       </div>

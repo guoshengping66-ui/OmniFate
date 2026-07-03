@@ -231,7 +231,7 @@ export function FloatingFortuneSubscribe() {
       {/* ── Modal ───────────────────────────────────────────────── */}
       {open && (
         <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60  p-0 sm:p-4"
           style={{
             animation: "fadeIn 0.2s ease-out",
           }}
@@ -273,7 +273,7 @@ export function FloatingFortuneSubscribe() {
                         ? o.key === "off"
                           ? "bg-white/5 text-white/40 border border-white/10"
                           : "bg-gold/10 text-gold border border-gold/30"
-                        : "bg-white/[0.03] text-white/30 border border-white/[0.06] hover:text-white/50"
+                        : "bg-[#030918] text-white/30 border border-white/[0.06] hover:text-white/50"
                     }`}
                   >
                     {o.label}
@@ -292,7 +292,7 @@ export function FloatingFortuneSubscribe() {
             {/* Profile Preview */}
             {!loading && (fortune || dailyFortune) && freq !== "off" && (
               <>
-                <div className="bg-white/[0.03] rounded-2xl p-5 space-y-4 border border-white/[0.06]">
+                <div className="bg-[#030918] rounded-2xl p-5 space-y-4 border border-white/[0.06]">
                   <div className="flex items-center gap-2">
                     {freq === "daily" ? <Calendar size={12} className="text-gold/50" /> : <Clock size={12} className="text-gold/50" />}
                     <p className="text-white/30 text-[10px] uppercase tracking-wider">
@@ -360,7 +360,7 @@ export function FloatingFortuneSubscribe() {
                     ) : fortune?.daily_yi_ji ? (
                       <div className="grid grid-cols-3 gap-2">
                         {fortune.daily_yi_ji.slice(0, 3).map((d, i) => (
-                          <div key={i} className="bg-white/[0.03] rounded-lg p-2 text-center">
+                          <div key={i} className="bg-[#030918] rounded-lg p-2 text-center">
                             <p className="text-white/40 text-[10px] mb-1">{dayLabels[i]}</p>
                             <p className="text-green-400/70 text-[10px]">{yiLabel} {tr(d.yi, !isZH)}</p>
                             <p className="text-red-400/50 text-[10px]">{jiLabel} {tr(d.ji, !isZH)}</p>

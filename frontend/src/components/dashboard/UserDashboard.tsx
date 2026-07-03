@@ -79,7 +79,7 @@ export function UserDashboard() {
               : "This is your daily action center. Guanwo distills the one move worth advancing today from your dossier, five-source state, and recent questions."}
           </p>
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-3xl border border-white/[0.08] bg-white/[0.035] p-4">
+            <div className="rounded-3xl border border-white/[0.08] bg-[#060E24] p-4">
               <p className="text-xs text-white/42">{today}</p>
               <p className="mt-1 font-semibold text-[var(--color-text-primary)]">{isZh ? "今日主题：稳步推进，不急于证明" : "Theme: steady progress, no need to prove"}</p>
             </div>
@@ -137,7 +137,7 @@ export function UserDashboard() {
             <FiveDimensionOrbit labels={signals.map(signal => signal.name)} center={isZh ? "今日主线" : "Today"} />
             <div className="grid content-center gap-3">
               {signals.map(signal => (
-                <div key={signal.name} className="rounded-3xl border border-white/[0.08] bg-white/[0.035] p-4">
+                <div key={signal.name} className="rounded-3xl border border-white/[0.08] bg-[#060E24] p-4">
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-sm font-semibold text-[var(--color-text-primary)]">{signal.name}</p>
                     <span className="rounded-full bg-[rgba(200,168,74,0.12)] px-3 py-1 text-xs text-[var(--color-gold)]">{signal.value}</span>

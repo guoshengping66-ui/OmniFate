@@ -109,7 +109,7 @@ export function ReportPreviewPanel({ locale = "zh" }: { locale?: "zh" | "en" }) 
       </div>
       <div className="mt-6 grid gap-3">
         {rows.map(([title, body]) => (
-          <div key={title} className="rounded-2xl border border-white/[0.07] bg-white/[0.035] p-4">
+          <div key={title} className="rounded-2xl border border-white/[0.07] bg-[#060E24] p-4">
             <p className="text-sm font-semibold text-[var(--color-text-primary)]">{title}</p>
             <p className="mt-1 text-sm leading-6 text-[var(--color-text-secondary)]">{body}</p>
           </div>

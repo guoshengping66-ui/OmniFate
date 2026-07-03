@@ -43,7 +43,7 @@ export function TargetSelector() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-1 w-48 bg-ink-light/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-xl z-50 overflow-hidden">
+        <div className="absolute right-0 top-full mt-1 w-48 bg-ink-light/95  border border-white/10 rounded-xl shadow-xl z-50 overflow-hidden">
           {/* Self */}
           <button
             onClick={() => { resetToSelf(); setOpen(false) }}
@@ -151,7 +151,7 @@ function AddFriendDialog({
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-md p-4"
+    <div className="fixed inset-0 flex items-center justify-center bg-black/80  p-4"
       style={{ zIndex: 2147483647 }}>
       {/* Click backdrop to close */}
       <div className="absolute inset-0" onClick={onClose} />

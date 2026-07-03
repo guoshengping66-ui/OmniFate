@@ -66,7 +66,7 @@ export function NebulaUnlock({ children, trigger = false, onComplete }: NebulaUn
       {(phase === "converge" || phase === "flash") && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           {/* Backdrop */}
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+          <div className="absolute inset-0 bg-black/70 " />
 
           {/* Loading status text */}
           <div className="relative z-10 text-center">

@@ -61,8 +61,8 @@ export function Navbar() {
     <>
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-ink/90 backdrop-blur-xl border-b border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.3)]"
-          : "bg-ink/60 backdrop-blur-md border-b border-white/5"
+          ? "bg-[#020617]/98 border-b border-white/[0.06] shadow-[0_4px_20px_rgba(0,0,0,0.4)]"
+          : "bg-[#020617]/95 border-b border-white/[0.04]"
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           {/* Logo */}
@@ -171,7 +171,7 @@ export function Navbar() {
                 </button>
 
                 {menuOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-56 card-glass p-2 flex flex-col gap-1 z-50">
+                  <div className="absolute right-0 top-full mt-2 w-56 rounded-2xl border border-white/[0.06] p-2 flex flex-col gap-1 z-50" style={{ background: "linear-gradient(135deg, #060E24, #030918)" }}>
                     <div className="px-3 py-2 border-b border-white/10 mb-1">
                       <p className="text-white/80 text-sm font-medium truncate">{user.display_name || user.email}</p>
                       <p className="text-white/40 text-xs truncate">{user.email}</p>
@@ -256,7 +256,7 @@ export function Navbar() {
 
         {/* Mobile & Medium hamburger dropdown — visible below lg */}
         {open && (
-          <div className="lg:hidden bg-ink/95 border-t border-white/10 px-4 py-3 flex flex-col gap-0.5 max-h-[80vh] overflow-y-auto">
+          <div className="lg:hidden bg-[#020617] border-t border-white/[0.06] px-4 py-3 flex flex-col gap-0.5 max-h-[80vh] overflow-y-auto">
             {coreLinks.map(l => (
               <Link key={l.href} href={l.href} onClick={() => setOpen(false)}
                 className={`py-3.5 px-2 rounded-lg ${l.highlight ? "text-gold font-medium" : "text-white/80 hover:text-gold hover:bg-white/5"}`}>

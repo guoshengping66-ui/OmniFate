@@ -49,7 +49,7 @@ export function FloatingOracleIcon() {
           pointerEvents: showTooltip ? "auto" : "none",
         }}
       >
-        <div className="bg-ink/95 backdrop-blur-xl border border-gold/20 rounded-xl px-4 py-2.5 shadow-[0_8px_32px_rgba(0,0,0,0.4)] whitespace-nowrap">
+        <div className="bg-ink/95  border border-gold/20 rounded-xl px-4 py-2.5 shadow-[0_8px_32px_rgba(0,0,0,0.4)] whitespace-nowrap">
           <p className="text-gold text-xs font-medium">{t("floatingOracle.freeToday")}</p>
           <p className="text-white/40 text-[11px] mt-0.5">{t("floatingOracle.freeHint")}</p>
           {/* Arrow */}

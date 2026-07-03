@@ -649,7 +649,7 @@ export default function LifeRouteGeneration() {
             { zh: "塔罗牌", en: "Tarot", icon: "◉" },
             { zh: "面相·手相", en: "Face & Palm", icon: "◈" },
           ].map((tag) => (
-            <div key={tag.zh} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.06]">
+            <div key={tag.zh} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#030918] border border-white/[0.06]">
               <span className="text-[10px]">{tag.icon}</span>
               <span className="text-white/35 text-[11px]">{locale === "zh" ? tag.zh : tag.en}</span>
             </div>

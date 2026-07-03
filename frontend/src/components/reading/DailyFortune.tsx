@@ -378,7 +378,7 @@ export function DailyFortune({ user }: DailyFortuneProps) {
       <div className="px-6 pb-6 md:px-8 md:pb-6">
         <div className="grid grid-cols-2 gap-3">
           {/* Lucky Color */}
-          <div className="bg-white/[0.03] rounded-xl p-4 border border-white/[0.06]">
+          <div className="bg-[#030918] rounded-xl p-4 border border-white/[0.06]">
             <div className="flex items-center gap-2 mb-2">
               <Palette size={14} className="text-gold/60" />
               <span className="text-white/40 text-xs">{t("fortune.luckyColor")}</span>
@@ -395,7 +395,7 @@ export function DailyFortune({ user }: DailyFortuneProps) {
           </div>
 
           {/* Lucky Number */}
-          <div className="bg-white/[0.03] rounded-xl p-4 border border-white/[0.06]">
+          <div className="bg-[#030918] rounded-xl p-4 border border-white/[0.06]">
             <div className="flex items-center gap-2 mb-2">
               <Hash size={14} className="text-gold/60" />
               <span className="text-white/40 text-xs">{t("fortune.luckyNumber")}</span>

@@ -293,7 +293,7 @@ export default function EventAnalyzer({ sessionId }: Props) {
                 className={`w-full text-left flex items-center gap-3 p-3 rounded-xl border transition-all
                   ${selectedEvent === evt.id
                     ? "bg-gold/10 border-gold/30"
-                    : "bg-white/[0.03] border-white/5 hover:bg-white/[0.06] hover:border-white/20"}`}
+                    : "bg-[#030918] border-white/5 hover:bg-white/[0.06] hover:border-white/20"}`}
               >
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-white/70 truncate">{evt.event_description}</p>

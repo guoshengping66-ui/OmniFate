@@ -142,7 +142,7 @@ export default function AboutPage() {
             </div>
             <div className="grid md:grid-cols-2 gap-4">
               {privacyItems.map((item) => (
-                <div key={item.title} className="bg-white/[0.03] rounded-xl p-5 border border-white/[0.06]">
+                <div key={item.title} className="bg-[#030918] rounded-xl p-5 border border-white/[0.06]">
                   <div className="flex items-center gap-2.5 mb-2">
                     <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
                       <item.icon size={14} className="text-green-400" />

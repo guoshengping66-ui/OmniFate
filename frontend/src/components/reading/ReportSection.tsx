@@ -197,7 +197,7 @@ export function ReportSection({ icon, title, color, content }: Props) {
 
   if (isStructured && structuredData) {
     return (
-      <div className="rounded-xl border border-white/[0.08] bg-white/[0.03] p-4 md:p-5">
+      <div className="rounded-xl border border-white/[0.08] bg-[#030918] p-4 md:p-5">
         {/* Header */}
         <div className="flex items-center gap-2.5 mb-4">
           <span className="w-1 h-5 rounded-full bg-gold/50" />
@@ -220,7 +220,7 @@ export function ReportSection({ icon, title, color, content }: Props) {
   }
 
   return (
-    <div className="rounded-xl border border-white/[0.08] bg-white/[0.03] p-4 md:p-5">
+    <div className="rounded-xl border border-white/[0.08] bg-[#030918] p-4 md:p-5">
       {/* Header */}
       <div className="flex items-center gap-2.5 mb-4">
         <span className="w-1 h-5 rounded-full bg-gold/50" />
@@ -246,7 +246,7 @@ export function ReportSection({ icon, title, color, content }: Props) {
           <p className="text-[10px] uppercase tracking-[0.16em] text-white/28 mb-2">Reading Map</p>
           <div className="grid sm:grid-cols-2 gap-2">
             {readableSections.map((section, index) => (
-              <div key={`${section.title}-${index}`} className="rounded-xl bg-white/[0.025] border border-white/[0.05] p-3">
+              <div key={`${section.title}-${index}`} className="rounded-xl bg-[#030918] border border-white/[0.05] p-3">
                 <p className="text-white/72 text-xs font-semibold mb-1">{section.title}</p>
                 <p className="text-white/42 text-[11px] leading-relaxed line-clamp-2">
                   <HighlightedText text={section.body.split("\n")[0] || section.body} />

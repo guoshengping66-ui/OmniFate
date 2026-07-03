@@ -42,7 +42,7 @@ export function GrowthCommandHero({ variant }: { variant: HeroVariant }) {
             </p>
             <div className="flex flex-wrap gap-2">
               {copy.methodStrip.map((item) => (
-                <span key={item} className="border border-white/[0.08] bg-white/[0.035] px-3 py-2 text-xs text-white/62">
+                <span key={item} className="border border-white/[0.08] bg-[#060E24] px-3 py-2 text-xs text-white/62">
                   {item}
                 </span>
               ))}
@@ -104,7 +104,7 @@ export function GrowthCommandHero({ variant }: { variant: HeroVariant }) {
               </div>
 
               <div className="grid gap-4">
-                <div className="border border-white/[0.08] bg-white/[0.035] p-5">
+                <div className="border border-white/[0.08] bg-[#060E24] p-5">
                   <div className="mb-4 flex items-center gap-2 text-gold/75">
                     <GitBranch size={18} />
                     <p className="text-xs font-semibold uppercase tracking-[0.16em]">Output Preview</p>

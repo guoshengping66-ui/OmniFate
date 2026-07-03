@@ -23,7 +23,7 @@ export function StructuredReport({ data }: StructuredReportProps) {
   return (
     <div className="space-y-4">
       {/* Summary card */}
-      <div className="rounded-xl border border-white/[0.08] bg-white/[0.03] p-4 md:p-5">
+      <div className="rounded-xl border border-white/[0.08] bg-[#030918] p-4 md:p-5">
         <div className="flex items-center gap-2 mb-2.5">
           <span className="w-1 h-5 rounded-full bg-gold/60" />
           <span className="text-xs text-white/50 font-medium">{t("report.summary")}</span>

@@ -337,7 +337,7 @@ export default function LifeKLineChart({ scores, strongestLabel, weakestLabel, i
                 </div>
               ))}
             </div>
-            <div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-4 mb-4">
+            <div className="rounded-2xl border border-white/[0.07] bg-[#030918] p-4 mb-4">
               <p className="text-white/58 text-xs leading-relaxed">{stage.read}</p>
             </div>
             <div className="rounded-2xl border border-gold/15 bg-gold/[0.045] p-4">

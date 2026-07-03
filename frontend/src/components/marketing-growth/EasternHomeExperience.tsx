@@ -47,7 +47,7 @@ export function EasternHomeExperience() {
         <div>
           <div className="mb-5 flex flex-wrap gap-2">
             {copy.tags.map(tag => (
-              <span key={tag} className="rounded-full border border-white/[0.09] bg-white/[0.045] px-3 py-1.5 text-xs text-white/70">{tag}</span>
+              <span key={tag} className="rounded-full border border-white/[0.09] bg-[#060E24] px-3 py-1.5 text-xs text-white/70">{tag}</span>
             ))}
           </div>
           <h1 className="max-w-2xl text-[clamp(2.25rem,5.6vw,5rem)] font-semibold leading-[1.02] tracking-0 text-[var(--color-text-primary)]">

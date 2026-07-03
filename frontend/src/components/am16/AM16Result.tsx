@@ -550,7 +550,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
         <>
           <div
             onClick={() => setShareOpen(false)}
-            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm anim-fade-in"
+            className="fixed inset-0 z-50 bg-black/50  anim-fade-in"
           />
           <div
             className="fixed bottom-0 left-0 right-0 z-50 bg-ink border-t border-gold/20 rounded-t-3xl p-6 max-w-lg mx-auto anim-slide-in-up"

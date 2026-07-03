@@ -592,7 +592,7 @@ export default function NewReadingPage() {
         </div>
 
         {/* Header */}
-        <div className="text-center mb-10 rounded-[32px] border border-white/[0.08] bg-white/[0.035] p-6 shadow-[0_28px_90px_rgba(0,0,0,0.28)] md:p-8">
+        <div className="text-center mb-10 rounded-[32px] border border-white/[0.08] bg-[#060E24] p-6 shadow-[0_28px_90px_rgba(0,0,0,0.28)] md:p-8">
           <Sparkles className="text-gold mx-auto mb-3" size={32} />
           <h1 className="text-3xl font-serif font-bold text-[var(--color-text-primary)] mb-3">{flowCopy.title}</h1>
           <p className="mx-auto max-w-xl text-[var(--color-text-secondary)] text-sm leading-7">{flowCopy.subtitle}</p>

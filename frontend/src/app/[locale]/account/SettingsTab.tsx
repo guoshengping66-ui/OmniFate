@@ -218,7 +218,7 @@ export default function SettingsTab({ user, refreshUser, t }: { user: AuthUser; 
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm transition-all ${
                 locale === l.locale
                   ? "bg-gold/10 text-gold border border-gold/30"
-                  : "bg-white/[0.03] text-white/40 border border-white/[0.08] hover:text-white/60"
+                  : "bg-[#030918] text-white/40 border border-white/[0.08] hover:text-white/60"
               }`}
             >
               <span className="text-base">{l.flag}</span>
@@ -268,25 +268,25 @@ export default function SettingsTab({ user, refreshUser, t }: { user: AuthUser; 
         {!editingBirth && birthData ? (
           <div className="space-y-3">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="bg-white/[0.03] rounded-lg p-3">
+              <div className="bg-[#030918] rounded-lg p-3">
                 <p className="text-white/30 text-[10px] mb-1">{t("account.gender")}</p>
                 <p className="text-white/70 text-sm">{birthData.gender === "male" ? t("account.genderMale") : t("account.genderFemale")}</p>
               </div>
-              <div className="bg-white/[0.03] rounded-lg p-3">
+              <div className="bg-[#030918] rounded-lg p-3">
                 <p className="text-white/30 text-[10px] mb-1">{t("account.birthYear")}</p>
                 <p className="text-white/70 text-sm">{birthData.birth_year}</p>
               </div>
-              <div className="bg-white/[0.03] rounded-lg p-3">
+              <div className="bg-[#030918] rounded-lg p-3">
                 <p className="text-white/30 text-[10px] mb-1">{t("account.birthMonth")}</p>
                 <p className="text-white/70 text-sm">{birthData.birth_month}</p>
               </div>
-              <div className="bg-white/[0.03] rounded-lg p-3">
+              <div className="bg-[#030918] rounded-lg p-3">
                 <p className="text-white/30 text-[10px] mb-1">{t("account.birthDay")}</p>
                 <p className="text-white/70 text-sm">{birthData.birth_day}</p>
               </div>
             </div>
             <div className="flex items-center justify-between">
-              <div className="bg-white/[0.03] rounded-lg p-3 flex-1 mr-3">
+              <div className="bg-[#030918] rounded-lg p-3 flex-1 mr-3">
                 <p className="text-white/30 text-[10px] mb-1">{t("account.birthHour")}</p>
                 <p className="text-white/70 text-sm">{birthData.birth_hour}:00</p>
               </div>
@@ -310,7 +310,7 @@ export default function SettingsTab({ user, refreshUser, t }: { user: AuthUser; 
                     className={`flex-1 py-2.5 rounded-xl text-sm transition-all ${
                       birthForm.gender === g
                         ? "bg-gold/10 text-gold border border-gold/30"
-                        : "bg-white/[0.03] text-white/40 border border-white/[0.08]"
+                        : "bg-[#030918] text-white/40 border border-white/[0.08]"
                     }`}
                   >
                     {g === "male" ? t("account.genderMale") : t("account.genderFemale")}
@@ -540,7 +540,7 @@ export default function SettingsTab({ user, refreshUser, t }: { user: AuthUser; 
 
       {/* ── Delete Confirmation Modal ──────────────────────────────────── */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60  p-4">
           <div className="card-glass w-full max-w-md p-6 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">

@@ -195,7 +195,7 @@ export default function PricingPage() {
             {valueCards.map((item) => {
               const Icon = item.icon
               return (
-                <div key={item.title} className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5">
+                <div key={item.title} className="rounded-2xl border border-white/[0.08] bg-[#030918] p-5">
                   <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl border border-gold/20 bg-gold/[0.07]">
                     <Icon size={18} className="text-gold/75" />
                   </div>
@@ -211,7 +211,7 @@ export default function PricingPage() {
           <ComplianceNotice className="mx-auto mb-8 max-w-4xl" />
         </ScrollReveal>
 
-        <Suspense fallback={<div className="mb-10 grid gap-5 lg:grid-cols-2">{[1, 2].map(i => <div key={i} className="h-64 animate-pulse rounded-2xl bg-white/[0.03]" />)}</div>}>
+        <Suspense fallback={<div className="mb-10 grid gap-5 lg:grid-cols-2">{[1, 2].map(i => <div key={i} className="h-64 animate-pulse rounded-2xl bg-[#030918]" />)}</div>}>
           <div className="mx-auto mb-10 grid max-w-4xl items-stretch gap-5 lg:grid-cols-2">
             <div className="lg:-mt-3 lg:mb-[-12px]">
               <PricingCard tier={yearlyTier} region={region} onSelect={handleSelect} />

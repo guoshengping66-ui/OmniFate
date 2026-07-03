@@ -81,7 +81,7 @@ export default function GuanwoSystemSection() {
                 const Icon = item.icon
                 const wide = index === copy.items.length - 1
                 return (
-                  <article key={item.title} className={`rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5 ${wide ? "sm:col-span-2" : ""}`}>
+                  <article key={item.title} className={`rounded-2xl border border-white/[0.08] bg-[#030918] p-5 ${wide ? "sm:col-span-2" : ""}`}>
                     <div className="flex items-start gap-4">
                       <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl border border-gold/20 bg-gold/[0.07]">
                         <Icon size={19} className="text-gold/75" />

@@ -36,7 +36,7 @@ export function GrowthServicePaths() {
             <Link
               key={service.title}
               href={localeHref(service.href)}
-              className="group border border-white/[0.08] bg-white/[0.025] p-6 transition-colors hover:border-gold/35 hover:bg-gold/[0.045]"
+              className="group border border-white/[0.08] bg-[#030918] p-6 transition-colors hover:border-gold/35 hover:bg-gold/[0.045]"
             >
               <div className="mb-8 flex items-center justify-between">
                 <span className="text-[11px] uppercase tracking-[0.2em] text-gold/60">Path</span>

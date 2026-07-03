@@ -49,7 +49,7 @@ export function MarketingBelowFold() {
               <ScrollReveal key={agent.key} delay={i * 0.08} direction="up">
                 <TiltCard className="h-full" glare={false} rotateX={4} rotateY={4} scale={1.02}>
                   <div
-                    className="h-full bg-white/[0.03] backdrop-blur-sm border border-white/[0.06] rounded-xl p-4 group cursor-default transition-all duration-300 hover:border-white/[0.12]"
+                    className="h-full bg-[#030918]  border border-white/[0.06] rounded-xl p-4 group cursor-default transition-all duration-300 hover:border-white/[0.12]"
                     style={{ borderLeft: `2px solid ${agent.accent}40` }}
                   >
                     {/* Pulse dot */}
@@ -199,7 +199,7 @@ export function MarketingBelowFold() {
                         </div>
                       </div>
                       {item.source && (
-                        <span className="text-white/10 text-[8px] bg-white/[0.03] px-1.5 py-0.5 rounded">{item.source}</span>
+                        <span className="text-white/10 text-[8px] bg-[#030918] px-1.5 py-0.5 rounded">{item.source}</span>
                       )}
                     </div>
                   </div>

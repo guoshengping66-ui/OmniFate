@@ -237,7 +237,7 @@ function AlmanacSection({ almanac, locale, t }: {
         <p className="text-white/40 text-xs">{t("dash.fortune.dayPillar")}: {locale === "zh" ? almanac.bazi_day_pillar : translateGanZhi(almanac.bazi_day_pillar)}</p>
       </div>
 
-      <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-3">
+      <div className="rounded-xl border border-white/[0.08] bg-[#030918] p-3">
         <p className="mb-1 text-xs font-medium text-white/70">{locale === "zh" ? "今日重点" : "Focus"}</p>
         <p className="text-sm leading-5 text-white/55">{trend.headline}</p>
       </div>

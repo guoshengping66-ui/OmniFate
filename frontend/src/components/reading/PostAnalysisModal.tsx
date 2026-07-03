@@ -65,7 +65,7 @@ export function PostAnalysisModal({ products, onViewPrescription }: PostAnalysis
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm transition-opacity duration-500"
+        className="fixed inset-0 z-[100] bg-black/60  transition-opacity duration-500"
         style={{ opacity: visible ? 1 : 0, pointerEvents: visible ? "auto" : "none" }}
         onClick={dismiss}
       />
@@ -130,7 +130,7 @@ export function PostAnalysisModal({ products, onViewPrescription }: PostAnalysis
                 return (
                   <div
                     key={product.id}
-                    className="flex items-center gap-3 p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] transition-all"
+                    className="flex items-center gap-3 p-2.5 rounded-xl bg-[#030918] border border-white/[0.06] transition-all"
                   >
                     <ProductImage
                       src={product.image_url}

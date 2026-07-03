@@ -92,7 +92,7 @@ export default function PalmReadingSEOPage() {
             <h2 className="font-serif text-2xl text-gold mb-6">{t("seo.palm.linesTitle")}</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {lines.map((l) => (
-                <div key={l.name} className="flex items-center gap-3 p-4 bg-white/[0.03] rounded-xl border border-white/10">
+                <div key={l.name} className="flex items-center gap-3 p-4 bg-[#030918] rounded-xl border border-white/10">
                   <span className="text-2xl">{l.icon}</span>
                   <div>
                     <h3 className="text-white font-medium text-sm">{l.name}</h3>

@@ -154,7 +154,7 @@ function DecisionReportText({ content }: { content: string }) {
   const decisionReport = parseDecisionReportContent(content)
   if (decisionReport) {
     return (
-      <Suspense fallback={<div className="h-48 rounded-xl bg-white/[0.03] animate-pulse" />}>
+      <Suspense fallback={<div className="h-48 rounded-xl bg-[#030918] animate-pulse" />}>
         <DecisionReportComponent data={decisionReport} />
       </Suspense>
     )
@@ -187,7 +187,7 @@ function DecisionReportText({ content }: { content: string }) {
       </div>
 
       {roadmap.length > 0 && (
-        <div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-4">
+        <div className="rounded-2xl border border-white/[0.07] bg-[#030918] p-4">
           <div className="flex items-center gap-2 mb-4">
             <Clock size={15} className="text-gold/70" />
             <h3 className="text-sm font-semibold text-white/72">行动路线</h3>
@@ -550,7 +550,7 @@ function ReportOperatingBrief({
         </div>
         <div className="grid md:grid-cols-3 gap-3">
           {cards.map((card, index) => (
-            <div key={card.label} className="rounded-2xl border border-white/[0.07] bg-white/[0.035] p-4">
+            <div key={card.label} className="rounded-2xl border border-white/[0.07] bg-[#060E24] p-4">
               <div className="flex items-center justify-between gap-3 mb-3">
                 <span className="text-[10px] uppercase tracking-[0.14em] text-white/32">{card.label}</span>
                 <span className="font-mono text-[10px] text-gold/45">0{index + 1}</span>
@@ -610,7 +610,7 @@ function ReportOperatingBriefV2({
         </div>
         <div className="grid md:grid-cols-3 gap-3">
           {cards.map((card, index) => (
-            <div key={card.label} className="rounded-2xl border border-white/[0.07] bg-white/[0.035] p-4">
+            <div key={card.label} className="rounded-2xl border border-white/[0.07] bg-[#060E24] p-4">
               <div className="flex items-center justify-between gap-3 mb-3">
                 <span className="text-[10px] uppercase tracking-[0.14em] text-white/32">{card.label}</span>
                 <span className="font-mono text-[10px] text-gold/45">0{index + 1}</span>
@@ -778,7 +778,7 @@ function RelationshipReportBrief({
 
         <div className="grid md:grid-cols-3 gap-3 mb-4">
           {cards.map((card, index) => (
-            <div key={card.label} className="rounded-2xl border border-white/[0.07] bg-white/[0.035] p-4">
+            <div key={card.label} className="rounded-2xl border border-white/[0.07] bg-[#060E24] p-4">
               <div className="flex items-center justify-between gap-3 mb-3">
                 <span className="text-[10px] uppercase tracking-[0.14em] text-white/32">{card.label}</span>
                 <span className="font-mono text-[10px] text-rose-100/45">0{index + 1}</span>
@@ -807,7 +807,7 @@ function RelationshipReportBrief({
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-4">
+          <div className="rounded-2xl border border-white/[0.07] bg-[#030918] p-4">
             <div className="flex items-center gap-2 mb-3">
               <Shield size={15} className="text-gold/65" />
               <h3 className="text-sm font-semibold text-white/72">{isEn ? "Specialist evidence" : "专家证据入口"}</h3>
@@ -863,7 +863,7 @@ function ExpertReportNavigator({
           <button
             key={item.key}
             onClick={() => onOpenWorker(item.key)}
-            className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-4 text-left hover:border-gold/20 transition-colors group"
+            className="rounded-2xl border border-white/[0.06] bg-[#030918] p-4 text-left hover:border-gold/20 transition-colors group"
           >
             <div className="flex items-center gap-2 mb-2">
               <span className="text-lg">{AGENT_LABELS[item.key]?.icon}</span>
@@ -916,7 +916,7 @@ function WorkerInsightHeader({
           <h2 className="font-serif text-xl md:text-2xl font-bold text-gold/90">{title}</h2>
           <p className="mt-2 text-white/55 text-sm leading-relaxed max-w-3xl">{primary}</p>
         </div>
-        <div className="rounded-2xl border border-white/[0.07] bg-white/[0.03] p-3 min-w-[150px]">
+        <div className="rounded-2xl border border-white/[0.07] bg-[#030918] p-3 min-w-[150px]">
           <p className="text-[10px] uppercase tracking-[0.14em] text-white/28">{isEn ? "Report density" : "内容密度"}</p>
           <p className="font-serif text-lg text-gold/80 mt-1">{Math.max(2, Math.min(9, Math.floor(report.length / 180)))}</p>
           <p className="text-white/30 text-[11px]">{isEn ? "key blocks estimated" : "个重点块"}</p>
@@ -936,7 +936,7 @@ function WorkerInsightHeader({
       {tags.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-2">
           {tags.slice(0, 8).map(tag => (
-            <span key={tag} className="rounded-full border border-white/[0.07] bg-white/[0.035] px-2.5 py-1 text-[10px] text-white/42">{tag}</span>
+            <span key={tag} className="rounded-full border border-white/[0.07] bg-[#060E24] px-2.5 py-1 text-[10px] text-white/42">{tag}</span>
           ))}
         </div>
       )}
@@ -1445,7 +1445,7 @@ export default function ReadingPage() {
                 animation: "hero-border-spin 8s linear infinite",
               }}
             />
-            <div className="relative bg-gradient-to-br from-[#1a1430]/90 via-[#1e1835]/90 to-[#140f24]/90 backdrop-blur-xl p-6 md:p-10">
+            <div className="relative bg-gradient-to-br from-[#1a1430]/90 via-[#1e1835]/90 to-[#140f24]/90  p-6 md:p-10">
               {/* Greeting */}
               <p
                 className="text-gold/60 text-xs md:text-sm tracking-widest uppercase mb-4"
@@ -1531,7 +1531,7 @@ export default function ReadingPage() {
                             ? "bg-gold/10 border-gold/30"
                             : isWeakest
                               ? "bg-rose-500/5 border-rose-400/20"
-                              : "bg-white/[0.03] border-white/10 hover:border-white/20"
+                              : "bg-[#030918] border-white/10 hover:border-white/20"
                           }`}
                       >
                         <span className="text-sm md:text-lg">{DIM_EMOJI[key]}</span>
@@ -1603,7 +1603,7 @@ export default function ReadingPage() {
           NAVIGATION — Side-oriented nav system
           ════════════════════════════════════════════════════════════ */}
       <div className="max-w-5xl mx-auto px-4 mb-8 sticky top-16 z-30">
-        <div className="bg-[#1a1430]/80 backdrop-blur-xl border border-white/[0.08] rounded-2xl shadow-2xl shadow-black/40 relative overflow-hidden">
+        <div className="bg-[#1a1430]/80  border border-white/[0.08] rounded-2xl shadow-2xl shadow-black/40 relative overflow-hidden">
           {/* Row 1: Core navigation */}
           <div className="flex justify-center gap-1 px-3 pt-2.5 pb-1.5">
             {I18N_NAV_CORE.map((item) => (
@@ -1645,7 +1645,7 @@ export default function ReadingPage() {
                       ${activeTab === item.id
                         ? "bg-gold/15 text-gold shadow-[0_0_12px_rgba(201,168,76,0.12)]"
                         : isLocked
-                          ? "text-white/20 hover:text-white/40 hover:bg-white/[0.03]"
+                          ? "text-white/20 hover:text-white/40 hover:bg-[#030918]"
                           : "text-white/35 hover:text-white/60 hover:bg-white/[0.04]"}`}
                   >
                     <span className="text-xs sm:text-sm transition-transform group-hover:scale-110 duration-200">{item.icon}</span>
@@ -1760,7 +1760,7 @@ export default function ReadingPage() {
                     </p>
                     <div className="space-y-2">
                       {displayReport.patterns.map((pattern, index) => (
-                        <div key={`${pattern}-${index}`} className="flex items-start gap-2.5 rounded-lg bg-white/[0.025] border border-white/[0.05] p-3">
+                        <div key={`${pattern}-${index}`} className="flex items-start gap-2.5 rounded-lg bg-[#030918] border border-white/[0.05] p-3">
                           <span className="mt-0.5 h-5 w-5 rounded-full bg-white/[0.05] text-gold/70 text-[10px] flex items-center justify-center flex-shrink-0">
                             {index + 1}
                           </span>
@@ -1812,7 +1812,7 @@ export default function ReadingPage() {
                     {insights.map((insight, i) => {
                       const InsightIcon = IconForInsight[i] || Zap
                       return (
-                      <div key={i} className="flex items-start gap-2.5 rounded-xl border border-white/[0.05] bg-white/[0.025] p-3">
+                      <div key={i} className="flex items-start gap-2.5 rounded-xl border border-white/[0.05] bg-[#030918] p-3">
                         <span className={`mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center ${iconClasses[i] || "text-white/45"}`}>
                           <InsightIcon size={15} />
                         </span>
@@ -1830,7 +1830,7 @@ export default function ReadingPage() {
 
             {/* ── 2. Life trajectory K-line (hidden for RELATIONSHIP) ── */}
             {displayDimensionScores && data.intent !== "RELATIONSHIP" && (
-              <Suspense fallback={<div className="h-64 rounded-2xl bg-white/[0.03] animate-pulse" />}>
+              <Suspense fallback={<div className="h-64 rounded-2xl bg-[#030918] animate-pulse" />}>
                 <LifeKLineChart
                   scores={displayDimensionScores}
                   strongestLabel={strongestLabel}
@@ -2091,7 +2091,7 @@ export default function ReadingPage() {
                       <button
                         key={`${section.title}-${index}`}
                         onClick={() => section.id && setActiveTab(section.id)}
-                        className="p-3 rounded-xl bg-white/[0.025] border border-white/[0.06] text-left hover:border-gold/20 transition-colors"
+                        className="p-3 rounded-xl bg-[#030918] border border-white/[0.06] text-left hover:border-gold/20 transition-colors"
                       >
                         <p className="text-gold/70 text-xs font-medium mb-1">{section.title}</p>
                         <p className="text-white/48 text-xs leading-relaxed line-clamp-3">{section.body}</p>
@@ -2127,7 +2127,7 @@ export default function ReadingPage() {
                       { name: "用户C", text: "比其他平台的分析更深入，值得解锁完整报告", score: "9.5" },
                     ]
                   ).map((item, i) => (
-                    <div key={i} className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+                    <div key={i} className="p-3 rounded-xl bg-[#030918] border border-white/[0.06]">
                       <div className="flex items-center gap-2 mb-2">
                         <div className="w-6 h-6 rounded-full bg-gold/10 flex items-center justify-center text-[10px] text-gold/70">
                           {item.name[0]}
@@ -2295,7 +2295,7 @@ export default function ReadingPage() {
                         <a
                           key={p.id}
                           href={localeHref(`/shop/${p.id}`)}
-                          className="flex items-center gap-3 min-w-[200px] p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:border-gold/20 transition-all group"
+                          className="flex items-center gap-3 min-w-[200px] p-2.5 rounded-xl bg-[#030918] border border-white/[0.06] hover:border-gold/20 transition-all group"
                         >
                           <div className="w-10 h-10 rounded-lg bg-gold/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
                             {p.image_url ? (
@@ -2354,7 +2354,7 @@ export default function ReadingPage() {
             ) : (k === "face" || k === "palm" || k === "partner_face" || k === "partner_palm") ? (
               /* ── Skipped worker (no image/provided) ── */
               <div className="card-glass p-12 text-center">
-                <div className="w-16 h-16 rounded-full bg-white/[0.03] border border-white/[0.06] flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 rounded-full bg-[#030918] border border-white/[0.06] flex items-center justify-center mx-auto mb-4">
                   <Eye size={28} className="text-white/20" />
                 </div>
                 <p className="text-white/30 text-sm">

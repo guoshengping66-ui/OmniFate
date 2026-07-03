@@ -36,7 +36,7 @@ export function Footer() {
       {/* Top decorative divider */}
       <div className="h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
 
-      <div className="bg-ink/40 backdrop-blur-sm">
+      <div className="bg-[#020617]">
         <div className="max-w-7xl mx-auto px-6 py-16">
           <div className="grid md:grid-cols-5 gap-10 md:gap-8">
             {/* Brand column */}

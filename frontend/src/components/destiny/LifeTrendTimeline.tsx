@@ -363,7 +363,7 @@ export default function LifeTrendTimeline() {
           ].map((tag) => (
             <div
               key={tag.zh}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.06]"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#030918] border border-white/[0.06]"
             >
               <span className="text-emerald-400 text-[10px]">✓</span>
               <span className="text-white/40 text-[11px]">

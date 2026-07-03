@@ -38,7 +38,7 @@ export function AccordionItem({ question, answer, defaultOpen = false }: Accordi
     <div
       className={`border rounded-xl overflow-hidden transition-all duration-300
         ${isOpen
-          ? "border-gold/25 bg-white/[0.03] shadow-[0_0_30px_rgba(201,168,76,0.05)]"
+          ? "border-gold/25 bg-[#030918] shadow-[0_0_30px_rgba(201,168,76,0.05)]"
           : "border-white/10 hover:border-gold/15 bg-transparent"
         }`}
     >

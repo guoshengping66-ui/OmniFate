@@ -92,7 +92,7 @@ export default function ZiweiSEOPage() {
             <h2 className="font-serif text-2xl text-gold mb-6">{t("seo.ziwei.palacesTitle")}</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {palaces.map((p) => (
-                <div key={p.name} className="flex items-center gap-3 p-4 bg-white/[0.03] rounded-xl border border-white/10">
+                <div key={p.name} className="flex items-center gap-3 p-4 bg-[#030918] rounded-xl border border-white/10">
                   <span className="text-2xl">{p.icon}</span>
                   <div>
                     <h3 className="text-white font-medium text-sm">{p.name}</h3>

@@ -68,7 +68,7 @@ export function renderMarkdown(raw: string): JSX.Element[] {
                 <thead>
                   <tr>
                     {tableRows[0].map((cell, ci) => (
-                      <th key={ci} className="px-3 py-2 text-left text-gold/80 font-medium border-b border-white/10 bg-white/[0.03]">
+                      <th key={ci} className="px-3 py-2 text-left text-gold/80 font-medium border-b border-white/10 bg-[#030918]">
                         {renderInline(cell)}
                       </th>
                     ))}

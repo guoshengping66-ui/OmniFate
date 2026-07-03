@@ -77,7 +77,7 @@ export default function CinematicHero() {
 
           <div className="mx-auto mb-8 grid max-w-xl gap-2 sm:grid-cols-3 lg:mx-0">
             {steps.map((step, index) => (
-              <div key={step} className="rounded-xl border border-white/[0.08] bg-white/[0.035] px-3 py-2 text-left">
+              <div key={step} className="rounded-xl border border-white/[0.08] bg-[#060E24] px-3 py-2 text-left">
                 <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.16em] text-gold/55">
                   0{index + 1}
                 </span>
@@ -98,7 +98,7 @@ export default function CinematicHero() {
 
           <div className="flex flex-wrap justify-center gap-2 lg:justify-start">
             {copy.trust.split(" · ").map((item) => (
-              <span key={item} className="rounded-full border border-white/[0.08] bg-white/[0.035] px-3 py-1.5 text-[11px] text-white/48">
+              <span key={item} className="rounded-full border border-white/[0.08] bg-[#060E24] px-3 py-1.5 text-[11px] text-white/48">
                 {item}
               </span>
             ))}
@@ -106,7 +106,7 @@ export default function CinematicHero() {
         </div>
 
         <div className="relative mx-auto w-full max-w-2xl">
-          <div className="rounded-[28px] border border-white/[0.08] bg-[#07101d]/88 p-4 shadow-[0_30px_100px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:p-5">
+          <div className="rounded-[28px] border border-white/[0.08] bg-[#07101d]/88 p-4 shadow-[0_30px_100px_rgba(0,0,0,0.45)]  sm:p-5">
             <div className="grid gap-4 md:grid-cols-[1fr_0.86fr]">
               <div className="rounded-2xl border border-gold/15 bg-gold/[0.055] p-5">
                 <div className="mb-5 flex items-start justify-between gap-4">
@@ -145,7 +145,7 @@ export default function CinematicHero() {
               </div>
 
               <div className="flex flex-col gap-4">
-                <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-5">
+                <div className="rounded-2xl border border-white/[0.08] bg-[#060E24] p-5">
                   <div className="mb-4 flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-gold/20 bg-gold/[0.07]">
                       <UserRoundSearch size={18} className="text-gold/75" />
@@ -158,7 +158,7 @@ export default function CinematicHero() {
                   <p className="text-sm leading-relaxed text-white/52">{copy.actionText}</p>
                 </div>
 
-                <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-5">
+                <div className="rounded-2xl border border-white/[0.08] bg-[#060E24] p-5">
                   <div className="mb-4 flex items-center gap-2 text-gold/75">
                     <Sparkles size={17} />
                     <span className="text-xs uppercase tracking-[0.16em]">Signal Mix</span>

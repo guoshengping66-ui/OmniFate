@@ -117,7 +117,7 @@ export function LiveBar() {
         pointerEvents: visible ? "auto" : "none",
       }}
     >
-      <div className="relative overflow-hidden rounded-2xl bg-ink/80 backdrop-blur-xl border border-gold/20 shadow-[0_0_40px_rgba(201,168,76,0.08)]">
+      <div className="relative overflow-hidden rounded-2xl bg-ink/80  border border-gold/20 shadow-[0_0_40px_rgba(201,168,76,0.08)]">
         {/* Shimmer overlay */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div

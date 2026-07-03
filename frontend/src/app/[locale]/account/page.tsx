@@ -132,7 +132,7 @@ export default function AccountPage() {
                 className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm transition-all
                   ${tab === t.id
                     ? "bg-gold/10 text-gold border border-gold/20"
-                    : "text-white/40 hover:text-white/60 hover:bg-white/[0.03]"
+                    : "text-white/40 hover:text-white/60 hover:bg-[#030918]"
                   }`}
               >
                 {t.icon}
@@ -177,7 +177,7 @@ export default function AccountPage() {
                     </div>
                     {readings.slice(0, 3).map(r => (
                       <Link key={r.id} href={`/reading/${r.id}`}
-                        className="flex items-center gap-3 py-2 hover:bg-white/[0.03] rounded-lg px-2 -mx-2 transition-colors">
+                        className="flex items-center gap-3 py-2 hover:bg-[#030918] rounded-lg px-2 -mx-2 transition-colors">
                         <span className="text-lg">🔮</span>
                         <div className="flex-1 min-w-0">
                           <p className="text-white/60 text-sm truncate">{t("account.analysis")}</p>

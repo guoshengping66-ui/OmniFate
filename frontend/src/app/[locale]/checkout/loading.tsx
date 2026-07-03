@@ -8,7 +8,7 @@ export default function CheckoutLoading() {
         <div className="card-glass p-6 space-y-4">
           <div className="h-5 bg-white/5 rounded w-1/3 animate-pulse" />
           {[1, 2].map(i => (
-            <div key={i} className="h-16 bg-white/[0.03] rounded-xl animate-pulse" />
+            <div key={i} className="h-16 bg-[#030918] rounded-xl animate-pulse" />
           ))}
           <div className="border-t border-white/10 pt-4 mt-4 space-y-2">
             <div className="h-4 bg-white/5 rounded w-1/4" />
