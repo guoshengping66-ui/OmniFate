@@ -17,7 +17,7 @@ import { useRegion } from "@/contexts/RegionContext"
 import { getProductPrice } from "@/lib/regionPrice"
 import { ProductReviews } from "@/components/shop/ProductReviews"
 import { FavoriteButton } from "@/components/shop/FavoriteButton"
-import { ScrollReveal } from "@/components/ui/ScrollReveal"
+import { getNeedTags, normalizeProductCategory, safeLocalizedText } from "@/lib/treasureHall"
 
 function useScrollReveal(threshold = 0.15) {
   const ref = useRef<HTMLDivElement>(null)
@@ -67,6 +67,7 @@ export default function ProductDetailPage() {
     crystal: t("treasureHall.series.crystal"), jewelry: t("treasureHall.series.jewelry"),
     incense: t("treasureHall.series.incense"), talisman: t("treasureHall.series.talisman"),
     book: t("treasureHall.series.book"), service: t("treasureHall.series.service"),
+    accessory: t("treasureHall.series.jewelry"),
     other: t("shop.category.other"),
   }
 
@@ -76,7 +77,7 @@ export default function ProductDetailPage() {
       .then(setProduct)
       .catch(() => toast.error(t("shop.detail.notFound")))
       .finally(() => setLoading(false))
-  }, [id, locale])
+  }, [id, locale, t])
 
   useEffect(() => {
     if (!user || !product) return
@@ -97,9 +98,10 @@ export default function ProductDetailPage() {
 
   const handleAddToCart = () => {
     if (!product) return
+    const toastName = safeLocalizedText(locale === "en" ? product.name_en : product.name, product.name) || product.name
     addItem(product)
     setAdded(true)
-    toast.success(t("shop.addedToCart").replace("{name}", product.name))
+    toast.success(t("shop.addedToCart").replace("{name}", toastName))
   }
 
   if (loading) {
@@ -118,6 +120,15 @@ export default function ProductDetailPage() {
       </div>
     )
   }
+
+  const normalizedCategory = normalizeProductCategory(product.category)
+  const productName = safeLocalizedText(locale === "en" ? product.name_en : product.name, product.name) || product.name
+  const shortPitch = safeLocalizedText(locale === "en" ? product.short_pitch_en : product.short_pitch, product.short_pitch)
+  const description = safeLocalizedText(locale === "en" ? product.description_en : product.description, product.description)
+  const efficacy = safeLocalizedText(locale === "en" ? product.efficacy_en : product.efficacy, product.efficacy)
+  const usage = safeLocalizedText(locale === "en" ? product.usage_en : product.usage, product.usage)
+  const precautions = safeLocalizedText(locale === "en" ? product.precautions_en : product.precautions, product.precautions)
+  const needTags = getNeedTags(product, locale)
 
   return (
     <div className="min-h-screen pb-24">
@@ -140,8 +151,8 @@ export default function ProductDetailPage() {
               <div className="relative">
                 <ProductImage
                   src={product.image_url}
-                  alt={product.name}
-                  category={product.category}
+                  alt={productName}
+                  category={normalizedCategory}
                   size="lg"
                 />
                 {/* Subtle glow behind image */}
@@ -152,11 +163,11 @@ export default function ProductDetailPage() {
             {/* Product name + price + CTA */}
             <div className="flex-1 text-center md:text-left">
               <span className="inline-block text-xs px-3 py-1 bg-gold/8 text-gold/60 rounded-full border border-gold/15 mb-4">
-                {CATEGORY_LABELS[product.category] || product.category}
+                {CATEGORY_LABELS[normalizedCategory] || normalizedCategory}
               </span>
 
               <h1 className="text-3xl md:text-4xl font-serif font-bold text-gold mb-3 leading-tight">
-                {locale === "en" ? (product.name_en || product.name) : product.name}
+                {productName}
               </h1>
 
               {product.rating && (
@@ -183,10 +194,10 @@ export default function ProductDetailPage() {
                 })()}
               </div>
 
-              {product.short_pitch && (
+              {shortPitch && (
                 <div className="flex items-center gap-2 p-3 bg-gold/5 border border-gold/10 rounded-xl mb-6 justify-center md:justify-start">
                   <Sparkles size={14} className="text-gold/60 flex-shrink-0" />
-                  <p className="text-gold/70 text-sm">{locale === "en" ? (product.short_pitch_en || product.short_pitch) : product.short_pitch}</p>
+                  <p className="text-gold/70 text-sm">{shortPitch}</p>
                 </div>
               )}
 
@@ -197,15 +208,15 @@ export default function ProductDetailPage() {
                 </div>
                 <p className="text-white/45 text-sm leading-relaxed">
                   {isZh
-                    ? "\u9002\u5408\u628a\u62a5\u544a\u91cc\u7684\u8d8b\u52bf\u63d0\u9192\u8f6c\u5316\u4e3a\u5177\u4f53\u751f\u6d3b\u65b9\u5f0f\u52a8\u4f5c\u3002\u7cfb\u7edf\u4f1a\u7ed3\u5408\u4f60\u7684\u753b\u50cf\u6807\u7b7e\u3001\u4e94\u7ef4\u72b6\u6001\u548c\u8fd1\u671f\u8bfe\u9898\u5224\u65ad\u662f\u5426\u4f18\u5148\u63a8\u8350\u3002"
-                    : "Designed to turn profile insights into concrete lifestyle actions. Guanwo ranks items by your tags, five-dimension state, and current growth task."}
+                    ? "这件物品用于承接报告里的具体提醒：先看你当前最需要补强的生活场景，再结合五行、星盘和关键词标签判断是否优先推荐。"
+                    : "This item translates your report into a specific daily support cue, ranked by your current need path, five-element tags, astrology signals, and profile keywords."}
                 </p>
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {[
+                    ...needTags,
                     ...(product.wuxing_tags || []),
-                    ...(product.keyword_tags || []),
                     ...(product.astro_tags || []),
-                  ].slice(0, 5).map(tag => (
+                  ].slice(0, 6).map(tag => (
                     <span key={tag} className="rounded-full border border-gold/15 bg-gold/[0.06] px-2 py-1 text-[10px] text-gold/62">
                       {tag}
                     </span>
@@ -238,27 +249,27 @@ export default function ProductDetailPage() {
       <div className="max-w-3xl mx-auto px-4">
 
         {/* ═══ Section 2: Story Narrative ═══ */}
-        {product.description && (
+        {description && (
           <NarrativeSection className="narrative-block">
             <div className="flex items-center gap-2 mb-4">
               <BookOpen size={16} className="text-gold/60" />
               <h2 className="text-lg font-serif text-gold/80">{t("treasureHall.story")}</h2>
             </div>
             <p className="text-white/50 text-base leading-relaxed whitespace-pre-line">
-              {locale === "en" ? (product.description_en || product.description) : product.description}
+              {description}
             </p>
           </NarrativeSection>
         )}
 
         {/* ═══ Section 3: Cultural Meaning ═══ */}
-        {product.efficacy && (
+        {efficacy && (
           <NarrativeSection className="narrative-block">
             <div className="flex items-center gap-2 mb-4">
               <Gem size={16} className="text-gold/60" />
               <h2 className="text-lg font-serif text-gold/80">{t("treasureHall.meaning")}</h2>
             </div>
             <p className="text-white/50 text-base leading-relaxed whitespace-pre-line">
-              {locale === "en" ? (product.efficacy_en || product.efficacy) : product.efficacy}
+              {efficacy}
             </p>
 
             {/* Wuxing tags */}
@@ -275,21 +286,21 @@ export default function ProductDetailPage() {
         )}
 
         {/* ═══ Section 4: Usage Guide ═══ */}
-        {(product.usage || product.precautions) && (
+        {(usage || precautions) && (
           <NarrativeSection className="narrative-block">
             <div className="flex items-center gap-2 mb-4">
               <BookOpen size={16} className="text-gold/60" />
               <h2 className="text-lg font-serif text-gold/80">{t("treasureHall.usageGuide")}</h2>
             </div>
-            {product.usage && (
+            {usage && (
               <p className="text-white/50 text-sm leading-relaxed whitespace-pre-line mb-4">
-                {locale === "en" ? (product.usage_en || product.usage) : product.usage}
+                {usage}
               </p>
             )}
-            {product.precautions && (
+            {precautions && (
               <div className="mt-4 p-3 bg-white/[0.02] border border-white/[0.06] rounded-xl">
                 <p className="text-white/30 text-xs leading-relaxed whitespace-pre-line">
-                  {locale === "en" ? (product.precautions_en || product.precautions) : product.precautions}
+                  {precautions}
                 </p>
               </div>
             )}
@@ -355,6 +366,34 @@ export default function ProductDetailPage() {
             </div>
           </NarrativeSection>
         )}
+
+        <NarrativeSection className="narrative-block">
+          <div className="flex items-center gap-2 mb-4">
+            <Shield size={16} className="text-gold/60" />
+            <h2 className="text-lg font-serif text-gold/80">
+              {isZh ? "购买前说明" : "Before You Buy"}
+            </h2>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {(isZh
+              ? [
+                  ["定位", "用于提醒、陪伴与仪式感，不替代医疗、心理或投资建议。"],
+                  ["匹配", "推荐依据来自你的报告标签与当前课题，不承诺固定结果。"],
+                  ["使用", "建议结合真实行动、复盘和生活节奏一起使用。"],
+                ]
+              : [
+                  ["Role", "A reflective support object, not medical, psychological, or financial advice."],
+                  ["Match", "Ranked from your report tags and current focus, without guaranteed outcomes."],
+                  ["Use", "Best paired with real action, reflection, and a sustainable routine."],
+                ]
+            ).map(([title, body]) => (
+              <div key={title} className="rounded-xl border border-white/[0.06] bg-white/[0.025] p-3">
+                <p className="mb-1 text-xs font-medium text-gold/65">{title}</p>
+                <p className="text-xs leading-relaxed text-white/36">{body}</p>
+              </div>
+            ))}
+          </div>
+        </NarrativeSection>
 
         {/* ═══ Reviews ═══ */}
         <div className="mt-8 pb-8">
