@@ -13,7 +13,7 @@ const FinalGrowthCTA = dynamic(() => import("@/components/marketing-growth/Final
 
 export default function DestinyPage() {
   return (
-    <div className="relative z-10 min-h-screen bg-[#080808]">
+    <div className="relative z-10 min-h-screen bg-[#020617]">
       <GrowthCommandHero variant="destiny" />
       <ErrorBoundary sectionName="Five Dimension Command Center">
         <FiveDimensionCommandCenter />
