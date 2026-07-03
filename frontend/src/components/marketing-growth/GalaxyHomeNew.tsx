@@ -52,6 +52,7 @@ export default function GalaxyHomeNew() {
             "radial-gradient(ellipse at 50% 38%, rgba(218,180,74,0.04), transparent 28%)," +
             "radial-gradient(ellipse at 38% 70%, rgba(30,80,110,0.06), transparent 40%)",
           filter: "blur(38px)", opacity: 0.72, mixBlendMode: "screen" as const,
+          animation: "nebulaPulse 12s ease-in-out infinite",
         }} />
       </div>
 
@@ -72,6 +73,7 @@ export default function GalaxyHomeNew() {
               "radial-gradient(ellipse at 66% 52%, rgba(75,175,195,0.18), transparent 24%)," +
               "linear-gradient(90deg, transparent 0%, rgba(218,180,74,0.12) 22%, rgba(255,245,210,0.20) 48%, rgba(70,170,190,0.14) 70%, transparent 100%)",
             filter: "blur(20px)", mixBlendMode: "screen" as const, opacity: 0.95,
+            animation: "coreBreathe 6s ease-in-out infinite",
           }} />
 
           {/* 3b: Dense star cluster — 820 stars, concentrated in core */}
@@ -83,6 +85,7 @@ export default function GalaxyHomeNew() {
                 background: CMAP[s.color],
                 boxShadow: s.color === "gold" ? "0 0 8px rgba(218,180,74,0.5)" : s.color === "cyan" ? "0 0 5px rgba(130,225,235,0.35)" : "0 0 4px rgba(255,248,220,0.28)",
                 opacity: s.opacity, transform: "translate(-50%,-50%)",
+                animation: `starTwinkle ${2.5 + s.id % 3 * 1.5}s ease-in-out ${(s.id * 0.3) % 4}s infinite`,
               }} />
             ))}
           </div>
@@ -96,7 +99,7 @@ export default function GalaxyHomeNew() {
               "radial-gradient(ellipse at 63% 52%, rgba(2,9,16,0.56), transparent 28%)," +
               "radial-gradient(ellipse at 82% 50%, rgba(0,4,10,0.52), transparent 24%)",
             filter: "blur(17px)", mixBlendMode: "multiply" as const, opacity: 0.70,
-            transform: "rotate(2deg)",
+            transform: "rotate(2deg)", animation: "dustFlow1 28s ease-in-out infinite",
           }} />
           <div style={{
             position: "absolute", left: "8%", top: "51%", width: "86%", height: "95px",
@@ -105,7 +108,15 @@ export default function GalaxyHomeNew() {
               "radial-gradient(ellipse at 55% 48%, rgba(1,6,12,0.50), transparent 28%)," +
               "radial-gradient(ellipse at 74% 52%, rgba(1,6,12,0.44), transparent 24%)",
             filter: "blur(18px)", mixBlendMode: "multiply" as const, opacity: 0.52,
-            transform: "rotate(-3deg)",
+            transform: "rotate(-3deg)", animation: "dustFlow2 32s ease-in-out infinite",
+          }} />
+
+          {/* Golden dust stream — flowing along the galaxy */}
+          <div style={{
+            position: "absolute", left: "14%", top: "43%", width: "72%", height: "50px",
+            background: "linear-gradient(90deg, transparent 0%, rgba(218,180,74,0.08) 20%, rgba(255,221,125,0.16) 46%, rgba(90,190,200,0.06) 64%, transparent 100%)",
+            filter: "blur(12px)", mixBlendMode: "screen" as const,
+            animation: "goldStream 18s ease-in-out infinite",
           }} />
 
           {/* 3d: Edge glow — cyan-blue at galaxy boundaries */}
@@ -173,6 +184,14 @@ export default function GalaxyHomeNew() {
       <style>{`
         @keyframes taijiSpin { from { transform: translate(-50%,-50%) rotate(0deg) } to { transform: translate(-50%,-50%) rotate(360deg) } }
         @keyframes ringSpin { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }
+        @keyframes starTwinkle { 0%,100% { opacity:0.3;transform:scale(0.7) } 50% { opacity:1;transform:scale(1.3) } }
+        @keyframes coreBreathe { 0%,100% { opacity:0.85 } 50% { opacity:1 } }
+        @keyframes starDriftSlow { 0% { transform:translateX(0) } 100% { transform:translateX(40px) } }
+        @keyframes starDriftFast { 0% { transform:translateX(0) } 100% { transform:translateX(70px) } }
+        @keyframes dustFlow1 { 0%,100% { transform:translateX(0) rotate(2deg) } 50% { transform:translateX(12px) rotate(2deg) } }
+        @keyframes dustFlow2 { 0%,100% { transform:translateX(0) rotate(-3deg) } 50% { transform:translateX(-10px) rotate(-3deg) } }
+        @keyframes goldStream { 0% { opacity:0.45;transform:skewY(-3deg) translateX(-3%) } 50% { opacity:0.75;transform:skewY(-3deg) translateX(3%) } 100% { opacity:0.45;transform:skewY(-3deg) translateX(-3%) } }
+        @keyframes nebulaPulse { 0%,100% { opacity:0.72 } 50% { opacity:0.85 } }
         @media(prefers-reduced-motion:reduce){*{animation:none!important}}
       `}</style>
 
