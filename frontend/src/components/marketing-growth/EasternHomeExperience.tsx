@@ -9,21 +9,51 @@ export function EasternHomeExperience() {
   const { locale, localeHref } = useLanguage()
   const isZh = locale === "zh"
 
-  const copy = isZh ? zhCopy : enCopy
+  const copy = isZh
+    ? {
+        ...zhCopy,
+        tags: ["五维合参", "今日行动", "未来窗口"],
+        heroTitle: "看见内在结构\n找到下一步",
+        heroDesc: "用八字、星盘、塔罗、面相、手相与 AI 合参，生成一份可读、可执行的观我档案。",
+        questionsDesc: "先回答最影响你当下决策的问题。",
+        questions: ["我真正的性格底色是什么？", "为什么我总在关系里消耗？", "事业适合走哪条路径？", "今天最该推进什么？"],
+        reportModules: [
+          { title: "性格结构", body: "看清稳定优势和容易卡住的位置。" },
+          { title: "事业方向", body: "找到更适合你的能力使用方式。" },
+          { title: "今日行动", body: "把分析落成今天的一步。" },
+        ],
+        vaultDesc: "根据你的状态推荐空间、饰品与仪式感物件。",
+        finalDesc: "生成档案，查看结构、关系和今日行动。",
+      }
+    : {
+        ...enCopy,
+        tags: ["Five-source", "Daily action", "Future windows"],
+        heroTitle: "See your structure\nfind the next step",
+        heroDesc: "A readable, actionable Guanwo dossier built from five-source AI synthesis.",
+        questionsDesc: "Start with the questions that affect today's decisions.",
+        questions: ["What is my real baseline?", "Why do I repeat relationship drain?", "Which career path fits?", "What should move today?"],
+        reportModules: [
+          { title: "Inner structure", body: "See strengths and friction points." },
+          { title: "Career direction", body: "Find the right way to use your abilities." },
+          { title: "Daily action", body: "Turn insight into one move today." },
+        ],
+        vaultDesc: "Objects for space, personal rhythm, and daily ritual.",
+        finalDesc: "Generate your dossier for structure, relationships, and daily action.",
+      }
 
   return (
     <EasternPageShell>
-      <section className="mx-auto grid min-h-[calc(100vh-72px)] w-[min(1180px,calc(100vw-32px))] items-center gap-10 py-14 lg:grid-cols-[0.92fr_1.08fr] lg:py-20">
+      <section className="mx-auto grid min-h-[720px] w-[min(1180px,calc(100vw-32px))] items-center gap-8 py-10 lg:grid-cols-[0.9fr_1.1fr] lg:py-16">
         <div>
-          <div className="mb-6 flex flex-wrap gap-2">
+          <div className="mb-5 flex flex-wrap gap-2">
             {copy.tags.map(tag => (
               <span key={tag} className="rounded-full border border-white/[0.09] bg-white/[0.045] px-3 py-1.5 text-xs text-white/70">{tag}</span>
             ))}
           </div>
-          <h1 className="max-w-3xl text-[clamp(2.8rem,8vw,6.4rem)] font-semibold leading-[0.98] tracking-0 text-[var(--color-text-primary)]">
+          <h1 className="max-w-2xl text-[clamp(2.25rem,5.6vw,5rem)] font-semibold leading-[1.02] tracking-0 text-[var(--color-text-primary)]">
             {copy.heroTitle}
           </h1>
-          <p className="mt-7 max-w-2xl text-base leading-8 text-[var(--color-text-secondary)] md:text-lg">{copy.heroDesc}</p>
+          <p className="mt-6 max-w-xl text-sm leading-7 text-[var(--color-text-secondary)] md:text-base">{copy.heroDesc}</p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link href={localeHref("/reading/new")} className="ow-gold-button">{copy.primary}<ArrowRight size={17} /></Link>
             <Link href="#sample-report" className="ow-ghost-button">{copy.secondary}<ArrowRight size={16} /></Link>
@@ -32,11 +62,11 @@ export function EasternHomeExperience() {
 
         <div className="relative">
           <FiveDimensionOrbit labels={copy.dimensionLabels} center={copy.engine} />
-          <EasternCard className="absolute -left-2 bottom-8 max-w-[250px] p-5 md:left-4">
+          <EasternCard className="absolute -left-2 bottom-8 hidden max-w-[250px] p-5 md:left-4 md:block">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-gold)]">{copy.blindspotTitle}</p>
             <p className="mt-2 text-sm leading-6 text-[var(--color-text-secondary)]">{copy.blindspot}</p>
           </EasternCard>
-          <EasternCard className="absolute right-0 top-8 max-w-[260px] p-5">
+          <EasternCard className="absolute right-0 top-8 hidden max-w-[260px] p-5 md:block">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-gold)]">{copy.actionTitle}</p>
             <p className="mt-2 text-sm leading-6 text-[var(--color-text-secondary)]">{copy.action}</p>
           </EasternCard>
@@ -44,11 +74,11 @@ export function EasternHomeExperience() {
       </section>
 
       <EasternSection eyebrow={copy.questionsEyebrow} title={copy.questionsTitle} description={copy.questionsDesc}>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {copy.questions.map((question, index) => (
-            <EasternCard key={question} className="p-6">
+            <EasternCard key={question} className="p-5">
               <span className="text-sm font-semibold text-[var(--color-gold)]">0{index + 1}</span>
-              <p className="mt-4 text-lg font-semibold leading-7 text-[var(--color-text-primary)]">{question}</p>
+              <p className="mt-4 text-base font-semibold leading-7 text-[var(--color-text-primary)]">{question}</p>
             </EasternCard>
           ))}
         </div>

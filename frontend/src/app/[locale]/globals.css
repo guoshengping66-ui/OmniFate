@@ -30,8 +30,8 @@
     --radius-card: 28px;
     --radius-button: 999px;
     --radius-panel: 32px;
-    --section-padding-desktop: 112px;
-    --section-padding-mobile: 72px;
+    --section-padding-desktop: 84px;
+    --section-padding-mobile: 56px;
     --content-max-width: 1180px;
   }
   /* Prevent horizontal overflow on mobile — fixes "right 1/3 black" layout issue */
@@ -181,7 +181,7 @@
   }
 
   .ow-section-title {
-    font-size: clamp(2rem, 5vw, 4.25rem);
+    font-size: clamp(1.9rem, 4vw, 3.4rem);
     line-height: 1.08;
     letter-spacing: 0;
     color: var(--color-text-primary);
@@ -232,7 +232,7 @@
 
   .ow-orbit {
     position: relative;
-    min-height: 520px;
+    min-height: 430px;
     border-radius: 40px;
     overflow: hidden;
     background:
@@ -336,15 +336,15 @@
 
   @media (max-width: 640px) {
     .ow-orbit {
-      min-height: 430px;
+      min-height: 320px;
     }
     .ow-orbit-node {
       font-size: 12px;
       padding: 8px 10px;
     }
     .ow-orbit-core {
-      height: 120px;
-      width: 120px;
+      height: 104px;
+      width: 104px;
     }
   }
 }

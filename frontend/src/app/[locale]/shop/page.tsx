@@ -213,6 +213,27 @@ function ShopContent() {
         ],
   })
 
+  Object.assign(copy, {
+    title: isZh ? "状态物件推荐" : "State-matched objects",
+    subtitle: isZh ? "按你的情绪、专注和生活节律，推荐更适合今天使用的物件。" : "Objects matched to mood, focus, and daily rhythm.",
+    disclaimer: isZh ? "不承诺效果，只提供生活方式参考。" : "Lifestyle reference only, no guaranteed outcome.",
+    signals: isZh ? ["情绪", "专注", "节律"] : ["Mood", "Focus", "Rhythm"],
+    defaultTitle: isZh ? "先生成档案，匹配更准确" : "Create a dossier for sharper matching",
+    defaultDesc: isZh ? "完成观我报告后，排序会更贴近你的个人节奏。" : "After your Guanwo report, ranking becomes more personal.",
+    personalizedDesc: isZh ? "排序参考你的报告标签、五维状态与近期主题。" : "Ranking references report tags, five-source state, and current theme.",
+    trustItems: isZh
+      ? [
+          { title: "档案匹配", desc: "按状态和节律排序" },
+          { title: "理性选择", desc: "生活方式参考" },
+          { title: "订单跟踪", desc: "支付后查看进度" },
+        ]
+      : [
+          { title: "Dossier matched", desc: "Ranked by state and rhythm" },
+          { title: "Practical choice", desc: "Lifestyle reference" },
+          { title: "Order tracking", desc: "Follow status after checkout" },
+        ],
+  })
+
   // Register loaded products with the cart so localStorage placeholders get real data
   useEffect(() => {
     if (allProducts.length > 0) {
@@ -223,7 +244,7 @@ function ShopContent() {
   return (
     <div className="min-h-screen">
       {/* ═══ Hero Section — full-screen immersive ═══ */}
-      <div className={`treasure-hero transition-all duration-1000 ${heroVisible ? "opacity-100" : "opacity-0"}`}>
+      <div className={`treasure-hero !min-h-[auto] !items-start !justify-start !px-4 !pb-10 !pt-32 !text-left transition-all duration-1000 sm:!min-h-[560px] sm:!items-center sm:!justify-center sm:!pt-36 sm:!text-center ${heroVisible ? "opacity-100" : "opacity-0"}`}>
         {/* Floating particles */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           {particles.map((p, i) => (
@@ -243,7 +264,7 @@ function ShopContent() {
         {/* Subtle radial glow */}
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-gold/[0.03] blur-[120px] pointer-events-none" />
 
-        <div className="relative z-10 max-w-3xl mx-auto">
+        <div className="relative z-10 mx-auto max-w-2xl">
           <div className={`transition-all duration-1000 delay-200 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
             <div className="inline-flex items-center gap-2 text-[11px] tracking-[0.3em] uppercase text-gold/40 font-medium mb-6">
               <span className="w-10 h-px bg-gradient-to-r from-transparent to-gold/30" />
@@ -253,7 +274,7 @@ function ShopContent() {
             </div>
           </div>
 
-          <h1 className={`text-4xl md:text-6xl lg:text-7xl font-serif font-bold mb-6 transition-all duration-1000 delay-300 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+          <h1 className={`mb-5 max-w-2xl px-1 text-[clamp(2.2rem,6vw,4.6rem)] font-serif font-bold leading-[1.02] transition-all duration-1000 delay-300 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
             style={{
               background: "linear-gradient(135deg, #C9A84C 0%, #E8CB7A 40%, #C9A84C 100%)",
               WebkitBackgroundClip: "text",
@@ -262,11 +283,11 @@ function ShopContent() {
             {copy.title}
           </h1>
 
-          <p className={`text-white/40 text-lg md:text-xl max-w-xl mx-auto leading-relaxed mb-8 transition-all duration-1000 delay-500 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+          <p className={`mx-auto mb-5 max-w-lg text-sm leading-7 text-white/45 md:text-base transition-all duration-1000 delay-500 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
             {copy.subtitle}
           </p>
 
-          <div className={`mb-8 grid grid-cols-3 gap-2 max-w-xl mx-auto transition-all duration-1000 delay-600 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
+          <div className={`mb-5 grid max-w-md grid-cols-3 gap-2 transition-all duration-1000 delay-600 sm:mx-auto ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
             {copy.signals.map(item => (
               <div key={item} className="rounded-xl border border-white/[0.06] bg-white/[0.025] px-3 py-2 text-[11px] text-white/42">
                 {item}
@@ -275,14 +296,14 @@ function ShopContent() {
           </div>
 
           {/* Disclaimer */}
-          <div className={`transition-all duration-1000 delay-700 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
+          <div className={`hidden transition-all duration-1000 delay-700 sm:block ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
             <p className="text-white/20 text-xs leading-relaxed max-w-md mx-auto">
               {copy.disclaimer}
             </p>
           </div>
 
           {/* Scroll indicator */}
-          <div className={`mt-12 transition-all duration-1000 delay-1000 ${heroVisible ? "opacity-100" : "opacity-0"}`}>
+          <div className={`mt-8 hidden transition-all duration-1000 delay-1000 md:block ${heroVisible ? "opacity-100" : "opacity-0"}`}>
             <div className="w-5 h-8 rounded-full border border-white/10 mx-auto flex justify-center pt-1.5">
               <div className="w-1 h-2 rounded-full bg-gold/40 animate-bounce" />
             </div>
@@ -294,7 +315,7 @@ function ShopContent() {
       <div className="max-w-6xl mx-auto px-4 pb-20">
 
         <ScrollReveal>
-          <div className="mb-10 rounded-xl border border-white/[0.07] bg-white/[0.025] p-5 md:p-6">
+          <div className="mb-7 rounded-xl border border-white/[0.07] bg-white/[0.025] p-4 md:p-5">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
                 <div className="mb-2 inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-gold/55">
@@ -315,7 +336,7 @@ function ShopContent() {
         </ScrollReveal>
 
         <ScrollReveal>
-          <div className="mb-10 grid gap-3 md:grid-cols-3">
+          <div className="hidden">
             {[ClipboardCheck, ShieldCheck, Truck].map((Icon, index) => {
               const item = copy.trustItems[index]
               return (

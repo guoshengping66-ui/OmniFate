@@ -457,17 +457,25 @@ select.input-field option:checked {
 
 /* ═══ Treasure Hall — 命运藏宝阁 ═══════════════════════ */
 
-/* Full-screen hero section */
 .treasure-hero {
   position: relative;
-  min-height: 100vh;
+  min-height: 560px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
   overflow: hidden;
-  padding: 6rem 1rem 4rem;
+  padding: 7.5rem 1rem 3rem;
+}
+
+@media (max-width: 640px) {
+  .treasure-hero {
+    min-height: auto;
+    align-items: flex-start;
+    text-align: left;
+    padding: 7.75rem 1rem 2.5rem;
+  }
 }
 .treasure-hero::before {
   content: "";
