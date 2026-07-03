@@ -1,5 +1,5 @@
 import { useState, useEffect, memo, useCallback, useMemo } from "react"
-import { Star, ShoppingBag, Sparkles, Check, Zap } from "lucide-react"
+import { Star, ShoppingBag, Check, Zap } from "lucide-react"
 import { Link } from "@/i18n/navigation"
 import type { Product } from "@/lib/api"
 import { useCart } from "@/contexts/CartContext"
@@ -8,6 +8,7 @@ import { useRegion } from "@/contexts/RegionContext"
 import { getProductPrice } from "@/lib/regionPrice"
 import { ProductImage } from "@/components/shop/ProductImage"
 import toast from "react-hot-toast"
+import { getMatchTier, getNeedTags, isMojibakeText, safeLocalizedText } from "@/lib/treasureHall"
 
 function getGlowClass(score?: number): string {
   if (score == null) return ""
@@ -29,8 +30,12 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
   const [added, setAdded] = useState(false)
   const hasMatch = product.match_score != null && product.match_score > 0
   const isEn = locale === "en"
-  const productName = isEn ? (product.name_en || product.name) : product.name
-  const hasChinese = (s: string) => /[一-鿿㐀-䶿]/.test(s)
+  const productName = safeLocalizedText(isEn ? product.name_en : product.name, product.name) || product.name
+  const shortPitch = safeLocalizedText(isEn ? product.short_pitch_en : product.short_pitch, product.short_pitch)
+  const recommendationText = safeLocalizedText(product.recommendation_text, "")
+  const needTags = useMemo(() => getNeedTags(product, locale), [product, locale])
+  const matchTier = useMemo(() => getMatchTier(product.match_score, locale), [product.match_score, locale])
+  const matchReasons = useMemo(() => (product.match_reasons || []).filter(r => !isMojibakeText(r)).slice(0, 2), [product.match_reasons])
   const glowClass = useMemo(() => getGlowClass(product.match_score), [product.match_score])
   const matchPct = useMemo(() => getMatchPercentage(product.match_score), [product.match_score])
 
@@ -46,19 +51,17 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
     addItem(product)
     setAdded(true)
     toast.success(t("shop.addedToCart").replace("{name}", productName))
-  }, [addItem, product, t])
+  }, [addItem, product, productName, t])
 
   return (
     <Link href={`/shop/${product.id}`} className={`block treasure-card p-5 ${glowClass}`}>
-      {/* AI Badge */}
       {hasMatch && (
-        <div className="absolute top-3 left-3 z-10 flex items-center gap-1 px-2 py-0.5 rounded-full bg-gold/10 border border-gold/20 text-[10px] text-gold/80 font-medium">
+        <div className="absolute top-3 left-3 z-10 flex items-center gap-1 rounded-full border border-gold/20 bg-gold/10 px-2 py-0.5 text-[10px] font-medium text-gold/80">
           <Zap size={9} className="fill-gold/40" />
-          {isEn ? "Profile match" : "画像匹配"}
+          {matchTier}
         </div>
       )}
 
-      {/* Image */}
       <div className="mb-4 flex justify-center py-3">
         <ProductImage
           src={product.image_url}
@@ -69,60 +72,55 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
         />
       </div>
 
-      {/* Info */}
       <div className="relative z-10">
-        <div className="flex items-start justify-between gap-2 mb-1.5">
-          <h3 className="font-serif font-medium text-white/90 text-sm leading-tight">{productName}</h3>
+        <div className="mb-1.5 flex items-start justify-between gap-2">
+          <h3 className="font-serif text-sm font-medium leading-tight text-white/90">{productName}</h3>
           {product.rating && (
-            <div className="flex items-center gap-0.5 flex-shrink-0">
-              <Star size={11} className="text-gold/60 fill-gold/60" />
+            <div className="flex flex-shrink-0 items-center gap-0.5">
+              <Star size={11} className="fill-gold/60 text-gold/60" />
               <span className="text-xs text-gold/60">{product.rating}</span>
             </div>
           )}
         </div>
 
-        {/* Match score */}
         {hasMatch && matchPct > 0 && (
-          <div className="flex items-center gap-2 mb-2">
-            <div className="flex-1 h-1 bg-white/[0.04] rounded-full overflow-hidden">
+          <div className="mb-2 flex items-center gap-2">
+            <div className="h-1 flex-1 overflow-hidden rounded-full bg-white/[0.04]">
               <div
                 className="h-full rounded-full bg-gradient-to-r from-gold/40 to-gold/70 transition-all duration-700"
                 style={{ width: `${matchPct}%` }}
               />
             </div>
-            <span className="text-[10px] text-gold/50 font-medium tabular-nums">{matchPct}%</span>
+            <span className="text-[10px] font-medium tabular-nums text-gold/50">{matchPct}%</span>
           </div>
         )}
 
-        {product.short_pitch && (
-          <p className="text-white/35 text-xs leading-relaxed line-clamp-2 mb-2">
-            {isEn ? (product.short_pitch_en || product.short_pitch) : product.short_pitch}
+        {shortPitch && (
+          <p className="mb-2 line-clamp-2 text-xs leading-relaxed text-white/35">
+            {shortPitch}
           </p>
         )}
 
-        {/* Recommendation text */}
-        {product.recommendation_text && !(isEn && hasChinese(product.recommendation_text)) && (
-          <p className="text-gold/50 text-xs leading-relaxed italic mb-2 border-l-2 border-gold/15 pl-2">
-            &ldquo;{product.recommendation_text}&rdquo;
+        {recommendationText && (
+          <p className="mb-2 border-l-2 border-gold/15 pl-2 text-xs italic leading-relaxed text-gold/50">
+            &ldquo;{recommendationText}&rdquo;
           </p>
         )}
 
-        {/* Match reasons */}
-        {product.match_reasons && product.match_reasons.length > 0 && !(isEn && product.match_reasons.some(hasChinese)) && (
-          <div className="flex gap-1 flex-wrap mb-2">
-            {product.match_reasons.slice(0, 2).map(r => (
-              <span key={r} className="text-[10px] px-1.5 py-0.5 bg-gold/8 text-gold/50 rounded-full">
-                {r}
+        {matchReasons.length > 0 && (
+          <div className="mb-2 flex flex-wrap gap-1">
+            {matchReasons.map(reason => (
+              <span key={reason} className="rounded-full bg-gold/8 px-1.5 py-0.5 text-[10px] text-gold/50">
+                {reason}
               </span>
             ))}
           </div>
         )}
 
-        {/* keyword tags */}
-        {!hasMatch && product.keyword_tags && (
-          <div className="flex gap-1 flex-wrap mb-3">
-            {(isEn ? (product.keyword_tags_en || product.keyword_tags) : product.keyword_tags).slice(0, 3).map(tag => (
-              <span key={tag} className="text-[10px] px-1.5 py-0.5 bg-white/[0.03] text-white/30 rounded-full">
+        {!hasMatch && needTags.length > 0 && (
+          <div className="mb-3 flex flex-wrap gap-1">
+            {needTags.map(tag => (
+              <span key={tag} className="rounded-full bg-white/[0.03] px-1.5 py-0.5 text-[10px] text-white/30">
                 {tag}
               </span>
             ))}
@@ -132,14 +130,15 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
         <div className="flex items-center justify-between pt-2">
           {(() => {
             const pp = getProductPrice(product, region)
-            return <span className="text-gold/90 font-bold">{pp.symbol}{pp.price.toFixed(0)}</span>
+            return <span className="font-bold text-gold/90">{pp.symbol}{pp.price.toFixed(0)}</span>
           })()}
           <button
             onClick={handleAddToCart}
-            className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full transition-all
-              ${added
-                ? "bg-green-500/15 border border-green-500/30 text-green-400"
-                : "bg-gold/10 border border-gold/20 text-gold/80 hover:bg-gold/15 hover:shadow-[0_0_15px_rgba(201,168,76,0.1)]"}`}
+            className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs transition-all ${
+              added
+                ? "border border-green-500/30 bg-green-500/15 text-green-400"
+                : "border border-gold/20 bg-gold/10 text-gold/80 hover:bg-gold/15 hover:shadow-[0_0_15px_rgba(201,168,76,0.1)]"
+            }`}
           >
             {added ? <Check size={12} /> : <ShoppingBag size={12} />}
             {added ? t("treasureHall.collected") : t("treasureHall.collect")}
