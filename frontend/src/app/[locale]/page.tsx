@@ -6,7 +6,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { useUserStore } from "@/stores/useUserStore"
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary"
 
-const MinimalHero = dynamic(() => import("@/components/marketing-growth/MinimalHero").then(m => m.MinimalHero), { ssr: true })
+const GalaxyHomeExperience = dynamic(() => import("@/components/marketing-growth/GalaxyHomeExperience").then(m => m.GalaxyHomeExperience), { ssr: true })
 const UserDashboard = dynamic(() => import("@/components/dashboard/UserDashboard").then(m => m.UserDashboard), {
   ssr: false,
   loading: () => <div className="card-solid p-8"><div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin" /></div>,
@@ -47,7 +47,7 @@ export default function HomePage() {
   return (
     <div className="relative z-10 min-h-screen bg-black">
       <ErrorBoundary sectionName="Guanwo Home Experience">
-        <MinimalHero />
+        <GalaxyHomeExperience />
       </ErrorBoundary>
     </div>
   )
