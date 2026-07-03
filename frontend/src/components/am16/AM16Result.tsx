@@ -49,6 +49,7 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
   const { user } = useAuth()
   const { t: rawT, locale } = useLanguage()
   const t = rawT as unknown as (key: string) => string
+  const isZh = locale === "zh"
   const [shareOpen, setShareOpen] = useState(false)
   const [downloading, setDownloading] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -458,17 +459,19 @@ export function AM16ResultCard({ answers, onRestart }: Props) {
           <div className="text-center mb-4">
             <div className="inline-flex items-center gap-2 text-gold/70 text-xs mb-2">
               <Wand2 size={14} />
-              <span>{t("am16.ctaTitle")}</span>
+              <span>{isZh ? "合并进完整画像" : "Merge into full profile"}</span>
             </div>
             <p className="text-white/60 text-sm leading-relaxed mb-3">
-              {t("am16.ctaDesc")}
+              {isZh
+                ? "AM16 只解释你的行为反应模式。完整报告会把它与八字、紫微、星盘和当下问题合并，输出更可执行的年度趋势与行动建议。"
+                : "AM16 explains your behavioral reaction pattern. The full report merges it with Bazi, Ziwei, astrology, and your current question for sharper timing and action guidance."}
             </p>
             <p className="text-white/40 text-xs">
-              {t("am16.ctaFull").replace("{cost}", t("am16.ctaCost"))}
+              {isZh ? "适合已经完成测验、想获得完整判断的人。" : "Best after the quiz, when you want a complete reading instead of a standalone type."}
             </p>
           </div>
 
-          <Link href="/reading/new" className="block relative group">
+          <Link href="/reading/new?source=am16&intent=full" className="block relative group">
             <button
               className="w-full btn-gold text-sm flex items-center justify-center gap-2 relative z-10 hover:scale-[1.03] active:scale-[0.97] transition-transform"
             >
