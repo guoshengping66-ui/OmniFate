@@ -58,8 +58,10 @@ export function EasternHomeExperience() {
 
   return (
     <EasternPageShell className={`gw-home-theme gw-theme-${skyMode}`}>
-      <section className="gw-hero-section mx-auto grid min-h-[720px] w-[min(1180px,calc(100vw-32px))] items-center gap-8 py-10 lg:grid-cols-[0.86fr_1.14fr] lg:py-16">
-        <div className="relative z-10">
+      <section className="gw-hero-section min-h-[780px] w-full py-10 lg:py-16">
+        <OrientalSkyAtlas mode={skyMode} />
+        <div className="relative z-10 mx-auto flex min-h-[700px] w-[min(1180px,calc(100vw-32px))] items-center">
+          <div className="max-w-2xl">
           <div className="mb-5 flex flex-wrap items-center gap-2">
             {copy.tags.map(tag => <span key={tag} className="gw-hero-tag">{tag}</span>)}
             <button type="button" className="gw-sky-toggle" onClick={toggleSkyMode} aria-label={isZh ? "切换昼夜模式" : "Toggle day and night mode"}>
@@ -67,18 +69,17 @@ export function EasternHomeExperience() {
               <span>{skyMode === "night" ? (isZh ? "夜观" : "Night") : (isZh ? "昼观" : "Day")}</span>
             </button>
           </div>
-          <h1 className="gw-hero-brand">
-            {copy.heroTitle}
-          </h1>
-          <p className="gw-hero-kicker">{copy.heroKicker}</p>
-          <p className="mt-6 max-w-xl text-sm leading-7 text-[var(--color-text-secondary)] md:text-base">{copy.heroDesc}</p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link href={localeHref("/reading/new")} className="ow-gold-button">{copy.primary}<ArrowRight size={17} /></Link>
-            <Link href="#sample-report" className="ow-ghost-button">{copy.secondary}<ArrowRight size={16} /></Link>
+            <h1 className="gw-hero-brand">
+              {copy.heroTitle}
+            </h1>
+            <p className="gw-hero-kicker">{copy.heroKicker}</p>
+            <p className="mt-6 max-w-xl text-sm leading-7 text-[var(--color-text-secondary)] md:text-base">{copy.heroDesc}</p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Link href={localeHref("/reading/new")} className="ow-gold-button">{copy.primary}<ArrowRight size={17} /></Link>
+              <Link href="#sample-report" className="ow-ghost-button">{copy.secondary}<ArrowRight size={16} /></Link>
+            </div>
           </div>
         </div>
-
-        <OrientalSkyAtlas labels={copy.dimensionLabels} center={copy.engine} isZh={isZh} mode={skyMode} />
       </section>
 
       <EasternSection eyebrow={copy.questionsEyebrow} title={copy.questionsTitle} description={copy.questionsDesc}>
@@ -162,7 +163,7 @@ export function EasternHomeExperience() {
   )
 }
 
-function OrientalSkyAtlas({ labels, center, isZh, mode }: { labels: string[]; center: string; isZh: boolean; mode: "night" | "day" }) {
+function OrientalSkyAtlas({ labels = [], center = "", isZh = false, mode }: { labels?: string[]; center?: string; isZh?: boolean; mode: "night" | "day" }) {
   const trigrams = ["乾", "兑", "离", "震", "巽", "坎", "艮", "坤"]
   const stars = Array.from({ length: 36 }, (_, index) => ({
     left: `${5 + ((index * 29) % 90)}%`,
@@ -171,7 +172,7 @@ function OrientalSkyAtlas({ labels, center, isZh, mode }: { labels: string[]; ce
   }))
 
   return (
-    <div className="gw-atlas-stage" aria-label={center}>
+    <div className="gw-atlas-stage" aria-hidden="true">
       <div className="gw-taiji-field" aria-hidden="true">
         <div className="gw-taiji-symbol" />
         <div className="gw-bagua-orbit">
