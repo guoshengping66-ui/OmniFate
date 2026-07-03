@@ -1,21 +1,34 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowRight, Brain, HeartHandshake, MessageCircleQuestion, Sparkles } from "lucide-react"
+import { useEffect, useState } from "react"
+import { ArrowRight, Brain, HeartHandshake, MessageCircleQuestion, Moon, Sparkles, Sun } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { EasternCard, EasternPageShell, EasternSection, FiveDimensionOrbit, ReportPreviewPanel, TenYearPath } from "@/components/brand/EasternDesign"
 
 export function EasternHomeExperience() {
   const { locale, localeHref } = useLanguage()
   const isZh = locale === "zh"
+  const [skyMode, setSkyMode] = useState<"night" | "day">("night")
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem("guanwo-sky-mode")
+    if (saved === "day" || saved === "night") setSkyMode(saved)
+  }, [])
+
+  const toggleSkyMode = () => {
+    const next = skyMode === "night" ? "day" : "night"
+    setSkyMode(next)
+    window.localStorage.setItem("guanwo-sky-mode", next)
+  }
 
   const copy = isZh
     ? {
         ...zhCopy,
-        tags: ["周易底色", "AI 合参", "行动建议"],
+        tags: ["星河命盘", "太极八卦", "AI 合参"],
         heroTitle: "观我",
-        heroKicker: "以周易为骨，以 AI 合参为用",
-        heroDesc: "融合八字、星盘、塔罗、面相与手相，生成你的个人命盘档案与下一步行动建议。",
+        heroKicker: "在星河里，看见自己的下一步",
+        heroDesc: "以周易八卦为底，融合八字、星盘、塔罗、面相与手相，生成你的个人命盘档案与行动建议。",
         questionsDesc: "先回答最影响你当下决策的问题。",
         questions: ["我真正的性格底色是什么？", "为什么我总在关系里消耗？", "事业适合走哪条路径？", "今天最该推进什么？"],
         reportModules: [
@@ -28,10 +41,10 @@ export function EasternHomeExperience() {
       }
     : {
         ...enCopy,
-        tags: ["I Ching base", "AI synthesis", "Action guidance"],
+        tags: ["Milky Way Map", "Bagua Field", "AI Synthesis"],
         heroTitle: "Guanwo",
-        heroKicker: "I Ching roots, AI synthesis, practical action",
-        heroDesc: "A personal dossier combining Bazi, astrology, tarot, face reading, palm reading, and daily action guidance.",
+        heroKicker: "Read your next move inside the galaxy",
+        heroDesc: "A personal chart dossier built from I Ching patterns, Bazi, astrology, tarot, face reading, palm reading, and daily action guidance.",
         questionsDesc: "Start with the questions that affect today's decisions.",
         questions: ["What is my real baseline?", "Why do I repeat relationship drain?", "Which career path fits?", "What should move today?"],
         reportModules: [
@@ -44,13 +57,15 @@ export function EasternHomeExperience() {
       }
 
   return (
-    <EasternPageShell>
+    <EasternPageShell className={`gw-home-theme gw-theme-${skyMode}`}>
       <section className="gw-hero-section mx-auto grid min-h-[720px] w-[min(1180px,calc(100vw-32px))] items-center gap-8 py-10 lg:grid-cols-[0.86fr_1.14fr] lg:py-16">
         <div className="relative z-10">
-          <div className="mb-5 flex flex-wrap gap-2">
-            {copy.tags.map(tag => (
-              <span key={tag} className="gw-hero-tag">{tag}</span>
-            ))}
+          <div className="mb-5 flex flex-wrap items-center gap-2">
+            {copy.tags.map(tag => <span key={tag} className="gw-hero-tag">{tag}</span>)}
+            <button type="button" className="gw-sky-toggle" onClick={toggleSkyMode} aria-label={isZh ? "切换昼夜模式" : "Toggle day and night mode"}>
+              {skyMode === "night" ? <Moon size={14} /> : <Sun size={14} />}
+              <span>{skyMode === "night" ? (isZh ? "夜观" : "Night") : (isZh ? "昼观" : "Day")}</span>
+            </button>
           </div>
           <h1 className="gw-hero-brand">
             {copy.heroTitle}
@@ -63,7 +78,7 @@ export function EasternHomeExperience() {
           </div>
         </div>
 
-        <OrientalSkyAtlas labels={copy.dimensionLabels} center={copy.engine} isZh={isZh} />
+        <OrientalSkyAtlas labels={copy.dimensionLabels} center={copy.engine} isZh={isZh} mode={skyMode} />
       </section>
 
       <EasternSection eyebrow={copy.questionsEyebrow} title={copy.questionsTitle} description={copy.questionsDesc}>
@@ -147,42 +162,44 @@ export function EasternHomeExperience() {
   )
 }
 
-function OrientalSkyAtlas({ labels, center, isZh }: { labels: string[]; center: string; isZh: boolean }) {
+function OrientalSkyAtlas({ labels, center, isZh, mode }: { labels: string[]; center: string; isZh: boolean; mode: "night" | "day" }) {
   const trigrams = ["乾", "兑", "离", "震", "巽", "坎", "艮", "坤"]
-  const stars = Array.from({ length: 18 }, (_, index) => ({
-    left: `${12 + ((index * 37) % 76)}%`,
-    top: `${10 + ((index * 23) % 58)}%`,
+  const stars = Array.from({ length: 36 }, (_, index) => ({
+    left: `${5 + ((index * 29) % 90)}%`,
+    top: `${6 + ((index * 19) % 76)}%`,
     delay: `${(index % 6) * 0.4}s`,
   }))
 
   return (
     <div className="gw-atlas-stage" aria-label={center}>
+      <div className="gw-taiji-field" aria-hidden="true">
+        <div className="gw-taiji-symbol" />
+        <div className="gw-bagua-orbit">
+          {trigrams.map((mark, index) => (
+            <span key={mark} className={`gw-bagua-glyph gw-bagua-glyph-${index + 1}`}>{mark}</span>
+          ))}
+        </div>
+      </div>
+      <div className="gw-galaxy-band gw-galaxy-band-back" aria-hidden="true" />
+      <div className="gw-galaxy-band gw-galaxy-band-front" aria-hidden="true" />
+      <div className="gw-galaxy-dust" aria-hidden="true" />
       <div className="gw-atlas-stars" aria-hidden="true">
         {stars.map((star, index) => (
           <span key={index} style={{ left: star.left, top: star.top, animationDelay: star.delay }} />
         ))}
       </div>
-      <div className="gw-atlas-moon" aria-hidden="true" />
+      <div className="gw-atlas-moon" data-mode={mode} aria-hidden="true" />
       <div className="gw-atlas-constellation" aria-hidden="true" />
-      <div className="gw-atlas-mountain gw-atlas-mountain-back" aria-hidden="true" />
-      <div className="gw-atlas-mountain gw-atlas-mountain-front" aria-hidden="true" />
-      <div className="gw-atlas-river" aria-hidden="true" />
 
       <div className="gw-atlas-scroll">
-        <span>{isZh ? "观我档案" : "Guanwo Dossier"}</span>
+        <span>{isZh ? (mode === "night" ? "夜观星河" : "昼观命盘") : (mode === "night" ? "Night Atlas" : "Day Atlas")}</span>
         <strong>{center}</strong>
-        <p>{isZh ? "五维合参 · 今日行动 · 长期路径" : "Five-source synthesis · daily action · long-term path"}</p>
+        <p>{isZh ? "五维合参 · 太极八卦 · 行动路径" : "Five-source synthesis · Bagua field · action path"}</p>
         <div className="gw-atlas-lines" aria-hidden="true">
           <i />
           <i />
           <i />
         </div>
-      </div>
-
-      <div className="gw-trigram-seals" aria-hidden="true">
-        {trigrams.map(mark => (
-          <span key={mark}>{mark}</span>
-        ))}
       </div>
 
       <div className="gw-atlas-sources" aria-hidden="true">
