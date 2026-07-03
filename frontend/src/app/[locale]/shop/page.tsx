@@ -7,8 +7,8 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import { useCart } from "@/contexts/CartContext"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { NEED_PATHS, normalizeProductCategory, productMatchesNeed } from "@/lib/treasureHall"
+import { ProductCard } from "@/components/reading/ProductCard"
 
-const ProductCard = lazy(() => import("@/components/reading/ProductCard").then(m => ({ default: m.ProductCard })))
 const AIRecommendHero = lazy(() => import("@/components/shop/AIRecommendHero").then(m => ({ default: m.AIRecommendHero })))
 
 const SERIES_KEYS = ["crystal", "jewelry", "incense", "talisman", "book", "service"] as const
@@ -71,8 +71,17 @@ function ShopContent() {
       setIsPersonalized(false)
 
       const explicitTags = sessionTags.split(",").map(s => s.trim()).filter(Boolean)
-      let weaknessTags = explicitTags
 
+      try {
+        const all = await listProducts(undefined, locale)
+        if (!cancelled) setAllProducts(all)
+      } catch {
+        if (!cancelled) setAllProducts([])
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+
+      let weaknessTags = explicitTags
       if (weaknessTags.length === 0) {
         try {
           const readings = await listMyReadings()
@@ -87,30 +96,20 @@ function ShopContent() {
         }
       }
 
-      if (weaknessTags.length > 0) {
-        try {
-          const matched = await matchProducts({
-            weakness_tags: weaknessTags,
-            top_k: 20,
-            include_explain: true,
-          }, locale)
-          matched.sort((a, b) => (b.match_score ?? 0) - (a.match_score ?? 0))
-          if (!cancelled) {
-            setAllProducts(matched)
-            setIsPersonalized(true)
-          }
-          return
-        } catch {}
-      }
+      if (weaknessTags.length === 0 || cancelled) return
 
       try {
-        const all = await listProducts(undefined, locale)
-        if (!cancelled) setAllProducts(all)
-      } catch {
-        if (!cancelled) setAllProducts([])
-      } finally {
-        if (!cancelled) setLoading(false)
-      }
+        const matched = await matchProducts({
+          weakness_tags: weaknessTags,
+          top_k: 20,
+          include_explain: true,
+        }, locale)
+        matched.sort((a, b) => (b.match_score ?? 0) - (a.match_score ?? 0))
+        if (!cancelled) {
+          setAllProducts(matched)
+          setIsPersonalized(true)
+        }
+      } catch {}
     }
 
     loadProducts()

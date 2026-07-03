@@ -130,6 +130,12 @@ export const apiDirect = axios.create({
   withCredentials: true,
 })
 
+const apiPublic = axios.create({
+  baseURL: isLocalhost ? BACKEND_URL : PROD_BACKEND,
+  timeout: 12_000,
+  withCredentials: false,
+})
+
 // Add CSRF header interceptor to apiDirect
 apiDirect.interceptors.request.use((config) => {
   const method = (config.method || "").toLowerCase()
@@ -695,12 +701,48 @@ export async function uploadPalmImage(
   return res.data
 }
 
+const PRODUCT_LIST_CACHE_TTL = 5 * 60 * 1000
+
+function _getCachedProducts(cacheKey: string): Product[] | null {
+  if (!isBrowser) return null
+  try {
+    const raw = sessionStorage.getItem(cacheKey)
+    if (!raw) return null
+    const cached = JSON.parse(raw) as { ts: number; data: Product[] }
+    if (!cached?.ts || Date.now() - cached.ts > PRODUCT_LIST_CACHE_TTL) {
+      sessionStorage.removeItem(cacheKey)
+      return null
+    }
+    return cached.data
+  } catch {
+    return null
+  }
+}
+
+function _setCachedProducts(cacheKey: string, data: Product[]) {
+  if (!isBrowser) return
+  try {
+    sessionStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data }))
+  } catch {}
+}
+
 export async function listProducts(category?: string, lang?: string): Promise<Product[]> {
   const params: Record<string, string> = {}
   if (category) params.category = category
   if (lang) params.lang = lang
-  const res = await api.get<Product[]>("/api/products", { params })
-  return res.data
+  const cacheKey = `products:${category || "all"}:${lang || "auto"}`
+  const cached = _getCachedProducts(cacheKey)
+  if (cached) return cached
+
+  try {
+    const res = await apiPublic.get<Product[]>("/api/products", { params })
+    _setCachedProducts(cacheKey, res.data)
+    return res.data
+  } catch {
+    const res = await api.get<Product[]>("/api/products", { params })
+    _setCachedProducts(cacheKey, res.data)
+    return res.data
+  }
 }
 
 export async function matchProducts(data: MatchRequest, lang?: string): Promise<Product[]> {
