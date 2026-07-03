@@ -57,7 +57,7 @@ export default function CheckoutError({
               url.searchParams.set("_cb", Date.now().toString())
               window.location.href = url.toString()
             }}
-            className="px-6 py-2 rounded-full border border-white/20 text-white/60 hover:text-white/80 hover:border-white/40 text-sm transition-all"
+            className="px-6 py-2 rounded-xl border border-white/[0.08] text-white/60 hover:text-white/80 hover:border-white/40 text-sm transition-all"
           >
             Reload page
           </button>

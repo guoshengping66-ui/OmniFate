@@ -72,7 +72,7 @@ export default function AiProfilingPage() {
                 <MagneticButton>
                   <Link
                     href={localeHref("/pricing")}
-                    className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full border border-white/20 text-white/60 hover:border-blue-400/30 hover:text-blue-400 transition-all text-base "
+                    className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl border border-white/[0.08] text-white/60 hover:border-blue-400/30 hover:text-blue-400 transition-all text-base "
                   >
                     <FileText size={16} />
                     {p("hero.cta2")}

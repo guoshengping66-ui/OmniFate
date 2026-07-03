@@ -311,7 +311,7 @@ export function GeworkDrawer({ open, onClose }: Props) {
             <div className="flex gap-3 mt-4">
               <button
                 onClick={handleReset}
-                className="flex-1 py-3 rounded-full border border-white/20 text-white/60 text-sm hover:border-white/40 transition-all"
+                className="flex-1 py-3 rounded-xl border border-white/[0.08] text-white/60 text-sm hover:border-white/40 transition-all"
               >
                 {t("gework.retryBtn")}
               </button>

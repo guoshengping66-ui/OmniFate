@@ -1177,7 +1177,7 @@ export default function NewReadingPage() {
           <div className="flex justify-between mt-8">
             {step > 0 && (
               <button type="button" onClick={() => setStep(step - 1)}
- className="flex items-center gap-2 px-6 py-2.5 rounded-full border border-white/20 text-white/60 hover:border-white/40 transition-all">
+ className="flex items-center gap-2 px-6 py-2.5 rounded-xl border border-white/[0.08] text-white/60 hover:border-white/40 transition-all">
                 <ChevronLeft size={16} /> {t("new.prevStep")}
               </button>
             )}

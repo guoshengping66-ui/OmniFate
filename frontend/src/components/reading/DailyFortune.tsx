@@ -385,7 +385,7 @@ export function DailyFortune({ user }: DailyFortuneProps) {
             </div>
             <div className="flex items-center gap-2">
               <span
-                className="w-5 h-5 rounded-full border border-white/20 flex-shrink-0"
+                className="w-5 h-5 rounded-xl border border-white/[0.08] flex-shrink-0"
                 style={{ background: colorHex }}
               />
               <span className="text-gold font-medium text-sm">

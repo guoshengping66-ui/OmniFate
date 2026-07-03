@@ -127,7 +127,7 @@ export default function GalaxyHomeNew() {
           </Link>
         </div>
         <div className="absolute bottom-8 opacity-40">
-          <div className="mx-auto h-8 w-5 rounded-full border border-white/20">
+          <div className="mx-auto h-8 w-5 rounded-xl border border-white/[0.08]">
             <div className="mx-auto mt-1.5 h-2 w-1 rounded-full bg-white/30 animate-bounce" />
           </div>
         </div>

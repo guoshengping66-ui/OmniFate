@@ -147,7 +147,7 @@ export function ShareSheet({ sessionId }: Props) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/20 text-white/60 hover:border-gold/40 hover:text-gold transition-all text-sm"
+        className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/[0.08] text-white/60 hover:border-gold/40 hover:text-gold transition-all text-sm"
       >
         <Share2 size={14} />
         {t("share.title")}
