@@ -46,9 +46,9 @@ export default function GalaxyHomeNew() {
   const qiAnim = (i: number) => ({ animation: `gh-qi ${2 + (i % 3) * 0.7}s ease-in-out ${i * 0.3}s infinite` })
 
   return (
-    <div className="relative w-full text-white" style={{ background: "#020617" }}>
-      {/* Layer 1: Nebula glows */}
-      <div className="absolute inset-0 pointer-events-none" aria-hidden="true" style={{
+    <div className="w-full text-white" style={{ background: "#020617" }}>
+      {/* Layer 1: Nebula glows — covers full scrollable page */}
+      <div className="fixed inset-0 pointer-events-none -z-10" aria-hidden="true" style={{
         background:
           "radial-gradient(ellipse 80% 60% at 50% 30%, rgba(123,158,199,0.35) 0%, transparent 60%)," +
           "radial-gradient(ellipse 50% 50% at 25% 55%, rgba(139,126,199,0.25) 0%, transparent 50%)," +
@@ -57,7 +57,7 @@ export default function GalaxyHomeNew() {
       }} />
 
       {/* Layer 2: Star field */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10" aria-hidden="true">
         {Array.from({ length: 24 }, (_, i) => (
           <div key={i} className="absolute rounded-full" style={{
             width: (i % 3) + 1, height: (i % 3) + 1,
@@ -72,14 +72,14 @@ export default function GalaxyHomeNew() {
       </div>
 
       {/* Layer 3: Galaxy river */}
-      <div className="absolute inset-0 pointer-events-none" aria-hidden="true" style={{
+      <div className="fixed inset-0 pointer-events-none -z-10" aria-hidden="true" style={{
         opacity: 0.6,
         background: "linear-gradient(180deg, transparent 0%, rgba(123,158,199,0.15) 20%, rgba(139,126,199,0.18) 35%, rgba(201,168,76,0.08) 48%, rgba(123,158,199,0.12) 60%, rgba(139,126,199,0.08) 75%, transparent 100%)",
         transform: "skewY(-2deg)",
       }} />
 
       {/* Layer 4: Bagua */}
-      <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none" aria-hidden="true" style={{ opacity: 0.55 }}>
+      <div className="fixed inset-0 flex items-center justify-center overflow-hidden pointer-events-none -z-10" aria-hidden="true" style={{ opacity: 0.55 }}>
         <div className="relative" style={{ width: "min(82vw, 520px)", height: "min(82vw, 520px)" }}>
           <div className="absolute inset-0 rounded-full border border-white/[0.06]" style={ringSlow} />
           <div className="absolute inset-[5%]" style={ringSlow}>
@@ -126,7 +126,7 @@ export default function GalaxyHomeNew() {
             WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
             filter: "drop-shadow(0 0 40px rgba(201,168,76,0.25))",
           }}>观我</h1>
-          <p className="mt-4 text-[11px] tracking-[0.15em] text-white/30">FATE OS</p>
+          <p className="mt-4 text-[11px] tracking-[0.15em] text-white/30">AI 命运行动系统</p>
         </div>
         <div className="mt-10">
           <p className="font-serif text-xl text-white/60">看见内在结构 · 找到下一步</p>
