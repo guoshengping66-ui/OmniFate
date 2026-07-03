@@ -286,61 +286,6 @@ export function MinimalHero() {
         </div>
       </div>
 
-      {/* ═══ Custom styles (scoped) ═══ */}
-      <style jsx>{`
-        /* Nav link underline */
-        .nav-link-label {
-          position: relative;
-        }
-        .nav-link-label::after {
-          content: "";
-          position: absolute;
-          bottom: -2px;
-          left: 0;
-          height: 1px;
-          width: 100%;
-          background: rgba(255,255,255,0.4);
-          transform-origin: right;
-          transform: scaleX(0);
-          transition: transform 0.3s ease;
-        }
-        .nav-link:hover .nav-link-label::after {
-          transform-origin: left;
-          transform: scaleX(1);
-        }
-
-        @keyframes dotPulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.45; transform: scale(1.45); }
-        }
-        .dot-pulse {
-          background-color: #C9A84C;
-          box-shadow: 0 0 8px rgba(201,168,76,0.6), 0 0 16px rgba(201,168,76,0.3);
-          animation: dotPulse 1.6s ease-in-out infinite;
-        }
-
-        .btn-fill::before {
-          content: "";
-          position: absolute;
-          inset: 0;
-          background: #C9A84C;
-          transform: translateY(101%);
-          transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-          z-index: 0;
-        }
-        .btn-fill:hover::before {
-          transform: translateY(0);
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .dot-pulse { animation: none; opacity: 1; }
-          .btn-fill::before { transition: none; }
-          *, *::before, *::after {
-            animation-duration: 0.01ms !important;
-            transition-duration: 0.01ms !important;
-          }
-        }
-      `}</style>
     </main>
   )
 }
