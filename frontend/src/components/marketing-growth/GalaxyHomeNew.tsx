@@ -148,10 +148,14 @@ export default function GalaxyHomeNew() {
         }} />
         <div style={{ position:"absolute", inset:"10%", borderRadius:"50%", border:"0.5px solid rgba(218,180,74,0.14)" }} />
         {TRIGRAMS.map((t, i) => {
-          const a = (i/8)*360+22.5
+          const angle = (i/8)*360 - 90
+          const rad = (angle * Math.PI) / 180
+          const dist = 44 // % of half-container — places labels on the ring between outer and middle
+          const x = 50 + dist * Math.cos(rad)
+          const y = 50 + dist * Math.sin(rad)
           return <span key={i} className="absolute font-serif" style={{
-            left:"50%",top:"50%",
-            transform:`rotate(${a}deg) translateY(-44%) rotate(-${a}deg) translateX(-50%)`,
+            left:`${x}%`, top:`${y}%`,
+            transform:"translate(-50%, -50%)",
             color:"rgba(218,180,74,0.42)", fontSize:"clamp(10px, 1.2vw, 13px)",
           }}>{t}</span>
         })}
