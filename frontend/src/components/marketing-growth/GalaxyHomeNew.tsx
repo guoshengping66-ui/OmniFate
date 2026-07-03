@@ -1,198 +1,182 @@
 "use client"
 
-import { useEffect } from "react"
+import { useMemo } from "react"
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 
 const TRIGRAMS = ["乾","兑","离","震","巽","坎","艮","坤"]
 
+/* ── Natural random stars — NOT grid pattern ── */
+function useStars(count: number) {
+  return useMemo(() =>
+    Array.from({ length: count }, (_, i) => ({
+      id: i,
+      left: (i * 37 + 13) % 100,
+      top: 38 + ((i * 53 + 7) % 24),
+      size: (i * 19 + 7) % 100 > 88 ? 2 : (i * 19 + 7) % 100 > 60 ? 1.3 : 0.7,
+      opacity: 0.28 + ((i * 41 + 11) % 100) * 0.006,
+      delay: ((i * 73 + 29) % 500) / 100,
+    })), [count])
+}
+
 export default function GalaxyHomeNew() {
-  useEffect(() => {
-    const s = document.createElement("style")
-    s.textContent = `
-      @keyframes taijiRotate { from { transform:translate(-50%,-50%) rotate(0deg) } to { transform:translate(-50%,-50%) rotate(360deg) } }
-      @keyframes goldFlow { 0% { transform:translateX(-5%) skewY(-4deg) } 50% { transform:translateX(5%) skewY(-4deg) } 100% { transform:translateX(-5%) skewY(-4deg) } }
-      @media (prefers-reduced-motion:reduce) { .taiji-field, .gold-dust-flow { animation:none!important } }
-    `
-    document.head.appendChild(s)
-    return () => { document.head.removeChild(s) }
-  }, [])
+  const galaxyStars = useStars(280)
 
   return (
     <div className="w-full text-white" style={{ background: "#020617" }}>
-      {/* ═══════════════════════════════════════ */}
-      {/* Layer 1: Cosmic base */}
-      {/* ═══════════════════════════════════════ */}
+      {/* ═══════════════ Layer 1: Cosmic base — subtle deep space glow ═══════════════ */}
       <div className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{
         background:
-          "radial-gradient(circle at 50% 35%, rgba(212,175,55,0.06), transparent 32%)," +
-          "radial-gradient(circle at 50% 58%, rgba(38,90,110,0.18), transparent 48%)," +
+          "radial-gradient(circle at 50% 35%, rgba(212,175,55,0.05), transparent 30%)," +
+          "radial-gradient(circle at 50% 55%, rgba(38,90,110,0.14), transparent 45%)," +
           "linear-gradient(180deg, #050914 0%, #07101d 45%, #02050c 100%)",
         zIndex: 0,
       }} />
 
-      {/* ═══════════════════════════════════════ */}
-      {/* Layer 2: Distant galaxy mist bands (depth, like Qingnang layers) */}
-      {/* ═══════════════════════════════════════ */}
+      {/* ═══════════════ Layer 1b: Background far stars — very subtle ═══════════════ */}
+      <div className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{
+        backgroundImage:"radial-gradient(circle, rgba(255,255,255,0.2) 0 1px, transparent 1.5px)",
+        backgroundSize:"180px 140px",
+        opacity:0.08,
+        zIndex:0,
+      }} />
+
+      {/* ═══════════════ Layer 2: Milky Way System ═══════════════ */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true" style={{ zIndex: 1 }}>
-        <div className="absolute" style={{
-          left:"-10%", width:"120%", height:220, top:"30%",
-          borderRadius:"50%",
-          background:
-            "radial-gradient(ellipse at center, rgba(70,150,160,0.08), transparent 65%)," +
-            "radial-gradient(ellipse at 45% 50%, rgba(218,180,74,0.06), transparent 50%)",
-          filter:"blur(34px)",
-          opacity:0.4,
-          transform:"rotate(2deg)",
-        }} />
-        <div className="absolute" style={{
-          left:"-10%", width:"120%", height:240, top:"52%",
-          borderRadius:"50%",
-          background:
-            "radial-gradient(ellipse at center, rgba(50,120,140,0.06), transparent 60%)," +
-            "radial-gradient(ellipse at 55% 50%, rgba(218,180,74,0.05), transparent 55%)",
-          filter:"blur(40px)",
-          opacity:0.3,
-          transform:"rotate(-3deg)",
-        }} />
-      </div>
-
-      {/* ═══════════════════════════════════════ */}
-      {/* Layer 3: Main Milky Way band */}
-      {/* ═══════════════════════════════════════ */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true" style={{ zIndex: 2 }}>
-        {/* Milky Way container — horizontal fog ellipse */}
-        <div className="milky-way-band" style={{
+        {/* Diagonal Milky Way band — lower-left to upper-right */}
+        <div style={{
           position:"absolute",
-          left:"-10%", top:"38%",
-          width:"120%", height:"340px",
-          transform:"rotate(-1.5deg)",
-          opacity:0.95,
-          maskImage:"radial-gradient(ellipse at center, black 0%, black 42%, transparent 76%)",
-          WebkitMaskImage:"radial-gradient(ellipse at center, black 0%, black 42%, transparent 76%)",
+          left:"-18%", top:"30%",
+          width:"140%", height:"420px",
+          transform:"rotate(-12deg)",
+          opacity:0.92,
+          maskImage:"radial-gradient(ellipse at center, black 0%, black 35%, rgba(0,0,0,0.7) 50%, transparent 74%)",
+          WebkitMaskImage:"radial-gradient(ellipse at center, black 0%, black 35%, rgba(0,0,0,0.7) 50%, transparent 74%)",
         }}>
-          {/* Nebula core — the foggy glow */}
+          {/* ── Nebula clouds ── */}
+          {/* Main nebula */}
           <div style={{
-            position:"absolute", inset:0,
+            position:"absolute", inset:0, mixBlendMode:"screen" as const,
             background:
-              "radial-gradient(ellipse at 35% 48%, rgba(218,180,74,0.16), transparent 26%)," +
-              "radial-gradient(ellipse at 55% 52%, rgba(92,180,190,0.18), transparent 32%)," +
-              "radial-gradient(ellipse at 70% 46%, rgba(255,230,160,0.10), transparent 20%)," +
-              "linear-gradient(90deg," +
-              "  transparent 0%," +
-              "  rgba(38,92,105,0.10) 16%," +
-              "  rgba(116,138,118,0.18) 38%," +
-              "  rgba(218,180,74,0.14) 52%," +
-              "  rgba(43,116,130,0.14) 70%," +
-              "  transparent 100%" +
-              ")",
-            filter:"blur(24px)",
+              "radial-gradient(ellipse at 22% 52%, rgba(245,230,180,0.14), transparent 22%)," +
+              "radial-gradient(ellipse at 42% 48%, rgba(218,180,74,0.18), transparent 20%)," +
+              "radial-gradient(ellipse at 58% 55%, rgba(82,170,185,0.16), transparent 26%)," +
+              "radial-gradient(ellipse at 76% 46%, rgba(255,245,210,0.11), transparent 18%)," +
+              "linear-gradient(90deg, transparent 0%, rgba(90,150,160,0.10) 18%, rgba(218,180,74,0.14) 38%, rgba(245,230,180,0.15) 50%, rgba(60,140,160,0.11) 66%, transparent 100%)",
+            filter:"blur(20px)",
           }} />
-
-          {/* Star dust layer A — dense tiny dots */}
+          {/* Gold nebula */}
           <div style={{
-            position:"absolute", inset:0,
-            backgroundImage:
-              "radial-gradient(circle, rgba(255,235,170,0.9) 0 1px, transparent 1.6px)," +
-              "radial-gradient(circle, rgba(255,255,255,0.5) 0 1px, transparent 1.5px)," +
-              "radial-gradient(circle, rgba(126,210,220,0.4) 0 1px, transparent 1.8px)",
-            backgroundSize:"38px 26px, 61px 41px, 97px 66px",
-            backgroundPosition:"0 0, 20px 12px, 44px 26px",
-            opacity:0.5,
-            filter:"blur(0.2px)",
-          }} />
-
-          {/* Star dust layer B — finer grain */}
-          <div style={{
-            position:"absolute", inset:0,
-            backgroundImage:
-              "radial-gradient(circle, rgba(255,218,105,0.7) 0 0.7px, transparent 1.3px)," +
-              "radial-gradient(circle, rgba(255,255,255,0.3) 0 0.6px, transparent 1.2px)",
-            backgroundSize:"18px 14px, 29px 22px",
-            opacity:0.25,
-            filter:"blur(0.6px)",
-          }} />
-
-          {/* Gold dust flow — soft bright band along the Milky Way */}
-          <div className="gold-dust-flow" style={{
-            position:"absolute", left:0, top:"44%",
-            width:"100%", height:"80px",
+            position:"absolute", inset:0, mixBlendMode:"screen" as const,
             background:
-              "linear-gradient(90deg," +
-              "  transparent 0%," +
-              "  rgba(218,180,74,0.04) 18%," +
-              "  rgba(255,221,125,0.18) 42%," +
-              "  rgba(90,190,200,0.10) 60%," +
-              "  transparent 100%" +
-              ")",
-            filter:"blur(16px)",
-            transform:"skewY(-4deg)",
-            animation:"goldFlow 20s ease-in-out infinite",
+              "radial-gradient(ellipse at 36% 50%, rgba(218,180,74,0.18), transparent 16%)," +
+              "radial-gradient(ellipse at 53% 46%, rgba(255,225,145,0.15), transparent 14%)",
+            filter:"blur(28px)", opacity:0.7,
+          }} />
+          {/* Cyan nebula */}
+          <div style={{
+            position:"absolute", inset:0, mixBlendMode:"screen" as const,
+            background:
+              "radial-gradient(ellipse at 62% 55%, rgba(45,150,170,0.18), transparent 22%)," +
+              "radial-gradient(ellipse at 78% 48%, rgba(30,95,120,0.16), transparent 22%)",
+            filter:"blur(32px)", opacity:0.75,
+          }} />
+
+          {/* ── Dark dust lanes ── */}
+          <div style={{
+            position:"absolute", left:0, top:"36%", width:"100%", height:"80px",
+            background:
+              "radial-gradient(ellipse at 30% 50%, rgba(2,5,12,0.55), transparent 28%)," +
+              "radial-gradient(ellipse at 55% 50%, rgba(1,8,14,0.48), transparent 24%)," +
+              "radial-gradient(ellipse at 72% 50%, rgba(3,10,18,0.42), transparent 24%)",
+            filter:"blur(16px)", mixBlendMode:"multiply" as const, opacity:0.7,
+            transform:"rotate(3deg) translateY(-8px)",
+          }} />
+          <div style={{
+            position:"absolute", left:0, top:"52%", width:"100%", height:"70px",
+            background:
+              "radial-gradient(ellipse at 40% 50%, rgba(1,5,10,0.42), transparent 25%)," +
+              "radial-gradient(ellipse at 60% 50%, rgba(2,6,12,0.38), transparent 25%)",
+            filter:"blur(18px)", mixBlendMode:"multiply" as const, opacity:0.5,
+            transform:"rotate(-4deg) translateY(8px)",
+          }} />
+
+          {/* ── Natural stars — concentrated in the band ── */}
+          <div className="absolute inset-0" style={{ mixBlendMode:"screen" as const }}>
+            {galaxyStars.map(star => (
+              <span key={star.id} style={{
+                position:"absolute",
+                left:`${star.left}%`, top:`${star.top}%`,
+                width:star.size, height:star.size,
+                borderRadius:"999px",
+                background:"rgba(255,235,180,0.9)",
+                boxShadow: star.size > 1.5
+                  ? "0 0 10px rgba(218,180,74,0.5), 0 0 20px rgba(218,180,74,0.2)"
+                  : "0 0 4px rgba(218,180,74,0.35)",
+                opacity:star.opacity,
+                animation:`starTwinkle ${3+(star.id%3)*1.5}s ease-in-out ${star.delay}s infinite alternate`,
+              }} />
+            ))}
+          </div>
+
+          {/* ── Soft gold flow line along band center ── */}
+          <div style={{
+            position:"absolute", left:0, top:"46%", width:"100%", height:"60px",
+            background:
+              "linear-gradient(90deg, transparent 0%, rgba(218,180,74,0.04) 20%, rgba(255,221,125,0.10) 44%, rgba(90,190,200,0.06) 62%, transparent 100%)",
+            filter:"blur(14px)", mixBlendMode:"screen" as const,
+            transform:"skewY(-3deg)",
+            animation:"goldFlow 22s ease-in-out infinite",
           }} />
         </div>
       </div>
 
-      {/* ═══════════════════════════════════════ */}
-      {/* Layer 4: Tai Chi Bagua — large energy field behind title */}
-      {/* ═══════════════════════════════════════ */}
-      <div className="taiji-field fixed left-1/2 pointer-events-none" aria-hidden="true" style={{
-        width:"min(420px, 84vw)", height:"min(420px, 84vw)",
+      {/* ═══════════════ Layer 3: Tai Chi Bagua energy field ═══════════════ */}
+      <div className="fixed left-1/2 pointer-events-none" aria-hidden="true" style={{
+        width:"min(460px, 86vw)", height:"min(460px, 86vw)",
         top:"38%",
-        transform:"translate(-50%, -50%)",
+        transform:"translate(-50%, -50%) rotate(0deg)",
         opacity:0.2,
-        zIndex:3,
-        animation:"taijiRotate 80s linear infinite",
-        filter:"drop-shadow(0 0 32px rgba(218,180,74,0.18))",
+        zIndex:2,
+        animation:"taijiSpin 80s linear infinite",
+        filter:"drop-shadow(0 0 32px rgba(218,180,74,0.15))",
       }}>
-        {/* Outer ring with glow */}
         <div style={{
-          position:"absolute", inset:0,
-          border:"1px solid rgba(218,180,74,0.3)",
-          borderRadius:"50%",
-          boxShadow:"0 0 40px rgba(218,180,74,0.10), inset 0 0 36px rgba(92,180,190,0.08)",
+          position:"absolute", inset:0, borderRadius:"50%",
+          border:"1px solid rgba(218,180,74,0.28)",
+          boxShadow:"0 0 45px rgba(218,180,74,0.10), inset 0 0 38px rgba(80,180,190,0.06)",
         }} />
-        {/* Middle ring */}
-        <div style={{
-          position:"absolute", inset:"10%",
-          border:"0.5px solid rgba(218,180,74,0.15)",
-          borderRadius:"50%",
-        }} />
-        {/* Bagua marks on ring */}
+        <div style={{ position:"absolute", inset:"10%", borderRadius:"50%", border:"0.5px solid rgba(218,180,74,0.14)" }} />
         {TRIGRAMS.map((t, i) => {
           const a = (i/8)*360+22.5
-          return (
-            <span key={i} className="absolute font-serif" style={{
-              left:"50%",top:"50%",
-              transform:`rotate(${a}deg) translateY(-45%) rotate(-${a}deg) translateX(-50%)`,
-              color:"rgba(218,180,74,0.45)",
-              fontSize:"clamp(10px, 1.2vw, 13px)",
-            }}>{t}</span>
-          )
+          return <span key={i} className="absolute font-serif" style={{
+            left:"50%",top:"50%",
+            transform:`rotate(${a}deg) translateY(-44%) rotate(-${a}deg) translateX(-50%)`,
+            color:"rgba(218,180,74,0.42)", fontSize:"clamp(10px, 1.2vw, 13px)",
+          }}>{t}</span>
         })}
-        {/* Inner ring */}
+        <div style={{ position:"absolute", inset:"24%", borderRadius:"50%", border:"0.5px solid rgba(218,180,74,0.10)" }} />
         <div style={{
-          position:"absolute", inset:"24%",
-          border:"0.5px solid rgba(218,180,74,0.1)",
-          borderRadius:"50%",
-        }} />
-        {/* Tai Chi symbol */}
-        <div style={{
-          position:"absolute", inset:"8%",
-          display:"grid", placeItems:"center",
-          fontSize:"clamp(70px, 11vw, 120px)",
-          color:"rgba(218,180,74,0.38)",
+          position:"absolute", inset:"8%", display:"grid", placeItems:"center",
+          fontSize:"clamp(70px, 11vw, 115px)", color:"rgba(218,180,74,0.42)",
         }}>☯</div>
       </div>
 
-      {/* ═══════════════════════════════════════ */}
-      {/* Layer 5: Vignette */}
-      {/* ═══════════════════════════════════════ */}
+      {/* ═══════════════ Layer 4: Vignette ═══════════════ */}
       <div className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{
         background:
-          "radial-gradient(circle at 50% 45%, transparent 0%, transparent 36%, rgba(0,0,0,0.22) 76%)," +
-          "linear-gradient(180deg, rgba(0,0,0,0.08), transparent 26%, transparent 60%, rgba(0,0,0,0.55))",
-        zIndex: 5,
+          "radial-gradient(circle at 50% 45%, transparent 0%, transparent 34%, rgba(0,0,0,0.20) 74%)," +
+          "linear-gradient(180deg, rgba(0,0,0,0.06), transparent 24%, transparent 58%, rgba(0,0,0,0.50))",
+        zIndex:5,
       }} />
+
+      {/* ═══ Inject keyframes ═══ */}
+      <style>{`
+        @keyframes taijiSpin { from { transform:translate(-50%,-50%) rotate(0deg) } to { transform:translate(-50%,-50%) rotate(360deg) } }
+        @keyframes starTwinkle { from { transform:scale(0.8); opacity:0.3 } to { transform:scale(1.25); opacity:0.9 } }
+        @keyframes goldFlow { 0% { transform:skewY(-3deg) translateX(-3%) } 50% { transform:skewY(-3deg) translateX(3%) } 100% { transform:skewY(-3deg) translateX(-3%) } }
+        @media (prefers-reduced-motion:reduce) { .fixed { animation:none!important } }
+      `}</style>
 
       {/* ═══════════════════════════════════════ */}
       {/* Hero Content */}
@@ -283,12 +267,12 @@ export default function GalaxyHomeNew() {
                 <div className="w-20 h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center" style={{
                   background:"radial-gradient(circle, rgba(201,168,76,0.25) 0%, rgba(201,168,76,0.06) 50%, transparent 70%)",
                   boxShadow:"0 0 50px rgba(201,168,76,0.15)",
-                  animation:"taijiRotate 3s ease-in-out infinite",
+                  animation:"corePulse 3s ease-in-out infinite",
                 }}>
                   <span className="font-serif text-2xl text-white/80">合</span>
                 </div>
-                <div className="absolute -inset-3 rounded-full border border-gold/15" style={{ animation:"taijiRotate 8s linear infinite" }} />
-                <div className="absolute -inset-6 rounded-full border border-gold/[0.06]" style={{ animation:"taijiRotate 12s linear infinite reverse" }} />
+                <div className="absolute -inset-3 rounded-full border border-gold/15" style={{ animation:"ringSpin 8s linear infinite" }} />
+                <div className="absolute -inset-6 rounded-full border border-gold/[0.06]" style={{ animation:"ringSpin 12s linear infinite reverse" }} />
               </div>
               <p className="font-serif text-lg text-white/70">AI 合参引擎</p>
               <p className="text-[12px] text-white/30 text-center max-w-[180px]">五系统交叉验证<br/>逐项比对冲突与一致</p>
@@ -308,8 +292,9 @@ export default function GalaxyHomeNew() {
       </section>
 
       {/* ═══════════════════════════════════════ */}
-      {/* Section 3-6: same as before */}
+      {/* Sections 3-6: same content */}
       {/* ═══════════════════════════════════════ */}
+
       <section className="relative mx-auto max-w-6xl px-6 pt-20" style={{ zIndex: 10 }}>
         <div className="mb-12">
           <p className="text-[11px] tracking-[0.2em] text-white/20 uppercase">YOUR DOSSIER</p>
@@ -326,10 +311,7 @@ export default function GalaxyHomeNew() {
             { i:"06", t:"今日行动", d:"画像的最终输出——今天可以做的一件事。小到一次对话的节奏，大到一段关系的取舍。把分析变成执行。", tag:"全系统", c:"#E8CB7A" },
           ].map((m, i) => (
             <div key={i} className="group rounded-xl border border-white/[0.04] p-6 transition-all hover:border-white/[0.1]" style={{ background:"linear-gradient(135deg, #060E24, #030918)" }}>
-              <div className="flex items-center gap-3 mb-4">
-                <span className="text-2xl font-serif text-white/15">{m.i}</span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full border" style={{ borderColor:m.c, color:m.c, opacity:0.7 }}>{m.tag}</span>
-              </div>
+              <div className="flex items-center gap-3 mb-4"><span className="text-2xl font-serif text-white/15">{m.i}</span><span className="text-[10px] px-2 py-0.5 rounded-full border" style={{ borderColor:m.c, color:m.c, opacity:0.7 }}>{m.tag}</span></div>
               <h3 className="font-serif text-lg text-white/75 mb-2">{m.t}</h3>
               <p className="text-[12px] leading-relaxed text-white/35">{m.d}</p>
             </div>
@@ -342,8 +324,7 @@ export default function GalaxyHomeNew() {
         <h2 className="font-serif text-3xl md:text-4xl text-white/80">选择你的入口</h2>
         <div className="mt-10 grid gap-4 lg:grid-cols-3">
           <Link href="/zh/reading/new" className="group flex flex-col rounded-2xl border-2 p-7 transition-all hover:-translate-y-1" style={{ borderColor:"rgba(201,168,76,0.3)", background:"linear-gradient(135deg, #0A1228, #030918)" }}>
-            <span className="text-[10px] tracking-[0.15em] text-white/20 mb-3">推荐入口</span>
-            <span className="text-4xl mb-4">🔮</span>
+            <span className="text-[10px] tracking-[0.15em] text-white/20 mb-3">推荐入口</span><span className="text-4xl mb-4">🔮</span>
             <h3 className="font-serif text-2xl text-white/80 mb-2">完整画像</h3>
             <p className="text-[13px] leading-relaxed text-white/35 flex-1">五系统全开，AI 深度交叉验证。获取完整命运画像 + 今日行动建议。适合第一次了解自己的用户。</p>
             <span className="mt-5 inline-flex items-center gap-2 text-[14px] font-medium" style={{ color:"#C9A84C" }}>建立我的画像 →</span>
@@ -372,8 +353,7 @@ export default function GalaxyHomeNew() {
             <div className="grid grid-cols-3 gap-3">
               {[["💎","灵石晶品"],["🎐","香道雅韵"],["📿","护符配饰"],["📖","古籍典藏"],["🕯️","仪式定制"],["🌿","生活方式"]].map(([icon, name], i) => (
                 <Link key={i} href="/zh/shop" className="flex flex-col items-center gap-1.5 rounded-xl border border-white/[0.04] p-4 text-center transition-all hover:border-white/[0.1]" style={{ background:"rgba(255,255,255,0.015)" }}>
-                  <span className="text-xl">{icon}</span>
-                  <span className="text-[11px] text-white/55">{name}</span>
+                  <span className="text-xl">{icon}</span><span className="text-[11px] text-white/55">{name}</span>
                 </Link>
               ))}
             </div>
@@ -382,18 +362,12 @@ export default function GalaxyHomeNew() {
             <p className="text-[11px] tracking-[0.2em] text-white/20 uppercase mb-6">TRUST</p>
             <div className="grid grid-cols-3 gap-4 mb-8">
               {[["10,000+","用户"],["4.9","评分"],["50,000+","报告已生成"]].map(([n, l]) => (
-                <div key={l} className="text-center">
-                  <div className="font-serif text-3xl" style={{ color:"#C9A84C" }}>{n}</div>
-                  <div className="text-[11px] text-white/25 mt-1">{l}</div>
-                </div>
+                <div key={l} className="text-center"><div className="font-serif text-3xl" style={{ color:"#C9A84C" }}>{n}</div><div className="text-[11px] text-white/25 mt-1">{l}</div></div>
               ))}
             </div>
             <div className="space-y-4">
               {[["真正让我看清了自己的底层模式，不是告知结局，而是理解结构。","林小姐 · 96分"],["AI 交叉验证让各个系统的结论互相印证或反驳——这比单一系统靠谱得多。","陈先生 · 98分"]].map(([text, name], i) => (
-                <div key={i} className="border-l-2 border-white/[0.06] pl-4">
-                  <p className="text-[13px] leading-relaxed text-white/45">&ldquo;{text}&rdquo;</p>
-                  <p className="text-[11px] text-white/20 mt-2">{name}</p>
-                </div>
+                <div key={i} className="border-l-2 border-white/[0.06] pl-4"><p className="text-[13px] leading-relaxed text-white/45">&ldquo;{text}&rdquo;</p><p className="text-[11px] text-white/20 mt-2">{name}</p></div>
               ))}
             </div>
           </div>
