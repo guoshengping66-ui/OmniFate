@@ -6,7 +6,17 @@ import { useAuth } from "@/contexts/AuthContext"
 import { useUserStore } from "@/stores/useUserStore"
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary"
 
-const GalaxyHomeExperience = dynamic(() => import("@/components/marketing-growth/GalaxyHomeExperience").then(m => m.GalaxyHomeExperience), { ssr: true })
+const GalaxyHomeExperience = dynamic(() => import("@/components/marketing-growth/GalaxyHomeExperience").then(m => m.GalaxyHomeExperience), {
+  ssr: false,
+  loading: () => (
+    <div className="min-h-screen bg-[#020617] flex items-center justify-center">
+      <div className="text-center">
+        <div className="w-10 h-10 mx-auto mb-4 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
+        <p className="text-parchment-300/40 text-sm font-display">观我</p>
+      </div>
+    </div>
+  ),
+})
 const UserDashboard = dynamic(() => import("@/components/dashboard/UserDashboard").then(m => m.UserDashboard), {
   ssr: false,
   loading: () => <div className="card-solid p-8"><div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin" /></div>,
