@@ -6,13 +6,13 @@ import { useAuth } from "@/contexts/AuthContext"
 import { useUserStore } from "@/stores/useUserStore"
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary"
 
-const GalaxyHomeExperience = dynamic(() => import("@/components/marketing-growth/GalaxyHomeExperience").then(m => m.GalaxyHomeExperience), {
+const GalaxyHomeNew = dynamic(() => import("@/components/marketing-growth/GalaxyHomeNew"), {
   ssr: false,
   loading: () => (
-    <div className="min-h-screen bg-[#020617] flex items-center justify-center">
-      <div className="text-center">
-        <div className="w-10 h-10 mx-auto mb-4 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
-        <p className="text-parchment-300/40 text-sm font-display">观我</p>
+    <div style={{ minHeight: "100vh", background: "#020617", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ textAlign: "center" }}>
+        <div style={{ width: 36, height: 36, margin: "0 auto 12px", border: "2px solid rgba(201,168,76,0.2)", borderTopColor: "#C9A84C", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+        <p style={{ color: "rgba(255,255,255,0.25)", fontSize: 13, fontFamily: "serif" }}>观我</p>
       </div>
     </div>
   ),
@@ -57,7 +57,7 @@ export default function HomePage() {
   return (
     <div className="relative z-10 min-h-screen bg-black">
       <ErrorBoundary sectionName="Guanwo Home Experience">
-        <GalaxyHomeExperience />
+        <GalaxyHomeNew />
       </ErrorBoundary>
     </div>
   )
