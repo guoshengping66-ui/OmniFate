@@ -12,9 +12,10 @@ export function EasternHomeExperience() {
   const copy = isZh
     ? {
         ...zhCopy,
-        tags: ["五维合参", "今日行动", "未来窗口"],
-        heroTitle: "看见内在结构\n找到下一步",
-        heroDesc: "用八字、星盘、塔罗、面相、手相与 AI 合参，生成一份可读、可执行的观我档案。",
+        tags: ["周易底色", "AI 合参", "行动建议"],
+        heroTitle: "观我",
+        heroKicker: "以周易为骨，以 AI 合参为用",
+        heroDesc: "融合八字、星盘、塔罗、面相与手相，生成你的个人命盘档案与下一步行动建议。",
         questionsDesc: "先回答最影响你当下决策的问题。",
         questions: ["我真正的性格底色是什么？", "为什么我总在关系里消耗？", "事业适合走哪条路径？", "今天最该推进什么？"],
         reportModules: [
@@ -27,9 +28,10 @@ export function EasternHomeExperience() {
       }
     : {
         ...enCopy,
-        tags: ["Five-source", "Daily action", "Future windows"],
-        heroTitle: "See your structure\nfind the next step",
-        heroDesc: "A readable, actionable Guanwo dossier built from five-source AI synthesis.",
+        tags: ["I Ching base", "AI synthesis", "Action guidance"],
+        heroTitle: "Guanwo",
+        heroKicker: "I Ching roots, AI synthesis, practical action",
+        heroDesc: "A personal dossier combining Bazi, astrology, tarot, face reading, palm reading, and daily action guidance.",
         questionsDesc: "Start with the questions that affect today's decisions.",
         questions: ["What is my real baseline?", "Why do I repeat relationship drain?", "Which career path fits?", "What should move today?"],
         reportModules: [
@@ -43,16 +45,17 @@ export function EasternHomeExperience() {
 
   return (
     <EasternPageShell>
-      <section className="mx-auto grid min-h-[720px] w-[min(1180px,calc(100vw-32px))] items-center gap-8 py-10 lg:grid-cols-[0.9fr_1.1fr] lg:py-16">
-        <div>
+      <section className="gw-hero-section mx-auto grid min-h-[720px] w-[min(1180px,calc(100vw-32px))] items-center gap-8 py-10 lg:grid-cols-[0.86fr_1.14fr] lg:py-16">
+        <div className="relative z-10">
           <div className="mb-5 flex flex-wrap gap-2">
             {copy.tags.map(tag => (
-              <span key={tag} className="rounded-full border border-white/[0.09] bg-[#060E24] px-3 py-1.5 text-xs text-white/70">{tag}</span>
+              <span key={tag} className="gw-hero-tag">{tag}</span>
             ))}
           </div>
-          <h1 className="max-w-2xl text-[clamp(2.25rem,5.6vw,5rem)] font-semibold leading-[1.02] tracking-0 text-[var(--color-text-primary)]">
+          <h1 className="gw-hero-brand">
             {copy.heroTitle}
           </h1>
+          <p className="gw-hero-kicker">{copy.heroKicker}</p>
           <p className="mt-6 max-w-xl text-sm leading-7 text-[var(--color-text-secondary)] md:text-base">{copy.heroDesc}</p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link href={localeHref("/reading/new")} className="ow-gold-button">{copy.primary}<ArrowRight size={17} /></Link>
@@ -60,17 +63,7 @@ export function EasternHomeExperience() {
           </div>
         </div>
 
-        <div className="relative">
-          <FiveDimensionOrbit labels={copy.dimensionLabels} center={copy.engine} />
-          <EasternCard className="absolute -left-2 bottom-8 hidden max-w-[250px] p-5 md:left-4 md:block">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-gold)]">{copy.blindspotTitle}</p>
-            <p className="mt-2 text-sm leading-6 text-[var(--color-text-secondary)]">{copy.blindspot}</p>
-          </EasternCard>
-          <EasternCard className="absolute right-0 top-8 hidden max-w-[260px] p-5 md:block">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-gold)]">{copy.actionTitle}</p>
-            <p className="mt-2 text-sm leading-6 text-[var(--color-text-secondary)]">{copy.action}</p>
-          </EasternCard>
-        </div>
+        <OrientalSkyAtlas labels={copy.dimensionLabels} center={copy.engine} isZh={isZh} />
       </section>
 
       <EasternSection eyebrow={copy.questionsEyebrow} title={copy.questionsTitle} description={copy.questionsDesc}>
@@ -151,6 +144,58 @@ export function EasternHomeExperience() {
         </EasternCard>
       </section>
     </EasternPageShell>
+  )
+}
+
+function OrientalSkyAtlas({ labels, center, isZh }: { labels: string[]; center: string; isZh: boolean }) {
+  const trigrams = ["乾", "兑", "离", "震", "巽", "坎", "艮", "坤"]
+  const stars = Array.from({ length: 18 }, (_, index) => ({
+    left: `${12 + ((index * 37) % 76)}%`,
+    top: `${10 + ((index * 23) % 58)}%`,
+    delay: `${(index % 6) * 0.4}s`,
+  }))
+
+  return (
+    <div className="gw-atlas-stage" aria-label={center}>
+      <div className="gw-atlas-stars" aria-hidden="true">
+        {stars.map((star, index) => (
+          <span key={index} style={{ left: star.left, top: star.top, animationDelay: star.delay }} />
+        ))}
+      </div>
+      <div className="gw-atlas-moon" aria-hidden="true" />
+      <div className="gw-atlas-constellation" aria-hidden="true" />
+      <div className="gw-atlas-mountain gw-atlas-mountain-back" aria-hidden="true" />
+      <div className="gw-atlas-mountain gw-atlas-mountain-front" aria-hidden="true" />
+      <div className="gw-atlas-river" aria-hidden="true" />
+
+      <div className="gw-atlas-scroll">
+        <span>{isZh ? "观我档案" : "Guanwo Dossier"}</span>
+        <strong>{center}</strong>
+        <p>{isZh ? "五维合参 · 今日行动 · 长期路径" : "Five-source synthesis · daily action · long-term path"}</p>
+        <div className="gw-atlas-lines" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+        </div>
+      </div>
+
+      <div className="gw-trigram-seals" aria-hidden="true">
+        {trigrams.map(mark => (
+          <span key={mark}>{mark}</span>
+        ))}
+      </div>
+
+      <div className="gw-atlas-sources" aria-hidden="true">
+        {labels.map((label, index) => (
+          <span key={label}>{index + 1}. {label}</span>
+        ))}
+      </div>
+
+      <div className="gw-atlas-action">
+        <span>{isZh ? "今日行动" : "Today"}</span>
+        <strong>{isZh ? "先定一事，再看全局" : "One clear move first"}</strong>
+      </div>
+    </div>
   )
 }
 
