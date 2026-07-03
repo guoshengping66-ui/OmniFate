@@ -158,27 +158,6 @@ export function BaguaOrbit() {
         </div>
       </div>
 
-      <style>{`
-        @keyframes ringSpinSlow {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        @keyframes ringSpinRev {
-          from { transform: rotate(360deg); }
-          to { transform: rotate(0deg); }
-        }
-        @keyframes qiPulse {
-          0%, 100% { opacity: 0.3; transform: scale(0.8); }
-          50% { opacity: 1; transform: scale(1.3); }
-        }
-        @keyframes coreBreathe {
-          0%, 100% { opacity: 0.6; transform: scale(1); }
-          50% { opacity: 1; transform: scale(1.08); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          * { animation: none !important; }
-        }
-      `}</style>
     </div>
   )
 }

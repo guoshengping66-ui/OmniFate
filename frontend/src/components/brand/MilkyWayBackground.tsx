@@ -86,17 +86,6 @@ export function MilkyWayBackground() {
         )
       })}
 
-      <style>{`
-        @keyframes starDrift {
-          0% { transform: translateX(0); opacity: 0; }
-          10% { opacity: var(--op, 0.3); }
-          90% { opacity: var(--op, 0.3); }
-          100% { transform: translateX(calc(100vw + 100px)); opacity: 0; }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .galaxy-stars { opacity: 0.15; }
-        }
-      `}</style>
     </div>
   )
 }

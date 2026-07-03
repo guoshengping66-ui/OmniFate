@@ -274,20 +274,6 @@ export function GalaxyHomeExperience() {
         <p className="mt-6 text-xs text-parchment-300/30">{isZh ? "使用手机浏览器访问本页，即可添加到桌面" : "Open this page in mobile browser to add to home screen"}</p>
       </section>
 
-      {/* ═══ Custom styles ═══ */}
-      <style>{`
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        .animate-marquee {
-          animation: marquee 60s linear infinite;
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .animate-marquee { animation: none; }
-          .animate-bounce { animation: none; }
-        }
-      `}</style>
     </main>
   )
 }

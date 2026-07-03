@@ -399,6 +399,36 @@ select.input-field option:checked {
 }
 .btn-fill:hover::before { transform: translateY(0); }
 
+/* ═══ Galaxy Home: ring spin + bagua orbit ═══ */
+@keyframes ringSpinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes ringSpinRev {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+@keyframes qiPulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.3); }
+}
+@keyframes coreBreathe {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+@keyframes starDrift {
+  0% { transform: translateX(0); opacity: 0; }
+  10% { opacity: 0.3; }
+  90% { opacity: 0.3; }
+  100% { transform: translateX(calc(100vw + 100px)); opacity: 0; }
+}
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-marquee { animation: marquee 60s linear infinite; }
+.qi-particle { transition: none; }
+
 /* ═══ Mobile Optimizations ═══ */
 @media (max-width: 640px) {
   a, button, [role="button"] {
