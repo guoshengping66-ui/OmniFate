@@ -1471,7 +1471,7 @@ export default function ReadingPage() {
                   transform: heroVisible ? "translateY(0)" : "translateY(8px)",
                 }}
               >
-                {t("reading.title")}
+                {locale === "en" ? "Your Guanwo dossier is ready" : "你的观我档案已生成"}
               </h1>
 
               {/* Subtitle */}
@@ -1482,7 +1482,9 @@ export default function ReadingPage() {
                   opacity: heroVisible ? 1 : 0,
                 }}
               >
-                {t("reading.subtitle")}
+                {locale === "en"
+                  ? "Based on five-source synthesis, this report organizes your inner structure, relationship mode, career direction, wealth windows, and daily action."
+                  : "基于五维合参，整理你的性格结构、关系模式、事业方向、财富窗口与今日行动建议。"}
               </p>
 
               {/* ── Life Theme Hook ── */}

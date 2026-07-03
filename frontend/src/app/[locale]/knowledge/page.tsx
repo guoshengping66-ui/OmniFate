@@ -1,78 +1,97 @@
 "use client"
+
 import Link from "next/link"
-import { ScrollReveal } from "@/components/ui/ScrollReveal"
+import { BookOpenCheck, SearchCheck } from "lucide-react"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
+import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { KnowledgeCategories } from "@/data/knowledge"
 import { safeJsonLd } from "@/utils/safeJsonLd"
+import { EasternCard, EasternPageShell, EasternSection } from "@/components/brand/EasternDesign"
 
 export default function KnowledgePage() {
-  const { t, localeHref, locale } = useLanguage()
+  const { localeHref, locale } = useLanguage()
   const isZh = locale === "zh"
-
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    "name": isZh ? "命理知识库" : "Knowledge Base",
-    "description": isZh
-      ? "探索中国命理学、西方占星学、占卜术和相术的完整知识体系"
-      : "Explore the complete knowledge system of Chinese metaphysics, Western astrology, divination, and body reading",
-    "url": `https://www.khanfate.com/${locale}/knowledge`,
-  }
 
   const totalItems = KnowledgeCategories.reduce((sum, cat) =>
     sum + cat.subcategories.reduce((s, sub) => s + sub.items.length, 0), 0
   )
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": isZh ? "观我知识库" : "Guanwo Guide",
+    "description": isZh
+      ? "用克制、解释型的方法理解八字、星盘、塔罗、面相、手相与 AI 合参。"
+      : "A grounded guide to Bazi, astrology, tarot, body reading, and AI synthesis.",
+    "url": `https://www.khanfate.com/${locale}/knowledge`,
+  }
+
   return (
-    <div className="min-h-screen pt-20 sm:pt-24 pb-16 sm:pb-20 px-3 sm:px-4">
-      <div className="max-w-5xl mx-auto">
+    <EasternPageShell>
+      <div className="mx-auto w-[min(1180px,calc(100vw-32px))] pb-16 pt-24">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }} />
-        <Breadcrumbs items={[{ label: isZh ? "知识库" : "Knowledge Base" }]} currentPath={`/${locale}/knowledge`} />
+        <Breadcrumbs items={[{ label: isZh ? "知识库" : "Guide" }]} currentPath={`/${locale}/knowledge`} />
+      </div>
 
-        <ScrollReveal>
-          <div className="text-center mb-10 sm:mb-16">
-            <div className="text-4xl sm:text-5xl mb-3 sm:mb-4">📚</div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-white mb-3 sm:mb-4">
-              {isZh ? "命理知识库" : "Knowledge Base"}
-            </h1>
-            <p className="text-white/40 text-xs sm:text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
-              {isZh
-                ? `探索 ${totalItems} 篇关于命理、占星、占卜和相术的深度文章`
-                : `Explore ${totalItems} in-depth articles on metaphysics, astrology, divination, and body reading`}
-            </p>
-          </div>
-        </ScrollReveal>
+      <EasternSection
+        eyebrow={isZh ? "方法与信任" : "Method and Trust"}
+        title={isZh ? "用更清醒的方式理解命理、人格与行动" : "A clearer way to read pattern, personality, and action"}
+        description={isZh
+          ? `这里不是神神叨叨的断语集合，而是 ${totalItems} 篇关于八字、星盘、塔罗、面相、手相与 AI 合参方法的解释型内容。`
+          : `This is not a pile of verdicts. It is a ${totalItems}-article guide to Bazi, astrology, tarot, face reading, palm reading, and AI synthesis.`}
+      >
+        <div className="grid gap-4 md:grid-cols-3">
+          {(isZh
+            ? [
+                ["解释", "先讲清楚概念、边界和适用场景。"],
+                ["合参", "把多个维度放在同一问题里交叉验证。"],
+                ["行动", "从理解走向今日可执行的一步。"],
+              ]
+            : [
+                ["Explain", "Clarify concepts, limits, and use cases."],
+                ["Synthesize", "Cross-check several sources inside one question."],
+                ["Act", "Move from insight into one executable step."],
+              ]).map(([title, body]) => (
+            <EasternCard key={title} className="p-6">
+              <SearchCheck className="text-[var(--color-gold)]" size={24} />
+              <h2 className="mt-4 text-xl font-semibold text-[var(--color-text-primary)]">{title}</h2>
+              <p className="mt-2 text-sm leading-7 text-[var(--color-text-secondary)]">{body}</p>
+            </EasternCard>
+          ))}
+        </div>
+      </EasternSection>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+      <section className="mx-auto w-[min(1180px,calc(100vw-32px))] pb-24">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {KnowledgeCategories.map((cat, idx) => {
             const itemCount = cat.subcategories.reduce((s, sub) => s + sub.items.length, 0)
             return (
               <ScrollReveal key={cat.id} delay={0.05 * (idx + 1)}>
-                <Link
-                  href={localeHref(cat.canonical_path)}
-                  className="card-glow p-4 sm:p-6 md:p-8 hover:border-gold/30 transition-all duration-300 group block h-full"
-                >
-                  <div className="flex items-start gap-3 sm:gap-4">
-                    <span className="text-3xl sm:text-4xl group-hover:scale-110 transition-transform flex-shrink-0">
+                <Link href={localeHref(cat.canonical_path)} className="group ow-card block h-full p-6 transition hover:border-[var(--color-gold-soft)] md:p-8">
+                  <div className="flex items-start gap-4">
+                    <span className="grid h-12 w-12 flex-shrink-0 place-items-center rounded-2xl border border-[var(--color-gold-soft)] bg-[rgba(200,168,74,0.08)] text-2xl">
                       {cat.emoji}
                     </span>
                     <div className="min-w-0 flex-1">
-                      <h2 className="font-serif text-base sm:text-lg md:text-xl font-bold text-white group-hover:text-gold transition-colors mb-1.5 sm:mb-2 break-words">
-                        {isZh ? cat.name_zh : cat.name_en}
-                      </h2>
-                      <p className="text-white/40 text-xs sm:text-sm leading-relaxed mb-3 sm:mb-4 line-clamp-2">
+                      <div className="flex items-center justify-between gap-3">
+                        <h2 className="text-lg font-semibold text-[var(--color-text-primary)] transition group-hover:text-[var(--color-gold)] md:text-xl">
+                          {isZh ? cat.name_zh : cat.name_en}
+                        </h2>
+                        <BookOpenCheck size={18} className="text-[var(--color-gold)]" />
+                      </div>
+                      <p className="mt-3 line-clamp-2 text-sm leading-7 text-[var(--color-text-secondary)]">
                         {isZh ? cat.description_zh : cat.description_en}
                       </p>
-                      <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                        {cat.subcategories.map((sub) => (
-                          <span key={sub.id} className="text-[10px] sm:text-xs bg-white/5 text-white/50 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full">
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {cat.subcategories.map(sub => (
+                          <span key={sub.id} className="rounded-full border border-white/[0.08] bg-white/[0.035] px-3 py-1 text-xs text-white/50">
                             {isZh ? sub.name_zh : sub.name_en}
-                            <span className="text-white/30 ml-0.5 sm:ml-1">({sub.items.length})</span>
+                            <span className="ml-1 text-white/30">({sub.items.length})</span>
                           </span>
                         ))}
                       </div>
-                      <p className="text-gold/60 text-[10px] sm:text-xs mt-2 sm:mt-3">
+                      <p className="mt-4 text-xs text-[var(--color-gold)]">
                         {isZh ? `${itemCount} 篇文章` : `${itemCount} articles`}
                       </p>
                     </div>
@@ -82,7 +101,7 @@ export default function KnowledgePage() {
             )
           })}
         </div>
-      </div>
-    </div>
+      </section>
+    </EasternPageShell>
   )
 }

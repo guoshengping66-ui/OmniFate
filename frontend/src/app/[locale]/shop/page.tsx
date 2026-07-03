@@ -171,6 +171,48 @@ function ShopContent() {
         ],
   }
 
+  Object.assign(copy, {
+    badge: isZh ? "生活方式匹配" : "Lifestyle Match",
+    title: isZh ? "与你的状态相匹配的生活方式物件" : "Lifestyle objects matched to your current state",
+    subtitle: isZh
+      ? "根据你的性格结构、情绪状态和生活节律，推荐更适合你的空间、饰品与仪式感物件。"
+      : "Based on your personality structure, emotional state, and life rhythm, Guanwo recommends spatial, personal, and ritual objects.",
+    disclaimer: isZh
+      ? "观我不会承诺改变命运。商品为文化创意与生活方式建议，请结合自身需要理性选择。"
+      : "Items are cultural and lifestyle recommendations, not guaranteed outcomes. Choose based on your own needs.",
+    personalizedTitle: isZh ? "已根据你的观我档案重新排序" : "Re-ranked for your Guanwo dossier",
+    personalizedDesc: isZh
+      ? "排序会参考你的报告标签、五维状态、近期主题与生活节律。"
+      : "Ranking references your report tags, five-source state, current theme, and daily rhythm.",
+    defaultTitle: isZh ? "先生成档案，匹配会更贴近你" : "Create a dossier for sharper matching",
+    defaultDesc: isZh
+      ? "当前展示为精选生活方式物件。完成一次观我报告后，系统会生成更适合你的匹配顺序。"
+      : "These are curated lifestyle picks. After your first Guanwo report, the system can generate a more personal match order.",
+    createProfile: isZh ? "生成我的观我档案" : "Create my Guanwo dossier",
+    signals: isZh ? ["性格结构", "情绪状态", "生活节律"] : ["Structure", "Emotional state", "Life rhythm"],
+    prescriptionTitle: isZh ? "你的当下生活方式建议" : "Your current lifestyle guidance",
+    prescriptionDesc: isZh
+      ? "根据报告标签、五维状态和近期主题，把分析结果转化为更具体的生活方式选择。"
+      : "Report tags, five-source state, and current themes become concrete lifestyle choices.",
+    needTitle: isZh ? "按当前状态选择" : "Choose by current state",
+    needDesc: isZh
+      ? "没有报告也可以先按状态浏览；完成档案后，排序会更贴近你的个人节奏。"
+      : "Browse by state before a report. After profiling, ranking becomes more personal.",
+    allNeeds: isZh ? "全部状态" : "All states",
+    categoryTitle: isZh ? "按生活方式分类浏览" : "Browse by lifestyle category",
+    trustItems: isZh
+      ? [
+          { title: "档案匹配", desc: "根据结构、状态和节律排序" },
+          { title: "理性选择", desc: "文化创意与生活方式建议" },
+          { title: "订单跟踪", desc: "支付后可在订单中查看进度" },
+        ]
+      : [
+          { title: "Dossier matched", desc: "Ranked by structure, state, and rhythm" },
+          { title: "Practical choice", desc: "Cultural lifestyle guidance" },
+          { title: "Order tracking", desc: "Follow status after checkout" },
+        ],
+  })
+
   // Register loaded products with the cart so localStorage placeholders get real data
   useEffect(() => {
     if (allProducts.length > 0) {

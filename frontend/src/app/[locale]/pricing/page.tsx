@@ -2,7 +2,7 @@
 
 import { lazy, Suspense, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowRight, BookOpenCheck, CalendarDays, ChevronRight, Clock, Crown, HelpCircle, LineChart, MessageCircle, ShieldCheck, Sparkles, UserRoundSearch, Zap } from "lucide-react"
+import { BookOpenCheck, CalendarDays, ChevronRight, Clock, Crown, HelpCircle, LineChart, MessageCircle, ShieldCheck, Sparkles, UserRoundSearch, Zap } from "lucide-react"
 import toast from "react-hot-toast"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { AccordionItem } from "@/components/ui/AccordionItem"
@@ -119,6 +119,40 @@ export default function PricingPage() {
     { label: t("pricing.tierCompare.feat8"), yearly: "✓", monthly: "—" },
   ]
 
+  valueCards.splice(0, valueCards.length, ...[
+    {
+      icon: UserRoundSearch,
+      title: isZh ? "完整五维合参报告" : "Complete five-source report",
+      desc: isZh ? "性格结构、事业财富、关系模式、未来窗口与今日行动一次生成。" : "Personality, career, wealth, relationship, future windows, and daily action in one report.",
+    },
+    {
+      icon: CalendarDays,
+      title: isZh ? "每日行动中心" : "Daily action center",
+      desc: isZh ? "每天给出状态提示、风险提醒和一条可执行行动建议。" : "Daily state signal, caution, and one executable action.",
+    },
+    {
+      icon: LineChart,
+      title: isZh ? "未来十年行动地图" : "Ten-year action map",
+      desc: isZh ? "以阶段、窗口和建议呈现长期趋势，不做绝对化承诺。" : "Long-term stages, windows, and guidance without absolute promises.",
+    },
+    {
+      icon: BookOpenCheck,
+      title: isZh ? "历史报告与持续校准" : "History and calibration",
+      desc: isZh ? "保存报告与快问记录，让档案更贴近你的真实状态。" : "Save reports and focus readings so the dossier adapts to your real state.",
+    },
+  ])
+
+  comparisonRows.splice(0, comparisonRows.length, ...[
+    { label: isZh ? "基础性格提示" : "Basic personality preview", yearly: "✓", monthly: "✓" },
+    { label: isZh ? "完整五维合参报告" : "Complete five-source report", yearly: "✓", monthly: "✓" },
+    { label: isZh ? "单主题快问额度" : "Focus reading quota", yearly: isZh ? "5 次/月" : "5/mo", monthly: isZh ? "2 次/月" : "2/mo" },
+    { label: isZh ? "未来窗口与行动地图" : "Future windows and action map", yearly: "✓", monthly: "✓" },
+    { label: isZh ? "关系合参优惠" : "Relationship reading benefit", yearly: isZh ? "8.8 折" : "12% off", monthly: "—" },
+    { label: isZh ? "星尘额度" : "Stardust credits", yearly: isZh ? "150/月" : "150/mo", monthly: isZh ? "100/月" : "100/mo" },
+    { label: isZh ? "历史报告归档" : "Report archive", yearly: "✓", monthly: "—" },
+    { label: isZh ? "优先体验新功能" : "Early feature access", yearly: "✓", monthly: "—" },
+  ])
+
   const stardustCosts = [
     { icon: Sparkles, label: t("pricing.unlockReport"), cost: "100", color: "text-gold", bg: "bg-gold/8 border-gold/15" },
     { icon: Clock, label: t("pricing.eventReview"), cost: "30", color: "text-amber-400", bg: "bg-amber-500/8 border-amber-500/15" },
@@ -148,10 +182,10 @@ export default function PricingPage() {
             </div>
             <Crown className="mx-auto mb-3 text-gold" size={28} />
             <h1 className="mb-2 font-serif text-2xl font-bold text-white md:text-4xl">
-              {t("pricing.title")}
+              {isZh ? "选择适合你的观我分析方式" : "Choose the Guanwo analysis depth that fits you"}
             </h1>
             <p className="mx-auto max-w-2xl text-sm leading-relaxed text-white/38">
-              {t("pricing.subtitle")}
+              {isZh ? "从免费探索到完整档案，你可以按自己的问题深度选择。观我提供自我认知和生活决策参考，不承诺结果。" : "From free exploration to a complete dossier, choose by the depth of your question. Guanwo offers self-knowledge and decision support, not guaranteed outcomes."}
             </p>
           </div>
         </ScrollReveal>

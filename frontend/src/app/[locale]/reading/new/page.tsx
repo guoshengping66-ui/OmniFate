@@ -534,6 +534,32 @@ export default function NewReadingPage() {
     { key: "yan_shen", label: t("new.face.eyes") },
   ], [t])
 
+  const flowCopy = (() => {
+    const isZh = locale === "zh"
+    if (currentIntent === "RELATIONSHIP") {
+      return {
+        title: isZh ? "看见两个人之间的吸引与消耗" : "See the attraction and friction between two people",
+        subtitle: isZh
+          ? "适合恋爱、婚姻、合作和亲密关系。观我会分析双方的关系节奏、冲突点和相处建议。"
+          : "For love, marriage, collaboration, and close relationships. Guanwo reads rhythm, friction, and ways to relate.",
+      }
+    }
+    if (currentIntent) {
+      return {
+        title: isZh ? "把一个具体问题交给观我" : "Bring one specific question to Guanwo",
+        subtitle: isZh
+          ? "适合感情、事业、财富、选择题和近期困惑。问题越具体，分析越有针对性。"
+          : "Best for love, work, wealth, choices, and current uncertainty. The more specific the question, the sharper the reading.",
+      }
+    }
+    return {
+      title: isZh ? "生成你的完整观我报告" : "Generate your complete Guanwo report",
+      subtitle: isZh
+        ? "基于五维合参，整理你的性格结构、关系模式、事业方向、财富窗口与今日行动建议。"
+        : "A five-source dossier for inner structure, relationship mode, career direction, wealth windows, and daily action.",
+    }
+  })()
+
   // Key palm features for summary display
   const PALM_KEY_FEATURES: { key: string; label: string }[] = useMemo(() => [
     { key: "hand_shape", label: t("new.handShape") },
@@ -566,10 +592,10 @@ export default function NewReadingPage() {
         </div>
 
         {/* Header */}
-        <div className="text-center mb-10">
+        <div className="text-center mb-10 rounded-[32px] border border-white/[0.08] bg-white/[0.035] p-6 shadow-[0_28px_90px_rgba(0,0,0,0.28)] md:p-8">
           <Sparkles className="text-gold mx-auto mb-3" size={32} />
-          <h1 className="text-3xl font-serif font-bold text-gold mb-2">{t("new.startTitle")}</h1>
-          <p className="text-white/50 text-sm">{t("new.startSubtitle")}</p>
+          <h1 className="text-3xl font-serif font-bold text-[var(--color-text-primary)] mb-3">{flowCopy.title}</h1>
+          <p className="mx-auto max-w-xl text-[var(--color-text-secondary)] text-sm leading-7">{flowCopy.subtitle}</p>
         </div>
 
         {/* Step indicators — step is now a logical index */}

@@ -2,19 +2,11 @@
 
 import { useEffect } from "react"
 import dynamic from "next/dynamic"
-import { useLanguage } from "@/contexts/LanguageContext"
 import { useAuth } from "@/contexts/AuthContext"
 import { useUserStore } from "@/stores/useUserStore"
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary"
 
-const GrowthCommandHero = dynamic(() => import("@/components/marketing-growth/GrowthCommandHero").then(m => m.GrowthCommandHero), { ssr: true })
-const ProductPathMap = dynamic(() => import("@/components/marketing-growth/ProductPathMap").then(m => m.ProductPathMap), { ssr: false })
-const FiveDimensionCommandCenter = dynamic(() => import("@/components/marketing-growth/FiveDimensionCommandCenter").then(m => m.FiveDimensionCommandCenter), { ssr: false })
-const SignalToActionWorkflow = dynamic(() => import("@/components/marketing-growth/SignalToActionWorkflow").then(m => m.SignalToActionWorkflow), { ssr: false })
-const SampleGrowthReport = dynamic(() => import("@/components/marketing-growth/SampleGrowthReport").then(m => m.SampleGrowthReport), { ssr: false })
-const GrowthServicePaths = dynamic(() => import("@/components/marketing-growth/GrowthServicePaths").then(m => m.GrowthServicePaths), { ssr: false })
-const MethodTrustSection = dynamic(() => import("@/components/marketing-growth/MethodTrustSection").then(m => m.MethodTrustSection), { ssr: false })
-const FinalGrowthCTA = dynamic(() => import("@/components/marketing-growth/FinalGrowthCTA").then(m => m.FinalGrowthCTA), { ssr: false })
+const EasternHomeExperience = dynamic(() => import("@/components/marketing-growth/EasternHomeExperience").then(m => m.EasternHomeExperience), { ssr: true })
 const UserDashboard = dynamic(() => import("@/components/dashboard/UserDashboard").then(m => m.UserDashboard), {
   ssr: false,
   loading: () => <div className="card-glass p-8"><div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin" /></div>,
@@ -68,28 +60,9 @@ export default function HomePage() {
   }
 
   return (
-    <div className="relative z-10 min-h-screen bg-[#080808]">
-      <GrowthCommandHero variant="home" />
-      <ErrorBoundary sectionName="Product Path Map">
-        <ProductPathMap />
-      </ErrorBoundary>
-      <ErrorBoundary sectionName="Five Dimension Command Center">
-        <FiveDimensionCommandCenter />
-      </ErrorBoundary>
-      <ErrorBoundary sectionName="Signal To Action Workflow">
-        <SignalToActionWorkflow />
-      </ErrorBoundary>
-      <ErrorBoundary sectionName="Sample Growth Report">
-        <SampleGrowthReport />
-      </ErrorBoundary>
-      <ErrorBoundary sectionName="Growth Service Paths">
-        <GrowthServicePaths />
-      </ErrorBoundary>
-      <ErrorBoundary sectionName="Method Trust">
-        <MethodTrustSection />
-      </ErrorBoundary>
-      <ErrorBoundary sectionName="Final Growth CTA">
-        <FinalGrowthCTA />
+    <div className="relative z-10 min-h-screen">
+      <ErrorBoundary sectionName="Guanwo Home Experience">
+        <EasternHomeExperience />
       </ErrorBoundary>
     </div>
   )
