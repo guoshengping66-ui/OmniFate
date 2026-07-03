@@ -17,7 +17,9 @@ module.exports = {
           800: "#24201C",  // Card hover
           700: "#2C2824",  // Card active
           600: "#3A3630",  // Borders on parchment
+          500: "#65605A",  // Muted text / icons
           400: "#8B8578",  // Secondary text on parchment
+          300: "#A8A39A",  // Body text on parchment
           200: "#C4BFB0",  // Body text on parchment
           100: "#E8E3D4",  // Heading text
         },
