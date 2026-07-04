@@ -61,6 +61,11 @@ return(<div className="w-full text-white" style={{background:"#000"}}>
   {/* L6: Vignette + text mask */}
   <div className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{background:"radial-gradient(circle at 50% 45%, rgba(0,0,0,0.20), transparent 56%), linear-gradient(180deg, rgba(0,0,0,0.08) 0%, transparent 20%, transparent 50%, rgba(0,0,0,0.68) 100%)",zIndex:7}}/>
 
+  {/* Corner nebula — top-left gold dust origin */}
+  <div className="fixed pointer-events-none" aria-hidden="true" style={{left:"-5%",top:"-2%",width:"35%",height:"35%",background:"radial-gradient(ellipse at 30% 35%, rgba(218,180,74,0.10), transparent 55%), radial-gradient(ellipse at 60% 50%, rgba(135,225,235,0.04), transparent 50%)",filter:"blur(20px)",opacity:.65,zIndex:2}}/>
+  {/* Corner nebula — bottom-right cyan fade */}
+  <div className="fixed pointer-events-none" aria-hidden="true" style={{right:"-8%",bottom:"5%",width:"40%",height:"30%",background:"radial-gradient(ellipse at 70% 60%, rgba(50,155,175,0.07), transparent 55%), radial-gradient(ellipse at 40% 45%, rgba(218,180,74,0.04), transparent 50%)",filter:"blur(24px)",opacity:.55,zIndex:2}}/>
+
   {/* Foreground depth stars */}
   <div className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{zIndex:8}}>{fg.map(s=><span key={"fg"+s.id} style={{position:"absolute",left:s.left+"%",top:s.top+"%",width:s.size,height:s.size,borderRadius:"50%",background:"radial-gradient(circle, rgba(255,240,200,0.6) 0%, transparent 70%)",boxShadow:"0 0 "+s.size*3+"px rgba(200,180,140,"+(s.opacity*.8)+")",opacity:s.opacity}}/>)}</div>
   <style>{kf}</style>
