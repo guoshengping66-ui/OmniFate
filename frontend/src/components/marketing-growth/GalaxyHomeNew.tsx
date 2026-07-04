@@ -75,7 +75,7 @@ return(<div className="w-full text-white" style={{background:"#000"}}>
   <div className="fixed pointer-events-none" aria-hidden="true" style={{right:"-4%",bottom:"10%",width:"30%",height:"24%",background:"radial-gradient(ellipse at 70% 60%, rgba(50,155,175,0.05), transparent 55%)",filter:"blur(28px)",opacity:.45,zIndex:1}}/>
 
   {/* ═══ L5: Tai Chi system — UI overlay, not decoration ═══ */}
-  <div className="fixed left-1/2 pointer-events-none" aria-hidden="true" style={{width:"min(540px,92vw)",height:"min(540px,92vw)",top:"44%",transform:"translate(-50%,-50%)",opacity:.23,zIndex:5,animation:"taijiSpin 110s linear infinite"}}>
+  <div className="fixed left-1/2 pointer-events-none" aria-hidden="true" style={{width:"min(540px,92vw)",height:"min(540px,92vw)",top:"50%",transform:"translate(-50%,-50%)",opacity:.18,zIndex:5,animation:"taijiSpin 110s linear infinite"}}>
     <div style={{position:"absolute",inset:0,borderRadius:"50%",border:"1px solid rgba(218,180,74,0.26)",boxShadow:"0 0 50px rgba(218,180,74,0.06), inset 0 0 40px rgba(80,180,190,0.03)"}}/>
     {Array.from({length:24},(_,i)=>{const a=(i/24)*360-90,rad=(a*Math.PI)/180;return(<span key={"tk"+i} style={{position:"absolute",left:"50%",top:"50%",width:1,height:3,background:"rgba(218,180,74,0.30)",transform:`translate(-50%,-50%) rotate(${a}deg) translateY(-49%)`,transformOrigin:"center center"}}/>)})}
     <div style={{position:"absolute",inset:"12%",borderRadius:"50%",border:"1px dashed rgba(218,180,74,0.16)"}}/>
