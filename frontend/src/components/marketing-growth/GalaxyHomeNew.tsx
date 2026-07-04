@@ -4,11 +4,24 @@ import { useMemo } from "react"; import Link from "next/link"; import { ArrowRig
 const T=["乾","兑","离","震","巽","坎","艮","坤"]
 function srng(s:number){let v=s;return()=>{v=(v*16807+0)%2147483647;return(v-1)/2147483646}}
 
-/* Stars: 250 visible, 75% in diagonal band */
-function mkS(){const r=srng(191);return Array.from({length:250},(_,i)=>{const x=r()*100,b=r()<.75,y=b?30+r()*40:5+r()*90,rr=r()
-  return{id:i,x,y,sz:.7+r()*1.6,o:.2+r()*.55,g:rr>.7,c:rr>.45&&rr<=.7,tw:i%4===0}})}
-/* Qi vortex */
-function mkQ(){const r=srng(73);return Array.from({length:24},(_,i)=>{const a=(i/24)*360,d=16+(i%3)*7;return{id:i,ang:a,dist:d,sp:1.5+(i%3)*.8,dl:i*.4,sz:1+(i%3)}})}
+/* Stars: 400 across 3 tiers — far (tiny dim), mid (medium), near (large bright) */
+function mkS(){
+  const r1=srng(191),r2=srng(377),r3=srng(523)
+  const stars:any[]=[]
+  /* Far: 250 tiny background stars, even scatter, slow twinkle */
+  for(let i=0;i<250;i++){const x=r1()*100,y=r2()*100
+    stars.push({id:`f${i}`,x,y,sz:.3+r3()*.5,o:.1+r1()*.3,h:240+r2()*40,isGold:r3()>.92,tw:r1()>.55,sp:2.5+r2()*3,dl:r3()*4})}
+  /* Mid: 120 visible stars, diagonal band bias, stronger twinkle */
+  for(let i=0;i<120;i++){const x=r1()*100,b=r2()<.7,y=b?25+r3()*45:5+r1()*90
+    stars.push({id:`m${i}`,x,y,sz:.6+r2()*1.3,o:.25+r1()*.5,h:210+r3()*50,isGold:r2()>.82,tw:r1()>.35,sp:2+r2()*2.5,dl:r3()*3})}
+  /* Near: 30 bright accent stars, mainly in band, strong twinkle glow */
+  for(let i=0;i<30;i++){const x=r1()*100,y=r2()<.8?25+r3()*45:10+r1()*80
+    stars.push({id:`n${i}`,x,y,sz:1+r2()*1.8,o:.4+r1()*.45,h:230+r3()*30,isGold:r2()>.7,tw:!0,sp:1.5+r3()*2,dl:r1()*2})}
+  return stars
+}
+
+/* Qi vortex — 30 particles orbiting bagua */
+function mkQ(){const r=srng(73);return Array.from({length:30},(_,i)=>{const a=(i/30)*360,d=16+(i%4)*6;return{id:i,ang:a,dist:d,sp:2+(i%4)*1.2,dl:i*.5,sz:1.2+(i%4)*.7}})}
 
 const SYS=[{n:"八字",nE:"Bazi",q:"底层结构",qE:"Structure",a:"长期节奏与人生框架",aE:"Long-term rhythm",c:"#5A9E8E",f:!0},{n:"紫微",nE:"Ziwei",q:"能量周期",qE:"Cycles",a:"十二宫主星分布与大限流年",aE:"12-palace distribution",c:"#8B7EC7",f:!0},{n:"星盘",nE:"Astrology",q:"心理模式",qE:"Patterns",a:"七政四余恒星制·先天格局",aE:"Sidereal configuration",c:"#7B9EC7",f:!0},{n:"塔罗",nE:"Tarot",q:"当下选择",qE:"Choice",a:"聚焦此刻压力与决策",aE:"Current decisions",c:"#C77B8B",f:!1},{n:"面相",nE:"Face",q:"行为印象",qE:"Impression",a:"五官十二宫·禀赋气质",aE:"Five features, 12 palaces",c:"#C4BFB0",f:!1}]
 const INP={zh:["生辰八字","出生地点","面相照片","手相照片","当前问题"],en:["Birth date & time","Birth location","Face photo","Palm photo","Your question"]}
@@ -22,7 +35,7 @@ const PRC={zh:[{name:"免费版",price:"¥0",desc:"体验全部系统\n基础预
 export default function GalaxyHomeNew(){const{locale,localeHref}=useLanguage();const isZh=locale==="zh"
 const stars=useMemo(()=>mkS(),[]),qi=useMemo(()=>mkQ(),[])
 const cb={background:"linear-gradient(135deg, #060E24, #030918)"},cd="rounded-2xl border border-white/[0.05]"
-const kf=`@keyframes tSpin{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}@keyframes rSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes twinkle{0%,100%{opacity:.25;transform:scale(.85)}50%{opacity:.75;transform:scale(1.15)}}@keyframes corePulse{0%,100%{opacity:.5}50%{opacity:.72}}@media(prefers-reduced-motion:reduce){*{animation:none!important}}`
+const kf=`@keyframes tSpin{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}@keyframes rSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes twinkle{0%,100%{opacity:.2;transform:scale(.7)}50%{opacity:.85;transform:scale(1.2)}}@keyframes galaxyDrift{0%{transform:rotate(-14deg) translateX(-2%)}50%{transform:rotate(-14deg) translateX(2%)}100%{transform:rotate(-14deg) translateX(-2%)}}@keyframes galaxyDrift2{0%{transform:rotate(10deg) translateX(2%)}50%{transform:rotate(10deg) translateX(-3%)}100%{transform:rotate(10deg) translateX(2%)}}@keyframes corePulse{0%,100%{opacity:.35}50%{opacity:.62}}@keyframes dustFloat{0%{transform:translate(0,0)}50%{transform:translate(6px,-4px)}100%{transform:translate(0,0)}}@media(prefers-reduced-motion:reduce){*{animation:none!important}}`
 
 return(<div className="w-full text-white" style={{background:"#000"}}>
   {/* ═══ L0: Deep space ═══ */}
@@ -31,33 +44,41 @@ return(<div className="w-full text-white" style={{background:"#000"}}>
   {/* ═══ L1: Star field — VISIBLE, diagonal band ═══ */}
   <div className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{zIndex:2}}>
     {stars.map(s=><span key={s.id} style={{position:"absolute",left:s.x+"%",top:s.y+"%",width:s.sz,height:s.sz,borderRadius:"50%",
-      background:s.g?"rgba(255,220,130,0.75)":s.c?"rgba(135,225,235,0.55)":"rgba(240,245,255,0.6)",
-      boxShadow:s.g?"0 0 "+s.sz*1.5+"px rgba(255,210,120,0.3)":"none",
+      background:s.isGold?"rgba(255,215,120,0.8)":`hsla(${s.h},60%,75%,0.65)`,
+      boxShadow:s.isGold?`0 0 ${s.sz*2}px rgba(255,200,100,0.4)`:`0 0 ${s.sz}px hsla(${s.h},50%,70%,0.15)`,
       opacity:s.o,transform:"translate(-50%,-50%)",
-      animation:s.tw?`twinkle ${2.5+(s.id%4)*1.5}s ease-in-out ${(s.id*.3)%4}s infinite`:"none"}}/>)}
+      animation:s.tw?`twinkle ${s.sp}s ease-in-out ${s.dl}s infinite`:"none",
+	      ["--to" as any]:s.o*.4,["--t1" as any]:Math.min(1,s.o*1.6)}}/>)}
   </div>
 
   {/* ═══ L2: Galaxy band — soft diagonal glow ═══ */}
   <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true" style={{zIndex:1}}>
     <div style={{position:"absolute",left:"-25%",top:"15%",width:"150%",height:"70%",transform:"rotate(-14deg)",
-      background:"linear-gradient(90deg, rgba(218,180,74,0.03) 0%, rgba(218,180,74,0.06) 25%, rgba(255,245,210,0.08) 48%, rgba(80,180,195,0.04) 70%, rgba(20,60,95,0.01) 100%)",
-      filter:"blur(14px)",opacity:.45,
+      background:"linear-gradient(90deg, rgba(218,180,74,0.04) 0%, rgba(218,180,74,0.08) 25%, rgba(255,245,210,0.10) 48%, rgba(80,180,195,0.05) 70%, rgba(20,60,95,0.02) 100%)",
+      filter:"blur(14px)",opacity:.5,animation:"galaxyDrift 30s ease-in-out infinite",
       maskImage:"radial-gradient(ellipse at center, black 0%, black 25%, rgba(0,0,0,0.5) 50%, transparent 85%)",
       WebkitMaskImage:"radial-gradient(ellipse at center, black 0%, black 25%, rgba(0,0,0,0.5) 50%, transparent 85%)"}}/>
+    <div style={{position:"absolute",left:"5%",top:"55%",width:"120%",height:"50%",transform:"rotate(10deg)",
+      background:"linear-gradient(90deg, rgba(100,140,210,0.02) 0%, rgba(120,160,230,0.05) 35%, rgba(180,200,240,0.07) 55%, rgba(80,120,180,0.03) 80%, transparent 100%)",
+      filter:"blur(18px)",opacity:.35,animation:"galaxyDrift2 40s ease-in-out infinite",
+      maskImage:"radial-gradient(ellipse at center, black 0%, black 20%, rgba(0,0,0,0.4) 45%, transparent 80%)",
+      WebkitMaskImage:"radial-gradient(ellipse at center, black 0%, black 20%, rgba(0,0,0,0.4) 45%, transparent 80%)"}}/>
     <div style={{position:"absolute",left:"35%",top:"30%",width:"30%",height:"140px",
       background:"radial-gradient(ellipse at 50% 50%, rgba(255,240,195,0.12), rgba(218,180,74,0.06) 40%, transparent 70%)",
       filter:"blur(10px)",opacity:.6,animation:"corePulse 8s ease-in-out infinite"}}/>
   </div>
 
   {/* ═══ L3: Tai Chi — subtle background system ═══ */}
-  <div className="fixed left-1/2 pointer-events-none" aria-hidden="true" style={{width:"min(540px,92vw)",height:"min(540px,92vw)",top:"50%",transform:"translate(-50%,-50%)",opacity:.18,zIndex:4,animation:"tSpin 110s linear infinite",filter:"drop-shadow(0 0 40px rgba(218,180,74,0.08))"}}>
+  <div className="fixed left-1/2 pointer-events-none" aria-hidden="true" style={{width:"min(540px,92vw)",height:"min(540px,92vw)",top:"50%",transform:"translate(-50%,-50%)",opacity:.25,zIndex:4,animation:"tSpin 100s linear infinite",filter:"drop-shadow(0 0 60px rgba(218,180,74,0.12))"}}>
     <div style={{position:"absolute",inset:0,borderRadius:"50%",border:"1px solid rgba(218,180,74,0.26)",boxShadow:"0 0 50px rgba(218,180,74,0.06), inset 0 0 40px rgba(80,180,190,0.03)"}}/>
     {Array.from({length:24},(_,i)=>{const a=(i/24)*360-90;return<span key={"t"+i} style={{position:"absolute",left:"50%",top:"50%",width:1,height:3,background:"rgba(218,180,74,0.28)",transform:`translate(-50%,-50%) rotate(${a}deg) translateY(-49%)`}}/>})}
     <div style={{position:"absolute",inset:"12%",borderRadius:"50%",border:"1px dashed rgba(218,180,74,0.12)"}}/>
     {qi.map(p=>{const rad=(p.ang*Math.PI)/180;return<span key={"q"+p.id} style={{position:"absolute",left:(50+p.dist*Math.cos(rad))+"%",top:(50+p.dist*Math.sin(rad))+"%",width:p.sz,height:p.sz,borderRadius:"50%",background:"radial-gradient(circle, rgba(218,180,74,0.45), transparent 70%)",boxShadow:"0 0 2px rgba(218,180,74,0.15)",animation:`twinkle ${p.sp}s ease-in-out ${p.dl}s infinite`}}/>})}
     {T.map((t,i)=>{const a=(i/8)*360-90,rad=(a*Math.PI)/180,d=43;return<span key={i} className="absolute font-serif" style={{left:(50+d*Math.cos(rad))+"%",top:(50+d*Math.sin(rad))+"%",transform:"translate(-50%,-50%)",color:"rgba(218,180,74,0.28)",textShadow:"0 0 4px rgba(218,180,74,0.06)",fontSize:"clamp(10px,1.2vw,13px)"}}>{t}</span>})}
     <div style={{position:"absolute",inset:"22%",borderRadius:"50%",border:"0.5px solid rgba(218,180,74,0.08)"}}/>
-    <div style={{position:"absolute",inset:"10%",display:"grid",placeItems:"center",fontSize:"clamp(68px,9vw,108px)",color:"rgba(218,180,74,0.28)",textShadow:"0 0 12px rgba(218,180,74,0.06)"}}>☯</div>
+    <div style={{position:"absolute",inset:"10%",display:"grid",placeItems:"center",fontSize:"clamp(68px,9vw,108px)",color:"rgba(218,180,74,0.32)",textShadow:"0 0 18px rgba(218,180,74,0.12)"}}>☯</div>
+    {/* Floating dust around bagua */}
+    {Array.from({length:8},(_,i)=>{const a=(i/8)*360,rad=(a*Math.PI)/180,d=46;return<span key={"du"+i} style={{position:"absolute",left:(50+d*Math.cos(rad))+"%",top:(50+d*Math.sin(rad))+"%",width:2,height:2,borderRadius:"50%",background:"rgba(218,180,74,0.4)",boxShadow:"0 0 3px rgba(218,180,74,0.3)",animation:}}/>})}
   </div>
 
   {/* ═══ L4: Vignette ═══ */}
