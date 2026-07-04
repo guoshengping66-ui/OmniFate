@@ -3,111 +3,69 @@
 import { useMemo, useRef, useEffect, useCallback } from "react"; import Link from "next/link"; import { ArrowRight } from "lucide-react"; import { useLanguage } from "@/contexts/LanguageContext"
 
 /* ═══════════════════════════════════════════════════════════════
-   2D Value Noise — organic galaxy dust simulation
-   Simulates the turbulent, swirling dust lanes of a real galaxy
+   Galaxy particle simulation — continuous flowing dust cloud
+   One unified galaxy, not segmented ribbons
    ═══════════════════════════════════════════════════════════════ */
-function noise2D(x: number, y: number, seed: number): number {
-  const ix = Math.floor(x), iy = Math.floor(y)
-  const fx = x - ix, fy = y - iy
-  // Smoothstep
-  const sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy)
-  // Hash function for 4 corners
-  const h = (a: number, b: number) => {
-    let n = Math.sin(a * 12.9898 + b * 78.233 + seed) * 43758.5453
-    return n - Math.floor(n)
-  }
-  const n00 = h(ix, iy), n10 = h(ix + 1, iy)
-  const n01 = h(ix, iy + 1), n11 = h(ix + 1, iy + 1)
-  // Bilinear interpolation
-  const nx0 = n00 + (n10 - n00) * sx
-  const nx1 = n01 + (n11 - n01) * sx
-  return nx0 + (nx1 - nx0) * sy
-}
-
-/* Fractal Brownian Motion — multi-octave organic noise */
-function fbm(x: number, y: number, seed: number, octaves: number = 4): number {
-  let v = 0, amp = 1, freq = 1, max = 0
-  for (let i = 0; i < octaves; i++) {
-    v += noise2D(x * freq, y * freq, seed + i * 100) * amp
-    max += amp; amp *= 0.5; freq *= 2
-  }
-  return v / max
-}
-
-/* ── Shared constants ── */
-const T=["乾","兑","离","震","巽","坎","艮","坤"]
-function srng(s:number){let v=s;return()=>{v=(v*16807+0)%2147483647;return(v-1)/2147483646}}
-
-/* Stars: 400 across 3 tiers */
-function mkS(){
-  const r1=srng(191),r2=srng(377),r3=srng(523)
-  const stars:any[]=[]
-  for(let i=0;i<250;i++){const x=r1()*100,y=r2()*100
-    stars.push({id:`f${i}`,x,y,sz:.3+r3()*.5,o:.1+r1()*.3,h:240+r2()*40,isGold:r3()>.92,tw:r1()>.55,sp:2.5+r2()*3,dl:r3()*4})}
-  for(let i=0;i<120;i++){const x=r1()*100,b=r2()<.7,y=b?25+r3()*45:5+r1()*90
-    stars.push({id:`m${i}`,x,y,sz:.6+r2()*1.3,o:.25+r1()*.5,h:210+r3()*50,isGold:r2()>.82,tw:r1()>.35,sp:2+r2()*2.5,dl:r3()*3})}
-  for(let i=0;i<30;i++){const x=r1()*100,y=r2()<.8?25+r3()*45:10+r1()*80
-    stars.push({id:`n${i}`,x,y,sz:1+r2()*1.8,o:.4+r1()*.45,h:230+r3()*30,isGold:r2()>.7,tw:!0,sp:1.5+r3()*2,dl:r1()*2})}
-  return stars
-}
-function mkQ(){const r=srng(73);return Array.from({length:30},(_,i)=>{const a=(i/30)*360,d=16+(i%4)*6;return{id:i,ang:a,dist:d,sp:2+(i%4)*1.2,dl:i*.5,sz:1.2+(i%4)*.7}})}
-
-const SYS=[{n:"八字",nE:"Bazi",q:"底层结构",qE:"Structure",a:"长期节奏与人生框架",aE:"Long-term rhythm",c:"#5A9E8E",f:!0},{n:"紫微",nE:"Ziwei",q:"能量周期",qE:"Cycles",a:"十二宫主星分布与大限流年",aE:"12-palace distribution",c:"#8B7EC7",f:!0},{n:"星盘",nE:"Astrology",q:"心理模式",qE:"Patterns",a:"七政四余恒星制·先天格局",aE:"Sidereal configuration",c:"#7B9EC7",f:!0},{n:"塔罗",nE:"Tarot",q:"当下选择",qE:"Choice",a:"聚焦此刻压力与决策",aE:"Current decisions",c:"#C77B8B",f:!1},{n:"面相",nE:"Face",q:"行为印象",qE:"Impression",a:"五官十二宫·禀赋气质",aE:"Five features, 12 palaces",c:"#C4BFB0",f:!1}]
-const INP={zh:["生辰八字","出生地点","面相照片","手相照片","当前问题"],en:["Birth date & time","Birth location","Face photo","Palm photo","Your question"]}
-const OUT={zh:["性格结构","事业方向","关系模式","财富窗口","今日行动"],en:["Personality","Career","Relationships","Wealth window","Daily action"]}
-const DOS={zh:[{i:"01",t:"性格结构",d:"八字日主、紫微命宫主星、星盘上升星座——三系统交叉定位核心特质。",tag:"八字+紫微+星盘",c:"#5A9E8E"},{i:"02",t:"事业方向",d:"AI分析能量走向与发力时机。识别最佳工作节奏和阶段窗口。",tag:"八字+星盘",c:"#7B9EC7"},{i:"03",t:"关系模式",d:"亲密与合作关系中的底层驱动模式——两盘对照看吸引与契合。",tag:"紫微+面相",c:"#C77B8B"},{i:"04",t:"财富窗口",d:"识别能量流动、突破机会与防守时期——八字财星交叉验证。",tag:"八字+紫微",c:"#C9A84C"},{i:"05",t:"生活方式",d:"面相与星盘匹配的日常仪式感——睡眠、工作环境、香味偏好。",tag:"面相+星盘",c:"#8B7EC7"},{i:"06",t:"今日行动",d:"画像最终输出——今天能做的一件事。把分析变成执行。",tag:"全系统",c:"#E8CB7A"}],en:[{i:"01",t:"Personality",d:"Bazi Day Master + Ziwei Life Palace + Astrology Ascendant — three-system cross-positioning.",tag:"Bazi+Ziwei+Astro",c:"#5A9E8E"},{i:"02",t:"Career",d:"AI maps energy direction and timing. Optimal rhythm and phase windows.",tag:"Bazi+Astrology",c:"#7B9EC7"},{i:"03",t:"Relationships",d:"Core drive in intimacy and partnership — two charts compared for fit.",tag:"Ziwei+Face",c:"#C77B8B"},{i:"04",t:"Wealth Window",d:"Energy flow, breakthroughs, defense — validated with Bazi wealth stars.",tag:"Bazi+Ziwei",c:"#C9A84C"},{i:"05",t:"Lifestyle",d:"Daily rituals matched to profile — sleep, workspace, scent.",tag:"Face+Astro",c:"#8B7EC7"},{i:"06",t:"Daily Action",d:"The final output — one thing you can do today.",tag:"All Systems",c:"#E8CB7A"}]}
-const ENT={zh:[{t:"完整画像",d:"五系统全开，AI深度交叉验证。完整命运画像+今日行动。",cta:"建立我的画像 →",to:"/reading/new",hl:!0,badge:"推荐入口",icon:"🔮"},{t:"单题快问",d:"聚焦一个方向，快速获取AI解读。适合有明确问题的用户。",cta:"快速提问 →",to:"/reading/new?intent=quick",hl:!1,badge:"",icon:"⚡"},{t:"关系合参",d:"两人命盘对照分析，AI交叉验证契合度与互补空间。",cta:"合参分析 →",to:"/bazi/compatibility",hl:!1,badge:"",icon:"💫"}],en:[{t:"Full Profile",d:"All five systems. Deep AI cross-validation. Full destiny profile + daily action.",cta:"Build My Profile →",to:"/reading/new",hl:!0,badge:"Recommended",icon:"🔮"},{t:"Quick Read",d:"Focus on one area. Fast AI insight for users with a clear question.",cta:"Quick Read →",to:"/reading/new?intent=quick",hl:!1,badge:"",icon:"⚡"},{t:"Synastry",d:"Two charts compared. AI cross-validates compatibility.",cta:"Synastry →",to:"/bazi/compatibility",hl:!1,badge:"",icon:"💫"}]}
-const TRS={zh:[["💎","灵石晶品"],["🎐","香道雅韵"],["📿","护符配饰"],["📖","古籍典藏"],["🕯️","仪式定制"],["🌿","生活方式"]],en:[["💎","Crystals"],["🎐","Incense"],["📿","Talismans"],["📖","Scriptures"],["🕯️","Rituals"],["🌿","Lifestyle"]]}
-const TD={zh:{u:"10,000+",r:"4.9",rp:"50,000+",ul:"用户",rl:"评分",rpl:"报告已生成",t1:"真正让我看清了自己的底层模式。",n1:"林小姐·96分",t2:"AI交叉验证比单一系统靠谱得多。",n2:"陈先生·98分"},en:{u:"10,000+",r:"4.9",rp:"50,000+",ul:"Users",rl:"Rating",rpl:"Reports",t1:"It showed me my underlying patterns.",n1:"Ms.Lin·96",t2:"Cross-validation is far more reliable.",n2:"Mr.Chen·98"}}
-const PRC={zh:[{name:"免费版",price:"¥0",desc:"体验全部系统\n基础预览功能",cta:"免费注册",hl:!1},{name:"深度报告",price:"按次",desc:"完整五维画像\n单次解锁·永久可查",cta:"建立画像",hl:!0},{name:"星尘充值",price:"灵活",desc:"按需充值\n充越多赠越多",cta:"查看定价",hl:!1}],en:[{name:"Free",price:"Free",desc:"All systems\nBasic preview",cta:"Sign Up",hl:!1},{name:"Deep Report",price:"Per-use",desc:"Full 5D profile\nOne-time·Permanent",cta:"Build Profile",hl:!0},{name:"Top-up",price:"Flexible",desc:"Pay as you go\nMore=bonus",cta:"Pricing",hl:!1}]}
-
-/* ═══════════════════════════════════════════════════════════════
-   Flowing Galaxy — noise-based organic dust simulation
-   Real galaxy features: turbulent lanes, spiral swirls, embedded stars
-   ═══════════════════════════════════════════════════════════════ */
-interface DustLane { yBase: number; scale: number; speed: number; hue: number; alpha: number; thickness: number }
-interface DustParticle { x: number; y: number; baseY: number; laneIdx: number; size: number; alpha: number; hue: number }
-
 function useFlowingGalaxy(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
   const rafRef = useRef<number>(0)
-  const lanesRef = useRef<DustLane[]>([])
-  const particlesRef = useRef<DustParticle[]>([])
+  const particlesRef = useRef<any[]>([])
   const dimsRef = useRef({ W: 0, H: 0 })
-  const noiseSeedRef = useRef(0)
+  const timeRef = useRef(0)
 
   const init = useCallback(() => {
     const c = canvasRef.current; if (!c) return
     const W = c.width = c.offsetWidth * (devicePixelRatio || 1)
     const H = c.height = c.offsetHeight * (devicePixelRatio || 1)
     dimsRef.current = { W, H }
-    noiseSeedRef.current = Math.random() * 1000
 
-    const lanes: DustLane[] = [
-      { yBase: H * 0.28, scale: 0.0008, speed: 0.3, hue: 262, alpha: 0.40, thickness: H * 0.10 },
-      { yBase: H * 0.38, scale: 0.0012, speed: 0.5, hue: 275, alpha: 0.32, thickness: H * 0.12 },
-      { yBase: H * 0.46, scale: 0.0010, speed: 0.35, hue: 250, alpha: 0.38, thickness: H * 0.09 },
-      { yBase: H * 0.55, scale: 0.0006, speed: 0.25, hue: 285, alpha: 0.28, thickness: H * 0.11 },
-      { yBase: H * 0.64, scale: 0.0014, speed: 0.45, hue: 268, alpha: 0.22, thickness: H * 0.08 },
-    ]
-    lanesRef.current = lanes
+    const cx = W * 0.5, cy = H * 0.5
+    const bandAngle = -0.6
+    const bandWidth = H * 0.55
 
-    const particles: DustParticle[] = []
-    for (let i = 0; i < 350; i++) {
-      const li = i % lanes.length
-      const lane = lanes[li]
+    const particles: any[] = []
+    // 1000 particles forming one continuous galaxy band
+    for (let i = 0; i < 1000; i++) {
+      // Position: scatter across screen with density along diagonal band
+      const tx = (Math.random() - 0.5) * W * 1.4
+      const alongBand = (tx / (W * 0.7)) // -1 to 1 along the band axis
+      // Distance from band center (normal distribution-ish)
+      const distFromCenter = (Math.random() + Math.random() + Math.random()) / 3 - 0.5
+      const ty = Math.tan(bandAngle) * tx + distFromCenter * bandWidth
+
+      // Density: brighter near center, fades at edges
+      const density = Math.exp(-Math.abs(alongBand) * 1.2) * Math.exp(-Math.abs(distFromCenter) * 3.5)
+
       particles.push({
-        x: Math.random() * W, y: 0,
-        baseY: lane.yBase + (Math.random() - 0.5) * lane.thickness * 1.5,
-        laneIdx: li,
-        size: 0.3 + Math.random() * 2.0,
-        alpha: 0.08 + Math.random() * 0.4,
-        hue: lane.hue + (Math.random() - 0.5) * 30,
+        x: cx + tx,
+        y: cy + ty,
+        baseX: cx + tx,
+        baseY: cy + ty,
+        size: 0.2 + Math.random() * 2.5 * (0.3 + density * 0.7),
+        alpha: (0.03 + Math.random() * 0.4) * density,
+        hue: 255 + Math.random() * 35,
+        phase: Math.random() * 1000,
+        speed: 0.15 + Math.random() * 0.5,
+        density,
       })
     }
     particlesRef.current = particles
   }, [canvasRef])
 
   useEffect(() => { init(); const onResize = () => { cancelAnimationFrame(rafRef.current); init() }; window.addEventListener('resize', onResize); return () => { cancelAnimationFrame(rafRef.current); window.removeEventListener('resize', onResize) } }, [init])
+
+  // Simple value noise for organic flow
+  function noise(x: number, y: number, s: number): number {
+    const n = Math.sin(x * 12.9898 + y * 78.233 + s) * 43758.5453
+    return n - Math.floor(n)
+  }
+  function fbm(x: number, y: number, t: number): number {
+    let v = 0, a = 1, f = 1
+    for (let i = 0; i < 3; i++) {
+      v += noise(x * f, y * f, t + i * 127) * a
+      a *= 0.5; f *= 2.2
+    }
+    return v / 1.75
+  }
 
   useEffect(() => {
     const c = canvasRef.current; if (!c) return
@@ -118,90 +76,85 @@ function useFlowingGalaxy(canvasRef: React.RefObject<HTMLCanvasElement | null>) 
       if (!animating) return
       const { W, H } = dimsRef.current; if (!W) { rafRef.current = requestAnimationFrame(frame); return }
       ctx!.clearRect(0, 0, W, H)
-      const t = ts * 0.001
-      const lanes = lanesRef.current
+      const t = ts * 0.0003
       const particles = particlesRef.current
-      const seed = noiseSeedRef.current
+      const cx = W * 0.5, cy = H * 0.5
 
-      /* ── Draw each dust lane as a thick organic ribbon ── */
-      for (const lane of lanes) {
-        ctx!.save()
-        ctx!.beginPath()
+      /* ── Soft continuous glow across the galaxy band ── */
+      const bandAngle = -0.6
+      // Core glow
+      const glowGrad = ctx!.createLinearGradient(
+        cx - W * 0.7, cy - Math.tan(bandAngle) * W * 0.7,
+        cx + W * 0.7, cy + Math.tan(bandAngle) * W * 0.7
+      )
+      glowGrad.addColorStop(0, 'rgba(40,20,80,0)')
+      glowGrad.addColorStop(0.2, 'rgba(60,30,110,0.06)')
+      glowGrad.addColorStop(0.4, 'rgba(80,35,130,0.12)')
+      glowGrad.addColorStop(0.5, 'rgba(90,40,140,0.15)')
+      glowGrad.addColorStop(0.6, 'rgba(70,30,120,0.10)')
+      glowGrad.addColorStop(0.8, 'rgba(40,18,80,0.04)')
+      glowGrad.addColorStop(1, 'rgba(10,5,30,0)')
+      ctx!.fillStyle = glowGrad
+      ctx!.fillRect(0, 0, W, H)
 
-        // Top edge of the ribbon: noise-displaced path
-        const topAmplitude = lane.thickness * 0.7
-        ctx!.moveTo(-10, lane.yBase)
-        for (let x = -10; x <= W + 10; x += 4) {
-          const n1 = fbm(x * lane.scale * 2, t * lane.speed * 0.02, seed + 1, 3)
-          const n2 = fbm(x * lane.scale * 3, t * lane.speed * 0.015 + 100, seed + 2, 2)
-          const y = lane.yBase + (n1 - 0.5) * topAmplitude * 2 + (n2 - 0.5) * topAmplitude * 1.2
-          ctx!.lineTo(x, y - lane.thickness * 0.5 + (n1 - 0.5) * topAmplitude)
-        }
-        // Bottom edge (backwards)
-        for (let x = W + 10; x >= -10; x -= 4) {
-          const n1 = fbm(x * lane.scale * 2, t * lane.speed * 0.02 + 200, seed + 3, 3)
-          const n2 = fbm(x * lane.scale * 3, t * lane.speed * 0.015 + 300, seed + 4, 2)
-          const y = lane.yBase + (n1 - 0.5) * topAmplitude * 2 + (n2 - 0.5) * topAmplitude * 1.2
-          ctx!.lineTo(x, y + lane.thickness * 0.5 + (n1 - 0.5) * topAmplitude)
-        }
-        ctx!.closePath()
+      // Second softer glow layer - wider, more diffuse
+      const glow2 = ctx!.createLinearGradient(
+        cx - W * 0.6, cy - Math.tan(bandAngle + 0.15) * W * 0.6,
+        cx + W * 0.6, cy + Math.tan(bandAngle + 0.15) * W * 0.6
+      )
+      glow2.addColorStop(0, 'rgba(20,10,50,0)')
+      glow2.addColorStop(0.3, 'rgba(50,25,100,0.04)')
+      glow2.addColorStop(0.5, 'rgba(70,35,120,0.06)')
+      glow2.addColorStop(0.7, 'rgba(40,20,80,0.03)')
+      glow2.addColorStop(1, 'rgba(10,5,30,0)')
+      ctx!.fillStyle = glow2
+      ctx!.fillRect(0, 0, W, H)
 
-        // Gradient fill from core bright to edge transparent
-        const grad = ctx!.createLinearGradient(0, lane.yBase - lane.thickness, 0, lane.yBase + lane.thickness * 2)
-        const h = lane.hue
-        grad.addColorStop(0, `hsla(${h}, 40%, 15%, 0)`)
-        grad.addColorStop(0.25, `hsla(${h}, 50%, 28%, ${lane.alpha * 0.7})`)
-        grad.addColorStop(0.45, `hsla(${h + 15}, 45%, 35%, ${lane.alpha})`)
-        grad.addColorStop(0.55, `hsla(${h + 10}, 40%, 25%, ${lane.alpha * 0.8})`)
-        grad.addColorStop(0.8, `hsla(${h}, 35%, 15%, ${lane.alpha * 0.3})`)
-        grad.addColorStop(1, `hsla(${h}, 20%, 8%, 0)`)
-        ctx!.fillStyle = grad
-        ctx!.fill()
-
-        // Subtle highlight along the noise ridge
-        ctx!.strokeStyle = `hsla(${h + 20}, 60%, 50%, ${lane.alpha * 0.25})`
-        ctx!.lineWidth = Math.max(1, lane.thickness * 0.06)
-        ctx!.stroke()
-        ctx!.restore()
-      }
-
-      /* ── Draw embedded dust particles flowing along noise field ── */
+      /* ── 1000 dust particles with noise-driven flow ── */
       for (const p of particles) {
-        const lane = lanes[p.laneIdx]
-        if (!lane) continue
+        // Noise displacement for organic motion
+        const nx = fbm(p.baseX * 0.0008, p.baseY * 0.0006, t * 40) - 0.5
+        const ny = fbm(p.baseX * 0.0007 + 200, p.baseY * 0.0009 + 200, t * 35) - 0.5
 
-        // Use noise to determine flow direction at this position
-        const nx = fbm(p.x * lane.scale * 2, t * lane.speed * 0.02, seed + 5, 3)
-        const ny = fbm(p.x * lane.scale * 3 + 100, t * lane.speed * 0.015, seed + 6, 3)
+        // Drift particles slowly, with noise perturbation
+        const flowSpeed = p.speed * 0.4
+        p.baseX += flowSpeed * (0.7 + nx * 0.3)
+        p.baseY += flowSpeed * 0.15 + ny * flowSpeed * 0.5
 
-        // Flow particles along the lane
-        const laneY = lane.yBase + (nx - 0.5) * lane.thickness * 1.2
-        p.x += lane.speed * 0.5 + (ny - 0.5) * 0.3
-        p.y += (laneY - p.y) * 0.03
+        // Wrap around edges
+        if (p.baseX > W + 100) { p.baseX = -100; p.baseY = cy + (Math.random() - 0.5) * H * 0.8 }
+        if (p.baseX < -100) { p.baseX = W + 100 }
+        if (p.baseY > H + 80) p.baseY = -80
+        if (p.baseY < -80) p.baseY = H + 80
 
-        // Wrap around
-        if (p.x > W + 40) { p.x = -40; p.baseY = lane.yBase + (Math.random() - 0.5) * lane.thickness }
-        if (p.x < -40) { p.x = W + 40 }
+        p.x = p.baseX + nx * 15
+        p.y = p.baseY + ny * 12
 
-        // Pulsing alpha
-        const pulse = 0.5 + 0.5 * Math.sin(t * 1.5 + p.x * 0.01 + p.baseY * 0.01)
-        const alpha = p.alpha * pulse * 0.7
+        const pulse = 0.6 + 0.4 * Math.sin(t * 60 + p.phase)
+        const alpha = p.alpha * pulse
+
+        // Skip invisible particles
+        if (alpha < 0.01) continue
 
         ctx!.beginPath()
         ctx!.arc(p.x, p.y, p.size, 0, Math.PI * 2)
-        ctx!.fillStyle = `hsla(${p.hue}, 40%, 70%, ${alpha})`
-        ctx!.fill()
 
-        // Bright star spots (larger particles get glow)
-        if (p.size > 1.2 && alpha > 0.12) {
-          ctx!.beginPath()
-          ctx!.arc(p.x, p.y, p.size * 3.5, 0, Math.PI * 2)
-          const glowGrad = ctx!.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 3.5)
-          glowGrad.addColorStop(0, `rgba(200,180,255,${alpha * 0.35})`)
-          glowGrad.addColorStop(1, 'transparent')
-          ctx!.fillStyle = glowGrad
+        // Larger "star" particles vs small dust
+        if (p.size > 1.6 && p.density > 0.3) {
+          ctx!.fillStyle = `rgba(200,180,255,${Math.min(1, alpha * 1.5)})`
+          // Glow
           ctx!.fill()
+          ctx!.beginPath()
+          ctx!.arc(p.x, p.y, p.size * 4, 0, Math.PI * 2)
+          const sg = ctx!.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 4)
+          sg.addColorStop(0, `rgba(180,160,240,${alpha * 0.4})`)
+          sg.addColorStop(0.5, `rgba(100,80,180,${alpha * 0.1})`)
+          sg.addColorStop(1, 'transparent')
+          ctx!.fillStyle = sg
+        } else {
+          ctx!.fillStyle = `hsla(${p.hue}, 40%, 65%, ${alpha})`
         }
+        ctx!.fill()
       }
 
       rafRef.current = requestAnimationFrame(frame)
@@ -211,11 +164,31 @@ function useFlowingGalaxy(canvasRef: React.RefObject<HTMLCanvasElement | null>) 
   }, [canvasRef])
 }
 
+/* ── Shared constants ── */
+const T=["乾","兑","离","震","巽","坎","艮","坤"]
+function srng(s:number){let v=s;return()=>{v=(v*16807+0)%2147483647;return(v-1)/2147483646}}
+function mkS(){
+  const r1=srng(191),r2=srng(377),r3=srng(523);const stars:any[]=[]
+  for(let i=0;i<250;i++){const x=r1()*100,y=r2()*100;stars.push({id:`f${i}`,x,y,sz:.3+r3()*.5,o:.1+r1()*.3,h:240+r2()*40,isGold:r3()>.92,tw:r1()>.55,sp:2.5+r2()*3,dl:r3()*4})}
+  for(let i=0;i<120;i++){const x=r1()*100,b=r2()<.7,y=b?25+r3()*45:5+r1()*90;stars.push({id:`m${i}`,x,y,sz:.6+r2()*1.3,o:.25+r1()*.5,h:210+r3()*50,isGold:r2()>.82,tw:r1()>.35,sp:2+r2()*2.5,dl:r3()*3})}
+  for(let i=0;i<30;i++){const x=r1()*100,y=r2()<.8?25+r3()*45:10+r1()*80;stars.push({id:`n${i}`,x,y,sz:1+r2()*1.8,o:.4+r1()*.45,h:230+r3()*30,isGold:r2()>.7,tw:!0,sp:1.5+r3()*2,dl:r1()*2})}
+  return stars
+}
+function mkQ(){const r=srng(73);return Array.from({length:30},(_,i)=>{const a=(i/30)*360,d=16+(i%4)*6;return{id:i,ang:a,dist:d,sp:2+(i%4)*1.2,dl:i*.5,sz:1.2+(i%4)*.7}})}
+const SYS=[{n:"八字",nE:"Bazi",q:"底层结构",qE:"Structure",a:"长期节奏与人生框架",aE:"Long-term rhythm",c:"#5A9E8E",f:!0},{n:"紫微",nE:"Ziwei",q:"能量周期",qE:"Cycles",a:"十二宫主星分布与大限流年",aE:"12-palace distribution",c:"#8B7EC7",f:!0},{n:"星盘",nE:"Astrology",q:"心理模式",qE:"Patterns",a:"七政四余恒星制·先天格局",aE:"Sidereal configuration",c:"#7B9EC7",f:!0},{n:"塔罗",nE:"Tarot",q:"当下选择",qE:"Choice",a:"聚焦此刻压力与决策",aE:"Current decisions",c:"#C77B8B",f:!1},{n:"面相",nE:"Face",q:"行为印象",qE:"Impression",a:"五官十二宫·禀赋气质",aE:"Five features, 12 palaces",c:"#C4BFB0",f:!1}]
+const INP={zh:["生辰八字","出生地点","面相照片","手相照片","当前问题"],en:["Birth date & time","Birth location","Face photo","Palm photo","Your question"]}
+const OUT={zh:["性格结构","事业方向","关系模式","财富窗口","今日行动"],en:["Personality","Career","Relationships","Wealth window","Daily action"]}
+const DOS={zh:[{i:"01",t:"性格结构",d:"八字日主、紫微命宫主星、星盘上升星座——三系统交叉定位核心特质。",tag:"八字+紫微+星盘",c:"#5A9E8E"},{i:"02",t:"事业方向",d:"AI分析能量走向与发力时机。识别最佳工作节奏和阶段窗口。",tag:"八字+星盘",c:"#7B9EC7"},{i:"03",t:"关系模式",d:"亲密与合作关系中的底层驱动模式——两盘对照看吸引与契合。",tag:"紫微+面相",c:"#C77B8B"},{i:"04",t:"财富窗口",d:"识别能量流动、突破机会与防守时期——八字财星交叉验证。",tag:"八字+紫微",c:"#C9A84C"},{i:"05",t:"生活方式",d:"面相与星盘匹配的日常仪式感——睡眠、工作环境、香味偏好。",tag:"面相+星盘",c:"#8B7EC7"},{i:"06",t:"今日行动",d:"画像最终输出——今天能做的一件事。把分析变成执行。",tag:"全系统",c:"#E8CB7A"}],en:[{i:"01",t:"Personality",d:"Bazi Day Master + Ziwei Life Palace + Astrology Ascendant — three-system cross-positioning.",tag:"Bazi+Ziwei+Astro",c:"#5A9E8E"},{i:"02",t:"Career",d:"AI maps energy direction and timing. Optimal rhythm and phase windows.",tag:"Bazi+Astrology",c:"#7B9EC7"},{i:"03",t:"Relationships",d:"Core drive in intimacy and partnership — two charts compared for fit.",tag:"Ziwei+Face",c:"#C77B8B"},{i:"04",t:"Wealth Window",d:"Energy flow, breakthroughs, defense — validated with Bazi wealth stars.",tag:"Bazi+Ziwei",c:"#C9A84C"},{i:"05",t:"Lifestyle",d:"Daily rituals matched to profile — sleep, workspace, scent.",tag:"Face+Astro",c:"#8B7EC7"},{i:"06",t:"Daily Action",d:"The final output — one thing you can do today.",tag:"All Systems",c:"#E8CB7A"}]}
+const ENT={zh:[{t:"完整画像",d:"五系统全开，AI深度交叉验证。完整命运画像+今日行动。",cta:"建立我的画像 →",to:"/reading/new",hl:!0,badge:"推荐入口",icon:"🔮"},{t:"单题快问",d:"聚焦一个方向，快速获取AI解读。适合有明确问题的用户。",cta:"快速提问 →",to:"/reading/new?intent=quick",hl:!1,badge:"",icon:"⚡"},{t:"关系合参",d:"两人命盘对照分析，AI交叉验证契合度与互补空间。",cta:"合参分析 →",to:"/bazi/compatibility",hl:!1,badge:"",icon:"💫"}],en:[{t:"Full Profile",d:"All five systems. Deep AI cross-validation. Full destiny profile + daily action.",cta:"Build My Profile →",to:"/reading/new",hl:!0,badge:"Recommended",icon:"🔮"},{t:"Quick Read",d:"Focus on one area. Fast AI insight for users with a clear question.",cta:"Quick Read →",to:"/reading/new?intent=quick",hl:!1,badge:"",icon:"⚡"},{t:"Synastry",d:"Two charts compared. AI cross-validates compatibility.",cta:"Synastry →",to:"/bazi/compatibility",hl:!1,badge:"",icon:"💫"}]}
+const TRS={zh:[["💎","灵石晶品"],["🎐","香道雅韵"],["📿","护符配饰"],["📖","古籍典藏"],["🕯️","仪式定制"],["🌿","生活方式"]],en:[["💎","Crystals"],["🎐","Incense"],["📿","Talismans"],["📖","Scriptures"],["🕯️","Rituals"],["🌿","Lifestyle"]]}
+const TD={zh:{u:"10,000+",r:"4.9",rp:"50,000+",ul:"用户",rl:"评分",rpl:"报告已生成",t1:"真正让我看清了自己的底层模式。",n1:"林小姐·96分",t2:"AI交叉验证比单一系统靠谱得多。",n2:"陈先生·98分"},en:{u:"10,000+",r:"4.9",rp:"50,000+",ul:"Users",rl:"Rating",rpl:"Reports",t1:"It showed me my underlying patterns.",n1:"Ms.Lin·96",t2:"Cross-validation is far more reliable.",n2:"Mr.Chen·98"}}
+const PRC={zh:[{name:"免费版",price:"¥0",desc:"体验全部系统\n基础预览功能",cta:"免费注册",hl:!1},{name:"深度报告",price:"按次",desc:"完整五维画像\n单次解锁·永久可查",cta:"建立画像",hl:!0},{name:"星尘充值",price:"灵活",desc:"按需充值\n充越多赠越多",cta:"查看定价",hl:!1}],en:[{name:"Free",price:"Free",desc:"All systems\nBasic preview",cta:"Sign Up",hl:!1},{name:"Deep Report",price:"Per-use",desc:"Full 5D profile\nOne-time·Permanent",cta:"Build Profile",hl:!0},{name:"Top-up",price:"Flexible",desc:"Pay as you go\nMore=bonus",cta:"Pricing",hl:!1}]}
+
 export default function GalaxyHomeNew(){const{locale,localeHref}=useLanguage();const isZh=locale==="zh"
 	const stars=useMemo(()=>mkS(),[]),qi=useMemo(()=>mkQ(),[])
 	const flowGalaxyRef=useRef<HTMLCanvasElement>(null);useFlowingGalaxy(flowGalaxyRef)
 	const cb={background:"linear-gradient(135deg, #060E24, #030918)"},cd="rounded-2xl border border-white/[0.05]"
-	const kf=`@keyframes tSpin{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}@keyframes rSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes twinkle{0%,100%{opacity:.2;transform:scale(.7)}50%{opacity:.85;transform:scale(1.2)}}@keyframes galaxyDrift{0%{transform:rotate(-14deg) translateX(-2%)}50%{transform:rotate(-14deg) translateX(2%)}100%{transform:rotate(-14deg) translateX(-2%)}}@keyframes galaxyDrift2{0%{transform:rotate(10deg) translateX(2%)}50%{transform:rotate(10deg) translateX(-3%)}100%{transform:rotate(10deg) translateX(2%)}}@keyframes corePulse{0%,100%{opacity:.35}50%{opacity:.62}}@keyframes dustFloat{0%{transform:translate(0,0)}50%{transform:translate(6px,-4px)}100%{transform:translate(0,0)}}@media(prefers-reduced-motion:reduce){*{animation:none!important}}`
+	const kf=""
 
 	return(<div className="w-full text-white" style={{background:"#000"}}>
 	  {/* ═══ L0: Deep space ═══ */}
@@ -223,32 +196,16 @@ export default function GalaxyHomeNew(){const{locale,localeHref}=useLanguage();c
 
 	  {/* ═══ L1: Star field ═══ */}
 	  <div className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{zIndex:2}}>
-	    {stars.map(s=><span key={s.id} style={{position:"absolute",left:s.x+"%",top:s.y+"%",width:s.sz,height:s.sz,borderRadius:"50%",
-	      background:s.isGold?"rgba(255,215,120,0.8)":`hsla(${s.h},60%,75%,0.65)`,
-	      boxShadow:s.isGold?`0 0 ${s.sz*2}px rgba(255,200,100,0.4)`:`0 0 ${s.sz}px hsla(${s.h},50%,70%,0.15)`,
-	      opacity:s.o,transform:"translate(-50%,-50%)",
-	      animation:s.tw?`twinkle ${s.sp}s ease-in-out ${s.dl}s infinite`:"none",
-	      }}/>)}
+	    {stars.map(s=><span key={s.id} style={{position:"absolute",left:s.x+"%",top:s.y+"%",width:s.sz,height:s.sz,borderRadius:"50%",background:s.isGold?"rgba(255,215,120,0.8)":`hsla(${s.h},60%,75%,0.65)`,boxShadow:s.isGold?`0 0 ${s.sz*2}px rgba(255,200,100,0.4)`:`0 0 ${s.sz}px hsla(${s.h},50%,70%,0.15)`,opacity:s.o,transform:"translate(-50%,-50%)",animation:s.tw?`twinkle ${s.sp}s ease-in-out ${s.dl}s infinite`:"none"}}/>)}
 	  </div>
 
-	  {/* ═══ L2: Galaxy band — soft diagonal glow ═══ */}
+	  {/* ═══ L2: Galaxy band ═══ */}
 	  <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true" style={{zIndex:1}}>
-	    <div style={{position:"absolute",left:"-25%",top:"15%",width:"150%",height:"70%",transform:"rotate(-14deg)",
-	      background:"linear-gradient(90deg, rgba(218,180,74,0.04) 0%, rgba(218,180,74,0.08) 25%, rgba(255,245,210,0.10) 48%, rgba(80,180,195,0.05) 70%, rgba(20,60,95,0.02) 100%)",
-	      filter:"blur(14px)",opacity:.5,animation:"galaxyDrift 30s ease-in-out infinite",
-	      maskImage:"radial-gradient(ellipse at center, black 0%, black 25%, rgba(0,0,0,0.5) 50%, transparent 85%)",
-	      WebkitMaskImage:"radial-gradient(ellipse at center, black 0%, black 25%, rgba(0,0,0,0.5) 50%, transparent 85%)"}}/>
-	    <div style={{position:"absolute",left:"5%",top:"55%",width:"120%",height:"50%",transform:"rotate(10deg)",
-	      background:"linear-gradient(90deg, rgba(100,140,210,0.02) 0%, rgba(120,160,230,0.05) 35%, rgba(180,200,240,0.07) 55%, rgba(80,120,180,0.03) 80%, transparent 100%)",
-	      filter:"blur(18px)",opacity:.35,animation:"galaxyDrift2 40s ease-in-out infinite",
-	      maskImage:"radial-gradient(ellipse at center, black 0%, black 20%, rgba(0,0,0,0.4) 45%, transparent 80%)",
-	      WebkitMaskImage:"radial-gradient(ellipse at center, black 0%, black 20%, rgba(0,0,0,0.4) 45%, transparent 80%)"}}/>
-	    <div style={{position:"absolute",left:"35%",top:"30%",width:"30%",height:"140px",
-	      background:"radial-gradient(ellipse at 50% 50%, rgba(255,240,195,0.12), rgba(218,180,74,0.06) 40%, transparent 70%)",
-	      filter:"blur(10px)",opacity:.6,animation:"corePulse 8s ease-in-out infinite"}}/>
+	    <div style={{position:"absolute",left:"-25%",top:"15%",width:"150%",height:"70%",transform:"rotate(-14deg)",background:"linear-gradient(90deg, rgba(218,180,74,0.04) 0%, rgba(218,180,74,0.08) 25%, rgba(255,245,210,0.10) 48%, rgba(80,180,195,0.05) 70%, rgba(20,60,95,0.02) 100%)",filter:"blur(14px)",opacity:.5,animation:"galaxyDrift 30s ease-in-out infinite",maskImage:"radial-gradient(ellipse at center, black 0%, black 25%, rgba(0,0,0,0.5) 50%, transparent 85%)",WebkitMaskImage:"radial-gradient(ellipse at center, black 0%, black 25%, rgba(0,0,0,0.5) 50%, transparent 85%)"}}/>
+	    <div style={{position:"absolute",left:"5%",top:"55%",width:"120%",height:"50%",transform:"rotate(10deg)",background:"linear-gradient(90deg, rgba(100,140,210,0.02) 0%, rgba(120,160,230,0.05) 35%, rgba(180,200,240,0.07) 55%, rgba(80,120,180,0.03) 80%, transparent 100%)",filter:"blur(18px)",opacity:.35,animation:"galaxyDrift2 40s ease-in-out infinite",maskImage:"radial-gradient(ellipse at center, black 0%, black 20%, rgba(0,0,0,0.4) 45%, transparent 80%)",WebkitMaskImage:"radial-gradient(ellipse at center, black 0%, black 20%, rgba(0,0,0,0.4) 45%, transparent 80%)"}}/>
 	  </div>
 
-	  {/* ═══ Flowing Galaxy Canvas — noise-based organic dust lanes ═══ */}
+	  {/* ═══ Flowing Galaxy Canvas ═══ */}
 	  <canvas ref={flowGalaxyRef} aria-hidden="true" className="fixed inset-0 pointer-events-none" style={{zIndex:3,width:"100%",height:"100%"}}/>
 
 	  {/* ═══ L3: Tai Chi ═══ */}
@@ -265,7 +222,16 @@ export default function GalaxyHomeNew(){const{locale,localeHref}=useLanguage();c
 
 	  {/* ═══ L4: Vignette ═══ */}
 	  <div className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{background:"radial-gradient(circle at 50% 45%, rgba(0,0,0,0.10), transparent 50%), linear-gradient(180deg, rgba(0,0,0,0.06) 0%, transparent 18%, transparent 52%, rgba(0,0,0,0.55) 100%)",zIndex:8}}/>
-	  <style>{kf}</style>
+	  <style>{`
+@keyframes tSpin{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes rSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes twinkle{0%,100%{opacity:.2;transform:scale(.7)}50%{opacity:.85;transform:scale(1.2)}}
+@keyframes galaxyDrift{0%{transform:rotate(-14deg) translateX(-2%)}50%{transform:rotate(-14deg) translateX(2%)}100%{transform:rotate(-14deg) translateX(-2%)}}
+@keyframes galaxyDrift2{0%{transform:rotate(10deg) translateX(2%)}50%{transform:rotate(10deg) translateX(-3%)}100%{transform:rotate(10deg) translateX(2%)}}
+@keyframes corePulse{0%,100%{opacity:.35}50%{opacity:.62}}
+@keyframes dustFloat{0%{transform:translate(0,0)}50%{transform:translate(6px,-4px)}100%{transform:translate(0,0)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+	  `}</style>
 
 	  {/* ═══ HERO ═══ */}
 	  <section className="relative flex min-h-[88vh] w-full flex-col items-center justify-center px-6 text-center" style={{zIndex:10}}>
@@ -275,7 +241,6 @@ export default function GalaxyHomeNew(){const{locale,localeHref}=useLanguage();c
 	    <div className="absolute bottom-8 opacity-40"><div className="mx-auto h-8 w-5 rounded-full border border-white/20"><div className="mx-auto mt-1.5 h-2 w-1 rounded-full bg-white/30 animate-bounce"/></div></div>
 	  </section>
 
-	  {/* ═══ CONTENT SECTIONS ═══ */}
 	  <section className="relative mx-auto max-w-6xl px-6 pt-24" style={{zIndex:10}}><div className="mb-12"><p className="text-[11px] tracking-[0.2em] text-white/20 uppercase">DESTINY SYSTEMS</p><h2 className="mt-3 font-serif text-3xl md:text-4xl">{isZh?"五大分析系统":"Five Analysis Systems"}</h2><p className="mt-3 text-[14px] text-white/35 max-w-xl">{isZh?"不是单一命理工具——八字、紫微、星盘、塔罗、面相同步运行，AI交叉验证":"Bazi, Ziwei, Astrology, Tarot, and Face reading run together, cross-validated by AI"}</p></div><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">{SYS.map((s,i)=><Link key={i} href={localeHref(s.n==="八字"?"/bazi":s.n==="紫微"?"/ziwei":s.n==="星盘"?"/astrology":s.n==="塔罗"?"/tarot":"/face-reading")} className="group flex flex-col rounded-xl border border-white/[0.04] overflow-hidden transition-all hover:-translate-y-1" style={{background:"linear-gradient(180deg, #060E24 0%, #030918 100%)"}}><div className="h-1 w-full transition-all group-hover:h-1.5" style={{background:s.c}}/><div className="p-5 flex flex-col flex-1"><div className="flex items-center justify-between mb-3"><span className="font-serif text-xl text-white/75">{isZh?s.n:s.nE}</span>{s.f&&<span className="text-[10px] px-2 py-0.5 rounded-full" style={{background:"rgba(201,168,76,0.1)",color:"#C9A84C"}}>{isZh?"免费":"Free"}</span>}</div><p className="text-[10px] tracking-[0.12em] text-white/25 mb-1.5">{isZh?s.q:s.qE}</p><p className="text-[12px] leading-relaxed text-white/35 flex-1">{isZh?s.a:s.aE}</p></div></Link>)}</div></section>
 	  <section className="relative mx-auto max-w-6xl px-6 pt-20" style={{zIndex:10}}><div className={cd+" p-8 md:p-14"} style={cb}><div className="grid gap-10 lg:grid-cols-[1fr_auto_1fr] lg:items-center"><div className="space-y-3"><p className="text-[10px] tracking-[0.15em] text-white/20 mb-4">{isZh?"INPUT · 同步采集":"INPUT · Collection"}</p>{(isZh?INP.zh:INP.en).map((inp:string,i:number)=><div key={i} className="flex items-center gap-3 rounded-lg border border-white/[0.04] px-4 py-2.5" style={{background:"rgba(255,255,255,0.02)"}}><span className="text-[10px] text-white/20 w-5">0{i+1}</span><span className="text-[13px] text-white/50">{inp}</span></div>)}</div><div className="flex flex-col items-center gap-4"><div className="relative"><div className="w-20 h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center" style={{background:"radial-gradient(circle, rgba(201,168,76,0.25) 0%, rgba(201,168,76,0.06) 50%, transparent 70%)",boxShadow:"0 0 50px rgba(201,168,76,0.15)"}}><span className="font-serif text-2xl text-white/80">{isZh?"合":"AI"}</span></div><div className="absolute -inset-3 rounded-full border border-gold/15" style={{animation:"rSpin 8s linear infinite"}}/><div className="absolute -inset-6 rounded-full border border-gold/[0.06]" style={{animation:"rSpin 12s linear infinite reverse"}}/></div><p className="font-serif text-lg text-white/70">{isZh?"AI 合参引擎":"AI Synthesis Engine"}</p><p className="text-[12px] text-white/30 text-center max-w-[180px]">{isZh?"五系统交叉验证":"Five-source cross-validation"}<br/>{isZh?"逐项比对冲突与一致":"Comparing conflicts and consensus"}</p></div><div className="space-y-3"><p className="text-[10px] tracking-[0.15em] text-white/20 mb-4">{isZh?"OUTPUT · 画像输出":"OUTPUT · Profile"}</p>{(isZh?OUT.zh:OUT.en).map((out:string,i:number)=><div key={i} className="flex items-center gap-3 rounded-lg border border-white/[0.04] px-4 py-3" style={{background:"rgba(255,255,255,0.02)"}}><span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{background:i===0?"#5A9E8E":i===1?"#7B9EC7":i===2?"#C77B8B":i===3?"#C9A84C":"#8B7EC7"}}/><span className="text-[13px] text-white/50">{out}</span><span className="ml-auto text-[10px] text-white/15">{95-i*3}%</span></div>)}</div></div></div></section>
 	  <section className="relative mx-auto max-w-6xl px-6 pt-20" style={{zIndex:10}}><div className="mb-12"><p className="text-[11px] tracking-[0.2em] text-white/20 uppercase">YOUR DOSSIER</p><h2 className="mt-3 font-serif text-3xl md:text-4xl">{isZh?"你的命运画像":"Your Destiny Profile"}</h2><p className="mt-3 text-[14px] text-white/35 max-w-xl">{isZh?"AI生成结构化画像，从内在结构到今日行动":"AI generates a structured profile — from inner structure to daily action"}</p></div><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{(isZh?DOS.zh:DOS.en).map((m,i)=><div key={i} className="group rounded-xl border border-white/[0.04] p-6 transition-all hover:border-white/[0.1]" style={cb}><div className="flex items-center gap-3 mb-4"><span className="text-2xl font-serif text-white/15">{m.i}</span><span className="text-[10px] px-2 py-0.5 rounded-full border" style={{borderColor:m.c,color:m.c,opacity:.7}}>{m.tag}</span></div><h3 className="font-serif text-lg text-white/75 mb-2">{m.t}</h3><p className="text-[12px] leading-relaxed text-white/35">{m.d}</p></div>)}</div></section>
