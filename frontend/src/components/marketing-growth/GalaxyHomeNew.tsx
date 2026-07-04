@@ -203,7 +203,7 @@ return(<div className="w-full text-white" style={{background:"#000"}}>
     <div style={{position:"absolute",inset:"22%",borderRadius:"50%",border:"0.5px solid rgba(218,180,74,0.08)"}}/>
     <div style={{position:"absolute",inset:"10%",display:"grid",placeItems:"center",fontSize:"clamp(68px,9vw,108px)",color:"rgba(218,180,74,0.32)",textShadow:"0 0 18px rgba(218,180,74,0.12)"}}>☯</div>
     {/* Floating dust around bagua */}
-    {Array.from({length:8},(_,i)=>{const a=(i/8)*360,rad=(a*Math.PI)/180,d=46;return<span key={"du"+i} style={{position:"absolute",left:(50+d*Math.cos(rad))+"%",top:(50+d*Math.sin(rad))+"%",width:2,height:2,borderRadius:"50%",background:"rgba(218,180,74,0.4)",boxShadow:"0 0 3px rgba(218,180,74,0.3)",animation:}}/>})}
+    {Array.from({length:8},(_,i)=>{const a=(i/8)*360,rad=(a*Math.PI)/180,d=46;return<span key={"du"+i} style={{position:"absolute",left:(50+d*Math.cos(rad))+"%",top:(50+d*Math.sin(rad))+"%",width:2,height:2,borderRadius:"50%",background:"rgba(218,180,74,0.4)",boxShadow:"0 0 3px rgba(218,180,74,0.3)",animation:`dustFloat ${3+i%3}s ease-in-out ${i*.5}s infinite`}}/>})}
   </div>
 
   {/* ═══ L4: Vignette ═══ */}
