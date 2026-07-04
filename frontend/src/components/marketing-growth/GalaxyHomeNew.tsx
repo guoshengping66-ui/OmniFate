@@ -4,77 +4,98 @@ import { useMemo } from "react"; import Link from "next/link"; import { ArrowRig
 
 const T = ["乾", "兑", "离", "震", "巽", "坎", "艮", "坤"]
 function srng(s: number) { let v = s; return () => { v = (v * 16807 + 0) % 2147483647; return (v - 1) / 2147483646 } }
-function mkQ() { const r = srng(73); return Array.from({ length: 36 }, (_, i) => { const a = (i / 36) * 360, d = 15 + (i % 5) * 7; return { id: i, ang: a, dist: d, sp: 2 + (i % 5) * 1.2, dl: i * .5, sz: 1.2 + (i % 5) * .6 } }) }
+function mkS() {
+  const r1 = srng(191), r2 = srng(377), r3 = srng(523); const s: any[] = []
+  for (let i = 0; i < 350; i++) { s.push({ id: `f${i}`, x: r1() * 100, y: r2() * 100, sz: .2 + r3() * .5, o: .06 + r1() * .28, tw: r1() > .5, sp: 2.5 + r2() * 4, dl: r3() * 5 }) }
+  for (let i = 0; i < 120; i++) { s.push({ id: `m${i}`, x: r1() * 100, y: r2() < .65 ? 24 + r3() * 52 : 5 + r1() * 90, sz: .4 + r2() * 1.1, o: .15 + r1() * .4, tw: r1() > .3, sp: 2 + r2() * 3, dl: r3() * 4 }) }
+  for (let i = 0; i < 35; i++) { s.push({ id: `n${i}`, x: r1() * 100, y: r2() < .7 ? 24 + r3() * 48 : 10 + r1() * 85, sz: .6 + r2() * 1.6, o: .28 + r1() * .5, tw: !0, sp: 1.5 + r3() * 2.5, dl: r1() * 2 }) }
+  return s
+}
+function mkQ() { const r = srng(73); return Array.from({ length: 40 }, (_, i) => { const a = (i / 40) * 360, d = 15 + (i % 6) * 6; return { id: i, ang: a, dist: d, sp: 2 + (i % 6) * 1.2, dl: i * .5, sz: 1.2 + (i % 6) * .6 } }) }
 const SYS = [{ n: "八字", nE: "Bazi", c: "#5A9E8E", f: !0 }, { n: "紫微", nE: "Ziwei", c: "#8B7EC7", f: !0 }, { n: "星盘", nE: "Astrology", c: "#7B9EC7", f: !0 }, { n: "塔罗", nE: "Tarot", c: "#C77B8B", f: !1 }, { n: "面相", nE: "Face", c: "#C4BFB0", f: !1 }]
 const INP = { zh: ["生辰八字", "出生地点", "面相照片", "手相照片", "当前问题"], en: ["Birth date & time", "Birth location", "Face photo", "Palm photo", "Your question"] }
 const OUT = { zh: ["性格结构", "事业方向", "关系模式", "财富窗口", "今日行动"], en: ["Personality", "Career", "Relationships", "Wealth window", "Daily action"] }
-const DOS = { zh: [{ i: "01", t: "性格结构", d: "八字日主、紫微命宫主星、星盘上升星座——三系统交叉定位核心特质。", tag: "八字+紫微+星盘", c: "#5A9E8E" }, { i: "02", t: "事业方向", d: "AI分析能量走向与发力时机。", tag: "八字+星盘", c: "#7B9EC7" }, { i: "03", t: "关系模式", d: "亲密与合作关系中的底层驱动模式。", tag: "紫微+面相", c: "#C77B8B" }, { i: "04", t: "财富窗口", d: "识别能量流动、突破机会与防守时期。", tag: "八字+紫微", c: "#C9A84C" }, { i: "05", t: "生活方式", d: "面相与星盘匹配的日常仪式感。", tag: "面相+星盘", c: "#8B7EC7" }, { i: "06", t: "今日行动", d: "今天能做的一件事。把分析变成执行。", tag: "全系统", c: "#E8CB7A" }], en: [{ i: "01", t: "Personality", d: "Bazi Day Master + Ziwei Life Palace + Astrology Ascendant.", tag: "Bazi+Ziwei+Astro", c: "#5A9E8E" }, { i: "02", t: "Career", d: "AI maps energy direction and timing.", tag: "Bazi+Astrology", c: "#7B9EC7" }, { i: "03", t: "Relationships", d: "Core drive in intimacy and partnership.", tag: "Ziwei+Face", c: "#C77B8B" }, { i: "04", t: "Wealth Window", d: "Energy flow, breakthroughs, defense.", tag: "Bazi+Ziwei", c: "#C9A84C" }, { i: "05", t: "Lifestyle", d: "Daily rituals matched to profile.", tag: "Face+Astro", c: "#8B7EC7" }, { i: "06", t: "Daily Action", d: "One thing you can do today.", tag: "All Systems", c: "#E8CB7A" }] }
-const ENT = { zh: [{ t: "完整画像", d: "五系统全开，AI深度交叉验证。", cta: "建立我的画像 →", to: "/reading/new", hl: !0, icon: "🔮" }, { t: "单题快问", d: "聚焦一个方向，快速获取AI解读。", cta: "快速提问 →", to: "/reading/new?intent=quick", hl: !1, icon: "⚡" }, { t: "关系合参", d: "两人命盘对照分析。", cta: "合参分析 →", to: "/bazi/compatibility", hl: !1, icon: "💫" }], en: [{ t: "Full Profile", d: "All five systems. Deep AI cross-validation.", cta: "Build My Profile →", to: "/reading/new", hl: !0, icon: "🔮" }, { t: "Quick Read", d: "Focus on one area.", cta: "Quick Read →", to: "/reading/new?intent=quick", hl: !1, icon: "⚡" }, { t: "Synastry", d: "Two charts compared.", cta: "Synastry →", to: "/bazi/compatibility", hl: !1, icon: "💫" }] }
+const DOS = { zh: [{ i: "01", t: "性格结构", d: "八字日主、紫微命宫主星、星盘上升星座——三系统交叉定位核心特质。", tag: "八字+紫微+星盘", c: "#5A9E8E" }, { i: "02", t: "事业方向", d: "AI分析能量走向与发力时机。", tag: "八字+星盘", c: "#7B9EC7" }, { i: "03", t: "关系模式", d: "亲密与合作关系中的底层驱动模式。", tag: "紫微+面相", c: "#C77B8B" }, { i: "04", t: "财富窗口", d: "识别能量流动、突破机会与防守时期。", tag: "八字+紫微", c: "#C9A84C" }, { i: "05", t: "生活方式", d: "面相与星盘匹配的日常仪式感。", tag: "面相+星盘", c: "#8B7EC7" }, { i: "06", t: "今日行动", d: "今天能做的一件事。", tag: "全系统", c: "#E8CB7A" }], en: [{ i: "01", t: "Personality", d: "Bazi Day Master + Ziwei Life Palace + Astrology Ascendant.", tag: "Bazi+Ziwei+Astro", c: "#5A9E8E" }, { i: "02", t: "Career", d: "AI maps energy direction and timing.", tag: "Bazi+Astrology", c: "#7B9EC7" }, { i: "03", t: "Relationships", d: "Core drive in intimacy and partnership.", tag: "Ziwei+Face", c: "#C77B8B" }, { i: "04", t: "Wealth Window", d: "Energy flow, breakthroughs, defense.", tag: "Bazi+Ziwei", c: "#C9A84C" }, { i: "05", t: "Lifestyle", d: "Daily rituals matched to profile.", tag: "Face+Astro", c: "#8B7EC7" }, { i: "06", t: "Daily Action", d: "One thing you can do today.", tag: "All Systems", c: "#E8CB7A" }] }
+const ENT = { zh: [{ t: "完整画像", d: "五系统全开，AI深度交叉验证。", cta: "建立我的画像", to: "/reading/new", hl: !0, icon: "🔮" }, { t: "单题快问", d: "聚焦一个方向，快速获取AI解读。", cta: "快速提问", to: "/reading/new?intent=quick", hl: !1, icon: "⚡" }, { t: "关系合参", d: "两人命盘对照分析。", cta: "合参分析", to: "/bazi/compatibility", hl: !1, icon: "💫" }], en: [{ t: "Full Profile", d: "All five systems. Deep AI cross-validation.", cta: "Build My Profile", to: "/reading/new", hl: !0, icon: "🔮" }, { t: "Quick Read", d: "Focus on one area.", cta: "Quick Read", to: "/reading/new?intent=quick", hl: !1, icon: "⚡" }, { t: "Synastry", d: "Two charts compared.", cta: "Synastry", to: "/bazi/compatibility", hl: !1, icon: "💫" }] }
 const TRS = { zh: [["💎", "灵石晶品"], ["🎐", "香道雅韵"], ["📿", "护符配饰"], ["📖", "古籍典藏"], ["🕯️", "仪式定制"], ["🌿", "生活方式"]], en: [["💎", "Crystals"], ["🎐", "Incense"], ["📿", "Talismans"], ["📖", "Scriptures"], ["🕯️", "Rituals"], ["🌿", "Lifestyle"]] }
 const TD = { zh: { u: "10,000+", r: "4.9", rp: "50,000+", ul: "用户", rl: "评分", rpl: "报告已生成", t1: "真正让我看清了自己的底层模式。", n1: "林小姐·96分", t2: "AI交叉验证比单一系统靠谱得多。", n2: "陈先生·98分" }, en: { u: "10,000+", r: "4.9", rp: "50,000+", ul: "Users", rl: "Rating", rpl: "Reports", t1: "It showed me my underlying patterns.", n1: "Ms.Lin·96", t2: "Cross-validation is far more reliable.", n2: "Mr.Chen·98" } }
 const PRC = { zh: [{ name: "免费版", price: "¥0", desc: "体验全部系统\n基础预览功能", cta: "免费注册", hl: !1 }, { name: "深度报告", price: "按次", desc: "完整五维画像\n单次解锁·永久可查", cta: "建立画像", hl: !0 }, { name: "星尘充值", price: "灵活", desc: "按需充值\n充越多赠越多", cta: "查看定价", hl: !1 }], en: [{ name: "Free", price: "Free", desc: "All systems\nBasic preview", cta: "Sign Up", hl: !1 }, { name: "Deep Report", price: "Per-use", desc: "Full 5D profile\nOne-time·Permanent", cta: "Build Profile", hl: !0 }, { name: "Top-up", price: "Flexible", desc: "Pay as you go\nMore=bonus", cta: "Pricing", hl: !1 }] }
 
 export default function GalaxyHomeNew() { const { locale, localeHref } = useLanguage(); const isZh = locale === "zh"
-  const qi = useMemo(() => mkQ(), [])
+  const stars = useMemo(() => mkS(), []), qi = useMemo(() => mkQ(), [])
   const cb = { background: "linear-gradient(135deg, #060E24, #030918)" }, cd = "rounded-2xl border border-white/[0.05]"
 
-  return (<div className="w-full text-white" style={{ background: "#000" }}>
-    {/* ═══ Black Hole Video Background ═══ */}
-    <div className="fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
-      <video autoPlay muted loop playsInline className="absolute top-1/2 left-1/2 min-w-full min-h-full w-auto h-auto -translate-x-1/2 -translate-y-1/2 object-cover" style={{ filter: "brightness(0.55) saturate(0.5)" }}>
-        <source src="/black-hole.mp4" type="video/mp4" />
-      </video>
-      {/* Dark overlay to deepen the video */}
-      <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 45%, transparent 15%, rgba(0,0,0,0.3) 45%, rgba(0,0,0,0.7) 100%)" }} />
+  return (<div className="w-full text-white" style={{ background: "#020210" }}>
+    {/* ═══ L0: Deep space gradient ═══ */}
+    <div className="fixed inset-0 pointer-events-none z-0" aria-hidden="true" style={{ background: "radial-gradient(ellipse at 50% 40%, #0d0b24 0%, #050318 50%, #010108 100%)" }} />
+
+    {/* ═══ L1: Galaxy River — ONE continuous diagonal glow band ═══ */}
+    <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true" style={{ zIndex: 1 }}>
+      {/* Main galaxy band */}
+      <div style={{ position: "absolute", left: "-30%", top: "12%", width: "160%", height: "76%", transform: "rotate(-15deg)", background: "linear-gradient(90deg, rgba(40,15,80,0) 0%, rgba(50,20,110,0.04) 15%, rgba(80,30,150,0.10) 35%, rgba(100,40,170,0.14) 48%, rgba(100,40,170,0.14) 52%, rgba(70,25,140,0.08) 65%, rgba(30,10,70,0.02) 85%, rgba(10,5,30,0) 100%)", filter: "blur(8px)", maskImage: "radial-gradient(ellipse at center, black 0%, black 20%, rgba(0,0,0,0.6) 50%, transparent 85%)", WebkitMaskImage: "radial-gradient(ellipse at center, black 0%, black 20%, rgba(0,0,0,0.6) 50%, transparent 85%)", animation: "galaxyFlow 40s ease-in-out infinite" }} />
+      {/* Secondary wider band for depth */}
+      <div style={{ position: "absolute", left: "-10%", top: "8%", width: "120%", height: "84%", transform: "rotate(-13deg)", background: "linear-gradient(90deg, rgba(20,10,60,0) 0%, rgba(40,18,90,0.03) 30%, rgba(70,28,130,0.06) 50%, rgba(40,18,90,0.03) 70%, rgba(10,5,40,0) 100%)", filter: "blur(16px)", maskImage: "radial-gradient(ellipse at center, black 0%, black 15%, rgba(0,0,0,0.4) 45%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center, black 0%, black 15%, rgba(0,0,0,0.4) 45%, transparent 80%)", animation: "galaxyFlow 55s ease-in-out infinite reverse" }} />
+      {/* Core bright spot */}
+      <div style={{ position: "absolute", left: "40%", top: "28%", width: "20%", height: "160px", background: "radial-gradient(ellipse at 50% 50%, rgba(140,130,210,0.08), rgba(80,60,160,0.04) 35%, transparent 70%)", filter: "blur(6px)", animation: "coreGlow 6s ease-in-out infinite" }} />
     </div>
 
-    {/* ═══ Rotating Bagua — positioned at the center (inside the hole) ═══ */}
-    <div className="fixed left-1/2 pointer-events-none" aria-hidden="true" style={{ width: "min(360px,70vw)", height: "min(360px,70vw)", top: "44%", transform: "translate(-50%,-50%)", zIndex: 5, animation: "baguaSpin 60s linear infinite" }}>
-      {/* Golden glow behind bagua */}
-      <div className="absolute" style={{ inset: "-15%", borderRadius: "50%", background: "radial-gradient(circle, rgba(201,168,76,0.12) 0%, rgba(201,168,76,0.04) 40%, transparent 70%)" }} />
+    {/* ═══ L2: Scattered stars ═══ */}
+    <div className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{ zIndex: 2 }}>
+      {stars.map(s => <span key={s.id} style={{ position: "absolute", left: s.x + "%", top: s.y + "%", width: s.sz, height: s.sz, borderRadius: "50%", background: s.o > 0.35 ? "rgba(255,215,130,0.7)" : `rgba(220,225,255,${s.o * 1.2})`, boxShadow: s.o > 0.35 ? `0 0 ${s.sz}px rgba(255,200,100,0.2)` : "none", opacity: s.o, transform: "translate(-50%,-50%)", animation: s.tw ? `starTwinkle ${s.sp}s ease-in-out ${s.dl}s infinite` : "none" }} />)}
+    </div>
+
+    {/* ═══ L3: Bagua — emerging from the cosmos, slowly rotating + pulsing ═══ */}
+    <div className="fixed left-1/2 pointer-events-none" aria-hidden="true" style={{ width: "min(480px,88vw)", height: "min(480px,88vw)", top: "43%", transform: "translate(-50%,-50%)", zIndex: 5, animation: "baguaSpin 100s linear infinite, baguaEmerge 8s ease-in-out infinite" }}>
+      {/* Outer golden halo */}
+      <div className="absolute" style={{ inset: "-10%", borderRadius: "50%", background: "radial-gradient(circle, rgba(201,168,76,0.06) 0%, rgba(201,168,76,0.02) 50%, transparent 75%)" }} />
       {/* Outer ring */}
-      <div style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "1.5px solid rgba(201,168,76,0.35)", boxShadow: "0 0 30px rgba(201,168,76,0.08), 0 0 60px rgba(201,168,76,0.04)" }} />
-      {/* Tick marks */}
-      {Array.from({ length: 24 }, (_, i) => { const a = (i / 24) * 360 - 90; return <span key={"t" + i} style={{ position: "absolute", left: "50%", top: "50%", width: 1, height: 2.5, background: "rgba(201,168,76,0.30)", transform: `translate(-50%,-50%) rotate(${a}deg) translateY(-49.5%)` }} /> })}
-      {/* Inner dashed ring */}
-      <div style={{ position: "absolute", inset: "12%", borderRadius: "50%", border: "1px dashed rgba(201,168,76,0.12)" }} />
-      {/* Qi particles */}
-      {qi.map(p => { const rad = (p.ang * Math.PI) / 180; return <span key={"q" + p.id} style={{ position: "absolute", left: (50 + p.dist * Math.cos(rad)) + "%", top: (50 + p.dist * Math.sin(rad)) + "%", width: p.sz, height: p.sz, borderRadius: "50%", background: "radial-gradient(circle, rgba(201,168,76,0.5), transparent 70%)", boxShadow: "0 0 2px rgba(201,168,76,0.15)", animation: `qiPulse ${p.sp}s ease-in-out ${p.dl}s infinite` }} /> })}
-      {/* 8 Trigrams */}
-      {T.map((t, i) => { const a = (i / 8) * 360 - 90, rad = (a * Math.PI) / 180, d = 41; return <span key={i} className="absolute font-serif" style={{ left: (50 + d * Math.cos(rad)) + "%", top: (50 + d * Math.sin(rad)) + "%", transform: "translate(-50%,-50%)", color: "rgba(201,168,76,0.32)", fontSize: "clamp(9px,1vw,12px)", textShadow: "0 0 3px rgba(201,168,76,0.08)" }}>{t}</span> })}
+      <div style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "1px solid rgba(201,168,76,0.18)", boxShadow: "0 0 30px rgba(201,168,76,0.04), 0 0 60px rgba(201,168,76,0.02)" }} />
+      {/* 24 tick marks */}
+      {Array.from({ length: 24 }, (_, i) => { const a = (i / 24) * 360 - 90; return <span key={"t" + i} style={{ position: "absolute", left: "50%", top: "50%", width: 1, height: 2.5, background: "rgba(201,168,76,0.20)", transform: `translate(-50%,-50%) rotate(${a}deg) translateY(-49.5%)` }} /> })}
+      {/* Dashed inner ring */}
+      <div style={{ position: "absolute", inset: "12%", borderRadius: "50%", border: "1px dashed rgba(201,168,76,0.08)" }} />
+      {/* Qi energy particles */}
+      {qi.map(p => { const rad = (p.ang * Math.PI) / 180; return <span key={"q" + p.id} style={{ position: "absolute", left: (50 + p.dist * Math.cos(rad)) + "%", top: (50 + p.dist * Math.sin(rad)) + "%", width: p.sz, height: p.sz, borderRadius: "50%", background: "radial-gradient(circle, rgba(201,168,76,0.35), transparent 70%)", boxShadow: "0 0 1.5px rgba(201,168,76,0.1)", animation: `qiPulse ${p.sp}s ease-in-out ${p.dl}s infinite` }} /> })}
+      {/* 8 Bagua characters */}
+      {T.map((t, i) => { const a = (i / 8) * 360 - 90, rad = (a * Math.PI) / 180, d = 42; return <span key={i} className="absolute font-serif" style={{ left: (50 + d * Math.cos(rad)) + "%", top: (50 + d * Math.sin(rad)) + "%", transform: "translate(-50%,-50%)", color: "rgba(201,168,76,0.22)", fontSize: "clamp(9px,1vw,12px)" }}>{t}</span> })}
       {/* Inner ring */}
-      <div style={{ position: "absolute", inset: "22%", borderRadius: "50%", border: "0.5px solid rgba(201,168,76,0.10)" }} />
+      <div style={{ position: "absolute", inset: "22%", borderRadius: "50%", border: "0.5px solid rgba(201,168,76,0.06)" }} />
       {/* Yin-Yang center */}
-      <div style={{ position: "absolute", inset: "10%", display: "grid", placeItems: "center", fontSize: "clamp(48px,7vw,80px)", color: "rgba(201,168,76,0.32)", textShadow: "0 0 12px rgba(201,168,76,0.1)" }}>☯</div>
-      {/* Orbiting dust */}
-      {Array.from({ length: 8 }, (_, i) => { const a = (i / 8) * 360, rad = (a * Math.PI) / 180, d = 44; return <span key={"du" + i} style={{ position: "absolute", left: (50 + d * Math.cos(rad)) + "%", top: (50 + d * Math.sin(rad)) + "%", width: 2, height: 2, borderRadius: "50%", background: "rgba(201,168,76,0.45)", boxShadow: "0 0 3px rgba(201,168,76,0.3)", animation: `dustOrbit ${3 + i % 3}s ease-in-out ${i * .5}s infinite` }} /> })}
+      <div style={{ position: "absolute", inset: "12%", display: "grid", placeItems: "center", fontSize: "clamp(50px,7vw,85px)", color: "rgba(201,168,76,0.24)", textShadow: "0 0 10px rgba(201,168,76,0.06)" }}>☯</div>
+      {/* Orbiting golden dust */}
+      {Array.from({ length: 8 }, (_, i) => { const a = (i / 8) * 360, rad = (a * Math.PI) / 180, d = 45; return <span key={"du" + i} style={{ position: "absolute", left: (50 + d * Math.cos(rad)) + "%", top: (50 + d * Math.sin(rad)) + "%", width: 1.5, height: 1.5, borderRadius: "50%", background: "rgba(201,168,76,0.30)", boxShadow: "0 0 2px rgba(201,168,76,0.2)", animation: `dustFloat ${3 + i % 3}s ease-in-out ${i * .5}s infinite` }} /> })}
     </div>
 
-    {/* ═══ Vignette ═══ */}
-    <div className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{ background: "radial-gradient(ellipse at 50% 44%, transparent 20%, rgba(0,0,0,0.3) 55%, rgba(0,0,0,0.65) 100%)", zIndex: 6 }} />
+    {/* ═══ L4: Vignette ═══ */}
+    <div className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{ background: "radial-gradient(ellipse at 50% 43%, transparent 18%, rgba(0,0,0,0.25) 55%, rgba(0,0,0,0.65) 100%)", zIndex: 6 }} />
 
     <style>{`
 @keyframes baguaSpin{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}
-@keyframes qiPulse{0%,100%{opacity:.25;transform:scale(.7)}50%{opacity:.7;transform:scale(1.2)}}
-@keyframes dustOrbit{0%{transform:translate(0,0)}50%{transform:translate(4px,-3px)}100%{transform:translate(0,0)}}
-@keyframes fadeIn{0%{opacity:0;transform:translateY(16px)}100%{opacity:1;transform:translateY(0)}}
+@keyframes baguaEmerge{0%,100%{opacity:.55}50%{opacity:.82}}
+@keyframes starTwinkle{0%,100%{opacity:.10;transform:scale(.6)}50%{opacity:.70;transform:scale(1.10)}}
+@keyframes qiPulse{0%,100%{opacity:.20;transform:scale(.6)}50%{opacity:.55;transform:scale(1.10)}}
+@keyframes dustFloat{0%{transform:translate(0,0)}50%{transform:translate(3px,-2px)}100%{transform:translate(0,0)}}
+@keyframes galaxyFlow{0%{transform:rotate(-15deg) translateX(-2%)}50%{transform:rotate(-15deg) translateX(2%)}100%{transform:rotate(-15deg) translateX(-2%)}}
+@keyframes coreGlow{0%,100%{opacity:.5}50%{opacity:.85}}
+@keyframes fadeUp{0%{opacity:0;transform:translateY(16px)}100%{opacity:1;transform:translateY(0)}}
+@keyframes rSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
     `}</style>
 
     {/* ═══ HERO ═══ */}
     <section className="relative flex min-h-[90vh] w-full flex-col items-center justify-center px-6 text-center" style={{ zIndex: 10 }}>
-      <div style={{ animation: "fadeIn 0.8s ease-out forwards" }}>
-        <h1 className="font-serif text-7xl md:text-9xl font-bold" style={{ background: "linear-gradient(180deg, #f5e0a0 0%, #c49a35 48%, #7d5a10 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", filter: "drop-shadow(0 0 16px rgba(201,168,76,0.15))" }}>{isZh ? "观我" : "Guanwo"}</h1>
-        <p className="mt-3 text-[11px] tracking-[0.2em] text-white/25">{isZh ? "AI 命运行动系统" : "AI Destiny Action System"}</p>
+      <div style={{ animation: "fadeUp 0.8s ease-out forwards" }}>
+        <h1 className="font-serif text-8xl md:text-10xl font-bold tracking-wide" style={{ background: "linear-gradient(180deg, #f5e0a0 0%, #c49a35 48%, #7d5a10 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", filter: "drop-shadow(0 0 18px rgba(201,168,76,0.15))" }}>{isZh ? "观我" : "Guanwo"}</h1>
+        <p className="mt-3 text-[11px] tracking-[0.2em] text-white/20">{isZh ? "AI 命运行动系统" : "AI Destiny Action System"}</p>
       </div>
-      <div className="mt-8 max-w-sm" style={{ animation: "fadeIn 0.8s ease-out 0.2s forwards", opacity: 0 }}>
-        <p className="text-[13px] leading-relaxed" style={{ color: "rgba(200,195,215,0.5)" }}>{isZh ? "融合八字、紫微、星盘、塔罗、面相手相\nAI 五维交叉验证，生成你的完整命运画像" : "Integrating Bazi, Ziwei, Astrology, Tarot, Face & Palm.\nAI five-source cross-validation."}</p>
+      <div className="mt-8 max-w-sm" style={{ animation: "fadeUp 0.8s ease-out 0.2s forwards", opacity: 0 }}>
+        <p className="text-[14px] leading-relaxed" style={{ color: "rgba(200,195,215,0.45)" }}>{isZh ? "融合八字、紫微、星盘、塔罗、面相手相" : "Integrating Bazi, Ziwei, Astrology, Tarot, Face & Palm."}<br /><span className="text-[12px]" style={{ color: "rgba(200,195,215,0.30)" }}>{isZh ? "AI 五维交叉验证，生成你的完整命运画像" : "AI five-source cross-validation — your complete destiny profile."}</span></p>
       </div>
-      <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row" style={{ animation: "fadeIn 0.8s ease-out 0.4s forwards", opacity: 0 }}>
+      <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row" style={{ animation: "fadeUp 0.8s ease-out 0.4s forwards", opacity: 0 }}>
         <Link href={localeHref("/reading/new")} className="rounded-xl px-10 py-4 font-medium transition-all hover:scale-[1.03]" style={{ background: "#C9A84C", color: "#020617" }}><span className="flex items-center gap-2">{isZh ? "建立我的画像" : "Build My Profile"} <ArrowRight size={16} /></span></Link>
-        <Link href={localeHref("/almanac")} className="rounded-xl border px-8 py-4 text-white/55 transition-all hover:border-white/30 hover:text-white/80" style={{ borderColor: "rgba(255,255,255,0.10)", background: "rgba(5,10,18,0.20)", backdropFilter: "blur(12px)" }}><span>{isZh ? "今日趋势" : "Today's Trend"}</span></Link>
+        <Link href={localeHref("/almanac")} className="rounded-xl border px-8 py-4 text-white/50 transition-all hover:border-white/30 hover:text-white/75" style={{ borderColor: "rgba(255,255,255,0.10)", background: "rgba(5,10,18,0.20)", backdropFilter: "blur(12px)" }}><span>{isZh ? "今日趋势" : "Today's Trend"}</span></Link>
       </div>
-      <div className="absolute bottom-8 opacity-25"><div className="mx-auto h-8 w-5 rounded-full border border-white/12"><div className="mx-auto mt-1.5 h-2 w-1 rounded-full bg-white/15 animate-bounce" /></div></div>
+      <div className="absolute bottom-8 opacity-20"><div className="mx-auto h-8 w-5 rounded-full border border-white/10"><div className="mx-auto mt-1.5 h-2 w-1 rounded-full bg-white/12 animate-bounce" /></div></div>
     </section>
 
     {/* ═══ CONTENT ═══ */}
