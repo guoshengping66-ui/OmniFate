@@ -77,14 +77,14 @@ export default function DivinationSharePage() {
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(false)
 
-  // Stable random particle positions (generated once on client to avoid hydration mismatch)
-  const particles = useMemo(() =>
-    Array.from({ length: 12 }, () => ({
-      left: 10 + Math.random() * 80,
-      top: 10 + Math.random() * 80,
-      dur: 2 + Math.random() * 2,
-      delay: Math.random() * 2,
-    })), [])
+  // Deterministic particle positions (seeded PRNG, no hydrate mismatch)
+  const particles = useMemo(() => {
+    let sd = 271; const r = () => { sd = (sd * 16807 + 0) % 2147483647; return (sd - 1) / 2147483646 }
+    return Array.from({ length: 12 }, () => ({
+      left: 10 + r() * 80, top: 10 + r() * 80,
+      dur: 2 + r() * 2, delay: r() * 2,
+    }))
+  }, [])
 
   useEffect(() => {
     api.get(`/api/divination/share/${id}`, { params: { lang: locale } })

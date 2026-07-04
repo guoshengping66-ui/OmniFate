@@ -16,15 +16,17 @@
 @layer base {
   :root {
     --gold: #C9A84C;
-    --ink: #080808;
+    --ink: #020617;
   }
   body {
-    @apply bg-ink text-white font-sans leading-relaxed;
-    background: #080808;
+    background: #020617;
+    color: rgba(255,255,255,0.85);
+    font-family: Inter, PingFang SC, Microsoft YaHei, sans-serif;
+    line-height: 1.65;
     min-height: 100vh;
   }
-  h1,h2,h3 { @apply font-serif; }
-  p { @apply text-white/70 leading-relaxed; }
+  h1,h2,h3 { font-family: PingFang SC, Microsoft YaHei, Songti SC, SimSun, serif; }
+  p { color: rgba(255,255,255,0.55); line-height: 1.65; }
 }
 
 /* Scrollbar hide utilities */

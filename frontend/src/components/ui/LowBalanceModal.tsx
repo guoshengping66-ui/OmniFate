@@ -27,7 +27,7 @@ const FOUNDER_BALANCE_KEYS = [
 export function LowBalanceModal({ open, onClose, required = 0, current = 0, isFounder = false }: LowBalanceModalProps) {
   const { t } = useLanguage()
   const keys = isFounder ? FOUNDER_BALANCE_KEYS : LOW_BALANCE_KEYS
-  const messageKeyRef = useRef(keys[Math.floor(Math.random() * keys.length)])
+  const messageKeyRef = useRef(keys[required % keys.length])
   if (!open) return null
 
   const message = t(messageKeyRef.current)
