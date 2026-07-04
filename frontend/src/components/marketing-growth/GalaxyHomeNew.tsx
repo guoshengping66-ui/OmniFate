@@ -3,69 +3,21 @@
 import { useMemo, useRef, useEffect, useCallback } from "react"; import Link from "next/link"; import { ArrowRight } from "lucide-react"; import { useLanguage } from "@/contexts/LanguageContext"
 
 /* ═══════════════════════════════════════════════════════════════
-   Galaxy particle simulation — continuous flowing dust cloud
-   One unified galaxy, not segmented ribbons
+   Soft Nebula Clouds — slowly drifting atmospheric glow shapes
+   No particles, no flicker — just smooth morphing gradients
    ═══════════════════════════════════════════════════════════════ */
 function useFlowingGalaxy(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
   const rafRef = useRef<number>(0)
-  const particlesRef = useRef<any[]>([])
   const dimsRef = useRef({ W: 0, H: 0 })
-  const timeRef = useRef(0)
 
   const init = useCallback(() => {
     const c = canvasRef.current; if (!c) return
     const W = c.width = c.offsetWidth * (devicePixelRatio || 1)
     const H = c.height = c.offsetHeight * (devicePixelRatio || 1)
     dimsRef.current = { W, H }
-
-    const cx = W * 0.5, cy = H * 0.5
-    const bandAngle = -0.6
-    const bandWidth = H * 0.55
-
-    const particles: any[] = []
-    // 1000 particles forming one continuous galaxy band
-    for (let i = 0; i < 1000; i++) {
-      // Position: scatter across screen with density along diagonal band
-      const tx = (Math.random() - 0.5) * W * 1.4
-      const alongBand = (tx / (W * 0.7)) // -1 to 1 along the band axis
-      // Distance from band center (normal distribution-ish)
-      const distFromCenter = (Math.random() + Math.random() + Math.random()) / 3 - 0.5
-      const ty = Math.tan(bandAngle) * tx + distFromCenter * bandWidth
-
-      // Density: brighter near center, fades at edges
-      const density = Math.exp(-Math.abs(alongBand) * 1.2) * Math.exp(-Math.abs(distFromCenter) * 3.5)
-
-      particles.push({
-        x: cx + tx,
-        y: cy + ty,
-        baseX: cx + tx,
-        baseY: cy + ty,
-        size: 0.2 + Math.random() * 2.5 * (0.3 + density * 0.7),
-        alpha: (0.03 + Math.random() * 0.4) * density,
-        hue: 255 + Math.random() * 35,
-        phase: Math.random() * 1000,
-        speed: 0.15 + Math.random() * 0.5,
-        density,
-      })
-    }
-    particlesRef.current = particles
   }, [canvasRef])
 
   useEffect(() => { init(); const onResize = () => { cancelAnimationFrame(rafRef.current); init() }; window.addEventListener('resize', onResize); return () => { cancelAnimationFrame(rafRef.current); window.removeEventListener('resize', onResize) } }, [init])
-
-  // Simple value noise for organic flow
-  function noise(x: number, y: number, s: number): number {
-    const n = Math.sin(x * 12.9898 + y * 78.233 + s) * 43758.5453
-    return n - Math.floor(n)
-  }
-  function fbm(x: number, y: number, t: number): number {
-    let v = 0, a = 1, f = 1
-    for (let i = 0; i < 3; i++) {
-      v += noise(x * f, y * f, t + i * 127) * a
-      a *= 0.5; f *= 2.2
-    }
-    return v / 1.75
-  }
 
   useEffect(() => {
     const c = canvasRef.current; if (!c) return
@@ -76,86 +28,39 @@ function useFlowingGalaxy(canvasRef: React.RefObject<HTMLCanvasElement | null>) 
       if (!animating) return
       const { W, H } = dimsRef.current; if (!W) { rafRef.current = requestAnimationFrame(frame); return }
       ctx!.clearRect(0, 0, W, H)
-      const t = ts * 0.0003
-      const particles = particlesRef.current
+      const t = ts * 0.00015  // very slow drift
       const cx = W * 0.5, cy = H * 0.5
 
-      /* ── Soft continuous glow across the galaxy band ── */
-      const bandAngle = -0.6
-      // Core glow
-      const glowGrad = ctx!.createLinearGradient(
-        cx - W * 0.7, cy - Math.tan(bandAngle) * W * 0.7,
-        cx + W * 0.7, cy + Math.tan(bandAngle) * W * 0.7
-      )
-      glowGrad.addColorStop(0, 'rgba(40,20,80,0)')
-      glowGrad.addColorStop(0.2, 'rgba(60,30,110,0.06)')
-      glowGrad.addColorStop(0.4, 'rgba(80,35,130,0.12)')
-      glowGrad.addColorStop(0.5, 'rgba(90,40,140,0.15)')
-      glowGrad.addColorStop(0.6, 'rgba(70,30,120,0.10)')
-      glowGrad.addColorStop(0.8, 'rgba(40,18,80,0.04)')
-      glowGrad.addColorStop(1, 'rgba(10,5,30,0)')
-      ctx!.fillStyle = glowGrad
-      ctx!.fillRect(0, 0, W, H)
+      // 3 large, soft nebula blobs slowly drifting along diagonal
+      const blobs = [
+        { bx: cx - W * 0.15 + Math.sin(t * 0.7) * W * 0.08, by: cy - H * 0.12 + Math.cos(t * 0.5) * H * 0.06, rx: W * 0.55, ry: H * 0.18, hue: 268, alpha: 0.08 },
+        { bx: cx + W * 0.10 + Math.cos(t * 0.6) * W * 0.10, by: cy + H * 0.05 + Math.sin(t * 0.8) * H * 0.05, rx: W * 0.40, ry: H * 0.14, hue: 280, alpha: 0.06 },
+        { bx: cx - W * 0.05 + Math.sin(t * 0.4) * W * 0.06, by: cy + H * 0.18 + Math.cos(t * 0.55) * H * 0.04, rx: W * 0.35, ry: H * 0.12, hue: 255, alpha: 0.07 },
+      ]
 
-      // Second softer glow layer - wider, more diffuse
-      const glow2 = ctx!.createLinearGradient(
-        cx - W * 0.6, cy - Math.tan(bandAngle + 0.15) * W * 0.6,
-        cx + W * 0.6, cy + Math.tan(bandAngle + 0.15) * W * 0.6
-      )
-      glow2.addColorStop(0, 'rgba(20,10,50,0)')
-      glow2.addColorStop(0.3, 'rgba(50,25,100,0.04)')
-      glow2.addColorStop(0.5, 'rgba(70,35,120,0.06)')
-      glow2.addColorStop(0.7, 'rgba(40,20,80,0.03)')
-      glow2.addColorStop(1, 'rgba(10,5,30,0)')
-      ctx!.fillStyle = glow2
-      ctx!.fillRect(0, 0, W, H)
-
-      /* ── 1000 dust particles with noise-driven flow ── */
-      for (const p of particles) {
-        // Noise displacement for organic motion
-        const nx = fbm(p.baseX * 0.0008, p.baseY * 0.0006, t * 40) - 0.5
-        const ny = fbm(p.baseX * 0.0007 + 200, p.baseY * 0.0009 + 200, t * 35) - 0.5
-
-        // Drift particles slowly, with noise perturbation
-        const flowSpeed = p.speed * 0.4
-        p.baseX += flowSpeed * (0.7 + nx * 0.3)
-        p.baseY += flowSpeed * 0.15 + ny * flowSpeed * 0.5
-
-        // Wrap around edges
-        if (p.baseX > W + 100) { p.baseX = -100; p.baseY = cy + (Math.random() - 0.5) * H * 0.8 }
-        if (p.baseX < -100) { p.baseX = W + 100 }
-        if (p.baseY > H + 80) p.baseY = -80
-        if (p.baseY < -80) p.baseY = H + 80
-
-        p.x = p.baseX + nx * 15
-        p.y = p.baseY + ny * 12
-
-        const pulse = 0.6 + 0.4 * Math.sin(t * 60 + p.phase)
-        const alpha = p.alpha * pulse
-
-        // Skip invisible particles
-        if (alpha < 0.01) continue
-
-        ctx!.beginPath()
-        ctx!.arc(p.x, p.y, p.size, 0, Math.PI * 2)
-
-        // Larger "star" particles vs small dust
-        if (p.size > 1.6 && p.density > 0.3) {
-          ctx!.fillStyle = `rgba(200,180,255,${Math.min(1, alpha * 1.5)})`
-          // Glow
-          ctx!.fill()
-          ctx!.beginPath()
-          ctx!.arc(p.x, p.y, p.size * 4, 0, Math.PI * 2)
-          const sg = ctx!.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 4)
-          sg.addColorStop(0, `rgba(180,160,240,${alpha * 0.4})`)
-          sg.addColorStop(0.5, `rgba(100,80,180,${alpha * 0.1})`)
-          sg.addColorStop(1, 'transparent')
-          ctx!.fillStyle = sg
-        } else {
-          ctx!.fillStyle = `hsla(${p.hue}, 40%, 65%, ${alpha})`
-        }
-        ctx!.fill()
+      for (const b of blobs) {
+        const g = ctx!.createRadialGradient(b.bx, b.by, 0, b.bx, b.by, Math.max(b.rx, b.ry))
+        g.addColorStop(0, `hsla(${b.hue}, 50%, 35%, ${b.alpha * 1.5})`)
+        g.addColorStop(0.4, `hsla(${b.hue}, 40%, 25%, ${b.alpha})`)
+        g.addColorStop(0.7, `hsla(${b.hue + 10}, 35%, 18%, ${b.alpha * 0.4})`)
+        g.addColorStop(1, 'transparent')
+        ctx!.fillStyle = g
+        ctx!.fillRect(b.bx - b.rx, b.by - b.ry, b.rx * 2, b.ry * 2)
       }
+
+      // A wider, very soft diagonal wash
+      const angle = -0.6
+      const wash = ctx!.createLinearGradient(
+        cx - W * 0.8, cy - Math.tan(angle) * W * 0.8,
+        cx + W * 0.8, cy + Math.tan(angle) * W * 0.8
+      )
+      wash.addColorStop(0, 'rgba(15,5,40,0)')
+      wash.addColorStop(0.3, 'rgba(40,15,90,0.04)')
+      wash.addColorStop(0.5, 'rgba(60,25,110,0.07)')
+      wash.addColorStop(0.7, 'rgba(35,12,75,0.03)')
+      wash.addColorStop(1, 'rgba(10,3,25,0)')
+      ctx!.fillStyle = wash
+      ctx!.fillRect(0, 0, W, H)
 
       rafRef.current = requestAnimationFrame(frame)
     }
