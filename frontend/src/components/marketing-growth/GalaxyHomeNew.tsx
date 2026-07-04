@@ -95,7 +95,7 @@ export default function GalaxyHomeNew() {
       {/* ═══ HERO ═══ */}
       <section className="relative flex min-h-[88vh] w-full flex-col items-center justify-center px-6 text-center" style={{ zIndex: 10 }}>
         <div>
-          <h1 className="font-serif text-8xl md:text-9xl font-bold" style={{ background:"linear-gradient(180deg, #E8CB7A 0%, #C9A84C 40%, #A07C2A 100%)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", filter:"drop-shadow(0 0 40px rgba(201,168,76,0.25))" }}>观我</h1>
+          <h1 className="font-serif text-8xl md:text-9xl font-bold" style={{ background:"linear-gradient(180deg, #E8CB7A 0%, #C9A84C 40%, #A07C2A 100%)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", filter:"drop-shadow(0 0 40px rgba(201,168,76,0.25))" }}>{isZh?"观我":"Guanwo"}</h1>
           <p className="mt-4 text-[11px] tracking-[0.15em] text-white/30">{isZh?"AI 命运行动系统":"AI Destiny Action System"}</p>
         </div>
         <div className="mt-10">
