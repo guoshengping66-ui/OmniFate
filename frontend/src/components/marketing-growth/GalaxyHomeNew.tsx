@@ -1,14 +1,32 @@
 "use client"
 
-import { useMemo } from "react"; import Link from "next/link"; import { ArrowRight } from "lucide-react"; import { useLanguage } from "@/contexts/LanguageContext"
+import { useEffect, useMemo, useRef } from "react"; import Link from "next/link"; import { ArrowRight } from "lucide-react"; import { useLanguage } from "@/contexts/LanguageContext"
 const TRIGRAMS=["乾","兑","离","震","巽","坎","艮","坤"]
 function srng(s:number){let v=s;return()=>{v=(v*16807+0)%2147483647;return(v-1)/2147483646}}
-function mkFar(){const r=srng(42);return Array.from({length:60},(_,i)=>({id:i,left:r()*100,top:r()*100,size:.3+r()*.5,opacity:.08+r()*.22}))}
-function mkBulge(){const r=srng(73);return Array.from({length:350},(_,i)=>{const x=30+r()*40,y=35+r()*30;return{id:i,left:x,top:y,size:.25+r()*.55,opacity:.35+r()*.5,color:r()>.6?"gold":"white"}})}
-function mkArm(){const r=srng(191);return Array.from({length:500},(_,i)=>{const x=r()*100,b=r(),y=50+(r()-.5)*(b<.72?28:58),rr=r();return{id:i,left:x,top:y,size:rr>.95?1.5:.5+r()*.7,opacity:rr>.85?.85:.18+r()*.5,color:rr>.72?"gold":rr>.48?"cyan":"white"}})}
-function mkScatter(){const r=srng(251);return Array.from({length:350},(_,i)=>{const x=r()*100,y=5+r()*90,rr=r();return{id:i,left:x,top:y,size:.6+r()*1.6,opacity:rr>.75?.45:.08+r()*.3,color:r()>.55?"cyan":"white"}})}
-function mkFg(){const r=srng(311);return Array.from({length:10},(_,i)=>({id:i,left:i<4?5+r()*25:70+r()*25,top:10+r()*75,size:1.5+r()*2,opacity:.08+r()*.18}))}
-const CM:Record<string,string>={gold:"rgba(255,218,120,0.9)",cyan:"rgba(135,225,235,0.58)",white:"rgba(255,248,220,0.72)"}
+
+/* ══ Realistic galaxy texture via Canvas ══ */
+function genGalaxyTex():string{
+  if(typeof document==="undefined")return""
+  const W=2400,H=1000,c=document.createElement("canvas");c.width=W;c.height=H;const ctx=c.getContext("2d")!;const r=srng(191)
+  // Deep space base
+  ctx.fillStyle="#02050d";ctx.fillRect(0,0,W,H)
+  // Exponential core bulge — warm white → gold → transparent
+  const core=ctx.createRadialGradient(W*.5,H*.5,W*.02,W*.5,H*.5,W*.38)
+  core.addColorStop(0,"rgba(255,245,210,0.45)");core.addColorStop(0.08,"rgba(255,230,170,0.35)");core.addColorStop(0.18,"rgba(218,180,74,0.22)");core.addColorStop(0.35,"rgba(200,150,60,0.08)");core.addColorStop(0.6,"rgba(40,100,130,0.03)");core.addColorStop(1,"transparent")
+  ctx.fillStyle=core;ctx.fillRect(0,0,W,H)
+  // Spiral-like nebula clouds (12 large irregular blobs)
+  for(let i=0;i<14;i++){const cx=W*(.15+r()*.7),cy=H*(.2+r()*.6),rx=60+r()*280,ry=20+r()*100,ang=r()*.5;const g=ctx.createRadialGradient(cx,cy,0,cx,cy,Math.max(rx,ry));g.addColorStop(0,`hsla(${r()>.6?42:r()>.35?195:220},${40+r()*40}%,${45+r()*30}%,${.06+r()*.12})`);g.addColorStop(0.5,`hsla(${r()>.6?40:r()>.35?190:215},35%,35%,${.02+r()*.04})`);g.addColorStop(1,"transparent");ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(cx,cy,rx,ry,ang,0,Math.PI*2);ctx.fill()}
+  // HII regions — pink star-forming areas
+  for(let i=0;i<6;i++){const cx=W*(.3+r()*.4),cy=H*(.35+r()*.3),rx=20+r()*60,ry=8+r()*25;const g=ctx.createRadialGradient(cx,cy,0,cx,cy,Math.max(rx,ry));g.addColorStop(0,"rgba(255,140,160,0.08)");g.addColorStop(0.5,"rgba(200,100,130,0.03)");g.addColorStop(1,"transparent");ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(cx,cy,rx,ry,r()*.3,0,Math.PI*2);ctx.fill()}
+  // Dark dust lanes — irregular streaks
+  for(let i=0;i<10;i++){const cx=r()*W,cy=H*(.25+r()*.5),rx=30+r()*200,ry=4+r()*25;const g=ctx.createRadialGradient(cx,cy,0,cx,cy,Math.max(rx,ry));g.addColorStop(0,`rgba(0,2,6,${.3+r()*.45})`);g.addColorStop(0.6,"rgba(0,2,6,0.1)");g.addColorStop(1,"transparent");ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(cx,cy,rx,ry,r()*.4,0,Math.PI*2);ctx.fill()}
+  // Star field — 8000+ stars with power-law size distribution
+  const r2=srng(193)
+  for(let i=0;i<8000;i++){const x=r2()*W,bias=r2(),y=H*.2+(bias<.72?r2()*H*.5:r2()*H*.8-H*.1);const rr=r2();const sz=rr>.995?3.2:rr>.97?1.8:rr>.88?1.1:.35;const alpha=rr>.94?.95:.15+r2()*.6;const hue=rr>.72?42:rr>.48?195:45;ctx.fillStyle=`hsla(${hue},${rr>.72?60:40}%,${rr>.88?85:70}%,${alpha})`;ctx.beginPath();ctx.arc(x,y,sz,0,Math.PI*2);ctx.fill()}
+  // Bright foreground stars with glow
+  for(let i=0;i<50;i++){const x=r2()*W,y=H*(.2+r2()*.6),sz=1.5+r2()*2.5;const g=ctx.createRadialGradient(x,y,0,x,y,sz*5);g.addColorStop(0,"rgba(255,245,210,0.8)");g.addColorStop(.15,"rgba(255,220,150,0.35)");g.addColorStop(.5,"rgba(200,180,140,0.08)");g.addColorStop(1,"transparent");ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,sz*5,0,Math.PI*2);ctx.fill();ctx.fillStyle="rgba(255,248,220,0.95)";ctx.beginPath();ctx.arc(x,y,sz,0,Math.PI*2);ctx.fill()}
+  return c.toDataURL("image/webp",.72)
+}
 const SYS=[{n:"八字",nEn:"Bazi",q:"底层结构",qEn:"Structure",a:"长期节奏与人生框架",aEn:"Long-term rhythm",c:"#5A9E8E",f:!0},{n:"紫微",nEn:"Ziwei",q:"能量周期",qEn:"Cycles",a:"十二宫主星与大限流年",aEn:"12-palace star distribution",c:"#8B7EC7",f:!0},{n:"星盘",nEn:"Astrology",q:"心理模式",qEn:"Patterns",a:"七政四余恒星制·先天格局",aEn:"Sidereal, innate configuration",c:"#7B9EC7",f:!0},{n:"塔罗",nEn:"Tarot",q:"当下选择",qEn:"Choice",a:"聚焦此刻压力与决策",aEn:"Current pressure and decisions",c:"#C77B8B",f:!1},{n:"面相",nEn:"Face",q:"行为印象",qEn:"Impression",a:"五官十二宫看禀赋气质",aEn:"Five features, 12 palaces",c:"#C4BFB0",f:!1}]
 const INP={zh:["生辰八字","出生地点","面相照片","手相照片","当前问题"],en:["Birth date & time","Birth location","Face photo","Palm photo","Your question"]}
 const OUT={zh:["性格结构","事业方向","关系模式","财富窗口","今日行动"],en:["Personality","Career","Relationships","Wealth window","Daily action"]}
@@ -19,55 +37,47 @@ const TD={zh:{u:"10,000+",r:"4.9",rp:"50,000+",ul:"用户",rl:"评分",rpl:"报�
 const PRC={zh:[{name:"免费版",price:"¥0",desc:"体验全部系统\n基础预览功能",cta:"免费注册",hl:!1},{name:"深度报告",price:"按次",desc:"完整五维画像\n单次解锁·永久可查",cta:"建立画像",hl:!0},{name:"星尘充值",price:"灵活",desc:"按需充值\n充越多赠越多",cta:"查看定价",hl:!1}],en:[{name:"Free",price:"Free",desc:"All systems\nBasic preview",cta:"Sign Up",hl:!1},{name:"Deep Report",price:"Per-use",desc:"Full 5D profile\nOne-time·Permanent",cta:"Build Profile",hl:!0},{name:"Top-up",price:"Flexible",desc:"Pay as you go\nMore=bonus",cta:"Pricing",hl:!1}]}
 
 export default function GalaxyHomeNew(){const{locale,localeHref}=useLanguage();const isZh=locale==="zh"
-const far=useMemo(()=>mkFar(),[]),bulge=useMemo(()=>mkBulge(),[]),arm=useMemo(()=>mkArm(),[]),scatter=useMemo(()=>mkScatter(),[]),fg=useMemo(()=>mkFg(),[])
-const kf=`@keyframes taijiSpin{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}@keyframes ringSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes bulgeBreathe{0%,100%{opacity:.65}50%{opacity:.82}}@media(prefers-reduced-motion:reduce){*{animation:none!important}}`
+const texRef=useRef("")
+useEffect(()=>{const t=genGalaxyTex();if(t){texRef.current=t;const el=document.getElementById("gt");if(el)el.style.backgroundImage=`url(${t})`}},[])
+const kf=`@keyframes taijiSpin{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}@keyframes ringSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){*{animation:none!important}}`
 const cardBg={background:"linear-gradient(135deg, #060E24, #030918)"},cardBdr="rounded-2xl border border-white/[0.05]"
 
 return(<div className="w-full text-white" style={{background:"#000"}}>
-  {/* L0: Deep space */}
-  <div className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{background:"radial-gradient(circle at 50% 40%, rgba(10,18,35,0.45), rgba(2,5,12,1) 60%, #000)",zIndex:0}}/>
-  {/* L1: Far stars */}
-  <div className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{zIndex:1}}>{far.map(s=><span key={s.id} style={{position:"absolute",left:s.left+"%",top:s.top+"%",width:s.size,height:s.size,borderRadius:"50%",background:"rgba(255,255,255,0.4)",opacity:s.opacity}}/>)}</div>
-  {/* L2: Distant galaxies */}
-  <div className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{zIndex:2}}>{[{x:78,y:22,s:50},{x:15,y:68,s:40},{x:85,y:72,s:55}].map((g,i)=><div key={"dg"+i} style={{position:"absolute",left:g.x+"%",top:g.y+"%",width:g.s,height:g.s*.7,borderRadius:"50%",background:"radial-gradient(ellipse at center, rgba(120,150,180,0.08), transparent 62%)",filter:"blur(18px)",transform:"rotate("+(i*25-20)+"deg)",opacity:.6}}/>)}</div>
+  {/* L0: Deep space — subtle vignette from center */}
+  <div className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{background:"radial-gradient(ellipse at 50% 40%, rgba(10,18,35,0.5), rgba(2,5,12,1) 55%, #000)",zIndex:0}}/>
 
-  {/* L3: GALAXY SYSTEM */}
-  <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true" style={{zIndex:3}}>
-    <div style={{position:"absolute",left:"-40%",top:"6%",width:"185%",height:"720px",transform:"rotate(-14deg)",maskImage:"radial-gradient(ellipse at center, black 0%, black 35%, rgba(0,0,0,0.55) 55%, transparent 90%)",WebkitMaskImage:"radial-gradient(ellipse at center, black 0%, black 35%, rgba(0,0,0,0.55) 55%, transparent 90%)"}}>
-      {/* Bulge */}
-      <div style={{position:"absolute",left:"38%",top:"34%",width:"24%",height:"130px",background:"radial-gradient(ellipse at 50% 50%, rgba(255,240,195,0.28), rgba(218,180,74,0.18) 30%, rgba(200,160,80,0.08) 55%, transparent 75%)",filter:"blur(14px)",opacity:.72,zIndex:0,animation:"bulgeBreathe 8s ease-in-out infinite"}}/>
-      {/* Color gradient: warm core → cool edges */}
-      <div style={{position:"absolute",left:"0%",top:"30%",width:"100%",height:"280px",background:"radial-gradient(ellipse at 5% 48%, rgba(218,180,74,0.10), transparent 18%), radial-gradient(ellipse at 18% 46%, rgba(218,180,74,0.16), transparent 16%), radial-gradient(ellipse at 35% 50%, rgba(218,180,74,0.22), transparent 14%), radial-gradient(ellipse at 52% 48%, rgba(255,248,220,0.26), transparent 14%), radial-gradient(ellipse at 70% 50%, rgba(80,180,195,0.18), transparent 18%), radial-gradient(ellipse at 88% 52%, rgba(25,70,105,0.08), transparent 22%), linear-gradient(90deg, rgba(218,180,74,0.04) 0%, rgba(218,180,74,0.10) 18%, rgba(255,245,210,0.18) 45%, rgba(80,180,195,0.12) 70%, rgba(20,60,95,0.04) 100%)",filter:"blur(16px)",opacity:.85,zIndex:0}}/>
-      {/* Bulge stars */}
-      <div className="absolute inset-0" style={{zIndex:2}}>{bulge.map(s=><span key={"b"+s.id} style={{position:"absolute",left:s.left+"%",top:s.top+"%",width:s.size,height:s.size,borderRadius:"50%",background:CM[s.color],boxShadow:"0 0 5px "+(s.color==="gold"?"rgba(255,218,120,0.5)":"rgba(255,248,220,0.3)"),opacity:s.opacity,transform:"translate(-50%,-50%)"}}/>)}</div>
-      {/* Arm stars */}
-      <div className="absolute inset-0" style={{zIndex:2}}>{arm.map(s=><span key={"a"+s.id} style={{position:"absolute",left:s.left+"%",top:s.top+"%",width:s.size,height:s.size,borderRadius:"50%",background:CM[s.color],boxShadow:s.color==="gold"?"0 0 5px rgba(255,218,120,0.4)":s.color==="cyan"?"0 0 3px rgba(135,225,235,0.22)":"0 0 2px rgba(255,248,220,0.18)",opacity:s.opacity,transform:"translate(-50%,-50%)"}}/>)}</div>
-      {/* Scatter stars */}
-      <div className="absolute inset-0" style={{zIndex:1}}>{scatter.map(s=><span key={"s"+s.id} style={{position:"absolute",left:s.left+"%",top:s.top+"%",width:s.size,height:s.size,borderRadius:"50%",background:CM[s.color],opacity:s.opacity,transform:"translate(-50%,-50%)"}}/>)}</div>
-      {/* Organic dust clouds */}
-      {[{l:10,t:38,w:35,h:80,r:3,o:.72},{l:42,t:42,w:28,h:65,r:-2,o:.55},{l:55,t:46,w:30,h:70,r:-5,o:.48},{l:25,t:52,w:22,h:55,r:8,o:.36},{l:68,t:38,w:18,h:50,r:-7,o:.28}].map((d,i)=><div key={"dust"+i} style={{position:"absolute",left:d.l+"%",top:d.t+"%",width:d.w+"%",height:d.h+"px",background:"radial-gradient(ellipse at 50% 50%, rgba(0,3,9,0.78), transparent 55%)",filter:"blur(8px)",mixBlendMode:"multiply" as const,opacity:d.o,transform:"rotate("+d.r+"deg)",zIndex:3}}/>)}
-    </div>
+  {/* ══ L1: Canvas-generated REALISTIC galaxy texture ══ */}
+  <div id="gt" className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{
+    zIndex:2,backgroundSize:"cover",backgroundPosition:"center",
+    transform:"rotate(-14deg) scale(1.1)",
+    opacity:.58,mixBlendMode:"screen" as const,
+    filter:"contrast(1.15) brightness(0.78) saturate(0.85) hue-rotate(150deg)",
+    maskImage:"radial-gradient(ellipse at center, black 0%, black 32%, rgba(0,0,0,0.6) 55%, transparent 88%)",
+    WebkitMaskImage:"radial-gradient(ellipse at center, black 0%, black 32%, rgba(0,0,0,0.6) 55%, transparent 88%)",
+  }}/>
+
+  {/* ══ L2: Corner atmospheres ══ */}
+  <div className="fixed pointer-events-none" aria-hidden="true" style={{left:"-5%",top:"-2%",width:"32%",height:"30%",background:"radial-gradient(ellipse at 30% 35%, rgba(218,180,74,0.08), transparent 55%)",filter:"blur(22px)",opacity:.6,zIndex:1}}/>
+  <div className="fixed pointer-events-none" aria-hidden="true" style={{right:"-5%",bottom:"8%",width:"35%",height:"28%",background:"radial-gradient(ellipse at 70% 60%, rgba(50,155,175,0.06), transparent 55%)",filter:"blur(26px)",opacity:.5,zIndex:1}}/>
+
+  {/* ══ L3: Bagua System — astronomical instrument overlay ══ */}
+  <div className="fixed left-1/2 pointer-events-none" aria-hidden="true" style={{width:"min(540px,92vw)",height:"min(540px,92vw)",top:"44%",transform:"translate(-50%,-50%)",opacity:.28,zIndex:5,animation:"taijiSpin 110s linear infinite"}}>
+    {/* Outer ring — solid precise line */}
+    <div style={{position:"absolute",inset:0,borderRadius:"50%",border:"1px solid rgba(218,180,74,0.30)",boxShadow:"0 0 55px rgba(218,180,74,0.08), inset 0 0 45px rgba(80,180,190,0.04)"}}/>
+    {/* 24 solar term tick marks */}
+    {Array.from({length:24},(_,i)=>{const a=(i/24)*360-90,rad=(a*Math.PI)/180,ir=48,or=51;return(<span key={"tk"+i} style={{position:"absolute",left:"50%",top:"50%",width:1,height:3,background:"rgba(218,180,74,0.35)",transform:`translate(-50%,-50%) rotate(${a}deg) translateY(-${ir}%)`,transformOrigin:"center center"}}/>)})}
+    {/* Middle ring — dashed */}
+    <div style={{position:"absolute",inset:"12%",borderRadius:"50%",border:"1px dashed rgba(218,180,74,0.18)"}}/>
+    {/* 8 trigram labels — clear, readable */}
+    {TRIGRAMS.map((t,i)=>{const a=(i/8)*360-90,rad=(a*Math.PI)/180,d=45;return(<span key={i} className="absolute font-serif" style={{left:(50+d*Math.cos(rad))+"%",top:(50+d*Math.sin(rad))+"%",transform:"translate(-50%,-50%)",color:"rgba(218,180,74,0.45)",textShadow:"0 0 12px rgba(218,180,74,0.20)",fontSize:"clamp(11px,1.4vw,15px)"}}>{t}</span>)})}
+    {/* Inner ring */}
+    <div style={{position:"absolute",inset:"24%",borderRadius:"50%",border:"0.5px solid rgba(218,180,74,0.15)"}}/>
+    {/* Tai Chi symbol */}
+    <div style={{position:"absolute",inset:"10%",display:"grid",placeItems:"center",fontSize:"clamp(75px,11vw,120px)",color:"rgba(218,180,74,0.46)",textShadow:"0 0 20px rgba(218,180,74,0.16)",filter:"drop-shadow(0 0 28px rgba(218,180,74,0.12))"}}>☯</div>
   </div>
 
-  {/* L5: Tai Chi — precision UI */}
-  <div className="fixed left-1/2 pointer-events-none" aria-hidden="true" style={{width:"min(520px,90vw)",height:"min(520px,90vw)",top:"44%",transform:"translate(-50%,-50%) rotate(0deg)",opacity:.26,zIndex:5,animation:"taijiSpin 110s linear infinite",filter:"drop-shadow(0 0 40px rgba(218,180,74,0.15))"}}>
-    <div style={{position:"absolute",inset:0,borderRadius:"50%",border:"1px solid rgba(218,180,74,0.28)",boxShadow:"0 0 48px rgba(218,180,74,0.08), inset 0 0 42px rgba(80,180,190,0.05)"}}/>
-    <div style={{position:"absolute",inset:"12%",borderRadius:"50%",border:"1px dashed rgba(218,180,74,0.20)"}}/>
-    {TRIGRAMS.map((t,i)=>{const a=(i/8)*360-90,rad=(a*Math.PI)/180,d=45;return<span key={i} className="absolute font-serif" style={{left:(50+d*Math.cos(rad))+"%",top:(50+d*Math.sin(rad))+"%",transform:"translate(-50%,-50%)",color:"rgba(218,180,74,0.42)",textShadow:"0 0 10px rgba(218,180,74,0.16)",fontSize:"clamp(10px,1.3vw,14px)"}}>{t}</span>})}
-    <div style={{position:"absolute",inset:"24%",borderRadius:"50%",border:"0.5px solid rgba(218,180,74,0.14)"}}/>
-    <div style={{position:"absolute",inset:"8%",display:"grid",placeItems:"center",fontSize:"clamp(70px,10vw,115px)",color:"rgba(218,180,74,0.44)",textShadow:"0 0 16px rgba(218,180,74,0.14)"}}>☯</div>
-  </div>
-
-  {/* L6: Vignette + text mask */}
-  <div className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{background:"radial-gradient(circle at 50% 45%, rgba(0,0,0,0.20), transparent 56%), linear-gradient(180deg, rgba(0,0,0,0.08) 0%, transparent 20%, transparent 50%, rgba(0,0,0,0.68) 100%)",zIndex:7}}/>
-
-  {/* Corner nebula — top-left gold dust origin */}
-  <div className="fixed pointer-events-none" aria-hidden="true" style={{left:"-5%",top:"-2%",width:"35%",height:"35%",background:"radial-gradient(ellipse at 30% 35%, rgba(218,180,74,0.10), transparent 55%), radial-gradient(ellipse at 60% 50%, rgba(135,225,235,0.04), transparent 50%)",filter:"blur(20px)",opacity:.65,zIndex:2}}/>
-  {/* Corner nebula — bottom-right cyan fade */}
-  <div className="fixed pointer-events-none" aria-hidden="true" style={{right:"-8%",bottom:"5%",width:"40%",height:"30%",background:"radial-gradient(ellipse at 70% 60%, rgba(50,155,175,0.07), transparent 55%), radial-gradient(ellipse at 40% 45%, rgba(218,180,74,0.04), transparent 50%)",filter:"blur(24px)",opacity:.55,zIndex:2}}/>
-
-  {/* Foreground depth stars */}
-  <div className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{zIndex:8}}>{fg.map(s=><span key={"fg"+s.id} style={{position:"absolute",left:s.left+"%",top:s.top+"%",width:s.size,height:s.size,borderRadius:"50%",background:"radial-gradient(circle, rgba(255,240,200,0.6) 0%, transparent 70%)",boxShadow:"0 0 "+s.size*3+"px rgba(200,180,140,"+(s.opacity*.8)+")",opacity:s.opacity}}/>)}</div>
+  {/* ══ Vignette ══ */}
+  <div className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{background:"linear-gradient(180deg, rgba(0,0,0,0.10) 0%, transparent 18%, transparent 52%, rgba(0,0,0,0.65) 100%)",zIndex:7}}/>
   <style>{kf}</style>
 
   {/* HERO */}
