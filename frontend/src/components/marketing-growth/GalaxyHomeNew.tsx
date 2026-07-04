@@ -27,6 +27,7 @@ const PRC={zh:[{name:"免费版",price:"¥0",desc:"体验全部系统\n基础预
    ═══════════════════════════════════════════════════════════════ */
 function useFlowingGalaxy(canvasRef: React.RefObject<HTMLCanvasElement | null>, isMobile: boolean) {
   const rafRef = useRef<number>(0), dimsRef = useRef({ W: 0, H: 0 })
+  const lightsRef = useRef<{ x: number; y: number; s: number; a: number; sp: number; ph: number }[]>([])
   useEffect(() => {
     const c = canvasRef.current; if (!c) return
     const setDim = () => { const W = c.width = c.offsetWidth * (devicePixelRatio || 1); const H = c.height = c.offsetHeight * (devicePixelRatio || 1); dimsRef.current = { W, H } }
@@ -35,8 +36,7 @@ function useFlowingGalaxy(canvasRef: React.RefObject<HTMLCanvasElement | null>, 
   useEffect(() => {
     const c = canvasRef.current; if (!c) return; const ctx = c.getContext('2d'); if (!ctx) return
     let animating = true
-    type Light = { x: number; y: number; s: number; a: number; sp: number; ph: number }
-    const lights = useRef<Light[]>([]).current!
+    const lights = lightsRef.current
     const initLights = () => { lights.length = 0; const { W, H } = dimsRef.current; const cx = W * .5, cy = H * .5
       for (let i = 0; i < (isMobile ? 8 : 22); i++) { const angle = -.6 + (Math.random() - .5) * .4
         lights.push({ x: cx + (Math.random() - .5) * W * 1.4, y: cy + (Math.random() - .5) * H * .8, s: .8 + Math.random() * 2.5, a: .04 + Math.random() * .18, sp: .003 + Math.random() * .015, ph: Math.random() * Math.PI * 2 }) } }
