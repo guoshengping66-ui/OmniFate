@@ -450,12 +450,11 @@ def _cross_validate_palm(state: SystemState) -> list[ConflictRecord]:
     # Support both English and Chinese element names
     bazi_boost = state.bazi_output.boost_elements
     bazi_boost_lower = [e.lower() for e in bazi_boost]
-    bazi_boost_str = str(bazi_boost) + str(bazi_boost_lower)
 
     def _has_element(elem_en: str, elem_cn: str) -> bool:
-        """Check if element exists in bazi_boost (supports both EN and CN)."""
-        return (elem_en in bazi_boost_lower or elem_en in bazi_boost_str or
-                elem_cn in bazi_boost_str)
+        """Check if element exists in bazi_boost (supports both EN and CN).
+        Uses exact list membership, not string substring matching."""
+        return elem_en in bazi_boost_lower or elem_cn in bazi_boost
 
     if bazi_boost:
         if "土" in palm_report and "土型" in palm_report:

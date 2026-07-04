@@ -673,7 +673,7 @@ async def _call_and_parse(system: str, user_msg: str, agent_id: str, state: Syst
                 data = retry_data
             else:
                 logger.warning("[%s] retry also failed validation, using original output", agent_id)
-        except Exception as e:
+        except (Exception, asyncio.CancelledError) as e:
             logger.error("[%s] retry failed with exception: %s, using original output", agent_id, e)
 
     return data
@@ -983,7 +983,7 @@ async def run_astrology(state: SystemState) -> WorkerOutput:
             conflict_warnings=data.get("conflict_warnings", []),
             duration_ms=(time.time() - t0) * 1000,
         )
-    except Exception as e:
+    except (Exception, asyncio.CancelledError) as e:
         return WorkerOutput(agent_id=agent_id, error=str(e),
                             duration_ms=(time.time() - t0) * 1000)
 
@@ -1022,7 +1022,7 @@ async def run_tarot(state: SystemState) -> WorkerOutput:
             conflict_warnings=data.get("conflict_warnings", []),
             duration_ms=(time.time() - t0) * 1000,
         )
-    except Exception as e:
+    except (Exception, asyncio.CancelledError) as e:
         return WorkerOutput(agent_id=agent_id, error=str(e),
                             duration_ms=(time.time() - t0) * 1000)
 
@@ -1124,7 +1124,7 @@ async def run_bazi(state: SystemState) -> WorkerOutput:
             conflict_warnings=data.get("conflict_warnings", []),
             duration_ms=(time.time() - t0) * 1000,
         )
-    except Exception as e:
+    except (Exception, asyncio.CancelledError) as e:
         return WorkerOutput(agent_id=agent_id, error=str(e),
                             duration_ms=(time.time() - t0) * 1000)
 
@@ -1184,7 +1184,7 @@ async def run_qimen(state: SystemState) -> WorkerOutput:
             conflict_warnings=data.get("conflict_warnings", []),
             duration_ms=(time.time() - t0) * 1000,
         )
-    except Exception as e:
+    except (Exception, asyncio.CancelledError) as e:
         return WorkerOutput(agent_id=agent_id, error=str(e),
                             duration_ms=(time.time() - t0) * 1000)
 
@@ -1244,7 +1244,7 @@ async def run_ziwei(state: SystemState) -> WorkerOutput:
             conflict_warnings=data.get("conflict_warnings", []),
             duration_ms=(time.time() - t0) * 1000,
         )
-    except Exception as e:
+    except (Exception, asyncio.CancelledError) as e:
         return WorkerOutput(agent_id=agent_id, error=str(e),
                             duration_ms=(time.time() - t0) * 1000)
 
@@ -1507,7 +1507,7 @@ async def run_face(state: SystemState) -> WorkerOutput:
         )
         logger.info("FACE completed in %.0fms, report length=%d", out.duration_ms, len(out.report))
         return out
-    except Exception as e:
+    except (Exception, asyncio.CancelledError) as e:
         logger.error("FACE error: %s", e)
         return WorkerOutput(agent_id=agent_id, error=str(e),
                             duration_ms=(time.time() - t0) * 1000)
@@ -1574,7 +1574,7 @@ async def run_palm(state: SystemState) -> WorkerOutput:
         )
         logger.info("PALM completed in %.0fms, report length=%d", out.duration_ms, len(out.report))
         return out
-    except Exception as e:
+    except (Exception, asyncio.CancelledError) as e:
         logger.error("PALM error: %s", e)
         return WorkerOutput(agent_id=agent_id, error=str(e),
                             duration_ms=(time.time() - t0) * 1000)
@@ -1641,7 +1641,7 @@ async def run_partner_face(state: SystemState) -> WorkerOutput:
             conflict_warnings=data.get("conflict_warnings", []),
             duration_ms=(time.time() - t0) * 1000,
         )
-    except Exception as e:
+    except (Exception, asyncio.CancelledError) as e:
         return WorkerOutput(agent_id=agent_id, error=str(e),
                             duration_ms=(time.time() - t0) * 1000)
 
@@ -1702,7 +1702,7 @@ async def run_partner_palm(state: SystemState) -> WorkerOutput:
             conflict_warnings=data.get("conflict_warnings", []),
             duration_ms=(time.time() - t0) * 1000,
         )
-    except Exception as e:
+    except (Exception, asyncio.CancelledError) as e:
         return WorkerOutput(agent_id=agent_id, error=str(e),
                             duration_ms=(time.time() - t0) * 1000)
 
@@ -1739,7 +1739,7 @@ async def run_all_workers(state: SystemState) -> dict[str, asyncio.Event]:
     async def _wrap(runner, agent_id: str, timeout: int):
         try:
             result = await asyncio.wait_for(runner(state), timeout=timeout)
-        except Exception as e:
+        except (Exception, asyncio.CancelledError) as e:
             result = WorkerOutput(agent_id=agent_id, error=str(e))
         events[agent_id].set()
         return result

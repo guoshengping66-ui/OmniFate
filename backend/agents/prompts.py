@@ -7637,6 +7637,82 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
                 "2. 结合多个体系交叉验证\n"
                 "3. 让用户感受到上传的信息被充分分析\n\n"
             )
+    elif intent == "BAZI":
+        if language == "en":
+            intent_hint = (
+                "\n== Channel: Bazi (Eight Characters) Only ==\n"
+                "User chose single-aspect bazi analysis. Only bazi report is available.\n"
+                "Report focus:\n"
+                "1. Deep-dive into bazi interpretation — day master, ten gods, five elements balance\n"
+                "2. Do NOT mention astrology, tarot, qimen, ziwei, face, or palm analysis\n"
+                "3. Structure the entire report around bazi insights only\n\n"
+            )
+        else:
+            intent_hint = (
+                "\n== 推命通道：八字单项分析 ==\n"
+                "用户选择了八字单项分析，仅有八字报告可用。\n"
+                "报告重心：\n"
+                "1. 深度解读八字——日主、十神、五行平衡、大运流年\n"
+                "2. 不要提及其他体系（星盘、塔罗、奇门、紫微、面相、手相）\n"
+                "3. 整个报告围绕八字展开，做深做透\n\n"
+            )
+    elif intent == "ASTROLOGY":
+        if language == "en":
+            intent_hint = (
+                "\n== Channel: Astrology Only ==\n"
+                "User chose single-aspect astrology analysis. Only astrology report is available.\n"
+                "Report focus:\n"
+                "1. Deep-dive into natal chart — planets, houses, aspects, transits\n"
+                "2. Do NOT mention bazi, tarot, qimen, ziwei, face, or palm analysis\n"
+                "3. Structure the entire report around astrological insights only\n\n"
+            )
+        else:
+            intent_hint = (
+                "\n== 推命通道：星盘单项分析 ==\n"
+                "用户选择了星盘单项分析，仅有星盘报告可用。\n"
+                "报告重心：\n"
+                "1. 深度解读星盘——行星、宫位、相位、行运\n"
+                "2. 不要提及其他体系（八字、塔罗、奇门、紫微、面相、手相）\n"
+                "3. 整个报告围绕星盘展开，做深做透\n\n"
+            )
+    elif intent == "TAROT":
+        if language == "en":
+            intent_hint = (
+                "\n== Channel: Tarot Only ==\n"
+                "User chose single-aspect tarot analysis. Only tarot report is available.\n"
+                "Report focus:\n"
+                "1. Deep-dive into tarot card interpretation — symbolism, archetypes, spreads\n"
+                "2. Do NOT mention bazi, astrology, qimen, ziwei, face, or palm analysis\n"
+                "3. Structure the entire report around tarot insights only\n\n"
+            )
+        else:
+            intent_hint = (
+                "\n== 推命通道：塔罗单项分析 ==\n"
+                "用户选择了塔罗单项分析，仅有塔罗报告可用。\n"
+                "报告重心：\n"
+                "1. 深度解读塔罗牌——象征意义、原型、牌阵\n"
+                "2. 不要提及其他体系（八字、星盘、奇门、紫微、面相、手相）\n"
+                "3. 整个报告围绕塔罗牌展开，做深做透\n\n"
+            )
+    elif intent == "FACE_HAND":
+        if language == "en":
+            intent_hint = (
+                "\n== Channel: Face & Palm Reading Only ==\n"
+                "User chose single-aspect face/hand analysis. Only face and palm reports are available.\n"
+                "Report focus:\n"
+                "1. Deep-dive into physiognomy and palmistry — facial features, palm lines, mounts\n"
+                "2. Do NOT mention bazi, astrology, tarot, qimen, or ziwei analysis\n"
+                "3. Structure the entire report around face and palm insights only\n\n"
+            )
+        else:
+            intent_hint = (
+                "\n== 推命通道：面相手相单项分析 ==\n"
+                "用户选择了面相手相单项分析，仅有面相和手相报告可用。\n"
+                "报告重心：\n"
+                "1. 深度解读面相与手相——五官、三庭、掌纹、八大丘\n"
+                "2. 不要提及其他体系（八字、星盘、塔罗、奇门、紫微）\n"
+                "3. 整个报告围绕面相手相展开，做深做透\n\n"
+            )
     elif intent == "RELATIONSHIP":
         if language == "en":
             intent_hint = (
@@ -7708,8 +7784,43 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
             )
 
     # Output structure: skip for RELATIONSHIP (intent_hint already has its own structure)
+    # Single-aspect intents get a focused deep-dive structure
+    _single_aspect_intents = {"BAZI", "ASTROLOGY", "TAROT", "FACE_HAND"}
     output_structure = ""
-    if intent != "RELATIONSHIP":
+    if intent in _single_aspect_intents:
+        if language == "en":
+            output_structure = (
+                "== Output Structure (Single-Aspect Deep Dive) ==\n"
+                "【A · Core Personality Blueprint】\n"
+                "Core Trait: One sentence (max 12 words) capturing the essence\n"
+                "Personality Analysis: 200-300 words deep-dive — analyze strengths, hidden vulnerabilities, and behavioral roots with concrete examples drawn from the single available expert report\n"
+                "Key Behavioral Patterns: List 2-3 specific tendencies with evidence from the report\n"
+                "Growth Edge: One sentence on the most valuable personal development direction\n\n"
+                "【B · Deep Aspect Analysis】\n"
+                "Current State: What does this aspect reveal about the user's present situation?\n"
+                "Key Insights: 3-5 specific, actionable insights drawn exclusively from the expert report\n"
+                "Hidden Signals: What subtle patterns or warnings does the report reveal?\n"
+                "Forward Look: Near-term trends and turning points based on this aspect\n\n"
+                f"== Scores == {scores_str}\n\n"
+                "IMPORTANT: Only reference the single expert report provided. Do NOT fabricate or reference other systems.\n\n"
+            )
+        else:
+            output_structure = (
+                "== 输出结构（单项深度分析） ==\n"
+                "【A·核心性格底色】\n"
+                "核心特质：用15字以内大白话抓住本质\n"
+                "性格解析：用200-300字深度分析性格优势与隐藏软肋，结合专家报告中的具体依据\n"
+                '关键行为模式：列出2-3个具体的行为倾向（如"遇到压力时倾向于独自消化而不是找人倾诉"），附报告依据\n'
+                "成长建议：用一句话点出最值得发展的方向\n\n"
+                "【B·单项深度剖析】\n"
+                "当前状态：这个面向揭示了用户当下什么样的处境？\n"
+                "核心发现：3-5条具体、可操作的洞察，全部来自专家报告\n"
+                "隐藏信号：报告中揭示的微妙模式或预警\n"
+                "前瞻：基于该面向的近期趋势和转折点\n\n"
+                f"== 五维评分 ==\n{scores_str}\n\n"
+                "重要：只引用提供的单一专家报告，不要编造或提及其他体系的分析。\n\n"
+            )
+    elif intent != "RELATIONSHIP":
         if language == "en":
             output_structure = (
                 "== Output Structure ==\n"

@@ -112,7 +112,6 @@ def get_settings() -> Settings:
     _default_secrets = {
         "change-me-in-production",
         "change-me-to-a-random-32-char-string",
-        "alpha-mirror-jwt-secret-dev-key-2025",
     }
     if not s.SECRET_KEY or s.SECRET_KEY in _default_secrets or s.SECRET_KEY.startswith("change-me"):
         s.SECRET_KEY = secrets.token_hex(32)

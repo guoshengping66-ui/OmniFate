@@ -431,31 +431,30 @@ async def cache_middleware(request: Request, call_next):
         return response
 
     # Cache successful JSON responses only (skip if body > 256KB to avoid memory bloat)
+    # Early return for non-200: don't consume body — let downstream middleware handle it
+    if response.status_code != 200:
+        return response
     MAX_CACHE_BODY = 256 * 1024  # 256KB
-    if response.status_code == 200:
-        # Fast path: use Content-Length header to skip buffering for obviously large responses
-        content_length = response.headers.get("content-length")
-        if content_length and int(content_length) > MAX_CACHE_BODY:
-            return response  # Stream directly without buffering
-        body = b""
-        async for chunk in response.body_iterator:
-            if isinstance(chunk, str):
-                chunk = chunk.encode("utf-8")
-            body += chunk
-            # Incremental check: stop early if already over limit
-            if len(body) > MAX_CACHE_BODY:
-                return Response(content=body, status_code=200, headers=dict(response.headers))
-        try:
-            data = json.loads(body)
-            await cache_set_json(cache_key, data, ttl=cache_ttl)
-            return JSONResponse(
-                content=data,
-                headers={"X-Cache": "MISS", "Cache-Control": f"public, max-age={cache_ttl}"},
-            )
-        except (json.JSONDecodeError, UnicodeDecodeError):
+    # Fast path: use Content-Length header to skip buffering for obviously large responses
+    content_length = response.headers.get("content-length")
+    if content_length and int(content_length) > MAX_CACHE_BODY:
+        return response  # Stream directly without buffering
+    body = b""
+    async for chunk in response.body_iterator:
+        if isinstance(chunk, str):
+            chunk = chunk.encode("utf-8")
+        body += chunk
+        if len(body) > MAX_CACHE_BODY:
             return Response(content=body, status_code=200, headers=dict(response.headers))
-
-    return response
+    try:
+        data = json.loads(body)
+        await cache_set_json(cache_key, data, ttl=cache_ttl)
+        return JSONResponse(
+            content=data,
+            headers={"X-Cache": "MISS", "Cache-Control": f"public, max-age={cache_ttl}"},
+        )
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return Response(content=body, status_code=200, headers=dict(response.headers))
 
 
 app.include_router(auth.router,     prefix="/api/auth",     tags=["Auth"])

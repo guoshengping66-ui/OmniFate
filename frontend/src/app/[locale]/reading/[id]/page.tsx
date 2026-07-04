@@ -1107,6 +1107,7 @@ export default function ReadingPage() {
   const [showOneTimePayment, setShowOneTimePayment] = useState(false)
   const [isUnlocked, setIsUnlocked] = useState(false)
   const [isDetailedUnlocked, setIsDetailedUnlocked] = useState(false)
+  const [unlockLoading, setUnlockLoading] = useState(false)  // prevent duplicate unlock calls
 
   // Pre-compute star particle styles to avoid Math.random() in render
   const starParticles = useMemo(() =>
@@ -1232,14 +1233,14 @@ export default function ReadingPage() {
   }, [refreshUser])
 
   const handleStardustUnlock = useCallback(async () => {
-    if (!id) return
+    if (!id || unlockLoading) return
+    setUnlockLoading(true)
     try {
       const { unlockReport } = await import("@/lib/api")
       const result = await unlockReport(id, "stardust", "full")
       if (result.unlocked || result.already_unlocked) {
         setIsUnlocked(true)
         setIsDetailedUnlocked(true)
-        // Re-fetch session data so master_detail / worker reports are populated
         const fresh = await getSession(id, locale)
         if (fresh) setData(fresh)
       }
@@ -1247,25 +1248,34 @@ export default function ReadingPage() {
       refreshUser()
     } catch (err: any) {
       toast.error(err?.response?.data?.detail || t("reading.unlockedFailed"))
+    } finally {
+      setUnlockLoading(false)
     }
-  }, [id, refreshUser, locale])
+  }, [id, refreshUser, locale, unlockLoading])
 
   const handleOneTimeUnlock = useCallback(() => {
     setShowOneTimePayment(true)
   }, [])
 
   const handleOneTimePaymentSuccess = useCallback(async () => {
-    setShowOneTimePayment(false)
-    setIsUnlocked(true)
-    setIsDetailedUnlocked(true)
-    const fresh = await getSession(id!, locale)
-    if (fresh) setData(fresh)
-    toast.success(t("reading.unlockedSuccess"))
-    refreshUser()
-  }, [id, refreshUser, locale])
+    if (!id || unlockLoading) return
+    setUnlockLoading(true)
+    try {
+      setShowOneTimePayment(false)
+      setIsUnlocked(true)
+      setIsDetailedUnlocked(true)
+      const fresh = await getSession(id, locale)
+      if (fresh) setData(fresh)
+      toast.success(t("reading.unlockedSuccess"))
+      refreshUser()
+    } finally {
+      setUnlockLoading(false)
+    }
+  }, [id, refreshUser, locale, unlockLoading])
 
   const handleDetailedUnlock = useCallback(async () => {
-    if (!id) return
+    if (!id || unlockLoading) return
+    setUnlockLoading(true)
     try {
       const { unlockReport } = await import("@/lib/api")
       const result = await unlockReport(id, "stardust", "detailed")
@@ -1278,8 +1288,10 @@ export default function ReadingPage() {
       refreshUser()
     } catch (err: any) {
       toast.error(err?.response?.data?.detail || t("reading.unlockedFailed"))
+    } finally {
+      setUnlockLoading(false)
     }
-  }, [id, refreshUser, locale])
+  }, [id, refreshUser, locale, unlockLoading])
 
   // ── All hooks MUST be called before any early returns (React rules of hooks).
   //    Compute derived values used by hooks here, guard with null checks. ──
@@ -1303,17 +1315,32 @@ export default function ReadingPage() {
     )
   }
 
-  // Dynamic worker order — include partner_face/palm only when data exists
+  // Dynamic worker order — filter by intent for single-aspect analysis
   const WORKER_ORDER_ALL: readonly string[] = (() => {
-    const base = ["bazi", "qimen", "ziwei", "astrology", "tarot", "face", "palm"]
+    const _singleAspectWorkers: Record<string, string[]> = {
+      BAZI: ["bazi"],
+      ASTROLOGY: ["astrology"],
+      TAROT: ["tarot"],
+      FACE_HAND: ["face", "palm"],
+    }
+    let base: string[]
+    if (data.intent && _singleAspectWorkers[data.intent]) {
+      base = _singleAspectWorkers[data.intent]
+    } else {
+      base = ["bazi", "qimen", "ziwei", "astrology", "tarot", "face", "palm"]
+    }
     if (data.partner_face) base.push("partner_face")
     if (data.partner_palm) base.push("partner_palm")
     return base as readonly string[]
   })()
 
-  // Dynamic navigation items — include partner tabs when available
+  // Dynamic navigation items — include partner tabs when available, filter by intent
   const NAV_ITEMS_DIMENSIONS = (() => {
-    const items = [...I18N_NAV_DIMENSIONS]
+    let items = [...I18N_NAV_DIMENSIONS]
+    const isSingleAspect = data.intent && ["BAZI", "ASTROLOGY", "TAROT", "FACE_HAND"].includes(data.intent)
+    if (isSingleAspect) {
+      items = items.filter(i => WORKER_ORDER_ALL.includes(i.id))
+    }
     if (data.partner_face) {
       items.splice(items.findIndex(i => i.id === "face") + 1, 0,
         { id: "partner_face", icon: "👁", labelKey: "reading.nav.partnerFace", descKey: "reading.nav.partnerFaceDesc" })
@@ -1340,6 +1367,7 @@ export default function ReadingPage() {
     ...(data.partner_palm ? { partner_palm: data.partner_palm } : {}),
   }
 
+  const isSingleAspectIntent = data.intent ? ["BAZI", "ASTROLOGY", "TAROT", "FACE_HAND"].includes(data.intent) : false
   const displayDimensionScores = data.dimension_scores ? getDisplayDimensionScores(data.dimension_scores) : undefined
   const strongestDim = displayDimensionScores ? getStrongestDimension(displayDimensionScores) : "career"
   const strongestLabel = displayDimensionScores ? getI18nDimLabel(getStrongestDimension(displayDimensionScores), t) : t("reading.dim.career")
@@ -1507,7 +1535,7 @@ export default function ReadingPage() {
               })()}
 
               {/* ── Dimension Score Compact Row (hidden for RELATIONSHIP) ── */}
-              {displayDimensionScores && data.intent !== "RELATIONSHIP" && (
+              {displayDimensionScores && data.intent !== "RELATIONSHIP" && !isSingleAspectIntent && (
                 <div
                   className="grid grid-cols-3 sm:grid-cols-5 gap-2 md:gap-3 mb-8"
                   style={{
@@ -1563,8 +1591,8 @@ export default function ReadingPage() {
                 </div>
               )}
 
-              {/* ── Insight Blurb (hidden for RELATIONSHIP) ── */}
-              {data.intent !== "RELATIONSHIP" && (<div
+              {/* ── Insight Blurb (hidden for RELATIONSHIP and single-aspect) ── */}
+              {data.intent !== "RELATIONSHIP" && !isSingleAspectIntent && (<div
                 className="flex items-start gap-3 p-4 rounded-2xl bg-gold/[0.04] border border-gold/10"
                 style={{
                   transition: "all 0.6s ease-out 0.9s",
@@ -1829,7 +1857,7 @@ export default function ReadingPage() {
             })()}
 
             {/* ── 2. Life trajectory K-line (hidden for RELATIONSHIP) ── */}
-            {displayDimensionScores && data.intent !== "RELATIONSHIP" && (
+            {displayDimensionScores && data.intent !== "RELATIONSHIP" && !isSingleAspectIntent && (
               <Suspense fallback={<div className="h-64 rounded-2xl bg-white/[0.03] animate-pulse" />}>
                 <LifeKLineChart
                   scores={displayDimensionScores}
@@ -1840,7 +1868,7 @@ export default function ReadingPage() {
               </Suspense>
             )}
 
-            {displayDimensionScores && data.intent !== "RELATIONSHIP" && (
+            {displayDimensionScores && data.intent !== "RELATIONSHIP" && !isSingleAspectIntent && (
               <ActionRoadmap
                 strongestLabel={strongestLabel}
                 weakestLabel={weakestLabel}
@@ -1942,7 +1970,7 @@ export default function ReadingPage() {
             )}
 
             {/* ── 6. Energy ID Card (hidden for RELATIONSHIP) ── */}
-            {displayDimensionScores && data.intent !== "RELATIONSHIP" && (
+            {displayDimensionScores && data.intent !== "RELATIONSHIP" && !isSingleAspectIntent && (
               <Suspense fallback={<div className="h-32" />}>
                 <EnergyIDCard
                   sessionId={id}
@@ -1953,7 +1981,7 @@ export default function ReadingPage() {
             )}
 
             {/* ── 6b. Growth Path (成长路径) ── */}
-            {displayDimensionScores && data.intent !== "RELATIONSHIP" && (
+            {displayDimensionScores && data.intent !== "RELATIONSHIP" && !isSingleAspectIntent && (
               <div className="card-glass p-5 md:p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <TrendingUp size={16} className="text-green-400/70" />
@@ -2007,7 +2035,7 @@ export default function ReadingPage() {
                 description={t("reading.insight.locked")}
                 priceDisplay="19.9"
                 onUnlock={() => router.push(localeHref("/pricing"))}
-                loading={false}
+                loading={unlockLoading}
                 previewLines={8}
                 stardustBalance={user?.stardust_balance || 0}
                 onDetailedUnlock={handleDetailedUnlock}
@@ -2052,7 +2080,7 @@ export default function ReadingPage() {
                   </div>
                   <button
                     onClick={handleStardustUnlock}
-                    disabled={(user?.stardust_balance || 0) < (STARDUST_COST.FULL_REPORT - STARDUST_COST.DETAILED_REPORT)}
+                    disabled={unlockLoading || (user?.stardust_balance || 0) < (STARDUST_COST.FULL_REPORT - STARDUST_COST.DETAILED_REPORT)}
                     className={`flex items-center justify-center gap-2 px-5 py-3 rounded-xl border text-sm transition-all ${
                       (user?.stardust_balance || 0) >= (STARDUST_COST.FULL_REPORT - STARDUST_COST.DETAILED_REPORT)
                         ? "bg-gold/10 border-gold/30 text-gold hover:border-gold/50"
@@ -2257,7 +2285,7 @@ export default function ReadingPage() {
                     description={t("reading.worker.unlockDesc")}
                     priceDisplay="19.9"
                     onUnlock={() => router.push(localeHref("/pricing"))}
-                    loading={false}
+                    loading={unlockLoading}
                     previewLines={5}
                     stardustBalance={user?.stardust_balance || 0}
                     onStardustUnlock={handleStardustUnlock}
@@ -2335,10 +2363,11 @@ export default function ReadingPage() {
                 {(user?.stardust_balance || 0) >= STARDUST_COST.FULL_REPORT ? (
                   <button
                     onClick={handleStardustUnlock}
-                    className="flex items-center gap-2 mx-auto text-sm px-8 py-3 rounded-xl bg-gradient-to-r from-violet-500/20 to-blue-500/20 border border-violet-400/30 hover:border-violet-400/50 text-violet-300 hover:text-violet-200 transition-all"
+                    disabled={unlockLoading}
+                    className="flex items-center gap-2 mx-auto text-sm px-8 py-3 rounded-xl bg-gradient-to-r from-violet-500/20 to-blue-500/20 border border-violet-400/30 hover:border-violet-400/50 text-violet-300 hover:text-violet-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Sparkles size={16} />
-                    {t("paywall.useStardust")}（{STARDUST_COST.FULL_REPORT} ✦）
+                    {unlockLoading ? "..." : <>{t("paywall.useStardust")}（{STARDUST_COST.FULL_REPORT} ✦）</>}
                     <span className="text-violet-400/60 ml-1">· {user?.stardust_balance || 0} ✦</span>
                   </button>
                 ) : (
