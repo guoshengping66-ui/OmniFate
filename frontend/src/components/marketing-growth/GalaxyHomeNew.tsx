@@ -47,11 +47,14 @@ export default function GalaxyHomeNew() {
           {/* Bridge glow — subtle connector */}
           <div style={{position:"absolute",left:0,top:"42%",width:"100%",height:"160px",background:"linear-gradient(90deg, rgba(218,180,74,0.05) 0%, rgba(255,238,190,0.10) 36%, rgba(70,170,190,0.08) 66%, rgba(30,90,120,0.03) 100%)",filter:"blur(14px)",mixBlendMode:"screen" as const,opacity:.42,zIndex:0}} />
 
+          {/* Galaxy density axis — diagonal core band, not uniform fog */}
+          <div style={{position:"absolute",left:"-18%",top:"40%",width:"140%",height:"170px",transform:"rotate(-13deg)",zIndex:2,pointerEvents:"none",background:"radial-gradient(ellipse at 28% 50%, rgba(218,180,74,0.16), transparent 22%), radial-gradient(ellipse at 48% 50%, rgba(255,245,210,0.14), transparent 20%), radial-gradient(ellipse at 68% 50%, rgba(80,180,195,0.12), transparent 26%), linear-gradient(90deg, transparent 0%, rgba(218,180,74,0.06) 22%, rgba(255,245,210,0.10) 48%, rgba(70,170,190,0.08) 72%, transparent 100%)",filter:"blur(10px)",opacity:.72,maskImage:"radial-gradient(ellipse at center, black 0%, black 38%, rgba(0,0,0,0.68) 54%, transparent 78%)",WebkitMaskImage:"radial-gradient(ellipse at center, black 0%, black 38%, rgba(0,0,0,0.68) 54%, transparent 78%)"}} />
+
           {/* Luminous core — local warm bright spot */}
           <div style={{position:"absolute",left:"22%",top:"38%",width:"56%",height:"150px",background:"radial-gradient(ellipse at 35% 50%, rgba(255,226,150,0.20), transparent 20%), radial-gradient(ellipse at 52% 48%, rgba(255,248,220,0.18), transparent 18%), radial-gradient(ellipse at 68% 52%, rgba(70,170,190,0.14), transparent 22%)",filter:"blur(12px)",mixBlendMode:"screen" as const,opacity:.72,zIndex:1}} />
 
           {/* 1300 DOM-based stars — z-index 4, above fog */}
-          <div className="absolute inset-0" style={{zIndex:4}}>
+          <div className="absolute inset-0" style={{zIndex:4,opacity:.9}}>
             {galaxyStars.map(s=>(<span key={s.id} style={{position:"absolute",left:`${s.left}%`,top:`${s.top}%`,width:s.size,height:s.size,borderRadius:"50%",background:STAR_COLORS[s.color],boxShadow:s.color==="gold"?"0 0 6px rgba(255,218,120,0.5)":s.color==="cyan"?"0 0 4px rgba(130,225,235,0.3)":"0 0 3px rgba(255,248,220,0.25)",opacity:s.opacity,transform:"translate(-50%,-50%)"}} />))}
           </div>
 
@@ -68,23 +71,23 @@ export default function GalaxyHomeNew() {
         </div>
       </div>
 
-      {/* L4: Foreground gold dust — sparse, tiny */}
-      <div className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{zIndex:4}}>{Array.from({length:15},(_,i)=>{const sd=((i*137+53)%100)/100;return <span key={i} style={{position:"absolute",left:`${(i*73+11)%100}%`,top:`${(i*47+7)%100}%`,width:0.8+(i%3)*0.3,height:0.8+(i%3)*0.3,borderRadius:"50%",background:i%5===0?"rgba(218,180,74,0.30)":"rgba(190,205,225,0.12)",opacity:.08+sd*.20}} />})}</div>
+      {/* L4: Foreground stars — depth layer, subtle twinkle */}
+      <div className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{zIndex:4}}>{Array.from({length:30},(_,i)=>{const sd=((i*137+53)%100)/100;const isGold=i%6===0;return <span key={i} style={{position:"absolute",left:`${(i*73+11)%100}%`,top:`${(i*47+7)%100}%`,width:1+(i%3)*0.5,height:1+(i%3)*0.5,borderRadius:"50%",background:isGold?"rgba(235,210,160,0.7)":"rgba(180,195,215,0.35)",boxShadow:isGold?"0 0 6px rgba(218,180,74,0.3)":"none",opacity:.2+sd*.35,animation:`fgTwinkle ${3+(i%4)*1.5}s ease-in-out ${(i*.7)%4}s infinite alternate`}} />})}</div>
 
       {/* L5: Tai Chi Bagua — wireframe formation, no fill */}
-      <div className="fixed left-1/2 pointer-events-none" aria-hidden="true" style={{width:"min(540px, 92vw)",height:"min(540px, 92vw)",top:"44%",transform:"translate(-50%,-50%) rotate(0deg)",opacity:.24,zIndex:6,animation:"taijiSpin 90s linear infinite",filter:"drop-shadow(0 0 38px rgba(218,180,74,0.14))"}}>
-        <div style={{position:"absolute",inset:0,borderRadius:"50%",border:"1px solid rgba(218,180,74,0.26)",boxShadow:"0 0 48px rgba(218,180,74,0.08), inset 0 0 40px rgba(80,180,190,0.05)"}} />
-        <div style={{position:"absolute",inset:"12%",borderRadius:"50%",border:"1px dashed rgba(218,180,74,0.20)"}} />
-        {TRIGRAMS.map((t,i)=>{const a=(i/8)*360-90,rad=(a*Math.PI)/180,d=45;return <span key={i} className="absolute font-serif" style={{left:`${50+d*Math.cos(rad)}%`,top:`${50+d*Math.sin(rad)}%`,transform:"translate(-50%,-50%)",color:"rgba(218,180,74,0.40)",fontSize:"clamp(10px,1.3vw,14px)"}}>{t}</span>})}
-        <div style={{position:"absolute",inset:"24%",borderRadius:"50%",border:"0.5px solid rgba(218,180,74,0.12)"}} />
-        <div style={{position:"absolute",inset:"8%",display:"grid",placeItems:"center",fontSize:"clamp(72px,10vw,120px)",color:"rgba(218,180,74,0.38)"}}>☯</div>
+      <div className="fixed left-1/2 pointer-events-none" aria-hidden="true" style={{width:"min(540px, 92vw)",height:"min(540px, 92vw)",top:"44%",transform:"translate(-50%,-50%) rotate(0deg)",opacity:.28,zIndex:6,animation:"taijiSpin 90s linear infinite",filter:"drop-shadow(0 0 42px rgba(218,180,74,0.18))"}}>
+        <div style={{position:"absolute",inset:0,borderRadius:"50%",border:"1px solid rgba(218,180,74,0.32)",boxShadow:"0 0 52px rgba(218,180,74,0.10), inset 0 0 44px rgba(80,180,190,0.06)"}} />
+        <div style={{position:"absolute",inset:"12%",borderRadius:"50%",border:"1px dashed rgba(218,180,74,0.24)"}} />
+        {TRIGRAMS.map((t,i)=>{const a=(i/8)*360-90,rad=(a*Math.PI)/180,d=45;return <span key={i} className="absolute font-serif" style={{left:`${50+d*Math.cos(rad)}%`,top:`${50+d*Math.sin(rad)}%`,transform:"translate(-50%,-50%)",color:"rgba(218,180,74,0.44)",textShadow:"0 0 8px rgba(218,180,74,0.18)",fontSize:"clamp(10px,1.3vw,14px)"}}>{t}</span>})}
+        <div style={{position:"absolute",inset:"24%",borderRadius:"50%",border:"0.5px solid rgba(218,180,74,0.15)"}} />
+        <div style={{position:"absolute",inset:"8%",display:"grid",placeItems:"center",fontSize:"clamp(72px,10vw,120px)",color:"rgba(218,180,74,0.44)",textShadow:"0 0 14px rgba(218,180,74,0.15)"}}>☯</div>
       </div>
 
       {/* L6: Text mask — lighter */}
       <div className="fixed left-1/2 pointer-events-none" aria-hidden="true" style={{width:680,maxWidth:"95vw",height:500,top:"48%",transform:"translate(-50%,-50%)",background:"radial-gradient(ellipse at center, rgba(2,5,12,0.24) 0%, rgba(2,5,12,0.14) 36%, transparent 72%)",zIndex:7}} />
       {/* L7: Vignette */}
       <div className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{background:"radial-gradient(circle at 50% 42%, transparent 0%, transparent 30%, rgba(0,0,0,0.22) 70%), linear-gradient(180deg, rgba(0,0,0,0.10) 0%, transparent 18%, transparent 48%, rgba(0,0,0,0.74) 100%)",zIndex:8}} />
-      <style>{`@keyframes taijiSpin{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}@keyframes ringSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes goldFlow{0%{opacity:.4;transform:skewY(-3deg) translateX(-3%)}50%{opacity:.65;transform:skewY(-3deg) translateX(3%)}100%{opacity:.4;transform:skewY(-3deg) translateX(-3%)}}@media(prefers-reduced-motion:reduce){*{animation:none!important}}`}</style>
+      <style>{`@keyframes taijiSpin{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}@keyframes ringSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes goldFlow{0%{opacity:.4;transform:skewY(-3deg) translateX(-3%)}50%{opacity:.65;transform:skewY(-3deg) translateX(3%)}100%{opacity:.4;transform:skewY(-3deg) translateX(-3%)}}@keyframes fgTwinkle{from{opacity:.2;transform:scale(.8)}to{opacity:.5;transform:scale(1.15)}}@media(prefers-reduced-motion:reduce){*{animation:none!important}}`}</style>
 
       {/* ═══ HERO ═══ */}
       <section className="relative flex min-h-[88vh] w-full flex-col items-center justify-center px-6 text-center" style={{zIndex:10}}>
