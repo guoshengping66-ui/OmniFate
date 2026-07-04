@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"; import Link from "next/link"; import { ArrowRight } from "lucide-react"; import { useLanguage } from "@/contexts/LanguageContext"
+import { useMemo, useRef, useEffect, useCallback } from "react"; import Link from "next/link"; import { ArrowRight } from "lucide-react"; import { useLanguage } from "@/contexts/LanguageContext"
 const T=["乾","兑","离","震","巽","坎","艮","坤"]
 function srng(s:number){let v=s;return()=>{v=(v*16807+0)%2147483647;return(v-1)/2147483646}}
 
@@ -22,6 +22,128 @@ function mkS(){
 
 /* Qi vortex — 30 particles orbiting bagua */
 function mkQ(){const r=srng(73);return Array.from({length:30},(_,i)=>{const a=(i/30)*360,d=16+(i%4)*6;return{id:i,ang:a,dist:d,sp:2+(i%4)*1.2,dl:i*.5,sz:1.2+(i%4)*.7}})}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   Flowing Galaxy — Canvas-based cosmic river (Qingnang-style)
+   Dark flowing nebula waves inspired by Qingnang's flowing mountains
+   ═══════════════════════════════════════════════════════════════ */
+interface WaveLayer { amp: number; freq: number; phase: number; speed: number; yOff: number; hue: number; alpha: number }
+interface FlowParticle { x: number; y: number; baseY: number; size: number; alpha: number; speed: number; phase: number }
+
+function useFlowingGalaxy(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
+  const rafRef = useRef<number>(0)
+  const wavesRef = useRef<WaveLayer[]>([])
+  const particlesRef = useRef<FlowParticle[]>([])
+  const dimsRef = useRef({ W: 0, H: 0 })
+
+  const init = useCallback(() => {
+    const c = canvasRef.current; if (!c) return
+    const W = c.width = c.offsetWidth * (devicePixelRatio || 1)
+    const H = c.height = c.offsetHeight * (devicePixelRatio || 1)
+    dimsRef.current = { W, H }
+
+    // 5 flowing wave bands — dark cosmic colors
+    const waves: WaveLayer[] = [
+      { amp: H * 0.08, freq: 0.0008, phase: 0, speed: 0.0003, yOff: H * 0.25, hue: 260, alpha: 0.35 },
+      { amp: H * 0.10, freq: 0.0012, phase: 1.5, speed: 0.0004, yOff: H * 0.35, hue: 275, alpha: 0.28 },
+      { amp: H * 0.07, freq: 0.0010, phase: 3.0, speed: 0.00035, yOff: H * 0.50, hue: 250, alpha: 0.32 },
+      { amp: H * 0.09, freq: 0.0009, phase: 4.5, speed: 0.00025, yOff: H * 0.60, hue: 285, alpha: 0.22 },
+      { amp: H * 0.06, freq: 0.0014, phase: 2.0, speed: 0.00045, yOff: H * 0.70, hue: 265, alpha: 0.18 },
+    ]
+    wavesRef.current = waves
+
+    // 200 flowing particles along the wave paths
+    const particles: FlowParticle[] = []
+    for (let i = 0; i < 200; i++) {
+      const wi = i % waves.length
+      const w = waves[wi]
+      particles.push({
+        x: Math.random() * W,
+        y: 0,
+        baseY: w.yOff + (Math.random() - 0.5) * w.amp * 2,
+        size: 0.4 + Math.random() * 1.6,
+        alpha: 0.1 + Math.random() * 0.35,
+        speed: 0.1 + Math.random() * 0.4,
+        phase: Math.random() * Math.PI * 2,
+      })
+    }
+    particlesRef.current = particles
+  }, [canvasRef])
+
+  useEffect(() => { init(); const onResize = () => { cancelAnimationFrame(rafRef.current); init() }; window.addEventListener('resize', onResize); return () => { cancelAnimationFrame(rafRef.current); window.removeEventListener('resize', onResize) } }, [init])
+
+  useEffect(() => {
+    const c = canvasRef.current; if (!c) return
+    const ctx = c.getContext('2d'); if (!ctx) return
+    let animating = true
+    function frame(ts: number) {
+      if (!animating) return
+      const { W, H } = dimsRef.current; if (!W) { rafRef.current = requestAnimationFrame(frame); return }
+      ctx!.clearRect(0, 0, W, H)
+      const t = ts * 0.001
+      const waves = wavesRef.current
+      const particles = particlesRef.current
+
+      // Draw each wave band as a flowing gradient ribbon
+      for (const w of waves) {
+        w.phase += w.speed
+        ctx!.save()
+        // Create clipping path for this wave band
+        ctx!.beginPath()
+        ctx!.moveTo(-10, H)
+        for (let x = -10; x <= W + 10; x += 3) {
+          const y = w.yOff + Math.sin(x * w.freq + w.phase) * w.amp
+               + Math.sin(x * w.freq * 2.3 + w.phase * 1.7) * w.amp * 0.4
+          ctx!.lineTo(x, y)
+        }
+        ctx!.lineTo(W + 10, H)
+        ctx!.closePath()
+
+        // Gradient fill — dark cosmic colors
+        const grad = ctx!.createLinearGradient(0, w.yOff - w.amp, 0, w.yOff + w.amp * 2)
+        grad.addColorStop(0, `hsla(${w.hue}, 50%, 25%, 0)`)
+        grad.addColorStop(0.3, `hsla(${w.hue}, 45%, 30%, ${w.alpha})`)
+        grad.addColorStop(0.6, `hsla(${w.hue + 20}, 35%, 20%, ${w.alpha * 0.7})`)
+        grad.addColorStop(1, `hsla(${w.hue}, 30%, 12%, 0)`)
+        ctx!.fillStyle = grad
+        ctx!.fill()
+        ctx!.restore()
+      }
+
+      // Draw flowing particles along wave paths
+      for (const p of particles) {
+        const wi = particles.indexOf(p) % waves.length
+        const w = waves[wi]
+        p.phase += p.speed * 0.01
+        // Position on the wave curve
+        const waveY = w.yOff + Math.sin(p.x * w.freq + w.phase) * w.amp
+                     + Math.sin(p.x * w.freq * 2.3 + w.phase * 1.7) * w.amp * 0.4
+        p.y = waveY + (p.baseY - w.yOff) * 0.3
+        p.x += p.speed * 0.3
+        if (p.x > W + 20) { p.x = -20; p.baseY = w.yOff + (Math.random() - 0.5) * w.amp * 2 }
+        if (p.x < -20) { p.x = W + 20 }
+
+        const pulseAlpha = p.alpha * (0.5 + 0.5 * Math.sin(t * 2 + p.phase))
+        ctx!.beginPath()
+        ctx!.arc(p.x, p.y, p.size, 0, Math.PI * 2)
+        ctx!.fillStyle = `hsla(${w.hue + 20}, 50%, 70%, ${pulseAlpha})`
+        ctx!.fill()
+        // Glow for larger particles
+        if (p.size > 1.0) {
+          ctx!.beginPath()
+          ctx!.arc(p.x, p.y, p.size * 3, 0, Math.PI * 2)
+          ctx!.fillStyle = `hsla(${w.hue + 20}, 40%, 60%, ${pulseAlpha * 0.1})`
+          ctx!.fill()
+        }
+      }
+
+      rafRef.current = requestAnimationFrame(frame)
+    }
+    rafRef.current = requestAnimationFrame(frame)
+    return () => { animating = false; cancelAnimationFrame(rafRef.current) }
+  }, [canvasRef])
+}
 
 const SYS=[{n:"八字",nE:"Bazi",q:"底层结构",qE:"Structure",a:"长期节奏与人生框架",aE:"Long-term rhythm",c:"#5A9E8E",f:!0},{n:"紫微",nE:"Ziwei",q:"能量周期",qE:"Cycles",a:"十二宫主星分布与大限流年",aE:"12-palace distribution",c:"#8B7EC7",f:!0},{n:"星盘",nE:"Astrology",q:"心理模式",qE:"Patterns",a:"七政四余恒星制·先天格局",aE:"Sidereal configuration",c:"#7B9EC7",f:!0},{n:"塔罗",nE:"Tarot",q:"当下选择",qE:"Choice",a:"聚焦此刻压力与决策",aE:"Current decisions",c:"#C77B8B",f:!1},{n:"面相",nE:"Face",q:"行为印象",qE:"Impression",a:"五官十二宫·禀赋气质",aE:"Five features, 12 palaces",c:"#C4BFB0",f:!1}]
 const INP={zh:["生辰八字","出生地点","面相照片","手相照片","当前问题"],en:["Birth date & time","Birth location","Face photo","Palm photo","Your question"]}
@@ -68,7 +190,10 @@ return(<div className="w-full text-white" style={{background:"#000"}}>
       filter:"blur(10px)",opacity:.6,animation:"corePulse 8s ease-in-out infinite"}}/>
   </div>
 
-  {/* ═══ L3: Tai Chi — subtle background system ═══ */}
+  {/* ═══ Flowing Galaxy Canvas — Qingnang-style cosmic river ═══ */}
+	  <canvas ref={flowGalaxyRef} aria-hidden="true" className="fixed inset-0 pointer-events-none" style={{zIndex:3,width:"100%",height:"100%"}}/>
+
+	  {/\* ═══ L3: Tai Chi — subtle background system ═══ \*/}
   <div className="fixed left-1/2 pointer-events-none" aria-hidden="true" style={{width:"min(540px,92vw)",height:"min(540px,92vw)",top:"50%",transform:"translate(-50%,-50%)",opacity:.25,zIndex:4,animation:"tSpin 100s linear infinite",filter:"drop-shadow(0 0 60px rgba(218,180,74,0.12))"}}>
     <div style={{position:"absolute",inset:0,borderRadius:"50%",border:"1px solid rgba(218,180,74,0.26)",boxShadow:"0 0 50px rgba(218,180,74,0.06), inset 0 0 40px rgba(80,180,190,0.03)"}}/>
     {Array.from({length:24},(_,i)=>{const a=(i/24)*360-90;return<span key={"t"+i} style={{position:"absolute",left:"50%",top:"50%",width:1,height:3,background:"rgba(218,180,74,0.28)",transform:`translate(-50%,-50%) rotate(${a}deg) translateY(-49%)`}}/>})}
