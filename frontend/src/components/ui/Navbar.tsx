@@ -33,8 +33,8 @@ export function Navbar() {
 
   // Core links: keep the new-user path visible before secondary content.
   const coreLinks: Array<{ href: string; label: string; highlight?: boolean }> = [
-    { href: localeHref("/reading/new"), label: t("nav.reading") || "开始分析", highlight: true },
-    { href: localeHref("/almanac"), label: t("nav.almanac") || "每日状态" },
+    { href: localeHref("/reading/new"), label: t("nav.reading") || "开始分析 / Start Reading", highlight: true },
+    { href: localeHref("/almanac"), label: t("nav.almanac") || "每日状态 / Almanac" },
     { href: localeHref("/tools"), label: t("nav.tools") || "Tools" },
     { href: localeHref("/shop"), label: t("nav.shop") || t("treasureHall.hero.title") },
     { href: localeHref("/pricing"), label: t("nav.pricing") },

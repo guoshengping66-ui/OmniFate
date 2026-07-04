@@ -118,7 +118,7 @@ export function ProductPathMap() {
         <div className="mb-8 flex flex-col justify-between gap-5 md:flex-row md:items-end">
           <div className="max-w-2xl">
             <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-gold/65">
-              {isZh ? "Product Map" : "Product Map"}
+              {isZh ? "产品路线图" : "Product Map"}
             </p>
             <h2 className="mt-3 font-serif text-3xl font-bold text-white md:text-5xl">
               {isZh ? "免费入口负责破冰，核心产品负责长期留存" : "Free tools spark entry. Core products create the long-term loop."}
