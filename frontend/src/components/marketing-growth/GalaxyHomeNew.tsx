@@ -6,9 +6,12 @@ const T = ["乾", "兑", "离", "震", "巽", "坎", "艮", "坤"]
 function srng(s: number) { let v = s; return () => { v = (v * 16807 + 0) % 2147483647; return (v - 1) / 2147483646 } }
 function mkS() {
   const r1 = srng(191), r2 = srng(377), r3 = srng(523); const s: any[] = []
-  for (let i = 0; i < 350; i++) { s.push({ id: `f${i}`, x: r1() * 100, y: r2() * 100, sz: .2 + r3() * .5, o: .06 + r1() * .28, tw: r1() > .5, sp: 2.5 + r2() * 4, dl: r3() * 5 }) }
-  for (let i = 0; i < 120; i++) { s.push({ id: `m${i}`, x: r1() * 100, y: r2() < .65 ? 24 + r3() * 52 : 5 + r1() * 90, sz: .4 + r2() * 1.1, o: .15 + r1() * .4, tw: r1() > .3, sp: 2 + r2() * 3, dl: r3() * 4 }) }
-  for (let i = 0; i < 35; i++) { s.push({ id: `n${i}`, x: r1() * 100, y: r2() < .7 ? 24 + r3() * 48 : 10 + r1() * 85, sz: .6 + r2() * 1.6, o: .28 + r1() * .5, tw: !0, sp: 1.5 + r3() * 2.5, dl: r1() * 2 }) }
+  /* Far: tiny dim stars, even scatter — 500 stars */
+  for (let i = 0; i < 500; i++) { s.push({ id: `f${i}`, x: r1() * 100, y: r2() * 100, sz: .15 + r3() * .45, o: .04 + r1() * .25, tw: r1() > .45, sp: 2 + r2() * 5, dl: r3() * 6, clr: r3() > .95 ? "warm" : "cool" }) }
+  /* Mid: medium stars, concentrated in diagonal band — 200 stars */
+  for (let i = 0; i < 200; i++) { s.push({ id: `m${i}`, x: r1() * 100, y: r2() < .6 ? 22 + r3() * 56 : 5 + r1() * 90, sz: .35 + r2() * 1.2, o: .12 + r1() * .42, tw: r1() > .25, sp: 1.5 + r2() * 3.5, dl: r3() * 5, clr: r2() > .88 ? "warm" : r2() > .75 ? "blue" : "cool" }) }
+  /* Near: bright accent stars, mostly in band — 50 stars */
+  for (let i = 0; i < 50; i++) { s.push({ id: `n${i}`, x: r1() * 100, y: r2() < .65 ? 22 + r3() * 52 : 8 + r1() * 88, sz: .55 + r2() * 1.8, o: .25 + r1() * .55, tw: !0, sp: 1.2 + r3() * 2.5, dl: r1() * 3, clr: r2() > .65 ? "warm" : "blue" }) }
   return s
 }
 function mkQ() { const r = srng(73); return Array.from({ length: 40 }, (_, i) => { const a = (i / 40) * 360, d = 15 + (i % 6) * 6; return { id: i, ang: a, dist: d, sp: 2 + (i % 6) * 1.2, dl: i * .5, sz: 1.2 + (i % 6) * .6 } }) }
@@ -26,22 +29,28 @@ export default function GalaxyHomeNew() { const { locale, localeHref } = useLang
   const cb = { background: "linear-gradient(135deg, #060E24, #030918)" }, cd = "rounded-2xl border border-white/[0.05]"
 
   return (<div className="w-full text-white" style={{ background: "#020210" }}>
-    {/* ═══ L0: Deep space gradient ═══ */}
-    <div className="fixed inset-0 pointer-events-none z-0" aria-hidden="true" style={{ background: "radial-gradient(ellipse at 50% 40%, #0d0b24 0%, #050318 50%, #010108 100%)" }} />
+    {/* ═══ L0: Deep space gradient + subtle nebula ═══ */}
+    <div className="fixed inset-0 pointer-events-none z-0" aria-hidden="true" style={{ background: "radial-gradient(ellipse at 50% 38%, #100d28 0%, #08051c 40%, #02010c 80%, #000 100%)" }} />
+    {/* Subtle nebula wisps */}
+    <div className="fixed inset-0 pointer-events-none z-0" aria-hidden="true" style={{ background: "radial-gradient(ellipse at 30% 25%, rgba(60,20,100,0.06) 0%, transparent 50%), radial-gradient(ellipse at 70% 55%, rgba(30,15,80,0.05) 0%, transparent 50%), radial-gradient(ellipse at 50% 35%, rgba(80,30,120,0.04) 0%, transparent 40%)" }} />
 
     {/* ═══ L1: Galaxy River — ONE continuous diagonal glow band ═══ */}
     <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true" style={{ zIndex: 1 }}>
-      {/* Main galaxy band */}
-      <div style={{ position: "absolute", left: "-30%", top: "12%", width: "160%", height: "76%", transform: "rotate(-15deg)", background: "linear-gradient(90deg, rgba(40,15,80,0) 0%, rgba(50,20,110,0.04) 15%, rgba(80,30,150,0.10) 35%, rgba(100,40,170,0.14) 48%, rgba(100,40,170,0.14) 52%, rgba(70,25,140,0.08) 65%, rgba(30,10,70,0.02) 85%, rgba(10,5,30,0) 100%)", filter: "blur(8px)", maskImage: "radial-gradient(ellipse at center, black 0%, black 20%, rgba(0,0,0,0.6) 50%, transparent 85%)", WebkitMaskImage: "radial-gradient(ellipse at center, black 0%, black 20%, rgba(0,0,0,0.6) 50%, transparent 85%)", animation: "galaxyFlow 40s ease-in-out infinite" }} />
-      {/* Secondary wider band for depth */}
-      <div style={{ position: "absolute", left: "-10%", top: "8%", width: "120%", height: "84%", transform: "rotate(-13deg)", background: "linear-gradient(90deg, rgba(20,10,60,0) 0%, rgba(40,18,90,0.03) 30%, rgba(70,28,130,0.06) 50%, rgba(40,18,90,0.03) 70%, rgba(10,5,40,0) 100%)", filter: "blur(16px)", maskImage: "radial-gradient(ellipse at center, black 0%, black 15%, rgba(0,0,0,0.4) 45%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center, black 0%, black 15%, rgba(0,0,0,0.4) 45%, transparent 80%)", animation: "galaxyFlow 55s ease-in-out infinite reverse" }} />
-      {/* Core bright spot */}
-      <div style={{ position: "absolute", left: "40%", top: "28%", width: "20%", height: "160px", background: "radial-gradient(ellipse at 50% 50%, rgba(140,130,210,0.08), rgba(80,60,160,0.04) 35%, transparent 70%)", filter: "blur(6px)", animation: "coreGlow 6s ease-in-out infinite" }} />
+      {/* Main bright galaxy band */}
+      <div style={{ position: "absolute", left: "-35%", top: "8%", width: "170%", height: "84%", transform: "rotate(-16deg)", background: "linear-gradient(90deg, rgba(20,8,50,0) 0%, rgba(35,15,80,0.06) 10%, rgba(60,25,130,0.14) 25%, rgba(90,35,160,0.20) 40%, rgba(110,45,180,0.22) 48%, rgba(110,45,180,0.22) 52%, rgba(80,30,150,0.14) 65%, rgba(40,15,90,0.05) 82%, rgba(15,5,40,0) 100%)", filter: "blur(7px)", maskImage: "radial-gradient(ellipse at center, black 0%, black 18%, rgba(0,0,0,0.5) 50%, transparent 85%)", WebkitMaskImage: "radial-gradient(ellipse at center, black 0%, black 18%, rgba(0,0,0,0.5) 50%, transparent 85%)", animation: "galaxyFlow 45s ease-in-out infinite" }} />
+      {/* Secondary band — slightly offset for depth */}
+      <div style={{ position: "absolute", left: "-15%", top: "5%", width: "130%", height: "90%", transform: "rotate(-14deg)", background: "linear-gradient(90deg, rgba(15,8,50,0) 0%, rgba(35,15,85,0.04) 25%, rgba(65,25,130,0.10) 48%, rgba(65,25,130,0.10) 52%, rgba(35,15,85,0.04) 75%, rgba(10,5,35,0) 100%)", filter: "blur(14px)", maskImage: "radial-gradient(ellipse at center, black 0%, black 12%, rgba(0,0,0,0.35) 42%, transparent 82%)", WebkitMaskImage: "radial-gradient(ellipse at center, black 0%, black 12%, rgba(0,0,0,0.35) 42%, transparent 82%)", animation: "galaxyFlow 60s ease-in-out infinite reverse" }} />
+      {/* Third wider wash */}
+      <div style={{ position: "absolute", left: "-5%", top: "0%", width: "110%", height: "100%", transform: "rotate(-12deg)", background: "linear-gradient(90deg, rgba(10,5,40,0) 0%, rgba(20,12,70,0.03) 35%, rgba(45,20,110,0.06) 50%, rgba(20,12,70,0.03) 65%, rgba(5,3,25,0) 100%)", filter: "blur(22px)", maskImage: "radial-gradient(ellipse at center, black 0%, black 10%, rgba(0,0,0,0.3) 40%, transparent 78%)", WebkitMaskImage: "radial-gradient(ellipse at center, black 0%, black 10%, rgba(0,0,0,0.3) 40%, transparent 78%)", animation: "galaxyFlow 70s ease-in-out infinite" }} />
+      {/* Core bright nucleus */}
+      <div style={{ position: "absolute", left: "38%", top: "26%", width: "24%", height: "200px", background: "radial-gradient(ellipse at 50% 50%, rgba(150,140,220,0.12), rgba(100,75,180,0.06) 30%, rgba(50,25,100,0.02) 55%, transparent 75%)", filter: "blur(5px)", animation: "coreGlow 5s ease-in-out infinite" }} />
+      {/* Second smaller bright spot */}
+      <div style={{ position: "absolute", left: "55%", top: "42%", width: "12%", height: "100px", background: "radial-gradient(ellipse at 50% 50%, rgba(120,100,200,0.08), rgba(70,40,140,0.04) 40%, transparent 70%)", filter: "blur(4px)", animation: "coreGlow 7s ease-in-out infinite reverse" }} />
     </div>
 
     {/* ═══ L2: Scattered stars ═══ */}
     <div className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{ zIndex: 2 }}>
-      {stars.map(s => <span key={s.id} style={{ position: "absolute", left: s.x + "%", top: s.y + "%", width: s.sz, height: s.sz, borderRadius: "50%", background: s.o > 0.35 ? "rgba(255,215,130,0.7)" : `rgba(220,225,255,${s.o * 1.2})`, boxShadow: s.o > 0.35 ? `0 0 ${s.sz}px rgba(255,200,100,0.2)` : "none", opacity: s.o, transform: "translate(-50%,-50%)", animation: s.tw ? `starTwinkle ${s.sp}s ease-in-out ${s.dl}s infinite` : "none" }} />)}
+      {stars.map(s => <span key={s.id} style={{ position: "absolute", left: s.x + "%", top: s.y + "%", width: s.sz, height: s.sz, borderRadius: "50%", background: s.clr === "warm" ? "rgba(255,215,130,0.75)" : s.clr === "blue" ? "rgba(140,180,240,0.65)" : `rgba(220,225,255,${Math.min(0.75, s.o * 1.3)})`, boxShadow: s.clr === "warm" ? `0 0 ${s.sz * 1.5}px rgba(255,200,100,0.25)` : s.clr === "blue" ? `0 0 ${s.sz}px rgba(150,190,240,0.15)` : "none", opacity: s.o, transform: "translate(-50%,-50%)", animation: s.tw ? `starTwinkle ${s.sp}s ease-in-out ${s.dl}s infinite` : "none" }} />)}
     </div>
 
     {/* ═══ L3: Bagua — emerging from the cosmos, slowly rotating + pulsing ═══ */}
@@ -67,12 +76,12 @@ export default function GalaxyHomeNew() { const { locale, localeHref } = useLang
     </div>
 
     {/* ═══ L4: Vignette ═══ */}
-    <div className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{ background: "radial-gradient(ellipse at 50% 43%, transparent 18%, rgba(0,0,0,0.25) 55%, rgba(0,0,0,0.65) 100%)", zIndex: 6 }} />
+    <div className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{ background: "radial-gradient(ellipse at 50% 43%, transparent 14%, rgba(0,0,0,0.20) 50%, rgba(0,0,0,0.60) 100%)", zIndex: 6 }} />
 
     <style>{`
 @keyframes baguaSpin{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}
 @keyframes baguaEmerge{0%,100%{opacity:.55}50%{opacity:.82}}
-@keyframes starTwinkle{0%,100%{opacity:.10;transform:scale(.6)}50%{opacity:.70;transform:scale(1.10)}}
+@keyframes starTwinkle{0%,100%{opacity:.06;transform:scale(.45)}50%{opacity:.80;transform:scale(1.18)}}
 @keyframes qiPulse{0%,100%{opacity:.20;transform:scale(.6)}50%{opacity:.55;transform:scale(1.10)}}
 @keyframes dustFloat{0%{transform:translate(0,0)}50%{transform:translate(3px,-2px)}100%{transform:translate(0,0)}}
 @keyframes galaxyFlow{0%{transform:rotate(-15deg) translateX(-2%)}50%{transform:rotate(-15deg) translateX(2%)}100%{transform:rotate(-15deg) translateX(-2%)}}
