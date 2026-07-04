@@ -2,6 +2,7 @@
 import asyncio
 import logging
 import os
+import re
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import StaticPool, NullPool
@@ -98,34 +99,55 @@ async def _ensure_tables():
             logger.error("Failed to ensure tables: %s", e)
 
 
+
+_IDENTIFIER_RE = re.compile(r'^[a-zA-Z_][a-zA-Z0-9_]*$')
+
+# Whitelist of allowed column type patterns for ALTER TABLE
+_ALLOWED_COL_TYPES = re.compile(
+    r'^(INTEGER|TEXT|REAL|BLOB|NUMERIC|BOOLEAN|FLOAT|DOUBLE|VARCHAR\(\d+\)|'
+    r'TIMESTAMP(\s+WITH(OUT)?\s+TIME\s+ZONE)?|'
+    r'JSONB?|UUID|BYTEA|BIGINT|SMALLINT|SERIAL|BIGSERIAL)\s*'
+    r'(NOT\s+NULL)?(\s+DEFAULT\s+[^;]+)?(\s+UNIQUE)?(\s+PRIMARY\s+KEY)?$',
+    re.IGNORECASE,
+)
+
+
 def _sanitize_identifier(name: str) -> str:
-    """Validate SQL identifier contains only safe characters (alphanumeric + underscore).
-    Raises ValueError if the name contains potentially dangerous characters."""
-    if not name or not name.replace("_", "").isalnum():
+    """Validate SQL identifier contains only ASCII alphanumeric + underscore.
+    Raises ValueError if the name contains potentially dangerous characters.
+    Uses strict ASCII-only regex to reject Unicode characters that isalnum() allows."""
+    if not name or not _IDENTIFIER_RE.match(name):
         raise ValueError(f"Invalid SQL identifier: {name!r}")
     return name
+
+
+def _sanitize_col_type(col_type: str) -> str:
+    """Validate column type against whitelist of known SQL types.
+    Raises ValueError on unrecognized or potentially dangerous type strings."""
+    if not col_type or not _ALLOWED_COL_TYPES.match(col_type.strip()):
+        raise ValueError(f"Unrecognized or unsafe column type: {col_type!r}")
+    return col_type.strip()
 
 
 async def _add_columns(db, table: str, columns: list[tuple[str, str]]) -> None:
     """Add columns to a table. PostgreSQL uses IF NOT EXISTS; SQLite catches duplicates.
 
-    SECURITY: Table and column names are validated to contain only safe characters
-    (alphanumeric + underscore) before interpolation into SQL strings.
+    SECURITY: Table/column names validated via ASCII-only regex. Column types
+    validated against a whitelist of known SQL types to prevent injection.
     """
     _sanitize_identifier(table)
     for col_name, col_type in columns:
         _sanitize_identifier(col_name)
+        col_type = _sanitize_col_type(col_type)
         try:
             if _is_sqlite:
                 await db.execute(text(f"ALTER TABLE {table} ADD COLUMN {col_name} {col_type}"))
             else:
                 await db.execute(text(f"ALTER TABLE {table} ADD COLUMN IF NOT EXISTS {col_name} {col_type}"))
         except Exception as e:
-            # SQLite: "duplicate column name" error is expected and safe to ignore
-            # Other errors (permission denied, disk full, etc.) should be logged
             err_msg = str(e).lower()
             if _is_sqlite and ("duplicate" in err_msg or "already exists" in err_msg):
-                pass  # Expected: column already exists in SQLite
+                pass
             else:
                 logger.warning("Failed to add column %s.%s (%s): %s", table, col_name, col_type, e)
 

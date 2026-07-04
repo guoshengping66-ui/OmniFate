@@ -219,8 +219,12 @@ const EnergyIDCardInner = ({ sessionId, dimensionScores, generatedAt, ..._rest }
 
   useEffect(() => { const t = setTimeout(() => setVisible(true), 400); return () => clearTimeout(t) }, [])
   useEffect(() => {
-    const iv = setInterval(() => { setShimmerActive(true); setTimeout(() => setShimmerActive(false), 1500) }, 4000)
-    return () => clearInterval(iv)
+    let shimmerT: ReturnType<typeof setTimeout>
+    const iv = setInterval(() => {
+      setShimmerActive(true)
+      shimmerT = setTimeout(() => setShimmerActive(false), 1500)
+    }, 4000)
+    return () => { clearInterval(iv); clearTimeout(shimmerT) }
   }, [])
 
   const handleCopy = async () => {

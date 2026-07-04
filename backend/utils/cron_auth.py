@@ -45,10 +45,14 @@ async def require_admin(
     authorization: Optional[str] = Header(None),
     x_admin_key: Optional[str] = Header(None),
 ):
-    """Require both admin key and a logged-in admin user session.
+    """Require both admin key AND a logged-in admin user session.
 
-    This is for human/admin-panel endpoints. Cron-only endpoints should use
-    verify_cron_secret instead.
+    Two-step verification:
+    1. X-Admin-Key header OR Authorization header must match CRON_SECRET
+    2. A valid admin JWT must be present in either Authorization header
+       (when it's NOT the cron secret) or the access_token cookie
+
+    For machine-to-machine cron endpoints, use verify_cron_secret() instead.
     """
     settings = get_settings()
     if not settings.CRON_SECRET:

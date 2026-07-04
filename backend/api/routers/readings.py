@@ -802,6 +802,9 @@ async def chat_followup(
         question = "请围绕命理主题提问。" if lang != "en" else "Please ask questions related to destiny analysis."
 
     # ── 星尘扣费（会员免费 + 新用户首次免费） ──
+    # Uses two-phase commit: balance is only deducted AFTER LLM succeeds.
+    # A "pending" transaction is created first (balance untouched), then confirmed
+    # or cancelled based on LLM outcome. This prevents double-spend races.
     deducted = False
     tx_id = None
     is_first_followup = False
@@ -823,13 +826,11 @@ async def chat_followup(
             user_result = await db.execute(
                 select(User).where(User.id == current_user.id).with_for_update()
             )
-            # Set a statement-level lock timeout to prevent indefinite blocking
-            # (PostgreSQL only — SQLite uses its own busy_timeout)
             try:
                 from sqlalchemy import text as _sa_text
                 await db.execute(_sa_text("SET LOCAL lock_timeout = '30s'"))
             except Exception:
-                pass  # SQLite doesn't support lock_timeout — uses busy_timeout instead
+                pass
             user = user_result.scalar_one_or_none()
             if not user:
                 raise HTTPException(status_code=403, detail="用户不存在或已被禁用")
@@ -838,11 +839,11 @@ async def chat_followup(
                     status_code=402,
                     detail=f"星尘不足: 需要 {STARDUST_COST_FOLLOW_UP}，当前 {user.stardust_balance}",
                 )
-            user.stardust_balance -= STARDUST_COST_FOLLOW_UP
+            # Phase 1: create pending transaction WITHOUT deducting balance yet
             tx = CreditTransaction(
                 user_id=user.id,
                 amount=-STARDUST_COST_FOLLOW_UP,
-                balance_after=user.stardust_balance,
+                balance_after=user.stardust_balance,  # balance unchanged for now
                 reason="follow_up",
                 reference_id=payload.session_id,
                 status="pending",
@@ -857,14 +858,21 @@ async def chat_followup(
         answer, agent_id, updated_state = await run_chat(question, state)
         await _set_session(payload.session_id, updated_state)
 
-        # 两阶段提交：LLM 成功后确认星尘扣费
+        # Phase 2: LLM succeeded — deduct balance and confirm transaction atomically
         if deducted and tx_id:
-            confirm_result = await db.execute(
-                select(CreditTransaction).where(CreditTransaction.id == tx_id)
+            confirm_user_result = await db.execute(
+                select(User).where(User.id == current_user.id).with_for_update()
             )
-            pending_tx = confirm_result.scalar_one_or_none()
-            if pending_tx:
-                pending_tx.status = "confirmed"
+            confirm_user = confirm_user_result.scalar_one_or_none()
+            if confirm_user and confirm_user.stardust_balance >= STARDUST_COST_FOLLOW_UP:
+                confirm_user.stardust_balance -= STARDUST_COST_FOLLOW_UP
+                confirm_result = await db.execute(
+                    select(CreditTransaction).where(CreditTransaction.id == tx_id)
+                )
+                pending_tx = confirm_result.scalar_one_or_none()
+                if pending_tx:
+                    pending_tx.status = "confirmed"
+                    pending_tx.balance_after = confirm_user.stardust_balance
                 await db.commit()
 
         return ChatResponse(
@@ -876,35 +884,18 @@ async def chat_followup(
             has_used_free_followup=followup_count > 0 if not current_user.is_premium else False,
         )
     except Exception:
-        # LLM 失败 → 退款并取消 pending 扣费记录
+        # LLM failed — cancel pending transaction, balance was never touched
         if deducted and tx_id:
             try:
-                # 取消原始 pending 交易
                 cancel_result = await db.execute(
                     select(CreditTransaction).where(CreditTransaction.id == tx_id)
                 )
                 orig_tx = cancel_result.scalar_one_or_none()
                 if orig_tx:
                     orig_tx.status = "cancelled"
-
-                refund_result = await db.execute(
-                    select(User).where(User.id == current_user.id).with_for_update()
-                )
-                refund_user = refund_result.scalar_one_or_none()
-                if refund_user:
-                    refund_user.stardust_balance += STARDUST_COST_FOLLOW_UP
-                    refund_tx = CreditTransaction(
-                        user_id=refund_user.id,
-                        amount=STARDUST_COST_FOLLOW_UP,
-                        balance_after=refund_user.stardust_balance,
-                        reason="refund",
-                        reference_id=str(tx_id),
-                        status="confirmed",
-                    )
-                    db.add(refund_tx)
                     await db.commit()
             except Exception as e:
-                logger.warning("Failed to process refund for failed analysis: %s", e)
+                logger.warning("Failed to cancel pending transaction: %s", e)
         raise
 
 
@@ -994,8 +985,10 @@ async def get_session(
         except Exception as e:
             logger.warning("DB ownership check failed: %s", e)
             raise HTTPException(status_code=503, detail="Service temporarily unavailable")
-        # Apply content lock before returning
-        return _apply_content_lock(cached, current_user, None, lang=lang or "zh")
+        # Deep-copy before content lock: prevents cached shared reference from
+        # being permanently mutated for all subsequent cache-hit requests.
+        cached_copy = cached.model_copy(deep=True)
+        return _apply_content_lock(cached_copy, current_user, None, lang=lang or "zh")
 
     # Fast path: in-memory cache
     state = await _get_session(session_id)
@@ -2614,12 +2607,14 @@ _ALMANAC_CACHE_TTL = 3600 * 12  # 12 hours
 async def get_daily_almanac(
     session_id: str = Query(...),
     lang: str = Query("zh", pattern="^(zh|en)$"),
+    current_user: Optional[User] = Depends(get_current_user),
 ):
     """
     Get personalized daily almanac (yi/ji/hu) based on user's birth chart vs today's transits.
 
     Real-time computation, no storage.
     Supports lang=zh|en for localized output.
+    Requires authentication — users can only access their own sessions.
     """
     state = await _get_session(session_id)
 
@@ -2636,6 +2631,13 @@ async def get_daily_almanac(
                 )).scalar_one_or_none()
                 if not reading:
                     raise HTTPException(status_code=404, detail="Session not found.")
+
+                # Verify ownership: only the session owner can access the almanac
+                if reading.user_id:
+                    if not current_user:
+                        raise HTTPException(status_code=401, detail="请登录后查看此报告")
+                    if str(reading.user_id) != str(current_user.id):
+                        raise HTTPException(status_code=403, detail="无权访问此报告")
 
                 # Try to get birth profile if available
                 bi = None

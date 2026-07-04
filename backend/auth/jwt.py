@@ -125,10 +125,12 @@ async def verify_token(token: str) -> Optional[str]:
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verify a password against its bcrypt hash."""
+    """Verify a password against its bcrypt hash.
+    NOTE: bcrypt silently truncates passwords > 72 bytes. Users with very long
+    passwords should be warned during registration that only the first 72 bytes
+    matter for login."""
     if isinstance(plain_password, str):
         plain_password = plain_password.encode("utf-8")
-    # Keep verification compatible with hash_password and bcrypt's 72-byte limit.
     plain_password = plain_password[:72]
     if isinstance(hashed_password, str):
         hashed_password = hashed_password.encode("utf-8")
@@ -136,9 +138,9 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 
 def hash_password(password: str) -> str:
-    """Hash a password with bcrypt (truncate to 72 bytes for bcrypt compat)."""
+    """Hash a password with bcrypt (truncate to 72 bytes for bcrypt compat).
+    See verify_password note about the 72-byte bcrypt limitation."""
     if isinstance(password, str):
         password = password.encode("utf-8")
-    # bcrypt only uses the first 72 bytes of the password
     password = password[:72]
     return bcrypt.hashpw(password, bcrypt.gensalt()).decode("utf-8")

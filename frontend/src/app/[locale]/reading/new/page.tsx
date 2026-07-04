@@ -55,7 +55,7 @@ function useScanState(
     return () => {
       if (previewRef.current) URL.revokeObjectURL(previewRef.current)
     }
-  }, [t])
+  }, [])
 
   const pick = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]
@@ -503,9 +503,10 @@ export default function NewReadingPage() {
           ? details.map((d: any) => d.msg).join("; ")
           : t("new.inputError")
       } else if (status === 400) {
-        // 400 usually means malformed request body — include server detail
+        // Sanitize server detail before display to prevent XSS in toast
         const detail = err?.response?.data?.detail
-        msg = detail ? `${t("new.parseError")}: ${detail}` : t("new.parseError")
+        const safeDetail = typeof detail === "string" ? detail.replace(/[<>]/g, "") : ""
+        msg = safeDetail ? `${t("new.parseError")}: ${safeDetail}` : t("new.parseError")
       } else if (status === 502 || status === 503) {
         msg = t("new.serverBusy")
       } else if (status === 429) {

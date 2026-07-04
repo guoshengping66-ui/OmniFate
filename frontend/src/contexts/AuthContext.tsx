@@ -62,13 +62,19 @@ function getStoredAccessToken(): string | null {
 }
 
 export function storeTokens(access: string, _refresh: string) {
-  ;(window as any)[ACCESS_TOKEN_KEY] = access
-  // Refresh token is httpOnly cookie only — not exposed to JS
+  // Use non-enumerable property to prevent third-party scripts from
+  // discovering the token during window enumeration. Still survives
+  // Webpack code-splitting since all chunks share the same window.
+  Object.defineProperty(window, ACCESS_TOKEN_KEY, {
+    value: access,
+    writable: true,
+    enumerable: false,
+    configurable: true,
+  })
 }
 function clearTokens() {
+  // Object.defineProperty with configurable: true allows delete
   delete (window as any)[ACCESS_TOKEN_KEY]
-  // Cookies are cleared by POST /api/auth/logout on the backend.
-  // sessionStorage cleanup happens via clearAuth() → removeItem(USER_CACHE_KEY).
 }
 
 // ── Login grace period (shared across all Webpack chunks via window) ───────
