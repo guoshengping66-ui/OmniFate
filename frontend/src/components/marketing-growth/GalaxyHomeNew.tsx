@@ -31,17 +31,17 @@ function useFlowingGalaxy(canvasRef: React.RefObject<HTMLCanvasElement | null>, 
     const c = canvasRef.current; if (!c) return
     const setDim = () => { const W = c.width = c.offsetWidth * (devicePixelRatio || 1); const H = c.height = c.offsetHeight * (devicePixelRatio || 1); dimsRef.current = { W, H } }
     setDim(); window.addEventListener('resize', setDim); return () => window.removeEventListener('resize', setDim)
-  }, [canvasRef, isMobile])
+  }, [canvasRef])
   useEffect(() => {
     const c = canvasRef.current; if (!c) return; const ctx = c.getContext('2d'); if (!ctx) return
-    const blobCount = isMobile ? 3 : 5, lightCount = isMobile ? 8 : 22; let animating = true
+    let animating = true
     type Light = { x: number; y: number; s: number; a: number; sp: number; ph: number }
     const lights = useRef<Light[]>([]).current!
     const initLights = () => { lights.length = 0; const { W, H } = dimsRef.current; const cx = W * .5, cy = H * .5
-      for (let i = 0; i < lightCount; i++) { const angle = -.6 + (Math.random() - .5) * .4
+      for (let i = 0; i < (isMobile ? 8 : 22); i++) { const angle = -.6 + (Math.random() - .5) * .4
         lights.push({ x: cx + (Math.random() - .5) * W * 1.4, y: cy + (Math.random() - .5) * H * .8, s: .8 + Math.random() * 2.5, a: .04 + Math.random() * .18, sp: .003 + Math.random() * .015, ph: Math.random() * Math.PI * 2 }) } }
     initLights()
-    function frame(ts: number) { if (!animating) return
+    const frame = (ts: number) => { if (!animating) return
       const { W, H } = dimsRef.current; if (!W) { rafRef.current = requestAnimationFrame(frame); return }
       ctx!.clearRect(0, 0, W, H); const t = ts * .00015, cx = W * .5, cy = H * .5
       // Soft diagonal wash
@@ -50,7 +50,7 @@ function useFlowingGalaxy(canvasRef: React.RefObject<HTMLCanvasElement | null>, 
       ctx!.fillStyle = wash; ctx!.fillRect(0, 0, W, H)
       // Nebula blobs
       const blobs = [ { bx: cx - W * .15 + Math.sin(t * .7) * W * .06, by: cy - H * .12 + Math.cos(t * .5) * H * .04, rx: W * .50, ry: H * .16, h: 268, a: .08 }, { bx: cx + W * .10 + Math.cos(t * .6) * W * .07, by: cy + H * .05 + Math.sin(t * .8) * H * .04, rx: W * .38, ry: H * .13, h: 280, a: .06 }, { bx: cx - W * .05 + Math.sin(t * .4) * W * .05, by: cy + H * .18 + Math.cos(t * .55) * H * .03, rx: W * .32, ry: H * .11, h: 255, a: .07 } ]
-      if (blobCount > 3) blobs.push( { bx: cx + W * .20 + Math.cos(t * .45) * W * .08, by: cy - H * .08 + Math.sin(t * .65) * H * .05, rx: W * .28, ry: H * .10, h: 272, a: .05 }, { bx: cx - W * .25 + Math.sin(t * .55) * W * .05, by: cy + H * .22 + Math.cos(t * .7) * H * .03, rx: W * .30, ry: H * .09, h: 260, a: .055 } )
+      if (!isMobile) blobs.push( { bx: cx + W * .20 + Math.cos(t * .45) * W * .08, by: cy - H * .08 + Math.sin(t * .65) * H * .05, rx: W * .28, ry: H * .10, h: 272, a: .05 }, { bx: cx - W * .25 + Math.sin(t * .55) * W * .05, by: cy + H * .22 + Math.cos(t * .7) * H * .03, rx: W * .30, ry: H * .09, h: 260, a: .055 } )
       for (const b of blobs) { const g = ctx!.createRadialGradient(b.bx, b.by, 0, b.bx, b.by, Math.max(b.rx, b.ry)); g.addColorStop(0, `hsla(${b.h},50%,35%,${b.a*1.5})`); g.addColorStop(.4, `hsla(${b.h},40%,25%,${b.a})`); g.addColorStop(.7, `hsla(${b.h+10},35%,18%,${b.a*.4})`); g.addColorStop(1, 'transparent'); ctx!.fillStyle = g; ctx!.fillRect(b.bx - b.rx, b.by - b.ry, b.rx * 2, b.ry * 2) }
       // Slow star points
       for (const l of lights) { l.ph += l.sp; const lx = l.x + Math.sin(l.ph) * 30, ly = l.y + Math.cos(l.ph * 1.3) * 20
@@ -62,7 +62,7 @@ function useFlowingGalaxy(canvasRef: React.RefObject<HTMLCanvasElement | null>, 
       rafRef.current = requestAnimationFrame(frame) }
     rafRef.current = requestAnimationFrame(frame)
     return () => { animating = false; cancelAnimationFrame(rafRef.current) }
-  }, [canvasRef, blobCount, lightCount])
+  }, [canvasRef, isMobile])
 }
 
 export default function GalaxyHomeNew() { const { locale, localeHref } = useLanguage(); const isZh = locale === "zh"
