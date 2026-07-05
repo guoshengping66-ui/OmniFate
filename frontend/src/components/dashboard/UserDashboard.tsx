@@ -1,16 +1,13 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import Link from "next/link"
-import { ArrowRight, CalendarClock, Loader2, ShieldCheck, Sparkles } from "lucide-react"
+import { ArrowRight, Sparkles } from "lucide-react"
 import { useUserStore } from "@/stores/useUserStore"
-import { listMyReadings, type ReadingListItem } from "@/lib/api"
 import { ProfileCard } from "./ProfileCard"
 import { IntentButtons } from "./IntentButtons"
 import { GeworkDrawer } from "./GeworkDrawer"
-import { TagBadge } from "@/components/ui/TagBadge"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { useAuth } from "@/contexts/AuthContext"
 
 const signalsZh = [
   { n: "结构稳定度", v: "稳定", t: "适合把复杂事项拆小处理" },
@@ -32,21 +29,12 @@ const cardBg = { background: "linear-gradient(135deg, #060E24, #030918)" }
 const cardBorder = "border border-white/[0.05] rounded-2xl"
 
 export function UserDashboard() {
-  const { t, locale, localeHref } = useLanguage()
-  const { user } = useAuth()
+  const { locale, localeHref } = useLanguage()
   const { userProfile, activeTestTarget } = useUserStore()
-  const [recentReadings, setRecentReadings] = useState<ReadingListItem[]>([])
-  const [loadingReadings, setLoadingReadings] = useState(true)
   const [eventDrawerOpen, setEventDrawerOpen] = useState(false)
   const isZh = locale === "zh"
   const signals = isZh ? signalsZh : signalsEn
   const activeName = activeTestTarget?.nickname || userProfile?.nickname || (isZh ? "你" : "You")
-
-  useEffect(() => {
-    if (!user) { setLoadingReadings(false); return }
-    const t = setTimeout(() => { listMyReadings().then(r => setRecentReadings(r.slice(0, 3))).catch(() => {}).finally(() => setLoadingReadings(false)) }, 300)
-    return () => clearTimeout(t)
-  }, [user])
 
   const today = useMemo(() => new Date().toLocaleDateString(locale === "zh" ? "zh-CN" : "en-US", { month: "long", day: "numeric", weekday: "long" }), [locale])
 
@@ -112,37 +100,6 @@ export function UserDashboard() {
 
       {/* ═══ Zone 3: Intent Buttons ═══ */}
       <IntentButtons onGework={() => setEventDrawerOpen(true)} />
-
-      {/* ═══ Zone 4: Recent Reports ═══ */}
-      <section>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-serif text-lg text-white/70">{isZh ? "最近报告" : "Recent reports"}</h2>
-          {recentReadings.length > 0 && <Link href={localeHref("/readings")} className="text-[12px] text-gold/60 hover:text-gold">{t("dash.recent.viewAll")}</Link>}
-        </div>
-        {loadingReadings ? (
-          <div className={`${cardBorder} p-8 text-center`} style={cardBg}><Loader2 size={20} className="mx-auto animate-spin text-white/25" /></div>
-        ) : recentReadings.length > 0 ? (
-          <div className="grid gap-3 md:grid-cols-3">
-            {recentReadings.map(r => (
-              <Link key={r.id} href={localeHref(`/reading/${r.id}`)} className={`group ${cardBorder} p-4 transition-all hover:border-white/[0.12]`} style={cardBg}>
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0 flex-1">
-                    <p className="line-clamp-2 text-[13px] leading-relaxed text-white/45">{r.master_summary || t("dash.recent.analyzing")}</p>
-                    <p className="mt-2 text-[11px] text-white/20">{new Date(r.created_at).toLocaleDateString(locale === "zh" ? "zh-CN" : "en-US")}</p>
-                  </div>
-                  <ArrowRight size={13} className="mt-0.5 text-white/15 transition-all group-hover:translate-x-1 group-hover:text-gold/60" />
-                </div>
-                {r.computed_tags.length > 0 && <div className="mt-3 flex flex-wrap gap-1.5">{r.computed_tags.slice(0, 2).map(tag => <TagBadge key={tag} tag={tag} />)}</div>}
-              </Link>
-            ))}
-          </div>
-        ) : (
-          <div className={`${cardBorder} p-8 text-center`} style={cardBg}>
-            <p className="text-[13px] text-white/30">{t("dash.recent.empty")}</p>
-            <p className="mt-1 text-[11px] text-white/15">{t("dash.recent.emptyDesc")}</p>
-          </div>
-        )}
-      </section>
 
       <GeworkDrawer open={eventDrawerOpen} onClose={() => setEventDrawerOpen(false)} />
     </div>
