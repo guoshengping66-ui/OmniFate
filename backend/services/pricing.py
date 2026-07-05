@@ -71,35 +71,9 @@ def _minor_units(amount: float | Decimal) -> int:
     return int((value * 100).to_integral_value(rounding=ROUND_HALF_UP))
 
 
-def _country_to_region(country: str) -> Region:
-    return "domestic" if country.upper() == "CN" else "overseas"
-
 
 def resolve_pricing_region(request: Request | None = None, user: Any | None = None) -> Region:
-    """Resolve the payable region. User lock beats request hints."""
-    locked = getattr(user, "pricing_region", None)
-    if locked in ("domestic", "overseas"):
-        return locked
-
-    if request is not None:
-        country = (
-            request.headers.get("cf-ipcountry")
-            or request.headers.get("x-vercel-ip-country")
-            or request.headers.get("x-country-code")
-            or ""
-        )
-        if country:
-            return _country_to_region(country)
-
-        query_region = request.query_params.get("region", "")
-        if query_region in ("domestic", "overseas"):
-            return query_region
-
-        # Local/dev fallback: honor cookie only outside real edge geo headers.
-        cookie_region = request.cookies.get("region", "")
-        if cookie_region in ("domestic", "overseas"):
-            return cookie_region
-
+    """Unified global pricing — always overseas (USD)."""
     return "overseas"
 
 
