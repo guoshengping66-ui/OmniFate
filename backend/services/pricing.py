@@ -64,6 +64,7 @@ ALLOWED_PAYMENT_METHODS: dict[Region, set[str]] = {
 
 OVERSEAS_FREE_SHIPPING_THRESHOLD_USD = 79.0
 OVERSEAS_SHIPPING_FEE_USD = 8.0
+CNY_TO_USD_RATE = 7.2
 
 
 def _minor_units(amount: float | Decimal) -> int:
@@ -138,8 +139,9 @@ def quote_shop_totals(
     if region == "overseas" and subtotal_usd < OVERSEAS_FREE_SHIPPING_THRESHOLD_USD:
         shipping_usd = OVERSEAS_SHIPPING_FEE_USD
 
+    coupon_usd = round(coupon_cny / CNY_TO_USD_RATE, 2) if coupon_cny > 0 else 0.0
     total_cny = max(0.0, subtotal_cny - coupon_cny + shipping_cny)
-    total_usd = max(0.0, subtotal_usd + shipping_usd)
+    total_usd = max(0.0, subtotal_usd - coupon_usd + shipping_usd)
     active_total = total_cny if region == "domestic" else total_usd
     currency = "cny" if region == "domestic" else "usd"
     return {
@@ -148,6 +150,7 @@ def quote_shop_totals(
         "subtotal_cny": round(subtotal_cny, 2),
         "subtotal_usd": round(subtotal_usd, 2),
         "coupon_cny": round(coupon_cny, 2),
+        "coupon_usd": coupon_usd,
         "shipping_cny": round(shipping_cny, 2),
         "shipping_usd": round(shipping_usd, 2),
         "total_cny": round(total_cny, 2),

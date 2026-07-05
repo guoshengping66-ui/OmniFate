@@ -97,8 +97,6 @@ async def create_order(
     coupon_used = 0.0
 
     if req.use_coupon and user:
-        if region != "domestic":
-            raise HTTPException(status_code=400, detail="Coupons are only available for domestic CNY orders")
         balance = float(user.shop_coupon_balance or 0)
         if balance <= 0:
             raise HTTPException(status_code=400, detail="没有可用的代金券余额")
