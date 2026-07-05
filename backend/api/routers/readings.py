@@ -1568,7 +1568,7 @@ async def upload_face_image(
     try:
         result = face_v2t.analyze_bytes(content)
     except RuntimeError as e:
-        raise HTTPException(status_code=500, detail=f"视觉分析模块未安装: {e}")
+        raise HTTPException(status_code=500, detail="视觉分析服务暂不可用")
     if not result:
         raise HTTPException(status_code=422,
                             detail="无法检测到面部。请上传清晰正面照。")
@@ -1639,7 +1639,7 @@ async def analyze_face_image(file: UploadFile = File(...), request: Request = No
     try:
         result = face_v2t.analyze_bytes(content)
     except RuntimeError as e:
-        raise HTTPException(status_code=500, detail=f"视觉分析模块未安装: {e}")
+        raise HTTPException(status_code=500, detail="视觉分析服务暂不可用")
     if not result:
         raise HTTPException(status_code=422,
                             detail="无法检测到面部。请上传清晰正面照。")
@@ -1745,7 +1745,7 @@ async def upload_palm_image(
     try:
         result = palm_v2t.analyze_bytes(content)
     except RuntimeError as e:
-        raise HTTPException(status_code=500, detail=f"视觉分析模块未安装: {e}")
+        raise HTTPException(status_code=500, detail="视觉分析服务暂不可用")
     if not result:
         raise HTTPException(status_code=422,
                             detail="无法检测到手掌。请上传清晰手掌照片。")
@@ -1828,7 +1828,7 @@ async def analyze_palm_image(file: UploadFile = File(...), request: Request = No
     try:
         result = palm_v2t.analyze_bytes(content)
     except RuntimeError as e:
-        raise HTTPException(status_code=500, detail=f"视觉分析模块未安装: {e}")
+        raise HTTPException(status_code=500, detail="视觉分析服务暂不可用")
     if not result:
         raise HTTPException(status_code=422,
                             detail="无法检测到手掌。请上传清晰手掌照片。")

@@ -289,8 +289,9 @@ def _validate_password_strength(password: str) -> None:
     errors = []
     if len(password) < 8:
         errors.append("至少 8 个字符")
-    if len(password) > 128:
-        errors.append("不能超过 128 个字符")
+    byte_len = len(password.encode("utf-8"))
+    if byte_len > 72:
+        errors.append("密码不能超过72字节（当前{}字节）".format(byte_len))
     if not re.search(r"[a-z]", password):
         errors.append("至少包含一个小写字母")
     if not re.search(r"[A-Z]", password):
