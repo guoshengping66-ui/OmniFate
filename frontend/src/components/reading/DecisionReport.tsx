@@ -22,21 +22,21 @@ export function DecisionReport({ data }: DecisionReportProps) {
   const isEn = locale === "en" || data.language === "en"
   const executive = data.executive_summary
   const copy = isEn ? {
-    opportunity: "Biggest opportunity",
-    risk: "Biggest risk",
-    nextAction: "Next best action",
-    evidence: "Evidence chain",
-    dimensions: "Five-dimension diagnosis",
-    timeline: "Timeline",
-    actionPlan: "Action plan",
-    avoidList: "Avoid list",
+    opportunity: "Key Opportunity",
+    risk: "What to Watch",
+    nextAction: "Next Best Action",
+    evidence: "Evidence Chain",
+    dimensions: "Five-Dimension Diagnosis",
+    timeline: "Key Timing",
+    actionPlan: "Action Plan",
+    avoidList: "Avoid List",
   } : {
-    opportunity: "最大机会",
+    opportunity: "最需关注",
     risk: "最大风险",
     nextAction: "下一步行动",
     evidence: "证据链",
     dimensions: "五维深度诊断",
-    timeline: "时间线",
+    timeline: "关键时机",
     actionPlan: "行动方案",
     avoidList: "避坑清单",
   }

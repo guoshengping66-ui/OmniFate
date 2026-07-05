@@ -1113,7 +1113,7 @@ def _split_report_sentences(text: str, limit: int = 4) -> list[str]:
         if len(line) < 12:
             continue
         if line not in items:
-            items.append(line[:180])
+            items.append(line[:300])
         if len(items) >= limit:
             break
     return items
@@ -1418,7 +1418,7 @@ def _extract_key_reminder(text: str) -> str:
     next_section = re.search(r'[【\[]\s*[A-Ea-e]\s*·', rest)
     if next_section:
         rest = rest[:next_section.start()].strip()
-    return rest[:200]
+    return rest[:400]
 
 
 def _extract_action_summary(text: str) -> str:
