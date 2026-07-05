@@ -65,6 +65,7 @@ ALLOWED_PAYMENT_METHODS: dict[Region, set[str]] = {
 OVERSEAS_FREE_SHIPPING_THRESHOLD_USD = 79.0
 OVERSEAS_SHIPPING_FEE_USD = 8.0
 CNY_TO_USD_RATE = 7.2
+MEMBER_DISCOUNT = 0.88  # 88折 — premium members get 12% off
 
 
 def _minor_units(amount: float | Decimal) -> int:
@@ -83,13 +84,15 @@ def lock_user_region(user: Any, region: Region) -> None:
         user.pricing_region = region
 
 
-def get_price_quote(sku: str, region: Region) -> PriceQuote:
+def get_price_quote(sku: str, region: Region, is_premium: bool = False) -> PriceQuote:
     region = "domestic" if region == "domestic" else "overseas"
     sku_prices = _CATALOG.get(sku)
     if not sku_prices:
         raise HTTPException(status_code=400, detail="Invalid item type")
     data = sku_prices[region]
     amount = float(data["amount"])
+    if is_premium:
+        amount = round(amount * MEMBER_DISCOUNT, 2)
     cny_amount = amount if data["currency"] == "cny" else float(sku_prices["domestic"]["amount"])
     usd_amount = amount if data["currency"] == "usd" else float(sku_prices["overseas"]["amount"])
     return PriceQuote(
@@ -129,11 +132,17 @@ def quote_shop_totals(
     subtotal_cny: float,
     subtotal_usd: float,
     coupon_cny: float = 0.0,
+    is_premium: bool = False,
 ) -> dict[str, Any]:
     region = "domestic" if region == "domestic" else "overseas"
     coupon_cny = float(coupon_cny or 0)
     subtotal_cny = float(subtotal_cny or 0)
     subtotal_usd = float(subtotal_usd or 0)
+
+    if is_premium:
+        subtotal_cny = round(subtotal_cny * MEMBER_DISCOUNT, 2)
+        subtotal_usd = round(subtotal_usd * MEMBER_DISCOUNT, 2)
+
     shipping_cny = 0.0
     shipping_usd = 0.0
     if region == "overseas" and subtotal_usd < OVERSEAS_FREE_SHIPPING_THRESHOLD_USD:

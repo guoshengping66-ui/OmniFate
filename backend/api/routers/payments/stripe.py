@@ -157,7 +157,8 @@ async def create_stripe_checkout(
 ):
     region = resolve_pricing_region(request, current_user)
     validate_payment_method(region, "stripe")
-    quote = get_price_quote(item_type, region)
+    is_premium = bool(getattr(current_user, "is_premium", False))
+    quote = get_price_quote(item_type, region, is_premium=is_premium)
 
     order_no = f"ST{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{secrets.randbelow(90000) + 10000}"
     lock_user_region(current_user, region)
