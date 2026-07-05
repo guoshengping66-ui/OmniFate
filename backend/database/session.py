@@ -103,11 +103,14 @@ async def _ensure_tables():
 _IDENTIFIER_RE = re.compile(r'^[a-zA-Z_][a-zA-Z0-9_]*$')
 
 # Whitelist of allowed column type patterns for ALTER TABLE
+# Only allow literal DEFAULT values and known-safe SQL functions
+_DEFAULT_RE = r"(?:DEFAULT\s+(?:TRUE|FALSE|NULL|CURRENT_TIMESTAMP|now\(\)|gen_random_uuid\(\)|\d+(?:\.\d+)?|'[^']*'))"
+
 _ALLOWED_COL_TYPES = re.compile(
     r'^(INTEGER|TEXT|REAL|BLOB|NUMERIC|BOOLEAN|FLOAT|DOUBLE|VARCHAR\(\d+\)|'
     r'TIMESTAMP(\s+WITH(OUT)?\s+TIME\s+ZONE)?|'
     r'JSONB?|UUID|BYTEA|BIGINT|SMALLINT|SERIAL|BIGSERIAL)\s*'
-    r'(NOT\s+NULL)?(\s+DEFAULT\s+[^;]+)?(\s+UNIQUE)?(\s+PRIMARY\s+KEY)?$',
+    r'(NOT\s+NULL)?(\s+' + _DEFAULT_RE + r')?(\s+UNIQUE)?(\s+PRIMARY\s+KEY)?$',
     re.IGNORECASE,
 )
 

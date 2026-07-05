@@ -1300,18 +1300,22 @@ async def run_master(state: SystemState) -> SystemState:
         if is_relationship:
             tasks.append(run_subtask_synastry(state))
 
-        results = await asyncio.gather(*tasks)
+        results = await asyncio.gather(*tasks, return_exceptions=True)
 
-        core_result = results[0]
-        dims_result = results[1]
-        actions_result = results[2]
-        synastry_result = results[3] if is_relationship else ""
+        core_result = results[0] if not isinstance(results[0], BaseException) else ""
+        dims_result = results[1] if not isinstance(results[1], BaseException) else ""
+        actions_result = results[2] if not isinstance(results[2], BaseException) else ""
+        synastry_result = results[3] if is_relationship and not isinstance(results[3], BaseException) else ""
 
-        parts = [core_result]
+        for i, r in enumerate(results):
+            if isinstance(r, BaseException):
+                logger.error("Subtask %d failed: %s", i, r)
+
+        parts = [core_result if core_result else "Analysis unavailable for this section."]
         if synastry_result:
             parts.append(synastry_result)
-        parts.append(dims_result)
-        parts.append(actions_result)
+        parts.append(dims_result if dims_result else "Dimension analysis unavailable.")
+        parts.append(actions_result if actions_result else "Action recommendations unavailable.")
         state.master_summary = _build_paid_executive_summary(core_result, state.language)
         detail = _ensure_paid_report_contract("\n\n".join(parts), state.language)
         payload = _build_decision_report_payload(core_result, dims_result, actions_result, state, prep)
@@ -1403,18 +1407,13 @@ def _format_dimension_summaries(scores: dict[str, float], language: str = "zh") 
     return "\n".join(lines)
 
 def _extract_key_reminder(text: str) -> str:
-    """Extract the key reminder (Section D) from the resonance LLM output.
-    Handles both Chinese (【D·近期关键提醒】) and English (【D · Near-Term Key Alerts】),
-    RELATIONSHIP (【D·五行能量互动】), and optional spaces around the middle dot.
-    Uses regex to find the next section marker (not just any 【) to avoid
-    premature truncation when section content contains 【 characters."""
+    """Extract the key reminder (Section D) from the resonance LLM output."""
     match = re.search(r'[【\[]D\s*·[^】\]]*[】\]]', text)
     if not match:
+        logger.warning("_extract_key_reminder: section D marker not found in LLM output (len=%d)", len(text))
         return ""
     start = match.end()
     rest = text[start:].strip()
-    # Find next SECTION marker (【X·), not just any 【 — avoids truncating
-    # content that legitimately contains 【 characters
     next_section = re.search(r'[【\[]\s*[A-Ea-e]\s*·', rest)
     if next_section:
         rest = rest[:next_section.start()].strip()
@@ -1422,18 +1421,13 @@ def _extract_key_reminder(text: str) -> str:
 
 
 def _extract_action_summary(text: str) -> str:
-    """Extract the action suggestions (Section E) from the resonance LLM output.
-    Handles both Chinese (【E·行动建议速览】) and English (【E · Quick Action Tips】),
-    RELATIONSHIP (【E·相处指南】), and optional spaces around the middle dot.
-    Uses regex to find the next section marker (not just any 【) to avoid
-    premature truncation when section content contains 【 characters."""
+    """Extract the action suggestions (Section E) from the resonance LLM output."""
     match = re.search(r'[【\[]E\s*·[^】\]]*[】\]]', text)
     if not match:
+        logger.warning("_extract_action_summary: section E marker not found in LLM output (len=%d)", len(text))
         return ""
     start = match.end()
     rest = text[start:].strip()
-    # Find next SECTION marker (【X·), not just any 【 — avoids truncating
-    # content that legitimately contains 【 characters
     next_section = re.search(r'[【\[]\s*[A-Ea-e]\s*·', rest)
     if next_section:
         rest = rest[:next_section.start()].strip()

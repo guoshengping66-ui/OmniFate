@@ -155,17 +155,23 @@ async def create_stripe_checkout(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_user),
 ):
-    region = resolve_pricing_region(request, current_user)
+    # Re-query user in active session to avoid TOCTOU with detached object
+    user_result = await db.execute(select(User).where(User.id == current_user.id).with_for_update())
+    user = user_result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
+
+    region = resolve_pricing_region(request, user)
     validate_payment_method(region, "stripe")
-    is_premium = bool(getattr(current_user, "is_premium", False))
+    is_premium = bool(getattr(user, "is_premium", False))
     quote = get_price_quote(item_type, region, is_premium=is_premium)
 
     order_no = f"ST{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{secrets.randbelow(90000) + 10000}"
-    lock_user_region(current_user, region)
-    if current_user.pricing_region == region and not current_user.pricing_region_locked_at:
-        current_user.pricing_region_locked_at = datetime.now(timezone.utc)
+    lock_user_region(user, region)
+    if user.pricing_region == region and not user.pricing_region_locked_at:
+        user.pricing_region_locked_at = datetime.now(timezone.utc)
     order = Order(
-        user_id=current_user.id,
+        user_id=user.id,
         order_no=order_no,
         status=OrderStatus.pending,
         total_cny=quote.cny_amount,
@@ -186,7 +192,7 @@ async def create_stripe_checkout(
         order_no=order_no,
         quote=quote,
         name=quote.label,
-        user=current_user,
+        user=user,
         item_type=item_type,
         reading_id=reading_id,
     )

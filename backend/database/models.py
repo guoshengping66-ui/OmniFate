@@ -81,7 +81,7 @@ class User(Base):
     verification_expires_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     premium_expires_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     subscription_tier: Mapped[Optional[str]] = mapped_column(String(30), default=None)  # "free"|"premium_monthly"|"premium_yearly"
-    shop_coupon_balance: Mapped[float] = mapped_column(Numeric(12, 2), default=0.0)
+    shop_coupon_balance: Mapped[Decimal] = mapped_column(Numeric(12, 2), default=Decimal("0.00"))
     free_event_quota: Mapped[int] = mapped_column(Integer, default=0)
     free_event_quota_reset_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     oauth_provider: Mapped[Optional[str]] = mapped_column(String(50))
@@ -244,6 +244,7 @@ class Reading(Base):
 
     __table_args__ = (
         Index("ix_readings_user_created", "user_id", "created_at"),
+        Index("ix_readings_user_status", "user_id", "status"),
     )
 
 

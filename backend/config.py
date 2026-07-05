@@ -114,8 +114,19 @@ def get_settings() -> Settings:
         "change-me-to-a-random-32-char-string",
     }
     if not s.SECRET_KEY or s.SECRET_KEY in _default_secrets or s.SECRET_KEY.startswith("change-me"):
-        s.SECRET_KEY = secrets.token_hex(32)
-        logger.warning("SECRET_KEY not set — auto-generated. Set in .env to avoid session loss on restart.")
+        _secret_key_file = Path(__file__).parent / ".secret_key"
+        try:
+            if _secret_key_file.exists():
+                s.SECRET_KEY = _secret_key_file.read_text().strip()
+                logger.info("SECRET_KEY loaded from .secret_key (persistent across restarts)")
+            else:
+                s.SECRET_KEY = secrets.token_hex(32)
+                _secret_key_file.write_text(s.SECRET_KEY)
+                _secret_key_file.chmod(0o600)
+                logger.info("SECRET_KEY auto-generated and saved to .secret_key")
+        except Exception as e:
+            s.SECRET_KEY = secrets.token_hex(32)
+            logger.warning("SECRET_KEY generated but failed to persist (%s) — will reset on restart", e)
     if not s.JWT_SECRET_KEY or s.JWT_SECRET_KEY in _default_secrets or s.JWT_SECRET_KEY.startswith("change-me"):
         # SECURITY NOTE: The JWT secret is persisted to .jwt_secret so that backend
         # restarts (PM2, Vercel deployments) don't invalidate all user sessions.

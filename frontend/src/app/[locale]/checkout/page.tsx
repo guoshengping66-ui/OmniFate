@@ -35,10 +35,11 @@ export default function CheckoutPage() {
     }
   }, [user, authLoading, router, localeHref])
 
+  const CNY_TO_USD = 7.2
   const couponBalanceCny = user?.shop_coupon_balance ?? 0
   const couponEligible = true
-  const couponBalanceLocal = couponEligible ? couponBalanceCny : 0
-  const couponDiscount = useCoupon ? Math.min(couponBalanceLocal, totalWithDiscount) : 0
+  const couponBalanceUsd = couponEligible ? couponBalanceCny / CNY_TO_USD : 0
+  const couponDiscount = useCoupon ? Math.min(couponBalanceUsd, totalWithDiscount) : 0
   // Shipping: free for domestic, free worldwide over $79, otherwise $8
   const FREE_SHIPPING_THRESHOLD = 79
   const SHIPPING_FEE = 8
