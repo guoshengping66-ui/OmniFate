@@ -36,7 +36,7 @@ export default function CheckoutPage() {
   }, [user, authLoading, router, localeHref])
 
   const couponBalanceCny = user?.shop_coupon_balance ?? 0
-  const couponEligible = !isOverseas
+  const couponEligible = true
   const couponBalanceLocal = couponEligible ? couponBalanceCny : 0
   const couponDiscount = useCoupon ? Math.min(couponBalanceLocal, totalWithDiscount) : 0
   // Shipping: free for domestic, free worldwide over $79, otherwise $8

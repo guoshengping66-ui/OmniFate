@@ -1209,6 +1209,7 @@ export default {
   "address.country": "Country/Region",
   "address.province": "Province",
   "address.city": "City",
+  "address.state": "State/Province",
   "address.district": "District",
   "address.select": "Select",
   "address.name": "Recipient",
