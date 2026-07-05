@@ -22,13 +22,24 @@ class SafeDynamicWrapper extends React.Component<
 function genStars(n: number) {
   let seed = 42
   const rng = () => { seed = (seed * 16807 + 0) % 2147483647; return (seed - 1) / 2147483646 }
-  return Array.from({ length: n }, (_, i) => ({
-    id: i, left: rng() * 100, top: rng() * 100,
-    size: 0.5 + rng() * 0.8, opacity: 0.08 + rng() * 0.2,
-  }))
+  const colors = [
+    "rgba(220,230,255,",   // blue-white
+    "rgba(240,245,255,",   // pure white
+    "rgba(255,245,220,",   // warm white
+    "rgba(200,210,240,",   // cool blue
+  ]
+  return Array.from({ length: n }, (_, i) => {
+    const size = rng() < 0.1 ? 1.8 + rng() * 1.2 : 0.4 + rng() * 1.0
+    const color = colors[Math.floor(rng() * colors.length)]
+    const opacity = size > 1.5 ? 0.2 + rng() * 0.3 : 0.06 + rng() * 0.18
+    return {
+      id: i, left: rng() * 100, top: rng() * 100,
+      size, color, opacity,
+    }
+  })
 }
 
-const FIELD_STARS = genStars(60)
+const FIELD_STARS = genStars(100)
 
 export default function AnimatedBackground() {
   const [extra, setExtra] = React.useState<React.ComponentType | null>(null)
@@ -51,10 +62,10 @@ export default function AnimatedBackground() {
       {/* ═══ Static deep space backdrop — instant on all pages ═══ */}
       <div className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{
         background:
-          "radial-gradient(circle at 50% 34%, rgba(218,180,74,0.04), transparent 26%)," +
-          "radial-gradient(circle at 70% 46%, rgba(24,88,116,0.10), transparent 34%)," +
-          "radial-gradient(circle at 25% 65%, rgba(86,66,28,0.07), transparent 32%)," +
-          "linear-gradient(180deg, #02050d 0%, #06101b 42%, #02040a 100%)",
+          "radial-gradient(ellipse at 30% 20%, rgba(25, 40, 90, 0.25), transparent 40%)," +
+          "radial-gradient(ellipse at 70% 30%, rgba(15, 25, 55, 0.22), transparent 38%)," +
+          "radial-gradient(ellipse at 50% 60%, rgba(12, 18, 38, 0.28), transparent 35%)," +
+          "linear-gradient(180deg, #02050f 0%, #060e1f 42%, #0a0f1e 100%)",
         zIndex: 0,
       }} />
 
@@ -64,7 +75,9 @@ export default function AnimatedBackground() {
           <span key={s.id} style={{
             position: "absolute", left: `${s.left}%`, top: `${s.top}%`,
             width: s.size, height: s.size, borderRadius: "50%",
-            background: "rgba(255,255,255,0.5)", opacity: s.opacity,
+            background: `${s.color}${s.opacity})`,
+            boxShadow: s.size > 1.5 ? `0 0 ${s.size * 2}px ${s.color}${s.opacity * 0.5})` : "none",
+            opacity: s.opacity,
           }} />
         ))}
       </div>
@@ -72,9 +85,9 @@ export default function AnimatedBackground() {
       {/* ═══ Subtle nebula glow ═══ */}
       <div className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{
         background:
-          "radial-gradient(ellipse at 24% 60%, rgba(120,88,36,0.06), transparent 34%)," +
-          "radial-gradient(ellipse at 72% 44%, rgba(42,130,155,0.07), transparent 36%)," +
-          "radial-gradient(ellipse at 50% 38%, rgba(218,180,74,0.03), transparent 28%)",
+          "radial-gradient(ellipse at 24% 60%, rgba(80, 50, 140, 0.08), transparent 34%)," +
+          "radial-gradient(ellipse at 72% 44%, rgba(30, 80, 150, 0.09), transparent 36%)," +
+          "radial-gradient(ellipse at 50% 38%, rgba(100, 150, 220, 0.05), transparent 28%)",
         filter: "blur(38px)", opacity: 0.6, mixBlendMode: "screen" as const,
         zIndex: 1,
       }} />
