@@ -40,6 +40,11 @@ export async function generateMetadata({ params }: PageProps) {
       locale: isZh ? "zh_CN" : "en_US",
       url: `https://www.khanfate.com/${locale}/zodiac/${sign}/compatibility/${other}`,
     },
+    twitter: {
+      card: "summary_large_image",
+      title: isZh ? `${compatibility.title_zh} | 观我` : `${compatibility.title_en} | Guanwo`,
+      description: isZh ? compatibility.meta_description_zh : compatibility.meta_description_en,
+    },
     alternates: {
       canonical: `https://www.khanfate.com/${locale}/zodiac/${sign}/compatibility/${other}`,
       languages: {

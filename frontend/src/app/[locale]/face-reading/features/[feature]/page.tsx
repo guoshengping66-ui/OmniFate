@@ -28,6 +28,11 @@ export async function generateMetadata({ params }: PageProps) {
       locale: isZh ? "zh_CN" : "en_US",
       url: `https://www.khanfate.com/${locale}/face-reading/features/${feature}`,
     },
+    twitter: {
+      card: "summary_large_image",
+      title: isZh ? `${data.title_zh} | 观我` : `${data.title_en} | Guanwo`,
+      description: isZh ? data.meta_description_zh : data.meta_description_en,
+    },
     alternates: {
       canonical: `https://www.khanfate.com/${locale}/face-reading/features/${feature}`,
       languages: {
