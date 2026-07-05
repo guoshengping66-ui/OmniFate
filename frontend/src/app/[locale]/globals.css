@@ -1256,6 +1256,16 @@ select.input-field option:checked {
   50% { translate: 0 6px; }
 }
 
+@keyframes galaxyBandFlow {
+  0%, 100% { opacity: 0.6; transform: skewY(-6deg) translateX(-1%); }
+  50% { opacity: 0.85; transform: skewY(-5deg) translateX(1%); }
+}
+
+@keyframes cosmicDustPulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+}
+
 /* Floating particles */
 @keyframes particleFloat {
   0%, 100% { transform: translateY(0); opacity: 0.2; }
