@@ -37,11 +37,11 @@ export default function GalaxyHomeNew() { const { locale, localeHref } = useLang
     {/* ═══ L1: Galaxy River — ONE continuous diagonal glow band ═══ */}
     <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true" style={{ zIndex: 1 }}>
       {/* Main bright galaxy band */}
-      <div style={{ position: "absolute", left: "-35%", top: "8%", width: "170%", height: "84%", transform: "rotate(-16deg)", background: "linear-gradient(90deg, rgba(20,8,50,0) 0%, rgba(35,15,80,0.06) 10%, rgba(60,25,130,0.14) 25%, rgba(90,35,160,0.20) 40%, rgba(110,45,180,0.22) 48%, rgba(110,45,180,0.22) 52%, rgba(80,30,150,0.14) 65%, rgba(40,15,90,0.05) 82%, rgba(15,5,40,0) 100%)", filter: "blur(7px)", maskImage: "radial-gradient(ellipse at center, black 0%, black 18%, rgba(0,0,0,0.5) 50%, transparent 85%)", WebkitMaskImage: "radial-gradient(ellipse at center, black 0%, black 18%, rgba(0,0,0,0.5) 50%, transparent 85%)", animation: "galaxyFlow 45s ease-in-out infinite",willChange: "transform" }} />
+      <div style={{ position: "absolute", left: "-35%", top: "8%", width: "170%", height: "84%", transform: "rotate(-16deg)", background: "linear-gradient(90deg, rgba(20,8,50,0) 0%, rgba(35,15,80,0.06) 10%, rgba(60,25,130,0.14) 25%, rgba(90,35,160,0.20) 40%, rgba(110,45,180,0.22) 48%, rgba(110,45,180,0.22) 52%, rgba(80,30,150,0.14) 65%, rgba(40,15,90,0.05) 82%, rgba(15,5,40,0) 100%)", filter: "blur(7px)", maskImage: "radial-gradient(ellipse at center, black 0%, black 18%, rgba(0,0,0,0.5) 50%, transparent 85%)", WebkitMaskImage: "radial-gradient(ellipse at center, black 0%, black 18%, rgba(0,0,0,0.5) 50%, transparent 85%)", animation: "galaxyFlow 45s ease-in-out infinite" }} />
       {/* Secondary band — slightly offset for depth */}
-      <div style={{ position: "absolute", left: "-15%", top: "5%", width: "130%", height: "90%", transform: "rotate(-14deg)", background: "linear-gradient(90deg, rgba(15,8,50,0) 0%, rgba(35,15,85,0.04) 25%, rgba(65,25,130,0.10) 48%, rgba(65,25,130,0.10) 52%, rgba(35,15,85,0.04) 75%, rgba(10,5,35,0) 100%)", filter: "blur(14px)", maskImage: "radial-gradient(ellipse at center, black 0%, black 12%, rgba(0,0,0,0.35) 42%, transparent 82%)", WebkitMaskImage: "radial-gradient(ellipse at center, black 0%, black 12%, rgba(0,0,0,0.35) 42%, transparent 82%)", animation: "galaxyFlow 60s ease-in-out infinite reverse",willChange: "transform" }} />
+      <div style={{ position: "absolute", left: "-15%", top: "5%", width: "130%", height: "90%", transform: "rotate(-14deg)", background: "linear-gradient(90deg, rgba(15,8,50,0) 0%, rgba(35,15,85,0.04) 25%, rgba(65,25,130,0.10) 48%, rgba(65,25,130,0.10) 52%, rgba(35,15,85,0.04) 75%, rgba(10,5,35,0) 100%)", filter: "blur(14px)", maskImage: "radial-gradient(ellipse at center, black 0%, black 12%, rgba(0,0,0,0.35) 42%, transparent 82%)", WebkitMaskImage: "radial-gradient(ellipse at center, black 0%, black 12%, rgba(0,0,0,0.35) 42%, transparent 82%)", animation: "galaxyFlow 60s ease-in-out infinite reverse" }} />
       {/* Third wider wash */}
-      <div style={{ position: "absolute", left: "-5%", top: "0%", width: "110%", height: "100%", transform: "rotate(-12deg)", background: "linear-gradient(90deg, rgba(10,5,40,0) 0%, rgba(20,12,70,0.03) 35%, rgba(45,20,110,0.06) 50%, rgba(20,12,70,0.03) 65%, rgba(5,3,25,0) 100%)", filter: "blur(22px)", maskImage: "radial-gradient(ellipse at center, black 0%, black 10%, rgba(0,0,0,0.3) 40%, transparent 78%)", WebkitMaskImage: "radial-gradient(ellipse at center, black 0%, black 10%, rgba(0,0,0,0.3) 40%, transparent 78%)", animation: "galaxyFlow 70s ease-in-out infinite",willChange: "transform" }} />
+      <div style={{ position: "absolute", left: "-5%", top: "0%", width: "110%", height: "100%", transform: "rotate(-12deg)", background: "linear-gradient(90deg, rgba(10,5,40,0) 0%, rgba(20,12,70,0.03) 35%, rgba(45,20,110,0.06) 50%, rgba(20,12,70,0.03) 65%, rgba(5,3,25,0) 100%)", filter: "blur(22px)", maskImage: "radial-gradient(ellipse at center, black 0%, black 10%, rgba(0,0,0,0.3) 40%, transparent 78%)", WebkitMaskImage: "radial-gradient(ellipse at center, black 0%, black 10%, rgba(0,0,0,0.3) 40%, transparent 78%)", animation: "galaxyFlow 70s ease-in-out infinite" }} />
       {/* Core bright nucleus */}
       <div style={{ position: "absolute", left: "38%", top: "26%", width: "24%", height: "200px", background: "radial-gradient(ellipse at 50% 50%, rgba(150,140,220,0.12), rgba(100,75,180,0.06) 30%, rgba(50,25,100,0.02) 55%, transparent 75%)", filter: "blur(5px)", animation: "coreGlow 5s ease-in-out infinite" }} />
       {/* Second smaller bright spot */}
@@ -49,7 +49,7 @@ export default function GalaxyHomeNew() { const { locale, localeHref } = useLang
     </div>
 
     {/* ═══ L2: Scattered stars ═══ */}
-    <div className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{ zIndex: 2, contain: "layout style paint" }}>
+    <div className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{ zIndex: 2 }}>
       {stars.map(s => <span key={s.id} style={{ position: "absolute", left: s.x + "%", top: s.y + "%", width: s.sz, height: s.sz, borderRadius: "50%", background: s.clr === "warm" ? "rgba(255,215,130,0.75)" : s.clr === "blue" ? "rgba(140,180,240,0.65)" : `rgba(220,225,255,${Math.min(0.75, s.o * 1.3)})`, boxShadow: s.clr === "warm" ? `0 0 ${s.sz * 1.5}px rgba(255,200,100,0.25)` : s.clr === "blue" ? `0 0 ${s.sz}px rgba(150,190,240,0.15)` : "none", opacity: s.o, transform: "translate(-50%,-50%)", animation: s.tw ? `starTwinkle ${s.sp}s ease-in-out ${s.dl}s infinite` : "none" }} />)}
     </div>
 
@@ -88,7 +88,7 @@ export default function GalaxyHomeNew() { const { locale, localeHref } = useLang
 @keyframes coreGlow{0%,100%{opacity:.5}50%{opacity:.85}}
 @keyframes fadeUp{0%{opacity:0;transform:translateY(16px)}100%{opacity:1;transform:translateY(0)}}
 @keyframes rSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-@media(prefers-reduced-motion:reduce){*{animation:none!important}}@media(max-width:768px){.star-mid,.star-near{display:none}.star-far{opacity:.5!important}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
     `}</style>
 
     {/* ═══ HERO ═══ */}

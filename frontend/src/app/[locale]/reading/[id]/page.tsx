@@ -1127,12 +1127,14 @@ export default function ReadingPage() {
   // Guard against redundant setData calls from AnalysisSession onComplete.
   // getSession() returns new object refs each call, so without this guard
   // every poll/SSE completion triggers a re-render even when data is identical.
-  // Use a fingerprint of key fields instead of full JSON.stringify for speed.
-  const lastFingerprintRef = useRef<string>("")
+  // The stringified snapshot prevents re-render cascades that cause React error #310.
+  const lastCompleteDataRef = useRef<AnalysisResponse | null>(null)
+  const lastCompleteJsonRef = useRef<string>("")
   const handleAnalysisComplete = useCallback((fresh: AnalysisResponse) => {
-    const fp = fresh.status + "|" + fresh.master_summary?.slice(0, 200) + "|" + fresh.progress_pct
-    if (fp === lastFingerprintRef.current) return
-    lastFingerprintRef.current = fp
+    const json = JSON.stringify(fresh)
+    if (json === lastCompleteJsonRef.current) return
+    lastCompleteJsonRef.current = json
+    lastCompleteDataRef.current = fresh
     setData(fresh)
     setIsUnlocked(fresh.is_detail_unlocked)
     setIsDetailedUnlocked(fresh.is_detailed_unlocked)
@@ -1158,10 +1160,11 @@ export default function ReadingPage() {
     getSession(id, locale).then(d => {
       if (cancelled) return
       clearTimeout(loadTimeout)
-      // Deduplicate: use lightweight fingerprint instead of JSON.stringify
-      const fp = d.status + "|" + d.master_summary?.slice(0, 200) + "|" + d.progress_pct
-      if (fp !== lastFingerprintRef.current) {
-        lastFingerprintRef.current = fp
+      // Deduplicate: don't overwrite if AnalysisSession already set identical data
+      const json = JSON.stringify(d)
+      if (json !== lastCompleteJsonRef.current) {
+        lastCompleteJsonRef.current = json
+        lastCompleteDataRef.current = d
         setData(d)
       }
       setIsUnlocked(d.is_detail_unlocked)
@@ -1365,11 +1368,11 @@ export default function ReadingPage() {
   }
 
   const isSingleAspectIntent = data.intent ? ["BAZI", "ASTROLOGY", "TAROT", "FACE_HAND"].includes(data.intent) : false
-  const displayDimensionScores = useMemo(() => data.dimension_scores ? getDisplayDimensionScores(data.dimension_scores) : undefined, [data.dimension_scores])
-  const strongestDim = useMemo(() => displayDimensionScores ? getStrongestDimension(displayDimensionScores) : "career", [displayDimensionScores])
-  const strongestLabel = useMemo(() => displayDimensionScores ? getI18nDimLabel(getStrongestDimension(displayDimensionScores), t) : t("reading.dim.career"), [displayDimensionScores, t])
-  const weakestDim = useMemo(() => displayDimensionScores ? getWeakestDimension(displayDimensionScores) : "wealth", [displayDimensionScores])
-  const weakestLabel = useMemo(() => displayDimensionScores ? getI18nDimLabel(getWeakestDimension(displayDimensionScores), t) : t("reading.dim.wealth"), [displayDimensionScores, t])
+  const displayDimensionScores = data.dimension_scores ? getDisplayDimensionScores(data.dimension_scores) : undefined
+  const strongestDim = displayDimensionScores ? getStrongestDimension(displayDimensionScores) : "career"
+  const strongestLabel = displayDimensionScores ? getI18nDimLabel(getStrongestDimension(displayDimensionScores), t) : t("reading.dim.career")
+  const weakestDim = displayDimensionScores ? getWeakestDimension(displayDimensionScores) : "wealth"
+  const weakestLabel = displayDimensionScores ? getI18nDimLabel(getWeakestDimension(displayDimensionScores), t) : t("reading.dim.wealth")
 
   return (
     <div className="min-h-screen pb-24">

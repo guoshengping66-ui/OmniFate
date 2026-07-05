@@ -972,13 +972,13 @@ async def get_session(
         try:
             async with AsyncSessionLocal() as db:
                 result = await db.execute(
-                    select(Reading.user_id).where(Reading.id == session_id)
+                    select(Reading).where(Reading.id == session_id)
                 )
-                row = result.one_or_none()
-                if row and row[0]:
+                reading = result.scalar_one_or_none()
+                if reading and reading.user_id:
                     if not current_user:
                         raise HTTPException(status_code=401, detail="请登录后查看此报告")
-                    if str(row[0]) != str(current_user.id):
+                    if str(reading.user_id) != str(current_user.id):
                         raise HTTPException(status_code=403, detail="无权访问此报告")
         except HTTPException:
             raise
@@ -1005,14 +1005,14 @@ async def get_session(
             try:
                 async with AsyncSessionLocal() as db:
                     result = await db.execute(
-                        select(Reading.is_detail_unlocked, Reading.is_detailed_unlocked, Reading.master_detail).where(Reading.id == session_id)
+                        select(Reading).where(Reading.id == session_id)
                     )
-                    row = result.one_or_none()
-                    if row:
-                        resp.is_detail_unlocked = row[0]
-                        resp.is_detailed_unlocked = row[1] or False
-                        if row[2]:
-                            resp.master_detail = row[2]
+                    reading = result.scalar_one_or_none()
+                    if reading:
+                        resp.is_detail_unlocked = reading.is_detail_unlocked
+                        resp.is_detailed_unlocked = getattr(reading, "is_detailed_unlocked", False)
+                        if reading.master_detail:
+                            resp.master_detail = reading.master_detail
             except Exception as e:
                 logger.debug("Failed to load reading details from DB: %s", e)
         return _apply_content_lock(resp, current_user, None, lang=lang or "zh")
