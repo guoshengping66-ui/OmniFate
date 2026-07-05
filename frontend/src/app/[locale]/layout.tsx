@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next"
 
 import { getMessages, setRequestLocale } from "next-intl/server"
-import { cookies } from "next/headers"
 import { locales, type Locale } from "@/i18n/config"
 import "./globals.css"
 import { Navbar } from "@/components/ui/Navbar"
@@ -109,12 +108,8 @@ export default async function LocaleLayout({
   // Load translations server-side — only the active locale is fetched
   const messages = await getMessages()
 
-  // Read region cookie set by middleware (CF-IPCountry based)
-  // Default to "overseas" when cookie is missing — safer for international users
-  // who would otherwise see domestic Chinese pricing/payment methods
-  const cookieStore = await cookies()
-  const regionCookie = cookieStore.get("region")?.value
-  const initialRegion: "domestic" | "overseas" = regionCookie === "domestic" ? "domestic" : "overseas"
+  // Unified global pricing — all regions use overseas (USD)
+  const initialRegion: "domestic" | "overseas" = "overseas"
 
   return (
     <html lang={validLocale === "zh" ? "zh-CN" : "en"} translate="no">
