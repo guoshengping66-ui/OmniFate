@@ -51,7 +51,7 @@ export default function BaziSEOPage() {
             "@type": "WebApplication",
             "name": t("seo.bazi.title"),
             "description": t("seo.bazi.desc"),
-            "url": "https://www.khanfate.com/bazi",
+            "url": `https://www.khanfate.com/${locale}/bazi`,
             "applicationCategory": "LifestyleApplication",
             "operatingSystem": "Web",
             "offers": {

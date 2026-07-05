@@ -5,16 +5,36 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: "Profile Mirror · Multi-Dimension Behavioral Analysis",
+  title: "Guanwo Fate OS · AI Destiny Action System",
   description:
-    "AI-powered behavioral analysis combining Bazi, Western chart analysis, Symbol analysis, face reading, and hand analysis. Discover your behavioral blueprint and personalized status guidance.",
-  keywords: ["bazi", "chart analysis", "symbol", "face reading", "profile", "status"],
+    "AI-powered destiny analysis combining Bazi, Ziwei, Western astrology, Tarot, face reading, and palm reading. Discover your personal blueprint and daily action guidance.",
+  keywords: ["bazi", "astrology", "tarot", "face reading", "palm reading", "ziwei", "destiny", "fortune"],
   icons: { icon: "/logo.png" },
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Profile Mirror",
+    title: "Guanwo",
+  },
+  openGraph: {
+    title: "Guanwo Fate OS · AI Destiny Action System",
+    description: "AI-powered destiny analysis — Bazi, Ziwei, Astrology, Tarot, Face & Palm reading combined into your personal action blueprint.",
+    url: "https://www.khanfate.com",
+    siteName: "Guanwo Fate OS",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Guanwo Fate OS · AI Destiny Action System",
+    description: "AI-powered destiny analysis — your personal action blueprint.",
+  },
+  alternates: {
+    canonical: "https://www.khanfate.com",
+    languages: {
+      en: "https://www.khanfate.com/en",
+      zh: "https://www.khanfate.com/zh",
+      "x-default": "https://www.khanfate.com/en",
+    },
   },
 }
 

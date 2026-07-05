@@ -4,9 +4,10 @@ import Link from "next/link"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { safeJsonLd } from "@/utils/safeJsonLd"
 
 export default function AboutPage() {
-  const { t, localeHref } = useLanguage()
+  const { t, locale, localeHref } = useLanguage()
 
   const pillars = [
     {
@@ -48,6 +49,27 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen pt-24 pb-20 px-4">
       <div className="max-w-5xl mx-auto">
+        {/* Organization JSON-LD */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: safeJsonLd({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "Guanwo Fate OS",
+            "url": "https://www.khanfate.com",
+            "logo": "https://www.khanfate.com/logo.png",
+            "description": isZh
+              ? "观我Fate OS — 融合八字、紫微、星盘、塔罗、面相与手相的AI命运行动系统"
+              : "Guanwo Fate OS — AI destiny action system combining Bazi, Ziwei, astrology, tarot, face and palm reading",
+            "sameAs": ["https://github.com/guoshengping66-ui/OmniFate"],
+            "contactPoint": {
+              "@type": "ContactPoint",
+              "contactType": "customer service",
+              "availableLanguage": ["English", "Chinese"],
+            },
+          })}}
+        />
+
         <Breadcrumbs items={[{ label: t("nav.about") }]} />
 
         {/* ══════════ Hero — Brand Statement ══════════ */}
