@@ -449,11 +449,11 @@ async def cache_middleware(request: Request, call_next):
     # Fast path: use Content-Length header to skip buffering for obviously large responses
     content_length = response.headers.get("content-length")
     if content_length:
-                    try:
-                        if int(content_length) > MAX_CACHE_BODY:
-                            return response
-                    except ValueError:
-                        pass  # Malformed Content-Length header — stream directly
+        try:
+            if int(content_length) > MAX_CACHE_BODY:
+                return response
+        except ValueError:
+            pass  # Malformed Content-Length header — stream directly
         return response  # Stream directly without buffering
     body = b""
     async for chunk in response.body_iterator:
