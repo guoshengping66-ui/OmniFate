@@ -434,7 +434,10 @@ export default function NewReadingPage() {
     }
   }, [palmScan.preview, palmScan.scanDone])
 
+  const submittingRef = useRef(false)
   const onSubmit = async (values: FormValues) => {
+    if (submittingRef.current) return
+    submittingRef.current = true
     setLoading(true)
     try {
       const finalFaceText = faceScan.text
@@ -519,7 +522,9 @@ export default function NewReadingPage() {
         msg = err?.response?.data?.detail ?? t("new.submitErrorMsg").replace("{status}", String(status))
       }
       toast.error(msg, { duration: 6000 })
+    } finally {
       setLoading(false)
+      submittingRef.current = false
     }
   }
 
@@ -846,7 +851,7 @@ export default function NewReadingPage() {
                       onComplete={partnerFaceScan.scanComplete}
                     />
                   ) : (
-                    <div onClick={() => partnerFaceRef.current?.click()}
+                    <div role="button" tabIndex={0} aria-label="partner face upload area" onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") partnerFaceRef.current?.click() }} onClick={() => partnerFaceRef.current?.click()}
                       className="border-2 border-dashed border-white/20 hover:border-gold/40 rounded-2xl p-6 md:p-8 text-center cursor-pointer transition-all group">
                       {partnerFaceScan.preview ? (
                         <div className="relative inline-block">
@@ -873,7 +878,7 @@ export default function NewReadingPage() {
                       )}
                     </div>
                   )}
-                  <input ref={partnerFaceRef} type="file" accept="image/*" className="sr-only" onChange={partnerFaceScan.pick} />
+                  <input ref={partnerFaceRef} type="file" accept="image/*" className="sr-only" aria-label="Upload partner face photo" onChange={partnerFaceScan.pick} />
 
                   {partnerFaceScan.features && !partnerFaceScan.isScanning && (
                     <div className="mt-4 flex items-center gap-2 text-green-400/80 text-xs">
@@ -899,7 +904,7 @@ export default function NewReadingPage() {
                       onComplete={partnerPalmScan.scanComplete}
                     />
                   ) : (
-                    <div onClick={() => partnerPalmRef.current?.click()}
+                    <div role="button" tabIndex={0} aria-label="partner palm upload area" onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") partnerPalmRef.current?.click() }} onClick={() => partnerPalmRef.current?.click()}
                       className="border-2 border-dashed border-white/20 hover:border-gold/40 rounded-2xl p-6 md:p-8 text-center cursor-pointer transition-all group">
                       {partnerPalmScan.preview ? (
                         <div className="relative inline-block">
@@ -926,7 +931,7 @@ export default function NewReadingPage() {
                       )}
                     </div>
                   )}
-                  <input ref={partnerPalmRef} type="file" accept="image/*" className="sr-only" onChange={partnerPalmScan.pick} />
+                  <input ref={partnerPalmRef} type="file" accept="image/*" className="sr-only" aria-label="Upload partner palm photo" onChange={partnerPalmScan.pick} />
 
                   {partnerPalmScan.features && !partnerPalmScan.isScanning && (
                     <div className="mt-4 flex items-center gap-2 text-green-400/80 text-xs">
@@ -1006,7 +1011,7 @@ export default function NewReadingPage() {
                     onComplete={faceScan.scanComplete}
                   />
                 ) : (
-                  <div onClick={() => faceRef.current?.click()}
+                  <div role="button" tabIndex={0} aria-label="face photo upload area" onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") faceRef.current?.click() }} onClick={() => faceRef.current?.click()}
  className="border-2 border-dashed border-white/20 hover:border-gold/40 rounded-2xl p-6 md:p-8 text-center cursor-pointer transition-all group">
                     {faceScan.preview ? (
                       <div className="relative inline-block">
@@ -1033,7 +1038,7 @@ export default function NewReadingPage() {
                     )}
                   </div>
                 )}
-                <input ref={faceRef} type="file" accept="image/*" className="sr-only" onChange={faceScan.pick} />
+                <input ref={faceRef} type="file" accept="image/*" className="sr-only" aria-label="Upload face photo" onChange={faceScan.pick} />
 
                 {/* Face scan success indicator — results only shown in final report */}
                 {faceScan.features && !faceScan.isScanning && (
@@ -1068,7 +1073,7 @@ export default function NewReadingPage() {
                     onComplete={palmScan.scanComplete}
                   />
                 ) : (
-                  <div onClick={() => palmRef.current?.click()}
+                  <div role="button" tabIndex={0} aria-label="palm photo upload area" onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") palmRef.current?.click() }} onClick={() => palmRef.current?.click()}
  className="border-2 border-dashed border-white/20 hover:border-gold/40 rounded-2xl p-6 md:p-8 text-center cursor-pointer transition-all group">
                     {palmScan.preview ? (
                       <div className="relative inline-block">
@@ -1095,7 +1100,7 @@ export default function NewReadingPage() {
                     )}
                   </div>
                 )}
-                <input ref={palmRef} type="file" accept="image/*" className="sr-only" onChange={palmScan.pick} />
+                <input ref={palmRef} type="file" accept="image/*" className="sr-only" aria-label="Upload palm photo" onChange={palmScan.pick} />
 
                 {/* Palm scan success indicator — results only shown in final report */}
                 {palmScan.features && !palmScan.isScanning && (

@@ -1200,8 +1200,8 @@ export default function ReadingPage() {
     if (shopFetched || shopLoading) return
     if (!data.computed_tags || data.computed_tags.length === 0) return
 
+    let cancelled = false
     setShopLoading(true)
-    // Strip backend modifiers (待验证, 严重⚠️) so tags match product keyword_tags exactly
     const cleanTags = data.computed_tags.map((tag: string) =>
       tag.replace(/^严重⚠️\s*/, "").replace(/\(待验证\)$/, "").trim()
     )
@@ -1211,12 +1211,10 @@ export default function ReadingPage() {
       top_k: 6,
       include_explain: true,
     }, locale)
-      .then(result => {
-        setProducts(result)
-        setShopFetched(true)
-      })
+      .then(result => { if (!cancelled) { setProducts(result); setShopFetched(true) } })
       .catch(() => {})
-      .finally(() => setShopLoading(false))
+      .finally(() => { if (!cancelled) setShopLoading(false) })
+    return () => { cancelled = true }
   }, [dataStatus, shopFetched, shopLoading, locale])
 
   const handleUnlock = useCallback(async (paymentMethod: string = "card") => {
@@ -1638,6 +1636,7 @@ export default function ReadingPage() {
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
+                aria-current={activeTab === item.id ? "page" : undefined}
                 className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium
                             whitespace-nowrap transition-all duration-300 group
                   ${activeTab === item.id
