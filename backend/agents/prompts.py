@@ -7482,18 +7482,18 @@ Preferred free structure:
 Final quality check: Can the user act on this today? Does each key claim explain why it is true? Is the opportunity/timeframe specific enough?
 """
 
-    return f”””
+    return f"""
 
 === Profile Mirror 报告质量协议（{mode}）===
-定位：这是一份”个人决策报告”，不是玄学堆料。
+定位：这是一份"个人决策报告"，不是玄学堆料。
 
 硬性写作规则：
 1. 先给结论。用户必须在前 3 行看懂最重要判断。
 2. 建立证据链。重要结论必须说明来自哪些体系支持：八字、星盘、塔罗、奇门、紫微、面相、手相等。
-3. 区分确定性：”多体系一致””单体系提示””推测性结论”。
+3. 区分确定性："多体系一致""单体系提示""推测性结论"。
 4. 用现代大白话解释原因：决策风格、压力反应、关系模式、动机结构、风险偏好、注意力模式。
 5. 每条建议必须采用这个逻辑：因为【具体发现】，所以建议【具体动作】。
-6. 必要时给”不要做什么”。用户很需要明确边界。
+6. 必要时给"不要做什么"。用户很需要明确边界。
 7. 禁止空泛鸡汤、夸大确定性、术语堆砌、没有依据的商品推荐。
 8. 执行摘要（Section 0）必须包含：一个具体的机会（带依据）、一个具体的风险（带原因）、一条可执行的动作（带时限）。
 
@@ -7513,7 +7513,7 @@ Final quality check: Can the user act on this today? Does each key claim explain
 【E·行动建议速览】
 
 输出前自检：用户今天能不能照着做？每个关键判断有没有解释为什么？
-“””
+"""
 
 
 def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
