@@ -24,6 +24,18 @@ export async function generateMetadata({ params }: PageProps) {
     title: isZh ? data.title_zh : data.title_en,
     description: isZh ? data.meta_description_zh : data.meta_description_en,
     keywords: isZh ? data.keywords_zh : data.keywords_en,
+    openGraph: {
+      title: isZh ? `${data.title_zh} | 观我 Fate OS` : `${data.title_en} | Guanwo Fate OS`,
+      description: isZh ? data.meta_description_zh : data.meta_description_en,
+      url: `https://www.khanfate.com/${locale}/bazi/analysis/${type}`,
+      siteName: isZh ? "观我 Fate OS" : "Guanwo Fate OS",
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: isZh ? `${data.title_zh} | 观我` : `${data.title_en} | Guanwo`,
+      description: isZh ? data.meta_description_zh : data.meta_description_en,
+    },
     alternates: {
       canonical: `https://www.khanfate.com/${locale}/bazi/analysis/${type}`,
       languages: {
@@ -60,6 +72,8 @@ export default async function BaziAnalysisPage({ params }: PageProps) {
             "@type": "Article",
             "headline": isZh ? data.title_zh : data.title_en,
             "description": isZh ? data.meta_description_zh : data.meta_description_en,
+            "author": { "@type": "Organization", "name": "Guanwo Fate OS" },
+            "publisher": { "@type": "Organization", "name": "Guanwo Fate OS", "logo": { "@type": "ImageObject", "url": "/logo.png" } },
             "url": `https://www.khanfate.com/${locale}/bazi/analysis/${type}`,
           })}}
         />

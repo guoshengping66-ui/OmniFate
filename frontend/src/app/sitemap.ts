@@ -18,6 +18,8 @@ import { ZiweiPalaces } from "@/data/programmatic/ziwei/palaces"
 import { AstrologyPlanets } from "@/data/programmatic/astrology/planets"
 import { AstrologyHouses } from "@/data/programmatic/astrology/houses"
 import { KnowledgeCategories } from "@/data/knowledge"
+import { BaziAnalyses } from "@/data/programmatic/bazi/analysis"
+import { FiveElementCompatibilities } from "@/data/programmatic/five-elements/compatibility"
 
 const BASE_URL = "https://www.khanfate.com"
 
@@ -180,6 +182,24 @@ export default function sitemap(): MetadataRoute.Sitemap {
     locales.map((locale) => progEntry(`/${locale}/astrology/houses/${house.id}`, 0.8))
   ).flat()
 
+  // Zodiac Topic pages (12 signs x 5 topics = 60 entries)
+  const zodiacTopics = ["love", "career", "health", "wealth", "study"]
+  const zodiacTopicEntries = ZodiacSigns.flatMap((sign) =>
+    zodiacTopics.flatMap((topic) =>
+      locales.map((locale) => progEntry(`/${locale}/zodiac/${sign.id}/${topic}`, 0.7))
+    )
+  )
+
+  // Bazi Analysis types
+  const baziAnalysisEntries = BaziAnalyses.flatMap((analysis) =>
+    locales.map((locale) => progEntry(`/${locale}/bazi/analysis/${analysis.id}`, 0.8))
+  )
+
+  // Five Elements compatibility
+  const fiveElementCompatEntries = FiveElementCompatibilities.flatMap((pair) =>
+    locales.map((locale) => progEntry(`/${locale}/five-elements/${pair.element_a}/with/${pair.element_b}`, 0.7))
+  )
+
   // Knowledge base pages
   const knowledgeEntries = KnowledgeCategories.flatMap((cat) => {
     const catEntry = locales.map((locale) => progEntry(`/${locale}${cat.canonical_path}`, 0.8))
@@ -206,6 +226,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...ziweiPalaceEntries,
     ...astrologyPlanetEntries,
     ...astrologyHouseEntries,
+    ...zodiacTopicEntries,
+    ...baziAnalysisEntries,
+    ...fiveElementCompatEntries,
     ...knowledgeEntries,
   ]
 }
