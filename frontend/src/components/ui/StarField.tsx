@@ -66,16 +66,16 @@ export function StarField() {
   useEffect(() => {
     if (!ref.current) return
     const container = ref.current
+    const orphanNodes: HTMLDivElement[] = []
 
     const createStars = () => {
-      // 120 stars with varied colors and sizes for depth
       for (let i = 0; i < 120; i++) {
         const star = document.createElement("div")
         const size = Math.random() < 0.1
-          ? 2.8 + Math.random() * 1.8  // 10% bright stars
+          ? 2.8 + Math.random() * 1.8
           : Math.random() < 0.3
-            ? 1.5 + Math.random() * 1.3  // 20% medium
-            : 0.4 + Math.random() * 1.1  // 70% faint/distant
+            ? 1.5 + Math.random() * 1.3
+            : 0.4 + Math.random() * 1.1
         const x = Math.random() * 100
         const y = Math.random() * 100
         const colorIdx = Math.floor(Math.random() * STAR_COLORS.length)
@@ -94,10 +94,10 @@ export function StarField() {
             : "none"};
         `
         container.appendChild(star)
+        orphanNodes.push(star)
         starsRef.current.push({ x, y, size, element: star })
       }
 
-      // Constellation lines — connect nearby bright stars
       const brightStars = starsRef.current.filter(s => s.size > 2.0)
       const usedPairs = new Set<string>()
       for (let i = 0; i < brightStars.length; i++) {
@@ -107,7 +107,6 @@ export function StarField() {
           const dx = s2.x - s1.x
           const dy = s2.y - s1.y
           const dist = Math.sqrt(dx * dx + dy * dy)
-          // Only connect if within reasonable distance (avoid crossing entire screen)
           if (dist < 28 && dist > 3 && usedPairs.size < 8) {
             const pairKey = `${i}-${j}`
             if (usedPairs.has(pairKey)) continue
@@ -130,6 +129,7 @@ export function StarField() {
               animation-delay: ${(i + j) * 0.7}s;
             `
             container.appendChild(line)
+            orphanNodes.push(line)
           }
         }
       }
@@ -139,7 +139,6 @@ export function StarField() {
       ? requestIdleCallback(createStars, { timeout: 2000 })
       : setTimeout(createStars, 500) as unknown as number
 
-    // Shooting stars — slightly more frequent
     const interval = setInterval(() => {
       if (Math.random() > 0.65) createShootingStar()
     }, 4000)
@@ -148,6 +147,7 @@ export function StarField() {
       if (typeof cancelIdleCallback !== "undefined") cancelIdleCallback(idleId)
       else clearTimeout(idleId)
       clearInterval(interval)
+      orphanNodes.forEach(n => n.remove())
       shootingStarsRef.current.forEach(s => s.remove())
     }
   }, [createShootingStar])

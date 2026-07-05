@@ -3,26 +3,13 @@
 export function NebulaBackground() {
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: -1 }} suppressHydrationWarning>
-      {/* Deep space base gradient */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background: `
-            radial-gradient(ellipse at 30% 20%, rgba(25, 40, 90, 0.32) 0%, transparent 55%),
-            radial-gradient(ellipse at 70% 30%, rgba(15, 25, 55, 0.28) 0%, transparent 50%),
-            radial-gradient(ellipse at 50% 60%, rgba(12, 18, 38, 0.35) 0%, transparent 45%),
-            radial-gradient(ellipse at 85% 70%, rgba(20, 30, 65, 0.22) 0%, transparent 50%)
-          `
-        }}
-      />
-
       {/* Large cosmic nebula — deep blue */}
       <div
         className="absolute rounded-full"
         style={{
           background: "radial-gradient(ellipse at 40% 40%, rgba(30, 60, 140, 0.28) 0%, rgba(15, 30, 80, 0.14) 35%, transparent 65%)",
-          width: "55vw",
-          height: "55vw",
+          width: "min(55vw, 360px)",
+          height: "min(55vw, 360px)",
           left: "-8%",
           top: "5%",
           animation: "nebulaDrift1 28s ease-in-out infinite",
@@ -35,8 +22,8 @@ export function NebulaBackground() {
         className="absolute rounded-full"
         style={{
           background: "radial-gradient(ellipse at 55% 45%, rgba(80, 35, 130, 0.24) 0%, rgba(35, 15, 70, 0.12) 40%, transparent 70%)",
-          width: "50vw",
-          height: "50vw",
+          width: "min(50vw, 320px)",
+          height: "min(50vw, 320px)",
           right: "-5%",
           top: "10%",
           animation: "nebulaDrift2 32s ease-in-out infinite",
@@ -49,8 +36,8 @@ export function NebulaBackground() {
         className="absolute rounded-full"
         style={{
           background: "radial-gradient(ellipse at 50% 50%, rgba(20, 100, 100, 0.18) 0%, rgba(10, 50, 55, 0.09) 40%, transparent 70%)",
-          width: "45vw",
-          height: "40vw",
+          width: "min(45vw, 280px)",
+          height: "min(40vw, 250px)",
           left: "25%",
           top: "40%",
           animation: "nebulaDrift3 24s ease-in-out infinite",
@@ -154,15 +141,6 @@ export function NebulaBackground() {
         </div>
       ))}
 
-      {/* Subtle vignette — darker edges for depth */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background: `
-            radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(2, 3, 12, 0.35) 70%, rgba(2, 3, 12, 0.55) 100%)
-          `,
-        }}
-      />
     </div>
   )
 }

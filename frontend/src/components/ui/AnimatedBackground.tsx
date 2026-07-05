@@ -82,16 +82,6 @@ export default function AnimatedBackground() {
         ))}
       </div>
 
-      {/* ═══ Subtle nebula glow ═══ */}
-      <div className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{
-        background:
-          "radial-gradient(ellipse at 24% 60%, rgba(80, 50, 140, 0.08), transparent 34%)," +
-          "radial-gradient(ellipse at 72% 44%, rgba(30, 80, 150, 0.09), transparent 36%)," +
-          "radial-gradient(ellipse at 50% 38%, rgba(100, 150, 220, 0.05), transparent 28%)",
-        filter: "blur(38px)", opacity: 0.6, mixBlendMode: "screen" as const,
-        zIndex: 1,
-      }} />
-
       {/* ═══ Vignette ═══ */}
       <div className="fixed inset-0 pointer-events-none" aria-hidden="true" style={{
         background:
