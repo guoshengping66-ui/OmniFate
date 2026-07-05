@@ -1371,7 +1371,7 @@ async def stream_session(
                     yield f"data: {json.dumps({'type': 'subtask_done', 'subtask': st_name, 'length': len(val)})}\n\n"
                     streamed_subtasks.add(st_name)
 
-            await asyncio.sleep(2)  # Poll Redis every 2s (frontend also polls HTTP every 3s)
+            await asyncio.sleep(0.5)
 
             # ── SECURITY: Send heartbeat every 15s to prevent proxy timeout ──
             now = time.time()
