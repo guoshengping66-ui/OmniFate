@@ -61,7 +61,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
     // Instant restore from cache
     const cached = loadCachedProfiles()
     if (cached && cached.length > 0) {
-      const mainProfile = cached.find(p => p.nickname === "本命") || cached[0] || null
+      const mainProfile = cached.find(p => (p.nickname === "本命" || p.nickname === "Myself" || p.nickname === "Self")) || cached[0] || null
       set({
         birthProfiles: cached,
         userProfile: mainProfile,
@@ -72,7 +72,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
     set({ loading: true })
     try {
       const profiles = await listBirthProfiles()
-      const mainProfile = profiles.find(p => p.nickname === "本命") || profiles[0] || null
+      const mainProfile = profiles.find(p => (p.nickname === "本命" || p.nickname === "Myself" || p.nickname === "Self")) || profiles[0] || null
       set({
         birthProfiles: profiles,
         userProfile: mainProfile,
@@ -123,7 +123,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
       const profiles = s.birthProfiles.filter(p => p.id !== id)
       const isMain = s.userProfile?.id === id
       const isActive = s.activeTestTarget?.id === id
-      const mainProfile = profiles.find(p => p.nickname === "本命") || profiles[0] || null
+      const mainProfile = profiles.find(p => (p.nickname === "本命" || p.nickname === "Myself" || p.nickname === "Self")) || profiles[0] || null
       return {
         birthProfiles: profiles,
         userProfile: isMain ? mainProfile : s.userProfile,

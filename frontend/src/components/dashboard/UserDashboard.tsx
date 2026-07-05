@@ -29,12 +29,17 @@ const cardBg = { background: "linear-gradient(135deg, #060E24, #030918)" }
 const cardBorder = "border border-white/[0.05] rounded-2xl"
 
 export function UserDashboard() {
-  const { locale, localeHref } = useLanguage()
+  const { t, locale, localeHref } = useLanguage()
   const { userProfile, activeTestTarget } = useUserStore()
   const [eventDrawerOpen, setEventDrawerOpen] = useState(false)
   const isZh = locale === "zh"
   const signals = isZh ? signalsZh : signalsEn
-  const activeName = activeTestTarget?.nickname || userProfile?.nickname || (isZh ? "你" : "You")
+
+  // Translate stored default nicknames at display time
+  const nickname = activeTestTarget?.nickname || userProfile?.nickname || ""
+  const showName = nickname === "本命" || nickname === "Myself"
+    ? t("target.self")
+    : nickname || (isZh ? "你" : "You")
 
   const today = useMemo(() => new Date().toLocaleDateString(locale === "zh" ? "zh-CN" : "en-US", { month: "long", day: "numeric", weekday: "long" }), [locale])
 
@@ -48,7 +53,7 @@ export function UserDashboard() {
             <Sparkles size={13} /> {isZh ? "观我档案 · 今日行动中心" : "Guanwo Dossier · Daily Center"}
           </p>
           <h1 className="mt-5 max-w-xl font-serif text-2xl leading-tight text-white/85 md:text-3xl">
-            {isZh ? `${activeName}，今天先完成一件关键的事` : `${activeName}, start with one key move today`}
+            {isZh ? `${showName}，今天先完成一件关键的事` : `${showName}, start with one key move today`}
           </h1>
           <p className="mt-3 max-w-lg text-[13px] leading-relaxed text-white/35">
             {isZh ? "根据你的五维状态与近期问题，提炼今天最值得推进的一步。" : "One move worth advancing today, distilled from your five-source state and recent questions."}

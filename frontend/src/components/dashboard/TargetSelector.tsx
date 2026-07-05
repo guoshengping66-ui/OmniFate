@@ -18,6 +18,13 @@ export function TargetSelector() {
   const [showAddDialog, setShowAddDialog] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
+  // Translate stored default nicknames ("本命", "Myself") at display time
+  // so they switch language correctly instead of showing the registration locale
+  const showNickname = (n: string) => {
+    if (n === "本命" || n === "Myself") return t("target.self")
+    return n
+  }
+
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
@@ -29,7 +36,7 @@ export function TargetSelector() {
   if (!userProfile) return null
 
   const isSelf = activeTestTarget?.id === userProfile.id
-  const targetLabel = activeTestTarget?.nickname || t("target.self")
+  const targetLabel = activeTestTarget?.nickname ? showNickname(activeTestTarget.nickname) : t("target.self")
 
   return (
     <div ref={ref} className="relative">
@@ -50,7 +57,7 @@ export function TargetSelector() {
             className="w-full flex items-center gap-2 px-3 py-2.5 text-sm hover:bg-white/5 transition-colors"
           >
             <User size={14} className={isSelf ? "text-gold" : "text-white/30"} />
-            <span className={isSelf ? "text-gold" : "text-white/60"}>{t("target.selfLabel")}{userProfile.nickname}</span>
+            <span className={isSelf ? "text-gold" : "text-white/60"}>{t("target.selfLabel")}{showNickname(userProfile.nickname)}</span>
             {isSelf && <Check size={12} className="text-gold ml-auto" />}
           </button>
 
@@ -62,7 +69,7 @@ export function TargetSelector() {
               className="w-full flex items-center gap-2 px-3 py-2.5 text-sm hover:bg-white/5 transition-colors"
             >
               <Users size={14} className={activeTestTarget?.id === p.id ? "text-gold" : "text-white/30"} />
-              <span className={activeTestTarget?.id === p.id ? "text-gold" : "text-white/60"}>{p.nickname}</span>
+              <span className={activeTestTarget?.id === p.id ? "text-gold" : "text-white/60"}>{showNickname(p.nickname)}</span>
               {activeTestTarget?.id === p.id && <Check size={12} className="text-gold ml-auto" />}
             </button>
           ))}

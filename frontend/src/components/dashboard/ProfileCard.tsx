@@ -62,7 +62,7 @@ export function ProfileCard() {
           <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-gold/55">
             {isZh ? "Destiny Identity" : "Destiny Identity"}
           </p>
-          <h2 className="mt-2 font-serif text-2xl font-bold text-white">{profile.nickname}</h2>
+          <h2 className="mt-2 font-serif text-2xl font-bold text-white">{profile.nickname === "本命" || profile.nickname === "Myself" ? t("target.self") : profile.nickname}</h2>
           <p className="mt-2 text-sm text-white/42">
             {activeTestTarget ? (isZh ? "当前查看对象" : "Active target") : (isZh ? "你的个人命盘档案" : "Your personal chart profile")}
           </p>
