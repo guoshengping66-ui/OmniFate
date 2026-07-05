@@ -58,7 +58,7 @@ export default function AboutPage() {
             "name": "Guanwo Fate OS",
             "url": "https://www.khanfate.com",
             "logo": "https://www.khanfate.com/logo.png",
-            "description": isZh
+            "description": locale === "zh"
               ? "观我Fate OS — 融合八字、紫微、星盘、塔罗、面相与手相的AI命运行动系统"
               : "Guanwo Fate OS — AI destiny action system combining Bazi, Ziwei, astrology, tarot, face and palm reading",
             "sameAs": ["https://github.com/guoshengping66-ui/OmniFate"],
