@@ -7536,7 +7536,8 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
         partner_name = partner_data.get("partner_name", "对方")
         relationship_type = partner_data.get("relationship_type", "")
         rel_type_cn = {"lover": "恋人", "friend": "朋友", "colleague": "同事", "family": "家人"}
-        rel_type_display = rel_type_cn.get(relationship_type, relationship_type)
+        rel_type_en = {"lover": "Lover", "friend": "Friend", "colleague": "Colleague", "family": "Family"}
+        rel_type_display = rel_type_en.get(relationship_type, relationship_type) if language == "en" else rel_type_cn.get(relationship_type, relationship_type)
 
         # Bazi compatibility data
         bazi_compat = partner_data.get("bazi_compatibility", {})
@@ -7552,39 +7553,83 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
         strongest = [a for a in synastry_aspects if a.get("meaning")][:5]
         synastry_text = ""
         for a in strongest:
-            synastry_text += (
-                f"  {a['planet_a']}方{a['aspect']}{a['planet_b']}方"
-                f"（容许度{a['orb']}°）— {a['meaning']}\n"
-            )
+            if language == "en":
+                synastry_text += (
+                    f"  {a['planet_a']} {a['aspect']} {a['planet_b']}"
+                    f" (orb {a['orb']}°) — {a['meaning']}\n"
+                )
+            else:
+                synastry_text += (
+                    f"  {a['planet_a']}方{a['aspect']}{a['planet_b']}方"
+                    f"（容许度{a['orb']}°）— {a['meaning']}\n"
+                )
 
         # Composite chart data
         composite = partner_data.get("composite_chart", {})
         composite_key = composite.get("key_readings", [])
 
-        partner_section = (
-            f"\n\n== 合盘数据 ==\n"
-            f"关系类型：{rel_type_display}\n"
-            f"对方昵称：{_sanitize_user_text(partner_name)}\n\n"
-            f"[八字合婚评分] {compat_score}/100 — {compat_level}\n"
-            f"  {compat_dm}\n"
-            f"  {compat_yong}\n"
-            f"  {compat_day}\n"
-            f"  {compat_supply}\n\n"
-            f"[星盘交叉相位 — 最强连接]\n"
-            f"{synastry_text}\n"
-        )
-        if composite_key:
-            partner_section += "[组合盘概要]\n"
-            for reading in composite_key:
-                partner_section += f"  {reading}\n"
-            partner_section += "\n"
+        if language == "en":
+            partner_section = (
+                f"\n\n== Synastry Data ==\n"
+                f"Relationship: {rel_type_display}\n"
+                f"Partner: {_sanitize_user_text(partner_name)}\n\n"
+                f"[Bazi Compatibility Score] {compat_score}/100 — {compat_level}\n"
+                f"  {compat_dm}\n"
+                f"  {compat_yong}\n"
+                f"  {compat_day}\n"
+                f"  {compat_supply}\n\n"
+                f"[Astrology Cross-Aspects — Strongest Connections]\n"
+                f"{synastry_text}\n"
+            )
+            if composite_key:
+                partner_section += "[Composite Chart Summary]\n"
+                for reading in composite_key:
+                    partner_section += f"  {reading}\n"
+                partner_section += "\n"
+        else:
+            partner_section = (
+                f"\n\n== 合盘数据 ==\n"
+                f"关系类型：{rel_type_display}\n"
+                f"对方昵称：{_sanitize_user_text(partner_name)}\n\n"
+                f"[八字合婚评分] {compat_score}/100 — {compat_level}\n"
+                f"  {compat_dm}\n"
+                f"  {compat_yong}\n"
+                f"  {compat_day}\n"
+                f"  {compat_supply}\n\n"
+                f"[星盘交叉相位 — 最强连接]\n"
+                f"{synastry_text}\n"
+            )
+            if composite_key:
+                partner_section += "[组合盘概要]\n"
+                for reading in composite_key:
+                    partner_section += f"  {reading}\n"
+                partner_section += "\n"
     scores_str = ""
     if dimension_scores:
+        _DIM_EN = {"wealth": "Wealth", "relationship": "Relationship", "career": "Career",
+                   "health": "Health", "spiritual": "Spiritual"}
         _DIM_CN = {"wealth": "财富", "relationship": "感情", "career": "事业",
                    "health": "健康", "spiritual": "精神"}
-        scores_str = " | ".join(f"{_DIM_CN.get(k, k)}:{v}" for k, v in dimension_scores.items())
+        dim_map = _DIM_EN if language == "en" else _DIM_CN
+        scores_str = " | ".join(f"{dim_map.get(k, k)}:{v}" for k, v in dimension_scores.items())
 
-    CROSS_DOMAIN = """
+    if language == "en":
+        CROSS_DOMAIN = """
+[Cross-System Correspondence Reference]
+- Bazi "Strong Seal (印旺)" ≈ Astrology Saturn/Moon dominance ≈ Palm clear heart line
+- Bazi "Seven Killings Attack (七杀攻身)" ≈ Astrology Mars-Saturn square ≈ Tarot Swords suit
+- Multi-system agreement = high confidence. Conflicts = low confidence, output as "possibility."
+
+== Cross-Validation Rules ==
+1. Consistency check: per dimension, verify if Bazi, Qimen, Ziwei, Astrology point in the same direction
+2. Conflict handling:
+   - If Bazi + Astrology agree → label "Cross-validated, high confidence"
+   - If they disagree → honestly state "System X suggests A, System Y suggests B, combined judgment is C"
+   - Never force unification — user trust comes from honesty
+3. Evidence weight: precise birth data (Bazi/Qimen/Ziwei) > approximate (Astrology estimate) > single-system signal
+"""
+    else:
+        CROSS_DOMAIN = """
 【跨命理体系对应关系】
 - 八字"印旺" 相当于 星盘土星/月亮强势 相当于 手相感情线深长
 - 八字"七杀攻身" 相当于 星盘火土刑克 相当于 塔罗宝剑牌组
