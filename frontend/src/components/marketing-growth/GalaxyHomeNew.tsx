@@ -54,25 +54,26 @@ export default function GalaxyHomeNew() { const { locale, localeHref } = useLang
     </div>
 
     {/* ═══ L3: Bagua — emerging from the cosmos, slowly rotating + pulsing ═══ */}
-    <div className="fixed left-1/2 pointer-events-none" aria-hidden="true" style={{ width: "min(480px,88vw)", height: "min(480px,88vw)", top: "43%", transform: "translate(-50%,-50%)", zIndex: 5, animation: "baguaSpin 100s linear infinite, baguaEmerge 8s ease-in-out infinite" }}>
-      {/* Outer golden halo */}
-      <div className="absolute" style={{ inset: "-10%", borderRadius: "50%", background: "radial-gradient(circle, rgba(201,168,76,0.06) 0%, rgba(201,168,76,0.02) 50%, transparent 75%)" }} />
+    <div className="fixed left-1/2 pointer-events-none" aria-hidden="true" style={{ width: "min(700px,95vw)", height: "min(700px,95vw)", top: "43%", transform: "translate(-50%,-50%)", zIndex: 5, animation: "baguaSpin 100s linear infinite, baguaEmerge 8s ease-in-out infinite" }}>
+      {/* Outer mystical glow rings */}
+      <div style={{ position: "absolute", inset: "-18%", borderRadius: "50%", background: "radial-gradient(circle, rgba(201,168,76,0.05) 0%, rgba(180,150,100,0.02) 35%, rgba(140,100,200,0.02) 60%, transparent 100%)", animation: "baguaPulse 6s ease-in-out infinite" }} />
+      <div style={{ position: "absolute", inset: "-12%", borderRadius: "50%", border: "0.5px solid rgba(201,168,76,0.10)", boxShadow: "0 0 60px rgba(201,168,76,0.03), 0 0 120px rgba(160,120,200,0.02)", animation: "baguaPulse 6s ease-in-out infinite reverse" }} />
       {/* Outer ring */}
-      <div style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "1px solid rgba(201,168,76,0.18)", boxShadow: "0 0 30px rgba(201,168,76,0.04), 0 0 60px rgba(201,168,76,0.02)" }} />
+      <div style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "1px solid rgba(201,168,76,0.22)", boxShadow: "0 0 40px rgba(201,168,76,0.06), 0 0 80px rgba(201,168,76,0.03), 0 0 140px rgba(160,100,240,0.03)", animation: "ringGlow 5s ease-in-out infinite" }} />
       {/* 24 tick marks */}
-      {Array.from({ length: 24 }, (_, i) => { const a = (i / 24) * 360 - 90; return <span key={"t" + i} style={{ position: "absolute", left: "50%", top: "50%", width: 1, height: 2.5, background: "rgba(201,168,76,0.20)", transform: `translate(-50%,-50%) rotate(${a}deg) translateY(-49.5%)` }} /> })}
+      {Array.from({ length: 24 }, (_, i) => { const a = (i / 24) * 360 - 90; return <span key={"t" + i} style={{ position: "absolute", left: "50%", top: "50%", width: 1.5, height: 3, background: "rgba(201,168,76,0.25)", transform: `translate(-50%,-50%) rotate(${a}deg) translateY(-49.5%)`, boxShadow: "0 0 3px rgba(201,168,76,0.15)" }} /> })}
       {/* Dashed inner ring */}
-      <div style={{ position: "absolute", inset: "12%", borderRadius: "50%", border: "1px dashed rgba(201,168,76,0.08)" }} />
-      {/* Qi energy particles */}
-      {qi.map(p => { const rad = (p.ang * Math.PI) / 180; return <span key={"q" + p.id} style={{ position: "absolute", left: (50 + p.dist * Math.cos(rad)) + "%", top: (50 + p.dist * Math.sin(rad)) + "%", width: p.sz, height: p.sz, borderRadius: "50%", background: "radial-gradient(circle, rgba(201,168,76,0.35), transparent 70%)", boxShadow: "0 0 1.5px rgba(201,168,76,0.1)", animation: `qiPulse ${p.sp}s ease-in-out ${p.dl}s infinite` }} /> })}
-      {/* 8 Bagua characters */}
-      {T.map((t, i) => { const a = (i / 8) * 360 - 90, rad = (a * Math.PI) / 180, d = 42; return <span key={i} className="absolute font-serif" style={{ left: (50 + d * Math.cos(rad)) + "%", top: (50 + d * Math.sin(rad)) + "%", transform: "translate(-50%,-50%)", color: "rgba(201,168,76,0.22)", fontSize: "clamp(9px,1vw,12px)" }}>{t}</span> })}
+      <div style={{ position: "absolute", inset: "10%", borderRadius: "50%", border: "1px dashed rgba(201,168,76,0.10)" }} />
+      {/* Qi energy particles — doubled for more mysticism */}
+      {qi.map(p => { const rad = (p.ang * Math.PI) / 180; return <span key={"q" + p.id} style={{ position: "absolute", left: (50 + p.dist * Math.cos(rad)) + "%", top: (50 + p.dist * Math.sin(rad)) + "%", width: p.sz * 1.3, height: p.sz * 1.3, borderRadius: "50%", background: `radial-gradient(circle, rgba(201,168,76,${0.3 + p.dist * 0.005}), transparent 70%)`, boxShadow: "0 0 3px rgba(201,168,76,0.15), 0 0 6px rgba(180,140,220,0.08)", animation: `qiPulse ${p.sp}s ease-in-out ${p.dl}s infinite` }} /> })}
+      {/* 8 Bagua characters — larger, more luminous */}
+      {T.map((t, i) => { const a = (i / 8) * 360 - 90, rad = (a * Math.PI) / 180, d = 42; return <span key={i} className="absolute font-serif" style={{ left: (50 + d * Math.cos(rad)) + "%", top: (50 + d * Math.sin(rad)) + "%", transform: "translate(-50%,-50%)", color: "rgba(201,168,76,0.35)", fontSize: "clamp(14px,2vw,20px)", textShadow: "0 0 12px rgba(201,168,76,0.25), 0 0 30px rgba(160,100,240,0.12)", animation: `baguaGlyph ${4 + i * 0.5}s ease-in-out ${i * 0.6}s infinite` }}>{t}</span> })}
       {/* Inner ring */}
-      <div style={{ position: "absolute", inset: "22%", borderRadius: "50%", border: "0.5px solid rgba(201,168,76,0.06)" }} />
-      {/* Yin-Yang center */}
-      <div style={{ position: "absolute", inset: "12%", display: "grid", placeItems: "center", fontSize: "clamp(50px,7vw,85px)", color: "rgba(201,168,76,0.24)", textShadow: "0 0 10px rgba(201,168,76,0.06)" }}>☯</div>
+      <div style={{ position: "absolute", inset: "20%", borderRadius: "50%", border: "0.5px solid rgba(201,168,76,0.08)" }} />
+      {/* Yin-Yang center — larger and luminous */}
+      <div style={{ position: "absolute", inset: "10%", display: "grid", placeItems: "center", fontSize: "clamp(65px,9vw,110px)", color: "rgba(201,168,76,0.30)", textShadow: "0 0 20px rgba(201,168,76,0.15), 0 0 50px rgba(180,140,220,0.10)" }}>☯</div>
       {/* Orbiting golden dust */}
-      {Array.from({ length: 8 }, (_, i) => { const a = (i / 8) * 360, rad = (a * Math.PI) / 180, d = 45; return <span key={"du" + i} style={{ position: "absolute", left: (50 + d * Math.cos(rad)) + "%", top: (50 + d * Math.sin(rad)) + "%", width: 1.5, height: 1.5, borderRadius: "50%", background: "rgba(201,168,76,0.30)", boxShadow: "0 0 2px rgba(201,168,76,0.2)", animation: `dustFloat ${3 + i % 3}s ease-in-out ${i * .5}s infinite` }} /> })}
+      {Array.from({ length: 12 }, (_, i) => { const a = (i / 12) * 360, rad = (a * Math.PI) / 180, d = 46; return <span key={"du" + i} style={{ position: "absolute", left: (50 + d * Math.cos(rad)) + "%", top: (50 + d * Math.sin(rad)) + "%", width: 2, height: 2, borderRadius: "50%", background: "rgba(201,168,76,0.40)", boxShadow: "0 0 4px rgba(201,168,76,0.3), 0 0 8px rgba(180,140,220,0.15)", animation: `dustFloat ${3 + i % 4}s ease-in-out ${i * 0.4}s infinite` }} /> })}
     </div>
 
     {/* ═══ L4: Vignette ═══ */}
@@ -88,18 +89,21 @@ export default function GalaxyHomeNew() { const { locale, localeHref } = useLang
 @keyframes coreGlow{0%,100%{opacity:.5}50%{opacity:.85}}
 @keyframes fadeUp{0%{opacity:0;transform:translateY(16px)}100%{opacity:1;transform:translateY(0)}}
 @keyframes rSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes baguaPulse{0%,100%{opacity:.5}50%{opacity:.85}}
+@keyframes ringGlow{0%,100%{opacity:.6;box-shadow:0 0 40px rgba(201,168,76,0.06),0 0 80px rgba(201,168,76,0.03)}50%{opacity:1;box-shadow:0 0 60px rgba(201,168,76,0.12),0 0 120px rgba(160,100,240,0.06)}}
+@keyframes baguaGlyph{0%,100%{opacity:.25;transform:translate(-50%,-50%) scale(.95)}50%{opacity:.45;transform:translate(-50%,-50%) scale(1.05)}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
     `}</style>
 
     {/* ═══ HERO ═══ */}
     <section className="relative flex min-h-[90vh] w-full flex-col items-center justify-center px-6 text-center" style={{ zIndex: 10 }}>
       <div style={{ animation: "fadeUp 0.8s ease-out forwards" }}>
-        <h1 className="font-serif text-8xl md:text-10xl font-bold tracking-wide" style={{ background: "linear-gradient(180deg, #f5e0a0 0%, #c49a35 48%, #7d5a10 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", filter: "drop-shadow(0 0 18px rgba(201,168,76,0.15))" }}>{isZh ? "观我" : "Guanwo"}</h1>
-        <p className="mt-3 text-[11px] tracking-[0.2em] text-white/20">{isZh ? "AI 命运行动系统" : "AI Destiny Action System"}</p>
+        <h1 className="font-serif text-9xl md:text-11xl font-bold tracking-wide" style={{ background: "linear-gradient(180deg, #f5e0a0 0%, #c49a35 48%, #7d5a10 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", filter: "drop-shadow(0 0 18px rgba(201,168,76,0.15))" }}>{isZh ? "观我" : "Guanwo"}</h1>
+        <p className="mt-3 text-xs tracking-[0.25em] text-white/20">{isZh ? "AI 命运行动系统" : "AI Destiny Action System"}</p>
       </div>
-      <div className="mt-8 max-w-sm" style={{ animation: "fadeUp 0.8s ease-out 0.15s forwards", opacity: 0 }}>
-        <p className="text-[14px] leading-relaxed" style={{ color: "rgba(200,195,215,0.50)" }}>{isZh ? "八字·紫微·星盘·塔罗·面相·手相" : "Bazi · Ziwei · Astrology · Tarot · Face · Palm"}</p>
-        <p className="mt-2 text-[13px] leading-relaxed" style={{ color: "rgba(200,195,215,0.32)" }}>{isZh ? "AI 五维交叉验证，生成你的个人决策报告" : "AI cross-validates five systems into your personal decision report."}</p>
+      <div className="mt-8 max-w-md" style={{ animation: "fadeUp 0.8s ease-out 0.15s forwards", opacity: 0 }}>
+        <p className="text-base leading-relaxed" style={{ color: "rgba(200,195,215,0.50)" }}>{isZh ? "八字·紫微·星盘·塔罗·面相·手相" : "Bazi · Ziwei · Astrology · Tarot · Face · Palm"}</p>
+        <p className="mt-2 text-sm leading-relaxed" style={{ color: "rgba(200,195,215,0.32)" }}>{isZh ? "AI 五维交叉验证，生成你的个人决策报告" : "AI cross-validates five systems into your personal decision report."}</p>
         {/* Social proof */}
         <div className="mt-4 flex items-center justify-center gap-1.5">
           {[1,2,3,4,5].map(i => <span key={i} style={{ color: "rgba(201,168,76,0.45)", fontSize: 10 }}>★</span>)}
