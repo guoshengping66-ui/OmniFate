@@ -84,17 +84,14 @@ def lock_user_region(user: Any, region: Region) -> None:
         user.pricing_region = region
 
 
-def get_price_quote(sku: str, region: Region, is_premium: bool = False) -> PriceQuote:
+def get_price_quote(sku: str, region: Region) -> PriceQuote:
+    """Subscriptions and one-time unlocks — no member discount (shop only)."""
     region = "domestic" if region == "domestic" else "overseas"
     sku_prices = _CATALOG.get(sku)
     if not sku_prices:
         raise HTTPException(status_code=400, detail="Invalid item type")
     data = sku_prices[region]
-    amount = Decimal(str(data["amount"]))
-    if is_premium:
-        amount = float(amount * MEMBER_DISCOUNT)
-    else:
-        amount = float(amount)
+    amount = float(data["amount"])
     cny_amount = amount if data["currency"] == "cny" else float(sku_prices["domestic"]["amount"])
     usd_amount = amount if data["currency"] == "usd" else float(sku_prices["overseas"]["amount"])
     return PriceQuote(
