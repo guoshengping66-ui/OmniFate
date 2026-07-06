@@ -97,13 +97,21 @@ export default function GalaxyHomeNew() { const { locale, localeHref } = useLang
         <h1 className="font-serif text-8xl md:text-10xl font-bold tracking-wide" style={{ background: "linear-gradient(180deg, #f5e0a0 0%, #c49a35 48%, #7d5a10 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", filter: "drop-shadow(0 0 18px rgba(201,168,76,0.15))" }}>{isZh ? "观我" : "Guanwo"}</h1>
         <p className="mt-3 text-[11px] tracking-[0.2em] text-white/20">{isZh ? "AI 命运行动系统" : "AI Destiny Action System"}</p>
       </div>
-      <div className="mt-8 max-w-sm" style={{ animation: "fadeUp 0.8s ease-out 0.2s forwards", opacity: 0 }}>
-        <p className="text-[14px] leading-relaxed" style={{ color: "rgba(200,195,215,0.45)" }}>{isZh ? "融合八字、紫微、星盘、塔罗、面相手相" : "Integrating Bazi, Ziwei, Astrology, Tarot, Face & Palm."}<br /><span className="text-[12px]" style={{ color: "rgba(200,195,215,0.30)" }}>{isZh ? "AI 五维交叉验证，生成你的完整命运画像" : "AI five-source cross-validation — your complete destiny profile."}</span></p>
+      <div className="mt-8 max-w-sm" style={{ animation: "fadeUp 0.8s ease-out 0.15s forwards", opacity: 0 }}>
+        <p className="text-[14px] leading-relaxed" style={{ color: "rgba(200,195,215,0.50)" }}>{isZh ? "八字·紫微·星盘·塔罗·面相·手相" : "Bazi · Ziwei · Astrology · Tarot · Face · Palm"}</p>
+        <p className="mt-2 text-[13px] leading-relaxed" style={{ color: "rgba(200,195,215,0.32)" }}>{isZh ? "AI 五维交叉验证，生成你的个人决策报告" : "AI cross-validates five systems into your personal decision report."}</p>
+        {/* Social proof */}
+        <div className="mt-4 flex items-center justify-center gap-1.5">
+          {[1,2,3,4,5].map(i => <span key={i} style={{ color: "rgba(201,168,76,0.45)", fontSize: 10 }}>★</span>)}
+          <span className="ml-1 text-[11px]" style={{ color: "rgba(201,168,76,0.45)" }}>{isZh ? "12,000+ 份报告 · 4.9 星" : "12,000+ reports · 4.9★"}</span>
+        </div>
       </div>
-      <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row" style={{ animation: "fadeUp 0.8s ease-out 0.4s forwards", opacity: 0 }}>
-        <Link href={localeHref("/reading/new")} className="rounded-xl px-10 py-4 font-medium transition-all hover:scale-[1.03]" style={{ background: "#C9A84C", color: "#020617" }}><span className="flex items-center gap-2">{isZh ? "建立我的画像" : "Build My Profile"} <ArrowRight size={16} /></span></Link>
+      <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row" style={{ animation: "fadeUp 0.8s ease-out 0.3s forwards", opacity: 0 }}>
+        <Link href={localeHref("/reading/new")} className="rounded-xl px-10 py-4 font-medium transition-all hover:scale-[1.03]" style={{ background: "#C9A84C", color: "#020617" }}><span className="flex items-center gap-2">{isZh ? "免费生成我的报告" : "Get My Free Report"} <ArrowRight size={16} /></span></Link>
         <Link href={localeHref("/almanac")} className="rounded-xl border px-8 py-4 text-white/50 transition-all hover:border-white/30 hover:text-white/75" style={{ borderColor: "rgba(255,255,255,0.10)", background: "rgba(5,10,18,0.20)", backdropFilter: "blur(12px)" }}><span>{isZh ? "今日趋势" : "Today's Trend"}</span></Link>
       </div>
+      {/* Trust line */}
+      <p className="mt-6 text-[10px] tracking-wide" style={{ color: "rgba(255,255,255,0.10)", animation: "fadeUp 0.8s ease-out 0.45s forwards", opacity: 0 }}>{isZh ? "五体系交叉验证 × AI 深度推理 · 不是算命，是决策辅助" : "5 systems × AI deep reasoning · Decision support, not fortune telling"}</p>
       <div className="absolute bottom-8 opacity-20"><div className="mx-auto h-8 w-5 rounded-full border border-white/10"><div className="mx-auto mt-1.5 h-2 w-1 rounded-full bg-white/12 animate-bounce" /></div></div>
     </section>
 
