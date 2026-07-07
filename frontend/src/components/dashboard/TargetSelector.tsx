@@ -30,7 +30,11 @@ export function TargetSelector() {
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+      const target = e.target as Node
+      // Ignore clicks inside the portal dropdown (rendered to document.body)
+      const portalEl = document.getElementById("target-selector-dropdown")
+      if (portalEl && portalEl.contains(target)) return
+      if (ref.current && !ref.current.contains(target)) setOpen(false)
     }
     document.addEventListener("mousedown", handleClick)
     return () => document.removeEventListener("mousedown", handleClick)
@@ -61,7 +65,7 @@ export function TargetSelector() {
       </button>
 
       {open && createPortal(
-        <div className="fixed z-[9999] bg-[#0a0a1a]/98 border border-white/15 rounded-xl shadow-2xl overflow-hidden backdrop-blur-xl" style={{ top: `${buttonTop}px`, left: `${buttonLeft}px`, minWidth: 200 }}>
+        <div id="target-selector-dropdown" className="fixed z-[9999] bg-[#0a0a1a]/98 border border-white/15 rounded-xl shadow-2xl overflow-hidden backdrop-blur-xl" style={{ top: `${buttonTop}px`, left: `${buttonLeft}px`, minWidth: 200 }}>
           <button
             onClick={() => { resetToSelf(); setOpen(false) }}
             className="w-full flex items-center gap-2 px-3 py-2.5 text-sm hover:bg-white/5 transition-colors"
