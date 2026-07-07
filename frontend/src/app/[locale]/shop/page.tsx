@@ -72,15 +72,15 @@ function ShopContent() {
 
       const explicitTags = sessionTags.split(",").map(s => s.trim()).filter(Boolean)
 
+      // Phase 1: Show all products immediately
       try {
         const all = await listProducts(undefined, locale)
-        if (!cancelled) setAllProducts(all)
+        if (!cancelled) { setAllProducts(all); setLoading(false) }
       } catch {
-        if (!cancelled) setAllProducts([])
-      } finally {
-        if (!cancelled) setLoading(false)
+        if (!cancelled) { setAllProducts([]); setLoading(false) }
       }
 
+      // Phase 2: Get user tags for matching (non-blocking)
       let weaknessTags = explicitTags
       if (weaknessTags.length === 0) {
         try {
@@ -96,6 +96,7 @@ function ShopContent() {
         }
       }
 
+      // Phase 3: Match and re-rank in background
       if (weaknessTags.length === 0 || cancelled) return
 
       try {
@@ -106,10 +107,11 @@ function ShopContent() {
         }, locale)
         matched.sort((a, b) => (b.match_score ?? 0) - (a.match_score ?? 0))
         if (!cancelled) {
-          // Merge: show all products, matched ones sorted to top
-          const matchedIds = new Set(matched.map(p => p.id))
-          const unmatched = all.filter(p => !matchedIds.has(p.id))
-          setAllProducts([...matched, ...unmatched])
+          setAllProducts(prev => {
+            const matchedIds = new Set(matched.map(p => p.id))
+            const unmatched = prev.filter(p => !matchedIds.has(p.id))
+            return [...matched, ...unmatched]
+          })
           setIsPersonalized(true)
         }
       } catch {}
@@ -117,9 +119,7 @@ function ShopContent() {
 
     loadProducts()
 
-    return () => {
-      cancelled = true
-    }
+    return () => { cancelled = true }
   }, [sessionTags, locale])
 
   const products = useMemo(() => {

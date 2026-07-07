@@ -9,21 +9,27 @@ import { IntentButtons } from "./IntentButtons"
 import { GeworkDrawer } from "./GeworkDrawer"
 import { useLanguage } from "@/contexts/LanguageContext"
 
-const signalsZh = [
-  { n: "结构稳定度", v: "稳定", t: "适合把复杂事项拆小处理" },
-  { n: "事业推进力", v: "适合执行", t: "先完成一个有反馈的任务" },
-  { n: "关系活跃度", v: "不宜急谈", t: "避免在情绪高点做承诺" },
-  { n: "财富判断力", v: "适合复盘", t: "整理现金流与长期选择" },
-  { n: "直觉敏感度", v: "先观察", t: "记录信号，不急着定性" },
+// Daily signal pools — date-seeded rotation so content changes every day
+const signalPoolZh = [
+  { n: "结构稳定度", pool: [{ v: "稳定", t: "适合把复杂事项拆小处理" },{ v: "可塑", t: "适合重新梳理优先级" },{ v: "动荡", t: "不做重大决策，先稳住节奏" },{ v: "强化", t: "适合建立新的习惯锚点" }] },
+  { n: "事业推进力", pool: [{ v: "适合执行", t: "先完成一个有反馈的任务" },{ v: "适合规划", t: "先列清单再逐一攻破" },{ v: "适合合作", t: "找人一起推进，别单打独斗" },{ v: "适合收尾", t: "把进行中的项目收干净" }] },
+  { n: "关系活跃度", pool: [{ v: "不宜急谈", t: "避免在情绪高点做承诺" },{ v: "适合沟通", t: "把心里话说出来，别憋着" },{ v: "适合独处", t: "给自己留一段安静的时间" },{ v: "适合连接", t: "主动联系一个你惦念的人" }] },
+  { n: "财富判断力", pool: [{ v: "适合复盘", t: "整理现金流与长期选择" },{ v: "适合节流", t: "把冲动消费压一压" },{ v: "适合投资", t: "为长期成长做一笔投入" },{ v: "保守观察", t: "不操作就是最好的操作" }] },
+  { n: "直觉敏感度", pool: [{ v: "先观察", t: "记录信号，不急着定性" },{ v: "敏锐期", t: "相信直觉判断，快速试错" },{ v: "钝感期", t: "多看数据少凭感受" },{ v: "灵感日", t: "把突然冒出的想法记下来" }] },
 ]
-const signalsEn = [
-  { n: "Structure", v: "Stable", t: "Break complex work into smaller moves" },
-  { n: "Career push", v: "Execute", t: "Finish one task with clear feedback" },
-  { n: "Relationship", v: "Go slow", t: "Avoid promises at emotional peaks" },
-  { n: "Money judgment", v: "Review", t: "Sort cash flow and long choices" },
-  { n: "Intuition", v: "Observe", t: "Record signals before deciding" },
+const signalPoolEn = [
+  { n: "Structure", pool: [{ v: "Stable", t: "Break complex work into smaller moves" },{ v: "Flexible", t: "Re-order priorities today" },{ v: "Shaky", t: "Hold decisions, steady the rhythm" },{ v: "Strong", t: "Anchor a new habit today" }] },
+  { n: "Career push", pool: [{ v: "Execute", t: "Finish one task with clear feedback" },{ v: "Plan", t: "List then conquer one by one" },{ v: "Collaborate", t: "Team up, don't go solo" },{ v: "Close out", t: "Wrap up what's in progress" }] },
+  { n: "Relationship", pool: [{ v: "Go slow", t: "Avoid promises at emotional peaks" },{ v: "Speak up", t: "Say what's on your mind" },{ v: "Recharge", t: "Give yourself quiet time" },{ v: "Connect", t: "Reach out to someone you miss" }] },
+  { n: "Money judgment", pool: [{ v: "Review", t: "Sort cash flow and long choices" },{ v: "Save", t: "Cut impulse spending today" },{ v: "Invest", t: "Make one growth-focused move" },{ v: "Hold", t: "Doing nothing is the best move" }] },
+  { n: "Intuition", pool: [{ v: "Observe", t: "Record signals before deciding" },{ v: "Sharp", t: "Trust your gut, test fast" },{ v: "Dull", t: "Lean on data, not feelings" },{ v: "Inspired", t: "Write down every sudden idea" }] },
 ]
 const signalColors = ["#5A9E8E","#7B9EC7","#C77B8B","#C9A84C","#8B7EC7"]
+
+function dailyIndex(poolSize: number, offset: number): number {
+  const day = Math.floor(Date.now() / 86400000)
+  return (day + offset * 7) % poolSize
+}
 
 const cardBg = { background: "linear-gradient(135deg, #060E24, #030918)" }
 const cardBorder = "border border-white/[0.05] rounded-2xl"
@@ -33,7 +39,13 @@ export function UserDashboard() {
   const { userProfile, activeTestTarget } = useUserStore()
   const [eventDrawerOpen, setEventDrawerOpen] = useState(false)
   const isZh = locale === "zh"
-  const signals = isZh ? signalsZh : signalsEn
+  const signals = useMemo(() => {
+    const pool = isZh ? signalPoolZh : signalPoolEn
+    return pool.map((s, i) => {
+      const idx = dailyIndex(s.pool.length, i)
+      return { n: s.n, v: s.pool[idx].v, t: s.pool[idx].t }
+    })
+  }, [isZh])
 
   // Translate stored default nicknames at display time
   const nickname = activeTestTarget?.nickname || userProfile?.nickname || ""
