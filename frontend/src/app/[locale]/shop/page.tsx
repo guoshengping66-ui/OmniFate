@@ -11,7 +11,7 @@ import { ProductCard } from "@/components/reading/ProductCard"
 
 const AIRecommendHero = lazy(() => import("@/components/shop/AIRecommendHero").then(m => ({ default: m.AIRecommendHero })))
 
-const SERIES_KEYS = ["crystal", "jewelry", "incense", "talisman", "book", "service"] as const
+const SERIES_KEYS = ["crystal", "jewelry", "incense", "talisman"] as const
 
 function ProductCardSkeleton() {
   return (
@@ -101,12 +101,15 @@ function ShopContent() {
       try {
         const matched = await matchProducts({
           weakness_tags: weaknessTags,
-          top_k: 20,
+          top_k: 50,
           include_explain: true,
         }, locale)
         matched.sort((a, b) => (b.match_score ?? 0) - (a.match_score ?? 0))
         if (!cancelled) {
-          setAllProducts(matched)
+          // Merge: show all products, matched ones sorted to top
+          const matchedIds = new Set(matched.map(p => p.id))
+          const unmatched = all.filter(p => !matchedIds.has(p.id))
+          setAllProducts([...matched, ...unmatched])
           setIsPersonalized(true)
         }
       } catch {}
