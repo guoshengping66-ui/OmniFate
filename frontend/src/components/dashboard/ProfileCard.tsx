@@ -59,7 +59,7 @@ export function ProfileCard() {
         <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-gold/[0.06] blur-3xl" />
       </div>
 
-      <div className="relative z-10 flex items-start justify-between gap-4">
+      <div className="relative flex items-start justify-between gap-4">
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-gold/55">
             {isZh ? "Destiny Identity" : "Destiny Identity"}
@@ -69,7 +69,9 @@ export function ProfileCard() {
             {activeTestTarget ? (isZh ? "当前查看对象" : "Active target") : (isZh ? "你的个人命盘档案" : "Your personal chart profile")}
           </p>
         </div>
-        <TargetSelector />
+        <div style={{ position: "relative", zIndex: 100 }}>
+          <TargetSelector />
+        </div>
       </div>
 
       <div className="relative z-10 mt-6 grid gap-3 sm:grid-cols-2">
