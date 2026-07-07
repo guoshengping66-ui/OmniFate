@@ -16,7 +16,10 @@ export function TargetSelector() {
   const { t } = useLanguage()
   const [open, setOpen] = useState(false)
   const [showAddDialog, setShowAddDialog] = useState(false)
+  const [buttonTop, setButtonTop] = useState(0)
+  const [buttonLeft, setButtonLeft] = useState(0)
   const ref = useRef<HTMLDivElement>(null)
+  const btnRef = useRef<HTMLButtonElement>(null)
 
   // Translate stored default nicknames ("本命", "Myself") at display time
   // so they switch language correctly instead of showing the registration locale
@@ -41,7 +44,15 @@ export function TargetSelector() {
   return (
     <div ref={ref} className="relative">
       <button
-        onClick={() => setOpen(!open)}
+        ref={btnRef}
+        onClick={() => {
+          if (btnRef.current) {
+            const rect = btnRef.current.getBoundingClientRect()
+            setButtonTop(rect.bottom + 4)
+            setButtonLeft(rect.right - 200)
+          }
+          setOpen(!open)
+        }}
         className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border border-white/10 text-white/50 hover:border-gold/30 hover:text-gold transition-all"
       >
         {isSelf ? <User size={12} /> : <Users size={12} />}
@@ -49,9 +60,8 @@ export function TargetSelector() {
         <ChevronDown size={12} className={`transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
 
-      {open && (
-        <div className="absolute right-0 top-full mt-1 w-48 bg-ink-light/95  border border-white/10 rounded-xl shadow-xl z-50 overflow-hidden">
-          {/* Self */}
+      {open && createPortal(
+        <div className="fixed z-[9999] bg-[#0a0a1a]/98 border border-white/15 rounded-xl shadow-2xl overflow-hidden backdrop-blur-xl" style={{ top: `${buttonTop}px`, left: `${buttonLeft}px`, minWidth: 200 }}>
           <button
             onClick={() => { resetToSelf(); setOpen(false) }}
             className="w-full flex items-center gap-2 px-3 py-2.5 text-sm hover:bg-white/5 transition-colors"
@@ -61,7 +71,6 @@ export function TargetSelector() {
             {isSelf && <Check size={12} className="text-gold ml-auto" />}
           </button>
 
-          {/* Other profiles */}
           {birthProfiles.filter(p => p.id !== userProfile.id).map(p => (
             <button
               key={p.id}
@@ -74,10 +83,8 @@ export function TargetSelector() {
             </button>
           ))}
 
-          {/* Divider */}
           <div className="border-t border-white/10" />
 
-          {/* Add new — uses portal to escape parent stacking context */}
           <button
             onClick={() => { setOpen(false); setShowAddDialog(true) }}
             className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-white/40 hover:bg-white/5 hover:text-white/60 transition-colors"
@@ -85,7 +92,8 @@ export function TargetSelector() {
             <Plus size={14} />
             <span>{t("target.addFriend")}</span>
           </button>
-        </div>
+        </div>,
+        document.body,
       )}
 
       {/* Add Friend Dialog — rendered via portal to document.body */}
