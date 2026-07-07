@@ -53,9 +53,11 @@ export function ProfileCard() {
   const completeness = profile.birth_city ? 100 : 82
 
   return (
-    <div className="relative overflow-hidden border border-gold/15 bg-[#08120f]/85 p-6 shadow-[0_28px_80px_rgba(0,0,0,0.28)]">
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/60 to-transparent" />
-      <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-gold/[0.06] blur-3xl" />
+    <div className="relative border border-gold/15 bg-[#08120f]/85 p-6 shadow-[0_28px_80px_rgba(0,0,0,0.28)]">
+      <div className="absolute inset-0 overflow-hidden rounded-[inherit] pointer-events-none">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/60 to-transparent" />
+        <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-gold/[0.06] blur-3xl" />
+      </div>
 
       <div className="relative z-10 flex items-start justify-between gap-4">
         <div>
