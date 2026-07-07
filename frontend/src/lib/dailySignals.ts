@@ -66,34 +66,10 @@ function getDimensionSignals(
   dimension: string,
   birthStem: string,
   todayStem: string,
-  todayBranch: string,
 ): SignalTemplate {
   const rel = relation(birthStem, todayStem)
-  const dayStemElement = ELEMENT[todayStem]
-  const birthElement = ELEMENT[birthStem]
 
-  const templates: Record<string, Record<string, Record<string, SignalTemplate>>> = {
-    wealth: {
-      generate: {
-        zh: { v: "能量流入", t: `今日${HEAVENLY_STEMS[getDayStem(new Date())]}日生${birthStem}，财运有外部助力，适合接收而非主动出击。` },
-        en: { v: "Inflow", t: `Today's ${STEM_NAMES[todayStem]} generates your ${STEM_NAMES[birthStem]} — wealth energy flows in. Receive, don't chase.` },
-      },
-      same: {
-        zh: { v: "平稳积累", t: "日柱同气，不宜大进大出。把精力放在整理已有资源上。" },
-        en: { v: "Steady", t: "Same element day — conserve and organize existing resources." },
-      },
-      control: {
-        zh: { v: "谨慎支出", t: `今日${dayStemElement}克${birthElement}，冲动消费概率高。付款前等10分钟。` },
-        en: { v: "Caution", t: `Today's ${dayStemElement} controls your ${birthElement} — impulse risk. Wait 10 min before paying.` },
-      },
-      drain: {
-        zh: { v: "理性投资", t: "能量输出日，适合为长期成长付费，不适合短线操作。" },
-        en: { v: "Invest wisely", t: "Output day — good for long-term investment, bad for short-term moves." },
-      },
-    },
-  }
-
-  // Build templates for each dimension based on the stem relationship
+  // Signals for each dimension based on the stem relationship
   const careerRel: Record<string, SignalTemplate> = {
     generate: { zh: { v: "借力推进", t: "适合找贵人帮忙，别一个人扛。" }, en: { v: "Leverage", t: "Ask for help today — don't carry it alone." } },
     same: { zh: { v: "稳扎稳打", t: "按节奏推进手上的事，不求快但求稳。" }, en: { v: "Steady", t: "Stick to the rhythm. Speed matters less than consistency." } },
@@ -159,7 +135,7 @@ export function generateDailySignals(
   }
 
   return dimensions.map((dim, i) => {
-    const signal = getDimensionSignals(dim, birthStem, todayStem, todayBranch)
+    const signal = getDimensionSignals(dim, birthStem, todayStem)
     return {
       n: isZh ? zhNames[dim] : enNames[dim],
       v: isZh ? signal.zh.v : signal.en.v,
