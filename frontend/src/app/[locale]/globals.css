@@ -2020,3 +2020,401 @@ select.input-field option:checked {
   }
 }
 
+/* Guanwo image-to-code homepage pass: preserve the reference hero first */
+.gw-image-hero {
+  position: relative;
+  min-height: 100vh;
+  aspect-ratio: 1488 / 1059;
+  overflow: hidden;
+  isolation: isolate;
+  background: #030706;
+}
+
+.gw-image-hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: url("/brand/guanwo-cosmic-hero.png");
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+
+.gw-image-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 29% 35%, rgba(214, 182, 90, 0.08), transparent 14%),
+    linear-gradient(180deg, transparent 72%, rgba(3, 7, 6, 0.2) 86%, #030706 100%);
+}
+
+.gw-image-hero-seo {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.gw-hero-hit {
+  position: absolute;
+  z-index: 3;
+  display: block;
+  border-radius: 999px;
+  outline: none;
+}
+
+.gw-hero-hit:focus-visible {
+  box-shadow: 0 0 0 3px rgba(214, 182, 90, 0.5), 0 0 36px rgba(214, 182, 90, 0.38);
+}
+
+.gw-hero-hit-primary {
+  left: 6.4%;
+  top: 61.2%;
+  width: 18.4%;
+  height: 5.3%;
+}
+
+.gw-hero-hit-secondary {
+  left: 26.1%;
+  top: 61.2%;
+  width: 14.7%;
+  height: 5.3%;
+}
+
+.gw-hero-hit-pattern,
+.gw-hero-hit-opportunity,
+.gw-hero-hit-action {
+  top: 76.4%;
+  height: 9.4%;
+  border-radius: 14px;
+}
+
+.gw-hero-hit-pattern {
+  left: 9.3%;
+  width: 14.6%;
+}
+
+.gw-hero-hit-opportunity {
+  left: 25.7%;
+  width: 14.1%;
+}
+
+.gw-hero-hit-action {
+  left: 41.2%;
+  width: 14.1%;
+}
+
+.gw-scroll-section,
+.gw-path-section,
+.gw-entry-section {
+  position: relative;
+  background:
+    radial-gradient(circle at 70% 0%, rgba(201, 168, 76, 0.08), transparent 34%),
+    radial-gradient(circle at 18% 18%, rgba(41, 111, 91, 0.12), transparent 36%),
+    linear-gradient(180deg, #030706 0%, #071311 52%, #030706 100%);
+}
+
+.gw-scroll-section::before,
+.gw-path-section::before,
+.gw-entry-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.38;
+  background-image:
+    radial-gradient(circle, rgba(244,239,226,0.52) 0 1px, transparent 1.5px),
+    radial-gradient(circle, rgba(201,168,76,0.45) 0 1px, transparent 1.4px);
+  background-size: 220px 220px, 340px 340px;
+  background-position: 0 0, 70px 90px;
+  mask-image: linear-gradient(180deg, transparent, black 18%, black 82%, transparent);
+}
+
+.gw-scroll-section {
+  padding: 104px 0 74px;
+}
+
+.gw-scroll-intro,
+.gw-scroll-grid,
+.gw-path-panel,
+.gw-entry-section {
+  width: min(1180px, calc(100vw - 40px));
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.gw-scroll-intro {
+  position: relative;
+  z-index: 1;
+  max-width: 760px;
+}
+
+.gw-scroll-intro span,
+.gw-path-panel span {
+  display: inline-block;
+  color: rgba(214, 182, 90, 0.78);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.gw-scroll-intro h2,
+.gw-path-panel h2 {
+  margin-top: 14px;
+  color: #f4efe2;
+  font-size: clamp(34px, 4vw, 58px);
+  line-height: 1.12;
+  letter-spacing: 0;
+}
+
+.gw-scroll-intro p,
+.gw-path-panel p {
+  margin-top: 18px;
+  max-width: 720px;
+  color: rgba(244, 239, 226, 0.62);
+  font-size: 16px;
+  line-height: 1.9;
+}
+
+.gw-scroll-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  margin-top: 42px;
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  background:
+    linear-gradient(90deg, rgba(201, 168, 76, 0.22), transparent 16%, transparent 84%, rgba(201, 168, 76, 0.16)),
+    rgba(6, 16, 13, 0.62);
+  box-shadow: inset 0 0 80px rgba(201, 168, 76, 0.045), 0 26px 90px rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(12px);
+}
+
+.gw-scroll-card {
+  min-height: 180px;
+  padding: 32px 34px;
+  border-right: 1px solid rgba(201, 168, 76, 0.2);
+}
+
+.gw-scroll-card:last-child {
+  border-right: 0;
+}
+
+.gw-scroll-card span {
+  color: rgba(214, 182, 90, 0.72);
+  font-size: 13px;
+}
+
+.gw-scroll-card h3 {
+  margin-top: 10px;
+  color: #f4efe2;
+  font-size: 24px;
+}
+
+.gw-scroll-card p {
+  margin-top: 12px;
+  color: rgba(244, 239, 226, 0.58);
+  line-height: 1.82;
+}
+
+.gw-path-section {
+  padding: 70px 0;
+}
+
+.gw-path-panel {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 0.82fr 1fr;
+  gap: 54px;
+  align-items: center;
+  border-top: 1px solid rgba(201, 168, 76, 0.14);
+  border-bottom: 1px solid rgba(201, 168, 76, 0.14);
+  padding: 52px 0;
+}
+
+.gw-path-line {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.gw-path-line div {
+  position: relative;
+  min-height: 136px;
+  border: 1px solid rgba(201, 168, 76, 0.18);
+  padding: 22px 18px;
+  background: rgba(4, 10, 8, 0.54);
+}
+
+.gw-path-line div::before {
+  content: "";
+  position: absolute;
+  left: 18px;
+  top: 62px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #d6b65a;
+  box-shadow: 0 0 26px rgba(214, 182, 90, 0.55);
+}
+
+.gw-path-line strong,
+.gw-path-line span {
+  display: block;
+}
+
+.gw-path-line strong {
+  color: #d6b65a;
+  font-size: 22px;
+}
+
+.gw-path-line span {
+  margin-top: 42px;
+  color: rgba(244, 239, 226, 0.62);
+  font-size: 13px;
+}
+
+.gw-entry-section {
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  padding-top: 74px;
+  padding-bottom: 112px;
+}
+
+.gw-entry-card {
+  position: relative;
+  z-index: 1;
+  border: 1px solid rgba(201, 168, 76, 0.16);
+  padding: 30px;
+  color: #f4efe2;
+  background: rgba(5, 14, 11, 0.68);
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.28);
+  transition: transform 180ms ease, border-color 180ms ease;
+}
+
+.gw-entry-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(214, 182, 90, 0.36);
+}
+
+.gw-entry-card svg {
+  color: #d6b65a;
+}
+
+.gw-entry-card h3 {
+  margin-top: 18px;
+  color: #f4efe2;
+  font-size: 23px;
+}
+
+.gw-entry-card p {
+  min-height: 82px;
+  margin-top: 12px;
+  color: rgba(244, 239, 226, 0.58);
+  line-height: 1.8;
+}
+
+.gw-entry-card span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 18px;
+  color: #d6b65a;
+  font-weight: 700;
+}
+
+@media (max-width: 980px) {
+  .gw-image-hero {
+    min-height: 760px;
+    aspect-ratio: auto;
+  }
+
+  .gw-image-hero-bg {
+    background-size: auto 100%;
+    background-position: 39% center;
+  }
+
+  .gw-hero-hit-primary {
+    left: 6%;
+    top: 61%;
+    width: 29%;
+    height: 6%;
+  }
+
+  .gw-hero-hit-secondary {
+    left: 38%;
+    top: 61%;
+    width: 24%;
+    height: 6%;
+  }
+
+  .gw-hero-hit-pattern,
+  .gw-hero-hit-opportunity,
+  .gw-hero-hit-action {
+    display: none;
+  }
+
+  .gw-scroll-grid,
+  .gw-path-panel,
+  .gw-entry-section {
+    grid-template-columns: 1fr;
+  }
+
+  .gw-scroll-card {
+    border-right: 0;
+    border-bottom: 1px solid rgba(201, 168, 76, 0.18);
+  }
+
+  .gw-scroll-card:last-child {
+    border-bottom: 0;
+  }
+
+  .gw-path-line {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .gw-image-hero {
+    min-height: 680px;
+  }
+
+  .gw-image-hero-bg {
+    background-size: auto 100%;
+    background-position: 35% center;
+  }
+
+  .gw-hero-hit-primary {
+    left: 7%;
+    top: 61.5%;
+    width: 42%;
+  }
+
+  .gw-hero-hit-secondary {
+    left: 53%;
+    top: 61.5%;
+    width: 38%;
+  }
+
+  .gw-scroll-intro,
+  .gw-scroll-grid,
+  .gw-path-panel,
+  .gw-entry-section {
+    width: min(100% - 28px, 1180px);
+  }
+
+  .gw-path-line {
+    grid-template-columns: 1fr;
+  }
+}
+
