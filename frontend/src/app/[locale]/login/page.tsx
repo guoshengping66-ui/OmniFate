@@ -44,7 +44,7 @@ export default function LoginPage() {
     try {
       await login(email, password)
       toast.success(t("auth.loginSuccess"))
-      router.push("/")
+      router.push(localeHref("/dashboard"))
     } catch (err: any) {
       console.error("[Login] error:", err)
       if (err.code === "ERR_NETWORK" || err.code === "ECONNABORTED" || err.message?.includes("Network Error")) {
@@ -194,7 +194,7 @@ export default function LoginPage() {
 }
 
 function GoogleLoginButton() {
-  const { t } = useLanguage()
+  const { t, localeHref } = useLanguage()
   const googleBtnRef = useRef<HTMLDivElement>(null)
   const [googleLoaded, setGoogleLoaded] = useState(false)
   const nonceRef = useRef<string>("")
@@ -254,7 +254,7 @@ function GoogleLoginButton() {
       }
 
       toast.success(t("auth.loginSuccess"))
-      window.location.href = "/"
+      window.location.href = localeHref("/dashboard")
     } catch (err: any) {
       console.error("[Google Login] error:", err)
       toast.error(err?.response?.data?.detail ?? t("auth.loginFail"))

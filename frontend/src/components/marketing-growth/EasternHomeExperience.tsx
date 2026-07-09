@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowRight, Brain, HeartHandshake, MessageCircleQuestion, Sparkles } from "lucide-react"
+import { ArrowRight, Brain, HeartHandshake, MessageCircleQuestion } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { EasternPageShell } from "@/components/brand/EasternDesign"
 
@@ -129,18 +129,18 @@ const zhCopy = {
   brandLabel: "观我 Guanwo",
   title: "观我",
   subtitle: "在星河命盘中，看见自己的下一步",
-  description: "AI-powered personal insight system combining ancient wisdom and modern analysis to reveal your hidden patterns, life rhythm, and next opportunities.",
+  description: "融合东方命盘、人格结构与 AI 多维分析，生成你的个人档案、未来窗口与今日行动建议。",
   tagLabel: "观我能力标签",
-  tags: ["AI Insight", "Cosmic Archive", "Eastern Pattern", "Daily Action"],
+  tags: ["星河命盘", "东方结构", "AI 合参", "今日行动"],
   primary: "生成我的个人档案",
   secondary: "查看示例报告",
   previewLabel: "报告预览入口",
   heroPreview: [
-    { title: "Core Pattern", body: "你的先天结构与能量特质", href: "/reading/new" },
-    { title: "Next Opportunity", body: "未来 30 天的机会窗口", href: "/reading/new" },
-    { title: "Today’s Action", body: "今天最重要的行动建议", href: "/almanac" },
+    { title: "核心结构", body: "你的长期节奏与稳定优势", href: "/reading/new" },
+    { title: "未来窗口", body: "下一阶段更适合推进的方向", href: "/reading/new" },
+    { title: "今日行动", body: "今天最值得完成的一步", href: "/almanac" },
   ],
-  afterEyebrow: "Personal Archive",
+  afterEyebrow: "个人档案",
   afterTitle: "从星河命盘，进入一份真正可阅读的个人档案",
   afterDesc: "观我把复杂的命盘、人格和问题分析整理成清楚的档案结构，让用户先看懂自己，再决定下一步行动。",
   reportItems: [
@@ -148,14 +148,14 @@ const zhCopy = {
     { kicker: "Next Opportunity", title: "未来窗口", body: "以阶段和趋势呈现事业、财富、关系中的关键机会，而不是承诺固定结果。" },
     { kicker: "Today's Action", title: "今日行动", body: "把复杂分析收束成今天最值得推进的一步，降低决策噪音。" },
   ],
-  pathEyebrow: "Ten-Year Map",
+  pathEyebrow: "十年路径",
   pathTitle: "未来十年不是结论，而是路径",
   pathDesc: "观我会把长期趋势拆成几个关键阶段，标记适合积累、推进、调整和转型的窗口。",
   timeline: [
-    { year: "2026", label: "Foundation" },
-    { year: "2028", label: "Expansion" },
-    { year: "2030", label: "Opportunity" },
-    { year: "2033", label: "New Cycle" },
+    { year: "2026", label: "积累" },
+    { year: "2028", label: "推进" },
+    { year: "2030", label: "机会" },
+    { year: "2033", label: "新周期" },
   ],
   entries: [
     { icon: Brain, title: "完整观我报告", body: "系统查看性格结构、事业财富、关系模式与未来窗口。", cta: "生成报告", href: "/reading/new" },
