@@ -3,6 +3,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { useRouter } from "next/navigation"
 import { useEffect, Suspense, lazy } from "react"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { useUserStore } from "@/stores/useUserStore"
 
 const UserDashboard = lazy(() => import("@/components/dashboard/UserDashboard").then(m => ({ default: m.UserDashboard })))
 const LiveBar = lazy(() => import("@/components/ui/LiveBar").then(m => ({ default: m.LiveBar })))
@@ -13,10 +14,15 @@ export default function DashboardPage() {
   const { user, loading } = useAuth()
   const router = useRouter()
   const { t } = useLanguage()
+  const { userProfile, fetchBirthProfiles } = useUserStore()
 
   useEffect(() => {
     if (!loading && !user) router.replace("/login")
   }, [user, loading, router])
+
+  useEffect(() => {
+    if (user) fetchBirthProfiles()
+  }, [user, fetchBirthProfiles])
 
   if (loading || !user) return null
 
@@ -43,7 +49,17 @@ export default function DashboardPage() {
               </div>
             </ScrollReveal>
             <ScrollReveal delay={0.2}>
-              <DailyFortune />
+              <DailyFortune
+                user={userProfile ? {
+                  id: user.id,
+                  birth_profiles: [{
+                    birth_year: userProfile.birth_year,
+                    birth_month: userProfile.birth_month,
+                    birth_day: userProfile.birth_day,
+                    birth_hour: userProfile.birth_hour,
+                  }],
+                } : { id: user.id, birth_profiles: [] }}
+              />
             </ScrollReveal>
           </Suspense>
         </div>

@@ -288,8 +288,16 @@ export function DailyDashboard() {
   const latitude = userProfile?.latitude
   const longitude = userProfile?.longitude
 
-  const [fortune, setFortune] = useState<DailyFortuneResponse | null>(() => getCached<DailyFortuneResponse>("fortune_" + locale))
-  const [almanac, setAlmanac] = useState<AlmanacData | null>(() => getCached<AlmanacData>("almanac_" + locale))
+  const profileCacheKey = user && birthYear && birthMonth !== undefined && birthDay !== undefined && birthHour !== undefined
+    ? `${user.id || "user"}_${birthYear}-${birthMonth}-${birthDay}-${birthHour}`
+    : user
+      ? `${user.id || "user"}_no_birth_profile`
+      : "guest"
+  const fortuneCacheKey = `fortune_${locale}_${profileCacheKey}`
+  const almanacCacheKey = `almanac_${locale}_${profileCacheKey}`
+
+  const [fortune, setFortune] = useState<DailyFortuneResponse | null>(() => getCached<DailyFortuneResponse>(fortuneCacheKey))
+  const [almanac, setAlmanac] = useState<AlmanacData | null>(() => getCached<AlmanacData>(almanacCacheKey))
   const [fortuneLoading, setFortuneLoading] = useState(!fortune)
   const [almanacLoading, setAlmanacLoading] = useState(!almanac)
 
@@ -319,7 +327,7 @@ export function DailyDashboard() {
         } else {
           f = generateFallbackFortune(t)
         }
-        setCached("fortune_" + locale, f)
+        setCached(fortuneCacheKey, f)
         if (!cancelled) setFortune(f)
       } finally {
         if (!cancelled) setFortuneLoading(false)
@@ -328,7 +336,7 @@ export function DailyDashboard() {
     loadFortune()
     }, 150) // 150ms stagger
     return () => { cancelled = true; clearTimeout(timer) }
-  }, [user, locale, birthYear, birthMonth, birthDay, birthHour])
+  }, [user, locale, birthYear, birthMonth, birthDay, birthHour, fortuneCacheKey])
 
   // ── Load almanac (parallel, lazy — skeleton shown while loading) ──
   useEffect(() => {
@@ -352,7 +360,7 @@ export function DailyDashboard() {
         const lastFail = getCached<number>("almanac_rate_limit")
         if (lastFail && Date.now() - lastFail < 60_000) {
           const fallback = generateFallbackAlmanac(t)
-          setCached("almanac_" + locale, fallback)
+          setCached(almanacCacheKey, fallback)
           setAlmanac(fallback)
           setAlmanacLoading(false)
           return
@@ -372,7 +380,7 @@ export function DailyDashboard() {
           })
           if (res?.data) {
             const data = parseAlmanac(res.data)
-            setCached("almanac_" + locale, data)
+            setCached(almanacCacheKey, data)
             setAlmanac(data)
             setAlmanacLoading(false)
             return
@@ -398,7 +406,7 @@ export function DailyDashboard() {
             longitude: longitude ?? undefined,
           }, locale, true)
           const parsed = parseAlmanac(data)
-          setCached("almanac_" + locale, parsed)
+          setCached(almanacCacheKey, parsed)
           setAlmanac(parsed)
           setAlmanacLoading(false)
           return
@@ -409,7 +417,7 @@ export function DailyDashboard() {
         }
       }
       const fallback = generateFallbackAlmanac(t)
-      setCached("almanac_" + locale, fallback)
+      setCached(almanacCacheKey, fallback)
       if (!cancelled) {
         setAlmanac(fallback)
         setAlmanacLoading(false)
@@ -418,7 +426,7 @@ export function DailyDashboard() {
     loadAlmanac()
     }, 400) // 400ms stagger — after fortune loads
     return () => { cancelled = true; clearTimeout(timer) }
-  }, [user, locale, birthYear, birthMonth, birthDay, birthHour, birthMinute, gender, birthCity, latitude, longitude])
+  }, [user, locale, birthYear, birthMonth, birthDay, birthHour, birthMinute, gender, birthCity, latitude, longitude, almanacCacheKey])
 
   // ── Loading state: only block if BOTH are missing ──────────────
   if (fortuneLoading && !fortune) {

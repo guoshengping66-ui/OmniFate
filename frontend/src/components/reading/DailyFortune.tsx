@@ -292,7 +292,7 @@ export function DailyFortune({ user }: DailyFortuneProps) {
     } else {
       setFortune(generateFortune())
     }
-  }, [user])
+  }, [user, locale])
 
   if (!fortune) return null
 

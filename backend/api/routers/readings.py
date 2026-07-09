@@ -2425,6 +2425,9 @@ async def get_daily_fortune(
     love = _score(5, 5, 3)
     health = _score(6, 3, 4)
     personalized = False
+    dm_element = None
+    today_element = None
+    relation_key = "neutral"
 
     if birth_year and birth_month and birth_day and birth_hour is not None:
         personalized = True
@@ -2449,20 +2452,26 @@ async def get_daily_fortune(
             if today_element == dm_element:
                 # 比肩 — 同类，平稳
                 mod = 0
+                relation_key = "same"
             elif SHENG.get(dm_element) == today_element:
                 # 我生 — 泄气，略低
                 mod = -1
+                relation_key = "output"
             elif KE.get(dm_element) == today_element:
                 # 我克 — 得财，财运好
                 mod = 1
+                relation_key = "wealth"
             elif SHENG_ME.get(dm_element) == today_element:
                 # 生我 — 有助力，整体好
                 mod = 1
+                relation_key = "support"
             elif KE_ME.get(dm_element) == today_element:
                 # 克我 — 压力，需注意
                 mod = -1
+                relation_key = "pressure"
             else:
                 mod = 0
+                relation_key = "neutral"
 
             # 应用五行调制
             overall = max(1, min(10, overall + mod))
@@ -2558,7 +2567,71 @@ async def get_daily_fortune(
         "Reduce screen time to give your eyes and brain a well-deserved break.",
     ]
 
-    if lang == "en":
+    def _lowest_focus() -> str:
+        scores = {
+            "wealth": wealth,
+            "career": career,
+            "love": love,
+            "health": health,
+        }
+        return min(scores, key=scores.get)
+
+    def _personalized_action_text() -> tuple[str, str]:
+        focus = _lowest_focus()
+        if lang == "en":
+            relation_advice = {
+                "same": "Your chart meets similar daily energy today, so use the day for steady execution and avoid scattering your attention.",
+                "output": "Today's energy asks you to spend output carefully; finish one visible deliverable before opening a new direction.",
+                "wealth": "Today's rhythm supports resource judgment; review money, opportunities, and commitments with concrete numbers.",
+                "support": "Today's energy gives your chart support; schedule the hardest task in the first focused block of the day.",
+                "pressure": "Today's energy presses your chart; reduce avoidable conflict and choose one controllable task first.",
+                "neutral": "Today's rhythm is neutral for your chart; use it for calibration, review, and one small practical step.",
+            }
+            focus_advice = {
+                "wealth": " Keep financial decisions conservative: compare costs, cash flow, and risk before saying yes.",
+                "career": " Prioritize work with clear feedback: one proposal, one delivery, or one conversation that moves the project forward.",
+                "love": " In relationships, slow the reaction speed and ask for clarification before interpreting tone.",
+                "health": " Protect energy first: sleep, meals, and light movement matter more than forcing extra output today.",
+            }
+            focus_warning = {
+                "wealth": "Do not use emotion to justify spending, lending, or high-risk commitments.",
+                "career": "Avoid changing direction just because progress feels slow.",
+                "love": "Avoid testing the other person through silence or indirect messages.",
+                "health": "Avoid overdrawing your body to prove productivity.",
+            }
+            return (
+                relation_advice.get(relation_key, relation_advice["neutral"]) + focus_advice[focus],
+                focus_warning[focus],
+            )
+
+        relation_advice = {
+            "same": "今日命盘遇到同类能量，适合稳步执行，把注意力集中在一件确定能推进的事上。",
+            "output": "今日对你的命盘有输出消耗感，先完成一个看得见的交付，再开启新的方向。",
+            "wealth": "今日节奏利于资源判断，适合复盘钱、机会和承诺，用具体数字做决定。",
+            "support": "今日能量对你的命盘有扶助感，适合把最难的一项任务放在第一个专注时段。",
+            "pressure": "今日对你的命盘有压力感，先减少不必要冲突，选择一件可控的小事稳住节奏。",
+            "neutral": "今日与你的命盘关系偏平稳，适合校准状态、复盘计划，并完成一个实际动作。",
+        }
+        focus_advice = {
+            "wealth": "财富面先保守判断，比较成本、现金流和风险，再决定是否投入。",
+            "career": "事业面优先做有明确反馈的事：一份方案、一次交付或一次关键沟通。",
+            "love": "关系面放慢反应速度，先确认对方真实意思，不要急着解读情绪。",
+            "health": "状态面先保能量，睡眠、饮食和轻运动比硬撑效率更重要。",
+        }
+        focus_warning = {
+            "wealth": "避免用情绪为消费、借贷或高风险承诺找理由。",
+            "career": "避免因为进展慢就临时换方向。",
+            "love": "避免用沉默或试探来确认关系安全感。",
+            "health": "避免透支身体去证明效率。",
+        }
+        return (
+            relation_advice.get(relation_key, relation_advice["neutral"]) + focus_advice[focus],
+            focus_warning[focus],
+        )
+
+    if personalized:
+        advice, warning = _personalized_action_text()
+    elif lang == "en":
         advice = ADVICES_EN[int(_hash(300) * len(ADVICES_EN))]
         warning = WARNINGS_EN[int(_hash(400) * len(WARNINGS_EN))]
     else:
