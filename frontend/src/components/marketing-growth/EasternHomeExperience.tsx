@@ -9,6 +9,29 @@ import { EasternCard, EasternPageShell, EasternSection, FiveDimensionOrbit, Repo
 export function EasternHomeExperience() {
   const { locale, localeHref } = useLanguage()
   const isZh = locale === "zh"
+
+  return (
+    <EasternPageShell className="gw-reference-home">
+      <section className="gw-reference-hero" aria-label={isZh ? "观我首页首屏" : "Guanwo homepage hero"}>
+        <img
+          src="/brand/guanwo-cosmic-hero.png"
+          alt={isZh ? "观我星河命盘首页视觉" : "Guanwo cosmic astrolabe homepage visual"}
+          className="gw-reference-hero-image"
+        />
+        <Link
+          href={localeHref("/reading/new")}
+          className="gw-reference-hotspot gw-reference-hotspot-primary"
+          aria-label={isZh ? "生成我的个人档案" : "Generate my personal archive"}
+        />
+        <Link
+          href="#sample-report"
+          className="gw-reference-hotspot gw-reference-hotspot-secondary"
+          aria-label={isZh ? "查看示例报告" : "View sample report"}
+        />
+      </section>
+    </EasternPageShell>
+  )
+
   const [skyMode, setSkyMode] = useState<"night" | "day">("night")
 
   useEffect(() => {

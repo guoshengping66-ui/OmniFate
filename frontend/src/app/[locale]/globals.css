@@ -858,6 +858,67 @@
     box-shadow: 0 0 28px rgba(200, 168, 74, 0.58);
   }
 
+  .gw-reference-home {
+    min-height: 100vh;
+    background: #020807;
+  }
+
+  .gw-reference-hero {
+    position: relative;
+    min-height: 100vh;
+    overflow: hidden;
+    background: #020807;
+  }
+
+  .gw-reference-hero-image {
+    display: block;
+    width: 100%;
+    min-height: 100vh;
+    object-fit: cover;
+    object-position: center top;
+  }
+
+  .gw-reference-hotspot {
+    position: absolute;
+    z-index: 3;
+    display: block;
+    border-radius: 999px;
+  }
+
+  .gw-reference-hotspot:focus-visible {
+    outline: 2px solid rgba(232, 204, 138, 0.9);
+    outline-offset: 4px;
+  }
+
+  .gw-reference-hotspot-primary {
+    left: 6.4%;
+    top: 61.7%;
+    width: 18.4%;
+    height: 5.1%;
+  }
+
+  .gw-reference-hotspot-secondary {
+    left: 26.2%;
+    top: 61.7%;
+    width: 14.8%;
+    height: 5.1%;
+  }
+
+  @media (max-width: 760px) {
+    .gw-reference-hero-image {
+      width: auto;
+      height: 100vh;
+      min-width: 100%;
+      object-fit: cover;
+      object-position: 28% top;
+    }
+
+    .gw-reference-hotspot-primary,
+    .gw-reference-hotspot-secondary {
+      display: none;
+    }
+  }
+
   @media (max-width: 640px) {
     .gw-hero-section {
       min-height: 720px;
