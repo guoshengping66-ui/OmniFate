@@ -550,6 +550,14 @@ export default function NewReadingPage() {
           : "For love, marriage, collaboration, and close relationships. Guanwo reads rhythm, friction, and ways to relate.",
       }
     }
+    if (currentIntent === "FULL_MULTIMODAL") {
+      return {
+        title: isZh ? "生成你的完整观我档案" : "Generate your complete Guanwo archive",
+        subtitle: isZh
+          ? "基于出生结构、象征牌面、面相手相与真实问题，整理你的性格结构、关系模式、事业方向、未来窗口与今日行动建议。"
+          : "A complete profile combining birth pattern, symbolic cards, face and palm signals, and your real question into a structured personal archive.",
+      }
+    }
     if (currentIntent) {
       return {
         title: isZh ? "把一个具体问题交给观我" : "Bring one specific question to Guanwo",

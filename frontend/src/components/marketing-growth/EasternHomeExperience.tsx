@@ -13,7 +13,17 @@ export function EasternHomeExperience() {
   return (
     <EasternPageShell className="gw-live-home">
       <section className="gw-image-hero gw-hero-composed" aria-label={copy.heroAria}>
-        <div className="gw-image-hero-bg" aria-hidden="true" />
+        <img
+          className="gw-image-hero-bg"
+          src="/brand/guanwo-cosmic-hero-clean.webp"
+          width={1487}
+          height={1058}
+          alt=""
+          aria-hidden="true"
+          decoding="async"
+          fetchPriority="high"
+          sizes="100vw"
+        />
         <div className="gw-hero-veil gw-hero-veil-left" aria-hidden="true" />
         <div className="gw-hero-veil gw-hero-veil-scroll" aria-hidden="true" />
         <div className="gw-hero-star-motion" aria-hidden="true" />
@@ -50,7 +60,7 @@ export function EasternHomeExperience() {
           </div>
 
           <div className="gw-hero-real-actions">
-            <Link href={localeHref("/reading/new")} className="gw-hero-real-primary">
+            <Link href={localeHref("/reading/new?intent=full")} className="gw-hero-real-primary">
               {copy.primary}
               <ArrowRight size={18} />
             </Link>
@@ -136,8 +146,8 @@ const zhCopy = {
   secondary: "查看示例报告",
   previewLabel: "报告预览入口",
   heroPreview: [
-    { title: "核心结构", body: "你的长期节奏与稳定优势", href: "/reading/new" },
-    { title: "未来窗口", body: "下一阶段更适合推进的方向", href: "/reading/new" },
+    { title: "核心结构", body: "你的长期节奏与稳定优势", href: "/reading/new?intent=full" },
+    { title: "未来窗口", body: "下一阶段更适合推进的方向", href: "/reading/new?intent=full" },
     { title: "今日行动", body: "今天最值得完成的一步", href: "/almanac" },
   ],
   afterEyebrow: "个人档案",
@@ -158,9 +168,9 @@ const zhCopy = {
     { year: "2033", label: "新周期" },
   ],
   entries: [
-    { icon: Brain, title: "完整观我报告", body: "系统查看性格结构、事业财富、关系模式与未来窗口。", cta: "生成报告", href: "/reading/new" },
+    { icon: Brain, title: "完整观我报告", body: "系统查看性格结构、事业财富、关系模式与未来窗口。", cta: "生成报告", href: "/reading/new?intent=full" },
     { icon: MessageCircleQuestion, title: "单主题快问", body: "针对感情、事业、财富或选择题，获得一次快速分析。", cta: "提出问题", href: "/divination" },
-    { icon: HeartHandshake, title: "关系合参", body: "分析两个人之间的吸引点、冲突点和相处方式。", cta: "开始合参", href: "/reading/new" },
+    { icon: HeartHandshake, title: "关系合参", body: "分析两个人之间的吸引点、冲突点和相处方式。", cta: "开始合参", href: "/reading/new?intent=relationship" },
   ],
 }
 
@@ -176,8 +186,8 @@ const enCopy = {
   secondary: "View Sample Report",
   previewLabel: "Report preview links",
   heroPreview: [
-    { title: "Core Pattern", body: "Your baseline structure and energy traits", href: "/reading/new" },
-    { title: "Next Opportunity", body: "Opportunity window for the next 30 days", href: "/reading/new" },
+    { title: "Core Pattern", body: "Your baseline structure and energy traits", href: "/reading/new?intent=full" },
+    { title: "Next Opportunity", body: "Opportunity window for the next 30 days", href: "/reading/new?intent=full" },
     { title: "Today’s Action", body: "The most useful action for today", href: "/almanac" },
   ],
   afterEyebrow: "Personal Archive",
@@ -198,8 +208,8 @@ const enCopy = {
     { year: "2033", label: "New Cycle" },
   ],
   entries: [
-    { icon: Brain, title: "Full Archive", body: "Understand personality, work, wealth, relationship patterns, and future windows.", cta: "Generate", href: "/reading/new" },
+    { icon: Brain, title: "Full Archive", body: "Understand personality, work, wealth, relationship patterns, and future windows.", cta: "Generate", href: "/reading/new?intent=full" },
     { icon: MessageCircleQuestion, title: "Focus Reading", body: "Ask one concrete question about love, work, money, or a decision.", cta: "Ask", href: "/divination" },
-    { icon: HeartHandshake, title: "Relationship", body: "Explore attraction, friction, communication, and long-term rhythm.", cta: "Compare", href: "/reading/new" },
+    { icon: HeartHandshake, title: "Relationship", body: "Explore attraction, friction, communication, and long-term rhythm.", cta: "Compare", href: "/reading/new?intent=relationship" },
   ],
 }
