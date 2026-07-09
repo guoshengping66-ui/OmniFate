@@ -1835,11 +1835,9 @@ export default {
   "new.groupOceania": "Oceania",
   "new.groupMiddleEast": "Middle East",
   "new.groupOther": "South America / Africa / Other",
-  "new.selectCountry": "Select country",
-  "new.chinaLabel": "China / 中国",
   "new.selectState": "Select state/province",
-  "new.otherCity": "Other (enter manually)",
   "new.customCity": "Enter other city...",
+  "new.backToChina": "← Select China region",
   "new.customCityPlaceholder": "Enter city name (e.g. San Jose)",
 
   // ─── Pricing Page Misc ───
