@@ -87,7 +87,7 @@ export function OnboardingGuide() {
   const isFirst = currentStep === 0
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70  px-4">
       <div className="relative w-full max-w-md rounded-3xl bg-gradient-to-b from-[#1a0f2e] to-[#0d0820] border border-gold/20 p-8 shadow-2xl">
         {/* Close button */}
         <button

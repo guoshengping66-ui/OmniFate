@@ -125,8 +125,10 @@ class ReviewRequest(BaseModel):
 
 
 @router.get("")
-async def list_products(category: str = Query(None), search: str = Query(None), lang: str = Query("zh"), limit: int = Query(50, le=200)):
+async def list_products(category: str = Query(None), search: str = Query(None), lang: str = Query("zh"), limit: int = Query(200, le=500)):
     products = _load_products(lang)
+    # Only show active products
+    products = [p for p in products if p.get("is_active", True)]
     if category:
         products = [p for p in products if p.get("category") == category]
     if search:

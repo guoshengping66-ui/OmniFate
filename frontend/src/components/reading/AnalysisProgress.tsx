@@ -283,7 +283,7 @@ function AnalysisProgressInner({
           </Suspense>
         </div>
 
-        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-4 sm:p-5 space-y-4">
+        <div className="rounded-2xl border border-white/[0.08] bg-[#060E24] p-4 sm:p-5 space-y-4">
           <div className="flex items-start gap-3">
             <div className="mt-0.5 h-9 w-9 rounded-lg bg-gold/10 border border-gold/20 flex items-center justify-center">
               {isComplete ? <CheckCircle2 size={18} className="text-emerald-300" /> : <Sparkles size={18} className="text-gold" />}
@@ -347,7 +347,7 @@ function AnalysisProgressInner({
                     ? "border-emerald-300/20 bg-emerald-300/[0.055]"
                     : agent.status === "error"
                       ? "border-rose-300/20 bg-rose-300/[0.055]"
-                      : "border-white/[0.07] bg-white/[0.025]"
+                      : "border-white/[0.07] bg-[#030918]"
               }`}
             >
               <StatusIcon status={agent.status} running={running} />
@@ -373,7 +373,7 @@ function AnalysisProgressInner({
             ? "border-gold/35 bg-gold/[0.08]"
             : masterStatus === "done"
               ? "border-emerald-300/20 bg-emerald-300/[0.055]"
-              : "border-white/[0.07] bg-white/[0.025]"
+              : "border-white/[0.07] bg-[#030918]"
         }`}>
           <StatusIcon status={masterStatus} running={masterStatus === "running"} />
           <div className="min-w-0">
@@ -386,7 +386,7 @@ function AnalysisProgressInner({
       </div>
 
       {previewText && (
-        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-4">
+        <div className="rounded-2xl border border-white/[0.08] bg-[#060E24] p-4">
           <p className="text-xs text-gold/70 font-medium mb-2">{copy.preview}</p>
           <p className="text-sm text-white/64 leading-relaxed">{previewText}</p>
         </div>

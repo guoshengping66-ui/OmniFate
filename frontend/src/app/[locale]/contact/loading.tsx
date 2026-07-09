@@ -6,8 +6,8 @@ export default function ContactLoading() {
       <div className="max-w-2xl mx-auto space-y-6">
         <div className="h-8 bg-white/5 rounded w-1/4 animate-pulse" />
         <div className="card-glass p-6 space-y-4">
-          <div className="h-12 bg-white/[0.03] rounded-xl animate-pulse" />
-          <div className="h-24 bg-white/[0.03] rounded-xl animate-pulse" />
+          <div className="h-12 bg-[#030918] rounded-xl animate-pulse" />
+          <div className="h-24 bg-[#030918] rounded-xl animate-pulse" />
           <div className="h-12 bg-gold/10 rounded-xl animate-pulse" />
         </div>
       </div>

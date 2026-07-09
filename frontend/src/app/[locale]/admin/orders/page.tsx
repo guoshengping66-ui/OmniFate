@@ -313,7 +313,7 @@ export default function AdminOrdersPage() {
             ["退款中", orders.filter(o => o.status === "pending_refund").length, "text-orange-300"],
             ["本页订单", orders.length, "text-gold"],
           ].map(([label, count, color]) => (
-            <div key={label as string} className="rounded-xl border border-white/[0.07] bg-white/[0.025] p-3">
+            <div key={label as string} className="rounded-xl border border-white/[0.07] bg-[#030918] p-3">
               <p className="text-white/35 text-xs">{label}</p>
               <p className={`text-xl font-semibold mt-1 ${color}`}>{count}</p>
             </div>

@@ -18,6 +18,13 @@ export function TargetSelector() {
   const [showAddDialog, setShowAddDialog] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
+  // Translate stored default nicknames ("本命", "Myself") at display time
+  // so they switch language correctly instead of showing the registration locale
+  const showNickname = (n: string) => {
+    if (n === "本命" || n === "Myself") return t("target.self")
+    return n
+  }
+
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
@@ -29,7 +36,7 @@ export function TargetSelector() {
   if (!userProfile) return null
 
   const isSelf = activeTestTarget?.id === userProfile.id
-  const targetLabel = activeTestTarget?.nickname || t("target.self")
+  const targetLabel = activeTestTarget?.nickname ? showNickname(activeTestTarget.nickname) : t("target.self")
 
   return (
     <div ref={ref} className="relative">
@@ -43,18 +50,16 @@ export function TargetSelector() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-1 w-48 bg-ink-light/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-xl z-50 overflow-hidden">
-          {/* Self */}
+        <div className="absolute right-0 top-full mt-1 w-48 bg-[#0a0a1a]/98 border border-white/10 rounded-xl shadow-xl z-[999]">
           <button
             onClick={() => { resetToSelf(); setOpen(false) }}
             className="w-full flex items-center gap-2 px-3 py-2.5 text-sm hover:bg-white/5 transition-colors"
           >
             <User size={14} className={isSelf ? "text-gold" : "text-white/30"} />
-            <span className={isSelf ? "text-gold" : "text-white/60"}>{t("target.selfLabel")}{userProfile.nickname}</span>
+            <span className={isSelf ? "text-gold" : "text-white/60"}>{t("target.selfLabel")}{showNickname(userProfile.nickname)}</span>
             {isSelf && <Check size={12} className="text-gold ml-auto" />}
           </button>
 
-          {/* Other profiles */}
           {birthProfiles.filter(p => p.id !== userProfile.id).map(p => (
             <button
               key={p.id}
@@ -62,15 +67,13 @@ export function TargetSelector() {
               className="w-full flex items-center gap-2 px-3 py-2.5 text-sm hover:bg-white/5 transition-colors"
             >
               <Users size={14} className={activeTestTarget?.id === p.id ? "text-gold" : "text-white/30"} />
-              <span className={activeTestTarget?.id === p.id ? "text-gold" : "text-white/60"}>{p.nickname}</span>
+              <span className={activeTestTarget?.id === p.id ? "text-gold" : "text-white/60"}>{showNickname(p.nickname)}</span>
               {activeTestTarget?.id === p.id && <Check size={12} className="text-gold ml-auto" />}
             </button>
           ))}
 
-          {/* Divider */}
           <div className="border-t border-white/10" />
 
-          {/* Add new — uses portal to escape parent stacking context */}
           <button
             onClick={() => { setOpen(false); setShowAddDialog(true) }}
             className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-white/40 hover:bg-white/5 hover:text-white/60 transition-colors"
@@ -151,7 +154,7 @@ function AddFriendDialog({
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-md p-4"
+    <div className="fixed inset-0 flex items-center justify-center bg-black/80  p-4"
       style={{ zIndex: 2147483647 }}>
       {/* Click backdrop to close */}
       <div className="absolute inset-0" onClick={onClose} />

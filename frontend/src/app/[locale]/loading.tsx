@@ -14,13 +14,13 @@ export default function LocaleLoading() {
           <div className="h-5 bg-white/5 rounded w-1/4 animate-pulse" />
           <div className="grid grid-cols-2 gap-4">
             {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-24 bg-white/[0.03] rounded-xl animate-pulse" />
+              <div key={i} className="h-24 bg-[#030918] rounded-xl animate-pulse" />
             ))}
           </div>
         </div>
         <div className="card-glass p-6 space-y-4">
           <div className="h-5 bg-white/5 rounded w-1/3 animate-pulse" />
-          <div className="h-32 bg-white/[0.03] rounded-xl animate-pulse" />
+          <div className="h-32 bg-[#030918] rounded-xl animate-pulse" />
         </div>
       </div>
     </div>

@@ -147,7 +147,7 @@ export function ShareSheet({ sessionId }: Props) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/20 text-white/60 hover:border-gold/40 hover:text-gold transition-all text-sm"
+        className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/[0.08] text-white/60 hover:border-gold/40 hover:text-gold transition-all text-sm"
       >
         <Share2 size={14} />
         {t("share.title")}
@@ -157,7 +157,7 @@ export function ShareSheet({ sessionId }: Props) {
         <>
           <div
             onClick={() => setOpen(false)}
-            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm anim-fade-in"
+            className="fixed inset-0 z-50 bg-black/50  anim-fade-in"
           />
 
           <div className="fixed bottom-0 left-0 right-0 z-50 bg-ink border-t border-gold/20 rounded-t-3xl p-6 pb-10 max-w-lg mx-auto anim-slide-in-up">

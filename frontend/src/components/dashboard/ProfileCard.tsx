@@ -53,25 +53,29 @@ export function ProfileCard() {
   const completeness = profile.birth_city ? 100 : 82
 
   return (
-    <div className="relative overflow-hidden border border-gold/15 bg-[#08120f]/85 p-6 shadow-[0_28px_80px_rgba(0,0,0,0.28)]">
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/60 to-transparent" />
-      <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-gold/[0.06] blur-3xl" />
+    <div className="relative border border-gold/15 bg-[#08120f]/85 p-6 shadow-[0_28px_80px_rgba(0,0,0,0.28)]">
+      <div className="absolute inset-0 overflow-hidden rounded-[inherit] pointer-events-none">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/60 to-transparent" />
+        <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-gold/[0.06] blur-3xl" />
+      </div>
 
-      <div className="relative z-10 flex items-start justify-between gap-4">
+      <div className="relative flex items-start justify-between gap-4">
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-gold/55">
             {isZh ? "Destiny Identity" : "Destiny Identity"}
           </p>
-          <h2 className="mt-2 font-serif text-2xl font-bold text-white">{profile.nickname}</h2>
+          <h2 className="mt-2 font-serif text-2xl font-bold text-white">{profile.nickname === "本命" || profile.nickname === "Myself" ? t("target.self") : profile.nickname}</h2>
           <p className="mt-2 text-sm text-white/42">
             {activeTestTarget ? (isZh ? "当前查看对象" : "Active target") : (isZh ? "你的个人命盘档案" : "Your personal chart profile")}
           </p>
         </div>
-        <TargetSelector />
+        <div style={{ position: "relative", zIndex: 100 }}>
+          <TargetSelector />
+        </div>
       </div>
 
       <div className="relative z-10 mt-6 grid gap-3 sm:grid-cols-2">
-        <div className="border border-white/[0.07] bg-white/[0.035] p-4">
+        <div className="border border-white/[0.07] bg-[#060E24] p-4">
           <div className="mb-2 flex items-center gap-2 text-white/35">
             <Calendar size={14} />
             <span className="text-[10px] uppercase tracking-[0.16em]">{isZh ? "出生时间" : "Birth Time"}</span>
@@ -86,7 +90,7 @@ export function ProfileCard() {
           </p>
         </div>
 
-        <div className="border border-white/[0.07] bg-white/[0.035] p-4">
+        <div className="border border-white/[0.07] bg-[#060E24] p-4">
           <div className="mb-2 flex items-center gap-2 text-white/35">
             <MapPin size={14} />
             <span className="text-[10px] uppercase tracking-[0.16em]">{isZh ? "出生地点" : "Birth Place"}</span>
@@ -102,7 +106,7 @@ export function ProfileCard() {
         <span className="border border-jade/20 bg-jade/[0.08] px-3 py-1.5 text-xs text-jade-light">
           {constellation}
         </span>
-        <span className="border border-white/[0.08] bg-white/[0.035] px-3 py-1.5 text-xs text-white/55">
+        <span className="border border-white/[0.08] bg-[#060E24] px-3 py-1.5 text-xs text-white/55">
           {isZh ? "命盘完整度" : "Profile"} {completeness}%
         </span>
       </div>

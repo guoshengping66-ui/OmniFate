@@ -318,7 +318,7 @@ export default function RegisterPage() {
               <button
                 type="button"
                 onClick={() => setStep("account")}
-                className="flex items-center gap-1 px-4 py-2.5 rounded-full border border-white/20 text-white/60 hover:border-white/40 transition-all text-sm"
+                className="flex items-center gap-1 px-4 py-2.5 rounded-xl border border-white/[0.08] text-white/60 hover:border-white/40 transition-all text-sm"
               >
                 <ChevronLeft size={14} /> {t("auth.birth.prevStep")}
               </button>
@@ -327,7 +327,7 @@ export default function RegisterPage() {
                 type="button"
                 onClick={handleSkipBirth}
                 disabled={loading}
-                className="flex-1 py-2.5 rounded-full border border-white/20 text-white/40 hover:text-white/60 hover:border-white/40 transition-all text-sm"
+                className="flex-1 py-2.5 rounded-xl border border-white/[0.08] text-white/40 hover:text-white/60 hover:border-white/40 transition-all text-sm"
               >
                 {loading ? <Loader2 size={14} className="animate-spin mx-auto" /> : t("auth.birth.skip")}
               </button>

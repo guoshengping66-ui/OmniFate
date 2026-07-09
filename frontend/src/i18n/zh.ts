@@ -1202,6 +1202,7 @@ export default {
   "address.country": "国家/地区",
   "address.province": "省份",
   "address.city": "城市",
+  "address.state": "州/省",
   "address.district": "区县",
   "address.select": "请选择",
   "address.name": "收件人",

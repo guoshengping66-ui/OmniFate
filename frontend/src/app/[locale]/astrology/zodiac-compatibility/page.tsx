@@ -98,7 +98,7 @@ export default function ZodiacCompatibilitySEOPage() {
             <h2 className="font-serif text-2xl text-gold mb-6">{t("seo.zodiac.signsTitle")}</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
               {signs.map((s) => (
-                <div key={s.name} className="text-center p-4 bg-white/[0.03] rounded-xl border border-white/10 hover:border-gold/20 transition-all">
+                <div key={s.name} className="text-center p-4 bg-[#030918] rounded-xl border border-white/10 hover:border-gold/20 transition-all">
                   <div className="text-3xl mb-2">{s.icon}</div>
                   <h3 className="text-white font-medium text-xs">{s.name}</h3>
                   <p className="text-white/40 text-[10px] mt-1">{s.trait}</p>

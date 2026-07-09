@@ -40,6 +40,7 @@ async def lifespan(app: FastAPI):
     # ── Production safety: require Redis for rate limiting in multi-worker setup ──
     if not settings.DEBUG and not settings.REDIS_URL:
         import multiprocessing
+        cpu_count = multiprocessing.cpu_count()
         # PM2 typically runs in cluster mode (multiple workers/cores)
         # Without Redis, rate limits are per-worker and trivially bypassable
         logger.critical(
@@ -47,9 +48,14 @@ async def lifespan(app: FastAPI):
             "in-memory per-worker storage — an attacker can bypass all rate "
             "limits by hitting different workers. Configure REDIS_URL for production."
         )
-        # NOTE: We don't refuse to start — some deployments use single-worker
-        # PM2 or have external rate limiting (nginx/Cloudflare). The warning
-        # is logged at CRITICAL level so it's visible in monitoring.
+        # If >1 worker detected (CPU count > 2), refuse to start without Redis
+        # Single-core VPS is acceptable; multi-core means PM2 cluster mode likely
+        if cpu_count > 2:
+            raise RuntimeError(
+                "REDIS_URL must be configured for multi-core production deployments. "
+                f"Detected {cpu_count} CPU cores — rate limits are per-worker without Redis. "
+                "Set REDIS_URL in .env or reduce PM2 instances to 1."
+            )
 
     # Pre-download Skyfield ephemeris to /tmp so analysis doesn't block on first request
     import os
@@ -192,15 +198,20 @@ RATE_LIMIT_MAX = 60     # requests per window (global)
 
 # Endpoint-specific rate limits (requests per minute)
 ENDPOINT_LIMITS = {
-    "/api/readings": 5,           # 分析报告 - 最贵的 API，严格限制
-    "/api/readings/chat": 10,     # 追问问答
-    "/api/divination": 10,        # 每日分析
-    "/api/auth/login": 5,         # 登录
-    "/api/auth/register": 3,      # 注册
-    "/api/auth/send-code": 2,     # 验证码
-    "/api/payments": 20,          # 支付
-    "/api/credits": 30,           # 星尘
-    "/api/webhooks/cj": 10,       # CJ Dropshipping webhooks
+    "/api/readings": 5,                    # 分析报告
+    "/api/readings/chat": 10,              # 追问问答
+    "/api/readings/daily-fortune": 10,     # 每日运势
+    "/api/readings/daily-almanac": 10,     # 每日黄历
+    "/api/readings/personalized-almanac": 10,  # 个性化黄历
+    "/api/readings/analyze-face": 5,       # 面相分析
+    "/api/readings/analyze-palm": 5,       # 手相分析
+    "/api/divination": 10,                 # 每日分析
+    "/api/auth/login": 5,                  # 登录
+    "/api/auth/register": 3,               # 注册
+    "/api/auth/send-code": 2,              # 验证码
+    "/api/payments": 20,                   # 支付
+    "/api/credits": 30,                    # 星尘
+    "/api/webhooks/cj": 10,                # CJ Dropshipping webhooks
 }
 
 # ── Response cache for public GET endpoints ──────────────────────────────────
@@ -431,31 +442,35 @@ async def cache_middleware(request: Request, call_next):
         return response
 
     # Cache successful JSON responses only (skip if body > 256KB to avoid memory bloat)
+    # Early return for non-200: don't consume body — let downstream middleware handle it
+    if response.status_code != 200:
+        return response
     MAX_CACHE_BODY = 256 * 1024  # 256KB
-    if response.status_code == 200:
-        # Fast path: use Content-Length header to skip buffering for obviously large responses
-        content_length = response.headers.get("content-length")
-        if content_length and int(content_length) > MAX_CACHE_BODY:
-            return response  # Stream directly without buffering
-        body = b""
-        async for chunk in response.body_iterator:
-            if isinstance(chunk, str):
-                chunk = chunk.encode("utf-8")
-            body += chunk
-            # Incremental check: stop early if already over limit
-            if len(body) > MAX_CACHE_BODY:
-                return Response(content=body, status_code=200, headers=dict(response.headers))
+    # Fast path: use Content-Length header to skip buffering for obviously large responses
+    content_length = response.headers.get("content-length")
+    if content_length:
         try:
-            data = json.loads(body)
-            await cache_set_json(cache_key, data, ttl=cache_ttl)
-            return JSONResponse(
-                content=data,
-                headers={"X-Cache": "MISS", "Cache-Control": f"public, max-age={cache_ttl}"},
-            )
-        except (json.JSONDecodeError, UnicodeDecodeError):
+            if int(content_length) > MAX_CACHE_BODY:
+                return response
+        except ValueError:
+            pass  # Malformed Content-Length header — stream directly
+        return response  # Stream directly without buffering
+    body = b""
+    async for chunk in response.body_iterator:
+        if isinstance(chunk, str):
+            chunk = chunk.encode("utf-8")
+        body += chunk
+        if len(body) > MAX_CACHE_BODY:
             return Response(content=body, status_code=200, headers=dict(response.headers))
-
-    return response
+    try:
+        data = json.loads(body)
+        await cache_set_json(cache_key, data, ttl=cache_ttl)
+        return JSONResponse(
+            content=data,
+            headers={"X-Cache": "MISS", "Cache-Control": f"public, max-age={cache_ttl}"},
+        )
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return Response(content=body, status_code=200, headers=dict(response.headers))
 
 
 app.include_router(auth.router,     prefix="/api/auth",     tags=["Auth"])

@@ -25,8 +25,6 @@ import type { NextRequest } from "next/server"
  * redirect Location headers to use the correct external hostname.
  */
 
-const DOMESTIC_COUNTRY_CODES = new Set(["CN", "HK", "MO", "TW"])
-
 type Region = "domestic" | "overseas"
 
 /**
@@ -88,16 +86,8 @@ const intlMiddleware = createMiddleware({
  * setup), we default to "overseas" which is safer for international users.
  * The client-side API verification provides an additional fallback.
  */
-function detectRegion(request: NextRequest): Region {
-  // 1. Cloudflare IP country code (most accurate, always fresh)
-  const cfCountry = request.headers.get("cf-ipcountry")?.toUpperCase()
-  if (cfCountry) {
-    // CF-IPCountry is present — trust it as authoritative
-    return DOMESTIC_COUNTRY_CODES.has(cfCountry) ? "domestic" : "overseas"
-  }
-
-  // 2. Default to overseas (safer for international users)
-  // Client-side API verification will correct if needed
+function detectRegion(_request: NextRequest): Region {
+  // Unified global pricing — all regions use overseas (USD)
   return "overseas"
 }
 

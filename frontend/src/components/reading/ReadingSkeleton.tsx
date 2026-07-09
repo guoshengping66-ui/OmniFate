@@ -41,7 +41,7 @@ export function ReadingSkeleton({ phase }: Props) {
     const isTimeout = phase === "timeout"
     return (
       <div className="min-h-screen pt-24 pb-16 px-4 flex items-center justify-center">
-        <div className="w-full max-w-md rounded-2xl border border-white/[0.08] bg-white/[0.035] p-6 text-center">
+        <div className="w-full max-w-md rounded-2xl border border-white/[0.08] bg-[#060E24] p-6 text-center">
           <div className="mx-auto mb-5 h-12 w-12 rounded-xl border border-amber-300/20 bg-amber-300/[0.08] flex items-center justify-center">
             {isTimeout ? <Loader2 size={22} className="text-gold animate-spin" /> : <AlertCircle size={22} className="text-amber-200" />}
           </div>
@@ -71,7 +71,7 @@ export function ReadingSkeleton({ phase }: Props) {
           <p className="text-sm text-white/42">{copy.loadingDesc}</p>
         </div>
 
-        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-4 sm:p-5">
+        <div className="rounded-2xl border border-white/[0.08] bg-[#060E24] p-4 sm:p-5">
           <div className="grid sm:grid-cols-3 gap-3">
             {copy.steps.map((step, index) => (
               <div key={step} className="rounded-xl border border-white/[0.06] bg-black/15 p-3 min-h-[84px]">
@@ -109,7 +109,7 @@ export function ReadingSkeleton({ phase }: Props) {
         </div>
 
         <div className="grid md:grid-cols-2 gap-4">
-          <div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-4 min-h-[150px]">
+          <div className="rounded-2xl border border-white/[0.07] bg-[#030918] p-4 min-h-[150px]">
             <div className="flex items-center gap-2 mb-4 text-white/52 text-sm">
               <BarChart3 size={15} />
               <span>{locale === "zh" ? "维度摘要" : "Dimension summary"}</span>
@@ -129,7 +129,7 @@ export function ReadingSkeleton({ phase }: Props) {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-4 min-h-[150px]">
+          <div className="rounded-2xl border border-white/[0.07] bg-[#030918] p-4 min-h-[150px]">
             <div className="h-4 w-32 rounded bg-white/[0.08] mb-4" />
             <div className="space-y-2">
               <div className="h-3 w-full rounded bg-white/[0.08] shimmer-skeleton" />

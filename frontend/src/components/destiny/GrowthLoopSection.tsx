@@ -62,7 +62,7 @@ export default function GrowthLoopSection() {
               {copy.steps.map((step) => {
                 const Icon = step.icon
                 return (
-                  <div key={step.title} className="rounded-xl border border-white/[0.07] bg-white/[0.025] p-4">
+                  <div key={step.title} className="rounded-xl border border-white/[0.07] bg-[#030918] p-4">
                     <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg border border-gold/20 bg-gold/[0.07]">
                       <Icon size={18} className="text-gold/75" />
                     </div>

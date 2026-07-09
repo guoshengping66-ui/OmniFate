@@ -91,7 +91,7 @@ export default function TarotSEOPage() {
             <h2 className="font-serif text-2xl text-gold mb-6">{t("seo.tarot.spreadsTitle")}</h2>
             <div className="grid md:grid-cols-2 gap-4">
               {spreads.map((s) => (
-                <div key={s.name} className="flex items-center gap-4 p-4 bg-white/[0.03] rounded-xl border border-white/10">
+                <div key={s.name} className="flex items-center gap-4 p-4 bg-[#030918] rounded-xl border border-white/10">
                   <div className="w-12 h-12 rounded-full bg-gold/20 border border-gold/40 flex items-center justify-center text-gold font-bold text-lg">
                     {s.cards}
                   </div>

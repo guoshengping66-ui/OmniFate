@@ -26,7 +26,7 @@ export function FiveDimensionCommandCenter() {
         </div>
 
         <div className="grid gap-5 lg:grid-cols-[0.95fr_1.05fr]">
-          <div className="border border-white/[0.08] bg-white/[0.025] p-3">
+          <div className="border border-white/[0.08] bg-[#030918] p-3">
             <div className="grid gap-3 sm:grid-cols-2">
               {copy.dimensions.map((dimension) => (
                 <button

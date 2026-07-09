@@ -25,29 +25,17 @@ const NAMES_EN = [
 const FOUNDER_NAMES_ZH = ["创始人·天行", "创始人·星尘", "创始人·若水"]
 const FOUNDER_NAMES_EN = ["Founder·Tianxing", "Founder·Stardust", "Founder·Ruoshui"]
 
-function randomItem<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)]
-}
+let _sd = 42; function sRng() { _sd = (_sd * 16807 + 0) % 2147483647; return (_sd - 1) / 2147483646 }
+function randomItem<T>(arr: T[]): T { return arr[Math.floor(sRng() * arr.length)] }
 
 function generateMessage(isEn: boolean) {
-  const isFounder = Math.random() < 0.12
-  const names = isFounder
-    ? (isEn ? FOUNDER_NAMES_EN : FOUNDER_NAMES_ZH)
-    : (isEn ? NAMES_EN : NAMES_ZH)
-
-  return {
-    id: Math.random().toString(36).slice(2, 9),
-    name: randomItem(names),
-    isFounder,
-    activityKey: [
-      "live.activity1", "live.activity2", "live.activity3", "live.activity4", "live.activity5",
-      "live.activity6", "live.activity7", "live.activity8", "live.activity9", "live.activity10",
-    ][Math.floor(Math.random() * 10)] as string,
-  }
+  const isFounder = sRng() < 0.12
+  const names = isFounder ? (isEn ? FOUNDER_NAMES_EN : FOUNDER_NAMES_ZH) : (isEn ? NAMES_EN : NAMES_ZH)
+  return { id: Math.floor(sRng() * 1e9).toString(36), name: randomItem(names), isFounder, activityKey: ["live.activity1","live.activity2","live.activity3","live.activity4","live.activity5","live.activity6","live.activity7","live.activity8","live.activity9","live.activity10"][Math.floor(sRng()*10)] as string }
 }
 
 function AnimatedCounter({ target }: { target: number }) {
-  const [count, setCount] = useState(target - 8 + Math.floor(Math.random() * 16))
+  const [count, setCount] = useState(target - 8 + Math.floor(sRng() * 16))
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -117,7 +105,7 @@ export function LiveBar() {
         pointerEvents: visible ? "auto" : "none",
       }}
     >
-      <div className="relative overflow-hidden rounded-2xl bg-ink/80 backdrop-blur-xl border border-gold/20 shadow-[0_0_40px_rgba(201,168,76,0.08)]">
+      <div className="relative overflow-hidden rounded-2xl bg-ink/80  border border-gold/20 shadow-[0_0_40px_rgba(201,168,76,0.08)]">
         {/* Shimmer overlay */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div

@@ -89,7 +89,7 @@ export default function FiveElementsSEOPage() {
             <h2 className="font-serif text-2xl text-gold mb-6">{t("seo.fiveElements.cyclesTitle")}</h2>
             <div className="grid md:grid-cols-3 gap-4">
               {cycles.map((c) => (
-                <div key={c.name} className="text-center p-5 bg-white/[0.03] rounded-xl border border-white/10">
+                <div key={c.name} className="text-center p-5 bg-[#030918] rounded-xl border border-white/10">
                   <div className="text-3xl mb-3">{c.icon}</div>
                   <h3 className="text-white font-medium text-sm mb-1">{c.name}</h3>
                   <p className="text-white/40 text-xs">{c.desc}</p>

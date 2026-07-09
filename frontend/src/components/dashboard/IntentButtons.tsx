@@ -132,7 +132,7 @@ export function IntentButtons({ onGework }: Props) {
               key={entry.key}
               type="button"
               onClick={entry.action}
-              className="group relative min-h-[220px] overflow-hidden border border-white/[0.08] bg-[#08120f]/80 p-5 text-left transition-all duration-300 hover:-translate-y-1 hover:border-gold/30 hover:bg-white/[0.045]"
+              className="group relative min-h-[220px] overflow-hidden border border-white/[0.08] bg-[#08120f]/80 p-5 text-left transition-all duration-300 hover:-translate-y-1 hover:border-gold/30 hover:bg-[#060E24]"
             >
               <div
                 className="absolute inset-x-0 top-0 h-px opacity-70"

@@ -97,8 +97,6 @@ async def create_order(
     coupon_used = 0.0
 
     if req.use_coupon and user:
-        if region != "domestic":
-            raise HTTPException(status_code=400, detail="Coupons are only available for domestic CNY orders")
         balance = float(user.shop_coupon_balance or 0)
         if balance <= 0:
             raise HTTPException(status_code=400, detail="没有可用的代金券余额")
@@ -108,12 +106,14 @@ async def create_order(
         # the order exists and coupon is correctly deducted.
         user.shop_coupon_balance = float(balance) - coupon_used
 
+    is_premium = bool(getattr(user, "is_premium", False))
     order_no = f"ORD{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}{secrets.randbelow(90000) + 10000}"
     totals = quote_shop_totals(
         region=region,
         subtotal_cny=server_subtotal_cny,
         subtotal_usd=server_subtotal_usd,
         coupon_cny=coupon_used,
+        is_premium=is_premium,
     )
     total_cny = totals["total_cny"]
     total_usd = totals["total_usd"]

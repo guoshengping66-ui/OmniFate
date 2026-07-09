@@ -149,7 +149,8 @@ async def _check_lockout(email: str) -> None:
             if info.get("locked_until") and now >= info["locked_until"]:
                 _lockout_memory_store.pop(email, None)
 
-    # DB fallback — survives Redis/memory restarts
+    # DB fallback — survives Redis/memory restarts and cross-worker state
+    # Check DB FIRST as authoritative source, then fall back to in-memory
     try:
         from database.session import AsyncSessionLocal
         from sqlalchemy import select
@@ -160,7 +161,6 @@ async def _check_lockout(email: str) -> None:
             user = result.scalar_one_or_none()
             if user and user.locked_until:
                 now_utc = datetime.now(timezone.utc)
-                # Ensure aware comparison
                 _locked = user.locked_until
                 if _locked.tzinfo is None:
                     _locked = _locked.replace(tzinfo=timezone.utc)
@@ -168,7 +168,7 @@ async def _check_lockout(email: str) -> None:
                     remaining = int((_locked - now_utc).total_seconds())
                     raise HTTPException(
                         status_code=429,
-                        detail=f"登录尝试次数过多，请 {remaining} 秒后再试",
+                        detail="登录尝试次数过多，请稍后再试",
                     )
                 else:
                     # Lock expired — clear DB state
@@ -177,8 +177,9 @@ async def _check_lockout(email: str) -> None:
                     await db.commit()
     except HTTPException:
         raise
-    except Exception:
-        pass  # DB unavailable — rely on Redis/memory only
+    except Exception as e:
+        # DB unavailable — rely on Redis/memory only; but log warning
+        logger.warning("DB lockout check failed for %s, falling back to cache: %s", email, e)
 
 
 async def _record_failed_login(email: str) -> None:
@@ -288,8 +289,9 @@ def _validate_password_strength(password: str) -> None:
     errors = []
     if len(password) < 8:
         errors.append("至少 8 个字符")
-    if len(password) > 128:
-        errors.append("不能超过 128 个字符")
+    byte_len = len(password.encode("utf-8"))
+    if byte_len > 72:
+        errors.append("密码不能超过72字节（当前{}字节）".format(byte_len))
     if not re.search(r"[a-z]", password):
         errors.append("至少包含一个小写字母")
     if not re.search(r"[A-Z]", password):

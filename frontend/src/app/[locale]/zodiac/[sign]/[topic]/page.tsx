@@ -37,10 +37,26 @@ export async function generateMetadata({ params }: PageProps) {
     study: { en: "Study & Learning", zh: "学习与成长" },
   }
   const label = topicLabels[topic]
+  const topicDesc = isZh
+    ? `${data.name_zh}${label.zh}的AI分析 — 深度解读星座${label.zh}的配对、建议与趋势`
+    : `AI analysis of ${data.name_en} ${label.en} — in-depth compatibility, advice and trends for this zodiac sign topic`
 
   return {
-    title: isZh ? `${data.name_zh}${label.zh}` : `${data.name_en} ${label.en}`,
-    description: isZh ? data.meta_description_zh : data.meta_description_en,
+    title: isZh ? `${data.name_zh}${label.zh} — 星座AI专题分析` : `${data.name_en} ${label.en} — AI Zodiac Topic Analysis`,
+    description: topicDesc,
+    keywords: isZh ? [...data.keywords_zh, label.zh] : [...data.keywords_en, label.en],
+    openGraph: {
+      title: isZh ? `${data.name_zh}${label.zh} | 观我 Fate OS` : `${data.name_en} ${label.en} | Guanwo Fate OS`,
+      description: topicDesc,
+      url: `https://www.khanfate.com/${locale}/zodiac/${sign}/${topic}`,
+      siteName: isZh ? "观我 Fate OS" : "Guanwo Fate OS",
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: isZh ? `${data.name_zh}${label.zh} | 观我` : `${data.name_en} ${label.en} | Guanwo`,
+      description: topicDesc,
+    },
     alternates: {
       canonical: `https://www.khanfate.com/${locale}/zodiac/${sign}/${topic}`,
       languages: {
@@ -118,6 +134,8 @@ export default async function ZodiacTopicPage({ params }: PageProps) {
             "@type": "Article",
             "headline": isZh ? tc.title_zh : tc.title_en,
             "description": isZh ? data.meta_description_zh : data.meta_description_en,
+            "author": { "@type": "Organization", "name": "Guanwo Fate OS" },
+            "publisher": { "@type": "Organization", "name": "Guanwo Fate OS", "logo": { "@type": "ImageObject", "url": "/logo.png" } },
             "url": `https://www.khanfate.com/${locale}/zodiac/${sign}/${topic}`,
           })}}
         />

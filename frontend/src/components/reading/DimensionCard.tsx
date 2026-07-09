@@ -19,7 +19,7 @@ export function DimensionCard({ title, icon, score, color, children }: Dimension
   const badge = getScoreBadge(score)
 
   return (
-    <div className="rounded-xl border border-white/[0.08] bg-white/[0.03] overflow-hidden transition-all duration-300 hover:border-white/[0.12]">
+    <div className="rounded-xl border border-white/[0.08] bg-[#030918] overflow-hidden transition-all duration-300 hover:border-white/[0.12]">
       {/* Header */}
       <button
         onClick={() => setExpanded(!expanded)}

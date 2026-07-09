@@ -49,6 +49,8 @@ export function TarotCardTemplate({ data, locale }: TarotCardTemplateProps) {
             "@type": "Article",
             "headline": content.title,
             "description": isZh ? data.meta_description_zh : data.meta_description_en,
+            "author": { "@type": "Organization", "name": "Guanwo Fate OS" },
+            "publisher": { "@type": "Organization", "name": "Guanwo Fate OS", "logo": { "@type": "ImageObject", "url": "/logo.png" } },
             "url": `https://www.khanfate.com/${locale}/tarot/cards/${data.id}`,
           })}}
         />
@@ -118,7 +120,7 @@ export function TarotCardTemplate({ data, locale }: TarotCardTemplateProps) {
                   <Link
                     key={card.id}
                     href={localeHref(`/tarot/cards/${card.id}`)}
-                    className="flex items-center gap-3 p-3 bg-white/[0.03] rounded-xl border border-white/10 hover:border-gold/30 transition-all"
+                    className="flex items-center gap-3 p-3 bg-[#030918] rounded-xl border border-white/10 hover:border-gold/30 transition-all"
                   >
                     <span className="text-2xl">{card.emoji}</span>
                     <span className="text-white/70 text-sm">{isZh ? card.name_zh : card.name_en}</span>

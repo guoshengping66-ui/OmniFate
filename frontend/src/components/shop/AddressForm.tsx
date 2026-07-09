@@ -10,6 +10,38 @@ import {
 } from "@/lib/api"
 import { CHINA_REGIONS } from "@/data/china-regions"
 
+const CHINA_KEY = "CN"
+
+const COUNTRIES: { code: string; label: string }[] = [
+  { code: "CN", label: "China / 中国" },
+  { code: "US", label: "United States" },
+  { code: "CA", label: "Canada" },
+  { code: "GB", label: "United Kingdom" },
+  { code: "AU", label: "Australia" },
+  { code: "DE", label: "Germany" },
+  { code: "FR", label: "France" },
+  { code: "JP", label: "Japan" },
+  { code: "KR", label: "South Korea" },
+  { code: "SG", label: "Singapore" },
+  { code: "MY", label: "Malaysia" },
+  { code: "TH", label: "Thailand" },
+  { code: "ID", label: "Indonesia" },
+  { code: "PH", label: "Philippines" },
+  { code: "VN", label: "Vietnam" },
+  { code: "IN", label: "India" },
+  { code: "BR", label: "Brazil" },
+  { code: "MX", label: "Mexico" },
+  { code: "IT", label: "Italy" },
+  { code: "ES", label: "Spain" },
+  { code: "NL", label: "Netherlands" },
+  { code: "CH", label: "Switzerland" },
+  { code: "SE", label: "Sweden" },
+  { code: "NZ", label: "New Zealand" },
+  { code: "OTHER", label: "Other" },
+]
+
+function isChinaCountry(code: string) { return code === CHINA_KEY }
+
 interface AddressFormProps {
   onSelect?: (address: Address) => void
   selectedId?: string | null
@@ -24,14 +56,12 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
 
-  const CHINA_LABEL = locale === "zh" ? "中国" : "China"
-  const OTHER_LABEL = locale === "zh" ? "其他" : "Other"
-
   // Form state
-  const [country, setCountry] = useState(CHINA_LABEL)
+  const [countryCode, setCountryCode] = useState(CHINA_KEY)
   const [province, setProvince] = useState("")
   const [city, setCity] = useState("")
   const [district, setDistrict] = useState("")
+  const [state, setState] = useState("")
   const [recipientName, setRecipientName] = useState("")
   const [phone, setPhone] = useState("")
   const [addressLine1, setAddressLine1] = useState("")
@@ -39,7 +69,7 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
   const [postalCode, setPostalCode] = useState("")
   const [isDefault, setIsDefault] = useState(false)
 
-  const isChina = country === CHINA_LABEL
+  const isChina = isChinaCountry(countryCode)
 
   // Cascading selectors for China
   const provinces = CHINA_REGIONS.map(p => p.name)
@@ -51,14 +81,11 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
         .find(c => c.name === city)?.children || []
     : []
 
-  // Only load addresses AFTER auth is confirmed (user is set and not loading).
-  // Prevents 401 cascade → AuthContext setUser(null) → re-render storm → removeChild crash.
   useEffect(() => {
     if (authLoading || !user) return
     loadAddresses()
   }, [user, authLoading])
 
-  // Reset city/district when province changes
   useEffect(() => { setCity(""); setDistrict("") }, [province])
   useEffect(() => { setDistrict("") }, [city])
 
@@ -73,18 +100,25 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
     }
   }
 
+  function countryCodeFromStored(addr: Address): string {
+    if (addr.country === "中国" || addr.country === "China" || addr.country === "CN") return CHINA_KEY
+    const match = COUNTRIES.find(c => c.label === addr.country || c.code === addr.country)
+    return match?.code ?? "OTHER"
+  }
+
   function resetForm() {
-    setCountry(CHINA_LABEL); setProvince(""); setCity(""); setDistrict("")
-    setRecipientName(""); setPhone(""); setAddressLine1(""); setAddressLine2("")
+    setCountryCode(CHINA_KEY); setProvince(""); setCity(""); setDistrict("")
+    setState(""); setRecipientName(""); setPhone(""); setAddressLine1(""); setAddressLine2("")
     setPostalCode(""); setIsDefault(false); setEditingId(null)
   }
 
   function startEdit(addr: Address) {
     setEditingId(addr.id)
-    setCountry(addr.country)
+    setCountryCode(countryCodeFromStored(addr))
     setProvince(addr.province || "")
-    setCity(addr.city || "")
+    setCity(isChinaCountry(countryCodeFromStored(addr)) ? (addr.city || "") : "")
     setDistrict(addr.district || "")
+    setState(isChinaCountry(countryCodeFromStored(addr)) ? "" : (addr.city || ""))
     setRecipientName(addr.recipient_name)
     setPhone(addr.phone)
     setAddressLine1(addr.address_line1)
@@ -103,13 +137,19 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
       toast.error(t("address.fillRegion"))
       return
     }
+    if (!isChina && (!state || !postalCode.trim())) {
+      toast.error(t("address.fillRegion"))
+      return
+    }
+
+    const countryLabel = COUNTRIES.find(c => c.code === countryCode)?.label ?? countryCode
 
     const data: AddressFormData = {
       recipient_name: recipientName.trim(),
       phone: phone.trim(),
-      country,
-      province: isChina ? province : null,
-      city: isChina ? city : null,
+      country: countryCode,
+      province: isChina ? province : state,
+      city: isChina ? city : state,
       district: isChina ? district : null,
       address_line1: addressLine1.trim(),
       address_line2: addressLine2.trim() || null,
@@ -155,6 +195,17 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
     }
   }
 
+  function formatAddress(addr: Address): string {
+    const isCn = addr.country === CHINA_KEY || addr.country === "中国" || addr.country === "China"
+    if (isCn) {
+      return [addr.province, addr.city, addr.district, addr.address_line1, addr.address_line2, addr.postal_code]
+        .filter(Boolean).join(" ")
+    }
+    const countryName = COUNTRIES.find(c => c.code === addr.country)?.label ?? addr.country
+    return [addr.address_line1, addr.address_line2, addr.province || addr.city, countryName, addr.postal_code]
+      .filter(Boolean).join(", ")
+  }
+
   if (loading) {
     return (
       <div className="space-y-3">
@@ -166,7 +217,6 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
 
   return (
     <div className="space-y-3">
-      {/* Address list */}
       {addresses.length > 0 && !showForm && (
         <div className="space-y-2">
           {addresses.map(addr => (
@@ -190,39 +240,22 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
                       </span>
                     )}
                   </div>
-                  <p className="text-white/50 text-xs truncate">
-                    {(addr.country === "中国" || addr.country === "China")
-                      ? `${addr.province} ${addr.city} ${addr.district} ${addr.address_line1}`
-                      : `${addr.country} ${addr.address_line1}`
-                    }
-                  </p>
+                  <p className="text-white/50 text-xs truncate">{formatAddress(addr)}</p>
                 </div>
                 <div className="flex items-center gap-1 ml-2" onClick={e => e.stopPropagation()}>
-                  {selectedId === addr.id && (
-                    <Check size={16} className="text-gold" />
-                  )}
+                  {selectedId === addr.id && <Check size={16} className="text-gold" />}
                 </div>
               </div>
-              {/* Actions */}
               <div className="flex items-center gap-3 mt-2 pt-2 border-t border-white/5" onClick={e => e.stopPropagation()}>
                 {!addr.is_default && (
-                  <button
-                    onClick={() => handleSetDefault(addr.id)}
-                    className="text-[10px] text-white/30 hover:text-gold transition-colors"
-                  >
+                  <button onClick={() => handleSetDefault(addr.id)} className="text-[10px] text-white/30 hover:text-gold transition-colors">
                     {t("address.setDefault")}
                   </button>
                 )}
-                <button
-                  onClick={() => startEdit(addr)}
-                  className="text-[10px] text-white/30 hover:text-gold transition-colors"
-                >
+                <button onClick={() => startEdit(addr)} className="text-[10px] text-white/30 hover:text-gold transition-colors">
                   {t("common.edit")}
                 </button>
-                <button
-                  onClick={() => handleDelete(addr.id)}
-                  className="text-[10px] text-white/30 hover:text-red-400 transition-colors"
-                >
+                <button onClick={() => handleDelete(addr.id)} className="text-[10px] text-white/30 hover:text-red-400 transition-colors">
                   {t("common.delete")}
                 </button>
               </div>
@@ -231,7 +264,6 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
         </div>
       )}
 
-      {/* Add button or form */}
       {!showForm ? (
         <button
           onClick={() => { resetForm(); setShowForm(true) }}
@@ -255,21 +287,13 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
           <div>
             <label className="text-white/40 text-[10px] mb-1 block">{t("address.country")}</label>
             <select
-              value={country}
-              onChange={e => setCountry(e.target.value)}
+              value={countryCode}
+              onChange={e => { setCountryCode(e.target.value); setProvince(""); setCity(""); setDistrict(""); setState("") }}
               className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white/80 focus:border-gold/30 focus:outline-none"
             >
-              <option value="中国" className="bg-[#0f0f1a] text-white">{CHINA_LABEL}</option>
-              <option value="US" className="bg-[#0f0f1a] text-white">United States</option>
-              <option value="CA" className="bg-[#0f0f1a] text-white">Canada</option>
-              <option value="GB" className="bg-[#0f0f1a] text-white">United Kingdom</option>
-              <option value="AU" className="bg-[#0f0f1a] text-white">Australia</option>
-              <option value="JP" className="bg-[#0f0f1a] text-white">Japan</option>
-              <option value="KR" className="bg-[#0f0f1a] text-white">South Korea</option>
-              <option value="SG" className="bg-[#0f0f1a] text-white">Singapore</option>
-              <option value="MY" className="bg-[#0f0f1a] text-white">Malaysia</option>
-              <option value="TH" className="bg-[#0f0f1a] text-white">Thailand</option>
-              <option value="OTHER" className="bg-[#0f0f1a] text-white">{OTHER_LABEL}</option>
+              {COUNTRIES.map(c => (
+                <option key={c.code} value={c.code} className="bg-[#0f0f1a] text-white">{c.label}</option>
+              ))}
             </select>
           </div>
 
@@ -278,38 +302,45 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
             <div className="grid grid-cols-3 gap-2">
               <div>
                 <label className="text-white/40 text-[10px] mb-1 block">{t("address.province")}</label>
-                <select
-                  value={province}
-                  onChange={e => setProvince(e.target.value)}
-                  className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-2 py-2 text-xs text-white/80 focus:border-gold/30 focus:outline-none"
-                >
+                <select value={province} onChange={e => setProvince(e.target.value)}
+                  className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-2 py-2 text-xs text-white/80 focus:border-gold/30 focus:outline-none">
                   <option value="" className="bg-[#0f0f1a] text-white">{t("address.select")}</option>
                   {provinces.map(p => <option key={p} value={p} className="bg-[#0f0f1a] text-white">{p}</option>)}
                 </select>
               </div>
               <div>
                 <label className="text-white/40 text-[10px] mb-1 block">{t("address.city")}</label>
-                <select
-                  value={city}
-                  onChange={e => setCity(e.target.value)}
-                  disabled={!province}
-                  className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-2 py-2 text-xs text-white/80 focus:border-gold/30 focus:outline-none disabled:opacity-30"
-                >
+                <select value={city} onChange={e => setCity(e.target.value)} disabled={!province}
+                  className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-2 py-2 text-xs text-white/80 focus:border-gold/30 focus:outline-none disabled:opacity-30">
                   <option value="" className="bg-[#0f0f1a] text-white">{t("address.select")}</option>
                   {cities.map(c => <option key={c} value={c} className="bg-[#0f0f1a] text-white">{c}</option>)}
                 </select>
               </div>
               <div>
                 <label className="text-white/40 text-[10px] mb-1 block">{t("address.district")}</label>
-                <select
-                  value={district}
-                  onChange={e => setDistrict(e.target.value)}
-                  disabled={!city}
-                  className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-2 py-2 text-xs text-white/80 focus:border-gold/30 focus:outline-none disabled:opacity-30"
-                >
+                <select value={district} onChange={e => setDistrict(e.target.value)} disabled={!city}
+                  className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-2 py-2 text-xs text-white/80 focus:border-gold/30 focus:outline-none disabled:opacity-30">
                   <option value="" className="bg-[#0f0f1a] text-white">{t("address.select")}</option>
                   {districts.map(d => <option key={d.name} value={d.name} className="bg-[#0f0f1a] text-white">{d.name}</option>)}
                 </select>
+              </div>
+            </div>
+          )}
+
+          {/* Overseas: State + City text inputs */}
+          {!isChina && (
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-white/40 text-[10px] mb-1 block">{t("address.state")}</label>
+                <input value={state} onChange={e => setState(e.target.value)}
+                  className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white/80 placeholder-white/20 focus:border-gold/30 focus:outline-none"
+                  placeholder="California" />
+              </div>
+              <div>
+                <label className="text-white/40 text-[10px] mb-1 block">{t("address.city")}</label>
+                <input value={city} onChange={e => setCity(e.target.value)}
+                  className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white/80 placeholder-white/20 focus:border-gold/30 focus:outline-none"
+                  placeholder="Los Angeles" />
               </div>
             </div>
           )}
@@ -318,79 +349,56 @@ export function AddressForm({ onSelect, selectedId }: AddressFormProps) {
           <div className="grid grid-cols-2 gap-2">
             <div>
               <label className="text-white/40 text-[10px] mb-1 block">{t("address.name")}</label>
-              <input
-                value={recipientName}
-                onChange={e => setRecipientName(e.target.value)}
+              <input value={recipientName} onChange={e => setRecipientName(e.target.value)}
                 className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white/80 placeholder-white/20 focus:border-gold/30 focus:outline-none"
-                placeholder={t("address.namePlaceholder")}
-              />
+                placeholder={t("address.namePlaceholder")} />
             </div>
             <div>
               <label className="text-white/40 text-[10px] mb-1 block">{t("address.phone")}</label>
-              <input
-                value={phone}
-                onChange={e => setPhone(e.target.value)}
+              <input value={phone} onChange={e => setPhone(e.target.value)}
                 className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white/80 placeholder-white/20 focus:border-gold/30 focus:outline-none"
-                placeholder={t("address.phonePlaceholder")}
-              />
+                placeholder={t("address.phonePlaceholder")} />
             </div>
           </div>
 
           {/* Address line 1 */}
           <div>
             <label className="text-white/40 text-[10px] mb-1 block">{t("address.detail")}</label>
-            <input
-              value={addressLine1}
-              onChange={e => setAddressLine1(e.target.value)}
+            <input value={addressLine1} onChange={e => setAddressLine1(e.target.value)}
               className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white/80 placeholder-white/20 focus:border-gold/30 focus:outline-none"
-              placeholder={t("address.detailPlaceholder")}
-            />
+              placeholder={t("address.detailPlaceholder")} />
           </div>
 
           {/* Address line 2 + Postal code */}
           <div className="grid grid-cols-3 gap-2">
             <div className="col-span-2">
               <label className="text-white/40 text-[10px] mb-1 block">{t("address.detail2")}</label>
-              <input
-                value={addressLine2}
-                onChange={e => setAddressLine2(e.target.value)}
+              <input value={addressLine2} onChange={e => setAddressLine2(e.target.value)}
                 className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white/80 placeholder-white/20 focus:border-gold/30 focus:outline-none"
-                placeholder={t("address.detail2Placeholder")}
-              />
+                placeholder={t("address.detail2Placeholder")} />
             </div>
             <div>
               <label className="text-white/40 text-[10px] mb-1 block">{t("address.postalCode")}</label>
-              <input
-                value={postalCode}
-                onChange={e => setPostalCode(e.target.value)}
+              <input value={postalCode} onChange={e => setPostalCode(e.target.value)}
                 className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white/80 placeholder-white/20 focus:border-gold/30 focus:outline-none"
-                placeholder="100000"
-              />
+                placeholder="90210" />
             </div>
           </div>
 
           {/* Default checkbox */}
           <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={isDefault}
-              onChange={e => setIsDefault(e.target.checked)}
-              className="accent-gold w-3.5 h-3.5"
-            />
+            <input type="checkbox" checked={isDefault} onChange={e => setIsDefault(e.target.checked)}
+              className="accent-gold w-3.5 h-3.5" />
             <span className="text-white/50 text-xs">{t("address.setDefault")}</span>
           </label>
 
           {/* Save button */}
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="btn-gold w-full py-2.5 flex items-center justify-center gap-2 text-sm"
-          >
-            {saving ? (
-              <><Loader2 size={14} className="animate-spin" /> {t("common.loading")}</>
-            ) : (
-              <><Check size={14} /> {t("common.save")}</>
-            )}
+          <button onClick={handleSave} disabled={saving}
+            className="btn-gold w-full py-2.5 flex items-center justify-center gap-2 text-sm">
+            {saving
+              ? <><Loader2 size={14} className="animate-spin" /> {t("common.loading")}</>
+              : <><Check size={14} /> {t("common.save")}</>
+            }
           </button>
         </div>
       )}

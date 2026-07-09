@@ -22,21 +22,21 @@ export function DecisionReport({ data }: DecisionReportProps) {
   const isEn = locale === "en" || data.language === "en"
   const executive = data.executive_summary
   const copy = isEn ? {
-    opportunity: "Biggest opportunity",
-    risk: "Biggest risk",
-    nextAction: "Next best action",
-    evidence: "Evidence chain",
-    dimensions: "Five-dimension diagnosis",
-    timeline: "Timeline",
-    actionPlan: "Action plan",
-    avoidList: "Avoid list",
+    opportunity: "Key Opportunity",
+    risk: "What to Watch",
+    nextAction: "Next Best Action",
+    evidence: "Evidence Chain",
+    dimensions: "Five-Dimension Diagnosis",
+    timeline: "Key Timing",
+    actionPlan: "Action Plan",
+    avoidList: "Avoid List",
   } : {
-    opportunity: "最大机会",
+    opportunity: "最需关注",
     risk: "最大风险",
     nextAction: "下一步行动",
     evidence: "证据链",
     dimensions: "五维深度诊断",
-    timeline: "时间线",
+    timeline: "关键时机",
     actionPlan: "行动方案",
     avoidList: "避坑清单",
   }
@@ -49,7 +49,7 @@ export function DecisionReport({ data }: DecisionReportProps) {
           { icon: AlertTriangle, title: copy.risk, body: executive.risk, tone: "rose" },
           { icon: Target, title: copy.nextAction, body: executive.next_best_action, tone: "cyan" },
         ].map((item) => (
-          <div key={item.title} className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-4">
+          <div key={item.title} className="rounded-2xl border border-white/[0.06] bg-[#030918] p-4">
             <div className="flex items-center gap-2 mb-2">
               <item.icon size={15} className={item.tone === "rose" ? "text-rose-200/70" : item.tone === "cyan" ? "text-cyan-200/70" : "text-gold/70"} />
               <p className="text-xs font-medium text-gold/70">{item.title}</p>
@@ -59,7 +59,7 @@ export function DecisionReport({ data }: DecisionReportProps) {
         ))}
       </div>
 
-      <section className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-4">
+      <section className="rounded-2xl border border-white/[0.06] bg-[#030918] p-4">
         <div className="flex items-center gap-2 mb-3">
           <ShieldCheck size={16} className="text-gold/70" />
           <h3 className="text-sm font-semibold text-white/75">{copy.evidence}</h3>
@@ -83,7 +83,7 @@ export function DecisionReport({ data }: DecisionReportProps) {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-4">
+      <section className="rounded-2xl border border-white/[0.06] bg-[#030918] p-4">
         <div className="flex items-center gap-2 mb-3">
           <Compass size={16} className="text-gold/70" />
           <h3 className="text-sm font-semibold text-white/75">{copy.dimensions}</h3>
@@ -105,7 +105,7 @@ export function DecisionReport({ data }: DecisionReportProps) {
       </section>
 
       <div className="grid md:grid-cols-2 gap-4">
-        <section className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-4">
+        <section className="rounded-2xl border border-white/[0.06] bg-[#030918] p-4">
           <div className="flex items-center gap-2 mb-3">
             <Clock size={16} className="text-gold/70" />
             <h3 className="text-sm font-semibold text-white/75">{copy.timeline}</h3>
@@ -120,14 +120,14 @@ export function DecisionReport({ data }: DecisionReportProps) {
           </div>
         </section>
 
-        <section className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-4">
+        <section className="rounded-2xl border border-white/[0.06] bg-[#030918] p-4">
           <div className="flex items-center gap-2 mb-3">
             <CheckCircle size={16} className="text-gold/70" />
             <h3 className="text-sm font-semibold text-white/75">{copy.actionPlan}</h3>
           </div>
           <div className="space-y-2.5">
             {data.action_plan.map((item) => (
-              <div key={item.period} className="rounded-xl bg-white/[0.025] border border-white/[0.04] p-3">
+              <div key={item.period} className="rounded-xl bg-[#030918] border border-white/[0.04] p-3">
                 <p className="text-xs text-gold/65 font-medium">{item.period}</p>
                 <p className="text-white/55 text-xs leading-relaxed mt-1">{item.action}</p>
               </div>

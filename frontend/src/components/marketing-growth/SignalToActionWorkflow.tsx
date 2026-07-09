@@ -25,7 +25,7 @@ export function SignalToActionWorkflow() {
 
         <div className="grid gap-4 lg:grid-cols-3">
           {copy.workflow.map((step, index) => (
-            <div key={step.title} className="relative border border-white/[0.08] bg-white/[0.025] p-6">
+            <div key={step.title} className="relative border border-white/[0.08] bg-[#030918] p-6">
               <div className="mb-5 flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-[0.2em] text-gold/65">0{index + 1}</span>
                 {index < copy.workflow.length - 1 && <ArrowRight className="hidden text-white/25 lg:block" size={18} />}

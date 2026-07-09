@@ -95,7 +95,7 @@ export function FortunePrescription({ products, weakestLabel, strongestLabel }: 
         </div>
 
         {/* Diagnosis strip */}
-        <div className="flex items-center gap-2 mb-5 px-4 py-2.5 bg-white/[0.03] rounded-xl border border-white/[0.06]">
+        <div className="flex items-center gap-2 mb-5 px-4 py-2.5 bg-[#030918] rounded-xl border border-white/[0.06]">
           <TrendingUp size={14} className="text-gold/60 flex-shrink-0" />
           <p className="text-white/50 text-xs leading-relaxed">
             {weakestLabel && (

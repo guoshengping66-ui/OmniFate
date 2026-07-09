@@ -153,12 +153,12 @@ export default async function BaziCompatibilityPage({ params }: PageProps) {
               {getRelationDesc(dataA.element, dataB.element, score)}
             </p>
             <div className="grid grid-cols-2 gap-4 mt-6">
-              <div className="p-4 bg-white/[0.03] rounded-xl border border-white/10 text-center">
+              <div className="p-4 bg-[#030918] rounded-xl border border-white/10 text-center">
                 <div className="text-2xl mb-1">{dataA.emoji}</div>
                 <div className="text-white/70 text-sm">{isZh ? dataA.name_zh : dataA.name_en}</div>
                 <div className="text-gold/60 text-xs">{ELEMENT_DESC[dataA.element][isZh ? "zh" : "en"]}</div>
               </div>
-              <div className="p-4 bg-white/[0.03] rounded-xl border border-white/10 text-center">
+              <div className="p-4 bg-[#030918] rounded-xl border border-white/10 text-center">
                 <div className="text-2xl mb-1">{dataB.emoji}</div>
                 <div className="text-white/70 text-sm">{isZh ? dataB.name_zh : dataB.name_en}</div>
                 <div className="text-gold/60 text-xs">{ELEMENT_DESC[dataB.element][isZh ? "zh" : "en"]}</div>

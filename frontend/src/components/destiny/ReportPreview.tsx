@@ -3,23 +3,24 @@ import { useRef, useState, useEffect } from "react"
 import Link from "next/link"
 import { useLanguage } from "@/contexts/LanguageContext"
 
-// ── Five real dimensions from 五维合参 (randomized per page load to avoid implying fixed scores) ──
+// ── Five real dimensions from 五维合参 (deterministic seeded values) ──
+function seeded(n: number) { let s = n; return () => { s = (s * 16807 + 0) % 2147483647; return (s - 1) / 2147483646 } }
+const rnd1 = seeded(191), rnd2 = seeded(193)
 const DIMENSIONS = [
-  { key: "wealth",  color: "#C5A880", value: 75 + Math.floor(Math.random() * 20) },
-  { key: "career",  color: "#C1121F", value: 70 + Math.floor(Math.random() * 20) },
-  { key: "health",  color: "#2D6A4F", value: 78 + Math.floor(Math.random() * 18) },
-  { key: "relationship", color: "#9B59B6", value: 68 + Math.floor(Math.random() * 22) },
-  { key: "spiritual", color: "#5B9BD5", value: 72 + Math.floor(Math.random() * 20) },
+  { key: "wealth",  color: "#C5A880", value: 75 + Math.floor(rnd1() * 20) },
+  { key: "career",  color: "#C1121F", value: 70 + Math.floor(rnd1() * 20) },
+  { key: "health",  color: "#2D6A4F", value: 78 + Math.floor(rnd1() * 18) },
+  { key: "relationship", color: "#9B59B6", value: 68 + Math.floor(rnd1() * 22) },
+  { key: "spiritual", color: "#5B9BD5", value: 72 + Math.floor(rnd1() * 20) },
 ]
-
 const DEMO_TYPES = [
   { zh: "格物派逆天执行狂魔", en: "Analytical Pattern-Defying Executor" },
   { zh: "全栈型行为维工程师", en: "Full-Stack Behavioral Engineer" },
   { zh: "凌晨三点与天对线狂人", en: "3AM Destiny-Challenging Maverick" },
   { zh: "红尘蹦迪的优化队长", en: "Cosmic Optimization Captain" },
 ]
-const DEMO_TYPE = DEMO_TYPES[Math.floor(Math.random() * DEMO_TYPES.length)]
-const DEMO_SCORE = 72 + Math.floor(Math.random() * 24)
+const DEMO_TYPE = DEMO_TYPES[Math.floor(rnd2() * DEMO_TYPES.length)]
+const DEMO_SCORE = 72 + Math.floor(rnd2() * 24)
 
 function CircularProgress({ value, max = 100, color, size = 72 }: { value: number; max?: number; color: string; size?: number }) {
   const [progress, setProgress] = useState(0)

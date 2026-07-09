@@ -120,7 +120,7 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
         {!hasMatch && needTags.length > 0 && (
           <div className="mb-3 flex flex-wrap gap-1">
             {needTags.map(tag => (
-              <span key={tag} className="rounded-full bg-white/[0.03] px-1.5 py-0.5 text-[10px] text-white/30">
+              <span key={tag} className="rounded-full bg-[#030918] px-1.5 py-0.5 text-[10px] text-white/30">
                 {tag}
               </span>
             ))}

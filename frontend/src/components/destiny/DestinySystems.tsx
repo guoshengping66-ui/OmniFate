@@ -91,7 +91,7 @@ export default function DestinySystems() {
                 key={system.id}
                 className="flex-shrink-0 w-[280px] sm:w-[320px] snap-center group"
               >
-                <div className={`relative h-full p-6 sm:p-8 rounded-3xl bg-gradient-to-br ${system.gradient} border border-[#C5A880]/10 backdrop-blur-sm transition-all duration-500 hover:border-[#C5A880]/30 hover:shadow-[0_0_40px_rgba(197,168,128,0.1)] hover:-translate-y-2`}>
+                <div className={`relative h-full p-6 sm:p-8 rounded-3xl bg-gradient-to-br ${system.gradient} border border-[#C5A880]/10  transition-all duration-500 hover:border-[#C5A880]/30 hover:shadow-[0_0_40px_rgba(197,168,128,0.1)] hover:-translate-y-2`}>
                   {/* Icon */}
                   <div className="w-14 h-14 rounded-2xl bg-[#C5A880]/10 border border-[#C5A880]/20 flex items-center justify-center mb-6 group-hover:bg-[#C5A880]/20 transition-colors duration-500">
                     <span className="text-2xl text-[#C5A880]">{system.icon}</span>

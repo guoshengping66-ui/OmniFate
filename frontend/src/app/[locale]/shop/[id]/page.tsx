@@ -201,7 +201,7 @@ export default function ProductDetailPage() {
                 </div>
               )}
 
-              <div className="mb-6 rounded-2xl border border-white/[0.07] bg-white/[0.025] p-4 text-left">
+              <div className="mb-6 rounded-2xl border border-white/[0.07] bg-[#030918] p-4 text-left">
                 <div className="mb-2 flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-gold/55">
                   <Sparkles size={13} />
                   {isZh ? "AI \u753b\u50cf\u5339\u914d" : "AI Profile Match"}
@@ -337,7 +337,7 @@ export default function ProductDetailPage() {
             {product.keyword_tags && product.keyword_tags.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mt-3">
                 {(locale === "en" ? (product.keyword_tags_en || product.keyword_tags) : product.keyword_tags).map(tag => (
-                  <span key={tag} className="text-xs px-2 py-1 bg-white/[0.03] border border-white/[0.06] rounded-full text-white/35">
+                  <span key={tag} className="text-xs px-2 py-1 bg-[#030918] border border-white/[0.06] rounded-full text-white/35">
                     {tag}
                   </span>
                 ))}
@@ -387,7 +387,7 @@ export default function ProductDetailPage() {
                   ["Use", "Best paired with real action, reflection, and a sustainable routine."],
                 ]
             ).map(([title, body]) => (
-              <div key={title} className="rounded-xl border border-white/[0.06] bg-white/[0.025] p-3">
+              <div key={title} className="rounded-xl border border-white/[0.06] bg-[#030918] p-3">
                 <p className="mb-1 text-xs font-medium text-gold/65">{title}</p>
                 <p className="text-xs leading-relaxed text-white/36">{body}</p>
               </div>
@@ -402,7 +402,7 @@ export default function ProductDetailPage() {
       </div>
 
       {/* ═══ Sticky bottom CTA bar (mobile) ═══ */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-ink/95 backdrop-blur-xl border-t border-white/[0.08] px-4 py-3" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom, 0.75rem))" }}>
+      <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-ink/95  border-t border-white/[0.08] px-4 py-3" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom, 0.75rem))" }}>
         <div className="max-w-4xl mx-auto flex items-center gap-3">
           <div className="flex-1 min-w-0">
             <p className="text-gold font-bold text-lg truncate">{getProductPrice(product, region).symbol}{getProductPrice(product, region).price}</p>

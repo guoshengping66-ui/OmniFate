@@ -11,7 +11,7 @@ import { ProductCard } from "@/components/reading/ProductCard"
 
 const AIRecommendHero = lazy(() => import("@/components/shop/AIRecommendHero").then(m => ({ default: m.AIRecommendHero })))
 
-const SERIES_KEYS = ["crystal", "jewelry", "incense", "talisman", "book", "service"] as const
+const SERIES_KEYS = ["crystal", "jewelry", "incense", "talisman"] as const
 
 function ProductCardSkeleton() {
   return (
@@ -72,15 +72,15 @@ function ShopContent() {
 
       const explicitTags = sessionTags.split(",").map(s => s.trim()).filter(Boolean)
 
+      // Phase 1: Show all products immediately
       try {
         const all = await listProducts(undefined, locale)
-        if (!cancelled) setAllProducts(all)
+        if (!cancelled) { setAllProducts(all); setLoading(false) }
       } catch {
-        if (!cancelled) setAllProducts([])
-      } finally {
-        if (!cancelled) setLoading(false)
+        if (!cancelled) { setAllProducts([]); setLoading(false) }
       }
 
+      // Phase 2: Get user tags for matching (non-blocking)
       let weaknessTags = explicitTags
       if (weaknessTags.length === 0) {
         try {
@@ -96,17 +96,22 @@ function ShopContent() {
         }
       }
 
+      // Phase 3: Match and re-rank in background
       if (weaknessTags.length === 0 || cancelled) return
 
       try {
         const matched = await matchProducts({
           weakness_tags: weaknessTags,
-          top_k: 20,
+          top_k: 50,
           include_explain: true,
         }, locale)
         matched.sort((a, b) => (b.match_score ?? 0) - (a.match_score ?? 0))
         if (!cancelled) {
-          setAllProducts(matched)
+          setAllProducts(prev => {
+            const matchedIds = new Set(matched.map(p => p.id))
+            const unmatched = prev.filter(p => !matchedIds.has(p.id))
+            return [...matched, ...unmatched]
+          })
           setIsPersonalized(true)
         }
       } catch {}
@@ -114,9 +119,7 @@ function ShopContent() {
 
     loadProducts()
 
-    return () => {
-      cancelled = true
-    }
+    return () => { cancelled = true }
   }, [sessionTags, locale])
 
   const products = useMemo(() => {
@@ -289,7 +292,7 @@ function ShopContent() {
 
           <div className={`mb-5 grid max-w-md grid-cols-3 gap-2 transition-all duration-1000 delay-600 sm:mx-auto ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
             {copy.signals.map(item => (
-              <div key={item} className="rounded-xl border border-white/[0.06] bg-white/[0.025] px-3 py-2 text-[11px] text-white/42">
+              <div key={item} className="rounded-xl border border-white/[0.06] bg-[#030918] px-3 py-2 text-[11px] text-white/42">
                 {item}
               </div>
             ))}
@@ -315,7 +318,7 @@ function ShopContent() {
       <div className="max-w-6xl mx-auto px-4 pb-20">
 
         <ScrollReveal>
-          <div className="mb-7 rounded-xl border border-white/[0.07] bg-white/[0.025] p-4 md:p-5">
+          <div className="mb-7 rounded-xl border border-white/[0.07] bg-[#030918] p-4 md:p-5">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
                 <div className="mb-2 inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-gold/55">
@@ -340,7 +343,7 @@ function ShopContent() {
             {[ClipboardCheck, ShieldCheck, Truck].map((Icon, index) => {
               const item = copy.trustItems[index]
               return (
-                <div key={item.title} className="rounded-xl border border-white/[0.07] bg-white/[0.025] p-4">
+                <div key={item.title} className="rounded-xl border border-white/[0.07] bg-[#030918] p-4">
                   <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg border border-gold/20 bg-gold/[0.07] text-gold">
                     <Icon size={17} />
                   </div>
@@ -384,7 +387,7 @@ function ShopContent() {
               <button
                 onClick={() => handleNeedChange("")}
                 className={`shrink-0 border px-4 py-2 text-xs transition-colors ${
-                  activeNeed === "" ? "border-gold/40 bg-gold/10 text-gold" : "border-white/10 bg-white/[0.025] text-white/45 hover:border-gold/25 hover:text-gold/80"
+                  activeNeed === "" ? "border-gold/40 bg-gold/10 text-gold" : "border-white/10 bg-[#030918] text-white/45 hover:border-gold/25 hover:text-gold/80"
                 }`}
               >
                 {copy.allNeeds}
@@ -394,7 +397,7 @@ function ShopContent() {
                   key={need.key}
                   onClick={() => handleNeedChange(need.key)}
                   className={`shrink-0 border px-4 py-2 text-left transition-colors ${
-                    activeNeed === need.key ? "border-gold/40 bg-gold/10 text-gold" : "border-white/10 bg-white/[0.025] text-white/45 hover:border-gold/25 hover:text-gold/80"
+                    activeNeed === need.key ? "border-gold/40 bg-gold/10 text-gold" : "border-white/10 bg-[#030918] text-white/45 hover:border-gold/25 hover:text-gold/80"
                   }`}
                 >
                   <span className="block text-xs font-medium">{need.label[isZh ? "zh" : "en"]}</span>

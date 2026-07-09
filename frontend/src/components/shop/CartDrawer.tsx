@@ -31,7 +31,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
   return (
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="fixed inset-0 z-40 bg-black/50 " onClick={onClose} />
 
       {/* Drawer */}
       <div className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-md bg-ink border-l border-white/10 flex flex-col animate-in slide-in-from-right duration-300">

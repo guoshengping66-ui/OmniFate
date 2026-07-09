@@ -53,13 +53,14 @@ export function ZodiacPageTemplate({ data, locale }: ZodiacPageTemplateProps) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: safeJsonLd({
             "@context": "https://schema.org",
-            "@type": "AstrologicalSign",
-            "name": content.title,
+            "@type": "Article",
+            "headline": content.title,
             "description": content.personality,
-            "url": `https://www.khanfate.com/${locale}/zodiac/${data.id}`,
-            "symbol": data.symbol,
-            "element": data.element,
+            "author": { "@type": "Organization", "name": "Guanwo Fate OS" },
+            "publisher": { "@type": "Organization", "name": "Guanwo Fate OS", "logo": { "@type": "ImageObject", "url": "/logo.png" } },
+            "about": { "@type": "Thing", "name": data.name_en, "description": isZh ? `Symbol: ${data.symbol}, Element: ${data.element}` : `Symbol: ${data.symbol}, Element: ${data.element}` },
             "alternateName": isZh ? data.name_en : data.name_zh,
+            "url": `https://www.khanfate.com/${locale}/zodiac/${data.id}`,
           })}}
         />
 

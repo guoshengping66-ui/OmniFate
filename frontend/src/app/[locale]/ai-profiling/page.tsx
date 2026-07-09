@@ -31,7 +31,7 @@ export default function AiProfilingPage() {
         <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6">
           <div className="max-w-3xl">
             <ScrollReveal>
-              <div className="inline-flex items-center gap-2 bg-white/5 backdrop-blur-xl border border-blue-500/20 rounded-full px-4 py-1.5 text-blue-400 text-xs mb-5">
+              <div className="inline-flex items-center gap-2 bg-white/5  border border-blue-500/20 rounded-full px-4 py-1.5 text-blue-400 text-xs mb-5">
                 <span className="relative flex h-1.5 w-1.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-400" />
@@ -72,7 +72,7 @@ export default function AiProfilingPage() {
                 <MagneticButton>
                   <Link
                     href={localeHref("/pricing")}
-                    className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full border border-white/20 text-white/60 hover:border-blue-400/30 hover:text-blue-400 transition-all text-base backdrop-blur-sm"
+                    className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl border border-white/[0.08] text-white/60 hover:border-blue-400/30 hover:text-blue-400 transition-all text-base "
                   >
                     <FileText size={16} />
                     {p("hero.cta2")}

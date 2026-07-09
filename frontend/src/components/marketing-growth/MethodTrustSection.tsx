@@ -25,7 +25,7 @@ export function MethodTrustSection() {
 
         <div className="grid gap-4 md:grid-cols-3">
           {copy.trust.map((item) => (
-            <div key={item.title} className="border border-white/[0.08] bg-white/[0.025] p-6">
+            <div key={item.title} className="border border-white/[0.08] bg-[#030918] p-6">
               <ShieldCheck className="mb-5 text-gold" size={24} />
               <h3 className="text-lg font-semibold text-white">{item.title}</h3>
               <p className="mt-3 text-sm leading-7 text-white/55">{item.body}</p>

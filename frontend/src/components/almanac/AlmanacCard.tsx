@@ -78,7 +78,7 @@ export function AlmanacCard(props: AlmanacCardProps) {
   return (
     <section className={`space-y-4 ${props.compact ? "" : "md:space-y-5"}`}>
       <div className="card-glass overflow-hidden p-0">
-        <header className="border-b border-white/[0.08] bg-white/[0.025] px-5 py-5 md:px-7 md:py-6">
+        <header className="border-b border-white/[0.08] bg-[#030918] px-5 py-5 md:px-7 md:py-6">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
             <div className="min-w-0">
               <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-white/42">
@@ -120,7 +120,7 @@ export function AlmanacCard(props: AlmanacCardProps) {
         <div className="grid gap-0 lg:grid-cols-[minmax(0,1fr)_340px]">
           <main className="space-y-5 border-white/[0.08] p-5 md:p-7 lg:border-r">
             <div className="grid gap-3 md:grid-cols-2">
-              <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-4">
+              <div className="rounded-xl border border-white/[0.08] bg-[#030918] p-4">
                 <div className="mb-2 flex items-center gap-2">
                   <Target size={16} className="text-gold/75" />
                   <h3 className="text-sm font-semibold text-white/82">{isZh ? "今日主线" : "Main focus"}</h3>
@@ -144,7 +144,7 @@ export function AlmanacCard(props: AlmanacCardProps) {
               </div>
               <div className="space-y-2.5">
                 {trend.actions.map((action, index) => (
-                  <div key={action} className="flex gap-3 rounded-lg border border-white/[0.08] bg-white/[0.025] p-3">
+                  <div key={action} className="flex gap-3 rounded-lg border border-white/[0.08] bg-[#030918] p-3">
                     <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md bg-gold/10 text-xs font-semibold text-gold">
                       {index + 1}
                     </span>
@@ -193,7 +193,7 @@ export function AlmanacCard(props: AlmanacCardProps) {
               </div>
               <div className="space-y-3">
                 {trend.timeWindows.map((window) => (
-                  <div key={window.label} className="rounded-lg border border-white/[0.08] bg-white/[0.025] p-3">
+                  <div key={window.label} className="rounded-lg border border-white/[0.08] bg-[#030918] p-3">
                     <p className="mb-1 text-xs font-medium text-gold/72">{window.label}</p>
                     <p className="text-xs leading-5 text-white/52">{window.text}</p>
                   </div>
@@ -220,7 +220,7 @@ export function AlmanacCard(props: AlmanacCardProps) {
             </div>
 
             {(trend.wuxingAnalysis || trend.dailyQuote || trend.hu.length > 0) && (
-              <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-4">
+              <div className="rounded-xl border border-white/[0.08] bg-[#030918] p-4">
                 <div className="mb-2 flex items-center gap-2">
                   <Leaf size={16} className="text-gold/70" />
                   <h3 className="text-sm font-semibold text-white/82">{isZh ? "依据与补充" : "Evidence"}</h3>

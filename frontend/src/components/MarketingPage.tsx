@@ -42,7 +42,7 @@ export default function MarketingPage() {
         <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6">
           <div className="max-w-3xl">
             <ScrollReveal>
-              <div className="inline-flex items-center gap-2 bg-white/5 backdrop-blur-xl border border-gold/20 rounded-full px-3 py-1 text-gold text-[11px] mb-4">
+              <div className="inline-flex items-center gap-2 bg-white/5  border border-gold/20 rounded-full px-3 py-1 text-gold text-[11px] mb-4">
                 <span className="relative flex h-1.5 w-1.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold opacity-75" />
                   <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-gold" />
@@ -83,7 +83,7 @@ export default function MarketingPage() {
                 <MagneticButton>
                   <Link
                     href={localeHref("/shop")}
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-white/15 text-white/50 hover:border-gold/30 hover:text-gold transition-all text-sm backdrop-blur-sm"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-white/15 text-white/50 hover:border-gold/30 hover:text-gold transition-all text-sm "
                   >
                     <ShoppingBag size={14} />
                     {t("hero.cta2")}
@@ -116,7 +116,7 @@ export default function MarketingPage() {
                 <a
                   key={sys.key}
                   href="#agents"
-                  className="flex flex-col items-center gap-1.5 bg-white/[0.03] border border-white/[0.06] rounded-xl px-2 py-3 hover:border-white/[0.12] hover:bg-white/[0.05] transition-all duration-300 group"
+                  className="flex flex-col items-center gap-1.5 bg-[#030918] border border-white/[0.06] rounded-xl px-2 py-3 hover:border-white/[0.12] hover:bg-white/[0.05] transition-all duration-300 group"
                 >
                   <span className="text-lg">{sys.icon}</span>
                   <span className="text-white/50 text-[11px] font-medium group-hover:text-white/70 transition-colors text-center leading-tight">

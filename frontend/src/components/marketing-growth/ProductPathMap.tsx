@@ -118,7 +118,7 @@ export function ProductPathMap() {
         <div className="mb-8 flex flex-col justify-between gap-5 md:flex-row md:items-end">
           <div className="max-w-2xl">
             <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-gold/65">
-              {isZh ? "Product Map" : "Product Map"}
+              {isZh ? "产品路线图" : "Product Map"}
             </p>
             <h2 className="mt-3 font-serif text-3xl font-bold text-white md:text-5xl">
               {isZh ? "免费入口负责破冰，核心产品负责长期留存" : "Free tools spark entry. Core products create the long-term loop."}
@@ -138,7 +138,7 @@ export function ProductPathMap() {
               <Link
                 key={path.title}
                 href={localeHref(path.href)}
-                className="group relative min-h-[250px] overflow-hidden border border-white/[0.08] bg-white/[0.035] p-5 transition-all duration-300 hover:-translate-y-1 hover:border-gold/30 hover:bg-white/[0.055]"
+                className="group relative min-h-[250px] overflow-hidden border border-white/[0.08] bg-[#060E24] p-5 transition-all duration-300 hover:-translate-y-1 hover:border-gold/30 hover:bg-white/[0.055]"
               >
                 <div className="absolute right-4 top-4 text-5xl font-semibold text-white/[0.025]">
                   0{index + 1}

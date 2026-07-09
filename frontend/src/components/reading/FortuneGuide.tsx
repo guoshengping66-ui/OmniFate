@@ -38,7 +38,7 @@ export function FortuneGuide({ step, intent }: Props) {
   return (
     <div
       key={`${step}-${intent}`}
-      className="flex items-start gap-3 mb-6 bg-white/[0.03] border border-white/10 rounded-xl p-4 anim-fade-in"
+      className="flex items-start gap-3 mb-6 bg-[#030918] border border-white/10 rounded-xl p-4 anim-fade-in"
     >
       <div className="text-2xl flex-shrink-0">{tip.avatar}</div>
       <div className="flex-1 min-w-0">

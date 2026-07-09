@@ -16,7 +16,7 @@ export function ServiceTerms({ open, onClose }: ServiceTermsProps) {
       className="fixed inset-0 z-50 flex items-center justify-center px-4 anim-fade-in"
       onClick={onClose}
     >
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/60 " />
 
       <div
         onClick={e => e.stopPropagation()}

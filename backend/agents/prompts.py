@@ -7458,13 +7458,14 @@ Non-negotiable writing rules:
 2. Use evidence chains. Important claims must include at least one source such as Bazi, astrology, tarot, qimen, ziwei, face, or palm findings.
 3. Separate confirmed signals from speculation: "Cross-validated", "Single-signal", or "Speculative".
 4. Explain causes in plain behavioral language: decision style, stress response, relationship pattern, motivation, risk tolerance, attention pattern.
-5. Every recommendation must follow: "Because [specific finding], do [specific action]."
+5. Every recommendation must follow: "Because [specific finding], do [specific action] within [timeframe]."
 6. Include what not to do when relevant. Users value clear boundaries.
 7. Avoid filler, generic advice, exaggerated certainty, and metaphysical jargon.
-8. Do not use Markdown emphasis or bullet markers such as *, **, ***. Use plain text headings and short paragraphs only.
+8. Section 0 must be specific: state the real opportunity with evidence, the real bottleneck with cause, and one concrete action with deadline.
+9. Do not use Markdown emphasis or bullet markers such as *, **, ***. Use plain text headings and short paragraphs only.
 
 Preferred premium structure:
-【0 · Executive Takeaways】 core opportunity / core risk / next best action.
+【0 · Executive Takeaways】 specific opportunity (with evidence) / key bottleneck (with root cause) / one concrete action this week.
 【1 · Evidence Chain】 conclusion -> supporting systems -> confidence.
 【2 · Five-Dimension Diagnosis】 current state / root cause / daily manifestation / improvement action.
 【3 · Timeline】 next 30 days / next 90 days / 6-12 months.
@@ -7478,25 +7479,26 @@ Preferred free structure:
 【D · Near-Term Alert】
 【E · Action Items】
 
-Final quality check: Can the user act on this today? Does each key claim explain why it is true?
+Final quality check: Can the user act on this today? Does each key claim explain why it is true? Is the opportunity/timeframe specific enough?
 """
 
     return f"""
 
 === Profile Mirror 报告质量协议（{mode}）===
-定位：这是一份“个人决策报告”，不是玄学堆料。
+定位：这是一份"个人决策报告"，不是玄学堆料。
 
 硬性写作规则：
 1. 先给结论。用户必须在前 3 行看懂最重要判断。
 2. 建立证据链。重要结论必须说明来自哪些体系支持：八字、星盘、塔罗、奇门、紫微、面相、手相等。
-3. 区分确定性：“多体系一致”“单体系提示”“推测性结论”。
+3. 区分确定性："多体系一致""单体系提示""推测性结论"。
 4. 用现代大白话解释原因：决策风格、压力反应、关系模式、动机结构、风险偏好、注意力模式。
 5. 每条建议必须采用这个逻辑：因为【具体发现】，所以建议【具体动作】。
-6. 必要时给“不要做什么”。用户很需要明确边界。
+6. 必要时给"不要做什么"。用户很需要明确边界。
 7. 禁止空泛鸡汤、夸大确定性、术语堆砌、没有依据的商品推荐。
+8. 执行摘要（Section 0）必须包含：一个具体的机会（带依据）、一个具体的风险（带原因）、一条可执行的动作（带时限）。
 
 付费报告优先结构：
-【0·核心结论】最大机会 / 最大风险 / 下一步最该做什么。
+【0·核心结论】最需关注的真实机会 (why now) / 当前最大瓶颈 (why it matters) / 本周最该做的一件事。
 【1·证据链】结论 -> 支持体系 -> 置信度。
 【2·五维深度诊断】当前状态 / 根本原因 / 日常表现 / 改善动作。
 【3·时间线】未来 30 天 / 未来 90 天 / 6-12 个月。
@@ -7534,7 +7536,8 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
         partner_name = partner_data.get("partner_name", "对方")
         relationship_type = partner_data.get("relationship_type", "")
         rel_type_cn = {"lover": "恋人", "friend": "朋友", "colleague": "同事", "family": "家人"}
-        rel_type_display = rel_type_cn.get(relationship_type, relationship_type)
+        rel_type_en = {"lover": "Lover", "friend": "Friend", "colleague": "Colleague", "family": "Family"}
+        rel_type_display = rel_type_en.get(relationship_type, relationship_type) if language == "en" else rel_type_cn.get(relationship_type, relationship_type)
 
         # Bazi compatibility data
         bazi_compat = partner_data.get("bazi_compatibility", {})
@@ -7550,39 +7553,83 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
         strongest = [a for a in synastry_aspects if a.get("meaning")][:5]
         synastry_text = ""
         for a in strongest:
-            synastry_text += (
-                f"  {a['planet_a']}方{a['aspect']}{a['planet_b']}方"
-                f"（容许度{a['orb']}°）— {a['meaning']}\n"
-            )
+            if language == "en":
+                synastry_text += (
+                    f"  {a['planet_a']} {a['aspect']} {a['planet_b']}"
+                    f" (orb {a['orb']}°) — {a['meaning']}\n"
+                )
+            else:
+                synastry_text += (
+                    f"  {a['planet_a']}方{a['aspect']}{a['planet_b']}方"
+                    f"（容许度{a['orb']}°）— {a['meaning']}\n"
+                )
 
         # Composite chart data
         composite = partner_data.get("composite_chart", {})
         composite_key = composite.get("key_readings", [])
 
-        partner_section = (
-            f"\n\n== 合盘数据 ==\n"
-            f"关系类型：{rel_type_display}\n"
-            f"对方昵称：{_sanitize_user_text(partner_name)}\n\n"
-            f"[八字合婚评分] {compat_score}/100 — {compat_level}\n"
-            f"  {compat_dm}\n"
-            f"  {compat_yong}\n"
-            f"  {compat_day}\n"
-            f"  {compat_supply}\n\n"
-            f"[星盘交叉相位 — 最强连接]\n"
-            f"{synastry_text}\n"
-        )
-        if composite_key:
-            partner_section += "[组合盘概要]\n"
-            for reading in composite_key:
-                partner_section += f"  {reading}\n"
-            partner_section += "\n"
+        if language == "en":
+            partner_section = (
+                f"\n\n== Synastry Data ==\n"
+                f"Relationship: {rel_type_display}\n"
+                f"Partner: {_sanitize_user_text(partner_name)}\n\n"
+                f"[Bazi Compatibility Score] {compat_score}/100 — {compat_level}\n"
+                f"  {compat_dm}\n"
+                f"  {compat_yong}\n"
+                f"  {compat_day}\n"
+                f"  {compat_supply}\n\n"
+                f"[Astrology Cross-Aspects — Strongest Connections]\n"
+                f"{synastry_text}\n"
+            )
+            if composite_key:
+                partner_section += "[Composite Chart Summary]\n"
+                for reading in composite_key:
+                    partner_section += f"  {reading}\n"
+                partner_section += "\n"
+        else:
+            partner_section = (
+                f"\n\n== 合盘数据 ==\n"
+                f"关系类型：{rel_type_display}\n"
+                f"对方昵称：{_sanitize_user_text(partner_name)}\n\n"
+                f"[八字合婚评分] {compat_score}/100 — {compat_level}\n"
+                f"  {compat_dm}\n"
+                f"  {compat_yong}\n"
+                f"  {compat_day}\n"
+                f"  {compat_supply}\n\n"
+                f"[星盘交叉相位 — 最强连接]\n"
+                f"{synastry_text}\n"
+            )
+            if composite_key:
+                partner_section += "[组合盘概要]\n"
+                for reading in composite_key:
+                    partner_section += f"  {reading}\n"
+                partner_section += "\n"
     scores_str = ""
     if dimension_scores:
+        _DIM_EN = {"wealth": "Wealth", "relationship": "Relationship", "career": "Career",
+                   "health": "Health", "spiritual": "Spiritual"}
         _DIM_CN = {"wealth": "财富", "relationship": "感情", "career": "事业",
                    "health": "健康", "spiritual": "精神"}
-        scores_str = " | ".join(f"{_DIM_CN.get(k, k)}:{v}" for k, v in dimension_scores.items())
+        dim_map = _DIM_EN if language == "en" else _DIM_CN
+        scores_str = " | ".join(f"{dim_map.get(k, k)}:{v}" for k, v in dimension_scores.items())
 
-    CROSS_DOMAIN = """
+    if language == "en":
+        CROSS_DOMAIN = """
+[Cross-System Correspondence Reference]
+- Bazi "Strong Seal (印旺)" ≈ Astrology Saturn/Moon dominance ≈ Palm clear heart line
+- Bazi "Seven Killings Attack (七杀攻身)" ≈ Astrology Mars-Saturn square ≈ Tarot Swords suit
+- Multi-system agreement = high confidence. Conflicts = low confidence, output as "possibility."
+
+== Cross-Validation Rules ==
+1. Consistency check: per dimension, verify if Bazi, Qimen, Ziwei, Astrology point in the same direction
+2. Conflict handling:
+   - If Bazi + Astrology agree → label "Cross-validated, high confidence"
+   - If they disagree → honestly state "System X suggests A, System Y suggests B, combined judgment is C"
+   - Never force unification — user trust comes from honesty
+3. Evidence weight: precise birth data (Bazi/Qimen/Ziwei) > approximate (Astrology estimate) > single-system signal
+"""
+    else:
+        CROSS_DOMAIN = """
 【跨命理体系对应关系】
 - 八字"印旺" 相当于 星盘土星/月亮强势 相当于 手相感情线深长
 - 八字"七杀攻身" 相当于 星盘火土刑克 相当于 塔罗宝剑牌组
@@ -7636,6 +7683,82 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
                 "1. 融合面相和手相的分析结论\n"
                 "2. 结合多个体系交叉验证\n"
                 "3. 让用户感受到上传的信息被充分分析\n\n"
+            )
+    elif intent == "BAZI":
+        if language == "en":
+            intent_hint = (
+                "\n== Channel: Bazi (Eight Characters) Only ==\n"
+                "User chose single-aspect bazi analysis. Only bazi report is available.\n"
+                "Report focus:\n"
+                "1. Deep-dive into bazi interpretation — day master, ten gods, five elements balance\n"
+                "2. Do NOT mention astrology, tarot, qimen, ziwei, face, or palm analysis\n"
+                "3. Structure the entire report around bazi insights only\n\n"
+            )
+        else:
+            intent_hint = (
+                "\n== 推命通道：八字单项分析 ==\n"
+                "用户选择了八字单项分析，仅有八字报告可用。\n"
+                "报告重心：\n"
+                "1. 深度解读八字——日主、十神、五行平衡、大运流年\n"
+                "2. 不要提及其他体系（星盘、塔罗、奇门、紫微、面相、手相）\n"
+                "3. 整个报告围绕八字展开，做深做透\n\n"
+            )
+    elif intent == "ASTROLOGY":
+        if language == "en":
+            intent_hint = (
+                "\n== Channel: Astrology Only ==\n"
+                "User chose single-aspect astrology analysis. Only astrology report is available.\n"
+                "Report focus:\n"
+                "1. Deep-dive into natal chart — planets, houses, aspects, transits\n"
+                "2. Do NOT mention bazi, tarot, qimen, ziwei, face, or palm analysis\n"
+                "3. Structure the entire report around astrological insights only\n\n"
+            )
+        else:
+            intent_hint = (
+                "\n== 推命通道：星盘单项分析 ==\n"
+                "用户选择了星盘单项分析，仅有星盘报告可用。\n"
+                "报告重心：\n"
+                "1. 深度解读星盘——行星、宫位、相位、行运\n"
+                "2. 不要提及其他体系（八字、塔罗、奇门、紫微、面相、手相）\n"
+                "3. 整个报告围绕星盘展开，做深做透\n\n"
+            )
+    elif intent == "TAROT":
+        if language == "en":
+            intent_hint = (
+                "\n== Channel: Tarot Only ==\n"
+                "User chose single-aspect tarot analysis. Only tarot report is available.\n"
+                "Report focus:\n"
+                "1. Deep-dive into tarot card interpretation — symbolism, archetypes, spreads\n"
+                "2. Do NOT mention bazi, astrology, qimen, ziwei, face, or palm analysis\n"
+                "3. Structure the entire report around tarot insights only\n\n"
+            )
+        else:
+            intent_hint = (
+                "\n== 推命通道：塔罗单项分析 ==\n"
+                "用户选择了塔罗单项分析，仅有塔罗报告可用。\n"
+                "报告重心：\n"
+                "1. 深度解读塔罗牌——象征意义、原型、牌阵\n"
+                "2. 不要提及其他体系（八字、星盘、奇门、紫微、面相、手相）\n"
+                "3. 整个报告围绕塔罗牌展开，做深做透\n\n"
+            )
+    elif intent == "FACE_HAND":
+        if language == "en":
+            intent_hint = (
+                "\n== Channel: Face & Palm Reading Only ==\n"
+                "User chose single-aspect face/hand analysis. Only face and palm reports are available.\n"
+                "Report focus:\n"
+                "1. Deep-dive into physiognomy and palmistry — facial features, palm lines, mounts\n"
+                "2. Do NOT mention bazi, astrology, tarot, qimen, or ziwei analysis\n"
+                "3. Structure the entire report around face and palm insights only\n\n"
+            )
+        else:
+            intent_hint = (
+                "\n== 推命通道：面相手相单项分析 ==\n"
+                "用户选择了面相手相单项分析，仅有面相和手相报告可用。\n"
+                "报告重心：\n"
+                "1. 深度解读面相与手相——五官、三庭、掌纹、八大丘\n"
+                "2. 不要提及其他体系（八字、星盘、塔罗、奇门、紫微）\n"
+                "3. 整个报告围绕面相手相展开，做深做透\n\n"
             )
     elif intent == "RELATIONSHIP":
         if language == "en":
@@ -7708,8 +7831,43 @@ def master_subtask_core_prompt(worker_summaries: dict, user_question: str,
             )
 
     # Output structure: skip for RELATIONSHIP (intent_hint already has its own structure)
+    # Single-aspect intents get a focused deep-dive structure
+    _single_aspect_intents = {"BAZI", "ASTROLOGY", "TAROT", "FACE_HAND"}
     output_structure = ""
-    if intent != "RELATIONSHIP":
+    if intent in _single_aspect_intents:
+        if language == "en":
+            output_structure = (
+                "== Output Structure (Single-Aspect Deep Dive) ==\n"
+                "【A · Core Personality Blueprint】\n"
+                "Core Trait: One sentence (max 12 words) capturing the essence\n"
+                "Personality Analysis: 200-300 words deep-dive — analyze strengths, hidden vulnerabilities, and behavioral roots with concrete examples drawn from the single available expert report\n"
+                "Key Behavioral Patterns: List 2-3 specific tendencies with evidence from the report\n"
+                "Growth Edge: One sentence on the most valuable personal development direction\n\n"
+                "【B · Deep Aspect Analysis】\n"
+                "Current State: What does this aspect reveal about the user's present situation?\n"
+                "Key Insights: 3-5 specific, actionable insights drawn exclusively from the expert report\n"
+                "Hidden Signals: What subtle patterns or warnings does the report reveal?\n"
+                "Forward Look: Near-term trends and turning points based on this aspect\n\n"
+                f"== Scores == {scores_str}\n\n"
+                "IMPORTANT: Only reference the single expert report provided. Do NOT fabricate or reference other systems.\n\n"
+            )
+        else:
+            output_structure = (
+                "== 输出结构（单项深度分析） ==\n"
+                "【A·核心性格底色】\n"
+                "核心特质：用15字以内大白话抓住本质\n"
+                "性格解析：用200-300字深度分析性格优势与隐藏软肋，结合专家报告中的具体依据\n"
+                '关键行为模式：列出2-3个具体的行为倾向（如"遇到压力时倾向于独自消化而不是找人倾诉"），附报告依据\n'
+                "成长建议：用一句话点出最值得发展的方向\n\n"
+                "【B·单项深度剖析】\n"
+                "当前状态：这个面向揭示了用户当下什么样的处境？\n"
+                "核心发现：3-5条具体、可操作的洞察，全部来自专家报告\n"
+                "隐藏信号：报告中揭示的微妙模式或预警\n"
+                "前瞻：基于该面向的近期趋势和转折点\n\n"
+                f"== 五维评分 ==\n{scores_str}\n\n"
+                "重要：只引用提供的单一专家报告，不要编造或提及其他体系的分析。\n\n"
+            )
+    elif intent != "RELATIONSHIP":
         if language == "en":
             output_structure = (
                 "== Output Structure ==\n"

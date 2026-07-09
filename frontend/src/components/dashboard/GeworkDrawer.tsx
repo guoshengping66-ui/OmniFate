@@ -144,11 +144,11 @@ export function GeworkDrawer({ open, onClose }: Props) {
   return (
     <>
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 anim-fade-in"
+        className="fixed inset-0 bg-black/60  z-40 anim-fade-in"
         onClick={handleClose}
       />
 
-      <div className="fixed right-0 top-0 h-full w-full max-w-md bg-ink-light/95 backdrop-blur-xl border-l border-white/10 z-50 shadow-2xl anim-slide-in-right">
+      <div className="fixed right-0 top-0 h-full w-full max-w-md bg-ink-light/95  border-l border-white/10 z-50 shadow-2xl anim-slide-in-right">
         <div className="h-full flex flex-col p-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
@@ -172,7 +172,7 @@ export function GeworkDrawer({ open, onClose }: Props) {
             {/* INPUT PHASE */}
             {phase === "input" && (
               <div className="flex-1 flex flex-col min-h-0 anim-fade-in">
-                <div className="bg-white/[0.03] border border-white/10 rounded-xl p-4 mb-4">
+                <div className="bg-[#030918] border border-white/10 rounded-xl p-4 mb-4">
                   <p className="text-white/50 text-sm leading-relaxed">{t("gework.desc")}</p>
                 </div>
 
@@ -188,7 +188,7 @@ export function GeworkDrawer({ open, onClose }: Props) {
                   rows={6}
                   maxLength={500}
                   placeholder={t("gework.placeholder")}
-                  className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3 text-white/80 text-sm placeholder-white/20 focus:border-gold/40 focus:outline-none focus:ring-1 focus:ring-gold/20 resize-none transition-all flex-1 min-h-[120px]"
+                  className="w-full bg-[#030918] border border-white/10 rounded-xl px-4 py-3 text-white/80 text-sm placeholder-white/20 focus:border-gold/40 focus:outline-none focus:ring-1 focus:ring-gold/20 resize-none transition-all flex-1 min-h-[120px]"
                 />
                 <p className="text-white/20 text-xs mt-2 text-right">{eventText.length}/500</p>
 
@@ -211,7 +211,7 @@ export function GeworkDrawer({ open, onClose }: Props) {
                         type="date"
                         value={eventDate}
                         onChange={(e) => setEventDate(e.target.value)}
-                        className="w-full bg-white/[0.03] border border-white/10 rounded-lg px-3 py-2 text-white/70 text-sm focus:border-gold/40 focus:outline-none transition-all"
+                        className="w-full bg-[#030918] border border-white/10 rounded-lg px-3 py-2 text-white/70 text-sm focus:border-gold/40 focus:outline-none transition-all"
                       />
                       <p className="text-white/20 text-[10px] mt-1">{t("gework.eventDateHint")}</p>
                     </div>
@@ -224,7 +224,7 @@ export function GeworkDrawer({ open, onClose }: Props) {
                         type="time"
                         value={eventTime}
                         onChange={(e) => setEventTime(e.target.value)}
-                        className="w-full bg-white/[0.03] border border-white/10 rounded-lg px-3 py-2 text-white/70 text-sm focus:border-gold/40 focus:outline-none transition-all"
+                        className="w-full bg-[#030918] border border-white/10 rounded-lg px-3 py-2 text-white/70 text-sm focus:border-gold/40 focus:outline-none transition-all"
                       />
                       <p className="text-white/20 text-[10px] mt-1">{t("gework.eventTimeHint")}</p>
                     </div>
@@ -311,7 +311,7 @@ export function GeworkDrawer({ open, onClose }: Props) {
             <div className="flex gap-3 mt-4">
               <button
                 onClick={handleReset}
-                className="flex-1 py-3 rounded-full border border-white/20 text-white/60 text-sm hover:border-white/40 transition-all"
+                className="flex-1 py-3 rounded-xl border border-white/[0.08] text-white/60 text-sm hover:border-white/40 transition-all"
               >
                 {t("gework.retryBtn")}
               </button>

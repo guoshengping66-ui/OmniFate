@@ -7,6 +7,17 @@ import { useUserStore } from "@/stores/useUserStore"
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary"
 
 const EasternHomeExperience = dynamic(() => import("@/components/marketing-growth/EasternHomeExperience").then(m => m.EasternHomeExperience), { ssr: true })
+const GalaxyHomeNew = dynamic(() => import("@/components/marketing-growth/GalaxyHomeNew"), {
+  ssr: false,
+  loading: () => (
+    <div style={{ minHeight: "100vh", background: "#020617", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ textAlign: "center" }}>
+        <div style={{ width: 36, height: 36, margin: "0 auto 12px", border: "2px solid rgba(201,168,76,0.2)", borderTopColor: "#C9A84C", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+        <p style={{ color: "rgba(255,255,255,0.25)", fontSize: 13, fontFamily: "serif" }}>观我</p>
+      </div>
+    </div>
+  ),
+})
 const UserDashboard = dynamic(() => import("@/components/dashboard/UserDashboard").then(m => m.UserDashboard), {
   ssr: false,
   loading: () => <div className="card-glass p-8"><div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin" /></div>,
@@ -60,10 +71,8 @@ export default function HomePage() {
   }
 
   return (
-    <div className="relative z-10 min-h-screen">
-      <ErrorBoundary sectionName="Guanwo Home Experience">
-        <EasternHomeExperience />
-      </ErrorBoundary>
-    </div>
+    <ErrorBoundary sectionName="Guanwo Home Experience">
+      <GalaxyHomeNew />
+    </ErrorBoundary>
   )
 }

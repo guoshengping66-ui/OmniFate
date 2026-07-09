@@ -62,8 +62,10 @@ ALLOWED_PAYMENT_METHODS: dict[Region, set[str]] = {
     "overseas": {"stripe"},
 }
 
-OVERSEAS_FREE_SHIPPING_THRESHOLD_USD = 79.0
-OVERSEAS_SHIPPING_FEE_USD = 8.0
+OVERSEAS_FREE_SHIPPING_THRESHOLD_USD = Decimal("79")
+OVERSEAS_SHIPPING_FEE_USD = Decimal("8")
+CNY_TO_USD_RATE = Decimal("7.2")
+MEMBER_DISCOUNT = Decimal("0.88")  # 88折 — premium members get 12% off
 
 
 def _minor_units(amount: float | Decimal) -> int:
@@ -71,35 +73,9 @@ def _minor_units(amount: float | Decimal) -> int:
     return int((value * 100).to_integral_value(rounding=ROUND_HALF_UP))
 
 
-def _country_to_region(country: str) -> Region:
-    return "domestic" if country.upper() == "CN" else "overseas"
-
 
 def resolve_pricing_region(request: Request | None = None, user: Any | None = None) -> Region:
-    """Resolve the payable region. User lock beats request hints."""
-    locked = getattr(user, "pricing_region", None)
-    if locked in ("domestic", "overseas"):
-        return locked
-
-    if request is not None:
-        country = (
-            request.headers.get("cf-ipcountry")
-            or request.headers.get("x-vercel-ip-country")
-            or request.headers.get("x-country-code")
-            or ""
-        )
-        if country:
-            return _country_to_region(country)
-
-        query_region = request.query_params.get("region", "")
-        if query_region in ("domestic", "overseas"):
-            return query_region
-
-        # Local/dev fallback: honor cookie only outside real edge geo headers.
-        cookie_region = request.cookies.get("region", "")
-        if cookie_region in ("domestic", "overseas"):
-            return cookie_region
-
+    """Unified global pricing — always overseas (USD)."""
     return "overseas"
 
 
@@ -109,6 +85,7 @@ def lock_user_region(user: Any, region: Region) -> None:
 
 
 def get_price_quote(sku: str, region: Region) -> PriceQuote:
+    """Subscriptions and one-time unlocks — no member discount (shop only)."""
     region = "domestic" if region == "domestic" else "overseas"
     sku_prices = _CATALOG.get(sku)
     if not sku_prices:
@@ -154,31 +131,39 @@ def quote_shop_totals(
     subtotal_cny: float,
     subtotal_usd: float,
     coupon_cny: float = 0.0,
+    is_premium: bool = False,
 ) -> dict[str, Any]:
     region = "domestic" if region == "domestic" else "overseas"
-    coupon_cny = float(coupon_cny or 0)
-    subtotal_cny = float(subtotal_cny or 0)
-    subtotal_usd = float(subtotal_usd or 0)
-    shipping_cny = 0.0
-    shipping_usd = 0.0
-    if region == "overseas" and subtotal_usd < OVERSEAS_FREE_SHIPPING_THRESHOLD_USD:
-        shipping_usd = OVERSEAS_SHIPPING_FEE_USD
+    coupon_cny = Decimal(str(coupon_cny or 0))
+    subtotal_cny = Decimal(str(subtotal_cny or 0))
+    subtotal_usd = Decimal(str(subtotal_usd or 0))
 
-    total_cny = max(0.0, subtotal_cny - coupon_cny + shipping_cny)
-    total_usd = max(0.0, subtotal_usd + shipping_usd)
+    if is_premium:
+        subtotal_cny = subtotal_cny * MEMBER_DISCOUNT
+        subtotal_usd = subtotal_usd * MEMBER_DISCOUNT
+
+    shipping_cny = Decimal("0")
+    shipping_usd = Decimal("0")
+    if region == "overseas" and subtotal_usd < OVERSEAS_FREE_SHIPPING_THRESHOLD_USD:
+        shipping_usd = Decimal(str(OVERSEAS_SHIPPING_FEE_USD))
+
+    coupon_usd = coupon_cny / CNY_TO_USD_RATE if coupon_cny > 0 else Decimal("0")
+    total_cny = max(Decimal("0"), subtotal_cny - coupon_cny + shipping_cny)
+    total_usd = max(Decimal("0"), subtotal_usd - coupon_usd + shipping_usd)
     active_total = total_cny if region == "domestic" else total_usd
     currency = "cny" if region == "domestic" else "usd"
     return {
         "region": region,
         "currency": currency,
-        "subtotal_cny": round(subtotal_cny, 2),
-        "subtotal_usd": round(subtotal_usd, 2),
-        "coupon_cny": round(coupon_cny, 2),
-        "shipping_cny": round(shipping_cny, 2),
-        "shipping_usd": round(shipping_usd, 2),
-        "total_cny": round(total_cny, 2),
-        "total_usd": round(total_usd, 2),
-        "amount": round(active_total, 2),
+        "subtotal_cny": round(float(subtotal_cny), 2),
+        "subtotal_usd": round(float(subtotal_usd), 2),
+        "coupon_cny": round(float(coupon_cny), 2),
+        "coupon_usd": round(float(coupon_usd), 2),
+        "shipping_cny": round(float(shipping_cny), 2),
+        "shipping_usd": round(float(shipping_usd), 2),
+        "total_cny": round(float(total_cny), 2),
+        "total_usd": round(float(total_usd), 2),
+        "amount": round(float(active_total), 2),
         "amount_minor": _minor_units(active_total),
     }
 

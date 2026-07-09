@@ -50,7 +50,7 @@ export function SampleGrowthReport() {
           </div>
           <div className="grid gap-3">
             {active.bullets.map((bullet) => (
-              <div key={bullet} className="flex gap-3 border border-white/[0.08] bg-white/[0.025] p-4">
+              <div key={bullet} className="flex gap-3 border border-white/[0.08] bg-[#030918] p-4">
                 <Check className="mt-0.5 shrink-0 text-gold" size={18} />
                 <p className="text-sm leading-6 text-white/70">{bullet}</p>
               </div>

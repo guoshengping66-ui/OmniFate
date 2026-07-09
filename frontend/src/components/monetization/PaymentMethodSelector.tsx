@@ -23,7 +23,7 @@ export function PaymentMethodSelector({ selected, onSelect, className = "" }: Pa
         className={`relative flex items-center gap-3 p-3 rounded-xl border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
           isSelected
             ? "bg-gold/10 border-gold/40 shadow-[0_0_20px_rgba(201,168,76,0.1)]"
-            : "bg-white/[0.03] border-white/10 hover:border-white/20 hover:bg-white/[0.05]"
+            : "bg-[#030918] border-white/10 hover:border-white/20 hover:bg-white/[0.05]"
         }`}
       >
         <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${

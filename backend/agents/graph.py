@@ -687,10 +687,28 @@ async def run_full_analysis(state: SystemState) -> SystemState:
     _total_workers = len(_WORKER_IDS)
 
     # Runners: qimen_ziwei is a merged worker returning list[WorkerOutput]
-    # Conditionally add partner face/palm workers for RELATIONSHIP intent
-    _runners = [run_astrology, run_tarot, run_bazi, run_qimen_ziwei, run_face, run_palm]
-    _runner_ids = list(_WORKER_IDS)
-    _runner_timeouts = list(_WORKER_TIMEOUTS)
+    # Single-aspect intents only launch relevant workers
+    _all_runners = [run_astrology, run_tarot, run_bazi, run_qimen_ziwei, run_face, run_palm]
+    _all_ids = list(_WORKER_IDS)
+    _all_timeouts = list(_WORKER_TIMEOUTS)
+    _timeout_by_id = dict(zip(_all_ids, _all_timeouts))
+    _runner_by_id = dict(zip(_all_ids, _all_runners))
+
+    _single_aspect_workers: dict[str, list[str]] = {
+        "BAZI": ["bazi"],
+        "ASTROLOGY": ["astrology"],
+        "TAROT": ["tarot"],
+        "FACE_HAND": ["face", "palm"],
+    }
+
+    if state.intent in _single_aspect_workers:
+        _runner_ids = _single_aspect_workers[state.intent]
+        _runners = [_runner_by_id[aid] for aid in _runner_ids]
+        _runner_timeouts = [_timeout_by_id[aid] for aid in _runner_ids]
+    else:
+        _runners = _all_runners
+        _runner_ids = _all_ids
+        _runner_timeouts = _all_timeouts
 
     if state.intent == "RELATIONSHIP":
         if state.partner_face_features:
@@ -829,8 +847,15 @@ async def run_full_analysis(state: SystemState) -> SystemState:
         # If bazi data is still missing, wait a bit more
         if not state.bazi_raw and not (state.bazi_output and state.bazi_output.report):
             logger.warning("Bazi data not available, waiting 10s more...")
+            # Reset the event before re-waiting — asyncio.Event stays set after
+            # the first set() and wait() returns instantly on re-wait.
+            bazi_evt = worker_events.get("bazi")
+            if bazi_evt is not None and bazi_evt.is_set():
+                bazi_evt.clear()
             try:
-                await asyncio.wait_for(worker_events.get("bazi", asyncio.Event()).wait(), timeout=10)
+                await asyncio.wait_for(
+                    (bazi_evt or asyncio.Event()).wait(), timeout=10
+                )
             except (asyncio.TimeoutError, KeyError):
                 pass
 
@@ -908,10 +933,14 @@ async def run_full_analysis(state: SystemState) -> SystemState:
         try:
             await asyncio.wait_for(synastry_task, timeout=15)
         except asyncio.TimeoutError:
-            pass
+            synastry_task.cancel()
+            try:
+                await synastry_task
+            except asyncio.CancelledError:
+                pass
 
-    # Merge tags
-    all_tags: list[str] = []
+    # Merge tags — preserve refined tags from preprocessing if present
+    all_tags: list[str] = list(getattr(state, "computed_tags", []) or [])
     for r in worker_outputs.values():
         all_tags.extend(r.tags)
         if r.error:

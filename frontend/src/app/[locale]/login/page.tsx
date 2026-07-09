@@ -76,7 +76,7 @@ export default function LoginPage() {
   return (
     <EasternPageShell>
       <div className="mx-auto grid min-h-screen w-[min(1180px,calc(100vw-32px))] items-center gap-8 pb-12 pt-24 lg:grid-cols-[1.05fr_0.95fr]">
-        <section className="relative hidden min-h-[620px] overflow-hidden rounded-[36px] border border-white/[0.08] bg-white/[0.025] p-8 lg:block">
+        <section className="relative hidden min-h-[620px] overflow-hidden rounded-[36px] border border-white/[0.08] bg-[#030918] p-8 lg:block">
           <FiveDimensionOrbit labels={isZh ? ["今日行动", "完整报告", "关系合参", "历史分析", "五维状态"] : ["Daily action", "Reports", "Relationship", "History", "Five-state"]} center={isZh ? "观我档案" : "Guanwo"} />
           <EasternCard className="absolute left-8 top-8 max-w-sm p-6">
             <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-gold)]">
@@ -175,7 +175,7 @@ export default function LoginPage() {
               </div>
             </form>
 
-            <div className="mt-6 rounded-2xl border border-white/[0.08] bg-white/[0.035] p-4">
+            <div className="mt-6 rounded-2xl border border-white/[0.08] bg-[#060E24] p-4">
               <p className="flex items-center gap-2 text-xs leading-6 text-white/45">
                 <Radar size={14} className="text-[var(--color-gold)]" />
                 {isZh ? "登录即表示你同意服务条款与隐私政策。" : "By signing in, you agree to the terms and privacy policy."}
@@ -268,7 +268,7 @@ function GoogleLoginButton() {
   return (
     <div ref={googleBtnRef} className="flex w-full justify-center" style={{ minHeight: 44 }}>
       {!googleLoaded && (
-        <div className="w-full rounded-full border border-white/10 bg-white/[0.045] py-3 text-center text-sm text-white/45">
+        <div className="w-full rounded-full border border-white/10 bg-[#060E24] py-3 text-center text-sm text-white/45">
           Google {t("auth.login")}
         </div>
       )}

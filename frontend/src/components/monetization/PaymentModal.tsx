@@ -58,7 +58,7 @@ export function PaymentModal({
 
   if (status === "success") {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60  p-4">
         <div className="card-glass p-8 text-center max-w-sm w-full animate-in zoom-in-95 duration-300">
           <div className="w-16 h-16 rounded-full bg-green-500/20 border border-green-500/40 flex items-center justify-center mx-auto mb-4">
             <CheckCircle size={32} className="text-green-400" />
@@ -74,7 +74,7 @@ export function PaymentModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60  p-4">
       <div className="card-glass p-6 md:p-8 max-w-md w-full animate-in zoom-in-95 duration-300">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">

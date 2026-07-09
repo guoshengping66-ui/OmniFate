@@ -4,9 +4,10 @@ import Link from "next/link"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { safeJsonLd } from "@/utils/safeJsonLd"
 
 export default function AboutPage() {
-  const { t, localeHref } = useLanguage()
+  const { t, locale, localeHref } = useLanguage()
 
   const pillars = [
     {
@@ -48,6 +49,27 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen pt-24 pb-20 px-4">
       <div className="max-w-5xl mx-auto">
+        {/* Organization JSON-LD */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: safeJsonLd({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "Guanwo Fate OS",
+            "url": "https://www.khanfate.com",
+            "logo": "https://www.khanfate.com/logo.png",
+            "description": locale === "zh"
+              ? "观我Fate OS — 融合八字、紫微、星盘、塔罗、面相与手相的AI命运行动系统"
+              : "Guanwo Fate OS — AI destiny action system combining Bazi, Ziwei, astrology, tarot, face and palm reading",
+            "sameAs": ["https://github.com/guoshengping66-ui/OmniFate"],
+            "contactPoint": {
+              "@type": "ContactPoint",
+              "contactType": "customer service",
+              "availableLanguage": ["English", "Chinese"],
+            },
+          })}}
+        />
+
         <Breadcrumbs items={[{ label: t("nav.about") }]} />
 
         {/* ══════════ Hero — Brand Statement ══════════ */}
@@ -142,7 +164,7 @@ export default function AboutPage() {
             </div>
             <div className="grid md:grid-cols-2 gap-4">
               {privacyItems.map((item) => (
-                <div key={item.title} className="bg-white/[0.03] rounded-xl p-5 border border-white/[0.06]">
+                <div key={item.title} className="bg-[#030918] rounded-xl p-5 border border-white/[0.06]">
                   <div className="flex items-center gap-2.5 mb-2">
                     <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
                       <item.icon size={14} className="text-green-400" />
