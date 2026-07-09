@@ -1,360 +1,244 @@
 "use client"
 
 import Link from "next/link"
-import { useEffect, useState } from "react"
-import { ArrowRight, Brain, HeartHandshake, MessageCircleQuestion, Moon, Sparkles, Sun } from "lucide-react"
+import { ArrowRight, Brain, HeartHandshake, MessageCircleQuestion, Sparkles } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { EasternCard, EasternPageShell, EasternSection, FiveDimensionOrbit, ReportPreviewPanel, TenYearPath } from "@/components/brand/EasternDesign"
+import { EasternPageShell } from "@/components/brand/EasternDesign"
+
+const trigrams = ["乾", "兑", "离", "震", "巽", "坎", "艮", "坤"]
+const orbitQuestionsZh = ["我真正的性格底色是什么？", "事业适合走哪条路？", "关系里为什么反复消耗？", "今天最该推进什么？"]
+const orbitQuestionsEn = ["What patterns shape me?", "Which path fits my work?", "Why do relationships drain me?", "What should move today?"]
 
 export function EasternHomeExperience() {
   const { locale, localeHref } = useLanguage()
   const isZh = locale === "zh"
 
-  return (
-    <EasternPageShell className="gw-reference-home">
-      <section className="gw-reference-hero" aria-label={isZh ? "观我首页首屏" : "Guanwo homepage hero"}>
-        <img
-          src="/brand/guanwo-cosmic-hero.png"
-          alt={isZh ? "观我星河命盘首页视觉" : "Guanwo cosmic astrolabe homepage visual"}
-          className="gw-reference-hero-image"
-        />
-        <Link
-          href={localeHref("/reading/new")}
-          className="gw-reference-hotspot gw-reference-hotspot-primary"
-          aria-label={isZh ? "生成我的个人档案" : "Generate my personal archive"}
-        />
-        <Link
-          href="#sample-report"
-          className="gw-reference-hotspot gw-reference-hotspot-secondary"
-          aria-label={isZh ? "查看示例报告" : "View sample report"}
-        />
-      </section>
-    </EasternPageShell>
-  )
-
-  const [skyMode, setSkyMode] = useState<"night" | "day">("night")
-
-  useEffect(() => {
-    const saved = window.localStorage.getItem("guanwo-sky-mode")
-    if (saved === "day" || saved === "night") setSkyMode(saved)
-  }, [])
-
-  const toggleSkyMode = () => {
-    const next = skyMode === "night" ? "day" : "night"
-    setSkyMode(next)
-    window.localStorage.setItem("guanwo-sky-mode", next)
-  }
-
-  const copy = isZh
-    ? {
-        ...zhCopy,
-        tags: ["五维合参", "AI 交叉验证", "行动导向"],
-        heroTitle: "观我",
-        heroKicker: "看懂自己，看见下一步",
-        heroDesc: "八字、星盘、塔罗、面相、手相 — 五维 AI 交叉验证，生成你的个人决策报告。",
-        socialProof: "已生成 12,000+ 份分析 · 4.9 星好评",
-        trustLine: "五体系交叉验证 × AI 深度推理 · 不是算命，是决策辅助",
-        questionsDesc: "先回答最影响你当下决策的问题。",
-        questions: ["我真正的性格底色是什么？", "为什么我总在关系里消耗？", "事业适合走哪条路径？", "今天最该推进什么？"],
-        reportModules: [
-          { title: "性格结构", body: "看清稳定优势和容易卡住的位置。" },
-          { title: "事业方向", body: "找到更适合你的能力使用方式。" },
-          { title: "今日行动", body: "把分析落成今天的一步。" },
-        ],
-        vaultDesc: "根据你的状态推荐空间、饰品与仪式感物件。",
-        finalDesc: "生成档案，查看结构、关系和今日行动。",
-      }
-    : {
-        ...enCopy,
-        tags: ["5-Source Sync", "AI Cross-Validation", "Action-First"],
-        heroTitle: "Guanwo",
-        heroKicker: "Understand yourself. See your next move.",
-        heroDesc: "Bazi, astrology, tarot, face reading, palm reading — five systems cross-validated by AI into one personal decision report.",
-        socialProof: "12,000+ reports generated · 4.9★ rated",
-        trustLine: "5 systems × AI deep reasoning · Decision support, not fortune telling",
-        questionsDesc: "Start with the questions that affect today's decisions.",
-        questions: ["What is my real baseline?", "Why do I repeat relationship drain?", "Which career path fits?", "What should move today?"],
-        reportModules: [
-          { title: "Inner structure", body: "See strengths and friction points." },
-          { title: "Career direction", body: "Find the right way to use your abilities." },
-          { title: "Daily action", body: "Turn insight into one move today." },
-        ],
-        vaultDesc: "Objects for space, personal rhythm, and daily ritual.",
-        finalDesc: "Generate your dossier for structure, relationships, and daily action.",
-      }
+  const copy = isZh ? zhCopy : enCopy
+  const questions = isZh ? orbitQuestionsZh : orbitQuestionsEn
 
   return (
-    <EasternPageShell className={`gw-home-theme gw-theme-${skyMode}`}>
-      <section className="gw-hero-section min-h-[780px] w-full py-10 lg:py-16">
-        <OrientalSkyAtlas mode={skyMode} />
-        <div className="relative z-10 mx-auto grid min-h-[700px] w-[min(1180px,calc(100vw-32px))] items-center gap-10 lg:grid-cols-[0.86fr_1.14fr]">
-          <div className="max-w-2xl">
-            <div className="mb-5 flex flex-wrap items-center gap-2">
-              {copy.tags.map(tag => <span key={tag} className="gw-hero-tag">{tag}</span>)}
-              <button type="button" className="gw-sky-toggle" onClick={toggleSkyMode} aria-label={isZh ? "切换昼夜模式" : "Toggle day and night mode"}>
-                {skyMode === "night" ? <Moon size={14} /> : <Sun size={14} />}
-                <span>{skyMode === "night" ? (isZh ? "夜观" : "Night") : (isZh ? "昼观" : "Day")}</span>
-              </button>
+    <EasternPageShell className="gw-live-home">
+      <section className="gw-live-hero">
+        <div className="gw-live-bg" aria-hidden="true">
+          <div className="gw-live-milkyway" />
+          <div className="gw-live-stars" />
+          <div className="gw-live-mountains" />
+        </div>
+
+        <div className="gw-live-hero-inner">
+          <div className="gw-live-copy">
+            <div className="gw-live-eyebrow">
+              <Sparkles size={15} />
+              <span>{copy.eyebrow}</span>
             </div>
-            <h1 className="gw-hero-brand">
-              {copy.heroTitle}
-            </h1>
-            <p className="gw-hero-kicker">{copy.heroKicker}</p>
-            <p className="mt-6 max-w-xl text-sm leading-7 text-[var(--color-text-secondary)] md:text-base">{copy.heroDesc}</p>
-            {copy.socialProof && (
-              <div className="mt-5 flex items-center gap-2">
-                <span className="flex items-center gap-1">
-                  {[1,2,3,4,5].map(i => <Sparkles key={i} size={12} className="text-gold/60" />)}
-                </span>
-                <span className="text-xs text-gold/60 tracking-wide">{copy.socialProof}</span>
-              </div>
-            )}
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link href={localeHref("/reading/new")} className="ow-gold-button">{copy.primary}<ArrowRight size={17} /></Link>
-              <Link href="#sample-report" className="ow-ghost-button">{copy.secondary}<ArrowRight size={16} /></Link>
+            <h1>{copy.title}</h1>
+            <p className="gw-live-subtitle">{copy.subtitle}</p>
+            <p className="gw-live-description">{copy.description}</p>
+
+            <div className="gw-live-tags" aria-label={copy.tagLabel}>
+              {copy.tags.map(tag => <span key={tag}>{tag}</span>)}
             </div>
-            {copy.trustLine && (
-              <p className="mt-5 text-[11px] text-white/20 tracking-wide">
-                {copy.trustLine}
-              </p>
-            )}
+
+            <div className="gw-live-actions">
+              <Link href={localeHref("/reading/new")} className="gw-live-primary">
+                {copy.primary}
+                <ArrowRight size={18} />
+              </Link>
+              <Link href="#sample-report" className="gw-live-secondary">
+                {copy.secondary}
+              </Link>
+            </div>
+
+            <div className="gw-live-trust">
+              <span>{copy.trustA}</span>
+              <span>{copy.trustB}</span>
+              <span>{copy.trustC}</span>
+            </div>
           </div>
-          <div className="gw-hero-visual-spacer" aria-hidden="true" />
+
+          <div className="gw-live-visual" aria-label={copy.visualLabel}>
+            <CosmicBaguaInstrument />
+          </div>
         </div>
       </section>
 
-      <EasternSection eyebrow={copy.questionsEyebrow} title={copy.questionsTitle} description={copy.questionsDesc}>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {copy.questions.map((question, index) => (
-            <EasternCard key={question} className="p-5">
-              <span className="text-sm font-semibold text-[var(--color-gold)]">0{index + 1}</span>
-              <p className="mt-4 text-base font-semibold leading-7 text-[var(--color-text-primary)]">{question}</p>
-            </EasternCard>
-          ))}
+      <section className="gw-live-section gw-live-question-section">
+        <div className="gw-live-section-head">
+          <span>{copy.questionsEyebrow}</span>
+          <h2>{copy.questionsTitle}</h2>
+          <p>{copy.questionsDesc}</p>
         </div>
-      </EasternSection>
-
-      <EasternSection eyebrow={copy.systemEyebrow} title={copy.systemTitle} description={copy.systemDesc}>
-        <div className="grid gap-8 lg:grid-cols-[1fr_0.86fr]">
-          <FiveDimensionOrbit labels={copy.dimensionLabels} center={copy.engine} />
-          <div className="grid content-center gap-4">
-            {copy.dimensions.map(item => (
-              <EasternCard key={item.title} className="p-5">
-                <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">{item.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-[var(--color-text-secondary)]">{item.body}</p>
-              </EasternCard>
-            ))}
+        <div className="gw-live-question-orbit">
+          <div className="gw-live-question-core">
+            <strong>{copy.archive}</strong>
+            <small>{copy.archiveSub}</small>
           </div>
-        </div>
-      </EasternSection>
-
-      <EasternSection eyebrow={copy.reportEyebrow} title={copy.reportTitle} description={copy.reportDesc} className="scroll-mt-20" >
-        <div id="sample-report" className="grid gap-8 lg:grid-cols-[0.86fr_1fr]">
-          <div className="grid gap-4">
-            {copy.reportModules.map(item => (
-              <EasternCard key={item.title} className="p-5">
-                <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">{item.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-[var(--color-text-secondary)]">{item.body}</p>
-              </EasternCard>
-            ))}
-          </div>
-          <ReportPreviewPanel locale={isZh ? "zh" : "en"} />
-        </div>
-      </EasternSection>
-
-      <EasternSection eyebrow={copy.pathEyebrow} title={copy.pathTitle} description={copy.pathDesc}>
-        <TenYearPath locale={isZh ? "zh" : "en"} />
-      </EasternSection>
-
-      <EasternSection eyebrow={copy.entryEyebrow} title={copy.entryTitle}>
-        <div className="grid gap-5 lg:grid-cols-3">
-          {copy.entries.map(entry => (
-            <Link key={entry.title} href={localeHref(entry.href)} className="group ow-card block p-7 transition hover:border-[var(--color-gold-soft)]">
-              <entry.icon className="text-[var(--color-gold)]" size={28} />
-              <h3 className="mt-5 text-xl font-semibold text-[var(--color-text-primary)]">{entry.title}</h3>
-              <p className="mt-3 min-h-[78px] text-sm leading-7 text-[var(--color-text-secondary)]">{entry.body}</p>
-              <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[var(--color-gold)]">
-                {entry.cta}
-                <ArrowRight size={15} className="transition group-hover:translate-x-1" />
-              </span>
+          {questions.map((question, index) => (
+            <Link
+              key={question}
+              href={localeHref(index === 3 ? "/daily" : "/reading/new")}
+              className={`gw-live-question gw-live-question-${index + 1}`}
+            >
+              <span>0{index + 1}</span>
+              {question}
             </Link>
           ))}
         </div>
-      </EasternSection>
+      </section>
 
-      <EasternSection eyebrow={copy.vaultEyebrow} title={copy.vaultTitle} description={copy.vaultDesc}>
-        <div className="grid gap-4 md:grid-cols-5">
-          {copy.vaultTags.map(tag => (
-            <EasternCard key={tag} className="grid min-h-[120px] place-items-center p-5 text-center text-sm font-semibold text-[var(--color-text-primary)]">
-              {tag}
-            </EasternCard>
-          ))}
+      <section id="sample-report" className="gw-live-section gw-live-report-section">
+        <div className="gw-live-report-copy">
+          <span>{copy.reportEyebrow}</span>
+          <h2>{copy.reportTitle}</h2>
+          <p>{copy.reportDesc}</p>
+          <Link href={localeHref("/reading/new")} className="gw-live-text-link">
+            {copy.reportCta}
+            <ArrowRight size={16} />
+          </Link>
         </div>
-      </EasternSection>
 
-      <section className="mx-auto w-[min(960px,calc(100vw-32px))] pb-24 pt-10 text-center">
-        <EasternCard className="p-8 md:p-12">
-          <Sparkles className="mx-auto text-[var(--color-gold)]" size={32} />
-          <h2 className="mt-5 text-3xl font-semibold leading-tight text-[var(--color-text-primary)] md:text-5xl">{copy.finalTitle}</h2>
-          <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-[var(--color-text-secondary)]">{copy.finalDesc}</p>
-          <Link href={localeHref("/reading/new")} className="ow-gold-button mt-8">{copy.primary}<ArrowRight size={17} /></Link>
-        </EasternCard>
+        <div className="gw-live-report-card">
+          <div className="gw-live-report-top">
+            <span>{copy.previewLabel}</span>
+            <strong>87%</strong>
+          </div>
+          {copy.reportItems.map(item => (
+            <div className="gw-live-report-row" key={item.title}>
+              <span>{item.title}</span>
+              <p>{item.body}</p>
+            </div>
+          ))}
+          <div className="gw-live-timeline">
+            {copy.timeline.map(item => (
+              <div key={item.year}>
+                <strong>{item.year}</strong>
+                <span>{item.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="gw-live-section gw-live-entry-section">
+        {copy.entries.map(entry => (
+          <Link href={localeHref(entry.href)} className="gw-live-entry" key={entry.title}>
+            <entry.icon size={25} />
+            <h3>{entry.title}</h3>
+            <p>{entry.body}</p>
+            <span>{entry.cta}<ArrowRight size={15} /></span>
+          </Link>
+        ))}
       </section>
     </EasternPageShell>
   )
 }
 
-function OrientalSkyAtlas({ mode }: { mode: "night" | "day" }) {
-  const trigrams = ["乾", "兑", "离", "震", "巽", "坎", "艮", "坤"]
-  const ticks = Array.from({ length: 48 }, (_, index) => index)
-  const stars = Array.from({ length: 36 }, (_, index) => ({
-    left: `${5 + ((index * 29) % 90)}%`,
-    top: `${6 + ((index * 19) % 76)}%`,
-    delay: `${(index % 6) * 0.4}s`,
-  }))
-
+function CosmicBaguaInstrument() {
   return (
-    <div className="gw-atlas-stage" aria-hidden="true">
-      <div className="gw-galaxy-band gw-galaxy-band-back" aria-hidden="true" />
-      <div className="gw-galaxy-band gw-galaxy-band-front" aria-hidden="true" />
-      <div className="gw-galaxy-dust" aria-hidden="true" />
-      <div className="gw-atlas-stars" aria-hidden="true">
-        {stars.map((star, index) => (
-          <span key={index} style={{ left: star.left, top: star.top, animationDelay: star.delay }} />
+    <div className="gw-live-disc">
+      <div className="gw-live-disc-glow" />
+      <div className="gw-live-ring gw-live-ring-1" />
+      <div className="gw-live-ring gw-live-ring-2" />
+      <div className="gw-live-ring gw-live-ring-3" />
+      <div className="gw-live-disc-lines" />
+      <div className="gw-live-yinyang">
+        <i />
+      </div>
+      <div className="gw-live-bagua">
+        {trigrams.map((mark, index) => (
+          <span key={mark} className={`gw-live-gua gw-live-gua-${index + 1}`}>{mark}</span>
         ))}
       </div>
-      <div className="gw-atlas-moon" data-mode={mode} aria-hidden="true" />
-      <div className="gw-atlas-constellation" aria-hidden="true" />
-      <div className="gw-cosmic-disc" aria-hidden="true">
-        <div className="gw-disc-glow" />
-        <div className="gw-disc-ring gw-disc-ring-a" />
-        <div className="gw-disc-ring gw-disc-ring-b" />
-        <div className="gw-disc-ring gw-disc-ring-c" />
-        <div className="gw-disc-ticks">
-          {ticks.map(tick => <i key={tick} style={{ transform: `rotate(${tick * 7.5}deg)` }} />)}
-        </div>
-        <div className="gw-disc-orbit gw-disc-orbit-a" />
-        <div className="gw-disc-orbit gw-disc-orbit-b" />
-        <div className="gw-taiji-symbol" />
-        <div className="gw-bagua-orbit">
-          {trigrams.map((mark, index) => (
-            <span key={mark} className={`gw-bagua-glyph gw-bagua-glyph-${index + 1}`}>{mark}</span>
-          ))}
-        </div>
-        <div className="gw-disc-core" />
+      <div className="gw-live-data-card gw-live-data-card-a">
+        <span>Pattern</span>
+        <strong>Strategic Creator</strong>
+      </div>
+      <div className="gw-live-data-card gw-live-data-card-b">
+        <span>Next Move</span>
+        <strong>Focus before expansion</strong>
       </div>
     </div>
   )
 }
 
 const zhCopy = {
-  tags: ["AI 多维合参", "五维人格结构", "今日行动建议", "未来机会窗口"],
-  heroTitle: "看见你的内在结构\n找到下一步该走的路",
-  heroDesc: "观我融合八字、星盘、塔罗、面相、手相与 AI 人格模型，生成你的性格底色、关系模式、事业方向与未来机会窗口。",
-  primary: "免费生成我的报告",
-  secondary: "查看样例报告",
-  socialProof: "已生成 12,000+ 份分析 · 4.9 星好评",
-  trustLine: "五体系交叉验证 × AI 深度推理 · 不是算命，是决策辅助",
-  dimensionLabels: ["八字", "星盘", "塔罗", "面相", "手相"],
-  engine: "观我合参引擎",
-  blindspotTitle: "当前盲点",
-  blindspot: "容易在关系与事业选择中反复消耗，需要先看清自己的稳定结构。",
-  actionTitle: "今日行动",
-  action: "先完成一个确定性任务，再处理复杂决策。",
-  questionsEyebrow: "真实问题",
-  questionsTitle: "一份报告，回答你真正关心的问题",
-  questionsDesc: "不是只看一个结果，而是从性格、关系、事业、财富和当下状态中，找到更清楚的行动方向。",
-  questions: ["我真正的性格底色是什么？", "为什么我总在某类关系里消耗？", "我的事业适合走哪条路径？", "财富机会会在哪些阶段出现？", "今天最适合推进什么事？", "哪种生活方式更适合我的状态？"],
-  systemEyebrow: "五维合参",
-  systemTitle: "不是单一算命，而是五维交叉验证",
-  systemDesc: "观我把八字、星盘、塔罗、面相、手相放进同一个 AI 分析框架，从长期结构、心理模式、当前问题、外显气质和行动习惯中交叉判断。",
-  dimensions: [
-    { title: "八字", body: "观察长期结构与人生节奏。" },
-    { title: "星盘", body: "识别心理模式与关系倾向。" },
-    { title: "塔罗", body: "聚焦当下问题与选择倾向。" },
-    { title: "面相", body: "理解外显气质与行为印象。" },
-    { title: "手相", body: "参考行动习惯与发展轨迹。" },
+  eyebrow: "东方星图档案系统",
+  title: "观我",
+  subtitle: "在星河命盘中，看见自己的下一步",
+  description: "一个 AI 个人洞察系统，将东方智慧、人格结构与行动建议整理成可阅读、可复盘、可执行的个人档案。",
+  tagLabel: "观我能力标签",
+  tags: ["星河命盘", "太极八卦", "AI 合参", "今日行动"],
+  primary: "生成我的个人档案",
+  secondary: "查看示例报告",
+  trustA: "AI 多维分析",
+  trustB: "不承诺结果",
+  trustC: "只提供行动参考",
+  visualLabel: "银河八卦命盘仪",
+  questionsEyebrow: "Question Orbit",
+  questionsTitle: "先回答真正影响你的问题",
+  questionsDesc: "用户进入观我，不是为了看功能列表，而是想知道自己为什么反复卡住，以及今天该做什么。",
+  archive: "观我档案",
+  archiveSub: "Personal Archive",
+  reportEyebrow: "Report Preview",
+  reportTitle: "付费后看到的不是概念，而是一份真实档案",
+  reportDesc: "核心结论、人格结构、事业方向、关系模式、未来窗口和今日行动，会以清楚的层级呈现。",
+  reportCta: "生成完整报告",
+  previewLabel: "Personal Archive Preview",
+  reportItems: [
+    { title: "核心结构", body: "外在稳定，内在高敏，适合在复杂问题中建立秩序。" },
+    { title: "事业方向", body: "适合判断力、表达力和系统构建能力并重的项目。" },
+    { title: "关系模式", body: "容易被强烈情绪吸引，长期关系更需要稳定反馈。" },
+    { title: "今日行动", body: "先完成一个能带来明确反馈的任务，再处理复杂决策。" },
   ],
-  reportEyebrow: "报告样例",
-  reportTitle: "你将获得一份怎样的观我报告？",
-  reportDesc: "从性格结构到未来窗口，从关系模式到今日行动，观我把复杂分析整理成可阅读、可理解、可执行的个人档案。",
-  reportModules: [
-    { title: "性格结构", body: "外在稳定，内在高敏，适合在复杂问题中建立秩序。" },
-    { title: "事业方向", body: "适合做需要判断力、表达力和系统构建能力的项目。" },
-    { title: "关系模式", body: "容易被强烈情绪吸引，但长期关系更需要稳定反馈。" },
-    { title: "财富窗口", body: "适合在稳定积累后寻找阶段性突破，而不是频繁切换方向。" },
-    { title: "今日行动", body: "先推进一个能带来确定反馈的任务，避免同时开启多个方向。" },
+  timeline: [
+    { year: "2026", label: "Foundation" },
+    { year: "2028", label: "Expansion" },
+    { year: "2030", label: "Transform" },
   ],
-  pathEyebrow: "行动地图",
-  pathTitle: "看见未来十年的关键窗口",
-  pathDesc: "不是告诉你一个固定结局，而是标记事业、财富、关系和成长中的关键阶段。",
-  entryEyebrow: "选择路径",
-  entryTitle: "不同问题，用不同深度的分析方式",
   entries: [
-    { icon: Brain, title: "完整观我报告", body: "系统了解自己，输出性格结构、人生节奏、事业财富、关系模式与行动建议。", cta: "生成完整报告", href: "/reading/new" },
-    { icon: MessageCircleQuestion, title: "单主题快问", body: "针对感情、事业、财富、选择题，快速获得一次问题分析。", cta: "提出一个问题", href: "/reading/new?intent=quick" },
-    { icon: HeartHandshake, title: "关系合参", body: "适合恋爱、婚姻、合作关系，分析两个人之间的吸引点、冲突点和相处方式。", cta: "开始关系合参", href: "/reading/new?intent=relationship" },
+    { icon: Brain, title: "完整观我报告", body: "系统查看性格结构、事业财富、关系模式与未来窗口。", cta: "生成报告", href: "/reading/new" },
+    { icon: MessageCircleQuestion, title: "单主题快问", body: "针对感情、事业、财富或选择题，获得一次快速分析。", cta: "提出问题", href: "/ask" },
+    { icon: HeartHandshake, title: "关系合参", body: "分析两个人之间的吸引点、冲突点和相处方式。", cta: "开始合参", href: "/compatibility" },
   ],
-  vaultEyebrow: "藏宝阁",
-  vaultTitle: "根据你的分析结果，匹配适合你的生活方式物件",
-  vaultDesc: "观我不会承诺改变命运，而是根据你的性格结构、情绪状态与生活节律，推荐更适合你的空间、饰品与仪式感物件。",
-  vaultTags: ["情绪稳定", "专注提升", "睡眠节律", "空间氛围", "日常仪式感"],
-  finalTitle: "从今天开始，看懂自己的下一步",
-  finalDesc: "生成你的观我档案，查看性格结构、关系模式、事业方向与今日行动建议。",
 }
 
 const enCopy = {
-  tags: ["AI synthesis", "Five-source profile", "Daily action", "Future windows"],
-  heroTitle: "See your inner structure\nfind the next step",
-  heroDesc: "Guanwo combines Bazi, astrology, tarot, facial reading, palm reading, and AI personality models into one readable dossier for self-knowledge and action.",
-  primary: "Get my free report",
-  secondary: "View sample report",
-  socialProof: "12,000+ reports generated · 4.9★ rated",
-  trustLine: "5 systems × AI deep reasoning · Decision support, not fortune telling",
-  dimensionLabels: ["Bazi", "Astrology", "Tarot", "Face", "Palm"],
-  engine: "Guanwo synthesis",
-  blindspotTitle: "Current blind spot",
-  blindspot: "Repeated friction in relationships and work choices often starts with an unseen pattern.",
-  actionTitle: "Daily action",
-  action: "Finish one certain task before complex decisions.",
-  questionsEyebrow: "Real questions",
-  questionsTitle: "One report for the questions that actually matter",
-  questionsDesc: "Not a single verdict. A clearer view across personality, relationships, career, wealth, and current timing.",
-  questions: ["What is my real personality base?", "Why do I repeat the same relationship drain?", "Which career path fits my structure?", "Where might opportunity windows appear?", "What should I move forward today?", "Which lifestyle rhythm fits my state?"],
-  systemEyebrow: "Five-source synthesis",
-  systemTitle: "Not one reading, but cross-validation",
-  systemDesc: "Guanwo places Bazi, astrology, tarot, face reading, and palm reading into one AI framework for long-term structure, psychology, current choices, outer presence, and habits.",
-  dimensions: [
-    { title: "Bazi", body: "Long-term structure and life rhythm." },
-    { title: "Astrology", body: "Psychological patterns and relationship tendencies." },
-    { title: "Tarot", body: "Current questions and choice pressure." },
-    { title: "Face reading", body: "Outer temperament and behavioral impression." },
-    { title: "Palm reading", body: "Habits, action style, and development trail." },
+  eyebrow: "Eastern Star Archive System",
+  title: "Guanwo",
+  subtitle: "Discover your hidden patterns in a cosmic personal archive",
+  description: "An AI-powered personal insight system combining ancient wisdom, personality layers, and action guidance into one readable archive.",
+  tagLabel: "Guanwo feature tags",
+  tags: ["Cosmic Chart", "Bagua Logic", "AI Synthesis", "Daily Action"],
+  primary: "Generate My Archive",
+  secondary: "View Sample Report",
+  trustA: "Multi-layer AI analysis",
+  trustB: "No guaranteed outcomes",
+  trustC: "Decision support only",
+  visualLabel: "Cosmic Bagua instrument",
+  questionsEyebrow: "Question Orbit",
+  questionsTitle: "Start with the questions that shape your decisions",
+  questionsDesc: "Guanwo is not a feature list. It helps users understand repeating patterns and choose the next practical move.",
+  archive: "Guanwo Archive",
+  archiveSub: "Personal Insight",
+  reportEyebrow: "Report Preview",
+  reportTitle: "Show the value before asking users to pay",
+  reportDesc: "Core conclusions, personality structure, work direction, relationship patterns, future windows, and daily action are shown in a clear hierarchy.",
+  reportCta: "Generate Full Report",
+  previewLabel: "Personal Archive Preview",
+  reportItems: [
+    { title: "Core Pattern", body: "Calm on the outside, highly sensitive inside; strong at building order from complexity." },
+    { title: "Career Direction", body: "Best suited for projects that combine judgment, expression, and system building." },
+    { title: "Relationship Pattern", body: "Drawn to strong emotion, but long-term bonds need steady feedback." },
+    { title: "Daily Action", body: "Finish one task with clear feedback before handling complex decisions." },
   ],
-  reportEyebrow: "Sample report",
-  reportTitle: "What will your Guanwo report include?",
-  reportDesc: "From inner structure to future windows and daily action, Guanwo turns complex analysis into a readable personal dossier.",
-  reportModules: [
-    { title: "Inner structure", body: "Steady outside, sensitive inside, strongest when creating order." },
-    { title: "Career direction", body: "Best for projects that require judgment, expression, and systems." },
-    { title: "Relationship mode", body: "Attracted by intensity, sustained by steady feedback." },
-    { title: "Wealth window", body: "Better to seek breakthroughs after stable accumulation." },
-    { title: "Daily action", body: "Move one task with clear feedback before opening more directions." },
+  timeline: [
+    { year: "2026", label: "Foundation" },
+    { year: "2028", label: "Expansion" },
+    { year: "2030", label: "Transform" },
   ],
-  pathEyebrow: "Action map",
-  pathTitle: "See the key windows of the next decade",
-  pathDesc: "Not a fixed ending. A map of career, wealth, relationship, and growth stages.",
-  entryEyebrow: "Choose depth",
-  entryTitle: "Different questions need different depth",
   entries: [
-    { icon: Brain, title: "Complete Guanwo report", body: "Personality, rhythm, career, wealth, relationships, and action guidance in one dossier.", cta: "Generate report", href: "/reading/new" },
-    { icon: MessageCircleQuestion, title: "Focus reading", body: "Ask one specific question about love, work, money, or a decision.", cta: "Ask a question", href: "/reading/new?intent=quick" },
-    { icon: HeartHandshake, title: "Relationship synthesis", body: "Understand attraction, friction, communication, and relationship rhythm.", cta: "Start relationship reading", href: "/reading/new?intent=relationship" },
+    { icon: Brain, title: "Full Archive", body: "Understand personality, work, wealth, relationship patterns, and future windows.", cta: "Generate", href: "/reading/new" },
+    { icon: MessageCircleQuestion, title: "Focus Reading", body: "Ask one concrete question about love, work, money, or a decision.", cta: "Ask", href: "/ask" },
+    { icon: HeartHandshake, title: "Relationship", body: "Explore attraction, friction, communication, and long-term rhythm.", cta: "Compare", href: "/compatibility" },
   ],
-  vaultEyebrow: "Vault",
-  vaultTitle: "Lifestyle objects matched to your current state",
-  vaultDesc: "Guanwo does not promise fate changes. It recommends spatial, personal, and ritual objects based on structure, mood, and rhythm.",
-  vaultTags: ["Emotional steadiness", "Focus", "Sleep rhythm", "Spatial atmosphere", "Daily ritual"],
-  finalTitle: "Start today by understanding your next step",
-  finalDesc: "Generate your Guanwo dossier for inner structure, relationship patterns, career direction, and daily action.",
 }
