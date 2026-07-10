@@ -6,6 +6,7 @@ import test from "node:test"
 const root = path.resolve(import.meta.dirname, "..")
 const assetPath = path.join(root, "public/assets/reference-style/reference-hero-visual.png")
 const manifestPath = path.join(root, "public/assets/reference-style/manifest.json")
+const cssPath = path.join(root, "src/app/[locale]/globals.css")
 
 function readPngDimensions(buffer) {
   assert.equal(buffer.subarray(0, 8).toString("hex"), "89504e470d0a1a0a")
@@ -30,4 +31,12 @@ test("reference asset remains public and decorative", () => {
     manifest.assets["hero-visual"].file,
     "/assets/reference-style/reference-hero-visual.png",
   )
+})
+
+test("reference hero layout keeps the crop at native desktop dimensions", () => {
+  const css = fs.readFileSync(cssPath, "utf8")
+  assert.match(css, /\.ia-hero-reference-visual\s*\{/)
+  assert.match(css, /max-width:\s*1264px/)
+  assert.match(css, /pointer-events:\s*none/)
+  assert.match(css, /@media\s*\(max-width:\s*767px\)/)
 })
