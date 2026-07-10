@@ -38,5 +38,7 @@ test("reference hero layout keeps the crop at native desktop dimensions", () => 
   assert.match(css, /\.ia-hero-reference-visual\s*\{/)
   assert.match(css, /max-width:\s*1264px/)
   assert.match(css, /pointer-events:\s*none/)
+  assert.match(css, /\.ia-hero-copy\s*\{[\s\S]*?width:\s*min\(640px,\s*46vw\)/)
+  assert.match(css, /\.ia-hero h1\s*\{[\s\S]*?max-width:\s*640px/)
   assert.match(css, /@media\s*\(max-width:\s*767px\)/)
 })
