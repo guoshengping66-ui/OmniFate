@@ -33,17 +33,17 @@ export function Navbar() {
 
   // Core links: keep the new-user path visible before secondary content.
   const coreLinks: Array<{ href: string; label: string; highlight?: boolean }> = [
-    { href: localeHref("/reading/new"), label: t("nav.reading") || "开始分析 / Start Reading", highlight: true },
-    { href: localeHref("/almanac"), label: t("nav.almanac") || "每日状态 / Almanac" },
-    { href: localeHref("/tools"), label: t("nav.tools") || "Tools" },
-    { href: localeHref("/shop"), label: t("nav.shop") || t("treasureHall.hero.title") },
-    { href: localeHref("/pricing"), label: t("nav.pricing") },
+    { href: localeHref("/reading/new"), label: "Generate Report", highlight: true },
+    { href: localeHref("/almanac"), label: "Daily Action" },
+    { href: localeHref("/tools"), label: "Tools" },
+    { href: localeHref("/shop"), label: "Lifestyle Vault" },
+    { href: localeHref("/pricing"), label: "Pricing" },
   ]
 
   // Secondary trust/content links stay visible on wide screens and collapse on smaller ones.
   const extraLinks = [
-    { href: localeHref("/knowledge"), label: t("nav.knowledge") || "Knowledge" },
-    { href: localeHref("/about"), label: t("nav.about") },
+    { href: localeHref("/knowledge"), label: "Guide" },
+    { href: localeHref("/about"), label: "About" },
   ]
 
   // Close dropdown on outside click
@@ -67,7 +67,7 @@ export function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           {/* Logo */}
           <Link href={localeHref("/")} className="flex items-center group flex-shrink-0">
-            <span className="font-serif font-bold text-lg text-gold">{t("app.name")}</span>
+            <span className="font-serif font-bold text-lg text-gold">Inner Atlas AI</span>
           </Link>
 
           {/* Desktop nav — wide screens: all links visible */}

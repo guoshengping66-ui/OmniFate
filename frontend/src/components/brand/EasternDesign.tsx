@@ -82,28 +82,20 @@ export function FiveDimensionOrbit({ labels, center }: { labels: string[]; cente
   )
 }
 
-export function ReportPreviewPanel({ locale = "zh" }: { locale?: "zh" | "en" }) {
-  const isZh = locale === "zh"
-  const rows = isZh
-    ? [
-        ["性格结构", "外在稳定，内在高敏，适合在复杂问题中建立秩序。"],
-        ["事业方向", "适合需要判断力、表达力和系统构建能力的项目。"],
-        ["关系模式", "容易被强烈情绪吸引，长期关系更需要稳定反馈。"],
-        ["今日行动", "先完成一个确定性任务，再处理复杂决策。"],
-      ]
-    : [
-        ["Inner structure", "Steady outside, sensitive inside, strongest when creating order."],
-        ["Career direction", "Best in work that needs judgment, expression, and systems."],
-        ["Relationship mode", "Attracted by intensity, sustained by steady feedback."],
-        ["Daily action", "Finish one certain task before complex decisions."],
-      ]
+export function ReportPreviewPanel({ locale: _locale = "en" }: { locale?: "zh" | "en" }) {
+  const rows = [
+    ["Core pattern", "Calm on the outside, sensitive inside, strongest when turning complexity into order."],
+    ["Career direction", "Best in work that needs judgment, expression, and system-building."],
+    ["Relationship style", "Attracted by intensity, sustained by clear feedback and stable rhythm."],
+    ["Daily action", "Finish one certain task before handling complex decisions."],
+  ]
 
   return (
     <EasternCard className="ow-report-preview">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.22em] text-[var(--color-gold)]">{isZh ? "观我档案预览" : "Guanwo dossier"}</p>
-          <h3 className="mt-2 text-2xl font-semibold text-[var(--color-text-primary)]">{isZh ? "五维合参报告" : "Five-source report"}</h3>
+          <p className="text-xs uppercase tracking-[0.22em] text-[var(--color-gold)]">Personal archive preview</p>
+          <h3 className="mt-2 text-2xl font-semibold text-[var(--color-text-primary)]">Five-layer report</h3>
         </div>
         <div className="rounded-full border border-[var(--color-gold-soft)] px-3 py-1 text-xs text-[var(--color-gold)]">100%</div>
       </div>
@@ -126,26 +118,17 @@ export function ReportPreviewPanel({ locale = "zh" }: { locale?: "zh" | "en" }) 
   )
 }
 
-export function TenYearPath({ locale = "zh" }: { locale?: "zh" | "en" }) {
-  const isZh = locale === "zh"
-  const items = isZh
-    ? [
-        ["2026", "积累期", "稳住节奏，减少无效消耗。"],
-        ["2027", "能力重组", "重新整理表达、判断和协作方式。"],
-        ["2028", "事业推进窗口", "适合推出更清晰的作品或项目。"],
-        ["2030", "财富机会窗口", "在稳定积累后寻找阶段性突破。"],
-        ["2032", "身份转型", "关系、事业角色进入新的定义期。"],
-      ]
-    : [
-        ["2026", "Foundation", "Stabilize rhythm and reduce waste."],
-        ["2027", "Rebuild", "Reframe judgment, expression, and collaboration."],
-        ["2028", "Career window", "Launch clearer projects or public work."],
-        ["2030", "Wealth window", "Look for focused breakthroughs after accumulation."],
-        ["2032", "Identity shift", "Relationships and work roles ask for a new definition."],
-      ]
+export function TenYearPath({ locale: _locale = "en" }: { locale?: "zh" | "en" }) {
+  const items = [
+    ["2026", "Foundation", "Stabilize rhythm and reduce wasted motion."],
+    ["2027", "Rebuild", "Reframe judgment, expression, and collaboration."],
+    ["2028", "Career window", "Launch clearer projects or public work."],
+    ["2030", "Wealth window", "Look for focused breakthroughs after accumulation."],
+    ["2032", "Identity shift", "Relationships and work roles ask for a new definition."],
+  ]
 
   return (
-    <div className="ow-timeline" aria-label={isZh ? "未来十年行动地图" : "Ten-year action map"}>
+    <div className="ow-timeline" aria-label="Ten-year action map">
       {items.map(([year, title, body]) => (
         <div key={year} className="ow-timeline-item">
           <span className="ow-timeline-dot" />

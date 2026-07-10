@@ -170,8 +170,8 @@ function AddProfileDialog({
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/80 p-4" style={{ zIndex: 2147483647 }}>
       <button aria-label="Close" className="absolute inset-0 cursor-default" onClick={onClose} />
-      <div className="relative max-h-[85vh] w-full max-w-md overflow-y-auto rounded-2xl border border-white/10 bg-[#1a1430] shadow-2xl">
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-[#1a1430] p-5">
+      <div className="relative max-h-[85vh] w-full max-w-md overflow-y-auto rounded-2xl border border-white/10 bg-[#07110F] shadow-2xl">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-[#07110F] p-5">
           <div>
             <h3 className="font-serif text-lg text-gold">Add comparison profile</h3>
             <p className="mt-0.5 text-xs text-white/40">Use it for relationship and comparison analysis.</p>
@@ -254,7 +254,7 @@ function AddProfileDialog({
           </div>
         </div>
 
-        <div className="sticky bottom-0 flex gap-3 border-t border-white/10 bg-[#1a1430] p-5">
+        <div className="sticky bottom-0 flex gap-3 border-t border-white/10 bg-[#07110F] p-5">
           <button
             onClick={onClose}
             disabled={saving}

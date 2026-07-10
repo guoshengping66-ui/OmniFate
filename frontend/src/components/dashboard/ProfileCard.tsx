@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { Calendar, MapPin, ShieldCheck, Sparkles, Star } from "lucide-react"
 import { useUserStore } from "@/stores/useUserStore"
 import { TargetSelector } from "./TargetSelector"
@@ -27,6 +28,7 @@ function formatBirthDate(year: number, month: number, day: number, hour: number,
 
 export function ProfileCard() {
   const { userProfile, activeTestTarget } = useUserStore()
+  const [editing, setEditing] = useState(false)
   const profile = activeTestTarget || userProfile
 
   if (!profile) {
@@ -105,14 +107,27 @@ export function ProfileCard() {
       </div>
 
       <div className="relative z-10 mt-5 border-t border-white/[0.06] pt-4">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-2 text-sm text-white/55">
             <ShieldCheck size={16} className="text-gold/75" />
             Ready for synthesis and daily action
           </div>
-          <Sparkles size={16} className="text-gold/55" />
+          <button
+            type="button"
+            onClick={() => setEditing((next) => !next)}
+            className="inline-flex items-center gap-2 rounded-full border border-gold/20 px-3 py-1.5 text-xs font-semibold text-gold transition hover:bg-gold/10"
+          >
+            <Sparkles size={14} />
+            {editing ? "Close" : "Update details"}
+          </button>
         </div>
       </div>
+
+      {editing && (
+        <div className="relative z-10 mt-5">
+          <BirthProfileSetup profile={profile} onDone={() => setEditing(false)} />
+        </div>
+      )}
     </div>
   )
 }

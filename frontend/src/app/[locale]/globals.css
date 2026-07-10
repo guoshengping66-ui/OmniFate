@@ -404,6 +404,43 @@
   -webkit-mask-image: radial-gradient(circle, transparent 0 36%, #000 37% 72%, transparent 73%);
 }
 
+.ia-mandala-needle {
+  position: absolute;
+  inset: 23%;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, transparent 0 49.7%, rgba(214, 182, 90, 0.24) 49.8% 50.2%, transparent 50.3% 100%),
+    linear-gradient(0deg, transparent 0 49.7%, rgba(129, 202, 185, 0.18) 49.8% 50.2%, transparent 50.3% 100%);
+  opacity: 0.8;
+  filter: drop-shadow(0 0 12px rgba(214, 182, 90, 0.16));
+}
+
+.ia-orbit-comet {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 44%;
+  height: 44%;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  border: 1px solid rgba(214, 182, 90, 0.08);
+}
+
+.ia-orbit-comet::before {
+  content: "";
+  position: absolute;
+  right: -4px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  transform: translateY(-50%);
+  border-radius: 999px;
+  background: #f4efe2;
+  box-shadow:
+    0 0 16px rgba(214, 182, 90, 0.85),
+    -18px 0 28px rgba(214, 182, 90, 0.24);
+}
+
 .ia-taiji-core {
   position: absolute;
   left: 50%;
@@ -444,12 +481,22 @@
 }
 
 .ia-bagua-node strong {
-  color: rgba(240, 213, 141, 0.86);
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 24px;
-  font-weight: 400;
-  line-height: 1;
-  text-shadow: 0 0 16px rgba(214, 182, 90, 0.24);
+  display: grid;
+  gap: 3px;
+  width: 27px;
+  filter: drop-shadow(0 0 12px rgba(214, 182, 90, 0.28));
+}
+
+.ia-trigram em {
+  display: block;
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(240, 213, 141, 0.88);
+}
+
+.ia-trigram em.is-broken {
+  background:
+    linear-gradient(90deg, rgba(240, 213, 141, 0.88) 0 38%, transparent 38% 62%, rgba(240, 213, 141, 0.88) 62% 100%);
 }
 
 .ia-bagua-node small {
@@ -1159,6 +1206,14 @@
     animation: iaMandalaSpin 18s linear infinite;
   }
 
+  .ia-mandala-needle {
+    animation: iaMandalaSpinReverse 52s linear infinite;
+  }
+
+  .ia-orbit-comet {
+    animation: iaMandalaSpin 16s linear infinite;
+  }
+
   .ia-bagua-node {
     animation: iaBaguaPulse 5.5s ease-in-out infinite;
   }
@@ -1284,7 +1339,7 @@
 
   .ia-hero-copy {
     width: 100%;
-    max-width: calc(100vw - 36px);
+    max-width: min(342px, calc(100vw - 48px));
   }
 
   .ia-brand-lockup {
@@ -1317,14 +1372,14 @@
   .ia-hero-actions {
     gap: 12px;
     width: 100%;
-    max-width: calc(100vw - 36px);
+    max-width: min(342px, calc(100vw - 48px));
   }
 
   .ia-primary-cta,
   .ia-secondary-cta {
     box-sizing: border-box;
-    width: calc(100vw - 36px);
-    max-width: calc(100vw - 36px);
+    width: 100%;
+    max-width: 100%;
     min-height: 52px;
     padding-right: 18px;
     padding-left: 18px;
@@ -1333,7 +1388,14 @@
 
   .ia-hero-tags {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    max-width: none;
+    width: 100%;
+    max-width: min(342px, calc(100vw - 48px));
+  }
+
+  .ia-hero-tags span {
+    padding: 0 4px;
+    font-size: 12px;
+    overflow-wrap: anywhere;
   }
 
   .ia-hero-orbit {
@@ -1357,7 +1419,7 @@
   }
 
   .ia-bagua-node strong {
-    font-size: 20px;
+    width: 24px;
   }
 
   .ia-bagua-node small {

@@ -8,16 +8,23 @@ import { DateSelector } from "@/components/reading/DateSelector"
 import { ShichenSelector } from "@/components/reading/ShichenSelector"
 import { LocationSelector } from "@/components/reading/LocationSelector"
 import type { CalendarType } from "@/lib/lunarCalendar"
+import type { BirthProfile } from "@/lib/birth-profile-api"
 
-export function BirthProfileSetup() {
-  const { createBirthProfile } = useUserStore()
-  const [gender, setGender] = useState<"female" | "male" | "other">("female")
-  const [year, setYear] = useState(0)
-  const [month, setMonth] = useState(0)
-  const [day, setDay] = useState(0)
-  const [hour, setHour] = useState(0)
-  const [minute, setMinute] = useState(0)
-  const [city, setCity] = useState("")
+type Props = {
+  profile?: BirthProfile | null
+  onDone?: () => void
+}
+
+export function BirthProfileSetup({ profile, onDone }: Props) {
+  const { createBirthProfile, updateBirthProfile } = useUserStore()
+  const isUpdate = Boolean(profile?.id)
+  const [gender, setGender] = useState<"female" | "male" | "other">(profile?.gender || "female")
+  const [year, setYear] = useState(profile?.birth_year || 0)
+  const [month, setMonth] = useState(profile?.birth_month || 0)
+  const [day, setDay] = useState(profile?.birth_day || 0)
+  const [hour, setHour] = useState(profile?.birth_hour || 0)
+  const [minute, setMinute] = useState(profile?.birth_minute || 0)
+  const [city, setCity] = useState(profile?.birth_city || "")
   const [loading, setLoading] = useState(false)
   const [calendarType, setCalendarType] = useState<CalendarType>("solar")
 
@@ -27,7 +34,7 @@ export function BirthProfileSetup() {
     if (!hasData) return
     setLoading(true)
     try {
-      await createBirthProfile({
+      const payload = {
         nickname: "Self",
         gender,
         birth_year: year,
@@ -36,8 +43,11 @@ export function BirthProfileSetup() {
         birth_hour: hour,
         birth_minute: minute,
         birth_city: city,
-      })
-      toast.success("Profile saved")
+      }
+      if (profile?.id) await updateBirthProfile(profile.id, payload)
+      else await createBirthProfile(payload)
+      toast.success(isUpdate ? "Profile updated" : "Profile saved")
+      onDone?.()
     } catch {
       toast.error("Save failed. Please try again.")
     } finally {
@@ -49,9 +59,13 @@ export function BirthProfileSetup() {
     <div className="card-glass p-6 anim-slide-up">
       <div className="mb-5 text-center">
         <Sparkles size={24} className="mx-auto mb-2 text-gold" />
-        <h2 className="font-serif text-lg text-gold">Complete your personal atlas</h2>
+        <h2 className="font-serif text-lg text-gold">
+          {isUpdate ? "Update your personal atlas" : "Complete your personal atlas"}
+        </h2>
         <p className="mt-1 text-sm text-white/40">
-          Add birth details to unlock daily action and reports based on your real profile.
+          {isUpdate
+            ? "Adjust birth details when your profile needs recalibration."
+            : "Add birth details to unlock daily action and reports based on your real profile."}
         </p>
       </div>
 
@@ -116,7 +130,7 @@ export function BirthProfileSetup() {
             </>
           ) : (
             <>
-              <CheckCircle size={16} /> Save profile
+              <CheckCircle size={16} /> {isUpdate ? "Update profile" : "Save profile"}
             </>
           )}
         </button>

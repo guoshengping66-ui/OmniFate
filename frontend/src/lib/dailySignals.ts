@@ -133,6 +133,94 @@ const SUMMARY: Record<Relation, Pick<DailyActionSummary, "theme" | "best" | "avo
   },
 }
 
+const DAILY_VARIANTS: Record<Relation, Array<Pick<DailyActionSummary, "best" | "avoid" | "reminder" | "window">>> = {
+  support: [
+    {
+      best: "Ask for one useful signal: feedback, resources, a clearer brief, or a calmer conversation.",
+      avoid: "Trying to prove everything alone before the situation has enough information.",
+      reminder: "Let support enter early, then decide what is actually worth pushing.",
+      window: "09:30 - 12:00",
+    },
+    {
+      best: "Move a collaborative task forward and make the next handoff easy to understand.",
+      avoid: "Waiting for perfect certainty before sharing a draft or request.",
+      reminder: "Today rewards clear requests more than private overthinking.",
+      window: "14:00 - 17:00",
+    },
+    {
+      best: "Review your resources, contacts, and current constraints before committing to a direction.",
+      avoid: "Saying yes before you know the cost in time, attention, or money.",
+      reminder: "Support is useful only when the scope is explicit.",
+      window: "16:00 - 18:30",
+    },
+  ],
+  same: [
+    {
+      best: "Close one task that can give you clear feedback today.",
+      avoid: "Changing direction suddenly or opening too many new branches.",
+      reminder: "Finish what is certain before handling uncertain people or money.",
+      window: "14:00 - 17:00",
+    },
+    {
+      best: "Repeat the routine that already works, then improve one small part of it.",
+      avoid: "Mistaking boredom for a signal that everything needs to change.",
+      reminder: "Stability is not stagnation when it creates usable progress.",
+      window: "10:00 - 12:30",
+    },
+    {
+      best: "Organize your workspace, files, or schedule so tomorrow starts with less friction.",
+      avoid: "Starting a large new promise when your current loop is almost complete.",
+      reminder: "A clean finish is more valuable today than a dramatic start.",
+      window: "15:30 - 18:00",
+    },
+  ],
+  output: [
+    {
+      best: "Write, ship, or communicate one concrete outcome.",
+      avoid: "Answering too many people, messages, or sudden ideas at once.",
+      reminder: "Today favors output, but not spreading your attention too thin.",
+      window: "10:00 - 13:00",
+    },
+    {
+      best: "Turn an idea into a visible draft, memo, prototype, or decision note.",
+      avoid: "Polishing the whole system before the first version is readable.",
+      reminder: "Make the idea external so reality can respond.",
+      window: "13:30 - 16:00",
+    },
+    {
+      best: "Choose one audience and express the point in a simpler form.",
+      avoid: "Explaining every layer when the other side only needs the next step.",
+      reminder: "Clear output creates momentum faster than perfect context.",
+      window: "09:00 - 11:30",
+    },
+  ],
+  pressure: [
+    {
+      best: "Resolve one small blocker so the situation can move again.",
+      avoid: "Forcing, over-explaining, or making long commitments under pressure.",
+      reminder: "Resistance is information. Adjust rhythm and boundaries.",
+      window: "15:00 - 18:00",
+    },
+    {
+      best: "Name the constraint, reduce the scope, and choose the smallest reversible move.",
+      avoid: "Turning temporary pressure into a permanent promise.",
+      reminder: "A smaller decision made cleanly is better than a large decision made defensively.",
+      window: "11:00 - 13:30",
+    },
+    {
+      best: "Check the facts before replying, paying, signing, or escalating.",
+      avoid: "Reacting to urgency as if it is the same as importance.",
+      reminder: "The useful move today is measured, not dramatic.",
+      window: "16:30 - 19:00",
+    },
+  ],
+}
+
+function dailyVariantIndex(year: number, month: number, day: number, date: Date): number {
+  const key = dateKey(date)
+  return Math.abs((year * 31 + month * 17 + day * 13 + key) % 3)
+}
+
 export function generateDailyActionSummary(
   birthYear: number,
   birthMonth: number,
@@ -145,6 +233,7 @@ export function generateDailyActionSummary(
   const birthElement = STEM_ELEMENTS[birthStem]
   const todayElement = STEM_ELEMENTS[todayStem]
   const rel = relation(birthElement, todayElement)
+  const variant = DAILY_VARIANTS[rel][dailyVariantIndex(birthYear, birthMonth, birthDay, date)]
   const source = `Based on your ${ELEMENT_LABEL[birthElement]} day pattern and today's ${ELEMENT_LABEL[todayElement]} signal`
   const names = {
     structure: "Structure",
@@ -161,7 +250,7 @@ export function generateDailyActionSummary(
 
   return {
     ...SUMMARY[rel],
-    window: rel === "output" ? "10:00 - 13:00" : rel === "pressure" ? "15:00 - 18:00" : "14:00 - 17:00",
+    ...variant,
     source,
     signals,
   }

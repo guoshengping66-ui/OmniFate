@@ -55,11 +55,10 @@ const nextConfig = {
     "@react-three/fiber",
   ],
   experimental: {
-    // Disable expensive build-time optimizations on the 2GB production server.
-    optimizeCss: !isLowMemoryBuild,
-    optimizePackageImports: isLowMemoryBuild
-      ? []
-      : [
+    // Disabled — critters library OOM on 2GB production server with large CSS.
+    // CSS optimization is handled at CDN level (Cloudflare).
+    optimizeCss: false,
+    optimizePackageImports: [
           "lucide-react",
           "date-fns",
           "lodash",

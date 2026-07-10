@@ -11,14 +11,14 @@ import {
 } from "lucide-react"
 
 const baguaNodes = [
-  { glyph: "\u2630", name: "Qian", angle: -90 },
-  { glyph: "\u2631", name: "Dui", angle: -45 },
-  { glyph: "\u2632", name: "Li", angle: 0 },
-  { glyph: "\u2633", name: "Zhen", angle: 45 },
-  { glyph: "\u2634", name: "Xun", angle: 90 },
-  { glyph: "\u2635", name: "Kan", angle: 135 },
-  { glyph: "\u2636", name: "Gen", angle: 180 },
-  { glyph: "\u2637", name: "Kun", angle: 225 },
+  { name: "Qian", angle: -90, lines: ["full", "full", "full"] },
+  { name: "Dui", angle: -45, lines: ["broken", "full", "full"] },
+  { name: "Li", angle: 0, lines: ["full", "broken", "full"] },
+  { name: "Zhen", angle: 45, lines: ["broken", "broken", "full"] },
+  { name: "Xun", angle: 90, lines: ["full", "full", "broken"] },
+  { name: "Kan", angle: 135, lines: ["broken", "full", "broken"] },
+  { name: "Gen", angle: 180, lines: ["full", "broken", "broken"] },
+  { name: "Kun", angle: 225, lines: ["broken", "broken", "broken"] },
 ]
 
 function HeroCosmicMandala() {
@@ -30,6 +30,8 @@ function HeroCosmicMandala() {
       <div className="ia-mandala-ring ia-mandala-ring-mid" />
       <div className="ia-mandala-ring ia-mandala-ring-inner" />
       <div className="ia-mandala-sweep" />
+      <div className="ia-mandala-needle" />
+      <div className="ia-orbit-comet" />
       <div className="ia-taiji-core">
         <span />
       </div>
@@ -45,7 +47,11 @@ function HeroCosmicMandala() {
             className="ia-bagua-node"
             style={{ left: `${x}%`, top: `${y}%` }}
           >
-            <strong>{node.glyph}</strong>
+            <strong className="ia-trigram" aria-label={`${node.name} trigram`}>
+              {node.lines.map((line, index) => (
+                <em key={`${node.name}-${index}`} className={line === "broken" ? "is-broken" : ""} />
+              ))}
+            </strong>
             <small>{node.name}</small>
           </div>
         )
