@@ -1195,7 +1195,8 @@
   .ia-orbit-particle,
   .rotate-slow,
   .hero-rotate,
-  .hero-rotate-reverse {
+  .hero-rotate-reverse,
+  .ia-astro-svg {
     animation: none !important;
   }
   .ia-hero-stars {
@@ -1304,6 +1305,17 @@
 
 @keyframes iaParticlePulse {
   0%, 100% { opacity: 0.22; transform: translate(-50%, -50%) scale(0.72); }
+
+/* ??? Astrolabe-Bagua ? unified rotation ??? */
+@keyframes iaAstroSpin {
+  to { transform: rotate(360deg); }
+}
+.ia-astro-svg { animation: iaAstroSpin 60s linear infinite; will-change: transform; }
+@keyframes iaAstroPulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.85; }
+}
+
   50% { opacity: 0.95; transform: translate(-50%, -50%) scale(1.2); }
 }
 

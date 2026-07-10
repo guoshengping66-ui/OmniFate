@@ -9,6 +9,8 @@ import {
   MessageCircleQuestion,
   Sparkles,
 } from "lucide-react"
+import StarField from "@/components/brand/StarField"
+import AstrolabeBagua from "@/components/brand/AstrolabeBagua"
 
 const baguaNodes = [
   { name: "Qian", angle: -90, lines: ["full", "full", "full"] },
@@ -21,62 +23,6 @@ const baguaNodes = [
   { name: "Kun", angle: 225, lines: ["broken", "broken", "broken"] },
 ]
 
-function HeroCosmicMandala() {
-  return (
-    <div className="ia-cosmic-visual" aria-hidden="true">
-      <div className="ia-galaxy-band" />
-      <div className="ia-mandala-glow" />
-      <div className="ia-mandala-ring ia-mandala-ring-outer" />
-      <div className="ia-mandala-ring ia-mandala-ring-mid" />
-      <div className="ia-mandala-ring ia-mandala-ring-inner" />
-      <div className="ia-mandala-sweep" />
-      <div className="ia-mandala-needle" />
-      <div className="ia-orbit-comet" />
-      <div className="ia-taiji-core">
-        <span />
-      </div>
-
-      {baguaNodes.map((node) => {
-        const radius = 43
-        const rad = (node.angle * Math.PI) / 180
-        const x = 50 + radius * Math.cos(rad)
-        const y = 50 + radius * Math.sin(rad)
-        return (
-          <div
-            key={node.name}
-            className="ia-bagua-node"
-            style={{ left: `${x}%`, top: `${y}%` }}
-          >
-            <strong className="ia-trigram" aria-label={`${node.name} trigram`}>
-              {node.lines.map((line, index) => (
-                <em key={`${node.name}-${index}`} className={line === "broken" ? "is-broken" : ""} />
-              ))}
-            </strong>
-            <small>{node.name}</small>
-          </div>
-        )
-      })}
-
-      {Array.from({ length: 12 }).map((_, index) => {
-        const angle = (index / 12) * 360
-        const radius = 31 + (index % 3) * 8
-        const rad = (angle * Math.PI) / 180
-        return (
-          <i
-            key={index}
-            className="ia-orbit-particle"
-            style={{
-              left: `${50 + radius * Math.cos(rad)}%`,
-              top: `${50 + radius * Math.sin(rad)}%`,
-              animationDelay: `${index * 0.24}s`,
-            }}
-          />
-        )
-      })}
-    </div>
-  )
-}
-
 export function EasternHomeExperience({ locale = "en" }: { locale?: string }) {
   const activeLocale = locale === "zh" ? "zh" : "en"
   const localeHref = (href: string) => {
@@ -87,13 +33,11 @@ export function EasternHomeExperience({ locale = "en" }: { locale?: string }) {
 
   return (
     <main className="ow-page ia-home relative min-h-screen overflow-hidden text-white">
-      <div className="ow-mountain-layer" aria-hidden="true" />
-      <div className="ow-star-field" aria-hidden="true" />
+      <StarField />
       <div className="relative z-10">
       <section className="ia-hero" aria-label={copy.heroAria}>
-        <HeroCosmicMandala />
+        <AstrolabeBagua />
         <div className="ia-hero-mist" aria-hidden="true" />
-        <div className="ia-hero-stars" aria-hidden="true" />
 
         <div className="ia-hero-copy">
           <div className="ia-brand-lockup">
