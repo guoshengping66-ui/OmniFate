@@ -254,6 +254,7 @@
     radial-gradient(circle at 16% 34%, rgba(30, 111, 97, 0.28), transparent 32%),
     linear-gradient(180deg, #020504 0%, #071713 42%, #020504 100%);
   color: var(--ia-text);
+  overflow-x: clip;
 }
 
 .ia-home a {
@@ -287,6 +288,185 @@
   pointer-events: none;
   user-select: none;
   transform-origin: 72% 42%;
+}
+
+.ia-cosmic-visual {
+  position: absolute;
+  right: clamp(18px, 7vw, 108px);
+  top: 50%;
+  z-index: -1;
+  width: min(46vw, 620px);
+  min-width: 460px;
+  aspect-ratio: 1;
+  transform: translateY(-50%);
+  pointer-events: none;
+  overflow: visible;
+  contain: layout;
+}
+
+.ia-cosmic-visual::before,
+.ia-cosmic-visual::after {
+  content: "";
+  position: absolute;
+  inset: -18%;
+  border-radius: 999px;
+  background-image:
+    radial-gradient(circle, rgba(244, 239, 226, 0.8) 0 1px, transparent 1.7px),
+    radial-gradient(circle, rgba(214, 182, 90, 0.65) 0 1px, transparent 1.4px),
+    radial-gradient(circle, rgba(129, 202, 185, 0.48) 0 1px, transparent 1.3px);
+  background-size: 118px 118px, 176px 176px, 236px 236px;
+  background-position: 0 0, 32px 60px, 88px 22px;
+  opacity: 0.58;
+  mask-image: radial-gradient(circle, #000 0 58%, transparent 76%);
+  -webkit-mask-image: radial-gradient(circle, #000 0 58%, transparent 76%);
+}
+
+.ia-cosmic-visual::after {
+  inset: -8%;
+  opacity: 0.36;
+  filter: blur(0.2px);
+  transform: rotate(22deg);
+}
+
+.ia-galaxy-band {
+  position: absolute;
+  inset: -26% -18%;
+  border-radius: 999px;
+  opacity: 0.68;
+  transform: rotate(-24deg);
+  background:
+    linear-gradient(92deg, transparent 14%, rgba(48, 119, 104, 0.08) 30%, rgba(244, 239, 226, 0.16) 48%, rgba(214, 182, 90, 0.12) 55%, rgba(42, 134, 116, 0.08) 69%, transparent 86%),
+    radial-gradient(ellipse at 50% 50%, rgba(244, 239, 226, 0.10), transparent 56%);
+  filter: blur(1px);
+}
+
+.ia-mandala-glow {
+  position: absolute;
+  inset: 3%;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at center, rgba(214, 182, 90, 0.15) 0 10%, rgba(30, 111, 97, 0.12) 18%, transparent 58%),
+    radial-gradient(circle at 62% 38%, rgba(129, 202, 185, 0.16), transparent 30%);
+  box-shadow:
+    0 0 80px rgba(214, 182, 90, 0.10),
+    0 0 140px rgba(30, 111, 97, 0.16);
+}
+
+.ia-mandala-ring {
+  position: absolute;
+  border-radius: 999px;
+}
+
+.ia-mandala-ring-outer {
+  inset: 5%;
+  border: 1px solid rgba(214, 182, 90, 0.28);
+  background:
+    repeating-conic-gradient(from 0deg, rgba(214, 182, 90, 0.34) 0 0.45deg, transparent 0.45deg 6deg),
+    radial-gradient(circle, transparent 62%, rgba(214, 182, 90, 0.06) 63%, transparent 66%);
+  mask-image: radial-gradient(circle, transparent 0 69%, #000 70% 72%, transparent 73%);
+  -webkit-mask-image: radial-gradient(circle, transparent 0 69%, #000 70% 72%, transparent 73%);
+}
+
+.ia-mandala-ring-mid {
+  inset: 16%;
+  border: 1px solid rgba(129, 202, 185, 0.18);
+  box-shadow: inset 0 0 42px rgba(30, 111, 97, 0.18);
+}
+
+.ia-mandala-ring-mid::before,
+.ia-mandala-ring-mid::after {
+  content: "";
+  position: absolute;
+  inset: 13%;
+  border-radius: inherit;
+  border: 1px solid rgba(214, 182, 90, 0.16);
+}
+
+.ia-mandala-ring-mid::after {
+  inset: 28%;
+  border-color: rgba(129, 202, 185, 0.16);
+}
+
+.ia-mandala-ring-inner {
+  inset: 33%;
+  border: 1px solid rgba(214, 182, 90, 0.24);
+  background:
+    radial-gradient(circle, rgba(244, 239, 226, 0.10), transparent 38%),
+    conic-gradient(from 0deg, rgba(214, 182, 90, 0.08), rgba(30, 111, 97, 0.14), rgba(214, 182, 90, 0.08));
+}
+
+.ia-mandala-sweep {
+  position: absolute;
+  inset: 9%;
+  border-radius: 999px;
+  background: conic-gradient(from 0deg, transparent 0deg, rgba(214, 182, 90, 0.18) 28deg, transparent 54deg, transparent 360deg);
+  mask-image: radial-gradient(circle, transparent 0 36%, #000 37% 72%, transparent 73%);
+  -webkit-mask-image: radial-gradient(circle, transparent 0 36%, #000 37% 72%, transparent 73%);
+}
+
+.ia-taiji-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 18%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  border: 1px solid rgba(214, 182, 90, 0.18);
+  background:
+    radial-gradient(circle at 50% 25%, rgba(244, 239, 226, 0.10) 0 12%, transparent 13%),
+    radial-gradient(circle at 50% 75%, rgba(2, 5, 4, 0.22) 0 12%, transparent 13%),
+    linear-gradient(90deg, rgba(244, 239, 226, 0.08) 0 50%, rgba(2, 5, 4, 0.18) 50% 100%);
+  opacity: 0.82;
+  box-shadow: 0 0 28px rgba(214, 182, 90, 0.13);
+}
+
+.ia-taiji-core span {
+  position: absolute;
+  inset: 25% 0;
+  border-radius: 999px;
+  border-top: 1px solid rgba(214, 182, 90, 0.08);
+  border-bottom: 1px solid rgba(129, 202, 185, 0.08);
+}
+
+.ia-bagua-node {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  width: 62px;
+  height: 62px;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  border: 1px solid rgba(214, 182, 90, 0.16);
+  background: radial-gradient(circle, rgba(3, 7, 6, 0.72), rgba(3, 7, 6, 0.12));
+  box-shadow: 0 0 24px rgba(214, 182, 90, 0.08);
+}
+
+.ia-bagua-node strong {
+  color: rgba(240, 213, 141, 0.86);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1;
+  text-shadow: 0 0 16px rgba(214, 182, 90, 0.24);
+}
+
+.ia-bagua-node small {
+  color: rgba(244, 239, 226, 0.42);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.ia-orbit-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  background: rgba(244, 239, 226, 0.72);
+  box-shadow: 0 0 14px rgba(214, 182, 90, 0.38);
 }
 
 .ia-hero::before {
@@ -958,6 +1138,34 @@
   .ia-hero-orbit span:nth-child(3) {
     animation: iaOrbitSpin 42s linear infinite;
   }
+
+  .ia-cosmic-visual::before {
+    animation: iaStarDrift 34s linear infinite;
+  }
+
+  .ia-galaxy-band {
+    animation: iaGalaxyFlow 20s ease-in-out infinite alternate;
+  }
+
+  .ia-mandala-ring-outer {
+    animation: iaMandalaSpin 88s linear infinite;
+  }
+
+  .ia-mandala-ring-mid {
+    animation: iaMandalaSpinReverse 120s linear infinite;
+  }
+
+  .ia-mandala-sweep {
+    animation: iaMandalaSpin 18s linear infinite;
+  }
+
+  .ia-bagua-node {
+    animation: iaBaguaPulse 5.5s ease-in-out infinite;
+  }
+
+  .ia-orbit-particle {
+    animation: iaParticlePulse 2.8s ease-in-out infinite;
+  }
 }
 
 @keyframes iaHeroDrift {
@@ -981,6 +1189,29 @@
 
 @keyframes iaOrbitSpin {
   to { transform: rotate(360deg); }
+}
+
+@keyframes iaGalaxyFlow {
+  from { transform: rotate(-25deg) translate3d(-2%, 0, 0); opacity: 0.48; }
+  to { transform: rotate(-21deg) translate3d(2%, -1%, 0); opacity: 0.76; }
+}
+
+@keyframes iaMandalaSpin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes iaMandalaSpinReverse {
+  to { transform: rotate(-360deg); }
+}
+
+@keyframes iaBaguaPulse {
+  0%, 100% { opacity: 0.72; box-shadow: 0 0 18px rgba(214, 182, 90, 0.08); }
+  50% { opacity: 1; box-shadow: 0 0 34px rgba(214, 182, 90, 0.18); }
+}
+
+@keyframes iaParticlePulse {
+  0%, 100% { opacity: 0.22; transform: translate(-50%, -50%) scale(0.72); }
+  50% { opacity: 0.95; transform: translate(-50%, -50%) scale(1.2); }
 }
 
 @media (max-width: 1120px) {
@@ -1009,6 +1240,14 @@
     width: 520px;
   }
 
+  .ia-cosmic-visual {
+    top: 570px;
+    right: -64px;
+    width: 560px;
+    min-width: 560px;
+    opacity: 0.9;
+  }
+
   .ia-report-shell,
   .ia-engine,
   .ia-daily-growth,
@@ -1026,6 +1265,7 @@
     min-height: 980px;
     padding: 96px 18px 32px;
     align-items: start;
+    overflow-x: hidden;
   }
 
   .ia-hero-visual-img {
@@ -1044,6 +1284,7 @@
 
   .ia-hero-copy {
     width: 100%;
+    max-width: calc(100vw - 36px);
   }
 
   .ia-brand-lockup {
@@ -1056,27 +1297,38 @@
   }
 
   .ia-hero h1 {
-    font-size: clamp(48px, 15vw, 70px);
+    max-width: 10ch;
+    font-size: clamp(44px, 13vw, 56px);
+    line-height: 0.94;
   }
 
   .ia-hero-subtitle {
     margin-top: 18px;
-    font-size: 22px;
+    max-width: 16rem;
+    font-size: 20px;
   }
 
   .ia-hero-desc {
+    max-width: 19rem;
     font-size: 15px;
     line-height: 1.75;
   }
 
   .ia-hero-actions {
     gap: 12px;
+    width: 100%;
+    max-width: calc(100vw - 36px);
   }
 
   .ia-primary-cta,
   .ia-secondary-cta {
-    width: 100%;
+    box-sizing: border-box;
+    width: calc(100vw - 36px);
+    max-width: calc(100vw - 36px);
     min-height: 52px;
+    padding-right: 18px;
+    padding-left: 18px;
+    white-space: nowrap;
   }
 
   .ia-hero-tags {
@@ -1089,6 +1341,27 @@
     right: -120px;
     width: 430px;
     opacity: 0.42;
+  }
+
+  .ia-cosmic-visual {
+    top: 610px;
+    right: -235px;
+    width: 460px;
+    min-width: 460px;
+    opacity: 0.46;
+  }
+
+  .ia-bagua-node {
+    width: 52px;
+    height: 52px;
+  }
+
+  .ia-bagua-node strong {
+    font-size: 20px;
+  }
+
+  .ia-bagua-node small {
+    font-size: 8px;
   }
 
   .ia-hero-report {

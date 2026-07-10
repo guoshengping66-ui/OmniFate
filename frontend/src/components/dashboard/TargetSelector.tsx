@@ -48,13 +48,13 @@ export function TargetSelector() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-[999] mt-1 w-52 rounded-xl border border-white/10 bg-[#0a0a1a]/98 shadow-xl">
+        <div className="absolute right-0 top-full z-[2000] mt-2 w-64 rounded-2xl border border-gold/15 bg-[#07110F]/95 p-1 shadow-[0_24px_80px_rgba(0,0,0,0.55)] backdrop-blur-xl">
           <button
             onClick={() => {
               resetToSelf()
               setOpen(false)
             }}
-            className="flex w-full items-center gap-2 px-3 py-2.5 text-sm transition-colors hover:bg-white/5"
+            className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-white/5"
           >
             <User size={14} className={isSelf ? "text-gold" : "text-white/30"} />
             <span className={isSelf ? "text-gold" : "text-white/60"}>{displayName(userProfile)}</span>
@@ -68,7 +68,7 @@ export function TargetSelector() {
                 setActiveTestTarget(p)
                 setOpen(false)
               }}
-              className="flex w-full items-center gap-2 px-3 py-2.5 text-sm transition-colors hover:bg-white/5"
+              className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-white/5"
             >
               <Users size={14} className={activeTestTarget?.id === p.id ? "text-gold" : "text-white/30"} />
               <span className={activeTestTarget?.id === p.id ? "text-gold" : "text-white/60"}>{displayName(p)}</span>
@@ -83,7 +83,7 @@ export function TargetSelector() {
               setOpen(false)
               setShowAddDialog(true)
             }}
-            className="flex w-full items-center gap-2 px-3 py-2.5 text-sm text-white/40 transition-colors hover:bg-white/5 hover:text-white/60"
+            className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-white/48 transition-colors hover:bg-white/5 hover:text-white/72"
           >
             <Plus size={14} />
             <span>Add comparison profile</span>

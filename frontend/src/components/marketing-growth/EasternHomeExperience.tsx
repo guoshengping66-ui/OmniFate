@@ -1,5 +1,3 @@
-"use client"
-
 import Link from "next/link"
 import {
   ArrowRight,
@@ -11,35 +9,85 @@ import {
   MessageCircleQuestion,
   Sparkles,
 } from "lucide-react"
-import { useLanguage } from "@/contexts/LanguageContext"
-import { EasternPageShell } from "@/components/brand/EasternDesign"
 
-export function EasternHomeExperience() {
-  const { locale, localeHref } = useLanguage()
-  const isZh = locale === "zh"
-  const copy = isZh ? zhCopy : enCopy
+const baguaNodes = [
+  { glyph: "\u2630", name: "Qian", angle: -90 },
+  { glyph: "\u2631", name: "Dui", angle: -45 },
+  { glyph: "\u2632", name: "Li", angle: 0 },
+  { glyph: "\u2633", name: "Zhen", angle: 45 },
+  { glyph: "\u2634", name: "Xun", angle: 90 },
+  { glyph: "\u2635", name: "Kan", angle: 135 },
+  { glyph: "\u2636", name: "Gen", angle: 180 },
+  { glyph: "\u2637", name: "Kun", angle: 225 },
+]
+
+function HeroCosmicMandala() {
+  return (
+    <div className="ia-cosmic-visual" aria-hidden="true">
+      <div className="ia-galaxy-band" />
+      <div className="ia-mandala-glow" />
+      <div className="ia-mandala-ring ia-mandala-ring-outer" />
+      <div className="ia-mandala-ring ia-mandala-ring-mid" />
+      <div className="ia-mandala-ring ia-mandala-ring-inner" />
+      <div className="ia-mandala-sweep" />
+      <div className="ia-taiji-core">
+        <span />
+      </div>
+
+      {baguaNodes.map((node) => {
+        const radius = 43
+        const rad = (node.angle * Math.PI) / 180
+        const x = 50 + radius * Math.cos(rad)
+        const y = 50 + radius * Math.sin(rad)
+        return (
+          <div
+            key={node.name}
+            className="ia-bagua-node"
+            style={{ left: `${x}%`, top: `${y}%` }}
+          >
+            <strong>{node.glyph}</strong>
+            <small>{node.name}</small>
+          </div>
+        )
+      })}
+
+      {Array.from({ length: 18 }).map((_, index) => {
+        const angle = (index / 18) * 360
+        const radius = 31 + (index % 3) * 8
+        const rad = (angle * Math.PI) / 180
+        return (
+          <i
+            key={index}
+            className="ia-orbit-particle"
+            style={{
+              left: `${50 + radius * Math.cos(rad)}%`,
+              top: `${50 + radius * Math.sin(rad)}%`,
+              animationDelay: `${index * 0.24}s`,
+            }}
+          />
+        )
+      })}
+    </div>
+  )
+}
+
+export function EasternHomeExperience({ locale = "en" }: { locale?: string }) {
+  const activeLocale = locale === "zh" ? "zh" : "en"
+  const localeHref = (href: string) => {
+    if (href.startsWith("#")) return href
+    return `/${activeLocale}${href.startsWith("/") ? href : `/${href}`}`
+  }
+  const copy = enCopy
 
   return (
-    <EasternPageShell className="ia-home">
+    <main className="ow-page ia-home relative min-h-screen overflow-hidden text-white">
+      <div className="ow-mountain-layer" aria-hidden="true" />
+      <div className="ow-star-field" aria-hidden="true" />
+      <div className="relative z-10">
       <section className="ia-hero" aria-label={copy.heroAria}>
-        <img
-          className="ia-hero-visual-img"
-          src="/brand/inner-atlas-hero-visual.webp"
-          width={1600}
-          height={1000}
-          alt=""
-          aria-hidden="true"
-          decoding="async"
-          fetchPriority="high"
-          sizes="100vw"
-        />
+        <HeroCosmicMandala />
         <div className="ia-hero-mist" aria-hidden="true" />
         <div className="ia-hero-stars" aria-hidden="true" />
-        <div className="ia-hero-orbit" aria-hidden="true">
-          <span />
-          <span />
-          <span />
-        </div>
 
         <div className="ia-hero-copy">
           <div className="ia-brand-lockup">
@@ -232,7 +280,8 @@ export function EasternHomeExperience() {
           <ArrowRight size={18} />
         </Link>
       </section>
-    </EasternPageShell>
+      </div>
+    </main>
   )
 }
 
