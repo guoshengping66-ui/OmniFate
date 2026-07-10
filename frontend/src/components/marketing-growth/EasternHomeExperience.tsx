@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import {
   ArrowRight,
   CalendarClock,
@@ -9,19 +10,6 @@ import {
   MessageCircleQuestion,
   Sparkles,
 } from "lucide-react"
-import StarField from "@/components/brand/StarField"
-import AstrolabeBagua from "@/components/brand/AstrolabeBagua"
-
-const baguaNodes = [
-  { name: "Qian", angle: -90, lines: ["full", "full", "full"] },
-  { name: "Dui", angle: -45, lines: ["broken", "full", "full"] },
-  { name: "Li", angle: 0, lines: ["full", "broken", "full"] },
-  { name: "Zhen", angle: 45, lines: ["broken", "broken", "full"] },
-  { name: "Xun", angle: 90, lines: ["full", "full", "broken"] },
-  { name: "Kan", angle: 135, lines: ["broken", "full", "broken"] },
-  { name: "Gen", angle: 180, lines: ["full", "broken", "broken"] },
-  { name: "Kun", angle: 225, lines: ["broken", "broken", "broken"] },
-]
 
 export function EasternHomeExperience({ locale = "en" }: { locale?: string }) {
   const activeLocale = locale === "zh" ? "zh" : "en"
@@ -33,10 +21,19 @@ export function EasternHomeExperience({ locale = "en" }: { locale?: string }) {
 
   return (
     <main className="ow-page ia-home relative min-h-screen overflow-hidden text-white">
-      <StarField />
       <div className="relative z-10">
       <section className="ia-hero" aria-label={copy.heroAria}>
-        <AstrolabeBagua />
+        <div className="ia-hero-reference-visual" aria-hidden="true">
+          <Image
+            className="ia-hero-reference-visual__image"
+            src="/assets/reference-style/reference-hero-visual.png"
+            alt=""
+            width={1264}
+            height={893}
+            priority
+            sizes="(min-width: 1920px) 1264px, 66vw"
+          />
+        </div>
         <div className="ia-hero-mist" aria-hidden="true" />
 
         <div className="ia-hero-copy">

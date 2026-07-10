@@ -23,3 +23,11 @@ test("reference hero asset matches its declared crop", () => {
   assert.deepEqual(dimensions, { width: 1264, height: 893 })
   assert.equal(manifest.assets["hero-visual"].role, "decorative")
 })
+
+test("reference asset remains public and decorative", () => {
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"))
+  assert.equal(
+    manifest.assets["hero-visual"].file,
+    "/assets/reference-style/reference-hero-visual.png",
+  )
+})
