@@ -57,8 +57,8 @@ function HeroCosmicMandala() {
         )
       })}
 
-      {Array.from({ length: 18 }).map((_, index) => {
-        const angle = (index / 18) * 360
+      {Array.from({ length: 12 }).map((_, index) => {
+        const angle = (index / 12) * 360
         const radius = 31 + (index % 3) * 8
         const rad = (angle * Math.PI) / 180
         return (
