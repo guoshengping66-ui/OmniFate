@@ -1,13 +1,10 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
-import { CHINA_REGIONS } from "@/data/china-regions"
+import { useEffect, useMemo, useState } from "react"
+import { Search } from "lucide-react"
 import { INTERNATIONAL_LOCATIONS } from "@/data/international-locations"
-import { ChevronDown, Search } from "lucide-react"
-import { useLanguage } from "@/contexts/LanguageContext"
 
-const OTHER_COUNTRY = "__other__"
-const INTL_CUSTOM = "__custom__"
+const CUSTOM_CITY = "__custom_city__"
 
 interface Props {
   value: string
@@ -16,543 +13,176 @@ interface Props {
 }
 
 export function LocationSelector({ value, onChange, placeholder }: Props) {
-  const { t } = useLanguage()
+  const [country, setCountry] = useState("")
+  const [state, setState] = useState("")
+  const [city, setCity] = useState("")
+  const [customCity, setCustomCity] = useState("")
+  const [search, setSearch] = useState("")
 
-  // ── China mode state ──
-  const [selectedProvince, setSelectedProvince] = useState("")
-  const [selectedCity, setSelectedCity] = useState("")
-  const [selectedDistrict, setSelectedDistrict] = useState("")
+  const countries = useMemo(() => {
+    const q = search.trim().toLowerCase()
+    if (!q) return INTERNATIONAL_LOCATIONS
+    return INTERNATIONAL_LOCATIONS.filter((item) =>
+      item.name.toLowerCase().includes(q) ||
+      item.states?.some((s) => s.name.toLowerCase().includes(q) || s.cities.some((c) => c.name.toLowerCase().includes(q))) ||
+      item.cities?.some((c) => c.name.toLowerCase().includes(q)),
+    )
+  }, [search])
 
-  // ── International mode state ──
-  const [selectedCountry, setSelectedCountry] = useState("")
-  const [selectedState, setSelectedState] = useState("")
-  const [selectedIntlCity, setSelectedIntlCity] = useState("")
-  const [isInternational, setIsInternational] = useState(false)
+  const currentCountry = INTERNATIONAL_LOCATIONS.find((item) => item.name === country)
+  const hasStates = Boolean(currentCountry?.states?.length)
+  const currentState = hasStates ? currentCountry?.states?.find((item) => item.name === state) : null
+  const cities = hasStates ? currentState?.cities || [] : currentCountry?.cities || []
 
-  // ── Free text fallback ──
-  const [otherInput, setOtherInput] = useState("")
-
-  // ── Search for country dropdown ──
-  const [countrySearch, setCountrySearch] = useState("")
-  const [showCountryDropdown, setShowCountryDropdown] = useState(false)
-  const countrySearchRef = useRef<HTMLInputElement>(null)
-
-  const currentCountry = INTERNATIONAL_LOCATIONS.find(c => c.name === selectedCountry)
-  const hasStates = !!(currentCountry?.states && currentCountry.states.length > 0)
-  const currentState = hasStates
-    ? currentCountry!.states!.find(s => s.name === selectedState)
-    : null
-
-  // Cities list: from state if hasStates, else from country.cities
-  const intlCities = hasStates
-    ? currentState?.cities || []
-    : currentCountry?.cities || []
-
-  // ── Determine mode from value ──
   useEffect(() => {
     if (!value) return
-    const parts = value.split("/")
+    const parts = value.split("/").filter(Boolean)
+    const nextCountry = INTERNATIONAL_LOCATIONS.find((item) => item.name === parts[0])
 
-    // Check if it's a China location
-    if (parts.length >= 1) {
-      const prov = CHINA_REGIONS.find(p => p.name === parts[0])
-      if (prov) {
-        setIsInternational(false)
-        setSelectedProvince(parts[0])
-        if (parts.length >= 2) {
-          const city = prov.children.find(c => c.name === parts[1])
-          if (city) {
-            setSelectedCity(parts[1])
-            if (parts.length >= 3) {
-              setSelectedDistrict(parts[2])
-            }
-          }
-        }
-        return
-      }
+    if (!nextCountry) {
+      setCountry("")
+      setState("")
+      setCity(CUSTOM_CITY)
+      setCustomCity(value)
+      return
     }
 
-    // Check if it's an international location
-    if (parts.length >= 1) {
-      const country = INTERNATIONAL_LOCATIONS.find(c => c.name === parts[0])
-      if (country) {
-        setIsInternational(true)
-        setSelectedCountry(parts[0])
-
-        if (country.states && country.states.length > 0 && parts.length >= 3) {
-          setSelectedState(parts[1])
-          const state = country.states.find(s => s.name === parts[1])
-          if (state) {
-            const city = state.cities.find(c => c.name === parts[2])
-            if (city) {
-              setSelectedIntlCity(parts[2])
-            } else {
-              setSelectedIntlCity(INTL_CUSTOM)
-              setOtherInput(parts[2])
-            }
-          }
-        } else if (parts.length >= 2) {
-          if (country.states && country.states.length > 0) {
-            let found = false
-            for (const state of country.states) {
-              const city = state.cities.find(c => c.name === parts[1])
-              if (city) {
-                setSelectedState(state.name)
-                setSelectedIntlCity(parts[1])
-                found = true
-                break
-              }
-            }
-            if (!found) {
-              setSelectedState("")
-              setSelectedIntlCity(INTL_CUSTOM)
-              setOtherInput(parts[1])
-            }
-          } else {
-            const city = country.cities?.find(c => c.name === parts[1])
-            if (city) {
-              setSelectedIntlCity(parts[1])
-            } else {
-              setSelectedIntlCity(INTL_CUSTOM)
-              setOtherInput(parts[1])
-            }
-          }
-        }
-        return
-      }
+    setCountry(nextCountry.name)
+    if (nextCountry.states?.length) {
+      const nextState = nextCountry.states.find((item) => item.name === parts[1])
+      setState(nextState?.name || "")
+      const nextCity = nextState?.cities.find((item) => item.name === parts[2])
+      setCity(nextCity?.name || (parts[2] ? CUSTOM_CITY : ""))
+      setCustomCity(nextCity ? "" : parts[2] || "")
+    } else {
+      setState("")
+      const nextCity = nextCountry.cities?.find((item) => item.name === parts[1])
+      setCity(nextCity?.name || (parts[1] ? CUSTOM_CITY : ""))
+      setCustomCity(nextCity ? "" : parts[1] || "")
     }
-
-    // Free text (no match found)
-    setIsInternational(true)
-    setSelectedCountry("")
-    setSelectedState("")
-    setSelectedIntlCity(INTL_CUSTOM)
-    setOtherInput(value)
   }, [value])
 
-  const currentProvince = CHINA_REGIONS.find(p => p.name === selectedProvince)
-  const currentCity = currentProvince?.children.find(c => c.name === selectedCity)
+  const emit = (nextCountry: string, nextState: string, nextCity: string, nextCustom = customCity) => {
+    const selectedCountry = INTERNATIONAL_LOCATIONS.find((item) => item.name === nextCountry)
+    const cityValue = nextCity === CUSTOM_CITY ? nextCustom.trim() : nextCity
 
-  // ── Filter countries by search ──
-  const filteredCountries = INTERNATIONAL_LOCATIONS.filter(c =>
-    c.name.toLowerCase().includes(countrySearch.toLowerCase()) ||
-    c.nameZh.includes(countrySearch)
-  )
-
-  // ── Emit helpers ──
-  const emitChinaValue = (province: string, city: string, district: string) => {
-    if (province && city && district) {
-      onChange(`${province}/${city}/${district}`)
-    } else if (province && city) {
-      onChange(`${province}/${city}`)
-    } else if (province) {
-      onChange(province)
-    } else {
-      onChange("")
-    }
-  }
-
-  const emitIntlValue = (country: string, state: string, city: string, customCity?: string) => {
-    const countryObj = INTERNATIONAL_LOCATIONS.find(c => c.name === country)
-    const hasStateLevel = countryObj?.states && countryObj.states.length > 0
-
-    if (hasStateLevel) {
-      if (state && city && city !== INTL_CUSTOM) {
-        onChange(`${country}/${state}/${city}`)
-      } else if (state && customCity) {
-        onChange(`${country}/${state}/${customCity}`)
-      } else if (country) {
-        onChange(country)
-      } else {
-        onChange("")
-      }
-    } else {
-      if (city && city !== INTL_CUSTOM) {
-        onChange(`${country}/${city}`)
-      } else if (customCity) {
-        onChange(`${country}/${customCity}`)
-      } else if (country) {
-        onChange(country)
-      } else {
-        onChange("")
-      }
-    }
-  }
-
-  // ── China handlers ──
-  const handleProvinceChange = (val: string) => {
-    if (val === OTHER_COUNTRY) {
-      setIsInternational(true)
-      setSelectedProvince("")
-      setSelectedCity("")
-      setSelectedDistrict("")
-      setSelectedCountry("")
-      setSelectedState("")
-      setSelectedIntlCity("")
-      setOtherInput("")
-      onChange("")
+    if (!selectedCountry) {
+      onChange(cityValue)
       return
     }
-    setIsInternational(false)
-    setSelectedProvince(val)
-    setSelectedCity("")
-    setSelectedDistrict("")
-    emitChinaValue(val, "", "")
-  }
 
-  const handleCityChange = (val: string) => {
-    setSelectedCity(val)
-    setSelectedDistrict("")
-    emitChinaValue(selectedProvince, val, "")
-  }
-
-  const handleDistrictChange = (val: string) => {
-    setSelectedDistrict(val)
-    emitChinaValue(selectedProvince, selectedCity, val)
-  }
-
-  // ── International handlers ──
-  const handleCountrySelect = (countryName: string) => {
-    setSelectedCountry(countryName)
-    setSelectedState("")
-    setSelectedIntlCity("")
-    setCountrySearch("")
-    setShowCountryDropdown(false)
-    emitIntlValue(countryName, "", "")
-  }
-
-  const handleStateChange = (val: string) => {
-    setSelectedState(val)
-    setSelectedIntlCity("")
-    emitIntlValue(selectedCountry, val, "")
-  }
-
-  const handleIntlCityChange = (val: string) => {
-    if (val === INTL_CUSTOM) {
-      setSelectedIntlCity(val)
-      setOtherInput("")
-      return
-    }
-    setSelectedIntlCity(val)
-    setOtherInput("")
-    emitIntlValue(selectedCountry, selectedState, val)
-  }
-
-  const handleCustomCityInput = (val: string) => {
-    setOtherInput(val)
-    if (val) {
-      emitIntlValue(selectedCountry, selectedState, "", val)
+    if (selectedCountry.states?.length) {
+      onChange([nextCountry, nextState, cityValue].filter(Boolean).join("/"))
     } else {
-      onChange(selectedCountry || "")
+      onChange([nextCountry, cityValue].filter(Boolean).join("/"))
     }
-  }
-
-  // ── Switch back to China ──
-  const handleBackToChina = () => {
-    setIsInternational(false)
-    setSelectedProvince("")
-    setSelectedCity("")
-    setSelectedDistrict("")
-    setSelectedCountry("")
-    setSelectedState("")
-    setSelectedIntlCity("")
-    setOtherInput("")
-    onChange("")
-  }
-
-  // ── Country dropdown blur ──
-  const handleCountryDropdownBlur = () => {
-    setTimeout(() => {
-      setShowCountryDropdown(false)
-      setCountrySearch("")
-    }, 200)
-  }
-
-  // ── Preview value for display ──
-  const displayPreview = () => {
-    if (!value) return null
-    return (
-      <div className="text-xs text-white/40 mt-1">
-        <span className="text-gold/60">{value}</span>
-      </div>
-    )
   }
 
   return (
     <div>
       <label className="label">
-        {t("new.birthCity")}
-        <span className="text-white/30 text-xs ml-2">{t("new.selectRegion")}</span>
+        Birth city
+        <span className="ml-2 text-xs text-white/30">Select country or region</span>
       </label>
 
-      {/* ── China Mode ── */}
-      {!isInternational && (
-        <div className="space-y-2">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            {/* Province */}
-            <select
-              value={selectedProvince}
-              onChange={e => handleProvinceChange(e.target.value)}
-              className="input-field text-sm"
-            >
-              <option value="" className="bg-[#0f0f1a] text-white">{t("new.selectProvince")}</option>
-              {CHINA_REGIONS.map(p => (
-                <option key={p.name} value={p.name} className="bg-[#0f0f1a] text-white">
-                  {p.name}
-                </option>
-              ))}
-              <option value={OTHER_COUNTRY} className="bg-[#0f0f1a] text-white">{t("new.otherCountry")}</option>
-            </select>
-
-            {/* City */}
-            <select
-              value={selectedCity}
-              onChange={e => handleCityChange(e.target.value)}
-              disabled={!currentProvince}
-              className="input-field text-sm disabled:opacity-30"
-            >
-              <option value="" className="bg-[#0f0f1a] text-white">{t("new.selectCity")}</option>
-              {currentProvince?.children.map(c => (
-                <option key={c.name} value={c.name} className="bg-[#0f0f1a] text-white">
-                  {c.name}
-                </option>
-              ))}
-            </select>
-
-            {/* District */}
-            <select
-              value={selectedDistrict}
-              onChange={e => handleDistrictChange(e.target.value)}
-              disabled={!currentCity}
-              className="input-field text-sm disabled:opacity-30"
-            >
-              <option value="" className="bg-[#0f0f1a] text-white">{t("new.selectDistrict")}</option>
-              {currentCity?.children.map(d => (
-                <option key={d.name} value={d.name} className="bg-[#0f0f1a] text-white">
-                  {d.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {displayPreview()}
+      <div className="space-y-2">
+        <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-[#0B1020] px-3 py-2">
+          <Search className="h-4 w-4 text-white/35" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search country or city"
+            className="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/30"
+          />
         </div>
-      )}
 
-      {/* ── International Mode ── */}
-      {isInternational && (
-        <div className="space-y-2">
-          {/* Row 1: Country + State/City */}
-          <div className={`grid grid-cols-1 ${hasStates ? "sm:grid-cols-3" : "sm:grid-cols-2"} gap-2`}>
-            {/* Country Selector with search */}
-            <div className="relative">
-              <div
-                onClick={() => {
-                  setShowCountryDropdown(!showCountryDropdown)
-                  if (!showCountryDropdown) {
-                    setTimeout(() => countrySearchRef.current?.focus(), 100)
-                  }
-                }}
-                className="input-field text-sm cursor-pointer flex items-center justify-between"
-              >
-                <span className={currentCountry ? "text-white truncate" : "text-white/40"}>
-                  {currentCountry ? `${currentCountry.nameZh}` : t("new.selectRegion")}
-                </span>
-                <ChevronDown className={`w-4 h-4 text-white/40 transition-transform flex-shrink-0 ${showCountryDropdown ? "rotate-180" : ""}`} />
-              </div>
+        <div className={`grid grid-cols-1 gap-2 ${hasStates ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}>
+          <select
+            value={country}
+            onChange={(e) => {
+              const next = e.target.value
+              setCountry(next)
+              setState("")
+              setCity("")
+              setCustomCity("")
+              emit(next, "", "", "")
+            }}
+            className="input-field text-sm"
+          >
+            <option value="" className="bg-[#0f0f1a] text-white">Country / Region</option>
+            {countries.map((item) => (
+              <option key={item.name} value={item.name} className="bg-[#0f0f1a] text-white">
+                {item.name}
+              </option>
+            ))}
+          </select>
 
-              {showCountryDropdown && (
-                <div className="absolute z-50 mt-1 w-full bg-[#1a1a2e] border border-white/10 rounded-lg shadow-xl max-h-72 overflow-hidden">
-                  {/* Search input */}
-                  <div className="sticky top-0 bg-[#1a1a2e] p-2 border-b border-white/10">
-                    <div className="flex items-center gap-2 bg-[#0f0f1a] rounded-md px-2 py-1.5">
-                      <Search className="w-3.5 h-3.5 text-white/30" />
-                      <input
-                        ref={countrySearchRef}
-                        type="text"
-                        value={countrySearch}
-                        onChange={e => setCountrySearch(e.target.value)}
-                        placeholder={t("new.searchCountry")}
-                        className="bg-transparent text-sm text-white outline-none w-full placeholder:text-white/30"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Country list */}
-                  <div className="overflow-y-auto max-h-56 p-1">
-                    {countrySearch ? (
-                      filteredCountries.map(c => (
-                        <button
-                          key={c.name}
-                          type="button"
-                          onClick={() => handleCountrySelect(c.name)}
-                          className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
-                            selectedCountry === c.name
-                              ? "bg-gold/20 text-gold"
-                              : "text-white hover:bg-white/5"
-                          }`}
-                        >
-                          {c.nameZh} <span className="text-white/40 ml-1">{c.name}</span>
-                        </button>
-                      ))
-                    ) : (
-                      <>
-                        <CountryGroup
-                          label={t("new.groupAsia")}
-                          countries={INTERNATIONAL_LOCATIONS.filter(c =>
-                            ["Japan", "South Korea", "Singapore", "Thailand", "Malaysia",
-                             "Indonesia", "Philippines", "Vietnam", "India"].includes(c.name)
-                          )}
-                          selected={selectedCountry}
-                          onSelect={handleCountrySelect}
-                        />
-                        <CountryGroup
-                          label={t("new.groupNorthAmerica")}
-                          countries={INTERNATIONAL_LOCATIONS.filter(c =>
-                            ["United States", "Canada", "Mexico"].includes(c.name)
-                          )}
-                          selected={selectedCountry}
-                          onSelect={handleCountrySelect}
-                        />
-                        <CountryGroup
-                          label={t("new.groupEurope")}
-                          countries={INTERNATIONAL_LOCATIONS.filter(c =>
-                            ["United Kingdom", "France", "Germany", "Netherlands",
-                             "Spain", "Italy", "Switzerland"].includes(c.name)
-                          )}
-                          selected={selectedCountry}
-                          onSelect={handleCountrySelect}
-                        />
-                        <CountryGroup
-                          label={t("new.groupOceania")}
-                          countries={INTERNATIONAL_LOCATIONS.filter(c =>
-                            ["Australia", "New Zealand"].includes(c.name)
-                          )}
-                          selected={selectedCountry}
-                          onSelect={handleCountrySelect}
-                        />
-                        <CountryGroup
-                          label={t("new.groupMiddleEast")}
-                          countries={INTERNATIONAL_LOCATIONS.filter(c =>
-                            ["United Arab Emirates", "Saudi Arabia", "Israel"].includes(c.name)
-                          )}
-                          selected={selectedCountry}
-                          onSelect={handleCountrySelect}
-                        />
-                        <CountryGroup
-                          label={t("new.groupOther")}
-                          countries={INTERNATIONAL_LOCATIONS.filter(c =>
-                            ["Brazil", "Argentina", "South Africa", "Egypt", "Russia", "Turkey"].includes(c.name)
-                          )}
-                          selected={selectedCountry}
-                          onSelect={handleCountrySelect}
-                        />
-                      </>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* State/Province selector (only for countries with states) */}
-            {hasStates && (
-              <select
-                value={selectedState}
-                onChange={e => handleStateChange(e.target.value)}
-                disabled={!selectedCountry}
-                className="input-field text-sm disabled:opacity-30"
-              >
-                <option value="" className="bg-[#0f0f1a] text-white">{t("new.selectState")}</option>
-                {currentCountry!.states!.map(s => (
-                  <option key={s.name} value={s.name} className="bg-[#0f0f1a] text-white">
-                    {s.nameZh} {s.name}
-                  </option>
-                ))}
-              </select>
-            )}
-
-            {/* City Selector */}
+          {hasStates && (
             <select
-              value={selectedIntlCity}
-              onChange={e => handleIntlCityChange(e.target.value)}
-              disabled={hasStates ? !selectedState : !selectedCountry}
+              value={state}
+              onChange={(e) => {
+                const next = e.target.value
+                setState(next)
+                setCity("")
+                setCustomCity("")
+                emit(country, next, "", "")
+              }}
+              disabled={!country}
               className="input-field text-sm disabled:opacity-30"
             >
-              <option value="" className="bg-[#0f0f1a] text-white">{t("new.selectCity")}</option>
-              {intlCities.map(c => (
-                <option key={c.name} value={c.name} className="bg-[#0f0f1a] text-white">
-                  {c.nameZh} {c.name}
+              <option value="" className="bg-[#0f0f1a] text-white">State / Province</option>
+              {currentCountry!.states!.map((item) => (
+                <option key={item.name} value={item.name} className="bg-[#0f0f1a] text-white">
+                  {item.name}
                 </option>
               ))}
-              {(hasStates ? selectedState : selectedCountry) && (
-                <option value={INTL_CUSTOM} className="bg-[#0f0f1a] text-white/50">
-                  {t("new.customCity")}
-                </option>
-              )}
             </select>
-          </div>
-
-          {/* Custom city input */}
-          {selectedIntlCity === INTL_CUSTOM && (
-            <div>
-              <input
-                type="text"
-                value={otherInput}
-                onChange={e => handleCustomCityInput(e.target.value)}
-                placeholder={placeholder || t("new.customCityPlaceholder")}
-                className="input-field text-sm"
-              />
-            </div>
           )}
 
-          {/* Back to China button */}
-          <button
-            type="button"
-            onClick={handleBackToChina}
-            className="text-xs text-white/40 hover:text-gold/70 transition-colors flex items-center gap-1"
+          <select
+            value={city}
+            onChange={(e) => {
+              const next = e.target.value
+              setCity(next)
+              setCustomCity("")
+              emit(country, state, next, "")
+            }}
+            disabled={hasStates ? !state : !country}
+            className="input-field text-sm disabled:opacity-30"
           >
-            {t("new.backToChina")}
-          </button>
-
-          {displayPreview()}
+            <option value="" className="bg-[#0f0f1a] text-white">City</option>
+            {cities.map((item) => (
+              <option key={item.name} value={item.name} className="bg-[#0f0f1a] text-white">
+                {item.name}
+              </option>
+            ))}
+            {(hasStates ? state : country) && (
+              <option value={CUSTOM_CITY} className="bg-[#0f0f1a] text-white">
+                Other city
+              </option>
+            )}
+          </select>
         </div>
-      )}
-    </div>
-  )
-}
 
-// ── Sub-component for grouped country list ──
-function CountryGroup({
-  label,
-  countries,
-  selected,
-  onSelect,
-}: {
-  label: string
-  countries: { name: string; nameZh: string }[]
-  selected: string
-  onSelect: (name: string) => void
-}) {
-  if (countries.length === 0) return null
-  return (
-    <div className="mb-1">
-      <div className="px-3 py-1 text-[10px] text-white/25 uppercase tracking-wider font-medium">
-        {label}
+        {city === CUSTOM_CITY && (
+          <input
+            value={customCity}
+            onChange={(e) => {
+              const next = e.target.value
+              setCustomCity(next)
+              emit(country, state, CUSTOM_CITY, next)
+            }}
+            placeholder={placeholder || "Enter city, e.g. Kuala Lumpur"}
+            className="input-field text-sm"
+          />
+        )}
+
+        {value && (
+          <p className="text-xs text-white/38">
+            Selected: <span className="text-gold/75">{value}</span>
+          </p>
+        )}
       </div>
-      {countries.map(c => (
-        <button
-          key={c.name}
-          type="button"
-          onClick={() => onSelect(c.name)}
-          className={`w-full text-left px-3 py-1.5 rounded-md text-sm transition-colors ${
-            selected === c.name
-              ? "bg-gold/20 text-gold"
-              : "text-white hover:bg-white/5"
-          }`}
-        >
-          {c.nameZh} <span className="text-white/40 ml-1">{c.name}</span>
-        </button>
-      ))}
     </div>
   )
 }

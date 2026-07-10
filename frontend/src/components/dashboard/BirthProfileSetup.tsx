@@ -1,17 +1,16 @@
 "use client"
+
 import { useState } from "react"
-import { Loader2, CheckCircle, Sparkles } from "lucide-react"
+import { CheckCircle, Loader2, Sparkles } from "lucide-react"
 import toast from "react-hot-toast"
 import { useUserStore } from "@/stores/useUserStore"
 import { DateSelector } from "@/components/reading/DateSelector"
 import { ShichenSelector } from "@/components/reading/ShichenSelector"
 import { LocationSelector } from "@/components/reading/LocationSelector"
-import { useLanguage } from "@/contexts/LanguageContext"
 import type { CalendarType } from "@/lib/lunarCalendar"
 
 export function BirthProfileSetup() {
   const { createBirthProfile } = useUserStore()
-  const { t } = useLanguage()
   const [gender, setGender] = useState<"female" | "male" | "other">("female")
   const [year, setYear] = useState(0)
   const [month, setMonth] = useState(0)
@@ -29,7 +28,7 @@ export function BirthProfileSetup() {
     setLoading(true)
     try {
       await createBirthProfile({
-        nickname: t("profile.selfName"),
+        nickname: "Self",
         gender,
         birth_year: year,
         birth_month: month,
@@ -38,9 +37,9 @@ export function BirthProfileSetup() {
         birth_minute: minute,
         birth_city: city,
       })
-      toast.success(t("profile.saved"))
+      toast.success("Profile saved")
     } catch {
-      toast.error(t("profile.saveFailed"))
+      toast.error("Save failed. Please try again.")
     } finally {
       setLoading(false)
     }
@@ -48,21 +47,34 @@ export function BirthProfileSetup() {
 
   return (
     <div className="card-glass p-6 anim-slide-up">
-      <div className="text-center mb-5">
-        <Sparkles size={24} className="text-gold mx-auto mb-2" />
-        <h2 className="font-serif text-lg text-gold">{t("profile.setupTitle")}</h2>
-        <p className="text-white/40 text-sm mt-1">{t("profile.setupDesc")}</p>
+      <div className="mb-5 text-center">
+        <Sparkles size={24} className="mx-auto mb-2 text-gold" />
+        <h2 className="font-serif text-lg text-gold">Complete your personal atlas</h2>
+        <p className="mt-1 text-sm text-white/40">
+          Add birth details to unlock daily action and reports based on your real profile.
+        </p>
       </div>
 
       <div className="space-y-4">
         <div>
-          <label className="label">{t("profile.gender")}</label>
+          <label className="label">Gender</label>
           <div className="flex gap-3">
-            {([["female", t("profile.female")], ["male", t("profile.male")], ["other", t("profile.other")]] as [string, string][]).map(([v, l]) => (
+            {([
+              ["female", "Female"],
+              ["male", "Male"],
+              ["other", "Other"],
+            ] as [string, string][]).map(([v, l]) => (
               <label key={v} className="flex-1 cursor-pointer">
-                <input type="radio" value={v} checked={gender === v}
-                  onChange={() => setGender(v as any)} className="sr-only peer" />
-                <div className="text-center py-2 rounded-xl border border-white/20 text-white/60 peer-checked:border-gold peer-checked:text-gold peer-checked:bg-gold/10 hover:border-white/40 transition-all text-sm">{l}</div>
+                <input
+                  type="radio"
+                  value={v}
+                  checked={gender === v}
+                  onChange={() => setGender(v as "female" | "male" | "other")}
+                  className="peer sr-only"
+                />
+                <div className="rounded-xl border border-white/20 py-2 text-center text-sm text-white/60 transition-all hover:border-white/40 peer-checked:border-gold peer-checked:bg-gold/10 peer-checked:text-gold">
+                  {l}
+                </div>
               </label>
             ))}
           </div>
@@ -81,29 +93,36 @@ export function BirthProfileSetup() {
 
         <ShichenSelector
           value={hour}
-          onChange={(h) => { setHour(h); setMinute(0) }}
+          onChange={(h) => {
+            setHour(h)
+            setMinute(0)
+          }}
         />
 
         <LocationSelector
           value={city}
           onChange={setCity}
-          placeholder={t("profile.cityPlaceholder")}
+          placeholder="Enter city, e.g. Kuala Lumpur"
         />
 
         <button
           onClick={handleSubmit}
           disabled={loading || !hasData}
-          className="btn-gold w-full flex items-center justify-center gap-2 py-3 disabled:opacity-40"
+          className="btn-gold flex w-full items-center justify-center gap-2 py-3 disabled:opacity-40"
         >
           {loading ? (
-            <><Loader2 size={16} className="animate-spin" /> {t("profile.saving")}</>
+            <>
+              <Loader2 size={16} className="animate-spin" /> Saving...
+            </>
           ) : (
-            <><CheckCircle size={16} /> {t("profile.save")}</>
+            <>
+              <CheckCircle size={16} /> Save profile
+            </>
           )}
         </button>
 
-        <p className="text-white/25 text-[10px] text-center">
-          {t("profile.privacy")}
+        <p className="text-center text-[10px] text-white/25">
+          Your birth details are used only for personal analysis and action guidance.
         </p>
       </div>
     </div>

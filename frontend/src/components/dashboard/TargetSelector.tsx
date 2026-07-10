@@ -1,29 +1,28 @@
 "use client"
-import { useState, useRef, useEffect, Suspense, lazy } from "react"
+
+import { lazy, Suspense, useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
-import { ChevronDown, User, Users, Plus, Check, X, Loader2 } from "lucide-react"
+import { Check, ChevronDown, Loader2, Plus, User, Users, X } from "lucide-react"
 import toast from "react-hot-toast"
 import { useUserStore } from "@/stores/useUserStore"
-import { useLanguage } from "@/contexts/LanguageContext"
 import type { BirthProfile } from "@/lib/birth-profile-api"
 
-const DateSelector = lazy(() => import("@/components/reading/DateSelector").then(m => ({ default: m.DateSelector })))
-const ShichenSelector = lazy(() => import("@/components/reading/ShichenSelector").then(m => ({ default: m.ShichenSelector })))
-const LocationSelector = lazy(() => import("@/components/reading/LocationSelector").then(m => ({ default: m.LocationSelector })))
+const DateSelector = lazy(() => import("@/components/reading/DateSelector").then((m) => ({ default: m.DateSelector })))
+const ShichenSelector = lazy(() => import("@/components/reading/ShichenSelector").then((m) => ({ default: m.ShichenSelector })))
+const LocationSelector = lazy(() => import("@/components/reading/LocationSelector").then((m) => ({ default: m.LocationSelector })))
+
+function displayName(profile?: BirthProfile | null) {
+  if (!profile?.nickname || profile.nickname === "Self" || profile.nickname === "Myself" || /[\u4e00-\u9fff]/.test(profile.nickname)) {
+    return "My Profile"
+  }
+  return profile.nickname
+}
 
 export function TargetSelector() {
   const { userProfile, activeTestTarget, birthProfiles, setActiveTestTarget, resetToSelf, createBirthProfile } = useUserStore()
-  const { t } = useLanguage()
   const [open, setOpen] = useState(false)
   const [showAddDialog, setShowAddDialog] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
-
-  // Translate stored default nicknames ("本命", "Myself") at display time
-  // so they switch language correctly instead of showing the registration locale
-  const showNickname = (n: string) => {
-    if (n === "本命" || n === "Myself") return t("target.self")
-    return n
-  }
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -36,60 +35,66 @@ export function TargetSelector() {
   if (!userProfile) return null
 
   const isSelf = activeTestTarget?.id === userProfile.id
-  const targetLabel = activeTestTarget?.nickname ? showNickname(activeTestTarget.nickname) : t("target.self")
 
   return (
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border border-white/10 text-white/50 hover:border-gold/30 hover:text-gold transition-all"
+        className="flex items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1.5 text-xs text-white/50 transition-all hover:border-gold/30 hover:text-gold"
       >
         {isSelf ? <User size={12} /> : <Users size={12} />}
-        <span className="max-w-[80px] truncate">{targetLabel}</span>
+        <span className="max-w-[96px] truncate">{displayName(activeTestTarget || userProfile)}</span>
         <ChevronDown size={12} className={`transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-1 w-48 bg-[#0a0a1a]/98 border border-white/10 rounded-xl shadow-xl z-[999]">
+        <div className="absolute right-0 top-full z-[999] mt-1 w-52 rounded-xl border border-white/10 bg-[#0a0a1a]/98 shadow-xl">
           <button
-            onClick={() => { resetToSelf(); setOpen(false) }}
-            className="w-full flex items-center gap-2 px-3 py-2.5 text-sm hover:bg-white/5 transition-colors"
+            onClick={() => {
+              resetToSelf()
+              setOpen(false)
+            }}
+            className="flex w-full items-center gap-2 px-3 py-2.5 text-sm transition-colors hover:bg-white/5"
           >
             <User size={14} className={isSelf ? "text-gold" : "text-white/30"} />
-            <span className={isSelf ? "text-gold" : "text-white/60"}>{t("target.selfLabel")}{showNickname(userProfile.nickname)}</span>
-            {isSelf && <Check size={12} className="text-gold ml-auto" />}
+            <span className={isSelf ? "text-gold" : "text-white/60"}>{displayName(userProfile)}</span>
+            {isSelf && <Check size={12} className="ml-auto text-gold" />}
           </button>
 
-          {birthProfiles.filter(p => p.id !== userProfile.id).map(p => (
+          {birthProfiles.filter((p) => p.id !== userProfile.id).map((p) => (
             <button
               key={p.id}
-              onClick={() => { setActiveTestTarget(p); setOpen(false) }}
-              className="w-full flex items-center gap-2 px-3 py-2.5 text-sm hover:bg-white/5 transition-colors"
+              onClick={() => {
+                setActiveTestTarget(p)
+                setOpen(false)
+              }}
+              className="flex w-full items-center gap-2 px-3 py-2.5 text-sm transition-colors hover:bg-white/5"
             >
               <Users size={14} className={activeTestTarget?.id === p.id ? "text-gold" : "text-white/30"} />
-              <span className={activeTestTarget?.id === p.id ? "text-gold" : "text-white/60"}>{showNickname(p.nickname)}</span>
-              {activeTestTarget?.id === p.id && <Check size={12} className="text-gold ml-auto" />}
+              <span className={activeTestTarget?.id === p.id ? "text-gold" : "text-white/60"}>{displayName(p)}</span>
+              {activeTestTarget?.id === p.id && <Check size={12} className="ml-auto text-gold" />}
             </button>
           ))}
 
           <div className="border-t border-white/10" />
 
           <button
-            onClick={() => { setOpen(false); setShowAddDialog(true) }}
-            className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-white/40 hover:bg-white/5 hover:text-white/60 transition-colors"
+            onClick={() => {
+              setOpen(false)
+              setShowAddDialog(true)
+            }}
+            className="flex w-full items-center gap-2 px-3 py-2.5 text-sm text-white/40 transition-colors hover:bg-white/5 hover:text-white/60"
           >
             <Plus size={14} />
-            <span>{t("target.addFriend")}</span>
+            <span>Add comparison profile</span>
           </button>
         </div>
       )}
 
-      {/* Add Friend Dialog — rendered via portal to document.body */}
       {showAddDialog && createPortal(
-        <AddFriendDialog
+        <AddProfileDialog
           onClose={() => setShowAddDialog(false)}
           onSave={createBirthProfile}
-          t={t}
         />,
         document.body,
       )}
@@ -97,14 +102,21 @@ export function TargetSelector() {
   )
 }
 
-function AddFriendDialog({
+function AddProfileDialog({
   onClose,
   onSave,
-  t,
 }: {
   onClose: () => void
-  onSave: (data: any) => Promise<BirthProfile>
-  t: (key: string) => string
+  onSave: (data: {
+    nickname: string
+    gender: "male" | "female" | "other"
+    birth_year: number
+    birth_month: number
+    birth_day: number
+    birth_hour: number
+    birth_minute: number
+    birth_city: string
+  }) => Promise<BirthProfile>
 }) {
   const [nickname, setNickname] = useState("")
   const [gender, setGender] = useState<"male" | "female" | "other">("female")
@@ -116,22 +128,24 @@ function AddFriendDialog({
   const [birthCity, setBirthCity] = useState("")
   const [saving, setSaving] = useState(false)
 
-  // Lock body scroll while dialog is open
   useEffect(() => {
     const prev = document.body.style.overflow
     document.body.style.overflow = "hidden"
-    return () => { document.body.style.overflow = prev }
+    return () => {
+      document.body.style.overflow = prev
+    }
   }, [])
 
   const handleSave = async () => {
     if (!nickname.trim()) {
-      toast.error(t("target.nickname") + " required")
+      toast.error("Name is required")
       return
     }
     if (!birthYear || !birthMonth || !birthDay) {
-      toast.error(t("new.dateRequired"))
+      toast.error("Birth date is required")
       return
     }
+
     setSaving(true)
     try {
       await onSave({
@@ -144,70 +158,67 @@ function AddFriendDialog({
         birth_minute: birthMinute,
         birth_city: birthCity,
       })
-      toast.success(t("target.saved"))
+      toast.success("Profile saved")
       onClose()
     } catch {
-      toast.error(t("target.saveFail"))
+      toast.error("Save failed. Please try again.")
     } finally {
       setSaving(false)
     }
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/80  p-4"
-      style={{ zIndex: 2147483647 }}>
-      {/* Click backdrop to close */}
-      <div className="absolute inset-0" onClick={onClose} />
-      <div className="relative bg-[#1a1430] border border-white/10 rounded-2xl w-full max-w-md max-h-[85vh] overflow-y-auto shadow-2xl">
-        {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-white/10 sticky top-0 bg-[#1a1430] z-10">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/80 p-4" style={{ zIndex: 2147483647 }}>
+      <button aria-label="Close" className="absolute inset-0 cursor-default" onClick={onClose} />
+      <div className="relative max-h-[85vh] w-full max-w-md overflow-y-auto rounded-2xl border border-white/10 bg-[#1a1430] shadow-2xl">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-[#1a1430] p-5">
           <div>
-            <h3 className="font-serif text-lg text-gold">{t("target.addFriendTitle")}</h3>
-            <p className="text-white/40 text-xs mt-0.5">{t("target.addFriendDesc")}</p>
+            <h3 className="font-serif text-lg text-gold">Add comparison profile</h3>
+            <p className="mt-0.5 text-xs text-white/40">Use it for relationship and comparison analysis.</p>
           </div>
-          <button onClick={onClose} className="text-white/30 hover:text-white/60 transition-colors">
+          <button onClick={onClose} className="text-white/30 transition-colors hover:text-white/60">
             <X size={20} />
           </button>
         </div>
 
-        {/* Form */}
-        <div className="p-5 space-y-5">
-          {/* Nickname */}
+        <div className="space-y-5 p-5">
           <div>
-            <label className="label">{t("target.nickname")}</label>
+            <label className="label">Name</label>
             <input
               type="text"
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
-              placeholder={t("target.nicknamePlaceholder")}
+              placeholder="Name"
               className="input-field"
               autoFocus
             />
           </div>
 
-          {/* Gender */}
           <div>
-            <label className="label">{t("new.genderLabel")}</label>
+            <label className="label">Gender</label>
             <div className="flex gap-3">
-              {([["female", t("new.genderFemale")], ["male", t("new.genderMale")], ["other", t("new.genderOther")]] as [string, string][]).map(([v, l]) => (
+              {([
+                ["female", "Female"],
+                ["male", "Male"],
+                ["other", "Other"],
+              ] as [string, string][]).map(([v, l]) => (
                 <label key={v} className="flex-1 cursor-pointer">
                   <input
                     type="radio"
                     value={v}
                     checked={gender === v}
                     onChange={() => setGender(v as "male" | "female" | "other")}
-                    className="sr-only peer"
+                    className="peer sr-only"
                   />
-                  <div className="text-center py-2.5 rounded-xl border border-white/20 text-white/60 peer-checked:border-gold peer-checked:text-gold peer-checked:bg-gold/10 hover:border-white/40 transition-all text-sm">{l}</div>
+                  <div className="rounded-xl border border-white/20 py-2.5 text-center text-sm text-white/60 transition-all hover:border-white/40 peer-checked:border-gold peer-checked:bg-gold/10 peer-checked:text-gold">{l}</div>
                 </label>
               ))}
             </div>
           </div>
 
-          {/* Birth Date */}
           <div>
-            <label className="label">{t("new.partnerBirthDate")}</label>
-            <Suspense fallback={<div className="h-10 bg-white/5 rounded animate-pulse" />}>
+            <label className="label">Birth date</label>
+            <Suspense fallback={<div className="h-10 animate-pulse rounded bg-white/5" />}>
               <DateSelector
                 year={birthYear}
                 month={birthMonth}
@@ -219,48 +230,49 @@ function AddFriendDialog({
             </Suspense>
           </div>
 
-          {/* Birth Hour */}
           <div>
-            <label className="label">{t("new.partnerBirthHour")}</label>
-            <Suspense fallback={<div className="h-10 bg-white/5 rounded animate-pulse" />}>
+            <label className="label">Birth time</label>
+            <Suspense fallback={<div className="h-10 animate-pulse rounded bg-white/5" />}>
               <ShichenSelector
                 value={birthHour}
-                onChange={(h) => setBirthHour(h)}
+                onChange={(h) => {
+                  setBirthHour(h)
+                  setBirthMinute(0)
+                }}
               />
             </Suspense>
           </div>
 
-          {/* Birth City */}
           <div>
-            <label className="label">{t("new.partnerBirthCity")}</label>
-            <Suspense fallback={<div className="h-10 bg-white/5 rounded animate-pulse" />}>
+            <Suspense fallback={<div className="h-10 animate-pulse rounded bg-white/5" />}>
               <LocationSelector
                 value={birthCity}
                 onChange={setBirthCity}
-                placeholder={t("new.partnerCityPlaceholder")}
+                placeholder="Enter city, e.g. Singapore"
               />
             </Suspense>
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="flex gap-3 p-5 border-t border-white/10 sticky bottom-0 bg-[#1a1430]">
+        <div className="sticky bottom-0 flex gap-3 border-t border-white/10 bg-[#1a1430] p-5">
           <button
             onClick={onClose}
             disabled={saving}
-            className="flex-1 py-2.5 rounded-xl border border-white/20 text-white/60 hover:border-white/40 transition-all text-sm"
+            className="flex-1 rounded-xl border border-white/20 py-2.5 text-sm text-white/60 transition-all hover:border-white/40"
           >
-            {t("target.cancel")}
+            Cancel
           </button>
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex-1 py-2.5 rounded-xl btn-gold text-sm flex items-center justify-center gap-2"
+            className="btn-gold flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-sm"
           >
             {saving ? (
-              <><Loader2 size={14} className="animate-spin" /> {t("target.saving")}</>
+              <>
+                <Loader2 size={14} className="animate-spin" /> Saving...
+              </>
             ) : (
-              t("target.save")
+              "Save"
             )}
           </button>
         </div>

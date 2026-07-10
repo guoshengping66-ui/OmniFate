@@ -1,114 +1,122 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
-import { ArrowRight, Sparkles } from "lucide-react"
+import { ArrowRight, CalendarDays, Compass, Sparkles } from "lucide-react"
 import { useUserStore } from "@/stores/useUserStore"
 import { ProfileCard } from "./ProfileCard"
 import { IntentButtons } from "./IntentButtons"
 import { GeworkDrawer } from "./GeworkDrawer"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { generateDailySignals } from "@/lib/dailySignals"
+import { generateDailyActionSummary } from "@/lib/dailySignals"
 
-const signalColors = ["#5A9E8E","#7B9EC7","#C77B8B","#C9A84C","#8B7EC7"]
+const signalColors = ["#5A9E8E", "#7B9EC7", "#C77B8B", "#C9A84C", "#8B7EC7"]
 
-const cardBg = { background: "linear-gradient(135deg, #060E24, #030918)" }
-const cardBorder = "border border-white/[0.05] rounded-2xl"
+function isSelfName(name?: string) {
+  return !name || name === "Myself" || name === "Self" || /[\u4e00-\u9fff]/.test(name)
+}
 
 export function UserDashboard() {
-  const { t, locale, localeHref } = useLanguage()
-  const { userProfile, activeTestTarget } = useUserStore()
+  const { localeHref } = useLanguage()
+  const { userProfile, activeTestTarget, fetchBirthProfiles } = useUserStore()
   const [eventDrawerOpen, setEventDrawerOpen] = useState(false)
-  const isZh = locale === "zh"
 
-  // Generate personalized daily signals from user's actual birth chart
-  const signals = useMemo(() => {
-    const profile = activeTestTarget || userProfile
-    if (profile?.birth_year && profile?.birth_month && profile?.birth_day) {
-      return generateDailySignals(profile.birth_year, profile.birth_month, profile.birth_day, isZh)
+  useEffect(() => {
+    fetchBirthProfiles()
+  }, [fetchBirthProfiles])
+
+  const profile = activeTestTarget || userProfile
+  const displayName = isSelfName(profile?.nickname) ? "You" : profile?.nickname || "You"
+
+  const today = useMemo(
+    () => new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", weekday: "long" }),
+    [],
+  )
+
+  const daily = useMemo(() => {
+    if (profile?.birth_year && profile.birth_month && profile.birth_day) {
+      return generateDailyActionSummary(profile.birth_year, profile.birth_month, profile.birth_day, false)
     }
-    // Fallback for users without birth data
-    return isZh
-      ? [
-          { n: "结构稳定度", v: "建立画像", t: "完成命盘画像后，每日指令将根据你的八字日柱和今日干支自动生成。" },
-          { n: "事业推进力", v: "建立画像", t: "完成命盘画像后，每日指令将根据你的八字日柱和今日干支自动生成。" },
-          { n: "关系活跃度", v: "建立画像", t: "完成命盘画像后，每日指令将根据你的八字日柱和今日干支自动生成。" },
-          { n: "财富判断力", v: "建立画像", t: "完成命盘画像后，每日指令将根据你的八字日柱和今日干支自动生成。" },
-          { n: "直觉敏感度", v: "建立画像", t: "完成命盘画像后，每日指令将根据你的八字日柱和今日干支自动生成。" },
-        ]
-      : [
-          { n: "Structure", v: "Create profile", t: "Complete your birth chart to unlock personalized daily signals based on your Bazi day master." },
-          { n: "Career push", v: "Create profile", t: "Complete your birth chart to unlock personalized daily signals based on your Bazi day master." },
-          { n: "Relationship", v: "Create profile", t: "Complete your birth chart to unlock personalized daily signals based on your Bazi day master." },
-          { n: "Money judgment", v: "Create profile", t: "Complete your birth chart to unlock personalized daily signals based on your Bazi day master." },
-          { n: "Intuition", v: "Create profile", t: "Complete your birth chart to unlock personalized daily signals based on your Bazi day master." },
-        ]
-  }, [userProfile, activeTestTarget, isZh])
-
-  // Translate stored default nicknames at display time
-  const nickname = activeTestTarget?.nickname || userProfile?.nickname || ""
-  const showName = nickname === "本命" || nickname === "Myself"
-    ? t("target.self")
-    : nickname || (isZh ? "你" : "You")
-
-  const today = useMemo(() => new Date().toLocaleDateString(locale === "zh" ? "zh-CN" : "en-US", { month: "long", day: "numeric", weekday: "long" }), [locale])
+    return null
+  }, [profile?.birth_year, profile?.birth_month, profile?.birth_day])
 
   return (
-    <div className="mx-auto max-w-5xl space-y-10 px-4 pb-16 pt-6">
-      {/* Welcome + Daily Snapshot */}
-      <section className="grid gap-5 lg:grid-cols-2">
-        <div className={`${cardBorder} p-6 md:p-8`} style={cardBg}>
+    <div className="mx-auto max-w-5xl space-y-8 px-4 pb-16 pt-6">
+      <section className="grid gap-5 lg:grid-cols-[1.05fr_0.95fr]">
+        <div className="rounded-[28px] border border-white/[0.06] bg-[#060E24] p-6 shadow-[0_28px_90px_rgba(0,0,0,0.30)] md:p-8">
           <p className="inline-flex items-center gap-2 rounded-full border border-gold/[0.15] bg-gold/[0.06] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-gold">
-            <Sparkles size={13} /> {isZh ? "观我档案 · 今日行动中心" : "Guanwo Dossier · Daily Center"}
+            <Sparkles size={13} /> Daily Action Center
           </p>
-          <h1 className="mt-5 max-w-xl font-serif text-2xl leading-tight text-white/85 md:text-3xl">
-            {isZh ? `${showName}，今天先完成一件关键的事` : `${showName}, start with one key move today`}
+          <h1 className="mt-5 max-w-xl text-2xl font-semibold leading-tight text-white/88 md:text-3xl">
+            {displayName}, start with one clear move today
           </h1>
-          <p className="mt-3 max-w-lg text-[13px] leading-relaxed text-white/35">
-            {isZh ? "根据你的八字日柱与今日干支，提炼今天最值得推进的一步。" : "One move worth advancing today, based on your Bazi day master and today's celestial stems."}
+          <p className="mt-3 max-w-lg text-[13px] leading-relaxed text-white/45">
+            {daily
+              ? daily.source
+              : "Complete your birth profile to generate daily action from your real pattern and today's signal."}
           </p>
-          <div className="mt-5 flex flex-wrap items-center gap-3 text-[12px] text-white/30">
+          <div className="mt-5 flex flex-wrap items-center gap-3 text-[12px] text-white/35">
             <span>{today}</span>
-            <span className="text-white/10">·</span>
-            <span>{isZh ? "最佳推进 14:00-17:00" : "Best window 14:00-17:00"}</span>
+            <span className="text-white/12">/</span>
+            <span>Updates daily from your profile</span>
           </div>
         </div>
 
-        <div className={`${cardBorder} p-6 md:p-8`} style={cardBg}>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-gold/60">{isZh ? "今日行动建议" : "Daily action"}</p>
-          <h2 className="mt-3 font-serif text-xl text-white/75">{isZh ? "稳步推进，不急于证明" : "Steady progress, no need to prove"}</h2>
-          <div className="mt-5 space-y-3 text-[13px] leading-relaxed">
-            <p className="text-white/40">{isZh ? "✅ 最适合：完成一件能带来明确反馈的任务。" : "✅ Best: finish one task that gives clear feedback."}</p>
-            <p className="text-white/30">{isZh ? "⚠️ 避免：临时改变方向、冲动承诺。" : "⚠️ Avoid: sudden direction changes, rushed promises."}</p>
-            <p className="font-medium text-white/55">{isZh ? "💡 提醒：先把确定性的事完成，再处理不确定的人和钱。" : "💡 Reminder: complete what is certain before the uncertain."}</p>
-          </div>
-          <Link href={localeHref("/almanac")} className="mt-6 inline-flex items-center gap-2 rounded-xl px-6 py-3 text-[14px] font-medium transition-all hover:scale-[1.02]" style={{ background: "#C9A84C", color: "#020617" }}>
-            {isZh ? "查看今日完整行动板" : "Open full daily board"} <ArrowRight size={15} />
-          </Link>
-        </div>
+        <ProfileCard />
       </section>
 
-      {/* Profile + 5-source daily signals */}
-      <section className="grid gap-5 lg:grid-cols-[1fr_1.2fr]">
-        <ProfileCard />
-        <div className={`${cardBorder} p-5 md:p-7`} style={cardBg}>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-gold/60 mb-1">{isZh ? "今日五维状态" : "Five-source state"}</p>
-          <h2 className="font-serif text-xl text-white/75 mb-5">{isZh ? "基于八字日柱 · 每日更新" : "Based on Bazi · Updated daily"}</h2>
-          <div className="space-y-2.5">
-            {signals.map((s, i) => (
-              <div key={s.n} className="flex items-center gap-3 rounded-xl border border-white/[0.04] px-4 py-3" style={{ background: "rgba(255,255,255,0.015)" }}>
-                <span className="w-1 h-5 rounded-full flex-shrink-0" style={{ background: signalColors[i] }} />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-[13px] font-medium text-white/65">{s.n}</span>
-                    <span className="text-[11px] px-2.5 py-0.5 rounded-full" style={{ background: "rgba(201,168,76,0.10)", color: "#C9A84C" }}>{s.v}</span>
-                  </div>
-                  <p className="text-[11px] text-white/25 mt-0.5">{s.t}</p>
-                </div>
+      <section className="rounded-[32px] border border-gold/15 bg-[#07110F]/90 p-5 shadow-[0_30px_100px_rgba(0,0,0,0.32)] md:p-7">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+          <div className="max-w-2xl">
+            <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-gold/70">
+              <Compass size={14} /> Today's Command
+            </p>
+            <h2 className="mt-3 text-2xl font-semibold text-white/85">
+              {daily?.theme || "Create your profile to unlock today's command"}
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-white/48">
+              {daily?.reminder || "This is not a fixed template. Once your profile is ready, the system recalculates it from your birth pattern and the current day."}
+            </p>
+          </div>
+          <div className="rounded-2xl border border-white/[0.07] bg-[#030918] px-4 py-3 text-sm text-white/55">
+            <div className="flex items-center gap-2 text-gold/75">
+              <CalendarDays size={15} />
+              <span>Best window</span>
+            </div>
+            <p className="mt-1 text-lg font-semibold text-white/80">{daily?.window || "14:00 - 17:00"}</p>
+          </div>
+        </div>
+
+        <div className="mt-6 grid gap-3 md:grid-cols-2">
+          <div className="rounded-2xl border border-emerald-300/15 bg-emerald-300/[0.045] p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-100/70">Best</p>
+            <p className="mt-2 text-sm leading-relaxed text-white/68">{daily?.best || "Save your birth profile first."}</p>
+          </div>
+          <div className="rounded-2xl border border-rose-300/15 bg-rose-300/[0.04] p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-rose-100/70">Avoid</p>
+            <p className="mt-2 text-sm leading-relaxed text-white/68">{daily?.avoid || "Do not rely on static templates for today."}</p>
+          </div>
+        </div>
+
+        {daily && (
+          <div className="mt-5 grid gap-2.5 lg:grid-cols-5">
+            {daily.signals.map((signal, index) => (
+              <div key={signal.n} className="rounded-2xl border border-white/[0.055] bg-white/[0.025] p-3">
+                <span className="mb-3 block h-1 w-8 rounded-full" style={{ background: signalColors[index] }} />
+                <p className="text-[12px] font-medium text-white/66">{signal.n}</p>
+                <p className="mt-1 text-sm font-semibold text-gold/85">{signal.v}</p>
+                <p className="mt-2 text-[11px] leading-5 text-white/38">{signal.t}</p>
               </div>
             ))}
           </div>
-        </div>
+        )}
+
+        <Link
+          href={localeHref("/reading/new?intent=full")}
+          className="mt-6 inline-flex items-center gap-2 rounded-full bg-gold px-6 py-3 text-sm font-semibold text-[#07110F] transition hover:shadow-[0_0_26px_rgba(201,168,76,0.28)]"
+        >
+          Generate full report <ArrowRight size={15} />
+        </Link>
       </section>
 
       <IntentButtons onGework={() => setEventDrawerOpen(true)} />

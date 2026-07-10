@@ -9,36 +9,37 @@ import {
 
 const PROFILES_CACHE_KEY = "alpha_mirror_profiles"
 
-// Guard against redundant concurrent fetchBirthProfiles() calls.
-// Multiple components (page.tsx, UserDashboard) may call this on mount.
-let _fetching = false
+let fetchingProfiles = false
+
+function isSelfProfile(profile?: BirthProfile | null): boolean {
+  if (!profile) return false
+  return profile.nickname === "Self" || profile.nickname === "Myself" || /[\u4e00-\u9fff]/.test(profile.nickname)
+}
 
 function loadCachedProfiles(): BirthProfile[] | null {
   try {
     const raw = sessionStorage.getItem(PROFILES_CACHE_KEY)
     return raw ? JSON.parse(raw) : null
-  } catch { return null }
+  } catch {
+    return null
+  }
 }
 
 function saveCachedProfiles(profiles: BirthProfile[]) {
-  try { sessionStorage.setItem(PROFILES_CACHE_KEY, JSON.stringify(profiles)) } catch {}
+  try {
+    sessionStorage.setItem(PROFILES_CACHE_KEY, JSON.stringify(profiles))
+  } catch {}
 }
 
-function clearCachedProfiles() {
-  try { sessionStorage.removeItem(PROFILES_CACHE_KEY) } catch {}
+function findMainProfile(profiles: BirthProfile[]): BirthProfile | null {
+  return profiles.find(isSelfProfile) || profiles[0] || null
 }
 
 interface UserStore {
-  // 永久底座：用户自己的出生档案
   userProfile: BirthProfile | null
-  // 活跃测试目标：可以是自己或朋友
   activeTestTarget: BirthProfile | null
-  // 所有出生档案列表
   birthProfiles: BirthProfile[]
-  // Loading state
   loading: boolean
-
-  // Actions
   fetchBirthProfiles: () => Promise<void>
   setActiveTestTarget: (profile: BirthProfile) => void
   resetToSelf: () => void
@@ -54,14 +55,12 @@ export const useUserStore = create<UserStore>((set, get) => ({
   loading: false,
 
   fetchBirthProfiles: async () => {
-    // Prevent redundant concurrent API calls from multiple components
-    if (_fetching) return
-    _fetching = true
+    if (fetchingProfiles) return
+    fetchingProfiles = true
 
-    // Instant restore from cache
     const cached = loadCachedProfiles()
     if (cached && cached.length > 0) {
-      const mainProfile = cached.find(p => (p.nickname === "本命" || p.nickname === "Myself" || p.nickname === "Self")) || cached[0] || null
+      const mainProfile = findMainProfile(cached)
       set({
         birthProfiles: cached,
         userProfile: mainProfile,
@@ -72,7 +71,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
     set({ loading: true })
     try {
       const profiles = await listBirthProfiles()
-      const mainProfile = profiles.find(p => (p.nickname === "本命" || p.nickname === "Myself" || p.nickname === "Self")) || profiles[0] || null
+      const mainProfile = findMainProfile(profiles)
       set({
         birthProfiles: profiles,
         userProfile: mainProfile,
@@ -80,9 +79,9 @@ export const useUserStore = create<UserStore>((set, get) => ({
       })
       saveCachedProfiles(profiles)
     } catch {
-      // Not logged in or error — keep cached data if available
+      // Keep cached profiles when the user is offline or the session is expired.
     } finally {
-      _fetching = false
+      fetchingProfiles = false
       set({ loading: false })
     }
   },
@@ -97,18 +96,27 @@ export const useUserStore = create<UserStore>((set, get) => ({
 
   createBirthProfile: async (data) => {
     const profile = await apiCreate(data)
-    set(s => ({
-      birthProfiles: [...s.birthProfiles, profile],
-    }))
+    set((s) => {
+      const profiles = [...s.birthProfiles, profile]
+      const shouldBecomeMain = !s.userProfile || isSelfProfile(profile)
+      const nextMain = shouldBecomeMain ? profile : s.userProfile
+      saveCachedProfiles(profiles)
+      return {
+        birthProfiles: profiles,
+        userProfile: nextMain,
+        activeTestTarget: shouldBecomeMain ? profile : s.activeTestTarget || nextMain,
+      }
+    })
     return profile
   },
 
   updateBirthProfile: async (id, data) => {
     const updated = await apiUpdate(id, data)
-    set(s => {
-      const profiles = s.birthProfiles.map(p => p.id === id ? updated : p)
+    set((s) => {
+      const profiles = s.birthProfiles.map((p) => (p.id === id ? updated : p))
       const isMain = s.userProfile?.id === id
       const isActive = s.activeTestTarget?.id === id
+      saveCachedProfiles(profiles)
       return {
         birthProfiles: profiles,
         userProfile: isMain ? updated : s.userProfile,
@@ -119,11 +127,12 @@ export const useUserStore = create<UserStore>((set, get) => ({
 
   deleteBirthProfile: async (id) => {
     await apiDelete(id)
-    set(s => {
-      const profiles = s.birthProfiles.filter(p => p.id !== id)
+    set((s) => {
+      const profiles = s.birthProfiles.filter((p) => p.id !== id)
       const isMain = s.userProfile?.id === id
       const isActive = s.activeTestTarget?.id === id
-      const mainProfile = profiles.find(p => (p.nickname === "本命" || p.nickname === "Myself" || p.nickname === "Self")) || profiles[0] || null
+      const mainProfile = findMainProfile(profiles)
+      saveCachedProfiles(profiles)
       return {
         birthProfiles: profiles,
         userProfile: isMain ? mainProfile : s.userProfile,

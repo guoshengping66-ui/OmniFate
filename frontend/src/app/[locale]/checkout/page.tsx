@@ -186,7 +186,7 @@ export default function CheckoutPage() {
                 <span className="text-white/80 text-sm">{t("checkout.coupon")}</span>
                 <span className="text-white/40 text-xs ml-2">
                   {t("checkout.couponBalance")} {couponDisplay}，{t("checkout.couponDeduct")} {formatCouponBalance(
-                    couponDiscount || Math.min(couponBalanceLocal, totalWithDiscount),
+                    couponDiscount || Math.min(couponBalanceUsd, totalWithDiscount),
                     region
                   )}
                 </span>
