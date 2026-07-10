@@ -41,6 +41,7 @@ function Trigram({ lines }: { lines: readonly number[] }) {
 export default function AstrolabeBagua({ className = "" }: { className?: string }) {
   const SIZE = 560
   const CX = SIZE / 2
+  const CY = SIZE / 2
   const R = SIZE / 2 - 20
 
   return (
