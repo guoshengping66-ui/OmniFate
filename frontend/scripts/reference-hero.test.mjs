@@ -4,7 +4,6 @@ import path from "node:path"
 import test from "node:test"
 
 const root = path.resolve(import.meta.dirname, "..")
-const assetPath = path.join(root, "public/assets/reference-style/reference-hero-visual.png")
 const manifestPath = path.join(root, "public/assets/reference-style/manifest.json")
 const cssPath = path.join(root, "src/app/[locale]/globals.css")
 
@@ -18,6 +17,7 @@ function readPngDimensions(buffer) {
 
 test("reference hero asset matches its declared crop", () => {
   const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"))
+  const assetPath = path.join(root, "public", manifest.assets["hero-visual"].file.replace(/^\//, ""))
   const dimensions = readPngDimensions(fs.readFileSync(assetPath))
 
   assert.deepEqual(manifest.assets["hero-visual"].sourceBox, [640, 64, 1904, 957])
@@ -29,7 +29,11 @@ test("reference asset remains public and decorative", () => {
   const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"))
   assert.equal(
     manifest.assets["hero-visual"].file,
-    "/assets/reference-style/reference-hero-visual.png",
+    "/assets/reference-style/reference-hero-visual-clean-v2.png",
+  )
+  assert.deepEqual(
+    manifest.assets["hero-visual"].excludedSourceBoxes,
+    [[640, 64, 960, 784], [640, 784, 1136, 957]],
   )
 })
 
