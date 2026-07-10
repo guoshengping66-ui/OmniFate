@@ -83,7 +83,7 @@ export function EasternHomeExperience({ locale = "en" }: { locale?: string }) {
     if (href.startsWith("#")) return href
     return `/${activeLocale}${href.startsWith("/") ? href : `/${href}`}`
   }
-  const copy = enCopy
+  const copy = activeLocale === "zh" ? zhCopy : enCopy
 
   return (
     <main className="ow-page ia-home relative min-h-screen overflow-hidden text-white">
