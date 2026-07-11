@@ -20,8 +20,8 @@ test("reference hero asset matches its declared crop", () => {
   const assetPath = path.join(root, "public", manifest.assets["hero-visual"].file.replace(/^\//, ""))
   const dimensions = readPngDimensions(fs.readFileSync(assetPath))
 
-  assert.deepEqual(manifest.assets["hero-visual"].sourceBox, [600, 0, 1672, 740])
-  assert.deepEqual(dimensions, { width: 1072, height: 740 })
+  assert.deepEqual(manifest.assets["hero-visual"].sourceBox, [720, 80, 1672, 740])
+  assert.deepEqual(dimensions, { width: 952, height: 660 })
   assert.equal(manifest.assets["hero-visual"].role, "decorative")
 })
 
@@ -29,11 +29,11 @@ test("reference asset remains public and decorative", () => {
   const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"))
   assert.equal(
     manifest.assets["hero-visual"].file,
-    "/assets/reference-style/reference-hero-atlas-natural.png",
+    "/assets/reference-style/reference-hero-atlas-background-v2.png",
   )
   assert.deepEqual(
     manifest.assets["hero-visual"].excludedSourceBoxes,
-    [[600, 0, 830, 740], [600, 0, 1672, 64]],
+    [[720, 0, 1672, 80], [600, 0, 720, 740]],
   )
 })
 

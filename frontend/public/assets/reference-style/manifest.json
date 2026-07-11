@@ -2,9 +2,9 @@
   "sourceReference": "C:/Users/23977/xwechat_files/wxid_qtytnbh101il22_f6f5/temp/RWTemp/2026-07/071a80ace0a4b00bbe08a17e1d04133b/8cd1986585bb461278d1a8dc65b23f79.png",
   "assets": {
     "hero-visual": {
-      "file": "/assets/reference-style/reference-hero-atlas-natural.png",
-      "sourceBox": [600, 0, 1672, 740],
-      "excludedSourceBoxes": [[600, 0, 830, 740], [600, 0, 1672, 64]],
+      "file": "/assets/reference-style/reference-hero-atlas-background-v2.png",
+      "sourceBox": [720, 80, 1672, 740],
+      "excludedSourceBoxes": [[720, 0, 1672, 80], [600, 0, 720, 740]],
       "role": "decorative"
     }
   }
