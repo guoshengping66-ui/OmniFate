@@ -1,10 +1,11 @@
-"use client"
+﻿"use client"
 import Link from "next/link"
 import { useState, useRef, useEffect, lazy, Suspense } from "react"
-import { Menu, X, Sparkles, User, LogOut, ChevronDown, ShoppingBag } from "lucide-react"
+import { Menu, X, Sparkles, User, LogOut, ChevronDown, ShoppingBag, Sun, Moon } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import { useCart } from "@/contexts/CartContext"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { useTheme } from "@/contexts/ThemeContext"
 import { useRegion } from "@/contexts/RegionContext"
 import { formatCouponBalance } from "@/lib/regionPrice"
 import { LanguageSwitch } from "@/components/ui/LanguageSwitch"
@@ -70,7 +71,7 @@ export function Navbar() {
             <span className="font-serif font-bold text-lg text-gold">Inner Atlas AI</span>
           </Link>
 
-          {/* Desktop nav — wide screens: all links visible */}
+          {/* Desktop nav 鈥?wide screens: all links visible */}
           <nav className="hidden lg:flex items-center gap-5">
             {coreLinks.map(l => (
               <Link key={l.href} href={l.href} prefetch={null}
@@ -113,7 +114,7 @@ export function Navbar() {
             </button>
           </nav>
 
-          {/* Mobile hamburger — visible below md */}
+          {/* Mobile hamburger 鈥?visible below md */}
           <div className="flex items-center gap-3 md:hidden">
             {/* Cart icon mobile */}
             <button onClick={() => setCartOpen(true)} className="relative text-white/60" aria-label="Shopping cart">
@@ -125,12 +126,21 @@ export function Navbar() {
               )}
             </button>
             <LanguageSwitch />
+
+            <button
+              onClick={toggleTheme}
+              className="relative p-2 rounded-lg text-white/70 hover:text-gold hover:bg-white/5 transition-all duration-300"
+              aria-label={theme === "night" ? "Day mode" : "Night mode"}
+            >
+              {theme === "night" ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+
             <button onClick={() => setOpen(!open)} className="text-white/70" aria-label={open ? "Close menu" : "Open menu"}>
               {open ? <X size={22} /> : <Menu size={22} />}
             </button>
           </div>
 
-          {/* Right section — hidden on mobile, visible on md+ */}
+          {/* Right section 鈥?hidden on mobile, visible on md+ */}
           <div className="hidden md:flex items-center gap-3">
             {/* Cart icon */}
             <button
@@ -149,12 +159,21 @@ export function Navbar() {
             {/* Language Switch */}
             <LanguageSwitch />
 
+            <button
+              onClick={toggleTheme}
+              className="relative p-2 rounded-lg text-white/70 hover:text-gold hover:bg-white/5 transition-all duration-300"
+              aria-label={theme === "night" ? "Day mode" : "Night mode"}
+            >
+              {theme === "night" ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+
+
             {/* Auth section */}
             {loading ? (
               <div className="w-8 h-8 rounded-full bg-white/5 animate-pulse" />
             ) : user ? (
               <div ref={menuRef} className="relative flex items-center gap-2">
-                {/* Stardust Balance — left of avatar */}
+                {/* Stardust Balance 鈥?left of avatar */}
                 <Suspense fallback={null}>
                   <StardustBalance />
                 </Suspense>
@@ -254,7 +273,7 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Mobile & Medium hamburger dropdown — visible below lg */}
+        {/* Mobile & Medium hamburger dropdown 鈥?visible below lg */}
         {open && (
           <div className="lg:hidden bg-[#020617] border-t border-white/[0.06] px-4 py-3 flex flex-col gap-0.5 max-h-[80vh] overflow-y-auto">
             {coreLinks.map(l => (

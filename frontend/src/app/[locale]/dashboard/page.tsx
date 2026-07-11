@@ -1,4 +1,5 @@
 "use client"
+export const dynamic = "force-dynamic"
 
 import { useEffect, Suspense, lazy } from "react"
 import { useAuth } from "@/contexts/AuthContext"

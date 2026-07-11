@@ -1,4 +1,5 @@
 "use client"
+export const dynamic = "force-dynamic"
 import { useState, useEffect } from "react"
 import { Crown, Vote, Star, MapPin, Calendar, Users, ChevronRight } from "lucide-react"
 import toast from "react-hot-toast"

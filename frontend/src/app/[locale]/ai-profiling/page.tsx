@@ -1,4 +1,5 @@
 "use client"
+export const dynamic = "force-dynamic"
 import Link from "next/link"
 import { ArrowRight, AlertTriangle, Brain, BarChart3, Check, Sparkles, Shield, Zap, Target, TrendingUp, FileText } from "lucide-react"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"

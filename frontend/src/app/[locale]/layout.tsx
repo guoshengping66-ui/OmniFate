@@ -141,7 +141,20 @@ export default async function LocaleLayout({
             }),
           }}
         />
-      </head>
+              <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: safeJsonLd({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: APP_NAME,
+              url: SITE_URL,
+              description: validLocale === "zh" ? ZH_DESCRIPTION : EN_DESCRIPTION,
+              inLanguage: validLocale === "zh" ? "zh-CN" : "en",
+            }),
+          }}
+        />
+</head>
       <body>
         <ChunkRecovery />
         <AppProviders messages={messages} locale={validLocale} initialRegion={initialRegion}>
@@ -155,7 +168,7 @@ export default async function LocaleLayout({
           <Toaster
             position="top-center"
             toastOptions={{
-              style: { background: "#07110F", color: "#F4EFE2", border: "1px solid #C9A84C44" },
+              style: { background: "#07110F", color: "#F4EFE2", border: "1px solid rgba(201, 168, 76, 0.25)" },
             }}
           />
         </AppProviders>

@@ -1,4 +1,5 @@
 "use client"
+export const dynamic = "force-dynamic"
 import { useMemo } from "react"
 import Link from "next/link"
 import { BookOpen, Clock, ChevronRight, Search, X, ArrowRight } from "lucide-react"

@@ -1,4 +1,5 @@
 "use client"
+export const dynamic = "force-dynamic"
 import { useState, useEffect, lazy, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"

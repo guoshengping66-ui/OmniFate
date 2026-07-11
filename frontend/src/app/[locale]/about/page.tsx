@@ -1,4 +1,5 @@
 "use client"
+export const dynamic = "force-dynamic"
 import { Sparkles, Shield, Star, Compass, Lock, Eye, ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"
