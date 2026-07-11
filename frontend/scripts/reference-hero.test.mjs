@@ -20,8 +20,8 @@ test("reference hero asset matches its declared crop", () => {
   const assetPath = path.join(root, "public", manifest.assets["hero-visual"].file.replace(/^\//, ""))
   const dimensions = readPngDimensions(fs.readFileSync(assetPath))
 
-  assert.deepEqual(manifest.assets["hero-visual"].sourceBox, [640, 64, 1904, 957])
-  assert.deepEqual(dimensions, { width: 1264, height: 893 })
+  assert.deepEqual(manifest.assets["hero-visual"].sourceBox, [600, 0, 1672, 740])
+  assert.deepEqual(dimensions, { width: 1072, height: 740 })
   assert.equal(manifest.assets["hero-visual"].role, "decorative")
 })
 
@@ -29,20 +29,20 @@ test("reference asset remains public and decorative", () => {
   const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"))
   assert.equal(
     manifest.assets["hero-visual"].file,
-    "/assets/reference-style/reference-hero-visual-clean-v2.png",
+    "/assets/reference-style/reference-hero-atlas-natural.png",
   )
   assert.deepEqual(
     manifest.assets["hero-visual"].excludedSourceBoxes,
-    [[640, 64, 960, 784], [640, 784, 1136, 957]],
+    [[600, 0, 830, 740], [600, 0, 1672, 64]],
   )
 })
 
 test("reference hero layout keeps the crop at native desktop dimensions", () => {
   const css = fs.readFileSync(cssPath, "utf8")
   assert.match(css, /\.ia-hero-reference-visual\s*\{/)
-  assert.match(css, /max-width:\s*1264px/)
+  assert.match(css, /max-width:\s*1072px/)
   assert.match(css, /pointer-events:\s*none/)
-  assert.match(css, /\.ia-hero-copy\s*\{[\s\S]*?width:\s*min\(640px,\s*46vw\)/)
-  assert.match(css, /\.ia-hero h1\s*\{[\s\S]*?max-width:\s*640px/)
+  assert.match(css, /\.ia-hero-copy\s*\{[\s\S]*?width:\s*min\(520px,\s*42vw\)/)
+  assert.match(css, /\.ia-hero h1\s*\{[\s\S]*?max-width:\s*520px/)
   assert.match(css, /@media\s*\(max-width:\s*767px\)/)
 })

@@ -26,10 +26,10 @@ export function EasternHomeExperience({ locale = "en" }: { locale?: string }) {
         <div className="ia-hero-reference-visual" aria-hidden="true">
           <Image
             className="ia-hero-reference-visual__image"
-            src="/assets/reference-style/reference-hero-visual-clean-v2.png"
+            src="/assets/reference-style/reference-hero-atlas-natural.png"
             alt=""
-            width={1264}
-            height={893}
+            width={1072}
+            height={740}
             priority
             sizes="(min-width: 1920px) 1264px, 66vw"
           />

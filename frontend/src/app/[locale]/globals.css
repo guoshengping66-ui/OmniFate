@@ -293,18 +293,21 @@
   display: grid;
   align-items: center;
   overflow: hidden;
-  padding: 64px 96px 152px;
-  background: #010806;
+  padding: 88px 96px 152px;
+  background:
+    radial-gradient(ellipse 62% 74% at 18% 48%, rgba(17, 59, 47, 0.58), transparent 67%),
+    radial-gradient(ellipse 44% 72% at 70% 48%, rgba(7, 48, 43, 0.32), transparent 70%),
+    linear-gradient(104deg, #020806 0%, #06130f 42%, #06120f 70%, #020806 100%);
 }
 
 .ia-hero-reference-visual {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: 52px;
+  right: -24px;
   z-index: -3;
-  width: min(66vw, 1264px);
-  max-width: 1264px;
-  height: 893px;
+  width: min(63vw, 1072px);
+  max-width: 1072px;
+  height: calc(100% - 52px);
   pointer-events: none;
   user-select: none;
 }
@@ -314,6 +317,18 @@
   height: 100%;
   object-fit: contain;
   object-position: right top;
+  filter: contrast(1.08) saturate(1.05) brightness(1.05);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ia-hero-reference-visual {
+    animation: iaHeroAstrolabeDrift 8s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes iaHeroAstrolabeDrift {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(0, 6px, 0); }
 }
 
 .ia-galaxy-band {
@@ -519,14 +534,14 @@
   z-index: -2;
   pointer-events: none;
   background:
-    linear-gradient(90deg, #010806 0%, rgba(1, 8, 6, 0.94) 27%, rgba(1, 8, 6, 0.52) 47%, rgba(1, 8, 6, 0.08) 68%),
-    linear-gradient(180deg, rgba(1, 8, 6, 0.08) 0%, transparent 54%, rgba(1, 8, 6, 0.78) 100%);
+    linear-gradient(90deg, rgba(2, 8, 6, 0.08) 0%, rgba(2, 13, 10, 0.64) 37%, rgba(2, 10, 8, 0.20) 67%, rgba(2, 8, 6, 0.04) 100%),
+    linear-gradient(180deg, rgba(1, 8, 6, 0.12) 0%, transparent 52%, rgba(1, 8, 6, 0.78) 100%);
 }
 
 .ia-hero-copy {
   position: relative;
   z-index: 2;
-  width: min(640px, 46vw);
+  width: min(520px, 42vw);
 }
 
 .ia-brand-lockup {
@@ -598,7 +613,7 @@
 }
 
 .ia-hero h1 {
-  max-width: 640px;
+  max-width: 520px;
   font-family: Georgia, "Times New Roman", serif;
   font-size: clamp(54px, 5.5vw, 104px);
   line-height: 0.96;
@@ -1110,6 +1125,7 @@
 /* ═══ Reduced motion — disable decorative animations for accessibility ═══ */
 @media (prefers-reduced-motion: reduce) {
   .ia-hero::before,
+  .ia-hero-reference-visual,
   .ia-galaxy-band,
   .ia-mandala-ring-outer,
   .ia-mandala-ring-mid,
