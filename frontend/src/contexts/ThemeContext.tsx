@@ -10,7 +10,7 @@ const ThemeContext = createContext<ThemeContextType>({
   toggleTheme: () => {},
 })
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("night")
+  const [theme, setTheme] = useState<Theme>("day")
   useEffect(() => {
     try {
       const stored = localStorage.getItem("theme") as Theme | null

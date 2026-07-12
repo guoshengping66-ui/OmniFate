@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Font loading strategy:
  * - Inter: Preloaded via <link> in layout.tsx (non-blocking)
  * - Chinese fonts: Use system fonts first, web font as fallback
@@ -46,24 +46,6 @@
     overflow-x: clip;
   }
 /* Unified design tokens */
-:root {
-  --gold: #C9A84C;
-  --gold-light: #E8CB7A;
-  --gold-dark: #A07C2A;
-  --ink: #020617;
-  --surface: #060E24;
-  --surface-alt: #030918;
-  --text: #E8E3D4;
-  --text-muted: rgba(200, 195, 180, 0.70);
-  --text-dim: rgba(200, 195, 180, 0.42);
-  --border: rgba(255, 255, 255, 0.06);
-  --border-gold: rgba(201, 168, 76, 0.18);
-  --radius-card: 16px;
-  --radius-btn: 12px;
-  --radius-panel: 20px;
-  --content-w: 1180px;
-  --section-py: 56px;
-}
 @media (min-width: 768px) {
   :root { --section-py: 84px; }
 }
@@ -1120,8 +1102,96 @@
 .ia-final-cta h2 {
   max-width: 760px;
 }
-
-
+/* ═══ Day Theme ═══ — full coverage for all pages ═══ */
+html.day-theme, html.day-theme body {
+  background: #ffffff !important;
+  color: #1a1a1a !important;
+}
+html.day-theme p, html.day-theme li, html.day-theme span:not([class*="text-gold"]) {
+  color: #444444 !important;
+}
+html.day-theme a:not(.btn-gold):not(.btn-gold-outline):not(.ia-primary-cta):not(.ia-secondary-cta) {
+  color: #555555 !important;
+}
+html.day-theme a:not(.btn-gold):not(.btn-gold-outline):not(.ia-primary-cta):not(.ia-secondary-cta):hover {
+  color: #C9A84C !important;
+}
+html.day-theme h1, html.day-theme h2, html.day-theme h3 {
+  color: #111111 !important;
+}
+html.day-theme .text-gold, html.day-theme [class*="text-gold"] {
+  color: #B8962E !important;
+}
+html.day-theme .card-glass,
+html.day-theme .card-glow,
+html.day-theme .card-glass-elevated,
+html.day-theme .ow-card,
+html.day-theme .dimension-card {
+  background: #ffffff !important;
+  border-color: rgba(0,0,0,0.08) !important;
+}
+html.day-theme header,
+html.day-theme [class*="bg-\\[#020617\\]"] {
+  background: rgba(247,245,240,0.98) !important;
+}
+html.day-theme footer,
+html.day-theme footer > div {
+  background: #f0ede5 !important;
+}
+html.day-theme .btn-gold {
+  background: #C9A84C !important;
+  color: #020617 !important;
+}
+html.day-theme .btn-gold-outline {
+  border-color: rgba(201,168,76,0.4) !important;
+  color: #B8962E !important;
+}
+html.day-theme input,
+html.day-theme .input-field,
+html.day-theme textarea {
+  background: rgba(0,0,0,0.03) !important;
+  border-color: rgba(0,0,0,0.1) !important;
+  color: #333333 !important;
+}
+html.day-theme .ow-page {
+  background: #ffffff !important;
+}
+html.day-theme [class*="bg-\\[#030918\\]"] {
+  background: #f5f3ee !important;
+}
+html.day-theme .ia-home {
+  background: #ffffff !important;
+}
+html.day-theme .ia-hero {
+  background: #f8f6f0 !important;
+}
+html.day-theme .ia-hero h1 {
+  color: #111111 !important;
+}
+html.day-theme .ia-section-heading h2,
+html.day-theme .ia-engine-copy h2 {
+  color: #111111 !important;
+}
+html.day-theme .ia-section,
+html.day-theme .ia-report-preview,
+html.day-theme .ia-answers,
+html.day-theme .ia-how,
+html.day-theme .ia-engine,
+html.day-theme .ia-daily-growth,
+html.day-theme .ia-vault,
+html.day-theme .ia-final-cta {
+  background: #ffffff !important;
+}
+html.day-theme .treasure-hero,
+html.day-theme [class*="treasure-hero"] {
+  background: #f8f6f0 !important;
+}
+html.day-theme .ia-hero-tags span {
+  color: #666666 !important;
+}
+html.day-theme [class*="border-white/"] {
+  border-color: rgba(0,0,0,0.06) !important;
+}
 /* ═══ Reduced motion — disable decorative animations for accessibility ═══ */
 @media (prefers-reduced-motion: reduce) {
   .ia-hero::before,
@@ -1426,5 +1496,82 @@
     scroll-snap-align: start;
   }
 }
-
-
+/* ═══ Day Theme ═══ — full coverage for all pages ═══ */
+html.day-theme, html.day-theme body {
+  background: #ffffff !important;
+  color: #1a1a1a !important;
+}
+html.day-theme p, html.day-theme li, html.day-theme span:not([class*="text-gold"]) {
+  color: #444444 !important;
+}
+html.day-theme h1, html.day-theme h2, html.day-theme h3 {
+  color: #111111 !important;
+}
+html.day-theme .text-gold, html.day-theme [class*="text-gold"] {
+  color: #B8962E !important;
+}
+html.day-theme .card-glass,
+html.day-theme .card-glow,
+html.day-theme .card-glass-elevated,
+html.day-theme .ow-card,
+html.day-theme .dimension-card {
+  background: #ffffff !important;
+  border-color: rgba(0,0,0,0.08) !important;
+}
+html.day-theme header {
+  background: rgba(247,245,240,0.98) !important;
+}
+html.day-theme footer,
+html.day-theme footer > div {
+  background: #f0ede5 !important;
+}
+html.day-theme .btn-gold {
+  background: #C9A84C !important;
+  color: #020617 !important;
+}
+html.day-theme .btn-gold-outline {
+  border-color: rgba(201,168,76,0.4) !important;
+  color: #B8962E !important;
+}
+html.day-theme input,
+html.day-theme .input-field,
+html.day-theme textarea {
+  background: rgba(0,0,0,0.03) !important;
+  border-color: rgba(0,0,0,0.1) !important;
+  color: #333333 !important;
+}
+html.day-theme .ow-page {
+  background: #ffffff !important;
+}
+html.day-theme [class*="bg-\\[#030918\\]"] {
+  background: #f5f3ee !important;
+}
+html.day-theme .ia-home {
+  background: #ffffff !important;
+}
+html.day-theme .ia-hero {
+  background: #f8f6f0 !important;
+}
+html.day-theme .ia-hero h1 {
+  color: #111111 !important;
+}
+html.day-theme .ia-section-heading h2,
+html.day-theme .ia-engine-copy h2 {
+  color: #111111 !important;
+}
+html.day-theme .ia-section,
+html.day-theme .ia-report-preview,
+html.day-theme .ia-answers,
+html.day-theme .ia-how,
+html.day-theme .ia-engine,
+html.day-theme .ia-daily-growth,
+html.day-theme .ia-vault,
+html.day-theme .ia-final-cta {
+  background: #ffffff !important;
+}
+html.day-theme .treasure-hero {
+  background: #f8f6f0 !important;
+}
+html.day-theme [class*="border-white/"] {
+  border-color: rgba(0,0,0,0.06) !important;
+}

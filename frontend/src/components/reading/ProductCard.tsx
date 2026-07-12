@@ -54,7 +54,7 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
   }, [addItem, product, productName, t])
 
   return (
-    <Link href={`/shop/${product.id}`} className={`block treasure-card p-5 ${glowClass}`}>
+    <Link href={`/shop/${product.id}`} className={`block treasure-card rounded-xl p-5 transition-all duration-300 hover:scale-[1.01] ${glowClass}`}>
       {hasMatch && (
         <div className="absolute top-3 left-3 z-10 flex items-center gap-1 rounded-full border border-gold/20 bg-gold/10 px-2 py-0.5 text-[10px] font-medium text-gold/80">
           <Zap size={9} className="fill-gold/40" />

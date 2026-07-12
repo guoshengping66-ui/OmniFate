@@ -1,5 +1,4 @@
 "use client"
-export const dynamic = "force-dynamic"
 import { Suspense, useEffect, useState, useMemo, useCallback, lazy } from "react"
 import { useSearchParams } from "next/navigation"
 import { Loader2, Sparkles, Gem, ClipboardCheck, ShieldCheck, Truck } from "lucide-react"
@@ -30,6 +29,32 @@ function ProductCardSkeleton() {
     </div>
   )
 }
+
+
+const getCopy = (isZh, isPersonalized) => ({
+  badge: isZh ? "AI 推荐" : "AI Recommendation",
+  personalizedTitle: isZh ? "AI 智能推荐" : "AI Smart Recommendation",
+  personalizedDesc: isZh ? "基于你的行为分析，为你推荐这些能量物品" : "Based on your behavioral analysis, we recommend these",
+  defaultTitle: isZh ? "发现你的能量物品" : "Discover Your Energy Items",
+  defaultDesc: isZh ? "完成 AI 人生透视，获取个性化推荐" : "Complete your AI life reading",
+  createProfile: isZh ? "完成性格洞察" : "Create Your Reading",
+  needTitle: isZh ? "按需筛选" : "Filter by Need",
+  needDesc: isZh ? "选择你关注的方面，找到最合适的物品" : "Select what matters",
+  categoryTitle: isZh ? "分类浏览" : "Browse by Category",
+  prescriptionTitle: isZh ? "AI 能量处方" : "AI Energy Prescription",
+  prescriptionDesc: isZh ? "基于你的多维行为分析，推荐最适合的能量物品" : "Based on multi-dimensional analysis",
+  title: isZh ? "找到属于你的能量之物" : "Find Your Energy",
+  subtitle: isZh ? "AI 智能匹配你的能量需求" : "AI-powered matching for your energy",
+  signals: isZh ? ["水晶", "珠宝", "香薰", "护身符", "书籍"] : ["Crystals", "Jewelry", "Incense", "Talismans", "Books"],
+  disclaimer: isZh ? "所有物品均基于你的 AI 行为分析推荐" : "All items recommended based on your AI analysis",
+  trustItems: [
+    { title: isZh ? "AI 精准匹配" : "AI Precision Match", desc: isZh ? "基于多维度行为分析算法" : "Multi-dimensional analysis" },
+    { title: isZh ? "品质保证" : "Quality Guaranteed", desc: isZh ? "精选优质能量物品" : "Carefully selected items" },
+    { title: isZh ? "安心购物" : "Secure Shopping", desc: isZh ? "30天无忧退换" : "30-day return" },
+  ],
+  allNeeds: isZh ? "全部" : "All",
+})
+
 
 function ShopContent() {
   const searchParams = useSearchParams()

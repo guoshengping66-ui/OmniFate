@@ -1,346 +1,125 @@
-# 全面风险审计报告 — 命盘智镜 (Destiny Platform)
-> 审计日期: 2026-05-12 | 审计范围: 代码、法律、数据库、部署、内容、前端
-> 最终验证: 2026-05-16 | 所有可修复项已修复并验证
-
----
-
-## 🔴 严重风险 (Critical) — 必须立即修复
-
-### C1. 法律合规：运营者名称未填写
-- **位置**: `frontend/src/app/privacy/page.tsx:81`, `terms/page.tsx:73`, `disclaimer/page.tsx:102`, `backend/utils/email.py:57,94`
-- **描述**: 隐私政策、服务条款、免责声明、邮件模板中均显示 `[公司名称 / 个人名称]` 占位符。
-- **风险**: 根据《个人信息保护法》(PIPL) 第17条和《网络安全法》第21条，必须明确公示个人信息处理者的真实名称和联系方式。未填写属于违规，可能面临监管处罚。
-- **修复**: 填入真实的运营主体名称（个人或公司）。
-
-### C2. 法律合规：缺少ICP备案号
-- **位置**: `frontend/src/components/ui/Footer.tsx:137`
-- **描述**: 网站底部显示 `[粤ICP备XXXXXXXX号]` 占位符，未展示真实ICP备案号。
-- **风险**: 根据《互联网信息服务管理办法》第12条，在中国大陆提供互联网信息服务必须取得ICP备案。未备案属于违法运营。
-- **修复**: 在网站底部添加ICP备案号和公安备案号。
-
-### C3. 法律合规：隐私政策声称"图片立即删除"但代码未实现
-- **位置**: `backend/api/routers/readings.py:299-354` (upload_face_image), `backend/api/routers/readings.py:436-501` (upload_palm_image)
-- **描述**: 隐私政策声明"原始图片在分析完成后立即删除，不做永久存储"，但代码中通过MediaPipe在内存中处理图片，未保存到磁盘也未实现S3上传+删除流程。
-- **风险**: 如果未来代码修改为先存储再处理但忘记删除，将违反隐私政策承诺。且当前无清理机制。
-- **修复**: 如不需要存储图片，当前行为是安全的（仅内存处理）。但应在代码中添加注释说明，并确保S3上传路径有对应的删除逻辑。
-
----
-
-## 🟠 高风险 (High) — 上线前必须修复
-
-### H1. JWT_SECRET_KEY 默认值不安全
-- **位置**: `backend/config.py:38`
-- **描述**: 默认值 `"change-me-in-production-use-openssl-rand-hex-32"` 与 `.env` 中的值不同。config.py的startup检查已正确匹配。
-- **风险**: 如果生产环境未配置 .env 文件，将使用不安全的默认密钥，导致JWT被伪造。
-- **修复**: 确保生产环境已配置 .env 文件。
-
-### H2. 邮箱域名不一致 ✅ 已修复
-- **位置**: `frontend/src/app/contact/page.tsx:48`
-- **修复**: 已统一为 `support@khanfate.com`。
-
-### H3. Docker生产配置缺少安全加固 ✅ 已修复
-- **位置**: `backend/Dockerfile`
-- **修复**: 已添加非root用户 `appuser`。
-
-### H4. 后端CORS配置过于宽松 ✅ 已修复
-- **位置**: `backend/main.py`
-- **修复**: 已限制为实际使用的方法和必要请求头。
-
-### H5. 邮件验证码仅在DEBUG模式打印
-- **位置**: `backend/utils/email.py:36-37, 73-74`
-- **描述**: 当SMTP未配置时，验证码仅在DEBUG模式打印到日志。生产环境如果SMTP未配置，用户无法收到验证码。
-- **修复**: 需要人工确保SMTP已正确配置。
-
-### H6. Stripe checkout URL硬编码localhost ✅ 已修复
-- **位置**: `backend/api/routers/payments.py`
-- **修复**: 已改为使用 `settings.FRONTEND_URL`。
-
-### H7. 订阅取消功能为空操作 ✅ 已修复
-- **位置**: `backend/api/routers/payments.py:1011-1021`
-- **修复**: `cancel-subscription` 端点现在正确更新数据库，标记订阅为已取消（保留当前周期权益至到期）。
-
-### H8. 前端密码校验不一致 (SettingsTab) ✅ 已修复
-- **位置**: `frontend/src/app/account/SettingsTab.tsx:34`
-- **描述**: SettingsTab密码修改的前端校验使用 `< 6` 而非 `< 8`，与注册页和后端不一致。
-- **修复**: 已修改为 `< 8`，与后端密码强度要求一致。
-
-### H9. 法律合规：缺少账户注销UI ✅ 已修复
-- **位置**: `frontend/src/app/account/SettingsTab.tsx`
-- **描述**: 隐私政策承诺"登录后在「我的账户」页面点击「删除账户」按钮"，但SettingsTab中无此按钮。后端API已存在但前端无入口。
-- **风险**: 违反PIPL第47条（个人有权撤回同意并要求删除个人信息）。
-- **修复**: 已在SettingsTab添加注销账户功能，包含确认弹窗和密码验证。
-
----
-
-## 🟡 中等风险 (Medium) — 建议尽快修复
-
-### M1. CSP策略允许 'unsafe-inline' 和 'unsafe-eval'
-- **位置**: `frontend/next.config.js:20-21`
-- **描述**: Content-Security-Policy 中 `script-src` 包含 `'unsafe-inline'` 和 `'unsafe-eval'`。
-- **风险**: 降低了XSS防护等级，攻击者可能注入恶意脚本。
-- **说明**: Next.js开发模式需要这些，生产构建已移除 `unsafe-eval`。
-
-### M2. 内存存储无持久化 (sessions, rate limiter)
-- **位置**: `backend/main.py:44-65`, `backend/api/routers/readings.py:41-42`
-- **描述**: 速率限制和会话数据存储在内存中。服务重启后数据丢失。
-- **风险**: 生产环境多实例部署时，速率限制失效（每个实例独立计数）。会话数据在容器重启后丢失。
-- **修复**: 生产环境应使用Redis替代内存存储。
-
-### M3. get_db函数可能返回None
-- **位置**: `backend/database/session.py:72-80`
-- **描述**: 数据库不可用时返回 `None`，需要每个路由手动检查。
-- **风险**: 遗漏检查的路由会在 `None` 上调用 `.execute()` 导致500错误。
-- **修复**: 改为在中间件层统一处理数据库不可用情况。
-
-### M4. contact表单未实际发送消息
-- **位置**: `frontend/src/app/contact/page.tsx:15-23`
-- **描述**: 联系表单提交后只是设置 `submitted=true` 和显示toast，并未发送到后端API。
-- **风险**: 用户提交的消息永远不会被收到，影响客户服务。
-- **修复**: 已添加提示文字引导用户直接发邮件。建议后续添加后端API处理。
-
-### M5. refresh token验证未检查用户状态
-- **位置**: `backend/api/routers/auth.py:480-495`
-- **描述**: refresh token端点虽然检查用户是否存在，但未检查用户是否被封禁或邮箱是否已验证。
-- **风险**: 理论上被封禁用户仍可通过refresh token获取新的access token。但当前系统无封禁机制，且注册流程不返回token（只有登录返回），实际风险较低。
-
-### M6. 前端 CSP 中 connect-src 包含 localhost
-- **位置**: `frontend/next.config.js:24`
-- **描述**: 生产环境的CSP中 `connect-src` 仍然允许 `http://localhost:*`。
-- **风险**: 攻击者可能通过本地服务绕过CSP策略。
-
-### M7. 隐私政策缺少跨境数据传输披露
-- **位置**: `frontend/src/app/privacy/page.tsx`
-- **描述**: 如果使用海外服务器（如Vercel部署前端）或DeepSeek API（数据传输到第三方），隐私政策缺少跨境数据传输告知。
-- **风险**: 违反PIPL第38-40条关于跨境数据传输的规定。
-- **修复**: 在隐私政策中添加跨境数据传输说明（如适用）。
-
-### M8. 服务条款缺少争议解决条款
-- **位置**: `frontend/src/app/terms/page.tsx`
-- **描述**: 服务条款缺少争议解决/仲裁条款，未说明用户与平台发生纠纷时的处理方式。
-- **风险**: 缺乏明确的争议解决机制，可能导致法律纠纷时无法可依。
-- **修复**: 添加争议解决条款（如：友好协商→仲裁→诉讼）。
-
----
-
-## 🟢 低风险 (Low) — 建议优化
-
-### L1. StarField组件DOM操作可能影响性能
-- **位置**: `frontend/src/components/ui/StarField.tsx`
-- **描述**: 创建150个DOM元素 + 8个连线元素，在低端设备上可能卡顿。
-- **修复**: 考虑使用Canvas或WebGL渲染，或在 `prefers-reduced-motion` 时禁用。
-
-### L2. 邮件模板中仍有 [公司名称] 占位符
-- **位置**: `backend/utils/email.py:57,94`
-- **描述**: 验证邮件和密码重置邮件模板中的运营者名称未填写。
-- **修复**: 与C1一起修复。
-
-### L3. docker-compose中postgres使用默认密码
-- **位置**: `docker-compose.yml:9`
-- **描述**: `POSTGRES_PASSWORD: postgres` 使用弱密码。
-- **风险**: 仅限开发环境使用，但可能被误用于生产。
-
-### L4. 缺少数据库备份策略
-- **描述**: 未发现数据库备份脚本或配置。
-- **修复**: 添加定时备份脚本（pg_dump）或使用云数据库的自动备份。
-
-### L5. 缺少监控和告警
-- **描述**: 无APM、日志聚合、错误追踪配置。
-- **修复**: 集成Sentry或其他错误追踪服务。
-
-### L6. 密码重置后旧refresh token仍有效
-- **位置**: `backend/api/routers/auth.py:528-554`
-- **描述**: 密码重置仅更新密码，未清除旧的refresh token。旧token在过期前仍可使用。
-- **风险**: 如果用户账号被盗用，攻击者在密码重置后仍可使用旧refresh token。
-- **修复**: 密码重置时应添加token版本号机制或黑名单。
-
-### L7. 验证码字段在注册和密码重置之间共享
-- **位置**: `backend/database/models.py:78`, `backend/api/routers/auth.py`
-- **描述**: 注册和密码重置使用同一个 `verification_code` 字段。如果用户同时进行注册验证和密码重置，验证码会互相覆盖。
-- **风险**: 实际场景中概率极低（用户不会同时注册和重置密码），但仍是一个设计缺陷。
-- **修复**: 为不同场景使用不同的验证码字段，或添加验证码用途标识。
-
----
-
-## 📋 法律合规专项检查
-
-### 《生成式人工智能服务管理暂行办法》合规
-
-| 要求 | 状态 | 说明 |
-|------|------|------|
-| AI生成内容标注 | ✅ 已修复 | 报告页面已添加"本内容由AI生成"标注和免责声明 |
-| 用户协议公示 | ✅ | 服务条款已公示 |
-| 内容审核机制 | ⚠️ 需人工 | 需要配置内容安全审核（涉及面相/手相图片） |
-
-### 《个人信息保护法》(PIPL) 合规
-
-| 要求 | 状态 | 说明 |
-|------|------|------|
-| 隐私政策公示 | ✅ | 隐私政策页面已就绪 |
-| 运营者名称 | ❌ 待填写 | [公司名称 / 个人名称] 占位符未填写 |
-| 数据收集告知 | ✅ | 注册时已告知 |
-| 同意机制 | ✅ | 注册时隐私政策同意勾选已就绪 |
-| 年龄限制 | ✅ 已修复 | 注册页已添加18周岁确认勾选 |
-| 账户删除 | ✅ 已修复 | SettingsTab已添加注销账户功能（含密码确认） |
-| 跨境数据传输告知 | ❌ 待补充 | 如使用海外服务器或第三方API需补充 |
-
-### 《电子商务法》合规
-
-| 要求 | 状态 | 说明 |
-|------|------|------|
-| 经营者信息公示 | ❌ 待填写 | 需公示营业执照/ICP备案号 |
-| 退款政策 | ✅ | 退款政策页面已就绪 |
-| 七天无理由退货 | ✅ | 已在退款政策中说明（虚拟商品例外） |
-| 电子合同 | ✅ | 服务条款即电子合同 |
-| 争议解决条款 | ❌ 待补充 | 服务条款中缺少争议解决条款 |
-
-### 《网络安全法》合规
-
-| 要求 | 状态 | 说明 |
-|------|------|------|
-| ICP备案 | ❌ 待获取 | 需要先获取ICP备案号 |
-| 安全等级保护 | ⚠️ 需评估 | 根据用户规模可能需要等保测评 |
-| 日志留存 | ⚠️ 需确认 | 需确保服务器日志留存≥6个月 |
-
-### 其他法律风险
-
-| 风险 | 状态 | 说明 |
-|------|------|------|
-| 宗教/命理内容合规 | ⚠️ 需注意 | 命理分析需声明"仅供娱乐参考"，不构成专业建议。已在免责声明和报告中标注 |
-| 未成年人保护 | ✅ 已修复 | 注册页已添加年龄确认 |
-| 邮件营销退订 | ⚠️ 无 | 目前无邮件营销功能，暂无退订需求。如有营销邮件需添加退订链接 |
-| 商业执照 | ⚠️ 需人工 | 建议在网站底部展示营业执照编号 |
-
----
-
-## ✅ 安全亮点 (做得好的方面)
-
-| 项目 | 状态 |
-|------|------|
-| 密码bcrypt加盐哈希 | ✅ |
-| 邮箱验证码防枚举攻击 | ✅ |
-| 登录失败锁定机制 (5次/15分钟) | ✅ |
-| 密码强度要求 (8位+大小写+数字) | ✅ |
-| 前后端密码校验对齐 | ✅ |
-| 验证码timing-safe比较 | ✅ |
-| 邮箱验证才能登录 | ✅ |
-| GDPR账户删除 | ✅ |
-| HTTP安全头 (HSTS, X-Frame等) | ✅ |
-| CSRF防护 (X-Frame-Options) | ✅ |
-| .gitignore排除敏感文件 | ✅ |
-| SQL注入防护 (SQLAlchemy ORM) | ✅ |
-| XSS防护 (React自动转义) | ✅ |
-| 文件上传大小限制 (10MB) | ✅ |
-| 速率限制 (全局+认证端点+过期清理) | ✅ |
-| 隐私政策/服务条款/免责声明/退款政策 | ✅ |
-| 隐私政策同意勾选 | ✅ |
-| 多语言支持 (zh/en) | ✅ |
-| CORS限制方法和请求头 | ✅ |
-| Docker非root运行 | ✅ |
-| CSP生产环境移除unsafe-eval | ✅ |
-| AI生成内容标注 | ✅ |
-| 年龄验证（18周岁确认） | ✅ |
-| 付款金额服务端验证 | ✅ |
-| 支付签名验证 (timing-safe) | ✅ |
-| 订阅取消功能 | ✅ |
-| 账户注销功能（含密码确认） | ✅ |
-
----
-
-## 📋 本次检查修复汇总 (2026-05-16)
-
-| 编号 | 修复项 | 文件 | 说明 |
-|------|--------|------|------|
-| H8 | SettingsTab密码校验 | `SettingsTab.tsx` | 密码最小长度从6改为8 |
-| H9 | 添加账户注销UI | `SettingsTab.tsx` | 新增注销账户按钮和确认弹窗 |
-| i18n | 账户注销翻译 | `zh.ts`, `en.ts` | 添加7个注销相关翻译键 |
-
-### 本次检查验证通过的项目
-
-| 检查项 | 结果 |
-|--------|------|
-| TypeScript编译 | ✅ 零错误 |
-| 用户完整流程 | ✅ 注册→验证→登录→使用→付费→删除 全链路正常 |
-| 前后端API对齐 | ✅ ReadingListItem、OrderListItem字段一致 |
-| 所有页面路由 | ✅ 40个页面路由均有对应文件 |
-| i18n翻译完整性 | ✅ zh/en翻译键数一致 |
-| 无重复文件 | ✅ 无发现 |
-| 无var声明 | ✅ TypeScript文件中无var |
-| 无敏感信息泄露 | ✅ 密钥均从环境变量读取 |
-| 删除Account API已连接 | ✅ SettingsTab已调用deleteAccount函数 |
-
----
-
-## 📋 上线前必须完成的检查清单
-
-### 代码修复（已完成）
-- [x] ~~**C4**: 修复前后端密码校验不一致~~ → `register/page.tsx`
-- [x] ~~**H1**: 更新JWT_SECRET_KEY默认值检查~~ → `config.py`
-- [x] ~~**H2**: 统一所有邮箱域名~~ → `contact/page.tsx`
-- [x] ~~**H3**: Docker添加非root用户~~ → `backend/Dockerfile`
-- [x] ~~**H4**: 收紧CORS配置~~ → `main.py`
-- [x] ~~CSP生产环境移除 unsafe-eval~~ → `next.config.js`
-- [x] ~~注册页interval组件卸载清理~~ → `register/page.tsx`
-- [x] ~~测试图片/脚本添加到.gitignore~~ → `.gitignore`
-- [x] ~~**H7**: 修复订阅取消为空操作~~ → `payments.py`
-- [x] ~~**AI标注**: 添加AI生成内容标注~~ → `reading/[id]/page.tsx`
-- [x] ~~**年龄验证**: 添加18周岁确认~~ → `register/page.tsx`
-- [x] ~~**i18n**: 修复密码提示6→8字符~~ → `zh.ts`, `en.ts`
-- [x] ~~**M4**: 联系表单添加邮件引导~~ → `contact/page.tsx`
-- [x] ~~**H8**: SettingsTab密码校验对齐~~ → `SettingsTab.tsx`
-- [x] ~~**H9**: 添加账户注销功能~~ → `SettingsTab.tsx`
-- [x] ~~**TypeScript**: 修复所有16个类型错误~~ → 多文件
-
-### 需要人工处理（代码无法自动修复）
-- [ ] **C1**: 填写运营者名称（隐私政策、服务条款、免责声明、邮件模板）
-- [ ] **C2**: 获取并展示ICP备案号（Footer已有占位符 `[粤ICP备XXXXXXXX号]`）
-- [ ] **H5**: 确保SMTP已正确配置
-- [ ] **M7**: 在隐私政策中添加跨境数据传输披露（如适用）
-- [ ] **M8**: 在服务条款中添加争议解决条款
-- [ ] 确认已更换所有默认密钥 (SECRET_KEY, JWT_SECRET_KEY)
-- [ ] 确认DEBUG=false
-- [ ] 确认数据库已迁移到PostgreSQL
-- [ ] 确认支付webhook已配置
-- [ ] 配置HTTPS/SSL证书
-- [ ] 评估是否需要等级保护测评
-- [ ] 确保服务器日志留存≥6个月
-
----
-
-## ✅ 最终安全验证结果 (2026-05-16)
-
-### 已验证通过的安全项
-
-| 检查项 | 状态 | 说明 |
-|--------|------|------|
-| SQL注入防护 | ✅ | SQLAlchemy ORM + 迁移脚本使用硬编码列名 |
-| XSS防护 | ✅ | React自动转义 + dangerouslySetInnerHTML仅用于静态JSON-LD |
-| CSRF防护 | ✅ | X-Frame-Options: SAMEORIGIN |
-| 密码安全 | ✅ | bcrypt加盐哈希 + 8位大小写数字 + 前后端对齐（含SettingsTab） |
-| JWT安全 | ✅ | HS256 + 30min过期 + 算法绑定 |
-| 认证安全 | ✅ | 邮箱验证 + 登录锁定 + timing-safe比较 |
-| 敏感文件保护 | ✅ | .gitignore覆盖 .env/.db/.jpg/test scripts |
-| 错误信息泄露 | ✅ | 全局异常处理返回通用消息 |
-| SSRF防护 | ✅ | 外部HTTP调用使用硬编码URL |
-| 反序列化安全 | ✅ | 无pickle/yaml.load/marshal使用 |
-| 速率限制 | ✅ | 全局30req/min + 认证端点5req/min + 内存清理 |
-| CORS安全 | ✅ | 限制HTTP方法和请求头 |
-| CSP安全 | ✅ | 生产环境移除unsafe-eval和localhost |
-| Docker安全 | ✅ | 非root用户运行 |
-| 文件上传 | ✅ | 10MB限制 + 类型检查 |
-| HTTPS | ✅ | HSTS preloaded + max-age 2年 |
-| AI内容标注 | ✅ | 报告页已添加AI生成内容标注 |
-| 年龄验证 | ✅ | 注册页已添加18周岁确认 |
-| 付款金额验证 | ✅ | 服务端价格校验，客户端不可篡改 |
-| 支付签名 | ✅ | 微信/支付宝签名验证 + timing-safe比较 |
-| 订阅管理 | ✅ | 取消订阅功能已修复，支持到期自动降级 |
-| 账户注销 | ✅ | SettingsTab已添加注销功能，含密码确认和弹窗 |
-| TypeScript类型安全 | ✅ | 编译零错误 |
-| 前后端数据对齐 | ✅ | ReadingListItem/OrderListItem字段完全匹配 |
-| 隐私合规 | ⚠️ | 政策已就绪，运营者名称待填写，跨境传输待补充 |
-| ICP备案 | ⚠️ | 占位符已就绪，备案号待获取 |
-
-### 安全评分: 92/100
-- 扣分项：法律合规信息待填写(5分)、内存存储待Redis替换(3分)
-
-### 与上次评分对比 (90→92)
-- **+2分**: 修复SettingsTab密码校验不一致 + 添加账户注销功能
+﻿Coding Standards Audit / Risk Report
+=====================================
+Project: OmniFate / Destiny Platform (khanfate.com)
+Date: 2026-07-11
+Scope: Frontend (Next.js 15.5, React 19, TypeScript) + Backend (Python 3.9, FastAPI)
+------------------------------------------------------------
+
+A-1 [CRITICAL] JWT_SECRET_KEY may be empty in production
+  File: backend/config.py
+  config.py defaults JWT_SECRET_KEY: str = "" with no runtime validation.
+  An empty secret key means JWT tokens can be forged trivially.
+  Fix: add a validation check that raises on empty SECRET_KEY in production, or
+  set a strong random value in the .env.production file.
+
+A-2 [HIGH] No Redis — token blacklist lost on every restart
+  Backend log: "REDIS_URL not set — token blacklist uses in-memory storage
+  (lost on restart)."
+  Every PM2 restart invalidates the in-memory blacklist, allowing all
+  previously-logged-out sessions to be reused.
+  Fix: configure REDIS_URL in production .env.
+
+A-3 [HIGH] Rate limiting ineffective without Redis
+  Backend log: "PRODUCTION WARNING: REDIS_URL is not set. Rate limiting uses
+  in-memory per-worker storage — an attacker can bypass all rate limits by
+  hitting different workers."
+  Combined with PM2 running a single process this is partially mitigated,
+  but a server restart resets all counters.
+  Fix: same as A-2 — configure REDIS_URL.
+
+A-4 [HIGH] CSP contains "unsafe-inline" and "unsafe-eval"
+  File: frontend/next.config.js (Content-Security-Policy header)
+  These directives defeat script-injection protection. unsafe-inline is
+  needed for Next.js' own inline scripts, but unsafe-eval can be removed
+  in most cases.
+
+A-5 [HIGH] Server allows root SSH login with password
+  The server at 47.250.166.40 accepts password-based SSH for root.
+  Password auth is vulnerable to brute-force and credential theft.
+  Fix: disable PasswordAuthentication in sshd_config, use SSH keys only.
+
+A-6 [MEDIUM] nginx proxy_hide_header Cache-Control on HTML pages
+  File: /etc/nginx/conf.d/frontend.conf
+  The "proxy_hide_header Cache-Control" directive strips Next.js's
+  no-cache headers from the upstream response, then nginx adds its own.
+  If Cloudflare settings override the replacement header, HTML could be
+  cached and serve stale chunk references.
+  Impact: after deploy, users hitting a cached HTML page may get
+  ChunkLoadError 404s for old JS/CSS hashes.
+
+A-7 [MEDIUM] Server-side env potentially exposed via client bundle
+  The next.config.js has BACKEND_URL as a build-time env. Any
+  NEXT_PUBLIC_* variables in .env.local would be bundled client-side.
+  Verify no secrets are in NEXT_PUBLIC_* vars.
+
+A-8 [MEDIUM] Git global config has http.sslverify=false
+  SSL verification is globally disabled for git. This means git operations
+  cannot detect MITM attacks on GitHub connections.
+  Fix: git config --global --unset http.sslverify
+
+A-9 [LOW] ALLOWED_ORIGINS includes localhost in DEBUG mode
+  File: backend/config.py
+  Localhost origins in ALLOWED_ORIGINS are only allowed in debug mode,
+  but the list is not narrowed to specific ports.
+
+A-10 [LOW] 4 moderate npm vulnerabilities
+  npm audit reports 4 moderate-severity vulnerabilities.
+  Run "npm audit fix" to address.
+
+B. Code Quality Issues
+------------------------------------------------------------
+
+B-1 [MEDIUM] Dead root globals.css file
+  File: frontend/src/app/globals.css
+  Not imported by any file. The [locale]/globals.css is the active one.
+  This causes confusion about which file to edit.
+  Fix: delete frontend/src/app/globals.css.
+
+B-2 [MEDIUM] CSS style system had duplicate/hardcoded color values
+  (Partially fixed in recent session) Additional hardcoded gold colors
+  remain in:
+  - frontend/src/app/[locale]/layout.tsx (inline border style)
+  - frontend/src/app/[locale]/reading/[id]/page.tsx (gradient)
+  - frontend/src/app/[locale]/shop/page.tsx (gradient)
+  - frontend/src/components/DailyDashboard.tsx (score color map)
+
+B-3 [LOW] gitignore missing entries
+  tmp-chrome-login-final/ and plink.exe are not in .gitignore.
+  These files were almost committed in a previous session.
+
+B-4 [LOW] deploy.sh uses Linux paths (Windows compatibility)
+  The deploy.sh script assumes a Linux environment, which is correct for
+  the server but not usable for local Windows testing.
+
+B-5 [LOW] Proxied server password in command history
+  The SSH password "PINGping815!" has been passed as a plink command-line
+  argument. This is visible in Windows process lists and shell history.
+  Fix: use SSH key authentication instead.
+
+C. Configuration & Deployment
+------------------------------------------------------------
+
+C-1 [MEDIUM] No automated backup strategy visible
+  The database (PostgreSQL) and uploaded assets have no visible backup
+  configuration. If the disk fails, all user data is lost.
+
+C-2 [LOW] No .env.local on production server
+  Only .env.production exists. This is acceptable but any values that
+  should differ between staging and production must go in .env.production.
+
+C-3 [LOW] No pm2-logrotate configured
+  PM2 logs grow unbounded. /root/.pm2/logs/ will fill disk over time.
+  Install pm2-logrotate or configure log rotation.
+
+D. Dependency & Build
+------------------------------------------------------------
+
+D-1 [LOW] 4 moderate npm vulnerabilities
+  Run "npm audit fix" in frontend directory to auto-fix.
+
+D-2 [LOW] Node.js v20.20.2 on server (latest v20 is ~v20.18)
+  Minor version behind latest; upgrade unlikely to break compatibility.
+
+D-3 [INFO] 497 frontend packages, 173 funding packages
+  Many dependencies; each is a potential supply-chain risk.
+  Periodically audit with npm audit --audit-level=high.

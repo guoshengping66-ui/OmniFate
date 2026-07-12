@@ -23,7 +23,7 @@ interface AppProvidersProps {
 }
 
 export function AppProviders({ children, messages, locale, initialRegion }: AppProvidersProps) {
-  // Post-React version check â safe for auth state because it runs AFTER
+  // Post-React version check ÃÂ¢ÃÂÃÂ safe for auth state because it runs AFTER
   // AuthProvider has mounted and restored cached user from sessionStorage.
   // Replaces the inline pre-React version check which could trigger a reload
   // before AuthProvider mounts, causing auth state to flash as logged-out.
@@ -36,8 +36,8 @@ export function AppProviders({ children, messages, locale, initialRegion }: AppP
           <AuthProvider>
             <ThemeProvider>
               <CartProviderWithAuth>
-              {children}
-            </CartProviderWithAuth>
+                {children}
+              </CartProviderWithAuth>
             </ThemeProvider>
           </AuthProvider>
         </LanguageProvider>
