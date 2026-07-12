@@ -1,4 +1,5 @@
 "use client"
+export const dynamic = "force-dynamic"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Loader2, Plus, TrendingUp, TrendingDown, BarChart3, Calendar } from "lucide-react"

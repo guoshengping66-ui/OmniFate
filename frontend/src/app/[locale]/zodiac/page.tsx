@@ -1,4 +1,5 @@
 "use client"
+export const dynamic = "force-dynamic"
 import Link from "next/link"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs"

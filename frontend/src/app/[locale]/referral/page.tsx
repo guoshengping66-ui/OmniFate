@@ -1,4 +1,5 @@
 "use client"
+export const dynamic = "force-dynamic"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Loader2, Copy, Check, Users, Gift, Share2, MessageCircle, ExternalLink, X } from "lucide-react"

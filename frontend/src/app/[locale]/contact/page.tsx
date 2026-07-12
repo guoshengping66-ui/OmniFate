@@ -1,4 +1,5 @@
 "use client"
+export const dynamic = "force-dynamic"
 import { useState } from "react"
 import { Mail, MessageCircle, Send, CheckCircle, Loader2 } from "lucide-react"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"

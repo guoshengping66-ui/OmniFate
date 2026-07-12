@@ -1,4 +1,5 @@
 "use client"
+export const dynamic = "force-dynamic"
 import { Suspense, useEffect, useState, useMemo, useCallback, lazy } from "react"
 import { useSearchParams } from "next/navigation"
 import { Loader2, Sparkles, Gem, ClipboardCheck, ShieldCheck, Truck } from "lucide-react"
